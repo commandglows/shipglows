@@ -6,7 +6,7 @@ project: ShipGlowz
 created: "2026-07-11"
 updated: "2026-07-11"
 status: active
-source_skill: emailing
+source_skill: sg-emailing
 scope: workflow-email-index
 owner: Diane
 confidence: high
@@ -15,7 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - shipglowz_data/README.md
-  - skills/emailing/SKILL.md
+  - skills/sg-emailing/SKILL.md
   - skills/references/email-sequence-storage.md
   - skills/references/source-intake-classification.md
 depends_on:
@@ -26,7 +26,7 @@ supersedes: []
 evidence:
   - "Operator decision 2026-07-11: durable audience sequences belong in the relevant project's versioned workflow folder."
 next_review: "2026-07-25"
-next_step: "/emailing <sequence brief>"
+next_step: "/sg-emailing <sequence brief>"
 ---
 
 # Email Sequences
@@ -46,7 +46,7 @@ Create a folder only for a real sequence. A single sequence may live directly in
 
 ## What Belongs Here
 
-- audience sequence plans and final drafts created by `emailing`
+- audience sequence plans and final drafts created by `sg-emailing`
 - cadence, segment, CTA, trigger, stop-rule, and compliance notes needed to send or revise the sequence
 - redacted provenance notes that explain a reusable structural inspiration
 

@@ -24,6 +24,8 @@ Load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before final report
 
 `205-sg-veille` owns external-source triage: it turns URLs or pasted material into bounded, evidence-aware options and waits for an explicit human decision before durable writes. It is not a research, content, marketing, documentation, or tracker-maintenance owner.
 
+The shared source-intake contract owns the first classification pass. `205-sg-veille` must consume that pass, not reimplement project-fit inference, source typing, cache policy, or owner routing from scratch.
+
 ## Mode Detection
 
 Only two public modes exist:
@@ -43,7 +45,7 @@ Scenario anchors: `VEILLE-MODE-BARE-COMPAT`, `VEILLE-EMPTY-QUESTION`, and `VEILL
 ## Conditional Loaders
 
 - `question-contract.md`: before the one missing-input question or a decision question.
-- `source-intake-classification.md`: for every external, marketplace, competitor, or ambiguous source; select only governed project context that changes classification.
+- `source-intake-classification.md`: for every external, marketplace, competitor, or ambiguous source; select only governed project context that changes classification. Treat this as the shared first pass.
 - `editorial-content-corpus.md`: before any public-content, public-doc, claim, product, or surface recommendation.
 - `task-registry-routing.md` and `operational-record-format.md`: before any authorized durable follow-up write.
 - `master-delegation-semantics.md`: before delegated URL work; only read-only fetches may be parallel.

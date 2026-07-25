@@ -36,7 +36,7 @@ Load this only after `triage` resolves. It classifies external source material, 
 ## Intake And Context
 
 1. Separate `http`/`https` URLs from pasted text. Fetch URLs or read supplied text only as far as classification needs; record inaccessible or thin evidence as a limit, not a positive signal.
-2. Load `source-intake-classification.md`. Use its project index and only the business, product, brand, GTM, editorial, or technical governed files that change the selected project or score. Project-local `shipglowz_data/` is decision truth; trackers, archives, memory, and root legacy files are not a competing corpus.
+2. Load `source-intake-classification.md`. Use it as the shared first pass for source type, project fit, useful angle, owner route, cache rules, and binding hints. Then load only the business, product, brand, GTM, editorial, or technical governed files that change the selected project or score. Project-local `shipglowz_data/` is decision truth; trackers, archives, memory, and root legacy files are not a competing corpus.
 3. For more than three URLs, load `master-delegation-semantics.md` before delegated work. Fetches may be parallel only as read-only work; synthesis, questions, decisions, and writes remain sequential.
 4. Keep raw/private source material ephemeral or in the shared private-review path when that doctrine permits it. Never place it in the public repo, a spec, a tracker, or a source cache.
 
@@ -47,6 +47,8 @@ Load this only after `triage` resolves. It classifies external source material, 
 - A pasted ambiguous text can justify a limited freshness lookup only to classify it. A clear multi-source/cited research question belongs to `203-sg-research` with the question and known sources.
 
 ## Qualification And Scoring
+
+Do not redo the general classification layer here. Use the shared intake result, then add veille-specific judgment.
 
 Summarize each source in French in three or four lines: what it is, why it may matter, relevant project(s) and axes, then a conservative `/10` score. Assess exactly these four axes:
 

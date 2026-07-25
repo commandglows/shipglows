@@ -47,7 +47,7 @@ next_step: "/300-sg-docs update project-import checklist"
 ## After Import
 
 - [ ] Decide whether downstream routing is needed
-- [ ] Route to `emailing`, `007-sg-content repurpose <source>`, `300-sg-docs`, `203-sg-research`, `009-sg-marketing market`, or `205-sg-veille` if applicable
+- [ ] Route to `sg-emailing`, `007-sg-content repurpose <source>`, `300-sg-docs`, `203-sg-research`, `009-sg-marketing market`, or `205-sg-veille` if applicable
 - [ ] Confirm the file remains short and reviewable
 
 ## Update Pass

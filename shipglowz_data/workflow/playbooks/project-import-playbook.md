@@ -124,7 +124,7 @@ Include:
 
 If the source is actually for:
 
-- audience sequence work -> route to `emailing`
+- audience sequence work -> route to `sg-emailing`
 - public repurposing -> route to `007-sg-content repurpose <source>`
 - doc/governance updates -> route to `300-sg-docs`
 - market or competitor analysis -> route to `203-sg-research`, `009-sg-marketing market`, or `205-sg-veille`

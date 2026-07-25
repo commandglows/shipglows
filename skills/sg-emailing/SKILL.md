@@ -1,10 +1,8 @@
 ---
-name: emailing
+name: sg-emailing
 description: "Plan, draft, route, and audit audience email sequences."
 argument-hint: [sequence brief | audience brief | draft | audit]
 ---
-
-Compatibility alias. Canonical skill name: `sg-emailing`.
 
 Primary artifact type: `master-workflow`.
 
@@ -20,7 +18,7 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 
 ## Mission
 
-`emailing` owns audience email sequences: planning, drafting, reviewing, and routing sequence work with clear audience, cadence, CTA, and claim consequences.
+`sg-emailing` owns audience email sequences: planning, drafting, reviewing, and routing sequence work with clear audience, cadence, CTA, and claim consequences.
 
 ## Contract References
 
@@ -68,7 +66,7 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 Validate this skill after edits with:
 
 ```bash
-rg -n "emailing|one-to-one|sequence|audience|cadence|CTA|opt-out|claim|email-sequence-storage" skills/emailing/SKILL.md
+rg -n "sg-emailing|one-to-one|sequence|audience|cadence|CTA|opt-out|claim|email-sequence-storage" skills/sg-emailing/SKILL.md
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --skill emailing
+tools/shipglowz_sync_skills.sh --check --skill sg-emailing
 ```
