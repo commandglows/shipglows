@@ -35,20 +35,15 @@ Always load shared references only when their gate applies. Load skill-local ref
 
 - `references/audit-master-workflow.md`: Master audit planning, domain routing, parallel/read-only audit rules, consolidation, tracking, and fix handoff details.
 - `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`: required before creating or mutating audit or task operational records in `AUDIT_LOG.md` or `TASKS.md`.
+- `$SHIPFLOW_ROOT/skills/references/skill-refactor-verifier.md`: required for audit-skill compaction or process-migration checks.
 
 ## Mode Detection
 
 Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`: bounded professional scope, never shortcut quality.
 
-- `400-sg-audit` answers one routing question:
+`400-sg-audit` answers one routing question: what audit scope is actually needed here, and should we coordinate multiple domains or route directly to one specialist audit owner?
 
-```text
-What audit scope is actually needed here, and should we coordinate multiple domains or route directly to one specialist audit owner?
-```
-
-- GLOBAL MODE: load `references/audit-master-workflow.md` to plan and coordinate cross-domain or cross-project audits.
-- PROJECT MODE: load `references/audit-master-workflow.md` before launching domain audits, consolidation, or fix handoffs.
-- Use specialist `400-sg-audit-*` skills directly when one domain is obvious.
+Use the master workflow for global or project-level coordination, and route directly to specialist audit skills when one domain is obvious.
 
 Keep the boundary explicit: `400-sg-audit` owns broad audit planning, domain selection, bounded read-only fan-out, and consolidation. It does not need to stay in the loop when one specialist audit already clearly owns the question.
 
@@ -83,3 +78,5 @@ Validate this skill after edits with:
 - `rg -n "Trace category|Process role|Chantier Potential|Report Modes|GLOBAL MODE|PROJECT MODE|findings|parallel|references/" skills/400-sg-audit/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
 - `tools/shipglowz_sync_skills.sh --check --all`
+
+For compaction or refactor work, also run the verifier reference before closing the task.

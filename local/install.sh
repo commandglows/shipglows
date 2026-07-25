@@ -118,66 +118,41 @@ echo ""
 echo -e "${BLUE}3. Ajout des alias shell...${NC}"
 
 ALIAS_BLOCK="
-# ShipGlowz - Alias pour tunnels SSH
-alias urls='$SCRIPT_DIR/local.sh'
+# ShipGlowz - Alias tunnels
+_shipglowz_remote_user() {
+    local cfg=\"\${SHIPGLOWZ_LOCAL_CONFIG_DIR:-\$HOME/.shipglowz}/current_connection\"
+    [ -f \"\$cfg\" ] || return 1
+    local val
+    val=\"\$(grep -E '^[^|]+' \"\$cfg\" 2>/dev/null | head -n1)\"
+    case \"\$val\" in
+        *@*) printf '%s' \"\${val%%@*}\" ;;
+        *) printf '%s' 'ubuntu' ;;
+    esac
+}
+
+_shipglowz_remote_host() {
+    local cfg=\"\${SHIPGLOWZ_LOCAL_CONFIG_DIR:-\$HOME/.shipglowz}/current_connection\"
+    [ -f \"\$cfg\" ] || return 1
+    local val
+    val=\"\$(grep -E '^[^|]+' \"\$cfg\" 2>/dev/null | head -n1)\"
+    case \"\$val\" in
+        *@*) printf '%s' \"\${val#*@}\" ;;
+        *) printf '%s' \"\$val\" ;;
+    esac
+}
+
 alias tunnel='$SCRIPT_DIR/local.sh'
-alias shipglowz-mcp-login='$SCRIPT_DIR/mcp-login.sh'
-alias shipglowz-clerk-login='$SCRIPT_DIR/clerk-login.sh'
-alias shipglowz-blacksmith-login='$SCRIPT_DIR/blacksmith-login.sh'
-alias shipglowz-turso-login='$SCRIPT_DIR/turso-login.sh'
-alias shipglowz-turso-ssh='$SCRIPT_DIR/turso-ssh.sh'
-alias shipflow-mcp-login='$SCRIPT_DIR/mcp-login.sh'
-alias shipflow-clerk-login='$SCRIPT_DIR/clerk-login.sh'
-alias shipflow-blacksmith-login='$SCRIPT_DIR/blacksmith-login.sh'
-alias shipflow-turso-login='$SCRIPT_DIR/turso-login.sh'
-alias turso-login='$SCRIPT_DIR/turso-login.sh'
-alias shipflow-turso-ssh='$SCRIPT_DIR/turso-ssh.sh'
-alias turso-ssh='$SCRIPT_DIR/turso-ssh.sh'
+alias l='$SCRIPT_DIR/local.sh'
+alias m='mosh \"\$(_shipglowz_remote_user)@\$(_shipglowz_remote_host)\" -- bash -l -c \"tmux a || tmux\"'
+alias sss='ssh -tt \"\$(_shipglowz_remote_user)@\$(_shipglowz_remote_host)\" \"tmux new-session -A -s 0\"'
+alias root='mosh root@\"\$(_shipglowz_remote_host)\" -- bash -l -c \"tmux a || tmux\"'
 "
 
-if grep -Eq "# Ship(Flow|Glowz) - Alias pour tunnels SSH" "$SHELL_RC" 2>/dev/null; then
-    echo -e "${YELLOW}   ⚠ Alias déjà présents dans $SHELL_RC${NC}"
-    if ! grep -q "alias shipglowz-mcp-login=" "$SHELL_RC" 2>/dev/null; then
-        echo "alias shipglowz-mcp-login='$SCRIPT_DIR/mcp-login.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}   ✓ Alias shipglowz-mcp-login ajouté à $SHELL_RC${NC}"
-    fi
-    if ! grep -q "alias shipglowz-clerk-login=" "$SHELL_RC" 2>/dev/null; then
-        echo "alias shipglowz-clerk-login='$SCRIPT_DIR/clerk-login.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}   ✓ Alias shipglowz-clerk-login ajouté à $SHELL_RC${NC}"
-    fi
-    if ! grep -q "alias shipglowz-blacksmith-login=" "$SHELL_RC" 2>/dev/null; then
-        echo "alias shipglowz-blacksmith-login='$SCRIPT_DIR/blacksmith-login.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}   ✓ Alias shipglowz-blacksmith-login ajouté à $SHELL_RC${NC}"
-    fi
-    if ! grep -q "alias shipflow-blacksmith-login=" "$SHELL_RC" 2>/dev/null; then
-        echo "alias shipflow-blacksmith-login='$SCRIPT_DIR/blacksmith-login.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}   ✓ Alias legacy shipflow-blacksmith-login ajouté à $SHELL_RC${NC}"
-    fi
-    if ! grep -q "alias shipflow-clerk-login=" "$SHELL_RC" 2>/dev/null; then
-        echo "alias shipflow-clerk-login='$SCRIPT_DIR/clerk-login.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}   ✓ Alias legacy shipflow-clerk-login ajouté à $SHELL_RC${NC}"
-    fi
-    if ! grep -q "alias shipglowz-turso-login=" "$SHELL_RC" 2>/dev/null; then
-        echo "alias shipglowz-turso-login='$SCRIPT_DIR/turso-login.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}   ✓ Alias shipglowz-turso-login ajouté à $SHELL_RC${NC}"
-    fi
-    if ! grep -q "alias shipflow-turso-login=" "$SHELL_RC" 2>/dev/null; then
-        echo "alias shipflow-turso-login='$SCRIPT_DIR/turso-login.sh'" >> "$SHELL_RC"
-        echo "alias turso-login='$SCRIPT_DIR/turso-login.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}   ✓ Alias legacy shipflow-turso-login ajouté à $SHELL_RC${NC}"
-    fi
-    if ! grep -q "alias shipglowz-turso-ssh=" "$SHELL_RC" 2>/dev/null; then
-        echo "alias shipglowz-turso-ssh='$SCRIPT_DIR/turso-ssh.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}   ✓ Alias shipglowz-turso-ssh ajouté à $SHELL_RC${NC}"
-    fi
-    if ! grep -q "alias shipflow-turso-ssh=" "$SHELL_RC" 2>/dev/null; then
-        echo "alias shipflow-turso-ssh='$SCRIPT_DIR/turso-ssh.sh'" >> "$SHELL_RC"
-        echo "alias turso-ssh='$SCRIPT_DIR/turso-ssh.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}   ✓ Alias legacy shipflow-turso-ssh ajouté à $SHELL_RC${NC}"
-    fi
+if grep -Eq "# ShipGlowz - Alias tunnels" "$SHELL_RC" 2>/dev/null; then
+    echo -e "${YELLOW}   ⚠ Alias tunnels déjà présents dans $SHELL_RC${NC}"
 else
     echo "$ALIAS_BLOCK" >> "$SHELL_RC"
-    echo -e "${GREEN}   ✓ Alias ajoutés à $SHELL_RC${NC}"
+    echo -e "${GREEN}   ✓ Alias tunnels ajoutés à $SHELL_RC${NC}"
 fi
 
 # 4. Rendre les scripts exécutables
