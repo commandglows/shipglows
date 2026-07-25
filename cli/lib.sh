@@ -6342,9 +6342,9 @@ detect_dev_command() {
                     ;;
                 astro)
                     if [ "$pm_cmd" = "pnpm" ]; then
-                        echo "pnpm exec astro dev --port \$PORT"
+                        echo "pnpm exec astro dev --port \$PORT --force"
                     else
-                        echo "$pm_cmd dev -- --port \$PORT"
+                        echo "$pm_cmd dev -- --port \$PORT --force"
                     fi
                     ;;
                 next)

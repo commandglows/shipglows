@@ -4,6 +4,16 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 ---
 
+## 2026-07-25 — 400-sg-audit
+
+**Added:** canonical domain-to-playbook mapping for broad code, design, copy, SEO, GTM, translation, dependency, and performance audit fan-out.
+
+**Updated:** removed legacy Codex runtime paths and pre-compaction `PROJECT MODE`/`Tracking` assumptions; read-only workers now leave all project files unchanged while the master owns consolidated records.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed for this local skill-contract migration.
+
 ## 2026-07-17 — 205-sg-veille
 
 **Added:** compact two-mode dispatcher, focused triage and persistence/reporting playbooks, plus deterministic scenario-first contract proof.

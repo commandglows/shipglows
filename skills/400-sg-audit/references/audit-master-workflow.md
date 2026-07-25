@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.2.0"
+artifact_version: "0.2.1"
 project: ShipGlowz
 created: "2026-05-16"
-updated: "2026-06-11"
+updated: "2026-07-25"
 status: draft
 source_skill: 102-sg-start
 scope: 400-sg-audit-audit-master-workflow
@@ -24,8 +24,9 @@ supersedes: []
 evidence:
   - "Extracted from skills/400-sg-audit/SKILL.md during Compact ShipGlowz Skill Instructions Phase 3."
   - "2026-06-11 added design-system authority as a systemic UI audit concern."
-next_review: "2026-06-16"
-next_step: "/103-sg-verify Compact ShipGlowz Skill Instructions Phase 3"
+  - "2026-07-25 replaced legacy runtime paths and pre-compaction checklist assumptions with canonical skill/playbook routing."
+next_review: "2026-08-25"
+next_step: "/103-sg-verify 400-sg-audit master workflow routing"
 ---
 
 # Audit Master Workflow
@@ -124,15 +125,16 @@ Only launch (project × domain) pairs where: user selected the project AND user 
 
 ### Step 3: Read domain checklists
 
-Read each selected domain skill to get their PROJECT MODE checklists:
-- `$HOME/.codex/skills/010-sg-technical/references/technical-audit-playbook.md`
-- `$HOME/.codex/skills/006-sg-design/SKILL.md` (use `audit ui` mode)
-- `$HOME/.codex/skills/009-sg-marketing/SKILL.md` (`copy` mode)
-- `$HOME/.codex/skills/406-sg-seo/SKILL.md`
-- `$HOME/.codex/skills/009-sg-marketing/SKILL.md` (`gtm` mode)
-- `$HOME/.codex/skills/407-sg-audit-translate/SKILL.md`
-- `$HOME/.codex/skills/010-sg-technical/references/dependency-audit-playbook.md`
-- `$HOME/.codex/skills/010-sg-technical/references/performance-audit-playbook.md`
+Read the selected skill's activation contract, then load its exact audit playbook or audit-mode section. Do not assume a generic `PROJECT MODE` or `Tracking` heading exists after skill compaction.
+
+- Code: `$SHIPFLOW_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPFLOW_ROOT/skills/010-sg-technical/references/technical-audit-playbook.md`
+- Design: `$SHIPFLOW_ROOT/skills/006-sg-design/SKILL.md`, then its `audit ui` mapping in `$SHIPFLOW_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` and `$SHIPFLOW_ROOT/skills/006-sg-design/references/design-audit-playbook.md`
+- Copy: `$SHIPFLOW_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPFLOW_ROOT/skills/009-sg-marketing/references/copy-audit-playbook.md`
+- SEO: `$SHIPFLOW_ROOT/skills/406-sg-seo/SKILL.md`, then `$SHIPFLOW_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md`
+- GTM: `$SHIPFLOW_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPFLOW_ROOT/skills/009-sg-marketing/references/gtm-audit-playbook.md`
+- Translate: `$SHIPFLOW_ROOT/skills/407-sg-audit-translate/SKILL.md` and its selected audit section
+- Deps: `$SHIPFLOW_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPFLOW_ROOT/skills/010-sg-technical/references/dependency-audit-playbook.md`
+- Perf: `$SHIPFLOW_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPFLOW_ROOT/skills/010-sg-technical/references/performance-audit-playbook.md`
 
 ### Step 4: Launch ALL agents
 
@@ -142,9 +144,9 @@ Example: if 9 projects need Design audit and 5 need GTM, that's 14 agents for th
 
 Each agent: `subagent_type: "general-purpose"`. Each agent prompt MUST include:
 1. `cd [project-path]` then read the project's `CLAUDE.md`
-2. The complete **PROJECT MODE** section from the corresponding domain skill
-3. The **Tracking** section from that domain skill
-4. Rule: **read-only analysis** — no code fixes, only update AUDIT_LOG.md and TASKS.md
+2. The selected skill's activation contract and the complete matching audit playbook or audit-mode section
+3. The selected skill's report and chantier-tracking requirements when they apply; do not search for an obsolete generic `Tracking` heading
+4. Rule: **read-only analysis** — do not modify code, documentation, audit logs, task trackers, or any other project files
 5. Today's absolute date and the exact project path / scope under review
 6. Instruction: identify linked systems, consumers, and downstream consequences before scoring anything
 7. Instruction: do not ask follow-up questions; if context is missing, state assumptions / confidence limits and continue
@@ -256,7 +258,7 @@ For each agent, provide this prompt structure:
 ```
 You are performing a [DOMAIN] audit of [scope: file path OR full project] in the project at [current directory].
 
-[Paste the FULL audit checklist for that domain from the corresponding skill — FILE MODE/PAGE MODE section if a file argument was given, PROJECT MODE section if no argument]
+[Paste the complete audit instructions from the selected skill's mapped playbook or audit-mode section. Use the file/page scope when one was provided; otherwise use the project scope. Do not assume pre-compaction `FILE MODE`, `PAGE MODE`, or `PROJECT MODE` headings exist.]
 
 Project CLAUDE.md context:
 [Include the CLAUDE.md content from this skill's context]
@@ -277,8 +279,8 @@ IMPORTANT:
 ```
 
 **Critical rules for agent prompts:**
-- Copy the FULL checklist from the corresponding audit skill — don't summarize or skip sections.
-- Agents must NOT edit files — analysis only. Fixes happen in Step 4.
+- Copy the complete matching playbook or audit-mode section from the selected domain skill — do not summarize or skip sections.
+- Agents must NOT edit files — analysis only. The master records consolidated findings after fan-out, and fixes require separate authority.
 - Include the project CLAUDE.md so agents understand project conventions.
 
 ### Step 3: Consolidate reports
