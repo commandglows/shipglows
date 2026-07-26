@@ -29,7 +29,7 @@ Result semantics:
 - If local checks fail because the implementation is broken, use `partial` or `blocked` depending on whether the fix can continue. If checks fail because the environment cannot run a proof surface outside `102-sg-start` scope, keep `implemented` and route to `103-sg-verify partial`.
 
 Auto-verify semantics:
-- When a unique ready spec is in scope and the only remaining lifecycle proof is local, tool-backed, non-destructive verification, `102-sg-start` may run that local verification itself and report `auto-verify: run`.
+- When a unique ready spec is in scope and the only remaining lifecycle proof is local, tool-backed, non-destructive verification, `102-sg-start` may run that local verification itself at an explicit checkpoint, end-of-conversation handoff, `SGEND`/`104-sg-end`, `SGSHIP`/`005-sg-ship`, or on explicit operator request, and report `auto-verify: run`. Eligibility alone does not authorize mid-conversation checks.
 - Do not auto-verify when proof needs preview, production, auth/browser flows, Sentry, device testing, manual QA, secret access, a user decision, commit, push, ship, or any external side effect; report `auto-verify: skipped` with the exact owner route instead.
 - Local auto-verify never means `104-sg-end`, `005-sg-ship`, or full lifecycle orchestration; `001-sg-build` remains the owner of full `103-sg-verify -> 104-sg-end -> 005-sg-ship` continuation.
 

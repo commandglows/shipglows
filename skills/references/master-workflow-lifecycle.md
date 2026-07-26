@@ -198,7 +198,11 @@ Master skills orchestrate; owner skills own specialist internals.
 Examples:
 
 - `102-sg-start` owns spec implementation.
-- `102-sg-start` may run bounded local auto-verification when the remaining proof is local, tool-backed, non-destructive, and has no preview, production, auth/browser, Sentry, device, manual QA, secret, commit, push, ship, or external side-effect requirement. This does not make `102-sg-start` the full lifecycle orchestrator.
+- `102-sg-start` may run bounded local auto-verification only when the shared
+  checkpoint triggers below apply, or when an immediate high-risk focused check
+  is necessary. Eligibility alone does not authorize checks during intermediate
+  conversation turns. This does not make `102-sg-start` the full lifecycle
+  orchestrator.
 - `106-sg-fix` owns bug diagnosis and fix attempts.
 - `107-sg-test` owns durable manual QA, retests, and bug-file mutation.
 - `300-sg-docs` owns documentation corpus creation/update/audit.
@@ -208,6 +212,24 @@ Examples:
 Do not duplicate owner internals inside a master skill for convenience.
 
 ### 6. Validation And Evidence Routing
+
+Validation is checkpoint-based, not message-based. Do not automatically run ESLint,
+typechecks, tests, production builds, or other heavyweight checks after each
+operator message, small correction, or intermediate implementation slice.
+
+Run checks only when one of these triggers is present:
+
+- the operator explicitly asks for checks, a build, lint, or verification;
+- the current work reaches an explicit checkpoint or the end-of-conversation
+  handoff;
+- `104-sg-end` / `SGEND` or `005-sg-ship` / `SGSHIP` owns the next step;
+- a high-risk change makes an immediate focused check necessary to avoid unsafe
+  continuation, and the check is limited to that risk.
+
+When no trigger is present, record `validation deferred: intermediate work` and
+continue the implementation. A deferred check is not a failure or a claim that
+the work is verified. The next checkpoint must run the proportional proof before
+completion, closure, or ship claims.
 
 Run checks and evidence collection that match the changed surface. Do not invent proof.
 

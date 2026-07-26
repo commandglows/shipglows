@@ -136,6 +136,19 @@ Avoid:
 
 If a required reference is missing, stop and report a ShipGlowz installation or contract gap. Do not continue from memory unless the skill explicitly marks that reference as optional for the current objective.
 
+## Checkpoint-Based Validation Cadence
+
+Agents must not turn every conversation message into a build/check cycle. In
+particular, do not run ESLint, typechecks, tests, production builds, or broad
+audits after a small correction or while implementation is still in progress
+unless the operator requested it or an immediate high-risk check is required.
+
+The normal cadence is to defer technical validation to an explicit checkpoint,
+the end-of-conversation handoff, `SGEND`/`104-sg-end`, or `SGSHIP`/`005-sg-ship`.
+At that checkpoint, run the proportional checks for the changed surface and
+report any deferred proof honestly. This cadence does not waive security or
+provider-specific proof when the relevant risk is actually in scope.
+
 ## Operator-Last-Resort Rule
 
 The operator tests only as a last resort. If the agent has the permission, credentials, environment, and tools to run or route the next proof step, it must do that before asking the operator.

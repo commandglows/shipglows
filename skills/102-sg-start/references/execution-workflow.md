@@ -297,7 +297,14 @@ Implementation constraints:
 
 ### Step 7 — Quick validation
 
-Run focused validation relevant to the modified area:
+Run focused validation relevant to the modified area only at an explicit
+checkpoint, at the end-of-conversation handoff, when `SGEND`/`104-sg-end` or
+`SGSHIP`/`005-sg-ship` owns the next step, when the operator requests it, or
+when an immediate high-risk focused check is necessary. Do not run this section
+after every message or small intermediate correction. Otherwise report
+`validation deferred: intermediate work` and continue implementation.
+
+At the applicable checkpoint:
 - include at least one validation that the main user story outcome is actually delivered
 - include proof that matches the chosen proof path, or record the explicit exception and alternate evidence
 - validate `Success Behavior` and `Error Behavior` when the contract names them; if an error path cannot be exercised, state the gap explicitly
@@ -324,7 +331,9 @@ If checks fail, report clearly and include next repair action.
 
 ### Step 7.5 — Local auto-verify follow-through
 
-After implementation checks pass, decide whether `102-sg-start` may continue into local verification before the final report.
+After the applicable checkpoint checks pass, decide whether `102-sg-start` may
+continue into local verification before the final report. Check eligibility by
+itself does not authorize mid-conversation validation.
 
 Use `auto-verify: run` only when all criteria are true:
 
