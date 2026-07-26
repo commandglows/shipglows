@@ -7046,6 +7046,16 @@ env_start() {
         return 1
     fi
 
+    # Astro 7 automatically detaches `astro dev` when it detects an AI agent.
+    # PM2 is already the process supervisor here, so keep Astro in the
+    # foreground or PM2 will supervise a short-lived launcher and report a
+    # false crash loop. Astro documents ASTRO_DEV_BACKGROUND=0 as the opt-out.
+    local is_astro_project=false
+    if [ -f "$project_dir/astro.config.mjs" ] || [ -f "$project_dir/astro.config.ts" ] || \
+       grep -q '"astro"' "$project_dir/package.json" 2>/dev/null; then
+        is_astro_project=true
+    fi
+
     # Governance check: warn about non-conformant architecture (lock file in parent but not in project dir)
     local governance_nonconformant=false
     if [ -f "package.json" ] && [ -d "$project_dir" ]; then
@@ -7207,6 +7217,12 @@ env_start() {
     local pm2_launch_js
     pm2_launch_js=$(printf "%s" "$pm2_launch_cmd" | sed 's/"/\\"/g')
 
+    local generated_env_block="      PORT: $port"
+    if [ "$is_astro_project" = "true" ]; then
+        generated_env_block="$generated_env_block,
+      ASTRO_DEV_BACKGROUND: \"0\""
+    fi
+
     # Create persistent ecosystem file (Expo has no PORT)
     if [ "$is_expo" = "true" ]; then
         cat > "$pm2_config" <<EOF
@@ -7230,7 +7246,7 @@ module.exports = {
     script: "bash",
     args: ["-lc", "$pm2_launch_js"],
     env: {
-      PORT: $port
+$generated_env_block
     },
     autorestart: true,
     max_restarts: 3,

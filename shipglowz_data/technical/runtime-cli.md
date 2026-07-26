@@ -107,6 +107,10 @@ This doc covers the server-side CLI runtime: `cli/shipglowz.sh`, `cli/lib.sh`, a
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.
+- `env_start` detects Astro projects and sets `ASTRO_DEV_BACKGROUND=0` in their
+  generated PM2 environment. Astro 7 automatically detaches `astro dev` when
+  it detects an AI coding agent; PM2 is already the supervisor, so Astro must
+  remain in the foreground to avoid supervising a short-lived launcher.
 - `cli/lib.sh::env_remove` also stops project-scoped Flutter Web tmux sessions,
   unregisters the local Flox environment, synchronizes Caddy and the durable
   environment registry, and rejects absolute directories that are not Flox

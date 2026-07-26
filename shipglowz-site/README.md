@@ -28,7 +28,7 @@ pnpm preview
 ## Runtime
 
 - Node.js 24.x
-- pnpm 11.8.0 via the `packageManager` pin
+- pnpm 11.15.0 via the `packageManager` pin
 
 ## Structure
 
