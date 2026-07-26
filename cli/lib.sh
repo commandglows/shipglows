@@ -5058,8 +5058,8 @@ environment_identifiers_load() {
 resolve_project_path_into() {
     local __sgdv_resolve_target="$1" __sgdv_resolve_identifier="$2"
 
-    # Case 1: Identifier is already an absolute path
-    if [[ "$__sgdv_resolve_identifier" == /* && -d "$__sgdv_resolve_identifier" ]]; then
+    # Case 1: Identifier is already an absolute path to a ShipGlowz project.
+    if [[ "$__sgdv_resolve_identifier" == /* && -d "$__sgdv_resolve_identifier/.flox" ]]; then
         _shipglowz_assign "$__sgdv_resolve_target" "$__sgdv_resolve_identifier"
         return $?
     fi
@@ -6611,6 +6611,33 @@ flutter_web_remove_registry_entry() {
     chmod 600 "$sessions_file" 2>/dev/null || true
 }
 
+stop_flutter_web_sessions_for_project() {
+    local project_dir="$1"
+    local lines=""
+    lines=$(flutter_web_registry_lines false | awk -F'|' -v p="$project_dir" '$3 == p')
+    [ -n "$lines" ] || return 0
+
+    if ! command -v tmux >/dev/null 2>&1; then
+        error "Impossible d'arrêter les sessions Flutter Web: tmux est indisponible"
+        return 1
+    fi
+
+    local line name port registered_project session_name
+    while IFS='|' read -r name port registered_project session_name; do
+        [ -n "$session_name" ] || continue
+        if tmux has-session -t "$session_name" 2>/dev/null; then
+            if ! tmux kill-session -t "$session_name" 2>/dev/null; then
+                error "Impossible d'arrêter la session Flutter Web: $session_name"
+                return 1
+            fi
+        fi
+        flutter_web_remove_registry_entry "$session_name" || {
+            error "Impossible de désindexer la session Flutter Web: $session_name"
+            return 1
+        }
+    done <<< "$lines"
+}
+
 select_flutter_web_project() {
     local projects
     projects=$(list_flutter_web_projects)
@@ -7676,13 +7703,38 @@ env_remove() {
     local env_name
     env_name=$(derive_pm2_app_name "$project_dir")
 
-    # Atomic deletion of PM2 process (Priority 3 #11: Fix race condition)
-    # Use pm2 delete with idempotent operation (no check-then-act)
-    if pm2 delete "$env_name" 2>/dev/null; then
+    # Stop interactive Flutter sessions before removing their working tree.
+    stop_flutter_web_sessions_for_project "$project_dir" || return 1
+
+    # Delete PM2 directly to avoid a check-then-act race. A failed delete is
+    # acceptable only when the app is already gone by the time we re-check.
+    local pm2_delete_rc=0
+    pm2 delete "$env_name" 2>/dev/null || pm2_delete_rc=$?
+    if [ "$pm2_delete_rc" -ne 0 ] && pm2_app_exists_by_name "$env_name"; then
+        error "Impossible de supprimer le processus PM2 $env_name"
+        return 1
+    fi
+    if [ "$pm2_delete_rc" -eq 0 ]; then
         echo -e "${YELLOW}🛑 Arrêt du processus PM2 $env_name...${NC}"
         pm2 save >/dev/null 2>&1
         # Invalidate cache after PM2 state change
         invalidate_after_pm2_mutation
+    fi
+
+    # Remove stale proxy routes even when PM2 had no matching app.
+    sync_caddy_after_pm2_change
+
+    # Unregister the local Flox environment before deleting its parent tree.
+    # Otherwise Flox can retain a stale path in its global environment index.
+    if [ -d "$project_dir/.flox" ]; then
+        if ! command -v flox >/dev/null 2>&1; then
+            error "Impossible de désenregistrer l'environnement Flox: flox est indisponible"
+            return 1
+        fi
+        if ! flox delete --force --dir="$project_dir" >/dev/null 2>&1; then
+            error "Impossible de supprimer l'environnement Flox de $project_dir"
+            return 1
+        fi
     fi
 
     # Remove project directory (atomic operation)
@@ -7701,6 +7753,13 @@ env_remove() {
     invalidate_path_cache
     invalidate_env_list_cache
     invalidate_home_folders_cache
+
+    # Rebuild the durable index now, rather than leaving a stale line until a
+    # later dashboard or selector happens to refresh it.
+    if ! registry_sync; then
+        warning "Projet supprimé, mais le registre des environnements n'a pas pu être synchronisé"
+        return 1
+    fi
 
     return 0
 }
@@ -9504,8 +9563,11 @@ action_remove() {
         echo ""
         if ui_confirm "Confirm deletion?"; then
             log INFO "Menu: removing environment $ENV_NAME (dir: $PROJECT_DIR)"
-            env_remove "$ENV_NAME"
-            echo -e "${GREEN}✅ Environment removed!${NC}"
+            if env_remove "$ENV_NAME"; then
+                echo -e "${GREEN}✅ Environment removed!${NC}"
+            else
+                echo -e "${RED}❌ Environment removal incomplete${NC}"
+            fi
         else
             echo -e "${BLUE}Cancelled - nothing was deleted${NC}"
         fi

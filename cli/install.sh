@@ -357,7 +357,7 @@ if command -v node >/dev/null 2>&1; then
     success "Node.js déjà installé: $NODE_VERSION"
 else
     info "Installation de Node.js..."
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+    curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
     apt-get install -y nodejs
     
     if command -v node >/dev/null 2>&1; then

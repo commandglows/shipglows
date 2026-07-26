@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.18"
 project: ShipGlowz
 created: "2026-05-01"
-updated: "2026-07-16"
+updated: "2026-07-26"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -107,6 +107,10 @@ This doc covers the server-side CLI runtime: `cli/shipglowz.sh`, `cli/lib.sh`, a
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.
+- `cli/lib.sh::env_remove` also stops project-scoped Flutter Web tmux sessions,
+  unregisters the local Flox environment, synchronizes Caddy and the durable
+  environment registry, and rejects absolute directories that are not Flox
+  projects before deletion.
 - `cli/lib.sh::list_pm2_app_names`, `list_all_stop_targets`, and
   `pm2_stop_app_by_name`: PM2 stop safety helpers used to stop both
   disk-discovered environments and PM2-only orphan entries.
@@ -200,6 +204,8 @@ Flutter Web has two runtime paths:
   the project Flox environment, records the session in
   `SHIPFLOW_FLUTTER_WEB_SESSIONS_FILE`, and sends `r`/`R` to that session for
   hot reload or hot restart.
+- Environment removal stops any registered Flutter Web session for the target
+  project before deleting its working tree.
 
 ## Invariants
 
@@ -212,6 +218,9 @@ Flutter Web has two runtime paths:
   running when no PM2 app is online.
 - Stop flows must cover PM2 entries even when their project directories are no
   longer resolvable from disk, then persist the stopped state with PM2.
+- Remove flows must stop project-scoped interactive sessions, synchronize Caddy
+  after PM2 changes, and rebuild the durable environment registry before
+  reporting success.
 - Generated PM2 ecosystem configs for dev servers must bound automatic restart
   loops so broken commands cannot fill logs indefinitely.
 - `env_restart` must confirm that PM2 remains `online` during its stability
@@ -310,6 +319,7 @@ Flutter Web has two runtime paths:
 
 ```bash
 bash -n cli/shipglowz.sh cli/lib.sh cli/config.sh
+tests/cli/environment-remove.sh
 tests/runtime/flox-provisioning.sh
 rg -n "invalidate_pm2_cache" cli/lib.sh
 printf 'x\n' | env SHIPFLOW_PROJECTS_DIR=/tmp/shipflow-empty ./cli/shipglowz.sh u

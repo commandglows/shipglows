@@ -411,6 +411,10 @@ environment lifecycle
   -> env_rename
   -> env_restart
 
+Flutter Web removal support
+  -> stop_flutter_web_sessions_for_project
+  -> flutter_web_remove_registry_entry
+
 web inspector
   -> generate_css_selector
   -> remove_next_script_import_if_unused

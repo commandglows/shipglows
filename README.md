@@ -418,7 +418,7 @@ Notes:
   stable is not a valid fallback.
 
 ShipGlowz also installs the terminal tooling commonly needed to operate those integrations:
-- `node` / Node.js LTS from NodeSource when needed; current repo runtime target is Node `22.12+` and compatible with Node 24
+- `node` / Node.js 24 LTS from NodeSource when needed
 - `pm2`
 - `vercel`
 - `convex`
