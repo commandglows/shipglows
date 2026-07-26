@@ -129,6 +129,9 @@ This doc covers the server-side CLI runtime: `cli/shipglowz.sh`, `cli/lib.sh`, a
 - `cli/lib.sh::action_github_auth`: official GitHub CLI login/status screen for
   repository listing and deploy-from-GitHub readiness. It delegates token
   handling to `gh` and must not read or store GitHub tokens.
+- `cli/lib.sh::deploy_github_project`: starts a freshly cloned repository from
+  its authoritative absolute path, rather than through the lazy environment
+  registry that can predate the new `.flox` directory.
 - `cli/lib.sh::action_reboot_vm`: explicit confirmed VM reboot action from the
   system menu. It supports `SHIPFLOW_REBOOT_DRY_RUN=1` for smoke checks.
 - `cli/lib.sh::mcp_cleanup_menu`: health-menu cleanup for local MCP process

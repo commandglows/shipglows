@@ -9210,7 +9210,10 @@ deploy_github_project() {
     echo ""
     echo -e "${GREEN}🚀 Starting application...${NC}"
     local env_start_rc=0
-    env_start "$project_name"
+    # The registry may have been populated by the existence check before this
+    # clone gained its .flox directory. Start from the authoritative path we
+    # just created rather than requiring that stale name index to know it.
+    env_start "$project_dir"
     env_start_rc=$?
     if [ $env_start_rc -eq 20 ]; then
         echo ""
