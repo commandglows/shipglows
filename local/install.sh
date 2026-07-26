@@ -159,6 +159,7 @@ fi
 echo ""
 echo -e "${BLUE}4. Configuration des permissions...${NC}"
 chmod +x "$SCRIPT_DIR/dev-tunnel.sh"
+chmod +x "$SCRIPT_DIR/tunnel-watch.sh"
 chmod +x "$SCRIPT_DIR/local.sh"
 chmod +x "$SCRIPT_DIR/mcp-login.sh"
 chmod +x "$SCRIPT_DIR/clerk-login.sh"

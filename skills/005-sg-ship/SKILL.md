@@ -35,6 +35,8 @@ Apply `$SHIPFLOW_ROOT/skills/references/shipglowz-owned-preflight.md` before rea
 
 Before full-close mode, or any ship report that could imply formal closure, load `$SHIPFLOW_ROOT/skills/references/closure-archive-guard.md`.
 
+Before full-close mode or ship wording that implies completion, load `$SHIPFLOW_ROOT/skills/references/documentation-reflection-gate.md` and record its classification; route `updated` or `needs review` to `300-sg-docs` and do not claim full closure while a material docs gap remains.
+
 ## Mission
 
 `005-sg-ship` owns git shipping: checks, staging, commit, push, and the post-push route when applicable. It is not the owner of implementation completeness (`102-sg-start`), proof completeness (`103-sg-verify`), or closure bookkeeping (`104-sg-end`) unless full-close mode is explicitly requested.

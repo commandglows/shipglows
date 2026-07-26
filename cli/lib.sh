@@ -4518,6 +4518,12 @@ invalidate_pm2_cache() {
 invalidate_after_pm2_mutation() {
     invalidate_pm2_cache
     invalidate_registry_cache 2>/dev/null || true
+    # Notify a local tunnel watcher without requiring it to poll aggressively.
+    # The append-only signal contains no secrets and is safe to miss because
+    # the watcher refreshes the complete port snapshot after receiving it.
+    local tunnel_event_file="${SHIPGLOWZ_TUNNEL_EVENT_FILE:-${SHIPFLOW_TUNNEL_EVENT_FILE:-$SHIPGLOWZ_STATE_DIR/tunnel-events.log}}"
+    mkdir -p "$(dirname "$tunnel_event_file")" 2>/dev/null || true
+    printf '%s\n' "${EPOCHREALTIME:-$(date +%s)}" >> "$tunnel_event_file" 2>/dev/null || true
 }
 
 ENV_LIST_CACHE=""
@@ -5898,6 +5904,58 @@ launch_codex_docs_compliance() {
         echo -e "${YELLOW}Le demarrage ShipGlowz s'arrete ici pour te laisser finir la conformité dans Codex.${NC}"
         codex -C "$project_dir" "$codex_prompt"
     fi
+}
+
+launch_codex_environment_repair() {
+    local project_dir=$1
+    local env_name=$2
+    local failure_reason=${3:-"un problème de démarrage"}
+    local codex_prompt
+
+    if [ -z "$project_dir" ] || [ ! -d "$project_dir" ]; then
+        error "Workspace invalide pour ouvrir Codex"
+        return 1
+    fi
+
+    if ! command -v codex >/dev/null 2>&1; then
+        error "Codex CLI introuvable dans le PATH"
+        info "Installe Codex avec ShipGlowz avant de lancer la réparation guidée."
+        return 1
+    fi
+
+    codex_prompt="L'environnement ShipGlowz ${env_name} rencontre ${failure_reason}. Travaille uniquement dans ce workspace: ${project_dir}. Inspecte l'état PM2 et les logs récents de ${env_name}, identifie la cause racine, corrige les fichiers de code ou de configuration responsables, puis lance les vérifications proportionnées pour confirmer la réparation. Ne modifie pas d'autres projets, ne supprime pas de données sans justification, et ne commit/push pas. À la fin, résume la cause, les fichiers modifiés et les validations effectuées."
+
+    if [ -r /dev/tty ] && [ -t 0 ]; then
+        printf '%b' "${BLUE}🧭 Ouverture de Codex dans ${project_dir} pour diagnostiquer et réparer...${NC}\n" > /dev/tty
+        printf '%b' "${YELLOW}Le démarrage ShipGlowz s'arrête ici pour te laisser résoudre le problème dans Codex.${NC}\n\n" > /dev/tty
+        codex -C "$project_dir" "$codex_prompt" < /dev/tty > /dev/tty 2>&1
+    else
+        echo -e "${BLUE}🧭 Ouverture de Codex dans ${project_dir} pour diagnostiquer et réparer...${NC}"
+        echo -e "${YELLOW}Le démarrage ShipGlowz s'arrête ici pour te laisser résoudre le problème dans Codex.${NC}"
+        codex -C "$project_dir" "$codex_prompt"
+    fi
+}
+
+offer_codex_environment_repair() {
+    local project_dir=$1
+    local env_name=$2
+    local failure_reason=${3:-"un problème de démarrage"}
+    local choice
+
+    choice=$(printf '%s\n' \
+        "Ouvrir Codex dans le workspace pour diagnostiquer et réparer" \
+        "Retourner au menu" \
+        | ui_choose "${env_name}: ${failure_reason}. Que veux-tu faire ?") || return 1
+
+    case "$choice" in
+        "Ouvrir Codex dans le workspace pour diagnostiquer et réparer")
+            launch_codex_environment_repair "$project_dir" "$env_name" "$failure_reason"
+            return $?
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 }
 
 prompt_node_package_manager_choice() {
@@ -8624,8 +8682,11 @@ env_restart() {
     if [ "$status" = "not_found" ]; then
         warning "Environment $env_name not running in PM2"
         echo -e "${YELLOW}Starting instead...${NC}"
-        env_start "$project_dir"
-        return $?
+        if env_start "$project_dir"; then
+            return 0
+        fi
+        offer_codex_environment_repair "$project_dir" "$env_name" "l'environnement n'est pas enregistré dans PM2 ou son démarrage a échoué" || true
+        return 1
     fi
 
     # Restart PM2 process (atomic operation)
@@ -8660,11 +8721,13 @@ env_restart() {
                     echo -e "${GREEN}✅ URL: ${CYAN}http://localhost:$port${NC}"
                 fi
                 log INFO "Recovery via env_start succeeded: $env_name"
+                offer_codex_environment_repair "$project_dir" "$env_name" "un échec de démarrage a été détecté puis récupéré automatiquement" || true
                 return 0
             else
                 error "La réparation automatique a échoué pour $env_name"
                 echo -e "${YELLOW}  Consultez les logs: pm2 logs $env_name --lines 50${NC}"
                 log ERROR "Recovery via env_start failed: $env_name"
+                offer_codex_environment_repair "$project_dir" "$env_name" "la récupération automatique après un échec de démarrage a échoué" || true
                 return 1
             fi
         fi
@@ -8694,11 +8757,13 @@ for app in apps:
                     echo -e "${GREEN}✅ URL: ${CYAN}http://localhost:$port${NC}"
                 fi
                 log INFO "Crash-loop recovery via env_start succeeded: $env_name"
+                offer_codex_environment_repair "$project_dir" "$env_name" "une crash loop PM2 a été détectée puis récupérée automatiquement" || true
                 return 0
             else
                 error "La réparation automatique a échoué pour $env_name"
                 echo -e "${YELLOW}  Consultez les logs: pm2 logs $env_name --lines 50${NC}"
                 log ERROR "Crash-loop recovery via env_start failed: $env_name"
+                offer_codex_environment_repair "$project_dir" "$env_name" "une crash loop PM2 persiste après la récupération automatique" || true
                 return 1
             fi
         fi

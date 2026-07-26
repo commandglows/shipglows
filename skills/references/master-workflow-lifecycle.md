@@ -229,7 +229,13 @@ If an owner skill such as `102-sg-start` already ran explicitly eligible local a
 
 If verification fails, route back to correction, retest, spec update, or blocked report. Do not proceed to closure or ship as if the work passed.
 
-### 8. Post-Verify Closure And Ship
+### 8. Documentation Reflection Before Closure
+
+Before `104-sg-end`, any milestone that can imply completion must load and apply `$SHIPFLOW_ROOT/skills/references/documentation-reflection-gate.md` against the changed behavior and the canonical project docs map.
+
+Use the reference's exact classification and routing rules; do not wait for the operator to notice documentation drift.
+
+### 9. Post-Verify Closure And Ship
 
 After verification passes, the master skill should continue through its owned closure and ship route unless a named stop condition blocks it.
 

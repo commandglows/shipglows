@@ -1,6 +1,6 @@
 # 🏠 Configuration Machine Locale
 
-Scripts pour accéder aux applications d'un serveur ShipGlowz depuis votre machine locale via des tunnels SSH.
+Scripts pour accéder aux applications d'un serveur ShipGlowz depuis votre machine locale.
 
 ## 📋 Prérequis
 
@@ -105,9 +105,9 @@ shipglowz-turso-ssh contentflow-prod2 # Copie auth Turso vers le serveur + check
 ### Menu interactif
 
 Le menu offre :
-- 🚇 **Démarrer les tunnels** - Détecte automatiquement les projets PM2 actifs et les sessions Flutter Web `tmux`
+- 🚀 **Démarrer une session** - Prépare automatiquement l'accès aux projets actifs
 - 📋 **Afficher les URLs** - Liste toutes les URLs localhost disponibles
-- 🛑 **Arrêter les tunnels** - Arrête tous les tunnels en cours
+- 🛑 **Terminer la session** - Ferme tous les accès en cours
 - 📊 **Statut** - Vérifie l'état des tunnels actifs
 - 🔄 **Redémarrer** - Redémarre tous les tunnels
 - 🔑 **Installer une clé SSH sur ce serveur** - Remplace une connexion par mot de passe par une clé propre à cet appareil
@@ -270,6 +270,16 @@ Le système :
 - ✅ Crée des tunnels SSH pour chaque port
 - ✅ Affiche les URLs accessibles (localhost:3000, etc.)
 - ✅ Maintient les tunnels actifs en arrière-plan
+
+### Synchronisation automatique
+
+La synchronisation démarre automatiquement avec la session. Le serveur émet un
+signal lorsqu'un cycle PM2 change ; le poste local garde alors une seule connexion
+SSH en attente et relance les tunnels uniquement lorsque l'état serveur change.
+Elle s'arrête automatiquement quand la session est terminée.
+
+L'intervalle de reconnexion peut être ajusté avec
+`SHIPGLOWZ_TUNNEL_WATCH_INTERVAL` (60 secondes par défaut).
 
 ### Accéder aux applications
 

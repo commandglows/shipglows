@@ -126,6 +126,7 @@ Always load:
 5. `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`
 6. `$SHIPFLOW_ROOT/skills/references/task-application-loop.md` when scope includes task-by-task implementation, direct fixes, skill contract edits, tracker progress, or progress/completion semantics.
 7. `$SHIPFLOW_ROOT/skills/references/closure-archive-guard.md` when scope includes tracker closure, changelog framing, done/closed wording, archived artifacts, docs/source-of-truth sync, or full-close shipping.
+8. `$SHIPFLOW_ROOT/skills/references/documentation-reflection-gate.md` when verification can imply a milestone or user-facing completion.
 8. `$SHIPFLOW_ROOT/skills/references/design-system-token-contract.md` when scope includes UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual proof work.
 9. `$SHIPFLOW_ROOT/skills/references/content-quality-rubric.md` when scope includes an editorial score or content quality gate.
 

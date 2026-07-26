@@ -31,6 +31,8 @@ Default to `report=user`: concise, outcome-first, and using the opening chantier
 
 Before tracker closure, changelog framing, or done/closed wording, load `$SHIPFLOW_ROOT/skills/references/closure-archive-guard.md`.
 
+Before closure, load and run `$SHIPFLOW_ROOT/skills/references/documentation-reflection-gate.md`. Classify documentation alignment as `updated`, `not impacted` with a reason, or `needs review`; route `updated` and `needs review` to `300-sg-docs` automatically and keep closure partial when a material docs gap remains.
+
 ## Mission
 
 `104-sg-end` closes the current work session: summary, tracker updates, changelog prep, and explicit next work. It owns closure bookkeeping, not implementation proof or git shipping.
@@ -77,6 +79,7 @@ From the conversation, identify:
 - The user story or user-facing outcome this work was intended to support, if inferable
 - Any gap between "work performed" and "outcome proven"
 - Documentation surfaces updated or possibly stale after the change
+- Documentation Reflection Gate result: `updated`, `not impacted` with reason, or `needs review`
 - Project development mode from `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/project-development-mode.md` and `CLAUDE.md` / `SHIPFLOW.md`
 - Whether required preview deployment evidence exists (`005-sg-ship` pushed, `405-sg-prod` confirmed, and preview test/auth proof collected when needed)
 - Whether any source-of-truth delta remains unsynced before closure: tracker, changelog, docs, bug file, spec, public copy, skill runtime links, or archive target

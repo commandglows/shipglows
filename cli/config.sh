@@ -57,6 +57,10 @@ export SHIPFLOW_SSH_REMOTE_HOST="$SHIPGLOWZ_SSH_REMOTE_HOST"
 export SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE="${SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE:-${SHIPFLOW_FLUTTER_WEB_SESSIONS_FILE:-$SHIPGLOWZ_STATE_DIR/flutter-web-sessions.tsv}}"
 export SHIPFLOW_FLUTTER_WEB_SESSIONS_FILE="$SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE"
 
+# Append-only lifecycle signal consumed by optional local tunnel watchers.
+export SHIPGLOWZ_TUNNEL_EVENT_FILE="${SHIPGLOWZ_TUNNEL_EVENT_FILE:-${SHIPFLOW_TUNNEL_EVENT_FILE:-$SHIPGLOWZ_STATE_DIR/tunnel-events.log}}"
+export SHIPFLOW_TUNNEL_EVENT_FILE="$SHIPGLOWZ_TUNNEL_EVENT_FILE"
+
 # ============================================================================
 # LOGGING CONFIGURATION
 # ============================================================================

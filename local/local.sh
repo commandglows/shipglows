@@ -963,7 +963,7 @@ display_server_session_banner() {
 
 # Fonction d'affichage avec couleurs
 print_header() {
-    local_screen_header "SSH Tunnel Manager"
+    local_screen_header "Gestionnaire de session"
 
     # Display server session identity (includes user@host info)
     display_server_session_banner
@@ -976,18 +976,60 @@ show_menu() {
         echo -e "${YELLOW}Connexion distante non configurée. Choisissez c pour ajouter le nouveau serveur.${NC}"
     fi
     echo ""
-    local_menu_line "t" "🚇 Démarrer les tunnels SSH"
-    local_menu_line "u" "📋 Afficher les URLs disponibles"
-    local_menu_line "a" "🛑 Arrêter les tunnels"
-    local_menu_line "s" "📊 Statut des tunnels"
-    local_menu_line "r" "🔄 Redémarrer les tunnels"
-    local_menu_line "c" "🌐 Configurer nouveau serveur"
-    local_menu_line "k" "🔑 Installer une clé SSH sur ce serveur"
+    local_menu_line "t" "🚀 Démarrer une session"
+    local_menu_line "u" "📋 Voir les adresses des projets"
+    local_menu_line "a" "🛑 Terminer la session"
+    local_menu_line "s" "📊 Voir l'état de la session"
+    local_menu_line "r" "🔄 Relancer la session"
+    local_menu_line "c" "🌐 Choisir un serveur"
+    local_menu_line "k" "🔑 Sécuriser l'accès à ce serveur"
     local_menu_line "o" "🔐 Authentifications distantes"
     echo ""
     local_menu_line "l" "🔌 Choisir une connexion enregistrée"
     local_menu_line "x" "❌ Quitter"
     echo ""
+}
+
+tunnel_watch_pid_file() {
+    printf '%s/tunnel-watch.pid\n' "$CONFIG_DIR"
+}
+
+tunnel_watch_status() {
+    local pid_file pid
+    pid_file="$(tunnel_watch_pid_file)"
+    pid="$(cat "$pid_file" 2>/dev/null || true)"
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        return 0
+    fi
+    rm -f "$pid_file"
+    return 1
+}
+
+start_tunnel_watch() {
+    local pid_file pid
+    pid_file="$(tunnel_watch_pid_file)"
+    tunnel_watch_status && return 0
+
+    if ! command -v autossh >/dev/null 2>&1; then
+        echo -e "${RED}✗ autossh est requis pour la synchronisation automatique${NC}"
+        return 1
+    fi
+
+    nohup "$SCRIPT_DIR/tunnel-watch.sh" >>"$CONFIG_DIR/tunnel-watch.log" 2>&1 &
+    pid=$!
+    printf '%s\n' "$pid" > "$pid_file"
+    chmod 600 "$pid_file" 2>/dev/null || true
+    echo -e "${GREEN}✓ Session automatique activée pour $REMOTE_HOST${NC}"
+}
+
+stop_tunnel_watch() {
+    local pid_file pid
+    pid_file="$(tunnel_watch_pid_file)"
+    pid="$(cat "$pid_file" 2>/dev/null || true)"
+    if [ -n "$pid" ]; then
+        kill "$pid" 2>/dev/null || true
+    fi
+    rm -f "$pid_file"
 }
 
 run_mcp_login_menu() {
@@ -1352,7 +1394,7 @@ verify_tunnels_ready() {
 
 # Fonction pour démarrer les tunnels
 start_tunnels() {
-    local_screen_header "Démarrage des tunnels SSH"
+    local_screen_header "Démarrage d'une session"
 
     if [ -z "$REMOTE_HOST" ]; then
         echo -e "${RED}✗ Aucune connexion distante configurée${NC}"
@@ -1360,15 +1402,13 @@ start_tunnels() {
         return 1
     fi
     
-    # Vérifier autossh
     if ! command -v autossh &> /dev/null; then
-        echo -e "${RED}✗ autossh n'est pas installé${NC}"
-        echo -e "${YELLOW}  Installation: brew install autossh (macOS) ou apt install autossh (Linux)${NC}"
+        echo -e "${RED}✗ Impossible de démarrer la session : un composant local est manquant.${NC}"
+        echo -e "${YELLOW}  Lancez l'installation de la configuration locale puis réessayez.${NC}"
         return 1
     fi
     
-    # Arrêter les tunnels existants
-    echo -e "${YELLOW}🛑 Arrêt des tunnels existants...${NC}"
+    echo -e "${BLUE}Préparation de la session...${NC}"
     PIDS=$(get_tunnel_pids)
     if [ -n "$PIDS" ]; then
         echo "$PIDS" | while read -r pid; do
@@ -1379,10 +1419,10 @@ start_tunnels() {
     sleep 1
     
     # Récupérer les ports
-    echo -e "${BLUE}📡 Récupération des ports actifs depuis ShipGlowz...${NC}"
+    echo -e "${BLUE}Recherche des projets disponibles...${NC}"
     if ! PORTS=$(get_active_ports); then
         echo -e "${RED}✗ Impossible de récupérer les ports du serveur distant${NC}"
-        echo -e "${YELLOW}  Le détail SSH affiché ci-dessus indique la cause.${NC}"
+        echo -e "${YELLOW}  Vérifiez la connexion au serveur puis réessayez.${NC}"
         return 1
     fi
     
@@ -1392,8 +1432,7 @@ start_tunnels() {
         return 1
     fi
     
-    echo -e "${GREEN}✓ Création des tunnels SSH${NC}"
-    echo ""
+    echo -e "${GREEN}Connexion aux projets...${NC}"
 
     if ! ensure_reusable_ssh_session; then
         echo -e "${RED}✗ Impossible d'ouvrir la session SSH partagée pour les tunnels.${NC}"
@@ -1406,7 +1445,7 @@ start_tunnels() {
         port=$(echo "$line" | cut -d':' -f1)
         name=$(echo "$line" | cut -d':' -f2)
         
-        echo -e "${GREEN}  ✓ localhost:${port} → ${name}${NC}"
+        echo -e "${GREEN}  ✓ ${name}${NC}"
         
         local autossh_args=(
             -M 0 -f -N
@@ -1420,14 +1459,14 @@ start_tunnels() {
         done < <(ssh_tunnel_args)
         local autossh_output=""
         if ! autossh_output=$(autossh "${autossh_args[@]}" "$REMOTE_HOST" 2>&1); then
-            echo -e "${RED}  ✗ Impossible de créer le tunnel localhost:${port} (${name})${NC}"
-            [ -n "$autossh_output" ] && echo -e "${YELLOW}    Détail SSH: ${autossh_output//$'\n'/ }${NC}"
+            echo -e "${RED}  ✗ Connexion impossible pour ${name}${NC}"
+            [ "${SHIPGLOWZ_DEBUG:-${SHIPFLOW_DEBUG:-0}}" = "1" ] && [ -n "$autossh_output" ] && echo -e "${YELLOW}    Détail: ${autossh_output//$'\n'/ }${NC}"
             return 1
         fi
     done <<< "$PORTS"
     
     echo ""
-    echo -e "${YELLOW}⏳ Attente de l'établissement des tunnels...${NC}"
+    echo -e "${YELLOW}⏳ Finalisation de la session...${NC}"
     FAILED_TUNNELS=$(verify_tunnels_ready "$PORTS")
 
     if [ -n "$FAILED_TUNNELS" ]; then
@@ -1442,7 +1481,8 @@ start_tunnels() {
         return 1
     fi
 
-    echo -e "${GREEN}✅ Tunnels actifs !${NC}"
+    echo -e "${GREEN}✅ Session démarrée${NC}"
+    start_tunnel_watch
 }
 
 # Fonction pour afficher les URLs
@@ -1475,36 +1515,22 @@ show_urls() {
 
 # Fonction pour arrêter les tunnels
 stop_tunnels() {
-    local_screen_header "Arrêt des tunnels SSH" danger
-    
-    # Afficher les processus avant de les tuer
-    echo -e "${YELLOW}🔍 Recherche des processus SSH...${NC}"
+    local_screen_header "Fin de la session" danger
+    stop_tunnel_watch
     
     PIDS=$(get_tunnel_pids)
     
     if [ -z "$PIDS" ]; then
-        echo -e "${YELLOW}⚠ Aucun tunnel actif trouvé pour $REMOTE_HOST${NC}"
+        echo -e "${YELLOW}⚠ Aucune session active trouvée${NC}"
         if [ "${SHIPGLOWZ_DEBUG:-${SHIPFLOW_DEBUG:-0}}" = "1" ]; then
             echo ""
             echo -e "${BLUE}💡 Processus SSH en cours:${NC}"
             ps aux | grep ssh | grep -v grep | grep -v ssh-agent || true
         fi
     else
-        echo -e "${GREEN}✓ Processus trouvés:${NC}"
-        echo "$PIDS" | while read -r pid; do
-            cmd=$(ps -p "$pid" -o command= 2>/dev/null)
-            echo -e "  ${CYAN}PID $pid:${NC} $cmd"
-        done
-        
-        echo ""
-        echo -e "${YELLOW}🔫 Arrêt des processus...${NC}"
-        
-        # Tuer les processus
         echo "$PIDS" | while read -r pid; do
             if kill "$pid" 2>/dev/null; then
-                echo -e "  ${GREEN}✓${NC} PID $pid arrêté"
-            else
-                echo -e "  ${RED}✗${NC} Impossible d'arrêter PID $pid"
+                :
             fi
         done
         
@@ -1514,13 +1540,11 @@ stop_tunnels() {
         # Vérifier qu'ils sont bien arrêtés
         REMAINING=$(get_tunnel_pids)
         if [ -n "$REMAINING" ]; then
-            echo ""
-            echo -e "${YELLOW}⚠ Processus restants, utilisation de kill -9...${NC}"
+            echo -e "${YELLOW}Finalisation de la fermeture...${NC}"
             echo "$REMAINING" | xargs kill -9 2>/dev/null
         fi
         
-        echo ""
-        echo -e "${GREEN}✓ Tunnels arrêtés${NC}"
+        echo -e "${GREEN}✓ Session terminée${NC}"
     fi
 }
 
@@ -1538,11 +1562,11 @@ show_status() {
     if [ -n "$processes" ]; then
         local count=""
         count=$(echo "$processes" | wc -l | tr -d ' ')
-        echo -e "${GREEN}✓ Processus de tunnels actifs :${NC}"
-        echo -e "  ${GREEN}•${NC} $count processus SSH/autossh vers $REMOTE_HOST"
+        echo -e "${GREEN}✓ Session active${NC}"
+        echo -e "  ${GREEN}•${NC} $count projet(s) accessible(s)"
         echo ""
     else
-        echo -e "${YELLOW}⚠ Aucun processus de tunnel détecté pour $REMOTE_HOST${NC}"
+        echo -e "${YELLOW}⚠ Aucune session active${NC}"
         echo ""
     fi
 
@@ -1614,7 +1638,7 @@ main() {
                 pause
                 ;;
             r)
-                local_screen_header "Redémarrage des tunnels"
+                local_screen_header "Relancer la session"
                 stop_tunnels || true
                 sleep 2
                 if ! start_tunnels; then
