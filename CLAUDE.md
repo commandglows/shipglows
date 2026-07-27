@@ -122,6 +122,7 @@ show_dashboard        # Display dashboard (reads envs.reg, 0 subprocesses)
 | Vite | package.json | `--port $PORT --host` |
 | Next.js | package.json | `-p $PORT` (automatic) |
 | Nuxt | package.json | `--port $PORT` |
+| Vue CLI | `@vue/cli-service` in package.json | `vue-cli-service serve --port $PORT --host 0.0.0.0` |
 | Expo | package.json | Tunnel mode, no fixed port |
 | Python/FastAPI | venv/bin/python3 | Via uvicorn in ecosystem config |
 

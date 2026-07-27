@@ -6339,6 +6339,31 @@ fix_port_config() {
     fi
 }
 
+# Detect the framework from declared dependencies without matching arbitrary script text.
+detect_node_framework() {
+    local package_json=$1
+
+    command -v node >/dev/null 2>&1 || return 1
+
+    node -e '
+        const fs = require("fs");
+        const pkg = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+        const dependencies = {
+          ...(pkg.dependencies || {}),
+          ...(pkg.devDependencies || {}),
+          ...(pkg.peerDependencies || {}),
+        };
+        const has = (name) => Object.prototype.hasOwnProperty.call(dependencies, name);
+
+        if (has("expo") || has("expo-router")) console.log("expo");
+        else if (has("astro")) console.log("astro");
+        else if (has("next")) console.log("next");
+        else if (has("nuxt")) console.log("nuxt");
+        else if (has("@vue/cli-service")) console.log("vue-cli");
+        else if (has("vite")) console.log("vite");
+    ' "$package_json" 2>/dev/null
+}
+
 # Detect dev command for project
 detect_dev_command() {
     local project_dir=$1
@@ -6348,19 +6373,9 @@ detect_dev_command() {
     cd "$project_dir" || return 1
     
     if [ -f "package.json" ]; then
-        # Detect framework from package.json
+        # Detect framework from declared package dependencies.
         local framework=""
-        if grep -q '"expo"' package.json || grep -q '"expo-router"' package.json; then
-            framework="expo"
-        elif grep -q '"astro"' package.json; then
-            framework="astro"
-        elif grep -q '"next"' package.json; then
-            framework="next"
-        elif grep -q '"vite"' package.json; then
-            framework="vite"
-        elif grep -q '"nuxt"' package.json; then
-            framework="nuxt"
-        fi
+        framework=$(detect_node_framework "package.json" || true)
         
         # Determine package manager
         local pm_cmd=""
@@ -6424,6 +6439,13 @@ detect_dev_command() {
                         echo "pnpm exec nuxt dev --port \$PORT"
                     else
                         echo "$pm_cmd dev --port \$PORT"
+                    fi
+                    ;;
+                vue-cli)
+                    if [ "$pm_cmd" = "pnpm" ]; then
+                        echo "pnpm exec vue-cli-service serve --port \$PORT --host 0.0.0.0"
+                    else
+                        echo "$pm_cmd dev -- --port \$PORT --host 0.0.0.0"
                     fi
                     ;;
                 *)

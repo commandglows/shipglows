@@ -211,6 +211,13 @@ Flutter Web has two runtime paths:
 - Environment removal stops any registered Flutter Web session for the target
   project before deleting its working tree.
 
+Node framework launch detection reads declared package dependencies rather than
+matching arbitrary `package.json` text. With a local `pnpm-lock.yaml`, known
+framework binaries use `pnpm exec`; Vue CLI projects are detected through
+`@vue/cli-service` and run with an explicit port and `0.0.0.0` host. Generic
+project scripts continue to use `pnpm dev` because they are npm scripts, not
+package binaries.
+
 ## Invariants
 
 - PM2 is the execution state source.
