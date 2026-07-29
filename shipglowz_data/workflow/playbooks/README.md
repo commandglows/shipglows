@@ -52,6 +52,35 @@ Use this folder when the document answers:
 - `project-import-playbook.md`
 - `server-disk-hygiene-and-migration-playbook.md`
 - `conversation-tracker-sync-playbook.md`
+- `cybersecurity-project-readiness-and-maintenance-playbook.md`
+- `performance-project-readiness-and-monitoring-playbook.md`
+- `analytics-measurement-readiness-and-quality-playbook.md`
+- `marketing-go-to-market-readiness-playbook.md`
+- `copywriting-public-surface-quality-playbook.md`
+- `content-publication-and-editorial-operations-playbook.md`
+- `production-health-and-operations-playbook.md`
+- `maintenance-freshness-and-dependency-operations-playbook.md`
+- `technical-project-readiness-and-operations-playbook.md`
+
+## Transversal Domain Boundary
+
+The playbook library is intended to cover the complete project lifecycle, not
+SEO alone. A project can combine technical, cybersecurity, technical SEO,
+performance, analytics, marketing, copywriting, content, launch, production,
+and maintenance playbooks. Each domain remains independently instantiable so
+its progress, cadence, owner and evidence can be followed without merging all
+controls into one task list.
+
+Current detailed playbooks include technical/site launch, cybersecurity,
+technical SEO, performance, analytics, marketing, copywriting, content,
+production and maintenance. The marketing, copywriting and content masters
+are initial operating contracts and should be refined with their domain owner
+when a real project instantiates them.
+
+Technical SEO is limited to the technical surface: crawlability, indexation,
+rendering, metadata, structured data, performance signals and technical
+maintenance. Keyword research, search intent, editorial strategy and content
+production belong to the separate content/marketing workflow.
 
 ## What Does Not Belong Here
 

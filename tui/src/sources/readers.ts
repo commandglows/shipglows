@@ -12,6 +12,8 @@ import {
   summarizeTasks,
   summarizeAudits
 } from "./summarizers.ts";
+import { summarizeLifecycle } from "./lifecycle.ts";
+import { summarizeChecklistInstances } from "./checklistInstances.ts";
 import { topLines } from "../statusMaps.ts";
 import type { DashboardData, Diagnostic, ProjectItem, SpecItem, TextSummary } from "../types/models.ts";
 
@@ -493,6 +495,8 @@ export async function readDashboardData(config: ReaderConfig): Promise<Dashboard
   }
 
   const auditSources: { content: string; defaultProject?: string; sourcePath: string; redactedSourcePath: string }[] = [];
+  const lifecycleLines: string[] = [];
+  const checklistInstanceSources: { content: string; project: string; source: string }[] = [];
   for (const project of projects) {
     const projectPath = project.path ?? config.projectRoot;
     const fallback = await readFirstExisting([
@@ -509,6 +513,31 @@ export async function readDashboardData(config: ReaderConfig): Promise<Dashboard
       sourcePath,
       redactedSourcePath: policy.redactPath(sourcePath)
     });
+  }
+
+  for (const project of projects) {
+    const projectPath = project.path ?? config.projectRoot;
+    const lifecycle = await readFirstExisting([
+      path.join(projectPath, "shipglowz_data/workflow/project_lifecycle.md"),
+      path.join(projectPath, "shipglowz_data/project_lifecycle.md")
+    ]);
+    if (lifecycle?.ok && lifecycle.content) {
+      lifecycleLines.push(...summarizeLifecycle(lifecycle.content, project.name, diagnostics).lines);
+    }
+    const instancesRoot = path.join(projectPath, "shipglowz_data/workflow/checklist-instances");
+    try {
+      const entries = await readdir(instancesRoot, { withFileTypes: true });
+      for (const entry of entries) {
+        if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+        const instancePath = path.join(instancesRoot, entry.name);
+        const instance = await readOptional(instancePath);
+        if (instance.ok && instance.content) {
+          checklistInstanceSources.push({ content: instance.content, project: project.name, source: policy.redactPath(instance.realPath ?? instancePath) });
+        }
+      }
+    } catch {
+      // Optional source: legacy projects remain readable without a checklist directory.
+    }
   }
 
   const operationLines: string[] = [];
@@ -541,6 +570,8 @@ export async function readDashboardData(config: ReaderConfig): Promise<Dashboard
     projects,
     specs,
     tasks: taskLines,
+    lifecycle: { label: "Lifecycle", lines: lifecycleLines },
+    checklistInstances: summarizeChecklistInstances(checklistInstanceSources, diagnostics),
     audits: auditLines,
     operations: opsLines,
     dependencies: depLines,

@@ -39,6 +39,19 @@ describe("readDashboardData", () => {
       "utf8"
     );
     await writeFile(
+      path.join(projectRoot, "shipglowz_data/workflow/project_lifecycle.md"),
+      [
+        "- Lifecycle phase: `operate`",
+        "",
+        "## Lifecycle Items",
+        "",
+        "| Item ID | Instance ID | Type | Domain | Title | Required | State | Due At | Cadence | Timezone | Evidence | Tracker Route | Next Action |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| security-review | shipglowz_app:security-review:2026-07-28 | recurring | cybersecurity | Security review | yes | not_started | 2026-07-28T10:00:00+00:00 | weekly | UTC | - | technical_task | Review posture |"
+      ].join("\n"),
+      "utf8"
+    );
+    await writeFile(
       path.join(projectRoot, "shipglowz_data/workflow/specs/demo.md"),
       [
         "status: ready",
@@ -79,9 +92,57 @@ describe("readDashboardData", () => {
     expect(data.specs[0]?.title).toBe("Local Discovery Spec");
     expect(data.specs[0]?.path).toContain("shipglowz_data/workflow/specs/demo.md");
     expect(data.tasks.lines[0]).toContain("Review local task reader");
+    expect(data.lifecycle?.lines.some((line) => line.includes("security-review"))).toBe(true);
+    expect(data.checklistInstances?.lines).toEqual(["No checklist instances."]);
     expect(data.audits.lines[0]).toContain("reader");
     expect(data.skills.lines).toContain("sg-spec");
     expect(data.diagnostics).toHaveLength(0);
+  });
+
+  it("projects checklist instance progression separately from tasks", async () => {
+    const appRoot = await mkdtemp(path.join(tmpdir(), "sg-tui-app-"));
+    const projectRoot = await makeProjectFixture(appRoot, "shipglowz_app");
+    await mkdir(path.join(projectRoot, "shipglowz_data/workflow/checklist-instances"), { recursive: true });
+    await writeFile(
+      path.join(projectRoot, "shipglowz_data/workflow/checklist-instances/seo.md"),
+      [
+        "---",
+        "project_id: shipglowz_app",
+        "checklist_id: seo-technical",
+        "cycle_id: shipglowz_app:seo-technical:2026-07-28",
+        "---",
+        "",
+        "## Controls",
+        "",
+        "| Control ID | Phase | Control | Required | Status | Evidence | Notes |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| technical-scope | Périmètre | Scope | yes | verified | evidence/scope.md | |",
+        "| technical-crawl | Crawl | Robots | yes | in_progress | - | |"
+      ].join("\n"),
+      "utf8"
+    );
+    await writeFile(
+      path.join(projectRoot, "shipglowz_data/workflow/checklist-instances/cybersecurity.md"),
+      [
+        "---",
+        "project_id: shipglowz_app",
+        "checklist_id: cybersecurity-readiness",
+        "cycle_id: shipglowz_app:cybersecurity-readiness:2026-07-28",
+        "---",
+        "",
+        "## Controls",
+        "",
+        "| Control ID | Phase | Control | Required | Status | Evidence | Notes |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| access-review | Accès | Review access | yes | verified | evidence/access.md | |"
+      ].join("\n"),
+      "utf8"
+    );
+    const data = await readDashboardData({ projectRoot, workspaceRoots: [appRoot], shipflowRepoRoot: appRoot });
+    expect(data.checklistInstances?.lines[0]).toContain("checklist seo-technical");
+    expect(data.checklistInstances?.lines[0]).toContain("progress 1/2");
+    expect(data.checklistInstances?.lines.some((line) => line.includes("checklist cybersecurity-readiness"))).toBe(true);
+    expect(data.tasks.lines.some((line) => line.includes("technical-crawl"))).toBe(false);
   });
 
   it("summarizes task and audit table entries from local project tables", async () => {

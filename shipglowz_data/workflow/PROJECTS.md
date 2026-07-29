@@ -4,7 +4,7 @@
 
 | Name | Path | Stack |
 |------|------|-------|
-| jarrettelacoke.fr | /home/claude/quit-coke | Astro 6, Vue 3, Clerk, Polar, RevenueCat, pnpm, TypeScript |
+| jarrettelacoke.fr | /home/claude/jarretelacoke | Astro 6, Vue 3, Clerk, Polar, RevenueCat, pnpm, TypeScript |
 | gamification | /home/claude/gamification | Vite |
 | contentflowz | /home/claude/contentflow/contentflow_site | Astro |
 | winflowz | /home/claude/winflowz | Astro |

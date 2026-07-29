@@ -101,6 +101,8 @@ function compactSections(vm: DashboardViewModel): Array<{ title: string; lines: 
   if (vm.activePanel === "activity") {
     return [
       { title: "Projects", lines: vm.projectLines, panel: "projects" },
+      { title: "Lifecycle", lines: withoutLeadingLabel(vm.lifecycleLines, "Lifecycle"), panel: "activity" },
+      { title: "Checklist instances", lines: withoutLeadingLabel(vm.checklistInstanceLines, "Checklist instances"), panel: "activity" },
       { title: "Tasks", lines: withoutLeadingLabel(vm.activityLines, "Tasks"), panel: "activity" }
     ];
   }

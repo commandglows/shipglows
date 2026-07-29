@@ -1,7 +1,7 @@
 ---
 name: 007-sg-content
 description: "Orchestrate substantive content lifecycles across sources, claims, public surfaces, validation, and ship."
-argument-hint: '[goal | source | file | mode: plan, repurpose, draft, enrich, audit, marketing, seo, editorial, apply, ship]'
+argument-hint: '[goal | source | file | mode: plan, capture-full-conversation, clean-transcript, repurpose, draft, enrich, audit, marketing, seo, editorial, apply, ship]'
 ---
 
 Primary artifact type: `master-workflow`.
@@ -63,6 +63,8 @@ Load before routing or execution:
 
 - `$SHIPFLOW_ROOT/skills/007-sg-content/references/content-router.md` for mode selection, spec gates, governance gates, owner routing, and rubric details.
 - `$SHIPFLOW_ROOT/skills/007-sg-content/references/repurpose-playbook.md` only for the explicit `repurpose <source>` lane; it preserves source-faithful, verbatim, storage, safety, and handoff behavior without creating another public command.
+- `$SHIPFLOW_ROOT/skills/800-tmux-capture-conversation/SKILL.md` only for `capture-full-conversation`; it is an internal implementation behind the public mode.
+- `$SHIPFLOW_ROOT/skills/801-clean-conversation-transcript/SKILL.md` only for `clean-transcript <path>`; it is an internal implementation behind the public mode.
 - `$SHIPFLOW_ROOT/skills/references/content-owner-handoffs.md` for the canonical content-owner matrix and minimum handoff payload.
 - `$SHIPFLOW_ROOT/skills/references/source-intake-classification.md` when the input is a pasted source, email, URL, transcript, note, article, or example whose project, angle, or owner route is not already settled.
 - `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md` when public content, README public promises, docs, FAQ, pricing, support copy, public skill pages, blog/article intent, claims, or runtime content are in scope.
@@ -156,6 +158,7 @@ Follow the shared reporting contract. In addition to its required outcome and pr
 - Follow shared operator-partnership doctrine. In content work, apply the obvious editorial follow-through that stays inside the current surface and owner contract before asking for framing help.
 - For Diane, presume public content by default and arbitrate only the correct declared public surface unless she explicitly asks for internal content or routes through `300-sg-docs`.
 - Own `repurpose <source>` as one bounded local mode: load its playbook, keep verbatim requests archival, create only the governed source-faithful pack when safe, then hand downstream work to the established owner.
+- Expose `capture-full-conversation` and `clean-transcript <path>` as public modes while keeping `800` and `801` internal-only. Keep `repurpose ... verbatim` exact and independent from cleanup.
 - Keep content source truth separate from public claims.
 - Prefer declared surfaces over invented paths.
 - Ask only targeted questions when the answer changes mode, surface, scope, security, claims, or ship posture.

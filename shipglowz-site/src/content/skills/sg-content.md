@@ -29,10 +29,18 @@ what_you_get:
   - "Validation and a concise content lifecycle report"
 example_prompts:
   - "/sg-content repurpose this build conversation into docs, FAQ, and public skill-page updates"
+  - "/sg-content capture-full-conversation"
+  - "/sg-content clean-transcript /path/to/conversation.md"
   - "/sg-content audit the public content around skill modes and update the right surfaces"
   - "/sg-content draft article about ShipGlowz skill lifecycle"
   - "/sg-content audit article avec grille projet"
 argument_modes:
+  - argument: "capture-full-conversation"
+    effect: "Exports the complete visible tmux conversation to a raw Markdown transcript."
+    consequence: "Uses the internal capture implementation; it does not clean, summarize, or repurpose the transcript."
+  - argument: "clean-transcript <path>"
+    effect: "Removes terminal noise and labels a supplied transcript for readability."
+    consequence: "Uses the internal cleanup implementation; it does not capture a new pane or create a content strategy pack."
   - argument: "plan / strategy"
     effect: "Creates or routes a content plan before edits."
     consequence: "Uses the content map and may require a spec when multiple surfaces or claims are affected."
@@ -53,6 +61,7 @@ argument_modes:
     consequence: "Requires bounded dirty scope, public build proof when relevant, and verification before ship."
 limits:
   - "It does not replace specialist writing, enrichment, audit, docs, research, or SEO skills after its bounded repurpose pack"
+  - "Capture and cleanup are separate modes; neither replaces the exact-preservation verbatim branch"
   - "It does not invent undeclared blog, newsletter, social, or support paths"
   - "It blocks unsupported sensitive claims instead of making them sound better"
 related_skills:

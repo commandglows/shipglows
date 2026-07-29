@@ -270,6 +270,8 @@ export function buildDashboardViewModel(
     state.selectedTaskIndex,
     TASK_VISIBLE_COUNT
   );
+  const lifecycleLines = sectionLines(data.lifecycle ?? { label: "Lifecycle", lines: [] }, 12);
+  const checklistInstanceLines = sectionLines(data.checklistInstances ?? { label: "Checklist instances", lines: [] }, 12);
 
   const rawAuditLines = filteredSummaryLines(data.audits, state.projectFilter, selectedProject);
   const sortedAuditLines = rawAuditLines.slice().sort((left, right) => {
@@ -301,6 +303,8 @@ export function buildDashboardViewModel(
     projectLines: listProjectLines(projects, state.selectedProjectIndex),
     specLines: listSpecLines(specs, state.selectedSpecIndex),
     activityLines,
+    lifecycleLines,
+    checklistInstanceLines,
     auditsLines,
     detailLines: buildDetailLines(selectedProject, selectedSpec),
     diagnosticsLines

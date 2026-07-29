@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: "ShipGlowz"
 created: "2026-07-26"
 created_at: "2026-07-26 13:21:00 UTC"
 updated: "2026-07-26"
-updated_at: "2026-07-26 17:01:00 UTC"
+updated_at: "2026-07-28 19:09:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -366,12 +366,13 @@ None. Decisions resolved for v1:
 | 2026-07-26 16:58:00 | 100-sg-spec | GPT-5 Codex | Resolved readiness blockers: JSON canonical registry with generated views, five pilot surface slots, deterministic context fingerprint fields and explicit proof scenarios/results. | Spec updated for readiness review. | /101-sg-ready Approved Surface Protection And Product Atlas |
 | 2026-07-26 17:01:00 | 100-sg-spec | GPT-5 Codex | Bound the pilot to the real `best-fried-chicken` project and mapped the five pilot slots across its Astro and Flutter public/ordering surfaces. | Scope is now project-specific; independent readiness review remains required. | /101-sg-ready Approved Surface Protection And Product Atlas |
 | 2026-07-26 17:03:00 | 101-sg-ready | GPT-5 Codex | Re-reviewed the resolved contract, explicit proof scenarios, context fingerprint and Best Fried Chicken pilot scope. | Ready: no material ambiguity or unresolved security/proof blocker remains for implementation. | /102-sg-start Approved Surface Protection And Product Atlas |
+| 2026-07-28 19:09:00 | 102-sg-start | GPT-5 Codex | Implemented the Best Fried Chicken pilot atlas, stable `data-sg-surface`/`data-sg-target` hooks on the five pilot zones, and the project proof checklist. | Implementation slice complete; local typecheck/build and JSON validation pass. Browser/golden proof remains for verification. | /103-sg-verify Approved Surface Protection And Product Atlas |
 
 ## Current Chantier Flow
 
 - 100-sg-spec: completed — durable draft created.
 - 101-sg-ready: completed — spec ready for implementation on the Best Fried Chicken pilot.
-- 102-sg-start: pending.
+- 102-sg-start: completed — Best Fried Chicken pilot atlas and stable targeting hooks implemented.
 - 103-sg-verify: pending.
 - 104-sg-end: pending.
 - 005-sg-ship: pending.

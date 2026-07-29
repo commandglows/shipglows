@@ -45,6 +45,7 @@ describe("buildDashboardViewModel", () => {
       }
     ],
     tasks: { label: "Tasks", lines: ["[alpha] task a", "[beta] task b"] },
+    checklistInstances: { label: "Checklist instances", lines: ["[alpha] checklist seo-technical · progress 1/2"] },
     audits: { label: "Audits", lines: ["2026-05-20 — alpha / audit a — B", "2026-05-21 — beta / audit b — C"] },
     operations: { label: "Operations", lines: ["c"] },
     dependencies: { label: "Dependencies", lines: ["d"] },

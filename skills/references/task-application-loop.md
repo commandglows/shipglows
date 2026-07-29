@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: "ShipGlowz"
 created: "2026-06-27"
-updated: "2026-06-27"
+updated: "2026-07-28"
 status: active
 source_skill: 102-sg-start
 scope: task-application-loop
@@ -58,6 +58,8 @@ During implementation:
 - update durable progress immediately after a slice is actually complete, not before
 - re-read mutable trackers or records immediately before changing them
 - pause when implementation reveals a contract, design, security, data, or proof gap
+- for recurring lifecycle work, close only the current dated instance and preserve the reusable definition plus the next occurrence
+- for cybersecurity work, keep evidence redacted and route implementation findings through the technical execution tracker
 
 Before claiming completion:
 

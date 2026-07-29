@@ -50,6 +50,8 @@ When a pasted source, email, URL, transcript, note, article, or example arrives 
 
 ## Mode Map
 
+- `capture-full-conversation` -> delegate raw tmux scrollback export to the internal `800-tmux-capture-conversation` implementation; do not clean or repurpose the result.
+- `clean-transcript <path>` -> delegate readability cleanup of the supplied Markdown transcript to the internal `801-clean-conversation-transcript` implementation; do not capture a new pane or create a content pack.
 - `plan`, `strategy`, `calendar`, `content plan` -> content plan, use `100-sg-spec` when durable or multi-surface.
 - `repurpose <source>` -> load `references/repurpose-playbook.md`; this self-owned lane first classifies source safety, then creates a source-faithful pack and governed durable memory when justified, before handing downstream work to the right owner. A bare `repurpose` asks for a source. `verbatim`, `mot pour mot`, and `copie exacte` select the exact-preservation archival branch, never analysis.
 - `source`, `conversation`, `faq`, `release notes`, `site update` -> resolve whether the request is explicit repurposing; use the local `repurpose <source>` lane when it is, otherwise choose the smallest owner below.

@@ -42,6 +42,7 @@ HISTORICAL_FILES = {
     "shipglowz_data/workflow/specs/skill-taxonomy-and-chantier-sources.md",
     "shipglowz_data/workflow/specs/specs-as-chantier-registry.md",
     "shipglowz_data/workflow/specs/three-digit-runtime-skill-names.md",
+    "tools/test_010_sg_technical_contract.py",
 }
 
 
@@ -50,6 +51,17 @@ def read(relative: str) -> str:
 
 
 class RepurposeModeContractTest(unittest.TestCase):
+    def test_transcript_modes_are_public_and_distinct(self) -> None:
+        router = read("skills/007-sg-content/references/content-router.md")
+        skill = read("skills/007-sg-content/SKILL.md")
+        public = read("shipglowz-site/src/content/skills/sg-content.md")
+        for mode in ("capture-full-conversation", "clean-transcript", "verbatim"):
+            self.assertIn(mode, router + skill + public)
+        self.assertIn("internal `800-tmux-capture-conversation`", router)
+        self.assertIn("internal `801-clean-conversation-transcript`", router)
+        self.assertIn("do not clean or repurpose", router)
+        self.assertIn("do not capture a new pane", router)
+
     def test_scenario_first_mode_and_verbatim_contract(self) -> None:
         router = read("skills/007-sg-content/references/content-router.md")
         playbook = read("skills/007-sg-content/references/repurpose-playbook.md")

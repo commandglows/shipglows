@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlowz
 created: "2026-05-05"
-updated: "2026-07-18"
+updated: "2026-07-28"
 status: active
 source_skill: manual
 scope: final-report-timestamp
@@ -27,6 +27,7 @@ evidence:
   - "User decision 2026-07-16: show only Europe/Paris time (`HH:mm`) in the verdict header and omit the calendar date."
   - "User decision 2026-07-16: use 🧱 for normal chantier headers and reserve 🚧 for a genuinely blocked verdict."
   - "Operator correction 2026-07-18: user-facing route context describes the outcome or decision, never an internal owner, skill, command, or lifecycle stage."
+  - "Operator correction 2026-07-28: a report accidentally displayed UTC despite the Paris-time contract; add an execution-time safeguard at the shared timestamp source."
 next_review: "2026-06-05"
 next_step: "/103-sg-verify final report timestamp contract"
 ---
@@ -56,6 +57,7 @@ For a genuinely blocked verdict, replace the first marker only:
 ## Rules
 
 - Use `Europe/Paris` local time, not UTC, for the visible report timestamp.
+- Immediately before writing a final report, resolve the current clock in the `Europe/Paris` timezone (for example, `TZ=Europe/Paris date +%H:%M`); never reuse a UTC clock reading or an earlier intermediate timestamp.
 - The displayed time is when the verdict or final status is pronounced, not when the task started.
 - Display only `HH:mm`; do not include the calendar date in the verdict header.
 - Keep UTC timestamps for internal ledgers, specs, run histories, and machine-readable artifacts that already require UTC.

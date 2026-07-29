@@ -34,6 +34,8 @@ export interface DashboardData {
   projects: ProjectItem[];
   specs: SpecItem[];
   tasks: TextSummary;
+  lifecycle?: TextSummary;
+  checklistInstances?: TextSummary;
   audits: TextSummary;
   operations: TextSummary;
   dependencies: TextSummary;
@@ -72,6 +74,8 @@ export interface DashboardViewModel {
   projectLines: string[];
   specLines: string[];
   activityLines: string[];
+  lifecycleLines: string[];
+  checklistInstanceLines: string[];
   auditsLines: string[];
   detailLines: string[];
   diagnosticsLines: string[];

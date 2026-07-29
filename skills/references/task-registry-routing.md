@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlowz
 created: "2026-07-09"
-updated: "2026-07-09"
+updated: "2026-07-28"
 status: active
 source_skill: 009-sg-skill-build
 scope: task-registry-routing
@@ -32,6 +32,7 @@ supersedes: []
 evidence:
   - "User decision 2026-07-09: separate editorial/content follow-ups from technical execution tasks."
   - "Current content and audit skills still point public-content recommendations at workflow/TASKS.md."
+  - "Project lifecycle contract adds cybersecurity as a domain whose implementation findings route to the execution tracker."
 next_review: "2026-08-09"
 next_step: "/103-sg-verify task-registry-routing"
 ---
@@ -61,6 +62,7 @@ Write to `shipglowz_data/workflow/TASKS.md` when the follow-up is primarily abou
 - implementation of a technical system, automation, or operational script
 - governed internal docs or skill-contract maintenance
 - product behavior changes that require engineering work
+- cybersecurity posture, access control, secrets, dependency exposure, incident readiness, or security remediation
 
 Write to `shipglowz_data/editorial/ROADMAP.md` when the follow-up is primarily about:
 
@@ -79,6 +81,8 @@ If one source produces both kinds of work, split it:
 Use shared fields such as `source`, `surface`, `spec`, `area`, `next`, or `paired` so the relationship stays visible.
 
 Do not collapse mixed work into one ambiguous record.
+
+Cybersecurity findings follow the same split: implementation and remediation go to `TASKS.md`; public guidance, security education, or copy claims go to `ROADMAP.md` only when the corresponding public surface is declared.
 
 ## Surface Gate
 
