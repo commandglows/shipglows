@@ -4,13 +4,15 @@ Use this reference when a ShipGlowz application is a Flutter app using Clerk, Co
 
 Sources checked:
 - https://clerk.com/changelog/2025-03-26-flutter-sdk-beta
+- https://clerk.com/docs/android/reference/native-mobile/auth
+- https://clerk.com/docs/android/guides/configure/auth-strategies/social-connections/overview
 - https://pub.dev/packages/clerk_flutter
 - https://pub.dev/packages/clerk_auth
 - https://pub.dev/packages/convex_dart
 - https://docs.convex.dev/client/python
 - https://docs.convex.dev/home
 
-Last reviewed: 2026-04-26
+Last reviewed: 2026-07-30
 
 ## SDK Status
 
@@ -28,6 +30,40 @@ Last reviewed: 2026-04-26
   - use `convex_dart` with explicit acceptance of third-party dependency risk, or
   - expose a small official HTTP/API layer if auth-critical reliability matters more than realtime client convenience.
 - For Google sign-in, prefer Clerk-managed social auth when using Clerk, and avoid hand-rolling direct Google OAuth unless the app has a strong reason.
+
+## Native Android Flutter Bridge
+
+When Flutter is the UI shell but Android needs a production native auth flow,
+use Clerk's official Android API SDK from Kotlin behind a typed Flutter
+MethodChannel. Do not reintroduce the beta Flutter/Dart SDK solely to cover
+Android.
+
+For the ContentGlowz Android contract (and any project pinning the same SDK):
+
+- Pin `com.clerk:clerk-android-api:1.0.36` and keep the UI in Flutter.
+- Launch Google with `Clerk.auth.signInWithOAuth(OAuthProvider.GOOGLE)`.
+- Let the SDK's manifest-registered `SSOReceiverActivity` own the callback.
+  Do not add a competing `MainActivity` callback handler or forward OAuth
+  parameters through Flutter.
+- With SDK `1.0.36`, the callback contract is exactly
+  `clerk://<Clerk application id>.callback`. For package/application id
+  `com.contentglowz.app`, allowlist exactly
+  `clerk://com.contentglowz.app.callback` in the Clerk instance. The generic
+  `{package}://callback` examples in some mobile documentation must not
+  override the pinned SDK's actual manifest and source contract.
+- Enable Clerk Native API, register the Android application, configure its
+  release certificate fingerprint in Clerk, and enable the Google connection
+  for both sign-in and sign-up. Keep keys, fingerprints, and provider secrets
+  out of the repository.
+- Expose only typed operations such as `initialize`, `signInWithGoogle`,
+  `restoreSession`, `getFreshToken`, and `signOut`; the bridge must never
+  return raw callback URLs, OAuth codes, cookies, or tokens to logs.
+
+The asynchronous boundary is part of the auth UX: while Clerk initializes,
+restores a session, opens the browser, or completes the callback, show a
+visible progress indicator and disable duplicate sign-in attempts. On timeout
+or incomplete session, clear the pending state and expose a recoverable,
+diagnostic error rather than leaving the entry screen apparently frozen.
 
 ## Files And Config To Inspect
 
@@ -92,4 +128,8 @@ Last reviewed: 2026-04-26
 - Confirm Clerk signs in before debugging Convex.
 - Confirm a session token reaches the backend before debugging app data.
 - For Google login, capture redirect/deep link behavior and do not assume Playwright browser behavior equals native behavior.
+- For Android native OAuth, record the exact stop point: before browser launch,
+  provider page, callback return, Clerk session activation, or backend bootstrap.
+- Confirm the installed APK commit is the one under test; a stale APK can make
+  a corrected callback or SDK contract appear ineffective.
 - After a fix, test cold start, sign-in, app restart, token refresh, sign-out, and one protected backend call.
