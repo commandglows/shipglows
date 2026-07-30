@@ -50,6 +50,8 @@ Use it when Diane or a ShipGlowz maintainer wants to:
 
 ## Mode Detection
 
+Before parsing an explicit invocation, load `$SHIPFLOW_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+
 Parse `$ARGUMENTS` exactly as:
 
 ```text
@@ -69,6 +71,12 @@ help
 | `help` | Explain the supported modes and canonical invocation shape. |
 
 Bare or invalid input must list these modes or ask one targeted routing question. `build` and `refresh` without a target are invalid; do not infer a target, reuse the last target, or treat retired `009-sg-skill-build` / `307-sg-skills-refresh` names as aliases.
+
+If an invalid mode is a known mode owned by another skill, preserve the
+preflight stop but show the unique owner and exact invocation template. In
+particular, `900-shipglowz-core excellence` must suggest
+`103-sg-verify mode=excellence <task or scope>`; never silently activate the
+other skill from the rejected command.
 
 An operator critique that names a concrete ShipGlowz behavior to correct is a
 bounded repair request, not a bare invocation: select the narrowest internal
