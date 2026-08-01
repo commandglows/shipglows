@@ -24,12 +24,18 @@ function Remove-PathIfPresent([string]$Path) {
     }
 }
 function Extract-ShipglowzLocalInstaller([string]$ArchivePath, [string]$DestinationPath) {
-    $tarCommand = Get-Command tar.exe -CommandType Application -ErrorAction SilentlyContinue
-    if (-not $tarCommand) {
+    $windowsTarPath = Join-Path $env:WINDIR 'System32\tar.exe'
+    if (Test-Path -LiteralPath $windowsTarPath) {
+        $tarPath = $windowsTarPath
+    } else {
+        $fallbackTar = Get-Command tar.exe -CommandType Application -All -ErrorAction SilentlyContinue | Select-Object -First 1
+        $tarPath = if ($fallbackTar) { $fallbackTar.Source } else { $null }
+    }
+    if (-not $tarPath) {
         Fail 'Windows tar.exe is required to extract ShipGlowz without Microsoft.PowerShell.Archive.'
     }
 
-    $archiveEntries = @(& $tarCommand.Source -tf $ArchivePath)
+    $archiveEntries = @(& $tarPath -tf $ArchivePath)
     if ($LASTEXITCODE -ne 0) {
         Fail 'Could not inspect the ShipGlowz archive with tar.exe.'
     }
@@ -40,7 +46,7 @@ function Extract-ShipglowzLocalInstaller([string]$ArchivePath, [string]$Destinat
         Fail 'The ShipGlowz archive must contain exactly one local/install_local.ps1.'
     }
 
-    & $tarCommand.Source -xf $ArchivePath -C $DestinationPath $installerEntries[0]
+    & $tarPath -xf $ArchivePath -C $DestinationPath $installerEntries[0]
     if ($LASTEXITCODE -ne 0) {
         Fail 'Could not extract local/install_local.ps1 with tar.exe.'
     }
