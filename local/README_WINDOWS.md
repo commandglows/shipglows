@@ -78,6 +78,11 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
    OpenSSH si nécessaire, puis lance l'installation locale native. Il ne
    demande ni Git, ni `sudo`, ni WSL, ni `autossh`.
 
+   Le bootstrap teste l'exécution réelle de WSL (`wsl.exe -e sh -lc "printf ok"`)
+   au lieu de considérer la seule présence de `wsl.exe` comme une preuve de
+   fonctionnement. Si WSL est bloqué par la virtualisation de la VM, le
+   parcours PowerShell natif est utilisé.
+
 3. **Ou exécuter le script d'installation depuis une copie existante:**
    ```powershell
    cd local

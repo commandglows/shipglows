@@ -1,6 +1,7 @@
-# install_local.ps1 - Installation automatique pour Windows (PowerShell)
-# Installe automatiquement OpenSSH Client si la fonctionnalité est absente.
+# ShipGlowz native Windows local installer.
+# This file is intentionally valid PowerShell without WSL, Bash, or sudo.
 
+[CmdletBinding()]
 param(
     [string]$RemoteHost = $(if ($env:SHIPGLOWZ_SSH_REMOTE_HOST) { $env:SHIPGLOWZ_SSH_REMOTE_HOST } else { '' }),
     [string]$RemoteUser = $(if ($env:SHIPGLOWZ_SSH_REMOTE_USER) { $env:SHIPGLOWZ_SSH_REMOTE_USER } else { '' }),
@@ -8,26 +9,39 @@ param(
     [string]$IdentityFile = $(if ($env:SHIPGLOWZ_SSH_IDENTITY_FILE) { $env:SHIPGLOWZ_SSH_IDENTITY_FILE } else { '' })
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
 
-$GREEN = "`e[32m"
-$BLUE = "`e[34m"
-$YELLOW = "`e[33m"
-$RED = "`e[31m"
-$NC = "`e[0m"
+function Write-Info([string]$Message) { Write-Host $Message -ForegroundColor Cyan }
+function Write-Success([string]$Message) { Write-Host $Message -ForegroundColor Green }
+function Write-WarningMessage([string]$Message) { Write-Host $Message -ForegroundColor Yellow }
+function Write-ErrorMessage([string]$Message) { Write-Host $Message -ForegroundColor Red }
 
-$SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
-$SSH_CONFIG = "$env:USERPROFILE\.ssh\config"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sshDir = Join-Path $env:USERPROFILE '.ssh'
+$sshConfigPath = Join-Path $sshDir 'config'
 
-Write-Host "${BLUE}🚀 Installation ShipGlowz - Configuration Windows${NC}"
-Write-Host ""
+Write-Info 'ShipGlowz - native Windows local installation'
+Write-Host ''
 
-# 1. Vérifier OpenSSH Client
-Write-Host "${BLUE}1. Vérification des dépendances...${NC}"
+# WSL is optional. Presence of wsl.exe is not enough: execute a real command.
+$wslCommand = Get-Command wsl.exe -ErrorAction SilentlyContinue
+if ($wslCommand) {
+    $wslProbeOutput = (& wsl.exe -e sh -lc 'printf ok' 2>$null | Out-String).Trim()
+    if ($LASTEXITCODE -eq 0 -and $wslProbeOutput -eq 'ok') {
+        Write-Info 'WSL is available, but native Windows mode remains selected.'
+    } else {
+        Write-WarningMessage 'WSL is detected but unusable on this machine; using native Windows local mode.'
+    }
+} else {
+    Write-Info 'WSL is not installed; using native Windows local mode.'
+}
 
-$sshInstalled = Get-Command ssh -ErrorAction SilentlyContinue
-if (-not $sshInstalled) {
-    Write-Host "${YELLOW}   OpenSSH Client absent; demande d'installation Windows...${NC}"
+# 1. Install Windows OpenSSH Client when it is missing.
+Write-Info '1. Checking Windows OpenSSH Client...'
+$sshCommand = Get-Command ssh.exe -ErrorAction SilentlyContinue
+if (-not $sshCommand) {
+    Write-WarningMessage 'OpenSSH Client is missing; Windows will request administrator approval.'
     $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
@@ -39,61 +53,55 @@ if (-not $sshInstalled) {
         $elevated = Start-Process powershell.exe -Verb RunAs -Wait -PassThru -ArgumentList $argumentList
         exit $elevated.ExitCode
     }
+
     Add-WindowsCapability -Online -Name 'OpenSSH.Client~~~~0.0.1.0' | Out-Host
-    $sshInstalled = Get-Command ssh -ErrorAction SilentlyContinue
-    if (-not $sshInstalled) {
-        throw 'Windows n’a pas pu installer OpenSSH Client. Vérifie Windows Update ou la politique de la machine virtuelle.'
+    $sshCommand = Get-Command ssh.exe -ErrorAction SilentlyContinue
+    if (-not $sshCommand) {
+        throw 'Windows could not install OpenSSH Client. Check Windows Update or the virtual machine policy.'
     }
 }
-Write-Host "${GREEN}   ✓ OpenSSH Client installé${NC}"
+Write-Success '   OpenSSH Client is available.'
+Write-Host ''
 
-Write-Host ""
+# 2. Configure the SSH host entry.
+Write-Info '2. Configuring SSH...'
+New-Item -ItemType Directory -Path $sshDir -Force | Out-Null
 
-# 2. Configurer SSH
-Write-Host "${BLUE}2. Configuration SSH...${NC}"
-
-# Créer le répertoire .ssh si nécessaire
-$sshDir = "$env:USERPROFILE\.ssh"
-if (-not (Test-Path $sshDir)) {
-    New-Item -ItemType Directory -Path $sshDir | Out-Null
-}
-
-# Choisir la cible et le mode d'authentification SSH
-Write-Host ""
-if (-not $RemoteHost) { $RemoteHost = (Read-Host "   Hôte ou IP du serveur ShipGlowz").Trim() }
-if (-not $RemoteHost) { throw 'L’hôte SSH est obligatoire.' }
-if (-not $RemoteUser) { $RemoteUser = (Read-Host "   Utilisateur SSH [root]").Trim() }
+if (-not $RemoteHost) { $RemoteHost = (Read-Host '   ShipGlowz server host or IP').Trim() }
+if (-not $RemoteHost) { throw 'The SSH host is required.' }
+if (-not $RemoteUser) { $RemoteUser = (Read-Host '   SSH user [root]').Trim() }
 if (-not $RemoteUser) { $RemoteUser = 'root' }
+
 if (-not $AuthMethod) {
-    Write-Host "${YELLOW}   a) Clé SSH / fichier IdentityFile${NC}"
-    Write-Host "${YELLOW}   b) Mot de passe SSH${NC}"
-    $authChoice = (Read-Host "   Choix [a/b]").Trim().ToLower()
-    if ($authChoice -eq 'b' -or $authChoice -eq 'password' -or $authChoice -eq 'mot de passe') { $AuthMethod = 'password' } else { $AuthMethod = 'key' }
+    Write-Host '   a) SSH key / IdentityFile' -ForegroundColor Yellow
+    Write-Host '   b) SSH password' -ForegroundColor Yellow
+    $authChoice = (Read-Host '   Choice [a/b]').Trim().ToLowerInvariant()
+    if ($authChoice -eq 'b' -or $authChoice -eq 'password') { $AuthMethod = 'password' } else { $AuthMethod = 'key' }
 }
-$AuthMethod = $AuthMethod.Trim().ToLower()
-if ($AuthMethod -notin @('key', 'password')) { throw "Mode SSH invalide: $AuthMethod. Utilise key ou password." }
+$AuthMethod = $AuthMethod.Trim().ToLowerInvariant()
+if ($AuthMethod -notin @('key', 'password')) { throw "Invalid SSH authentication mode: $AuthMethod. Use key or password." }
+
 if ($AuthMethod -eq 'key' -and -not $IdentityFile) {
-    $defaultIdentity = Join-Path $env:USERPROFILE '.ssh\id_ed25519'
-    $identityInput = (Read-Host "   Fichier de clé SSH [$defaultIdentity]").Trim()
+    $defaultIdentity = Join-Path $sshDir 'id_ed25519'
+    $identityInput = (Read-Host "   SSH key file [$defaultIdentity]").Trim()
     $IdentityFile = if ($identityInput) { $identityInput } else { $defaultIdentity }
 }
-Write-Host "${GREEN}   ✓ Cible choisie: $RemoteUser@$RemoteHost ($AuthMethod)${NC}"
+Write-Success "   SSH target: $RemoteUser@$RemoteHost ($AuthMethod)"
 
 $shipglowzConfigDir = Join-Path $env:USERPROFILE '.shipglowz'
 New-Item -ItemType Directory -Path $shipglowzConfigDir -Force | Out-Null
-Set-Content -Path (Join-Path $shipglowzConfigDir 'current_connection') -Value "$RemoteUser@$RemoteHost"
-Set-Content -Path (Join-Path $shipglowzConfigDir 'current_auth_method') -Value $AuthMethod
+Set-Content -Path (Join-Path $shipglowzConfigDir 'current_connection') -Value "$RemoteUser@$RemoteHost" -Encoding UTF8
+Set-Content -Path (Join-Path $shipglowzConfigDir 'current_auth_method') -Value $AuthMethod -Encoding UTF8
 if ($AuthMethod -eq 'key') {
-    Set-Content -Path (Join-Path $shipglowzConfigDir 'current_identity_file') -Value $IdentityFile
+    Set-Content -Path (Join-Path $shipglowzConfigDir 'current_identity_file') -Value $IdentityFile -Encoding UTF8
 } else {
     Remove-Item -LiteralPath (Join-Path $shipglowzConfigDir 'current_identity_file') -Force -ErrorAction SilentlyContinue
 }
 
-# Préparer le bloc de configuration SSH sans service ssh-agent obligatoire
-if ($authMethod -eq "password") {
+if ($AuthMethod -eq 'password') {
     $sshAuthBlock = @"
 
-# ShipGlowz - Serveur distant
+# ShipGlowz - remote server
 Host shipglowz
     HostName $RemoteHost
     User $RemoteUser
@@ -109,7 +117,7 @@ Host shipglowz
 } else {
     $sshAuthBlock = @"
 
-# ShipGlowz - Serveur distant
+# ShipGlowz - remote server
 Host shipglowz
     HostName $RemoteHost
     User $RemoteUser
@@ -121,136 +129,99 @@ Host shipglowz
 "@
 }
 
-# Ajouter ou remplacer la configuration SSH
-$sshConfigContent = ""
-if (Test-Path $SSH_CONFIG) {
-    $sshConfigContent = Get-Content -Raw -Path $SSH_CONFIG
-}
-
+$sshConfigContent = if (Test-Path -LiteralPath $sshConfigPath) { Get-Content -Raw -Path $sshConfigPath } else { '' }
 $sshHostPattern = '(?ms)^\s*Host\s+shipglowz\b.*?(?=^\s*Host\s+\S|\z)'
 if ($sshConfigContent -match $sshHostPattern) {
     $updatedConfig = [regex]::Replace($sshConfigContent, $sshHostPattern, $sshAuthBlock.TrimStart())
-    Set-Content -Path $SSH_CONFIG -Value $updatedConfig
-    Write-Host "${GREEN}   ✓ Configuration SSH mise à jour${NC}"
+    Set-Content -Path $sshConfigPath -Value $updatedConfig -Encoding UTF8
+    Write-Success '   SSH configuration updated.'
 } else {
-    Add-Content -Path $SSH_CONFIG -Value $sshAuthBlock
-    Write-Host "${GREEN}   ✓ Configuration SSH ajoutée${NC}"
+    Add-Content -Path $sshConfigPath -Value $sshAuthBlock -Encoding UTF8
+    Write-Success '   SSH configuration added.'
 }
+Write-Host ''
 
-Write-Host ""
-
-# 3. Créer un script de tunnel
-Write-Host "${BLUE}3. Création du script de tunnel...${NC}"
-
-$tunnelScriptPath = "$SCRIPT_DIR\start-tunnel.ps1"
-$tunnelScriptContent = @"
-# start-tunnel.ps1 - Démarrer un tunnel SSH
+# 3. Generate a valid PowerShell tunnel script.
+Write-Info '3. Creating the SSH tunnel script...'
+$tunnelScriptPath = Join-Path $scriptDir 'start-tunnel.ps1'
+$tunnelScriptContent = @'
+# ShipGlowz SSH tunnel helper.
 # Usage: .\start-tunnel.ps1 -Port 3001
 
+[CmdletBinding()]
 param(
-    [Parameter(Mandatory=`$true)]
-    [int]`$Port
+    [Parameter(Mandatory = $true)]
+    [int]$Port
 )
 
-Write-Host "🔗 Démarrage du tunnel SSH pour le port `$Port..."
-Write-Host "URL locale: http://localhost:`$Port"
-Write-Host ""
-Write-Host "Appuyez sur Ctrl+C pour arrêter le tunnel"
-Write-Host ""
+Write-Host "Starting SSH tunnel for port $Port..." -ForegroundColor Cyan
+Write-Host "Local URL: http://localhost:$Port"
+Write-Host 'Press Ctrl+C to stop the tunnel.'
 
-ssh -N -L ${Port}:localhost:${Port} shipglowz
-"@
+& ssh.exe -N "-L$($Port):localhost:$($Port)" shipglowz
+exit $LASTEXITCODE
+'@
+Set-Content -Path $tunnelScriptPath -Value $tunnelScriptContent -Encoding UTF8
+Write-Success "   Tunnel script created: $tunnelScriptPath"
+Write-Host ''
 
-Set-Content -Path $tunnelScriptPath -Value $tunnelScriptContent
-Write-Host "${GREEN}   ✓ Script de tunnel créé: start-tunnel.ps1${NC}"
-
-Write-Host ""
-
-# 4. Ajouter au PATH (optionnel)
-Write-Host "${BLUE}4. Configuration des raccourcis...${NC}"
-
+# 4. Add a safe PowerShell function to the current user's profile.
+Write-Info '4. Configuring the tunnel shortcut...'
 $profilePath = $PROFILE
-if (-not (Test-Path $profilePath)) {
-    New-Item -ItemType File -Path $profilePath -Force | Out-Null
+$profileParent = Split-Path -Parent $profilePath
+if ($profileParent) { New-Item -ItemType Directory -Path $profileParent -Force | Out-Null }
+if (-not (Test-Path -LiteralPath $profilePath)) { New-Item -ItemType File -Path $profilePath -Force | Out-Null }
+
+$profileTunnelPath = $tunnelScriptPath.Replace("'", "''")
+$aliasBlock = @'
+
+# ShipGlowz - SSH tunnel alias
+$tunnelScriptPath = '__SHIPGLOWZ_TUNNEL_SCRIPT_PATH__'
+function tunnel {
+    param([int]$Port)
+    & $tunnelScriptPath -Port $Port
 }
+'@
+$aliasBlock = $aliasBlock.Replace('__SHIPGLOWZ_TUNNEL_SCRIPT_PATH__', $profileTunnelPath)
 
-$aliasBlock = @"
-
-# ShipGlowz - Alias pour tunnels SSH
-function tunnel { param([int]`$Port) & "$tunnelScriptPath" -Port `$Port }
-"@
-
-if (-not (Select-String -Path $profilePath -Pattern "Ship(Flow|Glowz) - Alias" -Quiet)) {
-    Add-Content -Path $profilePath -Value $aliasBlock
-    Write-Host "${GREEN}   ✓ Alias ajouté au profil PowerShell${NC}"
+if (-not (Select-String -Path $profilePath -Pattern 'Ship(Flow|Glowz)' -Quiet)) {
+    Add-Content -Path $profilePath -Value $aliasBlock -Encoding UTF8
+    Write-Success '   PowerShell tunnel function added to the profile.'
 } else {
-    Write-Host "${YELLOW}   ⚠ Alias déjà présent dans le profil PowerShell${NC}"
+    Write-WarningMessage '   A ShipGlowz profile entry already exists; it was left unchanged.'
 }
+Write-Host ''
 
-Write-Host ""
+# 5. Summary.
+Write-Success 'ShipGlowz native Windows setup completed.'
+Write-Host ''
+Write-Host 'Usage:' -ForegroundColor Cyan
+Write-Host "   & '$tunnelScriptPath' -Port 3001" -ForegroundColor Green
+Write-Host '   tunnel 3001  (after reloading the PowerShell profile)' -ForegroundColor Green
+Write-Host '   . $PROFILE  (reload the profile)' -ForegroundColor Yellow
+Write-Host ''
 
-# 5. Résumé
-Write-Host "${GREEN}✅ Installation terminée !${NC}"
-Write-Host ""
-Write-Host "${BLUE}📋 Utilisation:${NC}"
-Write-Host ""
-Write-Host "   ${YELLOW}Méthode 1: Via script direct${NC}"
-Write-Host "   ${GREEN}.\start-tunnel.ps1 -Port 3001${NC}"
-Write-Host ""
-Write-Host "   ${YELLOW}Méthode 2: Via alias (après redémarrage PowerShell)${NC}"
-Write-Host "   ${GREEN}tunnel 3001${NC}"
-Write-Host ""
-Write-Host "   ${YELLOW}Méthode 3: Tunnel SSH manuel${NC}"
-Write-Host "   ${GREEN}ssh -N -L 3001:localhost:3001 hetzner${NC}"
-Write-Host ""
-Write-Host "${YELLOW}⚠  Pour activer les alias, rechargez votre profil PowerShell:${NC}"
-Write-Host "   ${BLUE}. `$PROFILE${NC}"
-Write-Host "   ${YELLOW}ou${NC} fermez et rouvrez PowerShell"
-Write-Host ""
-
-# 6. Test de connexion SSH
-Write-Host "${BLUE}🚀 Test de connexion SSH:${NC}"
+# 6. Test the configured SSH host without mutating the remote server.
+Write-Info '6. Testing the SSH connection...'
 try {
-    $sshTestArgs = @("-o", "ConnectTimeout=5")
-    if ($authMethod -eq "password") {
-        $sshTestArgs += @(
-            "-o", "BatchMode=no",
-            "-o", "PreferredAuthentications=password,keyboard-interactive",
-            "-o", "PubkeyAuthentication=no",
-            "-o", "KbdInteractiveAuthentication=yes",
-            "-o", "NumberOfPasswordPrompts=1"
-        )
+    $sshTestArgs = @('-o', 'ConnectTimeout=5')
+    if ($AuthMethod -eq 'password') {
+        $sshTestArgs += @('-o', 'BatchMode=no', '-o', 'PreferredAuthentications=password,keyboard-interactive', '-o', 'PubkeyAuthentication=no', '-o', 'KbdInteractiveAuthentication=yes', '-o', 'NumberOfPasswordPrompts=1')
     } else {
-        $sshTestArgs += @("-o", "BatchMode=yes")
+        $sshTestArgs += @('-o', 'BatchMode=yes')
     }
 
-    $sshTest = & ssh @sshTestArgs shipglowz "echo OK" 2>$null
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "${GREEN}   ✓ Connexion SSH au serveur OK${NC}"
-        Write-Host ""
-        Write-Host "${GREEN}   Vous pouvez maintenant utiliser: ${BLUE}tunnel 3001${NC}"
-    } else {
-        throw "SSH connection failed"
-    }
+    & ssh.exe @sshTestArgs shipglowz 'echo OK' 2>$null
+    if ($LASTEXITCODE -ne 0) { throw 'SSH connection failed.' }
+    Write-Success '   SSH connection to the server is OK.'
 } catch {
-    Write-Host "${YELLOW}   ⚠ Impossible de se connecter au serveur${NC}"
-    if ($authMethod -eq "password") {
-        Write-Host "${YELLOW}   Vérifiez que le mot de passe SSH est autorisé sur le serveur et que le compte root peut se connecter.${NC}"
+    Write-WarningMessage '   SSH connection could not be verified.'
+    if ($AuthMethod -eq 'password') {
+        Write-WarningMessage '   Check that password authentication is enabled and the SSH user is correct.'
     } else {
-        Write-Host "${YELLOW}   Vérifiez que votre clé SSH est configurée:${NC}"
-        Write-Host ""
-        Write-Host "   ${BLUE}1. Générer une clé SSH (si pas déjà fait):${NC}"
-        Write-Host "      ${GREEN}ssh-keygen -t ed25519 -C 'your_email@example.com'${NC}"
-        Write-Host ""
-        Write-Host "   ${BLUE}2. Copier la clé publique:${NC}"
-        Write-Host "      ${GREEN}Get-Content `$env:USERPROFILE\.ssh\id_ed25519.pub | clip${NC}"
-        Write-Host "      ${YELLOW}(La clé est maintenant dans le presse-papiers)${NC}"
-        Write-Host ""
-        Write-Host "   ${BLUE}3. Ajouter la clé sur le serveur:${NC}"
-        Write-Host "      ${GREEN}ssh $RemoteUser@$RemoteHost${NC}"
-        Write-Host "      ${YELLOW}Collez votre clé publique dans ~/.ssh/authorized_keys${NC}"
+        Write-WarningMessage "   Check that the public key for $IdentityFile is installed on the server."
     }
 }
 
-Write-Host ""
-Write-Host "${BLUE}💡 Le parcours natif Windows fonctionne sans WSL.${NC}"
+Write-Host ''
+Write-Success 'Native Windows mode works without WSL, Bash, sudo, or autossh.'
