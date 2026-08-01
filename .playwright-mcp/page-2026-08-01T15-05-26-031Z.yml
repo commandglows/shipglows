@@ -1,0 +1,202 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "WinGlows WinGlows WinGlows" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e7]:
+        - link "Windows Mastery" [ref=e8] [cursor=pointer]:
+          - /url: /windows-mastery
+        - link "Apps" [ref=e9] [cursor=pointer]:
+          - /url: /products
+        - link "Courses" [ref=e10] [cursor=pointer]:
+          - /url: /en/formations/
+        - link "Roadmap" [ref=e11] [cursor=pointer]:
+          - /url: /roadmap
+        - link "Services" [ref=e12] [cursor=pointer]:
+          - /url: /services
+        - link "Blog" [ref=e13] [cursor=pointer]:
+          - /url: /blog
+        - link "Contact" [ref=e14] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=e15]:
+        - link "FR" [ref=e16] [cursor=pointer]:
+          - /url: /fr/shipglowz/
+        - button "Basculer vers le thème sombre" [ref=e17]
+        - link "Sign In" [ref=e20] [cursor=pointer]:
+          - /url: /signin
+        - link "Start with WinGlows" [ref=e21] [cursor=pointer]:
+          - /url: /signin?next=%2Fdashboard%2Fdocs%2Fen%2Fformations%2Fmodule-2-windows%2F
+  - main [ref=e23]:
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - paragraph [ref=e29]: Local or server agent workflow setup
+        - heading "Install the right ShipGlowz layer for this machine." [level=1] [ref=e30]
+        - paragraph [ref=e31]: The bootstrap detects Termux and root automatically, or asks whether you want the local tunnel setup or the complete Ubuntu server layer. Native Windows downloads the public repository without Git and installs OpenSSH when needed.
+        - generic [ref=e32]:
+          - button "Copy command" [ref=e33]
+          - link "Open raw script" [ref=e34] [cursor=pointer]:
+            - /url: /shipglowz-script
+          - link "ShipGlowz repository" [ref=e35] [cursor=pointer]:
+            - /url: https://github.com/dianedef/ShipGlowz
+      - generic [ref=e36]:
+        - generic [ref=e37]: local or full
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - paragraph [ref=e46]: Platform
+              - tablist "Platform" [ref=e47]:
+                - tab "Unix / macOS" [selected] [ref=e48]
+                - tab "Native Windows" [active] [ref=e49]
+                - tab "Android Termux" [ref=e50]
+            - generic [ref=e51]:
+              - paragraph [ref=e52]: Mode
+              - tablist "Mode" [ref=e53]:
+                - tab "Local" [selected] [ref=e54]
+                - tab "Full / remote" [ref=e55]
+          - code [ref=e57]: curl -fsSL https://www.winflowz.com/shipglowz-script | SHIPGLOWZ_INSTALL_MODE=local sh
+          - paragraph [ref=e58]: "Unix local: installe les tunnels et les commandes de connexion pour l’utilisateur courant, sans sudo."
+          - generic [ref=e59]:
+            - paragraph [ref=e60]: $ Préparation de l’installation ShipGlowz...
+            - paragraph [ref=e61]: "$ Mode d’installation: local | full"
+            - paragraph [ref=e62]: $ Téléchargement de ShipGlowz...
+            - paragraph [ref=e63]: $ Lancement de l’installateur adapté
+    - generic [ref=e64]:
+      - article [ref=e65]:
+        - heading "Best for" [level=2] [ref=e66]
+        - list [ref=e67]:
+          - listitem [ref=e68]:
+            - generic [ref=e70]: Android Termux and local tunnel clients
+          - listitem [ref=e71]:
+            - generic [ref=e73]: Ubuntu servers that run active projects
+          - listitem [ref=e74]:
+            - generic [ref=e76]: AI-assisted product work
+          - listitem [ref=e77]:
+            - generic [ref=e79]: fresh-agent handoffs
+      - article [ref=e80]:
+        - heading "Installed" [level=2] [ref=e81]
+        - list [ref=e82]:
+          - listitem [ref=e83]:
+            - generic [ref=e84]: ✓
+            - generic [ref=e85]: "local mode: tunnel and remote-login commands"
+          - listitem [ref=e86]:
+            - generic [ref=e87]: ✓
+            - generic [ref=e88]: "full mode: ShipGlowz CLI, server tooling and wrappers"
+          - listitem [ref=e89]:
+            - generic [ref=e90]: ✓
+            - generic [ref=e91]: Claude/Codex skill symlinks when selected
+          - listitem [ref=e92]:
+            - generic [ref=e93]: ✓
+            - generic [ref=e94]: local project tracking data
+      - article [ref=e95]:
+        - heading "Important boundary" [level=2] [ref=e96]
+        - list [ref=e97]:
+          - listitem [ref=e98]:
+            - generic [ref=e99]: ×
+            - generic [ref=e100]: the Windows path may request UAC permission to add OpenSSH Client
+          - listitem [ref=e101]:
+            - generic [ref=e102]: ×
+            - generic [ref=e103]: full mode still requires root on a supported server
+          - listitem [ref=e104]:
+            - generic [ref=e105]: ×
+            - generic [ref=e106]: the bootstrap never asks for or stores a GitHub token
+    - generic [ref=e108]:
+      - generic [ref=e109]:
+        - heading "Useful links" [level=2] [ref=e110]
+        - paragraph [ref=e111]: "Unix local: installe les tunnels et les commandes de connexion pour l’utilisateur courant, sans sudo."
+      - generic [ref=e112]:
+        - link "ShipGlowz public docs" [ref=e113] [cursor=pointer]:
+          - /url: https://github.com/dianedef/ShipGlowz
+        - link "Dotfiles installer" [ref=e114] [cursor=pointer]:
+          - /url: /dotfiles
+  - contentinfo [ref=e115]:
+    - generic [ref=e116]:
+      - generic [ref=e117]:
+        - generic [ref=e118]:
+          - link "WinGlows WinGlows WinGlows" [ref=e119] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=e122]: Productivity plugins & Windows training by Diane Defores.
+          - generic [ref=e123]:
+            - paragraph [ref=e124]: This Week In Windows Productivity
+            - paragraph [ref=e125]: Weekly newsletter about Windows tooling and the productivity ecosystem.
+          - generic [ref=e126]: Site and catalog are maintained continuously
+        - generic [ref=e129]:
+          - heading "Ecosystem" [level=4] [ref=e130]
+          - list [ref=e131]:
+            - listitem [ref=e132]:
+              - link "Courses" [ref=e133] [cursor=pointer]:
+                - /url: /en/formations/
+            - listitem [ref=e134]:
+              - link "Apps & Plugins" [ref=e135] [cursor=pointer]:
+                - /url: /products
+            - listitem [ref=e136]:
+              - link "Services" [ref=e137] [cursor=pointer]:
+                - /url: /services
+            - listitem [ref=e138]:
+              - link "Roadmap" [ref=e139] [cursor=pointer]:
+                - /url: /roadmap
+        - generic [ref=e140]:
+          - heading "Products" [level=4] [ref=e141]
+          - list [ref=e142]:
+            - listitem [ref=e143]:
+              - link "ObsiFlowz" [ref=e144] [cursor=pointer]:
+                - /url: /products/flowzsuite-obsidian
+            - listitem [ref=e145]:
+              - link "ReplayGlowz" [ref=e146] [cursor=pointer]:
+                - /url: /products/replayglowz-extension
+            - listitem [ref=e147]:
+              - link "Windows Mastery" [ref=e148] [cursor=pointer]:
+                - /url: /windows-mastery
+            - listitem [ref=e149]:
+              - link "Productivity Suite" [ref=e150] [cursor=pointer]:
+                - /url: /products/winglowz
+        - generic [ref=e151]:
+          - heading "Company" [level=4] [ref=e152]
+          - list [ref=e153]:
+            - listitem [ref=e154]:
+              - link "About Us" [ref=e155] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e156]:
+              - link "Blog" [ref=e157] [cursor=pointer]:
+                - /url: /blog
+            - listitem [ref=e158]:
+              - link "Contact" [ref=e159] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=e160]:
+          - heading "Legal" [level=4] [ref=e161]
+          - list [ref=e162]:
+            - listitem [ref=e163]:
+              - link "Privacy Policy" [ref=e164] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e165]:
+              - link "Terms of Service" [ref=e166] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e167]:
+              - link "Legal Notice" [ref=e168] [cursor=pointer]:
+                - /url: /legal
+            - listitem [ref=e169]:
+              - link "Copyright" [ref=e170] [cursor=pointer]:
+                - /url: /copyright
+            - listitem [ref=e171]:
+              - link "Disclaimer" [ref=e172] [cursor=pointer]:
+                - /url: /disclaimer
+            - listitem [ref=e173]:
+              - link "Terms of Sale" [ref=e174] [cursor=pointer]:
+                - /url: /cgv
+      - generic [ref=e175]:
+        - paragraph [ref=e176]: © 2026 WinGlows. Crafted by Diane Defores.
+        - generic [ref=e177]:
+          - link "GitHub" [ref=e178] [cursor=pointer]:
+            - /url: https://github.com/diane-defores/winglowz
+          - link "Contact" [ref=e179] [cursor=pointer]:
+            - /url: mailto:hello@winglowz.com
+          - link "↑ Back to top" [ref=e180] [cursor=pointer]:
+            - /url: "#top"
+  - dialog "Cookie consent" [ref=e181]:
+    - generic [ref=e184]:
+      - paragraph [ref=e186]:
+        - text: This site uses essential cookies to support your account, sign-in flow, and display preferences.
+        - link "Privacy Policy" [ref=e187] [cursor=pointer]:
+          - /url: /privacy
+      - generic [ref=e188]:
+        - button "Close" [ref=e189]
+        - button "Understood" [ref=e190]

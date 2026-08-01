@@ -200,6 +200,10 @@ curl.exe -fsSL 'https://www.winflowz.com/shipglowz-script?format=powershell' -o 
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
 ```
 
+Pour forcer une version ou un tag GitHub précis, ajoutez par exemple
+`-Version v1.2.3` à la dernière commande. `-Branch` reste accepté pour une
+branche donnée.
+
 The Windows path installs the local tunnel layer only. The complete server
 installer remains Linux/Ubuntu-only.
 

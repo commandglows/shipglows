@@ -66,6 +66,14 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
    ```
 
+   Pour forcer une version ou un tag précis :
+
+   ```powershell
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer -Version v1.2.3
+   ```
+
+   `-Branch`, `-Tag` et `-Ref` sont aussi acceptés comme alias.
+
    Le bootstrap télécharge l'archive publique ShipGlowz sans Git, installe
    OpenSSH si nécessaire, puis lance l'installation locale native. Il ne
    demande ni Git, ni `sudo`, ni WSL, ni `autossh`.

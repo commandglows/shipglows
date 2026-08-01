@@ -284,6 +284,12 @@ None. The safest Windows distribution default is the public ZIP path with automa
 | 2026-08-01 15:30 UTC | 300-sg-docs | GPT-5 Codex | Updated internal and public install documentation for the public ZIP bootstrap, automatic OpenSSH installation, UAC confirmation, and Windows Update/VM policy limits | docs aligned locally; deployment and Windows runtime proof pending | Push/deploy, then verify from the Windows VM |
 | 2026-08-01 15:45 UTC | 010-sg-technical | GPT-5 Codex | Audited and removed stale private-repository messaging, hardcoded legacy SSH host/IP guidance, and obsolete Windows bootstrap instructions while preserving Linux/Termux autossh paths | targeted audit passed; Windows runtime and hosted deployment proof pending | Push/deploy, then verify from the Windows VM |
 | 2026-08-01 15:56 UTC | 010-sg-technical | GPT-5 Codex | Removed the obsolete hardcoded SSH config template and replaced its manual documentation path with installer environment configuration | cleanup verified; Windows runtime and hosted deployment proof pending | Push/deploy, then verify from the Windows VM |
+| 2026-08-01 16:44 UTC | 006-sg-design | GPT-5 Codex | Added platform and local/full mode selectors to the public ShipGlowz install page, including native Windows, Unix/macOS, Termux, and disabled unsupported combinations | source and diff checks pass; WinGlowz unit/build proof pending because dependencies are absent | Install dependencies or deploy, then verify the page and commands |
+| 2026-08-01 16:55 UTC | 005-sg-ship | GPT-5 Codex | Committed and pushed the scoped WinGlowz installer-page, variant-data, generated-bootstrap, route, and test changes as `855dd45` | shipped; hosted and Windows runtime proof pending | Run hosted verification, then test the Windows VM |
+| 2026-08-01 17:05 UTC | 405-sg-prod | GPT-5 Codex | Verified the live WinGlowz ShipGlowz page and shell/PowerShell endpoints after commit `855dd45` | live HTTP checks pass; browser interaction, Vercel internal status, and Windows runtime remain unverified | Test the Windows VM manually |
+| 2026-08-01 17:20 UTC | 108-sg-browser | GPT-5 Codex | Reproduced the public selector failure: clicking Windows leaves the Unix command selected and the page logs a TypeError in the inline installer script | failed; actionable browser bug identified, Windows runtime still unverified | Fix the inline script, redeploy, then retest the selector |
+| 2026-08-01 17:25 UTC | 106-sg-fix | GPT-5 Codex | Removed TypeScript-only selector generics from the inline Astro runtime, synchronized active button styling, and added an anti-regression assertion | 81 unit tests, Astro check (0 errors), and local Playwright Windows local/full smoke pass; production redeploy pending | Push scoped WinGlowz fix, then rerun production browser proof |
+| 2026-08-01 17:27 UTC | 108-sg-browser | GPT-5 Codex | Retested the repaired selector in the local Astro dev environment | Windows local command and Windows full unavailable state update correctly; unrelated Clerk/Preline dev errors remain | Production browser retest after deployment |
 
 ## Current Chantier Flow
 
@@ -292,5 +298,5 @@ None. The safest Windows distribution default is the public ZIP path with automa
 - `102-sg-start`: implemented
 - `103-sg-verify`: local automated and build proof passed; hosted/device proof pending
 - `104-sg-end`: not launched
-- `005-sg-ship`: WinGlowz files were included in concurrent pushed commit `84dcdbb`; ShipGlowz changes remain unshipped
-- Next step: deploy and verify the Windows adapter from the constrained Windows VM, then continue hosted/device proof
+- `005-sg-ship`: scoped WinGlowz installer changes shipped in commit `855dd45`; ShipGlowz changes remain unshipped
+- Next step: push and deploy the selector fix, retest the public page in production, then verify the Windows adapter manually from the constrained Windows VM
