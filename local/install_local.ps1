@@ -1,4 +1,4 @@
-# ShipGlowz native Windows local installer.
+﻿# ShipGlowz native Windows local installer.
 # This file is intentionally valid PowerShell without WSL, Bash, or sudo.
 
 [CmdletBinding()]
