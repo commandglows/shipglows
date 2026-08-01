@@ -71,3 +71,23 @@ jobs:
           if ((Get-Content -Raw install-shipglowz.ps1).Contains('Expand-Archive')) {
             throw 'The Windows bootstrap must not use Expand-Archive.'
           }
+
+      - name: Exercise selective archive extraction
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $target = Join-Path $env:RUNNER_TEMP ("shipglowz-bootstrap-test-" + [guid]::NewGuid().ToString('N'))
+          try {
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install-shipglowz.ps1 -ShipglowzDir $target -DownloadOnly
+            if ($LASTEXITCODE -ne 0) {
+              throw "Windows bootstrap exited with code $LASTEXITCODE"
+            }
+            $installed = Join-Path $target 'local\install_local.ps1'
+            if (-not (Test-Path -LiteralPath $installed)) {
+              throw "Selective bootstrap did not install: $installed"
+            }
+          } finally {
+            if (Test-Path -LiteralPath $target) {
+              Remove-Item -LiteralPath $target -Force -Recurse -ErrorAction SilentlyContinue
+            }
+          }

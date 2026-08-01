@@ -8,7 +8,8 @@ param(
     [string]$RepoUrl = $(if ($env:SHIPGLOWZ_REPO_URL) { $env:SHIPGLOWZ_REPO_URL } else { 'https://github.com/dianedef/shipglowz.git' }),
     [Alias('Version', 'Tag', 'Ref')]
     [string]$Branch = $(if ($env:SHIPGLOWZ_BRANCH) { $env:SHIPGLOWZ_BRANCH } else { 'main' }),
-    [string]$ShipglowzDir = $(if ($env:SHIPGLOWZ_DIR) { $env:SHIPGLOWZ_DIR } else { Join-Path $env:USERPROFILE 'shipglowz' })
+    [string]$ShipglowzDir = $(if ($env:SHIPGLOWZ_DIR) { $env:SHIPGLOWZ_DIR } else { Join-Path $env:USERPROFILE 'shipglowz' }),
+    [switch]$DownloadOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -22,16 +23,29 @@ function Remove-PathIfPresent([string]$Path) {
         Remove-Item -LiteralPath $Path -Force -Recurse -ErrorAction SilentlyContinue
     }
 }
-function Expand-ShipglowzArchive([string]$ArchivePath, [string]$DestinationPath) {
+function Extract-ShipglowzLocalInstaller([string]$ArchivePath, [string]$DestinationPath) {
     $tarCommand = Get-Command tar.exe -CommandType Application -ErrorAction SilentlyContinue
     if (-not $tarCommand) {
         Fail 'Windows tar.exe is required to extract ShipGlowz without Microsoft.PowerShell.Archive.'
     }
 
-    & $tarCommand.Source -xf $ArchivePath -C $DestinationPath
+    $archiveEntries = @(& $tarCommand.Source -tf $ArchivePath)
     if ($LASTEXITCODE -ne 0) {
-        Fail 'ShipGlowz archive extraction with tar.exe failed.'
+        Fail 'Could not inspect the ShipGlowz archive with tar.exe.'
     }
+    $installerEntries = @(
+        $archiveEntries | Where-Object { $_ -match '^[^/]+/local/install_local\.ps1$' }
+    )
+    if ($installerEntries.Count -ne 1) {
+        Fail 'The ShipGlowz archive must contain exactly one local/install_local.ps1.'
+    }
+
+    & $tarCommand.Source -xf $ArchivePath -C $DestinationPath $installerEntries[0]
+    if ($LASTEXITCODE -ne 0) {
+        Fail 'Could not extract local/install_local.ps1 with tar.exe.'
+    }
+
+    return $installerEntries[0]
 }
 function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref) {
     $archiveBase = $RepositoryUrl.TrimEnd('/') -replace '\.git$', ''
@@ -101,7 +115,7 @@ try {
     & curl.exe -fsSL $source.ArchiveUrl -o $archivePath
     if ($LASTEXITCODE -ne 0) { Fail 'ShipGlowz download failed.' }
 
-    Expand-ShipglowzArchive -ArchivePath $archivePath -DestinationPath $extractRoot
+    $installerEntry = Extract-ShipglowzLocalInstaller -ArchivePath $archivePath -DestinationPath $extractRoot
     $installerCandidates = @(
         Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -File -Filter 'install_local.ps1' |
             Where-Object { $_.Directory.Name -eq 'local' }
@@ -126,6 +140,11 @@ Write-Info "Source commit: $($source.Commit)"
 Write-Info "SHA256: $localInstallerHash"
 Assert-PowerShellSyntax -Path $localInstaller
 Write-Info 'PowerShell syntax validation passed.'
+
+if ($DownloadOnly) {
+    Write-Info 'Download-only validation completed.'
+    exit 0
+}
 
 Write-Info 'Lancement de la configuration locale Windows.'
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $localInstaller
