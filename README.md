@@ -190,8 +190,9 @@ curl -fsSL https://www.winflowz.com/shipglowz-script | sh
 ```
 
 On native Windows without WSL, the same public endpoint exposes the
-PowerShell local installer. It uses Windows OpenSSH and does not require
-`sudo`, `autossh`, or administrator rights for the ShipGlowz setup itself:
+PowerShell local installer. It downloads the public repository as a ZIP and
+installs the Windows OpenSSH Client automatically when needed. Windows may
+show a UAC administrator confirmation:
 
 ```powershell
 $installer = Join-Path $env:TEMP 'shipglowz-install.ps1'
@@ -202,8 +203,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
 The Windows path installs the local tunnel layer only. The complete server
 installer remains Linux/Ubuntu-only.
 
-The repository is private, so GitHub access must already be configured for the
-current account. Termux selects `local` without `sudo`; an existing root shell
+The code repository is public, so Git or GitHub credentials are not required
+for this bootstrap. Termux selects `local` without `sudo`; an existing root shell
 selects `full`. In a non-interactive environment, put the mode on the consuming
 shell:
 

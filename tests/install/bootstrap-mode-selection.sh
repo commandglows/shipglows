@@ -156,11 +156,11 @@ if [ "$CASE_STATUS" -ne 0 ]; then pass "Termux rejects full mode"; else fail "Te
 assert_contains "$CASE_OUTPUT" "Termux" "Termux full-mode error names the platform"
 assert_not_contains "$CASE_CALLS" "install.sh" "Rejected Termux full mode performs no delegation"
 
-clone_fixture="$(make_fixture private-clone)"
+clone_fixture="$(make_fixture public-clone)"
 rm -rf "$clone_fixture/home/shipglowz"
 run_case "$clone_fixture" TEST_UID=2000 SHIPGLOWZ_INSTALL_MODE=local TEST_GIT_FAIL_CLONE=1
-if [ "$CASE_STATUS" -ne 0 ]; then pass "Private clone failure propagates"; else fail "Private clone failure propagates"; fi
-assert_contains "$CASE_OUTPUT" "accès GitHub autorisé" "Clone failure explains private repository access"
+if [ "$CASE_STATUS" -ne 0 ]; then pass "Public clone failure propagates"; else fail "Public clone failure propagates"; fi
+assert_contains "$CASE_OUTPUT" "dépôt public" "Clone failure explains public repository download failure"
 assert_not_contains "$CASE_OUTPUT" "token=" "Clone failure does not print token syntax"
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"

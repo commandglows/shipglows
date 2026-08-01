@@ -5,8 +5,8 @@ artifact_version: "1.0.0"
 project: ShipGlowz
 created: "2026-07-17"
 created_at: "2026-07-17 13:25:56 UTC"
-updated: "2026-07-17"
-updated_at: "2026-07-17 13:42:00 UTC"
+updated: "2026-08-01"
+updated_at: "2026-08-01 15:30:00 UTC"
 status: active
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -43,7 +43,7 @@ supersedes: []
 evidence:
   - "BUG-2026-07-17-001 records a real Android Termux failure: sudo is unavailable and the non-root bootstrap never reaches local/install.sh."
   - "The deployed www.winflowz.com bootstrap differs from the ShipGlowz bootstrap and duplicates its implementation in the WinGlowz site."
-  - "The unauthenticated raw GitHub URL and repository page return 404, so redirecting the public endpoint to the private repository is not viable."
+  - "The public endpoint remains the distribution authority; native Windows uses the public GitHub archive because the Windows bootstrap must not require Git."
   - "BUG-2026-07-13-002 already proves that local/install.sh has a Termux-aware path once the bootstrap reaches it."
 next_step: "/405-sg-prod then /107-sg-test --retest BUG-2026-07-17-001"
 ---
@@ -62,7 +62,7 @@ En tant qu'operatrice autorisee a acceder au depot ShipGlowz, je veux lancer une
 
 ## Minimal Behavior Contract
 
-La commande publique sans `sudo` detecte d'abord le contexte d'execution, choisit automatiquement le mode local sur Termux et le mode complet lorsqu'elle est deja executee en root, demande `local` ou `full` via le terminal uniquement lorsque le contexte reste ambigu, puis clone ou met a jour le depot dans le bon home et lance l'installateur correspondant. Une demande complete sans privileges, un contexte non interactif ambigu ou un depot prive inaccessible echoue avant toute installation avec une commande corrective explicite; le cas facile a rater est le pipeline `curl | sh`, dont l'entree standard contient le script et ne peut donc pas servir au prompt.
+La commande publique sans `sudo` detecte d'abord le contexte d'execution, choisit automatiquement le mode local sur Termux et le mode complet lorsqu'elle est deja executee en root, demande `local` ou `full` via le terminal uniquement lorsque le contexte reste ambigu, puis telecharge ou met a jour le depot dans le bon home et lance l'installateur correspondant. Une demande complete sans privileges, un contexte non interactif ambigu ou un depot inaccessible echoue avant toute installation avec une commande corrective explicite; le cas facile a rater est le pipeline `curl | sh`, dont l'entree standard contient le script et ne peut donc pas servir au prompt.
 
 ## Success Behavior
 
@@ -78,7 +78,7 @@ La commande publique sans `sudo` detecte d'abord le contexte d'execution, choisi
 - Un mode inconnu echoue avec les valeurs acceptees et sans mutation.
 - Un contexte non interactif ambigu echoue avec les deux commandes explicites, notamment `curl ... | SHIPGLOWZ_INSTALL_MODE=local sh`.
 - `full` sans root echoue avant clone ou installation et indique la commande `sudo` reservee aux systemes qui la supportent; Termux ne recoit jamais cette recommandation.
-- Un echec d'acces au depot prive distingue clairement l'authentification GitHub manquante d'un probleme de dependance locale, sans afficher de credential ni de remote contenant un secret.
+- Un échec de téléchargement du dépôt public distingue clairement le réseau, l'archive et les dépendances locales, sans afficher de credential ni de remote contenant un secret.
 - Un echec de dependance, clone, fetch, checkout ou installateur conserve un journal utilisateur lisible et ne produit pas de faux succes.
 - L'adaptateur public ne doit jamais servir silencieusement une version differente du bootstrap canonique declare.
 
@@ -88,7 +88,7 @@ Le bootstrap public force aujourd'hui une installation serveur root avant toute 
 
 ## Solution
 
-Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full`, avec detection avant elevation et prompt sur `/dev/tty`. Conserver le depot prive et limiter la commande aux utilisateurs autorises. Synchroniser byte-for-byte ce fichier vers un artefact shell genere et versionne dans WinGlowz; le endpoint l'importe comme texte brut avec Vite `?raw`. Un outil ShipGlowz possede les modes `--write` et `--check`, et la preuve hebergee compare ensuite le corps public a l'autorite canonique.
+Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full`, avec detection avant elevation et prompt sur `/dev/tty`. Le code public est distribue en HTTPS; le parcours Windows telecharge une archive ZIP et installe OpenSSH avec UAC si necessaire. Synchroniser byte-for-byte les artefacts vers WinGlowz; le endpoint les importe comme texte brut avec Vite `?raw`. Un outil ShipGlowz possede les modes `--write` et `--check`, et la preuve hebergee compare ensuite les corps publics aux autorites canoniques.
 
 ## Scope In
 
@@ -98,7 +98,7 @@ Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full
 - Regles non interactives et messages correctifs.
 - Clone/update, home, utilisateur et ownership coherents par mode.
 - Routage vers `local/install.sh` ou `cli/install.sh`.
-- Gestion observable de l'acces au depot GitHub prive.
+- Gestion observable du téléchargement public et des dépendances locales.
 - Adaptateur public WinGlowz, copie francaise/anglaise et mecanisme de parite.
 - Tests shell de regression, tests site, build, preuve hebergee et retest Termux reel.
 - Mise a jour des docs d'installation et du contexte technique.
@@ -120,7 +120,7 @@ Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full
 - Le mode complet ne contourne pas le garde root.
 - Les changements WinGlowz existants `winglowz.com` vers `www.winflowz.com` sont concurrents et doivent etre preserves.
 - Aucun token, credential, header prive ou URL credentialee ne doit entrer dans les logs, tests ou docs.
-- Le endpoint public ne peut pas rediriger vers `raw.githubusercontent.com` tant que le depot prive retourne 404 sans authentification.
+- Le endpoint public reste l'entree stable; il sert les artefacts versionnes plutot que de rediriger vers une URL de telechargement dependante du cache ou de la plateforme.
 
 ## Test Contract
 
@@ -136,7 +136,7 @@ Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full
 ## Dependencies
 
 - POSIX `sh`, Bash, Git, curl et gestionnaire de paquets disponible selon le mode.
-- Acces GitHub deja autorise pour le depot prive.
+- Dépôt public accessible en HTTPS; Git n'est pas requis par le parcours Windows.
 - WinGlowz Astro en mode server et deploiement Vercel hybride.
 - Fresh docs checked: la documentation officielle Astro des endpoints confirme l'utilitaire `redirect()` et le code 307, mais cette approche est rejetee ici parce que la cible GitHub privee retourne 404 sans authentification: https://docs.astro.build/en/guides/endpoints/
 - Fresh docs checked: la documentation officielle Vite confirme que le suffixe `?raw` importe un asset comme chaine, ce qui permet au endpoint de servir l'artefact shell genere sans reecrire son contenu: https://vite.dev/guide/assets.html#importing-asset-as-string
@@ -155,16 +155,16 @@ Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full
 
 - `install-shipglowz.sh` devient l'autorite de selection et de routage.
 - `local/install.sh` et `cli/install.sh` restent proprietaires de leurs dependances et configurations respectives.
-- WinGlowz distribue le script et sa page explique les deux modes sans promettre un depot public.
+- WinGlowz distribue les scripts et sa page explique les deux modes; le chemin Windows promet un dépôt public téléchargeable sans Git.
 - Le changement de commande publique affecte README, documentation technique, page d'installation, claim register/public surface map si leur promesse devient fausse.
 - La parite public/canonique devient une obligation de verification et de release, pas une comparaison informelle.
 - `BUG-2026-07-17-001` recoit les tentatives et retests; `BUG-2026-07-13-002` reste un work item separe.
 
 ## Documentation Coherence
 
-- Mettre a jour `README.md` et `shipglowz_data/technical/installer-and-user-scope.md` avec la commande sans `sudo`, les modes et la limite depot prive.
-- Mettre a jour les contenus EN/FR de `scriptInstallPages.ts` pour distinguer local, complet et acces autorise.
-- Revoir les registres editoriaux WinGlowz qui revendiquent une installation en une commande afin que la promesse n'implique ni support universel ni acces public au depot.
+- Mettre a jour `README.md` et `shipglowz_data/technical/installer-and-user-scope.md` avec la commande sans `sudo`, les modes et la limite Windows Update/UAC.
+- Mettre a jour les contenus EN/FR de `scriptInstallPages.ts` pour distinguer local, complet, dépôt public et élévation UAC.
+- Revoir les registres editoriaux WinGlowz qui revendiquent une installation en une commande afin que la promesse n'implique pas un support universel ni l'absence de confirmation UAC.
 - Ajouter une note de diagnostic Termux qui explique que `curl: Failed writing body` est une consequence du consommateur `sudo` absent, pas l'erreur racine du telechargement.
 
 ## Edge Cases
@@ -195,7 +195,7 @@ Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full
   - Depends on : Tache 1
   - Validate with : `sh -n install-shipglowz.sh && bash tests/install/bootstrap-mode-selection.sh`
 
-- [x] Tache 3 : Construire une distribution publique byte-for-byte sans redirection vers le depot prive.
+- [x] Tache 3 : Construire une distribution publique byte-for-byte sans redirection vers un dépôt interne.
   - Fichier : `tools/sync_shipglowz_public_bootstrap.sh`, `/home/claude/winglowz/winglowz_site/src/generated/shipglowz-installer.sh`, `/home/claude/winglowz/winglowz_site/src/pages/shipglowz-script.ts`
   - Action : Ajouter un outil `--write|--check` qui copie/compare exactement le bootstrap canonique vers l'artefact genere; importer cet artefact avec `?raw` dans le endpoint et supprimer le template shell duplique; preserver les changements hostname existants.
   - User story link : la commande publique execute le correctif reel.
@@ -233,7 +233,7 @@ Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full
 - [x] CA6 : Given `SHIPGLOWZ_INSTALL_MODE=local|full` sur le processus `sh`, when la plateforme est compatible, then le choix est deterministe sans prompt.
 - [x] CA7 : Given mode local, when clone/update et delegation s'executent, then le depot et le log appartiennent a l'utilisateur courant et aucun `sudo` n'est appele.
 - [x] CA8 : Given mode full via sudo, when `SUDO_USER` existe, then le depot cible le home de cet utilisateur et l'installateur complet s'execute en root.
-- [x] CA9 : Given absence d'acces au depot prive, when clone/fetch echoue, then le message nomme l'acces GitHub requis sans exposer de secret.
+- [x] CA9 : Given un dépôt public inaccessible, when téléchargement ou extraction échoue, then le message distingue le réseau, l'archive et la dépendance locale sans exposer de secret.
 - [x] CA10 : Given une revision canonique, when l'adaptateur public est teste, then son corps/revision est mecaniquement en parite et la divergence bloque la validation.
 - [x] CA11 : Given les pages EN/FR, when l'utilisateur lit ou copie la commande, then aucun `sudo` n'est impose au chemin local et la limite d'acces autorise est visible.
 - [ ] CA12 : Given le deploiement Vercel correspondant, when le endpoint public est recupere puis execute sur le vrai Termux, then le flow local passe avant que le bug puisse devenir `fixed-pending-verify`.
@@ -254,7 +254,7 @@ Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full
 - Un mauvais calcul de home peut creer des fichiers root-owned ou installer dans `/root`.
 - Un mode full auto-selectionne sur une plateforme non supportee peut causer une installation partielle.
 - La copie publique peut diverger a nouveau si le mecanisme de sync/parite reste seulement documentaire.
-- Le depot prive peut faire croire a une panne de bootstrap lorsque l'acces GitHub manque.
+- Une politique réseau ou Windows Update bloquée peut faire croire à une panne de bootstrap lorsque le dépôt ou OpenSSH ne peut pas être téléchargé.
 - Les caches Vercel peuvent servir un ancien script apres deploiement.
 - Les fichiers WinGlowz cibles sont deja modifies; une reecriture globale pourrait perdre les changements hostname en cours.
 
@@ -271,7 +271,7 @@ Faire de `install-shipglowz.sh` l'autorite comportementale des modes `local|full
 
 ## Open Questions
 
-None. The safest distribution default is to keep the repository private and require pre-existing authorized GitHub access.
+None. The safest Windows distribution default is the public ZIP path with automatic OpenSSH installation and an explicit UAC boundary.
 
 ## Skill Run History
 
@@ -281,6 +281,9 @@ None. The safest distribution default is to keep the repository private and requ
 | 2026-07-17 13:29:32 UTC | 101-sg-ready | GPT-5 Codex | Ran structure, adversarial, security, freshness, proof, and cross-repository consequence review; fixed the parity mechanism to a byte-for-byte generated asset with `?raw` import | ready | `/102-sg-start Unified ShipGlowz Bootstrap Modes for Local and Full Installation` |
 | 2026-07-17 13:42:00 UTC | 102-sg-start | GPT-5 Codex | Implemented mode selection, Termux routing, privilege boundaries, public artifact synchronization, endpoint/copy tests, and operator documentation | implemented locally; automated and build proofs pass | `/405-sg-prod`, then `/107-sg-test --retest BUG-2026-07-17-001` |
 | 2026-08-01 15:04 UTC | 001-sg-build | GPT-5 Codex | Added native Windows PowerShell bootstrap distribution through the same public endpoint, adaptive local SSH setup without mandatory WSL/autossh/ssh-agent, and parity/test coverage | partial; shell regressions and public parity pass, PowerShell/runtime deployment proof pending | Deploy public adapter, then verify from the Windows VM |
+| 2026-08-01 15:30 UTC | 300-sg-docs | GPT-5 Codex | Updated internal and public install documentation for the public ZIP bootstrap, automatic OpenSSH installation, UAC confirmation, and Windows Update/VM policy limits | docs aligned locally; deployment and Windows runtime proof pending | Push/deploy, then verify from the Windows VM |
+| 2026-08-01 15:45 UTC | 010-sg-technical | GPT-5 Codex | Audited and removed stale private-repository messaging, hardcoded legacy SSH host/IP guidance, and obsolete Windows bootstrap instructions while preserving Linux/Termux autossh paths | targeted audit passed; Windows runtime and hosted deployment proof pending | Push/deploy, then verify from the Windows VM |
+| 2026-08-01 15:56 UTC | 010-sg-technical | GPT-5 Codex | Removed the obsolete hardcoded SSH config template and replaced its manual documentation path with installer environment configuration | cleanup verified; Windows runtime and hosted deployment proof pending | Push/deploy, then verify from the Windows VM |
 
 ## Current Chantier Flow
 

@@ -6,7 +6,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
 ---
 
-## ✅ Option 1: WSL (Recommandé)
+## ✅ Option 1: WSL (alternative Linux)
 
 **Avantages:**
 - ✅ Meilleure compatibilité avec les outils Linux
@@ -30,10 +30,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
 3. **Cloner le repo et installer:**
    ```bash
-   cd /mnt/c/Users/VotreNom/Documents  # Ou votre dossier préféré
-   git clone https://github.com/votre-org/shipglowz.git
-   cd shipglowz/local
-   ./install.sh
+   curl -fsSL https://www.winflowz.com/shipglowz-script | SHIPGLOWZ_INSTALL_MODE=local sh
    ```
 
 4. **Utiliser les tunnels:**
@@ -73,7 +70,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
    OpenSSH si nécessaire, puis lance l'installation locale native. Il ne
    demande ni Git, ni `sudo`, ni WSL, ni `autossh`.
 
-3. **Ou exécuter le script d'installation depuis un clone existant:**
+3. **Ou exécuter le script d'installation depuis une copie existante:**
    ```powershell
    cd local
    .\install_local.ps1
@@ -120,7 +117,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
 2. **Lancer Git Bash et créer des tunnels manuels:**
    ```bash
-   ssh -N -L 3001:localhost:3001 root@5.75.134.202
+   ssh -N -L 3001:localhost:3001 shipglowz
    ```
 
 ---
@@ -201,10 +198,10 @@ tunnel 3001
 ### Tunnel SSH manuel (toutes options)
 ```bash
 # Tunnel simple
-ssh -N -L 3001:localhost:3001 hetzner
+ssh -N -L 3001:localhost:3001 shipglowz
 
 # Tunnel en arrière-plan (PowerShell)
-Start-Job -ScriptBlock { ssh -N -L 3001:localhost:3001 hetzner }
+Start-Job -ScriptBlock { ssh -N -L 3001:localhost:3001 shipglowz }
 ```
 
 ---
@@ -234,10 +231,8 @@ Si vous avez choisi le mode mot de passe dans `install_local.ps1`, ce message in
 OpenSSH Client avec élévation UAC. Si Windows Update est bloqué par la VM,
 l'installation de la fonctionnalité devra être autorisée par l'administrateur.
 
-```powershell
-# PowerShell en tant qu'administrateur
-Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
-```
+La commande manuelle `Add-WindowsCapability` reste un dépannage réservé aux
+machines où l'élévation automatique ou Windows Update est bloqué.
 
 ### Le tunnel se ferme automatiquement
 
@@ -245,7 +240,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 
 Ajoutez dans `~/.ssh/config` (ou `C:\Users\VotreNom\.ssh\config`):
 ```
-Host hetzner
+Host shipglowz
     ServerAliveInterval 60
     ServerAliveCountMax 3
 ```

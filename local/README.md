@@ -78,7 +78,7 @@ Le script installe automatiquement :
 
 Si vous préférez configurer manuellement :
 
-1. **Configuration SSH** - Copier `ssh-config` dans `~/.ssh/config`
+1. **Configuration SSH** - renseigner `SHIPGLOWZ_SSH_REMOTE_HOST` et `SHIPGLOWZ_SSH_REMOTE_USER`, puis relancer l'installateur local
 2. **Alias** - Ajouter dans `~/.bashrc` ou `~/.zshrc` :
    ```bash
    alias urls='~/shipglowz/local/local.sh'

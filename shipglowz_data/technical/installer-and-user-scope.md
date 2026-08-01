@@ -101,7 +101,7 @@ sudo ./cli/install.sh
 - The remote bootstrap must resolve the mode before enforcing privileges. `local` never requires `sudo`; `full` preserves the root boundary and runs through `cli/install.sh` as root.
 - Android Termux always selects or accepts only `local`, even if `sudo` or `tsu` happens to be installed.
 - Prompts read `/dev/tty`, never the script pipeline's standard input. Ambiguous non-interactive runs fail with explicit mode commands.
-- The private repository requires pre-existing authorized GitHub access. Errors must not recommend putting a token in the remote URL or log credentials.
+- The public code repository is downloaded without Git on native Windows; Linux/Termux paths may still use Git when their local installer requires it. No bootstrap path asks for or logs GitHub credentials.
 - WinGlowz's generated public bootstrap must remain byte-for-byte identical to `install-shipglowz.sh`; drift is a validation failure.
 - Daily work should run under an operational user, not by forcing all state into root.
 - The installer installs the PM2 binary but must not configure PM2 boot
