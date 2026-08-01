@@ -95,7 +95,10 @@ Set-Content -Path (Join-Path $shipglowzConfigDir 'current_auth_method') -Value $
 if ($AuthMethod -eq 'key') {
     Set-Content -Path (Join-Path $shipglowzConfigDir 'current_identity_file') -Value $IdentityFile -Encoding UTF8
 } else {
-    Remove-Item -LiteralPath (Join-Path $shipglowzConfigDir 'current_identity_file') -Force -ErrorAction SilentlyContinue
+    $identityStatePath = Join-Path $shipglowzConfigDir 'current_identity_file'
+    if (Test-Path -LiteralPath $identityStatePath) {
+        Remove-Item -LiteralPath $identityStatePath -Force -ErrorAction SilentlyContinue
+    }
 }
 
 if ($AuthMethod -eq 'password') {

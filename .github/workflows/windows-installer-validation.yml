@@ -1,0 +1,73 @@
+name: Windows installer validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - install-shipglowz.ps1
+      - local/install_local.ps1
+      - .github/workflows/windows-installer-validation.yml
+  pull_request:
+    paths:
+      - install-shipglowz.ps1
+      - local/install_local.ps1
+      - .github/workflows/windows-installer-validation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parser:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate PowerShell 5.1 installers
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @(
+            'install-shipglowz.ps1',
+            'local/install_local.ps1'
+          )
+
+          foreach ($file in $files) {
+            $tokens = $null
+            $parseErrors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file),
+              [ref]$tokens,
+              [ref]$parseErrors
+            )
+            if ($parseErrors -and $parseErrors.Count -gt 0) {
+              $parseErrors | ForEach-Object {
+                Write-Error ("{0}:{1}: {2}" -f $file, $_.Extent.StartLineNumber, $_.Message)
+              }
+              throw "PowerShell syntax validation failed: $file"
+            }
+            Write-Host "Parser.ParseFile passed: $file"
+          }
+
+          $localInstaller = 'local/install_local.ps1'
+          $bytes = [IO.File]::ReadAllBytes((Resolve-Path $localInstaller))
+          if ($bytes.Length -lt 3 -or $bytes[0] -ne 0xEF -or $bytes[1] -ne 0xBB -or $bytes[2] -ne 0xBF) {
+            throw "$localInstaller must use UTF-8 with BOM."
+          }
+
+          $text = [Text.Encoding]::UTF8.GetString($bytes)
+          $forbidden = @(
+            ([string][char]96 + [char]36),
+            ([char]36 + '{YELLOW}'),
+            ([char]36 + '{GREEN}'),
+            ([char]36 + '{NC}')
+          )
+          foreach ($marker in $forbidden) {
+            if ($text.Contains($marker)) {
+              throw "Forbidden legacy marker found in ${localInstaller}: $marker"
+            }
+          }
+
+          if ((Get-Content -Raw install-shipglowz.ps1).Contains('Expand-Archive')) {
+            throw 'The Windows bootstrap must not use Expand-Archive.'
+          }
