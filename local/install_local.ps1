@@ -1,5 +1,12 @@
 # install_local.ps1 - Installation automatique pour Windows (PowerShell)
-# Requires: OpenSSH Client (installé par défaut sur Windows 10+)
+# Installe automatiquement OpenSSH Client si la fonctionnalité est absente.
+
+param(
+    [string]$RemoteHost = $(if ($env:SHIPGLOWZ_SSH_REMOTE_HOST) { $env:SHIPGLOWZ_SSH_REMOTE_HOST } else { '' }),
+    [string]$RemoteUser = $(if ($env:SHIPGLOWZ_SSH_REMOTE_USER) { $env:SHIPGLOWZ_SSH_REMOTE_USER } else { '' }),
+    [string]$AuthMethod = $(if ($env:SHIPGLOWZ_SSH_AUTH_METHOD) { $env:SHIPGLOWZ_SSH_AUTH_METHOD } else { '' }),
+    [string]$IdentityFile = $(if ($env:SHIPGLOWZ_SSH_IDENTITY_FILE) { $env:SHIPGLOWZ_SSH_IDENTITY_FILE } else { '' })
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -20,23 +27,25 @@ Write-Host "${BLUE}1. Vérification des dépendances...${NC}"
 
 $sshInstalled = Get-Command ssh -ErrorAction SilentlyContinue
 if (-not $sshInstalled) {
-    Write-Host "${RED}   ✗ OpenSSH Client non installé${NC}"
-    Write-Host "${YELLOW}   Installation requise:${NC}"
-    Write-Host "${YELLOW}   1. Ouvrir Paramètres Windows > Applications > Fonctionnalités facultatives${NC}"
-    Write-Host "${YELLOW}   2. Ajouter 'Client OpenSSH'${NC}"
-    Write-Host "${YELLOW}   Ou via PowerShell (admin):${NC}"
-    Write-Host "${YELLOW}     Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0${NC}"
-    exit 1
+    Write-Host "${YELLOW}   OpenSSH Client absent; demande d'installation Windows...${NC}"
+    $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $isAdmin) {
+        $argumentList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath)
+        if ($RemoteHost) { $argumentList += @('-RemoteHost', $RemoteHost) }
+        if ($RemoteUser) { $argumentList += @('-RemoteUser', $RemoteUser) }
+        if ($AuthMethod) { $argumentList += @('-AuthMethod', $AuthMethod) }
+        if ($IdentityFile) { $argumentList += @('-IdentityFile', $IdentityFile) }
+        $elevated = Start-Process powershell.exe -Verb RunAs -Wait -PassThru -ArgumentList $argumentList
+        exit $elevated.ExitCode
+    }
+    Add-WindowsCapability -Online -Name 'OpenSSH.Client~~~~0.0.1.0' | Out-Host
+    $sshInstalled = Get-Command ssh -ErrorAction SilentlyContinue
+    if (-not $sshInstalled) {
+        throw 'Windows n’a pas pu installer OpenSSH Client. Vérifie Windows Update ou la politique de la machine virtuelle.'
+    }
 }
 Write-Host "${GREEN}   ✓ OpenSSH Client installé${NC}"
-
-# Vérifier si ssh-agent est actif
-$sshAgentService = Get-Service -Name ssh-agent -ErrorAction SilentlyContinue
-if ($sshAgentService -and $sshAgentService.Status -ne "Running") {
-    Write-Host "${YELLOW}   ⚠ Activation du service ssh-agent...${NC}"
-    Set-Service -Name ssh-agent -StartupType Automatic
-    Start-Service ssh-agent
-}
 
 Write-Host ""
 
@@ -49,27 +58,45 @@ if (-not (Test-Path $sshDir)) {
     New-Item -ItemType Directory -Path $sshDir | Out-Null
 }
 
-# Choisir le mode d'authentification SSH
+# Choisir la cible et le mode d'authentification SSH
 Write-Host ""
-Write-Host "${BLUE}   Choix de l'authentification SSH...${NC}"
-Write-Host "${YELLOW}   a) Clé SSH / agent${NC}"
-Write-Host "${YELLOW}   b) Mot de passe SSH${NC}"
-$authChoice = (Read-Host "   Choix [a/b]").Trim().ToLower()
-if ($authChoice -eq "b" -or $authChoice -eq "password" -or $authChoice -eq "mot de passe") {
-    $authMethod = "password"
-} else {
-    $authMethod = "key"
+if (-not $RemoteHost) { $RemoteHost = (Read-Host "   Hôte ou IP du serveur ShipGlowz").Trim() }
+if (-not $RemoteHost) { throw 'L’hôte SSH est obligatoire.' }
+if (-not $RemoteUser) { $RemoteUser = (Read-Host "   Utilisateur SSH [root]").Trim() }
+if (-not $RemoteUser) { $RemoteUser = 'root' }
+if (-not $AuthMethod) {
+    Write-Host "${YELLOW}   a) Clé SSH / fichier IdentityFile${NC}"
+    Write-Host "${YELLOW}   b) Mot de passe SSH${NC}"
+    $authChoice = (Read-Host "   Choix [a/b]").Trim().ToLower()
+    if ($authChoice -eq 'b' -or $authChoice -eq 'password' -or $authChoice -eq 'mot de passe') { $AuthMethod = 'password' } else { $AuthMethod = 'key' }
 }
-Write-Host "${GREEN}   ✓ Mode choisi: $authMethod${NC}"
+$AuthMethod = $AuthMethod.Trim().ToLower()
+if ($AuthMethod -notin @('key', 'password')) { throw "Mode SSH invalide: $AuthMethod. Utilise key ou password." }
+if ($AuthMethod -eq 'key' -and -not $IdentityFile) {
+    $defaultIdentity = Join-Path $env:USERPROFILE '.ssh\id_ed25519'
+    $identityInput = (Read-Host "   Fichier de clé SSH [$defaultIdentity]").Trim()
+    $IdentityFile = if ($identityInput) { $identityInput } else { $defaultIdentity }
+}
+Write-Host "${GREEN}   ✓ Cible choisie: $RemoteUser@$RemoteHost ($AuthMethod)${NC}"
 
-# Préparer le bloc de configuration SSH
+$shipglowzConfigDir = Join-Path $env:USERPROFILE '.shipglowz'
+New-Item -ItemType Directory -Path $shipglowzConfigDir -Force | Out-Null
+Set-Content -Path (Join-Path $shipglowzConfigDir 'current_connection') -Value "$RemoteUser@$RemoteHost"
+Set-Content -Path (Join-Path $shipglowzConfigDir 'current_auth_method') -Value $AuthMethod
+if ($AuthMethod -eq 'key') {
+    Set-Content -Path (Join-Path $shipglowzConfigDir 'current_identity_file') -Value $IdentityFile
+} else {
+    Remove-Item -LiteralPath (Join-Path $shipglowzConfigDir 'current_identity_file') -Force -ErrorAction SilentlyContinue
+}
+
+# Préparer le bloc de configuration SSH sans service ssh-agent obligatoire
 if ($authMethod -eq "password") {
     $sshAuthBlock = @"
 
-# ShipGlowz - Serveur Hetzner
-Host hetzner
-    HostName 5.75.134.202
-    User root
+# ShipGlowz - Serveur distant
+Host shipglowz
+    HostName $RemoteHost
+    User $RemoteUser
     ServerAliveInterval 60
     ServerAliveCountMax 3
     TCPKeepAlive yes
@@ -82,11 +109,11 @@ Host hetzner
 } else {
     $sshAuthBlock = @"
 
-# ShipGlowz - Serveur Hetzner
-Host hetzner
-    HostName 5.75.134.202
-    User root
-    IdentityFile ~/.ssh/id_ed25519
+# ShipGlowz - Serveur distant
+Host shipglowz
+    HostName $RemoteHost
+    User $RemoteUser
+    IdentityFile $IdentityFile
     ServerAliveInterval 60
     ServerAliveCountMax 3
     TCPKeepAlive yes
@@ -100,7 +127,7 @@ if (Test-Path $SSH_CONFIG) {
     $sshConfigContent = Get-Content -Raw -Path $SSH_CONFIG
 }
 
-$sshHostPattern = '(?ms)^\s*Host\s+hetzner\b.*?(?=^\s*Host\s+\S|\z)'
+$sshHostPattern = '(?ms)^\s*Host\s+shipglowz\b.*?(?=^\s*Host\s+\S|\z)'
 if ($sshConfigContent -match $sshHostPattern) {
     $updatedConfig = [regex]::Replace($sshConfigContent, $sshHostPattern, $sshAuthBlock.TrimStart())
     Set-Content -Path $SSH_CONFIG -Value $updatedConfig
@@ -131,7 +158,7 @@ Write-Host ""
 Write-Host "Appuyez sur Ctrl+C pour arrêter le tunnel"
 Write-Host ""
 
-ssh -N -L ${Port}:localhost:${Port} hetzner
+ssh -N -L ${Port}:localhost:${Port} shipglowz
 "@
 
 Set-Content -Path $tunnelScriptPath -Value $tunnelScriptContent
@@ -197,7 +224,7 @@ try {
         $sshTestArgs += @("-o", "BatchMode=yes")
     }
 
-    $sshTest = & ssh @sshTestArgs hetzner "echo OK" 2>$null
+    $sshTest = & ssh @sshTestArgs shipglowz "echo OK" 2>$null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "${GREEN}   ✓ Connexion SSH au serveur OK${NC}"
         Write-Host ""
@@ -220,7 +247,7 @@ try {
         Write-Host "      ${YELLOW}(La clé est maintenant dans le presse-papiers)${NC}"
         Write-Host ""
         Write-Host "   ${BLUE}3. Ajouter la clé sur le serveur:${NC}"
-        Write-Host "      ${GREEN}ssh root@5.75.134.202${NC}"
+        Write-Host "      ${GREEN}ssh $RemoteUser@$RemoteHost${NC}"
         Write-Host "      ${YELLOW}Collez votre clé publique dans ~/.ssh/authorized_keys${NC}"
     }
 }

@@ -59,6 +59,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlowz setup.
 ## Entrypoints
 
 - `curl -fsSL https://www.winflowz.com/shipglowz-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
+- Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlowz archive without Git, installs the Windows OpenSSH Client when absent, and installs only the local tunnel layer without `sudo`, `autossh`, or mandatory `ssh-agent`.
 - `install-shipglowz.sh`: canonical bootstrap. `SHIPGLOWZ_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
 - `tools/sync_shipglowz_public_bootstrap.sh --check --winglowz-root <path>`: verifies that WinGlowz serves the generated canonical artifact rather than an independently maintained template.
 - `sudo ./cli/install.sh`: server installer.
@@ -79,8 +80,7 @@ curl -fsSL https://www.winflowz.com/shipglowz-script | sh
   -> resolve SHIPGLOWZ_INSTALL_MODE, Termux, root, or /dev/tty choice
   -> reject ambiguous non-interactive and unsupported Termux/full combinations
   -> install bootstrap dependencies with pkg (Termux) or apt (full server)
-  -> clone or update private ShipGlowz under the selected user's home
-  -> stash local dirty repository changes before update
+  -> download and extract the public ShipGlowz archive under the selected user's home
   -> local: exec user-local local/install.sh
   -> full: exec root cli/install.sh
 

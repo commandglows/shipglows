@@ -142,6 +142,7 @@ _shipglowz_remote_host() {
 }
 
 alias tunnel='$SCRIPT_DIR/local.sh'
+alias urls='$SCRIPT_DIR/local.sh'
 alias l='$SCRIPT_DIR/local.sh'
 alias m='mosh \"\$(_shipglowz_remote_user)@\$(_shipglowz_remote_host)\" -- bash -l -c \"tmux a || tmux\"'
 alias sss='ssh -tt \"\$(_shipglowz_remote_user)@\$(_shipglowz_remote_host)\" \"tmux new-session -A -s 0\"'

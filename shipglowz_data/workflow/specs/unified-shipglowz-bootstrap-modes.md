@@ -280,6 +280,7 @@ None. The safest distribution default is to keep the repository private and requ
 | 2026-07-17 13:25:56 UTC | 100-sg-spec | GPT-5 Codex | Created the cross-repository bootstrap mode and Termux routing contract from BUG-2026-07-17-001 | draft | `/101-sg-ready Unified ShipGlowz Bootstrap Modes for Local and Full Installation` |
 | 2026-07-17 13:29:32 UTC | 101-sg-ready | GPT-5 Codex | Ran structure, adversarial, security, freshness, proof, and cross-repository consequence review; fixed the parity mechanism to a byte-for-byte generated asset with `?raw` import | ready | `/102-sg-start Unified ShipGlowz Bootstrap Modes for Local and Full Installation` |
 | 2026-07-17 13:42:00 UTC | 102-sg-start | GPT-5 Codex | Implemented mode selection, Termux routing, privilege boundaries, public artifact synchronization, endpoint/copy tests, and operator documentation | implemented locally; automated and build proofs pass | `/405-sg-prod`, then `/107-sg-test --retest BUG-2026-07-17-001` |
+| 2026-08-01 15:04 UTC | 001-sg-build | GPT-5 Codex | Added native Windows PowerShell bootstrap distribution through the same public endpoint, adaptive local SSH setup without mandatory WSL/autossh/ssh-agent, and parity/test coverage | partial; shell regressions and public parity pass, PowerShell/runtime deployment proof pending | Deploy public adapter, then verify from the Windows VM |
 
 ## Current Chantier Flow
 
@@ -289,4 +290,4 @@ None. The safest distribution default is to keep the repository private and requ
 - `103-sg-verify`: local automated and build proof passed; hosted/device proof pending
 - `104-sg-end`: not launched
 - `005-sg-ship`: WinGlowz files were included in concurrent pushed commit `84dcdbb`; ShipGlowz changes remain unshipped
-- Next step: `/405-sg-prod`, then `/107-sg-test --retest BUG-2026-07-17-001`
+- Next step: deploy and verify the Windows adapter from the constrained Windows VM, then continue hosted/device proof

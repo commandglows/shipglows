@@ -43,7 +43,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
 ---
 
-## ⚡ Option 2: PowerShell Natif
+## ⚡ Option 2: PowerShell Natif (sans WSL)
 
 **Avantages:**
 - ✅ Pas besoin de WSL
@@ -56,25 +56,34 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
 **Installation:**
 
-1. **Vérifier OpenSSH Client:**
+1. **Lancer le bootstrap unique ShipGlowz:**
 
-   OpenSSH est installé par défaut sur Windows 10/11. Sinon:
+   Le script installe automatiquement OpenSSH Client si nécessaire. Windows
+   affichera une demande UAC et Windows Update doit être accessible.
+
+   Le même endpoint public fournit automatiquement la variante PowerShell :
+
    ```powershell
-   # PowerShell en tant qu'administrateur
-   Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
+   $installer = Join-Path $env:TEMP 'shipglowz-install.ps1'
+   curl.exe -fsSL 'https://www.winflowz.com/shipglowz-script?format=powershell' -o $installer
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
    ```
 
-2. **Exécuter le script d'installation:**
+   Le bootstrap télécharge l'archive publique ShipGlowz sans Git, installe
+   OpenSSH si nécessaire, puis lance l'installation locale native. Il ne
+   demande ni Git, ni `sudo`, ni WSL, ni `autossh`.
+
+3. **Ou exécuter le script d'installation depuis un clone existant:**
    ```powershell
    cd local
    .\install_local.ps1
    ```
 
    Le script vous demande aussi de choisir le mode SSH:
-   - **Clé SSH / agent** si vous utilisez `authorized_keys`
+   - **Clé SSH / fichier de clé** si vous utilisez `authorized_keys`
    - **Mot de passe SSH** si le serveur autorise encore l'authentification par mot de passe
 
-3. **Créer des tunnels SSH:**
+4. **Créer des tunnels SSH:**
 
    **Méthode simple:**
    ```powershell
@@ -88,7 +97,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
    **Tunnel manuel:**
    ```powershell
-   ssh -N -L 3001:localhost:3001 hetzner
+   ssh -N -L 3001:localhost:3001 shipglowz
    ```
 
 ---
@@ -105,8 +114,9 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
 **Installation:**
 
-1. **Installer Git for Windows:**
-   https://git-scm.com/download/win
+1. **Git Bash est optionnel:**
+   Le parcours PowerShell ci-dessus n'utilise pas Git. Cette section ne sert
+   que si vous souhaitez utiliser Git Bash manuellement.
 
 2. **Lancer Git Bash et créer des tunnels manuels:**
    ```bash
@@ -220,7 +230,9 @@ Si vous avez choisi le mode mot de passe dans `install_local.ps1`, ce message in
 
 ### "ssh: command not found" (PowerShell)
 
-**Solution:** OpenSSH n'est pas installé.
+**Solution:** relancez le bootstrap PowerShell : il installe automatiquement
+OpenSSH Client avec élévation UAC. Si Windows Update est bloqué par la VM,
+l'installation de la fonctionnalité devra être autorisée par l'administrateur.
 
 ```powershell
 # PowerShell en tant qu'administrateur

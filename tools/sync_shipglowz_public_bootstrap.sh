@@ -4,6 +4,7 @@ set -euo pipefail
 
 SHIPGLOWZ_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOURCE_FILE="$SHIPGLOWZ_ROOT/install-shipglowz.sh"
+POWERSHELL_SOURCE_FILE="$SHIPGLOWZ_ROOT/install-shipglowz.ps1"
 WINGLOWZ_ROOT="${WINGLOWZ_ROOT:-/home/claude/winglowz}"
 MODE=""
 
@@ -52,9 +53,15 @@ fi
 
 TARGET_DIR="$WINGLOWZ_ROOT/winglowz_site/src/generated"
 TARGET_FILE="$TARGET_DIR/shipglowz-installer.sh"
+POWERSHELL_TARGET_FILE="$TARGET_DIR/shipglowz-installer.ps1"
 
 if [ ! -f "$SOURCE_FILE" ]; then
   printf 'Canonical bootstrap missing: %s\n' "$SOURCE_FILE" >&2
+  exit 1
+fi
+
+if [ ! -f "$POWERSHELL_SOURCE_FILE" ]; then
+  printf 'Canonical PowerShell bootstrap missing: %s\n' "$POWERSHELL_SOURCE_FILE" >&2
   exit 1
 fi
 
@@ -70,12 +77,19 @@ case "$MODE" in
       printf 'Run this command with --write, review the WinGlowz diff, then rerun --check.\n' >&2
       exit 1
     fi
+    if [ ! -f "$POWERSHELL_TARGET_FILE" ] || ! cmp -s "$POWERSHELL_SOURCE_FILE" "$POWERSHELL_TARGET_FILE"; then
+      printf 'PowerShell bootstrap drift detected between:\n  %s\n  %s\n' "$POWERSHELL_SOURCE_FILE" "$POWERSHELL_TARGET_FILE" >&2
+      printf 'Run this command with --write, review the WinGlowz diff, then rerun --check.\n' >&2
+      exit 1
+    fi
     printf 'ShipGlowz public bootstrap parity: OK\n'
     ;;
   --write)
     mkdir -p "$TARGET_DIR"
     cp "$SOURCE_FILE" "$TARGET_FILE"
+    cp "$POWERSHELL_SOURCE_FILE" "$POWERSHELL_TARGET_FILE"
     chmod 0644 "$TARGET_FILE"
+    chmod 0644 "$POWERSHELL_TARGET_FILE"
     printf 'Synchronized public bootstrap: %s\n' "$TARGET_FILE"
     ;;
 esac
