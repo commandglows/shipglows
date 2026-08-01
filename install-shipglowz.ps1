@@ -55,20 +55,17 @@ function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref) {
 
     $repositoryPath = $Matches[1]
     $encodedRef = [Uri]::EscapeDataString($Ref)
-    $commitApiUrl = "https://api.github.com/repos/$repositoryPath/commits/$encodedRef"
-    $commitResponse = (& curl.exe -fsSL -H 'Accept: application/vnd.github+json' $commitApiUrl | Out-String)
+    $commitPatchUrl = "https://github.com/$repositoryPath/commit/$encodedRef.patch"
+    $commitResponse = (& curl.exe -fsSL $commitPatchUrl | Out-String)
     if ($LASTEXITCODE -ne 0) {
         Fail "Could not resolve ShipGlowz ref: $Ref"
     }
 
-    try {
-        $commitSha = ($commitResponse | ConvertFrom-Json).sha
-    } catch {
-        Fail "GitHub returned an invalid commit response for ref: $Ref"
-    }
-    if (-not $commitSha -or $commitSha -notmatch '^[0-9a-f]{40}$') {
+    $commitMatch = [regex]::Match($commitResponse, '(?m)^From ([0-9a-f]{40}) ')
+    if (-not $commitMatch.Success) {
         Fail "GitHub did not return a valid commit for ref: $Ref"
     }
+    $commitSha = $commitMatch.Groups[1].Value
 
     [PSCustomObject]@{
         Commit = $commitSha
