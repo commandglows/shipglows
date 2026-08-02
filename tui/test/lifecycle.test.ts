@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { projectLifecycleRows, summarizeLifecycle } from "../src/sources/lifecycle.ts";
+import type { Diagnostic } from "../src/types/models.ts";
 
 const fixturePath = path.resolve(import.meta.dir, "../../tools/fixtures/project-lifecycle/sample.md");
 const now = new Date("2026-07-28T08:00:00Z");
@@ -39,7 +40,7 @@ describe("lifecycle source parity", () => {
   it("renders the same projected state and keeps missing evidence visible", async () => {
     const markdown = await readFile(fixturePath, "utf8");
     const missingEvidence = markdown.replace("reports/seo-launch.md", "-");
-    const diagnostics = [];
+    const diagnostics: Diagnostic[] = [];
     const summary = summarizeLifecycle(missingEvidence, "Example Site", diagnostics, now);
 
     expect(diagnostics).toHaveLength(0);

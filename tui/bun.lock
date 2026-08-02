@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "shipflow-terminal-tui",
+      "name": "shipglows-terminal-tui",
       "dependencies": {
         "@opentui/core": "0.2.14",
       },
