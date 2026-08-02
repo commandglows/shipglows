@@ -87,7 +87,7 @@ run_test "Prefix generic lab role" "pass" test "$(derive_pm2_app_name /home/clau
 run_test "Prefix generic worker role" "pass" test "$(derive_pm2_app_name /home/claude/contentglowz/worker)" = "contentglowz_worker"
 run_test "Preserve specific project name" "pass" test "$(derive_pm2_app_name /home/claude/socialglowz)" = "socialglowz"
 run_test "Preserve already-prefixed role" "pass" test "$(derive_pm2_app_name /home/claude/winglowz/winglowz_app)" = "winglowz_app"
-run_test "Avoid duplicate parent role suffix" "pass" test "$(derive_pm2_app_name /home/claude/shipglowz_app/app)" = "shipglows_app"
+run_test "Avoid duplicate parent role suffix" "pass" test "$(derive_pm2_app_name /home/claude/shipglows_app/app)" = "shipglows_app"
 
 echo ""
 echo -e "${BLUE}Testing DuckDNS/public publish validation${NC}"

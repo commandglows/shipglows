@@ -236,6 +236,103 @@ validate_identity_file() {
     resolve_identity_path "$identity_file" >/dev/null
 }
 
+shipglows_ssh_config_file() {
+    printf '%s\n' "${SHIPGLOWS_SSH_CONFIG_FILE:-$HOME/.ssh/config}"
+}
+
+shipglows_ssh_managed_config_file() {
+    printf '%s\n' "${SHIPGLOWS_SSH_MANAGED_CONFIG_FILE:-$HOME/.ssh/shipglows.conf}"
+}
+
+shipglows_ssh_target_host() {
+    local target="$1"
+    target="${target#*@}"
+    validate_connection_host "$target" || return 1
+    printf '%s\n' "$target"
+}
+
+shipglows_ssh_target_user() {
+    local target="$1"
+    if [[ "$target" == *"@"* ]]; then
+        local user="${target%%@*}"
+        validate_ssh_user "$user" || return 1
+        printf '%s\n' "$user"
+    fi
+}
+
+shipglows_ssh_managed_block_id() {
+    local host="$1"
+    printf '%s\n' "$host" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g'
+}
+
+sync_standard_ssh_identity() {
+    local target="$1"
+    local identity_file="$2"
+    local host user resolved_identity config_file managed_file ssh_dir block_id config_tmp managed_tmp
+
+    host="$(shipglows_ssh_target_host "$target")" || return 1
+    user="$(shipglows_ssh_target_user "$target")" || return 1
+    resolved_identity="$(resolve_identity_path "$identity_file")" || return 1
+    config_file="$(shipglows_ssh_config_file)"
+    managed_file="$(shipglows_ssh_managed_config_file)"
+    ssh_dir="$(dirname "$config_file")"
+    block_id="$(shipglows_ssh_managed_block_id "$host")"
+
+    [ -z "$user" ] || validate_ssh_user "$user" || return 1
+    [ ! -L "$config_file" ] || return 1
+    mkdir -p "$ssh_dir" || return 1
+    chmod 700 "$ssh_dir" 2>/dev/null || true
+    touch "$config_file" || return 1
+    chmod 600 "$config_file" 2>/dev/null || true
+
+    managed_tmp="$(mktemp "$ssh_dir/.shipglows.conf.XXXXXX")" || return 1
+    if [ -f "$managed_file" ]; then
+        awk -v start="# >>> ShipGlows managed host ${block_id}" -v end="# <<< ShipGlows managed host ${block_id}" '
+            $0 == start { skip = 1; next }
+            $0 == end { skip = 0; next }
+            !skip { print }
+        ' "$managed_file" > "$managed_tmp" || {
+            rm -f "$managed_tmp"
+            return 1
+        }
+    fi
+
+    {
+        [ -s "$managed_tmp" ] && printf '\n'
+        printf '%s\n' "# >>> ShipGlows managed host ${block_id}"
+        printf '%s\n' "Host $host"
+        [ -n "$user" ] && printf '%s\n' "    User $user"
+        printf '%s\n' "    IdentityFile $resolved_identity"
+        printf '%s\n' "    IdentitiesOnly yes"
+        printf '%s\n' "# <<< ShipGlows managed host ${block_id}"
+    } >> "$managed_tmp" || {
+        rm -f "$managed_tmp"
+        return 1
+    }
+    chmod 600 "$managed_tmp" 2>/dev/null || true
+    mv "$managed_tmp" "$managed_file" || {
+        rm -f "$managed_tmp"
+        return 1
+    }
+
+    if ! grep -Fqx "Include $managed_file" "$config_file"; then
+        config_tmp="$(mktemp "$ssh_dir/.config.XXXXXX")" || return 1
+        {
+            printf '%s\n' "# ShipGlows managed SSH identities"
+            printf '%s\n' "Include $managed_file"
+            cat "$config_file"
+        } > "$config_tmp" || {
+            rm -f "$config_tmp"
+            return 1
+        }
+        chmod 600 "$config_tmp" 2>/dev/null || true
+        mv "$config_tmp" "$config_file" || {
+            rm -f "$config_tmp"
+            return 1
+        }
+    fi
+}
+
 ssh_public_key_type_allowed() {
     case "${1:-}" in
         ssh-ed25519|sk-ssh-ed25519@openssh.com|ecdsa-sha2-nistp256|ecdsa-sha2-nistp384|ecdsa-sha2-nistp521|sk-ecdsa-sha2-nistp256@openssh.com|ssh-rsa)

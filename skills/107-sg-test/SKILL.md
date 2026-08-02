@@ -37,6 +37,8 @@ If a scenario fails with a crash, error boundary, 5xx, visible Sentry/support ev
 
 If a runtime app exposes settings, support, diagnostics, error boundary, or copy-log UI, load `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`. When the agent can safely navigate the app or use tooling itself, collect/copy reachable diagnostics before asking the operator for logs.
 
+When manual QA or a retest includes a ShipGlows-managed PM2 restart, crash loop, or `.shipglows.env`, load `$SHIPGLOWS_ROOT/skills/references/project-runtime-policy.md` before naming the expected recovery behavior.
+
 ## Mission
 
 Run a guided manual test campaign for the current work, then log the evidence.
@@ -143,5 +145,6 @@ When first prompting the user, output only the manual test card. After the user 
 Validate this skill after edits with:
 
 - `rg -n "Trace category|Process role|Never invent test results|TEST_LOG|BUG-|project-development-mode|manual-qa-workflow|Final Report" skills/107-sg-test/SKILL.md`
+- `rg -n "project-runtime-policy" skills/107-sg-test/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
 - `python3 tools/shipglows_metadata_lint.py skills/107-sg-test/references/manual-qa-workflow.md`

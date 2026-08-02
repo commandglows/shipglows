@@ -130,7 +130,7 @@ show_dashboard        # Display dashboard (reads envs.reg, 0 subprocesses)
 
 | Original | Renamed | Path | Purpose |
 |----------|---------|------|---------|
-| `app` | `shipglows_app` | `/home/claude/shipglowz_app/shipglows_app/` | Flutter dashboard (CI only) |
+| `app` | `shipglows_app` | `/home/claude/shipglows_app/shipglows_app/` | Flutter dashboard (CI only) |
 | `site` | `shipglows-site` | `/home/claude/shipglowz/shipglows-site/` | ShipGlows marketing site (Astro) |
 | `contentflowz-app` (flox) | `shipglows-app` | — | Flox env for shipglows_app |
 

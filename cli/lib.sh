@@ -6936,6 +6936,9 @@ should_enable_doppler() {
 #
 # The file is deliberately parsed as data, never sourced as shell code. This
 # keeps project metadata/configuration separate from executable startup logic.
+# Its schema is deliberately closed: comments, blank lines, and the explicit
+# settings below are accepted; all other lines fail loudly rather than letting
+# a typo silently fall back to a potentially unsafe default.
 # -----------------------------------------------------------------------------
 project_runtime_settings_load() {
     local project_dir=$1
@@ -6963,6 +6966,11 @@ project_runtime_settings_load() {
                             return 1
                             ;;
                     esac
+                    ;;
+                *)
+                    error "Ligne non prise en charge dans $settings_file : $line"
+                    error "Clés autorisées : SHIPGLOWS_ENV_PORT et SHIPGLOWS_AUTO_REPAIR"
+                    return 1
                     ;;
             esac
         done < "$settings_file"

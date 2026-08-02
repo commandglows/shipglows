@@ -283,13 +283,13 @@ describe("buildDashboardViewModel", () => {
       specs: [
         {
           ...dashboardData.specs[0]!,
-          path: "/home/claude/shipglowz_app/app/shipglows_data/workflow/specs/shipglows-terminal-tui-v1.md",
+          path: "/home/claude/shipglows_app/app/shipglows_data/workflow/specs/shipglows-terminal-tui-v1.md",
           project: "shipglows_app",
           title: "ShipGlows Terminal TUI V1"
         },
         {
           ...dashboardData.specs[1]!,
-          path: "/home/claude/shipglowz_app/app/shipglows_data/workflow/specs/gocharbon-quiz.md",
+          path: "/home/claude/shipglows_app/app/shipglows_data/workflow/specs/gocharbon-quiz.md",
           project: "gocharbon_quiz",
           title: "GoCharbon Quiz Spec"
         }

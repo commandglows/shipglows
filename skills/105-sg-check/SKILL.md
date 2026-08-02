@@ -196,9 +196,10 @@ If project mode is `vercel-preview-push`, include the next deployment step expli
 - When security-relevant checks fail or are missing (for example auth flows, permission boundaries, secret/config validation, dependency audit access), call that out explicitly and recommend the next skill when appropriate (`/103-sg-verify`, `/405-sg-prod`, `/010-sg-technical deps`).
 - When browser-observable behavior is unproven but the issue is not auth-specific, recommend `/108-sg-browser [URL or scope] [objective]` rather than stretching `/109-sg-auth-debug`.
 - In `vercel-preview-push` or relevant `hybrid` mode, apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md` when changed behavior needs preview validation.
+- When checking a ShipGlows-managed PM2 lifecycle or `.shipglows.env` behavior, load `$SHIPGLOWS_ROOT/skills/references/project-runtime-policy.md`; validate unknown-setting rejection and that disabled recovery never calls `env_start`.
 
 ## Validation
 
-- `rg -n "Trace category|Process role|Mission|ShipGlows-Owned Preflight|canonical ShipGlows path|shipglows_sync_skills|project-development-mode|actionable-failure-contract|Risky assumptions / gaps|vercel-preview-push|product is production-ready" skills/105-sg-check/SKILL.md`
+- `rg -n "Trace category|Process role|Mission|ShipGlows-Owned Preflight|canonical ShipGlows path|shipglows_sync_skills|project-development-mode|project-runtime-policy|actionable-failure-contract|Risky assumptions / gaps|vercel-preview-push|product is production-ready" skills/105-sg-check/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
 - `tools/shipglows_sync_skills.sh --check --skill 105-sg-check`

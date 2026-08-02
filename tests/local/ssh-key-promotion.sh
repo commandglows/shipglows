@@ -138,6 +138,20 @@ check "promoted auth method is key" grep -qx key "$CURRENT_AUTH_METHOD_FILE"
 check "promoted identity path is absolute" grep -qx "$HOME/.ssh/existing-key" "$CURRENT_IDENTITY_FILE"
 check "promoted saved connection uses the identity" grep -qx "$REMOTE_HOST|key|$HOME/.ssh/existing-key" "$CONNECTIONS_FILE"
 
+SSH_CONFIG_FILE="$HOME/.ssh/config"
+SSH_MANAGED_CONFIG_FILE="$HOME/.ssh/shipglows.conf"
+export SHIPGLOWS_SSH_CONFIG_FILE="$SSH_CONFIG_FILE"
+export SHIPGLOWS_SSH_MANAGED_CONFIG_FILE="$SSH_MANAGED_CONFIG_FILE"
+printf '%s\n' "Host unrelated.example.test" "    User untouched" > "$SSH_CONFIG_FILE"
+check "standard SSH config sync succeeds" sync_standard_ssh_identity "$REMOTE_HOST" "$HOME/.ssh/existing-key"
+check "standard SSH config keeps existing content" grep -qx "Host unrelated.example.test" "$SSH_CONFIG_FILE"
+check "standard SSH config includes managed identities" grep -Fqx "Include $SSH_MANAGED_CONFIG_FILE" "$SSH_CONFIG_FILE"
+check "standard SSH config records the target identity" grep -Fqx "    IdentityFile $HOME/.ssh/existing-key" "$SSH_MANAGED_CONFIG_FILE"
+check "standard SSH config forces identities only" grep -qx "    IdentitiesOnly yes" "$SSH_MANAGED_CONFIG_FILE"
+check "standard SSH config supports direct SSH resolution" sh -c "ssh -F '$SSH_CONFIG_FILE' -G '$REMOTE_HOST' 2>/dev/null | grep -Fqx 'identityfile $HOME/.ssh/existing-key'"
+check "standard SSH config sync is idempotent" sync_standard_ssh_identity "$REMOTE_HOST" "$HOME/.ssh/existing-key"
+check "standard SSH config has one managed target block" test "$(grep -Fc '# >>> ShipGlows managed host example.test' "$SSH_MANAGED_CONFIG_FILE")" -eq 1
+
 echo ""
 echo "$pass_count/$test_count tests passed"
 [ "$pass_count" -eq "$test_count" ]

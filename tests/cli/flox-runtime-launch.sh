@@ -76,6 +76,19 @@ project_runtime_settings_load "$project_dir" test_port test_auto_repair
 assert_eq "$test_port" "41000" "project runtime settings expose the requested port"
 assert_eq "$test_auto_repair" "false" "project runtime settings can disable auto-repair"
 
+cat > "$project_dir/.shipglows.env" <<'EOF'
+SHIPGLOWS_AUTO_REPAIRS=false
+EOF
+if project_runtime_settings_load "$project_dir" test_port test_auto_repair >/dev/null 2>&1; then
+    fail "unknown project runtime settings must fail instead of silently using defaults"
+fi
+
+cat > "$project_dir/.shipglows.env" <<'EOF'
+# Project runtime settings: data only, never executed by ShipGlows.
+SHIPGLOWS_ENV_PORT=41000
+SHIPGLOWS_AUTO_REPAIR=false
+EOF
+
 SHIPGLOWS_ENV_PORT=45000
 env_start "$project_dir" >/dev/null
 runtime_args="$(node -e "const app = require(process.argv[1]).apps[0]; process.stdout.write(app.args[1]);" "$project_dir/ecosystem.config.cjs")"

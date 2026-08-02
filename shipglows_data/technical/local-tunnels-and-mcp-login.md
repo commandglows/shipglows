@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.2"
+artifact_version: "1.1.3"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-01"
+updated: "2026-08-02"
 status: reviewed
 source_skill: sg-start
 scope: local-tunnels-and-mcp-login
@@ -35,6 +35,7 @@ evidence:
   - "Password-authenticated saved connections can be promoted to independently verified per-device SSH keys without transferring private material."
   - "Android Termux is an explicit local tunnel surface with pkg-based dependency guidance."
   - "Native Windows PowerShell bootstrap and one-port OpenSSH tunnel proved on a Shadow PC on 2026-08-01."
+  - "Password-to-key promotion now writes a managed OpenSSH identity include so direct SSH and Mosh use the verified key."
 next_review: "2026-06-01"
 next_step: "Define the native Windows urls-menu parity contract before implementation."
 ---
@@ -182,6 +183,10 @@ shipglows-turso-ssh
   Blacksmith feature that relies on the triggering user's GitHub SSH keys and a
   per-job SSH command from the `Setup runner` step.
 - Saved connection state is shared by app tunnels, MCP login, and Blacksmith login.
+- After a successful key promotion, ShipGlows writes an isolated managed SSH
+  include for the exact host. Standard `ssh user@host` and `mosh user@host`
+  then resolve the verified identity with `IdentitiesOnly yes`; existing user
+  SSH config content is preserved.
 - Each local device owns a distinct private key. ShipGlows may authorize multiple device public keys on the same remote account but never synchronizes private keys.
 - Password-to-key promotion sends only a validated single-line public record over SSH stdin. Public records with `authorized_keys` options, multiple lines, unsupported types, or a mismatch with the selected private identity are rejected before remote mutation.
 - Remote key installation preserves all existing `authorized_keys` entries, deduplicates by the base64 public blob, and enforces mode `700` on `~/.ssh` and `600` on `authorized_keys`.
@@ -216,6 +221,9 @@ shipglows-turso-ssh
   credentials, or host-key error) rather than treating it as an empty PM2 list.
 - A malformed SSH identity path or target can become an SSH option if validation regresses.
 - A mismatched `.pub` file, passphrase-protected key absent from `ssh-agent`, nonstandard remote authorized-key policy, or unwritable remote home blocks promotion and leaves the previous saved auth mode active.
+- If `~/.ssh/config` is a symbolic link or cannot be updated, key promotion
+  still succeeds for ShipGlows tunnels but direct SSH/Mosh must use the shown
+  `ssh -i` recovery command until the operator configures the identity.
 - An active password ControlMaster can create a false positive unless key verification explicitly disables `ControlPath`; this is a blocking security invariant.
 - Duplicate local ports should block before creating partial tunnels.
 - A stale Flutter Web registry entry should be ignored by local tunnel tools

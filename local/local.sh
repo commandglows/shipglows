@@ -391,6 +391,12 @@ install_ssh_key_for_current_server() {
     SSH_IDENTITY_FILE="$(resolve_identity_path "$identity_file")"
     echo -e "${GREEN}✓ Connexion promue vers la clé SSH ($install_result).${NC}"
     echo -e "${GREEN}✓ Les tunnels utiliseront désormais cette clé sans mot de passe serveur.${NC}"
+    if sync_standard_ssh_identity "$REMOTE_HOST" "$SSH_IDENTITY_FILE"; then
+        echo -e "${GREEN}✓ Les commandes ssh et mosh utiliseront aussi cette clé pour cet hôte.${NC}"
+    else
+        echo -e "${YELLOW}⚠ La clé ShipGlows fonctionne, mais ~/.ssh/config n'a pas pu être mis à jour.${NC}"
+        echo -e "${YELLOW}  Pour SSH/Mosh direct, utilise: ssh -i $SSH_IDENTITY_FILE $REMOTE_HOST${NC}"
+    fi
 }
 
 print_remote_app_warmup_hint() {

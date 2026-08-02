@@ -31,6 +31,7 @@ For `106-sg-fix`, use it when the bug reveals non-trivial future work beyond a d
 Before any fix attempt, load:
 
 - `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md`
+- `$SHIPGLOWS_ROOT/skills/references/project-runtime-policy.md` when the bug involves a ShipGlows-managed PM2 startup failure or crash loop.
 - `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`
 - `$SHIPGLOWS_ROOT/skills/references/task-application-loop.md`
 - `$SHIPGLOWS_ROOT/skills/106-sg-fix/references/bug-fix-workflow.md`
@@ -125,6 +126,8 @@ Before asking the operator for logs, reproduction detail, screenshots, status, o
 
 For runtime errors, error boundaries, 5xx, crashes, or visible support states, use the app's diagnostics/log-copy surface when reachable. Confirm the copied text starts with commit/build plus Paris/UTC build time, and treat missing or unsafe diagnostics as part of the bug evidence posture.
 
+For a ShipGlows-managed PM2 crash loop, read the project runtime policy before attempting recovery. When `SHIPGLOWS_AUTO_REPAIR=false`, collect bounded PM2 logs and offer Codex repair; do not call or recommend `env_start` as automatic recovery.
+
 ## Stop Conditions
 
 - Ambiguity changes product meaning, data handling, permissions, security, destructive behavior, or external side effects.
@@ -153,6 +156,6 @@ Use the report shape in `bug-fix-workflow.md`: classification, reason, user stor
 
 Validate this skill after edits with:
 
-- `rg -n "Trace category|Process role|Chantier Potential|ShipGlows-Owned Preflight|canonical ShipGlows path|spec-driven-development-discipline|decision-quality-contract|task-application-loop|Direct fix|Spec-first|BUG-ID|Stop Conditions|bug-fix-workflow|operator for logs|bug memory|runtime surface" skills/106-sg-fix/SKILL.md`
+- `rg -n "Trace category|Process role|Chantier Potential|ShipGlows-Owned Preflight|canonical ShipGlows path|spec-driven-development-discipline|project-runtime-policy|decision-quality-contract|task-application-loop|Direct fix|Spec-first|BUG-ID|Stop Conditions|bug-fix-workflow|operator for logs|bug memory|runtime surface" skills/106-sg-fix/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
 - `python3 tools/shipglows_metadata_lint.py skills/106-sg-fix/references/bug-fix-workflow.md`

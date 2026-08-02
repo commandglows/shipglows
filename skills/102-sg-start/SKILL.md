@@ -46,6 +46,7 @@ Default to `report=user`: concise, outcome-first, and using the opening chantier
 Load only the references needed for the active run:
 
 - `references/execution-workflow.md`: detailed task identification, scope triage, execution contract, model/delegation choice, implementation loop, validation, spec trace, and final report rules.
+- `$SHIPGLOWS_ROOT/skills/references/project-runtime-policy.md`: when starting or recovering a ShipGlows-managed PM2 environment.
 - `$SHIPGLOWS_ROOT/skills/references/task-application-loop.md`: required before task-by-task implementation to preserve target selection, context loading, progress semantics, stop conditions, and proof routing.
 - `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: required before selecting direct mode, model, topology, implementation path, or fallback. Bounded implementation is allowed; shortcut quality or shortcut excellence is not.
 - `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`: required before creating or mutating task, audit, or `spec:` operational records in `TASKS.md`, `AUDIT_LOG.md`, or spec summary sections.
@@ -102,6 +103,7 @@ What implementation can be completed now without overstating proof, closure, or 
 - Apply `$SHIPGLOWS_ROOT/skills/references/operator-last-resort-evidence.md` before asking the operator for logs, validation status, or similar evidence.
 - If implementation is complete and the next unresolved owner is proof, route to `103-sg-verify` instead of drifting into closure or ship language.
 - Respect canonical source roots from `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`; for monorepos using the Astro plus Flutter plus backend split, keep flat roots at the monorepo root and do not introduce nested `apps/*` layout without a documented durable exception.
+- Before any PM2 restart recovery, load `project-runtime-policy.md`; if the project disables automatic recovery, preserve logs and route the operator to Codex repair without calling `env_start` automatically.
 
 ## Stop Conditions
 
@@ -117,6 +119,6 @@ Stop and report blocked or rerouted when:
 
 Validate this skill after edits with:
 
-- `rg -n "Trace category|Process role|Result semantics|Auto-verify semantics|auto-verify|implemented|partial|Report Modes|Required References|ShipGlows-Owned Preflight|canonical ShipGlows path|Spec-first|ready spec|Atlas|references/execution-workflow|task-application-loop|spec-driven-development-discipline|test-first|evidence-first|proof path" skills/102-sg-start/SKILL.md`
+- `rg -n "Trace category|Process role|Result semantics|Auto-verify semantics|auto-verify|implemented|partial|Report Modes|Required References|ShipGlows-Owned Preflight|canonical ShipGlows path|Spec-first|ready spec|Atlas|references/execution-workflow|project-runtime-policy|task-application-loop|spec-driven-development-discipline|test-first|evidence-first|proof path" skills/102-sg-start/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
 - `tools/shipglows_sync_skills.sh --check --all`

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-06-11"
+updated: "2026-08-02"
 status: reviewed
 source_skill: manual
 scope: guidelines
@@ -28,6 +28,7 @@ evidence:
   - "User decision 2026-04-29: standardize ShipGlows internal contracts in English and user-facing interaction in the user's active language."
   - "User decision 2026-05-11: root ShipGlows governance Markdown is not compliant; canonical project artifacts live under shipglows_data/."
   - "User decision 2026-06-11: managed applications need a declared design-system authority before agents customize UI implementation."
+  - "User decision 2026-08-02: .shipglows.env is the optional, durable project runtime policy surface; it must remain data-only and closed-schema."
 depends_on: []
 supersedes: []
 next_review: "2026-05-26"
@@ -54,6 +55,8 @@ This file defines stable engineering and documentation rules for working inside 
 - Validate project paths before using them.
 - Prefer idempotent operations over check-then-act races.
 - Do not treat generated runtime config as primary source of truth.
+- Treat `.shipglows.env` as optional committed runtime policy, never as an executable dotenv or secret store. Its supported keys are allowlisted; unknown entries must fail loudly.
+- Keep automatic recovery enabled by default. A project may opt out with `SHIPGLOWS_AUTO_REPAIR=false`; failed restart and crash-loop paths must then show PM2 logs, offer Codex repair, return failure, and never call `env_start` automatically.
 - Keep documentation contracts versioned when they guide implementation or audits.
 - Keep code-proximate technical docs aligned through `shipglows_data/technical/code-docs-map.md`.
 - For UI projects, declare the design-system authority before changing visual implementation.

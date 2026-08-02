@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.21"
+artifact_version: "1.0.22"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-02"
@@ -49,6 +49,7 @@ evidence:
   - "Non-Expo PM2 launch commands activate the project Flox environment at runtime; Doppler remains the outer wrapper when enabled."
   - "SHIPGLOWS_ENV_PORT can explicitly replace a persisted PM2 port and refuses collisions."
   - "Project-local .shipglows.env settings pin runtime ports and can disable automatic restart recovery."
+  - "The project runtime policy file now has a closed, data-only schema so unknown settings fail loudly instead of silently restoring defaults."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit runtime-cli"
 ---
@@ -110,11 +111,17 @@ This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, a
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.
-- A project may declare data-only runtime settings in `.shipglows.env`:
-  `SHIPGLOWS_ENV_PORT=<1024-65535>` pins the generated PM2 port, while
-  `SHIPGLOWS_AUTO_REPAIR=false` prevents `env_restart` from regenerating the
-  runtime after a failed restart or PM2 crash loop. The file is parsed by a
-  strict allowlist and is never sourced as shell code. A one-shot process
+- A project may commit a data-only runtime policy file named `.shipglows.env`.
+  Its closed schema accepts blank lines, comments, and only
+  `SHIPGLOWS_ENV_PORT=<1024-65535>` and `SHIPGLOWS_AUTO_REPAIR=true|false`.
+  The file is never sourced as shell code and must contain neither secrets nor
+  general dotenv configuration. Unknown or malformed entries fail the launch
+  loudly, so a typo cannot silently restore a safety-sensitive default. When
+  the file is absent, ShipGlows dynamically allocates the port and enables
+  automatic recovery. A port setting pins the generated PM2 port; a value of
+  `SHIPGLOWS_AUTO_REPAIR=false` makes `env_restart` show the relevant PM2 logs,
+  offer Codex repair, return failure, and never regenerate the runtime through
+  `env_start` after a failed restart or PM2 crash loop. A one-shot process
   environment value for `SHIPGLOWS_ENV_PORT` takes precedence.
 - `env_start` detects Astro projects and sets `ASTRO_DEV_BACKGROUND=0` in their
   generated PM2 environment. Astro 7 automatically detaches `astro dev` when

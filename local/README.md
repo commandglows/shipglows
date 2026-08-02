@@ -243,6 +243,17 @@ Après une connexion par mot de passe réussie, le menu propose d'installer une 
 
 ShipGlows teste ensuite une nouvelle connexion qui interdit le mot de passe et ne réutilise pas la session SSH précédente. La connexion enregistrée ne passe en mode clé que si ce test réussit. En cas d'échec, le mode mot de passe reste actif et récupérable.
 
+Après cette preuve, ShipGlows ajoute une entrée gérée dans `~/.ssh/config` pour
+l'hôte concerné. Les commandes directes utilisent donc la même clé :
+
+```bash
+ssh utilisateur@serveur
+mosh utilisateur@serveur
+```
+
+Si la configuration SSH locale est un lien symbolique ou ne peut pas être
+modifiée, ShipGlows le signale et affiche la commande `ssh -i` de récupération.
+
 Utilisez une clé différente sur chaque appareil. Il ne faut pas synchroniser ou copier une clé privée entre le PC principal, un laptop ou un téléphone : chaque appareil installe sa propre clé publique, ce qui permet de révoquer un appareil sans casser les autres accès.
 
 La clé dédiée générée par le menu est sans passphrase afin de fonctionner avec les tunnels `autossh` non interactifs. Son fichier privé reste local sous `~/.ssh/` avec des permissions restrictives. Pour utiliser une clé existante protégée par passphrase, chargez-la d'abord dans l'agent :

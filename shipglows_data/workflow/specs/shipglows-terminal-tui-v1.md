@@ -312,8 +312,8 @@ Flutter remains separate and continues to serve the graphical/dashboard path. Th
   - Resize terminal and verify compact behavior.
   - Quit with keyboard and verify terminal state is restored.
 - Regression checks:
-  - `cd /home/claude/shipglowz_app/app && flutter analyze` remains valid for Flutter work when touched.
-  - `cd /home/claude/shipglowz_app/app && flutter test` remains the Flutter validation loop when Flutter files are touched.
+  - `cd /home/claude/shipglows_app/app && flutter analyze` remains valid for Flutter work when touched.
+  - `cd /home/claude/shipglows_app/app && flutter test` remains the Flutter validation loop when Flutter files are touched.
 
 # Risks
 

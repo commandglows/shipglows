@@ -72,7 +72,7 @@ next_step: "/300-sg-docs audit README.md"
 
 # ShipGlows
 
-> Public-site ownership: the canonical Astro site moved to `/home/claude/shipglowz_app/site` on 2026-08-02. The former `shipglows-site/` path in this repository is retired and must not be recreated; remaining references to it are migration debt, not source authority.
+> Public-site ownership: the canonical Astro site moved to `/home/claude/shipglows_app/site` on 2026-08-02. The former `shipglows-site/` path in this repository is retired and must not be recreated; remaining references to it are migration debt, not source authority.
 
 ShipGlows is a unified framework for server delivery and AI-assisted execution discipline.
 It also includes OpenCode-compatible skill shims under `.opencode/skills/shipglows/` and `.agents/skills/shipglows/` so the same top-level workflow entrypoint can be discovered outside Codex.
