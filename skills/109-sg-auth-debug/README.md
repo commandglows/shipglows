@@ -53,7 +53,7 @@ For public UI, visual, console, network, or non-auth navigation checks, use `108
 - `references/convex-clerk.md` for Clerk identity propagation into Convex auth and protected functions
 - `references/playwright-auth.md` for browser evidence collection, session strategies, and secret handling
 - `references/astro-clerk.md` for Astro sites using `@clerk/astro`, SSR, middleware, and Account Portal
-- `references/flutter-clerk-convex.md` for Flutter apps using Clerk beta SDKs and Convex access
+- `references/flutter-clerk-convex.md` for Flutter Clerk choices, the native Android Kotlin bridge contract, and Convex access
 - `references/flutter-web-clerkjs-bridge.md` for the Flutter web ClerkJS bridge implementation pattern in other repos
 - `references/python-convex.md` for Python scripts and jobs that call Convex
 - `references/sdk-policy.md` for stable, beta, and unofficial SDK choices in the ShipGlowz stack

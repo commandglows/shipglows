@@ -6,19 +6,20 @@ Sources checked:
 - https://clerk.com/changelog/2025-03-26-flutter-sdk-beta
 - https://clerk.com/docs/android/reference/native-mobile/auth
 - https://clerk.com/docs/android/guides/configure/auth-strategies/social-connections/overview
+- https://clerk.com/docs/android/guides/configure/auth-strategies/sign-in-with-google
 - https://pub.dev/packages/clerk_flutter
 - https://pub.dev/packages/clerk_auth
 - https://pub.dev/packages/convex_dart
 - https://docs.convex.dev/client/python
 - https://docs.convex.dev/home
 
-Last reviewed: 2026-07-30
+Last reviewed: 2026-08-02
 
 ## SDK Status
 
-- `clerk_flutter` is official Clerk Flutter SDK, currently beta. Current pub.dev version reviewed: `0.0.14-beta`.
-- `clerk_auth` is official Clerk Dart SDK, currently beta. Current pub.dev version reviewed: `0.0.14-beta`.
-- Clerk beta docs warn that breaking changes should be expected before `1.0.0`.
+- `clerk_flutter` is Clerk-published but community-maintained and still beta. Current pub.dev version reviewed: `0.0.18-beta`.
+- `clerk_auth` is the companion Clerk Dart package and remains beta. Do not treat either package as a stable, officially supported native Flutter contract.
+- The package page warns that breaking changes should be expected before `1.0.0`; pin any use and record the accepted risk.
 - `convex_dart` exists on pub.dev and provides Dart codegen/realtime APIs. Treat it as third-party unless Convex official docs explicitly list it as an official client.
 - Convex official docs list Python, iOS Swift, Android Kotlin, JavaScript, React, Vue, Svelte, Node/Bun and other clients, but no first-party Flutter/Dart client in the reviewed docs.
 
@@ -64,6 +65,37 @@ restores a session, opens the browser, or completes the callback, show a
 visible progress indicator and disable duplicate sign-in attempts. On timeout
 or incomplete session, clear the pending state and expose a recoverable,
 diagnostic error rather than leaving the entry screen apparently frozen.
+
+### Reusable implementation contract
+
+When scaffolding a new Flutter Android app with Clerk, apply this sequence before
+writing the bridge:
+
+1. Record the exact `com.clerk:clerk-android-api` version in Gradle. Inspect that
+   version's AAR manifest/source for its callback owner and redirect constant;
+   never infer a native callback from a generic web or Flutter example.
+2. Keep Flutter responsible for the screen/state and expose a small typed
+   MethodChannel (`initialize`, `signInWithGoogle`, `restoreSession`,
+   `getFreshToken`, `signOut`). Keep OAuth callbacks in the Clerk Android SDK
+   component registered by that version. A custom `MainActivity` callback is a
+   defect unless the pinned SDK explicitly requires it.
+3. In Clerk Dashboard, enable Native API, add the exact Android application id,
+   and add the SHA-256 certificate fingerprint produced by the release CI
+   signing job. Debug and release fingerprints are different; test artifacts
+   must identify which one they use.
+4. Add exactly the redirect URI derived in step 1 to **Allowlist for mobile SSO
+   redirect**. For SDK `1.0.36`, the contract is
+   `clerk://<Clerk application id>.callback`; for ContentGlowz this is
+   `clerk://com.contentglowz.app.callback`. Do not add a competing
+   `{package}://callback` URI just because it appears in current generic docs.
+5. Prove the native path in this order: cold start/session restore, tap Google
+   once and observe browser launch, provider completion, return to the app,
+   session activation, token retrieval, protected API call, app restart, and
+   sign-out. Record the tested APK commit and signing identity.
+
+This contract is version-scoped: if the Clerk Android dependency changes, repeat
+step 1 and revalidate the redirect/manifest before shipping or updating the
+blueprint.
 
 ## Files And Config To Inspect
 

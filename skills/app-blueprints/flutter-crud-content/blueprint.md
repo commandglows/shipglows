@@ -1,7 +1,7 @@
 ---
 id: flutter-crud-content
 name: Flutter CRUD Content App
-version: 1.0.0
+version: 1.1.0
 app_type: flutter-mobile-web
 
 match_keywords:
@@ -22,7 +22,7 @@ stack:
   state_management: riverpod
   routing: go_router
   http: dio
-  auth: clerk
+  auth: clerk-native-android-bridge-plus-clerkjs-web
   storage: shared_preferences
   architecture: layer-first
   codegen: false
@@ -63,7 +63,7 @@ Screens identifiés :
 | State management | Riverpod 3.x (`Provider`, `StateNotifierProvider`, `AsyncNotifierProvider`, `FutureProvider`) |
 | Routing | GoRouter (shell route + auth guard redirect + `ChangeNotifier` refresh) |
 | HTTP | Dio (raw, pas de retrofit) |
-| Auth | Clerk (interface + impl web + stub non-web) |
+| Auth | ClerkJS bridge on web; pinned Clerk Android API SDK in Kotlin behind a typed Flutter MethodChannel on Android |
 | Storage | SharedPreferences (pas de Hive/Isar/SQLite) |
 | Architecture | Layer-first (`core/`, `data/`, `presentation/`, `providers/`) |
 | Codegen | Aucun (pas de freezed, json_serializable, riverpod_generator) |
@@ -226,6 +226,31 @@ Chaque screen gère systématiquement :
 signedOut → restoringSession → checkingBackend → checkingWorkspace
   → needsOnboarding | ready | apiUnavailable | bootstrapFailed | bootstrapUnauthorized
 ```
+
+### Native Android Clerk contract
+
+Use this contract for new Flutter Android apps derived from this blueprint:
+
+- Do not make the beta `clerk_flutter` / `clerk_auth` packages the production
+  Android auth owner unless the project explicitly accepts that risk.
+- Pin `com.clerk:clerk-android-api` and expose only typed bridge operations:
+  `initialize`, `signInWithGoogle`, `restoreSession`, `getFreshToken`, and
+  `signOut`.
+- Let the pinned SDK's manifest-registered callback component own OAuth return;
+  do not add a competing `MainActivity` deep-link handler.
+- Derive the Clerk mobile redirect from the pinned SDK manifest/source. With
+  `clerk-android-api:1.0.36`, it is
+  `clerk://<Clerk application id>.callback` (ContentGlowz:
+  `clerk://com.contentglowz.app.callback`).
+- Configure Clerk Native API, the exact Android application id, the CI release
+  SHA-256 fingerprint, the derived redirect allowlist entry, and Google enabled
+  for sign-in/sign-up before device testing.
+- Show progress and disable duplicate actions for initialize, restore, browser
+  launch, callback completion, token retrieval, and sign-out. Never leave the
+  entry screen with an unexplained pending state.
+- Required device smoke: cold restore, one Google tap, browser/provider return,
+  session activation, protected API call, restart restore, and sign-out. Record
+  the APK commit and signing identity with the result.
 
 ## États d'implémentation manquants
 
