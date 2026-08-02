@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-16"
 updated: "2026-07-16"
 status: active
@@ -16,7 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/009-sg-marketing/SKILL.md
   - skills/references/source-intake-classification.md
-  - shipglowz_data/technical/product-behavior-intelligence.md
+  - shipglows_data/technical/product-behavior-intelligence.md
 depends_on:
   - artifact: skills/references/decision-quality-contract.md
     artifact_version: "1.2.0"

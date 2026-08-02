@@ -2,11 +2,11 @@
 artifact: contract
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-28"
 updated: "2026-06-28"
 status: active
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: operator-role-growth-operations-lead
 owner: Diane
 confidence: high
@@ -14,10 +14,10 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/302-sg-help/SKILL.md
-  - shipglowz_data/workflow/playbooks/spec-driven-workflow.md
-  - shipglowz_data/business/agent-profiles/
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
+  - shipglows_data/business/agent-profiles/
 depends_on:
   - artifact: "skills/references/operator-partnership-contract.md"
     artifact_version: "1.0.0"

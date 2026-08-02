@@ -20,7 +20,7 @@ import type { DashboardData, Diagnostic, ProjectItem, SpecItem, TextSummary } fr
 export interface ReaderConfig {
   projectRoot: string;
   workspaceRoots?: string[];
-  shipflowRepoRoot: string;
+  shipglowsRepoRoot: string;
   projectDiscoveryDepth?: number;
   projectDiscoveryDirectoryEntriesLimit?: number;
   projectDiscoveryMaxProjects?: number;
@@ -256,9 +256,9 @@ async function discoverLocalProjects(config: {
       continue;
     }
 
-    const shipflowDataEntry = entries.find((entry) => entry.name === "shipglowz_data" && entry.isDirectory && !entry.isSymbolicLink);
-    if (shipflowDataEntry) {
-      if (path.basename(node.dir) !== "shipglowz_data" && path.basename(node.dir) !== ".git") {
+    const shipglowsDataEntry = entries.find((entry) => entry.name === "shipglows_data" && entry.isDirectory && !entry.isSymbolicLink);
+    if (shipglowsDataEntry) {
+      if (path.basename(node.dir) !== "shipglows_data" && path.basename(node.dir) !== ".git") {
         const markerEntries = childNames;
         if (hasProjectMarkers(markerEntries)) {
           const sourceMarker = path.join(node.dir, "AGENT.md");
@@ -309,7 +309,7 @@ async function discoverLocalProjects(config: {
       if (visited.has(next)) {
         continue;
       }
-      if (name.toLowerCase() === "shipglowz_data") {
+      if (name.toLowerCase() === "shipglows_data") {
         continue;
       }
       const normalizedPath = path.resolve(next);
@@ -330,9 +330,9 @@ export async function readDashboardData(config: ReaderConfig): Promise<Dashboard
   const directoryEntriesLimit = config.projectDiscoveryDirectoryEntriesLimit ?? DEFAULT_PROJECT_DISCOVERY_DIRECTORY_ENTRIES_LIMIT;
   const maxProjects = config.projectDiscoveryMaxProjects ?? DEFAULT_PROJECT_DISCOVERY_MAX_PROJECTS;
   const workspaceRoots = config.workspaceRoots ? config.workspaceRoots.filter(Boolean) : [];
-  const skillsRoot = path.join(config.shipflowRepoRoot, "skills");
+  const skillsRoot = path.join(config.shipglowsRepoRoot, "skills");
   const policy = new SourcePolicy({
-    roots: [config.projectRoot, ...workspaceRoots, config.shipflowRepoRoot]
+    roots: [config.projectRoot, ...workspaceRoots, config.shipglowsRepoRoot]
   });
 
   const read = async (filePath: string) => {
@@ -428,7 +428,7 @@ export async function readDashboardData(config: ReaderConfig): Promise<Dashboard
   const seenSpecs = new Map<string, DedupEntry>();
   for (const project of projects) {
     const projectPath = project.path ?? config.projectRoot;
-    const specsRoot = path.join(projectPath, "shipglowz_data/workflow/specs");
+    const specsRoot = path.join(projectPath, "shipglows_data/workflow/specs");
     try {
       const entries = await readdir(specsRoot, { withFileTypes: true });
       for (const entry of entries) {
@@ -479,13 +479,13 @@ export async function readDashboardData(config: ReaderConfig): Promise<Dashboard
   for (const project of projects) {
     const projectPath = project.path ?? config.projectRoot;
     const fallback = await readFirstExisting([
-      path.join(projectPath, "shipglowz_data/workflow/TASKS.md"),
-      path.join(projectPath, "shipglowz_data/TASKS.md")
+      path.join(projectPath, "shipglows_data/workflow/TASKS.md"),
+      path.join(projectPath, "shipglows_data/TASKS.md")
     ]);
     if (!fallback?.ok || !fallback.content) {
       continue;
     }
-    const sourcePath = fallback.realPath ?? path.join(projectPath, "shipglowz_data/workflow/TASKS.md");
+    const sourcePath = fallback.realPath ?? path.join(projectPath, "shipglows_data/workflow/TASKS.md");
     taskSources.push({
       content: fallback.content,
       defaultProject: project.name,
@@ -500,13 +500,13 @@ export async function readDashboardData(config: ReaderConfig): Promise<Dashboard
   for (const project of projects) {
     const projectPath = project.path ?? config.projectRoot;
     const fallback = await readFirstExisting([
-      path.join(projectPath, "shipglowz_data/workflow/AUDIT_LOG.md"),
-      path.join(projectPath, "shipglowz_data/AUDIT_LOG.md")
+      path.join(projectPath, "shipglows_data/workflow/AUDIT_LOG.md"),
+      path.join(projectPath, "shipglows_data/AUDIT_LOG.md")
     ]);
     if (!fallback?.ok || !fallback.content) {
       continue;
     }
-    const sourcePath = fallback.realPath ?? path.join(projectPath, "shipglowz_data/workflow/AUDIT_LOG.md");
+    const sourcePath = fallback.realPath ?? path.join(projectPath, "shipglows_data/workflow/AUDIT_LOG.md");
     auditSources.push({
       content: fallback.content,
       defaultProject: project.name,
@@ -518,13 +518,13 @@ export async function readDashboardData(config: ReaderConfig): Promise<Dashboard
   for (const project of projects) {
     const projectPath = project.path ?? config.projectRoot;
     const lifecycle = await readFirstExisting([
-      path.join(projectPath, "shipglowz_data/workflow/project_lifecycle.md"),
-      path.join(projectPath, "shipglowz_data/project_lifecycle.md")
+      path.join(projectPath, "shipglows_data/workflow/project_lifecycle.md"),
+      path.join(projectPath, "shipglows_data/project_lifecycle.md")
     ]);
     if (lifecycle?.ok && lifecycle.content) {
       lifecycleLines.push(...summarizeLifecycle(lifecycle.content, project.name, diagnostics).lines);
     }
-    const instancesRoot = path.join(projectPath, "shipglowz_data/workflow/checklist-instances");
+    const instancesRoot = path.join(projectPath, "shipglows_data/workflow/checklist-instances");
     try {
       const entries = await readdir(instancesRoot, { withFileTypes: true });
       for (const entry of entries) {
@@ -545,15 +545,15 @@ export async function readDashboardData(config: ReaderConfig): Promise<Dashboard
   for (const project of projects) {
     const projectPath = project.path ?? config.projectRoot;
     const ops = await readFirstExisting([
-      path.join(projectPath, "shipglowz_data/workflow/OPERATIONS_LOG.md"),
-      path.join(projectPath, "shipglowz_data/OPERATIONS_LOG.md")
+      path.join(projectPath, "shipglows_data/workflow/OPERATIONS_LOG.md"),
+      path.join(projectPath, "shipglows_data/OPERATIONS_LOG.md")
     ]);
     if (ops?.ok && ops.content) {
       operationLines.push(...ops.content.split("\n").map((line) => line.trim()).filter(Boolean));
     }
     const deps = await readFirstExisting([
-      path.join(projectPath, "shipglowz_data/workflow/DEPENDENCY_LOG.md"),
-      path.join(projectPath, "shipglowz_data/DEPENDENCY_LOG.md")
+      path.join(projectPath, "shipglows_data/workflow/DEPENDENCY_LOG.md"),
+      path.join(projectPath, "shipglows_data/DEPENDENCY_LOG.md")
     ]);
     if (deps?.ok && deps.content) {
       dependencyLines.push(...deps.content.split("\n").map((line) => line.trim()).filter(Boolean));

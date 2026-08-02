@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only audit of a project's ShipGlowz governance topology."""
+"""Read-only audit of a project's ShipGlows governance topology."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 
-CANONICAL_DIR = "shipglowz_data"
-LEGACY_DIR = "shipflow_data"
+CANONICAL_DIR = "shipglows_data"
+LEGACY_DIR = "shipglows_data"
 LEGACY_ROOT_FILES = {
     "AFFILIATES.md",
     "ARCHITECTURE.md",

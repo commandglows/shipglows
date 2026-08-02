@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-17"
 updated: "2026-07-17"
 status: active
@@ -28,22 +28,22 @@ Load this playbook only for `010-sg-technical migrate`. It preserves the retired
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Chantier Potential Intake
 
-Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
+Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, outcome-first, and without modified file names, paths, or counts. Use `report=agent` only for an explicit detailed handoff.
 
@@ -83,7 +83,7 @@ If `$ARGUMENTS` is a package name without version:
 
 ### Step 2: Research migration guide
 
-Apply `$SHIPFLOW_ROOT/skills/references/documentation-freshness-gate.md`. Use current official/primary sources to establish the supported migration contract before considering community evidence:
+Apply `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md`. Use current official/primary sources to establish the supported migration contract before considering community evidence:
 
 1. **Official vendor/package documentation**: current migration or upgrade guide.
 2. **Official repository**: changelog, release notes, breaking changes, supported codemods.

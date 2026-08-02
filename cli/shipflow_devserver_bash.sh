@@ -1,1 +1,0 @@
-shipglowz_devserver_bash.sh

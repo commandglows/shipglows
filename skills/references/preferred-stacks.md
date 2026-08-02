@@ -2,11 +2,11 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-17"
 updated: "2026-07-23"
 status: active
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: preferred-stack-presets
 owner: Diane
 confidence: high
@@ -22,7 +22,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "Existing ShipGlowz Auth SDK Policy: apps use Flutter, sites use Astro, backend/data uses Convex, scripts/jobs/tools use Python, and auth is mostly Clerk."
+  - "Existing ShipGlows Auth SDK Policy: apps use Flutter, sites use Astro, backend/data uses Convex, scripts/jobs/tools use Python, and auth is mostly Clerk."
   - "Operator correction 2026-07-17: public/SEO sites habitually use Astro and application surfaces use Flutter."
   - "Operator decision 2026-07-16: Vercel is the default web host; the dedicated-server deployment matrix applies only when a separate server runtime is genuinely required."
   - "Operator clarification 2026-07-17: Astro, Vercel, and Flutter are first-recommendation defaults, and an app request should prefer one Flutter codebase for web, iOS, and Android instead of stopping at a mobile-only build."
@@ -34,7 +34,7 @@ next_step: "none"
 
 ## Purpose
 
-This reference records operator-approved ShipGlowz technology defaults. Apply
+This reference records operator-approved ShipGlows technology defaults. Apply
 these presets after the product platform footprint is known and before
 blueprint matching or a broad greenfield technology comparison.
 
@@ -51,7 +51,7 @@ uncovered, or about a justified exception.
 These are first-recommendation defaults, not merely options that must appear in
 a comparison. When they fit the product, lead with them, explain the resulting
 surface split in plain language, and continue without asking the operator to
-rediscover ShipGlowz's habitual stack.
+rediscover ShipGlows's habitual stack.
 
 ## Canonical Defaults
 

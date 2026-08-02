@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
-project: "shipflow"
+project: "shipglows"
 created: "2026-05-16"
 updated: "2026-07-18"
 status: draft
@@ -24,7 +24,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
-  - "Extracted during compact-shipflow-skill-instructions-phase-4 to preserve lifecycle workflow detail outside the activation body."
+  - "Extracted during compact-shipglows-skill-instructions-phase-4 to preserve lifecycle workflow detail outside the activation body."
   - "Operator correction 2026-07-17: apply preferred stack presets before blueprint intake or a greenfield technology comparison."
   - "Operator correction 2026-07-18: a saved draft remains an unfinished chantier and returns control through plain-language choices, not lifecycle commands."
 next_step: "none"
@@ -41,7 +41,7 @@ This reference preserves the detailed lifecycle workflow for `100-sg-spec`. Load
 - Project name: !`basename $(pwd)`
 - Git branch: !`git branch --show-current 2>/dev/null || echo "unknown"`
 - CLAUDE.md (constraints): !`head -60 CLAUDE.md 2>/dev/null || echo "no CLAUDE.md"`
-- Project-local TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null | head -40 || cat TASKS.md 2>/dev/null | head -30 || echo "No project-local TASKS.md"`
+- Project-local TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null | head -40 || cat TASKS.md 2>/dev/null | head -30 || echo "No project-local TASKS.md"`
 - Project structure: !`find . -maxdepth 3 -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.astro" -o -name "*.vue" -o -name "*.py" -o -name "*.sh" \) 2>/dev/null | grep -v node_modules | grep -v .git | grep -v dist | sort | head -30`
 
 ## Your task
@@ -78,31 +78,31 @@ Une spec est prête UNIQUEMENT si :
 
 Les snapshots de `TASKS.md` lus ici sont informatifs seulement.
 `100-sg-spec` n'édite jamais `TASKS.md`, `AUDIT_LOG.md` ou legacy `PROJECTS.md` ; la skill produit une spec, pas du tracking.
-Avant de créer ou modifier une ligne opérationnelle `spec:`, charger `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`; cette ligne est un résumé raw-scan, pas le contrat complet de la spec.
+Avant de créer ou modifier une ligne opérationnelle `spec:`, charger `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`; cette ligne est un résumé raw-scan, pas le contrat complet de la spec.
 
 ---
 
 ### Step 1 — Comprendre le besoin
 
 Pour tout produit greenfield, appliquer d'abord la Greenfield Platform
-Footprint Rule de `$SHIPFLOW_ROOT/skills/references/question-contract.md`.
+Footprint Rule de `$SHIPGLOWS_ROOT/skills/references/question-contract.md`.
 Documenter séparément les surfaces de lancement et de roadmap (site public,
 application web/PWA, iOS, Android, desktop). Ne jamais traduire l'absence du mot
 `mobile` dans la première demande en exclusion des applications mobiles, ni
 confondre `responsive/mobile-first` avec une application iOS/Android.
 
-Charger ensuite `$SHIPFLOW_ROOT/skills/references/preferred-stacks.md` et
+Charger ensuite `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md` et
 appliquer les presets compatibles avant de chercher un blueprint ou de proposer
 une comparaison technologique. Ne demander à l'opératrice que les choix
 matériels non couverts ou une exception justifiée.
 
 **Si un contexte `blueprint: [id]` est fourni** (handoff de `001-sg-build`) :
-1. Charger `$SHIPFLOW_ROOT/skills/references/app-blueprints.md` pour le contrat du système.
-2. Lire `$SHIPFLOW_ROOT/skills/app-blueprints/[id]/blueprint.md`.
+1. Charger `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` pour le contrat du système.
+2. Lire `$SHIPGLOWS_ROOT/skills/app-blueprints/[id]/blueprint.md`.
 3. Extraire du blueprint : stack, architecture, modèles, routes, conventions.
 4. Utiliser ces informations pour pré-remplir le contexte technique (section Stack, Modèles, Routes).
 5. Vérifier que le blueprint couvre la plateforme déclarée. Un blueprint compatible avec les plateformes mais pas avec le domaine peut informer la stack et les conventions sans pré-remplir les modèles/routes métier.
-6. Si ce blueprint ou une stack équivalente a déjà été accepté par l'opérateur ou le corpus projet, ne pas reposer les questions couvertes. Sinon, traiter le blueprint comme une recommandation et appliquer la Greenfield Technology Decision Rule de `$SHIPFLOW_ROOT/skills/references/question-contract.md` avant de figer la stack.
+6. Si ce blueprint ou une stack équivalente a déjà été accepté par l'opérateur ou le corpus projet, ne pas reposer les questions couvertes. Sinon, traiter le blueprint comme une recommandation et appliquer la Greenfield Technology Decision Rule de `$SHIPGLOWS_ROOT/skills/references/question-contract.md` avant de figer la stack.
 7. Continuer la spec normalement pour les décisions projet-spécifiques (user story, fonctionnalités exactes, données métier, UI/UX).
 
 **Si `$ARGUMENTS` est fourni**, l'utiliser comme point de départ.
@@ -120,8 +120,8 @@ matériels non couverts ou une exception justifiée.
 - Chercher des docs existantes (CLAUDE.md, README, docs/)
 - Si l'utilisateur mentionne du code spécifique, scanner les fichiers concernés
 - Repérer le stack technique, les patterns, la structure du projet
-- Si la feature ou le bug dépend d'un framework, SDK, service, API, auth, build, migration, cache, routing ou intégration externe, appliquer `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/documentation-freshness-gate.md` avant de figer l'approche.
-- Si Supabase est dans le stack et que le scope touche auth, storage, upload, ou DB/RLS, charger seulement les références utiles parmi `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/supabase-auth.md`, `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/supabase-storage.md`, `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/supabase-db.md`.
+- Si la feature ou le bug dépend d'un framework, SDK, service, API, auth, build, migration, cache, routing ou intégration externe, appliquer `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/documentation-freshness-gate.md` avant de figer l'approche.
+- Si Supabase est dans le stack et que le scope touche auth, storage, upload, ou DB/RLS, charger seulement les références utiles parmi `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-auth.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-storage.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-db.md`.
 
 **Poser des questions informées** — pas des questions génériques, mais des questions ancrées dans ce qu'on a trouvé :
 - "Le `AuthService` valide dans le controller — on suit ce pattern ou on crée un validateur dédié ?"
@@ -251,10 +251,10 @@ next_step: "/101-sg-ready [title]"
 ---
 ```
 
-Les specs sont des artefacts internes ShipGlowz : ce frontmatter est obligatoire. Ne pas appliquer les schémas de contenu applicatif (`src/content`, blog, MDX runtime) aux specs ShipGlowz.
+Les specs sont des artefacts internes ShipGlows : ce frontmatter est obligatoire. Ne pas appliquer les schémas de contenu applicatif (`src/content`, blog, MDX runtime) aux specs ShipGlows.
 
 Règle de dépendance documentaire :
-- si la spec utilise `BUSINESS.md`, `BRANDING.md`, `GUIDELINES.md`, docs API, architecture, pricing, persona, ou tout autre contrat ShipGlowz, renseigner la version dans `depends_on`
+- si la spec utilise `BUSINESS.md`, `BRANDING.md`, `GUIDELINES.md`, docs API, architecture, pricing, persona, ou tout autre contrat ShipGlows, renseigner la version dans `depends_on`
 - si la version est absente pendant une migration, utiliser `artifact_version: unknown` et `required_status: unknown`, puis signaler le manque comme dette metadata/docs
 - si une dépendance business/technique est `stale`, la spec ne peut pas passer `ready` sans revue explicite
 - si la spec dépend d'un contrat externe documenté (framework, SDK, service, API, auth, build, migration, intégration), renseigner dans `Dependencies` ou `Execution Notes` la source officielle actuelle consultée via Context7 ou docs officielles web, ainsi que le verdict `fresh-docs checked`, `fresh-docs gap`, `fresh-docs conflict` ou `fresh-docs not needed`
@@ -293,7 +293,7 @@ Règles minimales :
 - preuve automatisée disponible (tests/typecheck/checks) et preuve non-automatisée requise
 - preuve manuelle attendue quand une vérification humaine reste nécessaire
 - chemin de preuve ordonné (automated → browser/auth → contract/integration → provider → manual/device)
-- chemin de checklist manuelle si nécessaire : `shipglowz_data/workflow/test-checklists/<scope>.md`
+- chemin de checklist manuelle si nécessaire : `shipglows_data/workflow/test-checklists/<scope>.md`
 - justification pour chaque exception (`exception-with-proof`) quand une étape de preuve est non applicable
 
 **Tâches d'implémentation :**
@@ -351,7 +351,7 @@ Couvrir : promesse principale de la user story, `Success Behavior`, `Error Behav
 - **Risques** : points sensibles identifiés (sécurité, perf, données)
 - **Documentation Coherence** : docs, README, guides, FAQ, onboarding, pricing, changelog, exemples ou support à aligner, ou `None, because ...`
 - **Execution Notes** : 3-5 fichiers à lire d'abord, approche d'implémentation en étapes avant code, contraintes explicites (packages à utiliser/éviter, patterns existants, flux de données, abstractions à éviter, limites de scope), ordre d'exécution, commandes de validation, stop conditions / cas de reroute
-- **Fresh External Docs** : inclure dans `Dependencies` ou `Execution Notes` les docs officielles consultées quand `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/documentation-freshness-gate.md` se déclenche, ou `fresh-docs not needed` si le changement est entièrement local
+- **Fresh External Docs** : inclure dans `Dependencies` ou `Execution Notes` les docs officielles consultées quand `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/documentation-freshness-gate.md` se déclenche, ou `fresh-docs not needed` si le changement est entièrement local
 - **Skill Run History** : table persistante `Date UTC | Skill | Model | Action | Result | Next step`, avec une première ligne `100-sg-spec` pour la création ou mise à jour de la spec.
 - **Current Chantier Flow** : résumé lisible des statuts `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, `005-sg-ship` et de la prochaine commande.
 

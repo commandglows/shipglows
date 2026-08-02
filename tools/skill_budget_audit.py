@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Audit ShipGlowz skill discovery metadata.
+"""Audit ShipGlows skill discovery metadata.
 
 The audit intentionally uses only Python's standard library so it can run in a
-fresh ShipGlowz checkout before project dependencies are installed.
+fresh ShipGlows checkout before project dependencies are installed.
 """
 
 from __future__ import annotations

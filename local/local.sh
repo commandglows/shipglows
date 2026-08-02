@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Menu Local - Gestion des tunnels SSH vers un serveur ShipGlowz
+# Menu Local - Gestion des tunnels SSH vers un serveur ShipGlows
 # Accès rapide aux projets distants via tunnels SSH
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,8 +19,8 @@ LIGHT_PURPLE='\033[38;5;141m'
 NC='\033[0m' # No Color
 
 # Configuration file for saved connections
-shipglowz_migrate_local_config || true
-CONFIG_DIR="$(shipglowz_local_config_dir)"
+shipglows_migrate_local_config || true
+CONFIG_DIR="$(shipglows_local_config_dir)"
 CONNECTIONS_FILE="$CONFIG_DIR/connections.conf"
 CURRENT_CONNECTION_FILE="$CONFIG_DIR/current_connection"
 CURRENT_IDENTITY_FILE="$CONFIG_DIR/current_identity_file"
@@ -31,23 +31,23 @@ mkdir -p "$CONFIG_DIR" 2>/dev/null
 
 # Load or set default connection
 load_current_connection() {
-    if REMOTE_HOST="$(shipglowz_read_config_value current_connection 2>/dev/null)"; then
+    if REMOTE_HOST="$(shipglows_read_config_value current_connection 2>/dev/null)"; then
         :
-    elif [ -n "${SHIPGLOWZ_SSH_REMOTE_HOST:-${SHIPFLOW_SSH_REMOTE_HOST:-}}" ]; then
-        REMOTE_HOST="${SHIPGLOWZ_SSH_REMOTE_HOST:-${SHIPFLOW_SSH_REMOTE_HOST:-}}"
+    elif [ -n "${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}" ]; then
+        REMOTE_HOST="${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}"
     elif grep -qE '^[[:space:]]*Host[[:space:]]+hetzner([[:space:]]|$)' "$HOME/.ssh/config" 2>/dev/null; then
         REMOTE_HOST="hetzner"
     else
         REMOTE_HOST=""
     fi
 
-    if SSH_IDENTITY_FILE="$(shipglowz_read_config_value current_identity_file 2>/dev/null)"; then
+    if SSH_IDENTITY_FILE="$(shipglows_read_config_value current_identity_file 2>/dev/null)"; then
         :
     else
         SSH_IDENTITY_FILE=""
     fi
 
-    if SSH_AUTH_METHOD="$(shipglowz_read_config_value current_auth_method 2>/dev/null)"; then
+    if SSH_AUTH_METHOD="$(shipglows_read_config_value current_auth_method 2>/dev/null)"; then
         :
     else
         SSH_AUTH_METHOD="key"
@@ -56,7 +56,7 @@ load_current_connection() {
 
 # Save current connection
 save_current_connection() {
-    shipglowz_write_config_value current_connection "$REMOTE_HOST"
+    shipglows_write_config_value current_connection "$REMOTE_HOST"
 }
 
 save_identity_file() {
@@ -205,7 +205,7 @@ local_screen_header() {
     local variant="${2:-default}"
     local border_color="$CYAN"
     local title_color="$YELLOW"
-    local brand="ShipGlowz DevServer"
+    local brand="ShipGlows DevServer"
     local content_width=50
     local inner_width=46
 
@@ -323,7 +323,7 @@ install_ssh_key_for_current_server() {
             read -r generate_confirm
             generate_confirm="$(normalize_menu_choice "$generate_confirm")"
             case "$generate_confirm" in o|oui|y|yes) ;; *) echo -e "${YELLOW}Génération annulée.${NC}"; return 0 ;; esac
-            identity_file="$(generate_shipglowz_identity "$REMOTE_HOST")" || {
+            identity_file="$(generate_shipglows_identity "$REMOTE_HOST")" || {
                 echo -e "${RED}✗ Impossible de générer la clé dédiée.${NC}"
                 return 1
             }
@@ -339,7 +339,7 @@ install_ssh_key_for_current_server() {
     esac
 
     local public_key_file
-    public_key_file="$(mktemp "${TMPDIR:-/tmp}/shipglowz-public-key.XXXXXX")" || return 1
+    public_key_file="$(mktemp "${TMPDIR:-/tmp}/shipglows-public-key.XXXXXX")" || return 1
     chmod 600 "$public_key_file" 2>/dev/null || true
     if ! prepare_identity_public_key "$identity_file" "$public_key_file"; then
         rm -f "$public_key_file"
@@ -376,7 +376,7 @@ install_ssh_key_for_current_server() {
     echo -e "${BLUE}Vérification avec une nouvelle connexion par clé uniquement...${NC}"
     if ! verify_ssh_key_only "$identity_file"; then
         echo -e "${RED}✗ La clé a pu être ajoutée, mais la connexion par clé seule a échoué.${NC}"
-        echo -e "${YELLOW}  La connexion ShipGlowz reste dans son mode précédent.${NC}"
+        echo -e "${YELLOW}  La connexion ShipGlows reste dans son mode précédent.${NC}"
         echo -e "${YELLOW}  Si la clé a une passphrase, charge-la avec: ssh-add $identity_file${NC}"
         return 1
     fi
@@ -466,7 +466,7 @@ save_and_activate_connection() {
 
     if [ "$auth_method" != "password" ] && ! validate_identity_file "$identity_file"; then
         echo -e "${RED}✗ Clé SSH invalide ou introuvable: $identity_file${NC}"
-        echo -e "${YELLOW}  Si tu entres seulement un nom de fichier, ShipGlowz cherche dans le dossier courant, ~/.ssh/ puis ton dossier home.${NC}"
+        echo -e "${YELLOW}  Si tu entres seulement un nom de fichier, ShipGlows cherche dans le dossier courant, ~/.ssh/ puis ton dossier home.${NC}"
         echo -e "${YELLOW}  Laisse vide pour utiliser la configuration SSH normale.${NC}"
         return 1
     fi
@@ -498,9 +498,9 @@ save_and_activate_connection() {
         CACHED_SESSION_INFO=""
         CACHED_SESSION_TIME=0
         if [ "$auth_method" = "password" ]; then
-            echo -e "${GREEN}✓ Serveur actif enregistré pour urls, tunnel, shipglowz-mcp-login, Clerk et Blacksmith (mot de passe)${NC}"
+            echo -e "${GREEN}✓ Serveur actif enregistré pour urls, tunnel, shipglows-mcp-login, Clerk et Blacksmith (mot de passe)${NC}"
         else
-            echo -e "${GREEN}✓ Serveur actif enregistré pour urls, tunnel, shipglowz-mcp-login, Clerk et Blacksmith${NC}"
+            echo -e "${GREEN}✓ Serveur actif enregistré pour urls, tunnel, shipglows-mcp-login, Clerk et Blacksmith${NC}"
         fi
         return 0
     fi
@@ -550,7 +550,7 @@ configure_new_server() {
     local_screen_header "Configurer un nouveau serveur"
     echo -e "${BLUE}Connexion actuelle:${NC} ${GREEN}${REMOTE_HOST:-non configurée}${NC}"
     echo ""
-    echo -e "${BLUE}ShipGlowz va enregistrer l'adresse SSH du nouveau serveur.${NC}"
+    echo -e "${BLUE}ShipGlows va enregistrer l'adresse SSH du nouveau serveur.${NC}"
     echo -e "${BLUE}Tu peux entrer une IP, un domaine, un alias SSH déjà défini, ou directement user@host.${NC}"
     echo -e "${YELLOW}Exemples:${NC} 203.0.113.10, mon-serveur.com, hetzner, ubuntu@203.0.113.10"
     echo ""
@@ -729,7 +729,7 @@ load_current_connection
 CACHED_SESSION_INFO=""
 CACHED_SESSION_TIME=0
 
-# Function to retrieve server session info from canonical ShipGlowz install paths
+# Function to retrieve server session info from canonical ShipGlows install paths
 fetch_server_session_info() {
     if [ -z "$REMOTE_HOST" ]; then
         echo SESSION_NOT_CONFIGURED
@@ -738,7 +738,7 @@ fetch_server_session_info() {
 
     run_remote_ssh "bash -lc '
         for lib_path in \
-            \"\${SHIPFLOW_ROOT:-\$HOME/shipglowz}/lib.sh\"
+            \"\${SHIPGLOWS_ROOT:-\$HOME/shipglows}/lib.sh\"
         do
             if [ -f \"\$lib_path\" ]; then
                 source \"\$lib_path\" 2>/dev/null
@@ -753,7 +753,7 @@ fetch_server_session_info() {
 
 should_show_session_scan_loader() {
     [ -n "$REMOTE_HOST" ] || return 1
-    [ "${SHIPGLOWZ_NO_ANIMATION:-${SHIPFLOW_NO_ANIMATION:-}}" != "1" ] || return 1
+    [ "${SHIPGLOWS_NO_ANIMATION:-${SHIPGLOWS_NO_ANIMATION:-}}" != "1" ] || return 1
     [ "${TERM:-}" != "dumb" ] || return 1
     [ -w /dev/tty ] 2>/dev/null || return 1
 }
@@ -852,7 +852,7 @@ fetch_server_session_info_with_loader() {
     local rendered_frame=0
     local status=0
 
-    tmp_file=$(mktemp "${TMPDIR:-/tmp}/shipglowz-session.XXXXXX") || {
+    tmp_file=$(mktemp "${TMPDIR:-/tmp}/shipglows-session.XXXXXX") || {
         fetch_server_session_info
         return
     }
@@ -950,7 +950,7 @@ display_server_session_banner() {
         echo -e "${LIGHT_BLUE}$(center_session_banner_text "$session_code")${NC}"
         echo -e "${YELLOW}──────────────────────────────────────────────────${NC}"
     elif echo "$session_info" | grep -q "SESSION_NOT_FOUND"; then
-        echo -e "${YELLOW}⚠ Session identity unavailable (ShipGlowz not found on server)${NC}"
+        echo -e "${YELLOW}⚠ Session identity unavailable (ShipGlows not found on server)${NC}"
     elif echo "$session_info" | grep -q "SESSION_NOT_CONFIGURED"; then
         echo -e "${YELLOW}⚠ Connexion distante non configurée${NC}"
     elif [ -z "$session_info" ]; then
@@ -1067,7 +1067,7 @@ run_mcp_login_menu() {
 
     if [ "$provider" = "blacksmith" ]; then
         echo ""
-        echo -e "${BLUE}Blacksmith n'est pas un MCP Codex officiel dans ShipGlowz.${NC}"
+        echo -e "${BLUE}Blacksmith n'est pas un MCP Codex officiel dans ShipGlows.${NC}"
         echo -e "${BLUE}Je bascule vers le tunnel OAuth Blacksmith dédié.${NC}"
         echo ""
         "$SCRIPT_DIR/blacksmith-login.sh"
@@ -1185,7 +1185,7 @@ run_turso_login_menu() {
     echo -e "${BLUE}Connexion actuelle:${NC} ${GREEN}$REMOTE_HOST${NC}"
     echo ""
     echo -e "${BLUE}Ce flow lance ${GREEN}turso auth login --headless${BLUE} sur le serveur et ouvre ou affiche l'URL locale.${NC}"
-    echo -e "${BLUE}Si Turso affiche un token/code long dans le navigateur, ShipGlowz te demandera de le coller ensuite.${NC}"
+    echo -e "${BLUE}Si Turso affiche un token/code long dans le navigateur, ShipGlows te demandera de le coller ensuite.${NC}"
     echo -e "${YELLOW}Turso ne suit pas exactement le même modèle callback que Blacksmith/Supabase; le mode headless est le chemin remote officiel.${NC}"
     echo ""
     project_dir="$(prompt_turso_project_dir)"
@@ -1319,7 +1319,7 @@ run_auth_menu() {
 
 # Fonction pour obtenir les ports actifs
 get_active_ports() {
-    run_remote_ssh "$(shipglowz_remote_pm2_ports_command lines)"
+    run_remote_ssh "$(shipglows_remote_pm2_ports_command lines)"
 }
 
 # Fonction pour récupérer uniquement les vrais processus de tunnel
@@ -1460,7 +1460,7 @@ start_tunnels() {
         local autossh_output=""
         if ! autossh_output=$(autossh "${autossh_args[@]}" "$REMOTE_HOST" 2>&1); then
             echo -e "${RED}  ✗ Connexion impossible pour ${name}${NC}"
-            [ "${SHIPGLOWZ_DEBUG:-${SHIPFLOW_DEBUG:-0}}" = "1" ] && [ -n "$autossh_output" ] && echo -e "${YELLOW}    Détail: ${autossh_output//$'\n'/ }${NC}"
+            [ "${SHIPGLOWS_DEBUG:-${SHIPGLOWS_DEBUG:-0}}" = "1" ] && [ -n "$autossh_output" ] && echo -e "${YELLOW}    Détail: ${autossh_output//$'\n'/ }${NC}"
             return 1
         fi
     done <<< "$PORTS"
@@ -1522,7 +1522,7 @@ stop_tunnels() {
     
     if [ -z "$PIDS" ]; then
         echo -e "${YELLOW}⚠ Aucune session active trouvée${NC}"
-        if [ "${SHIPGLOWZ_DEBUG:-${SHIPFLOW_DEBUG:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_DEBUG:-${SHIPGLOWS_DEBUG:-0}}" = "1" ]; then
             echo ""
             echo -e "${BLUE}💡 Processus SSH en cours:${NC}"
             ps aux | grep ssh | grep -v grep | grep -v ssh-agent || true

@@ -7,18 +7,18 @@ argument-hint: "triage <URLs or pasted content> | help"
 
 ## Canonical Paths
 
-Before resolving ShipGlowz-owned files, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz-owned tools, shared references, skill-local references, templates, workflow docs, and internal scripts resolve from `$SHIPFLOW_ROOT`; project artifacts resolve from the current project governance root.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows-owned tools, shared references, skill-local references, templates, workflow docs, and internal scripts resolve from `$SHIPGLOWS_ROOT`; project artifacts resolve from the current project governance root.
 
 ## Instruction Layering
 
-This is the compact activation contract. Load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md` before changing it. Detailed source intake and decisions live in `references/triage-playbook.md`; permitted persistence and reporting live in `references/persistence-and-reporting-playbook.md`.
+This is the compact activation contract. Load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` before changing it. Detailed source intake and decisions live in `references/triage-playbook.md`; permitted persistence and reporting live in `references/persistence-and-reporting-playbook.md`.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before final reporting. When exactly one active chantier owns the run, append only this run to its `Skill Run History` and update `Current Chantier Flow`; otherwise do not write a spec. Evaluate `Chantier potentiel` using the shared threshold: a multi-domain/product/content/architecture decision routes to `/100-sg-spec`, never to an ambiguous spec.
+Load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before final reporting. When exactly one active chantier owns the run, append only this run to its `Skill Run History` and update `Current Chantier Flow`; otherwise do not write a spec. Evaluate `Chantier potentiel` using the shared threshold: a multi-domain/product/content/architecture decision routes to `/100-sg-spec`, never to an ambiguous spec.
 
 ## Mission
 
@@ -67,7 +67,7 @@ Stop or reroute when source access, source proof, project ownership, declared pu
 
 ## Report Modes
 
-Load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md` before final reporting. Default to `report=user`: concise French output with source limits, options/decisions, owner handoffs, and `Chantier potentiel` when applicable. `report=agent`, `handoff`, `verbose`, or `full-report` may include scoring, decision history, persistence evidence, and unresolved gates.
+Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before final reporting. Default to `report=user`: concise French output with source limits, options/decisions, owner handoffs, and `Chantier potentiel` when applicable. `report=agent`, `handoff`, `verbose`, or `full-report` may include scoring, decision history, persistence evidence, and unresolved gates.
 
 ## Validation
 
@@ -75,5 +75,5 @@ Load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md` before final repor
 rg -n "Instruction Layering|Mission|Mode Detection|triage|help|source-intake-classification|Chantier potentiel|Boundaries|203-sg-research|007-sg-content|009-sg-marketing|300-sg-docs|309-sg-tasks|Validation" skills/205-sg-veille/SKILL.md
 python3 -m unittest tools.test_205_sg_veille_contract
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --all
+tools/shipglows_sync_skills.sh --check --all
 ```

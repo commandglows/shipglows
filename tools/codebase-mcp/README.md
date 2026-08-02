@@ -15,13 +15,13 @@ Configure per project in `.claude/settings.json`:
   "mcpServers": {
     "codebase": {
       "command": "python3",
-      "args": ["/absolute/path/to/shipglowz/tools/codebase-mcp/server.py", "/absolute/path/to/project"]
+      "args": ["/absolute/path/to/shipglows/tools/codebase-mcp/server.py", "/absolute/path/to/project"]
     }
   }
 }
 ```
 
-Use the resolved absolute ShipGlowz install path; JSON MCP args are not expanded by a shell.
+Use the resolved absolute ShipGlows install path; JSON MCP args are not expanded by a shell.
 
 Then restart Claude Code. The server starts automatically.
 

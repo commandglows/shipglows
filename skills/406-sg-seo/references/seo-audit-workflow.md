@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-05-16"
 status: draft
@@ -22,9 +22,9 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
-  - "Extracted from skills/406-sg-seo/SKILL.md during Compact ShipGlowz Skill Instructions Phase 2."
+  - "Extracted from skills/406-sg-seo/SKILL.md during Compact ShipGlows Skill Instructions Phase 2."
 next_review: "2026-06-16"
-next_step: "/103-sg-verify Compact ShipGlowz Skill Instructions Phase 2"
+next_step: "/103-sg-verify Compact ShipGlows Skill Instructions Phase 2"
 ---
 
 # Seo Audit Workflow
@@ -39,31 +39,31 @@ This reference preserves the detailed pre-compaction instructions for `406-sg-se
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Chantier Potential Intake
 
-Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
+Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, findings-first, and focused on top issues, proof gaps, chantier potential, and the next real action. Use `report=agent`, `handoff`, `verbose`, or `full-report` for the detailed audit matrix, domain checklist output, command evidence, assumptions, confidence limits, and handoff notes.
 
 
 ## Governance Corpora And Output Plans
 
-Before scoring indexed public content, rewriting SEO copy, fixing public site metadata, or recommending article/blog output, load `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md` when `shipglowz_data/editorial/content-map.md`, legacy `CONTENT_MAP.md`, `shipglowz_data/editorial/`, or legacy `docs/editorial/` exists. Follow its load order for content surface routing, public page intent, claim register checks, editorial update gate, Astro runtime schema policy, and blog/article surface policy.
+Before scoring indexed public content, rewriting SEO copy, fixing public site metadata, or recommending article/blog output, load `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` when `shipglows_data/editorial/content-map.md`, legacy `CONTENT_MAP.md`, `shipglows_data/editorial/`, or legacy `docs/editorial/` exists. Follow its load order for content surface routing, public page intent, claim register checks, editorial update gate, Astro runtime schema policy, and blog/article surface policy.
 
-Before changing code, runtime content, site files, content schemas, sitemap/robots/metadata infrastructure, skill contracts, public docs, README guidance, or mapped technical documentation surfaces, load `$SHIPFLOW_ROOT/skills/references/technical-docs-corpus.md` and use `shipglowz_data/technical/code-docs-map.md` (fallback legacy `docs/technical/code-docs-map.md`) to decide whether a `Documentation Update Plan` is required.
+Before changing code, runtime content, site files, content schemas, sitemap/robots/metadata infrastructure, skill contracts, public docs, README guidance, or mapped technical documentation surfaces, load `$SHIPGLOWS_ROOT/skills/references/technical-docs-corpus.md` and use `shipglows_data/technical/code-docs-map.md` (fallback legacy `docs/technical/code-docs-map.md`) to decide whether a `Documentation Update Plan` is required.
 
 The final report must include these governance outcomes when relevant:
 - `Editorial Update Plan`: required for public pages, README/public docs, public skill pages, FAQ, pricing/support copy, runtime public content, blog/article/newsletter requests, indexed claims, or public SEO copy changes. Use `no editorial impact` with a reason when there is no public-content consequence.
@@ -74,8 +74,8 @@ The final report must include these governance outcomes when relevant:
 
 - Current directory: !`pwd`
 - Project CLAUDE.md: !`head -100 CLAUDE.md 2>/dev/null || echo "no CLAUDE.md"`
-- Business context: !`if [ -f shipglowz_data/business/business.md ]; then head -40 shipglowz_data/business/business.md; else head -40 BUSINESS.md 2>/dev/null || echo "no shipglowz_data/business/business.md (and no legacy BUSINESS.md) — run /305-sg-init or /300-sg-docs update"; fi`
-- Business metadata: !`for pair in "shipglowz_data/business/business.md BUSINESS.md" "shipglowz_data/branding/branding.md BRANDING.md" "shipglowz_data/technical/guidelines.md GUIDELINES.md"; do set -- $pair; if [ -f "$1" ]; then f="$1"; elif [ -f "$2" ]; then f="$2"; else echo "$2: missing (no $1)"; continue; fi; printf '%s: ' "$f"; sed -n '1,40p' "$f" | grep -E '^(metadata_schema_version|artifact_version|status|updated|confidence|next_review):' | tr '\n' ' '; printf '\n'; done`
+- Business context: !`if [ -f shipglows_data/business/business.md ]; then head -40 shipglows_data/business/business.md; else head -40 BUSINESS.md 2>/dev/null || echo "no shipglows_data/business/business.md (and no legacy BUSINESS.md) — run /305-sg-init or /300-sg-docs update"; fi`
+- Business metadata: !`for pair in "shipglows_data/business/business.md BUSINESS.md" "shipglows_data/branding/branding.md BRANDING.md" "shipglows_data/technical/guidelines.md GUIDELINES.md"; do set -- $pair; if [ -f "$1" ]; then f="$1"; elif [ -f "$2" ]; then f="$2"; else echo "$2: missing (no $1)"; continue; fi; printf '%s: ' "$f"; sed -n '1,40p' "$f" | grep -E '^(metadata_schema_version|artifact_version|status|updated|confidence|next_review):' | tr '\n' ' '; printf '\n'; done`
 - All pages: !`find src/pages src/app -name "*.astro" -o -name "*.tsx" -o -name "*.vue" 2>/dev/null | grep -v node_modules | sort`
 - Sitemap: !`cat public/sitemap*.xml 2>/dev/null | head -50 || echo "no sitemap found"`
 - Robots.txt: !`cat public/robots.txt 2>/dev/null || echo "no robots.txt"`
@@ -103,7 +103,7 @@ Si le fichier existe mais semble incomplet, signaler. Continuer l'audit dans tou
 
 ## Metadata versioning doctrine
 
-`BUSINESS.md`, `BRANDING.md`, and `GUIDELINES.md` are ShipGlowz decision contracts for SEO audits when they define ICP, positioning, tone, market, or editorial rules. Before scoring:
+`BUSINESS.md`, `BRANDING.md`, and `GUIDELINES.md` are ShipGlows decision contracts for SEO audits when they define ICP, positioning, tone, market, or editorial rules. Before scoring:
 - Read/report `artifact_version`, `status`, `updated`, `confidence`, and `next_review` when available.
 - If `artifact_version`, `status`, or `updated` is missing, add a proof gap: `business doc metadata incomplete`.
 - If `status` is `draft`, `stale`, `outdated`, `deprecated`, or `confidence` is `low`, cap confidence and state that keyword/search-intent scoring depends on an unreviewed business contract.
@@ -111,9 +111,9 @@ Si le fichier existe mais semble incomplet, signaler. Continuer l'audit dans tou
 - If search intent, target persona, market language, E-E-A-T claims, compliance claims, or feature claims rely on stale or unversioned docs, do not give `A` to the affected category.
 - Include a `Business metadata versions` section in every report.
 
-Use ShipGlowz versioning semantics: patch = editorial clarification without strategy change, minor = changed keyword/persona guidance inside the same market strategy, major = changed ICP, positioning, pricing promise, trust posture, market, or acquisition strategy.
+Use ShipGlows versioning semantics: patch = editorial clarification without strategy change, minor = changed keyword/persona guidance inside the same market strategy, major = changed ICP, positioning, pricing promise, trust posture, market, or acquisition strategy.
 
-If `shipglowz_data/editorial/` exists (fallback legacy `docs/editorial/`), apply `Governance Corpora And Output Plans` before scoring public content, indexed claims, public docs, public skill pages, FAQ/pricing/support copy, runtime content, or article/blog output.
+If `shipglows_data/editorial/` exists (fallback legacy `docs/editorial/`), apply `Governance Corpora And Output Plans` before scoring public content, indexed claims, public docs, public skill pages, FAQ/pricing/support copy, runtime content, or article/blog output.
 
 ---
 
@@ -150,7 +150,7 @@ Quand une page ou un corpus contient des claims sur OpenAI, ChatGPT, GPT, Codex,
 
 Audit ALL web projects in the workspace for SEO issues.
 
-1. Read discovered project-local corpora (`shipglowz_data/` markers) — check the **Domain Applicability** table. Identify projects with ✓ in the SEO column.
+1. Read discovered project-local corpora (`shipglows_data/` markers) — check the **Domain Applicability** table. Identify projects with ✓ in the SEO column.
 
 2. Use **AskUserQuestion** to let the user choose:
    - Question: "Which projects should I audit for SEO?"
@@ -190,7 +190,7 @@ Audit ALL web projects in the workspace for SEO issues.
    ═══════════════════════════════════════
    ```
 
-5. Update project-local `shipglowz_data/workflow/AUDIT_LOG.md` (one traffic-first audit record per project, SEO column) and split follow-up tasks: editorial/content SEO into `shipglowz_data/editorial/ROADMAP.md`, technical SEO implementation into `shipglowz_data/workflow/TASKS.md`.
+5. Update project-local `shipglows_data/workflow/AUDIT_LOG.md` (one traffic-first audit record per project, SEO column) and split follow-up tasks: editorial/content SEO into `shipglows_data/editorial/ROADMAP.md`, technical SEO implementation into `shipglows_data/workflow/TASKS.md`.
 
 6. Ask: **"Which projects should I fix?"** — list projects with scores. Fix only approved projects, one at a time.
 
@@ -332,7 +332,7 @@ Use **AskUserQuestion**:
 - `multiSelect: true`
 - Options:
   - **All projects** — "Run SEO audit across every applicable project" (Recommended)
-  - One option per SEO-applicable project from discovered project-local corpora (`shipglowz_data/` markers): label = project name, description = stack
+  - One option per SEO-applicable project from discovered project-local corpora (`shipglows_data/` markers): label = project name, description = stack
 
 Then proceed to **GLOBAL MODE** with the selected projects.
 
@@ -504,8 +504,8 @@ Governance:
 ## Tracking (all modes)
 
 Shared file write protocol for `AUDIT_LOG.md`, `TASKS.md`, and `ROADMAP.md`:
-- First load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`; new audit and task records must use that traffic-first operational format.
-- First load `$SHIPFLOW_ROOT/skills/references/task-registry-routing.md`; SEO follow-up may be technical, editorial, or split across both trackers.
+- First load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`; new audit and task records must use that traffic-first operational format.
+- First load `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md`; SEO follow-up may be technical, editorial, or split across both trackers.
 - Treat the snapshots loaded at skill start as informational only.
 - Right before each write, re-read the target file from disk and use that version as authoritative.
 - Append or replace only the intended row or subsection; never rewrite the whole file from stale context.
@@ -518,15 +518,15 @@ After generating the report and applying fixes:
 
 Create or update traffic-first audit operational records in the target audit logs:
 
-1. **Project-local `shipglowz_data/workflow/AUDIT_LOG.md`**: create or update a traffic-first `audit:` record for the SEO audit.
+1. **Project-local `shipglows_data/workflow/AUDIT_LOG.md`**: create or update a traffic-first `audit:` record for the SEO audit.
 2. **Project-local `./AUDIT_LOG.md`**: same project-explicit traffic-first record; keep the required `[project]` token.
 
 Create either file if missing.
 
 ### Update follow-up trackers
 
-1. **Editorial/content SEO findings**: create or update traffic-first task records in `shipglowz_data/editorial/ROADMAP.md`.
-2. **Technical SEO findings**: create or update traffic-first task records in `TASKS.md` or `shipglowz_data/workflow/TASKS.md`; update any dashboard summary only when that execution surface still exists.
+1. **Editorial/content SEO findings**: create or update traffic-first task records in `shipglows_data/editorial/ROADMAP.md`.
+2. **Technical SEO findings**: create or update traffic-first task records in `TASKS.md` or `shipglows_data/workflow/TASKS.md`; update any dashboard summary only when that execution surface still exists.
 
 ---
 

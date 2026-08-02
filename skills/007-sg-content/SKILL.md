@@ -8,36 +8,36 @@ Primary artifact type: `master-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, internal scripts, and public skill content must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, internal scripts, and public skill content must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before executing from a spec-first chantier, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`, read the spec's `Skill Run History` and `Current Chantier Flow`, append a current `007-sg-content` row with result `implemented`, `partial`, `blocked`, or `rerouted`, update `Current Chantier Flow`, and open with the opening chantier header from `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before executing from a spec-first chantier, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, read the spec's `Skill Run History` and `Current Chantier Flow`, append a current `007-sg-content` row with result `implemented`, `partial`, `blocked`, or `rerouted`, update `Current Chantier Flow`, and open with the opening chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 If no unique chantier spec is identified, do not write to any spec. Route to `/700-sg-explore <content idea>` when the content intent, surface, source, or public promise is too fuzzy to frame a ready spec. Route to `/100-sg-spec <content lifecycle title>` when the work is non-trivial, multi-surface, claim-sensitive, or requires a new content surface.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, outcome-first, and using the opening chantier header. Use `report=agent`, `handoff`, `verbose`, or `full-report` only when another agent needs file lists, validation matrices, source evidence, or unresolved gate state.
 
-## ShipGlowz-Owned Preflight
+## ShipGlows-Owned Preflight
 
-Apply `$SHIPFLOW_ROOT/skills/references/shipglowz-owned-preflight.md` before reading ShipGlowz-owned references, running ShipGlowz-owned tools/scripts, or checking ShipGlowz-owned editorial/runtime surfaces.
+Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before reading ShipGlows-owned references, running ShipGlows-owned tools/scripts, or checking ShipGlows-owned editorial/runtime surfaces.
 
 ## Master Delegation
 
-Before choosing execution topology, load `$SHIPFLOW_ROOT/skills/references/master-delegation-semantics.md`.
+Before choosing execution topology, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 
 This skill follows that reference; local nuances below only narrow or route it. Content lifecycle work defaults to delegated sequential when reading, drafting, editing, validating, applying public-content updates, or preparing ship. Parallel content work is allowed only from ready `Execution Batches` with non-overlapping surfaces.
 
 ## Master Workflow Lifecycle
 
-Before resolving content phases, load `$SHIPFLOW_ROOT/skills/references/master-workflow-lifecycle.md`.
+Before resolving content phases, load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md`.
 
 Use the shared skeleton for intake, content work item resolution, readiness, model/topology routing, owner-skill execution, validation, verification, and post-verify ship routing. Local sections below define content surfaces, owner routes, and public-claim gates only.
 
@@ -61,56 +61,56 @@ Do not activate it for an explicit atomic string, placeholder, typo, heading-tag
 
 Load before routing or execution:
 
-- `$SHIPFLOW_ROOT/skills/007-sg-content/references/content-router.md` for mode selection, spec gates, governance gates, owner routing, and rubric details.
-- `$SHIPFLOW_ROOT/skills/007-sg-content/references/repurpose-playbook.md` only for the explicit `repurpose <source>` lane; it preserves source-faithful, verbatim, storage, safety, and handoff behavior without creating another public command.
-- `$SHIPFLOW_ROOT/skills/800-tmux-capture-conversation/SKILL.md` only for `capture-full-conversation`; it is an internal implementation behind the public mode.
-- `$SHIPFLOW_ROOT/skills/801-clean-conversation-transcript/SKILL.md` only for `clean-transcript <path>`; it is an internal implementation behind the public mode.
-- `$SHIPFLOW_ROOT/skills/references/content-owner-handoffs.md` for the canonical content-owner matrix and minimum handoff payload.
-- `$SHIPFLOW_ROOT/skills/references/source-intake-classification.md` when the input is a pasted source, email, URL, transcript, note, article, or example whose project, angle, or owner route is not already settled.
-- `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md` when public content, README public promises, docs, FAQ, pricing, support copy, public skill pages, blog/article intent, claims, or runtime content are in scope.
-- `$SHIPFLOW_ROOT/skills/references/content-quality-rubric.md` when mode includes audit, final draft, final repurpose, enrichment validation, or verification handoff with a required quality score.
-- `$SHIPFLOW_ROOT/skills/references/public-first-content-default.md` when Diane invokes content work and has not explicitly redirected it toward internal content or `300-sg-docs`.
-- `$SHIPFLOW_ROOT/skills/references/repurpose-pack-storage.md` when content work starts from a source and should preserve a durable source-faithful pack in the project repo.
+- `$SHIPGLOWS_ROOT/skills/007-sg-content/references/content-router.md` for mode selection, spec gates, governance gates, owner routing, and rubric details.
+- `$SHIPGLOWS_ROOT/skills/007-sg-content/references/repurpose-playbook.md` only for the explicit `repurpose <source>` lane; it preserves source-faithful, verbatim, storage, safety, and handoff behavior without creating another public command.
+- `$SHIPGLOWS_ROOT/skills/800-tmux-capture-conversation/SKILL.md` only for `capture-full-conversation`; it is an internal implementation behind the public mode.
+- `$SHIPGLOWS_ROOT/skills/801-clean-conversation-transcript/SKILL.md` only for `clean-transcript <path>`; it is an internal implementation behind the public mode.
+- `$SHIPGLOWS_ROOT/skills/references/content-owner-handoffs.md` for the canonical content-owner matrix and minimum handoff payload.
+- `$SHIPGLOWS_ROOT/skills/references/source-intake-classification.md` when the input is a pasted source, email, URL, transcript, note, article, or example whose project, angle, or owner route is not already settled.
+- `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` when public content, README public promises, docs, FAQ, pricing, support copy, public skill pages, blog/article intent, claims, or runtime content are in scope.
+- `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md` when mode includes audit, final draft, final repurpose, enrichment validation, or verification handoff with a required quality score.
+- `$SHIPGLOWS_ROOT/skills/references/public-first-content-default.md` when Diane invokes content work and has not explicitly redirected it toward internal content or `300-sg-docs`.
+- `$SHIPGLOWS_ROOT/skills/references/repurpose-pack-storage.md` when content work starts from a source and should preserve a durable source-faithful pack in the project repo.
 
 ## Inspiration Gate
 
-For sales-page creation, offer-page copy, CTA/proof/objection sequencing, copy-pattern comparison, or explicit inspiration requests, load `$SHIPFLOW_ROOT/skills/references/design-inspiration-library.md`. Filter only the private `index.yaml`, present at most five reference IDs with fit reasons, and require operator selection before loading detailed records or treating references as direction. Pass selected reference IDs to the owner skill and require them in the resulting spec/copy artifact; summarize copy patterns without long verbatim reuse or screenshot redistribution. Market, competitor, pricing, positioning, and differentiation work stays in `shipglowz_data/business/project-competitors-and-inspirations.md`.
+For sales-page creation, offer-page copy, CTA/proof/objection sequencing, copy-pattern comparison, or explicit inspiration requests, load `$SHIPGLOWS_ROOT/skills/references/design-inspiration-library.md`. Filter only the private `index.yaml`, present at most five reference IDs with fit reasons, and require operator selection before loading detailed records or treating references as direction. Pass selected reference IDs to the owner skill and require them in the resulting spec/copy artifact; summarize copy patterns without long verbatim reuse or screenshot redistribution. Market, competitor, pricing, positioning, and differentiation work stays in `shipglows_data/business/project-competitors-and-inspirations.md`.
 
 ## Validation
 
 Run the checks that match changed surfaces.
 
-For ShipGlowz skill or workflow changes:
+For ShipGlows skill or workflow changes:
 
 ```bash
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-"${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/shipglowz_sync_skills.sh" --check --skill 007-sg-content
+"${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh" --check --skill 007-sg-content
 ```
 
-For ShipGlowz docs/specs/content-map artifacts:
+For ShipGlows docs/specs/content-map artifacts:
 
 ```bash
-python3 tools/shipglowz_metadata_lint.py shipglowz_data/workflow/specs README.md shipglowz_data/workflow/playbooks/spec-driven-workflow.md shipglowz_data/editorial/content-map.md shipglowz_data/business/business.md shipglowz_data/business/product.md shipglowz_data/branding/branding.md shipglowz_data/business/gtm.md shipglowz_data/business/project-competitors-and-inspirations.md shipglowz_data/business/affiliate-programs.md shipglowz_data/technical/context.md shipglowz_data/technical shipglowz_data/editorial shipglowz_data/technical/operator-guides/skill-launch-cheatsheet.md
+python3 tools/shipglows_metadata_lint.py shipglows_data/workflow/specs README.md shipglows_data/workflow/playbooks/spec-driven-workflow.md shipglows_data/editorial/content-map.md shipglows_data/business/business.md shipglows_data/business/product.md shipglows_data/branding/branding.md shipglows_data/business/gtm.md shipglows_data/business/project-competitors-and-inspirations.md shipglows_data/business/affiliate-programs.md shipglows_data/technical/context.md shipglows_data/technical shipglows_data/editorial shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md
 ```
 
 For public site or runtime content:
 
 ```bash
-pnpm --dir shipglowz-site build
+pnpm --dir shipglows-site build
 ```
 
 For public-claim and leak scans:
 
 ```bash
-rg -n "secret|token|credential|private key|BEGIN .*KEY" README.md shipglowz_data/editorial/content-map.md shipglowz_data site/src skills
-rg -n "surface missing: blog|Editorial Update Plan|Claim Impact Plan|Astro content schema|claim register" shipglowz_data/editorial/content-map.md shipglowz_data/editorial skills site/src/content/skills
+rg -n "secret|token|credential|private key|BEGIN .*KEY" README.md shipglows_data/editorial/content-map.md shipglows_data site/src skills
+rg -n "surface missing: blog|Editorial Update Plan|Claim Impact Plan|Astro content schema|claim register" shipglows_data/editorial/content-map.md shipglows_data/editorial skills site/src/content/skills
 ```
 
 Use `108-sg-browser` when public visual or route behavior needs observed browser evidence. Use `405-sg-prod` only for deployed truth and `109-sg-auth-debug` only for auth/session flows.
 
 ## Fresh Docs Gate
 
-When a content task depends on current external framework/runtime/provider behavior, run the Documentation Freshness Gate from `$SHIPFLOW_ROOT/skills/references/documentation-freshness-gate.md`.
+When a content task depends on current external framework/runtime/provider behavior, run the Documentation Freshness Gate from `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md`.
 
 Record one explicit verdict:
 
@@ -127,7 +127,7 @@ For OpenAI, SDK, framework, SEO/AEO, crawler, analytics, or platform claims, use
 - Never publish secrets, private URLs, internal logs, tokens, credentials, private keys, or sensitive operational details.
 - Never present roadmap or speculative content as shipped behavior.
 - Never strengthen security, privacy, compliance, AI reliability, automation quality, speed, savings, availability, pricing, or business outcome claims without evidence.
-- Never add ShipGlowz governance frontmatter to runtime content unless the schema accepts it.
+- Never add ShipGlows governance frontmatter to runtime content unless the schema accepts it.
 - Never ship with unrelated dirty files unless the user explicitly authorizes wider scope.
 - Never create content paths outside the declared surfaces without a spec or explicit surface decision.
 

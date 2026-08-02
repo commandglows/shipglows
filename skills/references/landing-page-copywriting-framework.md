@@ -2,7 +2,7 @@
 artifact: contract
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-17"
 updated: "2026-07-17"
 status: active
@@ -186,7 +186,7 @@ The output must also show the selected framework path, the argument spine, proof
 ## Error Behavior
 
 - Missing audience, offer, page goal, product truth, brand, editorial intent, claim context, or material evidence produces a visible blocked or confidence-limited result. Name the missing contract or evidence and the concrete owner route.
-- A missing shared framework or required local playbook blocks the landing-specific pass. Report the canonical missing path and route the ShipGlowz-owned gap to `900-shipglowz-core`; the auditor must not improvise a generic sequence.
+- A missing shared framework or required local playbook blocks the landing-specific pass. Report the canonical missing path and route the ShipGlows-owned gap to `900-shipglows-core`; the auditor must not improvise a generic sequence.
 - Unsupported content stays `needs proof`, `claim mismatch`, qualified, placeholder-only, or omitted. Persuasive language must not conceal the gap.
 - A non-landing target without an explicit page-section-flow need does not load the framework; continue with the selected copywriting playbook’s existing audit contract.
 - Inspiration remains optional. If the operator selects none, continue from project evidence; never choose or load a private bundle silently.

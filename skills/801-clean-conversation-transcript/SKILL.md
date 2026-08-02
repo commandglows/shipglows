@@ -8,7 +8,7 @@ argument-hint: <markdown transcript path>
 
 ## Canonical Paths
 
-Before resolving ShipGlowz-owned files, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`) if present. Project transcript files still resolve from the current project root unless the user gives an absolute path.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`) if present. Project transcript files still resolve from the current project root unless the user gives an absolute path.
 
 ## Chantier Tracking
 

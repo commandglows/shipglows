@@ -12,7 +12,7 @@ For a solo founder juggling multiple products, this replaces hopping repo by rep
 
 - Solo founders running several repos at once
 - Operators who want a quick daily git health check
-- Anyone using ShipGlowz as a workspace-level portfolio dashboard
+- Anyone using ShipGlows as a workspace-level portfolio dashboard
 
 ## When To Use It
 
@@ -22,7 +22,7 @@ For a solo founder juggling multiple products, this replaces hopping repo by rep
 
 ## What You Give It
 
-- the legacy ShipGlowz control-plane `PROJECTS.md` only as compatibility input (project-local discovery is the default)
+- the legacy ShipGlows control-plane `PROJECTS.md` only as compatibility input (project-local discovery is the default)
 - optionally a mode: `issues`, `dirty`, or `all`
 
 ## What You Get Back

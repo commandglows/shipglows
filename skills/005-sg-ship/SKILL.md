@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
@@ -19,23 +19,25 @@ This `SKILL.md` is the activation contract. Keep shipping-mode semantics, bug-ri
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before shipping a spec-first chantier, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when a unique spec exists. Append a current `005-sg-ship` row with result `shipped`, `not shipped`, `blocked`, or `skipped checks`, update `Current Chantier Flow`, and open the report with the opening chantier header. If quick ship is not attached to one unique chantier spec, do not write to a spec; use a `(local)` chantier header with a short work name.
+Before shipping a spec-first chantier, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when a unique spec exists. Append a current `005-sg-ship` row with result `shipped`, `not shipped`, `blocked`, or `skipped checks`, update `Current Chantier Flow`, and open the report with the opening chantier header. If quick ship is not attached to one unique chantier spec, do not write to a spec; use a `(local)` chantier header with a short work name.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, outcome-first, and using the opening chantier header. Use `report=agent`, `handoff`, `verbose`, or `full-report` only when explicitly requested or when another agent needs detailed ship evidence.
 
-## ShipGlowz-Owned Preflight
+## ShipGlows-Owned Preflight
 
-Apply `$SHIPFLOW_ROOT/skills/references/shipglowz-owned-preflight.md` before reading ShipGlowz-owned references, running ShipGlowz-owned tools/scripts, or checking ShipGlowz-owned ship/runtime surfaces.
+Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before reading ShipGlows-owned references, running ShipGlows-owned tools/scripts, or checking ShipGlows-owned ship/runtime surfaces.
 
 ## Required References
 
-Before full-close mode, or any ship report that could imply formal closure, load `$SHIPFLOW_ROOT/skills/references/closure-archive-guard.md`.
+Before full-close mode, or any ship report that could imply formal closure, load `$SHIPGLOWS_ROOT/skills/references/closure-archive-guard.md`.
 
-Before full-close mode or ship wording that implies completion, load `$SHIPFLOW_ROOT/skills/references/documentation-reflection-gate.md` and record its classification; route `updated` or `needs review` to `300-sg-docs` and do not claim full closure while a material docs gap remains.
+Before full-close mode or ship wording that implies completion, load `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` and record its classification; route `updated` or `needs review` to `300-sg-docs` and do not claim full closure while a material docs gap remains.
+
+When the selected project owns an Atlas registry, load `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md` and rerun its preflight against the staged release paths after staging but before commit. An unapproved `block` prevents ship preparation.
 
 ## Mission
 
@@ -56,16 +58,16 @@ If closure bookkeeping is still the next unresolved owner, stay with `104-sg-end
 - Git status: !`git status --short 2>/dev/null || echo "Not a git repo"`
 - Git diff stat: !`git diff HEAD --stat 2>/dev/null || echo ""`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "unknown"`
-- ShipGlowz development mode: !`rg -n "ShipGlowz Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPFLOW.md 2>/dev/null || echo "No project development mode documented"`
+- ShipGlows development mode: !`rg -n "ShipGlows Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPGLOWS.md 2>/dev/null || echo "No project development mode documented"`
 - Recent commits (style reference): !`git log --oneline -5 2>/dev/null || echo "no commits"`
-- Project-local TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No TASKS.md"`
+- Project-local TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No TASKS.md"`
 - Existing CHANGELOG: !`head -20 CHANGELOG.md 2>/dev/null || echo "no CHANGELOG.md"`
 
 ## Your task
 
 `005-sg-ship` has two modes.
 
-Before choosing mode, read `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/project-development-mode.md` and inspect the project-local `## ShipGlowz Development Mode` section in `CLAUDE.md` or `SHIPFLOW.md`. This does not change quick vs full shipping, but it changes the required next action after a successful push.
+Before choosing mode, read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` and inspect the project-local `## ShipGlows Development Mode` section in `CLAUDE.md` or `SHIPGLOWS.md`. This does not change quick vs full shipping, but it changes the required next action after a successful push.
 
 ### Mode 1 — Quick ship (default)
 
@@ -144,12 +146,12 @@ Check for secrets:
 - if untracked `.env`, credential, or token files are not ignored, stop and warn
 - when using `all-dirty`, inspect the complete dirty file list before staging and explicitly exclude nothing unless it is a secret/safety issue; if a secret/safety issue is present, stop instead of partially staging
 
-## Step 3.5 — Pre-ship bug risk gate (`shipglowz_data/workflow/bugs/` + optional `shipglowz_data/workflow/BUGS.md`)
+## Step 3.5 — Pre-ship bug risk gate (`shipglows_data/workflow/bugs/` + optional `shipglows_data/workflow/BUGS.md`)
 
 Run a lightweight bug gate in both `quick` and `full` mode before checks/staging:
-- read `shipglowz_data/workflow/bugs/*.md` as the source of truth for known bug work items
-- read `shipglowz_data/workflow/BUGS.md` only as optional triage context when present
-- when a linked high-impact bug is found, open corresponding `shipglowz_data/workflow/bugs/BUG-ID.md` for confirmation
+- read `shipglows_data/workflow/bugs/*.md` as the source of truth for known bug work items
+- read `shipglows_data/workflow/BUGS.md` only as optional triage context when present
+- when a linked high-impact bug is found, open corresponding `shipglows_data/workflow/bugs/BUG-ID.md` for confirmation
 - keep this check fast; do not run a heavy audit in quick mode
 
 Classify bug risk outcome for the ship report:
@@ -189,7 +191,7 @@ If a check fails:
 ## Step 5 — Full-mode bookkeeping (only in full mode)
 
 Only for mode `full`:
-- apply `$SHIPFLOW_ROOT/skills/references/closure-archive-guard.md` before done/closed/changelog wording
+- apply `$SHIPGLOWS_ROOT/skills/references/closure-archive-guard.md` before done/closed/changelog wording
 - update the project-local tracker when relevant
 - update CHANGELOG.md with meaningful grouped entries
 - save useful decisions to memory
@@ -219,7 +221,7 @@ git add -- path/to/file path/to/other-file
 
 When shipping changes that create, rename, or materially update `skills/*/SKILL.md`, include a pre-commit runtime visibility check in the practical check set:
 ```bash
-${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/shipglowz_sync_skills.sh --check --skill <name>
+${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh --check --skill <name>
 ```
 Use `--check --all` for broad skill visibility drift. Do not duplicate symlink repair logic in `005-sg-ship`; route repair to the shared helper or back to the owning lifecycle skill.
 

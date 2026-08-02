@@ -18,15 +18,15 @@ PLAYBOOKS = {
 ACTIVE_SURFACES = [
     DISPATCHER,
     ROOT / "skills/302-sg-help/references/help-catalog.md",
-    ROOT / "shipglowz-site/src/content/skills/sg-customer.md",
-    ROOT / "shipglowz_data/technical/skill-runtime-and-lifecycle.md",
-    ROOT / "shipglowz_data/technical/operator-guides/skill-launch-cheatsheet.md",
-    ROOT / "shipglowz_data/workflow/playbooks/spec-driven-workflow.md",
+    ROOT / "shipglows-site/src/content/skills/sg-customer.md",
+    ROOT / "shipglows_data/technical/skill-runtime-and-lifecycle.md",
+    ROOT / "shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md",
+    ROOT / "shipglows_data/workflow/playbooks/spec-driven-workflow.md",
     ROOT / "skills/001-sg-build/references/build-lifecycle-workflow.md",
 ]
 HISTORICAL_ALLOWLIST = {
-    ROOT / "shipglowz_data/workflow/specs/sf-onboarding-user-activation-skill.md",
-    ROOT / "shipglowz_data/workflow/specs/formalize-sg-customer-modes-and-playbooks.md",
+    ROOT / "shipglows_data/workflow/specs/sf-onboarding-user-activation-skill.md",
+    ROOT / "shipglows_data/workflow/specs/formalize-sg-customer-modes-and-playbooks.md",
 }
 
 
@@ -73,10 +73,10 @@ def main() -> None:
             assert old not in text, f"active alias {old}: {path.relative_to(ROOT)}"
     assert all(path.is_file() for path in HISTORICAL_ALLOWLIST), "historical allowlist drift"
     # CA 11: public content presents one owner and all modes.
-    public = read(ROOT / "shipglowz-site/src/content/skills/sg-customer.md")
+    public = read(ROOT / "shipglows-site/src/content/skills/sg-customer.md")
     requires(public, 'title: "sg-customer"', "audit [scope]", "flow [feature-or-flow]", "onboarding [feature-or-flow]", "recovery [feature-or-state]")
     # CA 12: catalog identity remains canonical; no mode wrapper is introduced.
-    catalog = json.loads(read(ROOT / "plugins/shipglowz/assets/pack-catalog.json"))
+    catalog = json.loads(read(ROOT / "plugins/shipglows/assets/pack-catalog.json"))
     serialized = json.dumps(catalog)
     assert "008-sg-customer" in serialized, "catalog lost canonical identity"
     for runtime in (

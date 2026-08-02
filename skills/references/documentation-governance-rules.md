@@ -2,11 +2,11 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.3.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-30"
 updated: "2026-07-13"
 status: active
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: documentation-governance-rules
 owner: Diane
 confidence: high
@@ -19,15 +19,15 @@ linked_systems:
   - skills/references/canonical-paths.md
   - skills/references/technical-docs-corpus.md
   - skills/references/editorial-content-corpus.md
-  - shipglowz_data/technical/code-docs-map.md
-  - shipglowz_data/editorial/content-map.md
-  - shipglowz_data/technical/artifact-metadata-and-linter.md
-  - shipglowz_data/technical/metadata-migration-guide.md
+  - shipglows_data/technical/code-docs-map.md
+  - shipglows_data/editorial/content-map.md
+  - shipglows_data/technical/artifact-metadata-and-linter.md
+  - shipglows_data/technical/metadata-migration-guide.md
 depends_on:
   - artifact: "skills/references/project-governance-rules.md"
     artifact_version: "1.1.0"
     required_status: active
-  - artifact: "shipglowz_data/technical/artifact-metadata-and-linter.md"
+  - artifact: "shipglows_data/technical/artifact-metadata-and-linter.md"
     artifact_version: "1.0.0"
     required_status: reviewed
 supersedes: []
@@ -36,7 +36,7 @@ evidence:
   - "Operator clarification 2026-07-13: root compliance must distinguish canonical workflow records from explicitly owned operational, public-reference, and historical surfaces."
   - "Operator request 2026-06-30: add `#docs` for documentation architecture, metadata, and structure compliance."
   - "Operator decision 2026-07-13: classify root archive content, preserve useful history canonically, and delete content without durable value."
-  - "Operator decision 2026-07-13: migrate docs, bug dossiers, bug triage, and QA logs into canonical shipglowz_data families."
+  - "Operator decision 2026-07-13: migrate docs, bug dossiers, bug triage, and QA logs into canonical shipglows_data families."
 next_review: "2026-07-14"
 next_step: "/300-sg-docs audit shared documentation-governance-rules reference"
 ---
@@ -49,32 +49,32 @@ This reference is narrower than `#rules`. It is about documentation architecture
 
 ## Core Rule
 
-Documentation in a ShipGlowz-governed project must live in the canonical place, use the right artifact contract, preserve one source of truth, and stay synchronized with code and public claims.
+Documentation in a ShipGlows-governed project must live in the canonical place, use the right artifact contract, preserve one source of truth, and stay synchronized with code and public claims.
 
 ## Canonical Documentation Architecture
 
-- Keep project governance docs in `shipglowz_data/`, not in ad hoc root files.
-- Keep technical documentation in `shipglowz_data/technical/`.
-- Keep editorial and public-content governance in `shipglowz_data/editorial/`.
-- Keep durable business, product, brand, GTM, competitor, and affiliate docs in `shipglowz_data/business/`.
-- Keep specs, audits, trackers, reviews, evidence, playbooks, and checklists in `shipglowz_data/workflow/`.
+- Keep project governance docs in `shipglows_data/`, not in ad hoc root files.
+- Keep technical documentation in `shipglows_data/technical/`.
+- Keep editorial and public-content governance in `shipglows_data/editorial/`.
+- Keep durable business, product, brand, GTM, competitor, and affiliate docs in `shipglows_data/business/`.
+- Keep specs, audits, trackers, reviews, evidence, playbooks, and checklists in `shipglows_data/workflow/`.
 - Keep `AGENT.md`, `CLAUDE.md`, and `README.md` as entrypoints or compatibility surfaces, not as the full canonical corpus.
-- Keep the professional bug workflow's compact `shipglowz_data/workflow/TEST_LOG.md`, optional `shipglowz_data/workflow/BUGS.md`, and `shipglowz_data/workflow/bugs/` records inside the canonical workflow corpus.
-- Keep conversation captures and exploration reports under `shipglowz_data/workflow/`, operator guides under `shipglowz_data/technical/operator-guides/`, and useful inactive history under `shipglowz_data/workflow/archives/`. Root `archive/`, `bugs/`, `docs/`, `specs/`, and `research/` are migration sources.
+- Keep the professional bug workflow's compact `shipglows_data/workflow/TEST_LOG.md`, optional `shipglows_data/workflow/BUGS.md`, and `shipglows_data/workflow/bugs/` records inside the canonical workflow corpus.
+- Keep conversation captures and exploration reports under `shipglows_data/workflow/`, operator guides under `shipglows_data/technical/operator-guides/`, and useful inactive history under `shipglows_data/workflow/archives/`. Root `archive/`, `bugs/`, `docs/`, `specs/`, and `research/` are migration sources.
 
 ## Metadata Rules
 
-- Active ShipGlowz governance artifacts must use the ShipGlowz frontmatter schema.
+- Active ShipGlows governance artifacts must use the ShipGlows frontmatter schema.
 - Use versioned metadata for durable artifacts.
-- Do not force frontmatter onto operational trackers such as `shipglowz_data/workflow/TASKS.md` and `shipglowz_data/workflow/AUDIT_LOG.md`.
-- Do not add ShipGlowz governance metadata to runtime content unless the runtime schema explicitly accepts it.
-- Validate touched governance artifacts with `tools/shipglowz_metadata_lint.py`.
+- Do not force frontmatter onto operational trackers such as `shipglows_data/workflow/TASKS.md` and `shipglows_data/workflow/AUDIT_LOG.md`.
+- Do not add ShipGlows governance metadata to runtime content unless the runtime schema explicitly accepts it.
+- Validate touched governance artifacts with `tools/shipglows_metadata_lint.py`.
 
 ## Placement Rules
 
 - New governance docs should be created in the canonical corpus, not beside the nearest code file just because it is convenient.
 - Legacy root governance files are migration sources, not destinations for new compliant work.
-- In a monorepo, resolve governance docs from the monorepo root `shipglowz_data/`.
+- In a monorepo, resolve governance docs from the monorepo root `shipglows_data/`.
 - Do not create nested duplicate governance corpora under app/package folders unless the subproject is intentionally standalone.
 
 ## Ownership Rules
@@ -88,7 +88,7 @@ Documentation in a ShipGlowz-governed project must live in the canonical place, 
 
 ## Technical Documentation Discipline
 
-- For code-changing work, load `shipglowz_data/technical/code-docs-map.md` first when it exists.
+- For code-changing work, load `shipglows_data/technical/code-docs-map.md` first when it exists.
 - A mapped code change requires either a `Documentation Update Plan` or an explicit no-impact justification.
 - Major code areas should map to a primary technical doc or an explicit non-coverage reason.
 - If a technical governance artifact is missing, report a bootstrap gap and route to `300-sg-docs technical`.
@@ -102,7 +102,7 @@ Documentation in a ShipGlowz-governed project must live in the canonical place, 
 
 ## Editorial Documentation Discipline
 
-- For public surfaces, load `shipglowz_data/editorial/content-map.md` first.
+- For public surfaces, load `shipglows_data/editorial/content-map.md` first.
 - Public claims, page intent, and content-routing decisions should stay inside the editorial corpus, not scattered across random docs.
 - If public or claim-bearing surfaces exist without editorial governance, report a bootstrap gap and route to `300-sg-docs editorial`.
 - Preserve runtime schema boundaries for content collections and app-rendered content.
@@ -134,4 +134,4 @@ When the operator uses `#docs`, the agent must:
 
 ## Maintenance Rule
 
-Update this reference when ShipGlowz changes its documentation architecture, metadata obligations, canonical corpus boundaries, or docs update discipline.
+Update this reference when ShipGlows changes its documentation architecture, metadata obligations, canonical corpus boundaries, or docs update discipline.

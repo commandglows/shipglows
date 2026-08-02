@@ -1,10 +1,10 @@
 #!/bin/bash
 # ============================================================================
-# ShipGlowz Shared Library
+# ShipGlows Shared Library
 # ============================================================================
 #
 # Description:
-#   Core library containing all reusable functions for ShipGlowz CLI.
+#   Core library containing all reusable functions for ShipGlows CLI.
 #   Handles environment management, PM2 operations, port allocation,
 #   Flox integration, validation, logging, and caching.
 #
@@ -16,7 +16,7 @@
 #   - jq (optional, preferred for JSON parsing)
 #   - python3 (optional, fallback for JSON parsing)
 #
-# Author: ShipGlowz Team
+# Author: ShipGlows Team
 # Version: 2.0.0
 # Date: 2026-01-24
 # ============================================================================
@@ -27,9 +27,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Load configuration
 source "$SCRIPT_DIR/config.sh"
 
-shipglowz_cli_migrate_state() {
-    local new_dir="${SHIPGLOWZ_STATE_DIR:-$HOME/.shipglowz}"
-    local legacy_dir="${SHIPGLOWZ_LEGACY_STATE_DIR:-${SHIPFLOW_LEGACY_STATE_DIR:-$HOME/.shipflow}}"
+shipglows_cli_migrate_state() {
+    local new_dir="${SHIPGLOWS_STATE_DIR:-$HOME/.shipglows}"
+    local legacy_dir="${SHIPGLOWS_LEGACY_STATE_DIR:-${SHIPGLOWS_LEGACY_STATE_DIR:-$HOME/.shipglows}}"
 
     mkdir -p "$new_dir" 2>/dev/null || return 1
     chmod 700 "$new_dir" 2>/dev/null || true
@@ -54,10 +54,10 @@ shipglowz_cli_migrate_state() {
     done
 }
 
-shipglowz_cli_read_state_file() {
+shipglows_cli_read_state_file() {
     local rel="$1"
-    local primary="${SHIPGLOWZ_STATE_DIR:-$HOME/.shipglowz}/$rel"
-    local legacy="${SHIPGLOWZ_LEGACY_STATE_DIR:-${SHIPFLOW_LEGACY_STATE_DIR:-$HOME/.shipflow}}/$rel"
+    local primary="${SHIPGLOWS_STATE_DIR:-$HOME/.shipglows}/$rel"
+    local legacy="${SHIPGLOWS_LEGACY_STATE_DIR:-${SHIPGLOWS_LEGACY_STATE_DIR:-$HOME/.shipglows}}/$rel"
     if [ -e "$primary" ]; then
         printf '%s\n' "$primary"
         return 0
@@ -69,14 +69,14 @@ shipglowz_cli_read_state_file() {
     return 1
 }
 
-shipglowz_cli_migrate_state || true
+shipglows_cli_migrate_state || true
 
 # ============================================================================
 # ERROR HANDLING SETUP
 # ============================================================================
 
 # Enable strict mode if configured
-if [ "$SHIPFLOW_STRICT_MODE" = "true" ]; then
+if [ "$SHIPGLOWS_STRICT_MODE" = "true" ]; then
     set -euo pipefail
 fi
 
@@ -89,7 +89,7 @@ error_trap_handler() {
 }
 
 # Install error trap if configured
-if [ "$SHIPFLOW_ERROR_TRAPS" = "true" ]; then
+if [ "$SHIPGLOWS_ERROR_TRAPS" = "true" ]; then
     trap 'error_trap_handler ${LINENO}' ERR
 fi
 
@@ -118,7 +118,7 @@ LIGHT_BLUE='\033[38;5;117m'
 NC='\033[0m'
 
 # Config (use centralized config values)
-PROJECTS_DIR="${SHIPGLOWZ_PROJECTS_DIR:-$SHIPFLOW_PROJECTS_DIR}"
+PROJECTS_DIR="${SHIPGLOWS_PROJECTS_DIR:-$SHIPGLOWS_PROJECTS_DIR}"
 
 # ============================================================================
 # GUM DETECTION & UI WRAPPERS
@@ -262,19 +262,19 @@ _ui_normalize_filter_query() {
     printf '%s' "$query"
 }
 
-SHIPGLOWZ_SKIP_NEXT_PAUSE=false
-SHIPGLOWZ_RETURN_TO_MAIN_MENU=false
-if [ -z "${SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE:-${SHIPFLOW_SKIP_NEXT_PAUSE_FILE:-}}" ]; then
-    SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE=$(mktemp "${TMPDIR:-/tmp}/shipglowz-skip-pause.XXXXXX" 2>/dev/null || printf '%s/shipglowz-skip-pause-%s' "${TMPDIR:-/tmp}" "$$")
-    rm -f "$SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE" 2>/dev/null || true
-    SHIPFLOW_SKIP_NEXT_PAUSE_FILE="$SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE"
+SHIPGLOWS_SKIP_NEXT_PAUSE=false
+SHIPGLOWS_RETURN_TO_MAIN_MENU=false
+if [ -z "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}}" ]; then
+    SHIPGLOWS_SKIP_NEXT_PAUSE_FILE=$(mktemp "${TMPDIR:-/tmp}/shipglows-skip-pause.XXXXXX" 2>/dev/null || printf '%s/shipglows-skip-pause-%s' "${TMPDIR:-/tmp}" "$$")
+    rm -f "$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE" 2>/dev/null || true
+    SHIPGLOWS_SKIP_NEXT_PAUSE_FILE="$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE"
 fi
 
 ui_skip_next_pause() {
-    SHIPGLOWZ_SKIP_NEXT_PAUSE=true
-    SHIPFLOW_SKIP_NEXT_PAUSE=true
-    if [ -n "${SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE:-${SHIPFLOW_SKIP_NEXT_PAUSE_FILE:-}}" ]; then
-        : > "${SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE:-$SHIPFLOW_SKIP_NEXT_PAUSE_FILE}" 2>/dev/null || true
+    SHIPGLOWS_SKIP_NEXT_PAUSE=true
+    SHIPGLOWS_SKIP_NEXT_PAUSE=true
+    if [ -n "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}}" ]; then
+        : > "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE}" 2>/dev/null || true
     fi
 }
 
@@ -287,22 +287,22 @@ ui_return_back() {
 # menu. This is intentionally separate from ui_return_back(), which only skips
 # the pause after one action.
 ui_return_to_main_menu() {
-    SHIPGLOWZ_RETURN_TO_MAIN_MENU=true
+    SHIPGLOWS_RETURN_TO_MAIN_MENU=true
 }
 
 ui_should_return_to_main_menu() {
-    if [ "${SHIPGLOWZ_RETURN_TO_MAIN_MENU:-false}" = "true" ]; then
-        SHIPGLOWZ_RETURN_TO_MAIN_MENU=false
+    if [ "${SHIPGLOWS_RETURN_TO_MAIN_MENU:-false}" = "true" ]; then
+        SHIPGLOWS_RETURN_TO_MAIN_MENU=false
         return 0
     fi
     return 1
 }
 
 ui_should_skip_next_pause() {
-    if [ "${SHIPGLOWZ_SKIP_NEXT_PAUSE:-${SHIPFLOW_SKIP_NEXT_PAUSE:-false}}" = "true" ] || { [ -n "${SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE:-${SHIPFLOW_SKIP_NEXT_PAUSE_FILE:-}}" ] && [ -f "${SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE:-$SHIPFLOW_SKIP_NEXT_PAUSE_FILE}" ]; }; then
-        SHIPGLOWZ_SKIP_NEXT_PAUSE=false
-        SHIPFLOW_SKIP_NEXT_PAUSE=false
-        [ -n "${SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE:-${SHIPFLOW_SKIP_NEXT_PAUSE_FILE:-}}" ] && rm -f "${SHIPGLOWZ_SKIP_NEXT_PAUSE_FILE:-$SHIPFLOW_SKIP_NEXT_PAUSE_FILE}" 2>/dev/null || true
+    if [ "${SHIPGLOWS_SKIP_NEXT_PAUSE:-${SHIPGLOWS_SKIP_NEXT_PAUSE:-false}}" = "true" ] || { [ -n "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}}" ] && [ -f "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE}" ]; }; then
+        SHIPGLOWS_SKIP_NEXT_PAUSE=false
+        SHIPGLOWS_SKIP_NEXT_PAUSE=false
+        [ -n "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-}}" ] && rm -f "${SHIPGLOWS_SKIP_NEXT_PAUSE_FILE:-$SHIPGLOWS_SKIP_NEXT_PAUSE_FILE}" 2>/dev/null || true
         return 0
     fi
     return 1
@@ -409,7 +409,7 @@ ui_screen_header() {
     local border_color="$CYAN"
     local title_color="$YELLOW"
     local gum_border_color="212"
-    local brand="ShipGlowz DevServer"
+    local brand="ShipGlows DevServer"
     local content_width=50
     local inner_width=46
 
@@ -537,7 +537,7 @@ ui_filter_choose() {
     if [ "$HAS_GUM" = true ] && command -v gum >/dev/null 2>&1; then
         ui_flush_pending_input
         local selected
-        selected=$(printf '%s\n' "${items[@]}" | gum filter --header "ShipGlowz DevServer · $prompt" --placeholder "Type to search · Esc/Ctrl-C to cancel")
+        selected=$(printf '%s\n' "${items[@]}" | gum filter --header "ShipGlows DevServer · $prompt" --placeholder "Type to search · Esc/Ctrl-C to cancel")
         local rc=$?
         if [ $rc -ne 0 ]; then
             ui_skip_next_pause
@@ -551,8 +551,8 @@ ui_filter_choose() {
         ui_flush_pending_input
         local selected
         selected=$(printf '%s\n' "${items[@]}" | FZF_DEFAULT_OPTS= fzf \
-            --prompt "ShipGlowz DevServer · $prompt > " \
-            --height "${SHIPGLOWZ_FZF_HEIGHT:-${SHIPFLOW_FZF_HEIGHT:-70%}}" \
+            --prompt "ShipGlows DevServer · $prompt > " \
+            --height "${SHIPGLOWS_FZF_HEIGHT:-${SHIPGLOWS_FZF_HEIGHT:-70%}}" \
             --layout reverse \
             --border \
             --cycle \
@@ -570,7 +570,7 @@ ui_filter_choose() {
     local query=""
     local matches=()
     while true; do
-        echo -e "${YELLOW}ShipGlowz DevServer · $prompt${NC}" >&2
+        echo -e "${YELLOW}ShipGlows DevServer · $prompt${NC}" >&2
         echo -e "${YELLOW}Search:${NC} \c" >&2
         ui_flush_pending_input
         ui_read_line query
@@ -1069,7 +1069,7 @@ header_storage_human() {
 }
 
 disk_warn_threshold_bytes() {
-    local gb="${SHIPGLOWZ_DISK_WARN_GB:-5}"
+    local gb="${SHIPGLOWS_DISK_WARN_GB:-5}"
     if ! [[ "$gb" =~ ^[0-9]+$ ]]; then
         gb=5
     fi
@@ -1096,14 +1096,14 @@ disk_pressure_level() {
     fi
 
     local critical_free
-    critical_free=$(disk_gb_to_bytes "${SHIPGLOWZ_DISK_CRITICAL_GB:-${SHIPFLOW_DISK_CRITICAL_GB:-3}}")
+    critical_free=$(disk_gb_to_bytes "${SHIPGLOWS_DISK_CRITICAL_GB:-${SHIPGLOWS_DISK_CRITICAL_GB:-3}}")
     local high_free
-    high_free=$(disk_gb_to_bytes "${SHIPGLOWZ_DISK_HIGH_GB:-${SHIPFLOW_DISK_HIGH_GB:-5}}")
+    high_free=$(disk_gb_to_bytes "${SHIPGLOWS_DISK_HIGH_GB:-${SHIPGLOWS_DISK_HIGH_GB:-5}}")
     local warn_free
-    warn_free=$(disk_gb_to_bytes "${SHIPGLOWZ_DISK_WARN_GB:-${SHIPFLOW_DISK_WARN_GB:-8}}")
-    local critical_pct="${SHIPGLOWZ_DISK_CRITICAL_PCT:-${SHIPFLOW_DISK_CRITICAL_PCT:-95}}"
-    local high_pct="${SHIPGLOWZ_DISK_HIGH_PCT:-${SHIPFLOW_DISK_HIGH_PCT:-90}}"
-    local warn_pct="${SHIPGLOWZ_DISK_WARN_PCT:-${SHIPFLOW_DISK_WARN_PCT:-85}}"
+    warn_free=$(disk_gb_to_bytes "${SHIPGLOWS_DISK_WARN_GB:-${SHIPGLOWS_DISK_WARN_GB:-8}}")
+    local critical_pct="${SHIPGLOWS_DISK_CRITICAL_PCT:-${SHIPGLOWS_DISK_CRITICAL_PCT:-95}}"
+    local high_pct="${SHIPGLOWS_DISK_HIGH_PCT:-${SHIPGLOWS_DISK_HIGH_PCT:-90}}"
+    local warn_pct="${SHIPGLOWS_DISK_WARN_PCT:-${SHIPGLOWS_DISK_WARN_PCT:-85}}"
 
     if { [ -n "$used_pct" ] && [ "$used_pct" -ge "$critical_pct" ]; } || \
         { [ -n "$free_bytes" ] && [ "$free_bytes" -lt "$critical_free" ]; }; then
@@ -1456,14 +1456,14 @@ cleanup_agent_history_old() {
     while IFS= read -r -d '' file; do
         [ -f "$file" ] || continue
         count=$((count + 1))
-        if [ "${SHIPGLOWZ_DISK_CLEANUP_DRY_RUN:-${SHIPFLOW_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
             echo "rm -f $file"
         else
             rm -f -- "$file" 2>/dev/null || true
         fi
     done < <(agent_history_old_files "$days")
 
-    if [ "${SHIPGLOWZ_DISK_CLEANUP_DRY_RUN:-${SHIPFLOW_DISK_CLEANUP_DRY_RUN:-0}}" != "1" ]; then
+    if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" != "1" ]; then
         agent_history_prune_empty_dirs
     fi
 
@@ -1503,14 +1503,14 @@ cleanup_agent_cache_logs() {
         [ -e "$path" ] || continue
         case "$path" in
             "$HOME/.codex/log/codex-tui.log")
-                if [ "${SHIPGLOWZ_DISK_CLEANUP_DRY_RUN:-${SHIPFLOW_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+                if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
                     echo ": > $path"
                 else
                     : > "$path" 2>/dev/null || true
                 fi
                 ;;
             "$HOME/.codex/"*|"$HOME/.claude/"*)
-                if [ "${SHIPGLOWZ_DISK_CLEANUP_DRY_RUN:-${SHIPFLOW_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+                if [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
                     echo "rm -rf $path"
                 else
                     rm -rf -- "$path" 2>/dev/null || true
@@ -1559,7 +1559,7 @@ truncate_file_zero() {
     local file="$1"
     [ -f "$file" ] || return 0
 
-    if [ "${SHIPGLOWZ_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPFLOW_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWZ_DISK_CLEANUP_DRY_RUN:-${SHIPFLOW_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
         echo ": > $file"
         return 0
     fi
@@ -1571,7 +1571,7 @@ cleanup_pm2_logs() {
     local pm2_home
     pm2_home=$(pm2_home_dir)
 
-    if [ "${SHIPGLOWZ_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPFLOW_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWZ_DISK_CLEANUP_DRY_RUN:-${SHIPFLOW_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
         echo "pm2 flush"
     elif command -v pm2 >/dev/null 2>&1; then
         pm2 flush >/dev/null 2>&1 || true
@@ -1580,7 +1580,7 @@ cleanup_pm2_logs() {
     truncate_file_zero "$pm2_home/pm2.log"
 
     if [ -d "$pm2_home/logs" ]; then
-        if [ "${SHIPGLOWZ_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPFLOW_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWZ_DISK_CLEANUP_DRY_RUN:-${SHIPFLOW_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
             find "$pm2_home/logs" -type f -name '*.log' -print 2>/dev/null | while IFS= read -r file; do
                 echo ": > $file"
             done
@@ -1593,10 +1593,10 @@ cleanup_pm2_logs() {
 }
 
 configure_pm2_logrotate() {
-    local max_size="${SHIPGLOWZ_PM2_LOGROTATE_MAX_SIZE:-${SHIPFLOW_PM2_LOGROTATE_MAX_SIZE:-50M}}"
-    local retain="${SHIPGLOWZ_PM2_LOGROTATE_RETAIN:-${SHIPFLOW_PM2_LOGROTATE_RETAIN:-5}}"
+    local max_size="${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-50M}}"
+    local retain="${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-5}}"
 
-    if [ "${SHIPGLOWZ_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPFLOW_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWZ_DISK_CLEANUP_DRY_RUN:-${SHIPFLOW_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-${SHIPGLOWS_PM2_LOG_CLEANUP_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-${SHIPGLOWS_DISK_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
         echo "pm2 install pm2-logrotate"
         echo "pm2 set pm2-logrotate:max_size $max_size"
         echo "pm2 set pm2-logrotate:retain $retain"
@@ -1748,7 +1748,7 @@ disk_cleanup_menu() {
         echo -e "${YELLOW}This will truncate PM2 daemon/app log files and configure future rotation:${NC}"
         echo -e "  ${CYAN}•${NC} $(pm2_home_dir)/pm2.log"
         echo -e "  ${CYAN}•${NC} $(pm2_home_dir)/logs/*.log"
-        echo -e "  ${CYAN}•${NC} pm2-logrotate max_size=${SHIPGLOWZ_PM2_LOGROTATE_MAX_SIZE:-${SHIPFLOW_PM2_LOGROTATE_MAX_SIZE:-50M}}, retain=${SHIPGLOWZ_PM2_LOGROTATE_RETAIN:-${SHIPFLOW_PM2_LOGROTATE_RETAIN:-5}}, compress=true"
+        echo -e "  ${CYAN}•${NC} pm2-logrotate max_size=${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-${SHIPGLOWS_PM2_LOGROTATE_MAX_SIZE:-50M}}, retain=${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-${SHIPGLOWS_PM2_LOGROTATE_RETAIN:-5}}, compress=true"
         echo -e "${GREEN}Protected:${NC} PM2 process list, project directories, app files, auth, config, skills, and memories."
         echo ""
         if ! ui_confirm "Flush PM2 logs and enable log rotation now?"; then
@@ -1922,12 +1922,12 @@ mem_total_human() {
     fi
 }
 
-# mem_is_low - Returns 0 if available memory < SHIPGLOWZ_MEM_WARN_GB
+# mem_is_low - Returns 0 if available memory < SHIPGLOWS_MEM_WARN_GB
 mem_is_low() {
     local avail_kb
     avail_kb=$(mem_available_kb)
     [ -z "$avail_kb" ] && return 1
-    local warn_gb="${SHIPGLOWZ_MEM_WARN_GB:-4}"
+    local warn_gb="${SHIPGLOWS_MEM_WARN_GB:-4}"
     if ! [[ "$warn_gb" =~ ^[0-9]+$ ]]; then
         warn_gb=4
     fi
@@ -1938,7 +1938,7 @@ mem_is_low() {
 # mem_top_processes - Top N processes sorted by RSS memory
 # Output: USER PID %MEM RSS_HUMAN ELAPSED COMMAND
 mem_top_processes() {
-    local n="${1:-${SHIPGLOWZ_MONITOR_TOP_N:-15}}"
+    local n="${1:-${SHIPGLOWS_MONITOR_TOP_N:-15}}"
     # ps with RSS in KB, elapsed time, and command
     ps axo user,pid,pmem,rss,etimes,comm --sort=-rss --no-headers 2>/dev/null | head -n "$n" | while read -r user pid pmem rss etimes comm; do
         local rss_human
@@ -1965,9 +1965,9 @@ mem_top_processes() {
 }
 
 # mem_long_running_processes - Processes running longer than threshold
-# Returns processes with etimes > SHIPGLOWZ_PROCESS_LONG_RUNNING_HOURS (in hours)
+# Returns processes with etimes > SHIPGLOWS_PROCESS_LONG_RUNNING_HOURS (in hours)
 mem_long_running_processes() {
-    local hours="${SHIPGLOWZ_PROCESS_LONG_RUNNING_HOURS:-24}"
+    local hours="${SHIPGLOWS_PROCESS_LONG_RUNNING_HOURS:-24}"
     local threshold_secs=$((hours * 3600))
     # Only show processes using > 100MB RSS to filter noise
     ps axo user,pid,pmem,rss,etimes,comm --sort=-rss --no-headers 2>/dev/null | while read -r user pid pmem rss etimes comm; do
@@ -2131,7 +2131,7 @@ stop_mcp_process_group() {
     fi
 
     echo -e "${YELLOW}Stopping MCP process group:${NC} $label"
-    if [ "${SHIPGLOWZ_MCP_CLEANUP_DRY_RUN:-${SHIPFLOW_MCP_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
         echo "kill -TERM -$pgid"
         return 0
     fi
@@ -2257,7 +2257,7 @@ clean_all_safe_targets() {
     fi
 
     if [ -n "$pm2_pid" ] && ! pm2_has_running_apps; then
-        if [ "${SHIPGLOWZ_MCP_CLEANUP_DRY_RUN:-${SHIPFLOW_MCP_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-${SHIPGLOWS_MCP_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
             echo "pm2 kill"
         else
             pm2 kill >/dev/null 2>&1 || true
@@ -2273,19 +2273,19 @@ clean_all_safe_targets() {
 }
 
 user_caddy_enabled() {
-    [ "${SHIPGLOWZ_USER_CADDY_ENABLED:-${SHIPFLOW_USER_CADDY_ENABLED:-true}}" = "true" ] && command -v caddy >/dev/null 2>&1
+    [ "${SHIPGLOWS_USER_CADDY_ENABLED:-${SHIPGLOWS_USER_CADDY_ENABLED:-true}}" = "true" ] && command -v caddy >/dev/null 2>&1
 }
 
 ensure_user_caddy_dir() {
-    mkdir -p "$SHIPGLOWZ_USER_CADDY_DIR" "$SHIPGLOWZ_USER_CADDY_STORAGE_DIR" 2>/dev/null || return 1
-    chmod 700 "$SHIPGLOWZ_USER_CADDY_DIR" "$SHIPGLOWZ_USER_CADDY_STORAGE_DIR" 2>/dev/null || true
+    mkdir -p "$SHIPGLOWS_USER_CADDY_DIR" "$SHIPGLOWS_USER_CADDY_STORAGE_DIR" 2>/dev/null || return 1
+    chmod 700 "$SHIPGLOWS_USER_CADDY_DIR" "$SHIPGLOWS_USER_CADDY_STORAGE_DIR" 2>/dev/null || true
 }
 
 user_caddy_pid() {
     local pid=""
-    if [ -f "$SHIPGLOWZ_USER_CADDY_PID_FILE" ]; then
-        pid=$(sed -n '1p' "$SHIPGLOWZ_USER_CADDY_PID_FILE" 2>/dev/null)
-        if [[ "$pid" =~ ^[0-9]+$ ]] && ps -p "$pid" -o args= 2>/dev/null | grep -Fq "$SHIPGLOWZ_USER_CADDYFILE"; then
+    if [ -f "$SHIPGLOWS_USER_CADDY_PID_FILE" ]; then
+        pid=$(sed -n '1p' "$SHIPGLOWS_USER_CADDY_PID_FILE" 2>/dev/null)
+        if [[ "$pid" =~ ^[0-9]+$ ]] && ps -p "$pid" -o args= 2>/dev/null | grep -Fq "$SHIPGLOWS_USER_CADDYFILE"; then
             printf '%s' "$pid"
             return 0
         fi
@@ -2302,13 +2302,13 @@ stop_user_caddy() {
     pid=$(user_caddy_pid || true)
 
     if [ -z "$pid" ]; then
-        rm -f "$SHIPGLOWZ_USER_CADDY_PID_FILE" 2>/dev/null || true
+        rm -f "$SHIPGLOWS_USER_CADDY_PID_FILE" 2>/dev/null || true
         echo -e "${GREEN}User Caddy is not running.${NC}"
         return 0
     fi
 
     echo -e "${YELLOW}Stopping user Caddy:${NC} PID $pid"
-    if [ "${SHIPGLOWZ_USER_CADDY_DRY_RUN:-${SHIPFLOW_USER_CADDY_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWZ_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPFLOW_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_USER_CADDY_DRY_RUN:-${SHIPGLOWS_USER_CADDY_DRY_RUN:-0}}" = "1" ] || [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
         echo "kill -TERM $pid"
         return 0
     fi
@@ -2318,7 +2318,7 @@ stop_user_caddy() {
     if ps -p "$pid" >/dev/null 2>&1; then
         kill -KILL "$pid" 2>/dev/null || true
     fi
-    rm -f "$SHIPGLOWZ_USER_CADDY_PID_FILE" 2>/dev/null || true
+    rm -f "$SHIPGLOWS_USER_CADDY_PID_FILE" 2>/dev/null || true
     echo -e "${GREEN}Stopped user Caddy.${NC}"
 }
 
@@ -2332,7 +2332,7 @@ user_caddy_routes_load() {
             __sgdv_caddy_routes+="$__sgdv_caddy_name|$__sgdv_caddy_port"
         fi
     done <<< "$__sgdv_caddy_data"
-    _shipglowz_assign "$__sgdv_caddy_target" "$__sgdv_caddy_routes"
+    _shipglows_assign "$__sgdv_caddy_target" "$__sgdv_caddy_routes"
 }
 
 user_caddy_routes_from_pm2() {
@@ -2356,25 +2356,25 @@ write_user_caddyfile() {
 
     ensure_user_caddy_dir || return 1
 
-    cat > "$SHIPGLOWZ_USER_CADDYFILE" << EOF
+    cat > "$SHIPGLOWS_USER_CADDYFILE" << EOF
 {
     admin off
-    storage file_system $SHIPGLOWZ_USER_CADDY_STORAGE_DIR
+    storage file_system $SHIPGLOWS_USER_CADDY_STORAGE_DIR
 }
 
-http://$SHIPGLOWZ_USER_CADDY_BIND:$SHIPGLOWZ_USER_CADDY_PORT {
+http://$SHIPGLOWS_USER_CADDY_BIND:$SHIPGLOWS_USER_CADDY_PORT {
     log {
-        output file $SHIPGLOWZ_USER_CADDY_LOG_FILE {
+        output file $SHIPGLOWS_USER_CADDY_LOG_FILE {
             roll_size 5mb
             roll_keep 3
             roll_keep_for 168h
         }
     }
     encode gzip
-${route_lines}    respond "ShipGlowz user Caddy: no matching PM2 route" 404
+${route_lines}    respond "ShipGlows user Caddy: no matching PM2 route" 404
 }
 EOF
-    caddy fmt --overwrite "$SHIPGLOWZ_USER_CADDYFILE" >/dev/null 2>&1 || true
+    caddy fmt --overwrite "$SHIPGLOWS_USER_CADDYFILE" >/dev/null 2>&1 || true
 }
 
 start_user_caddy() {
@@ -2383,42 +2383,42 @@ start_user_caddy() {
     fi
 
     ensure_user_caddy_dir || {
-        warning "Impossible de créer le runtime Caddy utilisateur: $SHIPGLOWZ_USER_CADDY_DIR"
+        warning "Impossible de créer le runtime Caddy utilisateur: $SHIPGLOWS_USER_CADDY_DIR"
         return 1
     }
 
-    if [ "${SHIPGLOWZ_USER_CADDY_DRY_RUN:-${SHIPFLOW_USER_CADDY_DRY_RUN:-0}}" = "1" ]; then
-        echo "caddy run --config $SHIPGLOWZ_USER_CADDYFILE --adapter caddyfile"
+    if [ "${SHIPGLOWS_USER_CADDY_DRY_RUN:-${SHIPGLOWS_USER_CADDY_DRY_RUN:-0}}" = "1" ]; then
+        echo "caddy run --config $SHIPGLOWS_USER_CADDYFILE --adapter caddyfile"
         return 0
     fi
 
     stop_user_caddy >/dev/null 2>&1 || true
 
-    if is_port_in_use "$SHIPGLOWZ_USER_CADDY_PORT"; then
-        warning "Port user Caddy déjà occupé: $SHIPGLOWZ_USER_CADDY_PORT"
+    if is_port_in_use "$SHIPGLOWS_USER_CADDY_PORT"; then
+        warning "Port user Caddy déjà occupé: $SHIPGLOWS_USER_CADDY_PORT"
         return 1
     fi
 
-    if ! caddy validate --config "$SHIPGLOWZ_USER_CADDYFILE" --adapter caddyfile >/dev/null 2>&1; then
-        warning "Caddyfile utilisateur invalide: $SHIPGLOWZ_USER_CADDYFILE"
+    if ! caddy validate --config "$SHIPGLOWS_USER_CADDYFILE" --adapter caddyfile >/dev/null 2>&1; then
+        warning "Caddyfile utilisateur invalide: $SHIPGLOWS_USER_CADDYFILE"
         return 1
     fi
 
-    nohup caddy run --config "$SHIPGLOWZ_USER_CADDYFILE" --adapter caddyfile >> "$SHIPGLOWZ_USER_CADDY_STDOUT_FILE" 2>&1 &
-    printf '%s\n' "$!" > "$SHIPGLOWZ_USER_CADDY_PID_FILE"
+    nohup caddy run --config "$SHIPGLOWS_USER_CADDYFILE" --adapter caddyfile >> "$SHIPGLOWS_USER_CADDY_STDOUT_FILE" 2>&1 &
+    printf '%s\n' "$!" > "$SHIPGLOWS_USER_CADDY_PID_FILE"
     sleep 0.5
 
     if user_caddy_is_running; then
-        echo -e "${GREEN}User Caddy running:${NC} http://$SHIPGLOWZ_USER_CADDY_BIND:$SHIPGLOWZ_USER_CADDY_PORT"
+        echo -e "${GREEN}User Caddy running:${NC} http://$SHIPGLOWS_USER_CADDY_BIND:$SHIPGLOWS_USER_CADDY_PORT"
         return 0
     fi
 
-    warning "User Caddy did not stay running; see $SHIPGLOWZ_USER_CADDY_STDOUT_FILE"
+    warning "User Caddy did not stay running; see $SHIPGLOWS_USER_CADDY_STDOUT_FILE"
     return 1
 }
 
 refresh_user_caddy_from_pm2() {
-    if [ "${SHIPGLOWZ_USER_CADDY_ENABLED:-${SHIPFLOW_USER_CADDY_ENABLED:-true}}" != "true" ]; then
+    if [ "${SHIPGLOWS_USER_CADDY_ENABLED:-${SHIPGLOWS_USER_CADDY_ENABLED:-true}}" != "true" ]; then
         return 0
     fi
 
@@ -2434,11 +2434,11 @@ refresh_user_caddy_from_pm2() {
         return 0
     fi
 
-    if [ "${SHIPGLOWZ_USER_CADDY_DRY_RUN:-${SHIPFLOW_USER_CADDY_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_USER_CADDY_DRY_RUN:-${SHIPGLOWS_USER_CADDY_DRY_RUN:-0}}" = "1" ]; then
         echo "User Caddy routes:"
         printf '%s\n' "$routes"
-        echo "write $SHIPGLOWZ_USER_CADDYFILE"
-        echo "listen http://$SHIPGLOWZ_USER_CADDY_BIND:$SHIPGLOWZ_USER_CADDY_PORT"
+        echo "write $SHIPGLOWS_USER_CADDYFILE"
+        echo "listen http://$SHIPGLOWS_USER_CADDY_BIND:$SHIPGLOWS_USER_CADDY_PORT"
         return 0
     fi
 
@@ -2488,7 +2488,7 @@ stop_caddy_if_no_pm2_apps() {
     fi
 
     echo -e "${YELLOW}Caddy is running while no PM2 apps are online.${NC}"
-    if [ "${SHIPGLOWZ_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPFLOW_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
         echo "sudo systemctl stop caddy"
         return 0
     fi
@@ -2555,7 +2555,7 @@ stop_process_group_term_then_optional_kill() {
     fi
 
     echo -e "${YELLOW}Stopping:${NC} $label"
-    if [ "${SHIPGLOWZ_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPFLOW_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
         echo "kill -TERM -$pgid"
         return 0
     fi
@@ -2634,7 +2634,7 @@ aggressive_cleanup_menu() {
     fi
 
     if [ -n "$pm2_pid" ] && ! pm2_has_running_apps; then
-        if [ "${SHIPGLOWZ_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPFLOW_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
+        if [ "${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-${SHIPGLOWS_AGGRESSIVE_CLEANUP_DRY_RUN:-0}}" = "1" ]; then
             echo "pm2 kill"
         else
             pm2 kill >/dev/null 2>&1 || true
@@ -2669,7 +2669,7 @@ mem_alerts() {
     if [ -n "$long_running" ]; then
         local count
         count=$(echo "$long_running" | wc -l)
-        alerts+=("warning|${count} process(es) running ${SHIPGLOWZ_PROCESS_LONG_RUNNING_HOURS:-24}h+ with >100MB RAM")
+        alerts+=("warning|${count} process(es) running ${SHIPGLOWS_PROCESS_LONG_RUNNING_HOURS:-24}h+ with >100MB RAM")
     fi
 
     local mcp_groups
@@ -2739,7 +2739,7 @@ system_monitor_menu() {
         if [ -n "$disk_used" ]; then
             echo -e "  Used: ${YELLOW}${disk_used}${NC}  /  Filesystem: ${CYAN}${disk_fs:-/}${NC} mounted on ${CYAN}/${NC}"
         fi
-        print_usage_bar "$disk_pct" 30 "${SHIPGLOWZ_DISK_HIGH_PCT:-${SHIPFLOW_DISK_HIGH_PCT:-90}}" "${SHIPGLOWZ_DISK_WARN_PCT:-${SHIPFLOW_DISK_WARN_PCT:-85}}"
+        print_usage_bar "$disk_pct" 30 "${SHIPGLOWS_DISK_HIGH_PCT:-${SHIPGLOWS_DISK_HIGH_PCT:-90}}" "${SHIPGLOWS_DISK_WARN_PCT:-${SHIPGLOWS_DISK_WARN_PCT:-85}}"
         if [ "$disk_level" = "ok" ]; then
             echo -e "  Status: ${GREEN}OK${NC}"
         else
@@ -2769,7 +2769,7 @@ system_monitor_menu() {
     local long_procs
     long_procs=$(mem_long_running_processes)
     if [ -n "$long_procs" ]; then
-        echo -e "${YELLOW}━━━ Long-Running Processes (${SHIPGLOWZ_PROCESS_LONG_RUNNING_HOURS:-24}h+, >100MB) ━━━${NC}"
+        echo -e "${YELLOW}━━━ Long-Running Processes (${SHIPGLOWS_PROCESS_LONG_RUNNING_HOURS:-24}h+, >100MB) ━━━${NC}"
         printf "  ${CYAN}%-10s %-7s %5s %7s %8s  %-s${NC}\n" "USER" "PID" "%MEM" "RSS" "UPTIME" "COMMAND"
         while IFS='|' read -r user pid pmem rss elapsed comm; do
             printf "  ${YELLOW}%-10s %-7s %5s %7s %8s${NC}  %s\n" "$user" "$pid" "$pmem" "$rss" "$elapsed" "$comm"
@@ -2826,12 +2826,12 @@ UPDATE_CACHE_NPM=0
 UPDATE_CACHE_PIP=0
 UPDATE_CACHE_RUSTUP=0
 UPDATE_CACHE_TTL=300
-SHIPGLOWZ_MENU_STATUS_CACHE_FILE="${SHIPGLOWZ_MENU_STATUS_CACHE_FILE:-${SHIPFLOW_MENU_STATUS_CACHE_FILE:-${SHIPGLOWZ_SECRETS_DIR:-$SHIPFLOW_SECRETS_DIR}/menu-status.cache}}"
-SHIPGLOWZ_MENU_STATUS_LOCK_FILE="${SHIPGLOWZ_MENU_STATUS_LOCK_FILE:-${SHIPFLOW_MENU_STATUS_LOCK_FILE:-${SHIPGLOWZ_SECRETS_DIR:-$SHIPFLOW_SECRETS_DIR}/menu-status.lock}}"
-SHIPFLOW_MENU_STATUS_CACHE_FILE="$SHIPGLOWZ_MENU_STATUS_CACHE_FILE"
-SHIPFLOW_MENU_STATUS_LOCK_FILE="$SHIPGLOWZ_MENU_STATUS_LOCK_FILE"
-MENU_STATUS_CACHE_FILE="$SHIPGLOWZ_MENU_STATUS_CACHE_FILE"
-MENU_STATUS_LOCK_FILE="$SHIPGLOWZ_MENU_STATUS_LOCK_FILE"
+SHIPGLOWS_MENU_STATUS_CACHE_FILE="${SHIPGLOWS_MENU_STATUS_CACHE_FILE:-${SHIPGLOWS_MENU_STATUS_CACHE_FILE:-${SHIPGLOWS_SECRETS_DIR:-$SHIPGLOWS_SECRETS_DIR}/menu-status.cache}}"
+SHIPGLOWS_MENU_STATUS_LOCK_FILE="${SHIPGLOWS_MENU_STATUS_LOCK_FILE:-${SHIPGLOWS_MENU_STATUS_LOCK_FILE:-${SHIPGLOWS_SECRETS_DIR:-$SHIPGLOWS_SECRETS_DIR}/menu-status.lock}}"
+SHIPGLOWS_MENU_STATUS_CACHE_FILE="$SHIPGLOWS_MENU_STATUS_CACHE_FILE"
+SHIPGLOWS_MENU_STATUS_LOCK_FILE="$SHIPGLOWS_MENU_STATUS_LOCK_FILE"
+MENU_STATUS_CACHE_FILE="$SHIPGLOWS_MENU_STATUS_CACHE_FILE"
+MENU_STATUS_LOCK_FILE="$SHIPGLOWS_MENU_STATUS_LOCK_FILE"
 
 run_with_timeout() {
     if command -v timeout >/dev/null 2>&1; then
@@ -2975,7 +2975,7 @@ read_menu_status_cache() {
 #   1 - Failed to compute/write cache
 # -----------------------------------------------------------------------------
 refresh_menu_status_cache_sync() {
-    mkdir -p "$SHIPFLOW_SECRETS_DIR" 2>/dev/null || true
+    mkdir -p "$SHIPGLOWS_SECRETS_DIR" 2>/dev/null || true
 
     local now
     now=$(date +%s)
@@ -3039,7 +3039,7 @@ refresh_menu_status_cache_sync() {
 #   - Uses PID lock to avoid concurrent expensive refreshes
 # -----------------------------------------------------------------------------
 refresh_menu_status_cache_async_if_stale() {
-    local ttl="${SHIPGLOWZ_MENU_STATUS_CACHE_TTL:-${SHIPFLOW_MENU_STATUS_CACHE_TTL:-120}}"
+    local ttl="${SHIPGLOWS_MENU_STATUS_CACHE_TTL:-${SHIPGLOWS_MENU_STATUS_CACHE_TTL:-120}}"
     if ! [[ "$ttl" =~ ^[0-9]+$ ]]; then
         ttl=120
     fi
@@ -3381,8 +3381,8 @@ select_stop_target() {
 # ============================================================================
 
 # Secrets file path
-SHIPGLOWZ_SECRETS_FILE="${SHIPGLOWZ_SECRETS_FILE:-${SHIPFLOW_SECRETS_FILE:-${SHIPGLOWZ_SECRETS_DIR:-$SHIPFLOW_SECRETS_DIR}/secrets}}"
-SHIPFLOW_SECRETS_FILE="$SHIPGLOWZ_SECRETS_FILE"
+SHIPGLOWS_SECRETS_FILE="${SHIPGLOWS_SECRETS_FILE:-${SHIPGLOWS_SECRETS_FILE:-${SHIPGLOWS_SECRETS_DIR:-$SHIPGLOWS_SECRETS_DIR}/secrets}}"
+SHIPGLOWS_SECRETS_FILE="$SHIPGLOWS_SECRETS_FILE"
 
 # -----------------------------------------------------------------------------
 # save_secret - Save a key=value pair to the secrets file
@@ -3392,7 +3392,7 @@ SHIPFLOW_SECRETS_FILE="$SHIPGLOWZ_SECRETS_FILE"
 #   $2 - Value (will NOT be logged or echoed)
 #
 # Side Effects:
-#   Creates ~/.shipglowz/ (chmod 700) and secrets file (chmod 600) if needed
+#   Creates ~/.shipglows/ (chmod 700) and secrets file (chmod 600) if needed
 # -----------------------------------------------------------------------------
 save_secret() {
     local key="$1"
@@ -3404,22 +3404,22 @@ save_secret() {
     fi
 
     # Create directory with restricted permissions
-    if [ ! -d "$SHIPGLOWZ_SECRETS_DIR" ]; then
-        mkdir -p "$SHIPGLOWZ_SECRETS_DIR"
-        chmod 700 "$SHIPGLOWZ_SECRETS_DIR"
+    if [ ! -d "$SHIPGLOWS_SECRETS_DIR" ]; then
+        mkdir -p "$SHIPGLOWS_SECRETS_DIR"
+        chmod 700 "$SHIPGLOWS_SECRETS_DIR"
     fi
 
     # Create or update secrets file
-    if [ ! -f "$SHIPGLOWZ_SECRETS_FILE" ]; then
-        touch "$SHIPGLOWZ_SECRETS_FILE"
-        chmod 600 "$SHIPGLOWZ_SECRETS_FILE"
+    if [ ! -f "$SHIPGLOWS_SECRETS_FILE" ]; then
+        touch "$SHIPGLOWS_SECRETS_FILE"
+        chmod 600 "$SHIPGLOWS_SECRETS_FILE"
     else
         # Ensure permissions are correct
-        chmod 600 "$SHIPGLOWZ_SECRETS_FILE"
+        chmod 600 "$SHIPGLOWS_SECRETS_FILE"
     fi
 
     local tmp_file
-    tmp_file=$(mktemp "${SHIPGLOWZ_SECRETS_FILE}.tmp.XXXXXX") || return 1
+    tmp_file=$(mktemp "${SHIPGLOWS_SECRETS_FILE}.tmp.XXXXXX") || return 1
     chmod 600 "$tmp_file"
 
     if ! awk -v key="$key" -v value="$value" '
@@ -3435,13 +3435,13 @@ save_secret() {
                 print key "=" value
             }
         }
-    ' "$SHIPGLOWZ_SECRETS_FILE" > "$tmp_file"; then
+    ' "$SHIPGLOWS_SECRETS_FILE" > "$tmp_file"; then
         rm -f "$tmp_file"
         return 1
     fi
 
-    mv "$tmp_file" "$SHIPGLOWZ_SECRETS_FILE"
-    chmod 600 "$SHIPGLOWZ_SECRETS_FILE"
+    mv "$tmp_file" "$SHIPGLOWS_SECRETS_FILE"
+    chmod 600 "$SHIPGLOWS_SECRETS_FILE"
 
     log INFO "Secret saved: $key (value hidden)"
 }
@@ -3462,12 +3462,12 @@ save_secret() {
 load_secret() {
     local key="$1"
 
-    if [ ! -f "$SHIPGLOWZ_SECRETS_FILE" ]; then
+    if [ ! -f "$SHIPGLOWS_SECRETS_FILE" ]; then
         return 1
     fi
 
     local value
-    value=$(grep "^${key}=" "$SHIPGLOWZ_SECRETS_FILE" 2>/dev/null | head -1 | cut -d'=' -f2-)
+    value=$(grep "^${key}=" "$SHIPGLOWS_SECRETS_FILE" 2>/dev/null | head -1 | cut -d'=' -f2-)
 
     if [ -z "$value" ]; then
         return 1
@@ -3483,19 +3483,19 @@ load_secret() {
 
 # Ensure log directory exists
 init_logging() {
-    if [ "$SHIPGLOWZ_LOGGING_ENABLED" = "true" ]; then
-        mkdir -p "$SHIPGLOWZ_LOG_DIR" 2>/dev/null || true
-        touch "$SHIPGLOWZ_LOG_FILE" 2>/dev/null || true
+    if [ "$SHIPGLOWS_LOGGING_ENABLED" = "true" ]; then
+        mkdir -p "$SHIPGLOWS_LOG_DIR" 2>/dev/null || true
+        touch "$SHIPGLOWS_LOG_FILE" 2>/dev/null || true
 
         # Rotate old logs
-        if [ -f "$SHIPGLOWZ_LOG_FILE" ]; then
-            local log_size=$(stat -f%z "$SHIPGLOWZ_LOG_FILE" 2>/dev/null || stat -c%s "$SHIPGLOWZ_LOG_FILE" 2>/dev/null || echo 0)
+        if [ -f "$SHIPGLOWS_LOG_FILE" ]; then
+            local log_size=$(stat -f%z "$SHIPGLOWS_LOG_FILE" 2>/dev/null || stat -c%s "$SHIPGLOWS_LOG_FILE" 2>/dev/null || echo 0)
             # Rotate if larger than 10MB
             if [ "$log_size" -gt 10485760 ]; then
-                mv "$SHIPGLOWZ_LOG_FILE" "$SHIPGLOWZ_LOG_FILE.$(date +%s)" 2>/dev/null || true
+                mv "$SHIPGLOWS_LOG_FILE" "$SHIPGLOWS_LOG_FILE.$(date +%s)" 2>/dev/null || true
 
                 # Clean old logs
-                find "$SHIPGLOWZ_LOG_DIR" -name "*.log.*" -mtime +$SHIPGLOWZ_LOG_RETENTION_DAYS -delete 2>/dev/null || true
+                find "$SHIPGLOWS_LOG_DIR" -name "*.log.*" -mtime +$SHIPGLOWS_LOG_RETENTION_DAYS -delete 2>/dev/null || true
             fi
         fi
     fi
@@ -3509,7 +3509,7 @@ log() {
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 
     # Check if logging is enabled
-    if [ "$SHIPGLOWZ_LOGGING_ENABLED" != "true" ]; then
+    if [ "$SHIPGLOWS_LOGGING_ENABLED" != "true" ]; then
         return 0
     fi
 
@@ -3523,7 +3523,7 @@ log() {
     esac
 
     local config_priority=1  # Default to INFO
-    case "$SHIPGLOWZ_LOG_LEVEL" in
+    case "$SHIPGLOWS_LOG_LEVEL" in
         DEBUG) config_priority=0 ;;
         INFO) config_priority=1 ;;
         WARNING) config_priority=2 ;;
@@ -3539,7 +3539,7 @@ log() {
     local log_entry="[$timestamp] [$level] $message"
 
     # Append to log file
-    echo "$log_entry" >> "$SHIPGLOWZ_LOG_FILE" 2>/dev/null || true
+    echo "$log_entry" >> "$SHIPGLOWS_LOG_FILE" 2>/dev/null || true
 }
 
 # Initialize logging on load
@@ -3570,7 +3570,7 @@ parse_json() {
     local jq_expr=$1
 
     # Prefer jq if available and configured
-    if [ "$SHIPGLOWZ_PREFER_JQ" = "true" ] && command -v jq >/dev/null 2>&1; then
+    if [ "$SHIPGLOWS_PREFER_JQ" = "true" ] && command -v jq >/dev/null 2>&1; then
         jq -r "$jq_expr" 2>/dev/null || {
             log ERROR "jq parsing failed with expression: $jq_expr"
             return 1
@@ -3702,7 +3702,7 @@ show_tools_status() {
 # install_sdk_menu - Interactive menu to install optional development SDKs
 #
 # Description:
-#   Allows manual installation of global SDKs that are NOT required by ShipGlowz
+#   Allows manual installation of global SDKs that are NOT required by ShipGlows
 #   but useful for development (Flutter/Dart, etc.).
 #   Requires sudo for system-wide installation.
 # -----------------------------------------------------------------------------
@@ -3858,7 +3858,7 @@ validate_project_path() {
         return 1
     fi
 
-    # ShipGlowz convention: project paths are lowercase from creation time.
+    # ShipGlows convention: project paths are lowercase from creation time.
     # This prevents case-sensitive mismatches between folders, PM2 names, and aliases.
     if [ "$path" != "${path,,}" ]; then
         error "Path must be lowercase: $path"
@@ -4027,25 +4027,25 @@ warning() {
 # Updated by env_start/env_stop, read by show_dashboard (no subprocesses)
 # ============================================================================
 
-SHIPGLOWZ_REGISTRY="${SHIPGLOWZ_REGISTRY:-${SHIPFLOW_REGISTRY:-$SHIPGLOWZ_STATE_DIR/envs.reg}}"
-SHIPFLOW_REGISTRY="$SHIPGLOWZ_REGISTRY"
-SHIPGLOWZ_REGISTRY_SYNCED=false
-SHIPFLOW_REGISTRY_SYNCED=false
-SHIPGLOWZ_REGISTRY_CHECKED_AT=0
-: "${SHIPGLOWZ_REGISTRY_CACHE_TTL:=300}"
-: "${SHIPGLOWZ_REGISTRY_LOCK_ATTEMPTS:=20}"
-: "${SHIPGLOWZ_REGISTRY_LOCK_INTERVAL:=0.05}"
+SHIPGLOWS_REGISTRY="${SHIPGLOWS_REGISTRY:-${SHIPGLOWS_REGISTRY:-$SHIPGLOWS_STATE_DIR/envs.reg}}"
+SHIPGLOWS_REGISTRY="$SHIPGLOWS_REGISTRY"
+SHIPGLOWS_REGISTRY_SYNCED=false
+SHIPGLOWS_REGISTRY_SYNCED=false
+SHIPGLOWS_REGISTRY_CHECKED_AT=0
+: "${SHIPGLOWS_REGISTRY_CACHE_TTL:=300}"
+: "${SHIPGLOWS_REGISTRY_LOCK_ATTEMPTS:=20}"
+: "${SHIPGLOWS_REGISTRY_LOCK_INTERVAL:=0.05}"
 # Longer than the default 1s acquisition budget, so a writer observed between
 # mkdir and its pid write cannot be reclaimed by the same contending call.
-: "${SHIPGLOWZ_REGISTRY_EMPTY_LOCK_GRACE_SECONDS:=2}"
+: "${SHIPGLOWS_REGISTRY_EMPTY_LOCK_GRACE_SECONDS:=2}"
 
-SHIPGLOWZ_REGISTRY_INVALIDATED_FILE="${SHIPGLOWZ_REGISTRY_INVALIDATED_FILE:-${SHIPGLOWZ_REGISTRY}.invalidated}"
-SHIPGLOWZ_REGISTRY_LOCK_DIR="${SHIPGLOWZ_REGISTRY_LOCK_DIR:-${SHIPGLOWZ_REGISTRY}.lock}"
+SHIPGLOWS_REGISTRY_INVALIDATED_FILE="${SHIPGLOWS_REGISTRY_INVALIDATED_FILE:-${SHIPGLOWS_REGISTRY}.invalidated}"
+SHIPGLOWS_REGISTRY_LOCK_DIR="${SHIPGLOWS_REGISTRY_LOCK_DIR:-${SHIPGLOWS_REGISTRY}.lock}"
 
 # Bash 4 printf -v follows dynamic scope. Destination-variable APIs therefore
 # reserve __sgdv_* for function-specific internal locals; public callers must
 # use ordinary names. Distinct per-function suffixes keep nested APIs safe.
-_shipglowz_assign() {
+_shipglows_assign() {
     local __sgdv_assign_target="${1:-}"
     local __sgdv_assign_value="${2-}"
     [[ "$__sgdv_assign_target" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]] || return 1
@@ -4058,7 +4058,7 @@ scan_flox_projects() {
     [ -d "$PROJECTS_DIR" ] || return 0
 
     local scan_file
-    scan_file=$(mktemp "${TMPDIR:-/tmp}/shipglowz-flox-scan.XXXXXX" 2>/dev/null) || return 1
+    scan_file=$(mktemp "${TMPDIR:-/tmp}/shipglows-flox-scan.XXXXXX" 2>/dev/null) || return 1
     register_temp_file "$scan_file"
 
     if ! find "$PROJECTS_DIR" -maxdepth 4 \
@@ -4097,7 +4097,7 @@ scan_flox_projects() {
 }
 
 registry_is_valid() {
-    local file="${1:-$SHIPGLOWZ_REGISTRY}"
+    local file="${1:-$SHIPGLOWS_REGISTRY}"
     [ -f "$file" ] || return 1
 
     local name status port path extra
@@ -4112,12 +4112,12 @@ registry_is_valid() {
 }
 
 _registry_empty_lock_is_stale() {
-    local grace="$SHIPGLOWZ_REGISTRY_EMPTY_LOCK_GRACE_SECONDS" mtime="" now=""
+    local grace="$SHIPGLOWS_REGISTRY_EMPTY_LOCK_GRACE_SECONDS" mtime="" now=""
     if ! [[ "$grace" =~ ^[0-9]+$ ]] || [ "$grace" -lt 1 ]; then
         grace=2
     fi
 
-    mtime=$(stat -c '%Y' "$SHIPGLOWZ_REGISTRY_LOCK_DIR" 2>/dev/null) || return 1
+    mtime=$(stat -c '%Y' "$SHIPGLOWS_REGISTRY_LOCK_DIR" 2>/dev/null) || return 1
     now=$(date +%s 2>/dev/null) || return 1
     [[ "$mtime" =~ ^[0-9]+$ && "$now" =~ ^[0-9]+$ ]] || return 1
     [ "$now" -ge "$mtime" ] || return 1
@@ -4126,33 +4126,33 @@ _registry_empty_lock_is_stale() {
 
 _registry_acquire_lock() {
     local attempt=0 pid=""
-    while [ "$attempt" -lt "$SHIPGLOWZ_REGISTRY_LOCK_ATTEMPTS" ]; do
-        if mkdir "$SHIPGLOWZ_REGISTRY_LOCK_DIR" 2>/dev/null; then
-            printf '%s\n' "$BASHPID" > "$SHIPGLOWZ_REGISTRY_LOCK_DIR/pid"
+    while [ "$attempt" -lt "$SHIPGLOWS_REGISTRY_LOCK_ATTEMPTS" ]; do
+        if mkdir "$SHIPGLOWS_REGISTRY_LOCK_DIR" 2>/dev/null; then
+            printf '%s\n' "$BASHPID" > "$SHIPGLOWS_REGISTRY_LOCK_DIR/pid"
             return 0
         fi
 
         pid=""
-        if [ -r "$SHIPGLOWZ_REGISTRY_LOCK_DIR/pid" ]; then
-            IFS= read -r pid < "$SHIPGLOWZ_REGISTRY_LOCK_DIR/pid" || pid=""
+        if [ -r "$SHIPGLOWS_REGISTRY_LOCK_DIR/pid" ]; then
+            IFS= read -r pid < "$SHIPGLOWS_REGISTRY_LOCK_DIR/pid" || pid=""
         fi
         if [ -n "$pid" ]; then
             # A live owner always wins, regardless of lock age. Only an
             # explicit dead PID is safe to reclaim.
             if ! kill -0 "$pid" 2>/dev/null; then
-                rm -f "$SHIPGLOWZ_REGISTRY_LOCK_DIR/pid" 2>/dev/null || true
-                rmdir "$SHIPGLOWZ_REGISTRY_LOCK_DIR" 2>/dev/null || true
+                rm -f "$SHIPGLOWS_REGISTRY_LOCK_DIR/pid" 2>/dev/null || true
+                rmdir "$SHIPGLOWS_REGISTRY_LOCK_DIR" 2>/dev/null || true
                 continue
             fi
         elif _registry_empty_lock_is_stale; then
             # Remove only an empty directory. If its owner writes pid between
             # the age check and rmdir, rmdir fails and the live lock survives.
-            if rmdir "$SHIPGLOWZ_REGISTRY_LOCK_DIR" 2>/dev/null; then
+            if rmdir "$SHIPGLOWS_REGISTRY_LOCK_DIR" 2>/dev/null; then
                 continue
             fi
         fi
 
-        sleep "$SHIPGLOWZ_REGISTRY_LOCK_INTERVAL"
+        sleep "$SHIPGLOWS_REGISTRY_LOCK_INTERVAL"
         attempt=$((attempt + 1))
     done
     return 1
@@ -4160,12 +4160,12 @@ _registry_acquire_lock() {
 
 _registry_release_lock() {
     local pid=""
-    if [ -r "$SHIPGLOWZ_REGISTRY_LOCK_DIR/pid" ]; then
-        IFS= read -r pid < "$SHIPGLOWZ_REGISTRY_LOCK_DIR/pid" || pid=""
+    if [ -r "$SHIPGLOWS_REGISTRY_LOCK_DIR/pid" ]; then
+        IFS= read -r pid < "$SHIPGLOWS_REGISTRY_LOCK_DIR/pid" || pid=""
     fi
     [ "$pid" = "$BASHPID" ] || return 0
-    rm -f "$SHIPGLOWZ_REGISTRY_LOCK_DIR/pid" 2>/dev/null || true
-    rmdir "$SHIPGLOWZ_REGISTRY_LOCK_DIR" 2>/dev/null || true
+    rm -f "$SHIPGLOWS_REGISTRY_LOCK_DIR/pid" 2>/dev/null || true
+    rmdir "$SHIPGLOWS_REGISTRY_LOCK_DIR" 2>/dev/null || true
 }
 
 invalidate_environment_index_cache() {
@@ -4181,34 +4181,34 @@ invalidate_environment_index_cache() {
 
 invalidate_registry_cache() {
     invalidate_environment_index_cache
-    mkdir -p "$(dirname "$SHIPGLOWZ_REGISTRY")" 2>/dev/null || return 1
-    : > "$SHIPGLOWZ_REGISTRY_INVALIDATED_FILE" 2>/dev/null || return 1
-    SHIPGLOWZ_REGISTRY_SYNCED=false
-    SHIPFLOW_REGISTRY_SYNCED=false
-    SHIPGLOWZ_REGISTRY_CHECKED_AT=0
+    mkdir -p "$(dirname "$SHIPGLOWS_REGISTRY")" 2>/dev/null || return 1
+    : > "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" 2>/dev/null || return 1
+    SHIPGLOWS_REGISTRY_SYNCED=false
+    SHIPGLOWS_REGISTRY_SYNCED=false
+    SHIPGLOWS_REGISTRY_CHECKED_AT=0
 }
 
 ensure_registry() {
     local registry_valid=false
-    registry_is_valid "$SHIPGLOWZ_REGISTRY" && registry_valid=true
+    registry_is_valid "$SHIPGLOWS_REGISTRY" && registry_valid=true
 
-    local stale=true now mtime=0 ttl="$SHIPGLOWZ_REGISTRY_CACHE_TTL"
+    local stale=true now mtime=0 ttl="$SHIPGLOWS_REGISTRY_CACHE_TTL"
     [[ "$ttl" =~ ^[0-9]+$ ]] || ttl=300
     now=$(date +%s)
-    if [ "$SHIPGLOWZ_REGISTRY_SYNCED" = "true" ] && [ "$registry_valid" = "true" ] && [ ! -e "$SHIPGLOWZ_REGISTRY_INVALIDATED_FILE" ] && [ $((now - SHIPGLOWZ_REGISTRY_CHECKED_AT)) -lt "$ttl" ]; then
+    if [ "$SHIPGLOWS_REGISTRY_SYNCED" = "true" ] && [ "$registry_valid" = "true" ] && [ ! -e "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" ] && [ $((now - SHIPGLOWS_REGISTRY_CHECKED_AT)) -lt "$ttl" ]; then
         return 0
     fi
-    if [ "$registry_valid" = "true" ] && [ ! -e "$SHIPGLOWZ_REGISTRY_INVALIDATED_FILE" ]; then
-        mtime=$(stat -c %Y "$SHIPGLOWZ_REGISTRY" 2>/dev/null || printf '0')
+    if [ "$registry_valid" = "true" ] && [ ! -e "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" ]; then
+        mtime=$(stat -c %Y "$SHIPGLOWS_REGISTRY" 2>/dev/null || printf '0')
         if [ $((now - mtime)) -lt "$ttl" ]; then
             stale=false
         fi
     fi
 
     if [ "$stale" = "false" ]; then
-        SHIPGLOWZ_REGISTRY_SYNCED=true
-        SHIPFLOW_REGISTRY_SYNCED=true
-        SHIPGLOWZ_REGISTRY_CHECKED_AT=$now
+        SHIPGLOWS_REGISTRY_SYNCED=true
+        SHIPGLOWS_REGISTRY_SYNCED=true
+        SHIPGLOWS_REGISTRY_CHECKED_AT=$now
         return 0
     fi
 
@@ -4227,7 +4227,7 @@ ensure_registry() {
 
 registry_sync() {
     local registry_dir
-    registry_dir=$(dirname "$SHIPGLOWZ_REGISTRY")
+    registry_dir=$(dirname "$SHIPGLOWS_REGISTRY")
     mkdir -p "$registry_dir" 2>/dev/null || return 1
     chmod 700 "$registry_dir" 2>/dev/null || true
     _registry_acquire_lock || return 1
@@ -4264,11 +4264,11 @@ registry_sync() {
         path_to_name["$path"]="$name"
     done < "$discovery_file"
 
-    if registry_is_valid "$SHIPGLOWZ_REGISTRY"; then
+    if registry_is_valid "$SHIPGLOWS_REGISTRY"; then
         while IFS='|' read -r name status port path; do
             previous_status[$name]="$status"
             previous_port[$name]="$port"
-        done < "$SHIPGLOWZ_REGISTRY"
+        done < "$SHIPGLOWS_REGISTRY"
     fi
 
     if [ "$pm2_available" = "true" ]; then
@@ -4319,31 +4319,31 @@ registry_sync() {
     fi
 
     chmod 600 "$snapshot_file" 2>/dev/null || true
-    if ! mv -f "$snapshot_file" "$SHIPGLOWZ_REGISTRY" 2>/dev/null; then
+    if ! mv -f "$snapshot_file" "$SHIPGLOWS_REGISTRY" 2>/dev/null; then
         rm -f "$discovery_file" "$snapshot_file" 2>/dev/null || true
         _registry_release_lock
         return 1
     fi
-    rm -f "$discovery_file" "$SHIPGLOWZ_REGISTRY_INVALIDATED_FILE" 2>/dev/null || true
+    rm -f "$discovery_file" "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" 2>/dev/null || true
     _registry_release_lock
 
     invalidate_environment_index_cache
-    SHIPGLOWZ_REGISTRY_SYNCED=true
-    SHIPFLOW_REGISTRY_SYNCED=true
-    SHIPGLOWZ_REGISTRY_CHECKED_AT=$(date +%s)
+    SHIPGLOWS_REGISTRY_SYNCED=true
+    SHIPGLOWS_REGISTRY_SYNCED=true
+    SHIPGLOWS_REGISTRY_CHECKED_AT=$(date +%s)
     return 0
 }
 
 registry_update() {
     local target_name="$1" target_status="$2" target_port="$3" target_path="${4:-}"
     case "$target_name$target_status$target_port$target_path" in *'|'*|*$'\n'*) return 1 ;; esac
-    if ! registry_is_valid "$SHIPGLOWZ_REGISTRY"; then
+    if ! registry_is_valid "$SHIPGLOWS_REGISTRY"; then
         ensure_registry || return 1
     fi
     _registry_acquire_lock || return 1
 
     local registry_dir tmp_file name status port path
-    registry_dir=$(dirname "$SHIPGLOWZ_REGISTRY")
+    registry_dir=$(dirname "$SHIPGLOWS_REGISTRY")
     tmp_file=$(mktemp "$registry_dir/.envs.update.XXXXXX" 2>/dev/null) || {
         _registry_release_lock
         return 1
@@ -4360,7 +4360,7 @@ registry_update() {
         else
             printf '%s|%s|%s|%s\n' "$name" "$status" "$port" "$path" >> "$tmp_file"
         fi
-    done < "$SHIPGLOWZ_REGISTRY"
+    done < "$SHIPGLOWS_REGISTRY"
 
     if [ "$updated" = "false" ]; then
         [ -n "$target_path" ] && [ -d "$target_path/.flox" ] || {
@@ -4371,18 +4371,18 @@ registry_update() {
         printf '%s|%s|%s|%s\n' "$target_name" "$target_status" "$target_port" "$target_path" >> "$tmp_file"
     fi
 
-    if ! registry_is_valid "$tmp_file" || ! mv -f "$tmp_file" "$SHIPGLOWZ_REGISTRY" 2>/dev/null; then
+    if ! registry_is_valid "$tmp_file" || ! mv -f "$tmp_file" "$SHIPGLOWS_REGISTRY" 2>/dev/null; then
         rm -f "$tmp_file" 2>/dev/null || true
         _registry_release_lock
         return 1
     fi
-    chmod 600 "$SHIPGLOWZ_REGISTRY" 2>/dev/null || true
-    rm -f "$SHIPGLOWZ_REGISTRY_INVALIDATED_FILE" 2>/dev/null || true
+    chmod 600 "$SHIPGLOWS_REGISTRY" 2>/dev/null || true
+    rm -f "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" 2>/dev/null || true
     _registry_release_lock
     invalidate_environment_index_cache
-    SHIPGLOWZ_REGISTRY_SYNCED=true
-    SHIPFLOW_REGISTRY_SYNCED=true
-    SHIPGLOWZ_REGISTRY_CHECKED_AT=$(date +%s)
+    SHIPGLOWS_REGISTRY_SYNCED=true
+    SHIPGLOWS_REGISTRY_SYNCED=true
+    SHIPGLOWS_REGISTRY_CHECKED_AT=$(date +%s)
     return 0
 }
 
@@ -4401,7 +4401,7 @@ PM2_DATA_CACHE_VALID=false
 # Description:
 #   Retrieves all PM2 app data in a single call and caches the results.
 #   Uses jq for JSON parsing (falls back to python3).
-#   Cache is valid for SHIPGLOWZ_PM2_CACHE_TTL seconds (default: 5).
+#   Cache is valid for SHIPGLOWS_PM2_CACHE_TTL seconds (default: 5).
 #
 # Arguments:
 #   None
@@ -4423,14 +4423,14 @@ PM2_DATA_CACHE_VALID=false
 # -----------------------------------------------------------------------------
 pm2_data_load() {
     local __sgdv_pm2_data_target="$1"
-    local __sgdv_pm2_data_now __sgdv_pm2_data_age __sgdv_pm2_data_ttl="${SHIPGLOWZ_PM2_CACHE_TTL:-5}"
+    local __sgdv_pm2_data_now __sgdv_pm2_data_age __sgdv_pm2_data_ttl="${SHIPGLOWS_PM2_CACHE_TTL:-5}"
     __sgdv_pm2_data_now=$(date +%s)
     __sgdv_pm2_data_age=$((__sgdv_pm2_data_now - PM2_DATA_CACHE_TIME))
     [[ "$__sgdv_pm2_data_ttl" =~ ^[0-9]+$ ]] || __sgdv_pm2_data_ttl=5
 
-    if [ "${SHIPGLOWZ_PM2_CACHE_ENABLED:-true}" = "true" ] && [ "$PM2_DATA_CACHE_VALID" = "true" ] && [ "$__sgdv_pm2_data_age" -lt "$__sgdv_pm2_data_ttl" ]; then
+    if [ "${SHIPGLOWS_PM2_CACHE_ENABLED:-true}" = "true" ] && [ "$PM2_DATA_CACHE_VALID" = "true" ] && [ "$__sgdv_pm2_data_age" -lt "$__sgdv_pm2_data_ttl" ]; then
         log DEBUG "Using cached PM2 data (age: ${__sgdv_pm2_data_age}s)"
-        _shipglowz_assign "$__sgdv_pm2_data_target" "$PM2_DATA_CACHE"
+        _shipglows_assign "$__sgdv_pm2_data_target" "$PM2_DATA_CACHE"
         return $?
     fi
 
@@ -4446,7 +4446,7 @@ pm2_data_load() {
         return 1
     fi
 
-    if [ "${SHIPGLOWZ_PREFER_JQ:-true}" = "true" ] && command -v jq >/dev/null 2>&1; then
+    if [ "${SHIPGLOWS_PREFER_JQ:-true}" = "true" ] && command -v jq >/dev/null 2>&1; then
         if ! __sgdv_pm2_data_parsed=$(printf '%s' "$__sgdv_pm2_data_json" | jq -r '.[] | "\(.name)|\(.pm2_env.status // "unknown")|\(.pm2_env.env.PORT // "")|\(.pm2_env.pm_cwd // "")"' 2>/dev/null); then
             log WARNING "PM2 returned invalid JSON"
             return 1
@@ -4478,7 +4478,7 @@ except Exception as e:
     PM2_DATA_CACHE="$__sgdv_pm2_data_parsed"
     PM2_DATA_CACHE_TIME=$__sgdv_pm2_data_now
     PM2_DATA_CACHE_VALID=true
-    _shipglowz_assign "$__sgdv_pm2_data_target" "$PM2_DATA_CACHE"
+    _shipglows_assign "$__sgdv_pm2_data_target" "$PM2_DATA_CACHE"
 }
 
 # Description:
@@ -4521,19 +4521,19 @@ invalidate_after_pm2_mutation() {
     # Notify a local tunnel watcher without requiring it to poll aggressively.
     # The append-only signal contains no secrets and is safe to miss because
     # the watcher refreshes the complete port snapshot after receiving it.
-    local tunnel_event_file="${SHIPGLOWZ_TUNNEL_EVENT_FILE:-${SHIPFLOW_TUNNEL_EVENT_FILE:-$SHIPGLOWZ_STATE_DIR/tunnel-events.log}}"
+    local tunnel_event_file="${SHIPGLOWS_TUNNEL_EVENT_FILE:-${SHIPGLOWS_TUNNEL_EVENT_FILE:-$SHIPGLOWS_STATE_DIR/tunnel-events.log}}"
     mkdir -p "$(dirname "$tunnel_event_file")" 2>/dev/null || true
     printf '%s\n' "${EPOCHREALTIME:-$(date +%s)}" >> "$tunnel_event_file" 2>/dev/null || true
 }
 
 ENV_LIST_CACHE=""
 ENV_LIST_CACHE_TIME=0
-: "${SHIPGLOWZ_LIST_CACHE_TTL:=5}"
+: "${SHIPGLOWS_LIST_CACHE_TTL:=5}"
 
 HOME_FOLDERS_CACHE=""
 HOME_FOLDERS_CACHE_DIR=""
 HOME_FOLDERS_CACHE_TIME=0
-: "${SHIPGLOWZ_LIST_CACHE_TTL:=5}"
+: "${SHIPGLOWS_LIST_CACHE_TTL:=5}"
 
 invalidate_env_list_cache() {
     log DEBUG "Invalidating env list cache"
@@ -4588,10 +4588,10 @@ pm2_app_data_load() {
     while IFS='|' read -r __sgdv_pm2_app_row_name __sgdv_pm2_app_status __sgdv_pm2_app_port __sgdv_pm2_app_cwd; do
         if [ "$__sgdv_pm2_app_row_name" = "$__sgdv_pm2_app_name" ]; then
             case "$__sgdv_pm2_app_field" in
-                status) _shipglowz_assign "$__sgdv_pm2_app_target" "$__sgdv_pm2_app_status" ;;
-                port) _shipglowz_assign "$__sgdv_pm2_app_target" "$__sgdv_pm2_app_port" ;;
-                cwd) _shipglowz_assign "$__sgdv_pm2_app_target" "$__sgdv_pm2_app_cwd" ;;
-                *) _shipglowz_assign "$__sgdv_pm2_app_target" "$__sgdv_pm2_app_status|$__sgdv_pm2_app_port|$__sgdv_pm2_app_cwd" ;;
+                status) _shipglows_assign "$__sgdv_pm2_app_target" "$__sgdv_pm2_app_status" ;;
+                port) _shipglows_assign "$__sgdv_pm2_app_target" "$__sgdv_pm2_app_port" ;;
+                cwd) _shipglows_assign "$__sgdv_pm2_app_target" "$__sgdv_pm2_app_cwd" ;;
+                *) _shipglows_assign "$__sgdv_pm2_app_target" "$__sgdv_pm2_app_status|$__sgdv_pm2_app_port|$__sgdv_pm2_app_cwd" ;;
             esac
             return $?
         fi
@@ -4703,7 +4703,7 @@ stop_targets_load() {
             __sgdv_stop_seen[$__sgdv_stop_item]=1
         fi
     done <<< "$__sgdv_stop_pm2"
-    _shipglowz_assign "$__sgdv_stop_target" "$__sgdv_stop_output"
+    _shipglows_assign "$__sgdv_stop_target" "$__sgdv_stop_output"
 }
 
 list_all_stop_targets() {
@@ -4801,17 +4801,17 @@ get_all_pm2_ports() {
 pm2_ports_load() {
     local __sgdv_pm2_ports_target="$1"
     if ! command -v pm2 >/dev/null 2>&1; then
-        _shipglowz_assign "$__sgdv_pm2_ports_target" ""
+        _shipglows_assign "$__sgdv_pm2_ports_target" ""
         return 0
     fi
 
     local __sgdv_pm2_ports_data=""
     pm2_data_load __sgdv_pm2_ports_data || {
-        _shipglowz_assign "$__sgdv_pm2_ports_target" ""
+        _shipglows_assign "$__sgdv_pm2_ports_target" ""
         return 0
     }
     if [ -z "$__sgdv_pm2_ports_data" ]; then
-        _shipglowz_assign "$__sgdv_pm2_ports_target" ""
+        _shipglows_assign "$__sgdv_pm2_ports_target" ""
         return 0
     fi
 
@@ -4823,7 +4823,7 @@ pm2_ports_load() {
             __sgdv_pm2_ports_output+="$__sgdv_pm2_ports_port"
         fi
     done <<< "$__sgdv_pm2_ports_data"
-    _shipglowz_assign "$__sgdv_pm2_ports_target" "$__sgdv_pm2_ports_output"
+    _shipglows_assign "$__sgdv_pm2_ports_target" "$__sgdv_pm2_ports_output"
 }
 
 # -----------------------------------------------------------------------------
@@ -4834,7 +4834,7 @@ pm2_ports_load() {
 #   Checks both active ports (via ss) and PM2-assigned ports.
 #
 # Arguments:
-#   $1 - Base port to start search (default: SHIPGLOWZ_PORT_RANGE_START)
+#   $1 - Base port to start search (default: SHIPGLOWS_PORT_RANGE_START)
 #
 # Returns:
 #   0 - Available port found
@@ -4844,15 +4844,15 @@ pm2_ports_load() {
 #   Available port number to stdout
 #
 # Notes:
-#   - Searches up to SHIPGLOWZ_PORT_MAX_ATTEMPTS ports
+#   - Searches up to SHIPGLOWS_PORT_MAX_ATTEMPTS ports
 #   - Avoids race conditions by checking both active and reserved ports
 #
 # Example:
 #   port=$(find_available_port 3000)
 # -----------------------------------------------------------------------------
 find_available_port() {
-    local base_port=${1:-$SHIPGLOWZ_PORT_RANGE_START}
-    local max_range=$SHIPGLOWZ_PORT_MAX_ATTEMPTS
+    local base_port=${1:-$SHIPGLOWS_PORT_RANGE_START}
+    local max_range=$SHIPGLOWS_PORT_MAX_ATTEMPTS
     local port=$base_port
 
     # Get all ports already assigned in PM2 (atomic read)
@@ -4893,14 +4893,14 @@ pm2_status_load() {
     local __sgdv_pm2_status_project_dir="" __sgdv_pm2_status_env_name=""
     if [[ "$__sgdv_pm2_status_identifier" == /* ]]; then
         resolve_project_path_into __sgdv_pm2_status_project_dir "$__sgdv_pm2_status_identifier" || __sgdv_pm2_status_project_dir=""
-        [ -n "$__sgdv_pm2_status_project_dir" ] || { _shipglowz_assign "$__sgdv_pm2_status_target" "not-found"; return 1; }
+        [ -n "$__sgdv_pm2_status_project_dir" ] || { _shipglows_assign "$__sgdv_pm2_status_target" "not-found"; return 1; }
         __sgdv_pm2_status_env_name=$(derive_pm2_app_name "$__sgdv_pm2_status_project_dir")
     else
         __sgdv_pm2_status_env_name="$__sgdv_pm2_status_identifier"
     fi
 
     if ! command -v pm2 >/dev/null 2>&1; then
-        _shipglowz_assign "$__sgdv_pm2_status_target" "pm2-not-installed"
+        _shipglows_assign "$__sgdv_pm2_status_target" "pm2-not-installed"
         return 1
     fi
 
@@ -4909,10 +4909,10 @@ pm2_status_load() {
     pm2_app_data_load __sgdv_pm2_status_value "$__sgdv_pm2_status_env_name" "status" || __sgdv_pm2_status_value=""
 
     if [ -n "$__sgdv_pm2_status_value" ]; then
-        _shipglowz_assign "$__sgdv_pm2_status_target" "$__sgdv_pm2_status_value"
+        _shipglows_assign "$__sgdv_pm2_status_target" "$__sgdv_pm2_status_value"
         return 0
     else
-        _shipglowz_assign "$__sgdv_pm2_status_target" "not_found"
+        _shipglows_assign "$__sgdv_pm2_status_target" "not_found"
         return 0
     fi
 }
@@ -4948,7 +4948,7 @@ pm2_port_load() {
     pm2_app_data_load __sgdv_pm2_port_value "$__sgdv_pm2_port_env_name" "port" || __sgdv_pm2_port_value=""
 
     if [ -n "$__sgdv_pm2_port_value" ]; then
-        _shipglowz_assign "$__sgdv_pm2_port_target" "$__sgdv_pm2_port_value"
+        _shipglows_assign "$__sgdv_pm2_port_target" "$__sgdv_pm2_port_value"
         return 0
     fi
 
@@ -4996,13 +4996,13 @@ invalidate_path_cache() {
 
 environment_index_load() {
     local __sgdv_env_index_target="$1"
-    local __sgdv_env_index_fingerprint="" __sgdv_env_index_ttl="$SHIPGLOWZ_REGISTRY_CACHE_TTL"
+    local __sgdv_env_index_fingerprint="" __sgdv_env_index_ttl="$SHIPGLOWS_REGISTRY_CACHE_TTL"
     [[ "$__sgdv_env_index_ttl" =~ ^[0-9]+$ ]] || __sgdv_env_index_ttl=300
-    if [ -f "$SHIPGLOWZ_REGISTRY" ]; then
-        __sgdv_env_index_fingerprint=$(stat -c '%Y:%s:%i' "$SHIPGLOWZ_REGISTRY" 2>/dev/null || true)
+    if [ -f "$SHIPGLOWS_REGISTRY" ]; then
+        __sgdv_env_index_fingerprint=$(stat -c '%Y:%s:%i' "$SHIPGLOWS_REGISTRY" 2>/dev/null || true)
     fi
-    if [ "$ENV_INDEX_CACHE_LOADED" = "true" ] && [ ! -e "$SHIPGLOWZ_REGISTRY_INVALIDATED_FILE" ] && [ -n "$__sgdv_env_index_fingerprint" ] && [ "$__sgdv_env_index_fingerprint" = "$ENV_INDEX_CACHE_FINGERPRINT" ] && [ $((SECONDS - ENV_INDEX_CACHE_CHECKED_SECONDS)) -lt "$__sgdv_env_index_ttl" ]; then
-        _shipglowz_assign "$__sgdv_env_index_target" "$ENV_INDEX_CACHE"
+    if [ "$ENV_INDEX_CACHE_LOADED" = "true" ] && [ ! -e "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" ] && [ -n "$__sgdv_env_index_fingerprint" ] && [ "$__sgdv_env_index_fingerprint" = "$ENV_INDEX_CACHE_FINGERPRINT" ] && [ $((SECONDS - ENV_INDEX_CACHE_CHECKED_SECONDS)) -lt "$__sgdv_env_index_ttl" ]; then
+        _shipglows_assign "$__sgdv_env_index_target" "$ENV_INDEX_CACHE"
         return $?
     fi
 
@@ -5014,12 +5014,12 @@ environment_index_load() {
             __sgdv_env_index_data+=$'\n'
         fi
         __sgdv_env_index_data+="$__sgdv_env_index_line"
-    done < "$SHIPGLOWZ_REGISTRY"
+    done < "$SHIPGLOWS_REGISTRY"
     ENV_INDEX_CACHE="$__sgdv_env_index_data"
     ENV_INDEX_CACHE_LOADED=true
-    ENV_INDEX_CACHE_FINGERPRINT=$(stat -c '%Y:%s:%i' "$SHIPGLOWZ_REGISTRY" 2>/dev/null || true)
+    ENV_INDEX_CACHE_FINGERPRINT=$(stat -c '%Y:%s:%i' "$SHIPGLOWS_REGISTRY" 2>/dev/null || true)
     ENV_INDEX_CACHE_CHECKED_SECONDS=$SECONDS
-    _shipglowz_assign "$__sgdv_env_index_target" "$ENV_INDEX_CACHE"
+    _shipglows_assign "$__sgdv_env_index_target" "$ENV_INDEX_CACHE"
 }
 
 environment_names_load() {
@@ -5031,7 +5031,7 @@ environment_names_load() {
         [ -n "$__sgdv_env_names_output" ] && __sgdv_env_names_output+=$'\n'
         __sgdv_env_names_output+="$__sgdv_env_names_name"
     done <<< "$__sgdv_env_names_index"
-    _shipglowz_assign "$__sgdv_env_names_target" "$__sgdv_env_names_output"
+    _shipglows_assign "$__sgdv_env_names_target" "$__sgdv_env_names_output"
 }
 
 environment_identifiers_load() {
@@ -5052,15 +5052,15 @@ environment_identifiers_load() {
             __sgdv_env_ids_seen[$__sgdv_env_ids_path]=1
         fi
     done <<< "$__sgdv_env_ids_index"
-    _shipglowz_assign "$__sgdv_env_ids_target" "$__sgdv_env_ids_output"
+    _shipglows_assign "$__sgdv_env_ids_target" "$__sgdv_env_ids_output"
 }
 
 resolve_project_path_into() {
     local __sgdv_resolve_target="$1" __sgdv_resolve_identifier="$2"
 
-    # Case 1: Identifier is already an absolute path to a ShipGlowz project.
+    # Case 1: Identifier is already an absolute path to a ShipGlows project.
     if [[ "$__sgdv_resolve_identifier" == /* && -d "$__sgdv_resolve_identifier/.flox" ]]; then
-        _shipglowz_assign "$__sgdv_resolve_target" "$__sgdv_resolve_identifier"
+        _shipglows_assign "$__sgdv_resolve_target" "$__sgdv_resolve_identifier"
         return $?
     fi
 
@@ -5068,7 +5068,7 @@ resolve_project_path_into() {
     environment_index_load __sgdv_resolve_index || return 1
     while IFS='|' read -r __sgdv_resolve_name __sgdv_resolve_status __sgdv_resolve_port __sgdv_resolve_path; do
         if [ "$__sgdv_resolve_name" = "$__sgdv_resolve_identifier" ] || [ "$__sgdv_resolve_path" = "$__sgdv_resolve_identifier" ]; then
-            _shipglowz_assign "$__sgdv_resolve_target" "$__sgdv_resolve_path"
+            _shipglows_assign "$__sgdv_resolve_target" "$__sgdv_resolve_path"
             return $?
         fi
     done <<< "$__sgdv_resolve_index"
@@ -5143,16 +5143,16 @@ home_folders_load() {
     local __sgdv_home_now
     __sgdv_home_now=$(date +%s)
 
-    if [ "${SHIPGLOWZ_ENV_LIST_CACHE_ENABLED:-true}" = "true" ] && [ $((__sgdv_home_now - HOME_FOLDERS_CACHE_TIME)) -lt "${SHIPGLOWZ_LIST_CACHE_TTL:-5}" ] && [ -n "$HOME_FOLDERS_CACHE" ] && [ "${HOME_FOLDERS_CACHE_DIR:-}" = "$__sgdv_home_dir" ]; then
+    if [ "${SHIPGLOWS_ENV_LIST_CACHE_ENABLED:-true}" = "true" ] && [ $((__sgdv_home_now - HOME_FOLDERS_CACHE_TIME)) -lt "${SHIPGLOWS_LIST_CACHE_TTL:-5}" ] && [ -n "$HOME_FOLDERS_CACHE" ] && [ "${HOME_FOLDERS_CACHE_DIR:-}" = "$__sgdv_home_dir" ]; then
         log DEBUG "Using cached home folders (age: $((__sgdv_home_now - HOME_FOLDERS_CACHE_TIME))s)"
-        _shipglowz_assign "$__sgdv_home_target" "$HOME_FOLDERS_CACHE"
+        _shipglows_assign "$__sgdv_home_target" "$HOME_FOLDERS_CACHE"
         return $?
     fi
 
     HOME_FOLDERS_CACHE=$(find "$__sgdv_home_dir" -maxdepth 1 -mindepth 1 -type d ! -name ".*" ! -path "$__sgdv_home_dir" 2>/dev/null | sort)
     HOME_FOLDERS_CACHE_DIR="$__sgdv_home_dir"
     HOME_FOLDERS_CACHE_TIME=$__sgdv_home_now
-    _shipglowz_assign "$__sgdv_home_target" "$HOME_FOLDERS_CACHE"
+    _shipglows_assign "$__sgdv_home_target" "$HOME_FOLDERS_CACHE"
 }
 
 list_home_folders() {
@@ -5191,24 +5191,24 @@ SESSION_WORDS=(
 #   1 - Error creating directory
 #
 # Side Effects:
-#   - Creates ~/.shipglowz/session/ directory
+#   - Creates ~/.shipglows/session/ directory
 #   - Creates session_id file if not present
 #
 # Example:
 #   init_session
 # -----------------------------------------------------------------------------
 init_session() {
-    if [ "$SHIPGLOWZ_SESSION_ENABLED" != "true" ]; then
+    if [ "$SHIPGLOWS_SESSION_ENABLED" != "true" ]; then
         return 0
     fi
 
     # Create session directory
-    if ! mkdir -p "$SHIPGLOWZ_SESSION_DIR" 2>/dev/null; then
-        log ERROR "Failed to create session directory: $SHIPGLOWZ_SESSION_DIR"
+    if ! mkdir -p "$SHIPGLOWS_SESSION_DIR" 2>/dev/null; then
+        log ERROR "Failed to create session directory: $SHIPGLOWS_SESSION_DIR"
         return 1
     fi
 
-    local session_file="$SHIPGLOWZ_SESSION_DIR/session_id"
+    local session_file="$SHIPGLOWS_SESSION_DIR/session_id"
 
     # Generate session ID if not present
     if [ ! -f "$session_file" ]; then
@@ -5247,11 +5247,11 @@ init_session() {
 #   session_id=$(get_session_id)
 # -----------------------------------------------------------------------------
 get_session_id() {
-    if [ "$SHIPGLOWZ_SESSION_ENABLED" != "true" ]; then
+    if [ "$SHIPGLOWS_SESSION_ENABLED" != "true" ]; then
         return 1
     fi
 
-    local session_file="$SHIPGLOWZ_SESSION_DIR/session_id"
+    local session_file="$SHIPGLOWS_SESSION_DIR/session_id"
 
     # Initialize if needed
     if [ ! -f "$session_file" ]; then
@@ -5409,7 +5409,7 @@ center_session_banner_text() {
 #   display_session_banner
 # -----------------------------------------------------------------------------
 display_session_banner() {
-    if [ "$SHIPGLOWZ_SESSION_ENABLED" != "true" ]; then
+    if [ "$SHIPGLOWS_SESSION_ENABLED" != "true" ]; then
         return 1
     fi
 
@@ -5437,7 +5437,7 @@ display_session_banner() {
 }
 
 session_banner_header_block() {
-    if [ "$SHIPGLOWZ_SESSION_ENABLED" != "true" ]; then
+    if [ "$SHIPGLOWS_SESSION_ENABLED" != "true" ]; then
         return 1
     fi
 
@@ -5488,12 +5488,12 @@ session_banner_header_block() {
 #   reset_session
 # -----------------------------------------------------------------------------
 reset_session() {
-    if [ "$SHIPGLOWZ_SESSION_ENABLED" != "true" ]; then
+    if [ "$SHIPGLOWS_SESSION_ENABLED" != "true" ]; then
         echo "Session identity is disabled"
         return 1
     fi
 
-    local session_file="$SHIPGLOWZ_SESSION_DIR/session_id"
+    local session_file="$SHIPGLOWS_SESSION_DIR/session_id"
 
     # Remove existing session
     if [ -f "$session_file" ]; then
@@ -5534,7 +5534,7 @@ reset_session() {
 #   get_session_info
 # -----------------------------------------------------------------------------
 get_session_info() {
-    if [ "$SHIPGLOWZ_SESSION_ENABLED" != "true" ]; then
+    if [ "$SHIPGLOWS_SESSION_ENABLED" != "true" ]; then
         echo "Session identity is disabled"
         return 1
     fi
@@ -5562,7 +5562,7 @@ get_session_info() {
     echo -e "  ${BLUE}User@Host:${NC}    $user_host"
     echo -e "  ${BLUE}Session Code:${NC} ${YELLOW}$session_code${NC}"
     echo -e "  ${BLUE}Created:${NC}      $created_date"
-    echo -e "  ${BLUE}File:${NC}         $SHIPGLOWZ_SESSION_DIR/session_id"
+    echo -e "  ${BLUE}File:${NC}         $SHIPGLOWS_SESSION_DIR/session_id"
 }
 
 # -----------------------------------------------------------------------------
@@ -5585,7 +5585,7 @@ get_session_info() {
 #   ssh server "source lib.sh && get_session_info_for_ssh"
 # -----------------------------------------------------------------------------
 get_session_info_for_ssh() {
-    if [ "$SHIPGLOWZ_SESSION_ENABLED" != "true" ]; then
+    if [ "$SHIPGLOWS_SESSION_ENABLED" != "true" ]; then
         echo "SESSION_DISABLED"
         return 1
     fi
@@ -5627,7 +5627,7 @@ list_github_repos() {
     fi
 
     local all_repos
-    all_repos=$(gh repo list --limit "$SHIPGLOWZ_GITHUB_REPO_LIMIT" --json name,description --jq '.[] | "\(.name): \(.description)"' 2>/dev/null)
+    all_repos=$(gh repo list --limit "$SHIPGLOWS_GITHUB_REPO_LIMIT" --json name,description --jq '.[] | "\(.name): \(.description)"' 2>/dev/null)
 
     if [ -z "$all_repos" ]; then
         return 0
@@ -5675,7 +5675,7 @@ action_github_auth() {
 
     if ! command -v gh >/dev/null 2>&1; then
         echo -e "${RED}❌ GitHub CLI (gh) is not installed.${NC}"
-        echo -e "${YELLOW}Run the ShipGlowz installer or install GitHub CLI, then retry.${NC}"
+        echo -e "${YELLOW}Run the ShipGlows installer or install GitHub CLI, then retry.${NC}"
         return 1
     fi
 
@@ -5691,13 +5691,13 @@ action_github_auth() {
         echo -e "${BLUE}Current gh auth status:${NC}"
         gh auth status -h github.com || true
         echo ""
-        echo -e "${YELLOW}ShipGlowz uses this auth for Deploy from GitHub and repo listing.${NC}"
+        echo -e "${YELLOW}ShipGlows uses this auth for Deploy from GitHub and repo listing.${NC}"
         return 0
     fi
 
     echo -e "${YELLOW}GitHub is not authenticated for this server user.${NC}"
-    echo -e "${BLUE}ShipGlowz will use the official GitHub CLI login flow.${NC}"
-    echo -e "${YELLOW}Tokens stay in gh's credential storage; ShipGlowz does not read or store them.${NC}"
+    echo -e "${BLUE}ShipGlows will use the official GitHub CLI login flow.${NC}"
+    echo -e "${YELLOW}Tokens stay in gh's credential storage; ShipGlows does not read or store them.${NC}"
     echo ""
     echo -e "${BLUE}Recommended command:${NC}"
     echo -e "  ${GREEN}gh auth login --hostname github.com --git-protocol ssh --scopes repo,read:org${NC}"
@@ -5708,7 +5708,7 @@ action_github_auth() {
         return 0
     fi
 
-    if [ "${SHIPGLOWZ_GITHUB_AUTH_DRY_RUN:-${SHIPFLOW_GITHUB_AUTH_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_GITHUB_AUTH_DRY_RUN:-${SHIPGLOWS_GITHUB_AUTH_DRY_RUN:-0}}" = "1" ]; then
         echo "gh auth login --hostname github.com --git-protocol ssh --scopes repo,read:org"
         return 0
     fi
@@ -5861,19 +5861,19 @@ launch_codex_pnpm_migration() {
 
     if ! command -v codex >/dev/null 2>&1; then
         error "Codex CLI introuvable dans le PATH"
-        info "Installe Codex avec ShipGlowz avant de lancer la migration guidée."
+        info "Installe Codex avec ShipGlows avant de lancer la migration guidée."
         return 1
     fi
 
-    codex_prompt="Le projet de ce workspace utilise actuellement npm. Migre-le proprement vers pnpm: inspecte package.json et les lockfiles, convertis depuis package-lock.json si besoin, regenere les dependances avec pnpm, mets a jour les fichiers necessaires, puis valide avec des checks proportionnes. Si le workflow ShipGlowz /010-sg-technical migrate pnpm est disponible ici, utilise-le."
+    codex_prompt="Le projet de ce workspace utilise actuellement npm. Migre-le proprement vers pnpm: inspecte package.json et les lockfiles, convertis depuis package-lock.json si besoin, regenere les dependances avec pnpm, mets a jour les fichiers necessaires, puis valide avec des checks proportionnes. Si le workflow ShipGlows /010-sg-technical migrate pnpm est disponible ici, utilise-le."
 
     if [ -r /dev/tty ]; then
         printf '%b' "${BLUE}🧭 Ouverture de Codex pour la migration pnpm...${NC}\n" > /dev/tty
-        printf '%b' "${YELLOW}Le demarrage ShipGlowz s'arrete ici pour te laisser finir la migration dans Codex.${NC}\n\n" > /dev/tty
+        printf '%b' "${YELLOW}Le demarrage ShipGlows s'arrete ici pour te laisser finir la migration dans Codex.${NC}\n\n" > /dev/tty
         codex -C "$project_dir" "$codex_prompt" < /dev/tty > /dev/tty 2>&1
     else
         echo -e "${BLUE}🧭 Ouverture de Codex pour la migration pnpm...${NC}"
-        echo -e "${YELLOW}Le demarrage ShipGlowz s'arrete ici pour te laisser finir la migration dans Codex.${NC}"
+        echo -e "${YELLOW}Le demarrage ShipGlows s'arrete ici pour te laisser finir la migration dans Codex.${NC}"
         codex -C "$project_dir" "$codex_prompt"
     fi
 }
@@ -5889,19 +5889,19 @@ launch_codex_docs_compliance() {
 
     if ! command -v codex >/dev/null 2>&1; then
         error "Codex CLI introuvable dans le PATH"
-        info "Installe Codex avec ShipGlowz avant de lancer la conformité docs."
+        info "Installe Codex avec ShipGlows avant de lancer la conformité docs."
         return 1
     fi
 
-    codex_prompt="Applique la skill ShipGlowz 300-sg-docs en mode docs compliance sur ce workspace: audite la topologie de gouvernance, corrige l'architecture non-conformante détectée (lockfile manquant au niveau projet alors qu'il est présent au niveau parent), propose la structure correcte et applique les corrections nécessaires pour rendre le projet conforme."
+    codex_prompt="Applique la skill ShipGlows 300-sg-docs en mode docs compliance sur ce workspace: audite la topologie de gouvernance, corrige l'architecture non-conformante détectée (lockfile manquant au niveau projet alors qu'il est présent au niveau parent), propose la structure correcte et applique les corrections nécessaires pour rendre le projet conforme."
 
     if [ -r /dev/tty ]; then
         printf '%b' "${BLUE}🧭 Ouverture de Codex pour la conformité docs / governance...${NC}\n" > /dev/tty
-        printf '%b' "${YELLOW}Le demarrage ShipGlowz s'arrete ici pour te laisser finir la conformité dans Codex.${NC}\n\n" > /dev/tty
+        printf '%b' "${YELLOW}Le demarrage ShipGlows s'arrete ici pour te laisser finir la conformité dans Codex.${NC}\n\n" > /dev/tty
         codex -C "$project_dir" "$codex_prompt" < /dev/tty > /dev/tty 2>&1
     else
         echo -e "${BLUE}🧭 Ouverture de Codex pour la conformité docs / governance...${NC}"
-        echo -e "${YELLOW}Le demarrage ShipGlowz s'arrete ici pour te laisser finir la conformité dans Codex.${NC}"
+        echo -e "${YELLOW}Le demarrage ShipGlows s'arrete ici pour te laisser finir la conformité dans Codex.${NC}"
         codex -C "$project_dir" "$codex_prompt"
     fi
 }
@@ -5919,19 +5919,19 @@ launch_codex_environment_repair() {
 
     if ! command -v codex >/dev/null 2>&1; then
         error "Codex CLI introuvable dans le PATH"
-        info "Installe Codex avec ShipGlowz avant de lancer la réparation guidée."
+        info "Installe Codex avec ShipGlows avant de lancer la réparation guidée."
         return 1
     fi
 
-    codex_prompt="L'environnement ShipGlowz ${env_name} rencontre ${failure_reason}. Travaille uniquement dans ce workspace: ${project_dir}. Inspecte l'état PM2 et les logs récents de ${env_name}, identifie la cause racine, corrige les fichiers de code ou de configuration responsables, puis lance les vérifications proportionnées pour confirmer la réparation. Ne modifie pas d'autres projets, ne supprime pas de données sans justification, et ne commit/push pas. À la fin, résume la cause, les fichiers modifiés et les validations effectuées."
+    codex_prompt="L'environnement ShipGlows ${env_name} rencontre ${failure_reason}. Travaille uniquement dans ce workspace: ${project_dir}. Inspecte l'état PM2 et les logs récents de ${env_name}, identifie la cause racine, corrige les fichiers de code ou de configuration responsables, puis lance les vérifications proportionnées pour confirmer la réparation. Ne modifie pas d'autres projets, ne supprime pas de données sans justification, et ne commit/push pas. À la fin, résume la cause, les fichiers modifiés et les validations effectuées."
 
     if [ -r /dev/tty ] && [ -t 0 ]; then
         printf '%b' "${BLUE}🧭 Ouverture de Codex dans ${project_dir} pour diagnostiquer et réparer...${NC}\n" > /dev/tty
-        printf '%b' "${YELLOW}Le démarrage ShipGlowz s'arrête ici pour te laisser résoudre le problème dans Codex.${NC}\n\n" > /dev/tty
+        printf '%b' "${YELLOW}Le démarrage ShipGlows s'arrête ici pour te laisser résoudre le problème dans Codex.${NC}\n\n" > /dev/tty
         codex -C "$project_dir" "$codex_prompt" < /dev/tty > /dev/tty 2>&1
     else
         echo -e "${BLUE}🧭 Ouverture de Codex dans ${project_dir} pour diagnostiquer et réparer...${NC}"
-        echo -e "${YELLOW}Le démarrage ShipGlowz s'arrête ici pour te laisser résoudre le problème dans Codex.${NC}"
+        echo -e "${YELLOW}Le démarrage ShipGlows s'arrête ici pour te laisser résoudre le problème dans Codex.${NC}"
         codex -C "$project_dir" "$codex_prompt"
     fi
 }
@@ -5963,7 +5963,7 @@ prompt_node_package_manager_choice() {
     local current_pm=$2
     local choice
 
-    echo -e "${BLUE}Astuce ShipGlowz:${NC} garde npm pour un démarrage immédiat, ou ouvre Codex pour une vraie migration guidée vers ${CYAN}pnpm${NC}."
+    echo -e "${BLUE}Astuce ShipGlows:${NC} garde npm pour un démarrage immédiat, ou ouvre Codex pour une vraie migration guidée vers ${CYAN}pnpm${NC}."
 
     choice=$(printf '%s\n' \
         "Conserver npm et continuer" \
@@ -6024,14 +6024,14 @@ ensure_flox_runtime_packages() {
 
     case "$lang" in
         dart)
-            package_var_name="SHIPGLOWZ_FLOX_DART_PACKAGES"
-            package_spec="${SHIPGLOWZ_FLOX_DART_PACKAGES:-}"
+            package_var_name="SHIPGLOWS_FLOX_DART_PACKAGES"
+            package_spec="${SHIPGLOWS_FLOX_DART_PACKAGES:-}"
             runtime_label="Dart"
             runtime_check_cmd="dart --version"
             ;;
         flutter)
-            package_var_name="SHIPGLOWZ_FLOX_FLUTTER_PACKAGES"
-            package_spec="${SHIPGLOWZ_FLOX_FLUTTER_PACKAGES:-}"
+            package_var_name="SHIPGLOWS_FLOX_FLUTTER_PACKAGES"
+            package_spec="${SHIPGLOWS_FLOX_FLUTTER_PACKAGES:-}"
             runtime_label="Flutter"
             runtime_check_cmd="flutter --version"
             ;;
@@ -6097,10 +6097,10 @@ python_runtime_command() {
 
     cd "$project_dir" || return 1
 
-    if [ -d ".shipglowz-pydeps" ]; then
-        echo "PYTHONPATH=./.shipglowz-pydeps python3"
-    elif [ -d ".shipflow-pydeps" ]; then
-        echo "PYTHONPATH=./.shipflow-pydeps python3"
+    if [ -d ".shipglows-pydeps" ]; then
+        echo "PYTHONPATH=./.shipglows-pydeps python3"
+    elif [ -d ".shipglows-pydeps" ]; then
+        echo "PYTHONPATH=./.shipglows-pydeps python3"
     elif [ -x ".venv/bin/python" ] && ./.venv/bin/python -m pip --version >/dev/null 2>&1; then
         echo "./.venv/bin/python"
     elif [ -x "venv/bin/python" ] && ./venv/bin/python -m pip --version >/dev/null 2>&1; then
@@ -6169,7 +6169,7 @@ init_flox_env() {
             ;;
         python)
             echo -e "${BLUE}🐍 Installation de Python et pip...${NC}"
-            if ! flox install $SHIPGLOWZ_FLOX_PYTHON_PACKAGES 2>&1 | tail -1; then
+            if ! flox install $SHIPGLOWS_FLOX_PYTHON_PACKAGES 2>&1 | tail -1; then
                 warning "Impossible d'installer les paquets Python Flox configurés"
             fi
             ;;
@@ -6218,7 +6218,7 @@ init_flox_env() {
         echo -e "${BLUE}🐍 Configuration de l'environnement Python...${NC}"
         cd "$project_dir"
         local py_runtime_cmd="python3"
-        local pydeps_dir=".shipglowz-pydeps"
+        local pydeps_dir=".shipglows-pydeps"
         local installed_ok=false
 
         if ! flox activate -- python3 --version >/dev/null 2>&1; then
@@ -6507,7 +6507,7 @@ escape_single_quotes_for_bash() {
 }
 
 flutter_web_sessions_file() {
-    printf '%s\n' "${SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE:-${SHIPFLOW_FLUTTER_WEB_SESSIONS_FILE:-$SHIPGLOWZ_SECRETS_DIR/flutter-web-sessions.tsv}}"
+    printf '%s\n' "${SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE:-${SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE:-$SHIPGLOWS_SECRETS_DIR/flutter-web-sessions.tsv}}"
 }
 
 ensure_flutter_web_sessions_file() {
@@ -6528,7 +6528,7 @@ flutter_web_session_name() {
     safe_name="${safe_name#.}"
     safe_name="${safe_name#-}"
     safe_name="${safe_name:-flutter}"
-    printf 'shipglowz-flutter-%s\n' "$safe_name"
+    printf 'shipglows-flutter-%s\n' "$safe_name"
 }
 
 is_flutter_web_project() {
@@ -6544,7 +6544,7 @@ list_flutter_web_projects() {
         return 0
     fi
 
-    find "$PROJECTS_DIR" -maxdepth "$SHIPGLOWZ_MAX_SEARCH_DEPTH" \
+    find "$PROJECTS_DIR" -maxdepth "$SHIPGLOWS_MAX_SEARCH_DEPTH" \
         \( -name "node_modules" -o -name ".git" -o -name "venv" -o -name ".venv" \
            -o -name "__pycache__" -o -name "target" -o -name ".next" -o -name ".nuxt" \
            -o -name "dist" -o -name ".cache" -o -name ".pnpm" -o -name ".yarn" \) -prune \
@@ -6775,7 +6775,7 @@ start_flutter_web_tmux_session() {
         fi
     fi
     if [ -z "$port" ]; then
-        port=$(find_available_port "$SHIPGLOWZ_PORT_RANGE_START")
+        port=$(find_available_port "$SHIPGLOWS_PORT_RANGE_START")
         [ -n "$port" ] || return 1
     fi
 
@@ -6905,7 +6905,7 @@ project_has_doppler_scope() {
 
 should_enable_doppler() {
     local project_dir=$1
-    local mode="${SHIPGLOWZ_DOPPLER_MODE:-auto}"
+    local mode="${SHIPGLOWS_DOPPLER_MODE:-auto}"
 
     if ! command -v doppler >/dev/null 2>&1; then
         return 1
@@ -6941,7 +6941,7 @@ project_runtime_settings_load() {
     local project_dir=$1
     local port_target=$2
     local auto_repair_target=$3
-    local settings_file="$project_dir/.shipglowz.env"
+    local settings_file="$project_dir/.shipglows.env"
     local setting_port=""
     local setting_auto_repair="true"
     local line value
@@ -6951,15 +6951,15 @@ project_runtime_settings_load() {
             line="${line%$'\r'}"
             case "$line" in
                 ""|\#*) continue ;;
-                SHIPGLOWZ_ENV_PORT=*)
-                    setting_port="${line#SHIPGLOWZ_ENV_PORT=}"
+                SHIPGLOWS_ENV_PORT=*)
+                    setting_port="${line#SHIPGLOWS_ENV_PORT=}"
                     ;;
-                SHIPGLOWZ_AUTO_REPAIR=*)
-                    value="${line#SHIPGLOWZ_AUTO_REPAIR=}"
+                SHIPGLOWS_AUTO_REPAIR=*)
+                    value="${line#SHIPGLOWS_AUTO_REPAIR=}"
                     case "$value" in
                         true|false) setting_auto_repair="$value" ;;
                         *)
-                            error "Valeur invalide dans $settings_file : SHIPGLOWZ_AUTO_REPAIR doit être true ou false"
+                            error "Valeur invalide dans $settings_file : SHIPGLOWS_AUTO_REPAIR doit être true ou false"
                             return 1
                             ;;
                     esac
@@ -7172,10 +7172,10 @@ env_start() {
     local doppler_enabled=false
     # An explicit process environment wins for one launch; otherwise the
     # project-local settings file is the durable source of truth.
-    local requested_port="${SHIPGLOWZ_ENV_PORT:-$project_port}"
+    local requested_port="${SHIPGLOWS_ENV_PORT:-$project_port}"
     if [ -n "$requested_port" ] && ! [[ "$requested_port" =~ ^[1-9][0-9]{0,4}$ ]] || \
        { [ -n "$requested_port" ] && { [ "$requested_port" -lt 1024 ] || [ "$requested_port" -gt 65535 ]; }; }; then
-        error "SHIPGLOWZ_ENV_PORT doit être un port entre 1024 et 65535"
+        error "SHIPGLOWS_ENV_PORT doit être un port entre 1024 et 65535"
         return 1
     fi
     # Check for existing port and doppler in ecosystem.config.cjs - PROPER PARSING
@@ -7279,7 +7279,7 @@ env_start() {
     
     echo -e "${BLUE}🚀 Commande: $dev_cmd${NC}"
     if [ "$doppler_enabled" = "true" ]; then
-        echo -e "${BLUE}🔐 Doppler: activé (${SHIPGLOWZ_DOPPLER_MODE:-auto})${NC}"
+        echo -e "${BLUE}🔐 Doppler: activé (${SHIPGLOWS_DOPPLER_MODE:-auto})${NC}"
     else
         echo -e "${BLUE}🔐 Doppler: désactivé${NC}"
     fi
@@ -7453,8 +7453,8 @@ for app in apps:
         local project_tasks_target=""
         project_tasks_target=$(readlink "$project_dir/TASKS.md" 2>/dev/null || true)
         case "$project_tasks_target" in
-            *"/shipglowz_data/projects/"*"/TASKS.md")
-                shipglowz_init_project "$env_name" "$project_dir"
+            *"/shipglows_data/projects/"*"/TASKS.md")
+                shipglows_init_project "$env_name" "$project_dir"
                 ;;
         esac
     fi
@@ -7525,7 +7525,7 @@ remove_next_script_import_if_unused() {
 
     [ -f "$layout_file" ] || return 0
 
-    if grep -q 'shipglowz-inspector\|shipflow-inspector' "$layout_file"; then
+    if grep -q 'shipglows-inspector\|shipglows-inspector' "$layout_file"; then
         return 0
     fi
 
@@ -7539,18 +7539,18 @@ remove_web_inspector_snippet() {
 
     [ -f "$target_file" ] || return 0
 
-    perl -0pi -e 's/\s*<!-- shipglowz-inspector -->\s*<script src="\/shipglowz-inspector\.js" defer><\/script>\s*//g' "$target_file"
-    perl -0pi -e 's/\s*<!-- shipflow-inspector -->\s*<script src="\/shipflow-inspector\.js" defer><\/script>\s*//g' "$target_file"
-    perl -0pi -e 's/\s*<Script src="\/shipglowz-inspector\.js" strategy="afterInteractive" id="shipglowz-inspector" \/>\s*//g' "$target_file"
-    perl -0pi -e 's/\s*<Script src="\/shipflow-inspector\.js" strategy="afterInteractive" id="shipflow-inspector" \/>\s*//g' "$target_file"
+    perl -0pi -e 's/\s*<!-- shipglows-inspector -->\s*<script src="\/shipglows-inspector\.js" defer><\/script>\s*//g' "$target_file"
+    perl -0pi -e 's/\s*<!-- shipglows-inspector -->\s*<script src="\/shipglows-inspector\.js" defer><\/script>\s*//g' "$target_file"
+    perl -0pi -e 's/\s*<Script src="\/shipglows-inspector\.js" strategy="afterInteractive" id="shipglows-inspector" \/>\s*//g' "$target_file"
+    perl -0pi -e 's/\s*<Script src="\/shipglows-inspector\.js" strategy="afterInteractive" id="shipglows-inspector" \/>\s*//g' "$target_file"
 }
 
 web_inspector_is_enabled() {
-    if [ -f "public/shipglowz-inspector.js" ] || [ -f "public/shipflow-inspector.js" ]; then
+    if [ -f "public/shipglows-inspector.js" ] || [ -f "public/shipglows-inspector.js" ]; then
         return 0
     fi
 
-    if [ -f "index.html" ] && grep -q 'shipglowz-inspector\|shipflow-inspector' "index.html"; then
+    if [ -f "index.html" ] && grep -q 'shipglows-inspector\|shipglows-inspector' "index.html"; then
         return 0
     fi
 
@@ -7560,7 +7560,7 @@ web_inspector_is_enabled() {
         apps/*/app/layout.tsx apps/*/app/layout.jsx apps/*/src/app/layout.tsx apps/*/src/app/layout.jsx \
         packages/*/app/layout.tsx packages/*/app/layout.jsx packages/*/src/app/layout.tsx packages/*/src/app/layout.jsx; do
         [ -f "$layout" ] || continue
-        if grep -q 'shipglowz-inspector\|shipflow-inspector' "$layout"; then
+        if grep -q 'shipglows-inspector\|shipglows-inspector' "$layout"; then
             return 0
         fi
     done
@@ -7568,7 +7568,7 @@ web_inspector_is_enabled() {
     local app_dir=""
     for app_dir in apps/* packages/*; do
         [ -d "$app_dir" ] || continue
-        if [ -f "$app_dir/public/shipglowz-inspector.js" ] || [ -f "$app_dir/public/shipflow-inspector.js" ]; then
+        if [ -f "$app_dir/public/shipglows-inspector.js" ] || [ -f "$app_dir/public/shipglows-inspector.js" ]; then
             return 0
         fi
     done
@@ -7579,9 +7579,11 @@ web_inspector_is_enabled() {
 # Initialize web inspector
 init_web_inspector() {
     local script_path="${SCRIPT_DIR}/injectors/web-inspector.js"
-    local script_name="shipglowz-inspector.js"
-    local marker="<!-- shipglowz-inspector -->"
-    local script_tag='<script src="/shipglowz-inspector.js" defer></script>'
+    local style_path="${SCRIPT_DIR}/injectors/web-inspector.css"
+    local script_name="shipglows-inspector.js"
+    local style_name="shipglows-inspector.css"
+    local marker="<!-- shipglows-inspector -->"
+    local script_tag='<script src="/shipglows-inspector.js" defer></script>'
 
     if [ ! -f "$script_path" ]; then
         log ERROR "Web inspector script not found at $script_path"
@@ -7592,12 +7594,15 @@ init_web_inspector() {
     # Step 1: Copy script to project's public/ directory
     mkdir -p public
     cp "$script_path" "public/$script_name"
+    if [ -f "$style_path" ]; then
+        cp "$style_path" "public/$style_name"
+    fi
     echo "Copied web inspector to public/$script_name"
 
     # Step 2: Add script tag to the appropriate file
     if [ -f "index.html" ]; then
         # Vite/React/Vue projects with root index.html
-        if ! grep -q "shipglowz-inspector\|shipflow-inspector" "index.html"; then
+        if ! grep -q "shipglows-inspector\|shipglows-inspector" "index.html"; then
             sed -i "s|</body>|  ${marker}\n  ${script_tag}\n</body>|" "index.html"
             echo "Injected script tag into index.html"
         else
@@ -7608,11 +7613,11 @@ init_web_inspector() {
         local injected=false
         for layout in src/layouts/*.astro; do
             [ -f "$layout" ] || continue
-            if grep -q "</body>" "$layout" && ! grep -q "shipglowz-inspector\|shipflow-inspector" "$layout"; then
+            if grep -q "</body>" "$layout" && ! grep -q "shipglows-inspector\|shipglows-inspector" "$layout"; then
                 sed -i "s|</body>|  ${marker}\n  ${script_tag}\n</body>|" "$layout"
                 echo "Injected script tag into $layout"
                 injected=true
-            elif grep -q "shipglowz-inspector\|shipflow-inspector" "$layout"; then
+            elif grep -q "shipglows-inspector\|shipglows-inspector" "$layout"; then
                 echo "Script tag already present in $layout"
                 injected=true
             fi
@@ -7665,7 +7670,7 @@ init_web_inspector() {
             if [ -z "$layout_file" ]; then
                 log WARNING "Next.js project detected but no app/layout found"
                 echo "Warning: Next.js project detected but no app/layout found"
-            elif grep -q "shipglowz-inspector\|shipflow-inspector" "$layout_file"; then
+            elif grep -q "shipglows-inspector\|shipglows-inspector" "$layout_file"; then
                 echo "Script already present in $layout_file"
             else
                 # Add Script import if not present
@@ -7676,7 +7681,7 @@ init_web_inspector() {
                 fi
 
                 # Add Script component before </body>
-                local nextjs_script='<Script src="/shipglowz-inspector.js" strategy="afterInteractive" id="shipglowz-inspector" />'
+                local nextjs_script='<Script src="/shipglows-inspector.js" strategy="afterInteractive" id="shipglows-inspector" />'
                 if grep -q "</body>" "$layout_file"; then
                     sed -i "s|</body>|        ${nextjs_script}\n      </body>|" "$layout_file"
                     echo "Injected Script component into $layout_file"
@@ -7727,7 +7732,7 @@ toggle_web_inspector() {
 
     if web_inspector_is_enabled; then
         # Disable: remove JS file
-        rm -f "public/shipglowz-inspector.js" "public/shipflow-inspector.js"
+        rm -f "public/shipglows-inspector.js" "public/shipglows-inspector.css" "public/shipglows-inspector.js"
 
         # Remove injected lines from index.html
         if [ -f "index.html" ]; then
@@ -7750,7 +7755,7 @@ toggle_web_inspector() {
         # Remove from monorepo app layouts
         for app_dir in apps/* packages/*; do
             [ -d "$app_dir" ] || continue
-            rm -f "$app_dir/public/shipglowz-inspector.js" "$app_dir/public/shipflow-inspector.js" 2>/dev/null
+            rm -f "$app_dir/public/shipglows-inspector.js" "$app_dir/public/shipglows-inspector.css" "$app_dir/public/shipglows-inspector.js" 2>/dev/null
             for candidate in "$app_dir/app/layout.tsx" "$app_dir/app/layout.jsx" "$app_dir/src/app/layout.tsx" "$app_dir/src/app/layout.jsx"; do
                 [ -f "$candidate" ] || continue
                 remove_web_inspector_snippet "$candidate"
@@ -8059,7 +8064,7 @@ except:
     fi
 
     # Fallback: pm2 jlist subprocess
-    if [ "$SHIPGLOWZ_PREFER_JQ" = "true" ] && command -v jq >/dev/null 2>&1; then
+    if [ "$SHIPGLOWS_PREFER_JQ" = "true" ] && command -v jq >/dev/null 2>&1; then
         pm2 jlist 2>/dev/null | jq -r '.[] | "\(.name)|\(.pm2_env.status // "unknown")|\(.pm2_env.restart_time // 0)|\(.pm2_env.pm_uptime // 0)|\(.pm2_env.pm_err_log_path // "")"' 2>/dev/null
     elif command -v python3 >/dev/null 2>&1; then
         pm2 jlist 2>/dev/null | python3 -c "
@@ -8104,8 +8109,8 @@ detect_crash_loop() {
     local uptime_ms=$3
     local status=$4
 
-    local threshold=${SHIPGLOWZ_CRASH_LOOP_THRESHOLD:-10}
-    local unstable_secs=${SHIPGLOWZ_UNSTABLE_UPTIME_SECS:-30}
+    local threshold=${SHIPGLOWS_CRASH_LOOP_THRESHOLD:-10}
+    local unstable_secs=${SHIPGLOWS_UNSTABLE_UPTIME_SECS:-30}
     local unstable_ms=$((unstable_secs * 1000))
 
     # Errored with high restarts = crash loop
@@ -8157,7 +8162,7 @@ diagnose_app_errors() {
     local recent_errors
     recent_errors=$(tail -50 "$err_log" 2>/dev/null)
 
-    for pattern_entry in "${SHIPFLOW_KNOWN_ERROR_PATTERNS[@]}"; do
+    for pattern_entry in "${SHIPGLOWS_KNOWN_ERROR_PATTERNS[@]}"; do
         local pattern label hint
         pattern=$(echo "$pattern_entry" | cut -d'|' -f1)
         label=$(echo "$pattern_entry" | cut -d'|' -f2)
@@ -8559,7 +8564,7 @@ show_dashboard() {
 
     # Pre-fetch health data from dump file (1ms file read)
     local health_data=""
-    if [ "${SHIPGLOWZ_HEALTH_CHECK_ENABLED:-true}" = "true" ]; then
+    if [ "${SHIPGLOWS_HEALTH_CHECK_ENABLED:-true}" = "true" ]; then
         health_data=$(get_pm2_health_data 2>/dev/null)
     fi
 
@@ -8636,7 +8641,7 @@ show_dashboard() {
                     uptime_human="${running_secs}s"
                 fi
                 # Flag as idle if running longer than threshold
-                local idle_hours="${SHIPGLOWZ_PROCESS_LONG_RUNNING_HOURS:-24}"
+                local idle_hours="${SHIPGLOWS_PROCESS_LONG_RUNNING_HOURS:-24}"
                 local idle_secs=$(( idle_hours * 3600 ))
                 if [ "$running_secs" -ge "$idle_secs" ]; then
                     idle_flag=true
@@ -8870,7 +8875,7 @@ env_restart() {
 
         # pm2 restart only confirms that the process was submitted. Wait long
         # enough to catch a crash loop before advertising a localhost URL.
-        local verify_seconds="${SHIPGLOWZ_RESTART_VERIFY_SECS:-${SHIPFLOW_RESTART_VERIFY_SECS:-12}}"
+        local verify_seconds="${SHIPGLOWS_RESTART_VERIFY_SECS:-${SHIPGLOWS_RESTART_VERIFY_SECS:-12}}"
         if ! [[ "$verify_seconds" =~ ^[0-9]+$ ]] || [ "$verify_seconds" -lt 1 ]; then
             verify_seconds=12
         fi
@@ -8887,7 +8892,7 @@ env_restart() {
             pm2 logs "$env_name" --lines 20 --nostream 2>&1 | grep -v "^$" || true
             echo ""
             if [ "$auto_repair" = "false" ]; then
-                warning "Réparation automatique désactivée par $project_dir/.shipglowz.env"
+                warning "Réparation automatique désactivée par $project_dir/.shipglows.env"
                 offer_codex_environment_repair "$project_dir" "$env_name" "un échec de démarrage a été détecté ; la réparation automatique est désactivée pour ce projet" || true
                 return 1
             fi
@@ -8928,7 +8933,7 @@ for app in apps:
             pm2 logs "$env_name" --lines 20 --nostream 2>&1 | grep -v "^$" || true
             echo ""
             if [ "$auto_repair" = "false" ]; then
-                warning "Réparation automatique désactivée par $project_dir/.shipglowz.env"
+                warning "Réparation automatique désactivée par $project_dir/.shipglows.env"
                 offer_codex_environment_repair "$project_dir" "$env_name" "une crash loop PM2 a été détectée ; la réparation automatique est désactivée pour ce projet" || true
                 return 1
             fi
@@ -9033,7 +9038,7 @@ view_environment_logs() {
 }
 
 # -----------------------------------------------------------------------------
-# shipglowz_init_project - Initialize ShipGlowz tracking files for a project
+# shipglows_init_project - Initialize ShipGlows tracking files for a project
 #
 # Description:
 #   Cleans up legacy central tracker symlinks and creates CHANGELOG.md directly
@@ -9045,13 +9050,13 @@ view_environment_logs() {
 #   $2 - project_dir  (e.g. "/root/myapp")
 #
 # Side Effects:
-#   - Removes legacy project TASKS.md symlinks that point into central shipglowz_data
+#   - Removes legacy project TASKS.md symlinks that point into central shipglows_data
 #   - Creates [project_dir]/CHANGELOG.md (if missing)
 #
 # Returns:
 #   0 - Tracking is initialized or already current
 # -----------------------------------------------------------------------------
-shipglowz_init_project() {
+shipglows_init_project() {
     local project_name="$1"
     local project_dir="$2"
     local project_tasks_file="$project_dir/TASKS.md"
@@ -9061,10 +9066,10 @@ shipglowz_init_project() {
         local current_tasks_target=""
         current_tasks_target=$(readlink "$project_tasks_file" 2>/dev/null || true)
         case "$current_tasks_target" in
-            *"/shipglowz_data/projects/"*"/TASKS.md")
+            *"/shipglows_data/projects/"*"/TASKS.md")
             rm -f "$project_tasks_file"
             changed=1
-            log INFO "Removed legacy ShipGlowz TASKS.md symlink for $project_name: $current_tasks_target"
+            log INFO "Removed legacy ShipGlows TASKS.md symlink for $project_name: $current_tasks_target"
             ;;
             *)
             log INFO "Left project TASKS.md symlink untouched for $project_name: $current_tasks_target"
@@ -9093,7 +9098,7 @@ CHANGELOG_EOF
         log INFO "Created CHANGELOG.md for $project_name"
     fi
 
-    log INFO "ShipGlowz project tracking is project-local; central registry initialization skipped for $project_name"
+    log INFO "ShipGlows project tracking is project-local; central registry initialization skipped for $project_name"
 
     # Detect project-scoped MCP integrations from explicit project signals.
     local enable_clerk_mcp=0
@@ -9148,10 +9153,10 @@ CHANGELOG_EOF
     [ "$enable_convex_mcp" -eq 1 ] && convex_block=$',\n    "convex": {\n      "command": "npx",\n      "args": ["-y", "convex@latest", "mcp", "start"]\n    }'
     [ "$enable_supabase_mcp" -eq 1 ] && supabase_block=$',\n    "supabase": {\n      "url": "https://mcp.supabase.com/mcp"\n    }'
 
-    # Configure codebase-mcp, Context7, and detected project MCPs using the current ShipGlowz checkout.
-    local shipglowz_root
-    shipglowz_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local mcp_server="$shipglowz_root/tools/codebase-mcp/server.py"
+    # Configure codebase-mcp, Context7, and detected project MCPs using the current ShipGlows checkout.
+    local shipglows_root
+    shipglows_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local mcp_server="$shipglows_root/tools/codebase-mcp/server.py"
     if [ -f "$mcp_server" ]; then
         local claude_dir="$project_dir/.claude"
         local settings_file="$claude_dir/settings.json"
@@ -9274,7 +9279,7 @@ print(json.dumps(cfg, indent=2))
     fi
 
     if [ "$changed" -eq 1 ]; then
-        echo -e "${GREEN}📋 Tracking ShipGlowz prêt pour $project_name${NC}"
+        echo -e "${GREEN}📋 Tracking ShipGlows prêt pour $project_name${NC}"
     fi
 
     return 0
@@ -9402,7 +9407,7 @@ deploy_github_project() {
     if [ $env_start_rc -eq 20 ]; then
         echo ""
         echo -e "${BLUE}🧭 Migration pnpm confiée à Codex pour $project_name.${NC}"
-        echo -e "${YELLOW}Relance le démarrage ShipGlowz après la migration.${NC}"
+        echo -e "${YELLOW}Relance le démarrage ShipGlows après la migration.${NC}"
         return 0
     fi
     if [ $env_start_rc -ne 0 ]; then
@@ -9414,8 +9419,8 @@ deploy_github_project() {
         return 1
     fi
 
-    # Initialize ShipGlowz tracking (TASKS.md + CHANGELOG.md)
-    shipglowz_init_project "$project_name" "$project_dir"
+    # Initialize ShipGlows tracking (TASKS.md + CHANGELOG.md)
+    shipglows_init_project "$project_name" "$project_dir"
 
     # Get port and display success
     local port=""
@@ -9512,12 +9517,12 @@ print_header() {
     fi
 
     local session_header_block=""
-    if [ "$SHIPGLOWZ_SESSION_ENABLED" = "true" ]; then
+    if [ "$SHIPGLOWS_SESSION_ENABLED" = "true" ]; then
         init_session 2>/dev/null
         session_header_block=$(session_banner_header_block 2>/dev/null || true)
     fi
 
-    ui_header "ShipGlowz DevServer" "" "$status_left" "$status_right" "$session_header_block"
+    ui_header "ShipGlows DevServer" "" "$status_left" "$status_right" "$session_header_block"
 
     if [ -n "${MENU_STATUS_PM2_UNHEALTHY:-}" ]; then
         echo -e "${RED}⚠️  PM2 — $(echo "$MENU_STATUS_PM2_UNHEALTHY" | tr ';' '\n' | wc -l) process(es) with excessive restarts. Press s) System, then h) Health Check${NC}"
@@ -9543,7 +9548,7 @@ print_header() {
         long_count=$(mem_long_running_processes 2>/dev/null | wc -l)
     fi
     if [ "${long_count:-0}" -gt 0 ]; then
-        echo -e "${YELLOW}⚠️  ${long_count} process(es) running ${SHIPGLOWZ_PROCESS_LONG_RUNNING_HOURS:-24}h+ — press s) System, then h) Health Check${NC}"
+        echo -e "${YELLOW}⚠️  ${long_count} process(es) running ${SHIPGLOWS_PROCESS_LONG_RUNNING_HOURS:-24}h+ — press s) System, then h) Health Check${NC}"
     fi
 
     echo ""
@@ -9554,7 +9559,7 @@ print_header() {
 # ============================================================================
 
 action_dashboard() { show_dashboard; }
-action_shipglowz_overview() { show_shipglowz_menu; }
+action_shipglows_overview() { show_shipglows_menu; }
 
 action_deploy() {
     ui_screen_header "Deploy Environment"
@@ -9868,8 +9873,8 @@ action_reboot_vm() {
         return 0
     fi
 
-    log WARNING "VM reboot requested from ShipGlowz menu"
-    if [ "${SHIPGLOWZ_REBOOT_DRY_RUN:-${SHIPFLOW_REBOOT_DRY_RUN:-0}}" = "1" ]; then
+    log WARNING "VM reboot requested from ShipGlows menu"
+    if [ "${SHIPGLOWS_REBOOT_DRY_RUN:-${SHIPGLOWS_REBOOT_DRY_RUN:-0}}" = "1" ]; then
         if [ "$(id -u)" -eq 0 ]; then
             echo "systemctl reboot"
         else
@@ -9976,7 +9981,7 @@ action_session() {
 
 action_local_connection_info() {
     ui_screen_header "Local Connection Setup"
-    echo -e "${BLUE}This screen gives the address to enter in the local ShipGlowz menu.${NC}"
+    echo -e "${BLUE}This screen gives the address to enter in the local ShipGlows menu.${NC}"
     echo -e "${YELLOW}On your local machine: open 'urls', press 'c', then enter this server address.${NC}"
     echo ""
 
@@ -9992,18 +9997,18 @@ action_local_connection_info() {
     echo -e "  ${BLUE}SSH target:${NC}  ${GREEN}$(whoami)@${public_ip:-SERVER_IP}${NC}"
     echo ""
     echo -e "${YELLOW}The server does not need your local IP for tunnels.${NC}"
-    echo -e "${YELLOW}Your local machine initiates SSH to this server, then ShipGlowz opens tunnels from there.${NC}"
+    echo -e "${YELLOW}Your local machine initiates SSH to this server, then ShipGlows opens tunnels from there.${NC}"
 }
 
 action_mcp_auth_setup() {
     ui_screen_header "MCP Auth Setup"
     echo -e "${BLUE}Run MCP OAuth from your local machine, not from this remote server.${NC}"
-    echo -e "${YELLOW}Your browser receives a localhost callback, so the local ShipGlowz helper must create the temporary SSH tunnel.${NC}"
+    echo -e "${YELLOW}Your browser receives a localhost callback, so the local ShipGlows helper must create the temporary SSH tunnel.${NC}"
     echo ""
 
-    echo -e "${CYAN}1. Install the local ShipGlowz scripts on your local machine:${NC}"
-    echo -e "   ${GREEN}git clone <shipglowz-repo-url> ~/shipglowz${NC}"
-    echo -e "   ${GREEN}cd ~/shipglowz/local${NC}"
+    echo -e "${CYAN}1. Install the local ShipGlows scripts on your local machine:${NC}"
+    echo -e "   ${GREEN}git clone <shipglows-repo-url> ~/shipglows${NC}"
+    echo -e "   ${GREEN}cd ~/shipglows/local${NC}"
     echo -e "   ${GREEN}./install.sh${NC}"
     echo ""
     echo -e "${BLUE}   macOS/Linux/WSL:${NC} use ${GREEN}./install.sh${NC}"
@@ -10016,24 +10021,24 @@ action_mcp_auth_setup() {
     echo -e "   ${YELLOW}Choose:${NC} c) Configure new server"
     echo -e "   ${YELLOW}Enter:${NC} user@server-ip, plus your SSH key path if needed"
     echo ""
-    echo -e "${BLUE}Need this server address?${NC} In this remote ShipGlowz menu, use:"
+    echo -e "${BLUE}Need this server address?${NC} In this remote ShipGlows menu, use:"
     echo -e "   ${GREEN}c) Local Setup - Show server address for tunnels${NC}"
     echo ""
 
     echo -e "${CYAN}3. Run the MCP login command on your local machine:${NC}"
-    echo -e "   ${GREEN}shipflow-mcp-login vercel${NC}"
-    echo -e "   ${GREEN}shipflow-mcp-login supabase${NC}"
-    echo -e "   ${GREEN}shipflow-mcp-login all${NC}"
+    echo -e "   ${GREEN}shipglows-mcp-login vercel${NC}"
+    echo -e "   ${GREEN}shipglows-mcp-login supabase${NC}"
+    echo -e "   ${GREEN}shipglows-mcp-login all${NC}"
     echo ""
     echo -e "${CYAN}4. For Clerk CLI auth, run this from your local machine:${NC}"
-    echo -e "   ${GREEN}shipflow-clerk-login${NC}"
+    echo -e "   ${GREEN}shipglows-clerk-login${NC}"
     echo -e "   ${YELLOW}This launches 'clerk auth login' on the server and tunnels its localhost callback.${NC}"
     echo ""
     echo -e "${YELLOW}If Codex says the provider is missing on the remote server, add it there first:${NC}"
     echo -e "   ${GREEN}codex mcp add vercel --url https://mcp.vercel.com${NC}"
     echo -e "   ${GREEN}codex mcp add supabase --url https://mcp.supabase.com/mcp${NC}"
     echo ""
-    echo -e "${BLUE}ShipGlowz does not read or store OAuth tokens; Codex, Clerk, and the provider own the token exchange.${NC}"
+    echo -e "${BLUE}ShipGlows does not read or store OAuth tokens; Codex, Clerk, and the provider own the token exchange.${NC}"
 }
 
 CODEX_MCP_DEFINITIONS=(
@@ -10175,7 +10180,7 @@ codex_select_custom_mcps() {
         done
 
         local selected_labels
-        selected_labels=$(printf '%s\n' "${labels[@]}" | gum choose --no-limit --header "ShipGlowz DevServer · Select MCPs, then Enter")
+        selected_labels=$(printf '%s\n' "${labels[@]}" | gum choose --no-limit --header "ShipGlows DevServer · Select MCPs, then Enter")
         local rc=$?
         [ $rc -ne 0 ] && return $rc
 
@@ -10295,7 +10300,7 @@ codex_select_mcp_preset() {
 codex_launcher_help() {
     echo -e "${BLUE}Usage:${NC} sf codex [--dir PATH] [mcp ...]"
     echo ""
-    echo "Without MCP arguments, ShipGlowz opens the interactive launcher."
+    echo "Without MCP arguments, ShipGlows opens the interactive launcher."
     echo ""
     echo "Known MCP names:"
     codex_mcp_known_names | sed 's/^/  - /'
@@ -10312,7 +10317,7 @@ codex_launch_with_mcps() {
 
     if ! command -v codex >/dev/null 2>&1; then
         echo -e "${RED}❌ Codex CLI not found in PATH.${NC}" >&2
-        echo -e "${YELLOW}Run the ShipGlowz installer or install @openai/codex for this user.${NC}" >&2
+        echo -e "${YELLOW}Run the ShipGlows installer or install @openai/codex for this user.${NC}" >&2
         return 1
     fi
 
@@ -10337,7 +10342,7 @@ codex_launch_with_mcps() {
         fi
         if ! codex_mcp_contains "$name" "${configured_names[@]}"; then
             echo -e "${RED}❌ MCP not registered in Codex config:${NC} $name" >&2
-            echo -e "${YELLOW}Run the ShipGlowz installer or add this MCP before launching it.${NC}" >&2
+            echo -e "${YELLOW}Run the ShipGlows installer or add this MCP before launching it.${NC}" >&2
             return 1
         fi
         args+=("-c" "mcp_servers.${name}.enabled=true")
@@ -10348,7 +10353,7 @@ codex_launch_with_mcps() {
     echo -e "  ${BLUE}MCP:${NC} $(codex_mcp_selection_summary "$@")"
     echo ""
 
-    if [ "${SHIPGLOWZ_CODEX_DRY_RUN:-${SHIPFLOW_CODEX_DRY_RUN:-0}}" = "1" ]; then
+    if [ "${SHIPGLOWS_CODEX_DRY_RUN:-${SHIPGLOWS_CODEX_DRY_RUN:-0}}" = "1" ]; then
         printf 'codex'
         printf ' %q' "${args[@]}"
         printf '\n'
@@ -10477,7 +10482,7 @@ turso_print_status() {
     fi
 
     echo ""
-    echo -e "${YELLOW}ShipGlowz ne lit pas et ne stocke pas le token Turso.${NC}"
+    echo -e "${YELLOW}ShipGlows ne lit pas et ne stocke pas le token Turso.${NC}"
 }
 
 turso_show_login_guide() {
@@ -10485,18 +10490,18 @@ turso_show_login_guide() {
     turso_print_status
     echo ""
     echo -e "${CYAN}Flow recommandé depuis ta machine locale${NC}"
-    echo -e "  ${GREEN}1.${NC} Installer les scripts locaux ShipGlowz si besoin:"
-    echo -e "     ${GREEN}cd ~/shipglowz/local && ./install.sh${NC}"
+    echo -e "  ${GREEN}1.${NC} Installer les scripts locaux ShipGlows si besoin:"
+    echo -e "     ${GREEN}cd ~/shipglows/local && ./install.sh${NC}"
     echo -e "  ${GREEN}2.${NC} Configurer ce serveur dans le menu local:"
     echo -e "     ${GREEN}urls${NC} ${YELLOW}→${NC} ${GREEN}c) Configurer nouveau serveur${NC}"
     echo -e "  ${GREEN}3.${NC} Lancer le login Turso distant:"
     echo -e "     ${GREEN}urls${NC} ${YELLOW}→${NC} ${GREEN}d) Turso - Login et checks distants${NC}"
     echo -e "     ${GREEN}puis${NC} ${YELLOW}→${NC} ${GREEN}l) Login Turso distant${NC}"
-    echo -e "     ${BLUE}ou:${NC} ${GREEN}shipflow-turso-login${NC}"
+    echo -e "     ${BLUE}ou:${NC} ${GREEN}shipglows-turso-login${NC}"
     echo ""
     echo -e "${CYAN}Si Turso est dans un env Flox projet côté serveur${NC}"
     echo -e "     ${GREEN}urls${NC} détecte les env Flox Turso et te propose la bonne liste."
-    echo -e "     ${BLUE}En manuel seulement:${NC} ${GREEN}shipflow-turso-login --project-dir /home/<user>/<projet>${NC}"
+    echo -e "     ${BLUE}En manuel seulement:${NC} ${GREEN}shipglows-turso-login --project-dir /home/<user>/<projet>${NC}"
     echo ""
     echo -e "${BLUE}Ce flow lance Turso en mode headless sur le serveur, ouvre ou affiche l'URL locale, puis vérifie l'auth.${NC}"
     echo -e "${YELLOW}Turso ne suit pas toujours le modèle callback de Blacksmith/Supabase; le mode headless est le chemin remote recommandé.${NC}"
@@ -10507,11 +10512,11 @@ turso_show_contentflow_checks() {
     turso_print_status
     echo ""
     echo -e "${CYAN}Après login Turso distant, depuis ta machine locale:${NC}"
-    echo -e "  ${GREEN}shipflow-turso-ssh contentflow-prod2${NC}"
+    echo -e "  ${GREEN}shipglows-turso-ssh contentflow-prod2${NC}"
     echo ""
     echo -e "${CYAN}Si Turso est dans l'env Flox ContentFlow côté serveur:${NC}"
     echo -e "  ${GREEN}urls${NC} ${YELLOW}→${NC} ${GREEN}d) Turso - Login et checks distants${NC} ${YELLOW}→${NC} ${GREEN}c) Checks ContentFlow${NC}"
-    echo -e "  ${BLUE}En manuel seulement:${NC} ${GREEN}shipflow-turso-ssh --project-dir /home/<user>/<projet> contentflow-prod2${NC}"
+    echo -e "  ${BLUE}En manuel seulement:${NC} ${GREEN}shipglows-turso-ssh --project-dir /home/<user>/<projet> contentflow-prod2${NC}"
     echo ""
     echo -e "${BLUE}Checks lancés par le helper:${NC}"
     echo -e "  ${GREEN}SELECT name FROM sqlite_master WHERE type='table' AND name IN ('jobs','CustomerPersona','UserSettings','Project','UserProviderCredential');${NC}"
@@ -10521,14 +10526,14 @@ turso_show_contentflow_checks() {
 
 turso_show_security_note() {
     ui_screen_header "Turso Security"
-    echo -e "${CYAN}Politique ShipGlowz${NC}"
+    echo -e "${CYAN}Politique ShipGlows${NC}"
     echo -e "  ${GREEN}✓${NC} Utiliser le CLI officiel Turso."
     echo -e "  ${GREEN}✓${NC} Laisser Turso gérer son fichier de session sous ~/.config/turso."
     echo -e "  ${GREEN}✓${NC} Vérifier l'auth via ${CYAN}turso auth whoami${NC} seulement."
     echo -e "  ${YELLOW}•${NC} Ne jamais afficher, copier dans un rapport, ou stocker un token Turso."
-    echo -e "  ${YELLOW}•${NC} Préférer ${CYAN}shipflow-turso-login${NC} au transfert de config quand un login navigateur est possible."
+    echo -e "  ${YELLOW}•${NC} Préférer ${CYAN}shipglows-turso-login${NC} au transfert de config quand un login navigateur est possible."
     echo ""
-    echo -e "${BLUE}Fallback disponible:${NC} ${GREEN}shipflow-turso-ssh${NC} peut copier ~/.config/turso vers le serveur si tu veux transférer une session déjà connectée."
+    echo -e "${BLUE}Fallback disponible:${NC} ${GREEN}shipglows-turso-ssh${NC} peut copier ~/.config/turso vers le serveur si tu veux transférer une session déjà connectée."
 }
 
 action_turso_setup() {
@@ -10617,7 +10622,7 @@ blacksmith_print_status() {
     echo ""
     echo -e "${BLUE}GitHub App:${NC} se configure dans le navigateur sur ${CYAN}https://app.blacksmith.sh${NC}"
     echo -e "${BLUE}SSH Access:${NC} réglage organisation Blacksmith; commande SSH affichée dans le step ${CYAN}Setup runner${NC} quand le job tourne."
-    echo -e "${YELLOW}ShipGlowz ne lit pas et ne stocke pas le token Blacksmith.${NC}"
+    echo -e "${YELLOW}ShipGlows ne lit pas et ne stocke pas le token Blacksmith.${NC}"
 }
 
 blacksmith_show_setup_checklist() {
@@ -10642,7 +10647,7 @@ blacksmith_select_project_path() {
     local choice
     choice=$(printf '%s\n' \
         "Répertoire courant ($(pwd -P))" \
-        "Environnement ShipGlowz déployé" \
+        "Environnement ShipGlows déployé" \
         "Chemin personnalisé" \
         "Back" | ui_choose "Projet pour Testbox:") || return 1
 
@@ -10655,7 +10660,7 @@ blacksmith_select_project_path() {
         "Répertoire courant "*)
             project_dir=$(pwd -P)
             ;;
-        "Environnement ShipGlowz déployé")
+        "Environnement ShipGlows déployé")
             local env_name
             env_name=$(select_environment "Sélectionne l'environnement projet") || return 1
             resolve_project_path_into project_dir "$env_name" 2>/dev/null || project_dir=""
@@ -10725,7 +10730,7 @@ blacksmith_show_runner_tags() {
     echo -e "     ${GREEN}runs-on: blacksmith-4vcpu-ubuntu-2404${NC}"
     echo ""
     echo -e "${BLUE}Pour une migration manuelle, remplace seulement le tag runs-on du job concerné.${NC}"
-    echo -e "${BLUE}ShipGlowz guide la décision, mais ne patche pas les workflows automatiquement dans cette version.${NC}"
+    echo -e "${BLUE}ShipGlows guide la décision, mais ne patche pas les workflows automatiquement dans cette version.${NC}"
 }
 
 blacksmith_show_ssh_access_guide() {
@@ -10771,7 +10776,7 @@ blacksmith_show_ssh_access_guide() {
 
 blacksmith_show_security_note() {
     ui_screen_header "Blacksmith Security"
-    echo -e "${CYAN}Politique ShipGlowz${NC}"
+    echo -e "${CYAN}Politique ShipGlows${NC}"
     echo -e "  ${GREEN}✓${NC} Utiliser l'intégration officielle Blacksmith: GitHub App, runners, CLI Testbox."
     echo -e "  ${GREEN}✓${NC} Laisser Blacksmith et GitHub gérer l'auth."
     echo -e "  ${GREEN}✓${NC} Vérifier seulement la présence locale du CLI et du fichier credentials."
@@ -10967,7 +10972,7 @@ action_cleanup() {
     # An explicit return to the root menu must not wait on the status refresh.
     # That refresh can take several seconds under disk pressure, which makes
     # the completed cleanup screen appear stuck after the operator presses x.
-    if [ "${SHIPGLOWZ_RETURN_TO_MAIN_MENU:-false}" = "true" ]; then
+    if [ "${SHIPGLOWS_RETURN_TO_MAIN_MENU:-false}" = "true" ]; then
         return "$rc"
     fi
     if ui_should_skip_next_pause; then
@@ -11001,7 +11006,7 @@ MAIN_MENU_ITEMS=(
     "t|🧰 Tools|action_tools_web_menu"
     "s|⚙️ System|action_system_menu"
     "a|🤖 Agents|action_agents_ci_menu"
-    "f|🚢 ShipGlowz|action_shipglowz_overview"
+    "f|🚢 ShipGlows|action_shipglows_overview"
     "h|❓ Help|action_adv_help"
     "x|👋 Exit|action_exit"
 )
@@ -11133,7 +11138,7 @@ run_menu_shortcut() {
 
     for token in "$@"; do
         if ! action=$(resolve_menu_shortcut_action "$token" "${current_items[@]}"); then
-            error "Unknown ShipGlowz menu shortcut at position $((index + 1)): $token"
+            error "Unknown ShipGlows menu shortcut at position $((index + 1)): $token"
             print_menu_shortcut_usage
             return 2
         fi
@@ -11154,15 +11159,15 @@ run_menu_shortcut() {
 }
 
 # action_advanced needs to be defined after ADVANCED_MENU_ITEMS
-# Each menu file (shipglowz_devserver_gum.sh / shipglowz_devserver_bash.sh) provides its own implementation
-show_shipglowz_menu() {
+# Each menu file (shipglows_devserver_gum.sh / shipglows_devserver_bash.sh) provides its own implementation
+show_shipglows_menu() {
     local CHANGELOG_FILE="$(dirname "${BASH_SOURCE[0]}")/CHANGELOG.md"
 
     while true; do
         clear
-        ui_screen_header "ShipGlowz Overview"
+        ui_screen_header "ShipGlows Overview"
 
-        echo -e "${BLUE}Project data is read from each project's local shipglowz_data/ corpus.${NC}"
+        echo -e "${BLUE}Project data is read from each project's local shipglows_data/ corpus.${NC}"
         echo ""
 
         echo -e "${GREEN}Choose:${NC}"
@@ -11179,11 +11184,11 @@ show_shipglowz_menu() {
 
         case $sf_choice in
             t)
-                echo -e "${YELLOW}Open a project-local:${NC} shipglowz_data/workflow/TASKS.md"
+                echo -e "${YELLOW}Open a project-local:${NC} shipglows_data/workflow/TASKS.md"
                 sleep 2
                 ;;
             p)
-                echo -e "${YELLOW}Priorities are project-local:${NC} shipglowz_data/workflow/TASKS.md"
+                echo -e "${YELLOW}Priorities are project-local:${NC} shipglows_data/workflow/TASKS.md"
                 sleep 2
                 ;;
             c)
@@ -11195,7 +11200,7 @@ show_shipglowz_menu() {
                 fi
                 ;;
             a)
-                echo -e "${YELLOW}Audit logs are project-local:${NC} shipglowz_data/workflow/AUDIT_LOG.md"
+                echo -e "${YELLOW}Audit logs are project-local:${NC} shipglows_data/workflow/AUDIT_LOG.md"
                 sleep 2
                 ;;
             x|q)
@@ -11217,7 +11222,7 @@ show_help() {
 
     while true; do
         clear
-        ui_screen_header "ShipGlowz Help (Page $page/$total_pages)"
+        ui_screen_header "ShipGlows Help (Page $page/$total_pages)"
 
         case $page in
             1)
@@ -11244,11 +11249,11 @@ show_help() {
                 echo -e "${BLUE}┌───────────────────────────────────────────────────────────────┐${NC}"
                 echo -e "${BLUE}│${NC} ${YELLOW}Quick Reference:${NC}                                              ${BLUE}│${NC}"
                 echo -e "${BLUE}│${NC}   ${CYAN}d${NC} Dashboard  ${CYAN}e${NC} Deploy/Start  ${CYAN}m${NC} Environments  ${CYAN}t${NC} Tools       ${BLUE}│${NC}"
-                echo -e "${BLUE}│${NC}   ${CYAN}s${NC} System  ${CYAN}a${NC} Agents  ${CYAN}f${NC} ShipGlowz  ${CYAN}h${NC} Help  ${CYAN}x${NC} Exit         ${BLUE}│${NC}"
+                echo -e "${BLUE}│${NC}   ${CYAN}s${NC} System  ${CYAN}a${NC} Agents  ${CYAN}f${NC} ShipGlows  ${CYAN}h${NC} Help  ${CYAN}x${NC} Exit         ${BLUE}│${NC}"
                 echo -e "${BLUE}└───────────────────────────────────────────────────────────────┘${NC}"
                 ;;
             2)
-                echo -e "${GREEN}📐 HOW SHIPFLOW WORKS${NC}"
+                echo -e "${GREEN}📐 HOW SHIPGLOWS WORKS${NC}"
                 echo ""
                 echo -e "${BLUE}┌─────────────────────────────────────────────────────────┐${NC}"
                 echo -e "${BLUE}│${NC}  You select a project from the menu                      ${BLUE}│${NC}"
@@ -11256,7 +11261,7 @@ show_help() {
                 echo -e "                              ${YELLOW}│${NC}"
                 echo -e "                              ${YELLOW}▼${NC}"
                 echo -e "${BLUE}┌─────────────────────────────────────────────────────────┐${NC}"
-                echo -e "${BLUE}│${NC}  ShipGlowz checks: does project have ${CYAN}.flox${NC} directory?  ${BLUE}│${NC}"
+                echo -e "${BLUE}│${NC}  ShipGlows checks: does project have ${CYAN}.flox${NC} directory?  ${BLUE}│${NC}"
                 echo -e "${BLUE}│${NC}  ${GREEN}✓ Yes${NC} → use existing    ${YELLOW}✗ No${NC} → create & configure     ${BLUE}│${NC}"
                 echo -e "${BLUE}└─────────────────────────────────────────────────────────┘${NC}"
                 echo -e "                              ${YELLOW}│${NC}"

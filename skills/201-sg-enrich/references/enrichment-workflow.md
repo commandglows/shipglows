@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-05-16"
 status: draft
@@ -22,9 +22,9 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
-  - "Extracted from skills/201-sg-enrich/SKILL.md during Compact ShipGlowz Skill Instructions Phase 3."
+  - "Extracted from skills/201-sg-enrich/SKILL.md during Compact ShipGlows Skill Instructions Phase 3."
 next_review: "2026-06-16"
-next_step: "/103-sg-verify Compact ShipGlowz Skill Instructions Phase 3"
+next_step: "/103-sg-verify Compact ShipGlows Skill Instructions Phase 3"
 ---
 
 # Enrichment Workflow
@@ -39,21 +39,21 @@ This reference preserves the detailed pre-compaction instructions for `201-sg-en
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `support-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 
 ## Governance Corpora And Output Plans
 
-Before changing, judging, or recommending public content, load `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md` when `shipglowz_data/editorial/content-map.md`, legacy `CONTENT_MAP.md`, `shipglowz_data/editorial/`, or legacy `docs/editorial/` exists. Follow its load order for content surface routing, public page intent, claim register checks, editorial update gate, Astro runtime schema policy, and blog/article surface policy.
+Before changing, judging, or recommending public content, load `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` when `shipglows_data/editorial/content-map.md`, legacy `CONTENT_MAP.md`, `shipglows_data/editorial/`, or legacy `docs/editorial/` exists. Follow its load order for content surface routing, public page intent, claim register checks, editorial update gate, Astro runtime schema policy, and blog/article surface policy.
 
-Before changing code, runtime content, site files, content schemas, skill contracts, public docs, README guidance, or mapped technical documentation surfaces, load `$SHIPFLOW_ROOT/skills/references/technical-docs-corpus.md` and use `shipglowz_data/technical/code-docs-map.md` (fallback legacy `docs/technical/code-docs-map.md`) to decide whether a `Documentation Update Plan` is required.
+Before changing code, runtime content, site files, content schemas, skill contracts, public docs, README guidance, or mapped technical documentation surfaces, load `$SHIPGLOWS_ROOT/skills/references/technical-docs-corpus.md` and use `shipglows_data/technical/code-docs-map.md` (fallback legacy `docs/technical/code-docs-map.md`) to decide whether a `Documentation Update Plan` is required.
 
 The final report must include these governance outcomes when relevant:
 - `Editorial Update Plan`: required for public pages, README/public docs, public skill pages, FAQ, pricing/support copy, runtime public content, blog/article/newsletter requests, or any public content update. Use `no editorial impact` with a reason when there is no public-content consequence.
@@ -64,8 +64,8 @@ The final report must include these governance outcomes when relevant:
 
 - Current directory: !`pwd`
 - Project CLAUDE.md: !`head -120 CLAUDE.md 2>/dev/null || echo "no CLAUDE.md"`
-- Business context: !`if [ -f shipglowz_data/business/business.md ]; then head -60 shipglowz_data/business/business.md; else head -60 BUSINESS.md 2>/dev/null || echo "no shipglowz_data/business/business.md (and no legacy BUSINESS.md) — run /305-sg-init or /300-sg-docs update"; fi`
-- Brand voice: !`if [ -f shipglowz_data/branding/branding.md ]; then head -60 shipglowz_data/branding/branding.md; else head -60 BRANDING.md 2>/dev/null || echo "no shipglowz_data/branding/branding.md (and no legacy BRANDING.md) — run /305-sg-init or /300-sg-docs update"; fi`
+- Business context: !`if [ -f shipglows_data/business/business.md ]; then head -60 shipglows_data/business/business.md; else head -60 BUSINESS.md 2>/dev/null || echo "no shipglows_data/business/business.md (and no legacy BUSINESS.md) — run /305-sg-init or /300-sg-docs update"; fi`
+- Brand voice: !`if [ -f shipglows_data/branding/branding.md ]; then head -60 shipglows_data/branding/branding.md; else head -60 BRANDING.md 2>/dev/null || echo "no shipglows_data/branding/branding.md (and no legacy BRANDING.md) — run /305-sg-init or /300-sg-docs update"; fi`
 - Content language: !`grep -ri "lang=" src/layouts/*.astro src/app/layout.tsx 2>/dev/null | head -3 || echo "detect from content"`
 - Content structure: !`ls $ARGUMENTS 2>/dev/null | head -30 || echo "single file mode"`
 
@@ -90,11 +90,11 @@ Si les fichiers existent mais semblent incomplets, signaler. Continuer dans tous
 
 Cette skill enrichit souvent du contenu applicatif. Elle doit donc distinguer :
 - **Contenu applicatif runtime** (`src/content/**`, pages MD/MDX/Astro consommées par le site) : préserver le schéma existant et ajouter uniquement des champs compatibles.
-- **Artefacts ShipGlowz business/content** (briefs, rapports, docs éditoriales, pages de stratégie hors runtime) : frontmatter ShipGlowz obligatoire avec `metadata_schema_version`, `artifact_version` et `depends_on`.
+- **Artefacts ShipGlows business/content** (briefs, rapports, docs éditoriales, pages de stratégie hors runtime) : frontmatter ShipGlows obligatoire avec `metadata_schema_version`, `artifact_version` et `depends_on`.
 
 Avant l'enrichissement, lire le frontmatter complet de `BUSINESS.md`, `BRANDING.md` et des docs éditoriales/copywriting existantes (`docs/editorial/`, `docs/copywriting/persona.md`, `docs/copywriting/strategie.md`) quand elles existent. Le contenu enrichi doit respecter les versions de contexte utilisées.
 
-Si `shipglowz_data/editorial/` existe (fallback legacy `docs/editorial/`), appliquer la section `Governance Corpora And Output Plans` avant de modifier du contenu public. Utiliser le claim register pour les unsupported public claims, la page intent map pour préserver le rôle des pages, l'Astro content schema policy avant de modifier du runtime content, et la blog/article surface policy avant de recommander ou créer un article. Si aucune surface blog n'est déclarée, signaler `surface missing: blog`.
+Si `shipglows_data/editorial/` existe (fallback legacy `docs/editorial/`), appliquer la section `Governance Corpora And Output Plans` avant de modifier du contenu public. Utiliser le claim register pour les unsupported public claims, la page intent map pour préserver le rôle des pages, l'Astro content schema policy avant de modifier du runtime content, et la blog/article surface policy avant de recommander ou créer un article. Si aucune surface blog n'est déclarée, signaler `surface missing: blog`.
 
 Champs compatibles à ajouter seulement si le schéma du projet les accepte :
 
@@ -116,11 +116,11 @@ depends_on:
     artifact_version: "[version or unknown]"
 ```
 
-Si le schéma applicatif ne permet pas `depends_on` ou les champs ShipGlowz, ne pas les forcer. Reporter les versions utilisées dans le rapport final sous `Context versions` et signaler les versions absentes comme `metadata gaps`.
+Si le schéma applicatif ne permet pas `depends_on` ou les champs ShipGlows, ne pas les forcer. Reporter les versions utilisées dans le rapport final sous `Context versions` et signaler les versions absentes comme `metadata gaps`.
 
 ### Bump `artifact_version`
 
-Pour les artefacts ShipGlowz enrichis :
+Pour les artefacts ShipGlows enrichis :
 - `MAJOR` (`1.0.0` -> `2.0.0`) : changement de thèse, audience cible, promesse, positionnement, recommandation business centrale ou angle stratégique.
 - `MINOR` (`1.0.0` -> `1.1.0`) : ajout de sections importantes, nouvelles sources qui changent une recommandation, nouveau CTA stratégique, nouveau segment/persona ou mise à jour substantielle de données.
 - `PATCH` (`1.0.0` -> `1.0.1`) : correction de lien, typo, source, date, exemple ou reformulation sans changement de sens.
@@ -315,7 +315,7 @@ Before finishing, verify:
 - [ ] No broken links or placeholder URLs
 - [ ] Frontmatter is complete (title, description, date updated, tags, author)
 - [ ] Frontmatter metadata is preserved and enriched when compatible: `dateModified`, `source_skill`, `content_status`, `confidence`, `primary_keyword`, `target_audience`, `evidence`, `docs_impact`, `business_context_version`, `brand_context_version`, `depends_on`
-- [ ] Application content schema is still valid; incompatible ShipGlowz metadata is reported instead of forced into frontmatter
+- [ ] Application content schema is still valid; incompatible ShipGlows metadata is reported instead of forced into frontmatter
 - [ ] Editorial governance checked when present: `docs/editorial/claim-register.md`, page intent, Astro content schema, blog/article policy, and proof gap handling
 - [ ] Meta description is rewritten to match the upgraded content
 - [ ] Reading flow is smooth when read top-to-bottom

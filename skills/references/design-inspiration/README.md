@@ -2,7 +2,7 @@
 artifact: reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-15"
 updated: "2026-07-15"
 status: active

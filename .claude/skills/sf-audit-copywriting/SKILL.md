@@ -178,7 +178,7 @@ Si le répertoire courant n'a pas de marqueurs projet mais contient des sous-ré
 Utiliser **AskUserQuestion** :
 - Question : "Quel(s) projet(s) auditer en copywriting ?"
 - `multiSelect: true`
-- Options depuis `/home/claude/shipglowz_data/PROJECTS.md`
+- Options depuis `/home/claude/shipglows_data/PROJECTS.md`
 
 Puis passer en **GLOBAL MODE**.
 
@@ -487,7 +487,7 @@ Créer le dossier si absent : `mkdir -p docs/copywriting`
 
 ## GLOBAL MODE
 
-1. Lire `/home/claude/shipglowz_data/PROJECTS.md`. Identifier les projets avec site web.
+1. Lire `/home/claude/shipglows_data/PROJECTS.md`. Identifier les projets avec site web.
 
 2. **AskUserQuestion** : "Quels projets auditer en copywriting ?" — `multiSelect: true`.
 
@@ -517,13 +517,13 @@ Créer le dossier si absent : `mkdir -p docs/copywriting`
 ### Log the audit
 
 Append à :
-1. **Global `/home/claude/shipglowz_data/AUDIT_LOG.md`** : remplir la colonne Copywriting.
+1. **Global `/home/claude/shipglows_data/AUDIT_LOG.md`** : remplir la colonne Copywriting.
 2. **Local `./AUDIT_LOG.md`** : idem sans la colonne Project.
 
 ### Update TASKS.md
 
 1. **Local TASKS.md** : ajouter `### Audit: Copywriting` avec les recommandations comme tâches.
-2. **Master `/home/claude/shipglowz_data/TASKS.md`** : même chose dans la section du projet.
+2. **Master `/home/claude/shipglows_data/TASKS.md`** : même chose dans la section du projet.
 
 ---
 

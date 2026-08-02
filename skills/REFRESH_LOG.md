@@ -1,8 +1,168 @@
 # Skills Refresh Log
 
-Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. Most recent first.
+Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
 ---
+
+## 2026-08-02 — 006-sg-design
+
+**Added:** product-decision-chain loading for critical experience moments, desired/avoided emotion and product-changing design direction.
+
+**Updated:** none.
+
+**New phases:** none; the shared contract replaces local procedure growth.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the source was the local BMAD UX workflow and ShipGlows contracts.
+
+## 2026-08-02 — 100-sg-spec
+
+**Added:** material product decisions now carry before/after, upstream/downstream trace, affected IDs/proofs and preserved invariants.
+
+**Updated:** Atlas-changing specs now load the broader product-decision chain when applicable.
+
+**New phases:** none; traceability is part of spec framing.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the source was the local BMAD change workflow and ShipGlows contracts.
+
+## 2026-08-02 — 101-sg-ready
+
+**Added:** cross-contract Product Coherence Gate with conflict, orphan, gap and warning semantics.
+
+**Updated:** readiness can no longer pass a material contradiction between product promise, journeys, capabilities, UX, architecture, Atlas, spec and proof.
+
+**New phases:** product coherence review beside Atlas protection.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the source was the local BMAD readiness workflow and ShipGlows contracts.
+
+## 2026-08-02 — 102-sg-start
+
+**Added:** pre-write Decision Change Protocol for confirmed product-direction changes.
+
+**Updated:** implementation applies approved changes in canonical-source order and preserves unaffected invariants.
+
+**New phases:** decision-impact traversal before the first write when triggered.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the source was the local BMAD correct-course workflow and ShipGlows contracts.
+
+## 2026-08-02 — 103-sg-verify
+
+**Added:** actual product-decision-chain coherence verdict against changed artifacts and proof.
+
+**Updated:** material orphan nodes and unresolved confirmed conflicts fail coherence claims.
+
+**New phases:** none; the check joins the existing verification contract.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the source was the local BMAD readiness workflow and ShipGlows contracts.
+
+## 2026-08-02 — 104-sg-end
+
+**Added:** evidence-backed lesson capture with applicability boundary and a future verification hook.
+
+**Updated:** local opinions cannot become shared doctrine during closure.
+
+**New phases:** none; lesson capture is conditional at closure.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the source was the local BMAD retrospective workflow and ShipGlows contracts.
+
+## 2026-08-02 — 300-sg-docs
+
+**Added:** canonical documentation ownership for decision-chain links and superseded product decisions.
+
+**Updated:** product trace uses existing artifacts rather than a parallel registry.
+
+**New phases:** none; canonical-source ordering governs dependent updates.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the source was the local BMAD workflow and ShipGlows contracts.
+
+## 2026-08-02 — 703-sg-review
+
+**Added:** evidence, applicability, keep/change/retire and future-check fields for reusable lessons.
+
+**Updated:** related reviews check whether earlier lessons were applied and useful.
+
+**New phases:** lesson replay inside retrospective synthesis.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the source was the local BMAD retrospective workflow and ShipGlows contracts.
+
+## 2026-08-02 — 300-sg-docs
+
+**Added:** shared guided discovery for creating or substantially repairing business, product, GTM and brand contracts.
+
+**Updated:** documentary bootstrap preserves confirmed content, labels hypotheses and records the first unresolved operator decision instead of filling context from one sentence or stack inference.
+
+**New phases:** progressive business/product discovery before durable context completion.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the input was the local BMAD workflow and ShipGlows's own contracts.
+
+## 2026-08-02 — 305-sg-init
+
+**Added:** canonical four-template sequence and the shared evidence-led discovery loop with `Confirmer`, `Corriger`, `Approfondir` choices.
+
+**Updated:** technical-stack evidence can describe existing implementation but cannot confirm audience, promise, business model or brand intent.
+
+**New phases:** business identity → customer need → journeys → capabilities/scope → GTM → brand.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the input was the local BMAD workflow and ShipGlows's own contracts.
+
+## 2026-08-02 — 100-sg-spec
+
+**Added:** a customer-outcome requirement for every Atlas-changing spec.
+
+**Updated:** stable IDs and delivery transitions now remain tied to the user value they are meant to create, rather than to implementation artifacts.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed for this local lifecycle-contract refresh.
+
+## 2026-08-02 — 305-sg-init
+
+**Added:** customer-led Atlas bootstrap: recover business identity, customer need, and priority journey before proposing planned surfaces or functions.
+
+**Updated:** asks are now concise, one business decision at a time; technical and exhaustive-feature questionnaires remain prohibited.
+
+**New phases:** business-and-customer intake before Atlas draft creation.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed for this local lifecycle-contract refresh.
+
+## 2026-08-02 — 309-sg-tasks
+
+**Added:** an Atlas roadmap-reading boundary: product coverage and delivery state can be reported from the project map without mutating the map or replacing the task queue/spec lifecycle.
+
+**Updated:** none.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed for this local lifecycle-contract refresh.
+
+## 2026-08-02 — 102-sg-start
+
+**Added:** a same-slice Atlas maintenance rule for new, split, retired, or materially remapped surfaces/functions.
+
+**Updated:** preflight protection stays separate from cartography maintenance; agents cannot infer an operator quality level or protected baseline from implementation work.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed for this local lifecycle-contract refresh.
+
+## 2026-08-02 — 100-sg-spec
+
+**Added:** a product-map transition contract requiring affected stable IDs and a delivery-state/mapping plan whenever a spec changes a visible surface or observable function.
+
+**Updated:** planning still cannot create an Atlas approval.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed for this local lifecycle-contract refresh.
+
+## 2026-08-02 — 305-sg-init
+
+**Added:** explicit `atlas <project>` bootstrap mode for the smallest useful draft product map.
+
+**Updated:** initial Atlas creation is semantic and operator-reviewed: it never assigns every DOM node an ID or turns a generated draft into an approval.
+
+**New phases:** Atlas draft creation and semantic-boundary validation handoff.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed for this local lifecycle-contract refresh.
 
 ## 2026-08-02 — 109-sg-auth-debug
 
@@ -81,7 +241,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 ## 2026-07-17 — 101-sg-ready
 
 **Added:**
-- [readiness] A new app cannot be narrowed to one browser or mobile target before ShipGlowz applies its Flutter Web/iOS/Android first recommendation.
+- [readiness] A new app cannot be narrowed to one browser or mobile target before ShipGlows applies its Flutter Web/iOS/Android first recommendation.
 
 **Updated:**
 - [exception proof] A narrower app target now requires explicit durable product intent or a verified platform constraint.
@@ -167,7 +327,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 **Sources:** 0 URLs consulted (operator correction and activation-path verification)
 
-## 2026-07-17 — 000-shipglowz
+## 2026-07-17 — 000-shipglows
 
 **Added:**
 - [activation] Root-level atomic direct-execution gate before routing or topology references are loaded.
@@ -261,7 +421,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 - [public surface] The `sg-tasks` public skill page documents the current-session mode and exact-cwd limitation
 
 **New phases:**
-- Current-thread-only rename through the guarded ShipGlowz helper
+- Current-thread-only rename through the guarded ShipGlows helper
 
 **Sources:** 0 URLs consulted (operator decision and local Codex SQLite behavior)
 
@@ -301,7 +461,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 ---
 
-## 2026-07-12 — 900-shipglowz-core
+## 2026-07-12 — 900-shipglows-core
 
 **Added:**
 - [proof] Focused regression checks for critique-to-repair followability
@@ -323,18 +483,18 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 **Updated:**
 - [activation] One command-backed topology gate replaces repeated warning prose
-- [layout migration] Legacy `shipflow_data/` and non-standalone nested corpora route explicitly to canonical migration
-- [validation] ShipGlowz-owned tools resolve from the canonical installation root
+- [layout migration] Legacy `shipglows_data/` and non-standalone nested corpora route explicitly to canonical migration
+- [validation] ShipGlows-owned tools resolve from the canonical installation root
 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance and observed execution failure)
+**Sources:** 0 URLs consulted (local ShipGlows governance and observed execution failure)
 
 ## 2026-07-08 — 305-sg-init
 
 **Added:**
-- [required references] Load `skills/references/private-data-repo-contract.md` when bootstrap/install scope touches `~/.shipglowz/private/data/`
+- [required references] Load `skills/references/private-data-repo-contract.md` when bootstrap/install scope touches `~/.shipglows/private/data/`
 - [core execution rules] Resolve the private-data remote from configuration and treat the path as a separate Git working tree
 
 **Updated:**
@@ -343,7 +503,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance update)
+**Sources:** 0 URLs consulted (local ShipGlows governance update)
 
 ## 2026-07-08 — 302-sg-help
 
@@ -357,7 +517,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance update)
+**Sources:** 0 URLs consulted (local ShipGlows governance update)
 
 ## 2026-07-08 — 300-sg-docs
 
@@ -371,7 +531,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance update)
+**Sources:** 0 URLs consulted (local ShipGlows governance update)
 
 ## 2026-06-29 — 008-sg-end-user
 
@@ -385,7 +545,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz skill-contract refactor)
+**Sources:** 0 URLs consulted (local ShipGlows skill-contract refactor)
 
 ## 2026-06-12 — 307-sg-skills-refresh
 
@@ -400,7 +560,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts and operator doctrine)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts and operator doctrine)
 
 ## 2026-06-12 — 600-sg-local-cloud-sync
 
@@ -414,7 +574,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local SocialGlowz implementation plus ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local SocialGlowz implementation plus ShipGlows governance contracts)
 
 ## 2026-06-12 — 006-sg-design
 
@@ -427,7 +587,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz skill contracts and SocialGlowz sync reference)
+**Sources:** 0 URLs consulted (local ShipGlows skill contracts and SocialGlowz sync reference)
 
 ## 2026-06-12 — 008-sg-end-user
 
@@ -441,7 +601,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local WinFlowz and Temu implementations plus ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local WinFlowz and Temu implementations plus ShipGlows governance contracts)
 
 ## 2026-06-01 — 600-sg-local-cloud-sync
 
@@ -451,26 +611,26 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 - [public docs] Public skill page, router/help discovery, lifecycle docs, launch cheatsheet, and skill modes page expose `600-sg-local-cloud-sync`
 
 **Updated:**
-- [routing] `000-shipglowz` and `entrypoint-routing` now route local-first data sync, account promotion, merge, and reinstall recovery questions to `600-sg-local-cloud-sync`
+- [routing] `000-shipglows` and `entrypoint-routing` now route local-first data sync, account promotion, merge, and reinstall recovery questions to `600-sg-local-cloud-sync`
 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts and WinFlowz chantier context)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts and WinFlowz chantier context)
 
 ## 2026-05-31 — 008-sg-end-user
 
 **Added:**
-- [skill] New `skills/008-sg-end-user/SKILL.md` reviewed against current ShipGlowz routing, lifecycle, reporting, proof, docs/editorial, freshness, and budget gates
+- [skill] New `skills/008-sg-end-user/SKILL.md` reviewed against current ShipGlows routing, lifecycle, reporting, proof, docs/editorial, freshness, and budget gates
 - [public docs] Public skill page, router/help discovery, lifecycle docs, cheatsheets, and site skill-mode pages expose `008-sg-end-user` as the user activation entrypoint
 
 **Updated:**
-- [routing] `001-sg-build` now evaluates whether a user-facing feature should route to or suggest `008-sg-end-user` after implementation; `000-shipglowz` routes mixed build-plus-onboarding requests to `001-sg-build` first with that gate preserved
+- [routing] `001-sg-build` now evaluates whether a user-facing feature should route to or suggest `008-sg-end-user` after implementation; `000-shipglows` routes mixed build-plus-onboarding requests to `001-sg-build` first with that gate preserved
 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-24 — decision-quality-contract
 
@@ -488,7 +648,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-23 — 701-sg-backlog
 
@@ -498,14 +658,14 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 - [records] `operational-record-format` before task/backlog record mutation
 
 **Updated:**
-- [paths] Project backlog work now defaults to `shipglowz_data/workflow/BACKLOG.md` and `shipglowz_data/workflow/TASKS.md`
-- [control plane] External `${SHIPFLOW_DATA_DIR:-$HOME/shipglowz_data}` is portfolio coordination only, not project truth
+- [paths] Project backlog work now defaults to `shipglows_data/workflow/BACKLOG.md` and `shipglows_data/workflow/TASKS.md`
+- [control plane] External `${SHIPGLOWS_DATA_DIR:-$HOME/shipglows_data}` is portfolio coordination only, not project truth
 - [docs] README and public skill page now describe local-first backlog behavior
 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-23 — 702-sg-priorities
 
@@ -515,14 +675,14 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 - [records] `operational-record-format` before task record mutation
 
 **Updated:**
-- [paths] Project prioritization now defaults to local `shipglowz_data/workflow/TASKS.md`
+- [paths] Project prioritization now defaults to local `shipglows_data/workflow/TASKS.md`
 - [control plane] External Dashboard updates are limited to explicit portfolio-scoped runs
 - [docs] README and public skill page now describe local-first prioritization
 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-23 — 703-sg-review
 
@@ -532,14 +692,14 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 - [records] `operational-record-format` before task record mutation
 
 **Updated:**
-- [paths] Review bookkeeping defaults to project-local `shipglowz_data/workflow/TASKS.md`
-- [reports] Review artifacts prefer `shipglowz_data/workflow/reviews/`
+- [paths] Review bookkeeping defaults to project-local `shipglows_data/workflow/TASKS.md`
+- [reports] Review artifacts prefer `shipglows_data/workflow/reviews/`
 - [docs] README and public skill page now describe local workflow state updates
 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-23 — 308-sg-status
 
@@ -555,7 +715,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-23 — 203-sg-research
 
@@ -563,17 +723,17 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 - [reporting] Report modes through `reporting-contract.md`
 - [questions] `question-contract` before topic/scope/source questions
 - [freshness] `documentation-freshness-gate` for current external behavior and primary-source research
-- [paths] Canonical `shipglowz_data/workflow/research/` output path
+- [paths] Canonical `shipglows_data/workflow/research/` output path
 
 **Updated:**
-- [context] Project-specific recommendations now use project-local `shipglowz_data/` governance; external `${SHIPFLOW_DATA_DIR:-$HOME/shipglowz_data}` is registry/tracker only
+- [context] Project-specific recommendations now use project-local `shipglows_data/` governance; external `${SHIPGLOWS_DATA_DIR:-$HOME/shipglows_data}` is registry/tracker only
 - [content] Public-content recommendations route through `007-sg-content` / `202-sg-repurpose` and editorial governance
 - [public docs] Public skill page now names saved workflow reports and content lifecycle limits
 
 **New phases:**
 - Step 1.5 — Project governance context
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-23 — 302-sg-help
 
@@ -582,33 +742,33 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 - [research docs] `203-sg-research` described as saving workflow reports
 
 **Updated:**
-- [paths] Replaced stale `~/shipglowz_data` help text with `${SHIPFLOW_DATA_DIR:-$HOME/shipglowz_data}` control-plane wording
+- [paths] Replaced stale `~/shipglows_data` help text with `${SHIPGLOWS_DATA_DIR:-$HOME/shipglows_data}` control-plane wording
 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-22 — 205-sg-veille
 
 **Added:**
 - [governance] Report modes, question contract, editorial corpus loading, and delegated-read semantics for URL triage
 - [content] `007-sg-content` / `202-sg-repurpose` handoff and `surface missing: blog` gate for public-content opportunities
-- [paths] Canonical `shipglowz_data/workflow/research/` output path for reports and tools
+- [paths] Canonical `shipglows_data/workflow/research/` output path for reports and tools
 
 **Updated:**
-- [context] Cross-project control plane is now registry/master-tracker only; scoring uses project-local `shipglowz_data/` governance
+- [context] Cross-project control plane is now registry/master-tracker only; scoring uses project-local `shipglows_data/` governance
 - [docs] README and public skill page now describe project-local context and content-surface gates
 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-22 — 307-sg-skills-refresh
 
 **Added:**
-- [governance baseline] Current ShipGlowz gates before external refresh research: reporting, question, delegation, proof path, freshness, budget, docs/public surfaces, and runtime visibility
+- [governance baseline] Current ShipGlows gates before external refresh research: reporting, question, delegation, proof path, freshness, budget, docs/public surfaces, and runtime visibility
 - [reporting] Explicit `report=user` / `report=agent` contract through `reporting-contract.md`
 - [self-refresh] Manual `009-sg-skill-build` recovery path for refreshing `307-sg-skills-refresh` itself
 
@@ -621,7 +781,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 - Phase 0 — Governance Baseline
 - Phase 4.5 — Validate
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-22 — 300-sg-docs
 
@@ -636,7 +796,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz governance contracts)
+**Sources:** 0 URLs consulted (local ShipGlows governance contracts)
 
 ## 2026-05-12 — shared Sentry Monitors/Alerts refresh
 
@@ -673,7 +833,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz doctrine update: Sentry is now used across projects; operator clarified skills never access Sentry dashboard directly)
+**Sources:** 0 URLs consulted (local ShipGlows doctrine update: Sentry is now used across projects; operator clarified skills never access Sentry dashboard directly)
 
 ---
 
@@ -684,13 +844,13 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 **Updated:**
 - Master lifecycle and entrypoint routing references now point to the shared question/default contract
-- `001-sg-build` and `000-shipglowz` local question gates now align with the shared rule
+- `001-sg-build` and `000-shipglows` local question gates now align with the shared rule
 - README, workflow doctrine, technical docs, launch cheatsheet, help, and public skill pages now describe the same default-vs-question behavior
 
 **New phases:**
 - Question/default gate before user-facing clarification or routing prompts
 
-**Sources:** 0 URLs consulted (local captured conversation and ShipGlowz skill doctrine)
+**Sources:** 0 URLs consulted (local captured conversation and ShipGlows skill doctrine)
 
 ---
 
@@ -712,7 +872,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 ---
 
-## 2026-05-04 — shipflow
+## 2026-05-04 — shipglows
 
 **Added:**
 - Primary router contract with direct-answer, direct handoff, ambiguity-question, and no nested master-skill subagent rules
@@ -720,7 +880,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 **Updated:**
 - Skill description shortened to keep aggregate discovery budget under 8000
-- Help, workflow, technical docs, launch cheatsheet, and public skill content now present `000-shipglowz` as the non-technical first command
+- Help, workflow, technical docs, launch cheatsheet, and public skill content now present `000-shipglows` as the non-technical first command
 
 **New phases:**
 - None
@@ -768,7 +928,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 **Updated:**
 - Reframed project initialization artifacts around baseline governance and operating structure
-- README now describes the output as a stronger operating base for later ShipGlowz skills
+- README now describes the output as a stronger operating base for later ShipGlows skills
 
 **New phases:**
 - None
@@ -865,7 +1025,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 - None
 
 **Updated:**
-- Reframed market-study artifact frontmatter as required ShipGlowz metadata
+- Reframed market-study artifact frontmatter as required ShipGlows metadata
 - Reframed SEO action planning around near-term opportunities instead of shortcut framing
 
 **New phases:**
@@ -972,7 +1132,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local user feedback and existing ShipGlowz content governance)
+**Sources:** 0 URLs consulted (local user feedback and existing ShipGlows content governance)
 
 ## 2026-05-04 — 202-sg-repurpose
 
@@ -1020,7 +1180,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz doctrine and existing maintenance/audit skill contracts)
+**Sources:** 0 URLs consulted (local ShipGlows doctrine and existing maintenance/audit skill contracts)
 
 ## 2026-05-03 — 003-sg-bug
 
@@ -1052,7 +1212,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 **New phases:**
 - None
 
-**Sources:** 0 URLs consulted (local ShipGlowz doctrine and existing release skill contracts)
+**Sources:** 0 URLs consulted (local ShipGlows doctrine and existing release skill contracts)
 
 ## 2026-05-02 — 009-sg-skill-build
 
@@ -1075,7 +1235,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 **Added:**
 - Shared reference — `project-development-mode.md` defines local, Vercel preview-push, and hybrid validation modes
-- `305-sg-init` — project-local `## ShipGlowz Development Mode` section for `CLAUDE.md` / `SHIPFLOW.md`
+- `305-sg-init` — project-local `## ShipGlows Development Mode` section for `CLAUDE.md` / `SHIPGLOWS.md`
 - `102-sg-start` — execution contract now records development mode and routes preview-push validation to `005-sg-ship` -> `405-sg-prod`
 - `106-sg-fix` — bug retest routing now respects local vs Vercel preview-push validation
 - `005-sg-ship` — successful push now hands off to `405-sg-prod` when preview deployment is the validation surface

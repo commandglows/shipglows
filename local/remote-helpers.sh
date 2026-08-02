@@ -1,23 +1,23 @@
 #!/bin/bash
-# Shared SSH and remote PM2 helpers for ShipGlowz local tunnel tools.
+# Shared SSH and remote PM2 helpers for ShipGlows local tunnel tools.
 
-shipglowz_local_config_dir() {
-    printf '%s\n' "${SHIPGLOWZ_LOCAL_CONFIG_DIR:-$HOME/.shipglowz}"
+shipglows_local_config_dir() {
+    printf '%s\n' "${SHIPGLOWS_LOCAL_CONFIG_DIR:-$HOME/.shipglows}"
 }
 
-shipglowz_legacy_local_config_dir() {
-    printf '%s\n' "${SHIPGLOWZ_LEGACY_LOCAL_CONFIG_DIR:-${SHIPFLOW_LEGACY_LOCAL_CONFIG_DIR:-$HOME/.shipglowz}}"
+shipglows_legacy_local_config_dir() {
+    printf '%s\n' "${SHIPGLOWS_LEGACY_LOCAL_CONFIG_DIR:-${SHIPGLOWS_LEGACY_LOCAL_CONFIG_DIR:-$HOME/.shipglows}}"
 }
 
-shipglowz_local_config_file() {
+shipglows_local_config_file() {
     local name="$1"
-    printf '%s/%s\n' "$(shipglowz_local_config_dir)" "$name"
+    printf '%s/%s\n' "$(shipglows_local_config_dir)" "$name"
 }
 
-shipglowz_migrate_local_config() {
+shipglows_migrate_local_config() {
     local new_dir legacy_dir
-    new_dir="$(shipglowz_local_config_dir)"
-    legacy_dir="$(shipglowz_legacy_local_config_dir)"
+    new_dir="$(shipglows_local_config_dir)"
+    legacy_dir="$(shipglows_legacy_local_config_dir)"
 
     mkdir -p "$new_dir" 2>/dev/null || return 1
     chmod 700 "$new_dir" 2>/dev/null || true
@@ -33,11 +33,11 @@ shipglowz_migrate_local_config() {
     done
 }
 
-shipglowz_read_config_value() {
+shipglows_read_config_value() {
     local name="$1"
     local new_path legacy_path
-    new_path="$(shipglowz_local_config_file "$name")"
-    legacy_path="$(shipglowz_legacy_local_config_dir)/$name"
+    new_path="$(shipglows_local_config_file "$name")"
+    legacy_path="$(shipglows_legacy_local_config_dir)/$name"
 
     if [ -f "$new_path" ]; then
         cat "$new_path"
@@ -50,11 +50,11 @@ shipglowz_read_config_value() {
     return 1
 }
 
-shipglowz_write_config_value() {
+shipglows_write_config_value() {
     local name="$1"
     local value="$2"
     local path
-    path="$(shipglowz_local_config_file "$name")"
+    path="$(shipglows_local_config_file "$name")"
     mkdir -p "$(dirname "$path")" 2>/dev/null || return 1
     printf '%s\n' "$value" > "$path"
 }
@@ -279,7 +279,7 @@ prepare_identity_public_key() {
 
     resolved_identity="$(resolve_identity_path "$identity_file")" || return 1
     command -v ssh-keygen >/dev/null 2>&1 || return 1
-    derived_file="$(mktemp "${TMPDIR:-/tmp}/shipglowz-derived-key.XXXXXX")" || return 1
+    derived_file="$(mktemp "${TMPDIR:-/tmp}/shipglows-derived-key.XXXXXX")" || return 1
     chmod 600 "$derived_file" 2>/dev/null || true
 
     if ! ssh-keygen -y -f "$resolved_identity" > "$derived_file" 2>/dev/null; then
@@ -314,19 +314,19 @@ prepare_identity_public_key() {
     validate_ssh_public_key_file "$output_file"
 }
 
-shipglowz_identity_target_slug() {
+shipglows_identity_target_slug() {
     local target="${1:-server}"
     target="${target#*@}"
     target="$(printf '%s' "$target" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g; s/^-*//; s/-*$//')"
     printf '%s\n' "${target:-server}"
 }
 
-shipglowz_available_identity_path() {
+shipglows_available_identity_path() {
     local target="$1"
     local ssh_dir="${HOME:?}/.ssh"
     local slug base candidate suffix=1
-    slug="$(shipglowz_identity_target_slug "$target")"
-    base="$ssh_dir/shipglowz_${slug}_ed25519"
+    slug="$(shipglows_identity_target_slug "$target")"
+    base="$ssh_dir/shipglows_${slug}_ed25519"
     candidate="$base"
 
     while [ -e "$candidate" ] || [ -e "${candidate}.pub" ]; do
@@ -337,7 +337,7 @@ shipglowz_available_identity_path() {
     printf '%s\n' "$candidate"
 }
 
-generate_shipglowz_identity() {
+generate_shipglows_identity() {
     local target="$1"
     local identity_file="${2:-}"
     command -v ssh-keygen >/dev/null 2>&1 || return 1
@@ -345,13 +345,13 @@ generate_shipglowz_identity() {
     mkdir -p "$HOME/.ssh" || return 1
     chmod 700 "$HOME/.ssh" 2>/dev/null || true
     if [ -z "$identity_file" ]; then
-        identity_file="$(shipglowz_available_identity_path "$target")" || return 1
+        identity_file="$(shipglows_available_identity_path "$target")" || return 1
     else
         identity_file="$(normalize_identity_path "$identity_file")"
     fi
     [ ! -e "$identity_file" ] && [ ! -e "${identity_file}.pub" ] || return 1
 
-    ssh-keygen -q -t ed25519 -N "" -C "shipglowz:$(shipglowz_identity_target_slug "$target")" -f "$identity_file" || return 1
+    ssh-keygen -q -t ed25519 -N "" -C "shipglows:$(shipglows_identity_target_slug "$target")" -f "$identity_file" || return 1
     chmod 600 "$identity_file" 2>/dev/null || true
     chmod 644 "${identity_file}.pub" 2>/dev/null || true
     printf '%s\n' "$identity_file"
@@ -361,21 +361,21 @@ ssh_authorized_key_install_command() {
     cat <<'EOF'
 set -eu
 umask 077
-IFS= read -r shipglowz_public_key
-[ -n "$shipglowz_public_key" ]
-shipglowz_key_blob=$(printf '%s\n' "$shipglowz_public_key" | awk '{ print $2 }')
-[ -n "$shipglowz_key_blob" ]
+IFS= read -r shipglows_public_key
+[ -n "$shipglows_public_key" ]
+shipglows_key_blob=$(printf '%s\n' "$shipglows_public_key" | awk '{ print $2 }')
+[ -n "$shipglows_key_blob" ]
 mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 touch "$HOME/.ssh/authorized_keys"
 chmod 600 "$HOME/.ssh/authorized_keys"
-if awk -v blob="$shipglowz_key_blob" '{ for (i = 1; i <= NF; i++) if ($i == blob) found = 1 } END { exit found ? 0 : 1 }' "$HOME/.ssh/authorized_keys"; then
+if awk -v blob="$shipglows_key_blob" '{ for (i = 1; i <= NF; i++) if ($i == blob) found = 1 } END { exit found ? 0 : 1 }' "$HOME/.ssh/authorized_keys"; then
     printf '%s\n' present
 else
     if [ -s "$HOME/.ssh/authorized_keys" ]; then
         printf '\n' >> "$HOME/.ssh/authorized_keys"
     fi
-    printf '%s\n' "$shipglowz_public_key" >> "$HOME/.ssh/authorized_keys"
+    printf '%s\n' "$shipglows_public_key" >> "$HOME/.ssh/authorized_keys"
     printf '%s\n' installed
 fi
 EOF
@@ -415,7 +415,7 @@ verify_ssh_key_only() {
     while IFS= read -r arg; do
         args+=("$arg")
     done < <(ssh_key_only_args "$identity_file")
-    ssh "${args[@]}" "$REMOTE_HOST" "echo shipglowz-key-ok" >/dev/null
+    ssh "${args[@]}" "$REMOTE_HOST" "echo shipglows-key-ok" >/dev/null
 }
 
 ssh_auth_mode() {
@@ -652,15 +652,15 @@ open_browser_or_print() {
 # Returns: 0 on success, 1 if no host could be resolved
 # -----------------------------------------------------------------------------
 _load_remote_host_core() {
-    shipglowz_migrate_local_config || true
+    shipglows_migrate_local_config || true
     REMOTE_HOST=""
     SSH_IDENTITY_FILE=""
     SSH_AUTH_METHOD="key"
 
-    if REMOTE_HOST="$(shipglowz_read_config_value current_connection 2>/dev/null)"; then
+    if REMOTE_HOST="$(shipglows_read_config_value current_connection 2>/dev/null)"; then
         :
     else
-        REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWZ_SSH_REMOTE_HOST:-${SHIPFLOW_SSH_REMOTE_HOST:-}}}"
+        REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}}"
         if [ -z "$REMOTE_HOST" ] && grep -qE '^[[:space:]]*Host[[:space:]]+hetzner([[:space:]]|$)' "$HOME/.ssh/config" 2>/dev/null; then
             REMOTE_HOST="hetzner"
         fi
@@ -669,10 +669,10 @@ _load_remote_host_core() {
     [ -n "$REMOTE_HOST" ] || return 1
     validate_connection_target "$REMOTE_HOST" || return 1
 
-    if SSH_IDENTITY_FILE="$(shipglowz_read_config_value current_identity_file 2>/dev/null)"; then
+    if SSH_IDENTITY_FILE="$(shipglows_read_config_value current_identity_file 2>/dev/null)"; then
         :
     fi
-    if SSH_AUTH_METHOD="$(shipglowz_read_config_value current_auth_method 2>/dev/null)"; then
+    if SSH_AUTH_METHOD="$(shipglows_read_config_value current_auth_method 2>/dev/null)"; then
         :
     fi
 
@@ -680,7 +680,7 @@ _load_remote_host_core() {
     return 0
 }
 
-shipglowz_remote_pm2_ports_command() {
+shipglows_remote_pm2_ports_command() {
     local format="${1:-lines}"
     local formatter="cat"
     if [ "$format" = "comma" ]; then
@@ -689,9 +689,9 @@ shipglowz_remote_pm2_ports_command() {
 
     cat <<EOF
 {
-# Fast path: ShipGlowz env registry (~1ms file read, no subprocess)
-reg="\$HOME/.shipglowz/envs.reg"
-new_reg="\$HOME/.shipglowz/envs.reg"
+# Fast path: ShipGlows env registry (~1ms file read, no subprocess)
+reg="\$HOME/.shipglows/envs.reg"
+new_reg="\$HOME/.shipglows/envs.reg"
 if [ -f "\$new_reg" ]; then
   reg="\$new_reg"
 fi
@@ -709,9 +709,9 @@ fi
 
 # Also check Flutter Web sessions
 if command -v tmux >/dev/null 2>&1; then
-  freg="\${SHIPFLOW_FLUTTER_WEB_SESSIONS_FILE:-\$HOME/.shipglowz/flutter-web-sessions.tsv}"
+  freg="\${SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE:-\$HOME/.shipglows/flutter-web-sessions.tsv}"
   if [ ! -f "\$freg" ]; then
-    freg="\${SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE:-\${SHIPFLOW_FLUTTER_WEB_SESSIONS_FILE:-\$HOME/.shipglowz/flutter-web-sessions.tsv}}"
+    freg="\${SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE:-\${SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE:-\$HOME/.shipglows/flutter-web-sessions.tsv}}"
   fi
   if [ -f "\$freg" ]; then
     while IFS='|' read -r name port project_dir session_name; do

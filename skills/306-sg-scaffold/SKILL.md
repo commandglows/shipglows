@@ -7,14 +7,14 @@ argument-hint: <type> <name> (e.g., "page about", "component UserCard")
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `support-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 
 ## Context
@@ -27,9 +27,9 @@ Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chanti
 
 ## Required References
 
-Load `$SHIPFLOW_ROOT/skills/references/design-system-token-contract.md` before scaffolding any `page`, `component`, or `layout`, or any artifact that introduces UI styling, design tokens, visual states, theming, typography, color, spacing, shadows, motion, or branding implementation.
+Load `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` before scaffolding any `page`, `component`, or `layout`, or any artifact that introduces UI styling, design tokens, visual states, theming, typography, color, spacing, shadows, motion, or branding implementation.
 
-When `$BLUEPRINT_PATH` is set or a `blueprint:` handoff is present, load `$SHIPFLOW_ROOT/skills/references/app-blueprints.md` for the blueprint system contract, then read the blueprint file at the given path. Use its conventions, models, and route structure as scaffolding guidance (see Blueprint-Aware Scaffolding below).
+When `$BLUEPRINT_PATH` is set or a `blueprint:` handoff is present, load `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` for the blueprint system contract, then read the blueprint file at the given path. Use its conventions, models, and route structure as scaffolding guidance (see Blueprint-Aware Scaffolding below).
 
 ## Mode detection
 
@@ -157,7 +157,7 @@ If the request appears to create a new public-facing surface, read enough nearby
 - where the canonical design-system authority lives: brand contract, token source, theme carrier, component bridge, layout/motion authority, and forbidden bypasses
 - where auth, validation, analytics, SEO, and error handling are usually enforced
 
-If Supabase is detected and the scaffold touches auth, uploads, storage, or DB-backed CRUD, load only the relevant references among `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/supabase-auth.md`, `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/supabase-storage.md`, `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/supabase-db.md` before generating code.
+If Supabase is detected and the scaffold touches auth, uploads, storage, or DB-backed CRUD, load only the relevant references among `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-auth.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-storage.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-db.md` before generating code.
 
 ### Step 3: Analyze patterns
 

@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-12"
 updated: "2026-06-12"
 status: active
@@ -56,7 +56,7 @@ Current canonical `product_id` values that should receive default free access:
 - `winflowz_formation`
 - `gocharbon`
 - `contentglowz`
-- `shipflow`
+- `shipglows`
 - `replayglowz`
 - `socialglowz`
 - `temu_shopping_lists`
@@ -78,13 +78,13 @@ Site/helper mirror:
 
 - `/home/claude/winflowz/winflowz_site/src/lib/suiteBridge.ts`
 
-When this registry and runtime code disagree, do not guess. Inspect the code, identify the drift, and route the correction through `601-sg-product-entitlements` or `900-shipglowz-core build` depending on whether the product behavior or the skill documentation is wrong.
+When this registry and runtime code disagree, do not guess. Inspect the code, identify the drift, and route the correction through `601-sg-product-entitlements` or `900-shipglows-core build` depending on whether the product behavior or the skill documentation is wrong.
 
 ## Skill Routing
 
 - Product access, default grants, plan gates, paid/free semantics, provider events, refunds, revokes, support access, or canonical product ids: route to `601-sg-product-entitlements`.
 - Sync, hydration, local-to-cloud promotion, reinstall recovery, or "why are my data local only?": load this reference, then route entitlement preconditions to `601-sg-product-entitlements` before the sync contract in `600-sg-local-cloud-sync`.
-- Skill memory, registry drift, or future-agent context loss: route to `900-shipglowz-core build`.
+- Skill memory, registry drift, or future-agent context loss: route to `900-shipglows-core build`.
 
 ## Stop Conditions
 

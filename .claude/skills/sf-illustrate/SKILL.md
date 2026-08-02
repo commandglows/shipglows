@@ -144,5 +144,5 @@ Do NOT remove the ASCII art — it serves as text fallback for non-graphical con
 - Do NOT create visuals for content that doesn't need them (simple tables, short lists)
 - SVGs must be self-contained and render correctly in any browser and GitHub markdown
 - Validate XML before committing
-- Commit visuals to the project repo, not to ShipFlow
+- Commit visuals to the project repo, not to ShipGlows
 - **Accents français obligatoires** sur tout contenu en français

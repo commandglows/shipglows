@@ -4,7 +4,7 @@
 
 ## What It Does
 
-`205-sg-veille` analyzes URLs or pasted content for business relevance across the ShipGlowz project portfolio. Bare sources resolve to `triage`, which fetches and summarizes only what classification needs, scores relevance from project-local governance context, then asks for an explicit decision: ignore it, hand it to the correct owner, or create an authorized follow-up.
+`205-sg-veille` analyzes URLs or pasted content for business relevance across the ShipGlows project portfolio. Bare sources resolve to `triage`, which fetches and summarizes only what classification needs, scores relevance from project-local governance context, then asks for an explicit decision: ignore it, hand it to the correct owner, or create an authorized follow-up.
 
 It is built for strategic scanning, not passive bookmarking.
 
@@ -23,7 +23,7 @@ It is built for strategic scanning, not passive bookmarking.
 ## What You Give It
 
 - one or more URLs, or pasted text
-- local project discovery plus project-local `shipglowz_data/` context so the skill can score relevance across projects
+- local project discovery plus project-local `shipglows_data/` context so the skill can score relevance across projects
 
 ## What You Get Back
 
@@ -31,8 +31,8 @@ It is built for strategic scanning, not passive bookmarking.
 - project-by-project relevance scoring
 - interactive triage choices for each link
 - decision-aware research output or tool sheets only after an explicit human decision
-- optional technical entries in the target project's `shipglowz_data/workflow/TASKS.md`
-- optional editorial entries in `shipglowz_data/editorial/ROADMAP.md`, only when the public surface is declared
+- optional technical entries in the target project's `shipglows_data/workflow/TASKS.md`
+- optional editorial entries in `shipglows_data/editorial/ROADMAP.md`, only when the public surface is declared
 - `007-sg-content repurpose <source>` handoffs or `surface missing: blog` findings when a content idea needs an undeclared editorial surface
 
 ## Typical Examples
@@ -47,7 +47,7 @@ It is built for strategic scanning, not passive bookmarking.
 
 ## Limits
 
-The README is in English, but produced reports are intentionally in French. `205-sg-veille` is only as good as the project-local governance context it can load. The cross-project control plane discovers projects; it does not replace each project's `shipglowz_data/business`, `shipglowz_data/editorial`, and `shipglowz_data/technical` contracts. This skill helps with prioritization and triage, not final strategic judgment, cited deep research, content production, marketing audits, docs work, or general tracker maintenance.
+The README is in English, but produced reports are intentionally in French. `205-sg-veille` is only as good as the project-local governance context it can load. The cross-project control plane discovers projects; it does not replace each project's `shipglows_data/business`, `shipglows_data/editorial`, and `shipglows_data/technical` contracts. This skill helps with prioritization and triage, not final strategic judgment, cited deep research, content production, marketing audits, docs work, or general tracker maintenance.
 
 ## Related Skills
 

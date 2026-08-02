@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the preferred ShipGlowz pattern for implementing authentication in Flutter web apps without relying on Clerk Flutter/Dart beta SDKs.
+This document defines the preferred ShipGlows pattern for implementing authentication in Flutter web apps without relying on Clerk Flutter/Dart beta SDKs.
 
 Use it as the technical reference when fixing or implementing auth in other Flutter repositories.
 

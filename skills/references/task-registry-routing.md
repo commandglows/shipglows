@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-09"
 updated: "2026-07-28"
 status: active
@@ -14,8 +14,8 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - shipglowz_data/workflow/TASKS.md
-  - shipglowz_data/editorial/ROADMAP.md
+  - shipglows_data/workflow/TASKS.md
+  - shipglows_data/editorial/ROADMAP.md
   - skills/205-sg-veille/SKILL.md
   - skills/009-sg-marketing/SKILL.md
   - skills/406-sg-seo/SKILL.md
@@ -25,7 +25,7 @@ depends_on:
   - artifact: "skills/references/operational-record-format.md"
     artifact_version: "1.0.0"
     required_status: active
-  - artifact: "shipglowz_data/editorial/README.md"
+  - artifact: "shipglows_data/editorial/README.md"
     artifact_version: "1.3.0"
     required_status: reviewed
 supersedes: []
@@ -49,14 +49,14 @@ This reference does not replace chantier specs. It only decides which tracker re
 
 Use these files:
 
-- Execution backlog: `shipglowz_data/workflow/TASKS.md`
-- Editorial roadmap: `shipglowz_data/editorial/ROADMAP.md`
+- Execution backlog: `shipglows_data/workflow/TASKS.md`
+- Editorial roadmap: `shipglows_data/editorial/ROADMAP.md`
 
-Both are operational trackers. Neither one is a chantier registry. Neither one gets ShipGlowz metadata frontmatter.
+Both are operational trackers. Neither one is a chantier registry. Neither one gets ShipGlows metadata frontmatter.
 
 ## Routing Rule
 
-Write to `shipglowz_data/workflow/TASKS.md` when the follow-up is primarily about:
+Write to `shipglows_data/workflow/TASKS.md` when the follow-up is primarily about:
 
 - code, runtime, build, deployment, tests, auth, infrastructure, dependencies, migrations, or bug repair
 - implementation of a technical system, automation, or operational script
@@ -64,7 +64,7 @@ Write to `shipglowz_data/workflow/TASKS.md` when the follow-up is primarily abou
 - product behavior changes that require engineering work
 - cybersecurity posture, access control, secrets, dependency exposure, incident readiness, or security remediation
 
-Write to `shipglowz_data/editorial/ROADMAP.md` when the follow-up is primarily about:
+Write to `shipglows_data/editorial/ROADMAP.md` when the follow-up is primarily about:
 
 - public content creation or revision
 - source repurposing, public docs, FAQ, public skill pages, case studies, or audience email sequences
@@ -75,8 +75,8 @@ Write to `shipglowz_data/editorial/ROADMAP.md` when the follow-up is primarily a
 
 If one source produces both kinds of work, split it:
 
-- create one execution record in `shipglowz_data/workflow/TASKS.md`
-- create one editorial record in `shipglowz_data/editorial/ROADMAP.md`
+- create one execution record in `shipglows_data/workflow/TASKS.md`
+- create one editorial record in `shipglows_data/editorial/ROADMAP.md`
 
 Use shared fields such as `source`, `surface`, `spec`, `area`, `next`, or `paired` so the relationship stays visible.
 
@@ -116,15 +116,15 @@ Before writing either tracker:
 Editorial:
 
 ```text
-🟠 [ShipGlowz] task: Publish a public guide explaining how operators keep project pitches current for ShipGlowz | status: todo | area: editorial-docs | surface: blog | source: repurpose-pack
+🟠 [ShipGlows] task: Publish a public guide explaining how operators keep project pitches current for ShipGlows | status: todo | area: editorial-docs | surface: blog | source: repurpose-pack
 ```
 
 Execution:
 
 ```text
-🟠 [ShipGlowz] task: Add tracker-routing support for editorial roadmap writes across content audit skills | status: todo | area: workflow-editorial-governance | spec: shipglowz_data/workflow/specs/workflow-vs-editorial-roadmap-split.md
+🟠 [ShipGlows] task: Add tracker-routing support for editorial roadmap writes across content audit skills | status: todo | area: workflow-editorial-governance | spec: shipglows_data/workflow/specs/workflow-vs-editorial-roadmap-split.md
 ```
 
 ## Maintenance Rule
 
-Update this reference when ShipGlowz changes tracker ownership, adds a new operational tracker class, or reassigns editorial/task-writing responsibility across skills.
+Update this reference when ShipGlows changes tracker ownership, adds a new operational tracker class, or reassigns editorial/task-writing responsibility across skills.

@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: "ShipGlowz"
+project: "ShipGlows"
 created: "2026-06-27"
 updated: "2026-06-27"
 status: active
@@ -17,7 +17,7 @@ linked_systems:
   - "skills/104-sg-end/SKILL.md"
   - "skills/005-sg-ship/SKILL.md"
   - "skills/103-sg-verify/SKILL.md"
-  - "shipglowz_data/workflow/"
+  - "shipglows_data/workflow/"
 depends_on:
   - artifact: "skills/references/reporting-contract.md"
     artifact_version: "1.4.0"
@@ -37,7 +37,7 @@ next_step: "Use before closure, archive, changelog, tracker-done, or full-close 
 
 ## Purpose
 
-This reference defines the ShipGlowz guard for closing, archiving, or marking work as done without overstating completion.
+This reference defines the ShipGlows guard for closing, archiving, or marking work as done without overstating completion.
 
 Use it before tracker closure, changelog framing, archive moves, full-close shipping, or any final report that could imply a work item is complete.
 
@@ -58,8 +58,8 @@ Before marking work complete, compare the changed artifact with the durable sour
 Examples:
 
 - spec delta -> canonical spec or current chantier spec
-- bug fix state -> `shipglowz_data/workflow/bugs/BUG-ID.md` status and retest history
-- task completion -> `shipglowz_data/workflow/TASKS.md`
+- bug fix state -> `shipglows_data/workflow/bugs/BUG-ID.md` status and retest history
+- task completion -> `shipglows_data/workflow/TASKS.md`
 - public behavior change -> README, help, site content, docs, or support copy
 - skill behavior change -> runtime skill links, help/discovery docs, and relevant shared references
 

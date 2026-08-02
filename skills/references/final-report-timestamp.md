@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.7.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-05"
 updated: "2026-07-28"
 status: active
@@ -34,7 +34,7 @@ next_step: "/103-sg-verify final report timestamp contract"
 
 # Final Report Opening Headers
 
-Every ShipGlowz final report places a concise, visible verdict in Europe/Paris local time immediately after the chantier header. The verdict remains an opening heading, not a trailing footer.
+Every ShipGlows final report places a concise, visible verdict in Europe/Paris local time immediately after the chantier header. The verdict remains an opening heading, not a trailing footer.
 
 ## Required Opening
 

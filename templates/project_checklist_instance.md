@@ -73,7 +73,7 @@ Copy the ordered controls from the master checklist. Keep their stable IDs uncha
 ## Rules
 
 - This file records checklist progress; it is not a task tracker.
-- A concrete implementation problem may be referenced in `shipglowz_data/workflow/TASKS.md` without duplicating every control there.
+- A concrete implementation problem may be referenced in `shipglows_data/workflow/TASKS.md` without duplicating every control there.
 - Archive the completed instance before resetting it.
 - Never copy a completed cycle over a new cycle; create a new `cycle_id`.
 - Do not place secrets, tokens, cookies, private logs, or unredacted security evidence here.

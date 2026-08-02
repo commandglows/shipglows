@@ -6,20 +6,20 @@ argument-hint: <project, feature, data domains, or sync question>
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active chantier spec is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active chantier spec is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 Because this skill can expose data-loss, tenant-boundary, privacy, and security work, evaluate whether non-trivial follow-up needs `/100-sg-spec` before implementation.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, outcome-first, and in the user's active language. Use `report=agent`, `handoff`, `verbose`, or `full-report` when another skill needs the full Sync Contract, data-domain matrix, validation commands, unresolved policy decisions, or proof gaps.
 
@@ -27,12 +27,12 @@ Default to `report=user`: concise, outcome-first, and in the user's active langu
 
 Load only the references required by the active run:
 
-- `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md` before choosing defaults, route, proof, or implementation scope.
-- `$SHIPFLOW_ROOT/skills/references/spec-driven-development-discipline.md` before changing behavior, defining proof, or recommending implementation.
-- `$SHIPFLOW_ROOT/skills/references/master-workflow-lifecycle.md` before routing non-trivial sync implementation through lifecycle gates.
-- `$SHIPFLOW_ROOT/skills/references/question-contract.md` before asking user-facing decisions.
-- `$SHIPFLOW_ROOT/skills/references/documentation-freshness-gate.md` when provider, SDK, auth, storage, offline, encryption, or platform behavior affects the sync design.
-- `$SHIPFLOW_ROOT/skills/references/winflowz-suite-product-registry.md` when WinFlowz suite free products, account-backed sync eligibility, or product access preconditions are mentioned.
+- `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` before choosing defaults, route, proof, or implementation scope.
+- `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before changing behavior, defining proof, or recommending implementation.
+- `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` before routing non-trivial sync implementation through lifecycle gates.
+- `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking user-facing decisions.
+- `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when provider, SDK, auth, storage, offline, encryption, or platform behavior affects the sync design.
+- `$SHIPGLOWS_ROOT/skills/references/winflowz-suite-product-registry.md` when WinFlowz suite free products, account-backed sync eligibility, or product access preconditions are mentioned.
 - `references/local-cloud-sync-doctrine.md` for account promotion, merge, conflict, tombstone, and queue doctrine.
 - `references/ux-security-checklist.md` for user-visible state, sensitive-data policy, tenant/account boundaries, logging, and abuse controls.
 - `references/sync-guidance-overlay-and-merge-pattern.md` when designing, auditing, or implementing a SocialGlowz-style real-time sync guidance overlay with post-auth hydration, local/cloud merge decisions, durable queue, and ready feedback.
@@ -45,12 +45,12 @@ Load only the references required by the active run:
 - Project name: !`basename $(pwd)`
 - Git branch: !`git branch --show-current 2>/dev/null || echo "unknown"`
 - Git status: !`git status --short 2>/dev/null || echo "not a git repo"`
-- Project docs: !`ls shipglowz_data/technical/architecture.md shipglowz_data/technical/guidelines.md shipglowz_data/business/product.md shipglowz_data/business/business.md README.md CLAUDE.md AGENTS.md 2>/dev/null || echo "no project docs found"`
-- Available specs: !`find shipglowz_data/workflow/specs specs docs -maxdepth 3 -type f -name "*.md" 2>/dev/null | sort | head -80`
+- Project docs: !`ls shipglows_data/technical/architecture.md shipglows_data/technical/guidelines.md shipglows_data/business/product.md shipglows_data/business/business.md README.md CLAUDE.md AGENTS.md 2>/dev/null || echo "no project docs found"`
+- Available specs: !`find shipglows_data/workflow/specs specs docs -maxdepth 3 -type f -name "*.md" 2>/dev/null | sort | head -80`
 
 ## Mission
 
-`600-sg-local-cloud-sync` is the ShipGlowz entrypoint for local-first data becoming account-backed cloud data.
+`600-sg-local-cloud-sync` is the ShipGlows entrypoint for local-first data becoming account-backed cloud data.
 
 It turns a project, feature, data domain, or sync question into a practical Sync Contract:
 
@@ -208,7 +208,7 @@ rg -n "name: 600-sg-local-cloud-sync|Sync Contract|Core Doctrine|Security And Pr
 rg -n "account association|cross-account|secrets|tombstones|latest-wins|reinstall|Flutter|Riverpod" skills/600-sg-local-cloud-sync/references
 test -f skills/600-sg-local-cloud-sync/references/sync-guidance-overlay-and-merge-pattern.md
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --skill 600-sg-local-cloud-sync
+tools/shipglows_sync_skills.sh --check --skill 600-sg-local-cloud-sync
 ```
 
 For product implementations, use the project checks named by the ready spec and route browser/auth/manual/provider proof to the proper owner skill.

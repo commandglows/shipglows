@@ -1,0 +1,36 @@
+{
+  "name": "shipglows",
+  "version": "0.1.0+codex.20260612043936",
+  "description": "ShipGlows routes project-shipping work in Codex and prepares optional workflow packs.",
+  "author": {
+    "name": "ShipGlows"
+  },
+  "homepage": "https://shipglows.com/",
+  "repository": "https://github.com/diane-defores/shipglows",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "shipglows",
+    "workflow",
+    "shipping",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ShipGlows",
+    "shortDescription": "Route and package ShipGlows workflows in Codex.",
+    "longDescription": "ShipGlows is a Codex workflow layer for taking product work from request to verified outcome. This local alpha plugin provides the public entrypoint, pack catalog, and packaging audit needed to grow ShipGlows without asking users to install many separate plugins.",
+    "developerName": "ShipGlows",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "$shipglows help me choose the right workflow",
+      "$shipglows show available ShipGlows packs",
+      "$shipglows audit local ShipGlows packaging"
+    ],
+    "brandColor": "#0F766E"
+  }
+}

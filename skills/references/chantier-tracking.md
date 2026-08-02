@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.8.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-04-27"
 updated: "2026-07-18"
 status: draft
@@ -14,9 +14,9 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - shipglowz_data/workflow/specs/
+  - shipglows_data/workflow/specs/
   - skills/*/SKILL.md
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/004-sg-deploy/SKILL.md
   - skills/002-sg-maintain/SKILL.md
   - skills/006-sg-design/SKILL.md
@@ -24,21 +24,21 @@ linked_systems:
   - skills/references/final-report-timestamp.md
   - skills/references/master-workflow-lifecycle.md
 depends_on:
-  - artifact: "shipglowz_data/workflow/specs/specs-as-chantier-registry.md"
+  - artifact: "shipglows_data/workflow/specs/specs-as-chantier-registry.md"
     artifact_version: "1.0.0"
     required_status: "ready"
 supersedes: []
 evidence:
-  - "Spec specs-as-chantier-registry.md defines shipglowz_data/workflow/specs/ as the global chantier registry."
-  - "shipflow added as the primary helper router; selected owner skills own durable state and chantier tracing."
+  - "Spec specs-as-chantier-registry.md defines shipglows_data/workflow/specs/ as the global chantier registry."
+  - "shipglows added as the primary helper router; selected owner skills own durable state and chantier tracing."
   - "004-sg-deploy added as a lifecycle release orchestrator."
   - "002-sg-maintain promoted from recurring maintenance source-de-chantier to lifecycle master skill."
   - "Compact user-facing reporting contract added with explicit agent handoff mode."
-  - "Master workflow lifecycle reference added: bug work items use shipglowz_data/workflow/bugs/*.md as source of truth; shipglowz_data/workflow/BUGS.md is optional/generated/triage view."
+  - "Master workflow lifecycle reference added: bug work items use shipglows_data/workflow/bugs/*.md as source of truth; shipglows_data/workflow/BUGS.md is optional/generated/triage view."
   - "Final report timestamp moved into a shared reporting brick loaded through reporting-contract.md."
   - "006-sg-design added as an obligatoire lifecycle master skill."
   - "003-sg-bug clarified as bug lifecycle execution through owner skills and bounded subagents."
-  - "900-shipglowz-core consolidated as the lifecycle core audit and packaging owner."
+  - "900-shipglows-core consolidated as the lifecycle core audit and packaging owner."
   - "User decision 2026-07-16: replace the trailing user-mode chantier block with a local/spec chantier name header before the verdict."
   - "User decision 2026-07-16: the verdict header displays Paris time only, without the date."
   - "User decision 2026-07-16: normal chantier headers use 🧱 and 🚧 is reserved for genuinely blocked runs."
@@ -49,7 +49,7 @@ next_step: "/103-sg-verify Specs as chantier registry"
 
 # Chantier Tracking Doctrine
 
-`shipglowz_data/workflow/specs/` is the global registry for spec-first chantiers. Do not create a separate registry in `TASKS.md`, `AUDIT_LOG.md`, `PROJECTS.md` (legacy/compat only), or root `specs/`.
+`shipglows_data/workflow/specs/` is the global registry for spec-first chantiers. Do not create a separate registry in `TASKS.md`, `AUDIT_LOG.md`, `PROJECTS.md` (legacy/compat only), or root `specs/`.
 
 ## Two-Axis Classification
 
@@ -113,17 +113,17 @@ The report still opens with the shared chantier header. If the source skill is a
 
 | Skill group | Trace category | Process role | Source threshold |
 |-------------|----------------|--------------|------------------|
-| `100-sg-spec`, `101-sg-ready`, `001-sg-build`, `002-sg-maintain`, `006-sg-design`, `004-sg-deploy`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, `005-sg-ship`, `900-shipglowz-core` | `obligatoire` | `lifecycle` | Not a source; continue or create the owned chantier through the lifecycle gates. |
+| `100-sg-spec`, `101-sg-ready`, `001-sg-build`, `002-sg-maintain`, `006-sg-design`, `004-sg-deploy`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, `005-sg-ship`, `900-shipglows-core` | `obligatoire` | `lifecycle` | Not a source; continue or create the owned chantier through the lifecycle gates. |
 | `400-sg-audit`, `010-sg-technical` | `conditionnel` | `source-de-chantier` | Major audit/technical findings, P0/P1, cross-domain P2 clusters, breaking migration risk, or fixes needing a spec. |
 | `109-sg-auth-debug`, `405-sg-prod`, `105-sg-check`, `107-sg-test`, `106-sg-fix`, `003-sg-bug` | `conditionnel` | `source-de-chantier` | Incidents, failing flows, bug files, bug lifecycle execution, or validation failures beyond a direct fix. |
 | `009-sg-marketing`, `205-sg-veille`, `203-sg-research` | `conditionnel` | `source-de-chantier` | Strategic or research output that requires a product, content, architecture, or implementation decision. |
 | `300-sg-docs`, `201-sg-enrich`, `200-sg-redact`, `306-sg-scaffold`, `304-sg-changelog`, `305-sg-init` | `conditionnel` | `support-de-chantier` | Route to a source or `/100-sg-spec` only when the user explicitly asks to formalize follow-up work. |
 | `309-sg-tasks`, `701-sg-backlog`, `702-sg-priorities`, `703-sg-review`, `706-continue` | `conditionnel` | `pilotage` | Do not create a chantier from every note; route only when the user or evidence requires a durable spec. |
-| `000-shipglowz`, `301-sg-context`, `704-sg-model`, `302-sg-help`, `308-sg-status`, `303-sg-resume`, `700-sg-explore`, `707-name` | `non-applicable` | `helper` | Not a source; can recommend or directly hand off to the lifecycle next step when useful. `000-shipglowz` routes only; selected owner skills own durable state and chantier tracing. `700-sg-explore` may write `exploration_report` artifacts but still must not write chantier spec history. |
+| `000-shipglows`, `301-sg-context`, `704-sg-model`, `302-sg-help`, `308-sg-status`, `303-sg-resume`, `700-sg-explore`, `707-name` | `non-applicable` | `helper` | Not a source; can recommend or directly hand off to the lifecycle next step when useful. `000-shipglows` routes only; selected owner skills own durable state and chantier tracing. `700-sg-explore` may write `exploration_report` artifacts but still must not write chantier spec history. |
 
 ## Spec Write Rules
 
-- Before writing, identify exactly one `shipglowz_data/workflow/specs/*.md` file with ShipGlowz frontmatter. Root `specs/*.md` files are migration sources only and should be routed through `/300-sg-docs migrate-layout`.
+- Before writing, identify exactly one `shipglows_data/workflow/specs/*.md` file with ShipGlows frontmatter. Root `specs/*.md` files are migration sources only and should be routed through `/300-sg-docs migrate-layout`.
 - If matching is ambiguous, stop and ask for an explicit spec instead of guessing.
 - Preserve all existing metadata and contract sections.
 - Add `Skill Run History` if it is missing, using this table:
@@ -140,7 +140,7 @@ The report still opens with the shared chantier header. If the source skill is a
 
 ## Final Report Header
 
-Load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md` before producing final output. That contract also loads the shared final-report timestamp brick. Use the two-line opening in `report=user`; add fuller metadata only in `report=agent`, blocked runs, or handoffs that need trace state.
+Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before producing final output. That contract also loads the shared final-report timestamp brick. Use the two-line opening in `report=user`; add fuller metadata only in `report=agent`, blocked runs, or handoffs that need trace state.
 
 Local user-mode opening:
 

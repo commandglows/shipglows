@@ -10,7 +10,7 @@ Sources checked:
 
 Last reviewed: 2026-04-26
 
-## Standard ShipGlowz Setup
+## Standard ShipGlows Setup
 
 - Convex MCP command: `npx -y convex@latest mcp start`
 - Convex CLI install: `pnpm add -g convex`

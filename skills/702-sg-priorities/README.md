@@ -4,7 +4,7 @@
 
 ## What It Does
 
-`702-sg-priorities` reviews open tasks and reorders them using impact, effort, blockers, dependencies, and delivery risk. It defaults to the selected project's local `shipglowz_data/workflow/TASKS.md` and uses the external portfolio tracker only when the run is workspace-scoped.
+`702-sg-priorities` reviews open tasks and reorders them using impact, effort, blockers, dependencies, and delivery risk. It defaults to the selected project's local `shipglows_data/workflow/TASKS.md` and uses the external portfolio tracker only when the run is workspace-scoped.
 
 The point is not to create a perfect roadmap. The point is to stop a founder from spending a day on low-value work while the real blocker sits untouched.
 
@@ -22,7 +22,7 @@ The point is not to create a perfect roadmap. The point is to stop a founder fro
 
 ## What You Give It
 
-- a ShipGlowz project with `shipglowz_data/workflow/TASKS.md`, or an explicit workspace/portfolio scope
+- a ShipGlows project with `shipglows_data/workflow/TASKS.md`, or an explicit workspace/portfolio scope
 - optionally, a prioritization angle such as `impact`, `effort`, `blockers`, or `high-roi` / `quick-wins`
 - optionally, a project name when you do not want a workspace-wide pass
 

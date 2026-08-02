@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
@@ -19,13 +19,13 @@ This `SKILL.md` is the activation contract. Keep the readiness gate here; detail
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before evaluating a spec-first chantier, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when present. When a unique spec is evaluated, append a current `101-sg-ready` row with result `ready`, `not ready`, or `blocked`, add `Skill Run History` if missing without removing contract sections, update `Current Chantier Flow`, and open the report with the opening chantier header from `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`. If no unique spec can be identified, do not write a trace; use a `(local)` chantier header and route to `/100-sg-spec` or explicit spec selection.
+Before evaluating a spec-first chantier, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when present. When a unique spec is evaluated, append a current `101-sg-ready` row with result `ready`, `not ready`, or `blocked`, add `Skill Run History` if missing without removing contract sections, update `Current Chantier Flow`, and open the report with the opening chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. If no unique spec can be identified, do not write a trace; use a `(local)` chantier header and route to `/100-sg-spec` or explicit spec selection.
 
-If this run creates or mutates a `spec:` operational summary line, first load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`. Pure readiness review of existing spec content is reader-only for that contract.
+If this run creates or mutates a `spec:` operational summary line, first load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`. Pure readiness review of existing spec content is reader-only for that contract.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, readiness verdict first, blockers only when they require user action, and using the opening chantier header. Do not show the full checklist to a human by default. The detailed checklist report below is for `report=agent`, blocked runs, explicit handoff, or explicit verbose/full-report requests.
 
@@ -54,16 +54,18 @@ If no unique spec can be identified safely, stop and route to `/100-sg-spec` or 
 
 Always load:
 
-- `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`
-- `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`
-- `$SHIPFLOW_ROOT/skills/101-sg-ready/references/readiness-review-playbook.md`
+- `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`
+- `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`
+- `$SHIPGLOWS_ROOT/skills/101-sg-ready/references/readiness-review-playbook.md`
 
 Load on demand:
 
-- `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` before creating or mutating a `spec:` operational summary line
-- `$SHIPFLOW_ROOT/skills/references/documentation-freshness-gate.md` when the spec depends on framework, SDK, service, API, auth, build, migration, or integration behavior
-- `$SHIPFLOW_ROOT/skills/references/preferred-stacks.md` for greenfield products before accepting a stack direction or exception
-- `shipglowz_data/technical/guidelines.md` when the spec touches ShipGlowz artifacts, internal contracts, prompts, or user-facing copy
+- `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` before creating or mutating a `spec:` operational summary line
+- `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when the spec depends on framework, SDK, service, API, auth, build, migration, or integration behavior
+- `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md` for greenfield products before accepting a stack direction or exception
+- `shipglows_data/technical/guidelines.md` when the spec touches ShipGlows artifacts, internal contracts, prompts, or user-facing copy
+- `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md` when the target project owns an Atlas registry
+- `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when the spec changes product intent, customer journeys, capabilities, UX critical moments, Atlas nodes or public promises
 
 ## Mode Detection
 
@@ -86,12 +88,20 @@ Valider qu'une spec est réellement prête avant `/102-sg-start`.
 
 Cette gate s'applique surtout au cadrage initial. Si `103-sg-verify` découvre plus tard un petit delta de cadrage, il peut jouer localement le rôle d'une mini gate de readiness apres mise a jour de la spec, sans absorber le role de `101-sg-ready`.
 
-`101-sg-ready` applies the ShipGlowz Definition of Ready. A spec is only `ready`
+`101-sg-ready` applies the ShipGlows Definition of Ready. A spec is only `ready`
 when a fresh agent can implement it without blocking ambiguity, missing proof
 contracts, hidden linked-system consequences, or unresolved security questions.
 
+### Atlas Protection Gate
+
+When the target project owns `shipglows_data/workflow/atlas/approved-surfaces.json`, a ready spec names the affected surface/function IDs and operator dimensions. Any possible Gold/Diamond impact requires exact authorization and preserved-dimension proof; an unknown mapped path requires an impact-mapping task before a protection claim can be ready.
+
+### Product Coherence Gate
+
+For material product work, apply `product-decision-chain.md` across only the touched business, product, GTM, brand, UX, architecture, Atlas, spec and proof contracts. A confirmed `conflict` or unresolved material `orphan` is `not ready`; a `gap` must have one operator-owned decision or a scoped task and owner before readiness can pass.
+
 The top-level review must confirm these buckets; the detailed heuristics live in
-`$SHIPFLOW_ROOT/skills/101-sg-ready/references/readiness-review-playbook.md`:
+`$SHIPGLOWS_ROOT/skills/101-sg-ready/references/readiness-review-playbook.md`:
 
 - structure and mandatory sections
 - user-story alignment and minimal behavior contract
@@ -159,5 +169,5 @@ Run after edits to this skill:
 ```bash
 rg -n "Mission|Scope Gate|Required References|Mode Detection|Stop Conditions|Validation|Readiness Gate|report=user|readiness-review-playbook" skills/101-sg-ready/SKILL.md
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --skill 101-sg-ready
+tools/shipglows_sync_skills.sh --check --skill 101-sg-ready
 ```

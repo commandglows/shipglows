@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: "ShipGlowz"
+project: "ShipGlows"
 created: "2026-06-27"
 updated: "2026-07-28"
 status: active
@@ -16,7 +16,7 @@ docs_impact: yes
 linked_systems:
   - "skills/102-sg-start/SKILL.md"
   - "skills/106-sg-fix/SKILL.md"
-  - "skills/900-shipglowz-core/SKILL.md"
+  - "skills/900-shipglows-core/SKILL.md"
   - "skills/103-sg-verify/SKILL.md"
 depends_on:
   - artifact: "skills/references/spec-driven-development-discipline.md"
@@ -36,7 +36,7 @@ next_step: "Inject into execution and verification skills when they own task-by-
 
 ## Purpose
 
-This reference defines the reusable ShipGlowz loop for applying a bounded task list without losing the user story, context, progress state, or proof requirement.
+This reference defines the reusable ShipGlows loop for applying a bounded task list without losing the user story, context, progress state, or proof requirement.
 
 Use it when a skill implements tasks, direct fixes, skill contract edits, or other stepwise changes where completion can drift into checkbox-only work.
 
@@ -46,7 +46,7 @@ Before editing:
 
 - identify the target work item from the user request, spec, bug record, or ready artifact
 - inspect current state and progress before choosing the next task
-- load the context files named by the work item, plus any required ShipGlowz references
+- load the context files named by the work item, plus any required ShipGlows references
 - derive the proof path from `spec-driven-development-discipline.md`
 - stop if the work item, context, user outcome, or proof path is ambiguous in a way that changes behavior, security, data handling, public promise, or external side effects
 
@@ -87,7 +87,7 @@ Stop, reroute, or report `blocked` when:
 
 - no reliable target work item can be identified
 - the next slice would satisfy a checkbox while missing the promised user outcome
-- required context files or required ShipGlowz references are missing
+- required context files or required ShipGlows references are missing
 - the implementation path becomes a shortcut that weakens correctness, security, performance, maintainability, durability, excellence, or proof quality
 - a progress update would rewrite stale tracker state
 - the proof path cannot be named, run, or routed

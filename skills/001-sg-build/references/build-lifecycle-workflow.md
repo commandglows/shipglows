@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.5.0"
-project: "shipflow"
+project: "shipglows"
 created: "2026-06-10"
 updated: "2026-07-18"
 status: active
@@ -38,11 +38,11 @@ Use this reference after the top-level `001-sg-build` activation contract has lo
 
 ## Context Probes
 
-Gather current directory, date, project name, git branch, git status, project-local `shipglowz_data/workflow/TASKS.md` or fallback `TASKS.md`, local `TASKS.md` when present, and available specs under canonical project spec locations.
+Gather current directory, date, project name, git branch, git status, project-local `shipglows_data/workflow/TASKS.md` or fallback `TASKS.md`, local `TASKS.md` when present, and available specs under canonical project spec locations.
 
 ## Execution Mode Detail
 
-If `$ARGUMENTS` activates a named profile such as `%Victoire`, `%Ariane`, `%Prudence`, `%Adhesion`, or `profile=...`, resolve the matching profile in `$SHIPFLOW_ROOT/shipglowz_data/business/agent-profiles/`, load its referenced operator-role contract, then load `skills/references/profile-project-context.md` and the smallest relevant project context bundle for the resolved role before sequencing, blueprint matching, or user-facing arbitration.
+If `$ARGUMENTS` activates a named profile such as `%Victoire`, `%Ariane`, `%Prudence`, `%Adhesion`, or `profile=...`, resolve the matching profile in `$SHIPGLOWS_ROOT/shipglows_data/business/agent-profiles/`, load its referenced operator-role contract, then load `skills/references/profile-project-context.md` and the smallest relevant project context bundle for the resolved role before sequencing, blueprint matching, or user-facing arbitration.
 
 Keep the active profile visible in reasoning and reporting when it materially shaped prioritization, phase order, or the final recommendation. Do not claim profile activation silently if the answer does not reflect it.
 
@@ -80,17 +80,17 @@ If the best-practice answer is clear, low-risk, reversible, inside contract, com
 
 After work item resolution, before spec creation:
 
-1. Apply the Greenfield Platform Footprint Rule from `$SHIPFLOW_ROOT/skills/references/question-contract.md`; distinguish browser, PWA, iOS/Android, desktop, launch phase, and roadmap targets when they change architecture.
-2. Load `$SHIPFLOW_ROOT/skills/references/preferred-stacks.md` and apply compatible operator-approved presets before proposing technology alternatives.
-3. Load `$SHIPFLOW_ROOT/skills/references/app-blueprints.md` for the full contract.
+1. Apply the Greenfield Platform Footprint Rule from `$SHIPGLOWS_ROOT/skills/references/question-contract.md`; distinguish browser, PWA, iOS/Android, desktop, launch phase, and roadmap targets when they change architecture.
+2. Load `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md` and apply compatible operator-approved presets before proposing technology alternatives.
+3. Load `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` for the full contract.
 4. Extract keywords from the user request: normalize to lowercase, remove stopwords, keep nouns.
-5. **Read the registry** at `$SHIPFLOW_ROOT/skills/app-blueprints/README.md`. Parse `available_blueprints` for match candidates.
+5. **Read the registry** at `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md`. Parse `available_blueprints` for match candidates.
 6. Score each candidate first by required-platform compatibility, then by keyword overlap against `match_keywords`, `name`, and `description`.
 7. For matched candidates, **resolve the blueprint file**:
-   a. Check `$SHIPFLOW_ROOT/skills/app-blueprints/<id>/blueprint.md` (local cache).
-   b. If missing but `source.repo` is set in the registry, clone the repo: `git clone --depth 1 <repo> $SHIPFLOW_ROOT/skills/app-blueprints/<id>/`. Use `$HOME/.shipflow/blueprints/<id>/` as fallback if `$SHIPFLOW_ROOT` is unavailable.
+   a. Check `$SHIPGLOWS_ROOT/skills/app-blueprints/<id>/blueprint.md` (local cache).
+   b. If missing but `source.repo` is set in the registry, clone the repo: `git clone --depth 1 <repo> $SHIPGLOWS_ROOT/skills/app-blueprints/<id>/`. Use `$HOME/.shipglows/blueprints/<id>/` as fallback if `$SHIPGLOWS_ROOT` is unavailable.
    c. If both fail, exclude this candidate.
-8. If no local match is found in the registry, fall back to scanning `$SHIPFLOW_ROOT/skills/app-blueprints/*/blueprint.md` for orphaned local blueprints not yet in the registry.
+8. If no local match is found in the registry, fall back to scanning `$SHIPGLOWS_ROOT/skills/app-blueprints/*/blueprint.md` for orphaned local blueprints not yet in the registry.
 9. Pick the best exact archetype match (score > 0). If a candidate is platform-compatible but domain-mismatched, keep it as a stack/conventions reference rather than inheriting its models and routes. If tied, ask the user.
 10. If a match is found:
    - Read the full blueprint file.
@@ -129,12 +129,12 @@ For spec-first execution, prefer a fresh execution context for delegated impleme
 
 Before `102-sg-start`, check:
 
-- `shipglowz_data/technical/` with legacy fallback `docs/technical/`
-- `shipglowz_data/technical/code-docs-map.md` with legacy fallback
-- `shipglowz_data/editorial/content-map.md` with legacy fallback
+- `shipglows_data/technical/` with legacy fallback `docs/technical/`
+- `shipglows_data/technical/code-docs-map.md` with legacy fallback
+- `shipglows_data/editorial/content-map.md` with legacy fallback
 - applicable editorial files
-- `$SHIPFLOW_ROOT/skills/references/technical-docs-corpus.md`
-- `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md`
+- `$SHIPGLOWS_ROOT/skills/references/technical-docs-corpus.md`
+- `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md`
 
 Classify each as `already existed`, `created`, `needs audit`, `skipped`, or `blocked`. If missing or stale, route to `300-sg-docs` bootstrap/audit or block.
 
@@ -193,7 +193,7 @@ Do not end with `/104-sg-end` or `/005-sg-ship` as a manual next step after succ
 
 ## Internal Role References
 
-When delegating, load role contracts from `$SHIPFLOW_ROOT/skills/references/subagent-roles/` as needed: technical reader, editorial reader, sequential executor, wave executor, and integrator. Do not expose these role files as user-facing commands.
+When delegating, load role contracts from `$SHIPGLOWS_ROOT/skills/references/subagent-roles/` as needed: technical reader, editorial reader, sequential executor, wave executor, and integrator. Do not expose these role files as user-facing commands.
 
 ## Report Templates
 

@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-07-12"
 status: active
@@ -18,7 +18,7 @@ linked_systems:
   - skills/references/skill-context-budget.md
   - skills/references/chantier-tracking.md
   - skills/references/reporting-contract.md
-  - shipglowz_data/technical/skill-runtime-and-lifecycle.md
+  - shipglows_data/technical/skill-runtime-and-lifecycle.md
 depends_on:
   - artifact: "skills/references/skill-context-budget.md"
     artifact_version: "0.3.1"
@@ -31,7 +31,7 @@ depends_on:
     required_status: "active"
 supersedes: []
 evidence:
-  - "Spec compact-shipflow-skill-instructions.md requested layered compaction for pilot skills."
+  - "Spec compact-shipglows-skill-instructions.md requested layered compaction for pilot skills."
   - "Repeated top-level doctrine across long skills was identified as instruction dilution risk."
   - "User decision 2026-06-10: keep SKILL.md contracts short and move detailed playbooks, examples, matrices, and edge cases to references."
   - "User decision 2026-07-07: for any skill-creation or skill-improvement work, improve the shared reference layer first and only add local skill wording when the behavior is truly owner-specific."
@@ -44,7 +44,7 @@ next_step: "/103-sg-verify skill instruction layering"
 
 ## Purpose
 
-Define where ShipGlowz skill instructions belong so skill bodies stay compact without losing operational guardrails.
+Define where ShipGlows skill instructions belong so skill bodies stay compact without losing operational guardrails.
 
 ## Top-Level `SKILL.md` Contract
 
@@ -109,7 +109,7 @@ When the trigger is a conversation failure, operator frustration, or execution c
 
 ## What Moves To Skill-Local References
 
-Use `$SHIPFLOW_ROOT/skills/<skill>/references/*.md` for long, skill-specific detail:
+Use `$SHIPGLOWS_ROOT/skills/<skill>/references/*.md` for long, skill-specific detail:
 
 - domain checklists and scoring matrices
 - long mode playbooks
@@ -151,13 +151,13 @@ Always run:
 
 ```bash
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --all
+tools/shipglows_sync_skills.sh --check --all
 ```
 
 For changed references and docs with frontmatter:
 
 ```bash
-python3 tools/shipglowz_metadata_lint.py <changed-artifacts>
+python3 tools/shipglows_metadata_lint.py <changed-artifacts>
 ```
 
 Use focused `rg` checks to verify mandatory labels and shared-reference links remain visible in compacted skill bodies.
@@ -165,5 +165,5 @@ Use focused `rg` checks to verify mandatory labels and shared-reference links re
 ## Integration Notes
 
 - Do not rename skill directories, `name:` fields, or invocation keys during compaction.
-- Resolve ShipGlowz-owned references from `${SHIPFLOW_ROOT:-$HOME/shipglowz}`.
+- Resolve ShipGlows-owned references from `${SHIPGLOWS_ROOT:-$HOME/shipglows}`.
 - Keep reports concise for users, detailed only when explicit handoff or blocked state requires it.

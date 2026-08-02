@@ -11,12 +11,12 @@ GATES = ROOT / "skills" / "103-sg-verify" / "references" / "verification-gates.m
 README = ROOT / "skills" / "103-sg-verify" / "README.md"
 CHEATSHEET = (
     ROOT
-    / "shipglowz_data"
+    / "shipglows_data"
     / "technical"
     / "operator-guides"
     / "skill-launch-cheatsheet.md"
 )
-PUBLIC_PAGE = ROOT / "shipglowz-site" / "src" / "content" / "skills" / "sg-verify.md"
+PUBLIC_PAGE = ROOT / "shipglows-site" / "src" / "content" / "skills" / "sg-verify.md"
 MAX_ACTIVATION_LINES = 205
 
 

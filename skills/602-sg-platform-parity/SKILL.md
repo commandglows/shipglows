@@ -6,7 +6,7 @@ argument-hint: '<project | feature | spec path> [platforms=web,android,ios,windo
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
@@ -17,13 +17,13 @@ This `SKILL.md` is the activation contract. Load `references/platform-parity-mat
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`. If attached to one unique chantier spec, write the run trace there. If no unique chantier exists, do not write to a spec.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. If attached to one unique chantier spec, write the run trace there. If no unique chantier exists, do not write to a spec.
 
-Because this skill can reveal cross-platform gaps, evaluate the chantier-potential threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report. Add a `Chantier potentiel` block when parity gaps require non-trivial implementation, platform QA, documentation correction, or release sequencing and no unique chantier owns the work.
+Because this skill can reveal cross-platform gaps, evaluate the chantier-potential threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report. Add a `Chantier potentiel` block when parity gaps require non-trivial implementation, platform QA, documentation correction, or release sequencing and no unique chantier owns the work.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, decision-oriented, and in the user's active language. Use `report=agent`, `handoff`, `verbose`, or `full-report` when another skill needs the full parity matrix, evidence ledger, or routing detail.
 
@@ -95,9 +95,9 @@ If evidence is absent, mark the cell `unknown` or `proof-gap`; do not infer supp
 
 When the run creates durable output, prefer project-owned paths:
 
-- `shipglowz_data/workflow/audits/<date>-platform-parity.md` for audit reports
-- `shipglowz_data/workflow/specs/<feature>-platform-parity.md` for new chantiers
-- `shipglowz_data/workflow/verification/<feature>-platform-parity-checklist.md` for manual QA
+- `shipglows_data/workflow/audits/<date>-platform-parity.md` for audit reports
+- `shipglows_data/workflow/specs/<feature>-platform-parity.md` for new chantiers
+- `shipglows_data/workflow/verification/<feature>-platform-parity-checklist.md` for manual QA
 - project docs only when claims or operator guidance actually change
 
 ## Stop Conditions
@@ -117,5 +117,5 @@ Validate this skill after edits with:
 ```bash
 rg -n "Trace category|Process role|Parity Decision Model|Core Workflow|Required Evidence|Stop Conditions|references/platform-parity-matrix" skills/602-sg-platform-parity/SKILL.md
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --skill 602-sg-platform-parity
+tools/shipglows_sync_skills.sh --check --skill 602-sg-platform-parity
 ```

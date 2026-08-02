@@ -1,1 +1,0 @@
-shipglowz-terms.md

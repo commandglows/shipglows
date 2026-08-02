@@ -9,20 +9,20 @@ TEST_ROOT="$(mktemp -d)"
 trap 'rm -rf "$TEST_ROOT"' EXIT
 
 export HOME="$TEST_ROOT/home"
-export SHIPGLOWZ_STATE_DIR="$HOME/.shipglowz"
-export SHIPFLOW_STATE_DIR="$SHIPGLOWZ_STATE_DIR"
-export SHIPGLOWZ_PROJECTS_DIR="$HOME/projects"
-export SHIPFLOW_PROJECTS_DIR="$SHIPGLOWZ_PROJECTS_DIR"
-export SHIPGLOWZ_REGISTRY="$SHIPGLOWZ_STATE_DIR/envs.reg"
-export SHIPFLOW_REGISTRY="$SHIPGLOWZ_REGISTRY"
-export SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE="$SHIPGLOWZ_STATE_DIR/flutter-web-sessions.tsv"
-export SHIPFLOW_ERROR_TRAPS=false
-export SHIPFLOW_STRICT_MODE=false
-export SHIPGLOWZ_LOGGING_ENABLED=false
-export SHIPFLOW_LOGGING_ENABLED=false
-export SHIPGLOWZ_USER_CADDY_ENABLED=false
+export SHIPGLOWS_STATE_DIR="$HOME/.shipglows"
+export SHIPGLOWS_STATE_DIR="$SHIPGLOWS_STATE_DIR"
+export SHIPGLOWS_PROJECTS_DIR="$HOME/projects"
+export SHIPGLOWS_PROJECTS_DIR="$SHIPGLOWS_PROJECTS_DIR"
+export SHIPGLOWS_REGISTRY="$SHIPGLOWS_STATE_DIR/envs.reg"
+export SHIPGLOWS_REGISTRY="$SHIPGLOWS_REGISTRY"
+export SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE="$SHIPGLOWS_STATE_DIR/flutter-web-sessions.tsv"
+export SHIPGLOWS_ERROR_TRAPS=false
+export SHIPGLOWS_STRICT_MODE=false
+export SHIPGLOWS_LOGGING_ENABLED=false
+export SHIPGLOWS_LOGGING_ENABLED=false
+export SHIPGLOWS_USER_CADDY_ENABLED=false
 
-PROJECT_DIR="$SHIPGLOWZ_PROJECTS_DIR/delete-me"
+PROJECT_DIR="$SHIPGLOWS_PROJECTS_DIR/delete-me"
 TMUX_STATE="$TEST_ROOT/tmux-state"
 PM2_EVENTS="$TEST_ROOT/pm2-events"
 CADDY_EVENTS="$TEST_ROOT/caddy-events"
@@ -34,7 +34,7 @@ cat > "$FAKE_BIN/pm2" <<'EOF'
 #!/bin/bash
 case "${1:-}" in
     jlist)
-        printf '%s\n' '[{"name":"delete-me","pid":123,"pm2_env":{"status":"online","pm_cwd":"'"$SHIPGLOWZ_PROJECTS_DIR"'/delete-me","env":{"PORT":"3011"}}}]'
+        printf '%s\n' '[{"name":"delete-me","pid":123,"pm2_env":{"status":"online","pm_cwd":"'"$SHIPGLOWS_PROJECTS_DIR"'/delete-me","env":{"PORT":"3011"}}}]'
         ;;
     delete|save)
         printf '%s\n' "$*" >> "$PM2_EVENTS"
@@ -77,8 +77,8 @@ fail() {
     exit 1
 }
 
-printf '%s|%s|%s|%s\n' "delete-me" "3011" "$PROJECT_DIR" "shipglowz-flutter-delete-me" > "$SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE"
-touch "$TMUX_STATE/shipglowz-flutter-delete-me"
+printf '%s|%s|%s|%s\n' "delete-me" "3011" "$PROJECT_DIR" "shipglows-flutter-delete-me" > "$SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE"
+touch "$TMUX_STATE/shipglows-flutter-delete-me"
 
 resolve_project_path_into resolved "$PROJECT_DIR" || fail "absolute project path should resolve"
 [ "$resolved" = "$PROJECT_DIR" ] || fail "resolved path mismatch"
@@ -90,14 +90,14 @@ fi
 
 env_remove "delete-me" || fail "environment removal should succeed"
 [ ! -e "$PROJECT_DIR" ] || fail "project directory remains"
-[ ! -e "$TMUX_STATE/shipglowz-flutter-delete-me" ] || fail "Flutter tmux session remains"
-[ ! -s "$SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE" ] || fail "Flutter session registry remains"
-[ ! -e "$SHIPGLOWZ_REGISTRY.invalidated" ] || fail "registry invalidation marker remains"
-if grep -q '^delete-me|' "$SHIPGLOWZ_REGISTRY" 2>/dev/null; then
-    fail "deleted environment remains in ShipGlowz registry"
+[ ! -e "$TMUX_STATE/shipglows-flutter-delete-me" ] || fail "Flutter tmux session remains"
+[ ! -s "$SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE" ] || fail "Flutter session registry remains"
+[ ! -e "$SHIPGLOWS_REGISTRY.invalidated" ] || fail "registry invalidation marker remains"
+if grep -q '^delete-me|' "$SHIPGLOWS_REGISTRY" 2>/dev/null; then
+    fail "deleted environment remains in ShipGlows registry"
 fi
 grep -q '^delete delete-me$' "$PM2_EVENTS" || fail "PM2 delete was not called"
-grep -q '^kill-session shipglowz-flutter-delete-me$' "$PM2_EVENTS" || fail "tmux session was not killed"
+grep -q '^kill-session shipglows-flutter-delete-me$' "$PM2_EVENTS" || fail "tmux session was not killed"
 [ "$(wc -l < "$CADDY_EVENTS")" -eq 1 ] || fail "Caddy sync was not called exactly once"
 grep -q '^delete --force --dir=' "$FLOX_EVENTS" || fail "Flox environment was not deleted"
 

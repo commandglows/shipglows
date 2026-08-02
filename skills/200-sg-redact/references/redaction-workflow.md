@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-05-16"
 status: draft
@@ -22,9 +22,9 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
-  - "Extracted from skills/200-sg-redact/SKILL.md during Compact ShipGlowz Skill Instructions Phase 3."
+  - "Extracted from skills/200-sg-redact/SKILL.md during Compact ShipGlows Skill Instructions Phase 3."
 next_review: "2026-06-16"
-next_step: "/103-sg-verify Compact ShipGlowz Skill Instructions Phase 3"
+next_step: "/103-sg-verify Compact ShipGlows Skill Instructions Phase 3"
 ---
 
 # Redaction Workflow
@@ -39,21 +39,21 @@ This reference preserves the detailed pre-compaction instructions for `200-sg-re
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `support-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 
 ## Governance Corpora And Output Plans
 
-Before choosing a public surface, drafting public content, or recommending article/blog/newsletter output, load `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md` when `shipglowz_data/editorial/content-map.md`, legacy `CONTENT_MAP.md`, `shipglowz_data/editorial/`, or legacy `docs/editorial/` exists. Follow its load order for content surface routing, public page intent, claim register checks, editorial update gate, Astro runtime schema policy, and blog/article surface policy.
+Before choosing a public surface, drafting public content, or recommending article/blog/newsletter output, load `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` when `shipglows_data/editorial/content-map.md`, legacy `CONTENT_MAP.md`, `shipglows_data/editorial/`, or legacy `docs/editorial/` exists. Follow its load order for content surface routing, public page intent, claim register checks, editorial update gate, Astro runtime schema policy, and blog/article surface policy.
 
-Before changing runtime content, site files, content schemas, public docs, README guidance, skill contracts, or mapped technical documentation surfaces, load `$SHIPFLOW_ROOT/skills/references/technical-docs-corpus.md` and use `shipglowz_data/technical/code-docs-map.md` (fallback legacy `docs/technical/code-docs-map.md`) to decide whether a `Documentation Update Plan` is required.
+Before changing runtime content, site files, content schemas, public docs, README guidance, skill contracts, or mapped technical documentation surfaces, load `$SHIPGLOWS_ROOT/skills/references/technical-docs-corpus.md` and use `shipglows_data/technical/code-docs-map.md` (fallback legacy `docs/technical/code-docs-map.md`) to decide whether a `Documentation Update Plan` is required.
 
 The final report must include these governance outcomes when relevant:
 - `Editorial Update Plan`: required for public pages, README/public docs, public skill pages, FAQ, pricing/support copy, runtime public content, or blog/article/newsletter output. Use `no editorial impact` with a reason when there is no public-content consequence.
@@ -64,11 +64,11 @@ The final report must include these governance outcomes when relevant:
 
 - Current directory: !`pwd`
 - Project CLAUDE.md: !`head -120 CLAUDE.md 2>/dev/null || echo "no CLAUDE.md"`
-- Branding: !`if [ -f shipglowz_data/branding/branding.md ]; then head -80 shipglowz_data/branding/branding.md; else head -80 BRANDING.md 2>/dev/null || echo "no shipglowz_data/branding/branding.md (and no legacy BRANDING.md)"; fi`
-- Business: !`if [ -f shipglowz_data/business/business.md ]; then head -80 shipglowz_data/business/business.md; else head -80 BUSINESS.md 2>/dev/null || echo "no shipglowz_data/business/business.md (and no legacy BUSINESS.md)"; fi`
+- Branding: !`if [ -f shipglows_data/branding/branding.md ]; then head -80 shipglows_data/branding/branding.md; else head -80 BRANDING.md 2>/dev/null || echo "no shipglows_data/branding/branding.md (and no legacy BRANDING.md)"; fi`
+- Business: !`if [ -f shipglows_data/business/business.md ]; then head -80 shipglows_data/business/business.md; else head -80 BUSINESS.md 2>/dev/null || echo "no shipglows_data/business/business.md (and no legacy BUSINESS.md)"; fi`
 - Inspiration: !`head -60 INSPIRATION.md 2>/dev/null || echo "no INSPIRATION.md"`
 - Source: !`head -60 SOURCE.md 2>/dev/null || echo "no SOURCE.md"`
-- Guidelines: !`if [ -f shipglowz_data/technical/guidelines.md ]; then head -60 shipglowz_data/technical/guidelines.md; else head -60 GUIDELINES.md 2>/dev/null || echo "no shipglowz_data/technical/guidelines.md (and no legacy GUIDELINES.md)"; fi`
+- Guidelines: !`if [ -f shipglows_data/technical/guidelines.md ]; then head -60 shipglows_data/technical/guidelines.md; else head -60 GUIDELINES.md 2>/dev/null || echo "no shipglows_data/technical/guidelines.md (and no legacy GUIDELINES.md)"; fi`
 - Author identity: !`head -80 FOUNDER.md 2>/dev/null || head -80 AUTHOR.md 2>/dev/null || echo "no FOUNDER.md or AUTHOR.md"`
 - Content language: !`grep -ri "lang=" src/layouts/*.astro src/app/layout.tsx 2>/dev/null | head -3 || echo "detect from content"`
 - Existing content: !`find src/content content posts -name "*.md" -o -name "*.mdx" 2>/dev/null | head -20 || echo "no content dir found"`
@@ -97,11 +97,11 @@ N'afficher que les lignes correspondant aux fichiers réellement absents. Si tou
 
 Cette skill peut produire deux types de fichiers :
 - **Contenu applicatif** (`src/content/**`, `content/**`, posts MD/MDX consommés par le site) : respecter strictement le schéma du projet. Ne pas ajouter de champs incompatibles avec `content/config.ts`, Contentlayer, Astro, Next, Hugo ou le parser local.
-- **Artefact ShipGlowz business/content** (brief éditorial, calendrier, stratégie, persona, doc de contenu, rapport sauvegardé hors runtime) : frontmatter ShipGlowz obligatoire avec `metadata_schema_version`, `artifact_version` et `depends_on`.
+- **Artefact ShipGlows business/content** (brief éditorial, calendrier, stratégie, persona, doc de contenu, rapport sauvegardé hors runtime) : frontmatter ShipGlows obligatoire avec `metadata_schema_version`, `artifact_version` et `depends_on`.
 
 Avant de planifier ou rédiger, lire le frontmatter complet de `BUSINESS.md`, `BRANDING.md`, `GUIDELINES.md`, `FOUNDER.md`/`AUTHOR.md` quand ils existent. Si le contenu dépend de ces contrats, reporter leurs versions :
 
-Si `shipglowz_data/editorial/` existe (fallback legacy `docs/editorial/`), appliquer la section `Governance Corpora And Output Plans` avant de choisir une surface publique. Utiliser le claim register pour éviter les unsupported public claims, la page intent map pour respecter le rôle des pages publiques, l'Astro content schema policy avant de modifier du runtime content, et la blog/article surface policy avant de créer un article. Si aucune surface blog n'est déclarée, signaler `surface missing: blog` et ne pas inventer de chemin.
+Si `shipglows_data/editorial/` existe (fallback legacy `docs/editorial/`), appliquer la section `Governance Corpora And Output Plans` avant de choisir une surface publique. Utiliser le claim register pour éviter les unsupported public claims, la page intent map pour respecter le rôle des pages publiques, l'Astro content schema policy avant de modifier du runtime content, et la blog/article surface policy avant de créer un article. Si aucune surface blog n'est déclarée, signaler `surface missing: blog` et ne pas inventer de chemin.
 
 ```yaml
 depends_on:
@@ -135,7 +135,7 @@ Si le schéma applicatif n'accepte pas ces champs, ne pas les forcer. Mentionner
 
 ### Bump `artifact_version`
 
-Pour les artefacts ShipGlowz générés par cette skill :
+Pour les artefacts ShipGlows générés par cette skill :
 - `MAJOR` (`1.0.0` -> `2.0.0`) : changement de stratégie éditoriale, audience cible, positionnement, promesse, langue principale, angle fondateur ou objectif business du contenu.
 - `MINOR` (`1.0.0` -> `1.1.0`) : ajout d'un pilier éditorial, nouveau cluster SEO, nouvelle série d'articles, nouveau persona secondaire ou source business importante.
 - `PATCH` (`1.0.0` -> `1.0.1`) : correction de formulation, typo, lien, tag, source ou précision sans changement stratégique.
@@ -277,7 +277,7 @@ Avant d'écrire, détecter où créer les fichiers :
 
 Utiliser le même répertoire que le contenu existant. Si plusieurs répertoires existent, utiliser **AskUserQuestion** pour confirmer. Respecter l'extension existante (`.md` ou `.mdx`).
 
-Si un projet ShipGlowz déclare `shipglowz_data/editorial/blog-and-article-surface-policy.md` (fallback legacy `docs/editorial/blog-and-article-surface-policy.md`), ce document prime sur les heuristiques génériques ci-dessus. Ne créer aucun blog/article sans route, collection, page intent, claim boundary et schema compatibles déclarés.
+Si un projet ShipGlows déclare `shipglows_data/editorial/blog-and-article-surface-policy.md` (fallback legacy `docs/editorial/blog-and-article-surface-policy.md`), ce document prime sur les heuristiques génériques ci-dessus. Ne créer aucun blog/article sans route, collection, page intent, claim boundary et schema compatibles déclarés.
 
 #### Frontmatter
 
@@ -307,9 +307,9 @@ docs_impact: none
 ---
 ```
 
-Si le projet a déjà un schéma de frontmatter, préserver les champs requis et n'ajouter ces métadonnées que si elles sont compatibles. Ne jamais casser un schéma applicatif pour imposer les metadata ShipGlowz ; reporter les versions utilisées dans le rapport final si le frontmatter ne peut pas les contenir.
+Si le projet a déjà un schéma de frontmatter, préserver les champs requis et n'ajouter ces métadonnées que si elles sont compatibles. Ne jamais casser un schéma applicatif pour imposer les metadata ShipGlows ; reporter les versions utilisées dans le rapport final si le frontmatter ne peut pas les contenir.
 
-Pour Astro, vérifier explicitement `content.config.ts` ou `site/src/content.config.ts` avant d'ajouter un champ. L'Astro content schema et le runtime content gagnent sur les besoins de traçabilité ShipGlowz; les versions de contexte peuvent rester dans le rapport final ou une doc de gouvernance.
+Pour Astro, vérifier explicitement `content.config.ts` ou `site/src/content.config.ts` avant d'ajouter un champ. L'Astro content schema et le runtime content gagnent sur les besoins de traçabilité ShipGlows; les versions de contexte peuvent rester dans le rapport final ou une doc de gouvernance.
 
 #### Écrire en tant que l'auteur
 

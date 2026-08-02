@@ -138,7 +138,7 @@ En tant que [actor], je veux [capability], afin de [value].
 ### Manual checklist
 
 - Needed: [yes|no]
-- Checklist path: `shipglowz_data/workflow/test-checklists/<scope>.md`
+- Checklist path: `shipglows_data/workflow/test-checklists/<scope>.md`
 - Required scenario coverage: [required rows only]
 - Exception with proof: [why and what alternate evidence was used, when required]
 

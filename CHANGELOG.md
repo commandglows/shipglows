@@ -2,7 +2,7 @@
 artifact: documentation
 metadata_schema_version: "1.0"
 artifact_version: "0.7.1"
-project: "shipflow"
+project: "shipglows"
 created: "2026-04-25"
 updated: "2026-07-17"
 status: draft
@@ -14,7 +14,7 @@ security_impact: yes
 risk_level: low
 docs_impact: yes
 linked_systems:
-  - shipglowz.sh
+  - shipglows.sh
   - lib.sh
   - config.sh
   - install.sh
@@ -24,7 +24,7 @@ supersedes: []
 evidence: []
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
-# ShipFlow Changelog
+# ShipGlows Changelog
 
 ## [2026-07-23]
 
@@ -67,17 +67,17 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ### Changed
 - Consolidated the public design-skill surface into `006-sg-design` modes and six focused playbooks; migrated active help, runtime, catalog, and public-site guidance while retiring the redundant `409` and `500–504` entrypoints.
 - Renamed `008-sg-end-user` to `008-sg-customer` across runtime discovery, routing, catalogs, documentation, and the public skill page to avoid collision with `end` searches.
-- Consolidated internal skill maintenance into `900-shipglowz-core` modes and focused build/refresh playbooks; migrated active docs, routes, profiles, catalogs, and runtime discovery while removing the retired `009` and `307` source/runtime entries.
+- Consolidated internal skill maintenance into `900-shipglows-core` modes and focused build/refresh playbooks; migrated active docs, routes, profiles, catalogs, and runtime discovery while removing the retired `009` and `307` source/runtime entries.
 
 ## [2026-07-13]
 
 ### Changed
 - Moved the seven root Bash regression suites into ownership-based `tests/cli`, `tests/runtime`, `tests/governance`, `tests/skills`, and `tests/workflow` directories, with behavior-based names and canonical `cli/` imports.
-- Consolidated active documentation, bug, audit, conversation, exploration, specification, research, and archive records under their canonical `shipglowz_data/` families.
+- Consolidated active documentation, bug, audit, conversation, exploration, specification, research, and archive records under their canonical `shipglows_data/` families.
 - Flattened the single-child template hierarchy so all 25 artifact templates now live directly under `templates/`.
 
 ### Fixed
-- Repaired stale logging, Flox override, Flutter session-name, and project-tracking fixtures; all seven relocated suites now pass and `shipglowz_init_project` returns success when initialization is already current.
+- Repaired stale logging, Flox override, Flutter session-name, and project-tracking fixtures; all seven relocated suites now pass and `shipglows_init_project` returns success when initialization is already current.
 
 ### Removed
 - Removed unconsumed root `docs`, `bugs`, `archive`, `specs`, and `research` surfaces and the two unused root devserver compatibility launchers while preserving canonical content and CLI implementations.
@@ -91,7 +91,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-07-11]
 
 ### Changed
-- Taught the editorial-governance bootstrap flow to create and report `shipglowz_data/editorial/ROADMAP.md` when a project has applicable public/editorial surfaces, and aligned `300-sg-docs`, `305-sg-init`, and the editorial corpus reference around that same normalization rule.
+- Taught the editorial-governance bootstrap flow to create and report `shipglows_data/editorial/ROADMAP.md` when a project has applicable public/editorial surfaces, and aligned `300-sg-docs`, `305-sg-init`, and the editorial corpus reference around that same normalization rule.
 - Added the optional `#feature:<term>` navigation hint across the routing, help, context, docs-map, and IME behavior-index surfaces so known terms like `swipe` recover the right behavior family before broad search.
 
 ## [2026-07-04]
@@ -107,13 +107,13 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Changed
 - Added dedicated repo-visible runtime pages for OpenCode and KiloCode, linked them from the core docs surfaces, documented the proven OpenCode shim paths, and made the KiloCode compatibility boundary explicit where the repository does not ship a dedicated shim.
-- Clarified public and repo-visible runtime/docs handoffs so help surfaces explain and route, `000-shipflow` routes or answers directly, owner lifecycle/specialist skills own execution after handoff, and OpenCode/KiloCode internal calls such as `skill({ name: "shipflow" })` are not presented as manual operator commands.
+- Clarified public and repo-visible runtime/docs handoffs so help surfaces explain and route, `000-shipglows` routes or answers directly, owner lifecycle/specialist skills own execution after handoff, and OpenCode/KiloCode internal calls such as `skill({ name: "shipglows" })` are not presented as manual operator commands.
 - Updated the launch cheatsheet numeric runtime examples to match the canonical three-digit skill naming and aligned README, workflow doctrine, runtime docs, and help catalog wording on invocation versus execution ownership.
 
 ## [2026-06-25]
 
 ### Added
-- Added env registry `~/.shipflow/envs.reg` — built once on lib.sh load (`registry_sync`), updated by `env_start`/`env_stop`, read by dashboard via `cat` (0 subprocesses during render)
+- Added env registry `~/.shipglows/envs.reg` — built once on lib.sh load (`registry_sync`), updated by `env_start`/`env_stop`, read by dashboard via `cat` (0 subprocesses during render)
 - Added auto-install guards in `env_start()` — checks for missing/empty `node_modules` (runs pnpm/npm install), missing Python venv (creates + pip install), unreachable Doppler (disables if offline)
 - Added `pm2_health_scan()` — reads `~/.pm2/dump.pm2` (~1ms file read, no subprocess) at lib.sh load and after `env_start` to warn of >10 restart processes
 - Added PM2 health to async status cache (`refresh_menu_status_cache_sync`, 120s interval) — displayed in `print_header()` with no menu latency
@@ -130,8 +130,8 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 - Added pause between environment list and idle-app picker in dashboard
 
 ### Renamed
-- PM2/directory/flox env: `app` → `shipflow_app`, `site` → `shipglowz-site`, flox env `contentflowz-app` → `shipflow-app`
-- Created `/home/claude/shipflow_app/shipflow_app/` directory for renamed shipflow_app project
+- PM2/directory/flox env: `app` → `shipglows_app`, `site` → `shipglows-site`, flox env `contentflowz-app` → `shipglows-app`
+- Created `/home/claude/shipglows_app/shipglows_app/` directory for renamed shipglows_app project
 
 ### Removed
 - Deleted `contentglowz_app` from PM2 (Flutter build — CI only)
@@ -143,10 +143,10 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-06-19]
 
 ### Added
-- Added a repo-backed Codex marketplace source at `.agents/plugins/marketplace.json`, a publishable plugin mirror under `plugins/shipflow`, and dedicated public install pages at `/install` and `/fr/install`.
+- Added a repo-backed Codex marketplace source at `.agents/plugins/marketplace.json`, a publishable plugin mirror under `plugins/shipglows`, and dedicated public install pages at `/install` and `/fr/install`.
 
 ### Changed
-- Updated the ShipFlow plugin README, technical packaging docs, docs-links catalog, skill help surfaces, FAQ/docs cross-links, and public `shipflow` skill page so users can install `shipflow` from the repository marketplace path and start with `$shipflow`.
+- Updated the ShipGlows plugin README, technical packaging docs, docs-links catalog, skill help surfaces, FAQ/docs cross-links, and public `shipglows` skill page so users can install `shipglows` from the repository marketplace path and start with `$shipglows`.
 
 ## [2026-06-12]
 
@@ -167,13 +167,13 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-06-10]
 
 ### Changed
-- Added veille/backlog references for Alpic MCP/ChatGPT Apps distribution, models.dev model metadata, and OpenPostern-style security signal routing as future ShipFlow skill/product directions.
+- Added veille/backlog references for Alpic MCP/ChatGPT Apps distribution, models.dev model metadata, and OpenPostern-style security signal routing as future ShipGlows skill/product directions.
 - Added bounded `102-sg-start` local auto-verification semantics so safe, tool-backed, non-destructive proof can run in the same local implementation flow while preview, production, browser/auth, manual QA, commit, push, and ship proof stays routed to owner skills.
-- Migrated ShipFlow skill runtime names to three-digit prefixes such as `000-shipflow` and `001-sg-build`, with a canonical `skills/references/skill-code-index.md` map, router/help guidance, validators, synced Codex/Claude runtime links, and manual picker proof.
+- Migrated ShipGlows skill runtime names to three-digit prefixes such as `000-shipglows` and `001-sg-build`, with a canonical `skills/references/skill-code-index.md` map, router/help guidance, validators, synced Codex/Claude runtime links, and manual picker proof.
 - Closed the project-aware editorial scoring chantier with sample rubric evidence covering schema-complete scoring plus duplicate, conflicting, and stale score rejection scenarios.
 - Documented project-aware editorial scoring across README, launch cheatsheet, help catalog, public skill pages, public mode cheatsheet, and editorial governance gates.
-- Hardened ShipFlow conversation audit storage so the `000-shipflow` tmux capture preset stays under `$SHIPFLOW_ROOT/shipglowz_data/workflow/conversations/` and project-local destinations are blocked.
-- Hardened human-mode ShipFlow skill reports so directly launched skills return concise operator-facing outcomes while keeping detailed evidence in `report=agent`.
+- Hardened ShipGlows conversation audit storage so the `000-shipglows` tmux capture preset stays under `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/` and project-local destinations are blocked.
+- Hardened human-mode ShipGlows skill reports so directly launched skills return concise operator-facing outcomes while keeping detailed evidence in `report=agent`.
 - Strengthened the shared question contract so skills choose safe professional defaults and ask only material numbered questions in plain decision language.
 - Tightened proof-first reporting and `101-sg-ready` readiness output with proof-gap language, compact user-mode readiness reports, atomic ready metadata transitions, and a pressure-scenario checklist.
 - Added hosted-proof follow-through routing so `partial` verdicts name the proof owner, scenario, target or environment, and deploy-first ladder instead of leaving operators to infer the next skill.
@@ -186,7 +186,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-05-30]
 
 ### Added
-- Added a ShipFlow conversation-audit loop with a `000-shipflow` tmux capture preset, canonical private transcript storage, a new `705-sg-conversation-audit` skill, deterministic fixture classification, and a `conversation_audit` artifact template.
+- Added a ShipGlows conversation-audit loop with a `000-shipglows` tmux capture preset, canonical private transcript storage, a new `705-sg-conversation-audit` skill, deterministic fixture classification, and a `conversation_audit` artifact template.
 - Added an actionable failure routing contract so support and lifecycle skills can map evidence-backed failures to concrete owner routes instead of passive reports.
 - Added a private batch conversation excellence audit report that turns selected `/home/claude` conversation transcripts into evidence-backed skill follow-up routes.
 
@@ -196,7 +196,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-05-29]
 
 ### Added
-- Added durable manual checklist artifacts for proof-first TDD workflows, including the canonical `shipglowz_data/workflow/test-checklists/<scope>.md` path and parser-backed status handling for `PASS`, `FAIL`, `BLOCKED`, `NOT_RUN`, and `N/A`.
+- Added durable manual checklist artifacts for proof-first TDD workflows, including the canonical `shipglows_data/workflow/test-checklists/<scope>.md` path and parser-backed status handling for `PASS`, `FAIL`, `BLOCKED`, `NOT_RUN`, and `N/A`.
 
 ### Changed
 - Updated `107-sg-test`, README, workflow doctrine, FAQ, and launch-cheatsheet content so operators can fill checklist files directly while agents consume them as evidence instead of relying on chat copy-paste.
@@ -204,7 +204,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-05-18]
 
 ### Added
-- Added a shared spec-driven development discipline for ShipFlow: specs, bug files, release scopes, and mini-contracts remain the source of truth while execution chooses a concrete proof path.
+- Added a shared spec-driven development discipline for ShipGlows: specs, bug files, release scopes, and mini-contracts remain the source of truth while execution chooses a concrete proof path.
 
 ### Changed
 - Updated `102-sg-start`, `106-sg-fix`, `003-sg-bug`, `009-sg-skill-build`, and `103-sg-verify` to use proof paths such as `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof`.
@@ -213,14 +213,14 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-05-17]
 
 ### Changed
-- Audited the ShipFlow skill taxonomy and compacted 56 skill discovery descriptions, reducing average description length from 70.7 to 51.3 and the absolute discovery estimate from 7988/8000 to 6805/8000 while keeping all skill names, invocation paths, trace categories, and process roles stable.
+- Audited the ShipGlows skill taxonomy and compacted 56 skill discovery descriptions, reducing average description length from 70.7 to 51.3 and the absolute discovery estimate from 7988/8000 to 6805/8000 while keeping all skill names, invocation paths, trace categories, and process roles stable.
 - Clarified `300-sg-docs` discovery wording to expose governance-layout compliance after a local transcript showed README/docs refresh could miss a layout migration gate.
 - Documented the current skill discovery family map in the technical lifecycle notes.
 
 ## [2026-05-16]
 
 ### Changed
-- Compacted the remaining oversized ShipFlow skills above 500 lines into concise activation contracts with skill-local workflow references, reducing `SKILL.md` line-count risks while preserving chantier, reporting, audit, SEO, copywriting, bootstrap, and source-faithfulness guardrails.
+- Compacted the remaining oversized ShipGlows skills above 500 lines into concise activation contracts with skill-local workflow references, reducing `SKILL.md` line-count risks while preserving chantier, reporting, audit, SEO, copywriting, bootstrap, and source-faithfulness guardrails.
 - Compacted the next non-lifecycle token-risk skill batch (`400-sg-audit`, `409-sg-audit-a11y`, `206-sg-audit-copy`, `408-sg-audit-gtm`, `109-sg-auth-debug`, `201-sg-enrich`, `204-sg-market-study`, `405-sg-prod`, `200-sg-redact`), leaving only lifecycle skills `100-sg-spec` and `102-sg-start` in the token-risk list.
 - Compacted the lifecycle token-risk skills (`100-sg-spec`, `102-sg-start`) into concise activation contracts with skill-local workflow references, bringing the skill budget audit to zero body-size token risks while preserving spec-first, chantier, reporting, and execution-result semantics.
 - Documented the phase 2 compaction convention in the skill runtime lifecycle notes.
@@ -244,13 +244,13 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Changed
 - Root, server submenus, nested menus, search selectors, and local tunnel
-  menus now share a padded ShipFlow DevServer header treatment with consistent
+  menus now share a padded ShipGlows DevServer header treatment with consistent
   title colors, borders, and session identity placement.
-- The ShipFlow root menu is now grouped into readable entries (`Dashboard`,
+- The ShipGlows root menu is now grouped into readable entries (`Dashboard`,
   `Deploy / Start`, `Environments`, `Tools`, `System`,
-  `Agents`, `ShipFlow`, `Help`, `Exit`) with icons.
-- The previous `Agents / ShipFlow` root entry is now split into separate
-  `Agents` and `ShipFlow` items, giving the ShipFlow tracker menu its own
+  `Agents`, `ShipGlows`, `Help`, `Exit`) with icons.
+- The previous `Agents / ShipGlows` root entry is now split into separate
+  `Agents` and `ShipGlows` items, giving the ShipGlows tracker menu its own
   shortcut.
 - Environment, tools, system, and agents submenus now show iconed titles,
   a blank spacer, and iconed one-key actions in both Gum and bash frontends.
@@ -264,12 +264,12 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-05-08]
 
 ### Changed
-- The ShipFlow top-level menu now avoids per-item Gum subprocesses and uses a
+- The ShipGlows top-level menu now avoids per-item Gum subprocesses and uses a
   two-column layout on wide terminals, with a one-column fallback for narrow
   terminals.
 - Codex MCP providers are registered disabled by default and can be launched
-  per session from the ShipFlow Codex launcher.
-- ShipFlow now manages the local Caddy proxy in user mode with the PM2 app
+  per session from the ShipGlows Codex launcher.
+- ShipGlows now manages the local Caddy proxy in user mode with the PM2 app
   lifecycle instead of leaving the system Caddy service as the normal runtime
   path.
 - `003-sg-bug` now presents itself as a bug lifecycle executor that continues through owner skills and bounded subagents when safe, instead of a simple next-command router.
@@ -290,7 +290,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 - Public `006-sg-design` skill page and launch-cheatsheet routing so design-related requests are discoverable from the site and repo docs.
 
 ### Changed
-- `000-shipflow` routing now sends design-related operator requests to `006-sg-design`.
+- `000-shipglows` routing now sends design-related operator requests to `006-sg-design`.
 - Design playground and design-system creation guidance now call out the follow-up migration needed when centralized tokens are not yet consumed across pages and components.
 
 ## [2026-05-04]
@@ -311,7 +311,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Fixed
 - Public site layout now declares a favicon to avoid the browser `favicon.ico` 404 during checks.
-- Installer alias refresh now removes stale standalone ShipFlow aliases before writing the managed alias block.
+- Installer alias refresh now removes stale standalone ShipGlows aliases before writing the managed alias block.
 - Install report markdown now escapes the ARM64 Flutter release command example correctly.
 - `001-sg-build` now continues through `104-sg-end` and `005-sg-ship` after successful verification instead of handing those lifecycle steps back as manual next commands, unless a concrete blocker requires user input.
 - Disk cleanup now escalates root disk pressure with warning/high/critical messages, before/after used percentages, and explicit VM freeze/build-stall guidance.
@@ -333,10 +333,10 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 - README, workflow doctrine, help, technical lifecycle docs, and chantier tracking now present `003-sg-bug` as the bug lifecycle router while preserving `107-sg-test`, `106-sg-fix`, `109-sg-auth-debug`, `108-sg-browser`, `103-sg-verify`, and `005-sg-ship` as phase owners.
 - README, workflow doctrine, help, technical lifecycle docs, and chantier tracking now present `004-sg-deploy` as the release lifecycle entrypoint while preserving atomic skills for direct expert use.
 - README, workflow doctrine, help, technical lifecycle docs, public skill content, and chantier tracking now present `002-sg-maintain` as a lifecycle master skill instead of a read-only router.
-- Several skill descriptions were compacted to keep the ShipFlow skill discovery budget under the hard runtime limit after adding `004-sg-deploy`.
+- Several skill descriptions were compacted to keep the ShipGlows skill discovery budget under the hard runtime limit after adding `004-sg-deploy`.
 
 ### Fixed
-- Closed the current-user runtime skill visibility bug after the active Codex runtime retest showed newly published ShipFlow skills are discoverable.
+- Closed the current-user runtime skill visibility bug after the active Codex runtime retest showed newly published ShipGlows skills are discoverable.
 
 ## [2026-05-02]
 
@@ -352,21 +352,21 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ### Added
 - Mode `309-sg-tasks sessions` et playbook reutilisable pour indexer les noms de conversations Codex avec les statuts exacts du tracker local, y compris les forks et reprises de contexte.
 - Mode `309-sg-tasks sessions rename <status>` pour renommer uniquement la conversation Codex courante avec `STATUS - titre sémantique`, sans modifier `TASKS.md`.
-- Shared `tools/shipflow_sync_skills.sh` helper for checking and repairing current-user Claude/Codex ShipFlow skill symlinks, with temp-home tests, installer reuse, and validation-skill routing.
-- Per-project Dart/Flutter Flox runtime provisioning for ShipFlow-managed `pubspec.yaml` projects, including strict package override validation, existing `.flox` repair, focused shell tests, and runtime/installer documentation.
+- Shared `tools/shipglows_sync_skills.sh` helper for checking and repairing current-user Claude/Codex ShipGlows skill symlinks, with temp-home tests, installer reuse, and validation-skill routing.
+- Per-project Dart/Flutter Flox runtime provisioning for ShipGlows-managed `pubspec.yaml` projects, including strict package override validation, existing `.flox` repair, focused shell tests, and runtime/installer documentation.
 - Governance corpus lifecycle across `305-sg-init`, `300-sg-docs`, and the `001-sg-build` spec: init bootstraps technical/editorial corpus state, docs owns first-run adoption and audit, and `001-sg-build` now has a Governance Corpus Gate before implementation.
 - Editorial content governance layer under `docs/editorial/`, covering public surface mapping, page intent, claim boundaries, editorial update gates, Astro content schema policy, and missing blog/article surface rules
 - Read-only Editorial Reader role and editorial content corpus reference for public-content impact, claim impact, and runtime content schema analysis
 - `editorial_content_context` artifact template and metadata-linter support for editorial governance artifacts
 - Internal `docs/technical/` layer with a code-to-docs map, subsystem technical docs, a technical module template, and a skill-facing technical docs corpus reference for agent handoffs
-- `technical_module_context` artifact support in the ShipFlow metadata linter and template set
+- `technical_module_context` artifact support in the ShipGlows metadata linter and template set
 - `300-sg-docs technical` / `technical audit` contract for scaffolding, auditing, and planning code-proximate documentation updates
-- Project development mode doctrine for ShipFlow skills, covering local development, Vercel preview-push validation, and hybrid validation workflows
+- Project development mode doctrine for ShipGlows skills, covering local development, Vercel preview-push validation, and hybrid validation workflows
 - Self-hosted public site font assets for Space Grotesk and IBM Plex Mono, removing the remaining Google Fonts runtime dependency
 - Professional bug management doctrine with compact `TEST_LOG.md`, compact `BUGS.md`, per-bug `bugs/BUG-ID.md` dossiers, and redacted `test-evidence/BUG-ID/` evidence directories
 - `templates/artifacts/bug_record.md` for structured bug dossiers with lifecycle status, reproduction, evidence, diagnosis notes, fix attempts, retest history, related artifacts, redaction status, and closure criteria
-- `artifact: bug_record` support in `tools/shipflow_metadata_lint.py`, including bug status, severity, redaction status, reproducibility, and `BUG-YYYY-MM-DD-NNN` ID validation
-- Dependency-free ShipFlow metadata linter for specs and project decision-contract documents
+- `artifact: bug_record` support in `tools/shipglows_metadata_lint.py`, including bug status, severity, redaction status, reproducibility, and `BUG-YYYY-MM-DD-NNN` ID validation
+- Dependency-free ShipGlows metadata linter for specs and project decision-contract documents
 - Skill-aligned artifact templates for specs, business context, brand context, audits, verification, readiness, review, research, and decision records
 - Spec-first chantier registry doctrine: specs now carry `source_model`, `Skill Run History`, and `Current Chantier Flow` so skill runs can be reviewed from the spec without reading chat history
 - Shared chantier tracking rules and an all-skills matrix covering mandatory, conditional, and non-applicable spec tracing behavior
@@ -377,28 +377,28 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 - `skills/108-sg-browser/README.md` as the internal README for the generic non-auth browser evidence workflow
 - `skills/108-sg-browser/references/browser-evidence.md` for redaction rules, verdict labels, screenshot/snapshot policy, console/network summary limits, and production read-only safety
 - Cross-project auth reference docs for the ContentFlow Flutter web ClerkJS bridge and the TubeFlow Next.js + Convex YouTube OAuth flow
-- Public site tutorial page explaining how ShipFlow skill arguments can act as mode switches, structured inputs, or free-form tasks
-- Dedicated public FAQ page for common ShipFlow questions around skills, docs scope, and workflow behavior
+- Public site tutorial page explaining how ShipGlows skill arguments can act as mode switches, structured inputs, or free-form tasks
+- Dedicated public FAQ page for common ShipGlows questions around skills, docs scope, and workflow behavior
 - Local MCP OAuth helper with guided server IP and optional SSH key configuration for local tunnels and remote Codex MCP login
 - Durable `exploration_report` artifacts for `700-sg-explore`, including the reusable template and default `docs/explorations/` report location
-- Skill discovery budget audit for ShipFlow skills, with strict checks for one-sentence descriptions, name/path metadata, listing budgets, and separate long-body risks
+- Skill discovery budget audit for ShipGlows skills, with strict checks for one-sentence descriptions, name/path metadata, listing budgets, and separate long-body risks
 - `009-sg-skill-build` master skill orchestrating skill lifecycle work (`700-sg-explore` when needed → `100-sg-spec` → SKILL.md → `307-sg-skills-refresh` → budget audit → `103-sg-verify` → `300-sg-docs/help` → `005-sg-ship`) and public catalog coherence updates
 
 ### Changed
 - Local SSH setup now resolves bare identity filenames from the menu launch directory, `~/.ssh/`, then the user's home directory, and saves the absolute path for later `ssh -i` / `autossh -i` use.
 - Local SSH server configuration now rejects invalid free-form hosts before asking for the SSH user, while still accepting valid IPv4 addresses, dotted domains, and exact aliases from `~/.ssh/config`.
 - Local menu one-key prompts now print a clean newline after hidden key reads, avoiding glued Termux output such as a prompt followed immediately by the next border.
-- README, workflow doctrine, corpus references, and skill lifecycle docs now explain that future projects should use `305-sg-init` and `300-sg-docs` for project-local governance corpora instead of rerunning ShipFlow's shipped governance specs per project.
+- README, workflow doctrine, corpus references, and skill lifecycle docs now explain that future projects should use `305-sg-init` and `300-sg-docs` for project-local governance corpora instead of rerunning ShipGlows's shipped governance specs per project.
 - README, workflow docs, content map, public docs page, technical docs, and content-focused skills now route public-content work through the editorial governance layer before strengthening public claims or editing Astro runtime content
 - Agent and workflow docs now route code-changing work through `docs/technical/code-docs-map.md` and require a `Documentation Update Plan` for mapped code changes
-- Ready specs with missing confidence or draft-style versions were normalized so the default ShipFlow metadata lint baseline passes again
+- Ready specs with missing confidence or draft-style versions were normalized so the default ShipGlows metadata lint baseline passes again
 - `102-sg-start`, `106-sg-fix`, `109-sg-auth-debug`, `107-sg-test`, `103-sg-verify`, `105-sg-check`, `104-sg-end`, `005-sg-ship`, and `405-sg-prod` now distinguish local evidence from Vercel preview-push evidence and route through `005-sg-ship` -> `405-sg-prod` when remote validation is required
 - Local tunnel tools now share SSH validation and remote PM2 port parsing through `local/remote-helpers.sh` to reduce drift between `local/local.sh`, `local/dev-tunnel.sh`, and `local/mcp-login.sh`
 - `700-sg-explore`, workflow docs, help docs, and public skill docs now explain when substantial explorations create or update durable reports without writing chantier spec history
 - Codex TUI defaults now show remaining context with `context-remaining` and rate-limit status with `five-hour-limit` plus `weekly-limit`.
 - `107-sg-test`, `106-sg-fix`, `103-sg-verify`, `005-sg-ship`, `300-sg-docs`, and `302-sg-help` now share the same bug lifecycle, retest, evidence-redaction, and bug-gate rules
 - README, workflow docs, `107-sg-test` README, and public skill pages now describe the compact index plus detailed bug dossier model instead of treating `BUGS.md` as the full bug record
-- Existing Codex TUI spec migrated to the ShipFlow metadata frontmatter schema
+- Existing Codex TUI spec migrated to the ShipGlows metadata frontmatter schema
 - `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, and `005-sg-ship` now report chantier status and trace lifecycle results when a unique spec-first chantier is identified
 - Workflow documentation now links metadata doctrine to executable templates and linting
 - `106-sg-fix`, `102-sg-start`, `103-sg-verify`, and `405-sg-prod` now route auth/browser-flow uncertainty through `109-sg-auth-debug` when browser evidence is needed
@@ -409,19 +409,19 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 - `106-sg-fix` now requires durable bug memory for direct fixes by creating or reusing a `BUG-ID` and per-bug dossier unless a narrow minor exception is explicitly justified
 - Internal and public skill documentation now explain when to use `109-sg-auth-debug` and which auth references it carries
 - Internal linking across the public site now routes homepage, docs, about, and "Why not just prompts?" traffic toward the new skill-modes tutorial and FAQ surfaces
-- ShipFlow installer now targets selected eligible user accounts for AI configuration instead of mutating every `/home/*` account by default
-- ShipFlow installer now owns Claude/Codex autonomous defaults, AI aliases (`c`, `co`, `cask`, `coask`), and per-user npm bootstrap for selected users
-- Dotfiles installer now delegates Claude/Codex install and client MCP mutation to ShipFlow, and keeps only shared MCP registry linking
+- ShipGlows installer now targets selected eligible user accounts for AI configuration instead of mutating every `/home/*` account by default
+- ShipGlows installer now owns Claude/Codex autonomous defaults, AI aliases (`c`, `co`, `cask`, `coask`), and per-user npm bootstrap for selected users
+- Dotfiles installer now delegates Claude/Codex install and client MCP mutation to ShipGlows, and keeps only shared MCP registry linking
 - CLI fallback choice parsing now normalizes uppercase input, trailing `)`, whitespace, and carriage returns so letter-based deploy and submenu prompts accept the expected keys more reliably
-- ShipFlow CLI menus and submenus now use instant letter shortcuts consistently, with one-key confirmations and pauses while preserving text-entry and FZF/gum-filter flows.
+- ShipGlows CLI menus and submenus now use instant letter shortcuts consistently, with one-key confirmations and pauses while preserving text-entry and FZF/gum-filter flows.
 - Local SSH setup prompts now explain default values explicitly and save custom identity-file paths as stable absolute paths before using `ssh -i` / `autossh -i`.
-- Local tunnel startup now shows a polished animated SSH sonar scan while the menu checks the remote server, with `SHIPFLOW_NO_ANIMATION=1` as an opt-out for automated or slow terminals.
+- Local tunnel startup now shows a polished animated SSH sonar scan while the menu checks the remote server, with `SHIPGLOWS_NO_ANIMATION=1` as an opt-out for automated or slow terminals.
 - All current skill descriptions were compacted for Codex and Claude Code discovery: the strict audit now reports 49 skills, 0 hard violations, 0 warnings, a 7230-character absolute estimate, and an 88.4-character average description length
 - `300-sg-docs` and `307-sg-skills-refresh` now run the skill budget audit only when work touches skills, discovery wording, `agents/openai.yaml`, or Codex/Claude Code skill compatibility
 
 ### Security
 - Replaced the operator server IP in SSH examples and recent branch history with documentation-only example addresses.
-- Added root autonomous-mode guard in ShipFlow installer: autonomous Claude/Codex permissions on root now require explicit opt-in (`SHIPFLOW_AI_ALLOW_ROOT_AUTONOMOUS=1`)
+- Added root autonomous-mode guard in ShipGlows installer: autonomous Claude/Codex permissions on root now require explicit opt-in (`SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS=1`)
 - Added eligibility filtering before user AI mutation (non-root, real login shell, writable resolved home) to reduce accidental config writes on service/system accounts
 
 ### Removed
@@ -431,7 +431,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Added
 - `101-sg-ready` — new readiness gate for specs before implementation, with explicit user-story alignment, adversarial review, workflow bypass checks, documentation coherence, and proportional cybersecurity review
-- Standard artifact versioning rules for ShipFlow documentation: `metadata_schema_version` for the metadata contract and `artifact_version` for the document's decision content
+- Standard artifact versioning rules for ShipGlows documentation: `metadata_schema_version` for the metadata contract and `artifact_version` for the document's decision content
 - Versioned dependency tracking through `depends_on`, `required_status`, `next_review`, and `supersedes` so specs can declare which business and technical contracts they were built against
 - Active documentation-coherence checks across implementation, verification, audit, docs, business-content, and shipping skills
 
@@ -441,21 +441,21 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 - `103-sg-verify` now checks whether work was implemented against current docs, outdated docs, unknown dependency versions, or non-applicable contracts
 - `005-sg-ship` now reports evidence limits explicitly and avoids claiming product, user-story, documentation, or security completion from commit/push alone
 
-## [2026-04-25] - ShipFlow artifact and business-documentation doctrine
+## [2026-04-25] - ShipGlows artifact and business-documentation doctrine
 
 ### Added
-- `README.md` now frames ShipFlow as a professional work framework built around decision contracts, not just a collection of skills
-- `shipglowz_data/workflow/playbooks/spec-driven-workflow.md` now documents the artifact doctrine, standard metadata frontmatter, business docs as decision contracts, documentation coherence, and adoption/migration rules
+- `README.md` now frames ShipGlows as a professional work framework built around decision contracts, not just a collection of skills
+- `shipglows_data/workflow/playbooks/spec-driven-workflow.md` now documents the artifact doctrine, standard metadata frontmatter, business docs as decision contracts, documentation coherence, and adoption/migration rules
 - Business documentation (`BUSINESS.md`, `BRANDING.md`, personas, pricing, positioning, GTM docs) is now documented as technical decision infrastructure because it drives implementation, audits, shipping, and public claims
 
 ### Changed
-- ShipFlow internal artifacts are now expected to use standardized metadata for status, confidence, risk, security impact, documentation impact, evidence, linked systems, and next step
+- ShipGlows internal artifacts are now expected to use standardized metadata for status, confidence, risk, security impact, documentation impact, evidence, linked systems, and next step
 - Documentation coherence is now described as part of feature completeness when product behavior, setup, permissions, API usage, pricing, onboarding, or support expectations change
 
 ## [2026-04-25] - Codex TUI defaults during install
 
 ### Changed
-- `install.sh` now configures Codex TUI defaults for each user (`root` + `/home/*`) by writing a ShipFlow-managed block in `~/.codex/config.toml`
+- `install.sh` now configures Codex TUI defaults for each user (`root` + `/home/*`) by writing a ShipGlows-managed block in `~/.codex/config.toml`
 - Added idempotent TOML upsert behavior for `tui.status_line` and `tui.terminal_title` while preserving user configuration outside the managed block
 
 ### Documentation
@@ -465,7 +465,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Added
 - `704-sg-model` — new skill to choose between `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.5`, `gpt-5.3-codex`, `gpt-5.3-codex-spark`, and `gpt-5.2` based on task profile, cost, latency, and execution risk
-- `skills/704-sg-model/references/model-routing.md` — shared routing matrix so model-selection guidance can be reused consistently across ShipFlow skills
+- `skills/704-sg-model/references/model-routing.md` — shared routing matrix so model-selection guidance can be reused consistently across ShipGlows skills
 
 ### Changed
 - `102-sg-start` now chooses an execution topology (`single-agent` vs `multi-agent`) before implementation, with explicit file ownership, group boundaries, and integration responsibility
@@ -475,20 +475,20 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Changed
 - `README.md` now states the one-pass execution model explicitly: complete context before coding, no hidden dependency on chat history, and fresh-context escalation when needed
-- `shipglowz_data/workflow/playbooks/spec-driven-workflow.md` now documents that `101-sg-ready` and `102-sg-start` are the main points where a fresh context may be enforced for non-trivial execution
+- `shipglows_data/workflow/playbooks/spec-driven-workflow.md` now documents that `101-sg-ready` and `102-sg-start` are the main points where a fresh context may be enforced for non-trivial execution
 - The workflow docs now treat prompt-and-correct as a bounded fallback, not the default operating mode
 - `CHANGELOG.md` records the fresh-context policy so the workflow shift is visible outside the skills themselves
 
 ## [2026-04-22] - Spec-driven workflow v3 and documentation cleanup
 
 ### Added
-- `shipglowz_data/workflow/playbooks/spec-driven-workflow.md` — living documentation for the ShipFlow V3 spec-driven workflow, including `700-sg-explore`, `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, and `104-sg-end`
+- `shipglows_data/workflow/playbooks/spec-driven-workflow.md` — living documentation for the ShipGlows V3 spec-driven workflow, including `700-sg-explore`, `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, and `104-sg-end`
 - `archive/reports/README.md` and `archive/notes/README.md` — archive indexes for historical reports and obsolete notes
 
 ### Changed
 - `100-sg-spec`, `102-sg-start`, `101-sg-ready`, and `103-sg-verify` aligned around a stricter spec-driven execution model with `103-sg-verify` now able to classify, reroute, and remediate bounded gaps
 - Root documentation trimmed to living docs only; historical reports and obsolete notes moved out of the repository root into `archive/`
-- `README.md` rewritten to reflect the current ShipFlow architecture, core docs, and the V3 workflow
+- `README.md` rewritten to reflect the current ShipGlows architecture, core docs, and the V3 workflow
 - `archive/README.md` updated to distinguish living documentation from historical artifacts
 
 ## [2026-04-20] - Code audit: anti-duplication & convention drift
@@ -527,10 +527,10 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 - `502-sg-audit-design`: WCAG 2.2 criteria — Focus Appearance (2.4.11), Target Size (2.5.8), Dragging Movements (2.5.7), Consistent Help (3.2.6)
 - `502-sg-audit-design`: "Why it matters" — each finding now cites the UX principle or standard behind it
 - `502-sg-audit-design`: Quick Wins section in all 3 report formats (page, project, global) — max 5 high-impact/low-effort fixes
-- `python_runtime_command()` — detects best Python runtime (venv, .shipflow-pydeps, system) for project
+- `python_runtime_command()` — detects best Python runtime (venv, .shipglows-pydeps, system) for project
 
 ### Changed
-- Python env setup: resilient multi-strategy install (venv → .shipflow-pydeps → system pip) with clear feedback
+- Python env setup: resilient multi-strategy install (venv → .shipglows-pydeps → system pip) with clear feedback
 - Doppler scope check simplified — direct grep instead of directory walk loop
 - Python Flox packages: removed `python3Packages.pip` (pip handled by venv/ensurepip)
 
@@ -566,15 +566,15 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 - RAM monitoring in header: `Free: 59G | Mem: 21G` with low-memory alerts
 - System Monitor merged into Health Check (`h`): RAM overview, visual bar, top processes, long-running detection (24h+)
 - Dashboard shows per-app uptime with idle detection and inline stop prompt
-- Config: `SHIPFLOW_MEM_WARN_GB`, `SHIPFLOW_PROCESS_LONG_RUNNING_HOURS`, `SHIPFLOW_MONITOR_TOP_N`
-- `shipglowz_devserver_gum.sh` — pure gum-styled menus with instant single-keypress shortcuts
-- `shipglowz_devserver_bash.sh` — pure bash fallback menus
+- Config: `SHIPGLOWS_MEM_WARN_GB`, `SHIPGLOWS_PROCESS_LONG_RUNNING_HOURS`, `SHIPGLOWS_MONITOR_TOP_N`
+- `shipglows_devserver_gum.sh` — pure gum-styled menus with instant single-keypress shortcuts
+- `shipglows_devserver_bash.sh` — pure bash fallback menus
 - `ui_pause()` replacing all scattered pause points
 - `ui_choose` auto-selects `gum choose` (≤5 items) or `gum filter` (>5 items)
 
 ### Changed
 - All menu shortcuts: numbers → letters (d=Dashboard, e=Deploy, r=Restart, etc.)
-- `shipglowz.sh` reduced from 1078 to 48 lines (thin launcher)
+- `shipglows.sh` reduced from 1078 to 48 lines (thin launcher)
 - All action handlers and menu definitions moved to lib.sh
 - Stdin flush between menu cycles to prevent residual keypress issues
 
@@ -585,14 +585,14 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-03-22] - Skill Architecture Overhaul & Copywriting Audit
 
 ### Added
-- `shipflow-start` skill — begin a task: load context, mark 🔄 in-progress in TASKS.md, plan
-- `shipflow-end` skill — finish a task: summarize, mark ✅ done, update CHANGELOG — no commit/push
-- `shipflow-audit-copywriting` skill — marketing & conversion audit from persona to funnel (distinct from rédactionnel audit-copy)
+- `shipglows-start` skill — begin a task: load context, mark 🔄 in-progress in TASKS.md, plan
+- `shipglows-end` skill — finish a task: summarize, mark ✅ done, update CHANGELOG — no commit/push
+- `shipglows-audit-copywriting` skill — marketing & conversion audit from persona to funnel (distinct from rédactionnel audit-copy)
 - Copywriting audit persists `docs/copywriting/persona.md`, `parcours-client.md`, `strategie.md` as shared reference for other skills
 
 ### Changed
-- `shipflow-ship` refactored: now includes end-style recap (summary + tasks + changelog) before commit+push
-- `install.sh`: tools check is verbose on first run only (marker `~/.shipflow_setup_done`), silent on daily use
+- `shipglows-ship` refactored: now includes end-style recap (summary + tasks + changelog) before commit+push
+- `install.sh`: tools check is verbose on first run only (marker `~/.shipglows_setup_done`), silent on daily use
 - `check_prerequisites()`: shows 9 tools with versions and ✅/❌/⚠️ status
 - Advanced menu: new `t) Tools Status` option for on-demand check
 
@@ -600,7 +600,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Changed
 - `check_prerequisites()`: now shows a verbose summary of all 9 tools with versions and status (✅/❌/⚠️) instead of silently passing
-- Tools check is verbose on first launch only (marker file `~/.shipflow_setup_done`), silent on daily use
+- Tools check is verbose on first launch only (marker file `~/.shipglows_setup_done`), silent on daily use
 - If required tools are missing, shows a loud red banner with install command
 
 ### Added
@@ -612,9 +612,9 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Changed
 - `install.sh`: removed silent `exec sudo` auto-elevation — now shows a loud red banner telling users to run as root
-- `install.sh`: per-user setup (statusline, skills, aliases, shipglowz_data) now runs for ALL users in `/home/`, not just root
+- `install.sh`: per-user setup (statusline, skills, aliases, shipglows_data) now runs for ALL users in `/home/`, not just root
 - `install.sh`: fixed `local` keyword used outside functions (bash bug)
-- `install.sh`: updated branding DevServer → ShipFlow
+- `install.sh`: updated branding DevServer → ShipGlows
 - 7 content-creation skills now enforce mandatory French accent verification on all generated French content
 
 ## [2026-03-07] - Disk Cleanup & Dev Command Fixes
@@ -753,7 +753,7 @@ Created `config.sh` with centralized settings:
 #### 📊 Task #7: Structured Logging (COMPLETED)
 Implemented comprehensive logging system:
 - **Log levels:** DEBUG, INFO, WARNING, ERROR
-- **Log file:** `/var/log/shipflow/shipflow.log` (configurable)
+- **Log file:** `/var/log/shipglows/shipglows.log` (configurable)
 - **Log rotation:** Automatic rotation at 10MB, 30-day retention
 - **Format:** `[TIMESTAMP] [LEVEL] message`
 
@@ -861,7 +861,7 @@ Optimized JSON parsing with jq preference:
 - **New feature:** Automatic jq detection and preference
 - **Fallback:** Python3 if jq not available
 - **Performance:** 2-5x faster JSON parsing with jq
-- **Configuration:** SHIPFLOW_PREFER_JQ (default: true)
+- **Configuration:** SHIPGLOWS_PREFER_JQ (default: true)
 
 **Functions Updated:**
 - `get_pm2_data_cached()` - Uses jq if available
@@ -877,7 +877,7 @@ Optimized JSON parsing with jq preference:
 Implemented structured error handling system:
 - **Error traps:** Automatic error catching with line numbers
 - **Temp file cleanup:** Automatic cleanup on exit via traps
-- **Configuration:** SHIPFLOW_ERROR_TRAPS, SHIPFLOW_STRICT_MODE
+- **Configuration:** SHIPGLOWS_ERROR_TRAPS, SHIPGLOWS_STRICT_MODE
 
 **New Features:**
 - `error_trap_handler()` - Logs errors with line numbers

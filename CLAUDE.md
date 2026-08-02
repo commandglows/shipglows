@@ -6,7 +6,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Project Overview
 
-**ShipGlowz** — CLI dev environment manager for servers. Automates deployment with **Flox** (isolation), **PM2** (processes), **Caddy** (HTTPS reverse proxy). Provides SSH tunnel access + public HTTPS URLs via DuckDNS.
+**ShipGlows** — CLI dev environment manager for servers. Automates deployment with **Flox** (isolation), **PM2** (processes), **Caddy** (HTTPS reverse proxy). Provides SSH tunnel access + public HTTPS URLs via DuckDNS.
 
 ---
 
@@ -14,14 +14,14 @@ Guidance for Claude Code when working in this repository.
 
 ### Core Files
 
-- **cli/shipglowz.sh** — Main entry point (interactive menu)
+- **cli/shipglows.sh** — Main entry point (interactive menu)
 - **cli/lib.sh** — Central library (ports, PM2 cache, Flox, Caddy, validation, logging)
 - **cli/config.sh** — All settings via env vars (ports, SSH, logging, cache TTL)
 - **cli/install.sh** — Server setup (Node.js, PM2, Flox, Caddy, gh, skills symlinks)
 
 ### Key Patterns
 
-**Env Registry** (`~/.shipglowz/envs.reg`) — Zero-subprocess dashboard data:
+**Env Registry** (`~/.shipglows/envs.reg`) — Zero-subprocess dashboard data:
 ```bash
 ensure_registry()    # Lazy refresh only when the registry is missing, invalidated, or stale
 scan_flox_projects() # Shared bounded scanner; emits and prunes each matched .flox
@@ -78,7 +78,7 @@ show_dashboard()  # Reads envs.reg, displays environments + action bar
 
 ```bash
 # Launch menu
-sf                    # or: shipglowz, or: ./cli/shipglowz.sh
+sf                    # or: shipglows, or: ./cli/shipglows.sh
 
 # Install dependencies (run as root)
 sudo ./cli/install.sh
@@ -130,28 +130,28 @@ show_dashboard        # Display dashboard (reads envs.reg, 0 subprocesses)
 
 | Original | Renamed | Path | Purpose |
 |----------|---------|------|---------|
-| `app` | `shipglowz_app` | `/home/claude/shipglowz_app/shipglowz_app/` | Flutter dashboard (CI only) |
-| `site` | `shipglowz-site` | `/home/claude/shipglowz/shipglowz-site/` | ShipGlowz marketing site (Astro) |
-| `contentflowz-app` (flox) | `shipglowz-app` | — | Flox env for shipglowz_app |
+| `app` | `shipglows_app` | `/home/claude/shipglowz_app/shipglows_app/` | Flutter dashboard (CI only) |
+| `site` | `shipglows-site` | `/home/claude/shipglowz/shipglows-site/` | ShipGlows marketing site (Astro) |
+| `contentflowz-app` (flox) | `shipglows-app` | — | Flox env for shipglows_app |
 
 ---
 
 ## File Structure
 
 ```
-shipglowz/
+shipglows/
 ├── cli/
-│   ├── shipglowz.sh            # Main menu
+│   ├── shipglows.sh            # Main menu
 │   ├── lib.sh                  # Core library
 │   ├── config.sh               # Configuration
 │   ├── install.sh              # Server installation
-│   ├── shipglowz_devserver_bash.sh
-│   └── shipglowz_devserver_gum.sh
-├── shipglowz.sh                # Compatibility launcher
+│   ├── shipglows_devserver_bash.sh
+│   └── shipglows_devserver_gum.sh
+├── shipglows.sh                # Compatibility launcher
 ├── lib.sh                      # Compatibility launcher
 ├── config.sh                   # Compatibility launcher
 ├── install.sh                  # Compatibility launcher
-├── skills/                     # ShipGlowz skill library
+├── skills/                     # ShipGlows skill library
 ├── .claude/statusline-starship.sh  # Status bar
 ├── local/                      # SSH tunnel scripts
 │   ├── dev-tunnel.sh

@@ -54,7 +54,7 @@ class VeilleDispatcherContractTests(unittest.TestCase):
     def test_persistence_is_explicit_redacted_and_split(self) -> None:
         for phrase in (
             "Only explicit operator decisions", "re-read the exact target", "smallest append/update",
-            "shipglowz_data/workflow/TASKS.md", "shipglowz_data/editorial/ROADMAP.md",
+            "shipglows_data/workflow/TASKS.md", "shipglows_data/editorial/ROADMAP.md",
             "Never persist or print tokens", "VEILLE-SPLIT-PERSISTENCE", "VEILLE-CHANTIER-POTENTIAL",
         ):
             self.assertIn(phrase, self.persistence)

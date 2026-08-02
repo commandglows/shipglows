@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "packs": [
+    {
+      "id": "shipglows-main",
+      "status": "partial",
+      "portability": "partially-bundled",
+      "portabilityMatrix": "skills/shipglows/references/shipglows-main-portability-matrix.md",
+      "intentContracts": "skills/shipglows/references/shipglows-main-intents.md",
+      "bundledSkills": [
+        "shipglows"
+      ],
+      "bundledIntents": [
+        "spec",
+        "ready",
+        "start",
+        "verify",
+        "check",
+        "fix"
+      ],
+      "blocker": "remaining execution candidate skills still assume a local ShipGlows source tree through source-root dependencies",
+      "skills": [
+        "000-shipglows",
+        "302-sg-help",
+        "100-sg-spec",
+        "101-sg-ready",
+        "102-sg-start",
+        "103-sg-verify",
+        "105-sg-check",
+        "106-sg-fix"
+      ]
+    },
+    {
+      "id": "shipglows-build",
+      "status": "planned",
+      "skills": [
+        "001-sg-build",
+        "002-sg-maintain",
+        "003-sg-bug",
+        "005-sg-ship",
+        "104-sg-end",
+        "309-sg-tasks",
+        "304-sg-changelog"
+      ]
+    },
+    {
+      "id": "shipglows-proof",
+      "status": "planned",
+      "skills": [
+        "004-sg-deploy",
+        "107-sg-test",
+        "108-sg-browser",
+        "109-sg-auth-debug",
+        "405-sg-prod"
+      ]
+    },
+    {
+      "id": "shipglows-content",
+      "status": "planned",
+      "skills": [
+        "007-sg-content",
+        "009-sg-marketing",
+        "200-sg-redact",
+        "201-sg-enrich",
+        "203-sg-research",
+        "205-sg-veille",
+        "406-sg-seo"
+      ]
+    },
+    {
+      "id": "shipglows-design",
+      "status": "planned",
+      "skills": [
+        "006-sg-design"
+      ]
+    },
+    {
+      "id": "shipglows-quality",
+      "status": "planned",
+      "skills": [
+        "400-sg-audit",
+        "010-sg-technical",
+        "407-sg-audit-translate"
+      ]
+    },
+    {
+      "id": "shipglows-governance",
+      "status": "internal-first",
+      "skills": [
+        "300-sg-docs",
+        "301-sg-context",
+        "303-sg-resume",
+        "305-sg-init",
+        "306-sg-scaffold",
+        "308-sg-status",
+        "704-sg-model",
+        "705-sg-conversation-audit",
+        "706-continue",
+        "707-name",
+        "800-tmux-capture-conversation",
+        "801-clean-conversation-transcript"
+      ]
+    },
+    {
+      "id": "shipglows-product",
+      "status": "planned",
+      "skills": [
+        "008-sg-customer",
+        "600-sg-local-cloud-sync",
+        "601-sg-product-entitlements",
+        "602-sg-platform-parity",
+        "700-sg-explore",
+        "701-sg-backlog",
+        "702-sg-priorities",
+        "703-sg-review"
+      ]
+    }
+  ]
+}

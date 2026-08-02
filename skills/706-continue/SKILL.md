@@ -6,14 +6,14 @@ argument-hint: <optional focus>
 
 ## Canonical Paths
 
-Before resolving ShipGlowz-owned files, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`) if present. Project files resolve from the current project root unless explicitly stated otherwise.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`) if present. Project files resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `pilotage`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` only when this run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` only when this run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 As a `pilotage` skill, `706-continue` can route toward `/100-sg-spec` when the next useful step clearly deserves a durable chantier, but it should not declare every continuation or backlog note as a chantier source.
 
@@ -48,9 +48,9 @@ Keep the boundary explicit:
 
 ## Required References
 
-- `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` before resolving ShipGlowz-owned files.
-- `$SHIPFLOW_ROOT/skills/references/question-contract.md` before asking the user to choose between plausible work items.
-- `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before final reporting when this run is attached to a spec-first chantier.
+- `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving ShipGlows-owned files.
+- `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking the user to choose between plausible work items.
+- `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before final reporting when this run is attached to a spec-first chantier.
 
 ## Inputs
 
@@ -70,9 +70,9 @@ Resolve the continuation target from durable local evidence, not only from stale
 
 When no explicit target is provided:
 
-- scan only the focused context needed to identify candidate work items: active `shipglowz_data/workflow/specs/*.md`, bug files, current TASKS entry, release scope, recent validation failure, or the current dirty write scope;
+- scan only the focused context needed to identify candidate work items: active `shipglows_data/workflow/specs/*.md`, bug files, current TASKS entry, release scope, recent validation failure, or the current dirty write scope;
 - prefer the single candidate that is both current and action-ready;
-- if multiple unrelated candidates are plausible, ask one numbered selection question using `$SHIPFLOW_ROOT/skills/references/question-contract.md`;
+- if multiple unrelated candidates are plausible, ask one numbered selection question using `$SHIPGLOWS_ROOT/skills/references/question-contract.md`;
 - recommend the most recent/current candidate only when local evidence supports it, but do not silently auto-select among materially different work items;
 - if no durable work item exists and the next work is non-trivial, route to the correct owner (`100-sg-spec`, bug intake, backlog, or a mini-contract) instead of inventing a hidden continuation target.
 
@@ -94,7 +94,7 @@ For a resolved target:
 Gather only enough context to route correctly:
 
 - Current directory, project name, branch, and git status.
-- Project-local `shipglowz_data/workflow/TASKS.md` or legacy root `TASKS.md` when present.
+- Project-local `shipglows_data/workflow/TASKS.md` or legacy root `TASKS.md` when present.
 - Relevant specs in `docs/` or `specs/` when the next step appears spec-driven.
 - Obvious failing command output or latest validation result if available in the conversation.
 - Existing skill instructions only when directly useful, especially `102-sg-start`, `106-sg-fix`, `105-sg-check`, `103-sg-verify`, `704-sg-model`, or `104-sg-end`.
@@ -135,9 +135,9 @@ When spawning is appropriate:
 - Use only one agent by default. Use multiple agents only when tasks are independent and write scopes are disjoint.
 - Do not spawn agents just to satisfy the skill name; a local action with a clear report is valid.
 
-### ShipGlowz Skills
+### ShipGlows Skills
 
-Before launching an agent, decide whether a ShipGlowz skill should drive the work. The agent may use any installed ShipGlowz skill when it fits the task; all skill documentation is available under `$SHIPFLOW_ROOT/skills`.
+Before launching an agent, decide whether a ShipGlows skill should drive the work. The agent may use any installed ShipGlows skill when it fits the task; all skill documentation is available under `$SHIPGLOWS_ROOT/skills`.
 
 Common routes:
 
@@ -163,7 +163,7 @@ Default model menu for Codex/OpenAI agents:
 - `gpt-5.4-mini` with `low` or `medium`: small clear tasks, triage, read-only exploration, cheap focused checks.
 - `gpt-5.3-codex-spark` with `low` or `medium`: Spark-eligible summaries, text-only handoffs, fast local edits, UI deltas, and tight iteration loops when credits/availability permit and quality remains equivalent.
 
-If the choice is not obvious, or if the task has high ambiguity, high cost of error, long execution, security/data implications, or unclear provider/runtime constraints, use the `704-sg-model` skill before spawning: open `$SHIPFLOW_ROOT/skills/704-sg-model/SKILL.md`, then read `$SHIPFLOW_ROOT/skills/704-sg-model/references/model-routing.md` if instructed or needed. Otherwise inherit the current model only when that is clearly adequate.
+If the choice is not obvious, or if the task has high ambiguity, high cost of error, long execution, security/data implications, or unclear provider/runtime constraints, use the `704-sg-model` skill before spawning: open `$SHIPGLOWS_ROOT/skills/704-sg-model/SKILL.md`, then read `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` if instructed or needed. Otherwise inherit the current model only when that is clearly adequate.
 
 ## Delegation Prompt Template
 
@@ -201,7 +201,7 @@ Ownership:
 Context:
 - User outcome: [one paragraph]
 - Relevant spec/task: [path or none]
-- ShipGlowz skill to use, if any: [skill name or none]
+- ShipGlows skill to use, if any: [skill name or none]
 - Model chosen: [model + reasoning effort + why]
 - Constraints: follow existing patterns; keep scope tight; avoid unrelated refactors
 

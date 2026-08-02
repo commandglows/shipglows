@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-29"
 updated: "2026-07-15"
 status: active
@@ -40,8 +40,8 @@ Define how `006-sg-design` routes design work after activation.
 
 Use this reference after loading:
 
-- `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`
-- `$SHIPFLOW_ROOT/skills/references/design-system-token-contract.md`
+- `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`
+- `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`
 
 ## Canonical Mode Grammar
 
@@ -55,7 +55,7 @@ Use this reference after loading:
 
 Choose the smallest safe owner: the bounded professional route that preserves centralized design tokens, brand coherence, accessibility, performance, maintainability, and proof.
 
-Do not ask the user to choose a specialist when the request clearly names an intent. When two routes are plausible and the answer changes scope, proof, brand direction, public claim, or ship risk, load `$SHIPFLOW_ROOT/skills/references/question-contract.md` and ask one numbered decision question.
+Do not ask the user to choose a specialist when the request clearly names an intent. When two routes are plausible and the answer changes scope, proof, brand direction, public claim, or ship risk, load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` and ask one numbered decision question.
 
 ## Scope And Readiness Rules
 

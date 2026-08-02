@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.3.1"
-project: "ShipGlowz"
+project: "ShipGlows"
 created: "2026-04-29"
 updated: "2026-05-17"
 status: draft
@@ -26,7 +26,7 @@ supersedes: []
 evidence:
   - "Codex skills documentation checked on 2026-04-29"
   - "Claude Code skills documentation checked on 2026-04-29"
-  - "Local ShipGlowz skill inventory measured at about 50 skills and about 12.7k initial-list characters"
+  - "Local ShipGlows skill inventory measured at about 50 skills and about 12.7k initial-list characters"
   - "User decision 2026-05-01: 300-sg-docs audit should verify skill budget compliance through a dedicated script"
   - "User decision 2026-05-01: keep skill budget reminders scoped to skill documentation and skill refresh workflows, not global agent context"
   - "2026-05-17 taxonomy audit compacted discovery descriptions to 3127 total description characters and a 51.3 average while preserving routing distinctions."
@@ -38,7 +38,7 @@ next_step: "/103-sg-verify Audit And Compact Skill Taxonomy Descriptions"
 
 ## Problem
 
-ShipGlowz has enough skills that the initial skill index can exceed the context budget used by Codex and Claude Code.
+ShipGlows has enough skills that the initial skill index can exceed the context budget used by Codex and Claude Code.
 
 This does not mean every `SKILL.md` body is loaded at startup. The startup cost comes mainly from the skill discovery index:
 
@@ -64,7 +64,7 @@ Claude Code:
 - Skill descriptions are loaded into context so Claude knows what is available; full skill content loads when invoked.
 - The combined `description` and `when_to_use` text is capped at 1,536 characters per skill listing.
 - The global skill description budget scales at 1% of the context window, with an 8,000-character fallback.
-- The budget can be raised with `SLASH_COMMAND_TOOL_CHAR_BUDGET`, but ShipGlowz should not depend on users doing that.
+- The budget can be raised with `SLASH_COMMAND_TOOL_CHAR_BUDGET`, but ShipGlows should not depend on users doing that.
 - Claude Code recommends keeping each `SKILL.md` under 500 lines and moving detailed material to references.
 - After compaction, Claude Code keeps the first 5,000 tokens of each re-attached skill, with a combined 25,000-token budget.
 - Source: https://code.claude.com/docs/en/skills
@@ -85,17 +85,17 @@ Agent Skills specification:
 - Progressive disclosure recommendation: full `SKILL.md` body under about 5000 tokens.
 - Source: https://agentskills.io/specification
 
-## ShipGlowz Policy
+## ShipGlows Policy
 
-ShipGlowz should optimize for the strict shared path: Codex plus Claude Code plus possible Claude.ai reuse.
+ShipGlows should optimize for the strict shared path: Codex plus Claude Code plus possible Claude.ai reuse.
 
 Default targets:
 
 - `description`: one sentence maximum.
 - `description`: target 80 to 120 characters.
 - `description`: warning above 140 characters.
-- `description`: hard ShipGlowz maximum 200 characters unless there is a documented reason.
-- `description`: average across installed skills should stay around 100 to 104 characters while ShipGlowz has about 49 to 50 skills.
+- `description`: hard ShipGlows maximum 200 characters unless there is a documented reason.
+- `description`: average across installed skills should stay around 100 to 104 characters while ShipGlows has about 49 to 50 skills.
 - `description`: never contain `Args:`; arguments belong in `argument-hint`.
 - `707-name`: keep stable, short, lowercase, and hyphenated.
 - `707-name`: maximum 64 characters and must match the skill directory name.
@@ -108,7 +108,7 @@ Default targets:
 
 Descriptions must front-load trigger words because both Codex and Claude Code can shorten long descriptions.
 
-This policy should be enforced in skill-specific workflows such as `300-sg-docs` and `900-shipglowz-core refresh`, plus the executable audit. Do not add broad reminders to general agent files such as `AGENT.md`, `CONTEXT.md`, or `GUIDELINES.md`; agents working on unrelated tasks should not carry this extra decision load.
+This policy should be enforced in skill-specific workflows such as `300-sg-docs` and `900-shipglows-core refresh`, plus the executable audit. Do not add broad reminders to general agent files such as `AGENT.md`, `CONTEXT.md`, or `GUIDELINES.md`; agents working on unrelated tasks should not carry this extra decision load.
 
 Good description pattern:
 
@@ -151,15 +151,15 @@ Crossing a threshold is a risk signal, not automatic deletion authority.
 Use the canonical audit before adding or expanding skills:
 
 ```bash
-SHIPFLOW_ROOT="${SHIPFLOW_ROOT:-$HOME/shipglowz}"
-"$SHIPFLOW_ROOT/tools/skill_budget_audit.py" --skills-root "$SHIPFLOW_ROOT/skills"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+"$SHIPGLOWS_ROOT/tools/skill_budget_audit.py" --skills-root "$SHIPGLOWS_ROOT/skills"
 ```
 
 Use Markdown output when embedding the result in an audit report:
 
 ```bash
-SHIPFLOW_ROOT="${SHIPFLOW_ROOT:-$HOME/shipglowz}"
-"$SHIPFLOW_ROOT/tools/skill_budget_audit.py" --skills-root "$SHIPFLOW_ROOT/skills" --format markdown
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+"$SHIPGLOWS_ROOT/tools/skill_budget_audit.py" --skills-root "$SHIPGLOWS_ROOT/skills" --format markdown
 ```
 
 If the canonical script is not available yet, use this rough estimate:
@@ -201,8 +201,8 @@ Interpretation:
 4. Split long `SKILL.md` bodies into `references/` when the body exceeds 500 lines.
 5. Add a CI or maintenance script that fails when the estimated initial index exceeds 8,000 characters.
 
-## Current ShipGlowz Note
+## Current ShipGlows Note
 
-On 2026-05-17, the local ShipGlowz install measured 61 skills with 3127 total description characters, average description length 51.3, absolute discovery estimate 6805/8000, and repo-relative discovery estimate 5463/8000.
+On 2026-05-17, the local ShipGlows install measured 61 skills with 3127 total description characters, average description length 51.3, absolute discovery estimate 6805/8000, and repo-relative discovery estimate 5463/8000.
 
 The current baseline is under the fallback discovery budget with zero hard violations, zero warnings, and zero body-size risks. Future remediation should still prefer targeted description edits and routing analysis before deleting, disabling, renaming, or merging skills.

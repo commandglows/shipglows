@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.4.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-23"
 updated: "2026-07-17"
 status: draft
@@ -17,7 +17,7 @@ linked_systems:
   - skills/references/preferred-stacks.md
   - skills/001-sg-build/SKILL.md
   - skills/001-sg-build/references/build-lifecycle-workflow.md
-  - skills/900-shipglowz-core/SKILL.md
+  - skills/900-shipglows-core/SKILL.md
   - skills/100-sg-spec/SKILL.md
   - skills/306-sg-scaffold/SKILL.md
   - skills/009-sg-marketing/SKILL.md
@@ -27,9 +27,9 @@ depends_on: []
 supersedes: []
 evidence:
   - "User decision 2026-06-23: blueprints serve as global spec skeletons for app archetypes."
-  - "User decision 2026-06-23: each blueprint lives in its own GitHub repo, ShipGlowz holds the registry."
+  - "User decision 2026-06-23: each blueprint lives in its own GitHub repo, ShipGlows holds the registry."
   - "User decision 2026-06-23: the Blueprint Gate resolves via local cache first, clones from repo if missing."
-  - "User decision 2026-06-25: blueprint extraction is a ShipGlowz-internal operation, owned by 900-shipglowz-core build."
+  - "User decision 2026-06-25: blueprint extraction is a ShipGlows-internal operation, owned by 900-shipglows-core build."
   - "Extracted from contentglowz_app as first concrete Flutter blueprint."
   - "Operator correction 2026-07-17: blueprint matching must follow an explicit greenfield platform footprint so mobile-capable Flutter directions are not omitted by a website-only assumption."
   - "Operator correction 2026-07-17: preferred stack presets must resolve before blueprints so a domain-mismatched blueprint cannot displace the established Astro-site and Flutter-app direction."
@@ -51,28 +51,28 @@ A blueprint is not a full spec — it is an **app anatomy reference** that:
 
 ## Distribution Model
 
-Each blueprint lives in its own GitHub repository so it survives independently of ShipGlowz.
+Each blueprint lives in its own GitHub repository so it survives independently of ShipGlows.
 
-`$SHIPFLOW_ROOT/skills/app-blueprints/` holds:
+`$SHIPGLOWS_ROOT/skills/app-blueprints/` holds:
 - `README.md` — the **registry**: maps blueprint IDs to their GitHub repo URLs and keywords
-- `<blueprint-id>/blueprint.md` — optional local cache of a cloned blueprint (for offline or ShipGlowz-cloned setups)
+- `<blueprint-id>/blueprint.md` — optional local cache of a cloned blueprint (for offline or ShipGlows-cloned setups)
 - `<blueprint-id>/references/` — optional supplementary files
 
-When ShipGlowz is installed via the Codex plugin without a full clone, only the registry (`README.md`) ships with the plugin. The Blueprint Gate clones blueprints on demand from their GitHub repos.
+When ShipGlows is installed via the Codex plugin without a full clone, only the registry (`README.md`) ships with the plugin. The Blueprint Gate clones blueprints on demand from their GitHub repos.
 
 ## Resolution Order
 
 The Blueprint Gate resolves a blueprint in this order:
 
-1. **Local cache**: `$SHIPFLOW_ROOT/skills/app-blueprints/<id>/blueprint.md` exists → use it
+1. **Local cache**: `$SHIPGLOWS_ROOT/skills/app-blueprints/<id>/blueprint.md` exists → use it
 2. **External repo**: registry lists `source.repo` → `git clone --depth 1 <repo> <cache-dir>/<id>/` → use it
 3. **No match**: proceed without blueprint (normal for novel app types)
 
-The cache directory defaults to `$SHIPFLOW_ROOT/skills/app-blueprints/`. If ShipGlowz is not cloned (`$SHIPFLOW_ROOT` unavailable), use `$HOME/.shipflow/blueprints/` as fallback cache.
+The cache directory defaults to `$SHIPGLOWS_ROOT/skills/app-blueprints/`. If ShipGlows is not cloned (`$SHIPGLOWS_ROOT` unavailable), use `$HOME/.shipglows/blueprints/` as fallback cache.
 
 ## Registry Format
 
-`$SHIPFLOW_ROOT/skills/app-blueprints/README.md` is the canonical registry. It uses YAML frontmatter:
+`$SHIPGLOWS_ROOT/skills/app-blueprints/README.md` is the canonical registry. It uses YAML frontmatter:
 
 ```yaml
 available_blueprints:
@@ -81,8 +81,8 @@ available_blueprints:
     description: For apps with auth, entity list/detail/edit, offline queue
     match_keywords: [content, crud, carnet, gestion, flutter, mobile]
     source:
-      repo: https://github.com/dianedefores/shipflow-blueprint-flutter-crud-content
-      local: flutter-crud-content  # subdirectory name, if ShipGlowz is cloned
+      repo: https://github.com/dianedefores/shipglows-blueprint-flutter-crud-content
+      local: flutter-crud-content  # subdirectory name, if ShipGlows is cloned
 ```
 
 Fields:
@@ -90,7 +90,7 @@ Fields:
 - `description`: one-line summary
 - `match_keywords`: list of keywords for fuzzy matching against user requests
 - `source.repo`: GitHub repo URL (the durable home of this blueprint)
-- `source.local`: subdirectory name under `$SHIPFLOW_ROOT/skills/app-blueprints/` when locally cached
+- `source.local`: subdirectory name under `$SHIPGLOWS_ROOT/skills/app-blueprints/` when locally cached
 
 ## Blueprint Format
 
@@ -129,9 +129,9 @@ When `001-sg-build` receives a request like "crée une app de carnet de santé p
 
 1. Resolve the product's required launch and roadmap platforms.
 2. Normalize the request to keywords: `[carnet, santé, voiture, health, log, vehicle]`
-3. Scan the registry (`$SHIPFLOW_ROOT/skills/app-blueprints/README.md`) for matching blueprints — match against required platforms plus `match_keywords`, `name`, and `description` (fuzzy, case-insensitive)
+3. Scan the registry (`$SHIPGLOWS_ROOT/skills/app-blueprints/README.md`) for matching blueprints — match against required platforms plus `match_keywords`, `name`, and `description` (fuzzy, case-insensitive)
 4. For each match found in the registry, resolve it (local cache → clone from repo)
-5. If no match in registry, scan local `$SHIPFLOW_ROOT/skills/app-blueprints/*/blueprint.md` as fallback
+5. If no match in registry, scan local `$SHIPGLOWS_ROOT/skills/app-blueprints/*/blueprint.md` as fallback
 6. Return the best match or a shortlist; if no exact archetype matches, keep any platform-compatible candidate as a reference and proceed without falsely declaring an exact blueprint
 7. If multiple blueprints could match, ask the user to choose
 
@@ -140,22 +140,22 @@ When `001-sg-build` receives a request like "crée une app de carnet de santé p
 Each GitHub repo for a blueprint follows this layout:
 
 ```
-shipflow-blueprint-<id>/
+shipglows-blueprint-<id>/
   README.md                 # Blueprint overview + link to source app
   blueprint.md              # The blueprint (primary file, follows format above)
   references/               # Optional: patterns, examples, templates
   source/                   # Optional: link to the source app that validated this
 ```
 
-The repo's `README.md` serves as the public face. ShipGlowz reads only `blueprint.md`.
+The repo's `README.md` serves as the public face. ShipGlows reads only `blueprint.md`.
 
 ## Creating a New Blueprint
 
 1. Ship an app of the new archetype.
 2. Extract its repeatable patterns into a `blueprint.md`.
-3. Create a GitHub repo: `shipflow-blueprint-<id>`.
+3. Create a GitHub repo: `shipglows-blueprint-<id>`.
 4. Push `blueprint.md` + optional `references/` to the repo.
-5. Add the entry to `$SHIPFLOW_ROOT/skills/app-blueprints/README.md` registry.
+5. Add the entry to `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md` registry.
 6. Optionally clone it locally for offline use.
 
 ## How Skills Consume Blueprints
@@ -204,7 +204,7 @@ Use this workflow when the request is to create a new blueprint from an existing
 
 ### Trigger
 
-`900-shipglowz-core build` (ShipGlowz internal artifact maintenance) owns this workflow. Route here from `000-shipglowz` when the intake contains keywords like `extract`, `blueprint from`, `create blueprint`, `nouveau blueprint`, or equivalent. This is **not** an end-user flow — it maintains ShipGlowz's own blueprint registry.
+`900-shipglows-core build` (ShipGlows internal artifact maintenance) owns this workflow. Route here from `000-shipglows` when the intake contains keywords like `extract`, `blueprint from`, `create blueprint`, `nouveau blueprint`, or equivalent. This is **not** an end-user flow — it maintains ShipGlows's own blueprint registry.
 
 ### Steps
 
@@ -213,8 +213,8 @@ Use this workflow when the request is to create a new blueprint from an existing
 3. **Extract stack** — document framework, SDK version, state management, routing, HTTP, auth, storage, architecture style, codegen status.
 4. **Extract conventions** — document folder structure, naming, file patterns, model pattern, screen pattern, provider organization, theme system, responsive breakpoints.
 5. **Write `blueprint.md`** — follow the Format section above (frontmatter + body sections). Include `source_repo` pointing to the app's repo.
-6. **Register** — add the new blueprint to `$SHIPFLOW_ROOT/skills/app-blueprints/README.md` registry with `source.repo` URL.
-7. **Create GitHub repo** — recommend creating `shipflow-blueprint-<id>` repo and pushing the blueprint there. Point `source.repo` to it.
+6. **Register** — add the new blueprint to `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md` registry with `source.repo` URL.
+7. **Create GitHub repo** — recommend creating `shipglows-blueprint-<id>` repo and pushing the blueprint there. Point `source.repo` to it.
 8. **Validate** — the blueprint must be self-consistent: every convention documented must match the source app. If in doubt, re-read the source.
 
 ### Output
@@ -223,6 +223,6 @@ Use this workflow when the request is to create a new blueprint from an existing
 Blueprint extracted: <id> (v<version>)
 Source: <app path or repo>
 Repo: <source.repo URL>
-Registry: $SHIPFLOW_ROOT/skills/app-blueprints/README.md
+Registry: $SHIPGLOWS_ROOT/skills/app-blueprints/README.md
 Next: push to GitHub repo, or use locally.
 ```

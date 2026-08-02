@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-26"
 updated: "2026-05-26"
 status: active
@@ -20,30 +20,30 @@ linked_systems:
   - skills/009-sg-marketing/SKILL.md
   - skills/406-sg-seo/SKILL.md
   - skills/103-sg-verify/SKILL.md
-  - shipglowz_data/business/business.md
-  - shipglowz_data/business/product.md
-  - shipglowz_data/branding/branding.md
-  - shipglowz_data/business/gtm.md
-  - shipglowz_data/editorial/content-map.md
-  - shipglowz_data/editorial/claim-register.md
-  - shipglowz_data/editorial/page-intent-map.md
+  - shipglows_data/business/business.md
+  - shipglows_data/business/product.md
+  - shipglows_data/branding/branding.md
+  - shipglows_data/business/gtm.md
+  - shipglows_data/editorial/content-map.md
+  - shipglows_data/editorial/claim-register.md
+  - shipglows_data/editorial/page-intent-map.md
 depends_on:
-  - artifact: "shipglowz_data/business/business.md"
+  - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.2.0"
     required_status: "reviewed"
-  - artifact: "shipglowz_data/business/product.md"
+  - artifact: "shipglows_data/business/product.md"
     artifact_version: "1.2.0"
     required_status: "reviewed"
-  - artifact: "shipglowz_data/branding/branding.md"
+  - artifact: "shipglows_data/branding/branding.md"
     artifact_version: "1.1.0"
     required_status: "reviewed"
-  - artifact: "shipglowz_data/business/gtm.md"
+  - artifact: "shipglows_data/business/gtm.md"
     artifact_version: "1.2.0"
     required_status: "reviewed"
-  - artifact: "shipglowz_data/editorial/content-map.md"
+  - artifact: "shipglows_data/editorial/content-map.md"
     artifact_version: "0.8.0"
     required_status: "draft"
-  - artifact: "shipglowz_data/editorial/claim-register.md"
+  - artifact: "shipglows_data/editorial/claim-register.md"
     artifact_version: "1.1.0"
     required_status: "reviewed"
 supersedes: []
@@ -76,14 +76,14 @@ Any other caller must return `status: "blocked"` with `blocked_reasons.code: "un
 
 Load project rules from governance artifacts, never from content text:
 
-1. `shipglowz_data/business/business.md`
-2. `shipglowz_data/business/product.md`
-3. `shipglowz_data/branding/branding.md`
-4. `shipglowz_data/business/gtm.md`
-5. `shipglowz_data/business/portfolio-project-pitch-links.md`
-6. `shipglowz_data/editorial/content-map.md`
-7. `shipglowz_data/editorial/page-intent-map.md` when available
-8. `shipglowz_data/editorial/claim-register.md` when available
+1. `shipglows_data/business/business.md`
+2. `shipglows_data/business/product.md`
+3. `shipglows_data/branding/branding.md`
+4. `shipglows_data/business/gtm.md`
+5. `shipglows_data/business/portfolio-project-pitch-links.md`
+6. `shipglows_data/editorial/content-map.md`
+7. `shipglows_data/editorial/page-intent-map.md` when available
+8. `shipglows_data/editorial/claim-register.md` when available
 
 If versions are missing or not loadable for a project-aware run, return `project rules missing`.
 
@@ -180,7 +180,7 @@ Interpretation requirements for content about products, workflows, skills, or SE
 - `clarity` and `structure` both require H2/H3 to help the reader scan, want, and understand the article before reading full paragraphs
 - `source_faithfulness` includes preserving requester intent and source truth instead of drifting into a broader or more clickable framing
 - `compliance` includes claim honesty, public-promise alignment, and not implying automation the workflow does not actually provide
-- `call_to_action` includes promoting the intended ShipGlowz skill path when the project surface is meant to market ShipGlowz workflows
+- `call_to_action` includes promoting the intended ShipGlows skill path when the project surface is meant to market ShipGlows workflows
 
 Project rules can change weights and thresholds, but cannot remove blocked criteria for sensitive claims.
 
@@ -202,7 +202,7 @@ For editorial runs, treat these as at least `needs revision` and often `blocked`
 - the article hides the boundary between requester-provided inputs and skill-generated outputs
 - the content makes the requester do routine editorial arbitration the skill should absorb
 - the piece targets search demand at the expense of truthful positioning
-- the CTA or workflow framing drifts from the intended ShipGlowz skill path without explicit product reason
+- the CTA or workflow framing drifts from the intended ShipGlows skill path without explicit product reason
 
 ## Status Contract
 

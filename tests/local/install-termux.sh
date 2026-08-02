@@ -4,7 +4,7 @@ set -u
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/shipglowz-termux-install-test.XXXXXX")"
+TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/shipglows-termux-install-test.XXXXXX")"
 trap 'rm -rf "$TEST_ROOT"' EXIT
 
 BIN_DIR="$TEST_ROOT/bin"
@@ -54,7 +54,7 @@ TERMUX_VERSION="0.118" \
 PREFIX="/data/data/com.termux/files/usr" \
 OSTYPE="linux-android" \
 PATH="$BIN_DIR" \
-SHIPGLOWZ_LOCAL_CONFIG_DIR="$HOME_DIR/.shipglowz" \
+SHIPGLOWS_LOCAL_CONFIG_DIR="$HOME_DIR/.shipglows" \
 "$BASH" "$REPO_ROOT/local/install.sh" > "$SUCCESS_OUTPUT" 2>&1
 success_status=$?
 

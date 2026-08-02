@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-18"
 updated: "2026-07-18"
 status: active
@@ -17,14 +17,14 @@ linked_systems:
   - skills/006-sg-design/SKILL.md
   - skills/008-sg-customer/SKILL.md
   - skills/109-sg-auth-debug/SKILL.md
-  - shipglowz_data/workflow/specs/shared-async-feedback-visibility-contract.md
+  - shipglows_data/workflow/specs/shared-async-feedback-visibility-contract.md
 depends_on: []
 supersedes: []
 evidence:
   - "User direction 2026-07-18: users must see when delayed behavior is active instead of guessing whether it is broken."
   - "Shared spec shared-async-feedback-visibility-contract.md defines cross-project pressure scenarios and proof obligations."
 next_review: "2026-10-18"
-next_step: "Adopt per bounded flow using shipglowz_data/technical/async-feedback-visibility-adoption-checklist.md"
+next_step: "Adopt per bounded flow using shipglows_data/technical/async-feedback-visibility-adoption-checklist.md"
 ---
 
 # Shared Async Feedback Visibility Contract
@@ -46,4 +46,4 @@ Project design systems choose tokens, motion carrier, and component primitives. 
 
 ## Adoption proof
 
-For each adopted flow, record the trigger, busy indicator, stage copy, terminal states, duplicate-action behavior, timeout/retry path, reduced-motion behavior, and redacted diagnostics. Use the checklist at `shipglowz_data/technical/async-feedback-visibility-adoption-checklist.md`.
+For each adopted flow, record the trigger, busy indicator, stage copy, terminal states, duplicate-action behavior, timeout/retry path, reduced-motion behavior, and redacted diagnostics. Use the checklist at `shipglows_data/technical/async-feedback-visibility-adoption-checklist.md`.

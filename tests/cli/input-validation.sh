@@ -3,13 +3,13 @@
 # Test script for validation functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-SHIPFLOW_TEST_ROOT="$REPO_ROOT"
-source "$SHIPFLOW_TEST_ROOT/cli/lib.sh"
-source "$SHIPFLOW_TEST_ROOT/local/mcp-login.sh"
-source "$SHIPFLOW_TEST_ROOT/local/blacksmith-login.sh"
+SHIPGLOWS_TEST_ROOT="$REPO_ROOT"
+source "$SHIPGLOWS_TEST_ROOT/cli/lib.sh"
+source "$SHIPGLOWS_TEST_ROOT/local/mcp-login.sh"
+source "$SHIPGLOWS_TEST_ROOT/local/blacksmith-login.sh"
 
 echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║${NC}        ${YELLOW}ShipFlow Validation Tests${NC}          ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}        ${YELLOW}ShipGlows Validation Tests${NC}          ${CYAN}║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -44,7 +44,7 @@ echo ""
 
 # Should pass
 run_test "Valid path /root" "pass" validate_project_path "/root"
-run_test "Valid path checkout" "pass" validate_project_path "$SHIPFLOW_TEST_ROOT"
+run_test "Valid path checkout" "pass" validate_project_path "$SHIPGLOWS_TEST_ROOT"
 run_test "Valid path /opt" "pass" validate_project_path "/opt"
 
 # Should fail
@@ -87,7 +87,7 @@ run_test "Prefix generic lab role" "pass" test "$(derive_pm2_app_name /home/clau
 run_test "Prefix generic worker role" "pass" test "$(derive_pm2_app_name /home/claude/contentglowz/worker)" = "contentglowz_worker"
 run_test "Preserve specific project name" "pass" test "$(derive_pm2_app_name /home/claude/socialglowz)" = "socialglowz"
 run_test "Preserve already-prefixed role" "pass" test "$(derive_pm2_app_name /home/claude/winglowz/winglowz_app)" = "winglowz_app"
-run_test "Avoid duplicate parent role suffix" "pass" test "$(derive_pm2_app_name /home/claude/shipglowz_app/app)" = "shipglowz_app"
+run_test "Avoid duplicate parent role suffix" "pass" test "$(derive_pm2_app_name /home/claude/shipglowz_app/app)" = "shipglows_app"
 
 echo ""
 echo -e "${BLUE}Testing DuckDNS/public publish validation${NC}"

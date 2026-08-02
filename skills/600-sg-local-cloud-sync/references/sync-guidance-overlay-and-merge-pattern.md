@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-12"
 updated: "2026-06-12"
 status: active
@@ -46,7 +46,7 @@ next_step: "/103-sg-verify sync-guidance-overlay-and-merge-pattern"
 
 ## Purpose
 
-Preserve the SocialGlowz post-auth sync experience as the canonical ShipGlowz reference for local-to-cloud sync guidance.
+Preserve the SocialGlowz post-auth sync experience as the canonical ShipGlows reference for local-to-cloud sync guidance.
 
 Use this reference when a product needs a guided sync flow that makes account sign-in, cloud hydration, local seeding, merge decisions, retry state, and final readiness visible to the user in real time.
 

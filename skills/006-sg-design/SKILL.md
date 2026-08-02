@@ -8,14 +8,14 @@ Primary artifact type: `master-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before executing from a spec-first chantier, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`, read the spec's `Skill Run History` and `Current Chantier Flow`, append a current `006-sg-design` row with the correct result, update `Current Chantier Flow`, and open with the chantier header from `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before executing from a spec-first chantier, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, read the spec's `Skill Run History` and `Current Chantier Flow`, append a current `006-sg-design` row with the correct result, update `Current Chantier Flow`, and open with the chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 If no unique spec exists, do not write to a spec. For narrow read-only diagnosis, answer or route directly. For non-trivial design implementation, design-system migration, multi-page visual work, public/product-critical UI changes, or proof-sensitive redesigns, route to `/100-sg-spec <title>` and do not edit source files before readiness is `ready`.
 
@@ -23,15 +23,16 @@ If no unique spec exists, do not write to a spec. For narrow read-only diagnosis
 
 Load these before the matching work:
 
-- `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md` for route and implementation decisions.
-- `$SHIPFLOW_ROOT/skills/references/design-system-token-contract.md` before any UI, layout, token, theme, or visual-proof work.
-- `$SHIPFLOW_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` for mode grammar, scope gates, and sequencing.
-- `$SHIPFLOW_ROOT/skills/006-sg-design/references/design-token-migration-playbook.md` for token centralization and migration handoff.
-- `$SHIPFLOW_ROOT/skills/006-sg-design/references/design-proof-and-reporting.md` for design completion and handoff evidence.
-- `$SHIPFLOW_ROOT/skills/references/design-inspiration-library.md` when visual direction changes or an explicit inspiration request exists.
-- `$SHIPFLOW_ROOT/skills/006-sg-design/references/design-inspiration-library-operations.md` before `library ...` operations.
-- `$SHIPFLOW_ROOT/skills/600-sg-local-cloud-sync/references/sync-guidance-overlay-and-merge-pattern.md` before sync-related UI work.
-- `$SHIPFLOW_ROOT/skills/references/skill-refactor-verifier.md` for any skill compaction, extraction, or process-migration check.
+- `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` for route and implementation decisions.
+- `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` before any UI, layout, token, theme, or visual-proof work.
+- `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` for mode grammar, scope gates, and sequencing.
+- `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-token-migration-playbook.md` for token centralization and migration handoff.
+- `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-proof-and-reporting.md` for design completion and handoff evidence.
+- `$SHIPGLOWS_ROOT/skills/references/design-inspiration-library.md` when visual direction changes or an explicit inspiration request exists.
+- `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when defining experience principles, critical moments, desired/avoided emotion, or a design direction that changes product intent.
+- `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-inspiration-library-operations.md` before `library ...` operations.
+- `$SHIPGLOWS_ROOT/skills/600-sg-local-cloud-sync/references/sync-guidance-overlay-and-merge-pattern.md` before sync-related UI work.
+- `$SHIPGLOWS_ROOT/skills/references/skill-refactor-verifier.md` for any skill compaction, extraction, or process-migration check.
 
 ## Mission
 
@@ -63,7 +64,7 @@ Use project scripts and specialist checks instead of inventing proof.
 - `npm run lint`
 - `npm run build`
 - `npm test`
-- `python3 "${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/design_system_drift_check.py" --changed --format markdown`
+- `python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --changed --format markdown`
 
 Run `006-sg-design audit tokens`, `006-sg-design audit a11y`, `108-sg-browser`, `109-sg-auth-debug`, or `405-sg-prod` when the proof path requires specialist evidence.
 

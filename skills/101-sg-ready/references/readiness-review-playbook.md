@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-27"
 updated: "2026-07-18"
 status: active
@@ -16,7 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/101-sg-ready/SKILL.md
   - skills/references/documentation-freshness-gate.md
-  - shipglowz_data/technical/guidelines.md
+  - shipglows_data/technical/guidelines.md
 depends_on:
   - artifact: "skills/references/documentation-freshness-gate.md"
     artifact_version: "1.0.0"
@@ -81,7 +81,7 @@ Before looking at implementation detail, verify that the spec clearly links:
 - the business or operational value
 - the explicit scope limits
 - the declared launch and roadmap platform footprint for greenfield products when it affects architecture
-- the compatible presets from `$SHIPFLOW_ROOT/skills/references/preferred-stacks.md`, or a documented reason each applicable preset is unsuitable
+- the compatible presets from `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`, or a documented reason each applicable preset is unsuitable
 
 Refuse the spec if a fresh reader cannot answer without hesitation:
 
@@ -152,8 +152,8 @@ Check:
   say what to collect before asking the user
 - `Scope Out` meaningfully bounds the work
 - greenfield `Scope Out` does not exclude native mobile, web, PWA, or desktop solely because the initial request omitted that surface; platform exclusions are operator-backed, and `mobile-first` is not treated as equivalent to iOS/Android apps
-- when the spec touches ShipGlowz artifacts, skills, reports, technical docs,
-  prompts, or user-facing product copy, it respects ShipGlowz language doctrine
+- when the spec touches ShipGlows artifacts, skills, reports, technical docs,
+  prompts, or user-facing product copy, it respects ShipGlows language doctrine
 
 If a point materially changes behavior, scope, or security and is neither proven
 by existing code nor resolved by the spec, the verdict is `not ready`.
@@ -338,7 +338,7 @@ Place the shared chantier header immediately before `🎯 VERDICT (HH:mm) : [rea
 - Reason against the user story, then do a "how does this break?" pass before
   concluding `ready`.
 - Make the cyber-security risk level explicit.
-- Check active docs, ShipGlowz language doctrine, design-system authority, and
+- Check active docs, ShipGlows language doctrine, design-system authority, and
   the Documentation Freshness Gate when their gate applies.
 - If a missing question changes the contract or security, block instead of
   assuming.

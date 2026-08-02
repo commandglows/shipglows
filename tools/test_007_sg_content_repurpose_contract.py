@@ -13,35 +13,35 @@ ROOT = Path(__file__).resolve().parents[1]
 RETIRED = re.compile(r"202-sg-repurpose|sg-repurpose|sf-repurpose|/sg-repurpose", re.IGNORECASE)
 ACTIVE_SUFFIXES = {".md", ".json", ".astro", ".py", ".yaml", ".yml"}
 HISTORICAL_PREFIXES = (
-    "shipglowz_data/workflow/archives/",
-    "shipglowz_data/workflow/audits/",
-    "shipglowz_data/workflow/reviews/",
-    "shipglowz_data/workflow/repurpose-packs/",
-    "shipglowz_data/workflow/research/",
+    "shipglows_data/workflow/archives/",
+    "shipglows_data/workflow/audits/",
+    "shipglows_data/workflow/reviews/",
+    "shipglows_data/workflow/repurpose-packs/",
+    "shipglows_data/workflow/research/",
 )
 HISTORICAL_FILES = {
     "skills/REFRESH_LOG.md",
-    "shipglowz_data/workflow/TASKS.md",  # Explicitly preserved outside this migration.
-    "shipglowz_data/workflow/specs/audit-and-compact-skill-taxonomy-descriptions.md",
-    "shipglowz_data/workflow/specs/audit-skill-domain-mode-taxonomy-migration.md",
-    "shipglowz_data/workflow/specs/compact-shipflow-skill-instructions-phase-2.md",
-    "shipglowz_data/workflow/specs/compact-shipflow-skill-instructions.md",
-    "shipglowz_data/workflow/specs/consolidate-marketing-skills-under-sg-marketing.md",
-    "shipglowz_data/workflow/specs/consolidate-repurpose-mode-under-sg-content.md",
-    "shipglowz_data/workflow/specs/content-owner-skills-governance-integration.md",
-    "shipglowz_data/workflow/specs/emailing-sequences-audience-skill.md",
-    "shipglowz_data/workflow/specs/grille-notation-editoriale-projet-skills-contenu.md",
-    "shipglowz_data/workflow/specs/local-mcp-oauth-tunnel-login.md",
-    "shipglowz_data/workflow/specs/public-skill-categories.md",
-    "shipglowz_data/workflow/specs/sf-content-master-content-lifecycle-skill.md",
-    "shipglowz_data/workflow/specs/sf-repurpose-actionable-article-ideas-output.md",
-    "shipglowz_data/workflow/specs/sf-repurpose-existing-content-placement-opportunities.md",
-    "shipglowz_data/workflow/specs/sf-veille-governance-content-alignment.md",
-    "shipglowz_data/workflow/specs/shipflow-editorial-content-governance-layer-for-ai-agents.md",
-    "shipglowz_data/workflow/specs/skill-description-budget-compliance.md",
-    "shipglowz_data/workflow/specs/skill-taxonomy-and-chantier-sources.md",
-    "shipglowz_data/workflow/specs/specs-as-chantier-registry.md",
-    "shipglowz_data/workflow/specs/three-digit-runtime-skill-names.md",
+    "shipglows_data/workflow/TASKS.md",  # Explicitly preserved outside this migration.
+    "shipglows_data/workflow/specs/audit-and-compact-skill-taxonomy-descriptions.md",
+    "shipglows_data/workflow/specs/audit-skill-domain-mode-taxonomy-migration.md",
+    "shipglows_data/workflow/specs/compact-shipglows-skill-instructions-phase-2.md",
+    "shipglows_data/workflow/specs/compact-shipglows-skill-instructions.md",
+    "shipglows_data/workflow/specs/consolidate-marketing-skills-under-sg-marketing.md",
+    "shipglows_data/workflow/specs/consolidate-repurpose-mode-under-sg-content.md",
+    "shipglows_data/workflow/specs/content-owner-skills-governance-integration.md",
+    "shipglows_data/workflow/specs/emailing-sequences-audience-skill.md",
+    "shipglows_data/workflow/specs/grille-notation-editoriale-projet-skills-contenu.md",
+    "shipglows_data/workflow/specs/local-mcp-oauth-tunnel-login.md",
+    "shipglows_data/workflow/specs/public-skill-categories.md",
+    "shipglows_data/workflow/specs/sf-content-master-content-lifecycle-skill.md",
+    "shipglows_data/workflow/specs/sf-repurpose-actionable-article-ideas-output.md",
+    "shipglows_data/workflow/specs/sf-repurpose-existing-content-placement-opportunities.md",
+    "shipglows_data/workflow/specs/sf-veille-governance-content-alignment.md",
+    "shipglows_data/workflow/specs/shipglows-editorial-content-governance-layer-for-ai-agents.md",
+    "shipglows_data/workflow/specs/skill-description-budget-compliance.md",
+    "shipglows_data/workflow/specs/skill-taxonomy-and-chantier-sources.md",
+    "shipglows_data/workflow/specs/specs-as-chantier-registry.md",
+    "shipglows_data/workflow/specs/three-digit-runtime-skill-names.md",
     "tools/test_010_sg_technical_contract.py",
 }
 
@@ -54,7 +54,7 @@ class RepurposeModeContractTest(unittest.TestCase):
     def test_transcript_modes_are_public_and_distinct(self) -> None:
         router = read("skills/007-sg-content/references/content-router.md")
         skill = read("skills/007-sg-content/SKILL.md")
-        public = read("shipglowz-site/src/content/skills/sg-content.md")
+        public = read("shipglows-site/src/content/skills/sg-content.md")
         for mode in ("capture-full-conversation", "clean-transcript", "verbatim"):
             self.assertIn(mode, router + skill + public)
         self.assertIn("internal `800-tmux-capture-conversation`", router)
@@ -96,12 +96,12 @@ class RepurposeModeContractTest(unittest.TestCase):
 
     def test_retired_source_and_public_identity_are_absent(self) -> None:
         self.assertFalse((ROOT / "skills/202-sg-repurpose").exists())
-        self.assertFalse((ROOT / "shipglowz-site/src/content/skills/sg-repurpose.md").exists())
+        self.assertFalse((ROOT / "shipglows-site/src/content/skills/sg-repurpose.md").exists())
         self.assertNotIn("202-sg-repurpose", read("skills/references/skill-code-index.md"))
-        catalog = json.loads(read("plugins/shipglowz/assets/pack-catalog.json"))
+        catalog = json.loads(read("plugins/shipglows/assets/pack-catalog.json"))
         self.assertNotIn("202-sg-repurpose", json.dumps(catalog))
-        self.assertNotIn("sg-repurpose", read("shipglowz-site/src/content/skills/sg-content.md"))
-        self.assertNotIn("sf-repurpose", read("shipglowz-site/src/pages/skills/index.astro"))
+        self.assertNotIn("sg-repurpose", read("shipglows-site/src/content/skills/sg-content.md"))
+        self.assertNotIn("sf-repurpose", read("shipglows-site/src/pages/skills/index.astro"))
 
     def test_no_retired_name_in_active_surface(self) -> None:
         violations: list[str] = []

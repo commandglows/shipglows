@@ -1,12 +1,12 @@
 ---
 name: 704-sg-model
-description: "Route models for ShipGlowz tasks and reasoning levels."
+description: "Route models for ShipGlows tasks and reasoning levels."
 argument-hint: <task description, spec path, ou scope>
 ---
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -17,7 +17,7 @@ This skill does not write to chantier specs. If invoked inside a spec-first flow
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md` and use the shared chantier-then-verdict opening.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` and use the shared chantier-then-verdict opening.
 
 ## Context
 
@@ -30,7 +30,7 @@ Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/report
 
 ## Your task
 
-Choisir un modèle avant une exécution ShipGlowz, que la session tourne dans Codex/OpenAI ou dans Claude Code, sans transformer cette étape en débat interminable.
+Choisir un modèle avant une exécution ShipGlows, que la session tourne dans Codex/OpenAI ou dans Claude Code, sans transformer cette étape en débat interminable.
 
 This skill answers one operator question: which model policy is the best fit for this scope right now, and is that recommendation for the current conversation, a subagent override, or the next run?
 
@@ -44,7 +44,7 @@ Keep the boundary explicit:
 
 `704-sg-model` does not become the execution owner, does not mutate the work item itself, and does not pretend that recommending a model means the main thread already switched runtime.
 
-Avant toute recommandation, charger `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`. La sélection de modèle optimise d'abord la fiabilité, la sécurité, la performance attendue, la maintenabilité, l'excellence et la qualité de preuve. Les alternatives rapides ou moins chères ne sont valides que si elles restent équivalentes sur ces axes pour le risque réel.
+Avant toute recommandation, charger `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`. La sélection de modèle optimise d'abord la fiabilité, la sécurité, la performance attendue, la maintenabilité, l'excellence et la qualité de preuve. Les alternatives rapides ou moins chères ne sont valides que si elles restent équivalentes sur ces axes pour le risque réel.
 
 Le but de `704-sg-model` est de répondre à six questions :
 - quel runtime/provider est concerné maintenant ?

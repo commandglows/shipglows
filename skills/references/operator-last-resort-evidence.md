@@ -2,11 +2,11 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-27"
 updated: "2026-06-27"
 status: active
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: operator-last-resort-evidence
 owner: Diane
 confidence: high

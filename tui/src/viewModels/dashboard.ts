@@ -294,7 +294,7 @@ export function buildDashboardViewModel(
     : ["No diagnostics."];
 
   return {
-    header: "ShipGlowz TUI",
+    header: "ShipGlows TUI",
     activePanel: state.activePanel,
     projectFilter: state.projectFilter,
     specFilter: state.specFilter,

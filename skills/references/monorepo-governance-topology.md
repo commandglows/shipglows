@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-28"
 updated: "2026-07-23"
 status: active
@@ -14,7 +14,7 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - shipglowz_data/
+  - shipglows_data/
   - skills/references/canonical-paths.md
   - skills/references/technical-docs-corpus.md
   - skills/references/editorial-content-corpus.md
@@ -24,7 +24,7 @@ supersedes: []
 evidence:
   - "Operator decision 2026-06-28: monorepo governance should group by theme first, then by surface."
   - "Repeated migration drift caused by mixed site/app folders carrying business, technical, and workflow docs together."
-  - "Operator decision 2026-07-23: monorepo source roots (site/, app/, backend/, packages/) are separate from governance roots (shipglowz_data/), and flat source roots are the preferred canonical shape."
+  - "Operator decision 2026-07-23: monorepo source roots (site/, app/, backend/, packages/) are separate from governance roots (shipglows_data/), and flat source roots are the preferred canonical shape."
 next_review: "2026-07-28"
 next_step: "/300-sg-docs migrate-layout"
 ---
@@ -33,7 +33,7 @@ next_step: "/300-sg-docs migrate-layout"
 
 ## Rule
 
-In ShipGlowz monorepos, organize governance by theme first, then by surface.
+In ShipGlows monorepos, organize governance by theme first, then by surface.
 
 Use this pattern:
 
@@ -44,30 +44,30 @@ Use this pattern:
 
 Examples:
 
-- `shipglowz_data/branding/branding.md`
-- `shipglowz_data/business/site/business.md`
-- `shipglowz_data/business/app/business.md`
-- `shipglowz_data/product/site/product.md`
-- `shipglowz_data/product/app/product.md`
-- `shipglowz_data/gtm/site/gtm.md`
-- `shipglowz_data/gtm/app/gtm.md`
-- `shipglowz_data/editorial/site/content-map.md`
-- `shipglowz_data/research/site/*`
-- `shipglowz_data/technical/site/*`
-- `shipglowz_data/technical/app/*`
-- `shipglowz_data/workflow/site/*`
-- `shipglowz_data/workflow/app/*`
+- `shipglows_data/branding/branding.md`
+- `shipglows_data/business/site/business.md`
+- `shipglows_data/business/app/business.md`
+- `shipglows_data/product/site/product.md`
+- `shipglows_data/product/app/product.md`
+- `shipglows_data/gtm/site/gtm.md`
+- `shipglows_data/gtm/app/gtm.md`
+- `shipglows_data/editorial/site/content-map.md`
+- `shipglows_data/research/site/*`
+- `shipglows_data/technical/site/*`
+- `shipglows_data/technical/app/*`
+- `shipglows_data/workflow/site/*`
+- `shipglows_data/workflow/app/*`
 
 ## Monorepo Source Root Rule
 
-Source roots and governance roots are separate concerns. Governance stays at the monorepo root under `shipglowz_data/`. Canonical source roots may be flat at the monorepo root when the project uses the public-site + application + backend split:
+Source roots and governance roots are separate concerns. Governance stays at the monorepo root under `shipglows_data/`. Canonical source roots may be flat at the monorepo root when the project uses the public-site + application + backend split:
 
 - `site/`
 - `app/`
 - `backend/`
 - `packages/`
 
-Nested `apps/*` packaging is allowed only when the project documents a durable technical reason; it is not the default ShipGlowz monorepo shape.
+Nested `apps/*` packaging is allowed only when the project documents a durable technical reason; it is not the default ShipGlows monorepo shape.
 
 ## Decision Rule
 
@@ -94,10 +94,10 @@ Typical surface-scoped contracts:
 
 Avoid surface-first umbrella folders that mix unrelated themes together, for example:
 
-- `shipglowz_data/site/business/...`
-- `shipglowz_data/site/editorial/...`
-- `shipglowz_data/site/research/...`
-- `shipglowz_data/app/...`
+- `shipglows_data/site/business/...`
+- `shipglows_data/site/editorial/...`
+- `shipglows_data/site/research/...`
+- `shipglows_data/app/...`
 
 This shape hides the difference between shared business truth and surface-specific implementation truth.
 
@@ -105,11 +105,11 @@ This shape hides the difference between shared business truth and surface-specif
 
 When normalizing a monorepo:
 
-1. move shared brand docs to `shipglowz_data/branding/`
+1. move shared brand docs to `shipglows_data/branding/`
 2. move business, product, GTM, editorial, research, technical, and workflow docs under their theme
 3. create surface subfolders only where the contract differs by surface
 4. delete duplicate shared-source docs after downstream references point to the canonical shared file
 
 ## Maintenance Rule
 
-Update this reference when ShipGlowz changes the canonical governance topology for monorepos.
+Update this reference when ShipGlows changes the canonical governance topology for monorepos.

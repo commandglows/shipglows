@@ -1,6 +1,6 @@
 # Flutter + Clerk + Convex Auth Debug Reference
 
-Use this reference when a ShipGlowz application is a Flutter app using Clerk, Convex, or both.
+Use this reference when a ShipGlows application is a Flutter app using Clerk, Convex, or both.
 
 Sources checked:
 - https://clerk.com/changelog/2025-03-26-flutter-sdk-beta
@@ -43,7 +43,7 @@ Android.
 
 Use this contract for every new Flutter Android app unless the operator has
 explicitly approved a documented departure: Google opens in the system browser
-and Clerk returns to the APK with an active session. It is the only ShipGlowz
+and Clerk returns to the APK with an active session. It is the only ShipGlows
 Android Google path that has completed a real release-APK login on a physical
 device.
 
@@ -94,7 +94,7 @@ When scaffolding a new Flutter Android app with Clerk, use the default contract
 and write this configuration record before coding:
 
 ```text
-auth_profile: browser-oauth (ShipGlowz default)
+auth_profile: browser-oauth (ShipGlows default)
 android_application_id: <exact Gradle applicationId>
 clerk_android_sdk: <exact pinned coordinate and version>
 callback_owner: <SDK activity | app activity, only if required>

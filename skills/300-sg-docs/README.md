@@ -4,7 +4,7 @@
 
 ## What It Does
 
-`300-sg-docs` handles documentation as an active product surface. It can bootstrap governance for a new repository, generate a project README, document APIs or components, add inline code documentation, audit existing docs for drift, and update ShipGlowz decision artifacts with the right metadata.
+`300-sg-docs` handles documentation as an active product surface. It can bootstrap governance for a new repository, generate a project README, document APIs or components, add inline code documentation, audit existing docs for drift, and update ShipGlows decision artifacts with the right metadata.
 
 For empty or near-empty repositories, `init` should produce a stable governance starter set rather than a generic product README.
 
@@ -21,7 +21,7 @@ For solo founders, this matters because stale docs cost time twice: once when yo
 - when a README no longer reflects the actual project
 - when APIs or components need human-readable documentation
 - when internal docs feel fragmented or inconsistent
-- when ShipGlowz artifacts need metadata migration or cleanup
+- when ShipGlows artifacts need metadata migration or cleanup
 - when a new repository needs an initial documentation and governance scaffold
 
 ## What You Give It
@@ -34,7 +34,7 @@ For solo founders, this matters because stale docs cost time twice: once when yo
 
 - generated or updated documentation
 - a documentation audit with concrete drift risks
-- metadata-aligned ShipGlowz artifacts where relevant
+- metadata-aligned ShipGlows artifacts where relevant
 - clearer next steps when docs are too incomplete to trust
 
 ## Typical Examples

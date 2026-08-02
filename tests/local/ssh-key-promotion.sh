@@ -4,7 +4,7 @@ set -u
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/shipglowz-ssh-key-test.XXXXXX")"
+TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/shipglows-ssh-key-test.XXXXXX")"
 ORIGINAL_HOME="$HOME"
 trap 'HOME="$ORIGINAL_HOME"; rm -rf "$TEST_ROOT"' EXIT
 
@@ -44,14 +44,14 @@ check_fails() {
     fi
 }
 
-IDENTITY="$(generate_shipglowz_identity "ubuntu@example.test")"
-OTHER_IDENTITY="$(generate_shipglowz_identity "ubuntu@other.example.test")"
+IDENTITY="$(generate_shipglows_identity "ubuntu@example.test")"
+OTHER_IDENTITY="$(generate_shipglows_identity "ubuntu@other.example.test")"
 
 check "SSHKEY-A06 generated identity exists" test -f "$IDENTITY"
 check "SSHKEY-A06 generated public key exists" test -f "${IDENTITY}.pub"
 check "SSHKEY-A06 private key is mode 600" test "$(stat -c '%a' "$IDENTITY" 2>/dev/null || stat -f '%Lp' "$IDENTITY")" = "600"
 check "valid generated public key" validate_ssh_public_key_file "${IDENTITY}.pub"
-check_fails "generation never overwrites an identity" generate_shipglowz_identity "ubuntu@example.test" "$IDENTITY"
+check_fails "generation never overwrites an identity" generate_shipglows_identity "ubuntu@example.test" "$IDENTITY"
 
 PREPARED="$TEST_ROOT/prepared.pub"
 check "matching private/public pair is prepared" prepare_identity_public_key "$IDENTITY" "$PREPARED"
@@ -109,11 +109,11 @@ done
 check "SSHKEY-A02 forces selected identity" grep -qx "$IDENTITY" "$SSH_ARGS_CAPTURE"
 
 HOME="$TEST_ROOT/menu-home"
-mkdir -p "$HOME/.ssh" "$HOME/.shipglowz"
+mkdir -p "$HOME/.ssh" "$HOME/.shipglows"
 cp "$IDENTITY" "$HOME/.ssh/existing-key"
 cp "${IDENTITY}.pub" "$HOME/.ssh/existing-key.pub"
 chmod 600 "$HOME/.ssh/existing-key"
-export SHIPGLOWZ_LOCAL_CONFIG_DIR="$HOME/.shipglowz"
+export SHIPGLOWS_LOCAL_CONFIG_DIR="$HOME/.shipglows"
 
 # shellcheck source=../../local/local.sh
 source "$REPO_ROOT/local/local.sh"

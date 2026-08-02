@@ -1,6 +1,6 @@
 # Flutter Web + ClerkJS Bridge Auth Reference
 
-Use this reference for ShipGlowz Flutter web apps that avoid Clerk Flutter/Dart beta SDKs and authenticate with official ClerkJS on the app domain.
+Use this reference for ShipGlows Flutter web apps that avoid Clerk Flutter/Dart beta SDKs and authenticate with official ClerkJS on the app domain.
 
 Reference implementation inspected:
 - `$HOME/contentflow/contentflow_app/pubspec.yaml`

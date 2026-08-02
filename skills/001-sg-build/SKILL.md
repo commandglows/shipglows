@@ -6,24 +6,24 @@ argument-hint: "[spark|codex|mini|agents|sous-agent|no-agents] <story, bug, or g
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before executing, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`. If exactly one chantier spec is in scope, read `Skill Run History` and `Current Chantier Flow`, append a current `001-sg-build` row with result `implemented`, `partial`, `blocked`, or `rerouted`, update `Current Chantier Flow`, and open with the opening chantier header from `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`. If no unique spec exists, do not write to a spec and use a `(local)` chantier header with a short work name.
+Before executing, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. If exactly one chantier spec is in scope, read `Skill Run History` and `Current Chantier Flow`, append a current `001-sg-build` row with result `implemented`, `partial`, `blocked`, or `rerouted`, update `Current Chantier Flow`, and open with the opening chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. If no unique spec exists, do not write to a spec and use a `(local)` chantier header with a short work name.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, outcome-first, and using the opening chantier header. Use `report=agent` only when explicitly requested or when `001-sg-build` is preparing an internal handoff for another agent. When invoking downstream skills for internal evidence, pass `report=agent` or `handoff` only when detailed evidence is needed.
 
 ## Master Delegation
 
-Before choosing execution topology, load `$SHIPFLOW_ROOT/skills/references/master-delegation-semantics.md`.
+Before choosing execution topology, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 
 This skill owns end-to-end lifecycle orchestration through `104-sg-end` and `005-sg-ship`, with `main-only`, `delegated sequential`, and `spec-gated parallel` as reportable execution modes.
 
@@ -31,27 +31,27 @@ This skill owns end-to-end lifecycle orchestration through `104-sg-end` and `005
 
 ## Master Workflow Lifecycle
 
-Before resolving lifecycle gates, load `$SHIPFLOW_ROOT/skills/references/master-workflow-lifecycle.md`.
+Before resolving lifecycle gates, load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md`.
 
 Use the shared skeleton for intake, work item resolution, readiness, model/topology routing, execution through owner skills, validation, verification, and post-verify closure/ship. Local sections below define `001-sg-build` routes and stop conditions only.
 
-Before choosing a route, model, topology, mini-contract, or implementation path, load `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`. When an owner handoff or fix is itself a failure finding, load `$SHIPFLOW_ROOT/skills/references/actionable-failure-contract.md` and choose the most specific owner route before implementation.
+Before choosing a route, model, topology, mini-contract, or implementation path, load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`. When an owner handoff or fix is itself a failure finding, load `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` and choose the most specific owner route before implementation.
 
 ## Required References
 
-Load `$SHIPFLOW_ROOT/skills/001-sg-build/references/build-lifecycle-workflow.md` for the detailed execution-mode playbook, question framing, governance/documentation gates, browser evidence routing, onboarding gate, and final report templates.
+Load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-lifecycle-workflow.md` for the detailed execution-mode playbook, question framing, governance/documentation gates, browser evidence routing, onboarding gate, and final report templates.
 
-Before applying any named operator profile semantics in `$ARGUMENTS`, load `$SHIPFLOW_ROOT/skills/references/profile-activation.md` and follow its canonical resolution, precedence, fallback, reporting, and project-context rules.
+Before applying any named operator profile semantics in `$ARGUMENTS`, load `$SHIPGLOWS_ROOT/skills/references/profile-activation.md` and follow its canonical resolution, precedence, fallback, reporting, and project-context rules.
 
-Before the Blueprint Gate, load `$SHIPFLOW_ROOT/skills/references/preferred-stacks.md`, then `$SHIPFLOW_ROOT/skills/references/app-blueprints.md`.
+Before the Blueprint Gate, load `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`, then `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md`.
 
-Before asking a user-facing question, load `$SHIPFLOW_ROOT/skills/references/question-contract.md`.
+Before asking a user-facing question, load `$SHIPGLOWS_ROOT/skills/references/question-contract.md`.
 
-Before deciding whether the operator should be asked for business, product, audience, or framing input, load `$SHIPFLOW_ROOT/skills/references/operator-partnership-contract.md`.
+Before deciding whether the operator should be asked for business, product, audience, or framing input, load `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md`.
 
-Before `102-sg-start`, load `$SHIPFLOW_ROOT/skills/704-sg-model/references/model-routing.md` and choose model profile based on complexity, ambiguity, failure cost, expected duration, and topology.
+Before `102-sg-start`, load `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` and choose model profile based on complexity, ambiguity, failure cost, expected duration, and topology.
 
-Before UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual proof work, load `$SHIPFLOW_ROOT/skills/references/design-system-token-contract.md` and route design-system changes through the canonical token/theme/component source.
+Before UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual proof work, load `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` and route design-system changes through the canonical token/theme/component source.
 
 ## Mission
 
@@ -93,7 +93,7 @@ Report `Agents: used`, `Agents: not needed`, or `Agents: degraded: <reason>` onl
 
 Before creating any spec:
 
-1. Search active specs in `specs/*.md` and `shipglowz_data/workflow/specs/*.md` as allowed by the project layout.
+1. Search active specs in `specs/*.md` and `shipglows_data/workflow/specs/*.md` as allowed by the project layout.
 2. Compare user story, expected result, linked systems, impacted files/surfaces, and `Current Chantier Flow`.
 3. Prefer continuing the matching active spec.
 4. Create a new spec only when promise or outcome is genuinely new.
@@ -103,10 +103,10 @@ Before creating any spec:
 
 After work item resolution, before spec creation:
 
-1. Apply the Greenfield Platform Footprint Rule from `$SHIPFLOW_ROOT/skills/references/question-contract.md`; do not infer that responsive web excludes native mobile apps.
-2. Load `$SHIPFLOW_ROOT/skills/references/preferred-stacks.md` and apply compatible operator-approved presets.
-3. Load `$SHIPFLOW_ROOT/skills/references/app-blueprints.md`.
-4. Read the registry at `$SHIPFLOW_ROOT/skills/app-blueprints/README.md` for platform-compatible candidate matches.
+1. Apply the Greenfield Platform Footprint Rule from `$SHIPGLOWS_ROOT/skills/references/question-contract.md`; do not infer that responsive web excludes native mobile apps.
+2. Load `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md` and apply compatible operator-approved presets.
+3. Load `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md`.
+4. Read the registry at `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md` for platform-compatible candidate matches.
 5. For each candidate, resolve the blueprint: check local cache first, then clone from `source.repo` if set.
 6. If matched, load the blueprint into the active context and pass it to downstream skills without silently overriding an accepted preset.
 7. If a candidate fits the platforms but not the product archetype, use it only as a stack/conventions reference.
@@ -121,7 +121,7 @@ In the final report, add `Blueprint: [id] (version) — resolved from [local | c
 
 For a greenfield product with material technology choices not covered by an
 accepted preferred preset or blueprint, apply the Greenfield Technology Decision Rule from
-`$SHIPFLOW_ROOT/skills/references/question-contract.md` before allowing the
+`$SHIPGLOWS_ROOT/skills/references/question-contract.md` before allowing the
 spec to freeze architecture, hosting, data, payment, or material provider
 choices. Present one researched recommendation at the product-consequence
 level and ask one bundled numbered decision; keep low-level implementation
@@ -175,14 +175,14 @@ Stop and ask or reroute when:
 
 ## Final Report
 
-Apply `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`. The default user-facing report is concise; the detailed phase report is reserved for `report=agent`, blocked runs, or explicit handoff. Use `build-lifecycle-workflow.md` for the full user-mode and agent-mode templates.
+Apply `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. The default user-facing report is concise; the detailed phase report is reserved for `report=agent`, blocked runs, or explicit handoff. Use `build-lifecycle-workflow.md` for the full user-mode and agent-mode templates.
 
 ## Rules
 
 - Orchestrate; do not duplicate every atomic skill.
 - Preserve user changes and avoid unrelated refactors.
 - Keep technical and editorial coherence gates explicit.
-- Follow `$SHIPFLOW_ROOT/skills/references/master-delegation-semantics.md`.
+- Follow `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 - Do not commit or push directly from `001-sg-build`; delegate closure and ship through `104-sg-end` and `005-sg-ship`.
 - Do not make the user manually run `104-sg-end` or `005-sg-ship` after successful verification unless a named stop condition blocks automatic orchestration.
 - Treat `102-sg-start` auto-verify as an allowed local optimization only; do not interpret it as automatic completion of lifecycle orchestration.
@@ -193,4 +193,4 @@ Validate this skill after edits with:
 
 - `rg -n "Trace category|Process role|Master Delegation|Master Workflow Lifecycle|Existing Chantier Check|Greenfield Platform Footprint|Greenfield Technology Decision|Stop Conditions|Final Report|build-lifecycle-workflow" skills/001-sg-build/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
-- `python3 tools/shipglowz_metadata_lint.py skills/001-sg-build/references/build-lifecycle-workflow.md`
+- `python3 tools/shipglows_metadata_lint.py skills/001-sg-build/references/build-lifecycle-workflow.md`

@@ -16,14 +16,14 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-shipglowz_migrate_local_config || true
-CONFIG_DIR="$(shipglowz_local_config_dir)"
+shipglows_migrate_local_config || true
+CONFIG_DIR="$(shipglows_local_config_dir)"
 CURRENT_CONNECTION_FILE="$CONFIG_DIR/current_connection"
 CURRENT_IDENTITY_FILE="$CONFIG_DIR/current_identity_file"
 CURRENT_AUTH_METHOD_FILE="$CONFIG_DIR/current_auth_method"
 
 KNOWN_PROVIDERS=("vercel" "supabase")
-LOGIN_TIMEOUT_SECONDS="${SHIPGLOWZ_MCP_LOGIN_TIMEOUT_SECONDS:-${SHIPFLOW_MCP_LOGIN_TIMEOUT_SECONDS:-600}}"
+LOGIN_TIMEOUT_SECONDS="${SHIPGLOWS_MCP_LOGIN_TIMEOUT_SECONDS:-${SHIPGLOWS_MCP_LOGIN_TIMEOUT_SECONDS:-600}}"
 
 REMOTE_HOST=""
 SSH_IDENTITY_FILE=""
@@ -37,18 +37,18 @@ CURRENT_PROVIDER=""
 
 usage() {
     cat <<'EOF'
-Usage: shipglowz-mcp-login <provider|all>
+Usage: shipglows-mcp-login <provider|all>
 
 Examples:
-  shipglowz-mcp-login vercel
-  shipglowz-mcp-login supabase
-  shipglowz-mcp-login all
-  shipglowz-mcp-login custom-name_1
+  shipglows-mcp-login vercel
+  shipglows-mcp-login supabase
+  shipglows-mcp-login all
+  shipglows-mcp-login custom-name_1
 EOF
 }
 
 print_header() {
-    local brand="ShipGlowz DevServer"
+    local brand="ShipGlows DevServer"
     local title="MCP OAuth Login"
     echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║                                                  ║${NC}"
@@ -88,7 +88,7 @@ known_provider_add_command() {
 
 load_remote_host() {
     if ! _load_remote_host_core; then
-        echo -e "${RED}✗ Aucune connexion distante ShipGlowz configurée.${NC}"
+        echo -e "${RED}✗ Aucune connexion distante ShipGlows configurée.${NC}"
         echo -e "${YELLOW}  Ouvrez le menu local 'urls', choisissez c) Configurer nouveau serveur, puis entrez l'adresse IP.${NC}"
         exit 1
     fi

@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-17"
 updated: "2026-07-17"
 status: active
@@ -28,18 +28,18 @@ Load this playbook only for `010-sg-technical deps`. It preserves the retired de
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Chantier Potential Intake
 
-Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
+Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
 
 
 ## Doctrine
@@ -72,7 +72,7 @@ Because this skill has process role `source-de-chantier`, evaluate the standard 
 
 Audit dependencies across ALL projects in the workspace.
 
-1. Read discovered project-local corpora (`shipglowz_data/` markers) — check the **Domain Applicability** table. Identify projects with ✓ in the Deps column. BuildFlowz (Bash) has no package manager → skip.
+1. Read discovered project-local corpora (`shipglows_data/` markers) — check the **Domain Applicability** table. Identify projects with ✓ in the Deps column. BuildFlowz (Bash) has no package manager → skip.
 
 2. Use the runtime's structured question tool when available to let the user choose:
    - Question: "Which projects should I audit for dependency health?"
@@ -110,7 +110,7 @@ Audit dependencies across ALL projects in the workspace.
    ═══════════════════════════════════════
    ```
 
-5. Update project-local `shipglowz_data/workflow/AUDIT_LOG.md` (one traffic-first audit record per project, Deps column) and project-local `shipglowz_data/workflow/TASKS.md` (each project's `### Audit: Deps` subsection).
+5. Update project-local `shipglows_data/workflow/AUDIT_LOG.md` (one traffic-first audit record per project, Deps column) and project-local `shipglows_data/workflow/TASKS.md` (each project's `### Audit: Deps` subsection).
 
 6. Ask: **"Which projects should I fix?"** — list projects with scores. Fix only approved projects, one at a time.
 
@@ -127,7 +127,7 @@ Use the runtime's structured question tool when available, or a concise plain-te
 - `multiSelect: true`
 - Options:
   - **All projects** — "Run dependency audit across every project with a package manager" (Recommended)
-  - One option per project from discovered project-local corpora (`shipglowz_data/` markers): label = project name, description = stack
+  - One option per project from discovered project-local corpora (`shipglows_data/` markers): label = project name, description = stack
 
 Then proceed to **GLOBAL MODE** with the selected projects.
 
@@ -302,7 +302,7 @@ Confidence: [high/medium/low]
 ## Tracking (all modes)
 
 Shared file write protocol for `AUDIT_LOG.md` and `TASKS.md`:
-- First load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`; new audit and task records must use that traffic-first operational format.
+- First load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`; new audit and task records must use that traffic-first operational format.
 - Treat the snapshots loaded at skill start as informational only.
 - Right before each write, re-read the target file from disk and use that version as authoritative.
 - Append or replace only the intended row or subsection; never rewrite the whole file from stale context.
@@ -315,7 +315,7 @@ After generating the report and applying fixes:
 
 Create or update traffic-first audit operational records in the target audit logs:
 
-1. **Project-local `shipglowz_data/workflow/AUDIT_LOG.md`**: create or update a traffic-first `audit:` record for the Deps audit.
+1. **Project-local `shipglows_data/workflow/AUDIT_LOG.md`**: create or update a traffic-first `audit:` record for the Deps audit.
 2. **Project-local `./AUDIT_LOG.md`**: same project-explicit traffic-first record; keep the required `[project]` token.
 
 Create either file if missing with a short heading and traffic-first audit records per the shared operational record format.
@@ -323,7 +323,7 @@ Create either file if missing with a short heading and traffic-first audit recor
 ### Update TASKS.md
 
 1. **Local TASKS.md** (project root): create or update traffic-first task records for the Deps audit findings.
-2. **Project-local `shipglowz_data/workflow/TASKS.md`**: find the project section and mirror the same traffic-first task records.
+2. **Project-local `shipglows_data/workflow/TASKS.md`**: find the project section and mirror the same traffic-first task records.
 
 ---
 

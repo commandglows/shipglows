@@ -6,20 +6,20 @@ argument-hint: <project or feature with access, plans, provider events, or suppo
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`.
 
-If a unique ready spec is attached, append the run row to `Skill Run History` and update `Current Chantier Flow` in that spec before reporting. Use the opening chantier header from `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+If a unique ready spec is attached, append the run row to `Skill Run History` and update `Current Chantier Flow` in that spec before reporting. Use the opening chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, outcome-first, and in the user's active language. Use `report=agent` only when a handoff requires extra evidence or unblockers.
 
@@ -31,12 +31,12 @@ Load only the references needed for the active mode:
 - `skills/references/product-entitlements-playbook.md` as the primary doctrine.
 - `skills/references/winflowz-suite-product-registry.md` when the task mentions WinFlowz suite products, free products, default access, sync eligibility, or future products operated by Diane.
 - `skills/references/spec-driven-development-discipline.md` before non-trivial output.
-- `$SHIPFLOW_ROOT/skills/references/documentation-freshness-gate.md` when provider/webhook/API behavior affects entitlement state.
+- `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when provider/webhook/API behavior affects entitlement state.
 - `skills/references/chantier-tracking.md` for lifecycle trace updates.
 
 ## Mission
 
-`601-sg-product-entitlements` is the ShipGlowz domain skill for product access lifecycle and authorization design.
+`601-sg-product-entitlements` is the ShipGlows domain skill for product access lifecycle and authorization design.
 
 It should separate:
 
@@ -127,11 +127,11 @@ Validate required scenarios `SPE-001` to `SPE-010` by ensuring the contract and 
 Run targeted checks for this contract:
 
 ```bash
-SHIPFLOW_ROOT="${SHIPFLOW_ROOT:-$HOME/shipglowz}"
-rg -n "product-entitlements|product_entitlements|suite ledger|provider event|activation code|snapshot|mirror|backend authorization|600-sg-local-cloud-sync|109-sg-auth-debug|scenario-first" "$SHIPFLOW_ROOT/skills/601-sg-product-entitlements/SKILL.md"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+rg -n "product-entitlements|product_entitlements|suite ledger|provider event|activation code|snapshot|mirror|backend authorization|600-sg-local-cloud-sync|109-sg-auth-debug|scenario-first" "$SHIPGLOWS_ROOT/skills/601-sg-product-entitlements/SKILL.md"
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --skill 601-sg-product-entitlements
-tools/shipglowz_metadata_lint.py shipglowz_data/workflow/specs/601-sg-product-entitlements-skill.md "${SHIPFLOW_DATA_DIR:-$HOME/shipglowz_data}/technical"
+tools/shipglows_sync_skills.sh --check --skill 601-sg-product-entitlements
+tools/shipglows_metadata_lint.py shipglows_data/workflow/specs/601-sg-product-entitlements-skill.md "${SHIPGLOWS_DATA_DIR:-$HOME/shipglows_data}/technical"
 git diff --check
 ```
 

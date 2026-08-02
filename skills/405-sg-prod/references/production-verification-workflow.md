@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-05-16"
 status: draft
@@ -22,9 +22,9 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
-  - "Extracted from skills/405-sg-prod/SKILL.md during Compact ShipGlowz Skill Instructions Phase 3."
+  - "Extracted from skills/405-sg-prod/SKILL.md during Compact ShipGlows Skill Instructions Phase 3."
 next_review: "2026-06-16"
-next_step: "/103-sg-verify Compact ShipGlowz Skill Instructions Phase 3"
+next_step: "/103-sg-verify Compact ShipGlows Skill Instructions Phase 3"
 ---
 
 # Production Verification Workflow
@@ -39,18 +39,18 @@ This reference preserves the detailed pre-compaction instructions for `405-sg-pr
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Chantier Potential Intake
 
-Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
+Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
 
 
 ## Context
@@ -61,7 +61,7 @@ Because this skill has process role `source-de-chantier`, evaluate the standard 
 - Latest commit: !`git log --oneline -1 2>/dev/null || echo "no commits"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "unknown"`
 - Vercel project link: !`cat .vercel/project.json 2>/dev/null || echo "no .vercel/project.json"`
-- ShipGlowz development mode: !`rg -n "ShipGlowz Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPFLOW.md 2>/dev/null || echo "No project development mode documented"`
+- ShipGlows development mode: !`rg -n "ShipGlows Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPGLOWS.md 2>/dev/null || echo "No project development mode documented"`
 - CLAUDE.md (for prod URL): !`grep -i "url\|domain\|vercel\|netlify\|prod" CLAUDE.md 2>/dev/null | head -5 || echo "no CLAUDE.md or no URL found"`
 
 ## Your task
@@ -69,14 +69,14 @@ Because this skill has process role `source-de-chantier`, evaluate the standard 
 Vérifier que le dernier déploiement en production a réussi. Trois checks : status du deploy, health check de l'URL, et accès aux logs si erreur.
 Le but est de donner un signal de confiance honnête sur la prod, pas un faux "tout va bien" basé sur un seul `200 OK`.
 
-Si le déploiement ou le build passe par GitHub Actions sur Blacksmith runners, lire aussi `${SHIPFLOW_ROOT:-$HOME/shipglowz}/shipglowz_data/technical/blacksmith.md` avant de conclure sur les logs, les métriques, le sizing runner, ou l'accès SSH.
+Si le déploiement ou le build passe par GitHub Actions sur Blacksmith runners, lire aussi `${SHIPGLOWS_ROOT:-$HOME/shipglows}/shipglows_data/technical/blacksmith.md` avant de conclure sur les logs, les métriques, le sizing runner, ou l'accès SSH.
 
-Lire `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/sentry-observability.md` quand le projet expose Sentry ou quand le signal prod dépend d'une erreur runtime, d'un 5xx, d'un crash, d'un flow auth/paiement/données, d'un job, d'un webhook, ou d'une erreur visible après déploiement.
+Lire `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/sentry-observability.md` quand le projet expose Sentry ou quand le signal prod dépend d'une erreur runtime, d'un 5xx, d'un crash, d'un flow auth/paiement/données, d'un job, d'un webhook, ou d'une erreur visible après déploiement.
 
 Les anciens registres `PROJECTS.md` sont des artefacts legacy/migration.
 `405-sg-prod` ne doit jamais modifier `TASKS.md`, `AUDIT_LOG.md` ou `PROJECTS.md`.
 
-Lire `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/project-development-mode.md` avant de choisir la cible. Si le projet est en mode `vercel-preview-push`, `405-sg-prod` vérifie le déploiement Vercel correspondant au dernier commit poussé et renvoie l'URL de preview prête pour les tests. Dans ce mode, le mot "prod" désigne le gate post-push, pas forcément le domaine de production custom.
+Lire `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` avant de choisir la cible. Si le projet est en mode `vercel-preview-push`, `405-sg-prod` vérifie le déploiement Vercel correspondant au dernier commit poussé et renvoie l'URL de preview prête pour les tests. Dans ce mode, le mot "prod" désigne le gate post-push, pas forcément le domaine de production custom.
 
 After `405-sg-prod` confirms the deployment URL and deploy/runtime state, route page-level browser assertions, visual checks, console summaries, and non-auth network checks to `/108-sg-browser [URL] [objective]`. Keep deployment discovery, Vercel status, build logs, runtime logs, and live health ownership in `405-sg-prod`.
 
@@ -88,7 +88,7 @@ Si `$ARGUMENTS` est fourni, l'utiliser comme nom de projet ou URL.
 
 Sinon, utiliser le répertoire courant. Si pas de git remote, utiliser **AskUserQuestion** :
 - Question : "Quel projet vérifier ?"
-- Options depuis la découverte locale des projets (`shipglowz_data/` et marqueurs projet)
+- Options depuis la découverte locale des projets (`shipglows_data/` et marqueurs projet)
 
 **Extraire le owner/repo** depuis le git remote :
 ```bash

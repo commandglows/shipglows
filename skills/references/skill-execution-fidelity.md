@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.3.0"
-project: "ShipGlowz"
+project: "ShipGlows"
 created: "2026-05-25"
 updated: "2026-07-17"
 status: active
@@ -17,8 +17,8 @@ linked_systems:
   - "skills/*/SKILL.md"
   - "skills/references/skill-instruction-layering.md"
   - "skills/references/spec-driven-development-discipline.md"
-  - "skills/900-shipglowz-core/SKILL.md"
-  - "tools/audit_shipglowz_skills.py"
+  - "skills/900-shipglows-core/SKILL.md"
+  - "tools/audit_shipglows_skills.py"
 depends_on:
   - artifact: "skills/references/skill-instruction-layering.md"
     artifact_version: "1.0.0"
@@ -28,23 +28,23 @@ depends_on:
     required_status: "active"
 supersedes: []
 evidence:
-  - "User concern 2026-05-25: Codex has difficulty following ShipGlowz skills exactly."
-  - "shipflow-core pilot audit initially produced 70 noisy signals; after classification it found 0 hard findings, 5 review findings, and 5 style findings."
-  - "2026-06-11 shipflow-core was promoted from a plugin pilot into internal ShipGlowz skill 900-shipglowz-core with a versioned audit tool."
+  - "User concern 2026-05-25: Codex has difficulty following ShipGlows skills exactly."
+  - "shipglows-core pilot audit initially produced 70 noisy signals; after classification it found 0 hard findings, 5 review findings, and 5 style findings."
+  - "2026-06-11 shipglows-core was promoted from a plugin pilot into internal ShipGlows skill 900-shipglows-core with a versioned audit tool."
   - "Operational lesson: discovery budget compliance does not prove execution fidelity."
   - "User escalation 2026-05-26: agents keep asking the operator to continue or retest when browser/prod proof could be run by the agent."
   - "User decision 2026-06-10: execution contracts should favor compact outcome-focused instructions and avoid routine process narration."
   - "User decision 2026-06-10: SKILL.md is the activation contract; detailed playbooks, examples, matrices, and edge cases belong in references."
   - "User correction 2026-07-17: an explicit Lorem ipsum replacement must not trigger content, design, or lifecycle skill exploration."
 next_review: "2026-08-17"
-next_step: "/104-sg-end shipflow-skill-execution-fidelity-plugin-pilot"
+next_step: "/104-sg-end shipglows-skill-execution-fidelity-plugin-pilot"
 ---
 
 # Skill Execution Fidelity
 
 ## Purpose
 
-Define how ShipGlowz skill activation bodies should expose the instructions Codex must obey.
+Define how ShipGlows skill activation bodies should expose the instructions Codex must obey.
 
 This reference complements `skills/references/skill-instruction-layering.md`.
 
@@ -63,7 +63,7 @@ Execution fidelity means a fresh agent can quickly answer:
 5. What final report shape is expected?
 6. Which next action must the agent perform itself before asking the operator?
 
-It must also make the next best operator action obvious when a recurring friction, setup fork, migration choice, or recovery path has an owner skill or canonical ShipGlowz route.
+It must also make the next best operator action obvious when a recurring friction, setup fork, migration choice, or recovery path has an owner skill or canonical ShipGlows route.
 
 ## Skill Selection Proportionality Gate
 
@@ -91,7 +91,7 @@ Direct execution still requires proportional proof. Run the smallest relevant ch
 
 ## Required Activation Signals
 
-Each material ShipGlowz skill should expose these signals near the top of `SKILL.md`, either as exact headings or clearly accepted aliases.
+Each material ShipGlows skill should expose these signals near the top of `SKILL.md`, either as exact headings or clearly accepted aliases.
 
 | Signal | Preferred heading | Accepted aliases | Purpose |
 | --- | --- | --- | --- |
@@ -126,15 +126,15 @@ Required references must be written as canonical paths, not ambiguous shorthand.
 
 Use:
 
-- `$SHIPFLOW_ROOT/skills/references/<file>.md` for shared references.
-- `$SHIPFLOW_ROOT/skills/<skill>/references/<file>.md` for skill-local references.
+- `$SHIPGLOWS_ROOT/skills/references/<file>.md` for shared references.
+- `$SHIPGLOWS_ROOT/skills/<skill>/references/<file>.md` for skill-local references.
 
 Avoid:
 
 - `references/<file>.md` without naming whether it is skill-local.
 - "global reference" wording for skill-local files.
 
-If a required reference is missing, stop and report a ShipGlowz installation or contract gap. Do not continue from memory unless the skill explicitly marks that reference as optional for the current objective.
+If a required reference is missing, stop and report a ShipGlows installation or contract gap. Do not continue from memory unless the skill explicitly marks that reference as optional for the current objective.
 
 ## Checkpoint-Based Validation Cadence
 
@@ -211,13 +211,13 @@ operator-only.
 
 ## Activation And Next-Best-Action Rule
 
-When the agent encounters a recurring user friction that ShipGlowz already knows how to guide, it must not stop at local troubleshooting or a passive warning.
+When the agent encounters a recurring user friction that ShipGlows already knows how to guide, it must not stop at local troubleshooting or a passive warning.
 
 Required behavior:
 
 - identify the simple continue path
 - identify the recommended path
-- surface the owner skill, launcher route, or canonical ShipGlowz command when one materially improves first success
+- surface the owner skill, launcher route, or canonical ShipGlows command when one materially improves first success
 - frame the suggestion as a contextual activation step, not as a generic afterthought
 
 This matters most for:
@@ -226,7 +226,7 @@ This matters most for:
 - migrations and upgrades
 - onboarding and first-run recovery
 - auth, deploy, verification, and environment preparation
-- any repeated fork where ShipGlowz has a stronger guided path than "continue manually"
+- any repeated fork where ShipGlows has a stronger guided path than "continue manually"
 
 Weak:
 
@@ -311,7 +311,7 @@ For helper skills, a missing exact `Mission` heading is usually not a hard findi
 Prioritize remediation in this order:
 
 1. Lifecycle/master skills that stop with manual next steps even though agent-run proof is available.
-2. Skills that answer recurring friction with local advice but hide the stronger owner skill or guided ShipGlowz route.
+2. Skills that answer recurring friction with local advice but hide the stronger owner skill or guided ShipGlows route.
 3. Lifecycle/master skills with missing or hidden stop, validation, or report gates.
 4. Source-de-chantier skills whose escalation threshold is hard to find.
 5. Skills over body-size risk thresholds where critical gates are buried.
@@ -336,7 +336,7 @@ Additional scenario for activation-path fidelity:
 
 ```text
 Given a fresh Codex agent hits a recurring setup, migration, or recovery fork,
-when ShipGlowz has a clearer owner skill or guided route than local ad hoc advice,
+when ShipGlows has a clearer owner skill or guided route than local ad hoc advice,
 then the activation body or shared doctrine makes that next-best action obvious.
 ```
 
@@ -359,16 +359,16 @@ rg -n "Mission|Scope Gate|Stop Conditions|Validation|Report Modes|Required Refer
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
 ```
 
-Use `tools/shipglowz_sync_skills.sh --check --skill <skill>` when a runtime-discoverable skill changed.
+Use `tools/shipglows_sync_skills.sh --check --skill <skill>` when a runtime-discoverable skill changed.
 
-## ShipGlowz Core Audit Relationship
+## ShipGlows Core Audit Relationship
 
-The `shipflow-core` audit is an internal operator signal, not the source of truth.
+The `shipglows-core` audit is an internal operator signal, not the source of truth.
 
-Run it through the versioned ShipGlowz tool:
+Run it through the versioned ShipGlows tool:
 
 ```bash
-python3 "${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/audit_shipglowz_skills.py"
+python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/audit_shipglows_skills.py"
 ```
 
 Treat its classifications as:
@@ -377,7 +377,7 @@ Treat its classifications as:
 - `Review`: needs scenario-first triage before edits.
 - `Style`: may improve consistency but should not drive standalone churn.
 
-The official ShipGlowz skill budget audit remains the authority for discovery-budget and body-size compliance.
+The official ShipGlows skill budget audit remains the authority for discovery-budget and body-size compliance.
 
 ## Non-Goals
 

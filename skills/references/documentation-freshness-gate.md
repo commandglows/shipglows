@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-18"
 updated: "2026-05-24"
 status: active
@@ -14,8 +14,8 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - shipglowz_data/technical/external-platforms/
-  - shipglowz_data/technical/platforms/
+  - shipglows_data/technical/external-platforms/
+  - shipglows_data/technical/platforms/
   - skills/references/technical-docs-corpus.md
 depends_on: []
 supersedes: []
@@ -45,7 +45,7 @@ The gate is not required for clearly local changes where existing project code f
 ## Source Order
 
 1. Read the local repo first: installed versions, lockfiles, config, wrappers, adapters, and adjacent project patterns.
-2. Read the global provider note under `shipglowz_data/technical/external-platforms/<provider>.md` when it exists, then read the governance-root provider usage note under `shipglowz_data/technical/platforms/<provider>.md` when it exists or when project-specific provider behavior affects the decision.
+2. Read the global provider note under `shipglows_data/technical/external-platforms/<provider>.md` when it exists, then read the governance-root provider usage note under `shipglows_data/technical/platforms/<provider>.md` when it exists or when project-specific provider behavior affects the decision.
 3. Use Context7 first for official current documentation when the dependency is covered.
 4. If Context7 is unavailable or incomplete for the needed point, use official web documentation from the vendor/project.
 5. Use changelogs, release notes, GitHub issues, blogs, or Q&A only as secondary evidence for symptoms or known issues, not as the contract to implement.

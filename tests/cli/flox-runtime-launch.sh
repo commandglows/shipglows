@@ -9,14 +9,14 @@ TEST_ROOT="$(mktemp -d)"
 trap 'rm -rf "$TEST_ROOT"' EXIT
 
 export HOME="$TEST_ROOT/home"
-export SHIPGLOWZ_STATE_DIR="$HOME/.shipglowz"
-export SHIPFLOW_STATE_DIR="$SHIPGLOWZ_STATE_DIR"
-export SHIPGLOWZ_PROJECTS_DIR="$HOME/projects"
-export SHIPFLOW_PROJECTS_DIR="$SHIPGLOWZ_PROJECTS_DIR"
-export SHIPFLOW_ERROR_TRAPS=false
-export SHIPFLOW_STRICT_MODE=false
-export SHIPGLOWZ_LOGGING_ENABLED=false
-export SHIPFLOW_LOGGING_ENABLED=false
+export SHIPGLOWS_STATE_DIR="$HOME/.shipglows"
+export SHIPGLOWS_STATE_DIR="$SHIPGLOWS_STATE_DIR"
+export SHIPGLOWS_PROJECTS_DIR="$HOME/projects"
+export SHIPGLOWS_PROJECTS_DIR="$SHIPGLOWS_PROJECTS_DIR"
+export SHIPGLOWS_ERROR_TRAPS=false
+export SHIPGLOWS_STRICT_MODE=false
+export SHIPGLOWS_LOGGING_ENABLED=false
+export SHIPGLOWS_LOGGING_ENABLED=false
 
 source "$REPO_ROOT/cli/lib.sh"
 trap - ERR 2>/dev/null || true
@@ -57,10 +57,10 @@ pm2() {
 project_dir="$TEST_ROOT/python-app"
 mkdir -p "$project_dir/.flox" "$project_dir/venv/bin"
 : > "$project_dir/venv/bin/python"
-cat > "$project_dir/.shipglowz.env" <<'EOF'
-# Project runtime settings: data only, never executed by ShipGlowz.
-SHIPGLOWZ_ENV_PORT=41000
-SHIPGLOWZ_AUTO_REPAIR=false
+cat > "$project_dir/.shipglows.env" <<'EOF'
+# Project runtime settings: data only, never executed by ShipGlows.
+SHIPGLOWS_ENV_PORT=41000
+SHIPGLOWS_AUTO_REPAIR=false
 EOF
 
 should_enable_doppler() { return 1; }
@@ -76,14 +76,14 @@ project_runtime_settings_load "$project_dir" test_port test_auto_repair
 assert_eq "$test_port" "41000" "project runtime settings expose the requested port"
 assert_eq "$test_auto_repair" "false" "project runtime settings can disable auto-repair"
 
-SHIPGLOWZ_ENV_PORT=45000
+SHIPGLOWS_ENV_PORT=45000
 env_start "$project_dir" >/dev/null
 runtime_args="$(node -e "const app = require(process.argv[1]).apps[0]; process.stdout.write(app.args[1]);" "$project_dir/ecosystem.config.cjs")"
 printf '%s' "$runtime_args" | grep -Fq 'export PORT=45000 && flox activate -- bash -lc' \
     || fail "an explicit environment port overrides the persisted PM2 port"
-unset SHIPGLOWZ_ENV_PORT
+unset SHIPGLOWS_ENV_PORT
 
-rm -f "$project_dir/ecosystem.config.cjs" "$project_dir/.shipglowz.env"
+rm -f "$project_dir/ecosystem.config.cjs" "$project_dir/.shipglows.env"
 should_enable_doppler() { return 0; }
 doppler() {
     if [ "${1:-}" = "run" ] && [ "${3:-}" = "echo" ]; then
@@ -102,8 +102,8 @@ printf '%s' "$runtime_args" | grep -Fq 'export PORT=3000 && flox activate -- bas
 project_runtime_settings_load "$project_dir" test_port test_auto_repair
 assert_eq "$test_auto_repair" "true" "auto-repair defaults to enabled when no project settings file exists"
 
-cat > "$project_dir/.shipglowz.env" <<'EOF'
-SHIPGLOWZ_AUTO_REPAIR=false
+cat > "$project_dir/.shipglows.env" <<'EOF'
+SHIPGLOWS_AUTO_REPAIR=false
 EOF
 restart_status_calls=0
 pm2_status_load() {
@@ -120,7 +120,7 @@ env_start() {
     return 0
 }
 offer_codex_environment_repair() { return 0; }
-SHIPGLOWZ_RESTART_VERIFY_SECS=1
+SHIPGLOWS_RESTART_VERIFY_SECS=1
 if env_restart "$project_dir"; then
     fail "restart must report the failed PM2 restart when auto-repair is disabled"
 fi

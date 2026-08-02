@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.1"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-08"
 updated: "2026-07-12"
 status: active
@@ -25,8 +25,8 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Operator decision 2026-07-08: durable private ShipGlowz data lives in a separate Git repository cloned into ~/.shipglowz/private/data."
-  - "Operator decision 2026-07-08: the repository remote must be configurable per user and must not be hardcoded in ShipGlowz skill doctrine."
+  - "Operator decision 2026-07-08: durable private ShipGlows data lives in a separate Git repository cloned into ~/.shipglows/private/data."
+  - "Operator decision 2026-07-08: the repository remote must be configurable per user and must not be hardcoded in ShipGlows skill doctrine."
 next_review: "2026-08-08"
 next_step: "/103-sg-verify private data repo contract"
 ---
@@ -35,12 +35,12 @@ next_step: "/103-sg-verify private data repo contract"
 
 ## Purpose
 
-This reference defines the durable private-data repository used by ShipGlowz operators.
+This reference defines the durable private-data repository used by ShipGlows operators.
 
 It exists so skills can distinguish:
 
-- public ShipGlowz code and governance under `$SHIPFLOW_ROOT`
-- durable private operator data under `~/.shipglowz/private/data/`
+- public ShipGlows code and governance under `$SHIPGLOWS_ROOT`
+- durable private operator data under `~/.shipglows/private/data/`
 - short-retention private operational state that is still worth versioning under the same private repo
 
 ## Canonical Local Paths
@@ -48,28 +48,28 @@ It exists so skills can distinguish:
 Private parent root:
 
 ```text
-${SHIPGLOWZ_PRIVATE_DIR:-$HOME/.shipglowz/private}
+${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}
 ```
 
 Durable private data repo working tree:
 
 ```text
-${SHIPGLOWZ_PRIVATE_DATA_DIR:-${SHIPGLOWZ_PRIVATE_DIR:-$HOME/.shipglowz/private}/data}
+${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}
 ```
 
-This path is a separate Git working tree from both `$SHIPFLOW_ROOT` and project repositories.
+This path is a separate Git working tree from both `$SHIPGLOWS_ROOT` and project repositories.
 
 ## Repository Contract
 
-- `~/.shipglowz/private/data/` is intended to be a dedicated Git repository.
+- `~/.shipglows/private/data/` is intended to be a dedicated Git repository.
 - The remote repository must be resolved from configuration, not hardcoded in shared skill doctrine.
 - Preferred config variable:
 
 ```text
-SHIPGLOWZ_PRIVATE_DATA_REPO
+SHIPGLOWS_PRIVATE_DATA_REPO
 ```
 
-- A bootstrap or install flow may also resolve companion variables such as `SHIPGLOWZ_PRIVATE_DATA_DIR` or `SHIPGLOWZ_PRIVATE_DIR`.
+- A bootstrap or install flow may also resolve companion variables such as `SHIPGLOWS_PRIVATE_DATA_DIR` or `SHIPGLOWS_PRIVATE_DIR`.
 - Help, docs, and memory skills should describe the repository role and path, not assume one operator-specific remote value.
 
 ## Storage Contract
@@ -90,13 +90,13 @@ Do not use this repository for:
 - secrets, tokens, OAuth client files, cookies, SSH keys, or credentials
 - throwaway caches with no recovery value
 - large temporary exports that would create noisy churn without operator leverage
-- public governance artifacts that belong in a project repository or `$SHIPFLOW_ROOT`
+- public governance artifacts that belong in a project repository or `$SHIPGLOWS_ROOT`
 - durable cross-project libraries of emails, transcripts, or marketing examples
 
 ## Separation Rules
 
-- Durable private memory belongs in `~/.shipglowz/private/data/`.
-- Short-retention operational state may also live under `~/.shipglowz/private/data/` when versioning materially improves operator safety or recovery.
+- Durable private memory belongs in `~/.shipglows/private/data/`.
+- Short-retention operational state may also live under `~/.shipglows/private/data/` when versioning materially improves operator safety or recovery.
 - The important distinction is not "versioned vs not versioned" but durable reference state vs short-retention working state.
 - Working-state folders must declare their own cleanup policy so the private repo does not become an unbounded archive.
 - `source-cache/` is pre-assignment working state, not the canonical home of a source-derived asset. Once a project is chosen, write the durable pack, email sequence, or other derivative to that project's governed repository.
@@ -120,6 +120,6 @@ Non-bootstrap skills should not clone or mutate the repo just to answer a questi
 Validate after edits with:
 
 ```bash
-python3 tools/shipglowz_metadata_lint.py skills/references/private-data-repo-contract.md skills/references/private-memory-store.md skills/300-sg-docs/SKILL.md skills/302-sg-help/SKILL.md skills/305-sg-init/SKILL.md
-rg -n "private-data-repo-contract|SHIPGLOWZ_PRIVATE_DATA_REPO|SHIPGLOWZ_PRIVATE_DATA_DIR|\\.shipglowz/private/data|mail-intake" skills/references skills/300-sg-docs/SKILL.md skills/302-sg-help/SKILL.md skills/305-sg-init/SKILL.md
+python3 tools/shipglows_metadata_lint.py skills/references/private-data-repo-contract.md skills/references/private-memory-store.md skills/300-sg-docs/SKILL.md skills/302-sg-help/SKILL.md skills/305-sg-init/SKILL.md
+rg -n "private-data-repo-contract|SHIPGLOWS_PRIVATE_DATA_REPO|SHIPGLOWS_PRIVATE_DATA_DIR|\\.shipglows/private/data|mail-intake" skills/references skills/300-sg-docs/SKILL.md skills/302-sg-help/SKILL.md skills/305-sg-init/SKILL.md
 ```

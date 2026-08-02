@@ -1,8 +1,8 @@
-# ShipGlowz - Installation pour Windows
+# ShipGlows - Installation pour Windows
 
 ## 🎯 Options d'installation
 
-Windows offre **3 options** pour utiliser ShipGlowz localement:
+Windows offre **3 options** pour utiliser ShipGlows localement:
 
 ---
 
@@ -30,7 +30,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
 3. **Cloner le repo et installer:**
    ```bash
-   curl -fsSL https://www.winflowz.com/shipglowz-script | SHIPGLOWZ_INSTALL_MODE=local sh
+   curl -fsSL https://www.winflowz.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local sh
    ```
 
 4. **Utiliser les tunnels:**
@@ -53,7 +53,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
 **Installation:**
 
-1. **Lancer le bootstrap unique ShipGlowz:**
+1. **Lancer le bootstrap unique ShipGlows:**
 
    Le script installe automatiquement OpenSSH Client si nécessaire. Windows
    affichera une demande UAC et Windows Update doit être accessible.
@@ -61,8 +61,8 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
    Le même endpoint public fournit automatiquement la variante PowerShell :
 
    ```powershell
-   $installer = Join-Path $env:TEMP 'shipglowz-install.ps1'
-   curl.exe -fsSL 'https://www.winflowz.com/shipglowz-script?format=powershell' -o $installer
+   $installer = Join-Path $env:TEMP 'shipglows-install.ps1'
+   curl.exe -fsSL 'https://www.winflowz.com/shipglows-script?format=powershell' -o $installer
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
    ```
 
@@ -74,7 +74,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
    `-Branch`, `-Tag` et `-Ref` sont aussi acceptés comme alias.
 
-   Le bootstrap télécharge l'archive publique ShipGlowz sans Git, installe
+   Le bootstrap télécharge l'archive publique ShipGlows sans Git, installe
    OpenSSH si nécessaire, puis lance l'installation locale native. Il ne
    demande ni Git, ni `sudo`, ni WSL, ni `autossh`.
 
@@ -107,7 +107,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
    **Tunnel manuel:**
    ```powershell
-   ssh -N -L 3001:localhost:3001 shipglowz
+   ssh -N -L 3001:localhost:3001 shipglows
    ```
 
 ---
@@ -130,7 +130,7 @@ Windows offre **3 options** pour utiliser ShipGlowz localement:
 
 2. **Lancer Git Bash et créer des tunnels manuels:**
    ```bash
-   ssh -N -L 3001:localhost:3001 shipglowz
+   ssh -N -L 3001:localhost:3001 shipglows
    ```
 
 ---
@@ -211,10 +211,10 @@ tunnel 3001
 ### Tunnel SSH manuel (toutes options)
 ```bash
 # Tunnel simple
-ssh -N -L 3001:localhost:3001 shipglowz
+ssh -N -L 3001:localhost:3001 shipglows
 
 # Tunnel en arrière-plan (PowerShell)
-Start-Job -ScriptBlock { ssh -N -L 3001:localhost:3001 shipglowz }
+Start-Job -ScriptBlock { ssh -N -L 3001:localhost:3001 shipglows }
 ```
 
 ---
@@ -253,7 +253,7 @@ machines où l'élévation automatique ou Windows Update est bloqué.
 
 Ajoutez dans `~/.ssh/config` (ou `C:\Users\VotreNom\.ssh\config`):
 ```
-Host shipglowz
+Host shipglows
     ServerAliveInterval 60
     ServerAliveCountMax 3
 ```

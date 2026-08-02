@@ -37,7 +37,7 @@ class SessionRenameActivationContractTests(unittest.TestCase):
         skill = (ROOT / "skills" / "309-sg-tasks" / "SKILL.md").read_text(encoding="utf-8")
         playbook = (
             ROOT
-            / "shipglowz_data"
+            / "shipglows_data"
             / "workflow"
             / "playbooks"
             / "conversation-tracker-sync-playbook.md"

@@ -6,7 +6,7 @@ argument-hint: <what you want to do>
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -35,7 +35,7 @@ Keep the boundary explicit: `301-sg-context` prepares context for a known task. 
 
 Route away instead of staying in `301-sg-context` when the operator really needs:
 
-- skill choice or workflow routing -> `000-shipglowz` or `302-sg-help`
+- skill choice or workflow routing -> `000-shipglows` or `302-sg-help`
 - actual continuation of a resolved work item -> `706-continue`
 - cross-project git/sync reporting -> `308-sg-status`
 

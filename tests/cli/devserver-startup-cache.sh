@@ -9,24 +9,24 @@ TEST_ROOT="$(mktemp -d)"
 trap 'rm -rf "$TEST_ROOT"' EXIT
 
 export HOME="$TEST_ROOT/home"
-export SHIPGLOWZ_STATE_DIR="$HOME/.shipglowz"
-export SHIPFLOW_STATE_DIR="$SHIPGLOWZ_STATE_DIR"
-export SHIPGLOWZ_LEGACY_STATE_DIR="$HOME/.shipflow"
-export SHIPFLOW_LEGACY_STATE_DIR="$SHIPGLOWZ_LEGACY_STATE_DIR"
-export SHIPGLOWZ_PROJECTS_DIR="$HOME/projects"
-export SHIPFLOW_PROJECTS_DIR="$SHIPGLOWZ_PROJECTS_DIR"
-export SHIPGLOWZ_REGISTRY="$SHIPGLOWZ_STATE_DIR/envs.reg"
-export SHIPFLOW_REGISTRY="$SHIPGLOWZ_REGISTRY"
-export SHIPFLOW_ERROR_TRAPS=false
-export SHIPFLOW_STRICT_MODE=false
-export SHIPGLOWZ_LOGGING_ENABLED=false
-export SHIPFLOW_LOGGING_ENABLED=false
-export SHIPGLOWZ_REGISTRY_LOCK_ATTEMPTS=2
-export SHIPGLOWZ_REGISTRY_LOCK_INTERVAL=0.01
-export SHIPGLOWZ_REGISTRY_EMPTY_LOCK_GRACE_SECONDS=1
+export SHIPGLOWS_STATE_DIR="$HOME/.shipglows"
+export SHIPGLOWS_STATE_DIR="$SHIPGLOWS_STATE_DIR"
+export SHIPGLOWS_LEGACY_STATE_DIR="$HOME/.shipglows"
+export SHIPGLOWS_LEGACY_STATE_DIR="$SHIPGLOWS_LEGACY_STATE_DIR"
+export SHIPGLOWS_PROJECTS_DIR="$HOME/projects"
+export SHIPGLOWS_PROJECTS_DIR="$SHIPGLOWS_PROJECTS_DIR"
+export SHIPGLOWS_REGISTRY="$SHIPGLOWS_STATE_DIR/envs.reg"
+export SHIPGLOWS_REGISTRY="$SHIPGLOWS_REGISTRY"
+export SHIPGLOWS_ERROR_TRAPS=false
+export SHIPGLOWS_STRICT_MODE=false
+export SHIPGLOWS_LOGGING_ENABLED=false
+export SHIPGLOWS_LOGGING_ENABLED=false
+export SHIPGLOWS_REGISTRY_LOCK_ATTEMPTS=2
+export SHIPGLOWS_REGISTRY_LOCK_INTERVAL=0.01
+export SHIPGLOWS_REGISTRY_EMPTY_LOCK_GRACE_SECONDS=1
 
-mkdir -p "$SHIPGLOWZ_PROJECTS_DIR/app-one/.flox/deep/internal/.flox" \
-    "$SHIPGLOWZ_PROJECTS_DIR/group/app/.flox/cache"
+mkdir -p "$SHIPGLOWS_PROJECTS_DIR/app-one/.flox/deep/internal/.flox" \
+    "$SHIPGLOWS_PROJECTS_DIR/group/app/.flox/cache"
 
 FAKE_BIN="$TEST_ROOT/bin"
 PM2_COUNT_FILE="$TEST_ROOT/pm2-count"
@@ -37,7 +37,7 @@ cat > "$FAKE_BIN/pm2" <<'EOF'
 count=$(cat "$PM2_COUNT_FILE")
 printf '%s\n' "$((count + 1))" > "$PM2_COUNT_FILE"
 if [ "${1:-}" = "jlist" ]; then
-    printf '%s\n' '[{"name":"group_app","pm2_env":{"status":"online","env":{"PORT":"3042"},"pm_cwd":"'"$SHIPGLOWZ_PROJECTS_DIR"'/group/app"}}]'
+    printf '%s\n' '[{"name":"group_app","pm2_env":{"status":"online","env":{"PORT":"3042"},"pm_cwd":"'"$SHIPGLOWS_PROJECTS_DIR"'/group/app"}}]'
 fi
 EOF
 chmod +x "$FAKE_BIN/pm2"
@@ -59,7 +59,7 @@ assert_eq() {
 
 # Sourcing must stay lazy: no PM2 fetch and no registry creation/discovery.
 assert_eq "0" "$(cat "$PM2_COUNT_FILE")" "lib source does not fetch PM2"
-[ ! -e "$SHIPGLOWZ_REGISTRY" ] || fail "lib source does not create the registry"
+[ ! -e "$SHIPGLOWS_REGISTRY" ] || fail "lib source does not create the registry"
 
 # A discovered .flox is emitted once and its internal descendants are pruned.
 scan_output="$(scan_flox_projects)"
@@ -79,15 +79,15 @@ pm2_port_load group_port "group_app"
 pm2_app_data_load group_cwd "group_app" "cwd"
 assert_eq "online" "$group_status" "status destination API"
 assert_eq "3042" "$group_port" "port destination API"
-assert_eq "$SHIPGLOWZ_PROJECTS_DIR/group/app" "$group_cwd" "cwd destination API"
+assert_eq "$SHIPGLOWS_PROJECTS_DIR/group/app" "$group_cwd" "cwd destination API"
 assert_eq "1" "$(cat "$PM2_COUNT_FILE")" "nested PM2 consumers reuse the parent snapshot"
 
 # Destination-variable APIs must survive Bash dynamic scope when production
 # callers use the same common names as internal fields.
 target=""
 value=""
-_shipglowz_assign target "assigned-target"
-_shipglowz_assign value "assigned-value"
+_shipglows_assign target "assigned-target"
+_shipglows_assign value "assigned-value"
 assert_eq "assigned-target" "$target" "assign helper supports target destination"
 assert_eq "assigned-value" "$value" "assign helper supports value destination"
 
@@ -104,13 +104,13 @@ user_caddy_routes_load routes
 assert_eq "$first_pm2" "$data" "data production destination"
 assert_eq "online" "$status" "status production destination"
 assert_eq "3042" "$port" "port production destination"
-assert_eq "$SHIPGLOWZ_PROJECTS_DIR/group/app" "$cwd" "cwd production destination"
+assert_eq "$SHIPGLOWS_PROJECTS_DIR/group/app" "$cwd" "cwd production destination"
 assert_eq "group_app|3042" "$routes" "routes production destination"
 
 assert_eq "$first_pm2" "$(get_pm2_data_cached)" "PM2 data compatibility wrapper"
 assert_eq "online" "$(get_pm2_status group_app)" "PM2 status compatibility wrapper"
 assert_eq "3042" "$(get_port_from_pm2 group_app)" "PM2 port compatibility wrapper"
-assert_eq "$SHIPGLOWZ_PROJECTS_DIR/group/app" "$(get_pm2_app_data group_app cwd)" "PM2 cwd compatibility wrapper"
+assert_eq "$SHIPGLOWS_PROJECTS_DIR/group/app" "$(get_pm2_app_data group_app cwd)" "PM2 cwd compatibility wrapper"
 assert_eq "group_app|3042" "$(user_caddy_routes_from_pm2)" "Caddy routes compatibility wrapper"
 
 # A known mutation invalidates the session snapshot before the next read.
@@ -120,13 +120,13 @@ assert_eq "2" "$(cat "$PM2_COUNT_FILE")" "PM2 mutation invalidates the snapshot"
 
 # Registry creation is atomic and becomes the shared name/path index.
 registry_sync
-[ -f "$SHIPGLOWZ_REGISTRY" ] || fail "registry_sync creates a registry"
-assert_eq "600" "$(stat -c '%a' "$SHIPGLOWZ_REGISTRY")" "registry permissions"
+[ -f "$SHIPGLOWS_REGISTRY" ] || fail "registry_sync creates a registry"
+assert_eq "600" "$(stat -c '%a' "$SHIPGLOWS_REGISTRY")" "registry permissions"
 environment_names_load names_one
 environment_names_load names_two
 assert_eq "$names_one" "$names_two" "environment snapshot is reused"
 resolve_project_path_into resolved "group_app"
-assert_eq "$SHIPGLOWZ_PROJECTS_DIR/group/app" "$resolved" "path lookup uses registry"
+assert_eq "$SHIPGLOWS_PROJECTS_DIR/group/app" "$resolved" "path lookup uses registry"
 
 index=""
 names=""
@@ -143,8 +143,8 @@ home_folders_load folders "$HOME"
 stop_targets_load all_envs
 printf '%s\n' "$index" | grep -q '^group_app|online|3042|' || fail "index production destination"
 printf '%s\n' "$names" | grep -qx 'group_app' || fail "names production destination"
-printf '%s\n' "$identifiers" | grep -qx "$SHIPGLOWZ_PROJECTS_DIR/group/app" || fail "identifiers production destination"
-assert_eq "$SHIPGLOWZ_PROJECTS_DIR/group/app" "$path" "path production destination"
+printf '%s\n' "$identifiers" | grep -qx "$SHIPGLOWS_PROJECTS_DIR/group/app" || fail "identifiers production destination"
+assert_eq "$SHIPGLOWS_PROJECTS_DIR/group/app" "$path" "path production destination"
 printf '%s\n' "$folders" | grep -qx "$HOME/plain-folder" || fail "folders production destination"
 printf '%s\n' "$all_envs" | grep -qx 'group_app' || fail "all_envs production destination"
 
@@ -156,73 +156,73 @@ assert_eq "$all_envs" "$(list_all_stop_targets)" "stop targets compatibility wra
 
 # An atomic update from another process invalidates the in-memory index through
 # its inode fingerprint even after the short-lived invalidation marker is gone.
-mkdir -p "$SHIPGLOWZ_PROJECTS_DIR/external/.flox"
-external_registry="$SHIPGLOWZ_STATE_DIR/external.reg"
-cp "$SHIPGLOWZ_REGISTRY" "$external_registry"
-printf '%s\n' "external|stopped||$SHIPGLOWZ_PROJECTS_DIR/external" >> "$external_registry"
+mkdir -p "$SHIPGLOWS_PROJECTS_DIR/external/.flox"
+external_registry="$SHIPGLOWS_STATE_DIR/external.reg"
+cp "$SHIPGLOWS_REGISTRY" "$external_registry"
+printf '%s\n' "external|stopped||$SHIPGLOWS_PROJECTS_DIR/external" >> "$external_registry"
 chmod 600 "$external_registry"
-mv "$external_registry" "$SHIPGLOWZ_REGISTRY"
+mv "$external_registry" "$SHIPGLOWS_REGISTRY"
 environment_names_load names_after_external_update
 printf '%s\n' "$names_after_external_update" | grep -qx 'external' || fail "external registry replacement refreshes the parent index"
 
 # A failed rebuild preserves the last complete snapshot.
-registry_before="$(cat "$SHIPGLOWZ_REGISTRY")"
+registry_before="$(cat "$SHIPGLOWS_REGISTRY")"
 scan_flox_projects() { return 1; }
 if registry_sync; then
     fail "failed discovery must fail registry_sync"
 fi
-assert_eq "$registry_before" "$(cat "$SHIPGLOWZ_REGISTRY")" "failed refresh preserves registry"
+assert_eq "$registry_before" "$(cat "$SHIPGLOWS_REGISTRY")" "failed refresh preserves registry"
 unset -f scan_flox_projects
 source "$REPO_ROOT/cli/lib.sh"
 trap - ERR 2>/dev/null || true
 
 # A held lock is bounded; a valid previous snapshot remains usable.
-mkdir -p "${SHIPGLOWZ_REGISTRY}.lock"
-printf '%s\n' "$$" > "${SHIPGLOWZ_REGISTRY}.lock/pid"
-touch "${SHIPGLOWZ_REGISTRY}.invalidated"
+mkdir -p "${SHIPGLOWS_REGISTRY}.lock"
+printf '%s\n' "$$" > "${SHIPGLOWS_REGISTRY}.lock/pid"
+touch "${SHIPGLOWS_REGISTRY}.invalidated"
 start_ns=$(date +%s%N)
 ensure_registry || fail "valid last-known registry should survive a busy refresh"
 elapsed_ms=$(( ($(date +%s%N) - start_ns) / 1000000 ))
 [ "$elapsed_ms" -lt 500 ] || fail "registry lock wait is bounded (${elapsed_ms}ms)"
-rm -f "${SHIPGLOWZ_REGISTRY}.lock/pid"
-rmdir "${SHIPGLOWZ_REGISTRY}.lock" 2>/dev/null || true
-rm -f "${SHIPGLOWZ_REGISTRY}.invalidated"
+rm -f "${SHIPGLOWS_REGISTRY}.lock/pid"
+rmdir "${SHIPGLOWS_REGISTRY}.lock" 2>/dev/null || true
+rm -f "${SHIPGLOWS_REGISTRY}.invalidated"
 
 # An empty lock is busy during its creation grace window, but a lock left
 # empty by a crashed writer is recovered once that bounded window expires.
-SHIPGLOWZ_REGISTRY_EMPTY_LOCK_GRACE_SECONDS=60
-mkdir -p "${SHIPGLOWZ_REGISTRY}.lock"
+SHIPGLOWS_REGISTRY_EMPTY_LOCK_GRACE_SECONDS=60
+mkdir -p "${SHIPGLOWS_REGISTRY}.lock"
 if _registry_acquire_lock; then
     _registry_release_lock
     fail "recent empty registry lock must remain busy"
 fi
-[ -d "${SHIPGLOWZ_REGISTRY}.lock" ] || fail "recent empty registry lock is preserved"
-rmdir "${SHIPGLOWZ_REGISTRY}.lock"
+[ -d "${SHIPGLOWS_REGISTRY}.lock" ] || fail "recent empty registry lock is preserved"
+rmdir "${SHIPGLOWS_REGISTRY}.lock"
 
-SHIPGLOWZ_REGISTRY_EMPTY_LOCK_GRACE_SECONDS=1
-mkdir -p "${SHIPGLOWZ_REGISTRY}.lock"
-touch -d '5 seconds ago' "${SHIPGLOWZ_REGISTRY}.lock"
+SHIPGLOWS_REGISTRY_EMPTY_LOCK_GRACE_SECONDS=1
+mkdir -p "${SHIPGLOWS_REGISTRY}.lock"
+touch -d '5 seconds ago' "${SHIPGLOWS_REGISTRY}.lock"
 _registry_acquire_lock || fail "old empty registry lock should be recovered"
-assert_eq "$BASHPID" "$(cat "${SHIPGLOWZ_REGISTRY}.lock/pid")" "recovered empty lock has current owner"
+assert_eq "$BASHPID" "$(cat "${SHIPGLOWS_REGISTRY}.lock/pid")" "recovered empty lock has current owner"
 _registry_release_lock
-[ ! -d "${SHIPGLOWZ_REGISTRY}.lock" ] || fail "recovered empty registry lock is releasable"
+[ ! -d "${SHIPGLOWS_REGISTRY}.lock" ] || fail "recovered empty registry lock is releasable"
 
 # PID-bearing locks preserve a live owner and recover a dead owner.
-mkdir -p "${SHIPGLOWZ_REGISTRY}.lock"
-printf '%s\n' "$BASHPID" > "${SHIPGLOWZ_REGISTRY}.lock/pid"
-touch -d '5 seconds ago' "${SHIPGLOWZ_REGISTRY}.lock"
+mkdir -p "${SHIPGLOWS_REGISTRY}.lock"
+printf '%s\n' "$BASHPID" > "${SHIPGLOWS_REGISTRY}.lock/pid"
+touch -d '5 seconds ago' "${SHIPGLOWS_REGISTRY}.lock"
 if _registry_acquire_lock; then
     _registry_release_lock
     fail "live registry lock owner must never be removed"
 fi
-assert_eq "$BASHPID" "$(cat "${SHIPGLOWZ_REGISTRY}.lock/pid")" "live registry lock owner is preserved"
-rm -f "${SHIPGLOWZ_REGISTRY}.lock/pid"
-rmdir "${SHIPGLOWZ_REGISTRY}.lock"
+assert_eq "$BASHPID" "$(cat "${SHIPGLOWS_REGISTRY}.lock/pid")" "live registry lock owner is preserved"
+rm -f "${SHIPGLOWS_REGISTRY}.lock/pid"
+rmdir "${SHIPGLOWS_REGISTRY}.lock"
 
-mkdir -p "${SHIPGLOWZ_REGISTRY}.lock"
-printf '%s\n' '99999999' > "${SHIPGLOWZ_REGISTRY}.lock/pid"
+mkdir -p "${SHIPGLOWS_REGISTRY}.lock"
+printf '%s\n' '99999999' > "${SHIPGLOWS_REGISTRY}.lock/pid"
 _registry_acquire_lock || fail "dead registry lock owner should be recovered"
-assert_eq "$BASHPID" "$(cat "${SHIPGLOWZ_REGISTRY}.lock/pid")" "recovered dead lock has current owner"
+assert_eq "$BASHPID" "$(cat "${SHIPGLOWS_REGISTRY}.lock/pid")" "recovered dead lock has current owner"
 _registry_release_lock
 
 # A shortcut harness must replace the terminal action as well as the picker;

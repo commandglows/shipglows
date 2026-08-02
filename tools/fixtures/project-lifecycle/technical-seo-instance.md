@@ -29,7 +29,7 @@ next_step: "Complete crawl and indexation controls"
 ## Identity
 
 - Project: `example-site`
-- Master checklist: `shipglowz_data/workflow/checklists/seo-charge-referencement-web-checklist.md`
+- Master checklist: `shipglows_data/workflow/checklists/seo-charge-referencement-web-checklist.md`
 - Master version: `1.1.0`
 - Cycle: `example-site:seo-technical:2026-07-28`
 - Cycle kind: `initial`

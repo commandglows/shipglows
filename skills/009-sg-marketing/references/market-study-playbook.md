@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-16"
 updated: "2026-07-16"
 status: active
@@ -16,7 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/009-sg-marketing/SKILL.md
   - skills/references/source-intake-classification.md
-  - shipglowz_data/technical/product-behavior-intelligence.md
+  - shipglows_data/technical/product-behavior-intelligence.md
 depends_on:
   - artifact: skills/references/decision-quality-contract.md
     artifact_version: "1.2.0"
@@ -35,7 +35,7 @@ Use only for `009-sg-marketing market <niche|idea|question>`.
 
 ## Scope And Evidence
 
-Establish the niche, target geographies, business model, target audience, and decision the study must inform. If the business context is absent, warn that `shipglowz_data/business/business.md` would improve relevance and continue only with named limits; it may be the first context-building study.
+Establish the niche, target geographies, business model, target audience, and decision the study must inform. If the business context is absent, warn that `shipglows_data/business/business.md` would improve relevance and continue only with named limits; it may be the first context-building study.
 
 Use DataForSEO as the primary source where available, then official statistics, research, and cited web sources as appropriate. Warn before paid provider use. Every number, competitor fact, pricing claim, review signal, domain/handle result, and forecast needs a source and date. Never estimate unavailable search volume or market size.
 
@@ -52,7 +52,7 @@ When competitor pages, marketplaces, or external customer feedback materially af
 
 ## Deliverable And Follow-Up
 
-Write a governed `MARKET-STUDY.md` only when the target is a durable business artifact, using ShipGlowz frontmatter, source list, confidence, business model, market, value proposition, and versioned dependencies. Use `0.1.0`/draft for unreviewed or migrated studies; semantic bumps follow changed strategy, evidence, or editorial corrections. Treat competitor/inspiration and affiliate registries as optional; recommend or update them only when their facts will become reusable project contracts or paid-link disclosures are involved.
+Write a governed `MARKET-STUDY.md` only when the target is a durable business artifact, using ShipGlows frontmatter, source list, confidence, business model, market, value proposition, and versioned dependencies. Use `0.1.0`/draft for unreviewed or migrated studies; semantic bumps follow changed strategy, evidence, or editorial corrections. Treat competitor/inspiration and affiliate registries as optional; recommend or update them only when their facts will become reusable project contracts or paid-link disclosures are involved.
 
 Report the verdict, score basis, evidence coverage, major limits, demand and competition signal, pricing range, risks, and next three actions. If the result creates non-trivial product, GTM, content, architecture, or implementation decisions, evaluate `Chantier potentiel` and route to `100-sg-spec` rather than silently implementing.
 

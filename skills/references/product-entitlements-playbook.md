@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.1"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-29"
 updated: "2026-05-30"
 status: active
@@ -18,7 +18,7 @@ linked_systems:
   - skills/references/documentation-freshness-gate.md
   - skills/references/sentry-observability.md
   - skills/references/master-workflow-lifecycle.md
-  - shipglowz_data/technical/skill-runtime-and-lifecycle.md
+  - shipglows_data/technical/skill-runtime-and-lifecycle.md
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
     artifact_version: "1.0.0"
@@ -79,7 +79,7 @@ Minimum local search:
 
 ```bash
 rg -n "productEntitlements|product_entitlements|entitlement ledger|suiteAccess|suite identity|globalUserId|global_user_id" .
-rg -n "product-entitlements-playbook|suite-authentication|unified-suite-authentication|master-auth-playbook" "$HOME/shipglowz" "$HOME/shipglowz_data" 2>/dev/null
+rg -n "product-entitlements-playbook|suite-authentication|unified-suite-authentication|master-auth-playbook" "$HOME/shipglows" "$HOME/shipglows_data" 2>/dev/null
 ```
 
 If a suite ledger already exists, adapt to it instead of recreating it:
@@ -284,4 +284,4 @@ This playbook does not replace legal, tax, accounting, invoicing, revenue-recogn
 
 ## Maintenance Rule
 
-Update this playbook when ShipGlowz projects add a new billing provider, marketplace flow, app-store purchase flow, entitlement status, support runbook pattern, or database authorization pattern that changes the reusable doctrine.
+Update this playbook when ShipGlows projects add a new billing provider, marketplace flow, app-store purchase flow, entitlement status, support runbook pattern, or database authorization pattern that changes the reusable doctrine.

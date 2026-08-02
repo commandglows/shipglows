@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-10"
 updated: "2026-06-10"
 status: active
@@ -18,7 +18,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "User request 2026-06-10: create a ShipGlowz skill to manage product and technical parity across platforms."
+  - "User request 2026-06-10: create a ShipGlows skill to manage product and technical parity across platforms."
 next_review: "2026-07-10"
 next_step: "Use with /602-sg-platform-parity on a real project scope."
 ---

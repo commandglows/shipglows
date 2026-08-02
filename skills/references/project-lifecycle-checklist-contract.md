@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.4.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-27"
 updated: "2026-07-28"
 status: draft
@@ -14,17 +14,17 @@ risk_level: high
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - shipglowz_data/workflow/TASKS.md
-  - shipglowz_data/editorial/ROADMAP.md
-  - shipglowz_data/workflow/playbooks/
-  - shipglowz_data/workflow/checklists/
+  - shipglows_data/workflow/TASKS.md
+  - shipglows_data/editorial/ROADMAP.md
+  - shipglows_data/workflow/playbooks/
+  - shipglows_data/workflow/checklists/
   - templates/project_lifecycle.md
   - templates/project_checklist_instance.md
 depends_on:
-  - artifact: "shipglowz_data/workflow/playbooks/README.md"
+  - artifact: "shipglows_data/workflow/playbooks/README.md"
     artifact_version: "1.1.0"
     required_status: draft
-  - artifact: "shipglowz_data/workflow/checklists/README.md"
+  - artifact: "shipglows_data/workflow/checklists/README.md"
     artifact_version: "1.0.0"
     required_status: draft
 supersedes: []
@@ -38,7 +38,7 @@ next_review: "2026-08-27"
 
 ## Purpose
 
-Define the shared vocabulary consumed by ShipGlowz skills, Markdown readers, the TUI, and the future ShipGlowz app to represent project checklist progression and cycles without replacing existing trackers.
+Define the shared vocabulary consumed by ShipGlows skills, Markdown readers, the TUI, and the future ShipGlows app to represent project checklist progression and cycles without replacing existing trackers.
 
 ## Ownership Boundaries
 
@@ -121,8 +121,8 @@ cadence:
 dependencies: []
 evidence_required: true
 tracker_route: technical_task
-playbook: shipglowz_data/workflow/playbooks/seo-charge-referencement-web-playbook.md
-checklist: shipglowz_data/workflow/checklists/seo-charge-referencement-web-checklist.md
+playbook: shipglows_data/workflow/playbooks/seo-charge-referencement-web-playbook.md
+checklist: shipglows_data/workflow/checklists/seo-charge-referencement-web-checklist.md
 ```
 
 ## Checklist Master And Project Instance
@@ -187,10 +187,10 @@ The project template stores active definitions and dated instances in a `Lifecyc
 
 ## Tracker Routing
 
-- `technical_task` → `shipglowz_data/workflow/TASKS.md`
-- `editorial_task` → `shipglowz_data/editorial/ROADMAP.md`
-- `chantier` → `shipglowz_data/workflow/specs/`
-- `proof` → `shipglowz_data/workflow/test-checklists/` or the named evidence location
+- `technical_task` → `shipglows_data/workflow/TASKS.md`
+- `editorial_task` → `shipglows_data/editorial/ROADMAP.md`
+- `chantier` → `shipglows_data/workflow/specs/`
+- `proof` → `shipglows_data/workflow/test-checklists/` or the named evidence location
 - `audit` → the project's audit log or audit artifact, then route resulting follow-up by domain
 
 Mixed findings split into separate records. No lifecycle instance is itself a substitute for the follow-up tracker.

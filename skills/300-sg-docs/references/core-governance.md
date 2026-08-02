@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.6.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-06-28"
 status: draft
@@ -15,10 +15,10 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/300-sg-docs/SKILL.md
-  - shipglowz_data/technical/
-  - shipglowz_data/editorial/
-  - shipglowz_data/business/
-  - shipglowz_data/technical/metadata-migration-guide.md
+  - shipglows_data/technical/
+  - shipglows_data/editorial/
+  - shipglows_data/business/
+  - shipglows_data/technical/metadata-migration-guide.md
 depends_on:
   - artifact: "skills/references/technical-docs-corpus.md"
     artifact_version: "1.5.0"
@@ -31,11 +31,11 @@ evidence:
   - "Extracted from 300-sg-docs SKILL.md during compact-skill pilot."
   - "Governance corpus now distinguishes global external provider notes from governance-root provider usage docs."
   - "Operator decision on 2026-05-24: provider usage notes are conditional on risk and project-specific behavior."
-  - "Operator decision on 2026-05-24: monorepos use one root shipglowz_data corpus instead of per-app/package copies."
+  - "Operator decision on 2026-05-24: monorepos use one root shipglows_data corpus instead of per-app/package copies."
   - "Operator decision on 2026-06-28: throwaway build and verification artifacts must be cleaned after use and never treated as durable project assets."
   - "Operator decision on 2026-06-28: duplicate governance artifacts should be audited explicitly and merged into shared theme-first files unless a real surface-specific divergence justifies separation."
 next_review: "2026-06-16"
-next_step: "/103-sg-verify Compact ShipGlowz Skill Instructions"
+next_step: "/103-sg-verify Compact ShipGlows Skill Instructions"
 ---
 
 # 300-sg-docs Core Governance
@@ -57,15 +57,15 @@ Treat stale docs as product risk, especially for security, permissions, billing,
 - `300-sg-docs technical` owns technical governance layer bootstrapping/auditing.
 - `300-sg-docs editorial` owns editorial/public-content governance bootstrapping/auditing.
 - `300-sg-docs update` aligns docs drift and can route to technical/editorial bootstrap or audit.
-- `300-sg-docs update` must preserve the execution-vs-editorial tracker split when a project declares both `shipglowz_data/workflow/TASKS.md` and `shipglowz_data/editorial/ROADMAP.md`.
-- `300-sg-docs migrate-layout` owns legacy root ShipGlowz artifact migration to canonical `shipglowz_data/` paths.
-- `300-sg-docs metadata` owns frontmatter migration/compliance for active ShipGlowz artifacts.
+- `300-sg-docs update` must preserve the execution-vs-editorial tracker split when a project declares both `shipglows_data/workflow/TASKS.md` and `shipglows_data/editorial/ROADMAP.md`.
+- `300-sg-docs migrate-layout` owns legacy root ShipGlows artifact migration to canonical `shipglows_data/` paths.
+- `300-sg-docs metadata` owns frontmatter migration/compliance for active ShipGlows artifacts.
 
 `AGENT.md` is canonical. `AGENTS.md` must be a compatibility symlink only.
 
 ## Metadata And Artifact Rules
 
-ShipGlowz-generated governance artifacts require frontmatter with versioned contracts. Keep `metadata_schema_version: "1.0"` unless schema changes.
+ShipGlows-generated governance artifacts require frontmatter with versioned contracts. Keep `metadata_schema_version: "1.0"` unless schema changes.
 
 Use semantic versioning for `artifact_version`:
 
@@ -85,33 +85,33 @@ When bumping artifact version:
 
 Preferred governance locations live under the canonical governance root. In a single-project repo this is the repo root. In a monorepo this is the monorepo root.
 
-- `shipglowz_data/business/*`
-- `shipglowz_data/branding/*`
-- `shipglowz_data/product/*`
-- `shipglowz_data/gtm/*`
-- `shipglowz_data/technical/*`
-- `shipglowz_data/technical/design-system-authority.md` for project UI design-system authority when the project has a UI
-- `shipglowz_data/technical/external-platforms/*` for global external provider source notes
-- `shipglowz_data/technical/platforms/*` for provider usage when local risk or complexity justifies a dedicated note
-- `shipglowz_data/editorial/*`
-- `shipglowz_data/workflow/specs/*`
-- `shipglowz_data/workflow/playbooks/*`
-- `shipglowz_data/workflow/checklists/*`
+- `shipglows_data/business/*`
+- `shipglows_data/branding/*`
+- `shipglows_data/product/*`
+- `shipglows_data/gtm/*`
+- `shipglows_data/technical/*`
+- `shipglows_data/technical/design-system-authority.md` for project UI design-system authority when the project has a UI
+- `shipglows_data/technical/external-platforms/*` for global external provider source notes
+- `shipglows_data/technical/platforms/*` for provider usage when local risk or complexity justifies a dedicated note
+- `shipglows_data/editorial/*`
+- `shipglows_data/workflow/specs/*`
+- `shipglows_data/workflow/playbooks/*`
+- `shipglows_data/workflow/checklists/*`
 
 Monorepo rule:
 
-- keep one canonical `shipglowz_data/` at the monorepo root
-- inside that root, prefer theme-first folders and add surface scopes under the theme, for example `shipglowz_data/business/site/business.md`, `shipglowz_data/product/app/product.md`, or `shipglowz_data/technical/site/*`
-- do not create `shipglowz_data/` inside every app/site/lab/package
-- treat nested `shipglowz_data/` directories as migration debt unless the nested folder is intentionally a standalone project with its own repo lifecycle
+- keep one canonical `shipglows_data/` at the monorepo root
+- inside that root, prefer theme-first folders and add surface scopes under the theme, for example `shipglows_data/business/site/business.md`, `shipglows_data/product/app/product.md`, or `shipglows_data/technical/site/*`
+- do not create `shipglows_data/` inside every app/site/lab/package
+- treat nested `shipglows_data/` directories as migration debt unless the nested folder is intentionally a standalone project with its own repo lifecycle
 
 Legacy root files (`BUSINESS.md`, `PRODUCT.md`, `BRANDING.md`, `GTM.md`, `ARCHITECTURE.md`, `CONTENT_MAP.md`, `CONTEXT.md`, `CONTEXT-FUNCTION-TREE.md`, `GUIDELINES.md`, root `specs/`) are migration sources.
 
 Reusable transversal operating documents follow this split:
 
-- `shipglowz_data/workflow/playbooks/*` for method and execution order
-- `shipglowz_data/workflow/checklists/*` for reusable control surfaces
-- `shipglowz_data/workflow/test-checklists/*` for executed proof artifacts
+- `shipglows_data/workflow/playbooks/*` for method and execution order
+- `shipglows_data/workflow/checklists/*` for reusable control surfaces
+- `shipglows_data/workflow/test-checklists/*` for executed proof artifacts
 
 ## Duplicate Governance Decision Rule
 
@@ -176,14 +176,14 @@ Failure rule:
 
 Do not enforce frontmatter on operational trackers:
 
-- `shipglowz_data/workflow/TASKS.md`
-- `shipglowz_data/editorial/ROADMAP.md`
-- `shipglowz_data/workflow/AUDIT_LOG.md`
+- `shipglows_data/workflow/TASKS.md`
+- `shipglows_data/editorial/ROADMAP.md`
+- `shipglows_data/workflow/AUDIT_LOG.md`
 - Legacy central `PROJECTS.md` files are migration evidence only.
-- `shipglowz_data/workflow/TEST_LOG.md`
-- `shipglowz_data/workflow/BUGS.md`
+- `shipglows_data/workflow/TEST_LOG.md`
+- `shipglows_data/workflow/BUGS.md`
 
-If a tracker contains durable decision content, extract that decision into a versioned ShipGlowz artifact and keep the tracker as pointer/task.
+If a tracker contains durable decision content, extract that decision into a versioned ShipGlows artifact and keep the tracker as pointer/task.
 
 If a tracker contains active planning or execution work that still matters, migrate that work into the canonical workflow trackers before slimming the local tracker. Do not collapse a tracker into a facade until its actionable tasks, QA history, or planning signals have been preserved.
 
@@ -214,29 +214,29 @@ If a workflow genuinely requires a generated artifact to persist, that persisten
 
 Documentation must preserve the professional bug model:
 
-- `shipglowz_data/workflow/bugs/BUG-ID.md` is source of truth
-- `shipglowz_data/workflow/BUGS.md` is optional/generated triage view
-- `shipglowz_data/workflow/TEST_LOG.md` is compact QA tracker
+- `shipglows_data/workflow/bugs/BUG-ID.md` is source of truth
+- `shipglows_data/workflow/BUGS.md` is optional/generated triage view
+- `shipglows_data/workflow/TEST_LOG.md` is compact QA tracker
 - heavy proof belongs in `test-evidence/BUG-ID/` with redaction
 
 ## Design-System Governance Rule
 
 Projects with a UI need a declared design-system authority before agents change visual implementation.
 
-- `shipglowz_data/branding/branding.md` owns the shared brand root, bundle boundaries, and brand direction.
+- `shipglows_data/branding/branding.md` owns the shared brand root, bundle boundaries, and brand direction.
 - Optional shared brand bundle files may extend it when the project needs stronger normalization:
-  - `shipglowz_data/branding/voice-and-tone.md`
-  - `shipglowz_data/branding/messaging-pillars.md`
-  - `shipglowz_data/branding/visual-identity.md`
-  - `shipglowz_data/branding/brand-rules.md`
-  - `shipglowz_data/branding/assets/README.md`
-- `shipglowz_data/technical/<surface>/design-system-authority.md` owns the code-level design-system authority when the UI technology or token carrier differs by surface.
-- In monorepos, keep brand identity shared at `shipglowz_data/branding/branding.md` and scope technical design-system authority by surface when site/app runtimes diverge.
+  - `shipglows_data/branding/voice-and-tone.md`
+  - `shipglows_data/branding/messaging-pillars.md`
+  - `shipglows_data/branding/visual-identity.md`
+  - `shipglows_data/branding/brand-rules.md`
+  - `shipglows_data/branding/assets/README.md`
+- `shipglows_data/technical/<surface>/design-system-authority.md` owns the code-level design-system authority when the UI technology or token carrier differs by surface.
+- In monorepos, keep brand identity shared at `shipglows_data/branding/branding.md` and scope technical design-system authority by surface when site/app runtimes diverge.
 - If the authority is missing or split across competing files, `300-sg-docs technical` should create or flag the declaration before UI implementation proceeds.
 
 ## Language Doctrine
 
-- Internal ShipGlowz contracts stay in English.
+- Internal ShipGlows contracts stay in English.
 - User-facing content/reporting stays in active user/project language.
 - Stable machine labels can stay in English.
 - For French user-facing text, accents are mandatory unless the token is an identifier/command/ASCII-only format.

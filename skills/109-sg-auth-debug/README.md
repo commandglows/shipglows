@@ -4,7 +4,7 @@
 
 ## What It Does
 
-`109-sg-auth-debug` is ShipGlowz's browser-auth diagnosis skill. It consumes the existing bug report or spec, reproduces the auth flow with Playwright when possible, and isolates where the flow breaks across UI triggers, Clerk/OAuth configuration, redirects, middleware, cookies, sessions, and post-login app behavior.
+`109-sg-auth-debug` is ShipGlows's browser-auth diagnosis skill. It consumes the existing bug report or spec, reproduces the auth flow with Playwright when possible, and isolates where the flow breaks across UI triggers, Clerk/OAuth configuration, redirects, middleware, cookies, sessions, and post-login app behavior.
 
 It is designed for cases where static code reading is not enough because the failure only becomes clear once the real browser flow runs.
 
@@ -56,9 +56,9 @@ For public UI, visual, console, network, or non-auth navigation checks, use `108
 - `references/flutter-clerk-convex.md` for Flutter Clerk choices, the native Android Kotlin bridge contract, and Convex access
 - `references/flutter-web-clerkjs-bridge.md` for the Flutter web ClerkJS bridge implementation pattern in other repos
 - `references/python-convex.md` for Python scripts and jobs that call Convex
-- `references/sdk-policy.md` for stable, beta, and unofficial SDK choices in the ShipGlowz stack
-- `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/flutter-web-clerkjs-auth-pattern.md` as the cross-repo technical guide for implementing this pattern in Flutter web apps
-- `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md` as the cross-repo guide for YouTube OAuth through Next.js, Clerk, and Convex
+- `references/sdk-policy.md` for stable, beta, and unofficial SDK choices in the ShipGlows stack
+- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/flutter-web-clerkjs-auth-pattern.md` as the cross-repo technical guide for implementing this pattern in Flutter web apps
+- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md` as the cross-repo guide for YouTube OAuth through Next.js, Clerk, and Convex
 
 ## Typical Examples
 

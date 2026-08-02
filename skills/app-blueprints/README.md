@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-23"
 updated: "2026-08-02"
 status: draft
@@ -27,24 +27,24 @@ linked_systems:
 
 # App Blueprints Registry
 
-Blueprints are global spec skeletons for recurring app archetypes. Each blueprint lives in its own GitHub repo so it survives independently of ShipGlowz.
+Blueprints are global spec skeletons for recurring app archetypes. Each blueprint lives in its own GitHub repo so it survives independently of ShipGlows.
 
 ## Available Blueprints
 
 | ID | Name | Source Repo | Keywords |
 |---|---|---|---|
-| `flutter-crud-content` | Flutter CRUD Content App | https://github.com/dianedefores/shipflow-blueprint-flutter-crud-content | content, crud, carnet, gestion, flutter, mobile |
+| `flutter-crud-content` | Flutter CRUD Content App | https://github.com/dianedefores/shipglows-blueprint-flutter-crud-content | content, crud, carnet, gestion, flutter, mobile |
 
 ## Résolution
 
 Le Blueprint Gate (dans `001-sg-build`) résout chaque blueprint dans cet ordre :
-1. Cache local : `$SHIPFLOW_ROOT/skills/app-blueprints/<id>/blueprint.md`
+1. Cache local : `$SHIPGLOWS_ROOT/skills/app-blueprints/<id>/blueprint.md`
 2. Clone depuis `source.repo` si le cache local n'existe pas
 3. Aucun blueprint si les deux échouent
 
 ### Maintenance note
 
-`flutter-crud-content` is currently available in the ShipGlowz local cache at
+`flutter-crud-content` is currently available in the ShipGlows local cache at
 version `1.2.0`, including the validated Clerk native Android bridge contract.
 The historical `source.repo` URL is currently unavailable on GitHub; do not
 silently replace the local cache with a fresh clone until the blueprint repo is
@@ -52,10 +52,10 @@ republished and its contents are checked against the cache.
 
 ## Ajouter un Blueprint
 
-1. Créer un repo GitHub `shipflow-blueprint-<id>`
+1. Créer un repo GitHub `shipglows-blueprint-<id>`
 2. Y pousser le `blueprint.md` + éventuels `references/`
 3. Ajouter une entrée dans ce registre + créer le dossier local
 
 ## Contrat système complet
 
-Voir `$SHIPFLOW_ROOT/skills/references/app-blueprints.md`.
+Voir `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md`.

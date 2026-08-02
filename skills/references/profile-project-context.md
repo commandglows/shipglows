@@ -2,11 +2,11 @@
 artifact: contract
 metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-28"
 updated: "2026-07-12"
 status: active
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: profile-project-context
 owner: Diane
 confidence: high
@@ -15,11 +15,11 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - skills/references/profile-activation.md
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/302-sg-help/SKILL.md
-  - shipglowz_data/business/
-  - shipglowz_data/technical/
-  - shipglowz_data/editorial/content-map.md
+  - shipglows_data/business/
+  - shipglows_data/technical/
+  - shipglows_data/editorial/content-map.md
 depends_on:
   - artifact: "skills/references/canonical-paths.md"
     artifact_version: "1.0.0"
@@ -56,15 +56,15 @@ Do not load every project document by default. Load the narrowest coherent bundl
 
 Default bundle:
 
-- `shipglowz_data/business/business.md`
-- `shipglowz_data/business/product.md`
-- `shipglowz_data/business/gtm.md`
+- `shipglows_data/business/business.md`
+- `shipglows_data/business/product.md`
+- `shipglows_data/business/gtm.md`
 
 Load additionally when relevant:
 
-- `shipglowz_data/business/project-competitors-and-inspirations.md`
-- `shipglowz_data/business/affiliate-programs.md`
-- `shipglowz_data/editorial/content-map.md`
+- `shipglows_data/business/project-competitors-and-inspirations.md`
+- `shipglows_data/business/affiliate-programs.md`
+- `shipglows_data/editorial/content-map.md`
 
 Use this bundle for prioritization, leverage, positioning, growth sequencing, offer, SEO leverage, and distribution tradeoffs.
 
@@ -72,15 +72,15 @@ Use this bundle for prioritization, leverage, positioning, growth sequencing, of
 
 Default bundle:
 
-- `shipglowz_data/business/product.md`
-- `shipglowz_data/technical/context.md`
-- `shipglowz_data/technical/code-docs-map.md`
+- `shipglows_data/business/product.md`
+- `shipglows_data/technical/context.md`
+- `shipglows_data/technical/code-docs-map.md`
 
 Load additionally when relevant:
 
-- `shipglowz_data/business/gtm.md`
-- `shipglowz_data/technical/guidelines.md`
-- `shipglowz_data/technical/architecture.md`
+- `shipglows_data/business/gtm.md`
+- `shipglows_data/technical/guidelines.md`
+- `shipglows_data/technical/architecture.md`
 
 Use this bundle for coherence checks, hidden dependencies, scope risk, governance drift, proof weakness, and contradiction surfacing.
 
@@ -88,16 +88,16 @@ Use this bundle for coherence checks, hidden dependencies, scope risk, governanc
 
 Default bundle:
 
-- `shipglowz_data/business/product.md`
-- `shipglowz_data/technical/context.md`
-- `shipglowz_data/technical/architecture.md`
+- `shipglows_data/business/product.md`
+- `shipglows_data/technical/context.md`
+- `shipglows_data/technical/architecture.md`
 
 Load additionally when relevant:
 
-- `shipglowz_data/business/business.md`
-- `shipglowz_data/technical/code-docs-map.md`
-- `shipglowz_data/technical/guidelines.md`
-- `shipglowz_data/workflow/playbooks/spec-driven-workflow.md`
+- `shipglows_data/business/business.md`
+- `shipglows_data/technical/code-docs-map.md`
+- `shipglows_data/technical/guidelines.md`
+- `shipglows_data/workflow/playbooks/spec-driven-workflow.md`
 
 Use this bundle for phase planning, slice definition, dependency mapping, sequencing, and execution framing.
 
@@ -105,15 +105,15 @@ Use this bundle for phase planning, slice definition, dependency mapping, sequen
 
 Default bundle:
 
-- `shipglowz_data/business/product.md`
-- `shipglowz_data/business/gtm.md`
-- `shipglowz_data/branding/branding.md`
+- `shipglows_data/business/product.md`
+- `shipglows_data/business/gtm.md`
+- `shipglows_data/branding/branding.md`
 
 Load additionally when relevant:
 
-- `shipglowz_data/editorial/content-map.md`
+- `shipglows_data/editorial/content-map.md`
 - `skills/008-sg-customer/SKILL.md`
-- `shipglowz_data/business/business.md`
+- `shipglows_data/business/business.md`
 
 Use this bundle for value perception, trust, comprehension, CTA friction, onboarding friction, and user desire to continue.
 
@@ -121,14 +121,14 @@ Use this bundle for value perception, trust, comprehension, CTA friction, onboar
 
 Default bundle:
 
-- `shipglowz_data/editorial/content-map.md`
-- `shipglowz_data/business/gtm.md`
-- `shipglowz_data/branding/branding.md`
+- `shipglows_data/editorial/content-map.md`
+- `shipglows_data/business/gtm.md`
+- `shipglows_data/branding/branding.md`
 
 Load additionally when relevant:
 
-- `shipglowz_data/business/product.md`
-- `shipglowz_data/technical/code-docs-map.md`
+- `shipglows_data/business/product.md`
+- `shipglows_data/technical/code-docs-map.md`
 - `README.md`
 
 Use this bundle for search intent fit, discoverability, content structure, claim safety, and SEO-related surface coherence.
@@ -137,15 +137,15 @@ Use this bundle for search intent fit, discoverability, content structure, claim
 
 Default bundle:
 
-- `shipglowz_data/business/business.md`
-- `shipglowz_data/business/gtm.md`
-- `shipglowz_data/business/product.md`
+- `shipglows_data/business/business.md`
+- `shipglows_data/business/gtm.md`
+- `shipglows_data/business/product.md`
 
 Load additionally when relevant:
 
-- `shipglowz_data/business/affiliate-programs.md`
-- `shipglowz_data/business/project-competitors-and-inspirations.md`
-- `shipglowz_data/editorial/content-map.md`
+- `shipglows_data/business/affiliate-programs.md`
+- `shipglows_data/business/project-competitors-and-inspirations.md`
+- `shipglows_data/editorial/content-map.md`
 - `README.md`
 
 Use this bundle for acquisition-channel arbitration, source-to-landing fit, tracking readiness, conversion measurement, paid/organic sequencing, affiliate/referral opportunities, and traffic-quality tradeoffs.
@@ -154,7 +154,7 @@ Use this bundle for acquisition-channel arbitration, source-to-landing fit, trac
 
 Default bundle:
 
-- `shipglowz_data/technical/external-platforms/neovim.md`
+- `shipglows_data/technical/external-platforms/neovim.md`
 - `/home/claude/dotfiles/nvim/README.md`
 - `/home/claude/dotfiles/nvim/FILES.md`
 
@@ -162,7 +162,7 @@ Load additionally when relevant:
 
 - `/home/claude/dotfiles/nvim/MyNeovim/lazy-lock.json`
 - `/home/claude/dotfiles/nvim/MyNeovimTermux/`
-- `shipglowz_data/technical/code-docs-map.md`
+- `shipglows_data/technical/code-docs-map.md`
 
 Use this bundle for Neovim/Lua configuration, plugin compatibility, LSP/Treesitter setup, headless validation, and workstation-versus-Termux profile decisions.
 
@@ -171,8 +171,8 @@ Use this bundle for Neovim/Lua configuration, plugin compatibility, LSP/Treesitt
 For `python-specialist`, `bash-specialist`, `astro-specialist`, `typescript-specialist`, `javascript-specialist`, `flutter-specialist`, `dart-specialist`, `firebase-specialist`, `convex-specialist`, `vercel-specialist`, `sentry-specialist`, `cloud-integrations-specialist`, `turso-specialist`, and `crewai-specialist`, load:
 
 - the platform note linked by the role contract
-- the target project's `shipglowz_data/technical/code-docs-map.md` when present
-- the smallest relevant project-local usage note under `shipglowz_data/technical/platforms/` when present
+- the target project's `shipglows_data/technical/code-docs-map.md` when present
+- the smallest relevant project-local usage note under `shipglows_data/technical/platforms/` when present
 - the affected dependency/config files needed to establish the actual project version and conventions
 
 Use this bundle for stack-specific implementation, audits, debugging, migration, validation, and freshness decisions. Do not load unrelated platform notes or copy vendor documentation into the answer.
@@ -187,9 +187,9 @@ If one or more context files in the relevant bundle do not exist:
 
 ## Cross-Project Rule
 
-When the active repository is not ShipGlowz itself, resolve project context from the current project root first.
+When the active repository is not ShipGlows itself, resolve project context from the current project root first.
 
-When the task is explicitly about ShipGlowz governance or internal behavior, resolve from `${SHIPFLOW_ROOT:-$HOME/shipglowz}`.
+When the task is explicitly about ShipGlows governance or internal behavior, resolve from `${SHIPGLOWS_ROOT:-$HOME/shipglows}`.
 
 ## Maintenance Rule
 

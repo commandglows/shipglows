@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-01"
 updated: "2026-06-01"
 status: draft
@@ -22,7 +22,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Extracted from WinFlowz local-to-cloud promotion and merge chantier."
-next_step: "/103-sg-verify shipglowz_data/workflow/specs/600-sg-local-cloud-sync-skill.md"
+next_step: "/103-sg-verify shipglows_data/workflow/specs/600-sg-local-cloud-sync-skill.md"
 ---
 
 # Local-Cloud Sync Doctrine

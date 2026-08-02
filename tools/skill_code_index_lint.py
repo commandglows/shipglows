@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the ShipGlowz numeric skill-code index."""
+"""Validate the ShipGlows numeric skill-code index."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--skills-root",
         default="skills",
-        help="Path to the ShipGlowz skills root.",
+        help="Path to the ShipGlows skills root.",
     )
     return parser.parse_args()
 

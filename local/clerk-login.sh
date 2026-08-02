@@ -16,12 +16,12 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-shipglowz_migrate_local_config || true
-CONFIG_DIR="$(shipglowz_local_config_dir)"
+shipglows_migrate_local_config || true
+CONFIG_DIR="$(shipglows_local_config_dir)"
 CURRENT_CONNECTION_FILE="$CONFIG_DIR/current_connection"
 CURRENT_IDENTITY_FILE="$CONFIG_DIR/current_identity_file"
 CURRENT_AUTH_METHOD_FILE="$CONFIG_DIR/current_auth_method"
-LOGIN_TIMEOUT_SECONDS="${SHIPGLOWZ_CLERK_LOGIN_TIMEOUT_SECONDS:-${SHIPFLOW_CLERK_LOGIN_TIMEOUT_SECONDS:-600}}"
+LOGIN_TIMEOUT_SECONDS="${SHIPGLOWS_CLERK_LOGIN_TIMEOUT_SECONDS:-${SHIPGLOWS_CLERK_LOGIN_TIMEOUT_SECONDS:-600}}"
 
 REMOTE_HOST=""
 SSH_IDENTITY_FILE=""
@@ -35,16 +35,16 @@ remote_clerk_path_prefix='export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:$H
 
 usage() {
     cat <<'EOF'
-Usage: shipglowz-clerk-login
+Usage: shipglows-clerk-login
 
 Run this from your local machine. It starts `clerk auth login` on the
-configured remote ShipGlowz server, opens a temporary SSH callback tunnel, and
+configured remote ShipGlows server, opens a temporary SSH callback tunnel, and
 then opens or prints the official Clerk OAuth URL locally.
 EOF
 }
 
 print_header() {
-    local brand="ShipGlowz DevServer"
+    local brand="ShipGlows DevServer"
     local title="Clerk CLI Login"
     echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║                                                  ║${NC}"
@@ -57,7 +57,7 @@ print_header() {
 
 load_remote_host() {
     if ! _load_remote_host_core; then
-        echo -e "${RED}✗ Aucune connexion distante ShipGlowz configurée.${NC}"
+        echo -e "${RED}✗ Aucune connexion distante ShipGlows configurée.${NC}"
         echo -e "${YELLOW}  Ouvre le menu local 'urls', choisis c) Configurer nouveau serveur, puis entre l'adresse SSH.${NC}"
         exit 1
     fi

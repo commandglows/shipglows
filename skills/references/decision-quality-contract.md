@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-24"
 updated: "2026-06-11"
 status: active
@@ -22,7 +22,7 @@ linked_systems:
   - skills/references/question-contract.md
   - skills/references/design-system-token-contract.md
   - skills/704-sg-model/references/model-routing.md
-  - shipglowz_data/workflow/playbooks/spec-driven-workflow.md
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
 depends_on:
   - artifact: "skills/references/question-contract.md"
@@ -33,12 +33,12 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "User directive 2026-05-24: ShipGlowz must optimize for maximum performance, maximum security, excellence, and durability, not convenience, speed, or the shortest path."
+  - "User directive 2026-05-24: ShipGlows must optimize for maximum performance, maximum security, excellence, and durability, not convenience, speed, or the shortest path."
   - "User directive 2026-05-24: the operator wants high-quality code, modern effective tools, and current best practices; time pressure is not the primary constraint."
   - "User decision 2026-06-10: central skill rules should stay compact enough for agents to retain the decision signal."
-  - "User directive 2026-06-11: emergency product pragmatism that hardcodes visual sizes, IME/overlay offsets, spacing, or layout values for a quick fix is unacceptable; ShipGlowz must take the time needed for coherent professional design-system repairs."
+  - "User directive 2026-06-11: emergency product pragmatism that hardcodes visual sizes, IME/overlay offsets, spacing, or layout values for a quick fix is unacceptable; ShipGlows must take the time needed for coherent professional design-system repairs."
   - "User directive 2026-06-11: fast fixes are generally unacceptable when they bypass the durable process, homogeneous structure, or long-term coherence expected from agent-assisted work."
-  - "User directive 2026-06-11: ShipGlowz skills should reduce operator workload by gathering safe evidence, diagnostics, logs, checks, and proof themselves before asking the user."
+  - "User directive 2026-06-11: ShipGlows skills should reduce operator workload by gathering safe evidence, diagnostics, logs, checks, and proof themselves before asking the user."
   - "User directive 2026-06-11: UI customization must not bypass centralized design-system tokens for spacing, typography, colors, shadows, motion, or mobile layout constants."
 next_review: "2026-06-24"
 next_step: "/103-sg-verify decision-quality-contract"
@@ -48,7 +48,7 @@ next_step: "/103-sg-verify decision-quality-contract"
 
 ## Purpose
 
-This reference defines the default decision quality bar for ShipGlowz agents, skills, model routing, implementation, fixes, audits, documentation, and verification.
+This reference defines the default decision quality bar for ShipGlows agents, skills, model routing, implementation, fixes, audits, documentation, and verification.
 
 Excellence is an instruction-level requirement: choose the strongest professional path that fits the product contract, risk, and evidence needs. Ease, speed, token economy, and local convenience are tie-breakers only after the quality bar is satisfied.
 
@@ -88,7 +88,7 @@ Do not use phrases such as "minimal change to make it work" when they imply shor
 
 ## Fast Fix Shortcut Ban
 
-Fast fixes are not a ShipGlowz virtue. A fix is unacceptable when it bypasses durable process, weakens homogeneous structure, hides root cause, avoids the right owner skill, skips proof, or leaves future agents with incoherent exceptions.
+Fast fixes are not a ShipGlows virtue. A fix is unacceptable when it bypasses durable process, weakens homogeneous structure, hides root cause, avoids the right owner skill, skips proof, or leaves future agents with incoherent exceptions.
 
 Do not use "quick fix", "temporary workaround", "small patch", or "just make it pass" logic when the real problem requires root-cause diagnosis, contract correction, shared abstraction, migration, security/design review, docs update, proof, or owner-skill routing.
 
@@ -100,7 +100,7 @@ Verification must fail or report partial when a change works only by bypassing p
 
 For UI, UX, IME, keyboard, overlay, responsive, layout, spacing, typography, color, motion, or component fixes, emergency product pragmatism is not acceptable when it creates hardcoded visual drift.
 
-Before UI/design work, load `$SHIPFLOW_ROOT/skills/references/design-system-token-contract.md`. Do not hardcode one-off dimensions, offsets, breakpoints, z-index values, colors, font sizes, spacing, animation timings, keyboard/IME insets, overlay positions, or viewport-specific constants just to make an immediate visual defect disappear. A literal value is acceptable only when it is already the project-standard token/constant pattern, is required by a platform/API contract, or is deliberately introduced as a named shared token/constant with usage scope and proof.
+Before UI/design work, load `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`. Do not hardcode one-off dimensions, offsets, breakpoints, z-index values, colors, font sizes, spacing, animation timings, keyboard/IME insets, overlay positions, or viewport-specific constants just to make an immediate visual defect disappear. A literal value is acceptable only when it is already the project-standard token/constant pattern, is required by a platform/API contract, or is deliberately introduced as a named shared token/constant with usage scope and proof.
 
 When a visual bug appears to need a quick hardcoded value, the professional path is:
 
@@ -150,13 +150,13 @@ When asking, recommend the option that best preserves the primary decision metri
 
 ## Operator Autonomy Standard
 
-ShipGlowz skills should make the operator's work easier. Do not ask the user to provide information, logs, screenshots, diagnostics, status, or validation that the agent can safely obtain with available local tools, browser navigation, project files, tests, logs, or visible app diagnostics.
+ShipGlows skills should make the operator's work easier. Do not ask the user to provide information, logs, screenshots, diagnostics, status, or validation that the agent can safely obtain with available local tools, browser navigation, project files, tests, logs, or visible app diagnostics.
 
 Before asking for user help, check the safe evidence paths that fit the task: existing docs/specs/bug files, git status/diff, local tests, browser/debug tooling, app diagnostics copy action, PM2 or bounded server logs, CI/build output, and redacted provider/config presence. Use only non-destructive, non-secret, permission-safe actions.
 
 Ask the user only when the missing input is a real decision, credential/secret, account/device/manual-only proof, destructive/external side effect, unavailable environment, or evidence the agent cannot safely access. Reports should state what the agent gathered itself and what remains genuinely unavailable.
 
-Low operator explicitness is not ambiguity by default. In ShipGlowz, sparse prompts often mean the operator is intentionally delegating diagnosis, routing, and implementation choice. Do not turn a high-agency prompt into a clarification loop or a passive recommendation loop unless a true decision or safety boundary is actually missing.
+Low operator explicitness is not ambiguity by default. In ShipGlows, sparse prompts often mean the operator is intentionally delegating diagnosis, routing, and implementation choice. Do not turn a high-agency prompt into a clarification loop or a passive recommendation loop unless a true decision or safety boundary is actually missing.
 
 Default interpretation rule:
 
@@ -184,4 +184,4 @@ Model, subagent, and tool choices must follow the same order:
 
 ## Reporting Language
 
-In user-facing reports, do not frame shortcuts as virtues. It is acceptable to say a change is bounded, focused, or targeted. It is not acceptable to imply that ShipGlowz chose a lower-quality path because it was faster for the agent.
+In user-facing reports, do not frame shortcuts as virtues. It is acceptable to say a change is bounded, focused, or targeted. It is not acceptable to imply that ShipGlows chose a lower-quality path because it was faster for the agent.

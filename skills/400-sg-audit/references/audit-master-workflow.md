@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.2.1"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-07-25"
 status: draft
@@ -22,7 +22,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
-  - "Extracted from skills/400-sg-audit/SKILL.md during Compact ShipGlowz Skill Instructions Phase 3."
+  - "Extracted from skills/400-sg-audit/SKILL.md during Compact ShipGlows Skill Instructions Phase 3."
   - "2026-06-11 added design-system authority as a systemic UI audit concern."
   - "2026-07-25 replaced legacy runtime paths and pre-compaction checklist assumptions with canonical skill/playbook routing."
 next_review: "2026-08-25"
@@ -41,34 +41,34 @@ This reference preserves the detailed pre-compaction instructions for `400-sg-au
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Chantier Potential Intake
 
-Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
+Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report. If the findings reveal non-trivial future work and no unique chantier owns it, do not write to an existing spec; add a `Chantier potentiel` block with `oui`, `non`, or `incertain`, a proposed title, reason, severity, scope, evidence, recommended `/100-sg-spec ...` command, and next step. If the work is only a direct local fix or already belongs to the current chantier, state `Chantier potentiel: non` with the concrete reason.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, findings-first, and focused on top issues, proof gaps, chantier potential, and the next real action. Use `report=agent`, `handoff`, `verbose`, or `full-report` for the detailed audit matrix, domain checklist output, command evidence, assumptions, confidence limits, and handoff notes.
 
 ## Master Delegation
 
-Before choosing execution topology, load `$SHIPFLOW_ROOT/skills/references/master-delegation-semantics.md`.
+Before choosing execution topology, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 
 This skill follows that reference; local nuances below only narrow or route it. `400-sg-audit` may use simultaneous read-only subagents only for an explicit selected audit matrix such as project x domain. Any fix, tracker rewrite, content update, closure, or ship work after audit returns to delegated sequential unless a ready spec defines write-safe `Execution Batches`.
 
 ## Master Workflow Lifecycle
 
-Before resolving audit phases, load `$SHIPFLOW_ROOT/skills/references/master-workflow-lifecycle.md`.
+Before resolving audit phases, load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md`.
 
 Use the shared skeleton for audit intake, finding-set work item resolution, readiness/source-de-chantier threshold, model/topology routing, read-only audit execution, validation of evidence, and post-audit routing. Local sections below define audit matrices and domain prompts only.
 
@@ -78,7 +78,7 @@ Use the shared skeleton for audit intake, finding-set work item resolution, read
 - Treat workflow integrity, security posture, and product coherence as first-class audit concerns.
 - Treat documentation coherence as first-class when feature behavior, public promises, setup, API usage or support expectations changed.
 - Treat design-system authority as first-class for any UI product. A missing canonical token source, undocumented theme carrier, or local styling bypass is a systemic governance finding, not a cosmetic preference.
-- Treat ShipGlowz business metadata versions as evidence. `BUSINESS.md`, `BRANDING.md`, and `GUIDELINES.md` are decision contracts; stale, missing, low-confidence, or unversioned contracts must reduce confidence and appear as proof gaps.
+- Treat ShipGlows business metadata versions as evidence. `BUSINESS.md`, `BRANDING.md`, and `GUIDELINES.md` are decision contracts; stale, missing, low-confidence, or unversioned contracts must reduce confidence and appear as proof gaps.
 - Prefer honest reporting over tidy grades. If proof is partial, say so explicitly and keep confidence bounded.
 - Keep orchestration practical: read-only audit fan-out is allowed only through the selected audit matrix, and write/fix follow-up must use delegated sequential or ready `Execution Batches`.
 
@@ -86,7 +86,7 @@ Use the shared skeleton for audit intake, finding-set work item resolution, read
 
 - Current directory: !`pwd`
 - Project CLAUDE.md: !`head -50 CLAUDE.md 2>/dev/null || echo "no CLAUDE.md"`
-- Business metadata: !`for pair in "shipglowz_data/business/business.md BUSINESS.md" "shipglowz_data/branding/branding.md BRANDING.md" "shipglowz_data/technical/guidelines.md GUIDELINES.md"; do set -- $pair; if [ -f "$1" ]; then f="$1"; elif [ -f "$2" ]; then f="$2"; else echo "$2: missing (no $1)"; continue; fi; printf '%s: ' "$f"; sed -n '1,40p' "$f" | grep -E '^(metadata_schema_version|artifact_version|status|updated|confidence|next_review):' | tr '\n' ' '; printf '\n'; done`
+- Business metadata: !`for pair in "shipglows_data/business/business.md BUSINESS.md" "shipglows_data/branding/branding.md BRANDING.md" "shipglows_data/technical/guidelines.md GUIDELINES.md"; do set -- $pair; if [ -f "$1" ]; then f="$1"; elif [ -f "$2" ]; then f="$2"; else echo "$2: missing (no $1)"; continue; fi; printf '%s: ' "$f"; sed -n '1,40p' "$f" | grep -E '^(metadata_schema_version|artifact_version|status|updated|confidence|next_review):' | tr '\n' ' '; printf '\n'; done`
 - Project structure: !`find src -maxdepth 2 -type d 2>/dev/null | grep -v node_modules | head -20 || echo "no src dir"`
 - i18n present: !`find src -path "*/i18n/*" -o -path "*/locales/*" 2>/dev/null | head -3 || echo "no i18n"`
 - Package.json scripts: !`cat package.json 2>/dev/null | grep -E '^\s+"(dev|build|lint|typecheck|check)"' || echo "no package.json"`
@@ -105,7 +105,7 @@ Full audit of ALL projects across ALL applicable domains — the most comprehens
 
 ### Step 1: Build the audit plan
 
-Read discovered project-local corpora (`shipglowz_data/` markers). Use the **Domain Applicability** table to determine which domains apply to each project.
+Read discovered project-local corpora (`shipglows_data/` markers). Use the **Domain Applicability** table to determine which domains apply to each project.
 
 ### Step 2: Let the user choose
 
@@ -127,14 +127,14 @@ Only launch (project × domain) pairs where: user selected the project AND user 
 
 Read the selected skill's activation contract, then load its exact audit playbook or audit-mode section. Do not assume a generic `PROJECT MODE` or `Tracking` heading exists after skill compaction.
 
-- Code: `$SHIPFLOW_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPFLOW_ROOT/skills/010-sg-technical/references/technical-audit-playbook.md`
-- Design: `$SHIPFLOW_ROOT/skills/006-sg-design/SKILL.md`, then its `audit ui` mapping in `$SHIPFLOW_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` and `$SHIPFLOW_ROOT/skills/006-sg-design/references/design-audit-playbook.md`
-- Copy: `$SHIPFLOW_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPFLOW_ROOT/skills/009-sg-marketing/references/copy-audit-playbook.md`
-- SEO: `$SHIPFLOW_ROOT/skills/406-sg-seo/SKILL.md`, then `$SHIPFLOW_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md`
-- GTM: `$SHIPFLOW_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPFLOW_ROOT/skills/009-sg-marketing/references/gtm-audit-playbook.md`
-- Translate: `$SHIPFLOW_ROOT/skills/407-sg-audit-translate/SKILL.md` and its selected audit section
-- Deps: `$SHIPFLOW_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPFLOW_ROOT/skills/010-sg-technical/references/dependency-audit-playbook.md`
-- Perf: `$SHIPFLOW_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPFLOW_ROOT/skills/010-sg-technical/references/performance-audit-playbook.md`
+- Code: `$SHIPGLOWS_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/010-sg-technical/references/technical-audit-playbook.md`
+- Design: `$SHIPGLOWS_ROOT/skills/006-sg-design/SKILL.md`, then its `audit ui` mapping in `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` and `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-audit-playbook.md`
+- Copy: `$SHIPGLOWS_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/009-sg-marketing/references/copy-audit-playbook.md`
+- SEO: `$SHIPGLOWS_ROOT/skills/406-sg-seo/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md`
+- GTM: `$SHIPGLOWS_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/009-sg-marketing/references/gtm-audit-playbook.md`
+- Translate: `$SHIPGLOWS_ROOT/skills/407-sg-audit-translate/SKILL.md` and its selected audit section
+- Deps: `$SHIPGLOWS_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/010-sg-technical/references/dependency-audit-playbook.md`
+- Perf: `$SHIPGLOWS_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/010-sg-technical/references/performance-audit-playbook.md`
 
 ### Step 4: Launch ALL agents
 
@@ -195,8 +195,8 @@ Total: X critical, Y high, Z medium
 
 ### Step 6: Update global tracking
 
-1. **Project-local `shipglowz_data/workflow/AUDIT_LOG.md`** — one traffic-first audit record per project with all domain scores.
-2. **Project-local `shipglowz_data/workflow/TASKS.md`** — update each project's audit subsections.
+1. **Project-local `shipglows_data/workflow/AUDIT_LOG.md`** — one traffic-first audit record per project with all domain scores.
+2. **Project-local `shipglows_data/workflow/TASKS.md`** — update each project's audit subsections.
 
 ### Step 7: Ask about fixes
 
@@ -219,7 +219,7 @@ Use **AskUserQuestion**:
 - `multiSelect: true`
 - Options:
   - **All projects** — "Run global audit across every project" (Recommended)
-- One option per project from discovered project-local corpora (`shipglowz_data/` markers): label = project name, description = stack
+- One option per project from discovered project-local corpora (`shipglows_data/` markers): label = project name, description = stack
 
 Then proceed to **GLOBAL MODE** with the selected projects (or all if "All projects" was chosen).
 
@@ -373,8 +373,8 @@ Rules for consolidation:
 
 ### Shared file write protocol
 
-Before editing project-local `shipglowz_data/workflow/AUDIT_LOG.md`, project-local `AUDIT_LOG.md`, or either `TASKS.md` file:
-- Load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`; new audit and task records must follow its traffic-first grammar.
+Before editing project-local `shipglows_data/workflow/AUDIT_LOG.md`, project-local `AUDIT_LOG.md`, or either `TASKS.md` file:
+- Load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`; new audit and task records must follow its traffic-first grammar.
 - Treat the snapshots loaded earlier in the skill as informational only.
 - Right before each write, re-read the target file from disk and use that version as authoritative.
 - Append or replace only the intended row or subsection; never rewrite the whole file from stale context.
@@ -385,11 +385,11 @@ Before editing project-local `shipglowz_data/workflow/AUDIT_LOG.md`, project-loc
 
 Update **two** audit logs. Never delete previous rows — this is the history.
 
-**1. Project-local `shipglowz_data/workflow/AUDIT_LOG.md`** — cross-project dashboard.
+**1. Project-local `shipglows_data/workflow/AUDIT_LOG.md`** — cross-project dashboard.
 
 **2. Project-local `./AUDIT_LOG.md`** — project-scoped audit log.
 
-- Create or update one traffic-first `audit:` record per run using `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`.
+- Create or update one traffic-first `audit:` record per run using `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`.
 - Preserve legacy rows as migration input when present; do not add new legacy table-only rows.
 
 ### Step 5: Update TASKS.md
@@ -402,7 +402,7 @@ Add audit findings as tasks. Two files to update:
 - Use the traffic marker as the severity signal and preserve unknown fields when updating existing records.
 - Treat existing legacy audit sections as migration input; do not add new legacy task tables.
 
-**2. Project-local `shipglowz_data/workflow/TASKS.md`**:
+**2. Project-local `shipglows_data/workflow/TASKS.md`**:
 - Find the section for the current project.
 - Mirror the same traffic-first `task:` records for coordination.
 - Update any dashboard summary only when that surface still exists and critical issues take precedence.

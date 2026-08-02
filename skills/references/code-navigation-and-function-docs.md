@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-04"
 updated: "2026-07-04"
 status: active
@@ -19,7 +19,7 @@ linked_systems:
   - skills/references/project-governance-rules.md
   - skills/300-sg-docs/SKILL.md
   - templates/technical_behavior_index.md
-  - shipglowz_data/technical/code-docs-map.md
+  - shipglows_data/technical/code-docs-map.md
 depends_on:
   - artifact: "skills/references/technical-docs-corpus.md"
     artifact_version: "1.7.0"
@@ -29,7 +29,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Ready spec shipflow-code-navigation-and-function-documentation-system.md."
+  - "Ready spec shipglows-code-navigation-and-function-documentation-system.md."
   - "WinFlowz IME swipe investigation showed repeated rediscovery cost across code, docs, specs, and bugs."
   - "Operator clarification 2026-07-01: existing context maps must stay and be integrated."
 next_review: "2026-08-04"
@@ -40,7 +40,7 @@ next_step: "/300-sg-docs technical audit"
 
 ## Purpose
 
-This reference defines the ShipGlowz standard for recovering code from operator language or product behavior without broad rediscovery.
+This reference defines the ShipGlows standard for recovering code from operator language or product behavior without broad rediscovery.
 
 Use it when the task starts from terms such as `swipe`, `sync`, `checkout`, `auth`, `export`, or `theme` rather than from a known file path.
 
@@ -169,9 +169,9 @@ Use these classifications precisely:
 - behavior indexes exist for mapped high-recovery-cost behaviors
 - ambiguous terms are called out instead of silently merged
 - key symbols linked from a behavior index have comment coverage when their logic is cognitively dense
-- linked tests/specs/shipglowz_data/workflow/bugs/decisions still resolve
+- linked tests/specs/shipglows_data/workflow/bugs/decisions still resolve
 - stale navigation is reported as drift, not silently ignored
 
 ## Maintenance Rule
 
-Update this reference when ShipGlowz changes the layer model, behavior-index contract, comment boundary, drift taxonomy, or audit expectations.
+Update this reference when ShipGlows changes the layer model, behavior-index contract, comment boundary, drift taxonomy, or audit expectations.

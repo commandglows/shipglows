@@ -6,7 +6,7 @@ argument-hint: [optional: sujet ou question à explorer]
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -17,15 +17,15 @@ This skill does not write to chantier specs. If invoked inside a spec-first flow
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md` and use the shared chantier-then-verdict opening.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` and use the shared chantier-then-verdict opening.
 
 ## Required References
 
 Load only when their gate applies:
 
-- `$SHIPFLOW_ROOT/skills/references/question-contract.md`: required before asking exploration questions whose answer materially changes product direction, scope, audience, or operator-owned framing.
-- `$SHIPFLOW_ROOT/skills/references/operator-partnership-contract.md`: required when the exploration depends on business, product, audience, or strategic truth that belongs to the operator rather than the repository.
-- `$SHIPFLOW_ROOT/shipglowz_data/technical/product-behavior-intelligence.md`: required when the exploration is about activation, retention, value loops, feature-impact analysis, assistive/AI feature utility, reusable analytics layers, or GTM proof backed by product behavior.
+- `$SHIPGLOWS_ROOT/skills/references/question-contract.md`: required before asking exploration questions whose answer materially changes product direction, scope, audience, or operator-owned framing.
+- `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md`: required when the exploration depends on business, product, audience, or strategic truth that belongs to the operator rather than the repository.
+- `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md`: required when the exploration is about activation, retention, value loops, feature-impact analysis, assistive/AI feature utility, reusable analytics layers, or GTM proof backed by product behavior.
 
 
 ## Mission
@@ -69,13 +69,13 @@ Quand ne pas ecrire:
 - Dans ce cas, signaler clairement qu'aucun rapport durable n'a ete ecrit si utile.
 
 Chemin du rapport:
-- Canonique ShipGlowz: `shipglowz_data/workflow/explorations/YYYY-MM-DD-slug.md`
-- Pour un projet non-ShipGlowz, utiliser la convention locale uniquement si elle ne contredit pas la gouvernance du repo.
+- Canonique ShipGlows: `shipglows_data/workflow/explorations/YYYY-MM-DD-slug.md`
+- Pour un projet non-ShipGlows, utiliser la convention locale uniquement si elle ne contredit pas la gouvernance du repo.
 - Ne pas écrire de nouveau rapport durable dans `research/`, `dist/`, `tmp/`, ou à la racine du repo.
 
 Structure du rapport:
-- Demarrer du template `$SHIPFLOW_ROOT/templates/exploration_report.md` si disponible.
-- Ne pas omettre les champs frontmatter ShipGlowz requis: `metadata_schema_version`, `artifact_version`, `project`, `created`, `updated`, `status`, `source_skill`, `scope`, `owner`, `confidence`, `risk_level`, `security_impact`, `docs_impact`, `linked_systems`, `evidence`, `depends_on`, `supersedes` et `next_step`.
+- Demarrer du template `$SHIPGLOWS_ROOT/templates/exploration_report.md` si disponible.
+- Ne pas omettre les champs frontmatter ShipGlows requis: `metadata_schema_version`, `artifact_version`, `project`, `created`, `updated`, `status`, `source_skill`, `scope`, `owner`, `confidence`, `risk_level`, `security_impact`, `docs_impact`, `linked_systems`, `evidence`, `depends_on`, `supersedes` et `next_step`.
 - Si un rapport existant manque ces champs, les completer pendant la mise a jour au lieu de propager le format incomplet.
 
 Visibilite du succes:
@@ -108,7 +108,7 @@ Regles de redaction avant persistance:
 - Current directory: !`pwd`
 - Project name: !`basename $(pwd)`
 - CLAUDE.md (constraints): !`head -40 CLAUDE.md 2>/dev/null || echo "no CLAUDE.md"`
-- Project-local TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null | head -40 || cat TASKS.md 2>/dev/null | head -30 || echo "No project-local TASKS.md"`
+- Project-local TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null | head -40 || cat TASKS.md 2>/dev/null | head -30 || echo "No project-local TASKS.md"`
 - Git branch: !`git branch --show-current 2>/dev/null || echo "unknown"`
 
 ---

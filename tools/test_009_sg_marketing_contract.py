@@ -18,9 +18,9 @@ MIGRATION_EVIDENCE = (
     ROOT / "skills" / "009-sg-marketing" / "references" / "marketing-contract-migration-evidence.md"
 )
 CODE_INDEX = ROOT / "skills" / "references" / "skill-code-index.md"
-SKILLS_INDEX_PAGE = ROOT / "shipglowz-site" / "src" / "pages" / "skills" / "index.astro"
-SKILL_MODES_PAGE = ROOT / "shipglowz-site" / "src" / "pages" / "skill-modes.astro"
-RUNTIME_LIFECYCLE = ROOT / "shipglowz_data" / "technical" / "skill-runtime-and-lifecycle.md"
+SKILLS_INDEX_PAGE = ROOT / "shipglows-site" / "src" / "pages" / "skills" / "index.astro"
+SKILL_MODES_PAGE = ROOT / "shipglows-site" / "src" / "pages" / "skill-modes.astro"
+RUNTIME_LIFECYCLE = ROOT / "shipglows_data" / "technical" / "skill-runtime-and-lifecycle.md"
 RETIRED_SOURCE_DIRECTORIES = (
     "204-sg-market-study",
     "206-sg-audit-copy",
@@ -217,7 +217,7 @@ class MarketingContractTests(unittest.TestCase):
             self.skills_index_page,
         )
         self.assertNotIn(
-            'skills: "shipflow, sf-build, sf-maintain, sf-deploy, sf-design, sf-content, 009-sg-marketing',
+            'skills: "shipglows, sf-build, sf-maintain, sf-deploy, sf-design, sf-content, 009-sg-marketing',
             self.skills_index_page,
         )
         self.assertIn(
@@ -225,7 +225,7 @@ class MarketingContractTests(unittest.TestCase):
             self.skill_modes_page,
         )
         self.assertNotIn(
-            'examples: "shipflow, sf-build, sf-maintain, sf-deploy, sf-design, sf-content, 009-sg-marketing',
+            'examples: "shipglows, sf-build, sf-maintain, sf-deploy, sf-design, sf-content, 009-sg-marketing',
             self.skill_modes_page,
         )
         lifecycle_line = next(
@@ -266,7 +266,7 @@ class MarketingContractTests(unittest.TestCase):
             self.assertFalse(path.exists() or path.is_symlink(), directory)
         for path in (
             ROOT / "skills" / "009-sg-skill-build",
-            ROOT / "plugins" / "shipglowz" / "skills" / "009-sg-skill-build",
+            ROOT / "plugins" / "shipglows" / "skills" / "009-sg-skill-build",
         ):
             self.assertFalse(path.exists() or path.is_symlink(), path)
 

@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-16"
 updated: "2026-07-16"
 status: active
@@ -16,7 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/009-sg-marketing/SKILL.md
   - tools/test_009_sg_marketing_contract.py
-  - shipglowz_data/workflow/specs/consolidate-marketing-skills-under-sg-marketing.md
+  - shipglows_data/workflow/specs/consolidate-marketing-skills-under-sg-marketing.md
 depends_on: []
 supersedes: []
 evidence:
@@ -38,7 +38,7 @@ This is a maintenance and verification reference, not an operator playbook. The 
 | `206-sg-audit-copy` | `copy` | `references/copy-audit-playbook.md` | Always apply `content-quality-rubric.md` for rubric statuses and `task-registry-routing.md` before durable follow-ups. Apply the bounded Inspiration Gate for sales/offer, CTA/proof/objection comparison, copy-pattern analysis, or explicit inspiration: at most five private IDs, operator selection before bundle loading, transferable principles rather than phrasing. Preserve business/brand/product/documentation/claim coherence; page, journey, CTA, microcopy, real-system-state, French typography, and `surface missing: blog` checks. Stop for missing selected references or weakened safeguards; do not invent proof, guarantees, pricing, testimonials, legal claims, or system states. Remain the clarity/credibility/usability mode, not an implicit copywriting pass. | Dispatcher **Conditional Shared Gates**, **Boundaries And Reroutes**, and **Core Safety Rules**; copy playbook **Scope And Governance**, **Audit Flow**, **Remediation, Tracking, And Report**, and **Stops And Quality Bar**. |
 | `207-sg-audit-copywriting` | `copywriting` | `references/copywriting-audit-playbook.md` | Always apply `content-quality-rubric.md` and `task-registry-routing.md`; use the same bounded Inspiration Gate for offer, CTA/proof/objection, or explicit inspiration. Preserve intended buyer, persona, awareness, offer, differentiation, proof, persuasion structure, objections, emotional path, CTA strategy, journey coherence, strategic artifact governance, and French-language fidelity. Stop for unsupported claims and reject fake urgency, fake social proof, dark patterns, fear, guilt, and unrealistic promises. Route sentence-level repair or full rewrites to `copy`; do not duplicate the full copy audit. Keep conditional `source-de-chantier` for persona, positioning, legal, trust, pricing, or funnel decisions. | Dispatcher **Conditional Shared Gates**, **Boundaries And Reroutes**, and **Core Safety Rules**; copywriting playbook **Distinct Contract And Governance**, **Audit Flow**, **Durable Artifacts, Tracking, And Report**, and **Stops And Ethical Bar**. |
 
-All four predecessor contracts also retain the shared compact-skill safeguards represented in the dispatcher: canonical ShipGlowz paths, compact activation plus selected local playbook, conditional `source-de-chantier` tracing and threshold, user/agent reporting modes, decision-quality selection, visible blocked/limited outcomes for missing required evidence or references, no unrelated durable mutation, and focused contract/metadata/budget validation.
+All four predecessor contracts also retain the shared compact-skill safeguards represented in the dispatcher: canonical ShipGlows paths, compact activation plus selected local playbook, conditional `source-de-chantier` tracing and threshold, user/agent reporting modes, decision-quality selection, visible blocked/limited outcomes for missing required evidence or references, no unrelated durable mutation, and focused contract/metadata/budget validation.
 
 ## Retired-Name Policy And Allowlist
 
@@ -49,7 +49,7 @@ The historical `source_skill: 009-sg-skill-build` value is provenance from the f
 The narrow retired-name allowlist is limited to:
 
 - this maintenance-only reference, where the names identify source evidence;
-- `shipglowz_data/workflow/specs/consolidate-marketing-skills-under-sg-marketing.md`, where they define the completed migration contract and verification boundary;
+- `shipglows_data/workflow/specs/consolidate-marketing-skills-under-sg-marketing.md`, where they define the completed migration contract and verification boundary;
 - immutable Git source history reachable through `git show HEAD:skills/<retired-skill>/...`;
 - historical frontmatter, archival evidence, audit/changelog/refresh history that factually records a former source skill.
 

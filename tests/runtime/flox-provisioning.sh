@@ -3,8 +3,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-export SHIPFLOW_ERROR_TRAPS=false
-export SHIPFLOW_STRICT_MODE=false
+export SHIPGLOWS_ERROR_TRAPS=false
+export SHIPGLOWS_STRICT_MODE=false
 
 source "$REPO_ROOT/cli/config.sh"
 source "$REPO_ROOT/cli/lib.sh"
@@ -62,11 +62,11 @@ EOF
 
 assert_ok "detect_pubspec_kind: flutter" test "$(detect_pubspec_kind "$flutter_dir")" = "flutter"
 assert_ok "detect_pubspec_kind: dart" test "$(detect_pubspec_kind "$dart_dir")" = "dart"
-assert_ok "config preserves Dart package override" env SHIPGLOWZ_FLOX_DART_PACKAGES='dart@custom' bash -lc "source '$REPO_ROOT/cli/config.sh' && test \"\$SHIPGLOWZ_FLOX_DART_PACKAGES\" = 'dart@custom'"
-assert_ok "config preserves Flutter package override" env SHIPGLOWZ_FLOX_FLUTTER_PACKAGES='flutter@custom' bash -lc "source '$REPO_ROOT/cli/config.sh' && test \"\$SHIPGLOWZ_FLOX_FLUTTER_PACKAGES\" = 'flutter@custom'"
+assert_ok "config preserves Dart package override" env SHIPGLOWS_FLOX_DART_PACKAGES='dart@custom' bash -lc "source '$REPO_ROOT/cli/config.sh' && test \"\$SHIPGLOWS_FLOX_DART_PACKAGES\" = 'dart@custom'"
+assert_ok "config preserves Flutter package override" env SHIPGLOWS_FLOX_FLUTTER_PACKAGES='flutter@custom' bash -lc "source '$REPO_ROOT/cli/config.sh' && test \"\$SHIPGLOWS_FLOX_FLUTTER_PACKAGES\" = 'flutter@custom'"
 assert_ok "detect_dev_command uses project Flox Dart command" bash -lc "source '$REPO_ROOT/cli/config.sh' && source '$REPO_ROOT/cli/lib.sh' && cmd=\$(detect_dev_command '$dart_dir') && [[ \"\$cmd\" == dart\\ pub\\ get* ]] && [[ \"\$cmd\" != *'/opt/flutter'* ]] && [[ \"\$cmd\" != *'.flutter-sdk'* ]]"
 assert_ok "detect_dev_command falls back to Flutter when package.json has only Convex scripts" bash -lc "source '$REPO_ROOT/cli/config.sh' && source '$REPO_ROOT/cli/lib.sh' && cmd=\$(detect_dev_command '$flutter_dir') && [[ \"\$cmd\" == flutter\\ config* ]] && [[ \"\$cmd\" == *'flutter run -d web-server'* ]]"
-assert_ok "flutter tmux session name is stable" test "$(flutter_web_session_name "My App")" = "shipglowz-flutter-my-app"
+assert_ok "flutter tmux session name is stable" test "$(flutter_web_session_name "My App")" = "shipglows-flutter-my-app"
 assert_ok "validate token: dart" validate_flox_runtime_package_token "dart"
 assert_ok "validate token: flutter pinned" validate_flox_runtime_package_token "flutter@3.41.5-sdk-links"
 assert_ok "validate token: dotted package" validate_flox_runtime_package_token "python312Packages.pytest"
@@ -78,17 +78,17 @@ assert_ok "reject token: quote" expect_fail validate_flox_runtime_package_token 
 assert_ok "reject token: command substitution" expect_fail validate_flox_runtime_package_token "\$(id)"
 
 unsafe_marker="$tmp_root/unsafe-marker"
-SHIPFLOW_FLOX_FLUTTER_PACKAGES="flutter;touch $unsafe_marker"
+SHIPGLOWS_FLOX_FLUTTER_PACKAGES="flutter;touch $unsafe_marker"
 assert_ok "ensure_flox_runtime_packages rejects shell metachar override" expect_fail ensure_flox_runtime_packages "$flutter_dir" "flutter" "flutter"
 assert_ok "unsafe override does not execute marker command" test ! -e "$unsafe_marker"
 
-SHIPFLOW_FLOX_FLUTTER_PACKAGES="--help"
+SHIPGLOWS_FLOX_FLUTTER_PACKAGES="--help"
 assert_ok "ensure_flox_runtime_packages rejects leading-dash override" expect_fail ensure_flox_runtime_packages "$flutter_dir" "flutter" "flutter"
 
-export SHIPFLOW_FLUTTER_WEB_SESSIONS_FILE="$tmp_root/flutter-web-sessions.tsv"
-assert_ok "flutter registry writes session entry" flutter_web_write_registry_entry "flutter_app" "3099" "$flutter_dir" "shipglowz-flutter-flutter_app"
+export SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE="$tmp_root/flutter-web-sessions.tsv"
+assert_ok "flutter registry writes session entry" flutter_web_write_registry_entry "flutter_app" "3099" "$flutter_dir" "shipglows-flutter-flutter_app"
 assert_ok "flutter registry resolves project port" test "$(flutter_web_registered_port_for_project "$flutter_dir")" = "3099"
-assert_ok "flutter registry removes session entry" bash -lc "source '$REPO_ROOT/cli/config.sh' && source '$REPO_ROOT/cli/lib.sh' && export SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE='$SHIPGLOWZ_FLUTTER_WEB_SESSIONS_FILE' && flutter_web_remove_registry_entry 'shipglowz-flutter-flutter_app' && test -z \"\$(flutter_web_registered_line_for_project '$flutter_dir')\""
+assert_ok "flutter registry removes session entry" bash -lc "source '$REPO_ROOT/cli/config.sh' && source '$REPO_ROOT/cli/lib.sh' && export SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE='$SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE' && flutter_web_remove_registry_entry 'shipglows-flutter-flutter_app' && test -z \"\$(flutter_web_registered_line_for_project '$flutter_dir')\""
 
 echo ""
 echo "Tests passed: $pass_count/$test_count"

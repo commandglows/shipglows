@@ -13,8 +13,8 @@ cleanup() {
 trap cleanup EXIT
 
 export HOME="$TEST_HOME"
-export SHIPFLOW_ERROR_TRAPS=false
-export SHIPFLOW_STRICT_MODE=false
+export SHIPGLOWS_ERROR_TRAPS=false
+export SHIPGLOWS_STRICT_MODE=false
 export PNPM_HOME="$HOME/custom-pnpm-home"
 mkdir -p "$HOME/bin"
 cat > "$HOME/bin/pnpm" <<'EOF'

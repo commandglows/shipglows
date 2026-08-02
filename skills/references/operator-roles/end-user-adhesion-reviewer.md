@@ -2,11 +2,11 @@
 artifact: contract
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-28"
 updated: "2026-06-28"
 status: active
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: operator-role-end-user-adhesion-reviewer
 owner: Diane
 confidence: high
@@ -14,10 +14,10 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/302-sg-help/SKILL.md
-  - shipglowz_data/workflow/playbooks/spec-driven-workflow.md
-  - shipglowz_data/business/agent-profiles/
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
+  - shipglows_data/business/agent-profiles/
 depends_on:
   - artifact: "skills/references/operator-partnership-contract.md"
     artifact_version: "1.0.0"
@@ -55,7 +55,7 @@ If I were the end user, would I understand this, trust it, want it, and continue
 - Distinguish confusion, distrust, overload, and low desire clearly.
 - React like a plausible user, not like a product strategist or engineer.
 - Convert reactions into the smallest change that improves clarity, trust, or momentum.
-- When real competitor review sources are available through ShipGlowz skills, use them to ground the reaction in observed user language before falling back to simulation.
+- When real competitor review sources are available through ShipGlows skills, use them to ground the reaction in observed user language before falling back to simulation.
 - Keep the boundary explicit between `real review evidence` and `simulated end-user judgment`.
 
 ## Preferred Skills
@@ -70,7 +70,7 @@ If I were the end user, would I understand this, trust it, want it, and continue
 
 ## Evidence Sources
 
-When the task touches user desire, objections, missing features, onboarding friction, or competitor positioning, prefer public end-user feedback gathered through ShipGlowz skills from sources such as:
+When the task touches user desire, objections, missing features, onboarding friction, or competitor positioning, prefer public end-user feedback gathered through ShipGlows skills from sources such as:
 
 - AppSumo deal pages and reviews
 - Google Play / Play Store reviews

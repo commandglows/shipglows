@@ -1,4 +1,0 @@
-interface:
-  display_name: "000-shipglowz"
-  short_description: "Route a plain-language request to the right ShipGlowz skill"
-  default_prompt: "Use $000-shipglowz with a natural-language instruction to answer directly or hand off to the right ShipGlowz skill."

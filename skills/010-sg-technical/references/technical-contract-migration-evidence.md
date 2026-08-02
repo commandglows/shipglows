@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-17"
 updated: "2026-07-17"
 status: active
@@ -16,7 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/010-sg-technical/SKILL.md
   - tools/test_010_sg_technical_contract.py
-  - shipglowz_data/workflow/specs/consolidate-technical-skills-under-sg-technical.md
+  - shipglows_data/workflow/specs/consolidate-technical-skills-under-sg-technical.md
 depends_on: []
 supersedes: []
 evidence:

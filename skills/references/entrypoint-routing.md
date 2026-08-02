@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.6.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-04"
 updated: "2026-07-17"
 status: active
@@ -14,7 +14,7 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/001-sg-build/SKILL.md
   - skills/002-sg-maintain/SKILL.md
   - skills/003-sg-bug/SKILL.md
@@ -23,14 +23,14 @@ linked_systems:
   - skills/006-sg-design/SKILL.md
   - skills/008-sg-customer/SKILL.md
   - skills/600-sg-local-cloud-sync/SKILL.md
-  - skills/900-shipglowz-core/SKILL.md
+  - skills/900-shipglows-core/SKILL.md
   - skills/400-sg-audit/SKILL.md
   - skills/references/master-delegation-semantics.md
   - skills/references/question-contract.md
   - skills/references/skill-execution-fidelity.md
-  - shipglowz_data/technical/operator-guides/skill-launch-cheatsheet.md
+  - shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md
   - README.md
-  - shipglowz_data/workflow/playbooks/spec-driven-workflow.md
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
 depends_on:
   - artifact: "skills/references/master-delegation-semantics.md"
     artifact_version: "1.2.0"
@@ -46,21 +46,21 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "User decision 2026-05-04: create `000-shipglowz` as the primary non-technical router across the existing skill taxonomy."
-  - "User decision 2026-05-04: `000-shipglowz` should use direct main-thread handoff to selected master skills instead of nested master-skill subagents."
+  - "User decision 2026-05-04: create `000-shipglows` as the primary non-technical router across the existing skill taxonomy."
+  - "User decision 2026-05-04: `000-shipglows` should use direct main-thread handoff to selected master skills instead of nested master-skill subagents."
   - "User decision 2026-05-04: ambiguous routing questions should be numbered decision briefs with a responsible recommendation."
   - "User decision 2026-05-06: design-related requests should route to a master `006-sg-design` lifecycle entrypoint."
-  - "2026-06-11 ShipGlowz Core natural-language routing added for internal 900-shipglowz-core."
+  - "2026-06-11 ShipGlows Core natural-language routing added for internal 900-shipglows-core."
   - "Operator correction 2026-07-17: deterministic micro-edits must bypass domain and lifecycle routing."
 next_review: "2026-08-17"
-next_step: "/104-sg-end shipflow-skill-execution-fidelity-plugin-pilot"
+next_step: "/104-sg-end shipglows-skill-execution-fidelity-plugin-pilot"
 ---
 
 # Entrypoint Routing
 
 ## Purpose
 
-This reference defines the shared routing rules for `000-shipglowz`, the primary natural-language entrypoint for ShipGlowz.
+This reference defines the shared routing rules for `000-shipglows`, the primary natural-language entrypoint for ShipGlows.
 
 It does not replace lifecycle, bug, release, content, maintenance, audit, or skill-maintenance owner contracts. It decides which existing contract should own the request.
 
@@ -72,7 +72,7 @@ Route to the smallest existing owner that can safely own the outcome.
 
 Apply the Skill Selection Proportionality Gate from `skills/references/skill-execution-fidelity.md` before domain classification. An explicit deterministic micro-edit with a known or easily found target, no domain judgment or sensitive boundary, and focused deterministic proof stays in direct main-thread execution. Do not load an owner skill merely because the edited file belongs to its domain. An explicitly named skill remains authoritative and uses its smallest safe mode.
 
-Before natural-language routing, check whether the user included one or more focus tags defined in `skills/references/shipglowz-terms.md` such as `#partner`, `#offer`, `#growth`, `#traffic`, `#acquisition`, `#clarity`, `#source`, `#rules`, `#docs`, `#canon`, `#quality`, `#shipflow`, or `#proof`. When present, load the referenced canonical documents first and treat them as routing priorities for the current turn.
+Before natural-language routing, check whether the user included one or more focus tags defined in `skills/references/shipglows-terms.md` such as `#partner`, `#offer`, `#growth`, `#traffic`, `#acquisition`, `#clarity`, `#source`, `#rules`, `#docs`, `#canon`, `#quality`, `#shipglows`, or `#proof`. When present, load the referenced canonical documents first and treat them as routing priorities for the current turn.
 
 Focus tags are not decorative reminders. They change execution posture, artifact preference, and route bias for the current turn. Do not merely acknowledge them; apply their routing implications below.
 
@@ -80,13 +80,13 @@ A `#feature:<term>` token is an optional technical-navigation hint, not a comman
 
 Named profiles are a separate router-layer construct above focus tags. Load `skills/references/profile-activation.md` when a known profile activation such as `%Victoire`, `%Tariq`, `profile=victoire`, `profile=tariq`, or `profile=traffic-manager` appears. Skills still own execution; profiles bias arbitration and output posture.
 
-If the instruction is about modifying, improving, auditing, or hardening ShipGlowz behavior, contracts, routing, publishing, editing, governance, or skills, treat ShipGlowz itself as the target system by default. Do not infer the current project repository as the edit target unless the user explicitly names that project.
+If the instruction is about modifying, improving, auditing, or hardening ShipGlows behavior, contracts, routing, publishing, editing, governance, or skills, treat ShipGlows itself as the target system by default. Do not infer the current project repository as the edit target unless the user explicitly names that project.
 
-An invocation of `900-shipglowz-core` or another ShipGlowz-maintenance skill is itself sufficient evidence that the intended target is ShipGlowz unless the user explicitly names a different repository.
+An invocation of `900-shipglows-core` or another ShipGlows-maintenance skill is itself sufficient evidence that the intended target is ShipGlows unless the user explicitly names a different repository.
 
-That inference must hold even when the user's message omits the words "ShipGlowz" or describes the desired change only by behavior, outcome, or contract language.
+That inference must hold even when the user's message omits the words "ShipGlows" or describes the desired change only by behavior, outcome, or contract language.
 
-An open project repository, a current working directory, or a nearby project discussion is not an explicit target override. Treat that context as background only until the operator explicitly says the requested change belongs to the project repository rather than ShipGlowz itself.
+An open project repository, a current working directory, or a nearby project discussion is not an explicit target override. Treat that context as background only until the operator explicitly says the requested change belongs to the project repository rather than ShipGlows itself.
 
 If the request needs more than one phase, route to the relevant master skill. If the request clearly names one specialist phase, route to that focused owner skill. If no file work or lifecycle action is needed, answer directly.
 
@@ -103,12 +103,12 @@ When focus tags are present, merge them into the narrowest coherent route instea
 Tags such as `#partner`, `#growth`, `#traffic`, `#acquisition`, `#offer`, `#roi`, `#funnel`, `#positioning`, `#distribution`, `#monetization`, `#retention`, `#decision-maker`, `#leverage`, `#founder-mode`, `#pitch`, and `#portfolio` imply:
 
 - prefer routes that improve business leverage or end-user success over routes that only produce local technical cleanup
-- when the task is ambiguous between generic implementation and public/business framing, inspect `shipglowz_data/business/` before choosing
-- if a stronger owner skill or ShipGlowz route materially improves adoption or first success, surface it as the recommended path instead of stopping at neutral advice
+- when the task is ambiguous between generic implementation and public/business framing, inspect `shipglows_data/business/` before choosing
+- if a stronger owner skill or ShipGlows route materially improves adoption or first success, surface it as the recommended path instead of stopping at neutral advice
 - when several edits are possible, choose the smallest durable change that improves conversion, clarity, adoption, retention, or operator leverage
 - when `#traffic` or `#acquisition` is present, bias toward channel-to-landing fit, tracking readiness, and measurable acquisition learning; use `Tariq` as the relevant profile when the user asks who should arbitrate
-- when `#pitch` is present, reload `shipglowz_data/business/portfolio-project-pitch-links.md` and prefer the active project's own pitch URL if the index points to one before answering or routing
-- when `#portfolio` is present, reload `shipglowz_data/business/portfolio-project-pitch-links.md` and scan the index for the most relevant cross-project opportunity before answering or routing
+- when `#pitch` is present, reload `shipglows_data/business/portfolio-project-pitch-links.md` and prefer the active project's own pitch URL if the index points to one before answering or routing
+- when `#portfolio` is present, reload `shipglows_data/business/portfolio-project-pitch-links.md` and scan the index for the most relevant cross-project opportunity before answering or routing
 
 ### Content Tags
 
@@ -127,18 +127,18 @@ Tags such as `#rules`, `#docs`, `#canon`, `#drift`, `#owner`, `#freshness`, `#tr
 - when `#docs` is present, bias toward documentation architecture, metadata, canonical placement, and `300-sg-docs` owner routing before treating the issue as generic project governance
 - prefer the canonical owner artifact instead of editing duplicated surfaces first
 - if code, docs, and public surfaces are potentially diverged, route to the owner path that can repair the source of truth and then propagate outward
-- bias toward `002-sg-maintain`, `300-sg-docs`, `900-shipglowz-core build`, or ShipGlowz-internal docs work when the main issue is documentation truth, routing truth, or governance drift
+- bias toward `002-sg-maintain`, `300-sg-docs`, `900-shipglows-core build`, or ShipGlows-internal docs work when the main issue is documentation truth, routing truth, or governance drift
 - when `#public-docs` and `#internal-docs` conflict, ask one concise routing question only if the same edit cannot safely satisfy both
 
 ### Execution And System Tags
 
-Tags such as `#quality`, `#vfbf`, `#scope`, `#ship`, `#routing`, `#proof`, `#no-drift`, `#shipflow`, `#shupflow`, and `#shipglowz-core` imply:
+Tags such as `#quality`, `#vfbf`, `#scope`, `#ship`, `#routing`, `#proof`, `#no-drift`, `#shipglows`, `#shupflow`, and `#shipglows-core` imply:
 
 - prefer the narrowest owner route that still preserves proof, verification, and closure
 - when `#vfbf` appears, optimize for a quick, bounded, durable pass that leaves an explicit trace without expanding the conversation into a new main focus
-- when the operator says `#shipflow` or `#shupflow`, default the target to ShipGlowz internal files and doctrine even if a project repo is open
-- when `#shipglowz-core` appears, treat ShipGlowz behavior, fidelity, or doctrine hardening as the primary route unless the operator explicitly redirects to another repo
-- when `#proof` or `#ship` appears, do not end at recommendation-only output if ShipGlowz can execute a proof or ship path in the current run
+- when the operator says `#shipglows` or `#shupflow`, default the target to ShipGlows internal files and doctrine even if a project repo is open
+- when `#shipglows-core` appears, treat ShipGlows behavior, fidelity, or doctrine hardening as the primary route unless the operator explicitly redirects to another repo
+- when `#proof` or `#ship` appears, do not end at recommendation-only output if ShipGlows can execute a proof or ship path in the current run
 
 ## Focus Tag Question Rule
 
@@ -179,8 +179,8 @@ A read-only routing scout is allowed only for cheap classification evidence and 
 | End-user experience, UX/UI clarity, trust, friction, feature activation, onboarding, setup guidance, first-success path, permission/setup sequencing, or recoverable states | `008-sg-customer <audit|flow|onboarding|recovery> <target>`; ambiguous intent asks among the four modes |
 | Local-first data promotion, cloud hydration, account sync, merge/conflict policy, reinstall recovery, or sync/save UX state | `600-sg-local-cloud-sync` |
 | Product access, paid plans, premium gates, entitlement ledgers, provider events, activation codes, refunds/revokes, support access flows, or backend access gates | `601-sg-product-entitlements` |
-| New skill, skill modification, skill runtime visibility, skill public page, skill docs/help coherence | `900-shipglowz-core build` |
-| ShipGlowz Core execution-fidelity audit or public-plugin packaging readiness for ShipGlowz itself | `900-shipglowz-core audit <scope>` or `900-shipglowz-core packaging <scope>` |
+| New skill, skill modification, skill runtime visibility, skill public page, skill docs/help coherence | `900-shipglows-core build` |
+| ShipGlows Core execution-fidelity audit or public-plugin packaging readiness for ShipGlows itself | `900-shipglows-core audit <scope>` or `900-shipglows-core packaging <scope>` |
 | One obvious audit domain only | relevant `400-sg-audit-*` or `400-sg-audit` |
 | One obvious focused lane: checks, docs, browser proof, auth diagnosis, manual QA, dependency posture, migration, final ship | focused owner skill |
 | Ambiguous material route | Ask one concise numbered routing question |

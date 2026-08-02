@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-29"
 updated: "2026-07-15"
 status: active
@@ -77,7 +77,7 @@ If the user only asks for the exact implementation command, recommend:
 
 ## Visual Shortcut Ban
 
-Before any design implementation, apply `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md` and `$SHIPFLOW_ROOT/skills/references/design-system-token-contract.md`.
+Before any design implementation, apply `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` and `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`.
 
 For IME, keyboard, overlay, responsive, spacing, typography, color, motion, target-size, or layout defects, do not accept a one-off hardcoded visual value as the default repair. Route the work to the source of truth: design tokens, theme constants, component primitives, layout utilities, platform inset/measurement APIs, or documented framework behavior.
 

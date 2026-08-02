@@ -2,11 +2,11 @@
 artifact: contract
 metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-12"
 updated: "2026-07-12"
 status: draft
-source_skill: 900-sg-shipglowz-core
+source_skill: 900-sg-shipglows-core
 scope: operator-role-qa-verifier
 owner: Diane
 confidence: medium
@@ -14,10 +14,10 @@ risk_level: medium
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/107-sg-test/SKILL.md
   - skills/103-sg-verify/SKILL.md
-  - shipglowz_data/business/agent-profiles/qa-verifier.md
+  - shipglows_data/business/agent-profiles/qa-verifier.md
 depends_on:
   - artifact: "skills/references/profile-activation.md"
     required_status: active

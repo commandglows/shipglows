@@ -12,8 +12,8 @@ fi
 source "$SCRIPT_DIR/remote-helpers.sh"
 
 # Configuration directory
-shipglowz_migrate_local_config || true
-CONFIG_DIR="$(shipglowz_local_config_dir)"
+shipglows_migrate_local_config || true
+CONFIG_DIR="$(shipglows_local_config_dir)"
 CURRENT_CONNECTION_FILE="$CONFIG_DIR/current_connection"
 CURRENT_IDENTITY_FILE="$CONFIG_DIR/current_identity_file"
 CURRENT_AUTH_METHOD_FILE="$CONFIG_DIR/current_auth_method"
@@ -100,19 +100,19 @@ is_local_tunnel_ready() {
 }
 
 # Load saved connection or use default
-if REMOTE_HOST="$(shipglowz_read_config_value current_connection 2>/dev/null)"; then
+if REMOTE_HOST="$(shipglows_read_config_value current_connection 2>/dev/null)"; then
     :
 else
-    REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWZ_SSH_REMOTE_HOST:-${SHIPFLOW_SSH_REMOTE_HOST:-}}}"
+    REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}}"
     if [ -z "$REMOTE_HOST" ] && grep -qE '^[[:space:]]*Host[[:space:]]+hetzner([[:space:]]|$)' "$HOME/.ssh/config" 2>/dev/null; then
         REMOTE_HOST="hetzner"
     fi
 fi
 
 if [ -z "$REMOTE_HOST" ]; then
-    echo -e "${RED}✗ Aucune connexion distante ShipGlowz configurée.${NC}"
+    echo -e "${RED}✗ Aucune connexion distante ShipGlows configurée.${NC}"
     echo -e "${YELLOW}  Configurez votre nouveau serveur depuis le menu local:${NC}"
-    echo "  ~/shipglowz/local/local.sh"
+    echo "  ~/shipglows/local/local.sh"
     echo -e "${YELLOW}  Puis choisissez c) Configurer nouveau serveur.${NC}"
     exit 1
 fi
@@ -124,10 +124,10 @@ if ! validate_connection_target "$REMOTE_HOST"; then
 fi
 
 SSH_IDENTITY_FILE=""
-if SSH_IDENTITY_FILE="$(shipglowz_read_config_value current_identity_file 2>/dev/null)"; then
+if SSH_IDENTITY_FILE="$(shipglows_read_config_value current_identity_file 2>/dev/null)"; then
     :
 fi
-if SSH_AUTH_METHOD="$(shipglowz_read_config_value current_auth_method 2>/dev/null)"; then
+if SSH_AUTH_METHOD="$(shipglows_read_config_value current_auth_method 2>/dev/null)"; then
     :
 fi
 
@@ -167,11 +167,11 @@ fi
 echo -e "${BLUE}🚇 Dev Tunnel Manager${NC}"
 echo ""
 
-# Resolve the server-side library from canonical shipglowz install paths.
+# Resolve the server-side library from canonical shipglows install paths.
 fetch_server_session_info() {
     run_remote_ssh "bash -lc '
         for lib_path in \
-            \"\${SHIPFLOW_ROOT:-\$HOME/shipglowz}/lib.sh\"
+            \"\${SHIPGLOWS_ROOT:-\$HOME/shipglows}/lib.sh\"
         do
             if [ -f \"\$lib_path\" ]; then
                 source \"\$lib_path\" 2>/dev/null
@@ -213,7 +213,7 @@ elif echo "$SESSION_INFO" | grep -q "SESSION_DISABLED"; then
     echo -e "${YELLOW}⚠ Session identity is disabled on the server${NC}"
     echo ""
 elif echo "$SESSION_INFO" | grep -q "SESSION_NOT_FOUND"; then
-    echo -e "${YELLOW}⚠ ShipGlowz not found on server (session identity unavailable)${NC}"
+    echo -e "${YELLOW}⚠ ShipGlows not found on server (session identity unavailable)${NC}"
     echo ""
 else
     echo -e "${YELLOW}⚠ Could not retrieve session identity${NC}"
@@ -239,10 +239,10 @@ fi
 echo -e "${BLUE}🔌 Connexion: ${GREEN}$REMOTE_HOST${NC}"
 echo ""
 
-# Récupérer les ports actifs depuis ShipGlowz sur le serveur distant
-echo -e "${BLUE}📡 Récupération des ports actifs depuis ShipGlowz...${NC}"
+# Récupérer les ports actifs depuis ShipGlows sur le serveur distant
+echo -e "${BLUE}📡 Récupération des ports actifs depuis ShipGlows...${NC}"
 
-if ! PORTS=$(run_remote_ssh "$(shipglowz_remote_pm2_ports_command comma)"); then
+if ! PORTS=$(run_remote_ssh "$(shipglows_remote_pm2_ports_command comma)"); then
     echo -e "${RED}✗ Impossible de récupérer les ports du serveur distant${NC}"
     echo -e "${YELLOW}  Le détail SSH affiché ci-dessus indique la cause.${NC}"
     exit 1
@@ -309,8 +309,8 @@ for port_info in "${PORT_ARRAY[@]}"; do
     # Créer le tunnel avec autossh (maintient la connexion)
     autossh_args=(
         -M 0 -f -N
-        -o "ServerAliveInterval=${SHIPGLOWZ_SSH_KEEPALIVE_INTERVAL:-${SHIPFLOW_SSH_KEEPALIVE_INTERVAL:-30}}"
-        -o "ServerAliveCountMax=${SHIPGLOWZ_SSH_KEEPALIVE_MAX:-${SHIPFLOW_SSH_KEEPALIVE_MAX:-3}}"
+        -o "ServerAliveInterval=${SHIPGLOWS_SSH_KEEPALIVE_INTERVAL:-${SHIPGLOWS_SSH_KEEPALIVE_INTERVAL:-30}}"
+        -o "ServerAliveCountMax=${SHIPGLOWS_SSH_KEEPALIVE_MAX:-${SHIPGLOWS_SSH_KEEPALIVE_MAX:-3}}"
         -o "ExitOnForwardFailure=yes"
         -L "${port}:127.0.0.1:${port}"
     )

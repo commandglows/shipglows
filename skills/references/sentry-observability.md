@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.4.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-11"
 updated: "2026-06-11"
 status: active
@@ -31,7 +31,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "User doctrine update 2026-05-11: ShipGlowz projects now use Sentry everywhere."
+  - "User doctrine update 2026-05-11: ShipGlows projects now use Sentry everywhere."
   - "User doctrine clarification 2026-05-11: Sentry is not necessary on static sites; it becomes necessary when authentication is introduced."
   - "User operational note 2026-05-11: skills never see Sentry dashboard directly; local PM2 logs and Doppler env presence are available evidence sources."
   - "User clarification 2026-05-11: skills will never have direct Sentry dashboard access."
@@ -52,7 +52,7 @@ Use this reference when a project bug, deploy, manual test, browser check, auth 
 
 ## Default Assumption
 
-ShipGlowz runtime projects are expected to have Sentry instrumentation unless the project explicitly documents an exception.
+ShipGlows runtime projects are expected to have Sentry instrumentation unless the project explicitly documents an exception.
 
 Sentry is not expected by default on static marketing, documentation, blog, or content sites when they have no authentication, account state, protected routes, checkout/payment flow, server-handled forms, or other user-specific runtime workflow. Do not add Sentry to static sites only to satisfy the runtime observability posture; rely on build/deploy checks, host logs, browser checks, and SEO/content validation.
 
@@ -78,7 +78,7 @@ Minimum useful payload after that: environment, release/build id, app version, r
 
 `305-sg-init` should record whether the project has Sentry and a diagnostics/log-copy surface. Runtime specs should either preserve/add that surface or document a static-site exception. Browser-capable skills (`108-sg-browser`, `109-sg-auth-debug`) should use the visible diagnostics/copy-log UI when it is present before asking the operator for logs.
 
-When implementation or audit work needs a concrete reusable pattern, load `$SHIPFLOW_ROOT/skills/references/runtime-diagnostics-surface.md`. Prefer reusing the project's existing diagnostics component/helper before creating a new UI.
+When implementation or audit work needs a concrete reusable pattern, load `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`. Prefer reusing the project's existing diagnostics component/helper before creating a new UI.
 
 For Flutter apps, treat Sentry as useful only when both layers are true:
 
@@ -127,7 +127,7 @@ This split does not change the dashboard-access rule. Skills still use only visi
 
 ## Local PM2 And Doppler Fallback
 
-Use this when Sentry is expected but no Sentry issue/event pointer is available, or when the runtime is a ShipGlowz/PM2-managed server app.
+Use this when Sentry is expected but no Sentry issue/event pointer is available, or when the runtime is a ShipGlows/PM2-managed server app.
 
 Safe PM2 commands:
 
@@ -163,7 +163,7 @@ Use this checklist for Flutter apps before recommending more Sentry work:
 
 ## Feature Defaults
 
-Use conservative defaults for privacy-sensitive ShipGlowz apps:
+Use conservative defaults for privacy-sensitive ShipGlows apps:
 
 | Feature | Default | Enable when |
 |---------|---------|-------------|

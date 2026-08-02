@@ -6,26 +6,26 @@ argument-hint: <mode|page|URL|content file|project>
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
-This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
+This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`. If attached to one unique chantier spec, write the run trace there. If no unique chantier exists, do not write to a spec.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. If attached to one unique chantier spec, write the run trace there. If no unique chantier exists, do not write to a spec.
 
 ## Chantier Potential Intake
 
-Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report. Add a `Chantier potentiel` block when findings reveal non-trivial future work and no unique chantier owns it.
+Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report. Add a `Chantier potentiel` block when findings reveal non-trivial future work and no unique chantier owns it.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, outcome-first, and in the user's active language. Use `report=agent`, `handoff`, `verbose`, or `full-report` only when the user or next owner needs detailed evidence.
 
@@ -37,15 +37,15 @@ Default to `report=user`: concise, outcome-first, and in the user's active langu
 
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
-- `$SHIPFLOW_ROOT/shipglowz_data/workflow/playbooks/seo-charge-referencement-web-playbook.md`: SEO operating model, execution order, gates, outputs, and failure modes.
-- `$SHIPFLOW_ROOT/shipglowz_data/workflow/checklists/seo-charge-referencement-web-checklist.md`: reusable SEO control surface for launch, audit, and verification.
-- `$SHIPFLOW_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md`: SEO audit modes, technical/on-page/content/schema/internal-linking/AI-visibility checks, tracking, and report details.
-- `$SHIPFLOW_ROOT/skills/references/content-quality-rubric.md`: shared rubric for project-aware content quality score and blocked criteria.
-- `$SHIPFLOW_ROOT/skills/references/task-registry-routing.md`: split SEO follow-up between execution backlog and editorial roadmap.
+- `$SHIPGLOWS_ROOT/shipglows_data/workflow/playbooks/seo-charge-referencement-web-playbook.md`: SEO operating model, execution order, gates, outputs, and failure modes.
+- `$SHIPGLOWS_ROOT/shipglows_data/workflow/checklists/seo-charge-referencement-web-checklist.md`: reusable SEO control surface for launch, audit, and verification.
+- `$SHIPGLOWS_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md`: SEO audit modes, technical/on-page/content/schema/internal-linking/AI-visibility checks, tracking, and report details.
+- `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`: shared rubric for project-aware content quality score and blocked criteria.
+- `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md`: split SEO follow-up between execution backlog and editorial roadmap.
 
 ## Scope Gate
 
-Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`: bounded professional scope, never shortcut quality.
+Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: bounded professional scope, never shortcut quality.
 
 Route by intent:
 
@@ -59,9 +59,9 @@ Use audit as the default when `$ARGUMENTS` is empty or only names a page, URL, c
 ## Core Execution Rules
 
 - Load technical/editorial corpus references before changing mapped docs, public content, metadata, sitemap, robots, or schema surfaces.
-- Governance Corpora: use `$SHIPFLOW_ROOT/skills/references/technical-docs-corpus.md` and `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md` when SEO findings touch mapped docs, public content, claims, sitemap, robots, metadata, or schema.
+- Governance Corpora: use `$SHIPGLOWS_ROOT/skills/references/technical-docs-corpus.md` and `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` when SEO findings touch mapped docs, public content, claims, sitemap, robots, metadata, or schema.
 - Apply the Documentation Freshness Gate before changing external SEO/Search/OpenAI/ChatGPT doctrine.
-- Preserve structured data and AI Visibility checks by loading `$SHIPFLOW_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md` for technical SEO, schema, internal linking, and AEO/GEO review.
+- Preserve structured data and AI Visibility checks by loading `$SHIPGLOWS_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md` for technical SEO, schema, internal linking, and AEO/GEO review.
 - When SEO output includes editorial scoring, use `content-quality-rubric.md` for status, score, and blocking criterion handling.
 - Evaluate `Chantier potentiel` for indexation, schema, content architecture, AI visibility, or multi-page remediation.
 - Treat playbooks/checklists/references as doctrine. Do not expand this activation body with long SEO matrices, templates, provider claims, or troubleshooting trees.
@@ -81,4 +81,4 @@ Validate this skill after edits with:
 
 - `rg -n "Governance Corpora|OpenAI|ChatGPT|Chantier Potential|Report Modes|structured data|AI Visibility" skills/406-sg-seo/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
-- `tools/shipglowz_sync_skills.sh --check --all`
+- `tools/shipglows_sync_skills.sh --check --all`

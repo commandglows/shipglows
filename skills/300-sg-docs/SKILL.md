@@ -7,22 +7,22 @@ argument-hint: [file-path | "init" | "readme" | "api" | "components" | "audit" |
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project source files resolve from the current target path, but project governance artifacts resolve from the canonical governance root. For monorepos, that means the monorepo-root `shipglowz_data/`, not repeated `shipglowz_data/` directories inside each app/package.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project source files resolve from the current target path, but project governance artifacts resolve from the canonical governance root. For monorepos, that means the monorepo-root `shipglows_data/`, not repeated `shipglows_data/` directories inside each app/package.
 
 ## Instruction Layering
 
-Load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md` before execution. This skill keeps only activation and gate logic locally; detailed doctrine and large mode playbooks are loaded from references.
+Load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` before execution. This skill keeps only activation and gate logic locally; detailed doctrine and large mode playbooks are loaded from references.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `support-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `shipglowz_data/workflow/specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `shipglows_data/workflow/specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise and outcome-first.
 Use `report=agent` for blocked runs, handoff, or explicit verbose request.
@@ -54,54 +54,58 @@ Use `report=agent` for blocked runs, handoff, or explicit verbose request.
 
 ## Always-On Governance Preflight
 
-Before mode selection, run `python3 "${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/audit_project_governance_topology.py" .`. Continue normally on `compliant`; enter layout migration on `migration-required`; resolve bootstrap/ownership on `review-required`. Do not report narrow docs work complete while this gate is unresolved.
+Before mode selection, run `python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/audit_project_governance_topology.py" .`. Continue normally on `compliant`; enter layout migration on `migration-required`; resolve bootstrap/ownership on `review-required`. Do not report narrow docs work complete while this gate is unresolved.
 
 ## Required References
 
 Always load:
 
-1. `$SHIPFLOW_ROOT/skills/300-sg-docs/references/core-governance.md`
-2. `$SHIPFLOW_ROOT/skills/300-sg-docs/references/mode-playbooks.md`
+1. `$SHIPGLOWS_ROOT/skills/300-sg-docs/references/core-governance.md`
+2. `$SHIPGLOWS_ROOT/skills/300-sg-docs/references/mode-playbooks.md`
 
 Load on demand:
 
-- `$SHIPFLOW_ROOT/skills/references/project-governance-rules.md` when the task is about governed-project compliance, canonical governance shape, monorepo governance expectations, or whether a project respects ShipGlowz governance rules.
-- `$SHIPFLOW_ROOT/skills/references/documentation-governance-rules.md` when the task is about documentation architecture, metadata, canonical placement, duplicate docs, update discipline, or when the operator uses `#docs`.
-- `$SHIPFLOW_ROOT/skills/300-sg-docs/references/bootstrap-starter-templates.md` when mode is `init` or when `readme`/`auto` bootstraps an empty or near-empty repository.
-- `$SHIPFLOW_ROOT/skills/references/technical-docs-corpus.md` when mode is technical or update touches technical governance.
-- `$SHIPFLOW_ROOT/skills/references/code-navigation-and-function-docs.md` when mode is technical or when the task starts from operator terminology rather than file paths.
-- `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md` when mode is editorial or update touches public-content surfaces.
-- `$SHIPFLOW_ROOT/skills/references/task-registry-routing.md` when mode is `update` or `editorial` and the work touches operational follow-up trackers, so `shipglowz_data/workflow/TASKS.md` stays execution-only while `shipglowz_data/editorial/ROADMAP.md` carries editorial/public-content backlog.
-- `$SHIPFLOW_ROOT/skills/references/question-contract.md` before any user-facing merge/replace/scope/surface question, including `init` bootstrap questions for unknown project intent, target surface, or runtime.
-- `$SHIPFLOW_ROOT/skills/references/documentation-freshness-gate.md` when documentation depends on current external framework, SDK, provider, runtime, schema, auth, deployment, or API behavior.
-- `$SHIPFLOW_ROOT/skills/references/skill-context-budget.md` only when scope touches `skills/`, skill discovery metadata, or Codex/Claude skill compliance.
-- `$SHIPFLOW_ROOT/skills/references/private-data-repo-contract.md` when scope touches durable private operator data, `~/.shipglowz/private/data/`, private project fiches, or bootstrap/install docs that mention the private data repository.
-- `$SHIPFLOW_ROOT/shipglowz_data/technical/metadata-migration-guide.md` when mode is metadata/migrate-frontmatter.
-- `$SHIPFLOW_ROOT/shipglowz_data/workflow/playbooks/project-import-playbook.md` and `$SHIPFLOW_ROOT/shipglowz_data/workflow/checklists/project-import-checklist.md` when mode is `add-project` or `add-project update`.
+- `$SHIPGLOWS_ROOT/skills/references/project-governance-rules.md` when the task is about governed-project compliance, canonical governance shape, monorepo governance expectations, or whether a project respects ShipGlows governance rules.
+- `$SHIPGLOWS_ROOT/skills/references/documentation-governance-rules.md` when the task is about documentation architecture, metadata, canonical placement, duplicate docs, update discipline, or when the operator uses `#docs`.
+- `$SHIPGLOWS_ROOT/skills/300-sg-docs/references/bootstrap-starter-templates.md` when mode is `init` or when `readme`/`auto` bootstraps an empty or near-empty repository.
+- `$SHIPGLOWS_ROOT/skills/references/technical-docs-corpus.md` when mode is technical or update touches technical governance.
+- `$SHIPGLOWS_ROOT/skills/references/code-navigation-and-function-docs.md` when mode is technical or when the task starts from operator terminology rather than file paths.
+- `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` when mode is editorial or update touches public-content surfaces.
+- `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md` when mode is `update` or `editorial` and the work touches operational follow-up trackers, so `shipglows_data/workflow/TASKS.md` stays execution-only while `shipglows_data/editorial/ROADMAP.md` carries editorial/public-content backlog.
+- `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before any user-facing merge/replace/scope/surface question, including `init` bootstrap questions for unknown project intent, target surface, or runtime.
+- `$SHIPGLOWS_ROOT/skills/references/guided-business-product-discovery.md` when `init` or `update` creates or substantially repairs business, product, GTM or brand context.
+- `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when documentation creates, changes, repairs or audits material links between business goals, customer needs, journeys, capabilities, Atlas nodes, specs and proof.
+- `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when documentation depends on current external framework, SDK, provider, runtime, schema, auth, deployment, or API behavior.
+- `$SHIPGLOWS_ROOT/skills/references/skill-context-budget.md` only when scope touches `skills/`, skill discovery metadata, or Codex/Claude skill compliance.
+- `$SHIPGLOWS_ROOT/skills/references/private-data-repo-contract.md` when scope touches durable private operator data, `~/.shipglows/private/data/`, private project fiches, or bootstrap/install docs that mention the private data repository.
+- `$SHIPGLOWS_ROOT/shipglows_data/technical/metadata-migration-guide.md` when mode is metadata/migrate-frontmatter.
+- `$SHIPGLOWS_ROOT/shipglows_data/workflow/playbooks/project-import-playbook.md` and `$SHIPGLOWS_ROOT/shipglows_data/workflow/checklists/project-import-checklist.md` when mode is `add-project` or `add-project update`.
 
 ## Execution Contract
 
 - Keep internal contracts in English; user-facing output stays in the active user/project language.
 - For empty or near-empty repositories, prefer explicit bootstrap output over generic README generation: create the smallest coherent governance starter set and label unknown project facts as unknown rather than inferred.
 - For empty or near-empty repositories, do not treat missing project framing as blocked by default. Ask the smallest numbered decision question needed to define the bootstrap documents, then continue.
+- Do not populate business, product, GTM or brand contracts from one project sentence or technical-stack inference. Use the guided discovery loop, preserve existing confirmed content, label hypotheses and persist the first unresolved operator decision.
+- Preserve product-decision trace links in canonical documents without creating a parallel registry. When a confirmed decision changes, retain its superseded history and update dependent contracts in canonical-source order.
 - Preserve redaction/security rules: never expose secrets, cookies, tokens, private keys, or private logs.
 - Preserve documentation-update gates: changed behavior must have docs alignment proof or explicit `not impacted because ...`.
-- Preserve canonical ShipGlowz paths, documentation architecture, and metadata rules through the shared governance references instead of inventing local placement doctrine.
+- Preserve canonical ShipGlows paths, documentation architecture, and metadata rules through the shared governance references instead of inventing local placement doctrine.
 - For migration or consolidation work, treat local docs as source material until preservation is proven. Before replacing a local doc with a compatibility facade or deleting it, map it to a canonical destination, preserve non-redundant content, and record any intentional rejection.
 - When a project declares products, preserve the product-governance contract in docs: product inventory, canonical product/sales surfaces, delivery-path documentation, and claim-evidence references must remain explicit enough for other skills to reuse without discovery drift.
-- `shipglowz_data/workflow/TEST_LOG.md`, `shipglowz_data/workflow/BUGS.md`, `PROJECTS.md`, and canonical workflow trackers are operational trackers, not frontmatter-required decision artifacts.
+- `shipglows_data/workflow/TEST_LOG.md`, `shipglows_data/workflow/BUGS.md`, `PROJECTS.md`, and canonical workflow trackers are operational trackers, not frontmatter-required decision artifacts.
 - Operational trackers may still contain durable planning or decision content. During migration, mine them for canonical task, QA, or decision updates instead of assuming they are disposable.
-- When scope touches `skills/`, skill README files, `site/src/content/skills/*.md`, or skill discovery metadata, verify skill contract coherence, public skill-page coherence, and runtime skill visibility together. Route non-trivial skill-contract changes through `900-shipglowz-core build`.
-- Do not add ShipGlowz governance frontmatter to app-rendered runtime content such as `site/src/content/skills/*.md`.
+- When scope touches `skills/`, skill README files, `site/src/content/skills/*.md`, or skill discovery metadata, verify skill contract coherence, public skill-page coherence, and runtime skill visibility together. Route non-trivial skill-contract changes through `900-shipglows-core build`.
+- Do not add ShipGlows governance frontmatter to app-rendered runtime content such as `site/src/content/skills/*.md`.
 
 ## ADD PROJECT MODE
 
-Use this mode when the operator gives a URL or repository and wants a private project fiche created or refreshed under `~/.shipglowz/private/data/projects/`.
+Use this mode when the operator gives a URL or repository and wants a private project fiche created or refreshed under `~/.shipglows/private/data/projects/`.
 
 Load:
 
-- `shipglowz_data/workflow/playbooks/project-import-playbook.md`
-- `shipglowz_data/workflow/checklists/project-import-checklist.md`
+- `shipglows_data/workflow/playbooks/project-import-playbook.md`
+- `shipglows_data/workflow/checklists/project-import-checklist.md`
 - `skills/references/source-intake-classification.md`
 - `skills/references/private-memory-store.md`
 - `skills/references/private-data-repo-contract.md`
@@ -109,7 +113,7 @@ Load:
 Follow the playbook order exactly:
 
 1. identify source type and project candidate
-2. detect existing ShipGlowz data, pitch, or governed docs
+2. detect existing ShipGlows data, pitch, or governed docs
 3. extract stable project truth
 4. write or update one private project file
 5. record uncertainty, provenance, and next action
@@ -117,7 +121,7 @@ Follow the playbook order exactly:
 
 Do not invent a public story when the source does not support one. If the source is ambiguous or the URL is unavailable, report the gap and ask for the smallest missing URL or project truth needed to continue.
 
-When documenting or generating bootstrap guidance for this mode, keep the storage doctrine explicit: `~/.shipglowz/private/data/` is a separate private Git repository, while public governance remains in project repos and ephemeral review state lives elsewhere.
+When documenting or generating bootstrap guidance for this mode, keep the storage doctrine explicit: `~/.shipglows/private/data/` is a separate private Git repository, while public governance remains in project repos and ephemeral review state lives elsewhere.
 
 ## ADD PROJECT UPDATE MODE
 
@@ -133,8 +137,8 @@ This mode uses the same playbook and checklist as `ADD PROJECT MODE`, but the in
 
 Load:
 
-- `shipglowz_data/workflow/playbooks/project-import-playbook.md`
-- `shipglowz_data/workflow/checklists/project-import-checklist.md`
+- `shipglows_data/workflow/playbooks/project-import-playbook.md`
+- `shipglows_data/workflow/checklists/project-import-checklist.md`
 - `skills/references/source-intake-classification.md`
 - `skills/references/private-memory-store.md`
 
@@ -148,7 +152,7 @@ Additional update rule:
 
 Stop and report `blocked` when:
 
-- required ShipGlowz-owned reference is missing and no safe fallback exists
+- required ShipGlows-owned reference is missing and no safe fallback exists
 - requested migration would overwrite canonical docs without explicit merge decision
 - metadata lint fails on changed artifacts and cannot be corrected safely
 - governance conflicts cannot be resolved (for example `AGENTS.md` not a symlink to `AGENT.md`)
@@ -161,18 +165,18 @@ Stop and report `blocked` when:
 Run focused checks for touched surfaces:
 
 ```bash
-python3 "${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/audit_project_governance_topology.py" .
-python3 "${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/shipglowz_metadata_lint.py" <changed-artifacts>
-rg -n "Maintenance Rule|Validation|Owned Files|Entrypoints" shipglowz_data/technical "${SHIPFLOW_ROOT:-$HOME/shipglowz}/templates/technical_module_context.md"
-rg -n "Editorial Update Plan|Claim Impact Plan|pending final copy|surface missing|Astro content schema" shipglowz_data/editorial docs/editorial
+python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/audit_project_governance_topology.py" .
+python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_metadata_lint.py" <changed-artifacts>
+rg -n "Maintenance Rule|Validation|Owned Files|Entrypoints" shipglows_data/technical "${SHIPGLOWS_ROOT:-$HOME/shipglows}/templates/technical_module_context.md"
+rg -n "Editorial Update Plan|Claim Impact Plan|pending final copy|surface missing|Astro content schema" shipglows_data/editorial docs/editorial
 test ! -e AGENTS.md || { test -L AGENTS.md && test "$(readlink AGENTS.md)" = "AGENT.md"; }
 ```
 
-When a run migrates or consolidates local docs into canonical `shipglowz_data/` targets:
+When a run migrates or consolidates local docs into canonical `shipglows_data/` targets:
 
 ```bash
 git diff --name-only -- <migrated-local-docs> <canonical-targets>
-rg -n "Canonical|compatibility facade|shipglowz_data" <migrated-local-docs>
+rg -n "Canonical|compatibility facade|shipglows_data" <migrated-local-docs>
 ```
 
 Use these checks to confirm the source docs were intentionally converted into facades and that canonical targets were actually updated in the same change, not merely after the fact.
@@ -180,13 +184,13 @@ Use these checks to confirm the source docs were intentionally converted into fa
 When the scope touches skill discovery or skill docs policy:
 
 ```bash
-python3 "${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/skill_budget_audit.py" --skills-root "${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills" --format markdown
-"${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/shipglowz_sync_skills.sh" --check --all
-rg -n "Report Modes|Required References|Validation|Stop Conditions" "${SHIPFLOW_ROOT:-$HOME/shipglowz}"/skills/[0-9][0-9][0-9]-*/SKILL.md "${SHIPFLOW_ROOT:-$HOME/shipglowz}"/skills/*/SKILL.md
+python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/skill_budget_audit.py" --skills-root "${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills" --format markdown
+"${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh" --check --all
+rg -n "Report Modes|Required References|Validation|Stop Conditions" "${SHIPGLOWS_ROOT:-$HOME/shipglows}"/skills/[0-9][0-9][0-9]-*/SKILL.md "${SHIPGLOWS_ROOT:-$HOME/shipglows}"/skills/*/SKILL.md
 ```
 
 When the scope touches public skill pages or docs rendered by the site:
 
 ```bash
-pnpm --dir "${SHIPFLOW_ROOT:-$HOME/shipglowz}/shipglowz-site" build
+pnpm --dir "${SHIPGLOWS_ROOT:-$HOME/shipglows}/shipglows-site" build
 ```

@@ -1,5 +1,5 @@
 #!/bin/bash
-# turso-login.sh - Turso CLI login helper for a remote ShipGlowz server.
+# turso-login.sh - Turso CLI login helper for a remote ShipGlows server.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/../config.sh" ]; then
@@ -16,16 +16,16 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-shipglowz_migrate_local_config || true
-CONFIG_DIR="$(shipglowz_local_config_dir)"
+shipglows_migrate_local_config || true
+CONFIG_DIR="$(shipglows_local_config_dir)"
 CURRENT_CONNECTION_FILE="$CONFIG_DIR/current_connection"
 CURRENT_IDENTITY_FILE="$CONFIG_DIR/current_identity_file"
 CURRENT_AUTH_METHOD_FILE="$CONFIG_DIR/current_auth_method"
-LOGIN_TIMEOUT_SECONDS="${SHIPGLOWZ_TURSO_LOGIN_TIMEOUT_SECONDS:-${SHIPFLOW_TURSO_LOGIN_TIMEOUT_SECONDS:-600}}"
+LOGIN_TIMEOUT_SECONDS="${SHIPGLOWS_TURSO_LOGIN_TIMEOUT_SECONDS:-${SHIPGLOWS_TURSO_LOGIN_TIMEOUT_SECONDS:-600}}"
 
 REMOTE_HOST=""
 SSH_IDENTITY_FILE=""
-PROJECT_DIR="${SHIPGLOWZ_TURSO_REMOTE_PROJECT_DIR:-${SHIPFLOW_TURSO_REMOTE_PROJECT_DIR:-}}"
+PROJECT_DIR="${SHIPGLOWS_TURSO_REMOTE_PROJECT_DIR:-${SHIPGLOWS_TURSO_REMOTE_PROJECT_DIR:-}}"
 FORCE_HEADLESS=1
 TMP_DIR=""
 LOGIN_OUTPUT_FILE=""
@@ -35,10 +35,10 @@ TUNNEL_PID=""
 
 usage() {
     cat <<'EOF'
-Usage: shipglowz-turso-login [options]
+Usage: shipglows-turso-login [options]
 
 Run this from your local machine. It starts Turso CLI auth on the configured
-remote ShipGlowz server. Turso's supported remote/WSL mode is headless, so this
+remote ShipGlows server. Turso's supported remote/WSL mode is headless, so this
 helper uses `turso auth login --headless` by default, opens or prints the auth
 URL locally, lets you paste the Turso JWT/token if the browser shows one, then
 verifies `turso auth whoami`.
@@ -50,13 +50,13 @@ Options:
   -h, --help             Show this help.
 
 Examples:
-  shipglowz-turso-login
-  shipglowz-turso-login --project-dir /home/<user>/<projet>
+  shipglows-turso-login
+  shipglows-turso-login --project-dir /home/<user>/<projet>
 EOF
 }
 
 print_header() {
-    local brand="ShipGlowz DevServer"
+    local brand="ShipGlows DevServer"
     local title="Turso Login"
     echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║                                                  ║${NC}"
@@ -68,31 +68,31 @@ print_header() {
 }
 
 load_remote_host() {
-    if REMOTE_HOST="$(shipglowz_read_config_value current_connection 2>/dev/null)"; then
+    if REMOTE_HOST="$(shipglows_read_config_value current_connection 2>/dev/null)"; then
         :
     else
-        REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWZ_SSH_REMOTE_HOST:-${SHIPFLOW_SSH_REMOTE_HOST:-}}}"
+        REMOTE_HOST="${REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}}"
         if [ -z "$REMOTE_HOST" ] && grep -qE '^[[:space:]]*Host[[:space:]]+hetzner([[:space:]]|$)' "$HOME/.ssh/config" 2>/dev/null; then
             REMOTE_HOST="hetzner"
         fi
     fi
 
     if [ -z "$REMOTE_HOST" ]; then
-        echo -e "${RED}✗ Aucune connexion distante ShipGlowz configurée.${NC}"
+        echo -e "${RED}✗ Aucune connexion distante ShipGlows configurée.${NC}"
         echo -e "${YELLOW}  Ouvre le menu local 'urls', choisis c) Configurer nouveau serveur, puis entre l'adresse SSH.${NC}"
         exit 1
     fi
 
     if ! validate_connection_target "$REMOTE_HOST"; then
         echo -e "${RED}✗ Connexion distante invalide: $REMOTE_HOST${NC}"
-        echo -e "${YELLOW}  Corrige ~/.shipglowz/current_connection via le menu local.${NC}"
+        echo -e "${YELLOW}  Corrige ~/.shipglows/current_connection via le menu local.${NC}"
         exit 1
     fi
 
-if SSH_IDENTITY_FILE="$(shipglowz_read_config_value current_identity_file 2>/dev/null)"; then
+if SSH_IDENTITY_FILE="$(shipglows_read_config_value current_identity_file 2>/dev/null)"; then
     :
 fi
-if SSH_AUTH_METHOD="$(shipglowz_read_config_value current_auth_method 2>/dev/null)"; then
+if SSH_AUTH_METHOD="$(shipglows_read_config_value current_auth_method 2>/dev/null)"; then
     :
 fi
 

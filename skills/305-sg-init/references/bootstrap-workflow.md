@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-05-16"
 status: draft
@@ -22,9 +22,9 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
-  - "Extracted from skills/305-sg-init/SKILL.md during Compact ShipGlowz Skill Instructions Phase 2."
+  - "Extracted from skills/305-sg-init/SKILL.md during Compact ShipGlows Skill Instructions Phase 2."
 next_review: "2026-06-16"
-next_step: "/103-sg-verify Compact ShipGlowz Skill Instructions Phase 2"
+next_step: "/103-sg-verify Compact ShipGlows Skill Instructions Phase 2"
 ---
 
 # Bootstrap Workflow
@@ -39,14 +39,14 @@ This reference preserves the detailed pre-compaction instructions for `305-sg-in
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `support-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the shared chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 
 ## Context
@@ -100,7 +100,7 @@ This file provides guidance to Claude Code when working in this project.
 ## Commands
 [Auto-detected from package.json scripts, Makefile, or shell scripts]
 
-## ShipGlowz Development Mode
+## ShipGlows Development Mode
 
 - development_mode: local | vercel-preview-push | hybrid
 - validation_surface: local | vercel-preview | production | mixed
@@ -130,11 +130,11 @@ Use **AskUserQuestion** to let the user review and confirm:
   - **Edit first** — "Let me review and adjust before saving"
   - **Skip** — "Don't create CLAUDE.md"
 
-### Step 2.5: Record ShipGlowz development mode
+### Step 2.5: Record ShipGlows development mode
 
-Read `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/project-development-mode.md`, `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/sentry-observability.md`, and `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/runtime-diagnostics-surface.md`.
+Read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/sentry-observability.md`, and `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/runtime-diagnostics-surface.md`.
 
-Every initialized project should have a project-local `## ShipGlowz Development Mode` section in `CLAUDE.md`. If `CLAUDE.md` is skipped or absent, create or update `SHIPFLOW.md` with the same section.
+Every initialized project should have a project-local `## ShipGlows Development Mode` section in `CLAUDE.md`. If `CLAUDE.md` is skipped or absent, create or update `SHIPGLOWS.md` with the same section.
 
 For runtime projects, record Sentry, the safe diagnostics/log-copy surface, the concrete component/helper/route that owns it, and whether copied logs start with commit/build identity plus Paris/UTC build time. Static sites may use the Sentry static-site exception only when they have no auth, account state, protected routes, checkout/payment, server-handled forms, webhooks, jobs, or user-specific runtime workflow.
 
@@ -199,20 +199,20 @@ Never leave the section with pipe-delimited placeholders after init. Pick the co
 ### Step 3: Create local project tracker
 
 **Architecture**: In this phase, the active project backlog is local under the project umbrella.
-- primary source of truth: `shipglowz_data/workflow/TASKS.md`
+- primary source of truth: `shipglows_data/workflow/TASKS.md`
 - no central master aggregate is created; cross-project views are derived from local project trackers.
 - do not point project operators to master files as a task source of truth.
 
-`TASKS.md` is an operational tracker, not a metadata-bearing decision artifact. Do not add ShipGlowz YAML frontmatter to generated `TASKS.md` files. Durable business, brand, guideline, spec, research, audit, review, or decision content belongs in separate artifacts with metadata.
+`TASKS.md` is an operational tracker, not a metadata-bearing decision artifact. Do not add ShipGlows YAML frontmatter to generated `TASKS.md` files. Durable business, brand, guideline, spec, research, audit, review, or decision content belongs in separate artifacts with metadata.
 
 **Check first**:
-- prefer updating `shipglowz_data/workflow/TASKS.md` when present
+- prefer updating `shipglows_data/workflow/TASKS.md` when present
 - if root `TASKS.md` exists as a real file, treat it as legacy local content: do not overwrite it, report layout migration debt, and route to `/300-sg-docs migrate-layout` unless an external project tool explicitly requires the root file
-- if a legacy ShipGlowz-created `TASKS.md` symlink points into `shipglowz_data`, remove the symlink only; do not move or overwrite real project files.
+- if a legacy ShipGlows-created `TASKS.md` symlink points into `shipglows_data`, remove the symlink only; do not move or overwrite real project files.
 
 If it does not exist:
-1. Create directory `shipglowz_data/workflow/`
-2. Create `shipglowz_data/workflow/TASKS.md` with the canonical format below
+1. Create directory `shipglows_data/workflow/`
+2. Create `shipglows_data/workflow/TASKS.md` with the canonical format below
 3. Do not create a symlink for this tracker
 
 Never create a bare placeholder — populate with real tasks detected in Step 1:
@@ -269,7 +269,7 @@ Populate the initial tasks intelligently from what was detected in Step 1 (stack
 
 ### Step 4: Derive project discovery metadata
 
-Do not register the project in a central `PROJECTS.md`. Project discovery is derived from the project path, local `shipglowz_data/`, and root markers such as `AGENT.md`, `CLAUDE.md`, `package.json`, `pyproject.toml`, or equivalent stack files.
+Do not register the project in a central `PROJECTS.md`. Project discovery is derived from the project path, local `shipglows_data/`, and root markers such as `AGENT.md`, `CLAUDE.md`, `package.json`, `pyproject.toml`, or equivalent stack files.
 
 **Domain Applicability defaults** — auto-detect and report:
 - Code: ✓ (always)
@@ -281,25 +281,34 @@ Do not register the project in a central `PROJECTS.md`. Project discovery is der
 - Deps: ✓ if has package manager
 - Perf: ✓ (always)
 
-### Step 5: Generate business & brand context files
+### Step 5: Generate business, product, GTM & brand context files
 
-Créer les fichiers de contexte business/marque dans le dossier `shipglowz_data/` du repo du projet. Ces documents sont des contrats de décision du projet et leur source canonique doit rester dans le corpus gouverné par ShipGlowz, au plus près du code, des specs et de la documentation qu'ils gouvernent.
+This step is governed by `$SHIPGLOWS_ROOT/skills/references/guided-business-product-discovery.md`. The canonical starting structures are:
 
-`shipglowz_data/workflow` porte le tracking local (`TASKS.md`, `AUDIT_LOG.md`, specs, bugs, reviews, audits). Les artefacts de gouvernance projet vivent dans `shipglowz_data/business/*`, `shipglowz_data/editorial/*` et `shipglowz_data/technical/*` quand disponibles.
+- `$SHIPGLOWS_ROOT/templates/business_context.md` → `shipglows_data/business/business.md`;
+- `$SHIPGLOWS_ROOT/templates/product_context.md` → `shipglows_data/business/product.md`;
+- `$SHIPGLOWS_ROOT/templates/gtm_context.md` → `shipglows_data/business/gtm.md`;
+- `$SHIPGLOWS_ROOT/templates/brand_context.md` → `shipglows_data/branding/branding.md`.
+
+Create them in that order because customer need and business promise constrain product scope, then GTM and brand. Existing confirmed content is preserved. A bootstrap draft may contain `hypothesis` and `unknown`, but it must not convert stack detection into operator-confirmed business truth. Ask one thematic question at a time, propose the exact section, and require `Confirmer`, `Corriger` or `Approfondir` before advancing. Use `artifact_version: "0.1.0"` while decisive placeholders or unknowns remain; use `1.0.0` only after explicit operator review.
+
+The detailed examples below are formatting aids only. When they conflict with the canonical templates or guided-discovery reference, those canonical sources win.
+
+Créer les fichiers de contexte business/marque dans le dossier `shipglows_data/` du repo du projet. Ces documents sont des contrats de décision du projet et leur source canonique doit rester dans le corpus gouverné par ShipGlows, au plus près du code, des specs et de la documentation qu'ils gouvernent.
+
+`shipglows_data/workflow` porte le tracking local (`TASKS.md`, `AUDIT_LOG.md`, specs, bugs, reviews, audits). Les artefacts de gouvernance projet vivent dans `shipglows_data/business/*`, `shipglows_data/editorial/*` et `shipglows_data/technical/*` quand disponibles.
 
 **Pour chaque fichier** : vérifier d'abord s'il existe déjà dans le projet. Si oui, sauter.
 
-`shipglowz_data/business/business.md`, `shipglowz_data/branding/branding.md`, `shipglowz_data/editorial/content-map.md` et `shipglowz_data/technical/guidelines.md` sont des artefacts ShipGlowz, pas de simples notes. Les anciens fichiers racine (`BUSINESS.md`, `BRANDING.md`, `CONTENT_MAP.md`, `GUIDELINES.md`, `CONTEXT.md`, `CONTEXT-FUNCTION-TREE.md`, `PRODUCT.md`, `GTM.md`, `ARCHITECTURE.md`) ne servent que de sources de migration quand ils existent encore. Ils ne sont pas des emplacements finaux conformes. Les artefacts doivent commencer par un frontmatter YAML ShipGlowz avec `metadata_schema_version`, `artifact_version`, `status`, `confidence`, `risk_level`, `evidence`, `next_review`, `depends_on` et `supersedes`. À l'initialisation, utiliser `metadata_schema_version: "1.0"` et `artifact_version: "0.1.0"` tant que le contenu n'a pas été revu explicitement par l'utilisateur; passer à `artifact_version: "1.0.0"` seulement si les réponses utilisateur couvrent les décisions essentielles sans placeholder.
+`shipglows_data/business/business.md`, `shipglows_data/branding/branding.md`, `shipglows_data/editorial/content-map.md` et `shipglows_data/technical/guidelines.md` sont des artefacts ShipGlows, pas de simples notes. Les anciens fichiers racine (`BUSINESS.md`, `BRANDING.md`, `CONTENT_MAP.md`, `GUIDELINES.md`, `CONTEXT.md`, `CONTEXT-FUNCTION-TREE.md`, `PRODUCT.md`, `GTM.md`, `ARCHITECTURE.md`) ne servent que de sources de migration quand ils existent encore. Ils ne sont pas des emplacements finaux conformes. Les artefacts doivent commencer par un frontmatter YAML ShipGlows avec `metadata_schema_version`, `artifact_version`, `status`, `confidence`, `risk_level`, `evidence`, `next_review`, `depends_on` et `supersedes`. À l'initialisation, utiliser `metadata_schema_version: "1.0"` et `artifact_version: "0.1.0"` tant que le contenu n'a pas été revu explicitement par l'utilisateur; passer à `artifact_version: "1.0.0"` seulement si les réponses utilisateur couvrent les décisions essentielles sans placeholder.
 
-Les registres `shipglowz_data/business/project-competitors-and-inspirations.md` et `shipglowz_data/business/affiliate-programs.md` sont optionnels. `305-sg-init` ne les crée pas par défaut pour tous les projets. Si l'un d'eux existe déjà, reporter son statut et le faire valider par `/300-sg-docs update` ou le linter ShipGlowz. Si l'utilisateur demande explicitement une initialisation marché/affiliation, utiliser les templates `templates/competitive_intelligence.md` et `templates/affiliate_program_registry.md`; sinon reporter `absent optionnel`.
+Les registres `shipglows_data/business/project-competitors-and-inspirations.md` et `shipglows_data/business/affiliate-programs.md` sont optionnels. `305-sg-init` ne les crée pas par défaut pour tous les projets. Si l'un d'eux existe déjà, reporter son statut et le faire valider par `/300-sg-docs update` ou le linter ShipGlows. Si l'utilisateur demande explicitement une initialisation marché/affiliation, utiliser les templates `templates/competitive_intelligence.md` et `templates/affiliate_program_registry.md`; sinon reporter `absent optionnel`.
 
-#### 5a. shipglowz_data/business/business.md
+#### 5a. shipglows_data/business/business.md
 
-Utiliser **AskUserQuestion** pour recueillir le contexte business :
-- Question : "Décris ton projet en une phrase — qu'est-ce que ça fait et pour qui ?"
-- (texte libre via "Other")
+Commencer par une synthèse sourcée du contexte existant, puis poser uniquement la première question business à fort impact encore sans réponse. Ne jamais demander à l'opérateur de remplir le template seul.
 
-Puis générer `[project_dir]/shipglowz_data/business/business.md` :
+Puis générer `[project_dir]/shipglows_data/business/business.md` :
 
 ```markdown
 ---
@@ -350,12 +359,11 @@ next_step: "/300-sg-docs update"
 [À compléter plus tard — laisser vide avec un placeholder "À renseigner via /009-sg-marketing market"]
 ```
 
-Si l'utilisateur donne une réponse courte, compléter intelligemment à partir du stack détecté et du contenu existant. Marquer clairement les sections devinées avec `<!-- à confirmer -->`.
+Si l'utilisateur donne une réponse courte, proposer une interprétation à partir du contenu existant, la marquer `hypothesis` et demander confirmation. Le stack peut documenter ce qui existe techniquement, jamais confirmer l'audience, la promesse ou le modèle économique.
 
-#### 5b. shipglowz_data/branding/ bundle
+#### 5b. shipglows_data/branding/ bundle
 
-Utiliser **AskUserQuestion** :
-- Question : "Quel ton pour ce projet ?"
+Après confirmation du business et du produit, proposer une hypothèse de posture de marque reliée au client prioritaire, puis poser une seule question de différenciation émotionnelle ou de confiance. Les options suivantes ne sont que des contrastes possibles :
 - Options :
   - **Pro & accessible** — "Expert mais pas condescendant, tutoiement OK" (Recommandé)
   - **Corporate & formel** — "Vouvoiement, ton institutionnel"
@@ -364,15 +372,15 @@ Utiliser **AskUserQuestion** :
 
 Puis générer au minimum :
 
-- `[project_dir]/shipglowz_data/branding/branding.md`
-- `[project_dir]/shipglowz_data/branding/voice-and-tone.md`
-- `[project_dir]/shipglowz_data/branding/messaging-pillars.md`
-- `[project_dir]/shipglowz_data/branding/brand-rules.md`
+- `[project_dir]/shipglows_data/branding/branding.md`
+- `[project_dir]/shipglows_data/branding/voice-and-tone.md`
+- `[project_dir]/shipglows_data/branding/messaging-pillars.md`
+- `[project_dir]/shipglows_data/branding/brand-rules.md`
 
 Générer aussi si le projet a une vraie surface publique ou UI :
 
-- `[project_dir]/shipglowz_data/branding/visual-identity.md`
-- `[project_dir]/shipglowz_data/branding/assets/README.md`
+- `[project_dir]/shipglows_data/branding/visual-identity.md`
+- `[project_dir]/shipglows_data/branding/assets/README.md`
 
 `branding.md` reste l'index canonique du bundle :
 
@@ -390,15 +398,15 @@ scope: "branding"
 owner: "[user or team if known]"
 confidence: "low"
 risk_level: "medium"
-target_audience: "[from shipglowz_data/business/business.md if known]"
-value_proposition: "[from shipglowz_data/business/business.md if known]"
+target_audience: "[from shipglows_data/business/business.md if known]"
+value_proposition: "[from shipglows_data/business/business.md if known]"
 market: "[country/language/niche or unknown]"
 docs_impact: "yes"
 security_impact: "none"
 evidence:
   - "[tone selected by user]"
 depends_on:
-  - artifact: shipglowz_data/business/business.md
+  - artifact: shipglows_data/business/business.md
     artifact_version: "0.1.0"
     required_status: "draft|reviewed"
 supersedes: []
@@ -489,11 +497,11 @@ Puis `assets/README.md` si nécessaire :
 [Anti-patterns de communication — ex: "jamais condescendant, jamais corporate bullshit"]
 ```
 
-#### 5c. shipglowz_data/technical/guidelines.md
+#### 5c. shipglows_data/technical/guidelines.md
 
 Générer automatiquement depuis ce qui a été détecté en Step 1 + CLAUDE.md. Pas de question à l'utilisateur — c'est technique.
 
-`[project_dir]/shipglowz_data/technical/guidelines.md` :
+`[project_dir]/shipglows_data/technical/guidelines.md` :
 
 ```markdown
 ---
@@ -561,13 +569,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Initial project setup
 ```
 
-**Local tracker** — create or update `[project_dir]/shipglowz_data/workflow/TASKS.md` if present.
+**Local tracker** — create or update `[project_dir]/shipglows_data/workflow/TASKS.md` if present.
 
-**Local audit log** — create or update `[project_dir]/shipglowz_data/workflow/AUDIT_LOG.md` when an audit index is needed. Do not create root `AUDIT_LOG.md`; if it exists, treat it as layout migration debt unless an external project tool requires it.
+**Local audit log** — create or update `[project_dir]/shipglows_data/workflow/AUDIT_LOG.md` when an audit index is needed. Do not create root `AUDIT_LOG.md`; if it exists, treat it as layout migration debt unless an external project tool requires it.
 
 ### Step 7: Configure MCP servers
 
-Always configure the Shipflow codebase MCP server, Context7 MCP, and OpenAI Docs MCP for this project by writing (or updating) `.claude/settings.json`.
+Always configure the Shipglows codebase MCP server, Context7 MCP, and OpenAI Docs MCP for this project by writing (or updating) `.claude/settings.json`.
 
 If Clerk is detected in the project, propose adding the Clerk MCP and configure it when the user accepts.
 Detection signals:
@@ -601,7 +609,7 @@ Base config:
   "mcpServers": {
     "codebase": {
       "command": "python3",
-      "args": ["[ABSOLUTE_SHIPFLOW_ROOT]/tools/codebase-mcp/server.py", "[ABSOLUTE_PROJECT_PATH]"]
+      "args": ["[ABSOLUTE_SHIPGLOWS_ROOT]/tools/codebase-mcp/server.py", "[ABSOLUTE_PROJECT_PATH]"]
     },
     "context7": {
       "command": "npx",
@@ -615,7 +623,7 @@ Base config:
 }
 ```
 
-Resolve `[ABSOLUTE_SHIPFLOW_ROOT]` from `$SHIPFLOW_ROOT` first, or from `$HOME/shipglowz` only when that fallback exists. Do not write shell variables in JSON MCP `args`; they are not shell-expanded.
+Resolve `[ABSOLUTE_SHIPGLOWS_ROOT]` from `$SHIPGLOWS_ROOT` first, or from `$HOME/shipglows` only when that fallback exists. Do not write shell variables in JSON MCP `args`; they are not shell-expanded.
 
 If Clerk is accepted, add:
 
@@ -658,7 +666,7 @@ If Supabase is accepted, add:
 - Do not add `openaiDeveloperDocs` to `disabledMcpServers` by default. OpenAI Docs MCP should be available for current OpenAI product/API/model docs, but only consumes model context when a tool call retrieves documentation.
 - Do not add `convex`, `vercel`, or `supabase` to `disabledMcpServers` by default when they are enabled for the project.
 - Create `.claude/` directory if needed.
-- Skip silently if `${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/codebase-mcp/server.py` doesn't exist.
+- Skip silently if `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/codebase-mcp/server.py` doesn't exist.
 
 Operational guidance:
 - OpenAI Docs MCP is the first source for current OpenAI API, Codex, model-selection, migration, and prompting guidance.
@@ -681,14 +689,14 @@ This project uses a local codebase MCP server for efficient context management.
 3. **Use `context_read`** instead of Read for code exploration (tracks token budget).
 4. **After editing**, call `context_register_edit` with a one-sentence summary.
 
-See `${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/codebase-mcp/README.md` for full tool reference.
+See `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/codebase-mcp/README.md` for full tool reference.
 ```
 
-#### 5d. shipglowz_data/editorial/content-map.md
+#### 5d. shipglows_data/editorial/content-map.md
 
 Générer automatiquement depuis les dossiers détectés (`src/content`, `content`, `docs`, `app`, `pages`, routes marketing, collections Astro/MDX, changelog, FAQ/support si présents). Utiliser `templates/content_map.md` comme structure.
 
-`[project_dir]/shipglowz_data/editorial/content-map.md` doit cartographier :
+`[project_dir]/shipglows_data/editorial/content-map.md` doit cartographier :
 - blog et articles
 - documentation produit/API/support
 - landing pages et pages marketing
@@ -700,9 +708,9 @@ Ne pas le transformer en calendrier éditorial ou backlog. Si aucun blog/newslet
 
 ### Step 7.5: Governance Corpus Bootstrap
 
-After `shipglowz_data/editorial/content-map.md` generation or skip decision, detect and report the project-local governance corpus state. This step is a bootstrap and status gate; long-term maintenance stays owned by `300-sg-docs`.
+After `shipglows_data/editorial/content-map.md` generation or skip decision, detect and report the project-local governance corpus state. This step is a bootstrap and status gate; long-term maintenance stays owned by `300-sg-docs`.
 
-Load these ShipGlowz-owned references from `$SHIPFLOW_ROOT` before creating or auditing governance files:
+Load these ShipGlows-owned references from `$SHIPGLOWS_ROOT` before creating or auditing governance files:
 - `skills/references/technical-docs-corpus.md`
 - `skills/references/editorial-content-corpus.md`
 - `templates/technical_module_context.md`
@@ -711,22 +719,22 @@ Load these ShipGlowz-owned references from `$SHIPFLOW_ROOT` before creating or a
 Detect:
 - code areas: `package.json`, lockfiles, `src/`, `app/`, `pages/`, `components/`, `lib/`, `convex/`, `supabase/`, `server/`, `api/`, `*.sh`, `*.py`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.astro`, `*.vue`, or framework config files
 - public surfaces: public routes, `site/`, `src/pages/`, `app/`, `pages/`, `docs/`, README public promises, FAQ, pricing, support copy, public skill pages, blog/article intent, `src/content`, `content/`, Astro/MDX runtime content, newsletter/social surfaces
-- existing governance files: `shipglowz_data/technical/README.md` (legacy source: `docs/technical/README.md`), `shipglowz_data/technical/code-docs-map.md` (legacy source: `docs/technical/code-docs-map.md`), `shipglowz_data/editorial/README.md` (legacy source: `docs/editorial/README.md`), `shipglowz_data/editorial/content-map.md` (legacy source: `CONTENT_MAP.md`)
+- existing governance files: `shipglows_data/technical/README.md` (legacy source: `docs/technical/README.md`), `shipglows_data/technical/code-docs-map.md` (legacy source: `docs/technical/code-docs-map.md`), `shipglows_data/editorial/README.md` (legacy source: `docs/editorial/README.md`), `shipglows_data/editorial/content-map.md` (legacy source: `CONTENT_MAP.md`)
 - agent entrypoint state: `AGENT.md` and `AGENTS.md`
 
 #### Technical governance bootstrap
 
 Technical governance is applicable to code projects by default.
 
-If code areas are detected and `shipglowz_data/technical/` can be written:
-- create `shipglowz_data/technical/README.md` when missing, using the `technical_module_context` schema as the metadata model but keeping the body as a concise index
-- create `shipglowz_data/technical/code-docs-map.md` when missing, with path patterns, primary technical doc targets, required validation commands, and documentation update triggers based on detected code areas
-- when no major code area can be mapped precisely, still create `shipglowz_data/technical/code-docs-map.md` with an explicit `non-coverage` reason and next step `/300-sg-docs technical`
+If code areas are detected and `shipglows_data/technical/` can be written:
+- create `shipglows_data/technical/README.md` when missing, using the `technical_module_context` schema as the metadata model but keeping the body as a concise index
+- create `shipglows_data/technical/code-docs-map.md` when missing, with path patterns, primary technical doc targets, required validation commands, and documentation update triggers based on detected code areas
+- when no major code area can be mapped precisely, still create `shipglows_data/technical/code-docs-map.md` with an explicit `non-coverage` reason and next step `/300-sg-docs technical`
 - do not create a mega-doc during init; route subsystem detail to `/300-sg-docs technical`
 
-If `shipglowz_data/technical/` already exists (or legacy migration source `docs/technical/` exists):
+If `shipglows_data/technical/` already exists (or legacy migration source `docs/technical/` exists):
 - do not overwrite it
-- report `shipglowz_data/technical: already existed` or `shipglowz_data/technical: needs audit`
+- report `shipglows_data/technical: already existed` or `shipglows_data/technical: needs audit`
 - name `/300-sg-docs technical` as the recovery command when the map is missing, stale, or incomplete
 
 If no code areas are detected:
@@ -737,27 +745,27 @@ If no code areas are detected:
 
 Editorial governance is applicable when public pages, README public promises, docs, FAQ, pricing, support copy, public skill pages, blog/article intent, or runtime content surfaces exist.
 
-If public surfaces are detected and `shipglowz_data/editorial/` can be written:
-- create `shipglowz_data/editorial/README.md` when missing
-- create `shipglowz_data/editorial/ROADMAP.md` when missing, using the minimal operational template from the bootstrap starter templates
+If public surfaces are detected and `shipglows_data/editorial/` can be written:
+- create `shipglows_data/editorial/README.md` when missing
+- create `shipglows_data/editorial/ROADMAP.md` when missing, using the minimal operational template from the bootstrap starter templates
 - create baseline project-specific editorial governance files when evidence exists: `public-surface-map.md`, `page-intent-map.md`, `claim-register.md`, `editorial-update-gate.md`, `astro-content-schema-policy.md`, and `blog-and-article-surface-policy.md`
-- keep entries evidence-based; do not copy ShipGlowz's own repository-specific conclusions into the target project
-- preserve runtime content schema boundaries. Do not add ShipGlowz metadata to `src/content/**`, Astro collections, MDX consumed by the app, CMS entries, or other runtime content unless the local schema explicitly accepts it
+- keep entries evidence-based; do not copy ShipGlows's own repository-specific conclusions into the target project
+- preserve runtime content schema boundaries. Do not add ShipGlows metadata to `src/content/**`, Astro collections, MDX consumed by the app, CMS entries, or other runtime content unless the local schema explicitly accepts it
 - if a blog or article output is requested but no blog route is declared, record `surface missing: blog` instead of inventing a route
 
-If public surfaces are detected and `shipglowz_data/editorial/` already exists:
+If public surfaces are detected and `shipglows_data/editorial/` already exists:
 - preserve existing governance files
-- create `shipglowz_data/editorial/ROADMAP.md` when it is missing and the folder is writable
+- create `shipglows_data/editorial/ROADMAP.md` when it is missing and the folder is writable
 - otherwise report whether the roadmap `already existed`, `created`, `blocked`, or `needs audit`
 
 If no public/content surfaces are detected:
 - report `editorial governance: skipped - no editorial surfaces detected`
-- report `shipglowz_data/editorial/ROADMAP.md: skipped - no editorial surfaces detected`
+- report `shipglows_data/editorial/ROADMAP.md: skipped - no editorial surfaces detected`
 - name `/300-sg-docs editorial` as the adoption command if public surfaces appear later
 
-If public surfaces are detected but `shipglowz_data/editorial/` cannot be created safely:
+If public surfaces are detected but `shipglows_data/editorial/` cannot be created safely:
 - report `editorial governance: blocked`
-- report `shipglowz_data/editorial/ROADMAP.md: blocked`
+- report `shipglows_data/editorial/ROADMAP.md: blocked`
 - name the blocked files and the next safe command `/300-sg-docs editorial`
 - do not strengthen README, docs, public claims, FAQ, pricing, or support copy until the editorial governance state is created, audited, skipped with reason, or explicitly marked pending
 
@@ -765,7 +773,7 @@ If public surfaces are detected but `shipglowz_data/editorial/` cannot be create
 
 `AGENT.md` is the canonical agent routing entrypoint.
 
-- If `AGENT.md` is missing, create a baseline project-specific entrypoint that points to `CLAUDE.md`, `shipglowz_data/technical/context.md`, `shipglowz_data/technical/code-docs-map.md`, `shipglowz_data/editorial/content-map.md`, and `README.md`. If only legacy sources such as root `CONTEXT.md`, root `CONTENT_MAP.md`, or `docs/technical/code-docs-map.md` exist, mention them as layout migration debt and route to `/300-sg-docs migrate-layout`.
+- If `AGENT.md` is missing, create a baseline project-specific entrypoint that points to `CLAUDE.md`, `shipglows_data/technical/context.md`, `shipglows_data/technical/code-docs-map.md`, `shipglows_data/editorial/content-map.md`, and `README.md`. If only legacy sources such as root `CONTEXT.md`, root `CONTENT_MAP.md`, or `docs/technical/code-docs-map.md` exist, mention them as layout migration debt and route to `/300-sg-docs migrate-layout`.
 - If `AGENTS.md` is missing and symlinks are supported, create `AGENTS.md -> AGENT.md` as compatibility only.
 - If `AGENTS.md` exists as a symlink to `AGENT.md`, report it as OK.
 - If `AGENTS.md` exists as a real file or points elsewhere, report `AGENTS.md: compatibility conflict` and ask before converting or preserving it as external-tool-specific guidance.
@@ -791,21 +799,21 @@ PROJECT INITIALIZED: [name]
 Stack:       [detected stack]
 Path:        [project path]
 CLAUDE.md:   [created / skipped / already existed]
-shipglowz_data/workflow/TASKS.md:    [created / skipped / already existed / legacy root migration debt]
-shipglowz_data/workflow/AUDIT_LOG.md: [created / skipped / already existed / legacy root migration debt]
-shipglowz_data/business/business.md: [created / skipped / already existed]
-shipglowz_data/branding/branding.md: [created / skipped / already existed]
-shipglowz_data/business/project-competitors-and-inspirations.md: [absent optional / created on request / already existed / needs audit]
-shipglowz_data/business/affiliate-programs.md: [absent optional / created on request / already existed / needs audit]
-shipglowz_data/editorial/content-map.md: [created / skipped / already existed]
-shipglowz_data/editorial/ROADMAP.md: [created / skipped - no editorial surfaces detected / already existed / blocked / needs audit]
-shipglowz_data/technical/guidelines.md: [created / skipped / already existed]
+shipglows_data/workflow/TASKS.md:    [created / skipped / already existed / legacy root migration debt]
+shipglows_data/workflow/AUDIT_LOG.md: [created / skipped / already existed / legacy root migration debt]
+shipglows_data/business/business.md: [created / skipped / already existed]
+shipglows_data/branding/branding.md: [created / skipped / already existed]
+shipglows_data/business/project-competitors-and-inspirations.md: [absent optional / created on request / already existed / needs audit]
+shipglows_data/business/affiliate-programs.md: [absent optional / created on request / already existed / needs audit]
+shipglows_data/editorial/content-map.md: [created / skipped / already existed]
+shipglows_data/editorial/ROADMAP.md: [created / skipped - no editorial surfaces detected / already existed / blocked / needs audit]
+shipglows_data/technical/guidelines.md: [created / skipped / already existed]
 AGENT.md:    [created / already existed / blocked]
 AGENTS.md:   [symlink created / symlink ok / absent / compatibility conflict]
-shipglowz_data/technical: [created / already existed / skipped - no code areas detected / needs audit / blocked]
-shipglowz_data/editorial: [created / already existed / skipped - no editorial surfaces detected / needs audit / blocked]
+shipglows_data/technical: [created / already existed / skipped - no code areas detected / needs audit / blocked]
+shipglows_data/editorial: [created / already existed / skipped - no editorial surfaces detected / needs audit / blocked]
 MCP:         [configured / skipped]
-Project discovery: [local markers present / needs AGENT.md or shipglowz_data marker / blocked]
+Project discovery: [local markers present / needs AGENT.md or shipglows_data marker / blocked]
 Domains:     [list of applicable domains]
 ═══════════════════════════════════
 Next steps:

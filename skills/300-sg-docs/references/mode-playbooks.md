@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.8.1"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-07-12"
 status: draft
@@ -15,9 +15,9 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - skills/300-sg-docs/SKILL.md
-  - shipglowz_data/technical/
-  - shipglowz_data/editorial/
-  - shipglowz_data/workflow/specs/
+  - shipglows_data/technical/
+  - shipglows_data/editorial/
+  - shipglows_data/workflow/specs/
 depends_on:
   - artifact: "skills/300-sg-docs/references/core-governance.md"
     artifact_version: "0.4.0"
@@ -27,13 +27,13 @@ evidence:
   - "Extracted from 300-sg-docs SKILL.md during compact-skill pilot."
   - "Technical docs mode extended with global external platform corpus and governance-root platform usage docs."
   - "Operator decision on 2026-05-24: provider usage notes are risk-driven, not mandatory per technology."
-  - "Operator decision on 2026-05-24: monorepo documentation uses the root shipglowz_data corpus with scoped app/package entries."
+  - "Operator decision on 2026-05-24: monorepo documentation uses the root shipglows_data corpus with scoped app/package entries."
   - "Operator decision on 2026-06-28: docs init for empty repositories must produce an explicit bootstrap contract instead of a generic README-only result."
   - "Operator decision on 2026-06-28: when bootstrap facts are missing, docs init should ask precise numbered questions instead of stopping as blocked."
   - "Operator decision on 2026-06-28: docs skill should support an explicit duplicate-governance audit mode to decide whether duplicated docs are justified, mergeable, or migration debt."
-  - "Operator decision on 2026-07-12: topology migration must be tool-triggered before narrow update work and include every legacy shipflow_data corpus."
+  - "Operator decision on 2026-07-12: topology migration must be tool-triggered before narrow update work and include every legacy shipglows_data corpus."
 next_review: "2026-06-16"
-next_step: "/103-sg-verify Compact ShipGlowz Skill Instructions"
+next_step: "/103-sg-verify Compact ShipGlows Skill Instructions"
 ---
 
 # 300-sg-docs Mode Playbooks
@@ -48,10 +48,10 @@ Bootstrap output should prefer a coherent starter contract over placeholder pros
 
 - root `AGENT.md` with repository operating contract
 - root `README.md` with explicit project intent status, target surface status, and next framing step
-- `shipglowz_data/workflow/TASKS.md` with real bootstrap tasks, not filler
+- `shipglows_data/workflow/TASKS.md` with real bootstrap tasks, not filler
 - technical governance starter files when no code exists yet:
-  - `shipglowz_data/technical/README.md`
-  - `shipglowz_data/technical/code-docs-map.md`
+  - `shipglows_data/technical/README.md`
+  - `shipglows_data/technical/code-docs-map.md`
 
 For empty or near-empty repositories:
 
@@ -91,14 +91,14 @@ If source code already exists, `init` may still bootstrap missing governance, bu
 
 ## TECHNICAL DOCS MODE
 
-Load `skills/references/technical-docs-corpus.md`, then read the governance-root `shipglowz_data/technical/code-docs-map.md` (fallback legacy `docs/technical/code-docs-map.md`).
+Load `skills/references/technical-docs-corpus.md`, then read the governance-root `shipglows_data/technical/code-docs-map.md` (fallback legacy `docs/technical/code-docs-map.md`).
 
 Use mode variants:
 
 - bootstrap: missing technical layer
 - audit: verify layer coherency
 - update-plan: changed code paths require documentation update plan
-- monorepo audit: verify that one root `shipglowz_data/` covers app/package scopes and nested copies are treated as migration debt
+- monorepo audit: verify that one root `shipglows_data/` covers app/package scopes and nested copies are treated as migration debt
 
 Minimum checks:
 
@@ -109,18 +109,18 @@ Minimum checks:
 - behavior indexes distinguish ambiguous operator terms instead of flattening them
 - mapped behavior indexes link to key symbols, tests, specs/bugs, and decisions or an explicit `no durable decision record needed`
 - high-cognitive-load symbols reached from behavior indexes have source comment coverage for contract/invariant recovery
-- UI projects declare design-system authority in `shipglowz_data/technical/design-system-authority.md` or a mapped scoped app doc
-- monorepos have one root `shipglowz_data/` with app/package path scopes instead of repeated nested corpora
+- UI projects declare design-system authority in `shipglows_data/technical/design-system-authority.md` or a mapped scoped app doc
+- monorepos have one root `shipglows_data/` with app/package path scopes instead of repeated nested corpora
 - monorepos using the Astro plus Flutter plus backend split prefer flat source roots at the monorepo root; nested `apps/*` layout is treated as migration debt unless a durable exception is documented
-- external provider behavior has a global source note under `shipglowz_data/technical/external-platforms/` when it is common or repeated across projects
-- projects or monorepo surfaces that use an external provider have a governance-root usage note under `shipglowz_data/technical/platforms/` only when provider behavior affects validation, auth, deploy, runtime, SDK, storage, security, migrations, observability, compliance, production proof, or local exceptions
+- external provider behavior has a global source note under `shipglows_data/technical/external-platforms/` when it is common or repeated across projects
+- projects or monorepo surfaces that use an external provider have a governance-root usage note under `shipglows_data/technical/platforms/` only when provider behavior affects validation, auth, deploy, runtime, SDK, storage, security, migrations, observability, compliance, production proof, or local exceptions
 
 External platform docs use two layers:
 
-- global source note: `shipglowz_data/technical/external-platforms/<provider>.md`
-- provider usage note: `<governance-root>/shipglowz_data/technical/platforms/<provider>.md`
+- global source note: `shipglows_data/technical/external-platforms/<provider>.md`
+- provider usage note: `<governance-root>/shipglows_data/technical/platforms/<provider>.md`
 
-Do not mirror vendor docs. Keep links to official sources, freshness anchors, ShipGlowz decision rules, validation routes, and project-specific usage. Do not create filler project-local notes for standard, low-risk provider usage that is already clear from code/config and the global note.
+Do not mirror vendor docs. Keep links to official sources, freshness anchors, ShipGlows decision rules, validation routes, and project-specific usage. Do not create filler project-local notes for standard, low-risk provider usage that is already clear from code/config and the global note.
 
 Output update plans with fields:
 
@@ -143,12 +143,12 @@ Behavior-index bootstrap is justified when:
 
 ## EDITORIAL GOVERNANCE MODE
 
-Load `skills/references/editorial-content-corpus.md`, then governance-root editorial governance docs (`shipglowz_data/editorial/*` fallback legacy `docs/editorial/*`).
+Load `skills/references/editorial-content-corpus.md`, then governance-root editorial governance docs (`shipglows_data/editorial/*` fallback legacy `docs/editorial/*`).
 
 If the run touches operational follow-up or asks where a content/public-docs task should live, also load `skills/references/task-registry-routing.md` and keep the split explicit:
 
-- `shipglowz_data/workflow/TASKS.md` = execution backlog
-- `shipglowz_data/editorial/ROADMAP.md` = editorial/public-content backlog
+- `shipglows_data/workflow/TASKS.md` = execution backlog
+- `shipglows_data/editorial/ROADMAP.md` = editorial/public-content backlog
 
 Do not let editorial bootstrap or update work silently repopulate `TASKS.md` with public-content follow-up when the new roadmap artifact exists.
 
@@ -166,11 +166,11 @@ Must check:
 - editorial gate expectations
 - runtime content schema compatibility
 - editorial roadmap presence and role when the project has durable public-content follow-up
-- monorepos use the root `shipglowz_data/editorial/` corpus for shared public/content surfaces, with entries scoped by app/site/package where needed
+- monorepos use the root `shipglows_data/editorial/` corpus for shared public/content surfaces, with entries scoped by app/site/package where needed
 
 Bootstrap/update rule:
 
-- when editorial governance is applicable and the corpus is being bootstrapped or normalized, create `shipglowz_data/editorial/ROADMAP.md` if it is missing and the target repo is writable
+- when editorial governance is applicable and the corpus is being bootstrapped or normalized, create `shipglows_data/editorial/ROADMAP.md` if it is missing and the target repo is writable
 - keep the roadmap operational only; it is the backlog companion to the editorial corpus, not a substitute for `content-map.md`, `page-intent-map.md`, or the claim register
 
 If no public/editorial surfaces are detected, report `skipped - no editorial surfaces detected`.
@@ -181,7 +181,7 @@ Use this mode when the operator wants an explicit review of duplicated governanc
 
 Audit order:
 
-1. inventory candidate duplicate sets across `shipglowz_data/`, legacy root docs, and surface-scoped governance folders
+1. inventory candidate duplicate sets across `shipglows_data/`, legacy root docs, and surface-scoped governance folders
 2. group artifacts by theme first, then by surface
 3. compare overlap, ownership, freshness, and decision impact
 4. classify each set using the duplicate-governance rule from `core-governance.md`
@@ -196,7 +196,7 @@ Candidate families to inspect first:
 - gtm
 - technical context / architecture / guidelines
 - editorial content-map / page-intent / claim docs
-- legacy root files that mirror canonical `shipglowz_data/` artifacts
+- legacy root files that mirror canonical `shipglows_data/` artifacts
 
 Required output per duplicate set:
 
@@ -215,10 +215,10 @@ Merge rules:
 
 Default canonical targets in monorepos:
 
-- shared branding -> `shipglowz_data/branding/branding.md` with optional sibling brand bundle files under `shipglowz_data/branding/`
-- shared business -> `shipglowz_data/business/business.md`
-- shared product -> `shipglowz_data/product/product.md` only when the product truth is genuinely shared; otherwise `shipglowz_data/product/<surface>/product.md`
-- shared gtm -> `shipglowz_data/gtm/gtm.md` only when channel/offer truth is genuinely shared; otherwise `shipglowz_data/gtm/<surface>/gtm.md`
+- shared branding -> `shipglows_data/branding/branding.md` with optional sibling brand bundle files under `shipglows_data/branding/`
+- shared business -> `shipglows_data/business/business.md`
+- shared product -> `shipglows_data/product/product.md` only when the product truth is genuinely shared; otherwise `shipglows_data/product/<surface>/product.md`
+- shared gtm -> `shipglows_data/gtm/gtm.md` only when channel/offer truth is genuinely shared; otherwise `shipglows_data/gtm/<surface>/gtm.md`
 - technical and editorial docs stay scoped by surface unless a shared root artifact is clearer and truthful
 
 When the operator asks for cleanup, this mode may also execute the merge and deletion pass, but only after preserving unique content in the chosen canonical target.
@@ -280,7 +280,7 @@ Run documentation coherency audit:
 
 - inventory docs and doc-like surfaces
 - compare code vs docs for drift and missing coverage
-- validate metadata on applicable ShipGlowz artifacts
+- validate metadata on applicable ShipGlows artifacts
 - validate professional bug model documentation
 - validate language doctrine
 - validate freshness of context docs and dependency versions when applicable
@@ -297,18 +297,18 @@ Required gates:
 - only run skill-budget audit when scope touches skills/discovery metadata
 - persist conversation-derived durable decisions to proper docs surfaces
 - when the run touches operational follow-up trackers, load `skills/references/task-registry-routing.md` and preserve the split explicitly:
-  - execution/implementation work -> `shipglowz_data/workflow/TASKS.md`
-  - editorial/public-content work -> `shipglowz_data/editorial/ROADMAP.md`
+  - execution/implementation work -> `shipglows_data/workflow/TASKS.md`
+  - editorial/public-content work -> `shipglows_data/editorial/ROADMAP.md`
   - mixed findings -> split across both trackers instead of collapsing into one record
 - when slimming or deleting local docs, run a source-to-canonical preservation pass first and update the canonical target in the same change
 - keep bug model documentation consistent
 - create/update canonical business/product/branding/architecture/gtm/content-map/guidelines docs when missing and justified
-- when branding is non-trivial, prefer a governed bundle under `shipglowz_data/branding/` rather than stuffing all brand doctrine into one file
-- create/update `shipglowz_data/technical/design-system-authority.md` when a project has UI code but no declared canonical token/theme/component authority
+- when branding is non-trivial, prefer a governed bundle under `shipglows_data/branding/` rather than stuffing all brand doctrine into one file
+- create/update `shipglows_data/technical/design-system-authority.md` when a project has UI code but no declared canonical token/theme/component authority
 
-When the target repo already declares `shipglowz_data/editorial/ROADMAP.md`, `300-sg-docs update` should treat it as the canonical editorial operational companion and should not describe `shipglowz_data/workflow/TASKS.md` as the place for content-roadmap work.
+When the target repo already declares `shipglows_data/editorial/ROADMAP.md`, `300-sg-docs update` should treat it as the canonical editorial operational companion and should not describe `shipglows_data/workflow/TASKS.md` as the place for content-roadmap work.
 
-When the target repo has applicable editorial governance but no `shipglowz_data/editorial/ROADMAP.md`, `300-sg-docs update` should create it as part of the recoverable normalization pass rather than leaving it as an implied manual follow-up.
+When the target repo has applicable editorial governance but no `shipglows_data/editorial/ROADMAP.md`, `300-sg-docs update` should create it as part of the recoverable normalization pass rather than leaving it as an implied manual follow-up.
 
 Priority buckets:
 
@@ -319,7 +319,7 @@ Priority buckets:
 
 ## LAYOUT MIGRATION MODE
 
-Move root legacy artifacts, every `shipflow_data/` corpus, and non-standalone nested `shipglowz_data/` copies into the governance-root `shipglowz_data/` without destructive overwrite.
+Move root legacy artifacts, every `shipglows_data/` corpus, and non-standalone nested `shipglows_data/` copies into the governance-root `shipglows_data/` without destructive overwrite.
 
 Rules:
 

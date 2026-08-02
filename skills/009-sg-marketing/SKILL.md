@@ -8,22 +8,22 @@ argument-hint: "<market|gtm|copy|copywriting> <target> | help"
 
 ## Canonical Paths
 
-Before resolving ShipGlowz-owned files, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, local playbooks, templates, and workflow docs resolve from `$SHIPFLOW_ROOT`; project artifacts resolve from the current project root.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, local playbooks, templates, and workflow docs resolve from `$SHIPGLOWS_ROOT`; project artifacts resolve from the current project root.
 
 ## Instruction Layering
 
-This `SKILL.md` is the compact activation contract. Before editing or expanding it, load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md`. Keep detailed procedure, scoring, templates, and provider guidance in the selected local playbook.
+This `SKILL.md` is the compact activation contract. Before editing or expanding it, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md`. Keep detailed procedure, scoring, templates, and provider guidance in the selected local playbook.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`. If attached to exactly one active spec, trace this run there; otherwise do not write a spec. Evaluate the standard `Chantier potentiel` threshold when findings imply non-trivial future work without a unique owner.
+Before the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. If attached to exactly one active spec, trace this run there; otherwise do not write a spec. Evaluate the standard `Chantier potentiel` threshold when findings imply non-trivial future work without a unique owner.
 
 ## Report Modes
 
-Before the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, findings-first for audits and evidence limits, outcome-first for support runs, and in the user's active language. Use `report=agent`, `handoff`, `verbose`, or `full-report` only when detailed evidence is needed.
 
@@ -33,7 +33,7 @@ Default to `report=user`: concise, findings-first for audits and evidence limits
 
 ## Mode Detection
 
-Load `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md` before selecting a mode or scope.
+Load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` before selecting a mode or scope.
 
 Parse `$ARGUMENTS` exactly:
 
@@ -51,10 +51,10 @@ Never guess between `copy` and `copywriting`: `copy` asks whether wording is cle
 
 Load only gates required by the selected mode:
 
-- `market` and `gtm`: load `$SHIPFLOW_ROOT/skills/references/source-intake-classification.md` when competitor pages, marketplaces, external reviews, or raw sources materially affect the analysis. Load `$SHIPFLOW_ROOT/shipglowz_data/technical/product-behavior-intelligence.md` only when behavior-to-value, activation, retention, or feature-value proof is needed; it is draft, so state its confidence limit rather than elevating it to settled proof.
-- `copy` and `copywriting`: load `$SHIPFLOW_ROOT/skills/references/content-quality-rubric.md` for rubric-scored outputs and `$SHIPFLOW_ROOT/skills/references/task-registry-routing.md` before durable follow-up writes. For sales/offer, CTA/proof/objection comparison, or explicit inspiration, load `$SHIPFLOW_ROOT/skills/references/design-inspiration-library.md`; filter at most five private reference IDs, require operator selection before loading bundles, and use transferable patterns rather than source phrasing.
-- `copywriting` landing gate: after the `copywriting` playbook is selected, load `$SHIPFLOW_ROOT/skills/references/landing-page-copywriting-framework.md` only for landing, sales, or offer targets or explicit section-flow or repetition work on the bounded target. A non-landing target without that need does not load it; this remains one local playbook plus shared doctrine, not another mode or marketing pass.
-- Any public-content, mapped-documentation, runtime-content, README, or public-doc change: load `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md` and/or `$SHIPFLOW_ROOT/skills/references/technical-docs-corpus.md` as their gates require. Report the applicable Editorial, Claim Impact, and Documentation Update Plans.
+- `market` and `gtm`: load `$SHIPGLOWS_ROOT/skills/references/source-intake-classification.md` when competitor pages, marketplaces, external reviews, or raw sources materially affect the analysis. Load `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` only when behavior-to-value, activation, retention, or feature-value proof is needed; it is draft, so state its confidence limit rather than elevating it to settled proof.
+- `copy` and `copywriting`: load `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md` for rubric-scored outputs and `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md` before durable follow-up writes. For sales/offer, CTA/proof/objection comparison, or explicit inspiration, load `$SHIPGLOWS_ROOT/skills/references/design-inspiration-library.md`; filter at most five private reference IDs, require operator selection before loading bundles, and use transferable patterns rather than source phrasing.
+- `copywriting` landing gate: after the `copywriting` playbook is selected, load `$SHIPGLOWS_ROOT/skills/references/landing-page-copywriting-framework.md` only for landing, sales, or offer targets or explicit section-flow or repetition work on the bounded target. A non-landing target without that need does not load it; this remains one local playbook plus shared doctrine, not another mode or marketing pass.
+- Any public-content, mapped-documentation, runtime-content, README, or public-doc change: load `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` and/or `$SHIPGLOWS_ROOT/skills/references/technical-docs-corpus.md` as their gates require. Report the applicable Editorial, Claim Impact, and Documentation Update Plans.
 
 ## Boundaries And Reroutes
 
@@ -76,7 +76,7 @@ After contract edits, run:
 
 ```bash
 python3 -m unittest tools.test_009_sg_marketing_contract
-python3 tools/shipglowz_metadata_lint.py skills/009-sg-marketing
+python3 tools/shipglows_metadata_lint.py skills/009-sg-marketing
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
 ```
 

@@ -6,26 +6,26 @@ argument-hint: '[file-path | "global"] (omit for full project)'
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
-This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
+This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`. If attached to one unique chantier spec, write the run trace there. If no unique chantier exists, do not write to a spec.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`. If attached to one unique chantier spec, write the run trace there. If no unique chantier exists, do not write to a spec.
 
 ## Chantier Potential Intake
 
-Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report. Add a `Chantier potentiel` block when findings reveal non-trivial future work and no unique chantier owns it.
+Because this skill has process role `source-de-chantier`, evaluate the standard threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report. Add a `Chantier potentiel` block when findings reveal non-trivial future work and no unique chantier owns it.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, findings-first for audits and failures, outcome-first for successful support runs, and in the user's active language. Use `report=agent`, `handoff`, `verbose`, or `full-report` only when detailed evidence is needed.
 
@@ -34,12 +34,12 @@ Default to `report=user`: concise, findings-first for audits and failures, outco
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
 - `references/audit-master-workflow.md`: Master audit planning, domain routing, parallel/read-only audit rules, consolidation, tracking, and fix handoff details.
-- `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`: required before creating or mutating audit or task operational records in `AUDIT_LOG.md` or `TASKS.md`.
-- `$SHIPFLOW_ROOT/skills/references/skill-refactor-verifier.md`: required for audit-skill compaction or process-migration checks.
+- `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`: required before creating or mutating audit or task operational records in `AUDIT_LOG.md` or `TASKS.md`.
+- `$SHIPGLOWS_ROOT/skills/references/skill-refactor-verifier.md`: required for audit-skill compaction or process-migration checks.
 
 ## Mode Detection
 
-Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`: bounded professional scope, never shortcut quality.
+Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: bounded professional scope, never shortcut quality.
 
 `400-sg-audit` answers one routing question: what audit scope is actually needed here, and should we coordinate multiple domains or route directly to one specialist audit owner?
 
@@ -77,6 +77,6 @@ Validate this skill after edits with:
 
 - `rg -n "Trace category|Process role|Chantier Potential|Report Modes|GLOBAL MODE|PROJECT MODE|findings|parallel|references/" skills/400-sg-audit/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
-- `tools/shipglowz_sync_skills.sh --check --all`
+- `tools/shipglows_sync_skills.sh --check --all`
 
 For compaction or refactor work, also run the verifier reference before closing the task.

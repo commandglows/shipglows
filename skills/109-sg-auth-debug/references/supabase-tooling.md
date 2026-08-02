@@ -9,11 +9,11 @@ Sources checked:
 
 Last reviewed: 2026-04-26
 
-## Standard ShipGlowz Setup
+## Standard ShipGlows Setup
 
 - Supabase MCP endpoint: `https://mcp.supabase.com/mcp`
-- Codex config requires remote MCP support; ShipGlowz enables `rmcp = true` in `~/.codex/config.toml`
-- Supabase CLI install in ShipGlowz: standalone binary, not `npm install -g supabase`
+- Codex config requires remote MCP support; ShipGlows enables `rmcp = true` in `~/.codex/config.toml`
+- Supabase CLI install in ShipGlows: standalone binary, not `npm install -g supabase`
 - Local Supabase CLI MCP endpoint: `http://127.0.0.1:54321/mcp` after `supabase start`
 
 ## Use Supabase MCP When

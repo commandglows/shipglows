@@ -2,7 +2,7 @@
 artifact: migration_evidence
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-17"
 updated: "2026-07-17"
 status: active
@@ -19,7 +19,7 @@ linked_systems:
   - skills/007-sg-content/references/repurpose-playbook.md
   - tools/test_007_sg_content_repurpose_contract.py
 depends_on:
-  - artifact: "shipglowz_data/workflow/specs/consolidate-repurpose-mode-under-sg-content.md"
+  - artifact: "shipglows_data/workflow/specs/consolidate-repurpose-mode-under-sg-content.md"
     artifact_version: "1.0.0"
     required_status: ready
 supersedes: []
@@ -52,6 +52,6 @@ next_step: "/103-sg-verify consolidate repurpose mode under sg-content"
 
 Actionable current instructions must use `007-sg-content repurpose <source>` (or its public `sg-content repurpose <source>` rendering). The test scans active skills, shared references, runtime/catalog, public site, root/current docs, templates, and current workflow playbooks/checklists.
 
-The intentionally narrow factual-history allowlist is: completed or predecessor specs, audits/reviews, refresh log, archive trees, durable repurpose packs, research evidence, and the current consolidation spec. `shipglowz_data/workflow/TASKS.md` is also excluded only because the operator explicitly preserved this unrelated tracker during implementation; it is not a general workflow exclusion.
+The intentionally narrow factual-history allowlist is: completed or predecessor specs, audits/reviews, refresh log, archive trees, durable repurpose packs, research evidence, and the current consolidation spec. `shipglows_data/workflow/TASKS.md` is also excluded only because the operator explicitly preserved this unrelated tracker during implementation; it is not a general workflow exclusion.
 
 No source text, secrets, private material, URLs, customer content, or transcript excerpts are stored in this matrix or its test fixtures.

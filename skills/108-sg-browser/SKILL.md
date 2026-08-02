@@ -6,30 +6,30 @@ argument-hint: <URL, route, environment, or visible objective>
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 Primary artifact type: `specialist-workflow`.
 
 ## Instruction Layering
 
-This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
+This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, evidence-first, and using the opening chantier header. Use `report=agent`, `handoff`, `verbose`, or `full-report` when another agent needs URLs, runtime details, evidence inventories, internal routes, or lifecycle state.
 
 ## Chantier Potential Intake
 
-Apply the chantier-potential threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report.
+Apply the chantier-potential threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report.
 For `108-sg-browser`, use it when browser evidence reveals non-trivial future work outside a narrow direct fix and no unique chantier already owns that work.
 
 ## Mission
@@ -48,23 +48,23 @@ If the browser objective can be satisfied only by auth/session analysis, durable
 
 Do not use it as the specialist for auth, manual QA, deployment discovery, production logs, or code fixes:
 - Auth, OAuth, cookies, sessions, callbacks, tenants, and protected-route breaks route to `/109-sg-auth-debug`.
-- Full manual QA campaigns, retests, `shipglowz_data/workflow/TEST_LOG.md`, bug files, and optional `shipglowz_data/workflow/BUGS.md` triage views route to `/107-sg-test`.
+- Full manual QA campaigns, retests, `shipglows_data/workflow/TEST_LOG.md`, bug files, and optional `shipglows_data/workflow/BUGS.md` triage views route to `/107-sg-test`.
 - Deployment URL discovery, Vercel status, build logs, runtime logs, and live deploy readiness route to `/405-sg-prod`.
 - Actionable code bugs route to `/106-sg-fix` or `/102-sg-start`.
 
 ## Required References
 
 Always load these before browser work:
-- `$SHIPFLOW_ROOT/skills/references/canonical-paths.md`
-- `$SHIPFLOW_ROOT/skills/references/playwright-mcp-runtime.md`
+- `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`
+- `$SHIPGLOWS_ROOT/skills/references/playwright-mcp-runtime.md`
 
-Load `$SHIPFLOW_ROOT/skills/108-sg-browser/references/browser-evidence.md` when the request involves console/network evidence, screenshots, production data, redaction, sensitive output, uncertain verdicts, or localized report wording. This is a skill-local reference, not a global `$SHIPFLOW_ROOT/skills/references/*` file.
+Load `$SHIPGLOWS_ROOT/skills/108-sg-browser/references/browser-evidence.md` when the request involves console/network evidence, screenshots, production data, redaction, sensitive output, uncertain verdicts, or localized report wording. This is a skill-local reference, not a global `$SHIPGLOWS_ROOT/skills/references/*` file.
 
-Load `$SHIPFLOW_ROOT/skills/references/sentry-observability.md` when the browser check sees a crash, error boundary, 5xx, unhandled console exception, visible diagnostics/log-copy UI, or visible Sentry/support event ID. Skills do not have direct Sentry dashboard access; use only visible/supplied issue or event pointers and redacted copied diagnostics.
+Load `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` when the browser check sees a crash, error boundary, 5xx, unhandled console exception, visible diagnostics/log-copy UI, or visible Sentry/support event ID. Skills do not have direct Sentry dashboard access; use only visible/supplied issue or event pointers and redacted copied diagnostics.
 
-Load `$SHIPFLOW_ROOT/skills/references/runtime-diagnostics-surface.md` when a runtime app may expose settings, support, debug, diagnostics, error boundary, or copy-log UI. When the agent can navigate/click safely with Playwright or any other browser/tooling path, actively look for that surface and use its copy action before asking the operator for logs.
+Load `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md` when a runtime app may expose settings, support, debug, diagnostics, error boundary, or copy-log UI. When the agent can navigate/click safely with Playwright or any other browser/tooling path, actively look for that surface and use its copy action before asking the operator for logs.
 
-Read `$SHIPFLOW_ROOT/skills/references/project-development-mode.md` and inspect `CLAUDE.md` or `SHIPFLOW.md` before treating local browser proof as authoritative for changed behavior.
+Read `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` and inspect `CLAUDE.md` or `SHIPGLOWS.md` before treating local browser proof as authoritative for changed behavior.
 
 ## Input Triage
 
@@ -84,21 +84,21 @@ Route instead of continuing when:
 - the objective mentions Clerk, Supabase Auth, OAuth, login, callback, cookies, session, tenant, protected route, or auth provider behavior -> `/109-sg-auth-debug`
 - the user asks for a full manual user-flow test, durable QA log, or bug file -> `/107-sg-test`
 - the deployment URL is unknown or unconfirmed -> `/405-sg-prod`
-- preview-push validation is required but the change has not been shipped -> apply `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md`
+- preview-push validation is required but the change has not been shipped -> apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`
 - the request is broad, such as "check everything" -> ask for one observable objective or route to `/107-sg-test`
 - the requested action can buy, delete, publish, send email, change account data, write production data, or trigger external side effects -> ask for explicit approval or route to a safe test environment
 
 ## Browser Runtime Preflight
 
-Before the first `mcp__playwright__*` tool call, apply `$SHIPFLOW_ROOT/skills/references/playwright-mcp-runtime.md`.
+Before the first `mcp__playwright__*` tool call, apply `$SHIPGLOWS_ROOT/skills/references/playwright-mcp-runtime.md`.
 
 Stop browser proof when:
 - Playwright MCP config is stale or unsafe.
 - Linux ARM64 config falls back to Google Chrome stable or `/opt/google/chrome/chrome`.
 - Config is correct but the current MCP process still reports `/opt/google/chrome/chrome`.
-- A reference required for the requested objective is missing from its canonical ShipGlowz path.
+- A reference required for the requested objective is missing from its canonical ShipGlows path.
 
-In those cases, do not diagnose the app. Report the runtime or ShipGlowz installation blocker. For Playwright runtime blockers, route to `/106-sg-fix BUG-2026-05-02-001` or request a Codex/MCP reload as the runtime reference requires. For missing ShipGlowz references, report the missing canonical path and route to `/900-shipglowz-core build` or `/106-sg-fix` instead of continuing with partial local memory.
+In those cases, do not diagnose the app. Report the runtime or ShipGlows installation blocker. For Playwright runtime blockers, route to `/106-sg-fix BUG-2026-05-02-001` or request a Codex/MCP reload as the runtime reference requires. For missing ShipGlows references, report the missing canonical path and route to `/900-shipglows-core build` or `/106-sg-fix` instead of continuing with partial local memory.
 
 ## Verification Flow
 
@@ -110,7 +110,7 @@ In those cases, do not diagnose the app. Report the runtime or ShipGlowz install
 6. Review console messages or network requests only when relevant to the objective or when visible evidence is partial.
 7. For runtime apps, proactively look for safe diagnostics entry points such as Settings, Support, Diagnostics, Debug, error fallback, overflow menu, or `Copy diagnostics` / `Copy logs`. Use any available browser/navigation tool, but only reversible navigation/clicks.
 8. If a diagnostics/log-copy action is reachable, click it, read the copied text from clipboard when tooling/browser permissions allow it, or read the visible diagnostic text. Confirm whether the first lines contain commit/build plus Paris/UTC build time.
-9. Apply `$SHIPFLOW_ROOT/skills/references/operator-last-resort-evidence.md` before asking the operator for logs. In `108-sg-browser`, ask only when the diagnostics surface is missing, blocked by auth/permissions, unsafe to open, or clipboard/text extraction fails.
+9. Apply `$SHIPGLOWS_ROOT/skills/references/operator-last-resort-evidence.md` before asking the operator for logs. In `108-sg-browser`, ask only when the diagnostics surface is missing, blocked by auth/permissions, unsafe to open, or clipboard/text extraction fails.
 10. If a Sentry/support event ID is visible or supplied, correlate only that pointer and summarize it without raw payloads.
 11. Avoid raw dumps. Prefer targeted, redacted summaries.
 12. Decide a narrow verdict for the requested objective only.
@@ -182,7 +182,7 @@ Redact secrets, cookies, tokens, credentials, private emails, account identifier
 
 If a screenshot or snapshot may expose sensitive data, summarize the relevant visible state instead of embedding or persisting the sensitive evidence.
 
-If a finding crosses the chantier threshold, report `Chantier potentiel` and route to `/100-sg-spec`. Do not write `shipglowz_data/workflow/BUGS.md`, `shipglowz_data/workflow/bugs/`, `shipglowz_data/workflow/TEST_LOG.md`, `TASKS.md`, `AUDIT_LOG.md`, or `PROJECTS.md` from this skill.
+If a finding crosses the chantier threshold, report `Chantier potentiel` and route to `/100-sg-spec`. Do not write `shipglows_data/workflow/BUGS.md`, `shipglows_data/workflow/bugs/`, `shipglows_data/workflow/TEST_LOG.md`, `TASKS.md`, `AUDIT_LOG.md`, or `PROJECTS.md` from this skill.
 
 ## Final Report Shape
 

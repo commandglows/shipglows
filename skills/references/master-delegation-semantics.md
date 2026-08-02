@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.5.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-04"
 updated: "2026-07-18"
 status: active
@@ -14,19 +14,19 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/001-sg-build/SKILL.md
   - skills/002-sg-maintain/SKILL.md
   - skills/007-sg-content/SKILL.md
   - skills/006-sg-design/SKILL.md
-  - skills/900-shipglowz-core/SKILL.md
+  - skills/900-shipglows-core/SKILL.md
   - skills/004-sg-deploy/SKILL.md
   - skills/003-sg-bug/SKILL.md
   - skills/400-sg-audit/SKILL.md
   - skills/references/decision-quality-contract.md
   - skills/references/spec-driven-development-discipline.md
   - docs/technical/skill-runtime-and-lifecycle.md
-  - shipglowz_data/workflow/playbooks/spec-driven-workflow.md
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
@@ -34,7 +34,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "User decision 2026-05-04: the primary `000-shipglowz` router should use direct main-thread handoff to selected master skills, not nested master-skill subagents."
+  - "User decision 2026-05-04: the primary `000-shipglows` router should use direct main-thread handoff to selected master skills, not nested master-skill subagents."
   - "User decision 2026-05-04: master skills keep the master conversation clean by delegating file, validation, closure, and ship work to bounded sequential subagents when available."
   - "User decision 2026-05-04: delegation/subagent execution is distinct from parallelism; parallelism means simultaneous subagents and requires ready Execution Batches."
   - "User decision 2026-05-04: short natural-language confirmations continue the current chantier in delegated sequential mode after diagnosis or proposal; they are interpreted by intent, not exact keyword."
@@ -52,7 +52,7 @@ next_step: "/103-sg-verify master delegation semantics"
 
 ## Purpose
 
-This reference defines how ShipGlowz master and orchestrator skills choose execution topology without duplicating delegation doctrine in every skill contract.
+This reference defines how ShipGlows master and orchestrator skills choose execution topology without duplicating delegation doctrine in every skill contract.
 
 The goal is a clean master conversation: the master skill owns decisions, routing, status, integration, and final reporting, while bounded execution contexts handle routine file work, validation, closure preparation, and ship preparation when the runtime supports them.
 
@@ -64,9 +64,9 @@ Do not narrate routine subagent orchestration; report outcomes, evidence, blocke
 
 ## Applies To
 
-This applies to master and orchestrator skills that pilot multiple phases, owner skills, or execution contexts, including `000-shipglowz`, `001-sg-build`, `002-sg-maintain`, `007-sg-content`, `006-sg-design`, `900-shipglowz-core build`, `004-sg-deploy`, `003-sg-bug`, and `400-sg-audit`.
+This applies to master and orchestrator skills that pilot multiple phases, owner skills, or execution contexts, including `000-shipglows`, `001-sg-build`, `002-sg-maintain`, `007-sg-content`, `006-sg-design`, `900-shipglows-core build`, `004-sg-deploy`, `003-sg-bug`, and `400-sg-audit`.
 
-`000-shipglowz` is a special case: it is a primary router, not a lifecycle executor. It loads this reference to avoid invalid topology, then uses direct main-thread handoff to the selected skill. It must not launch selected master skills inside subagents.
+`000-shipglows` is a special case: it is a primary router, not a lifecycle executor. It loads this reference to avoid invalid topology, then uses direct main-thread handoff to the selected skill. It must not launch selected master skills inside subagents.
 
 Atomic owner skills may cite this reference only when they launch or coordinate subagents themselves.
 

@@ -17,7 +17,7 @@ PLAYBOOK = (
     / "copywriting-audit-playbook.md"
 )
 FRAMEWORK_NAME = "landing-page-copywriting-framework.md"
-FRAMEWORK_PATH = "$SHIPFLOW_ROOT/skills/references/landing-page-copywriting-framework.md"
+FRAMEWORK_PATH = "$SHIPGLOWS_ROOT/skills/references/landing-page-copywriting-framework.md"
 
 
 class LandingPageCopywritingFrameworkContractTests(unittest.TestCase):

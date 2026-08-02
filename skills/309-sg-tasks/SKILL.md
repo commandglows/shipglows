@@ -7,22 +7,22 @@ argument-hint: [sessions|sessions rename <status>|sessions prune|name-conversati
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `pilotage`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 
 ## Context
 
 - Current directory: !`pwd`
-- Project-local dashboard (primary): !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || echo "No local project TASKS.md"`
+- Project-local dashboard (primary): !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || echo "No local project TASKS.md"`
 - Legacy cross-project dashboard fallback: disabled; use project-local trackers or explicit migration evidence only.
-- Local project tracker (if exists): !`cat TASKS.md 2>/dev/null || cat shipglowz_data/workflow/TASKS.md 2>/dev/null || echo "No local project TASKS.md"`
+- Local project tracker (if exists): !`cat TASKS.md 2>/dev/null || cat shipglows_data/workflow/TASKS.md 2>/dev/null || echo "No local project TASKS.md"`
 - Recent git status: !`git status --short 2>/dev/null || echo "Not a git repository"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "N/A"`
 - Project CLAUDE.md (if exists): !`head -30 CLAUDE.md 2>/dev/null || echo "No CLAUDE.md found"`
@@ -30,18 +30,18 @@ Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chanti
 
 ## Multi-project tracking system
 
-**CRITICAL**: This workspace tracks projects through local project trackers (`shipglowz_data/workflow/TASKS.md`). Local project trackers are the active source of truth.
+**CRITICAL**: This workspace tracks projects through local project trackers (`shipglows_data/workflow/TASKS.md`). Local project trackers are the active source of truth.
 
-- `TASKS.md` is an operational tracker, not a ShipGlowz decision artifact. Do not add YAML frontmatter or metadata schema fields to `TASKS.md`.
-- `shipglowz_data/editorial/ROADMAP.md` is the separate operational tracker for editorial/public-content follow-up. `309-sg-tasks` does not own that file by default.
+- `TASKS.md` is an operational tracker, not a ShipGlows decision artifact. Do not add YAML frontmatter or metadata schema fields to `TASKS.md`.
+- `shipglows_data/editorial/ROADMAP.md` is the separate operational tracker for editorial/public-content follow-up. `309-sg-tasks` does not own that file by default.
 - If a task contains a durable decision, spec, business rule, research conclusion, or product contract, keep the task entry concise and extract the durable content into a separate metadata-bearing artifact via `/300-sg-docs`, `/100-sg-spec`, `/203-sg-research`, or the relevant skill.
-- **Prioritize local tracker updates** (`TASKS.md` or `shipglowz_data/workflow/TASKS.md`) as the operational source of truth.
+- **Prioritize local tracker updates** (`TASKS.md` or `shipglows_data/workflow/TASKS.md`) as the operational source of truth.
 - Do not update a central master tracker during normal task work. Treat old master files as migration evidence only.
 
 ## Shared tracking file write protocol
 
-- Before creating or mutating task operational records, load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` and follow its traffic-first grammar for new `TASKS.md` entries.
-- Before deciding whether a follow-up belongs in the execution tracker at all, load `$SHIPFLOW_ROOT/skills/references/task-registry-routing.md`. If the work is primarily editorial/public-content, reroute to the editorial roadmap instead of mutating `TASKS.md`.
+- Before creating or mutating task operational records, load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` and follow its traffic-first grammar for new `TASKS.md` entries.
+- Before deciding whether a follow-up belongs in the execution tracker at all, load `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md`. If the work is primarily editorial/public-content, reroute to the editorial roadmap instead of mutating `TASKS.md`.
 - Treat the TASKS snapshots loaded at skill start as informational only.
 - Right before editing the project-local TASKS file, re-read the target from disk and use that version as authoritative.
 - Apply the smallest possible patch to the relevant project section or backlog block; never rewrite the whole file from stale context.
@@ -61,11 +61,11 @@ pressure scenarios below remain activation-critical.
 
 Use `sessions` when the operator wants the Codex conversation archive to act as
 a navigable status index alongside the project tracker. The reusable operating
-method is `$SHIPFLOW_ROOT/shipglowz_data/workflow/playbooks/conversation-tracker-sync-playbook.md`.
+method is `$SHIPGLOWS_ROOT/shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md`.
 
 This mode has two separate sources of truth:
 
-- `shipglowz_data/workflow/TASKS.md` is authoritative for project work and uses
+- `shipglows_data/workflow/TASKS.md` is authoritative for project work and uses
   the exact status vocabulary `todo`, `doing`, `in_progress`, `blocked`, `done`.
 - `~/.codex/state_5.sqlite`, `threads.title`, is authoritative for the title
   shown in the Codex session list. The session `cwd` must match the target
@@ -83,7 +83,7 @@ conversation.
 `/309-sg-tasks sessions [project|cwd]` must:
 
 1. scope by exact absolute `cwd`; read an existing local tracker, but do not
-   create `TASKS.md` or `shipglowz_data/` for a tracker-less directory;
+   create `TASKS.md` or `shipglows_data/` for a tracker-less directory;
 2. query `id` and `title` for Codex `threads` rows filtered by the exact project `cwd`, then skip only managed titles whose work title is semantic and contains at most five words;
 3. inspect the complete available conversation for every unmanaged title, from the first request through the latest objective and outcome; a preview or first-message field alone is insufficient;
 4. for high-confidence same-subject unmanaged threads, keep the most recently active
@@ -106,7 +106,7 @@ before any rename-related work. If `sessions rename` has no status or an
 unsupported status, ask for exactly one supported status (`todo`, `doing`,
 `in_progress`, `blocked`, or `done`) and do not derive a title, inspect
 sessions, call the helper, or mutate Codex or `TASKS.md`. With a valid status,
-derive one semantic work title from the visible conversation, then invoke the ShipGlowz-owned
+derive one semantic work title from the visible conversation, then invoke the ShipGlows-owned
 `tools/rename_codex_session.py` with that title. Accept only `todo`, `doing`,
 `in_progress`, `blocked`, or `done`; target only `CODEX_THREAD_ID` in the exact
 current `cwd`; persist `<STATUS> - <work title>` with at most five work-title
@@ -115,7 +115,7 @@ threads or mutate `TASKS.md`. The explicit command authorizes this one rename;
 do not ask for a second confirmation.
 
 `/309-sg-tasks sessions prune [cwd]` loads the session playbook and the
-ShipGlowz-owned `tools/prune_codex_sessions.py`. It previews by default and may
+ShipGlows-owned `tools/prune_codex_sessions.py`. It previews by default and may
 apply only after the operator confirms the exact absolute `cwd`. Prune is
 restricted to canonical `DONE - ...` sessions inactive for strictly more than
 30 days by default, always excludes `CODEX_THREAD_ID`, never runs `VACUUM`, and
@@ -170,12 +170,14 @@ title by copying or shortening message text. Report `Suggested title`, tracker
 ## Tracker synchronization rules
 
 - Distinguish clearly between:
-  - the project-local `shipglowz_data/workflow/TASKS.md` file
+  - the project-local `shipglows_data/workflow/TASKS.md` file
   - legacy root `TASKS.md` files inside old projects
   - archived central trackers used only as migration evidence
 - There is no active central master tracker for normal task updates.
-- The local tracker (`TASKS.md` or `shipglowz_data/workflow/TASKS.md`) should represent the active project backlog and may include a small `Historical completed work` section when older project work exists only in the legacy master.
+- The local tracker (`TASKS.md` or `shipglows_data/workflow/TASKS.md`) should represent the active project backlog and may include a small `Historical completed work` section when older project work exists only in the legacy master.
 - Completed historical entries from archived central trackers must not be copied into the local active backlog.
+
+For an Atlas-roadmap request, load `$SHIPGLOWS_ROOT/skills/references/atlas-cartography-lifecycle.md`; report coverage only, never create IDs or replace `TASKS.md`/specs.
 - If a local `TASKS.md` is created after project work already exists in the legacy master tracker, first audit the existing project entries there, then split them into:
   - active backlog
   - historical completed context
@@ -190,7 +192,7 @@ Intelligently manage the TASKS.md file by:
 1. Checking off completed tasks
 2. Adding remaining tasks to be done
 3. Suggesting the next priority action
-4. **Keeping the execution tracker in sync** (`shipglowz_data/workflow/TASKS.md` primary, legacy master optional)
+4. **Keeping the execution tracker in sync** (`shipglows_data/workflow/TASKS.md` primary, legacy master optional)
 
 This skill answers one operator question: what should change in the task tracker right now so the durable task record matches the real project state?
 
@@ -198,7 +200,7 @@ It owns tracker bookkeeping: task records, status updates, active-vs-backlog hyg
 
 Keep the boundary explicit:
 - stay here for execution backlog maintenance
-- reroute editorial/public-content backlog work to `shipglowz_data/editorial/ROADMAP.md` through the content owner skill or the shared routing contract
+- reroute editorial/public-content backlog work to `shipglows_data/editorial/ROADMAP.md` through the content owner skill or the shared routing contract
 - stay here when the main need is to create, update, migrate, clean, or reconcile the task tracker itself
 - hand off to `706-continue` when the main need is to advance the currently resolved work item rather than maintain the tracker
 - hand off to `701-sg-backlog` when the main need is deferred capture or backlog cleanup rather than active tracker maintenance
@@ -236,13 +238,13 @@ If the current directory has no project markers (not inside a specific project) 
    - Look for TODOs in code, pending PRs, failing tests, or incomplete features
 
 4. **Update TASKS.md**:
-   - **Always check if TASKS.md exists first.** If it does not exist, create it using a concise project heading plus task operational records that follow `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` — do NOT create a bare-minimum file.
+   - **Always check if TASKS.md exists first.** If it does not exist, create it using a concise project heading plus task operational records that follow `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` — do NOT create a bare-minimum file.
   - If project work already exists in the legacy master tracker for this repo, import only the still-active items into the local active backlog. Historical `done` items may be copied into a short context section, but never into the active backlog.
    - If TASKS.md doesn't exist, create it with this compact structure (adapt section titles to the detected project):
      ```markdown
      # Tasks — [Project Name]
 
-     > Operational task records follow `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`.
+     > Operational task records follow `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`.
 
      ---
 
@@ -270,7 +272,7 @@ If the current directory has no project markers (not inside a specific project) 
      - Update existing canonical task records in place when present, preserving unknown fields.
      - Treat legacy tables or checklist rows as migration input only; do not add new legacy-only task rows.
      - Preserve existing audit sections — never remove dated `### Audit:` blocks
-     - Keep traffic markers consistent with `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`: 🔴 🟠 🟡 🟢.
+     - Keep traffic markers consistent with `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`: 🔴 🟠 🟡 🟢.
 
 5. **Update CHANGELOG.md**:
    - Look for a `CHANGELOG.md` in the current project directory
@@ -300,7 +302,7 @@ If the current directory has no project markers (not inside a specific project) 
 ### Important
 
 - Do not update legacy central trackers for cross-project visibility; use local project discovery and project-local files.
-- If a root project `TASKS.md` also exists (e.g., `winflowz/TASKS.md`), treat it as a legacy project tracker and prefer `shipglowz_data/workflow/TASKS.md` when available.
+- If a root project `TASKS.md` also exists (e.g., `winflowz/TASKS.md`), treat it as a legacy project tracker and prefer `shipglows_data/workflow/TASKS.md` when available.
 - Use the Edit tool to update existing TASKS.md or Write tool to create a new one
 - Be intelligent about what's "done" - check actual evidence, don't just guess
 - Keep task descriptions clear and actionable

@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.3.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-07-17"
 status: draft
@@ -46,7 +46,7 @@ next_step: "/103-sg-verify mode=excellence sg-verify excellence focus mode"
 5. Verify metadata/versioned contracts and `depends_on` coherence.
 6. Verify fresh external docs gate when dependency behavior matters.
 7. Verify completeness (tasks, acceptance criteria, expected files).
-8. Verify bug gate from `shipglowz_data/workflow/bugs/*.md` (+ optional `shipglowz_data/workflow/BUGS.md` index).
+8. Verify bug gate from `shipglows_data/workflow/bugs/*.md` (+ optional `shipglows_data/workflow/BUGS.md` index).
 9. Verify correctness against code/tests/invariants/linked consequences.
 10. Verify Flutter mobile proof ladder when Flutter UI or APK/device evidence is in scope.
 11. Verify coherence (project patterns, language doctrine, docs coherence).
@@ -109,7 +109,7 @@ Critical domains require current official/contextual references before confident
 
 ## Bug Gate
 
-Source of truth is `shipglowz_data/workflow/bugs/*.md`. `shipglowz_data/workflow/BUGS.md` is optional index only.
+Source of truth is `shipglows_data/workflow/bugs/*.md`. `shipglows_data/workflow/BUGS.md` is optional index only.
 
 Verdicts:
 
@@ -131,7 +131,7 @@ Required rows are blocking unless:
 
 Unresolved required rows (`NOT_RUN`, `FAIL`, `BLOCKED`) produce `partial` or `not verified` unless a safe, documented exception exists.
 
-Use `${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/shipglowz_checklist_status.py <checklist>` during verification.
+Use `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_checklist_status.py <checklist>` during verification.
 
 ## CI Surface Gate (Path-Filtered Workflows)
 
@@ -159,7 +159,7 @@ If no `.github/workflows` exists in this repo, document this as `not assessed` w
 
 ### Language Doctrine
 
-For touched ShipGlowz artifacts:
+For touched ShipGlows artifacts:
 
 - internal contracts in English
 - user-facing output in active language

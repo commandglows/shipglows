@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-15"
 updated: "2026-07-15"
 status: active
@@ -50,14 +50,14 @@ The `wayback` argument accepts an already-known archive URL only. It is optional
 
 ## Operations
 
-Before any operation, resolve `$SHIPFLOW_ROOT`, load `skills/references/design-inspiration-library.md`, and run the shared tool from `$SHIPFLOW_ROOT`. Never substitute a project-relative tool path.
+Before any operation, resolve `$SHIPGLOWS_ROOT`, load `skills/references/design-inspiration-library.md`, and run the shared tool from `$SHIPGLOWS_ROOT`. Never substitute a project-relative tool path.
 
 ### Add
 
 For one explicit public URL, invoke:
 
 ```bash
-python3 "$SHIPFLOW_ROOT/tools/capture_design_inspiration.py" --url "<public-url>"
+python3 "$SHIPGLOWS_ROOT/tools/capture_design_inspiration.py" --url "<public-url>"
 ```
 
 If the operator supplied a known archive URL, append `--wayback-url "<archive-url>"`. The result must state the generated reference ID, `capture_status`, and `lifecycle_status: candidate`. If capture is incomplete, report its safe reason code; do not retry with credentials, stealth, or authenticated browser state.
@@ -68,14 +68,14 @@ Finish with exactly one approval action:
 /006-sg-design library approve <reference-id>
 ```
 
-No source-derived page text, screenshots, raw HTML, browser storage, credentials, or unredacted source URL query strings may be written into the ShipGlowz repository or final report.
+No source-derived page text, screenshots, raw HTML, browser storage, credentials, or unredacted source URL query strings may be written into the ShipGlows repository or final report.
 
 ### Approve
 
 Open only the named private candidate bundle. Review its curation fields and retain attribution, rights policy, and anti-copy constraints. Then invoke the tool rather than hand-editing `record.yaml` or `index.yaml`:
 
 ```bash
-python3 "$SHIPFLOW_ROOT/tools/capture_design_inspiration.py" \
+python3 "$SHIPGLOWS_ROOT/tools/capture_design_inspiration.py" \
   --approve "<reference-id>" \
   --summary "<transferable structural summary>" \
   --what-to-borrow "<pattern>" \
@@ -89,8 +89,8 @@ Repeat the last two flags for more patterns. Approval is accepted only for a `ca
 Use the bounded index only:
 
 ```bash
-python3 "$SHIPFLOW_ROOT/tools/capture_design_inspiration.py" --list
-python3 "$SHIPFLOW_ROOT/tools/capture_design_inspiration.py" --status-only
+python3 "$SHIPGLOWS_ROOT/tools/capture_design_inspiration.py" --list
+python3 "$SHIPGLOWS_ROOT/tools/capture_design_inspiration.py" --status-only
 ```
 
 `--list` returns IDs and safe summaries with source query strings redacted. `--status-only` returns aggregate capture and lifecycle counts. Neither command writes the corpus or loads page bundles.

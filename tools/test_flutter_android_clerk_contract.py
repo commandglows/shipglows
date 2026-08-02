@@ -61,7 +61,7 @@ class FlutterAndroidClerkContractTests(unittest.TestCase):
     def test_validated_browser_oauth_is_the_unambiguous_default(self) -> None:
         self.assertIn("Default contract", self.auth_reference)
         self.assertIn("for every new Flutter Android app", self.auth_reference)
-        self.assertIn("auth_profile: browser-oauth (ShipGlowz default)", self.auth_reference)
+        self.assertIn("auth_profile: browser-oauth (ShipGlows default)", self.auth_reference)
         self.assertIn("signInWithOAuth", self.auth_reference)
         for text in (self.auth_reference, self.blueprint):
             self.assertIn("clerk://<Clerk application id>.callback", text)
@@ -81,7 +81,7 @@ class FlutterAndroidClerkContractTests(unittest.TestCase):
         self.assertIn("interchangeable", self.sdk_policy)
 
     def test_each_new_app_requires_a_configuration_record_and_release_smoke(self) -> None:
-        self.assertIn("auth_profile: browser-oauth (ShipGlowz default)", self.auth_reference)
+        self.assertIn("auth_profile: browser-oauth (ShipGlows default)", self.auth_reference)
         self.assertIn("release_apk_commit:", self.auth_reference)
         self.assertIn("Record once per app", self.blueprint)
         self.assertIn("Required device smoke", self.blueprint)

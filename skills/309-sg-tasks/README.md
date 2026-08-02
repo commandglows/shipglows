@@ -4,7 +4,7 @@
 
 ## What It Does
 
-`309-sg-tasks` maintains ShipGlowz task trackers based on actual project evidence. It reviews current repo state, checks which tasks are truly complete, adds missing follow-up work, updates the master workspace tracker, and suggests the next priority item.
+`309-sg-tasks` maintains ShipGlows task trackers based on actual project evidence. It reviews current repo state, checks which tasks are truly complete, adds missing follow-up work, updates the master workspace tracker, and suggests the next priority item.
 
 It is designed for operational clarity, not note-taking. The goal is to keep `TASKS.md` aligned with reality across both the local repo and the shared workspace dashboard.
 
@@ -64,7 +64,7 @@ The session title is a navigation/status layer, not a 1:1 mirror: several
 sessions may point to one task. `TASKS.md` remains the work source of truth.
 Link durable follow-up with `session_id`/`conversation_id`, without copying
 transcripts into the tracker. The reusable method lives in
-`shipglowz_data/workflow/playbooks/conversation-tracker-sync-playbook.md`.
+`shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md`.
 Directories without a tracker are still valid session scopes through their
 exact absolute `cwd`; the mode does not scaffold governance just to rename
 sessions. For one subject, only the most recently active session remains open;

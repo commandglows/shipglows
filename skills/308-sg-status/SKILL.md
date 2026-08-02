@@ -7,7 +7,7 @@ argument-hint: [optional: all | issues | dirty]
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -18,13 +18,13 @@ This skill does not write to chantier specs. If invoked inside a spec-first flow
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise dashboard, attention items, limits, and `Chantier: non applicable` only when useful. Use `report=agent` when another skill needs the full project matrix, skipped paths, and command evidence.
 
 ## Required References
 
-- Load `$SHIPFLOW_ROOT/skills/references/question-contract.md` before asking for dashboard view mode.
+- Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking for dashboard view mode.
 
 ## Mission
 
@@ -42,18 +42,18 @@ Route away instead of staying in `308-sg-status` when the operator really needs:
 
 - the next maintenance or lifecycle owner to act on one repo -> `002-sg-maintain`, `005-sg-ship`, or the narrower owner skill
 - context priming for one known task -> `301-sg-context`
-- generic route selection or workflow explanation -> `000-shipglowz` or `302-sg-help`
+- generic route selection or workflow explanation -> `000-shipglows` or `302-sg-help`
 
 ## Context
 
 - Current directory: !`pwd`
-- Derived project registry (primary): `find`-style scan of workspace roots for directories containing `shipglowz_data/` (project-local governance roots). Legacy fallback: `cat local project discovery (`shipglowz_data/` markers)` (legacy mode only).
+- Derived project registry (primary): `find`-style scan of workspace roots for directories containing `shipglows_data/` (project-local governance roots). Legacy fallback: `cat local project discovery (`shipglows_data/` markers)` (legacy mode only).
 
 ## Flow
 
 ### Step 0: Choose view mode
 
-If `$ARGUMENTS` is empty, load `$SHIPFLOW_ROOT/skills/references/question-contract.md`, then ask:
+If `$ARGUMENTS` is empty, load `$SHIPGLOWS_ROOT/skills/references/question-contract.md`, then ask:
 - Question: "Quelle vue du dashboard veux-tu ?"
 - `multiSelect: false`
 - Options:
@@ -68,9 +68,9 @@ If `$ARGUMENTS` is provided, map:
 
 ### Step 1: Read project registry
 
-Derive project paths by scanning workspace roots and project-local markers (`shipglowz_data/`), then include ShipGlowz itself (`${SHIPFLOW_ROOT:-$HOME/shipglowz}`). Use `local project discovery (`shipglowz_data/` markers)` only as legacy compatibility fallback when local discovery is unavailable.
+Derive project paths by scanning workspace roots and project-local markers (`shipglows_data/`), then include ShipGlows itself (`${SHIPGLOWS_ROOT:-$HOME/shipglows}`). Use `local project discovery (`shipglows_data/` markers)` only as legacy compatibility fallback when local discovery is unavailable.
 
-`308-sg-status` must not read the external registry as project governance truth. It is a dashboard input only; per-project governance remains under each project's local `shipglowz_data/{business,technical,editorial,workflow}` corpus and is not mutated here.
+`308-sg-status` must not read the external registry as project governance truth. It is a dashboard input only; per-project governance remains under each project's local `shipglows_data/{business,technical,editorial,workflow}` corpus and is not mutated here.
 
 ### Step 2: Gather git status for each project
 
@@ -106,7 +106,7 @@ GIT STATUS DASHBOARD — [date]
 | tubeflow         | feat/ui  | 3           | 2     | 0      | 1h ago — Fix layout   |
 | GoCharbon        | main     | 0           | 0     | 5      | 3d ago — New post     |
 | ...              |          |             |       |        |                       |
-| ShipGlowz         | main     | 1           | 1     | 0      | 10m ago — Update tasks|
+| ShipGlows         | main     | 1           | 1     | 0      | 10m ago — Update tasks|
 
 ──────────────────────────────────────────────────────────────────────
 ```
@@ -122,7 +122,7 @@ Apply selected filter before rendering:
 NEEDS ATTENTION
   ⚠️  tubeflow — 3 uncommitted changes on feat/ui
   ⚠️  GoCharbon — 5 commits behind remote
-  ⚠️  ShipGlowz — 1 uncommitted change (TASKS.md?)
+  ⚠️  ShipGlows — 1 uncommitted change (TASKS.md?)
 
 QUICK ACTIONS
   → tubeflow: /005-sg-ship to commit and push
@@ -142,10 +142,10 @@ Only show NEEDS ATTENTION if there are issues. Issues to flag:
 ## Important
 
 - **READ-ONLY** — never modify any files or run git commands that change state.
-- `local project discovery (`shipglowz_data/` markers)` is legacy-only read-only input here; do not treat it as active truth.
-- Do not update project-local `shipglowz_data/workflow/TASKS.md` or any legacy control-plane trackers from `308-sg-status`; route follow-up work to `309-sg-tasks`, `701-sg-backlog`, `702-sg-priorities`, `703-sg-review`, or `005-sg-ship`.
+- `local project discovery (`shipglows_data/` markers)` is legacy-only read-only input here; do not treat it as active truth.
+- Do not update project-local `shipglows_data/workflow/TASKS.md` or any legacy control-plane trackers from `308-sg-status`; route follow-up work to `309-sg-tasks`, `701-sg-backlog`, `702-sg-priorities`, `703-sg-review`, or `005-sg-ship`.
 - Prefer storing home-scoped project paths as `~/...` in local project metadata for portability across usernames and servers.
-- Include ShipGlowz repo itself in the dashboard.
+- Include ShipGlows repo itself in the dashboard.
 - Skip projects whose paths don't exist on disk.
 - Skip SocialFlowz if it has no git repo.
 - Target execution time: under 10 seconds total.

@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-08-02"
 updated: "2026-08-02"
 status: active
@@ -43,15 +43,15 @@ or per-platform convenience choice.
   is not local end-to-end proof.
 - **Official beta**: provider support is listed as beta; it needs an early
   signed-target spike before it becomes a launch dependency.
-- **Unproven**: no ShipGlowz release-device proof exists yet.
+- **Unproven**: no ShipGlows release-device proof exists yet.
 
 ## Current matrix — reviewed 2026-08-02
 
 | Criterion | Clerk | Firebase Auth |
 | --- | --- | --- |
-| Flutter web | ClerkJS bridge: proved locally | Official support listed; unproven in ShipGlowz as the web identity owner |
+| Flutter web | ClerkJS bridge: proved locally | Official support listed; unproven in ShipGlows as the web identity owner |
 | Flutter Android | Official Kotlin SDK behind Flutter bridge: proved locally | Official Flutter packages; used by ReplayGlowz, but creates a second identity owner when web uses Clerk |
-| Flutter iOS / macOS | iOS native SDK exists; Flutter bridge unproven | macOS Auth support is official beta; Google Sign-In package supports macOS; unproven in ShipGlowz |
+| Flutter iOS / macOS | iOS native SDK exists; Flutter bridge unproven | macOS Auth support is official beta; Google Sign-In package supports macOS; unproven in ShipGlows |
 | Flutter Windows | No Clerk native Flutter/Windows SDK; use ClerkJS web/PWA or an explicitly designed desktop OAuth flow | Firebase Auth Windows support is official beta; native Google flow must be spike-tested for the exact release target |
 | Public desktop roadmap | No Clerk Windows/macOS native SDK commitment located in public docs/changelog at this review date | Beta status, not a promised GA date |
 | One identity across web and Android | Strong: Clerk owns both | Strong only if Firebase owns both; weak if web remains Clerk |

@@ -47,7 +47,7 @@ State which page, route, README section, FAQ/support surface, or content collect
 
 ## Runtime Content Policy
 
-If this artifact references runtime content such as Astro, MDX, CMS entries, or app-rendered Markdown, preserve the framework schema. Do not force ShipFlow metadata into runtime content unless the local schema explicitly accepts it.
+If this artifact references runtime content such as Astro, MDX, CMS entries, or app-rendered Markdown, preserve the framework schema. Do not force ShipGlows metadata into runtime content unless the local schema explicitly accepts it.
 
 ## Editorial Update Plan
 

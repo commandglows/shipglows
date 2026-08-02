@@ -2,11 +2,11 @@
 artifact: contract
 metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-12"
 updated: "2026-07-12"
 status: draft
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: operator-role-technical-reviewer
 owner: Diane
 confidence: medium
@@ -14,10 +14,10 @@ risk_level: medium
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/010-sg-technical/SKILL.md
   - skills/002-sg-maintain/SKILL.md
-  - shipglowz_data/business/agent-profiles/technical-reviewer.md
+  - shipglows_data/business/agent-profiles/technical-reviewer.md
 depends_on:
   - artifact: "skills/references/profile-activation.md"
     required_status: active

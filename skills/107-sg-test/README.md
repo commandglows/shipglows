@@ -47,17 +47,17 @@ The skill is not meant to replace automated tests. It covers the human-facing an
 - a focused manual test campaign
 - step-by-step instructions for the user
 - structured result choices such as pass, error page, infinite loading, wrong redirect, missing data, or custom observation
-- a compact `shipglowz_data/workflow/TEST_LOG.md` entry that records the campaign outcome
-- a compact `shipglowz_data/workflow/BUGS.md` entry when the reported result fails
-- a detailed `shipglowz_data/workflow/bugs/BUG-ID.md` bug file for the failing case
+- a compact `shipglows_data/workflow/TEST_LOG.md` entry that records the campaign outcome
+- a compact `shipglows_data/workflow/BUGS.md` entry when the reported result fails
+- a detailed `shipglows_data/workflow/bugs/BUG-ID.md` bug file for the failing case
 - a redacted `test-evidence/BUG-ID/` location when evidence is too large or sensitive for inline storage
 - a clean route into `106-sg-fix` when the bug is actionable
 
 ## Checklist-first mode
 
-When a ready spec declares a manual checklist under `shipglowz_data/workflow/test-checklists/<scope>.md`, `107-sg-test` uses that checklist as the scenario source:
+When a ready spec declares a manual checklist under `shipglows_data/workflow/test-checklists/<scope>.md`, `107-sg-test` uses that checklist as the scenario source:
 
-- parse the checklist artifact with `tools/shipglowz_checklist_status.py` and prioritize required rows
+- parse the checklist artifact with `tools/shipglows_checklist_status.py` and prioritize required rows
 - keep the existing `Observed`, `Evidence pointer`, and `Bug Link` fields in order
 - escalate unresolved required rows as blockers before marking the run clean
 - only add optional rows when they improve confidence and are clearly actionable
@@ -114,16 +114,16 @@ That gives future agents the reproduction steps, expected behavior, environment,
 
 ## Bug File Roles
 
-ShipGlowz uses a bug-file-first model:
+ShipGlows uses a bug-file-first model:
 
-- `shipglowz_data/workflow/TEST_LOG.md` is the compact campaign log. It answers what was tested, when, and whether the run passed or failed.
-- `shipglowz_data/workflow/bugs/BUG-ID.md` is the detailed Markdown source of truth. It holds reproduction steps, expected and observed behavior, diagnosis notes, fix attempts, retest history, and closure criteria.
-- `shipglowz_data/workflow/BUGS.md`, when present, is an optional compact/generated triage index. It lists actionable bugs, status, severity, owner, and pointers to bug files.
+- `shipglows_data/workflow/TEST_LOG.md` is the compact campaign log. It answers what was tested, when, and whether the run passed or failed.
+- `shipglows_data/workflow/bugs/BUG-ID.md` is the detailed Markdown source of truth. It holds reproduction steps, expected and observed behavior, diagnosis notes, fix attempts, retest history, and closure criteria.
+- `shipglows_data/workflow/BUGS.md`, when present, is an optional compact/generated triage index. It lists actionable bugs, status, severity, owner, and pointers to bug files.
 - `test-evidence/BUG-ID/` stores redacted screenshots, logs, HAR, dumps, or other supporting material when the evidence is too large to keep inline.
 
 The split is deliberate: the bug file holds durable detail, while the optional index stays scannable.
 
-`shipglowz_data/workflow/TEST_LOG.md` should record campaigns and scenario outcomes:
+`shipglows_data/workflow/TEST_LOG.md` should record campaigns and scenario outcomes:
 
 ```markdown
 ## 2026-04-26 - Google Auth
@@ -132,17 +132,17 @@ The split is deliberate: the bug file holds durable detail, while the optional i
 - Environment: preview
 - Status: fail
 - Result summary: Infinite loading after Google callback
-- Bug pointer: BUG-2026-04-26-001 -> shipglowz_data/workflow/bugs/BUG-2026-04-26-001.md
+- Bug pointer: BUG-2026-04-26-001 -> shipglows_data/workflow/bugs/BUG-2026-04-26-001.md
 - Follow-up: /106-sg-fix BUG-2026-04-26-001
 ```
 
-`shipglowz_data/workflow/BUGS.md` should record actionable defects as a compact index:
+`shipglows_data/workflow/BUGS.md` should record actionable defects as a compact index:
 
 ```markdown
-- BUG-2026-04-26-001 | open | high | Infinite loading after Google callback | last-tested: 2026-04-26 | bug-file: shipglowz_data/workflow/bugs/BUG-2026-04-26-001.md
+- BUG-2026-04-26-001 | open | high | Infinite loading after Google callback | last-tested: 2026-04-26 | bug-file: shipglows_data/workflow/bugs/BUG-2026-04-26-001.md
 ```
 
-The matching bug file lives in `shipglowz_data/workflow/bugs/BUG-2026-04-26-001.md`, and any redacted evidence lives under `test-evidence/BUG-2026-04-26-001/`.
+The matching bug file lives in `shipglows_data/workflow/bugs/BUG-2026-04-26-001.md`, and any redacted evidence lives under `test-evidence/BUG-2026-04-26-001/`.
 
 ## Status Lifecycle
 
@@ -172,7 +172,7 @@ Evidence rules:
 
 - keep screenshots, HAR, stack traces, logs, and dumps redacted before persistence
 - store larger evidence under `test-evidence/BUG-ID/`
-- never inline raw secrets, cookies, tokens, private data, or production PII in `shipglowz_data/workflow/TEST_LOG.md`, optional `shipglowz_data/workflow/BUGS.md`, or the bug file
+- never inline raw secrets, cookies, tokens, private data, or production PII in `shipglows_data/workflow/TEST_LOG.md`, optional `shipglows_data/workflow/BUGS.md`, or the bug file
 
 ## Typical Examples
 

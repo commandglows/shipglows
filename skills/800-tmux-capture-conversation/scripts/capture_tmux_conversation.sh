@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  capture_tmux_conversation.sh [shipflow|docs|N] [--tab N] [--title TITLE] [--destination PATH] [--session NAME] [--preset shipflow|docs] [--dry-run] [--yes]
+  capture_tmux_conversation.sh [shipglows|docs|N] [--tab N] [--title TITLE] [--destination PATH] [--session NAME] [--preset shipglows|docs] [--dry-run] [--yes]
 
 Target:
   --tab N              Optional user-facing 1-based tmux tab/window ordinal.
@@ -12,9 +12,9 @@ Target:
                        Omit to capture the current tmux pane.
 
 Preset:
-  --preset shipflow|docs  Output routing profile. `shipflow` routes to the ShipGlowz-owned canonical conversation corpus.
-                         Legacy alias `docs` routes to <project>/shipglowz_data/workflow/conversations/. It never creates root docs/.
-  shipflow|docs           Shortcut positional preset.
+  --preset shipglows|docs  Output routing profile. `shipglows` routes to the ShipGlows-owned canonical conversation corpus.
+                         Legacy alias `docs` routes to <project>/shipglows_data/workflow/conversations/. It never creates root docs/.
+  shipglows|docs           Shortcut positional preset.
 
 Optional:
   --title TITLE        Markdown title. Inferred when omitted.
@@ -32,24 +32,24 @@ fail() {
   exit 1
 }
 
-SHIPFLOW_PRESET="docs"
+SHIPGLOWS_PRESET="docs"
 
-infer_shipflow_root() {
+infer_shipglows_root() {
   local fallback_root="$1"
-  local candidate="${SHIPFLOW_ROOT:-${HOME}/shipflow}"
+  local candidate="${SHIPGLOWS_ROOT:-${HOME}/shipglows}"
 
-  if [ -d "$candidate" ] && [ -d "$candidate/skills" ] && [ -d "$candidate/shipglowz_data" ]; then
+  if [ -d "$candidate" ] && [ -d "$candidate/skills" ] && [ -d "$candidate/shipglows_data" ]; then
     printf '%s\n' "$candidate"
     return 0
   fi
 
-  if [ -d "$fallback_root" ] && [ -d "$fallback_root/skills" ] && [ -d "$fallback_root/shipglowz_data" ]; then
+  if [ -d "$fallback_root" ] && [ -d "$fallback_root/skills" ] && [ -d "$fallback_root/shipglows_data" ]; then
     printf '%s\n' "$fallback_root"
     return 0
   fi
 
-  candidate="${HOME}/shipflow"
-  if [ -d "$candidate" ] && [ -d "$candidate/skills" ] && [ -d "$candidate/shipglowz_data" ]; then
+  candidate="${HOME}/shipglows"
+  if [ -d "$candidate" ] && [ -d "$candidate/skills" ] && [ -d "$candidate/shipglows_data" ]; then
     printf '%s\n' "$candidate"
     return 0
   fi
@@ -74,13 +74,13 @@ ensure_path_under_dir() {
   esac
 }
 
-validate_shipflow_preset_output() {
+validate_shipglows_preset_output() {
   local output="$1"
   local root="$2"
-  local allowed_dir="$root/shipglowz_data/workflow/conversations"
+  local allowed_dir="$root/shipglows_data/workflow/conversations"
 
   if ! ensure_path_under_dir "$output" "$allowed_dir"; then
-    fail "shipflow preset output must stay under $allowed_dir (got: $output). Use the legacy docs preset alias for canonical project-local conversation files."
+    fail "shipglows preset output must stay under $allowed_dir (got: $output). Use the legacy docs preset alias for canonical project-local conversation files."
   fi
 }
 
@@ -262,8 +262,8 @@ infer_project_root_from_raw() {
     fi
   done < <(grep -Eo '/[^[:space:]`"'"'"'<>),;]+' "$raw_file" | sort -u)
 
-  if grep -Eqi '(^|[^a-z0-9-])(shipflow|sf-[a-z0-9-]+)([^a-z0-9-]|$)' "$raw_file"; then
-    root=$(find_project_root_for_path "$HOME/shipglowz" 2>/dev/null || true)
+  if grep -Eqi '(^|[^a-z0-9-])(shipglows|sf-[a-z0-9-]+)([^a-z0-9-]|$)' "$raw_file"; then
+    root=$(find_project_root_for_path "$HOME/shipglows" 2>/dev/null || true)
     if [ -n "$root" ]; then
       printf '%s\n' "$root"
       return 0
@@ -288,7 +288,7 @@ infer_title_from_raw() {
   fi
 
   if grep -Eqi 'doctrine.{0,40}langue|langue.{0,40}doctrine|language.{0,40}doctrine' "$raw_file"; then
-    printf '%s\n' "Conversation ShipGlowz - doctrine de langue"
+    printf '%s\n' "Conversation ShipGlows - doctrine de langue"
     return 0
   fi
 
@@ -416,12 +416,12 @@ FORCE=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    shipflow)
-      SHIPFLOW_PRESET="shipflow"
+    shipglows)
+      SHIPGLOWS_PRESET="shipglows"
       shift
       ;;
     docs)
-      SHIPFLOW_PRESET="docs"
+      SHIPGLOWS_PRESET="docs"
       shift
       ;;
     --tab)
@@ -447,11 +447,11 @@ while [ "$#" -gt 0 ]; do
     --preset)
       [ "$#" -ge 2 ] || fail "--preset requires a value"
       case "$2" in
-        shipflow)
-          SHIPFLOW_PRESET="shipflow"
+        shipglows)
+          SHIPGLOWS_PRESET="shipglows"
           ;;
         docs)
-          SHIPFLOW_PRESET="docs"
+          SHIPGLOWS_PRESET="docs"
           ;;
         *)
           fail "unsupported preset: $2"
@@ -563,16 +563,16 @@ if [ -z "$DESTINATION" ]; then
   else
     SLUG="${SLUG}-${STAMP}"
   fi
-  if [ "$SHIPFLOW_PRESET" = "shipflow" ]; then
-    SHIPFLOW_ROOT_RESOLVED=$(infer_shipflow_root "${HOME}/shipflow") \
-      || fail "cannot resolve ShipGlowz root; set SHIPFLOW_ROOT to the ShipGlowz repository"
-    DESTINATION="${SHIPFLOW_ROOT_RESOLVED}/shipglowz_data/workflow/conversations/${SLUG}.md"
+  if [ "$SHIPGLOWS_PRESET" = "shipglows" ]; then
+    SHIPGLOWS_ROOT_RESOLVED=$(infer_shipglows_root "${HOME}/shipglows") \
+      || fail "cannot resolve ShipGlows root; set SHIPGLOWS_ROOT to the ShipGlows repository"
+    DESTINATION="${SHIPGLOWS_ROOT_RESOLVED}/shipglows_data/workflow/conversations/${SLUG}.md"
   else
     PROJECT_ROOT=$(infer_project_root_from_raw "$TMP_RAW" "$PWD")
     if [ -n "$PROJECT_ROOT" ] && [ "$PROJECT_ROOT" != "$PWD" ]; then
-      DESTINATION="${PROJECT_ROOT}/shipglowz_data/workflow/conversations/${SLUG}.md"
+      DESTINATION="${PROJECT_ROOT}/shipglows_data/workflow/conversations/${SLUG}.md"
     elif [ -n "$PROJECT_ROOT" ] && [ -d "$PROJECT_ROOT/.git" ]; then
-      DESTINATION="${PROJECT_ROOT}/shipglowz_data/workflow/conversations/${SLUG}.md"
+      DESTINATION="${PROJECT_ROOT}/shipglows_data/workflow/conversations/${SLUG}.md"
     else
       DESTINATION="./${SLUG}.md"
     fi
@@ -587,10 +587,10 @@ fi
 
 OUTPUT=$(absolute_path "$DESTINATION")
 OUTPUT=$(unique_path "$OUTPUT")
-if [ "$SHIPFLOW_PRESET" = "shipflow" ]; then
-  SHIPFLOW_ROOT_RESOLVED=$(infer_shipflow_root "${HOME}/shipflow") \
-    || fail "cannot resolve ShipGlowz root; set SHIPFLOW_ROOT to the ShipGlowz repository"
-  validate_shipflow_preset_output "$OUTPUT" "$SHIPFLOW_ROOT_RESOLVED"
+if [ "$SHIPGLOWS_PRESET" = "shipglows" ]; then
+  SHIPGLOWS_ROOT_RESOLVED=$(infer_shipglows_root "${HOME}/shipglows") \
+    || fail "cannot resolve ShipGlows root; set SHIPGLOWS_ROOT to the ShipGlows repository"
+  validate_shipglows_preset_output "$OUTPUT" "$SHIPGLOWS_ROOT_RESOLVED"
 fi
 
 print_plan() {
@@ -632,10 +632,10 @@ if [ "$YES" != "1" ]; then
       DESTINATION=$(with_md_extension "$ANSWER")
       OUTPUT=$(absolute_path "$DESTINATION")
       OUTPUT=$(unique_path "$OUTPUT")
-      if [ "$SHIPFLOW_PRESET" = "shipflow" ]; then
-        SHIPFLOW_ROOT_RESOLVED=$(infer_shipflow_root "${HOME}/shipflow") \
-          || fail "cannot resolve ShipGlowz root; set SHIPFLOW_ROOT to the ShipGlowz repository"
-        validate_shipflow_preset_output "$OUTPUT" "$SHIPFLOW_ROOT_RESOLVED"
+      if [ "$SHIPGLOWS_PRESET" = "shipglows" ]; then
+        SHIPGLOWS_ROOT_RESOLVED=$(infer_shipglows_root "${HOME}/shipglows") \
+          || fail "cannot resolve ShipGlows root; set SHIPGLOWS_ROOT to the ShipGlows repository"
+        validate_shipglows_preset_output "$OUTPUT" "$SHIPGLOWS_ROOT_RESOLVED"
       fi
       printf 'New destination: %s\n' "$OUTPUT"
       ;;

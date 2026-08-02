@@ -25,7 +25,7 @@
 
 ## What You Get Back
 
-- the session name saved to ShipGlowz session notes
+- the session name saved to ShipGlows session notes
 - the label reflected in the statusline on the next response
 - easier recovery of context later
 
@@ -39,7 +39,7 @@
 
 ## Limits
 
-This skill tags the ShipGlowz session only. It does not rename the chat in the sidebar, and it does not manage tasks, branches, or project metadata.
+This skill tags the ShipGlows session only. It does not rename the chat in the sidebar, and it does not manage tasks, branches, or project metadata.
 
 ## Related Skills
 

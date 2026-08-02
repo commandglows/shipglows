@@ -11,7 +11,7 @@ class GovernanceTopologyAuditTests(unittest.TestCase):
     def project(self) -> tuple[tempfile.TemporaryDirectory[str], Path]:
         temp = tempfile.TemporaryDirectory()
         root = Path(temp.name)
-        (root / "shipglowz_data").mkdir()
+        (root / "shipglows_data").mkdir()
         return temp, root
 
     def test_compliant_single_corpus(self) -> None:
@@ -24,11 +24,11 @@ class GovernanceTopologyAuditTests(unittest.TestCase):
     def test_detects_root_and_nested_legacy_corpora_together(self) -> None:
         temp, root = self.project()
         self.addCleanup(temp.cleanup)
-        (root / "shipflow_data").mkdir()
-        (root / "site" / "shipflow_data").mkdir(parents=True)
+        (root / "shipglows_data").mkdir()
+        (root / "site" / "shipglows_data").mkdir(parents=True)
         report = audit(root)
         self.assertEqual(report.status, "migration-required")
-        self.assertEqual(report.migration_sources, ["shipflow_data", "site/shipflow_data"])
+        self.assertEqual(report.migration_sources, ["shipglows_data", "site/shipglows_data"])
 
     def test_detects_all_legacy_root_files_without_explicit_arguments(self) -> None:
         temp, root = self.project()
@@ -88,18 +88,18 @@ class GovernanceTopologyAuditTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         nested = root / "site"
         (nested / ".git").mkdir(parents=True)
-        (nested / "shipglowz_data").mkdir()
+        (nested / "shipglows_data").mkdir()
         report = audit(root)
         self.assertEqual(report.status, "compliant")
-        self.assertEqual(report.standalone_exceptions, ["site/shipglowz_data"])
+        self.assertEqual(report.standalone_exceptions, ["site/shipglows_data"])
 
     def test_nested_canonical_corpus_without_git_boundary_requires_migration(self) -> None:
         temp, root = self.project()
         self.addCleanup(temp.cleanup)
-        (root / "site" / "shipglowz_data").mkdir(parents=True)
+        (root / "site" / "shipglows_data").mkdir(parents=True)
         report = audit(root)
         self.assertEqual(report.status, "migration-required")
-        self.assertEqual(report.migration_sources, ["site/shipglowz_data"])
+        self.assertEqual(report.migration_sources, ["site/shipglows_data"])
 
     def test_generated_output_is_hygiene_signal_not_migration(self) -> None:
         temp, root = self.project()

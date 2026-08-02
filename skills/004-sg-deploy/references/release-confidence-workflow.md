@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-29"
 updated: "2026-06-29"
 status: draft
@@ -46,9 +46,9 @@ Identify:
 
 - release scope and changed files
 - target environment: `local`, `preview`, `production`, or `unknown`
-- project development mode from `$SHIPFLOW_ROOT/skills/references/project-development-mode.md` plus `CLAUDE.md` or `SHIPFLOW.md`
+- project development mode from `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` plus `CLAUDE.md` or `SHIPGLOWS.md`
 - whether the release touches auth, data, permissions, payments, webhooks, background jobs, migrations, public pages, docs, or external side effects
-- linked open high or critical bugs from `shipglowz_data/workflow/bugs/*.md`, using optional `shipglowz_data/workflow/BUGS.md` only as triage context when present
+- linked open high or critical bugs from `shipglows_data/workflow/bugs/*.md`, using optional `shipglows_data/workflow/BUGS.md` only as triage context when present
 
 Ask one targeted question only when the answer changes staging scope, target environment, skip-check risk, destructive side effects, or release framing.
 

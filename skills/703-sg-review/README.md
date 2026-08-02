@@ -30,7 +30,7 @@ This skill is useful when you want more than a git summary. It helps you reconst
 ## What You Get Back
 
 - a review report saved under the project workflow review corpus when available
-- updated task tracking in the project-local `shipglowz_data/workflow/TASKS.md`, with external portfolio updates only for workspace-scoped reviews
+- updated task tracking in the project-local `shipglows_data/workflow/TASKS.md`, with external portfolio updates only for workspace-scoped reviews
 - changelog updates for user-facing work
 - a concise summary of completed, in-progress, blocked, and risky work
 - 1-3 recommended next tasks

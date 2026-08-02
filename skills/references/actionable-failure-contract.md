@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-30"
 updated: "2026-05-30"
 status: draft
@@ -51,7 +51,7 @@ Use this checklist before producing a final failure report:
 
 ## Valid Owner Routing
 
-- `900-shipglowz-core build`: internal skill contract or behavior definition updates.
+- `900-shipglows-core build`: internal skill contract or behavior definition updates.
 - `300-sg-docs`: doc/contract correction when public behavior or workflow text is misaligned.
 - `103-sg-verify`: missing evidence, proof gap, or incorrect assumptions.
 - `100-sg-spec`: when implementation surface is non-trivial and requires a new durable spec.

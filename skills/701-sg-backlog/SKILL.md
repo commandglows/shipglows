@@ -7,33 +7,33 @@ argument-hint: [optional: add "idea", move "defer", review, clean]
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `pilotage`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise backlog outcome, files touched, remaining risk, and opening chantier header when applicable. Use `report=agent` for handoffs that need detailed tracker anchors, rejected edits, or validation evidence.
 
 ## Required References
 
-- Load `$SHIPFLOW_ROOT/skills/references/question-contract.md` before asking project, scope, deletion, promotion, or activation questions.
-- Load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` before creating or mutating task/backlog operational records in `TASKS.md` or `BACKLOG.md`.
+- Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking project, scope, deletion, promotion, or activation questions.
+- Load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` before creating or mutating task/backlog operational records in `TASKS.md` or `BACKLOG.md`.
 
 
 ## Context
 
 - Current directory: !`pwd`
-- Project workflow TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project TASKS.md"`
-- Project workflow BACKLOG.md: !`cat shipglowz_data/workflow/BACKLOG.md 2>/dev/null || cat BACKLOG.md 2>/dev/null || echo "No project BACKLOG.md"`
-- Project-local TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
+- Project workflow TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project TASKS.md"`
+- Project workflow BACKLOG.md: !`cat shipglows_data/workflow/BACKLOG.md 2>/dev/null || cat BACKLOG.md 2>/dev/null || echo "No project BACKLOG.md"`
+- Project-local TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
 - Project CLAUDE.md: !`head -30 CLAUDE.md 2>/dev/null || echo "No CLAUDE.md"`
 - Workspace CLAUDE.md: !`head -20 $HOME/CLAUDE.md 2>/dev/null || echo "N/A"`
 - Code TODOs: !`rg -n "TODO|FIXME" -g "*.ts" -g "*.tsx" -g "*.js" -g "*.jsx" -g "*.py" -g "*.sh" . 2>/dev/null | head -20 || echo "No TODOs found"`
@@ -42,14 +42,14 @@ Default to `report=user`: concise backlog outcome, files touched, remaining risk
 
 Project backlog work is local-first.
 
-- For a selected project, use `[project]/shipglowz_data/workflow/BACKLOG.md` as the primary backlog and `[project]/shipglowz_data/workflow/TASKS.md` as the active task tracker.
+- For a selected project, use `[project]/shipglows_data/workflow/BACKLOG.md` as the primary backlog and `[project]/shipglows_data/workflow/TASKS.md` as the active task tracker.
 - Root `BACKLOG.md` and `TASKS.md` are legacy project tracker locations; read them as migration/fallback sources only when canonical workflow files are absent.
-- Legacy central archives are migration evidence only. Prefer project discovery from local `shipglowz_data/` markers and write backlog changes to project-local workflow files.
+- Legacy central archives are migration evidence only. Prefer project discovery from local `shipglows_data/` markers and write backlog changes to project-local workflow files.
 - Do not write backlog updates to a central control-plane `TASKS.md`.
 
 ## Shared tracking file write protocol
 
-- Before creating or mutating task/backlog operational records, load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`.
+- Before creating or mutating task/backlog operational records, load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`.
 - Treat the TASKS.md and BACKLOG.md snapshots loaded at skill start as informational only.
 - Right before editing the project or portfolio tracking file, re-read the target from disk and use that version as authoritative.
 - Apply a minimal targeted edit to the relevant project section or backlog block; never rewrite the whole file from stale context.
@@ -74,7 +74,7 @@ Keep the boundary explicit:
 
 ### Workspace root detection
 
-If the current directory has no project markers (not inside a specific project), you are at the workspace root. Load `$SHIPFLOW_ROOT/skills/references/question-contract.md`, then ask:
+If the current directory has no project markers (not inside a specific project), you are at the workspace root. Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md`, then ask:
 - Question: "Which project's backlog should I manage?"
 - `multiSelect: false`
 - Options:
@@ -91,14 +91,14 @@ If the current directory has no project markers (not inside a specific project),
    - No argument: General backlog organization
 
 2. **If adding to backlog**:
-   - Create `shipglowz_data/workflow/BACKLOG.md` if it doesn't exist for the selected project.
-  - Use `shipglowz_data/workflow/TASKS.md` for the selected project.
+   - Create `shipglows_data/workflow/BACKLOG.md` if it doesn't exist for the selected project.
+  - Use `shipglows_data/workflow/TASKS.md` for the selected project.
    - Add the idea with context, date, and category
    - Acknowledge addition and ask if it should be active now
 
 3. **If deferring tasks**:
-   - Review the selected project's `shipglowz_data/workflow/TASKS.md` for low-priority or future items
-   - Move them to `shipglowz_data/workflow/BACKLOG.md` with reason for deferral
+   - Review the selected project's `shipglows_data/workflow/TASKS.md` for low-priority or future items
+   - Move them to `shipglows_data/workflow/BACKLOG.md` with reason for deferral
    - Keep the project workflow `TASKS.md` focused on current sprint/milestone
    - Update the project workflow `TASKS.md` to remove deferred items
 
@@ -108,7 +108,7 @@ If the current directory has no project markers (not inside a specific project),
      - Changed context making them relevant now
      - Prerequisites completed
      - Strategic importance increased
-   - Suggest promoting 1-3 items to the selected project's `shipglowz_data/workflow/TASKS.md`
+   - Suggest promoting 1-3 items to the selected project's `shipglows_data/workflow/TASKS.md`
    - Explain reasoning for each promotion
 
 5. **If cleaning backlog**:
@@ -153,8 +153,8 @@ If the current directory has no project markers (not inside a specific project),
 
 ### Important
 
-- Default to project-local `shipglowz_data/workflow/BACKLOG.md` and `shipglowz_data/workflow/TASKS.md` for project work.
-- Update project-local `shipglowz_data/workflow/TASKS.md` only when backlog triage changes active project tasks.
+- Default to project-local `shipglows_data/workflow/BACKLOG.md` and `shipglows_data/workflow/TASKS.md` for project work.
+- Update project-local `shipglows_data/workflow/TASKS.md` only when backlog triage changes active project tasks.
 - Prefix portfolio backlog items with the project name (e.g., `- tubeflow: Native app feature parity`).
 - Keep each project's active tracker focused (5-10 items max).
 - Portfolio backlog sections can be larger (20-50 items across all projects).

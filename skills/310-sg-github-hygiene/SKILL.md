@@ -6,7 +6,7 @@ argument-hint: '[audit|fix|branches|dependabot] [current repo|workspace]'
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -17,7 +17,7 @@ This skill does not write to chantier specs. If it reveals non-trivial follow-up
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise hygiene verdict, concrete git/GitHub findings, and one next action only when needed. Use `report=agent` when another skill needs the full branch matrix, PR list, and command evidence.
 
@@ -52,8 +52,8 @@ Default mode is `audit`.
 
 ## Required References
 
-- Load `$SHIPFLOW_ROOT/skills/references/question-contract.md` before asking the operator to choose repo scope or approve destructive git actions.
-- Load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md` before the final report.
+- Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking the operator to choose repo scope or approve destructive git actions.
+- Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before the final report.
 
 ## Execution Flow
 
@@ -66,7 +66,7 @@ If the current directory is not a git repo but looks like a workspace, scan like
 For workspace mode:
 
 - include only directories that are git repos
-- include ShipGlowz itself when relevant
+- include ShipGlows itself when relevant
 - keep the run read-only unless the operator explicitly approves fixes per repo
 
 ### Step 2 - Refresh repo truth
@@ -203,9 +203,9 @@ After edits to this skill, validate with:
 ```bash
 rg -n "Mission|Scope Gate|Required References|Stop Conditions|Validation|Report Modes" skills/310-sg-github-hygiene/SKILL.md
 python3 -m unittest tools.test_310_github_hygiene_contract
-python3 tools/audit_shipglowz_skills.py
+python3 tools/audit_shipglows_skills.py
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --skill 310-sg-github-hygiene
+tools/shipglows_sync_skills.sh --check --skill 310-sg-github-hygiene
 ```
 
 For live repo maintenance runs, re-check the repo after every mutation:

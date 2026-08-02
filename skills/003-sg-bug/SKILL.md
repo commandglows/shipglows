@@ -8,36 +8,36 @@ Primary artifact type: `master-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, outcome-first, and using the opening chantier header. Use `report=agent`, explicit handoff, or an explicitly verbose request when another agent needs detailed bug state, evidence paths, internal routes, or lifecycle state. A blocked user report remains plain-language and ends with safe recovery choices.
 
 ## Master Delegation
 
-Before choosing execution topology, load `$SHIPFLOW_ROOT/skills/references/master-delegation-semantics.md`.
+Before choosing execution topology, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 
 This skill follows that reference; local nuances below only narrow it. Bug-loop orchestration defaults to delegated sequential for bug-file/state checks, evidence gathering, fix attempts, retests, verification, closure preparation, and ship preparation when subagents are available. Parallel bug work requires ready `Execution Batches`.
 
 ## Master Workflow Lifecycle
 
-Before resolving bug lifecycle state, load `$SHIPFLOW_ROOT/skills/references/master-workflow-lifecycle.md`.
+Before resolving bug lifecycle state, load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md`.
 
-Use the shared bug work item model: one Markdown bug file under `shipglowz_data/workflow/bugs/*.md` is the source of truth for one bug work item. `shipglowz_data/workflow/BUGS.md`, when present, is only an optional compact/generated/triage view and must not override the bug file.
+Use the shared bug work item model: one Markdown bug file under `shipglows_data/workflow/bugs/*.md` is the source of truth for one bug work item. `shipglows_data/workflow/BUGS.md`, when present, is only an optional compact/generated/triage view and must not override the bug file.
 
 ## Proof-First Bug Gate
 
-Before routing to fix, retest, verify, or ship-risk claims, load `$SHIPFLOW_ROOT/skills/references/spec-driven-development-discipline.md`. Bug work uses a `regression-first` proof path when reproduction and an automated regression surface are practical; otherwise it must record `evidence-first` or `exception-with-proof` with concrete reproduction, root cause hypothesis, and retest evidence.
+Before routing to fix, retest, verify, or ship-risk claims, load `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md`. Bug work uses a `regression-first` proof path when reproduction and an automated regression surface are practical; otherwise it must record `evidence-first` or `exception-with-proof` with concrete reproduction, root cause hypothesis, and retest evidence.
 
 For user-visible visual bugs, preserve evidence -> fix-attempted -> retest ->
 fixed-pending-verify -> verify. Technical checks may support `implemented`, but
@@ -47,7 +47,7 @@ creation of a durable bug file; it does not waive this proof route.
 
 ## Chantier Potential Intake
 
-Apply the chantier-potential threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report.
+Apply the chantier-potential threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report.
 For `003-sg-bug`, use it when the bug reveals non-trivial future work beyond the current bug lifecycle and no unique chantier already owns that work.
 
 ## Context
@@ -57,10 +57,10 @@ For `003-sg-bug`, use it when the bug reveals non-trivial future work beyond the
 - Project name: !`basename $(pwd)`
 - Git branch: !`git branch --show-current 2>/dev/null || echo "unknown"`
 - Git status: !`git status --short 2>/dev/null || echo "Not a git repo"`
-- ShipGlowz development mode: !`rg -n "ShipGlowz Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPFLOW.md 2>/dev/null || echo "No project development mode documented"`
-- Bug files: !`find shipglowz_data/workflow/bugs -maxdepth 1 -type f -name "BUG-*.md" 2>/dev/null | sort | tail -40 || echo "No canonical bugs directory"`
-- Optional bug triage view: !`tail -80 shipglowz_data/workflow/BUGS.md 2>/dev/null || echo "No shipglowz_data/workflow/BUGS.md"`
-- Recent test log: !`tail -60 shipglowz_data/workflow/TEST_LOG.md 2>/dev/null || echo "No shipglowz_data/workflow/TEST_LOG.md"`
+- ShipGlows development mode: !`rg -n "ShipGlows Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPGLOWS.md 2>/dev/null || echo "No project development mode documented"`
+- Bug files: !`find shipglows_data/workflow/bugs -maxdepth 1 -type f -name "BUG-*.md" 2>/dev/null | sort | tail -40 || echo "No canonical bugs directory"`
+- Optional bug triage view: !`tail -80 shipglows_data/workflow/BUGS.md 2>/dev/null || echo "No shipglows_data/workflow/BUGS.md"`
+- Recent test log: !`tail -60 shipglows_data/workflow/TEST_LOG.md 2>/dev/null || echo "No shipglows_data/workflow/TEST_LOG.md"`
 
 ## Mission
 
@@ -94,7 +94,7 @@ If the dominant job is broader than one bug loop, route instead of staying here:
 
 Orchestrate existing skills; do not duplicate their internals.
 
-- `107-sg-test` owns guided manual QA, failed-test capture, `shipglowz_data/workflow/TEST_LOG.md`, bug files under `shipglowz_data/workflow/bugs/*.md`, optional `shipglowz_data/workflow/BUGS.md` triage updates, and retests.
+- `107-sg-test` owns guided manual QA, failed-test capture, `shipglows_data/workflow/TEST_LOG.md`, bug files under `shipglows_data/workflow/bugs/*.md`, optional `shipglows_data/workflow/BUGS.md` triage updates, and retests.
 - `106-sg-fix` owns bug diagnosis, direct/spec-first repair routing, and fix attempts.
 - `109-sg-auth-debug` owns auth, OAuth, sessions, callbacks, cookies, tenants, and protected-route browser diagnosis.
 - `108-sg-browser` owns narrow non-auth browser evidence.
@@ -108,7 +108,7 @@ Delegate or route to a narrower skill when that skill owns the phase. Stop with 
 
 Parse `$ARGUMENTS`:
 
-- empty -> inspect `shipglowz_data/workflow/bugs/*.md` and optional `shipglowz_data/workflow/BUGS.md`, then continue or recommend the highest-priority safe bug action.
+- empty -> inspect `shipglows_data/workflow/bugs/*.md` and optional `shipglows_data/workflow/BUGS.md`, then continue or recommend the highest-priority safe bug action.
 - `BUG-YYYY-MM-DD-NNN` -> read the bug file first, use the optional compact index only as secondary context, interpret status, and continue through the next lifecycle step when safe.
 - free text -> decide whether this is an observed failure needing `107-sg-test`, a narrow actionable bug needing `106-sg-fix`, or an ambiguous defect needing `100-sg-spec`; continue through that owner when safe.
 - `--fix BUG-ID` -> delegate to `106-sg-fix BUG-ID` after confirming the bug file exists.
@@ -123,8 +123,8 @@ If arguments include multiple bug IDs, ask which one to handle first unless the 
 
 When a `BUG-ID` is present:
 
-1. Open `shipglowz_data/workflow/bugs/BUG-ID.md` immediately before interpreting status.
-2. Re-read optional `shipglowz_data/workflow/BUGS.md` only if present, as secondary triage context.
+1. Open `shipglows_data/workflow/bugs/BUG-ID.md` immediately before interpreting status.
+2. Re-read optional `shipglows_data/workflow/BUGS.md` only if present, as secondary triage context.
 3. Extract:
    - title, status, severity, next step
    - reproduction, expected behavior, observed behavior
@@ -133,9 +133,9 @@ When a `BUG-ID` is present:
    - fix attempts
    - retest history
    - linked spec, task, commit, or release scope when present
-4. If `shipglowz_data/workflow/BUGS.md` and the bug file disagree, prefer the bug file for detailed evidence but report the inconsistency and route to the safest next step.
+4. If `shipglows_data/workflow/BUGS.md` and the bug file disagree, prefer the bug file for detailed evidence but report the inconsistency and route to the safest next step.
 
-If optional `shipglowz_data/workflow/BUGS.md` references a missing bug file:
+If optional `shipglows_data/workflow/BUGS.md` references a missing bug file:
 
 - keep or report the index row without treating it as durable proof
 - classify state as `needs-info`
@@ -174,12 +174,12 @@ Run the evidence owner before fixing when the missing proof matters:
 - Auth, OAuth, cookies, sessions, callbacks, tenants, protected routes -> `/109-sg-auth-debug [BUG-ID or title]`
 - Non-auth route, visible state, console, network, screenshot, or page assertion -> `/108-sg-browser [URL or scope] [objective]`
 - Full user flow, human confirmation, durable test record, or retest -> `/107-sg-test [scope]` or `/107-sg-test --retest BUG-ID`
-- Runtime crash, error boundary, 5xx, visible Sentry/support event ID, production exception, or copyable diagnostics/logs -> load `$SHIPFLOW_ROOT/skills/references/sentry-observability.md` and `$SHIPFLOW_ROOT/skills/references/runtime-diagnostics-surface.md`, then attach a redacted Sentry issue/event pointer or copied diagnostic summary to the bug evidence when available
+- Runtime crash, error boundary, 5xx, visible Sentry/support event ID, production exception, or copyable diagnostics/logs -> load `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` and `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`, then attach a redacted Sentry issue/event pointer or copied diagnostic summary to the bug evidence when available
 - Unclear expected behavior, permission contract, data contract, or product rule -> `/100-sg-spec [bug title]`
 
 Do not invent reproduction results, browser evidence, screenshots, account roles, console logs, or user confirmations.
 
-Before marking a bug `needs-info`, apply the Operator Autonomy Standard from `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`: gather safe evidence yourself from bug files, specs, git diff, browser/app diagnostics, copyable logs, local checks, PM2/server logs, or visible runtime output. Ask the operator only for a real decision, credential/secret, unavailable environment, device/manual-only proof, or unsafe action.
+Before marking a bug `needs-info`, apply the Operator Autonomy Standard from `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: gather safe evidence yourself from bug files, specs, git diff, browser/app diagnostics, copyable logs, local checks, PM2/server logs, or visible runtime output. Ask the operator only for a real decision, credential/secret, unavailable environment, device/manual-only proof, or unsafe action.
 
 Set the bug proof path before dispatching the owner skill:
 
@@ -191,10 +191,10 @@ If the bug has repeated fix attempts without root cause evidence, route to deepe
 
 ## Step 4 — Apply Development Mode Gate
 
-Read `$SHIPFLOW_ROOT/skills/references/project-development-mode.md` and the project-local `## ShipGlowz Development Mode` section in `CLAUDE.md` or `SHIPFLOW.md`.
+Read `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` and the project-local `## ShipGlows Development Mode` section in `CLAUDE.md` or `SHIPGLOWS.md`.
 
 - `local`: local retests and browser checks can be authoritative when the bug is local.
-- `vercel-preview-push`: apply `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md`; for bug retests, the downstream proof owner is typically `/107-sg-test --preview --retest BUG-ID`.
+- `vercel-preview-push`: apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`; for bug retests, the downstream proof owner is typically `/107-sg-test --preview --retest BUG-ID`.
 - `hybrid`: require the preview-push sequence for hosted-only bugs: auth callbacks, OAuth redirect URLs, webhooks, deployment env vars, edge/serverless runtime, Vercel routing, preview/prod data, or bugs that reproduce only remotely.
 - missing mode with Vercel signals: classify as `unknown-vercel` and do not claim preview retest authority.
 
@@ -218,8 +218,8 @@ For `--close BUG-ID`:
 
 - Never print or persist raw secrets, tokens, cookies, private keys, raw auth headers, private payloads, production PII, or sensitive screenshots.
 - Never print or persist raw Sentry payloads, breadcrumbs, replay contents, copied diagnostic payloads, headers, private URLs, user lists, or PII; keep only redacted issue/event pointers, commit/build header status, and short summaries.
-- Keep `shipglowz_data/workflow/TEST_LOG.md` and optional `shipglowz_data/workflow/BUGS.md` compact.
-- Keep full detail in `shipglowz_data/workflow/bugs/BUG-ID.md`.
+- Keep `shipglows_data/workflow/TEST_LOG.md` and optional `shipglows_data/workflow/BUGS.md` compact.
+- Keep full detail in `shipglows_data/workflow/bugs/BUG-ID.md`.
 - Store only redacted large evidence under `test-evidence/BUG-ID/`.
 - Reject evidence paths that escape the repo with `..`.
 - Do not use UI visibility as proof of authorization.

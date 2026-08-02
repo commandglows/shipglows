@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-22"
 updated: "2026-05-22"
 status: active
@@ -14,15 +14,15 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - "shipglowz_data/workflow/TASKS.md"
-  - "shipglowz_data/editorial/ROADMAP.md"
-  - "shipglowz_data/workflow/AUDIT_LOG.md"
-  - "shipglowz_data/workflow/specs/"
-  - "lib/data/shipflow_sources/parsers/"
+  - "shipglows_data/workflow/TASKS.md"
+  - "shipglows_data/editorial/ROADMAP.md"
+  - "shipglows_data/workflow/AUDIT_LOG.md"
+  - "shipglows_data/workflow/specs/"
+  - "lib/data/shipglows_sources/parsers/"
   - "tui/src/sources/"
   - "skills/*/SKILL.md"
 depends_on:
-  - artifact: "shipglowz_data/workflow/specs/traffic-first-markdown-operational-record-format.md"
+  - artifact: "shipglows_data/workflow/specs/traffic-first-markdown-operational-record-format.md"
     artifact_version: "1.0.0"
     required_status: ready
 supersedes: []
@@ -34,7 +34,7 @@ next_step: "/102-sg-start Traffic-first Markdown operational record format Batch
 
 # Operational Record Format
 
-This is the shared ShipGlowz contract for task, audit, and spec operational summary records. Writer skills must load or cite this reference before creating or mutating records in `TASKS.md`, `ROADMAP.md`, `AUDIT_LOG.md`, or spec summary/index sections.
+This is the shared ShipGlows contract for task, audit, and spec operational summary records. Writer skills must load or cite this reference before creating or mutating records in `TASKS.md`, `ROADMAP.md`, `AUDIT_LOG.md`, or spec summary/index sections.
 
 ## Grammar V1
 
@@ -94,7 +94,7 @@ Canonical traffic-first records take priority over legacy table rows with the sa
 
 ## Diagnostics
 
-Readers must isolate malformed records and continue parsing valid neighboring records. Diagnostics should include file, line, short excerpt, problem, and the suggested ShipGlowz repair command when available.
+Readers must isolate malformed records and continue parsing valid neighboring records. Diagnostics should include file, line, short excerpt, problem, and the suggested ShipGlows repair command when available.
 
 Emit diagnostics for at least:
 
@@ -132,7 +132,7 @@ When `--write` migration is required for a live source, zero unmapped/legacy-act
 ## Examples
 
 ```text
-🔴 [shipflow_app] task: Run /103-sg-verify for shipflow-github-managed-clone-indexer.md | status: todo | area: github-clone-indexer
-🟠 [ShipGlowz] audit: dependencies | date: 2026-04-27 | overall: C | issues: 0/1/2
-🟢 [ShipGlowz] spec: ShipGlowz Terminal TUI V1 | status: ready | path: shipglowz_data/workflow/specs/shipflow-terminal-tui-v1.md | next: /102-sg-start ShipGlowz Terminal TUI V1
+🔴 [shipglows_app] task: Run /103-sg-verify for shipglows-github-managed-clone-indexer.md | status: todo | area: github-clone-indexer
+🟠 [ShipGlows] audit: dependencies | date: 2026-04-27 | overall: C | issues: 0/1/2
+🟢 [ShipGlows] spec: ShipGlows Terminal TUI V1 | status: ready | path: shipglows_data/workflow/specs/shipglows-terminal-tui-v1.md | next: /102-sg-start ShipGlows Terminal TUI V1
 ```

@@ -1,1 +1,0 @@
-shipglowz.sh

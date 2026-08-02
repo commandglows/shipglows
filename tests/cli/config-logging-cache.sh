@@ -3,15 +3,15 @@
 # Configuration, structured logging, and PM2 cache regression tests.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-export SHIPFLOW_ERROR_TRAPS=false
-export SHIPFLOW_STRICT_MODE=false
+export SHIPGLOWS_ERROR_TRAPS=false
+export SHIPGLOWS_STRICT_MODE=false
 source "$REPO_ROOT/cli/config.sh"
 source "$REPO_ROOT/cli/lib.sh"
 
 trap - ERR 2>/dev/null || true
 
 echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║${NC}   ${YELLOW}ShipFlow Config, Logging, Cache Tests${NC}   ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}   ${YELLOW}ShipGlows Config, Logging, Cache Tests${NC}   ${CYAN}║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -43,12 +43,12 @@ run_test() {
 echo -e "${BLUE}Testing Configuration (#8)${NC}"
 echo ""
 
-run_test "Config loaded: SHIPFLOW_PROJECTS_DIR" test -n "$SHIPFLOW_PROJECTS_DIR"
-run_test "Config loaded: SHIPFLOW_PORT_RANGE_START" test -n "$SHIPFLOW_PORT_RANGE_START"
-run_test "Config loaded: SHIPFLOW_LOGGING_ENABLED" test -n "$SHIPFLOW_LOGGING_ENABLED"
-run_test "Config value: PORT_RANGE_START=3000" test "$SHIPFLOW_PORT_RANGE_START" -eq 3000
-run_test "Config value: PORT_RANGE_END=3100" test "$SHIPFLOW_PORT_RANGE_END" -eq 3100
-run_test "Config validation function exists" type shipflow_validate_config
+run_test "Config loaded: SHIPGLOWS_PROJECTS_DIR" test -n "$SHIPGLOWS_PROJECTS_DIR"
+run_test "Config loaded: SHIPGLOWS_PORT_RANGE_START" test -n "$SHIPGLOWS_PORT_RANGE_START"
+run_test "Config loaded: SHIPGLOWS_LOGGING_ENABLED" test -n "$SHIPGLOWS_LOGGING_ENABLED"
+run_test "Config value: PORT_RANGE_START=3000" test "$SHIPGLOWS_PORT_RANGE_START" -eq 3000
+run_test "Config value: PORT_RANGE_END=3100" test "$SHIPGLOWS_PORT_RANGE_END" -eq 3100
+run_test "Config validation function exists" type shipglows_validate_config
 
 echo ""
 
@@ -61,11 +61,11 @@ echo ""
 
 # Clear test log
 TEST_LOG_FILE="$(mktemp)"
-export SHIPGLOWZ_LOG_DIR="$(dirname "$TEST_LOG_FILE")"
-export SHIPGLOWZ_LOG_FILE="$TEST_LOG_FILE"
-export SHIPGLOWZ_LOGGING_ENABLED="true"
-export SHIPFLOW_LOG_FILE="$TEST_LOG_FILE"
-export SHIPFLOW_LOGGING_ENABLED="true"
+export SHIPGLOWS_LOG_DIR="$(dirname "$TEST_LOG_FILE")"
+export SHIPGLOWS_LOG_FILE="$TEST_LOG_FILE"
+export SHIPGLOWS_LOGGING_ENABLED="true"
+export SHIPGLOWS_LOG_FILE="$TEST_LOG_FILE"
+export SHIPGLOWS_LOGGING_ENABLED="true"
 rm -f "$TEST_LOG_FILE"
 
 # Reinitialize logging with test path

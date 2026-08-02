@@ -6,36 +6,36 @@ argument-hint: [optional: feature, flow, bug id, --retest BUG-ID, --prod, --prev
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 Primary artifact type: `specialist-workflow`.
 
 ## Instruction Layering
 
-This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
+This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Chantier Potential Intake
 
-Apply the chantier-potential threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report.
+Apply the chantier-potential threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report.
 For `107-sg-test`, use it when QA findings reveal non-trivial future work outside the current owner flow and no unique chantier already owns that work.
 
 ## Required References
 
 Before generating or logging manual QA, load:
 
-- `$SHIPFLOW_ROOT/skills/references/project-development-mode.md`
-- `$SHIPFLOW_ROOT/skills/107-sg-test/references/manual-qa-workflow.md`
+- `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md`
+- `$SHIPGLOWS_ROOT/skills/107-sg-test/references/manual-qa-workflow.md`
 
-If a scenario fails with a crash, error boundary, 5xx, visible Sentry/support event ID, or runtime exception, load `$SHIPFLOW_ROOT/skills/references/sentry-observability.md` before logging evidence.
+If a scenario fails with a crash, error boundary, 5xx, visible Sentry/support event ID, or runtime exception, load `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` before logging evidence.
 
-If a runtime app exposes settings, support, diagnostics, error boundary, or copy-log UI, load `$SHIPFLOW_ROOT/skills/references/runtime-diagnostics-surface.md`. When the agent can safely navigate the app or use tooling itself, collect/copy reachable diagnostics before asking the operator for logs.
+If a runtime app exposes settings, support, diagnostics, error boundary, or copy-log UI, load `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`. When the agent can safely navigate the app or use tooling itself, collect/copy reachable diagnostics before asking the operator for logs.
 
 ## Mission
 
@@ -43,9 +43,9 @@ Run a guided manual test campaign for the current work, then log the evidence.
 
 `107-sg-test` answers one question: `Quel résultat manuel observé faut-il enregistrer pour ce flow ?`
 
-`107-sg-test` must identify the feature or bug flow, generate concrete manual steps, prompt the user with result choices, wait for the user's answer before claiming a result, write a durable `shipglowz_data/workflow/TEST_LOG.md` entry, write or update a durable bug file under `shipglowz_data/workflow/bugs/*.md` when the result fails, refresh optional `shipglowz_data/workflow/BUGS.md` triage only when present or generated by the project workflow, and route the next step.
+`107-sg-test` must identify the feature or bug flow, generate concrete manual steps, prompt the user with result choices, wait for the user's answer before claiming a result, write a durable `shipglows_data/workflow/TEST_LOG.md` entry, write or update a durable bug file under `shipglows_data/workflow/bugs/*.md` when the result fails, refresh optional `shipglows_data/workflow/BUGS.md` triage only when present or generated by the project workflow, and route the next step.
 
-For one-off browser proof that does not need a guided manual QA campaign, `shipglowz_data/workflow/TEST_LOG.md`, bug files, or optional `shipglowz_data/workflow/BUGS.md`, route to `/108-sg-browser [URL or objective]`.
+For one-off browser proof that does not need a guided manual QA campaign, `shipglows_data/workflow/TEST_LOG.md`, bug files, or optional `shipglows_data/workflow/BUGS.md`, route to `/108-sg-browser [URL or objective]`.
 
 ## Core Rule
 
@@ -57,13 +57,13 @@ If you did not observe the behavior yourself with tooling and the user has not r
 
 Do not log a result before the user answers unless browser/tool evidence was directly collected in this run.
 
-Apply the Operator Autonomy Standard from `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`: gather safe evidence, diagnostics, logs, app status, and tool/browser proof yourself before asking the operator. Ask only for real manual-only validation, device/account access, secrets, unavailable environments, decisions, or unsafe side effects.
+Apply the Operator Autonomy Standard from `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: gather safe evidence, diagnostics, logs, app status, and tool/browser proof yourself before asking the operator. Ask only for real manual-only validation, device/account access, secrets, unavailable environments, decisions, or unsafe side effects.
 
 ## Development Mode Gate
 
-Before generating a manual test, inspect the project-local `## ShipGlowz Development Mode` section in `CLAUDE.md` or `SHIPFLOW.md`.
+Before generating a manual test, inspect the project-local `## ShipGlows Development Mode` section in `CLAUDE.md` or `SHIPGLOWS.md`.
 
-If project mode is `vercel-preview-push` and the requested test targets changed app behavior, apply `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md`. For `107-sg-test`, rerun `/107-sg-test --preview [scope]` only after ship and confirmed deploy.
+If project mode is `vercel-preview-push` and the requested test targets changed app behavior, apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`. For `107-sg-test`, rerun `/107-sg-test --preview [scope]` only after ship and confirmed deploy.
 
 If mode is `hybrid`, apply the same gate for hosted-only flows: auth/OAuth, callbacks, webhooks, deployment env vars, Vercel routing, edge/serverless behavior, preview/prod data, or remotely reproduced issues.
 
@@ -76,7 +76,7 @@ Parse `$ARGUMENTS`:
 - empty: infer the most likely recent feature from git diff, recent commits, in-progress tasks, and specs.
 - free text: use it as the feature or flow to test.
 - `--local`, `--preview`, `--prod`: choose local, preview/staging, or production environment.
-- `--retest BUG-ID`: retest a known bug from `shipglowz_data/workflow/bugs/BUG-ID.md`.
+- `--retest BUG-ID`: retest a known bug from `shipglows_data/workflow/bugs/BUG-ID.md`.
 - route or URL: use it as the starting surface.
 - spec path: use that spec as the test contract.
 
@@ -84,7 +84,7 @@ If scope is unclear, ask one targeted question: `Quel flow veux-tu tester exacte
 
 ## Checklist-First Mode
 
-When a spec declares a manual checklist path, use that checklist as the scenario source. Parse `shipglowz_data/workflow/test-checklists/<scope>.md` with `$SHIPFLOW_ROOT/tools/shipglowz_checklist_status.py <path> --json`, preserve required rows, and create/update `BUG-*.md` for failed or blocked required rows. Do not invent a new scenario list if a generated checklist already exists for the scope.
+When a spec declares a manual checklist path, use that checklist as the scenario source. Parse `shipglows_data/workflow/test-checklists/<scope>.md` with `$SHIPGLOWS_ROOT/tools/shipglows_checklist_status.py <path> --json`, preserve required rows, and create/update `BUG-*.md` for failed or blocked required rows. Do not invent a new scenario list if a generated checklist already exists for the scope.
 
 ## Test Contract
 
@@ -94,7 +94,7 @@ Extract feature or bug name, user story, environment, entry point, expected succ
 
 ## Scenario And Prompt Flow
 
-Generate only scenarios that match the feature. Use `manual-qa-workflow.md` for scenario families, auth/browser routing, Flutter proof ladder, production safety, prompt format, reply interpretation, `shipglowz_data/workflow/TEST_LOG.md` entry format, bug model, BUG-ID generation, and next-step routing.
+Generate only scenarios that match the feature. Use `manual-qa-workflow.md` for scenario families, auth/browser routing, Flutter proof ladder, production safety, prompt format, reply interpretation, `shipglows_data/workflow/TEST_LOG.md` entry format, bug model, BUG-ID generation, and next-step routing.
 
 Normal flow:
 
@@ -102,9 +102,9 @@ Normal flow:
 
 ## Durable Records
 
-`shipglowz_data/workflow/TEST_LOG.md` is compact scenario history and pointers only. It must never contain long logs or raw secrets.
+`shipglows_data/workflow/TEST_LOG.md` is compact scenario history and pointers only. It must never contain long logs or raw secrets.
 
-When a scenario fails or `--retest BUG-ID` is used, update `shipglowz_data/workflow/bugs/BUG-ID.md`. Update `shipglowz_data/workflow/BUGS.md` only when that optional triage view exists or is generated by the project workflow.
+When a scenario fails or `--retest BUG-ID` is used, update `shipglows_data/workflow/bugs/BUG-ID.md`. Update `shipglows_data/workflow/BUGS.md` only when that optional triage view exists or is generated by the project workflow.
 
 Never store raw secrets or private data in trackers or bug files. Redact tokens, cookies, raw headers, private payloads, private emails, personal data, HAR dumps, and sensitive screenshots. Store large redacted evidence under `test-evidence/BUG-ID/` and keep only compact pointers in Markdown.
 
@@ -144,4 +144,4 @@ Validate this skill after edits with:
 
 - `rg -n "Trace category|Process role|Never invent test results|TEST_LOG|BUG-|project-development-mode|manual-qa-workflow|Final Report" skills/107-sg-test/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
-- `python3 tools/shipglowz_metadata_lint.py skills/107-sg-test/references/manual-qa-workflow.md`
+- `python3 tools/shipglows_metadata_lint.py skills/107-sg-test/references/manual-qa-workflow.md`

@@ -6,8 +6,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-export SHIPFLOW_ERROR_TRAPS=false
-export SHIPFLOW_STRICT_MODE=false
+export SHIPGLOWS_ERROR_TRAPS=false
+export SHIPGLOWS_STRICT_MODE=false
 source "$REPO_ROOT/cli/lib.sh"
 
 # The frontend loops normally redraw headers; remove them from this focused
@@ -16,7 +16,7 @@ clear() { :; }
 ui_screen_header() { :; }
 print_header() { :; }
 
-source "$REPO_ROOT/cli/shipglowz_devserver_bash.sh"
+source "$REPO_ROOT/cli/shipglows_devserver_bash.sh"
 _bash_run_menu() {
     ui_return_to_main_menu
     return 0
@@ -39,7 +39,7 @@ ui_should_skip_next_pause
     run_menu
 )
 
-source "$REPO_ROOT/cli/shipglowz_devserver_gum.sh"
+source "$REPO_ROOT/cli/shipglows_devserver_gum.sh"
 _gum_run_menu() {
     ui_return_to_main_menu
     return 0

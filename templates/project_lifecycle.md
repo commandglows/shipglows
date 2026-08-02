@@ -66,7 +66,7 @@ Progress for an ordered domain checklist belongs in a project checklist instance
 
 | Checklist ID | Master Version | Instance Path | Cycle ID | Cadence | Next Review | Status | Progress | Current Phase | Next Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `seo-technical` | `1.1.0` | `shipglowz_data/workflow/checklist-instances/seo-technical-YYYY-MM-DD.md` | `[project:checklist:period]` | `monthly` | `YYYY-MM-DD` | `not_started` | `0/0` | `[phase]` | `[next unchecked control]` |
+| `seo-technical` | `1.1.0` | `shipglows_data/workflow/checklist-instances/seo-technical-YYYY-MM-DD.md` | `[project:checklist:period]` | `monthly` | `YYYY-MM-DD` | `not_started` | `0/0` | `[phase]` | `[next unchecked control]` |
 
 ## Lifecycle Items
 
@@ -92,10 +92,10 @@ This section is derived by a reader or app adapter. It is not a replacement for 
 
 ## Routing Rules
 
-- Technical implementation follow-up goes to `shipglowz_data/workflow/TASKS.md`.
-- Public/editorial follow-up goes to `shipglowz_data/editorial/ROADMAP.md`.
-- Spec-first multi-file work goes to `shipglowz_data/workflow/specs/`.
-- Concrete manual/provider/device proof goes to `shipglowz_data/workflow/test-checklists/`.
+- Technical implementation follow-up goes to `shipglows_data/workflow/TASKS.md`.
+- Public/editorial follow-up goes to `shipglows_data/editorial/ROADMAP.md`.
+- Spec-first multi-file work goes to `shipglows_data/workflow/specs/`.
+- Concrete manual/provider/device proof goes to `shipglows_data/workflow/test-checklists/`.
 
 ## Maintenance Rules
 

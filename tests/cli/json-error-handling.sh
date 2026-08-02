@@ -5,8 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Disable error traps for testing
-export SHIPFLOW_ERROR_TRAPS=false
-export SHIPFLOW_STRICT_MODE=false
+export SHIPGLOWS_ERROR_TRAPS=false
+export SHIPGLOWS_STRICT_MODE=false
 
 source "$REPO_ROOT/cli/config.sh"
 source "$REPO_ROOT/cli/lib.sh"
@@ -15,7 +15,7 @@ source "$REPO_ROOT/cli/lib.sh"
 trap - ERR 2>/dev/null || true
 
 echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║${NC}  ${YELLOW}ShipFlow JSON and Error Handling Tests${NC}  ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  ${YELLOW}ShipGlows JSON and Error Handling Tests${NC}  ${CYAN}║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -63,7 +63,7 @@ if command -v jq >/dev/null 2>&1; then
     # Test jq in PM2 data fetching (if PM2 is available)
     if command -v pm2 >/dev/null 2>&1; then
         # Test that jq is used when available
-        export SHIPFLOW_PREFER_JQ=true
+        export SHIPGLOWS_PREFER_JQ=true
         pm2_data=$(pm2 jlist 2>/dev/null | jq -r '.[] | "\(.name)|\(.pm2_env.status)"' 2>/dev/null || echo "")
         run_test "jq can parse PM2 JSON" test -n "$pm2_data" || test "$?" -eq 0
     else
@@ -71,7 +71,7 @@ if command -v jq >/dev/null 2>&1; then
     fi
 
     # Test preferring jq over python
-    run_test "Config: SHIPFLOW_PREFER_JQ set" test "$SHIPFLOW_PREFER_JQ" = "true"
+    run_test "Config: SHIPGLOWS_PREFER_JQ set" test "$SHIPGLOWS_PREFER_JQ" = "true"
 else
     echo -e "${YELLOW}  ⚠️  jq not installed (optional, will fallback to python3)${NC}"
     echo -e "${YELLOW}     Install with: sudo apt install jq${NC}"
@@ -91,8 +91,8 @@ echo -e "${BLUE}Testing Error Handling (#10)${NC}"
 echo ""
 
 # Test error trap configuration
-run_test "Error traps config exists" test -n "$SHIPFLOW_ERROR_TRAPS"
-run_test "Strict mode config exists" test -n "$SHIPFLOW_STRICT_MODE"
+run_test "Error traps config exists" test -n "$SHIPGLOWS_ERROR_TRAPS"
+run_test "Strict mode config exists" test -n "$SHIPGLOWS_STRICT_MODE"
 
 # Test temp file cleanup
 TEST_TEMP_FILE=$(mktemp)
@@ -104,7 +104,7 @@ run_test "TEMP_FILES array exists" test "${#TEMP_FILES[@]}" -gt 0
 
 # Test error logging
 error "Test error message (intentional)"
-run_test "Error function logs" grep -q "Test error message" "$SHIPFLOW_LOG_FILE" 2>/dev/null || test $? -eq 0
+run_test "Error function logs" grep -q "Test error message" "$SHIPGLOWS_LOG_FILE" 2>/dev/null || test $? -eq 0
 
 echo ""
 
@@ -207,10 +207,10 @@ echo ""
 # Test complete workflow with error handling
 if command -v pm2 >/dev/null 2>&1; then
     # Test that operations are logged
-    log_before=$(wc -l < "$SHIPFLOW_LOG_FILE" 2>/dev/null || echo 0)
+    log_before=$(wc -l < "$SHIPGLOWS_LOG_FILE" 2>/dev/null || echo 0)
     invalidate_pm2_cache
     get_pm2_data_cached >/dev/null 2>&1 || true
-    log_after=$(wc -l < "$SHIPFLOW_LOG_FILE" 2>/dev/null || echo 0)
+    log_after=$(wc -l < "$SHIPGLOWS_LOG_FILE" 2>/dev/null || echo 0)
 
     if [ "$log_after" -gt "$log_before" ]; then
         echo -n "Test: Operations are logged ... "

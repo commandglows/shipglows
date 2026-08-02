@@ -1,6 +1,6 @@
-# ShipGlowz Auth SDK Policy
+# ShipGlows Auth SDK Policy
 
-Use this reference before adding or changing auth-related dependencies in ShipGlowz projects.
+Use this reference before adding or changing auth-related dependencies in ShipGlows projects.
 
 Sources checked:
 - https://clerk.com/docs/android/reference/native-mobile/auth
@@ -22,11 +22,11 @@ Last reviewed: 2026-08-02
 ## Default Stack Assumption
 
 The canonical cross-workflow source is
-`$SHIPFLOW_ROOT/skills/references/preferred-stacks.md`. This auth-specific
+`$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`. This auth-specific
 reference applies its SDK consequences; it does not own stack selection.
 
 For a Clerk-versus-Firebase product decision, load
-`$SHIPFLOW_ROOT/skills/references/identity-provider-selection.md` before
+`$SHIPGLOWS_ROOT/skills/references/identity-provider-selection.md` before
 selecting a platform implementation. Do not select a provider independently
 for web, Android, Windows, or macOS.
 
@@ -90,7 +90,7 @@ When debugging or implementing auth, start from this stack before assuming React
 6. For native Android, confirm the release signing fingerprint and the exact
    SDK-derived mobile redirect are both configured in the same Clerk instance.
 
-## Known ShipGlowz Pattern
+## Known ShipGlows Pattern
 
 ContentFlow Flutter web intentionally removed Clerk Flutter beta from the production path.
 It uses:

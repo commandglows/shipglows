@@ -2,7 +2,7 @@
 artifact: skill_playbook
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-17"
 updated: "2026-07-17"
 status: active
@@ -36,7 +36,7 @@ Load this only after `triage` resolves. It classifies external source material, 
 ## Intake And Context
 
 1. Separate `http`/`https` URLs from pasted text. Fetch URLs or read supplied text only as far as classification needs; record inaccessible or thin evidence as a limit, not a positive signal.
-2. Load `source-intake-classification.md`. Use it as the shared first pass for source type, project fit, useful angle, owner route, cache rules, and binding hints. Then load only the business, product, brand, GTM, editorial, or technical governed files that change the selected project or score. Project-local `shipglowz_data/` is decision truth; trackers, archives, memory, and root legacy files are not a competing corpus.
+2. Load `source-intake-classification.md`. Use it as the shared first pass for source type, project fit, useful angle, owner route, cache rules, and binding hints. Then load only the business, product, brand, GTM, editorial, or technical governed files that change the selected project or score. Project-local `shipglows_data/` is decision truth; trackers, archives, memory, and root legacy files are not a competing corpus.
 3. For more than three URLs, load `master-delegation-semantics.md` before delegated work. Fetches may be parallel only as read-only work; synthesis, questions, decisions, and writes remain sequential.
 4. Keep raw/private source material ephemeral or in the shared private-review path when that doctrine permits it. Never place it in the public repo, a spec, a tracker, or a source cache.
 

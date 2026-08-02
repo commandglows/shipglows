@@ -12,7 +12,7 @@ pm2-*.json
 .crush/
 
 # Nested data repo (separate git repo — private data)
-ShipFlow/
+ShipGlows/
 
 # Local Claude settings backups
 .claude/settings.json.bak-*
@@ -20,5 +20,5 @@ ShipFlow/
 # Runtime/build artifacts
 __pycache__/
 *.pyc
-tmp_shipflow*.sh
+tmp_shipglows*.sh
 site/.playwright-mcp/

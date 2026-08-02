@@ -2,11 +2,11 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-11"
 updated: "2026-06-11"
 status: active
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: design-system-token-contract
 owner: Diane
 confidence: high
@@ -14,7 +14,7 @@ risk_level: high
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - shipglowz_data/technical/design-system-authority.md
+  - shipglows_data/technical/design-system-authority.md
   - skills/006-sg-design/SKILL.md
   - skills/006-sg-design/references/
   - skills/102-sg-start/SKILL.md
@@ -44,7 +44,7 @@ Use this reference before UI, UX, mobile, component, layout, theme, typography, 
 
 ## Core Rule
 
-Every visual decision must resolve through the project's declared design-system authority. The default declaration location is `shipglowz_data/technical/design-system-authority.md`; monorepos keep that declaration at the monorepo governance root, with scoped app entries only when needed.
+Every visual decision must resolve through the project's declared design-system authority. The default declaration location is `shipglows_data/technical/design-system-authority.md`; monorepos keep that declaration at the monorepo governance root, with scoped app entries only when needed.
 
 Do not introduce or change raw one-off values in screens, components, route files, or local styles for:
 
@@ -101,13 +101,13 @@ Unexplained literals are defects. Verification must fail or report partial when 
 For changed UI/design files, run:
 
 ```bash
-python3 "${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/design_system_drift_check.py" --changed --format markdown
+python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --changed --format markdown
 ```
 
 For audits or migration planning, run a broader scan:
 
 ```bash
-python3 "${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/design_system_drift_check.py" --format markdown --warn-only
+python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --format markdown --warn-only
 ```
 
 The scan is evidence, not the only truth. If it reports acceptable platform-bound literals, the report must name the exception reason and proof.

@@ -7,24 +7,24 @@ argument-hint: [fix|nofix]
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 Primary artifact type: `specialist-workflow`.
 
 ## Instruction Layering
 
-This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in references.
+This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in references.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Chantier Potential Intake
 
-Apply the chantier-potential threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report.
+Apply the chantier-potential threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report.
 For `105-sg-check`, use it when findings reveal non-trivial future work outside a direct local fix and no unique chantier already owns that work.
 
 ## Mission
@@ -35,17 +35,17 @@ Run and interpret technical checks without overstating what they prove. `105-sg-
 
 If checks generate temporary build outputs, caches, or scratch artifacts, treat them as disposable unless the project contract explicitly requires a durable artifact. Remove them after the check completes.
 
-## ShipGlowz-Owned Preflight
+## ShipGlows-Owned Preflight
 
-Apply `$SHIPFLOW_ROOT/skills/references/shipglowz-owned-preflight.md` before reading ShipGlowz-owned references, running ShipGlowz-owned tools/scripts, or checking ShipGlowz-owned runtime-visibility surfaces.
-For `105-sg-check`, this preflight also applies before verifying ShipGlowz skill runtime visibility targets.
+Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before reading ShipGlows-owned references, running ShipGlows-owned tools/scripts, or checking ShipGlows-owned runtime-visibility surfaces.
+For `105-sg-check`, this preflight also applies before verifying ShipGlows skill runtime visibility targets.
 
 ## Context
 
 - Current directory: !`pwd`
 - Package manager lockfiles: !`ls -1 package-lock.json yarn.lock pnpm-lock.yaml requirements.txt Pipfile.lock 2>/dev/null || echo "none found"`
 - Package.json scripts (if any): !`cat package.json 2>/dev/null | grep -E '^\s+"(dev|build|lint|typecheck|check|test|format)"' || echo "no package.json"`
-- ShipGlowz development mode: !`rg -n "ShipGlowz Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPFLOW.md 2>/dev/null || echo "No project development mode documented"`
+- ShipGlows development mode: !`rg -n "ShipGlows Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPGLOWS.md 2>/dev/null || echo "No project development mode documented"`
 - Project CLAUDE.md (if any): !`head -80 CLAUDE.md 2>/dev/null || echo "no CLAUDE.md"`
 
 ## Your task
@@ -53,13 +53,13 @@ For `105-sg-check`, this preflight also applies before verifying ShipGlowz skill
 Run all available checks for the current project and fix errors if found.
 Treat this skill as a practical confidence pass, not as proof that the product is fully correct or secure.
 
-Before finalizing, load `$SHIPFLOW_ROOT/skills/references/actionable-failure-contract.md` when a check fails or is blocked so the failure maps to a specific owner and impact.
+Before finalizing, load `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` when a check fails or is blocked so the failure maps to a specific owner and impact.
 
-Before choosing or interpreting checks, read `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/project-development-mode.md` and inspect `CLAUDE.md` or `SHIPFLOW.md`.
+Before choosing or interpreting checks, read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` and inspect `CLAUDE.md` or `SHIPGLOWS.md`.
 - In `local` mode, local checks are the expected technical confidence pass.
-- In `vercel-preview-push` mode, local checks are pre-push confidence only. Apply `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md` before claiming preview/browser/manual validation.
+- In `vercel-preview-push` mode, local checks are pre-push confidence only. Apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md` before claiming preview/browser/manual validation.
 - In `hybrid` mode, local checks are valid for unit/static work, but hosted surfaces still need `/005-sg-ship` -> `/405-sg-prod` before remote validation.
-- If Vercel is detected but the mode is missing, report `unknown-vercel` as a risky assumption and recommend documenting `## ShipGlowz Development Mode`.
+- If Vercel is detected but the mode is missing, report `unknown-vercel` as a risky assumption and recommend documenting `## ShipGlows Development Mode`.
 
 ### Workspace root detection
 
@@ -67,7 +67,7 @@ If the current directory has no project markers (no `package.json`, no `requirem
 - Question: "Which project(s) should I check?"
 - `multiSelect: true`
 - One option per project: label = project name, description = stack
-- Read project list from local project discovery (`shipglowz_data/` markers); use old registry files only as manually supplied migration evidence.
+- Read project list from local project discovery (`shipglows_data/` markers); use old registry files only as manually supplied migration evidence.
 
 Then run checks for each selected project sequentially.
 
@@ -120,9 +120,9 @@ Prefer scoped checks for low-risk edits. Do not default to a full sequence when 
 
 Never run full framework-heavy checks purely by habit.
 
-**ShipGlowz skill runtime visibility** (when the scope touches `skills/*/SKILL.md`, new/renamed skills, or reported Claude/Codex skill drift):
-- Check one skill: `${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/shipglowz_sync_skills.sh --check --skill <name>`
-- Check all source skills: `${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/shipglowz_sync_skills.sh --check --all`
+**ShipGlows skill runtime visibility** (when the scope touches `skills/*/SKILL.md`, new/renamed skills, or reported Claude/Codex skill drift):
+- Check one skill: `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh --check --skill <name>`
+- Check all source skills: `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh --check --all`
 - Report missing/stale/non-symlink entries; do not repair unless the user asked for fix mode and the current task owns runtime visibility repair.
 
 Before concluding that the project is "green", explicitly note any major gap in coverage:
@@ -181,7 +181,7 @@ Always include a short `Risky assumptions / gaps` section when any of the follow
 If nothing indicates functional validation of the main user flow, say so plainly. Example: "Checks pass, but no evidence was gathered that checkout/login/sync actually works end-to-end."
 
 If project mode is `vercel-preview-push`, include the next deployment step explicitly:
-- `Next step:` apply `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md`
+- `Next step:` apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`
 - If the checked change needs non-auth browser proof, add `/108-sg-browser [URL or scope] [objective]` after `405-sg-prod`
 - If the checked change affects auth or protected flows, add `/109-sg-auth-debug [scope]` after `405-sg-prod`
 - If it affects a manual user flow, add `/107-sg-test --preview [scope]` after `405-sg-prod`
@@ -195,10 +195,10 @@ If project mode is `vercel-preview-push`, include the next deployment step expli
 - A passing `105-sg-check` run means "no obvious issues in the checks that were executed", not "product is production-ready".
 - When security-relevant checks fail or are missing (for example auth flows, permission boundaries, secret/config validation, dependency audit access), call that out explicitly and recommend the next skill when appropriate (`/103-sg-verify`, `/405-sg-prod`, `/010-sg-technical deps`).
 - When browser-observable behavior is unproven but the issue is not auth-specific, recommend `/108-sg-browser [URL or scope] [objective]` rather than stretching `/109-sg-auth-debug`.
-- In `vercel-preview-push` or relevant `hybrid` mode, apply `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md` when changed behavior needs preview validation.
+- In `vercel-preview-push` or relevant `hybrid` mode, apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md` when changed behavior needs preview validation.
 
 ## Validation
 
-- `rg -n "Trace category|Process role|Mission|ShipGlowz-Owned Preflight|canonical ShipGlowz path|shipflow_sync_skills|project-development-mode|actionable-failure-contract|Risky assumptions / gaps|vercel-preview-push|product is production-ready" skills/105-sg-check/SKILL.md`
+- `rg -n "Trace category|Process role|Mission|ShipGlows-Owned Preflight|canonical ShipGlows path|shipglows_sync_skills|project-development-mode|actionable-failure-contract|Risky assumptions / gaps|vercel-preview-push|product is production-ready" skills/105-sg-check/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
-- `tools/shipglowz_sync_skills.sh --check --skill 105-sg-check`
+- `tools/shipglows_sync_skills.sh --check --skill 105-sg-check`

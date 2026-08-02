@@ -2,11 +2,11 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.4.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-29"
 updated: "2026-07-11"
 status: active
-source_skill: 000-shipglowz
+source_skill: 000-shipglows
 scope: source-intake-classification
 owner: unknown
 confidence: high
@@ -14,33 +14,33 @@ risk_level: medium
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/007-sg-content/SKILL.md
   - skills/sg-emailing/SKILL.md
   - skills/references/private-memory-store.md
-  - shipglowz_data/editorial/content-map.md
-  - shipglowz_data/business/business.md
-  - shipglowz_data/business/product.md
-  - shipglowz_data/branding/branding.md
-  - shipglowz_data/business/gtm.md
-  - shipglowz_data/business/portfolio-project-pitch-links.md
+  - shipglows_data/editorial/content-map.md
+  - shipglows_data/business/business.md
+  - shipglows_data/business/product.md
+  - shipglows_data/branding/branding.md
+  - shipglows_data/business/gtm.md
+  - shipglows_data/business/portfolio-project-pitch-links.md
 depends_on:
-  - artifact: "shipglowz_data/editorial/content-map.md"
+  - artifact: "shipglows_data/editorial/content-map.md"
     artifact_version: "0.9.0"
     required_status: draft
-  - artifact: "shipglowz_data/business/business.md"
+  - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.2.0"
     required_status: reviewed
-  - artifact: "shipglowz_data/business/product.md"
+  - artifact: "shipglows_data/business/product.md"
     artifact_version: "1.2.0"
     required_status: reviewed
-  - artifact: "shipglowz_data/branding/branding.md"
+  - artifact: "shipglows_data/branding/branding.md"
     artifact_version: "1.1.0"
     required_status: reviewed
-  - artifact: "shipglowz_data/business/gtm.md"
+  - artifact: "shipglows_data/business/gtm.md"
     artifact_version: "1.2.0"
     required_status: reviewed
-  - artifact: "shipglowz_data/business/portfolio-project-pitch-links.md"
+  - artifact: "shipglows_data/business/portfolio-project-pitch-links.md"
     artifact_version: "0.1.0"
     required_status: draft
   - artifact: "skills/references/private-memory-store.md"
@@ -92,7 +92,7 @@ Good input shapes:
 ```
 
 ```text
-#source output=landing-page project=ShipGlowz
+#source output=landing-page project=ShipGlows
 <source notes>
 ```
 
@@ -115,19 +115,19 @@ Hints are binding unless they conflict with safety, project truth, public-claim 
 
 Before final classification, load only the relevant canonical context:
 
-- `shipglowz_data/business/business.md` when audience, buyer, market, or monetization matters
-- `shipglowz_data/business/product.md` when product fit, user problem, workflow, or non-goals matter
-- `shipglowz_data/branding/branding.md` when voice, trust posture, vocabulary, or claim boundaries matter
-- `shipglowz_data/business/gtm.md` when offer, CTA, funnel, distribution, or positioning matters
-- `shipglowz_data/editorial/content-map.md` when public content, repurposing, docs, FAQ, article, landing page, or skill-page placement matters
-- `shipglowz_data/business/portfolio-project-pitch-links.md` when choosing between several portfolio projects matters
+- `shipglows_data/business/business.md` when audience, buyer, market, or monetization matters
+- `shipglows_data/business/product.md` when product fit, user problem, workflow, or non-goals matter
+- `shipglows_data/branding/branding.md` when voice, trust posture, vocabulary, or claim boundaries matter
+- `shipglows_data/business/gtm.md` when offer, CTA, funnel, distribution, or positioning matters
+- `shipglows_data/editorial/content-map.md` when public content, repurposing, docs, FAQ, article, landing page, or skill-page placement matters
+- `shipglows_data/business/portfolio-project-pitch-links.md` when choosing between several portfolio projects matters
 - `skills/references/private-memory-store.md` when cached private pitch contents or a temporary unassigned-source record could change classification
 
 Do not load every corpus by default. Load the smallest set that changes classification quality.
 
 ## Portfolio Project Index
 
-When the source could belong to more than one project, load `shipglowz_data/business/portfolio-project-pitch-links.md` before choosing the project. Use it as an index, not as a substitute for each project's own business, product, brand, or GTM docs.
+When the source could belong to more than one project, load `shipglows_data/business/portfolio-project-pitch-links.md` before choosing the project. Use it as an index, not as a substitute for each project's own business, product, brand, or GTM docs.
 
 Project selection should consider:
 
@@ -147,24 +147,24 @@ When portfolio routing needs reusable pitch contents, use the private memory con
 The approved private root is:
 
 ```text
-${SHIPGLOWZ_PRIVATE_ROOT:-${SHIPFLOW_PRIVATE_ROOT:-$HOME/.shipglowz/private/data}}
+${SHIPGLOWS_PRIVATE_ROOT:-${SHIPGLOWS_PRIVATE_ROOT:-$HOME/.shipglows/private/data}}
 ```
 
-Use `${SHIPGLOWZ_PRIVATE_ROOT:-${SHIPFLOW_PRIVATE_ROOT:-$HOME/.shipglowz/private/data}}/projects/` for cached project files and summaries. Use `${SHIPGLOWZ_PRIVATE_ROOT:-${SHIPFLOW_PRIVATE_ROOT:-$HOME/.shipglowz/private/data}}/source-cache/` only as a redacted, short-retention holding area while the source remains unassigned or awaits review.
+Use `${SHIPGLOWS_PRIVATE_ROOT:-${SHIPGLOWS_PRIVATE_ROOT:-$HOME/.shipglows/private/data}}/projects/` for cached project files and summaries. Use `${SHIPGLOWS_PRIVATE_ROOT:-${SHIPGLOWS_PRIVATE_ROOT:-$HOME/.shipglows/private/data}}/source-cache/` only as a redacted, short-retention holding area while the source remains unassigned or awaits review.
 
-Do not cache raw source text in `$SHIPFLOW_ROOT`, project repos, public specs, public docs, or generated files under version control.
+Do not cache raw source text in `$SHIPGLOWS_ROOT`, project repos, public specs, public docs, or generated files under version control.
 
 ## Cache Policy
 
 Do not create a public repo cache of fetched pitch content, pasted sources, private emails, customer text, or source excerpts.
 
-Allowed durable state in the public ShipGlowz repo:
+Allowed durable state in the public ShipGlows repo:
 
 - the portfolio index of project names, pitch URLs, short routing notes, statuses, and source-of-truth pointers
 - source-intake doctrine and routing rules
 - redacted summaries inside specs or reports when a lifecycle skill explicitly owns them
 
-Not allowed in the public ShipGlowz repo:
+Not allowed in the public ShipGlows repo:
 
 - copied email examples from the operator's inbox
 - private pitch contents fetched from another repo
@@ -172,7 +172,7 @@ Not allowed in the public ShipGlowz repo:
 - unredacted screenshots, transcripts, or notes
 - generated cache files containing source text
 
-If a source needs temporary private review before its destination is known, use `${SHIPGLOWZ_PRIVATE_ROOT:-${SHIPFLOW_PRIVATE_ROOT:-$HOME/.shipglowz/private/data}}/source-cache/` under the rules in `skills/references/private-memory-store.md`. Once the project is known, persist only the justified derivative in the project's governed repository: repurpose packs use `skills/references/repurpose-pack-storage.md`; audience sequences use `skills/references/email-sequence-storage.md`.
+If a source needs temporary private review before its destination is known, use `${SHIPGLOWS_PRIVATE_ROOT:-${SHIPGLOWS_PRIVATE_ROOT:-$HOME/.shipglows/private/data}}/source-cache/` under the rules in `skills/references/private-memory-store.md`. Once the project is known, persist only the justified derivative in the project's governed repository: repurpose packs use `skills/references/repurpose-pack-storage.md`; audience sequences use `skills/references/email-sequence-storage.md`.
 
 ## Classification Output
 
@@ -180,7 +180,7 @@ Return a compact classification before transforming the source:
 
 ```text
 Source type: <email | article | transcript | note | URL | feedback | competitor example | unknown>
-Primary project or corpus: <project | ShipGlowz | portfolio scan needed | unknown>
+Primary project or corpus: <project | ShipGlows | portfolio scan needed | unknown>
 Best angle: <email sequence | repurpose | draft | audit | research | market study | docs | FAQ | landing page | backlog | unknown>
 Intent hint: <operator-provided action | none>
 Owner skill: <skill name>
@@ -207,8 +207,8 @@ Use `unknown` when the source cannot be classified safely. Ask one targeted ques
 
 Classify first; persist second. The selected project owns durable derivative work.
 
-- A source-faithful content pack belongs in the selected project's `shipglowz_data/workflow/repurpose-packs/`.
-- An audience email sequence belongs in the selected project's `shipglowz_data/workflow/email/`.
+- A source-faithful content pack belongs in the selected project's `shipglows_data/workflow/repurpose-packs/`.
+- An audience email sequence belongs in the selected project's `shipglows_data/workflow/email/`.
 - The private `projects/` index remains routing memory only.
 - `source-cache/` remains temporary and must not become a second global asset index.
 
@@ -293,7 +293,7 @@ Stop or ask a targeted question when:
 Validate references after edits with:
 
 ```bash
-rg -n "#source|source-intake-classification|Source type|Source-Inspiration|Owner skill" skills/references/source-intake-classification.md skills/references/shipglowz-terms.md skills/references/entrypoint-routing.md skills/000-shipglowz/SKILL.md skills/007-sg-content/SKILL.md skills/emailing/SKILL.md shipglowz_data/technical/operator-guides/focus-tags-cheatsheet.md
+rg -n "#source|source-intake-classification|Source type|Source-Inspiration|Owner skill" skills/references/source-intake-classification.md skills/references/shipglows-terms.md skills/references/entrypoint-routing.md skills/000-shipglows/SKILL.md skills/007-sg-content/SKILL.md skills/emailing/SKILL.md shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-python3 tools/shipglowz_metadata_lint.py skills/references/source-intake-classification.md skills/references/private-memory-store.md
+python3 tools/shipglows_metadata_lint.py skills/references/source-intake-classification.md skills/references/private-memory-store.md
 ```

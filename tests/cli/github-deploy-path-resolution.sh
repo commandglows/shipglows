@@ -11,15 +11,15 @@ TEST_ROOT="$(mktemp -d)"
 trap 'rm -rf "$TEST_ROOT"' EXIT
 
 export HOME="$TEST_ROOT/home"
-export SHIPGLOWZ_STATE_DIR="$HOME/.shipglowz"
-export SHIPGLOWZ_PROJECTS_DIR="$HOME/projects"
-export SHIPFLOW_PROJECTS_DIR="$SHIPGLOWZ_PROJECTS_DIR"
-export SHIPGLOWZ_REGISTRY="$SHIPGLOWZ_STATE_DIR/envs.reg"
-export SHIPFLOW_REGISTRY="$SHIPGLOWZ_REGISTRY"
-export SHIPFLOW_ERROR_TRAPS=false
-export SHIPFLOW_STRICT_MODE=false
-export SHIPGLOWZ_LOGGING_ENABLED=false
-export SHIPFLOW_LOGGING_ENABLED=false
+export SHIPGLOWS_STATE_DIR="$HOME/.shipglows"
+export SHIPGLOWS_PROJECTS_DIR="$HOME/projects"
+export SHIPGLOWS_PROJECTS_DIR="$SHIPGLOWS_PROJECTS_DIR"
+export SHIPGLOWS_REGISTRY="$SHIPGLOWS_STATE_DIR/envs.reg"
+export SHIPGLOWS_REGISTRY="$SHIPGLOWS_REGISTRY"
+export SHIPGLOWS_ERROR_TRAPS=false
+export SHIPGLOWS_STRICT_MODE=false
+export SHIPGLOWS_LOGGING_ENABLED=false
+export SHIPGLOWS_LOGGING_ENABLED=false
 
 source "$REPO_ROOT/cli/lib.sh"
 trap - ERR 2>/dev/null || true
@@ -55,12 +55,12 @@ env_start() {
     started_identifier="$1"
 }
 
-shipglowz_init_project() { :; }
+shipglows_init_project() { :; }
 pm2_port_load() { return 1; }
 
 deploy_github_project 'gocharbon_quiz' >/dev/null
 
-expected_path="$SHIPGLOWZ_PROJECTS_DIR/gocharbon_quiz"
+expected_path="$SHIPGLOWS_PROJECTS_DIR/gocharbon_quiz"
 [ "$started_identifier" = "$expected_path" ] || \
     fail "deployment must start cloned path (got '$started_identifier')"
 

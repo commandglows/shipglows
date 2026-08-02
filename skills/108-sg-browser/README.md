@@ -4,9 +4,9 @@
 
 ## What It Does
 
-`108-sg-browser` is ShipGlowz's generic browser evidence skill. It opens a local, preview, or production surface in a real browser and checks one concrete objective: visible state, layout, screenshot need, accessibility snapshot, console signal, or network signal.
+`108-sg-browser` is ShipGlows's generic browser evidence skill. It opens a local, preview, or production surface in a real browser and checks one concrete objective: visible state, layout, screenshot need, accessibility snapshot, console signal, or network signal.
 
-The report is intentionally narrow. It names the target, environment, Playwright MCP runtime, requested objective, observed state, verdict, evidence, limits, and next ShipGlowz command.
+The report is intentionally narrow. It names the target, environment, Playwright MCP runtime, requested objective, observed state, verdict, evidence, limits, and next ShipGlows command.
 
 Use it when you need to know what the browser actually saw without opening a full manual QA campaign or stretching auth debugging into generic page checks.
 
@@ -35,7 +35,7 @@ Use it when you need to know what the browser actually saw without opening a ful
 - a narrow verdict: `pass`, `fail`, `partial`, `blocked`, `needs-auth`, `needs-deploy`, `needs-manual-test`, or `unsafe-action`
 - focused screenshot, snapshot, console, or network evidence when useful
 - redacted output and explicit limits around what was not proven
-- the next ShipGlowz command when the finding belongs elsewhere
+- the next ShipGlows command when the finding belongs elsewhere
 
 ## Typical Examples
 
@@ -50,7 +50,7 @@ Use it when you need to know what the browser actually saw without opening a ful
 
 - It is read-only by default.
 - It does not diagnose login, OAuth, cookies, sessions, callbacks, tenants, providers, or protected routes; use `109-sg-auth-debug`.
-- It does not replace guided manual QA, retests, `shipglowz_data/workflow/TEST_LOG.md`, bug files, or optional `shipglowz_data/workflow/BUGS.md` triage views; use `107-sg-test`.
+- It does not replace guided manual QA, retests, `shipglows_data/workflow/TEST_LOG.md`, bug files, or optional `shipglows_data/workflow/BUGS.md` triage views; use `107-sg-test`.
 - It does not discover deployment URLs, inspect Vercel status, or read runtime logs; use `405-sg-prod`.
 - It does not click destructive or production-mutating actions without explicit approval.
 

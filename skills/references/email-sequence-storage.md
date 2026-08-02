@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-11"
 updated: "2026-07-11"
 status: active
@@ -18,7 +18,7 @@ linked_systems:
   - skills/references/source-intake-classification.md
   - skills/references/private-memory-store.md
   - skills/references/repurpose-pack-storage.md
-  - shipglowz_data/README.md
+  - shipglows_data/README.md
 depends_on:
   - artifact: "skills/references/source-intake-classification.md"
     artifact_version: "1.4.0"
@@ -43,16 +43,16 @@ The routing index decides the likely project. The selected project owns the reus
 Store durable sequences in the governed project repository under:
 
 ```text
-shipglowz_data/workflow/email/
+shipglows_data/workflow/email/
 ```
 
 Use lifecycle or campaign folders when useful:
 
 ```text
-shipglowz_data/workflow/email/onboarding/
-shipglowz_data/workflow/email/launch/
-shipglowz_data/workflow/email/reactivation/
-shipglowz_data/workflow/email/seasonal/christmas/
+shipglows_data/workflow/email/onboarding/
+shipglows_data/workflow/email/launch/
+shipglows_data/workflow/email/reactivation/
+shipglows_data/workflow/email/seasonal/christmas/
 ```
 
 Do not create every folder in advance. Create the smallest path that reflects a real sequence.
@@ -115,7 +115,7 @@ Keep the body sequence-first: campaign intent, segment and exclusions, step-by-s
 - Do not copy raw inbox emails, recipient data, headers, tracking parameters, or proprietary phrasing into a sequence file.
 - Record the structural lesson or a redacted source reference when provenance matters.
 - Keep source-derived packs in `workflow/repurpose-packs/` when the reusable asset is source analysis rather than a finished sequence.
-- Keep `~/.shipglowz/private/data/projects/` for routing context and `source-cache/` only for short private review before a project is known.
+- Keep `~/.shipglows/private/data/projects/` for routing context and `source-cache/` only for short private review before a project is known.
 
 ## Ownership
 
@@ -126,6 +126,6 @@ Keep the body sequence-first: campaign intent, segment and exclusions, step-by-s
 ## Validation
 
 ```bash
-python3 tools/shipglowz_metadata_lint.py skills/references/email-sequence-storage.md
-rg -n "email-sequence-storage|workflow/email|source-cache" skills/emailing/SKILL.md skills/references/source-intake-classification.md skills/references/private-memory-store.md shipglowz_data/README.md
+python3 tools/shipglows_metadata_lint.py skills/references/email-sequence-storage.md
+rg -n "email-sequence-storage|workflow/email|source-cache" skills/emailing/SKILL.md skills/references/source-intake-classification.md skills/references/private-memory-store.md shipglows_data/README.md
 ```

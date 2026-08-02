@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "2.5.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-10"
 updated: "2026-07-15"
 status: active
@@ -15,25 +15,25 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - skills/
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/302-sg-help/SKILL.md
-  - shipglowz_data/technical/operator-guides/skill-launch-cheatsheet.md
+  - shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md
   - tools/skill_code_index_lint.py
-  - skills/900-shipglowz-core/SKILL.md
+  - skills/900-shipglows-core/SKILL.md
 depends_on:
-  - artifact: "shipglowz_data/workflow/specs/three-digit-runtime-skill-names.md"
+  - artifact: "shipglows_data/workflow/specs/three-digit-runtime-skill-names.md"
     artifact_version: "1.0.0"
     required_status: ready
 supersedes:
-  - artifact: "shipglowz_data/workflow/specs/numeric-skill-code-index.md"
+  - artifact: "shipglows_data/workflow/specs/numeric-skill-code-index.md"
     artifact_version: "1.0.0"
 evidence:
   - "User decision 2026-06-10: use three digits directly before the skill name for the real runtime-visible skill identity."
   - "User decision 2026-06-10: no symbol-heavy names; keep lowercase letters, numbers, and hyphens only."
-  - "2026-06-11 900-shipglowz-core added as an internal operator skill in the reserved meta band."
+  - "2026-06-11 900-shipglows-core added as an internal operator skill in the reserved meta band."
   - "2026-06-11 310-sg-github-hygiene added as the git/GitHub sync, stale branch, PR drift, and Dependabot hygiene skill."
   - "2026-07-15 design consolidation retired 409 and 500-504 as public skills; their capabilities now live as modes and playbooks under 006-sg-design."
-  - "2026-07-15 skill-maintenance consolidation retired 009 and 307; their capabilities now live as modes under the internal-only 900-shipglowz-core."
+  - "2026-07-15 skill-maintenance consolidation retired 009 and 307; their capabilities now live as modes under the internal-only 900-shipglows-core."
   - "2026-07-17 technical consolidation assigned 010 and retired 401-404; their capabilities now live as explicit modes under 010-sg-technical."
 next_review: "2026-08-15"
 next_step: "/104-sg-end consolidate design skill surface into modes and playbooks"
@@ -43,7 +43,7 @@ next_step: "/104-sg-end consolidate design skill surface into modes and playbook
 
 ## Purpose
 
-This is the canonical ShipGlowz runtime skill-name map.
+This is the canonical ShipGlows runtime skill-name map.
 
 The code is now part of the runtime-visible skill identity. For example:
 
@@ -82,7 +82,7 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 
 | Code | Old name | Runtime skill | Family |
 | --- | --- | --- | --- |
-| `000` | `shipflow` | `000-shipglowz` | Master |
+| `000` | `shipglows` | `000-shipglows` | Master |
 | `001` | `sg-build` | `001-sg-build` | Master |
 | `002` | `sg-maintain` | `002-sg-maintain` | Master |
 | `003` | `sg-bug` | `003-sg-bug` | Master |
@@ -134,7 +134,7 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `707` | `name` | `707-name` | Pilotage/session |
 | `800` | `tmux-capture-conversation` | `800-tmux-capture-conversation` | Conversation/transcript |
 | `801` | `clean-conversation-transcript` | `801-clean-conversation-transcript` | Conversation/transcript |
-| `900` | `shipglowz-core` | `900-shipglowz-core` | Meta/internal |
+| `900` | `shipglows-core` | `900-shipglows-core` | Meta/internal |
 
 ## Maintenance
 
@@ -143,7 +143,7 @@ Run this after adding, removing, or renaming a skill:
 ```bash
 python3 tools/skill_code_index_lint.py
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --all
+tools/shipglows_sync_skills.sh --check --all
 ```
 
 The linter must fail when:

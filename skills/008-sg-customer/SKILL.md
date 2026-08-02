@@ -6,22 +6,22 @@ argument-hint: "<audit|flow|onboarding|recovery> <scope>"
 
 ## Canonical Paths
 
-Before resolving a ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). Resolve skills, references, tools, templates, and workflow documents from that root.
+Before resolving a ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). Resolve skills, references, tools, templates, and workflow documents from that root.
 
 ## Instruction Layering
 
-This is the compact dispatcher. Before changing it, load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md`; detailed mode procedure belongs in one local playbook, not in this activation contract.
+This is the compact dispatcher. Before changing it, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md`; detailed mode procedure belongs in one local playbook, not in this activation contract.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-When one active chantier spec owns the run, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`, write its run trace, and use its chantier header. Otherwise do not write a spec. Non-trivial implementation follow-up requires `/100-sg-spec` before source changes.
+When one active chantier spec owns the run, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, write its run trace, and use its chantier header. Otherwise do not write a spec. Non-trivial implementation follow-up requires `/100-sg-spec` before source changes.
 
 ## Report Modes
 
-Before reporting, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`. Default to `report=user`; `report=agent`, `handoff`, `verbose`, and `full-report` may include the full customer contract and routing evidence.
+Before reporting, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. Default to `report=user`; `report=agent`, `handoff`, `verbose`, and `full-report` may include the full customer contract and routing evidence.
 
 ## Mission
 
@@ -44,17 +44,17 @@ Natural-language input is dispatcher input, not a fifth mode: select one mode on
 
 ## Required References
 
-- `$SHIPFLOW_ROOT/skills/references/async-feedback-visibility-contract.md` for customer-facing loading, onboarding, save, upload, support, recovery, or any other operation with a noticeable delay.
+- `$SHIPGLOWS_ROOT/skills/references/async-feedback-visibility-contract.md` for customer-facing loading, onboarding, save, upload, support, recovery, or any other operation with a noticeable delay.
 
 Load only the selected mode playbook. Load shared references only when their gate applies:
 
-- `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md` before choosing scope, defaults, proof, or route.
-- `$SHIPFLOW_ROOT/skills/references/spec-driven-development-discipline.md` before changing behavior or defining implementation proof.
-- `$SHIPFLOW_ROOT/skills/references/master-workflow-lifecycle.md` before routing non-trivial implementation.
-- `$SHIPFLOW_ROOT/skills/references/question-contract.md` before a material question.
-- `$SHIPFLOW_ROOT/skills/references/documentation-freshness-gate.md` when current external permissions, billing, accessibility, SDK, provider, or policy behavior governs guidance.
-- `$SHIPFLOW_ROOT/skills/references/source-intake-classification.md` when external competitor or customer-feedback evidence drives an audit or recommendation.
-- `$SHIPFLOW_ROOT/shipglowz_data/technical/product-behavior-intelligence.md` when first success or activation must be measured as durable value rather than shallow completion.
+- `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` before choosing scope, defaults, proof, or route.
+- `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before changing behavior or defining implementation proof.
+- `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` before routing non-trivial implementation.
+- `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before a material question.
+- `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when current external permissions, billing, accessibility, SDK, provider, or policy behavior governs guidance.
+- `$SHIPGLOWS_ROOT/skills/references/source-intake-classification.md` when external competitor or customer-feedback evidence drives an audit or recommendation.
+- `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` when first success or activation must be measured as durable value rather than shallow completion.
 
 ## Non-Negotiables And Boundaries
 
@@ -74,7 +74,7 @@ Stop, ask the smallest material question, or route when target user, first succe
 python3 tools/test_sg_customer_contract.py
 python3 tools/skill_code_index_lint.py
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --all
+tools/shipglows_sync_skills.sh --check --all
 ```
 
 ## Rules

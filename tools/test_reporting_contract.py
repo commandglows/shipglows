@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression checks for the shared ShipGlowz reporting contract."""
+"""Regression checks for the shared ShipGlows reporting contract."""
 
 from pathlib import Path
 import unittest
@@ -65,7 +65,7 @@ class ReportingContractTests(unittest.TestCase):
     def test_timestamp_contract_allows_chantier_before_verdict(self) -> None:
         text = FINAL_TIMESTAMP.read_text(encoding="utf-8")
         self.assertIn("immediately after the chantier header", text)
-        self.assertNotIn("Every ShipGlowz final report must begin", text)
+        self.assertNotIn("Every ShipGlows final report must begin", text)
 
     def test_activation_contracts_do_not_request_trailing_chantier_blocks(self) -> None:
         legacy_phrases = (
@@ -135,7 +135,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertNotIn("🧭 Route: <owner>", timestamp)
         chantier = CHANTIER_TRACKING.read_text(encoding="utf-8")
         self.assertNotIn("Spec recommandee: /100-sg-spec", chantier)
-        self.assertNotIn("Prochaine etape: <next ShipGlowz command", chantier)
+        self.assertNotIn("Prochaine etape: <next ShipGlows command", chantier)
 
     def test_build_user_template_hides_internal_flow(self) -> None:
         text = BUILD_WORKFLOW.read_text(encoding="utf-8")

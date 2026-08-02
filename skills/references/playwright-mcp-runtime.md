@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-02"
 updated: "2026-05-02"
 status: active
@@ -31,7 +31,7 @@ next_step: "/107-sg-test --retest BUG-2026-05-02-001"
 
 # Playwright MCP Runtime
 
-Use this reference before any ShipGlowz skill calls Playwright MCP directly or uses browser-level evidence through `108-sg-browser` or `109-sg-auth-debug`.
+Use this reference before any ShipGlows skill calls Playwright MCP directly or uses browser-level evidence through `108-sg-browser` or `109-sg-auth-debug`.
 
 ## Invariant
 
@@ -72,7 +72,7 @@ find "$HOME/.cache/ms-playwright" -maxdepth 4 -type f \
 
 ## Runtime Dependencies
 
-ShipGlowz `install.sh` owns the default runtime libraries for Playwright Chromium because Playwright MCP is configured by default.
+ShipGlows `install.sh` owns the default runtime libraries for Playwright Chromium because Playwright MCP is configured by default.
 
 If direct Chromium launch reaches the correct executable but fails on a missing shared library such as `libatk-1.0.so.0`, the issue is not the Chrome-path bug anymore. Install or repair the Playwright runtime libraries, then retest.
 

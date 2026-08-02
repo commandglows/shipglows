@@ -1,10 +1,10 @@
 # 302-sg-help
 
-> Show the ShipGlowz operating model: which skill to use, when to use it, and how the workflows fit together.
+> Show the ShipGlows operating model: which skill to use, when to use it, and how the workflows fit together.
 
 ## What It Does
 
-`302-sg-help` is the entrypoint when you know you want ShipGlowz, but not which skill should lead. It acts as a cheatsheet for the system: execution paths, audit modes, prompting behavior, tracking conventions, metadata rules, and common next-step chains.
+`302-sg-help` is the entrypoint when you know you want ShipGlows, but not which skill should lead. It acts as a cheatsheet for the system: execution paths, audit modes, prompting behavior, tracking conventions, metadata rules, and common next-step chains.
 
 It also explains the browser and bug-loop boundaries: `108-sg-browser` for non-auth page checks, `109-sg-auth-debug` for auth/session/protected flows, `405-sg-prod` for deployment/runtime truth, `107-sg-test` for durable manual QA logs, and `003-sg-bug` for BUG-ID lifecycle execution.
 
@@ -12,14 +12,14 @@ For solo founders, it shortens the learning curve. Instead of memorizing dozens 
 
 ## Who It's For
 
-- New ShipGlowz users
+- New ShipGlows users
 - Solo founders standardizing how they work across projects
 - Existing users who forgot the right workflow for a task
 
 ## When To Use It
 
 - when you are unsure which skill should start the job
-- when you want to understand the full ShipGlowz workflow
+- when you want to understand the full ShipGlows workflow
 - when you need a quick reminder of audit modes or prompt behavior
 - when teaching someone else how the system is organized
 

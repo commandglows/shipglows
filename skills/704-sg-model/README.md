@@ -1,6 +1,6 @@
 # 704-sg-model
 
-> Choose the right ShipGlowz model for a task without wasting time on model debate.
+> Choose the right ShipGlows model for a task without wasting time on model debate.
 
 ## What It Does
 
@@ -12,7 +12,7 @@ For solo founders, this is mainly about momentum. You spend less time tuning the
 
 - Founders switching between planning, coding, debugging, and UI work
 - Operators balancing quality, latency, and cost
-- Anyone using multiple ShipGlowz-compatible models and wanting a sane default
+- Anyone using multiple ShipGlows-compatible models and wanting a sane default
 
 ## When To Use It
 

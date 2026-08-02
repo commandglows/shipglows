@@ -1,0 +1,122 @@
+---
+artifact: technical_module_context
+metadata_schema_version: "1.0"
+artifact_version: "2.4.0"
+project: ShipGlows
+created: "2026-05-01"
+updated: "2026-08-02"
+status: reviewed
+source_skill: 102-sg-start
+scope: code-docs-map
+owner: Diane
+confidence: high
+risk_level: high
+security_impact: yes
+docs_impact: yes
+linked_systems:
+  - shipglows_data/technical/
+  - skills/references/technical-docs-corpus.md
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
+depends_on:
+  - artifact: "shipglows_data/technical/README.md"
+    artifact_version: "1.0.0"
+    required_status: reviewed
+supersedes: []
+evidence:
+  - "Repository inventory and ready spec task map."
+  - "Menu frontend variants mapped to runtime CLI docs after grouped root menu change."
+  - "Project governance layout decision moved root governance docs to canonical shipglows_data/ paths."
+  - "ShipGlows remote bootstrap script added to installer mapping."
+  - "External platform corpus and project platform usage template added for Freshness Gate source retention."
+  - "GitHub Actions workflow files mapped to CI cost, cache, monorepo trigger, deploy, and artifact guardrails."
+  - "Codex plugin packaging and sparse source bootstrap mapped to technical docs."
+  - "900-shipglows-core internal skill and tools/audit_shipglows_skills.py mapped to skill runtime docs."
+  - "Design-system authority artifact and drift checker mapped for UI token/theme governance."
+  - "Operator/question doctrine references mapped so skill collaboration behavior updates stay discoverable."
+  - "Project governance topology audit mapped as the mechanical preflight for 300-sg-docs."
+  - "900-shipglows-core focused contract regression proof mapped beside the generic skill audit."
+  - "Private design-inspiration capture tooling, synthetic tests, schemas, and bounded skill consumption mapped."
+  - "Guided business/product discovery templates, shared contract and owner-skill regression proof mapped."
+  - "Product decision traceability, cross-contract coherence, change propagation, critical moments and learning-loop owners mapped."
+  - "Atlas cartography lifecycle mapped to customer-led bootstrap, explicit spec, implementation, and roadmap-reading owners."
+next_review: "2026-06-18"
+next_step: "/300-sg-docs technical audit"
+---
+
+# Code Docs Map
+
+## Purpose
+
+This is the canonical map from ShipGlows code paths to technical docs, validation checks, and documentation update triggers. The Reader uses it to produce a `Documentation Update Plan`; executors and integrators apply the resulting documentation updates.
+
+Shared files in this map are sequential integration files. Do not assign concurrent edits to `code-docs-map.md`, `AGENT.md`, `shipglows_data/technical/context.md`, `shipglows_data/technical/guidelines.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, or `tools/shipglows_metadata_lint.py` unless a ready spec defines a non-overlapping strategy.
+
+## Map
+
+| Path pattern | Subsystem | Primary technical doc | Secondary docs | Required validation | Docs update trigger |
+| --- | --- | --- | --- | --- | --- |
+| `cli/shipglows.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/architecture.md` | `bash -n cli/shipglows.sh`; focused CLI smoke when behavior changes | Entrypoint, sourcing, menu dispatch, startup, or visible CLI behavior changes |
+| `cli/shipglows_devserver_gum.sh`, `cli/shipglows_devserver_bash.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/context-function-tree.md` | `bash -n cli/shipglows_devserver_gum.sh cli/shipglows_devserver_bash.sh`; focused CLI smoke when behavior changes | Root menu layout, grouped submenu behavior, key handling, or visible CLI behavior changes |
+| `cli/lib.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/guidelines.md` | `bash -n cli/lib.sh`; relevant function smoke or grep proof | PM2/Flox/Caddy/DuckDNS behavior, validation, dashboard, health, publish, or environment lifecycle changes |
+| `cli/config.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `README.md` | `bash -n cli/config.sh`; config validation smoke when changed | Config variable, default, or validation contract changes |
+| `local/**` | Local tunnels and MCP login | `shipglows_data/technical/local-tunnels-and-mcp-login.md` | `local/README.md`, `README.md` | `bash -n local/*.sh`; PowerShell syntax review when `.ps1` changes | SSH target, identity path, tunnel lifecycle, MCP OAuth, or local UX changes |
+| `cli/install.sh`, `install-shipglows.sh` | Installer and user scope | `shipglows_data/technical/installer-and-user-scope.md` | `README.md`, `shipglows_data/technical/guidelines.md` | `bash -n cli/install.sh install-shipglows.sh`; dry-run/review of touched installer branch | Root/user split, remote bootstrap, symlink, alias, MCP config, package install, or destructive behavior changes |
+| `/home/claude/plugins/shipglows/**`, `/home/claude/.agents/plugins/marketplace.json` | Codex plugin packaging | `shipglows_data/technical/codex-plugin-packaging.md` | `shipglows_data/workflow/specs/shipglows-main-plugin-and-pack-portability.md`, `shipglows_data/technical/public-site-and-content-runtime.md` | `python3 /home/claude/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py /home/claude/plugins/shipglows`; `bash -n /home/claude/plugins/shipglows/scripts/bootstrap_shipglows_repo.sh` | Plugin manifest, plugin routing skill, docs links, marketplace entry, sparse checkout, pack catalog, reference strategy, or public plugin packaging behavior changes |
+| `tools/shipglows_sync_skills.sh`, `tests/skills/runtime-sync.sh` | Skill runtime and installer user scope | `shipglows_data/technical/skill-runtime-and-lifecycle.md`, `shipglows_data/technical/installer-and-user-scope.md` | `README.md` | `bash -n tools/shipglows_sync_skills.sh tests/skills/runtime-sync.sh`; `bash tests/skills/runtime-sync.sh`; `tools/shipglows_sync_skills.sh --check --all` | Runtime skill visibility, Claude/Codex symlink behavior, install-time selected-user skill linking, collision handling |
+| `skills/**/SKILL.md` | Skill runtime and lifecycle | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `skills/references/technical-docs-corpus.md`, `skills/references/question-contract.md`, `skills/references/operator-partnership-contract.md` | `python3 tools/skill_budget_audit.py --skills-root skills --format markdown` when skill surfaces change | Skill routing, lifecycle, validation, documentation gate, model/topology behavior, or operator-collaboration behavior changes |
+| `skills/900-shipglows-core/**`, `tools/audit_shipglows_skills.py` | Internal ShipGlows Core audit | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `skills/references/skill-execution-fidelity.md`, `shipglows_data/technical/codex-plugin-packaging.md` | `python3 tools/audit_shipglows_skills.py`; `tools/shipglows_sync_skills.sh --check --skill 900-shipglows-core`; `python3 tools/skill_code_index_lint.py` | Internal skill execution-fidelity audit behavior, public-plugin separation, packaging readiness checks, or runtime discoverability changes |
+| `skills/references/skill-code-index.md`, `tools/skill_code_index_lint.py` | Skill runtime and lifecycle | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md`, `skills/302-sg-help/references/help-catalog.md` | `python3 tools/skill_code_index_lint.py`; metadata lint for the index and affected docs | Numeric skill-code family, code assignment, lookup semantics, or skill coverage changes |
+| `skills/600-sg-local-cloud-sync/**` | Local-to-cloud sync skill | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `skills/600-sg-local-cloud-sync/references/local-cloud-sync-doctrine.md`, `skills/600-sg-local-cloud-sync/references/ux-security-checklist.md`, `skills/600-sg-local-cloud-sync/references/flutter-implementation-checklist.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | `rg -n "Sync Contract|Core Doctrine|Security And Privacy Rules|Proof Paths" skills/600-sg-local-cloud-sync`; `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`; `tools/shipglows_sync_skills.sh --check --skill 600-sg-local-cloud-sync` | Local/cloud data promotion doctrine, account association, merge/conflict policy, sync UX, sensitive-data policy, or Flutter sync proof guidance changes |
+| `skills/601-sg-product-entitlements/**` | Product entitlements skill | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `skills/references/product-entitlements-playbook.md`, `skills/600-sg-local-cloud-sync/SKILL.md`, `skills/109-sg-auth-debug/SKILL.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | `rg -n "product-entitlements|suite ledger|provider event|activation code|snapshot|mirror|backend authorization|600-sg-local-cloud-sync|109-sg-auth-debug" skills/601-sg-product-entitlements/SKILL.md`; `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`; `tools/shipglows_sync_skills.sh --check --skill 601-sg-product-entitlements` | Product access ownership, provider/manual grant handling, activation codes, premium gates, support access flows, product-local mirrors, backend authorization, or entitlement-gated sync handoff changes |
+| `skills/references/**` | Skill references | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `skills/references/technical-docs-corpus.md` | Metadata lint for references with frontmatter; targeted rg checks | Reference doctrine, path-resolution behavior, or explicit `#feature:<term>` navigation-hint changes |
+| `skills/references/design-inspiration-library.md`, `skills/references/design-inspiration/**`, `tools/capture_design_inspiration.py`, `tools/capture_design_inspiration_playwright.js`, `tools/test_capture_design_inspiration.py`, `tools/fixtures/design-inspiration/**` | Private design inspiration library | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `README.md`, `skills/references/private-data-repo-contract.md` | `python3 -m unittest tools.test_capture_design_inspiration`; `node --check tools/capture_design_inspiration_playwright.js`; synthetic `--fixture --no-network` capture into a temporary directory; shared-runtime local HTTP smoke; metadata lint; targeted Inspiration Gate `rg` checks | Private/public storage boundary, shared Playwright runtime discovery, capture bundle/schema, extraction, browser/image pipeline, checksums/dedupe, rights status, or design/copy skill consumption changes |
+| `skills/references/question-contract.md`, `skills/references/operator-partnership-contract.md` | Operator collaboration doctrine | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `skills/302-sg-help/SKILL.md`, `skills/300-sg-docs/SKILL.md` | Metadata lint for touched references; focused `rg` checks for `operator-owned`, `business`, `framing`, and `blocked` in affected skills | Question doctrine, delegated-intent behavior, operator-collaboration boundary, or blocked-state recovery rules change |
+| `skills/references/operator-roles/**`, `skills/references/profile-activation.md`, `skills/references/profile-project-context.md`, `shipglows_data/business/agent-profiles/**` | Operator role and named profile layer | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `skills/000-shipglows/SKILL.md`, `skills/302-sg-help/SKILL.md`, `shipglows_data/business/business.md` | Metadata lint for touched contracts/references; focused `rg` checks for `profile=`, `role_id`, `Active profile:`, and profile invocation examples | Named operator profile semantics, resolution/fallback/reporting rules, project-context loading rules, invocation syntax, or router/help discoverability changes |
+| `tools/design_system_drift_check.py`, UI source paths such as `shipglows-site/src/styles/**`, `shipglows-site/src/components/**`, app `src/**`, `app/**`, `pages/**`, `components/**`, `lib/**`, `injectors/web-inspector.js`, `injectors/web-inspector.css` | Design-system authority | `shipglows_data/technical/design-system-authority.md` | `shipglows_data/branding/branding.md`, `shipglows_data/technical/guidelines.md`, `skills/references/design-system-token-contract.md` | `python3 tools/design_system_drift_check.py --changed --format markdown`; `node --check injectors/web-inspector.js`; project build/lint; browser or device proof when visual behavior changes | Token/theme source, component bridge, layout/motion authority, visual constants, mobile safe-area/IME behavior, or design-system drift rules change |
+| `tools/shipglows_atlas_context.py`, `tools/shipglows_atlas_import.py`, `tools/shipglows_atlas_preflight.py`, `tests/tools/shipglows_atlas_tools.py`, `injectors/web-inspector.*`, `skills/references/atlas-protection-preflight.md`, `skills/references/atlas-cartography-lifecycle.md` | Approved Surface Protection And Product Atlas | `shipglows_data/workflow/specs/approved-surface-protection-and-product-atlas.md` | `shipglows_data/technical/design-system-authority.md`, `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `cli/lib.sh`, `skills/305-sg-init/SKILL.md`, `skills/100-sg-spec/SKILL.md`, `skills/102-sg-start/SKILL.md`, `skills/309-sg-tasks/SKILL.md`, `skills/101-sg-ready/SKILL.md`, `skills/103-sg-verify/SKILL.md`, `skills/106-sg-fix/SKILL.md`, `skills/005-sg-ship/SKILL.md` | `python3 tests/tools/shipglows_atlas_tools.py -v`; Python syntax checks; `node --check`; skill-budget/sync checks; opted-in browser proof | Atlas schema, customer-led product discovery, semantic-ID policy, cartography ownership, impact mapping, redaction, import boundary, browser context, injection assets, protection policy, lifecycle gate or regression fixture changes |
+| `templates/**` | Artifact metadata and linter | `shipglows_data/technical/artifact-metadata-and-linter.md` | `shipglows_data/technical/metadata-migration-guide.md` | `python3 tools/shipglows_metadata_lint.py templates` | Template field, artifact type, or required metadata changes |
+| `templates/{business,product,gtm,brand}_context.md`, `skills/references/guided-business-product-discovery.md`, `skills/references/product-decision-chain.md`, `skills/{006-sg-design,100-sg-spec,101-sg-ready,102-sg-start,103-sg-verify,104-sg-end,300-sg-docs,305-sg-init,703-sg-review}/**` | Guided discovery and product decision chain | `shipglows_data/workflow/specs/approved-surface-protection-and-product-atlas.md` | `skills/references/atlas-cartography-lifecycle.md`, project business/product/GTM/brand/architecture docs, Atlas, specs and proof artifacts | `python3 -m unittest tools.test_guided_business_product_discovery_contract`; metadata, skill-budget and sync checks | Discovery sequence, evidence states, critical moments, trace chain, cross-contract coherence, change propagation, retrospective learning, template sections or owner routing changes |
+| `tools/shipglows_metadata_lint.py` | Artifact metadata and linter | `shipglows_data/technical/artifact-metadata-and-linter.md` | `shipglows_data/technical/metadata-migration-guide.md` | `python3 tools/shipglows_metadata_lint.py --help`; targeted lint command | Required fields, statuses, artifact types, default targets, or parse behavior changes |
+| `tools/audit_shipglows_skills.py`, `tools/test_900_shipglows_core_contract.py` | Skill execution fidelity | `skills/900-shipglows-core/SKILL.md` | `skills/references/skill-execution-fidelity.md`, `skills/references/skill-instruction-layering.md` | `python3 -m unittest tools.test_900_shipglows_core_contract`; `python3 tools/audit_shipglows_skills.py` | Generic audit classifications, sg-core critique-to-repair routing, followability proof, or focused completion semantics change |
+| `tools/audit_project_governance_topology.py`, `tools/test_audit_project_governance_topology.py` | Project governance topology | `skills/300-sg-docs/SKILL.md` | `skills/references/canonical-paths.md`, `skills/references/monorepo-governance-topology.md` | `python3 -m unittest tools.test_audit_project_governance_topology`; fixture and target-project CLI runs | Canonical corpus detection, legacy/nested corpus classification, compatibility entrypoints, standalone exceptions, or migration routing changes |
+| `tools/codebase-mcp/**` | Codebase MCP | `shipglows_data/technical/codebase-mcp.md` | `tools/codebase-mcp/README.md`, `tools/codebase-mcp/TIPS.md` | Python syntax check and focused MCP tool behavior review | Context budget, tool names, file indexing, memory, or setup behavior changes |
+| `tools/shipglows_gsc.py`, `tools/test_shipglows_gsc.py`, `shipglows-gsc.sh` | Google Search Console CLI | `shipglows_data/technical/google-search-console-cli.md` | `README.md`, `cli/install.sh` | `python3 -m unittest tools.test_shipglows_gsc`; `bash -n shipglows-gsc.sh cli/install.sh` | OAuth scope, token storage, GSC API endpoint, command, wrapper, or installer alias changes |
+| `shipglows-site/**` | Public site and content runtime | `shipglows_data/technical/public-site-and-content-runtime.md` | `shipglows_data/editorial/content-map.md`, `shipglows-site/README.md` | `npm --prefix shipglows-site run build` when practical | Public route, public docs, skill page, content boundary, or publishing behavior changes |
+| `shipglows_data/editorial/content-map.md` | Public content routing | `shipglows_data/technical/public-site-and-content-runtime.md` | `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | Metadata lint; link/path review | Public surface role, content destination, or cross-surface update rule changes |
+| `AGENT.md`, `AGENTS.md` | Agent entrypoint | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `shipglows_data/technical/README.md` | `test ! -e AGENTS.md || { test -L AGENTS.md && test "$(readlink AGENTS.md)" = "AGENT.md"; }` | Agent routing, technical docs pointer, or compatibility alias changes |
+| `shipglows_data/technical/context.md`, `shipglows_data/technical/context-function-tree.md` | Context layer | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/README.md` | Metadata lint; path existence review | Entrypoint, hotspot, file role, code navigation, or behavior-index routing changes |
+| `shipglows_data/technical/agent-clarity-pass-playbook.md`, `shipglows_data/workflow/test-checklists/agent-clarity-pass-checklist.md` | Agent clarity pass doctrine | `shipglows_data/technical/agent-clarity-pass-playbook.md` | `shipglows_data/technical/skill-runtime-and-lifecycle.md`, `shipglows_data/workflow/reviews/skill-system-hardening-register.md` | `python3 tools/shipglows_metadata_lint.py shipglows_data/technical/agent-clarity-pass-playbook.md shipglows_data/workflow/test-checklists/agent-clarity-pass-checklist.md`; focused `rg` checks for `operator question`, `Keep the boundary explicit`, and `does not` | Future agent-clarity sweep method, batching rules, checklist contract, or first-screen boundary doctrine changes |
+| `shipglows_data/technical/architecture.md`, `shipglows_data/technical/guidelines.md`, `shipglows_data/technical/decisions/**` | Global technical contracts | `shipglows_data/technical/decisions.md` | `shipglows_data/technical/README.md` | Metadata lint; dependency version review | Invariant, architecture, technical doctrine, decision, or doc-maintenance rule changes |
+| `.github/workflows/**` | CI and deploy workflows | `shipglows_data/technical/github-actions.md` | `shipglows_data/technical/blacksmith.md`, provider-specific deployment docs such as `shipglows_data/technical/firebase-firestore-oidc-ci-playbook.md` | Workflow YAML parse when practical; `git diff --check`; local checks allowed by repository guardrails | Workflow trigger, job topology, cache, runner, artifact, secret, OIDC, deploy, or monorepo path behavior changes |
+| `shipglows_data/technical/external-platforms/**` | External platform source corpus | `shipglows_data/technical/external-platforms/README.md` | `skills/references/documentation-freshness-gate.md`, provider-specific project usage docs | Metadata lint; provider source link review | Global provider source, Freshness Gate rule, provider risk, validation route, or project-local usage template changes |
+| `templates/project_platform_usage.md` | Project platform usage template | `shipglows_data/technical/external-platforms/README.md` | `skills/references/technical-docs-corpus.md`, `shipglows_data/technical/README.md` | Metadata lint for template and generated usage docs | Project-local provider usage structure, security fields, validation fields, or Freshness Gate handoff changes |
+| `shipglows_data/workflow/specs/**` | Chantiers | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `shipglows_data/technical/decisions.md` | Metadata lint for changed spec; chantier flow review | Workflow, linked system, validation, or docs impact requirements change |
+
+## Documentation Update Plan Format
+
+```markdown
+## Documentation Update Plan
+
+- Code changed: `path/or/pattern`
+- Subsystem: `707-name`
+- Primary technical doc: `shipglows_data/technical/example.md`
+- Secondary docs: `...`
+- Required action: `none | review | update | create`
+- Priority: `low | medium | high`
+- Reason: `why this doc is impacted`
+- Owner role: `executor | integrator`
+- Parallel-safe: `yes | no`
+- Notes: `constraints or blockers`
+```
+
+## Reader Rules
+
+- The Reader diagnoses documentation impact; it does not become the default docs executor.
+- A mapped code change requires a docs update or a written no-impact justification.
+- Missing map coverage is a docs-planning failure and must be reported.
+- Shared map and entrypoint docs are not parallel-safe.
+- `shipglows_data/technical/` is internal-only in v1 and must not be published as site content.
+
+## Maintenance Rule
+
+Update this map whenever a code area, technical doc, validation command, or docs update trigger changes. This file is shared infrastructure; edit it sequentially during final integration.

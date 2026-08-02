@@ -2,7 +2,7 @@
 artifact: conversation_audit
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipFlow
+project: ShipGlows
 created: "2026-05-30"
 updated: "2026-05-30"
 status: draft
@@ -33,7 +33,7 @@ owner_routes:
 evidence: []
 depends_on: []
 supersedes: []
-next_step: "/sg-verify ShipFlow Conversation Audit And Auto-Evolution Loop"
+next_step: "/sg-verify ShipGlows Conversation Audit And Auto-Evolution Loop"
 ---
 
 # Conversation Audit

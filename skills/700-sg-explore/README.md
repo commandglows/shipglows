@@ -4,7 +4,7 @@
 
 ## What It Does
 
-`700-sg-explore` is ShipGlowz’s deliberate thinking mode. It is for clarifying a problem, mapping options, challenging assumptions, and understanding the shape of a solution before anyone writes code.
+`700-sg-explore` is ShipGlows’s deliberate thinking mode. It is for clarifying a problem, mapping options, challenging assumptions, and understanding the shape of a solution before anyone writes code.
 
 Unlike implementation skills, this one is intentionally non-executing. It can inspect the repo, surface patterns, compare approaches, and draw diagrams, but it does not implement the outcome. That makes it useful when the expensive mistake would be coding too early.
 

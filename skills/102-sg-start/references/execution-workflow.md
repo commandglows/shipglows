@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.1"
-project: "shipflow"
+project: "shipglows"
 created: "2026-05-16"
 updated: "2026-06-10"
 status: draft
@@ -25,7 +25,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
-  - "Extracted during compact-shipflow-skill-instructions-phase-4 to preserve lifecycle workflow detail outside the activation body."
+  - "Extracted during compact-shipglows-skill-instructions-phase-4 to preserve lifecycle workflow detail outside the activation body."
   - "Added bounded local auto-verify follow-through for 102-sg-start while preserving proof-owner routing."
 next_step: "none"
 ---
@@ -41,9 +41,9 @@ This reference preserves the detailed lifecycle workflow for `102-sg-start`. Loa
 - Project name: !`basename $(pwd)`
 - Git branch: !`git branch --show-current 2>/dev/null || echo "unknown"`
 - Git status: !`git status --short 2>/dev/null || echo "Not a git repo"`
-- ShipGlowz development mode: !`rg -n "ShipGlowz Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPFLOW.md 2>/dev/null || echo "No project development mode documented"`
-- Project-local TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
-- Available specs: !`find shipglowz_data/workflow/specs docs specs -maxdepth 2 -type f -name "*.md" 2>/dev/null | sort | head -40`
+- ShipGlows development mode: !`rg -n "ShipGlows Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPGLOWS.md 2>/dev/null || echo "No project development mode documented"`
+- Project-local TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
+- Available specs: !`find shipglows_data/workflow/specs docs specs -maxdepth 2 -type f -name "*.md" 2>/dev/null | sort | head -40`
 
 ## Your task
 
@@ -105,19 +105,19 @@ If `spec-first` and no matching `Status: ready` spec exists:
 
 ### Step 3 — Load context, derive execution contract, and track task (silent)
 
-- Read `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/documentation-freshness-gate.md` when the task depends on framework, SDK, service, API, auth/session, build, migration, cache, routing, or integration behavior. Preserve the gate verdict in the execution contract.
-- Read `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/project-development-mode.md`, then inspect the project-local `## ShipGlowz Development Mode` section in `CLAUDE.md` or `SHIPFLOW.md`.
+- Read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/documentation-freshness-gate.md` when the task depends on framework, SDK, service, API, auth/session, build, migration, cache, routing, or integration behavior. Preserve the gate verdict in the execution contract.
+- Read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md`, then inspect the project-local `## ShipGlows Development Mode` section in `CLAUDE.md` or `SHIPGLOWS.md`.
   - Add the development mode to the execution contract: `local`, `vercel-preview-push`, `hybrid`, or `unknown`.
   - If the section is missing and Vercel signals exist (`.vercel/project.json`, `vercel.json`, Vercel dependency, or Vercel deployment status), classify as `unknown-vercel` and do not run preview-dependent browser/manual validation until the mode is clarified or documented.
   - If the user explicitly says this project uses Vercel previews as the development/test surface, treat the current run as `vercel-preview-push` and update or request the project section before the next validation step.
   - If no hosting signal exists, default to `local` for this run and recommend adding the section during project setup.
-- If Supabase is in the stack and the task touches auth, storage, uploads, DB, or RLS, load only the relevant references among `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/supabase-auth.md`, `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/supabase-storage.md`, `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/supabase-db.md` before editing.
-- If the task touches runtime error handling, crash reporting, error boundaries, jobs, webhooks, auth/payment/data failures, diagnostics/log-copy UI, or a deployed bug with a Sentry/support event ID, load `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/sentry-observability.md` and preserve Sentry plus diagnostics/build-header expectations in the execution contract.
+- If Supabase is in the stack and the task touches auth, storage, uploads, DB, or RLS, load only the relevant references among `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-auth.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-storage.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-db.md` before editing.
+- If the task touches runtime error handling, crash reporting, error boundaries, jobs, webhooks, auth/payment/data failures, diagnostics/log-copy UI, or a deployed bug with a Sentry/support event ID, load `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/sentry-observability.md` and preserve Sentry plus diagnostics/build-header expectations in the execution contract.
 - Si la tâche est `spec-first`, préférer une exécution sur contexte frais :
   - lancer un subagent sans historique si c'est possible
   - sinon demander explicitement à l'utilisateur d'ouvrir un nouveau thread avant de continuer
 - If a `ready` spec exists, read it fully before touching code
-- If the task changes behavior, fixes a bug, changes a skill contract, or needs evidence before completion, read `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/spec-driven-development-discipline.md` and choose a proof path before editing:
+- If the task changes behavior, fixes a bug, changes a skill contract, or needs evidence before completion, read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/spec-driven-development-discipline.md` and choose a proof path before editing:
   - `test-first` for behavior with a reasonable automated test surface
   - `regression-first` for bugs
   - `scenario-first` for skill, prompt, routing, or governance contract changes
@@ -142,14 +142,14 @@ If `spec-first` and no matching `Status: ready` spec exists:
   - documentation surfaces to update or explicitly leave unchanged
   - chosen proof path, exception reason if any, and validation/evidence expected before completion
   - task application loop state: target work item, required context files, active slice, progress semantics, durable progress target, and proof route
-  - checklist strategy: when manual proof remains, include `shipglowz_data/workflow/test-checklists/<scope>.md` and required scenario IDs
+  - checklist strategy: when manual proof remains, include `shipglows_data/workflow/test-checklists/<scope>.md` and required scenario IDs
   - project development mode and validation surface: whether success must be proven locally or through `005-sg-ship` -> `405-sg-prod` on a Vercel preview
   - for Flutter mobile/UI work: the proof ladder expected before APK/device testing, starting with widget tests when practical, then agent-run Flutter Web smoke for shared UI behavior via `108-sg-browser` or `109-sg-auth-debug`, then APK/device proof only for native-only behavior
   - fresh external docs verdict when the task depends on external documented behavior: dependency/service, local version when available, Context7 or official docs source, and whether the implementation path is supported
   - abuse cases / misuse cases and security constraints when present
 - validation commands and stop conditions
 - auto-verify eligibility: whether `102-sg-start` may run local verification itself, the exact `auto-verify: run` or `auto-verify: skipped` report value, and any out-of-scope proof owner route
-- For every business or technical contract listed in `depends_on` (`shipglowz_data/business/business.md`, `shipglowz_data/branding/branding.md`, `shipglowz_data/business/product.md`, `shipglowz_data/business/gtm.md`, `shipglowz_data/technical/architecture.md`, `shipglowz_data/technical/guidelines.md`, docs API, pricing, personas, onboarding/support docs):
+- For every business or technical contract listed in `depends_on` (`shipglows_data/business/business.md`, `shipglows_data/branding/branding.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/technical/architecture.md`, `shipglows_data/technical/guidelines.md`, docs API, pricing, personas, onboarding/support docs):
   - preserve the referenced `artifact_version` and `required_status` in the execution context
   - read the current file when it is present and its version/status may affect the implementation
   - stop and route back to `/101-sg-ready` if the current document is `stale`, has a newer incompatible `artifact_version`, or contradicts the spec
@@ -169,8 +169,8 @@ If `spec-first` and no matching `Status: ready` spec exists:
   - files owned by each group
   - shared files that must stay with the main agent
   - groups that can run in parallel vs groups that must wait
-- Read `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/decision-quality-contract.md` before selecting direct mode, model, topology, implementation path, or fallback
-- Read `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/704-sg-model/references/model-routing.md` before choosing execution model(s)
+- Read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/decision-quality-contract.md` before selecting direct mode, model, topology, implementation path, or fallback
+- Read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/704-sg-model/references/model-routing.md` before choosing execution model(s)
 - If the spec is missing any of the above, stop and route back to `/101-sg-ready` or `/100-sg-spec`
 - If a non-trivial spec lacks `Minimal Behavior Contract`, `Success Behavior`, `Error Behavior`, implementation approach, adversarial gaps, or explicit constraints, stop and route back to `/101-sg-ready` or `/100-sg-spec`
 - If the spec is missing required metadata/version context, treat it as a contract gap. Continue only for trivial/local work where the missing metadata cannot change product or security semantics; otherwise route back to `/101-sg-ready`.
@@ -186,7 +186,7 @@ If `spec-first` and no matching `Status: ready` spec exists:
 - If the task touches Supabase, include the matching schema/policy/migration files, storage path conventions, and the exact client split (`browser`, `server`, `service-role`) in the read-first set
 - Update task tracking to `🔄 in progress` in legacy master TASKS.md when explicit coordination mode is enabled.
 - Update local TASKS.md too when present
-- Before creating or mutating task operational records, load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` and follow its traffic-first writer obligations.
+- Before creating or mutating task operational records, load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` and follow its traffic-first writer obligations.
 - Treat the TASKS content loaded in Context as informational only.
 - Immediately before editing either TASKS file, re-read it from disk and use that version as authoritative.
 - Apply a minimal targeted edit (status row / task line only), never a whole-file rewrite from stale context.
@@ -196,7 +196,7 @@ If `spec-first` and no matching `Status: ready` spec exists:
 
 Choose the execution model before coding.
 
-Use `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/704-sg-model/references/model-routing.md` as the shared provider-aware source of truth, bounded by `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/decision-quality-contract.md`.
+Use `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/704-sg-model/references/model-routing.md` as the shared provider-aware source of truth, bounded by `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/decision-quality-contract.md`.
 
 Pick:
 - `Runtime/provider` (`Codex/OpenAI` or `Claude Code`)
@@ -268,7 +268,7 @@ If `multi-agent` is chosen:
 
 ### Step 6 — Implement
 
-Follow `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/task-application-loop.md` during implementation:
+Follow `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/task-application-loop.md` during implementation:
 - confirm target state and remaining slices before editing
 - load all context files required by the execution contract
 - implement one bounded slice at a time
@@ -286,7 +286,7 @@ Implementation constraints:
 - follow existing project conventions
 - keep the change inside the declared task scope
 - preserve the invariants and linked systems named in the execution contract
-- preserve the spec's dependency/version context while coding; do not silently implement against a newer or stale canonical `shipglowz_data/` decision contract, legacy root fallback contract, API doc, or architecture doc than the spec names
+- preserve the spec's dependency/version context while coding; do not silently implement against a newer or stale canonical `shipglows_data/` decision contract, legacy root fallback contract, API doc, or architecture doc than the spec names
 - keep documentation coherent with feature behavior: update docs, README, guides, examples, FAQ, onboarding, pricing or support copy when the contract names them
 - preserve abuse-case and security constraints named in the spec
 - preserve fresh external docs constraints from the execution contract; if current docs contradict the intended implementation, stop and reroute instead of coding from memory

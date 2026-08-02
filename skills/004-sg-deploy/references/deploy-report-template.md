@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-29"
 updated: "2026-07-18"
 status: draft
@@ -36,7 +36,7 @@ next_step: "/103-sg-verify 004-sg-deploy report template"
 
 ## Purpose
 
-Provide the detailed `004-sg-deploy` report shape for `report=agent` or explicit handoff. Default and blocked user reports stay concise and follow `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Provide the detailed `004-sg-deploy` report shape for `report=agent` or explicit handoff. Default and blocked user reports stay concise and follow `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 ## Template
 

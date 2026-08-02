@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-01"
 updated: "2026-06-11"
 status: active
@@ -38,12 +38,12 @@ next_step: "/103-sg-verify project development mode doctrine"
 
 # Project Development Mode
 
-Every project should document how ShipGlowz agents are expected to validate changes. The project-local source of truth is the `## ShipGlowz Development Mode` section in `CLAUDE.md`. If a project has no `CLAUDE.md`, use `SHIPFLOW.md` with the same section.
+Every project should document how ShipGlows agents are expected to validate changes. The project-local source of truth is the `## ShipGlows Development Mode` section in `CLAUDE.md`. If a project has no `CLAUDE.md`, use `SHIPGLOWS.md` with the same section.
 
 ## Canonical Section
 
 ```markdown
-## ShipGlowz Development Mode
+## ShipGlows Development Mode
 
 - development_mode: local | vercel-preview-push | hybrid
 - validation_surface: local | vercel-preview | production | mixed

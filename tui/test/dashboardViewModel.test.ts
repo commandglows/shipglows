@@ -96,16 +96,16 @@ describe("buildDashboardViewModel", () => {
         specs: [
           {
             ...dashboardData.specs[0]!,
-            title: "Very Long ShipGlowz Terminal Specification Name That Must Wrap Cleanly"
+            title: "Very Long ShipGlows Terminal Specification Name That Must Wrap Cleanly"
           }
         ]
       };
       const specsState = reduceDashboardViewState(data, DEFAULT_DASHBOARD_VIEW_STATE, { name: "tab" });
       const text = renderDashboardText(buildDashboardViewModel(data, specsState));
       const lines = text.split("\n");
-      const specLineIndex = lines.findIndex((line) => line.includes("Very Long ShipGlowz"));
+      const specLineIndex = lines.findIndex((line) => line.includes("Very Long ShipGlows"));
 
-      expect(lines[0]?.startsWith("    ShipGlowz TUI")).toBe(true);
+      expect(lines[0]?.startsWith("    ShipGlows TUI")).toBe(true);
       expect(lines.some((line) => line.startsWith("    * Specs"))).toBe(true);
       expect(specLineIndex).toBeGreaterThan(0);
       expect(lines[specLineIndex]?.startsWith("    🟢 > [alpha] [ready] Very Long")).toBe(true);
@@ -283,13 +283,13 @@ describe("buildDashboardViewModel", () => {
       specs: [
         {
           ...dashboardData.specs[0]!,
-          path: "/home/claude/shipglowz_app/app/shipglowz_data/workflow/specs/shipglowz-terminal-tui-v1.md",
-          project: "shipglowz_app",
-          title: "ShipGlowz Terminal TUI V1"
+          path: "/home/claude/shipglowz_app/app/shipglows_data/workflow/specs/shipglows-terminal-tui-v1.md",
+          project: "shipglows_app",
+          title: "ShipGlows Terminal TUI V1"
         },
         {
           ...dashboardData.specs[1]!,
-          path: "/home/claude/shipglowz_app/app/shipglowz_data/workflow/specs/gocharbon-quiz.md",
+          path: "/home/claude/shipglowz_app/app/shipglows_data/workflow/specs/gocharbon-quiz.md",
           project: "gocharbon_quiz",
           title: "GoCharbon Quiz Spec"
         }
@@ -303,7 +303,7 @@ describe("buildDashboardViewModel", () => {
 
     expect(vm.projectLines.join("\n")).toContain("gocharbon_quiz");
     expect(vm.specLines.join("\n")).toContain("GoCharbon Quiz Spec");
-    expect(vm.specLines.join("\n")).not.toContain("ShipGlowz Terminal TUI V1");
+    expect(vm.specLines.join("\n")).not.toContain("ShipGlows Terminal TUI V1");
   });
 
   it("filters and navigates selected dashboard lists", () => {

@@ -1,11 +1,11 @@
-# ShipGlowz Model Routing
+# ShipGlows Model Routing
 
 OpenAI Codex model guidance checked against official OpenAI docs on 2026-06-10.
 Claude Code aliases checked against official Anthropic Claude Code model configuration docs on 2026-04-26.
 
 This reference must stay short. If a question depends on "latest", exact availability, default model, pricing, or a recent change, revalidate against official provider docs before answering.
 
-Before applying this matrix, load `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`. Model routing optimizes first for reliability, security, performance relevance, maintainability, excellence, and proof quality. Speed, cost, and latency are tie-breakers only between quality- and excellence-equivalent options.
+Before applying this matrix, load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`. Model routing optimizes first for reliability, security, performance relevance, maintainability, excellence, and proof quality. Speed, cost, and latency are tie-breakers only between quality- and excellence-equivalent options.
 
 ## Freshness sources
 
@@ -26,7 +26,7 @@ Before applying this matrix, load `$SHIPFLOW_ROOT/skills/references/decision-qua
   - lightweight quality-equivalent entry point for small and medium low-risk tasks
   - good for triage, exploration, sub-tasks, and repeated iterations when the cost of error is low
 - `codex`
-  - ShipGlowz implementation profile for long implementation, refactors, hard debugging, multi-file coding, and terminal-heavy agentic work
+  - ShipGlows implementation profile for long implementation, refactors, hard debugging, multi-file coding, and terminal-heavy agentic work
   - resolve to the current Codex-recommended implementation model before execution; do not pin this alias to a deprecated slug
 - `gpt-5.3-codex`
   - legacy implementation model; use only when explicitly requested by the operator and actually available in the current Codex/API authentication path
@@ -56,7 +56,7 @@ Before applying this matrix, load `$SHIPFLOW_ROOT/skills/references/decision-qua
 - `opus`
   - strongest Claude Code alias for complex reasoning, architecture, adversarial review, and high-error-cost decisions
 - `sonnet`
-  - balanced default for daily coding, implementation, debugging, and most ShipGlowz execution loops
+  - balanced default for daily coding, implementation, debugging, and most ShipGlows execution loops
 - `sonnet[1m]`
   - Sonnet with extended context for very long sessions or large codebase context
   - use only when context length is the main constraint
@@ -83,7 +83,7 @@ Before applying this matrix, load `$SHIPFLOW_ROOT/skills/references/decision-qua
 
 ## Subagent defaults
 
-When ShipGlowz delegates bounded work to subagents, use the smallest quality-equivalent model that fits the delegated mission:
+When ShipGlows delegates bounded work to subagents, use the smallest quality-equivalent model that fits the delegated mission:
 
 | Subagent mission | Codex/OpenAI default | Reasoning |
 | --- | --- | --- |
@@ -94,7 +94,7 @@ When ShipGlowz delegates bounded work to subagents, use the smallest quality-equ
 
 ## Subagent argument aliases
 
-When a ShipGlowz skill invocation includes one of these model-topology arguments, interpret it as a delegated subagent request, not as an internal text option:
+When a ShipGlows skill invocation includes one of these model-topology arguments, interpret it as a delegated subagent request, not as an internal text option:
 
 | Argument | Meaning | Model policy |
 | --- | --- | --- |

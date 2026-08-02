@@ -2,13 +2,13 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-26"
 updated: "2026-07-26"
 status: draft
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: documentation-reflection-before-milestone-closure
-owner: ShipGlowz
+owner: ShipGlows
 confidence: high
 risk_level: medium
 security_impact: none

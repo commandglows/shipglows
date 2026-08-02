@@ -24,11 +24,11 @@ PREDECESSORS = (
     "403-sg-perf",
     "404-sg-migrate",
 )
-PUBLIC_DIR = ROOT / "shipglowz-site" / "src" / "content" / "skills"
+PUBLIC_DIR = ROOT / "shipglows-site" / "src" / "content" / "skills"
 CODE_INDEX = ROOT / "skills" / "references" / "skill-code-index.md"
-CATALOG = ROOT / "plugins" / "shipglowz" / "assets" / "pack-catalog.json"
-PACK_DOC = ROOT / "plugins" / "shipglowz" / "skills" / "shipglowz" / "references" / "pack-catalog.md"
-SPECS_DIR = ROOT / "shipglowz_data" / "workflow" / "specs"
+CATALOG = ROOT / "plugins" / "shipglows" / "assets" / "pack-catalog.json"
+PACK_DOC = ROOT / "plugins" / "shipglows" / "skills" / "shipglows" / "references" / "pack-catalog.md"
+SPECS_DIR = ROOT / "shipglows_data" / "workflow" / "specs"
 MAX_ACTIVATION_LINES = 180
 
 PREDECESSOR_PATTERN = re.compile(
@@ -75,7 +75,7 @@ SPEC_PREDECESSOR_LINE_ALLOWLIST = {
             "| 2026-07-17 | 403-sg-perf | GPT-5 | cache audit | D: direct PM2/environment hits 7/8ms, but production subshell calls repeat 229-248ms / 2.77-2.82s work; persistent header cache reads in 1ms | /100-sg-spec Optimize DevServer startup, caches, and shell UI |",
         }
     ),
-    "shipflow-gitignore-and-repo-hygiene-hard-gates-for-agents-and-audits.md": frozenset(
+    "shipglows-gitignore-and-repo-hygiene-hard-gates-for-agents-and-audits.md": frozenset(
         {
             '- "At spec creation on 2026-06-18, the former 401-sg-audit-code workflow checked only `.env` presence in `.gitignore`, which was too narrow for generated local-tool outputs and tracked transient artifacts."',
             "La preuve locale capturée le 2026-06-18 confirmait le problème: la worktree contenait une modification de `.gitignore` et des suppressions de fichiers `site/.playwright-mcp/*.yml`, signe qu'un outillage local avait déjà produit des artefacts suivis ou mal nettoyés. En parallèle, l'ancien `401-sg-audit-code` ne vérifiait mécaniquement que `.env` dans `.gitignore`, ce qui était trop étroit.",
@@ -83,13 +83,13 @@ SPEC_PREDECESSOR_LINE_ALLOWLIST = {
     ),
     "three-digit-runtime-skill-names.md": frozenset(
         {
-            "ShipGlowz doit migrer les skills locales de noms runtime non prefixes vers des noms `NNN-<ancien-nom>` ou `NNN` est un code a trois chiffres stable, memorisable et organise par familles. Apres migration et rechargement de Codex/Claude, l'operatrice doit voir et pouvoir invoquer des skills comme `000-shipflow`, `001-sg-build`, `100-sg-spec` et `401-sg-audit-code`; les dossiers `skills/<name>`, les champs `name:` et les liens runtime doivent etre coherents avec ces noms. En cas d'echec ou d'incoherence, les validateurs doivent bloquer la migration avant publication runtime ou signaler les liens obsoletes. Le cas facile a rater est de laisser des references internes, des symlinks Codex/Claude, des `agents/openai.yaml`, ou un index numerique qui continuent de pointer vers les anciens noms.",
-            "- [x] AC 3: Given `001-sg-build`, `000-shipflow`, `100-sg-spec`, and `401-sg-audit-code`, when runtime sync runs, then Claude and Codex target links resolve to the matching prefixed source directories.",
+            "ShipGlows doit migrer les skills locales de noms runtime non prefixes vers des noms `NNN-<ancien-nom>` ou `NNN` est un code a trois chiffres stable, memorisable et organise par familles. Apres migration et rechargement de Codex/Claude, l'operatrice doit voir et pouvoir invoquer des skills comme `000-shipglows`, `001-sg-build`, `100-sg-spec` et `401-sg-audit-code`; les dossiers `skills/<name>`, les champs `name:` et les liens runtime doivent etre coherents avec ces noms. En cas d'echec ou d'incoherence, les validateurs doivent bloquer la migration avant publication runtime ou signaler les liens obsoletes. Le cas facile a rater est de laisser des references internes, des symlinks Codex/Claude, des `agents/openai.yaml`, ou un index numerique qui continuent de pointer vers les anciens noms.",
+            "- [x] AC 3: Given `001-sg-build`, `000-shipglows`, `100-sg-spec`, and `401-sg-audit-code`, when runtime sync runs, then Claude and Codex target links resolve to the matching prefixed source directories.",
             "| `401` | `sg-audit-code` | `401-sg-audit-code` | Audit/quality/ops |",
             "| `402` | `sg-deps` | `402-sg-deps` | Audit/quality/ops |",
             "| `403` | `sg-perf` | `403-sg-perf` | Audit/quality/ops |",
             "| `404` | `sg-migrate` | `404-sg-migrate` | Audit/quality/ops |",
-            "The current two-digit index is only a discovery and routing layer. It documents labels such as `01-sg-build`, but the actual runtime skills still appear as `sg-build`, `shipflow`, `sg-audit-code`, and other names that cluster under the same `s` prefix. This does not solve the picker/filtering problem inside Codex or Claude Code. The user now wants the code to be part of the real skill name.",
+            "The current two-digit index is only a discovery and routing layer. It documents labels such as `01-sg-build`, but the actual runtime skills still appear as `sg-build`, `shipglows`, `sg-audit-code`, and other names that cluster under the same `s` prefix. This does not solve the picker/filtering problem inside Codex or Claude Code. The user now wants the code to be part of the real skill name.",
         }
     ),
     # Closed pre-consolidation specs keep exact source-era inventories,
@@ -99,7 +99,7 @@ SPEC_PREDECESSOR_LINE_ALLOWLIST = {
             "- audit: `sg-audit*`, `sg-perf`, `sg-deps`, `sg-check`",
         }
     ),
-    "compact-shipflow-skill-instructions-phase-2.md": frozenset(
+    "compact-shipglows-skill-instructions-phase-2.md": frozenset(
         {
             '- "skills/sg-audit-code/SKILL.md"',
             '- "Remaining >500-line skills: sg-init 718 lines, sg-audit-code 653 lines, sg-audit-copywriting 641 lines, sg-help 545 lines, sg-repurpose 523 lines, sg-audit-seo 507 lines."',
@@ -114,7 +114,7 @@ SPEC_PREDECESSOR_LINE_ALLOWLIST = {
             "- [ ] CA 6: Given `sg-audit-code` can surface security and data risks, when compacted, then security, permission, architecture, reliability, and fix/report gates are still present locally or in explicitly loaded references.",
         }
     ),
-    "compact-shipflow-skill-instructions.md": frozenset(
+    "compact-shipglows-skill-instructions.md": frozenset(
         {
             '- "Largest current skills: sg-docs 941 lines, sg-audit-design 843 lines, sg-init 718 lines, sg-audit-code 653 lines, sg-audit-copywriting 641 lines, sg-verify 571 lines, sg-help 545 lines."',
             "- If a pilot skill cannot be safely compacted, the implementation must document the reason and substitute the next highest body-size risk from `sg-init`, `sg-help`, `sg-audit-code`, or `sg-audit-copywriting`.",
@@ -128,7 +128,7 @@ SPEC_PREDECESSOR_LINE_ALLOWLIST = {
             '- "sg-audit-code 2026-04-28 found install.sh uses live remote install scripts/direct downloads and needs pinned, verified install steps and strict failure behavior."',
             '- "sg-audit-code 2026-04-28 found lib.sh is 5900+ lines and spans lifecycle, publishing, dashboard, inspector, secrets, and metadata behavior."',
             "- Master/local trackers: implementation may close the audit rows created by `sg-audit-code`, but this spec itself does not edit trackers.",
-            "| 2026-04-28 20:30:00 UTC | sg-spec | GPT-5 Codex | Created spec from sg-audit-code chantier potential for installer, dependency, test, and architecture risk reduction | draft saved | /sg-ready Installer supply-chain hardening and ShipGlowz codebase risk reduction |",
+            "| 2026-04-28 20:30:00 UTC | sg-spec | GPT-5 Codex | Created spec from sg-audit-code chantier potential for installer, dependency, test, and architecture risk reduction | draft saved | /sg-ready Installer supply-chain hardening and ShipGlows codebase risk reduction |",
         }
     ),
     "public-skill-categories.md": frozenset(
@@ -161,7 +161,7 @@ SPEC_PREDECESSOR_LINE_ALLOWLIST = {
     "skill-taxonomy-and-chantier-sources.md": frozenset(
         {
             '- "Repo investigation 2026-04-27: sg-deps, sg-perf, sg-audit, sg-check, sg-test, sg-prod, sg-migrate, and sg-auth-debug are currently conditionnel but can originate new chantiers."',
-            "Quand une skill ShipGlowz termine un travail qui revele plus qu'une action immediate, elle doit determiner si son resultat est un chantier potentiel, l'indiquer explicitement dans son rapport final, et orienter vers une spec durable quand le travail necessite de la reflexion, des decisions, plusieurs etapes, ou une verification ulterieure. Si un chantier existe deja, la skill continue a tracer selon la doctrine actuelle; si aucun chantier unique n'existe mais que le rapport revele un vrai travail a suivre, elle ne doit pas ecrire au hasard dans une spec existante, mais produire un bloc `Chantier potentiel` avec titre propose, raison, severite, scope, evidence et prochaine commande `/sg-spec ...`. Le cas facile a rater est une skill `conditionnel` comme `sg-deps` ou `sg-perf`: elle ne peut pas tracer dans une spec ambigue, mais elle peut et doit recommander la creation d'un chantier quand ses findings depassent un simple fix direct.",
+            "Quand une skill ShipGlows termine un travail qui revele plus qu'une action immediate, elle doit determiner si son resultat est un chantier potentiel, l'indiquer explicitement dans son rapport final, et orienter vers une spec durable quand le travail necessite de la reflexion, des decisions, plusieurs etapes, ou une verification ulterieure. Si un chantier existe deja, la skill continue a tracer selon la doctrine actuelle; si aucun chantier unique n'existe mais que le rapport revele un vrai travail a suivre, elle ne doit pas ecrire au hasard dans une spec existante, mais produire un bloc `Chantier potentiel` avec titre propose, raison, severite, scope, evidence et prochaine commande `/sg-spec ...`. Le cas facile a rater est une skill `conditionnel` comme `sg-deps` ou `sg-perf`: elle ne peut pas tracer dans une spec ambigue, mais elle peut et doit recommander la creation d'un chantier quand ses findings depassent un simple fix direct.",
             "- Success proof: lancer ou relire `sg-deps`, `sg-perf`, `sg-audit`, `sg-check` ou `sg-prod` montre un format standard qui ne laisse plus les findings critiques seulement dans la conversation.",
             "- `sg-deps` trouve des vulnerabilites critiques mais deux specs actives existent: ne pas ecrire dans une spec; recommander une nouvelle spec ou demander selection explicite.",
             "- File: `skills/sg-deps/SKILL.md`, `skills/sg-perf/SKILL.md`, `skills/sg-audit/SKILL.md`, `skills/sg-audit-code/SKILL.md`, `skills/sg-audit-design/SKILL.md`, `skills/sg-audit-a11y/SKILL.md`, `skills/sg-audit-components/SKILL.md`, `skills/sg-audit-seo/SKILL.md`, `skills/sg-audit-gtm/SKILL.md`, `skills/sg-audit-copy/SKILL.md`, `skills/sg-audit-copywriting/SKILL.md`, `skills/sg-audit-translate/SKILL.md`, `skills/sg-audit-design-tokens/SKILL.md`",
@@ -190,17 +190,17 @@ MIGRATED_ACTIVE_SPEC_PROOF = {
         "$010-sg-technical audit <target>",
         "skills/010-sg-technical/references/technical-audit-playbook.md",
     ),
-    "shipflow-gitignore-and-repo-hygiene-hard-gates-for-agents-and-audits.md": (
+    "shipglows-gitignore-and-repo-hygiene-hard-gates-for-agents-and-audits.md": (
         "$010-sg-technical audit <target>",
         "skills/010-sg-technical/references/technical-audit-playbook.md",
     ),
-    "openpostern-security-signal-routing-for-shipflow-skills.md": (
+    "openpostern-security-signal-routing-for-shipglows-skills.md": (
         "$010-sg-technical deps <project>",
         "$010-sg-technical audit <target>",
         "skills/010-sg-technical/references/dependency-audit-playbook.md",
         "skills/010-sg-technical/references/technical-audit-playbook.md",
     ),
-    "retire-central-shipflow-data-repository.md": (
+    "retire-central-shipglows-data-repository.md": (
         "skills/010-sg-technical/references/dependency-audit-playbook.md",
         "skills/010-sg-technical/references/performance-audit-playbook.md",
         "skills/010-sg-technical/references/technical-audit-playbook.md",
@@ -335,7 +335,7 @@ class TechnicalContractTests(unittest.TestCase):
         self.assertIn("| `010` | `sg-technical` | `010-sg-technical` | Audit/technical/source |", self.code_index)
         for predecessor in PREDECESSORS:
             self.assertNotIn(f"| `{predecessor.split('-', 1)[0]}` |", self.code_index)
-        quality = next(pack for pack in self.catalog["packs"] if pack["id"] == "shipflow-quality")
+        quality = next(pack for pack in self.catalog["packs"] if pack["id"] == "shipglows-quality")
         self.assertEqual(quality["skills"], ["400-sg-audit", "010-sg-technical", "407-sg-audit-translate"])
         self.assertIn("010-sg-technical", self.pack_doc)
         for predecessor in PREDECESSORS:
@@ -351,8 +351,8 @@ class TechnicalContractTests(unittest.TestCase):
             ROOT / "skills" / "310-sg-github-hygiene" / "SKILL.md",
             ROOT / "skills" / "400-sg-audit" / "SKILL.md",
             ROOT / "skills" / "400-sg-audit" / "references" / "audit-master-workflow.md",
-            ROOT / "shipglowz_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md",
-            ROOT / "shipglowz_data" / "technical" / "skill-runtime-and-lifecycle.md",
+            ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md",
+            ROOT / "shipglows_data" / "technical" / "skill-runtime-and-lifecycle.md",
         ]
         files.extend(path for path in PUBLIC_DIR.glob("*.md"))
         for path in files:

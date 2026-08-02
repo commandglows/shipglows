@@ -117,15 +117,15 @@ def utc_now() -> str:
 
 
 def private_default_root() -> Path:
-    configured = os.environ.get("SHIPGLOWZ_INSPIRATION_LIBRARY_DIR")
+    configured = os.environ.get("SHIPGLOWS_INSPIRATION_LIBRARY_DIR")
     if configured:
         return Path(configured).expanduser()
-    private_root = Path(os.environ.get("SHIPGLOWZ_PRIVATE_DIR", str(Path.home() / ".shipglowz" / "private"))).expanduser()
+    private_root = Path(os.environ.get("SHIPGLOWS_PRIVATE_DIR", str(Path.home() / ".shipglows" / "private"))).expanduser()
     return private_root / "design-inspiration-library"
 
 
-def shipflow_root() -> Path:
-    return Path(os.environ.get("SHIPFLOW_ROOT", str(Path.home() / "shipglowz"))).expanduser().resolve()
+def shipglows_root() -> Path:
+    return Path(os.environ.get("SHIPGLOWS_ROOT", str(Path.home() / "shipglows"))).expanduser().resolve()
 
 
 def is_relative_to(path: Path, parent: Path) -> bool:
@@ -162,16 +162,16 @@ def validate_output_root(path: Path, *, fixture_mode: bool) -> Path:
     synthetic_temp = fixture_mode and is_relative_to(resolved, temp_root)
     approved_private_root = private_default_root().resolve()
     configured_private_parent = Path(
-        os.environ.get("SHIPGLOWZ_PRIVATE_DIR", str(Path.home() / ".shipglowz" / "private"))
+        os.environ.get("SHIPGLOWS_PRIVATE_DIR", str(Path.home() / ".shipglows" / "private"))
     ).expanduser().resolve()
     approved_private = is_relative_to(resolved, approved_private_root) and is_relative_to(
         resolved, configured_private_parent
     )
 
-    if is_relative_to(resolved, shipflow_root()):
+    if is_relative_to(resolved, shipglows_root()):
         raise CaptureToolError(
             "public_repo_target",
-            f"refusing output under public ShipGlowz root: {resolved}",
+            f"refusing output under public ShipGlows root: {resolved}",
             status="rejected",
         )
     if public_cache_path(resolved):
@@ -578,7 +578,7 @@ def detect_access_state(url: str, title: str, visible_text: str, status_code: in
 def capture_live(url: str) -> CaptureResult:
     runtime = discover_node_playwright_runtime()
     result = CaptureResult(final_url=url, engine="playwright")
-    with tempfile.TemporaryDirectory(prefix="shipglowz-inspiration-browser-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="shipglows-inspiration-browser-") as temporary:
         png_path = Path(temporary) / "full-page.png"
         payload = run_node_capture(runtime, url, png_path)
         result.final_url = str(payload.get("finalUrl") or url)
@@ -1146,7 +1146,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--url", action="append", help="Public http(s) URL to capture; repeat for a bounded batch.")
     parser.add_argument("--input", help=f"Newline-delimited URL file (maximum {MAX_BATCH_SIZE} non-comment lines).")
     parser.add_argument("--id", dest="reference_id", help="Explicit reference ID; valid only when exactly one source is supplied.")
-    parser.add_argument("--output", help="Private corpus root. Defaults to SHIPGLOWZ_INSPIRATION_LIBRARY_DIR or the canonical private path.")
+    parser.add_argument("--output", help="Private corpus root. Defaults to SHIPGLOWS_INSPIRATION_LIBRARY_DIR or the canonical private path.")
     parser.add_argument("--status-only", action="store_true", help="Read the private index and print capture-status counts without capturing.")
     parser.add_argument("--list", action="store_true", help="Read the private index and print bounded reference summaries without loading bundles.")
     parser.add_argument("--approve", metavar="REFERENCE_ID", help="Promote one reviewed candidate and synchronize index.yaml.")

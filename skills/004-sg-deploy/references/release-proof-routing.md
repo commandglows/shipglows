@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-29"
 updated: "2026-06-29"
 status: draft
@@ -53,7 +53,7 @@ Do not invent proof. If the evidence is not collected, report it as missing and 
 
 ## Preview And Hosted Proof
 
-When project development mode is `vercel-preview-push` or when a `hybrid` project needs hosted proof, apply `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md`.
+When project development mode is `vercel-preview-push` or when a `hybrid` project needs hosted proof, apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`.
 
 Required route:
 

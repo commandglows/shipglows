@@ -104,7 +104,7 @@ Canonical bug lifecycle statuses:
 - `duplicate`
 - `wontfix`
 
-Status transitions must stay explicit in this dossier and in `shipglowz_data/workflow/BUGS.md`.
+Status transitions must stay explicit in this dossier and in `shipglows_data/workflow/BUGS.md`.
 
 ## Redaction Status
 

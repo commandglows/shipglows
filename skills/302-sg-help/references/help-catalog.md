@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.7.1"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-16"
 updated: "2026-07-16"
 status: draft
@@ -17,7 +17,7 @@ linked_systems:
   - skills/006-sg-design/SKILL.md
   - skills/302-sg-help/SKILL.md
   - skills/302-sg-help/references/help-catalog.md
-  - skills/900-shipglowz-core/SKILL.md
+  - skills/900-shipglows-core/SKILL.md
   - skills/references/app-blueprints.md
   - skills/app-blueprints/README.md
 depends_on:
@@ -26,14 +26,14 @@ depends_on:
     required_status: "active"
 supersedes: []
 evidence:
-  - "Extracted from skills/302-sg-help/SKILL.md during Compact ShipGlowz Skill Instructions Phase 2."
-  - "2026-06-11 added internal 900-shipglowz-core operator skill discovery."
+  - "Extracted from skills/302-sg-help/SKILL.md during Compact ShipGlows Skill Instructions Phase 2."
+  - "2026-06-11 added internal 900-shipglows-core operator skill discovery."
   - "2026-06-11 added design-system authority discovery for UI/design workflow help."
   - "2026-06-11 added 310-sg-github-hygiene for git/GitHub sync drift, stale branches, and Dependabot hygiene."
   - "2026-06-23 added App Blueprints help section for blueprint system explanation."
   - "2026-07-15 added 006-sg-design private inspiration-library operator modes."
   - "2026-07-15 consolidated six retired design specialist commands into explicit 006-sg-design modes."
-  - "2026-07-16 aligned active public-plugin help with the canonical shipglowz identity; shipflow remains compatibility-only."
+  - "2026-07-16 aligned active public-plugin help with the canonical shipglows identity; shipglows remains compatibility-only."
 next_review: "2026-08-15"
 next_step: "none"
 ---
@@ -50,7 +50,7 @@ This reference preserves the detailed pre-compaction instructions for `302-sg-he
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -64,14 +64,14 @@ This skill does not write to chantier specs. If invoked inside a spec-first flow
 Use the same distinction everywhere:
 
 - `302-sg-help` explains or routes. It does not own execution.
-- `000-shipglowz` is the primary entry router. It answers directly or hands the thread to the right owner skill.
-- Owner skills such as `001-sg-build`, `002-sg-maintain`, `003-sg-bug`, `004-sg-deploy`, `007-sg-content`, and `900-shipglowz-core build` own execution once selected.
+- `000-shipglows` is the primary entry router. It answers directly or hands the thread to the right owner skill.
+- Owner skills such as `001-sg-build`, `002-sg-maintain`, `003-sg-bug`, `004-sg-deploy`, `007-sg-content`, and `900-shipglows-core build` own execution once selected.
 
 Runtime invocation must stay explicit too:
 
-- In Codex or Claude-style runtimes, the operator launches the visible skill name such as `000-shipglowz` or `001-sg-build`.
-- In OpenCode or KiloCode-style runtimes, the operator should ask for the ShipGlowz skill in natural language or via the runtime skill picker.
-- Internal runtime calls such as `skill({ name: "shipglowz" })` are runtime implementation details, not manual commands the operator should type.
+- In Codex or Claude-style runtimes, the operator launches the visible skill name such as `000-shipglows` or `001-sg-build`.
+- In OpenCode or KiloCode-style runtimes, the operator should ask for the ShipGlows skill in natural language or via the runtime skill picker.
+- Internal runtime calls such as `skill({ name: "shipglows" })` are runtime implementation details, not manual commands the operator should type.
 
 
 # Skill System Cheatsheet
@@ -82,20 +82,20 @@ Quick reference for the skill system, modes, and workflows.
 
 ## App Blueprints
 
-ShipGlowz utilise des **blueprints** — des squelettes de specs globales pour des archetypes d'applications recurrentes (Flutter CRUD, etc.).
+ShipGlows utilise des **blueprints** — des squelettes de specs globales pour des archetypes d'applications recurrentes (Flutter CRUD, etc.).
 
 Quand tu dis "crée une app X", `001-sg-build` active le **Blueprint Gate** :
-1. Il cherche un blueprint correspondant dans `$SHIPFLOW_ROOT/skills/app-blueprints/`
+1. Il cherche un blueprint correspondant dans `$SHIPGLOWS_ROOT/skills/app-blueprints/`
 2. S'il trouve : blueprint charge → architecture/stack/modeles/routes pre-remplis dans `100-sg-spec` et `306-sg-scaffold`
 3. Sinon : workflow spec-first normal inchangé
 
-Chaque blueprint a son propre depot GitHub. Le registre est dans `$SHIPFLOW_ROOT/skills/app-blueprints/README.md` ; si le blueprint n'est pas en cache local, le Gate le clone depuis son repo. Le contrat du systeme est dans `$SHIPFLOW_ROOT/skills/references/app-blueprints.md`.
+Chaque blueprint a son propre depot GitHub. Le registre est dans `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md` ; si le blueprint n'est pas en cache local, le Gate le clone depuis son repo. Le contrat du systeme est dans `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md`.
 
 ## Skills at a Glance
 
 ### Numeric Skill Codes
 
-The canonical numeric lookup lives in `$SHIPFLOW_ROOT/skills/references/skill-code-index.md`.
+The canonical numeric lookup lives in `$SHIPGLOWS_ROOT/skills/references/skill-code-index.md`.
 
 Use it when the operator wants faster skill lookup with runtime-visible numeric names. Accepted forms include `001`, `001-sg-build`, `001sfbuild`, and `001 sg-build`; all resolve to the runtime skill in the index.
 
@@ -103,7 +103,7 @@ Core codes:
 
 | Code | Skill |
 | --- | --- |
-| `000` | `/000-shipglowz` |
+| `000` | `/000-shipglows` |
 | `001` | `/001-sg-build` |
 | `002` | `/002-sg-maintain` |
 | `003` | `/003-sg-bug` |
@@ -128,11 +128,11 @@ Use these verbs consistently in help answers and docs:
 
 Use these distinctions consistently in help answers:
 
-- `~/.shipglowz/private/data/` is the durable private-data working tree
-- it is intended to be a separate Git repository from public project repos and from `$SHIPFLOW_ROOT`
+- `~/.shipglows/private/data/` is the durable private-data working tree
+- it is intended to be a separate Git repository from public project repos and from `$SHIPGLOWS_ROOT`
 - its remote is configuration-resolved, not hardcoded in shared doctrine
 - it stores durable private operator data, not secrets
-- short-retention private state such as mail review queues may live in `~/.shipglowz/private/data/mail-intake/` when versioning improves recovery; it must not contain raw message bodies
+- short-retention private state such as mail review queues may live in `~/.shipglows/private/data/mail-intake/` when versioning improves recovery; it must not contain raw message bodies
 
 Only bootstrap/install owners need the clone contract. Most help answers should explain the storage contract first.
 
@@ -140,10 +140,10 @@ Only bootstrap/install owners need the clone contract. Most help answers should 
 
 | Skill | Purpose | Arguments |
 |-------|---------|-----------|
-| `/000-shipglowz` | Primary natural-language router to the right ShipGlowz skill or direct answer | `<instruction>` |
+| `/000-shipglows` | Primary natural-language router to the right ShipGlows skill or direct answer | `<instruction>` |
 | `/001-sg-build` | Master user-facing orchestrator from story to spec, implementation, verification, closure, and ship | `<story, bug, or goal>` |
-| `/705-sg-conversation-audit` | Audit workflow for recurring conversation execution defects and owner routing | `latest`, `path <file-or-dir>`, `export shipflow`, `report=agent` |
-| `/900-shipglowz-core` | Internal operator tool for ShipGlowz skill audit, maintenance lifecycle, conservative refresh, and packaging | `audit`, `build <target>`, `refresh <target>`, `packaging`, `help`, `report=agent` |
+| `/705-sg-conversation-audit` | Audit workflow for recurring conversation execution defects and owner routing | `latest`, `path <file-or-dir>`, `export shipglows`, `report=agent` |
+| `/900-shipglows-core` | Internal operator tool for ShipGlows skill audit, maintenance lifecycle, conservative refresh, and packaging | `audit`, `build <target>`, `refresh <target>`, `packaging`, `help`, `report=agent` |
 | `/002-sg-maintain` | Master maintenance lifecycle from triage through delegated fixes, verification, and ship | `quick`, `full`, `security`, `global`, `no-ship` |
 | `/007-sg-content` | Master content lifecycle for strategy, repurposing, drafting, enrichment, project-aware quality scoring, audits, docs, validation, and ship routing | `plan`, `repurpose`, `draft`, `enrich`, `audit`, `seo`, `editorial`, `apply`, `ship`, `score`, `quality gate`, `grille projet` |
 | `/006-sg-design` | Sole public design lifecycle for system creation, playgrounds, UI/design-token/component/accessibility audits, private inspiration-library curation, implementation routing, proof, and ship routing | `system [scope]`, `playground [route-path]`, `audit <ui|tokens|components|a11y> [scope]`, `redesign [scope]`, `migration [scope]`, `library <add|approve|list|status> ...`, or a natural-language design goal |
@@ -172,7 +172,7 @@ Only bootstrap/install owners need the clone contract. Most help answers should 
 | `/006-sg-design` | Design system, playground, UI/design-token/component/accessibility audits | `system [scope]`, `playground [route]`, `audit <ui|tokens|components|a11y> [scope]` |
 | `/009-sg-marketing` | Market study, GTM, copy clarity, or persuasion audit | `market|gtm|copy|copywriting <target>` |
 | `/406-sg-seo` | Meta tags, structured data, links | `@file`, `global`, or nothing |
-| `/705-sg-conversation-audit` | Conversation quality classification and action routing from saved transcripts | `latest`, `path <file-or-dir>`, `export shipflow`, `report=agent` |
+| `/705-sg-conversation-audit` | Conversation quality classification and action routing from saved transcripts | `latest`, `path <file-or-dir>`, `export shipglows`, `report=agent` |
 | `/407-sg-audit-translate` | i18n completeness, consistency, missing-translation sync | `@file`, `global`, `sync`, `apply`, or nothing |
 
 ### DevOps & Shipping
@@ -188,23 +188,23 @@ Only bootstrap/install owners need the clone contract. Most help answers should 
 Note: `/103-sg-verify` now includes guided next-step prompting when verdict is not ready (`corriger maintenant`, `repasser par spec`, `stop/reprendre`).
 Note: `/109-sg-auth-debug` is the required diagnostic path for auth bugs that need browser evidence before implementation.
 Note: `/108-sg-browser` is the generic browser evidence path for non-auth page assertions; use `/109-sg-auth-debug` for auth/session/provider issues, `/405-sg-prod` for deployment truth, and `/107-sg-test` for durable manual QA logs.
-Note: `/107-sg-test` sits after verification and before shipping when a human needs to confirm the real user flow; it writes compact `shipglowz_data/workflow/TEST_LOG.md`, durable bug files under `shipglowz_data/workflow/bugs/`, and optional compact `shipglowz_data/workflow/BUGS.md` triage views when needed.
-Note: `/107-sg-test` supports a `checklist-first` mode: when a spec defines `shipglowz_data/workflow/test-checklists/<scope>.md`, required scenarios from the parsed checklist become the authoritative source for manual proof; optional rows are run only if needed.
+Note: `/107-sg-test` sits after verification and before shipping when a human needs to confirm the real user flow; it writes compact `shipglows_data/workflow/TEST_LOG.md`, durable bug files under `shipglows_data/workflow/bugs/`, and optional compact `shipglows_data/workflow/BUGS.md` triage views when needed.
+Note: `/107-sg-test` supports a `checklist-first` mode: when a spec defines `shipglows_data/workflow/test-checklists/<scope>.md`, required scenarios from the parsed checklist become the authoritative source for manual proof; optional rows are run only if needed.
 Note: `/003-sg-bug` is the recommended entrypoint when you want the whole professional bug loop executed from a `BUG-ID`, retest, closure question, or ship-risk question.
 Note: `/102-sg-start` now reuses the `704-sg-model` routing matrix and can choose `single-agent` vs `multi-agent` execution with explicit file ownership and per-group model overrides.
 Note: `/100-sg-spec` → `/101-sg-ready` → `/102-sg-start` → `/103-sg-verify` now share a `User Story` contract and should ask targeted user questions whenever behavior, scope, or security is still ambiguous.
 Note: UI/design work must resolve through the project design-system authority. Use `/300-sg-docs technical` when the authority is missing; then use `/006-sg-design system`, `audit tokens`, `audit components`, or `audit a11y` as the need requires.
-Note: `$shipglowz` is the recommended first command for non-technical operators. It answers directly when no file work is needed, otherwise it hands off in the main conversation to the right owner skill; selected master skills own their own delegated sequential execution.
+Note: `$shipglows` is the recommended first command for non-technical operators. It answers directly when no file work is needed, otherwise it hands off in the main conversation to the right owner skill; selected master skills own their own delegated sequential execution.
 Note: `/001-sg-build` is the recommended end-user entrypoint for non-trivial work; invocation authorizes bounded delegated sequential execution for the current chantier, while parallel execution requires ready non-overlapping `Execution Batches`.
 Note: `/004-sg-deploy` is the recommended release entrypoint when the operator wants the whole confidence loop after implementation: checks, bounded ship, deployment truth, post-deploy evidence routing, verification, and optional changelog.
 Note: `/002-sg-maintain` is the recommended recurring maintenance entrypoint for existing projects; by default it carries maintenance through spec/readiness when needed, bounded delegated execution, verification, and ship/deploy routing. Use `/002-sg-maintain quick` for read-only triage.
-Note: `/007-sg-content` is the recommended entrypoint for content management (`CONTENT_MAP + editorial corpus -> owner content skills -> audits/docs -> validation -> 103-sg-verify -> 005-sg-ship`). When the operator asks to score or grade content for a project, content owner skills use `skills/references/content-quality-rubric.md` and project rules from `shipglowz_data/business/*` plus `shipglowz_data/editorial/*`.
+Note: `/007-sg-content` is the recommended entrypoint for content management (`CONTENT_MAP + editorial corpus -> owner content skills -> audits/docs -> validation -> 103-sg-verify -> 005-sg-ship`). When the operator asks to score or grade content for a project, content owner skills use `skills/references/content-quality-rubric.md` and project rules from `shipglows_data/business/*` plus `shipglows_data/editorial/*`.
 Note: `/008-sg-customer` is the recommended entrypoint for customer experience after feature work. Select exactly one mode: `audit`, `flow`, `onboarding`, or `recovery`; it routes visual craft, content/docs, browser/manual proof, and auth diagnosis to their owners.
 Note: `/600-sg-local-cloud-sync` is the recommended entrypoint when local-first user data must become account-backed cloud data: account association, promotion, hydration, merge/conflict policy, tombstones, sync/save UX states, sensitive-data exclusions, and proof routing.
 Note: `/601-sg-product-entitlements` is the recommended entrypoint when identity, provider events, paid plans, activation codes, refunds/revokes, product-local access mirrors, backend authorization gates, or entitlement-gated sync preconditions are in scope.
-Note: `/900-shipglowz-core build` is the sole internal entrypoint for ShipGlowz skill maintenance (`700-sg-explore when needed -> 100-sg-spec -> SKILL.md -> runtime sync -> 900-shipglowz-core refresh -> budget audit -> 103-sg-verify -> 300-sg-docs/help update -> 005-sg-ship`).
+Note: `/900-shipglows-core build` is the sole internal entrypoint for ShipGlows skill maintenance (`700-sg-explore when needed -> 100-sg-spec -> SKILL.md -> runtime sync -> 900-shipglows-core refresh -> budget audit -> 103-sg-verify -> 300-sg-docs/help update -> 005-sg-ship`).
 Note: `/310-sg-github-hygiene` is the focused entrypoint when the problem is git/GitHub hygiene rather than general maintenance: branch sync, stale refs, PR drift, and Dependabot backlog triage with bounded safe fixes.
-Note: `/900-shipglowz-core` is internal and operator-only. Use it to audit ShipGlowz skill execution fidelity or plugin-packaging readiness; do not include it in the public `shipglowz` plugin.
+Note: `/900-shipglows-core` is internal and operator-only. Use it to audit ShipGlows skill execution fidelity or plugin-packaging readiness; do not include it in the public `shipglows` plugin.
 Note: User-facing skill questions follow the shared question contract: ask only when the answer changes route, scope, risk, proof, closure, ship posture, public claims, or technical/product/editorial direction; otherwise proceed only with a context-safe, verifiable default.
 
 ### Professional Bug Loop (concise)
@@ -212,27 +212,27 @@ Note: User-facing skill questions follow the shared question contract: ask only 
 Flow:
 1. `/003-sg-bug [BUG-ID or summary]` continues the safest lifecycle action when possible.
 2. `/107-sg-test [scope]` detects a fail and logs a compact test pointer.
-3. `shipglowz_data/workflow/bugs/BUG-ID.md` is the full bug file and source of truth (repro, expected/observed, diagnosis, Fix Attempts, Retest History, redaction state, next step).
-4. `shipglowz_data/workflow/BUGS.md`, when present, is only a compact optional/generated triage row (`BUG-ID`, status, severity, last-tested, bug file path).
+3. `shipglows_data/workflow/bugs/BUG-ID.md` is the full bug file and source of truth (repro, expected/observed, diagnosis, Fix Attempts, Retest History, redaction state, next step).
+4. `shipglows_data/workflow/BUGS.md`, when present, is only a compact optional/generated triage row (`BUG-ID`, status, severity, last-tested, bug file path).
 5. `/106-sg-fix BUG-ID` appends diagnosis + fix attempts; when no `BUG-ID` exists yet, `106-sg-fix` should usually create one rather than leaving the bug memory only in chat or git history.
 6. `/107-sg-test --retest BUG-ID` appends Retest History in the bug file and updates status (`open` or `fixed-pending-verify`).
 7. `/103-sg-verify` and `/005-sg-ship` gate optimistic closure when open high/critical bugs remain.
 
 File roles:
-- `shipglowz_data/workflow/TEST_LOG.md`: tracker of manual test runs (compact pointers only).
-- `shipglowz_data/workflow/bugs/BUG-ID.md`: durable bug file and source of truth.
-- `shipglowz_data/workflow/BUGS.md`: optional compact tracker/triage view of bug state.
+- `shipglows_data/workflow/TEST_LOG.md`: tracker of manual test runs (compact pointers only).
+- `shipglows_data/workflow/bugs/BUG-ID.md`: durable bug file and source of truth.
+- `shipglows_data/workflow/BUGS.md`: optional compact tracker/triage view of bug state.
 - `test-evidence/BUG-ID/`: optional redacted heavy evidence only.
 
 ### Chantier Registry
 
-`specs/` is the global registry for spec-first chantiers. Each chantier spec owns its `Skill Run History` and `Current Chantier Flow`; do not create a parallel chantier registry in `TASKS.md`, `AUDIT_LOG.md`, `PROJECTS.md` (legacy/compat only), or `shipglowz_data`.
+`specs/` is the global registry for spec-first chantiers. Each chantier spec owns its `Skill Run History` and `Current Chantier Flow`; do not create a parallel chantier registry in `TASKS.md`, `AUDIT_LOG.md`, `PROJECTS.md` (legacy/compat only), or `shipglows_data`.
 
 Internal role matrix:
 
 | Skill file | Trace category | Process role | Source threshold |
 |------------|----------------|--------------|------------------|
-| `skills/000-shipglowz/SKILL.md` | non-applicable | helper | Primary router only; selected owner skill owns durable state and chantier tracing. |
+| `skills/000-shipglows/SKILL.md` | non-applicable | helper | Primary router only; selected owner skill owns durable state and chantier tracing. |
 | `skills/707-name/SKILL.md` | non-applicable | helper | Never writes to specs; report non-applicable when useful. |
 | `skills/706-continue/SKILL.md` | conditionnel | pilotage | Route to `/100-sg-spec` only when continuation clearly needs a durable chantier. |
 | `skills/010-sg-technical/SKILL.md` | conditionnel | source-de-chantier | Technical findings become a chantier for P0/P1, architecture/security/supply-chain/performance risk, breaking migration, or multi-file remediation. |
@@ -275,7 +275,7 @@ Internal role matrix:
 | `skills/005-sg-ship/SKILL.md` | obligatoire | lifecycle | Ships an existing chantier; not a source. |
 | `skills/310-sg-github-hygiene/SKILL.md` | non-applicable | helper | Focused git/GitHub hygiene for sync drift, stale branches, PR drift, and Dependabot backlog; it does not own chantier lifecycle state. |
 | `skills/100-sg-spec/SKILL.md` | obligatoire | lifecycle | Creates or updates the chantier spec and initial history row. |
-| `skills/900-shipglowz-core/SKILL.md` | obligatoire | lifecycle | Sole internal owner for ShipGlowz skill audit, build, refresh, and packaging modes; it remains operator-only and outside the public user plugin. |
+| `skills/900-shipglows-core/SKILL.md` | obligatoire | lifecycle | Sole internal owner for ShipGlows skill audit, build, refresh, and packaging modes; it remains operator-only and outside the public user plugin. |
 | `skills/102-sg-start/SKILL.md` | obligatoire | lifecycle | Executes an existing chantier; not a source. |
 | `skills/308-sg-status/SKILL.md` | non-applicable | helper | Status dashboards stay read-only for chantier specs. |
 | `skills/309-sg-tasks/SKILL.md` | conditionnel | pilotage | Task management routes to `/100-sg-spec` only for durable non-trivial work. |
@@ -283,13 +283,13 @@ Internal role matrix:
 | `skills/205-sg-veille/SKILL.md` | conditionnel | source-de-chantier | Watch items become a chantier when they require product, content, architecture, or implementation decisions. |
 | `skills/103-sg-verify/SKILL.md` | obligatoire | lifecycle | Verifies an existing chantier and reports drift; not a source. |
 
-Report rule: every applicable report ends with a `Chantier` block. Conditional skills that cannot identify one unique spec must not write anywhere; they report `Chantier: non applicable` or `Chantier: non trace` and name the reason. Source skills also evaluate the standard `Chantier potentiel` threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`.
+Report rule: every applicable report ends with a `Chantier` block. Conditional skills that cannot identify one unique spec must not write anywhere; they report `Chantier: non applicable` or `Chantier: non trace` and name the reason. Source skills also evaluate the standard `Chantier potentiel` threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`.
 
 ### Scaffolding & Init
 
 | Skill | Purpose | Arguments |
 |-------|---------|-----------|
-| `/305-sg-init` | Bootstrap new project for ShipGlowz | `[project-path]` |
+| `/305-sg-init` | Bootstrap new project for ShipGlows | `[project-path]` |
 | `/306-sg-scaffold` | Generate files matching project patterns | `<type> <name>` |
 
 ### Research & Documentation
@@ -323,7 +323,7 @@ Report rule: every applicable report ends with a `Chantier` block. Conditional s
 /406-sg-seo global
 ```
 
-**Domain applicability**: Not all audits apply to all projects. Global mode discovers projects from local `shipglowz_data/` corpora and root project markers, then uses each selected project's local governance corpus for business, technical, editorial, and workflow context.
+**Domain applicability**: Not all audits apply to all projects. Global mode discovers projects from local `shipglows_data/` corpora and root project markers, then uses each selected project's local governance corpus for business, technical, editorial, and workflow context.
 
 **8 domains**: Code, Design, Copy, SEO, GTM, Translate, Deps, Perf.
 
@@ -350,14 +350,14 @@ Run any skill from `~/` (no project markers) and it asks **"Which project(s)?"**
 ### Guided decision prompts (new)
 | Skill | When it prompts | Choices |
 |-------|------------------|---------|
-| `$shipglowz` | Route is ambiguous between material owner skills | Ask one numbered routing question / direct handoff to selected owner / direct answer |
+| `$shipglows` | Route is ambiguous between material owner skills | Ask one numbered routing question / direct handoff to selected owner / direct answer |
 | `/106-sg-fix` | Bug scope is borderline | Direct fix / Spec-first / Diagnostic only |
 | `/102-sg-start` | Scope triage is ambiguous | Execute direct / Spec-first / Clarify first (`/700-sg-explore`) |
 | `/104-sg-end` | Completion is unclear | Full close / Partial close / Summary only |
 | `/308-sg-status` | No view mode argument | Issues only / Dirty only / All projects |
 | `/301-sg-context` | Context priming completed | Proceed now / Add 1 key file / Refine target |
 | `/100-sg-spec` | Small/local change | Spec light / Spec full / Auto by risk |
-| `/900-shipglowz-core build` | Skill idea or placement is too fuzzy | Ask one targeted question / Route to `/700-sg-explore` / Continue to `/100-sg-spec` |
+| `/900-shipglows-core build` | Skill idea or placement is too fuzzy | Ask one targeted question / Route to `/700-sg-explore` / Continue to `/100-sg-spec` |
 | `/103-sg-verify` | Verdict is not ready | Fix now / Return to spec / Stop and resume later |
 
 ### Clarification prompts (important)
@@ -380,7 +380,7 @@ Run any skill from `~/` (no project markers) and it asks **"Which project(s)?"**
 - `010-sg-technical audit` must review business-flow abuse and product coherence, not just code style and raw security smells.
 
 ### Project development mode
-- Every project should document `## ShipGlowz Development Mode` in `CLAUDE.md`, or `SHIPFLOW.md` when no `CLAUDE.md` exists.
+- Every project should document `## ShipGlows Development Mode` in `CLAUDE.md`, or `SHIPGLOWS.md` when no `CLAUDE.md` exists.
 - `local` means local dev servers and local browser checks are valid before shipping.
 - `vercel-preview-push` means any browser/manual/preview validation of changed behavior must wait for `005-sg-ship` followed immediately by `405-sg-prod`.
 - `hybrid` means local checks are valid for unit/static work, but hosted flows such as auth, OAuth callbacks, webhooks, Vercel routing, serverless/edge runtime, and deployment env vars require `005-sg-ship` -> `405-sg-prod` first.
@@ -393,7 +393,7 @@ Run any skill from `~/` (no project markers) and it asks **"Which project(s)?"**
 
 ### Decision quality
 - Canonical reference: `skills/references/decision-quality-contract.md`.
-- ShipGlowz optimizes first for correctness, reliability, security/data safety, performance where relevant, maintainability, durability, professional best practices, and proof quality.
+- ShipGlows optimizes first for correctness, reliability, security/data safety, performance where relevant, maintainability, durability, professional best practices, and proof quality.
 - Speed, cost, token economy, local convenience, or the shortest path are tie-breakers only after the primary quality bar is already met.
 - "Smallest safe path" means the smallest complete professional implementation that satisfies the product contract and preserves security, performance, maintainability, and future evolution.
 - Minimal targeted edits are allowed as file-safety discipline: update the intended row, section, module, or file without whole-file rewrites from stale context. They never lower solution quality.
@@ -405,19 +405,19 @@ Run any skill from `~/` (no project markers) and it asks **"Which project(s)?"**
 - Stale docs are a product risk when they affect setup, security, payments, permissions, API usage, migration, destructive actions, or support expectations.
 
 ### Artifact metadata
-- ShipGlowz internal artifacts must start with YAML frontmatter using the ShipGlowz schema. This includes specs, reviews, research reports, audit reports, verification reports, architecture notes, decision records, and project documentation generated by ShipGlowz.
+- ShipGlows internal artifacts must start with YAML frontmatter using the ShipGlows schema. This includes specs, reviews, research reports, audit reports, verification reports, architecture notes, decision records, and project documentation generated by ShipGlows.
 - Operational trackers/registries are excluded: do not add metadata frontmatter to `TASKS.md`, `AUDIT_LOG.md`, or `PROJECTS.md` (legacy/compat). Extract durable decisions from them into separate artifacts instead.
-- Required common fields for reusable ShipGlowz artifacts: `artifact`, `metadata_schema_version`, `artifact_version`, `project`, `created`, `updated`, `status`, `scope`, `owner`, `source_skill`.
+- Required common fields for reusable ShipGlows artifacts: `artifact`, `metadata_schema_version`, `artifact_version`, `project`, `created`, `updated`, `status`, `scope`, `owner`, `source_skill`.
 - Use structured fields when relevant: `user_story`, `confidence`, `risk_level`, `security_impact`, `docs_impact`, `linked_systems`, `depends_on`, `supersedes`, `evidence`, `next_step`.
-- `metadata_schema_version` versions the ShipGlowz metadata format. `artifact_version` versions the document's decision content.
+- `metadata_schema_version` versions the ShipGlows metadata format. `artifact_version` versions the document's decision content.
 - Specs and implementation artifacts should record which business, brand, technical, API, or architecture artifact versions they depend on through `depends_on`.
 - Version bump rules for `artifact_version`: patch = clarification/no decision change; minor = changed assumption/scope/audience/API/pricing/docs impact; major = incompatible product promise/business model/security posture/architecture direction.
 - Draft or migrated artifacts start at `0.x.y`; first reviewed active contract should become `1.0.0`.
 - If a dependency in `depends_on` is stale, missing, or newer than the version used by the spec, route through `/300-sg-docs audit` or `/101-sg-ready` before implementation/closure.
 - Do not hide uncertainty. If proof is partial, metadata should say `confidence: medium|low`, `status: draft|partial|reviewed`, or `risk_level: medium|high`.
 - Application content keeps its project schema. This includes `src/content/**`, blog posts, SEO pages, framework docs, MDX content, and any file parsed by the app runtime.
-- Existing ShipGlowz artifacts without metadata should be migrated to the standard schema during adoption or the next time the relevant skill touches them.
-- Legacy central data archives are migration evidence only. Per-project business, brand, guideline, spec, research, and decision docs live inside each project's local `shipglowz_data/{business,technical,editorial,workflow}` unless a project explicitly documents an exception.
+- Existing ShipGlows artifacts without metadata should be migrated to the standard schema during adoption or the next time the relevant skill touches them.
+- Legacy central data archives are migration evidence only. Per-project business, brand, guideline, spec, research, and decision docs live inside each project's local `shipglows_data/{business,technical,editorial,workflow}` unless a project explicitly documents an exception.
 
 ### Honest closure and shipping
 - `104-sg-end`, `703-sg-review`, and `005-sg-ship` must distinguish "work tracked and summarized" from "product actually validated".
@@ -463,12 +463,12 @@ Provide explicit arguments and prompts don't appear:
 
 ### Architecture
 ```
-<project>/shipglowz_data/
+<project>/shipglows_data/
 ├── workflow/TASKS.md       # Project-local active task tracker
 ├── workflow/AUDIT_LOG.md   # Project-local audit history
 └── workflow/specs/         # Project-local chantier specs
 
-project/shipglowz_data/
+project/shipglows_data/
 ├── business/           # Project-local business and product truth
 ├── technical/          # Project-local architecture and implementation truth
 ├── editorial/          # Project-local content map, claims, and surfaces
@@ -476,7 +476,7 @@ project/shipglowz_data/
 ```
 
 ### Rules
-1. **Project files first**: `/309-sg-tasks` updates local project trackers (`TASKS.md` or `shipglowz_data/workflow/TASKS.md`) as the execution source.
+1. **Project files first**: `/309-sg-tasks` updates local project trackers (`TASKS.md` or `shipglows_data/workflow/TASKS.md`) as the execution source.
 2. **Coordinator sync second**: If this workspace uses legacy master files, sync project status into `~/TASKS.md` for cross-project visibility.
 3. **Dashboard sync**: Update the Dashboard table when project phases change (when legacy master is used)
 4. **Prefix items**: Backlog entries include project name (e.g., `- tubeflow: Add dark mode`)
@@ -666,7 +666,7 @@ project/shipglowz_data/
 
 **Research a topic?** → `/203-sg-research "topic"`
 
-**How do I use ShipGlowz in OpenCode or KiloCode?** → Ask for the ShipGlowz skill in natural language or select it in the runtime UI; do not type internal calls such as `skill({ name: "shipglowz" })`
+**How do I use ShipGlows in OpenCode or KiloCode?** → Ask for the ShipGlows skill in natural language or select it in the runtime UI; do not type internal calls such as `skill({ name: "shipglows" })`
 
 ---
 

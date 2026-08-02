@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.9.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-05"
 updated: "2026-07-18"
 status: active
@@ -21,7 +21,7 @@ linked_systems:
   - skills/references/entrypoint-routing.md
   - skills/references/reporting-contract.md
   - docs/technical/skill-runtime-and-lifecycle.md
-  - shipglowz_data/workflow/playbooks/spec-driven-workflow.md
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
     artifact_version: "1.1.0"
@@ -35,9 +35,9 @@ evidence:
   - "User decision 2026-06-10: autonomy and question rules should be compact enough to preserve the signal."
   - "User decision 2026-06-28: the operator is not here to code, but is happy to answer precise business-critical questions that the repository cannot answer."
   - "User decision 2026-07-15: a greenfield product stack must be chosen with the operator at the product-consequence level instead of being silently fixed by the agent."
-  - "Operator correction 2026-07-17: greenfield platform scope must be established before stack options; ShipGlowz must not silently exclude mobile applications and thereby omit Flutter from the decision."
-  - "Operator correction 2026-07-17: ShipGlowz must apply the established Astro-site and Flutter-app preference before proposing a broad greenfield stack comparison."
-  - "Operator clarification 2026-07-17: Astro/Vercel and cross-platform Flutter are first recommendations; ShipGlowz must not default a new app to one mobile platform when one codebase can cover Web, iOS, and Android."
+  - "Operator correction 2026-07-17: greenfield platform scope must be established before stack options; ShipGlows must not silently exclude mobile applications and thereby omit Flutter from the decision."
+  - "Operator correction 2026-07-17: ShipGlows must apply the established Astro-site and Flutter-app preference before proposing a broad greenfield stack comparison."
+  - "Operator clarification 2026-07-17: Astro/Vercel and cross-platform Flutter are first recommendations; ShipGlows must not default a new app to one mobile platform when one codebase can cover Web, iOS, and Android."
   - "Operator correction 2026-07-18: unfinished-chantier choices stay at the outcome and priority layer; internal skills and commands remain agent-owned."
 next_review: "2026-06-05"
 next_step: "/104-sg-end greenfield platform footprint question contract"
@@ -47,13 +47,13 @@ next_step: "/104-sg-end greenfield platform footprint question contract"
 
 ## Purpose
 
-This reference defines how ShipGlowz skills ask user-facing questions.
+This reference defines how ShipGlows skills ask user-facing questions.
 
 Questions should be rare, useful, and answerable by number. A question is a decision brief: why the decision matters, the recommended default when one exists, and the practical options.
 
 The goal is not to avoid questions at all costs. The goal is to avoid useless technical supervision while still asking for operator-owned business truth when that truth materially improves the work.
 
-Load `skills/references/decision-quality-contract.md` before recommending a default. The recommended answer must preserve ShipGlowz's quality and excellence bar; do not recommend the fastest, cheapest, or easiest route unless it is also quality-equivalent, excellence-equivalent, and professionally correct.
+Load `skills/references/decision-quality-contract.md` before recommending a default. The recommended answer must preserve ShipGlows's quality and excellence bar; do not recommend the fastest, cheapest, or easiest route unless it is also quality-equivalent, excellence-equivalent, and professionally correct.
 
 ## Applies To
 
@@ -134,7 +134,7 @@ an established direction for the surfaces it covers and must be applied before
 blueprint matching or a broad technology comparison. Do not repeatedly ask the
 operator to approve Astro for a public/SEO site, Flutter for application
 surfaces, or Vercel for compatible web outputs when the preset applies.
-Present these compatible presets as ShipGlowz's recommended direction before
+Present these compatible presets as ShipGlows's recommended direction before
 any alternatives; alternatives exist to explain a concrete exception, not to
 make the operator reselect the habitual stack.
 

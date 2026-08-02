@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$ROOT_DIR/../.." && pwd)"
 SCRIPT="$REPO_ROOT/skills/800-tmux-capture-conversation/scripts/capture_tmux_conversation.sh"
-SHIPFLOW_ROOT_UNDER_TEST="${SHIPFLOW_ROOT:-$REPO_ROOT}"
+SHIPGLOWS_ROOT_UNDER_TEST="${SHIPGLOWS_ROOT:-$REPO_ROOT}"
 
 pass_count=0
 fail_count=0
@@ -66,35 +66,35 @@ need_tmux
 
 tmp_project=$(mktemp -d)
 trap 'rm -rf "$tmp_project"' EXIT
-mkdir -p "$tmp_project/.git" "$tmp_project/shipglowz_data/workflow/conversations"
+mkdir -p "$tmp_project/.git" "$tmp_project/shipglows_data/workflow/conversations"
 
-shipflow_output=$(
+shipglows_output=$(
   cd "$tmp_project"
-  SHIPFLOW_ROOT="$SHIPFLOW_ROOT_UNDER_TEST" "$SCRIPT" --preset shipflow --title "Conversation Storage Guard" --dry-run
+  SHIPGLOWS_ROOT="$SHIPGLOWS_ROOT_UNDER_TEST" "$SCRIPT" --preset shipglows --title "Conversation Storage Guard" --dry-run
 )
 assert_contains \
-  "shipflow preset from project cwd uses ShipFlow root" \
-  "$shipflow_output" \
-  "Destination: $SHIPFLOW_ROOT_UNDER_TEST/shipglowz_data/workflow/conversations/"
+  "shipglows preset from project cwd uses ShipGlows root" \
+  "$shipglows_output" \
+  "Destination: $SHIPGLOWS_ROOT_UNDER_TEST/shipglows_data/workflow/conversations/"
 
 assert_fails_with \
-  "shipflow preset blocks relative project-local conversation destination" \
-  "shipflow preset output must stay under $SHIPFLOW_ROOT_UNDER_TEST/shipglowz_data/workflow/conversations" \
-  bash -c "cd '$tmp_project' && SHIPFLOW_ROOT='$SHIPFLOW_ROOT_UNDER_TEST' '$SCRIPT' --preset shipflow --title 'Bad Relative' --destination shipglowz_data/workflow/conversations/bad-relative.md --dry-run"
+  "shipglows preset blocks relative project-local conversation destination" \
+  "shipglows preset output must stay under $SHIPGLOWS_ROOT_UNDER_TEST/shipglows_data/workflow/conversations" \
+  bash -c "cd '$tmp_project' && SHIPGLOWS_ROOT='$SHIPGLOWS_ROOT_UNDER_TEST' '$SCRIPT' --preset shipglows --title 'Bad Relative' --destination shipglows_data/workflow/conversations/bad-relative.md --dry-run"
 
 assert_fails_with \
-  "shipflow preset blocks absolute project-local conversation destination" \
-  "shipflow preset output must stay under $SHIPFLOW_ROOT_UNDER_TEST/shipglowz_data/workflow/conversations" \
-  env SHIPFLOW_ROOT="$SHIPFLOW_ROOT_UNDER_TEST" "$SCRIPT" --preset shipflow --title "Bad Absolute" --destination "$tmp_project/shipglowz_data/workflow/conversations/bad-absolute.md" --dry-run
+  "shipglows preset blocks absolute project-local conversation destination" \
+  "shipglows preset output must stay under $SHIPGLOWS_ROOT_UNDER_TEST/shipglows_data/workflow/conversations" \
+  env SHIPGLOWS_ROOT="$SHIPGLOWS_ROOT_UNDER_TEST" "$SCRIPT" --preset shipglows --title "Bad Absolute" --destination "$tmp_project/shipglows_data/workflow/conversations/bad-absolute.md" --dry-run
 
 docs_output=$(
   cd "$tmp_project"
-  SHIPFLOW_ROOT="$SHIPFLOW_ROOT_UNDER_TEST" "$SCRIPT" --preset docs --title "Project Docs Conversation" --destination shipglowz_data/workflow/conversations/project-note.md --dry-run
+  SHIPGLOWS_ROOT="$SHIPGLOWS_ROOT_UNDER_TEST" "$SCRIPT" --preset docs --title "Project Docs Conversation" --destination shipglows_data/workflow/conversations/project-note.md --dry-run
 )
 assert_contains \
   "legacy docs preset routes to canonical project-local destination" \
   "$docs_output" \
-  "Destination: $tmp_project/shipglowz_data/workflow/conversations/project-note.md"
+  "Destination: $tmp_project/shipglows_data/workflow/conversations/project-note.md"
 
 printf '\nConversation audit storage tests: %s passed, %s failed\n' "$pass_count" "$fail_count"
 [ "$fail_count" -eq 0 ]

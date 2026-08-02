@@ -4,7 +4,7 @@
 
 ## What It Does
 
-`701-sg-backlog` manages project-local ShipGlowz backlog files and can coordinate a portfolio backlog when explicitly asked. It helps capture new ideas, defer non-urgent work, review what should be promoted next, and clean out stale items before the backlog turns into noise.
+`701-sg-backlog` manages project-local ShipGlows backlog files and can coordinate a portfolio backlog when explicitly asked. It helps capture new ideas, defer non-urgent work, review what should be promoted next, and clean out stale items before the backlog turns into noise.
 
 The core value is focus: active work stays small, while future work remains searchable and structured.
 
@@ -24,7 +24,7 @@ The core value is focus: active work stays small, while future work remains sear
 
 - an optional mode such as `add`, `defer`, `review`, or `clean`
 - a project context if the idea belongs to a specific product
-- an existing ShipGlowz project with `shipglowz_data/workflow/TASKS.md` or `shipglowz_data/workflow/BACKLOG.md` tracking
+- an existing ShipGlows project with `shipglows_data/workflow/TASKS.md` or `shipglows_data/workflow/BACKLOG.md` tracking
 
 ## What You Get Back
 

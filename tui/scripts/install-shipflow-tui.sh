@@ -1,1 +1,0 @@
-install-shipglowz-tui.sh

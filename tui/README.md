@@ -1,17 +1,17 @@
-# ShipGlowz Terminal TUI (V1)
+# ShipGlows Terminal TUI (V1)
 
-Optional terminal dashboard for ShipGlowz, isolated under `/home/claude/shipglowz/tui`.
+Optional terminal dashboard for ShipGlows, isolated under `/home/claude/shipglowz/tui`.
 
 ## Status
 
 - V1 scope: read-only.
 - No write-back, no shell runner, no auth/cloud/db.
-- ShipGlowz skills remain the main command surface; this TUI is an optional operator cockpit.
+- ShipGlows skills remain the main command surface; this TUI is an optional operator cockpit.
 
 ## What It Is For
 
 Use the TUI when you want a fast terminal overview before deciding which
-ShipGlowz skill to run next. It is optimized for small screens and remote
+ShipGlows skill to run next. It is optimized for small screens and remote
 terminal sessions:
 
 - check the current projects without opening the Flutter app,
@@ -29,35 +29,35 @@ files, and validated workflows.
 
 ## Setup
 
-The main ShipGlowz installer also installs this TUI for configured users:
+The main ShipGlows installer also installs this TUI for configured users:
 
 ```bash
-cd /home/claude/shipglowz
+cd /home/claude/shipglows
 sudo ./install.sh
 ```
 
 Recommended one-time install:
 
 ```bash
-/home/claude/shipglowz/tui/scripts/install-shipglowz-tui.sh
+/home/claude/shipglowz/tui/scripts/install-shipglows-tui.sh
 ```
 
 Then launch from anywhere:
 
 ```bash
 tui
-shipglowz-tui
+shipglows-tui
 sg-tui
 ```
 
 Available command names:
 
 - `tui`: shortest daily command.
-- `shipglowz-tui`: explicit ShipGlowz launcher.
-- `sg-tui`: short hyphenated ShipGlowz alias.
+- `shipglows-tui`: explicit ShipGlows launcher.
+- `sg-tui`: short hyphenated ShipGlows alias.
 - `sftui`: legacy short alias.
 - `sf-tui`: legacy hyphenated alias.
-- `shipflow-tui`: legacy full launcher name.
+- `shipglows-tui`: legacy full launcher name.
 
 Manual setup:
 
@@ -95,7 +95,7 @@ Display behavior:
 On a freshly cloned server:
 
 ```bash
-cd ~/shipglowz
+cd ~/shipglows
 sudo ./install.sh
 ```
 
@@ -119,7 +119,7 @@ Task, spec, and audit summaries use a traffic-first format so severity stays vis
 🟢 [project] summary...
 ```
 
-Selectable summaries keep the selection marker after the traffic light, for example `🟢 > [shipglowz_app] [ready] ...`.
+Selectable summaries keep the selection marker after the traffic light, for example `🟢 > [shipglows_app] [ready] ...`.
 
 The TUI reader now follows the shared operational record contract at
 `/home/claude/shipglowz/skills/references/operational-record-format.md`:
@@ -140,16 +140,16 @@ If the current shell cannot find Bun after install, run `export BUN_INSTALL="$HO
 
 ## Data Sources (read-only)
 
-- Local project corpsora discovered from configured workspace roots (project-local `shipglowz_data/` folders):
-  - `./shipglowz_data/workflow/TASKS.md`
-  - `./shipglowz_data/workflow/AUDIT_LOG.md`
-  - `./shipglowz_data/workflow/OPERATIONS_LOG.md`
-  - `./shipglowz_data/workflow/DEPENDENCY_LOG.md`
-  - `./shipglowz_data/workflow/specs/*.md`
-- Legacy `./shipglowz_data/TASKS.md` and `./shipglowz_data/AUDIT_LOG.md` are still supported as fallback reads.
+- Local project corpsora discovered from configured workspace roots (project-local `shipglows_data/` folders):
+  - `./shipglows_data/workflow/TASKS.md`
+  - `./shipglows_data/workflow/AUDIT_LOG.md`
+  - `./shipglows_data/workflow/OPERATIONS_LOG.md`
+  - `./shipglows_data/workflow/DEPENDENCY_LOG.md`
+  - `./shipglows_data/workflow/specs/*.md`
+- Legacy `./shipglows_data/TASKS.md` and `./shipglows_data/AUDIT_LOG.md` are still supported as fallback reads.
 - `/home/claude/shipglowz/skills/*`
 
-Workspace discovery roots can be customized with `SHIPGLOWZ_TUI_WORKSPACE_ROOTS` (comma-separated paths). The legacy `SHIPFLOW_TUI_WORKSPACE_ROOTS` name is still accepted as a fallback. If unset, the TUI uses its current working directory as the active root and falls back to the installed ShipGlowz repo for auxiliary reads.
+Workspace discovery roots can be customized with `SHIPGLOWS_TUI_WORKSPACE_ROOTS` (comma-separated paths). The legacy `SHIPGLOWS_TUI_WORKSPACE_ROOTS` name is still accepted as a fallback. If unset, the TUI uses its current working directory as the active root and falls back to the installed ShipGlows repo for auxiliary reads.
 
 All reads go through `src/sources/sourcePolicy.ts` with allowlisted roots, symlink escape protection, file size limit, and redacted diagnostics.
 

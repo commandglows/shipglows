@@ -10,11 +10,11 @@ Primary artifact type: `master-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz-owned tools, shared references, skill-local references, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows-owned tools, shared references, skill-local references, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, sequence-first, and in the user's active language. Use `report=agent` only when the user explicitly asks for a detailed handoff, routing evidence, or a fuller audit matrix.
 
@@ -24,11 +24,11 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 
 ## Contract References
 
-- `shipglowz_data/business/business.md`
-- `shipglowz_data/business/product.md`
-- `shipglowz_data/branding/branding.md`
-- `shipglowz_data/business/gtm.md`
-- `shipglowz_data/editorial/content-map.md`
+- `shipglows_data/business/business.md`
+- `shipglows_data/business/product.md`
+- `shipglows_data/branding/branding.md`
+- `shipglows_data/business/gtm.md`
+- `shipglows_data/editorial/content-map.md`
 - `skills/references/source-intake-classification.md`
 - `skills/references/email-sequence-storage.md` when a sequence should be retained in a project repository
 
@@ -70,5 +70,5 @@ Validate this skill after edits with:
 ```bash
 rg -n "emailing|one-to-one|sequence|audience|cadence|CTA|opt-out|claim|email-sequence-storage" skills/emailing/SKILL.md
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglowz_sync_skills.sh --check --skill emailing
+tools/shipglows_sync_skills.sh --check --skill emailing
 ```

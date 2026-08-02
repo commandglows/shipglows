@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-28"
 updated: "2026-06-28"
 status: active
@@ -42,11 +42,11 @@ next_step: "/300-sg-docs update if the routing model changes"
 
 Shared routing detail for `007-sg-content`.
 
-Load `$SHIPFLOW_ROOT/skills/references/content-owner-handoffs.md` for the canonical owner matrix and minimum handoff payload. This local reference keeps only the routing choices that are activation-critical for `007-sg-content`.
+Load `$SHIPGLOWS_ROOT/skills/references/content-owner-handoffs.md` for the canonical owner matrix and minimum handoff payload. This local reference keeps only the routing choices that are activation-critical for `007-sg-content`.
 
 ## Source Intake
 
-When a pasted source, email, URL, transcript, note, article, or example arrives without a settled project, surface, angle, or owner route, load `$SHIPFLOW_ROOT/skills/references/source-intake-classification.md` before choosing the content lane.
+When a pasted source, email, URL, transcript, note, article, or example arrives without a settled project, surface, angle, or owner route, load `$SHIPGLOWS_ROOT/skills/references/source-intake-classification.md` before choosing the content lane.
 
 ## Mode Map
 
@@ -79,15 +79,15 @@ Route to `/700-sg-explore <idea>` before `/100-sg-spec` when source truth or sur
 
 For public or potentially public content:
 
-1. Read `shipglowz_data/editorial/content-map.md` when present.
-2. Read `$SHIPFLOW_ROOT/skills/references/editorial-content-corpus.md` when available.
+1. Read `shipglows_data/editorial/content-map.md` when present.
+2. Read `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` when available.
 3. Check `public-surface-map`, `page-intent-map`, `claim-register`, `blog-and-article-surface-policy`, and `astro-content-schema-policy` when present.
 4. Produce `Editorial Update Plan` and `Claim Impact Plan` when relevant.
 5. Stop if no declared blog/article surface exists and the request needs one.
 
 ## Owner Skill Routing
 
-Use `$SHIPFLOW_ROOT/skills/references/content-owner-handoffs.md` as the owner matrix.
+Use `$SHIPGLOWS_ROOT/skills/references/content-owner-handoffs.md` as the owner matrix.
 
 Local `007-sg-content` routing rule:
 
@@ -105,10 +105,10 @@ Required behavior:
 - keep title, slug, H1, intro, H2, and H3 aligned with the true workflow; do not let SEO structure drift into a stronger promise than the body can support
 - treat H2 and H3 as first-class editorial/marketing surfaces; they should carry promise, clarity, and reader value, not generic labels
 - when title candidates are explored but not chosen, recycle the strongest unused variants into SEO-useful H2/H3 sections when they fit the article truthfully
-- default to skill-led research, enrichment, and cross-linking; do not frame manual web research as the reader workflow when ShipGlowz skills are the intended product path
-- present review-source harvesting as a ShipGlowz skill capability, not manual homework, when the workflow depends on competitor feedback from AppSumo, Play Store, Trustpilot, Reddit, or similar public review sources
-- distinguish clearly between `the operator gives a competitor list` and `ShipGlowz skills turn that list into user-feedback insights`; do not imply that manually provided competitor discovery was automated
-- when the operator asks to promote ShipGlowz, keep the public workflow centered on ShipGlowz skills unless the operator explicitly wants a manual or third-party-tool workflow
+- default to skill-led research, enrichment, and cross-linking; do not frame manual web research as the reader workflow when ShipGlows skills are the intended product path
+- present review-source harvesting as a ShipGlows skill capability, not manual homework, when the workflow depends on competitor feedback from AppSumo, Play Store, Trustpilot, Reddit, or similar public review sources
+- distinguish clearly between `the operator gives a competitor list` and `ShipGlows skills turn that list into user-feedback insights`; do not imply that manually provided competitor discovery was automated
+- when the operator asks to promote ShipGlows, keep the public workflow centered on ShipGlows skills unless the operator explicitly wants a manual or third-party-tool workflow
 - when a source or title suggests "without manual research", "automatic", or similar language, verify that the described workflow really removes that operator effort; otherwise tighten the promise immediately
 - when the operator critique is about naming, positioning, or promise honesty, treat it as permission to tighten title, slug, intro, and section structure in the same pass
 
@@ -123,8 +123,8 @@ Do not ask the operator to micro-manage:
 - internal-link opportunities between obviously adjacent articles
 - honest title/slug alignment after a promise mismatch is visible
 - whether strong unused title candidates can become H2/H3 structure
-- whether a skills-promoted workflow should replace a manual workflow in ShipGlowz-owned public content
-- whether competitor-review sources like AppSumo, Play Store, or Trustpilot should be woven into a ShipGlowz-led feedback workflow when that connection is already explicit in the request
+- whether a skills-promoted workflow should replace a manual workflow in ShipGlows-owned public content
+- whether competitor-review sources like AppSumo, Play Store, or Trustpilot should be woven into a ShipGlows-led feedback workflow when that connection is already explicit in the request
 
 ## Content Quality Guidelines
 
@@ -135,8 +135,8 @@ For content creation or content modification, prefer these positive defaults:
 - step back from the literal request wording when needed to improve the real article angle, funnel role, adjacency, or reader job to be done
 - optimize for discoverability without weakening truthfulness, product fit, or requester intent
 - make the SEO structure reinforce the real workflow instead of outgrowing it
-- frame the reader workflow through ShipGlowz skills when that is the intended product path
-- state clearly what the requester provided and what ShipGlowz skills transform, automate, or accelerate
+- frame the reader workflow through ShipGlows skills when that is the intended product path
+- state clearly what the requester provided and what ShipGlows skills transform, automate, or accelerate
 - recycle strong unused title variants into truthful H2/H3 structure when they improve search coverage and clarity
 - prefer substantial, meaning-rich H2/H3 wording over short placeholder subheads when longer phrasing better communicates value, intent, or outcome
 - respond to content critique at the right layer: wording, angle, funnel placement, promise, or source strategy

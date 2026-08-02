@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "0.2.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-28"
 updated: "2026-06-28"
 status: draft
@@ -16,8 +16,8 @@ docs_impact: yes
 linked_systems:
   - skills/300-sg-docs/SKILL.md
   - skills/300-sg-docs/references/mode-playbooks.md
-  - shipglowz_data/technical/
-  - shipglowz_data/workflow/
+  - shipglows_data/technical/
+  - shipglows_data/workflow/
 depends_on:
   - artifact: "skills/300-sg-docs/references/core-governance.md"
     artifact_version: "0.4.0"
@@ -88,7 +88,7 @@ Required sections:
 Required content rules:
 
 - state that the repository is in bootstrap if no code exists yet
-- state that durable decisions belong under `shipglowz_data/`
+- state that durable decisions belong under `shipglows_data/`
 - avoid feature promises, stack assumptions, or runtime claims unless observed
 
 ## Root `README.md`
@@ -108,7 +108,7 @@ Required content rules:
 - do not include generic sections like install, API, env vars, or scripts unless they are observed
 - keep the next step as a framing action, not a fake build instruction
 
-## `shipglowz_data/technical/README.md`
+## `shipglows_data/technical/README.md`
 
 Required sections:
 
@@ -124,7 +124,7 @@ Bootstrap rule:
 
 - describe the technical layer as a governance shell when no code exists yet
 
-## `shipglowz_data/technical/code-docs-map.md`
+## `shipglows_data/technical/code-docs-map.md`
 
 Required sections:
 
@@ -141,7 +141,7 @@ Bootstrap rule:
 - non-coverage must explain that no source files were detected
 - the update plan must point to mapping real code areas once implementation begins
 
-## `shipglowz_data/workflow/TASKS.md`
+## `shipglows_data/workflow/TASKS.md`
 
 Required sections:
 
@@ -158,7 +158,7 @@ Bootstrap rule:
   - add first source files or module layout
   - update technical mapping after code appears
 
-## `shipglowz_data/editorial/ROADMAP.md`
+## `shipglows_data/editorial/ROADMAP.md`
 
 Required sections:
 
@@ -170,7 +170,7 @@ Bootstrap rule:
 
 - create this file only when public/editorial surfaces are detected or the editorial governance layer is otherwise applicable
 - keep it operational; do not add governance prose, frontmatter, or fake tasks
-- include at most short orienting comments that point public/editorial follow-up here and technical implementation work to `shipglowz_data/workflow/TASKS.md`
+- include at most short orienting comments that point public/editorial follow-up here and technical implementation work to `shipglows_data/workflow/TASKS.md`
 - leave the sections empty by default unless real editorial follow-up is already known during bootstrap
 
 ## Empty-Repo Guardrail

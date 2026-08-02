@@ -1,1 +1,0 @@
-shipglowz-main-intents.md

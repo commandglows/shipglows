@@ -31,7 +31,7 @@ def file_sha256(path: Path) -> str:
 
 
 class PathAndSchemaTests(unittest.TestCase):
-    def test_path_refuses_shipglowz_public_repo(self) -> None:
+    def test_path_refuses_shipglows_public_repo(self) -> None:
         with self.assertRaises(capture.CaptureToolError) as caught:
             capture.validate_output_root(ROOT / "tmp-inspiration-output", fixture_mode=False)
         self.assertEqual(caught.exception.code, "public_repo_target")

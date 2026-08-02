@@ -7,32 +7,32 @@ argument-hint: [optional priority criteria: impact, effort, blockers, high-roi/q
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `pilotage`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise priority recommendation, tracker changes, proof gaps, and opening chantier header when applicable. Use `report=agent` for detailed scoring matrices, tracker anchors, or handoff state.
 
 ## Required References
 
-- Load `$SHIPFLOW_ROOT/skills/references/question-contract.md` before asking project or prioritization-scope questions.
-- Load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` before creating or mutating task operational records in `TASKS.md`.
+- Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking project or prioritization-scope questions.
+- Load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` before creating or mutating task operational records in `TASKS.md`.
 
 
 ## Context
 
 - Current directory: !`pwd`
-- Project workflow TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project TASKS.md"`
-- Project-local TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
+- Project workflow TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project TASKS.md"`
+- Project-local TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
 - Git branch and status: !`git status --short --branch 2>/dev/null || echo "Not a git repo"`
 - Recent commits: !`git log --oneline -5 2>/dev/null || echo "N/A"`
 - Project CLAUDE.md: !`head -40 CLAUDE.md 2>/dev/null || echo "No CLAUDE.md"`
@@ -42,15 +42,15 @@ Default to `report=user`: concise priority recommendation, tracker changes, proo
 
 Prioritization is local-first for project work.
 
-- For a selected project, prioritize within `[project]/shipglowz_data/workflow/TASKS.md`.
+- For a selected project, prioritize within `[project]/shipglows_data/workflow/TASKS.md`.
 - Root `TASKS.md` is a legacy project tracker location; read it as a migration/fallback source only when canonical workflow tasks are absent.
-- Legacy central archives are migration evidence only. Prefer local project discovery (`shipglowz_data/` markers) and project-local trackers.
+- Legacy central archives are migration evidence only. Prefer local project discovery (`shipglows_data/` markers) and project-local trackers.
 - When re-ranking portfolio work, report a derived view from local trackers; do not update a central Dashboard table.
 - If the user specifies a project name as argument, focus prioritization on that project's local workflow tracker unless they explicitly ask for portfolio coordination.
 
 ## Shared tracking file write protocol
 
-- Before creating or mutating task operational records, load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md`.
+- Before creating or mutating task operational records, load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`.
 - Treat the TASKS snapshots loaded at skill start as informational only.
 - Right before editing the project or portfolio TASKS file, re-read the target from disk and use that version as authoritative.
 - Apply a minimal targeted edit to the relevant dashboard rows and task sections; never rewrite the whole file from stale context.
@@ -75,18 +75,18 @@ Keep the boundary explicit:
 
 ### Workspace root detection
 
-If the current directory has no project markers (no `package.json`, no `src/` dir) BUT contains multiple project subdirectories, you are at the workspace root. Load `$SHIPFLOW_ROOT/skills/references/question-contract.md`, then ask:
+If the current directory has no project markers (no `package.json`, no `src/` dir) BUT contains multiple project subdirectories, you are at the workspace root. Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md`, then ask:
 - Question: "Which project(s) should I prioritize?"
 - `multiSelect: true`
 - Options:
 - **All projects** — "Re-prioritize across discovered local projects" (Recommended)
   - One option per project with active tasks: label = project name, description = number of open tasks
-- Read local project list from project-local discovery (`shipglowz_data/` markers).
+- Read local project list from project-local discovery (`shipglows_data/` markers).
 
 ### Steps
 
 1. **Parse existing tasks**:
-- Read all tasks from the selected project's `shipglowz_data/workflow/TASKS.md`, or root `TASKS.md` only as legacy project fallback.
+- Read all tasks from the selected project's `shipglows_data/workflow/TASKS.md`, or root `TASKS.md` only as legacy project fallback.
    - Categorize by status: completed, in progress, todo
    - Identify task dependencies and blockers
 
@@ -142,8 +142,8 @@ If the current directory has no project markers (no `package.json`, no `src/` di
 
 ### Important
 
-- Default to the selected project's `shipglowz_data/workflow/TASKS.md` for project priority edits.
-- Update project-local `shipglowz_data/workflow/TASKS.md` for selected project priority changes.
+- Default to the selected project's `shipglows_data/workflow/TASKS.md` for project priority edits.
+- Update project-local `shipglows_data/workflow/TASKS.md` for selected project priority changes.
 - Use Edit tool to update the target TASKS.md with priority markers
 - Be realistic about impact/effort assessments
 - Consider technical debt alongside features

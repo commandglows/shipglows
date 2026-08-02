@@ -11,7 +11,7 @@ The goal is not to produce isolated checklists. It is to answer a harder questio
 ## Who It's For
 
 - Solo founders preparing a launch, relaunch, or major update
-- Product owners maintaining several ShipGlowz projects
+- Product owners maintaining several ShipGlows projects
 - Teams that want one decision-ready audit instead of eight disconnected reviews
 
 ## When To Use It

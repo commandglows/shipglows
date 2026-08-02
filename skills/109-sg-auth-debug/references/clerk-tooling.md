@@ -12,10 +12,10 @@ Sources checked:
 
 Last reviewed: 2026-04-26
 
-## Standard ShipGlowz Setup
+## Standard ShipGlows Setup
 
 - Clerk MCP endpoint: `https://mcp.clerk.com/mcp`
-- Codex config requires remote MCP support; ShipGlowz enables `rmcp = true` in `~/.codex/config.toml`
+- Codex config requires remote MCP support; ShipGlows enables `rmcp = true` in `~/.codex/config.toml`
 - Clerk CLI install: `pnpm add -g clerk`
 
 ## Use Clerk MCP When

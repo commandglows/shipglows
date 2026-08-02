@@ -9,7 +9,7 @@ Sources checked:
 
 Last reviewed: 2026-04-26
 
-## Standard ShipGlowz Setup
+## Standard ShipGlows Setup
 
 - Vercel MCP endpoint: `https://mcp.vercel.com`
 - Vercel CLI install: `pnpm add -g vercel`
@@ -53,7 +53,7 @@ Primary commands:
 2. Use Vercel CLI when the operator needs to link, deploy, or inspect locally.
 3. Fall back to Playwright/browser evidence when the failure is visible in the app UI rather than in the Vercel platform.
 
-## ShipGlowz Development Mode
+## ShipGlows Development Mode
 
 When the project documents `development_mode: vercel-preview-push`, Vercel MCP is the authority for deciding whether the latest pushed auth fix is ready to test. The auth-debug sequence is:
 

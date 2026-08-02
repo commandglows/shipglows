@@ -2,7 +2,7 @@
 artifact: contract
 metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-15"
 updated: "2026-07-15"
 status: active
@@ -42,31 +42,31 @@ next_step: "/103-sg-verify sales-page-reference-library"
 
 This contract governs a private, cross-project library of visual composition and sales-page copy patterns. It lets design and content skills study reusable structure without confusing creative references with project-level competitor, pricing, positioning, or market intelligence.
 
-Use `shipglowz_data/business/project-competitors-and-inspirations.md` for competitor, alternative, differentiation, pricing, positioning, or market work. Use this library only for design hierarchy, page composition, persuasive sequence, proof, objection, CTA, density, rhythm, and related creative patterns.
+Use `shipglows_data/business/project-competitors-and-inspirations.md` for competitor, alternative, differentiation, pricing, positioning, or market work. Use this library only for design hierarchy, page composition, persuasive sequence, proof, objection, CTA, density, rhythm, and related creative patterns.
 
 ## Canonical Paths
 
-Public ShipGlowz contract and tooling:
+Public ShipGlows contract and tooling:
 
 ```text
-${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/design-inspiration-library.md
-${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/design-inspiration/
-${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/capture_design_inspiration.py
+${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/design-inspiration-library.md
+${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/design-inspiration/
+${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/capture_design_inspiration.py
 ```
 
 Private source-derived corpus:
 
 ```text
-${SHIPGLOWZ_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWZ_PRIVATE_DIR:-$HOME/.shipglowz/private}/design-inspiration-library}
+${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/design-inspiration-library}
 ```
 
 Optional remote configuration, if the operator versions that separate corpus:
 
 ```text
-SHIPGLOWZ_INSPIRATION_LIBRARY_REPO
+SHIPGLOWS_INSPIRATION_LIBRARY_REPO
 ```
 
-The remote is configured externally and must never be hardcoded in this contract or the tool. This corpus is deliberately separate from `${SHIPGLOWZ_PRIVATE_DATA_DIR:-${SHIPGLOWZ_PRIVATE_DIR:-$HOME/.shipglowz/private}/data}`, whose contract excludes durable cross-project marketing-example libraries.
+The remote is configured externally and must never be hardcoded in this contract or the tool. This corpus is deliberately separate from `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}`, whose contract excludes durable cross-project marketing-example libraries.
 
 ## Public And Private Boundary
 
@@ -79,7 +79,7 @@ The public repository may contain only:
 
 The private corpus may contain attributed source-derived `page.md` text and WebP images. It must not contain credentials, cookies, authorization headers, browser profiles, localStorage, sessionStorage, HAR, video, traces, raw HTML mirrors, WARC/WACZ archives, or authenticated account content.
 
-The capture tool must refuse a source-derived output root under `$SHIPFLOW_ROOT`, another Git working tree, or a public plugin/cache path. Synthetic fixture mode is allowed only with `--fixture --no-network` and a temporary output root. A capture failure must remain visible and must not fabricate an image or text artifact that was not produced.
+The capture tool must refuse a source-derived output root under `$SHIPGLOWS_ROOT`, another Git working tree, or a public plugin/cache path. Synthetic fixture mode is allowed only with `--fixture --no-network` and a temporary output root. A capture failure must remain visible and must not fabricate an image or text artifact that was not produced.
 
 ## Corpus Layout
 
@@ -196,7 +196,7 @@ If no reference is selected, continue from project/product/brand evidence withou
 ## Validation
 
 ```bash
-python3 tools/shipglowz_metadata_lint.py skills/references/design-inspiration-library.md skills/references/design-inspiration/README.md
+python3 tools/shipglows_metadata_lint.py skills/references/design-inspiration-library.md skills/references/design-inspiration/README.md
 rg -n "capture_status|rights|checksum|candidate|approved|record.yaml|index.yaml" skills/references/design-inspiration
 python3 -m unittest tools.test_capture_design_inspiration
 ```

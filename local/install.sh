@@ -42,7 +42,7 @@ elif [ -f "$HOME/.zshrc" ] && [ -n "$SHELL" ] && [[ "$SHELL" == *"zsh"* ]]; then
     SHELL_RC="$HOME/.zshrc"
 fi
 
-echo -e "${BLUE}🚀 Installation ShipGlowz - Configuration Locale${NC}"
+echo -e "${BLUE}🚀 Installation ShipGlows - Configuration Locale${NC}"
 echo ""
 
 # Afficher le système détecté
@@ -94,18 +94,18 @@ echo -e "${BLUE}2. Configuration SSH...${NC}"
 mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 
-# Prefer the explicit saved ShipGlowz connection. Hardcoded historical server
+# Prefer the explicit saved ShipGlows connection. Hardcoded historical server
 # aliases become stale as soon as the operator migrates to a new machine.
-shipglowz_migrate_local_config || true
-LOCAL_CONFIG_DIR="$(shipglowz_local_config_dir)"
+shipglows_migrate_local_config || true
+LOCAL_CONFIG_DIR="$(shipglows_local_config_dir)"
 mkdir -p "$LOCAL_CONFIG_DIR"
-DEFAULT_REMOTE_HOST="${SHIPGLOWZ_SSH_REMOTE_HOST:-${SHIPFLOW_SSH_REMOTE_HOST:-}}"
+DEFAULT_REMOTE_HOST="${SHIPGLOWS_SSH_REMOTE_HOST:-${SHIPGLOWS_SSH_REMOTE_HOST:-}}"
 if [ -n "$DEFAULT_REMOTE_HOST" ]; then
     printf '%s\n' "$DEFAULT_REMOTE_HOST" > "$LOCAL_CONFIG_DIR/current_connection"
     chmod 600 "$LOCAL_CONFIG_DIR/current_connection"
-    echo -e "${GREEN}   ✓ Connexion ShipGlowz enregistrée: $DEFAULT_REMOTE_HOST${NC}"
+    echo -e "${GREEN}   ✓ Connexion ShipGlows enregistrée: $DEFAULT_REMOTE_HOST${NC}"
 elif [ -f "$LOCAL_CONFIG_DIR/current_connection" ]; then
-    echo -e "${GREEN}   ✓ Connexion ShipGlowz existante: $(cat "$LOCAL_CONFIG_DIR/current_connection")${NC}"
+    echo -e "${GREEN}   ✓ Connexion ShipGlows existante: $(cat "$LOCAL_CONFIG_DIR/current_connection")${NC}"
 else
     echo -e "${YELLOW}   ⚠ Aucune connexion distante enregistrée${NC}"
     echo -e "${YELLOW}   Après installation, lancez 'urls' puis choisissez c) Configurer nouveau serveur.${NC}"
@@ -118,9 +118,9 @@ echo ""
 echo -e "${BLUE}3. Ajout des alias shell...${NC}"
 
 ALIAS_BLOCK="
-# ShipGlowz - Alias tunnels
-_shipglowz_remote_user() {
-    local cfg=\"\${SHIPGLOWZ_LOCAL_CONFIG_DIR:-\$HOME/.shipglowz}/current_connection\"
+# ShipGlows - Alias tunnels
+_shipglows_remote_user() {
+    local cfg=\"\${SHIPGLOWS_LOCAL_CONFIG_DIR:-\$HOME/.shipglows}/current_connection\"
     [ -f \"\$cfg\" ] || return 1
     local val
     val=\"\$(grep -E '^[^|]+' \"\$cfg\" 2>/dev/null | head -n1)\"
@@ -130,8 +130,8 @@ _shipglowz_remote_user() {
     esac
 }
 
-_shipglowz_remote_host() {
-    local cfg=\"\${SHIPGLOWZ_LOCAL_CONFIG_DIR:-\$HOME/.shipglowz}/current_connection\"
+_shipglows_remote_host() {
+    local cfg=\"\${SHIPGLOWS_LOCAL_CONFIG_DIR:-\$HOME/.shipglows}/current_connection\"
     [ -f \"\$cfg\" ] || return 1
     local val
     val=\"\$(grep -E '^[^|]+' \"\$cfg\" 2>/dev/null | head -n1)\"
@@ -144,12 +144,12 @@ _shipglowz_remote_host() {
 alias tunnel='$SCRIPT_DIR/local.sh'
 alias urls='$SCRIPT_DIR/local.sh'
 alias l='$SCRIPT_DIR/local.sh'
-alias m='mosh \"\$(_shipglowz_remote_user)@\$(_shipglowz_remote_host)\" -- bash -l -c \"tmux a || tmux\"'
-alias sss='ssh -tt \"\$(_shipglowz_remote_user)@\$(_shipglowz_remote_host)\" \"tmux new-session -A -s 0\"'
-alias root='mosh root@\"\$(_shipglowz_remote_host)\" -- bash -l -c \"tmux a || tmux\"'
+alias m='mosh \"\$(_shipglows_remote_user)@\$(_shipglows_remote_host)\" -- bash -l -c \"tmux a || tmux\"'
+alias sss='ssh -tt \"\$(_shipglows_remote_user)@\$(_shipglows_remote_host)\" \"tmux new-session -A -s 0\"'
+alias root='mosh root@\"\$(_shipglows_remote_host)\" -- bash -l -c \"tmux a || tmux\"'
 "
 
-if grep -Eq "# ShipGlowz - Alias tunnels" "$SHELL_RC" 2>/dev/null; then
+if grep -Eq "# ShipGlows - Alias tunnels" "$SHELL_RC" 2>/dev/null; then
     echo -e "${YELLOW}   ⚠ Alias tunnels déjà présents dans $SHELL_RC${NC}"
 else
     echo "$ALIAS_BLOCK" >> "$SHELL_RC"
@@ -175,13 +175,13 @@ echo -e "${GREEN}✅ Installation terminée !${NC}"
 echo ""
 echo -e "${BLUE}📋 Commandes disponibles:${NC}"
 echo -e "   ${GREEN}urls${NC} ou ${GREEN}tunnel${NC}         - Ouvrir le menu de gestion des tunnels"
-echo -e "   ${GREEN}shipglowz-mcp-login${NC}   - Login OAuth MCP distant via tunnel éphémère"
-echo -e "   ${GREEN}shipglowz-clerk-login${NC} - Login Clerk CLI distant via tunnel éphémère"
-echo -e "   ${GREEN}shipglowz-blacksmith-login${NC} - Login Blacksmith distant via tunnel éphémère"
-echo -e "   ${GREEN}shipglowz-turso-login${NC} - Login Turso distant via tunnel/headless"
-echo -e "   ${GREEN}shipglowz-turso-ssh${NC} - Copie auth Turso vers le serveur + checks SQL"
-echo -e "   ${YELLOW}Legacy aliases:${NC} shipflow-mcp-login, shipflow-clerk-login, shipflow-blacksmith-login, shipflow-turso-login, shipflow-turso-ssh"
-echo -e "   ${YELLOW}Primary aliases:${NC} shipglowz-mcp-login, shipglowz-clerk-login, shipglowz-blacksmith-login, shipglowz-turso-login, shipglowz-turso-ssh"
+echo -e "   ${GREEN}shipglows-mcp-login${NC}   - Login OAuth MCP distant via tunnel éphémère"
+echo -e "   ${GREEN}shipglows-clerk-login${NC} - Login Clerk CLI distant via tunnel éphémère"
+echo -e "   ${GREEN}shipglows-blacksmith-login${NC} - Login Blacksmith distant via tunnel éphémère"
+echo -e "   ${GREEN}shipglows-turso-login${NC} - Login Turso distant via tunnel/headless"
+echo -e "   ${GREEN}shipglows-turso-ssh${NC} - Copie auth Turso vers le serveur + checks SQL"
+echo -e "   ${YELLOW}Legacy aliases:${NC} shipglows-mcp-login, shipglows-clerk-login, shipglows-blacksmith-login, shipglows-turso-login, shipglows-turso-ssh"
+echo -e "   ${YELLOW}Primary aliases:${NC} shipglows-mcp-login, shipglows-clerk-login, shipglows-blacksmith-login, shipglows-turso-login, shipglows-turso-ssh"
 echo ""
 echo -e "${YELLOW}⚠  Pour activer les alias, rechargez votre shell:${NC}"
 echo -e "   ${BLUE}source $SHELL_RC${NC}"

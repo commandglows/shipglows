@@ -1,1 +1,0 @@
-shipglowz_sync_skills.sh

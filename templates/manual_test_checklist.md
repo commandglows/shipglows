@@ -11,7 +11,7 @@ status: draft
 source_skill: "sg-spec"
 scope: "manual-test-checklist"
 owner: "[owner]"
-target_scope: "shipglowz_data/workflow/test-checklists/<scope>"
+target_scope: "shipglows_data/workflow/test-checklists/<scope>"
 stack_profile: "[flutter|astro|python|api|auth|provider|device|mixed]"
 proof_profile: "[automated|browser|auth|contract|provider|device|manual]"
 confidence: medium
@@ -29,7 +29,7 @@ next_step: "/sg-test [scope]"
 
 ## Contract
 
-- Target scope: `shipglowz_data/workflow/test-checklists/<scope>.md`
+- Target scope: `shipglows_data/workflow/test-checklists/<scope>.md`
 - Stack profile: `[chosen stack profile from sf-spec Test Contract]`
 - Proof profile: `[automated -> browser/auth -> contract -> provider -> manual/device]`
 - Required proof rows: `PASS`/`FAIL`/`BLOCKED`/`N/A`/`NOT_RUN` are all machine-read.
@@ -56,7 +56,7 @@ next_step: "/sg-test [scope]"
 
 ## Evidence Rules
 
-- Use repo-relative evidence paths only (`test-evidence/...` or `shipglowz_data/workflow/bugs/...`).
+- Use repo-relative evidence paths only (`test-evidence/...` or `shipglows_data/workflow/bugs/...`).
 - No absolute paths, `..` segments, secrets, cookies, tokens, raw PII, or raw logs in this file.
 - For large or sensitive evidence, use `test-evidence/<BUG-ID>/` and link to that path only.
 
@@ -69,5 +69,5 @@ next_step: "/sg-test [scope]"
 
 ## Maintenance
 
-- This checklist is operator-owned evidence. Re-run `sf-test` to convert `FAIL`/`BLOCKED` rows into `shipglowz_data/workflow/bugs/BUG-ID.md` entries.
+- This checklist is operator-owned evidence. Re-run `sf-test` to convert `FAIL`/`BLOCKED` rows into `shipglows_data/workflow/bugs/BUG-ID.md` entries.
 - Keep optional rows as guidance only; required rows block verification when unresolved (`FAIL`, `BLOCKED`, `NOT_RUN`).

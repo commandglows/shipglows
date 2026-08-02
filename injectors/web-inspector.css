@@ -1,0 +1,27 @@
+:root {
+  --sg-atlas-font: ui-sans-serif, system-ui, sans-serif;
+  --sg-atlas-bg: #16181d;
+  --sg-atlas-fg: #f8fafc;
+  --sg-atlas-muted: #94a3b8;
+  --sg-atlas-border: rgba(248, 250, 252, .22);
+  --sg-atlas-shadow: 0 14px 34px rgba(0, 0, 0, .34);
+  --sg-atlas-radius: 12px;
+  --sg-atlas-gap: 8px;
+  --sg-atlas-pad: 10px;
+  --sg-atlas-z: 2147483000;
+  --sg-atlas-quality-unknown: #94a3b8;
+  --sg-atlas-quality-red: #ef4444;
+  --sg-atlas-quality-bronze: #cd7f32;
+  --sg-atlas-quality-silver: #cbd5e1;
+  --sg-atlas-quality-gold: #facc15;
+  --sg-atlas-quality-diamond: #67e8f9;
+  --sg-atlas-quality-mixed: #a78bfa;
+}
+.sg-atlas-toggle,.sg-atlas-panel,.sg-atlas-label { font-family: var(--sg-atlas-font); z-index: var(--sg-atlas-z); }
+.sg-atlas-toggle { position:fixed; right:16px; bottom:16px; border:1px solid var(--sg-atlas-border); border-radius:999px; background:var(--sg-atlas-bg); color:var(--sg-atlas-fg); box-shadow:var(--sg-atlas-shadow); padding:10px 14px; font:600 14px/1 var(--sg-atlas-font); cursor:pointer; }
+.sg-atlas-active { outline:2px solid var(--sg-atlas-color, #94a3b8) !important; outline-offset:2px; position:relative; }
+.sg-atlas-label { position:absolute; top:0; left:0; display:flex; gap:4px; max-width:calc(100% - 8px); padding:4px; background:var(--sg-atlas-bg); border:1px solid var(--sg-atlas-border); border-radius:0 0 var(--sg-atlas-radius) 0; color:var(--sg-atlas-fg); font-size:11px; pointer-events:auto; }
+.sg-atlas-label button,.sg-atlas-panel button { border:1px solid var(--sg-atlas-border); border-radius:8px; background:transparent; color:inherit; padding:5px 7px; font:600 12px/1 var(--sg-atlas-font); cursor:pointer; }
+.sg-atlas-panel { position:fixed; right:16px; bottom:64px; width:min(360px, calc(100vw - 32px)); background:var(--sg-atlas-bg); color:var(--sg-atlas-fg); border:1px solid var(--sg-atlas-border); border-radius:var(--sg-atlas-radius); box-shadow:var(--sg-atlas-shadow); padding:var(--sg-atlas-pad); }
+.sg-atlas-panel header,.sg-atlas-panel nav,.sg-atlas-row { display:flex; align-items:center; gap:var(--sg-atlas-gap); flex-wrap:wrap; }
+.sg-atlas-panel header { justify-content:space-between; margin-bottom:var(--sg-atlas-gap); }.sg-atlas-panel nav { margin-bottom:var(--sg-atlas-gap); }.sg-atlas-row { justify-content:space-between; padding:7px 0; border-top:1px solid var(--sg-atlas-border); }.sg-atlas-muted { color:var(--sg-atlas-muted); font-size:12px; }.sg-atlas-quality { color:var(--sg-atlas-color, var(--sg-atlas-fg)) !important; }

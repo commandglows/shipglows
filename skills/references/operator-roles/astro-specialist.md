@@ -2,7 +2,7 @@
 artifact: contract
 metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-12"
 updated: "2026-07-12"
 status: draft
@@ -13,9 +13,9 @@ confidence: high
 risk_level: medium
 security_impact: yes
 docs_impact: yes
-linked_systems: [shipglowz_data/technical/external-platforms/astro.md, shipglowz_data/business/agent-profiles/astro-specialist.md]
+linked_systems: [shipglows_data/technical/external-platforms/astro.md, shipglows_data/business/agent-profiles/astro-specialist.md]
 depends_on:
-  - artifact: "shipglowz_data/technical/external-platforms/astro.md"
+  - artifact: "shipglows_data/technical/external-platforms/astro.md"
     required_status: draft
 supersedes: []
 evidence: ["Operator decision 2026-07-12: add a bounded Astro specialist profile backed by canonical technical references."]

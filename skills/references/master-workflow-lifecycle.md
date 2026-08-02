@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.6.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-04"
 updated: "2026-07-17"
 status: active
@@ -18,7 +18,7 @@ linked_systems:
   - skills/002-sg-maintain/SKILL.md
   - skills/007-sg-content/SKILL.md
   - skills/006-sg-design/SKILL.md
-  - skills/900-shipglowz-core/SKILL.md
+  - skills/900-shipglows-core/SKILL.md
   - skills/004-sg-deploy/SKILL.md
   - skills/003-sg-bug/SKILL.md
   - skills/400-sg-audit/SKILL.md
@@ -30,7 +30,7 @@ linked_systems:
   - skills/references/preferred-stacks.md
   - skills/references/app-blueprints.md
   - docs/technical/skill-runtime-and-lifecycle.md
-  - shipglowz_data/workflow/playbooks/spec-driven-workflow.md
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
@@ -48,11 +48,11 @@ depends_on:
 supersedes: []
 evidence:
   - "User decision 2026-05-04: master skills should share the same workflow skeleton instead of duplicating lifecycle doctrine."
-  - "User decision 2026-05-04: bug work uses one Markdown bug file per bug under shipglowz_data/workflow/bugs/*.md; shipglowz_data/workflow/BUGS.md is optional/generated/triage view, not the source of truth."
+  - "User decision 2026-05-04: bug work uses one Markdown bug file per bug under shipglows_data/workflow/bugs/*.md; shipglows_data/workflow/BUGS.md is optional/generated/triage view, not the source of truth."
   - "User decision 2026-05-04: user-facing questions should share a numbered, context-aware question/default contract."
   - "User decision 2026-05-06: 006-sg-design joins the master lifecycle set."
   - "User decision 2026-05-08: 003-sg-bug is a lifecycle executor through owner skills and bounded subagents, not a simple next-command router."
-  - "User decision 2026-05-24: ShipGlowz optimizes first for performance, security, excellence, durability, and professional best practices; speed and convenience are secondary tie-breakers only."
+  - "User decision 2026-05-24: ShipGlows optimizes first for performance, security, excellence, durability, and professional best practices; speed and convenience are secondary tie-breakers only."
   - "User decision 2026-06-10: favor subagents broadly to keep the main conversation clean; sequential is the normal default, while parallel remains read-only or spec/batch-gated."
   - "User decision 2026-06-10: master-skill invocation is consent for bounded sequential subagents; `spark`, `codex`, `sous-agent`/`subagent`, and `mini` arguments request model-specific subagent delegation."
   - "Spec auto-follow-through-for-local-only-102-sg-start-verification.md defines bounded local auto-verify for 102-sg-start without changing full 001-sg-build lifecycle ownership."
@@ -67,7 +67,7 @@ next_step: "/103-sg-verify master workflow lifecycle reference"
 
 ## Purpose
 
-This reference defines the shared lifecycle skeleton for ShipGlowz master and orchestrator skills.
+This reference defines the shared lifecycle skeleton for ShipGlows master and orchestrator skills.
 
 It does not redefine delegation, subagent, short-confirmation, or parallelism semantics. Load `skills/references/master-delegation-semantics.md` for execution topology.
 
@@ -77,7 +77,7 @@ Spec-first is the outer lifecycle contract: it defines user story, scope, succes
 
 ## Applies To
 
-Use this reference from master and orchestrator skills that pilot more than one phase or owner skill, including `001-sg-build`, `002-sg-maintain`, `007-sg-content`, `006-sg-design`, `900-shipglowz-core build`, `004-sg-deploy`, `003-sg-bug`, and `400-sg-audit`.
+Use this reference from master and orchestrator skills that pilot more than one phase or owner skill, including `001-sg-build`, `002-sg-maintain`, `007-sg-content`, `006-sg-design`, `900-shipglows-core build`, `004-sg-deploy`, `003-sg-bug`, and `400-sg-audit`.
 
 Atomic owner skills may cite this reference only when they need to align their own handoff language with the master lifecycle.
 
@@ -88,7 +88,7 @@ A master skill always pilots a single current work item unless it is explicitly 
 Supported work item types:
 
 - `chantier spec`: a `specs/*.md` file for non-trivial spec-first work.
-- `bug file`: one Markdown file under `shipglowz_data/workflow/bugs/*.md` for one bug work item.
+- `bug file`: one Markdown file under `shipglows_data/workflow/bugs/*.md` for one bug work item.
 - `mini-contract`: a short in-report contract for narrow local work that is safe without a full spec.
 - `release scope`: the bounded set of files, commit, deployment target, and proof obligations for a release.
 - `audit finding set`: a read-only or source-de-chantier finding set that may recommend a future spec.
@@ -98,11 +98,11 @@ Supported work item types:
 The work item decides source of truth:
 
 - Spec-first work: `specs/*.md` is the source of truth and chantier registry.
-- Bug work: `shipglowz_data/workflow/bugs/*.md` is the source of truth for reproduction, status, diagnosis, fix attempts, retest history, closure, and residual risk.
-- Bug triage view: `shipglowz_data/workflow/BUGS.md`, when present, is only a compact optional/generated/triage index that points to bug files. It is not mandatory and must not override a bug file.
+- Bug work: `shipglows_data/workflow/bugs/*.md` is the source of truth for reproduction, status, diagnosis, fix attempts, retest history, closure, and residual risk.
+- Bug triage view: `shipglows_data/workflow/BUGS.md`, when present, is only a compact optional/generated/triage index that points to bug files. It is not mandatory and must not override a bug file.
 - Mini-contract work: the final report or active handoff contract is the source until the work either closes or is promoted to a spec or bug file.
 
-Do not create separate source-of-truth registries in `TASKS.md`, `AUDIT_LOG.md`, `PROJECTS.md` (legacy/compat only), `shipglowz_data`, or `shipglowz_data/workflow/BUGS.md`.
+Do not create separate source-of-truth registries in `TASKS.md`, `AUDIT_LOG.md`, `PROJECTS.md` (legacy/compat only), `shipglows_data`, or `shipglows_data/workflow/BUGS.md`.
 
 ## Shared Skeleton
 
@@ -136,8 +136,8 @@ Before asking a user-facing question, load `skills/references/question-contract.
 Before creating a new durable artifact, search for an existing matching work item:
 
 - `specs/*.md` for spec-first chantiers.
-- `shipglowz_data/workflow/bugs/*.md` for bug work items.
-- `shipglowz_data/workflow/BUGS.md` only as a secondary index if it exists.
+- `shipglows_data/workflow/bugs/*.md` for bug work items.
+- `shipglows_data/workflow/BUGS.md` only as a secondary index if it exists.
 - current release scope, audit scope, content target, or skill target for master-specific work.
 
 If exactly one work item owns the request, continue it. If several match, ask the user to choose. If none exists and the work is non-trivial, create or route to the correct durable artifact owner.
@@ -146,9 +146,9 @@ If exactly one work item owns the request, continue it. If several match, ask th
 
 Before the readiness gate, when the work item targets a new application or major new module:
 
-1. Establish the platform footprint using `$SHIPFLOW_ROOT/skills/references/question-contract.md`.
-2. Load `$SHIPFLOW_ROOT/skills/references/preferred-stacks.md` and apply compatible operator-approved presets.
-3. Load `$SHIPFLOW_ROOT/skills/references/app-blueprints.md`.
+1. Establish the platform footprint using `$SHIPGLOWS_ROOT/skills/references/question-contract.md`.
+2. Load `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md` and apply compatible operator-approved presets.
+3. Load `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md`.
 4. Scan available blueprints for a match against the request archetype.
 5. If a match is found, load the blueprint into the active context without silently overriding an accepted preset.
 6. Pass the blueprint to downstream skills (`100-sg-spec`, `306-sg-scaffold`) via handoff.
@@ -253,7 +253,7 @@ If verification fails, route back to correction, retest, spec update, or blocked
 
 ### 8. Documentation Reflection Before Closure
 
-Before `104-sg-end`, any milestone that can imply completion must load and apply `$SHIPFLOW_ROOT/skills/references/documentation-reflection-gate.md` against the changed behavior and the canonical project docs map.
+Before `104-sg-end`, any milestone that can imply completion must load and apply `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` against the changed behavior and the canonical project docs map.
 
 Use the reference's exact classification and routing rules; do not wait for the operator to notice documentation drift.
 
@@ -266,7 +266,7 @@ Typical routes:
 - `001-sg-build`: `104-sg-end -> 005-sg-ship`
 - `002-sg-maintain`: `104-sg-end` when a chantier needs closure bookkeeping, then `005-sg-ship` or `004-sg-deploy`
 - `007-sg-content`: `103-sg-verify -> 005-sg-ship` for bounded content changes
-- `900-shipglowz-core build`: `300-sg-docs/help update -> 005-sg-ship`
+- `900-shipglows-core build`: `300-sg-docs/help update -> 005-sg-ship`
 - `004-sg-deploy`: `105-sg-check -> 005-sg-ship -> 405-sg-prod -> proof -> 103-sg-verify -> 304-sg-changelog`
 - `003-sg-bug`: retest/verify/ship-risk execution from the bug file through owner skills
 
@@ -277,18 +277,18 @@ Do not end a successful post-verify master report with a manual `/104-sg-end`, `
 Use this vocabulary:
 
 - `bug work item`: the lifecycle unit for one bug.
-- `bug file`: the durable Markdown source of truth under `shipglowz_data/workflow/bugs/*.md`.
-- `bug index` or `triage view`: optional `shipglowz_data/workflow/BUGS.md` if present.
+- `bug file`: the durable Markdown source of truth under `shipglows_data/workflow/bugs/*.md`.
+- `bug index` or `triage view`: optional `shipglows_data/workflow/BUGS.md` if present.
 
 Avoid folder-like bug vocabulary in new shared doctrine and master-skill instructions. Existing legacy references should be cleaned when touched.
 
 Bug source-of-truth rules:
 
-- Read `shipglowz_data/workflow/bugs/BUG-ID.md` first when a bug ID is known.
-- Use `shipglowz_data/workflow/BUGS.md` only to discover candidate bug IDs or show a compact dashboard.
-- If `shipglowz_data/workflow/BUGS.md` disagrees with the bug file, the bug file wins and the index should be regenerated or reconciled.
-- If a bug file exists without `shipglowz_data/workflow/BUGS.md`, the bug still exists and can be routed.
-- If `shipglowz_data/workflow/BUGS.md` references a missing bug file, treat it as an index gap, not as durable evidence.
+- Read `shipglows_data/workflow/bugs/BUG-ID.md` first when a bug ID is known.
+- Use `shipglows_data/workflow/BUGS.md` only to discover candidate bug IDs or show a compact dashboard.
+- If `shipglows_data/workflow/BUGS.md` disagrees with the bug file, the bug file wins and the index should be regenerated or reconciled.
+- If a bug file exists without `shipglows_data/workflow/BUGS.md`, the bug still exists and can be routed.
+- If `shipglows_data/workflow/BUGS.md` references a missing bug file, treat it as an index gap, not as durable evidence.
 
 ## Stop Conditions
 

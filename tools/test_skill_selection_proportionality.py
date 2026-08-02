@@ -9,13 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 FIDELITY = ROOT / "skills" / "references" / "skill-execution-fidelity.md"
 CONTENT = ROOT / "skills" / "007-sg-content" / "SKILL.md"
 ENRICH = ROOT / "skills" / "201-sg-enrich" / "SKILL.md"
-ROUTER = ROOT / "skills" / "000-shipglowz" / "SKILL.md"
+ROUTER = ROOT / "skills" / "000-shipglows" / "SKILL.md"
 ENTRYPOINT = ROOT / "skills" / "references" / "entrypoint-routing.md"
 START = ROOT / "skills" / "102-sg-start" / "SKILL.md"
 README = ROOT / "README.md"
-CHEATSHEET = ROOT / "shipglowz_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md"
-WORKFLOW = ROOT / "shipglowz_data" / "workflow" / "playbooks" / "spec-driven-workflow.md"
-PUBLIC_ROUTER = ROOT / "shipglowz-site" / "src" / "content" / "skills" / "shipflow.md"
+CHEATSHEET = ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md"
+WORKFLOW = ROOT / "shipglows_data" / "workflow" / "playbooks" / "spec-driven-workflow.md"
+PUBLIC_ROUTER = ROOT / "shipglows-site" / "src" / "content" / "skills" / "shipglows.md"
 
 
 class SkillSelectionProportionalityTests(unittest.TestCase):

@@ -1,6 +1,6 @@
 # Astro + Clerk Auth Debug Reference
 
-Use this reference when a ShipGlowz site is built with Astro and Clerk.
+Use this reference when a ShipGlows site is built with Astro and Clerk.
 
 Sources checked:
 - https://clerk.com/docs/astro/getting-started/quickstart

@@ -27,7 +27,7 @@ stack:
   architecture: layer-first
   codegen: false
 
-source_repo: https://github.com/dianedefores/shipflow-blueprint-flutter-crud-content
+source_repo: https://github.com/dianedefores/shipglows-blueprint-flutter-crud-content
 
 sources:
   - contentglowz_app
@@ -253,7 +253,7 @@ Use this contract for new Flutter Android apps derived from this blueprint:
 - Required device smoke: cold restore, one Google tap, browser/provider return,
   session activation, protected API call, restart restore, and sign-out. Record
   the APK commit and signing identity with the result.
-- Record once per app: `auth_profile: browser-oauth (ShipGlowz default)`, Gradle
+- Record once per app: `auth_profile: browser-oauth (ShipGlows default)`, Gradle
   application id, pinned SDK version, SDK callback owner/URI, Clerk SHA-256,
   and tested release APK commit. Do not start implementation until this record
   is complete. Add Google SHA-1 only for an explicitly approved departure.

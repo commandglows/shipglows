@@ -8,18 +8,18 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
-This `SKILL.md` is the activation contract. Load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md` before execution; keep local verdict semantics and verification dimensions here, and load detailed gate playbooks from references.
+This `SKILL.md` is the activation contract. Load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` before execution; keep local verdict semantics and verification dimensions here, and load detailed gate playbooks from references.
 
 ## Chantier Tracking
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before verifying a spec-first chantier, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when a unique spec exists. Append a current `103-sg-verify` row with result `verified`, `verified_with_excellence_gaps`, `excellent`, `not verified`, `partial`, or `blocked`, update `Current Chantier Flow`, and open the report with the opening chantier header from `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`. If no unique spec is available, do not write to a spec; use a `(local)` chantier header with a short work name.
+Before verifying a spec-first chantier, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when a unique spec exists. Append a current `103-sg-verify` row with result `verified`, `verified_with_excellence_gaps`, `excellent`, `not verified`, `partial`, or `blocked`, update `Current Chantier Flow`, and open the report with the opening chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. If no unique spec is available, do not write to a spec; use a `(local)` chantier header with a short work name.
 
 Verification semantics:
 
@@ -30,15 +30,15 @@ Verification semantics:
 
 When `103-sg-verify` partial is caused by hosted/deployed/provider proof, the next routing contract is mandatory:
 
-- `103-sg-verify`: when deploy-backed proof is needed, apply `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md` and route the matching proof owner with target and scenario.
+- `103-sg-verify`: when deploy-backed proof is needed, apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md` and route the matching proof owner with target and scenario.
 
 
-Before judging implementation quality, load `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`. Verification must fail or report partial when the work merely takes the fastest/easiest path and leaves correctness, security, performance, maintainability, durability, excellence, or proof quality below the accepted contract.
-When reporting any failure state, load `$SHIPFLOW_ROOT/skills/references/actionable-failure-contract.md` and include the concrete owner route for each evidence-backed issue.
+Before judging implementation quality, load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`. Verification must fail or report partial when the work merely takes the fastest/easiest path and leaves correctness, security, performance, maintainability, durability, excellence, or proof quality below the accepted contract.
+When reporting any failure state, load `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` and include the concrete owner route for each evidence-backed issue.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, findings-first when verification fails, opening chantier header.
 Use `report=agent` for handoff, blocked runs, or explicit verbose request.
@@ -107,10 +107,12 @@ Mandatory explicit checks:
 - `Design-System Drift Check` pass/partial/fail/not applicable: changed UI/design files were scanned with `tools/design_system_drift_check.py --changed` or equivalent specialist evidence, and any findings are resolved or justified by the canonical token/theme/component source.
 - `Runtime Diagnostics Gate` pass/partial/fail/not applicable: runtime projects preserve or add Sentry, safe diagnostics/log-copy, and commit/build + Paris/UTC build-time header, or document a valid static-site exception.
 - `Operator Autonomy Gate` pass/partial/fail: the agent used available safe tools, files, browser/app diagnostics, logs, and checks before asking the operator; any user request is limited to a real decision, secret, unavailable environment, device/manual-only proof, or unsafe side effect.
+- `Atlas Protection Gate` pass/partial/fail/not applicable: rerun the Atlas preflight against actual changed paths; any unapproved `block` fails verification and unresolved `review` prevents a clean protection claim.
+- `Product Decision Chain` pass/partial/fail/not applicable: compare actual changed artifacts and proof to the accepted upstream need, journey, capability and preserved invariants; unresolved conflicts or material orphan nodes fail a coherence claim.
 - project development mode and validation surface
 - fresh external docs verdict (`fresh-docs checked|not needed|gap|conflict`)
 - documentation coherence verdict
-- language doctrine verdict for ShipGlowz artifacts
+- language doctrine verdict for ShipGlows artifacts
 - `Decision Quality Baseline` verdict: pass/partial/fail for the primary metrics and shared excellence quality bar in `decision-quality-contract.md`; this applies in every mode.
 - `Excellence Focus Verdict`: report `verified_with_excellence_gaps` or `excellent` only when the selected mode is `excellence`.
 - editorial score gate verdict when a spec/workflow requires content quality proof
@@ -119,28 +121,30 @@ Mandatory explicit checks:
 
 Always load:
 
-1. `$SHIPFLOW_ROOT/skills/103-sg-verify/references/verification-gates.md`
-2. `$SHIPFLOW_ROOT/skills/references/project-development-mode.md`
-3. `$SHIPFLOW_ROOT/skills/references/documentation-freshness-gate.md`
-4. `$SHIPFLOW_ROOT/skills/references/spec-driven-development-discipline.md`
-5. `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`
-6. `$SHIPFLOW_ROOT/skills/references/task-application-loop.md` when scope includes task-by-task implementation, direct fixes, skill contract edits, tracker progress, or progress/completion semantics.
-7. `$SHIPFLOW_ROOT/skills/references/closure-archive-guard.md` when scope includes tracker closure, changelog framing, done/closed wording, archived artifacts, docs/source-of-truth sync, or full-close shipping.
-8. `$SHIPFLOW_ROOT/skills/references/documentation-reflection-gate.md` when verification can imply a milestone or user-facing completion.
-8. `$SHIPFLOW_ROOT/skills/references/design-system-token-contract.md` when scope includes UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual proof work.
-9. `$SHIPFLOW_ROOT/skills/references/content-quality-rubric.md` when scope includes an editorial score or content quality gate.
+1. `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-gates.md`
+2. `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md`
+3. `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md`
+4. `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md`
+5. `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`
+6. `$SHIPGLOWS_ROOT/skills/references/task-application-loop.md` when scope includes task-by-task implementation, direct fixes, skill contract edits, tracker progress, or progress/completion semantics.
+7. `$SHIPGLOWS_ROOT/skills/references/closure-archive-guard.md` when scope includes tracker closure, changelog framing, done/closed wording, archived artifacts, docs/source-of-truth sync, or full-close shipping.
+8. `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` when verification can imply a milestone or user-facing completion.
+8. `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` when scope includes UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual proof work.
+9. `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md` when scope includes an editorial score or content quality gate.
+10. `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md` when the target project owns an Atlas registry.
+11. `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when scope contains a material product decision, customer journey, capability, critical moment, Atlas mapping or cross-contract change.
 
 Load on demand:
 
-- `$SHIPFLOW_ROOT/skills/references/sentry-observability.md` when runtime failures/observability/deployed behavior are in scope.
-- `$SHIPFLOW_ROOT/skills/references/runtime-diagnostics-surface.md` when verifying a runtime app, support/error handling, settings, auth callback, Sentry, browser-debug, log-copy, or deploy-proof surface.
+- `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` when runtime failures/observability/deployed behavior are in scope.
+- `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md` when verifying a runtime app, support/error handling, settings, auth callback, Sentry, browser-debug, log-copy, or deploy-proof surface.
 - `/109-sg-auth-debug` evidence for auth/session/callback/protected-route proof.
 - `/108-sg-browser` evidence for non-auth browser proof.
 
-## ShipGlowz-Owned Preflight
+## ShipGlows-Owned Preflight
 
-Apply `$SHIPFLOW_ROOT/skills/references/shipglowz-owned-preflight.md` before reading ShipGlowz-owned references, running ShipGlowz-owned tools/scripts, or checking ShipGlowz-owned sync surfaces.
-For `103-sg-verify`, this preflight also applies before verifying ShipGlowz-owned runtime visibility or skill-sync targets.
+Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before reading ShipGlows-owned references, running ShipGlows-owned tools/scripts, or checking ShipGlows-owned sync surfaces.
+For `103-sg-verify`, this preflight also applies before verifying ShipGlows-owned runtime visibility or skill-sync targets.
 
 ## Editorial Score Gate
 
@@ -152,7 +156,7 @@ When a chantier asks for an editorial score or content quality gate:
 - Accept only final statuses: `ready`, `needs revision`, `blocked`, `publishable with caveats`.
 - Treat any blocking criterion or blocking code as non-verified for ship-readiness.
 
-## Skill Coherence Check (when scope touches ShipGlowz skills)
+## Skill Coherence Check (when scope touches ShipGlows skills)
 
 When verified changes include `skills/*/SKILL.md`:
 
@@ -160,14 +164,14 @@ When verified changes include `skills/*/SKILL.md`:
 - changed `source-de-chantier` skills must still contain chantier-potential guidance
 - changed helper skills must not present themselves as chantier sources
 - skill contract changes must show `scenario-first` pressure scenarios, mechanical checks, or `exception-with-proof`
-- if runtime-discoverable skills changed, run `tools/shipglowz_sync_skills.sh --check --skill <name>` or `--check --all`
+- if runtime-discoverable skills changed, run `tools/shipglows_sync_skills.sh --check --skill <name>` or `--check --all`
 
 ## Tracker Rule
 
 `103-sg-verify` can patch code/docs when contract is stable, but shared trackers are read-only in this skill:
 
 - do not edit `TASKS.md`, `AUDIT_LOG.md`, `PROJECTS.md` from `103-sg-verify`
-- if verification only reads task, audit, or `spec:` operational records, treat `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` as reader context; load it before any exceptional spec-summary repair.
+- if verification only reads task, audit, or `spec:` operational records, treat `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` as reader context; load it before any exceptional spec-summary repair.
 - do not treat tracker frontmatter absence as defect
 
 ## Stop Conditions
@@ -190,6 +194,6 @@ Report `not verified` or `blocked` when:
 Run focused checks based on scope and diff:
 
 ```bash
-rg -n "Trace category|Process role|Success Behavior|Error Behavior|Proof Path Fit|Task Application Loop Fit|Closure Archive Guard Fit|ShipGlowz-Owned Preflight|canonical ShipGlowz path|task-application-loop|closure-archive-guard|decision quality|proof path|evidence-first|test-first|scenario-first|fresh-docs|Chantier" skills/103-sg-verify/SKILL.md
+rg -n "Trace category|Process role|Success Behavior|Error Behavior|Proof Path Fit|Task Application Loop Fit|Closure Archive Guard Fit|ShipGlows-Owned Preflight|canonical ShipGlows path|task-application-loop|closure-archive-guard|decision quality|proof path|evidence-first|test-first|scenario-first|fresh-docs|Chantier" skills/103-sg-verify/SKILL.md
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
 ```

@@ -76,7 +76,7 @@ When the project has public content, add an editorial governance layer such as `
 - Public claims must be backed by `BUSINESS.md`, `PRODUCT.md`, `BRANDING.md`, `GTM.md`, product behavior, or explicit evidence.
 - Public claims that touch security, privacy, compliance, AI reliability, automation, speed, savings, availability, pricing, or business outcomes must be checked against the claim register when one exists.
 - Public page edits should respect the page intent map when one exists.
-- Application runtime content (`src/content/**`, Astro collections, MDX consumed by the app, CMS entries) must preserve its framework schema. Store ShipFlow governance context in reports or governance docs when the runtime schema does not accept it.
+- Application runtime content (`src/content/**`, Astro collections, MDX consumed by the app, CMS entries) must preserve its framework schema. Store ShipGlows governance context in reports or governance docs when the runtime schema does not accept it.
 - If blog/article output is requested but no blog path or article surface is declared, report `surface missing: blog` instead of inventing a path.
 
 ## Cross-Surface Update Rules

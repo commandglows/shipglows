@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-05"
 updated: "2026-07-16"
 status: active
@@ -15,28 +15,28 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/004-sg-deploy/SKILL.md
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/references/entrypoint-routing.md
   - README.md
-  - shipglowz_data/workflow/playbooks/spec-driven-workflow.md
-  - shipglowz_data/workflow/research/codesphere-fit-for-shipflow-workflows.md
-  - shipglowz_data/workflow/research/codesphere-vs-railway-vs-render-vs-flyio-for-shipflow.md
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
+  - shipglows_data/workflow/research/codesphere-fit-for-shipglows-workflows.md
+  - shipglows_data/workflow/research/codesphere-vs-railway-vs-render-vs-flyio-for-shipglows.md
 depends_on:
-  - artifact: "shipglowz_data/business/business.md"
+  - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.2.0"
     required_status: reviewed
-  - artifact: "shipglowz_data/business/product.md"
+  - artifact: "shipglows_data/business/product.md"
     artifact_version: "1.2.0"
     required_status: reviewed
-  - artifact: "shipglowz_data/business/gtm.md"
+  - artifact: "shipglows_data/business/gtm.md"
     artifact_version: "1.2.0"
     required_status: reviewed
 supersedes: []
 evidence:
-  - "Research verdict 2026-07-04: Codesphere is a specialized deploy/runtime target, not a replacement for ShipGlowz governance."
+  - "Research verdict 2026-07-04: Codesphere is a specialized deploy/runtime target, not a replacement for ShipGlows governance."
   - "Market study verdict 2026-07-04: Railway should be the default recommendation, Render the strongest preview-heavy alternative, Fly.io the advanced-control target, and Codesphere the sovereignty/private-cloud target."
-  - "Operator clarification 2026-07-05: the matrix belongs in ShipGlowz references; ShipGlowz can advise only, and final target choice remains project-contextual."
-  - "Operator correction 2026-07-16: Vercel is the ShipGlowz default for websites and compatible web applications; the server-hosting matrix applies only when a dedicated server runtime is actually required."
+  - "Operator clarification 2026-07-05: the matrix belongs in ShipGlows references; ShipGlows can advise only, and final target choice remains project-contextual."
+  - "Operator correction 2026-07-16: Vercel is the ShipGlows default for websites and compatible web applications; the server-hosting matrix applies only when a dedicated server runtime is actually required."
 next_review: "2026-08-05"
 next_step: "/104-sg-end deploy target matrix reference correction"
 ---
@@ -45,19 +45,19 @@ next_step: "/104-sg-end deploy target matrix reference correction"
 
 ## Purpose
 
-This reference defines ShipGlowz's canonical deploy-target recommendation rule for web surfaces and dedicated application servers.
+This reference defines ShipGlows's canonical deploy-target recommendation rule for web surfaces and dedicated application servers.
 
 It answers one bounded question:
 
 ```text
-Given the current project shape, should ShipGlowz use its Vercel web default or enter the dedicated-server matrix, and what exception rule can override that choice?
+Given the current project shape, should ShipGlows use its Vercel web default or enter the dedicated-server matrix, and what exception rule can override that choice?
 ```
 
-This reference is advisory only. It does not auto-select a provider, does not replace project-specific architecture judgment, and does not imply that ShipGlowz implements deep automation for every target it recommends.
+This reference is advisory only. It does not auto-select a provider, does not replace project-specific architecture judgment, and does not imply that ShipGlows implements deep automation for every target it recommends.
 
 ## Core Rule
 
-ShipGlowz advises on deploy targets; it does not decide them in a vacuum.
+ShipGlows advises on deploy targets; it does not decide them in a vacuum.
 
 Classify the deployable surface before consulting a provider ranking:
 
@@ -70,14 +70,14 @@ Use this matrix when:
 
 - the operator asks where to deploy an app
 - `004-sg-deploy` needs a target recommendation lane
-- `000-shipglowz` or a docs surface needs a canonical answer
+- `000-shipglows` or a docs surface needs a canonical answer
 - public or operator-facing guidance would otherwise drift into ad hoc platform opinion
 
 If a large project-context delta exists, the final answer must say so explicitly rather than pretending the matrix alone decides.
 
 ## Web Default
 
-For websites and Vercel-compatible web applications, the ShipGlowz default is:
+For websites and Vercel-compatible web applications, the ShipGlows default is:
 
 1. `Vercel`
 
@@ -94,7 +94,7 @@ When a project genuinely requires a dedicated application server:
 3. `Fly.io`
 4. `Codesphere`
 
-This server ranking assumes ShipGlowz's primary audience:
+This server ranking assumes ShipGlows's primary audience:
 
 - solo founders first
 - small technical teams second
@@ -123,7 +123,7 @@ Recommend first within the dedicated-server lane when the project needs:
 - fastest path from repo to running app
 - low-ceremony multi-service deployment
 - strong founder/operator DX
-- a good default for ShipGlowz's primary audience
+- a good default for ShipGlows's primary audience
 
 Do not use Railway as the default for an ordinary website or Vercel-compatible web application. Within the server lane, avoid treating Railway as universal when sovereignty, unusual infra topology, or heavy review-environment requirements dominate.
 
@@ -163,15 +163,15 @@ Every owner surface that uses this matrix must preserve these statements:
 
 - Vercel is the default for websites and compatible web applications.
 - Railway, Render, Fly.io, and Codesphere form a dedicated-server matrix, not a replacement web-hosting default.
-- ShipGlowz is recommending a substrate, not choosing the project's final architecture.
+- ShipGlows is recommending a substrate, not choosing the project's final architecture.
 - The final target still depends on project-specific context.
 - Recommendation coverage is wider than automation coverage.
-- Public claims must stay narrower than actual provider-specific support in ShipGlowz.
+- Public claims must stay narrower than actual provider-specific support in ShipGlows.
 
 ## Routing Guidance
 
 - Generic deploy-target advice -> `004-sg-deploy`
-- Generic "where should I deploy this?" in `000-shipglowz` -> route to `004-sg-deploy` with this reference loaded
+- Generic "where should I deploy this?" in `000-shipglows` -> route to `004-sg-deploy` with this reference loaded
 - Pure explanation with no file work -> direct answer may cite this matrix, but should still keep the advice boundary explicit
 
 ## Documentation Rule

@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-02"
 updated: "2026-05-02"
 status: active
@@ -169,7 +169,7 @@ If approval is missing, use `unsafe-action` and route to a safe environment, man
 The final report uses the user's active language. Stable labels, commands, and verdict labels stay English.
 
 Good localized behavior:
-- keep `Target`, `Environment`, `Verdict`, and ShipGlowz command names stable
+- keep `Target`, `Environment`, `Verdict`, and ShipGlows command names stable
 - write observations, limits, and next-step explanations in the user's active language
 - use natural French with accents when the active language is French
 

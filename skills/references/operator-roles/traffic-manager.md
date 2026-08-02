@@ -2,7 +2,7 @@
 artifact: contract
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-29"
 updated: "2026-06-29"
 status: active
@@ -14,19 +14,19 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - skills/000-shipglowz/SKILL.md
+  - skills/000-shipglows/SKILL.md
   - skills/302-sg-help/SKILL.md
   - skills/009-sg-marketing/SKILL.md
   - skills/406-sg-seo/SKILL.md
   - skills/emailing/SKILL.md
-  - shipglowz_data/business/agent-profiles/
+  - shipglows_data/business/agent-profiles/
 depends_on:
   - artifact: "skills/references/operator-partnership-contract.md"
     artifact_version: "1.0.0"
     required_status: "active"
 supersedes: []
 evidence:
-  - "Operator request 2026-06-29: determine whether the traffic manager role exists in ShipGlowz and make it invokable if useful."
+  - "Operator request 2026-06-29: determine whether the traffic manager role exists in ShipGlows and make it invokable if useful."
 next_review: "2026-07-13"
 next_step: "/103-sg-verify operator-role-traffic-manager"
 ---

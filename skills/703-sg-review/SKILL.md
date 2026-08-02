@@ -7,32 +7,33 @@ argument-hint: [optional: daily, weekly, sprint, release]
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `pilotage`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise review outcome, evidence limits, tracker/docs impact, and opening chantier header when applicable. Use `report=agent` for detailed review reports, tracker anchors, or handoff state.
 
 ## Required References
 
-- Load `$SHIPFLOW_ROOT/skills/references/question-contract.md` before asking project, review-period, closure, or risk-framing questions.
-- Load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` before creating or mutating task operational records in `TASKS.md`.
+- Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking project, review-period, closure, or risk-framing questions.
+- Load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` before creating or mutating task operational records in `TASKS.md`.
+- Load `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when the review captures product lessons, decision changes, rework, failed proof or coherence drift.
 
 
 ## Context
 
 - Current directory: !`pwd`
-- Project workflow TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project TASKS.md"`
-- Project-local TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
+- Project workflow TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project TASKS.md"`
+- Project-local TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
 - Recent commits (last 10): !`git log --oneline --date=short --pretty=format:"%h %ad %s" -10 2>/dev/null || echo "Not a git repo"`
 - Files changed recently: !`git diff --name-status HEAD~5..HEAD 2>/dev/null || echo "N/A"`
 - Current branch: !`git branch --show-current 2>/dev/null`
@@ -44,16 +45,16 @@ Default to `report=user`: concise review outcome, evidence limits, tracker/docs 
 
 Review bookkeeping is local-first for project work.
 
-- For a selected project, update `[project]/shipglowz_data/workflow/TASKS.md` when review evidence justifies tracker changes.
+- For a selected project, update `[project]/shipglows_data/workflow/TASKS.md` when review evidence justifies tracker changes.
 - Root `TASKS.md` is a legacy project tracker location; read it as a migration/fallback source only when canonical workflow tasks are absent.
-- Legacy central archives are migration evidence only. Use `shipglowz_data/workflow/TASKS.md` for per-project discovery and local task state.
+- Legacy central archives are migration evidence only. Use `shipglows_data/workflow/TASKS.md` for per-project discovery and local task state.
 - When reviewing from a sub-project directory, consider portfolio concerns only as context unless the user asked for a portfolio review.
 - The review summary should reference which project(s) were worked on and, for portfolio-scoped runs only, how the external Dashboard changed.
 - When planning next session, suggest tasks from the selected project's local workflow tracker, or from the external control plane only for portfolio-scoped runs.
 
 ## Shared tracking file write protocol
 
-- Before creating or mutating task operational records, load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` and preserve that format for new `TASKS.md` writes.
+- Before creating or mutating task operational records, load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` and preserve that format for new `TASKS.md` writes.
 - Treat the TASKS snapshots loaded at skill start as informational only.
 - Right before editing the project or portfolio TASKS file, re-read the target from disk and use that version as authoritative.
 - Apply a minimal targeted edit to the relevant dashboard rows and project sections; never rewrite the whole file from stale context.
@@ -79,7 +80,7 @@ Keep the boundary explicit:
 
 ### Workspace root detection
 
-If the current directory has no `.git` directory (not a git repo) BUT contains multiple project subdirectories, you are at the workspace root. Load `$SHIPFLOW_ROOT/skills/references/question-contract.md`, then ask:
+If the current directory has no `.git` directory (not a git repo) BUT contains multiple project subdirectories, you are at the workspace root. Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md`, then ask:
 - Question: "Which project(s) should I review?"
 - `multiSelect: true`
 - One option per project: label = project name, description = recent commit count (run `git -C [path] log --oneline --since="7 days" 2>/dev/null | wc -l` for each)
@@ -87,7 +88,7 @@ If the current directory has no `.git` directory (not a git repo) BUT contains m
 
 ### Steps
 
-1. **Determine review scope** — if `$ARGUMENTS` is empty, load `$SHIPFLOW_ROOT/skills/references/question-contract.md`, then ask:
+1. **Determine review scope** — if `$ARGUMENTS` is empty, load `$SHIPGLOWS_ROOT/skills/references/question-contract.md`, then ask:
    - Question: "What time scope for this review?"
    - `multiSelect: false`
    - Options:
@@ -99,7 +100,7 @@ If the current directory has no `.git` directory (not a git repo) BUT contains m
    If `$ARGUMENTS` is provided (daily/weekly/sprint/release), skip the prompt and use it directly.
 
 2. **Analyze what was accomplished**:
-   - Review completed tasks in the selected project's `shipglowz_data/workflow/TASKS.md`, or the legacy external-control-plane tracker only for portfolio reviews
+   - Review completed tasks in the selected project's `shipglows_data/workflow/TASKS.md`, or the legacy external-control-plane tracker only for portfolio reviews
    - Examine git commits for actual changes
    - Identify files modified (from git diff)
    - Note any deployed changes or releases
@@ -148,12 +149,14 @@ If the current directory has no `.git` directory (not a git repo) BUT contains m
    - **In Progress**: What's partially done
    - **Blocked**: What's stuck and why
    - **Learned**: Key insights or discoveries
+   - For every reusable lesson: evidence, causal status, applicability boundary, keep/change/retire decision and the next related verification hook
+   - Recheck applicable lessons from the previous related review and report whether they were used and whether they helped
    - **Security / Product Risks**: Remaining risks, abuse cases, or coherence gaps
    - **Documentation Coherence**: Docs updated, not impacted, or stale
    - **Metrics**: Commits, files changed, tests added, etc.
 
 6. **Plan next session**:
-   - Review remaining tasks in the selected project's `shipglowz_data/workflow/TASKS.md`, or the legacy external-control-plane tracker only for portfolio reviews
+   - Review remaining tasks in the selected project's `shipglows_data/workflow/TASKS.md`, or the legacy external-control-plane tracker only for portfolio reviews
    - Identify what should be prioritized next
    - Note any blockers that need addressing
    - Suggest 1-3 tasks for immediate focus
@@ -182,7 +185,7 @@ Examples:
 - "The feature behavior changed but docs were not clearly updated. Should I keep that as an open task?"
 
 8. **Create review report**:
-   - Save to `shipglowz_data/workflow/reviews/REVIEW-[DATE].md` when the project uses the canonical workflow corpus, otherwise use the nearest existing review/docs folder.
+   - Save to `shipglows_data/workflow/reviews/REVIEW-[DATE].md` when the project uses the canonical workflow corpus, otherwise use the nearest existing review/docs folder.
    - Start the report with YAML frontmatter:
      ```yaml
      ---
@@ -208,8 +211,8 @@ Examples:
 
 ### Important
 
-- Default to the selected project's `shipglowz_data/workflow/TASKS.md` for review bookkeeping.
-- Update project-local `shipglowz_data/workflow/TASKS.md` only when review changes local workflow state.
+- Default to the selected project's `shipglows_data/workflow/TASKS.md` for review bookkeeping.
+- Update project-local `shipglows_data/workflow/TASKS.md` only when review changes local workflow state.
 - Be honest about progress - if less was done than planned, say why
 - Focus on outcomes, not just activity
 - Keep outcome claims tied to evidence; distinguish shipped, reviewed, verified, and assumed

@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-08"
 updated: "2026-07-08"
 status: active
@@ -15,8 +15,8 @@ security_impact: low
 docs_impact: yes
 linked_systems:
   - skills/007-sg-content/SKILL.md
-  - shipglowz_data/workflow/repurpose-packs/
-  - shipglowz_data/README.md
+  - shipglows_data/workflow/repurpose-packs/
+  - shipglows_data/README.md
 depends_on:
   - artifact: "skills/references/canonical-paths.md"
     artifact_version: "1.3.0"
@@ -38,7 +38,7 @@ Define the canonical versioned storage location for durable source-faithful repu
 
 Store durable repurpose packs under:
 
-`shipglowz_data/workflow/repurpose-packs/`
+`shipglows_data/workflow/repurpose-packs/`
 
 This folder belongs to the governed project repo. It is versioned, reviewable, and shareable with future agent runs working on the same project.
 
@@ -73,7 +73,7 @@ Preferred filename:
 
 Examples:
 
-- `2026-07-08-shipglowz-emailing-repurpose-pack.md`
+- `2026-07-08-shipglows-emailing-repurpose-pack.md`
 - `2026-07-08-mail-intake-repurpose-pack.md`
 
 When refreshing the same source thread or source asset in the same day, update the existing pack instead of creating duplicates unless the angle or source materially differs.
@@ -121,6 +121,6 @@ Optional article or email-specific appendices are allowed only when they are jus
 ## Validation
 
 ```bash
-python3 tools/shipglowz_metadata_lint.py skills/references/repurpose-pack-storage.md shipglowz_data/workflow/repurpose-packs/README.md
-rg -n "repurpose-pack-storage|repurpose-packs" skills/007-sg-content/SKILL.md skills/007-sg-content/references/repurpose-playbook.md shipglowz_data/README.md
+python3 tools/shipglows_metadata_lint.py skills/references/repurpose-pack-storage.md shipglows_data/workflow/repurpose-packs/README.md
+rg -n "repurpose-pack-storage|repurpose-packs" skills/007-sg-content/SKILL.md skills/007-sg-content/references/repurpose-playbook.md shipglows_data/README.md
 ```

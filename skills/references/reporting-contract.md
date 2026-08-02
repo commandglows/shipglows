@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.10.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-03"
 updated: "2026-07-18"
 status: active
@@ -41,18 +41,18 @@ evidence:
   - "User decision 2026-07-16: use 🧱 for a normal chantier, reserve 🚧 for a blocked run, and use 📂, 🔨, and 📌 only for scope, active work, and priority or decision context."
   - "Operator correction 2026-07-18: every final report that returns control while a chantier remains unfinished must offer plain-language choices and hide internal skills, commands, stages, owners, and agent topology."
 next_review: "2026-06-04"
-next_step: "/103-sg-verify shipflow-skill-reporting-and-proof-hardening"
+next_step: "/103-sg-verify shipglows-skill-reporting-and-proof-hardening"
 ---
 
 # Reporting Contract
 
 ## Purpose
 
-This reference defines the default final-report shape for ShipGlowz skills.
+This reference defines the default final-report shape for ShipGlows skills.
 
 The goal is to reduce user-facing noise without weakening traceability. Successful runs should be short. Failed, blocked, partial, or security-sensitive runs should include enough detail to act safely.
 
-Before applying this contract, load `$SHIPFLOW_ROOT/skills/references/final-report-timestamp.md`. Its verdict-header rule is part of this reporting contract and applies to both `report=user` and `report=agent`.
+Before applying this contract, load `$SHIPGLOWS_ROOT/skills/references/final-report-timestamp.md`. Its verdict-header rule is part of this reporting contract and applies to both `report=user` and `report=agent`.
 
 ## Report Modes
 
@@ -95,7 +95,7 @@ Default user-mode reports must fit this shape unless the skill has a stricter lo
 ## Active Work Continuation Rule
 
 Do not end a user-facing report with a pending internal stage, a command, or a
-technical “next step” when the operator asked ShipGlowz to carry out the work
+technical “next step” when the operator asked ShipGlows to carry out the work
 and the next action is still agent-runnable. Continue the active owner workflow
 through its safe gates instead.
 
@@ -156,7 +156,7 @@ in that user-facing line. Those details belong to `report=agent`.
 
 When a user-facing final report leaves a chantier unfinished, end the message
 with a numbered, plain-language choice block. This gives the operator a visible
-way to steer the objective without making them operate ShipGlowz internals.
+way to steer the objective without making them operate ShipGlows internals.
 
 Use the smallest truthful set of two or three options. When no material
 decision is missing, offer this default shape:
@@ -261,7 +261,7 @@ Only include sections that change the user's next decision:
 - detailed chantier state only in `report=agent` when it affects the handoff
 
 Translate internal gate names into their user consequence when possible. Prefer
-`⚠️ Limites: pas de shipglowz_data/workflow/BUGS.md, donc risque bug non evalue` over a bare
+`⚠️ Limites: pas de shipglows_data/workflow/BUGS.md, donc risque bug non evalue` over a bare
 `Bug risk gate: not assessed` when the active user language is French.
 
 Omit empty or redundant lines such as `Reste a faire: none`, `Prochaine etape: none`, `Trace spec: ecrite`, and `Verdict <skill>` when the heading or status already says the same thing.
@@ -375,4 +375,4 @@ Start every final report with the chantier line followed by the verdict:
 
 For a blocked verdict, use `🚧 CHANTIER` instead of `🧱 CHANTIER`.
 
-Follow the exact placement and exception rules in `$SHIPFLOW_ROOT/skills/references/final-report-timestamp.md`. Do not add a closing verdict or timestamp. If the report asks a numbered question, its final visible text is the options and the reply instruction.
+Follow the exact placement and exception rules in `$SHIPGLOWS_ROOT/skills/references/final-report-timestamp.md`. Do not add a closing verdict or timestamp. If the report asks a numbered question, its final visible text is the options and the reply instruction.

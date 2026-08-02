@@ -15,25 +15,25 @@ async function run(): Promise<void> {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const projectRoot = path.resolve(process.cwd());
-  const shipglowzRepoRoot = path.resolve(__dirname, "../../");
+  const shipglowsRepoRoot = path.resolve(__dirname, "../../");
   const workspaceRootsEnv =
-    process.env.SHIPGLOWZ_TUI_WORKSPACE_ROOTS ??
-    process.env.SHIPFLOW_TUI_WORKSPACE_ROOTS;
+    process.env.SHIPGLOWS_TUI_WORKSPACE_ROOTS ??
+    process.env.SHIPGLOWS_TUI_WORKSPACE_ROOTS;
   const workspaceRoots = workspaceRootsEnv
     ?.split(",")
     .map((root) => root.trim())
     .filter(Boolean)
     .map((root) => path.resolve(root));
   if (!workspaceRoots?.length) {
-    workspaceRoots?.push(shipglowzRepoRoot);
-  } else if (!workspaceRoots.includes(shipglowzRepoRoot)) {
-    workspaceRoots.push(shipglowzRepoRoot);
+    workspaceRoots?.push(shipglowsRepoRoot);
+  } else if (!workspaceRoots.includes(shipglowsRepoRoot)) {
+    workspaceRoots.push(shipglowsRepoRoot);
   }
 
   const data = await readDashboardData({
     projectRoot,
-    workspaceRoots: workspaceRoots ?? [shipglowzRepoRoot],
-    shipflowRepoRoot: shipglowzRepoRoot
+    workspaceRoots: workspaceRoots ?? [shipglowsRepoRoot],
+    shipglowsRepoRoot: shipglowsRepoRoot
   });
 
   try {

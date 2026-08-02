@@ -4,7 +4,7 @@
 
 ## What It Does
 
-`106-sg-fix` is the bug-first entrypoint for ShipGlowz. It starts from the broken behavior, reconstructs the user story behind the bug, and decides whether the issue is small and local enough for a direct fix or too ambiguous to patch safely.
+`106-sg-fix` is the bug-first entrypoint for ShipGlows. It starts from the broken behavior, reconstructs the user story behind the bug, and decides whether the issue is small and local enough for a direct fix or too ambiguous to patch safely.
 
 That matters because a “quick fix” can easily create a worse product problem if the bug touches permissions, workflow rules, data visibility, or cross-system behavior.
 

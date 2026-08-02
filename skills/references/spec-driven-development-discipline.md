@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.5.1"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-18"
 updated: "2026-07-18"
 status: active
@@ -17,7 +17,7 @@ linked_systems:
   - skills/102-sg-start/SKILL.md
   - skills/106-sg-fix/SKILL.md
   - skills/003-sg-bug/SKILL.md
-  - skills/900-shipglowz-core/SKILL.md
+  - skills/900-shipglows-core/SKILL.md
   - skills/103-sg-verify/SKILL.md
   - skills/references/master-workflow-lifecycle.md
   - skills/references/master-delegation-semantics.md
@@ -35,7 +35,7 @@ depends_on:
     required_status: draft
 supersedes: []
 evidence:
-  - "Spec spec-driven-tdd-evidence-gates.md keeps ShipGlowz spec-driven development as the outer lifecycle and adds proof-first implementation discipline."
+  - "Spec spec-driven-tdd-evidence-gates.md keeps ShipGlows spec-driven development as the outer lifecycle and adds proof-first implementation discipline."
   - "User decision 2026-05-24: proof paths must support high-quality code and durable decisions, not just the quickest passing change."
   - "User decision 2026-05-24: for Flutter mobile work, prove common UI first with widget tests and Flutter Web smoke before asking for APK/device testing."
   - "Conversation audit 2026-06-09: UI and product behavior claims need an explicit proof path or proof gap before being reported as fixed."
@@ -43,16 +43,16 @@ evidence:
   - "User decision 2026-06-11: UI/design implementation must not create local visual decisions outside the centralized design-system authority."
   - "User decision 2026-07-18: technical checks may establish an implemented visual repair, but rendered validation is required before resolution claims."
 next_review: "2026-06-18"
-next_step: "/103-sg-verify shipflow-skill-reporting-and-proof-hardening"
+next_step: "/103-sg-verify shipglows-skill-reporting-and-proof-hardening"
 ---
 
 # Spec-Driven Development Discipline
 
 ## Purpose
 
-ShipGlowz stays spec-driven at the lifecycle level. Specs, bug files, release scopes, and mini-contracts define what must be true. Tests and evidence prove that an implementation satisfied that contract.
+ShipGlows stays spec-driven at the lifecycle level. Specs, bug files, release scopes, and mini-contracts define what must be true. Tests and evidence prove that an implementation satisfied that contract.
 
-Use this reference when a ShipGlowz skill modifies behavior, fixes a bug, changes a skill contract, or verifies a completion claim.
+Use this reference when a ShipGlows skill modifies behavior, fixes a bug, changes a skill contract, or verifies a completion claim.
 
 Before implementation, also load `skills/references/decision-quality-contract.md`. Proof-first discipline must prove a professional solution against the quality and excellence bar; it must not be used to justify the smallest change that merely makes a local check pass.
 

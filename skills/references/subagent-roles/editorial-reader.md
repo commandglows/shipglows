@@ -2,7 +2,7 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-05-01"
 updated: "2026-05-01"
 status: active
@@ -24,14 +24,14 @@ depends_on:
   - artifact: "skills/references/editorial-content-corpus.md"
     artifact_version: "1.0.0"
     required_status: active
-  - artifact: "specs/shipflow-editorial-content-governance-layer-for-ai-agents.md"
+  - artifact: "specs/shipglows-editorial-content-governance-layer-for-ai-agents.md"
     artifact_version: "1.0.0"
     required_status: ready
 supersedes: []
 evidence:
   - "Ready spec requires a separate read-only Editorial Reader role and no reader.md alias."
 next_review: "2026-06-01"
-next_step: "/103-sg-verify ShipGlowz Editorial Content Governance Layer for AI Agents"
+next_step: "/103-sg-verify ShipGlows Editorial Content Governance Layer for AI Agents"
 ---
 
 # Editorial Reader Agent Contract
@@ -63,7 +63,7 @@ Load contract sources only as needed for the changed surface:
 - `BRANDING.md`
 - `GTM.md`
 - `README.md`
-- `shipglowz_data/workflow/playbooks/spec-driven-workflow.md`
+- `shipglows_data/workflow/playbooks/spec-driven-workflow.md`
 - relevant specs or verified behavior notes
 
 Load public runtime sources only as needed:
@@ -73,7 +73,7 @@ Load public runtime sources only as needed:
 - `site/src/content.config.ts`
 - `site/src/content/skills/`
 - `site/package.json`
-- `shipglowz-site/pnpm-lock.yaml`
+- `shipglows-site/pnpm-lock.yaml`
 
 ## Permissions
 

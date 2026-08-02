@@ -6,47 +6,49 @@ argument-hint: <bug description, error message, or failing behavior>
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 Primary artifact type: `specialist-workflow`.
 
 ## Instruction Layering
 
-This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPFLOW_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
+This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
 
 ## Chantier Tracking
 
 Trace category: `conditionnel`.
 Process role: `source-de-chantier`.
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
 
 ## Chantier Potential Intake
 
-Apply the chantier-potential threshold from `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md` before the final report.
+Apply the chantier-potential threshold from `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before the final report.
 For `106-sg-fix`, use it when the bug reveals non-trivial future work beyond a direct bounded repair and no unique chantier already owns that work.
 
 ## Required References
 
 Before any fix attempt, load:
 
-- `$SHIPFLOW_ROOT/skills/references/spec-driven-development-discipline.md`
-- `$SHIPFLOW_ROOT/skills/references/decision-quality-contract.md`
-- `$SHIPFLOW_ROOT/skills/references/task-application-loop.md`
-- `$SHIPFLOW_ROOT/skills/106-sg-fix/references/bug-fix-workflow.md`
+- `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md`
+- `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`
+- `$SHIPGLOWS_ROOT/skills/references/task-application-loop.md`
+- `$SHIPGLOWS_ROOT/skills/106-sg-fix/references/bug-fix-workflow.md`
 
-Load `$SHIPFLOW_ROOT/skills/references/design-system-token-contract.md` before UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual bug fixes.
+Load `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` before UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual bug fixes.
 
-Load `$SHIPFLOW_ROOT/skills/references/documentation-freshness-gate.md` when the bug may depend on current framework, SDK, service, API, auth/session, build, migration, cache, routing, or integration behavior.
+Load `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when the bug may depend on current framework, SDK, service, API, auth/session, build, migration, cache, routing, or integration behavior.
 
-Load `$SHIPFLOW_ROOT/skills/references/project-development-mode.md` before deciding how the fix can be retested.
+Load `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` before deciding how the fix can be retested.
+
+Load `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md` when the target project owns an Atlas registry. Run it before the first fix write; do not use a bug report as implicit permission to change a Gold/Diamond target.
 
 Load only the relevant Supabase, Sentry, runtime diagnostics, auth-debug, or browser references when the detailed workflow triggers those gates.
 
-## ShipGlowz-Owned Preflight
+## ShipGlows-Owned Preflight
 
-Apply `$SHIPFLOW_ROOT/skills/references/shipglowz-owned-preflight.md` before reading ShipGlowz-owned references, running ShipGlowz-owned tools/scripts, or checking ShipGlowz-owned bug-memory/runtime surfaces.
-For `106-sg-fix`, this preflight also applies before creating or updating durable ShipGlowz-owned bug memory.
+Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before reading ShipGlows-owned references, running ShipGlows-owned tools/scripts, or checking ShipGlows-owned bug-memory/runtime surfaces.
+For `106-sg-fix`, this preflight also applies before creating or updating durable ShipGlows-owned bug memory.
 
 ## Mission
 
@@ -82,11 +84,11 @@ If `$ARGUMENTS` is provided, use it. If empty, ask: `Quel bug veux-tu corriger ?
 
 Always reconstruct the bug as a tiny user story: actor, trigger, broken behavior, expected outcome/user value. Ask targeted clarification only when the missing answer changes visible behavior, scope, permission boundary, destructive side effects, retries, failure handling, data exposure, tenant isolation, or security posture.
 
-Before asking the operator for logs, reproduction detail, screenshots, status, or validation, apply `$SHIPFLOW_ROOT/skills/references/operator-last-resort-evidence.md`.
+Before asking the operator for logs, reproduction detail, screenshots, status, or validation, apply `$SHIPGLOWS_ROOT/skills/references/operator-last-resort-evidence.md`.
 
 ## BUG-ID And Bug Memory
 
-Direct bug fixes still require durable bug memory. `106-sg-fix` must finish with a bug reference and one Markdown bug file under `shipglowz_data/workflow/bugs/*.md` unless the issue is a narrow minor exception.
+Direct bug fixes still require durable bug memory. `106-sg-fix` must finish with a bug reference and one Markdown bug file under `shipglows_data/workflow/bugs/*.md` unless the issue is a narrow minor exception.
 
 Minor exceptions are limited to typo/copy-only fixes, purely cosmetic visual defects with no state/permission/data/interaction consequence, or duplicates of an already-tracked `BUG-ID` with no new diagnosis or fix history. Never use the exception for auth, data, workflow, permission, API, redirect, cache, payment, external effect, or stateful UI bugs.
 
@@ -97,7 +99,7 @@ but do not call it resolved, fixed, verified, or closed until a person validates
 the rendered result. If that validation is unavailable, report the concrete
 proof gap and route it through the owner named by the shared proof discipline.
 
-When a `BUG-ID` exists, open `shipglowz_data/workflow/bugs/BUG-ID.md` right before intake and treat it as source of truth. If no bug file exists and no exception applies, create or reserve a new durable bug record before or during the direct fix flow using the procedure in `bug-fix-workflow.md`.
+When a `BUG-ID` exists, open `shipglows_data/workflow/bugs/BUG-ID.md` right before intake and treat it as source of truth. If no bug file exists and no exception applies, create or reserve a new durable bug record before or during the direct fix flow using the procedure in `bug-fix-workflow.md`.
 
 ## Security And Data Gates
 
@@ -119,7 +121,7 @@ If `spec-first`, do not code; route to `/100-sg-spec`, `/101-sg-ready`, then `/1
 
 If `diagnostic only`, do not code; route to `109-sg-auth-debug`, `108-sg-browser`, or a concrete next step as appropriate.
 
-Before asking the operator for logs, reproduction detail, screenshots, status, or validation, apply `$SHIPFLOW_ROOT/skills/references/operator-last-resort-evidence.md`.
+Before asking the operator for logs, reproduction detail, screenshots, status, or validation, apply `$SHIPGLOWS_ROOT/skills/references/operator-last-resort-evidence.md`.
 
 For runtime errors, error boundaries, 5xx, crashes, or visible support states, use the app's diagnostics/log-copy surface when reachable. Confirm the copied text starts with commit/build plus Paris/UTC build time, and treat missing or unsafe diagnostics as part of the bug evidence posture.
 
@@ -142,8 +144,8 @@ Use the report shape in `bug-fix-workflow.md`: classification, reason, user stor
 - A direct fix must defend product coherence and security posture, not only pass the local repro.
 - A direct fix must not bypass durable process, root cause, owner routing, shared structure, or proof.
 - A direct visual fix must defend design-system coherence; unexplained hardcoded sizes, offsets, breakpoints, z-indexes, colors, font sizes, spacings, animation timings, IME/keyboard insets, or overlay positions are not acceptable proof of repair.
-- For UI/design fixes, run `python3 "${SHIPFLOW_ROOT:-$HOME/shipglowz}/tools/design_system_drift_check.py" --changed --format markdown` or route the gap explicitly; unresolved new drift keeps the bug at most `fix-attempted`.
-- Do not close a bug without retest evidence in `shipglowz_data/workflow/bugs/BUG-ID.md`.
+- For UI/design fixes, run `python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --changed --format markdown` or route the gap explicitly; unresolved new drift keeps the bug at most `fix-attempted`.
+- Do not close a bug without retest evidence in `shipglows_data/workflow/bugs/BUG-ID.md`.
 - For a visual minor exception, do not use resolved/fixed/verified/closed language until a person validates the rendered result; otherwise report only `implemented` plus the proof gap.
 - Do not treat a local retest as closure evidence when project mode requires Vercel preview-push validation.
 
@@ -151,6 +153,6 @@ Use the report shape in `bug-fix-workflow.md`: classification, reason, user stor
 
 Validate this skill after edits with:
 
-- `rg -n "Trace category|Process role|Chantier Potential|ShipGlowz-Owned Preflight|canonical ShipGlowz path|spec-driven-development-discipline|decision-quality-contract|task-application-loop|Direct fix|Spec-first|BUG-ID|Stop Conditions|bug-fix-workflow|operator for logs|bug memory|runtime surface" skills/106-sg-fix/SKILL.md`
+- `rg -n "Trace category|Process role|Chantier Potential|ShipGlows-Owned Preflight|canonical ShipGlows path|spec-driven-development-discipline|decision-quality-contract|task-application-loop|Direct fix|Spec-first|BUG-ID|Stop Conditions|bug-fix-workflow|operator for logs|bug memory|runtime surface" skills/106-sg-fix/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
-- `python3 tools/shipglowz_metadata_lint.py skills/106-sg-fix/references/bug-fix-workflow.md`
+- `python3 tools/shipglows_metadata_lint.py skills/106-sg-fix/references/bug-fix-workflow.md`

@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-16"
 updated: "2026-07-17"
 status: active
@@ -47,11 +47,11 @@ For sales/offer, CTA/proof/objection comparison, or explicit inspiration, apply 
 
 ## Landing Framework Gate
 
-After this one local playbook is selected, load `$SHIPFLOW_ROOT/skills/references/landing-page-copywriting-framework.md` when the `copywriting` target is a landing, sales, or offer page, or when the request explicitly concerns its section flow, reading flow, repetition, proof placement, objection placement, or CTA sequence. A non-landing target without that explicit page-section need does not load the shared framework and continues through the existing Audit Flow.
+After this one local playbook is selected, load `$SHIPGLOWS_ROOT/skills/references/landing-page-copywriting-framework.md` when the `copywriting` target is a landing, sales, or offer page, or when the request explicitly concerns its section flow, reading flow, repetition, proof placement, objection placement, or CTA sequence. A non-landing target without that explicit page-section need does not load the shared framework and continues through the existing Audit Flow.
 
 For an existing page, collect the framework's required inputs, inventory its current sections, build the Section Role, Claim/Proof, and Repetition Ledgers, then return the ordered `Landing Sequence Plan`. Give every section one `keep|move|merge|delete|create` action and its reader question, unique job, transition, evidence state, objection, and CTA role. State the selected framework path in the report.
 
-Keep recommendations at strategic sequence level. Route sentence-level clarity, grammar, microcopy, or rewriting to `copy`; do not run both modes. Treat unsupported claims as visible `needs proof` or `claim mismatch` gaps and recommend the strongest honest sequence supported by current evidence. If the missing shared framework or required local playbook prevents the pass, block it, name the canonical path, and give the concrete owner route `/900-shipglowz-core audit`; do not invent a generic template.
+Keep recommendations at strategic sequence level. Route sentence-level clarity, grammar, microcopy, or rewriting to `copy`; do not run both modes. Treat unsupported claims as visible `needs proof` or `claim mismatch` gaps and recommend the strongest honest sequence supported by current evidence. If the missing shared framework or required local playbook prevents the pass, block it, name the canonical path, and give the concrete owner route `/900-shipglows-core audit`; do not invent a generic template.
 
 ## Audit Flow
 
@@ -69,7 +69,7 @@ For a project/global scope, validate or create a persona, map TOFU/MOFU/BOFU/ret
 
 ## Durable Artifacts, Tracking, And Report
 
-When the user asks for persistent strategy artifacts, maintain `docs/copywriting/persona.md`, `parcours-client.md`, and `strategie.md` as governed living references. Use ShipGlowz frontmatter, source evidence, dependencies on business/brand versions, `0.1.0` for unreviewed work, and semantic bumps for changed persona, promise, funnel, pricing psychology, or strategy. Update existing files narrowly and retain history; do not duplicate the full audit report.
+When the user asks for persistent strategy artifacts, maintain `docs/copywriting/persona.md`, `parcours-client.md`, and `strategie.md` as governed living references. Use ShipGlows frontmatter, source evidence, dependencies on business/brand versions, `0.1.0` for unreviewed work, and semantic bumps for changed persona, promise, funnel, pricing psychology, or strategy. Update existing files narrowly and retain history; do not duplicate the full audit report.
 
 Before traffic-first audit/task writes, load `operational-record-format.md`, re-read the target before writing, use the editorial roadmap for editorial/copywriting follow-up and execution tasks only for genuine implementation, and stop if an anchor remains ambiguous after one re-read.
 

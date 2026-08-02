@@ -2,7 +2,7 @@
 artifact: skill_reference
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-06-29"
 updated: "2026-07-17"
 status: active
@@ -50,7 +50,7 @@ Every onboarding recommendation or implementation contract should cover:
 - **Dependency order**: required prerequisites before advanced or fragile setup.
 - **Required vs optional**: separate core value from enhancers and nice-to-have modules.
 - **User control**: defer, skip, revisit, or disable optional setup without punishment.
-- **Next best action**: when a recurring friction or setup fork appears, present the continue path, the recommended path, and the owner skill or guided ShipGlowz route when it materially improves first success.
+- **Next best action**: when a recurring friction or setup fork appears, present the continue path, the recommended path, and the owner skill or guided ShipGlows route when it materially improves first success.
 - **Visual cues**: use identifiable icons, colors, badges, and affordances for current, completed, skipped, blocked, and warning states; completed state wins over current state when both are true.
 - **Visible state**: current, completed, skipped, blocked, unsupported, revoked, and recoverable states when relevant.
 - **Recovery**: refresh/recheck actions, settings deep links, resume paths, and clear next actions after leaving the app.

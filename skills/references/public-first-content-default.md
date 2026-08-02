@@ -2,11 +2,11 @@
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
-project: ShipGlowz
+project: ShipGlows
 created: "2026-07-08"
 updated: "2026-07-08"
 status: active
-source_skill: 900-shipglowz-core
+source_skill: 900-shipglows-core
 scope: public-first-content-default
 owner: unknown
 confidence: high
@@ -16,9 +16,9 @@ docs_impact: yes
 linked_systems:
   - skills/007-sg-content/SKILL.md
   - skills/references/editorial-content-corpus.md
-  - shipglowz_data/editorial/content-map.md
+  - shipglows_data/editorial/content-map.md
 depends_on:
-  - artifact: "shipglowz_data/editorial/content-map.md"
+  - artifact: "shipglows_data/editorial/content-map.md"
     artifact_version: "0.10.0"
     required_status: draft
 supersedes: []
@@ -34,7 +34,7 @@ next_step: "/103-sg-verify public-first-content-default"
 
 This reference removes ambiguity for Diane's normal content workflow.
 
-When Diane invokes ShipGlowz content-writing skills, the default target is a public content surface unless she explicitly redirects the task toward internal documentation or an internal-only artifact.
+When Diane invokes ShipGlows content-writing skills, the default target is a public content surface unless she explicitly redirects the task toward internal documentation or an internal-only artifact.
 
 ## Applies To
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# turso-ssh.sh - Transfer Turso CLI auth state to the configured ShipGlowz server.
+# turso-ssh.sh - Transfer Turso CLI auth state to the configured ShipGlows server.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/../config.sh" ]; then
@@ -16,24 +16,24 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-shipglowz_migrate_local_config || true
-CONFIG_DIR="$(shipglowz_local_config_dir)"
+shipglows_migrate_local_config || true
+CONFIG_DIR="$(shipglows_local_config_dir)"
 CURRENT_CONNECTION_FILE="$CONFIG_DIR/current_connection"
 CURRENT_IDENTITY_FILE="$CONFIG_DIR/current_identity_file"
 CURRENT_AUTH_METHOD_FILE="$CONFIG_DIR/current_auth_method"
-LOCAL_TURSO_CONFIG_DIR="${SHIPGLOWZ_TURSO_CONFIG_DIR:-${SHIPFLOW_TURSO_CONFIG_DIR:-$HOME/.config/turso}}"
+LOCAL_TURSO_CONFIG_DIR="${SHIPGLOWS_TURSO_CONFIG_DIR:-${SHIPGLOWS_TURSO_CONFIG_DIR:-$HOME/.config/turso}}"
 
 REMOTE_HOST=""
 SSH_IDENTITY_FILE=""
 COPY_CONFIG=1
 DB_NAME=""
-PROJECT_DIR="${SHIPGLOWZ_TURSO_REMOTE_PROJECT_DIR:-${SHIPFLOW_TURSO_REMOTE_PROJECT_DIR:-}}"
+PROJECT_DIR="${SHIPGLOWS_TURSO_REMOTE_PROJECT_DIR:-${SHIPGLOWS_TURSO_REMOTE_PROJECT_DIR:-}}"
 
 usage() {
     cat <<'EOF'
-Usage: shipglowz-turso-ssh [options] [db-name]
+Usage: shipglows-turso-ssh [options] [db-name]
 
-Copies the local Turso CLI auth config to the configured ShipGlowz server over
+Copies the local Turso CLI auth config to the configured ShipGlows server over
 SSH, then verifies `turso auth whoami` on the remote host. If db-name is
 provided, it also runs the ContentFlow schema checks for jobs and
 CustomerPersona.
@@ -44,16 +44,16 @@ Options:
   -h, --help             Show this help.
 
 Examples:
-  shipglowz-turso-ssh
-  shipglowz-turso-ssh contentflow-prod2
-  shipglowz-turso-ssh --project-dir /home/ubuntu/contentflow/contentflow_lab contentflow-prod2
+  shipglows-turso-ssh
+  shipglows-turso-ssh contentflow-prod2
+  shipglows-turso-ssh --project-dir /home/ubuntu/contentflow/contentflow_lab contentflow-prod2
 EOF
 }
 
 print_header() {
     echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║                                                  ║${NC}"
-    echo -e "${CYAN}║  ${YELLOW}             ShipGlowz DevServer             ${CYAN}  ║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}             ShipGlows DevServer             ${CYAN}  ║${NC}"
     echo -e "${CYAN}║  ${YELLOW}               Turso SSH Auth                ${CYAN}  ║${NC}"
     echo -e "${CYAN}║                                                  ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
@@ -62,7 +62,7 @@ print_header() {
 
 load_remote_host() {
     if ! _load_remote_host_core; then
-        echo -e "${RED}✗ Aucune connexion distante ShipGlowz configurée.${NC}"
+        echo -e "${RED}✗ Aucune connexion distante ShipGlows configurée.${NC}"
         echo -e "${YELLOW}  Ouvre le menu local 'urls', choisis c) Configurer nouveau serveur, puis renseigne l'hôte SSH.${NC}"
         exit 1
     fi
@@ -216,7 +216,7 @@ main() {
     else
         echo ""
         echo -e "${YELLOW}Passe un nom de base pour lancer les checks SQL, par exemple:${NC}"
-        echo -e "  ${CYAN}shipglowz-turso-ssh contentflow-prod2${NC}"
+        echo -e "  ${CYAN}shipglows-turso-ssh contentflow-prod2${NC}"
     fi
 
     echo ""

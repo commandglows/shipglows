@@ -14,10 +14,10 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - shipglowz_data/technical/code-docs-map.md
-  - shipglowz_data/technical/external-platforms/[provider].md
+  - shipglows_data/technical/code-docs-map.md
+  - shipglows_data/technical/external-platforms/[provider].md
 depends_on:
-  - artifact: "shipglowz_data/technical/external-platforms/[provider].md"
+  - artifact: "shipglows_data/technical/external-platforms/[provider].md"
     artifact_version: "0.1.0"
     required_status: "draft"
 supersedes: []
@@ -30,13 +30,13 @@ next_step: "/sg-docs technical audit"
 
 ## Purpose
 
-Document how this project, monorepo, app, or package actually uses `[provider]`. This file must live under the canonical governance root at `shipglowz_data/technical/platforms/[provider].md`; in monorepos, that means the monorepo root, not each app/package subdirectory.
+Document how this project, monorepo, app, or package actually uses `[provider]`. This file must live under the canonical governance root at `shipglows_data/technical/platforms/[provider].md`; in monorepos, that means the monorepo root, not each app/package subdirectory.
 
 This is the local usage contract, not a copy of vendor docs.
 
-Use the global provider note for general source links and ShipFlow rules:
+Use the global provider note for general source links and ShipGlows rules:
 
-- `shipglowz_data/technical/external-platforms/[provider].md`
+- `shipglows_data/technical/external-platforms/[provider].md`
 
 ## Usage Summary
 

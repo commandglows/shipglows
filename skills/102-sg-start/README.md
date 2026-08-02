@@ -4,7 +4,7 @@
 
 ## What It Does
 
-`102-sg-start` is the execution entrypoint for ShipGlowz work. It decides whether a task is small enough to implement directly or whether it needs a ready spec first. Once the contract is clear, it reads only the necessary code, makes the change, runs focused validation, and reports what was done.
+`102-sg-start` is the execution entrypoint for ShipGlows work. It decides whether a task is small enough to implement directly or whether it needs a ready spec first. Once the contract is clear, it reads only the necessary code, makes the change, runs focused validation, and reports what was done.
 
 The skill is designed to preserve the promised user outcome, not just complete a technical diff.
 

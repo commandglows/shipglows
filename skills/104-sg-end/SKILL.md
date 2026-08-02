@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlowz-owned file, load `$SHIPFLOW_ROOT/skills/references/canonical-paths.md` (`$SHIPFLOW_ROOT` defaults to `$HOME/shipglowz`). ShipGlowz tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPFLOW_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
@@ -19,19 +19,21 @@ This `SKILL.md` is the activation contract. Keep closure semantics here; task-ro
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before closing a spec-first chantier, load `$SHIPFLOW_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when a unique spec exists. Append a current `104-sg-end` row with result `closed`, `deferred`, `blocked`, or `not applicable`, update `Current Chantier Flow`, and open the report with the opening chantier header from `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`. If no unique spec is available, do not write to a spec; use a `(local)` chantier header with a short work name.
+Before closing a spec-first chantier, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when a unique spec exists. Append a current `104-sg-end` row with result `closed`, `deferred`, `blocked`, or `not applicable`, update `Current Chantier Flow`, and open the report with the opening chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. If no unique spec is available, do not write to a spec; use a `(local)` chantier header with a short work name.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPFLOW_ROOT/skills/references/reporting-contract.md`.
+Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
 Default to `report=user`: concise, outcome-first, and using the opening chantier header. Use `report=agent`, blocked runs, or explicit handoff when detailed closure evidence is required.
 
 ## Required References
 
-Before tracker closure, changelog framing, or done/closed wording, load `$SHIPFLOW_ROOT/skills/references/closure-archive-guard.md`.
+Before tracker closure, changelog framing, or done/closed wording, load `$SHIPGLOWS_ROOT/skills/references/closure-archive-guard.md`.
 
-Before closure, load and run `$SHIPFLOW_ROOT/skills/references/documentation-reflection-gate.md`. Classify documentation alignment as `updated`, `not impacted` with a reason, or `needs review`; route `updated` and `needs review` to `300-sg-docs` automatically and keep closure partial when a material docs gap remains.
+Before closure, load and run `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md`. Classify documentation alignment as `updated`, `not impacted` with a reason, or `needs review`; route `updated` and `needs review` to `300-sg-docs` automatically and keep closure partial when a material docs gap remains.
+
+Load `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when closure includes a material product decision, rework, failed proof or reusable lesson. Record only evidence-backed lessons with applicability and a future verification hook; never promote a local opinion directly into shared doctrine.
 
 ## Mission
 
@@ -45,10 +47,10 @@ What can be closed in trackers and changelog framing now without overstating pro
 
 If the next unresolved owner is still proof, stay with `103-sg-verify`. If the next unresolved owner is git shipping, route to `005-sg-ship` after closure bookkeeping instead of absorbing ship behavior here.
 
-## ShipGlowz-Owned Preflight
+## ShipGlows-Owned Preflight
 
-Apply `$SHIPFLOW_ROOT/skills/references/shipglowz-owned-preflight.md` before reading ShipGlowz-owned references, mutating ShipGlowz-owned tracker/spec surfaces, or running ShipGlowz-owned tools/scripts.
-For `104-sg-end`, this preflight also applies before closure writes that affect ShipGlowz-owned workflow state.
+Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before reading ShipGlows-owned references, mutating ShipGlows-owned tracker/spec surfaces, or running ShipGlows-owned tools/scripts.
+For `104-sg-end`, this preflight also applies before closure writes that affect ShipGlows-owned workflow state.
 
 ## Context
 
@@ -59,8 +61,8 @@ For `104-sg-end`, this preflight also applies before closure writes that affect 
 - Git status: !`git status --short 2>/dev/null || echo "Not a git repo"`
 - Git diff stat: !`git diff HEAD --stat 2>/dev/null || echo "no changes"`
 - Recent commits (this session): !`git log --oneline -10 2>/dev/null || echo "no commits"`
-- ShipGlowz development mode: !`rg -n "ShipGlowz Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPFLOW.md 2>/dev/null || echo "No project development mode documented"`
-- Project-local TASKS.md: !`cat shipglowz_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
+- ShipGlows development mode: !`rg -n "ShipGlows Development Mode|development_mode|validation_surface|ship_before_preview_test|post_ship_verification|deployment_provider" CLAUDE.md SHIPGLOWS.md 2>/dev/null || echo "No project development mode documented"`
+- Project-local TASKS.md: !`cat shipglows_data/workflow/TASKS.md 2>/dev/null || cat TASKS.md 2>/dev/null || echo "No project-local TASKS.md"`
 - Local TASKS.md (if exists): !`cat TASKS.md 2>/dev/null || echo "No local TASKS.md"`
 - Existing CHANGELOG: !`head -30 CHANGELOG.md 2>/dev/null || echo "no CHANGELOG.md"`
 
@@ -76,11 +78,12 @@ From the conversation, identify:
 - What was started but not finished
 - Key files modified (from git diff)
 - Any decisions worth noting
+- Any evidence-backed lesson worth rechecking in the next related chantier, including its applicability boundary
 - The user story or user-facing outcome this work was intended to support, if inferable
 - Any gap between "work performed" and "outcome proven"
 - Documentation surfaces updated or possibly stale after the change
 - Documentation Reflection Gate result: `updated`, `not impacted` with reason, or `needs review`
-- Project development mode from `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/project-development-mode.md` and `CLAUDE.md` / `SHIPFLOW.md`
+- Project development mode from `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` and `CLAUDE.md` / `SHIPGLOWS.md`
 - Whether required preview deployment evidence exists (`005-sg-ship` pushed, `405-sg-prod` confirmed, and preview test/auth proof collected when needed)
 - Whether any source-of-truth delta remains unsynced before closure: tracker, changelog, docs, bug file, spec, public copy, skill runtime links, or archive target
 
@@ -96,7 +99,7 @@ If completion status is ambiguous, use the runtime's structured question tool wh
 
 Ask a targeted clarification instead of assuming `done` when:
 - the work is implemented but not meaningfully validated
-- the project is `vercel-preview-push` and the work still needs deployed proof governed by `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md`
+- the project is `vercel-preview-push` and the work still needs deployed proof governed by `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`
 - the project is `hybrid` and the changed surface depends on hosted auth/OAuth, webhooks, env vars, serverless/edge, Vercel routing, or preview/prod data without confirmed preview evidence
 - the user story or expected outcome is still unclear
 - the work touches auth, permissions, billing, secrets, tenant boundaries, destructive actions, migrations, public flows, or other security-sensitive surfaces
@@ -110,11 +113,11 @@ Examples:
 ### Step 2 — Update TASKS.md (silent)
 
 Using the master TASKS.md from context:
-- Before creating or mutating task operational records, load `$SHIPFLOW_ROOT/skills/references/operational-record-format.md` and follow it for new `TASKS.md` writes.
+- Before creating or mutating task operational records, load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` and follow it for new `TASKS.md` writes.
 - Mark completed items: `🔄 in progress` → `✅ done` and `📋 todo` → `✅ done`
 - Mark partially done items: `📋 todo` → `🔄 in progress` with a note
 - Add new tasks discovered during the work
-- Update project-local `shipglowz_data/workflow/TASKS.md` when task closure changes local workflow state.
+- Update project-local `shipglows_data/workflow/TASKS.md` when task closure changes local workflow state.
 - If a local `TASKS.md` also exists, update both
 - Treat the TASKS content loaded in Context as informational only.
 - Immediately before editing either TASKS file, re-read it from disk and use that version as authoritative.
@@ -135,7 +138,7 @@ If mode is **Résumé seulement**, skip this step.
 - Prepend a new `## [date]` entry to CHANGELOG.md (or update today's entry if it exists)
 - Skip trivial changes (formatting, comments)
 - Keep entries evidence-based and user-facing; do not claim a feature is "done", "safe", or "production ready" unless the work actually demonstrated that.
-- In `vercel-preview-push` or relevant `hybrid` mode, apply `$SHIPFLOW_ROOT/skills/references/preview-proof-routing.md` before framing a changelog entry as functionally released/validated.
+- In `vercel-preview-push` or relevant `hybrid` mode, apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md` before framing a changelog entry as functionally released/validated.
 - Include documentation alignment when it materially affects user-facing behavior.
 - No output at this step.
 
@@ -183,6 +186,6 @@ commands when the receiving agent needs them.
 
 ## Validation
 
-- `rg -n "Trace category|Process role|Mission|ShipGlowz-Owned Preflight|canonical ShipGlowz path|closure-archive-guard|operational-record-format|TASKS.md|CHANGELOG.md|vercel-preview-push|Prefer partial closure" skills/104-sg-end/SKILL.md`
+- `rg -n "Trace category|Process role|Mission|ShipGlows-Owned Preflight|canonical ShipGlows path|closure-archive-guard|operational-record-format|TASKS.md|CHANGELOG.md|vercel-preview-push|Prefer partial closure" skills/104-sg-end/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
-- `tools/shipglowz_sync_skills.sh --check --skill 104-sg-end`
+- `tools/shipglows_sync_skills.sh --check --skill 104-sg-end`

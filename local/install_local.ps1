@@ -1,12 +1,12 @@
-﻿# ShipGlowz native Windows local installer.
+﻿# ShipGlows native Windows local installer.
 # This file is intentionally valid PowerShell without WSL, Bash, or sudo.
 
 [CmdletBinding()]
 param(
-    [string]$RemoteHost = $(if ($env:SHIPGLOWZ_SSH_REMOTE_HOST) { $env:SHIPGLOWZ_SSH_REMOTE_HOST } else { '' }),
-    [string]$RemoteUser = $(if ($env:SHIPGLOWZ_SSH_REMOTE_USER) { $env:SHIPGLOWZ_SSH_REMOTE_USER } else { '' }),
-    [string]$AuthMethod = $(if ($env:SHIPGLOWZ_SSH_AUTH_METHOD) { $env:SHIPGLOWZ_SSH_AUTH_METHOD } else { '' }),
-    [string]$IdentityFile = $(if ($env:SHIPGLOWZ_SSH_IDENTITY_FILE) { $env:SHIPGLOWZ_SSH_IDENTITY_FILE } else { '' })
+    [string]$RemoteHost = $(if ($env:SHIPGLOWS_SSH_REMOTE_HOST) { $env:SHIPGLOWS_SSH_REMOTE_HOST } else { '' }),
+    [string]$RemoteUser = $(if ($env:SHIPGLOWS_SSH_REMOTE_USER) { $env:SHIPGLOWS_SSH_REMOTE_USER } else { '' }),
+    [string]$AuthMethod = $(if ($env:SHIPGLOWS_SSH_AUTH_METHOD) { $env:SHIPGLOWS_SSH_AUTH_METHOD } else { '' }),
+    [string]$IdentityFile = $(if ($env:SHIPGLOWS_SSH_IDENTITY_FILE) { $env:SHIPGLOWS_SSH_IDENTITY_FILE } else { '' })
 )
 
 $ErrorActionPreference = 'Stop'
@@ -21,7 +21,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sshDir = Join-Path $env:USERPROFILE '.ssh'
 $sshConfigPath = Join-Path $sshDir 'config'
 
-Write-Info 'ShipGlowz - native Windows local installation'
+Write-Info 'ShipGlows - native Windows local installation'
 Write-Host ''
 
 # WSL is optional. Presence of wsl.exe is not enough: execute a real command.
@@ -67,7 +67,7 @@ Write-Host ''
 Write-Info '2. Configuring SSH...'
 New-Item -ItemType Directory -Path $sshDir -Force | Out-Null
 
-if (-not $RemoteHost) { $RemoteHost = (Read-Host '   ShipGlowz server host or IP').Trim() }
+if (-not $RemoteHost) { $RemoteHost = (Read-Host '   ShipGlows server host or IP').Trim() }
 if (-not $RemoteHost) { throw 'The SSH host is required.' }
 if (-not $RemoteUser) { $RemoteUser = (Read-Host '   SSH user [root]').Trim() }
 if (-not $RemoteUser) { $RemoteUser = 'root' }
@@ -88,14 +88,14 @@ if ($AuthMethod -eq 'key' -and -not $IdentityFile) {
 }
 Write-Success "   SSH target: $RemoteUser@$RemoteHost ($AuthMethod)"
 
-$shipglowzConfigDir = Join-Path $env:USERPROFILE '.shipglowz'
-New-Item -ItemType Directory -Path $shipglowzConfigDir -Force | Out-Null
-Set-Content -Path (Join-Path $shipglowzConfigDir 'current_connection') -Value "$RemoteUser@$RemoteHost" -Encoding UTF8
-Set-Content -Path (Join-Path $shipglowzConfigDir 'current_auth_method') -Value $AuthMethod -Encoding UTF8
+$shipglowsConfigDir = Join-Path $env:USERPROFILE '.shipglows'
+New-Item -ItemType Directory -Path $shipglowsConfigDir -Force | Out-Null
+Set-Content -Path (Join-Path $shipglowsConfigDir 'current_connection') -Value "$RemoteUser@$RemoteHost" -Encoding UTF8
+Set-Content -Path (Join-Path $shipglowsConfigDir 'current_auth_method') -Value $AuthMethod -Encoding UTF8
 if ($AuthMethod -eq 'key') {
-    Set-Content -Path (Join-Path $shipglowzConfigDir 'current_identity_file') -Value $IdentityFile -Encoding UTF8
+    Set-Content -Path (Join-Path $shipglowsConfigDir 'current_identity_file') -Value $IdentityFile -Encoding UTF8
 } else {
-    $identityStatePath = Join-Path $shipglowzConfigDir 'current_identity_file'
+    $identityStatePath = Join-Path $shipglowsConfigDir 'current_identity_file'
     if (Test-Path -LiteralPath $identityStatePath) {
         Remove-Item -LiteralPath $identityStatePath -Force -ErrorAction SilentlyContinue
     }
@@ -104,8 +104,8 @@ if ($AuthMethod -eq 'key') {
 if ($AuthMethod -eq 'password') {
     $sshAuthBlock = @"
 
-# ShipGlowz - remote server
-Host shipglowz
+# ShipGlows - remote server
+Host shipglows
     HostName $RemoteHost
     User $RemoteUser
     ServerAliveInterval 60
@@ -120,8 +120,8 @@ Host shipglowz
 } else {
     $sshAuthBlock = @"
 
-# ShipGlowz - remote server
-Host shipglowz
+# ShipGlows - remote server
+Host shipglows
     HostName $RemoteHost
     User $RemoteUser
     IdentityFile $IdentityFile
@@ -133,7 +133,7 @@ Host shipglowz
 }
 
 $sshConfigContent = if (Test-Path -LiteralPath $sshConfigPath) { Get-Content -Raw -Path $sshConfigPath } else { '' }
-$sshHostPattern = '(?ms)^\s*Host\s+shipglowz\b.*?(?=^\s*Host\s+\S|\z)'
+$sshHostPattern = '(?ms)^\s*Host\s+shipglows\b.*?(?=^\s*Host\s+\S|\z)'
 if ($sshConfigContent -match $sshHostPattern) {
     $updatedConfig = [regex]::Replace($sshConfigContent, $sshHostPattern, $sshAuthBlock.TrimStart())
     Set-Content -Path $sshConfigPath -Value $updatedConfig -Encoding UTF8
@@ -148,7 +148,7 @@ Write-Host ''
 Write-Info '3. Creating the SSH tunnel script...'
 $tunnelScriptPath = Join-Path $scriptDir 'start-tunnel.ps1'
 $tunnelScriptContent = @'
-# ShipGlowz SSH tunnel helper.
+# ShipGlows SSH tunnel helper.
 # Usage: .\start-tunnel.ps1 -Port 3001
 
 [CmdletBinding()]
@@ -161,7 +161,7 @@ Write-Host "Starting SSH tunnel for port $Port..." -ForegroundColor Cyan
 Write-Host "Local URL: http://localhost:$Port"
 Write-Host 'Press Ctrl+C to stop the tunnel.'
 
-& ssh.exe -N "-L$($Port):localhost:$($Port)" shipglowz
+& ssh.exe -N "-L$($Port):localhost:$($Port)" shipglows
 exit $LASTEXITCODE
 '@
 Set-Content -Path $tunnelScriptPath -Value $tunnelScriptContent -Encoding UTF8
@@ -178,25 +178,25 @@ if (-not (Test-Path -LiteralPath $profilePath)) { New-Item -ItemType File -Path 
 $profileTunnelPath = $tunnelScriptPath.Replace("'", "''")
 $aliasBlock = @'
 
-# ShipGlowz - SSH tunnel alias
-$tunnelScriptPath = '__SHIPGLOWZ_TUNNEL_SCRIPT_PATH__'
+# ShipGlows - SSH tunnel alias
+$tunnelScriptPath = '__SHIPGLOWS_TUNNEL_SCRIPT_PATH__'
 function tunnel {
     param([int]$Port)
     & $tunnelScriptPath -Port $Port
 }
 '@
-$aliasBlock = $aliasBlock.Replace('__SHIPGLOWZ_TUNNEL_SCRIPT_PATH__', $profileTunnelPath)
+$aliasBlock = $aliasBlock.Replace('__SHIPGLOWS_TUNNEL_SCRIPT_PATH__', $profileTunnelPath)
 
 if (-not (Select-String -Path $profilePath -Pattern 'Ship(Flow|Glowz)' -Quiet)) {
     Add-Content -Path $profilePath -Value $aliasBlock -Encoding UTF8
     Write-Success '   PowerShell tunnel function added to the profile.'
 } else {
-    Write-WarningMessage '   A ShipGlowz profile entry already exists; it was left unchanged.'
+    Write-WarningMessage '   A ShipGlows profile entry already exists; it was left unchanged.'
 }
 Write-Host ''
 
 # 5. Summary.
-Write-Success 'ShipGlowz native Windows setup completed.'
+Write-Success 'ShipGlows native Windows setup completed.'
 Write-Host ''
 Write-Host 'Usage:' -ForegroundColor Cyan
 Write-Host "   & '$tunnelScriptPath' -Port 3001" -ForegroundColor Green
@@ -214,7 +214,7 @@ try {
         $sshTestArgs += @('-o', 'BatchMode=yes')
     }
 
-    & ssh.exe @sshTestArgs shipglowz 'echo OK' 2>$null
+    & ssh.exe @sshTestArgs shipglows 'echo OK' 2>$null
     if ($LASTEXITCODE -ne 0) { throw 'SSH connection failed.' }
     Write-Success '   SSH connection to the server is OK.'
 } catch {

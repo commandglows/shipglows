@@ -1,14 +1,14 @@
 {
-  "name": "shipglowz",
+  "name": "shipglows",
   "interface": {
-    "displayName": "ShipGlowz"
+    "displayName": "ShipGlows"
   },
   "plugins": [
     {
-      "name": "shipglowz",
+      "name": "shipglows",
       "source": {
         "source": "local",
-        "path": "./plugins/shipglowz"
+        "path": "./plugins/shipglows"
       },
       "policy": {
         "installation": "AVAILABLE",
