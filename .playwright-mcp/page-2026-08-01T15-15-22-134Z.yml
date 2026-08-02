@@ -20,7 +20,7 @@
           - /url: /contact
       - generic [ref=f4e15]:
         - link "FR" [ref=f4e16] [cursor=pointer]:
-          - /url: /fr/shipglowz
+          - /url: /fr/shipglows
         - button "Basculer vers le thème sombre" [ref=f4e17]
         - link "Sign In" [ref=f4e20] [cursor=pointer]:
           - /url: /signin
@@ -30,14 +30,14 @@
     - generic [ref=f4e27]:
       - generic [ref=f4e28]:
         - paragraph [ref=f4e29]: Local or server agent workflow setup
-        - heading "Install the right ShipGlowz layer for this machine." [level=1] [ref=f4e30]
+        - heading "Install the right ShipGlows layer for this machine." [level=1] [ref=f4e30]
         - paragraph [ref=f4e31]: The bootstrap detects Termux and root automatically, or asks whether you want the local tunnel setup or the complete Ubuntu server layer. Native Windows downloads the public repository without Git and installs OpenSSH when needed.
         - generic [ref=f4e32]:
           - button "Copy command" [ref=f4e33]
           - link "Open raw script" [ref=f4e34] [cursor=pointer]:
-            - /url: /shipglowz-script
-          - link "ShipGlowz repository" [ref=f4e35] [cursor=pointer]:
-            - /url: https://github.com/dianedef/ShipGlowz
+            - /url: /shipglows-script
+          - link "ShipGlows repository" [ref=f4e35] [cursor=pointer]:
+            - /url: https://github.com/dianedef/ShipGlows
       - generic [ref=f4e36]:
         - generic [ref=f4e37]: local or full
         - generic [ref=f4e43]:
@@ -53,12 +53,12 @@
               - tablist "Mode" [ref=f4e53]:
                 - tab "Local" [selected] [ref=f4e54]
                 - tab "Full / remote" [ref=f4e55]
-          - code [ref=f4e57]: curl -fsSL https://www.winflowz.com/shipglowz-script | SHIPGLOWZ_INSTALL_MODE=local sh
+          - code [ref=f4e57]: curl -fsSL https://www.winflowz.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local sh
           - paragraph [ref=f4e58]: "Unix local: installe les tunnels et les commandes de connexion pour l’utilisateur courant, sans sudo."
           - generic [ref=f4e59]:
-            - paragraph [ref=f4e60]: $ Préparation de l’installation ShipGlowz...
+            - paragraph [ref=f4e60]: $ Préparation de l’installation ShipGlows...
             - paragraph [ref=f4e61]: "$ Mode d’installation: local | full"
-            - paragraph [ref=f4e62]: $ Téléchargement de ShipGlowz...
+            - paragraph [ref=f4e62]: $ Téléchargement de ShipGlows...
             - paragraph [ref=f4e63]: $ Lancement de l’installateur adapté
     - generic [ref=f4e64]:
       - article [ref=f4e65]:
@@ -80,7 +80,7 @@
             - generic [ref=f4e85]: "local mode: tunnel and remote-login commands"
           - listitem [ref=f4e86]:
             - generic [ref=f4e87]: ✓
-            - generic [ref=f4e88]: "full mode: ShipGlowz CLI, server tooling and wrappers"
+            - generic [ref=f4e88]: "full mode: ShipGlows CLI, server tooling and wrappers"
           - listitem [ref=f4e89]:
             - generic [ref=f4e90]: ✓
             - generic [ref=f4e91]: Claude/Codex skill symlinks when selected
@@ -104,8 +104,8 @@
         - heading "Useful links" [level=2] [ref=f4e110]
         - paragraph [ref=f4e111]: "Unix local: installe les tunnels et les commandes de connexion pour l’utilisateur courant, sans sudo."
       - generic [ref=f4e112]:
-        - link "ShipGlowz public docs" [ref=f4e113] [cursor=pointer]:
-          - /url: https://github.com/dianedef/ShipGlowz
+        - link "ShipGlows public docs" [ref=f4e113] [cursor=pointer]:
+          - /url: https://github.com/dianedef/ShipGlows
         - link "Dotfiles installer" [ref=f4e114] [cursor=pointer]:
           - /url: /dotfiles
   - contentinfo [ref=f4e115]:
