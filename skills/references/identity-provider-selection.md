@@ -51,6 +51,7 @@ or per-platform convenience choice.
 | Flutter Android | Official Kotlin SDK behind Flutter bridge: proved locally | Official Flutter packages; used by ReplayGlowz, but creates a second identity owner when web uses Clerk |
 | Flutter iOS / macOS | iOS native SDK exists; Flutter bridge unproven | macOS Auth support is official beta; Google Sign-In package supports macOS; unproven in ShipGlowz |
 | Flutter Windows | No Clerk native Flutter/Windows SDK; use ClerkJS web/PWA or an explicitly designed desktop OAuth flow | Firebase Auth Windows support is official beta; native Google flow must be spike-tested for the exact release target |
+| Public desktop roadmap | No Clerk Windows/macOS native SDK commitment located in public docs/changelog at this review date | Beta status, not a promised GA date |
 | One identity across web and Android | Strong: Clerk owns both | Strong only if Firebase owns both; weak if web remains Clerk |
 | OS-native desktop priority | PWA has less OS integration | Better candidate, but beta support is a launch risk to validate early |
 
@@ -100,10 +101,29 @@ decision. Do not reuse this matrix's versions or maturity labels blindly after
 its review date. When any required platform is beta or unproven, the decision
 is `conditional` until the release-target spike passes.
 
+## Question routing and freshness
+
+Always load this matrix first for a Clerk/Firebase/platform question.
+
+1. If it answers the question at its review date, state that evidence and date;
+   do not browse merely to repeat it.
+2. Check official sources only when the operator asks for the latest/current
+   status, roadmap or release estimate; when the matrix review date has passed;
+   or before a provider decision or release spike.
+3. State the result as a dated fact, never as a vendor delivery promise. An
+   absent public roadmap is not evidence that a platform will arrive soon.
+4. Refresh this matrix's review date, maturity status, source list, and
+   decision record after an actionable change is found.
+
+Pressure scenario: asked whether Clerk will soon support native Windows, the
+agent first reports the matrix's dated absence of a public commitment. It then
+checks the official Clerk changelog only because roadmap timing is dynamic; it
+does not present that research as a substitute for the decision matrix.
+
 ## Sources to refresh
 
 - Clerk native mobile reference and Android/iOS platform pages.
+- Clerk changelog and official public roadmap/announcement surfaces.
 - Clerk Flutter package pages, when considering Flutter/Dart-native support.
 - Firebase Flutter supported-platform table.
 - `firebase_auth` and `google_sign_in` official Flutter package pages.
-

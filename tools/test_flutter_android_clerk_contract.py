@@ -32,6 +32,11 @@ class FlutterAndroidClerkContractTests(unittest.TestCase):
         self.assertIn("provider_versions_checked", self.identity_matrix)
         self.assertIn("release_spike_required", self.identity_matrix)
 
+    def test_identity_provider_questions_use_the_matrix_before_fresh_research(self) -> None:
+        self.assertIn("Always load this matrix first", self.identity_matrix)
+        self.assertIn("do not browse merely to repeat it", self.identity_matrix)
+        self.assertIn("roadmap timing is dynamic", self.identity_matrix)
+
     def test_validated_browser_oauth_is_the_unambiguous_default(self) -> None:
         self.assertIn("Default contract", self.auth_reference)
         self.assertIn("for every new Flutter Android app", self.auth_reference)
