@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.1"
+artifact_version: "1.1.2"
 project: ShipGlowz
 created: "2026-05-01"
-updated: "2026-07-13"
+updated: "2026-08-01"
 status: reviewed
 source_skill: sg-start
 scope: local-tunnels-and-mcp-login
@@ -34,8 +34,9 @@ evidence:
   - "Local auth flows grouped under a single tunnel menu entry."
   - "Password-authenticated saved connections can be promoted to independently verified per-device SSH keys without transferring private material."
   - "Android Termux is an explicit local tunnel surface with pkg-based dependency guidance."
+  - "Native Windows PowerShell bootstrap and one-port OpenSSH tunnel proved on a Shadow PC on 2026-08-01."
 next_review: "2026-06-01"
-next_step: "/sg-docs technical audit local"
+next_step: "Define the native Windows urls-menu parity contract before implementation."
 ---
 
 # Local Tunnels And MCP Login
@@ -58,12 +59,13 @@ Blacksmith SSH Access is intentionally separate from these OAuth callback tunnel
 | `local/turso-login.sh` | Remote Turso CLI login flow, headless-first with optional callback tunnel mode | Do not read or store Turso token contents |
 | `local/turso-ssh.sh` | Remote Turso CLI auth transfer and optional schema checks | Copy official CLI config only; never print token contents |
 | `local/remote-helpers.sh` | SSH target, identity, public-key installation, key-only verification, and remote port helpers | Validate inputs before building SSH args; private keys never reach remote stdin |
-| `local/install.sh`, `local/install_local.ps1` | Local installer scripts | Keep Termux, Linux, macOS, WSL, and Windows assumptions explicit |
+| `local/install.sh`, `local/install_local.ps1`, `install-shipglowz.ps1` | Local installer scripts | Keep Termux, Linux, macOS, WSL, and Windows assumptions explicit |
 | `local/README.md` | Operator-facing setup and troubleshooting | Update when commands or flow change |
 
 ## Entrypoints
 
-- `urls` and `tunnel`: shell aliases to `local/local.sh`.
+- Unix, macOS, WSL, and Termux: `urls` and `tunnel` are shell aliases to `local/local.sh`.
+- Native Windows PowerShell: `tunnel -Port <port>` launches the generated one-port OpenSSH tunnel. `$PROFILE` is the PowerShell startup script that registers this helper; `. $PROFILE` reloads it in the current terminal.
 - `shipflow-mcp-login <provider|all>`: launches remote Codex MCP login and opens a temporary callback tunnel.
 - `shipflow-clerk-login`: launches remote `clerk auth login`, opens a temporary callback tunnel, and verifies with `clerk whoami`.
 - `shipflow-blacksmith-login`: launches remote `blacksmith auth login` and opens a temporary callback tunnel.
@@ -72,6 +74,16 @@ Blacksmith SSH Access is intentionally separate from these OAuth callback tunnel
 - Local `urls` menu entry `Installer une clé SSH sur ce serveur`: selects or generates a per-device local identity, installs only its public record, verifies a fresh publickey-only connection, and promotes saved auth state.
 - `shipflow-turso-ssh [db-name]`: copies local Turso CLI config to the remote server, verifies `turso auth whoami`, and optionally checks ContentFlow tables.
 - `local/dev-tunnel.sh`: direct tunnel helper for scripted or simplified flows.
+
+## Native Windows Status
+
+As of 2026-08-01, the native Windows bootstrap is verified on Windows PowerShell 5.1 with WSL detected but unusable: it refreshes the PowerShell installer selectively, validates its syntax, configures Windows OpenSSH, writes the SSH target, creates `start-tunnel.ps1`, and proves an SSH connection. It requires neither WSL, Bash, Git, sudo, nor a preinstalled SSH client.
+
+The Windows path is intentionally **not yet equivalent** to the Unix/Termux `urls` menu. It currently supplies only a manually selected one-port tunnel; it does not provide the Unix menu actions `t`, `u`, `a`, `s`, `r`, `c`, `k`, `o`, and `l`, nor the related password-session reuse, saved connections, key promotion, or OAuth helpers.
+
+Gum has an official Windows distribution, but it is UI glue for shell scripts, not a Bash compatibility layer. Adding it would not run `local/local.sh` under PowerShell and must not be made a mandatory bootstrap dependency before a native menu contract exists. The immediate no-install alternative is the Hetzner browser console for the Unix server CLI. That console does not forward a server `localhost` port into the Windows browser; use existing public HTTPS URLs for browser previews, or the native tunnel helper for a selected private port.
+
+Freshness: `fresh-docs checked` on 2026-08-01 against the official Gum installation documentation and the Hetzner Cloud console documentation.
 
 ## Control Flow
 

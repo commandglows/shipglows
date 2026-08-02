@@ -36,6 +36,11 @@ export SHIPFLOW_PORT_RANGE_START="$SHIPGLOWZ_PORT_RANGE_START"
 export SHIPFLOW_PORT_RANGE_END="$SHIPGLOWZ_PORT_RANGE_END"
 export SHIPFLOW_PORT_MAX_ATTEMPTS="$SHIPGLOWZ_PORT_MAX_ATTEMPTS"
 
+# Optional one-shot port pin for env_start.  It overrides the port saved in an
+# existing PM2 ecosystem file and fails on collision instead of reallocating.
+export SHIPGLOWZ_ENV_PORT="${SHIPGLOWZ_ENV_PORT:-${SHIPFLOW_ENV_PORT:-}}"
+export SHIPFLOW_ENV_PORT="$SHIPGLOWZ_ENV_PORT"
+
 # ============================================================================
 # SSH TUNNEL CONFIGURATION
 # ============================================================================

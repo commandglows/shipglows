@@ -149,6 +149,25 @@ At that checkpoint, run the proportional checks for the changed surface and
 report any deferred proof honestly. This cadence does not waive security or
 provider-specific proof when the relevant risk is actually in scope.
 
+## Runtime-First Classification Gate
+
+When a browser page is stuck, blank, or shows no expected interaction, classify
+the client runtime before diagnosing a provider, session, network, or backend
+cause:
+
+1. capture the visible state and URL;
+2. inspect severe console errors for parse, module-loading, hydration, and
+   uncaught-runtime failures;
+3. inspect the relevant request only after the page script has started;
+4. route to provider/session analysis only when the client runtime is healthy
+   enough to make that analysis meaningful.
+
+Pressure scenario: an auth recovery page remains on a loading label because a
+classic browser script contains an ES-module import. The console parse error
+is the primary cause; Supabase network/session analysis is secondary until the
+script can start. A browser console proof or focused runtime smoke check is
+required before reporting an auth/provider diagnosis.
+
 ## Operator-Last-Resort Rule
 
 The operator tests only as a last resort. If the agent has the permission, credentials, environment, and tools to run or route the next proof step, it must do that before asking the operator.

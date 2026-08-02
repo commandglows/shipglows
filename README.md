@@ -207,6 +207,11 @@ branche donnée.
 The Windows path installs the local tunnel layer only. The complete server
 installer remains Linux/Ubuntu-only.
 
+On native Windows, this currently means the PowerShell helper
+`tunnel -Port <port>` for a selected local SSH tunnel. The full interactive
+`urls` menu remains available on Linux, macOS, WSL, and Termux; its native
+PowerShell equivalent is tracked separately.
+
 The code repository is public, so Git or GitHub credentials are not required
 for this bootstrap. Termux selects `local` without `sudo`; an existing root shell
 selects `full`. In a non-interactive environment, put the mode on the consuming

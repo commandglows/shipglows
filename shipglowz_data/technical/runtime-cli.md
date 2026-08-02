@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.18"
+artifact_version: "1.0.21"
 project: ShipGlowz
 created: "2026-05-01"
-updated: "2026-07-26"
+updated: "2026-08-02"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -46,6 +46,9 @@ evidence:
   - "GitHub CLI authentication screen added for deploy-from-GitHub readiness."
   - "Turso guided setup added under Agents with local tunnel login routing and schema-check commands."
   - "Completed disk cleanup now offers x as an explicit return to the root menu."
+  - "Non-Expo PM2 launch commands activate the project Flox environment at runtime; Doppler remains the outer wrapper when enabled."
+  - "SHIPGLOWZ_ENV_PORT can explicitly replace a persisted PM2 port and refuses collisions."
+  - "Project-local .shipglowz.env settings pin runtime ports and can disable automatic restart recovery."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit runtime-cli"
 ---
@@ -107,6 +110,12 @@ This doc covers the server-side CLI runtime: `cli/shipglowz.sh`, `cli/lib.sh`, a
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.
+- A project may declare data-only runtime settings in `.shipglowz.env`:
+  `SHIPGLOWZ_ENV_PORT=<1024-65535>` pins the generated PM2 port, while
+  `SHIPGLOWZ_AUTO_REPAIR=false` prevents `env_restart` from regenerating the
+  runtime after a failed restart or PM2 crash loop. The file is parsed by a
+  strict allowlist and is never sourced as shell code. A one-shot process
+  environment value for `SHIPGLOWZ_ENV_PORT` takes precedence.
 - `env_start` detects Astro projects and sets `ASTRO_DEV_BACKGROUND=0` in their
   generated PM2 environment. Astro 7 automatically detaches `astro dev` when
   it detects an AI coding agent; PM2 is already the supervisor, so Astro must
@@ -234,6 +243,11 @@ package binaries.
   reporting success.
 - Generated PM2 ecosystem configs for dev servers must bound automatic restart
   loops so broken commands cannot fill logs indefinitely.
+- Generated PM2 ecosystem configs for non-Expo projects must export the
+  ShipGlowz-assigned port and run the detected command through `flox activate`
+  at runtime. When Doppler is enabled, it remains the outer wrapper so secrets
+  are injected before the runtime command and ShipGlowz's port export still
+  wins over a Doppler-provided `PORT`.
 - `env_restart` must confirm that PM2 remains `online` during its stability
   window before reporting success or advertising the application's localhost
   URL.

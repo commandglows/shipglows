@@ -6932,6 +6932,47 @@ should_enable_doppler() {
 # ============================================================================
 
 # -----------------------------------------------------------------------------
+# project_runtime_settings_load - Read the supported project-local runtime settings
+#
+# The file is deliberately parsed as data, never sourced as shell code. This
+# keeps project metadata/configuration separate from executable startup logic.
+# -----------------------------------------------------------------------------
+project_runtime_settings_load() {
+    local project_dir=$1
+    local port_target=$2
+    local auto_repair_target=$3
+    local settings_file="$project_dir/.shipglowz.env"
+    local setting_port=""
+    local setting_auto_repair="true"
+    local line value
+
+    if [ -f "$settings_file" ]; then
+        while IFS= read -r line || [ -n "$line" ]; do
+            line="${line%$'\r'}"
+            case "$line" in
+                ""|\#*) continue ;;
+                SHIPGLOWZ_ENV_PORT=*)
+                    setting_port="${line#SHIPGLOWZ_ENV_PORT=}"
+                    ;;
+                SHIPGLOWZ_AUTO_REPAIR=*)
+                    value="${line#SHIPGLOWZ_AUTO_REPAIR=}"
+                    case "$value" in
+                        true|false) setting_auto_repair="$value" ;;
+                        *)
+                            error "Valeur invalide dans $settings_file : SHIPGLOWZ_AUTO_REPAIR doit être true ou false"
+                            return 1
+                            ;;
+                    esac
+                    ;;
+            esac
+        done < "$settings_file"
+    fi
+
+    printf -v "$port_target" '%s' "$setting_port"
+    printf -v "$auto_repair_target" '%s' "$setting_auto_repair"
+}
+
+# -----------------------------------------------------------------------------
 # env_start - Start a development environment with PM2 + Flox
 #
 # Description:
@@ -6993,6 +7034,9 @@ env_start() {
     
     env_name=$(derive_pm2_app_name "$project_dir")
     pm2_config="$project_dir/ecosystem.config.cjs"
+
+    local project_port="" project_auto_repair="true"
+    project_runtime_settings_load "$project_dir" project_port project_auto_repair || return 1
 
     local project_type
     project_type=$(detect_project_type "$project_dir")
@@ -7126,6 +7170,14 @@ env_start() {
     local port=""
     local doppler_prefix=""
     local doppler_enabled=false
+    # An explicit process environment wins for one launch; otherwise the
+    # project-local settings file is the durable source of truth.
+    local requested_port="${SHIPGLOWZ_ENV_PORT:-$project_port}"
+    if [ -n "$requested_port" ] && ! [[ "$requested_port" =~ ^[1-9][0-9]{0,4}$ ]] || \
+       { [ -n "$requested_port" ] && { [ "$requested_port" -lt 1024 ] || [ "$requested_port" -gt 65535 ]; }; }; then
+        error "SHIPGLOWZ_ENV_PORT doit être un port entre 1024 et 65535"
+        return 1
+    fi
     # Check for existing port and doppler in ecosystem.config.cjs - PROPER PARSING
     if [ -f "$pm2_config" ]; then
         # Use Node.js to properly parse the config file
@@ -7165,6 +7217,13 @@ env_start() {
         fi
     fi
 
+    # A requested port is an explicit operator contract: it overrides the
+    # persisted ecosystem port and must never silently fall back elsewhere.
+    if [ "$is_expo" = "false" ] && [ -n "$requested_port" ]; then
+        port="$requested_port"
+        echo -e "${BLUE}🔌 Port forcé demandé: $port${NC}"
+    fi
+
     # If no persistent port found, find an available one (skip for Expo tunnel projects)
     if [ "$is_expo" = "true" ]; then
         echo -e "${BLUE}📱 Projet Expo — pas de port fixe (tunnel Metro)${NC}"
@@ -7196,11 +7255,19 @@ env_start() {
         fi
 
         if [ -n "$other_app" ]; then
+            if [ -n "$requested_port" ]; then
+                error "Port forcé $port déjà utilisé par $other_app"
+                return 1
+            fi
             warning "Port $port (persistant) déjà utilisé par $other_app, recherche d'un nouveau port..."
             port=$(find_available_port 3000)
             [ -z "$port" ] && return 1
             echo -e "${BLUE}🔌 Nouveau port assigné: $port${NC}"
         elif is_port_in_use "$port" && [ "$self_owns_port" != "true" ]; then
+            if [ -n "$requested_port" ]; then
+                error "Port forcé $port déjà utilisé par un autre processus"
+                return 1
+            fi
             warning "Port $port (persistant) déjà utilisé par un autre processus, recherche d'un nouveau port..."
             port=$(find_available_port 3000)
             [ -z "$port" ] && return 1
@@ -7217,24 +7284,31 @@ env_start() {
         echo -e "${BLUE}🔐 Doppler: désactivé${NC}"
     fi
 
-    # Replace $PORT in dev_cmd with actual port value
+    # Keep every non-Expo PM2 process inside its project Flox environment.
+    # Python virtualenvs can intentionally rely on shared libraries supplied by
+    # Flox, so launching the venv directly makes imports such as uvicorn fail.
+    # PORT is exported before Flox activation and, when Doppler is enabled,
+    # remains the final value after Doppler injects its environment.
     local final_cmd="${dev_cmd//\$PORT/$port}"
     local runtime_cmd="$final_cmd"
-
-    # For Doppler projects, override PORT after doppler injects its env vars
-    # to prevent Doppler's PORT value from taking precedence over ShipGlowz's assignment
-    if [ -n "$doppler_prefix" ]; then
-        runtime_cmd="env PORT=$port $final_cmd"
+    if [ "$is_expo" = "false" ]; then
+        local escaped_final_cmd
+        escaped_final_cmd=$(escape_single_quotes_for_bash "$final_cmd")
+        runtime_cmd="export PORT=$port && flox activate -- bash -lc '$escaped_final_cmd'"
     fi
-
     local escaped_runtime_cmd
     escaped_runtime_cmd=$(escape_single_quotes_for_bash "$runtime_cmd")
 
     local pm2_launch_cmd=""
     if [ "$is_expo" = "true" ]; then
         pm2_launch_cmd="$escaped_runtime_cmd"
+    elif [ -n "$doppler_prefix" ]; then
+        pm2_launch_cmd="${doppler_prefix}bash -lc '$escaped_runtime_cmd'"
     else
-        pm2_launch_cmd="${doppler_prefix}${escaped_runtime_cmd}"
+        # PM2 passes this value directly as bash -lc's command argument, so
+        # quoting it a second time would turn the inner command into a
+        # literal filename (for example, './venv/bin/python main.py').
+        pm2_launch_cmd="$runtime_cmd"
     fi
     local pm2_launch_js
     pm2_launch_js=$(printf "%s" "$pm2_launch_cmd" | sed 's/"/\\"/g')
@@ -8766,6 +8840,9 @@ env_restart() {
         return 1
     fi
 
+    local project_port="" auto_repair="true"
+    project_runtime_settings_load "$project_dir" project_port auto_repair || return 1
+
     local env_name
     env_name=$(derive_pm2_app_name "$project_dir")
 
@@ -8809,6 +8886,11 @@ env_restart() {
             echo -e "${BLUE}📋 Logs récents:${NC}"
             pm2 logs "$env_name" --lines 20 --nostream 2>&1 | grep -v "^$" || true
             echo ""
+            if [ "$auto_repair" = "false" ]; then
+                warning "Réparation automatique désactivée par $project_dir/.shipglowz.env"
+                offer_codex_environment_repair "$project_dir" "$env_name" "un échec de démarrage a été détecté ; la réparation automatique est désactivée pour ce projet" || true
+                return 1
+            fi
             echo -e "${BLUE}🔧 Tentative de réparation automatique via env_start...${NC}"
             if env_start "$project_dir" >/dev/null 2>&1; then
                 success "Environment $env_name réparé et démarré via env_start"
@@ -8845,6 +8927,11 @@ for app in apps:
             echo -e "${BLUE}📋 Logs récents:${NC}"
             pm2 logs "$env_name" --lines 20 --nostream 2>&1 | grep -v "^$" || true
             echo ""
+            if [ "$auto_repair" = "false" ]; then
+                warning "Réparation automatique désactivée par $project_dir/.shipglowz.env"
+                offer_codex_environment_repair "$project_dir" "$env_name" "une crash loop PM2 a été détectée ; la réparation automatique est désactivée pour ce projet" || true
+                return 1
+            fi
             echo -e "${BLUE}🔧 Tentative de réparation automatique via env_start...${NC}"
             if env_start "$project_dir" >/dev/null 2>&1; then
                 success "Environment $env_name réparé et démarré via env_start"

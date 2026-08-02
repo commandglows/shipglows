@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.1.0"
 project: ShipGlowz
 created: "2026-05-24"
-updated: "2026-05-24"
+updated: "2026-08-02"
 status: draft
 source_skill: sg-docs
 scope: external-platform-astro
@@ -25,6 +25,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Fresh external docs checked on 2026-05-24 against Astro deploy, content collections, environment variables, Firebase deploy, and v6 upgrade docs."
+  - "2026-08-02 recovery-flow incident: an Astro script using define:vars emitted a classic browser script while retaining an ES-module import; a browser console smoke check caught the failure after static checks passed."
 next_review: "2026-06-24"
 next_step: "/sg-docs technical audit"
 ---
@@ -81,6 +82,26 @@ Use `fresh-docs conflict` when current Astro docs contradict local docs, deploy 
 - Major Astro upgrades require migration review, Node compatibility review, Zod/schema review, and full site build proof.
 - Deployment provider docs may be needed in addition to Astro docs, especially for Vercel, Firebase, Netlify, Cloudflare, or Render.
 
+## Client Script Rule
+
+Astro `<script>` attributes can change whether a script is bundled or emitted
+inline. Do not combine `define:vars` with top-level ES-module imports unless the
+generated output has been verified as a module. The safe default is to pass
+public runtime values through data attributes or a serialized config element,
+then keep the client script as a normal Astro-bundled module.
+
+After changing a client-side Astro script, verify both layers:
+
+1. run the project typecheck and build;
+2. open the affected route in a real browser;
+3. confirm there are no parse, module-loading, hydration, or uncaught runtime
+   errors in the console;
+4. only then diagnose provider, session, network, or backend behavior.
+
+Static validation can accept valid module syntax even when Astro emits that
+syntax into a classic script. Browser console proof is therefore required for
+client-runtime claims.
+
 ## Common Project-Local Fields
 
 A project using Astro should maintain `<governance-root>/shipglowz_data/technical/platforms/astro.md` with:
@@ -107,7 +128,7 @@ Use `templates/project_platform_usage.md` as the starter structure.
 
 ```bash
 python3 tools/shipglowz_metadata_lint.py shipglowz_data/technical/external-platforms/astro.md
-rg -n "Freshness Gate|Source Map|ShipGlowz Decision Rules|Maintenance Rule" shipglowz_data/technical/external-platforms/astro.md
+rg -n "Freshness Gate|Source Map|ShipGlowz Decision Rules|Client Script Rule|Maintenance Rule" shipglowz_data/technical/external-platforms/astro.md
 ```
 
 ## Reader Checklist

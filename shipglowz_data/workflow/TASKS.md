@@ -21,6 +21,8 @@
 | 🟡 | Évaluer s'il faut fournir un wrapper unique (`bootstrap` / `doctor`) pour vérifier et installer les prérequis avant usage | 📋 todo |
 | 🟡 | Vérifier que `README.md`, `AGENT.md`, `CONTEXT.md` et `GUIDELINES.md` racontent le même contrat de bootstrap | 📋 todo |
 
+🟡 [ShipGlowz] task: Porter le menu local `urls` complet vers PowerShell natif, avec une parité explicitement définie avant code | status: deferred | area: windows-local-menu | id: windows-native-urls-parity | evidence: le bootstrap Windows, OpenSSH et un tunnel manuel sont vérifiés; le menu Unix/Termux reste Bash-only | decision: utiliser provisoirement la console navigateur Hetzner pour le CLI Unix et les URLs HTTPS publiques pour les aperçus | next: spécifier les actions Windows supportées et la stratégie de QA sur Windows PowerShell 5.1
+
 ---
 
 ## Documentation contracts

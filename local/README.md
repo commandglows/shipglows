@@ -57,6 +57,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
 
 # Recharger le profil
 . $PROFILE
+
+# Ouvrir un tunnel vers un port choisi
+tunnel -Port 3001
 ```
 
 Le script Windows vous demandera aussi de choisir entre **clé SSH / agent** et **mot de passe SSH** pour la cible `hetzner`.
@@ -67,11 +70,11 @@ aucun `sudo` n'est requis.
 
 Le script installe automatiquement :
 - ✅ Connexion distante ShipGlowz si `SHIPGLOWZ_SSH_REMOTE_HOST` est fourni
-- ✅ Alias shell : `urls`, `tunnel`
+- ✅ Alias shell `urls`, `tunnel` (Linux/macOS/WSL/Termux)
 - ✅ Helpers OAuth distants : `shipglowz-mcp-login`, `shipglowz-blacksmith-login`
 - ✅ Helper Clerk CLI distant : `shipglowz-clerk-login`
 - ✅ Menu interactif pour gérer les tunnels (Linux/macOS/WSL)
-- ✅ Script de tunnel pour Windows PowerShell
+- ✅ Helper PowerShell `tunnel -Port <port>` pour Windows natif
 - ✅ Permissions exécutables
 
 ### Installation manuelle (optionnelle)
