@@ -70,6 +70,20 @@ or per-platform convenience choice.
    Re-evaluate from the selected product-wide identity owner when macOS enters
    the committed roadmap.
 
+## Launch availability gate
+
+Before comparing SDK ergonomics, reject any candidate whose chosen plan can
+pause, hibernate, or otherwise make sign-in unavailable while the product has
+few or no active users, unless the product budget explicitly includes the plan
+needed to keep it continuously available. A free tier that sleeps is not a
+viable launch identity service for an app expected to accept a first user at
+any time.
+
+Pressure scenario: a Flutter product has no users yet and a candidate provider
+pauses inactive projects. The agent excludes that free-plan configuration from
+the shortlist before recommending it for native Windows/macOS coverage; it does
+not treat a manual wake-up as an acceptable sign-in recovery path.
+
 ## Non-negotiable rule: one owner
 
 Do not adopt `Clerk on web + Firebase Auth on native` as a default architecture.
@@ -90,6 +104,7 @@ Before implementation, record:
 identity_owner: clerk | firebase
 targets_at_launch: web | android | windows | macos | ios
 desktop_expectation: pwa | native
+continuous_auth_availability: <plan that remains active before first user>
 provider_maturity_checked_at: YYYY-MM-DD
 provider_versions_checked: <exact relevant package/SDK versions>
 release_spike_required: yes | no

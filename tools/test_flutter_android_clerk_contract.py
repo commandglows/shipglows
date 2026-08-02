@@ -37,6 +37,11 @@ class FlutterAndroidClerkContractTests(unittest.TestCase):
         self.assertIn("do not browse merely to repeat it", self.identity_matrix)
         self.assertIn("roadmap timing is dynamic", self.identity_matrix)
 
+    def test_identity_provider_shortlist_requires_continuous_launch_availability(self) -> None:
+        self.assertIn("Launch availability gate", self.identity_matrix)
+        self.assertIn("pause, hibernate", self.identity_matrix)
+        self.assertIn("continuous_auth_availability", self.identity_matrix)
+
     def test_validated_browser_oauth_is_the_unambiguous_default(self) -> None:
         self.assertIn("Default contract", self.auth_reference)
         self.assertIn("for every new Flutter Android app", self.auth_reference)
