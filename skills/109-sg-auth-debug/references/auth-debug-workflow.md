@@ -221,7 +221,9 @@ Charger les références locales pertinentes avant de conclure:
 - Implémentation ou correction d'auth Flutter web dans un autre repo -> lire aussi `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/flutter-web-clerkjs-auth-pattern.md`
 - YouTube OAuth, Google API scopes, `refresh_token`, `/api/auth/youtube`, ou connexion YouTube depuis Flutter -> lire aussi `${SHIPFLOW_ROOT:-$HOME/shipglowz}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md`
 - Python script/job qui appelle Convex -> lire `references/python-convex.md`
-- Choix de SDK, dépendance beta, ou package non-officiel -> lire `references/sdk-policy.md`
+- Choix de SDK, dépendance beta, package non-officiel, ou choix Clerk/Firebase
+  -> lire `references/sdk-policy.md` puis la matrice partagée
+  `identity-provider-selection.md`
 
 Chercher notamment:
 - URL de callback attendue

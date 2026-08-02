@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 AUTH_REFERENCE = ROOT / "skills/109-sg-auth-debug/references/flutter-clerk-convex.md"
 SDK_POLICY = ROOT / "skills/109-sg-auth-debug/references/sdk-policy.md"
 BLUEPRINT = ROOT / "skills/app-blueprints/flutter-crud-content/blueprint.md"
+IDENTITY_MATRIX = ROOT / "skills/references/identity-provider-selection.md"
 
 
 class FlutterAndroidClerkContractTests(unittest.TestCase):
@@ -17,6 +18,19 @@ class FlutterAndroidClerkContractTests(unittest.TestCase):
         cls.auth_reference = AUTH_REFERENCE.read_text(encoding="utf-8")
         cls.sdk_policy = SDK_POLICY.read_text(encoding="utf-8")
         cls.blueprint = BLUEPRINT.read_text(encoding="utf-8")
+        cls.identity_matrix = IDENTITY_MATRIX.read_text(encoding="utf-8")
+
+    def test_identity_provider_choice_prevents_platform_splits(self) -> None:
+        self.assertIn("one owner", self.identity_matrix)
+        self.assertIn("Clerk on web + Firebase Auth on native", self.identity_matrix)
+        self.assertIn("migration/identity-linking contract", self.identity_matrix)
+        self.assertIn("identity-provider-selection.md", self.sdk_policy)
+
+    def test_identity_provider_matrix_requires_freshness_and_beta_proof(self) -> None:
+        self.assertIn("reviewed 2026-08-02", self.identity_matrix)
+        self.assertIn("Official beta", self.identity_matrix)
+        self.assertIn("provider_versions_checked", self.identity_matrix)
+        self.assertIn("release_spike_required", self.identity_matrix)
 
     def test_validated_browser_oauth_is_the_unambiguous_default(self) -> None:
         self.assertIn("Default contract", self.auth_reference)

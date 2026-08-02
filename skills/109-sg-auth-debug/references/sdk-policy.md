@@ -13,6 +13,9 @@ Sources checked:
 - https://docs.convex.dev/client/python
 - https://docs.convex.dev/quickstart/python
 - https://pub.dev/packages/convex_dart
+- https://firebase.google.com/docs/flutter/setup
+- https://pub.dev/packages/firebase_auth
+- https://pub.dev/packages/google_sign_in
 
 Last reviewed: 2026-08-02
 
@@ -21,6 +24,11 @@ Last reviewed: 2026-08-02
 The canonical cross-workflow source is
 `$SHIPFLOW_ROOT/skills/references/preferred-stacks.md`. This auth-specific
 reference applies its SDK consequences; it does not own stack selection.
+
+For a Clerk-versus-Firebase product decision, load
+`$SHIPFLOW_ROOT/skills/references/identity-provider-selection.md` before
+selecting a platform implementation. Do not select a provider independently
+for web, Android, Windows, or macOS.
 
 - Apps: Flutter.
 - Sites: Astro.
@@ -61,6 +69,8 @@ When debugging or implementing auth, start from this stack before assuming React
   `clerk://<applicationId>.callback` in `clerk-android-api:1.0.36`).
 - Treating the Clerk Native application SHA-256 fingerprint and Google Android
   OAuth client SHA-1 fingerprint as interchangeable.
+- Splitting Clerk web identity and Firebase native identity without an explicit
+  migration/identity-linking contract.
 
 ## Beta And Unofficial Rules
 

@@ -6,6 +6,16 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 ## 2026-08-02 — 109-sg-auth-debug
 
+**Added:** a Clerk-versus-Firebase Flutter identity-provider matrix, with platform maturity, validated evidence, decision records, and early release-spike gates for beta or unproven desktop support.
+
+**Updated:** provider selection is product-wide: the validated Clerk Android path remains the default for Clerk web products, and a Windows-native Firebase candidate requires a Firebase-wide decision rather than a platform split.
+
+**New phases:** provider-maturity refresh before each identity-provider decision.
+
+**Sources:** 6 URLs consulted; fresh-docs checked against official Clerk Android and Firebase Flutter/package documentation.
+
+## 2026-08-02 — 109-sg-auth-debug
+
 **Added:** two explicitly separate Android Google profiles: the release-APK-validated ContentGlowz browser OAuth path and the unvalidated Credential Manager ID-token path; an app-level configuration record and focused regression test.
 
 **Updated:** Android Clerk configuration now distinguishes the Clerk Native SHA-256 signer fingerprint from the Google Android OAuth SHA-1 fingerprint, and prevents combining the two profile setups by accident.
