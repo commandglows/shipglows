@@ -6,7 +6,7 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 ## 2026-08-02 — 109-sg-auth-debug
 
-**Added:** a Clerk-versus-Firebase Flutter identity-provider matrix, with platform maturity, validated evidence, decision records, and early release-spike gates for beta or unproven desktop support. The launch availability gate now cites the verified Supabase Free behavior: pausing the whole project also prevents Auth requests.
+**Added:** a Clerk-versus-Firebase Flutter identity-provider matrix, with platform maturity, validated evidence, decision records, and early release-spike gates for beta or unproven desktop support. The launch availability gate now cites the verified Supabase Free behavior: pausing the whole project also prevents Auth requests. A dated commercial snapshot distinguishes Clerk Hobby, Firebase Auth, Supabase Free, and Supabase Pro costs from unrelated backend-service costs.
 
 **Updated:** provider selection is product-wide: the validated Clerk Android path remains the default for Clerk web products, and a Windows-native Firebase candidate requires a Firebase-wide decision rather than a platform split. The matrix is now mandatory before external research; dynamic roadmap checks are the sole exception and must feed their dated result back into it. A candidate free plan that pauses before the first user is now excluded before SDK comparison.
 

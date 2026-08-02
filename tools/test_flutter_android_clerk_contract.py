@@ -44,6 +44,13 @@ class FlutterAndroidClerkContractTests(unittest.TestCase):
         self.assertIn("Supabase Free", self.identity_matrix)
         self.assertIn("HTTP 540", self.identity_matrix)
 
+    def test_identity_provider_matrix_compares_launch_costs_with_availability(self) -> None:
+        self.assertIn("Commercial launch snapshot", self.identity_matrix)
+        self.assertIn("50,000 monthly retained users", self.identity_matrix)
+        self.assertIn("Most methods", self.identity_matrix)
+        self.assertIn("$25/month per organization", self.identity_matrix)
+        self.assertIn("auth_cost_assumption", self.identity_matrix)
+
     def test_validated_browser_oauth_is_the_unambiguous_default(self) -> None:
         self.assertIn("Default contract", self.auth_reference)
         self.assertIn("for every new Flutter Android app", self.auth_reference)

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlowz
 created: "2026-08-02"
 updated: "2026-08-02"
@@ -22,6 +22,7 @@ supersedes: []
 evidence:
   - "Official Clerk Android documentation reviewed 2026-08-02."
   - "Official Firebase Flutter platform support reviewed 2026-08-02."
+  - "Official Clerk, Firebase, and Supabase pricing reviewed 2026-08-02."
   - "Official Supabase pausing documentation reviewed 2026-08-02: a paused Free project cannot process requests; each project includes Auth alongside its other services."
   - "ContentGlowz release APK completed the Clerk Android browser OAuth path on a physical device."
 next_review: "2026-09-02"
@@ -93,6 +94,23 @@ pauses inactive projects. The agent excludes that free-plan configuration from
 the shortlist before recommending it for native Windows/macOS coverage; it does
 not treat a manual wake-up as an acceptable sign-in recovery path.
 
+## Commercial launch snapshot — reviewed 2026-08-02
+
+Prices are provider-published USD starting prices, not a budget guarantee.
+Recheck them before committing a provider or a paid plan.
+
+| Provider/configuration | Early-stage auth cost and availability |
+| --- | --- |
+| Clerk Hobby | $0; up to 50,000 monthly retained users per app. |
+| Firebase Authentication | Most methods, including social sign-in, are no-cost; phone/SMS and other Firebase/Google Cloud products can create charges. |
+| Supabase Free | $0, but the whole project (including Auth) can pause after low activity. Not suitable for continuously available launch auth. |
+| Supabase Pro | Starts at $25/month per organization, with the first standard project included; additional standard projects start around $10/month. No inactivity pausing. |
+
+Cost rule: compare the plan that keeps sign-in continuously available, not only
+the $0 tier. Keep identity-provider cost separate from database, storage,
+functions, messaging, and analytics costs; they can change the total product
+budget even when authentication itself is free.
+
 ## Non-negotiable rule: one owner
 
 Do not adopt `Clerk on web + Firebase Auth on native` as a default architecture.
@@ -114,6 +132,8 @@ identity_owner: clerk | firebase
 targets_at_launch: web | android | windows | macos | ios
 desktop_expectation: pwa | native
 continuous_auth_availability: <plan that remains active before first user>
+auth_cost_checked_at: YYYY-MM-DD
+auth_cost_assumption: <provider plan, user metric, and excluded service costs>
 provider_maturity_checked_at: YYYY-MM-DD
 provider_versions_checked: <exact relevant package/SDK versions>
 release_spike_required: yes | no
@@ -151,5 +171,7 @@ does not present that research as a substitute for the decision matrix.
 - Clerk Flutter package pages, when considering Flutter/Dart-native support.
 - Firebase Flutter supported-platform table.
 - `firebase_auth` and `google_sign_in` official Flutter package pages.
+- Clerk, Firebase, and Supabase official pricing pages before a commercial
+  provider decision.
 - Supabase Free project-pausing and billing documentation when Supabase enters
   a shortlist.
