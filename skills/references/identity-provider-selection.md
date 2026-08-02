@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlowz
 created: "2026-08-02"
 updated: "2026-08-02"
@@ -111,6 +111,30 @@ the $0 tier. Keep identity-provider cost separate from database, storage,
 functions, messaging, and analytics costs; they can change the total product
 budget even when authentication itself is free.
 
+## Scale economics — reviewed 2026-08-02
+
+Do not compare a Clerk MRU total directly to a Firebase or Supabase MAU total.
+An MRU is a user who returns after the first day; an MAU is a user active during
+the billing month. A product with significant one-time sign-ups can therefore
+show materially fewer billable Clerk users than MAUs.
+
+| Provider | Included volume and scale signal |
+| --- | --- |
+| Clerk Pro | 50,000 MRU per app included; above that, published tiered MRU pricing applies. Favors a product with many one-off sign-ups or paid retained users, but can become expensive with a high-retention free audience. |
+| Firebase Auth with Identity Platform / Blaze | 50,000 MAU included for email, social, anonymous, and custom auth; then $0.0025–$0.0055 per MAU, depending on volume. Phone/SMS is separate. Favors a native-first product where authentication is not expected to carry a large standalone bill. |
+| Supabase Pro | 100,000 MAU included; then $0.00325 per MAU. The total still depends materially on Postgres compute, database size, egress, storage, and functions. Favors a product that also wants Supabase as its backend. |
+
+Financial decision rule:
+
+1. Forecast returning users and monthly active users separately.
+2. Price the same 12-month growth curve with the provider's own metric.
+3. Add mandatory platform costs: continuous availability, database/compute,
+   storage/egress, SMS/email, support/SLA, MFA, organizations/SSO, and custom
+   domains.
+4. Choose the provider that fits the product-wide identity owner and native
+   platform proof; never select a cheaper auth line item that creates a second
+   identity system or blocks the target desktop platform.
+
 ## Non-negotiable rule: one owner
 
 Do not adopt `Clerk on web + Firebase Auth on native` as a default architecture.
@@ -134,6 +158,7 @@ desktop_expectation: pwa | native
 continuous_auth_availability: <plan that remains active before first user>
 auth_cost_checked_at: YYYY-MM-DD
 auth_cost_assumption: <provider plan, user metric, and excluded service costs>
+scale_forecast: <MRU, MAU, retention, and 12-month assumptions>
 provider_maturity_checked_at: YYYY-MM-DD
 provider_versions_checked: <exact relevant package/SDK versions>
 release_spike_required: yes | no
