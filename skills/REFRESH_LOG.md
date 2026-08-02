@@ -4,6 +4,16 @@ Chronological log of skill refreshes via `/900-shipglowz-core refresh <skill>`. 
 
 ---
 
+## 2026-08-02 — 109-sg-auth-debug
+
+**Added:** two explicitly separate Android Google profiles: the release-APK-validated ContentGlowz browser OAuth path and the unvalidated Credential Manager ID-token path; an app-level configuration record and focused regression test.
+
+**Updated:** Android Clerk configuration now distinguishes the Clerk Native SHA-256 signer fingerprint from the Google Android OAuth SHA-1 fingerprint, and prevents combining the two profile setups by accident.
+
+**New phases:** none.
+
+**Sources:** 3 URLs consulted; fresh-docs checked against current official Clerk Android auth, social-connection, and Google sign-in documentation.
+
 ## 2026-07-25 — 400-sg-audit
 
 **Added:** canonical domain-to-playbook mapping for broad code, design, copy, SEO, GTM, translation, dependency, and performance audit fan-out.

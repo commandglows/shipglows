@@ -1,7 +1,7 @@
 ---
 id: flutter-crud-content
 name: Flutter CRUD Content App
-version: 1.1.0
+version: 1.2.0
 app_type: flutter-mobile-web
 
 match_keywords:
@@ -227,7 +227,7 @@ signedOut → restoringSession → checkingBackend → checkingWorkspace
   → needsOnboarding | ready | apiUnavailable | bootstrapFailed | bootstrapUnauthorized
 ```
 
-### Native Android Clerk contract
+### Native Android Clerk contract (Profile A: validated browser OAuth)
 
 Use this contract for new Flutter Android apps derived from this blueprint:
 
@@ -244,13 +244,18 @@ Use this contract for new Flutter Android apps derived from this blueprint:
   `clerk://com.contentglowz.app.callback`).
 - Configure Clerk Native API, the exact Android application id, the CI release
   SHA-256 fingerprint, the derived redirect allowlist entry, and Google enabled
-  for sign-in/sign-up before device testing.
+  for sign-in/sign-up before device testing. This is Clerk configuration; it is
+  distinct from the SHA-1 Google requires if a project deliberately adopts its
+  separate Credential Manager ID-token flow.
 - Show progress and disable duplicate actions for initialize, restore, browser
   launch, callback completion, token retrieval, and sign-out. Never leave the
   entry screen with an unexplained pending state.
 - Required device smoke: cold restore, one Google tap, browser/provider return,
   session activation, protected API call, restart restore, and sign-out. Record
   the APK commit and signing identity with the result.
+- Record once per app: selected auth profile, Gradle application id, pinned SDK
+  version, SDK callback owner/URI, Clerk SHA-256, any Google SHA-1, and tested
+  release APK commit. Do not start implementation until this record is complete.
 
 ## États d'implémentation manquants
 

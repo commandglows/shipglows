@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlowz
 created: "2026-06-23"
 updated: "2026-08-02"
@@ -45,7 +45,7 @@ Le Blueprint Gate (dans `001-sg-build`) résout chaque blueprint dans cet ordre 
 ### Maintenance note
 
 `flutter-crud-content` is currently available in the ShipGlowz local cache at
-version `1.1.0`, including the validated Clerk native Android bridge contract.
+version `1.2.0`, including the validated Clerk native Android bridge contract.
 The historical `source.repo` URL is currently unavailable on GitHub; do not
 silently replace the local cache with a fresh clone until the blueprint repo is
 republished and its contents are checked against the cache.

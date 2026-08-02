@@ -40,6 +40,10 @@ When debugging or implementing auth, start from this stack before assuming React
   version-pinned native Android API SDK from Kotlin behind a typed MethodChannel
   when the Flutter packages are not an acceptable risk. The bridge and callback
   owner must follow the pinned SDK's manifest/source contract.
+- For Google on Android, choose one documented profile before implementation:
+  the validated browser OAuth profile (`signInWithOAuth`) or the separate
+  Credential Manager ID-token profile (`signInWithIdToken`). Do not combine
+  their callback and Google Cloud setup by default.
 - Convex + Flutter/Dart: `convex_dart` exists and provides codegen/realtime APIs, but treat it as third-party unless Convex official docs explicitly adopt it.
 - Google OAuth: prefer Clerk-managed Google social connection when the app already uses Clerk.
 
@@ -55,6 +59,8 @@ When debugging or implementing auth, start from this stack before assuming React
 - Copying Clerk's generic `{bundleIdentifier}://callback` example into an app
   whose pinned native SDK registers a different callback (for example
   `clerk://<applicationId>.callback` in `clerk-android-api:1.0.36`).
+- Treating the Clerk Native application SHA-256 fingerprint and Google Android
+  OAuth client SHA-1 fingerprint as interchangeable.
 
 ## Beta And Unofficial Rules
 

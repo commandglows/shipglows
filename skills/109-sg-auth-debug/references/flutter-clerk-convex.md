@@ -39,7 +39,12 @@ use Clerk's official Android API SDK from Kotlin behind a typed Flutter
 MethodChannel. Do not reintroduce the beta Flutter/Dart SDK solely to cover
 Android.
 
-For the ContentGlowz Android contract (and any project pinning the same SDK):
+### Profile A — ContentGlowz browser OAuth (validated)
+
+Use this profile when a Flutter Android app needs the same behaviour that is
+working in ContentGlowz: Google opens in the system browser and Clerk returns
+to the APK with an active session. This is the only ShipGlowz Android Google
+profile that has completed a real release-APK login on a physical device.
 
 - Pin `com.clerk:clerk-android-api:1.0.36` and keep the UI in Flutter.
 - Launch Google with `Clerk.auth.signInWithOAuth(OAuthProvider.GOOGLE)`.
@@ -52,10 +57,10 @@ For the ContentGlowz Android contract (and any project pinning the same SDK):
   `clerk://com.contentglowz.app.callback` in the Clerk instance. The generic
   `{package}://callback` examples in some mobile documentation must not
   override the pinned SDK's actual manifest and source contract.
-- Enable Clerk Native API, register the Android application, configure its
-  release certificate fingerprint in Clerk, and enable the Google connection
-  for both sign-in and sign-up. Keep keys, fingerprints, and provider secrets
-  out of the repository.
+- Enable Clerk Native API, register the Android application, configure the
+  **SHA-256** fingerprint of the release CI signer in Clerk Native applications,
+  and enable the Google social connection for both sign-in and sign-up. Keep
+  keys, fingerprints, and provider secrets out of the repository.
 - Expose only typed operations such as `initialize`, `signInWithGoogle`,
   `restoreSession`, `getFreshToken`, and `signOut`; the bridge must never
   return raw callback URLs, OAuth codes, cookies, or tokens to logs.
@@ -66,10 +71,39 @@ visible progress indicator and disable duplicate sign-in attempts. On timeout
 or incomplete session, clear the pending state and expose a recoverable,
 diagnostic error rather than leaving the entry screen apparently frozen.
 
+### Profile B — Credential Manager + Google ID token (official, unvalidated here)
+
+Clerk also documents a different, browserless Android flow: Android Credential
+Manager obtains a Google ID token and the app calls
+`Clerk.auth.signInWithIdToken`. It is **not** a drop-in change to Profile A and
+is not the default ShipGlowz profile until a Flutter bridge has been built and
+released-tested for it.
+
+It needs separate Google Cloud configuration: an Android OAuth client using the
+release **SHA-1** signing fingerprint, plus a Web OAuth client whose ID and
+secret are configured in Clerk. This SHA-1 belongs to Google's Android client;
+it does not replace the SHA-256 fingerprint required by Clerk Native
+applications. Never mix Profile A callback setup and Profile B Credential
+Manager setup in one first implementation.
+
 ### Reusable implementation contract
 
-When scaffolding a new Flutter Android app with Clerk, apply this sequence before
-writing the bridge:
+When scaffolding a new Flutter Android app with Clerk, select exactly one
+profile and write this configuration record before coding:
+
+```text
+auth_profile: browser-oauth | credential-manager-id-token
+android_application_id: <exact Gradle applicationId>
+clerk_android_sdk: <exact pinned coordinate and version>
+callback_owner: <SDK activity | app activity, only if required>
+mobile_redirect: <exact SDK-derived URI, Profile A only>
+clerk_release_sha256: <CI signer fingerprint, Clerk Native applications>
+google_android_sha1: <Google OAuth client fingerprint, Profile B only>
+google_web_client: <configured in Clerk, Profile B only>
+release_apk_commit: <commit tested on device>
+```
+
+Then apply this sequence before writing the bridge:
 
 1. Record the exact `com.clerk:clerk-android-api` version in Gradle. Inspect that
    version's AAR manifest/source for its callback owner and redirect constant;
@@ -81,17 +115,20 @@ writing the bridge:
    defect unless the pinned SDK explicitly requires it.
 3. In Clerk Dashboard, enable Native API, add the exact Android application id,
    and add the SHA-256 certificate fingerprint produced by the release CI
-   signing job. Debug and release fingerprints are different; test artifacts
-   must identify which one they use.
+   signing job. If Profile B was deliberately selected, also create the Google
+   Android OAuth client with its SHA-1 fingerprint and configure the Google Web
+   client credentials in Clerk. Debug and release fingerprints are different;
+   test artifacts must identify which one they use.
 4. Add exactly the redirect URI derived in step 1 to **Allowlist for mobile SSO
    redirect**. For SDK `1.0.36`, the contract is
    `clerk://<Clerk application id>.callback`; for ContentGlowz this is
    `clerk://com.contentglowz.app.callback`. Do not add a competing
    `{package}://callback` URI just because it appears in current generic docs.
-5. Prove the native path in this order: cold start/session restore, tap Google
-   once and observe browser launch, provider completion, return to the app,
-   session activation, token retrieval, protected API call, app restart, and
-   sign-out. Record the tested APK commit and signing identity.
+5. Prove the selected native path in this order: cold start/session restore,
+   one sign-in tap, provider completion, session activation, token retrieval,
+   protected API call, app restart, and sign-out. Profile A additionally proves
+   browser launch and return to the app. Record the tested APK commit and
+   signing identity.
 
 This contract is version-scoped: if the Clerk Android dependency changes, repeat
 step 1 and revalidate the redirect/manifest before shipping or updating the
