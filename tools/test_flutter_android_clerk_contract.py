@@ -18,19 +18,21 @@ class FlutterAndroidClerkContractTests(unittest.TestCase):
         cls.sdk_policy = SDK_POLICY.read_text(encoding="utf-8")
         cls.blueprint = BLUEPRINT.read_text(encoding="utf-8")
 
-    def test_validated_browser_oauth_profile_stays_explicit(self) -> None:
-        self.assertIn("Profile A", self.auth_reference)
+    def test_validated_browser_oauth_is_the_unambiguous_default(self) -> None:
+        self.assertIn("Default contract", self.auth_reference)
+        self.assertIn("for every new Flutter Android app", self.auth_reference)
+        self.assertIn("auth_profile: browser-oauth (ShipGlowz default)", self.auth_reference)
         self.assertIn("signInWithOAuth", self.auth_reference)
         for text in (self.auth_reference, self.blueprint):
             self.assertIn("clerk://<Clerk application id>.callback", text)
             self.assertIn("MainActivity", text)
 
-    def test_credential_manager_is_not_mixed_with_browser_oauth(self) -> None:
-        self.assertIn("Profile B", self.auth_reference)
+    def test_credential_manager_is_a_deliberate_departure_not_an_option_to_choose(self) -> None:
+        self.assertIn("Non-default alternative", self.auth_reference)
         self.assertIn("Credential Manager", self.auth_reference)
         self.assertIn("signInWithIdToken", self.auth_reference)
-        self.assertIn("Never mix Profile A callback setup and Profile B", self.auth_reference)
-        self.assertIn("choose one documented profile", self.sdk_policy)
+        self.assertIn("explicit product reason", self.auth_reference)
+        self.assertIn("explicitly approved departure", self.sdk_policy)
 
     def test_clerk_and_google_fingerprints_remain_distinct(self) -> None:
         for text in (self.auth_reference, self.blueprint):
@@ -39,7 +41,7 @@ class FlutterAndroidClerkContractTests(unittest.TestCase):
         self.assertIn("interchangeable", self.sdk_policy)
 
     def test_each_new_app_requires_a_configuration_record_and_release_smoke(self) -> None:
-        self.assertIn("auth_profile:", self.auth_reference)
+        self.assertIn("auth_profile: browser-oauth (ShipGlowz default)", self.auth_reference)
         self.assertIn("release_apk_commit:", self.auth_reference)
         self.assertIn("Record once per app", self.blueprint)
         self.assertIn("Required device smoke", self.blueprint)

@@ -40,10 +40,10 @@ When debugging or implementing auth, start from this stack before assuming React
   version-pinned native Android API SDK from Kotlin behind a typed MethodChannel
   when the Flutter packages are not an acceptable risk. The bridge and callback
   owner must follow the pinned SDK's manifest/source contract.
-- For Google on Android, choose one documented profile before implementation:
-  the validated browser OAuth profile (`signInWithOAuth`) or the separate
-  Credential Manager ID-token profile (`signInWithIdToken`). Do not combine
-  their callback and Google Cloud setup by default.
+- For Google on Android, use the validated browser OAuth contract
+  (`signInWithOAuth`) by default. Credential Manager ID-token
+  (`signInWithIdToken`) is a separate, explicitly approved departure only;
+  never mix its callback and Google Cloud setup into the default contract.
 - Convex + Flutter/Dart: `convex_dart` exists and provides codegen/realtime APIs, but treat it as third-party unless Convex official docs explicitly adopt it.
 - Google OAuth: prefer Clerk-managed Google social connection when the app already uses Clerk.
 
