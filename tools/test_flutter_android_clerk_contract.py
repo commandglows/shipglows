@@ -41,6 +41,8 @@ class FlutterAndroidClerkContractTests(unittest.TestCase):
         self.assertIn("Launch availability gate", self.identity_matrix)
         self.assertIn("pause, hibernate", self.identity_matrix)
         self.assertIn("continuous_auth_availability", self.identity_matrix)
+        self.assertIn("Supabase Free", self.identity_matrix)
+        self.assertIn("HTTP 540", self.identity_matrix)
 
     def test_validated_browser_oauth_is_the_unambiguous_default(self) -> None:
         self.assertIn("Default contract", self.auth_reference)

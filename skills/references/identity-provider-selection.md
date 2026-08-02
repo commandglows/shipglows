@@ -22,6 +22,7 @@ supersedes: []
 evidence:
   - "Official Clerk Android documentation reviewed 2026-08-02."
   - "Official Firebase Flutter platform support reviewed 2026-08-02."
+  - "Official Supabase pausing documentation reviewed 2026-08-02: a paused Free project cannot process requests; each project includes Auth alongside its other services."
   - "ContentGlowz release APK completed the Clerk Android browser OAuth path on a physical device."
 next_review: "2026-09-02"
 next_step: "Refresh provider maturity and package versions before the next Flutter identity-provider decision."
@@ -78,6 +79,14 @@ few or no active users, unless the product budget explicitly includes the plan
 needed to keep it continuously available. A free tier that sleeps is not a
 viable launch identity service for an app expected to accept a first user at
 any time.
+
+Concrete current example: Supabase Free may pause a project after low database
+activity over seven days. A Supabase project contains Auth as one of its
+sub-services, and a paused project cannot process requests (HTTP 540). Its
+authentication endpoints and session refresh therefore do not remain available
+until an owner resumes the project in Supabase Studio. This makes the Free-plan
+configuration unsuitable as a continuously available identity owner before a
+product has regular activity.
 
 Pressure scenario: a Flutter product has no users yet and a candidate provider
 pauses inactive projects. The agent excludes that free-plan configuration from
@@ -142,3 +151,5 @@ does not present that research as a substitute for the decision matrix.
 - Clerk Flutter package pages, when considering Flutter/Dart-native support.
 - Firebase Flutter supported-platform table.
 - `firebase_auth` and `google_sign_in` official Flutter package pages.
+- Supabase Free project-pausing and billing documentation when Supabase enters
+  a shortlist.
