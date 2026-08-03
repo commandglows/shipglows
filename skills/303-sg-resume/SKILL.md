@@ -20,7 +20,7 @@ This skill does not write to chantier specs. If invoked inside a spec-first flow
 
 Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` and use the shared chantier-then-verdict opening.
 
-# SF Résume
+# SG Résume
 
 ## Mission
 

@@ -34,7 +34,7 @@ CATEGORY_RULES = {
         r"\btant de d[ée]tails\b",
     ],
     "wrong_owner_route": [
-        r"\bthis is not.*(sf-|skill)\b",
+        r"\bthis is not.*(sg-|skill)\b",
         r"\broute to\b.*\b(unsupported|wrong|wrongly)\b",
     ],
     "literalism_over_intent": [
@@ -79,16 +79,16 @@ CATEGORY_RULES = {
 CATEGORY_RE = {name: re.compile("|".join(patterns), re.IGNORECASE) for name, patterns in CATEGORY_RULES.items()}
 
 OWNER_BY_CATEGORY = {
-    "missed_action": "sf-build",
-    "over_reporting": "sf-build",
-    "wrong_owner_route": "sf-build",
-    "literalism_over_intent": "sf-build",
-    "proof_gap": "sf-verify",
-    "stale_skill_contract": "sf-spec",
-    "bad_question": "sf-build",
-    "user_friction": "sf-build",
-    "unsafe_ship_or_dirty_scope": "sf-spec",
-    "weak_follow_through": "sf-build",
+    "missed_action": "sg-build",
+    "over_reporting": "sg-build",
+    "wrong_owner_route": "sg-build",
+    "literalism_over_intent": "sg-build",
+    "proof_gap": "sg-verify",
+    "stale_skill_contract": "sg-spec",
+    "bad_question": "sg-build",
+    "user_friction": "sg-build",
+    "unsafe_ship_or_dirty_scope": "sg-spec",
+    "weak_follow_through": "sg-build",
 }
 
 
@@ -212,7 +212,7 @@ def main() -> int:
         "finding_count": len(findings),
         "findings": [f.as_dict() for f in findings],
         "categories": sorted({f.category for f in findings}),
-        "owner_routes": sorted({OWNER_BY_CATEGORY[f.category] for f in findings}) or ["sf-verify"],
+        "owner_routes": sorted({OWNER_BY_CATEGORY[f.category] for f in findings}) or ["sg-verify"],
     }
 
     if args.fixtures:

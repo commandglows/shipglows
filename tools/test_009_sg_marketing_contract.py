@@ -213,19 +213,19 @@ class MarketingContractTests(unittest.TestCase):
             self.code_index,
         )
         self.assertIn(
-            'skills: "009-sg-marketing, sf-research, sf-veille',
+            'skills: "009-sg-marketing, sg-research, sg-veille',
             self.skills_index_page,
         )
         self.assertNotIn(
-            'skills: "shipglows, sf-build, sf-maintain, sf-deploy, sf-design, sf-content, 009-sg-marketing',
+            'skills: "shipglows, sg-build, sg-maintain, sg-deploy, sg-design, sg-content, 009-sg-marketing',
             self.skills_index_page,
         )
         self.assertIn(
-            'examples: "009-sg-marketing, sf-research, sf-veille',
+            'examples: "009-sg-marketing, sg-research, sg-veille',
             self.skill_modes_page,
         )
         self.assertNotIn(
-            'examples: "shipglows, sf-build, sf-maintain, sf-deploy, sf-design, sf-content, 009-sg-marketing',
+            'examples: "shipglows, sg-build, sg-maintain, sg-deploy, sg-design, sg-content, 009-sg-marketing',
             self.skill_modes_page,
         )
         lifecycle_line = next(

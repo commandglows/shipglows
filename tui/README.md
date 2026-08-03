@@ -1,6 +1,6 @@
 # ShipGlows Terminal TUI (V1)
 
-Optional terminal dashboard for ShipGlows, isolated under `/home/claude/shipglowz/tui`.
+Optional terminal dashboard for ShipGlows, isolated under `/home/claude/shipglows/tui`.
 
 ## Status
 
@@ -39,7 +39,7 @@ sudo ./install.sh
 Recommended one-time install:
 
 ```bash
-/home/claude/shipglowz/tui/scripts/install-shipglows-tui.sh
+/home/claude/shipglows/tui/scripts/install-shipglows-tui.sh
 ```
 
 Then launch from anywhere:
@@ -55,14 +55,11 @@ Available command names:
 - `tui`: shortest daily command.
 - `shipglows-tui`: explicit ShipGlows launcher.
 - `sg-tui`: short hyphenated ShipGlows alias.
-- `sftui`: legacy short alias.
-- `sf-tui`: legacy hyphenated alias.
-- `shipglows-tui`: legacy full launcher name.
 
 Manual setup:
 
 ```bash
-cd /home/claude/shipglowz/tui
+cd /home/claude/shipglows/tui
 bun install
 ```
 
@@ -122,7 +119,7 @@ Task, spec, and audit summaries use a traffic-first format so severity stays vis
 Selectable summaries keep the selection marker after the traffic light, for example `🟢 > [shipglows_app] [ready] ...`.
 
 The TUI reader now follows the shared operational record contract at
-`/home/claude/shipglowz/skills/references/operational-record-format.md`:
+`/home/claude/shipglows/skills/references/operational-record-format.md`:
 
 - canonical `task`, `audit`, and `spec` records are parsed directly from one-line traffic-first entries,
 - canonical parsing runs before legacy table summarization,
@@ -147,7 +144,7 @@ If the current shell cannot find Bun after install, run `export BUN_INSTALL="$HO
   - `./shipglows_data/workflow/DEPENDENCY_LOG.md`
   - `./shipglows_data/workflow/specs/*.md`
 - Legacy `./shipglows_data/TASKS.md` and `./shipglows_data/AUDIT_LOG.md` are still supported as fallback reads.
-- `/home/claude/shipglowz/skills/*`
+- `/home/claude/shipglows/skills/*`
 
 Workspace discovery roots can be customized with `SHIPGLOWS_TUI_WORKSPACE_ROOTS` (comma-separated paths). The legacy `SHIPGLOWS_TUI_WORKSPACE_ROOTS` name is still accepted as a fallback. If unset, the TUI uses its current working directory as the active root and falls back to the installed ShipGlows repo for auxiliary reads.
 

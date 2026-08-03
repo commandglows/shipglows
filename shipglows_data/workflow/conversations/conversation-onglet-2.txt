@@ -1,6 +1,6 @@
 
 
-› $sf-explore  Je reviens sur l'architecture de nos skills,
+› $sg-explore  Je reviens sur l'architecture de nos skills,
   sachant que nous on veut être utilisé pour un utilisateur final
   qui n'est pas un developer web, qui veut juste que les choses
   soient faites, qui ne veut pas savoir le pourquoi du comment.
@@ -54,7 +54,7 @@
   skills
 
 
-• J’utilise sf-explore ici, donc je reste en réflexion et je ne
+• J’utilise sg-explore ici, donc je reste en réflexion et je ne
   modifie rien. Je vais juste ancrer rapidement la discussion dans
   l’état réel des skills, puis te répondre sur l’architecture
   possible.
@@ -63,7 +63,7 @@
   bwrap. Je relance ces lectures en escaladé, uniquement pour
   inspecter les fichiers de skills nécessaires à la réflexion.
 
-• J’ai le contenu de sf-spec. Je vais lire aussi sf-ready et sf-
+• J’ai le contenu de sg-spec. Je vais lire aussi sg-ready et sg-
   start, parce que la bonne réponse dépend surtout de la frontière
   entre “préparer”, “valider” et “exécuter”.
 
@@ -73,10 +73,10 @@
   verify -> test ne devrait pas être une série d’actions
   manuelles. Ça devrait être un moteur interne.
 
-  Je ne mettrais pas cette boucle directement dans sf-spec. Je
-  garderais sf-spec, sf-ready, sf-start, sf-verify, sf-test comme
+  Je ne mettrais pas cette boucle directement dans sg-spec. Je
+  garderais sg-spec, sg-ready, sg-start, sg-verify, sg-test comme
   briques atomiques, et je créerais une skill maître, par exemple
-  sf-do, sf-deliver ou sf-build, qui orchestre tout.
+  sg-do, sg-deliver ou sg-build, qui orchestre tout.
 
   Architecture idéale :
 
@@ -122,7 +122,7 @@
 
   NIVEAU UTILISATEUR FINAL
   ────────────────────────
-  sf-do / sf-deliver
+  sg-do / sg-deliver
   - prend une story floue
   - infère les décisions raisonnables
   - pose seulement les questions bloquantes
@@ -131,18 +131,18 @@
 
   NIVEAU INTERNE AGENT
   ────────────────────
-  sf-explore
-  sf-spec
-  sf-ready
-  sf-start
-  sf-verify
-  sf-test
-  sf-check
-  sf-ship
+  sg-explore
+  sg-spec
+  sg-ready
+  sg-start
+  sg-verify
+  sg-test
+  sg-check
+  sg-ship
 
-  Je ne rendrais pas sf-spec auto-récursive par défaut, parce que
+  Je ne rendrais pas sg-spec auto-récursive par défaut, parce que
   ça mélange deux responsabilités : écrire une spec et piloter un
-  workflow. Par contre, sf-spec peut devenir compatible avec une
+  workflow. Par contre, sg-spec peut devenir compatible avec une
   orchestration automatique : sortie structurée, statut clair,
   liste exacte des gaps, mode “silent/internal”, etc.
 
@@ -175,11 +175,11 @@
   Agent pilote le workflow.
   Utilisateur intervient seulement pour les décisions métier.
 
-  Donc oui : je créerais une master skill. Probablement pas sf-
-  start, parce que sf-start est déjà “exécution depuis contrat”.
+  Donc oui : je créerais une master skill. Probablement pas sg-
+  start, parce que sg-start est déjà “exécution depuis contrat”.
   Je créerais plutôt une nouvelle skill user-facing, par exemple :
 
-  sf-do
+  sg-do
   Args: story utilisateur
   But: livrer le résultat de bout en bout avec orchestration
   autonome.
@@ -208,30 +208,30 @@
 • Model changed to gpt-5.5 high
 
 
-› $sf-spec  Ouais c'est génial, c'est exactement ça que je veux.
-  et a la fin sf-end et sf-ship. l'utilisateur peut etre prompter
+› $sg-spec  Ouais c'est génial, c'est exactement ça que je veux.
+  et a la fin sg-end et sg-ship. l'utilisateur peut etre prompter
   plusieur fois y'a aucun souci au contraire il vaut mieux trop
 
 
-› $sf-spec  Ouais c'est génial, c'est exactement ça que je
-  veux. et a la fin sf-end et sf-ship. l'utilisateur peut
+› $sg-spec  Ouais c'est génial, c'est exactement ça que je
+  veux. et a la fin sg-end et sg-ship. l'utilisateur peut
   etre prompter plusieur fois y'a aucun souci au contraire il
   vaut mieux trop poser de question et bien affiner la
   vision, que pas assez ! mais si possible via prompt intégré
 
 
-› $sf-spec  Ouais c'est génial, c'est exactement ça que je veux.
-  et a la fin sf-end et sf-ship. l'utilisateur peut etre prompter
+› $sg-spec  Ouais c'est génial, c'est exactement ça que je veux.
+  et a la fin sg-end et sg-ship. l'utilisateur peut etre prompter
   plusieur fois y'a aucun souci au contraire il vaut mieux trop
   poser de question et bien affiner la vision, que pas assez !
   mais si possible via prompt intégré comme ça a on lui fait
   gagner du temps avec des réponses préparées. on lance la spec ?
-  j'aime bien le nom 'sf-build'
+  j'aime bien le nom 'sg-build'
   si on ne met plus aucun détail technique a l'utilisateur il
   faut justement le "bombarder" de question pour éviter
   absolument toute régression ! et les skills doivent boen etre
   délimitées : est ce qu'on touche a l'existant ? on a quand meme
-  besoin d'input utilisateur. je souhaite pas lancer sf-build et
+  besoin d'input utilisateur. je souhaite pas lancer sg-build et
   me retrouver avecune fonctionnalité a moitié codée ou pire :
   une regression code ou design. il faut des gardes fous !
   les sous agents ne sont pas "aurorisés", il sont le
@@ -239,7 +239,7 @@
   master qui a tout le contexte, mais d'en haut.
 
 
-• J’utilise sf-spec pour cadrer sf-build. Je vais d’abord lire les
+• J’utilise sg-spec pour cadrer sg-build. Je vais d’abord lire les
   règles ShipGlows et les skills voisines, puis je te proposerai
   les décisions structurantes avant d’enregistrer la spec.
 
@@ -274,21 +274,21 @@
 • Je vois déjà deux contraintes importantes : le repo est très
   modifié, donc la spec devra être additive et ne pas toucher aux
   changements existants ; et le workflow officiel s’arrête
-  aujourd’hui à sf-end, alors que tu veux intégrer sf-ship dans le
+  aujourd’hui à sg-end, alors que tu veux intégrer sg-ship dans le
   parcours utilisateur final.
 
 • Explored
-  └ Read SKILL.md (sf-start skill), SKILL.md (sf-end skill),
+  └ Read SKILL.md (sg-start skill), SKILL.md (sg-end skill),
 SKILL.md
-         (sf-ship skill), specs-as-chantier-registry.md, skill-
+         (sg-ship skill), specs-as-chantier-registry.md, skill-
          taxonomy-and-chantier-sources.md
 
 ──────────────────────────────────────────────────────────────────
 
 • Le besoin est assez clair pour une spec full : nouvelle skill
-  sf-build, interface utilisateur finale, orchestration multi-
+  sg-build, interface utilisateur finale, orchestration multi-
   agent par défaut, questions guidées, garde-fous anti-régression,
-  puis clôture sf-end et expédition sf-ship. Je vais écrire la
+  puis clôture sg-end et expédition sg-ship. Je vais écrire la
   spec comme un contrat de workflow, pas comme une implémentation
   de code immédiate.
 
@@ -326,7 +326,7 @@ SKILL.md
      13 +scope: feature
      14 +owner: Diane
      15 +user_story: "En tant qu'utilisatrice finale ShipGlows non-
-         developpeuse, je veux lancer une seule commande sf-build
+         developpeuse, je veux lancer une seule commande sg-build
          avec ma story et etre guidee par des questions utiles pen
          dant que les sous-agents executent le workflow complet, a
          fin d'obtenir un resultat implemente, verifie, clos et sh
@@ -368,9 +368,9 @@ SKILL.md
      50 +supersedes: []
      51 +evidence:
      52 +  - "User decision 2026-04-29: create a user-facing maste
-         r skill named sf-build."
-     53 +  - "User decision 2026-04-29: sf-build must run the full
-          flow through sf-end and sf-ship, not stop after implemen
+         r skill named sg-build."
+     53 +  - "User decision 2026-04-29: sg-build must run the full
+          flow through sg-end and sg-ship, not stop after implemen
          tation."
      54 +  - "User decision 2026-04-29: the user may be prompted m
          ultiple times, preferably via integrated prompts with pre
@@ -378,23 +378,23 @@ SKILL.md
      55 +  - "User decision 2026-04-29: subagents are not merely a
          llowed; they are the default operating model so the maste
          r conversation stays high-level."
-     56 +  - "User concern 2026-04-29: sf-build must not produce h
+     56 +  - "User concern 2026-04-29: sg-build must not produce h
          alf-coded features or code/design regressions; it needs e
          xplicit guardrails around touching existing behavior."
      57 +  - "Repo investigation 2026-04-29: existing lifecycle sk
-         ills already cover sf-spec, sf-ready, sf-start, sf-verify
-         , sf-end, and sf-ship with chantier tracing."
+         ills already cover sg-spec, sg-ready, sg-start, sg-verify
+         , sg-end, and sg-ship with chantier tracing."
      58 +  - "Repo investigation 2026-04-29: PRODUCT.md defines th
          e user problem as lost context, weak handoffs, silent amb
          iguity, and incomplete verification."
-     59 +next_step: "/sg-ready sf-build autonomous master skill"
+     59 +next_step: "/sg-ready sg-build autonomous master skill"
      60 +---
      61 +
-     62 +# Spec: sf-build Autonomous Master Skill
+     62 +# Spec: sg-build Autonomous Master Skill
      63 +
      64 +## Title
      65 +
-     66 +sf-build Autonomous Master Skill
+     66 +sg-build Autonomous Master Skill
      67 +
      68 +## Status
      69 +
@@ -403,7 +403,7 @@ SKILL.md
      72 +## User Story
      73 +
      74 +En tant qu'utilisatrice finale ShipGlows non-developpeuse,
-          je veux lancer une seule commande `sf-build` avec ma sto
+          je veux lancer une seule commande `sg-build` avec ma sto
          ry et etre guidee par des questions utiles pendant que le
          s sous-agents executent le workflow complet, afin d'obten
          ir un resultat implemente, verifie, clos et shippe sans p
@@ -411,7 +411,7 @@ SKILL.md
      75 +
      76 +## Minimal Behavior Contract
      77 +
-     78 +Quand l'utilisatrice lance `sf-build` avec une intention,
+     78 +Quand l'utilisatrice lance `sg-build` avec une intention,
           la skill doit devenir le pilote unique du chantier: elle
           affine le besoin avec autant de questions integrees que
          necessaire, cree ou met a jour une spec, lance des sous-a
@@ -421,7 +421,7 @@ SKILL.md
          sion, et un rapport final court. Si la vision, le scope,
          la permission de toucher a l'existant, la securite, le de
          sign, les donnees, ou la validation restent incertains, `
-         sf-build` doit poser une question avant de coder ou shipp
+         sg-build` doit poser une question avant de coder ou shipp
          er; si une etape echoue, elle doit reparer via la boucle
          adaptee ou s'arreter proprement sans annoncer un travail
          livre. Le cas facile a rater est de masquer les details t
@@ -437,22 +437,22 @@ SKILL.md
          che, un bug, ou un objectif suffisamment initial pour ouv
          rir un chantier ShipGlows.
      83 +- Trigger: l'utilisatrice lance `/sg-build <story>` ou `$
-         sf-build <story>`.
+         sg-build <story>`.
      84 +- User/operator result: la conversation master reste lisi
          ble et pilote seulement les decisions; elle pose des ques
          tions integrees avec options quand une reponse change le
          scope, la vision produit, le droit de modifier l'existant
          , la securite, le design, les donnees, la validation, la
          cloture, ou le ship.
-     85 +- System effect: `sf-build` cree ou rattache une spec, bo
-         ucle `sf-spec` et `sf-ready` jusqu'a readiness ou blocage
+     85 +- System effect: `sg-build` cree ou rattache une spec, bo
+         ucle `sg-spec` et `sg-ready` jusqu'a readiness ou blocage
          , execute avec sous-agents par defaut, verifie, teste si
-         pertinent, lance `sf-end`, puis lance `sf-ship` uniquemen
+         pertinent, lance `sg-end`, puis lance `sg-ship` uniquemen
          t quand les gates de verification et de cloture passent.
      86 +- Success proof: une spec de chantier existe avec `Skill
          Run History` et `Current Chantier Flow`; le rapport final
           mentionne le resultat, les validations passees, le commi
-         t/push si `sf-ship` a reussi, et les limites de preuve re
+         t/push si `sg-ship` a reussi, et les limites de preuve re
          stantes si elles existent.
      87 +- Silent success: not allowed; l'utilisatrice doit voir c
          haque decision demandee, le statut de progression haut ni
@@ -466,13 +466,13 @@ SKILL.md
           sous-agent bloque, tests ou verification en echec, chang
          ements partiels, secrets ou fichiers non lies dans le dir
          ty state, bug gate bloquante, push impossible.
-     92 +- User/operator response: `sf-build` doit poser une quest
+     92 +- User/operator response: `sg-build` doit poser une quest
          ion integree quand la reponse peut debloquer le chantier;
           sinon il doit donner un blocage court avec la prochaine
          action et ne pas pretendre que le travail est livre.
-     93 +- System effect: pas de `sf-start` tant que la spec n'est
-          pas ready; pas de `sf-end` tant que la user story n'est
-         pas suffisamment verifiee; pas de `sf-ship` si les checks
+     93 +- System effect: pas de `sg-start` tant que la spec n'est
+          pas ready; pas de `sg-end` tant que la user story n'est
+         pas suffisamment verifiee; pas de `sg-ship` si les checks
          , la bug gate, ou la validation centrale echouent sans ap
          probation explicite de l'utilisatrice.
      94 +- Must never happen: coder dans un scope non valide, modi
@@ -490,9 +490,9 @@ SKILL.md
      98 +
      99 +Le workflow ShipGlows actuel est solide mais trop manuel p
          our le public cible. L'utilisatrice doit enchainer elle-m
-         eme `sf-spec`, `sf-ready`, parfois une nouvelle passe de
-         `sf-spec`, puis `sf-start`, `sf-verify`, `sf-test`, `sf-e
-         nd` et `sf-ship`. Cette mecanique expose trop de details
+         eme `sg-spec`, `sg-ready`, parfois une nouvelle passe de
+         `sg-spec`, puis `sg-start`, `sg-verify`, `sg-test`, `sg-e
+         nd` et `sg-ship`. Cette mecanique expose trop de details
          et oblige l'utilisatrice a piloter un systeme que l'agent
           devrait orchestrer.
     100 +
@@ -506,20 +506,20 @@ SKILL.md
     102 +
     103 +## Solution
     104 +
-    105 +Creer une nouvelle skill lifecycle `sf-build` qui sert d'
+    105 +Creer une nouvelle skill lifecycle `sg-build` qui sert d'
          orchestrateur user-facing. Elle conserve la conversation
          master comme cockpit haut niveau, lance des sous-agents p
          ar defaut pour les etapes internes, boucle spec/readiness
           jusqu'a contrat executable, pose des questions integrees
           avec options preparees quand la vision ou le risque l'ex
          ige, puis enchaine implementation, verification, test, `s
-         f-end` et `sf-ship` seulement si les gates passent.
+         f-end` et `sg-ship` seulement si les gates passent.
     106 +
     107 +## Scope In
     108 +
     109 +- Creer `skills/sg-build/SKILL.md` comme skill user-facin
          g et lifecycle.
-    110 +- Definir `sf-build` comme orchestrateur de bout en bout:
+    110 +- Definir `sg-build` comme orchestrateur de bout en bout:
           intake, questions, spec, ready, start, verify, test, end
          , ship.
     111 +- Faire des sous-agents le fonctionnement par defaut pour
@@ -527,19 +527,19 @@ SKILL.md
          ironnement ne peut pas en lancer.
     112 +- Garder la conversation master au niveau produit, decisi
          ons, statut court, et rapport final.
-    113 +- Integrer une boucle `sf-spec` / `sf-ready` jusqu'a read
+    113 +- Integrer une boucle `sg-spec` / `sg-ready` jusqu'a read
          iness, correction de spec, question utilisateur, ou bloca
          ge.
     114 +- Ajouter un systeme de questions integrees avec options
          preparees pour vision, scope, modification de l'existant,
           design, donnees, securite, validation, fermeture, et shi
          p.
-    115 +- Definir les gates qui interdisent `sf-start`, `sf-end`,
-          ou `sf-ship` quand le contrat ou les preuves sont insuff
+    115 +- Definir les gates qui interdisent `sg-start`, `sg-end`,
+          ou `sg-ship` quand le contrat ou les preuves sont insuff
          isants.
-    116 +- Documenter comment `sf-build` interagit avec `sf-end` e
-         t `sf-ship`.
-    117 +- Mettre a jour `sf-help`, `shipglows-spec-driven-workflow
+    116 +- Documenter comment `sg-build` interagit avec `sg-end` e
+         t `sg-ship`.
+    117 +- Mettre a jour `sg-help`, `shipglows-spec-driven-workflow
          .md`, et les docs utilisateur pertinentes.
     118 +- Ajouter une entree `TASKS.md` pour l'implementation si
          elle n'existe pas encore.
@@ -547,12 +547,12 @@ SKILL.md
     120 +## Scope Out
     121 +
     122 +- Supprimer ou remplacer les skills atomiques existantes.
-    123 +- Rendre impossible l'usage manuel de `sf-spec`, `sf-read
-         y`, `sf-start`, `sf-verify`, `sf-end`, ou `sf-ship`.
+    123 +- Rendre impossible l'usage manuel de `sg-spec`, `sg-read
+         y`, `sg-start`, `sg-verify`, `sg-end`, ou `sg-ship`.
     124 +- Implementer une interface graphique.
     125 +- Garantir qu'aucune question ne sera jamais posee; au co
          ntraire, les questions sont un garde-fou central.
-    126 +- Lancer `sf-ship` sans controles ou sans decision explic
+    126 +- Lancer `sg-ship` sans controles ou sans decision explic
          ite quand le ship est risque.
     127 +- Reverter automatiquement des changements utilisateur ou
           des fichiers hors scope.
@@ -561,7 +561,7 @@ SKILL.md
     129 +
     130 +## Constraints
     131 +
-    132 +- `sf-build` doit reduire le bruit technique dans la conv
+    132 +- `sg-build` doit reduire le bruit technique dans la conv
          ersation, pas reduire la rigueur.
     133 +- Les sous-agents sont le mode par defaut, mais chaque so
          us-agent doit avoir une mission bornee, un ownership de f
@@ -587,26 +587,26 @@ SKILL.md
     142 +
     143 +- Runtime: systeme de skills ShipGlows, capacite du runtim
          e a lancer des sous-agents quand disponible, markdown spe
-         cs, git, checks projet, et mecanismes existants `sf-end`
-         / `sf-ship`.
+         cs, git, checks projet, et mecanismes existants `sg-end`
+         / `sg-ship`.
     144 +- Document contracts: `BUSINESS.md` 1.1.0 reviewed, `PROD
          UCT.md` 1.1.0 reviewed, `GUIDELINES.md` 1.0.0 reviewed, `
          shipglows-spec-driven-workflow.md` 0.3.0 draft, `skills/re
          ferences/chantier-tracking.md` 0.1.0 draft.
     145 +- Metadata gaps: `shipglows-spec-driven-workflow.md` et `s
          kills/references/chantier-tracking.md` sont encore en dra
-         ft; `sf-ready` devra accepter ou refuser explicitement ce
+         ft; `sg-ready` devra accepter ou refuser explicitement ce
          tte dependance avant implementation.
     146 +- Fresh external docs: fresh-docs not needed, because thi
          s change is local to ShipGlows skill instructions and mark
          down workflow doctrine. If implementation later touches a
-          specific SDK/runtime API for subagents or prompts, `sf-s
+          specific SDK/runtime API for subagents or prompts, `sg-s
          tart` must apply the documentation freshness gate then.
     147 +
     148 +## Invariants
     149 +
     150 +- Les skills atomiques restent les sources de verite de l
-         eur discipline; `sf-build` orchestre, il ne duplique pas
+         eur discipline; `sg-build` orchestre, il ne duplique pas
          tous leurs controles.
     151 +- Le flux spec-first reste durable dans `specs/`.
     152 +- La conversation master reste comprehensible pour une ut
@@ -617,32 +617,32 @@ SKILL.md
          a spec ou approuvee par l'utilisatrice.
     155 +- Une feature partiellement implementee ne peut pas etre
          cloturee comme livree.
-    156 +- Un ship ne vaut pas verification produit; `sf-build` do
+    156 +- Un ship ne vaut pas verification produit; `sg-build` do
          it distinguer "pousse" de "prouve".
-    157 +- `sf-build` doit preferer poser trop de questions produi
+    157 +- `sg-build` doit preferer poser trop de questions produi
          t utiles que trop peu quand une reponse evite une regress
          ion.
     158 +
     159 +## Links & Consequences
     160 +
-    161 +- Upstream systems: `sf-explore` peut rester une entree d
-         e reflexion, mais `sf-build` doit pouvoir absorber une st
+    161 +- Upstream systems: `sg-explore` peut rester une entree d
+         e reflexion, mais `sg-build` doit pouvoir absorber une st
          ory directement et declencher lui-meme une exploration co
          urte si necessaire.
-    162 +- Core lifecycle: `sf-spec`, `sf-ready`, `sf-start`, `sf-
-         verify`, `sf-test`, `sf-end`, et `sf-ship` deviennent des
+    162 +- Core lifecycle: `sg-spec`, `sg-ready`, `sg-start`, `sg-
+         verify`, `sg-test`, `sg-end`, et `sg-ship` deviennent des
           etapes internes orchestrables.
-    163 +- Chantier tracking: `sf-build` doit tracer son propre ru
+    163 +- Chantier tracking: `sg-build` doit tracer son propre ru
          n dans la spec quand une spec unique existe et doit conse
          rver les traces des sous-etapes.
-    164 +- Task tracking: `sf-end` reste responsable des updates `
-         TASKS.md` / `CHANGELOG.md`; `sf-build` ne doit pas reimpl
+    164 +- Task tracking: `sg-end` reste responsable des updates `
+         TASKS.md` / `CHANGELOG.md`; `sg-build` ne doit pas reimpl
          ementer cette logique mais doit l'appeler au bon moment.
-    165 +- Shipping: `sf-ship` reste responsable du commit/push; `
-         sf-build` doit lui transmettre un scope clair et ne pas u
+    165 +- Shipping: `sg-ship` reste responsable du commit/push; `
+         sg-build` doit lui transmettre un scope clair et ne pas u
          tiliser `all-dirty` sauf demande explicite.
-    166 +- Help/docs: `sf-help` et `shipglows-spec-driven-workflow.
-         md` doivent presenter `sf-build` comme entree recommandee
+    166 +- Help/docs: `sg-help` et `shipglows-spec-driven-workflow.
+         md` doivent presenter `sg-build` comme entree recommandee
           pour utilisateur final, tout en gardant les skills atomi
          ques pour usage expert.
     167 +- Regression surface: design, code existant, docs publiqu
@@ -654,60 +654,60 @@ SKILL.md
     171 +- `skills/sg-build/SKILL.md` doit etre cree avec descript
          ion, argument hint, canonical paths, chantier tracking, r
          ole lifecycle, et workflow complet.
-    172 +- `skills/sg-help/SKILL.md` doit ajouter `sf-build` comme
+    172 +- `skills/sg-help/SKILL.md` doit ajouter `sg-build` comme
           entree user-facing principale et expliquer quand utilise
          r les skills atomiques.
     173 +- `shipglows-spec-driven-workflow.md` doit ajouter le flux
-          recommande: `sf-build` pour les utilisateurs finaux, ski
+          recommande: `sg-build` pour les utilisateurs finaux, ski
          lls atomiques pour controle expert.
     174 +- `README.md` ou les docs publiques doivent mentionner qu
-         e `sf-build` pose des questions et orchestre sans noyer l
+         e `sg-build` pose des questions et orchestre sans noyer l
          'utilisateur en details techniques.
     175 +- `TASKS.md` doit inclure le chantier d'implementation si
           l'equipe veut suivre le travail hors spec.
-    176 +- `CHANGELOG.md` devra mentionner l'ajout de `sf-build` a
+    176 +- `CHANGELOG.md` devra mentionner l'ajout de `sg-build` a
          u moment de l'implementation, pas pendant la creation de
          cette spec.
     177 +
     178 +## Edge Cases
     179 +
-    180 +- L'utilisatrice donne une story tres vague: `sf-build` c
+    180 +- L'utilisatrice donne une story tres vague: `sg-build` c
          ommence par des questions guidees et ne cree pas de spec
          finale tant que l'acteur, le resultat, le scope et les ex
          clusions ne sont pas stables.
     181 +- L'utilisatrice demande un changement qui peut toucher l
-         'existant: `sf-build` demande si l'on modifie l'existant,
+         'existant: `sg-build` demande si l'on modifie l'existant,
           si l'on ajoute un comportement parallele, ou si l'on s'a
          rrete pour spec plus stricte.
-    182 +- Une readiness review echoue: `sf-build` lance une passe
+    182 +- Une readiness review echoue: `sg-build` lance une passe
           de correction de spec, puis une nouvelle readiness revie
          w, dans une limite explicite.
-    183 +- La boucle spec/ready echoue plusieurs fois: `sf-build`
+    183 +- La boucle spec/ready echoue plusieurs fois: `sg-build`
          s'arrete avec un blocage court et une question ou une rec
          ommandation, plutot que coder quand meme.
     184 +- Deux sous-agents proposent des changements incompatible
          s: le master agent integre ou relance une decision; il ne
           shippe pas un merge incoherent.
-    185 +- Les tests passent mais `sf-verify` dit que la user stor
-         y n'est pas tenue: pas de `sf-end` ni `sf-ship`; relance
+    185 +- Les tests passent mais `sg-verify` dit que la user stor
+         y n'est pas tenue: pas de `sg-end` ni `sg-ship`; relance
          correction ou question utilisateur.
-    186 +- `sf-end` veut marquer done mais la preuve est partielle
-         : `sf-build` choisit cloture partielle ou demande confirm
+    186 +- `sg-end` veut marquer done mais la preuve est partielle
+         : `sg-build` choisit cloture partielle ou demande confirm
          ation explicite.
-    187 +- `sf-ship` detecte des fichiers sales hors scope: `sf-bu
+    187 +- `sg-ship` detecte des fichiers sales hors scope: `sg-bu
          ild` demande le scope de staging ou stoppe; il ne shippe
          pas tout par defaut.
     188 +- L'utilisateur veut un ship malgre validation incomplete
-         : `sf-build` doit demander confirmation explicite et le r
+         : `sg-build` doit demander confirmation explicite et le r
          apport doit dire que le ship est a risque.
-    189 +- L'environnement ne supporte pas les sous-agents: `sf-bu
+    189 +- L'environnement ne supporte pas les sous-agents: `sg-bu
          ild` doit annoncer la degradation et demander si l'utilis
          atrice accepte une execution single-agent ou prefere arre
          ter.
     190 +
     191 +## Implementation Tasks
     192 +
-    193 +- [ ] Task 1: Creer la skill `sf-build`
+    193 +- [ ] Task 1: Creer la skill `sg-build`
     194 +  - File: `skills/sg-build/SKILL.md`
     195 +  - Action: Ajouter une nouvelle skill lifecycle avec des
          cription, argument-hint, canonical paths, chantier tracki
@@ -717,9 +717,9 @@ SKILL.md
          unique pour lancer un chantier complet.
     197 +  - Depends on: None
     198 +  - Validate with: `test -f skills/sg-build/SKILL.md && r
-         g -n "sf-build|Trace category|Process role|sf-end|sf-ship
+         g -n "sg-build|Trace category|Process role|sg-end|sg-ship
          |subagents|questions" skills/sg-build/SKILL.md`
-    199 +  - Notes: Garder `sf-build` comme orchestrateur; ne pas
+    199 +  - Notes: Garder `sg-build` comme orchestrateur; ne pas
          copier toute la logique interne de chaque skill atomique.
     200 +
     201 +- [ ] Task 2: Definir le protocole de questions integrees
@@ -739,14 +739,14 @@ SKILL.md
     208 +
     209 +- [ ] Task 3: Implementer la boucle spec/readiness
     210 +  - File: `skills/sg-build/SKILL.md`
-    211 +  - Action: Decrire la boucle `sf-spec` -> `sf-ready` ->
+    211 +  - Action: Decrire la boucle `sg-spec` -> `sg-ready` ->
          correction spec -> nouvelle readiness, avec limite d'iter
          ations, conditions de question utilisateur, et conditions
           de blocage.
     212 +  - User story link: Supprime l'enchainement manuel que l
          'utilisatrice fait aujourd'hui.
     213 +  - Depends on: Task 2
-    214 +  - Validate with: `rg -n "sf-spec|sf-ready|iteration|not
+    214 +  - Validate with: `rg -n "sg-spec|sg-ready|iteration|not
           ready|blocked" skills/sg-build/SKILL.md`
     215 +  - Notes: Recommander 3 iterations par defaut avant bloc
          age ou decision utilisateur.
@@ -770,7 +770,7 @@ SKILL.md
     225 +- [ ] Task 5: Ajouter les gates anti-regression avant imp
          lementation
     226 +  - File: `skills/sg-build/SKILL.md`
-    227 +  - Action: Definir les controles avant `sf-start`: dirty
+    227 +  - Action: Definir les controles avant `sg-start`: dirty
           state baseline, fichiers/surfaces autorises, permission
          de toucher l'existant, design/docs impact, security/data
          impact, et stop conditions.
@@ -779,78 +779,78 @@ SKILL.md
     229 +  - Depends on: Task 4
     230 +  - Validate with: `rg -n "dirty|regression|existing|exis
          tant|design|security|stop" skills/sg-build/SKILL.md`
-    231 +  - Notes: `sf-build` doit travailler avec les changement
+    231 +  - Notes: `sg-build` doit travailler avec les changement
          s utilisateur existants, pas les reverter.
     232 +
-    233 +- [ ] Task 6: Integrer `sf-start`, `sf-verify`, et `sf-te
+    233 +- [ ] Task 6: Integrer `sg-start`, `sg-verify`, et `sg-te
          st`
     234 +  - File: `skills/sg-build/SKILL.md`
     235 +  - Action: Decrire comment l'implementation est lancee d
          epuis une spec ready, comment la verification juge la use
-         r story, et quand `sf-test` est requis ou optionnel.
+         r story, et quand `sg-test` est requis ou optionnel.
     236 +  - User story link: Garantit que le resultat est verifie
           au-dela du simple code ecrit.
     237 +  - Depends on: Task 5
-    238 +  - Validate with: `rg -n "sf-start|sf-verify|sf-test|use
+    238 +  - Validate with: `rg -n "sg-start|sg-verify|sg-test|use
          r story|verification" skills/sg-build/SKILL.md`
-    239 +  - Notes: `sf-test` doit etre requis pour flows manuels,
+    239 +  - Notes: `sg-test` doit etre requis pour flows manuels,
           UI, auth, prod, ou comportements que les tests automatis
          es ne prouvent pas.
     240 +
-    241 +- [ ] Task 7: Integrer `sf-end` et `sf-ship`
+    241 +- [ ] Task 7: Integrer `sg-end` et `sg-ship`
     242 +  - File: `skills/sg-build/SKILL.md`
-    243 +  - Action: Ajouter la cloture par `sf-end`, puis le ship
-          par `sf-ship`, avec gates de validation, bug gate, scope
+    243 +  - Action: Ajouter la cloture par `sg-end`, puis le ship
+          par `sg-ship`, avec gates de validation, bug gate, scope
           de staging, choix quick/full, et confirmation explicite
          si risque restant.
     244 +  - User story link: Livre le parcours complet jusqu'a la
           cloture et au push sans commande manuelle supplementaire
          .
     245 +  - Depends on: Task 6
-    246 +  - Validate with: `rg -n "sf-end|sf-ship|staging|commit|
+    246 +  - Validate with: `rg -n "sg-end|sg-ship|staging|commit|
          push|bug gate|full" skills/sg-build/SKILL.md`
-    247 +  - Notes: `sf-build` ne doit pas utiliser `all-dirty` sa
+    247 +  - Notes: `sg-build` ne doit pas utiliser `all-dirty` sa
          ns demande explicite.
     248 +
-    249 +- [ ] Task 8: Mettre a jour la doctrine chantier pour `sf
+    249 +- [ ] Task 8: Mettre a jour la doctrine chantier pour `sg
          -build`
     250 +  - File: `skills/references/chantier-tracking.md`
-    251 +  - Action: Ajouter `sf-build` dans la matrice comme `Tra
+    251 +  - Action: Ajouter `sg-build` dans la matrice comme `Tra
          ce category: obligatoire` et `Process role: lifecycle`, a
          vec son role d'orchestrateur user-facing.
     252 +  - User story link: Le nouveau flux reste visible dans l
          e registre de chantier.
     253 +  - Depends on: Task 1
-    254 +  - Validate with: `rg -n "sf-build" skills/references/ch
+    254 +  - Validate with: `rg -n "sg-build" skills/references/ch
          antier-tracking.md`
     255 +  - Notes: Ne pas casser les classifications existantes.
     256 +
     257 +- [ ] Task 9: Mettre a jour l'aide et la doc workflow
     258 +  - File: `skills/sg-help/SKILL.md`, `shipglows-spec-drive
          n-workflow.md`, `README.md`
-    259 +  - Action: Documenter `sf-build` comme entree recommande
+    259 +  - Action: Documenter `sg-build` comme entree recommande
          e pour utilisateur final et conserver les skills atomique
          s comme mode expert ou reprise manuelle.
     260 +  - User story link: Rend le nouveau modele decouvrable s
          ans expliquer toute la plomberie.
     261 +  - Depends on: Tasks 1-8
-    262 +  - Validate with: `rg -n "sf-build|utilisateur final|use
-         r-facing|sf-spec -> sf-ready|sf-end|sf-ship" skills/sg-he
+    262 +  - Validate with: `rg -n "sg-build|utilisateur final|use
+         r-facing|sg-spec -> sg-ready|sg-end|sg-ship" skills/sg-he
          lp/SKILL.md shipglows-spec-driven-workflow.md README.md`
-    263 +  - Notes: Le texte public doit dire que `sf-build` pose
+    263 +  - Notes: Le texte public doit dire que `sg-build` pose
          des questions utiles, pas qu'il agit sans controle.
     264 +
     265 +- [ ] Task 10: Ajouter la tache locale et la validation f
          inale
     266 +  - File: `TASKS.md`, `CHANGELOG.md`
     267 +  - Action: Ajouter ou mettre a jour le suivi de travail
-         dans `TASKS.md` pendant `sf-start`; ajouter une entree `C
-         HANGELOG.md` seulement pendant `sf-end` apres implementat
+         dans `TASKS.md` pendant `sg-start`; ajouter une entree `C
+         HANGELOG.md` seulement pendant `sg-end` apres implementat
          ion.
     268 +  - User story link: Garde le chantier visible sans sur-v
          endre un travail non encore livre.
     269 +  - Depends on: Tasks 1-9
-    270 +  - Validate with: `rg -n "sf-build" TASKS.md CHANGELOG.m
+    270 +  - Validate with: `rg -n "sg-build" TASKS.md CHANGELOG.m
          d`
     271 +  - Notes: Ne pas modifier `CHANGELOG.md` pendant la phas
          e spec seule.
@@ -858,41 +858,41 @@ SKILL.md
     273 +## Acceptance Criteria
     274 +
     275 +- [ ] AC 1: Given une utilisatrice lance `/sg-build "je v
-         eux X"`, when la demande est non triviale, then `sf-build
+         eux X"`, when la demande est non triviale, then `sg-build
          ` cree ou rattache une spec, boucle readiness, puis ne la
          nce l'implementation que quand la spec est ready.
     276 +- [ ] AC 2: Given une decision produit, design, scope, do
          nnees, securite, ou modification de l'existant reste ambi
-         gue, when `sf-build` atteint cette decision, then il pose
+         gue, when `sg-build` atteint cette decision, then il pose
           une question integree avec options preparees au lieu d'i
          nventer.
     277 +- [ ] AC 3: Given le runtime permet les sous-agents, when
-          `sf-build` orchestre un chantier non trivial, then il la
+          `sg-build` orchestre un chantier non trivial, then il la
          nce des sous-agents par defaut avec ownership clair et ga
          rde l'integration dans la conversation master.
     278 +- [ ] AC 4: Given le runtime ne permet pas les sous-agent
-         s, when `sf-build` detecte la limitation, then il demande
+         s, when `sg-build` detecte la limitation, then il demande
           si l'utilisatrice accepte une degradation single-agent o
          u prefere arreter.
-    279 +- [ ] AC 5: Given `sf-ready` retourne `not ready`, when l
+    279 +- [ ] AC 5: Given `sg-ready` retourne `not ready`, when l
          es gaps sont reparables sans decision utilisateur, then `
-         sf-build` relance une passe de correction spec et une nou
+         sg-build` relance une passe de correction spec et une nou
          velle readiness review dans la limite d'iterations.
-    280 +- [ ] AC 6: Given `sf-verify` ou `sf-test` echoue sur la
-         user story, when `sf-build` considere la cloture, then il
-          interdit `sf-end` complet et `sf-ship` sauf decision exp
+    280 +- [ ] AC 6: Given `sg-verify` ou `sg-test` echoue sur la
+         user story, when `sg-build` considere la cloture, then il
+          interdit `sg-end` complet et `sg-ship` sauf decision exp
          licite de ship a risque.
     281 +- [ ] AC 7: Given des fichiers sales hors scope existent,
-          when `sf-build` arrive au ship, then il demande ou borne
+          when `sg-build` arrive au ship, then il demande ou borne
           explicitement le staging et ne shippe pas tout par defau
          t.
     282 +- [ ] AC 8: Given le travail est implemente et verifie, w
-         hen `sf-build` termine, then il lance `sf-end`, puis `sf-
+         hen `sg-build` termine, then il lance `sg-end`, puis `sg-
          ship`, et le rapport final reste court avec resultat, val
          idations, commit/push, et limites de preuve.
     283 +- [ ] AC 9: Given une utilisatrice relit la spec du chant
          ier, when elle consulte `Skill Run History` et `Current C
-         hantier Flow`, then elle voit le passage de `sf-build` et
+         hantier Flow`, then elle voit le passage de `sg-build` et
           les etapes internes principales.
     284 +- [ ] AC 10: Given un agent frais lit `skills/sg-build/SK
          ILL.md`, when il execute la skill, then il comprend les g
@@ -905,15 +905,15 @@ SKILL.md
          ction artifacts without executable unit harness today.
     289 +- Integration: run metadata/readiness checks on the new s
          kill and docs with `rg` validations, then run `/sg-ready
-         sf-build autonomous master skill`.
+         sg-build autonomous master skill`.
     290 +- Manual: simulate three scenarios by reading the skill i
          nstructions end-to-end: vague story requiring questions,
          ready spec leading to implementation, and failed verifica
          tion blocking end/ship.
     291 +- Regression: inspect `skills/sg-spec/SKILL.md`, `skills/
-         sf-ready/SKILL.md`, `skills/sg-start/SKILL.md`, `skills/s
+         sg-ready/SKILL.md`, `skills/sg-start/SKILL.md`, `skills/s
          f-end/SKILL.md`, and `skills/sg-ship/SKILL.md` to ensure
-         `sf-build` orchestrates rather than contradicts them.
+         `sg-build` orchestrates rather than contradicts them.
     292 +
     293 +## Risks
     294 +
@@ -921,7 +921,7 @@ SKILL.md
          ermissions, data exposure, secrets, destructive actions,
          dirty state, verification, bug risk, and ship confirmatio
          n.
-    296 +- Product risk: high if `sf-build` hides too much; mitiga
+    296 +- Product risk: high if `sg-build` hides too much; mitiga
          ted by asking more product questions while hiding only in
          ternal technical detail.
     297 +- Regression risk: high because a master skill can overst
@@ -940,15 +940,15 @@ SKILL.md
          /SKILL.md`, `skills/sg-test/SKILL.md`, `skills/sg-end/SKI
          LL.md`, `skills/sg-ship/SKILL.md`, `skills/references/cha
          ntier-tracking.md`, `shipglows-spec-driven-workflow.md`.
-    304 +- Implement in this order: create `sf-build`, add questio
+    304 +- Implement in this order: create `sg-build`, add questio
          n gates, add spec/readiness loop, add default subagent to
          pology, add anti-regression gates, add end/ship integrati
          on, update doctrine/help/docs.
-    305 +- Validate with: `rg -n "sf-build" skills/sg-build/SKILL.
+    305 +- Validate with: `rg -n "sg-build" skills/sg-build/SKILL.
          md skills/sg-help/SKILL.md skills/references/chantier-tra
          cking.md shipglows-spec-driven-workflow.md README.md`; `rg
-          -n "sf-end|sf-ship|subagent|Question Gate|regression" sk
-         ills/sg-build/SKILL.md`; `/sg-ready sf-build autonomous m
+          -n "sg-end|sg-ship|subagent|Question Gate|regression" sk
+         ills/sg-build/SKILL.md`; `/sg-ready sg-build autonomous m
          aster skill`.
     306 +- Stop conditions: no unique interpretation of ship behav
          ior, disagreement with existing lifecycle skill contracts
@@ -957,7 +957,7 @@ SKILL.md
          verification gate, or docs contract contradiction.
     307 +- Implementation boundary: do not alter the behavior of e
          xisting lifecycle skills unless needed for discoverabilit
-         y or matrix registration; `sf-build` should compose them
+         y or matrix registration; `sg-build` should compose them
          first.
     308 +
     309 +## Open Questions
@@ -970,26 +970,26 @@ SKILL.md
          |
     316 +|----------|-------|-------|--------|--------|-----------
          |
-    317 +| 2026-04-29 09:02:11 UTC | sf-spec | GPT-5 Codex | Creat
-         ed spec for sf-build autonomous master skill | draft | /s
-         f-ready sf-build autonomous master skill |
+    317 +| 2026-04-29 09:02:11 UTC | sg-spec | GPT-5 Codex | Creat
+         ed spec for sg-build autonomous master skill | draft | /s
+         f-ready sg-build autonomous master skill |
     318 +
     319 +## Current Chantier Flow
     320 +
-    321 +- `sf-spec`: done, draft spec created.
-    322 +- `sf-ready`: not launched.
-    323 +- `sf-start`: not launched.
-    324 +- `sf-verify`: not launched.
-    325 +- `sf-end`: not launched.
-    326 +- `sf-ship`: not launched.
+    321 +- `sg-spec`: done, draft spec created.
+    322 +- `sg-ready`: not launched.
+    323 +- `sg-start`: not launched.
+    324 +- `sg-verify`: not launched.
+    325 +- `sg-end`: not launched.
+    326 +- `sg-ship`: not launched.
     327 +
-    328 +Next step: `/sg-ready sf-build autonomous master skill`
+    328 +Next step: `/sg-ready sg-build autonomous master skill`
 
 ─ Worked for 2m 44s ──────────────────────────────────────────────
 
 • La spec est ecrite. Je fais une passe de verification
   structurelle rapide : presence des sections obligatoires,
-  references sf-build, et compatibilite metadata si l’outil local
+  references sg-build, et compatibilite metadata si l’outil local
   passe.
 
 • Ran rg -n "^## (Title|Status|User Story|Minimal Behavior
@@ -1003,15 +1003,15 @@ SKILL.md
     319:## Current Chantier Flow
 
 • Explored
-  └ Search sf-build|sf-end|sf-ship|subagents|Question Gate|
+  └ Search sg-build|sg-end|sg-ship|subagents|Question Gate|
 regression|
-           sf-ready in sf-build-autonomous-master-skill.md
+           sg-ready in sg-build-autonomous-master-skill.md
 
 • Ran git diff -- specs/sg-build-autonomous-master-skill.md
   └ (no output)
 
 • Ran tools/shipglows_metadata_lint.py specs/
-  │ sf-build-autonomous-master-skill.md
+  │ sg-build-autonomous-master-skill.md
   └ ShipGlows metadata lint passed: 1 file(s) checked.
 
 ──────────────────────────────────────────────────────────────────
@@ -1019,32 +1019,32 @@ regression|
 • Spec enregistrée : shipglows/specs/sg-build-autonomous-master-
   skill.md
 
-  Elle cadre sf-build comme skill maître user-facing : questions
-  intégrées avec options, sous-agents par défaut, boucle sf-spec /
-  sf-ready, garde-fous anti-régression, puis sf-start, sf-verify,
-  sf-test, sf-end et sf-ship seulement si les gates passent.
+  Elle cadre sg-build comme skill maître user-facing : questions
+  intégrées avec options, sous-agents par défaut, boucle sg-spec /
+  sg-ready, garde-fous anti-régression, puis sg-start, sg-verify,
+  sg-test, sg-end et sg-ship seulement si les gates passent.
 
   Validation faite :
 
   - sections obligatoires présentes
   - metadata lint OK
-  - garde-fous sf-end, sf-ship, sous-agents, questions, scope
+  - garde-fous sg-end, sg-ship, sous-agents, questions, scope
     existant et anti-régression inclus
 
   ## Chantier
 
-  Skill courante: sf-spec
+  Skill courante: sg-spec
   Chantier: specs/sg-build-autonomous-master-skill.md
   Trace spec: ecrite
 
   Flux:
 
-  - sf-spec: done
-  - sf-ready: not launched
-  - sf-start: not launched
-  - sf-verify: not launched
-  - sf-end: not launched
-  - sf-ship: not launched
+  - sg-spec: done
+  - sg-ready: not launched
+  - sg-start: not launched
+  - sg-verify: not launched
+  - sg-end: not launched
+  - sg-ship: not launched
 
   Reste a faire:
 
@@ -1052,9 +1052,9 @@ regression|
 
   Prochaine etape:
 
-  - /sg-ready sf-build autonomous master skill
+  - /sg-ready sg-build autonomous master skill
 
-  Verdict sf-spec:
+  Verdict sg-spec:
 
   - draft saved
 
@@ -1073,7 +1073,7 @@ regression|
   Le meilleur compromis pour ShipGlows, c’est :
 
   - Commandes / noms de skills : anglais court
-    sf-build, sf-ready, sf-verify, sf-ship
+    sg-build, sg-ready, sg-verify, sg-ship
   - Schéma machine / headings stables : anglais
     Status, User Story, Acceptance Criteria, Skill Run History
   - Questions utilisateur / rapports / explications : français avec
@@ -1098,7 +1098,7 @@ regression|
   en maintenabilité pour toi et en clarté produit. Le vrai gain IA
   vient surtout de la structure, pas de la langue.
 
-  Pour sf-build, je garderais donc les prompts utilisateur en français
+  Pour sg-build, je garderais donc les prompts utilisateur en français
   impeccable, avec options préparées, et les sections internes
   compatibles avec les specs actuelles.
 
@@ -1121,7 +1121,7 @@ regression|
   ### Step 4 — Vérification
   - Lancer les tests ciblés.
   - Vérifier que la user story est réellement tenue.
-  - Si la vérification échoue, ne pas lancer sf-ship.
+  - Si la vérification échoue, ne pas lancer sg-ship.
 
   Donc ce n’est pas l’interface utilisateur, ni les noms de commandes.
   C’est la “notice interne” de la skill : les règles, les étapes, les
@@ -1166,7 +1166,7 @@ regression|
   ## Skill Run History
 
   Ces titres-là sont des “ancres” pour les skills. Les garder en
-  anglais est utile parce que sf-ready, sf-verify, etc. les cherchent
+  anglais est utile parce que sg-ready, sg-verify, etc. les cherchent
   déjà comme des sections stables.
 
   Mais ça ne veut pas dire que tout le contenu des specs doit être en
@@ -1181,7 +1181,7 @@ regression|
 
   ## Scope In
 
-  - Créer `sf-build`
+  - Créer `sg-build`
   - Poser des questions guidées
   - Lancer les sous-agents par défaut
 
@@ -1224,7 +1224,7 @@ regression|
     critères, règles internes : anglais
   - Questions posées à l’utilisateur, rapports courts, prompts
     intégrés, messages finaux : français avec accents
-  - Noms de commandes : anglais court (sf-build, sf-ready, sf-ship)
+  - Noms de commandes : anglais court (sg-build, sg-ready, sg-ship)
   - Documents business/produit si tu les relis souvent : au choix,
     mais je les mettrais aussi en anglais à terme pour cohérence agent
 
@@ -1242,7 +1242,7 @@ regression|
   Internal contract language: English
   User-facing language: French
 
-  Et dans la spec sf-build, il faudrait ajouter cette convention : sf-
+  Et dans la spec sg-build, il faudrait ajouter cette convention : sg-
   build peut orchestrer en anglais en interne, mais toutes les
   questions et tous les rapports utilisateur doivent être en français
   naturel avec accents.
@@ -1326,17 +1326,17 @@ regression|
   et les specs futures.
 
 • Explored
-  └ Read SKILL.md (sf-docs skill)
+  └ Read SKILL.md (sg-docs skill)
 
 ──────────────────────────────────────────────────────────────────────
 
-• J’utilise sf-docs parce que c’est une règle de documentation et de
+• J’utilise sg-docs parce que c’est une règle de documentation et de
   cohérence des skills. Je vais l’ajouter au contrat technique
-  central, puis rattacher sf-build à cette convention pour que la
+  central, puis rattacher sg-build à cette convention pour que la
   future skill l’applique dès sa création.
 
 • Explored
-  └ Read GUIDELINES.md, sf-build-autonomous-master-skill.md, shipglows-
+  └ Read GUIDELINES.md, sg-build-autonomous-master-skill.md, shipglows-
          spec-driven-workflow.md
 
 • Ran git diff -- GUIDELINES.md shipglows-spec-driven-workflow.md
@@ -1349,14 +1349,14 @@ regression|
 
 ──────────────────────────────────────────────────────────────────────
 
-• Je vois que GUIDELINES.md et la spec sf-build ont déjà évolué depuis
+• Je vois que GUIDELINES.md et la spec sg-build ont déjà évolué depuis
   la dernière passe, donc je vais faire des ajouts ciblés sans
   réécrire ces changements. La convention sera en anglais dans les
   contrats internes, avec la règle explicite que l’interaction
   utilisateur suit la langue de l’utilisateur.
 
 • Explored
-  └ Read sf-build-autonomous-master-skill.md
+  └ Read sg-build-autonomous-master-skill.md
 
 • Edited shipglows/GUIDELINES.md (+14 -1)
       3  metadata_schema_version: "1.0"
@@ -1401,7 +1401,7 @@ regression|
      97 +- Stable machine-readable labels stay English even inside oth
          erwise localized content, for example `Status`, `Scope In`, `
          Acceptance Criteria`, `Skill Run History`, and command names
-         such as `sf-build`.
+         such as `sg-build`.
      98 +- Do not mix languages casually inside one artifact. If an in
          ternal English document needs to show a user prompt, quote th
          e prompt in the user's language and label it clearly.
@@ -1456,7 +1456,7 @@ regression|
     231 +Stable machine-readable anchors stay English even in localize
          d artifacts: `Status`, `Scope In`, `Scope Out`, `Acceptance C
          riteria`, `Test Strategy`, `Skill Run History`, `Current Chan
-         tier Flow`, and command names such as `sf-build`.
+         tier Flow`, and command names such as `sg-build`.
     232 +
     233 +Do not rewrite old mixed-language artifacts only for language
           cleanup. Apply the doctrine to new artifacts and to touched
@@ -1489,15 +1489,15 @@ regression|
      43 +    artifact_version: "1.2.0"
      44      required_status: "reviewed"
         ⋮
-     67    - "sf-ready 2026-04-29: previous draft was not ready becaus
+     67    - "sg-ready 2026-04-29: previous draft was not ready becaus
          e default subagents, integrated question fallback, freshness
          evidence, and changelog timing were underspecified."
-     67 -next_step: "/sg-start sf-build Autonomous Master Skill"
+     67 -next_step: "/sg-start sg-build Autonomous Master Skill"
      68 +  - "User decision 2026-04-29: ShipGlows should standardize la
          nguage by layer: English internal contracts, user-facing inte
          raction in the user's active language, with proper French acc
          ents for French."
-     69 +next_step: "/sg-ready sf-build Autonomous Master Skill"
+     69 +next_step: "/sg-ready sg-build Autonomous Master Skill"
      70  ---
         ⋮
      79
@@ -1509,14 +1509,14 @@ regression|
          ur vision, scope, modification de l'existant, design, donnees
          , securite, validation, fermeture, staging et ship.
     128 +- Appliquer la doctrine de langue ShipGlows: instructions inte
-         rnes de `sf-build` en anglais, questions et rapports utilisat
+         rnes de `sg-build` en anglais, questions et rapports utilisat
          eur dans la langue active de l'utilisatrice.
     129  - Definir le fallback plain-text quand l'outil de question in
          tegree ou `AskUserQuestion` n'est pas disponible.
         ⋮
-    150  - `sf-build` doit reduire le bruit technique dans la conversa
+    150  - `sg-build` doit reduire le bruit technique dans la conversa
          tion, pas reduire la rigueur.
-    151 +- `sf-build` doit respecter la doctrine de langue: contrat in
+    151 +- `sg-build` doit respecter la doctrine de langue: contrat in
          terne en anglais, interaction utilisateur dans la langue acti
          ve, et français accentué quand l'utilisatrice parle français.
     152  - Le multi-agent est le mode recommande, mais chaque sous-age
@@ -1524,7 +1524,7 @@ regression|
          si l'invocation ne le demandait pas clairement.
         ⋮
     167  - Prompt runtime: `AskUserQuestion` ou equivalent peut etre i
-         ndisponible selon le mode; `sf-build` doit specifier un fallb
+         ndisponible selon le mode; `sg-build` doit specifier un fallb
          ack plain-text.
     164 -- Document contracts: `BUSINESS.md` 1.1.0 reviewed, `PRODUCT.
          md` 1.1.0 reviewed, `GUIDELINES.md` 1.0.0 reviewed, `BRANDING
@@ -1538,16 +1538,16 @@ regression|
          tracking.md` 0.1.0 draft.
     169  - Metadata gaps: `README.md`, `shipglows-spec-driven-workflow.
          md`, et `skills/references/chantier-tracking.md` sont encore
-         en draft; `sf-ready` devra accepter explicitement cette depen
+         en draft; `sg-ready` devra accepter explicitement cette depen
          dance ou demander une revue documentaire prealable.
         ⋮
-    181  - `sf-build` doit preferer poser trop de questions produit ut
+    181  - `sg-build` doit preferer poser trop de questions produit ut
          iles que trop peu quand une reponse evite une regression.
     182 +- Les questions, choix préparés, mises à jour courtes et rapp
-         orts finaux de `sf-build` doivent rester dans la langue activ
+         orts finaux de `sg-build` doivent rester dans la langue activ
          e de l'utilisatrice; les instructions internes, noms de secti
          ons stables et critères techniques restent en anglais.
-    183  - `sf-build` ne doit jamais transformer une limite runtime en
+    183  - `sg-build` ne doit jamais transformer une limite runtime en
           contournement silencieux; elle doit soit demander, soit degr
          ader avec accord, soit bloquer.
         ⋮
@@ -1559,7 +1559,7 @@ regression|
          terne en anglais, tout en exigeant que les questions et rappo
          rts utilisateur soient produits dans la langue active de l'ut
          ilisatrice.
-    201  - `skills/references/chantier-tracking.md` doit ajouter `sf-b
+    201  - `skills/references/chantier-tracking.md` doit ajouter `sg-b
          uild` comme skill lifecycle obligatoire.
         ⋮
     237    - File: `skills/sg-build/SKILL.md`
@@ -1579,15 +1579,15 @@ regression|
         ⋮
     322  - [ ] AC 5: Given une decision produit, design, scope, donnee
          s, securite, modification de l'existant, staging ou ship rest
-         e ambigue, when `sf-build` atteint cette decision, then il po
+         e ambigue, when `sg-build` atteint cette decision, then il po
          se une question avec options preparees au lieu d'inventer.
     323 +- [ ] AC 5b: Given l'utilisatrice interagit en français, when
-          `sf-build` pose une question, donne un statut ou rend son ra
+          `sg-build` pose une question, donne un statut ou rend son ra
          pport final, then le texte utilisateur est en français nature
          l avec accents, même si les instructions internes de la skill
           sont en anglais.
     324  - [ ] AC 6: Given l'outil de question integree est indisponib
-         le, when une decision materielle est requise, then `sf-build`
+         le, when une decision materielle est requise, then `sg-build`
           pose une question plain-text courte avec options et attend l
          a reponse avant de continuer.
         ⋮
@@ -1596,61 +1596,61 @@ regression|
          .com/codex/cli`, `https://developers.openai.com/codex/cloud/i
          nternet-access`, `https://developers.openai.com/learn/docs-mc
          p`.
-    353 -- Implement in this order: create `sf-build`; add question ga
+    353 -- Implement in this order: create `sg-build`; add question ga
          te and fallback; add explicit subagent authorization and topo
          logy; add spec/readiness loop; add anti-regression gates; add
           implementation/verify/test orchestration; add end/ship integ
          ration; update chantier doctrine; update help/workflow/README
          ; update `TASKS.md`; run readiness.
-    360 +- Implement in this order: create `sf-build` with internal in
+    360 +- Implement in this order: create `sg-build` with internal in
          structions in English; add question gate and language-aware f
          allback; add explicit subagent authorization and topology; ad
          d spec/readiness loop; add anti-regression gates; add impleme
          ntation/verify/test orchestration; add end/ship integration;
          update chantier doctrine; update help/workflow/README; update
           `TASKS.md`; run readiness.
-    361  - Packages to avoid: no new runtime package or SDK unless `sf
+    361  - Packages to avoid: no new runtime package or SDK unless `sg
          -start` proves it is necessary and applies fresh-docs again.
         ⋮
-    381  | 2026-04-29 16:19:01 UTC | sf-ready | GPT-5 Codex | Validate
+    381  | 2026-04-29 16:19:01 UTC | sg-ready | GPT-5 Codex | Validate
          d revised spec structure, user story alignment, runtime conse
          nt semantics, security gates, fresh Codex docs, task ordering
-         , and acceptance criteria | ready | /sg-start sf-build Autono
+         , and acceptance criteria | ready | /sg-start sg-build Autono
          mous Master Skill |
-    382 +| 2026-04-29 16:32:00 UTC | sf-docs | GPT-5 Codex | Added Shi
-         pFlow language doctrine dependency and sf-build language requ
-         irements | draft | /sg-ready sf-build Autonomous Master Skill
+    382 +| 2026-04-29 16:32:00 UTC | sg-docs | GPT-5 Codex | Added Shi
+         pFlow language doctrine dependency and sg-build language requ
+         irements | draft | /sg-ready sg-build Autonomous Master Skill
           |
     383
         ⋮
-    386  - `sf-spec`: done, draft spec revised after readiness feedbac
+    386  - `sg-spec`: done, draft spec revised after readiness feedbac
          k.
-    379 -- `sf-ready`: ready.
-    387 +- `sf-ready`: needs rerun after language doctrine update.
-    388  - `sf-start`: not launched.
+    379 -- `sg-ready`: ready.
+    387 +- `sg-ready`: needs rerun after language doctrine update.
+    388  - `sg-start`: not launched.
         ⋮
     392
-    385 -Next step: `/sg-start sf-build Autonomous Master Skill`
-    393 +Next step: `/sg-ready sf-build Autonomous Master Skill`
+    385 -Next step: `/sg-start sg-build Autonomous Master Skill`
+    393 +Next step: `/sg-ready sg-build Autonomous Master Skill`
 
 ─ Worked for 1m 18s ──────────────────────────────────────────────────
 
 • La convention est maintenant dans le contrat technique global et
-  dans la doctrine du workflow. J’ai aussi rattaché la spec sf-build à
+  dans la doctrine du workflow. J’ai aussi rattaché la spec sg-build à
   cette règle, ce qui la remet logiquement en attente de readiness
   avant implémentation.La règle est maintenant inscrite dans le
-  contrat technique global et rattachée à la spec sf-build. Je vérifie
+  contrat technique global et rattachée à la spec sg-build. Je vérifie
   le lint metadata et les occurrences clés avant de résumer.
 
 • Explored
   └ Search Language Doctrine|internal contracts|user-facing|active
-           language|français|sf-build.*language|
+           language|français|sg-build.*language|
 GUIDELINES.md.*1\.2\.0|
            0\.4\.0 in GUIDELINES.md
 
 • Ran tools/shipglows_metadata_lint.py GUIDELINES.md
   │ shipglows-spec-driven-workflow.md specs/
-  │ sf-build-autonomous-master-skill.md
+  │ sg-build-autonomous-master-skill.md
   └ ShipGlows metadata lint passed: 3 file(s) checked.
 
 • Ran git diff -- GUIDELINES.md shipglows-spec-driven-workflow.md
@@ -1658,8 +1658,8 @@ GUIDELINES.md.*1\.2\.0|
   └ diff --git a/GUIDELINES.md b/GUIDELINES.md
     index 0db0b9f..9b7c0dc 100644
     … +302 lines (ctrl + t to view transcript)
-    -Next step: `/sg-start sf-build Autonomous Master Skill`
-    +Next step: `/sg-ready sf-build Autonomous Master Skill`
+    -Next step: `/sg-start sg-build Autonomous Master Skill`
+    +Next step: `/sg-ready sg-build Autonomous Master Skill`
 
 ──────────────────────────────────────────────────────────────────────
 
@@ -1685,7 +1685,7 @@ GUIDELINES.md.*1\.2\.0|
     utilisateur : langue de l’utilisateur ;
   - si l’utilisateur parle français : français accentué.
 
-  J’ai aussi rattaché cette règle à la spec sf-build, donc la future
+  J’ai aussi rattaché cette règle à la spec sg-build, donc la future
   skill devra être écrite en anglais en interne, mais interagir avec
   toi en français naturel.
 
@@ -1694,24 +1694,24 @@ GUIDELINES.md.*1\.2\.0|
 
   ## Chantier
 
-  Skill courante: sf-docs
+  Skill courante: sg-docs
   Chantier: specs/sg-build-autonomous-master-skill.md
   Trace spec: écrite
 
   Flux:
 
-  - sf-spec: done
-  - sf-ready: needs rerun after language doctrine update
-  - sf-start: not launched
-  - sf-verify: not launched
-  - sf-end: not launched
-  - sf-ship: not launched
+  - sg-spec: done
+  - sg-ready: needs rerun after language doctrine update
+  - sg-start: not launched
+  - sg-verify: not launched
+  - sg-end: not launched
+  - sg-ship: not launched
 
   Prochaine étape:
 
-  - /sg-ready sf-build Autonomous Master Skill
+  - /sg-ready sg-build Autonomous Master Skill
 
-  Verdict sf-docs:
+  Verdict sg-docs:
 
   - language doctrine formalized
 

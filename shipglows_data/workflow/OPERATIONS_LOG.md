@@ -9,7 +9,7 @@ status: active
 schema_version: "1.0.0"
 owner: Diane
 source_of_truth: append_only
-write_tool: /home/claude/shipglowz/tools/append_shipglows_event.py
+write_tool: /home/claude/shipglows/tools/append_shipglows_event.py
 scope: "operations, checks, verification, and lifecycle events"
 confidence: high
 risk_level: medium
@@ -30,7 +30,7 @@ Append-only machine-readable events for operations, checks, verification, and li
 
 - Events are fenced YAML blocks wrapped by `<!-- shipglows:event start -->` and `<!-- shipglows:event end -->`.
 - Do not edit existing event blocks in place.
-- Append only through `/home/claude/shipglowz/tools/append_shipglows_event.py`.
+- Append only through `/home/claude/shipglows/tools/append_shipglows_event.py`.
 - Empty ledger is valid.
 
 ## Events

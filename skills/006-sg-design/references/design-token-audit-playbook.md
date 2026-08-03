@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-07-15"
+updated: "2026-08-03"
 status: active
 source_skill: 006-sg-design
 scope: design-token-audit
@@ -45,6 +45,8 @@ Use for `006-sg-design audit tokens [scope]`.
 
 Confirm that a real design-token authority exists and is consumed by production UI. If none exists, stop and route to `006-sg-design system`. If multiple sources compete, report split-brain authority as a high-priority finding before scoring downstream quality.
 
+For app/site or cross-platform parity claims, similarly named variables are not proof of shared authority. Identify the canonical semantic source or generation/mapping path for every surface, then compare resolved values and rendered roles. Parallel hand-maintained dictionaries without that traceability are split-brain authority.
+
 This audit is read-only for product source. Use the term **design tokens** throughout; never shorten it to “tokens” where that could be confused with credentials or model units.
 
 ## Context Inventory
@@ -84,6 +86,8 @@ Trace primitive-to-semantic-to-component aliases and report:
 - duplicate intents resolving to the same value without an intentional alias
 - component consumers bound to a non-canonical source
 - passthrough APIs that let callers bypass the authority
+- platform or product surfaces whose local design tokens cannot be traced to the canonical semantic source
+- same-named cross-surface design tokens whose resolved values or semantic roles diverge without a documented platform adaptation
 
 ### 5. Historical Drift
 
@@ -119,7 +123,7 @@ Adapt priority to blast radius:
 
 ## Report Contract
 
-Report the four-system inventory, phase scores, overall grade, critical/high findings, priority improvements, canonical authority, production-consumption status, drift scan status, and chantier potential. If the authority exists but pages/components bypass it, route the consumption migration explicitly; do not present playground creation or source centralization as completed implementation.
+Report the four-system inventory, phase scores, overall grade, critical/high findings, priority improvements, canonical authority, production-consumption status, cross-surface mapping and resolved-value status when parity is claimed, drift scan status, and chantier potential. If the authority exists but pages/components bypass it, route the consumption migration explicitly; do not present playground creation or source centralization as completed implementation.
 
 Operational tracking writes, when owned by the active lifecycle, must use the traffic-first grammar after a fresh re-read. Never rewrite trackers or product source during the audit.
 

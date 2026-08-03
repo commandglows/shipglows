@@ -255,9 +255,9 @@ method and `TASKS.md` remains the operational record.
 
 ```bash
 rg -n "CONVERSATION-TRACKER-ABSENT|CONVERSATION-SUBJECT-DUPLICATION|CONVERSATION-INACTIVE-30D|more than 30 days|current thread" \
-  /home/claude/shipglowz/skills/309-sg-tasks/SKILL.md \
-  /home/claude/shipglowz/shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md
-python3 /home/claude/shipglowz/tools/shipglows_metadata_lint.py \
-  /home/claude/shipglowz/shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md
+  /home/claude/shipglows/skills/309-sg-tasks/SKILL.md \
+  /home/claude/shipglows/shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md
+python3 /home/claude/shipglows/tools/shipglows_metadata_lint.py \
+  /home/claude/shipglows/shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md
 python3 -m unittest tools.test_rename_codex_session
 ```

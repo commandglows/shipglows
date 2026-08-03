@@ -6,7 +6,7 @@ project: "WinGlowz"
 created: "2026-07-04"
 updated: "2026-07-04"
 status: reviewed
-source_skill: 102-sf-start
+source_skill: 102-sg-start
 scope: "ime-gestures"
 owner: "Diane"
 confidence: high
@@ -27,7 +27,7 @@ evidence:
   - "WinGlowz IME swipe investigation across WinGlowzKeyboardView.kt and KeyboardLongPressSwipePolicy.kt."
   - "Spec shipglows-code-navigation-and-function-documentation-system.md task 8 pilot."
 next_review: "2026-08-04"
-next_step: "/300-sf-docs technical audit"
+next_step: "/300-sg-docs technical audit"
 ---
 
 # Technical Behavior Index: WinGlowz IME Gestures
@@ -82,7 +82,7 @@ This file owns term-based recovery for WinGlowz IME gesture behavior. It exists 
 - Tests:
   - `No dedicated automated test located in this pilot artifact yet; current proof is documentation + source contract coverage.`
 - Specs / bugs:
-  - `/home/claude/shipglowz/shipglows_data/workflow/specs/shipglows-code-navigation-and-function-documentation-system.md`
+  - `/home/claude/shipglows/shipglows_data/workflow/specs/shipglows-code-navigation-and-function-documentation-system.md`
 - Decisions:
   - `no durable decision record needed - this pilot documents a local navigation/recovery contract rather than a separate product architecture decision`
 - Failure / drift signals:

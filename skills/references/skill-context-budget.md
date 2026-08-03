@@ -165,7 +165,7 @@ SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
 If the canonical script is not available yet, use this rough estimate:
 
 ```bash
-find "$HOME/shipglowz/skills" -mindepth 2 -maxdepth 2 -name SKILL.md -print0 |
+find "$HOME/shipglows/skills" -mindepth 2 -maxdepth 2 -name SKILL.md -print0 |
   xargs -0 awk '
     /^name: / {
       name=$0

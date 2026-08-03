@@ -313,7 +313,7 @@
   └ Read SKILL.md (800-tmux-capture-conversation skill), content-
          router.md, shipglows-owned-preflight.md
 
-• Ran SHIPGLOWS_ROOT=/home/claude/shipglows /home/claude/shipglowz/
+• Ran SHIPGLOWS_ROOT=/home/claude/shipglows /home/claude/shipglows/
   │ skills/800-tmux-capture-conversation/scripts/
   │ capture_tmux_conversation.sh --preset shipglows --dry-run
   └ Title: Conversation 000-shipglows - termine librement sauf si
@@ -331,11 +331,11 @@
   sera conservée dans un nouveau fichier pour ne pas écraser les
   versions du 28 juillet.
 
-• Ran SHIPGLOWS_ROOT=/home/claude/shipglows /home/claude/shipglowz/
+• Ran SHIPGLOWS_ROOT=/home/claude/shipglows /home/claude/shipglows/
   │ skills/800-tmux-capture-conversation/scripts/
   │ capture_tmux_conversation.sh --preset shipglows --title
   │ … +5 lines
-  └ Captured tmux target 0:6.1 to /home/claude/shipglowz/
+  └ Captured tmux target 0:6.1 to /home/claude/shipglows/
     shipglows_data/workflow/conversations/
     … +4 lines (ctrl + t to view transcript)
     conversation-000-shipglows-recuperation-scrollback-complet-202
@@ -1057,7 +1057,7 @@
   │ "$SHIPGLOWS_ROOT/skills/800-tmux-capture-conversation/
   │ scripts/capture_tmux_conversation.sh" --dry-run
   └ Title: Conversation tmux - panneau courant - claude · bash
-    Destination: /home/claude/shipglowz/shipglows_data/workflow/
+    Destination: /home/claude/shipglows/shipglows_data/workflow/
     … +10 lines (ctrl + t to view transcript)
     conversation-tmux-panneau-courant-claude-bash-20260729-122418.
     md

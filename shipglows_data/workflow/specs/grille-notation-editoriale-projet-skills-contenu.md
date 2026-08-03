@@ -272,7 +272,7 @@ Toute évaluation doit produire la sortie machine suivante, utilisée par les ow
 - `exception_without_proof`:
   - A missing sample rubric output is not an acceptable exception. It keeps `sg-verify` partial because the feature can look mechanically wired while failing the project-aware scoring behavior.
   - A missing `run_signature`, `applied_rules_revision`, `evaluator.skill`, `project_id`, or normalized `surface` is not an acceptable exception for a consumed score.
-- `sf-verify_consumption_rule`: `sg-verify` may pass this chantier only when mechanical checks pass and at least one acceptable sample proves the rubric output can be consumed or rejected according to the scenarios above.
+- `sg-verify_consumption_rule`: `sg-verify` may pass this chantier only when mechanical checks pass and at least one acceptable sample proves the rubric output can be consumed or rejected according to the scenarios above.
 
 ## Dependencies
 

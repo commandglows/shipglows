@@ -74,11 +74,7 @@ LAUNCHER
 
 chmod +x "$COMMAND_PATH"
 ln -sf "$COMMAND_PATH" "$BIN_DIR/tui"
-ln -sf "$COMMAND_PATH" "$BIN_DIR/shipglows-tui"
-ln -sf "$COMMAND_PATH" "$BIN_DIR/sftui"
 ln -sf "$COMMAND_PATH" "$BIN_DIR/sg-tui"
-ln -sf "$COMMAND_PATH" "$BIN_DIR/sf-tui"
-ln -sf "$COMMAND_PATH" "$BIN_DIR/shipglows-tui"
 
 case ":$PATH:" in
   *":$BIN_DIR:"*) ;;
@@ -92,6 +88,3 @@ echo "ShipGlows TUI command installed:"
 echo "  tui"
 echo "  shipglows-tui"
 echo "  sg-tui"
-echo "  sftui"
-echo "  sf-tui"
-echo "  shipglows-tui"

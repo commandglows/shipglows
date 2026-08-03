@@ -67,13 +67,13 @@ describe("readDashboardData", () => {
         "",
         "| Date UTC | Skill | Model | Action | Result | Next step |",
         "|----------|-------|-------|--------|--------|-----------|",
-        "| 2026-05-17 00:00:00 UTC | sf-ready | GPT-5 | checked | ready | /sg-start |",
+        "| 2026-05-17 00:00:00 UTC | sg-ready | GPT-5 | checked | ready | /sg-start |",
         "",
         "# Current Chantier Flow",
         "",
         "| Phase | Status | Evidence | Next step |",
         "|-------|--------|----------|-----------|",
-        "| sf-start | done | implemented | /sg-verify |"
+        "| sg-start | done | implemented | /sg-verify |"
       ].join("\n"),
       "utf8"
     );
@@ -270,7 +270,7 @@ describe("readDashboardData", () => {
         "",
         "| Phase | Status | Evidence | Next step |",
         "|-------|--------|----------|-----------|",
-        "| sf-ready | done | canonical parser | /sg-ready |"
+        "| sg-ready | done | canonical parser | /sg-ready |"
       ].join("\n"),
       "utf8"
     );

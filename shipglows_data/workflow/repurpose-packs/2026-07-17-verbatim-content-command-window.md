@@ -34,7 +34,7 @@ User message 2
 
 <skill>
 <name>007-sg-content</name>
-<path>/home/claude/shipglowz/skills/007-sg-content/SKILL.md</path>
+<path>/home/claude/shipglows/skills/007-sg-content/SKILL.md</path>
 ---
 name: 007-sg-content
 description: "Orchestrate substantive content lifecycles across sources, claims, public surfaces, validation, and ship."
@@ -211,7 +211,7 @@ User message 4
 
 <skill>
 <name>007-sg-content</name>
-<path>/home/claude/shipglowz/skills/007-sg-content/SKILL.md</path>
+<path>/home/claude/shipglows/skills/007-sg-content/SKILL.md</path>
 ---
 name: 007-sg-content
 description: "Orchestrate substantive content lifecycles across sources, claims, public surfaces, validation, and ship."

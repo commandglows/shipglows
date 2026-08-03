@@ -313,9 +313,9 @@ agent IA: Ran SHIPGLOWS_ROOT=/home/claude/shipglows
   │ capture_tmux_conversation.sh --preset shipglows --session 0 --tab 6
   │ … +1 lines
   └ Title: Conversation 000-shipglows - vazy
-    Destination: /home/claude/shipglowz/shipglows_data/workflow/
+    Destination: /home/claude/shipglows/shipglows_data/workflow/
     … +8 lines (ctrl + t to view transcript)
-    Neovim command: cd /home/claude/shipglowz/shipglows_data/workflow/
+    Neovim command: cd /home/claude/shipglows/shipglows_data/workflow/
     conversations && nvim conversation-000-shipglows-vazy-20260729-130406.md
 
 

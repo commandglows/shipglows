@@ -38,10 +38,10 @@ verifie au niveau des roles car il.me semble qu'on en a deja fait une partie $30
 ```text
 Oui, tu avais raison : la base existe déjà et elle est cohérente.
 
-- Le rôle invocable `SEO Specialist` est en place. Il sert à arbitrer l’intention de recherche, la découvrabilité et la cohérence page/contenu/claim. [Rôle SEO](/home/claude/shipglowz/skills/references/operator-roles/seo-specialist.md:34)
-- Son profil d’activation existe aussi : `%SEO-specialist` ou `profile=seo-specialist`. [Profil](/home/claude/shipglowz/shipglows_data/business/agent-profiles/seo-specialist.md:33)
-- Le métier complet de chargé de référencement est déjà découpé en quatre sous-spécialités : audit, implémentation technique, stratégie de contenu et reporting. [Playbook](/home/claude/shipglowz/shipglows_data/workflow/playbooks/seo-charge-referencement-web-playbook.md:44)
-- La checklist transverse existe également, avec les contrôles d’intention, indexation, crawl, maillage, données structurées, GA4/Search Console, priorisation et vérification. [Checklist](/home/claude/shipglowz/shipglows_data/workflow/checklists/seo-charge-referencement-web-checklist.md:53)
+- Le rôle invocable `SEO Specialist` est en place. Il sert à arbitrer l’intention de recherche, la découvrabilité et la cohérence page/contenu/claim. [Rôle SEO](/home/claude/shipglows/skills/references/operator-roles/seo-specialist.md:34)
+- Son profil d’activation existe aussi : `%SEO-specialist` ou `profile=seo-specialist`. [Profil](/home/claude/shipglows/shipglows_data/business/agent-profiles/seo-specialist.md:33)
+- Le métier complet de chargé de référencement est déjà découpé en quatre sous-spécialités : audit, implémentation technique, stratégie de contenu et reporting. [Playbook](/home/claude/shipglows/shipglows_data/workflow/playbooks/seo-charge-referencement-web-playbook.md:44)
+- La checklist transverse existe également, avec les contrôles d’intention, indexation, crawl, maillage, données structurées, GA4/Search Console, priorisation et vérification. [Checklist](/home/claude/shipglows/shipglows_data/workflow/checklists/seo-charge-referencement-web-checklist.md:53)
 
 Le point à retenir : `SEO Specialist` n’est pas censé être toute la fiche métier. C’est une posture de décision. Le playbook et la checklist portent la couverture opérationnelle complète. C’est une bonne séparation : on peut invoquer un spécialiste SEO sans faire croire qu’un seul agent exécute indistinctement audit, technique, contenu et analytics.
 

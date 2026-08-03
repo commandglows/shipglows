@@ -12,7 +12,7 @@ source_skill: sg-spec
 source_model: "GPT-5 Codex"
 scope: skill-runtime-migration
 owner: Diane
-user_story: "En tant qu'operatrice ShipGlows qui cherche souvent une skill precise dans Codex ou Claude Code, je veux que chaque skill ShipGlows ait un nom runtime commencant par un code a trois chiffres juste avant son nom existant, afin de filtrer, memoriser et lancer rapidement la bonne skill sans parcourir une longue liste de noms en sf-*."
+user_story: "En tant qu'operatrice ShipGlows qui cherche souvent une skill precise dans Codex ou Claude Code, je veux que chaque skill ShipGlows ait un nom runtime commencant par un code a trois chiffres juste avant son nom existant, afin de filtrer, memoriser et lancer rapidement la bonne skill sans parcourir une longue liste de noms en sg-*."
 confidence: high
 risk_level: high
 security_impact: yes
@@ -67,7 +67,7 @@ ready
 
 ## User Story
 
-En tant qu'operatrice ShipGlows qui cherche souvent une skill precise dans Codex ou Claude Code, je veux que chaque skill ShipGlows ait un nom runtime commencant par un code a trois chiffres juste avant son nom existant, afin de filtrer, memoriser et lancer rapidement la bonne skill sans parcourir une longue liste de noms en sf-*.
+En tant qu'operatrice ShipGlows qui cherche souvent une skill precise dans Codex ou Claude Code, je veux que chaque skill ShipGlows ait un nom runtime commencant par un code a trois chiffres juste avant son nom existant, afin de filtrer, memoriser et lancer rapidement la bonne skill sans parcourir une longue liste de noms en sg-*.
 
 ## Minimal Behavior Contract
 
@@ -197,7 +197,7 @@ Perform a controlled runtime identity migration from unprefixed names to three-d
 ## Edge Cases
 
 - `shipglows` becomes `000-shipglows`, so docs that tell operators to start with `$shipglows` need an explicit new equivalent.
-- Skills without `sf-` prefixes, such as `continue`, `name`, `tmux-capture-conversation`, and `clean-conversation-transcript`, still receive three-digit prefixes.
+- Skills without `sg-` prefixes, such as `continue`, `name`, `tmux-capture-conversation`, and `clean-conversation-transcript`, still receive three-digit prefixes.
 - Existing `agents/openai.yaml` display names can drift from frontmatter unless updated.
 - `tools/shipglows_sync_skills.sh --all` skips invalid old source names only after rename; stale old runtime symlinks may still exist and must be cleaned safely.
 - Shell commands that include prefixed names are safe because digits and hyphens do not require quoting.
@@ -241,9 +241,9 @@ Perform a controlled runtime identity migration from unprefixed names to three-d
 - [x] Task 5: Update routing, help, docs, and lifecycle contracts
   - File: `skills/000-shipglows/SKILL.md`, `skills/references/entrypoint-routing.md`, `skills/302-sg-help/SKILL.md`, `skills/302-sg-help/references/help-catalog.md`, `shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md`, `README.md`, `shipglows_data/technical/skill-runtime-and-lifecycle.md`, `shipglows_data/technical/code-docs-map.md`
   - Action: Replace discovery-only two-digit language with three-digit runtime identity language and update examples.
-  - User story link: Operators and future agents learn the new direct names instead of stale `$sf-*` examples.
+  - User story link: Operators and future agents learn the new direct names instead of stale `$sg-*` examples.
   - Depends on: Tasks 1-4
-  - Validate with: `rg -n "discovery layer|not skill identities|00-shipglows|01-sg-build|\\$sf-|sg-build" <changed docs>` and manually classify allowed legacy mentions.
+  - Validate with: `rg -n "discovery layer|not skill identities|00-shipglows|01-sg-build|\\$sg-|sg-build" <changed docs>` and manually classify allowed legacy mentions.
   - Notes: Do not erase historical evidence in old specs.
 
 - [x] Task 6: Update runtime sync helper for migration cleanup
@@ -287,7 +287,7 @@ Perform a controlled runtime identity migration from unprefixed names to three-d
 - Skill metadata validation: `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`.
 - Runtime link validation: `tools/shipglows_sync_skills.sh --repair --all` followed by `tools/shipglows_sync_skills.sh --check --all`.
 - Metadata/document validation: `python3 tools/shipglows_metadata_lint.py shipglows_data/workflow/specs/three-digit-runtime-skill-names.md skills/references/skill-code-index.md shipglows_data/technical/skill-runtime-and-lifecycle.md shipglows_data/technical/code-docs-map.md`.
-- Reference drift scans: focused `rg` checks for `00-shipglows`, `01-sg-build`, `discovery layer`, `not skill identities`, `\\$sf-`, and unprefixed active invocation examples in changed docs and current skill bodies.
+- Reference drift scans: focused `rg` checks for `00-shipglows`, `01-sg-build`, `discovery layer`, `not skill identities`, `\\$sg-`, and unprefixed active invocation examples in changed docs and current skill bodies.
 - Manual runtime proof: reload Codex/Claude, search for `001`, launch or inspect `001-sg-build`, search old `sg-build` and confirm no duplicate active ShipGlows skill remains unless the runtime caches old sessions.
 
 ## Risks

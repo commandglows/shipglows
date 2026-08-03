@@ -74,7 +74,7 @@ Cette approche permet de retrouver l'historique même après suppression/recréa
 Construire un petit sous-système `agent-history` plutôt qu'un simple ensemble de symlinks :
 
 - registre `project_id -> nom, chemins actuels, alias historiques` ;
-- wrapper `sf codex` / `sf claude` qui injecte l'identité stable ;
+- wrapper `sg codex` / `sg claude` qui injecte l'identité stable ;
 - collecteur idempotent et en lecture seule des JSONL ;
 - index SQLite local pour recherche rapide ;
 - exports Markdown lisibles et JSON bruts conservés hors dépôt ;

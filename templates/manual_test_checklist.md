@@ -30,7 +30,7 @@ next_step: "/sg-test [scope]"
 ## Contract
 
 - Target scope: `shipglows_data/workflow/test-checklists/<scope>.md`
-- Stack profile: `[chosen stack profile from sf-spec Test Contract]`
+- Stack profile: `[chosen stack profile from sg-spec Test Contract]`
 - Proof profile: `[automated -> browser/auth -> contract -> provider -> manual/device]`
 - Required proof rows: `PASS`/`FAIL`/`BLOCKED`/`N/A`/`NOT_RUN` are all machine-read.
 
@@ -69,5 +69,5 @@ next_step: "/sg-test [scope]"
 
 ## Maintenance
 
-- This checklist is operator-owned evidence. Re-run `sf-test` to convert `FAIL`/`BLOCKED` rows into `shipglows_data/workflow/bugs/BUG-ID.md` entries.
+- This checklist is operator-owned evidence. Re-run `sg-test` to convert `FAIL`/`BLOCKED` rows into `shipglows_data/workflow/bugs/BUG-ID.md` entries.
 - Keep optional rows as guidance only; required rows block verification when unresolved (`FAIL`, `BLOCKED`, `NOT_RUN`).

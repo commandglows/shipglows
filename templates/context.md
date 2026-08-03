@@ -6,7 +6,7 @@ project: "[project name]"
 created: "YYYY-MM-DD"
 updated: "YYYY-MM-DD"
 status: draft
-source_skill: "[manual|sf-docs|sf-init]"
+source_skill: "[manual|sg-docs|sg-init]"
 scope: "context"
 owner: "[user or team]"
 confidence: "medium"

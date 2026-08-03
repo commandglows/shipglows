@@ -3743,7 +3743,7 @@ install_sdk_menu() {
             # Requires root
             if [ "$EUID" -ne 0 ]; then
                 echo -e "${RED}Installation requires root privileges.${NC}"
-                echo -e "${YELLOW}Run: ${CYAN}sudo sf${YELLOW} then Tools & Web > Install SDK${NC}"
+                echo -e "${YELLOW}Run: ${CYAN}sudo sg${YELLOW} then Tools & Web > Install SDK${NC}"
                 return 1
             fi
 
@@ -10306,7 +10306,7 @@ codex_select_mcp_preset() {
 }
 
 codex_launcher_help() {
-    echo -e "${BLUE}Usage:${NC} sf codex [--dir PATH] [mcp ...]"
+    echo -e "${BLUE}Usage:${NC} sg codex [--dir PATH] [mcp ...]"
     echo ""
     echo "Without MCP arguments, ShipGlows opens the interactive launcher."
     echo ""
@@ -10778,7 +10778,7 @@ blacksmith_show_ssh_access_guide() {
     echo -e "  ${GREEN}    sleep 1800${NC}"
     echo -e "  ${YELLOW}Sans keepalive ou VM retention, Blacksmith supprime le host dès la fin du job.${NC}"
     echo ""
-    echo -e "${BLUE}Agents:${NC} ${GREEN}sf-prod${NC} possède le debug Logs/Run History/Metrics/SSH; ${GREEN}sf-deploy${NC} doit router vers sf-prod."
+    echo -e "${BLUE}Agents:${NC} ${GREEN}sg-prod${NC} possède le debug Logs/Run History/Metrics/SSH; ${GREEN}sg-deploy${NC} doit router vers sg-prod."
     echo -e "${YELLOW}Ne jamais copier de secrets, tokens, cookies ou valeurs d'env depuis le runner dans un rapport.${NC}"
 }
 
@@ -11066,9 +11066,9 @@ ADVANCED_MENU_ITEMS=(
 )
 
 print_menu_shortcut_usage() {
-    echo -e "${BLUE}Usage:${NC} sf [menu shortcut ...]" >&2
-    echo -e "${BLUE}Examples:${NC} sf t    |    sf m n    |    sf a q" >&2
-    echo -e "${BLUE}Codex launcher:${NC} sf codex [mcp ...]" >&2
+    echo -e "${BLUE}Usage:${NC} sg [menu shortcut ...]" >&2
+    echo -e "${BLUE}Examples:${NC} sg t    |    sg m n    |    sg a q" >&2
+    echo -e "${BLUE}Codex launcher:${NC} sg codex [mcp ...]" >&2
     echo "" >&2
     echo -e "${BLUE}Available menu keys:${NC}" >&2
 
@@ -11188,9 +11188,9 @@ show_shipglows_menu() {
         echo -e "  ${CYAN}x)${NC} ← Back"
         echo ""
         echo -e "${YELLOW}Your choice:${NC} \c"
-        ui_read_choice sf_choice
+        ui_read_choice sg_choice
 
-        case $sf_choice in
+        case $sg_choice in
             t)
                 echo -e "${YELLOW}Open a project-local:${NC} shipglows_data/workflow/TASKS.md"
                 sleep 2

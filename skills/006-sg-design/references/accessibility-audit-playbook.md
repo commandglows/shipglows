@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-07-15"
+updated: "2026-08-03"
 status: active
 source_skill: 006-sg-design
 scope: accessibility-audit
@@ -79,6 +79,8 @@ Check native behavior first, then custom APG contracts:
 
 List implemented and missing behaviors for every detected custom primitive. Missing mandatory behavior is a violation, not a suggestion.
 
+When a component library is being introduced, removed, or replaced, build this matrix per affected primitive before accepting parity: Tab/Shift+Tab order, pattern-specific arrows, Home/End where required, Enter/Space activation, Escape, focus containment and restoration, accessible name/role/state, visible focus across supported themes, and typeahead where the pattern requires it. Also verify that application shortcuts do not fire from editable controls unless explicitly intended. Static API similarity or matching screenshots do not prove interaction parity.
+
 ### 3. Focus Management
 
 Verify focus trap only where modal behavior requires it, roving tabindex for composite widgets, virtual focus through `aria-activedescendant` where appropriate, logical DOM/traversal order, and focus restoration after close/navigation. Check focus is neither lost nor moved unexpectedly during async updates.
@@ -135,7 +137,7 @@ Global mode selects projects explicitly, runs one project audit per selection, a
 
 Report WCAG A/AA failure counts, AAA notes, grades for keyboard, focus, semantics/ARIA, live regions, screen-reader output, focus appearance, target size, dragging, and consistent help, plus blockers, high findings, priority improvements, proof gaps, and chantier potential.
 
-Be appropriately strict: “mostly accessible” is not a conformance result. The quality target for custom primitives is the interaction rigor of mature native/headless systems, not merely the presence of ARIA attributes.
+Be appropriately strict: “mostly accessible” is not a conformance result. The quality target for custom primitives is the interaction rigor of mature native/headless systems, not merely the presence of ARIA attributes. Copying a vendor implementation transfers maintenance responsibility; it does not preserve that maturity without equivalent regression proof.
 
 ## Design-System Interaction And Stops
 

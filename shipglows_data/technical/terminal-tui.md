@@ -14,7 +14,7 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - "/home/claude/shipglowz/tui"
+  - "/home/claude/shipglows/tui"
   - "Bun"
   - "OpenTUI"
 depends_on:
@@ -34,7 +34,7 @@ next_step: "/sg-verify ShipGlows Terminal TUI V1"
 
 ## Purpose
 
-`/home/claude/shipglowz/tui` provides an optional local terminal cockpit for ShipGlows operations next to the skills used from the terminal.
+`/home/claude/shipglows/tui` provides an optional local terminal cockpit for ShipGlows operations next to the skills used from the terminal.
 
 It is an operator visibility layer, not a second workflow engine. The TUI helps
 an operator choose the next skill or chantier to inspect, while the durable
@@ -42,21 +42,21 @@ source of truth stays in ShipGlows Markdown artifacts and skill-run ledgers.
 
 ## Documentation surfaces
 
-- Internal operator guide: `/home/claude/shipglowz/tui/README.md`.
-- Internal technical contract: `/home/claude/shipglowz/shipglows_data/technical/terminal-tui.md`.
-- Public overview surface: `/home/claude/shipglowz/shipglows-site/src/pages/docs.astro`.
-- Repo onboarding pointer: `/home/claude/shipglowz/README.md`.
+- Internal operator guide: `/home/claude/shipglows/tui/README.md`.
+- Internal technical contract: `/home/claude/shipglows/shipglows_data/technical/terminal-tui.md`.
+- Public overview surface: `/home/claude/shipglows_app/site/src/pages/docs.astro`.
+- Repo onboarding pointer: `/home/claude/shipglows/README.md`.
 
 Public copy must keep the same boundary as V1: read-only, local, optional, and
 not a replacement for skills or the Flutter app.
 
 ## Runtime and dependency boundary
 
-- Subproject: `/home/claude/shipglowz/tui` (Bun + TypeScript).
+- Subproject: `/home/claude/shipglows/tui` (Bun + TypeScript).
 - OpenTUI dependency is isolated in `tui/package.json`.
 - If Bun/OpenTUI is missing, startup fails with clear guidance to `tui/README.md`.
 - `install.sh` calls `tui/scripts/install-shipglows-tui.sh` during per-user setup so the main ShipGlows install also provisions the TUI.
-- `tui/scripts/install-shipglows-tui.sh` bootstraps Bun when missing, installs TUI dependencies, and creates `tui`, `shipglows-tui`, `sg-tui`, plus legacy aliases `sftui`, `sf-tui`, and `shipglows-tui` in `~/.local/bin`.
+- `tui/scripts/install-shipglows-tui.sh` bootstraps Bun when missing, installs TUI dependencies, and creates `tui`, `shipglows-tui`, `sg-tui`, plus legacy aliases `sftui`, `sg-tui`, and `shipglows-tui` in `~/.local/bin`.
 
 ## V1 read-only contract
 
@@ -104,7 +104,7 @@ All file reads must use `tui/src/sources/sourcePolicy.ts`:
 - `shipglows-tui`: explicit ShipGlows launcher.
 - `sg-tui`: short hyphenated alias.
 - `sftui`: legacy short alias.
-- `sf-tui`: legacy hyphenated alias.
+- `sg-tui`: legacy hyphenated alias.
 - `shipglows-tui`: legacy full launcher name.
 
 The root `install.sh` provisions these commands for configured users by calling
@@ -128,7 +128,7 @@ Task, spec, and audit summaries must use traffic-first rendering so priority sta
 Specs keep the selection marker after the traffic light, for example `🟢 > [shipglows_app] [ready] ...`. The source Markdown tables may keep their existing columns; `sources/readers.ts` and `viewModels/dashboard.ts` own normalization into this display contract.
 
 Canonical records are parsed using
-`/home/claude/shipglowz/skills/references/operational-record-format.md` before any legacy table parsing.
+`/home/claude/shipglows/skills/references/operational-record-format.md` before any legacy table parsing.
 This preserves migration compatibility while making canonical one-line entries the default read path:
 
 - task/audit/spec operational records are parsed directly from traffic-first lines with `[project]` prefixes;
@@ -138,7 +138,7 @@ This preserves migration compatibility while making canonical one-line entries t
 ## Validation
 
 ```bash
-cd /home/claude/shipglowz/tui
+cd /home/claude/shipglows/tui
 bun run typecheck
 bun test
 ```

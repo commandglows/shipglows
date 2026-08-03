@@ -3,7 +3,7 @@
     "codebase": {
       "command": "python3",
       "args": [
-        "/home/claude/shipglowz/tools/codebase-mcp/server.py",
+        "/home/claude/shipglows/tools/codebase-mcp/server.py",
         "/home/claude/contentflow"
       ]
     }

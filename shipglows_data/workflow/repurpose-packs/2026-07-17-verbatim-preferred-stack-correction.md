@@ -31,7 +31,7 @@ User message 1
 
 <skill>
 <name>900-shipglows-core</name>
-<path>/home/claude/shipglowz/skills/900-shipglows-core/SKILL.md</path>
+<path>/home/claude/shipglows/skills/900-shipglows-core/SKILL.md</path>
 ---
 name: 900-shipglows-core
 description: "Internal ShipGlows skill maintenance: audit, build, refresh, packaging, and help."

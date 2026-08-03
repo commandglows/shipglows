@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-07-15"
+updated: "2026-08-03"
 status: active
 source_skill: 006-sg-design
 scope: component-system-audit
@@ -80,6 +80,10 @@ For Flutter, use `ButtonStyle`, component themes, `ThemeData`, and typed variant
 
 For custom comboboxes, dialogs, menus, tabs, toolbars, sliders, listboxes, trees, and disclosures, assess whether native, headless, or platform primitives should replace bespoke focus/keyboard/ARIA behavior. Respect dependency policy. Route full conformance proof to `006-sg-design audit a11y`.
 
+Record behavior ownership separately from visual ownership. Mature native/platform/headless primitives should normally own semantics, focus, keyboard, and state behavior; project wrappers should own composition, variants, and canonical design-token consumption. A component suite is not disqualified because it is a dependency, but it is a poor fit when its visual architecture requires persistent overrides or a parallel token authority.
+
+Never recommend copying vendor component internals into the project to remove a dependency. Treat that as a maintained accessibility and upgrade fork. For migrations, inventory each complex primitive, its current behavior owner, proposed replacement, wrapper boundary, required keyboard contract, and proof status. Prefer incremental replacement behind project-owned wrappers over a broad rewrite.
+
 ### 8. Composition Versus Configuration
 
 Flag APIs that model layout parts through excessive props when children, slots, snippets, compound components, or Flutter widget composition would be clearer. Prefer the idiom native to the project framework.
@@ -113,6 +117,8 @@ Use `A/B/C/D` phase scores. Severity follows blast radius:
 | more than 30 | critical |
 
 Report inventory counts, duplication/god/unused/abstraction findings, variant and headless status, composition/API findings, phase scores, overall grade, critical/high issues, priority improvements, proof gaps, and chantier potential. An A grade means production-grade architecture, not “it works.”
+
+When library replacement is in scope, also report whether the proposal preserves behavior ownership, restores project visual ownership, avoids a vendor-code fork, and has component-by-component keyboard proof.
 
 ## Stop Conditions
 

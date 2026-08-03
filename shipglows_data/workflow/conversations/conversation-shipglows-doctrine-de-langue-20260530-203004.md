@@ -986,7 +986,7 @@
 ─ Worked for 2m 54s ──────────────────────────────────────────────────────────────────────────────────────
 
 
-› lance SF start avec GPT 5.3 codex Spark en sous agent
+› lance SG start avec GPT 5.3 codex Spark en sous agent
 
 
 • J’utilise sg-start et je vais le lancer en sous-agent avec le modèle demandé, gpt-5.3-codex-spark, sur
@@ -1079,7 +1079,7 @@
 ─ Worked for 14m 05s ─────────────────────────────────────────────────────────────────────────────────────
 
 
-› lance SF start avec GPT 5.3 codex Spark en sous agent jusqua terminaison totale du chantier
+› lance SG start avec GPT 5.3 codex Spark en sous agent jusqua terminaison totale du chantier
 
 
 • Je reprends le suivi du sous-agent déjà lancé (Pauli, gpt-5.3-codex-spark) et je vais attendre son
@@ -2917,7 +2917,7 @@
     451 +| 2026-05-30 20:04:18 UTC | sg-verify | GPT-5 Codex | Verified local implementation, corrected Le
          mon Squeezy official-contract details (`product_options.redirect_url`, `meta.custom_data`, exact
          raw-body signature), added checkout route and refund parser tests, reran targeted tests/builds/me
-         tadata/checklist gates, and identified remaining hosted/provider proof blockers. | partial | `/sf
+         tadata/checklist gates, and identified remaining hosted/provider proof blockers. | partial | `/sg
          -verify socialglowz-processor-agnostic-ltd-commerce after Lemon Squeezy test-mode and hosted Conv
          ex refund/replay smoke` |
     452

@@ -223,9 +223,9 @@ Downstream:
   3. browser/mobile proof on `/` and `/fr/`
 - checklist_path: `shipglows_data/workflow/test-checklists/shipglows-home-mobile-navigation-and-hero-hardening.md`
 - required_scenario_ids:
-  - SF-HOME-NAV-001
-  - SF-HOME-HERO-001
-  - SF-HOME-MOBILE-001
+  - SG-HOME-NAV-001
+  - SG-HOME-HERO-001
+  - SG-HOME-MOBILE-001
 - required_results:
   - mobile nav is accessible and usable
   - hero scale and CTA spacing are improved on mobile

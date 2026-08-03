@@ -72,15 +72,15 @@ This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, a
 
 ## Entrypoints
 
-- `shipglows` / `sf`: installed wrappers that call `cli/shipglows.sh`.
+- `shipglows` / `sg`: installed wrappers that call `cli/shipglows.sh`.
 - `cli/shipglows.sh::main`: checks prerequisites, then starts the menu or runs a
   one-shot visible menu-key path.
-- `sf codex` / `sf co`: early Codex launcher shortcut that bypasses
+- `sg codex` / `sg co`: early Codex launcher shortcut that bypasses
   environment cleanup, asks for a workspace/MCP preset when needed, then
   replaces the ShipGlows process with `codex`.
 - `cli/lib.sh::run_menu`: dispatches interactive menu choices to `action_*` handlers.
 - `cli/lib.sh::run_menu_shortcut`: dispatches a single CLI menu-key argument such
-  as `sf t` or a nested key path such as `sf m n` to the matching visible menu
+  as `sg t` or a nested key path such as `sg m n` to the matching visible menu
   action. Path resolution starts in `MAIN_MENU_ITEMS`, then continues through
   grouped submenu item arrays when the selected action opens a nested menu.
 - `cli/shipglows_devserver_gum.sh` / `cli/shipglows_devserver_bash.sh`: render the root menu from `MAIN_MENU_ITEMS`

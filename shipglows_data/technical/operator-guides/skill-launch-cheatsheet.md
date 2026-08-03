@@ -219,7 +219,7 @@ Model routing note: `704-sg-model` recommends the right model for the current sc
 
 | Skill | Explicit modes currently documented |
 | --- | --- |
-| `000-shipglows` | `<instruction>`; pure conversation direct answer; direct main-thread handoff to selected `sf-*` skill; one numbered clarification question when ambiguous |
+| `000-shipglows` | `<instruction>`; pure conversation direct answer; direct main-thread handoff to selected `sg-*` skill; one numbered clarification question when ambiguous |
 | `001-sg-build` | `<story, bug, or goal>`; `spark`; `codex`; `mini`; `agents`; `sous-agent`; `no-agents`; `report=agent`; `handoff`; `verbose`; `full-report` |
 | `002-sg-maintain` | no argument/`full`; `quick`; `security`; `deps`; `docs`; `audits`; `no-ship`; `global`; detailed report modes |
 | `004-sg-deploy` | no argument; `skip-check`; `--preview`; `--prod`; `no-changelog` |

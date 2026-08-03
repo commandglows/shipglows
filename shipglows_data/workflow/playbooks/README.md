@@ -151,5 +151,5 @@ The current architecture expects this folder to absorb shared documents such as:
 ## Validation
 
 ```bash
-python3 /home/claude/shipglowz/tools/shipglows_metadata_lint.py /home/claude/shipglowz/shipglows_data/workflow/playbooks/README.md
+python3 /home/claude/shipglows/tools/shipglows_metadata_lint.py /home/claude/shipglows/shipglows_data/workflow/playbooks/README.md
 ```

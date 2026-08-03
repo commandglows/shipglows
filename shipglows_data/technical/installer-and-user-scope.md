@@ -64,7 +64,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 - `tools/sync_shipglows_public_bootstrap.sh --check --winglowz-root <path>`: verifies that WinGlowz serves the generated canonical artifact rather than an independently maintained template.
 - `sudo ./cli/install.sh`: server installer.
 - `./local/install.sh`: local tunnel and remote-login installer, including Android Termux.
-- `configure_command_wrappers`: installs global `shipglows`, `sf`, and helper command symlinks such as `shipglows-turso-login` and `shipglows-turso-ssh`.
+- `configure_command_wrappers`: installs global `shipglows`, `sg`, and helper command symlinks such as `shipglows-turso-login` and `shipglows-turso-ssh`.
 - `setup_user`: per-user configuration for eligible users.
 - `resolve_install_components`: interactive or env-driven selector for user-space agents (`claude`, `codex`, `opencode`, `kilocode`), ShipGlows runtime config, and TUI.
 - `configure_*_mcp`: Claude/Codex MCP provider setup. Codex MCP entries
@@ -118,7 +118,7 @@ sudo ./cli/install.sh
   install time instead of shipping pinned local binaries.
 - The system Node.js install path targets Node.js 24.x through the NodeSource
   `setup_24.x` bootstrap before installing `nodejs`.
-- Symlinks and aliases should be idempotent and updated consistently. The managed bash aliases include `shipglows`/`sf`/`s`, Claude/Codex launch shortcuts, reload helpers, and `ch` for clearing the current terminal plus tmux pane history (`clear; tmux clear-history`).
+- Symlinks and aliases should be idempotent and updated consistently. The managed bash aliases include `shipglows`/`sg`/`s`, Claude/Codex launch shortcuts, reload helpers, and `ch` for clearing the current terminal plus tmux pane history (`clear; tmux clear-history`).
 - Helper command wrappers under `/usr/local/bin` should point back to scripts in
   `$SHIPGLOWS_ROOT`; do not duplicate helper logic into generated files.
 - ShipGlows skill runtime entries under `~/.claude/skills` and `~/.codex/skills` are symlinks to `$SHIPGLOWS_ROOT/skills/<name>`.

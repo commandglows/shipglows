@@ -223,7 +223,7 @@ ubuntu in 🌐 instance-20260428-1348 in ~
   principale.
 
 
-› $sg-spec  Ouais c'est génial, c'est exactement ça que je veux. et a la fin sf-
+› $sg-spec  Ouais c'est génial, c'est exactement ça que je veux. et a la fin sg-
   end et sg-ship. l'utilisateur peut etre prompter plusieur fois y'a aucun souci
   au contraire il vaut mieux trop poser de question et bien affiner la vision,
   que pas assez ! mais si possible via prompt intégré comme ça a on lui fait
@@ -251,7 +251,7 @@ ubuntu in 🌐 instance-20260428-1348 in ~
 
 • Je vois déjà deux contraintes importantes : le repo est très modifié, donc la
   spec devra être additive et ne pas toucher aux changements existants ; et le
-  workflow officiel s’arrête aujourd’hui à sg-end, alors que tu veux intégrer sf-
+  workflow officiel s’arrête aujourd’hui à sg-end, alors que tu veux intégrer sg-
   ship dans le parcours utilisateur final.
 
 • Le besoin est assez clair pour une spec full : nouvelle skill sg-build,
@@ -567,7 +567,7 @@ ubuntu in 🌐 instance-20260428-1348 in ~
 ─────────────────────────────────────────────────────────────────────────────────
 
 • J’utilise sg-docs parce que c’est une règle de documentation et de cohérence
-  des skills. Je vais l’ajouter au contrat technique central, puis rattacher sf-
+  des skills. Je vais l’ajouter au contrat technique central, puis rattacher sg-
   build à cette convention pour que la future skill l’applique dès sa création.
 
 ─────────────────────────────────────────────────────────────────────────────────

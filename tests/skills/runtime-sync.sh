@@ -83,7 +83,7 @@ if run_helper --check --skill ../bad >/tmp/shipglows-sync-invalid.out 2>&1; then
 fi
 grep -q "invalid skill name" /tmp/shipglows-sync-invalid.out
 
-if run_helper --check --skill sf--bad >/tmp/shipglows-sync-invalid2.out 2>&1; then
+if run_helper --check --skill sg--bad >/tmp/shipglows-sync-invalid2.out 2>&1; then
     echo "expected invalid double hyphen skill name to fail" >&2
     exit 1
 fi

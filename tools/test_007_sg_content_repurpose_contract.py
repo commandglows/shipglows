@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RETIRED = re.compile(r"202-sg-repurpose|sg-repurpose|sf-repurpose|/sg-repurpose", re.IGNORECASE)
+RETIRED = re.compile(r"202-sg-repurpose|sg-repurpose|sg-repurpose|/sg-repurpose", re.IGNORECASE)
 ACTIVE_SUFFIXES = {".md", ".json", ".astro", ".py", ".yaml", ".yml"}
 HISTORICAL_PREFIXES = (
     "shipglows_data/workflow/archives/",
@@ -33,10 +33,10 @@ HISTORICAL_FILES = {
     "shipglows_data/workflow/specs/grille-notation-editoriale-projet-skills-contenu.md",
     "shipglows_data/workflow/specs/local-mcp-oauth-tunnel-login.md",
     "shipglows_data/workflow/specs/public-skill-categories.md",
-    "shipglows_data/workflow/specs/sf-content-master-content-lifecycle-skill.md",
-    "shipglows_data/workflow/specs/sf-repurpose-actionable-article-ideas-output.md",
-    "shipglows_data/workflow/specs/sf-repurpose-existing-content-placement-opportunities.md",
-    "shipglows_data/workflow/specs/sf-veille-governance-content-alignment.md",
+    "shipglows_data/workflow/specs/sg-content-master-content-lifecycle-skill.md",
+    "shipglows_data/workflow/specs/sg-repurpose-actionable-article-ideas-output.md",
+    "shipglows_data/workflow/specs/sg-repurpose-existing-content-placement-opportunities.md",
+    "shipglows_data/workflow/specs/sg-veille-governance-content-alignment.md",
     "shipglows_data/workflow/specs/shipglows-editorial-content-governance-layer-for-ai-agents.md",
     "shipglows_data/workflow/specs/skill-description-budget-compliance.md",
     "shipglows_data/workflow/specs/skill-taxonomy-and-chantier-sources.md",
@@ -101,7 +101,7 @@ class RepurposeModeContractTest(unittest.TestCase):
         catalog = json.loads(read("plugins/shipglows/assets/pack-catalog.json"))
         self.assertNotIn("202-sg-repurpose", json.dumps(catalog))
         self.assertNotIn("sg-repurpose", read("shipglows-site/src/content/skills/sg-content.md"))
-        self.assertNotIn("sf-repurpose", read("shipglows-site/src/pages/skills/index.astro"))
+        self.assertNotIn("sg-repurpose", read("shipglows-site/src/pages/skills/index.astro"))
 
     def test_no_retired_name_in_active_surface(self) -> None:
         violations: list[str] = []

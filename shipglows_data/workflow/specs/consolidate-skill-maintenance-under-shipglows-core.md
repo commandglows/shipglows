@@ -245,7 +245,7 @@ None. The operator chose a single internal skill-maintenance owner, `900-shipglo
 - Runtime/source retirement: both source directories and all four current-user `009`/`307` links are absent; Claude and Codex `900` links resolve to the canonical source; focused and all-skill sync checks pass.
 - Active surface: no retired invocation remains after excluding factual `source_skill`, `supersedes`, specs, changelog, refresh log, archives, reviews, repurpose packs, and conversation-audit history.
 - Internal/public boundary: the public pack catalog contains none of `900`, `009`, or `307`; their public pages are absent and all nine blog articles contain no retired invocation or internal `900` command. The global packaging audit still reports its pre-existing `000-shipglows`/source-portability baseline, with no `900` exposure finding.
-- Mechanical proof: ten contract unit tests, governed metadata lint, generic skill audit, budget audit, catalog JSON, filesystem assertions, focused and 236/236 all-runtime sync, and `git diff --check` pass. `skill_code_index_lint.py` still reports the pre-existing `sf-*`/ShipGlows alias-index baseline, with no `009`/`307`-specific error.
+- Mechanical proof: ten contract unit tests, governed metadata lint, generic skill audit, budget audit, catalog JSON, filesystem assertions, focused and 236/236 all-runtime sync, and `git diff --check` pass. `skill_code_index_lint.py` still reports the pre-existing `sg-*`/ShipGlows alias-index baseline, with no `009`/`307`-specific error.
 - Site build: direct Astro build passes with 90 generated pages; no `900`, `sg-skill-build`, or `sg-skills-refresh` public route is generated.
 
 ## Skill Run History

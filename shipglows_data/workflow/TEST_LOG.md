@@ -21,7 +21,7 @@
 - Source: 107-sg-test
 - Status: pass
 - Confidence: high
-- Result summary: User reported all manual picker scenarios pass: `001-sg-build` in Codex, `000-shipglows` in Claude Code, and no old active `sf-build` duplicate.
+- Result summary: User reported all manual picker scenarios pass: `001-sg-build` in Codex, `000-shipglows` in Claude Code, and no old active `sg-build` duplicate.
 - Bug pointer: none
 - Evidence pointer: chat confirmation; checklist `shipglows_data/workflow/test-checklists/three-digit-runtime-skill-names.md`
 - Follow-up: /103-sg-verify Three Digit Runtime Skill Names
@@ -31,7 +31,7 @@
 - Scope: BUG-2026-05-08-001, BUG-2026-05-08-002
 - Environment: local
 - Tester: Codex tooling
-- Source: sf-test
+- Source: sg-test
 - Status: pass
 - Confidence: high
 - Result summary: Top-level menu startup completed in 0.495s and isolated Gum render in 0.246s; Health blank input stayed on process/options view and explicit `g` was required for Aggressive Cleanup.
@@ -44,7 +44,7 @@
 - Scope: BUG-2026-05-06-001
 - Environment: local
 - Tester: Codex tooling
-- Source: sf-test
+- Source: sg-test
 - Status: pass
 - Confidence: high
 - Result summary: `env_stop` stopped a PM2-only/orphan-style app by name; isolated `batch_stop_all` stopped the temporary PM2-only app; generated ecosystem config contains crash-loop limits.
@@ -57,7 +57,7 @@
 - Scope: BUG-2026-05-04-004
 - Environment: local
 - Tester: user
-- Source: sf-test
+- Source: sg-test
 - Status: pass
 - Confidence: high
 - Result summary: ShipGlows restart for `nococaine` detected the Flutter Web command and PM2 launched the app online on port `3002`.
@@ -65,15 +65,15 @@
 - Evidence pointer: chat-provided restart log; no secrets or private payloads stored
 - Follow-up: `/sg-verify BUG-2026-05-04-004`
 
-## 2026-05-03 - sf-skill-build runtime visibility retest
+## 2026-05-03 - sg-skill-build runtime visibility retest
 
 - Scope: BUG-2026-05-03-001
 - Environment: local
 - Tester: user
-- Source: sf-test
+- Source: sg-test
 - Status: pass
 - Confidence: high
-- Result summary: Operator invoked `$sf-skill-build hi` and confirmed the skill was recognized by Codex.
+- Result summary: Operator invoked `$sg-skill-build hi` and confirmed the skill was recognized by Codex.
 - Bug pointer: BUG-2026-05-03-001 -> shipglows_data/workflow/bugs/BUG-2026-05-03-001.md
 - Evidence pointer: chat confirmation; no secrets or private runtime data stored
 - Follow-up: `/sg-verify BUG-2026-05-03-001`
@@ -83,13 +83,13 @@
 - Scope: BUG-2026-05-02-003
 - Environment: local
 - Tester: user
-- Source: sf-test
+- Source: sg-test
 - Status: pass
 - Confidence: high
 - Result summary: Operator confirmed the ShipGlows local SSH connection now works after the bare identity filename fix.
 - Bug pointer: BUG-2026-05-02-003 -> shipglows_data/workflow/bugs/BUG-2026-05-02-003.md
 - Evidence pointer: chat confirmation, no raw IP or key material stored
-- Follow-up: none; verified by sf-verify on 2026-05-02
+- Follow-up: none; verified by sg-verify on 2026-05-02
 ## 2026-07-13 - Mail Intelligence structured AI classification
 
 - Scope: daily-mail-intake-review-v2.md / Task 4

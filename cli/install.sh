@@ -1599,15 +1599,12 @@ configure_aliases() {
     [ -f "$bashrc" ] || touch "$bashrc"
     sed -i '/^# >>> ShipGlows AI aliases >>>$/,/^# <<< ShipGlows AI aliases <<<$/{d}' "$bashrc"
     sed -i '/^# >>> ShipGlows AI aliases >>>$/,/^# <<< ShipGlows AI aliases <<<$/{d}' "$bashrc"
-    sed -i '/^alias \(shipglows\|shipglows\|sg\|sf\|s\|c\|co\|cask\|coask\|ch\|re\|reload\|update-codex\)=/d' "$bashrc"
+    sed -i '/^alias \(shipglows\|sg\|c\|co\|cask\|coask\|ch\|re\|reload\|update-codex\)=/d' "$bashrc"
     cat >> "$bashrc" << ALIASES
 
 # >>> ShipGlows AI aliases >>>
 alias shipglows='$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh'
-alias shipglows='$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh'
 alias sg='$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh'
-alias sf='$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh'
-alias s='$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh'
 alias c='$c_alias'
 alias co='codex'
 function update-codex {
@@ -1684,9 +1681,7 @@ configure_command_wrappers() {
 
     mkdir -p "$bin_dir"
     ln -sf "$shipglows_target" "$bin_dir/shipglows"
-    ln -sf "$shipglows_target" "$bin_dir/shipglows"
     ln -sf "$shipglows_target" "$bin_dir/sg"
-    ln -sf "$shipglows_target" "$bin_dir/sf"
     if [ -f "$gsc_target" ]; then
         ln -sf "$gsc_target" "$bin_dir/shipglows-gsc"
         ln -sf "$gsc_target" "$bin_dir/gsc"
@@ -1699,7 +1694,7 @@ configure_command_wrappers() {
         ln -sf "$turso_ssh_target" "$bin_dir/shipglows-turso-ssh"
         ln -sf "$turso_ssh_target" "$bin_dir/turso-ssh"
     fi
-    chmod +x "$bin_dir/shipglows" "$bin_dir/shipglows" "$bin_dir/sg" "$bin_dir/sf" "$bin_dir/shipglows-gsc" "$bin_dir/gsc" "$bin_dir/shipglows-turso-login" "$bin_dir/turso-login" "$bin_dir/shipglows-turso-ssh" "$bin_dir/turso-ssh" 2>/dev/null || true
+    chmod +x "$bin_dir/shipglows" "$bin_dir/sg" "$bin_dir/shipglows-gsc" "$bin_dir/gsc" "$bin_dir/shipglows-turso-login" "$bin_dir/turso-login" "$bin_dir/shipglows-turso-ssh" "$bin_dir/turso-ssh" 2>/dev/null || true
 
     if [ -x "$bin_dir/shipglows" ] && [ -x "$bin_dir/sg" ]; then
         echo -e "  ${GREEN}✅ Commandes système disponibles :${NC} /usr/local/bin/shipglows et /usr/local/bin/sg"
@@ -1749,7 +1744,7 @@ install_shipglows_tui_for_user() {
         }
     fi
 
-    echo -e "  ${GREEN}✅ ShipGlows TUI installée :${NC} tui, shipglows-tui, sg-tui, sftui, sf-tui, shipglows-tui"
+    echo -e "  ${GREEN}✅ ShipGlows TUI installée :${NC} tui, shipglows-tui, sg-tui"
     return 0
 }
 

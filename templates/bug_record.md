@@ -6,7 +6,7 @@ project: "[project name]"
 created: "YYYY-MM-DD"
 updated: "YYYY-MM-DD"
 status: draft
-source_skill: "[sf-test|sf-fix|sf-verify|sf-auth-debug|manual]"
+source_skill: "[sg-test|sg-fix|sg-verify|sg-auth-debug|manual]"
 scope: "bug"
 owner: "[owner]"
 bug_id: "BUG-YYYY-MM-DD-NNN"
@@ -68,19 +68,19 @@ next_step: "/sg-fix BUG-YYYY-MM-DD-NNN"
 
 | Date UTC | Skill | Author | Hypothesis | Findings | Outcome |
 |----------|-------|--------|------------|----------|---------|
-| YYYY-MM-DD HH:MM:SS UTC | [sf-fix|sf-test|sf-verify|manual] | [name] | [hypothesis] | [what was checked] | [supported/rejected/inconclusive] |
+| YYYY-MM-DD HH:MM:SS UTC | [sg-fix|sg-test|sg-verify|manual] | [name] | [hypothesis] | [what was checked] | [supported/rejected/inconclusive] |
 
 ## Fix Attempts
 
 | Date UTC | Skill | Author | Changes | Validation | Result | Next Step |
 |----------|-------|--------|---------|------------|--------|-----------|
-| YYYY-MM-DD HH:MM:SS UTC | sf-fix | [name] | [files changed or none] | [command or reason not run] | [failed|partial|passed] | [retest command] |
+| YYYY-MM-DD HH:MM:SS UTC | sg-fix | [name] | [files changed or none] | [command or reason not run] | [failed|partial|passed] | [retest command] |
 
 ## Retest History
 
 | Date UTC | Skill | Retest Command | Environment | Result | Notes |
 |----------|-------|----------------|-------------|--------|-------|
-| YYYY-MM-DD HH:MM:SS UTC | sf-test | [command] | [env] | [failed|partial|passed|not-run] | [pointer to evidence] |
+| YYYY-MM-DD HH:MM:SS UTC | sg-test | [command] | [env] | [failed|partial|passed|not-run] | [pointer to evidence] |
 
 ## Related Bugs / Artifacts
 

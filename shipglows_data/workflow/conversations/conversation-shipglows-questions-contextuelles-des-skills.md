@@ -289,20 +289,20 @@ practices|
 • Fast mode set to off
 
 
-› $sf-content explique cette notion importante dans notre doc et notre
+› $sg-content explique cette notion importante dans notre doc et notre
   contenu public, la ou ca aura le plus d'impact.
 
 
 ⚠ Heads up, you have less than 25% of your 5h limit left. Run /status for a
   breakdown.
 
-• J’utilise sf-content pour cette demande, parce qu’elle touche à la fois la
+• J’utilise sg-content pour cette demande, parce qu’elle touche à la fois la
   doctrine interne et les surfaces publiques. Je vais d’abord repérer les
   surfaces à fort impact déjà déclarées, puis appliquer un contenu court et
   cohérent au lieu de disperser la notion partout.
 
 • Explored
-  └ Read SKILL.md (sf-content skill), canonical-paths.md, reporting-
+  └ Read SKILL.md (sg-content skill), canonical-paths.md, reporting-
 contract.md
 
 • Ran git status --short
@@ -323,14 +323,14 @@ contract.md
 
 ────────────────────────────────────────────────────────────────────────────
 
-• Je vais traiter ça comme une passe contenu ciblée avec sf-content:
+• Je vais traiter ça comme une passe contenu ciblée avec sg-content:
   identifier les surfaces publiques/doc où ce principe influence le plus la
   compréhension, puis patcher uniquement ces endroits. Je vais d’abord
   relire les règles éditoriales et les pages concernées pour éviter
   d’ajouter une explication au mauvais niveau.
 
 • Explored
-  └ Read SKILL.md (sf-content skill), CONTENT_MAP.md, editorial-content-
+  └ Read SKILL.md (sg-content skill), CONTENT_MAP.md, editorial-content-
          corpus.md
 
 • Ran git status --short
@@ -362,7 +362,7 @@ prompt|
     Read skill-runtime-and-lifecycle.md, shipglows-spec-driven-workflow.md,
          skill-modes.astro, index.astro, why-not-just-prompts.astro,
          shipglows.md, skill-launch-cheatsheet.md, README.md, BRANDING.md,
-         PRODUCT.md, sf-build.md, SKILL.md (sf-build skill), master-
+         PRODUCT.md, sg-build.md, SKILL.md (sg-build skill), master-
 workflow-
          lifecycle.md
     List specs
@@ -376,7 +376,7 @@ workflow-
   parle de réduction d’ambiguïté et de garde-fous, pas de garantie
   d’exactitude. Je vais faire une passe cohérente sur les surfaces déjà
   déclarées: doctrine repo, lifecycle technique, cheatsheet publique, hub
-  skills, page shipglows, page sf-build, et la page “why not just prompts”.
+  skills, page shipglows, page sg-build, et la page “why not just prompts”.
 
 • Updated Plan
   └ ✔ Repérer les surfaces de contenu à fort impact
@@ -406,7 +406,7 @@ workflow-
      28    - site/src/content/skills/shipglows.md
         ⋮
      45    - "Documented shipglows <instruction> as the recommended non-techn
-         ical router before direct sf-* expert entrypoints."
+         ical router before direct sg-* expert entrypoints."
      46 +  - "Documented the context-aware question/default rule for ShipFlo
          w skills."
      47  next_step: "/sg-docs audit README.md"
@@ -441,29 +441,29 @@ workflow-
          specialist skill; uses context-safe defaults and asks one numbered
          decision question when ambiguity changes route, risk, scope, or pro
          of. |
-    297  | Non-trivial product, code, site, or docs work | `sf-build <story,
+    297  | Non-trivial product, code, site, or docs work | `sg-build <story,
           bug, or goal>` | Plain task text is the story; use `report=agent`,
           `handoff`, `verbose`, or `full-report` only for detailed handoff e
          vidence. |
         ⋮
     355
-    348 -`sf-build` follows the shared master delegation doctrine in `skills
+    348 -`sg-build` follows the shared master delegation doctrine in `skills
          /references/master-delegation-semantics.md`: invocation authorizes
          bounded delegated sequential execution for the current chantier, sh
          ort natural-language confirmations continue that bounded sequential
           path after diagnosis by intent rather than exact keyword, and para
          llel agent execution requires ready non-overlapping `Execution Batc
-         hes`. `sf-build` keeps user interaction focused on decisions and pr
+         hes`. `sg-build` keeps user interaction focused on decisions and pr
          ogress; material questions are framed as business decision briefs w
          ith the root problem, business stakes, options, and a recommended b
          est-practice answer.
-    356 +`sf-build` follows the shared master delegation doctrine in `skills
+    356 +`sg-build` follows the shared master delegation doctrine in `skills
          /references/master-delegation-semantics.md`: invocation authorizes
          bounded delegated sequential execution for the current chantier, sh
          ort natural-language confirmations continue that bounded sequential
           path after diagnosis by intent rather than exact keyword, and para
          llel agent execution requires ready non-overlapping `Execution Batc
-         hes`. `sf-build` keeps user interaction focused on decisions and pr
+         hes`. `sg-build` keeps user interaction focused on decisions and pr
          ogress; material questions are framed as business decision briefs w
          ith the root problem, business stakes, options, and a recommended b
          est-practice answer. It skips the question only when the best defau
@@ -496,7 +496,7 @@ workflow-
          .md`: ask only when the answer changes route, scope, risk, proof, c
          losure, ship posture, public claims, or technical/product/editorial
           direction.
-    271  - `sf-build` planning questions should be decision briefs for busin
+    271  - `sg-build` planning questions should be decision briefs for busin
          ess operators: explain the root problem, business stakes, practical
           options, and the best-practice recommendation before asking for th
          e decision. A default can be chosen without asking only when it is
@@ -582,7 +582,7 @@ workflow-
          ble source of truth. `BUGS.md`, when present, is an optional compac
          t/generated/triage view and must not override the bug file.
         ⋮
-    243  - `sf-build` planning questions are business decision briefs, not b
+    243  - `sg-build` planning questions are business decision briefs, not b
          are technical prompts: they name the problem root, business stakes,
           practical options, and recommended best-practice answer before ask
          ing for a decision.
@@ -650,45 +650,45 @@ workflow-
        ⋮
     59  | --- | --- | --- |
     53 -| Non-technical first command | `shipglows <instruction>` | Routes pu
-        re conversation directly; routes feature/code/docs to `sf-build`, ma
-        intenance to `sf-maintain`, bugs to `sf-bug`, release/deploy/prod pr
-        oof to `sf-deploy`, content to `sf-content`, skill maintenance to `s
-        f-skill-build`, and obvious specialist audits to `sf-audit-*`. Asks
+        re conversation directly; routes feature/code/docs to `sg-build`, ma
+        intenance to `sg-maintain`, bugs to `sg-bug`, release/deploy/prod pr
+        oof to `sg-deploy`, content to `sg-content`, skill maintenance to `s
+        f-skill-build`, and obvious specialist audits to `sg-audit-*`. Asks
         one numbered question when ambiguous. |
     60 +| Non-technical first command | `shipglows <instruction>` | Routes pu
-        re conversation directly; routes feature/code/docs to `sf-build`, ma
-        intenance to `sf-maintain`, bugs to `sf-bug`, release/deploy/prod pr
-        oof to `sf-deploy`, content to `sf-content`, skill maintenance to `s
-        f-skill-build`, and obvious specialist audits to `sf-audit-*`. Uses
+        re conversation directly; routes feature/code/docs to `sg-build`, ma
+        intenance to `sg-maintain`, bugs to `sg-bug`, release/deploy/prod pr
+        oof to `sg-deploy`, content to `sg-content`, skill maintenance to `s
+        f-skill-build`, and obvious specialist audits to `sg-audit-*`. Uses
         a context-safe default when clear; asks one numbered decision questi
         on when ambiguity changes route, risk, scope, or proof. |
-    61  | Non-trivial product, code, site, or docs work | `sf-build <story,
+    61  | Non-trivial product, code, site, or docs work | `sg-build <story,
         bug, or goal>` | Plain task text is the story. Use `report=agent`, `
         handoff`, `verbose`, or `full-report` only for detailed handoff evid
         ence. |
        ⋮
     89  | --- | --- |
     83 -| `shipglows` | `<instruction>`; pure conversation direct answer; dir
-        ect main-thread handoff to selected `sf-*` skill; one numbered clari
+        ect main-thread handoff to selected `sg-*` skill; one numbered clari
         fication question when ambiguous |
     90 +| `shipglows` | `<instruction>`; pure conversation direct answer; dir
-        ect main-thread handoff to selected `sf-*` skill; context-safe defau
+        ect main-thread handoff to selected `sg-*` skill; context-safe defau
         lt when clear; one numbered clarification question with why and reco
         mmendation when ambiguous |
-    91  | `sf-build` | `<story, bug, or goal>`; `report=agent`; `handoff`; `
+    91  | `sg-build` | `<story, bug, or goal>`; `report=agent`; `handoff`; `
         verbose`; `full-report` |
 
 • Edited site/src/pages/skill-modes.astro (+14 -2)
      11      modes:
      12 -      "Answers pure conversation directly; routes feature/code/docs
-          to sf-build, maintenance to sf-maintain, bugs to sf-bug, release/d
-         eploy/prod proof to sf-deploy, content to sf-content, skill mainten
-         ance to sf-skill-build, and obvious specialist audits to sf-audit-*
+          to sg-build, maintenance to sg-maintain, bugs to sg-bug, release/d
+         eploy/prod proof to sg-deploy, content to sg-content, skill mainten
+         ance to sg-skill-build, and obvious specialist audits to sg-audit-*
          . Asks one numbered question when ambiguous."
      12 +      "Answers pure conversation directly; routes feature/code/docs
-          to sf-build, maintenance to sf-maintain, bugs to sf-bug, release/d
-         eploy/prod proof to sf-deploy, content to sf-content, skill mainten
-         ance to sf-skill-build, and obvious specialist audits to sf-audit-*
+          to sg-build, maintenance to sg-maintain, bugs to sg-bug, release/d
+         eploy/prod proof to sg-deploy, content to sg-content, skill mainten
+         ance to sg-skill-build, and obvious specialist audits to sg-audit-*
          . Uses a context-safe default when clear; asks one numbered decisio
          n question with why and recommendation when ambiguity changes route
          , risk, scope, or proof."
@@ -722,7 +722,7 @@ workflow-
     233        </div>
 
 • Edited site/src/pages/skills/index.astro (+3 -0)
-    86              `sf-content`, `sf-skill-build`, or an obvious audit spec
+    86              `sg-content`, `sg-skill-build`, or an obvious audit spec
         ialist.
     87 +            It proceeds by default only when that route is clear, sa
         fe,
@@ -820,7 +820,7 @@ workflow-
         approval"
        ⋮
     63
-    64 +`sf-build` should not ask for a decision when the responsible defaul
+    64 +`sg-build` should not ask for a decision when the responsible defaul
         t is already
     65 +clear. The default must still fit the current technical, product, an
         d editorial
@@ -853,7 +853,7 @@ workflow-
          workflow.md, skill-launch-cheatsheet.md
 
 • Edited docs/technical/skill-runtime-and-lifecycle.md (+1 -1)
-    243  - `sf-build` planning questions are business decision briefs, not b
+    243  - `sg-build` planning questions are business decision briefs, not b
          are technical prompts: they name the problem root, business stakes,
           practical options, and recommended best-practice answer before ask
          ing for a decision.
@@ -954,9 +954,9 @@ workflow-
     ?? specs/shipglows-primary-router-skill.md
 
 • Explored
-  └ Search *sf-build* in skills
+  └ Search *sg-build* in skills
     List skills
-    Search ^slug: \"(sf-build|shipglows)\"|^title: \"(sf-build|shipglows)\" in
+    Search ^slug: \"(sg-build|shipglows)\"|^title: \"(sg-build|shipglows)\" in
            skills
 
 • Updated Plan
@@ -985,7 +985,7 @@ workflow-
     les skills.
   - docs/skill-launch-cheatsheet.md:50: règle de lancement et défauts.
   - Public site: /docs, /faq, /skill-modes, /skills, /why-not-just-prompts,
-    plus les fiches shipglows et sf-build.
+    plus les fiches shipglows et sg-build.
 
   Le message est maintenant clair: une skill ne pose pas de question si le
   bon défaut est clair, sûr, réversible, compatible avec le contexte
@@ -998,7 +998,7 @@ workflow-
   - python3 tools/shipglows_metadata_lint.py ... ✅
   - git diff --check ... ✅
   - npm --prefix site run build ✅, avec les warnings existants de duplicate
-    content id sf-build / shipglows.
+    content id sg-build / shipglows.
 
   Fresh docs: not needed, changement local de doctrine/contenu.
 
@@ -1006,7 +1006,7 @@ workflow-
 
   non trace: demande contenu transverse sans spec unique identifiée.
 
-  Flux: sf-content ✅ -> contenu public/docs ✅ -> validations ✅
+  Flux: sg-content ✅ -> contenu public/docs ✅ -> validations ✅
 
 ─ Worked for 7m 49s ────────────────────────────────────────────────────────
 

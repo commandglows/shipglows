@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-06-11"
+updated: "2026-08-03"
 status: active
 source_skill: 900-shipglows-core
 scope: design-system-token-contract
@@ -75,6 +75,27 @@ Treat the existing project declaration as authoritative. If it is missing, infer
 
 If multiple sources exist, stop or ask one targeted question to choose the canonical source before writing design values. Record the decision in the project design-system authority artifact, not only in the final report.
 
+## Cross-Surface Identity Gate
+
+Multiple applications do not share a design system merely because each one uses variables, themes, or similarly named design tokens. A cross-platform or app/site parity claim requires one of these architectures:
+
+- one canonical semantic source consumed directly by every surface
+- generated platform outputs whose mappings and generation path resolve back to one canonical semantic source
+- documented platform adaptations that preserve the same semantic roles while naming every intentional value or behavior difference
+
+Audit resolved values and rendered roles, not only source syntax. Compare at least color roles and states, typography, spacing and density, radius, shadow/elevation, motion, focus treatment, and light/dark/high-contrast modes. Parallel hand-maintained token files with no proven mapping are competing authorities, even when their names match.
+
+## Behavior And Visual Ownership Gate
+
+For dialogs, menus, tabs, comboboxes, listboxes, trees, grids, toolbars, and other complex controls, separate two responsibilities:
+
+- native, platform, or maintained headless primitives own semantics, focus, keyboard interaction, and state behavior
+- project wrappers own visual composition, variants, and canonical design-token consumption
+
+Do not copy a vendor component implementation into product code as a substitute for a maintained dependency. That creates an accessibility and upgrade fork. A styled component suite is acceptable only when its theme layer can consume the canonical semantic authority without persistent local overrides or visual drift. Otherwise, plan an incremental wrapper-based migration while preserving behavior.
+
+Migration proof must cover Tab and Shift+Tab order, pattern-specific arrows and Home/End, Escape, focus restoration, accessible names and states, visible focus in every supported theme, and application shortcuts that do not fire while the user is editing text unless explicitly intended.
+
 ## Mobile And App Design Rules
 
 Mobile app UI must preserve professional app standards:
@@ -123,3 +144,5 @@ Stop, reroute, or report `partial`/`not verified` when:
 - a component exposes `className`, `style`, inline style maps, or variant props that allow callers to bypass tokens without guardrails
 - visual proof or token drift proof is missing for a claimed UI/design completion
 - accessibility, reduced motion, dynamic type, contrast, focus, or target-size safety would be weakened to satisfy token discipline
+- a cross-surface parity claim relies on parallel token files without a canonical mapping or resolved-value comparison
+- a component-library migration replaces mature interaction behavior with copied or bespoke controls without keyboard, focus, and semantics proof

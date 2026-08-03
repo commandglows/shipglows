@@ -1295,7 +1295,7 @@
 | 🟠 | Harden `install.sh` supply-chain and failure handling: replace live `curl \| bash`/direct downloads with pinned, verified install steps and strict failure behavior | 🔄 in progress |
 | 🟠 | Flutter/Dart Flox provisioning for ShipGlows projects (runtime install, override validation, existing `.flox` repair path, docs/tests) | ✅ done |
 | 🟠 | Local MCP OAuth tunnel login: commande `shipglows-mcp-login`, intégration menu local, alias install, tests de validation et docs | 🔄 in progress |
-| ✅ | Corriger le raccourci CLI `sf u` et harmoniser les retours `x`/`Esc`/Backspace dans les sous-menus (`BUG-2026-05-04-002`) | ✅ done |
+| ✅ | Corriger le raccourci CLI `sg u` et harmoniser les retours `x`/`Esc`/Backspace dans les sous-menus (`BUG-2026-05-04-002`) | ✅ done |
 | 🟠 | Split `lib.sh` hotspots around environment lifecycle, publishing, dashboard, inspector, and metadata helpers to reduce the 5,900+ line blast radius | 📋 todo |
 | 🟡 | Resolve the `site` production dependency advisory for Astro (`GHSA-j687-52p2-xcff`) through a planned Astro upgrade/migration | 📋 todo |
 | 🟡 | Fix `test_priority3.sh` so the PM2 jq parsing fixture passes or is explicitly skipped with an accurate reason | 📋 todo |

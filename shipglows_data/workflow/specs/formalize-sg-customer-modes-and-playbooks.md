@@ -64,7 +64,7 @@ evidence:
   - "2026-07-17 active-directory scan found exactly one customer/onboarding/end-user owner: skills/008-sg-customer; no second active customer skill exists to consolidate or retire."
   - "008-sg-customer already holds a 228-line activation contract plus onboarding and overlay references, but its intent table mixes audit, flow, onboarding, recovery, UI review, and proof routes without canonical mode grammar or one-playbook selection."
   - "The public sg-customer page exposes five overlapping free-text argument modes (feature or flow, audit, permissions/setup, visual states/progressive disclosure, onboarding popup/progress overlay), while help, routing, README, lifecycle, and runtime documents advertise only a generic 008 entrypoint."
-  - "Historical spec sf-onboarding-user-activation-skill.md records the source lineage: sg-onboarding was first created, then transformed into sg-end-user/customer with onboarding retained as a playbook; it is historical evidence, not an active invocation source."
+  - "Historical spec sg-onboarding-user-activation-skill.md records the source lineage: sg-onboarding was first created, then transformed into sg-end-user/customer with onboarding retained as a playbook; it is historical evidence, not an active invocation source."
   - "The completed design, marketing, and technical consolidations establish the relevant architecture precedent: one public owner, exact modes, lazy bounded playbooks, public/runtime/help coherence, active-versus-historical scans, and no hidden aliases when identities are retired."
   - "Current-user runtime links /home/claude/.codex/skills/008-sg-customer and /home/claude/.claude/skills/008-sg-customer both resolve to the canonical source; the canonical identity must remain unchanged."
 next_step: "/102-sg-start formalize sg-customer modes and playbooks"
@@ -174,7 +174,7 @@ Manual/device/browser/auth proof: not applicable to this local contract migratio
 - `skills/references/decision-quality-contract.md`, `spec-driven-development-discipline.md`, and `master-workflow-lifecycle.md` — bounded professional scope and scenario-first proof.
 - `shipglows_data/technical/product-behavior-intelligence.md` — value-loop rather than vanity activation semantics when behavior measurement is requested.
 - `shipglows_data/technical/skill-runtime-and-lifecycle.md` and `codex-plugin-packaging.md` — public/current-user runtime, docs, and packaging consequences.
-- `shipglows_data/workflow/specs/sf-onboarding-user-activation-skill.md` — historical lineage only; its obsolete source names must not become active aliases.
+- `shipglows_data/workflow/specs/sg-onboarding-user-activation-skill.md` — historical lineage only; its obsolete source names must not become active aliases.
 - Fresh external docs: `fresh-docs not needed` for this entirely local ShipGlows contract/documentation migration.
 
 ## Invariants
@@ -226,7 +226,7 @@ Do not update historical specs, archives, changelog entries, or refresh history 
 - A skipped permission, revoked integration, failed payment, external-settings return, expired session, or unsupported device is `recovery` only when the customer-path issue is in scope; actual auth/session diagnosis routes to `109`, billing/access contract work may route to `601`, and implementation remains spec-first.
 - A flow audit finds token/layout/contrast defects: record the customer consequence, then route visual repair to `006`, including its accessibility mode when needed.
 - A flow audit finds vague copy or public claim drift: record the customer consequence, route the wording/claim work to `007`, and documentation placement to `300`.
-- A stale `sg-onboarding` name appears in `sf-onboarding-user-activation-skill.md`, changelog, or refresh history: preserve it as historical truth; a stale active command/reference fails verification.
+- A stale `sg-onboarding` name appears in `sg-onboarding-user-activation-skill.md`, changelog, or refresh history: preserve it as historical truth; a stale active command/reference fails verification.
 - No old source directory is retired here. The no-alias rule is therefore preventative: do not add compatibility wrappers, symlinks, or hidden parser aliases for historical `sg-onboarding` or `sg-end-user` identities.
 
 ## Implementation Tasks

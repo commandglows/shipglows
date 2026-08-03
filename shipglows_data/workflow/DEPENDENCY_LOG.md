@@ -9,7 +9,7 @@ status: active
 schema_version: "1.0.0"
 owner: Diane
 source_of_truth: append_only
-write_tool: /home/claude/shipglowz/tools/append_shipglows_event.py
+write_tool: /home/claude/shipglows/tools/append_shipglows_event.py
 scope: "dependency and migration events"
 confidence: high
 risk_level: medium
@@ -30,7 +30,7 @@ Append-only machine-readable events for dependency audits, fix passes, and migra
 
 - Events are fenced YAML blocks wrapped by `<!-- shipglows:event start -->` and `<!-- shipglows:event end -->`.
 - Keep audit summaries in `AUDIT_LOG.md`; this file stores event evidence.
-- Append only through `/home/claude/shipglowz/tools/append_shipglows_event.py`.
+- Append only through `/home/claude/shipglows/tools/append_shipglows_event.py`.
 - Empty ledger is valid.
 
 ## Events

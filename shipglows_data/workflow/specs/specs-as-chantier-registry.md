@@ -331,7 +331,7 @@ Verdict sg-ready:
 - ready
 ```
 
-- Validate with: `rg -n "Skill Run History|source_model|Verdict sf-|Chantier|obligatoire|conditionnel|non-applicable" specs/specs-as-chantier-registry.md`.
+- Validate with: `rg -n "Skill Run History|source_model|Verdict sg-|Chantier|obligatoire|conditionnel|non-applicable" specs/specs-as-chantier-registry.md`.
 - Stop conditions: if matching the correct spec is ambiguous, ask the user instead of writing a trace; if a skill is unrelated to a chantier, report non-applicable instead of creating a trace.
 
 ## Open Questions

@@ -146,7 +146,7 @@ En tant que [actor], je veux [capability], afin de [value].
 
 - Automated / unit / integration checks: [exact commands]
 - Agent-run browser proof: [routes/commands used, if any]
-- Auth/session proof (`sf-auth-debug`): [route/objective, if any]
+- Auth/session proof (`sg-auth-debug`): [route/objective, if any]
 - Contract/integration proof: [API/service/doc checks]
 - Provider evidence: [tool and target, if any]
 - Device-native proof: [native-only scenario, if any]
@@ -170,15 +170,15 @@ None
 
 | Date UTC | Skill | Model | Action | Result | Next step |
 |----------|-------|-------|--------|--------|-----------|
-| YYYY-MM-DD HH:MM:SS UTC | sf-spec | [model name or unknown] | Created spec for [slug] | draft | /sg-ready [title] |
+| YYYY-MM-DD HH:MM:SS UTC | sg-spec | [model name or unknown] | Created spec for [slug] | draft | /sg-ready [title] |
 
 ## Current Chantier Flow
 
-- `sf-spec`: done, draft spec created.
-- `sf-ready`: not launched.
-- `sf-start`: not launched.
-- `sf-verify`: not launched.
-- `sf-end`: not launched.
-- `sf-ship`: not launched.
+- `sg-spec`: done, draft spec created.
+- `sg-ready`: not launched.
+- `sg-start`: not launched.
+- `sg-verify`: not launched.
+- `sg-end`: not launched.
+- `sg-ship`: not launched.
 
 Next step: `/sg-ready [title]`

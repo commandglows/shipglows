@@ -221,4 +221,4 @@ Prochaine etape: Select one product or theme for deeper research, customer/compe
 
 non trace: no unique active specs/*.md chantier was identified from /home/claude for this standalone research run
 
-Flux: sf-spec pending -> sf-ready pending -> sf-start pending -> sf-verify pending -> sf-end pending -> sf-ship pending
+Flux: sg-spec pending -> sg-ready pending -> sg-start pending -> sg-verify pending -> sg-end pending -> sg-ship pending

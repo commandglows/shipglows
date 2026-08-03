@@ -36,7 +36,7 @@ ShipGlows combine deux couches :
 ## Entry Points
 
 - `cli/shipglows.sh`: point d'entree du CLI.
-- `sf codex` / `sf co`: raccourci de lancement Codex qui court-circuite le
+- `sg codex` / `sg co`: raccourci de lancement Codex qui court-circuite le
   cleanup des environnements et ouvre une session avec MCP choisis pour ce run.
 - `cli/lib.sh`: coeur des actions, validations, integrations systeme et menus.
 - `cli/config.sh`: configuration centralisee et validation.
@@ -141,7 +141,7 @@ Fast paths existent aussi :
 ### 6. Codex MCP Launcher Flow
 
 ```text
-sf codex OR menu MCP / Codex launcher
+sg codex OR menu MCP / Codex launcher
   -> choose workspace
   -> choose MCP preset or custom MCPs
   -> exec codex -C <workspace> -c mcp_servers.<name>.enabled=true

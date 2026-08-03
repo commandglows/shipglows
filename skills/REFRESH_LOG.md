@@ -4,6 +4,16 @@ Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. 
 
 ---
 
+## 2026-08-03 — 006-sg-design
+
+**Added:** cross-surface design-token identity gate, behavior-versus-visual ownership gate, and explicit keyboard parity matrix for component-library migrations.
+
+**Updated:** token, component-system, and accessibility audits now reject parallel local token authorities, copied vendor components, and screenshot-only interaction parity.
+
+**New phases:** none; the gates extend existing audit phases and stop conditions.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the findings came from operator-observed cross-platform drift and established local accessibility doctrine.
+
 ## 2026-08-02 — 006-sg-design
 
 **Added:** product-decision-chain loading for critical experience moments, desired/avoided emotion and product-changing design direction.

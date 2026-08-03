@@ -110,7 +110,7 @@ Make ShipGlows the sole owner of Claude Code, OpenAI Codex, ShipGlows MCP regist
 - ShipGlows `install.sh` owns user-target selection for AI/code configuration and stops silently configuring all `/home/*` profiles by default.
 - ShipGlows `install.sh` writes/updates Claude autonomous permission settings in `~/.claude/settings.json`.
 - ShipGlows `install.sh` writes/updates Codex autonomous permission settings in `~/.codex/config.toml`.
-- ShipGlows `install.sh` updates aliases for `shipglows`, `sf`, `c`, `co`, safe escape hatches, and any ShipGlows-owned MCP helper aliases.
+- ShipGlows `install.sh` updates aliases for `shipglows`, `sg`, `c`, `co`, safe escape hatches, and any ShipGlows-owned MCP helper aliases.
 - ShipGlows `install.sh` report lists Claude/Codex as ShipGlows-managed with per-user status.
 - dotfiles removes Claude/Codex install, Codex config symlink, Claude skills symlink, Claude/Codex MCP mutation, and AI aliases owned by ShipGlows.
 - dotfiles can still prepare generic prerequisites: shell integration, PATH, `~/.local/share/pnpm`, `node`, `npm`, editor/file tooling and non-root user bootstrap.
@@ -284,7 +284,7 @@ Make ShipGlows the sole owner of Claude Code, OpenAI Codex, ShipGlows MCP regist
 
 - [ ] Task 9: Add autonomous and safe aliases
   - File: `install.sh`
-  - Action: update `configure_aliases` to manage a ShipGlows AI alias block with `c`, `co`, `cask`, `coask`, `shipglows`, and `sf`, replacing stale aliases owned by previous ShipGlows/dotfiles blocks.
+  - Action: update `configure_aliases` to manage a ShipGlows AI alias block with `c`, `co`, `cask`, `coask`, `shipglows`, and `sg`, replacing stale aliases owned by previous ShipGlows/dotfiles blocks.
   - User story link: gives the operator fast daily commands and an explicit cautious escape hatch.
   - Depends on: Task 5, Task 7, Task 8
   - Validate with: inspect `.bashrc` after repeated runs; aliases appear once and point to the intended commands.

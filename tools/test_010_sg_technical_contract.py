@@ -139,7 +139,7 @@ SPEC_PREDECESSOR_LINE_ALLOWLIST = {
             "| 2026-04-27 20:31:18 UTC | sg-perf | GPT-5 Codex | Audited performance impact of public skill category recategorization on Astro catalog pages | advisory | /sg-spec Public skill categories |",
         }
     ),
-    "sf-maintain-project-maintenance-skill.md": frozenset(
+    "sg-maintain-project-maintenance-skill.md": frozenset(
         {
             '- "skills/sg-deps/SKILL.md"',
             '- "skills/sg-audit-code/SKILL.md"',

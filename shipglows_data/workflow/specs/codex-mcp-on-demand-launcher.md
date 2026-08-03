@@ -61,7 +61,7 @@ ShipGlows doit enregistrer les MCP Codex utiles dans `~/.codex/config.toml` avec
 ## Success Behavior
 
 - Preconditions: Codex CLI est installe ou detectable dans le `PATH`; les MCP ShipGlows sont deja enregistres dans la config Codex utilisateur.
-- Trigger: l'operateur choisit l'action Codex dans le menu ShipGlows ou lance le raccourci `sf codex`.
+- Trigger: l'operateur choisit l'action Codex dans le menu ShipGlows ou lance le raccourci `sg codex`.
 - User/operator result: ShipGlows affiche des choix interactifs, puis ouvre directement une conversation Codex dans le terminal courant avec les MCP choisis.
 - System effect: aucune conversation existante n'est fermee; la config globale reste MCP-off; seuls les overrides de la nouvelle session activent les MCP demandes.
 - Success proof: `bash -n` passe, les MCP Codex installes contiennent `enabled = false`, et le launcher construit des arguments Codex scopes a la session.
@@ -77,7 +77,7 @@ ShipGlows doit enregistrer les MCP Codex utiles dans `~/.codex/config.toml` avec
 
 - Desactiver par defaut les MCP Codex enregistres par `install.sh`.
 - Ajouter une action ShipGlows qui lance Codex avec les MCP choisis.
-- Ajouter un raccourci `sf codex [mcp...]` pour le meme launcher.
+- Ajouter un raccourci `sg codex [mcp...]` pour le meme launcher.
 - Documenter la regle MCP-off et le launcher.
 
 ## Scope Out
@@ -108,7 +108,7 @@ ShipGlows doit enregistrer les MCP Codex utiles dans `~/.codex/config.toml` avec
 
 - [x] Task 3: Ajouter le raccourci CLI
   - File: `lib.sh`, `shipglows.sh`
-  - Action: permettre `sf codex` et `sf codex supabase playwright` sans casser les raccourcis menu existants.
+  - Action: permettre `sg codex` et `sg codex supabase playwright` sans casser les raccourcis menu existants.
   - Validate with: `bash -n shipglows.sh lib.sh`
 
 - [x] Task 4: Mettre a jour la documentation utilisateur et technique
@@ -125,7 +125,7 @@ ShipGlows doit enregistrer les MCP Codex utiles dans `~/.codex/config.toml` avec
 
 - [x] AC 1: Given une installation ShipGlows, when `~/.codex/config.toml` est genere, then les MCP Codex ShipGlows sont enregistres avec `enabled = false` par defaut.
 - [x] AC 2: Given l'operateur ouvre ShipGlows, when il choisit l'action Codex et un preset MCP, then ShipGlows lance directement Codex avec les MCP choisis sans imprimer une commande a recopier.
-- [x] AC 3: Given `sf codex supabase playwright`, when le raccourci est lance, then Codex recoit uniquement les overrides Supabase et Playwright pour cette session.
+- [x] AC 3: Given `sg codex supabase playwright`, when le raccourci est lance, then Codex recoit uniquement les overrides Supabase et Playwright pour cette session.
 - [x] AC 4: Given une conversation Codex existante, when le launcher est utilise, then ShipGlows ne ferme pas cette conversation et ne tue aucun MCP existant.
 - [x] AC 5: Given la documentation, when un utilisateur lit la section Codex, then il comprend que les MCP sont off par defaut et activables via l'action ShipGlows.
 - [x] AC 6: Given des processus MCP locaux restent actifs, when l'operateur ouvre Health -> MCP process cleanup, then ShipGlows liste les groupes detectes et ne stoppe qu'un groupe confirme sans tuer de processus Codex.

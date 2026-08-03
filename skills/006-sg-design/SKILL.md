@@ -79,6 +79,8 @@ Stop and report `blocked` when:
 - visual non-regression is claimed but browser proof was not collected
 - design-system drift scan finds unexplained new visual literals outside the canonical token/theme/component source
 - accessibility, focus, contrast, or reduced-motion safety is uncertain after changes
+- cross-surface design parity is claimed from parallel local design-token files without a canonical mapping and resolved-value proof
+- component-library replacement weakens mature keyboard/focus behavior or copies vendor internals without equivalent regression proof
 - ship scope includes unrelated dirty files without explicit approval
 
 Every blocked report must include the exact next recovery route.

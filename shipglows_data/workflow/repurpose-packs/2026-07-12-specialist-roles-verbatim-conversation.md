@@ -35,9 +35,9 @@ Oui, c’est fait ✅
 
 Ajouté :
 
-- [Référence technique Neovim](</home/claude/shipglowz/shipglows_data/technical/external-platforms/neovim.md>)
-- [Rôle Neovim Specialist](</home/claude/shipglowz/skills/references/operator-roles/neovim-specialist.md>)
-- [Profil activable](</home/claude/shipglowz/shipglows_data/business/agent-profiles/neovim-specialist.md>)
+- [Référence technique Neovim](</home/claude/shipglows/shipglows_data/technical/external-platforms/neovim.md>)
+- [Rôle Neovim Specialist](</home/claude/shipglows/skills/references/operator-roles/neovim-specialist.md>)
+- [Profil activable](</home/claude/shipglows/shipglows_data/business/agent-profiles/neovim-specialist.md>)
 
 Activation possible avec :
 

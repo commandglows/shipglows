@@ -95,7 +95,7 @@ Create `shipglows` as a thin primary router backed by a shared `entrypoint-routi
 
 ## Scope Out
 
-- Renaming existing `sf-*` skills.
+- Renaming existing `sg-*` skills.
 - Replacing `sg-build`, `sg-maintain`, `sg-bug`, `sg-deploy`, `sg-content`, `sg-skill-build`, or audit owner skills.
 - Launching selected master skills inside subagents.
 - Adding a separate CLI binary or shell command outside the skill system.

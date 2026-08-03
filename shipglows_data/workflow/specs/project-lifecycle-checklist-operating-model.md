@@ -260,7 +260,7 @@ Extend the existing Markdown operating model with a project lifecycle definition
 
 - Automated / unit / integration checks: focused parser and reader tests, metadata lint, existing TUI tests
 - Agent-run browser proof: none in the contract phase
-- Auth/session proof (`sf-auth-debug`): none
+- Auth/session proof (`sg-auth-debug`): none
 - Contract/integration proof: fixture parity across skills/readers
 - Provider evidence: none
 - Device-native proof: none

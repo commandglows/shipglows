@@ -326,13 +326,13 @@ officielle Blacksmith dans votre navigateur local.
 
 ### Le script ne trouve pas de ports
 
-Vérifiez que PM2 tourne sur le serveur, ou qu'une session Flutter Web a été lancée depuis `sf` :
+Vérifiez que PM2 tourne sur le serveur, ou qu'une session Flutter Web a été lancée depuis `sg` :
 ```bash
 ssh "$(cat ~/.shipglows/current_connection)" "pm2 list"
 ssh "$(cat ~/.shipglows/current_connection)" "tmux ls"
 ```
 
-Pour Flutter Web, lancez côté serveur `sf`, puis `Flutter Web - tmux hot reload`
+Pour Flutter Web, lancez côté serveur `sg`, puis `Flutter Web - tmux hot reload`
 et `Start session`. Le tunnel local lira le port enregistré si la session
 `tmux` est encore active.
 

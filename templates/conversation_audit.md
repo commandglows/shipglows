@@ -26,10 +26,10 @@ categories:
   - weak_follow_through
 findings: []
 owner_routes:
-  - sf-skill-build
-  - sf-docs
-  - sf-verify
-  - sf-spec
+  - sg-skill-build
+  - sg-docs
+  - sg-verify
+  - sg-spec
 evidence: []
 depends_on: []
 supersedes: []

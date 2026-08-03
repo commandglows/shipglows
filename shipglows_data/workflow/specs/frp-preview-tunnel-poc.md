@@ -260,17 +260,17 @@ Docs impact is required if the POC is implemented:
 
 | Date UTC | Skill | Model | Action | Result | Next step |
 |----------|-------|-------|--------|--------|-----------|
-| 2026-05-11 09:48:06 UTC | sf-spec | GPT-5 Codex | Created FRP preview tunnel POC spec from user request and official FRP docs evidence. | Draft saved. | /sg-ready FRP preview tunnel POC |
+| 2026-05-11 09:48:06 UTC | sg-spec | GPT-5 Codex | Created FRP preview tunnel POC spec from user request and official FRP docs evidence. | Draft saved. | /sg-ready FRP preview tunnel POC |
 
 # Current Chantier Flow
 
 | Step | Status | Notes |
 |------|--------|-------|
-| sf-spec | done | Draft created for isolated FRP POC. |
-| sf-ready | not launched | Validate security gates, docs freshness, and open questions. |
-| sf-start | not launched | Do not implement before readiness. |
-| sf-verify | not launched | Must verify tunnel cleanup and security behavior after POC. |
-| sf-end | not launched | Close only after POC result report. |
-| sf-ship | not launched | Not applicable until implementation is verified. |
+| sg-spec | done | Draft created for isolated FRP POC. |
+| sg-ready | not launched | Validate security gates, docs freshness, and open questions. |
+| sg-start | not launched | Do not implement before readiness. |
+| sg-verify | not launched | Must verify tunnel cleanup and security behavior after POC. |
+| sg-end | not launched | Close only after POC result report. |
+| sg-ship | not launched | Not applicable until implementation is verified. |
 
 Next command: `/sg-ready FRP preview tunnel POC`

@@ -926,7 +926,7 @@ checklist-operating-model.md (+2 -1)
   └ (no output)
 
 • Ran for f in /home/claude/jarretelacoke/shipglows_data/workflow/
-  │ checklist-instances/*.md; do python3 /home/claude/shipglowz/
+  │ checklist-instances/*.md; do python3 /home/claude/shipglows/
   │ tools/shipglows_checklist_instance_status.py "$f" >/dev/null
   │ … +1 lines
   └ usage: shipglows_checklist_instance_status.py [-h] path
@@ -962,7 +962,7 @@ checklist-operating-model.md (+2 -1)
 
 • Ran for f in /home/claude/jarretelacoke/shipglows_data/workflow/
   │ checklist-instances/*.md; do case "$f" in */README.md)
-  │ continue;; esac; python3 /home/claude/shipglowz/tools/
+  │ continue;; esac; python3 /home/claude/shipglows/tools/
   │ … +2 lines
   └ 11 checklist instances: OK
 
@@ -1007,7 +1007,7 @@ checklist-operating-model.md (+2 -1)
   commence par afficher la destination et le contenu détecté avant
   l’écriture.
 
-• Ran SHIPGLOWS_ROOT=/home/claude/shipglows /home/claude/shipglowz/
+• Ran SHIPGLOWS_ROOT=/home/claude/shipglows /home/claude/shipglows/
   │ skills/800-tmux-capture-conversation/scripts/
   │ capture_tmux_conversation.sh --dry-run
   └ Title: Conversation 800-tmux-capture-conversation - capture et

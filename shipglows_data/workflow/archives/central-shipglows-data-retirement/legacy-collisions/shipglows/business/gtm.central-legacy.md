@@ -56,7 +56,7 @@ next_step: "/sg-docs audit GTM.md"
 
 - `AGENT.md` and `CONTEXT*.md` for direct operator onboarding.
 - Task execution surfaces (`TASKS.md`, project task files, audit log) for practical usage.
-- `sf-*` skills that depend on consolidated project state (audit, docs, and readiness flows).
+- `sg-*` skills that depend on consolidated project state (audit, docs, and readiness flows).
 
 ## Conversion Path
 

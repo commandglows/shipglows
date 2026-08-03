@@ -88,7 +88,7 @@ Les deux scripts doivent etre complementaires, pas concurrents.
 `ShipGlows` est responsable de:
 - AI/code CLI install policy or validation for the ShipGlows workflow: `claude`, `codex`, `opencode`, `kilocode`.
 - `~/.claude`, `~/.codex`, skills, MCP servers, statusline, agent settings.
-- ShipGlows aliases and active workflow entrypoints (`shipglows`, `sf`, optional `co` if Codex is in scope).
+- ShipGlows aliases and active workflow entrypoints (`shipglows`, `sg`, optional `co` if Codex is in scope).
 - project-local `shipglows_data` corpora and active development metadata.
 - AI/code CLIs when they are part of the ShipGlows workflow: `claude`, `codex`, `opencode`, `kilocode`, MCP helper CLIs, agent-specific tooling.
 - explicit user targeting for profiles that receive AI/code configuration.

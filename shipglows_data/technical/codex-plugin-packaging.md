@@ -14,8 +14,8 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - /home/claude/shipglowz/.agents/plugins/marketplace.json
-  - /home/claude/shipglowz/plugins/shipglows/
+  - /home/claude/shipglows/.agents/plugins/marketplace.json
+  - /home/claude/shipglows/plugins/shipglows/
   - /home/claude/plugins/shipglows/
   - /home/claude/plugins/shipglows/scripts/bootstrap_shipglows_repo.sh
   - /home/claude/plugins/shipglows/skills/shipglows/SKILL.md
@@ -44,7 +44,7 @@ next_step: "/300-sg-docs technical audit codex-plugin-packaging"
 
 `/home/claude/plugins/shipglows/` is the lightweight Codex plugin distribution nucleus for ShipGlows. It gives users one primary plugin entrypoint while keeping the complete ShipGlows skill and reference corpus in the GitHub repository instead of packaging the whole repository into the plugin.
 
-The public repository now also exposes a repo-backed marketplace source at `/home/claude/shipglowz/.agents/plugins/marketplace.json` with a publishable plugin source mirrored under `/home/claude/shipglowz/plugins/shipglows/`. External users should install from the repository marketplace path; `/home/claude/plugins/shipglows/` remains the local packaging workspace.
+The public repository now also exposes a repo-backed marketplace source at `/home/claude/shipglows/.agents/plugins/marketplace.json` with a publishable plugin source mirrored under `/home/claude/shipglows/plugins/shipglows/`. External users should install from the repository marketplace path; `/home/claude/plugins/shipglows/` remains the local packaging workspace.
 
 The plugin must stay useful without a huge bundle. When a workflow needs the full local ShipGlows corpus, the plugin exposes an explicit sparse checkout route into `${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}`.
 
@@ -54,8 +54,8 @@ Current product posture: ShipGlows is single-plugin-first. The public experience
 
 ## Owned Files
 
-- `/home/claude/shipglowz/.agents/plugins/marketplace.json` is the repo-backed marketplace source for external Codex installs.
-- `/home/claude/shipglowz/plugins/shipglows/` is the publishable plugin source mirrored into the repository.
+- `/home/claude/shipglows/.agents/plugins/marketplace.json` is the repo-backed marketplace source for external Codex installs.
+- `/home/claude/shipglows/plugins/shipglows/` is the publishable plugin source mirrored into the repository.
 - `/home/claude/plugins/shipglows/.codex-plugin/plugin.json` declares the plugin identity, public homepage, repository, and version.
 - `/home/claude/plugins/shipglows/skills/shipglows/SKILL.md` routes public plugin workflows, optional packs, docs links, and bootstrap guidance.
 - `/home/claude/plugins/shipglows/skills/shipglows/references/pack-catalog.md` describes planned packs and their current readiness.

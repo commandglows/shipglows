@@ -338,10 +338,10 @@ Give the following prompt to the agent after ShipGlows and project repositories 
 
 ```text
 Apply the ShipGlows server disk hygiene and migration playbook at:
-/home/claude/shipglowz/shipglows_data/workflow/playbooks/server-disk-hygiene-and-migration-playbook.md
+/home/claude/shipglows/shipglows_data/workflow/playbooks/server-disk-hygiene-and-migration-playbook.md
 
 Complete the paired checklist at:
-/home/claude/shipglowz/shipglows_data/workflow/checklists/server-disk-hygiene-and-migration-checklist.md
+/home/claude/shipglows/shipglows_data/workflow/checklists/server-disk-hygiene-and-migration-checklist.md
 
 Start read-only. Record df/du, journal usage, /tmp usage, lsof +L1, PM2 restart counts,
 PNPM_HOME, and pnpm store path. Preserve all PNPM stores, credentials, source repositories,
@@ -353,7 +353,7 @@ before/after measurements, unresolved risks, and the next weekly review date.
 
 ## Linked Checklists
 
-- [server-disk-hygiene-and-migration-checklist.md](/home/claude/shipglowz/shipglows_data/workflow/checklists/server-disk-hygiene-and-migration-checklist.md)
+- [server-disk-hygiene-and-migration-checklist.md](/home/claude/shipglows/shipglows_data/workflow/checklists/server-disk-hygiene-and-migration-checklist.md)
 
 ## Common Risks
 
@@ -369,9 +369,9 @@ before/after measurements, unresolved risks, and the next weekly review date.
 ## Validation
 
 ```bash
-python3 /home/claude/shipglowz/tools/shipglows_metadata_lint.py \
-  /home/claude/shipglowz/shipglows_data/workflow/playbooks/server-disk-hygiene-and-migration-playbook.md \
-  /home/claude/shipglowz/shipglows_data/workflow/checklists/server-disk-hygiene-and-migration-checklist.md
+python3 /home/claude/shipglows/tools/shipglows_metadata_lint.py \
+  /home/claude/shipglows/shipglows_data/workflow/playbooks/server-disk-hygiene-and-migration-playbook.md \
+  /home/claude/shipglows/shipglows_data/workflow/checklists/server-disk-hygiene-and-migration-checklist.md
 ```
 
 ## Maintenance Rule

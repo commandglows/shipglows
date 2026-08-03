@@ -277,7 +277,7 @@ Operator roles and named profiles do not add new primary artifact types:
 
 ## Entrypoints
 
-- `000-shipglows <instruction>`: recommended non-technical first command; answers pure conversation directly or hands the main thread to the selected `sf-*` master/specialist skill.
+- `000-shipglows <instruction>`: recommended non-technical first command; answers pure conversation directly or hands the main thread to the selected `sg-*` master/specialist skill.
 - `%Victoire <instruction>`: canonical named-profile activation for the `Victoire` growth-operations profile.
 - `%SEO-specialist <instruction>`: canonical named-profile activation for the `SEO Specialist` search-discovery profile.
 - `000-shipglows profile=victoire <instruction>`: compatibility form of the same profile activation.

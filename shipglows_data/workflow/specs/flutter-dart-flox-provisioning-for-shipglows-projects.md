@@ -105,7 +105,7 @@ When ShipGlows detects a Dart or Flutter project through `pubspec.yaml`, startin
 
 ## Problem
 
-ShipGlows already uses Flox as the runtime isolation layer, and it already detects Flutter projects from `pubspec.yaml`. But the Flutter branch in `init_flox_env` only checks the global `PATH`; when `flutter` is absent globally, it prints a warning and points to `sf -> Install SDK`. That path solves the current machine, not the durable per-project environment.
+ShipGlows already uses Flox as the runtime isolation layer, and it already detects Flutter projects from `pubspec.yaml`. But the Flutter branch in `init_flox_env` only checks the global `PATH`; when `flutter` is absent globally, it prints a warning and points to `sg -> Install SDK`. That path solves the current machine, not the durable per-project environment.
 
 The local workspace shows the mismatch clearly:
 
@@ -213,7 +213,7 @@ For the current local projects, the implementation should validate the repair pa
 ## Links & Consequences
 
 - Upstream:
-  - ShipGlows operator invokes `sf`, `env_start`, or audit workflows.
+  - ShipGlows operator invokes `sg`, `env_start`, or audit workflows.
   - Project manifests (`pubspec.yaml`) determine Dart vs Flutter.
   - Flox catalog supplies packages.
 - Downstream:

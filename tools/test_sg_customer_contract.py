@@ -25,7 +25,7 @@ ACTIVE_SURFACES = [
     ROOT / "skills/001-sg-build/references/build-lifecycle-workflow.md",
 ]
 HISTORICAL_ALLOWLIST = {
-    ROOT / "shipglows_data/workflow/specs/sf-onboarding-user-activation-skill.md",
+    ROOT / "shipglows_data/workflow/specs/sg-onboarding-user-activation-skill.md",
     ROOT / "shipglows_data/workflow/specs/formalize-sg-customer-modes-and-playbooks.md",
 }
 

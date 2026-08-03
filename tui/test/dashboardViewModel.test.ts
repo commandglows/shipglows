@@ -30,8 +30,8 @@ describe("buildDashboardViewModel", () => {
         status: "ready",
         userStory: "story",
         nextStep: "next",
-        runHistorySummary: ["sf-ready: ready"],
-        chantierFlowSummary: ["sf-start=done"]
+        runHistorySummary: ["sg-ready: ready"],
+        chantierFlowSummary: ["sg-start=done"]
       },
       {
         path: "y",

@@ -78,7 +78,7 @@ show_dashboard()  # Reads envs.reg, displays environments + action bar
 
 ```bash
 # Launch menu
-sf                    # or: shipglows, or: ./cli/shipglows.sh
+sg                    # or: shipglows, or: ./cli/shipglows.sh
 
 # Install dependencies (run as root)
 sudo ./cli/install.sh
@@ -131,7 +131,7 @@ show_dashboard        # Display dashboard (reads envs.reg, 0 subprocesses)
 | Original | Renamed | Path | Purpose |
 |----------|---------|------|---------|
 | `app` | `shipglows_app` | `/home/claude/shipglows_app/shipglows_app/` | Flutter dashboard (CI only) |
-| `site` | `shipglows-site` | `/home/claude/shipglowz/shipglows-site/` | ShipGlows marketing site (Astro) |
+| `site` | `shipglows-site` | `/home/claude/shipglows_app/site/` | ShipGlows marketing site (Astro) |
 | `contentflowz-app` (flox) | `shipglows-app` | — | Flox env for shipglows_app |
 
 ---

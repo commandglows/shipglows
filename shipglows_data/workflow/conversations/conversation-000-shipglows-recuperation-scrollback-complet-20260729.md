@@ -1008,7 +1008,7 @@ issue.
   └ Read SKILL.md (800-tmux-capture-conversation skill), content-
          router.md, shipglows-owned-preflight.md
 
-• Ran SHIPGLOWS_ROOT=/home/claude/shipglows /home/claude/shipglowz/
+• Ran SHIPGLOWS_ROOT=/home/claude/shipglows /home/claude/shipglows/
   │ skills/800-tmux-capture-conversation/scripts/
   │ capture_tmux_conversation.sh --preset shipglows --dry-run
   └ Title: Conversation 000-shipglows - termine librement sauf si

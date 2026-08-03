@@ -53,7 +53,7 @@ evidence:
   - "Clarified 001-sg-build delegated sequential subagent consent and separated subagents from parallelism."
   - "Added skills/references/master-delegation-semantics.md as the shared master/orchestrator delegation doctrine."
   - "Added skills/references/master-workflow-lifecycle.md as the shared lifecycle skeleton and clarified bug files as source of truth."
-  - "Documented 000-shipglows <instruction> as the recommended non-technical router before direct sf-* expert entrypoints."
+  - "Documented 000-shipglows <instruction> as the recommended non-technical router before direct sg-* expert entrypoints."
   - "Documented the shared question/default contract for numbered questions and context-safe defaults."
   - "Added 006-sg-design as the master design lifecycle entrypoint."
   - "Renamed 008-sg-customer as the customer activation lifecycle for first-success paths, setup guidance, recoverable states, and proof routing."
@@ -274,7 +274,7 @@ because it manages machine-wide dependencies and service configuration:
   and starts a user-mode Caddy proxy only while PM2 apps are online
 - `/etc/dokploy/compose`
 - ShipGlows user configuration for root and detected regular users
-- ShipGlows Terminal TUI dependencies and commands: `tui`, `shipglows-tui`, `sg-tui`, plus legacy aliases `sftui`, `sf-tui`, and `shipglows-tui`
+- ShipGlows Terminal TUI dependencies and commands: `tui`, `shipglows-tui`, `sg-tui`, plus legacy aliases `sftui`, `sg-tui`, and `shipglows-tui`
 
 If `./cli/install.sh` is launched without root, it stops before making partial system changes. The log explains that the root-only scope was skipped and tells the operator to rerun with `sudo`.
 
@@ -367,7 +367,7 @@ launch stays lightweight:
 Use the ShipGlows Codex launcher when a session needs MCPs:
 
 ```bash
-sf codex
+sg codex
 ```
 
 Or open the interactive menu and choose
@@ -422,7 +422,7 @@ SSH/SCP, verifies `turso auth whoami`, and can run the ContentFlow table/column
 checks when a database name is provided. ShipGlows does not read or print Turso
 tokens.
 
-The server-side `sf` menu also includes `Blacksmith - CI runners and Testbox
+The server-side `sg` menu also includes `Blacksmith - CI runners and Testbox
 setup`. This is a guided official-first helper for Blacksmith: it checks whether
 the `blacksmith` CLI is installed, detects a local credentials file without
 reading its contents, shows `T'inquiète, c'est bon, t'es connecté.` when the
@@ -463,7 +463,7 @@ project Flox environment (not as a required global SDK). Defaults are
 validation on overrides. The `Tools & Web > Install SDK` menu stays available as
 an optional global convenience.
 
-Flutter Web can also be launched from `sf` through `Flutter Web - tmux hot
+Flutter Web can also be launched from `sg` through `Flutter Web - tmux hot
 reload`. This starts `flutter run -d web-server` in a server-side `tmux`
 session, records the port in `SHIPGLOWS_FLUTTER_WEB_SESSIONS_FILE`, and lets
 ShipGlows send Flutter's `r` or `R` controls for hot reload or hot restart. This
@@ -472,7 +472,7 @@ Android/iOS rendering.
 
 Per-user configuration includes:
 - `~/.claude/skills/*` and `~/.codex/skills/*` symlinks for every ShipGlows skill
-- aliases in `~/.bashrc` for `000-shipglows`, `sf`, mode-selected `c`/`co`, safe escape hatches `cask`/`coask`, shell reload (`re`/`reload`), and tmux pane cleanup (`ch` = `clear; tmux clear-history`)
+- aliases in `~/.bashrc` for `000-shipglows`, `sg`, mode-selected `c`/`co`, safe escape hatches `cask`/`coask`, shell reload (`re`/`reload`), and tmux pane cleanup (`ch` = `clear; tmux clear-history`)
 - `shipglows_data/workflow/TASKS.md`, `shipglows_data/workflow/AUDIT_LOG.md`
 
 Skill runtime visibility can also be checked or repaired without rerunning the full installer:
@@ -496,10 +496,10 @@ Unlike Claude Code, Codex does not expose a custom shell-command status line ren
 ## Usage
 
 ```bash
-sf
+sg
 shipglows
-sf t   # open Tools
-sf codex   # open the Codex MCP launcher
+sg t   # open Tools
+sg codex   # open the Codex MCP launcher
 ```
 
 Passing a visible root menu key as the only argument runs that menu action once.

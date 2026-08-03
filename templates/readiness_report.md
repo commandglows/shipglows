@@ -26,7 +26,7 @@ next_step: "/sg-start [scope]"
 
 ## User-Mode Summary
 
-Use this compact shape when a human directly launched `sf-ready` and did not ask for detail:
+Use this compact shape when a human directly launched `sg-ready` and did not ask for detail:
 
 ```text
 Readiness: [ready|not ready|blocked]

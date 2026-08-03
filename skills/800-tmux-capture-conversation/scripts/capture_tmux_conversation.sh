@@ -262,7 +262,7 @@ infer_project_root_from_raw() {
     fi
   done < <(grep -Eo '/[^[:space:]`"'"'"'<>),;]+' "$raw_file" | sort -u)
 
-  if grep -Eqi '(^|[^a-z0-9-])(shipglows|sf-[a-z0-9-]+)([^a-z0-9-]|$)' "$raw_file"; then
+  if grep -Eqi '(^|[^a-z0-9-])(shipglows|sg-[a-z0-9-]+)([^a-z0-9-]|$)' "$raw_file"; then
     root=$(find_project_root_for_path "$HOME/shipglows" 2>/dev/null || true)
     if [ -n "$root" ]; then
       printf '%s\n' "$root"

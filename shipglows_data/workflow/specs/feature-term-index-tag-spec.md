@@ -53,7 +53,7 @@ depends_on:
 supersedes: []
 evidence:
   - "User proposal 2026-07-05: use `#feature:swipe` to indicate an index term explicitly."
-  - "User request 2026-07-07: rename SF to SG and Shipglows to ShipGlows."
+  - "User request 2026-07-07: rename SG to SG and Shipglows to ShipGlows."
   - "Existing navigation doctrine already defines context -> function-tree -> code-docs-map -> behavior-index recovery, but not an explicit inline hint syntax."
 next_step: "none"
 ---
@@ -165,7 +165,7 @@ Add an optional `#feature:<term>` inline hint with a deliberately narrow contrac
 - The agent names ambiguities instead of flattening multiple meanings.
 - The agent reports bootstrap gap or drift instead of inventing a mapping.
 - The tag stays optional and does not break ordinary language recovery.
-- For the IME/swipe family, the canonical behavior-index source is `/home/claude/shipglowz/shipglows_data/technical/winglowz_app/ime-gesture-model.md`.
+- For the IME/swipe family, the canonical behavior-index source is `/home/claude/shipglows/shipglows_data/technical/winglowz_app/ime-gesture-model.md`.
 
 ### Proof exception
 
@@ -181,10 +181,10 @@ Add an optional `#feature:<term>` inline hint with a deliberately narrow contrac
 - `shipglows_data/technical/context.md`
 - `shipglows_data/technical/context-function-tree.md`
 - `shipglows_data/technical/code-docs-map.md`
-- `/home/claude/shipglowz/shipglows_data/technical/winglowz_app/ime-gesture-model.md` for the IME/swipe pilot family.
-- `/home/claude/shipglowz/shipglows_data/technical/winglowz_app/code-docs-map.md` for the IME/swipe pilot family routing.
+- `/home/claude/shipglows/shipglows_data/technical/winglowz_app/ime-gesture-model.md` for the IME/swipe pilot family.
+- `/home/claude/shipglows/shipglows_data/technical/winglowz_app/code-docs-map.md` for the IME/swipe pilot family routing.
 - Existing project behavior indexes such as the IME gesture mapping family.
-- This spec intentionally spans two corpus roots: ShipGlows routing docs live under `/home/claude/shipglows`, while the IME/swipe pilot corpus lives under `/home/claude/shipglowz/shipglows_data/technical/winglowz_app/`.
+- This spec intentionally spans two corpus roots: ShipGlows routing docs and the IME/swipe pilot corpus both live under `/home/claude/shipglows`.
 - The migrated pilot files are part of the canonical ShipGlows corpus for this spec.
 - The original files under `/home/claude/winglowz/shipglows_data/technical/winglowz_app/` are migration evidence only.
 
@@ -241,10 +241,10 @@ Add an optional `#feature:<term>` inline hint with a deliberately narrow contrac
 4. `skills/references/code-navigation-and-function-docs.md`: add explicit guidance that a valid `#feature:<term>` should enter the behavior-index layer before broad repository search. Validation: `rg -n "#feature:|behavior index|broad repo search" skills/references/code-navigation-and-function-docs.md`.
 5. `skills/302-sg-help/SKILL.md`: add the short help note that explains when to use `#feature:<term>` and when not to. Validation: `rg -n "#feature:|help|focus tag" skills/302-sg-help/SKILL.md`.
 6. `shipglows_data/technical/context.md`: add or adjust the operator-facing navigation summary so the tag is discoverable from the technical context map. Validation: `rg -n "#feature:|behavior index|context" shipglows_data/technical/context.md`.
-7. `/home/claude/shipglowz/shipglows_data/technical/winglowz_app/ime-gesture-model.md`: confirm the alias table, ambiguity handling, and `swipe` recovery chain for the canonical IME pilot family. Validation: `rg -n "swipe|alias|ambiguity|primary entrypoint|recovery" /home/claude/shipglowz/shipglows_data/technical/winglowz_app/ime-gesture-model.md`.
-8. `/home/claude/shipglowz/shipglows_data/technical/winglowz_app/code-docs-map.md`: confirm the behavior index is linked from the map and that the docs route is explicit. Validation: `rg -n "ime-gesture-model|swipe" /home/claude/shipglowz/shipglows_data/technical/winglowz_app/code-docs-map.md`.
-9. Routing proof: read the `Recovery Path` block from the IME behavior index, then confirm it points to the code-docs map and entrypoints before any broad search. Validation: `sed -n '1,220p' /home/claude/shipglowz/shipglows_data/technical/winglowz_app/ime-gesture-model.md` and `sed -n '1,220p' /home/claude/shipglowz/shipglows_data/technical/winglowz_app/code-docs-map.md`.
-10. Validation pass: run lint and search checks after the edits. Validation: `python3 /home/claude/shipglowz/tools/shipglows_metadata_lint.py /home/claude/shipglowz/AGENT.md /home/claude/shipglowz/shipglows_data` and `rg -n "#feature:" /home/claude/shipglowz/skills /home/claude/shipglowz/docs /home/claude/shipglowz/shipglows_data`.
+7. `/home/claude/shipglows/shipglows_data/technical/winglowz_app/ime-gesture-model.md`: confirm the alias table, ambiguity handling, and `swipe` recovery chain for the canonical IME pilot family. Validation: `rg -n "swipe|alias|ambiguity|primary entrypoint|recovery" /home/claude/shipglows/shipglows_data/technical/winglowz_app/ime-gesture-model.md`.
+8. `/home/claude/shipglows/shipglows_data/technical/winglowz_app/code-docs-map.md`: confirm the behavior index is linked from the map and that the docs route is explicit. Validation: `rg -n "ime-gesture-model|swipe" /home/claude/shipglows/shipglows_data/technical/winglowz_app/code-docs-map.md`.
+9. Routing proof: read the `Recovery Path` block from the IME behavior index, then confirm it points to the code-docs map and entrypoints before any broad search. Validation: `sed -n '1,220p' /home/claude/shipglows/shipglows_data/technical/winglowz_app/ime-gesture-model.md` and `sed -n '1,220p' /home/claude/shipglows/shipglows_data/technical/winglowz_app/code-docs-map.md`.
+10. Validation pass: run lint and search checks after the edits. Validation: `python3 /home/claude/shipglows/tools/shipglows_metadata_lint.py /home/claude/shipglows/AGENT.md /home/claude/shipglows/shipglows_data` and `rg -n "#feature:" /home/claude/shipglows/skills /home/claude/shipglows/docs /home/claude/shipglows/shipglows_data`.
 
 ## Acceptance Criteria
 
@@ -288,18 +288,18 @@ Add an optional `#feature:<term>` inline hint with a deliberately narrow contrac
 
 - Read order: `skills/references/entrypoint-routing.md` -> `skills/references/code-navigation-and-function-docs.md` -> `skills/references/shipglows-terms.md` -> `shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md` -> `skills/302-sg-help/SKILL.md` -> `shipglows_data/technical/context.md`.
 - Keep the change narrow: update the canonical routing docs first, then propagate wording to help and context surfaces.
-- Treat `/home/claude/shipglows` as the ShipGlows routing corpus and `/home/claude/shipglowz/shipglows_data/technical/winglowz_app/` as the canonical pilot corpus for `swipe`.
+- Treat `/home/claude/shipglows` as the ShipGlows routing and pilot corpus for `swipe`.
 - Treat the ShipGlows corpus as the source of truth for both the routing rule and the migrated pilot artifacts.
 - Do not create a new tag language beyond `#feature:<term>` in this pass.
 - Do not replace the behavior index with comments or a one-off route table.
 - Validation commands:
-  - `python3 /home/claude/shipglowz/tools/shipglows_metadata_lint.py /home/claude/shipglowz/AGENT.md /home/claude/shipglowz/shipglows_data`
-  - `rg -n "#feature:" /home/claude/shipglowz/skills /home/claude/shipglowz/docs /home/claude/shipglowz/shipglows_data`
-  - `rg -n "behavior index|context-function-tree|code-docs-map|technical navigation bootstrap gap|technical navigation drift" /home/claude/shipglowz/skills /home/claude/shipglowz/shipglows_data`
-  - `rg -n "swipe|alias|ambiguity|primary entrypoint|recovery" /home/claude/shipglowz/shipglows_data/technical/winglowz_app/ime-gesture-model.md`
-  - `rg -n "ime-gesture-model|swipe" /home/claude/shipglowz/shipglows_data/technical/winglowz_app/code-docs-map.md`
-  - `sed -n '1,220p' /home/claude/shipglowz/shipglows_data/technical/winglowz_app/ime-gesture-model.md`
-  - `sed -n '1,220p' /home/claude/shipglowz/shipglows_data/technical/winglowz_app/code-docs-map.md`
+  - `python3 /home/claude/shipglows/tools/shipglows_metadata_lint.py /home/claude/shipglows/AGENT.md /home/claude/shipglows/shipglows_data`
+  - `rg -n "#feature:" /home/claude/shipglows/skills /home/claude/shipglows/docs /home/claude/shipglows/shipglows_data`
+  - `rg -n "behavior index|context-function-tree|code-docs-map|technical navigation bootstrap gap|technical navigation drift" /home/claude/shipglows/skills /home/claude/shipglows/shipglows_data`
+  - `rg -n "swipe|alias|ambiguity|primary entrypoint|recovery" /home/claude/shipglows/shipglows_data/technical/winglowz_app/ime-gesture-model.md`
+  - `rg -n "ime-gesture-model|swipe" /home/claude/shipglows/shipglows_data/technical/winglowz_app/code-docs-map.md`
+  - `sed -n '1,220p' /home/claude/shipglows/shipglows_data/technical/winglowz_app/ime-gesture-model.md`
+  - `sed -n '1,220p' /home/claude/shipglows/shipglows_data/technical/winglowz_app/code-docs-map.md`
 - Stop if a doc path no longer exists under the ShipGlows corpus and route that mismatch back into canonical-path cleanup before expanding scope.
 
 ## Open Questions

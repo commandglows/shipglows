@@ -157,7 +157,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
 - required_results: every required scenario and the targeted test pass; metadata lint, budget audit, runtime sync, active/historical scan, and `git diff --check` exit `0`; the Astro build passes because the public page changes; every pre-existing global failure is distinguished from a regression attributable to `011-sg-pilotage`.
 - Automated proof available: `tools/test_011_sg_pilotage_contract.py`, `tools/test_rename_codex_session.py`, `tools/test_bug_proof_fidelity_contract.py`, metadata lint, `skill_budget_audit.py`, `skill_code_index_lint.py`, sync check, `rg` scans, `git diff --check`, and the Astro build.
 - Manual proof required: read the dispatcher alone, then each of the four playbooks alone, and decide whether a fresh agent can select the correct action without absorbing another domain; manually review preservation of the concurrent hunk before retiring `309-sg-tasks`.
-- exception_with_proof: a global linter that fails only on the pre-existing `sf-*`/`shipglows` runtime debt must be archived with complete output and a targeted scan proving that no error concerns `011-sg-pilotage` or the four retired directories; it cannot mask a migration error.
+- exception_with_proof: a global linter that fails only on the pre-existing `sg-*`/`shipglows` runtime debt must be archived with complete output and a targeted scan proving that no error concerns `011-sg-pilotage` or the four retired directories; it cannot mask a migration error.
 - exception_without_proof: none.
 
 ## Required Scenarios
@@ -228,7 +228,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
 - A backlog being cleaned contains items to remove: retain the confirmation prompt and the Discarded section; no direct deletion hides in a migration mode.
 - A review reveals an active task without a priority decision: it can record that fact honestly and propose `priorities`; it does not create an implicit ranking.
 - An old link is found in a closed spec, dated audit, or transcript: retain it as evidence; the test inspects only the declared active inventory.
-- The code-index linter continues to report old out-of-scope `sf-*`/`shipglows` identities: document that debt as a separate baseline, then prove no line concerns `011` or the four retired owners.
+- The code-index linter continues to report old out-of-scope `sg-*`/`shipglows` identities: document that debt as a separate baseline, then prove no line concerns `011` or the four retired owners.
 - No source has an `agents/openai.yaml` file: do not invent a manifest. If implementation creates one for `011`, its display name must equal `011-sg-pilotage` exactly and it joins runtime checks.
 - The concurrent rename change evolves during the chantier: perform a logical rebase by reading the current diff before extraction; if its guarantees conflict with the planned `tasks` mode, stop the transfer slice and report the conflict rather than choosing a rule. Before retiring `309`, move the explicit `tools/test_bug_proof_fidelity_contract.py` target to the transferred `011` `tasks` contract and preserve its missing-status assertions.
 
@@ -317,7 +317,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
 2. Run `python3 -m unittest tools.test_011_sg_pilotage_contract tools.test_rename_codex_session tools.test_bug_proof_fidelity_contract` after creation and again after retirement/docs migration.
 3. Run `python3 tools/shipglows_metadata_lint.py skills/011-sg-pilotage shipglows_data/workflow/specs/consolidate-pilotage-skills-under-sg-pilotage.md` and include every newly added governed Markdown file if the linter invocation requires explicit paths.
 4. Run `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`; record total skill-count reduction of three and confirm the dispatcher/playbooks meet their local budgets.
-5. Run `python3 tools/skill_code_index_lint.py`; resolve any 011/retired-owner error. If only the known global `sf-*`/`shipglows` runtime debt remains, retain the exact output as an exception-with-proof rather than treating it as a pilotage success.
+5. Run `python3 tools/skill_code_index_lint.py`; resolve any 011/retired-owner error. If only the known global `sg-*`/`shipglows` runtime debt remains, retain the exact output as an exception-with-proof rather than treating it as a pilotage success.
 6. Run `tools/shipglows_sync_skills.sh --check --skill 011-sg-pilotage` and `tools/shipglows_sync_skills.sh --check --all`; inspect the runtime targets for the four old names and repair only migration-attributable links.
 7. Run active-only `rg` scans across `skills`, `shipglows-site`, `plugins`, `README.md`, active technical guides and routing docs. Classify history separately and check `git diff --check`.
 8. Validate JSON with `python3 -m json.tool plugins/shipglows/assets/pack-catalog.json >/dev/null`, then run `pnpm --dir shipglows-site build` because public skill content and mode catalog change.

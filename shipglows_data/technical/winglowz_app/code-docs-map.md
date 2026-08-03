@@ -6,7 +6,7 @@ project: "WinGlowz"
 created: "2026-05-04"
 updated: "2026-06-11"
 status: draft
-source_skill: sf-docs
+source_skill: sg-docs
 scope: "code-docs-map"
 owner: "Diane"
 confidence: medium
@@ -27,7 +27,7 @@ evidence:
   - "Updated for local-cloud sync playbook and Flutter sync implementation guide."
   - "Updated for custom action buttons, action-bar layout rows, bounded desktop key-sequence delivery, and clipboard commands."
 next_review: "2026-06-04"
-next_step: "/sf-docs technical audit"
+next_step: "/sg-docs technical audit"
 ---
 
 # Code Docs Map — WinGlowz
@@ -38,7 +38,7 @@ next_step: "/sf-docs technical audit"
 | `lib/features/custom_action_buttons/**`, `lib/features/snippets/presentation/custom_action_buttons_panel.dart`, `lib/core/platform/desktop_overlay_bridge.dart` | Custom action-bar buttons and desktop action delivery | `docs/technical/flutter-app.md` | `flutter analyze`; `flutter test test/custom_action_button_store_test.dart test/custom_action_button_runner_test.dart test/custom_action_buttons_screen_test.dart test/desktop_overlay_bridge_test.dart test/windows_overlay_bridge_test.dart` | Typed action catalog, action-bar row/order layout, button library UX, desktop key-sequence delivery, clipboard commands, unsupported-platform behavior, or backend-agnostic button store changes |
 | `lib/features/clipboard/application/**`, `lib/features/clipboard/domain/**`, `lib/features/clipboard/data/**` | Clipboard product API and stores | `docs/technical/flutter-app.md` | `flutter analyze`; `flutter test test/clipboard_domain_test.dart test/clipboard_history_api_test.dart test/in_memory_clipboard_history_store_test.dart test/persistent_clipboard_history_store_test.dart` | Clipboard product contract, persistent local store, sensitivity, dedupe, source, sync state, or backend-agnostic API changes |
 | `lib/features/sync/**`, `lib/features/*/application/*store_provider.dart`, `lib/features/*/data/firebase_*_store.dart`, `lib/features/*/data/*memory*_store.dart`, `lib/features/*/data/persistent_*_store.dart` | Local-cloud data promotion and merge | `shipglows_data/technical/winglowz_app/flutter-local-cloud-sync.md` | `dart analyze lib/features/sync test/local_cloud_sync_controller_test.dart`; `flutter test test/local_cloud_sync_controller_test.dart`; `flutter analyze`; `flutter test` | Local-to-cloud promotion, local durability, Firebase adapter, account association, conflict, tombstone, secret exclusion, or sync status behavior changes |
-| `shipglows_data/workflow/specs/*sync*.md`, `shipglows_data/workflow/verification/*sync*.md` | Local-cloud sync doctrine and proof | `shipglows_data/technical/winglowz_app/local-cloud-sync-playbook.md` | `python3 /home/claude/shipglowz/tools/shipglows_metadata_lint.py <changed-artifacts>` | Sync spec readiness, proof contract, reinstall/relogin QA, secrets policy, or conflict-resolution doctrine changes |
+| `shipglows_data/workflow/specs/*sync*.md`, `shipglows_data/workflow/verification/*sync*.md` | Local-cloud sync doctrine and proof | `shipglows_data/technical/winglowz_app/local-cloud-sync-playbook.md` | `python3 /home/claude/shipglows/tools/shipglows_metadata_lint.py <changed-artifacts>` | Sync spec readiness, proof contract, reinstall/relogin QA, secrets policy, or conflict-resolution doctrine changes |
 | `lib/data/supabase/**` | Supabase provider adapters | `docs/technical/supabase-data.md` | `flutter test test/supabase_clipboard_store_test.dart`; Supabase smoke tests when DB is available | Provider payloads, table mapping, RLS-sensitive metadata, or adapter contract changes |
 | `.github/workflows/**`, `firebase.json`, `firestore.rules`, `firestore.indexes.json` | Firebase CI deploy and Firestore config | `docs/technical/firebase-cli-foundation.md`; `docs/technical/firebase-oidc-ci-playbook.md` | Trigger GitHub workflow; verify `Deploy Firestore Rules and Indexes` job; optional local `firebase deploy --only firestore --project <id>` | OIDC/WIF auth, Firebase deploy command, CI secrets, IAM assumptions, rules/indexes, or Firestore API enablement changes |
 | `android/app/src/main/**` | Android native | `docs/technical/android-native.md` | `flutter analyze` locally; Blacksmith/GitHub Actions for Android compile/package proof | Manifest/service/permission, MethodChannel, overlay, IME, media, clipboard, accessibility, layout geometry, or lifecycle changes |
