@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.1.15"
+artifact_version: "0.1.16"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-07-17"
+updated: "2026-08-03"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -407,6 +407,7 @@ Doppler helpers
 environment lifecycle
   -> env_start
   -> env_stop
+  -> stop_project_tcp_listeners
   -> env_remove
   -> env_rename
   -> env_restart

@@ -34,7 +34,9 @@ class VisualBugProofFidelityContractTests(unittest.TestCase):
 
 class SessionRenameActivationContractTests(unittest.TestCase):
     def test_missing_status_requires_one_question_and_no_mutation(self) -> None:
-        skill = (ROOT / "skills" / "309-sg-tasks" / "SKILL.md").read_text(encoding="utf-8")
+        skill = (
+            ROOT / "skills" / "011-sg-pilotage" / "references" / "sessions-playbook.md"
+        ).read_text(encoding="utf-8")
         playbook = (
             ROOT
             / "shipglows_data"

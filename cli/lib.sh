@@ -7784,6 +7784,100 @@ toggle_web_inspector() {
 }
 
 # -----------------------------------------------------------------------------
+# stop_project_tcp_listeners - Stop TCP listeners rooted in a project tree
+#
+# Only socket-owning processes are targeted. Shells, editors, and other
+# processes whose cwd happens to be inside the project remain untouched.
+# -----------------------------------------------------------------------------
+stop_project_tcp_listeners() {
+    local project_dir=$1
+    local canonical_project_dir=""
+    canonical_project_dir=$(readlink -f -- "$project_dir" 2>/dev/null) || {
+        error "Impossible de résoudre le chemin du projet: $project_dir"
+        return 1
+    }
+
+    if ! command -v ss >/dev/null 2>&1; then
+        error "Impossible de détecter les devservers manuels: la commande ss est indisponible"
+        return 1
+    fi
+
+    # Capture both the kernel start time and cwd. The pair is re-read directly
+    # before every signal so a recycled PID or a process that moved out of the
+    # project scope is never targeted.
+    _project_listener_identity_into() {
+        local destination=$1 process_pid=$2 stat_line="" stat_fields="" process_cwd=""
+        [ -r "/proc/$process_pid/stat" ] || return 1
+        IFS= read -r stat_line < "/proc/$process_pid/stat" || return 1
+        stat_fields=${stat_line##*) }
+        set -- $stat_fields
+        [ "$#" -ge 20 ] || return 1
+        process_cwd=$(readlink -f -- "/proc/$process_pid/cwd" 2>/dev/null) || return 1
+        printf -v "$destination" '%s|%s' "${20}" "$process_cwd"
+    }
+
+    _project_listener_scan() {
+        local socket_rows="" process_pid="" identity="" process_cwd=""
+        socket_rows=$(ss -H -ltnp 2>/dev/null) || return 1
+        while IFS= read -r process_pid; do
+            [ -n "$process_pid" ] || continue
+            _project_listener_identity_into identity "$process_pid" || continue
+            process_cwd=${identity#*|}
+            case "$process_cwd" in
+                "$canonical_project_dir"|"$canonical_project_dir"/*)
+                    printf '%s|%s\n' "$process_pid" "$identity"
+                    ;;
+            esac
+        done < <(printf '%s\n' "$socket_rows" | grep -oE 'pid=[0-9]+' | cut -d= -f2 | sort -u)
+    }
+
+    _signal_project_listener() {
+        local signal_name=$1 process_pid=$2 expected_identity=$3 current_identity="" current_cwd=""
+        _project_listener_identity_into current_identity "$process_pid" || return 0
+        [ "$current_identity" = "$expected_identity" ] || return 0
+        current_cwd=${current_identity#*|}
+        case "$current_cwd" in
+            "$canonical_project_dir"|"$canonical_project_dir"/*)
+                kill "-$signal_name" "$process_pid" 2>/dev/null || true
+                ;;
+        esac
+    }
+
+    local attempt stable_empty_scans=0 listener_rows="" row="" pid="" identity=""
+    for attempt in $(seq 1 60); do
+        if ! listener_rows=$(_project_listener_scan); then
+            error "Impossible d'inspecter les sockets TCP en écoute"
+            unset -f _project_listener_identity_into _project_listener_scan _signal_project_listener
+            return 1
+        fi
+
+        if [ -z "$listener_rows" ]; then
+            stable_empty_scans=$((stable_empty_scans + 1))
+            if [ "$stable_empty_scans" -ge 10 ]; then
+                unset -f _project_listener_identity_into _project_listener_scan _signal_project_listener
+                return 0
+            fi
+        else
+            stable_empty_scans=0
+            while IFS= read -r row; do
+                pid=${row%%|*}
+                identity=${row#*|}
+                if [ "$attempt" -ge 40 ]; then
+                    _signal_project_listener KILL "$pid" "$identity"
+                else
+                    _signal_project_listener TERM "$pid" "$identity"
+                fi
+            done <<< "$listener_rows"
+        fi
+        sleep 0.1
+    done
+
+    unset -f _project_listener_identity_into _project_listener_scan _signal_project_listener
+    error "Impossible d'obtenir une période stable sans devserver manuel dans $project_dir"
+    return 1
+}
+
+# -----------------------------------------------------------------------------
 # env_remove - Remove an environment completely
 #
 # Description:
@@ -7848,6 +7942,11 @@ env_remove() {
 
     # Remove stale proxy routes even when PM2 had no matching app.
     sync_caddy_after_pm2_change
+
+    # Stop only manual devservers that own TCP listening sockets from inside
+    # this project. Do this before deleting the working tree, and abort removal
+    # if a listener cannot be stopped safely.
+    stop_project_tcp_listeners "$project_dir" || return 1
 
     # Unregister the local Flox environment before deleting its parent tree.
     # Otherwise Flox can retain a stale path in its global environment index.

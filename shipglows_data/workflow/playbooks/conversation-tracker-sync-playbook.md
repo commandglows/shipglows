@@ -1,12 +1,12 @@
 ---
 artifact: playbook
 metadata_schema_version: "1.0"
-artifact_version: "1.4.1"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-07-18"
+updated: "2026-08-03"
 status: draft
-source_skill: 309-sg-tasks
+source_skill: 011-sg-pilotage
 scope: conversation-tracker-sync
 owner: Diane
 confidence: high
@@ -14,7 +14,8 @@ risk_level: medium
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/309-sg-tasks/SKILL.md
+  - skills/011-sg-pilotage/SKILL.md
+  - skills/011-sg-pilotage/references/sessions-playbook.md
   - shipglows_data/workflow/TASKS.md
   - ~/.codex/state_5.sqlite
   - tools/prune_codex_sessions.py
@@ -29,8 +30,9 @@ evidence:
   - "Operator decision on 2026-07-16: sessions rename <status> renames only the current Codex conversation using STATUS - semantic title."
   - "Operator correction on 2026-07-16: session names summarize the latest conversation objective or its outcome in at most five words and never truncate message text."
   - "Operator decision on 2026-07-18: a missing rename status must not be inferred or trigger any session or tracker mutation."
+  - "Pilotage consolidation on 2026-08-03 transferred session ownership to the explicit 011-sg-pilotage sessions mode and retired the redundant name-conversation route."
 next_review: "2026-08-15"
-next_step: "/309-sg-tasks sessions <project>"
+next_step: "$011-sg-pilotage sessions <project-or-cwd>"
 ---
 
 # Codex Sessions Status Playbook
@@ -46,13 +48,12 @@ fork or a context-reuse session.
 ## Applicability
 
 Use for a repository-wide conversation review, a cleanup of stale session names,
-or a single conversation rename. Invoke:
+or a single current-conversation rename. Invoke:
 
 ```text
-/309-sg-tasks sessions <project-or-cwd>
-/309-sg-tasks sessions rename <status>
-/309-sg-tasks sessions prune <project-or-cwd>
-/309-sg-tasks name-conversation
+$011-sg-pilotage sessions <project-or-cwd>
+$011-sg-pilotage sessions rename <status>
+$011-sg-pilotage sessions prune <project-or-cwd>
 ```
 
 ## Inputs
@@ -255,7 +256,7 @@ method and `TASKS.md` remains the operational record.
 
 ```bash
 rg -n "CONVERSATION-TRACKER-ABSENT|CONVERSATION-SUBJECT-DUPLICATION|CONVERSATION-INACTIVE-30D|more than 30 days|current thread" \
-  /home/claude/shipglows/skills/309-sg-tasks/SKILL.md \
+  /home/claude/shipglows/skills/011-sg-pilotage/references/sessions-playbook.md \
   /home/claude/shipglows/shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md
 python3 /home/claude/shipglows/tools/shipglows_metadata_lint.py \
   /home/claude/shipglows/shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md

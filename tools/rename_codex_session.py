@@ -19,12 +19,12 @@ CANONICAL_PREFIX = re.compile(r"^(TODO|DOING|IN_PROGRESS|BLOCKED|DONE)\s+-\s+", 
 GENERIC_TITLES = frozenset(
     {
         "general task",
-        "309-sg-tasks",
+        "011-sg-pilotage",
         "review work",
         "review project work",
         "sessions",
         "session rename",
-        "sg-tasks",
+        "sg-pilotage",
         "task",
         "work",
     }

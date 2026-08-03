@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.22"
+artifact_version: "1.0.24"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-02"
+updated: "2026-08-03"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -130,7 +130,14 @@ This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, a
 - `cli/lib.sh::env_remove` also stops project-scoped Flutter Web tmux sessions,
   unregisters the local Flox environment, synchronizes Caddy and the durable
   environment registry, and rejects absolute directories that are not Flox
-  projects before deletion.
+  projects before deletion. It also terminates TCP listeners whose process cwd
+  is the project directory or one of its descendants. Non-listening shells and
+  tools are deliberately preserved; failure to stop a matched listener aborts
+  before deleting the project tree. Listener discovery is rescanned until a
+  bounded stable quiescence window is reached, so supervisors cannot hide a
+  respawn behind one snapshot. Before every TERM or KILL, ShipGlows revalidates
+  the PID start time and cwd from `/proc` to avoid signalling a reused PID or a
+  process that moved outside the project scope.
 - `cli/lib.sh::list_pm2_app_names`, `list_all_stop_targets`, and
   `pm2_stop_app_by_name`: PM2 stop safety helpers used to stop both
   disk-discovered environments and PM2-only orphan entries.

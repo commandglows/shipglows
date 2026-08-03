@@ -6,7 +6,20 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TEST_ROOT="$(mktemp -d)"
-trap 'rm -rf "$TEST_ROOT"' EXIT
+LISTENER_PID=""
+NON_LISTENER_PID=""
+OUTSIDE_LISTENER_PID=""
+RESPAWN_SUPERVISOR_PID=""
+RESPAWN_CHILD_PID=""
+cleanup() {
+    [ -z "$LISTENER_PID" ] || kill "$LISTENER_PID" 2>/dev/null || true
+    [ -z "$NON_LISTENER_PID" ] || kill "$NON_LISTENER_PID" 2>/dev/null || true
+    [ -z "$OUTSIDE_LISTENER_PID" ] || kill "$OUTSIDE_LISTENER_PID" 2>/dev/null || true
+    [ -z "$RESPAWN_SUPERVISOR_PID" ] || kill "$RESPAWN_SUPERVISOR_PID" 2>/dev/null || true
+    [ -z "$RESPAWN_CHILD_PID" ] || kill "$RESPAWN_CHILD_PID" 2>/dev/null || true
+    rm -rf "$TEST_ROOT"
+}
+trap cleanup EXIT
 
 export HOME="$TEST_ROOT/home"
 export SHIPGLOWS_STATE_DIR="$HOME/.shipglows"
@@ -101,4 +114,81 @@ grep -q '^kill-session shipglows-flutter-delete-me$' "$PM2_EVENTS" || fail "tmux
 [ "$(wc -l < "$CADDY_EVENTS")" -eq 1 ] || fail "Caddy sync was not called exactly once"
 grep -q '^delete --force --dir=' "$FLOX_EVENTS" || fail "Flox environment was not deleted"
 
-printf 'PASS: environment removal cleans project, PM2, Flutter Web, Caddy sync, and registry state\n'
+PROJECT_DIR="$SHIPGLOWS_PROJECTS_DIR/manual-server"
+mkdir -p "$PROJECT_DIR/.flox" "$PROJECT_DIR/nested"
+
+(
+    cd "$PROJECT_DIR/nested"
+    exec python3 -m http.server 0 --bind 127.0.0.1
+) >"$TEST_ROOT/manual-server.log" 2>&1 &
+LISTENER_PID=$!
+
+(
+    cd "$PROJECT_DIR"
+    exec sleep 60
+) &
+NON_LISTENER_PID=$!
+
+(
+    cd "$TEST_ROOT"
+    exec python3 -m http.server 0 --bind 127.0.0.1
+) >"$TEST_ROOT/outside-server.log" 2>&1 &
+OUTSIDE_LISTENER_PID=$!
+
+for _attempt in $(seq 1 50); do
+    if ss -ltnp 2>/dev/null | grep -q "pid=$LISTENER_PID,"; then
+        break
+    fi
+    sleep 0.1
+done
+ss -ltnp 2>/dev/null | grep -q "pid=$LISTENER_PID," || fail "manual test server did not start listening"
+for _attempt in $(seq 1 50); do
+    ss -ltnp 2>/dev/null | grep -q "pid=$OUTSIDE_LISTENER_PID," && break
+    sleep 0.1
+done
+ss -ltnp 2>/dev/null | grep -q "pid=$OUTSIDE_LISTENER_PID," || fail "out-of-scope listener did not start"
+printf '%s|%s|%s|%s\n' "manual-server" "unknown" "" "$PROJECT_DIR" >> "$SHIPGLOWS_REGISTRY"
+
+env_remove "manual-server" || fail "environment removal with manual server should succeed"
+if kill -0 "$LISTENER_PID" 2>/dev/null; then
+    fail "manual TCP listener remains after environment removal"
+fi
+kill -0 "$NON_LISTENER_PID" 2>/dev/null || fail "non-listening process was stopped"
+kill -0 "$OUTSIDE_LISTENER_PID" 2>/dev/null || fail "out-of-scope TCP listener was stopped"
+[ ! -e "$PROJECT_DIR" ] || fail "manual-server project directory remains"
+builtin kill "$NON_LISTENER_PID" 2>/dev/null || true
+wait "$NON_LISTENER_PID" 2>/dev/null || true
+NON_LISTENER_PID=""
+
+PROJECT_DIR="$SHIPGLOWS_PROJECTS_DIR/blocked-server"
+mkdir -p "$PROJECT_DIR/.flox"
+printf '%s|%s|%s|%s\n' "blocked-server" "unknown" "" "$PROJECT_DIR" >> "$SHIPGLOWS_REGISTRY"
+(
+    cd "$PROJECT_DIR"
+    trap 'exit 0' TERM INT
+    while :; do
+        python3 -m http.server 0 --bind 127.0.0.1 >/dev/null 2>&1 &
+        wait $! || true
+    done
+) >"$TEST_ROOT/respawn-supervisor.log" 2>&1 &
+RESPAWN_SUPERVISOR_PID=$!
+for _attempt in $(seq 1 50); do
+    RESPAWN_CHILD_PID=$(pgrep -P "$RESPAWN_SUPERVISOR_PID" | head -1 || true)
+    [ -n "$RESPAWN_CHILD_PID" ] && ss -ltnp 2>/dev/null | grep -q "pid=$RESPAWN_CHILD_PID," && break
+    sleep 0.1
+done
+if env_remove "blocked-server"; then
+    fail "environment removal should fail while a supervisor respawns project listeners"
+fi
+[ -d "$PROJECT_DIR" ] || fail "project was deleted after listener shutdown failure"
+RESPAWN_CHILD_PID=$(pgrep -P "$RESPAWN_SUPERVISOR_PID" | head -1 || true)
+builtin kill "$RESPAWN_SUPERVISOR_PID" 2>/dev/null || true
+wait "$RESPAWN_SUPERVISOR_PID" 2>/dev/null || true
+RESPAWN_SUPERVISOR_PID=""
+[ -z "$RESPAWN_CHILD_PID" ] || builtin kill "$RESPAWN_CHILD_PID" 2>/dev/null || true
+RESPAWN_CHILD_PID=""
+builtin kill "$OUTSIDE_LISTENER_PID" 2>/dev/null || true
+wait "$OUTSIDE_LISTENER_PID" 2>/dev/null || true
+OUTSIDE_LISTENER_PID=""
+
+printf 'PASS: environment removal cleans managed runtimes and project-scoped manual TCP listeners only\n'

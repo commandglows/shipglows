@@ -72,10 +72,13 @@ class GuidedDiscoveryContractTests(unittest.TestCase):
             "103-sg-verify",
             "104-sg-end",
             "300-sg-docs",
-            "703-sg-review",
+            "011-sg-pilotage",
         )
         for owner in owners:
-            text = (ROOT / "skills" / owner / "SKILL.md").read_text(encoding="utf-8")
+            path = ROOT / "skills" / owner / "SKILL.md"
+            if owner == "011-sg-pilotage":
+                path = ROOT / "skills" / owner / "references" / "review-playbook.md"
+            text = path.read_text(encoding="utf-8")
             self.assertIn(reference_path, text, owner)
 
     def test_product_template_exposes_critical_moments_and_trace(self) -> None:

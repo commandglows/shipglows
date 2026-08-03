@@ -240,7 +240,9 @@ class SessionRenameTests(unittest.TestCase):
 
 class SessionNamingContractTests(unittest.TestCase):
     def test_contract_requires_latest_objective_and_forbids_truncation(self) -> None:
-        skill = (ROOT / "skills" / "309-sg-tasks" / "SKILL.md").read_text(encoding="utf-8")
+        skill = (
+            ROOT / "skills" / "011-sg-pilotage" / "references" / "sessions-playbook.md"
+        ).read_text(encoding="utf-8")
         playbook = (
             ROOT
             / "shipglows_data"
@@ -254,7 +256,9 @@ class SessionNamingContractTests(unittest.TestCase):
             self.assertIn("first-N-word extraction", text)
 
     def test_contract_rejects_missing_status_before_all_rename_work(self) -> None:
-        skill = (ROOT / "skills" / "309-sg-tasks" / "SKILL.md").read_text(encoding="utf-8")
+        skill = (
+            ROOT / "skills" / "011-sg-pilotage" / "references" / "sessions-playbook.md"
+        ).read_text(encoding="utf-8")
         playbook = (
             ROOT
             / "shipglows_data"
