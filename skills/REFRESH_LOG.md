@@ -4,6 +4,66 @@ Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. 
 
 ---
 
+## 2026-08-03 — 600-sg-local-cloud-sync
+
+**Added:** direct UI, post-auth orchestration, queue/payload safety, and proof/documentation references.
+
+**Updated:** the former 872-line pattern is now a bounded index; design work loads only the UI authority.
+
+**New phases:** none; existing sync decisions are selected progressively.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is a local instruction-packaging refactor with scenario-first proof.
+
+## 2026-08-03 — 406-sg-seo
+
+**Added:** protocol, page, project, global, and conditional AI-visibility audit references.
+
+**Updated:** the former 541-line workflow is now a bounded index; audit branches are explicitly read-only.
+
+**New phases:** none; existing audit scopes are loaded independently.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because no external SEO claim was introduced.
+
+## 2026-08-03 — 305-sg-init
+
+**Added:** direct references for entrypoint/development mode, trackers/reporting, context, MCP setup, and governance corpus bootstrap.
+
+**Updated:** the former 835-line workflow is now a bounded index and canonical templates remain authoritative.
+
+**New phases:** none; mutable bootstrap operations are now selected explicitly.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is a local contract refactor.
+
+## 2026-08-03 — 302-sg-help
+
+**Added:** direct skill-discovery, workflow-recipe, and quick-answer references.
+
+**Updated:** the former 677-line catalog is now a bounded index and duplicate shared doctrine was replaced by canonical links.
+
+**New phases:** none; help question classes are loaded independently.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is a local help-routing refactor.
+
+## 2026-08-03 — 010-sg-technical
+
+**Added:** protocol plus file, project, and global technical-audit references.
+
+**Updated:** the former 692-line playbook is now a bounded index; target parsing loads one audit branch.
+
+**New phases:** none; existing audit modes are separated by target.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is a local audit-contract refactor.
+
+## 2026-08-03 — 008-sg-customer
+
+**Added:** direct overlay contract, Vue, Flutter, and proof/copy references.
+
+**Updated:** the former 557-line overlay pattern is now a bounded index and framework details load only when requested.
+
+**New phases:** none; existing onboarding overlay concerns are selected progressively.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is a local pattern refactor.
+
 ## 2026-08-03 — 900-shipglows-core
 
 **Added:** restored the shared explicit-invocation preflight and added semantic resource-discovery ownership.

@@ -29,7 +29,7 @@ Default to `report=user`: concise, outcome-first, and in the user's active langu
 
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
-- `references/bootstrap-workflow.md`: Detailed bootstrap workflow, generated artifact templates, MCP setup, governance corpus bootstrap, and final reporting details.
+- `references/bootstrap-workflow.md`: bounded bootstrap index; load only the direct operation reference it selects.
 - `$SHIPGLOWS_ROOT/skills/references/project-governance-rules.md`: required when deciding the minimum compliant governed-project shape, especially for monorepos and governance-root expectations.
 - `$SHIPGLOWS_ROOT/skills/references/documentation-governance-rules.md`: required when bootstrapping, auditing, or normalizing documentation architecture, metadata, or canonical placement.
 - `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`: required for greenfield projects before choosing a source-root layout or confirming the stack preset.
@@ -46,7 +46,8 @@ Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skil
 
 - Detect whether the request is a new project bootstrap, existing project governance refresh, MCP/server setup, or bootstrap audit.
 - `atlas <project>` is the explicit Atlas-cartography mode: load the Atlas lifecycle and operator/question contracts, recover business identity, customer need, and priority journey from the project corpus or concise operator dialogue, then create or refresh the smallest useful **draft** product map. It does not infer operator approval.
-- For any mode, load `references/bootstrap-workflow.md` before creating or updating project files.
+- For any mode, load `references/bootstrap-workflow.md` before creating or updating project files. Then load only the direct operation: entrypoint/development mode, trackers/report, context, MCP setup, or governance corpus.
+- Direct operation paths are `bootstrap-entrypoint-and-dev-mode.md`, `bootstrap-trackers-and-report.md`, `bootstrap-context-contract.md`, `bootstrap-mcp-setup.md`, and `bootstrap-governance-corpus.md`; do not load another operation without a matching request.
 - If business, product, target-surface, or audience framing is materially missing, use the guided discovery loop: show the current synthesis, ask one high-leverage question, then offer `Confirmer`, `Corriger` or `Approfondir` before persisting and continuing.
 - For UI projects, detect whether `shipglows_data/technical/design-system-authority.md` or an equivalent project-local authority exists; create the governance gap or route to `300-sg-docs` or `006-sg-design system` before any visual implementation work is considered ready.
 

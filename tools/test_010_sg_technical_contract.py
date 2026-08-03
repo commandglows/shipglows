@@ -19,6 +19,12 @@ PLAYBOOKS = {
     "performance": ROOT / "skills" / "010-sg-technical" / "references" / "performance-audit-playbook.md",
     "migrate": ROOT / "skills" / "010-sg-technical" / "references" / "migration-playbook.md",
 }
+AUDIT_BRANCHES = {
+    "protocol": ROOT / "skills" / "010-sg-technical" / "references" / "technical-audit-protocol.md",
+    "file": ROOT / "skills" / "010-sg-technical" / "references" / "technical-file-audit.md",
+    "project": ROOT / "skills" / "010-sg-technical" / "references" / "technical-project-audit.md",
+    "global": ROOT / "skills" / "010-sg-technical" / "references" / "technical-global-audit.md",
+}
 PLAYBOOK_NAMES = {path.name for path in PLAYBOOKS.values()}
 PREDECESSORS = (
     "401-sg-audit-code",
@@ -247,10 +253,15 @@ class TechnicalContractTests(unittest.TestCase):
             "migrate": "migration-playbook.md",
         }
         for mode, name in expected.items():
+            if mode == "audit":
+                continue
             line = next(line for line in self.skill.splitlines() if line.startswith(f"- `{mode} "))
             selected = set(re.findall(r"[a-z-]+-playbook\.md", line))
             self.assertEqual(selected, {name}, mode)
             self.assertTrue(PLAYBOOKS[mode].is_file())
+        self.assertIn("technical-audit-protocol.md", self.skill)
+        for branch in AUDIT_BRANCHES.values():
+            self.assertTrue(branch.is_file(), branch)
         self.assertIn("load no substantive playbook", self.skill)
         self.assertIn("exactly one playbook", self.router)
         self.assertIn("missing selected playbook is a visible blocked result", self.skill)
@@ -268,14 +279,15 @@ class TechnicalContractTests(unittest.TestCase):
                 rf"\| `{source}` \| `{mode}` \| `references/{re.escape(playbook)}` \|",
             )
         markers = {
-            "audit": ("Workflow Integrity & Abuse Resistance", "Trust Boundaries", "Business metadata versions", "traffic-first"),
+            "audit": ("workflow integrity", "trust boundaries", "Business metadata", "traffic-first"),
             "deps": ("VULNERABILITY SCAN", "Supply chain checks", "LICENSE COMPLIANCE", "partial proof"),
             "performance": ("BUNDLE & LOADING", "CORE WEB VITALS READINESS", "DATABASE & BACKEND", "unmeasured optimization guess"),
             "migrate": ("Migration Matrix", "distinct apply approval", "Never auto-stash", "incompatible peer/dependent package"),
         }
+        audit_text = "\n".join(path.read_text(encoding="utf-8") for path in AUDIT_BRANCHES.values())
         for mode, phrases in markers.items():
             for phrase in phrases:
-                self.assertIn(phrase, self.playbooks[mode], f"{mode}: {phrase}")
+                self.assertIn(phrase, audit_text if mode == "audit" else self.playbooks[mode], f"{mode}: {phrase}")
 
     def test_tech_boundary_03_adjacent_owners_stay_independent(self) -> None:
         boundaries = {
@@ -311,7 +323,7 @@ class TechnicalContractTests(unittest.TestCase):
             self.assertIn(phrase, self.transfer)
 
     def test_tech_safety_04_playbooks_follow_dispatcher_authority(self) -> None:
-        audit = self.playbooks["audit"]
+        audit = "\n".join(path.read_text(encoding="utf-8") for path in AUDIT_BRANCHES.values())
         migration = self.playbooks["migrate"]
         for unsafe_instruction in ("Fix it directly in the code", "Fix all issues in code"):
             self.assertNotIn(unsafe_instruction, audit)

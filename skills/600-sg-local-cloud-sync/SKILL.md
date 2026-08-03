@@ -35,7 +35,9 @@ Load only the references required by the active run:
 - `$SHIPGLOWS_ROOT/skills/references/winflowz-suite-product-registry.md` when WinFlowz suite free products, account-backed sync eligibility, or product access preconditions are mentioned.
 - `references/local-cloud-sync-doctrine.md` for account promotion, merge, conflict, tombstone, and queue doctrine.
 - `references/ux-security-checklist.md` for user-visible state, sensitive-data policy, tenant/account boundaries, logging, and abuse controls.
-- `references/sync-guidance-overlay-and-merge-pattern.md` when designing, auditing, or implementing a SocialGlowz-style real-time sync guidance overlay with post-auth hydration, local/cloud merge decisions, durable queue, and ready feedback.
+- `references/sync-guidance-overlay-and-merge-pattern.md` when designing, auditing, or implementing a SocialGlowz-style real-time sync guidance overlay; then load only the direct UI, orchestration, queue, or proof reference selected by its bounded index.
+
+For that pattern, direct resources are `sync-guidance-overlay-ui.md`, `post-auth-sync-orchestration.md`, `sync-queue-and-payload-safety.md`, and `sync-guidance-proof-and-docs.md`; do not load a data/queue resource for visual work alone.
 - `references/flutter-implementation-checklist.md` when the target project uses Flutter, Riverpod, Firebase, secure storage, local stores, or mobile/web proof surfaces.
 
 ## Context

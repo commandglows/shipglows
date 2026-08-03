@@ -29,7 +29,7 @@ Default to `report=user`: concise, outcome-first, and in the user's active langu
 
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
-- `references/help-catalog.md`: Skill catalog, workflow cycles, prompts, scoring notes, file references, and quick answers.
+- `references/help-catalog.md`: bounded index for skill discovery, workflow recipes, and quick answers.
 - `skills/references/shipglows-terms.md`: canonical package terminology for `Dev Server`, `TUI`, `local tools`, and skill-scope references.
 - `skills/references/question-contract.md`: canonical doctrine for when ShipGlows should ask questions, what shape they should take, and when not asking is the correct autonomous behavior.
 - `skills/references/operator-partnership-contract.md`: canonical doctrine for operator collaboration, delegated intent, and the boundary between technical autonomy and operator-owned business truth.
@@ -60,10 +60,10 @@ Parse `$ARGUMENTS` and choose the smallest safe mode as defined by `decision-qua
 What workflow, skill, mode, or doctrine does the operator need explained right now?
 ```
 
-- If the user asks a direct help question, answer concisely from the top-level route and `references/help-catalog.md` as needed.
+- If the user asks a direct help question, answer concisely from the top-level route and the indexed local reference as needed.
 - If the user asks for skill codes, numeric prefixes, or shortcut lookup, load `skill-code-index.md` and answer from the code table without renaming canonical skills.
-- If the user asks how ShipGlows is invoked from Codex, Claude, OpenCode, KiloCode, or another runtime, load `references/help-catalog.md` and answer with the explicit distinction between what the operator types and what the runtime may call internally.
-- If the user needs full skill taxonomy, workflow cheat sheets, or quick answers, load `references/help-catalog.md`.
+- If the user asks how ShipGlows is invoked from Codex, Claude, OpenCode, KiloCode, another runtime, skill codes, taxonomy, or blueprints, load `references/help-skill-discovery.md`.
+- If the user needs workflow cheat sheets, load `references/help-workflow-recipes.md`; for a short route load `references/help-quick-answers.md`.
 - If the user asks why ShipGlows asked, did not ask, or should have asked a question, load `skills/references/question-contract.md`.
 - If the user asks about passivity, autonomy, collaboration style, business framing, or what the operator is expected to provide, load `skills/references/operator-partnership-contract.md`.
 - If the user asks about a named profile such as `Victoire`, `SEO Specialist`, or `Tariq`, or asks who should answer a business/growth/search/acquisition question, load the matching profile plus its operator role and answer from that distinction.
@@ -73,7 +73,7 @@ What workflow, skill, mode, or doctrine does the operator need explained right n
 - If the user asks about `~/.shipglows/private/data/`, the private memory repo, versioned private data, or why it is separate from public repos, load `skills/references/private-data-repo-contract.md` and explain the storage contract vs clone contract distinction.
 - If the user asks about reference/playbook discovery, semantic resource IDs, starter packs, expansion, or the resolver, resolve `shared:resource-discovery` and explain its authority boundary without presenting recommendations as mandatory gates.
 - Use `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` for canonical trace/process role doctrine instead of maintaining a duplicate role matrix here.
-- For `Skills at a Glance`, `Quick Answers`, workflow cycles, audit scoring, and file-reference help, load `references/help-catalog.md`.
+- For a catalog route, load `references/help-catalog.md` then only its direct target.
 
 Keep the boundary explicit: `302-sg-help` explains, clarifies, and routes. It tells the operator what to type and which owner takes over next. It does not continue a chantier, invoke runtime internals, summarize hidden repo truth, or mutate durable state.
 

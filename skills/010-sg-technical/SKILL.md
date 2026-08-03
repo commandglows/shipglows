@@ -39,7 +39,7 @@ Load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` and `refer
 
 Parse `$ARGUMENTS` exactly:
 
-- `audit [<file|directory|diff|PR|project|global>]` -> load only `references/technical-audit-playbook.md`.
+- `audit [<file|directory|diff|PR|project|global>]` -> load `references/technical-audit-protocol.md`, then exactly one target branch: `technical-file-audit.md`, `technical-project-audit.md`, or `technical-global-audit.md`.
 - `deps [global]` -> load only `references/dependency-audit-playbook.md`.
 - `performance [<file|project|global>]` -> load only `references/performance-audit-playbook.md`.
 - `migrate [package@version]` -> load only `references/migration-playbook.md`.

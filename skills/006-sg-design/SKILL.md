@@ -31,7 +31,7 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/references/design-inspiration-library.md` when visual direction changes or an explicit inspiration request exists.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when defining experience principles, critical moments, desired/avoided emotion, or a design direction that changes product intent.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-inspiration-library-operations.md` before `library ...` operations.
-- `$SHIPGLOWS_ROOT/skills/600-sg-local-cloud-sync/references/sync-guidance-overlay-and-merge-pattern.md` before sync-related UI work.
+- `$SHIPGLOWS_ROOT/skills/600-sg-local-cloud-sync/references/sync-guidance-overlay-ui.md` before sync-related UI work; hand off data/merge authority to `600-sg-local-cloud-sync`.
 - `$SHIPGLOWS_ROOT/skills/references/skill-refactor-verifier.md` for any skill compaction, extraction, or process-migration check.
 
 ## Explicit Invocation Preflight

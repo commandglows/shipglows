@@ -42,7 +42,7 @@ Use exactly one primary playbook:
 | `008-sg-customer onboarding [feature-or-flow]` | `references/onboarding-playbook.md` | First-success setup, progressive disclosure, defer/revisit, and setup recovery. |
 | `008-sg-customer recovery [feature-or-state]` | `references/customer-recovery-playbook.md` | Safe resume, defer, or recheck path for a disrupted state. |
 
-Natural-language input is dispatcher input, not a fifth mode: select one mode only when intent is unambiguous; otherwise ask one concise question among `audit`, `flow`, `onboarding`, and `recovery`. Bare `audit`, invalid input, and materially mixed requests never silently select or load several playbooks. Only onboarding may additionally load `references/onboarding-progress-overlay-pattern.md`, and only for an explicitly requested stepped overlay.
+Natural-language input is dispatcher input, not a fifth mode: select one mode only when intent is unambiguous; otherwise ask one concise question among `audit`, `flow`, `onboarding`, and `recovery`. Bare `audit`, invalid input, and materially mixed requests never silently select or load several playbooks. Only onboarding may additionally load the overlay index for an explicitly requested stepped overlay, then exactly the direct contract, framework, or proof reference required by the request.
 
 ## Required References
 
@@ -57,6 +57,8 @@ Load only the selected mode playbook. Load shared references only when their gat
 - `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when current external permissions, billing, accessibility, SDK, provider, or policy behavior governs guidance.
 - `$SHIPGLOWS_ROOT/skills/references/source-intake-classification.md` when external competitor or customer-feedback evidence drives an audit or recommendation.
 - `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` when first success or activation must be measured as durable value rather than shallow completion.
+
+For an explicitly requested stepped overlay, load `references/onboarding-progress-overlay-pattern.md`, then one or more direct siblings only as needed: `onboarding-overlay-contract.md` for behavior/state/persistence, `onboarding-overlay-vue.md` or `onboarding-overlay-flutter.md` for the target implementation, and `onboarding-overlay-proof-and-copy.md` for copy, proof, or documentation impact.
 
 ## Non-Negotiables And Boundaries
 
