@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-08-03"
 created_at: "2026-08-03 23:07:13 UTC"
 updated: "2026-08-03"
-updated_at: "2026-08-03 23:18:50 UTC"
+updated_at: "2026-08-03 23:20:44 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: gpt-5
@@ -36,7 +36,7 @@ supersedes: []
 evidence:
   - "2026-08-03 audit: six active skill-local references contain 541 to 872 lines and several independent loading decisions."
   - "Operator approval 2026-08-03: improve the concision of the monolithic references identified by the compaction audit."
-next_step: "/005-sg-ship compact monolithic skill references"
+next_step: none
 ---
 
 # Title
@@ -233,6 +233,7 @@ None. L'opératrice a approuvé la compaction des six références identifiées 
 | 2026-08-03 23:18:50 UTC | 900-shipglows-core refresh | gpt-5 | Revue conservative des six propriétaires, complétude, duplication, sélection ciblée et journaux de refresh. | refreshed | 103-sg-verify |
 | 2026-08-03 23:18:50 UTC | 103-sg-verify | gpt-5 | Vérification standard: scénarios, 52 tests, 45 métadonnées, fidélité, budget, index, résolveur et sync runtime. | verified | 104-sg-end |
 | 2026-08-03 23:18:50 UTC | 104-sg-end | gpt-5 | Critères clos, tracker et changelog alignés; aucune documentation publique impactée. | closed | 005-sg-ship |
+| 2026-08-03 23:20:44 UTC | 005-sg-ship | gpt-5 | Commit `52048c2` poussé sur `origin/main`; périmètre validé et livré. | shipped | none |
 
 # Current Chantier Flow
 
@@ -241,4 +242,4 @@ None. L'opératrice a approuvé la compaction des six références identifiées 
 - `102-sg-start`: complete — références découpées et validations locales passées.
 - `103-sg-verify`: verified.
 - `104-sg-end`: complete.
-- `005-sg-ship`: pending.
+- `005-sg-ship`: shipped.
