@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.7.1"
+artifact_version: "0.8.0"
 project: ShipGlows
 created: "2026-05-16"
-updated: "2026-07-16"
+updated: "2026-08-03"
 status: draft
 source_skill: 102-sg-start
 scope: 302-sg-help-help-catalog
@@ -19,10 +19,11 @@ linked_systems:
   - skills/302-sg-help/references/help-catalog.md
   - skills/900-shipglows-core/SKILL.md
   - skills/references/app-blueprints.md
+  - skills/references/resource-discovery.md
   - skills/app-blueprints/README.md
 depends_on:
   - artifact: "skills/references/skill-instruction-layering.md"
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: "active"
 supersedes: []
 evidence:
@@ -34,6 +35,7 @@ evidence:
   - "2026-07-15 added 006-sg-design private inspiration-library operator modes."
   - "2026-07-15 consolidated six retired design specialist commands into explicit 006-sg-design modes."
   - "2026-07-16 aligned active public-plugin help with the canonical shipglows identity; shipglows remains compatibility-only."
+  - "2026-08-03 added progressive reference/playbook discovery, semantic resource IDs, and resolver authority guidance."
 next_review: "2026-08-15"
 next_step: "none"
 ---
@@ -667,6 +669,8 @@ project/shipglows_data/
 **Research a topic?** → `/203-sg-research "topic"`
 
 **How do I use ShipGlows in OpenCode or KiloCode?** → Ask for the ShipGlows skill in natural language or select it in the runtime UI; do not type internal calls such as `skill({ name: "shipglows" })`
+
+**How does an agent find the right reference or playbook?** → ShipGlows resolves a bounded starter pack from the active skill, mode, and intent, then expands only selected resources through stable semantic IDs and declared links. Mandatory skill gates still win over ranked recommendations.
 
 ---
 

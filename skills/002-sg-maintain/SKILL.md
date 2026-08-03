@@ -127,6 +127,8 @@ Without explicit safe batches, parallelism is blocked.
 
 ## Mode Detection
 
+Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+
 Parse `$ARGUMENTS`:
 
 - empty -> run the master maintenance lifecycle for the current project.

@@ -34,6 +34,10 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/600-sg-local-cloud-sync/references/sync-guidance-overlay-and-merge-pattern.md` before sync-related UI work.
 - `$SHIPGLOWS_ROOT/skills/references/skill-refactor-verifier.md` for any skill compaction, extraction, or process-migration check.
 
+## Explicit Invocation Preflight
+
+Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+
 ## Mission
 
 `006-sg-design` is the sole public entrypoint for design-related work. It owns lifecycle routing and proof posture for design-system, UI/UX, accessibility, visual-proof, and token migration work, but it does not replace implementation, browser verification, or ship/deploy skills.

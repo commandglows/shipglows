@@ -79,6 +79,10 @@ Generated artifacts used only for local proof are disposable unless the task exp
 
 Keep the boundary explicit: `001-sg-build` owns feature and product-change lifecycle orchestration, not existing-project upkeep triage, one-bug loop ownership, or deploy-only release proof after implementation is already settled.
 
+## Explicit Invocation Preflight
+
+Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+
 ## Execution Modes
 
 - `main-only`: only for pure conversational output, explicit planning without mutation, or an explicit no-subagent request.

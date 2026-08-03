@@ -101,6 +101,7 @@ Load only what the current request needs:
 
 - `$SHIPGLOWS_ROOT/skills/references/skill-execution-fidelity.md` for skill-obedience, audit classification, and operator-last-resort rules.
 - `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` before choosing whether a behavior fix belongs in shared doctrine or a local skill contract.
+- `shared:resource-discovery` when building, auditing, or migrating reference/playbook discovery, semantic resource IDs, or resolver behavior.
 - `$SHIPGLOWS_ROOT/shipglows_data/technical/codex-plugin-packaging.md` for public plugin packaging and sparse bootstrap constraints.
 - `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before recommending or making skill-contract edits.
 - `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` and `master-delegation-semantics.md` before `build` chooses lifecycle gates or delegated execution.

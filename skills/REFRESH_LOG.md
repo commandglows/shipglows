@@ -4,6 +4,126 @@ Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. 
 
 ---
 
+## 2026-08-03 — 900-shipglows-core
+
+**Added:** restored the shared explicit-invocation preflight and added semantic resource-discovery ownership.
+
+**Updated:** the build contract now resolves resource discovery through a stable semantic ID; the missing-loader failure is mechanically audited.
+
+**New phases:** resource discovery and preflight recovery inside the existing build lifecycle.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 302-sg-help
+
+**Added:** semantic help routing for reference/playbook discovery, starter packs, expansion, and authority boundaries.
+
+**Updated:** help now explains the resolver without embedding its physical reference path.
+
+**New phases:** none; this extends the existing help route.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 010-sg-technical
+
+**Added:** the shared explicit-invocation preflight before mode parsing.
+
+**Updated:** none.
+
+**New phases:** none; validation precedes the existing mode router.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 009-sg-marketing
+
+**Added:** the shared explicit-invocation preflight before mode parsing.
+
+**Updated:** none.
+
+**New phases:** none; validation precedes the existing marketing modes.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 008-sg-customer
+
+**Added:** the shared explicit-invocation preflight before mode parsing.
+
+**Updated:** none.
+
+**New phases:** none; validation precedes the existing customer modes.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 007-sg-content
+
+**Added:** the shared explicit-invocation preflight before mode parsing.
+
+**Updated:** none.
+
+**New phases:** none; validation precedes the existing content lifecycle.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 006-sg-design
+
+**Added:** the shared explicit-invocation preflight before mode parsing.
+
+**Updated:** none.
+
+**New phases:** none; validation precedes the existing design lifecycle.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 004-sg-deploy
+
+**Added:** the shared explicit-invocation preflight before mode parsing.
+
+**Updated:** none.
+
+**New phases:** none; validation precedes the existing deploy lifecycle.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 003-sg-bug
+
+**Added:** the shared explicit-invocation preflight before mode parsing.
+
+**Updated:** none.
+
+**New phases:** none; validation precedes the existing bug lifecycle.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 002-sg-maintain
+
+**Added:** the shared explicit-invocation preflight before mode parsing.
+
+**Updated:** none.
+
+**New phases:** none; validation precedes the existing maintenance lifecycle.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 001-sg-build
+
+**Added:** the shared explicit-invocation preflight before execution-mode selection.
+
+**Updated:** none.
+
+**New phases:** none; validation precedes the existing build lifecycle.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
+## 2026-08-03 — 000-shipglows
+
+**Added:** the shared explicit-invocation preflight before numeric or named skill handoff.
+
+**Updated:** explicit handoff now proceeds only after a valid checker result and never substitutes an invalid command.
+
+**New phases:** explicit command validation before the existing natural-language router.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change restores and extends local ShipGlows contracts with scenario-first tests.
+
 ## 2026-08-03 — 006-sg-design
 
 **Added:** cross-surface design-token identity gate, behavior-versus-visual ownership gate, and explicit keyboard parity matrix for component-library migrations.

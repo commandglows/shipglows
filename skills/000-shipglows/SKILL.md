@@ -21,6 +21,10 @@ Before producing a final report, load `$SHIPGLOWS_ROOT/skills/references/reporti
 
 Default to `report=user`: concise, route-first, and in the user's active language. Use detailed report modes only when the user explicitly asks for handoff evidence or when routing is blocked.
 
+## Explicit Invocation Preflight
+
+Before handing off an explicit skill name or numeric skill command, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md` and obey its checker result. A valid invocation stays silent; an invalid or ambiguous one never activates a substitute skill.
+
 ## Atomic Direct-Execution Gate
 
 Before loading routing, topology, or owner-skill references, keep the request in direct main-thread execution when the user supplied one explicit deterministic edit, the target is known or discoverable with one focused lookup, no domain judgment or sensitive boundary is involved, and focused validation is sufficient. Typical cases are an exact string or placeholder replacement, a typo, one formatting token, or one `h1` to `h2` change.
@@ -94,7 +98,7 @@ Parse `$ARGUMENTS` as the operator instruction.
 - `help`, `aide`, `commands`, `skills`, or route-selection questions: answer directly or route to `302-sg-help` only if the user wants the full help surface.
 - Named profile activation: apply `skills/references/profile-activation.md`. When the instruction starts with `%<Profile>`, `profile=<id>`, or `profil=<id>`, or clearly asks to respond as a known profile, load the matching profile and keep its role bias active for this turn. The canonical syntax is `%<Profile>`. The profile shapes arbitration and output style; it does not replace owner-skill routing. `#<Tag>` remains reserved for focus tags and route-bias cues.
 - Numeric skill code: resolve the leading three digits through `skill-code-index.md`, then hand off to the runtime skill. Accepted forms include `001`, `001-sg-build`, `001sfbuild`, and `001 sg-build`.
-- Explicit skill name: hand off to that skill. If its safety or scope gate blocks execution, let that skill reroute explicitly instead of silently substituting another owner.
+- Explicit skill name: preflight it, then hand off only when valid. If its safety or scope gate blocks execution, let that skill reroute explicitly instead of silently substituting another owner.
 - Natural-language instruction: apply the Atomic Direct-Execution Gate first; classify only unmatched requests with the routing matrix below.
 - Natural-language instruction with focus tags: classify using the routing matrix plus the focus-tag execution priorities; tags can change owner preference, artifact preference, and whether a direct suggestion is too passive.
 

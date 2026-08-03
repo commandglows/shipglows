@@ -10,6 +10,10 @@ from pathlib import Path
 
 
 HEADING_RE = re.compile(r"^#{1,3}\s+(.+?)\s*$", re.MULTILINE)
+REFERENCE_PATH_RE = re.compile(
+    r"(?P<path>skills/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*\.md"
+    r"|references/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*\.md)"
+)
 
 MISSION_ALIASES = (
     "mission",
@@ -138,11 +142,26 @@ def has_shared_canonical_paths_preflight(path: Path, text: str) -> bool:
     return CANONICAL_PATHS_SHARED_PREFLIGHT_SIGNAL in canonical_text
 
 
+def missing_reference_paths(path: Path, text: str) -> list[str]:
+    """Return exact Markdown loaders that do not resolve canonically."""
+    root = path.parents[2]
+    missing: list[str] = []
+    for reference in sorted({match.group("path") for match in REFERENCE_PATH_RE.finditer(text)}):
+        if reference.startswith("references/"):
+            resolved = path.parent / reference
+        else:
+            resolved = root / reference
+        if not resolved.is_file():
+            missing.append(f"referenced Markdown file missing: {reference}")
+    return missing
+
+
 def audit_skill(path: Path) -> FindingSet:
     text = path.read_text(encoding="utf-8")
     findings = FindingSet()
 
     findings.hard.extend(frontmatter_status(path, text))
+    findings.hard.extend(missing_reference_paths(path, text))
 
     line_count = text.count("\n") + 1
     token_estimate = max(1, len(text) // 4)

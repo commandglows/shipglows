@@ -39,6 +39,7 @@ Always load shared references only when their gate applies. Load skill-local ref
 - `skills/references/project-governance-rules.md`: canonical answer when the user asks what rules a ShipGlows-governed project must respect or what `#rules` means.
 - `skills/references/documentation-governance-rules.md`: canonical answer when the user asks about documentation architecture, metadata, doc placement, or what `#docs` means.
 - `skills/references/private-data-repo-contract.md`: canonical answer when the user asks where durable private ShipGlows data lives, whether it is versioned, how it differs from ephemeral private state, or how install/bootstrap should treat the private data repository.
+- `shared:resource-discovery`: resolve this semantic resource ID when the user asks how agents find references or playbooks, how starter packs work, how resources expand, or why skills should avoid repeated physical paths.
 
 The canonical `Chantier Registry` doctrine lives in `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`; this skill only summarizes it for help output.
 
@@ -70,6 +71,7 @@ What workflow, skill, mode, or doctrine does the operator need explained right n
 - If the user asks about `#feature:<term>`, explain it as an optional technical-navigation hint for behavior-index recovery before broad search, not a command language, and note that the free-text request still matters.
 - If the user asks what `#rules`, `#docs`, `#public-docs`, or `#internal-docs` mean, load the matching governance reference and explain the distinction rather than answering from local shorthand.
 - If the user asks about `~/.shipglows/private/data/`, the private memory repo, versioned private data, or why it is separate from public repos, load `skills/references/private-data-repo-contract.md` and explain the storage contract vs clone contract distinction.
+- If the user asks about reference/playbook discovery, semantic resource IDs, starter packs, expansion, or the resolver, resolve `shared:resource-discovery` and explain its authority boundary without presenting recommendations as mandatory gates.
 - Use `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` for canonical trace/process role doctrine instead of maintaining a duplicate role matrix here.
 - For `Skills at a Glance`, `Quick Answers`, workflow cycles, audit scoring, and file-reference help, load `references/help-catalog.md`.
 

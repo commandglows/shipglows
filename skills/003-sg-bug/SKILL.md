@@ -106,6 +106,8 @@ Delegate or route to a narrower skill when that skill owns the phase. Stop with 
 
 ## Mode Detection
 
+Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+
 Parse `$ARGUMENTS`:
 
 - empty -> inspect `shipglows_data/workflow/bugs/*.md` and optional `shipglows_data/workflow/BUGS.md`, then continue or recommend the highest-priority safe bug action.

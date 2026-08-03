@@ -41,6 +41,10 @@ Before resolving content phases, load `$SHIPGLOWS_ROOT/skills/references/master-
 
 Use the shared skeleton for intake, content work item resolution, readiness, model/topology routing, owner-skill execution, validation, verification, and post-verify ship routing. Local sections below define content surfaces, owner routes, and public-claim gates only.
 
+## Explicit Invocation Preflight
+
+Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+
 ## Mission
 
 `007-sg-content` is the master lifecycle for content management. It decides which content lane should run, applies governance gates, and carries content work toward validation and ship routing.

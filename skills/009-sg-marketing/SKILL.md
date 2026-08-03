@@ -33,6 +33,8 @@ Default to `report=user`: concise, findings-first for audits and evidence limits
 
 ## Mode Detection
 
+Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+
 Load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` before selecting a mode or scope.
 
 Parse `$ARGUMENTS` exactly:

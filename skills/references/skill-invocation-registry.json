@@ -1,0 +1,22 @@
+{
+  "format_version": "1.1",
+  "identity_source": "skills/references/skill-code-index.md",
+  "rules": {
+    "000-shipglows": {"kind": "freeform", "min_args": 1},
+    "001-sg-build": {"kind": "freeform", "min_args": 1, "leading_aliases": ["spark", "codex", "mini", "agents", "sous-agent", "no-agents"]},
+    "002-sg-maintain": {"kind": "freeform", "min_args": 0},
+    "003-sg-bug": {"kind": "freeform", "min_args": 0},
+    "004-sg-deploy": {"kind": "freeform", "min_args": 0},
+    "005-sg-ship": {"kind": "freeform", "min_args": 0},
+    "006-sg-design": {"kind": "modes", "modes": {"system": {"min_args": 0}, "playground": {"min_args": 0}, "audit": {"min_args": 1}, "redesign": {"min_args": 0}, "migration": {"min_args": 0}, "library": {"min_args": 1}}},
+    "007-sg-content": {"kind": "modes", "modes": {"plan": {"min_args": 0}, "capture-full-conversation": {"min_args": 0}, "clean-transcript": {"min_args": 0}, "repurpose": {"min_args": 1}, "draft": {"min_args": 0}, "enrich": {"min_args": 0}, "audit": {"min_args": 0}, "marketing": {"min_args": 0}, "seo": {"min_args": 0}, "editorial": {"min_args": 0}, "apply": {"min_args": 0}, "ship": {"min_args": 0}}},
+    "008-sg-customer": {"kind": "modes", "modes": {"audit": {"min_args": 1}, "flow": {"min_args": 1}, "onboarding": {"min_args": 1}, "recovery": {"min_args": 1}}},
+    "009-sg-marketing": {"kind": "modes", "modes": {"market": {"min_args": 1}, "gtm": {"min_args": 1}, "copy": {"min_args": 1}, "copywriting": {"min_args": 1}, "help": {"min_args": 0}}},
+    "010-sg-technical": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "deps": {"min_args": 0}, "performance": {"min_args": 0}, "migrate": {"min_args": 0}, "help": {"min_args": 0}}},
+    "900-shipglows-core": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "build": {"min_args": 1}, "refresh": {"min_args": 1}, "packaging": {"min_args": 0}, "help": {"min_args": 0}}}
+  },
+  "mode_suggestions": {
+    "repurpose": {"skill": "007-sg-content", "template": "007-sg-content repurpose <source> verbatim"},
+    "excellence": {"skill": "103-sg-verify", "template": "103-sg-verify mode=excellence <task or scope>"}
+  }
+}

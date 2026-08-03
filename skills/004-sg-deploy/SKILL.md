@@ -66,6 +66,8 @@ Route to a narrower skill instead of continuing when the user clearly asks only 
 
 ## Mode Detection
 
+Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+
 Parse `$ARGUMENTS`:
 
 - empty -> deploy the current project and current bounded release scope.

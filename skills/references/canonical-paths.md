@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-07-23"
+updated: "2026-08-03"
 status: active
 source_skill: 102-sg-start
 scope: canonical-path-resolution
@@ -29,7 +29,8 @@ evidence:
   - "Operator decision on 2026-07-13: archived governance history must resolve under shipglows_data/workflow/archives instead of a root archive directory."
   - "Operator decision on 2026-07-13: root docs and bug workflow paths must migrate into canonical technical and workflow families."
   - "Operator decision on 2026-07-23: flat source roots at the monorepo root (site/, app/, backend/, packages/) are the preferred canonical shape for projects using the Astro plus Flutter plus backend split; nested apps/* packaging is allowed only with a documented durable exception."
-next_review: "2026-05-27"
+  - "Operator decision on 2026-08-03: canonical ShipGlows resources use governed progressive discovery rather than ad hoc path search when the activation contract needs supporting references."
+next_review: "2026-09-03"
 next_step: "/103-sg-verify canonical path policy"
 ---
 
@@ -120,6 +121,10 @@ Before running any ShipGlows-owned tool, follow this preflight order exactly:
 4. run the tool
 
 Do not infer ShipGlows-owned tool paths from the current working directory. If this preflight is still agent-runnable, do not ask the operator to run the tool instead.
+
+## Progressive Resource Discovery
+
+After selecting a skill and mode for non-trivial work, use `tools/resource_resolver.py` when supporting references or playbooks are not already sufficient. Load `skills/references/resource-discovery.md` before relying on ranked or expanded results. Existing activation-critical loaders remain mandatory during migration; resolver recommendations supplement them and never replace owner, safety, freshness, or project-truth gates automatically.
 
 ## Canonical Project Artifact Map
 

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-05-16"
-updated: "2026-07-12"
+updated: "2026-08-03"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-instruction-layering
@@ -36,7 +36,8 @@ evidence:
   - "User decision 2026-06-10: keep SKILL.md contracts short and move detailed playbooks, examples, matrices, and edge cases to references."
   - "User decision 2026-07-07: for any skill-creation or skill-improvement work, improve the shared reference layer first and only add local skill wording when the behavior is truly owner-specific."
   - "User decision 2026-07-12: every skill change must preserve compaction and practical followability instead of adding repeated warning prose."
-next_review: "2026-06-24"
+  - "Operator decision 2026-08-03: new cross-skill discovery contracts should prefer stable semantic resource IDs over repeated physical paths once resolver equivalence is proven."
+next_review: "2026-09-03"
 next_step: "/103-sg-verify skill instruction layering"
 ---
 
@@ -75,6 +76,8 @@ Keep these elements in `SKILL.md` even when a reference exists:
 - Any section labels mechanically checked by downstream workflows.
 - The minimum reference-loading map needed to know which detail file applies.
 
+The loading map may use stable semantic resource IDs resolved through the shared resource resolver. Keep the gate condition and mandatory/optional meaning local; avoid embedding a physical path when exact ID resolution and focused failure tests already provide equivalent followability. Existing path loaders migrate one at a time, never through an unproved bulk rewrite.
+
 Never remove `Trace category`, `Process role`, chantier routing visibility, canonical-paths loading, reporting-contract loading, redaction/security gates, or documentation-update gates just to reduce lines.
 
 ## What Moves To Shared References
@@ -90,6 +93,8 @@ Use `skills/references/*.md` for doctrine reused across multiple skills:
 - cross-skill language and metadata doctrine
 
 Do not copy large shared doctrine blocks into multiple skill bodies.
+
+Use `skills/references/resource-discovery.md` for progressive search, semantic resource IDs, expansion, and resolver authority boundaries. Do not reproduce resolver commands or ranking rules in each skill.
 
 ## Reference-First Skill Rule
 

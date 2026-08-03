@@ -31,6 +31,8 @@ It is not a second onboarding skill, a visual-design owner, a copy/docs owner, a
 
 ## Modes
 
+Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
+
 Use exactly one primary playbook:
 
 | Invocation | Primary playbook | Result |

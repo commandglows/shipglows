@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.7.1"
+artifact_version: "0.8.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-07-17"
+updated: "2026-08-03"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -25,6 +25,18 @@ evidence: []
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-08-03]
+
+### Added
+- Added a deterministic, read-only resource resolver that ranks bounded reference/playbook starter packs by skill, mode, and intent; resolves stable semantic resource IDs; and expands declared dependencies and linked systems.
+- Added progressive resource-discovery doctrine so future skills can reduce physical-path coupling without weakening mandatory activation, safety, freshness, or project-truth gates.
+- Restored the explicit skill-invocation preflight, registry, checker, and scenario coverage from the bounded Git stash evidence and migrated them to the canonical ShipGlows identity.
+- Added hard audit coverage for exact Markdown loaders that point to missing files.
+
+### Changed
+- Master entrypoints now share the same silent-on-valid, blocking-on-invalid invocation preflight.
+- Help and internal skill maintenance can resolve resource discovery through a stable semantic ID instead of embedding its physical path.
 
 ## [2026-07-23]
 
