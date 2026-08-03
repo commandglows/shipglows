@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-03"
 created_at: "2026-08-03 19:55:00 UTC"
 updated: "2026-08-03"
-updated_at: "2026-08-03 20:09:53 UTC"
+updated_at: "2026-08-03 20:33:16 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -163,6 +163,7 @@ No public editorial impact. The resolver remains internal to ShipGlows maintenan
 | 2026-08-03 20:06:52 UTC | 103-sg-verify | GPT-5 Codex | Verified 36 focused scenarios, metadata, audit, budget, runtime sync, code hygiene, and live resolver examples; recorded unrelated pre-existing global-suite gaps. | verified | Close and ship bounded scope. |
 | 2026-08-03 20:06:52 UTC | 104-sg-end | GPT-5 Codex | Closed the bounded implementation record, aligned refresh history and changelog, and preserved unrelated migration debt outside ship scope. | closed | Commit and push bounded scope. |
 | 2026-08-03 20:09:53 UTC | 005-sg-ship | GPT-5 Codex | Created bounded implementation commit `784109a`; closure metadata is committed separately before pushing both commits to `origin/main`. | shipped | None. |
+| 2026-08-03 20:33:16 UTC | 005-sg-ship | GPT-5 Codex | Completed the explicit full-close pass, synchronized the project tracker, confirmed changelog and documentation reflection, and prepared the final documentation ship. | shipped | None. |
 
 ## Current Chantier Flow
 
@@ -173,4 +174,4 @@ No public editorial impact. The resolver remains internal to ShipGlows maintenan
 | 102-sg-start | completed | Preflight recovery and resolver implementation complete. |
 | 103-sg-verify | completed | Focused proof passes; unrelated global-suite migration debt is recorded separately. |
 | 104-sg-end | completed | Refresh history and changelog aligned. |
-| 005-sg-ship | completed | Bounded implementation commit created; closure commit and push complete the durable record. |
+| 005-sg-ship | completed | Implementation, closure record, project tracker, and changelog are synchronized and shipped. |
