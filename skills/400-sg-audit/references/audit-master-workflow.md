@@ -132,7 +132,7 @@ Read the selected skill's activation contract, then load its exact audit playboo
 - Copy: `$SHIPGLOWS_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/009-sg-marketing/references/copy-audit-playbook.md`
 - SEO: `$SHIPGLOWS_ROOT/skills/406-sg-seo/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md`
 - GTM: `$SHIPGLOWS_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/009-sg-marketing/references/gtm-audit-playbook.md`
-- Translate: `$SHIPGLOWS_ROOT/skills/407-sg-audit-translate/SKILL.md` and its selected audit section
+- Translate: `$SHIPGLOWS_ROOT/skills/407-sg-translate/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/407-sg-translate/references/audit-playbook.md`
 - Deps: `$SHIPGLOWS_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/010-sg-technical/references/dependency-audit-playbook.md`
 - Perf: `$SHIPGLOWS_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/010-sg-technical/references/performance-audit-playbook.md`
 

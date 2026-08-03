@@ -35,6 +35,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 - Added hard audit coverage for exact Markdown loaders that point to missing files.
 
 ### Changed
+- Consolidated translation and i18n work under the single `407-sg-translate` entrypoint with explicit `audit` and `sync` modes, focused playbooks, and a controlled `apply` compatibility alias; aligned active runtime, plugin, help, operator, and public discovery surfaces while retiring the old operation-named identity. This records a verified local migration, not a Git ship or a production translation outcome.
 - Master entrypoints now share the same silent-on-valid, blocking-on-invalid invocation preflight.
 - Help and internal skill maintenance can resolve resource discovery through a stable semantic ID instead of embedding its physical path.
 

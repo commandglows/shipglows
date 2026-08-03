@@ -121,7 +121,7 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `400` | `sg-audit` | `400-sg-audit` | Audit/quality/ops |
 | `405` | `sg-prod` | `405-sg-prod` | Audit/quality/ops |
 | `406` | `sg-seo` | `406-sg-seo` | Audit/quality/ops |
-| `407` | `sg-audit-translate` | `407-sg-audit-translate` | Audit/quality/ops |
+| `407` | `sg-translate` | `407-sg-translate` | Audit/quality/ops |
 | `600` | `sg-local-cloud-sync` | `600-sg-local-cloud-sync` | Data/activation |
 | `601` | `sg-product-entitlements` | `601-sg-product-entitlements` | Data/activation |
 | `602` | `sg-platform-parity` | `602-sg-platform-parity` | Data/activation |

@@ -237,7 +237,7 @@ Model routing note: `704-sg-model` recommends the right model for the current sc
 | `006-sg-design` | `system`; `playground [route]`; `audit ui|tokens|components|a11y [scope]`; library/redesign/migration; detailed report modes |
 | `005-sg-ship` | no special argument; `skip-check`; `end la tache`; `end`; `fin`; `close task`; `all-dirty`; `ship-all`; `tout-dirty` |
 | `103-sg-verify` | no mode/`mode=standard` for métier correctness, proof, risk, and ship-readiness; `mode=excellence` or an unambiguous natural-language excellence request for a fresh second focus beyond acceptance criteria; verdicts `verified`, `verified_with_excellence_gaps`, or `excellent`, while proof/risk failures keep precedence |
-| `407-sg-audit-translate` | no special argument; file path or scope; `global`; `sync`; `apply`; `sync [path]`; `apply [path]` |
+| `407-sg-translate` | bare or path shorthand = audit; `audit [path\|global]`; `sync [path]`; `apply [path]` is a sync alias; `help` is discovery-only |
 | `309-sg-tasks` | `sessions <project-or-cwd>`; `sessions rename <status>`; `sessions prune <project-or-cwd>`; `name-conversation` | Rename unmanaged titles or only the current thread, preserve forks, and preview safe project-scoped pruning; prune apply requires exact confirmation. |
 
 ## How To Read Arguments

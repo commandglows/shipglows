@@ -124,7 +124,7 @@ Symlinks:
 | `/shipglows-audit-copy @` | Copywriting — clarity, tone, CTAs, grammar, microcopy |
 | `/shipglows-audit-seo @` | Meta tags, headings, structured data, internal linking, performance |
 | `/shipglows-audit-gtm @` | Go-to-market — positioning, conversion, trust, analytics, legal |
-| `/shipglows-audit-translate @` | i18n completeness, consistency, terminology, hreflang, hardcoded strings |
+| `/407-sg-translate audit @` | i18n completeness, consistency, terminology, hreflang, hardcoded strings; use `sync [scope]` for guarded missing-entry synchronization |
 | `/shipglows-deps` | Dependencies — vulnerabilities, outdated, unused, licenses, supply chain |
 | `/shipglows-perf @` | Performance — bundle, rendering, Core Web Vitals, data fetching, DB |
 

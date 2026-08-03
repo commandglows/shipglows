@@ -283,7 +283,7 @@ class TechnicalContractTests(unittest.TestCase):
             "105-sg-check": "proportional typecheck",
             "405-sg-prod": "hosted/live deployment",
             "406-sg-seo": "SEO ranking",
-            "407-sg-audit-translate": "translation and i18n",
+            "407-sg-translate": "translation and i18n",
         }
         for owner, purpose in boundaries.items():
             self.assertIn(owner, self.skill)
@@ -341,7 +341,7 @@ class TechnicalContractTests(unittest.TestCase):
         for predecessor in PREDECESSORS:
             self.assertNotIn(f"| `{predecessor.split('-', 1)[0]}` |", self.code_index)
         quality = next(pack for pack in self.catalog["packs"] if pack["id"] == "shipglows-quality")
-        self.assertEqual(quality["skills"], ["400-sg-audit", "010-sg-technical", "407-sg-audit-translate"])
+        self.assertEqual(quality["skills"], ["400-sg-audit", "010-sg-technical", "407-sg-translate"])
         self.assertIn("010-sg-technical", self.pack_doc)
         for predecessor in PREDECESSORS:
             self.assertNotIn(predecessor, self.pack_doc)

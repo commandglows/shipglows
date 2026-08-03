@@ -107,7 +107,7 @@ Candidate skills:
 
 - `400-sg-audit`
 - `010-sg-technical` (`audit`, `deps`, `performance`, `migrate`)
-- `407-sg-audit-translate`
+- `407-sg-translate` (`audit`, `sync`; `apply` is a `sync` alias)
 
 Packaging status: planned. Needs careful command and network permission wording.
 

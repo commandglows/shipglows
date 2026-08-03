@@ -57,7 +57,7 @@ A missing selected playbook is a visible blocked result. Do not fall back to ano
 - proportional typecheck, lint, build, tests, or quick dependency scan -> `105-sg-check`
 - hosted/live deployment and production truth -> `405-sg-prod`
 - SEO ranking, launch, or monitoring decisions -> `406-sg-seo`
-- translation and i18n -> `407-sg-audit-translate`
+- translation and i18n -> `407-sg-translate`
 - implementation, bugs, browser/auth proof, manual QA, deploy, and lifecycle work -> their existing `001`, `003`-`005`, `102`, and `106`-`109` owners
 
 When one request spans multiple technical lanes, execute only the first explicit mode, name the adjacent evidence gap, and route intentional multi-lane work through `400-sg-audit` or `002-sg-maintain`.

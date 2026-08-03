@@ -175,7 +175,7 @@ Only bootstrap/install owners need the clone contract. Most help answers should 
 | `/009-sg-marketing` | Market study, GTM, copy clarity, or persuasion audit | `market|gtm|copy|copywriting <target>` |
 | `/406-sg-seo` | Meta tags, structured data, links | `@file`, `global`, or nothing |
 | `/705-sg-conversation-audit` | Conversation quality classification and action routing from saved transcripts | `latest`, `path <file-or-dir>`, `export shipglows`, `report=agent` |
-| `/407-sg-audit-translate` | i18n completeness, consistency, missing-translation sync | `@file`, `global`, `sync`, `apply`, or nothing |
+| `/407-sg-translate` | Translation/i18n audit or guarded missing-entry sync | `audit [path|global]`, `sync [path]`, `apply [path]` alias, path shorthand, or nothing |
 
 ### DevOps & Shipping
 
@@ -241,7 +241,7 @@ Internal role matrix:
 | `skills/009-sg-marketing/SKILL.md` | conditionnel | source-de-chantier | Market, GTM, copy, or copywriting findings become a chantier when product, positioning, offer, funnel, legal, trust, or multi-page decisions are required. |
 | `skills/006-sg-design/SKILL.md` | obligatoire | lifecycle | The sole public design owner; explicit audit modes preserve source-de-chantier evaluation before routing remediation. |
 | `skills/406-sg-seo/SKILL.md` | conditionnel | source-de-chantier | SEO findings become a chantier for indexation, schema, content architecture, or multi-page remediation. |
-| `skills/407-sg-audit-translate/SKILL.md` | conditionnel | source-de-chantier | Translation findings become a chantier for locale strategy, broad sync, or quality gates. |
+| `skills/407-sg-translate/SKILL.md` | conditionnel | source-de-chantier | Translation findings become a chantier for locale strategy, broad sync, or quality gates. |
 | `skills/400-sg-audit/SKILL.md` | conditionnel | source-de-chantier | Master audit findings become a chantier for transversal P1/P2 clusters or multi-domain remediation. |
 | `skills/109-sg-auth-debug/SKILL.md` | conditionnel | source-de-chantier | Auth findings become a chantier for session, callback, provider, tenant, or permission risk beyond a direct fix. |
 | `skills/701-sg-backlog/SKILL.md` | conditionnel | pilotage | Backlog ideas become a spec only on explicit user intent or clear high-risk follow-up. |
