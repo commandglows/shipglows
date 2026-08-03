@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 CANONICAL_DIR = "shipglows_data"
-LEGACY_DIR = "shipglows_data"
+LEGACY_DIR = "shipflow_data"
 LEGACY_ROOT_FILES = {
     "AFFILIATES.md",
     "ARCHITECTURE.md",

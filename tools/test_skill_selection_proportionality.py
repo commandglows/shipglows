@@ -4,6 +4,8 @@
 from pathlib import Path
 import unittest
 
+from tools.test_support import optional_public_site
+
 
 ROOT = Path(__file__).resolve().parents[1]
 FIDELITY = ROOT / "skills" / "references" / "skill-execution-fidelity.md"
@@ -15,7 +17,8 @@ START = ROOT / "skills" / "102-sg-start" / "SKILL.md"
 README = ROOT / "README.md"
 CHEATSHEET = ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md"
 WORKFLOW = ROOT / "shipglows_data" / "workflow" / "playbooks" / "spec-driven-workflow.md"
-PUBLIC_ROUTER = ROOT / "shipglows-site" / "src" / "content" / "skills" / "shipglows.md"
+PUBLIC_SITE = optional_public_site(ROOT)
+PUBLIC_ROUTER = PUBLIC_SITE / "src/content/skills/shipglows.md" if PUBLIC_SITE else None
 
 
 class SkillSelectionProportionalityTests(unittest.TestCase):
@@ -31,8 +34,9 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
             README.read_text(encoding="utf-8"),
             CHEATSHEET.read_text(encoding="utf-8"),
             WORKFLOW.read_text(encoding="utf-8"),
-            PUBLIC_ROUTER.read_text(encoding="utf-8"),
         ]
+        if PUBLIC_ROUTER is not None:
+            cls.public_docs.append(PUBLIC_ROUTER.read_text(encoding="utf-8"))
 
     def test_shared_gate_directs_atomic_work_without_a_lifecycle(self) -> None:
         for phrase in (

@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-08-03"
 created_at: "2026-08-03 19:55:00 UTC"
 updated: "2026-08-03"
-updated_at: "2026-08-03 20:33:16 UTC"
+updated_at: "2026-08-03 20:39:30 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -133,7 +133,7 @@ Scenario-first tests plus focused unit tests, metadata lint, skill-contract audi
 
 ## Verification Limits
 
-The bounded proof passes. The repository-wide unittest discovery remains red for pre-existing migration debt outside this chantier: several tests still require the removed `shipglows-site` tree, the code-index linter reports the pre-existing unindexed `emailing` and `sg-emailing` directories, one governance fixture creates an already-created temporary directory, and one `900` assertion simultaneously forbids and requires the same audit-tool substring. None of these failures exercise the resolver, invocation checker, orphan-loader audit, or changed discovery contracts; they remain outside this bounded ship scope.
+The bounded proof passes. The repository-wide migration debt observed during this chantier was repaired afterward under `BUG-2026-08-03-001`: full Python contract discovery now passes, while three public-site assertions are explicitly skipped when the optional `shipglows-site` checkout is unavailable.
 
 ## Risks
 

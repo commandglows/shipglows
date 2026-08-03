@@ -105,6 +105,7 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `109` | `sg-auth-debug` | `109-sg-auth-debug` | Lifecycle/proof |
 | `200` | `sg-redact` | `200-sg-redact` | Content/research/copy |
 | `201` | `sg-enrich` | `201-sg-enrich` | Content/research/copy |
+| `202` | `sg-emailing` | `202-sg-emailing` | Content/research/copy |
 | `203` | `sg-research` | `203-sg-research` | Content/research/copy |
 | `205` | `sg-veille` | `205-sg-veille` | Content/research/copy |
 | `300` | `sg-docs` | `300-sg-docs` | Docs/context/support |

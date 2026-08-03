@@ -6,6 +6,8 @@ import json
 import re
 import unittest
 
+from tools.test_support import optional_public_site
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "010-sg-technical" / "SKILL.md"
@@ -24,7 +26,8 @@ PREDECESSORS = (
     "403-sg-perf",
     "404-sg-migrate",
 )
-PUBLIC_DIR = ROOT / "shipglows-site" / "src" / "content" / "skills"
+PUBLIC_SITE = optional_public_site(ROOT)
+PUBLIC_DIR = PUBLIC_SITE / "src/content/skills" if PUBLIC_SITE else None
 CODE_INDEX = ROOT / "skills" / "references" / "skill-code-index.md"
 CATALOG = ROOT / "plugins" / "shipglows" / "assets" / "pack-catalog.json"
 PACK_DOC = ROOT / "plugins" / "shipglows" / "skills" / "shipglows" / "references" / "pack-catalog.md"
@@ -322,6 +325,8 @@ class TechnicalContractTests(unittest.TestCase):
         self.assertIn("explicitly approved apply phase", migration)
 
     def test_tech_public_08_single_public_page_and_related_routes(self) -> None:
+        if PUBLIC_DIR is None:
+            self.skipTest("optional shipglows-site checkout is not available")
         self.assertTrue((PUBLIC_DIR / "sg-technical.md").is_file())
         public = (PUBLIC_DIR / "sg-technical.md").read_text(encoding="utf-8")
         for mode in ("audit", "deps", "performance", "migrate"):
@@ -354,7 +359,8 @@ class TechnicalContractTests(unittest.TestCase):
             ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md",
             ROOT / "shipglows_data" / "technical" / "skill-runtime-and-lifecycle.md",
         ]
-        files.extend(path for path in PUBLIC_DIR.glob("*.md"))
+        if PUBLIC_DIR is not None:
+            files.extend(path for path in PUBLIC_DIR.glob("*.md"))
         for path in files:
             text = path.read_text(encoding="utf-8")
             for predecessor in PREDECESSORS:

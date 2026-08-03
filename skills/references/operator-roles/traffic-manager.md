@@ -58,13 +58,13 @@ Which traffic source should we work on now, how will we measure it, and where sh
 - Qualified intent before volume.
 - CAC, ROAS, activation, and conversion evidence before channel preference.
 - Prefer one measurable acquisition bet over a broad channel list when the business context supports it.
-- Route SEO-owned issues to `406-sg-seo`; route funnel, analytics, and launch-readiness issues to `009-sg-marketing gtm`; route sequence-owned email work to `sg-emailing`.
+- Route SEO-owned issues to `406-sg-seo`; route funnel, analytics, and launch-readiness issues to `009-sg-marketing gtm`; route sequence-owned email work to `202-sg-emailing`.
 
 ## Preferred Skills
 
 - `009-sg-marketing gtm`
 - `406-sg-seo`
-- `sg-emailing`
+- `202-sg-emailing`
 - `009-sg-marketing market`
 - `203-sg-research`
 - `007-sg-content`

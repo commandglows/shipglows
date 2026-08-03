@@ -5,6 +5,8 @@ from pathlib import Path
 import re
 import unittest
 
+from tools.test_support import optional_public_site
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "009-sg-marketing" / "SKILL.md"
@@ -18,8 +20,9 @@ MIGRATION_EVIDENCE = (
     ROOT / "skills" / "009-sg-marketing" / "references" / "marketing-contract-migration-evidence.md"
 )
 CODE_INDEX = ROOT / "skills" / "references" / "skill-code-index.md"
-SKILLS_INDEX_PAGE = ROOT / "shipglows-site" / "src" / "pages" / "skills" / "index.astro"
-SKILL_MODES_PAGE = ROOT / "shipglows-site" / "src" / "pages" / "skill-modes.astro"
+PUBLIC_SITE = optional_public_site(ROOT)
+SKILLS_INDEX_PAGE = PUBLIC_SITE / "src/pages/skills/index.astro" if PUBLIC_SITE else None
+SKILL_MODES_PAGE = PUBLIC_SITE / "src/pages/skill-modes.astro" if PUBLIC_SITE else None
 RUNTIME_LIFECYCLE = ROOT / "shipglows_data" / "technical" / "skill-runtime-and-lifecycle.md"
 RETIRED_SOURCE_DIRECTORIES = (
     "204-sg-market-study",
@@ -78,8 +81,8 @@ class MarketingContractTests(unittest.TestCase):
         cls.playbooks = {mode: path.read_text(encoding="utf-8") for mode, path in PLAYBOOKS.items()}
         cls.migration_evidence = MIGRATION_EVIDENCE.read_text(encoding="utf-8")
         cls.code_index = CODE_INDEX.read_text(encoding="utf-8")
-        cls.skills_index_page = SKILLS_INDEX_PAGE.read_text(encoding="utf-8")
-        cls.skill_modes_page = SKILL_MODES_PAGE.read_text(encoding="utf-8")
+        cls.skills_index_page = SKILLS_INDEX_PAGE.read_text(encoding="utf-8") if SKILLS_INDEX_PAGE else None
+        cls.skill_modes_page = SKILL_MODES_PAGE.read_text(encoding="utf-8") if SKILL_MODES_PAGE else None
         cls.runtime_lifecycle = RUNTIME_LIFECYCLE.read_text(encoding="utf-8")
 
     def test_activation_contract_is_compact(self) -> None:
@@ -105,7 +108,7 @@ class MarketingContractTests(unittest.TestCase):
         )
         self.assertIn("`007-sg-content` remains the editorial lifecycle owner", self.text)
         self.assertIn(
-            "Generic cited research -> `203-sg-research`; raw URL/source triage as the primary unmet need -> `205-sg-veille`; SEO -> `406-sg-seo`; email sequences -> `emailing`.",
+            "Generic cited research -> `203-sg-research`; raw URL/source triage as the primary unmet need -> `205-sg-veille`; SEO -> `406-sg-seo`; email sequences -> `202-sg-emailing`.",
             self.text,
         )
 
@@ -199,7 +202,7 @@ class MarketingContractTests(unittest.TestCase):
             "`203-sg-research`",
             "`205-sg-veille`",
             "`406-sg-seo`",
-            "`emailing`",
+            "`202-sg-emailing`",
         ):
             self.assertIn(owner, self.text)
 
@@ -212,6 +215,8 @@ class MarketingContractTests(unittest.TestCase):
             "| `009` | `sg-marketing` | `009-sg-marketing` | Master |",
             self.code_index,
         )
+        if self.skills_index_page is None or self.skill_modes_page is None:
+            self.skipTest("optional shipglows-site checkout is not available")
         self.assertIn(
             'skills: "009-sg-marketing, sg-research, sg-veille',
             self.skills_index_page,

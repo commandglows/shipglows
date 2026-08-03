@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.10.1"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-07-18"
+updated: "2026-07-30"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -40,6 +40,7 @@ evidence:
   - "User decision 2026-07-16: successful validation evidence should be compacted into one emoji-labelled line with middle-dot separators."
   - "User decision 2026-07-16: use 🧱 for a normal chantier, reserve 🚧 for a blocked run, and use 📂, 🔨, and 📌 only for scope, active work, and priority or decision context."
   - "Operator correction 2026-07-18: every final report that returns control while a chantier remains unfinished must offer plain-language choices and hide internal skills, commands, stages, owners, and agent topology."
+  - "Operator correction 2026-07-30: a locally proven repair must not be reported as a permanent or universal recurrence guarantee without a scope-matched preventive invariant and focused mechanical proof."
 next_review: "2026-06-04"
 next_step: "/103-sg-verify shipglows-skill-reporting-and-proof-hardening"
 ---
@@ -349,6 +350,19 @@ Concise does not mean vague. If a run is blocked, partial, or risky, include:
 - the safest next action
 - whether the current work can or cannot ship
 
+## Recurrence-Claim Boundary
+
+Report a local repair only for the cause and context actually tested, and name
+known conditions that could reintroduce it. Do not extend that result to other
+projects, configurations, or future changes.
+
+Do not say or imply that an incident is prevented universally — including
+“pour toujours”, “garanti”, “ne se reproduira pas”, or a semantic equivalent
+— unless all three conditions are present: an explicit preventive invariant,
+an invariant scope that covers exactly the claimed scope, and focused
+mechanical proof that was run for that invariant. A generic lint, build, or
+audit never proves that operational invariant on its own.
+
 ## Pressure Scenarios
 
 Use these scenarios when changing reporting behavior or reviewing a skill report:
@@ -363,6 +377,11 @@ Use these scenarios when changing reporting behavior or reviewing a skill report
 - `SSRP-010 compact validation line`: tests, metadata lint, and runtime synchronization all pass. The user report emits `✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236` on one line, omits unavailable segments, and reports any warning or failure separately instead of disguising it as success.
 - `SSRP-011 chantier emoji semantics`: a normal run opens with `🧱 CHANTIER`; a genuinely blocked run opens with `🚧 CHANTIER`; `📂`, `🔨`, and `📌` appear only for dossier/scope, active implementation/repair, and priority/decision/next-action context respectively.
 - `SSRP-012 unfinished chantier choice`: a user-facing final report leaves a chantier open. It ends with two or three numbered choices in plain language, recommends the current safe direction, and names neither a skill nor a command. A completed chantier has no choice block; a blocked chantier offers safe recovery choices.
+- `SSRP-013 recurrence-claim-boundary`:
+  - `local-repair`: a PM2 or lint repair passed only for an observed cause and context. Report that bounded result and the known recurrence conditions; do not call it fixed for all projects or future changes.
+  - `unsupported-guarantee`: without a preventive invariant whose scope covers the claim, reject “pour toujours”, “garanti”, “ne se reproduira pas”, and semantic equivalents.
+  - `proofless-invariant`: an invariant stated without focused mechanical proof does not authorize a universal non-recurrence claim.
+  - `covered-invariant`: when the invariant, its scope, and its focused mechanical proof are present, a prevention claim is allowed only for that covered scope.
 
 ## Verdict Header
 

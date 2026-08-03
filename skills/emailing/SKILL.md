@@ -4,7 +4,7 @@ description: "Plan, draft, route, and audit audience email sequences."
 argument-hint: [sequence brief | audience brief | draft | audit]
 ---
 
-Compatibility alias. Canonical skill name: `sg-emailing`.
+Compatibility alias. Canonical skill name: `202-sg-emailing`.
 
 Primary artifact type: `master-workflow`.
 

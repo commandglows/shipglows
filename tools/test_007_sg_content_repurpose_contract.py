@@ -8,8 +8,11 @@ import re
 import unittest
 from pathlib import Path
 
+from tools.test_support import optional_public_site
+
 
 ROOT = Path(__file__).resolve().parents[1]
+PUBLIC_SITE = optional_public_site(ROOT)
 RETIRED = re.compile(r"202-sg-repurpose|sg-repurpose|sg-repurpose|/sg-repurpose", re.IGNORECASE)
 ACTIVE_SUFFIXES = {".md", ".json", ".astro", ".py", ".yaml", ".yml"}
 HISTORICAL_PREFIXES = (
@@ -54,7 +57,9 @@ class RepurposeModeContractTest(unittest.TestCase):
     def test_transcript_modes_are_public_and_distinct(self) -> None:
         router = read("skills/007-sg-content/references/content-router.md")
         skill = read("skills/007-sg-content/SKILL.md")
-        public = read("shipglows-site/src/content/skills/sg-content.md")
+        if PUBLIC_SITE is None:
+            self.skipTest("optional shipglows-site checkout is not available")
+        public = (PUBLIC_SITE / "src/content/skills/sg-content.md").read_text(encoding="utf-8")
         for mode in ("capture-full-conversation", "clean-transcript", "verbatim"):
             self.assertIn(mode, router + skill + public)
         self.assertIn("internal `800-tmux-capture-conversation`", router)
@@ -96,12 +101,20 @@ class RepurposeModeContractTest(unittest.TestCase):
 
     def test_retired_source_and_public_identity_are_absent(self) -> None:
         self.assertFalse((ROOT / "skills/202-sg-repurpose").exists())
-        self.assertFalse((ROOT / "shipglows-site/src/content/skills/sg-repurpose.md").exists())
+        if PUBLIC_SITE is not None:
+            self.assertFalse((PUBLIC_SITE / "src/content/skills/sg-repurpose.md").exists())
         self.assertNotIn("202-sg-repurpose", read("skills/references/skill-code-index.md"))
         catalog = json.loads(read("plugins/shipglows/assets/pack-catalog.json"))
         self.assertNotIn("202-sg-repurpose", json.dumps(catalog))
-        self.assertNotIn("sg-repurpose", read("shipglows-site/src/content/skills/sg-content.md"))
-        self.assertNotIn("sg-repurpose", read("shipglows-site/src/pages/skills/index.astro"))
+        if PUBLIC_SITE is not None:
+            self.assertNotIn(
+                "sg-repurpose",
+                (PUBLIC_SITE / "src/content/skills/sg-content.md").read_text(encoding="utf-8"),
+            )
+            self.assertNotIn(
+                "sg-repurpose",
+                (PUBLIC_SITE / "src/pages/skills/index.astro").read_text(encoding="utf-8"),
+            )
 
     def test_no_retired_name_in_active_surface(self) -> None:
         violations: list[str] = []

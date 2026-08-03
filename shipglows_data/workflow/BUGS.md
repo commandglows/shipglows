@@ -2,6 +2,7 @@
 
 | Bug ID | Status | Severity | Title | Last tested | Next step |
 |--------|--------|----------|-------|-------------|-----------|
+| [BUG-2026-08-03-001](shipglows_data/workflow/bugs/BUG-2026-08-03-001.md) | closed | medium | Global contract suite fails after repository and skill-name migrations | 2026-08-03 | none |
 | [BUG-2026-06-26-001](shipglows_data/workflow/bugs/BUG-2026-06-26-001.md) | closed | high | ShipGlows installer configures every eligible user by default | 2026-06-26 | none |
 | [BUG-2026-05-20-001](shipglows_data/workflow/bugs/BUG-2026-05-20-001.md) | fixed-pending-verify | medium | Terminal TUI activity panel shows headings instead of task and audit entries | 2026-05-20 | /sg-test --retest BUG-2026-05-20-001 |
 | [BUG-2026-05-19-001](shipglows_data/workflow/bugs/BUG-2026-05-19-001.md) | fixed-pending-verify | medium | Terminal TUI project filter does not scope specs | 2026-05-19 | /sg-test --retest BUG-2026-05-19-001 |

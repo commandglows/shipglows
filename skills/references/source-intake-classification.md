@@ -16,7 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/000-shipglows/SKILL.md
   - skills/007-sg-content/SKILL.md
-  - skills/sg-emailing/SKILL.md
+  - skills/202-sg-emailing/SKILL.md
   - skills/references/private-memory-store.md
   - shipglows_data/editorial/content-map.md
   - shipglows_data/business/business.md
@@ -69,7 +69,7 @@ It answers:
 What is this source, where does it belong, which angle is useful, and which owner skill should act next?
 ```
 
-It does not replace `007-sg-content repurpose`, `sg-emailing`, research, copy audit, or docs owners. It prevents each of them from reinventing the same classification step.
+It does not replace `007-sg-content repurpose`, `202-sg-emailing`, research, copy audit, or docs owners. It prevents each of them from reinventing the same classification step.
 
 ## Trigger
 
@@ -78,7 +78,7 @@ Load this reference when:
 - the user provides a source and asks what to do with it
 - the user uses `#source`
 - a skill receives an external email, URL, transcript, article, note, or competitor/content example as inspiration
-- a route could be `sg-emailing`, `007-sg-content repurpose`, `200-sg-redact`, `203-sg-research`, `009-sg-marketing market|gtm|copy|copywriting`, `205-sg-veille`, `300-sg-docs`, or a project-specific business/content route
+- a route could be `202-sg-emailing`, `007-sg-content repurpose`, `200-sg-redact`, `203-sg-research`, `009-sg-marketing market|gtm|copy|copywriting`, `205-sg-veille`, `300-sg-docs`, or a project-specific business/content route
 
 ## Invocation Pattern
 
@@ -97,7 +97,7 @@ Good input shapes:
 ```
 
 ```text
-#source owner=sg-emailing goal="turn this into a 4-email launch sequence"
+#source owner=202-sg-emailing goal="turn this into a 4-email launch sequence"
 <source email>
 ```
 
@@ -194,7 +194,7 @@ Use `unknown` when the source cannot be classified safely. Ask one targeted ques
 
 ## Routing Rules
 
-- Email or campaign example intended for an audience sequence -> `sg-emailing`.
+- Email or campaign example intended for an audience sequence -> `202-sg-emailing`.
 - Source that should become several content formats -> `007-sg-content repurpose <source>` when surface/governance matters.
 - Source that needs a new original article, guide, or editorial -> `200-sg-redact` after content surface and claim gates.
 - Source that needs better existing content -> `201-sg-enrich`.
@@ -276,7 +276,7 @@ When the source is an inspiration example, such as an email the operator likes:
 - preserve copyright and source-faithfulness boundaries
 - surface risky tactics instead of normalizing them
 
-For `sg-emailing`, this means the source can inspire a sequence pattern, but the output must be rewritten for the operator's audience and business rather than imitating the original substance.
+For `202-sg-emailing`, this means the source can inspire a sequence pattern, but the output must be rewritten for the operator's audience and business rather than imitating the original substance.
 
 ## Stop Conditions
 

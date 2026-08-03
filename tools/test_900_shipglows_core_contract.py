@@ -2,6 +2,7 @@
 """Regression checks for the 900-shipglows-core activation contract."""
 
 from pathlib import Path
+import re
 import unittest
 
 
@@ -44,7 +45,7 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         self.assertIn("Require focused mechanical or pressure-scenario proof", self.text)
 
     def test_validation_uses_current_tool_and_focused_test(self) -> None:
-        self.assertNotIn("audit_shipglows_skills", self.text)
+        self.assertIsNone(re.search(r"audit_shipglows_skills(?!\.py)", self.text))
         self.assertIn("audit_shipglows_skills.py", self.text)
         self.assertIn("python3 -m unittest tools.test_900_shipglows_core_contract", self.text)
 

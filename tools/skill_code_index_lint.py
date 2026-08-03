@@ -35,6 +35,7 @@ def skill_dirs(skills_root: Path) -> set[str]:
         path.parent.name
         for path in skills_root.glob("*/SKILL.md")
         if path.parent.is_dir()
+        and "Compatibility alias." not in path.read_text(encoding="utf-8")
     }
 
 

@@ -1,5 +1,5 @@
 ---
-name: sg-emailing
+name: 202-sg-emailing
 description: "Plan, draft, route, and audit audience email sequences."
 argument-hint: [sequence brief | audience brief | draft | audit]
 ---
@@ -18,7 +18,7 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 
 ## Mission
 
-`sg-emailing` owns audience email sequences: planning, drafting, reviewing, and routing sequence work with clear audience, cadence, CTA, and claim consequences.
+`202-sg-emailing` owns audience email sequences: planning, drafting, reviewing, and routing sequence work with clear audience, cadence, CTA, and claim consequences.
 
 ## Contract References
 
@@ -66,7 +66,7 @@ Default to `report=user`: concise, sequence-first, and in the user's active lang
 Validate this skill after edits with:
 
 ```bash
-rg -n "sg-emailing|one-to-one|sequence|audience|cadence|CTA|opt-out|claim|email-sequence-storage" skills/sg-emailing/SKILL.md
+rg -n "202-sg-emailing|one-to-one|sequence|audience|cadence|CTA|opt-out|claim|email-sequence-storage" skills/202-sg-emailing/SKILL.md
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglows_sync_skills.sh --check --skill sg-emailing
+tools/shipglows_sync_skills.sh --check --skill 202-sg-emailing
 ```

@@ -83,7 +83,7 @@ Read-only parallel analysis may inspect non-overlapping internal and public surf
 
 For a site-facing or SEO-relevant idea, include a compact diffusion map: canonical surface, supporting surfaces, repeated concept, per-surface job, and intentionally skipped surfaces. Repetition changes job by surface; it does not duplicate one paragraph everywhere.
 
-The pack is the deliverable. Route subsequent work through the shared owner matrix: `300-sg-docs` for governed docs, `200-sg-redact` for new long-form writing, `201-sg-enrich` for existing surfaces, `009-sg-marketing` or `406-sg-seo` for the named review, `203-sg-research`/`205-sg-veille` for evidence needs, `sg-emailing` for sequences, then verification and ship owners when applicable. Every handoff includes target, source truth and proof, intended move, claim limits, priority, and context.
+The pack is the deliverable. Route subsequent work through the shared owner matrix: `300-sg-docs` for governed docs, `200-sg-redact` for new long-form writing, `201-sg-enrich` for existing surfaces, `009-sg-marketing` or `406-sg-seo` for the named review, `203-sg-research`/`205-sg-veille` for evidence needs, `202-sg-emailing` for sequences, then verification and ship owners when applicable. Every handoff includes target, source truth and proof, intended move, claim limits, priority, and context.
 
 ### 5. Build and persist the pack
 

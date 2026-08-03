@@ -163,7 +163,7 @@ Do not store raw email bodies, private recipient names, sender details, full ema
 Once a project and durable output are confirmed:
 
 - `007-sg-content repurpose <source>` writes the pack to that project's `shipglows_data/workflow/repurpose-packs/`.
-  - `sg-emailing` writes the sequence to that project's `shipglows_data/workflow/email/`.
+  - `202-sg-emailing` writes the sequence to that project's `shipglows_data/workflow/email/`.
 - remove the source-cache item after the handoff, unless a documented short retention period is still needed for review.
 
 The default retention is 14 days or until the handoff is complete, whichever comes first. Raw inbox content should normally remain outside Git and be deleted according to the mail workflow after processing.

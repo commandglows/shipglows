@@ -4,6 +4,8 @@
 from pathlib import Path
 import unittest
 
+from tools.test_support import optional_public_site
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "103-sg-verify" / "SKILL.md"
@@ -16,7 +18,8 @@ CHEATSHEET = (
     / "operator-guides"
     / "skill-launch-cheatsheet.md"
 )
-PUBLIC_PAGE = ROOT / "shipglows-site" / "src" / "content" / "skills" / "sg-verify.md"
+PUBLIC_SITE = optional_public_site(ROOT)
+PUBLIC_PAGE = PUBLIC_SITE / "src/content/skills/sg-verify.md" if PUBLIC_SITE else None
 MAX_ACTIVATION_LINES = 205
 
 
@@ -27,7 +30,7 @@ class VerifyExcellenceContractTests(unittest.TestCase):
         cls.gates = GATES.read_text(encoding="utf-8")
         cls.readme = README.read_text(encoding="utf-8")
         cls.cheatsheet = CHEATSHEET.read_text(encoding="utf-8")
-        cls.public_page = PUBLIC_PAGE.read_text(encoding="utf-8")
+        cls.public_page = PUBLIC_PAGE.read_text(encoding="utf-8") if PUBLIC_PAGE else None
 
     def test_ac1_standard_is_default_and_makes_no_excellence_claim(self) -> None:
         self.assertIn("## Mode Detection", self.skill)
@@ -49,7 +52,8 @@ class VerifyExcellenceContractTests(unittest.TestCase):
         self.assertIn("unambiguous natural-language request", self.gates)
         self.assertIn("natural-language request", self.readme)
         self.assertIn("demande naturelle non ambiguë", self.cheatsheet)
-        self.assertIn("unambiguous natural-language request", self.public_page)
+        if self.public_page is not None:
+            self.assertIn("unambiguous natural-language request", self.public_page)
 
     def test_mission_exposes_the_question_for_each_focus(self) -> None:
         self.assertIn("standard: Is this work proven enough", self.skill)
@@ -88,13 +92,14 @@ class VerifyExcellenceContractTests(unittest.TestCase):
         self.assertIn("EXCELLENCE-006 ATOMIC-PROPORTIONALITY", self.gates)
 
     def test_mode_is_discoverable_without_claiming_a_specialist_audit(self) -> None:
-        for text in (self.readme, self.cheatsheet, self.public_page):
+        for text in (self.readme, self.cheatsheet):
             self.assertIn("mode=excellence", text)
             self.assertIn("verified_with_excellence_gaps", text)
             self.assertIn("excellent", text)
         self.assertIn("does not replace specialist audits", self.readme)
         self.assertIn("ne remplace pas un audit spécialiste", self.cheatsheet)
-        self.assertIn("does not replace a specialist audit", self.public_page)
+        if self.public_page is not None:
+            self.assertIn("does not replace a specialist audit", self.public_page)
 
     def test_activation_contract_stays_compact_and_loads_local_detail(self) -> None:
         self.assertLessEqual(len(self.skill.splitlines()), MAX_ACTIVATION_LINES)

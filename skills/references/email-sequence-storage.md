@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-07-11"
 updated: "2026-07-11"
 status: active
-source_skill: sg-emailing
+source_skill: 202-sg-emailing
 scope: email-sequence-storage
 owner: Diane
 confidence: high
@@ -14,7 +14,7 @@ risk_level: medium
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/sg-emailing/SKILL.md
+  - skills/202-sg-emailing/SKILL.md
   - skills/references/source-intake-classification.md
   - skills/references/private-memory-store.md
   - skills/references/repurpose-pack-storage.md
@@ -96,7 +96,7 @@ project: "<project>"
 created: "YYYY-MM-DD"
 updated: "YYYY-MM-DD"
 status: draft
-source_skill: sg-emailing
+source_skill: 202-sg-emailing
 scope: "<onboarding | launch | reactivation | seasonal>"
 audience: "<segment>"
 objective: "<desired change>"
@@ -119,8 +119,8 @@ Keep the body sequence-first: campaign intent, segment and exclusions, step-by-s
 
 ## Ownership
 
-- `sg-emailing` owns durable audience sequence files.
-- `007-sg-content repurpose <source>` owns durable source-faithful packs and may hand a pack to `sg-emailing`.
+- `202-sg-emailing` owns durable audience sequence files.
+- `007-sg-content repurpose <source>` owns durable source-faithful packs and may hand a pack to `202-sg-emailing`.
 - The project's business, product, branding, GTM, and editorial contracts govern the sequence's claims, positioning, and declared public surfaces.
 
 ## Validation

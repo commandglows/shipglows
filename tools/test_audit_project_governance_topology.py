@@ -24,11 +24,11 @@ class GovernanceTopologyAuditTests(unittest.TestCase):
     def test_detects_root_and_nested_legacy_corpora_together(self) -> None:
         temp, root = self.project()
         self.addCleanup(temp.cleanup)
-        (root / "shipglows_data").mkdir()
-        (root / "site" / "shipglows_data").mkdir(parents=True)
+        (root / "shipflow_data").mkdir()
+        (root / "site" / "shipflow_data").mkdir(parents=True)
         report = audit(root)
         self.assertEqual(report.status, "migration-required")
-        self.assertEqual(report.migration_sources, ["shipglows_data", "site/shipglows_data"])
+        self.assertEqual(report.migration_sources, ["shipflow_data", "site/shipflow_data"])
 
     def test_detects_all_legacy_root_files_without_explicit_arguments(self) -> None:
         temp, root = self.project()

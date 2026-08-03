@@ -137,6 +137,53 @@ class ReportingContractTests(unittest.TestCase):
         self.assertNotIn("Spec recommandee: /100-sg-spec", chantier)
         self.assertNotIn("Prochaine etape: <next ShipGlows command", chantier)
 
+    def test_recurrence_claim_boundary_requires_scope_matched_proof(self) -> None:
+        text = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        boundary = text.split("## Recurrence-Claim Boundary", 1)[1].split(
+            "## Pressure Scenarios", 1
+        )[0]
+        scenarios = text.split("## Pressure Scenarios", 1)[1].split(
+            "## Verdict Header", 1
+        )[0]
+
+        # The local outcome, universal-claim gate, and proof limit must remain
+        # linked as one contract; a bare list of prohibited words is insufficient.
+        for rule in (
+            "cause and context actually tested",
+            "known conditions that could reintroduce it",
+            "other\nprojects, configurations, or future changes",
+            "unless all three conditions are present: an explicit preventive invariant,",
+            "an invariant scope that covers exactly the claimed scope, and focused\nmechanical proof that was run for that invariant",
+            "A generic lint, build, or\naudit never proves that operational invariant on its own.",
+        ):
+            self.assertIn(rule, boundary)
+
+        case_expectations = {
+            "local-repair": (
+                "bounded result",
+                "known recurrence conditions",
+                "all projects or future changes",
+            ),
+            "unsupported-guarantee": (
+                "preventive invariant whose scope covers the claim",
+                "“pour toujours”, “garanti”, “ne se reproduira pas”",
+                "semantic equivalents",
+            ),
+            "proofless-invariant": (
+                "without focused mechanical proof",
+                "does not authorize a universal non-recurrence claim",
+            ),
+            "covered-invariant": (
+                "invariant, its scope, and its focused mechanical proof",
+                "only for that covered scope",
+            ),
+        }
+        self.assertIn("SSRP-013 recurrence-claim-boundary", scenarios)
+        for case, expectations in case_expectations.items():
+            scenario = scenarios.split(f"`{case}`:", 1)[1].split("\n  - `", 1)[0]
+            for expectation in expectations:
+                self.assertIn(expectation, scenario, f"{case}: {expectation}")
+
     def test_build_user_template_hides_internal_flow(self) -> None:
         text = BUILD_WORKFLOW.read_text(encoding="utf-8")
         self.assertNotIn("Flux: 100-sg-spec", text)

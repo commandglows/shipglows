@@ -13,7 +13,7 @@
 
 ## Backlog
 
-🟠 [ShipGlows] task: Préparer puis rédiger la première séquence email durable à partir d'un brief d'audience, d'objectif, de promesse et de CTA | status: todo | area: email-sequence | source: decision utilisateur 2026-07-11 | reference: skills/references/email-sequence-storage.md | next: /emailing définir le brief de la séquence 1
+🟠 [ShipGlows] task: Préparer puis rédiger la première séquence email durable à partir d'un brief d'audience, d'objectif, de promesse et de CTA | status: todo | area: email-sequence | source: decision utilisateur 2026-07-11 | reference: skills/references/email-sequence-storage.md | next: /202-sg-emailing définir le brief de la séquence 1
 
 ---
 

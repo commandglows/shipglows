@@ -61,7 +61,7 @@ Load only gates required by the selected mode:
 ## Boundaries And Reroutes
 
 - `007-sg-content` remains the editorial lifecycle owner. Do not create an implicit chain of marketing modes.
-- Generic cited research -> `203-sg-research`; raw URL/source triage as the primary unmet need -> `205-sg-veille`; SEO -> `406-sg-seo`; email sequences -> `sg-emailing`.
+- Generic cited research -> `203-sg-research`; raw URL/source triage as the primary unmet need -> `205-sg-veille`; SEO -> `406-sg-seo`; email sequences -> `202-sg-emailing`.
 - Drafting, enrichment, publishing, documentation, or implementation requests route to their existing owner unless an active unique chantier explicitly owns bounded remediation under the selected mode.
 - `copy` may flag persuasion issues but does not silently become `copywriting`; `copywriting` may flag clarity issues but does not duplicate a full copy audit.
 

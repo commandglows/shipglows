@@ -48,7 +48,7 @@ This reference centralizes who owns the next step. Local skills may keep activat
 | Persona, offer, persuasion, and conversion audit | `009-sg-marketing copywriting` |
 | Technical or on-page SEO / search-intent audit | `406-sg-seo` |
 | README, docs, or content-governance update | `300-sg-docs` |
-| Audience email sequences | `sg-emailing` |
+| Audience email sequences | `202-sg-emailing` |
 | Public browser proof | `108-sg-browser` |
 | Verification | `103-sg-verify` |
 | Ship | `005-sg-ship` |
