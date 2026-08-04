@@ -31,10 +31,10 @@ evidence:
   - "User decision 2026-06-10: use three digits directly before the skill name for the real runtime-visible skill identity."
   - "User decision 2026-06-10: no symbol-heavy names; keep lowercase letters, numbers, and hyphens only."
   - "2026-06-11 900-shipglows-core added as an internal operator skill in the reserved meta band."
-  - "2026-06-11 310-sg-github-hygiene added as the git/GitHub sync, stale branch, PR drift, and Dependabot hygiene skill."
   - "2026-07-15 design consolidation retired 409 and 500-504 as public skills; their capabilities now live as modes and playbooks under 006-sg-design."
   - "2026-07-15 skill-maintenance consolidation retired 009 and 307; their capabilities now live as modes under the internal-only 900-shipglows-core."
   - "2026-07-17 technical consolidation assigned 010 and retired 401-404; their capabilities now live as explicit modes under 010-sg-technical."
+  - "2026-08-04 technical consolidation assigned GitHub hygiene to the `github` mode under 010-sg-technical and retired 310."
   - "2026-08-03 pilotage consolidation assigned 011 and retired 309 and 701-703; tasks, backlog, priorities, review, and sessions now live as explicit modes under 011-sg-pilotage."
 next_review: "2026-08-15"
 next_step: "/103-sg-verify consolidate pilotage skills under sg-pilotage"
@@ -69,7 +69,7 @@ operator invocation: $001-sg-build
 | `000-099` | Master and high-frequency entrypoints | Most frequent and highest-level commands get the easiest codes; an entrypoint in this band is not necessarily a lifecycle master. |
 | `100-199` | Lifecycle and proof | Spec, readiness, execution, verification, checks, fixes, browser/auth/test proof. |
 | `200-299` | Content, research, and copy | Writing, enrichment, repurposing, market/research/watch, and copy audits. |
-| `300-399` | Docs, context, and support | Docs, help, context, changelog, init, scaffold, status, and GitHub hygiene. |
+| `300-399` | Docs, context, and support | Docs, help, context, changelog, init, scaffold, and status. |
 | `400-499` | Audit, quality, and ops risk | Broad audit, production proof, SEO, and i18n; technical depth moved to high-frequency entrypoint 010. |
 | `500-599` | Unassigned legacy band | Former design-specialist band; design now routes through `006-sg-design` modes. Reuse requires a ready taxonomy decision. |
 | `600-699` | Data and activation | Local-cloud sync, entitlements, parity, and future account/data surfaces. |
@@ -118,7 +118,6 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `305` | `sg-init` | `305-sg-init` | Docs/context/support |
 | `306` | `sg-scaffold` | `306-sg-scaffold` | Docs/context/support |
 | `308` | `sg-status` | `308-sg-status` | Docs/context/support |
-| `310` | `sg-github-hygiene` | `310-sg-github-hygiene` | Docs/context/support |
 | `400` | `sg-audit` | `400-sg-audit` | Audit/quality/ops |
 | `405` | `sg-prod` | `405-sg-prod` | Audit/quality/ops |
 | `406` | `sg-seo` | `406-sg-seo` | Audit/quality/ops |

@@ -21,7 +21,7 @@ linked_systems:
   - "skills/503-sg-audit-design-tokens/SKILL.md"
   - "skills/503-sg-audit-design-tokens/references/*"
   - "skills/008-sg-onboarding/SKILL.md"
-  - "skills/310-sg-github-hygiene/SKILL.md"
+  - "skills/010-sg-technical github/SKILL.md"
   - "skills/600-sg-local-cloud-sync/SKILL.md"
   - "skills/601-sg-product-entitlements/SKILL.md"
   - "skills/602-sg-platform-parity/SKILL.md"

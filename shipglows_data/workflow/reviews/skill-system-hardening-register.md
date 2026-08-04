@@ -149,7 +149,7 @@ Audit each skill against these five checks:
 | `307-sg-skills-refresh` | docs-ops | done | Skills-refresh helper already exposes canonical path, reporting, and required references clearly enough for future hardening work. | none |
 | `308-sg-status` | docs-ops | done | Status reporter already exposes canonical path, reporting, references, and bounded reporting purpose clearly. | none |
 | `309-sg-tasks` | docs-ops | done | Tasks helper stays compact and already exposes deterministic tracker-updater scope clearly enough. | none |
-| `310-sg-github-hygiene` | docs-ops | done | GitHub hygiene workflow already exposes canonical path, reporting, scope gate, references, stop rules, and validation clearly. | none |
+| `010-sg-technical github` | docs-ops | done | GitHub hygiene workflow already exposes canonical path, reporting, scope gate, references, stop rules, and validation clearly. | none |
 
 ### Audit Skills
 

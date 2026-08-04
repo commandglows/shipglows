@@ -18,6 +18,7 @@ PLAYBOOKS = {
     "deps": ROOT / "skills" / "010-sg-technical" / "references" / "dependency-audit-playbook.md",
     "performance": ROOT / "skills" / "010-sg-technical" / "references" / "performance-audit-playbook.md",
     "migrate": ROOT / "skills" / "010-sg-technical" / "references" / "migration-playbook.md",
+    "github": ROOT / "skills" / "010-sg-technical" / "references" / "github-hygiene-playbook.md",
 }
 AUDIT_BRANCHES = {
     "protocol": ROOT / "skills" / "010-sg-technical" / "references" / "technical-audit-protocol.md",
@@ -75,7 +76,7 @@ SPEC_PREDECESSOR_LINE_ALLOWLIST = {
             "- If one pull request requires `402-sg-deps`, `404-sg-migrate`, or `github:gh-fix-ci`, record `routed` with owner and reason, then continue unrelated eligible pull requests.",
             "- Preserve `402-sg-deps`, `404-sg-migrate`, and `github:gh-fix-ci` ownership boundaries.",
             "- [x] AC 5 — Specialist routing: Given dependency risk, a major migration, or failing CI requires specialist work, when the item is routed, then the ledger names `402-sg-deps`, `404-sg-migrate`, or `github:gh-fix-ci` and does not claim downstream success.",
-            '- Focused scan: `rg -n "Dependabot|queue|merged|closed|deferred|routed|blocked|revalid|actionable|402-sg-deps|404-sg-migrate|github:gh-fix-ci" skills/310-sg-github-hygiene/SKILL.md tools/test_310_github_hygiene_contract.py`.',
+            '- Focused scan: `rg -n "Dependabot|queue|merged|closed|deferred|routed|blocked|revalid|actionable|402-sg-deps|404-sg-migrate|github:gh-fix-ci" skills/010-sg-technical/references/github-hygiene-playbook.md tools/test_010_sg_technical_contract.py`.',
         }
     ),
     "devserver-ui-centralization.md": frozenset(
@@ -231,7 +232,7 @@ class TechnicalContractTests(unittest.TestCase):
     def test_tech_dispatch_01_exact_compact_grammar(self) -> None:
         self.assertLessEqual(len(self.skill.splitlines()), MAX_ACTIVATION_LINES)
         self.assertIn(
-            'argument-hint: "<audit [target] | deps [global] | performance [target] | migrate [package@version] | help>"',
+            'argument-hint: "<audit [target] | deps [global] | performance [target] | migrate [package@version] | github [mode] [scope] | help>"',
             self.skill,
         )
         for grammar in (
@@ -239,6 +240,7 @@ class TechnicalContractTests(unittest.TestCase):
             "`deps [global]`",
             "`performance [<file|project|global>]`",
             "`migrate [package@version]`",
+            "`github [audit|branches|dependabot|fix] [current repo|workspace]`",
             "`help`",
         ):
             self.assertIn(grammar, self.skill)
@@ -251,6 +253,7 @@ class TechnicalContractTests(unittest.TestCase):
             "deps": "dependency-audit-playbook.md",
             "performance": "performance-audit-playbook.md",
             "migrate": "migration-playbook.md",
+            "github": "github-hygiene-playbook.md",
         }
         for mode, name in expected.items():
             if mode == "audit":
@@ -288,6 +291,33 @@ class TechnicalContractTests(unittest.TestCase):
         for mode, phrases in markers.items():
             for phrase in phrases:
                 self.assertIn(phrase, audit_text if mode == "audit" else self.playbooks[mode], f"{mode}: {phrase}")
+
+    def test_tech_github_09_queue_safety_transfers_from_310(self) -> None:
+        github = self.playbooks["github"]
+        for phrase in (
+            "exactly one final disposition",
+            "terminal disposition ledger",
+            "item-scoped blocker",
+            "continue independent eligible pull requests",
+            "Only queue-wide blockers stop the full queue:",
+            "until no actionable pull request remains",
+            "DEPENDABOT-MIXED-QUEUE-CONTINUES",
+            "Never auto-merge major dependency bumps.",
+            "Never resolve merge conflicts silently.",
+        ):
+            self.assertIn(phrase, github)
+        for owner in ("010-sg-technical deps", "010-sg-technical migrate", "github:gh-fix-ci"):
+            self.assertIn(owner, github)
+        for blocker in (
+            "GitHub authentication",
+            "repository access",
+            "operator authorization",
+            "reliable refreshed queue truth",
+        ):
+            self.assertIn(blocker, github)
+        for refreshed_state in ("open PR", "check", "base state"):
+            self.assertIn(refreshed_state, github)
+        self.assertIn("before selecting the next action", github)
 
     def test_tech_boundary_03_adjacent_owners_stay_independent(self) -> None:
         boundaries = {
@@ -341,7 +371,7 @@ class TechnicalContractTests(unittest.TestCase):
             self.skipTest("optional shipglows-site checkout is not available")
         self.assertTrue((PUBLIC_DIR / "sg-technical.md").is_file())
         public = (PUBLIC_DIR / "sg-technical.md").read_text(encoding="utf-8")
-        for mode in ("audit", "deps", "performance", "migrate"):
+        for mode in ("audit", "deps", "performance", "migrate", "github"):
             self.assertIn(f"/010-sg-technical {mode}", public)
         for retired in ("sg-audit-code.md", "sg-deps.md", "sg-perf.md", "sg-migrate.md"):
             self.assertFalse((PUBLIC_DIR / retired).exists(), retired)
@@ -365,7 +395,7 @@ class TechnicalContractTests(unittest.TestCase):
             ROOT / "skills" / "103-sg-verify" / "references" / "verification-gates.md",
             ROOT / "skills" / "105-sg-check" / "SKILL.md",
             ROOT / "skills" / "302-sg-help" / "references" / "help-catalog.md",
-            ROOT / "skills" / "310-sg-github-hygiene" / "SKILL.md",
+            ROOT / "skills" / "010-sg-technical" / "references" / "github-hygiene-playbook.md",
             ROOT / "skills" / "400-sg-audit" / "SKILL.md",
             ROOT / "skills" / "400-sg-audit" / "references" / "audit-master-workflow.md",
             ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md",

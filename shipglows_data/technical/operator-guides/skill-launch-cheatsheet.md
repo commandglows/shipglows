@@ -40,7 +40,7 @@ evidence:
   - "Skill taxonomy description audit clarified runtime families while keeping public skill names and invocation paths stable."
   - "602-sg-platform-parity added as the platform parity/concordance audit and routing skill."
   - "900-shipglows-core added as an internal operator-only ShipGlows Core audit skill."
-  - "310-sg-github-hygiene added as the git/GitHub sync, stale branch, PR drift, and Dependabot hygiene skill."
+  - "010-sg-technical github added as the git/GitHub sync, stale branch, PR drift, and Dependabot hygiene skill."
   - "Public/docs handoff clarity updated: numeric examples now match three-digit runtime names, and runtime invocation notes distinguish manual user commands from OpenCode/KiloCode internal calls."
   - "Added direct links to repo-visible OpenCode and KiloCode runtime pages."
   - "2026-07-17 atomic routing update: deterministic micro-edits execute directly before owner-skill routing."
@@ -163,7 +163,7 @@ Public categories make the catalog easier to browse. Runtime families explain ho
 | Data trust/source | Frame local-first data becoming account-backed cloud data and product access becoming entitlement-backed. | `600-sg-local-cloud-sync`, `601-sg-product-entitlements` |
 | Audit/source | Expose quality, security, performance, SEO, copy, design, dependency, parity, or GTM risk that may deserve a chantier. | `400-sg-audit`, `010-sg-technical`, `602-sg-platform-parity` |
 | Bug/proof | Diagnose failures, validate behavior, or confirm deployment truth. | `003-sg-bug`, `106-sg-fix`, `107-sg-test`, `108-sg-browser`, `109-sg-auth-debug`, `405-sg-prod`, `105-sg-check` |
-| Content/docs/support | Keep public content, documentation, scaffolding, changelogs, skill contracts, governance surfaces, and git/GitHub hygiene coherent with shipped behavior. | `007-sg-content repurpose`, `300-sg-docs`, `200-sg-redact`, `201-sg-enrich`, `304-sg-changelog`, `306-sg-scaffold`, `305-sg-init`, `310-sg-github-hygiene` |
+| Content/docs/support | Keep public content, documentation, scaffolding, changelogs, skill contracts, governance surfaces, and git/GitHub hygiene coherent with shipped behavior. | `007-sg-content repurpose`, `300-sg-docs`, `200-sg-redact`, `201-sg-enrich`, `304-sg-changelog`, `306-sg-scaffold`, `305-sg-init`, `010-sg-technical github` |
 | Research/pilotage/helper | Clarify information, manage work/session state, prioritize, summarize, route, or preserve context without owning full lifecycle closure. | `009-sg-marketing`, `203-sg-research`, `205-sg-veille`, `011-sg-pilotage`, `301-sg-context`, `704-sg-model`, `302-sg-help`, `308-sg-status`, `303-sg-resume`, `700-sg-explore`, `706-continue`, `707-name` |
 | Internal/meta | Operator-only tools for maintaining ShipGlows itself. | `900-shipglows-core` |
 
@@ -210,7 +210,7 @@ Content scoring examples:
 | Technical checks | `105-sg-check` | Target typecheck, lint, build, tests, dependency checks, or shell validation. |
 | Readiness or excellence verification | `103-sg-verify [mode=standard|mode=excellence] [scope]` | Standard mode vérifie le métier et la ship-readiness. `mode=excellence` ou une demande naturelle non ambiguë d’excellence ajoute une seconde focale critique et retourne `verified_with_excellence_gaps` ou `excellent`; il ne remplace pas un audit spécialiste. |
 | Documentation work | `300-sg-docs [mode or target]` | `readme`, `api`, `components`, `audit`, `update`, `metadata`, `technical`, `editorial`, or a file path. |
-| Git/GitHub hygiene | `310-sg-github-hygiene [mode]` | `audit`, `branches`, `dependabot`, `fix`, plus current-repo or workspace scope. |
+| Git/GitHub hygiene | `010-sg-technical github [mode]` | `audit`, `branches`, `dependabot`, `fix`, plus current-repo or workspace scope. |
 | Audit lane | `400-sg-audit*` | Choose the audit owner: code, design, copy, SEO, GTM, deps, perf, a11y, translation, components, or design tokens. |
 | Platform parity/concordance | `602-sg-platform-parity <project, feature, or spec path>` | Check product and technical parity across web, Android, iOS, Windows, macOS, and Linux; route gaps to `100-sg-spec`, `001-sg-build`, `107-sg-test`, `103-sg-verify`, `300-sg-docs`, or `005-sg-ship`. |
 | Conversation quality lane | `705-sg-conversation-audit` | Classify recurring conversation execution defects and route concrete owner follow-up paths. |
@@ -238,7 +238,7 @@ Model routing note: `704-sg-model` recommends the right model for the current sc
 | `008-sg-customer` | `audit [scope]`; `flow [feature-or-flow]`; `onboarding [feature-or-flow]`; `recovery [feature-or-state]`; detailed report modes |
 | `600-sg-local-cloud-sync` | project, feature, data domains, sync question; audit; Flutter focus; secrets/sensitive-data focus; detailed report modes |
 | `900-shipglows-core build` | new skill idea; existing skill path; `700-sg-explore` reroute when placement or public promise is too fuzzy |
-| `310-sg-github-hygiene` | no argument/`audit`; `branches`; `dependabot`; `fix`; `current repo`; `workspace` |
+| `010-sg-technical github` | no argument/`audit`; `branches`; `dependabot`; `fix`; `current repo`; `workspace` |
 | `900-shipglows-core` | `audit [scope]`; `build <target>`; `refresh <target>`; `packaging [scope]`; `help`; `report=agent` |
 | `705-sg-conversation-audit` | `latest`; `path <file-or-dir>`; `export shipglows`; `report=agent` |
 | `602-sg-platform-parity` | project, feature, or spec path; `platforms=web,android,ios,windows,macos,linux`; `report=agent` |

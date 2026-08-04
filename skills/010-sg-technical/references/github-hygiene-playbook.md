@@ -1,7 +1,27 @@
 ---
-name: 310-sg-github-hygiene
-description: "Audit git sync, stale branches, PR drift, and Dependabot hygiene."
-argument-hint: '[audit|fix|branches|dependabot] [current repo|workspace]'
+artifact: skill_reference
+metadata_schema_version: "1.0"
+artifact_version: "1.0.0"
+project: ShipGlows
+created: "2026-08-04"
+updated: "2026-08-04"
+status: active
+source_skill: 010-sg-technical
+scope: github-hygiene-playbook
+owner: Diane
+confidence: high
+risk_level: high
+security_impact: yes
+docs_impact: yes
+linked_systems:
+  - skills/010-sg-technical/SKILL.md
+  - skills/010-sg-technical/references/github-hygiene-playbook.md
+depends_on: []
+supersedes:
+  - skills/310-sg-github-hygiene/SKILL.md
+evidence:
+  - "Transferred from the retired GitHub hygiene entrypoint into the technical métier skill."
+next_step: "/103-sg-verify consolidate GitHub hygiene under 010-sg-technical"
 ---
 
 ## Canonical Paths
@@ -201,11 +221,11 @@ Pressure scenarios:
 After edits to this skill, validate with:
 
 ```bash
-rg -n "Mission|Scope Gate|Required References|Stop Conditions|Validation|Report Modes" skills/310-sg-github-hygiene/SKILL.md
+rg -n "Mission|Scope Gate|Required References|Stop Conditions|Validation|Report Modes" skills/010-sg-technical/SKILL.md skills/010-sg-technical/references/github-hygiene-playbook.md
 python3 -m unittest tools.test_310_github_hygiene_contract
 python3 tools/audit_shipglows_skills.py
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-tools/shipglows_sync_skills.sh --check --skill 310-sg-github-hygiene
+tools/shipglows_sync_skills.sh --check --skill 010-sg-technical
 ```
 
 For live repo maintenance runs, re-check the repo after every mutation:

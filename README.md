@@ -594,7 +594,7 @@ Skill launch cheatsheet:
 | Manual expert lifecycle | `100-sg-spec -> 101-sg-ready -> 102-sg-start -> 103-sg-verify -> 104-sg-end` | Use when you intentionally want to drive each gate instead of using `001-sg-build`. |
 | Commit and push ready work | `005-sg-ship [mode]` | no special argument, `skip-check`, `end la tache`/`end`/`fin`/`close task`, `all-dirty`/`ship-all`/`tout-dirty`. |
 | Browser, auth, manual QA, or live deployment proof | `108-sg-browser`, `109-sg-auth-debug`, `107-sg-test`, `405-sg-prod` | Pick by proof type: non-auth browser evidence, auth/session diagnosis, durable manual QA, or deployment truth. |
-| Git/GitHub hygiene | `310-sg-github-hygiene [mode]` | `audit`, `branches`, `dependabot`, `fix`, plus current-repo or workspace scope. |
+| Git/GitHub hygiene | `010-sg-technical github [mode]` | `audit`, `branches`, `dependabot`, `fix`, plus current-repo or workspace scope. |
 
 Bug loop entrypoint:
 

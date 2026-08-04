@@ -18,8 +18,8 @@ risk_level: medium
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - "skills/310-sg-github-hygiene/SKILL.md"
-  - "tools/test_310_github_hygiene_contract.py"
+  - "skills/010-sg-technical github/SKILL.md"
+  - "tools/test_010_sg_technical_contract.py"
   - "skills/402-sg-deps/SKILL.md"
   - "skills/404-sg-migrate/SKILL.md"
   - "github:gh-fix-ci"
@@ -57,7 +57,7 @@ closed locally / ready for bounded ship
 
 ## User Story
 
-As a ShipGlows operator, I want `310-sg-github-hygiene` to continue through unrelated safe Dependabot pull requests when one risky pull request needs quarantine or specialist handling, so the backlog reaches an explicit, revalidated disposition without repeated operator intervention.
+As a ShipGlows operator, I want `010-sg-technical github` to continue through unrelated safe Dependabot pull requests when one risky pull request needs quarantine or specialist handling, so the backlog reaches an explicit, revalidated disposition without repeated operator intervention.
 
 ## Minimal Behavior Contract
 
@@ -66,7 +66,7 @@ When `dependabot` or an approved mutating hygiene run receives a mixed pull-requ
 ## Success Behavior
 
 - Preconditions: the target repository is known, GitHub truth is refreshed, the operator has authorized the requested mutation lane, and a mixed Dependabot backlog exists.
-- Trigger: `310-sg-github-hygiene` starts the Dependabot backlog loop.
+- Trigger: `010-sg-technical github` starts the Dependabot backlog loop.
 - Operator result: every pull request appears once in the final disposition ledger with a terminal status and a concise reason; no actionable pull request is silently left behind.
 - System effect: eligible patch/minor pull requests continue while major, sensitive, stale, failing, or incompatible items are quarantined, routed, deferred, closed, or blocked according to existing safety rules.
 - Revalidation effect: every queue mutation is followed by a fresh open-PR and check/base-state read before another mutation is selected.
@@ -85,17 +85,17 @@ When `dependabot` or an approved mutating hygiene run receives a mixed pull-requ
 
 Observed problem: a mixed Dependabot backlog can contain safe updates alongside major upgrades, workflow-sensitive changes, stale or failing checks, and an incompatible obsolete dependency. Under the current contract, encountering one risky item can appear to satisfy a broad stop condition and prematurely end the entire run.
 
-System cause: `310-sg-github-hygiene` defines risk classification and specialist routes, but it does not explicitly distinguish pull-request-scoped stops from queue-wide stops, require a terminal disposition ledger, or state that processing resumes after an isolated handoff.
+System cause: `010-sg-technical github` defines risk classification and specialist routes, but it does not explicitly distinguish pull-request-scoped stops from queue-wide stops, require a terminal disposition ledger, or state that processing resumes after an isolated handoff.
 
 ## Solution
 
 Prevention rule: quarantine risk at the narrowest pull-request scope, preserve existing mutation permissions, continue independent eligible work, refresh queue truth after every mutation, and stop only when no actionable pull request remains or a genuine queue-wide safety condition fails.
 
-Contract/tooling improvement proposal: add one compact queue-continuation rule and focused pressure scenario to `skills/310-sg-github-hygiene/SKILL.md`, then add `tools/test_310_github_hygiene_contract.py` to mechanically protect terminal dispositions, item-scoped blockers, revalidation, and specialist routes.
+Contract/tooling improvement proposal: add one compact queue-continuation rule and focused pressure scenario to `skills/010-sg-technical github/SKILL.md`, then add `tools/test_010_sg_technical_contract.py` to mechanically protect terminal dispositions, item-scoped blockers, revalidation, and specialist routes.
 
 ## Scope In
 
-- Clarify the local `310-sg-github-hygiene` contract for mixed Dependabot queue orchestration.
+- Clarify the local `010-sg-technical github` contract for mixed Dependabot queue orchestration.
 - Define terminal run dispositions: `merged`, `closed`, `deferred`, `routed`, and `blocked`.
 - Distinguish pull-request-scoped blockers from global queue blockers.
 - Require refreshed GitHub truth after every queue mutation and before the next action.
@@ -132,7 +132,7 @@ Contract/tooling improvement proposal: add one compact queue-continuation rule a
 
 ## Dependencies
 
-- `skills/310-sg-github-hygiene/SKILL.md` is the sole behavior owner.
+- `skills/010-sg-technical github/SKILL.md` is the sole behavior owner.
 - `skills/references/skill-instruction-layering.md` governs local activation-body placement and the Followability Gate.
 - `skills/references/spec-driven-development-discipline.md` requires pressure-scenario proof for skill-contract changes.
 - `skills/references/decision-quality-contract.md` preserves the professional and operator-autonomy bar.
@@ -158,8 +158,8 @@ Contract/tooling improvement proposal: add one compact queue-continuation rule a
 
 ## Documentation Coherence
 
-- Internal skill contract: update `skills/310-sg-github-hygiene/SKILL.md`.
-- Focused regression documentation: encode pressure scenarios in `tools/test_310_github_hygiene_contract.py`.
+- Internal skill contract: update `skills/010-sg-technical github/SKILL.md`.
+- Focused regression documentation: encode pressure scenarios in `tools/test_010_sg_technical_contract.py`.
 - Shared references: no change; the failure class is local to Dependabot queue orchestration.
 - Public/help docs and invocation catalog: no change unless implementation unexpectedly alters the promise or invocation, which is outside scope and must stop the chantier for rescoping.
 - Changelog and trackers: excluded from this implementation scope; lifecycle closure/ship may decide bookkeeping separately.
@@ -177,15 +177,15 @@ Contract/tooling improvement proposal: add one compact queue-continuation rule a
 ## Implementation Tasks
 
 - [x] Task 1: Add the queue-continuation contract and pressure scenario.
-  - File: `skills/310-sg-github-hygiene/SKILL.md`
+  - File: `skills/010-sg-technical github/SKILL.md`
   - Action: Add a compact rule that classifies blockers per pull request, requires the five terminal dispositions, refreshes GitHub truth after each mutation, and continues until no actionable pull request remains; clarify that only global blockers stop the full queue.
   - User story link: prevents one risky pull request from stranding unrelated safe updates.
   - Depends on: none.
-  - Validate with: `rg -n "merged|closed|deferred|routed|blocked|after every mutation|no actionable|queue" skills/310-sg-github-hygiene/SKILL.md`
+  - Validate with: `rg -n "merged|closed|deferred|routed|blocked|after every mutation|no actionable|queue" skills/010-sg-technical github/SKILL.md`
   - Notes: Do not alter existing merge authority or specialist ownership.
 
 - [x] Task 2: Add the focused contract test.
-  - File: `tools/test_310_github_hygiene_contract.py`
+  - File: `tools/test_010_sg_technical_contract.py`
   - Action: Add standard-library assertions that the activation contract exposes all dispositions, item-scoped versus global stop semantics, mutation revalidation, continuation, and the `402`/`404`/`gh-fix-ci` routes.
   - User story link: prevents future compaction or wording changes from reintroducing premature queue stops.
   - Depends on: Task 1.
@@ -193,7 +193,7 @@ Contract/tooling improvement proposal: add one compact queue-continuation rule a
   - Notes: Test behavior-bearing phrases and scenario invariants, not incidental formatting.
 
 - [x] Task 3: Run focused and corpus-level validation.
-  - File: `skills/310-sg-github-hygiene/SKILL.md`, `tools/test_310_github_hygiene_contract.py`
+  - File: `skills/010-sg-technical github/SKILL.md`, `tools/test_010_sg_technical_contract.py`
   - Action: Run the focused test first, then the section scan, generic skill audit, budget audit, sync check, and diff check.
   - User story link: proves the narrow improvement without weakening the broader skill system.
   - Depends on: Tasks 1-2.
@@ -219,8 +219,8 @@ Contract/tooling improvement proposal: add one compact queue-continuation rule a
 - Pressure scenario `DEPENDABOT-ITEM-VS-GLOBAL-BLOCK`: distinguish one conflicted or risky PR from loss of authentication, authorization, or reliable queue truth.
 - Pressure scenario `DEPENDABOT-DISPOSITION-COVERAGE`: compare refreshed queue inventory with the final unique disposition ledger.
 - Focused automated test: `python3 -m unittest tools.test_310_github_hygiene_contract`.
-- Focused scan: `rg -n "Dependabot|queue|merged|closed|deferred|routed|blocked|revalid|actionable|402-sg-deps|404-sg-migrate|github:gh-fix-ci" skills/310-sg-github-hygiene/SKILL.md tools/test_310_github_hygiene_contract.py`.
-- Corpus checks: `python3 tools/audit_shipglows_skills.py`; `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`; `tools/shipglows_sync_skills.sh --check --skill 310-sg-github-hygiene`; `git diff --check`.
+- Focused scan: `rg -n "Dependabot|queue|merged|closed|deferred|routed|blocked|revalid|actionable|402-sg-deps|404-sg-migrate|github:gh-fix-ci" skills/010-sg-technical/references/github-hygiene-playbook.md tools/test_010_sg_technical_contract.py`.
+- Corpus checks: `python3 tools/audit_shipglows_skills.py`; `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`; `tools/shipglows_sync_skills.sh --check --skill 010-sg-technical github`; `git diff --check`.
 
 ## Risks
 
@@ -232,7 +232,7 @@ Contract/tooling improvement proposal: add one compact queue-continuation rule a
 
 ## Execution Notes
 
-- Read first: `skills/310-sg-github-hygiene/SKILL.md`, `skills/references/skill-instruction-layering.md`, `skills/references/spec-driven-development-discipline.md`, and existing focused contract tests under `tools/test_*_contract.py`.
+- Read first: `skills/010-sg-technical github/SKILL.md`, `skills/references/skill-instruction-layering.md`, `skills/references/spec-driven-development-discipline.md`, and existing focused contract tests under `tools/test_*_contract.py`.
 - Implementation order: write the focused failing assertions, add the smallest complete local contract that passes them, then run corpus checks.
 - Proof path: `scenario-first`; the generic audit is baseline evidence only.
 - Model guidance: current GPT-5 profile with high reasoning recommended; runtime model override status is not supported and must not be claimed.

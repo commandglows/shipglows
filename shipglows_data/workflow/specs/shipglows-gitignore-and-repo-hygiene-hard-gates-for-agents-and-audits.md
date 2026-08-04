@@ -117,7 +117,7 @@ En parallèle, étendre la couverture scenario-first dans `900-shipglows-core`, 
 
 - Aucun nettoyage automatique global de tous les repos ShipGlows.
 - Aucune modification automatique de `.gitignore` par le tool lui-même.
-- Aucun élargissement de scope vers `310-sg-github-hygiene`; cette spec traite l'hygiène repo locale et la gate agentique, pas la dérive GitHub/branches.
+- Aucun élargissement de scope au-delà du mode GitHub déjà consolidé dans `010-sg-technical`; cette spec traite l'hygiène repo locale et la gate agentique, pas la dérive GitHub/branches.
 - Aucun secret scan exhaustif type DLP ni classification heuristique large de tous les binaires du repo.
 - Aucune réécriture des autres skills non cités.
 - Aucun changement aux projets applicatifs externes; la première implémentation vise la discipline ShipGlows et ses audits.

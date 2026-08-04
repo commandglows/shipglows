@@ -122,7 +122,7 @@ interne.
 
 ## Scope Out
 
-- La consolidation fonctionnelle GitHub de `310-sg-github-hygiene` dans `010-sg-technical`.
+- La consolidation GitHub fonctionnelle est traitée par le mode `github` de `010-sg-technical` dans le chantier technique principal.
 - Toute modification du mode `github`, de `github-hygiene-playbook.md` ou de ses tests, sauf preuve directe d'un défaut de packaging dans ce chantier.
 - La publication marketplace, le bootstrap réseau ou l'installation externe sans approbation explicite.
 - La transformation automatique de tous les skills internes en skills publics.
@@ -289,4 +289,3 @@ None for readiness. The implementation must decide per finding whether the corre
 - `005-sg-ship`: not launched.
 
 Next step: `/101-sg-ready shipglows pack portability hardening`
-

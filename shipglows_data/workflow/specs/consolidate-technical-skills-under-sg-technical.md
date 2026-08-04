@@ -1,18 +1,18 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.11"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-07-17"
 created_at: "2026-07-17 13:36:36 UTC"
-updated: "2026-07-17"
+updated: "2026-08-04"
 updated_at: "2026-07-17 16:09:04 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
 scope: technical-skill-surface-consolidation
 owner: Diane
-user_story: "As the ShipGlows operator, I use one public technical skill with explicit audit, dependency, performance, and migration modes without choosing among four adjacent functional skills."
+user_story: "As the ShipGlows operator, I use one public technical skill with explicit audit, dependency, performance, migration, and GitHub-hygiene modes without choosing among fragmented technical entrypoints."
 confidence: high
 risk_level: high
 security_impact: yes
@@ -68,15 +68,15 @@ Consolidate Technical Skills Under `010-sg-technical`
 
 ## Status
 
-Implementation, independent verification, closure bookkeeping, and bounded git shipping are complete. The skill, runtime, documentation, catalog, and public-surface migration is shipped; no deployment or external production outcome is claimed.
+Implementation, independent verification, closure bookkeeping, and bounded git shipping are complete for the original four-mode migration. This 2026-08-04 extension transfers GitHub hygiene into the fifth `github` mode, retires the standalone `310` entrypoint, and is locally implemented pending focused verification and bounded ship. No deployment or external production outcome is claimed.
 
 ## User Story
 
-As the ShipGlows operator, I want one public technical entrypoint with explicit `audit`, `deps`, `performance`, and `migrate` modes so that I can ask for technical health, dependency posture, performance analysis, or a breaking-change migration without memorizing four functional skill names, while each mode retains its specialist depth, safety boundaries, evidence requirements, and lifecycle routing.
+As the ShipGlows operator, I want one public technical entrypoint with explicit `audit`, `deps`, `performance`, `migrate`, and `github` modes so that I can ask for technical health, dependency posture, performance analysis, breaking-change migration, or GitHub hygiene without memorizing fragmented functional skill names, while each mode retains its specialist depth, safety boundaries, evidence requirements, and lifecycle routing.
 
 ## Minimal Behavior Contract
 
-`010-sg-technical` accepts one explicit mode—`audit`, `deps`, `performance`, or `migrate`—plus the mode-specific target, loads only the matching bounded playbook, and produces the same class of audit, plan, or approved migration that its predecessor provided. Bare, invalid, or materially ambiguous input lists the four modes or asks one focused routing question; it must not silently substitute a broad technical audit for a dependency, performance, or migration request. Missing evidence, unavailable required tooling or official guidance, unsafe mutation state, or an absent playbook produces a visible limited or blocked result without inventing security, performance, compatibility, or migration certainty. The easy edge case is retiring the four source directories while an active router, public page, catalog, runtime link, test, or fallback still advertises a predecessor identity.
+`010-sg-technical` accepts one explicit mode—`audit`, `deps`, `performance`, `migrate`, or `github`—plus the mode-specific target, loads only the matching bounded playbook, and produces the same class of audit, plan, migration, or hygiene result that its predecessor provided. Bare, invalid, or materially ambiguous input lists the five modes or asks one focused routing question; it must not silently substitute a broad technical audit for another request. Missing evidence, unavailable required tooling or official guidance, unsafe mutation state, or an absent playbook produces a visible limited or blocked result without inventing security, performance, compatibility, migration, or repository-state certainty. The easy edge case is retiring source directories while an active router, public page, catalog, runtime link, test, or fallback still advertises a predecessor identity.
 
 ## Success Behavior
 
@@ -132,7 +132,7 @@ Create public `010-sg-technical` as the single technical métier owner. Keep its
 ## Constraints
 
 - The sole public technical invocation owner is `010-sg-technical`; code `010` is added to the high-frequency entrypoint band and replaces, rather than aliases, four lower-band identities.
-- Canonical modes are exactly `audit`, `deps`, `performance`, `migrate`, and `help`. Each substantive mode maps to exactly one bounded local playbook.
+- Canonical modes are exactly `audit`, `deps`, `performance`, `migrate`, `github`, and `help`. Each substantive mode maps to exactly one bounded local playbook.
 - `010/SKILL.md` selects modes, declares cross-mode boundaries, and loads references. Detailed phase lists, scorecards, check matrices, stack notes, templates, migration research procedures, and remediation branches stay in mode playbooks.
 - Preserve source capability before deletion. Every mandatory source instruction must map to the dispatcher, one local playbook, an existing shared reference, or an explicitly justified retirement approved by readiness; omission through compression is a verification failure.
 - Preserve the distinction between audit and mutation: `audit`, `deps`, and `performance` remain findings-first/source workflows; `migrate` may change project state only after its explicit target, research, approval, dirty-state, rollback, and validation gates.
@@ -202,7 +202,7 @@ Proof path: source-completeness and scenario-first contract proof, followed by a
 
 ## Documentation Coherence
 
-- Add one truthful public `sg-technical` page describing all four modes, what each accepts/returns, evidence limits, and adjacent-owner boundaries.
+- Add one truthful public `sg-technical` page describing all five modes, what each accepts/returns, evidence limits, and adjacent-owner boundaries.
 - Retire the four predecessor public pages only after inbound links, collection navigation, examples, and related-skill metadata point to `sg-technical`.
 - Update the operator launch cheatsheet, help catalog, skill runtime/lifecycle guide, pack catalog, code index, README/AGENT routing if inventory confirms an active reference, and source-skill READMEs whose guidance remains execution-relevant.
 - Record the canonical migration syntax in the new technical playbooks/transfer evidence. Preserve historic names in specs, audits, bugs, archives, changelog history, and run ledgers unless a line is still an active instruction.
@@ -283,7 +283,7 @@ Proof path: source-completeness and scenario-first contract proof, followed by a
 - [x] CA 2: Given dependency drift, vulnerability, supply-chain, license, lockfile, or package-config work, when `010-sg-technical deps` runs, then exactly the dependency playbook loads and a partial scan is never presented as a security sign-off.
 - [x] CA 3: Given a file, project, or global performance concern, when `010-sg-technical performance <target>` runs, then exactly the performance playbook loads, irrelevant stack checks are skipped explicitly, and claims distinguish measured from inferred evidence.
 - [x] CA 4: Given a breaking package/framework upgrade, when `010-sg-technical migrate [package@version]` runs, then official current guidance, impact mapping, approval, dirty-state/rollback safety, sequential application, and checks precede any completion claim.
-- [x] CA 5: Given bare, invalid, or materially ambiguous input, when `010` resolves it, then it lists/asks among the four modes rather than loading all modes or guessing.
+- [x] CA 5: Given bare, invalid, or materially ambiguous input, when `010` resolves it, then it lists/asks among the five modes rather than loading all modes or guessing.
 - [x] CA 6: Given broad audit, live production, SEO, i18n, or proportional check work, when routing executes, then ownership remains respectively `400`, `405`, `406`, `407`, or `105`, with `010` used only for the matching technical lane.
 - [x] CA 7: Given the four source contracts and playbooks, when transfer completeness is reviewed, then every mandatory source rule has one explicit destination or a readiness-approved retirement rationale before source deletion.
 - [x] CA 8: Given active skills, docs, public pages, catalogs, tests, and runtime surfaces, when scanned after migration, then no active predecessor invocation remains outside the narrow historical allowlist.
@@ -327,7 +327,7 @@ Proof path: source-completeness and scenario-first contract proof, followed by a
 
 ## Open Questions
 
-None. The operator selected the métier architecture, and repository inspection confirms the smallest coherent first tranche: `010-sg-technical` absorbs `401`-`404`; `400`, `405`, `406`, `407`, and `105` remain separate owners with explicit routes.
+None. The operator selected the métier architecture, and this extension completes the previously scoped GitHub-hygiene transfer: `010-sg-technical` absorbs `401`-`404` and `310`; `400`, `405`, `406`, `407`, and `105` remain separate owners with explicit routes.
 
 ## Skill Run History
 
@@ -347,17 +347,20 @@ None. The operator selected the métier architecture, and repository inspection 
 | 2026-07-17 14:50:18 UTC | 104-sg-end | GPT-5 Codex (gpt-5.4-mini recommended only; runtime override unavailable) | Closed the verified technical-skill consolidation in the canonical spec, task registry, and changelog without claiming git ship status or external runtime/production proof. | closed; local skill/runtime/documentation/public migration bookkeeping is complete | `/005-sg-ship consolidate technical skills under sg-technical` |
 | 2026-07-17 14:55:29 UTC | 005-sg-ship | GPT-5 Codex | Re-ran the bounded quick-ship gates, isolated the exact technical-consolidation scope from concurrent dirty work, committed it on the current branch, and pushed to its upstream without force. | shipped; focused contract 14/14, targeted metadata, audit/budget, catalog JSON, runtime sync 204/204, active scans, and diff hygiene passed; verified public builds reused because the implementation diff did not change after 103 | none |
 | 2026-07-17 16:09:04 UTC | 103-sg-verify mode=excellence | GPT-5 Codex | Replayed focused contract, budget, runtime-sync, shipped-diff, active predecessor scan, and cross-surface routing/public-page coherence; challenged user/operator friction, mode boundaries, mutation authority, duplication, durability, and closure truth. Repaired the stable local spec-state drift by marking the already-proven Task 8 and CA1-CA13 complete. | excellent; no material excellence gap remains; fresh-docs not needed; unrelated dirty work and pre-existing 205/code-index/packaging baselines remain out of scope | none |
+| 2026-08-04 | 900-shipglows-core build | GPT-5 Codex | Extended the shipped technical consolidation after the operator confirmed that GitHub hygiene should join the same métier entrypoint; transferred the `310` contract into the fifth `github` mode, migrated active docs/index references, and retired the standalone skill/test. | implemented locally; focused verification, metadata, audit, budget, runtime sync, and bounded ship remain | `/103-sg-verify consolidate GitHub hygiene under 010-sg-technical` |
+| 2026-08-04 | 103-sg-verify mode=standard | GPT-5 Codex | Replayed the five-mode dispatcher, GitHub queue-safety contract, source-transfer matrix, active-surface migration, metadata, index, audit, budget, runtime-sync, and diff checks. | verified locally; no public-site checkout was present, and no commit/push or hosted proof is claimed | `/104-sg-end consolidate GitHub hygiene under 010-sg-technical` |
+| 2026-08-04 | 103-sg-verify mode=standard rerun | GPT-5 Codex | Rechecked the plugin pack catalog, governance task record, and separate ShipGlows site pages after documentation alignment; the standalone site page was removed, the unified page now documents all five modes, and the Astro build passed. | verified locally; existing unrelated changes in the separate site repository remain untouched; no commit/push or hosted proof is claimed | `/104-sg-end consolidate GitHub hygiene under 010-sg-technical` |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: corrected — scope and prior implementation history preserved; active routes in the three verification-identified incomplete specs now use exact `010-sg-technical` modes.
 - `101-sg-ready`: ready — transfer completeness, owner exclusions, security/supply-chain/mutation boundaries, docs/runtime/public/catalog proof, and concurrent-worktree safety passed adversarial review.
-- `102-sg-start`: implemented — scenario-first source transfer, four-mode dispatcher/playbooks, active routes, docs, public/catalog/runtime migration, predecessor retirement, and local full checks completed; auto-verify run.
+- `102-sg-start`: implemented — scenario-first source transfer, five-mode dispatcher/playbooks, active routes, docs, public/catalog/runtime migration, predecessor retirement, and local focused checks completed; auto-verify run.
 - `102-sg-start repair` (first): implemented — `TECH-ACTIVE-06` scans every canonical spec deterministically, rejects every unallowlisted numbered predecessor occurrence, and proves the three initially corrected specs use exact `010` routes.
 - `102-sg-start repair` (unprefixed): implemented — the two remaining active specs now use exact `010` modes/playbooks; the scan covers numbered and unprefixed slash/path/command variants, preserves only exact reviewed source-era lines, fails stale allowlist entries, and proves all five corrected specs use exact `010` routes.
 - `900-shipglows-core refresh`: passed — conservative 010 review aligned playbook mutation authority and official-source precedence with focused regression proof; no public/runtime route changed.
-- `103-sg-verify`: excellent — standard proof remains valid; the fresh excellence pass confirmed one compact four-mode entrypoint, distinct adjacent owners, explicit mutation/evidence limits, public/runtime/help coherence, and a truthful closure record. The local spec-state drift (unchecked completed task and criteria) was repaired and retested. Pre-existing code-index alias failures, planned-pack portability reviews, and the 205 budget risk remain outside this chantier.
-- `104-sg-end`: closed — canonical spec, task registry, and changelog now record the verified local skill/runtime/documentation/public migration without a ship or production claim.
-- `005-sg-ship`: shipped — the exact bounded consolidation scope is committed and pushed to the current branch upstream without force; unrelated concurrent dirty work remains outside the commit, and no deployment or external production outcome is claimed.
+- `103-sg-verify`: verified locally for the 2026-08-04 GitHub-hygiene extension; the original four-mode proof remains valid, and the fifth mode passes independent queue-safety and active-surface checks. No public-site checkout or hosted proof was available or required for this local contract migration.
+- `104-sg-end`: pending — closure bookkeeping remains to be recorded after the operator confirms whether this local slice should be committed and pushed.
+- `005-sg-ship`: pending — no commit or push has been made for this new slice.
 
-Next command: none
+Next command: `/103-sg-verify consolidate GitHub hygiene under 010-sg-technical`

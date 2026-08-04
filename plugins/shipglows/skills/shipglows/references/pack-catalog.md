@@ -105,7 +105,7 @@ Purpose: broad audits, unified technical posture, and translation quality.
 Candidate skills:
 
 - `400-sg-audit`
-- `010-sg-technical` (`audit`, `deps`, `performance`, `migrate`)
+- `010-sg-technical` (`audit`, `deps`, `performance`, `migrate`, `github`)
 - `407-sg-translate` (`audit`, `sync`; `apply` is a `sync` alias)
 
 Packaging status: planned. Needs careful command and network permission wording.

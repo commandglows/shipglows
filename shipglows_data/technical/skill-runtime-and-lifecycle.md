@@ -99,7 +99,7 @@ evidence:
 - "Codex model wording refreshed to use the current `codex` implementation profile instead of pinning long implementations to a deprecated slug."
   - "102-sg-start local auto-verify contract added: eligible local, tool-backed, non-destructive verification can run inside 102-sg-start, while hosted/browser/manual/production/ship proof stays with owner skills and 001-sg-build remains full lifecycle orchestrator."
   - "900-shipglows-core added as an internal operator skill for skill execution-fidelity audits and plugin-packaging readiness, backed by tools/audit_shipglows_skills.py."
-  - "310-sg-github-hygiene added as the git/GitHub sync, stale branch, PR drift, and Dependabot hygiene skill."
+  - "010-sg-technical github added as the git/GitHub sync, stale branch, PR drift, and Dependabot hygiene skill."
   - "Public/docs handoff clarity updated: helper docs now distinguish explains vs routes vs invokes vs owns execution, and runtime docs clarify that OpenCode/KiloCode internal calls are not manual operator commands."
   - "Rights-aware private design-inspiration corpus and bounded Inspiration Gate added for design and copy workflows."
   - "006-sg-design library add, approve, list, and status modes added for safe private-corpus curation and index synchronization."
@@ -138,9 +138,9 @@ Current family boundaries:
 
 - Lifecycle/master: `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, `005-sg-ship`, `001-sg-build`, `004-sg-deploy`, `002-sg-maintain`, `006-sg-design`, `007-sg-content`, `008-sg-customer`, `011-sg-pilotage`, `900-sg-shipglows-core` (internal-only; its `audit` and `packaging` modes remain read-only assessment paths).
 - Data trust/source: `600-sg-local-cloud-sync`, `601-sg-product-entitlements`.
-- Audit/source: `400-sg-audit`, `010-sg-technical` (`audit`, `deps`, `performance`, `migrate`).
+- Audit/source: `400-sg-audit`, `010-sg-technical` (`audit`, `deps`, `performance`, `migrate`, `github`).
 - Bug/proof/source: `003-sg-bug`, `106-sg-fix`, `107-sg-test`, `108-sg-browser`, `109-sg-auth-debug`, `405-sg-prod`, `105-sg-check`.
-- Content/docs/support: `007-sg-content repurpose`, `300-sg-docs`, `200-sg-redact`, `201-sg-enrich`, `304-sg-changelog`, `306-sg-scaffold`, `305-sg-init`, `310-sg-github-hygiene`.
+- Content/docs/support: `007-sg-content repurpose`, `300-sg-docs`, `200-sg-redact`, `201-sg-enrich`, `304-sg-changelog`, `306-sg-scaffold`, `305-sg-init`, `010-sg-technical github`.
 - Research/strategy/source: `009-sg-marketing`, `203-sg-research`, `205-sg-veille`.
 - Pilotage: `011-sg-pilotage`, `706-continue`.
 - Helper/session/router: `000-shipglows`, `301-sg-context`, `704-sg-model`, `302-sg-help`, `308-sg-status`, `303-sg-resume`, `700-sg-explore`, `707-name`, `800-tmux-capture-conversation`, `801-clean-conversation-transcript`.
@@ -292,7 +292,7 @@ Operator roles and named profiles do not add new primary artifact types:
 - `300-sg-docs`: documentation generation, governance bootstrap, audit, metadata, and technical-docs mode.
 - `300-sg-docs technical`: technical governance bootstrap, code-docs map creation, and audit.
 - `300-sg-docs editorial`: editorial governance scaffolding and audit for public-content drift, claim register, page intent, and runtime content schema preservation.
-- `310-sg-github-hygiene`: git/GitHub hygiene lane for sync drift, stale branches, PR drift, and Dependabot backlog triage with bounded safe fixes.
+- `010-sg-technical github`: git/GitHub hygiene lane for sync drift, stale branches, PR drift, and Dependabot backlog triage with bounded safe fixes.
 - `003-sg-bug`: professional bug loop lifecycle executor (`107-sg-test -> bug file -> 106-sg-fix -> 107-sg-test --retest -> 103-sg-verify -> 005-sg-ship`).
 - `002-sg-maintain`: master project maintenance lifecycle for bugs, dependencies, docs, checks, audits, migrations, tasks, security posture, delegated remediation, verification, and ship/deploy routing.
 - `108-sg-browser`: generic non-auth browser verification through Playwright MCP for URLs, page-level assertions, screenshots, console summaries, and network summaries.
@@ -460,7 +460,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - `004-sg-deploy` owns release orchestration only; `005-sg-ship` owns commit/push, `405-sg-prod` owns deployed truth, and proof skills own observed behavior.
 - `003-sg-bug` owns bug lifecycle execution through owner skills and bounded subagents; phase skills still own bug record mutation, diagnosis, retest evidence, verification, and shipping internals.
 - `002-sg-maintain` owns the maintenance lifecycle; bugs, dependencies, docs, checks, audits, migrations, tasks, security review, repair, verification, and ship still run through their specialist owner skills and gates.
-- `310-sg-github-hygiene` owns focused git/GitHub hygiene; commit/push stays with `005-sg-ship`, dependency risk stays with `010-sg-technical deps`, major upgrade lanes stay with `010-sg-technical migrate`, and CI diagnosis stays with `github:gh-fix-ci`.
+- `010-sg-technical github` owns focused git/GitHub hygiene; commit/push stays with `005-sg-ship`, dependency risk stays with `010-sg-technical deps`, major upgrade lanes stay with `010-sg-technical migrate`, and CI diagnosis stays with `github:gh-fix-ci`.
 - `007-sg-content` owns content-management orchestration; repurposing, drafting, enrichment, marketing modes, SEO audit, docs, veille, browser proof, verification, and ship still run through their specialist owner skills and gates.
 - Design and content skills use the shared Inspiration Gate only for eligible creative direction; they shortlist from `index.yaml`, require operator selection, record selected reference IDs, and never treat discovery as approval to imitate.
 - Content owner skills (`007-sg-content` including `repurpose`, `200-sg-redact`, `201-sg-enrich`, `009-sg-marketing copy|copywriting|gtm`, `406-sg-seo`) and `103-sg-verify` must use one shared rubric contract from `skills/references/content-quality-rubric.md`; recoverable score states (`needs retry`, `duplicate_in_progress`, `conflicting_score_state`, `stale_or_mismatched_score`) are never valid verification proof.
