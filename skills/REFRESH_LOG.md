@@ -4,6 +4,26 @@ Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. 
 
 ---
 
+## 2026-08-04 — 302-sg-help
+
+**Added:** exact `mode` and `modes` help routing plus a canonical one-line-per-skill mode catalog covering all 51 repository skills.
+
+**Updated:** help discovery, invocation registry coverage, README and runtime documentation; repaired missing registry entries for the existing design animation and technical GitHub modes.
+
+**New phases:** none; this is a bounded catalog route inside the existing helper skill.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the catalog is derived from local canonical skill contracts and validated mechanically against the repository inventory.
+
+## 2026-08-04 — 006-sg-design
+
+**Added:** provider-neutral `animation <audit|design|implement|tune> [scope]` routing and a bounded motion-system playbook.
+
+**Updated:** animation proof, public discoverability, provider-fit gates, reduced-motion, responsive, lifecycle-cleanup, failure-safe content, and performance requirements; corrected the new playbook's design-token dependency version during conservative review.
+
+**New phases:** none; animation is a bounded mode within the existing design lifecycle and keeps implementation, browser proof, verification, closure, and ship ownership unchanged.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this pass changes the local workflow contract and explicitly requires current official documentation before concrete GSAP API, plugin, dependency, or licensing decisions.
+
 ## 2026-08-04 — 011-sg-pilotage
 
 **Added:** none.

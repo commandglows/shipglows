@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-07-15"
+updated: "2026-08-04"
 status: active
 source_skill: 006-sg-design
 scope: design-lifecycle-routing
@@ -18,6 +18,7 @@ linked_systems:
   - skills/006-sg-design/references/
   - skills/108-sg-browser/SKILL.md
   - skills/109-sg-auth-debug/SKILL.md
+  - skills/006-sg-design/references/animation-playbook.md
 depends_on:
   - artifact: skills/references/decision-quality-contract.md
     artifact_version: "1.2.0"
@@ -28,6 +29,7 @@ depends_on:
 supersedes: []
 evidence:
   - "2026-07-15 consolidation replaced six public specialist routes with explicit 006-sg-design modes and bounded playbooks."
+  - "2026-08-04 added the provider-neutral animation mode and its bounded playbook."
 next_review: "2026-08-15"
 next_step: "/104-sg-end consolidate design skill surface into modes and playbooks"
 ---
@@ -45,11 +47,18 @@ Use this reference after loading:
 
 ## Canonical Mode Grammar
 
-`006-sg-design` accepts these public commands: `system [scope]`, `playground [route-path]`, `audit ui [scope]`, `audit tokens [scope]`, `audit components [scope]`, `audit a11y [scope]`, `redesign [scope]`, `migration [scope]`, and the separately defined `library ...` operations. `tokens-only` and `with-playground` are optional modifiers of `system`, not public skill aliases.
+`006-sg-design` accepts these public commands: `system [scope]`, `playground [route-path]`, `audit ui [scope]`, `audit tokens [scope]`, `audit components [scope]`, `audit a11y [scope]`, `animation <audit|design|implement|tune> [scope]`, `redesign [scope]`, `migration [scope]`, and the separately defined `library ...` operations. `tokens-only` and `with-playground` are optional modifiers of `system`, not public skill aliases. `gsap` is not a public mode or alias.
 
 `audit` without a subtype, an unknown subtype, or an invalid mode must list these supported choices or ask one targeted routing question. Never infer an audit subtype. Load only its mapped primary playbook after a valid selection; `audit ui deep` may then load the three explicit companion audit playbooks required by its contract.
 
 `redesign` is a lifecycle route, not a hidden implementation shortcut: establish current-state evidence with `audit ui` when needed, apply the Inspiration Gate when direction changes, frame a ready spec, then route implementation and visible proof. `migration` loads the token-migration playbook, establishes design-token consumption with `audit tokens`, and uses spec-first execution for cross-surface work.
+
+`animation` loads `animation-playbook.md` after the matching token and proof
+contracts. Missing or unknown animation actions must list exactly `audit`,
+`design`, `implement`, and `tune`, then perform no source edit. Audit and
+design are read-only. Implement applies a ready motion contract; tune preserves
+its motion concept while making bounded refinements. Broad whole-page or
+multi-section implementation is spec-first.
 
 ## Routing Rule
 
@@ -75,6 +84,7 @@ Require spec-first for:
 - accessibility remediation across flows
 - work that claims no visual regression across many pages
 - changes that affect screenshots, public claims, onboarding, pricing, docs, or trust signals
+- broad whole-page or multi-section animation implementation
 
 Before implementation, the ready spec must name:
 
@@ -118,6 +128,12 @@ Typical flow for accessibility-first design fix:
 
 ```text
 006-sg-design audit a11y -> 100-sg-spec or 106-sg-fix depending scope -> 108-sg-browser/107-sg-test proof -> 103-sg-verify
+```
+
+Typical flow for whole-page animation:
+
+```text
+006-sg-design animation audit|design -> 100-sg-spec -> 101-sg-ready -> 102-sg-start -> 105-sg-check -> 108-sg-browser -> 103-sg-verify -> 104-sg-end -> 005-sg-ship
 ```
 
 For design work that changes public wording, claims, docs screenshots, page promises, or content surfaces, run the editorial/docs gates from `001-sg-build` or route to `300-sg-docs`/`007-sg-content` as needed before closure.

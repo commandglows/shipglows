@@ -27,6 +27,10 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ## [2026-08-04]
 
+### Added
+- Added a provider-neutral `animation` mode to `006-sg-design` for auditing, designing, implementing, and tuning coherent motion systems, with optional GSAP use gated by project fit, current documentation, licensing, lifecycle cleanup, reduced-motion behavior, responsiveness, performance, and browser proof.
+- Added `302-sg-help mode` and `302-sg-help modes`, returning every ShipGlows skill and its modes on exactly one line per skill.
+
 ### Changed
 - Removed the unused root CLI compatibility launchers, moved the Google Search Console launcher under `cli/`, and kept the Unix and Windows public bootstrap scripts at stable root URLs.
 - Consolidated pilotage under the single `011-sg-pilotage` entrypoint with explicit `tasks`, `backlog`, `priorities`, `review`, and `sessions` modes backed by five lazily loaded playbooks; retired the four predecessor skills, migrated active runtime/plugin/operator discovery, and preserved tracker and Codex-session safeguards. The focused local migration is excellence-verified; its implementation core is already present in `2ad01ae`, while the remaining documentation, index, catalog, spec, test, and closure delta still awaits its dedicated Git ship.

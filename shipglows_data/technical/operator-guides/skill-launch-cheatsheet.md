@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.10.1"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-03"
+updated: "2026-08-04"
 status: reviewed
 source_skill: 300-sg-docs
 scope: skill-launch-cheatsheet
@@ -47,6 +47,7 @@ evidence:
   - "2026-07-17 sg-verify update: mode=excellence or an unambiguous natural-language request adds a distinct critical focus after standard métier verification."
   - "2026-08-03: public modes now explicitly select bounded local playbooks; operators do not choose reference files."
   - "2026-08-03 pilotage consolidation replaced four public management skills with 011-sg-pilotage and five explicit modes."
+  - "2026-08-04 added provider-neutral animation modes to 006-sg-design; GSAP remains optional after project-fit and proof gates."
 next_step: "/300-sg-docs audit shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md"
 ---
 
@@ -180,7 +181,7 @@ Public categories make the catalog easier to browse. Runtime families explain ho
 | Marketing study or review | `009-sg-marketing <mode> <target>` | `market`, `gtm`, `copy`, `copywriting`, `help`. |
 | Work and conversation pilotage | `011-sg-pilotage <mode> [arguments]` | Exactly one of `tasks`, `backlog`, `priorities`, `review`, or `sessions`; unclear or mixed input asks for one mode and mutates nothing. |
 | Conversation quality audit | `705-sg-conversation-audit [latest|path <file-or-dir>|export shipglows|report=agent]` | Audit recurring operator-facing defects in conversation transcripts and route durable owner actions. |
-| Design lifecycle | `006-sg-design <design question or goal>` | `tokens`, `audit`, `playground`, page/route targets, redesign goals, token migration, visual proof, or natural-language design requests. |
+| Design lifecycle | `006-sg-design <design question or goal>` | `tokens`, `audit`, `animation`, `playground`, page/route targets, redesign goals, token migration, visual proof, or natural-language design requests. |
 | Customer experience | `008-sg-customer <audit|flow|onboarding|recovery> <target>` | Four customer modes for friction/trust audits, first-success flow contracts, setup, and recoverable states; routes adjacent-owner work. |
 | Local-to-cloud data sync | `600-sg-local-cloud-sync <project, feature, or data domains>` | Local data promotion, cloud hydration, merge/conflict policy, sync/save UX states, sensitive-data exclusions, and proof routing. |
 | Product entitlements and access gates | `601-sg-product-entitlements <project or feature>` | Entitlement ownership, provider events, activation codes, product-local mirrors, backend authorization gates, support flows, and sync handoffs. |
@@ -216,6 +217,7 @@ Content scoring examples:
 | Conversation quality lane | `705-sg-conversation-audit` | Classify recurring conversation execution defects and route concrete owner follow-up paths. |
 | Internal ShipGlows Core audit | `900-shipglows-core audit [scope]` | Operator-only execution-fidelity audit for ShipGlows itself; use `900-shipglows-core packaging [scope]` for plugin-packaging readiness. Neither mode is a public user-plugin surface. |
 | Design system creation | `006-sg-design system [target]` | Use when no coherent professional token system exists; follow with `playground` or `audit tokens` as needed. |
+| Animation lifecycle | `006-sg-design animation <audit|design|implement|tune> [scope]` | Audit, design, implement, or tune coherent motion; GSAP is optional after stack, licensing, lifecycle, reduced-motion, and performance fit. |
 | Technical posture | `010-sg-technical <audit|deps|performance> [target]` | Select exactly one code/security, dependency, or performance lane. |
 | Framework migration | `010-sg-technical migrate [package[@version]]` | Use a structured package target such as `astro@5`, a package name, or no argument for discovery. |
 | Orientation and routing | `308-sg-status`, `302-sg-help`, `704-sg-model`, `303-sg-resume` | Use for git dashboard, workflow help, model choice, or concise context transfer. |
@@ -234,7 +236,7 @@ Model routing note: `704-sg-model` recommends the right model for the current sc
 | `003-sg-bug` | no argument; `BUG-ID`; free-text summary; `--fix`; `--retest`; `--verify`; `--ship`; `--close` |
 | `007-sg-content` | no argument or content goal; `plan`; `repurpose`; `draft`; `article`; `blog`; `guide`; `enrich`; `audit`; `copy`; `copywriting`; `seo`; `editorial`; `apply`; `publish`; `ship`; `score`; `quality gate`; `grille projet` |
 | `009-sg-marketing` | `market <target>`; `gtm <target>`; `copy <target>`; `copywriting <target>`; `help` |
-| `006-sg-design` | design question; page/route; `tokens`; `audit`; `playground`; redesign goal; token migration; visual proof; detailed report modes |
+| `006-sg-design` | design question; page/route; `tokens`; `audit`; `animation`; `playground`; redesign goal; token migration; visual proof; detailed report modes |
 | `008-sg-customer` | `audit [scope]`; `flow [feature-or-flow]`; `onboarding [feature-or-flow]`; `recovery [feature-or-state]`; detailed report modes |
 | `600-sg-local-cloud-sync` | project, feature, data domains, sync question; audit; Flutter focus; secrets/sensitive-data focus; detailed report modes |
 | `900-shipglows-core build` | new skill idea; existing skill path; `700-sg-explore` reroute when placement or public promise is too fuzzy |
@@ -242,7 +244,7 @@ Model routing note: `704-sg-model` recommends the right model for the current sc
 | `900-shipglows-core` | `audit [scope]`; `build <target>`; `refresh <target>`; `packaging [scope]`; `help`; `report=agent` |
 | `705-sg-conversation-audit` | `latest`; `path <file-or-dir>`; `export shipglows`; `report=agent` |
 | `602-sg-platform-parity` | project, feature, or spec path; `platforms=web,android,ios,windows,macos,linux`; `report=agent` |
-| `006-sg-design` | `system`; `playground [route]`; `audit ui|tokens|components|a11y [scope]`; library/redesign/migration; detailed report modes |
+| `006-sg-design` | `system`; `playground [route]`; `audit ui|tokens|components|a11y [scope]`; `animation <audit|design|implement|tune> [scope]`; library/redesign/migration; detailed report modes |
 | `005-sg-ship` | no special argument; `skip-check`; `end la tache`; `end`; `fin`; `close task`; `all-dirty`; `ship-all`; `tout-dirty` |
 | `103-sg-verify` | no mode/`mode=standard` for métier correctness, proof, risk, and ship-readiness; `mode=excellence` or an unambiguous natural-language excellence request for a fresh second focus beyond acceptance criteria; verdicts `verified`, `verified_with_excellence_gaps`, or `excellent`, while proof/risk failures keep precedence |
 | `407-sg-translate` | bare or path shorthand = audit; `audit [path\|global]`; `sync [path]`; `apply [path]` is a sync alias; `help` is discovery-only |

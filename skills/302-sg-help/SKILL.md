@@ -1,7 +1,7 @@
 ---
 name: 302-sg-help
 description: "Answer ShipGlows workflow, skill, mode, and prompt questions."
-argument-hint: <help topic or route question>
+argument-hint: <mode|modes|help topic or route question>
 ---
 
 ## Canonical Paths
@@ -30,6 +30,7 @@ Default to `report=user`: concise, outcome-first, and in the user's active langu
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
 - `references/help-catalog.md`: bounded index for skill discovery, workflow recipes, and quick answers.
+- `references/help-modes-catalog.md`: canonical one-line-per-skill mode list for exact `mode` or `modes` requests.
 - `skills/references/shipglows-terms.md`: canonical package terminology for `Dev Server`, `TUI`, `local tools`, and skill-scope references.
 - `skills/references/question-contract.md`: canonical doctrine for when ShipGlows should ask questions, what shape they should take, and when not asking is the correct autonomous behavior.
 - `skills/references/operator-partnership-contract.md`: canonical doctrine for operator collaboration, delegated intent, and the boundary between technical autonomy and operator-owned business truth.
@@ -61,6 +62,7 @@ What workflow, skill, mode, or doctrine does the operator need explained right n
 ```
 
 - If the user asks a direct help question, answer concisely from the top-level route and the indexed local reference as needed.
+- If the exact request is `mode` or `modes`, load `references/help-modes-catalog.md` and return its list verbatim: one line per skill, name and modes only, preserving canonical order.
 - If the user asks for skill codes, numeric prefixes, or shortcut lookup, load `skill-code-index.md` and answer from the code table without renaming canonical skills.
 - If the user asks how ShipGlows is invoked from Codex, Claude, OpenCode, KiloCode, another runtime, skill codes, taxonomy, or blueprints, load `references/help-skill-discovery.md`.
 - If the user needs workflow cheat sheets, load `references/help-workflow-recipes.md`; for a short route load `references/help-quick-answers.md`.

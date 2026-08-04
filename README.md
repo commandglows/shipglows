@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.17.1"
+artifact_version: "0.17.2"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-07-17"
+updated: "2026-08-04"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -67,6 +67,8 @@ evidence:
   - "Added dedicated repo-visible runtime pages for OpenCode and KiloCode and linked them from the core docs section."
   - "Added Tariq as an invokable named profile for acquisition-channel arbitration and traffic measurement discipline."
   - "Added a private rights-aware design/copy inspiration corpus contract, capture tool, and bounded Inspiration Gate."
+  - "Added provider-neutral 006-sg-design animation modes with GSAP optional after fit, lifecycle, and proof gates."
+  - "Added an exact sg-help mode catalog with one line per skill and canonical modes."
 next_step: "/300-sg-docs audit README.md"
 ---
 
@@ -552,7 +554,7 @@ Canonical syntax split:
 
 Runtime invocation note:
 
-- `302-sg-help` explains which skill to use or how a runtime behaves; it does not continue the work itself.
+- `302-sg-help` explains which skill to use or how a runtime behaves; `302-sg-help mode` lists every skill and its modes on one line each. It does not continue the work itself.
 - `000-shipglows` is the preferred router when you want ShipGlows to choose the owner.
 - In Codex or Claude-style runtimes, type the visible skill name such as `000-shipglows` or `001-sg-build`.
 - In OpenCode or KiloCode-style runtimes, ask for the ShipGlows skill in natural language or use the runtime skill picker.
@@ -589,8 +591,9 @@ Skill launch cheatsheet:
 | Platform parity | `602-sg-platform-parity <project, feature, or platform set>` | Audit declared web, mobile, desktop, and native platform behavior; classify parity, adaptation, degradation, unsupported scope, and proof gaps before routing follow-up. |
 | Conversation quality audit | `705-sg-conversation-audit [latest|path <file-or-dir>|export shipglows|report=agent]` | Audit ShipGlows conversation transcripts and route repeatable findings to owner skills or specs. |
 | Internal skill creation or maintenance | `900-shipglows-core build <idea or path>` | new skill idea, existing skill path, optional `700-sg-explore` for fuzzy placement, runtime/docs validation gates. |
-| Design lifecycle | `006-sg-design <design question or goal>` | Master design entrypoint for UI/UX, tokens, playgrounds, component/a11y audits, implementation, browser proof, verification, and ship routing. |
+| Design lifecycle | `006-sg-design <design question or goal>` | Master design entrypoint for UI/UX, tokens, animation, playgrounds, component/a11y audits, implementation, browser proof, verification, and ship routing. |
 | Design system creation | `006-sg-design system [target]` | Build a complete professional token system from an existing UI; use `playground` or `audit tokens` as explicit follow-ups. |
+| Animation lifecycle | `006-sg-design animation <audit|design|implement|tune> [scope]` | Build coherent accessible motion systems; GSAP is optional after project-fit, current-doc, lifecycle, reduced-motion, and performance checks. |
 | Manual expert lifecycle | `100-sg-spec -> 101-sg-ready -> 102-sg-start -> 103-sg-verify -> 104-sg-end` | Use when you intentionally want to drive each gate instead of using `001-sg-build`. |
 | Commit and push ready work | `005-sg-ship [mode]` | no special argument, `skip-check`, `end la tache`/`end`/`fin`/`close task`, `all-dirty`/`ship-all`/`tout-dirty`. |
 | Browser, auth, manual QA, or live deployment proof | `108-sg-browser`, `109-sg-auth-debug`, `107-sg-test`, `405-sg-prod` | Pick by proof type: non-auth browser evidence, auth/session diagnosis, durable manual QA, or deployment truth. |

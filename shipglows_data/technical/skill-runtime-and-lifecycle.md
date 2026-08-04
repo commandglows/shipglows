@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.26.0"
+artifact_version: "1.26.2"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-03"
+updated: "2026-08-04"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -105,6 +105,8 @@ evidence:
   - "006-sg-design library add, approve, list, and status modes added for safe private-corpus curation and index synchronization."
   - "011-sg-pilotage consolidated task maintenance, backlog, priorities, review, and Codex-session operations behind five explicit lazily loaded modes."
   - "2026-08-03: progressive resource discovery added a read-only resolver with stable semantic IDs, bounded canonical-root scanning, dependency expansion, and explicit authority limits."
+  - "2026-08-04 added provider-neutral animation modes to 006-sg-design; GSAP remains optional after project-fit and proof gates."
+  - "2026-08-04 added the exact 302-sg-help mode catalog with one line per repository skill and registered free-form help invocation validation."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -150,7 +152,7 @@ Keep overlap intentional and explicit: master skills orchestrate, specialists pr
 
 Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 
-- `302-sg-help` explains workflow, doctrine, skill choice, or route questions.
+- `302-sg-help` explains workflow, doctrine, skill choice, or route questions; exact `mode` or `modes` returns the canonical one-line-per-skill mode catalog.
 - `303-sg-resume` summarizes the visible conversation only.
 - `706-continue` advances the currently resolved work item from durable local evidence.
 - `000-shipglows` routes or answers directly at the main entrypoint.
@@ -303,11 +305,11 @@ Operator roles and named profiles do not add new primary artifact types:
 - `004-sg-deploy`: release confidence orchestrator (`105-sg-check -> 005-sg-ship -> 405-sg-prod -> 108-sg-browser/109-sg-auth-debug/107-sg-test -> 103-sg-verify -> 304-sg-changelog`).
 - `007-sg-content`: master content lifecycle (`CONTENT_MAP + editorial corpus -> owner content skills -> audits/docs -> validation -> 103-sg-verify -> 005-sg-ship`).
 - `skills/references/content-quality-rubric.md`: shared editorial scoring contract used by content owner skills and verification gates.
-- `006-sg-design`: master design lifecycle (`design intent -> specialist audit/token/playground route -> spec-first implementation when needed -> checks/browser proof -> 103-sg-verify -> 005-sg-ship`).
+- `006-sg-design`: master design lifecycle (`design intent -> specialist audit/token/animation/playground route -> spec-first implementation when needed -> checks/browser proof -> 103-sg-verify -> 005-sg-ship`).
 - `008-sg-customer`: one customer-experience owner with `audit`, `flow`, `onboarding`, and `recovery` modes (`first-success path -> setup order -> states/recovery -> docs impact -> proof or 001-sg-build`).
 - `600-sg-local-cloud-sync`: local-to-cloud data sync contract (`data inventory -> account association -> promotion/hydration -> merge/conflict/tombstones -> sync UX/security -> proof or 001-sg-build`).
 - `601-sg-product-entitlements`: product access lifecycle contract (`identity/provider/access separation -> ledger ownership -> backend gates/support -> sync/auth handoff or 001-sg-build`).
-- `006-sg-design`: sole public design entrypoint; `system`, `playground`, and explicit `audit ui|tokens|components|a11y` modes load bounded local playbooks.
+- `006-sg-design`: sole public design entrypoint; `system`, `playground`, explicit `audit ui|tokens|components|a11y`, and `animation <audit|design|implement|tune> [scope]` modes load bounded local playbooks. GSAP is optional after project-fit, current-doc, licensing, lifecycle, reduced-motion, and performance checks.
 - `900-shipglows-core`: sole internal operator skill for ShipGlows skill execution-fidelity audits, maintenance lifecycle (`build`), conservative refresh (`refresh`), and public-plugin packaging readiness checks. Skill maintenance follows `700-sg-explore when needed -> 100-sg-spec -> SKILL.md -> runtime skill links -> 900-shipglows-core refresh -> budget audit -> 103-sg-verify -> 300-sg-docs/help -> 005-sg-ship`. It is repo-synced, not a public user plugin surface.
 - `tools/shipglows_sync_skills.sh --check|--repair`: reusable local helper for current-user Claude/Codex skill visibility and install-time selected-user linking.
 - `005-sg-ship` and `405-sg-prod`: shipping and deployed verification.
@@ -467,7 +469,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - `007-sg-content` owns content-management orchestration; repurposing, drafting, enrichment, marketing modes, SEO audit, docs, veille, browser proof, verification, and ship still run through their specialist owner skills and gates.
 - Design and content skills use the shared Inspiration Gate only for eligible creative direction; they shortlist from `index.yaml`, require operator selection, record selected reference IDs, and never treat discovery as approval to imitate.
 - Content owner skills (`007-sg-content` including `repurpose`, `200-sg-redact`, `201-sg-enrich`, `009-sg-marketing copy|copywriting|gtm`, `406-sg-seo`) and `103-sg-verify` must use one shared rubric contract from `skills/references/content-quality-rubric.md`; recoverable score states (`needs retry`, `duplicate_in_progress`, `conflicting_score_state`, `stale_or_mismatched_score`) are never valid verification proof.
-- `006-sg-design` owns the public design lifecycle; its system, playground, and audit modes load bounded playbooks, while implementation, browser proof, verification, and shipping remain lifecycle gates.
+- `006-sg-design` owns the public design lifecycle; its system, playground, audit, and `animation <audit|design|implement|tune> [scope]` modes load bounded playbooks, while implementation, browser proof, verification, and shipping remain lifecycle gates. GSAP is optional rather than a public mode or implicit dependency.
 - `008-sg-customer` owns customer contracts through four exact modes: `audit`, `flow`, `onboarding`, and `recovery`; implementation, visual design, docs/content, browser proof, manual QA, and auth diagnosis still run through `001-sg-build`, `006-sg-design`, `300-sg-docs`/`007-sg-content`, `108-sg-browser`, `107-sg-test`, and `109-sg-auth-debug` when needed.
 - `900-shipglows-core build` owns internal skill-maintenance orchestration and must route to `700-sg-explore` before `100-sg-spec` when skill intent, placement, public promise, or governance policy is too fuzzy for one targeted question to settle.
 - A release is not considered verified from push success, provider success, or a bare `200 OK` alone.
