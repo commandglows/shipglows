@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.5.0"
+artifact_version: "2.6.0"
 project: ShipGlows
 created: "2026-06-10"
-updated: "2026-07-15"
+updated: "2026-08-03"
 status: active
 source_skill: 102-sg-start
 scope: skill-code-index
@@ -35,8 +35,9 @@ evidence:
   - "2026-07-15 design consolidation retired 409 and 500-504 as public skills; their capabilities now live as modes and playbooks under 006-sg-design."
   - "2026-07-15 skill-maintenance consolidation retired 009 and 307; their capabilities now live as modes under the internal-only 900-shipglows-core."
   - "2026-07-17 technical consolidation assigned 010 and retired 401-404; their capabilities now live as explicit modes under 010-sg-technical."
+  - "2026-08-03 pilotage consolidation assigned 011 and retired 309 and 701-703; tasks, backlog, priorities, review, and sessions now live as explicit modes under 011-sg-pilotage."
 next_review: "2026-08-15"
-next_step: "/104-sg-end consolidate design skill surface into modes and playbooks"
+next_step: "/103-sg-verify consolidate pilotage skills under sg-pilotage"
 ---
 
 # Skill Code Index
@@ -68,11 +69,11 @@ operator invocation: $001-sg-build
 | `000-099` | Master and high-frequency entrypoints | Most frequent and highest-level commands get the easiest codes; an entrypoint in this band is not necessarily a lifecycle master. |
 | `100-199` | Lifecycle and proof | Spec, readiness, execution, verification, checks, fixes, browser/auth/test proof. |
 | `200-299` | Content, research, and copy | Writing, enrichment, repurposing, market/research/watch, and copy audits. |
-| `300-399` | Docs, context, and support | Docs, help, context, changelog, init, scaffold, status, tasks. |
+| `300-399` | Docs, context, and support | Docs, help, context, changelog, init, scaffold, status, and GitHub hygiene. |
 | `400-499` | Audit, quality, and ops risk | Broad audit, production proof, SEO, and i18n; technical depth moved to high-frequency entrypoint 010. |
 | `500-599` | Unassigned legacy band | Former design-specialist band; design now routes through `006-sg-design` modes. Reuse requires a ready taxonomy decision. |
 | `600-699` | Data and activation | Local-cloud sync, entitlements, parity, and future account/data surfaces. |
-| `700-799` | Pilotage and session helpers | Explore, backlog, priorities, review, model choice, resume helpers. |
+| `700-799` | Pilotage-adjacent and session helpers | Explore, model choice, continuation, naming, and conversation-audit helpers. |
 | `800-899` | Conversation and transcript helpers | Conversation capture and transcript tooling. |
 | `900-999` | Reserved rare meta space | Reserved for future rare or migration-only skills. |
 
@@ -93,6 +94,7 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `008` | `sg-customer` | `008-sg-customer` | Master |
 | `009` | `sg-marketing` | `009-sg-marketing` | Research/strategy/source |
 | `010` | `sg-technical` | `010-sg-technical` | Audit/technical/source |
+| `011` | `sg-pilotage` | `011-sg-pilotage` | Master/pilotage |
 | `100` | `sg-spec` | `100-sg-spec` | Lifecycle/proof |
 | `101` | `sg-ready` | `101-sg-ready` | Lifecycle/proof |
 | `102` | `sg-start` | `102-sg-start` | Lifecycle/proof |
@@ -116,7 +118,6 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `305` | `sg-init` | `305-sg-init` | Docs/context/support |
 | `306` | `sg-scaffold` | `306-sg-scaffold` | Docs/context/support |
 | `308` | `sg-status` | `308-sg-status` | Docs/context/support |
-| `309` | `sg-tasks` | `309-sg-tasks` | Docs/context/support |
 | `310` | `sg-github-hygiene` | `310-sg-github-hygiene` | Docs/context/support |
 | `400` | `sg-audit` | `400-sg-audit` | Audit/quality/ops |
 | `405` | `sg-prod` | `405-sg-prod` | Audit/quality/ops |
@@ -126,13 +127,10 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `601` | `sg-product-entitlements` | `601-sg-product-entitlements` | Data/activation |
 | `602` | `sg-platform-parity` | `602-sg-platform-parity` | Data/activation |
 | `700` | `sg-explore` | `700-sg-explore` | Pilotage/session |
-| `701` | `sg-backlog` | `701-sg-backlog` | Pilotage/session |
-| `702` | `sg-priorities` | `702-sg-priorities` | Pilotage/session |
-| `703` | `sg-review` | `703-sg-review` | Pilotage/session |
 | `704` | `sg-model` | `704-sg-model` | Pilotage/session |
 | `705` | `sg-conversation-audit` | `705-sg-conversation-audit` | Pilotage/session |
 | `706` | `continue` | `706-continue` | Pilotage/session |
-| `707` | `name` | `707-name` | Pilotage/session |
+| `707` | `name` | `707-name` | Helper/Claude statusline |
 | `800` | `tmux-capture-conversation` | `800-tmux-capture-conversation` | Conversation/transcript |
 | `801` | `clean-conversation-transcript` | `801-clean-conversation-transcript` | Conversation/transcript |
 | `900` | `shipglows-core` | `900-shipglows-core` | Meta/internal |

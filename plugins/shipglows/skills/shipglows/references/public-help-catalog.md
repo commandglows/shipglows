@@ -83,7 +83,7 @@ When a user asks for one of these workflows, use the bundled public intent contr
 - `shipglows-content`: content, research, SEO, copy, GTM, and editorial workflows
 - `shipglows-design`: UI, UX, design systems, accessibility, and component audits
 - `shipglows-quality`: audits, dependencies, performance, migrations, and translation
-- `shipglows-product`: onboarding, sync, entitlements, platform parity, exploration, backlog, priorities, and review
+- `shipglows-product`: onboarding, sync, entitlements, platform parity, exploration, and `011-sg-pilotage` with explicit `tasks`, `backlog`, `priorities`, `review`, and `sessions` modes
 
 ### Internal-First
 

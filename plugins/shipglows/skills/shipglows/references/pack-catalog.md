@@ -54,7 +54,6 @@ Candidate skills:
 - `003-sg-bug`
 - `005-sg-ship`
 - `104-sg-end`
-- `309-sg-tasks`
 - `304-sg-changelog`
 
 Packaging status: planned. High value, but likely needs reference-path cleanup.
@@ -134,7 +133,7 @@ Packaging status: internal-first. Some parts may stay private because they gover
 
 ### `shipglows-product`
 
-Purpose: onboarding, sync, entitlements, platform parity, exploration, backlog, priorities, and review.
+Purpose: onboarding, sync, entitlements, platform parity, exploration, and explicit work/session pilotage.
 
 Candidate skills:
 
@@ -143,9 +142,7 @@ Candidate skills:
 - `601-sg-product-entitlements`
 - `602-sg-platform-parity`
 - `700-sg-explore`
-- `701-sg-backlog`
-- `702-sg-priorities`
-- `703-sg-review`
+- `011-sg-pilotage` (`tasks`, `backlog`, `priorities`, `review`, `sessions`)
 
 Packaging status: planned. Needs strong product-safety and paid-access boundary review.
 

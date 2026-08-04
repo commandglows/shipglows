@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-08-03"
-updated: "2026-08-03"
+updated: "2026-08-04"
 status: active
 source_skill: 011-sg-pilotage
 scope: pilotage-review-mode
@@ -18,9 +18,13 @@ linked_systems:
   - shipglows_data/workflow/reviews/
   - shipglows_data/workflow/TASKS.md
   - CHANGELOG.md
+  - skills/references/question-contract.md
 depends_on:
   - artifact: skills/references/product-decision-chain.md
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
+    required_status: active
+  - artifact: skills/references/question-contract.md
+    artifact_version: "1.9.0"
     required_status: active
 supersedes: []
 evidence:
@@ -42,6 +46,8 @@ Reconstruct what changed, what is proven, what remains open, and what the next s
 - `review release`: changes since the last release boundary.
 - bare `review`: load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` and ask for exactly one scope.
 
+At a workspace root or when several projects are credible targets, load the question contract and ask for one explicit project or portfolio scope before reading evidence or writing a review artifact. A portfolio review is derived from project-local evidence and never creates a central control-plane tracker.
+
 ## Evidence Model
 
 Inspect the minimum relevant task tracker, commits, diff, tests, proof artifacts, docs, changelog, releases, and deployment evidence. Reconstruct the intended outcome where possible and classify claims explicitly:
@@ -52,6 +58,8 @@ Inspect the minimum relevant task tracker, commits, diff, tests, proof artifacts
 - `assumed`: a plausible claim without sufficient evidence.
 
 A commit, merge, build, changelog entry, or deployment is activity evidence and may support implementation; none proves the user outcome alone. This mode does not replace verification by `103-sg-verify` and must not report assumed behavior as verified.
+
+If the available evidence leaves product completion, documentation coherence, or security/risk framing materially ambiguous, load the question contract and ask one targeted operator-owned decision before concluding. Otherwise preserve the uncertainty explicitly and route the missing proof; never turn ambiguity into closure language.
 
 When capturing product lessons, decision changes, rework, failed proof, or coherence drift, load `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`. Record only evidence-backed lessons with causal status, applicability boundary, keep/change/retire decision, and a future proof hook.
 

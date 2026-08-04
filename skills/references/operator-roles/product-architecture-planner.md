@@ -69,7 +69,7 @@ How do we turn this fuzzy idea into a clean plan with the right order and bounda
 - `100-sg-spec`
 - `101-sg-ready`
 - `001-sg-build`
-- `702-sg-priorities`
+- `011-sg-pilotage priorities`
 - `300-sg-docs`
 
 ## Output Shape

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-06-11"
+updated: "2026-08-03"
 status: active
 source_skill: 009-sg-skill-build
 scope: runtime-diagnostics-surface
@@ -17,14 +17,15 @@ linked_systems:
   - skills/references/sentry-observability.md
   - skills/102-sg-start/SKILL.md
   - skills/103-sg-verify/SKILL.md
-  - skills/305-sg-init/references/bootstrap-workflow.md
-  - skills/010-sg-technical/references/technical-audit-playbook.md
+  - skills/305-sg-init/SKILL.md
+  - skills/010-sg-technical/SKILL.md
 depends_on:
   - skills/references/sentry-observability.md
 supersedes: []
 evidence:
   - "Operator directive 2026-06-11: all runtime apps should expose a diagnostics screen/panel with a Copy action."
   - "Operator directive 2026-06-11: agents should favor reusing an existing project diagnostic component/pattern before inventing a new one."
+  - "2026-08-03: dependent skill links now target activation contracts rather than obsolete monolithic audit/bootstrap procedures."
 next_review: "2026-06-25"
 next_step: "/103-sg-verify runtime diagnostics surface adoption"
 ---

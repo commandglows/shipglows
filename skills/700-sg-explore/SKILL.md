@@ -39,9 +39,9 @@ It owns exploratory reasoning plus an optional durable `exploration_report` when
 Keep the boundary explicit:
 - stay here when the user wants to think, compare, map, challenge assumptions, or clarify what problem is worth solving
 - hand off to `100-sg-spec` when the direction is clear enough to formalize a chantier
-- hand off to `701-sg-backlog` when the outcome is "capture this for later"
-- hand off to `702-sg-priorities` when the outcome is "decide what to do first now"
-- hand off to `703-sg-review` when the user wants a retrospective or closure-oriented summary
+- hand off to `011-sg-pilotage backlog` when the outcome is "capture this for later"
+- hand off to `011-sg-pilotage priorities` when the outcome is "decide what to do first now"
+- hand off to `011-sg-pilotage review` when the user wants a retrospective or closure-oriented summary
 
 `700-sg-explore` does not reprioritize active execution, groom the backlog, mutate `TASKS.md`, or claim that a chantier is reviewed/closed.
 

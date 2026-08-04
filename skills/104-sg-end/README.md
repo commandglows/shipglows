@@ -51,5 +51,5 @@ On projects that use Vercel preview-push validation, `104-sg-end` keeps closure 
 
 - `005-sg-ship` when you are ready to commit and push
 - `405-sg-prod` immediately after `005-sg-ship` when preview deployment is the validation surface
-- `703-sg-review` for broader session or period reviews
+- `011-sg-pilotage review` for broader session or period reviews
 - `103-sg-verify` when closure is blocked by proof gaps

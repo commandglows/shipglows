@@ -46,6 +46,6 @@ This skill depends on git history quality. If commits are vague, mixed, or poorl
 
 ## Related Skills
 
-- `703-sg-review` to summarize recent work before release notes
+- `011-sg-pilotage review` to summarize recent work before release notes
 - `300-sg-docs` when shipped changes require documentation updates
 - `005-sg-ship` when you want to complete the release workflow

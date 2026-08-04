@@ -82,7 +82,7 @@ Orchestrate existing skills; do not duplicate their internals.
 - `400-sg-audit` owns broad multi-domain audits.
 - `010-sg-technical audit` owns code, architecture, reliability, and security review.
 - `010-sg-technical migrate` owns framework/package upgrade migrations and breaking-change work.
-- `309-sg-tasks` owns tracker reconciliation and durable task updates.
+- `011-sg-pilotage tasks` owns tracker reconciliation and durable task updates.
 - `106-sg-fix`, `001-sg-build`, and `004-sg-deploy` own repair, feature work, and release execution.
 - `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, and `005-sg-ship` own lifecycle gates.
 
@@ -189,7 +189,7 @@ intake
 Recommended owner-skill order for broad maintenance:
 
 ```text
-003-sg-bug -> 010-sg-technical deps -> 300-sg-docs update/audit -> 105-sg-check nofix -> 010-sg-technical audit or 400-sg-audit -> 010-sg-technical migrate candidates -> 106-sg-fix/001-sg-build -> 309-sg-tasks -> 103-sg-verify -> 004-sg-deploy/005-sg-ship
+003-sg-bug -> 010-sg-technical deps -> 300-sg-docs update/audit -> 105-sg-check nofix -> 010-sg-technical audit or 400-sg-audit -> 010-sg-technical migrate candidates -> 106-sg-fix/001-sg-build -> 011-sg-pilotage tasks -> 103-sg-verify -> 004-sg-deploy/005-sg-ship
 ```
 
 Run phases sequentially when one phase can change the risk interpretation of the next. Use parallel subagents only with ready non-overlapping `Execution Batches`.

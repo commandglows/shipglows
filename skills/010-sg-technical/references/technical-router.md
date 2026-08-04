@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-07-17"
+updated: "2026-08-03"
 status: active
 source_skill: 010-sg-technical
 scope: technical-mode-routing
@@ -19,6 +19,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Ready consolidation spec defines four exact technical modes and independent adjacent owners."
+  - "2026-08-03 documentation alignment: audit loads the protocol plus one target branch."
 next_step: "/103-sg-verify consolidate technical skills under sg-technical"
 ---
 
@@ -28,7 +29,7 @@ Use this reference to choose one mode before loading any substantive playbook.
 
 | Operator need | Exact route | Selected playbook |
 | --- | --- | --- |
-| Code correctness, architecture, security, trust boundaries, reliability, data integrity, or test posture | `010-sg-technical audit [target]` | `technical-audit-playbook.md` |
+| Code correctness, architecture, security, trust boundaries, reliability, data integrity, or test posture | `010-sg-technical audit [target]` | `technical-audit-protocol.md` + one target branch |
 | Vulnerabilities, supply chain, licenses, drift, lockfiles, registries, scripts, or package config | `010-sg-technical deps [global]` | `dependency-audit-playbook.md` |
 | Bundle, loading, rendering, CWV readiness, fetching, caching, database/backend efficiency | `010-sg-technical performance [target]` | `performance-audit-playbook.md` |
 | Breaking framework/package major upgrade | `010-sg-technical migrate [package@version]` | `migration-playbook.md` |

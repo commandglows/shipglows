@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.18.4"
+artifact_version: "0.18.5"
 project: ShipGlows
 created: "2026-04-22"
-updated: "2026-07-17"
+updated: "2026-08-04"
 status: draft
 source_skill: 300-sg-docs
 scope: spec-driven-workflow
@@ -21,6 +21,7 @@ linked_systems:
   - skills/007-sg-content/SKILL.md
   - skills/006-sg-design/SKILL.md
   - skills/008-sg-customer/SKILL.md
+  - skills/011-sg-pilotage/SKILL.md
   - skills/600-sg-local-cloud-sync/SKILL.md
   - skills/108-sg-browser/SKILL.md
   - skills/003-sg-bug/SKILL.md
@@ -70,6 +71,7 @@ evidence:
   - "Updated on 2026-06-28 to clarify public/docs runtime handoffs: helpers explain, the router hands off, owner skills execute, and OpenCode/KiloCode internal calls are not manual commands."
   - "Updated on 2026-06-29 to add Tariq as a named profile for acquisition-channel arbitration and traffic measurement discipline."
   - "Updated on 2026-07-17 to route deterministic micro-edits through direct execution before loading owner workflows."
+  - "Updated on 2026-08-04 to route review-template ownership through 011-sg-pilotage review after the pilotage consolidation."
 next_review: "unknown"
 next_step: "/300-sg-docs audit shipglows_data/workflow/playbooks/spec-driven-workflow.md"
 ---
@@ -479,7 +481,7 @@ Location rule:
 - `shipglows_data/business/business.md`, `shipglows_data/branding/branding.md`, `shipglows_data/editorial/content-map.md`, `shipglows_data/technical/guidelines.md`, project competitor/inspiration registries, affiliate/referral/partner registries, specs, research, and decision records should be edited and versioned in the repo they affect, not duplicated into an external master data directory.
 - If `shipglows_data` needs visibility, add a reference or inventory entry, not a second canonical copy.
 
-Skill-aligned artifact templates live in `templates/`. They should encode the structures expected by the active skills (`100-sg-spec`, `101-sg-ready`, `103-sg-verify`, `703-sg-review`, `203-sg-research`) instead of replacing those conventions. The current templates cover:
+Skill-aligned artifact templates live in `templates/`. They should encode the structures expected by the active skills (`100-sg-spec`, `101-sg-ready`, `103-sg-verify`, `011-sg-pilotage review`, `203-sg-research`) instead of replacing those conventions. The current templates cover:
 
 - `context`
 - `spec`

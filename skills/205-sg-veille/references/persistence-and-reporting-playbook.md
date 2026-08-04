@@ -44,7 +44,7 @@ Route each authorized derivative separately:
 | Technical/implementation action | target project `shipglows_data/workflow/TASKS.md` | only when the project owns the tracker and the decision is technical. |
 | Public/editorial action | target project `shipglows_data/editorial/ROADMAP.md` | requires declared surface; content transformation stays a `007-sg-content` handoff. |
 | Veille decision report and non-private tool note | target project `shipglows_data/workflow/research/`, or `$SHIPGLOWS_ROOT/shipglows_data/workflow/research/` for portfolio scope | append/update only after decision; no raw private source cache. |
-| General tracker housekeeping | `309-sg-tasks` | do not absorb this owner. |
+| General tracker housekeeping | `011-sg-pilotage tasks` | do not absorb this owner. |
 
 A mixed technical/editorial decision considers two correct destinations; it never merges the records. Undeclared public content is not written: report the missing surface and route to `007` or `300`.
 

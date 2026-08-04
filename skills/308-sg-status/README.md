@@ -46,5 +46,5 @@ For a solo founder juggling multiple products, this replaces hopping repo by rep
 ## Related Skills
 
 - `005-sg-ship` to commit and push a dirty repo
-- `703-sg-review` to review what changed in an active project
-- `309-sg-tasks` when repo activity should update project tracking
+- `011-sg-pilotage review` to review what changed in an active project
+- `011-sg-pilotage tasks` when repo activity should update project tracking

@@ -39,7 +39,6 @@
         "003-sg-bug",
         "005-sg-ship",
         "104-sg-end",
-        "309-sg-tasks",
         "304-sg-changelog"
       ]
     },
@@ -110,9 +109,7 @@
         "601-sg-product-entitlements",
         "602-sg-platform-parity",
         "700-sg-explore",
-        "701-sg-backlog",
-        "702-sg-priorities",
-        "703-sg-review"
+        "011-sg-pilotage"
       ]
     }
   ]

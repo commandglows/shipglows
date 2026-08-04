@@ -143,7 +143,7 @@ Only show NEEDS ATTENTION if there are issues. Issues to flag:
 
 - **READ-ONLY** — never modify any files or run git commands that change state.
 - `local project discovery (`shipglows_data/` markers)` is legacy-only read-only input here; do not treat it as active truth.
-- Do not update project-local `shipglows_data/workflow/TASKS.md` or any legacy control-plane trackers from `308-sg-status`; route follow-up work to `309-sg-tasks`, `701-sg-backlog`, `702-sg-priorities`, `703-sg-review`, or `005-sg-ship`.
+- Do not update project-local `shipglows_data/workflow/TASKS.md` or any legacy control-plane trackers from `308-sg-status`; route follow-up work to the explicit `011-sg-pilotage tasks`, `backlog`, `priorities`, or `review` mode, or to `005-sg-ship`.
 - Prefer storing home-scoped project paths as `~/...` in local project metadata for portability across usernames and servers.
 - Include ShipGlows repo itself in the dashboard.
 - Skip projects whose paths don't exist on disk.

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.2.1"
+artifact_version: "0.2.2"
 project: ShipGlows
 created: "2026-05-16"
-updated: "2026-07-25"
+updated: "2026-08-03"
 status: draft
 source_skill: 102-sg-start
 scope: 400-sg-audit-audit-master-workflow
@@ -25,6 +25,7 @@ evidence:
   - "Extracted from skills/400-sg-audit/SKILL.md during Compact ShipGlows Skill Instructions Phase 3."
   - "2026-06-11 added design-system authority as a systemic UI audit concern."
   - "2026-07-25 replaced legacy runtime paths and pre-compaction checklist assumptions with canonical skill/playbook routing."
+  - "2026-08-03 aligns code and SEO audit routing with protocol-plus-target-branch compaction."
 next_review: "2026-08-25"
 next_step: "/103-sg-verify 400-sg-audit master workflow routing"
 ---
@@ -127,10 +128,10 @@ Only launch (project × domain) pairs where: user selected the project AND user 
 
 Read the selected skill's activation contract, then load its exact audit playbook or audit-mode section. Do not assume a generic `PROJECT MODE` or `Tracking` heading exists after skill compaction.
 
-- Code: `$SHIPGLOWS_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/010-sg-technical/references/technical-audit-playbook.md`
+- Code: `$SHIPGLOWS_ROOT/skills/010-sg-technical/SKILL.md`, then `technical-audit-protocol.md` and exactly one target branch selected by that contract
 - Design: `$SHIPGLOWS_ROOT/skills/006-sg-design/SKILL.md`, then its `audit ui` mapping in `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` and `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-audit-playbook.md`
 - Copy: `$SHIPGLOWS_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/009-sg-marketing/references/copy-audit-playbook.md`
-- SEO: `$SHIPGLOWS_ROOT/skills/406-sg-seo/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md`
+- SEO: `$SHIPGLOWS_ROOT/skills/406-sg-seo/SKILL.md`, then `seo-audit-protocol.md` and exactly one target branch selected by that contract
 - GTM: `$SHIPGLOWS_ROOT/skills/009-sg-marketing/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/009-sg-marketing/references/gtm-audit-playbook.md`
 - Translate: `$SHIPGLOWS_ROOT/skills/407-sg-translate/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/407-sg-translate/references/audit-playbook.md`
 - Deps: `$SHIPGLOWS_ROOT/skills/010-sg-technical/SKILL.md`, then `$SHIPGLOWS_ROOT/skills/010-sg-technical/references/dependency-audit-playbook.md`

@@ -58,7 +58,7 @@ What are we underestimating, forgetting, or making fragile before we move?
 
 ## Preferred Skills
 
-- `702-sg-priorities`
+- `011-sg-pilotage priorities`
 - `700-sg-explore`
 - `010-sg-technical audit`
 - `010-sg-technical performance`

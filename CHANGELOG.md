@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.8.0"
+artifact_version: "0.8.1"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-03"
+updated: "2026-08-04"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -25,6 +25,11 @@ evidence: []
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-08-04]
+
+### Changed
+- Consolidated pilotage under the single `011-sg-pilotage` entrypoint with explicit `tasks`, `backlog`, `priorities`, `review`, and `sessions` modes backed by five lazily loaded playbooks; retired the four predecessor skills, migrated active runtime/plugin/operator discovery, and preserved tracker and Codex-session safeguards. The focused local migration is excellence-verified; its implementation core is already present in `2ad01ae`, while the remaining documentation, index, catalog, spec, test, and closure delta still awaits its dedicated Git ship.
 
 ## [2026-08-03]
 

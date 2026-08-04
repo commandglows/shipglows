@@ -32,6 +32,7 @@ ACTIVE_DOCS = (
     ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md",
     ROOT / "shipglows_data" / "technical" / "skill-runtime-and-lifecycle.md",
     ROOT / "shipglows_data" / "technical" / "code-docs-map.md",
+    ROOT / "shipglows_data" / "workflow" / "playbooks" / "spec-driven-workflow.md",
 )
 MAX_ACTIVATION_LINES = 150
 
@@ -94,6 +95,8 @@ class PilotageContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, text)
         self.assertIn("never reads `state_5.sqlite`", text)
+        self.assertIn("ask for one explicit project or portfolio scope", text)
+        self.assertIn("never creates or mutates a central master tracker", text)
         for forbidden in ("rename_codex_session.py", "prune_codex_sessions.py"):
             self.assertNotIn(forbidden, text)
 
@@ -127,6 +130,8 @@ class PilotageContractTests(unittest.TestCase):
             self.assertIn(phrase, priorities)
         for phrase in ("implemented", "verified", "assumed", "metadata-bearing", "103-sg-verify", "does not replace verification"):
             self.assertIn(phrase, review)
+        self.assertIn("ask for one explicit project or portfolio scope", review)
+        self.assertIn("security/risk framing materially ambiguous", review)
 
     def test_pilotage_neighbor_owners_remain_explicit(self) -> None:
         """PILOTAGE-BOUNDARY-NEIGHBORS."""

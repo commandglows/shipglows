@@ -44,5 +44,5 @@ This skill tags the ShipGlows session only. It does not rename the chat in the s
 ## Related Skills
 
 - `102-sg-start` to execute the named task end to end
-- `701-sg-backlog` to park work that should not stay active
-- `703-sg-review` to summarize what happened in the session
+- `011-sg-pilotage backlog` to park work that should not stay active
+- `011-sg-pilotage review` to summarize what happened in the session

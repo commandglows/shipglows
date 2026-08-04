@@ -39,7 +39,7 @@ It owns continuation of the currently resolved work item from durable local evid
 
 Keep the boundary explicit:
 - stay here when the user wants to continue the current work item without reopening broad planning
-- hand off to `309-sg-tasks` when the main need is to repair or reconcile tracker state rather than advance the work item itself
+- hand off to `011-sg-pilotage tasks` when the main need is to repair or reconcile tracker state rather than advance the work item itself
 - hand off to `303-sg-resume` when the user only wants a conversation recap with no execution push
 - hand off to `302-sg-help` when the user needs doctrine or skill-choice explanation
 - hand off to `700-sg-explore` or `100-sg-spec` when there is no resolved work item to continue safely

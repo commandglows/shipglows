@@ -1,6 +1,6 @@
 ---
 name: 707-name
-description: "Name or rename the current session."
+description: "Tag the current Claude session for the local statusline."
 argument-hint: <session name>
 allowed-tools: Bash(mkdir:*), Bash(ls:*), Bash(echo:*), Bash(cat:*), Bash(tee:*)
 ---
@@ -31,7 +31,7 @@ It owns local session tagging only: getting or confirming the session name, reso
 Keep the boundary explicit:
 - stay here when the user wants to name or rename the current session label
 - hand off to `303-sg-resume` when the user wants a summary of what the session is about
-- hand off to `309-sg-tasks` when the user wants project tracker bookkeeping rather than a local session tag
+- hand off to `011-sg-pilotage tasks` when the user wants project tracker bookkeeping rather than a local session tag
 
 `707-name` does not summarize the work, does not mutate project artifacts, and does not act like a conversation cleanup or continuation owner.
 

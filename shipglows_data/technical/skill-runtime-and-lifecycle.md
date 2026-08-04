@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.25.0"
+artifact_version: "1.26.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-07-15"
+updated: "2026-08-03"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -26,6 +26,7 @@ linked_systems:
   - skills/007-sg-content/SKILL.md
   - skills/006-sg-design/SKILL.md
   - skills/008-sg-customer/SKILL.md
+  - skills/011-sg-pilotage/SKILL.md
   - skills/600-sg-local-cloud-sync/SKILL.md
   - skills/900-shipglows-core/SKILL.md
   - skills/108-sg-browser/SKILL.md
@@ -102,6 +103,7 @@ evidence:
   - "Public/docs handoff clarity updated: helper docs now distinguish explains vs routes vs invokes vs owns execution, and runtime docs clarify that OpenCode/KiloCode internal calls are not manual operator commands."
   - "Rights-aware private design-inspiration corpus and bounded Inspiration Gate added for design and copy workflows."
   - "006-sg-design library add, approve, list, and status modes added for safe private-corpus curation and index synchronization."
+  - "011-sg-pilotage consolidated task maintenance, backlog, priorities, review, and Codex-session operations behind five explicit lazily loaded modes."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -134,13 +136,13 @@ Three-digit skill codes are part of the runtime-visible skill identity. The cano
 
 Current family boundaries:
 
-- Lifecycle/master: `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, `005-sg-ship`, `001-sg-build`, `004-sg-deploy`, `002-sg-maintain`, `006-sg-design`, `007-sg-content`, `008-sg-customer`, `900-sg-shipglows-core` (internal-only; its `audit` and `packaging` modes remain read-only assessment paths).
+- Lifecycle/master: `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, `005-sg-ship`, `001-sg-build`, `004-sg-deploy`, `002-sg-maintain`, `006-sg-design`, `007-sg-content`, `008-sg-customer`, `011-sg-pilotage`, `900-sg-shipglows-core` (internal-only; its `audit` and `packaging` modes remain read-only assessment paths).
 - Data trust/source: `600-sg-local-cloud-sync`, `601-sg-product-entitlements`.
 - Audit/source: `400-sg-audit`, `010-sg-technical` (`audit`, `deps`, `performance`, `migrate`).
 - Bug/proof/source: `003-sg-bug`, `106-sg-fix`, `107-sg-test`, `108-sg-browser`, `109-sg-auth-debug`, `405-sg-prod`, `105-sg-check`.
 - Content/docs/support: `007-sg-content repurpose`, `300-sg-docs`, `200-sg-redact`, `201-sg-enrich`, `304-sg-changelog`, `306-sg-scaffold`, `305-sg-init`, `310-sg-github-hygiene`.
 - Research/strategy/source: `009-sg-marketing`, `203-sg-research`, `205-sg-veille`.
-- Pilotage: `701-sg-backlog`, `702-sg-priorities`, `703-sg-review`, `309-sg-tasks`, `706-continue`.
+- Pilotage: `011-sg-pilotage`, `706-continue`.
 - Helper/session/router: `000-shipglows`, `301-sg-context`, `704-sg-model`, `302-sg-help`, `308-sg-status`, `303-sg-resume`, `700-sg-explore`, `707-name`, `800-tmux-capture-conversation`, `801-clean-conversation-transcript`.
 
 Keep overlap intentional and explicit: master skills orchestrate, specialists prove or repair, support skills document or scaffold, and helper skills route or summarize without owning lifecycle state.
@@ -154,12 +156,13 @@ Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 - `301-sg-context` primes minimal focused context before known work.
 - `308-sg-status` reports cross-project git and sync state.
 - `700-sg-explore` frames the problem or option space before commitment.
-- `701-sg-backlog` captures, defers, cleans, or promotes future work.
-- `702-sg-priorities` ranks active work for immediate execution order.
-- `703-sg-review` reconstructs what happened, what is proven, and what should happen next.
-- `309-sg-tasks` maintains the durable execution task tracker so technical/project state is recorded correctly; editorial/public-content follow-up belongs in `shipglows_data/editorial/ROADMAP.md` through content-owner skills.
+- `011-sg-pilotage tasks` maintains the durable execution tracker; editorial/public-content follow-up stays in `shipglows_data/editorial/ROADMAP.md` through content owners.
+- `011-sg-pilotage backlog` captures, defers, cleans, or promotes future work.
+- `011-sg-pilotage priorities` ranks active work for immediate execution order without executing it.
+- `011-sg-pilotage review` reconstructs what happened, what is proven, and what should happen next without replacing verification.
+- `011-sg-pilotage sessions` triages repository-scoped Codex titles, renames only the current thread with an explicit status, and previews safe old-session pruning.
 - `704-sg-model` recommends the right model policy for the current scope.
-- `707-name` tags or renames the current session.
+- `707-name` stores the current Claude session's local statusline tag; Codex title changes stay in `011-sg-pilotage sessions`.
 - `800-tmux-capture-conversation` exports a raw tmux conversation transcript to Markdown.
 - `801-clean-conversation-transcript` cleans one existing transcript for readability.
 

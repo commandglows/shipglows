@@ -62,7 +62,7 @@ This role is not a generic brainstormer, copywriter, or passive analyst. It is a
 
 ## Preferred Skills
 
-- `702-sg-priorities`
+- `011-sg-pilotage priorities`
 - `700-sg-explore`
 - `203-sg-research`
 - `009-sg-marketing market`

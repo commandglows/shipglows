@@ -50,5 +50,5 @@ For solo founders working across many chats, this is the lightweight memory aid 
 ## Related Skills
 
 - `102-sg-start` to continue work in a fresh thread
-- `702-sg-priorities` if the summary shows too many competing next steps
+- `011-sg-pilotage priorities` if the summary shows too many competing next steps
 - `101-sg-ready` or `103-sg-verify` when the missing item is execution-critical

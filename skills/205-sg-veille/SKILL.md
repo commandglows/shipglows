@@ -55,7 +55,7 @@ Scenario anchors: `VEILLE-MODE-BARE-COMPAT`, `VEILLE-EMPTY-QUESTION`, and `VEILL
 ## Boundaries And Safety
 
 - Route a settled cited investigation to `203-sg-research`; `205` gathers only minimum evidence needed to classify a source or justify a decision.
-- Route content transformation/publication to `007-sg-content`, explicit marketing audits/studies to `009-sg-marketing`, docs creation/update to `300-sg-docs`, and general tracker maintenance to `309-sg-tasks`.
+- Route content transformation/publication to `007-sg-content`, explicit marketing audits/studies to `009-sg-marketing`, docs creation/update to `300-sg-docs`, and general tracker maintenance to `011-sg-pilotage tasks`.
 - Preserve exactly four scoring axes: contenu, architecture, concurrence & inspiration, opportunité collab. Scores are explainable triage aids, never proof or permission to write.
 - Keep sources ephemeral until an explicit operator decision. Never expose secrets, tokens, cookies, private text, PII, sensitive screenshots, or a public raw-source cache.
 - A declared content surface and claim-safe context are required before any editorial recommendation. Otherwise report `surface missing: blog` (or the relevant surface) and hand off; never invent a project, blog, task, report, or tracker anchor.
@@ -72,7 +72,7 @@ Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before final repo
 ## Validation
 
 ```bash
-rg -n "Instruction Layering|Mission|Mode Detection|triage|help|source-intake-classification|Chantier potentiel|Boundaries|203-sg-research|007-sg-content|009-sg-marketing|300-sg-docs|309-sg-tasks|Validation" skills/205-sg-veille/SKILL.md
+rg -n "Instruction Layering|Mission|Mode Detection|triage|help|source-intake-classification|Chantier potentiel|Boundaries|203-sg-research|007-sg-content|009-sg-marketing|300-sg-docs|011-sg-pilotage tasks|Validation" skills/205-sg-veille/SKILL.md
 python3 -m unittest tools.test_205_sg_veille_contract
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
 tools/shipglows_sync_skills.sh --check --all

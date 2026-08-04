@@ -37,7 +37,7 @@ class VeilleDispatcherContractTests(unittest.TestCase):
         for phrase in (
             "source-intake-classification.md", "editorial-content-corpus.md", "task-registry-routing.md",
             "operational-record-format.md", "203-sg-research", "007-sg-content", "009-sg-marketing",
-            "300-sg-docs", "309-sg-tasks",
+            "300-sg-docs", "011-sg-pilotage tasks",
         ):
             self.assertIn(phrase, self.skill)
         self.assertIn("VEILLE-OWNER-BOUNDARY", self.triage)

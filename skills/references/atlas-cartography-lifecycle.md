@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-08-02"
+updated: "2026-08-03"
 status: active
 source_skill: 305-sg-init
 scope: atlas-cartography-lifecycle
@@ -18,7 +18,7 @@ linked_systems:
   - skills/305-sg-init/SKILL.md
   - skills/100-sg-spec/SKILL.md
   - skills/102-sg-start/SKILL.md
-  - skills/309-sg-tasks/SKILL.md
+  - skills/011-sg-pilotage/references/tasks-playbook.md
   - skills/references/atlas-protection-preflight.md
   - shipglows_data/business/business.md
   - shipglows_data/business/product.md
@@ -31,6 +31,7 @@ evidence:
   - "Operator decision 2026-08-02: the agent drafts the Atlas with the operator, who validates visual boundaries and quality."
   - "Operator decision 2026-08-02: stable semantic IDs are not assigned to every DOM div."
   - "Operator decision 2026-08-02: Atlas creation must guide business identity and customer-need formulation, not merely inventory implemented code."
+  - "Pilotage consolidation on 2026-08-03 transferred the Atlas roadmap-view boundary to 011-sg-pilotage tasks."
 next_review: "2026-09-02"
 next_step: "/305-sg-init atlas <project>"
 ---
@@ -45,7 +46,7 @@ The project-owned Atlas is `shipglows_data/workflow/atlas/approved-surfaces.json
 - The operator validates the visible boundaries and labels in Atlas mode. Only the operator judges Copy, Design, and observable Function quality; a draft starts at `unknown`, with no baseline or protection.
 - `100-sg-spec` names the affected stable IDs and intended product-state transition when a spec creates, changes, splits, or retires a mapped surface/function.
 - `102-sg-start` updates selectors, project-relative impact paths, function links, and delivery status alongside the implementation. It never turns an assessment into Gold/Diamond or renews a baseline by inference.
-- `309-sg-tasks` may report Atlas status as a roadmap view, but `TASKS.md` remains the execution queue and specs remain the implementation contract.
+- `011-sg-pilotage tasks` may report Atlas status as a roadmap view, but `TASKS.md` remains the execution queue and specs remain the implementation contract.
 - `700-sg-explore` resolves genuinely unclear product boundaries before an Atlas draft; it does not implement the registry.
 
 ## Business And Customer Intake

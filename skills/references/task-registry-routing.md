@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-09"
-updated: "2026-07-28"
+updated: "2026-08-03"
 status: active
 source_skill: 009-sg-skill-build
 scope: task-registry-routing
@@ -19,7 +19,8 @@ linked_systems:
   - skills/205-sg-veille/SKILL.md
   - skills/009-sg-marketing/SKILL.md
   - skills/406-sg-seo/SKILL.md
-  - skills/309-sg-tasks/SKILL.md
+  - skills/011-sg-pilotage/SKILL.md
+  - skills/011-sg-pilotage/references/tasks-playbook.md
   - skills/references/operational-record-format.md
 depends_on:
   - artifact: "skills/references/operational-record-format.md"
@@ -33,6 +34,7 @@ evidence:
   - "User decision 2026-07-09: separate editorial/content follow-ups from technical execution tasks."
   - "Current content and audit skills still point public-content recommendations at workflow/TASKS.md."
   - "Project lifecycle contract adds cybersecurity as a domain whose implementation findings route to the execution tracker."
+  - "Pilotage consolidation on 2026-08-03 transferred execution-tracker maintenance to 011-sg-pilotage tasks."
 next_review: "2026-08-09"
 next_step: "/103-sg-verify task-registry-routing"
 ---
@@ -97,7 +99,7 @@ The roadmap tracks approved or governable editorial follow-up, not imaginary sur
 
 ## Ownership
 
-- `309-sg-tasks` owns execution tracker maintenance.
+- `011-sg-pilotage tasks` owns execution tracker maintenance.
 - Content-owner and content-source skills own editorial-roadmap writes when their output creates public/editorial follow-up.
 - `007-sg-content` remains the lifecycle router for content work; it does not need to own every roadmap mutation itself, but downstream owner skills must respect this split.
 

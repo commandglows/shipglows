@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.8.0"
+artifact_version: "0.9.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-07-18"
+updated: "2026-08-03"
 status: draft
 source_skill: 102-sg-start
 scope: chantier-tracking
@@ -43,6 +43,7 @@ evidence:
   - "User decision 2026-07-16: the verdict header displays Paris time only, without the date."
   - "User decision 2026-07-16: normal chantier headers use 🧱 and 🚧 is reserved for genuinely blocked runs."
   - "Operator correction 2026-07-18: chantier-potential reporting must not make operators launch or interpret internal workflow commands."
+  - "2026-08-03 pilotage consolidation moved tasks, backlog, priorities, review, and Codex-session management under 011-sg-pilotage while preserving the pilotage process role."
 next_review: "2026-05-27"
 next_step: "/103-sg-verify Specs as chantier registry"
 ---
@@ -118,7 +119,7 @@ The report still opens with the shared chantier header. If the source skill is a
 | `109-sg-auth-debug`, `405-sg-prod`, `105-sg-check`, `107-sg-test`, `106-sg-fix`, `003-sg-bug` | `conditionnel` | `source-de-chantier` | Incidents, failing flows, bug files, bug lifecycle execution, or validation failures beyond a direct fix. |
 | `009-sg-marketing`, `205-sg-veille`, `203-sg-research` | `conditionnel` | `source-de-chantier` | Strategic or research output that requires a product, content, architecture, or implementation decision. |
 | `300-sg-docs`, `201-sg-enrich`, `200-sg-redact`, `306-sg-scaffold`, `304-sg-changelog`, `305-sg-init` | `conditionnel` | `support-de-chantier` | Route to a source or `/100-sg-spec` only when the user explicitly asks to formalize follow-up work. |
-| `309-sg-tasks`, `701-sg-backlog`, `702-sg-priorities`, `703-sg-review`, `706-continue` | `conditionnel` | `pilotage` | Do not create a chantier from every note; route only when the user or evidence requires a durable spec. |
+| `011-sg-pilotage`, `706-continue` | `conditionnel` | `pilotage` | Do not create a chantier from every note; route only when the user or evidence requires a durable spec. |
 | `000-shipglows`, `301-sg-context`, `704-sg-model`, `302-sg-help`, `308-sg-status`, `303-sg-resume`, `700-sg-explore`, `707-name` | `non-applicable` | `helper` | Not a source; can recommend or directly hand off to the lifecycle next step when useful. `000-shipglows` routes only; selected owner skills own durable state and chantier tracing. `700-sg-explore` may write `exploration_report` artifacts but still must not write chantier spec history. |
 
 ## Spec Write Rules

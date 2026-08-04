@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.10.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-07-17"
+updated: "2026-08-03"
 status: reviewed
 source_skill: 300-sg-docs
 scope: skill-launch-cheatsheet
@@ -45,6 +45,8 @@ evidence:
   - "Added direct links to repo-visible OpenCode and KiloCode runtime pages."
   - "2026-07-17 atomic routing update: deterministic micro-edits execute directly before owner-skill routing."
   - "2026-07-17 sg-verify update: mode=excellence or an unambiguous natural-language request adds a distinct critical focus after standard métier verification."
+  - "2026-08-03: public modes now explicitly select bounded local playbooks; operators do not choose reference files."
+  - "2026-08-03 pilotage consolidation replaced four public management skills with 011-sg-pilotage and five explicit modes."
 next_step: "/300-sg-docs audit shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md"
 ---
 
@@ -55,6 +57,8 @@ Use this page when you need to choose which ShipGlows skill to launch and which 
 ## Default Rule
 
 Start with `000-shipglows <instruction>` when you want a non-technical first command. It answers pure conversational requests directly, executes deterministic micro-edits directly with focused validation, and routes substantive work to the right master or specialist skill. It uses a default only when the route is clear, low-risk, context-compatible, and verifiable.
+
+A public mode selects one bounded local playbook. The owner skill loads detailed references when needed; the operator chooses the work, not a reference file.
 
 Start with `001-sg-build` directly when you already know the request is a feature, code, site, or docs workstream that needs the build lifecycle.
 
@@ -79,6 +83,9 @@ Core codes:
 | `006` | `006-sg-design` |
 | `007` | `007-sg-content` |
 | `008` | `008-sg-customer` |
+| `009` | `009-sg-marketing` |
+| `010` | `010-sg-technical` |
+| `011` | `011-sg-pilotage` |
 
 Family bands: `100-199` lifecycle/proof, `200-299` content/research/copy, `300-399` docs/context/support, `400-499` audit/quality/ops, `500-599` design/components, `600-699` data/activation, `700-799` pilotage/session, `800-899` conversation/transcript, `900-999` internal/meta.
 
@@ -157,7 +164,7 @@ Public categories make the catalog easier to browse. Runtime families explain ho
 | Audit/source | Expose quality, security, performance, SEO, copy, design, dependency, parity, or GTM risk that may deserve a chantier. | `400-sg-audit`, `010-sg-technical`, `602-sg-platform-parity` |
 | Bug/proof | Diagnose failures, validate behavior, or confirm deployment truth. | `003-sg-bug`, `106-sg-fix`, `107-sg-test`, `108-sg-browser`, `109-sg-auth-debug`, `405-sg-prod`, `105-sg-check` |
 | Content/docs/support | Keep public content, documentation, scaffolding, changelogs, skill contracts, governance surfaces, and git/GitHub hygiene coherent with shipped behavior. | `007-sg-content repurpose`, `300-sg-docs`, `200-sg-redact`, `201-sg-enrich`, `304-sg-changelog`, `306-sg-scaffold`, `305-sg-init`, `310-sg-github-hygiene` |
-| Research/pilotage/helper | Clarify information, prioritize, summarize, route, or preserve context without owning full lifecycle closure. | `009-sg-marketing`, `203-sg-research`, `205-sg-veille`, `701-sg-backlog`, `702-sg-priorities`, `703-sg-review`, `309-sg-tasks`, `301-sg-context`, `704-sg-model`, `302-sg-help`, `308-sg-status`, `303-sg-resume`, `700-sg-explore`, `707-name` |
+| Research/pilotage/helper | Clarify information, manage work/session state, prioritize, summarize, route, or preserve context without owning full lifecycle closure. | `009-sg-marketing`, `203-sg-research`, `205-sg-veille`, `011-sg-pilotage`, `301-sg-context`, `704-sg-model`, `302-sg-help`, `308-sg-status`, `303-sg-resume`, `700-sg-explore`, `706-continue`, `707-name` |
 | Internal/meta | Operator-only tools for maintaining ShipGlows itself. | `900-shipglows-core` |
 
 ## Master Skills
@@ -171,6 +178,7 @@ Public categories make the catalog easier to browse. Runtime families explain ho
 | Bug-loop lifecycle | `003-sg-bug [BUG-ID, summary, or mode]` | no argument, `BUG-ID`, `--fix`, `--retest`, `--verify`, `--ship`, `--close`. |
 | Content management | `007-sg-content [goal, source, file, or mode]` | `plan`, `capture-full-conversation`, `clean-transcript`, `repurpose`, `draft`, `enrich`, `audit`, `seo`, `editorial`, `apply`, `ship`; `repurpose ... verbatim` preserves exact source text and is distinct from capture/cleanup. It hands market, GTM, copy, and copywriting review to an explicit `009-sg-marketing` mode. Add `score`, `quality gate`, or `grille projet` when you want project-aware scoring through the shared rubric. |
 | Marketing study or review | `009-sg-marketing <mode> <target>` | `market`, `gtm`, `copy`, `copywriting`, `help`. |
+| Work and conversation pilotage | `011-sg-pilotage <mode> [arguments]` | Exactly one of `tasks`, `backlog`, `priorities`, `review`, or `sessions`; unclear or mixed input asks for one mode and mutates nothing. |
 | Conversation quality audit | `705-sg-conversation-audit [latest|path <file-or-dir>|export shipglows|report=agent]` | Audit recurring operator-facing defects in conversation transcripts and route durable owner actions. |
 | Design lifecycle | `006-sg-design <design question or goal>` | `tokens`, `audit`, `playground`, page/route targets, redesign goals, token migration, visual proof, or natural-language design requests. |
 | Customer experience | `008-sg-customer <audit|flow|onboarding|recovery> <target>` | Four customer modes for friction/trust audits, first-success flow contracts, setup, and recoverable states; routes adjacent-owner work. |
@@ -211,7 +219,7 @@ Content scoring examples:
 | Technical posture | `010-sg-technical <audit|deps|performance> [target]` | Select exactly one code/security, dependency, or performance lane. |
 | Framework migration | `010-sg-technical migrate [package[@version]]` | Use a structured package target such as `astro@5`, a package name, or no argument for discovery. |
 | Orientation and routing | `308-sg-status`, `302-sg-help`, `704-sg-model`, `303-sg-resume` | Use for git dashboard, workflow help, model choice, or concise context transfer. |
-| Conversation naming, status, and cleanup | `309-sg-tasks sessions <project-or-cwd>` | Review unmanaged Codex titles; use `sessions rename <status>` for the current conversation or `sessions prune <project-or-cwd>` for a dry-run preview before deletion. |
+| Conversation naming, status, and cleanup | `011-sg-pilotage sessions <project-or-cwd>` | Review unmanaged Codex titles; use `sessions rename <status>` for the current conversation or `sessions prune <project-or-cwd>` for a dry-run preview before deletion. |
 
 Model routing note: `704-sg-model` recommends the right model for the current scope. In Codex/OpenAI, default small bounded subagents to `gpt-5.4-mini`, use `gpt-5.3-codex-spark` for Spark-eligible summaries, text-only handoffs, micro-code, or targeted UI/local edits when credits/availability permit, route long implementation through the `codex` implementation profile, and use `gpt-5.5` with calibrated `low`/`medium`/`high`/`xhigh` reasoning for high-risk transverse reasoning. The main thread may only recommend a model switch unless the runtime supports applying the override; `spark`, `codex`, `sous-agent`/`subagent`/`agents`, and `mini` arguments request model-specific subagent delegation.
 
@@ -238,7 +246,7 @@ Model routing note: `704-sg-model` recommends the right model for the current sc
 | `005-sg-ship` | no special argument; `skip-check`; `end la tache`; `end`; `fin`; `close task`; `all-dirty`; `ship-all`; `tout-dirty` |
 | `103-sg-verify` | no mode/`mode=standard` for métier correctness, proof, risk, and ship-readiness; `mode=excellence` or an unambiguous natural-language excellence request for a fresh second focus beyond acceptance criteria; verdicts `verified`, `verified_with_excellence_gaps`, or `excellent`, while proof/risk failures keep precedence |
 | `407-sg-translate` | bare or path shorthand = audit; `audit [path\|global]`; `sync [path]`; `apply [path]` is a sync alias; `help` is discovery-only |
-| `309-sg-tasks` | `sessions <project-or-cwd>`; `sessions rename <status>`; `sessions prune <project-or-cwd>`; `name-conversation` | Rename unmanaged titles or only the current thread, preserve forks, and preview safe project-scoped pruning; prune apply requires exact confirmation. |
+| `011-sg-pilotage` | `tasks [focus]`; `backlog [add|defer|review|clean]`; `priorities [impact|effort|blockers|high-roi|quick-wins]`; `review [daily|weekly|sprint|release]`; `sessions [project-or-cwd|rename <status>|prune [cwd]]` | Select one management action; session prune is dry-run first and apply requires exact cwd confirmation. |
 
 ## How To Read Arguments
 

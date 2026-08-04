@@ -77,7 +77,7 @@ Possible choices are precise handoffs or permitted follow-up types, not a promis
 - `007-sg-content`: a declared content surface can transform or publish the source.
 - `009-sg-marketing`: the operator explicitly asks for a market, GTM, copy, or positioning audit/study.
 - `300-sg-docs`: the needed result is documentation or governance change.
-- `309-sg-tasks`: general cleanup/reconciliation of an already-existing tracker.
+- `011-sg-pilotage tasks`: general cleanup/reconciliation of an already-existing tracker.
 - An explicit technical or editorial follow-up may be persisted only through the persistence playbook after the operator chooses it.
 
 Continue only after an explicit decision. A source without enough proof, project ownership, or a safe owner route stays ephemeral and is reported as such.

@@ -60,6 +60,6 @@ By default, `005-sg-ship` stages only changes that clearly belong to the current
 
 - `105-sg-check` for fuller technical validation
 - `103-sg-verify` for ship-readiness and risk review
-- `703-sg-review` for session closure and next-step planning
-- `309-sg-tasks` when tracker updates are needed without pushing code
+- `011-sg-pilotage review` for session closure and next-step planning
+- `011-sg-pilotage tasks` when tracker updates are needed without pushing code
 - `405-sg-prod` immediately after push when preview deployment is the validation surface

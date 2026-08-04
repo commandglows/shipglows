@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-08-03"
-updated: "2026-08-03"
+updated: "2026-08-04"
 status: active
 source_skill: 011-sg-pilotage
 scope: pilotage-tasks-mode
@@ -17,13 +17,17 @@ linked_systems:
   - skills/011-sg-pilotage/SKILL.md
   - shipglows_data/workflow/TASKS.md
   - skills/references/operational-record-format.md
+  - skills/references/question-contract.md
   - skills/references/task-registry-routing.md
 depends_on:
   - artifact: skills/references/operational-record-format.md
     artifact_version: "1.0.0"
     required_status: active
   - artifact: skills/references/task-registry-routing.md
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
+    required_status: active
+  - artifact: skills/references/question-contract.md
+    artifact_version: "1.9.0"
     required_status: active
 supersedes: []
 evidence:
@@ -44,6 +48,8 @@ Make the durable execution tracker match real project state, then recommend one 
 - Treat archived central trackers as migration evidence, never as an active master dashboard.
 - Read git state, relevant files, tests, specs, and project docs only as needed to establish task truth.
 - Load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` before any record write and `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md` before choosing an execution or editorial destination.
+
+At a workspace root or when several projects are credible targets, load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` and ask for one explicit project or portfolio scope before reading or writing a tracker. A portfolio view remains derived from project-local trackers and never creates or mutates a central master tracker.
 
 ## Mode Grammar
 

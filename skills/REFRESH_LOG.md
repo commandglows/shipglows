@@ -4,6 +4,16 @@ Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. 
 
 ---
 
+## 2026-08-04 — 011-sg-pilotage
+
+**Added:** none.
+
+**Updated:** confirmed the exact five-mode lazy dispatcher and all transferred playbook safeguards; clarified that `707-name` owns only the Claude statusline tag while Codex title changes belong to `011-sg-pilotage sessions`.
+
+**New phases:** none; the existing `tasks`, `backlog`, `priorities`, `review`, and `sessions` modes remain independent.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is a local skill-contract and migration-coherence review with deterministic proof.
+
 ## 2026-08-03 — 600-sg-local-cloud-sync
 
 **Added:** direct UI, post-auth orchestration, queue/payload safety, and proof/documentation references.

@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.3"
 project: "ShipGlows"
 created: "2026-07-18"
 created_at: "2026-07-18 13:48:06 UTC"
-updated: "2026-08-03"
-updated_at: "2026-08-03 23:38:42 UTC"
-status: ready
+updated: "2026-08-04"
+updated_at: "2026-08-04 00:16:51 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: "skill-taxonomy consolidation and public migration"
@@ -45,7 +45,7 @@ linked_systems:
   - "shipglows_data/technical/skill-runtime-and-lifecycle.md"
 depends_on:
   - artifact: "skills/references/skill-code-index.md"
-    artifact_version: "2.5.0"
+    artifact_version: "2.6.0"
     required_status: active
   - artifact: "skills/references/skill-instruction-layering.md"
     artifact_version: "1.2.0"
@@ -63,19 +63,19 @@ depends_on:
     artifact_version: "1.10.1"
     required_status: active
   - artifact: "skills/references/chantier-tracking.md"
-    artifact_version: "0.8.0"
+    artifact_version: "0.9.0"
     required_status: draft
   - artifact: "skills/references/task-registry-routing.md"
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/product-decision-chain.md"
-    artifact_version: "1.0.0"
-    required_status: active
-  - artifact: "skills/references/atlas-cartography-lifecycle.md"
     artifact_version: "1.1.0"
     required_status: active
+  - artifact: "skills/references/atlas-cartography-lifecycle.md"
+    artifact_version: "1.2.0"
+    required_status: active
   - artifact: "shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md"
-    artifact_version: "1.4.1"
+    artifact_version: "1.5.0"
     required_status: draft
   - artifact: "shipglows_data/technical/guidelines.md"
     artifact_version: "1.6.0"
@@ -89,7 +89,8 @@ evidence:
   - "Current active discovery surfaces still expose 309, 701, 702, and 703 independently through the code index, plugin pack catalogs, operator cheatsheet, runtime lifecycle guide, neighboring references, and focused tests."
   - "Current repository inventory contains no shipglows-site or site source tree; public migration therefore targets the repository-backed plugin help/catalog and operator documentation surfaces, not a nonexistent public-page build."
   - "The existing session playbook and deterministic tests preserve exact-cwd isolation, missing-status no-mutation behavior, dry-run-first pruning, and semantic-title safeguards that must transfer to the sessions mode."
-next_step: "/102-sg-start consolidate-pilotage-skills-under-sg-pilotage"
+  - "Implementation proof 2026-08-03: 011-sg-pilotage now owns five lazy playbooks, focused contract/session tests pass, the four source directories are retired, and active repository-backed discovery surfaces route to the new modes."
+next_step: "/005-sg-ship consolidate-pilotage-skills-under-sg-pilotage"
 ---
 
 # Title
@@ -98,7 +99,7 @@ Consolidate Pilotage Skills Under sg-pilotage
 
 # Status
 
-ready — the operator selected this chantier; the canonical `011-sg-pilotage` identity, five-mode contract, migration boundaries, security invariants, and scenario-first proof are explicit enough for a fresh implementation agent.
+Closed locally after excellence verification. The initial implementation is already present in pushed commit `2ad01ae`; the remaining documentation, index, catalog, spec, and test delta is reviewed but still awaits its dedicated Git ship.
 
 # User Story
 
@@ -264,7 +265,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
 
 # Implementation Tasks
 
-- [ ] Task 1: Freeze the active/historical inventory and session-safety baseline.
+- [x] Task 1: Freeze the active/historical inventory and session-safety baseline.
   - Files: `skills/309-sg-tasks/SKILL.md`, `skills/701-sg-backlog/SKILL.md`, `skills/702-sg-priorities/SKILL.md`, `skills/703-sg-review/SKILL.md`, their READMEs, `shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md`, `tools/test_rename_codex_session.py`, `tools/test_bug_proof_fidelity_contract.py`, and all `rg` hits in active public/help/runtime/plugin surfaces.
   - Action: Classify each hit as active, generated/runtime, compatibility, or historical. Record exact-cwd isolation, missing-status no-read/no-mutation behavior, semantic title derivation, dry-run pruning, current-thread exclusion, and focused `309` path assertions as mandatory transfer content.
   - User story link: Prevents a smaller picker from losing behavior or falsifying historical provenance.
@@ -272,7 +273,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
   - Validate with: scoped `rg -n -i "309-sg-tasks|701-sg-backlog|702-sg-priorities|703-sg-review|sg-tasks|sg-backlog|sg-priorities|sg-review"` across active paths plus focused reads of the session playbook and tests. No mutation occurs in this task.
   - Notes: Do not modify the historical `pilotage-skills-governance-alignment.md` spec.
 
-- [ ] Task 2: Establish the canonical `011-sg-pilotage` activation contract.
+- [x] Task 2: Establish the canonical `011-sg-pilotage` activation contract.
   - Files: `skills/011-sg-pilotage/SKILL.md`, `skills/011-sg-pilotage/README.md`.
   - Action: Create a compact English dispatcher with `name: 011-sg-pilotage`, concise discovery description, exact grammar `tasks|backlog|priorities|review|sessions`, one-playbook lazy map, bare/invalid/multi-mode stop behavior, trace/report loaders, local-first/write-safety boundaries, neighbor reroutes, and validation commands.
   - User story link: Gives the operator one discoverable, unambiguous entrypoint.
@@ -280,7 +281,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
   - Validate with: focused `rg` for all five modes, all adjacent owners, no sixth public mode, line/token budget audit, and deterministic dispatcher assertions.
   - Notes: The activation body contains no copied procedure matrices and no old runtime identity as alias.
 
-- [ ] Task 3: Transfer tracker maintenance into the `tasks` playbook.
+- [x] Task 3: Transfer tracker maintenance into the `tasks` playbook.
   - Files: `skills/011-sg-pilotage/references/tasks-playbook.md` and active shared tracker references only where owner names change.
   - Action: Transfer local/legacy tracker distinction, task-registry routing, authoritative reread/minimal patch protocol, evidence-based completion, active-vs-backlog hygiene, changelog boundary, and tracker-derived next-step recommendation. Exclude all Codex-session operations.
   - User story link: Preserves execution-tracker management without loading private session procedures.
@@ -288,7 +289,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
   - Validate with: `PILOTAGE-TASKS-NOT-SESSIONS`, tracker-safety scenarios, focused pressure-anchor scan, and manual comparison against the non-session portions of `309`.
   - Notes: Do not delete `309-sg-tasks` until this transfer and proof are complete.
 
-- [ ] Task 4: Transfer sessions into a first-class local playbook.
+- [x] Task 4: Transfer sessions into a first-class local playbook.
   - Files: `skills/011-sg-pilotage/references/sessions-playbook.md`, `shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md`, `tools/rename_codex_session.py`, `tools/prune_codex_sessions.py`, `tools/test_rename_codex_session.py`, `tools/test_prune_codex_sessions.py`, and `tools/test_bug_proof_fidelity_contract.py` only where owner paths/names must migrate.
   - Action: Transfer repository-scoped triage, exact status vocabulary, semantic-title rules, duplicate/inactivity behavior, current-session rename, dry-run-first pruning, exact-cwd and current-thread protection, private-data redaction, and every missing-status safeguard. Retire `name-conversation` as redundant with the canonical rename route; do not alter helper behavior except owner/generic-title references required by the migration.
   - User story link: Makes the highest-risk session behavior explicit and lazily loaded.
@@ -296,7 +297,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
   - Validate with: `PILOTAGE-SESSIONS-STATUS-GATE`, `PILOTAGE-SESSIONS-CWD-AND-PRUNE-SAFETY`, `python3 -m unittest tools.test_rename_codex_session tools.test_prune_codex_sessions tools.test_bug_proof_fidelity_contract`, and a manual source-to-playbook invariant matrix.
   - Notes: Do not retire `309-sg-tasks` until both Tasks 3 and 4 pass.
 
-- [ ] Task 5: Transfer backlog, priorities, and review into three local playbooks.
+- [x] Task 5: Transfer backlog, priorities, and review into three local playbooks.
   - Files: `skills/011-sg-pilotage/references/backlog-playbook.md`, `skills/011-sg-pilotage/references/priorities-playbook.md`, `skills/011-sg-pilotage/references/review-playbook.md`.
   - Action: Move each source’s operational model, input grammar, question gates, tracker safety, report mode, boundaries, confirmation requirements and evidence distinctions into its named playbook. Link shared doctrine instead of duplicating it.
   - User story link: Preserves specialised outcomes while removing four discovery entries.
@@ -304,7 +305,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
   - Validate with: each selected playbook satisfies its scenario (`BACKLOG-NOT-PRIORITY`, `PRIORITIES-NOT-EXECUTION`, `REVIEW-NOT-VERIFY`) and has no unrelated source mode copied into its dispatcher path.
   - Notes: `review` must retain its explicit distinction between activity evidence and verified product outcome.
 
-- [ ] Task 6: Add deterministic migration and boundary proof.
+- [x] Task 6: Add deterministic migration and boundary proof.
   - Files: `tools/test_011_sg_pilotage_contract.py` and any narrowly necessary existing test fixture.
   - Action: Follow existing compaction-test conventions to assert exact five-mode grammar, one playbook per mode, source-behavior markers, all adjacent-owner boundaries, sessions missing-status/cwd/prune protections, code-index row, active documentation migration, and absence of the four retired directories after migration.
   - User story link: Makes future drift back to multiple public pilotage skills mechanically visible.
@@ -312,7 +313,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
   - Validate with: `python3 -m unittest tools.test_011_sg_pilotage_contract tools.test_rename_codex_session tools.test_prune_codex_sessions tools.test_bug_proof_fidelity_contract tools.test_guided_business_product_discovery_contract`.
   - Notes: The test may whitelist historical evidence; it must never demand a repository-wide literal-name purge.
 
-- [ ] Task 7: Retire the four source skills only after successful transfer proof.
+- [x] Task 7: Retire the four source skills only after successful transfer proof.
   - Files: remove `skills/309-sg-tasks/`, `skills/701-sg-backlog/`, `skills/702-sg-priorities/`, `skills/703-sg-review/` through a reviewed patch.
   - Action: Delete their `SKILL.md` and README surfaces after Tasks 3-5 pass. Do not leave redirect directories, wrapper skills, compatibility symlinks, hidden aliases, stale `agents/openai.yaml`, or code-index entries.
   - User story link: Actually reduces the number of selectable skills and removes picker ambiguity.
@@ -320,7 +321,7 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
   - Validate with: `test ! -e` checks for all four paths, targeted runtime-link inventory, `tools/shipglows_sync_skills.sh --check --skill 011-sg-pilotage`, and contract test.
   - Notes: Preserve historical references outside those source directories.
 
-- [ ] Task 8: Migrate active runtime, help, plugin, and operator documentation surfaces.
+- [x] Task 8: Migrate active runtime, help, plugin, and operator documentation surfaces.
   - Files: `skills/references/skill-code-index.md`, `skills/302-sg-help/references/help-catalog.md` when active routing requires it, `shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md`, `shipglows_data/technical/skill-runtime-and-lifecycle.md`, `shipglows_data/technical/code-docs-map.md`, `plugins/shipglows/assets/pack-catalog.json`, `plugins/shipglows/skills/shipglows/references/pack-catalog.md`, `plugins/shipglows/skills/shipglows/references/public-help-catalog.md`, and active neighboring contracts discovered in Task 1.
   - Action: Add the canonical `011` index row; replace active old entries with one `sg-pilotage` entry and five-mode prompts; update pack membership once, then update every active cross-link that would advertise an unavailable command. Recheck whether a public site exists before declaring docs complete.
   - User story link: Public and runtime discovery promise the same route as the installed skill.
@@ -338,17 +339,17 @@ Code `011` is the next available identity in the `000-099` band, reserved for fr
 
 # Acceptance Criteria
 
-- [ ] AC 1: Given an operator sees the installed skill list, when they search pilotage work, then exactly one public runtime skill `011-sg-pilotage` represents tasks, backlog, priorities, review, and sessions.
-- [ ] AC 2: Given any one of the five modes is explicit, when the dispatcher resolves it, then it loads only the matching playbook and preserves the corresponding source contract.
-- [ ] AC 3: Given mode selection is absent, unknown or combined, when `$011-sg-pilotage` runs, then it asks one orientation question and produces no tracker, session, backlog, review or changelog mutation.
-- [ ] AC 4: Given `sessions rename` has no supported status, when it runs, then it performs no rename-related read or mutation and asks exactly one allowed status question; given `tasks sessions ...`, it rejects the mixed route before any Codex read.
-- [ ] AC 5: Given an idea exploration, model choice, conversation audit, continuation, read-only status, or Claude statusline-tag request, when routed, then `700`, `704`, `705`, `706`, `308`, or `707` remains independent.
-- [ ] AC 6: Given the migration is complete, when source directory and runtime inventories run, then no retired 309/701/702/703 directory, index row, runtime link, alias or wrapper is selectable.
-- [ ] AC 7: Given a public-help/plugin/operator-doc surface is active, when it presents this domain, then it names `011-sg-pilotage`, exposes the five modes, and does not present the four former skills as available commands.
-- [ ] AC 8: Given an old name appears only in a historical artifact, when active docs are aligned, then that provenance remains intact and does not fail the migration’s stale-route check.
-- [ ] AC 9: Given all scoped changes are present, when focused tests, metadata lint, budget audit, code-index audit, runtime sync, active-doc/plugin checks, conditional site build, and diff hygiene run, then they pass or a proven unrelated baseline is reported separately.
-- [ ] AC 10: Given the 309 session safeguards exist before implementation, when 309 is retired, then their promises, playbook anchors, and deterministic proof remain reachable only through `011-sg-pilotage sessions`.
-- [ ] AC 11: Given the current repository has no site source tree, when documentation migration completes, then plugin help/catalog and operator docs are aligned without inventing public pages or reporting a skipped website build as a failure.
+- [x] AC 1: Given an operator sees the installed skill list, when they search pilotage work, then exactly one public runtime skill `011-sg-pilotage` represents tasks, backlog, priorities, review, and sessions.
+- [x] AC 2: Given any one of the five modes is explicit, when the dispatcher resolves it, then it loads only the matching playbook and preserves the corresponding source contract.
+- [x] AC 3: Given mode selection is absent, unknown or combined, when `$011-sg-pilotage` runs, then it asks one orientation question and produces no tracker, session, backlog, review or changelog mutation.
+- [x] AC 4: Given `sessions rename` has no supported status, when it runs, then it performs no rename-related read or mutation and asks exactly one allowed status question; given `tasks sessions ...`, it rejects the mixed route before any Codex read.
+- [x] AC 5: Given an idea exploration, model choice, conversation audit, continuation, read-only status, or Claude statusline-tag request, when routed, then `700`, `704`, `705`, `706`, `308`, or `707` remains independent.
+- [x] AC 6: Given the migration is complete, when source directory and runtime inventories run, then no retired 309/701/702/703 directory, index row, runtime link, alias or wrapper is selectable.
+- [x] AC 7: Given a public-help/plugin/operator-doc surface is active, when it presents this domain, then it names `011-sg-pilotage`, exposes the five modes, and does not present the four former skills as available commands.
+- [x] AC 8: Given an old name appears only in a historical artifact, when active docs are aligned, then that provenance remains intact and does not fail the migration’s stale-route check.
+- [x] AC 9: Given all scoped changes are present, when focused tests, metadata lint, budget audit, code-index audit, runtime sync, active-doc/plugin checks, conditional site build, and diff hygiene run, then they pass or a proven unrelated baseline is reported separately.
+- [x] AC 10: Given the 309 session safeguards exist before implementation, when 309 is retired, then their promises, playbook anchors, and deterministic proof remain reachable only through `011-sg-pilotage sessions`.
+- [x] AC 11: Given the current repository has no site source tree, when documentation migration completes, then plugin help/catalog and operator docs are aligned without inventing public pages or reporting a skipped website build as a failure.
 
 # Test Strategy
 
@@ -396,6 +397,10 @@ None. The operator approved the single métier-first domain and selected this co
 | 2026-07-18 14:03:18 UTC | 101-sg-ready | gpt-5.5/xhigh recommended; runtime model override not supported | Independently reviewed structure, traceability, dependencies, scenario-first proof, security and owner boundaries, freshness, and language doctrine; normalized the internal contract to English, corrected the public-content schema path, and incorporated transfer of the concurrent bug-proof session test. | ready | `/102-sg-start consolidate-pilotage-skills-under-sg-pilotage` |
 | 2026-08-03 23:30:23 UTC | 100-sg-spec | GPT-5 Codex | Re-audited the four pilotage owners, session contract, adjacent 700/704-707 boundaries, current docs/plugin/test surfaces, and prior ready spec; promoted sessions to a fifth explicit mode and removed stale public-site assumptions. | draft repaired; readiness expired by material contract change | `/101-sg-ready consolidate-pilotage-skills-under-sg-pilotage` |
 | 2026-08-03 23:38:42 UTC | 101-sg-ready | gpt-5.6-sol/high | Independently reviewed the revised five-mode contract, active source paths, transfer completeness, neighboring ownership, scenario proof, metadata, security, freshness, and language doctrine; declared review/Atlas dependencies and strengthened local-session security and review-artifact proof. | ready | `/102-sg-start consolidate-pilotage-skills-under-sg-pilotage` |
+| 2026-08-03 23:56:20 UTC | 102-sg-start | gpt-5.6-sol/xhigh | Created `011-sg-pilotage` with five lazy playbooks and deterministic proof; transferred tracker and session safeguards; retired the four source skills after focused tests; migrated active index, plugin, operator, runtime-reference, neighbor-route, and tool/test surfaces. A concurrent actor committed and pushed the initial implementation as `2ad01ae`; the remaining documentation/index/catalog/spec migration is intentionally left uncommitted for the lifecycle owner. | implemented | `/900-shipglows-core refresh 011-sg-pilotage` |
+| 2026-08-04 00:03:18 UTC | 900-shipglows-core refresh | gpt-5.6-sol/high | Re-read the dispatcher and five playbooks independently, compared the retired owners, verified lazy loading, five-mode exclusivity, boundaries, session safety, context budgets, active docs/catalogs, and 104/104 runtime links; corrected the adjacent `707-name` discovery wording so Claude statusline tags cannot compete with Codex title changes. Fresh docs were not needed. | refreshed | `/103-sg-verify consolidate-pilotage-skills-under-sg-pilotage` |
+| 2026-08-04 00:12:21 UTC | 103-sg-verify | gpt-5.6-sol/xhigh | Ran `mode=excellence` across the twelve required scenarios, acceptance criteria, five-mode lazy-loading contract, retired-owner transfer, active/historical references, 707 boundary, session-security helpers, skill-refactor nuggets, runtime/index/plugin/operator coherence, and the full focused proof matrix. Repaired the active workflow playbook's stale `703-sg-review` route, restored explicit project-scope and material-risk question safeguards in the transferred tasks/review playbooks, and extended deterministic migration coverage before replaying all gates. | excellent; 50 focused tests, 16-file metadata lint, 52-skill execution-fidelity and budget audits, 51-code index, JSON catalog, 104/104 runtime links, active/history scan, and diff hygiene pass; no material excellence gap remains. The unrelated CLI bug work included in `2ad01ae` and concurrent veille edits remain outside this verdict. | `/104-sg-end consolidate-pilotage-skills-under-sg-pilotage` |
+| 2026-08-04 00:16:51 UTC | 104-sg-end | gpt-5.6-sol/high | Applied the closure archive guard to the unique pilotage chantier, accepted the current excellence evidence, aligned completion checkboxes, spec state, and changelog framing, and confirmed that no matching canonical task record exists to mutate. Documentation reflection: updated — active runtime, plugin, operator, and workflow surfaces are aligned and the closure changelog entry records the migration without overstating Git delivery. | closed | `/005-sg-ship consolidate-pilotage-skills-under-sg-pilotage` |
 
 # Current Chantier Flow
 
@@ -403,10 +408,10 @@ None. The operator approved the single métier-first domain and selected this co
 | --- | --- | --- |
 | `100-sg-spec` | completed | Existing unimplemented contract repaired in place for five explicit modes and the current repository surface. |
 | `101-sg-ready` | ready | Independent readiness review passed for the revised five-mode contract, dependencies, security boundaries, and scenario-first proof. |
-| `102-sg-start` | pending | Creates `011`, transfers five mode contracts, proves sessions safeguards, retires sources, and migrates active surfaces after readiness. |
-| `900-shipglows-core refresh` | pending | Required after material skill edits. |
-| `103-sg-verify` | pending | Twelve scenario-first checks plus runtime, active-document, plugin, and conditional site verification. |
-| `104-sg-end` | pending | Closure, tracker and changelog decision. |
-| `005-sg-ship` | pending | Separately authorized commit/push only. |
+| `102-sg-start` | implemented | Created `011`, transferred the five bounded mode contracts, preserved session safeguards, retired the four source owners after focused proof, and migrated the declared active surfaces. Runtime sync remains owned by refresh. |
+| `900-shipglows-core refresh` | completed | Conservative source-to-playbook review passed; five-mode lazy loading, session safeguards, budgets, active docs/catalogs, and 104/104 runtime links are coherent. One adjacent discovery ambiguity was corrected for `707-name`. |
+| `103-sg-verify` | excellent | All twelve scenarios and acceptance criteria pass after bounded active-doc and transferred-safeguard repairs; focused, metadata, fidelity, budget, index, JSON, runtime, stale-route, and diff proof is green. |
+| `104-sg-end` | closed | Local closure bookkeeping is aligned after excellence verification; no matching canonical task record existed, so the tracker was intentionally left unchanged. |
+| `005-sg-ship` | pending | The implementation core is already present in pushed commit `2ad01ae`; the remaining reviewed documentation, index, catalog, spec, and test delta still requires a dedicated commit and push. |
 
-Next step: `/102-sg-start consolidate-pilotage-skills-under-sg-pilotage`.
+Next step: `/005-sg-ship consolidate-pilotage-skills-under-sg-pilotage`.

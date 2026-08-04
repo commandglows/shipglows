@@ -1,10 +1,10 @@
 ---
 artifact: workflow_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-08-02"
+updated: "2026-08-03"
 status: active
 source_skill: 900-shipglows-core
 scope: product-decision-traceability-and-change
@@ -23,7 +23,7 @@ linked_systems:
   - skills/103-sg-verify/SKILL.md
   - skills/104-sg-end/SKILL.md
   - skills/300-sg-docs/SKILL.md
-  - skills/703-sg-review/SKILL.md
+  - skills/011-sg-pilotage/references/review-playbook.md
 depends_on:
   - artifact: skills/references/guided-business-product-discovery.md
     artifact_version: "1.1.0"
@@ -35,6 +35,7 @@ supersedes: []
 evidence:
   - "Operator approval 2026-08-02: reuse BMAD's change-impact, cross-artifact alignment, critical moments, traceability, focused elicitation and retrospective learning without its process weight."
   - "Local BMAD review 2026-08-02: useful patterns came from UX alignment, correct-course, journey/capability, emotional-response and retrospective workflows."
+  - "Pilotage consolidation on 2026-08-03 transferred retrospective synthesis to 011-sg-pilotage review."
 next_step: "Apply this contract to material product decisions and Atlas-changing work."
 ---
 
@@ -166,7 +167,7 @@ At the next related chantier, check whether the prior lesson was applied and whe
 - Cross-contract coherence decision: `101-sg-ready`.
 - Pre-write impact traversal and canonical-order application: `102-sg-start`.
 - Actual-chain and proof coherence: `103-sg-verify`.
-- Evidence-backed lesson capture: `104-sg-end` and retrospective synthesis by `703-sg-review`.
+- Evidence-backed lesson capture: `104-sg-end` and retrospective synthesis by `011-sg-pilotage review`.
 
 ## Pressure Scenarios
 
