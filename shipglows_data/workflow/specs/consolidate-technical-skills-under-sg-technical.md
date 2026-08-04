@@ -350,6 +350,7 @@ None. The operator selected the métier architecture, and this extension complet
 | 2026-08-04 | 900-shipglows-core build | GPT-5 Codex | Extended the shipped technical consolidation after the operator confirmed that GitHub hygiene should join the same métier entrypoint; transferred the `310` contract into the fifth `github` mode, migrated active docs/index references, and retired the standalone skill/test. | implemented locally; focused verification, metadata, audit, budget, runtime sync, and bounded ship remain | `/103-sg-verify consolidate GitHub hygiene under 010-sg-technical` |
 | 2026-08-04 | 103-sg-verify mode=standard | GPT-5 Codex | Replayed the five-mode dispatcher, GitHub queue-safety contract, source-transfer matrix, active-surface migration, metadata, index, audit, budget, runtime-sync, and diff checks. | verified locally; no public-site checkout was present, and no commit/push or hosted proof is claimed | `/104-sg-end consolidate GitHub hygiene under 010-sg-technical` |
 | 2026-08-04 | 103-sg-verify mode=standard rerun | GPT-5 Codex | Rechecked the plugin pack catalog, governance task record, and separate ShipGlows site pages after documentation alignment; the standalone site page was removed, the unified page now documents all five modes, and the Astro build passed. | verified locally; existing unrelated changes in the separate site repository remain untouched; no commit/push or hosted proof is claimed | `/104-sg-end consolidate GitHub hygiene under 010-sg-technical` |
+| 2026-08-04 | 005-sg-ship quick | GPT-5 Codex | Committed and pushed the ShipGlows technical consolidation and the separate site documentation update, staging only the scoped files in each repository. | shipped; ShipGlows `9c3dc89`, site `72037e9`; unrelated site work remains local and uncommitted | none |
 
 ## Current Chantier Flow
 
@@ -360,7 +361,7 @@ None. The operator selected the métier architecture, and this extension complet
 - `102-sg-start repair` (unprefixed): implemented — the two remaining active specs now use exact `010` modes/playbooks; the scan covers numbered and unprefixed slash/path/command variants, preserves only exact reviewed source-era lines, fails stale allowlist entries, and proves all five corrected specs use exact `010` routes.
 - `900-shipglows-core refresh`: passed — conservative 010 review aligned playbook mutation authority and official-source precedence with focused regression proof; no public/runtime route changed.
 - `103-sg-verify`: verified locally for the 2026-08-04 GitHub-hygiene extension; the original four-mode proof remains valid, and the fifth mode passes independent queue-safety and active-surface checks. No public-site checkout or hosted proof was available or required for this local contract migration.
-- `104-sg-end`: pending — closure bookkeeping remains to be recorded after the operator confirms whether this local slice should be committed and pushed.
-- `005-sg-ship`: pending — no commit or push has been made for this new slice.
+- `104-sg-end`: closed for this shipped slice; no product deployment or hosted runtime claim is made.
+- `005-sg-ship`: shipped — ShipGlows and the separate site documentation commit are pushed; unrelated site work remains outside the shipped scope.
 
 Next command: `/103-sg-verify consolidate GitHub hygiene under 010-sg-technical`
