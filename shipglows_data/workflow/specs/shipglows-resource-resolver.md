@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: ShipGlows
 created: "2026-08-03"
 created_at: "2026-08-03 19:55:00 UTC"
 updated: "2026-08-03"
-updated_at: "2026-08-03 20:39:30 UTC"
+updated_at: "2026-08-04 00:00:00 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -45,7 +45,7 @@ next_step: "none"
 
 ## Status
 
-Ready. The resolver is an internal, read-only discovery utility, not a new public skill or a replacement for owner-skill routing.
+Closed. The resolver is an internal, read-only discovery utility, not a new public skill or a replacement for owner-skill routing. Its technical documentation map and runtime lifecycle references are now aligned.
 
 ## User Story
 
@@ -145,7 +145,7 @@ The bounded proof passes. The repository-wide migration debt observed during thi
 
 ## Documentation Update Plan
 
-Add one shared reference explaining progressive resource discovery, its authority boundary, and the resolver invocation. Update skill-maintenance/help surfaces only where discovery behavior must be visible. No public product claim is affected.
+Completed: the shared progressive-discovery reference already documents the authority boundary and invocation; the internal technical README, code-docs map, and skill runtime/lifecycle guide now map the resolver, tests, semantic IDs, validation, and migration limits. No public product claim is affected.
 
 ## Editorial Update Plan
 
@@ -164,6 +164,7 @@ No public editorial impact. The resolver remains internal to ShipGlows maintenan
 | 2026-08-03 20:06:52 UTC | 104-sg-end | GPT-5 Codex | Closed the bounded implementation record, aligned refresh history and changelog, and preserved unrelated migration debt outside ship scope. | closed | Commit and push bounded scope. |
 | 2026-08-03 20:09:53 UTC | 005-sg-ship | GPT-5 Codex | Created bounded implementation commit `784109a`; closure metadata is committed separately before pushing both commits to `origin/main`. | shipped | None. |
 | 2026-08-03 20:33:16 UTC | 005-sg-ship | GPT-5 Codex | Completed the explicit full-close pass, synchronized the project tracker, confirmed changelog and documentation reflection, and prepared the final documentation ship. | shipped | None. |
+| 2026-08-04 00:00:00 UTC | 300-sg-docs | GPT-5 Codex | Audited the internal technical corpus and aligned the README, code-docs map, and skill runtime/lifecycle guide with the shipped resolver, its tests, semantic IDs, bounded discovery, and authority boundary. | documented | None. |
 
 ## Current Chantier Flow
 

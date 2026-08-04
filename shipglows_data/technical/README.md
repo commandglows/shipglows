@@ -36,6 +36,7 @@ evidence:
   - "Codex plugin packaging note added for the lightweight shipglows plugin and sparse source bootstrap."
   - "Design-system authority technical artifact added for declaring project canonical token/theme/component sources."
   - "Operator guides migrated from root docs into shipglows_data/technical/operator-guides/."
+  - "Progressive resource discovery added a read-only resolver and shared authority-boundary reference for bounded reference/playbook search."
 next_review: "2026-06-18"
 next_step: "/sg-docs technical audit"
 ---
@@ -75,7 +76,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `runtime-cli.md` | `shipglows.sh`, `lib.sh`, `config.sh`, PM2/Flox/Caddy/DuckDNS flows |
 | `terminal-tui.md` | `tui/`, read-only dashboard behavior, task/audit/spec readers, and operator visibility rules |
 | `local-tunnels-and-mcp-login.md` | `local/`, SSH tunnels, remote helper scripts, MCP OAuth login |
-| `skill-runtime-and-lifecycle.md` | `skills/`, lifecycle skills, references, templates, Reader/Executor rules |
+| `skill-runtime-and-lifecycle.md` | `skills/`, lifecycle skills, references, templates, Reader/Executor rules, `tools/resource_resolver.py`, `tools/test_resource_resolver.py`, and resolver-related specs; stable resource IDs, bounded ranking, expansion, and authority boundaries |
 | `agent-clarity-pass-playbook.md` | Future agent-clarity hardening passes across overlapping skills, batching rules, and first-screen boundary method |
 | `artifact-metadata-and-linter.md` | `templates/`, `tools/shipglows_metadata_lint.py`, frontmatter contracts |
 | `codebase-mcp.md` | `tools/codebase-mcp/` |

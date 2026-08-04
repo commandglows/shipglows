@@ -104,6 +104,7 @@ evidence:
   - "Rights-aware private design-inspiration corpus and bounded Inspiration Gate added for design and copy workflows."
   - "006-sg-design library add, approve, list, and status modes added for safe private-corpus curation and index synchronization."
   - "011-sg-pilotage consolidated task maintenance, backlog, priorities, review, and Codex-session operations behind five explicit lazily loaded modes."
+  - "2026-08-03: progressive resource discovery added a read-only resolver with stable semantic IDs, bounded canonical-root scanning, dependency expansion, and explicit authority limits."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -222,6 +223,8 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | --- | --- | --- |
 | `skills/*/SKILL.md` | Executable skill contracts | Keep descriptions compact; route heavy detail to references |
 | `skills/references/*.md` | Shared doctrine and provider-specific references | Resolve from `${SHIPGLOWS_ROOT:-$HOME/shipglows}` |
+| `tools/resource_resolver.py` | Read-only progressive discovery of relevant shared references, skill-local references, and reusable workflow playbooks | Run only after owner skill/mode selection; resolve from `${SHIPGLOWS_ROOT:-$HOME/shipglows}` and canonical roots |
+| `skills/references/resource-discovery.md` | Resolver invocation, semantic resource IDs, bounded expansion, migration guidance, and authority boundary | Advisory discovery only; mandatory skill gates, project truth, freshness, owner, and proof contracts remain authoritative |
 | `skills/references/skill-instruction-layering.md` | Canonical layering contract for `SKILL.md` activation rules vs shared or skill-local references | Load before editing or compacting skills |
 | `skills/<skill>/references/*.md` | Skill-local heavy checklists, mode playbooks, and report matrices | Keep top-level SKILL focused on activation and gates |
 | `skills/references/master-delegation-semantics.md` | Shared master/orchestrator delegation, subagent, short-approval, and parallelism doctrine | Load before master skills choose execution topology |
@@ -514,6 +517,7 @@ Run focused `rg` checks for the affected skill contract and linked references.
 
 - `skills/*/SKILL.md` changed -> check this doc, `technical-docs-corpus.md`, and workflow docs.
 - New/renamed skill or visibility drift -> run `tools/shipglows_sync_skills.sh --check --skill <name>` or `--check --all`.
+- Resource/playbook discovery changed -> run `python3 -m unittest tools.test_resource_resolver`, a bounded live resolver example, metadata lint on the shared reference/spec, and `git diff --check`; do not treat resolver ranking as a replacement for required loaders or owner routing.
 - Playwright MCP usage changed -> check `skills/references/playwright-mcp-runtime.md`
   and `skills/109-sg-auth-debug/references/playwright-auth.md`.
 - Public-content skill changed -> check `editorial-content-corpus.md`, `docs/editorial/`, and workflow docs.
