@@ -8,6 +8,10 @@ argument-hint: <mode|page|URL|content file|project>
 
 Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
+## Public Métier Ownership
+
+Public label: `sg-seo`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or SEO mode selection. Resolve `project -> product -> surface -> feature` and own the organic-search outcome through audit, remediation, content/marketing collaboration, monitoring proof, affected public documentation, and closure.
+
 ## Instruction Layering
 
 This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.

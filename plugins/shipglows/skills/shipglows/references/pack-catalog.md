@@ -1,6 +1,8 @@
 # ShipGlows Pack Catalog
 
-This catalog keeps the public experience simple: install one `shipglows` plugin, then let ShipGlows route to bundled or optional capabilities.
+This catalog keeps the public experience simple: install one `shipglows` plugin,
+then let ShipGlows route an outcome to one of thirteen métiers. Pack and numeric
+engine names are packaging internals, not the default user vocabulary.
 
 ## Current Alpha
 
@@ -24,6 +26,28 @@ Bundled staging helper:
 
 ## Pack Model
 
+## Public-to-Pack Map
+
+| Public métier | Initial delivery pack | Numeric engine mapping (internal) |
+| --- | --- | --- |
+| `sg-development` | `shipglows-build` | `001-sg-build` with lifecycle engines |
+| `sg-design` | `shipglows-design` | `006-sg-design` |
+| `sg-experience` | `shipglows-product` | `008-sg-customer` |
+| `sg-bug` | `shipglows-build` + `shipglows-proof` | `003-sg-bug` with proof engines |
+| `sg-engineering` | `shipglows-quality` + `shipglows-product` | `010-sg-technical`, `600-602` |
+| `sg-maintenance` | `shipglows-build` | `002-sg-maintain` |
+| `sg-release` | `shipglows-proof` | `004-sg-deploy` with release engines |
+| `sg-content` | `shipglows-content` | `007-sg-content` with editorial engines |
+| `sg-marketing` | `shipglows-content` | `009-sg-marketing` |
+| `sg-seo` | `shipglows-content` | `406-sg-seo` |
+| `sg-docs` | `shipglows-governance` | `300-sg-docs` |
+| `sg-planning` | `shipglows-product` | `011-sg-pilotage` |
+| `sg-help` | `shipglows-main` | `302-sg-help` |
+| `shipglows` | `shipglows-main` | `000-shipglows` |
+
+The map is a packaging translation layer. It does not authorize a plugin to
+advertise an engine as available before its pack is bundled and portable.
+
 ### `shipglows-main`
 
 Purpose: first useful public experience.
@@ -45,7 +69,7 @@ Packaging status: partial. Public help and intent routing are bundled through `s
 
 ### `shipglows-build`
 
-Purpose: implementation lifecycle from request to shippable change.
+Purpose: internal engines for `sg-development`, `sg-maintenance`, and part of `sg-bug`.
 
 Candidate skills:
 
@@ -60,7 +84,7 @@ Packaging status: planned. High value, but likely needs reference-path cleanup.
 
 ### `shipglows-proof`
 
-Purpose: browser, production, deploy, auth, and manual QA proof.
+Purpose: internal proof engines for `sg-release` and `sg-bug`.
 
 Candidate skills:
 
@@ -74,7 +98,7 @@ Packaging status: planned. Must be strict about operator-last-resort proof behav
 
 ### `shipglows-content`
 
-Purpose: content, research, SEO, copy, GTM, and editorial workflows.
+Purpose: internal engines for `sg-content`, `sg-marketing`, and `sg-seo`.
 
 Candidate skills:
 
@@ -90,7 +114,7 @@ Packaging status: planned. Needs public/private data boundary review.
 
 ### `shipglows-design`
 
-Purpose: UI, UX, design systems, tokens, accessibility, and component audits.
+Purpose: internal engine for `sg-design`.
 
 Candidate skills:
 
@@ -100,7 +124,7 @@ Packaging status: planned. Good public candidate after validating mode playbooks
 
 ### `shipglows-quality`
 
-Purpose: broad audits, unified technical posture, and translation quality.
+Purpose: internal engines for `sg-engineering`.
 
 Candidate skills:
 
@@ -112,7 +136,7 @@ Packaging status: planned. Needs careful command and network permission wording.
 
 ### `shipglows-governance`
 
-Purpose: ShipGlows's own docs, skills, conversations, transcripts, status, and model routing.
+Purpose: internal engines for `sg-docs` and maintainer-only workflow support.
 
 Candidate skills:
 
@@ -133,7 +157,7 @@ Packaging status: internal-first. Some parts may stay private because they gover
 
 ### `shipglows-product`
 
-Purpose: onboarding, sync, entitlements, platform parity, exploration, and explicit work/session pilotage.
+Purpose: internal engines for `sg-experience`, `sg-engineering`, and `sg-planning`.
 
 Candidate skills:
 

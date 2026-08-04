@@ -1,12 +1,16 @@
 ---
 name: 302-sg-help
 description: "Answer ShipGlows workflow, skill, mode, and prompt questions."
-argument-hint: <mode|modes|help topic or route question>
+argument-hint: <mode|modes|mode --expert|help topic or route question>
 ---
 
 ## Canonical Paths
 
 Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+
+## Public Métier Ownership
+
+Public label: `sg-help`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. For explanation-only requests, answer directly. For an actionable request whose owner becomes clear, transition into that public métier owner in the same conversation instead of requiring the operator to invoke another command. Resolve `project -> product -> surface -> feature` only to the depth needed for accurate help.
 
 ## Instruction Layering
 
@@ -30,7 +34,8 @@ Default to `report=user`: concise, outcome-first, and in the user's active langu
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
 - `references/help-catalog.md`: bounded index for skill discovery, workflow recipes, and quick answers.
-- `references/help-modes-catalog.md`: canonical one-line-per-skill mode list for exact `mode` or `modes` requests.
+- `references/help-modes-catalog.md`: canonical one-line-per-public-métier mode list for exact `mode` or `modes` requests.
+- `references/help-modes-expert-catalog.md`: complete runtime-engine list for exact `mode --expert`, `modes --expert`, or explicit internal-catalog requests.
 - `skills/references/shipglows-terms.md`: canonical package terminology for `Dev Server`, `TUI`, `local tools`, and skill-scope references.
 - `skills/references/question-contract.md`: canonical doctrine for when ShipGlows should ask questions, what shape they should take, and when not asking is the correct autonomous behavior.
 - `skills/references/operator-partnership-contract.md`: canonical doctrine for operator collaboration, delegated intent, and the boundary between technical autonomy and operator-owned business truth.
@@ -62,7 +67,8 @@ What workflow, skill, mode, or doctrine does the operator need explained right n
 ```
 
 - If the user asks a direct help question, answer concisely from the top-level route and the indexed local reference as needed.
-- If the exact request is `mode` or `modes`, load `references/help-modes-catalog.md` and return its list verbatim: one line per skill, name and modes only, preserving canonical order.
+- If the exact request is `mode` or `modes`, load `references/help-modes-catalog.md` and return its list verbatim: one line per public métier plus `shipglows`, name and modes only, preserving the six-domain order.
+- If the exact request is `mode --expert`, `modes --expert`, or asks for internal engines, load `references/help-modes-expert-catalog.md` and return its complete runtime list verbatim.
 - If the user asks for skill codes, numeric prefixes, or shortcut lookup, load `skill-code-index.md` and answer from the code table without renaming canonical skills.
 - If the user asks how ShipGlows is invoked from Codex, Claude, OpenCode, KiloCode, another runtime, skill codes, taxonomy, or blueprints, load `references/help-skill-discovery.md`.
 - If the user needs workflow cheat sheets, load `references/help-workflow-recipes.md`; for a short route load `references/help-quick-answers.md`.
@@ -77,7 +83,7 @@ What workflow, skill, mode, or doctrine does the operator need explained right n
 - Use `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` for canonical trace/process role doctrine instead of maintaining a duplicate role matrix here.
 - For a catalog route, load `references/help-catalog.md` then only its direct target.
 
-Keep the boundary explicit: `302-sg-help` explains, clarifies, and routes. It tells the operator what to type and which owner takes over next. It does not continue a chantier, invoke runtime internals, summarize hidden repo truth, or mutate durable state.
+Keep the boundary explicit: `302-sg-help` explains and clarifies. For explanation-only requests it returns the answer; for an actionable request it transitions to the public owner in the same conversation. It does not itself own chantier mutation or pretend that a route recommendation completed the work.
 
 Route immediately instead of staying in help mode when the operator is no longer asking for explanation:
 

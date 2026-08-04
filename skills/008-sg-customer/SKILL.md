@@ -8,6 +8,10 @@ argument-hint: "<audit|flow|onboarding|recovery> <scope>"
 
 Before resolving a ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). Resolve skills, references, tools, templates, and workflow documents from that root.
 
+## Public Métier Ownership
+
+Public label: `sg-experience`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or journey routing. Resolve `project -> product -> surface -> feature` and own the customer outcome through diagnosis, design/content/implementation collaboration, behavioral proof, and closure.
+
 ## Instruction Layering
 
 This is the compact dispatcher. Before changing it, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md`; detailed mode procedure belongs in one local playbook, not in this activation contract.

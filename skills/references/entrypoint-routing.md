@@ -162,6 +162,12 @@ A read-only routing scout is allowed only for cheap classification evidence and 
 
 ## Routing Matrix
 
+### Public Target And Owner Resolution
+
+Resolve every actionable request as `project -> product -> surface -> feature` before selecting an owner. Inspect conversation and repository evidence before asking. Never assume that one project contains only one product. Ask only when an unresolved product or surface choice materially changes the outcome; after the answer, continue under one public métier owner.
+
+The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-bug`, `sg-engineering`, `sg-maintenance`, `sg-release`, `sg-content`, `sg-marketing`, `sg-seo`, `sg-docs`, `sg-planning`, and `sg-help`. Numeric runtime skills remain internal engines and compatibility identities. Load `skills/references/intent-to-outcome-autonomy.md` and keep the original outcome active through internal routing.
+
 | Operator intent | Primary route |
 | --- | --- |
 | Pure question, explanation, model/help clarification, or advice with no files | Direct answer |
@@ -177,8 +183,9 @@ A read-only routing scout is allowed only for cheap classification evidence and 
 | Source intake, pasted email/article/transcript/URL classification, project fit, useful angle, or owner-skill choice | Load `skills/references/source-intake-classification.md`, then route to the owner skill |
 | Design request, UI/UX work, redesign, design tokens, design playground, accessibility design, component design, visual proof, or token migration | `006-sg-design` |
 | End-user experience, UX/UI clarity, trust, friction, feature activation, onboarding, setup guidance, first-success path, permission/setup sequencing, or recoverable states | `008-sg-customer <audit|flow|onboarding|recovery> <target>`; ambiguous intent asks among the four modes |
-| Local-first data promotion, cloud hydration, account sync, merge/conflict policy, reinstall recovery, or sync/save UX state | `600-sg-local-cloud-sync` |
-| Product access, paid plans, premium gates, entitlement ledgers, provider events, activation codes, refunds/revokes, support access flows, or backend access gates | `601-sg-product-entitlements` |
+| Local-first data promotion, cloud hydration, account sync, merge/conflict policy, reinstall recovery, or sync/save UX state | public `sg-engineering sync`; internal engine `600-sg-local-cloud-sync` |
+| Product access, paid plans, premium gates, entitlement ledgers, provider events, activation codes, refunds/revokes, support access flows, or backend access gates | public `sg-engineering access`; internal engine `601-sg-product-entitlements` |
+| Cross-platform behavior or capability parity | public `sg-engineering parity`; internal engine `602-sg-platform-parity` |
 | New skill, skill modification, skill runtime visibility, skill public page, skill docs/help coherence | `900-shipglows-core build` |
 | ShipGlows Core execution-fidelity audit or public-plugin packaging readiness for ShipGlows itself | `900-shipglows-core audit <scope>` or `900-shipglows-core packaging <scope>` |
 | One obvious audit domain only | relevant `400-sg-audit-*` or `400-sg-audit` |

@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.17.2"
+artifact_version: "0.18.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-08-04"
@@ -69,6 +69,7 @@ evidence:
   - "Added a private rights-aware design/copy inspiration corpus contract, capture tool, and bounded Inspiration Gate."
   - "Added provider-neutral 006-sg-design animation modes with GSAP optional after fit, lifecycle, and proof gates."
   - "Added an exact sg-help mode catalog with one line per skill and canonical modes."
+  - "Adopted the métier-first public hierarchy: 13 public owners in six domains, with numeric skills retained as internal engines."
 next_step: "/300-sg-docs audit README.md"
 ---
 
@@ -527,7 +528,26 @@ Recommended non-technical entrypoint in a skill-aware agent session:
 000-shipglows <instruction>
 ```
 
-Use `000-shipglows <instruction>` when you want ShipGlows to choose the route. It answers pure conversational requests directly, executes deterministic micro-edits directly with focused validation, hands non-trivial feature/code/docs work to `001-sg-build`, upkeep to `002-sg-maintain`, bugs to `003-sg-bug`, release/deploy/prod proof to `004-sg-deploy`, content to `007-sg-content`, onboarding and activation work to `008-sg-customer`, local-to-cloud sync contract work to `600-sg-local-cloud-sync`, product-entitlement work to `601-sg-product-entitlements`, internal skill maintenance to `900-shipglows-core build`, and obvious specialist audits to `400-sg-audit-*`. If the route is ambiguous, it asks one numbered question with why, the recommended answer, and practical options. When it routes, it hands the current thread directly to the selected skill; selected masters own their own delegated sequential execution.
+Use `shipglows <instruction>` when you want ShipGlows to choose the métier.
+The public surface has thirteen métier skills, grouped into six domains, plus
+this router. Numeric skills remain internal engines rather than a vocabulary the
+operator must memorize.
+
+ShipGlows resolves work in this order:
+
+```text
+project -> product -> surface -> feature
+```
+
+This matters in multi-product projects: it does not assume the repository has
+only one product or that a request concerns every surface.
+
+The router inspects available evidence first. It asks one numbered question
+only when a missing business, scope, safety, or external-effect decision would
+materially change the work. Once the intent is clear enough for a fresh agent
+to execute safely, the chosen métier owns the outcome from A to Z: planning or
+specification, implementation, appropriate proof, documentation reflection,
+and closure. It does not hand the operator a list of internal commands.
 
 You can also activate a named operator profile through the same router. Example:
 
@@ -552,96 +572,37 @@ Canonical syntax split:
 - `%<Profile>` for named operator profiles
 - `#<Tag>` for focus tags
 
-Runtime invocation note:
+## Public Skill Domains
 
-- `302-sg-help` explains which skill to use or how a runtime behaves; `302-sg-help mode` lists every skill and its modes on one line each. It does not continue the work itself.
-- `000-shipglows` is the preferred router when you want ShipGlows to choose the owner.
-- In Codex or Claude-style runtimes, type the visible skill name such as `000-shipglows` or `001-sg-build`.
-- In OpenCode or KiloCode-style runtimes, ask for the ShipGlows skill in natural language or use the runtime skill picker.
-- Internal calls such as `skill({ name: "shipglows" })` are runtime implementation details, not manual commands to type.
+| Domain | Public métiers |
+| --- | --- |
+| Créer | `sg-development`, `sg-design`, `sg-experience` |
+| Qualité | `sg-bug`, `sg-engineering`, `sg-maintenance` |
+| Publier | `sg-release` |
+| Développer l’audience | `sg-content`, `sg-marketing`, `sg-seo` |
+| Gouverner | `sg-docs` |
+| Organiser | `sg-planning`, `sg-help` |
 
-Decision-quality rule: ShipGlows optimizes first for correctness, security, performance where relevant, maintainability, durability, professional best practices, and proof quality. Speed, cost, token economy, local convenience, or the shortest path are tie-breakers only after that quality bar is already satisfied. "Smallest safe path" means the smallest complete professional implementation, never the fastest patch that merely works.
+Design animation remains available through `sg-design animation <audit|design|implement|tune> [scope]`; GSAP is optional and selected only when project fit and proof gates support it.
 
-Question/default rule: ShipGlows skills should not ask just because several choices exist. They proceed by default only when the answer is clear from the request and project context, low-risk, reversible, inside the accepted scope, compatible with the current technical/product/editorial context, aligned with current best practices, quality-equivalent under the decision-quality rule, and verifiable in the current run. Otherwise they ask a numbered decision question with why, a responsible recommendation when one exists, and practical options.
+`sg-content` owns audience-facing documentation and content. `sg-docs` owns
+internal architecture, governance, agent context, and metadata. `sg-engineering`
+contains technical architecture and quality plus the internal sync, access, and
+platform-parity engines.
 
-ShipGlows is now optimized for **one-pass execution**.
+Use `sg-help` for orientation or `sg-help expert` for the exact internal engine
+catalog. In Codex or Claude-style runtimes, invoke the visible public name; in
+OpenCode or KiloCode, use natural language or the picker. Runtime-internal calls
+are never operator instructions.
 
-That means:
-- the framing skill must carry the missing context before coding starts
-- a `ready` spec must be executable by a fresh agent without reading the chat history
-- agent prompts should already include linked systems, downstream consequences, and explicit validation targets
-- if a fresh context is needed and cannot be created automatically, the skill must ask the user to open a new thread
-- “prompt and correct” is a fallback for bounded drift, not the normal operating mode
+Decision quality remains correctness, safety, maintainability, and proof before
+speed or convenience. A ready spec must be executable by a fresh agent without
+chat history; "prompt and correct" is only a bounded-drift fallback.
 
-Skill launch cheatsheet:
+## Internal Engine Notes
 
-| Need | Launch | Useful modes |
-| --- | --- | --- |
-| Non-technical first command | `000-shipglows <instruction>` | Answers pure conversation directly, executes deterministic micro-edits directly with focused validation, routes substantive work to the right skill, and asks one numbered decision question only when ambiguity changes route, risk, scope, or proof. |
-| Named operator profile | `%Victoire <instruction>`, `%SEO-specialist <instruction>`, or `%Tariq <instruction>` | Canonical profile syntax for a named operator profile. Use `#Tag` separately for focus tags such as `#SEO`, `#traffic`, or `#acquisition`. |
-| Non-technical first command with named profile | `000-shipglows profile=victoire <instruction>`, `000-shipglows profile=seo-specialist <instruction>`, or `000-shipglows profile=tariq <instruction>` | Same router, with the selected profile active for the turn. |
-| Non-trivial product, code, site, or docs work | `001-sg-build [spark|codex|mini|agents|sous-agent|no-agents] <story, bug, or goal>` | Plain task text is the story; `spark`, `codex`, `mini`, `agents`, and `sous-agent` strictly validate model-specific delegated sequential execution; for user-facing features, `001-sg-build` evaluates whether to suggest or route `/008-sg-customer` after implementation; use detailed report modes only for handoff evidence. |
-| Recurring project upkeep | `002-sg-maintain [mode]` | `full`/no argument, `quick`, `security`, `deps`, `docs`, `audits`, `no-ship`, `global`. |
-| Release confidence after implementation | `004-sg-deploy [target or mode]` | no argument, `skip-check`, `--preview`, `--prod`, `no-changelog`. |
-| Bug-loop lifecycle | `003-sg-bug [BUG-ID, summary, or mode]` | no argument, `BUG-ID`, `--fix`, `--retest`, `--verify`, `--ship`, `--close`. |
-| Content management | `007-sg-content [goal, source, file, or mode]` | `plan`, `capture-full-conversation`, `clean-transcript`, `repurpose`, `draft`, `enrich`, `audit`, `seo`, `editorial`, `apply`, `ship`. |
-| Customer experience | `008-sg-customer <audit|flow|onboarding|recovery> <target>` | One customer owner with exact modes for existing-journey audits, first-success flow contracts, onboarding, recovery, docs impact, and proof routing. |
-| Local-to-cloud data sync | `600-sg-local-cloud-sync <project, feature, or data domains>` | Local data promotion, cloud hydration, merge/conflict policy, sync/save UX states, sensitive-data exclusions, and proof routing. |
-| Product entitlements and access gates | `601-sg-product-entitlements <project or feature>` | Entitlement ownership, provider events, activation codes, product-local mirrors, backend authorization gates, support flows, and sync handoffs. |
-| Platform parity | `602-sg-platform-parity <project, feature, or platform set>` | Audit declared web, mobile, desktop, and native platform behavior; classify parity, adaptation, degradation, unsupported scope, and proof gaps before routing follow-up. |
-| Conversation quality audit | `705-sg-conversation-audit [latest|path <file-or-dir>|export shipglows|report=agent]` | Audit ShipGlows conversation transcripts and route repeatable findings to owner skills or specs. |
-| Internal skill creation or maintenance | `900-shipglows-core build <idea or path>` | new skill idea, existing skill path, optional `700-sg-explore` for fuzzy placement, runtime/docs validation gates. |
-| Design lifecycle | `006-sg-design <design question or goal>` | Master design entrypoint for UI/UX, tokens, animation, playgrounds, component/a11y audits, implementation, browser proof, verification, and ship routing. |
-| Design system creation | `006-sg-design system [target]` | Build a complete professional token system from an existing UI; use `playground` or `audit tokens` as explicit follow-ups. |
-| Animation lifecycle | `006-sg-design animation <audit|design|implement|tune> [scope]` | Build coherent accessible motion systems; GSAP is optional after project-fit, current-doc, lifecycle, reduced-motion, and performance checks. |
-| Manual expert lifecycle | `100-sg-spec -> 101-sg-ready -> 102-sg-start -> 103-sg-verify -> 104-sg-end` | Use when you intentionally want to drive each gate instead of using `001-sg-build`. |
-| Commit and push ready work | `005-sg-ship [mode]` | no special argument, `skip-check`, `end la tache`/`end`/`fin`/`close task`, `all-dirty`/`ship-all`/`tout-dirty`. |
-| Browser, auth, manual QA, or live deployment proof | `108-sg-browser`, `109-sg-auth-debug`, `107-sg-test`, `405-sg-prod` | Pick by proof type: non-auth browser evidence, auth/session diagnosis, durable manual QA, or deployment truth. |
-| Git/GitHub hygiene | `010-sg-technical github [mode]` | `audit`, `branches`, `dependabot`, `fix`, plus current-repo or workspace scope. |
-
-Bug loop entrypoint:
-
-```text
-003-sg-bug -> 107-sg-test -> bug file -> 106-sg-fix -> 107-sg-test --retest -> 103-sg-verify -> 005-sg-ship
-```
-
-Use `003-sg-bug` when you want the professional bug loop executed from a `BUG-ID`, a fresh bug report, a retest request, or a ship-risk question. It continues through narrower owner skills and bounded subagents when safe, without bypassing the bug file, retest, verification, or ship-risk gates.
-
-Bug-first repair entrypoint:
-
-```text
-106-sg-fix -> (fix directly or spec-first path)
-```
-
-Auth/browser diagnostic path:
-
-```text
-109-sg-auth-debug -> 106-sg-fix or 102-sg-start -> 103-sg-verify
-```
-
-Use `109-sg-auth-debug` before guessing from static code when the bug involves Clerk, OAuth, Google login, YouTube OAuth, Convex auth propagation, cookies, callbacks, protected routes, or Flutter web auth bridges. It can use Playwright where a real browser flow is accessible, and it carries local reference docs for the auth stacks ShipGlows projects use most often.
-
-General browser verification path:
-
-```text
-108-sg-browser -> 106-sg-fix, 107-sg-test, 405-sg-prod, 109-sg-auth-debug, or 103-sg-verify
-```
-
-Use `108-sg-browser` when you need browser evidence for a non-auth URL, route, preview, or production page: visible assertions, quick visual inspection, console/network summaries, screenshots, and page-level checks. It keeps deployment truth in `405-sg-prod`, auth/session diagnosis in `109-sg-auth-debug`, and durable manual QA logs in `107-sg-test`.
-
-Fast thread recap:
-
-```text
-303-sg-resume -> 3-5 bullets, task statuses, close/keep-open verdict
-```
-
-Optional model-selection step:
-
-```text
-704-sg-model -> choose model / reasoning / fallbacks before execution
-```
-
-`704-sg-model` is advisory for the active conversation and prescriptive for delegated missions when the runtime supports model overrides. Model choice follows the decision-quality contract first: faster or cheaper fallbacks are allowed only when quality-equivalent for the risk. In Codex/OpenAI, `gpt-5.4-mini` fits small bounded low-risk missions; `gpt-5.3-codex-spark` fits Spark-eligible summaries, text-only handoffs, micro-code, or targeted UI/local edits when it does not replace needed reasoning and credits/availability permit; the `codex` implementation profile fits long implementation, multi-file coding, refactors, hard debugging, and terminal-heavy agentic execution; `gpt-5.5` is the premium choice for ambiguous, cross-project, governance-heavy, transverse audit, task-prioritization, prompt/docs migration, and business-risk synthesis work, with `low`, `medium`, `high`, or `xhigh` reasoning calibrated to the task. The active main thread must not claim it can always switch its own model mid-run: it can recommend a next-run model, route through `704-sg-model`, or pass a selected model to a subagent when that override is actually supported.
+The following numeric paths are retained for expert operation and are selected
+by the public owner when needed. They are not a required public taxonomy.
 
 Direct build entrypoint for non-trivial feature/code/docs work:
 

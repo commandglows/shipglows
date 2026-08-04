@@ -12,25 +12,43 @@ SKILLS_ROOT = ROOT / "skills"
 HELP_SKILL = SKILLS_ROOT / "302-sg-help" / "SKILL.md"
 CATALOG = SKILLS_ROOT / "302-sg-help" / "references" / "help-modes-catalog.md"
 REGISTRY = SKILLS_ROOT / "references" / "skill-invocation-registry.json"
+EXPERT_CATALOG = SKILLS_ROOT / "302-sg-help" / "references" / "help-modes-expert-catalog.md"
 
 
 class HelpModesContractTests(unittest.TestCase):
-    def catalog_lines(self) -> list[str]:
-        return [line for line in CATALOG.read_text(encoding="utf-8").splitlines() if line.startswith("`")]
+    def catalog_lines(self, path: Path = CATALOG) -> list[str]:
+        return [line for line in path.read_text(encoding="utf-8").splitlines() if line.startswith("`")]
 
-    def test_catalog_has_exactly_one_line_for_every_repo_skill(self) -> None:
-        expected = sorted(path.parent.name for path in SKILLS_ROOT.glob("*/SKILL.md"))
+    def test_default_catalog_has_exactly_one_line_for_every_public_skill(self) -> None:
+        public = json.loads(REGISTRY.read_text(encoding="utf-8"))["public_catalog"]
+        expected = [
+            skill["id"]
+            for domain in public["domains"]
+            for skill in domain["skills"]
+        ] + [public["router"]["id"]]
         lines = self.catalog_lines()
         actual = [line.split("`", 2)[1] for line in lines]
         self.assertEqual(expected, actual)
         self.assertEqual(len(actual), len(set(actual)))
         self.assertTrue(all(" — " in line and "\n" not in line for line in lines))
 
+    def test_expert_catalog_has_every_runtime_skill_and_is_not_the_default(self) -> None:
+        registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
+        public = registry["public_catalog"]
+        self.assertTrue(registry["internal_catalog"]["include_all_runtime_skills"])
+        expected = {path.parent.name for path in SKILLS_ROOT.glob("*/SKILL.md")}
+        actual = {line.split("`", 2)[1] for line in self.catalog_lines(EXPERT_CATALOG)}
+        self.assertEqual(expected, actual)
+        self.assertNotEqual(
+            {line.split("`", 2)[1] for line in self.catalog_lines()}, actual
+        )
+
     def test_help_routes_exact_mode_requests_to_the_catalog(self) -> None:
         skill = HELP_SKILL.read_text(encoding="utf-8")
-        self.assertIn("<mode|modes|help topic or route question>", skill)
+        self.assertIn("<mode|modes|mode --expert|help topic or route question>", skill)
         self.assertIn("If the exact request is `mode` or `modes`", skill)
-        self.assertIn("one line per skill, name and modes only", skill)
+        self.assertIn("one line per public métier plus `shipglows`, name and modes only", skill)
+        self.assertIn("expert", skill)
 
     def test_explicit_help_and_animation_invocations_are_registered(self) -> None:
         registry = json.loads(REGISTRY.read_text(encoding="utf-8"))

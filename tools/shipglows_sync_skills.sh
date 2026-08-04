@@ -9,6 +9,7 @@ SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-${SHIPGLOWS_ROOT:-${HOME:-}/shipglows}}"
 BACKUP_EXISTING=0
 SKILL_NAME=""
 CLEAN_STALE=0
+CATALOG="public"
 
 checked=0
 ok=0
@@ -22,6 +23,7 @@ Usage: tools/shipglows_sync_skills.sh [--check|--repair] (--all|--skill <name>) 
 
 Options:
   --runtime claude|codex|all      Runtime directory to check or repair (default: all)
+  --catalog public|expert         Public métier aliases (default) or all runtime engines
   --target-home <path>            Home directory containing .claude/.codex (default: $HOME)
   --shipglows-root <path>         ShipGlows repository root (default: $SHIPGLOWS_ROOT or $HOME/shipglows)
   --shipglows-root <path>          Legacy alias for --shipglows-root
@@ -110,6 +112,28 @@ list_skills() {
     [ "$found" -eq 1 ] || fail "no valid source skills found in $SHIPGLOWS_ROOT/skills"
 }
 
+list_public_pairs() {
+    local registry="$SHIPGLOWS_ROOT/skills/references/skill-invocation-registry.json"
+    [ -f "$registry" ] || fail "missing public skill registry: $registry"
+    python3 - "$registry" <<'PY'
+import json
+import sys
+
+registry = json.load(open(sys.argv[1], encoding="utf-8"))
+catalog = registry["public_catalog"]
+for domain in catalog["domains"]:
+    for skill in domain["skills"]:
+        print(f'{skill["id"]}|{skill["runtime_skill"]}')
+router = catalog["router"]
+print(f'{router["id"]}|{router["runtime_skill"]}')
+PY
+}
+
+is_public_target() {
+    local target="$1"
+    list_public_pairs | cut -d'|' -f1 | grep -Fxq -- "$target"
+}
+
 clean_stale_runtime_links() {
     local runtime="$1"
     local target_dir
@@ -129,9 +153,6 @@ clean_stale_runtime_links() {
     for link_path in "$target_dir"/*; do
         [ -L "$link_path" ] || continue
         base="$(basename "$link_path")"
-        case "$base" in
-            [0-9][0-9][0-9]-*) continue ;;
-        esac
         resolved_target="$(resolve_path "$link_path")"
         if [ -z "$resolved_target" ] || [ ! -e "$resolved_target" ]; then
             rm -f "$link_path" || {
@@ -145,7 +166,7 @@ clean_stale_runtime_links() {
         fi
         case "$resolved_target" in
             "$resolved_skills"/*)
-                if [ ! -f "$resolved_target/SKILL.md" ]; then
+                if [ ! -f "$resolved_target/SKILL.md" ] || { [ "$CATALOG" = "public" ] && ! is_public_target "$base"; }; then
                     rm -f "$link_path" || {
                         blocked=$((blocked + 1))
                         log "blocked runtime=$runtime skill=$base target=$link_path reason=cannot-remove-invalid-shipglows-symlink"
@@ -162,6 +183,7 @@ clean_stale_runtime_links() {
 check_one() {
     local runtime="$1"
     local name="$2"
+    local source_name="${3:-$2}"
     local source_dir
     local target_dir
     local target_path
@@ -169,8 +191,8 @@ check_one() {
     local resolved_target
     local backup_path
 
-    validate_source "$name"
-    source_dir="$(source_skill_dir "$name")"
+    validate_source "$source_name"
+    source_dir="$(source_skill_dir "$source_name")"
     target_dir="$(runtime_dir "$runtime")" || fail "invalid runtime: $runtime"
     target_path="$target_dir/$name"
     resolved_source="$(resolve_path "$source_dir")"
@@ -276,6 +298,11 @@ while [ "$#" -gt 0 ]; do
             RUNTIME="$2"
             shift 2
             ;;
+        --catalog)
+            [ "$#" -ge 2 ] || fail "--catalog requires public or expert"
+            CATALOG="$2"
+            shift 2
+            ;;
         --target-home)
             [ "$#" -ge 2 ] || fail "--target-home requires a path"
             TARGET_HOME="$2"
@@ -296,13 +323,16 @@ done
 [ -n "$TARGET_HOME" ] || fail "HOME is unavailable; use --target-home"
 [ -n "$SHIPGLOWS_ROOT" ] || fail "SHIPGLOWS_ROOT is unavailable; use --shipglows-root"
 case "$RUNTIME" in claude|codex|all) ;; *) fail "invalid runtime: $RUNTIME" ;; esac
+case "$CATALOG" in public|expert) ;; *) fail "invalid catalog: $CATALOG" ;; esac
 [ -n "$SCOPE" ] || SCOPE="all"
 
 if [ "$SCOPE" = "skill" ]; then
     validate_source "$SKILL_NAME"
-    skills="$SKILL_NAME"
+    skill_pairs="$SKILL_NAME|$SKILL_NAME"
+elif [ "$CATALOG" = "public" ]; then
+    skill_pairs="$(list_public_pairs)"
 else
-    skills="$(list_skills)"
+    skill_pairs="$(list_skills | awk '{ print $0 "|" $0 }')"
 fi
 
 case "$RUNTIME" in
@@ -314,13 +344,15 @@ status=0
 for runtime in $runtimes; do
     clean_stale_runtime_links "$runtime" || status=1
 done
-for skill in $skills; do
+for skill_pair in $skill_pairs; do
+    skill="${skill_pair%%|*}"
+    source_skill="${skill_pair#*|}"
     for runtime in $runtimes; do
-        check_one "$runtime" "$skill" || status=1
+        check_one "$runtime" "$skill" "$source_skill" || status=1
     done
 done
 
-log "summary mode=$MODE runtime=$RUNTIME scope=$SCOPE checked=$checked ok=$ok repaired=$repaired skipped=$skipped blocked=$blocked"
+log "summary mode=$MODE runtime=$RUNTIME scope=$SCOPE catalog=$CATALOG checked=$checked ok=$ok repaired=$repaired skipped=$skipped blocked=$blocked"
 if [ "$MODE" = "repair" ]; then
     log "note: already-running Claude or Codex sessions may need a reload or new session before repaired skills appear in the skill list."
 fi

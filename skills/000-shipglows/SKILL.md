@@ -8,6 +8,10 @@ argument-hint: <instruction>
 
 Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
+## Intent-to-Outcome Ownership
+
+For non-trivial routing, load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Resolve `project -> product -> surface -> feature`, inspect discoverable evidence before asking, and transition into the selected public métier owner in the same conversation. Routing is not a terminal handoff: preserve the outcome while the selected owner clarifies only material operator decisions and continues A to Z.
+
 ## Chantier Tracking
 
 Trace category: `non-applicable`.
@@ -131,8 +135,8 @@ For requests involving declared products, sales surfaces, or public claims, pref
 | --- | --- |
 | Pure question, explanation, or advice with no file work | Answer directly |
 | Explicit deterministic micro-edit with no domain judgment or sensitive boundary | Direct main-thread execution with focused validation; no owner skill |
-| Build or change a user-facing feature and also think about end-user clarity, UX/UI friction, activation, beginner adoption, or first-success guidance | `001-sg-build <instruction>` first; `001-sg-build` evaluates the post-implementation `008-sg-customer` gate |
-| Non-trivial feature, code, site, docs, product, or workflow work | `001-sg-build <instruction>` |
+| Build or change a user-facing feature and also think about end-user clarity, UX/UI friction, activation, beginner adoption, or first-success guidance | public `sg-development`; runtime `001-sg-build` owns implementation and evaluates the internal experience gate |
+| Non-trivial feature, code, site, product, or workflow work | public `sg-development`; runtime `001-sg-build` |
 | Create a new app from scratch (carnet, gestion, CRUD, etc.) | `001-sg-build <instruction>` — le Blueprint Gate cherchera un blueprint correspondant dans `skills/app-blueprints/` pour guider la creation |
 | Recurring maintenance, security upkeep, dependencies, docs drift, checks, audit freshness, migrations, or project hygiene | `002-sg-maintain <mode or instruction>` |
 | Bug report, `BUG-ID`, retest, closure, fix state, or bug ship-risk question | `003-sg-bug <instruction>` |
@@ -143,8 +147,9 @@ For requests involving declared products, sales surfaces, or public claims, pref
 | Source intake, pasted email/article/transcript/URL classification, project fit, angle selection, or owner-skill choice | Load `source-intake-classification.md`, then route to the owner skill |
 | Design request, UI/UX work, redesign, design tokens, playground, accessibility design, component design, visual proof, or token migration | `006-sg-design <instruction>` |
 | End-user experience, UX/UI clarity, trust, friction, feature activation, onboarding, setup guidance, first-success path, permission/setup sequencing, or recoverable states | `008-sg-customer <audit|flow|onboarding|recovery> <target>`; ask among modes when intent is mixed |
-| Local-first data promotion, cloud hydration, account sync, merge/conflict policy, reinstall recovery, or sync/save UX state | `600-sg-local-cloud-sync <instruction>` |
-| Product access, paid plans, premium gates, entitlement ledgers, provider events, activation codes, refunds/revokes, support access flows, or backend access gates | `601-sg-product-entitlements <instruction>` |
+| Local-first data promotion, cloud hydration, account sync, merge/conflict policy, reinstall recovery, or sync/save UX state | public `sg-engineering sync`; internal engine `600-sg-local-cloud-sync` |
+| Product access, paid plans, premium gates, entitlement ledgers, provider events, activation codes, refunds/revokes, support access flows, or backend access gates | public `sg-engineering access`; internal engine `601-sg-product-entitlements` |
+| Cross-platform behavior or capability parity | public `sg-engineering parity`; internal engine `602-sg-platform-parity` |
 | Create, modify, rename, document, or validate ShipGlows skills | `900-shipglows-core build <instruction>` |
 | Refresh an existing ShipGlows skill conservatively | `900-shipglows-core refresh <target>` |
 | Extract a blueprint from an existing app, create a new blueprint | `900-shipglows-core build <instruction>` — route à `900-shipglows-core build` (ShipGlows interne), pas à `001-sg-build` (end-user) |

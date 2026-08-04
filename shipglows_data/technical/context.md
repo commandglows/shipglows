@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.7.0"
+artifact_version: "0.8.0"
 project: "shipglows"
 created: "2026-04-25"
 updated: "2026-08-04"
@@ -16,7 +16,7 @@ docs_impact: "yes"
 linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/config.sh", "cli/install.sh", "local/local.sh", "skills/", "skills/references/app-blueprints.md", "skills/app-blueprints/", "shipglows_data/workflow/playbooks/spec-driven-workflow.md", "shipglows_data/technical/context-function-tree.md", "shipglows_data/editorial/content-map.md", "shipglows_data/technical/", "shipglows_data/business/project-competitors-and-inspirations.md", "shipglows_data/business/affiliate-programs.md"]
 depends_on: []
 supersedes: []
-evidence: ["README.md", "CLAUDE.md", "shipglows_data/editorial/content-map.md", function extraction from core shell scripts, "shipglows_data/technical/* as code-proximate subsystem documentation", "Business registries added for project competitors/inspirations and affiliate programs.", "2026-07-17 DevServer startup/cache implementation: lazy atomic registry, pruned Flox discovery, parent-shell cache APIs."]
+evidence: ["README.md", "CLAUDE.md", "shipglows_data/editorial/content-map.md", function extraction from core shell scripts, "shipglows_data/technical/* as code-proximate subsystem documentation", "Business registries added for project competitors/inspirations and affiliate programs.", "2026-07-17 DevServer startup/cache implementation: lazy atomic registry, pruned Flox discovery, parent-shell cache APIs.", "Métier-first public hierarchy and autonomous execution specification."]
 next_step: "/sg-docs update shipglows_data/technical/context.md"
 ---
 
@@ -122,10 +122,37 @@ lib.sh::action_flutter_web
 ### 5. Skill Workflow
 
 ```text
-001-sg-build: intake -> chantier check -> BLUEPRINT GATE -> spec/readiness -> governance -> model routing -> start -> verify -> end -> ship
+shipglows -> public métier owner -> clarification only when material ->
+project -> product -> surface -> feature -> spec or bounded contract ->
+implementation -> proof -> documentation reflection -> closure
 ```
 
-Le Blueprint Gate (dans `001-sg-build`) cherche un blueprint correspondant a la requete utilisateur dans `skills/app-blueprints/`. S'il trouve une correspondance, il pre-remplit l'architecture, le stack, les modeles et les routes pour les skills aval (`100-sg-spec`, `306-sg-scaffold`).
+La surface publique comprend le routeur `shipglows` et treize métiers :
+
+- Créer : `sg-development`, `sg-design`, `sg-experience`
+- Qualité : `sg-bug`, `sg-engineering`, `sg-maintenance`
+- Publier : `sg-release`
+- Développer l’audience : `sg-content`, `sg-marketing`, `sg-seo`
+- Gouverner : `sg-docs`
+- Organiser : `sg-planning`, `sg-help`
+
+Les noms numériques restent des moteurs internes. Les propriétaires publics les
+choisissent et les enchaînent sans demander à l’opérateur de micro-manager le
+workflow. `sg-content` possède les docs et contenus publics ; `sg-docs` possède
+la documentation interne, la gouvernance et les métadonnées. `sg-engineering`
+possède aussi les moteurs internes de sync, accès/entitlements et parité.
+
+Avant de questionner, le propriétaire consulte les contrats et le code utiles.
+Il ne pose qu’une question numérotée à la fois, uniquement quand une décision
+business, de périmètre, de sécurité, d’autorisation ou d’effet externe manque.
+Une fois le besoin exécutable par un agent frais, il le mène de A à Z ; les
+choix de playbook, de moteur, de structure de code, de validation et de handoff
+restent internes.
+
+`sg-development` utilise l’actuel moteur `001-sg-build`. Son Blueprint Gate
+cherche un blueprint correspondant à la requête et pré-remplit architecture,
+stack, modèles et routes pour les moteurs aval (`100-sg-spec`,
+`306-sg-scaffold`).
 
 Workflow legacy (sans blueprint) :
 ```text

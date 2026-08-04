@@ -1,6 +1,49 @@
 # ShipGlows Public Help Catalog
 
-This reference supports the bundled public `shipglows` entrypoint. It is not a separate public skill.
+This reference supports the bundled public `shipglows` entrypoint. It is not a
+separate public skill. The default vocabulary is métiers: the operator names an
+outcome, ShipGlows chooses the lifecycle and packaging engines.
+
+## Public Surface
+
+Start with one route:
+
+```text
+$shipglows <what I want to accomplish>
+```
+
+| Domain | Public métier | Owns the outcome |
+| --- | --- | --- |
+| Create | `sg-development` | Product behavior from intent to verified implementation |
+| Create | `sg-design` | Interfaces, design systems, accessibility, visual audits, inspiration, and animation |
+| Create | `sg-experience` | Customer journeys, activation, trust, support, and recovery |
+| Quality | `sg-bug` | Reproduce, fix, retest, prove, and close a defect |
+| Quality | `sg-engineering` | Architecture, code quality, performance, dependencies, sync, access, and platform parity |
+| Quality | `sg-maintenance` | Existing-product upkeep and hygiene |
+| Publish | `sg-release` | Release readiness, deployment truth, and post-release proof |
+| Grow audience | `sg-content` | Public docs, guides, README, FAQ, landing pages, editorial content, and email |
+| Grow audience | `sg-marketing` | Market understanding, positioning, GTM, messaging, and persuasion |
+| Grow audience | `sg-seo` | Organic-search audits, launches, monitoring, and fixes |
+| Govern | `sg-docs` | Internal architecture, governance, metadata, context, and agent documentation |
+| Organize | `sg-planning` | Tasks, backlog, priorities, reviews, and portfolio/session steering |
+| Organize | `sg-help` | Workflow, métier, mode, and prompt guidance |
+
+`shipglows` is the universal router. It resolves the métier without making the
+operator select internal lifecycle stages. A request may cross métiers, but one
+public owner remains accountable for the observable outcome.
+
+## Public Boundaries
+
+- `sg-docs` is internal documentation; `sg-content` owns public docs and content.
+- `sg-seo` remains a distinct métier, even when it collaborates with content or marketing.
+- Sync, data access, entitlements, and platform parity belong to `sg-engineering`; they are not a public data skill.
+- A project can contain several products. ShipGlows resolves `project -> product -> surface -> feature` before changing work when that distinction matters.
+
+## Availability Language
+
+Public métier names describe the desired outcome. Their actual execution may be
+bundled, partial, planned, or available from the complete corpus. Never imply
+that a planned pack is executable in the installed plugin.
 
 ## Current Public Plugin
 
@@ -28,18 +71,14 @@ Not bundled now:
 
 ## Recommended User Route
 
-The default public route is:
-
-```text
-$shipglows <what I want to accomplish>
-```
-
 Examples:
 
 ```text
 $shipglows help me choose the right workflow
 $shipglows show available packs
-$shipglows explain shipglows-main
+$shipglows I need to fix a checkout regression
+$shipglows prepare the next release
+$shipglows improve onboarding for our mobile app
 $shipglows explain how to install ShipGlows
 $shipglows install complete ShipGlows corpus
 ```
@@ -78,12 +117,9 @@ When a user asks for one of these workflows, use the bundled public intent contr
 
 ### Planned Packs
 
-- `shipglows-build`: implementation lifecycle
-- `shipglows-proof`: deploy, browser, auth, production, and QA proof
-- `shipglows-content`: content, research, SEO, copy, GTM, and editorial workflows
-- `shipglows-design`: UI, UX, design systems, accessibility, and component audits
-- `shipglows-quality`: audits, dependencies, performance, migrations, and translation
-- `shipglows-product`: onboarding, sync, entitlements, platform parity, exploration, and `011-sg-pilotage` with explicit `tasks`, `backlog`, `priorities`, `review`, and `sessions` modes
+Packs are delivery modules behind the public métiers, not choices the operator
+must memorize. See `pack-catalog.md` for their portability status and numeric
+engine composition.
 
 ### Internal-First
 
@@ -110,10 +146,10 @@ For "what can I do now?":
 Tu peux utiliser ShipGlows maintenant pour l'aide, le catalogue des packs, la stratégie de packaging, et l'installation optionnelle du corpus complet. Les workflows spec/build/verify sont encore en portage public.
 ```
 
-For a planned workflow:
+For a métier whose required pack is not yet bundled:
 
 ```text
-Ce workflow est prévu dans <pack>, mais il n'est pas encore bundlé dans le plugin public. Route disponible: $shipglows <instruction>. Exécution complète: nécessite le corpus complet ShipGlows ou un futur pack bundlé.
+Le métier <métier> est bien reconnu, mais son module d'exécution n'est pas encore bundlé dans ce plugin. Route disponible : $shipglows <objectif>. L'exécution complète nécessite le corpus ShipGlows ou un futur pack bundlé.
 ```
 
 For "how do I install ShipGlows in Codex?":
@@ -125,5 +161,5 @@ Ajoute d'abord la source marketplace ShipGlows: `codex plugin marketplace add di
 For internal tools:
 
 ```text
-Cet outil est interne à la maintenance de ShipGlows. Il reste hors plugin public utilisateur pour éviter de mélanger l'aide produit avec les workflows de gouvernance interne.
+Ce moteur est interne à ShipGlows. Il reste hors du catalogue métier pour éviter de mélanger le résultat attendu avec les étapes techniques qui le produisent.
 ```

@@ -77,8 +77,30 @@ def check(
             message="Name a ShipGlows skill and its instruction.",
         )
 
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    public_entries = {
+        entry["id"]: entry
+        for domain in registry.get("public_catalog", {}).get("domains", [])
+        for entry in domain.get("skills", [])
+    }
+    router = registry.get("public_catalog", {}).get("router")
+    if router:
+        public_entries[router["id"]] = router
+
     identities = parse_index(index_path)
     first = tokens[0]
+    public_entry = public_entries.get(first)
+    if public_entry is not None:
+        args = tokens[1:]
+        modes = public_entry.get("modes", ["default"])
+        payload: dict[str, Any] = {
+            "resolved_skill": public_entry["runtime_skill"],
+            "public_skill": first,
+        }
+        if args and args[0] in modes:
+            payload["mode"] = args[0]
+        return result("valid", requested, **payload)
+
     skill = identities.get(first)
     consumed = 1
     if skill is None and len(tokens) >= 2 and re.fullmatch(r"\d{3}", first):
@@ -92,7 +114,6 @@ def check(
             message="This skill is not registered in the canonical code index.",
         )
 
-    registry = json.loads(registry_path.read_text(encoding="utf-8"))
     rule = registry["rules"].get(skill)
     if rule is None:
         return result(

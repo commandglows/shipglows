@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.26.2"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-04"
@@ -107,6 +107,7 @@ evidence:
   - "2026-08-03: progressive resource discovery added a read-only resolver with stable semantic IDs, bounded canonical-root scanning, dependency expansion, and explicit authority limits."
   - "2026-08-04 added provider-neutral animation modes to 006-sg-design; GSAP remains optional after project-fit and proof gates."
   - "2026-08-04 added the exact 302-sg-help mode catalog with one line per repository skill and registered free-form help invocation validation."
+  - "Métier-first public hierarchy separates 13 public owners from numeric internal engines and requires progressive clarification followed by autonomous outcome ownership."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -131,28 +132,55 @@ Compaction must preserve operational guardrails: canonical path resolution, chan
 
 Future compaction should split large workflow references by mode when useful, but the top-level `SKILL.md` must remain the activation contract and name the exact references to load.
 
-## Skill Discovery Taxonomy
+## Public Métier Surface And Internal Engines
 
-Discovery descriptions are routing triggers, not workflow summaries. Keep them short, one-sentence, and front-loaded with the work type or domain.
+Discovery descriptions are routing triggers, not workflow summaries. Keep them
+short, one sentence, and front-loaded with the work type or domain.
 
-Three-digit skill codes are part of the runtime-visible skill identity. The canonical lookup lives in `skills/references/skill-code-index.md`; it maps old names such as `sg-build` to runtime names such as `001-sg-build`. `000-shipglows` may resolve `NNN`, `NNN-skill`, `NNNskill`, or `NNN skill` through that index before normal natural-language routing.
+The normal operator surface is one router plus thirteen public métier owners:
 
-Current family boundaries:
+| Domain | Public owner | Engine mapping |
+| --- | --- | --- |
+| Créer | `sg-development`, `sg-design`, `sg-experience` | `001-sg-build`, `006-sg-design`, `008-sg-customer` |
+| Qualité | `sg-bug`, `sg-engineering`, `sg-maintenance` | `003-sg-bug`, `010-sg-technical` plus `600`/`601`/`602`, `002-sg-maintain` |
+| Publier | `sg-release` | `004-sg-deploy` |
+| Développer l’audience | `sg-content`, `sg-marketing`, `sg-seo` | `007-sg-content`, `009-sg-marketing`, `406-sg-seo` |
+| Gouverner | `sg-docs` | `300-sg-docs` |
+| Organiser | `sg-planning`, `sg-help` | `011-sg-pilotage`, `302-sg-help` |
 
-- Lifecycle/master: `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, `005-sg-ship`, `001-sg-build`, `004-sg-deploy`, `002-sg-maintain`, `006-sg-design`, `007-sg-content`, `008-sg-customer`, `011-sg-pilotage`, `900-sg-shipglows-core` (internal-only; its `audit` and `packaging` modes remain read-only assessment paths).
-- Data trust/source: `600-sg-local-cloud-sync`, `601-sg-product-entitlements`.
-- Audit/source: `400-sg-audit`, `010-sg-technical` (`audit`, `deps`, `performance`, `migrate`, `github`).
-- Bug/proof/source: `003-sg-bug`, `106-sg-fix`, `107-sg-test`, `108-sg-browser`, `109-sg-auth-debug`, `405-sg-prod`, `105-sg-check`.
-- Content/docs/support: `007-sg-content repurpose`, `300-sg-docs`, `200-sg-redact`, `201-sg-enrich`, `304-sg-changelog`, `306-sg-scaffold`, `305-sg-init`, `010-sg-technical github`.
-- Research/strategy/source: `009-sg-marketing`, `203-sg-research`, `205-sg-veille`.
-- Pilotage: `011-sg-pilotage`, `706-continue`.
-- Helper/session/router: `000-shipglows`, `301-sg-context`, `704-sg-model`, `302-sg-help`, `308-sg-status`, `303-sg-resume`, `700-sg-explore`, `707-name`, `800-tmux-capture-conversation`, `801-clean-conversation-transcript`.
+`shipglows` is the public natural-language router. Public owners select and
+coordinate numeric engines invisibly; they do not require operators to learn
+the lifecycle, proof, research, context, or packaging helper names.
 
-Keep overlap intentional and explicit: master skills orchestrate, specialists prove or repair, support skills document or scaffold, and helper skills route or summarize without owning lifecycle state.
+The resolution hierarchy is `project -> product -> surface -> feature`.
+Repository evidence decides as much of that hierarchy as possible. This keeps
+multi-product projects safe: absence of an explicit product name is not a
+license to alter every product or surface.
+
+The owner follows a progressive clarification gate:
+
+1. Inspect relevant evidence and established contracts.
+2. Ask one numbered question only if a missing operator-owned business, scope,
+   safety, permission, or external-effect decision changes the work.
+3. Never ask the operator to select an engine, playbook, implementation
+   technique, validation command, or handoff topology.
+4. Once a fresh agent could execute safely, continue from specification or a
+   bounded execution contract through implementation, proof, documentation
+   reflection, and closure.
+
+The only valid returns to the operator are a real decision, new authority,
+secret, destructive/external effect, or genuinely manual proof. A public owner
+may use `100`–`109`, `200`–`205`, `301`–`308`, `400`, `405`, `600`–`602`, `700`–`707`,
+or `900` engines as appropriate. `900-shipglows-core` remains internal-only.
+
+Three-digit codes remain part of runtime lookup through
+`skills/references/skill-code-index.md`; they are the expert/internal catalogue,
+not a second public taxonomy. `sg-help expert` exposes that catalogue when
+explicitly requested.
 
 Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 
-- `302-sg-help` explains workflow, doctrine, skill choice, or route questions; exact `mode` or `modes` returns the canonical one-line-per-skill mode catalog.
+- `302-sg-help` explains workflow, doctrine, and skill choice; its default catalogue is public, while `expert` exposes the internal engine list.
 - `303-sg-resume` summarizes the visible conversation only.
 - `706-continue` advances the currently resolved work item from durable local evidence.
 - `000-shipglows` routes or answers directly at the main entrypoint.
@@ -199,7 +227,7 @@ Do not describe a helper as if it owns execution, and do not describe a runtime-
 
 Runtime-facing docs must distinguish user input from runtime internals:
 
-- In Codex or Claude-style runtimes, the operator launches a visible skill name such as `000-shipglows` or `001-sg-build`.
+- In Codex or Claude-style runtimes, the operator launches a public métier name such as `shipglows` or `sg-development`; numeric engines remain available for expert precision.
 - In OpenCode or KiloCode-style runtimes, the operator should ask for the ShipGlows skill in natural language or choose it through the runtime skill picker.
 - Internal calls such as `skill({ name: "shipglows" })` may appear in runtime implementations or logs, but they are not commands the operator should type manually.
 
@@ -285,7 +313,7 @@ Operator roles and named profiles do not add new primary artifact types:
 
 ## Entrypoints
 
-- `000-shipglows <instruction>`: recommended non-technical first command; answers pure conversation directly or hands the main thread to the selected `sg-*` master/specialist skill.
+- `shipglows <instruction>`: recommended non-technical first command; resolves project -> product -> surface -> feature, asks only material questions, then hands the main thread to the selected public métier owner.
 - `%Victoire <instruction>`: canonical named-profile activation for the `Victoire` growth-operations profile.
 - `%SEO-specialist <instruction>`: canonical named-profile activation for the `SEO Specialist` search-discovery profile.
 - `000-shipglows profile=victoire <instruction>`: compatibility form of the same profile activation.
@@ -322,10 +350,11 @@ Operator roles and named profiles do not add new primary artifact types:
 Primary router flow:
 
 ```text
-000-shipglows <instruction>
-  -> direct conversational answer
-  -> or direct main-thread handoff to 001-sg-build / 002-sg-maintain / 003-sg-bug / 004-sg-deploy / 007-sg-content / 006-sg-design / 008-sg-customer / 600-sg-local-cloud-sync / 900-shipglows-core build / 400-sg-audit-*
-  -> one numbered question when the route is ambiguous
+shipglows <instruction>
+  -> repository-backed project -> product -> surface -> feature resolution
+  -> one numbered question only when an operator-owned decision is material
+  -> direct main-thread handoff to one public métier owner
+  -> selected owner orchestrates numeric engines, proof, docs reflection, and closure
 ```
 
 The selected master then owns its own delegated sequential execution. The router must not run a master skill inside a subagent or reimplement the selected skill's lifecycle gates.

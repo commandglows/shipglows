@@ -1,5 +1,27 @@
 {
-  "schema": 1,
+  "schema": 2,
+  "publicSurface": {
+    "router": {
+      "id": "shipglows",
+      "runtimeSkill": "000-shipglows"
+    },
+    "skills": [
+      {"id": "sg-development", "domain": "create", "runtimeSkill": "001-sg-build", "packIds": ["shipglows-build"]},
+      {"id": "sg-design", "domain": "create", "runtimeSkill": "006-sg-design", "packIds": ["shipglows-design"]},
+      {"id": "sg-experience", "domain": "create", "runtimeSkill": "008-sg-customer", "packIds": ["shipglows-product"]},
+      {"id": "sg-bug", "domain": "quality", "runtimeSkill": "003-sg-bug", "packIds": ["shipglows-build", "shipglows-proof"]},
+      {"id": "sg-engineering", "domain": "quality", "runtimeSkill": "010-sg-technical", "packIds": ["shipglows-quality", "shipglows-product"]},
+      {"id": "sg-maintenance", "domain": "quality", "runtimeSkill": "002-sg-maintain", "packIds": ["shipglows-build"]},
+      {"id": "sg-release", "domain": "publish", "runtimeSkill": "004-sg-deploy", "packIds": ["shipglows-proof"]},
+      {"id": "sg-content", "domain": "grow-audience", "runtimeSkill": "007-sg-content", "packIds": ["shipglows-content"]},
+      {"id": "sg-marketing", "domain": "grow-audience", "runtimeSkill": "009-sg-marketing", "packIds": ["shipglows-content"]},
+      {"id": "sg-seo", "domain": "grow-audience", "runtimeSkill": "406-sg-seo", "packIds": ["shipglows-content"]},
+      {"id": "sg-docs", "domain": "govern", "runtimeSkill": "300-sg-docs", "packIds": ["shipglows-governance"]},
+      {"id": "sg-planning", "domain": "organize", "runtimeSkill": "011-sg-pilotage", "packIds": ["shipglows-product"]},
+      {"id": "sg-help", "domain": "organize", "runtimeSkill": "302-sg-help", "packIds": ["shipglows-main"]}
+    ],
+    "notes": "Public labels are outcome owners. runtimeSkill and packIds are packaging internals; the canonical full invocation registry remains in the ShipGlows source corpus."
+  },
   "packs": [
     {
       "id": "shipglows-main",

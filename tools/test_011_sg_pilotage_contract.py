@@ -162,7 +162,11 @@ class PilotageContractTests(unittest.TestCase):
         """PILOTAGE-ACTIVE-DOCS-MIGRATION."""
         for path in ACTIVE_DOCS:
             text = path.read_text(encoding="utf-8")
-            self.assertIn("011-sg-pilotage", text, path)
+            if path.name == "public-help-catalog.md":
+                self.assertIn("sg-planning", text, path)
+                self.assertNotIn("`011-sg-pilotage`", text, path)
+            else:
+                self.assertIn("011-sg-pilotage", text, path)
             for predecessor in PREDECESSORS:
                 self.assertNotIn(predecessor, text, f"{path}: {predecessor}")
         memberships = [

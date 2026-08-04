@@ -9,10 +9,12 @@ argument-hint: "<instruction | help | packs | audit packaging>"
 ## Mission
 
 ShipGlows is the public plugin entrypoint for ShipGlows workflows in Codex.
+It presents a small métier-first surface: one router and thirteen outcome
+owners. Numeric skill names are packaging engines, not the public vocabulary.
 
 Use it when the operator wants to:
 
-- understand what ShipGlows can do from the plugin
+- understand which métier owns an outcome from the plugin
 - route a project-shipping request to the right ShipGlows capability
 - inspect the planned optional packs without installing many plugins manually
 - audit a local ShipGlows source tree before packaging more skills
@@ -34,7 +36,7 @@ If that path is missing, explain that the plugin is installed but local source-t
 
 ## Required Reference
 
-For empty, `help`, `aide`, capability, or availability questions, load:
+For empty, `help`, `aide`, capability, availability, or métier questions, load:
 
 ```text
 references/public-help-catalog.md
@@ -76,7 +78,7 @@ Resolve this path relative to this skill directory inside the plugin.
 
 Parse the operator instruction.
 
-- Empty, `help`, or `aide`: answer from the bundled public help catalog and ask for the work to route when useful.
+- Empty, `help`, `aide`, `métiers`, or `workflows`: answer from the bundled public help catalog and ask for the outcome to route when useful.
 - `packs`, `catalog`, `modules`, or `capabilities`: summarize `references/pack-catalog.md`.
 - `stage pack`, `generate pack`, `refresh pack`, `update pack`, `pack generation`, or `stager pack`: run `scripts/refresh_shipglows_pack.py <pack-id>` when a pack id is supplied and local ShipGlows source exists.
 - `pack maintenance`, `modify skills`, `publish pack`, or skill-to-pack update questions: summarize `references/pack-maintenance-playbook.md`.
@@ -86,7 +88,7 @@ Parse the operator instruction.
 - `audit packaging`, `audit packs`, `portability`, or `local ShipGlows packaging`: run the packaging audit script when available.
 - `installation complète`, `corpus complet`, `clone repo`, `install full repo`, or `full ShipGlows`: offer the complete ShipGlows corpus setup script and run it only with explicit operator approval.
 - Requests to install optional packs: install only when the named pack exists as a plugin or skill source. Otherwise report that the pack is planned but not generated yet.
-- Product, code, deploy, browser, content, design, or governance work: route conceptually to the matching pack. Execute only with capabilities that are actually bundled or installed in the current session.
+- Product, code, release, content, design, engineering, docs, or planning work: identify the matching public métier first, then resolve the matching pack and installed capability. Execute only with capabilities that are actually bundled or installed in the current session.
 - For public `shipglows-main` intents, perform the portable gate, planning, checklist, command discovery, or bug triage that can be done from the current workspace. If the requested workflow needs unbundled ShipGlows references, tracking files, or tools, continue in partial mode and state the exact complete-corpus requirement instead of stopping early.
 
 ## Reference Strategy
@@ -166,7 +168,9 @@ If a task requires an optional pack that is not installed, report:
 - exact next action if it can be installed now
 - that Codex may need a new session before newly installed skills are loaded
 
-Do not present a list of many manual installation steps as the default user experience.
+Do not present numeric engine names or a list of many manual installation steps
+as the default user experience. Reveal engine names only for expert packaging,
+portability, or complete-corpus troubleshooting.
 
 ## Complete ShipGlows Corpus Setup
 

@@ -10,6 +10,10 @@ argument-hint: "<market|gtm|copy|copywriting> <target> | help"
 
 Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, local playbooks, templates, and workflow docs resolve from `$SHIPGLOWS_ROOT`; project artifacts resolve from the current project root.
 
+## Public Métier Ownership
+
+Public label: `sg-marketing`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or mode selection. Resolve `project -> product -> surface -> feature`, ask only for missing operator-owned market or promise decisions, and carry the marketing outcome through evidence, recommendations, affected artifacts, validation, and closure.
+
 ## Instruction Layering
 
 This `SKILL.md` is the compact activation contract. Before editing or expanding it, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md`. Keep detailed procedure, scoring, templates, and provider guidance in the selected local playbook.

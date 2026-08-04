@@ -10,6 +10,10 @@ Primary artifact type: `master-workflow`.
 
 Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, internal scripts, and public skill content must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
+## Public Métier Ownership
+
+Public label: `sg-content`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or editorial routing. Resolve `project -> product -> surface -> feature` and own public documentation/content outcomes through research, creation, validation, application, and authorized publication. Internal architecture, governance, code, context, metadata, and agent docs belong to `sg-docs`.
+
 ## Chantier Tracking
 
 Trace category: `obligatoire`.

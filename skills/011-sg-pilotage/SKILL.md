@@ -10,6 +10,10 @@ argument-hint: "<tasks|backlog|priorities|review|sessions> [arguments]"
 
 Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, local playbooks, templates, and workflow docs resolve from `$SHIPGLOWS_ROOT`; project artifacts resolve from the current project root.
 
+## Public Métier Ownership
+
+Public label: `sg-planning`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or planning mode selection. Resolve `project -> product -> surface -> feature`, infer discoverable state, ask only for material priority decisions, and carry planning/bookkeeping outcomes through durable updates and proof.
+
 ## Instruction Layering
 
 This `SKILL.md` is the compact activation contract. Before editing it, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md`; detailed procedures, examples, matrices, and mutation rules stay in the selected local playbook or their canonical shared reference.

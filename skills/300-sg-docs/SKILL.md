@@ -9,6 +9,10 @@ argument-hint: [file-path | "init" | "readme" | "api" | "components" | "audit" |
 
 Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project source files resolve from the current target path, but project governance artifacts resolve from the canonical governance root. For monorepos, that means the monorepo-root `shipglows_data/`, not repeated `shipglows_data/` directories inside each app/package.
 
+## Public Métier Ownership
+
+Public label: `sg-docs`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or documentation mode selection. Resolve `project -> product -> surface -> feature` and own internal architecture, governance, code-adjacent, context, metadata, and agent documentation through update and validation. Public README, FAQ, tutorials, guides, landing pages, blog, and help-center content belong to `sg-content`.
+
 ## Instruction Layering
 
 Load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` before execution. This skill keeps only activation and gate logic locally; detailed doctrine and large mode playbooks are loaded from references.

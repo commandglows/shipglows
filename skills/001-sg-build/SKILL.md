@@ -8,6 +8,10 @@ argument-hint: "[spark|codex|mini|agents|sous-agent|no-agents] <story, bug, or g
 
 Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
+## Public Métier Ownership
+
+Public label: `sg-development`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or lifecycle selection. Resolve `project -> product -> surface -> feature`; then keep outcome ownership across spec, readiness, implementation, proof, documentation, closure, and authorized ship/deploy stages without asking the operator to schedule internal skills.
+
 ## Chantier Tracking
 
 Trace category: `obligatoire`.

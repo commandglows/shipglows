@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.9.0"
+artifact_version: "0.10.0"
 project: "shipglows"
 created: "2026-04-25"
 updated: "2026-08-04"
@@ -29,9 +29,15 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Added
 - Added a provider-neutral `animation` mode to `006-sg-design` for auditing, designing, implementing, and tuning coherent motion systems, with optional GSAP use gated by project fit, current documentation, licensing, lifecycle cleanup, reduced-motion behavior, responsiveness, performance, and browser proof.
-- Added `302-sg-help mode` and `302-sg-help modes`, returning every ShipGlows skill and its modes on exactly one line per skill.
+- Added `302-sg-help mode` and `302-sg-help modes`, returning each public métier and its modes on one line; expert mode retains the complete runtime-engine catalog.
+- Added a shared intent-to-outcome autonomy contract that resolves `project -> product -> surface -> feature`, asks only for material operator decisions, and keeps one métier owner accountable through implementation and proof.
+- Added deterministic MH-01 through MH-12 pressure tests and a reviewed verification checklist for clarification restraint, multi-product routing, métier boundaries, and autonomous continuation.
 
 ### Changed
+- Reorganized default skill discovery around six domains, thirteen public métier skills, and the `shipglows` router; numeric lifecycle and specialist skills remain available through expert discovery.
+- Split `sg-help` into a concise public mode catalog and an explicit expert engine catalog, and made runtime synchronization install only the public métier aliases by default.
+- Moved sync, access/entitlements, provider-event, and parity outcomes under public `sg-engineering`, while retaining `600-602` as internal engines.
+- Clarified that `sg-docs` owns internal project/agent documentation and `sg-content` owns public documentation and audience content; aligned the README, operator guide, plugin help, internal docs, and English/French public site hubs.
 - Removed the unused root CLI compatibility launchers, moved the Google Search Console launcher under `cli/`, and kept the Unix and Windows public bootstrap scripts at stable root URLs.
 - Consolidated pilotage under the single `011-sg-pilotage` entrypoint with explicit `tasks`, `backlog`, `priorities`, `review`, and `sessions` modes backed by five lazily loaded playbooks; retired the four predecessor skills, migrated active runtime/plugin/operator discovery, and preserved tracker and Codex-session safeguards. The focused local migration is excellence-verified; its implementation core is already present in `2ad01ae`, while the remaining documentation, index, catalog, spec, test, and closure delta still awaits its dedicated Git ship.
 

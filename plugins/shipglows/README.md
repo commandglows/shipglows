@@ -1,6 +1,18 @@
 # ShipGlows Plugin
 
-ShipGlows is the main local Codex plugin for packaging ShipGlows as a user-facing workflow layer.
+ShipGlows is the main local Codex plugin for packaging ShipGlows as a user-facing workflow layer. The installed plugin presents one router and thirteen métiers; numeric skills remain implementation and packaging internals.
+
+## Public Surface
+
+Use one entrypoint:
+
+```text
+$shipglows <what I want to accomplish>
+```
+
+ShipGlows routes to: `sg-development`, `sg-design`, `sg-experience`, `sg-bug`, `sg-engineering`, `sg-maintenance`, `sg-release`, `sg-content`, `sg-marketing`, `sg-seo`, `sg-docs`, `sg-planning`, or `sg-help`.
+
+The public names describe the result you want. A pack may still be planned or partial; the plugin reports that honestly and offers the complete corpus only when it is needed.
 
 This alpha intentionally ships a small nucleus:
 

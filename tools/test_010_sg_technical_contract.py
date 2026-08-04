@@ -232,15 +232,19 @@ class TechnicalContractTests(unittest.TestCase):
     def test_tech_dispatch_01_exact_compact_grammar(self) -> None:
         self.assertLessEqual(len(self.skill.splitlines()), MAX_ACTIVATION_LINES)
         self.assertIn(
-            'argument-hint: "<audit [target] | deps [global] | performance [target] | migrate [package@version] | github [mode] [scope] | help>"',
+            'argument-hint: "<audit|architecture|deps|performance|migrate|github|sync|access|parity|help> [target]"',
             self.skill,
         )
         for grammar in (
             "`audit [<file|directory|diff|PR|project|global>]`",
+            "`architecture [<project|surface|component>]`",
             "`deps [global]`",
             "`performance [<file|project|global>]`",
             "`migrate [package@version]`",
             "`github [audit|branches|dependabot|fix] [current repo|workspace]`",
+            "`sync [target]`",
+            "`access [target]`",
+            "`parity [target]`",
             "`help`",
         ):
             self.assertIn(grammar, self.skill)
@@ -331,8 +335,10 @@ class TechnicalContractTests(unittest.TestCase):
             self.assertIn(owner, self.skill)
             self.assertIn(purpose, self.skill)
             self.assertTrue((ROOT / "skills" / owner / "SKILL.md").is_file())
-        self.assertIn("execute only the first explicit mode", self.skill)
-        self.assertIn("400-sg-audit` or `002-sg-maintain", self.skill)
+        self.assertIn("single public owner", self.skill)
+        self.assertIn("sequence the required internal engines", self.skill)
+        for engine in ("600-sg-local-cloud-sync", "601-sg-product-entitlements", "602-sg-platform-parity"):
+            self.assertIn(engine, self.skill)
 
     def test_tech_safety_04_security_and_mutation_stops(self) -> None:
         for phrase in (
@@ -478,7 +484,13 @@ class TechnicalContractTests(unittest.TestCase):
         for runtime_root in (Path.home() / ".codex" / "skills", Path.home() / ".claude" / "skills"):
             if not runtime_root.exists():
                 continue
-            self.assertTrue((runtime_root / "010-sg-technical").exists(), runtime_root)
+            public_entry = runtime_root / "sg-engineering"
+            self.assertTrue(public_entry.exists(), runtime_root)
+            self.assertEqual(
+                (ROOT / "skills" / "010-sg-technical").resolve(),
+                public_entry.resolve(),
+            )
+            self.assertFalse((runtime_root / "010-sg-technical").exists(), runtime_root)
             for predecessor in PREDECESSORS:
                 retired = runtime_root / predecessor
                 self.assertFalse(retired.exists() or retired.is_symlink(), f"{runtime_root}: {predecessor}")
