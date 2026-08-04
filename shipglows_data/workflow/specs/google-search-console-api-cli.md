@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-07-14"
 created_at: "2026-07-14 18:55:00 UTC"
-updated: "2026-07-14"
+updated: "2026-08-04"
 updated_at: "2026-07-14 18:55:00 UTC"
 status: ready
 source_skill: 100-sg-spec
@@ -19,6 +19,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - tools/
+  - cli/shipglows-gsc.sh
   - cli/install.sh
   - skills/406-sg-seo/SKILL.md
   - skills/references/operator-roles/seo-specialist.md
@@ -133,7 +134,7 @@ Add a ShipGlows-owned Python standard-library CLI wrapping the official Search C
 ## Links & Consequences
 
 - `tools/shipglows_gsc.py` becomes the implementation source of truth.
-- `shipglows-gsc.sh` becomes the repository wrapper; installer creates `/usr/local/bin/shipglows-gsc` and `gsc` aliases when present.
+- `cli/shipglows-gsc.sh` is the repository wrapper; installer creates `/usr/local/bin/shipglows-gsc` and `gsc` aliases when present.
 - `README.md` and `shipglows_data/technical/runtime-cli.md` must document the client’s local-only credential model.
 - `406-sg-seo` remains unchanged in v1 except for a documented future handoff path; it must not claim live data access until an explicit ingestion invocation exists.
 
@@ -160,11 +161,11 @@ Add a ShipGlows-owned Python standard-library CLI wrapping the official Search C
   - Depends on: none.
   - Validate with: `python3 -m unittest tools.test_shipglows_gsc`.
 - [x] Task 2: Add a stable executable wrapper and installer registration.
-  - Files: `shipglows-gsc.sh`, `cli/install.sh`
+  - Files: `cli/shipglows-gsc.sh`, `cli/install.sh`
   - Action: Route to the canonical Python client and install aliases only when the source exists.
   - User story link: make the capability available to operators after standard install.
   - Depends on: Task 1.
-  - Validate with: `bash -n shipglows-gsc.sh cli/install.sh` and wrapper `--help`.
+  - Validate with: `bash -n cli/shipglows-gsc.sh cli/install.sh` and wrapper `--help`.
 - [x] Task 3: Document runtime ownership and secure usage.
   - Files: `README.md`, `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/code-docs-map.md`, `shipglows_data/technical/google-search-console-cli.md`
   - Action: Add the OAuth precondition, read-only boundary, commands, validation route, and mapped technical ownership.

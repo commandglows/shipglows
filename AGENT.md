@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.6.0"
+artifact_version: "0.7.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-06-23"
@@ -40,8 +40,8 @@ Ce fichier est le point d'entree rapide pour un agent qui arrive dans le repo. I
   - Pour tout fichier interne ShipGlows, resoudre depuis `${SHIPGLOWS_ROOT:-$HOME/shipglows}`. Cela inclut `skills/`, `skills/references/`, `templates/`, `tools/`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` et `shipglows_data/technical/metadata-migration-guide.md`. Le repo courant ne sert de racine que pour les artefacts et le code du projet audite ou modifie.
 - Si la tache touche la creation d'une app ou l'utilisation du Blueprint Gate (consommation), lire `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` puis `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md`; le Blueprint Gate appartient à `001-sg-build`.
 - Si la tache touche l'extraction d'un blueprint depuis une app existante (creation/maintenance interne ShipGlows), lire `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` puis `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md`; la creation d'un blueprint appartient à `900-shipglows-core build`.
-- Si la tache touche le CLI principal, commencer par `shipglows.sh`, `lib.sh`, puis `shipglows_data/technical/context.md`.
-- Si la tache touche le setup serveur ou Codex, lire `install.sh`, `config.sh`, puis `shipglows_data/technical/context.md`.
+- Si la tache touche le CLI principal, commencer par `cli/shipglows.sh`, `cli/lib.sh`, puis `shipglows_data/technical/context.md`.
+- Si la tache touche le setup serveur ou Codex, lire `cli/install.sh`, `cli/config.sh`, puis `shipglows_data/technical/context.md`.
 - Si la tache touche les tunnels SSH locaux, lire `local/local.sh`, `local/dev-tunnel.sh`, puis `shipglows_data/technical/context-function-tree.md`.
 - Si la tache touche Blacksmith, runners CI, Testboxes, logs CI, APK/AAB Android, SSH Access runner ou debugging de build GitHub Actions, lire `shipglows_data/technical/blacksmith.md`; pour une verification deploy/logs, router via `skills/405-sg-prod/SKILL.md`, et pour une release complete via `skills/004-sg-deploy/SKILL.md`.
 - Si la tache touche les skills, lire `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, puis les `skills/*/SKILL.md` concernes.

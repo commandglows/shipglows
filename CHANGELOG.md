@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.8.1"
+artifact_version: "0.9.0"
 project: "shipglows"
 created: "2026-04-25"
 updated: "2026-08-04"
@@ -14,10 +14,9 @@ security_impact: yes
 risk_level: low
 docs_impact: yes
 linked_systems:
-  - shipglows.sh
-  - lib.sh
-  - config.sh
-  - install.sh
+  - cli/
+  - install-shipglows.sh
+  - install-shipglows.ps1
   - CHANGELOG.md
 depends_on: []
 supersedes: []
@@ -29,6 +28,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-08-04]
 
 ### Changed
+- Removed the unused root CLI compatibility launchers, moved the Google Search Console launcher under `cli/`, and kept the Unix and Windows public bootstrap scripts at stable root URLs.
 - Consolidated pilotage under the single `011-sg-pilotage` entrypoint with explicit `tasks`, `backlog`, `priorities`, `review`, and `sessions` modes backed by five lazily loaded playbooks; retired the four predecessor skills, migrated active runtime/plugin/operator discovery, and preserved tracker and Codex-session safeguards. The focused local migration is excellence-verified; its implementation core is already present in `2ad01ae`, while the remaining documentation, index, catalog, spec, test, and closure delta still awaits its dedicated Git ship.
 
 ## [2026-08-03]

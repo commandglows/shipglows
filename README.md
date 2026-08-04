@@ -326,7 +326,7 @@ for the internal architecture contract.
 
 The current repository is split by ownership, not only by technology:
 
-- `cli/` is the canonical server/runtime CLI layer. Root shell files such as `shipglows.sh`, `lib.sh`, `config.sh`, and `install.sh` are compatibility launchers that forward to it.
+- `cli/` is the canonical server/runtime CLI layer, including the thin Google Search Console launcher. The repository root keeps only the stable public bootstrap scripts for Unix and Windows.
 - `tui/` is the optional terminal cockpit. It is a visibility layer, not a second workflow engine.
 - `skills/` contains the ShipGlows execution system and shared references.
 - `shipglows_data/` is the canonical internal governance corpus for technical, editorial, business, and workflow artifacts.
@@ -998,11 +998,8 @@ Promotion rule:
 
 ```text
 shipglows/
-├── shipglows.sh                 # Compatibility launcher
-├── lib.sh                      # Compatibility launcher
-├── config.sh                   # Compatibility launcher
-├── install.sh                  # Compatibility launcher
-├── install-shipglows.sh
+├── install-shipglows.sh        # Stable public bootstrap (Unix)
+├── install-shipglows.ps1       # Stable public bootstrap (Windows)
 ├── README.md
 ├── CLAUDE.md
 ├── CHANGELOG.md
@@ -1028,7 +1025,9 @@ shipglows/
 - `cli/lib.sh` — shared shell library for ports, PM2, Flox, Caddy, validation, and tracking
 - `cli/config.sh` — central configuration
 - `cli/install.sh` — installation and machine setup
+- `cli/shipglows-gsc.sh` — installed launcher for the read-only Google Search Console CLI
 - `install-shipglows.sh` — remote/bootstrap install helper
+- `install-shipglows.ps1` — native Windows bootstrap helper
 - `shipglows-site/` — Astro public website deployed to `https://shipglows.com`
 - `shipglows_data/technical/operator-guides/` — public or semi-public Markdown references such as the skill launch cheatsheet
 - `tui/` — optional read-only terminal dashboard for ShipGlows operators

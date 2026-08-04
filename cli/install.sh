@@ -1674,7 +1674,7 @@ ENV
 
 configure_command_wrappers() {
     local shipglows_target="$SHIPGLOWS_INSTALL_ROOT/shipglows.sh"
-    local gsc_target="$SHIPGLOWS_INSTALL_ROOT/shipglows-gsc.sh"
+    local gsc_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-gsc.sh"
     local turso_login_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-login.sh"
     local turso_ssh_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-ssh.sh"
     local bin_dir="/usr/local/bin"

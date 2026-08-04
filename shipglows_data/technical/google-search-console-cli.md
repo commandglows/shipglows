@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-07-14"
-updated: "2026-07-14"
+updated: "2026-08-04"
 status: reviewed
 source_skill: 102-sg-start
 scope: google-search-console-cli
@@ -13,7 +13,7 @@ confidence: high
 risk_level: high
 security_impact: yes
 docs_impact: yes
-linked_systems: [tools/shipglows_gsc.py, shipglows-gsc.sh, cli/install.sh, skills/406-sg-seo/SKILL.md]
+linked_systems: [tools/shipglows_gsc.py, cli/shipglows-gsc.sh, cli/install.sh, skills/406-sg-seo/SKILL.md]
 depends_on: []
 supersedes: []
 evidence: ["Google Search Console API official documentation checked 2026-07-14."]
@@ -49,7 +49,7 @@ shipglows-gsc inspect --site sc-domain:example.com --url https://example.com/pag
 ```bash
 python3 -m unittest tools.test_shipglows_gsc
 python3 tools/shipglows_gsc.py auth status
-bash -n shipglows-gsc.sh cli/install.sh
+bash -n cli/shipglows-gsc.sh cli/install.sh
 ```
 
 ## Maintenance Rule

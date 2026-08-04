@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-07-13"
+updated: "2026-08-04"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -12,10 +12,10 @@ owner: "unknown"
 confidence: high
 risk_level: medium
 linked_systems:
-  - "shipglows.sh"
-  - "lib.sh"
-  - "config.sh"
-  - "install.sh"
+  - "cli/shipglows.sh"
+  - "cli/lib.sh"
+  - "cli/config.sh"
+  - "cli/install.sh"
   - "local/local.sh"
   - "skills/"
   - "templates/"
@@ -66,9 +66,10 @@ The repo is not split into small services. It is centered around shell-based orc
 
 ## Entry Points
 
-- `shipglows.sh` for the main CLI.
+- `cli/shipglows.sh` for the main CLI.
 - `local/local.sh` for local SSH tunnel operations.
-- `install.sh` for server bootstrap and user environment setup.
+- `cli/install.sh` for server bootstrap and user environment setup.
+- `install-shipglows.sh` and `install-shipglows.ps1` as stable public bootstrap URLs.
 - `skills/*/SKILL.md` plus templates and linter for workflow execution.
 
 ## Runtime Boundaries
@@ -81,8 +82,8 @@ The repo is not split into small services. It is centered around shell-based orc
 
 ## Major Components
 
-- `lib.sh`: main orchestration library and the largest functional hotspot.
-- `config.sh`: configuration source and validation layer.
+- `cli/lib.sh`: main orchestration library and the largest functional hotspot.
+- `cli/config.sh`: configuration source and validation layer.
 - `local/`: local access and tunnel management.
 - `skills/`: task-specific workflows and governance behavior.
 - `templates/`: normalized artifact structures.
@@ -91,7 +92,7 @@ The repo is not split into small services. It is centered around shell-based orc
 
 ## Data And Control Flows
 
-- CLI flow: `shipglows.sh` -> `lib.sh` -> menu actions -> PM2/Flox/Caddy operations.
+- CLI flow: `cli/shipglows.sh` -> `cli/lib.sh` -> menu actions -> PM2/Flox/Caddy operations.
 - Local tunnel flow: `local/local.sh` -> SSH connection selection -> remote state inspection -> tunnel lifecycle.
 - Doc/workflow flow: skills -> templates -> markdown artifacts -> metadata lint -> verification.
 

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.1.16"
+artifact_version: "0.2.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-03"
+updated: "2026-08-04"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -13,7 +13,7 @@ confidence: "medium"
 risk_level: "low"
 security_impact: "none"
 docs_impact: "yes"
-linked_systems: ["shipglows.sh", "lib.sh", "cli/shipglows_devserver_gum.sh", "cli/shipglows_devserver_bash.sh", "config.sh", "install.sh", "local/local.sh", "local/dev-tunnel.sh"]
+linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/shipglows_devserver_gum.sh", "cli/shipglows_devserver_bash.sh", "cli/config.sh", "cli/install.sh", "local/local.sh", "local/dev-tunnel.sh"]
 depends_on: []
 supersedes: []
 evidence: ["Function extraction from shipglows.sh, lib.sh, config.sh, install.sh, local/local.sh, local/dev-tunnel.sh", "Blacksmith setup menu helpers added to lib.sh", "Blacksmith OAuth callback tunnel added to local tooling", "Blacksmith SSH Access guide added to the setup menu", "Codex MCP on-demand launcher added to lib.sh", "Grouped root menu and submenu wrappers added to menu frontends", "Root menu shortcuts aligned with visible menu labels", "Disk overview helpers added to the Health Check monitor", "Agent history and cache cleanup helpers added", "PM2 log cleanup/rotation and disk usage detail helpers added", "Turso setup menu helpers added to lib.sh", "Clerk CLI OAuth callback tunnel added to local tooling", "Local tunnel auth flows grouped under one authentication submenu", "Password-to-key promotion helpers and local menu flow added with independent key-only verification", "Lazy atomic environment registry and parent-shell cache APIs added on 2026-07-17"]
@@ -29,8 +29,8 @@ Ce document sert de point d'entree rapide pour comprendre la structure fonctionn
 ## Runtime Map
 
 ```text
-shipglows.sh
-  -> source lib.sh
+cli/shipglows.sh
+  -> source cli/lib.sh
   -> source cli/shipglows_devserver_gum.sh or cli/shipglows_devserver_bash.sh
   -> main()
      -> run_menu_shortcut() for early codex/co launch
@@ -55,16 +55,16 @@ run_menu_shortcut()
 
 ## File Roles
 
-- `shipglows.sh`: point d'entree du CLI.
-- `lib.sh`: coeur applicatif. UI, validation, PM2, Flox, sessions, dashboard, deploy, publish.
-- `config.sh`: variables d'environnement et validation de config.
-- `install.sh`: bootstrap serveur, aliases, Codex config, liens de skills.
+- `cli/shipglows.sh`: point d'entree du CLI.
+- `cli/lib.sh`: coeur applicatif. UI, validation, PM2, Flox, sessions, dashboard, deploy, publish.
+- `cli/config.sh`: variables d'environnement et validation de config.
+- `cli/install.sh`: bootstrap serveur, aliases, Codex config, liens de skills.
 - `local/local.sh`: menu local pour tunnels SSH et statut distant.
 - `local/dev-tunnel.sh`: tunnel manager non interactif base sur PM2 distant.
 
 ## Function Tree
 
-### `shipglows.sh`
+### `cli/shipglows.sh`
 
 ```text
 main
@@ -72,14 +72,14 @@ main
   -> run_menu OR run_menu_shortcut
 ```
 
-### `config.sh`
+### `cli/config.sh`
 
 ```text
 shipglows_print_config
 shipglows_validate_config
 ```
 
-### `install.sh`
+### `cli/install.sh`
 
 ```text
 logging

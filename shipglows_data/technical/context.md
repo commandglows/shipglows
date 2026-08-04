@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.6.1"
+artifact_version: "0.7.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-07-17"
+updated: "2026-08-04"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -59,7 +59,7 @@ ShipGlows combine deux couches :
 - `shipglows_data/technical/metadata-migration-guide.md`: doctrine de migration metadata.
 - `shipglows_data/editorial/content-map.md`: carte des surfaces de contenu, pages piliers, cocons semantiques et destinations de repurposing.
 - `shipglows_data/technical/`: couche interne de documentation technique proche du code.
-- wrappers shell de racine (`shipglows.sh`, `lib.sh`, `config.sh`, `install.sh`, `shipglows_devserver_*`): surfaces de compatibilite depreciees; la source canonique runtime reste `cli/`.
+- `install-shipglows.sh` et `install-shipglows.ps1`: points d'entree publics stables conserves a la racine; les lanceurs runtime et outils restent sous `cli/`.
 - trackers/docs legacy de racine (`TASKS.md`, `AUDIT_LOG.md`, `concurrent.md`, autres notes historiques): dette de migration ou facades de compatibilite, pas source de verite durable quand un artefact canonique existe sous `shipglows_data/`.
 - `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md`, `shipglows_data/business/gtm.md`: contrats business, produit et promesse publique.
 - `shipglows_data/business/project-competitors-and-inspirations.md`: registre par projet des concurrents, alternatives, inspirations et anti-patterns.

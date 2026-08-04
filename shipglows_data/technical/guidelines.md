@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: "shipglows"
 created: "2026-04-26"
 updated: "2026-08-02"
@@ -12,9 +12,9 @@ owner: "unknown"
 confidence: high
 risk_level: medium
 linked_systems:
-  - "shipglows.sh"
-  - "lib.sh"
-  - "config.sh"
+  - "cli/shipglows.sh"
+  - "cli/lib.sh"
+  - "cli/config.sh"
   - "local/"
   - "skills/"
   - "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
@@ -91,7 +91,7 @@ This file defines stable engineering and documentation rules for working inside 
 
 ## Change Routing
 
-- Runtime orchestration changes belong first in `lib.sh`, `config.sh`, `shipglows.sh`, or `local/`.
+- Runtime orchestration changes belong first in `cli/lib.sh`, `cli/config.sh`, `cli/shipglows.sh`, or `local/`.
 - Workflow and artifact-governance changes belong first in `skills/`, templates, and workflow docs.
 - Product, business, GTM, and brand decisions belong in their dedicated contracts before they are repeated elsewhere.
 - Layout migration belongs in `sg-docs migrate-layout`; do not create new root governance files as a shortcut.

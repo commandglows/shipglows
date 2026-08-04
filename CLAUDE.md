@@ -147,10 +147,8 @@ shipglows/
 │   ├── install.sh              # Server installation
 │   ├── shipglows_devserver_bash.sh
 │   └── shipglows_devserver_gum.sh
-├── shipglows.sh                # Compatibility launcher
-├── lib.sh                      # Compatibility launcher
-├── config.sh                   # Compatibility launcher
-├── install.sh                  # Compatibility launcher
+├── install-shipglows.sh        # Stable public bootstrap (Unix)
+├── install-shipglows.ps1       # Stable public bootstrap (Windows)
 ├── skills/                     # ShipGlows skill library
 ├── .claude/statusline-starship.sh  # Status bar
 ├── local/                      # SSH tunnel scripts
