@@ -155,7 +155,7 @@ Le métier <métier> est bien reconnu, mais son module d'exécution n'est pas en
 For "how do I install ShipGlows in Codex?":
 
 ```text
-Ajoute d'abord la source marketplace ShipGlows: `codex plugin marketplace add dianedef/ShipGlows --ref main --sparse .agents/plugins --sparse plugins/shipglows`. Redémarre Codex, ouvre le répertoire des plugins, installe `shipglows`, puis commence avec `$shipglows help me choose the right workflow`.
+Ajoute d'abord la source marketplace ShipGlows: `codex plugin marketplace add commandglows/shipglows --ref main --sparse .agents/plugins --sparse plugins/shipglows`. Redémarre Codex, ouvre le répertoire des plugins, installe `shipglows`, puis commence avec `$shipglows help me choose the right workflow`.
 ```
 
 For internal tools:

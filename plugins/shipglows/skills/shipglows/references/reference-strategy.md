@@ -77,7 +77,7 @@ When the lightweight plugin is not enough, clone the public ShipGlows repo inste
 Default repo:
 
 ```text
-https://github.com/dianedef/ShipGlows.git
+https://github.com/commandglows/shipglows.git
 ```
 
 Default target:

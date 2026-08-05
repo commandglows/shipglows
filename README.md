@@ -244,7 +244,7 @@ The repository now carries a repo-backed marketplace source at [`.agents/plugins
 Public install path:
 
 ```bash
-codex plugin marketplace add dianedef/ShipGlows --ref main --sparse .agents/plugins --sparse plugins/shipglows
+codex plugin marketplace add commandglows/shipglows --ref main --sparse .agents/plugins --sparse plugins/shipglows
 ```
 
 Then restart Codex, open the plugin directory, choose the `ShipGlows` marketplace, install `shipglows`, and start with:

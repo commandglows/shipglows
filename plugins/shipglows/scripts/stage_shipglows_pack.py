@@ -236,7 +236,7 @@ def plugin_manifest(pack: dict, staged_skill_names: list[str]) -> dict:
         "description": f"ShipGlows optional pack staged from catalog entry {pack_id}.",
         "author": {"name": "ShipGlows"},
         "homepage": "https://shipglowszsite.vercel.app/",
-        "repository": "https://github.com/dianedef/ShipGlows",
+        "repository": "https://github.com/commandglows/shipglows",
         "license": "UNLICENSED",
         "keywords": ["codex", "shipglows", "workflow", "pack"],
         "skills": "./skills/",

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_url="${SHIPGLOWS_REPO_URL:-https://github.com/dianedef/ShipGlows.git}"
+repo_url="${SHIPGLOWS_REPO_URL:-https://github.com/commandglows/shipglows.git}"
 target_dir="${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}"
 ref="${SHIPGLOWS_REF:-main}"
 
@@ -12,7 +12,7 @@ Usage: bootstrap_shipglows_repo.sh [ref]
 Clones or updates a sparse ShipGlows source checkout for skills.
 
 Environment:
-  SHIPGLOWS_REPO_URL  Repository URL. Defaults to https://github.com/dianedef/ShipGlows.git
+  SHIPGLOWS_REPO_URL  Repository URL. Defaults to https://github.com/commandglows/shipglows.git
   SHIPGLOWS_ROOT      Target directory. Defaults to $HOME/.shipglows/source
   SHIPGLOWS_REF       Branch, tag, or commit. Defaults to main
 USAGE

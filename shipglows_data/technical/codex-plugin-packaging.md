@@ -83,7 +83,7 @@ Current product posture: ShipGlows is single-plugin-first. The public experience
 1. The plugin installs as a small local bundle with the `shipglows` routing skill.
 2. The routing skill answers basic pack, docs, and readiness questions from bundled files.
 3. If the user needs the complete skill/reference corpus, the routing skill points to the bootstrap script.
-4. The bootstrap script clones or updates `https://github.com/dianedef/ShipGlows.git` with Git sparse checkout enabled.
+4. The bootstrap script clones or updates `https://github.com/commandglows/shipglows.git` with Git sparse checkout enabled.
 5. The checkout target defaults to `${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}`.
 6. The sparse checkout includes `skills/`, `templates/`, `tools/`, `shipglows_data/`, `docs/`, `local/`, and `shipglows_data/workflow/bugs/`.
 7. The sparse checkout excludes `site/`, `tui/`, `shipglows_data/workflow/archives/`, generated builds, and dependency directories.

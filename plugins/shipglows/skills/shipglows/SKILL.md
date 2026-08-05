@@ -191,7 +191,7 @@ ${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}
 Default source:
 
 ```text
-https://github.com/diane-defores/shipglows.git
+https://github.com/commandglows/shipglows.git
 ```
 
 The complete-corpus checkout includes only the skill/runtime corpus:

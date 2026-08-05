@@ -65,7 +65,7 @@ The default target is `~/.shipglows/source`. The checkout includes the skill/run
 Install from a repo-backed marketplace source:
 
 ```bash
-codex plugin marketplace add dianedef/ShipGlows --ref main --sparse .agents/plugins --sparse plugins/shipglows
+codex plugin marketplace add commandglows/shipglows --ref main --sparse .agents/plugins --sparse plugins/shipglows
 ```
 
 Then restart Codex, open the plugin directory, choose the `ShipGlows` marketplace, and install the `shipglows` plugin.
