@@ -6,7 +6,7 @@ project: "ShipGlows"
 created: "2026-08-05"
 created_at: "2026-08-05 17:10:00 UTC"
 updated: "2026-08-05"
-updated_at: "2026-08-05 18:05:00 UTC"
+updated_at: "2026-08-05 18:10:00 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -261,6 +261,7 @@ None. The operator approved runtime/plugin/corpus separation and confirmed the p
 | 2026-08-05 17:20:00 UTC | 101-sg-ready | GPT-5 Codex | Reviewed structure, scope, security boundary, Git sparse-checkout evidence, task ordering and proof contract. | ready | /102-sg-start runtime installer and skill distribution separation |
 | 2026-08-05 17:45:00 UTC | 102-sg-start | GPT-5 Codex | Implemented explicit runtime, corpus and Codex-plugin surfaces; gated skill synchronization; added sparse-contract tests and aligned documentation. | implemented | /103-sg-verify mode=excellence runtime installer and skill distribution separation |
 | 2026-08-05 18:05:00 UTC | 103-sg-verify | GPT-5 Codex | Excellence verification: 43 installer regressions, syntax, plugin manifest, metadata and public skill-sync checks pass; all four disposable runtime/manual scenarios pass. The separately deployed public website bootstrap is still stale and needs its own release. | partial | Synchronize the website bootstrap and verify the public endpoint before advertising it. |
+| 2026-08-05 18:10:00 UTC | 005-sg-ship | GPT-5 Codex | Shipped the verified runtime, corpus and Codex-plugin distribution separation to `commandglows/shipglows` main as `886fe8a`. | shipped | Synchronize the website bootstrap and verify the public endpoint before advertising it. |
 
 ## Current Chantier Flow
 
@@ -269,6 +270,6 @@ None. The operator approved runtime/plugin/corpus separation and confirmed the p
 - `102-sg-start`: implemented.
 - `103-sg-verify`: partial; local, structural and isolated-runtime proof pass; public website endpoint remains stale.
 - `104-sg-end`: not launched.
-- `005-sg-ship`: not launched.
+- `005-sg-ship`: shipped `886fe8a` to `commandglows/shipglows` main.
 
 Next step: synchronize the public website bootstrap, then verify its served endpoint before advertising it.
