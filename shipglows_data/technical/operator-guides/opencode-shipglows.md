@@ -89,7 +89,7 @@ Use this repo contract:
 The OpenCode shim is a lightweight repository entrypoint. For a local checkout that includes the public skill corpus and OpenCode shim, request the explicit corpus surface:
 
 ```bash
-curl -fsSL https://www.winflowz.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
+curl -fsSL https://www.commandglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
 ```
 
 Use that route only when the runtime surface is not enough. The Codex plugin remains a separate, no-clone installation path.

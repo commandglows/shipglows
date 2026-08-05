@@ -191,7 +191,7 @@ It is the public explanation, docs, pricing hypothesis, FAQ, and skill-discovery
 
 ```bash
 # Detect Termux/root automatically, otherwise ask local or full
-curl -fsSL https://www.winflowz.com/shipglows-script | sh
+curl -fsSL https://www.commandglows.com/shipglows-script | sh
 ```
 
 On native Windows without WSL, the same public endpoint exposes the
@@ -201,7 +201,7 @@ show a UAC administrator confirmation:
 
 ```powershell
 $installer = Join-Path $env:TEMP 'shipglows-install.ps1'
-curl.exe -fsSL 'https://www.winflowz.com/shipglows-script?format=powershell' -o $installer
+curl.exe -fsSL 'https://www.commandglows.com/shipglows-script?format=powershell' -o $installer
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
 ```
 
@@ -223,8 +223,8 @@ selects `full`. In a non-interactive environment, put the mode on the consuming
 shell:
 
 ```bash
-curl -fsSL https://www.winflowz.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local sh
-curl -fsSL https://www.winflowz.com/shipglows-script | sudo env SHIPGLOWS_INSTALL_MODE=full sh
+curl -fsSL https://www.commandglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local sh
+curl -fsSL https://www.commandglows.com/shipglows-script | sudo env SHIPGLOWS_INSTALL_MODE=full sh
 ```
 
 Manual equivalents:
@@ -242,7 +242,7 @@ The bootstrap defaults to the lightweight `runtime` surface: it uses Git sparse 
 To make the public skill corpus and the OpenCode/KiloCode-compatible repository shims available locally, request it explicitly:
 
 ```bash
-curl -fsSL https://www.winflowz.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
+curl -fsSL https://www.commandglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
 ```
 
 For a server installation, the interactive installer also asks separately whether to synchronize the public skill corpus into Claude/Codex. Select that option only for a source-tree workflow; Codex plugin users do not need it.

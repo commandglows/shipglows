@@ -58,7 +58,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 
 ## Entrypoints
 
-- `curl -fsSL https://www.winflowz.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
+- `curl -fsSL https://www.commandglows.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
 - Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, installs the Windows OpenSSH Client when absent, and installs only the local tunnel layer without `sudo`, `autossh`, or mandatory `ssh-agent`.
 - `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
 - `tools/sync_shipglows_public_bootstrap.sh --check --winglowz-root <path>`: verifies that WinGlowz serves the generated canonical artifact rather than an independently maintained template.
@@ -76,7 +76,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 ## Control Flow
 
 ```text
-curl -fsSL https://www.winflowz.com/shipglows-script | sh
+curl -fsSL https://www.commandglows.com/shipglows-script | sh
   -> resolve SHIPGLOWS_INSTALL_MODE, Termux, root, or /dev/tty choice
   -> reject ambiguous non-interactive and unsupported Termux/full combinations
   -> install bootstrap dependencies with pkg (Termux) or apt (full server)
