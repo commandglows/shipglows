@@ -79,7 +79,7 @@ The operator boundary stays the same: ask for ShipGlows, then let the owner skil
 Use this order:
 
 1. ask for ShipGlows in natural language or pick it in the runtime UI
-2. if repository-local compatible-skill import is needed, use `.agents/skills/shipglows/`
+2. if repository-local compatible-skill import is needed, install the explicit public corpus with `SHIPGLOWS_INSTALL_SURFACE=corpus`, then use `.agents/skills/shipglows/`
 3. treat internal runtime calls as implementation details only
 4. do not assume a dedicated KiloCode repo shim unless the repo later adds one explicitly
 

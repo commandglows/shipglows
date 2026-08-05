@@ -58,11 +58,20 @@ SH
 
   cat > "$fixture/bin/git" <<'SH'
 #!/usr/bin/env sh
+if [ -n "${TEST_GIT_CALLS:-}" ]; then
+  printf 'git:%s\n' "$*" >> "$TEST_GIT_CALLS"
+fi
 if [ "${TEST_GIT_FAIL_CLONE:-0}" = "1" ]; then
   case " $* " in
     *" clone "*) printf '%s\n' "fatal: Authentication failed" >&2; exit 128 ;;
   esac
 fi
+case " $* " in
+  *" clone "*)
+    for target in "$@"; do :; done
+    mkdir -p "$target/.git"
+    ;;
+esac
 exit 0
 SH
 
@@ -87,6 +96,7 @@ run_case() {
   local output="$fixture/output"
   local calls="$fixture/calls"
   : > "$calls"
+  : > "$fixture/git-calls"
 
   set +e
   env -i \
@@ -95,6 +105,7 @@ run_case() {
     USER="tester" \
     TEST_USER="tester" \
     TEST_CALLS="$calls" \
+    TEST_GIT_CALLS="$fixture/git-calls" \
     SHIPGLOWS_DIR="$fixture/home/shipglows" \
     "$@" \
     /bin/sh "$BOOTSTRAP" > "$output" 2>&1
@@ -162,6 +173,44 @@ run_case "$clone_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local TEST_GIT_FA
 if [ "$CASE_STATUS" -ne 0 ]; then pass "Public clone failure propagates"; else fail "Public clone failure propagates"; fi
 assert_contains "$CASE_OUTPUT" "dépôt public" "Clone failure explains public repository download failure"
 assert_not_contains "$CASE_OUTPUT" "token=" "Clone failure does not print token syntax"
+
+runtime_fixture="$(make_fixture runtime-sparse)"
+rm -rf "$runtime_fixture/home/shipglows"
+run_case "$runtime_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local
+if [ "$CASE_STATUS" -eq 0 ]; then pass "Runtime sparse checkout succeeds"; else fail "Runtime sparse checkout succeeds"; fi
+assert_contains "$CASE_OUTPUT" "Surface d'installation: runtime" "Runtime is the default installation surface"
+assert_contains "$runtime_fixture/git-calls" "clone --quiet --no-checkout --branch main https://github.com/commandglows/shipglows.git" "Runtime clones the public repository sparsely"
+assert_contains "$runtime_fixture/git-calls" "sparse-checkout set --cone cli local tui .claude" "Runtime checkout excludes the skill corpus"
+assert_not_contains "$runtime_fixture/git-calls" "sparse-checkout set --cone cli local tui .claude .agents" "Runtime does not select corpus paths"
+
+upgrade_fixture="$(make_fixture runtime-upgrade)"
+run_case "$upgrade_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus
+if [ "$CASE_STATUS" -eq 0 ]; then pass "Existing checkout surface upgrade succeeds"; else fail "Existing checkout surface upgrade succeeds"; fi
+assert_contains "$upgrade_fixture/git-calls" "sparse-checkout set --cone cli local tui .claude .agents .opencode .kilo plugins skills templates tools shipglows_data" "Existing checkout is updated to the requested corpus surface"
+
+corpus_fixture="$(make_fixture corpus-sparse)"
+rm -rf "$corpus_fixture/home/shipglows"
+run_case "$corpus_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus
+if [ "$CASE_STATUS" -eq 0 ]; then pass "Corpus sparse checkout succeeds"; else fail "Corpus sparse checkout succeeds"; fi
+assert_contains "$CASE_OUTPUT" "Surface d'installation: corpus" "Corpus surface is reported"
+assert_contains "$corpus_fixture/git-calls" "sparse-checkout set --cone cli local tui .claude .agents .opencode .kilo plugins skills templates tools shipglows_data" "Corpus checkout selects public skills and shims"
+
+plugin_fixture="$(make_fixture codex-plugin)"
+rm -rf "$plugin_fixture/home/shipglows"
+run_case "$plugin_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=codex-plugin
+if [ "$CASE_STATUS" -eq 0 ]; then pass "Codex plugin guidance succeeds"; else fail "Codex plugin guidance succeeds"; fi
+assert_contains "$CASE_OUTPUT" "plugin Codex" "Codex plugin surface explains its mode"
+assert_contains "$CASE_OUTPUT" "commandglows/shipglows" "Codex plugin guidance uses the public repository"
+assert_not_contains "$plugin_fixture/git-calls" "git:" "Codex plugin surface does not clone the repository"
+
+invalid_surface_fixture="$(make_fixture invalid-surface)"
+run_case "$invalid_surface_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=private
+if [ "$CASE_STATUS" -ne 0 ]; then pass "Invalid surface fails"; else fail "Invalid surface fails"; fi
+assert_contains "$CASE_OUTPUT" "Surface d'installation invalide" "Invalid surface explains accepted choices"
+assert_not_contains "$invalid_surface_fixture/git-calls" "git:" "Invalid surface performs no Git operation"
+
+assert_contains "$REPO_ROOT/cli/install.sh" "SHIPGLOWS_INSTALL_SKILL_CORPUS" "CLI installer gates skill synchronization explicitly"
+assert_contains "$REPO_ROOT/cli/install.sh" "Installer le corpus public de skills" "CLI installer prompts for the public skill corpus"
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
 test "$failed" -eq 0

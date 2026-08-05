@@ -181,10 +181,16 @@ resolve_install_components() {
     SHIPGLOWS_INSTALL_AGENT_OPENCODE="1"
     SHIPGLOWS_INSTALL_AGENT_KILOCODE="1"
     SHIPGLOWS_INSTALL_AI_RUNTIME="1"
+    SHIPGLOWS_INSTALL_SKILL_CORPUS="0"
     SHIPGLOWS_INSTALL_TUI="1"
+
+    case "${SHIPGLOWS_INSTALL_SURFACE:-runtime}" in
+        corpus|skills|opencode|kilocode) SHIPGLOWS_INSTALL_SKILL_CORPUS="1" ;;
+    esac
 
     case "$value" in
         all|"")
+            SHIPGLOWS_INSTALL_SKILL_CORPUS="1"
             return 0
             ;;
         none)
@@ -204,10 +210,14 @@ resolve_install_components() {
                 if prompt_yes_no "Installer OpenCode ?" yes; then SHIPGLOWS_INSTALL_AGENT_OPENCODE="1"; else SHIPGLOWS_INSTALL_AGENT_OPENCODE="0"; fi
                 if prompt_yes_no "Installer KiloCode ?" yes; then SHIPGLOWS_INSTALL_AGENT_KILOCODE="1"; else SHIPGLOWS_INSTALL_AGENT_KILOCODE="0"; fi
 
-                if prompt_yes_no "Installer la couche runtime ShipGlows (settings Claude/Codex, MCP, skills, aliases) ?" yes; then
+                if prompt_yes_no "Installer la couche runtime ShipGlows (settings Claude/Codex, MCP, aliases) ?" yes; then
                     SHIPGLOWS_INSTALL_AI_RUNTIME="1"
                 else
                     SHIPGLOWS_INSTALL_AI_RUNTIME="0"
+                fi
+
+                if prompt_yes_no "Installer le corpus public de skills (Claude/OpenCode/KiloCode) ?" no; then
+                    SHIPGLOWS_INSTALL_SKILL_CORPUS="1"
                 fi
 
                 if prompt_yes_no "Installer la TUI ShipGlows pour les utilisateurs ciblés ?" yes; then
@@ -256,6 +266,9 @@ resolve_install_components() {
                 *,ai-runtime,*) SHIPGLOWS_INSTALL_AI_RUNTIME="1" ;;
             esac
             case ",$value," in
+                *,skills,*|*,corpus,*) SHIPGLOWS_INSTALL_SKILL_CORPUS="1" ;;
+            esac
+            case ",$value," in
                 *,tui,*) SHIPGLOWS_INSTALL_TUI="1" ;;
             esac
             if [ "${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}" = "1" ] || [ "${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}" = "1" ] || [ "${SHIPGLOWS_INSTALL_AGENT_OPENCODE:-0}" = "1" ] || [ "${SHIPGLOWS_INSTALL_AGENT_KILOCODE:-0}" = "1" ]; then
@@ -264,6 +277,7 @@ resolve_install_components() {
             return 0
             ;;
     esac
+
 }
 
 SHIPGLOWS_PRE_STATUS_DIR_NODE=""
@@ -2032,7 +2046,9 @@ setup_user() {
     if [ "${SHIPGLOWS_INSTALL_AI_RUNTIME:-1}" = "1" ]; then
         configure_claude_autonomous_permissions "$user_home" "$effective_mode" || setup_failed=1
         configure_codex_autonomous_permissions "$user_home" "$effective_mode" || setup_failed=1
-        configure_skills "$user_home" || setup_failed=1
+        if [ "${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}" = "1" ]; then
+            configure_skills "$user_home" || setup_failed=1
+        fi
     fi
     configure_shipglows_environment "$user_home"
     if [ "${SHIPGLOWS_INSTALL_AI_RUNTIME:-1}" = "1" ]; then
@@ -2063,7 +2079,7 @@ resolve_root_autonomy_opt_in
 resolve_install_components
 info "Mode IA autonome ShipGlows: ${SHIPGLOWS_AUTONOMY_MODE_RESOLVED}"
 info "Autonomie root: $([ "${SHIPGLOWS_ROOT_AUTONOMOUS_ALLOWED:-0}" = "1" ] && echo autorisee || echo standard)"
-info "Composants user ShipGlows: claude=${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}, codex=${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}, opencode=${SHIPGLOWS_INSTALL_AGENT_OPENCODE:-0}, kilocode=${SHIPGLOWS_INSTALL_AGENT_KILOCODE:-0}, ai-runtime=${SHIPGLOWS_INSTALL_AI_RUNTIME:-1}, tui=${SHIPGLOWS_INSTALL_TUI:-1}"
+info "Composants user ShipGlows: claude=${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}, codex=${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}, opencode=${SHIPGLOWS_INSTALL_AGENT_OPENCODE:-0}, kilocode=${SHIPGLOWS_INSTALL_AGENT_KILOCODE:-0}, ai-runtime=${SHIPGLOWS_INSTALL_AI_RUNTIME:-1}, skill-corpus=${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}, tui=${SHIPGLOWS_INSTALL_TUI:-1}"
 setup_user "$PRIMARY_USER_HOME" "$PRIMARY_USER"
 for username in "${TARGET_USERS[@]}"; do
     [ "$username" = "$PRIMARY_USER" ] && continue
@@ -2154,7 +2170,7 @@ generate_install_report() {
 - Mode: root (system + user config)
 - Mode IA autonome: ${SHIPGLOWS_AUTONOMY_MODE_RESOLVED:-standard}
 - Autonomie root: $(if [ "${SHIPGLOWS_ROOT_AUTONOMOUS_ALLOWED:-0}" = "1" ]; then echo "autorisee"; else echo "standard"; fi)
-- Composants user sélectionnés: claude=${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}, codex=${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}, opencode=${SHIPGLOWS_INSTALL_AGENT_OPENCODE:-0}, kilocode=${SHIPGLOWS_INSTALL_AGENT_KILOCODE:-0}, ai-runtime=${SHIPGLOWS_INSTALL_AI_RUNTIME:-1}, tui=${SHIPGLOWS_INSTALL_TUI:-1}
+- Composants user sélectionnés: claude=${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}, codex=${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}, opencode=${SHIPGLOWS_INSTALL_AGENT_OPENCODE:-0}, kilocode=${SHIPGLOWS_INSTALL_AGENT_KILOCODE:-0}, ai-runtime=${SHIPGLOWS_INSTALL_AI_RUNTIME:-1}, skill-corpus=${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}, tui=${SHIPGLOWS_INSTALL_TUI:-1}
 - Version script: local
 - Machine: $(hostname)
 - Log brut: $SHIPGLOWS_LOG_FILE

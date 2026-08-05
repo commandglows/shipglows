@@ -61,7 +61,7 @@ The repository currently proves two relevant runtime surfaces:
 - `.opencode/skills/shipglows/SKILL.md` is the explicit OpenCode repository shim.
 - `.agents/skills/shipglows/SKILL.md` is the generic OpenCode-compatible fallback shim.
 
-If your OpenCode setup supports repo-local skill import or repository skill discovery, point it at the explicit `.opencode/skills/shipglows/` surface first. Use `.agents/skills/shipglows/` only when your setup expects the generic compatible path.
+If your OpenCode setup supports repo-local skill import or repository skill discovery, point it at the explicit `.opencode/skills/shipglows/` surface first. Use `.agents/skills/shipglows/` only when your setup expects the generic compatible path. The regular ShipGlows runtime bootstrap intentionally omits both paths; use the explicit corpus surface when OpenCode needs them.
 
 ## What ShipGlows Does After Discovery
 
@@ -86,13 +86,13 @@ Use this repo contract:
 
 ## When You Need the Full ShipGlows Corpus
 
-The OpenCode shim is a lightweight repository entrypoint. For full local source-tree packaging or development audits, follow the bootstrap route documented by the shim itself:
+The OpenCode shim is a lightweight repository entrypoint. For a local checkout that includes the public skill corpus and OpenCode shim, request the explicit corpus surface:
 
 ```bash
-scripts/bootstrap_shipglows_repo.sh
+curl -fsSL https://www.winflowz.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
 ```
 
-Use that route only when the lightweight surface is not enough.
+Use that route only when the runtime surface is not enough. The Codex plugin remains a separate, no-clone installation path.
 
 ## Installer Note
 

@@ -235,6 +235,18 @@ cd ~/shipglows
 sudo ./cli/install.sh
 ```
 
+### Runtime, skills, and Codex distribution
+
+The bootstrap defaults to the lightweight `runtime` surface: it uses Git sparse checkout for the CLI, local installer, TUI, and runtime settings only. It does not download the public skill corpus by default.
+
+To make the public skill corpus and the OpenCode/KiloCode-compatible repository shims available locally, request it explicitly:
+
+```bash
+curl -fsSL https://www.winflowz.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
+```
+
+For a server installation, the interactive installer also asks separately whether to synchronize the public skill corpus into Claude/Codex. Select that option only for a source-tree workflow; Codex plugin users do not need it.
+
 ### Codex plugin alpha
 
 ShipGlows's Codex plugin path is intentionally lightweight. Users should not need to install many separate ShipGlows plugins to start. The main plugin exposes one `shipglows` entrypoint and can route to bundled or optional packs.
@@ -474,7 +486,7 @@ is a web preview path for browser testing through SSH tunnels, not native
 Android/iOS rendering.
 
 Per-user configuration includes:
-- `~/.claude/skills/*` and `~/.codex/skills/*` symlinks for the fourteen default public ShipGlows skills; the expert engine catalogue is opt-in
+- optional `~/.claude/skills/*` and `~/.codex/skills/*` symlinks for the default public ShipGlows skills when the public skill corpus is explicitly selected; the expert engine catalogue is opt-in
 - aliases in `~/.bashrc` for `000-shipglows`, `sg`, mode-selected `c`/`co`, safe escape hatches `cask`/`coask`, shell reload (`re`/`reload`), and tmux pane cleanup (`ch` = `clear; tmux clear-history`)
 - `shipglows_data/workflow/TASKS.md`, `shipglows_data/workflow/AUDIT_LOG.md`
 
@@ -485,7 +497,7 @@ tools/shipglows_sync_skills.sh --check --all
 tools/shipglows_sync_skills.sh --repair --skill sg-example
 ```
 
-The helper links current-user `~/.claude/skills/<name>` and `~/.codex/skills/<name>` entries to the real public skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. Use `--catalog expert` only when the internal engine catalogue is intentionally needed. It reports missing or stale links, blocks non-symlink collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
+The helper links current-user `~/.claude/skills/<name>` and `~/.codex/skills/<name>` entries to the real public skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. Use `--catalog expert` only when the internal engine catalogue is intentionally needed. It reports missing or stale links, blocks non-symlink collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
 
 If your Codex version does not expose one of these items (for example `thread`), adjust interactively in Codex:
 

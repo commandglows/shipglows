@@ -44,7 +44,7 @@ next_step: "/300-sg-docs technical audit codex-plugin-packaging"
 
 `/home/claude/plugins/shipglows/` is the lightweight Codex plugin distribution nucleus for ShipGlows. It gives users one primary plugin entrypoint while keeping the complete ShipGlows skill and reference corpus in the GitHub repository instead of packaging the whole repository into the plugin.
 
-The public repository now also exposes a repo-backed marketplace source at `/home/claude/shipglows/.agents/plugins/marketplace.json` with a publishable plugin source mirrored under `/home/claude/shipglows/plugins/shipglows/`. External users should install from the repository marketplace path; `/home/claude/plugins/shipglows/` remains the local packaging workspace.
+The public repository now also exposes a repo-backed marketplace source at `/home/claude/shipglows/.agents/plugins/marketplace.json` with a publishable plugin source mirrored under `/home/claude/shipglows/plugins/shipglows/`. External users should install from the repository marketplace path; `/home/claude/plugins/shipglows/` remains the local packaging workspace. This plugin route is distinct from the standalone runtime bootstrap: the latter defaults to a runtime-only sparse checkout and only includes the public corpus when `SHIPGLOWS_INSTALL_SURFACE=corpus` is explicitly requested.
 
 The plugin must stay useful without a huge bundle. When a workflow needs the full local ShipGlows corpus, the plugin exposes an explicit sparse checkout route into `${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}`.
 
