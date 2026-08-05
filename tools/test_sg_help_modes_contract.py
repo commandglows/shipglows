@@ -23,6 +23,9 @@ class HelpModesContractTests(unittest.TestCase):
             if line.startswith("`") and " — " in line
         ]
 
+    def catalog_id(self, line: str) -> str:
+        return line.split("`", 2)[1].split(" ", 1)[0]
+
     def test_default_catalog_has_exactly_one_line_for_every_public_skill(self) -> None:
         public = json.loads(REGISTRY.read_text(encoding="utf-8"))["public_catalog"]
         expected = [
@@ -31,10 +34,26 @@ class HelpModesContractTests(unittest.TestCase):
             for skill in domain["skills"]
         ] + [public["router"]["id"]]
         lines = self.catalog_lines()
-        actual = [line.split("`", 2)[1] for line in lines]
+        actual = [self.catalog_id(line) for line in lines]
         self.assertEqual(expected, actual)
         self.assertEqual(len(actual), len(set(actual)))
         self.assertTrue(all(" — " in line and "\n" not in line for line in lines))
+
+    def test_default_catalog_exposes_reusable_exact_invocation_grammar(self) -> None:
+        catalog = CATALOG.read_text(encoding="utf-8")
+        expected_grammar = (
+            "sg-design system [scope] | playground [route-path] | "
+            "audit <ui|tokens|components|a11y> [scope] | "
+            "animation <audit|design|implement|tune> [scope]",
+            "sg-experience <audit|flow|onboarding|recovery> <scope>",
+            "sg-engineering <audit|architecture|deps|performance|migrate|github|sync|access|parity> [target]",
+            "sg-help [default|mode|expert] [topic]",
+            "shipglows <request>",
+        )
+        for grammar in expected_grammar:
+            self.assertIn(f"`{grammar}", catalog)
+        self.assertIn("angle brackets are required", catalog)
+        self.assertIn("square brackets are optional", catalog)
 
     def test_expert_catalog_has_every_runtime_skill_and_is_not_the_default(self) -> None:
         registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
@@ -46,10 +65,10 @@ class HelpModesContractTests(unittest.TestCase):
             for skill in domain["skills"]
         } | {str(public["router"]["public_skill"])}
         expected = {path.parent.name for path in SKILLS_ROOT.glob("*/SKILL.md")} - public_sources
-        actual = {line.split("`", 2)[1] for line in self.catalog_lines(EXPERT_CATALOG)}
+        actual = {self.catalog_id(line) for line in self.catalog_lines(EXPERT_CATALOG)}
         self.assertEqual(expected, actual)
         self.assertNotEqual(
-            {line.split("`", 2)[1] for line in self.catalog_lines()}, actual
+            {self.catalog_id(line) for line in self.catalog_lines()}, actual
         )
 
     def test_help_routes_exact_mode_requests_to_the_catalog(self) -> None:

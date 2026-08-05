@@ -24,8 +24,12 @@
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Load configuration
-source "$SCRIPT_DIR/config.sh"
+# Load configuration. A malformed private-data config must stop the CLI before
+# it can operate with an ambiguous persistence destination.
+source "$SCRIPT_DIR/config.sh" || {
+    printf 'ShipGlows CLI configuration could not be loaded.\n' >&2
+    return 1 2>/dev/null || exit 1
+}
 
 shipglows_cli_migrate_state() {
     local new_dir="${SHIPGLOWS_STATE_DIR:-$HOME/.shipglows}"

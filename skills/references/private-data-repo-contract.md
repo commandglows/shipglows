@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.1"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-08"
-updated: "2026-07-12"
+updated: "2026-08-05"
 status: active
 source_skill: 307-sg-skills-refresh
 scope: private-data-repo-contract
@@ -69,7 +69,10 @@ This path is a separate Git working tree from both `$SHIPGLOWS_ROOT` and project
 SHIPGLOWS_PRIVATE_DATA_REPO
 ```
 
-- A bootstrap or install flow may also resolve companion variables such as `SHIPGLOWS_PRIVATE_DATA_DIR` or `SHIPGLOWS_PRIVATE_DIR`.
+- The CLI reads `${XDG_CONFIG_HOME:-$HOME/.config}/shipglows/private-data.env` when it exists. It accepts only declarative `KEY=value` lines for `SHIPGLOWS_PRIVATE_DATA_REPO` and `SHIPGLOWS_PRIVATE_DATA_DIR`; it must never source this file as shell code.
+- Environment values override values in that local file. The local file must be a regular file, owned by the current user, and inaccessible to group and other users.
+- `SHIPGLOWS_PRIVATE_DATA_DIR` is the sole canonical storage variable. `SHIPGLOWS_PRIVATE_ROOT` is a read-only compatibility alias resolved by the CLI while legacy consumers remain.
+- A bootstrap or install flow may also resolve companion variables such as `SHIPGLOWS_PRIVATE_DIR`.
 - Help, docs, and memory skills should describe the repository role and path, not assume one operator-specific remote value.
 
 ## Storage Contract
@@ -122,4 +125,5 @@ Validate after edits with:
 ```bash
 python3 tools/shipglows_metadata_lint.py skills/references/private-data-repo-contract.md skills/references/private-memory-store.md skills/300-sg-docs/SKILL.md skills/302-sg-help/SKILL.md skills/305-sg-init/SKILL.md
 rg -n "private-data-repo-contract|SHIPGLOWS_PRIVATE_DATA_REPO|SHIPGLOWS_PRIVATE_DATA_DIR|\\.shipglows/private/data|mail-intake" skills/references skills/300-sg-docs/SKILL.md skills/302-sg-help/SKILL.md skills/305-sg-init/SKILL.md
+bash tests/cli/private-data-config.sh
 ```

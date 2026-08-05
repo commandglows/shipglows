@@ -8,6 +8,11 @@ export SHIPGLOWS_LEGACY_STATE_DIR="${SHIPGLOWS_LEGACY_STATE_DIR:-$HOME/.shipglow
 export SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-${SHIPGLOWS_ROOT:-$HOME/shipglows}}"
 export SHIPGLOWS_ROOT="$SHIPGLOWS_ROOT"
 
+# Resolve private persistence once for every CLI consumer. The helper reads an
+# allowlisted local config file; it never sources it as shell code.
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/private-data.sh"
+shipglows_private_data_init || return 1 2>/dev/null || exit 1
+
 # ============================================================================
 # DIRECTORY CONFIGURATION
 # ============================================================================

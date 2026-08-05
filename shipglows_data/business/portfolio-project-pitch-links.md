@@ -67,13 +67,13 @@ This public file is only the portfolio index. It may contain project names, pitc
 Fetched pitch contents, private pitch summaries, and reusable source material belong in the approved private memory root:
 
 ```text
-${SHIPGLOWS_PRIVATE_ROOT:-${SHIPGLOWS_PRIVATE_ROOT:-$HOME/.shipglows/private/data}}
+${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}
 ```
 
 Use `skills/references/private-memory-store.md` for the storage rules. The default pitch cache location is:
 
 ```text
-${SHIPGLOWS_PRIVATE_ROOT:-${SHIPGLOWS_PRIVATE_ROOT:-$HOME/.shipglows/private/data}}/projects/
+${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}/projects/
 ```
 
 Do not copy cached pitch bodies, private repo contents, or source excerpts into this public index.
