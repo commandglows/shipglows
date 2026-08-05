@@ -76,6 +76,8 @@ agent-runnable lifecycle stage. Do not stop after a spec, governance bootstrap,
 or readiness finding and make the operator infer a technical next command.
 Ask only for a material operator-owned decision or an external/safety approval;
 otherwise resolve the next owner route and continue it.
+If `governance corpus state is missing, stale, or materially insufficient`, invoke internal
+`300-sg-docs update` directly and continue the same run after completion.
 
 Generated artifacts used only for local proof are disposable unless the task explicitly requires a durable project artifact. Remove temporary build outputs, caches, and preview leftovers after the proof completes.
 

@@ -305,6 +305,7 @@ Required gates:
 - create/update canonical business/product/branding/architecture/gtm/content-map/guidelines docs when missing and justified
 - when branding is non-trivial, prefer a governed bundle under `shipglows_data/branding/` rather than stuffing all brand doctrine into one file
 - create/update `shipglows_data/technical/design-system-authority.md` when a project has UI code but no declared canonical token/theme/component authority
+- when invoked to repair weak product/surface governance discovered by another owner, start with recovery (minimal question + inferable updates first), then resume the originating run immediately after `300-sg-docs update`
 
 When the target repo already declares `shipglows_data/editorial/ROADMAP.md`, `300-sg-docs update` should treat it as the canonical editorial operational companion and should not describe `shipglows_data/workflow/TASKS.md` as the place for content-roadmap work.
 

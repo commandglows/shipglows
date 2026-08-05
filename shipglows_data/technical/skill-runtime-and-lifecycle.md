@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-04"
+updated: "2026-08-05"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -18,6 +18,7 @@ linked_systems:
   - skills/references/
   - skills/references/skill-instruction-layering.md
   - skills/references/skill-context-budget.md
+  - skills/references/expert-mode-aliases.md
   - skills/000-shipglows/SKILL.md
   - skills/references/entrypoint-routing.md
   - skills/001-sg-build/SKILL.md
@@ -108,6 +109,8 @@ evidence:
   - "2026-08-04 added provider-neutral animation modes to 006-sg-design; GSAP remains optional after project-fit and proof gates."
   - "2026-08-04 added the exact 302-sg-help mode catalog with one line per repository skill and registered free-form help invocation validation."
   - "Métier-first public hierarchy separates 13 public owners from numeric internal engines and requires progressive clarification followed by autonomous outcome ownership."
+  - "Public skills now have direct runtime folders and matching Codex metadata; numeric prefixes are expert/compatibility identifiers rather than picker names."
+  - "Codex expert shortcuts now resolve through public owner modes before internal engines; core remains the sole hard system-context switch."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -148,8 +151,11 @@ The normal operator surface is one router plus thirteen public métier owners:
 | Gouverner | `sg-docs` | `300-sg-docs` |
 | Organiser | `sg-planning`, `sg-help` | `011-sg-pilotage`, `302-sg-help` |
 
-`shipglows` is the public natural-language router. Public owners select and
-coordinate numeric engines invisibly; they do not require operators to learn
+`shipglows` is the public natural-language router. Each public owner has a
+real folder and matching `name:` metadata (`skills/sg-development/`,
+`skills/sg-engineering/`, and so on), so the runtime picker exposes the métier
+name directly. Public owners select and coordinate numeric engines invisibly;
+they do not require operators to learn
 the lifecycle, proof, research, context, or packaging helper names.
 
 The resolution hierarchy is `project -> product -> surface -> feature`.
@@ -173,10 +179,18 @@ secret, destructive/external effect, or genuinely manual proof. A public owner
 may use `100`–`109`, `200`–`205`, `301`–`308`, `400`, `405`, `600`–`602`, `700`–`707`,
 or `900` engines as appropriate. `900-shipglows-core` remains internal-only.
 
-Three-digit codes remain part of runtime lookup through
-`skills/references/skill-code-index.md`; they are the expert/internal catalogue,
-not a second public taxonomy. `sg-help expert` exposes that catalogue when
+Three-digit codes remain only in the expert/compatibility lookup through
+`skills/references/skill-code-index.md`; they are not runtime-picker identities
+or a second public taxonomy. `sg-help expert` exposes that catalogue when
 explicitly requested.
+
+Codex expert shortcuts are a separate ergonomic layer, not separate owners.
+Their canonical resolution is `router alias -> public owner -> owner mode ->
+internal engine`, declared in `skill-invocation-registry.json` and explained by
+`expert-mode-aliases.md`. Default help continues to show métier modes only;
+expert help adds the shortcut equivalences and numeric targets. `verify`
+preserves an explicit specialist owner before using its proof path, while
+`core` alone hard-binds the remaining request to ShipGlows-system maintenance.
 
 Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 

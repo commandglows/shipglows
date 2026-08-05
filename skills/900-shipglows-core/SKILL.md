@@ -78,15 +78,22 @@ particular, `900-shipglows-core excellence` must suggest
 `103-sg-verify mode=excellence <task or scope>`; never silently activate the
 other skill from the rejected command.
 
-An operator critique that names a concrete ShipGlows behavior to correct is a
+`core` is a hard ShipGlows-system context: all text after the prefix belongs to
+the ShipGlows workflow, never to the current project. An operator critique is a
 bounded repair request, not a bare invocation: select the narrowest internal
 `build` target and continue without asking the operator to choose a mode.
+Project names, a quoted wrong route, and a stated desired project outcome are
+failure evidence only. For example, `shipglows core pourquoi il propose
+d'auditer ShipGlows ? je veux le projet courant` repairs the core routing rule;
+it does not audit either repository. Diagnose and repair the ShipGlows layer
+that selected the wrong target, then prove that this exact critique remains a
+core repair request.
 
 ## Scope Gate
 
 Audit, packaging, and help requests are read-only unless the operator asks for edits. `build` and `refresh` follow their loaded playbook; non-trivial behavior changes require a ready spec. An operator critique of ShipGlows execution authorizes a bounded repair at the narrowest justified ShipGlows layer unless the operator says `read-only`, `audit only`, or otherwise forbids edits.
 
-Target binding rule: when `900-shipglows-core` is invoked, the default edit target is the ShipGlows system under `$SHIPGLOWS_ROOT`, not the repository currently open in the conversation. A project repo mentioned implicitly by surrounding discussion, shell location, or recent file edits does not override that default. Only an explicit operator instruction that names the project/repository should redirect the target away from ShipGlows itself.
+Target binding rule: when `900-shipglows-core` is invoked through `shipglows core`, the edit target is always the ShipGlows system under `$SHIPGLOWS_ROOT`. No later project name, repository path, request, or quoted outcome overrides that context. To perform project work, leave `core` and invoke the relevant project mode or métier.
 
 This skill is internal-only:
 

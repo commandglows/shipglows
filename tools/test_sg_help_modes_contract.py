@@ -17,7 +17,11 @@ EXPERT_CATALOG = SKILLS_ROOT / "302-sg-help" / "references" / "help-modes-expert
 
 class HelpModesContractTests(unittest.TestCase):
     def catalog_lines(self, path: Path = CATALOG) -> list[str]:
-        return [line for line in path.read_text(encoding="utf-8").splitlines() if line.startswith("`")]
+        return [
+            line
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line.startswith("`") and " — " in line
+        ]
 
     def test_default_catalog_has_exactly_one_line_for_every_public_skill(self) -> None:
         public = json.loads(REGISTRY.read_text(encoding="utf-8"))["public_catalog"]
@@ -36,7 +40,12 @@ class HelpModesContractTests(unittest.TestCase):
         registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         public = registry["public_catalog"]
         self.assertTrue(registry["internal_catalog"]["include_all_runtime_skills"])
-        expected = {path.parent.name for path in SKILLS_ROOT.glob("*/SKILL.md")}
+        public_sources = {
+            str(skill["public_skill"])
+            for domain in public["domains"]
+            for skill in domain["skills"]
+        } | {str(public["router"]["public_skill"])}
+        expected = {path.parent.name for path in SKILLS_ROOT.glob("*/SKILL.md")} - public_sources
         actual = {line.split("`", 2)[1] for line in self.catalog_lines(EXPERT_CATALOG)}
         self.assertEqual(expected, actual)
         self.assertNotEqual(

@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-04"
+updated: "2026-08-05"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-catalog
@@ -39,7 +39,7 @@ Return only the lines below for exact `302-sg-help mode`, `302-sg-help modes`, `
 `sg-engineering` — audit | architecture | deps | performance | migrate | github | sync | access | parity
 `sg-maintenance` — quick | full | security | deps | docs | audits | global | no-ship
 `sg-release` — default | preview | prod | verify
-`sg-content` — plan | repurpose | draft | enrich | audit | editorial | publish | emailing
+`sg-content` — plan | capture | repurpose | draft | enrich | audit | editorial | publish | emailing
 `sg-marketing` — market | gtm | copy | copywriting
 `sg-seo` — audit | launch | monitoring | fix | page | project | global
 `sg-docs` — init | readme | api | components | audit | update | metadata | migrate | technical

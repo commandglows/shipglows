@@ -487,7 +487,7 @@ class TechnicalContractTests(unittest.TestCase):
             public_entry = runtime_root / "sg-engineering"
             self.assertTrue(public_entry.exists(), runtime_root)
             self.assertEqual(
-                (ROOT / "skills" / "010-sg-technical").resolve(),
+                (ROOT / "skills" / "sg-engineering").resolve(),
                 public_entry.resolve(),
             )
             self.assertFalse((runtime_root / "010-sg-technical").exists(), runtime_root)

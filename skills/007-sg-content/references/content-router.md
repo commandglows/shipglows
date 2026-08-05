@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-06-28"
+updated: "2026-08-05"
 status: active
 source_skill: 007-sg-content
 scope: content-router
@@ -32,6 +32,7 @@ supersedes: []
 evidence:
   - "007-sg-content currently carries both lifecycle routing and detailed owner/delegation doctrine."
   - "Instruction layering calls for detailed matrices and long workflow detail to move into references."
+  - "Operator decision 2026-08-05: rename the public tmux export mode to capture and retain tmux plus capture-full-conversation as aliases."
 next_review: "2026-07-05"
 next_step: "/300-sg-docs update if the routing model changes"
 ---
@@ -50,7 +51,7 @@ When a pasted source, email, URL, transcript, note, article, or example arrives 
 
 ## Mode Map
 
-- `capture-full-conversation` -> delegate raw tmux scrollback export to the internal `800-tmux-capture-conversation` implementation; do not clean or repurpose the result.
+- `capture`, `tmux`, or legacy `capture-full-conversation` -> normalize to public mode `capture`, then delegate raw tmux scrollback export to the internal `800-tmux-capture-conversation` implementation; do not clean or repurpose the result.
 - `clean-transcript <path>` -> delegate readability cleanup of the supplied Markdown transcript to the internal `801-clean-conversation-transcript` implementation; do not capture a new pane or create a content pack.
 - `plan`, `strategy`, `calendar`, `content plan` -> content plan, use `100-sg-spec` when durable or multi-surface.
 - `repurpose <source>` -> load `references/repurpose-playbook.md`; this self-owned lane first classifies source safety, then creates a source-faithful pack and governed durable memory when justified, before handing downstream work to the right owner. A bare `repurpose` asks for a source. `verbatim`, `mot pour mot`, and `copie exacte` select the exact-preservation archival branch, never analysis.

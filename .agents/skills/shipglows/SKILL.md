@@ -34,11 +34,21 @@ If that path is missing, explain that the repository skill is available but loca
 
 ## Routing
 
+- `core <instruction>`: treat every remaining word as ShipGlows-system work.
+  Project routes, paths, and outcomes are failure evidence; never audit or
+  modify the cited project. Leave `core` before requesting project work.
 - `help`, `aide`, or empty: explain the public workflow surface.
 - `packs`, `catalog`, `modules`, or `capabilities`: summarize the pack catalog.
 - `audit packaging`, `audit packs`, `portability`, or `local ShipGlows packaging`: run the packaging audit when local ShipGlows source exists.
 - `refresh pack`, `update pack`, or `pack maintenance`: explain pack refresh flow and point to the refresh script.
-- `spec`, `ready`, `start`, `verify`, `check`, `fix`, or French equivalents: route conceptually to the matching ShipGlows workflow.
+- Expert aliases resolve through their canonical public owner mode before an
+  internal workflow: planning owns `explore`, `spec`, `status`, and `resume`;
+  development owns `build`; bug owns `fix`; engineering owns generic
+  `verify`, `test`, and `browser`; release owns `ship`, `deploy`, and `prod`.
+  Content owns `capture` and its `tmux` alias; both export the tmux conversation
+  through the same internal capture engine.
+  Explicit design, SEO, release, or bug verification retains that specialist
+  owner. The aliases contain no independent workflow behavior.
 - `references`, `docs`, `site`, or `hosted docs`: explain the local-vs-hosted reference policy.
 - `full ShipGlows`, `clone repo`, or `installation complète`: offer the sparse bootstrap route and ask before any networked change.
 

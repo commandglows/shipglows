@@ -60,7 +60,7 @@ class RepurposeModeContractTest(unittest.TestCase):
         if PUBLIC_SITE is None:
             self.skipTest("optional shipglows-site checkout is not available")
         public = (PUBLIC_SITE / "src/content/skills/sg-content.md").read_text(encoding="utf-8")
-        for mode in ("capture-full-conversation", "clean-transcript", "verbatim"):
+        for mode in ("capture", "tmux", "capture-full-conversation", "clean-transcript", "verbatim"):
             self.assertIn(mode, router + skill + public)
         self.assertIn("internal `800-tmux-capture-conversation`", router)
         self.assertIn("internal `801-clean-conversation-transcript`", router)

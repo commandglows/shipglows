@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: "ShipGlows"
 created: "2026-08-04"
 created_at: "2026-08-04 23:11:03 UTC"
-updated: "2026-08-04"
-updated_at: "2026-08-05 00:07:00 UTC"
-status: ready
+updated: "2026-08-05"
+updated_at: "2026-08-05 12:06:17 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: "metier-first-public-skill-hierarchy-and-autonomous-execution"
@@ -92,6 +92,7 @@ ShipGlows must expose one understandable métier-first surface: thirteen public 
 - Once intent is executable, the public owner continues automatically through all applicable stages in the authorized scope.
 - Cross-métier handoffs, specialist engines, tests, and proof collection remain internal implementation details.
 - `sg-help mode` shows both the simple public catalog and, only on demand, the expert/internal engine catalog.
+- Codex expert shortcuts remain available through `shipglows <alias>`, but resolve through a canonical public owner and owner mode before selecting an internal engine.
 - Public and internal documentation use distinct owners: `sg-content` for public-facing material and `sg-docs` for internal project and agent documentation.
 
 # Error Behavior
@@ -208,14 +209,16 @@ The final report leads with the outcome, proof, residual risk, and any remaining
 
 ## Public Mode Contract
 
-Each public skill may expose a small set of intent-level modes. Modes describe the kind of outcome, not lifecycle stages or internal tools. The exact mode registry is finalized during implementation, subject to these rules:
+Each public skill may expose a small set of default intent-level modes plus bounded expert modes. Default modes describe the kind of outcome in métier language. Expert modes may expose lifecycle or proof control without creating a second skill taxonomy. The exact mode registry is finalized during implementation, subject to these rules:
 
 - default mode infers intent when unambiguous;
 - mode names use métier language recognizable without ShipGlows expertise;
-- lifecycle concepts such as `spec`, `ready`, `start`, `verify`, and `end` remain internal engines, not public modes;
+- lifecycle concepts such as `spec`, `verify`, `test`, and `ship` stay out of default discovery, but may exist as expert modes owned by the relevant public skill;
 - a mode may route to multiple engines while one public owner retains accountability;
+- every Codex shortcut resolves to `public owner -> owner mode -> internal engine`; shortcut references contain no independent workflow behavior;
+- `core` is the sole hard context-switch exception and binds the remaining instruction to ShipGlows-system maintenance through `900-shipglows-core`;
 - `sg-help mode` renders one line per public skill with its modes, grouped by the six domains;
-- `sg-help mode --expert` or equivalent may reveal internal engines and legacy aliases without mixing them into the default catalog.
+- `sg-help mode --expert` or equivalent reveals owner-bound expert modes, their `shipglows <alias>` shortcuts, and internal engines without mixing them into the default catalog.
 
 ## Boundary Decisions
 
@@ -414,6 +417,22 @@ Each public skill may expose a small set of intent-level modes. Modes describe t
   - Depends on: Tasks 1-8.
   - Validate with: all acceptance criteria checked against evidence and no unresolved open questions.
 
+- [x] Task 10: Make the public names real runtime skills.
+  - Files: `skills/shipglows/SKILL.md`, `skills/sg-*/SKILL.md`, `skills/references/skill-invocation-registry.json`, runtime sync/checker/index tooling, public and internal runtime docs.
+  - Action: create direct public folders with matching `name:` metadata; make default runtime synchronization target those folders; retain numbered engines only for explicit expert/legacy use.
+  - Depends on: Tasks 1-9.
+  - Validate with: public metadata assertions, default sync target assertions, expert-catalog exclusion, invocation output, and a current-user runtime inspection.
+
+- [x] Task 11: Offer excellence verification through the public development owner.
+  - Files: `skills/sg-development/SKILL.md`, `skills/references/skill-invocation-registry.json`, invocation validation, and contract tests.
+  - Action: support the unlisted shortcut `sg-development excellence [scope]`; route it internally to `103-sg-verify mode=excellence` without exposing numeric engines in default discovery.
+  - Validate with: public invocation fixture, expert-engine fixture, and runtime-link check.
+
+- [x] Task 12: Rebind Codex expert aliases through public métier modes.
+  - Files: `skills/references/skill-invocation-registry.json`, `skills/references/expert-mode-aliases.md`, `skills/000-shipglows/SKILL.md`, affected public `skills/sg-*/SKILL.md`, `skills/302-sg-help/references/help-modes-expert-catalog.md`, operator docs, and focused contract tests.
+  - Action: make the invocation registry authoritative for owner-bound expert modes; map every shortcut through a public owner and canonical mode before its internal engine; keep shortcut contracts behavior-free; preserve `core` as the only hard ShipGlows-system context switch; make contextual `verify` select the relevant specialist owner when the requested proof domain is explicit.
+  - Validate with: registry uniqueness and ownership assertions, exact alias coverage, specialist-verify pressure scenarios, help/catalog parity, metadata lint, skill budget, runtime sync, and existing métier regression suites.
+
 # Acceptance Criteria
 
 - [x] AC 1: Given default discovery, when the operator views ShipGlows skills, then exactly thirteen métier skills grouped into six domains plus `shipglows` are presented.
@@ -429,6 +448,12 @@ Each public skill may expose a small set of intent-level modes. Modes describe t
 - [x] AC 11: Given the current capability corpus, when the ownership audit runs, then every capability has exactly one public owner or explicit internal-engine status.
 - [x] AC 12: Given default and expert help, when compared, then default help remains simple while expert help preserves direct internal discoverability and compatibility aliases.
 - [x] AC 13: Given implementation completion, when repository validation runs, then metadata, budgets, references, registry generation, runtime sync, packaging, and pressure tests pass.
+- [x] AC 14: Given default runtime discovery, when Codex reads the installed public skills, then every public `name:` is the métier name rather than a numeric engine name.
+- [x] AC 15: Given `sg-development excellence`, when the operator requests it, then public routing selects the internal excellence verification engine without exposing it in default help.
+- [x] AC 16: Given any Codex expert alias except `core`, when the router resolves it, then the canonical registry names one public owner, one owner mode, and one internal engine without giving the alias independent workflow behavior.
+- [x] AC 17: Given `shipglows verify <domain scope>`, when the scope clearly belongs to design, SEO, release, bug, or engineering, then the router retains the relevant public métier owner and selects the appropriate specialist proof path instead of blindly forcing generic verification.
+- [x] AC 18: Given default help and expert help, when compared, then default help contains only métier modes while expert help adds owner-bound expert modes, shortcut equivalences, and numeric engine details.
+- [x] AC 19: Given `shipglows core <instruction>`, when any later project name or quoted outcome appears, then the entire instruction remains bound to ShipGlows-system maintenance.
 
 # Test Strategy
 
@@ -466,6 +491,16 @@ Each public skill may expose a small set of intent-level modes. Modes describe t
 
 None. Exact mode labels may be refined during implementation within the fixed métier boundaries, provided the canonical registry, public count, and acceptance criteria remain unchanged.
 
+## Runtime Metadata Correction
+
+The first implementation used runtime symlinks named `sg-development`,
+`sg-engineering`, and similar public labels that pointed at numeric engine
+folders. Codex reads the `name:` frontmatter, so those aliases still presented
+the numeric engine name to the picker. Task 10 replaces that indirection with
+real public folders and keeps the numeric engine only as an explicit
+expert/compatibility target. This is a correction to default discovery, not a
+destructive removal of engine playbooks.
+
 ## Skill Run History
 
 | Date UTC | Skill | Model | Action | Result | Next step |
@@ -475,13 +510,22 @@ None. Exact mode labels may be refined during implementation within the fixed m�
 | 2026-08-04 23:58:00 UTC | 102-sg-start | GPT-5 Codex | Implemented the public registry, shared autonomy contract, thirteen métier owners, help/runtime visibility, plugin and documentation migration, pressure tests, and public-site catalog | implemented | /103-sg-verify shipglows_data/workflow/specs/metier-first-public-skill-hierarchy-and-autonomous-execution.md |
 | 2026-08-05 00:02:00 UTC | 103-sg-verify | GPT-5 Codex | Ran standard scenario-first verification across 12 MH scenarios, 81 focused regressions, runtime sync, metadata, index, budgets, skill audit, plugin validation, checklist status, and the 83-page public-site build | verified | /104-sg-end shipglows_data/workflow/specs/metier-first-public-skill-hierarchy-and-autonomous-execution.md |
 | 2026-08-05 00:07:00 UTC | 104-sg-end | GPT-5 Codex | Closed local implementation bookkeeping, aligned the changelog and documentation reflection, and preserved Git shipping as a separate unauthorized step | closed | /005-sg-ship shipglows_data/workflow/specs/metier-first-public-skill-hierarchy-and-autonomous-execution.md |
+| 2026-08-04 23:59:52 UTC | 102-sg-start | GPT-5 Codex | Reopened the local migration to replace public alias links with direct public skills and matching Codex metadata | in_progress | public runtime verification |
+| 2026-08-05 00:07:00 UTC | 103-sg-verify | GPT-5 Codex | Verified direct public skill metadata, public runtime links, registry routing, index separation, focused regression tests, metadata, budgets, and audit hard findings | verified | closure |
+| 2026-08-05 00:07:00 UTC | 104-sg-end | GPT-5 Codex | Closed the runtime metadata correction locally; Git ship remains an explicit separate authority | closed | /005-sg-ship shipglows_data/workflow/specs/metier-first-public-skill-hierarchy-and-autonomous-execution.md |
+| 2026-08-05 10:13:05 UTC | sg-development | GPT-5 Codex | Added and verified the hidden public `excellence` shortcut, including direct routing to `103-sg-verify` without default picker exposure | verified | closure |
+| 2026-08-05 12:00:00 UTC | 100-sg-spec | GPT-5 Codex | Reopened the métier-first contract to make Codex expert shortcuts resolve through canonical public owner modes instead of forming a parallel runtime taxonomy | drafted | readiness review |
+| 2026-08-05 12:00:00 UTC | 101-sg-ready | GPT-5 Codex | Confirmed bounded registry, router, public-owner, help, documentation, and scenario-proof scope; retained core hard-context and default-catalog simplicity invariants | ready | implementation |
+| 2026-08-05 12:03:00 UTC | 102-sg-start | GPT-5 Codex | Rebound all 13 Codex expert aliases through canonical public owner modes, added deterministic contextual specialist routing for verify, aligned help/internal/public docs, and refreshed affected skill contracts | implemented | standard verification |
+| 2026-08-05 12:05:00 UTC | 103-sg-verify | GPT-5 Codex | Standard scenario-first verification passed 48 focused tests, all owner/mode/engine mappings, five contextual verify routes, runtime sync 28/28, targeted metadata 8/8, budget and hard audit gates, plugin audit, and the 83-page public site build; global metadata still has three unrelated pre-existing failures | verified | local closure |
+| 2026-08-05 12:06:17 UTC | 104-sg-end | GPT-5 Codex | Closed the owner-bound expert-alias refinement locally after documentation reflection confirmed the registry, help, internal docs, changelog, compatibility entrypoint, and public EN/FR site surfaces are aligned; no commit or push performed | closed | optional Git ship |
 
 ## Current Chantier Flow
 
-- 100-sg-spec: drafted
+- 100-sg-spec: amended
 - 101-sg-ready: ready
-- 102-sg-start: implemented
-- 103-sg-verify: verified
+- 102-sg-start: implemented (owner-bound expert aliases)
+- 103-sg-verify: verified (standard)
 - 104-sg-end: closed
 - 005-sg-ship: pending
 - Next step: `/005-sg-ship shipglows_data/workflow/specs/metier-first-public-skill-hierarchy-and-autonomous-execution.md`

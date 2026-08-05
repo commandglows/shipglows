@@ -1,5 +1,5 @@
 {
-  "format_version": "2.0",
+  "format_version": "2.3",
   "identity_source": "skills/references/skill-code-index.md",
   "public_catalog": {
     "domains": [
@@ -7,53 +7,70 @@
         "id": "create",
         "label": "Create",
         "skills": [
-          {"id": "sg-development", "runtime_skill": "001-sg-build", "modes": ["default", "feature", "app", "refactor"], "internal_engines": ["100-sg-spec", "101-sg-ready", "102-sg-start", "105-sg-check", "103-sg-verify", "104-sg-end", "005-sg-ship"]},
-          {"id": "sg-design", "runtime_skill": "006-sg-design", "modes": ["system", "playground", "audit", "animation", "redesign", "migration", "library"], "internal_engines": ["105-sg-check", "108-sg-browser", "103-sg-verify"]},
-          {"id": "sg-experience", "runtime_skill": "008-sg-customer", "modes": ["audit", "flow", "onboarding", "recovery"], "internal_engines": ["006-sg-design", "007-sg-content", "107-sg-test", "108-sg-browser", "109-sg-auth-debug"]}
+          {"id": "sg-development", "public_skill": "sg-development", "runtime_skill": "001-sg-build", "modes": ["default", "feature", "app", "refactor"], "hidden_modes": {"build": {"runtime_engine": "001-sg-build"}, "excellence": {"runtime_engine": "103-sg-verify", "engine_mode": "excellence"}}, "internal_engines": ["100-sg-spec", "101-sg-ready", "102-sg-start", "105-sg-check", "103-sg-verify", "104-sg-end", "005-sg-ship"]},
+          {"id": "sg-design", "public_skill": "sg-design", "runtime_skill": "006-sg-design", "modes": ["system", "playground", "audit", "animation", "redesign", "migration", "library"], "internal_engines": ["105-sg-check", "108-sg-browser", "103-sg-verify"]},
+          {"id": "sg-experience", "public_skill": "sg-experience", "runtime_skill": "008-sg-customer", "modes": ["audit", "flow", "onboarding", "recovery"], "internal_engines": ["006-sg-design", "007-sg-content", "107-sg-test", "108-sg-browser", "109-sg-auth-debug"]}
         ]
       },
       {
         "id": "quality",
         "label": "Quality",
         "skills": [
-          {"id": "sg-bug", "runtime_skill": "003-sg-bug", "modes": ["default", "reproduce", "fix", "retest", "close"], "internal_engines": ["106-sg-fix", "107-sg-test", "108-sg-browser", "109-sg-auth-debug", "103-sg-verify"]},
-          {"id": "sg-engineering", "runtime_skill": "010-sg-technical", "modes": ["audit", "architecture", "deps", "performance", "migrate", "github", "sync", "access", "parity"], "internal_engines": ["105-sg-check", "400-sg-audit", "600-sg-local-cloud-sync", "601-sg-product-entitlements", "602-sg-platform-parity"]},
-          {"id": "sg-maintenance", "runtime_skill": "002-sg-maintain", "modes": ["quick", "full", "security", "deps", "docs", "audits", "global", "no-ship"], "internal_engines": ["003-sg-bug", "010-sg-technical", "105-sg-check", "300-sg-docs", "400-sg-audit"]}
+          {"id": "sg-bug", "public_skill": "sg-bug", "runtime_skill": "003-sg-bug", "modes": ["default", "reproduce", "fix", "retest", "close"], "internal_engines": ["106-sg-fix", "107-sg-test", "108-sg-browser", "109-sg-auth-debug", "103-sg-verify"]},
+          {"id": "sg-engineering", "public_skill": "sg-engineering", "runtime_skill": "010-sg-technical", "modes": ["audit", "architecture", "deps", "performance", "migrate", "github", "sync", "access", "parity"], "hidden_modes": {"verify": {"runtime_engine": "103-sg-verify", "engine_mode": "standard"}, "test": {"runtime_engine": "107-sg-test"}, "browser": {"runtime_engine": "108-sg-browser"}}, "internal_engines": ["105-sg-check", "400-sg-audit", "103-sg-verify", "107-sg-test", "108-sg-browser", "600-sg-local-cloud-sync", "601-sg-product-entitlements", "602-sg-platform-parity"]},
+          {"id": "sg-maintenance", "public_skill": "sg-maintenance", "runtime_skill": "002-sg-maintain", "modes": ["quick", "full", "security", "deps", "docs", "audits", "global", "no-ship"], "internal_engines": ["003-sg-bug", "010-sg-technical", "105-sg-check", "300-sg-docs", "400-sg-audit"]}
         ]
       },
       {
         "id": "publish",
         "label": "Publish",
         "skills": [
-          {"id": "sg-release", "runtime_skill": "004-sg-deploy", "modes": ["default", "preview", "prod", "verify"], "internal_engines": ["005-sg-ship", "105-sg-check", "405-sg-prod", "108-sg-browser", "109-sg-auth-debug", "107-sg-test", "103-sg-verify", "304-sg-changelog"]}
+          {"id": "sg-release", "public_skill": "sg-release", "runtime_skill": "004-sg-deploy", "modes": ["default", "preview", "prod", "verify"], "hidden_modes": {"ship": {"runtime_engine": "005-sg-ship"}, "deploy": {"runtime_engine": "004-sg-deploy"}}, "internal_engines": ["005-sg-ship", "105-sg-check", "405-sg-prod", "108-sg-browser", "109-sg-auth-debug", "107-sg-test", "103-sg-verify", "304-sg-changelog"]}
         ]
       },
       {
         "id": "grow-audience",
         "label": "Grow audience",
         "skills": [
-          {"id": "sg-content", "runtime_skill": "007-sg-content", "modes": ["plan", "repurpose", "draft", "enrich", "audit", "editorial", "publish", "emailing"], "internal_engines": ["200-sg-redact", "201-sg-enrich", "202-sg-emailing", "203-sg-research", "205-sg-veille"]},
-          {"id": "sg-marketing", "runtime_skill": "009-sg-marketing", "modes": ["market", "gtm", "copy", "copywriting"], "internal_engines": ["203-sg-research", "400-sg-audit"]},
-          {"id": "sg-seo", "runtime_skill": "406-sg-seo", "modes": ["audit", "launch", "monitoring", "fix", "page", "project", "global"], "internal_engines": ["007-sg-content", "009-sg-marketing", "108-sg-browser", "405-sg-prod"]}
+          {"id": "sg-content", "public_skill": "sg-content", "runtime_skill": "007-sg-content", "modes": ["plan", "capture", "repurpose", "draft", "enrich", "audit", "editorial", "publish", "emailing"], "hidden_modes": {"tmux": {"owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation"}, "capture-full-conversation": {"owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation"}}, "internal_engines": ["200-sg-redact", "201-sg-enrich", "202-sg-emailing", "203-sg-research", "205-sg-veille", "800-tmux-capture-conversation", "801-clean-conversation-transcript"]},
+          {"id": "sg-marketing", "public_skill": "sg-marketing", "runtime_skill": "009-sg-marketing", "modes": ["market", "gtm", "copy", "copywriting"], "internal_engines": ["203-sg-research", "400-sg-audit"]},
+          {"id": "sg-seo", "public_skill": "sg-seo", "runtime_skill": "406-sg-seo", "modes": ["audit", "launch", "monitoring", "fix", "page", "project", "global"], "internal_engines": ["007-sg-content", "009-sg-marketing", "108-sg-browser", "405-sg-prod"]}
         ]
       },
       {
         "id": "govern",
         "label": "Govern",
         "skills": [
-          {"id": "sg-docs", "runtime_skill": "300-sg-docs", "modes": ["init", "readme", "api", "components", "audit", "update", "metadata", "migrate", "technical"], "internal_engines": ["301-sg-context", "304-sg-changelog", "305-sg-init"]}
+          {"id": "sg-docs", "public_skill": "sg-docs", "runtime_skill": "300-sg-docs", "modes": ["init", "readme", "api", "components", "audit", "update", "metadata", "migrate", "technical"], "internal_engines": ["301-sg-context", "304-sg-changelog", "305-sg-init"]}
         ]
       },
       {
         "id": "organize",
         "label": "Organize",
         "skills": [
-          {"id": "sg-planning", "runtime_skill": "011-sg-pilotage", "modes": ["tasks", "backlog", "priorities", "review", "sessions"], "internal_engines": ["301-sg-context", "303-sg-resume", "308-sg-status", "700-sg-explore", "704-sg-model", "705-sg-conversation-audit", "706-continue"]},
-          {"id": "sg-help", "runtime_skill": "302-sg-help", "modes": ["default", "mode", "expert"], "internal_engines": []}
+          {"id": "sg-planning", "public_skill": "sg-planning", "runtime_skill": "011-sg-pilotage", "modes": ["tasks", "backlog", "priorities", "review", "sessions"], "hidden_modes": {"explore": {"runtime_engine": "700-sg-explore"}, "spec": {"runtime_engine": "100-sg-spec"}, "status": {"runtime_engine": "308-sg-status"}, "resume": {"runtime_engine": "303-sg-resume"}}, "internal_engines": ["100-sg-spec", "301-sg-context", "303-sg-resume", "308-sg-status", "700-sg-explore", "704-sg-model", "705-sg-conversation-audit", "706-continue"]},
+          {"id": "sg-help", "public_skill": "sg-help", "runtime_skill": "302-sg-help", "modes": ["default", "mode", "expert"], "internal_engines": []}
         ]
       }
     ],
-    "router": {"id": "shipglows", "runtime_skill": "000-shipglows", "modes": ["default"]}
+    "router": {"id": "shipglows", "public_skill": "shipglows", "runtime_skill": "000-shipglows", "modes": ["default"], "hidden_modes": {"core": {"runtime_engine": "900-shipglows-core", "context": "shipglows-system"}}}
+  },
+  "codex_expert_aliases": {
+    "core": {"public_owner": "shipglows", "owner_mode": "core", "runtime_engine": "900-shipglows-core", "resolution": "hard-context"},
+    "explore": {"public_owner": "sg-planning", "owner_mode": "explore", "runtime_engine": "700-sg-explore", "resolution": "direct"},
+    "spec": {"public_owner": "sg-planning", "owner_mode": "spec", "runtime_engine": "100-sg-spec", "resolution": "direct"},
+    "status": {"public_owner": "sg-planning", "owner_mode": "status", "runtime_engine": "308-sg-status", "resolution": "direct"},
+    "resume": {"public_owner": "sg-planning", "owner_mode": "resume", "runtime_engine": "303-sg-resume", "resolution": "direct"},
+    "build": {"public_owner": "sg-development", "owner_mode": "build", "runtime_engine": "001-sg-build", "resolution": "direct"},
+    "fix": {"public_owner": "sg-bug", "owner_mode": "fix", "runtime_engine": "106-sg-fix", "resolution": "direct"},
+    "verify": {"public_owner": "sg-engineering", "owner_mode": "verify", "runtime_engine": "103-sg-verify", "resolution": "contextual-specialist", "specialist_routes": [{"public_owner": "sg-design", "owner_mode": "audit", "runtime_engine": "006-sg-design", "keywords": ["design", "accessibility", "accessible", "a11y", "ui", "ux", "animation", "motion"]}, {"public_owner": "sg-seo", "owner_mode": "audit", "runtime_engine": "406-sg-seo", "keywords": ["seo", "search", "serp", "indexing", "crawl"]}, {"public_owner": "sg-release", "owner_mode": "verify", "runtime_engine": "004-sg-deploy", "keywords": ["release", "deploy", "deployment", "preview", "live", "production", "prod"]}, {"public_owner": "sg-bug", "owner_mode": "retest", "runtime_engine": "107-sg-test", "keywords": ["bug", "defect", "regression", "reproduce", "retest"]}]},
+    "test": {"public_owner": "sg-engineering", "owner_mode": "test", "runtime_engine": "107-sg-test", "resolution": "direct"},
+    "browser": {"public_owner": "sg-engineering", "owner_mode": "browser", "runtime_engine": "108-sg-browser", "resolution": "direct"},
+    "capture": {"public_owner": "sg-content", "owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation", "resolution": "direct"},
+    "tmux": {"public_owner": "sg-content", "owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation", "resolution": "direct"},
+    "ship": {"public_owner": "sg-release", "owner_mode": "ship", "runtime_engine": "005-sg-ship", "resolution": "direct"},
+    "deploy": {"public_owner": "sg-release", "owner_mode": "deploy", "runtime_engine": "004-sg-deploy", "resolution": "direct"},
+    "prod": {"public_owner": "sg-release", "owner_mode": "prod", "runtime_engine": "405-sg-prod", "resolution": "direct"}
   },
   "internal_catalog": {
     "identity_source": "skills/references/skill-code-index.md",
@@ -68,16 +85,17 @@
     "004-sg-deploy": {"kind": "freeform", "min_args": 0},
     "005-sg-ship": {"kind": "freeform", "min_args": 0},
     "006-sg-design": {"kind": "modes", "modes": {"system": {"min_args": 0}, "playground": {"min_args": 0}, "audit": {"min_args": 1}, "animation": {"min_args": 1}, "redesign": {"min_args": 0}, "migration": {"min_args": 0}, "library": {"min_args": 1}}},
-    "007-sg-content": {"kind": "modes", "modes": {"plan": {"min_args": 0}, "capture-full-conversation": {"min_args": 0}, "clean-transcript": {"min_args": 0}, "repurpose": {"min_args": 1}, "draft": {"min_args": 0}, "enrich": {"min_args": 0}, "audit": {"min_args": 0}, "marketing": {"min_args": 0}, "seo": {"min_args": 0}, "editorial": {"min_args": 0}, "apply": {"min_args": 0}, "ship": {"min_args": 0}}},
+    "007-sg-content": {"kind": "modes", "modes": {"plan": {"min_args": 0}, "capture": {"min_args": 0}, "tmux": {"min_args": 0}, "capture-full-conversation": {"min_args": 0}, "clean-transcript": {"min_args": 0}, "repurpose": {"min_args": 1}, "draft": {"min_args": 0}, "enrich": {"min_args": 0}, "audit": {"min_args": 0}, "marketing": {"min_args": 0}, "seo": {"min_args": 0}, "editorial": {"min_args": 0}, "apply": {"min_args": 0}, "ship": {"min_args": 0}}},
     "008-sg-customer": {"kind": "modes", "modes": {"audit": {"min_args": 1}, "flow": {"min_args": 1}, "onboarding": {"min_args": 1}, "recovery": {"min_args": 1}}},
     "009-sg-marketing": {"kind": "modes", "modes": {"market": {"min_args": 1}, "gtm": {"min_args": 1}, "copy": {"min_args": 1}, "copywriting": {"min_args": 1}, "help": {"min_args": 0}}},
     "010-sg-technical": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "architecture": {"min_args": 0}, "deps": {"min_args": 0}, "performance": {"min_args": 0}, "migrate": {"min_args": 0}, "github": {"min_args": 0}, "sync": {"min_args": 0}, "access": {"min_args": 0}, "parity": {"min_args": 0}, "help": {"min_args": 0}}},
+    "103-sg-verify": {"kind": "modes", "modes": {"standard": {"min_args": 1}, "excellence": {"min_args": 0}}},
     "302-sg-help": {"kind": "freeform", "min_args": 0},
     "407-sg-translate": {"kind": "freeform", "min_args": 0},
     "900-shipglows-core": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "build": {"min_args": 1}, "refresh": {"min_args": 1}, "packaging": {"min_args": 0}, "help": {"min_args": 0}}}
   },
   "mode_suggestions": {
     "repurpose": {"skill": "007-sg-content", "template": "007-sg-content repurpose <source> verbatim"},
-    "excellence": {"skill": "103-sg-verify", "template": "103-sg-verify mode=excellence <task or scope>"}
+    "excellence": {"skill": "sg-development", "template": "sg-development excellence [task or scope]"}
   }
 }

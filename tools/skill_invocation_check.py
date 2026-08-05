@@ -94,11 +94,43 @@ def check(
         args = tokens[1:]
         modes = public_entry.get("modes", ["default"])
         payload: dict[str, Any] = {
-            "resolved_skill": public_entry["runtime_skill"],
+            "resolved_skill": public_entry.get("public_skill", first),
             "public_skill": first,
+            "runtime_engine": public_entry["runtime_skill"],
         }
-        if args and args[0] in modes:
-            payload["mode"] = args[0]
+        if args:
+            expert_alias = registry.get("codex_expert_aliases", {}).get(args[0]) if first == "shipglows" else None
+            if expert_alias is not None:
+                resolved_alias = expert_alias
+                if expert_alias.get("resolution") == "contextual-specialist":
+                    scope_tokens = {token.lower().strip(".,:;!?()[]{}") for token in args[1:]}
+                    matches = [
+                        route
+                        for route in expert_alias.get("specialist_routes", [])
+                        if scope_tokens.intersection(route.get("keywords", []))
+                    ]
+                    if len(matches) == 1:
+                        resolved_alias = {**expert_alias, **matches[0], "resolution": "specialist"}
+                payload.update(
+                    {
+                        "router_alias": args[0],
+                        "public_owner": resolved_alias["public_owner"],
+                        "mode": resolved_alias["owner_mode"],
+                        "selected_internal_engine": resolved_alias["runtime_engine"],
+                        "resolution": resolved_alias["resolution"],
+                    }
+                )
+                return result("valid", requested, **payload)
+            hidden_mode = public_entry.get("hidden_modes", {}).get(args[0])
+            if hidden_mode is not None:
+                payload["mode"] = hidden_mode.get("owner_mode", args[0])
+                if payload["mode"] != args[0]:
+                    payload["mode_alias"] = args[0]
+                payload["selected_internal_engine"] = hidden_mode["runtime_engine"]
+                if "engine_mode" in hidden_mode:
+                    payload["selected_engine_mode"] = hidden_mode["engine_mode"]
+            elif args[0] in modes:
+                payload["mode"] = args[0]
         return result("valid", requested, **payload)
 
     skill = identities.get(first)

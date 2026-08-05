@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.7.1"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-04"
+updated: "2026-08-05"
 status: reviewed
 source_skill: sg-start
 scope: public-site-and-content-runtime
@@ -30,6 +30,7 @@ supersedes: []
 evidence:
   - "shipglows_data/editorial/content-map.md and canonical /home/claude/shipglows_app/site directory inventory."
   - "The public skill surface was curated to six domains, thirteen métier owners, and the universal ShipGlows router on 2026-08-04."
+  - "Codex expert shortcuts were rebound through canonical public métier modes before internal engines on 2026-08-05."
   - "shipglows_data/editorial added for public-content governance and Astro schema policy."
   - "Skill modes page expanded into a public launch cheatsheet for master and supporting skill modes."
   - "shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md added as the Markdown reference for the public launch cheatsheet."

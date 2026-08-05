@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -27,14 +28,31 @@ def parse_args() -> argparse.Namespace:
         default="skills",
         help="Path to the ShipGlows skills root.",
     )
+    parser.add_argument(
+        "--registry",
+        default="skills/references/skill-invocation-registry.json",
+        help="Path to the public skill registry.",
+    )
     return parser.parse_args()
 
 
-def skill_dirs(skills_root: Path) -> set[str]:
+def public_skill_dirs(registry_path: Path) -> set[str]:
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    catalog = registry["public_catalog"]
+    entries = [
+        skill
+        for domain in catalog["domains"]
+        for skill in domain["skills"]
+    ] + [catalog["router"]]
+    return {str(entry.get("public_skill", entry["id"])) for entry in entries}
+
+
+def skill_dirs(skills_root: Path, public_skills: set[str]) -> set[str]:
     return {
         path.parent.name
         for path in skills_root.glob("*/SKILL.md")
         if path.parent.is_dir()
+        and path.parent.name not in public_skills
         and "Compatibility alias." not in path.read_text(encoding="utf-8")
     }
 
@@ -61,6 +79,7 @@ def main() -> int:
     args = parse_args()
     index_path = Path(args.index)
     skills_root = Path(args.skills_root)
+    registry_path = Path(args.registry)
     errors: list[str] = []
 
     if not index_path.exists():
@@ -71,6 +90,10 @@ def main() -> int:
         errors.append(f"missing skills root: {skills_root}")
         print_errors(errors)
         return 1
+    if not registry_path.exists():
+        errors.append(f"missing public skill registry: {registry_path}")
+        print_errors(errors)
+        return 1
 
     rows = parse_index(index_path)
     if not rows:
@@ -79,7 +102,7 @@ def main() -> int:
     codes: dict[str, int] = {}
     skills: dict[str, int] = {}
     indexed_skills: set[str] = set()
-    existing_skills = skill_dirs(skills_root)
+    existing_skills = skill_dirs(skills_root, public_skill_dirs(registry_path))
 
     for code, old_name, skill, family, lineno in rows:
         if code in codes:

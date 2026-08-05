@@ -42,6 +42,11 @@ resolves the target as far as repository evidence allows, asks only for a
 material missing decision, then hands the same conversation to the owner. It
 does not leave the operator to invoke the next internal step.
 
+`mode=excellence` can be set explicitly in `103-sg-verify` requests.
+A non-ambiguous natural-language request for excellence maps to `excellence`
+(`demande naturelle non ambiguë`) and may return `verified_with_excellence_gaps`
+or `excellent`.
+
 The target model is:
 
 ```text
@@ -102,7 +107,33 @@ Each public métier follows the same operator contract:
 For a substantial change, the owner creates and validates a durable spec. For a
 clear bounded task, it records a compact execution contract and proceeds.
 
+For quality checks, excellence mode can be requested with explicit intent:
+`... excellence ...` or `... 103-sg-verify` with `mode=excellence`. This does
+not replace specialist audits and does not replace unqualified specialist work.
+
+`103-sg-verify` does not replace an expert/specialist audit (`ne remplace pas un audit spécialiste`).
+
 ## Expert / Internal Engines
+
+For short Codex invocation, use an expert alias instead of the numeric engine
+name. These are router shortcuts to canonical public skill modes, not shell
+commands and not a second workflow taxonomy:
+
+```text
+shipglows core <instruction>
+shipglows build <instruction>
+shipglows verify <instruction>
+shipglows status
+shipglows resume <instruction>
+shipglows ship <instruction>
+```
+
+The complete alias map is maintained in
+`skills/references/expert-mode-aliases.md`. Resolution follows
+`public owner -> owner mode -> internal engine`; `verify` preserves explicit
+specialist ownership and `core` alone changes the context to ShipGlows-system
+maintenance. Numeric names remain valid for exact runtime lookup and
+compatibility.
 
 Numeric names remain valid runtime engines and are intentionally not the
 default catalogue. Use `sg-help expert` for their complete list and exact

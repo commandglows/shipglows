@@ -69,10 +69,16 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         self.assertIn("names as aliases", self.text)
         self.assertIn("Missing local playbook", self.text)
 
-    def test_concrete_operator_critique_becomes_bounded_repair(self) -> None:
-        self.assertIn("concrete ShipGlows behavior to correct", self.text)
+    def test_core_is_a_hard_shipglows_context_and_critique_is_a_bounded_repair(self) -> None:
+        self.assertIn("hard ShipGlows-system context", self.text)
+        self.assertIn("never to the current project", self.text)
         self.assertIn("select the narrowest internal\n`build` target", self.text)
         self.assertIn("without asking the operator to choose a mode", self.text)
+
+    def test_core_critique_does_not_execute_the_quoted_project_task(self) -> None:
+        self.assertIn("failure evidence only", self.text)
+        self.assertIn("it does not audit either repository", self.text)
+        self.assertIn("repairs the core routing rule", self.text)
 
     def test_build_playbook_preserves_lifecycle_runtime_and_surface_guards(self) -> None:
         for rule in (

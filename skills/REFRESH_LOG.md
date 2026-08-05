@@ -4,6 +4,76 @@ Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. 
 
 ---
 
+## 2026-08-05 — sg-planning
+
+**Added:** hidden expert modes `explore`, `spec`, `status`, and `resume`, each bound to its existing internal planning engine.
+
+**Updated:** clarified that Codex aliases are convenience routes into planning ownership rather than a parallel lifecycle taxonomy.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is a local routing and ownership contract.
+
+## 2026-08-05 — sg-release
+
+**Added:** hidden expert modes `ship` and `deploy`; retained `prod` as the existing public release mode.
+
+**Updated:** preserved release authority, readiness, deployment, and live-proof gates for all equivalent router aliases.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because no provider or platform behavior changed.
+
+## 2026-08-05 — sg-engineering
+
+**Added:** hidden expert modes `verify`, `test`, and `browser` for generic technical proof.
+
+**Updated:** explicit design, SEO, release, and bug verification remains with the specialist public owner.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is local skill-routing doctrine.
+
+## 2026-08-05 — sg-bug
+
+**Added:** none; `fix` already existed as a canonical public mode.
+
+**Updated:** documented `shipglows fix` as a shortcut to `sg-bug fix` while preserving the full bug owner's proportional lifecycle decision.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because defect behavior and proof requirements are unchanged.
+
+## 2026-08-05 — sg-development
+
+**Added:** hidden expert mode `build`, bound to the existing end-to-end development lifecycle.
+
+**Updated:** aligned the direct public form and `shipglows build` shortcut without changing development ownership.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change is a local invocation contract.
+
+## 2026-08-05 — shipglows
+
+**Added:** owner-bound Codex expert shortcut semantics.
+
+**Updated:** clarified that shortcuts resolve through public métier modes and that `core` is the sole hard context switch.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is local router behavior.
+
+## 2026-08-05 — 000-shipglows
+
+**Added:** canonical `public owner -> owner mode -> internal engine` alias resolution and contextual specialist preservation for `verify`.
+
+**Updated:** made the invocation registry authoritative and kept aliases behavior-free.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is a local routing-contract refinement with scenario-first proof.
+
 ## 2026-08-04 — 302-sg-help
 
 **Added:** exact `mode` and `modes` help routing plus a canonical one-line-per-skill mode catalog covering all 51 repository skills.

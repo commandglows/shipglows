@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.18.0"
+artifact_version: "0.18.1"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-08-04"
@@ -69,7 +69,7 @@ evidence:
   - "Added a private rights-aware design/copy inspiration corpus contract, capture tool, and bounded Inspiration Gate."
   - "Added provider-neutral 006-sg-design animation modes with GSAP optional after fit, lifecycle, and proof gates."
   - "Added an exact sg-help mode catalog with one line per skill and canonical modes."
-  - "Adopted the métier-first public hierarchy: 13 public owners in six domains, with numeric skills retained as internal engines."
+  - "Adopted the métier-first public hierarchy: 13 public owners in six domains, with direct public skill folders and numeric engines retained for expert compatibility only."
 next_step: "/300-sg-docs audit README.md"
 ---
 
@@ -474,7 +474,7 @@ is a web preview path for browser testing through SSH tunnels, not native
 Android/iOS rendering.
 
 Per-user configuration includes:
-- `~/.claude/skills/*` and `~/.codex/skills/*` symlinks for every ShipGlows skill
+- `~/.claude/skills/*` and `~/.codex/skills/*` symlinks for the fourteen default public ShipGlows skills; the expert engine catalogue is opt-in
 - aliases in `~/.bashrc` for `000-shipglows`, `sg`, mode-selected `c`/`co`, safe escape hatches `cask`/`coask`, shell reload (`re`/`reload`), and tmux pane cleanup (`ch` = `clear; tmux clear-history`)
 - `shipglows_data/workflow/TASKS.md`, `shipglows_data/workflow/AUDIT_LOG.md`
 
@@ -485,7 +485,7 @@ tools/shipglows_sync_skills.sh --check --all
 tools/shipglows_sync_skills.sh --repair --skill sg-example
 ```
 
-The helper links current-user `~/.claude/skills/<name>` and `~/.codex/skills/<name>` entries to `$SHIPGLOWS_ROOT/skills/<name>`. It reports missing or stale links, blocks non-symlink collisions by default, and notes that an already-running Claude or Codex session may need a reload before the repaired skill appears in the runtime list.
+The helper links current-user `~/.claude/skills/<name>` and `~/.codex/skills/<name>` entries to the real public skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. Use `--catalog expert` only when the internal engine catalogue is intentionally needed. It reports missing or stale links, blocks non-symlink collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
 
 If your Codex version does not expose one of these items (for example `thread`), adjust interactively in Codex:
 
@@ -532,6 +532,17 @@ Use `shipglows <instruction>` when you want ShipGlows to choose the métier.
 The public surface has thirteen métier skills, grouped into six domains, plus
 this router. Numeric skills remain internal engines rather than a vocabulary the
 operator must memorize.
+
+For deliberate expert control in Codex, the router also accepts short modes:
+`shipglows core`, `shipglows explore`, `shipglows spec`, `shipglows build`,
+`shipglows fix`, `shipglows verify`, `shipglows test`, `shipglows status`,
+`shipglows resume`, `shipglows ship`, `shipglows deploy`, `shipglows browser`,
+and `shipglows prod`. These are Codex skill-routing modes only; they are not
+arguments accepted by the shell `shipglows`/`sg` menu. Each shortcut resolves
+through a canonical public métier mode before its numeric engine; it does not
+form a second workflow taxonomy. `verify` preserves an explicit specialist
+owner, while `core` is the sole hard ShipGlows-system context switch. The
+complete mapping is in [the expert mode reference](./skills/references/expert-mode-aliases.md).
 
 ShipGlows resolves work in this order:
 
@@ -646,7 +657,7 @@ For content management, use the dedicated lifecycle entrypoint:
 007-sg-content -> CONTENT_MAP + editorial corpus -> owner content skills -> audits/docs -> validation -> 103-sg-verify -> 005-sg-ship
 ```
 
-`007-sg-content capture-full-conversation` exports a complete raw tmux conversation, while `007-sg-content clean-transcript <path>` cleans an existing transcript. These are separate from `007-sg-content repurpose <source> verbatim`, which preserves the requested source exactly without cleaning or analysis. The underlying capture and cleanup implementations remain internal. The `repurpose` mode creates the reusable source-faithful pack, its versioned storage under `shipglows_data/workflow/repurpose-packs/`, and repurposing handoffs. The same lifecycle routes long-form drafting to `200-sg-redact`, existing-content upgrades to `201-sg-enrich`, marketing review or studies to `009-sg-marketing copy|copywriting|gtm|market`, search review to `406-sg-seo`, and docs/editorial governance to `300-sg-docs`. It uses the declared Astro blog surface (`site/src/content/articles/`, `/blog`, `/fr/blog`) for indexed articles and still blocks undeclared parallel article systems with `surface missing: blog`.
+`sg-content capture` exports a complete raw tmux conversation. `sg-content tmux`, `shipglows capture`, and `shipglows tmux` are aliases for the same mode; legacy `007-sg-content capture-full-conversation` remains accepted. `007-sg-content clean-transcript <path>` cleans an existing transcript. These are separate from `007-sg-content repurpose <source> verbatim`, which preserves the requested source exactly without cleaning or analysis. The underlying capture and cleanup implementations remain internal. The `repurpose` mode creates the reusable source-faithful pack, its versioned storage under `shipglows_data/workflow/repurpose-packs/`, and repurposing handoffs. The same lifecycle routes long-form drafting to `200-sg-redact`, existing-content upgrades to `201-sg-enrich`, marketing review or studies to `009-sg-marketing copy|copywriting|gtm|market`, search review to `406-sg-seo`, and docs/editorial governance to `300-sg-docs`. It uses the declared Astro blog surface (`site/src/content/articles/`, `/blog`, `/fr/blog`) for indexed articles and still blocks undeclared parallel article systems with `surface missing: blog`.
 
 When a workflow or spec asks whether content is good enough for a specific project, content owner skills use the shared `skills/references/content-quality-rubric.md` contract. The rubric loads project rules from `shipglows_data/business/*` and `shipglows_data/editorial/*`, then returns a global score, criterion scores, evidence, recommendations, confidence, and one of `ready`, `needs revision`, `blocked`, or `publishable with caveats`. Blocking claims, missing project context, stale score signatures, and undeclared surfaces override the numeric score.
 

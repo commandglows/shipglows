@@ -98,6 +98,30 @@ Keep the boundary explicit: `000-shipglows` routes, answers, or selects bounded 
 
 Parse `$ARGUMENTS` as the operator instruction.
 
+When the first token is one of the Codex expert aliases, load
+`$SHIPGLOWS_ROOT/skills/references/expert-mode-aliases.md`, resolve the alias
+through its canonical `public owner -> owner mode -> internal engine` mapping,
+run the explicit-invocation preflight, and hand off in the same conversation.
+The registry at `$SHIPGLOWS_ROOT/skills/references/skill-invocation-registry.json`
+is the mapping authority. Expert aliases contain no independent workflow
+behavior. They are Codex routing syntax only; they are not CLI menu arguments
+and must not be interpreted by `cli/shipglows.sh`.
+
+Recognized aliases are `core`, `explore`, `spec`, `build`, `fix`, `verify`,
+`test`, `status`, `resume`, `capture`, `tmux`, `ship`, `deploy`, `browser`, and `prod`. Pass every
+remaining token unchanged to the target skill. An alias with no remaining
+instruction uses the target skill's help/default behavior.
+
+`core` is a hard ShipGlows-system context: all remaining text belongs to
+`900-shipglows-core`, including project names or quoted desired outcomes. Never
+redirect any part of a `core` instruction to the current project.
+
+`verify` is contextual before handoff. Preserve an explicit specialist owner:
+design/accessibility/UI/animation -> `sg-design`; SEO/search -> `sg-seo`;
+release/deploy/preview/live/production -> `sg-release`; bug/regression/retest ->
+`sg-bug`; otherwise use `sg-engineering verify`. Generic verification never
+replaces a specialist audit.
+
 - Empty argument: give a compact orientation answer and ask for the instruction to route.
 - `help`, `aide`, `commands`, `skills`, or route-selection questions: answer directly or route to `302-sg-help` only if the user wants the full help surface.
 - Named profile activation: apply `skills/references/profile-activation.md`. When the instruction starts with `%<Profile>`, `profile=<id>`, or `profil=<id>`, or clearly asks to respond as a known profile, load the matching profile and keep its role bias active for this turn. The canonical syntax is `%<Profile>`. The profile shapes arbitration and output style; it does not replace owner-skill routing. `#<Tag>` remains reserved for focus tags and route-bias cues.

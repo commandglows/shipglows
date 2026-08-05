@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-07-29"
 updated: "2026-08-03"
@@ -38,7 +38,9 @@ Before handing off an explicit ShipGlows skill invocation, run:
 python3 "$SHIPGLOWS_ROOT/tools/skill_invocation_check.py" "$ARGUMENTS"
 ```
 
-The checker is read-only and uses `skill-code-index.md` as the identity source.
+The checker is read-only. It resolves public names from
+`skill-invocation-registry.json` and retains `skill-code-index.md` only for
+explicit expert/legacy engine invocations.
 
 - `valid`: continue with the explicit skill silently.
 - `invalid`: do not activate any skill; explain the exact error and show a suggestion only when the registry has one uniquely supported correction. A clear spelling typo may receive a `did_you_mean` suggestion.

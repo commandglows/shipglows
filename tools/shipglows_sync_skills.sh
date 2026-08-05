@@ -23,7 +23,7 @@ Usage: tools/shipglows_sync_skills.sh [--check|--repair] (--all|--skill <name>) 
 
 Options:
   --runtime claude|codex|all      Runtime directory to check or repair (default: all)
-  --catalog public|expert         Public métier aliases (default) or all runtime engines
+  --catalog public|expert         Public métier skills (default) or all internal engines
   --target-home <path>            Home directory containing .claude/.codex (default: $HOME)
   --shipglows-root <path>         ShipGlows repository root (default: $SHIPGLOWS_ROOT or $HOME/shipglows)
   --shipglows-root <path>          Legacy alias for --shipglows-root
@@ -123,10 +123,20 @@ registry = json.load(open(sys.argv[1], encoding="utf-8"))
 catalog = registry["public_catalog"]
 for domain in catalog["domains"]:
     for skill in domain["skills"]:
-        print(f'{skill["id"]}|{skill["runtime_skill"]}')
+        print(f'{skill["id"]}|{skill.get("public_skill", skill["id"])}')
 router = catalog["router"]
-print(f'{router["id"]}|{router["runtime_skill"]}')
+print(f'{router["id"]}|{router.get("public_skill", router["id"])}')
 PY
+}
+
+list_expert_skills() {
+    local public_sources
+    public_sources="$(list_public_pairs | cut -d'|' -f2)"
+    list_skills | while IFS= read -r skill; do
+        if ! printf '%s\n' "$public_sources" | grep -Fxq -- "$skill"; then
+            printf '%s\n' "$skill"
+        fi
+    done
 }
 
 is_public_target() {
@@ -332,7 +342,7 @@ if [ "$SCOPE" = "skill" ]; then
 elif [ "$CATALOG" = "public" ]; then
     skill_pairs="$(list_public_pairs)"
 else
-    skill_pairs="$(list_skills | awk '{ print $0 "|" $0 }')"
+    skill_pairs="$(list_expert_skills | awk '{ print $0 "|" $0 }')"
 fi
 
 case "$RUNTIME" in

@@ -77,11 +77,13 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         ):
             self.assertIn(required, self.autonomy)
 
-        runtime_skills = [str(skill["runtime_skill"]) for skill in self.skills]
-        runtime_skills.append(str(self.catalog["router"]["runtime_skill"]))
-        for runtime_skill in runtime_skills:
-            body = (SKILLS / runtime_skill / "SKILL.md").read_text(encoding="utf-8")
-            self.assertIn("intent-to-outcome-autonomy.md", body, runtime_skill)
+        public_entries = self.skills + [self.catalog["router"]]
+        for entry in public_entries:
+            public_skill = str(entry["public_skill"])
+            runtime_skill = str(entry["runtime_skill"])
+            body = (SKILLS / public_skill / "SKILL.md").read_text(encoding="utf-8")
+            self.assertIn("intent-to-outcome-autonomy.md", body, public_skill)
+            self.assertIn(runtime_skill, body, public_skill)
 
     # MH-02: projects can contain several products and surfaces.
     def test_mh_02_preserves_the_full_target_hierarchy(self) -> None:
@@ -156,22 +158,29 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         self.assertEqual("shipglows", self.catalog["router"]["id"])
         self.assertEqual("000-shipglows", self.catalog["router"]["runtime_skill"])
         self.assertTrue(self.registry["internal_catalog"]["include_all_runtime_skills"])
-        expert = {path.parent.name for path in SKILLS.glob("*/SKILL.md")}
-        all_runtime = {path.parent.name for path in SKILLS.glob("*/SKILL.md")}
-        self.assertEqual(all_runtime, expert)
+        public_sources = {str(skill["public_skill"]) for skill in self.skills}
+        public_sources.add(str(self.catalog["router"]["public_skill"]))
+        expert = {path.parent.name for path in SKILLS.glob("*/SKILL.md")} - public_sources
+        self.assertTrue(expert)
 
     # MH-11 / MH-12: all public capability ownership is unique, explicit, and
     # maps to one existing runtime engine without competing public aliases.
     def test_mh_11_and_mh_12_have_complete_unique_runtime_ownership(self) -> None:
         owners = self.owner_by_id()
         self.assertEqual(EXPECTED_OWNERS, {name: item["runtime_skill"] for name, item in owners.items()})
+        self.assertEqual(set(EXPECTED_OWNERS), {str(item["public_skill"]) for item in owners.values()})
         runtime_names = [str(item["runtime_skill"]) for item in owners.values()]
         self.assertEqual(len(runtime_names), len(set(runtime_names)))
         for runtime_skill in runtime_names + [str(self.catalog["router"]["runtime_skill"])]:
             self.assertTrue((SKILLS / runtime_skill / "SKILL.md").is_file(), runtime_skill)
             self.assertIn(f"`{runtime_skill}`", self.code_index)
+        for public_skill in list(owners) + ["shipglows"]:
+            source = SKILLS / public_skill / "SKILL.md"
+            self.assertTrue(source.is_file(), public_skill)
+            self.assertIn(f"name: {public_skill}", source.read_text(encoding="utf-8"), public_skill)
         self.assertTrue(self.registry["internal_catalog"]["include_all_runtime_skills"])
-        for internal in {path.parent.name for path in SKILLS.glob("*/SKILL.md")}:
+        public_sources = set(owners) | {"shipglows"}
+        for internal in {path.parent.name for path in SKILLS.glob("*/SKILL.md")} - public_sources:
             if internal not in runtime_names and internal != self.catalog["router"]["runtime_skill"]:
                 self.assertNotIn(internal, owners, internal)
 

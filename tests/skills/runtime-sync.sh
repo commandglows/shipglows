@@ -36,8 +36,11 @@ mkdir -p "$SHIPGLOWS_ROOT_TEST/skills" "$TARGET_HOME_TEST"
 make_skill "$SHIPGLOWS_ROOT_TEST" "001-sg-alpha"
 make_skill "$SHIPGLOWS_ROOT_TEST" "002-sg-beta"
 make_skill "$SHIPGLOWS_ROOT_TEST" "003-sg-gamma"
+make_skill "$SHIPGLOWS_ROOT_TEST" "sg-alpha"
+make_skill "$SHIPGLOWS_ROOT_TEST" "sg-beta"
+make_skill "$SHIPGLOWS_ROOT_TEST" "shipglows"
 mkdir -p "$SHIPGLOWS_ROOT_TEST/skills/references"
-printf '%s\n' '{"public_catalog":{"domains":[{"id":"create","label":"Create","skills":[{"id":"sg-alpha","runtime_skill":"001-sg-alpha","modes":["default"]},{"id":"sg-beta","runtime_skill":"002-sg-beta","modes":["default"]}]}],"router":{"id":"shipglows","runtime_skill":"003-sg-gamma","modes":["default"]}}}' > "$SHIPGLOWS_ROOT_TEST/skills/references/skill-invocation-registry.json"
+printf '%s\n' '{"public_catalog":{"domains":[{"id":"create","label":"Create","skills":[{"id":"sg-alpha","public_skill":"sg-alpha","runtime_skill":"001-sg-alpha","modes":["default"]},{"id":"sg-beta","public_skill":"sg-beta","runtime_skill":"002-sg-beta","modes":["default"]}]}],"router":{"id":"shipglows","public_skill":"shipglows","runtime_skill":"003-sg-gamma","modes":["default"]}}}' > "$SHIPGLOWS_ROOT_TEST/skills/references/skill-invocation-registry.json"
 
 if run_helper --check --skill 001-sg-alpha >/tmp/shipglows-sync-check.out 2>&1; then
     echo "expected missing check to fail" >&2
@@ -92,9 +95,9 @@ fi
 grep -q "invalid skill name" /tmp/shipglows-sync-invalid2.out
 
 run_helper --repair --all --runtime codex --catalog public >/tmp/shipglows-sync-public-codex.out
-assert_link "$TARGET_HOME_TEST/.codex/skills/sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
-assert_link "$TARGET_HOME_TEST/.codex/skills/sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/002-sg-beta"
-assert_link "$TARGET_HOME_TEST/.codex/skills/shipglows" "$SHIPGLOWS_ROOT_TEST/skills/003-sg-gamma"
+assert_link "$TARGET_HOME_TEST/.codex/skills/sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/sg-alpha"
+assert_link "$TARGET_HOME_TEST/.codex/skills/sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/sg-beta"
+assert_link "$TARGET_HOME_TEST/.codex/skills/shipglows" "$SHIPGLOWS_ROOT_TEST/skills/shipglows"
 
 run_helper --repair --all --runtime codex --catalog expert >/tmp/shipglows-sync-all-codex.out
 assert_link "$TARGET_HOME_TEST/.codex/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.10.0"
+artifact_version: "0.10.3"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-04"
+updated: "2026-08-05"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -25,6 +25,11 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
 
+## [2026-08-05]
+
+### Changed
+- Rebound Codex expert shortcuts such as `shipglows build`, `shipglows spec`, and `shipglows deploy` through canonical public métier modes before their numeric engines. The shortcuts now remain an ergonomic router layer instead of a competing workflow taxonomy; contextual `verify` preserves specialist ownership, and `core` remains the sole hard ShipGlows-system context switch.
+
 ## [2026-08-04]
 
 ### Added
@@ -35,6 +40,8 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Changed
 - Reorganized default skill discovery around six domains, thirteen public métier skills, and the `shipglows` router; numeric lifecycle and specialist skills remain available through expert discovery.
+- Replaced public alias links with real public skill folders and matching runtime metadata (`sg-development`, `sg-engineering`, and the other métier names); numeric names are now expert/compatibility engines rather than default picker entries.
+- Added the hidden public shortcut `sg-development excellence [scope]`, which requests the internal excellence verification pass without exposing or requiring `sg-verify` in the default picker.
 - Split `sg-help` into a concise public mode catalog and an explicit expert engine catalog, and made runtime synchronization install only the public métier aliases by default.
 - Moved sync, access/entitlements, provider-event, and parity outcomes under public `sg-engineering`, while retaining `600-602` as internal engines.
 - Clarified that `sg-docs` owns internal project/agent documentation and `sg-content` owns public documentation and audience content; aligned the README, operator guide, plugin help, internal docs, and English/French public site hubs.

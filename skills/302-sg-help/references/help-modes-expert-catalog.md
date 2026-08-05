@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-04"
+updated: "2026-08-05"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-expert-catalog
@@ -30,7 +30,26 @@ next_step: "none"
 
 # Help — Expert Runtime Modes
 
-Return only the lines below for exact expert/internal catalog requests.
+Return the owner-bound alias lines first, followed by the runtime-engine lines
+below, for exact expert/internal catalog requests. These aliases are Codex-only
+router syntax; they are not shell CLI commands and own no behavior separately
+from the named public skill mode.
+
+`shipglows core` -> `shipglows core` -> `900-shipglows-core`
+`shipglows explore` -> `sg-planning explore` -> `700-sg-explore`
+`shipglows spec` -> `sg-planning spec` -> `100-sg-spec`
+`shipglows status` -> `sg-planning status` -> `308-sg-status`
+`shipglows resume` -> `sg-planning resume` -> `303-sg-resume`
+`shipglows capture` -> `sg-content capture` -> `800-tmux-capture-conversation`
+`shipglows tmux` -> `sg-content capture` -> `800-tmux-capture-conversation`
+`shipglows build` -> `sg-development build` -> `001-sg-build`
+`shipglows fix` -> `sg-bug fix` -> `106-sg-fix`
+`shipglows verify` -> contextual specialist owner, otherwise `sg-engineering verify` -> `103-sg-verify`
+`shipglows test` -> `sg-engineering test` -> `107-sg-test`
+`shipglows browser` -> `sg-engineering browser` -> `108-sg-browser`
+`shipglows ship` -> `sg-release ship` -> `005-sg-ship`
+`shipglows deploy` -> `sg-release deploy` -> `004-sg-deploy`
+`shipglows prod` -> `sg-release prod` -> `405-sg-prod`
 
 `000-shipglows` — default
 `001-sg-build` — default | spark | codex | mini | agents | sous-agent | no-agents
@@ -39,7 +58,7 @@ Return only the lines below for exact expert/internal catalog requests.
 `004-sg-deploy` — default | preview | prod
 `005-sg-ship` — default | end | skip-check | all-dirty
 `006-sg-design` — system | playground | audit | animation | redesign | migration | library
-`007-sg-content` — plan | capture-full-conversation | clean-transcript | repurpose | draft | enrich | audit | marketing | seo | editorial | apply | ship
+`007-sg-content` — plan | capture | tmux | capture-full-conversation | clean-transcript | repurpose | draft | enrich | audit | marketing | seo | editorial | apply | ship
 `008-sg-customer` — audit | flow | onboarding | recovery
 `009-sg-marketing` — market | gtm | copy | copywriting | help
 `010-sg-technical` — audit | architecture | deps | performance | migrate | github | sync | access | parity | help

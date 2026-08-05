@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.6.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-06-10"
 updated: "2026-08-03"
@@ -36,31 +36,36 @@ evidence:
   - "2026-07-17 technical consolidation assigned 010 and retired 401-404; their capabilities now live as explicit modes under 010-sg-technical."
   - "2026-08-04 technical consolidation assigned GitHub hygiene to the `github` mode under 010-sg-technical and retired 310."
   - "2026-08-03 pilotage consolidation assigned 011 and retired 309 and 701-703; tasks, backlog, priorities, review, and sessions now live as explicit modes under 011-sg-pilotage."
+  - "2026-08-04: Codex no longer needs numeric picker labels; numbers remain as expert/compatibility engine identifiers while public skills use direct métier names."
 next_review: "2026-08-15"
 next_step: "/103-sg-verify consolidate pilotage skills under sg-pilotage"
 ---
 
-# Skill Code Index
+# Expert Skill Code Index
 
 ## Purpose
 
-This is the canonical ShipGlows runtime skill-name map.
+This is the canonical ShipGlows expert/compatibility engine map. The normal
+runtime picker and operator surface use direct métier names from
+`skill-invocation-registry.json`, such as `sg-development` and
+`sg-engineering`.
 
-The code is now part of the runtime-visible skill identity. For example:
+The code is retained for explicit expert use and backwards compatibility. For
+example:
 
 ```text
 old name: 001-sg-build
-runtime name: 001-sg-build
-operator invocation: $001-sg-build
+expert engine: 001-sg-build
+public skill: sg-development
 ```
 
 ## Resolution Rules
 
-- Runtime skill names use `NNN-<old-name>`.
-- The three-digit code is stable after ship.
+- Expert engine names use `NNN-<old-name>`.
+- The three-digit code is stable for compatibility while that engine exists.
 - The suffix preserves the old skill name exactly.
-- Old unprefixed names may appear only as legacy aliases, historical evidence, or natural-language route hints.
-- Do not create wrapper skills for old names unless a future ready spec explicitly accepts duplicate picker entries.
+- Public picker names are direct métier folders with matching `name:` metadata.
+- Do not expose numeric engines in the default picker or help catalogue.
 
 ## Family Bands
 

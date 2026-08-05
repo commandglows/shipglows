@@ -71,7 +71,69 @@ class SkillInvocationCheckTests(unittest.TestCase):
         payload = check("900-shipglows-core excellence")
         self.assertEqual(payload["status"], "invalid")
         self.assertEqual(payload["error"], "unknown_mode")
-        self.assertEqual(payload["suggestion"], "103-sg-verify mode=excellence <task or scope>")
+        self.assertEqual(payload["suggestion"], "sg-development excellence [task or scope]")
+
+    def test_public_hidden_excellence_shortcut_uses_the_verification_engine(self) -> None:
+        payload = check("sg-development excellence checkout")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["resolved_skill"], "sg-development")
+        self.assertEqual(payload["selected_internal_engine"], "103-sg-verify")
+        self.assertEqual(payload["selected_engine_mode"], "excellence")
+
+    def test_codex_expert_alias_resolves_through_public_owner_mode(self) -> None:
+        payload = check("shipglows spec checkout")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["router_alias"], "spec")
+        self.assertEqual(payload["public_owner"], "sg-planning")
+        self.assertEqual(payload["mode"], "spec")
+        self.assertEqual(payload["selected_internal_engine"], "100-sg-spec")
+        self.assertEqual(payload["resolution"], "direct")
+
+    def test_capture_aliases_resolve_to_the_content_capture_engine(self) -> None:
+        for invocation in ("shipglows capture", "shipglows tmux"):
+            payload = check(invocation)
+            self.assertEqual(payload["status"], "valid", invocation)
+            self.assertEqual(payload["public_owner"], "sg-content")
+            self.assertEqual(payload["mode"], "capture")
+            self.assertEqual(payload["selected_internal_engine"], "800-tmux-capture-conversation")
+
+        canonical = check("sg-content capture")
+        self.assertEqual(canonical["status"], "valid")
+        self.assertEqual(canonical["mode"], "capture")
+
+        alias = check("sg-content tmux")
+        self.assertEqual(alias["status"], "valid")
+        self.assertEqual(alias["mode"], "capture")
+        self.assertEqual(alias["mode_alias"], "tmux")
+        self.assertEqual(alias["selected_internal_engine"], "800-tmux-capture-conversation")
+
+    def test_contextual_verify_alias_keeps_specialist_resolution_visible(self) -> None:
+        payload = check("shipglows verify accessibility")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["public_owner"], "sg-design")
+        self.assertEqual(payload["mode"], "audit")
+        self.assertEqual(payload["selected_internal_engine"], "006-sg-design")
+        self.assertEqual(payload["resolution"], "specialist")
+
+    def test_contextual_verify_alias_uses_engineering_fallback_without_specialist_scope(self) -> None:
+        payload = check("shipglows verify implementation quality")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["public_owner"], "sg-engineering")
+        self.assertEqual(payload["mode"], "verify")
+        self.assertEqual(payload["selected_internal_engine"], "103-sg-verify")
+        self.assertEqual(payload["resolution"], "contextual-specialist")
+
+    def test_hidden_public_expert_mode_routes_to_declared_engine(self) -> None:
+        payload = check("sg-planning status")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["resolved_skill"], "sg-planning")
+        self.assertEqual(payload["mode"], "status")
+        self.assertEqual(payload["selected_internal_engine"], "308-sg-status")
+
+    def test_expert_excellence_engine_remains_valid_when_explicitly_available(self) -> None:
+        payload = check("103-sg-verify excellence")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["mode"], "excellence")
 
     def test_missing_required_arguments_do_not_reuse_context(self) -> None:
         payload = check("900-shipglows-core build")

@@ -91,6 +91,15 @@ Secrets, new authority, paid actions, destructive operations, external communica
 - The contract records the user outcome, target context, scope, invariants, failure behavior, proof path, affected documentation, authority boundary, and stop conditions.
 - Open material questions must be resolved before implementation unless a bounded evidence-gathering spike explicitly owns them.
 
+### Governance Recovery Gate
+
+Before spec/readiness starts, run a docs sufficiency preflight when the request touches product direction, scope, or promised behavior:
+
+- If governance artifacts already provide sufficient product identity, audience intent, surface, and constraint truth: continue.
+- If only missing fragments are recoverable from local code/context and existing registries: run `300-sg-docs update` internally, then continue.
+- If missing governance truth is material and cannot be safely inferred, run `300-sg-docs update` internally, then ask exactly one material decision with a recommendation, persist it to canonical governance docs, and resume automatically.
+- Never ask the operator to manually start `sg-docs`; ownership remains with the public outcome owner.
+
 ## 4. Execute A to Z
 
 The public owner continues through every applicable stage:
