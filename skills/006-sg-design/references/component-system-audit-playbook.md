@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-03"
+updated: "2026-08-05"
 status: active
 source_skill: 006-sg-design
 scope: component-system-audit
@@ -29,6 +29,7 @@ supersedes:
   - skills/504-sg-audit-components/references/component-audit-workflow.md
 evidence:
   - "Migrated and revalidated from 504-sg-audit-components on 2026-07-15."
+  - "Operator-reported testimonial rail regression on 2026-08-05: a horizontal component described as cyclic reached a blank tail instead of looping continuously."
 next_step: "/103-sg-verify component-system audit"
 ---
 
@@ -80,9 +81,13 @@ For Flutter, use `ButtonStyle`, component themes, `ThemeData`, and typed variant
 
 For custom comboboxes, dialogs, menus, tabs, toolbars, sliders, listboxes, trees, and disclosures, assess whether native, headless, or platform primitives should replace bespoke focus/keyboard/ARIA behavior. Respect dependency policy. Route full conformance proof to `006-sg-design audit a11y`.
 
+For a carousel, marquee, testimonial rail, or repeated-card track described as cyclic, infinite, seamless, or continuously looping, require behavior proof rather than accepting duplicated markup or an animation declaration as evidence. The proof must show no reachable blank interval, dead tail, visible seam, or reset jump during manual interaction and autoplay when applicable; cover supported responsive widths, resize, remount or route return, reduced-motion behavior, and dynamic or localized content. Route keyboard, announcement, pause/control, and focus proof to `audit a11y`, and timing, cleanup, lifecycle, and performance proof to the animation playbook. A finite rail is valid only when its terminal state is explicit and reachable content is not presented as an infinite loop.
+
 Record behavior ownership separately from visual ownership. Mature native/platform/headless primitives should normally own semantics, focus, keyboard, and state behavior; project wrappers should own composition, variants, and canonical design-token consumption. A component suite is not disqualified because it is a dependency, but it is a poor fit when its visual architecture requires persistent overrides or a parallel token authority.
 
 Never recommend copying vendor component internals into the project to remove a dependency. Treat that as a maintained accessibility and upgrade fork. For migrations, inventory each complex primitive, its current behavior owner, proposed replacement, wrapper boundary, required keyboard contract, and proof status. Prefer incremental replacement behind project-owned wrappers over a broad rewrite.
+
+Pressure scenario `COMPONENT-CYCLIC-CONTINUITY`: given a horizontal testimonial or card rail claimed to loop continuously, reaching blank space, a dead tail, a visible seam, or a reset jump fails the component audit even when the track contains duplicated items or CSS/JavaScript declares an infinite animation. Accept the behavior only after manual/autoplay, responsive resize, remount, reduced-motion, and content-variation proof succeeds or the component is explicitly reframed as finite.
 
 ### 8. Composition Versus Configuration
 

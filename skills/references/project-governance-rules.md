@@ -93,6 +93,7 @@ Root `archive/`, `bugs/`, `docs/`, `specs/`, `research/`, `BUGS.md`, and `TEST_L
 - Resolve governance artifacts from the monorepo root even when the code edit happens in a subdirectory.
 - Organize monorepo governance by theme first, then by surface.
 - Keep shared contracts shared only when the contract truly does not vary by surface.
+- For one browser/web extension, use the singular source root `ext/`; reserve `extensions/<extension-name>/` for a second independently shipped extension rather than pre-creating a plural umbrella.
 
 ## Technical Governance Rules
 

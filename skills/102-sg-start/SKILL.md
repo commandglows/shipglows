@@ -102,7 +102,7 @@ What implementation can be completed now without overstating proof, closure, or 
 - Do not weaken documentation, security, redaction, chantier, or validation gates to finish faster.
 - Apply `$SHIPGLOWS_ROOT/skills/references/operator-last-resort-evidence.md` before asking the operator for logs, validation status, or similar evidence.
 - If implementation is complete and the next unresolved owner is proof, route to `103-sg-verify` instead of drifting into closure or ship language.
-- Respect canonical source roots from `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`; for monorepos using the Astro plus Flutter plus backend split, keep flat roots at the monorepo root and do not introduce nested `apps/*` layout without a documented durable exception.
+- Respect canonical source roots from `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`; for monorepos using the Astro plus Flutter plus backend split, keep flat roots at the monorepo root, use `ext/` for the default single browser/web extension, and do not introduce nested `apps/*` layout without a documented durable exception.
 - Before any PM2 restart recovery, load `project-runtime-policy.md`; if the project disables automatic recovery, preserve logs and route the operator to Codex repair without calling `env_start` automatically.
 
 ## Stop Conditions

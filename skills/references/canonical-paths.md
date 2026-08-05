@@ -29,6 +29,7 @@ evidence:
   - "Operator decision on 2026-07-13: archived governance history must resolve under shipglows_data/workflow/archives instead of a root archive directory."
   - "Operator decision on 2026-07-13: root docs and bug workflow paths must migrate into canonical technical and workflow families."
   - "Operator decision on 2026-07-23: flat source roots at the monorepo root (site/, app/, backend/, packages/) are the preferred canonical shape for projects using the Astro plus Flutter plus backend split; nested apps/* packaging is allowed only with a documented durable exception."
+  - "Operator decision on 2026-08-05: a project with one browser/web extension uses the singular root source surface ext/; do not pre-create extensions/ until a second independently shipped extension exists."
   - "Operator decision on 2026-08-03: canonical ShipGlows resources use governed progressive discovery rather than ad hoc path search when the activation contract needs supporting references."
 next_review: "2026-09-03"
 next_step: "/103-sg-verify canonical path policy"
@@ -97,7 +98,14 @@ Preferred canonical source roots:
 - `site/` — public web surface
 - `app/` — application surface
 - `backend/` — data, migrations, server-side authority
+- `ext/` — the default single browser/web extension surface
 - `packages/` or `packages/contracts/` — shared typed contracts when cross-surface contracts are versioned separately
+
+Extension topology rule:
+
+- Use `ext/` for the common case of one independently built and shipped browser/web extension.
+- Do not create `extensions/` as a plural umbrella preemptively.
+- If a second independently shipped extension is added, migrate to `extensions/<extension-name>/` and document the migration in the monorepo governance corpus. Keep each extension's manifest, source, build, and package contract self-contained.
 
 Anti-patterns:
 

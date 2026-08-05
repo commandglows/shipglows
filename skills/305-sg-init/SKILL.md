@@ -62,7 +62,7 @@ Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skil
 - When bootstrap scope includes the private data repository, resolve its remote from configuration such as `SHIPGLOWS_PRIVATE_DATA_REPO` instead of hardcoding an operator-specific repository URL.
 - Treat `~/.shipglows/private/data/` as a separate Git working tree for durable private data, not as a subfolder to version inside public repos or `$SHIPGLOWS_ROOT`.
 - Stop and report if the target private data path exists but is not a Git repository, unless the active bootstrap contract explicitly includes migration or repair steps.
-- For monorepos using the Astro plus Flutter plus backend split, prefer flat source roots at the monorepo root (`site/`, `app/`, `backend/`, `packages/`) instead of nested `apps/*` bundles unless the project documents a durable technical exception.
+- For monorepos using the Astro plus Flutter plus backend split, prefer flat source roots at the monorepo root (`site/`, `app/`, `backend/`, `ext/`, `packages/`) instead of nested `apps/*` bundles unless the project documents a durable technical exception. Use `ext/` for the default single browser/web extension; only use `extensions/<extension-name>/` after a second independently shipped extension exists.
 
 ## Stop Conditions
 

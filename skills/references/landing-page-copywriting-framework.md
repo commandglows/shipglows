@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/009-sg-marketing/SKILL.md
   - skills/009-sg-marketing/references/copywriting-audit-playbook.md
+  - skills/references/landing-page-experience-coherence.md
   - skills/references/design-inspiration-library.md
   - skills/references/content-quality-rubric.md
   - skills/references/editorial-content-corpus.md
@@ -195,6 +196,7 @@ The output must also show the selected framework path, the argument spine, proof
 
 ## Reference Boundaries
 
+- `landing-page-experience-coherence.md` coordinates semantic-duplication decisions with component-family grammar, whole-page harmony, proof composition, and continuous-content behavior. This framework remains authoritative for reader questions, sequence, repetition, claims, objections, and CTA roles.
 - `design-inspiration-library.md` owns the page/section/copy-pattern taxonomy, rights boundary, at-most-five shortlist, and operator selection before bundle loading. Transfer patterns, not source phrasing.
 - `editorial-content-corpus.md` owns public page intent, claim impact, and documentation update plans.
 - `content-quality-rubric.md` owns optional rubric scoring when explicitly requested. The sequence plan does not add a new scoring surface.

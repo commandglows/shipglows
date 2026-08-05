@@ -4,6 +4,16 @@ Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. 
 
 ---
 
+## 2026-08-05 — 006-sg-design
+
+**Added:** shared `landing-page-experience-coherence.md` coordination doctrine for semantic duplication, component-family grammar, whole-page harmony, proof placement, secondary summaries, continuous content, and decision supersession.
+
+**Updated:** design and copywriting playbooks now load one discoverable coordination reference instead of duplicating landing-page rules; interactive-component audits still retain their focused cyclic-continuity proof.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is a local component-behavior and proof contract derived from observed product work.
+
 ## 2026-08-05 — sg-planning
 
 **Added:** hidden expert modes `explore`, `spec`, `status`, and `resume`, each bound to its existing internal planning engine.

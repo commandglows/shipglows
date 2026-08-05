@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-07-15"
+updated: "2026-08-05"
 status: active
 source_skill: 006-sg-design
 scope: design-audit
@@ -31,6 +31,7 @@ supersedes:
   - skills/502-sg-audit-design/references/audit-checklists.md
 evidence:
   - "Migrated and revalidated from 502-sg-audit-design on 2026-07-15."
+  - "Operator-reported landing-page coherence failures on 2026-08-05: equivalent sections changed alignment, icon scale, and card grammar without a semantic reason."
 next_step: "/103-sg-verify design audit"
 ---
 
@@ -105,6 +106,10 @@ Treat unexplained visual literals, component-local styling bypasses, and first-p
 - platform-safe keyboard/IME and safe-area behavior
 - visible focus, meaningful target size, disabled/loading/empty/error/success states
 - native/headless primitives preferred when custom behavior creates accessibility or maintenance risk
+
+### Cross-Section Coherence
+
+For a landing, sales, or offer page, load `$SHIPGLOWS_ROOT/skills/references/landing-page-experience-coherence.md`. Apply its semantic-duplication gate before visual polish, then audit component-family grammar, whole-page harmony, exception budget, primary versus secondary placement, proof proximity, and continuous-content behavior. Keep `landing-page-copywriting-framework.md` authoritative for reader questions, section roles, sequence, repetition, and claims; this audit owns visual-system decisions and rendered proof.
 
 ## Mode Flows
 

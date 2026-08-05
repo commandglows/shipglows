@@ -25,6 +25,7 @@ evidence:
   - "Operator decision 2026-06-28: monorepo governance should group by theme first, then by surface."
   - "Repeated migration drift caused by mixed site/app folders carrying business, technical, and workflow docs together."
   - "Operator decision 2026-07-23: monorepo source roots (site/, app/, backend/, packages/) are separate from governance roots (shipglows_data/), and flat source roots are the preferred canonical shape."
+  - "Operator decision 2026-08-05: the default browser/web extension source root is singular ext/; plural extensions/<name>/ is reserved for a second independently shipped extension."
 next_review: "2026-07-28"
 next_step: "/300-sg-docs migrate-layout"
 ---
@@ -65,7 +66,14 @@ Source roots and governance roots are separate concerns. Governance stays at the
 - `site/`
 - `app/`
 - `backend/`
+- `ext/` — the default single browser/web extension surface
 - `packages/`
+
+Browser extension rule:
+
+- Use a singular root `ext/` when the project has one browser/web extension, which is the default for ShipGlows projects.
+- Do not introduce `extensions/` merely to anticipate a hypothetical second extension.
+- When a second extension becomes a real independently shipped product surface, migrate to `extensions/<extension-name>/` and record the migration and affected build/deployment paths in the governance corpus.
 
 Nested `apps/*` packaging is allowed only when the project documents a durable technical reason; it is not the default ShipGlows monorepo shape.
 

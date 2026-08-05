@@ -26,6 +26,7 @@ evidence:
   - "Operator correction 2026-07-17: public/SEO sites habitually use Astro and application surfaces use Flutter."
   - "Operator decision 2026-07-16: Vercel is the default web host; the dedicated-server deployment matrix applies only when a separate server runtime is genuinely required."
   - "Operator clarification 2026-07-17: Astro, Vercel, and Flutter are first-recommendation defaults, and an app request should prefer one Flutter codebase for web, iOS, and Android instead of stopping at a mobile-only build."
+  - "Operator decision 2026-08-05: when a project includes one browser/web extension, its default monorepo source root is ext/; plural extensions/<name>/ is deferred until a second independently shipped extension exists."
 next_review: "2026-10-17"
 next_step: "none"
 ---
@@ -93,7 +94,13 @@ When the operator accepts the Astro plus Flutter preset with a shared backend, t
 - `site/` for the Astro public/SEO surface
 - `app/` for the Flutter ordering application
 - `backend/` for the shared backend authority
+- `ext/` for the default single browser/web extension, when present
 - `packages/contracts/` when typed cross-surface contracts are versioned separately
+
+Do not create a plural `extensions/` umbrella for a single extension. If a
+second independently shipped extension is added later, migrate to
+`extensions/<extension-name>/` and update the monorepo governance and build
+contracts together.
 
 Deployment entrypoints such as Vercel build commands should be expressible from the monorepo root without relying on nested package discovery unless the project documents a durable exception.
 

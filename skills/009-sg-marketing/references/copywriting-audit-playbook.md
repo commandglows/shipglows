@@ -51,6 +51,8 @@ After this one local playbook is selected, load `$SHIPGLOWS_ROOT/skills/referenc
 
 For an existing page, collect the framework's required inputs, inventory its current sections, build the Section Role, Claim/Proof, and Repetition Ledgers, then return the ordered `Landing Sequence Plan`. Give every section one `keep|move|merge|delete|create` action and its reader question, unique job, transition, evidence state, objection, and CTA role. State the selected framework path in the report.
 
+When differently presented sections may hide the same semantic role, or the sequence plan changes component families, proof composition, primary-versus-secondary placement, or continuous content behavior, load `$SHIPGLOWS_ROOT/skills/references/landing-page-experience-coherence.md`. Resolve semantic duplication through this copywriting sequence first, then preserve the design owner boundary for visual grammar and rendered proof.
+
 Keep recommendations at strategic sequence level. Route sentence-level clarity, grammar, microcopy, or rewriting to `copy`; do not run both modes. Treat unsupported claims as visible `needs proof` or `claim mismatch` gaps and recommend the strongest honest sequence supported by current evidence. If the missing shared framework or required local playbook prevents the pass, block it, name the canonical path, and give the concrete owner route `/900-shipglows-core audit`; do not invent a generic template.
 
 ## Audit Flow

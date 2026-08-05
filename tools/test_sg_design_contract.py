@@ -14,6 +14,8 @@ A11Y_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "accessibility-a
 ANIMATION_PLAYBOOK = ROOT / "skills" / "006-sg-design" / "references" / "animation-playbook.md"
 LIFECYCLE_ROUTING = ROOT / "skills" / "006-sg-design" / "references" / "design-lifecycle-routing.md"
 PROOF_GUIDANCE = ROOT / "skills" / "006-sg-design" / "references" / "design-proof-and-reporting.md"
+DESIGN_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "design-audit-playbook.md"
+LANDING_COHERENCE = ROOT / "skills" / "references" / "landing-page-experience-coherence.md"
 README = ROOT / "README.md"
 CHEATSHEET = ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md"
 RUNTIME = ROOT / "shipglows_data" / "technical" / "skill-runtime-and-lifecycle.md"
@@ -41,6 +43,80 @@ class DesignContractTests(unittest.TestCase):
         self.assertIn("project wrappers own visual composition", contract)
         self.assertIn("Never recommend copying vendor component internals", audit)
         self.assertIn("Prefer incremental replacement behind project-owned wrappers", audit)
+
+    def test_cyclic_content_requires_continuity_proof(self) -> None:
+        audit = normalized_text(COMPONENT_AUDIT)
+        for phrase in (
+            "COMPONENT-CYCLIC-CONTINUITY",
+            "no reachable blank interval",
+            "visible seam",
+            "reset jump",
+            "manual interaction and autoplay",
+            "responsive resize",
+            "remount",
+            "reduced-motion",
+            "content-variation proof",
+            "explicitly reframed as finite",
+        ):
+            self.assertIn(phrase, audit)
+
+    def test_page_audit_detects_unexplained_cross_section_drift(self) -> None:
+        audit = normalized_text(LANDING_COHERENCE)
+        for phrase in (
+            "LPX-CROSS-SECTION-GRAMMAR",
+            "equivalent sections",
+            "alignment axis",
+            "icon or media scale",
+            "content anatomy and order",
+            "one dominant visual grammar",
+            "left-aligned and the next centered",
+            "large leading icons followed by small incidental icons",
+            "operator-preferred grammar",
+            "justified exceptions",
+            "system-level harmonization",
+        ):
+            self.assertIn(phrase, audit)
+
+    def test_page_audit_requires_whole_page_harmony_not_local_polish(self) -> None:
+        audit = normalized_text(LANDING_COHERENCE)
+        for phrase in (
+            "LPX-WHOLE-PAGE-HARMONY",
+            "whole-page harmony contract",
+            "spatial rhythm",
+            "proportional hierarchy",
+            "iconography language",
+            "typographic cadence",
+            "transitions between sections",
+            "motion intensity",
+            "explicit exception budget",
+            "cumulative effect fragments the page",
+            "purposeful hierarchy",
+        ):
+            self.assertIn(phrase, audit)
+
+    def test_visual_variation_cannot_disguise_semantic_duplication(self) -> None:
+        audit = normalized_text(LANDING_COHERENCE)
+        for phrase in (
+            "LPX-VISUAL-DISGUISED-DUPLICATION",
+            "semantic duplication disguised by visual variation",
+            "answer the same reader question",
+            "express the same promise",
+            "visual difference is not evidence",
+            "009-sg-marketing copywriting",
+            "landing-page-copywriting-framework.md",
+            "merge|delete|move|narrow",
+            "must not preserve both sections",
+        ):
+            self.assertIn(phrase, audit)
+
+    def test_landing_coherence_is_loaded_by_both_owner_playbooks(self) -> None:
+        design = normalized_text(DESIGN_AUDIT)
+        marketing = normalized_text(ROOT / "skills" / "009-sg-marketing" / "references" / "copywriting-audit-playbook.md")
+        path = "$SHIPGLOWS_ROOT/skills/references/landing-page-experience-coherence.md"
+        self.assertIn(path, design)
+        self.assertIn(path, marketing)
+        self.assertIn("semantic-duplication gate before visual polish", design)
+        self.assertIn("copywriting sequence first", marketing)
 
     def test_keyboard_parity_is_explicit_regression_proof(self) -> None:
         contract = TOKEN_CONTRACT.read_text(encoding="utf-8")
