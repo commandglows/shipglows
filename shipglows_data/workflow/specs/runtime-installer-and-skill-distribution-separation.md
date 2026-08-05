@@ -6,7 +6,7 @@ project: "ShipGlows"
 created: "2026-08-05"
 created_at: "2026-08-05 17:10:00 UTC"
 updated: "2026-08-05"
-updated_at: "2026-08-05 18:10:00 UTC"
+updated_at: "2026-08-05 18:16:00 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -41,7 +41,7 @@ evidence:
   - "Codex has a repo-backed shipglows plugin; OpenCode and KiloCode expose repository-local compatible shims."
   - "Operator decision 2026-08-05: durable private data is already isolated in a private repository and is consumed by the CLI through its existing contract."
   - "Operator decision 2026-08-05: separate runtime/CLI installation from skills distribution; Codex is plugin-first."
-next_step: "Synchronize the separately deployed website bootstrap before advertising its endpoint."
+next_step: "None; runtime, corpus and Codex-plugin distribution are publicly verified."
 ---
 
 # Spec: Runtime Installer and Skill Distribution Separation
@@ -52,7 +52,7 @@ Séparer l'installation runtime des skills ShipGlows
 
 ## Status
 
-verified locally; separate public website bootstrap remains to be synchronized
+verified and publicly deployed
 
 ## User Story
 
@@ -262,14 +262,15 @@ None. The operator approved runtime/plugin/corpus separation and confirmed the p
 | 2026-08-05 17:45:00 UTC | 102-sg-start | GPT-5 Codex | Implemented explicit runtime, corpus and Codex-plugin surfaces; gated skill synchronization; added sparse-contract tests and aligned documentation. | implemented | /103-sg-verify mode=excellence runtime installer and skill distribution separation |
 | 2026-08-05 18:05:00 UTC | 103-sg-verify | GPT-5 Codex | Excellence verification: 43 installer regressions, syntax, plugin manifest, metadata and public skill-sync checks pass; all four disposable runtime/manual scenarios pass. The separately deployed public website bootstrap is still stale and needs its own release. | partial | Synchronize the website bootstrap and verify the public endpoint before advertising it. |
 | 2026-08-05 18:10:00 UTC | 005-sg-ship | GPT-5 Codex | Shipped the verified runtime, corpus and Codex-plugin distribution separation to `commandglows/shipglows` main as `886fe8a`. | shipped | Synchronize the website bootstrap and verify the public endpoint before advertising it. |
+| 2026-08-05 18:16:00 UTC | 103-sg-verify | GPT-5 Codex | Post-publication excellence verification: the production `www.commandglows.com/shipglows-script` shell and PowerShell endpoints both serve `commandglows/shipglows`; shell output exposes the runtime/corpus surface selector and neither endpoint contains the legacy repository URL. | excellent | None. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done, draft spec created.
 - `101-sg-ready`: ready.
 - `102-sg-start`: implemented.
-- `103-sg-verify`: partial; local, structural and isolated-runtime proof pass; public website endpoint remains stale.
+- `103-sg-verify`: excellent; local, structural, isolated-runtime and public-endpoint proof pass.
 - `104-sg-end`: not launched.
-- `005-sg-ship`: shipped `886fe8a` to `commandglows/shipglows` main.
+- `005-sg-ship`: shipped `886fe8a` to `commandglows/shipglows` main; the website relay shipped as `c1b4fdd` and its public aliases now target the current deployment.
 
-Next step: synchronize the public website bootstrap, then verify its served endpoint before advertising it.
+Next step: none.
