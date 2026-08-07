@@ -35,11 +35,17 @@ Default to `report=user`: concise, findings-first for audits, plan-first for mig
 
 `010-sg-technical` is the runtime engine behind public `sg-engineering`. It owns architecture, code/security quality, dependency posture, performance, GitHub hygiene, breaking-change migration, local-cloud sync, product access/entitlements, provider events, and platform parity. It selects one explicit outcome mode and retains public ownership while specialist engines execute bounded lanes.
 
+For sending domains, SPF/DKIM/DMARC, email providers, delivery webhooks, reputation, suppressions, bounces, complaints, or agent email tooling, load `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` and only the references it selects.
+
 ## Mode Detection
 
 Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
 
 Load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` and `references/technical-router.md` before selecting mode or scope.
+
+For `audit` or `architecture` involving authored code, also load `$SHIPGLOWS_ROOT/skills/references/clean-code-quality-contract.md`. Treat its gates as maintainability evidence, subordinate to correctness, security, performance requirements, platform constraints, and project conventions.
+
+For `audit`, `architecture`, `deps`, or `migrate` touching an internet-facing or privileged surface, load `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md` and report relevant Top 10:2025 categories, selected ASVS v5.0.0 requirements, evidence, and residual gaps.
 
 Parse `$ARGUMENTS` exactly:
 

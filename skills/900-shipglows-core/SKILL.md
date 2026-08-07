@@ -195,6 +195,7 @@ Validate this skill after edits with:
 ```bash
 rg -n "Mode Detection|Mode Scenarios|skill-maintenance-playbook|skill-refresh-playbook|retired|Mission|Scope Gate|Required References|Stop Conditions|Validation" skills/900-shipglows-core/SKILL.md
 python3 -m unittest tools.test_900_shipglows_core_contract
+python3 -m unittest tools.test_master_delegation_contract
 python3 -m unittest tools.test_reporting_contract
 python3 tools/audit_shipglows_skills.py
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown

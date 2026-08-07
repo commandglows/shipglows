@@ -101,6 +101,8 @@ Mandatory explicit checks:
 - `Closure Archive Guard Fit` pass/partial/fail/not applicable: closure, tracker, changelog, docs, bug, spec, skill-runtime, or archive state does not claim stronger completion than implementation, proof, source-of-truth sync, and collision checks support
 - `Structure Replacement Fit` pass/partial/fail: the chosen implementation or workflow change reduces current friction, ambiguity, latency, or maintenance burden when that was part of the stated problem; reject decorative new layers that add churn without operator leverage.
 - `Fast Fix Shortcut Gate` pass/partial/fail: implementation does not bypass root cause, owner routing, shared structure, documentation, or required proof to make a symptom disappear.
+- `Clean Code Gate` pass/partial/fail/not applicable: proportionally verify naming, cohesion, complexity, abstraction/duplication, errors/side effects, comments/dead code, and behavior-focused proof without imposing stylistic dogma.
+- `OWASP Security Gate` pass/partial/fail/not applicable: for applicable surfaces, verify the selected Top 10:2025 risks, ASVS v5.0.0 requirements, evidence, residual gaps, and owner route; never infer complete OWASP coverage from one scan.
 - `Flutter Mobile Proof Ladder` pass/partial/fail/not applicable: widget tests -> agent-run Flutter Web smoke through `108-sg-browser`/`109-sg-auth-debug` -> APK/device proof order is respected for Flutter mobile UI work
 - `Bug Gate` (clear/partial-risk/blocks ship/not assessed)
 - `UI Design-System Shortcut Gate` pass/partial/fail/not applicable: UI, IME, keyboard, overlay, responsive, spacing, typography, color, motion, target-size, layout, or component work does not rely on unexplained one-off hardcoded visual values; any unavoidable literal is named, scoped, platform-bound, and proven.
@@ -133,11 +135,15 @@ Always load:
 9. `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md` when scope includes an editorial score or content quality gate.
 10. `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md` when the target project owns an Atlas registry.
 11. `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when scope contains a material product decision, customer journey, capability, critical moment, Atlas mapping or cross-contract change.
+12. `$SHIPGLOWS_ROOT/skills/references/zombies-edge-case-heuristic.md` when verifying non-trivial behavior or its edge-case proof.
+13. `$SHIPGLOWS_ROOT/skills/references/clean-code-quality-contract.md` when the verified scope authored or materially modified code.
+14. `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md` when the verified scope touches an internet-facing or privileged surface.
 
 Load on demand:
 
 - `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` when runtime failures/observability/deployed behavior are in scope.
 - `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md` when verifying a runtime app, support/error handling, settings, auth callback, Sentry, browser-debug, log-copy, or deploy-proof surface.
+- `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` when acceptance criteria touch email copy, templates, received rendering, plain text, delivery, authentication, provider events, or agent operations; verify the selected playbook gates.
 - `/109-sg-auth-debug` evidence for auth/session/callback/protected-route proof.
 - `/108-sg-browser` evidence for non-auth browser proof.
 
@@ -164,6 +170,7 @@ When verified changes include `skills/*/SKILL.md`:
 - changed `source-de-chantier` skills must still contain chantier-potential guidance
 - changed helper skills must not present themselves as chantier sources
 - skill contract changes must show `scenario-first` pressure scenarios, mechanical checks, or `exception-with-proof`
+- non-trivial behavior must show proportional `ZOMBIES coverage`, including justified `not applicable` categories rather than artificial tests
 - if runtime-discoverable skills changed, run `tools/shipglows_sync_skills.sh --check --skill <name>` or `--check --all`
 
 ## Tracker Rule

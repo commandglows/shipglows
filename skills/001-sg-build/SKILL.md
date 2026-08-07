@@ -29,7 +29,7 @@ Default to `report=user`: concise, outcome-first, and using the opening chantier
 
 Before choosing execution topology, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 
-This skill owns end-to-end lifecycle orchestration through `104-sg-end` and `005-sg-ship`, with `main-only`, `delegated sequential`, and `spec-gated parallel` as reportable execution modes.
+This skill owns end-to-end lifecycle orchestration through `104-sg-end` and `005-sg-ship`, with `main-only`, `delegated sequential`, `read-only parallel`, and `spec-gated parallel` as reportable execution modes.
 
 `spark`, `codex`, `mini`, `agents`, `subagent`, and `sous-agent` force delegated sequential execution; if unavailable for file work or validation, stop/report degraded. They never mean parallel execution.
 
@@ -56,6 +56,8 @@ Before deciding whether the operator should be asked for business, product, audi
 Before `102-sg-start`, load `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` and choose model profile based on complexity, ambiguity, failure cost, expected duration, and topology.
 
 Before UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual proof work, load `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` and route design-system changes through the canonical token/theme/component source.
+
+When a product change creates or changes email copy, templates, transactional flows, provider delivery, or agent-operated mail, load `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` and only the references it selects.
 
 ## Mission
 
@@ -93,11 +95,12 @@ Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/s
 
 - `main-only`: only for pure conversational output, explicit planning without mutation, or an explicit no-subagent request.
 - `delegated sequential` (default): `/001-sg-build <story>` or `$001-sg-build <story>` is bounded delegation consent for the current chantier; run one bounded implementation/validation owner at a time.
-- `spec-gated parallel`: allowed only when a ready spec defines safe `Execution Batches`. Without explicit safe batches, parallelism is blocked.
+- `read-only parallel`: default when at least two independent reconnaissance or evidence scopes can be assigned no-write batches; create the selected batch matrix and integrate the results.
+- `spec-gated parallel`: execute non-overlapping write batches in parallel when a ready spec defines safe `Execution Batches`; otherwise write work stays delegated sequential.
 
 When a named profile is active, let it shape route choice, sequencing, and answer framing for the current turn without bypassing lifecycle gates, proof owners, or stop conditions.
 
-Report `Agents: used`, `Agents: not needed`, or `Agents: degraded: <reason>` only when topology affects trust.
+For executable work, retain a delegation receipt and report `Agents: <count> · <mode>`. Add a degradation reason when capability affects trust, coverage, timing, or proof. `Agents: not needed` is reserved for pure conversation or decision framing.
 
 ## Existing Chantier Check
 
@@ -168,7 +171,7 @@ Stop and ask or reroute when:
 - spec ownership is ambiguous
 - a matched blueprint contradicts the user's explicit requirement (ask before overriding)
 - readiness does not pass
-- requested parallelism has no safe `Execution Batches`
+- requested parallel writes have no ready safe `Execution Batches`
 - file ownership overlaps in a parallel plan
 - subagent mode was requested but unavailable or not applied for file work, validation, closure, or ship preparation
 - governance corpus state is missing/stale and unresolved
@@ -203,4 +206,5 @@ Validate this skill after edits with:
 
 - `rg -n "Trace category|Process role|Master Delegation|Master Workflow Lifecycle|Existing Chantier Check|Greenfield Platform Footprint|Greenfield Technology Decision|Stop Conditions|Final Report|build-lifecycle-workflow" skills/001-sg-build/SKILL.md`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
+- `python3 -m unittest tools.test_master_delegation_contract`
 - `python3 tools/shipglows_metadata_lint.py skills/001-sg-build/references/build-lifecycle-workflow.md`

@@ -28,6 +28,7 @@ If no unique spec exists, do not write to a spec. For narrow read-only diagnosis
 Load these before the matching work:
 
 - `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` for route and implementation decisions.
+- `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` before choosing topology; parallelize independent read-only design evidence by default and require ready write batches for concurrent edits.
 - `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` before any UI, layout, token, theme, or visual-proof work.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` for mode grammar, scope gates, and sequencing.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/animation-playbook.md` for `animation <audit|design|implement|tune> [scope]` after valid animation selection.
@@ -38,6 +39,7 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-inspiration-library-operations.md` before `library ...` operations.
 - `$SHIPGLOWS_ROOT/skills/600-sg-local-cloud-sync/references/sync-guidance-overlay-ui.md` before sync-related UI work; hand off data/merge authority to `600-sg-local-cloud-sync`.
 - `$SHIPGLOWS_ROOT/skills/references/skill-refactor-verifier.md` for any skill compaction, extraction, or process-migration check.
+- `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` for email template design, email accessibility, images-off behavior, contrast, responsive rendering, or client-safe visual systems.
 
 ## Explicit Invocation Preflight
 

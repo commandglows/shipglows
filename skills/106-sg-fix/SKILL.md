@@ -34,6 +34,9 @@ Before any fix attempt, load:
 - `$SHIPGLOWS_ROOT/skills/references/project-runtime-policy.md` when the bug involves a ShipGlows-managed PM2 startup failure or crash loop.
 - `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`
 - `$SHIPGLOWS_ROOT/skills/references/task-application-loop.md`
+- `$SHIPGLOWS_ROOT/skills/references/zombies-edge-case-heuristic.md` when the bug involves non-trivial behavior, state, boundaries, interfaces, or exceptional paths.
+- `$SHIPGLOWS_ROOT/skills/references/clean-code-quality-contract.md` before materially modifying code.
+- `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md` when a direct fix touches an internet-facing or privileged surface.
 - `$SHIPGLOWS_ROOT/skills/106-sg-fix/references/bug-fix-workflow.md`
 
 Load `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` before UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual bug fixes.
@@ -67,6 +70,8 @@ Choose a bug proof path before patching:
 - `evidence-first` when the only reliable proof is browser/manual/runtime evidence.
 - `exception-with-proof` when automated regression is impractical; record why, the root cause hypothesis, and the alternate proof.
 
+For non-trivial bugs, use ZOMBIES to challenge the reproduction and regression scope. Do not patch only the observed happy-path instance when zero, many, boundary, interface, or exceptional variants share the same root cause.
+
 ## Routing Rule
 
 Direct fix path is allowed only for small, local, clear bugs with obvious expected behavior, low ambiguity, no migration/auth/data contract change, and no material risk to permissions, visibility, workflow integrity, or external side effects.
@@ -76,6 +81,8 @@ Direct fix path is allowed only for small, local, clear bugs with obvious expect
 Spec-first path is required for multi-file or cross-system impact, unclear expected behavior, likely edge cases, migration/data/auth/perf implications, or ambiguity that could materially change behavior, scope, or security.
 
 Direct fix never means quick-fix shortcut. Apply the `Fast Fix Shortcut Ban`: root cause, owner boundary, durable structure, and proof path must remain intact.
+
+A direct fix must also pass the proportional `Clean Code Gate`: do not hide the symptom behind vague naming, added branching, swallowed errors, dead compatibility code, or a premature abstraction.
 
 UI, IME, keyboard, overlay, responsive, spacing, typography, color, motion, target-size, or layout bugs are direct-fix eligible only when the bounded professional repair preserves the project's design-system source of truth and passes changed-file drift evidence. Do not hardcode one-off visual values to make a bug disappear. If the correct repair requires token/theme/component/measurement changes, route through `006-sg-design` or spec-first rather than accepting drift.
 
@@ -107,6 +114,8 @@ When a `BUG-ID` exists, open `shipglows_data/workflow/bugs/BUG-ID.md` right befo
 Force `spec-first` if any unresolved point could change who can see/do the action, what data becomes visible/editable/deletable/triggerable, whether the workflow can be bypassed/replayed/left inconsistent, or whether external systems, billing, notifications, jobs, or automations behave differently.
 
 Direct fixes must preserve security-by-default: do not rely on UI-only protection, validate untrusted inputs where relevant, preserve auth/authz checks and tenant/resource boundaries, and prevent obvious replay, double-submit, stale-state, or invalid-order issues when relevant.
+
+For applicable fixes, preserve or repair the selected `OWASP Security Gate`; a fixed local repro does not close access-control, integrity, logging, or exceptional-condition risk without matching evidence.
 
 ## Execution
 

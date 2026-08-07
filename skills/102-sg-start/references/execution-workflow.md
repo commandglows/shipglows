@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: "shipglows"
 created: "2026-05-16"
-updated: "2026-06-10"
+updated: "2026-08-07"
 status: draft
 source_skill: 102-sg-start
 scope: "102-sg-start-workflow"
@@ -27,6 +27,7 @@ supersedes: []
 evidence:
   - "Extracted during compact-shipglows-skill-instructions-phase-4 to preserve lifecycle workflow detail outside the activation body."
   - "Added bounded local auto-verify follow-through for 102-sg-start while preserving proof-owner routing."
+  - "Aligned execution topology with the canonical default: independent read-only scopes fan out in parallel, mutations stay delegated sequential, and parallel writes require prepared non-overlapping Execution Batches with an integration owner."
 next_step: "none"
 ---
 
@@ -169,6 +170,7 @@ If `spec-first` and no matching `Status: ready` spec exists:
   - files owned by each group
   - shared files that must stay with the main agent
   - groups that can run in parallel vs groups that must wait
+- Load `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/master-delegation-semantics.md` before choosing or dispatching the topology.
 - Read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/decision-quality-contract.md` before selecting direct mode, model, topology, implementation path, or fallback
 - Read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/704-sg-model/references/model-routing.md` before choosing execution model(s)
 - If the spec is missing any of the above, stop and route back to `/101-sg-ready` or `/100-sg-spec`
@@ -204,13 +206,12 @@ Pick:
 - `Reasoning effort` for Codex/OpenAI, or Claude Code alias behavior
 - optional `Per-group model overrides`
 
-Prefer simple Codex/OpenAI defaults:
-- `gpt-5.4-mini` for small, clear, local, low-risk work where it remains quality-equivalent
-- the `codex` implementation profile from `704-sg-model` for long agentic implementation, multi-file coding, refactors, hard debugging, and terminal-heavy execution; do not pin this profile to a deprecated slug
-- `gpt-5.5` for ambiguity, architecture, cross-project governance, transverse audits, task prioritization, prompt/docs migrations, business-risk synthesis, and high error cost, with `low`, `medium`, `high`, or `xhigh` reasoning calibrated to the task
-- `gpt-5.4` for bounded premium architecture or tradeoffs where `gpt-5.5` is likely overkill
-- `gpt-5.3-codex-spark` for Spark-eligible summaries, text-only handoffs, micro-code, highly local fast-iteration work, and UI-focused deltas when it does not replace necessary reasoning and credits/availability permit
-- `gpt-5.4-mini` as the default for small bounded subagent missions only when the mission risk is low enough for the quality bar
+Use the current profiles from `704-sg-model/references/model-routing.md` rather than duplicating a model catalogue here:
+- `gpt-5.6-sol` for frontier reasoning and high-cost-of-error work
+- `gpt-5.6-terra` for balanced daily reasoning and implementation
+- `gpt-5.6-luna` for bounded, low-risk, high-volume missions when quality remains equivalent
+- the `codex` implementation profile for long agentic coding, refactors, hard debugging, and terminal-heavy execution
+- Spark only when the runtime explicitly exposes it; otherwise use the quality-equivalent fallback selected by the canonical routing reference
 
 Treat `spark`, `codex`, `sous-agent`/`subagent`/`agents`, and `mini` arguments as delegated subagent requests using the model-topology alias rules from `704-sg-model/references/model-routing.md`.
 
@@ -230,28 +231,14 @@ If the task is simple, keep one model and continue.
 
 ### Step 5 — Choose execution topology
 
-Decide whether to run in `single-agent` or `multi-agent`.
+Load `master-delegation-semantics.md`, then apply these defaults:
 
-Prefer `single-agent` when:
-- the task is small or medium
-- most changes converge on the same 1-3 files
-- the work is tightly coupled and sequencing matters more than parallelism
-- the integration overhead would outweigh the gain
+- two or more independent read-only scopes run as a parallel read-only batch by default;
+- mutations run as delegated sequential work by default;
+- parallel writes are allowed only when the ready spec prepared non-overlapping `Execution Batches` before dispatch and named one integration owner;
+- tightly coupled work stays sequential; unavailable agent tooling must be reported as degraded execution rather than silently presented as the selected topology.
 
-Prefer `multi-agent` when:
-- the spec is `ready` and materially non-trivial
-- there are multiple implementation groups with mostly disjoint write sets
-- backend, frontend, tests, docs, ops, or migrations can be separated cleanly
-- the main agent can keep ownership of integration and final validation
-
-Guardrails for `multi-agent`:
-- create at most 2-4 groups
-- each group must have explicit file ownership
-- do not assign the same writable file to multiple subagents
-- keep cross-cutting files, final wiring, and conflict resolution with the main agent
-- if boundaries are fuzzy, fall back to `single-agent`
-
-If `multi-agent` is chosen:
+For each delegated group:
 - define each group with:
   - goal
   - owned files
@@ -261,10 +248,12 @@ If `multi-agent` is chosen:
   - whether the model override is applied by the runtime or only recommended
   - read-only context files
   - validations to run
-  - dependency order if not parallel-safe
-- launch subagents only for groups that materially advance the task without overlapping writes
-- keep working locally on integration-critical or shared-file work while subagents run
+  - dependency order for mutations
+- create at most 2-4 groups and never assign the same writable file to multiple agents
+- keep cross-cutting files, final wiring, conflict resolution, and combined validation with the integration owner
+- launch independent read-only groups concurrently; launch mutation groups sequentially unless every write batch satisfies the ready-spec gate
 - integrate returned changes, then run focused validation across the combined result
+- record the structured receipt and report `Agents: <count> · <mode>`.
 
 ### Step 6 — Implement
 
@@ -369,6 +358,7 @@ Mode: [direct / spec-first]
 Primary execution model: [model]
 Reasoning effort: [low / medium / high / xhigh]
 Execution topology: [single-agent / multi-agent]
+Agents: [count] · [read-only parallel / delegated sequential / prepared write batches / degraded]
 Development mode: [local / vercel-preview-push / hybrid / unknown-vercel]
 Validation surface: [local / preview after 005-sg-ship -> 405-sg-prod / mixed]
 Contract: [ready spec path / direct mini-contract]

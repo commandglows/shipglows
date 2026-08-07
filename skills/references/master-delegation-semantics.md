@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-07-18"
+updated: "2026-08-07"
 status: active
 source_skill: 001-sg-build
 scope: master-delegation-semantics
@@ -23,6 +23,7 @@ linked_systems:
   - skills/004-sg-deploy/SKILL.md
   - skills/003-sg-bug/SKILL.md
   - skills/400-sg-audit/SKILL.md
+  - tools/test_master_delegation_contract.py
   - skills/references/decision-quality-contract.md
   - skills/references/spec-driven-development-discipline.md
   - docs/technical/skill-runtime-and-lifecycle.md
@@ -44,7 +45,10 @@ evidence:
   - "User decision 2026-06-10: favor subagents broadly to keep the main conversation clean; sequential is the normal default, while parallel remains read-only or spec/batch-gated."
   - "User decision 2026-06-10: using a master skill counts as consent for bounded sequential subagents, and `spark`, `codex`, `sous-agent`/`subagent`, and `mini` arguments request model-specific subagent delegation."
   - "Operator correction 2026-07-18: internal mission selection stays agent-owned while unfinished user reports expose only plain-language outcome choices."
-next_review: "2026-06-04"
+  - "OpenAI latest-model migration guidance checked 2026-08-07: choose model and reasoning independently, verify runtime availability, and promote routing defaults only with representative evidence."
+  - "Operator correction 2026-08-07: delegation must be the observable default; use safe read-only parallelism whenever independent investigation benefits from it."
+  - "Operator decision 2026-08-07: read-only work parallelizes by default through a selected no-write matrix; concurrent writes require predeclared non-overlapping Execution Batches."
+next_review: "2026-11-07"
 next_step: "/103-sg-verify master delegation semantics"
 ---
 
@@ -59,7 +63,7 @@ The goal is a clean master conversation: the master skill owns decisions, routin
 Load `skills/references/decision-quality-contract.md` before choosing topology, model fallbacks, or delegated mission boundaries. Delegation is an execution-quality and excellence tool, not a shortcut around professional engineering standards.
 
 Favor subagents by default to keep the main conversation clean and outcome-focused.
-Use sequential subagents by default; use parallel subagents only for read-only work or ready `Execution Batches`.
+Use parallel subagents by default for two or more independent read-only scopes. Use sequential subagents for mutations unless a ready spec already defines non-overlapping write `Execution Batches`.
 Do not narrate routine subagent orchestration; report outcomes, evidence, blockers, and degraded execution only.
 
 ## Applies To
@@ -80,15 +84,27 @@ Delegation to one sequential subagent is not parallelism. It is the normal way a
 
 ## Default
 
-When subagents are available, the default topology for master-skill work that reads files, edits files, validates, prepares closure, or prepares ship is `delegated sequential`.
+When subagents are available, the default topology is `read-only parallel` for two or more independent no-write scopes and `delegated sequential` for mutations, dependent stages, validation that can change state, closure, or ship. Parallel writes require ready non-overlapping `Execution Batches`.
 
-Invoking a master or orchestrator skill is consent for bounded sequential subagents. Ask again only when the next action changes material scope, risk, data, permissions, destructive behavior, staging, closure, ship semantics, or parallel execution.
+Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out. Ask again only when the next action changes material scope, risk, data, permissions, destructive behavior, staging, closure, ship semantics, or introduces parallel writes not already authorized by ready `Execution Batches`.
 
-Use one bounded subagent at a time. A small scope may use a mini-contract, but small scope is not an exception to delegation. If file work or validation is needed and subagents are available, the master should delegate sequentially instead of doing routine diffs or patches in the master conversation.
+In `delegated sequential` mode, use one bounded subagent at a time. A small scope may use a mini-contract, but small scope is not an exception to delegation. If file work or validation is needed and subagents are available, the master should delegate instead of doing routine diffs or patches in the master conversation.
+
+## Delegation-First Gate
+
+Before a master reads project files for execution, edits files, runs routine validation, prepares closure, or prepares ship, choose and apply one topology:
+
+- `delegated sequential` for a bounded write, fix, implementation, validation, or integration mission;
+- `read-only parallel` when at least two independent investigation or evidence scopes can be partitioned safely;
+- `main-only` only for the explicit exceptions below.
+
+For executable work, dispatch the bounded mission before doing routine diffs, patches, validation sweeps, or ship preparation in the master conversation. Do not silently substitute direct master execution because delegation is inconvenient. If the runtime has no subagent capability, or cannot apply the required override, stop or report `degraded` with the concrete capability gap before continuing.
+
+`Agents: not needed` is valid only for a pure conversational answer or explicit decision framing. It is not valid for file mutation, validation, closure, ship preparation, or an independent evidence sweep.
 
 When a master skill accepts an `agents`, `subagent`, `sous-agent`, `spark`, `codex`, or `mini` argument, treat it as a strict delegated sequential request for the current work item. If file work, validation, closure preparation, or ship preparation proceeds without a bounded subagent, the run must stop or report `degraded: subagents unavailable/not applied` with the reason. These arguments never mean parallel execution.
 
-For Codex/OpenAI subagents, the default bounded mission model is the smallest quality-equivalent model for the mission. Use `gpt-5.4-mini` only for low-risk bounded work where it can meet the quality and excellence bar. Use `gpt-5.3-codex-spark` when `spark` is requested and the mission is quality-equivalent on Spark, including concise summaries, text-only handoffs, micro-code, targeted UI/local edits, or other low-risk bounded work while Spark credits/availability permit. Use the `codex` implementation profile when `codex` is requested or the mission is long implementation, multi-file code work, refactor, hard debugging, or terminal-heavy execution; resolve that profile through `skills/704-sg-model/references/model-routing.md` rather than pinning it to a deprecated slug. Use `gpt-5.5` with the appropriate `low`, `medium`, `high`, or `xhigh` reasoning for non-implementation work when ambiguity, cross-system reasoning, governance, architecture, audits, product arbitration, security, business risk, or high error cost require it.
+For Codex/OpenAI subagents, choose the smallest quality-equivalent model from `skills/704-sg-model/references/model-routing.md`, then choose reasoning separately. `gpt-5.6-luna` is the default for low-risk bounded work; use the `codex` implementation profile for long implementation, multi-file code work, refactors, hard debugging, or terminal-heavy execution; use `gpt-5.6-terra` for balanced non-trivial work and `gpt-5.6-sol` when ambiguity, cross-system reasoning, governance, architecture, audits, product arbitration, security, business risk, or high error cost require frontier quality. Treat `gpt-5.3-codex-spark` as an explicit request requiring runtime availability, not as an assumed entitlement. Preserve the existing model/effort as the migration baseline; promote a new default only after representative evidence shows a quality-contract win at acceptable latency and cost.
 
 Each delegated mission must include:
 
@@ -99,6 +115,7 @@ Each delegated mission must include:
 - forbidden files or surfaces
 - selected model or alias
 - reasoning effort, or the Claude alias behavior when using Claude Code
+- runtime availability evidence for the requested override
 - fast or cheap fallback only when it remains quality- and excellence-equivalent for the mission risk
 - model application status: `override applied`, `recommended only`, or `not supported by runtime`
 - validation commands
@@ -115,32 +132,32 @@ action, a short natural-language confirmation in the active conversation
 language means, by intent rather than exact keyword:
 
 ```text
-continue the current chantier in delegated sequential mode with one bounded subagent
+continue the current chantier with the canonical topology: read-only parallel for independent no-write scopes, otherwise delegated sequential
 ```
 
-Short confirmations never authorize parallel subagents. Ask again only when scope, risk, data, permissions, destructive behavior, staging, closure, or ship semantics change.
+Short confirmations authorize bounded read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`. Ask again only when scope, risk, data, permissions, destructive behavior, staging, closure, or ship semantics change.
 
 The next safe mission remains internal. In an unfinished user-facing report,
 offer only plain-language choices about continuing, reprioritizing, changing
 scope, or pausing; never require the operator to select an owner, skill, or
 command to continue the chantier.
 
-## Parallelism
+## Read-Only Parallel Batch Matrix
 
-Parallelism means simultaneous subagents. It is allowed only through ready `Execution Batches`.
+Use `read-only parallel` by default when two or more independent investigation or evidence scopes exist and parallel results improve elapsed time or coverage. Master-skill invocation is sufficient consent because these agents cannot mutate project or external state.
 
-Do not define an argument-level `agents parallel` mode. If the user asks for parallel agents, route to the ready spec's `Execution Batches` or block until those batches define non-overlapping ownership and integration.
+Before dispatch, create a selected batch matrix that states each agent's bounded surface, explicit read-only constraint, requested evidence, and integration owner. Do not use this mode for dependent stages, overlapping scopes, one small investigation, or speculative busywork. Any subsequent fix, tracker rewrite, content update, closure, or ship work returns to delegated sequential unless the write gate below passes.
 
-Ready `Execution Batches` must define:
+## Write Execution Batches
+
+Parallel writes are allowed only when a ready spec defines `Execution Batches` before dispatch. Each batch must define:
 
 - non-overlapping write ownership
 - dependency order
 - per-batch validation
 - integration owner
 
-Without ready batches, parallelism is blocked. The next action is spec or batch refinement, not opportunistic fan-out.
-
-Read-only audit fan-out may run in simultaneous subagents only when the master skill has an explicit selected batch matrix, such as project x domain, and each agent is forbidden to edit files. Any fix, tracker rewrite, content update, closure, or ship work after that returns to delegated sequential unless a ready spec defines write-safe `Execution Batches`.
+Without ready write batches, writes stay delegated sequential. When ready non-overlapping write batches exist, execute them in parallel rather than unnecessarily serializing them. The integration owner remains responsible for combined validation.
 
 ## Exceptions And Degradation
 
@@ -176,7 +193,7 @@ Stop, ask, reroute, or refine the spec when:
 
 - the active chantier or mini-contract is ambiguous
 - subagents are unavailable and the user has not accepted degradation
-- requested parallelism lacks ready `Execution Batches`
+- requested parallel writes lack ready `Execution Batches`
 - write ownership overlaps or is undefined
 - the next action changes material scope, permissions, data, destructive behavior, closure, staging, or ship semantics
 - validation, proof, docs, editorial, closure, or ship gates are unresolved
@@ -184,7 +201,7 @@ Stop, ask, reroute, or refine the spec when:
 
 ## Reporting Expectations
 
-User-facing reports stay concise. They should include the execution mode only when it matters for trust, evidence, or next steps.
+User-facing reports stay concise. Executable work includes the compact agent receipt; topology detail appears only when it matters for trust, evidence, or next steps.
 
 Agent or handoff reports may include:
 
@@ -196,4 +213,6 @@ Agent or handoff reports may include:
 - integration notes
 - stop conditions hit or cleared
 
-Never present parallel work as merely "delegation"; name simultaneous subagents as parallelism and point to the ready `Execution Batches` that made it safe.
+For executable work, retain a structured delegation receipt with `topology`, `agents_dispatched`, `model_status`, the `read_only_batch_matrix` or `write_execution_batches` when applicable, and `integration_result`. `agents_dispatched` and the compact `Agents: <count>` value count only agents directly dispatched successfully by the orchestrator signing the receipt; nested agents belong to their direct parent's receipt and must not be double-counted. Surface one compact line in the user report: `Agents: <count> · <main-only|delegated sequential|read-only parallel|write-batch parallel|degraded>`. Keep detailed missions internal unless degradation or topology materially affects trust.
+
+Never present parallel work as merely "delegation". Name read-only fan-out by its selected matrix and parallel writes by the ready `Execution Batches` that made them safe.

@@ -53,6 +53,7 @@ Always load shared references only when their gate applies. Load skill-local ref
 
 - `references/auth-debug-workflow.md`: Auth debug workflow, provider-reference routing, reproduction strategy, Playwright proof, Sentry/PM2 evidence, and report details.
 - `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`: required when the auth target exposes settings, support, diagnostics, callback error pages, error boundaries, or copy-log UI.
+- `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md`: required when the bug depends on delivered OTP/magic-link/reset content, sender identity, external provider delivery, authentication results, or client rendering. Mailpit-only wiring stays local and is not external deliverability proof.
 
 ## ShipGlows-Owned Preflight
 

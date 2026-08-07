@@ -48,6 +48,8 @@ Load only the references needed for the active run:
 - `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`: required for greenfield product stack decisions before blueprint intake or technology comparison.
 - `$SHIPGLOWS_ROOT/skills/references/atlas-cartography-lifecycle.md`: required when a project-owned Atlas exists and the spec creates, changes, splits, or retires a user-visible surface or observable function.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`: required when a spec creates or changes a material business goal, customer journey, capability, critical experience moment, Atlas node or governing product decision.
+- `$SHIPGLOWS_ROOT/skills/references/zombies-edge-case-heuristic.md`: required when a non-trivial behavior contract needs edge-case, boundary, interface, or exceptional-path coverage.
+- `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`: required when the spec touches an internet-facing or privileged surface; map relevant OWASP Top 10:2025 categories and selected ASVS v5.0.0 requirements to risks, invariants, and proof.
 - Supabase, Sentry, development-mode, or other shared references only when the workflow reference triggers their gate.
 
 ## Mode Detection
@@ -63,6 +65,7 @@ Parse `$ARGUMENTS` and the latest user request, then choose the smallest safe pa
 ## Core Execution Rules
 
 - A ready spec must be autonomous enough for a fresh agent: user story, minimal behavior contract, success/error behavior, scope, tasks, acceptance criteria, risks, linked systems, documentation impact, and run history.
+- For non-trivial behavior, acceptance criteria and the proof plan must retain compact `ZOMBIES coverage`; mark irrelevant categories `not applicable` with a reason instead of inventing tests.
 - Specs are written for implementation, not brainstorming; avoid placeholders, vague tasks, and undocumented assumptions.
 - Specs must preserve the decision-quality and excellence bar: correctness, security, performance where relevant, maintainability, durability, professional best practices, and proof quality before speed or convenience.
 - When a spec touches declared products or product-facing surfaces, the contract must state the governed product source of truth, canonical public URLs, delivery model, and claim-proof obligations instead of leaving product coherence implicit.
@@ -81,6 +84,7 @@ Parse `$ARGUMENTS` and the latest user request, then choose the smallest safe pa
 - `100-sg-spec` creates or updates the durable chantier spec only; it does not edit `TASKS.md`, `AUDIT_LOG.md`, or legacy `PROJECTS.md`.
 - Before creating or mutating a `spec:` operational summary line, load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` and keep the durable spec body separate from that one-line traffic-first record.
 - External-doc freshness, security, auth, tenant, data, money, destructive, and public-claim ambiguities must be resolved before the spec is called ready.
+- Applicable security specs must retain an `OWASP Security Gate`; do not call a generic security paragraph a sufficient threat or verification contract.
 - When a blueprint is active, include `Blueprint: [id] (v[version])` in the final report. Do not override blueprint decisions without explicit user agreement — they represent validated patterns from shipped apps.
 
 ## Stop Conditions

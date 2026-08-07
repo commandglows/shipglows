@@ -1,7 +1,7 @@
 ---
 name: 705-sg-conversation-audit
 description: "Audit ShipGlows conversations into actionable improvements."
-argument-hint: "[default|latest|path <file-or-dir>|export shipglows|report=agent]"
+argument-hint: "[default|latest|path <file-or-dir>|export shipglows|--trace <rollout.jsonl>|report=agent]"
 ---
 
 # 705-sg-conversation-audit
@@ -51,6 +51,7 @@ Audit stored ShipGlows conversation transcripts into private governance reports 
 - `latest`: audit the most recent transcript in the canonical conversation directory.
 - `path <file-or-dir>`: audit a specific transcript file or all files in a directory; this can read external input but must not move the audit output out of `$SHIPGLOWS_ROOT`.
 - `export shipglows`: run `800-tmux-capture-conversation --preset shipglows` first, then audit the new transcript from `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/`.
+- `--trace <rollout.jsonl>`: use the explicitly supplied rollout trace to verify delegation receipts and explicit delegation requests. Never auto-discover a trace or infer runtime events from prose.
 - `report=agent`: include detailed evidence and route rationale.
 
 ## Canonical Workflow
@@ -62,9 +63,10 @@ Audit stored ShipGlows conversation transcripts into private governance reports 
 2. Validate redaction gate before reading raw transcript content.
 3. Derive a cleaned classifier input that removes obvious terminal chrome, command output, diffs, JSON payloads, and long log/search noise while preserving user/agent turns.
 4. Classify the cleaned view with deterministic categories (below), while keeping raw unsafe detection tied to the original transcript.
-5. Write report to `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversation-audits/<slug>.md` using template `templates/conversation_audit.md`.
-6. Run the ShipGlows Core follow-through gate below before final reporting.
-7. Print top findings + evidence summary + routing recommendation + any automatic skill-contract audit result.
+5. When `--trace` is supplied, correlate explicitly labelled transcript turn IDs with a complete rollout trace and emit the delegation result as exactly one of `verified`, `finding`, or `unverifiable`.
+6. Write report to `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversation-audits/<slug>.md` using template `templates/conversation_audit.md`.
+7. Run the ShipGlows Core follow-through gate below before final reporting.
+8. Print top findings + evidence summary + routing recommendation + any automatic skill-contract audit result.
 
 ## ShipGlows Core Follow-Through Gate
 
@@ -77,6 +79,8 @@ After classifying a conversation, automatically run a ShipGlows skill-contract a
 - `stale_skill_contract`
 - `user_friction`
 - `weak_follow_through`
+- `missed_delegation`
+- `false_agents_receipt`
 
 Preferred route:
 
@@ -120,6 +124,9 @@ When a conversation finding names specific owner skills, map the ShipGlows Core 
 - One line of evidence per finding in the report.
 - Terminal/diff/search-command matches are classifier noise unless a human review ties them to an actual user or agent turn.
 - Reports should mention `cleaned_input_used` or equivalent when the helper script provides it.
+- `missed_delegation` and `false_agents_receipt` require an explicit, complete trace with unambiguous turn correlation. Missing, malformed, incomplete, or uncorrelated traces are `unverifiable`, never evidence of compliance or a finding.
+- `Agents: <count>` counts unique agents successfully dispatched directly by the orchestrator signing that turn's receipt. Nested agents are excluded from that count.
+- Do not conclude that delegation occurred, was missed, or that an agent receipt is truthful from transcript prose alone.
 
 ## Categories to Owners
 
@@ -133,6 +140,8 @@ When a conversation finding names specific owner skills, map the ShipGlows Core 
 - `user_friction` → `001-sg-build`
 - `unsafe_ship_or_dirty_scope` → `100-sg-spec`
 - `weak_follow_through` → `001-sg-build`
+- `missed_delegation` → `001-sg-build`
+- `false_agents_receipt` → `103-sg-verify`
 
 ## Owner Handoff
 

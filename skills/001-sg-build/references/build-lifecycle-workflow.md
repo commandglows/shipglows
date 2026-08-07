@@ -58,9 +58,9 @@ Keep the active profile visible in reasoning and reporting when it materially sh
 
 Any subagent argument is stricter than default consent: file-changing or validation-bearing paths must launch one bounded subagent at a time or stop/report degraded execution.
 
-### Spec-Gated Parallel
+### Parallel Modes
 
-Parallel execution is allowed only when a ready spec defines safe `Execution Batches`. Do not add an argument-level parallel mode. Parallel execution is a property of the ready spec.
+Use a selected read-only batch matrix by default for two or more independent reconnaissance or evidence scopes. Parallel writes are allowed only when a ready spec defines safe `Execution Batches`; otherwise mutations stay delegated sequential.
 
 ## Question Gate
 

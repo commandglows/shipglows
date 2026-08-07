@@ -119,15 +119,13 @@ Utiliser la matrice provider-aware de `references/model-routing.md` et choisir :
 - un `Cheap fallback`
 
 Règles de décision Codex/OpenAI :
-- préférer `gpt-5.5` pour les tâches ambiguës, transverses, tool-heavy, ou à fort coût d'erreur
-- préférer `gpt-5.5` pour audits transverses, priorisation automatique de tâches, migrations prompts/docs, synthèse de risques business, et mises à jour cohérentes de trackers/fiches projets
-- préférer `gpt-5.4` quand il faut rester premium mais avec un meilleur contrôle du coût
-- préférer le profil `codex` défini dans `references/model-routing.md` pour les implémentations longues, multi-fichiers, les refactors, le debugging difficile et les longues boucles agentiques terminal/code; ne pas figer ce profil sur un slug déprécié
-- préférer `gpt-5.4-mini` pour les boucles rapides, le triage, les petites modifs, l'exploration et les tâches répétitives uniquement quand le coût d'erreur est bas et que la qualité attendue reste suffisante
-- utiliser `gpt-5.4-mini` comme défaut des petites missions bornées en sous-agent seulement si la mission est low-risk et quality-equivalent; sinon escalader vers `gpt-5.3-codex-spark`, le profil `codex`, ou `gpt-5.5`
-- préférer `gpt-5.3-codex-spark` pour les itérations UI ciblées ou les modifications locales quand il reste quality-equivalent; ne pas l'utiliser pour éviter une analyse nécessaire
-- interpréter les arguments `spark`, `codex`, `sous-agent`/`subagent`/`agents`, et `mini` comme des demandes de sous-agent avec le modèle/profil correspondant selon `references/model-routing.md`, pas comme de simples paramètres textuels
-- éviter `gpt-5.2` par défaut sauf besoin explicite de continuité ou préférence empirique utilisateur
+- préférer `gpt-5.6-sol` pour les tâches ambiguës, transverses, tool-heavy, ou à fort coût d'erreur
+- préférer `gpt-5.6-terra` quand il faut un équilibre explicite entre intelligence, coût et latence
+- préférer le profil `codex` pour l'implémentation longue, multi-fichiers, refactor, debugging difficile ou boucle terminal/code
+- préférer `gpt-5.6-luna` pour les boucles rapides, le triage, les petites modifs, l'exploration et les tâches répétitives uniquement quand le coût d'erreur est bas et que la qualité attendue reste suffisante
+- utiliser `gpt-5.6-luna` pour les petites missions sous-agent low-risk et quality-equivalent; sinon escalader
+- n'utiliser Spark que sur demande et si le runtime l'expose; le remplacer par Luna seulement si la qualité reste équivalente
+- interpréter `spark`, `codex`, `sous-agent`/`subagent`/`agents`, et `mini` comme des demandes de sous-agent, selon `references/model-routing.md`
 
 Règles de décision Claude Code :
 - préférer `opusplan` quand il faut une vraie phase de plan/architecture puis exécuter efficacement
@@ -139,10 +137,11 @@ Règles de décision Claude Code :
 ### Step 5 — Calibrer le reasoning
 
 Pour Codex/OpenAI :
+- décider le modèle et le reasoning séparément; conserver le niveau courant comme baseline pendant une migration, puis tester un cran inférieur sur des missions représentatives
+- `none` : baseline de latence seulement, pour une mission très claire et réversible si le runtime le supporte; tester `low` dès qu'un bénéfice de qualité est observé
 - `low` : tâche claire, locale, réversible, low-risk et quality-equivalent
-- `medium` : valeur par défaut pour la plupart des tâches de dev
-- `high` : problème ambigu, cross-system, ou besoin de prudence
-- `xhigh` : seulement si le coût d'erreur est élevé et que la vitesse importe peu
+- `medium` : valeur par défaut pratique pour la plupart des tâches de dev
+- `high` / `xhigh` / `max` : seulement lorsqu'une évaluation montre un gain de qualité qui justifie latence et coût; vérifier les niveaux réellement acceptés par le runtime
 
 Pour Claude Code :
 - utiliser l'alias comme principal levier de raisonnement
@@ -168,7 +167,7 @@ Si la tâche est non triviale :
 
 Runtime: [Codex/OpenAI | Claude Code]
 Primary model: [model or alias]
-Reasoning: [low / medium / high / xhigh, or Claude alias behavior]
+Reasoning: [none / low / medium / high / xhigh / max when supported, or Claude alias behavior]
 
 Why:
 - [reason 1]
@@ -179,6 +178,12 @@ Cheap fallback: [model or alias, quality-equivalent only]
 
 Freshness check:
 - [OpenAI Docs MCP used / not needed / unavailable fallback]
+
+Availability evidence:
+- [runtime/tool model list or explicit refusal]
+
+Policy status:
+- [override applied / recommended only / unavailable in this runtime]
 
 When to upgrade:
 - [condition]
@@ -198,7 +203,7 @@ Runtime application:
 - Être court et décisionnel
 - Lire `references/model-routing.md` à chaque usage
 - Ne pas inventer de benchmark précis
-- Considérer `gpt-5.5` comme disponible dans Codex si la doc OpenAI officielle courante le confirme
+- Ne considérer aucun modèle comme disponible sans preuve du runtime courant; la documentation officielle guide la politique, elle ne garantit pas l'accès de cette session
 - Si l'utilisateur demande le "latest" ou une comparaison actuelle OpenAI, vérifier la doc OpenAI officielle via MCP avant d'affirmer
 - Pour Claude Code, recommander les aliases stables plutôt que des slugs datés sauf demande explicite
 - Préférer une décision professionnelle suffisamment étayée à une optimisation obsessionnelle; ne pas abaisser le contrat qualité pour éviter le débat

@@ -66,6 +66,7 @@ Load on demand:
 - `shipglows_data/technical/guidelines.md` when the spec touches ShipGlows artifacts, internal contracts, prompts, or user-facing copy
 - `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md` when the target project owns an Atlas registry
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when the spec changes product intent, customer journeys, capabilities, UX critical moments, Atlas nodes or public promises
+- `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md` when the spec touches an internet-facing or privileged surface; a missing applicable OWASP Security Gate keeps the spec `not ready`.
 
 ## Mode Detection
 

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.10.1"
+artifact_version: "1.11.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-07-30"
+updated: "2026-08-07"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -41,7 +41,8 @@ evidence:
   - "User decision 2026-07-16: use 🧱 for a normal chantier, reserve 🚧 for a blocked run, and use 📂, 🔨, and 📌 only for scope, active work, and priority or decision context."
   - "Operator correction 2026-07-18: every final report that returns control while a chantier remains unfinished must offer plain-language choices and hide internal skills, commands, stages, owners, and agent topology."
   - "Operator correction 2026-07-30: a locally proven repair must not be reported as a permanent or universal recurrence guarantee without a scope-matched preventive invariant and focused mechanical proof."
-next_review: "2026-06-04"
+  - "Operator decision 2026-08-07: executable ShipGlows reports expose one compact agent-count and topology receipt without narrating routine orchestration."
+next_review: "2026-11-07"
 next_step: "/103-sg-verify shipglows-skill-reporting-and-proof-hardening"
 ---
 
@@ -193,7 +194,7 @@ product, documentation, or technical surface changed only when that context
 helps the operator understand the outcome. Detailed file evidence belongs in
 the durable artifact or in an explicitly requested `report=agent` handoff.
 
-Do not report routine subagent orchestration in user mode. Mention it only when availability, degraded execution, model override status, cost/risk, or topology changes trust or the user's next decision.
+Do not narrate routine subagent orchestration in user mode. For executable work, include only the compact receipt line `Agents: <count> · <mode>`; add detail only when availability, degradation, model status, cost/risk, or topology changes trust or the user's next decision.
 
 When a task is complete, prefer the end state over the story of how it was completed. One short sentence about what changed is usually enough.
 

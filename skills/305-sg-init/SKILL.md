@@ -39,6 +39,7 @@ Always load shared references only when their gate applies. Load skill-local ref
 - `$SHIPGLOWS_ROOT/skills/references/atlas-cartography-lifecycle.md`: required for an explicit `atlas` bootstrap or refresh in a product with user-visible surfaces.
 - `$SHIPGLOWS_ROOT/skills/references/guided-business-product-discovery.md`: required when creating or substantially repairing business, product, GTM, brand or customer-led Atlas framing.
 - `$SHIPGLOWS_ROOT/skills/references/private-data-repo-contract.md`: required when bootstrap, install, or repair scope touches the durable private data repository under `~/.shipglows/private/data/`.
+- `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md`: required only when the operator explicitly requests email-provider, Resend plugin/MCP, sending-domain, or email-operation setup; do not add sending authority for ordinary project bootstrap.
 
 ## Mode Detection
 

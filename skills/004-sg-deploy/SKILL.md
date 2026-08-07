@@ -102,6 +102,8 @@ Load conditionally:
 
 - `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` before reporting any failure state.
 - `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` when Sentry evidence, runtime errors, 5xx, auth/payment/data flows, jobs, webhooks, or visible post-deploy errors affect release confidence.
+- `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md` when release scope changes or exposes an internet-facing or privileged surface; route incomplete security proof to verification rather than calling the release ready.
+- `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` when release scope can send or schedule mail, change email recipients/contacts/suppressions, or mutate sending domains, DNS, webhooks, credentials, or provider configuration.
 - `$SHIPGLOWS_ROOT/shipglows_data/technical/blacksmith.md` when deploy, APK, AAB, or release artifacts are built through GitHub Actions on Blacksmith runners.
 - `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/deploy-report-template.md` for detailed reports, blocked runs, or explicit handoff.
 
@@ -117,7 +119,7 @@ Follow the local workflow reference and keep this gate order visible:
 6. `103-sg-verify [spec or release scope]`.
 7. `304-sg-changelog`, unless `no-changelog` is present or the release is not verified.
 
-Delegated sequential execution is the default when subagents are available. Parallel release work remains blocked unless a ready spec defines safe `Execution Batches`.
+Independent read-only release, CI, runtime, and evidence scopes use the selected read-only batch matrix by default. Deploy, ship, tracker, or other mutations stay delegated sequential unless a ready spec defines safe write `Execution Batches`.
 
 ## Stop Conditions
 

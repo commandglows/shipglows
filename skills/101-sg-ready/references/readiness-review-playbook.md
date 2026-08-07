@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-06-27"
-updated: "2026-07-18"
+updated: "2026-08-07"
 status: active
 source_skill: 009-sg-skill-build
 scope: 101-sg-ready-review-playbook
@@ -17,6 +17,7 @@ linked_systems:
   - skills/101-sg-ready/SKILL.md
   - skills/references/documentation-freshness-gate.md
   - shipglows_data/technical/guidelines.md
+  - skills/references/owasp-application-security-awareness.md
 depends_on:
   - artifact: "skills/references/documentation-freshness-gate.md"
     artifact_version: "1.0.0"
@@ -27,6 +28,7 @@ evidence:
   - "2026-06-26 batch A hardening audit identified 101-sg-ready body-size pressure as the clearest execution-fidelity risk in the current corpus."
   - "Operator correction 2026-07-17: readiness must prove that compatible preferred stack presets were applied before blueprint or provider decisions."
   - "Operator correction 2026-07-18: user-mode readiness reports hide lifecycle internals and end with plain-language choices when the chantier remains open."
+  - "User decision 2026-08-07: readiness applies the OWASP Top 10:2025 awareness taxonomy and selected ASVS v5.0.0 verification requirements."
 next_review: "2026-07-04"
 next_step: "/103-sg-verify 101-sg-ready execution-fidelity compaction"
 ---
@@ -209,8 +211,7 @@ If yes, the spec is not ready.
 
 ## Security Review
 
-Perform a proportional security review guided at minimum by OWASP ASVS / Top 10
-families and NIST SSDF habits.
+Load `skills/references/owasp-application-security-awareness.md` for any applicable surface. Perform a proportional security review using its OWASP Top 10:2025 risk lens, selected OWASP ASVS v5.0.0 requirements, and NIST SSDF habits.
 
 For any spec touching auth, permissions, sensitive data, uploads, HTML/Markdown
 rendering, APIs, webhooks, payments, admin, secrets, external integrations,
@@ -235,6 +236,7 @@ action execution, files, search, prompts, or automations, verify explicitly:
   protection, loops, cost explosions, and uncontrolled fan-out
 - Multi-tenant boundary: whether one tenant, user, org, or project can see or
   act on another's resources
+- OWASP Security Gate: relevant Top 10 categories, trust/data boundaries, selected versioned ASVS requirements or `not applicable`, proof path, residual gap, and owner route
 
 Refuse the spec if a material security blind spot remains untreated.
 For small local changes, require at least:

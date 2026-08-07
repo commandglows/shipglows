@@ -32,10 +32,13 @@ Before generating or logging manual QA, load:
 
 - `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md`
 - `$SHIPGLOWS_ROOT/skills/107-sg-test/references/manual-qa-workflow.md`
+- `$SHIPGLOWS_ROOT/skills/references/zombies-edge-case-heuristic.md` when the tested behavior is non-trivial.
 
 If a scenario fails with a crash, error boundary, 5xx, visible Sentry/support event ID, or runtime exception, load `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` before logging evidence.
 
 If a runtime app exposes settings, support, diagnostics, error boundary, or copy-log UI, load `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`. When the agent can safely navigate the app or use tooling itself, collect/copy reachable diagnostics before asking the operator for logs.
+
+When a scenario tests email content, a template, received rendering, a plain-text part, delivery/authentication, provider events, or an agent-triggered action, load `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` and its selected proof requirements. A component render or local Mailpit message does not prove external delivery.
 
 When manual QA or a retest includes a ShipGlows-managed PM2 restart, crash loop, or `.shipglows.env`, load `$SHIPGLOWS_ROOT/skills/references/project-runtime-policy.md` before naming the expected recovery behavior.
 
@@ -93,6 +96,8 @@ When a spec declares a manual checklist path, use that checklist as the scenario
 Build a lightweight contract before writing prompts. Use, in order: matching ready spec, bug record when retesting, recent git diff and commits, in-progress task descriptions, and docs/README only when they clarify expected behavior.
 
 Extract feature or bug name, user story, environment, entry point, expected success behavior, expected error behavior, risky edge case, data/auth/payment/destructive/external constraints, and evidence needed to judge pass/fail. If expected behavior is ambiguous in a way that changes product meaning, permissions, data, money, destructive side effects, or security, stop and ask before testing.
+
+For non-trivial behavior, use compact `ZOMBIES coverage` to select meaningful scenarios. Several letters may share one scenario; do not inflate a focused campaign into seven ceremonial tests.
 
 ## Scenario And Prompt Flow
 

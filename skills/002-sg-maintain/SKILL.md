@@ -33,7 +33,7 @@ Default to `report=user`: concise, lifecycle-result first, and using the opening
 
 Before choosing execution topology, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 
-This skill follows that reference; local nuances below only narrow or route it. Maintenance defaults to delegated sequential for triage, repair, docs, checks, validation, integration, and ship preparation when subagents are available; parallel maintenance remains gated by ready `Execution Batches`.
+Use its selected matrix for independent read-only lanes. Mutations stay sequential unless ready write `Execution Batches` are non-overlapping.
 
 ## Master Workflow Lifecycle
 
@@ -105,7 +105,7 @@ When the next owner is already obvious, route directly instead of lingering in m
 
 ### `main-only`
 
-Use only for pure conversation, explicit `quick` read-only triage, or a `global` dashboard before the user selects target projects.
+Use only for pure conversation or a single focused read-only scope. A `quick` triage or `global` dashboard with two or more independent scopes uses `read-only parallel`.
 
 ### `delegated sequential` (default)
 
@@ -118,16 +118,13 @@ Load these role contracts from `$SHIPGLOWS_ROOT/skills/references/subagent-roles
 - `sequential-executor.md` for one bounded write mission at a time
 - `integrator.md` for cross-output coherence before verification and ship
 
+### `read-only parallel`
+
+For two or more independent no-write lanes, apply the canonical matrix and integrate their evidence.
+
 ### `spec-gated parallel`
 
-Allowed only when the ready maintenance spec defines safe `Execution Batches` with:
-
-- non-overlapping write ownership
-- dependency order
-- per-batch validation
-- integration owner
-
-Without explicit safe batches, parallelism is blocked.
+Use only ready non-overlapping write `Execution Batches`; otherwise mutations stay delegated sequential.
 
 ## Mode Detection
 
@@ -196,7 +193,7 @@ Recommended owner-skill order for broad maintenance:
 003-sg-bug -> 010-sg-technical deps -> 300-sg-docs update/audit -> 105-sg-check nofix -> 010-sg-technical audit or 400-sg-audit -> 010-sg-technical migrate candidates -> 106-sg-fix/001-sg-build -> 011-sg-pilotage tasks -> 103-sg-verify -> 004-sg-deploy/005-sg-ship
 ```
 
-Run phases sequentially when one phase can change the risk interpretation of the next. Use parallel subagents only with ready non-overlapping `Execution Batches`.
+Run dependent phases sequentially. Parallelize independent read-only phase evidence through the selected batch matrix; parallelize writes only through ready non-overlapping `Execution Batches`.
 
 ## Delegation Contracts
 
@@ -292,7 +289,8 @@ User-mode report:
 ## Maintenance: <project>
 
 Result: <completed | verified | shipped | ship-ready | needs attention | blocked>
-Execution mode: <main-only | delegated sequential | spec-gated parallel>
+Execution mode: <main-only | delegated sequential | read-only parallel | spec-gated parallel | degraded>
+Agents: <count> · <mode>
 Lifecycle: <triage -> spec/readiness -> execution -> checks -> verify -> ship/deploy>
 Checks: <passed | failed | skipped with reason>
 Ship: <004-sg-deploy | 005-sg-ship | no-ship | blocked with reason>

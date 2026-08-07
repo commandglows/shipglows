@@ -37,7 +37,7 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before re
 
 Before choosing execution topology, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 
-This skill follows that reference; local nuances below only narrow or route it. Content lifecycle work defaults to delegated sequential when reading, drafting, editing, validating, applying public-content updates, or preparing ship. Parallel content work is allowed only from ready `Execution Batches` with non-overlapping surfaces.
+This skill follows that reference. Independent read-only research, source, claim, and surface audits use the selected read-only batch matrix by default. Drafting, editing, publishing, and other mutations stay delegated sequential unless ready write `Execution Batches` assign non-overlapping surfaces.
 
 ## Master Workflow Lifecycle
 
@@ -171,6 +171,6 @@ Follow the shared reporting contract. In addition to its required outcome and pr
 - Prefer declared surfaces over invented paths.
 - Ask only targeted questions when the answer changes mode, surface, scope, security, claims, or ship posture.
 - Use spec-first for non-trivial or public-claim-sensitive content work.
-- Follow the shared master delegation reference for delegated sequential defaults and spec/batch-gated parallelism.
+- Follow the shared master delegation reference: parallelize independent read-only evidence by default; keep mutations sequential unless ready non-overlapping write `Execution Batches` exist.
 - Preserve runtime schemas.
 - Validate before ship routing.

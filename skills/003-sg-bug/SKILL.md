@@ -31,7 +31,7 @@ Default to `report=user`: concise, outcome-first, and using the opening chantier
 
 Before choosing execution topology, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 
-This skill follows that reference; local nuances below only narrow it. Bug-loop orchestration defaults to delegated sequential for bug-file/state checks, evidence gathering, fix attempts, retests, verification, closure preparation, and ship preparation when subagents are available. Parallel bug work requires ready `Execution Batches`.
+This skill follows that reference. Independent read-only reproduction, logs, and evidence scopes use the selected read-only batch matrix by default. Fixes and other mutations stay delegated sequential unless a ready spec defines non-overlapping write `Execution Batches`.
 
 ## Master Workflow Lifecycle
 
@@ -275,7 +275,7 @@ owner route, lifecycle state, remaining evidence, and exact next command.
 - Do not write bug files directly except to report routing gaps; use `107-sg-test` or `106-sg-fix` for durable bug mutations.
 - Do not close bugs from intent, code diff, deployment status, or optimistic wording.
 - Do not route preview/manual/browser retests before the preview-proof route when project mode requires deployed evidence.
-- Follow the shared master delegation reference for delegated sequential defaults and spec/batch-gated parallelism.
+- Follow the shared master delegation reference: parallelize independent read-only evidence by default; keep mutations sequential unless ready non-overlapping write `Execution Batches` exist.
 - Prefer continuing the next safe lifecycle action over ending with a broad report when a bug is actionable and no stop condition blocks execution.
 - Ask only when the missing answer changes severity, status, destructive risk, closure, or ship risk.
 - Do not commit or push.

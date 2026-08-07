@@ -51,6 +51,8 @@ Keep the boundary explicit:
 - `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving ShipGlows-owned files.
 - `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking the user to choose between plausible work items.
 - `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before final reporting when this run is attached to a spec-first chantier.
+- `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` before choosing or dispatching an execution topology.
+- `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` before selecting or recommending a delegated model.
 
 ## Inputs
 
@@ -119,6 +121,8 @@ Prefer delegation when:
 - the main thread can continue integrating or reporting without depending on hidden assumptions;
 - file ownership can be stated clearly for write tasks.
 
+When two or more useful investigations are independent and read-only, dispatch them in parallel by default. Mutations are delegated sequentially by default. Parallel writes require ready, predeclared, non-overlapping `Execution Batches` plus one integration owner; a vague claim that tasks are independent is insufficient.
+
 Keep the work local when:
 
 - the next action is trivial;
@@ -132,7 +136,8 @@ When spawning is appropriate:
 
 - Use `explorer` for read-only codebase questions, diagnosis, architecture discovery, or validation of an assumption.
 - Use `worker` for implementation or file changes. Give explicit ownership of files/modules and state that other agents or the main thread may also be working in the codebase.
-- Use only one agent by default. Use multiple agents only when tasks are independent and write scopes are disjoint.
+- Use multiple agents by default for two or more independent read-only scopes.
+- Use one mutation agent at a time by default. Multiple writing agents may run concurrently only through ready non-overlapping `Execution Batches` with an integration owner.
 - Do not spawn agents just to satisfy the skill name; a local action with a clear report is valid.
 
 ### ShipGlows Skills
@@ -153,15 +158,7 @@ If a skill is useful, name it in the delegation prompt and tell the agent to ope
 
 ### Model Choice
 
-Always think about the right model before spawning an agent. Use the smallest model that is reliable for the job, and upgrade when ambiguity, risk, or session length justifies it.
-
-Default model menu for Codex/OpenAI agents:
-
-- `gpt-5.5` with `high` or `xhigh`: very complicated work, high ambiguity, architecture, security, data integrity, or expensive mistakes.
-- `gpt-5.4` with `medium` or `high`: complex product/code reasoning where quality matters but the task is not the hardest class.
-- the `codex` implementation profile from `704-sg-model` with `medium` or `high`: long coding agents, multi-file implementation, debugging, refactors, test repair; do not pin this profile to a deprecated slug.
-- `gpt-5.4-mini` with `low` or `medium`: small clear tasks, triage, read-only exploration, cheap focused checks.
-- `gpt-5.3-codex-spark` with `low` or `medium`: Spark-eligible summaries, text-only handoffs, fast local edits, UI deltas, and tight iteration loops when credits/availability permit and quality remains equivalent.
+Always think about the right model before spawning an agent. Use `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` as the source rather than duplicating its matrix: Sol for frontier/high-cost-of-error reasoning, Terra for balanced daily work, Luna for bounded low-risk/high-volume missions, and the `codex` profile for long agentic implementation. Spark is selectable only when the runtime explicitly exposes it; otherwise apply the canonical quality-equivalent fallback.
 
 If the choice is not obvious, or if the task has high ambiguity, high cost of error, long execution, security/data implications, or unclear provider/runtime constraints, use the `704-sg-model` skill before spawning: open `$SHIPGLOWS_ROOT/skills/704-sg-model/SKILL.md`, then read `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` if instructed or needed. Otherwise inherit the current model only when that is clearly adequate.
 
@@ -225,6 +222,7 @@ After delegating:
 - Wait only when the agent result is needed for the next critical step.
 - Review the returned work before reporting it as complete.
 - Run focused validation locally when changes were made and it is feasible.
+- Preserve the canonical structured receipt and include `Agents: <count> · <mode>` in the final report. If dispatch or an override was unavailable, state degraded execution and the actual model/topology used.
 
 ## Final Report
 
@@ -233,6 +231,8 @@ End with a short report in French unless the user used another language:
 ```text
 Fait:
 - [what happened]
+
+Agents: [count] · [read-only parallel / delegated sequential / prepared write batches / degraded / not applicable]
 
 Reste:
 - [remaining work or risk]

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.1"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-05-18"
-updated: "2026-07-18"
+updated: "2026-08-07"
 status: active
 source_skill: 102-sg-start
 scope: spec-driven-development-discipline
@@ -23,6 +23,7 @@ linked_systems:
   - skills/references/master-delegation-semantics.md
   - skills/references/decision-quality-contract.md
   - skills/references/design-system-token-contract.md
+  - skills/references/zombies-edge-case-heuristic.md
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
     artifact_version: "1.1.0"
@@ -42,6 +43,7 @@ evidence:
   - "User decision 2026-06-10: proof-first instructions should preserve strong evidence requirements without verbose examples in the decision path."
   - "User decision 2026-06-11: UI/design implementation must not create local visual decisions outside the centralized design-system authority."
   - "User decision 2026-07-18: technical checks may establish an implemented visual repair, but rendered validation is required before resolution claims."
+  - "User decision 2026-08-07: non-trivial behavior uses the shared ZOMBIES heuristic proportionally to expose edge cases."
 next_review: "2026-06-18"
 next_step: "/103-sg-verify shipglows-skill-reporting-and-proof-hardening"
 ---
@@ -87,6 +89,8 @@ For every spec or execution task that includes behavior, add a proof ladder with
 - **Provider/device/manual proof** only for provider-native behavior, native-only app behavior, or irreversible user-impacting paths.
 
 For non-trivial changes, proof may be mixed: automated + agent-run proof + manual checklist only for remaining gaps.
+
+For non-trivial behavior, load `skills/references/zombies-edge-case-heuristic.md` and retain compact `ZOMBIES coverage` in the contract or proof plan. Use `Z → O → M` to progress from empty to complex cases, challenge boundaries, interfaces, and exceptional behavior throughout, and keep scenarios simple. Branch-free micro-edits may record a justified `not applicable`.
 
 When automation and required manual evidence are both impossible, use `exception-with-proof` with:
 - what was impossible,

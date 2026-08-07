@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-05-24"
+updated: "2026-08-07"
 status: reviewed
 source_skill: sg-start
 scope: claim-register
@@ -45,6 +45,7 @@ supersedes: []
 evidence:
   - "Business, product, brand, and GTM contracts define public promise boundaries."
   - "Decision-quality contract defines the public-safe wording boundary for quality-first execution claims."
+  - "OWASP Top 10:2025 awareness, selected ASVS v5.0.0 requirements, ZOMBIES edge-case coverage, and the pragmatic Clean Code gate are now explicit ShipGlows workflow controls."
 next_review: "2026-06-01"
 next_step: "/sg-verify ShipGlows Editorial Content Governance Layer for AI Agents"
 ---
@@ -69,11 +70,11 @@ This register gives agents a safe boundary for sensitive public claims. It does 
 
 | Claim family | Allowed wording boundary | Evidence source | Status | Surfaces | Stop condition |
 | --- | --- | --- | --- | --- | --- |
-| Security | ShipGlows can say it uses explicit contracts, validation, and public/private documentation boundaries to reduce accidental drift. It must not imply guaranteed security or vulnerability prevention. | `GUIDELINES.md`, `docs/technical/public-site-and-content-runtime.md`, current workflow docs | `allowed with caveat` | README, docs, FAQ, landing | Block claims of guaranteed security, zero leaks, or compliance certification |
+| Security | ShipGlows can say it uses explicit contracts, validation, and scope-based security gates, including OWASP Top 10:2025 awareness and selected ASVS requirements where relevant. It must not imply guaranteed security, OWASP compliance, or vulnerability prevention. | `skills/references/owasp-application-security-awareness.md`, current workflow docs | `allowed with caveat` | README, docs, FAQ, landing | Block claims of guaranteed security, complete OWASP coverage, zero leaks, or compliance certification |
 | Privacy | ShipGlows can describe avoiding publication of private URLs, credentials, tokens, sensitive logs, and internal-only details. It must not claim privacy compliance or data protection guarantees. | `GUIDELINES.md`, public/private boundary docs | `allowed with caveat` | Docs, FAQ, remote MCP guide | Block compliance-style privacy claims without reviewed legal/security evidence |
 | Compliance | ShipGlows has no compliance program claim. | No reviewed compliance contract | `blocked` | Any public surface | Block SOC2, GDPR, HIPAA, enterprise compliance, or audit-ready claims |
 | AI reliability | ShipGlows can say it reduces ambiguity, strengthens handoffs, and gives agents clearer contracts. It must not promise agent correctness or fully autonomous reliability. | `PRODUCT.md`, `BRANDING.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | `allowed with caveat` | Landing, skills, FAQ, docs | Block guaranteed correctness, autonomous genius, or "agents always know what to do" claims |
-| Decision quality | ShipGlows can say it directs agents to prioritize correctness, security posture, maintainability, relevant performance, and proof before speed, cost, or convenience. It must not imply guaranteed code quality, guaranteed security, or measured performance improvement without proof. | `skills/references/decision-quality-contract.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `README.md` | `allowed with caveat` | Landing, docs, FAQ, skills, why-not-prompts | Block "maximum security", "maximum performance", "bug-free", "always best practice", or quantified gains without evidence |
+| Decision quality | ShipGlows can say it directs agents to prioritize correctness, security posture, maintainability, relevant performance, edge cases, and proof before speed, cost, or convenience. It can describe explicit code-quality and edge-case gates without implying guaranteed code quality or zero defects. | `skills/references/decision-quality-contract.md`, `skills/references/clean-code-quality-contract.md`, `skills/references/zombies-edge-case-heuristic.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | `allowed with caveat` | Landing, docs, FAQ, skills, why-not-prompts | Block "maximum security", "maximum performance", "bug-free", "always best practice", or quantified gains without evidence |
 | Automation | ShipGlows can say it orchestrates workflows and provides skills for execution, verification, docs, audits, and ship preparation. It must not imply unattended production shipping without gates. | `PRODUCT.md`, `specs/sg-build-autonomous-master-skill.md`, skill contracts | `allowed with caveat` | Skills hub, docs, README | Block "hands-free shipping" unless the exact gate sequence and limitations are stated |
 | Speed | ShipGlows can say it reduces context reconstruction and handoff overhead. It must not state quantified speed gains without measured evidence. | `BUSINESS.md`, `PRODUCT.md`, repo workflow design | `needs proof` for numbers; `allowed with caveat` for qualitative wording | Landing, pricing, FAQ | Block percentage/time-saved claims without measurement |
 | Savings | ShipGlows can discuss lower ambiguity and fewer weak handoffs. It must not claim cost savings or revenue impact without proof. | `BUSINESS.md`, `GTM.md` | `needs proof` | Pricing, landing | Block cost reduction, revenue lift, or ROI claims without data |

@@ -33,9 +33,11 @@ Default to `report=user`: concise, findings-first for audits and failures, outco
 
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
+- `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`: required before global or multi-domain fan-out; use a selected read-only batch matrix by default for independent lanes.
 - `references/audit-master-workflow.md`: Master audit planning, domain routing, parallel/read-only audit rules, consolidation, tracking, and fix handoff details.
 - `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`: required before creating or mutating audit or task operational records in `AUDIT_LOG.md` or `TASKS.md`.
 - `$SHIPGLOWS_ROOT/skills/references/skill-refactor-verifier.md`: required for audit-skill compaction or process-migration checks.
+- `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`: required when a global or cross-domain audit includes an internet-facing or privileged surface; route code/dependency findings to `010-sg-technical` with the relevant Top 10:2025 categories.
 
 ## Mode Detection
 

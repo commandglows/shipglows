@@ -1,10 +1,10 @@
 ---
 artifact: competitive_intelligence
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-05-11"
-updated: "2026-07-26"
+updated: "2026-08-07"
 status: reviewed
 source_skill: 205-sg-veille
 scope: "project-competitors-and-inspirations"
@@ -19,6 +19,7 @@ docs_impact: yes
 evidence:
   - "User requested a formal file for competitors and inspirations by project."
   - "Web triage on 2026-07-26 identified prior art for approved visual baselines, agent-readable visual history, visual regression, and product roadmaps."
+  - "Operator supplied Warp agent notifications as a ShipGlows inspiration on 2026-08-07."
 depends_on:
   - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.1.0"
@@ -78,6 +79,7 @@ Il sert a eviter que ces references restent seulement dans une conversation. Une
 | ShipGlows | alternative | Lost Pixel | https://github.com/lost-pixel/lost-pixel | Open-source visual regression for Storybook, pages, and custom screenshots with approvals. | Self-hosted visual regression inspiration | Reuse the idea of approvals, not their scope or naming model. | 2026-07-26 | Diane | watch | Assess reusable open-source patterns |
 | ShipGlows | inspiration | Atlassian User Story Maps / Roadmaps | https://www.atlassian.com/blog/2016/05/guide-to-agile-user-story-maps | A map organizes user activities, capabilities, and roadmap slices. | Product cartography and roadmap | Our map must link each surface to approval dimensions and a known-good commit. | 2026-07-26 | Diane | reference | Model the two-view cartography |
 | ShipGlows | inspiration | Productboard hierarchy | https://support.productboard.com/hc/en-us/articles/360058212253-Build-your-product-hierarchy | Hierarchical product structure linking products, features, and roadmap context. | Capability inventory and roadmap | Keep the map repository-local and agent-readable instead of adopting a SaaS hierarchy as authority. | 2026-07-26 | Diane | reference | Define stable section IDs |
+| ShipGlows | inspiration | Warp agent notifications | https://docs.warp.dev/agents/capabilities/agent-notifications/ | Alerts when an agent completes work or needs operator attention, so long-running work can stay in the background. | Operator attention and asynchronous agent supervision | Candidate pattern only: preserve ShipGlows' explicit outcome, urgency, and actionable-next-step semantics instead of copying notification behavior. | 2026-08-07 | Diane | candidate | Verify current notification states and assess fit with ShipGlows' existing attention model |
 
 ## Entry Template
 

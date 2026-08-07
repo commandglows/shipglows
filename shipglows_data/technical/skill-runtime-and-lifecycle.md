@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.2.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-05"
+updated: "2026-08-07"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -87,9 +87,8 @@ evidence:
   - "003-sg-bug clarified as a bug lifecycle executor through owner skills and bounded subagents, not a simple next-command router."
   - "Shared Sentry observability reference added for runtime evidence, release/environment correlation, redaction, and performance overhead checks."
   - "Sentry reference clarified: skills never have direct Sentry dashboard access; bounded local PM2 logs and redacted Doppler presence/scope checks are acceptable supporting evidence when no Sentry pointer is supplied or visible."
-  - "Model routing clarified: GPT-5.5 fits ambiguous, cross-project, governance-heavy, transverse audit, prioritization, prompt/docs migration, and business-risk synthesis work; the `codex` implementation profile fits long implementation, multi-file coding, refactors, hard debugging, and terminal-heavy agentic execution; main-thread model changes are recommendations unless the runtime actually applies an override."
-  - "Subagent model defaults clarified: GPT-5.4-mini is the default for small bounded Codex/OpenAI subagent missions, GPT-5.3-Codex-Spark for Spark-eligible low-risk work, the `codex` implementation profile for long implementation, and GPT-5.5 for high-risk transverse reasoning."
-  - "`001-sg-build agents` clarified as a strict delegated sequential validation gate; parallel agents remain controlled only by ready spec `Execution Batches`."
+  - "Model routing now resolves through the canonical Sol/Terra/Luna and `codex` profiles; Spark is selected only when the runtime exposes it and model overrides are reported as applied or advisory."
+  - "Delegation defaults clarified: two or more independent read-only scopes fan out in parallel, mutations stay delegated sequential, and parallel writes require ready non-overlapping Execution Batches with an integration owner."
   - "Layered skill-instruction contract added for progressive SKILL.md compaction with pilot extraction to skill-local references."
   - "Spec-driven development discipline added: spec-first remains the outer lifecycle contract, while execution skills choose proof paths such as test-first, regression-first, scenario-first, evidence-first, or exception-with-proof."
   - "Pilot compaction applied to 300-sg-docs, the former design-audit contract, and 103-sg-verify while preserving chantier/reporting/security/doc-update gates."
@@ -405,7 +404,7 @@ intake
 
 `102-sg-start` may record `auto-verify: run` for eligible local proof only. It must record `auto-verify: skipped` and route to the proof owner when verification needs preview, production, auth/browser, Sentry, device, manual QA, secret access, commit, push, ship, or any external side effect. This does not replace `001-sg-build` as the full lifecycle owner through `103-sg-verify`, `104-sg-end`, and `005-sg-ship`.
 
-Model routing is a lifecycle gate, not a promise that the active conversation can switch its own runtime model. Master skills use `skills/704-sg-model/references/model-routing.md` for the policy and `skills/references/decision-quality-contract.md` for the quality boundary. In Codex/OpenAI, `gpt-5.4-mini` fits small bounded low-risk missions; `gpt-5.3-codex-spark` fits Spark-eligible summaries, text-only handoffs, micro-code, targeted UI/local edits, or other low-risk bounded work when it does not replace needed reasoning; the `codex` implementation profile fits long implementation, multi-file coding, refactors, hard debugging, and terminal-heavy agentic execution; `gpt-5.5` fits ambiguous, cross-project, governance-heavy, transverse audit, task-prioritization, prompt/docs migration, and business-risk synthesis work with calibrated reasoning effort. Delegated subagent missions should include model, reasoning or alias behavior, quality-equivalent fallback, and model application status when the runtime supports or rejects overrides.
+Model routing is a lifecycle gate, not a promise that the active conversation can switch its own runtime model. Master skills use `skills/704-sg-model/references/model-routing.md` as the detailed source and `skills/references/decision-quality-contract.md` as the quality boundary. Sol covers frontier/high-cost-of-error reasoning, Terra balanced daily work, Luna bounded low-risk/high-volume missions when quality remains equivalent, and the `codex` profile long agentic implementation. Spark is used only when the runtime explicitly exposes it. Delegated missions include model, reasoning, quality-equivalent fallback, availability evidence, and whether the override was actually applied.
 
 Release confidence flow:
 
@@ -485,7 +484,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - The Reader diagnoses docs impact; the executor or integrator applies docs updates.
 - The Technical Reader diagnoses code-docs impact; the Editorial Reader diagnoses public-content and claim impact.
 - Shared files are sequential by default.
-- Master/orchestrator skills load `skills/references/master-delegation-semantics.md` before choosing execution topology. Favor subagents by default to keep the main conversation clean; use sequential subagents normally, and use parallel subagents only for read-only fan-out or ready `Execution Batches`.
+- Master/orchestrator skills load `skills/references/master-delegation-semantics.md` before choosing execution topology. Two or more independent read-only scopes fan out in parallel by default; mutations use delegated sequential execution; parallel writes require ready non-overlapping `Execution Batches` with one integration owner.
 - Master/orchestrator skills load `skills/references/master-workflow-lifecycle.md` before resolving lifecycle flow. The shared skeleton is intake, work item resolution, readiness, model/topology routing, owner-skill execution, validation/evidence, verification, post-verify closure, and bounded ship/deploy/release routing.
 - Skills load `skills/references/decision-quality-contract.md` before quality-sensitive routing, model/fallback choice, implementation, fix, verification, or recommendations. The shortest path is acceptable only when it is also the complete professional path for the risk.
 - Skills should load `skills/references/question-contract.md` before user-facing questions. They ask only when the answer changes route, scope, risk, validation, closure, ship posture, public claims, or technical/product/editorial direction; otherwise they proceed by the best-practice default only when it is clear, low-risk, reversible, context-compatible, and verifiable.
@@ -529,7 +528,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - If a master skill patches in the master conversation merely because a file change is small while subagents are available, treat that as workflow drift. Small scope may use a mini-contract, but the execution mode remains delegated sequential for file work.
 - If `001-sg-build agents` touches files, runs validation, prepares closure, or prepares ship without launching a bounded subagent and without explicitly reporting degraded execution, treat that as workflow drift.
 - If the `000-shipglows <instruction>` router nests `001-sg-build`, `002-sg-maintain`, `003-sg-bug`, `004-sg-deploy`, `007-sg-content`, or `900-shipglows-core build` inside a subagent instead of handing off the main thread, treat that as workflow drift.
-- If a short natural-language confirmation is treated as consent for parallel subagents without ready `Execution Batches`, treat that as workflow drift.
+- If a short natural-language confirmation is treated as consent for parallel writes without ready non-overlapping `Execution Batches`, treat that as workflow drift. Independent read-only parallel fan-out remains the default.
 - If future projects are told to rerun ShipGlows's shipped governance specs instead of using `305-sg-init` and `300-sg-docs`, treat that as workflow drift.
 - If a new skill exists under `skills/<name>/SKILL.md` but is missing from current-user Claude or Codex skill directories, treat the skill lifecycle as incomplete until the runtime symlinks are repaired.
 - If filesystem runtime links are correct but the current agent still does not list a skill, treat it as a process reload/session-cache issue before changing source contracts.

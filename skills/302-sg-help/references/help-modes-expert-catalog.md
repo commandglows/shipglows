@@ -75,7 +75,7 @@ from the named public skill mode.
 `109-sg-auth-debug` — default
 `200-sg-redact` — default
 `201-sg-enrich` — default
-`202-sg-emailing` — sequence | audience | draft | audit
+`202-sg-emailing` — write | sequence | template | deliverability | provider | audit
 `203-sg-research` — default
 `205-sg-veille` — triage | help
 `300-sg-docs` — init | readme | api | components | audit | update | metadata | migrate-frontmatter | migrate-layout | technical | editorial | duplicata|duplicates
