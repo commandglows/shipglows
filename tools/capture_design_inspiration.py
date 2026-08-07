@@ -38,6 +38,7 @@ DEFAULT_VIEWPORT_HEIGHT = 900
 DEFAULT_SEGMENT_HEIGHT = 1600
 DEFAULT_SEGMENT_OVERLAP = 160
 THUMBNAIL_WIDTH = 480
+MAX_WEBP_DIMENSION = 16_383
 CAPTURE_STATUSES = {
     "captured",
     "partial",
@@ -48,6 +49,18 @@ CAPTURE_STATUSES = {
     "removed",
 }
 LIFECYCLE_STATUSES = {"candidate", "approved", "rejected", "blocked", "removed"}
+PAGE_TYPES = {
+    "sales-page",
+    "landing-page",
+    "product-page",
+    "pricing-page",
+    "checkout-page",
+    "waitlist-page",
+    "webinar-page",
+    "lead-magnet",
+    "other",
+}
+TAXONOMY_TAG_PATTERN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 SEMANTIC_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "button", "label", "a", "nav"}
 IGNORED_TAGS = {"script", "style", "noscript", "template", "svg"}
 VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
@@ -488,7 +501,12 @@ def discover_node_playwright_runtime() -> NodePlaywrightRuntime:
     resolver = (
         "const fs=require('node:fs');const {createRequire}=require('node:module');"
         "const cli=fs.realpathSync(process.argv[1]);"
-        "process.stdout.write(createRequire(cli).resolve('playwright/package.json'));"
+        "const text=fs.readFileSync(cli,'utf8');"
+        "const target=(text.match(/^# cmd-shim-target=(.+)$/m)||[])[1]||cli;"
+        "const requireFromCli=createRequire(target);"
+        "for(const candidate of ['playwright/package.json','@playwright/test/package.json'])"
+        "{try{process.stdout.write(requireFromCli.resolve(candidate));process.exit(0)}catch(_error){}}"
+        "process.exit(1);"
     )
     try:
         completed = subprocess.run(
@@ -656,23 +674,36 @@ def bundle_checksum(files: dict[str, str]) -> str | None:
     return hashlib.sha256(material.encode("utf-8")).hexdigest()
 
 
-def save_webp(image: Image.Image, path: Path, *, quality: int = 84) -> None:
+def save_webp(image: Image.Image, path: Path, *, quality: int = 84) -> bool:
     if not features.check("webp"):
         raise CaptureToolError(
             "webp_unavailable",
             "Pillow was built without WebP support; install a Pillow build with WebP support and retry",
         )
-    image.convert("RGB").save(path, format="WEBP", quality=quality, method=6)
+    prepared = image.convert("RGB")
+    resized = max(prepared.width, prepared.height) > MAX_WEBP_DIMENSION
+    if resized:
+        scale = MAX_WEBP_DIMENSION / max(prepared.width, prepared.height)
+        prepared = prepared.resize(
+            (max(1, round(prepared.width * scale)), max(1, round(prepared.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+    prepared.save(path, format="WEBP", quality=quality, method=6)
+    return resized
 
 
-def create_image_artifacts(image: Image.Image, staging: Path) -> list[str]:
+def create_image_artifacts(image: Image.Image, staging: Path) -> tuple[list[str], list[str]]:
     if image.width <= 0 or image.height <= 0:
         raise CaptureToolError("invalid_image", "captured image has invalid dimensions")
     full_page = staging / "full-page.webp"
     thumbnail = staging / "thumbnail.webp"
     segments_dir = staging / "segments"
     segments_dir.mkdir(parents=True, exist_ok=False)
-    save_webp(image, full_page)
+    warnings: list[str] = []
+    if save_webp(image, full_page):
+        warnings.append(
+            f"full-page.webp was proportionally downscaled to the WebP maximum dimension of {MAX_WEBP_DIMENSION}px; segments retain the capture scale"
+        )
 
     thumb = image.copy()
     thumb.thumbnail((THUMBNAIL_WIDTH, 1200), Image.Resampling.LANCZOS)
@@ -692,7 +723,7 @@ def create_image_artifacts(image: Image.Image, staging: Path) -> list[str]:
             break
         start += step
         index += 1
-    return names
+    return names, warnings
 
 
 def initial_index() -> dict[str, Any]:
@@ -918,6 +949,20 @@ def replace_index_entry(index: dict[str, Any], record: dict[str, Any]) -> None:
     raise CaptureToolError("reference_not_indexed", f"reference is missing from private index: {reference_id}")
 
 
+def taxonomy_tags(values: list[str], field: str) -> list[str]:
+    """Validate bounded lower-case taxonomy slugs without silently altering meaning."""
+    cleaned: list[str] = []
+    for value in values:
+        tag = clean_text(value).lower()
+        if not tag:
+            continue
+        if not TAXONOMY_TAG_PATTERN.fullmatch(tag):
+            raise CaptureToolError("taxonomy_tag_invalid", f"{field} must use lower-case kebab-case tags: {value!r}")
+        if tag not in cleaned:
+            cleaned.append(tag)
+    return cleaned
+
+
 def approve_reference(
     *,
     root: Path,
@@ -926,6 +971,12 @@ def approve_reference(
     summary: str,
     what_to_borrow: list[str],
     what_not_to_copy: list[str],
+    page_type: str,
+    audience: list[str],
+    styles: list[str],
+    sections: list[str],
+    copy_patterns: list[str],
+    conversion_goals: list[str],
 ) -> dict[str, Any]:
     """Promote a reviewed, usable candidate and atomically refresh index.yaml."""
     reference_id = ensure_safe_id(reference_id)
@@ -954,8 +1005,26 @@ def approve_reference(
             "approval_review_missing",
             "approval requires --summary, at least one --what-to-borrow, and at least one --what-not-to-copy",
         )
+    normalized_page_type = clean_text(page_type).lower()
+    if normalized_page_type not in PAGE_TYPES:
+        raise CaptureToolError("taxonomy_page_type_invalid", f"--page-type must be one of: {', '.join(sorted(PAGE_TYPES))}")
+    taxonomy = {
+        "page_type": normalized_page_type,
+        "audience": taxonomy_tags(audience, "--audience"),
+        "styles": taxonomy_tags(styles, "--style"),
+        "sections": taxonomy_tags(sections, "--section"),
+        "copy_patterns": taxonomy_tags(copy_patterns, "--copy-pattern"),
+        "conversion_goals": taxonomy_tags(conversion_goals, "--conversion-goal"),
+    }
+    required_taxonomy = ("styles", "sections", "copy_patterns", "conversion_goals")
+    if any(not taxonomy[field] for field in required_taxonomy):
+        raise CaptureToolError(
+            "approval_taxonomy_missing",
+            "approval requires --page-type plus at least one --style, --section, --copy-pattern, and --conversion-goal",
+        )
 
     loaded["lifecycle_status"] = "approved"
+    loaded["taxonomy"] = taxonomy
     loaded["curation"] = {
         "summary": cleaned_summary,
         "what_to_borrow": borrowed,
@@ -1017,7 +1086,8 @@ def capture_one(
             (staging / "page.md").write_text(result.markdown, encoding="utf-8")
         if result.image is not None:
             try:
-                segments = create_image_artifacts(result.image, staging)
+                segments, image_warnings = create_image_artifacts(result.image, staging)
+                result.warnings.extend(image_warnings)
             except (CaptureToolError, OSError) as exc:
                 result.capture_status = "partial" if result.markdown else "failed"
                 result.reason_code = exc.code if isinstance(exc, CaptureToolError) else "image_conversion_failed"
@@ -1068,6 +1138,62 @@ def capture_one(
     finally:
         if staging.exists():
             shutil.rmtree(staging, ignore_errors=True)
+
+
+def retry_failed_reference(*, root: Path, index: dict[str, Any], reference_id: str) -> tuple[dict[str, Any] | None, str]:
+    """Explicitly replace one failed candidate after a capture-runtime repair.
+
+    This is deliberately not part of ordinary capture deduplication: a retry is
+    named by the operator and only applies to a candidate without artifacts.
+    """
+    reference_id = ensure_safe_id(reference_id)
+    reference_dir = root / "references" / reference_id
+    record_path = reference_dir / "record.yaml"
+    if not record_path.is_file():
+        raise CaptureToolError("reference_missing", f"candidate record does not exist: {reference_id}")
+    old_record = yaml.safe_load(record_path.read_text(encoding="utf-8"))
+    if not isinstance(old_record, dict):
+        raise CaptureToolError("invalid_record", f"candidate record is malformed: {reference_id}")
+    validate_record(old_record)
+    if old_record["lifecycle_status"] != "candidate" or old_record["capture_status"] not in {"failed", "blocked", "auth_required"}:
+        raise CaptureToolError("retry_status_invalid", "--retry accepts only failed, blocked, or auth-required candidate references")
+    if old_record["checksums"].get("files"):
+        raise CaptureToolError("retry_artifacts_present", "--retry refuses to replace a candidate that already has captured artifacts")
+
+    original_entries = index["entries"]
+    index["entries"] = [entry for entry in original_entries if entry.get("id") != reference_id]
+    backup_dir = root / "references" / f".{reference_id}.{uuid.uuid4().hex}.retry-backup"
+    os.replace(reference_dir, backup_dir)
+    try:
+        record, status = capture_one(
+            root=root,
+            index=index,
+            url=str(old_record["source"]["url"]),
+            reference_id=reference_id,
+            fixture=None,
+            wayback_url=old_record["source"].get("wayback_url"),
+        )
+        if record is None:
+            raise CaptureToolError("retry_duplicate", f"retry could not replace candidate: {status}")
+        record["capture"]["retry_of"] = {
+            "captured_at": old_record["source"]["captured_at"],
+            "capture_status": old_record["capture_status"],
+            "reason_code": old_record["capture"].get("reason_code"),
+        }
+        record["updated_at"] = utc_now()
+        validate_record(record)
+        atomic_yaml_write(root / "references" / reference_id / "record.yaml", record)
+        replace_index_entry(index, record)
+        atomic_yaml_write(root / "index.yaml", index)
+        shutil.rmtree(backup_dir)
+        return record, status
+    except Exception:
+        if (root / "references" / reference_id).exists():
+            shutil.rmtree(root / "references" / reference_id)
+        os.replace(backup_dir, reference_dir)
+        index["entries"] = original_entries
+        atomic_yaml_write(root / "index.yaml", index)
+        raise
 
 
 def read_input_urls(path: Path) -> list[str]:
@@ -1131,11 +1257,126 @@ def list_report(root: Path) -> int:
             "lifecycle_status": entry.get("lifecycle_status"),
             "capture_status": entry.get("capture_status"),
             "page_type": entry.get("page_type"),
+            "audience": entry.get("audience", []),
+            "styles": entry.get("styles", []),
+            "sections": entry.get("sections", []),
+            "copy_patterns": entry.get("copy_patterns", []),
+            "conversion_goals": entry.get("conversion_goals", []),
         }
         for entry in index["entries"]
     ]
     print(json.dumps({"root": str(root), "entries": entries}, sort_keys=True))
     return 0
+
+
+def remote_fingerprint(remote_url: str) -> str:
+    return hashlib.sha256(remote_url.encode("utf-8")).hexdigest()
+
+
+def sync_private_corpus(root: Path, changed_paths: list[Path], operation: str) -> str:
+    """Commit and push only the just-written private corpus paths.
+
+    A capture remains valid on disk when Git, LFS, or the remote is unavailable.
+    The caller receives a safe status instead of an exception so it can report a
+    pending synchronization without losing the local evidence bundle.
+    """
+
+    repository = git_ancestor(root)
+    if repository is None or repository != root.resolve():
+        return "pending reason=private_git_repository_missing"
+    if not (root / ".gitattributes").is_file():
+        return "pending reason=lfs_attributes_missing"
+    if shutil.which("git") is None:
+        return "pending reason=git_unavailable"
+
+    lfs = subprocess.run(
+        ["git", "-C", str(root), "lfs", "version"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if lfs.returncode != 0:
+        return "pending reason=git_lfs_unavailable"
+
+    remote = subprocess.run(
+        ["git", "-C", str(root), "remote", "get-url", "origin"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if remote.returncode != 0 or not remote.stdout.strip():
+        return "pending reason=private_remote_missing"
+    expected_fingerprint = subprocess.run(
+        ["git", "-C", str(root), "config", "--get", "shipglows.inspirationOriginFingerprint"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if expected_fingerprint.returncode != 0 or expected_fingerprint.stdout.strip() != remote_fingerprint(remote.stdout.strip()):
+        return "pending reason=private_remote_unverified"
+
+    relative_paths: list[str] = []
+    for path in changed_paths:
+        try:
+            relative_paths.append(str(path.resolve().relative_to(root.resolve())))
+        except ValueError:
+            return "pending reason=sync_path_outside_corpus"
+
+    visual_paths: list[str] = []
+    for path in changed_paths:
+        if path.is_file() and path.suffix.lower() == ".webp":
+            visual_paths.append(str(path.resolve().relative_to(root.resolve())))
+        elif path.is_dir():
+            visual_paths.extend(str(image.relative_to(root.resolve())) for image in path.rglob("*.webp"))
+    if visual_paths:
+        attributes = subprocess.run(
+            ["git", "-C", str(root), "check-attr", "filter", "--", *visual_paths],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        expected_attributes = {f"{path}: filter: lfs" for path in visual_paths}
+        if attributes.returncode != 0 or not expected_attributes.issubset(set(attributes.stdout.splitlines())):
+            return "pending reason=lfs_tracking_missing"
+
+    add = subprocess.run(
+        ["git", "-C", str(root), "add", "--", *relative_paths],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if add.returncode != 0:
+        return "pending reason=git_add_failed"
+
+    staged = subprocess.run(
+        ["git", "-C", str(root), "diff", "--cached", "--quiet"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if staged.returncode == 0:
+        return "synced status=already_current"
+    if staged.returncode != 1:
+        return "pending reason=git_status_failed"
+
+    commit = subprocess.run(
+        ["git", "-C", str(root), "commit", "-m", f"inspiration: {operation}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if commit.returncode != 0:
+        return "pending reason=git_commit_failed"
+
+    push = subprocess.run(
+        ["git", "-C", str(root), "push", "origin", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if push.returncode != 0:
+        return "pending reason=git_push_failed"
+    return "synced status=pushed"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1150,10 +1391,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--status-only", action="store_true", help="Read the private index and print capture-status counts without capturing.")
     parser.add_argument("--list", action="store_true", help="Read the private index and print bounded reference summaries without loading bundles.")
     parser.add_argument("--approve", metavar="REFERENCE_ID", help="Promote one reviewed candidate and synchronize index.yaml.")
+    parser.add_argument("--retry", metavar="REFERENCE_ID", help="Explicitly retry one failed candidate with no captured artifacts.")
     parser.add_argument("--summary", help="Required review summary for --approve.")
     parser.add_argument("--what-to-borrow", action="append", default=[], help="Transferable pattern for --approve; repeat as needed.")
     parser.add_argument("--what-not-to-copy", action="append", default=[], help="Anti-copy constraint for --approve; repeat as needed.")
+    parser.add_argument("--page-type", help="Required approved-reference page type.")
+    parser.add_argument("--audience", action="append", default=[], help="Optional audience tag for --approve; use lower-case kebab-case and repeat as needed.")
+    parser.add_argument("--style", action="append", default=[], help="Required visual style tag for --approve; use lower-case kebab-case and repeat as needed.")
+    parser.add_argument("--section", action="append", default=[], help="Required structural-section tag for --approve; use lower-case kebab-case and repeat as needed.")
+    parser.add_argument("--copy-pattern", action="append", default=[], help="Required copy pattern tag for --approve; use lower-case kebab-case and repeat as needed.")
+    parser.add_argument("--conversion-goal", action="append", default=[], help="Required conversion-goal tag for --approve; use lower-case kebab-case and repeat as needed.")
     parser.add_argument("--wayback-url", help="Optional existing Wayback URL for one capture; never fetched or created automatically.")
+    parser.add_argument("--sync", action="store_true", help="Commit and push just-written private corpus files when Git LFS and a private origin are configured; local capture remains valid if sync is pending.")
     parser.add_argument("--no-network", action="store_true", help="Forbid network access; required with --fixture and invalid for live URLs.")
     parser.add_argument("--fixture", help="Synthetic local HTML fixture. Requires --no-network and temporary --output.")
     return parser
@@ -1170,14 +1419,18 @@ def run(argv: list[str] | None = None) -> int:
             raise CaptureToolError("no_network_requires_fixture", "--no-network requires --fixture; live capture cannot run without network")
         read_mode = bool(args.status_only or args.list)
         curation_mode = bool(args.approve)
+        retry_mode = bool(args.retry)
         if args.status_only and args.list:
             raise CaptureToolError("read_mode_conflict", "--status-only and --list cannot be combined")
-        if read_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url, args.approve, args.summary, args.what_to_borrow, args.what_not_to_copy)):
+        taxonomy_arguments = (args.page_type, args.audience, args.style, args.section, args.copy_pattern, args.conversion_goal)
+        if read_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url, args.approve, args.retry, args.summary, args.what_to_borrow, args.what_not_to_copy, args.sync, *taxonomy_arguments)):
             raise CaptureToolError("read_mode_conflict", "--status-only and --list cannot be combined with capture or curation arguments")
         if curation_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url)):
             raise CaptureToolError("approval_conflict", "--approve cannot be combined with capture arguments")
-        if not curation_mode and any((args.summary, args.what_to_borrow, args.what_not_to_copy)):
-            raise CaptureToolError("approval_arguments_without_approve", "review fields require --approve")
+        if retry_mode and any((args.url, args.input, args.fixture, args.reference_id, args.wayback_url, args.approve, args.summary, args.what_to_borrow, args.what_not_to_copy, *taxonomy_arguments)):
+            raise CaptureToolError("retry_conflict", "--retry cannot be combined with capture, approval, review, or taxonomy arguments")
+        if not curation_mode and any((args.summary, args.what_to_borrow, args.what_not_to_copy, *taxonomy_arguments)):
+            raise CaptureToolError("approval_arguments_without_approve", "review and taxonomy fields require --approve")
         if args.wayback_url:
             validate_url(args.wayback_url)
 
@@ -1196,9 +1449,27 @@ def run(argv: list[str] | None = None) -> int:
                 summary=args.summary or "",
                 what_to_borrow=args.what_to_borrow,
                 what_not_to_copy=args.what_not_to_copy,
+                page_type=args.page_type or "",
+                audience=args.audience,
+                styles=args.style,
+                sections=args.section,
+                copy_patterns=args.copy_pattern,
+                conversion_goals=args.conversion_goal,
             )
             print(f"id={record['id']} lifecycle_status=approved capture_status={record['capture_status']} record={root / 'references' / record['id'] / 'record.yaml'}")
+            if args.sync:
+                operation = f"approve {record['id']}"
+                print(f"sync={sync_private_corpus(root, [root / 'index.yaml', root / 'references' / record['id']], operation)}")
             return 0
+
+        if args.retry:
+            index = bootstrap_corpus(root)
+            record, status = retry_failed_reference(root=root, index=index, reference_id=args.retry)
+            print(f"id={record['id']} status={status} lifecycle_status={record['lifecycle_status']} record={root / 'references' / record['id'] / 'record.yaml'}")
+            if args.sync:
+                operation = f"retry {record['id']}"
+                print(f"sync={sync_private_corpus(root, [root / 'index.yaml', root / 'references' / record['id']], operation)}")
+            return 0 if status in {"captured", "partial"} else 1
 
         urls = collect_urls(args)
         if args.reference_id and len(urls) != 1:
@@ -1209,6 +1480,7 @@ def run(argv: list[str] | None = None) -> int:
         failed = 0
         duplicates = 0
         captured = 0
+        changed_paths: list[Path] = [root / "index.yaml"]
         for url in urls:
             reference_id = ensure_safe_id(args.reference_id) if args.reference_id else derive_id(url)
             record, status = capture_one(
@@ -1223,12 +1495,15 @@ def run(argv: list[str] | None = None) -> int:
                 duplicates += 1
                 print(f"id={reference_id} status={status} source={redact_url(url)}")
                 continue
+            changed_paths.append(root / "references" / reference_id)
             print(f"id={reference_id} status={status} source={redact_url(url)} record={root / 'references' / reference_id / 'record.yaml'}")
             if status == "captured":
                 captured += 1
             else:
                 failed += 1
         print(f"summary captured={captured} failed_or_partial={failed} duplicates={duplicates} root={root}")
+        if args.sync:
+            print(f"sync={sync_private_corpus(root, changed_paths, f'capture {len(changed_paths) - 1} reference(s)')}")
         if failed:
             return 1
         if duplicates:

@@ -113,6 +113,8 @@ class NodePlaywrightBridgeTests(unittest.TestCase):
             resolver_command = run.call_args.args[0]
             self.assertEqual(resolver_command[0], "/usr/bin/node")
             self.assertEqual(resolver_command[-1], "/shared/bin/playwright")
+            self.assertIn("cmd-shim-target", resolver_command[2])
+            self.assertIn("@playwright/test/package.json", resolver_command[2])
 
     def test_discovery_reports_missing_cli(self) -> None:
         with mock.patch.object(capture.shutil, "which", return_value=None):
@@ -238,7 +240,6 @@ class ImageAndIntegrationTests(unittest.TestCase):
                     self.assertEqual(image.format, "WEBP")
                     self.assertGreater(image.width, 0)
                     self.assertGreater(image.height, 0)
-
             record = read_yaml(bundle / "record.yaml")
             self.assertEqual(record["capture_status"], "captured")
             self.assertEqual(record["capture"]["engine"], "synthetic_fixture")
@@ -249,6 +250,36 @@ class ImageAndIntegrationTests(unittest.TestCase):
             self.assertEqual(record["checksums"]["bundle"], capture.bundle_checksum(record["checksums"]["files"]))
             self.assertFalse((bundle / "source.html").exists())
 
+    def test_sync_reports_pending_without_failing_a_local_capture(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            corpus = Path(temporary) / "corpus"
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with mock.patch.object(capture, "sync_private_corpus", return_value="pending reason=git_lfs_unavailable") as sync, contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                code = capture.run(
+                    [
+                        "--fixture",
+                        str(FIXTURE),
+                        "--output",
+                        str(corpus),
+                        "--id",
+                        "sync-pending",
+                        "--no-network",
+                        "--sync",
+                    ]
+                )
+            self.assertEqual((code, stderr.getvalue()), (0, ""))
+            self.assertIn("sync=pending reason=git_lfs_unavailable", stdout.getvalue())
+            sync.assert_called_once()
+
+    def test_sync_is_rejected_for_read_only_list_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                code = capture.run(["--output", str(Path(temporary) / "corpus"), "--list", "--sync"])
+            self.assertEqual(code, 2)
+            self.assertIn("read_mode_conflict", stderr.getvalue())
+
     def test_image_thumbnail_is_bounded(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             corpus = Path(temporary) / "corpus"
@@ -256,6 +287,18 @@ class ImageAndIntegrationTests(unittest.TestCase):
             self.assertEqual(code, 0)
             with Image.open(corpus / "references" / "sample-sales-page" / "thumbnail.webp") as thumbnail:
                 self.assertLessEqual(thumbnail.width, capture.THUMBNAIL_WIDTH)
+
+    def test_oversized_full_page_is_downscaled_and_segments_are_retained(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            staging = Path(temporary) / "reference"
+            staging.mkdir()
+            image = Image.new("RGB", (320, capture.MAX_WEBP_DIMENSION + 100), "white")
+            segments, warnings = capture.create_image_artifacts(image, staging)
+            self.assertGreaterEqual(len(segments), 10)
+            self.assertTrue(warnings)
+            with Image.open(staging / "full-page.webp") as full_page:
+                self.assertLessEqual(max(full_page.size), capture.MAX_WEBP_DIMENSION)
+            self.assertTrue((staging / "segments" / "001.webp").is_file())
 
     def test_image_duplicate_checksum_does_not_create_second_reference(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -390,6 +433,18 @@ class StatusAndFailureTests(unittest.TestCase):
                         "Use the proof sequence after the mechanism.",
                         "--what-not-to-copy",
                         "Do not reuse distinctive language or branding.",
+                        "--page-type",
+                        "landing-page",
+                        "--audience",
+                        "small-business",
+                        "--style",
+                        "editorial",
+                        "--section",
+                        "hero",
+                        "--copy-pattern",
+                        "problem-agitation",
+                        "--conversion-goal",
+                        "trial",
                     ]
                 ),
                 0,
@@ -399,6 +454,52 @@ class StatusAndFailureTests(unittest.TestCase):
             self.assertEqual(record["lifecycle_status"], "approved")
             self.assertEqual(record["curation"]["summary"], "Clear hierarchy from problem to proof.")
             self.assertEqual(index["entries"][0]["lifecycle_status"], "approved")
+            self.assertEqual(record["taxonomy"]["styles"], ["editorial"])
+            self.assertEqual(index["entries"][0]["conversion_goals"], ["trial"])
+
+    def test_approve_requires_classification(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            corpus = Path(temporary) / "corpus"
+            capture.run(["--fixture", str(FIXTURE), "--output", str(corpus), "--id", "needs-taxonomy", "--no-network"])
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                code = capture.run(
+                    [
+                        "--output",
+                        str(corpus),
+                        "--approve",
+                        "needs-taxonomy",
+                        "--summary",
+                        "A useful sequence.",
+                        "--what-to-borrow",
+                        "Use proof after the promise.",
+                        "--what-not-to-copy",
+                        "Do not copy the source language.",
+                    ]
+                )
+            self.assertEqual(code, 2)
+            self.assertIn("taxonomy_page_type_invalid", stderr.getvalue())
+
+    def test_retry_replaces_an_explicit_failed_candidate_after_runtime_recovery(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            corpus = Path(temporary) / "corpus"
+            capture.run(["--fixture", str(FIXTURE), "--output", str(corpus), "--id", "retry-me", "--no-network"])
+            record_path = corpus / "references" / "retry-me" / "record.yaml"
+            failed = read_yaml(record_path)
+            failed["capture_status"] = "failed"
+            failed["artifacts"] = {"page_markdown": None, "full_page_image": None, "thumbnail_image": None, "segments": []}
+            failed["checksums"] = {"algorithm": "sha256", "files": {}, "bundle": ""}
+            failed["capture"]["reason_code"] = "playwright_package_unavailable"
+            capture.atomic_yaml_write(record_path, failed)
+            index = read_yaml(corpus / "index.yaml")
+            index["entries"][0]["capture_status"] = "failed"
+            capture.atomic_yaml_write(corpus / "index.yaml", index)
+            with mock.patch.object(capture, "capture_live", return_value=capture.capture_fixture(FIXTURE, "https://example.invalid/retry-me")):
+                code = capture.run(["--output", str(corpus), "--retry", "retry-me"])
+            self.assertEqual(code, 0)
+            record = read_yaml(record_path)
+            self.assertEqual(record["capture_status"], "captured")
+            self.assertEqual(record["capture"]["retry_of"]["reason_code"], "playwright_package_unavailable")
 
     def test_approve_requires_a_complete_review(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-07-15"
+updated: "2026-08-07"
 status: active
 source_skill: 102-sg-start
 scope: design-inspiration-library
@@ -19,6 +19,7 @@ linked_systems:
   - tools/capture_design_inspiration_playwright.js
   - skills/006-sg-design/SKILL.md
   - skills/006-sg-design/references/design-inspiration-library-operations.md
+  - shipglows_data/workflow/playbooks/design-inspiration-library-server-migration-playbook.md
   - skills/007-sg-content/SKILL.md
   - skills/200-sg-redact/SKILL.md
   - skills/009-sg-marketing/SKILL.md
@@ -32,6 +33,12 @@ evidence:
   - "Ready spec sales-page-reference-library.md and its exploration source."
   - "Operator decision: source-derived captures stay outside public repositories and are consumed through a bounded, operator-selected Inspiration Gate."
   - "Operator correction: 006-sg-design exposes direct library add, approve, list, and status modes; approval must synchronize the bounded index."
+  - "Operator decision 2026-08-07: a remotely synchronized corpus uses a private Git repository, Git LFS for large visual captures, and repository rotation only for a justified removal or purge."
+  - "Implemented 2026-08-07: add and approval use a verified private origin fingerprint, stage only their written corpus paths, and report pending synchronization without losing local evidence."
+  - "Operator request 2026-08-07: server migration is governed by a reusable install and restore playbook with a paired checklist."
+  - "Operator correction 2026-08-07: taxonomy exists only when a reference is explicitly classified at approval; empty candidate tags are not a usable creative search index."
+  - "Live recovery 2026-08-07: an explicit retry replaces only a failed candidate with no artifacts after a shared capture-runtime repair, preserving the prior reason in private metadata."
+  - "Live capture 2026-08-07: very tall pages proportionally downscale only full-page WebP while retaining high-resolution segments; the current bundle remains a static visual snapshot and does not record animation timelines."
 next_review: "2026-08-15"
 next_step: "/103-sg-verify sales-page-reference-library"
 ---
@@ -60,13 +67,38 @@ Private source-derived corpus:
 ${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/design-inspiration-library}
 ```
 
-Optional remote configuration, if the operator versions that separate corpus:
+Optional remote configuration for the separate corpus:
 
 ```text
 SHIPGLOWS_INSPIRATION_LIBRARY_REPO
 ```
 
 The remote is configured externally and must never be hardcoded in this contract or the tool. This corpus is deliberately separate from `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}`, whose contract excludes durable cross-project marketing-example libraries.
+
+## Versioning And Purge Policy
+
+The local private corpus remains capture-capable without a remote. When it is synchronized or backed up through Git, its remote repository MUST be private.
+
+- Git tracks `index.yaml`, `record.yaml`, `page.md`, and the corpus configuration.
+- Git LFS tracks every captured WebP artifact: `full-page.webp`, `thumbnail.webp`, and `segments/*.webp`.
+- The private-repo bootstrap or operator setup owns the one-time user-level Git LFS installation, `.gitattributes`, remote privacy verification, and the stored origin fingerprint; the capture command never creates or publishes a remote repository implicitly.
+- `library add` and `library approve` synchronize their just-written paths when this verified setup exists. A failed or unavailable synchronization reports `pending` and never discards the local capture or approval.
+- Before staging a WebP bundle, the tool checks that each generated visual path resolves to the Git LFS filter. A broken LFS rule results in `sync=pending reason=lfs_tracking_missing` rather than placing images in ordinary Git.
+- A capture is an attributable snapshot. Re-captures must not silently overwrite an unrelated historic record or erase its provenance.
+- Screenshots represent one captured visual state. CSS/JS animation behavior, hover transitions, scroll choreography, and time-based sequences are not preserved by the current bundle; adding that capability would require a separate frame/video artifact contract.
+
+Git LFS content is versioned as content-addressed objects: changing a capture creates a new object while older commits can still refer to the prior one. This is normal version history, not a ban on changing or deleting a reference.
+
+When a source owner requests removal, or when a justified corpus purge is required:
+
+1. remove the source-derived artifacts locally and retain only the legally safe tombstone, if any;
+2. create a replacement private repository from the still-authorized corpus, without the removed assets or history;
+3. switch the externally configured remote to that replacement repository; and
+4. delete the old remote repository and known local clones/backups that contain the removed bundle.
+
+Do not rotate repositories routinely. Rotate only for a takedown, a deliberate purge, or material storage cleanup. Rotation removes the managed remote history; it cannot guarantee deletion from independently downloaded copies or a provider's internal backup-retention window.
+
+For server replacement, use `shipglows_data/workflow/playbooks/design-inspiration-library-server-migration-playbook.md` and its paired checklist. They restore Git LFS once per server user, the private corpus checkout, the local origin fingerprint, and dry-run proof without recording the private remote in shared documentation.
 
 ## Public And Private Boundary
 
@@ -152,6 +184,10 @@ Use bounded, lower-case slug values:
 
 Unknown values may be added as conservative slugs, but skills must filter rather than expand the taxonomy during unrelated work.
 
+Capture creates a conservative candidate with `page_type: sales-page` and empty tags. Approval must explicitly classify the reference with a valid page type and at least one `style`, `section`, `copy_pattern`, and `conversion_goal`; `audience` remains optional. The reviewing skill may propose tags from the private bundle, but must not silently approve an unclassified reference.
+
+If a page exceeds the WebP maximum dimension, `full-page.webp` is proportionally downscaled and the record records a warning; ordered segments retain the original capture scale for detailed study.
+
 ## Rights And Copyright Policy
 
 - Keep the corpus private for research, analysis, and reference.
@@ -160,7 +196,7 @@ Unknown values may be added as conservative slugs, but skills must filter rather
 - Summarize transferable principles; do not reproduce long source passages, protected expression, layouts, illustrations, or distinctive branding.
 - Discovery is not permission to imitate. Every selected reference must state what to borrow and what not to copy.
 - Respect source terms, owner requests, robots/access signals, and takedown requests. Do not use stealth or bypass controls.
-- For removal, delete source-derived artifacts when required and retain only the minimum private tombstone that is legally safe.
+- For removal, delete source-derived artifacts when required, retain only the minimum private tombstone that is legally safe, and follow the Versioning And Purge Policy when the corpus was synchronized through Git/LFS.
 - Wayback is optional attribution metadata, never a capture-success dependency.
 
 ## Capture And Promotion Workflow
@@ -169,11 +205,12 @@ Unknown values may be added as conservative slugs, but skills must filter rather
 2. New entries start as `candidate` and retain source attribution.
 3. Capture public content in a fresh ephemeral browser context without credentials or persisted storage. Scroll once with bounded waits for lazy loading.
 4. Record `captured`, `partial`, `failed`, `blocked`, or `auth_required` explicitly. Never invent missing artifacts.
-5. Review taxonomy, rights notes, transferable patterns, and anti-copy guidance before promotion.
-6. Promote to `approved` only after operator review. Set `rejected`, `blocked`, or `removed` when appropriate.
-7. If a skill discovers a useful URL outside a curation task, report its redacted URL and rationale; do not add it to the corpus until curation is in scope or the operator confirms.
+5. Retry only an explicitly named `candidate` whose prior capture failed, was blocked, or required authentication and produced no artifacts. Store the prior attempt's status and reason in the replacement record; never overwrite a successful or partial capture.
+6. Review taxonomy, rights notes, transferable patterns, and anti-copy guidance before promotion.
+7. Promote to `approved` only after operator review. Set `rejected`, `blocked`, or `removed` when appropriate.
+8. If a skill discovers a useful URL outside a curation task, report its redacted URL and rationale; do not add it to the corpus until curation is in scope or the operator confirms.
 
-The normal operator entrypoint is `/006-sg-design library add <public-url>`, followed by `/006-sg-design library approve <reference-id>`. The curation tool, not a hand edit, writes promotion metadata and synchronizes `index.yaml`. `library list` and `library status` read only the bounded index. See `skills/006-sg-design/references/design-inspiration-library-operations.md` for the activation contract.
+The normal operator entrypoint is `/006-sg-design library add <public-url>`, followed by `/006-sg-design library approve <reference-id>`. Use `/006-sg-design library retry <reference-id>` only after a failed candidate's capture runtime was repaired. The curation tool, not a hand edit, writes retry/promotion metadata and synchronizes `index.yaml`. `library list` and `library status` read only the bounded index. See `skills/006-sg-design/references/design-inspiration-library-operations.md` for the activation contract.
 
 Live capture reuses the server-wide Playwright Node installation: `node` and the global `playwright` CLI must be in `PATH`, and Chromium must exist in Playwright's shared browser cache. The Python tool resolves the `playwright` Node package from that CLI (including a CLI provided by global `@playwright/test`) and never requires the Python Playwright API or a per-project browser install. If discovery fails, repair the shared server installation indicated by the reason code: `playwright_cli_unavailable`, `node_unavailable`, `playwright_package_unavailable`, or `playwright_browser_unavailable`.
 

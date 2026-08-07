@@ -35,6 +35,24 @@ Before loading routing, topology, or owner-skill references, keep the request in
 
 Do not load a domain or lifecycle skill for these requests. Apply the bounded edit and run the smallest relevant check. An explicitly named skill still activates and uses its smallest safe mode. This is the activation-critical form of the shared Skill Selection Proportionality Gate.
 
+### Bounded internal reference-register updates
+
+Treat an operator request to add named, supplied links to an existing internal competitor, inspiration, or reference register as direct execution when all of these are true:
+
+- the target register is discoverable with one focused local lookup;
+- the request is limited to adding absent entries, not interpreting the market or choosing product strategy;
+- a one primary-source check per supplied reference is enough to avoid a broken or misleading link;
+- entries are framed as internal benchmarks or `à vérifier`, with no new public claim, recommendation, pricing assertion, or product decision;
+- focused proof is limited to duplicate search, link/source capture, and metadata lint when the register is governed.
+
+Append the supplied references factually and preserve the register's existing categories and caution labels. Do this without launching source intake, market study, or documentation topology work. Route normally if the operator asks for comparison, positioning, recommendations, pricing, roadmap decisions, public content, or a substantive competitor analysis.
+
+Keyword shorthand, when a URL follows:
+
+- `veille <URL>` asks to analyze the source and does not automatically persist the source;
+- `concurrent <URL>` or `inspiration <URL>` asks to add it to the matching internal register under the bounded-update rule above;
+- `veille concurrent <URL>` or `veille inspiration <URL>` remains a source analysis: `veille` takes precedence.
+
 ## Delegation And Topology
 
 For requests that do not pass the Atomic Direct-Execution Gate, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` before deciding execution topology.

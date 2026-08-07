@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-06-28"
 updated: "2026-07-13"
@@ -21,13 +21,14 @@ linked_systems:
   - skills/references/canonical-paths.md
 depends_on:
   - artifact: "shipglows_data/workflow/playbooks/README.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.2.0"
     required_status: draft
 supersedes: []
 evidence:
   - "Operator decision on 2026-06-28: ShipGlows needs reusable transversal checklists for business domains shared across many sites and applications."
   - "Current corpus only has test-checklists for execution proof, not a canonical reusable checklist library."
   - "Server disk hygiene and migration checklist added after the 2026-07-13 disk-pressure incident."
+  - "Private design-inspiration-library server migration checklist added on 2026-08-07."
 next_review: "2026-07-05"
 next_step: "/300-sg-docs update checklist migration inventory"
 ---
@@ -61,7 +62,8 @@ Use this folder when the document answers:
 - `content-publication-and-editorial-operations-checklist.md`
 - `production-health-and-operations-checklist.md`
 - `maintenance-freshness-and-dependency-operations-checklist.md`
-- `technical-project-readiness-and-operations-checklist.md`
+  - `technical-project-readiness-and-operations-checklist.md`
+  - `design-inspiration-library-server-migration-checklist.md`
 
 ## Domain Coverage
 

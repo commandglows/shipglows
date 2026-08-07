@@ -20,9 +20,13 @@ async function main() {
   let playwright;
   try {
     playwright = createRequire(packageJson)("playwright");
-  } catch (_error) {
-    write({ ok: false, code: "playwright_package_unavailable" }, 2);
-    return;
+  } catch (_playwrightError) {
+    try {
+      playwright = createRequire(packageJson)("@playwright/test");
+    } catch (_testPackageError) {
+      write({ ok: false, code: "playwright_package_unavailable" }, 2);
+      return;
+    }
   }
 
   const { url } = await readInput();

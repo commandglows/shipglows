@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.8.0"
 project: "ShipGlows"
 created: "2026-07-15"
 created_at: "2026-07-15 07:29:01 UTC"
-updated: "2026-07-15"
-updated_at: "2026-07-15 16:04:23 UTC"
+updated: "2026-08-07"
+updated_at: "2026-08-07 06:45:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "gpt-5.5 high"
@@ -51,7 +51,7 @@ depends_on:
     artifact_version: "0.1.0"
     required_status: "draft"
   - artifact: "shipglows_data/technical/code-docs-map.md"
-    artifact_version: "1.7.0"
+    artifact_version: "3.2.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.18.3"
@@ -68,6 +68,13 @@ evidence:
   - "Current design and copywriting skills do not load a shared visual/copy inspiration corpus."
   - "Playwright official Python screenshots docs consulted on 2026-07-15: full-page screenshot capture is supported. Source: https://playwright.dev/python/docs/screenshots"
   - "Pillow official docs consulted on 2026-07-15: image open/save flows support file-format conversion by extension, including WebP when the runtime has WebP support. Sources: https://pillow.readthedocs.io/en/stable/handbook/tutorial.html and https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html"
+  - "Operator decision 2026-08-07: when remotely synchronized, the private corpus uses Git LFS for large WebP captures and repository rotation only for a takedown, purge, or material storage cleanup."
+  - "Implemented 2026-08-07: the private corpus is initialized with Git LFS rules and a verified private-origin fingerprint; add and approve synchronize only their changed paths and preserve local evidence on failure."
+  - "Operator request 2026-08-07: server-migration playbook and checklist make the private corpus restoration repeatable without publishing its remote."
+  - "Operator correction 2026-08-07: approval now requires explicit taxonomy so approved references are actually filterable by design and copy patterns."
+  - "Live capture recovery 2026-08-07: global PNPM @playwright/test package discovery and explicit artifact-free candidate retry were proven against an operator-authorized public page."
+  - "Live capture 2026-08-07: Unlearn was captured successfully with 17 detailed segments; full-page WebP bounding was exercised, while animation timelines remain outside the static bundle contract."
+  - "Operator authorized creation of the externally configured private corpus repository on 2026-08-07; the remote identifier remains outside shared doctrine."
 next_step: "none"
 ---
 
@@ -87,14 +94,14 @@ As a ShipGlows operator, I want to capture sales pages once as structured text a
 
 ## Minimal Behavior Contract
 
-The system accepts a bounded list of public sales-page URLs or one explicit URL, including `/006-sg-design library add <url>` as the normal operator-facing route. It loads each page without storing credentials or private session data, extracts visible structured page text into Markdown, captures a full-page desktop visual as `full-page.webp`, derives `thumbnail.webp` and ordered image segments automatically, and writes a searchable `record.yaml` with source, status, taxonomy, provenance, and checksums into a private rights-aware corpus. New records remain `candidate`; `/006-sg-design library approve <id>` requires a review summary plus transferable and anti-copy guidance, then atomically synchronizes `record.yaml` and `index.yaml`. An optional existing Wayback URL is retained only as metadata; no archive request is made. If capture fails or is only partial, it still records the attempted source, reason, and safe retry route without fabricating missing artifacts. The easiest edge case to miss is treating a competitor, market, or positioning reference as the same thing as this reusable creative library; this corpus is for design/copy study and must stay separate from project-local business inspiration registries.
+The system accepts a bounded list of public sales-page URLs or one explicit URL, including `/006-sg-design library add <url>` as the normal operator-facing route. It loads each page without storing credentials or private session data, extracts visible structured page text into Markdown, captures a full-page desktop visual as `full-page.webp`, derives `thumbnail.webp` and ordered image segments automatically, and writes a searchable `record.yaml` with source, status, taxonomy, provenance, and checksums into a private rights-aware corpus. New records remain `candidate`; `/006-sg-design library approve <id>` requires a review summary plus transferable and anti-copy guidance, then atomically synchronizes `record.yaml` and `index.yaml`. Both operations request a bounded Git synchronization to the verified private origin; each WebP must be covered by Git LFS, and a failed synchronization leaves the local bundle intact with a `pending` reason. An optional existing Wayback URL is retained only as metadata; no archive request is made. If capture fails or is only partial, it still records the attempted source, reason, and safe retry route without fabricating missing artifacts. The easiest edge case to miss is treating a competitor, market, or positioning reference as the same thing as this reusable creative library; this corpus is for design/copy study and must stay separate from project-local business inspiration registries.
 
 ## Success Behavior
 
 - Preconditions: the implementation agent has a URL or newline-delimited URL file, a configured private inspiration corpus root, browser automation available, and permission to fetch public pages for private research/reference use.
 - Trigger: the operator or a ShipGlows skill runs the capture workflow for one or more sales-page URLs, or a design/copy skill enters the Inspiration Gate and asks for a bounded shortlist from the already-captured corpus.
 - User/operator result: the operator can inspect each captured reference as a folder containing `record.yaml`, structured `page.md`, `full-page.webp`, `thumbnail.webp`, and `segments/*.webp`; design and copywriting skills can shortlist references by page type, audience, style, section, copy pattern, and conversion goal.
-- System effect: source-derived text and screenshots are stored only in the private inspiration corpus; the public ShipGlows repo stores only schema, taxonomy, tool code, fixtures with synthetic data, and skill integration contracts.
+- System effect: source-derived text and screenshots are stored only in the private inspiration corpus; the public ShipGlows repo stores only schema, taxonomy, tool code, fixtures with synthetic data, and skill integration contracts. When the private corpus is synchronized, its remote is private and large visual captures use Git LFS.
 - Success proof: metadata lint passes for changed ShipGlows artifacts; unit tests cover record validation, safe path resolution, failure records, WebP segmentation, and index updates; an integration fixture creates a complete synthetic capture bundle; selected live smoke captures are explicitly marked as private proof and not committed.
 - Silent success: not allowed. Each capture must end with a visible status in `record.yaml` and a command/report summary that names captured, partial, blocked, and failed entries.
 
@@ -165,7 +172,8 @@ Wayback remains optional metadata only. A Wayback URL may be attached when usefu
 ${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/design-inspiration-library}
 ```
 
-- If the private corpus is versioned, its remote must be configured externally, for example with `SHIPGLOWS_INSPIRATION_LIBRARY_REPO`; the remote must not be hardcoded in shared doctrine or tools.
+- If the private corpus is synchronized, its remote must be configured externally, for example with `SHIPGLOWS_INSPIRATION_LIBRARY_REPO`; the remote must be private and must not be hardcoded in shared doctrine or tools. Git tracks metadata/text while Git LFS tracks every captured WebP artifact.
+- A takedown or deliberate purge removes the bundle locally, builds a replacement private repository from the still-authorized corpus, switches the configured remote, and deletes the old repository and known clones/backups. This rotation is exceptional, not periodic, and cannot erase independently downloaded copies or provider backup-retention windows.
 - Capture tooling must refuse to write source-derived captures inside `$SHIPGLOWS_ROOT`, a project repository, or any public plugin/cache path unless a test fixture mode uses synthetic content.
 - The tool must not persist browser storage, cookies, localStorage, sessionStorage, HAR files, video, traces, or raw HTML by default.
 - The tool must redact URL query parameters from logs by default while keeping the original URL in private `record.yaml` when needed for attribution and reproducibility.
@@ -279,7 +287,7 @@ No update is required to `shipglows_data/business/project-competitors-and-inspir
 - A page is extremely tall: capture full page when practical; if browser/image limits are hit, use viewport screenshots stitched or segment capture with `capture_status: partial` and reason.
 - A page contains videos, carousels, animations, or interactive calculators: capture the default loaded state and record unsupported interactive elements in `record.yaml`.
 - A page changes after capture: the library stores capture timestamp and must not treat the entry as current product truth.
-- A page has terms/copyright restrictions or takedown request: mark as `rejected`, `blocked`, or `removed`; delete source-derived artifacts when required and keep only a minimal private tombstone if legally safe.
+- A page has terms/copyright restrictions or takedown request: mark as `rejected`, `blocked`, or `removed`; delete source-derived artifacts when required, keep only a minimal private tombstone if legally safe, and rotate a synchronized Git/LFS repository as defined by the storage policy.
 - Duplicate pages or redirects: normalize source URL, store final URL separately, and deduplicate by canonical ID plus checksums without losing attribution.
 - A skill finds a new useful reference during unrelated work: it may report the URL and rationale, but must not promote it into the curated corpus unless curation is in scope or the operator confirms.
 
@@ -400,7 +408,12 @@ No update is required to `shipglows_data/business/project-competitors-and-inspir
 - [x] AC 15: Given implementation completes, when `103-sg-verify` runs, then it can verify storage safety, source-derived asset separation, skill integration, capture behavior, and docs coherence against this spec.
 - [x] AC 16: Given an operator invokes `/006-sg-design library add <public URL>`, when the private capture succeeds, then the skill reports a candidate reference ID and one approval action without writing source material to the public repository.
 - [x] AC 17: Given an operator invokes `/006-sg-design library approve <reference-id>` with a review summary, transferable pattern, and anti-copy constraint, then the candidate becomes `approved` and `index.yaml` is synchronized without normal manual YAML editing.
-- [x] AC 18: Given a Wayback URL is supplied or known, when a reference is added, then it is retained as optional metadata and no Internet Archive request is required or performed.
+- [x] AC 18: Given a configured private corpus, when `library add` or `library approve` writes a bundle, then only its changed paths are committed and pushed to the verified origin; WebP paths must resolve to Git LFS and a sync failure keeps the local corpus intact with a safe pending reason.
+- [x] AC 19: Given a Wayback URL is supplied or known, when a reference is added, then it is retained as optional metadata and no Internet Archive request is required or performed.
+- [x] AC 20: Given the corpus is restored on another server, when the migration playbook is followed, then Git LFS, the verified private origin, dry-run push, and read-only corpus access are proven without recording the remote in shared doctrine.
+- [x] AC 21: Given a candidate is approved, when its review is recorded, then it must include a validated page type plus style, section, copy-pattern, and conversion-goal tags; the same classification is atomically searchable in the bounded index.
+- [x] AC 22: Given a shared Playwright runtime repair, when an explicitly named artifact-free failed candidate is retried, then the replacement capture preserves the prior failure reason privately, never overwrites a successful/partial record, and synchronizes only its changed corpus paths.
+- [x] AC 23: Given a page taller than the WebP dimension limit, when it is captured, then `full-page.webp` is proportionally bounded with a warning while ordered detail segments retain the original capture scale; animation timelines remain explicitly unclaimed.
 
 ## Test Strategy
 
@@ -486,6 +499,13 @@ None. The storage/privacy decision is resolved by defining a separate private in
 | 2026-07-15 14:41:01 UTC | 001-sg-build | gpt-5.6-sol | Replaced the Python Playwright runtime dependency with the shared global Playwright Node runtime, installed Chromium once in the current server user's shared cache, and proved a complete live browser bundle against a local synthetic page. | implemented | /103-sg-verify sales-page-reference-library shared Playwright runtime correction |
 | 2026-07-15 16:04:23 UTC | 001-sg-build | gpt-5.5 codex | Implemented the operator-facing 006-sg-design library modes, safe candidate approval with atomic private-index synchronization, bounded list/status output, and optional Wayback metadata without archive creation; focused synthetic tests and metadata checks passed. | implemented | /103-sg-verify sales-page-reference-library operator library modes correction |
 | 2026-07-15 16:11:28 UTC | 103-sg-verify | codex | Re-verified the shared global Node Playwright discovery/cache contract and the operator-facing library modes with scenario-first synthetic capture/promotion proof, safety boundary checks, runtime sync, metadata lint, syntax, tests, and focused contract scans. | verified | /104-sg-end sales-page-reference-library post-ship corrections |
+| 2026-08-07 05:04:38 UTC | 300-sg-docs | gpt-5 | Recorded the operator-approved private Git LFS storage and exceptional repository-rotation policy, including removal limits and no-implicit-remote invariant. | implemented | correction closure remains ready |
+| 2026-08-07 05:21:51 UTC | 006-sg-design | gpt-5 | Created and verified the operator-authorized private remote repository for the inspiration corpus; no corpus assets, Git LFS configuration, or remote identifier were written into shared doctrine. | implemented | configure the private corpus only when explicitly requested |
+| 2026-08-07 05:35:00 UTC | 006-sg-design | gpt-5 | Installed Git LFS once for the server user, initialized the private corpus with LFS rules and empty index, and implemented verified-origin bounded auto-sync for add/approval with safe pending outcomes. | implemented | /103-sg-verify sales-page-reference-library storage sync correction |
+| 2026-08-07 05:56:00 UTC | 300-sg-docs | gpt-5 | Added the reusable server-migration playbook and checklist for private corpus restore, including LFS, origin fingerprint, dry-run push, synthetic proof, and public-boundary controls. | implemented | /103-sg-verify sales-page-reference-library storage sync correction |
+| 2026-08-07 06:10:00 UTC | 006-sg-design | gpt-5 | Required validated creative taxonomy during approval and propagated it atomically to the bounded index, with synthetic proof for classification enforcement. | implemented | /103-sg-verify sales-page-reference-library storage sync correction |
+| 2026-08-07 06:32:00 UTC | 006-sg-design | gpt-5 | Repaired global PNPM Playwright discovery, added explicit artifact-free candidate retry, and captured the operator-authorized public ReachOwl page into the private Git LFS corpus. | implemented | /103-sg-verify sales-page-reference-library storage sync correction |
+| 2026-08-07 06:45:00 UTC | 006-sg-design | gpt-5 | Captured the operator-authorized Unlearn page, added tall-page WebP bounding with detailed segments, and documented that animation capture is outside the current static bundle. | implemented | /103-sg-verify sales-page-reference-library storage sync correction |
 
 ## Current Chantier Flow
 
@@ -493,6 +513,11 @@ None. The storage/privacy decision is resolved by defining a separate private in
 - `101-sg-ready`: ready, strict readiness review passed and freshness source links recorded.
 - `102-sg-start`: implemented, including the shared-Playwright-runtime and operator-library-mode corrections; focused unit, CLI, and synthetic-browser proof passed.
 - `103-sg-verify`: verified, including the shared-Playwright-runtime and operator-library-mode corrections; no external live capture was needed for this local tooling/skill contract.
+- `300-sg-docs`: implemented, with the private Git LFS and exceptional repository-rotation policy recorded in the canonical storage contract and this spec.
+- `006-sg-design`: implemented, with a private corpus initialized locally and remotely, user-wide Git LFS, verified-origin auto-sync, and no source-derived capture added during setup.
+- `300-sg-docs`: implemented, with a reusable migration/install playbook and checklist for future server changes.
+- `006-sg-design`: implemented, with explicit approval-time classification for filterable design and copy references.
+- `006-sg-design`: implemented, with tested global Playwright PNPM discovery and explicit retry recovery for artifact-free failed candidates.
 - `104-sg-end`: prior release closed; correction closure is ready.
 - `005-sg-ship`: prior release shipped; both verified corrections remain unshipped.
 

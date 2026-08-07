@@ -73,6 +73,31 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
         self.assertNotIn("unless the request reveals a safer owner", self.router)
         self.assertIn("let that skill reroute explicitly", self.router)
 
+    def test_bounded_internal_reference_updates_short_circuit_to_a_focused_registry_edit(self) -> None:
+        self.assertIn("Bounded internal reference-register updates", self.router)
+        self.assertIn("one focused local lookup", self.router)
+        self.assertIn("one primary-source check per supplied reference", self.router)
+        self.assertIn("without launching source intake, market study, or documentation topology work", self.router)
+
+    def test_reference_keywords_define_a_stable_url_shorthand(self) -> None:
+        for phrase in (
+            "`veille <URL>`",
+            "`concurrent <URL>` or `inspiration <URL>`",
+            "`veille` takes precedence",
+            "does not automatically persist the source",
+        ):
+            self.assertIn(phrase, self.router)
+
+    def test_operator_cheatsheet_explains_reference_keyword_outcomes(self) -> None:
+        cheatsheet = CHEATSHEET.read_text(encoding="utf-8")
+        for phrase in (
+            "Veille, concurrent, inspiration",
+            "veille <URL>",
+            "concurrent <URL>",
+            "inspiration <URL>",
+        ):
+            self.assertIn(phrase, cheatsheet)
+
     def test_entrypoint_matrix_has_a_direct_atomic_route(self) -> None:
         self.assertIn("Skill Selection Proportionality Gate", self.entrypoint)
         self.assertIn("Exact string, placeholder, typo, heading-tag", self.entrypoint)

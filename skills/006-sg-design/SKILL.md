@@ -1,7 +1,7 @@
 ---
 name: 006-sg-design
 description: "Single public entrypoint for design-system work, animation, design audits, accessibility, and inspiration-library curation."
-argument-hint: <system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|approve|list|status> ...>
+argument-hint: <system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...>
 ---
 
 Primary artifact type: `master-workflow`.

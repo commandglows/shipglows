@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-06-28"
 updated: "2026-07-13"
@@ -20,13 +20,14 @@ linked_systems:
   - skills/300-sg-docs/references/core-governance.md
 depends_on:
   - artifact: "shipglows_data/workflow/checklists/README.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.2.0"
     required_status: draft
 supersedes: []
 evidence:
   - "Operator decision on 2026-06-28: ShipGlows needs reusable transversal playbooks and checklists for business domains shared across many sites and applications."
   - "Current corpus already stores test checklists under shipglows_data/workflow/test-checklists but lacks a canonical home for reusable domain playbooks."
   - "Server disk hygiene and migration playbook added after the 2026-07-13 disk-pressure incident."
+  - "Private design-inspiration-library server migration playbook added on 2026-08-07."
 next_review: "2026-07-05"
 next_step: "/300-sg-docs update playbook migration inventory"
 ---
@@ -60,7 +61,8 @@ Use this folder when the document answers:
 - `content-publication-and-editorial-operations-playbook.md`
 - `production-health-and-operations-playbook.md`
 - `maintenance-freshness-and-dependency-operations-playbook.md`
-- `technical-project-readiness-and-operations-playbook.md`
+  - `technical-project-readiness-and-operations-playbook.md`
+  - `design-inspiration-library-server-migration-playbook.md`
 
 ## Transversal Domain Boundary
 

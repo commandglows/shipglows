@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-04"
+updated: "2026-08-07"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: skill-launch-cheatsheet
@@ -65,6 +65,17 @@ They own the outcome from clarification through appropriate implementation,
 proof, documentation reflection, and closure. Shipping, deployment, external
 publication, secrets, destructive actions, and device-only proof still require
 their normal explicit safeguards.
+
+## Veille, concurrent, inspiration
+
+Une URL peut être précédée d'un mot-clé court :
+
+- `veille <URL>` : analyser la source ; elle n'est pas ajoutée automatiquement au registre.
+- `concurrent <URL>` : ajouter la référence au registre interne des concurrents après vérification de la source et des doublons.
+- `inspiration <URL>` : ajouter la référence au registre interne des inspirations selon les mêmes contrôles.
+- `veille concurrent <URL>` ou `veille inspiration <URL>` : la veille prime ; la source est analysée avant toute décision de conservation.
+
+Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si tu attends une analyse approfondie plutôt qu'un simple enregistrement.
 
 | Domain | Public skill | Owns | Current internal engine(s) |
 | --- | --- | --- | --- |
