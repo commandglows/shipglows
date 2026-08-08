@@ -15,6 +15,7 @@ ne sont pas requis par le parcours Shadow PC.
 - ✅ Tunnels SSH avec OpenSSH natif
 - ✅ DevServer natif Astro, Python/FastAPI et Flutter Web en mode full
 - ✅ Clone et registre local des dépôts dans `%USERPROFILE%\ShipGlows\workspace`
+- ✅ Git et GitHub CLI installés automatiquement pour parcourir et cloner les dépôts privés
 
 1. **Lancer le bootstrap unique ShipGlows:**
 
@@ -39,8 +40,10 @@ ne sont pas requis par le parcours Shadow PC.
 
    Le bootstrap télécharge l'archive publique ShipGlows sans Git, installe
    automatiquement Gum dans le runtime ShipGlows pour le menu interactif,
-   puis lance l'installation locale native. Il ne
-   demande ni Git, ni `sudo`, ni WSL, ni `autossh`.
+   puis installe Git et GitHub CLI avec WinGet en mode full. Il ne demande ni
+   `sudo`, ni WSL, ni `autossh`. Au premier accès aux dépôts privés, GitHub CLI
+   ouvre son authentification officielle dans le navigateur; ShipGlows ne lit
+   et ne stocke jamais le token.
 
    Le bootstrap teste l'exécution réelle de WSL (`wsl.exe -e sh -lc "printf ok"`)
    au lieu de considérer la seule présence de `wsl.exe` comme une preuve de
@@ -51,9 +54,9 @@ ne sont pas requis par le parcours Shadow PC.
    ```powershell
    shipglows-dev
    ```
-   Les outils des dépôts doivent être disponibles sur Windows: Git, Node/npm
-   ou pnpm, uv, et Flutter selon le projet. Flox, PM2, Caddy et autossh sont
-   remplacés par les commandes natives et le registre ShipGlows.
+   Git et GitHub CLI sont préparés par ShipGlows. Node/npm ou pnpm, uv et
+   Flutter doivent encore être disponibles selon le projet. Flox, PM2, Caddy
+   et autossh sont remplacés par les commandes natives et le registre ShipGlows.
 
 4. **Ou exécuter le script d'installation depuis une copie existante:**
    ```powershell

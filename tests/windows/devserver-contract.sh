@@ -21,8 +21,13 @@ rg -n "gumVersion = '0\.17\.0'|gumSha256 = 'B2BE80531C6BABC8D4E0E6CA95773D58118A
 rg -n 'Get-FileHash .*SHA256|github\.com/charmbracelet/gum/releases/download' "$INSTALLER"
 rg -n 'gum_\$\{gumVersion\}_Windows_x86_64/gum\.exe' "$INSTALLER"
 rg -n 'Get-SgGumCommand|gum choose|Read-SgChoice' "$ENTRYPOINT"
+rg -n "Install-SgWingetPackage 'git\.exe' 'Git\.Git'|Install-SgWingetPackage 'gh\.exe' 'GitHub\.cli'" "$INSTALLER"
+rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh repo list --limit 200|gh repo clone' "$ENTRYPOINT"
+! rg -n 'gh auth token|GH_TOKEN|GITHUB_TOKEN' "$ENTRYPOINT" "$INSTALLER"
 rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"
-rg -n "cli/windows/(ShipGlows\\.DevServer\\.psm1|shipglows-devserver\\.ps1|install-devserver\\.ps1)" "$BOOTSTRAP"
+for windows_file in 'ShipGlows\.DevServer\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
+  rg -n "$windows_file" "$BOOTSTRAP"
+done
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
 ! rg -n '\$windowsCandidates = @\([^)]*\) \| Where-Object' "$BOOTSTRAP"
 rg -n "127\\.0\\.0\\.1|registry\\.json|registry\\.lock|commandSignature|startTimeUtc" "$MODULE"

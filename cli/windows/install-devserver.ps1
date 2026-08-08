@@ -19,6 +19,44 @@ $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
 Copy-Item -LiteralPath (Join-Path $sourceDir 'ShipGlows.DevServer.psm1') -Destination $runtimeDir -Force
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
 
+function Update-SgProcessPath {
+    $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine')
+    $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+    $env:Path = @($machinePath, $userPath) -join ';'
+}
+
+function Test-SgTool([string]$Name, [string[]]$KnownPaths = @()) {
+    if (Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue) { return $true }
+    foreach ($path in $KnownPaths) {
+        if ($path -and (Test-Path -LiteralPath $path -PathType Leaf)) { return $true }
+    }
+    return $false
+}
+
+function Install-SgWingetPackage([string]$Name, [string]$PackageId, [string[]]$KnownPaths = @()) {
+    if (Test-SgTool $Name $KnownPaths) {
+        Write-Host "$Name is already installed." -ForegroundColor Green
+        return $true
+    }
+    $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $winget) {
+        Write-Warning "WinGet is unavailable; $Name could not be installed automatically."
+        return $false
+    }
+    try {
+        Write-Host "Installing $Name..." -ForegroundColor Cyan
+        & $winget.Source install --id $PackageId --exact --source winget --accept-package-agreements --accept-source-agreements --silent
+        if ($LASTEXITCODE -ne 0) { throw "$Name installation returned exit code $LASTEXITCODE." }
+        Update-SgProcessPath
+        if (-not (Test-SgTool $Name $KnownPaths)) { throw "$Name was installed but is not discoverable yet." }
+        Write-Host "$Name installed." -ForegroundColor Green
+        return $true
+    } catch {
+        Write-Warning "$Name could not be installed automatically: $($_.Exception.Message)"
+        return $false
+    }
+}
+
 function Install-SgGum {
     $destination = Join-Path $runtimeDir 'gum.exe'
     if (Test-Path -LiteralPath $destination -PathType Leaf) {
@@ -65,6 +103,12 @@ function Install-SgGum {
 }
 
 [void](Install-SgGum)
+$programFiles = [Environment]::GetFolderPath('ProgramFiles')
+$programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
+$gitPaths = @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe'))
+$ghPaths = @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe'))
+[void](Install-SgWingetPackage 'git.exe' 'Git.Git' $gitPaths)
+[void](Install-SgWingetPackage 'gh.exe' 'GitHub.cli' $ghPaths)
 
 if (-not $SkipProfile) {
     $profilePath = $PROFILE
@@ -87,12 +131,13 @@ Write-Host "Workspace: $Workspace"
 Write-Host "Command: shipglows-dev"
 Write-Host ''
 Write-Host 'Dependency check:' -ForegroundColor Yellow
-foreach ($tool in @('gum','git','node','npm','uv','flutter')) {
+foreach ($tool in @('gum','git','gh','node','npm','uv','flutter')) {
     if ($tool -eq 'gum' -and (Test-Path -LiteralPath (Join-Path $runtimeDir 'gum.exe') -PathType Leaf)) {
         Write-Host "  [ok]   gum" -ForegroundColor Green
         continue
     }
-    $found = Get-Command $tool -ErrorAction SilentlyContinue
+    $knownPaths = if ($tool -eq 'git') { $gitPaths } elseif ($tool -eq 'gh') { $ghPaths } else { @() }
+    $found = Test-SgTool "$tool.exe" $knownPaths
     if ($found) { Write-Host "  [ok]   $tool" -ForegroundColor Green }
     else { Write-Host "  [miss] $tool (install it or use the project-specific setup instructions)" -ForegroundColor Yellow }
 }

@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.1"
+artifact_version: "0.2.2"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-08"
-updated_at: "2026-08-08 15:42:00 UTC"
+updated_at: "2026-08-08 17:37:42 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -49,10 +49,10 @@ depends_on:
     artifact_version: "1.7.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/runtime-cli.md"
-    artifact_version: "1.0.25"
+    artifact_version: "1.0.26"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/installer-and-user-scope.md"
-    artifact_version: "1.1.0"
+    artifact_version: "1.1.1"
     required_status: "reviewed"
 supersedes: []
 evidence:
@@ -201,6 +201,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 
 - Windows 10/11 environment supplied by Shadow PC, with Windows PowerShell 5.1 available.
 - Git for Windows for clone operations; existing repos can still be registered when Git installation is unavailable.
+- GitHub CLI for browser authentication and searchable private/public repository discovery; `gh` exclusively owns credentials and ShipGlows never reads or stores tokens.
 - Node.js LTS and pnpm for Astro. npm is used only when the repo owns `package-lock.json`.
 - `uv` for Python version/environment/dependency ownership. `uv run` and `uv sync --locked` are the preferred project paths.
 - Flutter SDK for Windows with web support and a browser available on the Shadow desktop.
@@ -390,6 +391,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - [ ] AC18: Given documentation is prepared for release, when capability claims are checked against the Shadow checklist, then only Astro, supported Python/FastAPI conventions and Flutter Web are advertised.
 - [ ] AC19: Given Shadow disconnects or shuts down, when ShipGlows is relaunched, then it reconciles ephemeral process state and never attempts persistence, public hosting or an automatic-shutdown bypass.
 - [ ] AC20: Given a Windows full installation on x86-64, when Gum is absent, then the installer downloads the pinned official Windows release, validates its SHA-256 checksum, installs it inside the ShipGlows runtime without requiring PATH or WinGet, and the DevServer uses its interactive chooser; when installation fails, the PowerShell fallback remains usable.
+- [ ] AC21: Given Git or GitHub CLI is absent during Windows full installation, when WinGet is available, then both are installed automatically; when the operator selects GitHub browsing, official browser authentication is offered if needed, up to 200 accessible private/public repositories are searchable through Gum, and the selected repository is cloned without ShipGlows reading or storing credentials.
 - [ ] AC20: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
 
 # Test Strategy
@@ -467,6 +469,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-08 14:20:00 UTC | 106-sg-fix | GPT-5 Codex | Diagnosed the menu error-handler failure after the dashboard rendered: the launcher called module-owned `Write-SgInfo`, `Write-SgWarn`, and `Write-SgError`, but those functions were not exported. Exported all three and added a focused module-contract assertion. | Static Windows contract passes; Shadow menu retest remains pending. | Push the module, refresh the full installation, then exercise menu choices. |
 | 2026-08-08 14:49:00 UTC | 001-sg-build | GPT-5 Codex | Added an autonomous native Windows Gum installation and Gum-backed action/project/input selectors. The official x86-64 release is pinned, SHA-256 verified and installed beside the launcher without WinGet or PATH changes; the PowerShell frontend remains the recovery path. | Static Windows contract and archive checksum proof pass; Windows PowerShell 5.1 runtime proof remains pending on Shadow. | Publish the bounded change, reinstall full on Shadow, and verify Gum rendering plus fallback behavior. |
 | 2026-08-08 15:42:00 UTC | 103-sg-verify | GPT-5 Codex | Recorded operator-supplied Shadow PowerShell 5.1 evidence for commit `e5d11c723cee42f97471e923bfae44a72a35b911`: full mode downloaded the native files, installed Gum 0.17.0 automatically, and reported Gum available without a restart. | Automatic Gum installation on the target Shadow host is proven; interactive chooser rendering and supported-stack lifecycle proof remain pending. | Launch the direct bypass entrypoint and verify the Gum chooser in WezTerm. |
+| 2026-08-08 17:37:42 UTC | 001-sg-build | GPT-5 Codex | Added Windows full installation of Git and GitHub CLI through WinGet plus a Gum-backed GitHub repository browser. Authentication uses the official `gh` browser flow and clone uses `gh repo clone`; ShipGlows does not inspect tokens. | Static contract and documentation validation pending; Shadow installation/auth/private clone proof remains pending. | Validate, publish, reinstall on Shadow, then authenticate and clone one private repository. |
 
 # Current Chantier Flow
 

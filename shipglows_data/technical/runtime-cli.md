@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.25"
+artifact_version: "1.0.26"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-08"
@@ -44,6 +44,7 @@ evidence:
   - "Aggressive disk cleanup preserves PNPM homes, configured stores, and global PNPM binaries."
   - "Disk details and PM2 log cleanup/rotation added to explain and cap disk usage."
   - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
+  - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser."
   - "Main menu session identity now renders inside the top status header."
   - "Subcommand screen headers now route through a shared modular header helper."
   - "Nested menus and search selectors now preserve the ShipGlows DevServer title treatment."

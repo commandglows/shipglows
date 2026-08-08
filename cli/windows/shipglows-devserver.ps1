@@ -23,7 +23,27 @@ function Get-SgGumCommand {
     return $null
 }
 
+function Get-SgApplication([string]$Name, [string[]]$KnownPaths = @()) {
+    $command = Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($command) { return $command.Source }
+    foreach ($path in $KnownPaths) {
+        if ($path -and (Test-Path -LiteralPath $path -PathType Leaf)) { return $path }
+    }
+    return $null
+}
+
 $gum = Get-SgGumCommand
+$programFiles = [Environment]::GetFolderPath('ProgramFiles')
+$programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
+$git = Get-SgApplication 'git.exe' @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe'))
+$gh = Get-SgApplication 'gh.exe' @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe'))
+
+function Get-SgSelectedIndex([string[]]$Labels, [string]$Selected) {
+    for ($index = 0; $index -lt $Labels.Count; $index++) {
+        if ($Labels[$index] -eq $Selected) { return $index }
+    }
+    return -1
+}
 
 function Read-SgInput([string]$Prompt, [string]$Placeholder = '') {
     if (-not $gum) { return Read-Host $Prompt }
@@ -49,7 +69,7 @@ function Get-SelectedProject {
         $labels = @($items | ForEach-Object { "$($_.name)  [$($_.status)]  $($_.kind)  :$($_.port)" })
         $selected = Read-SgChoice 'Choose a project' $labels
         if (-not $selected) { return $null }
-        $index = [Array]::IndexOf([string[]]$labels, $selected)
+        $index = Get-SgSelectedIndex $labels $selected
         if ($index -lt 0) { return $null }
         return $items[$index]
     } else {
@@ -60,18 +80,67 @@ function Get-SelectedProject {
     }
 }
 
-function Invoke-Clone {
+function Invoke-SgGitHubLogin {
+    if (-not $gh) { throw 'GitHub CLI is unavailable. Rerun the ShipGlows full installer.' }
+    & $gh auth status --hostname github.com *> $null
+    if ($LASTEXITCODE -eq 0) { return $true }
+    Write-SgInfo 'GitHub authentication will open in your browser. ShipGlows never reads or stores your token.'
+    & $gh auth login --hostname github.com --git-protocol https --web
+    if ($LASTEXITCODE -ne 0) { throw 'GitHub authentication was cancelled or failed.' }
+    & $gh auth setup-git
+    if ($LASTEXITCODE -ne 0) { throw 'GitHub authentication succeeded but Git credential setup failed.' }
+    return $true
+}
+
+function Invoke-SgGitHubClone {
+    if (-not $gum) { throw 'The GitHub repository browser requires Gum; use Enter Git URL instead.' }
+    [void](Invoke-SgGitHubLogin)
+    $json = (& $gh repo list --limit 200 --json nameWithOwner,description,isPrivate,url | Out-String)
+    if ($LASTEXITCODE -ne 0) { throw 'GitHub repository listing failed.' }
+    $repositories = @($json | ConvertFrom-Json)
+    if ($repositories.Count -eq 0) { throw 'No GitHub repositories are available for this account.' }
+    $labels = @($repositories | ForEach-Object {
+        $visibility = if ($_.isPrivate) { 'private' } else { 'public' }
+        $description = if ($_.description) { " - $($_.description)" } else { '' }
+        "$($_.nameWithOwner)  [$visibility]$description"
+    })
+    $selected = Read-SgChoice 'Search your GitHub repositories' $labels
+    if (-not $selected) { return }
+    $index = Get-SgSelectedIndex $labels $selected
+    if ($index -lt 0) { throw 'The selected GitHub repository could not be resolved.' }
+    $repository = $repositories[$index]
+    $name = @($repository.nameWithOwner -split '/')[-1]
+    $destination = Join-Path $config.Workspace $name
+    if (Test-Path -LiteralPath $destination) { throw "Clone destination already exists: $destination" }
+    & $gh repo clone $repository.nameWithOwner $destination
+    if ($LASTEXITCODE -ne 0) { throw 'GitHub repository clone failed.' }
+    Register-SgProject $config $destination | Out-Null
+    Write-SgInfo "Registered clone: $destination"
+}
+
+function Invoke-CloneUrl {
     $url = if ($RepositoryUrl) { $RepositoryUrl } else { Read-SgInput 'Git URL' 'https://github.com/owner/repository.git' }
     if (-not $url) { return }
     if (-not (Test-SgGitUrl $url)) { throw 'Only HTTPS and SSH Git URLs without embedded credentials are accepted.' }
+    if (-not $git) { throw 'Git is unavailable. Rerun the ShipGlows full installer.' }
     $name = (Split-Path ($url -replace '\.git$','') -Leaf)
     $destination = Join-Path $config.Workspace $name
     if (Test-Path -LiteralPath $destination) { throw "Clone destination already exists: $destination" }
     Ensure-SgDirectory $config.Workspace
-    & git.exe clone -- $url $destination
+    & $git clone -- $url $destination
     if ($LASTEXITCODE -ne 0) { throw 'Git clone failed.' }
     Register-SgProject $config $destination | Out-Null
     Write-SgInfo "Registered clone: $destination"
+}
+
+function Invoke-Clone {
+    if ($RepositoryUrl -or -not $gum) { Invoke-CloneUrl; return }
+    $choice = Read-SgChoice 'Clone a repository' @('Browse my GitHub repositories','Enter a Git URL','Back')
+    switch ($choice) {
+        'Browse my GitHub repositories' { Invoke-SgGitHubClone }
+        'Enter a Git URL' { Invoke-CloneUrl }
+        default { return }
+    }
 }
 
 function Invoke-Logs($entry) {
