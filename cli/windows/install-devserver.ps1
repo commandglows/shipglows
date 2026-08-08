@@ -25,6 +25,43 @@ function Update-SgProcessPath {
     $env:Path = @($machinePath, $userPath) -join ';'
 }
 
+function Add-SgRuntimeToUserPath {
+    $currentUserPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+    $entries = @($currentUserPath -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $alreadyPresent = $false
+    foreach ($entry in $entries) {
+        if ($entry.TrimEnd('\') -eq $runtimeDir.TrimEnd('\')) { $alreadyPresent = $true; break }
+    }
+    if (-not $alreadyPresent) {
+        $nextPath = @($runtimeDir) + $entries
+        [Environment]::SetEnvironmentVariable('Path', ($nextPath -join ';'), 'User')
+    }
+    Update-SgProcessPath
+}
+
+function Install-SgCommandWrappers {
+    $wrapper = @'
+@echo off
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0shipglows-devserver.ps1" %*
+'@
+    $longCommand = Join-Path $runtimeDir 'shipglows-dev.cmd'
+    Set-Content -LiteralPath $longCommand -Value $wrapper -Encoding ASCII
+    Add-SgRuntimeToUserPath
+
+    $shortCommand = Join-Path $runtimeDir 's.cmd'
+    $existing = Get-Command s -ErrorAction SilentlyContinue | Select-Object -First 1
+    $canUseShortCommand = -not $existing
+    if ($existing -and $existing.Source) {
+        try { $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortCommand) } catch { }
+    }
+    if ($canUseShortCommand) {
+        Set-Content -LiteralPath $shortCommand -Value $wrapper -Encoding ASCII
+        Write-Host 'Short command installed: s' -ForegroundColor Green
+    } else {
+        Write-Warning "The command 's' is already used by $($existing.Source). ShipGlows kept the non-conflicting command: shipglows-dev."
+    }
+}
+
 function Test-SgTool([string]$Name, [string[]]$KnownPaths = @()) {
     if (Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue) { return $true }
     foreach ($path in $KnownPaths) {
@@ -103,6 +140,7 @@ function Install-SgGum {
     }
 }
 
+Install-SgCommandWrappers
 [void](Install-SgGum)
 $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
@@ -130,7 +168,7 @@ function shipglows-dev { & '$launcher' @args }
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green
 Write-Host "Workspace: $Workspace"
-Write-Host "Command: shipglows-dev"
+Write-Host 'Commands: s (short) or shipglows-dev'
 Write-Host ''
 Write-Host 'Dependency check:' -ForegroundColor Yellow
 foreach ($tool in @('gum','git','gh','node','npm','uv','flutter')) {
@@ -143,4 +181,4 @@ foreach ($tool in @('gum','git','gh','node','npm','uv','flutter')) {
     if ($found) { Write-Host "  [ok]   $tool" -ForegroundColor Green }
     else { Write-Host "  [miss] $tool (install it or use the project-specific setup instructions)" -ForegroundColor Yellow }
 }
-Write-Host 'Open a new PowerShell session, then run: shipglows-dev'
+Write-Host 'Run now: s'

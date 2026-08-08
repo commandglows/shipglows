@@ -52,8 +52,11 @@ ne sont pas requis par le parcours Shadow PC.
 
 3. **Lancer le DevServer:**
    ```powershell
-   shipglows-dev
+   s
    ```
+   `shipglows-dev` reste disponible comme commande explicite. Ces commandes
+   n'utilisent pas le profil PowerShell, donc elles fonctionnent aussi quand
+   l'execution des scripts de profil est interdite.
    Git et GitHub CLI sont préparés par ShipGlows. Node/npm ou pnpm, uv et
    Flutter doivent encore être disponibles selon le projet. Flox, PM2, Caddy
    et autossh sont remplacés par les commandes natives et le registre ShipGlows.
