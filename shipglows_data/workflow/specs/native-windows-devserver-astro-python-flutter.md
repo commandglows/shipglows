@@ -455,6 +455,8 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-08 00:25:00 UTC | 101-sg-ready | GPT-5 Codex | Completed adversarial readiness review and added the required OWASP Security Gate for public PowerShell bootstrap, process command construction, path validation and artifact integrity. | Ready; implementation, Windows host proof, hosted endpoint proof and closure remain pending. | Start the bounded implementation wave. |
 | 2026-08-08 04:18:00 UTC | 102-sg-start | GPT-5 Codex | Implemented the native PowerShell DevServer module/entrypoint, full Windows bootstrap extraction, launcher/profile installer, public EN/FR windows-full commands, CommandGlows generated PowerShell parity, and static/test contracts. | ShipGlows static contract passed; CommandGlows targeted tests 96/96 and Astro check 0 errors/1 hint; native PowerShell parser and Shadow runtime proof remain pending. | Run the Windows Parser/Smoke matrix and hosted endpoint proof. |
 | 2026-08-08 04:25:00 UTC | 102-sg-start | GPT-5 Codex | Corrected the Windows mode boundary after operator review: `full` now installs only the local DevServer; `local` remains the optional SSH tunnel path. Updated bootstrap branching, public notes, README and acceptance criteria. | Static revalidation pending; no tunnel is invoked by the full branch. | Re-run public tests and Windows Parser/Smoke matrix. |
+| 2026-08-08 13:10:00 UTC | 005-sg-ship | GPT-5 Codex | Shipped the bounded ShipGlows bootstrap semantics and the matching CommandGlows public PowerShell artifact/page commit. | Both `main` branches pushed; ShipGlows static contract and CommandGlows 96 targeted tests passed, Astro check has 0 errors and 1 existing hint; Vercel propagation and Shadow runtime proof remain pending. | Confirm the hosted endpoint, then run the Shadow full-install smoke. |
+| 2026-08-08 13:10:00 UTC | 004-sg-deploy | GPT-5 Codex | Started release proof for the public Windows full bootstrap after both scoped commits reached their `main` branches. | Partial: production endpoint was still serving the prior artifact on first poll; no deployed claim yet. | Poll the matching Vercel deployment and verify the live artifact. |
 
 # Current Chantier Flow
 
@@ -465,4 +467,4 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 102-sg-start | complete | Native runtime, full bootstrap, launcher, public commands, docs and static contracts are implemented locally. |
 | 103-sg-verify | in_progress | Verify Windows PowerShell 5.1 behavior, Shadow reconnect/port recovery and public artifact deployment parity. |
 | 104-sg-end | pending | Close only after real Shadow proof and documentation coherence. |
-| 005-sg-ship | pending | Commit/push remains separately authorized. |
+| 005-sg-ship | complete | ShipGlows and CommandGlows scoped commits are pushed to their respective `main` branches. |
