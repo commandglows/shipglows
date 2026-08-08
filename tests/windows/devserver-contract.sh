@@ -22,6 +22,7 @@ rg -n 'Get-FileHash .*SHA256|github\.com/charmbracelet/gum/releases/download' "$
 rg -n 'gum_\$\{gumVersion\}_Windows_x86_64/gum\.exe' "$INSTALLER"
 rg -n 'Get-SgGumCommand|gum choose|Read-SgChoice' "$ENTRYPOINT"
 rg -n "Install-SgWingetPackage 'git\.exe' 'Git\.Git'|Install-SgWingetPackage 'gh\.exe' 'GitHub\.cli'" "$INSTALLER"
+rg -n 'keep this window open|WinGet can take several minutes|\| Out-Host' "$INSTALLER"
 rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh repo list --limit 200|gh repo clone' "$ENTRYPOINT"
 ! rg -n 'gh auth token|GH_TOKEN|GITHUB_TOKEN' "$ENTRYPOINT" "$INSTALLER"
 rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"

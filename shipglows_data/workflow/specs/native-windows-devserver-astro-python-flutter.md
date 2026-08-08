@@ -6,7 +6,7 @@ project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-08"
-updated_at: "2026-08-08 17:37:42 UTC"
+updated_at: "2026-08-08 17:52:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -470,6 +470,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-08 14:49:00 UTC | 001-sg-build | GPT-5 Codex | Added an autonomous native Windows Gum installation and Gum-backed action/project/input selectors. The official x86-64 release is pinned, SHA-256 verified and installed beside the launcher without WinGet or PATH changes; the PowerShell frontend remains the recovery path. | Static Windows contract and archive checksum proof pass; Windows PowerShell 5.1 runtime proof remains pending on Shadow. | Publish the bounded change, reinstall full on Shadow, and verify Gum rendering plus fallback behavior. |
 | 2026-08-08 15:42:00 UTC | 103-sg-verify | GPT-5 Codex | Recorded operator-supplied Shadow PowerShell 5.1 evidence for commit `e5d11c723cee42f97471e923bfae44a72a35b911`: full mode downloaded the native files, installed Gum 0.17.0 automatically, and reported Gum available without a restart. | Automatic Gum installation on the target Shadow host is proven; interactive chooser rendering and supported-stack lifecycle proof remain pending. | Launch the direct bypass entrypoint and verify the Gum chooser in WezTerm. |
 | 2026-08-08 17:37:42 UTC | 001-sg-build | GPT-5 Codex | Added Windows full installation of Git and GitHub CLI through WinGet plus a Gum-backed GitHub repository browser. Authentication uses the official `gh` browser flow and clone uses `gh repo clone`; ShipGlows does not inspect tokens. | Static contract and documentation validation pending; Shadow installation/auth/private clone proof remains pending. | Validate, publish, reinstall on Shadow, then authenticate and clone one private repository. |
+| 2026-08-08 17:52:00 UTC | 106-sg-fix | GPT-5 Codex | Recorded successful Shadow installation of Git and GitHub CLI and corrected the misleading silent wait: WinGet output is now visible and the installer explicitly warns that first-time package installation can take several minutes without closing the window. | Target installation of Gum, Git and gh is proven; the clearer progress UX and private repository browser still need Shadow runtime confirmation. | Publish the UX correction, then launch the menu and browse one private repository. |
 
 # Current Chantier Flow
 

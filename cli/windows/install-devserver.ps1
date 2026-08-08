@@ -45,7 +45,8 @@ function Install-SgWingetPackage([string]$Name, [string]$PackageId, [string[]]$K
     }
     try {
         Write-Host "Installing $Name..." -ForegroundColor Cyan
-        & $winget.Source install --id $PackageId --exact --source winget --accept-package-agreements --accept-source-agreements --silent
+        Write-Host 'Please wait and keep this window open. WinGet can take several minutes and may appear idle while Windows completes the installation.' -ForegroundColor Yellow
+        & $winget.Source install --id $PackageId --exact --source winget --accept-package-agreements --accept-source-agreements --silent | Out-Host
         if ($LASTEXITCODE -ne 0) { throw "$Name installation returned exit code $LASTEXITCODE." }
         Update-SgProcessPath
         if (-not (Test-SgTool $Name $KnownPaths)) { throw "$Name was installed but is not discoverable yet." }
@@ -107,6 +108,7 @@ $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
 $gitPaths = @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe'))
 $ghPaths = @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe'))
+Write-Host 'Preparing Windows developer tools. This step can take a few minutes on the first installation.' -ForegroundColor Yellow
 [void](Install-SgWingetPackage 'git.exe' 'Git.Git' $gitPaths)
 [void](Install-SgWingetPackage 'gh.exe' 'GitHub.cli' $ghPaths)
 
