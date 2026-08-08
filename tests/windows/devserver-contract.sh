@@ -16,6 +16,7 @@ done
 ! rg -n '"[^"\n]*\$[A-Za-z_][A-Za-z0-9_]*:' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
 ! rg -n 'New-Item[^\n]*-LiteralPath' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
 rg -n 'Import-Module .*DisableNameChecking' "$ENTRYPOINT"
+rg -n 'Export-ModuleMember -Function .*Write-SgInfo,Write-SgWarn,Write-SgError' "$MODULE"
 rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"
 rg -n "cli/windows/(ShipGlows\\.DevServer\\.psm1|shipglows-devserver\\.ps1|install-devserver\\.ps1)" "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
