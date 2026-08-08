@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.24"
+artifact_version: "1.0.25"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-08"
@@ -43,6 +43,7 @@ evidence:
   - "Disk cleanup menus now target heavier real-world dev caches and workspace build artifacts such as Gradle caches, Dart analysis cache, pub cache, node_modules, venvs, and common frontend build directories."
   - "Aggressive disk cleanup preserves PNPM homes, configured stores, and global PNPM binaries."
   - "Disk details and PM2 log cleanup/rotation added to explain and cap disk usage."
+  - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
   - "Main menu session identity now renders inside the top status header."
   - "Subcommand screen headers now route through a shared modular header helper."
   - "Nested menus and search selectors now preserve the ShipGlows DevServer title treatment."
@@ -70,6 +71,7 @@ This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, a
 | `cli/shipglows.sh` | Thin CLI entrypoint that sources runtime and menu files, then calls `main` | Keep thin; do not move business logic here |
 | `cli/lib.sh` | Main orchestration library for UI, validation, PM2/Flox/Caddy operations, health, deploy, publish, and actions | High blast radius; prefer focused changes and syntax checks |
 | `cli/shipglows_devserver_gum.sh`, `cli/shipglows_devserver_bash.sh` | Menu frontends that render the root menu and grouped submenus | Keep frontend behavior equivalent; update both variants together |
+| `cli/windows/install-devserver.ps1`, `cli/windows/shipglows-devserver.ps1` | Native Windows dependency bootstrap and DevServer frontend | Install the pinned checksum-verified Gum binary into the user runtime, prefer it for interactive choices, and preserve the plain PowerShell fallback |
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
 | `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Keep PowerShell 5.1-compatible; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |

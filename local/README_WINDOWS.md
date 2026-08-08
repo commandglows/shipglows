@@ -38,7 +38,8 @@ ne sont pas requis par le parcours Shadow PC.
    `-Branch`, `-Tag` et `-Ref` sont aussi acceptés comme alias.
 
    Le bootstrap télécharge l'archive publique ShipGlows sans Git, installe
-   OpenSSH si nécessaire, puis lance l'installation locale native. Il ne
+   automatiquement Gum dans le runtime ShipGlows pour le menu interactif,
+   puis lance l'installation locale native. Il ne
    demande ni Git, ni `sudo`, ni WSL, ni `autossh`.
 
    Le bootstrap teste l'exécution réelle de WSL (`wsl.exe -e sh -lc "printf ok"`)
@@ -158,7 +159,7 @@ Créez une paire différente sur chaque appareil et ne copiez jamais le fichier 
 | Fonctionnalité | WSL | PowerShell | Git Bash |
 |----------------|-----|------------|----------|
 | Tunnels automatiques (autossh) | ✅ | ❌ | ❌ |
-| Menu interactif | ✅ | ❌ | ❌ |
+| Menu interactif | ✅ | ✅ Gum natif | ❌ |
 | Simplicité | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ |
 | Compatibilité scripts | ✅ 100% | ⭐ 70% | ⭐ 80% |
 | Performance | ✅ Excellent | ✅ Excellent | ✅ Bon |

@@ -15,18 +15,54 @@ $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
 
+function Get-SgGumCommand {
+    $bundled = Join-Path $PSScriptRoot 'gum.exe'
+    if (Test-Path -LiteralPath $bundled -PathType Leaf) { return $bundled }
+    $command = Get-Command gum.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($command) { return $command.Source }
+    return $null
+}
+
+$gum = Get-SgGumCommand
+
+function Read-SgInput([string]$Prompt, [string]$Placeholder = '') {
+    if (-not $gum) { return Read-Host $Prompt }
+    $arguments = @('input','--prompt',"$Prompt ")
+    if ($Placeholder) { $arguments += @('--placeholder',$Placeholder) }
+    $value = (& $gum @arguments | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) { return $null }
+    return $value
+}
+
+function Read-SgChoice([string]$Header, [string[]]$Options) {
+    if (-not $gum) { return $null }
+    $value = (& $gum choose --header $Header --cursor-prefix '> ' --selected-prefix '* ' @Options | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) { return $null }
+    return $value
+}
+
 function Get-SelectedProject {
     $registry = Reconcile-SgRegistry $config
     $items = @($registry.projects)
     if ($items.Count -eq 0) { Write-SgWarn 'No registered projects.'; return $null }
-    Show-SgDashboard $config
-    $choice = Read-Host 'Project number'
-    if ($choice -notmatch '^\d+$' -or [int]$choice -lt 1 -or [int]$choice -gt $items.Count) { Write-SgWarn 'Invalid project number.'; return $null }
-    return $items[[int]$choice - 1]
+    if ($gum) {
+        $labels = @($items | ForEach-Object { "$($_.name)  [$($_.status)]  $($_.kind)  :$($_.port)" })
+        $selected = Read-SgChoice 'Choose a project' $labels
+        if (-not $selected) { return $null }
+        $index = [Array]::IndexOf([string[]]$labels, $selected)
+        if ($index -lt 0) { return $null }
+        return $items[$index]
+    } else {
+        Show-SgDashboard $config
+        $choice = Read-Host 'Project number'
+        if ($choice -notmatch '^\d+$' -or [int]$choice -lt 1 -or [int]$choice -gt $items.Count) { Write-SgWarn 'Invalid project number.'; return $null }
+        return $items[[int]$choice - 1]
+    }
 }
 
 function Invoke-Clone {
-    $url = if ($RepositoryUrl) { $RepositoryUrl } else { Read-Host 'Git URL (https or SSH)' }
+    $url = if ($RepositoryUrl) { $RepositoryUrl } else { Read-SgInput 'Git URL' 'https://github.com/owner/repository.git' }
+    if (-not $url) { return }
     if (-not (Test-SgGitUrl $url)) { throw 'Only HTTPS and SSH Git URLs without embedded credentials are accepted.' }
     $name = (Split-Path ($url -replace '\.git$','') -Leaf)
     $destination = Join-Path $config.Workspace $name
@@ -45,14 +81,32 @@ function Invoke-Logs($entry) {
 }
 
 function Invoke-Menu {
+    $menuItems = @(
+        '1  Clone a repository',
+        '2  Register a local project',
+        '3  Start a project',
+        '4  Stop a project',
+        '5  Restart a project',
+        '6  View logs',
+        '7  Open in browser',
+        '8  Stop all projects',
+        '9  Refresh',
+        '0  Exit'
+    )
     while ($true) {
         Show-SgDashboard $config
-        Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Refresh  0) Exit'
-        $choice = Read-Host 'Choice'
+        if ($gum) {
+            $selected = Read-SgChoice 'What do you want to do?' $menuItems
+            if (-not $selected) { return }
+            $choice = $selected.Substring(0,1)
+        } else {
+            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Refresh  0) Exit'
+            $choice = Read-Host 'Choice'
+        }
         try {
             switch ($choice) {
                 '1' { Invoke-Clone }
-                '2' { $path = Read-Host "Project path [$($config.Workspace)]"; Register-SgProject $config $path | Out-Null }
+                '2' { $path = Read-SgInput 'Project path' $config.Workspace; if ($path) { Register-SgProject $config $path | Out-Null } }
                 '3' { $entry = Get-SelectedProject; if ($entry) { Start-SgProject $config $entry.path $Port | Out-Null } }
                 '4' { $entry = Get-SelectedProject; if ($entry) { Stop-SgProject $config $entry.path } }
                 '5' { $entry = Get-SelectedProject; if ($entry) { Stop-SgProject $config $entry.path; Start-SgProject $config $entry.path $Port | Out-Null } }
@@ -64,7 +118,7 @@ function Invoke-Menu {
                 default { Write-SgWarn 'Unknown choice.' }
             }
         } catch { Write-SgError $_.Exception.Message }
-        Read-Host 'Press Enter to continue' | Out-Null
+        if (-not $gum) { Read-Host 'Press Enter to continue' | Out-Null }
     }
 }
 

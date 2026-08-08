@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.0"
+artifact_version: "0.2.1"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
-updated: "2026-08-07"
-updated_at: "2026-08-08 00:25:00 UTC"
+updated: "2026-08-08"
+updated_at: "2026-08-08 14:49:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -49,7 +49,7 @@ depends_on:
     artifact_version: "1.7.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/runtime-cli.md"
-    artifact_version: "1.0.24"
+    artifact_version: "1.0.25"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/installer-and-user-scope.md"
     artifact_version: "1.1.0"
@@ -205,6 +205,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - `uv` for Python version/environment/dependency ownership. `uv run` and `uv sync --locked` are the preferred project paths.
 - Flutter SDK for Windows with web support and a browser available on the Shadow desktop.
 - Windows Terminal when available; visible `powershell.exe`/`pwsh.exe` process fallback otherwise.
+- Gum `0.17.0` for the native interactive menu, installed into the ShipGlows user runtime from the official Charmbracelet release after pinned SHA-256 validation; the plain PowerShell menu remains the recovery fallback.
 - Existing `install-shipglows.ps1` distribution path for opt-in bootstrap integration.
 - CommandGlows public distribution authority at `https://www.commandglows.com/shipglows-script?format=powershell`, backed by `commandglows_site/src/generated/shipglows-installer.ps1`.
 - Fresh external docs verdict: `fresh-docs checked` on 2026-08-07 against:
@@ -322,7 +323,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
   - User story link: Restores the familiar ShipGlows operator loop on native Windows.
   - Depends on: Tasks 1-4.
   - Validate with: Scripted non-interactive command smoke plus manual Windows Terminal keyboard/navigation checklist.
-  - Notes: Keep labels in the operator language where existing ShipGlows localization permits; do not depend on Gum.
+  - Notes: Prefer the bundled, checksum-verified Windows Gum binary for choices and inputs; keep labels in the operator language where existing ShipGlows localization permits and retain the plain PowerShell menu as a recovery fallback.
 
 - [ ] Task 6: Add native Windows local/full bootstrap modes
   - File: `install-shipglows.ps1`, `cli/windows/install-devserver.ps1`
@@ -388,6 +389,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - [ ] AC17: Given the first implementation is complete, when existing Linux CLI/bootstrap tests run, then no Linux server lifecycle regression is introduced.
 - [ ] AC18: Given documentation is prepared for release, when capability claims are checked against the Shadow checklist, then only Astro, supported Python/FastAPI conventions and Flutter Web are advertised.
 - [ ] AC19: Given Shadow disconnects or shuts down, when ShipGlows is relaunched, then it reconciles ephemeral process state and never attempts persistence, public hosting or an automatic-shutdown bypass.
+- [ ] AC20: Given a Windows full installation on x86-64, when Gum is absent, then the installer downloads the pinned official Windows release, validates its SHA-256 checksum, installs it inside the ShipGlows runtime without requiring PATH or WinGet, and the DevServer uses its interactive chooser; when installation fails, the PowerShell fallback remains usable.
 - [ ] AC20: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
 
 # Test Strategy
@@ -463,6 +465,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-08 13:34:00 UTC | 106-sg-fix | GPT-5 Codex | Diagnosed the Shadow parser failure in `Get-SgCommandSignature`: PowerShell interpreted `$Kind:` and `$Port:` as scoped-variable syntax. Delimited both interpolations with `${...}` and added a static regression scan for interpolated variables followed by colons. | Static Windows contract, metadata lint and diff check pass; native Shadow parser retest remains pending. | Push the ShipGlows commit, then rerun the full installer against the new resolved commit. |
 | 2026-08-08 14:05:00 UTC | 106-sg-fix | GPT-5 Codex | Diagnosed the first launcher runtime failure on Windows PowerShell 5.1: `New-Item` does not expose `-LiteralPath` there. Switched directory creation to `-Path` and disabled the non-blocking unapproved-verb import warning. | Static contract now rejects `New-Item -LiteralPath`; Shadow runtime retest and push remain pending. | Push the module fix, rerun full installation, then launch the DevServer directly. |
 | 2026-08-08 14:20:00 UTC | 106-sg-fix | GPT-5 Codex | Diagnosed the menu error-handler failure after the dashboard rendered: the launcher called module-owned `Write-SgInfo`, `Write-SgWarn`, and `Write-SgError`, but those functions were not exported. Exported all three and added a focused module-contract assertion. | Static Windows contract passes; Shadow menu retest remains pending. | Push the module, refresh the full installation, then exercise menu choices. |
+| 2026-08-08 14:49:00 UTC | 001-sg-build | GPT-5 Codex | Added an autonomous native Windows Gum installation and Gum-backed action/project/input selectors. The official x86-64 release is pinned, SHA-256 verified and installed beside the launcher without WinGet or PATH changes; the PowerShell frontend remains the recovery path. | Static Windows contract and archive checksum proof pass; Windows PowerShell 5.1 runtime proof remains pending on Shadow. | Publish the bounded change, reinstall full on Shadow, and verify Gum rendering plus fallback behavior. |
 
 # Current Chantier Flow
 
