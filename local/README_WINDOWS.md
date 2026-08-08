@@ -30,6 +30,10 @@ ne sont pas requis par le parcours Shadow PC.
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer -InstallMode full
    ```
 
+   Sans `-InstallMode`, le script demande simplement si vous voulez les tunnels
+   SSH ou le DevServer local complet. Le DevServer (`full`) est recommandé pour
+   cloner et lancer vos projets sur le PC Windows.
+
    Pour forcer une version ou un tag précis :
 
    ```powershell

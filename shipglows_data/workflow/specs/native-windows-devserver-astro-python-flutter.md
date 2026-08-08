@@ -6,7 +6,7 @@ project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-08"
-updated_at: "2026-08-08 18:15:00 UTC"
+updated_at: "2026-08-08 18:35:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -88,7 +88,7 @@ L'operateur telecharge avec `curl.exe` le bootstrap PowerShell depuis l'endpoint
 # Success Behavior
 
 - Depuis Windows PowerShell 5.1 ou PowerShell 7, l'operateur peut lancer `s` ou `shipglows-dev` sans Bash, WSL, Docker, Flox, PM2, Caddy, `sudo` ou virtualisation imbriquee. Ces commandes `.cmd` ne dependent pas du profil PowerShell; `s` est installe seulement si le nom n'est pas deja occupe.
-- Le meme endpoint `https://www.commandglows.com/shipglows-script?format=powershell` sert l'installateur Windows local et full; `-InstallMode full` installe uniquement le DevServer natif, tandis que l'absence de mode preserve le comportement local historique.
+- Le meme endpoint `https://www.commandglows.com/shipglows-script?format=powershell` sert l'installateur Windows local et full; sans `-InstallMode`, une console interactive demande explicitement tunnel local ou DevServer full (full recommande). `-InstallMode local|full` reste disponible pour l'automatisation; une entree non interactive sans mode preserve le fallback local historique.
 - Le dashboard decouvre les projets enregistres, affiche `running`, `stopped`, `error` ou `unknown`, le type de projet, le port et l'URL locale.
 - Un clone Git reussi est place par defaut sous `%USERPROFILE%\ShipGlows\workspace\<repo>` et n'est enregistre qu'apres validation du chemin et du depot.
 - Astro respecte le lockfile existant, installe les dependances sans migration implicite, puis expose une URL `http://127.0.0.1:<port>`.
@@ -393,6 +393,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - [ ] AC20: Given a Windows full installation on x86-64, when Gum is absent, then the installer downloads the pinned official Windows release, validates its SHA-256 checksum, installs it inside the ShipGlows runtime without requiring PATH or WinGet, and the DevServer uses its interactive chooser; when installation fails, the PowerShell fallback remains usable.
 - [ ] AC21: Given Git or GitHub CLI is absent during Windows full installation, when WinGet is available, then both are installed automatically; when the operator selects GitHub browsing, official browser authentication is offered if needed, up to 200 accessible private/public repositories are searchable through Gum, and the selected repository is cloned without ShipGlows reading or storing credentials.
 - [ ] AC22: Given PowerShell profile execution is blocked, when Windows full installation completes and `s` is unclaimed, then the current and new shells resolve `s.cmd`, which launches the DevServer through `powershell.exe -NoProfile -ExecutionPolicy Bypass`; `shipglows-dev` remains available if `s` is already claimed.
+- [ ] AC23: Given the public Windows PowerShell bootstrap is launched without `-InstallMode` from an interactive console, when the installer starts, then it asks whether to install SSH tunnel local mode or the recommended Local DevServer full mode before downloading files; explicit mode arguments and non-interactive local fallback remain deterministic.
 - [ ] AC20: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
 
 # Test Strategy
@@ -473,6 +474,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-08 17:37:42 UTC | 001-sg-build | GPT-5 Codex | Added Windows full installation of Git and GitHub CLI through WinGet plus a Gum-backed GitHub repository browser. Authentication uses the official `gh` browser flow and clone uses `gh repo clone`; ShipGlows does not inspect tokens. | Static contract and documentation validation pending; Shadow installation/auth/private clone proof remains pending. | Validate, publish, reinstall on Shadow, then authenticate and clone one private repository. |
 | 2026-08-08 17:52:00 UTC | 106-sg-fix | GPT-5 Codex | Recorded successful Shadow installation of Git and GitHub CLI and corrected the misleading silent wait: WinGet output is now visible and the installer explicitly warns that first-time package installation can take several minutes without closing the window. | Target installation of Gum, Git and gh is proven; the clearer progress UX and private repository browser still need Shadow runtime confirmation. | Publish the UX correction, then launch the menu and browse one private repository. |
 | 2026-08-08 18:15:00 UTC | 001-sg-build | GPT-5 Codex | Replaced the profile-dependent Windows launcher with PATH-backed `.cmd` commands. `shipglows-dev` is always installed and `s` is installed when unclaimed; both invoke the launcher with the required no-profile execution-policy bypass. | Static contract pending; target proof requires a full refresh and direct `s` invocation on Shadow. | Validate, publish, rerun full installation, then execute `s`. |
+| 2026-08-08 18:35:00 UTC | 001-sg-build | GPT-5 Codex | Added a guided Windows install-mode choice when no explicit mode is supplied: SSH tunnels or recommended local DevServer. Explicit `-InstallMode` remains the non-interactive/automation override and noninteractive no-mode calls retain local fallback. | Static, public bootstrap parity and deployment validation pending; Shadow interactive prompt proof remains pending. | Synchronize the public artifact, publish the site command, then run the simple Windows command on Shadow. |
 
 # Current Chantier Flow
 
