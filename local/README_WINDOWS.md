@@ -2,56 +2,19 @@
 
 ## 🎯 Options d'installation
 
-Windows offre **3 options** pour utiliser ShipGlows localement:
+Windows offre un parcours PowerShell natif sans WSL pour les tunnels et le
+développement local. WSL/Git Bash restent des alternatives facultatives, mais
+ne sont pas requis par le parcours Shadow PC.
 
 ---
 
-## ✅ Option 1: WSL (alternative Linux)
+## ✅ Option 1: PowerShell natif (recommandé sur Shadow PC)
 
 **Avantages:**
-- ✅ Meilleure compatibilité avec les outils Linux
-- ✅ Support complet de autossh
-- ✅ Expérience identique à Linux/macOS
-- ✅ Menu interactif disponible
-
-**Installation:**
-
-1. **Installer WSL:**
-   ```powershell
-   wsl --install
-   ```
-   Redémarrez votre ordinateur si nécessaire.
-
-2. **Lancer WSL et installer les dépendances:**
-   ```bash
-   sudo apt update
-   sudo apt install autossh git
-   ```
-
-3. **Cloner le repo et installer:**
-   ```bash
-   curl -fsSL https://www.winflowz.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local sh
-   ```
-
-4. **Utiliser les tunnels:**
-   ```bash
-   urls      # ou tunnel
-   ```
-
----
-
-## ⚡ Option 2: PowerShell Natif (sans WSL)
-
-**Avantages:**
-- ✅ Pas besoin de WSL
-- ✅ Utilise OpenSSH natif de Windows
-- ✅ Simple et rapide
-
-**Limitations:**
-- ❌ Pas de autossh (tunnels manuels)
-- ❌ Pas de menu interactif
-
-**Installation:**
+- ✅ Pas besoin de WSL ni de virtualisation imbriquée
+- ✅ Tunnels SSH avec OpenSSH natif
+- ✅ DevServer natif Astro, Python/FastAPI et Flutter Web en mode full
+- ✅ Clone et registre local des dépôts dans `%USERPROFILE%\ShipGlows\workspace`
 
 1. **Lancer le bootstrap unique ShipGlows:**
 
@@ -63,7 +26,7 @@ Windows offre **3 options** pour utiliser ShipGlows localement:
    ```powershell
    $installer = Join-Path $env:TEMP 'shipglows-install.ps1'
    curl.exe -fsSL 'https://www.winflowz.com/shipglows-script?format=powershell' -o $installer
-   powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer -InstallMode full
    ```
 
    Pour forcer une version ou un tag précis :
@@ -83,7 +46,15 @@ Windows offre **3 options** pour utiliser ShipGlows localement:
    fonctionnement. Si WSL est bloqué par la virtualisation de la VM, le
    parcours PowerShell natif est utilisé.
 
-3. **Ou exécuter le script d'installation depuis une copie existante:**
+3. **Lancer le DevServer:**
+   ```powershell
+   shipglows-dev
+   ```
+   Les outils des dépôts doivent être disponibles sur Windows: Git, Node/npm
+   ou pnpm, uv, et Flutter selon le projet. Flox, PM2, Caddy et autossh sont
+   remplacés par les commandes natives et le registre ShipGlows.
+
+4. **Ou exécuter le script d'installation depuis une copie existante:**
    ```powershell
    cd local
    .\install_local.ps1
@@ -112,7 +83,7 @@ Windows offre **3 options** pour utiliser ShipGlows localement:
 
 ---
 
-## 🔧 Option 3: Git Bash
+## 🔧 Option 2: Git Bash (facultatif)
 
 **Avantages:**
 - ✅ Environnement bash familier

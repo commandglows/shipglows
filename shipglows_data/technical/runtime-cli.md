@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.24"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-03"
+updated: "2026-08-08"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -19,6 +19,9 @@ linked_systems:
   - cli/shipglows_devserver_gum.sh
   - cli/shipglows_devserver_bash.sh
   - cli/config.sh
+  - cli/windows/ShipGlows.DevServer.psm1
+  - cli/windows/shipglows-devserver.ps1
+  - cli/windows/install-devserver.ps1
   - CONTEXT-FUNCTION-TREE.md
 depends_on:
   - artifact: "ARCHITECTURE.md"
@@ -68,6 +71,9 @@ This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, a
 | `cli/lib.sh` | Main orchestration library for UI, validation, PM2/Flox/Caddy operations, health, deploy, publish, and actions | High blast radius; prefer focused changes and syntax checks |
 | `cli/shipglows_devserver_gum.sh`, `cli/shipglows_devserver_bash.sh` | Menu frontends that render the root menu and grouped submenus | Keep frontend behavior equivalent; update both variants together |
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
+| `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Keep PowerShell 5.1-compatible; never evaluate project input as code |
+| `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
+| `cli/windows/install-devserver.ps1` | Installs the Windows launcher and profile function | Append a marked profile block only once |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
 
 ## Entrypoints
@@ -108,6 +114,21 @@ This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, a
   session identity block inside the same top frame.
 - `cli/lib.sh::ui_screen_header`: prints consistent subcommand screen headers from
   one title plus an optional variant such as `danger` or `success`.
+
+## Native Windows DevServer
+
+The Windows `full` bootstrap is a separate runtime backend for machines such
+as Shadow PC where WSL cannot be used. It owns only local development for
+Astro, Python/FastAPI, and Flutter Web. Repositories are constrained to the
+configured workspace, ports are allocated from `3000..3100`, and process
+identity is checked with PID, start time, executable path, and a command
+signature before stopping a process. The JSON registry is written through a
+validated temporary file and atomic replacement.
+
+Linux-only Flox, PM2, Caddy, autossh, and the interactive `urls` menu are not
+emulated on Windows. Native dependencies remain explicit: Node/npm or pnpm,
+uv, Flutter, and Git as applicable. Flutter is launched in a visible process
+because PowerShell 5.1 does not provide a tmux-equivalent session manager.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.

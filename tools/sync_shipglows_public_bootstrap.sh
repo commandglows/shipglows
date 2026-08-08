@@ -5,14 +5,14 @@ set -euo pipefail
 SHIPGLOWS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOURCE_FILE="$SHIPGLOWS_ROOT/install-shipglows.sh"
 POWERSHELL_SOURCE_FILE="$SHIPGLOWS_ROOT/install-shipglows.ps1"
-WINGLOWZ_ROOT="${WINGLOWZ_ROOT:-/home/claude/winglowz}"
+COMMANDGLOWS_ROOT="${COMMANDGLOWS_ROOT:-/home/claude/commandglows}"
 MODE=""
 
 usage() {
   cat <<'EOF'
-Usage: sync_shipglows_public_bootstrap.sh (--check|--write) [--winglowz-root PATH]
+Usage: sync_shipglows_public_bootstrap.sh (--check|--write) [--commandglows-root PATH]
 
-Synchronize the canonical ShipGlows bootstrap with WinGlowz's generated public asset.
+Synchronize the canonical ShipGlows bootstrap with CommandGlows' generated public asset.
 EOF
 }
 
@@ -25,13 +25,13 @@ while [ "$#" -gt 0 ]; do
       fi
       MODE="$1"
       ;;
-    --winglowz-root)
+    --commandglows-root|--winglowz-root)
       shift
       if [ "$#" -eq 0 ]; then
-        printf 'Missing path after --winglowz-root.\n' >&2
+        printf 'Missing path after --commandglows-root.\n' >&2
         exit 2
       fi
-      WINGLOWZ_ROOT="$1"
+      COMMANDGLOWS_ROOT="$1"
       ;;
     -h|--help)
       usage
@@ -51,7 +51,7 @@ if [ -z "$MODE" ]; then
   exit 2
 fi
 
-TARGET_DIR="$WINGLOWZ_ROOT/winglowz_site/src/generated"
+TARGET_DIR="$COMMANDGLOWS_ROOT/commandglows_site/src/generated"
 TARGET_FILE="$TARGET_DIR/shipglows-installer.sh"
 POWERSHELL_TARGET_FILE="$TARGET_DIR/shipglows-installer.ps1"
 
@@ -74,12 +74,12 @@ case "$MODE" in
     fi
     if ! cmp -s "$SOURCE_FILE" "$TARGET_FILE"; then
       printf 'Bootstrap drift detected between:\n  %s\n  %s\n' "$SOURCE_FILE" "$TARGET_FILE" >&2
-      printf 'Run this command with --write, review the WinGlowz diff, then rerun --check.\n' >&2
+      printf 'Run this command with --write, review the CommandGlows diff, then rerun --check.\n' >&2
       exit 1
     fi
     if [ ! -f "$POWERSHELL_TARGET_FILE" ] || ! cmp -s "$POWERSHELL_SOURCE_FILE" "$POWERSHELL_TARGET_FILE"; then
       printf 'PowerShell bootstrap drift detected between:\n  %s\n  %s\n' "$POWERSHELL_SOURCE_FILE" "$POWERSHELL_TARGET_FILE" >&2
-      printf 'Run this command with --write, review the WinGlowz diff, then rerun --check.\n' >&2
+      printf 'Run this command with --write, review the CommandGlows diff, then rerun --check.\n' >&2
       exit 1
     fi
     printf 'ShipGlows public bootstrap parity: OK\n'

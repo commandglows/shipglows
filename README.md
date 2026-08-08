@@ -209,13 +209,16 @@ Pour forcer une version ou un tag GitHub précis, ajoutez par exemple
 `-Version v1.2.3` à la dernière commande. `-Branch` reste accepté pour une
 branche donnée.
 
-The Windows path installs the local tunnel layer only. The complete server
-installer remains Linux/Ubuntu-only.
+By default, the Windows path installs the local tunnel layer. To work directly
+from a Shadow PC without WSL, use `-InstallMode full`: it adds the native
+PowerShell DevServer for Astro, Python/FastAPI, and Flutter Web. It clones or
+registers repositories under `%USERPROFILE%\ShipGlows\workspace`, starts them
+on localhost ports, and keeps a recoverable registry under `%LOCALAPPDATA%`.
+This is a local development runtime, not public hosting; Flox, PM2, Caddy,
+autossh, and the Linux `urls` menu are intentionally not part of this path.
 
-On native Windows, this currently means the PowerShell helper
-`tunnel -Port <port>` for a selected local SSH tunnel. The full interactive
-`urls` menu remains available on Linux, macOS, WSL, and Termux; its native
-PowerShell equivalent is tracked separately.
+The native Windows tunnel remains available through `tunnel -Port <port>`.
+After a full install, use `shipglows-dev` for the project dashboard.
 
 The code repository is public, so Git or GitHub credentials are not required
 for this bootstrap. Termux selects `local` without `sudo`; an existing root shell
