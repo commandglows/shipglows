@@ -177,7 +177,7 @@ function Test-SgProcessIdentity([object]$Entry) {
 }
 
 function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port) {
-    return "ShipGlows:$Kind:$Port:$([IO.Path]::GetFullPath($ProjectPath))"
+    return "ShipGlows:${Kind}:${Port}:$([IO.Path]::GetFullPath($ProjectPath))"
 }
 
 function Invoke-SgDependencySetup([string]$ProjectPath, [string]$Kind, [string]$LogPath) {
