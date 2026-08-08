@@ -210,10 +210,11 @@ Pour forcer une version ou un tag GitHub précis, ajoutez par exemple
 branche donnée.
 
 By default, the Windows path installs the local tunnel layer. To work directly
-from a Shadow PC without WSL, use `-InstallMode full`: it adds the native
-PowerShell DevServer for Astro, Python/FastAPI, and Flutter Web. It clones or
-registers repositories under `%USERPROFILE%\ShipGlows\workspace`, starts them
-on localhost ports, and keeps a recoverable registry under `%LOCALAPPDATA%`.
+from a Shadow PC without WSL, use `-InstallMode full`: it installs only the
+native PowerShell DevServer for Astro, Python/FastAPI, and Flutter Web. It
+clones or registers repositories under `%USERPROFILE%\ShipGlows\workspace`,
+starts them on localhost ports, and keeps a recoverable registry under
+`%LOCALAPPDATA%`. No tunnel is needed for projects running on the Shadow.
 This is a local development runtime, not public hosting; Flox, PM2, Caddy,
 autossh, and the Linux `urls` menu are intentionally not part of this path.
 

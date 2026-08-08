@@ -1,5 +1,5 @@
-# ShipGlows native Windows bootstrap. Supports local (tunnel) and full
-# (tunnel + native Windows DevServer) installation without WSL.
+# ShipGlows native Windows bootstrap. Local installs the SSH tunnel; full
+# installs the native Windows DevServer without WSL or an automatic tunnel.
 
 [CmdletBinding()]
 param(
@@ -53,17 +53,19 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
     if ($LASTEXITCODE -ne 0) {
         Fail 'Could not inspect the ShipGlows archive with tar.exe.'
     }
-    $installerEntries = @(
-        $archiveEntries | Where-Object { $_ -match '^[^/]+/local/install_local\.ps1$' }
-    )
-    if ($installerEntries.Count -ne 1) {
-        Fail 'The ShipGlows archive must contain exactly one local/install_local.ps1.'
+    $entries = @()
+    if (-not $FullMode) {
+        $installerEntries = @(
+            $archiveEntries | Where-Object { $_ -match '^[^/]+/local/install_local\.ps1$' }
+        )
+        if ($installerEntries.Count -ne 1) {
+            Fail 'The ShipGlows archive must contain exactly one local/install_local.ps1.'
+        }
+        $entries += $installerEntries[0]
     }
-
-    $entries = @($installerEntries[0])
     if ($FullMode) {
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
-        if ($entries.Count -ne 4) { Fail 'The ShipGlows archive is missing native Windows DevServer files.' }
+        if ($entries.Count -ne 3) { Fail 'The ShipGlows archive is missing native Windows DevServer files.' }
     }
 
     & $tarPath -xf $ArchivePath -C $DestinationPath $entries
@@ -140,17 +142,17 @@ try {
     if ($LASTEXITCODE -ne 0) { Fail 'ShipGlows download failed.' }
 
     [void](Extract-ShipglowsWindowsFiles -ArchivePath $archivePath -DestinationPath $extractRoot -FullMode ($InstallMode -eq 'full'))
-    $installerCandidates = @(
-        Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -File -Filter 'install_local.ps1' |
-            Where-Object { $_.Directory.Name -eq 'local' }
-    )
-    if ($installerCandidates.Count -ne 1) {
-        Fail 'The ShipGlows archive must contain exactly one local/install_local.ps1.'
-    }
-
-    New-Item -ItemType Directory -Path $localDirectory -Force | Out-Null
-    Copy-Item -LiteralPath $installerCandidates[0].FullName -Destination $localInstaller -Force
-    if ($InstallMode -eq 'full') {
+    if ($InstallMode -eq 'local') {
+        $installerCandidates = @(
+            Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -File -Filter 'install_local.ps1' |
+                Where-Object { $_.Directory.Name -eq 'local' }
+        )
+        if ($installerCandidates.Count -ne 1) {
+            Fail 'The ShipGlows archive must contain exactly one local/install_local.ps1.'
+        }
+        New-Item -ItemType Directory -Path $localDirectory -Force | Out-Null
+        Copy-Item -LiteralPath $installerCandidates[0].FullName -Destination $localInstaller -Force
+    } else {
         $windowsCandidates = @(Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -Directory -Filter 'windows') | Where-Object { Test-Path (Join-Path $_.FullName 'install-devserver.ps1') }
         if ($windowsCandidates.Count -ne 1) { Fail 'Native Windows DevServer directory was not found in the archive.' }
         New-Item -ItemType Directory -Path $windowsDirectory -Force | Out-Null
@@ -160,16 +162,18 @@ try {
     Remove-PathIfPresent $tempRoot
 }
 
-if (-not (Test-Path -LiteralPath $localInstaller)) {
-    Fail "Installed Windows local installer not found: $localInstaller"
-}
-
-$localInstallerHash = (Get-FileHash -LiteralPath $localInstaller -Algorithm SHA256).Hash
-Write-Info "Installed local installer: $localInstaller"
 Write-Info "Source commit: $($source.Commit)"
-Write-Info "SHA256: $localInstallerHash"
-Assert-PowerShellSyntax -Path $localInstaller
-Write-Info 'PowerShell syntax validation passed.'
+
+if ($InstallMode -eq 'local') {
+    if (-not (Test-Path -LiteralPath $localInstaller)) {
+        Fail "Installed Windows local installer not found: $localInstaller"
+    }
+    $localInstallerHash = (Get-FileHash -LiteralPath $localInstaller -Algorithm SHA256).Hash
+    Write-Info "Installed local installer: $localInstaller"
+    Write-Info "SHA256: $localInstallerHash"
+    Assert-PowerShellSyntax -Path $localInstaller
+    Write-Info 'PowerShell syntax validation passed.'
+}
 
 if ($InstallMode -eq 'full') {
     foreach ($required in @('ShipGlows.DevServer.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
@@ -183,11 +187,11 @@ if ($DownloadOnly) {
     exit 0
 }
 
-Write-Info 'Lancement de la configuration locale Windows.'
-& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $localInstaller
-if ($LASTEXITCODE -ne 0) { Fail 'Native Windows configuration failed.' }
-
-if ($InstallMode -eq 'full') {
+if ($InstallMode -eq 'local') {
+    Write-Info 'Lancement de la configuration locale Windows.'
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $localInstaller
+    if ($LASTEXITCODE -ne 0) { Fail 'Native Windows configuration failed.' }
+} else {
     Write-Info 'Installing the native Windows DevServer launcher.'
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $windowsDirectory 'install-devserver.ps1') -ShipglowsDir $ShipglowsDir
     if ($LASTEXITCODE -ne 0) { Fail 'Native Windows DevServer installation failed.' }
@@ -195,5 +199,8 @@ if ($InstallMode -eq 'full') {
 
 Write-Host ''
 Write-Host 'ShipGlows native Windows installation completed.' -ForegroundColor Green
-Write-Host 'Utilise ensuite: tunnel -Port 3001' -ForegroundColor Green
-if ($InstallMode -eq 'full') { Write-Host 'Pour les projets: shipglows-dev' -ForegroundColor Green }
+if ($InstallMode -eq 'local') {
+    Write-Host 'Utilise ensuite: tunnel -Port 3001' -ForegroundColor Green
+} else {
+    Write-Host 'Pour les projets locaux: shipglows-dev' -ForegroundColor Green
+}

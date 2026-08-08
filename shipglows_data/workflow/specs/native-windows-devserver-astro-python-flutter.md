@@ -83,12 +83,12 @@ En tant qu'operateur ShipGlows sur un Shadow PC Windows sans WSL ni virtualisati
 
 # Minimal Behavior Contract
 
-L'operateur telecharge avec `curl.exe` le bootstrap PowerShell depuis l'endpoint public ShipGlows, choisit le mode Windows `full`, puis lance un menu ShipGlows natif dans PowerShell pour enregistrer ou cloner un depot et demarrer un projet Astro, Python/FastAPI ou Flutter Web. Le mode Windows `local` conserve l'installation des tunnels; le mode Windows `full` installe cette couche locale plus le DevServer natif et ses commandes. ShipGlows detecte le type de projet, verifie ses outils, installe ses dependances avec le gestionnaire supporte, attribue un port local libre, lance le bon processus et rend visibles son statut, son URL et ses logs. Une erreur de bootstrap, de dependance, de detection, de port ou de processus ne doit jamais etre annoncee comme un succes ni laisser un registre mensonger; elle doit conserver les sources intactes et proposer une recuperation. Le cas facile a oublier est un PID recycle ou un registre obsolete apres l'arret automatique de Shadow: ShipGlows doit revalider l'identite du processus avant toute action et reconstruire l'etat observable sans tuer un processus tiers.
+L'operateur telecharge avec `curl.exe` le bootstrap PowerShell depuis l'endpoint public ShipGlows, choisit le mode Windows `full`, puis lance un menu ShipGlows natif dans PowerShell pour enregistrer ou cloner un depot et demarrer un projet Astro, Python/FastAPI ou Flutter Web. Le mode Windows `local` conserve l'installation des tunnels; le mode Windows `full` installe uniquement le DevServer natif et ses commandes, car les projets tournent directement sur le Shadow et sont accessibles en localhost. ShipGlows detecte le type de projet, verifie ses outils, installe ses dependances avec le gestionnaire supporte, attribue un port local libre, lance le bon processus et rend visibles son statut, son URL et ses logs. Une erreur de bootstrap, de dependance, de detection, de port ou de processus ne doit jamais etre annoncee comme un succes ni laisser un registre mensonger; elle doit conserver les sources intactes et proposer une recuperation. Le cas facile a oublier est un PID recycle ou un registre obsolete apres l'arret automatique de Shadow: ShipGlows doit revalider l'identite du processus avant toute action et reconstruire l'etat observable sans tuer un processus tiers.
 
 # Success Behavior
 
 - Depuis Windows PowerShell 5.1 ou PowerShell 7, l'operateur peut lancer `shipglows-dev` sans Bash, WSL, Docker, Flox, PM2, Caddy, `sudo` ou virtualisation imbriquee.
-- Le meme endpoint `https://www.commandglows.com/shipglows-script?format=powershell` sert l'installateur Windows local et full; `-InstallMode full` installe les tunnels locaux et le DevServer natif, tandis que l'absence de mode preserve le comportement local historique.
+- Le meme endpoint `https://www.commandglows.com/shipglows-script?format=powershell` sert l'installateur Windows local et full; `-InstallMode full` installe uniquement le DevServer natif, tandis que l'absence de mode preserve le comportement local historique.
 - Le dashboard decouvre les projets enregistres, affiche `running`, `stopped`, `error` ou `unknown`, le type de projet, le port et l'URL locale.
 - Un clone Git reussi est place par defaut sous `%USERPROFILE%\ShipGlows\workspace\<repo>` et n'est enregistre qu'apres validation du chemin et du depot.
 - Astro respecte le lockfile existant, installe les dependances sans migration implicite, puis expose une URL `http://127.0.0.1:<port>`.
@@ -133,7 +133,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Fenetre de stabilite avant annonce `running` et probe HTTP bornee pour Astro/FastAPI/Flutter Web.
 - Logs stdout/stderr bornes ou rotation simple pour les processus non interactifs.
 - Extension opt-in du bootstrap PowerShell pour installer la surface DevServer sans changer le comportement tunnel par defaut.
-- Contrat de modes PowerShell `local|full`: `local` installe la couche tunnel existante; `full` installe `local` puis le DevServer Windows natif.
+- Contrat de modes PowerShell `local|full`: `local` installe la couche tunnel existante; `full` installe le DevServer Windows natif sans tunnel automatique.
 - Installation Windows full depuis le meme endpoint public que Windows local, via `curl.exe` vers un fichier temporaire puis `powershell.exe -File ... -InstallMode full`; aucun pipe direct vers `Invoke-Expression`.
 - Synchronisation byte-for-byte de `install-shipglows.ps1` vers l'artefact genere CommandGlows et verification anti-drift dans les deux repos.
 - Activation de la variante `windows-full` EN/FR sur la page publique CommandGlows avec commande copiable, limites exactes et tests de route/contenu.
@@ -160,7 +160,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Respecter les restrictions Shadow: localhost et usage interactif de developpement uniquement; ne pas contourner l'arret automatique.
 - Ne jamais modifier le comportement du CLI Linux pour obtenir une pseudo-parite Windows.
 - Le bootstrap PowerShell existant reste compatible et continue d'installer le tunnel local par defaut.
-- Le terme `full` est specifique a la plateforme: sous Linux il conserve la couche serveur Ubuntu; sous Windows il signifie tunnel local + DevServer natif pour Astro, Python/FastAPI et Flutter Web, sans outils serveur Linux.
+- Le terme `full` est specifique a la plateforme: sous Linux il conserve la couche serveur Ubuntu; sous Windows il signifie DevServer natif pour Astro, Python/FastAPI et Flutter Web, sans tunnel automatique ni outils serveur Linux.
 - L'endpoint public ne duplique pas la logique: `install-shipglows.ps1` dans ShipGlows reste l'autorite et CommandGlows sert uniquement l'artefact genere synchronise.
 - Support minimum Windows PowerShell 5.1; PowerShell 7 est supporte sans devenir obligatoire.
 - Aucun module PowerShell Gallery obligatoire dans le chemin critique V1.
@@ -181,7 +181,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Ordered proof path: static/parser -> fixture tests -> Windows process integration -> browser localhost checks -> Flutter interactive check -> Shadow manual checklist.
 - Checklist path: `shipglows_data/workflow/test-checklists/native-windows-devserver-astro-python-flutter.md`.
 - Required scenario IDs: `BOOT-FULL-01`, `BOOT-LOCAL-02`, `ASTRO-START-03`, `PYTHON-START-04`, `FLUTTER-WEB-05`, `PORT-RECOVERY-06`, `STALE-PID-07`, `REGISTRY-ATOMIC-08`, `REDACTION-09`, `PUBLIC-PARITY-10`, `SHADOW-RECONNECT-11`.
-- Required results: full public bootstrap installs tunnel plus DevServer; local bootstrap remains compatible; each supported stack starts and serves localhost; process identity and registry recovery are safe; secrets are absent from logs; CommandGlows page/endpoint match the canonical script; Shadow reconnect is recoverable.
+- Required results: full public bootstrap installs the DevServer without a tunnel; local bootstrap remains compatible; each supported stack starts and serves localhost; process identity and registry recovery are safe; secrets are absent from logs; CommandGlows page/endpoint match the canonical script; Shadow reconnect is recoverable.
 - Exception with proof: Android emulator is excluded because Shadow does not support the required nested virtualization; no emulator test is required.
 - Exception with proof: public URL, Caddy and persistent-hosting tests are excluded by product scope and Shadow restrictions.
 - Runtime observability exception: Sentry is not applicable because this is a local CLI/bootstrap with no hosted application telemetry contract; safe redacted diagnostic/log-copy behavior is required instead.
@@ -326,7 +326,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 
 - [ ] Task 6: Add native Windows local/full bootstrap modes
   - File: `install-shipglows.ps1`, `cli/windows/install-devserver.ps1`
-  - Action: Add `InstallMode local|full` with environment fallback, where default/local preserves the existing tunnel installation and full installs local plus the native DevServer. Download/extract only authorized Windows files, validate archive structure and hashes, check dependencies and install user-profile commands.
+  - Action: Add `InstallMode local|full` with environment fallback, where default/local preserves the existing tunnel installation and full installs only the native DevServer. Download/extract only authorized Windows files, validate archive structure and hashes, check dependencies and install user-profile commands.
   - User story link: Makes setup possible on Shadow without WSL or admin-heavy Linux installation.
   - Depends on: Tasks 1-5.
   - Validate with: Parser checks, local/full mode fixtures, download-only fixture, archive traversal rejection, default/local regression and real Shadow full install using the public curl.exe command.
@@ -367,7 +367,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 # Acceptance Criteria
 
 - [ ] AC01: Given a Shadow PC with WSL unavailable, when the operator installs the explicit DevServer surface, then `shipglows-dev` launches under native Windows PowerShell without Bash, WSL, Flox, PM2 or Caddy.
-- [ ] AC01a: Given the public Windows installer endpoint, when the operator downloads it with `curl.exe` and runs `powershell.exe -NoProfile -ExecutionPolicy Bypass -File <installer> -InstallMode full`, then the local tunnel layer and native DevServer are both installed from the resolved public ShipGlows commit.
+- [ ] AC01a: Given the public Windows installer endpoint, when the operator downloads it with `curl.exe` and runs `powershell.exe -NoProfile -ExecutionPolicy Bypass -File <installer> -InstallMode full`, then only the native DevServer is installed from the resolved public ShipGlows commit; no tunnel setup is invoked.
 - [ ] AC02: Given an Astro repo with one supported lockfile, when start is selected, then dependencies are installed with that package manager, a free port is assigned, the process survives the stability window and the localhost URL answers.
 - [ ] AC03: Given a Python/FastAPI repo with `pyproject.toml` and a current `uv.lock`, when start is selected, then `uv sync --locked`/`uv run` owns `.venv`, the supported app target starts and the URL answers.
 - [ ] AC04: Given a supported legacy `requirements.txt` project, when start is selected, then uv prepares an isolated `.venv`, the limitation is visible and the system does not claim lockfile reproducibility.
@@ -454,6 +454,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-07 22:18:16 UTC | 100-sg-spec | GPT-5 Codex | Extended the contract so native Windows full is installed through the canonical CommandGlows curl.exe/PowerShell endpoint and exposed by the existing EN/FR installer selector. | Draft updated with local/full semantics, cross-repo synchronization, public route/page tasks and hosted/Shadow acceptance proof. | Re-run readiness review against the expanded cross-repo scope. |
 | 2026-08-08 00:25:00 UTC | 101-sg-ready | GPT-5 Codex | Completed adversarial readiness review and added the required OWASP Security Gate for public PowerShell bootstrap, process command construction, path validation and artifact integrity. | Ready; implementation, Windows host proof, hosted endpoint proof and closure remain pending. | Start the bounded implementation wave. |
 | 2026-08-08 04:18:00 UTC | 102-sg-start | GPT-5 Codex | Implemented the native PowerShell DevServer module/entrypoint, full Windows bootstrap extraction, launcher/profile installer, public EN/FR windows-full commands, CommandGlows generated PowerShell parity, and static/test contracts. | ShipGlows static contract passed; CommandGlows targeted tests 96/96 and Astro check 0 errors/1 hint; native PowerShell parser and Shadow runtime proof remain pending. | Run the Windows Parser/Smoke matrix and hosted endpoint proof. |
+| 2026-08-08 04:25:00 UTC | 102-sg-start | GPT-5 Codex | Corrected the Windows mode boundary after operator review: `full` now installs only the local DevServer; `local` remains the optional SSH tunnel path. Updated bootstrap branching, public notes, README and acceptance criteria. | Static revalidation pending; no tunnel is invoked by the full branch. | Re-run public tests and Windows Parser/Smoke matrix. |
 
 # Current Chantier Flow
 

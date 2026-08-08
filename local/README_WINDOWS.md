@@ -60,6 +60,10 @@ ne sont pas requis par le parcours Shadow PC.
    .\install_local.ps1
    ```
 
+   En mode `full`, seul le DevServer natif est installé : aucun tunnel n'est
+   nécessaire pour les projets lancés directement sur le Shadow. Le mode
+   `local` reste disponible séparément si vous devez ouvrir un tunnel SSH.
+
    Le script vous demande aussi de choisir le mode SSH:
    - **Clé SSH / fichier de clé** si vous utilisez `authorized_keys`
    - **Mot de passe SSH** si le serveur autorise encore l'authentification par mot de passe
