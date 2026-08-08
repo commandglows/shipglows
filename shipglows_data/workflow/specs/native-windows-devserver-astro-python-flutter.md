@@ -6,7 +6,7 @@ project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-08"
-updated_at: "2026-08-08 14:49:00 UTC"
+updated_at: "2026-08-08 15:42:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -466,6 +466,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-08 14:05:00 UTC | 106-sg-fix | GPT-5 Codex | Diagnosed the first launcher runtime failure on Windows PowerShell 5.1: `New-Item` does not expose `-LiteralPath` there. Switched directory creation to `-Path` and disabled the non-blocking unapproved-verb import warning. | Static contract now rejects `New-Item -LiteralPath`; Shadow runtime retest and push remain pending. | Push the module fix, rerun full installation, then launch the DevServer directly. |
 | 2026-08-08 14:20:00 UTC | 106-sg-fix | GPT-5 Codex | Diagnosed the menu error-handler failure after the dashboard rendered: the launcher called module-owned `Write-SgInfo`, `Write-SgWarn`, and `Write-SgError`, but those functions were not exported. Exported all three and added a focused module-contract assertion. | Static Windows contract passes; Shadow menu retest remains pending. | Push the module, refresh the full installation, then exercise menu choices. |
 | 2026-08-08 14:49:00 UTC | 001-sg-build | GPT-5 Codex | Added an autonomous native Windows Gum installation and Gum-backed action/project/input selectors. The official x86-64 release is pinned, SHA-256 verified and installed beside the launcher without WinGet or PATH changes; the PowerShell frontend remains the recovery path. | Static Windows contract and archive checksum proof pass; Windows PowerShell 5.1 runtime proof remains pending on Shadow. | Publish the bounded change, reinstall full on Shadow, and verify Gum rendering plus fallback behavior. |
+| 2026-08-08 15:42:00 UTC | 103-sg-verify | GPT-5 Codex | Recorded operator-supplied Shadow PowerShell 5.1 evidence for commit `e5d11c723cee42f97471e923bfae44a72a35b911`: full mode downloaded the native files, installed Gum 0.17.0 automatically, and reported Gum available without a restart. | Automatic Gum installation on the target Shadow host is proven; interactive chooser rendering and supported-stack lifecycle proof remain pending. | Launch the direct bypass entrypoint and verify the Gum chooser in WezTerm. |
 
 # Current Chantier Flow
 
