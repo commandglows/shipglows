@@ -14,6 +14,8 @@ done
 
 ! rg -n 'Invoke-Expression|GetRelativePath|Read-SgRegistry \\$Config \.projects' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
 ! rg -n '"[^"\n]*\$[A-Za-z_][A-Za-z0-9_]*:' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
+! rg -n 'New-Item[^\n]*-LiteralPath' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
+rg -n 'Import-Module .*DisableNameChecking' "$ENTRYPOINT"
 rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"
 rg -n "cli/windows/(ShipGlows\\.DevServer\\.psm1|shipglows-devserver\\.ps1|install-devserver\\.ps1)" "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"

@@ -10,7 +10,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $module = Join-Path $PSScriptRoot 'ShipGlows.DevServer.psm1'
-Import-Module $module -Force
+Import-Module $module -Force -DisableNameChecking
 $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory

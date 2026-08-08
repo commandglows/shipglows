@@ -24,7 +24,7 @@ function Get-SgDevConfig {
 
 function Ensure-SgDirectory([string]$Path) {
     if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
-        New-Item -ItemType Directory -LiteralPath $Path -Force | Out-Null
+        New-Item -ItemType Directory -Path $Path -Force | Out-Null
     }
 }
 
