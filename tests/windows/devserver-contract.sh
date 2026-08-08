@@ -32,6 +32,8 @@ rg -n 'ExecutionPolicy Bypass -File "%~dp0shipglows-devserver\.ps1" %\*' "$INSTA
 rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh repo list --limit 200|gh repo clone' "$ENTRYPOINT"
 ! rg -n 'gh auth token|GH_TOKEN|GITHUB_TOKEN' "$ENTRYPOINT" "$INSTALLER"
 rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"
+! rg -n 'InstallMode = \$\(if \(\$env:SHIPGLOWS_INSTALL_MODE' "$BOOTSTRAP"
+rg -n '\[string\]\$InstallMode,|InstallMode must be local or full' "$BOOTSTRAP"
 rg -n 'Select-WindowsInstallMode|Choose 1 or 2 \[2\]|Local DevServer \(full, recommended\)|IsInputRedirected' "$BOOTSTRAP"
 for windows_file in 'ShipGlows\.DevServer\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
