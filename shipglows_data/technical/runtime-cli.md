@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.26"
+artifact_version: "1.0.27"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-08"
@@ -45,6 +45,7 @@ evidence:
   - "Disk details and PM2 log cleanup/rotation added to explain and cap disk usage."
   - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
   - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser."
+  - "Native Windows full installs Node LTS, pnpm and uv automatically; Flutter Web remains an explicit optional download in the interactive installer."
   - "Main menu session identity now renders inside the top status header."
   - "Subcommand screen headers now route through a shared modular header helper."
   - "Nested menus and search selectors now preserve the ShipGlows DevServer title treatment."
@@ -76,7 +77,7 @@ This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, a
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
 | `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Keep PowerShell 5.1-compatible; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
-| `cli/windows/install-devserver.ps1` | Installs the Windows launcher and profile function | Append a marked profile block only once |
+| `cli/windows/install-devserver.ps1` | Installs the Windows launcher, developer tools and profile function | Install Node LTS, pnpm and uv idempotently; ask before downloading Flutter Web |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
 
 ## Entrypoints
@@ -129,9 +130,11 @@ signature before stopping a process. The JSON registry is written through a
 validated temporary file and atomic replacement.
 
 Linux-only Flox, PM2, Caddy, autossh, and the interactive `urls` menu are not
-emulated on Windows. Native dependencies remain explicit: Node/npm or pnpm,
-uv, Flutter, and Git as applicable. Flutter is launched in a visible process
-because PowerShell 5.1 does not provide a tmux-equivalent session manager.
+emulated on Windows. The full installer prepares Git, GitHub CLI, Node LTS
+(including npm), pnpm and uv. It asks before downloading Flutter Web, then
+clones the stable SDK into the user-local ShipGlows directory and enables web
+support. Flutter is launched in a visible process because PowerShell 5.1 does
+not provide a tmux-equivalent session manager.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.

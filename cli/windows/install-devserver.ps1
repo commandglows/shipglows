@@ -25,19 +25,22 @@ function Update-SgProcessPath {
     $env:Path = @($machinePath, $userPath) -join ';'
 }
 
-function Add-SgRuntimeToUserPath {
+function Add-SgUserPathEntry([string]$Directory) {
+    if ([string]::IsNullOrWhiteSpace($Directory)) { return }
     $currentUserPath = [Environment]::GetEnvironmentVariable('Path', 'User')
     $entries = @($currentUserPath -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
     $alreadyPresent = $false
     foreach ($entry in $entries) {
-        if ($entry.TrimEnd('\') -eq $runtimeDir.TrimEnd('\')) { $alreadyPresent = $true; break }
+        if ($entry.TrimEnd('\') -ieq $Directory.TrimEnd('\')) { $alreadyPresent = $true; break }
     }
     if (-not $alreadyPresent) {
-        $nextPath = @($runtimeDir) + $entries
+        $nextPath = @($Directory) + $entries
         [Environment]::SetEnvironmentVariable('Path', ($nextPath -join ';'), 'User')
     }
     Update-SgProcessPath
 }
+
+function Add-SgRuntimeToUserPath { Add-SgUserPathEntry $runtimeDir }
 
 function Install-SgCommandWrappers {
     $wrapper = @'
@@ -68,6 +71,15 @@ function Test-SgTool([string]$Name, [string[]]$KnownPaths = @()) {
         if ($path -and (Test-Path -LiteralPath $path -PathType Leaf)) { return $true }
     }
     return $false
+}
+
+function Get-SgToolPath([string]$Name, [string[]]$KnownPaths = @()) {
+    $command = Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($command -and $command.Source) { return $command.Source }
+    foreach ($path in $KnownPaths) {
+        if ($path -and (Test-Path -LiteralPath $path -PathType Leaf)) { return $path }
+    }
+    return $null
 }
 
 function Install-SgWingetPackage([string]$Name, [string]$PackageId, [string[]]$KnownPaths = @()) {
@@ -140,15 +152,114 @@ function Install-SgGum {
     }
 }
 
+function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]]$PnpmPaths) {
+    if (Test-SgTool 'pnpm.cmd' $PnpmPaths) {
+        Write-Host 'pnpm is already installed.' -ForegroundColor Green
+        return $true
+    }
+
+    $npm = Get-SgToolPath 'npm.cmd' $NpmPaths
+    if (-not $npm) {
+        Write-Warning 'pnpm could not be installed because npm is unavailable.'
+        return $false
+    }
+
+    try {
+        Write-Host 'Preparing pnpm with Corepack...' -ForegroundColor Cyan
+        & $npm install --global corepack@latest | Out-Host
+        if ($LASTEXITCODE -ne 0) { throw "Corepack installation returned exit code $LASTEXITCODE." }
+        Update-SgProcessPath
+
+        $corepack = Get-SgToolPath 'corepack.cmd' $CorepackPaths
+        if ($corepack) {
+            & $corepack enable pnpm | Out-Host
+            if ($LASTEXITCODE -eq 0) {
+                Update-SgProcessPath
+                if (Test-SgTool 'pnpm.cmd' $PnpmPaths) {
+                    Write-Host 'pnpm installed with Corepack.' -ForegroundColor Green
+                    return $true
+                }
+            } else {
+                Write-Warning 'Corepack could not enable pnpm here; using the npm fallback.'
+            }
+        }
+
+        Write-Host 'Installing pnpm with npm fallback...' -ForegroundColor Cyan
+        & $npm install --global pnpm@latest | Out-Host
+        if ($LASTEXITCODE -ne 0) { throw "pnpm installation returned exit code $LASTEXITCODE." }
+        Update-SgProcessPath
+        if (-not (Test-SgTool 'pnpm.cmd' $PnpmPaths)) { throw 'pnpm was installed but is not discoverable yet.' }
+        Write-Host 'pnpm installed.' -ForegroundColor Green
+        return $true
+    } catch {
+        Write-Warning "pnpm could not be installed automatically: $($_.Exception.Message)"
+        return $false
+    }
+}
+
+function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
+    if (Test-SgTool 'flutter.bat' $FlutterPaths) {
+        Write-Host 'Flutter Web SDK is already installed.' -ForegroundColor Green
+        return $true
+    }
+
+    Write-Host ''
+    Write-Host 'Flutter Web SDK is optional and is a larger download.' -ForegroundColor Yellow
+    $answer = (Read-Host 'Install Flutter Web SDK now? [y/N]').Trim().ToLowerInvariant()
+    if ($answer -notin @('y', 'yes', 'o', 'oui')) {
+        Write-Host 'Flutter Web SDK skipped. Rerun the full installer when you need it.' -ForegroundColor Yellow
+        return $false
+    }
+
+    $git = Get-SgToolPath 'git.exe' $GitPaths
+    if (-not $git) {
+        Write-Warning 'Flutter Web SDK could not be installed because Git is unavailable.'
+        return $false
+    }
+
+    $flutterDirectory = Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter'
+    $flutterBin = Join-Path $flutterDirectory 'bin'
+    $flutterBatch = Join-Path $flutterBin 'flutter.bat'
+    try {
+        if (-not (Test-Path -LiteralPath $flutterDirectory -PathType Container)) {
+            Write-Host 'Downloading Flutter stable. This can take several minutes; keep this window open...' -ForegroundColor Cyan
+            & $git clone --depth 1 --branch stable https://github.com/flutter/flutter.git $flutterDirectory | Out-Host
+            if ($LASTEXITCODE -ne 0) { throw "Flutter download returned exit code $LASTEXITCODE." }
+        }
+        if (-not (Test-Path -LiteralPath $flutterBatch -PathType Leaf)) {
+            throw "Flutter was not found in $flutterDirectory. The existing folder was left untouched."
+        }
+
+        Add-SgUserPathEntry $flutterBin
+        & $flutterBatch config --enable-web | Out-Host
+        if ($LASTEXITCODE -ne 0) { throw "Flutter Web configuration returned exit code $LASTEXITCODE." }
+        Write-Host 'Flutter Web SDK installed and web support enabled.' -ForegroundColor Green
+        return $true
+    } catch {
+        Write-Warning "Flutter Web SDK could not be installed automatically: $($_.Exception.Message)"
+        return $false
+    }
+}
+
 Install-SgCommandWrappers
 [void](Install-SgGum)
 $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
 $gitPaths = @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe'))
 $ghPaths = @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe'))
+$nodePaths = @((Join-Path $programFiles 'nodejs\node.exe'), (Join-Path $programFilesX86 'nodejs\node.exe'))
+$npmPaths = @((Join-Path $programFiles 'nodejs\npm.cmd'), (Join-Path $programFilesX86 'nodejs\npm.cmd'))
+$corepackPaths = @((Join-Path $programFiles 'nodejs\corepack.cmd'), (Join-Path $programFilesX86 'nodejs\corepack.cmd'), (Join-Path $env:APPDATA 'npm\corepack.cmd'))
+$pnpmPaths = @((Join-Path $env:APPDATA 'npm\pnpm.cmd'))
+$uvPaths = @((Join-Path $env:USERPROFILE '.local\bin\uv.exe'), (Join-Path $env:USERPROFILE '.cargo\bin\uv.exe'))
+$flutterPaths = @((Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat'), (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.exe'))
 Write-Host 'Preparing Windows developer tools. This step can take a few minutes on the first installation.' -ForegroundColor Yellow
 [void](Install-SgWingetPackage 'git.exe' 'Git.Git' $gitPaths)
 [void](Install-SgWingetPackage 'gh.exe' 'GitHub.cli' $ghPaths)
+[void](Install-SgWingetPackage 'node.exe' 'OpenJS.NodeJS.LTS' $nodePaths)
+[void](Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths)
+[void](Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths)
+[void](Install-SgFlutter $flutterPaths $gitPaths)
 
 if (-not $SkipProfile) {
     $profilePath = $PROFILE
@@ -171,13 +282,28 @@ Write-Host "Workspace: $Workspace"
 Write-Host 'Commands: s (short) or shipglows-dev'
 Write-Host ''
 Write-Host 'Dependency check:' -ForegroundColor Yellow
-foreach ($tool in @('gum','git','gh','node','npm','uv','flutter')) {
+foreach ($tool in @('gum','git','gh','node','npm','pnpm','uv','flutter')) {
     if ($tool -eq 'gum' -and (Test-Path -LiteralPath (Join-Path $runtimeDir 'gum.exe') -PathType Leaf)) {
         Write-Host "  [ok]   gum" -ForegroundColor Green
         continue
     }
-    $knownPaths = if ($tool -eq 'git') { $gitPaths } elseif ($tool -eq 'gh') { $ghPaths } else { @() }
-    $found = Test-SgTool "$tool.exe" $knownPaths
+    $knownPaths = switch ($tool) {
+        'git' { $gitPaths; break }
+        'gh' { $ghPaths; break }
+        'node' { $nodePaths; break }
+        'npm' { $npmPaths; break }
+        'pnpm' { $pnpmPaths; break }
+        'uv' { $uvPaths; break }
+        'flutter' { $flutterPaths; break }
+        default { @() }
+    }
+    $executable = switch ($tool) {
+        'npm' { 'npm.cmd'; break }
+        'pnpm' { 'pnpm.cmd'; break }
+        'flutter' { 'flutter.bat'; break }
+        default { "$tool.exe" }
+    }
+    $found = Test-SgTool $executable $knownPaths
     if ($found) { Write-Host "  [ok]   $tool" -ForegroundColor Green }
     else { Write-Host "  [miss] $tool (install it or use the project-specific setup instructions)" -ForegroundColor Yellow }
 }

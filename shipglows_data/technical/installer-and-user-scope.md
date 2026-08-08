@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.1"
+artifact_version: "1.1.2"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-08"
@@ -35,6 +35,7 @@ evidence:
   - "Installer now supports per-agent user-space selection for Claude, Codex, OpenCode, and KiloCode, plus separate runtime/TUI choices."
   - "Unified bootstrap modes route Android Termux to local/install.sh without sudo and retain root-only full server installation."
   - "Native Windows full installs Git and GitHub CLI through WinGet, while GitHub CLI exclusively owns browser authentication and credential storage."
+  - "Native Windows full installs Node LTS, pnpm and uv automatically, while Flutter Web is an explicit optional user-local download."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
 ---
@@ -60,7 +61,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 ## Entrypoints
 
 - `curl -fsSL https://www.commandglows.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
-- Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, and supports `local` or `full`. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, and GitHub CLI through WinGet without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`. GitHub authentication is initiated only when private repository browsing is selected, and credentials remain owned by `gh`.
+- Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, and supports `local` or `full`. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download. GitHub authentication is initiated only when private repository browsing is selected, and credentials remain owned by `gh`.
 - `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
 - `tools/sync_shipglows_public_bootstrap.sh --check --winglowz-root <path>`: verifies that WinGlowz serves the generated canonical artifact rather than an independently maintained template.
 - `sudo ./cli/install.sh`: server installer.
