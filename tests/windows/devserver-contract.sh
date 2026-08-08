@@ -15,6 +15,8 @@ done
 ! rg -n 'Invoke-Expression|GetRelativePath|Read-SgRegistry \\$Config \.projects' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
 rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"
 rg -n "cli/windows/(ShipGlows\\.DevServer\\.psm1|shipglows-devserver\\.ps1|install-devserver\\.ps1)" "$BOOTSTRAP"
+rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
+! rg -n '\$windowsCandidates = @\([^)]*\) \| Where-Object' "$BOOTSTRAP"
 rg -n "127\\.0\\.0\\.1|registry\\.json|registry\\.lock|commandSignature|startTimeUtc" "$MODULE"
 rg -n "Test-SgGitUrl|embedded credentials|Only HTTPS and SSH" "$MODULE" "$ENTRYPOINT"
 
