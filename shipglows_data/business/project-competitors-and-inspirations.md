@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-05-11"
-updated: "2026-08-07"
+updated: "2026-08-09"
 status: reviewed
 source_skill: 205-sg-veille
 scope: "project-competitors-and-inspirations"
@@ -20,6 +20,8 @@ evidence:
   - "User requested a formal file for competitors and inspirations by project."
   - "Web triage on 2026-07-26 identified prior art for approved visual baselines, agent-readable visual history, visual regression, and product roadmaps."
   - "Operator supplied Warp agent notifications as a ShipGlows inspiration on 2026-08-07."
+  - "Operator flagged https://grabltd.com/products/agentica as a probable competitor and requested tracking on 2026-08-09."
+  - "Checked Agentica official landing site https://astarlabshub.com/ and verified core product claims on 2026-08-09."
 depends_on:
   - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.1.0"
@@ -80,6 +82,7 @@ Il sert a eviter que ces references restent seulement dans une conversation. Une
 | ShipGlows | inspiration | Atlassian User Story Maps / Roadmaps | https://www.atlassian.com/blog/2016/05/guide-to-agile-user-story-maps | A map organizes user activities, capabilities, and roadmap slices. | Product cartography and roadmap | Our map must link each surface to approval dimensions and a known-good commit. | 2026-07-26 | Diane | reference | Model the two-view cartography |
 | ShipGlows | inspiration | Productboard hierarchy | https://support.productboard.com/hc/en-us/articles/360058212253-Build-your-product-hierarchy | Hierarchical product structure linking products, features, and roadmap context. | Capability inventory and roadmap | Keep the map repository-local and agent-readable instead of adopting a SaaS hierarchy as authority. | 2026-07-26 | Diane | reference | Define stable section IDs |
 | ShipGlows | inspiration | Warp agent notifications | https://docs.warp.dev/agents/capabilities/agent-notifications/ | Alerts when an agent completes work or needs operator attention, so long-running work can stay in the background. | Operator attention and asynchronous agent supervision | Candidate pattern only: preserve ShipGlows' explicit outcome, urgency, and actionable-next-step semantics instead of copying notification behavior. | 2026-08-07 | Diane | candidate | Verify current notification states and assess fit with ShipGlows' existing attention model |
+| ShipGlows | direct competitor | Agentica | https://astarlabshub.com/ | Official landing: AI platform for founder workflows (6 specialized AI agents, startup operating system, full-stack app + landing-page generation, React/FastAPI output, live terminal-style logs, GitHub deploy, Railway/Vercel) with free-to-try onboarding. Listed as a lifetime deal on https://grabltd.com/products/agentica. | Positioning, product workflow scope, onboarding, pricing model validation | Keep differentiation on explicit cartography, protected-change dimensions, and human-governed surface protection vs Agentica’s autonomous startup orchestration. | 2026-08-09 | Operator | candidate | Compare positioning: autonomous startup orchestration vs infrastructure lifecycle control. Validate pricing tiers after plan-page details update. |
 
 ## Entry Template
 
