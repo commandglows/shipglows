@@ -421,7 +421,6 @@ if command -v pm2 >/dev/null 2>&1; then
 else
     info "Installation de PM2..."
     pnpm add -g pm2
-    expose_pnpm_global_cli pm2
     hash -r 2>/dev/null
 
     if command -v pm2 >/dev/null 2>&1; then
@@ -431,6 +430,7 @@ else
         exit 1
     fi
 fi
+expose_pnpm_global_cli pm2
 
 echo ""
 
@@ -440,7 +440,6 @@ if command -v vercel >/dev/null 2>&1; then
 else
     info "Installation de Vercel CLI..."
     pnpm add -g vercel
-    expose_pnpm_global_cli vercel
     hash -r 2>/dev/null
 
     if command -v vercel >/dev/null 2>&1; then
@@ -450,6 +449,7 @@ else
         exit 1
     fi
 fi
+expose_pnpm_global_cli vercel
 
 echo ""
 
@@ -458,7 +458,6 @@ if command -v convex >/dev/null 2>&1; then
 else
     info "Installation de Convex CLI..."
     pnpm add -g convex
-    expose_pnpm_global_cli convex
     hash -r 2>/dev/null
 
     if command -v convex >/dev/null 2>&1; then
@@ -468,6 +467,7 @@ else
         exit 1
     fi
 fi
+expose_pnpm_global_cli convex
 
 echo ""
 
@@ -476,7 +476,6 @@ if command -v clerk >/dev/null 2>&1; then
 else
     info "Installation de Clerk CLI..."
     pnpm add -g clerk
-    expose_pnpm_global_cli clerk
     hash -r 2>/dev/null
 
     if command -v clerk >/dev/null 2>&1; then
@@ -486,6 +485,7 @@ else
         exit 1
     fi
 fi
+expose_pnpm_global_cli clerk
 
 echo ""
 
