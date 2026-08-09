@@ -114,7 +114,9 @@ public PowerShell bootstrap
 
 The Windows installer also provisions profile-independent wrappers for npm,
 pnpm, selected coding agents, and the collision-safe shortcuts `c`, `co`,
-`cor`, `oc`, and `kc`. Supported `s` paths are deliberately limited to native
+`cor`, `oc`, `kc`, `re`, and `ch`. On Windows, `re` opens a fresh PowerShell
+session and `ch` clears persisted PowerShell history before opening a clean
+session. Supported `s` paths are deliberately limited to native
 equivalents; Flox, PM2 and Caddy paths remain Linux-only.
 
 ### 3. Local Tunnel Flow

@@ -232,7 +232,8 @@ they also work on managed hosts that block profile scripts. Supported nested
 menu paths include `s d`, `s e`, `s m r`, `s m t`, `s m o`, `s m l`, and
 `s m n`; run `s h` for the Windows list. When their short names are unclaimed,
 the installer also provides `c` (Claude), `co` (Codex), `cor` (`codex resume`),
-`oc` (OpenCode), and `kc` (KiloCode). npm-family and agent commands receive
+`oc` (OpenCode), `kc` (KiloCode), `re` (open a freshly reloaded PowerShell),
+and `ch` (clear PowerShell history and open a clean session). npm-family and agent commands receive
 managed `.cmd` wrappers so blocked npm-generated `.ps1` shims do not require a
 machine-wide execution-policy change.
 

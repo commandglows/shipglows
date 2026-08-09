@@ -161,6 +161,24 @@ function Install-SgAgentShortcut([string]$Name, [string]$TargetName, [string[]]$
     return $true
 }
 
+function Install-SgShellShortcut([string]$Name, [string]$Command) {
+    $shortcutPath = Join-Path $runtimeDir "$Name.cmd"
+    $existing = Get-Command $Name -ErrorAction SilentlyContinue | Select-Object -First 1
+    $canInstall = -not $existing
+    if ($existing -and $existing.Source) {
+        try { $canInstall = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortcutPath) } catch { }
+    }
+    if (-not $canInstall) {
+        Write-Warning "The short command '$Name' is already used by $($existing.Source). ShipGlows did not replace it."
+        return $false
+    }
+
+    $wrapper = "@echo off`r`n$Command`r`n"
+    Set-Content -LiteralPath $shortcutPath -Value $wrapper -Encoding ASCII
+    Write-Host "Shell shortcut installed: $Name" -ForegroundColor Green
+    return $true
+}
+
 function Disable-SgBlockedPowerShellShim([string]$Name, [string[]]$KnownPaths = @()) {
     $changed = $false
     foreach ($cmdPath in $KnownPaths) {
@@ -490,6 +508,8 @@ Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor
 [void](Install-SgAgentShortcut 'cor' 'codex' @('resume'))
 [void](Install-SgAgentShortcut 'oc' 'opencode')
 [void](Install-SgAgentShortcut 'kc' 'kilocode')
+[void](Install-SgShellShortcut 're' 'powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass')
+[void](Install-SgShellShortcut 'ch' 'powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass -Command "Clear-History; try { $historyPath = (Get-PSReadLineOption).HistorySavePath; if ($historyPath -and (Test-Path -LiteralPath $historyPath)) { Remove-Item -LiteralPath $historyPath -Force } } catch { }; Clear-Host"')
 Add-SgRuntimeToUserPath
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green

@@ -49,6 +49,8 @@ rg -n 'Install-SgApplicationCommandWrapper|@call "\$target" %\*|Application comm
 rg -n "Install-SgApplicationCommandWrapper '(npm|npx|corepack|pnpm|codex|claude|opencode|kilocode)'" "$INSTALLER"
 rg -n 'Install-SgAgentShortcut|%~dp0\$TargetName\.cmd|Agent shortcut installed:' "$INSTALLER"
 rg -n "Install-SgAgentShortcut 'c' 'claude'|Install-SgAgentShortcut 'co' 'codex'|Install-SgAgentShortcut 'cor' 'codex' @\('resume'\)|Install-SgAgentShortcut 'oc' 'opencode'|Install-SgAgentShortcut 'kc' 'kilocode'" "$INSTALLER"
+rg -n 'Install-SgShellShortcut|Shell shortcut installed:' "$INSTALLER"
+rg -n "Install-SgShellShortcut 're'.*ExecutionPolicy Bypass|Install-SgShellShortcut 'ch'.*Clear-History.*Get-PSReadLineOption.*HistorySavePath.*Clear-Host" "$INSTALLER"
 rg -n "short command.*already used|ShipGlows did not replace it" "$INSTALLER"
 rg -n 'Disable-SgBlockedPowerShellShim|ChangeExtension\(\$cmdPath, .ps1.\)|shipglows-disabled|Move-Item -LiteralPath \$ps1Path' "$INSTALLER"
 rg -n "Disable-SgBlockedPowerShellShim '(npm|npx|corepack|pnpm|codex|claude|opencode|kilocode)'" "$INSTALLER"
