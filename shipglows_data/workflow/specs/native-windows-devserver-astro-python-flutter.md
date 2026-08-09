@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.19"
+artifact_version: "0.2.21"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-09"
-updated_at: "2026-08-09 12:55:18 UTC"
+updated_at: "2026-08-09 16:00:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -31,10 +31,9 @@ linked_systems:
   - "shipglows_data/technical/installer-and-user-scope.md"
   - "shipglows_data/technical/code-docs-map.md"
   - "tools/sync_shipglows_public_bootstrap.sh"
-  - "/home/claude/commandglows/commandglows_site/src/generated/shipglows-installer.ps1"
-  - "/home/claude/commandglows/commandglows_site/src/pages/shipglows-script.ts"
-  - "/home/claude/commandglows/commandglows_site/src/data/scriptInstallPages.ts"
-  - "/home/claude/commandglows/commandglows_site/tests/deployment/shipglowsInstaller.test.ts"
+  - "/home/claude/shipglows_app/site/src/generated/shipglows-installer.ps1"
+  - "/home/claude/shipglows_app/site/src/pages/shipglows-script.ts"
+  - "/home/claude/shipglows_app/site/tests/install/shipglowsInstaller.test.ts"
 depends_on:
   - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.2.0"
@@ -52,7 +51,7 @@ depends_on:
     artifact_version: "1.0.31"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/installer-and-user-scope.md"
-    artifact_version: "1.1.7"
+    artifact_version: "1.1.9"
     required_status: "reviewed"
 supersedes: []
 evidence:
@@ -89,7 +88,7 @@ L'operateur telecharge avec `curl.exe` le bootstrap PowerShell depuis l'endpoint
 # Success Behavior
 
 - Depuis Windows PowerShell 5.1 ou PowerShell 7, l'operateur peut lancer `s` ou `shipglows-dev` sans Bash, WSL, Docker, Flox, PM2, Caddy, `sudo` ou virtualisation imbriquee. Ces commandes `.cmd` ne dependent pas du profil PowerShell; `s` est installe seulement si le nom n'est pas deja occupe.
-- Le meme endpoint `https://www.commandglows.com/shipglows-script?format=powershell` sert l'installateur Windows local et full; sans `-InstallMode`, une console interactive demande explicitement tunnel local ou DevServer full (full recommande). `-InstallMode local|full` reste disponible pour l'automatisation; une entree non interactive sans mode preserve le fallback local historique.
+- Le meme endpoint `https://shipglows.com/shipglows-script?format=powershell` sert l'installateur Windows local et full; sans `-InstallMode`, une console interactive demande explicitement tunnel local ou DevServer full (full recommande). `-InstallMode local|full` reste disponible pour l'automatisation; une entree non interactive sans mode preserve le fallback local historique.
 - Le mode full prepare Git, GitHub CLI, Node LTS/npm, pnpm et uv automatiquement. Flutter Web reste un choix explicite dans l'installateur: si l'operateur accepte, le SDK stable est installe dans le profil utilisateur et le support web est active.
 - Le dashboard decouvre les projets enregistres, affiche `running`, `stopped`, `error` ou `unknown`, le type de projet, le port et l'URL locale.
 - Un clone Git reussi est place par defaut sous `%USERPROFILE%\ShipGlows\workspace\<repo>` et n'est enregistre qu'apres validation du chemin et du depot.
@@ -137,8 +136,8 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Extension opt-in du bootstrap PowerShell pour installer la surface DevServer sans changer le comportement tunnel par defaut.
 - Contrat de modes PowerShell `local|full`: `local` installe la couche tunnel existante; `full` installe le DevServer Windows natif sans tunnel automatique.
 - Installation Windows depuis le meme endpoint public que Windows local, via `curl.exe` vers un fichier temporaire puis `powershell.exe -File ...`; la console interactive demande le mode et l'automatisation peut transmettre `-InstallMode full`; aucun pipe direct vers `Invoke-Expression`.
-- Synchronisation byte-for-byte de `install-shipglows.ps1` vers l'artefact genere CommandGlows et verification anti-drift dans les deux repos.
-- Activation de la variante `windows-full` EN/FR sur la page publique CommandGlows avec commande copiable, limites exactes et tests de route/contenu.
+- Synchronisation byte-for-byte de `install-shipglows.ps1` vers l'artefact genere du site ShipGlows et verification anti-drift dans les deux repos.
+- Publication de la variante `windows-full` EN/FR sur la page publique ShipGlows avec commande copiable, limites exactes et tests de route/contenu.
 - Tests PowerShell sans dependance de test tierce obligatoire, fixtures Astro/Python/Flutter minimales et smoke reel sur Shadow.
 - Documentation Windows, runtime, installateur, architecture, contexte et code-doc map.
 
@@ -163,7 +162,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Ne jamais modifier le comportement du CLI Linux pour obtenir une pseudo-parite Windows.
 - Le bootstrap PowerShell existant reste compatible et continue d'installer le tunnel local par defaut.
 - Le terme `full` est specifique a la plateforme: sous Linux il conserve la couche serveur Ubuntu; sous Windows il signifie DevServer natif pour Astro, Python/FastAPI et Flutter Web, sans tunnel automatique ni outils serveur Linux.
-- L'endpoint public ne duplique pas la logique: `install-shipglows.ps1` dans ShipGlows reste l'autorite et CommandGlows sert uniquement l'artefact genere synchronise.
+- L'endpoint public ne duplique pas la logique: `install-shipglows.ps1` dans le depot ShipGlows reste l'autorite et le site ShipGlows sert uniquement l'artefact genere synchronise.
 - Support minimum Windows PowerShell 5.1; PowerShell 7 est supporte sans devenir obligatoire.
 - Aucun module PowerShell Gallery obligatoire dans le chemin critique V1.
 - Utiliser des APIs PowerShell/.NET natives pour processus, JSON, fichiers atomiques, ports et ouverture navigateur.
@@ -183,11 +182,11 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Ordered proof path: static/parser -> fixture tests -> Windows process integration -> browser localhost checks -> Flutter interactive check -> Shadow manual checklist.
 - Checklist path: `shipglows_data/workflow/test-checklists/native-windows-devserver-astro-python-flutter.md`.
 - Required scenario IDs: `BOOT-FULL-01`, `BOOT-LOCAL-02`, `ASTRO-START-03`, `PYTHON-START-04`, `FLUTTER-WEB-05`, `PORT-RECOVERY-06`, `STALE-PID-07`, `REGISTRY-ATOMIC-08`, `REDACTION-09`, `PUBLIC-PARITY-10`, `SHADOW-RECONNECT-11`.
-- Required results: full public bootstrap installs the DevServer without a tunnel; local bootstrap remains compatible; each supported stack starts and serves localhost; process identity and registry recovery are safe; secrets are absent from logs; CommandGlows page/endpoint match the canonical script; Shadow reconnect is recoverable.
+- Required results: full public bootstrap installs the DevServer without a tunnel; local bootstrap remains compatible; each supported stack starts and serves localhost; process identity and registry recovery are safe; secrets are absent from logs; ShipGlows page/endpoint match the canonical script; Shadow reconnect is recoverable.
 - Exception with proof: Android emulator is excluded because Shadow does not support the required nested virtualization; no emulator test is required.
 - Exception with proof: public URL, Caddy and persistent-hosting tests are excluded by product scope and Shadow restrictions.
 - Runtime observability exception: Sentry is not applicable because this is a local CLI/bootstrap with no hosted application telemetry contract; safe redacted diagnostic/log-copy behavior is required instead.
-- Build-time header exception: web build-time Paris/UTC headers are not applicable to the PowerShell runtime; public CommandGlows Astro build/deployment checks remain required for the installer page and raw endpoint.
+- Build-time header exception: web build-time Paris/UTC headers are not applicable to the PowerShell runtime; public ShipGlows Astro build/deployment checks remain required for the installer page and raw endpoint.
 
 ## ZOMBIES coverage
 
@@ -211,7 +210,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Windows Terminal when available; visible `powershell.exe`/`pwsh.exe` process fallback otherwise.
 - Gum `0.17.0` for the native interactive menu, installed into the ShipGlows user runtime from the official Charmbracelet release after pinned SHA-256 validation; the plain PowerShell menu remains the recovery fallback.
 - Existing `install-shipglows.ps1` distribution path for opt-in bootstrap integration.
-- CommandGlows public distribution authority at `https://www.commandglows.com/shipglows-script?format=powershell`, backed by `commandglows_site/src/generated/shipglows-installer.ps1`.
+- ShipGlows public distribution authority at `https://shipglows.com/shipglows-script?format=powershell`, backed by `shipglows_app/site/src/generated/shipglows-installer.ps1`.
 - Fresh external docs verdict: `fresh-docs checked` on 2026-08-07 against:
   - Astral uv, `Running commands`: https://docs.astral.sh/uv/concepts/projects/run/
   - Astral uv, `Locking and syncing`: https://docs.astral.sh/uv/concepts/projects/sync/
@@ -242,9 +241,9 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 # Links & Consequences
 
 - `install-shipglows.ps1` gains an explicit surface selector and archive extraction for Windows DevServer files; supply-chain validation and existing local installer extraction guarantees must remain intact.
-- `tools/sync_shipglows_public_bootstrap.sh` must stop targeting the retired WinGlowz layout and synchronize/check the canonical CommandGlows generated shell and PowerShell assets.
-- `/home/claude/commandglows/commandglows_site/src/data/scriptInstallPages.ts` changes `windows-full` from unavailable to available in English and French, with an exact copyable `curl.exe` + `powershell.exe ... -File` command that asks for the mode; `-InstallMode full` remains the automation form.
-- `/home/claude/commandglows/commandglows_site/src/pages/shipglows-script.ts` remains the single negotiated raw endpoint; no second Windows-full route is introduced.
+- `tools/sync_shipglows_public_bootstrap.sh` synchronizes/checks the canonical ShipGlows site generated shell and PowerShell assets.
+- `/home/claude/shipglows_app/site/src/data/installPages.ts` exposes `windows-full` in English and French, with an exact copyable `curl.exe` + `powershell.exe ... -File` command that asks for the mode; `-InstallMode full` remains the automation form.
+- `/home/claude/shipglows_app/site/src/pages/shipglows-script.ts` remains the single negotiated raw endpoint; no second Windows-full route is introduced.
 - `local/install_local.ps1` remains tunnel-owned and should not absorb DevServer runtime logic.
 - `cli/windows/` becomes the Windows runtime authority while `cli/*.sh` remains the Linux runtime authority.
 - `.shipglows.env` keeps its existing closed schema. `SHIPGLOWS_ENV_PORT` may be consumed cross-platform only after equivalent validation; `SHIPGLOWS_AUTO_REPAIR` must not authorize arbitrary remediation.
@@ -262,8 +261,8 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Update `shipglows_data/technical/architecture.md`, `context.md` and `context-function-tree.md` for the new entrypoints and invariants.
 - Update `shipglows_data/technical/code-docs-map.md` with `cli/windows/**`, PowerShell installer files and `tests/windows/**` validation routes.
 - Add an operator checklist under `shipglows_data/workflow/test-checklists/` for real Shadow proof.
-- Review public CommandGlows installer copy only after implementation proves the capability; do not publish the promise from the spec alone.
-- Update the CommandGlows ShipGlows installer page in both languages, its generated PowerShell artifact and deployment tests in the same release wave as the proven Windows full installer.
+- Review public ShipGlows installer copy only after implementation proves the capability; do not publish the promise from the spec alone.
+- Update the ShipGlows runtime installer page in both languages, its generated PowerShell artifact and deployment tests in the same release wave as the proven Windows full installer.
 - Changelog update is required only when the implementation is ready to ship.
 
 # Edge Cases
@@ -337,12 +336,12 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
   - Validate with: Parser checks, local/full mode fixtures, download-only fixture, archive traversal rejection, default/local regression and real Shadow full install using the public curl.exe command.
   - Notes: Dependency installation requiring UAC or network must remain explicit and recoverable.
 
-- [ ] Task 7: Publish Windows full through the canonical CommandGlows endpoint and page
-  - File: `tools/sync_shipglows_public_bootstrap.sh`, `/home/claude/commandglows/commandglows_site/src/generated/shipglows-installer.ps1`, `/home/claude/commandglows/commandglows_site/src/data/scriptInstallPages.ts`, `/home/claude/commandglows/commandglows_site/tests/deployment/shipglowsInstaller.test.ts`, `/home/claude/commandglows/commandglows_site/tests/deployment/shipglowsRoutes.test.ts`
-  - Action: Retarget bootstrap synchronization to the canonical CommandGlows checkout, keep `/shipglows-script?format=powershell` as the raw endpoint, expose an available `windows-full` selector in EN/FR and publish the exact file-download command that asks for the mode; retain `-InstallMode full` for automation.
+- [ ] Task 7: Publish Windows full through the canonical ShipGlows endpoint and page
+  - File: `tools/sync_shipglows_public_bootstrap.sh`, `/home/claude/shipglows_app/site/src/generated/shipglows-installer.ps1`, `/home/claude/shipglows_app/site/tests/install/shipglowsInstaller.test.ts`, `/home/claude/shipglows_app/site/tests/install/bootstrapParity.test.ts`
+  - Action: Retarget bootstrap synchronization to the canonical ShipGlows site checkout, keep `/shipglows-script?format=powershell` as the raw endpoint, expose an available `windows-full` selector in EN/FR and publish the exact file-download command that asks for the mode; retain `-InstallMode full` for automation.
   - User story link: Gives the operator the same one-page public installation path used by Linux, Termux and Windows local.
   - Depends on: Task 6.
-  - Validate with: Sync `--check`, byte comparison, CommandGlows installer/route unit tests, Astro build check, hosted endpoint body check and browser selector proof.
+  - Validate with: Sync `--check`, byte comparison, ShipGlows installer/route unit tests, Astro build check, hosted endpoint body check and browser selector proof.
   - Notes: Do not pipe downloaded PowerShell into `iex`; download to a temporary file, then execute it explicitly.
 
 - [ ] Task 8: Add automated Windows fixtures and regression coverage
@@ -387,7 +386,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - [ ] AC13: Given a Git URL containing credentials or a project environment containing secrets, when diagnostics/log summaries are displayed, then credentials and secret values are absent.
 - [ ] AC14: Given the operator invokes stop twice, when the project is already stopped, then the second call is idempotent and does not target another process.
 - [ ] AC15: Given the default `install-shipglows.ps1` invocation in an interactive Windows console, when no mode is supplied, then the installer asks for tunnel local or recommended DevServer full; non-interactive no-mode calls retain the local fallback.
-- [ ] AC15a: Given the CommandGlows EN or FR ShipGlows page, when Windows and full are selected, then the option is available and copies the public `curl.exe` download plus PowerShell execution command that asks for the mode; Windows local remains available separately and explicit `-InstallMode full` remains documented for automation.
+- [ ] AC15a: Given the ShipGlows EN or FR runtime page, when Windows and full are selected, then the option is available and copies the public `curl.exe` download plus PowerShell execution command that asks for the mode; Windows local remains available separately and explicit `-InstallMode full` remains documented for automation.
 - [ ] AC15b: Given a public deployment, when `/shipglows-script?format=powershell` is fetched, then its body is byte-identical to canonical `install-shipglows.ps1` and contains the tested local/full mode contract.
 - [ ] AC16: Given an unsupported framework or ambiguous Python entrypoint, when start is selected, then no generic command executes and the operator receives an actionable supported-contract message.
 - [ ] AC17: Given the first implementation is complete, when existing Linux CLI/bootstrap tests run, then no Linux server lifecycle regression is introduced.
@@ -412,7 +411,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 4. Start minimal Astro and FastAPI fixtures, wait for bounded HTTP health, inspect logs, restart and stop.
 5. Launch Flutter Web in a visible terminal, prove URL readiness and manually trigger hot reload/restart.
 6. Exercise bootstrap default/local/full surfaces, including malformed archive/traversal rejection and interrupted install recovery.
-7. Synchronize canonical bootstrap artifacts into CommandGlows, run installer/route tests and prove the EN/FR Windows full selector.
+7. Synchronize canonical bootstrap artifacts into the ShipGlows site, run installer/route tests and prove the EN/FR Windows full selector.
 8. Fetch the hosted PowerShell endpoint, compare its body with the canonical script and run the downloaded full installer on Shadow.
 9. Run current Bash syntax and focused Linux CLI/bootstrap suites to prove additive platform separation.
 10. Complete the real Shadow checklist, including shutdown/stale registry recovery on a later session.
@@ -434,7 +433,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 # OWASP Security Gate
 
 - Top 10:2025 categories considered: A02 Security Misconfiguration (localhost-only binding and no persistence bypass), A03 Software Supply Chain Failures (public bootstrap, resolved commit, generated artifact drift and dependency lockfiles), A05 Injection (PowerShell argument construction, repo paths, Git URLs and manifest-derived commands), A06 Insecure Design (mode separation, stale-process handling and no arbitrary command schema), A08 Software or Data Integrity Failures (archive-entry validation, commit resolution, hashes and atomic registry), A09 Security Logging and Alerting Failures (redacted actionable diagnostics), and A10 Mishandling of Exceptional Conditions (cancel, timeout, partial install, child exit, stale state and recovery).
-- Trust/data boundaries: CommandGlows public raw endpoint -> local temporary PowerShell file -> explicit PowerShell process; Git archive/repository metadata -> detection logic; project manifests and lockfiles -> bounded command builders; managed child process -> local registry/logs; local user is the only intended initiator. No remote tenant or authenticated API boundary exists in the DevServer runtime.
+- Trust/data boundaries: ShipGlows public raw endpoint -> local temporary PowerShell file -> explicit PowerShell process; Git archive/repository metadata -> detection logic; project manifests and lockfiles -> bounded command builders; managed child process -> local registry/logs; local user is the only intended initiator. No remote tenant or authenticated API boundary exists in the DevServer runtime.
 - Selected ASVS v5.0.0 requirements: `v5.0.0-1.2.5` for parameterized/context-safe OS command calls and `v5.0.0-5.3.2` for strict validation/sanitization of file paths. Public artifact provenance and dependency supply-chain controls are covered by the ShipGlows commit/archive/hash contract and are not claimed as complete ASVS coverage.
 - Proof: adversarial tests reject `Invoke-Expression`, shell-string interpolation, archive traversal, unsafe paths, credential-bearing URLs, malformed manifests, stale PID identities and secret-bearing logs; bootstrap tests compare canonical/generated bodies and validate resolved commit/archive entries.
 - Residual gap: the V1 contract does not provide Authenticode signing, endpoint attestation beyond HTTPS plus resolved commit/archive/hash checks, or a Windows Defender/SmartScreen acceptance proof. The release proof must state this limitation and must not claim a signed installer or full supply-chain certification.
@@ -452,7 +451,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - For Flutter, use a visible terminal process and reconcile state after manual closure. Do not emulate `tmux` attach semantics.
 - Keep install dependency actions explicit. Detection and guidance may be automatic; UAC/network/package installation requires visible consent in the installer flow.
 - Implementation stop conditions: a required process identity cannot be proven safely; PowerShell 5.1 compatibility would require string evaluation; Shadow proof needs public hosting; a stack requires unsupported custom command execution; official docs conflict with the planned runtime behavior.
-- Public bootstrap command contract: download, inspectable temporary file, explicit PowerShell execution. The documented interactive form is equivalent to `$installer = Join-Path $env:TEMP 'shipglows-install.ps1'; curl.exe -fsSL 'https://www.commandglows.com/shipglows-script?format=powershell' -o $installer; powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer`; `-InstallMode full` remains the deterministic automation suffix.
+- Public bootstrap command contract: download, inspectable temporary file, explicit PowerShell execution. The documented interactive form is equivalent to `$installer = Join-Path $env:TEMP 'shipglows-install.ps1'; curl.exe -fsSL 'https://shipglows.com/shipglows-script?format=powershell' -o $installer; powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer`; `-InstallMode full` remains the deterministic automation suffix.
 - Security implementation gate: preserve `v5.0.0-1.2.5` and `v5.0.0-5.3.2` evidence in tests/review; do not weaken to a string-evaluated command path or broad recursive deletion to simplify Windows behavior.
 - Documentation Freshness Gate verdict: `fresh-docs checked`; re-evaluate local installed versions before implementation.
 
@@ -499,6 +498,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-09 12:49:24 UTC | 005-sg-ship | GPT-5 Codex | Prepared the bounded agent-shortcut wrappers, collision guard, regression assertions and aligned Windows documentation for iterative shipping. | Windows static contract, metadata lint and diff check pass; native PowerShell/Shadow command proof remains pending. | Push the scoped commit, reinstall full from that commit on Shadow, then verify `c`, `co`, `cor`, `oc`, and `kc`. |
 | 2026-08-09 12:52:54 UTC | 300-sg-docs | GPT-5 Codex | Consolidated the native Windows story across architecture, runtime, installer ownership, context/function navigation, code-to-doc routing, README, and the active chantier. | Documentation now distinguishes Linux server and Windows local backends, records full-mode tools and agent choices, and explains profile-independent wrappers and shortcuts. Validation pending; AC27/AC28 remain target-proof gaps rather than documented-as-verified behavior. | Run governance, metadata, link/contract and public-claim coherence checks, then ship the bounded documentation update. |
 | 2026-08-09 12:55:18 UTC | 005-sg-ship | GPT-5 Codex | Prepared the bounded Windows documentation consolidation for iterative shipping after internal and public owner alignment. | Governance topology, metadata lint for eight artifacts, Windows static contract, focused code-to-claim scans, AGENTS compatibility and diff check pass. Native Shadow proof for AC27/AC28 remains outside this docs-only release. | Push the scoped documentation commit; continue target shortcut verification separately. |
+| 2026-08-09 15:40:00 UTC | sg-content | GPT-5 Codex + delegated agents | Aligned the public CommandGlows EN/FR installer copy with the native Windows full runtime, added a secondary Windows DevServer path to the ShipGlows Codex install pages, and declared the external bootstrap pages in editorial governance. | Public copy now distinguishes plugin and runtime installation, documents optional agents and profile-independent commands, and scopes Ubuntu root requirements away from Windows. AC27/AC28 remain pending real Shadow proof. | Validate both Astro sites, targeted installer tests, metadata, links, and canonical/generated PowerShell parity before release. |
 
 # Current Chantier Flow
 

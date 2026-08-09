@@ -27,7 +27,7 @@ ne sont pas requis par le parcours Shadow PC.
 
    ```powershell
    $installer = Join-Path $env:TEMP 'shipglows-install.ps1'
-   curl.exe -fsSL 'https://www.commandglows.com/shipglows-script?format=powershell' -o $installer
+   curl.exe -fsSL 'https://shipglows.com/shipglows-script?format=powershell' -o $installer
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
    ```
 

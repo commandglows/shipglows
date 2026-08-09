@@ -1,10 +1,10 @@
 ---
 artifact: content_map
 metadata_schema_version: "1.0"
-artifact_version: "0.12.0"
+artifact_version: "0.12.2"
 project: ShipGlows
 created: "2026-04-26"
-updated: "2026-08-08"
+updated: "2026-08-09"
 status: draft
 source_skill: manual
 scope: content-map
@@ -48,6 +48,7 @@ evidence:
   - "French public routes added; public skill Markdown remains intentionally English because agents consume the skill contracts more reliably in English."
   - "Public skill discovery was curated to six domains, thirteen métier owners, and the ShipGlows router; numeric lifecycle and specialist skills remain internal expert engines."
   - "Public benefit-first language guide added so familiar reader outcomes lead public copy and technical terms remain evidence-safe second-level proof."
+  - "ShipGlows EN/FR declared as the canonical public bootstrap surface for server/local installation and the native Windows DevServer; CommandGlows retains compatibility redirects."
 linked_artifacts:
   - "README.md"
   - "shipglows_data/business/product.md"
@@ -91,6 +92,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 |---|---|---|---|---|---|
 | Public docs overview | `site/src/pages/docs.astro` | Explain ShipGlows docs, context layer, and decision contracts in public language | Astro page | `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | A new official artifact or documentation role is added |
 | Public install guide | `site/src/pages/install.astro`, `site/src/pages/fr/install.astro` | Explain the Codex marketplace install path for the public `shipglows` plugin and the first command to run after install | Astro page | `README.md`, `plugins/shipglows/README.md`, `plugins/shipglows/assets/docs-links.json`, `shipglows_data/technical/codex-plugin-packaging.md` | Marketplace source, plugin install flow, first-run command, or public packaging posture changes |
+| Public runtime and DevServer installer | `https://shipglows.com/shipglows`, `https://shipglows.com/fr/shipglows` | Provide the official server/local bootstrap path and explain the native Windows DevServer separately from the Codex workflow plugin | Canonical ShipGlows install pages | `install-shipglows.sh`, `install-shipglows.ps1`, `README.md`, `local/README_WINDOWS.md`, verified installer behavior | Bootstrap command or endpoint, install mode, supported platform, dependency set, Windows DevServer capability, launcher, or public install wording changes |
 | Terminal TUI operator docs | `tui/README.md`, `shipglows_data/technical/terminal-tui.md`, `site/src/pages/docs.astro#terminal-tui` | Explain how the optional read-only terminal cockpit is installed, launched, bounded, and positioned against skills, Gum, and Flutter | Markdown + Astro section | TUI spec, verified launcher behavior, TUI source policy | TUI install, command aliases, interaction model, source policy, or read/write boundary changes |
 | Public skill pages | `/home/claude/shipglows_app/site/src/content/skills/` | Present only the thirteen métier owners plus the ShipGlows router as readable public workflow pages; keep numeric engines in expert/internal documentation | Markdown content collection | `skills/references/skill-invocation-registry.json`, public owner skills, product positioning docs | A public métier is added, renamed, repositioned, or its language policy changes |
 | Public benefit-first language | `shipglows_data/editorial/public-benefit-language.md` | Translate public workflow mechanisms into familiar reader outcomes while preserving technical evidence and claim limits | Markdown editorial guide | Claim register, business/product/GTM/brand contracts, active skill contracts | Public copy introduces a workflow mechanism, quality/security control, delegation practice, or sensitive product promise |
@@ -123,6 +125,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 |---|---|---|---|---|---|
 | AI-assisted execution discipline | `site/src/pages/index.astro` | `site/src/pages/docs.astro`, `site/src/content/skills/*.md` | Understand ShipGlows as a work framework | Landing page links to docs and skills; skills link back to framework story | live |
 | Plugin install and activation | `site/src/pages/install.astro`, `site/src/pages/fr/install.astro` | `site/src/pages/docs.astro`, `site/src/pages/faq.astro`, `site/src/content/skills/shipglows.md`, `plugins/shipglows/README.md` | Install ShipGlows into Codex and reach the first successful command quickly | Install page owns the marketplace command and first-run path; docs, FAQ, and public skill pages point to it | live |
+| Server/local bootstrap and Windows DevServer | `https://shipglows.com/shipglows`, `https://shipglows.com/fr/shipglows` | `site/src/pages/install.astro`, `site/src/pages/fr/install.astro`, `README.md`, `local/README_WINDOWS.md` | Choose the server/local runtime install path or prepare a native Windows machine to clone and run supported development projects | ShipGlows owns bootstrap and runtime installation guidance; `/install` preserves Codex-plugin intent and exposes the runtime as a separate path | live |
 | Documentation and decision contracts | `site/src/pages/docs.astro` | `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `skills/references/canonical-paths.md`, `shipglows_data/technical/decisions/project-governance-layout.md`, `templates/*.md` | Learn how context and contracts stay coherent | Docs overview points to canonical repo docs, artifact roles, and root-vs-shipglows_data layout | live |
 | Skill workflow | `site/src/pages/skills/index.astro`, `site/src/pages/skills/[slug].astro`, `site/src/pages/skill-modes.astro`, `shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md` | `site/src/content/skills/*.md`, `skills/*/SKILL.md` | Choose the right skill for a task | Public skill pages should match internal skill names and promises; skill bodies stay English unless an explicit source-alignment plan says otherwise; localized hubs may explain this policy | live |
 | Remote agent operations | `site/src/pages/remote-mcp-oauth-tunnel.astro` | `site/src/pages/docs.astro`, `README.md`, `local/README.md`, `shipglows_data/workflow/specs/local-mcp-oauth-tunnel-login.md` | Understand why remote agents need local callback routing for OAuth MCP login | Dedicated guide owns the SEO topic; docs overview points to it; repo docs point operators to the local guided setup | live |
@@ -178,6 +181,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 | Content lifecycle or repurposing output | `007-sg-content repurpose <source>`, `shipglows_data/editorial/content-map.md`, `shipglows_data/editorial/`, target content surface, evidence ledger from the repurpose pack |
 | New semantic cluster | Pillar page, supporting pages, internal links, FAQ/support candidates |
 | Local tunnel or remote OAuth workflow change | `README.md`, `local/README.md`, `site/src/pages/docs.astro`, `site/src/pages/remote-mcp-oauth-tunnel.astro`, `shipglows_data/editorial/content-map.md`, `shipglows_data/workflow/specs/local-mcp-oauth-tunnel-login.md` |
+| Server/local bootstrap or native Windows DevServer change | ShipGlows EN/FR runtime install pages, `site/src/pages/install.astro`, `site/src/pages/fr/install.astro`, `README.md`, `local/README_WINDOWS.md`, `shipglows_data/editorial/page-intent-map.md`; keep plugin and runtime claims explicitly separate |
 
 ## Open Gaps
 

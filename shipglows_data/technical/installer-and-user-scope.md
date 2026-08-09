@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.8"
+artifact_version: "1.1.9"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-09"
@@ -65,15 +65,15 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 | `install-shipglows.sh` | Canonical remote bootstrap and local/full mode selector | Resolve mode before privilege checks; preserve user home and repository ownership |
 | `install-shipglows.ps1` | Canonical Windows mode selector and archive bootstrap | Keep interactive mode explicit and automation deterministic through `-InstallMode` |
 | `cli/windows/install-devserver.ps1` | Native Windows full installer | Keep user-scoped tools, wrappers, PATH changes, prompts, and collision handling idempotent |
-| `tools/sync_shipglows_public_bootstrap.sh` | WinGlowz public artifact parity | Keep the generated public shell asset byte-for-byte identical to the canonical bootstrap |
+| `tools/sync_shipglows_public_bootstrap.sh` | ShipGlows public artifact parity | Keep the generated public shell and PowerShell assets byte-for-byte identical to the canonical bootstraps |
 | `.env.example` | Example configuration | Keep secrets as placeholders only |
 
 ## Entrypoints
 
-- `curl -fsSL https://www.commandglows.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
+- `curl -fsSL https://shipglows.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
 - Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, and supports `local` or `full`. Interactive mode selection requires `1`, `2`, or `0`; an empty answer only repeats the prompt. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download and before each optional agent CLI (Codex, Claude Code, OpenCode, KiloCode). GitHub authentication is initiated only when private repository browsing is selected; agent authentication is initiated only by the selected agent at first run; credentials remain owned by their respective CLIs.
 - `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
-- `tools/sync_shipglows_public_bootstrap.sh --check --winglowz-root <path>`: verifies that WinGlowz serves the generated canonical artifact rather than an independently maintained template.
+- `tools/sync_shipglows_public_bootstrap.sh --check [--site-root <path>]`: verifies that the ShipGlows site serves generated canonical artifacts rather than independently maintained templates.
 - `sudo ./cli/install.sh`: server installer.
 - `./local/install.sh`: local tunnel and remote-login installer, including Android Termux.
 - `configure_command_wrappers`: installs global `shipglows`, `sg`, and helper command symlinks such as `shipglows-turso-login` and `shipglows-turso-ssh`.
@@ -88,7 +88,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 ## Control Flow
 
 ```text
-curl -fsSL https://www.commandglows.com/shipglows-script | sh
+curl -fsSL https://shipglows.com/shipglows-script | sh
   -> resolve SHIPGLOWS_INSTALL_MODE, Termux, root, or /dev/tty choice
   -> reject ambiguous non-interactive and unsupported Termux/full combinations
   -> install bootstrap dependencies with pkg (Termux) or apt (full server)
@@ -114,7 +114,7 @@ sudo ./cli/install.sh
 - Android Termux always selects or accepts only `local`, even if `sudo` or `tsu` happens to be installed.
 - Prompts read `/dev/tty`, never the script pipeline's standard input. Ambiguous non-interactive runs fail with explicit mode commands.
 - The public code repository is downloaded without Git on native Windows; Linux/Termux paths may still use Git when their local installer requires it. No bootstrap path asks for or logs GitHub credentials.
-- WinGlowz's generated public bootstrap must remain byte-for-byte identical to `install-shipglows.sh`; drift is a validation failure.
+- The ShipGlows site's generated shell and PowerShell bootstraps must remain byte-for-byte identical to `install-shipglows.sh` and `install-shipglows.ps1`; drift is a validation failure.
 - Daily work should run under an operational user, not by forcing all state into root.
 - The installer installs the PM2 binary but must not configure PM2 boot
   autostart by default; environments should start explicitly under the
@@ -187,7 +187,7 @@ sh -n install-shipglows.sh
 bash -n cli/install.sh local/install.sh local/turso-login.sh local/turso-ssh.sh
 bash tests/install/bootstrap-mode-selection.sh
 bash tests/windows/devserver-contract.sh
-tools/sync_shipglows_public_bootstrap.sh --check --winglowz-root /home/claude/winglowz
+tools/sync_shipglows_public_bootstrap.sh --check --site-root /home/claude/shipglows_app/site
 bash -n tools/shipglows_sync_skills.sh tests/skills/runtime-sync.sh
 bash tests/skills/runtime-sync.sh
 tools/shipglows_sync_skills.sh --check --all

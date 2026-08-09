@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-07-13"
+updated: "2026-08-09"
 status: reviewed
 source_skill: 300-sg-docs
 scope: opencode-runtime-docs
@@ -89,7 +89,7 @@ Use this repo contract:
 The OpenCode shim is a lightweight repository entrypoint. For a local checkout that includes the public skill corpus and OpenCode shim, request the explicit corpus surface:
 
 ```bash
-curl -fsSL https://www.commandglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
+curl -fsSL https://shipglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
 ```
 
 Use that route only when the runtime surface is not enough. The Codex plugin remains a separate, no-clone installation path.
