@@ -52,7 +52,7 @@ source ~/.bashrc  # ou source ~/.zshrc
 ```powershell
 # Utiliser le même bootstrap public, adapté automatiquement à PowerShell
 $installer = Join-Path $env:TEMP 'shipglows-install.ps1'
-curl.exe -fsSL 'https://www.winflowz.com/shipglows-script?format=powershell' -o $installer
+curl.exe -fsSL 'https://www.commandglows.com/shipglows-script?format=powershell' -o $installer
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
 
 # Recharger le profil
