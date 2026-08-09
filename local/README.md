@@ -68,6 +68,11 @@ Sur Android, exécutez ces commandes directement dans Termux. L'installateur
 détecte Termux, utilise `~/.bashrc` et indique les dépendances `pkg` adaptées;
 aucun `sudo` n'est requis.
 
+Le parcours Android est validé sur appareil physique : après le premier
+appairage par mot de passe, vous pouvez installer ou générer une clé SSH propre
+au téléphone. La clé privée reste dans Termux ; une fois la vérification par
+clé réussie, les tunnels suivants ne redemandent pas le mot de passe.
+
 Le script installe automatiquement :
 - ✅ Connexion distante ShipGlows si `SHIPGLOWS_SSH_REMOTE_HOST` est fourni
 - ✅ Alias shell `urls`, `tunnel` (Linux/macOS/WSL/Termux)

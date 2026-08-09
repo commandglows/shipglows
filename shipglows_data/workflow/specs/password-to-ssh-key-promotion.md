@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.4"
+artifact_version: "1.1.5"
 project: "ShipGlows"
 created: "2026-07-13"
 created_at: "2026-07-13 17:37:20 UTC"
 updated: "2026-08-09"
-updated_at: "2026-08-09 00:00:00 UTC"
+updated_at: "2026-08-09 00:30:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -201,7 +201,7 @@ Add a local-first promotion operation that validates or generates an identity, s
   - Validate with: metadata lint and focused `rg` proof.
   - Notes: no real host, password, or key content.
 
-- [ ] Task 5: Record real migration proof.
+- [x] Task 5: Record real migration proof.
   - File: `shipglows_data/workflow/test-checklists/password-to-ssh-key-promotion.md`.
   - Action: execute and record `SSHKEY-M01` through `SSHKEY-M05` on the new server.
   - User story link: proves the exact migration outcome.
@@ -211,18 +211,18 @@ Add a local-first promotion operation that validates or generates an identity, s
 
 ## Acceptance Criteria
 
-- [ ] AC 1: Given a saved password connection, when the operator confirms promotion with a valid identity, then only the public record is installed and saved state changes after independent key-only success.
-- [ ] AC 2: Given generation is selected, when no destination files exist, then a mode-600 dedicated Ed25519 identity is created without passphrase after warning, never overwriting files, and its SHA256 fingerprint is shown.
-- [ ] AC 3: Given the public blob is already authorized, when promotion is repeated, then no duplicate is added and key-only proof still runs.
-- [ ] AC 4: Given existing keys/options, when a new key is installed, then every existing entry remains and final directory/file modes are `700`/`600`.
-- [ ] AC 5: Given a password ControlMaster exists, when final proof runs, then it includes `ControlPath=none`, password/keyboard-interactive disabled, publickey preferred, and the selected identity forced.
-- [ ] AC 6: Given install or proof failure, when the flow exits, then all saved connection files preserve their previous content and a French recovery message appears.
-- [ ] AC 7: Given multiline, option-prefixed, private, unsupported, or mismatched public input, when validation runs, then failure occurs before remote mutation.
+- [x] AC 1: Given a saved password connection, when the operator confirms promotion with a valid identity, then only the public record is installed and saved state changes after independent key-only success.
+- [x] AC 2: Given generation is selected, when no destination files exist, then a mode-600 dedicated Ed25519 identity is created without passphrase after warning, never overwriting files, and its SHA256 fingerprint is shown.
+- [x] AC 3: Given the public blob is already authorized, when promotion is repeated, then no duplicate is added and key-only proof still runs.
+- [x] AC 4: Given existing keys/options, when a new key is installed, then every existing entry remains and final directory/file modes are `700`/`600`.
+- [x] AC 5: Given a password ControlMaster exists, when final proof runs, then it includes `ControlPath=none`, password/keyboard-interactive disabled, publickey preferred, and the selected identity forced.
+- [x] AC 6: Given install or proof failure, when the flow exits, then all saved connection files preserve their previous content and a French recovery message appears.
+- [x] AC 7: Given multiline, option-prefixed, private, unsupported, or mismatched public input, when validation runs, then failure occurs before remote mutation.
 - [ ] AC 8: Given a protected key unavailable in batch mode, when proof fails, then ShipGlows recommends `ssh-add`, does not promote, and never falls back to server password.
 - [ ] AC 9: Given a changed host key, when OpenSSH refuses it, then ShipGlows preserves the error and does not edit `known_hosts`.
-- [ ] AC 10: Given two devices, when each installs a distinct public key, then both coexist without private-key sharing.
-- [ ] AC 11: Given changed scripts/docs, when automated checks run, then Bash syntax, promotion tests, and metadata lint pass.
-- [ ] AC 12: Given the new server is available, when the manual checklist runs, then `urls` and one tunnel work after the password master session closes without a server-password prompt.
+- [x] AC 10: Given two devices, when each installs a distinct public key, then both coexist without private-key sharing.
+- [x] AC 11: Given changed scripts/docs, when automated checks run, then Bash syntax, promotion tests, and metadata lint pass.
+- [x] AC 12: Given the new server is available, when the manual checklist runs, then `urls` and one tunnel work after the password master session closes without a server-password prompt.
 
 ## Test Strategy
 
@@ -263,6 +263,7 @@ None. V1 targets Bash on Linux, macOS, WSL, and Android Termux, generates an exp
 | 2026-07-13 17:49:31 UTC | 103-sg-verify | GPT-5 Codex | Verified automated behavior, security invariants, docs, metadata, checklist structure, and existing CLI regressions | partial: SSHKEY-M01 through SSHKEY-M05 require the operator's new server | /107-sg-test password-to-ssh-key-promotion on the new server |
 | 2026-07-13 20:37:47 UTC | 107-sg-test | GPT-5 Codex | Created a retained Hetzner QA VM and exercised password promotion, idempotence, two distinct identities, permissions, and a Linux tunnel after closing the password master; added explicit Termux installer support after detecting the platform gap | partial: SSHKEY-M01, M02, M04, and M05 pass; SSHKEY-M03 still requires the real Android Termux device | /107-sg-test password-to-ssh-key-promotion from Android Termux on the retained QA server |
 | 2026-08-09 UTC | 107-sg-test | GPT-5 Codex + operator | Ran the physical Android Termux flow: password-first pairing, per-device key installation, session identity discovery, port selection, and browser tunnel proof | verified: SSHKEY-M03 pass; all required manual scenarios pass | none |
+| 2026-08-09 UTC | 007-sg-content | GPT-5 Codex | Aligned repository and public install wording with the physical Termux proof, without exposing host, credentials, or key material | implemented; public wording remains bounded to the verified password-first, device-key tunnel flow | none |
 
 ## Current Chantier Flow
 

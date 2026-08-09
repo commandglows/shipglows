@@ -1,13 +1,13 @@
 ---
 artifact: manual_test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "0.1.3"
+artifact_version: "1.0.0"
 project: "ShipGlows"
 created: "2026-07-13"
 created_at: "2026-07-13 17:41:30 UTC"
 updated: "2026-08-09"
 updated_at: "2026-08-09 00:00:00 UTC"
-status: verified
+status: reviewed
 source_skill: "102-sg-start"
 scope: "local-ssh-authentication"
 owner: "Diane"
