@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.3"
+artifact_version: "1.1.4"
 project: "ShipGlows"
 created: "2026-07-13"
 created_at: "2026-07-13 17:37:20 UTC"
-updated: "2026-07-13"
-updated_at: "2026-07-13 20:37:47 UTC"
+updated: "2026-08-09"
+updated_at: "2026-08-09 00:00:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -27,7 +27,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence: ["Operator decision on 2026-07-13 to test password-first pairing during server migration", "Existing password and key auth modes in local/local.sh", "Existing password ControlMaster reuse in local/remote-helpers.sh", "Current official OpenSSH manuals for ssh-keygen, ssh_config, and authorized_keys behavior"]
-next_step: "/107-sg-test password-to-ssh-key-promotion from Android Termux on the retained QA server"
+next_step: "none"
 ---
 
 # Spec: Password-To-SSH-Key Promotion
@@ -262,14 +262,15 @@ None. V1 targets Bash on Linux, macOS, WSL, and Android Termux, generates an exp
 | 2026-07-13 17:48:22 UTC | 102-sg-start | GPT-5 Codex | Implemented local public-key promotion, fresh key-only verification, state rollback, tests, docs, and manual checklist | implemented; local checks pass, real new-server proof pending | /103-sg-verify password-to-ssh-key-promotion |
 | 2026-07-13 17:49:31 UTC | 103-sg-verify | GPT-5 Codex | Verified automated behavior, security invariants, docs, metadata, checklist structure, and existing CLI regressions | partial: SSHKEY-M01 through SSHKEY-M05 require the operator's new server | /107-sg-test password-to-ssh-key-promotion on the new server |
 | 2026-07-13 20:37:47 UTC | 107-sg-test | GPT-5 Codex | Created a retained Hetzner QA VM and exercised password promotion, idempotence, two distinct identities, permissions, and a Linux tunnel after closing the password master; added explicit Termux installer support after detecting the platform gap | partial: SSHKEY-M01, M02, M04, and M05 pass; SSHKEY-M03 still requires the real Android Termux device | /107-sg-test password-to-ssh-key-promotion from Android Termux on the retained QA server |
+| 2026-08-09 UTC | 107-sg-test | GPT-5 Codex + operator | Ran the physical Android Termux flow: password-first pairing, per-device key installation, session identity discovery, port selection, and browser tunnel proof | verified: SSHKEY-M03 pass; all required manual scenarios pass | none |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done.
 - `101-sg-ready`: ready.
 - `102-sg-start`: implemented; auto-verify skipped because real-server manual proof is required.
-- `103-sg-verify`: partial; automated proof and four real-server scenarios pass, while Android Termux tunnel proof remains not run.
-- `104-sg-end`: not launched.
+- `103-sg-verify`: verified; automated proof and all five real-server scenarios pass.
+- `104-sg-end`: ready to launch.
 - `005-sg-ship`: not launched.
 
-Next step: `/107-sg-test password-to-ssh-key-promotion from Android Termux on the retained QA server`
+Next step: none.

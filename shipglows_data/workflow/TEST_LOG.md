@@ -116,6 +116,18 @@
 - Evidence pointer: shipglows_data/workflow/test-checklists/password-to-ssh-key-promotion.md; provider VM retained by operator request; no host, password, token, or key material recorded
 - Follow-up: /107-sg-test password-to-ssh-key-promotion from Android Termux on the retained QA server
 
+## 2026-08-09 - Physical Android Termux SSH-key and tunnel proof
+
+- Scope: shipglows_data/workflow/specs/password-to-ssh-key-promotion.md
+- Environment: physical Android Termux plus retained QA VM
+- Tester: operator with Codex-assisted diagnostics
+- Source: 107-sg-test
+- Status: pass
+- Confidence: high
+- Result summary: The operator completed password-first pairing, device-key creation and installation, key-only reconnection, session identity lookup, registered-port selection, and a browser localhost tunnel proof. No subsequent server-password prompt occurred.
+- Evidence pointer: shipglows_data/workflow/test-checklists/password-to-ssh-key-promotion.md; no host, credential, key material, or raw SSH output retained
+- Follow-up: none
+
 ## 2026-07-17 - Public ShipGlows bootstrap on Android Termux
 
 - Scope: BUG-2026-07-17-001
