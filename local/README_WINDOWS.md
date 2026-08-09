@@ -16,6 +16,7 @@ ne sont pas requis par le parcours Shadow PC.
 - ✅ DevServer natif Astro, Python/FastAPI et Flutter Web en mode full
 - ✅ Clone et registre local des dépôts dans `%USERPROFILE%\ShipGlows\workspace`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
+- ✅ Codex, Claude Code, OpenCode et KiloCode proposés individuellement, sans installation implicite
 
 1. **Lancer le bootstrap unique ShipGlows:**
 
@@ -45,6 +46,10 @@ ne sont pas requis par le parcours Shadow PC.
    Le bootstrap télécharge l'archive publique ShipGlows sans Git, installe
    automatiquement Gum dans le runtime ShipGlows pour le menu interactif,
    puis installe Git, GitHub CLI, Node LTS, pnpm et uv en mode full. Flutter
+   Web et chaque agent de code (Codex, Claude Code, OpenCode, KiloCode) sont
+   des choix séparés avec `non` par défaut. ShipGlows installe seulement le
+   binaire choisi : chaque agent ouvre sa propre authentification officielle au
+   premier lancement et ShipGlows ne lit ni ne stocke ses identifiants. Flutter
    Web est proposé séparément, car son téléchargement est plus lourd. Il ne demande ni
    `sudo`, ni WSL, ni `autossh`. Au premier accès aux dépôts privés, GitHub CLI
    ouvre son authentification officielle dans le navigateur; ShipGlows ne lit

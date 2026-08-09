@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.3"
+artifact_version: "1.1.4"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-08"
+updated: "2026-08-09"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -37,6 +37,7 @@ evidence:
   - "Native Windows full installs Git and GitHub CLI through WinGet, while GitHub CLI exclusively owns browser authentication and credential storage."
   - "Native Windows full installs Node LTS, pnpm and uv automatically, while Flutter Web is an explicit optional user-local download."
   - "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."
+  - "Native Windows full asks separately before each optional coding-agent CLI and leaves authentication to that CLI."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
 ---
@@ -62,7 +63,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 ## Entrypoints
 
 - `curl -fsSL https://www.commandglows.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
-- Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, and supports `local` or `full`. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download. GitHub authentication is initiated only when private repository browsing is selected, and credentials remain owned by `gh`.
+- Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, and supports `local` or `full`. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download and before each optional agent CLI (Codex, Claude Code, OpenCode, KiloCode). GitHub authentication is initiated only when private repository browsing is selected; agent authentication is initiated only by the selected agent at first run; credentials remain owned by their respective CLIs.
 - `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
 - `tools/sync_shipglows_public_bootstrap.sh --check --winglowz-root <path>`: verifies that WinGlowz serves the generated canonical artifact rather than an independently maintained template.
 - `sudo ./cli/install.sh`: server installer.
@@ -116,6 +117,10 @@ sudo ./cli/install.sh
 - Existing user config must be preserved outside ShipGlows-managed blocks.
 - User-space agent CLI install is selection-based. `claude`, `codex`,
   `opencode`, and `kilocode` may be installed independently.
+- Windows full applies the same selection principle: every coding agent has an
+  individual `[y/N]` prompt, and a non-interactive full install skips agents
+  rather than guessing consent. It prefers pnpm and falls back to npm if pnpm
+  cannot make the global executable available.
 - The current user-space agent install path uses `pnpm add -g` inside
   `PNPM_HOME`, so the installer follows the package registry version current at
   install time instead of shipping pinned local binaries.

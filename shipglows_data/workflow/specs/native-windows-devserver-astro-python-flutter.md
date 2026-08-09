@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.6"
+artifact_version: "0.2.7"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
-updated: "2026-08-08"
-updated_at: "2026-08-09 10:49:54 UTC"
+updated: "2026-08-09"
+updated_at: "2026-08-09 11:12:37 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -49,10 +49,10 @@ depends_on:
     artifact_version: "1.7.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/runtime-cli.md"
-    artifact_version: "1.0.28"
+    artifact_version: "1.0.29"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/installer-and-user-scope.md"
-    artifact_version: "1.1.3"
+    artifact_version: "1.1.4"
     required_status: "reviewed"
 supersedes: []
 evidence:
@@ -66,6 +66,7 @@ evidence:
   - "Operator clarification on 2026-08-07: native Windows full must be installable from the same public curl.exe endpoint already used for Windows local, Linux and Termux, and the CommandGlows ShipGlows installer page must expose that route."
   - "CommandGlows evidence: commandglows_site/src/data/scriptInstallPages.ts already defines windows-full but marks it unavailable, while /shipglows-script serves the generated PowerShell bootstrap through ?format=powershell."
   - "OWASP ASVS 5.0.0 official guidance identifies v5.0.0-1.2.5 for OS command injection and v5.0.0-5.3.2 for strict file path validation; both apply to this installer/runtime boundary."
+  - "Official Codex, Claude Code and OpenCode documentation confirms package-managed CLI installation; Windows full keeps every coding agent as an explicit per-agent choice and does not own authentication."
 next_step: "/102-sg-start native-windows-devserver-astro-python-flutter"
 ---
 
@@ -206,6 +207,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Node.js LTS/npm and pnpm for Astro. Full installs Node LTS, attempts Corepack first for pnpm, then falls back to npm global installation when Corepack cannot enable it. npm is used only when the repo owns `package-lock.json`.
 - `uv` for Python version/environment/dependency ownership. Full installs it automatically through WinGet; `uv run` and `uv sync --locked` are the preferred project paths.
 - Flutter SDK for Windows with web support and a browser available on the Shadow desktop. Full asks before downloading this optional larger SDK, installs stable into `%LOCALAPPDATA%\\ShipGlows\\flutter`, then enables web support.
+- Optional coding agents: Windows full asks separately for Codex (`@openai/codex`), Claude Code (`@anthropic-ai/claude-code`), OpenCode (`opencode-ai`) and KiloCode (`@kilocode/cli`). No agent is selected by default; ShipGlows installs only the requested CLI and never reads or stores its credentials. pnpm is preferred, with npm global installation as a recovery fallback.
 - Windows Terminal when available; visible `powershell.exe`/`pwsh.exe` process fallback otherwise.
 - Gum `0.17.0` for the native interactive menu, installed into the ShipGlows user runtime from the official Charmbracelet release after pinned SHA-256 validation; the plain PowerShell menu remains the recovery fallback.
 - Existing `install-shipglows.ps1` distribution path for opt-in bootstrap integration.
@@ -396,6 +398,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - [ ] AC22: Given PowerShell profile execution is blocked, when Windows full installation completes and `s` is unclaimed, then the current and new shells resolve `s.cmd`, which launches the DevServer through `powershell.exe -NoProfile -ExecutionPolicy Bypass`; `shipglows-dev` remains available if `s` is already claimed.
 - [ ] AC23: Given the public Windows PowerShell bootstrap is launched without `-InstallMode` from an interactive console, when the installer starts, then it asks whether to install SSH tunnel local mode or the recommended Local DevServer full mode before downloading files; explicit mode arguments and non-interactive local fallback remain deterministic.
 - [ ] AC24: Given Windows full installation with WinGet available, when Node, pnpm or uv is absent, then Node LTS/npm and uv are installed automatically and pnpm is provisioned through Corepack with a safe npm fallback; Flutter Web is downloaded only after the explicit `[y/N]` choice and enables web support in a user-local SDK directory.
+- [ ] AC25: Given Windows full installation, when optional coding agents are reached, then Codex, Claude Code, OpenCode and KiloCode are each offered through an individual `[y/N]` choice; declined or non-interactive selections install nothing, authentication is deferred to the selected CLI, and pnpm falls back to npm if its global executable cannot be made available.
 - [ ] AC20: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
 
 # Test Strategy
@@ -481,6 +484,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-08 19:13:00 UTC | 106-sg-fix | GPT-5 Codex | Fixed the interactive PowerShell bootstrap parameter failure: an empty default was rejected by `ValidateSet` before the mode prompt. The parameter is now omitted when absent, with a post-resolution allowlist for environment values. | Static contract, generated PowerShell parity and CommandGlows installer tests 96/96 pass; Shadow interactive retest remains pending. | Publish both scoped fixes, then rerun the public install command on Shadow. |
 | 2026-08-09 10:47:57 UTC | 106-sg-fix | GPT-5 Codex | Removed ShipGlows's obsolete managed PowerShell profile function during full installation. PATH-backed `s.cmd` and `shipglows-dev.cmd` already launch with `-NoProfile`, so the installer now removes only its old block instead of recreating it. | Static contract pending; Shadow PowerShell profile retest remains pending. | Publish, rerun the full installer, then open a normal PowerShell session. |
 | 2026-08-09 10:49:54 UTC | 106-sg-fix | GPT-5 Codex | Corrected the PowerShell 5.1 parameter model after target evidence showed that `ValidateSet` still rejected an omitted string parameter. The mode now uses only the explicit post-resolution allowlist, which accepts omission and rejects unsupported values. | Static contract and generated public artifact parity pass; Shadow interactive retest remains pending. | Publish both artifacts, then rerun the public install command on Shadow. |
+| 2026-08-09 11:12:37 UTC | 001-sg-build | GPT-5 Codex | Added individual opt-in prompts for Codex, Claude Code, OpenCode and KiloCode to Windows full. The installer skips agents on Enter or non-interactive execution, delegates first-run authentication to the selected CLI, and uses npm only as a recovery fallback when pnpm cannot expose the global command. | Static contract and Windows parser proof pending; Shadow prompt/install proof remains pending. | Validate, publish, then rerun full installation on Shadow and choose the wanted agents. |
 
 # Current Chantier Flow
 

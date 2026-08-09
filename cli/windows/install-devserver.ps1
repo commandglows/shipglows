@@ -211,6 +211,62 @@ function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]
     }
 }
 
+function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [string]$PackageName, [string[]]$KnownPaths, [string[]]$PnpmPaths, [string[]]$NpmPaths, [string]$CompatibilityNote = '') {
+    if (Test-SgTool $CommandName $KnownPaths) {
+        Write-Host "$DisplayName is already installed." -ForegroundColor Green
+        return $true
+    }
+
+    if ([Console]::IsInputRedirected) {
+        Write-Host "$DisplayName skipped because this is a non-interactive installation. Rerun the full installer to choose optional agents." -ForegroundColor Yellow
+        return $false
+    }
+
+    Write-Host ''
+    Write-Host "$DisplayName is optional." -ForegroundColor Yellow
+    if ($CompatibilityNote) { Write-Host $CompatibilityNote -ForegroundColor DarkYellow }
+    Write-Host "ShipGlows only installs the CLI. Authentication happens when you first run $CommandName; ShipGlows never asks for or stores credentials." -ForegroundColor DarkGray
+    $answer = (Read-Host "Install $DisplayName now? [y/N]").Trim().ToLowerInvariant()
+    if ($answer -notin @('y', 'yes')) {
+        Write-Host "$DisplayName skipped. Rerun the full installer when you want it." -ForegroundColor Yellow
+        return $false
+    }
+
+    $pnpm = Get-SgToolPath 'pnpm.cmd' $PnpmPaths
+    $npm = Get-SgToolPath 'npm.cmd' $NpmPaths
+    if (-not $pnpm -and -not $npm) {
+        Write-Warning "$DisplayName could not be installed because neither pnpm nor npm is available."
+        return $false
+    }
+
+    try {
+        if ($pnpm) {
+            Write-Host "Installing $DisplayName with pnpm. This can take a few minutes; keep this window open..." -ForegroundColor Cyan
+            & $pnpm add --global $PackageName | Out-Host
+            if ($LASTEXITCODE -eq 0) {
+                Update-SgProcessPath
+                if (Test-SgTool $CommandName $KnownPaths) {
+                    Write-Host "$DisplayName installed." -ForegroundColor Green
+                    return $true
+                }
+            }
+            Write-Warning "pnpm could not make $DisplayName available here; trying the npm fallback."
+        }
+
+        if (-not $npm) { throw "$DisplayName was not discoverable after pnpm and npm is unavailable." }
+        Write-Host "Installing $DisplayName with npm fallback. This can take a few minutes; keep this window open..." -ForegroundColor Cyan
+        & $npm install --global $PackageName | Out-Host
+        if ($LASTEXITCODE -ne 0) { throw "$DisplayName installation returned exit code $LASTEXITCODE." }
+        Update-SgProcessPath
+        if (-not (Test-SgTool $CommandName $KnownPaths)) { throw "$DisplayName was installed but is not discoverable yet." }
+        Write-Host "$DisplayName installed." -ForegroundColor Green
+        return $true
+    } catch {
+        Write-Warning "$DisplayName could not be installed automatically: $($_.Exception.Message)"
+        return $false
+    }
+}
+
 function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     if (Test-SgTool 'flutter.bat' $FlutterPaths) {
         Write-Host 'Flutter Web SDK is already installed.' -ForegroundColor Green
@@ -220,7 +276,7 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     Write-Host ''
     Write-Host 'Flutter Web SDK is optional and is a larger download.' -ForegroundColor Yellow
     $answer = (Read-Host 'Install Flutter Web SDK now? [y/N]').Trim().ToLowerInvariant()
-    if ($answer -notin @('y', 'yes', 'o', 'oui')) {
+    if ($answer -notin @('y', 'yes')) {
         Write-Host 'Flutter Web SDK skipped. Rerun the full installer when you need it.' -ForegroundColor Yellow
         return $false
     }
@@ -268,6 +324,11 @@ $corepackPaths = @((Join-Path $programFiles 'nodejs\corepack.cmd'), (Join-Path $
 $pnpmPaths = @((Join-Path $env:APPDATA 'npm\pnpm.cmd'))
 $uvPaths = @((Join-Path $env:USERPROFILE '.local\bin\uv.exe'), (Join-Path $env:USERPROFILE '.cargo\bin\uv.exe'))
 $flutterPaths = @((Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat'), (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.exe'))
+$agentBinDirectory = Join-Path $env:APPDATA 'npm'
+$claudePaths = @((Join-Path $agentBinDirectory 'claude.cmd'))
+$codexPaths = @((Join-Path $agentBinDirectory 'codex.cmd'))
+$opencodePaths = @((Join-Path $agentBinDirectory 'opencode.cmd'))
+$kilocodePaths = @((Join-Path $agentBinDirectory 'kilocode.cmd'))
 Write-Host 'Preparing Windows developer tools. This step can take a few minutes on the first installation.' -ForegroundColor Yellow
 [void](Install-SgWingetPackage 'git.exe' 'Git.Git' $gitPaths)
 [void](Install-SgWingetPackage 'gh.exe' 'GitHub.cli' $ghPaths)
@@ -275,6 +336,14 @@ Write-Host 'Preparing Windows developer tools. This step can take a few minutes 
 [void](Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths)
 [void](Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths)
 [void](Install-SgFlutter $flutterPaths $gitPaths)
+
+Write-Host ''
+Write-Host 'Optional coding agents' -ForegroundColor Yellow
+Write-Host 'Each agent is a separate choice. Press Enter to skip an agent.' -ForegroundColor DarkGray
+[void](Install-SgOptionalAgent 'Codex CLI' 'codex.cmd' '@openai/codex' $codexPaths $pnpmPaths $npmPaths)
+[void](Install-SgOptionalAgent 'Claude Code CLI' 'claude.cmd' '@anthropic-ai/claude-code' $claudePaths $pnpmPaths $npmPaths 'On native Windows, Claude Code uses the Git for Windows terminal environment.')
+[void](Install-SgOptionalAgent 'OpenCode CLI' 'opencode.cmd' 'opencode-ai' $opencodePaths $pnpmPaths $npmPaths 'Native Windows support may vary by OpenCode release.')
+[void](Install-SgOptionalAgent 'KiloCode CLI' 'kilocode.cmd' '@kilocode/cli' $kilocodePaths $pnpmPaths $npmPaths)
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green
 Write-Host "Workspace: $Workspace"
