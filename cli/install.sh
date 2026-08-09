@@ -84,8 +84,11 @@ prepare_pnpm() {
 expose_pnpm_global_cli() {
     local cli_name="$1"
     local cli_path="$PNPM_HOME/bin/$cli_name"
+    local cli_target
 
-    [ -x "$cli_path" ] && ln -sf "$cli_path" "/usr/local/bin/$cli_name"
+    [ -x "$cli_path" ] || return 0
+    cli_target="$(readlink -f "$cli_path")"
+    [ -x "$cli_target" ] && ln -sf "$cli_target" "/usr/local/bin/$cli_name"
 }
 
 warn_flutter_android_ci_policy() {
