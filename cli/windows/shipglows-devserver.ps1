@@ -1,7 +1,9 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('menu','dashboard','start','stop','restart','register','clone','logs','open','stop-all','refresh')]
+    [Parameter(Position = 0)]
     [string]$Action = 'menu',
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$ShortcutPath = @(),
     [string]$ProjectPath = '',
     [string]$RepositoryUrl = '',
     [int]$Port = 0
@@ -14,6 +16,48 @@ Import-Module $module -Force -DisableNameChecking
 $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
+
+function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
+    $namedActions = @('menu','dashboard','start','stop','restart','register','clone','logs','open','stop-all','refresh','navigate','help','exit')
+    if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
+
+    $tokens = @($RequestedAction) + @($RemainingPath)
+    $shortcut = (($tokens | ForEach-Object { $_.Trim().ToLowerInvariant() }) -join ' ')
+    $shortcuts = @{
+        'd'   = 'dashboard'
+        'e'   = 'select-start'
+        'm r' = 'select-restart'
+        'm t' = 'select-stop'
+        'm o' = 'stop-all'
+        'm l' = 'select-logs'
+        'm n' = 'navigate'
+        'h'   = 'help'
+        'x'   = 'exit'
+    }
+    if ($shortcuts.ContainsKey($shortcut)) { return $shortcuts[$shortcut] }
+    throw "Unknown Windows shortcut path: $shortcut. Run 's h' to list supported shortcuts."
+}
+
+function Show-SgShortcutHelp {
+    Write-Host ''
+    Write-Host 'ShipGlows Windows shortcuts' -ForegroundColor Cyan
+    Write-Host '  s d      Dashboard'
+    Write-Host '  s e      Start a project'
+    Write-Host '  s m r    Restart a project'
+    Write-Host '  s m t    Stop a project'
+    Write-Host '  s m o    Stop all projects'
+    Write-Host '  s m l    View project logs'
+    Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
+    Write-Host '  s         Interactive menu'
+    Write-Host ''
+    Write-Host 'Linux-only Flox, PM2 and Caddy shortcuts are intentionally unavailable.' -ForegroundColor DarkGray
+}
+
+try { $Action = Resolve-SgAction $Action $ShortcutPath }
+catch {
+    Write-SgError $_.Exception.Message
+    exit 2
+}
 
 function Get-SgGumCommand {
     $bundled = Join-Path $PSScriptRoot 'gum.exe'
@@ -149,6 +193,21 @@ function Invoke-Logs($entry) {
     if ($entry.errorLogPath -and (Test-Path -LiteralPath $entry.errorLogPath)) { Write-Host '--- stderr ---' -ForegroundColor Yellow; Get-Content -LiteralPath $entry.errorLogPath -Tail 80 }
 }
 
+function Invoke-Navigate {
+    $entry = Get-SelectedProject
+    if (-not $entry) { return }
+    $shell = Join-Path $PSHOME 'powershell.exe'
+    if (-not (Test-Path -LiteralPath $shell -PathType Leaf)) {
+        $shell = Get-SgApplication 'pwsh.exe' @()
+    }
+    if (-not $shell) { throw 'No compatible PowerShell executable is available for project navigation.' }
+
+    Write-SgInfo "Opening a child PowerShell shell in $($entry.path). Type exit to return."
+    Push-Location -LiteralPath $entry.path
+    try { & $shell -NoLogo -NoProfile -ExecutionPolicy Bypass -NoExit }
+    finally { Pop-Location }
+}
+
 function Invoke-Menu {
     $menuItems = @(
         '1  Clone a repository',
@@ -204,5 +263,12 @@ try {
         'logs' { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry) { Invoke-Logs $entry } }
         'open' { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and $entry.port) { Start-Process "http://127.0.0.1:$($entry.port)" } }
         'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { Stop-SgProject $config $entry.path } }
+        'select-start' { $entry = Get-SelectedProject; if ($entry) { Start-SgProject $config $entry.path $Port | Out-Null } }
+        'select-stop' { $entry = Get-SelectedProject; if ($entry) { Stop-SgProject $config $entry.path } }
+        'select-restart' { $entry = Get-SelectedProject; if ($entry) { Stop-SgProject $config $entry.path; Start-SgProject $config $entry.path $Port | Out-Null } }
+        'select-logs' { $entry = Get-SelectedProject; if ($entry) { Invoke-Logs $entry } }
+        'navigate' { Invoke-Navigate }
+        'help' { Show-SgShortcutHelp }
+        'exit' { return }
     }
 } catch { Write-SgError $_.Exception.Message; exit 1 }

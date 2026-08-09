@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.31"
+artifact_version: "1.0.32"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-09"
@@ -50,6 +50,7 @@ evidence:
   - "Native Windows full offers Codex, Claude Code, OpenCode, and KiloCode as separate opt-in prompts; agent authentication remains owned by each CLI."
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."
   - "Native Windows installs priority .cmd wrappers for npm-family and coding-agent commands so restrictive PowerShell execution policies cannot select blocked .ps1 shims."
+  - "Native Windows resolves supported nested menu shortcuts such as s m n inside the PATH-backed launcher, without requiring a PowerShell profile."
   - "Main menu session identity now renders inside the top status header."
   - "Subcommand screen headers now route through a shared modular header helper."
   - "Nested menus and search selectors now preserve the ShipGlows DevServer title treatment."
@@ -83,6 +84,13 @@ This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, a
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
 | `cli/windows/install-devserver.ps1` | Installs the Windows launcher and developer tools | Install Node LTS, pnpm and uv idempotently; remove only ShipGlows's obsolete profile block; ask before Flutter Web or each coding-agent CLI |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
+
+The Windows launcher also owns the profile-independent shortcut paths that
+have a native equivalent: `s d`, `s e`, `s m r`, `s m t`, `s m o`, `s m l`,
+and `s m n`. Navigation selects a registered project and opens a child
+PowerShell in that directory; it does not attempt to mutate the parent shell.
+Linux-only Flox, PM2 and Caddy paths remain unavailable rather than being
+silently remapped.
 
 ## Entrypoints
 

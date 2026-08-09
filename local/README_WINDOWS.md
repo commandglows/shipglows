@@ -67,6 +67,12 @@ ne sont pas requis par le parcours Shadow PC.
    `shipglows-dev` reste disponible comme commande explicite. Ces commandes
    n'utilisent pas le profil PowerShell, donc elles fonctionnent aussi quand
    l'execution des scripts de profil est interdite.
+   Les raccourcis imbriques compatibles Windows sont aussi interprétés par le
+   lanceur `.cmd`, sans alias ni profil PowerShell. Par exemple, `s d` affiche
+   le dashboard et `s m n` permet de choisir un projet puis ouvre un PowerShell
+   enfant dans son dossier (`exit` revient au shell initial). `s h` affiche la
+   liste des raccourcis disponibles. Les actions Linux liées à Flox, PM2 ou
+   Caddy ne sont volontairement pas annoncées sous Windows.
    Git, GitHub CLI, Node/npm, pnpm et uv sont préparés par ShipGlows. Le dossier
    global de pnpm v11 est ajouté automatiquement au `PATH` utilisateur et la
    commande est réellement vérifiée avant d'afficher `[ok]`. Des wrappers
