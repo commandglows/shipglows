@@ -456,6 +456,7 @@ $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
 $gitPaths = @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe'))
 $ghPaths = @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe'))
+$fzfPaths = @((Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\fzf.exe'))
 $nodePaths = @((Join-Path $programFiles 'nodejs\node.exe'), (Join-Path $programFilesX86 'nodejs\node.exe'))
 $npmPaths = @((Join-Path $programFiles 'nodejs\npm.cmd'), (Join-Path $programFilesX86 'nodejs\npm.cmd'))
 $npxPaths = @((Join-Path $programFiles 'nodejs\npx.cmd'), (Join-Path $programFilesX86 'nodejs\npx.cmd'))
@@ -472,6 +473,7 @@ $kilocodePaths = @((Join-Path $agentBinDirectory 'kilocode.cmd'), (Join-Path $pn
 Write-Host 'Preparing Windows developer tools. This step can take a few minutes on the first installation.' -ForegroundColor Yellow
 [void](Install-SgWingetPackage 'git.exe' 'Git.Git' $gitPaths)
 [void](Install-SgWingetPackage 'gh.exe' 'GitHub.cli' $ghPaths)
+[void](Install-SgWingetPackage 'fzf.exe' 'junegunn.fzf' $fzfPaths)
 [void](Install-SgWingetPackage 'node.exe' 'OpenJS.NodeJS.LTS' $nodePaths)
 $pnpmReady = Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths
 [void](Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths)
@@ -517,7 +519,7 @@ Write-Host "Workspace: $Workspace"
 Write-Host 'Commands: s (short) or shipglows-dev'
 Write-Host ''
 Write-Host 'Dependency check:' -ForegroundColor Yellow
-foreach ($tool in @('gum','git','gh','node','npm','pnpm','uv','flutter')) {
+foreach ($tool in @('gum','fzf','git','gh','node','npm','pnpm','uv','flutter')) {
     if ($tool -eq 'gum' -and (Test-Path -LiteralPath (Join-Path $runtimeDir 'gum.exe') -PathType Leaf)) {
         Write-Host "  [ok]   gum" -ForegroundColor Green
         continue
@@ -525,6 +527,7 @@ foreach ($tool in @('gum','git','gh','node','npm','pnpm','uv','flutter')) {
     $knownPaths = switch ($tool) {
         'git' { $gitPaths; break }
         'gh' { $ghPaths; break }
+        'fzf' { $fzfPaths; break }
         'node' { $nodePaths; break }
         'npm' { $npmPaths; break }
         'pnpm' { $pnpmPaths; break }

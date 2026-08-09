@@ -67,6 +67,12 @@ function Get-SgGumCommand {
     return $null
 }
 
+function Get-SgFzfCommand {
+    $command = Get-Command fzf.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($command) { return $command.Source }
+    return $null
+}
+
 function Get-SgApplication([string]$Name, [string[]]$KnownPaths = @()) {
     $command = Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($command) { return $command.Source }
@@ -77,6 +83,8 @@ function Get-SgApplication([string]$Name, [string[]]$KnownPaths = @()) {
 }
 
 $gum = Get-SgGumCommand
+$fzf = Get-SgFzfCommand
+$choiceUiAvailable = [bool]($fzf -or $gum)
 $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
 $git = Get-SgApplication 'git.exe' @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe'))
@@ -90,7 +98,8 @@ function Get-SgSelectedIndex([string[]]$Labels, [string]$Selected) {
 }
 
 function Read-SgInput([string]$Prompt, [string]$Placeholder = '') {
-    if (-not $gum) { return Read-Host $Prompt }
+    # Once fzf is available, avoid Bubble Tea console capture altogether.
+    if ($fzf -or -not $gum) { return Read-Host $Prompt }
     $arguments = @('input','--prompt',"$Prompt ")
     if ($Placeholder) { $arguments += @('--placeholder',$Placeholder) }
     $value = (& $gum @arguments | Out-String).Trim()
@@ -99,12 +108,34 @@ function Read-SgInput([string]$Prompt, [string]$Placeholder = '') {
 }
 
 function Read-SgChoice([string]$Header, [string[]]$Options) {
-    if (-not $gum) { return $null }
+    if (-not $choiceUiAvailable) { return $null }
     $lines = @($Options | ForEach-Object { "$_" -replace '[\r\n]+', ' ' } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
     if ($lines.Count -eq 0) { return $null }
+
+    # fzf has reliable redirected-input/output behavior in Windows PowerShell.
+    # Prefer it over Gum, whose Bubble Tea console redraw can lose rows on some
+    # managed Windows terminals (including Shadow + WezTerm).
+    if ($fzf) {
+        $value = (($lines -join [Environment]::NewLine) | & $fzf --height=~60% --layout=reverse --border --prompt "$Header > " --no-multi | Out-String).Trim()
+        if ($LASTEXITCODE -ne 0) { return $null }
+        return $value
+    }
+
     # Gum on Windows can collapse a PowerShell-splatted array into one option.
     # Its newline-delimited stdin contract preserves one selectable item per line.
-    $value = (($lines -join [Environment]::NewLine) | & $gum choose --header $Header --cursor-prefix '> ' --selected-prefix '* ' | Out-String).Trim()
+    # Explicit colors prevent invisible black-on-black items on managed Windows
+    # terminals whose inherited ANSI defaults differ from a normal console.
+    $style = @(
+        '--item.foreground', '255',
+        '--item.background', '0',
+        '--cursor.foreground', '0',
+        '--cursor.background', '212',
+        '--selected.foreground', '0',
+        '--selected.background', '212',
+        '--header.foreground', '255',
+        '--header.background', '0'
+    )
+    $value = (($lines -join [Environment]::NewLine) | & $gum choose --header $Header --cursor-prefix '> ' --selected-prefix '* ' @style | Out-String).Trim()
     if ($LASTEXITCODE -ne 0) { return $null }
     return $value
 }
@@ -113,7 +144,7 @@ function Get-SelectedProject {
     $registry = Reconcile-SgRegistry $config
     $items = @($registry.projects)
     if ($items.Count -eq 0) { Write-SgWarn 'No registered projects.'; return $null }
-    if ($gum) {
+    if ($choiceUiAvailable) {
         $labels = @($items | ForEach-Object { "$($_.name)  [$($_.status)]  $($_.kind)  :$($_.port)" })
         $selected = Read-SgChoice 'Choose a project' $labels
         if (-not $selected) { return $null }
@@ -141,7 +172,7 @@ function Invoke-SgGitHubLogin {
 }
 
 function Invoke-SgGitHubClone {
-    if (-not $gum) { throw 'The GitHub repository browser requires Gum; use Enter Git URL instead.' }
+    if (-not $choiceUiAvailable) { throw 'The GitHub repository browser requires fzf or Gum; use Enter Git URL instead.' }
     [void](Invoke-SgGitHubLogin)
     $json = (& $gh repo list --limit 200 --json nameWithOwner,description,isPrivate,url | Out-String)
     if ($LASTEXITCODE -ne 0) { throw 'GitHub repository listing failed.' }
@@ -182,7 +213,7 @@ function Invoke-CloneUrl {
 }
 
 function Invoke-Clone {
-    if ($RepositoryUrl -or -not $gum) { Invoke-CloneUrl; return }
+    if ($RepositoryUrl -or -not $choiceUiAvailable) { Invoke-CloneUrl; return }
     $choice = Read-SgChoice 'Clone a repository' @('Browse my GitHub repositories','Enter a Git URL','Back')
     switch ($choice) {
         'Browse my GitHub repositories' { Invoke-SgGitHubClone }
@@ -227,7 +258,7 @@ function Invoke-Menu {
     )
     while ($true) {
         Show-SgDashboard $config
-        if ($gum) {
+        if ($choiceUiAvailable) {
             $selected = Read-SgChoice 'What do you want to do?' $menuItems
             if (-not $selected) { return }
             $choice = $selected.Substring(0,1)
@@ -250,7 +281,7 @@ function Invoke-Menu {
                 default { Write-SgWarn 'Unknown choice.' }
             }
         } catch { Write-SgError $_.Exception.Message }
-        if (-not $gum) { Read-Host 'Press Enter to continue' | Out-Null }
+        if (-not $choiceUiAvailable) { Read-Host 'Press Enter to continue' | Out-Null }
     }
 }
 
