@@ -100,7 +100,11 @@ function Read-SgInput([string]$Prompt, [string]$Placeholder = '') {
 
 function Read-SgChoice([string]$Header, [string[]]$Options) {
     if (-not $gum) { return $null }
-    $value = (& $gum choose --header $Header --cursor-prefix '> ' --selected-prefix '* ' @Options | Out-String).Trim()
+    $lines = @($Options | ForEach-Object { "$_" -replace '[\r\n]+', ' ' } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    if ($lines.Count -eq 0) { return $null }
+    # Gum on Windows can collapse a PowerShell-splatted array into one option.
+    # Its newline-delimited stdin contract preserves one selectable item per line.
+    $value = (($lines -join [Environment]::NewLine) | & $gum choose --header $Header --cursor-prefix '> ' --selected-prefix '* ' | Out-String).Trim()
     if ($LASTEXITCODE -ne 0) { return $null }
     return $value
 }

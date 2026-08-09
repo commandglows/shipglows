@@ -21,6 +21,7 @@ rg -n "gumVersion = '0\.17\.0'|gumSha256 = 'B2BE80531C6BABC8D4E0E6CA95773D58118A
 rg -n 'Get-FileHash .*SHA256|github\.com/charmbracelet/gum/releases/download' "$INSTALLER"
 rg -n 'gum_\$\{gumVersion\}_Windows_x86_64/gum\.exe' "$INSTALLER"
 rg -n 'Get-SgGumCommand|gum choose|Read-SgChoice' "$ENTRYPOINT"
+rg -n 'newline-delimited stdin|\$lines -join \[Environment\]::NewLine.*\| & \$gum choose|replace .\[\\r\\n\]\+' "$ENTRYPOINT"
 rg -n 'ValueFromRemainingArguments|Resolve-SgAction|Show-SgShortcutHelp' "$ENTRYPOINT"
 rg -n "'m n' = 'navigate'|'m r' = 'select-restart'|'m t' = 'select-stop'|'m o' = 'stop-all'|'m l' = 'select-logs'|'e'   = 'select-start'" "$ENTRYPOINT"
 rg -n "'select-start'|'select-stop'|'select-restart'|'select-logs'" "$ENTRYPOINT"
