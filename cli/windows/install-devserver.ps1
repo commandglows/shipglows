@@ -135,6 +135,32 @@ function Install-SgApplicationCommandWrapper([string]$Name, [string]$CommandName
     return $true
 }
 
+function Install-SgAgentShortcut([string]$Name, [string]$TargetName, [string[]]$PrefixArguments = @()) {
+    $shortcutPath = Join-Path $runtimeDir "$Name.cmd"
+    $targetPath = Join-Path $runtimeDir "$TargetName.cmd"
+    if (-not (Test-Path -LiteralPath $targetPath -PathType Leaf)) { return $false }
+
+    $existing = Get-Command $Name -ErrorAction SilentlyContinue | Select-Object -First 1
+    $canInstall = -not $existing
+    if ($existing -and $existing.Source) {
+        try { $canInstall = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortcutPath) } catch { }
+    }
+    if (-not $canInstall) {
+        Write-Warning "The short command '$Name' is already used by $($existing.Source). ShipGlows did not replace it."
+        return $false
+    }
+
+    $prefix = if (@($PrefixArguments).Count -gt 0) { ($PrefixArguments -join ' ') + ' ' } else { '' }
+    $wrapper = @"
+@echo off
+@call "%~dp0$TargetName.cmd" $prefix%*
+"@
+    Set-Content -LiteralPath $shortcutPath -Value $wrapper -Encoding ASCII
+    $message = "Agent shortcut installed: $Name -> $TargetName $($PrefixArguments -join ' ')"
+    Write-Host $message.TrimEnd() -ForegroundColor Green
+    return $true
+}
+
 function Disable-SgBlockedPowerShellShim([string]$Name, [string[]]$KnownPaths = @()) {
     $changed = $false
     foreach ($cmdPath in $KnownPaths) {
@@ -459,6 +485,11 @@ Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor
 [void](Install-SgApplicationCommandWrapper 'claude' 'claude.cmd' $claudePaths)
 [void](Install-SgApplicationCommandWrapper 'opencode' 'opencode.cmd' $opencodePaths)
 [void](Install-SgApplicationCommandWrapper 'kilocode' 'kilocode.cmd' $kilocodePaths)
+[void](Install-SgAgentShortcut 'c' 'claude')
+[void](Install-SgAgentShortcut 'co' 'codex')
+[void](Install-SgAgentShortcut 'cor' 'codex' @('resume'))
+[void](Install-SgAgentShortcut 'oc' 'opencode')
+[void](Install-SgAgentShortcut 'kc' 'kilocode')
 Add-SgRuntimeToUserPath
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green

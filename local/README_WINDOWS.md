@@ -79,6 +79,10 @@ ne sont pas requis par le parcours Shadow PC.
    `.cmd` prioritaires permettent aussi d'utiliser `npm`, `pnpm` et les agents
    lorsque Windows interdit les shims PowerShell `.ps1`. Flutter
    Web est disponible si vous avez accepté son téléchargement dans le prompt.
+   Quand leurs noms ne sont pas déjà occupés, ShipGlows installe également les
+   raccourcis d'agents habituels sans profil PowerShell : `c` pour Claude,
+   `co` pour Codex, `cor` pour `codex resume`, `oc` pour OpenCode et `kc` pour
+   KiloCode. Une commande préexistante n'est jamais remplacée silencieusement.
    Flox, PM2, Caddy et autossh sont remplacés par les commandes natives et le
    registre ShipGlows.
 

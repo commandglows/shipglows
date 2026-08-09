@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.32"
+artifact_version: "1.0.33"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-09"
@@ -51,6 +51,7 @@ evidence:
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."
   - "Native Windows installs priority .cmd wrappers for npm-family and coding-agent commands so restrictive PowerShell execution policies cannot select blocked .ps1 shims."
   - "Native Windows resolves supported nested menu shortcuts such as s m n inside the PATH-backed launcher, without requiring a PowerShell profile."
+  - "Native Windows installs collision-safe .cmd shortcuts for c, co, cor, oc and kc after their managed agent command targets are available."
   - "Main menu session identity now renders inside the top status header."
   - "Subcommand screen headers now route through a shared modular header helper."
   - "Nested menus and search selectors now preserve the ShipGlows DevServer title treatment."
@@ -91,6 +92,12 @@ and `s m n`. Navigation selects a registered project and opens a child
 PowerShell in that directory; it does not attempt to mutate the parent shell.
 Linux-only Flox, PM2 and Caddy paths remain unavailable rather than being
 silently remapped.
+
+The installer also creates profile-independent, collision-safe agent shortcuts:
+`c -> claude`, `co -> codex`, `cor -> codex resume`, `oc -> opencode`, and
+`kc -> kilocode`. Each shortcut calls the managed command in the same runtime
+directory. If Windows already resolves that short name to another command,
+ShipGlows preserves the existing owner and reports the conflict.
 
 ## Entrypoints
 

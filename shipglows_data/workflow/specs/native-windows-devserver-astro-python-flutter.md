@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.15"
+artifact_version: "0.2.17"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-09"
-updated_at: "2026-08-09 12:35:37 UTC"
+updated_at: "2026-08-09 12:49:24 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -401,6 +401,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - [x] AC25: Given Windows full installation, when optional coding agents are reached, then Codex, Claude Code, OpenCode and KiloCode are each offered through an individual `[y/N]` choice; declined or non-interactive selections install nothing, authentication is deferred to the selected CLI, and pnpm falls back to npm if its global executable cannot be made available. For selected agent packages requiring a postinstall hook, npm fallback allows only that exact package's install script and verifies the resulting CLI with `--version`.
 - [x] AC26: Given a Windows host whose execution policy blocks npm-generated `.ps1` shims, when the operator invokes `pnpm`, `codex`, `claude`, `opencode`, or `kilocode` by its ordinary command name, then ShipGlows preserves the blocked user-scoped shim under a unique backup name, resolves a managed `.cmd` wrapper or verified underlying `.cmd` executable, and forwards all arguments without changing the execution policy. npm, npx and Corepack receive the same wrapper treatment where their installed path is user-writable.
 - [ ] AC27: Given the PATH-backed Windows `s.cmd` launcher, when the operator invokes a supported Linux-style menu path such as `s d`, `s e`, or `s m n`, then the native PowerShell frontend resolves only Windows-equivalent actions without loading `$PROFILE`; `s m n` selects a registered project and opens a child PowerShell in its directory, unsupported Flox/PM2/Caddy paths fail with `s h` guidance, and existing long-form actions retain their behavior.
+- [ ] AC28: Given Windows full installs one or more coding agents, when the short names are unclaimed, then ShipGlows installs profile-independent `.cmd` wrappers for `c -> claude`, `co -> codex`, `cor -> codex resume`, `oc -> opencode`, and `kc -> kilocode`; each forwards operator arguments to the managed command target, while a pre-existing command owner is preserved with a visible warning.
 - [ ] AC20: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
 
 # Test Strategy
@@ -494,6 +495,8 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-09 12:19:18 UTC | 003-sg-bug | GPT-5 Codex | Accepted the final Shadow target proof for ordinary agent command resolution: `opencode --version` returned `1.18.15` and `kilocode --version` returned `7.4.20`, completing the previously proven pnpm, Codex and Claude command set. | AC26 is proven on the execution-policy-restricted Shadow host. Version commands were evidence-only checks and are not activation or runtime prerequisites. | Continue the broader native DevServer checklist with `s`; no further agent-command repair is required. |
 | 2026-08-09 12:34:07 UTC | 001-sg-build | GPT-5 Codex | Added a profile-independent Windows shortcut resolver for the native equivalents of the Linux menu paths, including interactive dashboard/start/restart/stop/logs actions and `s m n` project navigation through a child PowerShell. | Implementation and documentation updated; focused static contract and real Shadow shortcut proof remain pending. | Run focused validation, publish the bounded files, refresh the Shadow installation, then exercise `s h` and `s m n`. |
 | 2026-08-09 12:35:37 UTC | 005-sg-ship | GPT-5 Codex | Prepared the bounded Windows shortcut resolver, focused regression contract and aligned operator/technical documentation for iterative shipping. | Windows static contract, metadata lint and diff check pass; bug risk is not assessed beyond the unique chantier, and native PowerShell/Shadow proof remains pending. | Push the scoped commit, reinstall full from that commit on Shadow, then run `s h` and `s m n`. |
+| 2026-08-09 12:48:27 UTC | 001-sg-build | GPT-5 Codex | Restored the established AI-agent convenience mappings on native Windows with collision-safe `.cmd` wrappers: `c`, `co`, `cor`, `oc`, and `kc`. | Implementation and docs updated; focused contract and native Shadow proof remain pending. | Validate, publish, reinstall full on Shadow, then invoke each short command with a bounded version/help argument. |
+| 2026-08-09 12:49:24 UTC | 005-sg-ship | GPT-5 Codex | Prepared the bounded agent-shortcut wrappers, collision guard, regression assertions and aligned Windows documentation for iterative shipping. | Windows static contract, metadata lint and diff check pass; native PowerShell/Shadow command proof remains pending. | Push the scoped commit, reinstall full from that commit on Shadow, then verify `c`, `co`, `cor`, `oc`, and `kc`. |
 
 # Current Chantier Flow
 
