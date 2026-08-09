@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.8"
+artifact_version: "0.2.9"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-09"
-updated_at: "2026-08-09 11:25:22 UTC"
+updated_at: "2026-08-09 11:28:28 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -485,7 +485,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-09 10:47:57 UTC | 106-sg-fix | GPT-5 Codex | Removed ShipGlows's obsolete managed PowerShell profile function during full installation. PATH-backed `s.cmd` and `shipglows-dev.cmd` already launch with `-NoProfile`, so the installer now removes only its old block instead of recreating it. | Static contract pending; Shadow PowerShell profile retest remains pending. | Publish, rerun the full installer, then open a normal PowerShell session. |
 | 2026-08-09 10:49:54 UTC | 106-sg-fix | GPT-5 Codex | Corrected the PowerShell 5.1 parameter model after target evidence showed that `ValidateSet` still rejected an omitted string parameter. The mode now uses only the explicit post-resolution allowlist, which accepts omission and rejects unsupported values. | Static contract and generated public artifact parity pass; Shadow interactive retest remains pending. | Publish both artifacts, then rerun the public install command on Shadow. |
 | 2026-08-09 11:12:37 UTC | 001-sg-build | GPT-5 Codex | Added individual opt-in prompts for Codex, Claude Code, OpenCode and KiloCode to Windows full. The installer skips agents on Enter or non-interactive execution, delegates first-run authentication to the selected CLI, and uses npm only as a recovery fallback when pnpm cannot expose the global command. | Static contract and Windows parser proof pending; Shadow prompt/install proof remains pending. | Validate, publish, then rerun full installation on Shadow and choose the wanted agents. |
-| 2026-08-09 11:25:22 UTC | 003-sg-bug | GPT-5 Codex | Reproduced the unattended mode selection from operator evidence: empty input was explicitly mapped to full. Removed that default from the canonical and generated bootstraps; empty input now repeats the prompt until 1, 2, or 0 is entered. | Regression test failed before the repair and passes after it; public deployment and Shadow retest remain pending. | Publish both bounded commits, verify the hosted bootstrap, then retest an empty answer on Shadow. |
+| 2026-08-09 11:25:22 UTC | 003-sg-bug | GPT-5 Codex | Reproduced the unattended mode selection from operator evidence: empty input was explicitly mapped to full. Removed that default from the canonical and generated bootstraps; empty input now repeats the prompt until 1, 2, or 0 is entered. | Regression test failed before the repair and passes after it; ShipGlows `aa9d9c8` and CommandGlows `f8494e2` are pushed, and the production bootstrap matches the canonical file byte-for-byte. Shadow retest remains pending. | Retest an empty answer on Shadow, then enter the intended mode explicitly. |
 
 # Current Chantier Flow
 
