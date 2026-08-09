@@ -33,6 +33,7 @@ rg -n 'Remove-SgObsoleteProfileCommand|Removed the obsolete ShipGlows profile co
 ! rg -n 'function shipglows-dev \{ & ' "$INSTALLER"
 rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh repo list --limit 200|gh repo clone' "$ENTRYPOINT"
 ! rg -n 'gh auth token|GH_TOKEN|GITHUB_TOKEN' "$ENTRYPOINT" "$INSTALLER"
+! rg -n 'WSL est disponible|Lancement de la configuration locale Windows|Utilise ensuite|Pour les projets locaux' "$BOOTSTRAP"
 ! rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"
 ! rg -n 'InstallMode = \$\(if \(\$env:SHIPGLOWS_INSTALL_MODE' "$BOOTSTRAP"
 rg -n '\[string\]\$InstallMode,|InstallMode must be local or full|\$InstallMode -notin @\(' "$BOOTSTRAP"
