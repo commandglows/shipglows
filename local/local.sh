@@ -744,7 +744,9 @@ fetch_server_session_info() {
 
     run_remote_ssh "bash -lc '
         for lib_path in \
-            \"\${SHIPGLOWS_ROOT:-\$HOME/shipglows}/lib.sh\"
+            \"\${SHIPGLOWS_ROOT:-\$HOME/shipglows}/lib.sh\" \
+            \"\${SHIPGLOWS_ROOT:-\$HOME/shipglows}/cli/lib.sh\" \
+            \"\$HOME/shipglows/cli/lib.sh\"
         do
             if [ -f \"\$lib_path\" ]; then
                 source \"\$lib_path\" 2>/dev/null
