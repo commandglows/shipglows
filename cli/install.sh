@@ -60,6 +60,27 @@ warning() {
     shipglows_log "WARN" "WARN: $1"
 }
 
+prepare_pnpm() {
+    export PNPM_HOME="$HOME/.local/share/pnpm"
+    export PATH="$PNPM_HOME/bin:$PATH"
+    mkdir -p "$PNPM_HOME/bin"
+
+    if ! corepack enable >/dev/null 2>&1; then
+        error "Échec de l'activation de Corepack pour pnpm"
+        return 1
+    fi
+
+    if ! corepack prepare pnpm@latest --activate >/dev/null 2>&1; then
+        error "Échec de la préparation de pnpm"
+        return 1
+    fi
+
+    if ! command -v pnpm >/dev/null 2>&1; then
+        error "pnpm reste introuvable après l'initialisation de Corepack"
+        return 1
+    fi
+}
+
 warn_flutter_android_ci_policy() {
     local arch
     arch="$(uname -m 2>/dev/null || echo unknown)"
@@ -385,14 +406,13 @@ fi
 echo ""
 
 # 2. Installer PM2
+prepare_pnpm || exit 1
+
 if command -v pm2 >/dev/null 2>&1; then
     PM2_VERSION=$(pm2 --version)
     success "PM2 déjà installé: $PM2_VERSION"
 else
     info "Installation de PM2..."
-    export PNPM_HOME="/usr/local/share/pnpm"
-    export PATH="$PNPM_HOME:$PATH"
-    corepack prepare pnpm@latest --activate >/dev/null 2>&1
     pnpm add -g pm2
     hash -r 2>/dev/null
 
@@ -407,10 +427,6 @@ fi
 echo ""
 
 # 3. Installer les CLI Node globales utiles
-export PNPM_HOME="/usr/local/share/pnpm"
-export PATH="$PNPM_HOME:$PATH"
-corepack prepare pnpm@latest --activate >/dev/null 2>&1
-
 if command -v vercel >/dev/null 2>&1; then
     success "Vercel CLI déjà installé: $(vercel --version 2>/dev/null | head -n1)"
 else
@@ -1777,7 +1793,7 @@ ensure_user_local_npm_bootstrap() {
 
 # >>> ShipGlows pnpm bootstrap >>>
 export PNPM_HOME="$HOME/.local/share/pnpm"
-export PATH="$PNPM_HOME:$PATH"
+export PATH="$PNPM_HOME/bin:$PATH"
 # <<< ShipGlows pnpm bootstrap <<<
 BOOTSTRAP
 }
@@ -1790,16 +1806,16 @@ install_ai_agent_clis_for_user() {
     fi
     ensure_user_local_npm_bootstrap "$user_home" "$username"
     if [ "${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}" = "1" ]; then
-        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v claude >/dev/null 2>&1 || pnpm add -g @anthropic-ai/claude-code' || return 1
+        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v claude >/dev/null 2>&1 || pnpm add -g @anthropic-ai/claude-code' || return 1
     fi
     if [ "${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}" = "1" ]; then
-        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v codex >/dev/null 2>&1 || pnpm add -g @openai/codex' || return 1
+        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v codex >/dev/null 2>&1 || pnpm add -g @openai/codex' || return 1
     fi
     if [ "${SHIPGLOWS_INSTALL_AGENT_OPENCODE:-0}" = "1" ]; then
-        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v opencode >/dev/null 2>&1 || pnpm add -g opencode-ai' || return 1
+        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v opencode >/dev/null 2>&1 || pnpm add -g opencode-ai' || return 1
     fi
     if [ "${SHIPGLOWS_INSTALL_AGENT_KILOCODE:-0}" = "1" ]; then
-        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v kilocode >/dev/null 2>&1 || pnpm add -g @kilocode/cli' || return 1
+        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v kilocode >/dev/null 2>&1 || pnpm add -g @kilocode/cli' || return 1
     fi
     return 0
 }
@@ -1818,10 +1834,10 @@ verify_ai_agent_clis_for_user() {
         return 0
     fi
 
-    claude_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; command -v claude 2>/dev/null || true')
-    codex_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; command -v codex 2>/dev/null || true')
-    opencode_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; command -v opencode 2>/dev/null || true')
-    kilocode_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; command -v kilocode 2>/dev/null || true')
+    claude_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v claude 2>/dev/null || true')
+    codex_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v codex 2>/dev/null || true')
+    opencode_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v opencode 2>/dev/null || true')
+    kilocode_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v kilocode 2>/dev/null || true')
 
     if [ "${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}" = "1" ] && [ -n "$claude_path" ]; then
         status_output="${status_output} claude=${claude_path}"
@@ -2153,10 +2169,10 @@ generate_install_report() {
     if command -v git >/dev/null 2>&1; then status_git="present"; else status_git=""; fi
     if command -v jq >/dev/null 2>&1; then status_jq="present"; else status_jq=""; fi
     if command -v fuser >/dev/null 2>&1; then status_fuser="present"; else status_fuser=""; fi
-    report_claude_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; command -v claude 2>/dev/null || true' 2>/dev/null)"
-    report_codex_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; command -v codex 2>/dev/null || true' 2>/dev/null)"
-    report_opencode_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; command -v opencode 2>/dev/null || true' 2>/dev/null)"
-    report_kilocode_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PATH"; command -v kilocode 2>/dev/null || true' 2>/dev/null)"
+    report_claude_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v claude 2>/dev/null || true' 2>/dev/null)"
+    report_codex_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v codex 2>/dev/null || true' 2>/dev/null)"
+    report_opencode_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v opencode 2>/dev/null || true' 2>/dev/null)"
+    report_kilocode_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v kilocode 2>/dev/null || true' 2>/dev/null)"
 
     cat > "$SHIPGLOWS_REPORT_FILE" << REPORT
 # Rapport d'installation ShipGlows
