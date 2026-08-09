@@ -67,7 +67,9 @@ ne sont pas requis par le parcours Shadow PC.
    `shipglows-dev` reste disponible comme commande explicite. Ces commandes
    n'utilisent pas le profil PowerShell, donc elles fonctionnent aussi quand
    l'execution des scripts de profil est interdite.
-   Git, GitHub CLI, Node/npm, pnpm et uv sont préparés par ShipGlows. Flutter
+   Git, GitHub CLI, Node/npm, pnpm et uv sont préparés par ShipGlows. Le dossier
+   global de pnpm v11 est ajouté automatiquement au `PATH` utilisateur et la
+   commande est réellement vérifiée avant d'afficher `[ok]`. Flutter
    Web est disponible si vous avez accepté son téléchargement dans le prompt.
    Flox, PM2, Caddy et autossh sont remplacés par les commandes natives et le
    registre ShipGlows.

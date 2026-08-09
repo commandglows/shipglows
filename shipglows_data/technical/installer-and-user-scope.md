@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.5"
+artifact_version: "1.1.6"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-09"
@@ -39,6 +39,7 @@ evidence:
   - "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."
   - "Native Windows full asks separately before each optional coding-agent CLI and leaves authentication to that CLI."
   - "Native Windows interactive mode selection requires an explicit 1, 2, or 0; empty console input never starts an installation."
+  - "Native Windows prepares pnpm v11's global bin PATH and explicitly allows only the selected official agent package's install script when npm fallback requires it."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
 ---
@@ -121,7 +122,10 @@ sudo ./cli/install.sh
 - Windows full applies the same selection principle: every coding agent has an
   individual `[y/N]` prompt, and a non-interactive full install skips agents
   rather than guessing consent. It prefers pnpm and falls back to npm if pnpm
-  cannot make the global executable available.
+  cannot make the global executable available. The installer adds pnpm v11's
+  configured global `bin` directory to the user `PATH`. When npm fallback is
+  required for an agent with a postinstall hook, only that selected package is
+  passed through npm's scoped `--allow-scripts=<package>` control.
 - The current user-space agent install path uses `pnpm add -g` inside
   `PNPM_HOME`, so the installer follows the package registry version current at
   install time instead of shipping pinned local binaries.

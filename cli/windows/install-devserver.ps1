@@ -96,6 +96,17 @@ function Get-SgToolPath([string]$Name, [string[]]$KnownPaths = @()) {
     return $null
 }
 
+function Test-SgToolRuns([string]$Name, [string[]]$KnownPaths = @(), [string[]]$Arguments = @('--version')) {
+    $executable = Get-SgToolPath $Name $KnownPaths
+    if (-not $executable) { return $false }
+    try {
+        & $executable @Arguments 2>$null | Out-Null
+        return $LASTEXITCODE -eq 0
+    } catch {
+        return $false
+    }
+}
+
 function Install-SgWingetPackage([string]$Name, [string]$PackageId, [string[]]$KnownPaths = @()) {
     if (Test-SgTool $Name $KnownPaths) {
         Write-Host "$Name is already installed." -ForegroundColor Green
@@ -166,10 +177,36 @@ function Install-SgGum {
     }
 }
 
-function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]]$PnpmPaths) {
-    if (Test-SgTool 'pnpm.cmd' $PnpmPaths) {
-        Write-Host 'pnpm is already installed.' -ForegroundColor Green
+function Initialize-SgPnpmGlobalBin([string[]]$PnpmPaths) {
+    $pnpm = Get-SgToolPath 'pnpm.cmd' $PnpmPaths
+    if (-not $pnpm) { return $false }
+    if (-not (Test-SgToolRuns 'pnpm.cmd' $PnpmPaths)) {
+        Write-Warning 'pnpm --version check failed; pnpm is not ready yet.'
+        return $false
+    }
+
+    try {
+        $configuredOutput = @(& $pnpm config get global-bin-dir 2>$null)
+        $globalBin = ($configuredOutput | Out-String).Trim()
+        if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($globalBin) -or $globalBin -in @('null', 'undefined')) {
+            $globalBin = Join-Path $env:LOCALAPPDATA 'pnpm\bin'
+            & $pnpm config set global-bin-dir $globalBin --global | Out-Host
+            if ($LASTEXITCODE -ne 0) { throw 'pnpm global-bin-dir configuration failed.' }
+        }
+        New-Item -ItemType Directory -Path $globalBin -Force | Out-Null
+        Add-SgUserPathEntry $globalBin
+        Write-Host "pnpm global commands are available from $globalBin." -ForegroundColor Green
         return $true
+    } catch {
+        Write-Warning "pnpm is installed, but its global command directory could not be prepared: $($_.Exception.Message)"
+        return $false
+    }
+}
+
+function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]]$PnpmPaths) {
+    if (Test-SgToolRuns 'pnpm.cmd' $PnpmPaths) {
+        Write-Host 'pnpm is already installed.' -ForegroundColor Green
+        return (Initialize-SgPnpmGlobalBin $PnpmPaths)
     }
 
     $npm = Get-SgToolPath 'npm.cmd' $NpmPaths
@@ -189,9 +226,9 @@ function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]
             & $corepack enable pnpm | Out-Host
             if ($LASTEXITCODE -eq 0) {
                 Update-SgProcessPath
-                if (Test-SgTool 'pnpm.cmd' $PnpmPaths) {
+                if (Test-SgToolRuns 'pnpm.cmd' $PnpmPaths) {
                     Write-Host 'pnpm installed with Corepack.' -ForegroundColor Green
-                    return $true
+                    return (Initialize-SgPnpmGlobalBin $PnpmPaths)
                 }
             } else {
                 Write-Warning 'Corepack could not enable pnpm here; using the npm fallback.'
@@ -202,17 +239,17 @@ function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]
         & $npm install --global pnpm@latest | Out-Host
         if ($LASTEXITCODE -ne 0) { throw "pnpm installation returned exit code $LASTEXITCODE." }
         Update-SgProcessPath
-        if (-not (Test-SgTool 'pnpm.cmd' $PnpmPaths)) { throw 'pnpm was installed but is not discoverable yet.' }
+        if (-not (Test-SgToolRuns 'pnpm.cmd' $PnpmPaths)) { throw 'pnpm was installed but its version check failed.' }
         Write-Host 'pnpm installed.' -ForegroundColor Green
-        return $true
+        return (Initialize-SgPnpmGlobalBin $PnpmPaths)
     } catch {
         Write-Warning "pnpm could not be installed automatically: $($_.Exception.Message)"
         return $false
     }
 }
 
-function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [string]$PackageName, [string[]]$KnownPaths, [string[]]$PnpmPaths, [string[]]$NpmPaths, [string]$CompatibilityNote = '') {
-    if (Test-SgTool $CommandName $KnownPaths) {
+function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [string]$PackageName, [string[]]$KnownPaths, [string[]]$PnpmPaths, [string[]]$NpmPaths, [string]$CompatibilityNote = '', [switch]$AllowInstallScripts) {
+    if (Test-SgToolRuns $CommandName $KnownPaths) {
         Write-Host "$DisplayName is already installed." -ForegroundColor Green
         return $true
     }
@@ -240,12 +277,12 @@ function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [st
     }
 
     try {
-        if ($pnpm) {
+        if ($pnpm -and -not $AllowInstallScripts) {
             Write-Host "Installing $DisplayName with pnpm. This can take a few minutes; keep this window open..." -ForegroundColor Cyan
             & $pnpm add --global $PackageName | Out-Host
             if ($LASTEXITCODE -eq 0) {
                 Update-SgProcessPath
-                if (Test-SgTool $CommandName $KnownPaths) {
+                if (Test-SgToolRuns $CommandName $KnownPaths) {
                     Write-Host "$DisplayName installed." -ForegroundColor Green
                     return $true
                 }
@@ -255,10 +292,14 @@ function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [st
 
         if (-not $npm) { throw "$DisplayName was not discoverable after pnpm and npm is unavailable." }
         Write-Host "Installing $DisplayName with npm fallback. This can take a few minutes; keep this window open..." -ForegroundColor Cyan
-        & $npm install --global $PackageName | Out-Host
+        if ($AllowInstallScripts) {
+            & $npm install --global "--allow-scripts=$PackageName" $PackageName | Out-Host
+        } else {
+            & $npm install --global $PackageName | Out-Host
+        }
         if ($LASTEXITCODE -ne 0) { throw "$DisplayName installation returned exit code $LASTEXITCODE." }
         Update-SgProcessPath
-        if (-not (Test-SgTool $CommandName $KnownPaths)) { throw "$DisplayName was installed but is not discoverable yet." }
+        if (-not (Test-SgToolRuns $CommandName $KnownPaths)) { throw "$DisplayName was installed but its version check failed." }
         Write-Host "$DisplayName installed." -ForegroundColor Green
         return $true
     } catch {
@@ -325,15 +366,16 @@ $pnpmPaths = @((Join-Path $env:APPDATA 'npm\pnpm.cmd'))
 $uvPaths = @((Join-Path $env:USERPROFILE '.local\bin\uv.exe'), (Join-Path $env:USERPROFILE '.cargo\bin\uv.exe'))
 $flutterPaths = @((Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat'), (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.exe'))
 $agentBinDirectory = Join-Path $env:APPDATA 'npm'
-$claudePaths = @((Join-Path $agentBinDirectory 'claude.cmd'))
-$codexPaths = @((Join-Path $agentBinDirectory 'codex.cmd'))
-$opencodePaths = @((Join-Path $agentBinDirectory 'opencode.cmd'))
-$kilocodePaths = @((Join-Path $agentBinDirectory 'kilocode.cmd'))
+$pnpmAgentBinDirectory = Join-Path $env:LOCALAPPDATA 'pnpm\bin'
+$claudePaths = @((Join-Path $agentBinDirectory 'claude.cmd'), (Join-Path $pnpmAgentBinDirectory 'claude.cmd'))
+$codexPaths = @((Join-Path $agentBinDirectory 'codex.cmd'), (Join-Path $pnpmAgentBinDirectory 'codex.cmd'))
+$opencodePaths = @((Join-Path $agentBinDirectory 'opencode.cmd'), (Join-Path $pnpmAgentBinDirectory 'opencode.cmd'))
+$kilocodePaths = @((Join-Path $agentBinDirectory 'kilocode.cmd'), (Join-Path $pnpmAgentBinDirectory 'kilocode.cmd'))
 Write-Host 'Preparing Windows developer tools. This step can take a few minutes on the first installation.' -ForegroundColor Yellow
 [void](Install-SgWingetPackage 'git.exe' 'Git.Git' $gitPaths)
 [void](Install-SgWingetPackage 'gh.exe' 'GitHub.cli' $ghPaths)
 [void](Install-SgWingetPackage 'node.exe' 'OpenJS.NodeJS.LTS' $nodePaths)
-[void](Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths)
+$pnpmReady = Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths
 [void](Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths)
 [void](Install-SgFlutter $flutterPaths $gitPaths)
 
@@ -341,9 +383,9 @@ Write-Host ''
 Write-Host 'Optional coding agents' -ForegroundColor Yellow
 Write-Host 'Each agent is a separate choice. Press Enter to skip an agent.' -ForegroundColor DarkGray
 [void](Install-SgOptionalAgent 'Codex CLI' 'codex.cmd' '@openai/codex' $codexPaths $pnpmPaths $npmPaths)
-[void](Install-SgOptionalAgent 'Claude Code CLI' 'claude.cmd' '@anthropic-ai/claude-code' $claudePaths $pnpmPaths $npmPaths 'On native Windows, Claude Code uses the Git for Windows terminal environment.')
-[void](Install-SgOptionalAgent 'OpenCode CLI' 'opencode.cmd' 'opencode-ai' $opencodePaths $pnpmPaths $npmPaths 'Native Windows support may vary by OpenCode release.')
-[void](Install-SgOptionalAgent 'KiloCode CLI' 'kilocode.cmd' '@kilocode/cli' $kilocodePaths $pnpmPaths $npmPaths)
+[void](Install-SgOptionalAgent 'Claude Code CLI' 'claude.cmd' '@anthropic-ai/claude-code' $claudePaths $pnpmPaths $npmPaths -CompatibilityNote 'On native Windows, Claude Code uses the Git for Windows terminal environment.' -AllowInstallScripts)
+[void](Install-SgOptionalAgent 'OpenCode CLI' 'opencode.cmd' 'opencode-ai' $opencodePaths $pnpmPaths $npmPaths -CompatibilityNote 'Native Windows support may vary by OpenCode release.' -AllowInstallScripts)
+[void](Install-SgOptionalAgent 'KiloCode CLI' 'kilocode.cmd' '@kilocode/cli' $kilocodePaths $pnpmPaths $npmPaths -AllowInstallScripts)
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green
 Write-Host "Workspace: $Workspace"
@@ -371,7 +413,8 @@ foreach ($tool in @('gum','git','gh','node','npm','pnpm','uv','flutter')) {
         'flutter' { 'flutter.bat'; break }
         default { "$tool.exe" }
     }
-    $found = Test-SgTool $executable $knownPaths
+    if ($tool -eq 'pnpm') { $found = $pnpmReady -and (Test-SgToolRuns $executable $knownPaths) }
+    else { $found = Test-SgTool $executable $knownPaths }
     if ($found) { Write-Host "  [ok]   $tool" -ForegroundColor Green }
     else { Write-Host "  [miss] $tool (install it or use the project-specific setup instructions)" -ForegroundColor Yellow }
 }
