@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: "ShipGlows"
 created: "2026-08-09"
 created_at: "2026-08-09 15:50:00 UTC"
 updated: "2026-08-09"
-updated_at: "2026-08-09 16:00:00 UTC"
-status: ready
+updated_at: "2026-08-09 16:11:00 UTC"
+status: reviewed
 source_skill: sg-development
 source_model: "GPT-5 Codex"
 scope: "public-installer-domain-migration"
@@ -33,7 +33,7 @@ evidence:
   - "The ShipGlows site is Astro 6 static output without a Vercel adapter; query-driven PowerShell negotiation requires one on-demand route."
   - "The canonical installers are /home/claude/shipglows/install-shipglows.sh and install-shipglows.ps1."
   - "Official Astro Vercel adapter documentation confirms static output can retain prerendered pages while prerender=false routes render on demand."
-next_step: "Implement the three exclusive migration batches, validate locally, then deploy ShipGlows before enabling CommandGlows redirects."
+next_step: "Monitor installer traffic and retire compatibility redirects only through a future explicit deprecation decision."
 ---
 
 # ShipGlows Public Installer Domain Migration
@@ -122,16 +122,16 @@ The batches have exclusive write scopes and may run in parallel locally. Product
 
 ## Acceptance Criteria
 
-- [ ] AC01: ShipGlows EN/FR runtime and dotfiles pages build with correct canonical and alternate URLs.
-- [ ] AC02: `/shipglows-script` serves shell by default and PowerShell for all three supported format aliases with `text/plain` and bounded cache headers.
-- [ ] AC03: `/dotfiles-script` serves the expected safe shell bootstrap.
-- [ ] AC04: generated ShipGlows installer artifacts match canonical root installers byte-for-byte.
-- [ ] AC05: `/install` and `/fr/install` remain plugin-first and link to the local runtime pages.
-- [ ] AC06: all active commands and docs use the apex ShipGlows endpoint; historical occurrences are not rewritten.
-- [ ] AC07: every old CommandGlows page/script route and ShipGlowz alias redirects permanently to the direct ShipGlows destination while preserving query strings.
-- [ ] AC08: exact-route tests reject accidental child-route or open-redirect behavior.
-- [ ] AC09: both Astro sites pass focused tests, check/build, metadata and diff validation.
-- [ ] AC10: production ShipGlows destinations are proven before CommandGlows redirects are activated.
+- [x] AC01: ShipGlows EN/FR runtime and dotfiles pages build with correct canonical and alternate URLs.
+- [x] AC02: `/shipglows-script` serves shell by default and PowerShell for all three supported format aliases with `text/plain` and bounded cache headers.
+- [x] AC03: `/dotfiles-script` serves the expected safe shell bootstrap.
+- [x] AC04: generated ShipGlows installer artifacts match canonical root installers byte-for-byte.
+- [x] AC05: `/install` and `/fr/install` remain plugin-first and link to the local runtime pages.
+- [x] AC06: all active commands and docs use the apex ShipGlows endpoint; historical occurrences are not rewritten.
+- [x] AC07: every old CommandGlows page/script route and ShipGlowz alias redirects permanently to the direct ShipGlows destination while preserving query strings.
+- [x] AC08: exact-route tests reject accidental child-route or open-redirect behavior.
+- [x] AC09: both Astro sites pass focused tests, check/build, metadata and diff validation.
+- [x] AC10: production ShipGlows destinations are proven before CommandGlows redirects are activated.
 
 ## Proof Order
 
@@ -161,6 +161,7 @@ The batches have exclusive write scopes and may run in parallel locally. Product
 |---|---|---|---|---|---|
 | 2026-08-09 15:50:00 UTC | sg-development + sg-content | GPT-5 Codex + 3 read-only agents | Audited both sites, active URLs, hosting mode, installer ownership, compatibility routes and dirty-worktree risks; created the ready migration contract with exclusive batches and ordered production activation. | ready | Implement batches A, B and C locally, then run the proof order. |
 | 2026-08-09 16:00:00 UTC | 001-sg-build | GPT-5 Codex | Implemented Batch B in the canonical ShipGlows repository: moved active installer authority to the apex ShipGlows domain, retargeted generated bootstrap synchronization, and aligned active public, technical, editorial and Windows-spec documentation while preserving dated history. | implemented; shell syntax, generated shell/PowerShell parity, Windows static contract, governance topology, metadata, active-URL scan and diff check pass | Integrate the validated Batch B with Batch A, then prove ShipGlows production before activating Batch C redirects. |
+| 2026-08-09 16:11:00 UTC | sg-development + sg-content | GPT-5 Codex + 6 agents | Integrated and shipped all three batches in ordered production deployments; verified canonical pages/endpoints, byte parity, direct permanent redirects, legacy aliases and complete query preservation. | complete; ShipGlows `c301f43` + site `9c22d61`, CommandGlows `cbaca5c`, Vercel production deployment `dpl_E2yRb8mCmBUiTu4eG6G8nvp6v5WQ` | Monitor compatibility traffic; no migration work remains. |
 
 ## Current Chantier Flow
 
@@ -168,7 +169,7 @@ The batches have exclusive write scopes and may run in parallel locally. Product
 |---|---|---|---|
 | 100-sg-spec | complete | Cross-repo route, behavior, security, documentation and deployment-order contract recorded. | 101-sg-ready |
 | 101-sg-ready | complete | No open product decision; batches are exclusive, failure behavior is explicit and proof is proportional. | 001-sg-build |
-| 001-sg-build | in_progress | Batch B implemented and locally validated in `/home/claude/shipglows`; batches A and C remain independently owned. | Integrate all three batches, then enter cross-repo verification. |
-| 103-sg-verify | pending | Awaiting implementation. | Run local and hosted proof. |
-| 104-sg-end | pending | Awaiting verification. | Close after proof. |
-| 005-sg-ship | pending | Production order is ShipGlows first, CommandGlows second. | Ship only after scoped review. |
+| 001-sg-build | complete | Batches A, B and C are committed in exclusive scopes across the three repositories. | 103-sg-verify |
+| 103-sg-verify | complete | Focused tests/builds pass; production pages return 200; script hashes equal canonical sources; nine legacy routes return direct 308 redirects with query preservation. | 104-sg-end |
+| 104-sg-end | complete | Acceptance criteria AC01-AC10 are closed and residual unrelated worktree diagnostics are documented. | 005-sg-ship |
+| 005-sg-ship | complete | ShipGlows was deployed and proven before CommandGlows compatibility redirects were activated and proven. | Monitor compatibility traffic. |
