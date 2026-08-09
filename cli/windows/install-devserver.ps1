@@ -15,6 +15,10 @@ $gumSha256 = 'B2BE80531C6BABC8D4E0E6CA95773D58118A2E1582AE006AACE08DBC55503072'
 New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
 New-Item -ItemType Directory -Path $Workspace -Force | Out-Null
 
+function Write-SgInstallerWarning([string]$Message) {
+    Write-Host "WARNING: $Message" -ForegroundColor Yellow
+}
+
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
 Copy-Item -LiteralPath (Join-Path $sourceDir 'ShipGlows.DevServer.psm1') -Destination $runtimeDir -Force
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
@@ -73,7 +77,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0shipglows-devserve
         Set-Content -LiteralPath $shortCommand -Value $wrapper -Encoding ASCII
         Write-Host 'Short command installed: s' -ForegroundColor Green
     } else {
-        Write-Warning "The command 's' is already used by $($existing.Source). ShipGlows kept the non-conflicting command: shipglows-dev."
+        Write-SgInstallerWarning "The command 's' is already used by $($existing.Source). ShipGlows kept the non-conflicting command: shipglows-dev."
     }
 }
 
@@ -146,7 +150,7 @@ function Install-SgAgentShortcut([string]$Name, [string]$TargetName, [string[]]$
         try { $canInstall = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortcutPath) } catch { }
     }
     if (-not $canInstall) {
-        Write-Warning "The short command '$Name' is already used by $($existing.Source). ShipGlows did not replace it."
+        Write-SgInstallerWarning "The short command '$Name' is already used by $($existing.Source). ShipGlows did not replace it."
         return $false
     }
 
@@ -169,7 +173,7 @@ function Install-SgShellShortcut([string]$Name, [string]$Command) {
         try { $canInstall = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortcutPath) } catch { }
     }
     if (-not $canInstall) {
-        Write-Warning "The short command '$Name' is already used by $($existing.Source). ShipGlows did not replace it."
+        Write-SgInstallerWarning "The short command '$Name' is already used by $($existing.Source). ShipGlows did not replace it."
         return $false
     }
 
@@ -194,7 +198,7 @@ function Disable-SgBlockedPowerShellShim([string]$Name, [string[]]$KnownPaths = 
             Write-Host "Disabled blocked PowerShell shim for $Name; preserved it as $backupPath." -ForegroundColor Green
             $changed = $true
         } catch {
-            Write-Warning "The blocked $Name PowerShell shim could not be preserved and disabled: $($_.Exception.Message)"
+            Write-SgInstallerWarning "The blocked $Name PowerShell shim could not be preserved and disabled: $($_.Exception.Message)"
         }
     }
     return $changed
@@ -207,20 +211,20 @@ function Install-SgWingetPackage([string]$Name, [string]$PackageId, [string[]]$K
     }
     $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $winget) {
-        Write-Warning "WinGet is unavailable; $Name could not be installed automatically."
+        Write-SgInstallerWarning "WinGet is unavailable; $Name could not be installed automatically."
         return $false
     }
     try {
         Write-Host "Installing $Name..." -ForegroundColor Cyan
         Write-Host 'Please wait and keep this window open. WinGet can take several minutes and may appear idle while Windows completes the installation.' -ForegroundColor Yellow
-        & $winget.Source install --id $PackageId --exact --source winget --accept-package-agreements --accept-source-agreements --silent | Out-Host
+        & $winget.Source install --id $PackageId --exact --source winget --accept-package-agreements --accept-source-agreements --silent --disable-interactivity | Out-Null
         if ($LASTEXITCODE -ne 0) { throw "$Name installation returned exit code $LASTEXITCODE." }
         Update-SgProcessPath
         if (-not (Test-SgTool $Name $KnownPaths)) { throw "$Name was installed but is not discoverable yet." }
         Write-Host "$Name installed." -ForegroundColor Green
         return $true
     } catch {
-        Write-Warning "$Name could not be installed automatically: $($_.Exception.Message)"
+        Write-SgInstallerWarning "$Name could not be installed automatically: $($_.Exception.Message)"
         return $false
     }
 }
@@ -238,7 +242,7 @@ function Install-SgGum {
     }
 
     if (-not [Environment]::Is64BitOperatingSystem) {
-        Write-Warning 'Gum automatic installation currently requires 64-bit Windows; the PowerShell menu will remain available.'
+        Write-SgInstallerWarning 'Gum automatic installation currently requires 64-bit Windows; the PowerShell menu will remain available.'
         return $false
     }
 
@@ -263,7 +267,7 @@ function Install-SgGum {
         Write-Host "Gum $gumVersion installed." -ForegroundColor Green
         return $true
     } catch {
-        Write-Warning "Gum could not be installed automatically: $($_.Exception.Message) The PowerShell menu will remain available."
+        Write-SgInstallerWarning "Gum could not be installed automatically: $($_.Exception.Message) The PowerShell menu will remain available."
         return $false
     } finally {
         if (Test-Path -LiteralPath $tempDirectory) { Remove-Item -LiteralPath $tempDirectory -Recurse -Force -ErrorAction SilentlyContinue }
@@ -274,7 +278,7 @@ function Initialize-SgPnpmGlobalBin([string[]]$PnpmPaths) {
     $pnpm = Get-SgToolPath 'pnpm.cmd' $PnpmPaths
     if (-not $pnpm) { return $false }
     if (-not (Test-SgToolRuns 'pnpm.cmd' $PnpmPaths)) {
-        Write-Warning 'pnpm --version check failed; pnpm is not ready yet.'
+        Write-SgInstallerWarning 'pnpm --version check failed; pnpm is not ready yet.'
         return $false
     }
 
@@ -295,7 +299,7 @@ function Initialize-SgPnpmGlobalBin([string[]]$PnpmPaths) {
         Write-Host "pnpm global commands are available from $globalBin." -ForegroundColor Green
         return $true
     } catch {
-        Write-Warning "pnpm is installed, but its global command directory could not be prepared: $($_.Exception.Message)"
+        Write-SgInstallerWarning "pnpm is installed, but its global command directory could not be prepared: $($_.Exception.Message)"
         return $false
     }
 }
@@ -308,7 +312,7 @@ function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]
 
     $npm = Get-SgToolPath 'npm.cmd' $NpmPaths
     if (-not $npm) {
-        Write-Warning 'pnpm could not be installed because npm is unavailable.'
+        Write-SgInstallerWarning 'pnpm could not be installed because npm is unavailable.'
         return $false
     }
 
@@ -328,7 +332,7 @@ function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]
                     return (Initialize-SgPnpmGlobalBin $PnpmPaths)
                 }
             } else {
-                Write-Warning 'Corepack could not enable pnpm here; using the npm fallback.'
+                Write-SgInstallerWarning 'Corepack could not enable pnpm here; using the npm fallback.'
             }
         }
 
@@ -340,7 +344,7 @@ function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]
         Write-Host 'pnpm installed.' -ForegroundColor Green
         return (Initialize-SgPnpmGlobalBin $PnpmPaths)
     } catch {
-        Write-Warning "pnpm could not be installed automatically: $($_.Exception.Message)"
+        Write-SgInstallerWarning "pnpm could not be installed automatically: $($_.Exception.Message)"
         return $false
     }
 }
@@ -369,7 +373,7 @@ function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [st
     $pnpm = Get-SgToolPath 'pnpm.cmd' $PnpmPaths
     $npm = Get-SgToolPath 'npm.cmd' $NpmPaths
     if (-not $pnpm -and -not $npm) {
-        Write-Warning "$DisplayName could not be installed because neither pnpm nor npm is available."
+        Write-SgInstallerWarning "$DisplayName could not be installed because neither pnpm nor npm is available."
         return $false
     }
 
@@ -384,7 +388,7 @@ function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [st
                     return $true
                 }
             }
-            Write-Warning "pnpm could not make $DisplayName available here; trying the npm fallback."
+            Write-SgInstallerWarning "pnpm could not make $DisplayName available here; trying the npm fallback."
         }
 
         if (-not $npm) { throw "$DisplayName was not discoverable after pnpm and npm is unavailable." }
@@ -400,7 +404,7 @@ function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [st
         Write-Host "$DisplayName installed." -ForegroundColor Green
         return $true
     } catch {
-        Write-Warning "$DisplayName could not be installed automatically: $($_.Exception.Message)"
+        Write-SgInstallerWarning "$DisplayName could not be installed automatically: $($_.Exception.Message)"
         return $false
     }
 }
@@ -421,7 +425,7 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
 
     $git = Get-SgToolPath 'git.exe' $GitPaths
     if (-not $git) {
-        Write-Warning 'Flutter Web SDK could not be installed because Git is unavailable.'
+        Write-SgInstallerWarning 'Flutter Web SDK could not be installed because Git is unavailable.'
         return $false
     }
 
@@ -444,7 +448,7 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
         Write-Host 'Flutter Web SDK installed and web support enabled.' -ForegroundColor Green
         return $true
     } catch {
-        Write-Warning "Flutter Web SDK could not be installed automatically: $($_.Exception.Message)"
+        Write-SgInstallerWarning "Flutter Web SDK could not be installed automatically: $($_.Exception.Message)"
         return $false
     }
 }
