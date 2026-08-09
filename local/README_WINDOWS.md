@@ -69,7 +69,9 @@ ne sont pas requis par le parcours Shadow PC.
    l'execution des scripts de profil est interdite.
    Git, GitHub CLI, Node/npm, pnpm et uv sont préparés par ShipGlows. Le dossier
    global de pnpm v11 est ajouté automatiquement au `PATH` utilisateur et la
-   commande est réellement vérifiée avant d'afficher `[ok]`. Flutter
+   commande est réellement vérifiée avant d'afficher `[ok]`. Des wrappers
+   `.cmd` prioritaires permettent aussi d'utiliser `npm`, `pnpm` et les agents
+   lorsque Windows interdit les shims PowerShell `.ps1`. Flutter
    Web est disponible si vous avez accepté son téléchargement dans le prompt.
    Flox, PM2, Caddy et autossh sont remplacés par les commandes natives et le
    registre ShipGlows.

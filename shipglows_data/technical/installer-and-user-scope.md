@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.6"
+artifact_version: "1.1.7"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-09"
@@ -40,6 +40,7 @@ evidence:
   - "Native Windows full asks separately before each optional coding-agent CLI and leaves authentication to that CLI."
   - "Native Windows interactive mode selection requires an explicit 1, 2, or 0; empty console input never starts an installation."
   - "Native Windows prepares pnpm v11's global bin PATH and explicitly allows only the selected official agent package's install script when npm fallback requires it."
+  - "Native Windows places managed .cmd application wrappers before npm-generated .ps1 shims, preserving commands under restrictive execution policy."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
 ---
@@ -126,6 +127,13 @@ sudo ./cli/install.sh
   configured global `bin` directory to the user `PATH`. When npm fallback is
   required for an agent with a postinstall hook, only that selected package is
   passed through npm's scoped `--allow-scripts=<package>` control.
+- Native Windows writes managed `.cmd` wrappers for `npm`, `npx`, `corepack`,
+  `pnpm` and every installed coding-agent command into the ShipGlows runtime,
+  then places that runtime first in the user `PATH`. This avoids npm-generated
+  `.ps1` shims when the host forbids PowerShell script execution, without
+  weakening the machine's execution policy. A blocked shim beside a verified
+  user-scoped `.cmd` launcher is renamed to a unique `shipglows-disabled`
+  backup rather than deleted.
 - The current user-space agent install path uses `pnpm add -g` inside
   `PNPM_HOME`, so the installer follows the package registry version current at
   install time instead of shipping pinned local binaries.

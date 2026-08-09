@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.10"
+artifact_version: "0.2.11"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-09"
-updated_at: "2026-08-09 11:32:55 UTC"
+updated_at: "2026-08-09 12:05:50 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -49,10 +49,10 @@ depends_on:
     artifact_version: "1.7.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/runtime-cli.md"
-    artifact_version: "1.0.30"
+    artifact_version: "1.0.31"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/installer-and-user-scope.md"
-    artifact_version: "1.1.6"
+    artifact_version: "1.1.7"
     required_status: "reviewed"
 supersedes: []
 evidence:
@@ -399,6 +399,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - [ ] AC23: Given the public Windows PowerShell bootstrap is launched without `-InstallMode` from an interactive console, when the installer starts, then it requires an explicit `1`, `2`, or `0` before downloading files; empty input repeats the prompt and never starts an installation, while explicit mode arguments and the non-interactive local fallback remain deterministic.
 - [ ] AC24: Given Windows full installation with WinGet available, when Node, pnpm or uv is absent, then Node LTS/npm and uv are installed automatically and pnpm is provisioned through Corepack with a safe npm fallback; pnpm v11's configured global bin directory is added to the user PATH and `pnpm --version` must pass before `[ok]` is shown; Flutter Web is downloaded only after the explicit `[y/N]` choice and enables web support in a user-local SDK directory.
 - [ ] AC25: Given Windows full installation, when optional coding agents are reached, then Codex, Claude Code, OpenCode and KiloCode are each offered through an individual `[y/N]` choice; declined or non-interactive selections install nothing, authentication is deferred to the selected CLI, and pnpm falls back to npm if its global executable cannot be made available. For selected agent packages requiring a postinstall hook, npm fallback allows only that exact package's install script and verifies the resulting CLI with `--version`.
+- [ ] AC26: Given a Windows host whose execution policy blocks npm-generated `.ps1` shims, when the operator invokes `pnpm`, `codex`, `claude`, `opencode`, or `kilocode` by its ordinary command name, then ShipGlows preserves the blocked user-scoped shim under a unique backup name, resolves a managed `.cmd` wrapper or verified underlying `.cmd` executable, and forwards all arguments without changing the execution policy. npm, npx and Corepack receive the same wrapper treatment where their installed path is user-writable.
 - [ ] AC20: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
 
 # Test Strategy
@@ -487,6 +488,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-09 11:12:37 UTC | 001-sg-build | GPT-5 Codex | Added individual opt-in prompts for Codex, Claude Code, OpenCode and KiloCode to Windows full. The installer skips agents on Enter or non-interactive execution, delegates first-run authentication to the selected CLI, and uses npm only as a recovery fallback when pnpm cannot expose the global command. | Static contract and Windows parser proof pending; Shadow prompt/install proof remains pending. | Validate, publish, then rerun full installation on Shadow and choose the wanted agents. |
 | 2026-08-09 11:25:22 UTC | 003-sg-bug | GPT-5 Codex | Reproduced the unattended mode selection from operator evidence: empty input was explicitly mapped to full. Removed that default from the canonical and generated bootstraps; empty input now repeats the prompt until 1, 2, or 0 is entered. | Regression test failed before the repair and passes after it; ShipGlows `aa9d9c8` and CommandGlows `f8494e2` are pushed, and the production bootstrap matches the canonical file byte-for-byte. Shadow retest remains pending. | Retest an empty answer on Shadow, then enter the intended mode explicitly. |
 | 2026-08-09 11:32:55 UTC | 003-sg-bug | GPT-5 Codex | Diagnosed the false pnpm-ready report from Shadow evidence: only the Corepack shim was detected while pnpm v11's configured global bin directory was absent from PATH. Added global-bin discovery/PATH repair, executable version checks, pnpm-agent path discovery, and scoped npm install-script permission for selected agent fallbacks. | Regression contract and metadata validation pending; Windows/Shadow pnpm and agent command retest remain pending. | Validate, publish, rerun full once, then verify pnpm and the selected agents in a fresh PowerShell session. |
+| 2026-08-09 12:05:50 UTC | 003-sg-bug | GPT-5 Codex | Diagnosed the remaining Shadow failure: pnpm configuration was queried before its bin path became active, and ordinary PowerShell command resolution selected blocked npm-generated `.ps1` shims ahead of working `.cmd` launchers. Reordered pnpm PATH preparation and added priority managed `.cmd` wrappers for npm-family and agent commands. | Regression contract pending; Shadow retest remains required because the execution-policy behavior is host-specific. | Validate, publish, rerun full once, then invoke the ordinary command names without `.cmd` suffixes. |
 
 # Current Chantier Flow
 

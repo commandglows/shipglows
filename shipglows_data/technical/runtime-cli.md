@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.30"
+artifact_version: "1.0.31"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-09"
@@ -49,6 +49,7 @@ evidence:
   - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
   - "Native Windows full offers Codex, Claude Code, OpenCode, and KiloCode as separate opt-in prompts; agent authentication remains owned by each CLI."
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."
+  - "Native Windows installs priority .cmd wrappers for npm-family and coding-agent commands so restrictive PowerShell execution policies cannot select blocked .ps1 shims."
   - "Main menu session identity now renders inside the top status header."
   - "Subcommand screen headers now route through a shared modular header helper."
   - "Nested menus and search selectors now preserve the ShipGlows DevServer title treatment."
@@ -142,6 +143,12 @@ support. pnpm's configured global bin directory (the `bin` subdirectory of
 with `no` as the default, before installing
 Codex, Claude Code, OpenCode, or KiloCode. It stores no agent credentials and
 never initiates authentication: the selected CLI owns its own first-run login.
+The installer exposes npm, npx, Corepack, pnpm and selected coding agents
+through `.cmd` wrappers in the ShipGlows runtime and moves that runtime to the
+front of the active process `PATH`. User-scoped blocked `.ps1` shims beside a
+verified `.cmd` launcher are preserved under a `shipglows-disabled` backup
+name, so pnpm and agent command names remain usable without weakening the
+execution policy.
 Flutter is launched in a visible process because PowerShell 5.1 does not
 provide a tmux-equivalent session manager.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and

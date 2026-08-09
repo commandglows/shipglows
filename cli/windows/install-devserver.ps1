@@ -22,21 +22,19 @@ Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destina
 function Update-SgProcessPath {
     $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine')
     $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
-    $env:Path = @($machinePath, $userPath) -join ';'
+    $env:Path = @($runtimeDir, $userPath, $machinePath) -join ';'
 }
 
 function Add-SgUserPathEntry([string]$Directory) {
     if ([string]::IsNullOrWhiteSpace($Directory)) { return }
     $currentUserPath = [Environment]::GetEnvironmentVariable('Path', 'User')
     $entries = @($currentUserPath -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-    $alreadyPresent = $false
+    $remainingEntries = @()
     foreach ($entry in $entries) {
-        if ($entry.TrimEnd('\') -ieq $Directory.TrimEnd('\')) { $alreadyPresent = $true; break }
+        if ($entry.TrimEnd('\') -ine $Directory.TrimEnd('\')) { $remainingEntries += $entry }
     }
-    if (-not $alreadyPresent) {
-        $nextPath = @($Directory) + $entries
-        [Environment]::SetEnvironmentVariable('Path', ($nextPath -join ';'), 'User')
-    }
+    $nextPath = @($Directory) + $remainingEntries
+    [Environment]::SetEnvironmentVariable('Path', ($nextPath -join ';'), 'User')
     Update-SgProcessPath
 }
 
@@ -105,6 +103,57 @@ function Test-SgToolRuns([string]$Name, [string[]]$KnownPaths = @(), [string[]]$
     } catch {
         return $false
     }
+}
+
+function Install-SgApplicationCommandWrapper([string]$Name, [string]$CommandName, [string[]]$KnownPaths = @()) {
+    $wrapperPath = Join-Path $runtimeDir "$Name.cmd"
+    $target = $null
+    foreach ($knownPath in $KnownPaths) {
+        if (-not $knownPath -or -not (Test-Path -LiteralPath $knownPath -PathType Leaf)) { continue }
+        try {
+            if ([IO.Path]::GetFullPath($knownPath) -eq [IO.Path]::GetFullPath($wrapperPath)) { continue }
+        } catch { continue }
+        $target = $knownPath
+        break
+    }
+    if (-not $target) {
+        $command = Get-Command $CommandName -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($command -and $command.Source) {
+            try {
+                if ([IO.Path]::GetFullPath($command.Source) -ne [IO.Path]::GetFullPath($wrapperPath)) { $target = $command.Source }
+            } catch { }
+        }
+    }
+    if (-not $target) { return $false }
+
+    $wrapper = @"
+@echo off
+@call "$target" %*
+"@
+    Set-Content -LiteralPath $wrapperPath -Value $wrapper -Encoding ASCII
+    Write-Host "Application command installed: $Name" -ForegroundColor Green
+    return $true
+}
+
+function Disable-SgBlockedPowerShellShim([string]$Name, [string[]]$KnownPaths = @()) {
+    $changed = $false
+    foreach ($cmdPath in $KnownPaths) {
+        if (-not $cmdPath -or -not (Test-Path -LiteralPath $cmdPath -PathType Leaf)) { continue }
+        $ps1Path = [IO.Path]::ChangeExtension($cmdPath, '.ps1')
+        if (-not (Test-Path -LiteralPath $ps1Path -PathType Leaf)) { continue }
+        try {
+            $backupPath = "$ps1Path.shipglows-disabled"
+            if (Test-Path -LiteralPath $backupPath) {
+                $backupPath = "$backupPath-$([guid]::NewGuid().ToString('N'))"
+            }
+            Move-Item -LiteralPath $ps1Path -Destination $backupPath
+            Write-Host "Disabled blocked PowerShell shim for $Name; preserved it as $backupPath." -ForegroundColor Green
+            $changed = $true
+        } catch {
+            Write-Warning "The blocked $Name PowerShell shim could not be preserved and disabled: $($_.Exception.Message)"
+        }
+    }
+    return $changed
 }
 
 function Install-SgWingetPackage([string]$Name, [string]$PackageId, [string[]]$KnownPaths = @()) {
@@ -186,10 +235,14 @@ function Initialize-SgPnpmGlobalBin([string[]]$PnpmPaths) {
     }
 
     try {
+        $defaultGlobalBin = Join-Path $env:LOCALAPPDATA 'pnpm\bin'
+        New-Item -ItemType Directory -Path $defaultGlobalBin -Force | Out-Null
+        Add-SgUserPathEntry $defaultGlobalBin
+
         $configuredOutput = @(& $pnpm config get global-bin-dir 2>$null)
         $globalBin = ($configuredOutput | Out-String).Trim()
         if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($globalBin) -or $globalBin -in @('null', 'undefined')) {
-            $globalBin = Join-Path $env:LOCALAPPDATA 'pnpm\bin'
+            $globalBin = $defaultGlobalBin
             & $pnpm config set global-bin-dir $globalBin --global | Out-Host
             if ($LASTEXITCODE -ne 0) { throw 'pnpm global-bin-dir configuration failed.' }
         }
@@ -361,6 +414,7 @@ $gitPaths = @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFi
 $ghPaths = @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe'))
 $nodePaths = @((Join-Path $programFiles 'nodejs\node.exe'), (Join-Path $programFilesX86 'nodejs\node.exe'))
 $npmPaths = @((Join-Path $programFiles 'nodejs\npm.cmd'), (Join-Path $programFilesX86 'nodejs\npm.cmd'))
+$npxPaths = @((Join-Path $programFiles 'nodejs\npx.cmd'), (Join-Path $programFilesX86 'nodejs\npx.cmd'))
 $corepackPaths = @((Join-Path $programFiles 'nodejs\corepack.cmd'), (Join-Path $programFilesX86 'nodejs\corepack.cmd'), (Join-Path $env:APPDATA 'npm\corepack.cmd'))
 $pnpmPaths = @((Join-Path $env:APPDATA 'npm\pnpm.cmd'))
 $uvPaths = @((Join-Path $env:USERPROFILE '.local\bin\uv.exe'), (Join-Path $env:USERPROFILE '.cargo\bin\uv.exe'))
@@ -386,6 +440,26 @@ Write-Host 'Each agent is a separate choice. Press Enter to skip an agent.' -For
 [void](Install-SgOptionalAgent 'Claude Code CLI' 'claude.cmd' '@anthropic-ai/claude-code' $claudePaths $pnpmPaths $npmPaths -CompatibilityNote 'On native Windows, Claude Code uses the Git for Windows terminal environment.' -AllowInstallScripts)
 [void](Install-SgOptionalAgent 'OpenCode CLI' 'opencode.cmd' 'opencode-ai' $opencodePaths $pnpmPaths $npmPaths -CompatibilityNote 'Native Windows support may vary by OpenCode release.' -AllowInstallScripts)
 [void](Install-SgOptionalAgent 'KiloCode CLI' 'kilocode.cmd' '@kilocode/cli' $kilocodePaths $pnpmPaths $npmPaths -AllowInstallScripts)
+
+Write-Host ''
+Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor Yellow
+[void](Disable-SgBlockedPowerShellShim 'npm' $npmPaths)
+[void](Disable-SgBlockedPowerShellShim 'npx' $npxPaths)
+[void](Disable-SgBlockedPowerShellShim 'corepack' $corepackPaths)
+[void](Disable-SgBlockedPowerShellShim 'pnpm' $pnpmPaths)
+[void](Disable-SgBlockedPowerShellShim 'codex' $codexPaths)
+[void](Disable-SgBlockedPowerShellShim 'claude' $claudePaths)
+[void](Disable-SgBlockedPowerShellShim 'opencode' $opencodePaths)
+[void](Disable-SgBlockedPowerShellShim 'kilocode' $kilocodePaths)
+[void](Install-SgApplicationCommandWrapper 'npm' 'npm.cmd' $npmPaths)
+[void](Install-SgApplicationCommandWrapper 'npx' 'npx.cmd' $npxPaths)
+[void](Install-SgApplicationCommandWrapper 'corepack' 'corepack.cmd' $corepackPaths)
+[void](Install-SgApplicationCommandWrapper 'pnpm' 'pnpm.cmd' $pnpmPaths)
+[void](Install-SgApplicationCommandWrapper 'codex' 'codex.cmd' $codexPaths)
+[void](Install-SgApplicationCommandWrapper 'claude' 'claude.cmd' $claudePaths)
+[void](Install-SgApplicationCommandWrapper 'opencode' 'opencode.cmd' $opencodePaths)
+[void](Install-SgApplicationCommandWrapper 'kilocode' 'kilocode.cmd' $kilocodePaths)
+Add-SgRuntimeToUserPath
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green
 Write-Host "Workspace: $Workspace"
