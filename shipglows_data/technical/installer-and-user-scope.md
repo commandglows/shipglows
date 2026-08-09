@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.7"
+artifact_version: "1.1.8"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-09"
@@ -15,6 +15,8 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - cli/install.sh
+  - cli/windows/install-devserver.ps1
+  - install-shipglows.ps1
   - README.md
   - local/install.sh
 depends_on:
@@ -41,6 +43,7 @@ evidence:
   - "Native Windows interactive mode selection requires an explicit 1, 2, or 0; empty console input never starts an installation."
   - "Native Windows prepares pnpm v11's global bin PATH and explicitly allows only the selected official agent package's install script when npm fallback requires it."
   - "Native Windows places managed .cmd application wrappers before npm-generated .ps1 shims, preserving commands under restrictive execution policy."
+  - "Native Windows installs collision-safe .cmd shortcuts for c, co, cor, oc, and kc without depending on the PowerShell profile."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
 ---
@@ -60,6 +63,8 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 | `README.md` | Operator install contract | Update when commands, privilege, or installed tooling changes |
 | `local/install.sh`, `local/install_local.ps1` | Workstation-side setup | Keep separate from root server install assumptions |
 | `install-shipglows.sh` | Canonical remote bootstrap and local/full mode selector | Resolve mode before privilege checks; preserve user home and repository ownership |
+| `install-shipglows.ps1` | Canonical Windows mode selector and archive bootstrap | Keep interactive mode explicit and automation deterministic through `-InstallMode` |
+| `cli/windows/install-devserver.ps1` | Native Windows full installer | Keep user-scoped tools, wrappers, PATH changes, prompts, and collision handling idempotent |
 | `tools/sync_shipglows_public_bootstrap.sh` | WinGlowz public artifact parity | Keep the generated public shell asset byte-for-byte identical to the canonical bootstrap |
 | `.env.example` | Example configuration | Keep secrets as placeholders only |
 
@@ -134,6 +139,13 @@ sudo ./cli/install.sh
   weakening the machine's execution policy. A blocked shim beside a verified
   user-scoped `.cmd` launcher is renamed to a unique `shipglows-disabled`
   backup rather than deleted.
+- Native Windows keeps convenience commands independent from `$PROFILE`.
+  `s.cmd` and `shipglows-dev.cmd` launch the DevServer with `-NoProfile` and a
+  process-scoped execution-policy bypass. When the names are unclaimed, the
+  installer creates `c -> claude`, `co -> codex`, `cor -> codex resume`,
+  `oc -> opencode`, and `kc -> kilocode` as `.cmd` wrappers that call the
+  managed agent commands in the same runtime directory. Existing command
+  owners are preserved with a visible warning.
 - The current user-space agent install path uses `pnpm add -g` inside
   `PNPM_HOME`, so the installer follows the package registry version current at
   install time instead of shipping pinned local binaries.
@@ -174,6 +186,7 @@ sudo ./cli/install.sh
 sh -n install-shipglows.sh
 bash -n cli/install.sh local/install.sh local/turso-login.sh local/turso-ssh.sh
 bash tests/install/bootstrap-mode-selection.sh
+bash tests/windows/devserver-contract.sh
 tools/sync_shipglows_public_bootstrap.sh --check --winglowz-root /home/claude/winglowz
 bash -n tools/shipglows_sync_skills.sh tests/skills/runtime-sync.sh
 bash tests/skills/runtime-sync.sh
@@ -187,6 +200,7 @@ For behavioral changes, prefer a disposable host/container or a narrowly scoped 
 
 - `cli/install.sh` changed -> review this doc and `README.md`.
 - Alias/symlink behavior changed -> check local and server install docs, plus `tools/shipglows_sync_skills.sh --check --all`.
+- Windows wrapper or shortcut behavior changed -> run the Windows static contract, then require a native PowerShell smoke before marking target behavior verified.
 - MCP config changed -> check provider docs references and remote login docs.
 - Playwright MCP config changed -> confirm Linux ARM64 keeps using the local
   Playwright Chromium executable instead of a Google Chrome stable channel, and

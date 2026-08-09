@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.17"
+artifact_version: "0.2.19"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-09"
-updated_at: "2026-08-09 12:49:24 UTC"
+updated_at: "2026-08-09 12:55:18 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -497,6 +497,8 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-09 12:35:37 UTC | 005-sg-ship | GPT-5 Codex | Prepared the bounded Windows shortcut resolver, focused regression contract and aligned operator/technical documentation for iterative shipping. | Windows static contract, metadata lint and diff check pass; bug risk is not assessed beyond the unique chantier, and native PowerShell/Shadow proof remains pending. | Push the scoped commit, reinstall full from that commit on Shadow, then run `s h` and `s m n`. |
 | 2026-08-09 12:48:27 UTC | 001-sg-build | GPT-5 Codex | Restored the established AI-agent convenience mappings on native Windows with collision-safe `.cmd` wrappers: `c`, `co`, `cor`, `oc`, and `kc`. | Implementation and docs updated; focused contract and native Shadow proof remain pending. | Validate, publish, reinstall full on Shadow, then invoke each short command with a bounded version/help argument. |
 | 2026-08-09 12:49:24 UTC | 005-sg-ship | GPT-5 Codex | Prepared the bounded agent-shortcut wrappers, collision guard, regression assertions and aligned Windows documentation for iterative shipping. | Windows static contract, metadata lint and diff check pass; native PowerShell/Shadow command proof remains pending. | Push the scoped commit, reinstall full from that commit on Shadow, then verify `c`, `co`, `cor`, `oc`, and `kc`. |
+| 2026-08-09 12:52:54 UTC | 300-sg-docs | GPT-5 Codex | Consolidated the native Windows story across architecture, runtime, installer ownership, context/function navigation, code-to-doc routing, README, and the active chantier. | Documentation now distinguishes Linux server and Windows local backends, records full-mode tools and agent choices, and explains profile-independent wrappers and shortcuts. Validation pending; AC27/AC28 remain target-proof gaps rather than documented-as-verified behavior. | Run governance, metadata, link/contract and public-claim coherence checks, then ship the bounded documentation update. |
+| 2026-08-09 12:55:18 UTC | 005-sg-ship | GPT-5 Codex | Prepared the bounded Windows documentation consolidation for iterative shipping after internal and public owner alignment. | Governance topology, metadata lint for eight artifacts, Windows static contract, focused code-to-claim scans, AGENTS compatibility and diff check pass. Native Shadow proof for AC27/AC28 remains outside this docs-only release. | Push the scoped documentation commit; continue target shortcut verification separately. |
 
 # Current Chantier Flow
 

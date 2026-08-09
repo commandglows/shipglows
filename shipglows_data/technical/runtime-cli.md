@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.33"
+artifact_version: "1.0.34"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-09"
@@ -70,7 +70,10 @@ next_step: "/sg-docs technical audit runtime-cli"
 
 ## Purpose
 
-This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, and `cli/config.sh`. It is the first technical doc to read when changing environment lifecycle, dashboard, publishing, health, PM2, Flox, Caddy, DuckDNS, session identity, or CLI menu behavior.
+This doc covers both runtime backends: the Linux server CLI and the native
+Windows local DevServer. It is the first technical doc to read when changing
+environment lifecycle, dashboard, project shortcuts, publishing, health,
+PM2/Flox/Caddy behavior, or native Windows process and installer behavior.
 
 ## Owned Files
 
@@ -164,6 +167,13 @@ front of the active process `PATH`. User-scoped blocked `.ps1` shims beside a
 verified `.cmd` launcher are preserved under a `shipglows-disabled` backup
 name, so pnpm and agent command names remain usable without weakening the
 execution policy.
+The Windows launcher resolves only shortcut paths with a native equivalent:
+dashboard (`s d`), interactive start (`s e`), restart/stop/stop-all/logs under
+`s m ...`, and project navigation (`s m n`). Navigation opens a child
+PowerShell in the selected registered project because a subprocess cannot
+change the parent shell's working directory; `exit` returns to the original
+shell. Unsupported Linux server paths fail with guidance instead of being
+silently remapped.
 Flutter is launched in a visible process because PowerShell 5.1 does not
 provide a tmux-equivalent session manager.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and

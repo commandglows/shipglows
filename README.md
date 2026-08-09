@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.18.1"
+artifact_version: "0.18.2"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-04"
+updated: "2026-08-09"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -18,6 +18,8 @@ linked_systems:
   - cli/lib.sh
   - cli/config.sh
   - cli/install.sh
+  - cli/windows
+  - install-shipglows.ps1
   - skills
   - skills/004-sg-deploy/SKILL.md
   - skills/002-sg-maintain/SKILL.md
@@ -70,6 +72,7 @@ evidence:
   - "Added provider-neutral 006-sg-design animation modes with GSAP optional after fit, lifecycle, and proof gates."
   - "Added an exact sg-help mode catalog with one line per skill and canonical modes."
   - "Adopted the métier-first public hierarchy: 13 public owners in six domains, with direct public skill folders and numeric engines retained for expert compatibility only."
+  - "Documented the native Windows full DevServer, optional coding agents, execution-policy-safe wrappers, nested s shortcuts, and collision-safe agent aliases."
 next_step: "/300-sg-docs audit README.md"
 ---
 
@@ -212,7 +215,8 @@ branche donnée.
 In an interactive Windows console, the bootstrap asks for SSH tunnels or the
 recommended local DevServer. The DevServer installs only the native PowerShell
 runtime for Astro, Python/FastAPI, and Flutter Web, prepares Git, GitHub CLI,
-Node LTS/npm, pnpm and uv, then asks before the larger Flutter Web download.
+Node LTS/npm, pnpm and uv, then asks before the larger Flutter Web download and
+before each optional coding agent (Codex, Claude Code, OpenCode, and KiloCode).
 It clones or registers repositories under `%USERPROFILE%\ShipGlows\workspace`,
 starts them on localhost ports, and keeps a recoverable registry under
 `%LOCALAPPDATA%`. No tunnel is needed for projects running on the Shadow.
@@ -223,6 +227,14 @@ and the Linux `urls` menu are intentionally not part of this path.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
 After a full install, use `s` (or `shipglows-dev`) for the project dashboard.
+The PATH-backed `.cmd` launchers do not depend on the PowerShell profile, so
+they also work on managed hosts that block profile scripts. Supported nested
+menu paths include `s d`, `s e`, `s m r`, `s m t`, `s m o`, `s m l`, and
+`s m n`; run `s h` for the Windows list. When their short names are unclaimed,
+the installer also provides `c` (Claude), `co` (Codex), `cor` (`codex resume`),
+`oc` (OpenCode), and `kc` (KiloCode). npm-family and agent commands receive
+managed `.cmd` wrappers so blocked npm-generated `.ps1` shims do not require a
+machine-wide execution-policy change.
 
 The code repository is public, so Git or GitHub credentials are not required
 for this bootstrap. Termux selects `local` without `sudo`; an existing root shell

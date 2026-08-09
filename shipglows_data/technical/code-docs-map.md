@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "3.2.0"
+artifact_version: "3.3.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-08"
+updated: "2026-08-09"
 status: reviewed
 source_skill: 102-sg-start
 scope: code-docs-map
@@ -49,6 +49,7 @@ evidence:
   - "Shared Playwright package discovery accepts global PNPM @playwright/test launchers; explicit retries recover artifact-free failed candidates without ordinary dedupe overwrites."
   - "Very tall captured pages now keep detailed original-scale segments while bounding only the full-page WebP to Pillow's format limit; animation capture remains outside the current static bundle."
   - "Native Windows DevServer paths are mapped to the runtime CLI documentation with PowerShell contract checks."
+  - "Native Windows installer, execution-policy wrappers, nested shortcuts, and agent aliases are mapped to both runtime and installer ownership docs."
 next_review: "2026-06-18"
 next_step: "/300-sg-docs technical audit"
 ---
@@ -71,7 +72,7 @@ Shared files in this map are sequential integration files. Do not assign concurr
 | `cli/config.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `README.md` | `bash -n cli/config.sh`; config validation smoke when changed | Config variable, default, or validation contract changes |
 | `local/**` | Local tunnels and MCP login | `shipglows_data/technical/local-tunnels-and-mcp-login.md` | `local/README.md`, `README.md` | `bash -n local/*.sh`; PowerShell syntax review when `.ps1` changes | SSH target, identity path, tunnel lifecycle, MCP OAuth, or local UX changes |
 | `cli/install.sh`, `install-shipglows.sh` | Installer and user scope | `shipglows_data/technical/installer-and-user-scope.md` | `README.md`, `shipglows_data/technical/guidelines.md` | `bash -n cli/install.sh install-shipglows.sh`; dry-run/review of touched installer branch | Root/user split, remote bootstrap, symlink, alias, MCP config, package install, or destructive behavior changes |
-| `cli/windows/**`, `install-shipglows.ps1` | Native Windows DevServer and bootstrap | `shipglows_data/technical/runtime-cli.md` | `local/README_WINDOWS.md`, `README.md`, `shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md` | `bash tests/windows/devserver-contract.sh`; PowerShell Parser and Windows runtime smoke on Windows | Native project detection, registry/process lifecycle, local ports, full bootstrap, or Shadow PC support changes |
+| `cli/windows/**`, `install-shipglows.ps1` | Native Windows DevServer and bootstrap | `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/installer-and-user-scope.md` | `shipglows_data/technical/context-function-tree.md`, `local/README_WINDOWS.md`, `README.md`, `shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md` | `bash tests/windows/devserver-contract.sh`; PowerShell Parser and Windows runtime smoke on Windows | Native project detection, registry/process lifecycle, local ports, full bootstrap, execution-policy wrappers, menu shortcuts, agent aliases, or Shadow PC support changes |
 | `/home/claude/plugins/shipglows/**`, `/home/claude/.agents/plugins/marketplace.json` | Codex plugin packaging | `shipglows_data/technical/codex-plugin-packaging.md` | `shipglows_data/workflow/specs/shipglows-main-plugin-and-pack-portability.md`, `shipglows_data/technical/public-site-and-content-runtime.md` | `python3 /home/claude/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py /home/claude/plugins/shipglows`; `bash -n /home/claude/plugins/shipglows/scripts/bootstrap_shipglows_repo.sh` | Plugin manifest, plugin routing skill, docs links, marketplace entry, sparse checkout, pack catalog, reference strategy, or public plugin packaging behavior changes |
 | `tools/shipglows_sync_skills.sh`, `tests/skills/runtime-sync.sh` | Skill runtime and installer user scope | `shipglows_data/technical/skill-runtime-and-lifecycle.md`, `shipglows_data/technical/installer-and-user-scope.md` | `README.md` | `bash -n tools/shipglows_sync_skills.sh tests/skills/runtime-sync.sh`; `bash tests/skills/runtime-sync.sh`; `tools/shipglows_sync_skills.sh --check --all` | Runtime skill visibility, Claude/Codex symlink behavior, install-time selected-user skill linking, collision handling |
 | `skills/**/SKILL.md`, `skills/011-sg-pilotage/references/*.md`, `tools/{rename,prune}_codex_session.py`, `tools/test_011_sg_pilotage_contract.py` | Skill runtime and lifecycle | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `shipglows_data/workflow/playbooks/conversation-tracker-sync-playbook.md`, `skills/references/technical-docs-corpus.md`, `skills/references/question-contract.md`, `skills/references/operator-partnership-contract.md` | `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`; focused pilotage and session tests when those surfaces change | Skill routing, pilotage modes, lifecycle, session safety, validation, documentation gate, model/topology behavior, or operator-collaboration behavior changes |

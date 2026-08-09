@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-08-04"
+updated: "2026-08-09"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -16,6 +16,8 @@ linked_systems:
   - "cli/lib.sh"
   - "cli/config.sh"
   - "cli/install.sh"
+  - "cli/windows/"
+  - "install-shipglows.ps1"
   - "local/local.sh"
   - "skills/"
   - "templates/"
@@ -27,6 +29,9 @@ external_dependencies:
   - "Caddy"
   - "DuckDNS"
   - "SSH"
+  - "Node.js/pnpm"
+  - "uv"
+  - "Flutter"
 invariants:
   - "PM2 cache must be invalidated after state mutations"
   - "Project paths must be validated and absolute"
@@ -59,7 +64,7 @@ next_step: "/sg-docs audit shipglows_data/technical/architecture.md"
 
 ShipGlows has two connected layers:
 
-- a server-side environment control layer for runtime operations
+- a runtime control layer with a Linux server backend and a native Windows local-development backend
 - a documentation and workflow layer for AI-assisted execution discipline
 
 The repo is not split into small services. It is centered around shell-based orchestration plus Markdown artifact governance.
@@ -70,14 +75,15 @@ The repo is not split into small services. It is centered around shell-based orc
 - `local/local.sh` for local SSH tunnel operations.
 - `cli/install.sh` for server bootstrap and user environment setup.
 - `install-shipglows.sh` and `install-shipglows.ps1` as stable public bootstrap URLs.
+- `cli/windows/shipglows-devserver.ps1` and `cli/windows/ShipGlows.DevServer.psm1` for native Windows local project control.
 - `skills/*/SKILL.md` plus templates and linter for workflow execution.
 
 ## Runtime Boundaries
 
-- Runtime control lives in shell orchestration and external tools rather than in a long-running application server.
-- Process truth lives in PM2.
-- Environment isolation lives in Flox.
-- Public exposure lives in Caddy and DuckDNS.
+- Runtime control lives in shell/PowerShell orchestration and external tools rather than in a long-running application server.
+- On Linux, process truth lives in PM2, environment isolation in Flox, and optional public exposure in Caddy/DuckDNS.
+- On Windows, process truth lives in a user-local atomic JSON registry plus revalidated process identity; Node/pnpm, uv, and Flutter own project runtimes, and services bind only to localhost.
+- Windows `.cmd` entrypoints own profile-independent command resolution; Linux-only server components are not emulated.
 - Workflow governance lives in Markdown artifacts, skills, and metadata validation.
 
 ## Major Components
@@ -85,6 +91,7 @@ The repo is not split into small services. It is centered around shell-based orc
 - `cli/lib.sh`: main orchestration library and the largest functional hotspot.
 - `cli/config.sh`: configuration source and validation layer.
 - `local/`: local access and tunnel management.
+- `cli/windows/`: native PowerShell DevServer, registry/process lifecycle, launcher, developer-tool setup, and collision-safe command wrappers.
 - `skills/`: task-specific workflows and governance behavior.
 - `templates/`: normalized artifact structures.
 - `tools/shipglows_metadata_lint.py`: executable metadata contract validator.
@@ -93,6 +100,7 @@ The repo is not split into small services. It is centered around shell-based orc
 ## Data And Control Flows
 
 - CLI flow: `cli/shipglows.sh` -> `cli/lib.sh` -> menu actions -> PM2/Flox/Caddy operations.
+- Native Windows flow: `install-shipglows.ps1` -> `cli/windows/install-devserver.ps1` -> PATH-backed `.cmd` launcher -> PowerShell frontend/module -> localhost project process and atomic registry.
 - Local tunnel flow: `local/local.sh` -> SSH connection selection -> remote state inspection -> tunnel lifecycle.
 - Doc/workflow flow: skills -> templates -> markdown artifacts -> metadata lint -> verification.
 
@@ -104,9 +112,8 @@ The repo is not split into small services. It is centered around shell-based orc
 
 ## External Dependencies
 
-- Flox isolates runtimes.
-- PM2 owns running process state.
-- Caddy and DuckDNS expose public URLs.
+- On Linux, Flox isolates runtimes, PM2 owns running process state, and Caddy/DuckDNS expose optional public URLs.
+- On Windows, Node/pnpm, uv, and Flutter own supported project runtimes; Gum owns the preferred interactive selector, while Git/GitHub CLI own repository operations and authentication.
 - SSH supports remote access and local tunnel flows.
 
 ## Invariants

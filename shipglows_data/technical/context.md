@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.8.0"
+artifact_version: "0.9.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-04"
+updated: "2026-08-09"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -13,7 +13,7 @@ confidence: "high"
 risk_level: "medium"
 security_impact: "none"
 docs_impact: "yes"
-linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/config.sh", "cli/install.sh", "local/local.sh", "skills/", "skills/references/app-blueprints.md", "skills/app-blueprints/", "shipglows_data/workflow/playbooks/spec-driven-workflow.md", "shipglows_data/technical/context-function-tree.md", "shipglows_data/editorial/content-map.md", "shipglows_data/technical/", "shipglows_data/business/project-competitors-and-inspirations.md", "shipglows_data/business/affiliate-programs.md"]
+linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/config.sh", "cli/install.sh", "cli/windows/", "install-shipglows.ps1", "local/local.sh", "skills/", "skills/references/app-blueprints.md", "skills/app-blueprints/", "shipglows_data/workflow/playbooks/spec-driven-workflow.md", "shipglows_data/technical/context-function-tree.md", "shipglows_data/editorial/content-map.md", "shipglows_data/technical/", "shipglows_data/business/project-competitors-and-inspirations.md", "shipglows_data/business/affiliate-programs.md"]
 depends_on: []
 supersedes: []
 evidence: ["README.md", "CLAUDE.md", "shipglows_data/editorial/content-map.md", function extraction from core shell scripts, "shipglows_data/technical/* as code-proximate subsystem documentation", "Business registries added for project competitors/inspirations and affiliate programs.", "2026-07-17 DevServer startup/cache implementation: lazy atomic registry, pruned Flox discovery, parent-shell cache APIs.", "Métier-first public hierarchy and autonomous execution specification."]
@@ -30,7 +30,7 @@ Ce fichier donne la carte operative minimale de ShipGlows. Il sert a gagner du t
 
 ShipGlows combine deux couches :
 
-- un gestionnaire d'environnements de dev cote serveur base sur Flox, PM2, Caddy et DuckDNS
+- un gestionnaire d'environnements avec backend serveur Linux (Flox, PM2, Caddy, DuckDNS) et backend local Windows natif (PowerShell, registre JSON, localhost)
 - un systeme de skills pour travail spec-first, verification, audit, documentation et shipping
 
 ## Entry Points
@@ -41,6 +41,8 @@ ShipGlows combine deux couches :
 - `cli/lib.sh`: coeur des actions, validations, integrations systeme et menus.
 - `cli/config.sh`: configuration centralisee et validation.
 - `cli/install.sh`: bootstrap serveur et configuration de l'environnement utilisateur.
+- `cli/windows/`: DevServer Windows natif pour Astro, Python/FastAPI et Flutter Web, sans WSL.
+- `install-shipglows.ps1`: bootstrap Windows public, choix tunnel local ou DevServer full.
 - `local/local.sh`: UX locale des tunnels SSH.
 - `skills/`: workflows AI orientes taches.
 - `#feature:<term>`: indice de navigation technique optionnel pour la recuperation par behavior index; ce n'est pas un langage de commande, et le texte libre reste actif.
@@ -97,6 +99,23 @@ project path
   -> refresh user-mode Caddy routes from online PM2 apps
   -> dashboard / health / publish
 ```
+
+### 2b. Native Windows DevServer Flow
+
+```text
+public PowerShell bootstrap
+  -> explicit local/full mode
+  -> full: install native files and user-scoped developer tools
+  -> PATH-backed s.cmd / shipglows-dev.cmd
+  -> PowerShell shortcut or interactive action
+  -> project detection -> dependency setup -> localhost process
+  -> atomic JSON registry + PID/start-time/executable/signature reconciliation
+```
+
+The Windows installer also provisions profile-independent wrappers for npm,
+pnpm, selected coding agents, and the collision-safe shortcuts `c`, `co`,
+`cor`, `oc`, and `kc`. Supported `s` paths are deliberately limited to native
+equivalents; Flox, PM2 and Caddy paths remain Linux-only.
 
 ### 3. Local Tunnel Flow
 
@@ -232,6 +251,7 @@ launcher active uniquement les MCP demandes pour la nouvelle session.
 - Changer les tunnels locaux : `local/local.sh` et `local/dev-tunnel.sh`.
 - Changer le mode Flutter Web interactif : `cli/lib.sh` autour de `action_flutter_web`, puis `local/remote-helpers.sh` si le tunnel doit découvrir de nouveaux ports.
 - Changer le workflow d'agent : `skills/` + `shipglows_data/workflow/playbooks/spec-driven-workflow.md`.
+- Changer le DevServer Windows, ses raccourcis ou ses wrappers : `cli/windows/`, puis `shipglows_data/technical/runtime-cli.md` et `shipglows_data/technical/installer-and-user-scope.md`.
 - Changer les regles metadata : `skills/300-sg-docs/SKILL.md`, `tools/shipglows_metadata_lint.py`, `shipglows_data/technical/metadata-migration-guide.md`, `templates/`.
 - Changer la documentation technique proche du code : `shipglows_data/technical/code-docs-map.md` puis le doc primaire dans `shipglows_data/technical/`.
 - Changer l'UI shell (sélecteurs, menus, headers) : `cli/lib.sh` autour des primitives `ui_choose`, `ui_filter_choose`, `ui_text_center`, `ui_list_filter`, `ui_traffic_color`.
