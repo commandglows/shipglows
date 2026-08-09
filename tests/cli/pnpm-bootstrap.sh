@@ -10,6 +10,8 @@ INSTALLER="$SCRIPT_DIR/../../cli/install.sh"
 grep -Fq 'export PATH="$PNPM_HOME/bin:$PATH"' "$INSTALLER"
 grep -Fq 'corepack enable' "$INSTALLER"
 grep -Fq 'prepare_pnpm || exit 1' "$INSTALLER"
+grep -Fq 'expose_pnpm_global_cli pm2' "$INSTALLER"
+grep -Fq 'ln -sf "$cli_path" "/usr/local/bin/$cli_name"' "$INSTALLER"
 ! grep -Fq 'PNPM_HOME="/usr/local/share/pnpm"' "$INSTALLER"
 ! grep -Fq 'export PATH="$PNPM_HOME:$PATH"' "$INSTALLER"
 

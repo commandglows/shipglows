@@ -81,6 +81,13 @@ prepare_pnpm() {
     fi
 }
 
+expose_pnpm_global_cli() {
+    local cli_name="$1"
+    local cli_path="$PNPM_HOME/bin/$cli_name"
+
+    [ -x "$cli_path" ] && ln -sf "$cli_path" "/usr/local/bin/$cli_name"
+}
+
 warn_flutter_android_ci_policy() {
     local arch
     arch="$(uname -m 2>/dev/null || echo unknown)"
@@ -414,6 +421,7 @@ if command -v pm2 >/dev/null 2>&1; then
 else
     info "Installation de PM2..."
     pnpm add -g pm2
+    expose_pnpm_global_cli pm2
     hash -r 2>/dev/null
 
     if command -v pm2 >/dev/null 2>&1; then
@@ -432,6 +440,7 @@ if command -v vercel >/dev/null 2>&1; then
 else
     info "Installation de Vercel CLI..."
     pnpm add -g vercel
+    expose_pnpm_global_cli vercel
     hash -r 2>/dev/null
 
     if command -v vercel >/dev/null 2>&1; then
@@ -449,6 +458,7 @@ if command -v convex >/dev/null 2>&1; then
 else
     info "Installation de Convex CLI..."
     pnpm add -g convex
+    expose_pnpm_global_cli convex
     hash -r 2>/dev/null
 
     if command -v convex >/dev/null 2>&1; then
@@ -466,6 +476,7 @@ if command -v clerk >/dev/null 2>&1; then
 else
     info "Installation de Clerk CLI..."
     pnpm add -g clerk
+    expose_pnpm_global_cli clerk
     hash -r 2>/dev/null
 
     if command -v clerk >/dev/null 2>&1; then
