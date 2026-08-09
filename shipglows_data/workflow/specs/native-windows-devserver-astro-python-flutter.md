@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.4"
+artifact_version: "0.2.5"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-08"
-updated_at: "2026-08-08 19:13:00 UTC"
+updated_at: "2026-08-09 10:47:57 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -49,10 +49,10 @@ depends_on:
     artifact_version: "1.7.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/runtime-cli.md"
-    artifact_version: "1.0.27"
+    artifact_version: "1.0.28"
     required_status: "reviewed"
   - artifact: "shipglows_data/technical/installer-and-user-scope.md"
-    artifact_version: "1.1.2"
+    artifact_version: "1.1.3"
     required_status: "reviewed"
 supersedes: []
 evidence:
@@ -479,6 +479,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-08 18:35:00 UTC | 001-sg-build | GPT-5 Codex | Added a guided Windows install-mode choice when no explicit mode is supplied: SSH tunnels or recommended local DevServer. Explicit `-InstallMode` remains the non-interactive/automation override and noninteractive no-mode calls retain local fallback. | Static, public bootstrap parity and deployment validation pending; Shadow interactive prompt proof remains pending. | Synchronize the public artifact, publish the site command, then run the simple Windows command on Shadow. |
 | 2026-08-08 18:55:30 UTC | 001-sg-build | GPT-5 Codex | Extended Windows full provisioning with Node LTS/npm, pnpm through Corepack plus npm fallback, and uv; added an explicit optional Flutter Web stable-SDK download that enables web support in user scope. | Static contract, public documentation and Shadow installation proof pending. | Validate, publish, rerun full installation, then confirm the optional Flutter choice. |
 | 2026-08-08 19:13:00 UTC | 106-sg-fix | GPT-5 Codex | Fixed the interactive PowerShell bootstrap parameter failure: an empty default was rejected by `ValidateSet` before the mode prompt. The parameter is now omitted when absent, with a post-resolution allowlist for environment values. | Static contract, generated PowerShell parity and CommandGlows installer tests 96/96 pass; Shadow interactive retest remains pending. | Publish both scoped fixes, then rerun the public install command on Shadow. |
+| 2026-08-09 10:47:57 UTC | 106-sg-fix | GPT-5 Codex | Removed ShipGlows's obsolete managed PowerShell profile function during full installation. PATH-backed `s.cmd` and `shipglows-dev.cmd` already launch with `-NoProfile`, so the installer now removes only its old block instead of recreating it. | Static contract pending; Shadow PowerShell profile retest remains pending. | Publish, rerun the full installer, then open a normal PowerShell session. |
 
 # Current Chantier Flow
 

@@ -42,6 +42,20 @@ function Add-SgUserPathEntry([string]$Directory) {
 
 function Add-SgRuntimeToUserPath { Add-SgUserPathEntry $runtimeDir }
 
+function Remove-SgObsoleteProfileCommand {
+    if ($SkipProfile) { return }
+    $profilePath = $PROFILE
+    if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { return }
+
+    $existing = Get-Content -LiteralPath $profilePath -Raw
+    $managedBlock = '(?m)^# ShipGlows DevServer \(managed\)\r?\nfunction shipglows-dev \{[^\r\n]*\}\r?\n?'
+    $next = [regex]::Replace($existing, $managedBlock, '')
+    if ($next -ne $existing) {
+        Set-Content -LiteralPath $profilePath -Value $next -Encoding UTF8
+        Write-Host 'Removed the obsolete ShipGlows profile command. Use s or shipglows-dev instead.' -ForegroundColor Green
+    }
+}
+
 function Install-SgCommandWrappers {
     $wrapper = @'
 @echo off
@@ -241,6 +255,7 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     }
 }
 
+Remove-SgObsoleteProfileCommand
 Install-SgCommandWrappers
 [void](Install-SgGum)
 $programFiles = [Environment]::GetFolderPath('ProgramFiles')
@@ -260,22 +275,6 @@ Write-Host 'Preparing Windows developer tools. This step can take a few minutes 
 [void](Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths)
 [void](Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths)
 [void](Install-SgFlutter $flutterPaths $gitPaths)
-
-if (-not $SkipProfile) {
-    $profilePath = $PROFILE
-    $profileDir = Split-Path -Parent $profilePath
-    if (-not (Test-Path -LiteralPath $profileDir -PathType Container)) { New-Item -ItemType Directory -Path $profileDir -Force | Out-Null }
-    $marker = '# ShipGlows DevServer (managed)'
-    $existing = if (Test-Path -LiteralPath $profilePath -PathType Leaf) { Get-Content -LiteralPath $profilePath -Raw } else { '' }
-    if ($existing -notlike "*$marker*") {
-        $block = @"
-
-$marker
-function shipglows-dev { & '$launcher' @args }
-"@
-        Add-Content -LiteralPath $profilePath -Value $block -Encoding UTF8
-    }
-}
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green
 Write-Host "Workspace: $Workspace"

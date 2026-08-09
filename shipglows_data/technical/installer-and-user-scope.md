@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.2"
+artifact_version: "1.1.3"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-08"
@@ -36,6 +36,7 @@ evidence:
   - "Unified bootstrap modes route Android Termux to local/install.sh without sudo and retain root-only full server installation."
   - "Native Windows full installs Git and GitHub CLI through WinGet, while GitHub CLI exclusively owns browser authentication and credential storage."
   - "Native Windows full installs Node LTS, pnpm and uv automatically, while Flutter Web is an explicit optional user-local download."
+  - "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
 ---

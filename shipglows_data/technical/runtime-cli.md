@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.27"
+artifact_version: "1.0.28"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-08"
@@ -46,6 +46,7 @@ evidence:
   - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
   - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser."
   - "Native Windows full installs Node LTS, pnpm and uv automatically; Flutter Web remains an explicit optional download in the interactive installer."
+  - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
   - "Main menu session identity now renders inside the top status header."
   - "Subcommand screen headers now route through a shared modular header helper."
   - "Nested menus and search selectors now preserve the ShipGlows DevServer title treatment."
@@ -77,7 +78,7 @@ This doc covers the server-side CLI runtime: `cli/shipglows.sh`, `cli/lib.sh`, a
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
 | `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Keep PowerShell 5.1-compatible; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
-| `cli/windows/install-devserver.ps1` | Installs the Windows launcher, developer tools and profile function | Install Node LTS, pnpm and uv idempotently; ask before downloading Flutter Web |
+| `cli/windows/install-devserver.ps1` | Installs the Windows launcher and developer tools | Install Node LTS, pnpm and uv idempotently; remove only ShipGlows's obsolete profile block and ask before downloading Flutter Web |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
 
 ## Entrypoints
