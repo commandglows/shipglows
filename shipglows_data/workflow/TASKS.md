@@ -10,6 +10,7 @@
 ## Active product chantiers
 
 🟠 [ShipGlows] task: Finaliser l’Atlas de protection des surfaces approuvées et sa roadmap produit | status: in_progress | area: product-atlas | id: approved-surface-protection-and-product-atlas | spec: shipglows_data/workflow/specs/approved-surface-protection-and-product-atlas.md | evidence: registre v2, overlay local, contexte redacted, import atomique, baseline Git propre et préflight intégré aux phases agents testés; validation navigateur reste à réaliser | next: vérifier le pilote Best Fried Chicken sur un serveur dev/preview
+🟠 [ShipGlows] task: Auditer et améliorer le score de préparation IA du site ShipGlows (schémas, structure, indexabilité, vitesse, llms.txt et sitemap) | status: todo | area: site-ai-readiness | source: décision utilisateur 2026-08-08 | next: /406-sg-seo audit AI readiness
 
 ---
 

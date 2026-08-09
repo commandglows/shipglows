@@ -2511,6 +2511,10 @@ aggressive_user_process_groups() {
             pid=$1; pgid=$3; etime=$5; rss=$6; comm=$7
             args=""
             for (i=8; i<=NF; i++) args=args (args == "" ? "" : " ") $i
+            # tmux may inherit the foreground process group of a client.
+            # Never terminate a group that contains its server: doing so
+            # removes its socket and leaves panes with a stale $TMUX value.
+            if (comm ~ /^tmux(:|$)/) has_tmux[pgid]=1
             kind=""
             if (comm == "codex" || (comm == "node" && args ~ /\/codex( |$)/)) kind="codex"
             else if (comm == "ranger" || args ~ /\/ranger( |$)/) kind="ranger"
@@ -2527,7 +2531,9 @@ aggressive_user_process_groups() {
         }
         END {
             for (pgid in count) {
-                print pgid "|" count[pgid] "|" rss_sum[pgid] "|" etime_max[pgid] "|" kinds[pgid] "|" pids[pgid] "|" cmd[pgid]
+                if (!has_tmux[pgid]) {
+                    print pgid "|" count[pgid] "|" rss_sum[pgid] "|" etime_max[pgid] "|" kinds[pgid] "|" pids[pgid] "|" cmd[pgid]
+                }
             }
         }
     ' | sort -t'|' -k4,4nr

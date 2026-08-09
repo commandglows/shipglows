@@ -1,10 +1,10 @@
 ---
 artifact: content_map
 metadata_schema_version: "1.0"
-artifact_version: "0.11.0"
+artifact_version: "0.12.0"
 project: ShipGlows
 created: "2026-04-26"
-updated: "2026-08-04"
+updated: "2026-08-08"
 status: draft
 source_skill: manual
 scope: content-map
@@ -26,6 +26,7 @@ content_surfaces:
   - page_intent
   - semantic_clusters
   - content_lifecycle
+  - public_benefit_language
 security_impact: none
 docs_impact: yes
 evidence:
@@ -46,6 +47,7 @@ evidence:
   - "Decision-quality positioning added to public surfaces so users understand that ShipGlows optimizes quality before speed or convenience."
   - "French public routes added; public skill Markdown remains intentionally English because agents consume the skill contracts more reliably in English."
   - "Public skill discovery was curated to six domains, thirteen métier owners, and the ShipGlows router; numeric lifecycle and specialist skills remain internal expert engines."
+  - "Public benefit-first language guide added so familiar reader outcomes lead public copy and technical terms remain evidence-safe second-level proof."
 linked_artifacts:
   - "README.md"
   - "shipglows_data/business/product.md"
@@ -60,6 +62,7 @@ linked_artifacts:
   - "skills/references/canonical-paths.md"
   - "skills/references/decision-quality-contract.md"
   - "skills/references/content-quality-rubric.md"
+  - "shipglows_data/editorial/public-benefit-language.md"
 depends_on:
   - artifact: "shipglows_data/business/product.md"
     artifact_version: "1.2.0"
@@ -90,6 +93,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 | Public install guide | `site/src/pages/install.astro`, `site/src/pages/fr/install.astro` | Explain the Codex marketplace install path for the public `shipglows` plugin and the first command to run after install | Astro page | `README.md`, `plugins/shipglows/README.md`, `plugins/shipglows/assets/docs-links.json`, `shipglows_data/technical/codex-plugin-packaging.md` | Marketplace source, plugin install flow, first-run command, or public packaging posture changes |
 | Terminal TUI operator docs | `tui/README.md`, `shipglows_data/technical/terminal-tui.md`, `site/src/pages/docs.astro#terminal-tui` | Explain how the optional read-only terminal cockpit is installed, launched, bounded, and positioned against skills, Gum, and Flutter | Markdown + Astro section | TUI spec, verified launcher behavior, TUI source policy | TUI install, command aliases, interaction model, source policy, or read/write boundary changes |
 | Public skill pages | `/home/claude/shipglows_app/site/src/content/skills/` | Present only the thirteen métier owners plus the ShipGlows router as readable public workflow pages; keep numeric engines in expert/internal documentation | Markdown content collection | `skills/references/skill-invocation-registry.json`, public owner skills, product positioning docs | A public métier is added, renamed, repositioned, or its language policy changes |
+| Public benefit-first language | `shipglows_data/editorial/public-benefit-language.md` | Translate public workflow mechanisms into familiar reader outcomes while preserving technical evidence and claim limits | Markdown editorial guide | Claim register, business/product/GTM/brand contracts, active skill contracts | Public copy introduces a workflow mechanism, quality/security control, delegation practice, or sensitive product promise |
 | Skill launch cheatsheet | `/home/claude/shipglows_app/site/src/pages/skill-modes.astro` | Explain the six public domains and métier modes; link expert engine details without mixing them into default discovery | Astro page | `skills/references/skill-invocation-registry.json`, `shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md`, `README.md`, public skill pages | Public métier inventory, modes, ownership, or routing changes |
 | Skill launch Markdown reference | `shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md` | Preserve the repo Markdown version of master skills, supporting skills, and explicit mode switches | Markdown artifact | `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `skills/*/SKILL.md`, public skill pages | Skill inventory, master skill modes, argument contracts, or lifecycle routing changes |
 | Focus tags cheatsheet | `shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md`, `site/src/pages/docs.astro`, `site/src/pages/fr/docs.astro` | Explain the public tag families used to route people toward the right business, content, governance, execution, and recentering surfaces | Markdown artifact + Astro cards | `skills/references/shipglows-terms.md`, `skills/references/entrypoint-routing.md`, `skills/references/operator-partnership-contract.md`, `skills/references/decision-quality-contract.md`, `skills/008-sg-customer/SKILL.md`, `shipglows_data/business/gtm.md` | Tag inventory, tag families, or public routing guidance changes |

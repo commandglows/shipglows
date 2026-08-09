@@ -552,6 +552,13 @@ The public surface has thirteen métier skills, grouped into six domains, plus
 this router. Numeric skills remain internal engines rather than a vocabulary the
 operator must memorize.
 
+For a single URL, these short intents are also supported: `veille <URL>`
+analyses the source, while `concurrent <URL>` and `inspiration <URL>` add a
+checked, non-duplicate entry to the project's internal reference register.
+`veille concurrent <URL>` and `veille inspiration <URL>` stay in analysis mode;
+add `prix`, `comparatif`, `positionnement`, `recommandation`, or `roadmap` when
+you need a deeper study.
+
 For deliberate expert control in Codex, the router also accepts short modes:
 `shipglows core`, `shipglows explore`, `shipglows spec`, `shipglows build`,
 `shipglows fix`, `shipglows verify`, `shipglows test`, `shipglows status`,
