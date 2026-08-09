@@ -41,7 +41,9 @@ rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh repo l
 ! rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"
 ! rg -n 'InstallMode = \$\(if \(\$env:SHIPGLOWS_INSTALL_MODE' "$BOOTSTRAP"
 rg -n '\[string\]\$InstallMode,|InstallMode must be local or full|\$InstallMode -notin @\(' "$BOOTSTRAP"
-rg -n 'Select-WindowsInstallMode|Choose 1 or 2 \[2\]|Local DevServer \(full, recommended\)|IsInputRedirected' "$BOOTSTRAP"
+rg -n 'Select-WindowsInstallMode|Choose 1 or 2|Local DevServer \(full, recommended\)|IsInputRedirected' "$BOOTSTRAP"
+! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
+rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, or 0\.' \}" "$BOOTSTRAP"
 for windows_file in 'ShipGlows\.DevServer\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
 done
