@@ -54,6 +54,10 @@ load_current_connection() {
     fi
 }
 
+is_termux_environment() {
+    [ -n "${TERMUX_VERSION:-}" ] || [[ "${PREFIX:-}" == */com.termux/* ]]
+}
+
 # Save current connection
 save_current_connection() {
     shipglows_write_config_value current_connection "$REMOTE_HOST"
@@ -1456,7 +1460,7 @@ start_tunnels() {
         echo -e "${GREEN}  ✓ ${name}${NC}"
         
         local autossh_args=(
-            -M 0 -f -N
+            -M 0 -N
             -o "ServerAliveInterval=30"
             -o "ServerAliveCountMax=3"
             -o "ExitOnForwardFailure=yes"
@@ -1466,7 +1470,19 @@ start_tunnels() {
             autossh_args+=("$arg")
         done < <(ssh_tunnel_args)
         local autossh_output=""
-        if ! autossh_output=$(autossh "${autossh_args[@]}" "$REMOTE_HOST" 2>&1); then
+        if is_termux_environment; then
+            local termux_autossh_log="$CONFIG_DIR/autossh-${port}.log"
+            nohup env AUTOSSH_GATETIME=0 autossh "${autossh_args[@]}" "$REMOTE_HOST" \
+                </dev/null >"$termux_autossh_log" 2>&1 &
+            local termux_autossh_pid=$!
+            sleep 1
+            if ! kill -0 "$termux_autossh_pid" 2>/dev/null; then
+                autossh_output="$(tail -n 8 "$termux_autossh_log" 2>/dev/null || true)"
+                echo -e "${RED}  ✗ Connexion impossible pour ${name}${NC}"
+                [ -n "$autossh_output" ] && echo -e "${YELLOW}    Détail: ${autossh_output//$'\n'/ }${NC}"
+                return 1
+            fi
+        elif ! autossh_output=$(autossh -f "${autossh_args[@]}" "$REMOTE_HOST" 2>&1); then
             echo -e "${RED}  ✗ Connexion impossible pour ${name}${NC}"
             [ "${SHIPGLOWS_DEBUG:-${SHIPGLOWS_DEBUG:-0}}" = "1" ] && [ -n "$autossh_output" ] && echo -e "${YELLOW}    Détail: ${autossh_output//$'\n'/ }${NC}"
             return 1
