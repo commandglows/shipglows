@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.5"
+artifact_version: "0.2.6"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-08"
-updated_at: "2026-08-09 10:47:57 UTC"
+updated_at: "2026-08-09 10:49:54 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -480,6 +480,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-08 18:55:30 UTC | 001-sg-build | GPT-5 Codex | Extended Windows full provisioning with Node LTS/npm, pnpm through Corepack plus npm fallback, and uv; added an explicit optional Flutter Web stable-SDK download that enables web support in user scope. | Static contract, public documentation and Shadow installation proof pending. | Validate, publish, rerun full installation, then confirm the optional Flutter choice. |
 | 2026-08-08 19:13:00 UTC | 106-sg-fix | GPT-5 Codex | Fixed the interactive PowerShell bootstrap parameter failure: an empty default was rejected by `ValidateSet` before the mode prompt. The parameter is now omitted when absent, with a post-resolution allowlist for environment values. | Static contract, generated PowerShell parity and CommandGlows installer tests 96/96 pass; Shadow interactive retest remains pending. | Publish both scoped fixes, then rerun the public install command on Shadow. |
 | 2026-08-09 10:47:57 UTC | 106-sg-fix | GPT-5 Codex | Removed ShipGlows's obsolete managed PowerShell profile function during full installation. PATH-backed `s.cmd` and `shipglows-dev.cmd` already launch with `-NoProfile`, so the installer now removes only its old block instead of recreating it. | Static contract pending; Shadow PowerShell profile retest remains pending. | Publish, rerun the full installer, then open a normal PowerShell session. |
+| 2026-08-09 10:49:54 UTC | 106-sg-fix | GPT-5 Codex | Corrected the PowerShell 5.1 parameter model after target evidence showed that `ValidateSet` still rejected an omitted string parameter. The mode now uses only the explicit post-resolution allowlist, which accepts omission and rejects unsupported values. | Static contract and generated public artifact parity pass; Shadow interactive retest remains pending. | Publish both artifacts, then rerun the public install command on Shadow. |
 
 # Current Chantier Flow
 
