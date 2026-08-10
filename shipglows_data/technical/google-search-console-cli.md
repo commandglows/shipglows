@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-14"
-updated: "2026-08-04"
+updated: "2026-08-10"
 status: reviewed
 source_skill: 102-sg-start
 scope: google-search-console-cli
@@ -16,7 +16,7 @@ docs_impact: yes
 linked_systems: [tools/shipglows_gsc.py, cli/shipglows-gsc.sh, cli/install.sh, skills/406-sg-seo/SKILL.md]
 depends_on: []
 supersedes: []
-evidence: ["Google Search Console API official documentation checked 2026-07-14."]
+evidence: ["Google Search Console API official documentation checked 2026-08-10; Google documents REST and official client libraries, with no official GSC CLI or MCP identified."]
 next_step: "/103-sg-verify google-search-console-api-cli"
 next_review: "2026-10-14"
 ---
@@ -26,6 +26,12 @@ next_review: "2026-10-14"
 ## Purpose
 
 `shipglows-gsc` retrieves read-only Google Search Console evidence for operators and SEO workflows. It is not the third-party MCP and does not automate site changes.
+
+Google officially exposes Search Console through its OAuth-protected REST API and language client libraries. No Google-maintained GSC CLI or MCP, and no OpenAI-maintained GSC Codex plugin, was identified during the 2026-08-10 official-source review. This CLI remains a thin local adapter over that official API.
+
+## SEO Skill Integration
+
+`406-sg-seo` monitoring loads `skills/406-sg-seo/references/gsc-evidence-workflow.md` and invokes the repository wrapper directly. This avoids depending on a globally installed alias. The skill may consume live data only when `auth status` reports an authorized profile; otherwise it reports the missing authorization and falls back to user-supplied evidence.
 
 ## Commands
 

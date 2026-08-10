@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.0.2"
 project: "ShipGlows"
 created: "2026-07-26"
 created_at: "2026-07-26 13:21:00 UTC"
-updated: "2026-08-02"
-updated_at: "2026-08-02 19:20:50 UTC"
+updated: "2026-08-09"
+updated_at: "2026-08-09 06:54:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -625,7 +625,7 @@ L'inspecteur visuel devient l'interface de lecture et de marquage de l'atlas, sa
 - The first interactive increment has a static-tool exception for Sentry: the injector creates no production runtime and does not send telemetry. It must provide visible export/import error messages and safe local console diagnostics; no secrets or annotation payloads are logged.
 - No external browser integration is needed for the first interactive increment. Use current browser standards only for DOM, CSS custom properties, `Blob`, download and clipboard fallbacks; re-open the freshness gate before adding any SDK, remote capture library or API.
 - Keep the operator vocabulary in French (`Copy`, `Design`, `Fonction`) even when machine fields remain English for stable contracts.
-- Conversation shorthand remains a fallback for advanced operation: `sg-copy :gold <surface-id>`, `sg-design :gold <surface-id>`, `sg-surface :diamond <surface-id>`, and `:focus <surface-id>`; the visual interface is the preferred discovery mechanism.
+- Operator shorthand is documented notation, not an executable CLI command until a dispatcher explicitly implements it: `sg-copy :<quality> <surface-id>`, `sg-design :<quality> <surface-id>`, `sg-function :<quality> <function-id>`, `sg-surface :<quality> <surface-id>`, and `:focus <id>`, where `<quality>` is one of `unknown`, `red`, `bronze`, `silver`, `gold` or `diamond`. The visual interface remains the preferred discovery mechanism.
 
 ## Deferred Verification And Resume Context
 
@@ -699,6 +699,8 @@ None. Decisions resolved for v2:
 | 2026-08-02 18:55:00 | 101-sg-ready | GPT-5 Codex | Reviewed the new decision-discipline slice for ownership, ambiguity, source-of-truth duplication, operator authority and scenario proof. | Ready: the slice has bounded owners, seven pressure scenarios and no unresolved product, persistence or security decision. | /900-shipglows-core build product-decision-chain |
 | 2026-08-02 19:08:00 | 900-shipglows-core | GPT-5 Codex | Implemented one shared product-decision chain and activated it across design, spec, readiness, execution, verification, docs, closure and review owners. | Implemented: ShipGlows now checks coherence, propagates changed intent, maps critical moments and replays evidence-backed lessons without importing BMAD ceremony. | /103-sg-verify Approved Surface Protection And Product Atlas |
 | 2026-08-02 19:20:50 | 100-sg-spec | GPT-5 Codex | Materialized the conceptual decision chain into an implementable corpus contract: semantic IDs, artifact ownership, adjacent links, generated read-only traversal, progressive migration and explicit proof back-links. | Draft scope is autonomous and scenario-backed; its new representation and validator lot requires independent readiness review before implementation. | /101-sg-ready Approved Surface Protection And Product Atlas |
+| 2026-08-09 06:47:00 | sg-docs | GPT-5 Codex | Audited Atlas protection documentation against the current v2 contract, tools and lifecycle references; corrected stale dependency versions/statuses and clarified that quality aliases are documented operator notation rather than an implemented CLI. | Documentation is aligned with the current implementation and contract; browser proof and corpus-trace readiness remain separately pending. | /101-sg-ready Approved Surface Protection And Product Atlas |
+| 2026-08-09 06:54:00 | sg-planning | GPT-5 Codex | Added the three missing execution records: executable operator shortcuts, deferred Best Fried Chicken browser/functional proof, and the read-only decision-trace validator. | Follow-up is now explicit without duplicating the Atlas chantier or claiming unavailable browser proof. | Continue the highest-priority available Atlas record |
 
 ## Current Chantier Flow
 

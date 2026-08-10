@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-08-02"
+updated: "2026-08-09"
 status: active
 source_skill: 102-sg-start
 scope: atlas-protection-preflight
@@ -24,8 +24,8 @@ linked_systems:
   - skills/005-sg-ship/SKILL.md
 depends_on:
   - artifact: shipglows_data/workflow/specs/approved-surface-protection-and-product-atlas.md
-    artifact_version: "1.4.0"
-    required_status: ready
+    artifact_version: "2.0.0"
+    required_status: draft
 supersedes: []
 evidence:
   - "Operator decision 2026-08-02: approved visible results must not be silently broken by agents."

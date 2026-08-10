@@ -172,6 +172,12 @@ Add a ShipGlows-owned Python standard-library CLI wrapping the official Search C
   - User story link: prevent unsafe or misleading use by agents and operators.
   - Depends on: Tasks 1-2.
   - Validate with: metadata lint and targeted path/link checks.
+- [x] Task 4: Connect read-only GSC acquisition to the SEO monitoring skill.
+  - Files: `skills/406-sg-seo/SKILL.md`, `skills/406-sg-seo/references/gsc-evidence-workflow.md`, `skills/406-sg-seo/README.md`
+  - Action: Load live GSC evidence when already authorized, use the repository wrapper without a PATH dependency, and retain supplied exports as the safe fallback.
+  - User story link: let SEO agents improve current content from actual Search Console feedback without claiming unavailable access.
+  - Depends on: Tasks 1-3.
+  - Validate with: metadata lint, skill budget audit, sync check, and focused routing assertions.
 
 ## Acceptance Criteria
 
@@ -180,7 +186,7 @@ Add a ShipGlows-owned Python standard-library CLI wrapping the official Search C
 - [ ] Given a property and date range, when an operator runs `performance`, then the request uses `searchAnalytics/query` and returns clicks, impressions, CTR, position, keys, and Google metadata where present.
 - [ ] Given a URL-prefix or domain property, when an operator requests `sitemaps` or `inspect`, then the property identifier is URL encoded correctly and read-only API endpoints are used.
 - [ ] Given missing/revoked authorization or an invalid input, when any protected command runs, then it exits non-zero, explains the remediation, and creates no partial state.
-- [ ] Given a repository checkout, when unit tests and wrapper syntax checks run, then all pass without network access or OAuth credentials.
+- [x] Given a repository checkout, when unit tests and wrapper syntax checks run, then all pass without network access or OAuth credentials.
 
 ## Test Strategy
 
@@ -215,6 +221,7 @@ None for v1: an operator-provided desktop OAuth client is an explicit prerequisi
 | 2026-07-14 18:55:00 UTC | 100-sg-spec | GPT-5 Codex | Created the read-only official GSC API CLI contract from the prior MCP/API audit. | implemented | /101-sg-ready shipglows_data/workflow/specs/google-search-console-api-cli.md |
 | 2026-07-14 19:02:00 UTC | 101-sg-ready | GPT-5 Codex | Reviewed security, OAuth preconditions, scope boundaries, automated/manual proof, and implementation ordering. | ready | /102-sg-start google-search-console-api-cli |
 | 2026-07-14 19:15:00 UTC | 102-sg-start | GPT-5 Codex | Implemented the read-only GSC CLI, offline tests, wrapper, installer aliases, and technical documentation. | implemented | /103-sg-verify google-search-console-api-cli |
+| 2026-08-10 05:15:00 UTC | 001-sg-build | GPT-5 Codex | Confirmed no official Google/OpenAI GSC CLI, MCP, or Codex plugin and connected the API-backed CLI to SEO monitoring with a safe evidence fallback. | implemented | /103-sg-verify google-search-console-api-cli |
 
 ## Current Chantier Flow
 

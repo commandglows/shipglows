@@ -24,6 +24,7 @@ It does not only ask whether the page can rank. It also checks whether search tr
 
 - a page path, a project directory, or `global`
 - optional business context that clarifies target audience and search intent
+- optional Google Search Console property and date range for live monitoring
 
 ## What You Get Back
 
@@ -41,7 +42,7 @@ It does not only ask whether the page can rank. It also checks whether search tr
 
 ## Limits
 
-This skill audits the codebase and visible content. It does not fetch search console data, backlink profiles, or live ranking positions unless that evidence already exists locally.
+This skill audits the codebase and visible content. In monitoring mode it can fetch read-only Google Search Console evidence through the ShipGlows GSC CLI when a local OAuth profile is already authorized. It does not launch OAuth consent automatically, fetch backlink profiles, or claim live ranking positions; supplied exports remain the fallback when GSC access is unavailable.
 
 ## Related Skills
 

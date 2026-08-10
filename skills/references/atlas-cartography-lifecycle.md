@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.2.1"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-08-03"
+updated: "2026-08-09"
 status: active
 source_skill: 305-sg-init
 scope: atlas-cartography-lifecycle
@@ -24,8 +24,8 @@ linked_systems:
   - shipglows_data/business/product.md
 depends_on:
   - artifact: shipglows_data/workflow/specs/approved-surface-protection-and-product-atlas.md
-    artifact_version: "1.5.0"
-    required_status: ready
+    artifact_version: "2.0.0"
+    required_status: draft
 supersedes: []
 evidence:
   - "Operator decision 2026-08-02: the agent drafts the Atlas with the operator, who validates visual boundaries and quality."

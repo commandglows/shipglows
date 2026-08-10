@@ -44,6 +44,7 @@ Always load shared references only when their gate applies. Load skill-local ref
 - `$SHIPGLOWS_ROOT/shipglows_data/workflow/playbooks/seo-charge-referencement-web-playbook.md`: SEO operating model, execution order, gates, outputs, and failure modes.
 - `$SHIPGLOWS_ROOT/shipglows_data/workflow/checklists/seo-charge-referencement-web-checklist.md`: reusable SEO control surface for launch, audit, and verification.
 - `$SHIPGLOWS_ROOT/skills/406-sg-seo/references/seo-audit-workflow.md`: bounded audit index; it selects protocol plus the required direct target branch.
+- `$SHIPGLOWS_ROOT/skills/406-sg-seo/references/gsc-evidence-workflow.md`: live read-only Google Search Console ingestion for monitoring and evidence-backed audits; load when GSC data is requested or useful.
 - `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`: shared rubric for project-aware content quality score and blocked criteria.
 - `$SHIPGLOWS_ROOT/skills/references/task-registry-routing.md`: split SEO follow-up between execution backlog and editorial roadmap.
 
@@ -56,7 +57,7 @@ Route by intent:
 - `launch`: load the playbook and checklist first; produce an indexation/metadata/content/schema readiness verdict and only then route downstream audit details.
 - `audit`: load the checklist, `seo-audit-protocol.md`, and exactly one direct page/project/global reference; load AI visibility only when in scope. Audit a project, page, URL, route, or content file without mutation.
 - `fix`: load `seo-audit-protocol.md`, the direct target reference, and governance corpora gates; change SEO files or public content only when explicitly requested or owned by the active chantier.
-- `monitoring`: load the playbook and checklist; inspect sitemap, robots, indexation signals, regressions, search-console-like evidence supplied by the user, and unresolved SEO tasks without editing.
+- `monitoring`: load the playbook, checklist, and `gsc-evidence-workflow.md`; inspect sitemap, robots, indexation signals, regressions, live read-only GSC evidence when authorized, supplied evidence as fallback, and unresolved SEO tasks without editing.
 
 Use audit as the default when `$ARGUMENTS` is empty or only names a page, URL, content file, or project. Use launch, fix, or monitoring only when the argument or user request clearly asks for that mode.
 
@@ -68,6 +69,7 @@ For an audit/fix target, select one direct branch: `seo-page-audit.md` for a pag
 - Governance Corpora: use `$SHIPGLOWS_ROOT/skills/references/technical-docs-corpus.md` and `$SHIPGLOWS_ROOT/skills/references/editorial-content-corpus.md` when SEO findings touch mapped docs, public content, claims, sitemap, robots, metadata, or schema.
 - Apply the Documentation Freshness Gate before changing external SEO/Search/OpenAI/ChatGPT doctrine.
 - Preserve structured data and AI Visibility checks by loading the direct target reference and `seo-ai-visibility-review.md` only for AEO/GEO review.
+- Use `gsc-evidence-workflow.md` before claiming that GSC data is unavailable, current, complete, or attached to the requested property. Never initiate OAuth consent or select an ambiguous property without operator input.
 - When SEO output includes editorial scoring, use `content-quality-rubric.md` for status, score, and blocking criterion handling.
 - Evaluate `Chantier potentiel` for indexation, schema, content architecture, AI visibility, or multi-page remediation.
 - Treat playbooks/checklists/references as doctrine. Do not expand this activation body with long SEO matrices, templates, provider claims, or troubleshooting trees.
