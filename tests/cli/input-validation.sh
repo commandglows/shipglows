@@ -112,11 +112,13 @@ run_test "Valid repo 'myrepo'" "pass" validate_repo_name "myrepo"
 run_test "Valid repo 'my-repo'" "pass" validate_repo_name "my-repo"
 run_test "Valid repo 'my_repo'" "pass" validate_repo_name "my_repo"
 run_test "Valid repo 'my.repo'" "pass" validate_repo_name "my.repo"
+run_test "Valid organization repo" "pass" validate_repo_name "commandglows/shipglows"
 
 # Should fail
 run_test "Empty repo name" "fail" validate_repo_name ""
 run_test "Repo with spaces" "fail" validate_repo_name "my repo"
 run_test "Repo with special chars" "fail" validate_repo_name "my@repo"
+run_test "Repo with multiple owners" "fail" validate_repo_name "org/team/repo"
 
 echo ""
 echo -e "${BLUE}Testing _ui_normalize_choice()${NC}"

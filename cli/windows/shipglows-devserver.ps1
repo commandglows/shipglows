@@ -177,13 +177,11 @@ function Invoke-SgGitHubLogin {
 function Invoke-SgGitHubClone {
     if (-not $choiceUiAvailable) { throw 'The GitHub repository browser requires fzf or Gum; use Enter Git URL instead.' }
     [void](Invoke-SgGitHubLogin)
-    $json = (& $gh repo list --limit 200 --json nameWithOwner,description,isPrivate,url | Out-String)
+    $jsonLines = @(& $gh api --paginate '/user/repos?affiliation=owner,organization_member&per_page=100&sort=updated' --jq '.[] | {nameWithOwner: .full_name, description, isPrivate: .private, url: .html_url}')
     if ($LASTEXITCODE -ne 0) { throw 'GitHub repository listing failed.' }
-    # Windows PowerShell 5.1 preserves a JSON top-level array as one pipeline
-    # object when ConvertFrom-Json is nested directly inside @(...). Assigning
-    # first lets the following array expression enumerate each repository.
-    $parsedRepositories = $json | ConvertFrom-Json
-    $repositories = @($parsedRepositories)
+    # Parse one compact JSON object per line so pagination remains compatible
+    # with Windows PowerShell 5.1 and does not collapse the picker into one row.
+    $repositories = @($jsonLines | Where-Object { $_ } | ForEach-Object { $_ | ConvertFrom-Json })
     if ($repositories.Count -eq 0) { throw 'No GitHub repositories are available for this account.' }
     $labels = @($repositories | ForEach-Object {
         $visibility = if ($_.isPrivate) { 'private' } else { 'public' }

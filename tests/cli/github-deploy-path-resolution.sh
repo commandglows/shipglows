@@ -30,6 +30,7 @@ fail() {
 }
 
 started_identifier=""
+cloned_url=""
 
 get_github_username() {
     printf '%s\n' 'test-owner'
@@ -37,6 +38,7 @@ get_github_username() {
 
 git() {
     [ "${1:-}" = "clone" ] || return 1
+    cloned_url="$2"
     mkdir -p "$3"
 }
 
@@ -58,10 +60,12 @@ env_start() {
 shipglows_init_project() { :; }
 pm2_port_load() { return 1; }
 
-deploy_github_project 'gocharbon_quiz' >/dev/null
+deploy_github_project 'commandglows/gocharbon_quiz' >/dev/null
 
 expected_path="$SHIPGLOWS_PROJECTS_DIR/gocharbon_quiz"
 [ "$started_identifier" = "$expected_path" ] || \
     fail "deployment must start cloned path (got '$started_identifier')"
+[ "$cloned_url" = 'git@github.com:commandglows/gocharbon_quiz.git' ] || \
+    fail "deployment must preserve the selected organization owner (got '$cloned_url')"
 
 printf 'PASS: GitHub deployment starts the authoritative cloned path\n'
