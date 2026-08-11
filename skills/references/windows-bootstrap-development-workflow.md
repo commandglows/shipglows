@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-11"
@@ -25,6 +25,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Windows bootstrap branch installation and migration validated on 2026-08-11."
+  - "A download-only refresh left the active DevServer stale during the Windows repository-picker fix on 2026-08-11."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows bootstrap development workflow"
 ---
@@ -45,6 +46,18 @@ Use this reference when an agent changes or tests the native Windows ShipGlows b
 `install-shipglows.ps1` downloads a GitHub archive for the requested ref. It intentionally does not deploy uncommitted files from the current clone. A remotely pushed branch therefore tests the exact artifact another user would download without publishing unvalidated installer behavior to `main`.
 
 Do not push an untested installer change directly to `main`. Use a branch whenever behavior affects installation, migration, PATH, wrappers, updates, dependencies, permissions, or user files.
+
+## Deployment Truth
+
+- `-DownloadOnly` refreshes and validates the staged Windows files under `%USERPROFILE%\.shipglows\cli\windows`. It does not run `cli/windows/install-devserver.ps1` and does not redeploy `%USERPROFILE%\.shipglows\bin`.
+- The `s` wrapper executes `%USERPROFILE%\.shipglows\bin\shipglows-devserver.ps1`. That active file, not the downloaded staging copy, determines the user's behavior.
+- A runtime-facing fix is installed only after the full bootstrap completes:
+
+  ```powershell
+  .\install-shipglows.ps1 -Branch <ref> -InstallMode full
+  ```
+
+- Use `-DownloadOnly` only to test download, archive extraction, or parsing. Never use it as proof that the active `s` command was updated.
 
 ## Agent Handoff
 
@@ -83,6 +96,8 @@ Do not push an untested installer change directly to `main`. Use a branch whenev
 6. Verify behavior proportionally to risk. For path or migration changes, verify at minimum:
 
    - commands such as `s` resolve to `%USERPROFILE%\.shipglows\bin` in a fresh shell;
+   - `%USERPROFILE%\.shipglows\bin\s.cmd` targets the adjacent `shipglows-devserver.ps1`;
+   - the active `%USERPROFILE%\.shipglows\bin\shipglows-devserver.ps1` matches the tested source after normalizing line endings;
    - `%USERPROFILE%\.shipglows` retains the Windows `Hidden` attribute;
    - `%USERPROFILE%\ShipGlows` contains projects only;
    - rerunning the installer is idempotent;
@@ -98,7 +113,11 @@ Do not push an untested installer change directly to `main`. Use a branch whenev
    .\install-shipglows.ps1 -Branch main -InstallMode full
    ```
 
-9. Confirm the installed source commit matches the merged `main` commit and report the PR, commit, validations, migration effects, and any recoverable backups.
+9. Confirm all three deployment layers: the clone is at merged `main`, the staged copy under `%USERPROFILE%\.shipglows\cli\windows` contains the merged change, and the active copy under `%USERPROFILE%\.shipglows\bin` matches it after normalizing line endings. Confirm `s.cmd` launches that active copy, then report the PR, commit, validations, migration effects, and any recoverable backups.
+
+## Pressure Scenario: `DOWNLOAD-ONLY-NOT-ACTIVE`
+
+Given an older active DevServer and a newer branch archive, running the bootstrap with `-DownloadOnly` may succeed while `s` still runs the older file. The workflow must reject completion until a full install succeeds and normalized source, staged, and active contents agree. The core contract test mechanically preserves this distinction.
 
 ## Safety Boundaries
 
@@ -108,3 +127,4 @@ Do not push an untested installer change directly to `main`. Use a branch whenev
 - Preserve unrelated dirty worktree files and case-collision artifacts.
 - Stop before merge if the branch bootstrap cannot be tested from the remote archive.
 - A successful static test is not a substitute for a real Windows bootstrap when installer behavior changes.
+- Never claim a runtime fix is installed from `-DownloadOnly`, the staged file, or a successful download alone.

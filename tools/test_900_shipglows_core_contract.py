@@ -62,6 +62,17 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
             self.assertIn(trigger, self.text)
         self.assertIn("# Windows Bootstrap Development Workflow", self.windows_bootstrap_workflow)
 
+    def test_windows_handoff_distinguishes_staging_from_active_runtime(self) -> None:
+        for rule in (
+            "-DownloadOnly",
+            r"%USERPROFILE%\.shipglows\cli\windows",
+            r"%USERPROFILE%\.shipglows\bin\shipglows-devserver.ps1",
+            "-InstallMode full",
+            "DOWNLOAD-ONLY-NOT-ACTIVE",
+            "normalizing line endings",
+        ):
+            self.assertIn(rule, self.windows_bootstrap_workflow)
+
     def test_activation_contract_is_compacted(self) -> None:
         self.assertLess(len(self.text.splitlines()), MAX_ACTIVATION_LINES)
 
