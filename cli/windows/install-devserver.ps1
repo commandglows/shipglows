@@ -415,6 +415,104 @@ function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [st
     }
 }
 
+function Get-SgCodexPermissionModeFromConfig([string]$ConfigPath) {
+    if (-not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) { return '' }
+    foreach ($line in (Get-Content -LiteralPath $ConfigPath)) {
+        if ($line -match '^\s*\[[^]]+\]\s*$') { break }
+        if ($line -match '^\s*default_permissions\s*=\s*"([^"]+)"') {
+            if ($Matches[1] -eq ':danger-full-access') { return 'full' }
+            if ($Matches[1] -eq ':workspace') { return 'workspace' }
+        }
+        if ($line -match '^\s*sandbox_mode\s*=\s*"([^"]+)"') {
+            if ($Matches[1] -eq 'danger-full-access') { return 'full' }
+            if ($Matches[1] -eq 'workspace-write') { return 'workspace' }
+        }
+    }
+    return ''
+}
+
+function Resolve-SgCodexPermissionMode([string]$ConfigPath) {
+    $requested = if ($env:SHIPGLOWS_CODEX_PERMISSION_MODE) {
+        $env:SHIPGLOWS_CODEX_PERMISSION_MODE
+    } elseif ($env:SHIPGLOWS_AUTONOMY_MODE) {
+        $env:SHIPGLOWS_AUTONOMY_MODE
+    } else {
+        'ask'
+    }
+    switch ($requested.Trim().ToLowerInvariant()) {
+        { $_ -in @('full', 'permissive', 'danger', 'dangerous') } { return 'full' }
+        { $_ -in @('workspace', 'standard', 'safe', 'restricted') } { return 'workspace' }
+        { $_ -in @('keep', 'unchanged', 'skip') } { return 'keep' }
+        { $_ -in @('', 'ask') } { break }
+        default {
+            Write-SgInstallerWarning "Unknown SHIPGLOWS_CODEX_PERMISSION_MODE value '$requested'; the existing Codex configuration was kept."
+            return 'keep'
+        }
+    }
+
+    if ([Console]::IsInputRedirected) {
+        Write-Host 'Codex permission configuration kept because this is a non-interactive installation. Set SHIPGLOWS_CODEX_PERMISSION_MODE=workspace or full to automate it.' -ForegroundColor Yellow
+        return 'keep'
+    }
+
+    $current = Get-SgCodexPermissionModeFromConfig $ConfigPath
+    $defaultChoice = if ($current -eq 'full') { '2' } else { '1' }
+    Write-Host ''
+    Write-Host 'Codex permissions' -ForegroundColor Yellow
+    Write-Host '  1) Workspace access (recommended): edit projects, ask before leaving the workspace or using restricted access.'
+    Write-Host '  2) Full access: no sandbox and no approval prompts. Use only with trusted repositories.'
+    Write-Host '  0) Keep the existing Codex configuration unchanged.'
+    if ($current) { Write-Host "Current mode: $current" -ForegroundColor DarkGray }
+    while ($true) {
+        $answer = (Read-Host "Choose 0, 1, or 2 [$defaultChoice]").Trim()
+        if (-not $answer) { $answer = $defaultChoice }
+        switch ($answer) {
+            '0' { return 'keep' }
+            '1' { return 'workspace' }
+            '2' { return 'full' }
+            default { Write-Host 'Enter 0, 1, or 2.' -ForegroundColor Yellow }
+        }
+    }
+}
+
+function Set-SgCodexPermissionMode([string]$Mode, [string]$ConfigPath) {
+    if ($Mode -notin @('workspace', 'full')) { return $false }
+    $approvalPolicy = if ($Mode -eq 'full') { 'never' } else { 'on-request' }
+    $permissionProfile = if ($Mode -eq 'full') { ':danger-full-access' } else { ':workspace' }
+    $configDirectory = Split-Path -Parent $ConfigPath
+    New-Item -ItemType Directory -Path $configDirectory -Force | Out-Null
+    $existing = if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) { [IO.File]::ReadAllText($ConfigPath) } else { '' }
+    $managedPattern = '(?ms)^# >>> shipglows codex autonomous >>>\r?\n.*?^# <<< shipglows codex autonomous <<<\r?\n?'
+    $withoutManagedBlock = [regex]::Replace($existing, $managedPattern, '')
+    $keptLines = @()
+    $beforeTable = $true
+    foreach ($line in ($withoutManagedBlock -split '\r?\n')) {
+        if ($line -match '^\s*\[[^]]+\]\s*$') { $beforeTable = $false }
+        if ($beforeTable -and $line -match '^\s*(approval_policy|default_permissions|sandbox_mode)\s*=') { continue }
+        $keptLines += $line
+    }
+    $managedBlock = @(
+        '# >>> shipglows codex autonomous >>>',
+        "approval_policy = `"$approvalPolicy`"",
+        "default_permissions = `"$permissionProfile`"",
+        '# <<< shipglows codex autonomous <<<'
+    ) -join "`n"
+    $remainder = ($keptLines -join "`n").Trim([char[]]"`r`n")
+    $next = if ($remainder) { "$managedBlock`n`n$remainder`n" } else { "$managedBlock`n" }
+    if ($next.Replace("`r`n", "`n") -ceq $existing.Replace("`r`n", "`n")) {
+        Write-Host "Codex permissions already configured: $Mode." -ForegroundColor Green
+        return $false
+    }
+    if ($existing) {
+        $backupPath = "$ConfigPath.shipglows-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        Copy-Item -LiteralPath $ConfigPath -Destination $backupPath
+        Write-Host "Existing Codex configuration backed up to $backupPath" -ForegroundColor DarkGray
+    }
+    [IO.File]::WriteAllText($ConfigPath, $next, [Text.UTF8Encoding]::new($false))
+    Write-Host "Codex permissions configured: $Mode." -ForegroundColor Green
+    return $true
+}
+
 function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     if (Test-SgTool 'flutter.bat' $FlutterPaths) {
         Write-Host 'Flutter Web SDK is already installed.' -ForegroundColor Green
@@ -492,10 +590,15 @@ $pnpmReady = Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths
 Write-Host ''
 Write-Host 'Optional coding agents' -ForegroundColor Yellow
 Write-Host 'Each agent is a separate choice. Press Enter to skip an agent.' -ForegroundColor DarkGray
-[void](Install-SgOptionalAgent 'Codex CLI' 'codex.cmd' '@openai/codex' $codexPaths $pnpmPaths $npmPaths)
+$codexReady = Install-SgOptionalAgent 'Codex CLI' 'codex.cmd' '@openai/codex' $codexPaths $pnpmPaths $npmPaths
 [void](Install-SgOptionalAgent 'Claude Code CLI' 'claude.cmd' '@anthropic-ai/claude-code' $claudePaths $pnpmPaths $npmPaths -CompatibilityNote 'On native Windows, Claude Code uses the Git for Windows terminal environment.' -AllowInstallScripts)
 [void](Install-SgOptionalAgent 'OpenCode CLI' 'opencode.cmd' 'opencode-ai' $opencodePaths $pnpmPaths $npmPaths -CompatibilityNote 'Native Windows support may vary by OpenCode release.' -AllowInstallScripts)
 [void](Install-SgOptionalAgent 'KiloCode CLI' 'kilocode.cmd' '@kilocode/cli' $kilocodePaths $pnpmPaths $npmPaths -AllowInstallScripts)
+if ($codexReady) {
+    $codexConfigPath = Join-Path $env:USERPROFILE '.codex\config.toml'
+    $codexPermissionMode = Resolve-SgCodexPermissionMode $codexConfigPath
+    if ($codexPermissionMode -ne 'keep') { [void](Set-SgCodexPermissionMode $codexPermissionMode $codexConfigPath) }
+}
 
 Write-Host ''
 Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor Yellow

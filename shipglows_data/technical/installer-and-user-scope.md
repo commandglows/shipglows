@@ -71,7 +71,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 ## Entrypoints
 
 - `curl -fsSL https://shipglows.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
-- Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, and supports `local` or `full`. Interactive mode selection requires `1`, `2`, or `0`; an empty answer only repeats the prompt. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download and before each optional agent CLI (Codex, Claude Code, OpenCode, KiloCode). GitHub authentication is initiated only when private repository browsing is selected; agent authentication is initiated only by the selected agent at first run; credentials remain owned by their respective CLIs.
+- Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, and supports `local` or `full`. Interactive mode selection requires `1`, `2`, or `0`; an empty answer only repeats the prompt. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download and before each optional agent CLI (Codex, Claude Code, OpenCode, KiloCode). When Codex is available it also offers workspace permissions (recommended), full access, or preservation of the existing config; `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep` makes that choice deterministic for automation. GitHub authentication is initiated only when private repository browsing is selected; agent authentication is initiated only by the selected agent at first run; credentials remain owned by their respective CLIs.
 - `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
 - `tools/sync_shipglows_public_bootstrap.sh --check [--site-root <path>]`: verifies that the ShipGlows site serves generated canonical artifacts rather than independently maintained templates.
 - `sudo ./cli/install.sh`: server installer.
@@ -123,6 +123,11 @@ sudo ./cli/install.sh
   default system `caddy.service`; normal environment proxying is launched later
   by ShipGlows in user mode and tied to PM2 app lifecycle.
 - Existing user config must be preserved outside ShipGlows-managed blocks.
+- Codex autonomy uses the current permission-profile keys: standard mode writes
+  `approval_policy = "on-request"` with `default_permissions = ":workspace"`;
+  permissive mode writes `approval_policy = "never"` with
+  `default_permissions = ":danger-full-access"`. Both installers remove an old
+  top-level `sandbox_mode` while preserving unrelated TOML content.
 - User-space agent CLI install is selection-based. `claude`, `codex`,
   `opencode`, and `kilocode` may be installed independently.
 - Windows full applies the same selection principle: every coding agent has an

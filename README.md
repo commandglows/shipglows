@@ -217,6 +217,10 @@ recommended local DevServer. The DevServer installs only the native PowerShell
 runtime for Astro, Python/FastAPI, and Flutter Web, prepares Git, GitHub CLI,
 Node LTS/npm, pnpm and uv, then asks before the larger Flutter Web download and
 before each optional coding agent (Codex, Claude Code, OpenCode, and KiloCode).
+When Codex is available, Windows also asks whether to keep the recommended
+workspace permissions, enable full access without approval prompts, or preserve
+the existing configuration. Automated installs can set
+`SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep`.
 It clones or registers repositories under `%USERPROFILE%\ShipGlows\workspace`,
 starts them on localhost ports, and keeps a recoverable registry under
 `%LOCALAPPDATA%`. No tunnel is needed for projects running on the Shadow.
@@ -383,7 +387,7 @@ tui.terminal_title = ["spinner", "thread", "project"]
 
 It also sets `[beta] rmcp = true` in `~/.codex/config.toml`.
 
-In permissive mode, the installer writes `approval_policy = "never"` and `sandbox_mode = "danger-full-access"`. In standard mode, it writes `approval_policy = "on-request"` and `sandbox_mode = "workspace-write"`.
+In permissive mode, the installer writes `approval_policy = "never"` and `default_permissions = ":danger-full-access"`. In standard mode, it writes `approval_policy = "on-request"` and `default_permissions = ":workspace"`.
 
 The install is idempotent, preserves existing user custom settings, and keeps
 ShipGlows-managed config wrapped in its own markers so user edits outside those

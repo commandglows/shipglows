@@ -1933,14 +1933,14 @@ configure_codex_autonomous_permissions() {
     local tmp_file="$config_file.tmp.$$"
     local cleaned_file="$config_file.cleaned-autonomous.$$"
     local approval_policy
-    local sandbox_mode
+    local permission_profile
 
     if [ "$mode" = "permissive" ]; then
         approval_policy="never"
-        sandbox_mode="danger-full-access"
+        permission_profile=":danger-full-access"
     else
         approval_policy="on-request"
-        sandbox_mode="workspace-write"
+        permission_profile=":workspace"
     fi
 
     mkdir -p "$codex_dir"
@@ -1970,6 +1970,9 @@ configure_codex_autonomous_permissions() {
       before_table && /^[[:space:]]*sandbox_mode[[:space:]]*=/ {
         next
       }
+      before_table && /^[[:space:]]*default_permissions[[:space:]]*=/ {
+        next
+      }
       {
         print
       }
@@ -1977,7 +1980,7 @@ configure_codex_autonomous_permissions() {
     {
       printf '# >>> shipglows codex autonomous >>>\n'
       printf 'approval_policy = "%s"\n' "$approval_policy"
-      printf 'sandbox_mode = "%s"\n' "$sandbox_mode"
+      printf 'default_permissions = "%s"\n' "$permission_profile"
       printf '# <<< shipglows codex autonomous <<<\n'
       printf '\n'
       cat "$cleaned_file"
