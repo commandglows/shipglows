@@ -24,9 +24,6 @@
 | 2026-04-19 | gocharbon_quiz | Copywriting funnel | — | — | B- | — | — | — | — | — | B- | 3/4/2 |
 | 2026-04-26 | gocharbon_quiz | full project | B-→B | — | — | — | — | — | — | — | B | 0/3/3 (4 fixed) |
 | 2026-04-21 | ContentFlow App | Feed mobile page | — | C→B | — | — | — | — | — | — | B | 0/1/2 (mobile layout tightened, responsive CTAs/status cards, narrow app bar action) |
-| 2026-04-26 | VoiceFlowz | dependencies | — | — | — | — | — | — | B | — | B | 1 critical + 4 high fixed; 10 moderate remain blocked by Expo major/migration path |
-| 2026-05-09 | VoiceFlowz | full project | — | C→B- | — | — | — | — | — | — | B- | ContentFlow family tokens adopted in Flutter theme; 0 critical / 2 high / 3 medium remain |
-| 2026-05-10 | VoiceFlowz | full project | — | B-→B | — | — | — | — | — | — | B | 0 critical / 1 high / 4 medium remain; brand tokens, theme bootstrap, delete confirmations, onboarding semantics, and themeMode rules fixed |
 | 2026-05-15 | WinFlowz | full project | — | B- | — | — | — | — | — | — | B- | 0 critical / 3 high / 4 medium found; clean `flutter analyze`; remaining gaps are sync-state honesty, mixed FR/EN UX copy, control sizing, typography token discipline, reduced-motion support, and design-system proof tooling |
 | 2026-04-26 | tubeflow-app | Code | C+ | — | — | — | — | — | — | — | C+ | 0/3/5 (6 fixed) |
 | 2026-04-27 | ContentFlow Lab | full project | B | — | — | — | — | — | — | — | — | 0/1/3 |

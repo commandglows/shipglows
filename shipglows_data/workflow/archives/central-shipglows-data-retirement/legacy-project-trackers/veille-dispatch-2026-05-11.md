@@ -39,7 +39,6 @@ confidence: medium
 | WinFlowz | VenturOS, Validue, Populous, IntelCue, MemoryPlugin, Spec27 | Formation/productivité/IA: modules et benchmarks. |
 | Quit Coke site | Mindry, Vitality AI Health, rembr, Monthly Soup, Web-Analytics.ai, myGEOscore | Journaling, santé IA, communauté et SEO/GEO, avec forte prudence éthique. |
 | NoCocaïne app | Mindry, Vitality AI Health, rembr, Betula, MemoryPlugin | App santé: inspiration UX, rappels, mémoire sensible. |
-| VoiceFlowz | FlowSpeech, Betula, MemoryPlugin, Airbin, rembr | Voix, transcription, assistant, mémoire et bibliothèque de notes. |
 | PlaisirSurprise | Stamp'd, Photo Poodle, Monthly Soup, Web-Analytics.ai, rembr | Group booking, UGC événementiel, relances. |
 | Nantes Gratuit | Photo Poodle, Stamp'd, myGEOscore, Web-Analytics.ai, Clamp | UGC local, sorties, analytics privacy-first. |
 | ToolFlowz extension | Browser7, Conscriba, Clamp, MemoryPlugin, DiffHook | Extension navigateur, analyse pages, MCP, permissions. |
@@ -50,5 +49,4 @@ confidence: medium
 ## Questions ouvertes
 
 - ContentFlow est canonique; `contentflow_site`, `contentflow_app` et `contentflow_lab` restent des vues spécialisées.
-- VoiceFlowz: doit-il rester transcription/productivité ou évoluer vers assistant vocal personnel ?
 - `frp`: veux-tu un vrai benchmark technique contre ShipGlows/Caddy/DuckDNS, ou juste une note d'inspiration ?
