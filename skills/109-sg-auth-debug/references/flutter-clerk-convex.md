@@ -1,4 +1,4 @@
-# Flutter + Clerk + Convex Auth Debug Reference
+# Flutter + Firebase/Clerk + Convex Auth Debug Reference
 
 Use this reference when a ShipGlows application is a Flutter app using Clerk, Convex, or both.
 
@@ -15,6 +15,8 @@ Sources checked:
 
 Last reviewed: 2026-08-02
 
+Portfolio decision updated: 2026-08-11
+
 ## SDK Status
 
 - `clerk_flutter` is Clerk-published but community-maintained and still beta. Current pub.dev version reviewed: `0.0.18-beta`.
@@ -25,7 +27,13 @@ Last reviewed: 2026-08-02
 
 ## Recommended Default
 
-- For Flutter web apps, prefer the ContentFlow pattern documented in `flutter-web-clerkjs-bridge.md`: official ClerkJS on app-domain auth routes plus Dart JS interop.
+- Greenfield universal Flutter uses Firebase Auth across all six targets,
+  FlutterFire where listed, and a reviewed REST/OIDC adapter on Linux.
+- Call Convex through its official HTTP API with a fresh Firebase ID token and
+  explicit issuer/audience verification. Firebase Auth does not imply Firestore.
+- Clerk guidance below is an existing-product exception backed by proved flows.
+
+- For existing Clerk Flutter web apps, prefer the ContentFlow pattern documented in `flutter-web-clerkjs-bridge.md`: official ClerkJS on app-domain auth routes plus Dart JS interop.
 - For native Flutter apps that need Clerk today, avoid production reliance on `clerk_flutter` / `clerk_auth` unless the project explicitly accepts beta SDK risk; if used, pin versions carefully and test login on real target platforms.
 - For Convex from Flutter, prefer a documented project decision:
   - use `convex_dart` with explicit acceptance of third-party dependency risk, or
@@ -162,6 +170,8 @@ blueprint.
 - If using `convex_dart`, confirm generated client files are up to date after Convex function changes.
 - Confirm Flutter points to the correct Convex deployment URL for local/staging/prod.
 - Confirm authenticated Convex calls receive a Clerk token or app-specific bearer token.
+- For Firebase, confirm protected HTTP calls carry a fresh ID token and Convex
+  verifies issuer, audience, expiry, revocation policy, and canonical user mapping.
 - Confirm type conversions and generated IDs match the Convex schema.
 - For realtime issues, separate WebSocket connectivity from auth failures.
 

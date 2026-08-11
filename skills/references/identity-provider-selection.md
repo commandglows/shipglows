@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-08-02"
+updated: "2026-08-11"
 status: active
 source_skill: 109-sg-auth-debug
 scope: flutter-identity-provider-selection
@@ -17,6 +17,8 @@ linked_systems:
   - skills/109-sg-auth-debug/references/sdk-policy.md
   - skills/app-blueprints/flutter-crud-content/blueprint.md
   - skills/references/documentation-freshness-gate.md
+  - skills/references/backend-data-provider-selection.md
+  - skills/references/cross-platform-runtime-selection.md
 depends_on: []
 supersedes: []
 evidence:
@@ -25,15 +27,18 @@ evidence:
   - "Official Clerk, Firebase, and Supabase pricing reviewed 2026-08-02."
   - "Official Supabase pausing documentation reviewed 2026-08-02: a paused Free project cannot process requests; each project includes Auth alongside its other services."
   - "ContentGlowz release APK completed the Clerk Android browser OAuth path on a physical device."
-next_review: "2026-09-02"
+  - "Official Clerk Flutter beta announcement, Clerk pricing, and Firebase Auth Flutter package platform support reviewed 2026-08-11."
+  - "Operator decision 2026-08-11: identity and backend/data providers are selected independently, with portfolio project limits treated as a first-class criterion."
+  - "Operator decision 2026-08-11: Firebase Auth is the prevailing identity owner for universal Flutter; Linux uses REST/OIDC because firebase_auth does not list Linux."
+next_review: "2026-09-11"
 next_step: "Refresh provider maturity and package versions before the next Flutter identity-provider decision."
 ---
 
 # Flutter Identity Provider Selection
 
-Use this matrix before choosing, changing, or combining Clerk and Firebase Auth
-for a Flutter product. It is a product-architecture decision, not a per-screen
-or per-platform convenience choice.
+Use this matrix before implementing or changing identity. Firebase Auth is the
+portfolio default. Clerk remains an existing-product exception with proved flows.
+Identity selection never selects Firestore implicitly.
 
 ## Evidence vocabulary
 
@@ -45,32 +50,29 @@ or per-platform convenience choice.
   signed-target spike before it becomes a launch dependency.
 - **Unproven**: no ShipGlows release-device proof exists yet.
 
-## Current matrix — reviewed 2026-08-02
+## Current matrix — reviewed 2026-08-11
 
 | Criterion | Clerk | Firebase Auth |
 | --- | --- | --- |
-| Flutter web | ClerkJS bridge: proved locally | Official support listed; unproven in ShipGlows as the web identity owner |
-| Flutter Android | Official Kotlin SDK behind Flutter bridge: proved locally | Official Flutter packages; used by ReplayGlowz, but creates a second identity owner when web uses Clerk |
+| Flutter web | ClerkJS bridge: proved locally; official Flutter SDK remains beta | Official Flutter package support listed; unproven in ShipGlows as the web identity owner |
+| Flutter Android | Official Kotlin SDK behind Flutter bridge: proved locally; official Flutter SDK remains beta | Official Flutter package support listed; used by ReplayGlowz, but creates a second identity owner when web uses Clerk |
 | Flutter iOS / macOS | iOS native SDK exists; Flutter bridge unproven | macOS Auth support is official beta; Google Sign-In package supports macOS; unproven in ShipGlows |
-| Flutter Windows | No Clerk native Flutter/Windows SDK; use ClerkJS web/PWA or an explicitly designed desktop OAuth flow | Firebase Auth Windows support is official beta; native Google flow must be spike-tested for the exact release target |
+| Flutter Windows | No proven ShipGlows native Windows flow; use ClerkJS web/PWA or an explicitly designed desktop OAuth flow | Official `firebase_auth` package lists Windows; native Google flow must still be spike-tested for the exact release target |
+| Flutter Linux | No proven native Linux flow; requires an explicitly designed browser/OIDC adapter | `firebase_auth` does not list Linux; use a reviewed REST/OIDC adapter with secure callback and token storage |
 | Public desktop roadmap | No Clerk Windows/macOS native SDK commitment located in public docs/changelog at this review date | Beta status, not a promised GA date |
 | One identity across web and Android | Strong: Clerk owns both | Strong only if Firebase owns both; weak if web remains Clerk |
 | OS-native desktop priority | PWA has less OS integration | Better candidate, but beta support is a launch risk to validate early |
 
 ## Default decisions
 
-1. **Web + Android, with Clerk web already in use:** choose Clerk everywhere.
-   Use ClerkJS on web and the validated Kotlin Android bridge. Do not add
-   Firebase merely for Android.
-2. **Windows native application is a launch requirement, with material OS
-   integration:** choose Firebase Auth as the candidate identity owner for the
-   entire product only after a signed Windows spike proves Google sign-in,
+1. **Greenfield universal Flutter:** choose Firebase Auth for Web, Android, iOS,
+   Windows, macOS, and Linux; use official SDKs where listed and REST/OIDC on Linux.
+2. **Windows or macOS launch:** require a signed spike proving Google sign-in,
    restore, sign-out, backend-token propagation, and installer behavior.
-3. **Windows can begin as a PWA:** keep Clerk as the sole owner. Reassess a
-   Firebase-wide migration only if native desktop requirements become material.
-4. **macOS is a later target:** it does not by itself justify a provider split.
-   Re-evaluate from the selected product-wide identity owner when macOS enters
-   the committed roadmap.
+3. **Linux launch:** prove PKCE, callback ownership, secure token storage,
+   restore, revocation, sign-out, and Firebase-token propagation to Convex.
+4. **Existing proved Clerk product:** preserve Clerk unless migration has an
+   explicit identity-linking, rollback, and release-proof contract.
 
 ## Launch availability gate
 
@@ -94,14 +96,14 @@ pauses inactive projects. The agent excludes that free-plan configuration from
 the shortlist before recommending it for native Windows/macOS coverage; it does
 not treat a manual wake-up as an acceptable sign-in recovery path.
 
-## Commercial launch snapshot — reviewed 2026-08-02
+## Commercial launch snapshot — reviewed 2026-08-11
 
 Prices are provider-published USD starting prices, not a budget guarantee.
 Recheck them before committing a provider or a paid plan.
 
 | Provider/configuration | Early-stage auth cost and availability |
 | --- | --- |
-| Clerk Hobby | $0; up to 50,000 monthly retained users per app. |
+| Clerk Hobby | $0 without a credit card; unlimited applications and up to 50,000 monthly retained users per app. |
 | Firebase Authentication | Most methods, including social sign-in, are no-cost; phone/SMS and other Firebase/Google Cloud products can create charges. |
 | Supabase Free | $0, but the whole project (including Auth) can pause after low activity. Not suitable for continuously available launch auth. |
 | Supabase Pro | Starts at $25/month per organization, with the first standard project included; additional standard projects start around $10/month. No inactivity pausing. |
@@ -110,6 +112,10 @@ Cost rule: compare the plan that keeps sign-in continuously available, not only
 the $0 tier. Keep identity-provider cost separate from database, storage,
 functions, messaging, and analytics costs; they can change the total product
 budget even when authentication itself is free.
+
+Provider-count rule: identity application limits, backend project/deployment
+limits, and data usage quotas are different constraints. Record each one and
+use `backend-data-provider-selection.md` for the independent data decision.
 
 ## Scale economics — reviewed 2026-08-02
 
@@ -153,6 +159,7 @@ Before implementation, record:
 
 ```text
 identity_owner: clerk | firebase
+backend_data_owner: convex | firestore | supabase | other
 targets_at_launch: web | android | windows | macos | ios
 desktop_expectation: pwa | native
 continuous_auth_availability: <plan that remains active before first user>
@@ -163,6 +170,8 @@ provider_maturity_checked_at: YYYY-MM-DD
 provider_versions_checked: <exact relevant package/SDK versions>
 release_spike_required: yes | no
 release_spike_scope: <platform flows or not required>
+linux_adapter: rest_oidc | not_applicable
+backend_token_audience_and_issuer: <Firebase/Convex verification contract>
 ```
 
 Use the official provider documentation and package pages at the time of the
@@ -196,7 +205,10 @@ does not present that research as a substitute for the decision matrix.
 - Clerk Flutter package pages, when considering Flutter/Dart-native support.
 - Firebase Flutter supported-platform table.
 - `firebase_auth` and `google_sign_in` official Flutter package pages.
+- Firebase Auth REST API and OpenID Connect documentation for the Linux adapter.
 - Clerk, Firebase, and Supabase official pricing pages before a commercial
   provider decision.
 - Supabase Free project-pausing and billing documentation when Supabase enters
   a shortlist.
+- `backend-data-provider-selection.md` whenever authentication is discussed
+  alongside Firestore, Convex, Supabase, project counts, or data costs.

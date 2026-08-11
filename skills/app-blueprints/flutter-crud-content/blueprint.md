@@ -63,7 +63,8 @@ Screens identifiés :
 | State management | Riverpod 3.x (`Provider`, `StateNotifierProvider`, `AsyncNotifierProvider`, `FutureProvider`) |
 | Routing | GoRouter (shell route + auth guard redirect + `ChangeNotifier` refresh) |
 | HTTP | Dio (raw, pas de retrofit) |
-| Auth | ClerkJS bridge on web; pinned Clerk Android API SDK in Kotlin behind a typed Flutter MethodChannel on Android |
+| Auth | Firebase Auth identity; FlutterFire where listed and REST/OIDC on Linux |
+| Backend/data | Convex functions through the official HTTP API |
 | Storage | SharedPreferences (pas de Hive/Isar/SQLite) |
 | Architecture | Layer-first (`core/`, `data/`, `presentation/`, `providers/`) |
 | Codegen | Aucun (pas de freezed, json_serializable, riverpod_generator) |
@@ -227,9 +228,21 @@ signedOut → restoringSession → checkingBackend → checkingWorkspace
   → needsOnboarding | ready | apiUnavailable | bootstrapFailed | bootstrapUnauthorized
 ```
 
-### Native Android Clerk contract (default: validated browser OAuth)
+### Firebase Auth universal contract (greenfield default)
 
-Use this contract for new Flutter Android apps derived from this blueprint:
+Use Firebase Auth across Web, Android, iOS, Windows, macOS, and Linux. Because
+`firebase_auth` does not list Linux, isolate Linux behind a typed REST/OIDC
+adapter owning PKCE, callback handling, secure refresh-token storage, restore,
+revocation, and sign-out. Pass fresh Firebase ID tokens to Convex HTTP endpoints;
+Convex functions remain authoritative. Firebase Auth does not imply Firestore.
+
+Require signed-target proof for sign-in, refresh, restart restore, protected
+Convex call, revocation, and sign-out on every launch platform.
+
+### Existing Clerk Android contract (proved exception)
+
+Use this contract only for an existing Flutter Android product whose Clerk path
+is accepted or release-device proved:
 
 - Do not make the beta `clerk_flutter` / `clerk_auth` packages the production
   Android auth owner unless the project explicitly accepts that risk.

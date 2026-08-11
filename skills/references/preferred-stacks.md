@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-07-23"
+updated: "2026-08-11"
 status: active
 source_skill: 900-shipglows-core
 scope: preferred-stack-presets
@@ -19,6 +19,9 @@ linked_systems:
   - skills/001-sg-build/SKILL.md
   - skills/100-sg-spec/SKILL.md
   - skills/101-sg-ready/SKILL.md
+  - skills/references/identity-provider-selection.md
+  - skills/references/backend-data-provider-selection.md
+  - skills/references/cross-platform-runtime-selection.md
 depends_on: []
 supersedes: []
 evidence:
@@ -27,7 +30,9 @@ evidence:
   - "Operator decision 2026-07-16: Vercel is the default web host; the dedicated-server deployment matrix applies only when a separate server runtime is genuinely required."
   - "Operator clarification 2026-07-17: Astro, Vercel, and Flutter are first-recommendation defaults, and an app request should prefer one Flutter codebase for web, iOS, and Android instead of stopping at a mobile-only build."
   - "Operator decision 2026-08-05: when a project includes one browser/web extension, its default monorepo source root is ext/; plural extensions/<name>/ is deferred until a second independently shipped extension exists."
-next_review: "2026-10-17"
+  - "Operator decision 2026-08-11: portfolio-scale free-project limits, Flutter/Windows support, server authority, and billing cliffs must be evaluated separately for identity and backend/data providers."
+  - "Operator decision 2026-08-11: universal Flutter targets Web, Android, iOS, Windows, macOS, and Linux; Firebase Auth owns identity, Convex HTTP owns backend/data, and Rust is reserved for a justified native engine."
+next_review: "2026-09-11"
 next_step: "none"
 ---
 
@@ -68,9 +73,9 @@ rediscover ShipGlows's habitual stack.
 ### Cross-platform application surfaces
 
 - Framework: Flutter.
-- Targets: Flutter Web, iOS, and Android from the same application codebase.
+- Targets: Flutter Web, Android, iOS, Windows, macOS, and Linux from the same application codebase.
 - Hosting for the Flutter Web build: Vercel.
-- Recommend the shared Web + iOS + Android footprint first for a new consumer
+- Recommend the shared six-platform footprint first for a new consumer
   or business application, even when the initial request names only a mobile
   app or only a browser app. Narrow the targets only when the operator states a
   durable product reason or a verified platform constraint makes one target
@@ -81,7 +86,7 @@ rediscover ShipGlows's habitual stack.
 ### Combined public site and application
 
 - Public/SEO surface: Astro on Vercel.
-- Application surface: Flutter Web on Vercel plus iOS and Android builds.
+- Application surface: Flutter Web on Vercel plus Android, iOS, Windows, macOS, and Linux builds.
 - Keep one backend and data authority for catalog, identity, permissions,
   availability, prices, orders, and other shared business state.
 - Define an explicit navigation boundary between the Astro site and Flutter app
@@ -106,9 +111,20 @@ Deployment entrypoints such as Vercel build commands should be expressible from 
 
 ### Supporting defaults
 
-- Backend/data baseline: Convex.
+- Backend/data baseline: Convex through its official HTTP API from Flutter.
 - Scripts, jobs, and internal tools: Python.
-- Authentication baseline: Clerk, often with Google sign-in.
+- Authentication baseline: Firebase Auth as the one product-wide identity
+  owner, using official FlutterFire where listed and a REST/OIDC adapter on
+  Linux because `firebase_auth` does not list Linux.
+- Native engine baseline: none. Add Rust only for a measured native capability
+  or performance requirement; keep Flutter as the UI shell.
+- Backend/data provider selection: resolve through
+  `backend-data-provider-selection.md`. For a portfolio of many pre-revenue
+  products, Convex is the first recommendation; Firebase Auth does not imply
+  Firestore.
+
+Clerk remains valid for an existing product with release-device-proved web and
+Android paths. It is an exception, not the universal greenfield default.
 
 These supporting defaults are starting assumptions, not universal mandates.
 Provider suitability, official SDK support, transactional guarantees, legal or
@@ -127,7 +143,9 @@ For greenfield work:
    must not silently contradict it.
 4. Research and ask only for material technology choices not already covered,
    including justified exceptions to a default.
-5. Record the accepted direction and remaining provider decisions in the spec.
+5. Resolve identity and backend/data independently using their canonical
+   matrices. Record project/deployment limits separately from usage quotas.
+6. Record the accepted direction and remaining provider decisions in the spec.
 
 ## Pressure Scenarios
 
@@ -144,3 +162,8 @@ For greenfield work:
   iOS or Android is first framed as one Flutter codebase for Web, iOS, and
   Android; it is narrowed only from explicit product intent or verified
   platform constraints.
+- `PSP-006 free portfolio`: a provider is not recommended from its headline
+  free price alone; project/deployment count, pooled quotas, pause/hard-stop or
+  metered behavior, and server-authority needs are recorded first.
+- `PSP-007 auth is not data`: Firebase Auth may authenticate a Flutter product
+  backed by Convex; Firestore is selected only from an independent data decision.
