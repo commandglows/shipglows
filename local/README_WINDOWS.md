@@ -14,7 +14,7 @@ ne sont pas requis par le parcours Shadow PC.
 - ✅ Pas besoin de WSL ni de virtualisation imbriquée
 - ✅ Tunnels SSH avec OpenSSH natif
 - ✅ DevServer natif Astro, Python/FastAPI et Flutter Web en mode full
-- ✅ Clone et registre local des dépôts dans `%USERPROFILE%\ShipGlows\workspace`
+- ✅ Clone et registre local des dépôts directement dans `%USERPROFILE%\ShipGlows`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
 - ✅ Codex, Claude Code, OpenCode et KiloCode proposés individuellement, sans installation implicite
 
