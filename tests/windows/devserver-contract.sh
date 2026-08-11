@@ -71,7 +71,7 @@ test -n "$last_wrapper_line" && test -n "$runtime_priority_line" && test "$last_
 rg -n 'ExecutionPolicy Bypass -File "%~dp0shipglows-devserver\.ps1" %\*' "$INSTALLER"
 rg -n 'Remove-SgObsoleteProfileCommand|Removed the obsolete ShipGlows profile command|ShipGlows DevServer \(managed\)' "$INSTALLER"
 ! rg -n 'function shipglows-dev \{ & ' "$INSTALLER"
-rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh api --paginate.*user/repos.*organization_member|gh repo clone \$repository\.url \$temporaryDestination' "$ENTRYPOINT"
+rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh auth setup-git|gh api --paginate.*user/repos.*organization_member|gh repo clone \$repository\.url \$temporaryDestination' "$ENTRYPOINT"
 rg -n '\.shipglows-clone-|Move-Item -LiteralPath \$temporaryDestination -Destination \$destination|Remove-Item -LiteralPath \$temporaryDestination -Recurse -Force' "$ENTRYPOINT"
 rg -n '\$jsonLines = @\(|\$repositories = @\(\$jsonLines.*ConvertFrom-Json|one compact JSON object per line' "$ENTRYPOINT"
 ! rg -n 'gh auth token|GH_TOKEN|GITHUB_TOKEN' "$ENTRYPOINT" "$INSTALLER"

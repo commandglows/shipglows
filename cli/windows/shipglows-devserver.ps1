@@ -165,12 +165,15 @@ function Get-SelectedProject {
 function Invoke-SgGitHubLogin {
     if (-not $gh) { throw 'GitHub CLI is unavailable. Rerun the ShipGlows full installer.' }
     & $gh auth status --hostname github.com *> $null
-    if ($LASTEXITCODE -eq 0) { return $true }
-    Write-SgInfo 'GitHub authentication will open in your browser. ShipGlows never reads or stores your token.'
-    & $gh auth login --hostname github.com --git-protocol https --web
-    if ($LASTEXITCODE -ne 0) { throw 'GitHub authentication was cancelled or failed.' }
+    if ($LASTEXITCODE -ne 0) {
+        Write-SgInfo 'GitHub authentication will open in your browser. ShipGlows never reads or stores your token.'
+        & $gh auth login --hostname github.com --git-protocol https --web
+        if ($LASTEXITCODE -ne 0) { throw 'GitHub authentication was cancelled or failed.' }
+    }
+    # Ensure authenticated private HTTPS clones retrieve credentials from gh even
+    # when the account was connected before ShipGlows was installed.
     & $gh auth setup-git
-    if ($LASTEXITCODE -ne 0) { throw 'GitHub authentication succeeded but Git credential setup failed.' }
+    if ($LASTEXITCODE -ne 0) { throw 'GitHub credential setup failed.' }
     return $true
 }
 
