@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.9"
+artifact_version: "1.1.10"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-09"
+updated: "2026-08-11"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -19,6 +19,7 @@ linked_systems:
   - install-shipglows.ps1
   - README.md
   - local/install.sh
+  - skills/references/windows-bootstrap-development-workflow.md
 depends_on:
   - artifact: "README.md"
     artifact_version: "0.1.0"
@@ -49,6 +50,11 @@ next_step: "/sg-docs technical audit installer"
 ---
 
 # Installer And User Scope
+
+For native Windows installer development and agent handoff, follow
+`skills/references/windows-bootstrap-development-workflow.md`. It defines the
+canonical clone/runtime/project layout and the branch-to-bootstrap validation
+sequence required before merging installer changes into `main`.
 
 ## Purpose
 
