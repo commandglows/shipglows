@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-07-17"
 updated: "2026-08-11"
@@ -32,6 +32,7 @@ evidence:
   - "Operator decision 2026-08-05: when a project includes one browser/web extension, its default monorepo source root is ext/; plural extensions/<name>/ is deferred until a second independently shipped extension exists."
   - "Operator decision 2026-08-11: portfolio-scale free-project limits, Flutter/Windows support, server authority, and billing cliffs must be evaluated separately for identity and backend/data providers."
   - "Operator decision 2026-08-11: universal Flutter targets Web, Android, iOS, Windows, macOS, and Linux; Firebase Auth owns identity, Convex HTTP owns backend/data, and Rust is reserved for a justified native engine."
+  - "Operator decision 2026-08-11: Auth0 is a strong OIDC exception but fails the many-free-products default on Linux coverage, tenant isolation, and paid-plan cost."
 next_review: "2026-09-11"
 next_step: "none"
 ---
@@ -124,7 +125,10 @@ Deployment entrypoints such as Vercel build commands should be expressible from 
   Firestore.
 
 Clerk remains valid for an existing product with release-device-proved web and
-Android paths. It is an exception, not the universal greenfield default.
+Android paths. It is inherited migration context, not the universal greenfield
+default, and should not be copied into new products. Auth0 is an approved OIDC
+alternative when enterprise requirements justify its official Convex
+integration and paid tenant model; it is not the free-portfolio default.
 
 These supporting defaults are starting assumptions, not universal mandates.
 Provider suitability, official SDK support, transactional guarantees, legal or

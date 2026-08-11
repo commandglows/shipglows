@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-05-29"
-updated: "2026-05-30"
+updated: "2026-08-11"
 status: active
 source_skill: 001-sg-build
 scope: product-entitlements
@@ -19,6 +19,7 @@ linked_systems:
   - skills/references/sentry-observability.md
   - skills/references/master-workflow-lifecycle.md
   - shipglows_data/technical/skill-runtime-and-lifecycle.md
+  - shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
     artifact_version: "1.0.0"
@@ -32,8 +33,10 @@ evidence:
   - "WinFlowz Firestore rules require a server-owned suiteAccess mirror before product data access."
   - "SocialGlowz implemented processor-agnostic entitlements, redemption codes, billing events, and Lifetime Deal activation UI."
   - "SocialGlowz adoption review on 2026-05-30 exposed the generic duplicate-ledger risk: a target product must adapt to an existing suite entitlement ledger instead of recreating partial local infrastructure."
-next_review: "2026-06-29"
-next_step: "/103-sg-verify product-entitlements-playbook"
+  - "Operator decision on 2026-08-11: Stripe Managed Payments is the default Merchant of Record for future eligible Glows digital products; exceptions require a product-specific reason."
+  - "Operator decision on 2026-08-11 superseding provider and trial exceptions: every current and future suite product uses a 30-day trial, at most two restarts, mandatory purchase after three cycles, no permanent freemium, and Stripe Managed Payments only."
+next_review: "2026-09-11"
+next_step: "Implement and locally verify the unified suite contract in shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md."
 ---
 
 # Product Entitlements Playbook
@@ -56,6 +59,41 @@ For products that belong to a suite, the entitlement ledger should be suite-owne
 
 Fail closed. If identity, provider verification, entitlement lookup, bridge sync, or product namespace checks are unavailable or malformed, show a recoverable "access not active/unavailable" state and deny protected reads or writes.
 
+## Suite Commercial Contract
+
+Every current and future Glows suite product uses one non-optional commercial
+access policy:
+
+- one server-owned 30-day initial trial cycle;
+- at most two user-triggered 30-day restarts after expiry;
+- at most three cycles or 90 days in total;
+- mandatory purchase after the allowance is exhausted;
+- no permanent freemium, default-free entitlement, or authentication-based
+  product grant;
+- Stripe Managed Payments as the only direct-payment provider.
+
+This contract supersedes the former CommandGlows 14-day/42-day policy,
+CommunityGlows single-cycle policy, default-free suite policy, and active Lemon
+Squeezy or Polar provider decisions. The canonical implementation spec is
+`shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md`.
+
+Do not interpret Stripe Managed Payments as ordinary Stripe Payments: each
+checkout transaction must explicitly use Managed Payments for Stripe to act as
+Merchant of Record. Keep the entitlement ledger source-neutral internally, but
+the active suite ingestion allowlist is exactly `stripe`; other provider events
+are rejected or remain non-granting `pending_review` migration evidence.
+
+Before implementation, check current official eligibility, supported products,
+pricing, API version, preview/availability status, checkout limitations, webhook
+events, refunds, and terms. If Stripe Managed Payments is unavailable or
+ineligible, stop for a new operator decision rather than selecting a fallback.
+Provider acquisition or shared ownership alone is not evidence of API or
+contract compatibility.
+
+No documentation or implementation may invent price amounts. Resolve each
+allowlisted offer through a named server environment Stripe Price ID; missing
+configuration makes checkout unavailable.
+
 ## When To Load This
 
 Load this playbook before:
@@ -69,7 +107,10 @@ Load this playbook before:
 
 Also load `documentation-freshness-gate.md` when provider API behavior, webhook signatures, OAuth, app-store purchase validation, or current marketplace rules matter.
 
-For WinFlowz suite products, free products, default access, account-backed sync eligibility, or product aliases such as `winflowz_android`, also load `skills/references/winflowz-suite-product-registry.md` before deciding product ids or grant behavior.
+For suite products, trial/default access, account-backed sync eligibility, or
+product aliases, also load
+`skills/references/winflowz-suite-product-registry.md` before deciding product
+ids or grant behavior.
 
 ## Canonical Ledger Preflight
 
@@ -104,7 +145,9 @@ Use stable internal identifiers. External ids stay references, never replacement
 
 - `product_id`: stable allowlisted product id such as `socialglowz`, `winflowz_app`, or `winflowz_formation`.
 - `plan_id`: stable allowlisted plan id such as `free`, `trial`, `pro`, `lifetime_deal`, or `team`.
-- `source`: event origin such as `manual`, `direct_ltd`, `partner`, `appsumo`, `polar`, `stripe`, `paddle`, `lemon_squeezy`, `google_play`, `app_store`, or `migration`.
+- `source`: normalized event origin. For active suite direct payments this must
+  be `stripe`; historical/manual/migration sources may remain audit references
+  but cannot bypass the canonical access resolver.
 - `source_ref`: provider order/subscription/license/idempotency reference, stored server-side and redacted in logs.
 - `environment`: `local`, `preview`, `staging`, or `production`; do not mix entitlements across environments.
 
@@ -189,6 +232,9 @@ Marketplace channels such as AppSumo can remain internal sources. Do not send di
 
 Provider integrations must be idempotent.
 
+- For suite direct payments, allowlist exactly `stripe`. Lemon Squeezy, Polar,
+  Paddle, marketplace, or unknown-provider events cannot grant access unless a
+  later operator decision explicitly replaces this suite contract.
 - Verify webhook signatures or OAuth/API tokens before processing.
 - Use `sourceEventId` or provider event id as an idempotency key.
 - Preserve provider customer/order/subscription/license ids as references.
@@ -262,21 +308,19 @@ Before claiming entitlement work is complete, prove the smallest representative 
 
 For UI-only phases, state that backend revoke/refund or protected data gating remains unproven.
 
-## Project Adoption Notes
-
-SocialGlowz current safe default:
-
-- Internal plan: `lifetime_deal`.
-- UI language: "Lifetime Deal" and "activation code".
-- Direct/manual codes are first-class.
-- Marketplace sources such as AppSumo remain internal audit/import sources, not the default public funnel.
-
-WinFlowz current safe default:
+## Suite Adoption Notes
 
 - Keep identity, entitlement, and product data namespace separate.
-- Firestore product data requires a server-owned access mirror.
-- Firebase/Clerk/Polar/app-store ids are provider references, not product authorization.
-- Default free suite products and aliases are governed by `skills/references/winflowz-suite-product-registry.md`; `winflowz_android` resolves to `winflowz_app`, not a separate durable `product_id`.
+- Every product uses the shared 30-day × three-cycle policy; product-specific
+  trial durations and permanent-free grants are no longer allowed.
+- Firestore or other product data requires a server-owned access mirror or
+  direct server authorization derived from the canonical Convex ledger.
+- Firebase, Clerk, Stripe, app-store, and historical provider ids are external
+  references, not product authorization.
+- Direct/manual activation codes may remain controlled ingestion sources, but
+  cannot reset trial allowance or bypass revoke/refund state.
+- Product aliases resolve to one canonical durable `product_id`; marketing or
+  platform names do not create new trial allowances.
 
 ## Non-Goals
 
@@ -284,4 +328,8 @@ This playbook does not replace legal, tax, accounting, invoicing, revenue-recogn
 
 ## Maintenance Rule
 
-Update this playbook when ShipGlows projects add a new billing provider, marketplace flow, app-store purchase flow, entitlement status, support runbook pattern, or database authorization pattern that changes the reusable doctrine.
+Update this playbook when the operator changes the unified suite trial/provider
+decision, when Stripe Managed Payments constraints change, or when a new
+entitlement status, support pattern, or authorization architecture changes the
+reusable doctrine. Do not introduce product-local trial/provider exceptions in
+derived docs.

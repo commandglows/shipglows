@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-02"
 updated: "2026-08-11"
@@ -30,6 +30,8 @@ evidence:
   - "Official Clerk Flutter beta announcement, Clerk pricing, and Firebase Auth Flutter package platform support reviewed 2026-08-11."
   - "Operator decision 2026-08-11: identity and backend/data providers are selected independently, with portfolio project limits treated as a first-class criterion."
   - "Operator decision 2026-08-11: Firebase Auth is the prevailing identity owner for universal Flutter; Linux uses REST/OIDC because firebase_auth does not list Linux."
+  - "Official Auth0 Flutter SDK, pricing, tenant, and Convex integration documentation reviewed 2026-08-11."
+  - "Operator decision 2026-08-11: Auth0 is a strong OIDC alternative but not the free-portfolio default; Clerk is inherited proof to migrate progressively."
 next_review: "2026-09-11"
 next_step: "Refresh provider maturity and package versions before the next Flutter identity-provider decision."
 ---
@@ -37,7 +39,9 @@ next_step: "Refresh provider maturity and package versions before the next Flutt
 # Flutter Identity Provider Selection
 
 Use this matrix before implementing or changing identity. Firebase Auth is the
-portfolio default. Clerk remains an existing-product exception with proved flows.
+portfolio default. Clerk remains an inherited existing-product exception with
+proved flows and a progressive migration expectation. Auth0 is a strong OIDC
+alternative, not the free-portfolio default.
 Identity selection never selects Firestore implicitly.
 
 ## Evidence vocabulary
@@ -63,6 +67,18 @@ Identity selection never selects Firestore implicitly.
 | One identity across web and Android | Strong: Clerk owns both | Strong only if Firebase owns both; weak if web remains Clerk |
 | OS-native desktop priority | PWA has less OS integration | Better candidate, but beta support is a launch risk to validate early |
 
+## Auth0 alternative assessment - reviewed 2026-08-11
+
+| Criterion | Auth0 |
+| --- | --- |
+| Flutter platforms | Official `auth0_flutter` covers Android, iOS, macOS, Web, and Windows; Linux is not listed |
+| Linux | Requires a separately designed OIDC adapter and proof |
+| Windows credential storage | Windows is supported, but Credentials Manager is unavailable; secure token persistence needs explicit proof |
+| Convex | Convex documents an official Auth0 integration |
+| Free portfolio economics | Free includes 25,000 MAU but only one tenant; isolated development and production tenants are unavailable |
+| Paid cliff | Separate development/production tenancy requires a paid plan; Essentials starts at $35/month at this review date |
+| Verdict | Strong OIDC alternative for justified enterprise needs; rejected as the default for many independent free products |
+
 ## Default decisions
 
 1. **Greenfield universal Flutter:** choose Firebase Auth for Web, Android, iOS,
@@ -72,7 +88,11 @@ Identity selection never selects Firestore implicitly.
 3. **Linux launch:** prove PKCE, callback ownership, secure token storage,
    restore, revocation, sign-out, and Firebase-token propagation to Convex.
 4. **Existing proved Clerk product:** preserve Clerk unless migration has an
-   explicit identity-linking, rollback, and release-proof contract.
+   explicit identity-linking, rollback, and release-proof contract. Migrate
+   progressively rather than copying Clerk into new products.
+5. **Auth0 exception:** select Auth0 only when OIDC/enterprise fit outweighs its
+   Linux adapter, Windows credential-store, tenant-isolation, and paid-plan
+   consequences. Official Convex integration does not override portfolio cost.
 
 ## Launch availability gate
 
@@ -170,6 +190,7 @@ provider_maturity_checked_at: YYYY-MM-DD
 provider_versions_checked: <exact relevant package/SDK versions>
 release_spike_required: yes | no
 release_spike_scope: <platform flows or not required>
+auth0_exception: <enterprise/OIDC justification or not applicable>
 linux_adapter: rest_oidc | not_applicable
 backend_token_audience_and_issuer: <Firebase/Convex verification contract>
 ```
@@ -206,6 +227,10 @@ does not present that research as a substitute for the decision matrix.
 - Firebase Flutter supported-platform table.
 - `firebase_auth` and `google_sign_in` official Flutter package pages.
 - Firebase Auth REST API and OpenID Connect documentation for the Linux adapter.
+- [Auth0 Flutter SDK](https://auth0.com/docs/quickstart/native/flutter),
+  [Auth0 pricing](https://auth0.com/pricing), and
+  [Auth0 tenants](https://auth0.com/docs/get-started/auth0-overview/create-tenants).
+- [Convex Auth0 integration](https://docs.convex.dev/auth/auth0).
 - Clerk, Firebase, and Supabase official pricing pages before a commercial
   provider decision.
 - Supabase Free project-pausing and billing documentation when Supabase enters

@@ -1,11 +1,12 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-05-30"
-updated: "2026-05-30"
-status: draft
+updated: "2026-08-11"
+status: superseded
+superseded_by: "shipglows_data/technical/external-platforms/stripe-managed-payments.md"
 source_skill: sg-docs
 scope: external-platform-lemonsqueezy
 owner: Diane
@@ -24,17 +25,31 @@ depends_on:
 supersedes: []
 evidence:
   - "Fresh external docs checked on 2026-05-30 against Lemon Squeezy docs, API reference, official GitHub organization, and public MCP registries/search results."
-next_review: "2026-06-30"
-next_step: "/sg-docs technical audit"
+  - "Lemon Squeezy update of 2026-01-28 presents Stripe Managed Payments as the future Merchant of Record product and announces a planned migration path for Lemon Squeezy users."
+  - "Operator decision on 2026-08-11: new eligible Glows digital products default to Stripe Managed Payments rather than Lemon Squeezy."
+  - "Operator decision later on 2026-08-11: Stripe Managed Payments is the only active suite payment provider; Lemon Squeezy remains historical migration and source evidence only."
+next_review: "2026-09-11"
+next_step: "Retain as historical provider evidence; use stripe-managed-payments.md for active suite decisions."
 ---
 
 # Lemon Squeezy Platform Note
+
+> **Superseded provider decision (2026-08-11).** Lemon Squeezy is not an active
+> payment provider for any current or future suite product. This note is kept
+> only for provenance, legacy-event migration review, and source history. The
+> active provider contract is `stripe-managed-payments.md`.
 
 ## Purpose
 
 This note is the global ShipGlows source map for Lemon Squeezy. Use it before relying on assumptions about Lemon Squeezy API behavior, checkout creation, webhooks, refunds, license keys, test mode, SDKs, CLI, MCP, or Merchant of Record operations.
 
 It does not replace Lemon Squeezy documentation. It records source links, current tool availability, and ShipGlows rules for payment-provider integrations.
+
+Lemon Squeezy may remain an operating external Merchant of Record, but it is not
+an allowed suite runtime adapter. Its own
+January 2026 update identifies Stripe Managed Payments as the forward platform
+and describes a future migration path. Historical integrations require an
+explicit migration review rather than an assumed API-compatible switch.
 
 ## Source Map
 
@@ -54,6 +69,7 @@ Primary sources for Freshness Gate:
 | Fees / supported countries / prohibited products | https://docs.lemonsqueezy.com/help/getting-started/fees, https://docs.lemonsqueezy.com/help/getting-started/supported-countries, https://docs.lemonsqueezy.com/help/getting-started/prohibited-products |
 | Official SDKs | https://docs.lemonsqueezy.com/api and https://github.com/lmsqueezy |
 | Platform status | https://status.lemonsqueezy.com/ |
+| 2026 product direction update | https://www.lemonsqueezy.com/blog/2026-update |
 
 Freshness evidence on 2026-05-30:
 
@@ -79,6 +95,11 @@ Use `fresh-docs conflict` when current official docs contradict local implementa
 
 ## ShipGlows Decision Rules
 
+- For new eligible Glows digital products, use the Stripe Managed Payments
+  default recorded in the product-entitlements playbook.
+- Keep Lemon Squeezy for an existing product only while migration cost, missing
+  Stripe capability, or release risk justifies it; record the exception and an
+  explicit review/migration condition.
 - REST API plus signed webhooks are the canonical integration layer unless Lemon Squeezy publishes an official CLI/MCP that meets our security bar.
 - Prefer the official JavaScript SDK only when it reduces real integration risk; REST calls are acceptable and often clearer for narrow checkout/webhook flows.
 - Treat Lemon Squeezy as a provider event source, not an entitlement source of truth. Product access must live in the suite/product entitlement ledger.

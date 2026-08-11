@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-11"
@@ -25,6 +25,7 @@ evidence:
   - "Official Firebase project, Firestore quota, pricing, and FlutterFire package documentation reviewed 2026-08-11."
   - "Official Supabase pricing and organization billing documentation reviewed 2026-08-11."
   - "Operator decision 2026-08-11: Convex HTTP is the prevailing backend/data owner for universal Flutter."
+  - "Official Convex Auth0 integration documentation reviewed 2026-08-11."
 next_review: "2026-09-11"
 next_step: "Refresh dynamic quotas and SDK maturity before the next provider commitment."
 ---
@@ -71,6 +72,11 @@ may be increased by Google; never promise an exact permanent project count.
    mapping, rollback, cost, and hosted proof. A matrix preference alone never
    authorizes migration.
 
+Auth0 does not change the backend/data default. Convex officially documents an
+Auth0 integration, so Auth0 is technically compatible as an identity exception.
+Evaluate tenant and plan economics in `identity-provider-selection.md`; official
+integration alone does not make Auth0 the portfolio default.
+
 ## Server-authority gate
 
 Scores, XP, leaderboards, entitlements, payments, moderation decisions, and
@@ -101,3 +107,4 @@ migration_required: yes | no
 - [Convex pricing](https://www.convex.dev/pricing), [limits](https://docs.convex.dev/production/state/limits), [projects](https://docs.convex.dev/production/overview), and [HTTP API](https://docs.convex.dev/http-api/).
 - [Firebase project limits](https://firebase.google.com/docs/projects/learn-more), [Firestore quotas](https://firebase.google.com/docs/firestore/quotas), [Firestore pricing](https://firebase.google.com/docs/firestore/pricing), and [`firebase_auth`](https://pub.dev/packages/firebase_auth).
 - [Supabase pricing](https://supabase.com/pricing) and [organization billing](https://supabase.com/docs/guides/platform/org-based-billing).
+- [Convex Auth0 integration](https://docs.convex.dev/auth/auth0).

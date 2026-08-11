@@ -1,7 +1,7 @@
 ---
 artifact: specification
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-11"
@@ -25,6 +25,8 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-11: Astro public site; universal Flutter app; Firebase Auth identity; Convex HTTP backend/data; Rust only for a justified native engine."
   - "Official Flutter, FlutterFire, Tauri, Expo, and .NET MAUI platform documentation reviewed 2026-08-11."
+  - "Official Auth0 pricing, Flutter SDK, tenant, and Convex integration documentation reviewed 2026-08-11."
+  - "Operator decision 2026-08-11: Auth0 is a strong OIDC alternative but rejected as the default for a free multi-product portfolio."
 next_review: "2026-09-11"
 next_step: "Prove the first Linux Firebase Auth adapter and signed desktop release paths."
 ---
@@ -41,6 +43,14 @@ The prevailing portfolio decision is Astro for the public site; one Flutter
 application for Web, Android, iOS, Windows, macOS, and Linux; Firebase Auth as
 the single identity owner, with a REST/OIDC adapter on Linux; Convex through its
 official HTTP API for data and functions; and Rust only for a justified native engine.
+
+Auth0 remains an approved OIDC alternative with official Convex integration,
+but not the default: its Flutter SDK does not list Linux, Windows lacks
+Credentials Manager, Free has 25,000 MAU but one tenant, isolated
+development/production tenancy is paid, and Essentials starts at $35/month at
+the 2026-08-11 review. Clerk remains inherited proved context to migrate
+progressively, including the GoCharbon decision context; no application project
+is changed by this ShipGlows Core chantier.
 
 ## Scope
 
@@ -74,6 +84,9 @@ official HTTP API for data and functions; and Rust only for a justified native e
   by a modified Flutter client.
 - `TECH-FREE-CLIFF`: a plan with pooled quotas, pausing, hard failures, or billing
   activation must expose that consequence before recommendation.
+- `TECH-AUTH0-PORTFOLIO`: official OIDC and Convex compatibility do not override
+  missing Linux SDK coverage, Windows token storage, one-Free-tenant isolation,
+  or the paid development/production cliff.
 
 ## Execution batches
 

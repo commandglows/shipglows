@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-06-12"
 updated: "2026-08-06"
@@ -17,8 +17,9 @@ linked_systems:
   - skills/600-sg-local-cloud-sync/SKILL.md
   - skills/601-sg-product-entitlements/SKILL.md
   - skills/references/product-entitlements-playbook.md
-  - /home/claude/winflowz/winflowz_site/convex/defaultFreeEntitlements.ts
-  - /home/claude/winflowz/winflowz_site/src/lib/suiteBridge.ts
+  - /home/claude/commandglows/commandglows_site/convex/defaultFreeEntitlements.ts
+  - /home/claude/commandglows/commandglows_site/src/lib/suiteBridge.ts
+  - shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md
 depends_on:
   - artifact: "skills/references/product-entitlements-playbook.md"
     required_status: active
@@ -28,33 +29,27 @@ evidence:
   - "2026-06-12 Convex production deployment prod:elegant-mule-677 added default free entitlements and backfilled existing accounts."
   - "2026-06-12 Diane clarified winflowz_android is the same product as winflowz_app, not a separate product_id."
   - "2026-08-06 operator decision: CommandGlows App uses trial_then_paid with one 14-day trial and at most two additional 14-day reactivations; permanent free access is not the default for future paid products."
-next_review: "2026-09-06"
-next_step: "/103-sg-verify winflowz suite product registry"
+  - "2026-08-11 operator decision superseding all prior exceptions: every current and future suite product uses three maximum 30-day trial cycles, then mandatory purchase, with no permanent free grants and Stripe Managed Payments only."
+next_review: "2026-09-11"
+next_step: "Implement and verify the unified policy across every current product registry entry and access resolver."
 ---
 
-# WinFlowz Suite Product Registry
+# Glows Suite Product Registry
 
-Use this reference whenever a task mentions WinFlowz suite products, free products, default access, account-backed sync, product entitlements, cloud sync eligibility, or future products operated by Diane.
+Use this reference whenever a task mentions Glows suite products, trial/default
+access, account-backed sync, product entitlements, cloud sync eligibility,
+payments, or future products operated by Diane. The filename is retained for
+compatibility; this document is the active suite-wide registry policy.
 
 ## Canonical Rule
 
-Each suite product must declare its commercial access policy before its runtime
-creates an entitlement. Account creation or identity bridging proves identity;
-it does not automatically create a permanent free entitlement for a product
-whose policy is `trial_then_paid` or `paid_only`.
+Every current and future suite product uses the same `trial_then_paid` policy.
+Account creation and identity bridging prove identity only; they never grant
+permanent product access. Convex is the canonical entitlement authority.
 
-Default free access writes use:
+## Current Product Registry
 
-- `plan`: `free`
-- `status`: `active`
-- `source`: `product_default`
-- `environment`: the active runtime environment
-
-Authentication still proves identity only. The entitlement ledger remains the access source of truth.
-
-## Current Default-Free Products
-
-Current canonical `product_id` values that should receive default free access:
+Known canonical product ids governed by the unified policy include:
 
 - `winflowz_app`
 - `winflowz_formation`
@@ -65,58 +60,57 @@ Current canonical `product_id` values that should receive default free access:
 - `socialglowz`
 - `temu_shopping_lists`
 
-These entries remain default-free only until their product-specific commercial
-policy is explicitly changed. They are not a universal default for future
-products.
+Legacy names remain canonical identifiers only where runtime migration has not
+yet renamed them. Every entry above and every future allowlisted product uses
+the same trial and provider contract; none receives `product_default` access.
 
-## Commercial Access Policies
+## Commercial Access Policy
 
-The suite supports these product-level policies:
+The sole active suite policy is:
 
-- `free`: permanent free access, with optional paid upgrades.
-- `trial_then_paid`: a server-owned trial followed by a paid unlock; no
-  permanent free entitlement after the trial allowance is exhausted.
-- `paid_only`: no product trial unless explicitly granted by an offer or
-  support action.
-- `subscription`: recurring paid access with provider-driven renewal and
-  expiry semantics.
-
-For `trial_then_paid`, the canonical default is:
-
-- 14 days for the initial trial;
-- at most two additional 14-day reactivations;
-- at most 42 trial days in total;
+- 30 days for the initial server-owned trial cycle;
+- at most two additional user-triggered 30-day restarts after expiry;
+- at most three cycles or 90 trial days in total;
 - eligibility counted server-side by global identity and recognized app
   installation, not by email address alone;
 - IP address used only as a privacy-aware anti-abuse signal and rate-limit
   input, never as the sole access identity;
 - after the allowance is exhausted, access requires a paid entitlement;
 - a refund, revoke, or fraud decision removes access through the canonical
-  ledger and does not recreate a trial.
+  ledger and does not recreate or reset a trial;
+- no permanent freemium, default-free grant, or product-specific trial duration;
+- Stripe Managed Payments is the only active direct-payment provider.
 
-CommandGlows App (`commandglows_app`) is the first suite product assigned the
-`trial_then_paid` policy. Other products may reuse this policy only after their
-own sales promise, cost model, and product registry entry are updated.
+Offer prices and plans may differ by product. Their Stripe Price IDs are
+allowlisted server environment values; this registry never defines or invents
+price amounts. Missing offer configuration fails closed.
+
+The prior default-free suite rule, CommandGlows 14-day/42-day rule,
+CommunityGlows single-cycle rule, and Lemon Squeezy/Polar provider exceptions
+are superseded history.
 
 ## Alias And Exclusion Notes
 
 - `winflowz_android` is not a separate entitlement product. Treat it as the Android surface of `winflowz_app`.
 - Do not create new durable `product_id` aliases for marketing names, platform names, provider product ids, or app-store ids. Normalize them to the canonical internal product id first.
 - External provider ids remain references only. They never replace `product_id`.
-- If a future product has a free module, free preview, free quota, or free sync
-  tier, declare that scope explicitly in the suite ledger policy before
-  building product-local gates. Do not infer permanent free access from the
-  existence of an account.
+- A free public preview or unauthenticated marketing/demo surface may exist
+  only outside protected product access. It must not create an entitlement,
+  reset trial allowance, or become an implicit free product tier.
 
 ## Source Of Truth
 
 Runtime source of truth:
 
-- `/home/claude/winflowz/winflowz_site/convex/defaultFreeEntitlements.ts`
+- `/home/claude/commandglows/commandglows_site/convex/defaultFreeEntitlements.ts`
 
 Site/helper mirror:
 
-- `/home/claude/winflowz/winflowz_site/src/lib/suiteBridge.ts`
+- `/home/claude/commandglows/commandglows_site/src/lib/suiteBridge.ts`
+
+Canonical policy/specification:
+
+- `/home/claude/shipglows/shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md`
 
 When this registry and runtime code disagree, do not guess. Inspect the code, identify the drift, and route the correction through `601-sg-product-entitlements` or `900-shipglows-core build` depending on whether the product behavior or the skill documentation is wrong.
 
@@ -133,5 +127,9 @@ Stop and route before implementation when:
 - a new product id would duplicate an existing product surface;
 - a product-local ledger is proposed while the suite ledger can own access;
 - a client claim, cookie, local storage value, or provider payload is treated as durable access truth;
-- a paid entitlement could be overwritten by a default free grant;
+- a paid entitlement could be overwritten or bypassed by a trial/default grant;
 - a free formation entitlement is treated as premium/private course access without an explicit premium plan gate.
+- a product proposes a provider other than Stripe or a trial contract other
+  than 30 days plus two maximum restarts;
+- a price amount would need to be invented instead of supplied through an
+  approved Stripe Price ID environment key.

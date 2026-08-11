@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-11"
@@ -26,6 +26,7 @@ evidence:
   - "Official Expo documentation reviewed 2026-08-11: Android, iOS, and Web."
   - "Official .NET MAUI documentation reviewed 2026-08-11: Android, iOS, macOS, and Windows; not Web or Linux."
   - "Operator decision 2026-08-11: Flutter is universal; Rust is only a justified native engine."
+  - "Official auth0_flutter support reviewed 2026-08-11: Android, iOS, macOS, Web, and Windows; Linux is not listed, and Credentials Manager is unavailable on Windows."
 next_review: "2026-09-11"
 next_step: "Refresh platform support before the next runtime commitment."
 ---
@@ -49,6 +50,11 @@ next_step: "Refresh platform support before the next runtime commitment."
 4. Convex HTTP owns data and authoritative functions.
 5. Rust is added only for a measured native-engine requirement behind a typed Flutter boundary.
 
+Provider SDK coverage never narrows the Flutter footprint silently. Auth0's
+official Flutter SDK covers Android, iOS, macOS, Web, and Windows but not Linux;
+Windows also lacks Auth0 Credentials Manager. Auth0 therefore requires explicit
+Linux OIDC and Windows secure-storage adapters plus signed-target proof.
+
 ## Official sources to refresh
 
 - [Flutter supported platforms](https://docs.flutter.dev/reference/supported-platforms)
@@ -56,3 +62,4 @@ next_step: "Refresh platform support before the next runtime commitment."
 - [Tauri](https://tauri.app/)
 - [Expo](https://docs.expo.dev/)
 - [.NET MAUI](https://learn.microsoft.com/dotnet/maui/supported-platforms)
+- [Auth0 Flutter SDK](https://auth0.com/docs/quickstart/native/flutter)
