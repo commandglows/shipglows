@@ -78,6 +78,12 @@ rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh repo l
 ! rg -n 'InstallMode = \$\(if \(\$env:SHIPGLOWS_INSTALL_MODE' "$BOOTSTRAP"
 rg -n '\[string\]\$InstallMode,|InstallMode must be local or full|\$InstallMode -notin @\(' "$BOOTSTRAP"
 rg -n 'Select-WindowsInstallMode|Choose 1 or 2|Local DevServer \(full, recommended\)|IsInputRedirected' "$BOOTSTRAP"
+rg -n "USERPROFILE '.shipglows'|FileAttributes.*Hidden|defaultHiddenRoot" "$BOOTSTRAP" "$INSTALLER"
+rg -n "runtimeDir = Join-Path \$ShipglowsDir 'bin'|Remove-SgLegacyVisibleRuntime|@\('bin', 'cli', 'local'\)|legacyBin" "$INSTALLER"
+legacy_cleanup_line="$(rg -n '^Remove-SgLegacyVisibleRuntime\r?$' "$INSTALLER" | tail -1 | cut -d: -f1)"
+wrapper_install_line="$(rg -n '^Install-SgCommandWrappers\r?$' "$INSTALLER" | tail -1 | cut -d: -f1)"
+test -n "$legacy_cleanup_line" && test -n "$wrapper_install_line" && test "$legacy_cleanup_line" -lt "$wrapper_install_line"
+rg -n "USERPROFILE 'ShipGlows'" "$INSTALLER" "$MODULE"
 ! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
 rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, or 0\.' \}" "$BOOTSTRAP"
 for windows_file in 'ShipGlows\.DevServer\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do

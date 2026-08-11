@@ -6,7 +6,7 @@ param(
     [string]$RepoUrl = $(if ($env:SHIPGLOWS_REPO_URL) { $env:SHIPGLOWS_REPO_URL } else { '' }),
     [Alias('Version', 'Tag', 'Ref')]
     [string]$Branch = $(if ($env:SHIPGLOWS_BRANCH) { $env:SHIPGLOWS_BRANCH } else { '' }),
-    [string]$ShipglowsDir = $(if ($env:SHIPGLOWS_DIR) { $env:SHIPGLOWS_DIR } else { Join-Path $env:USERPROFILE 'shipglows' }),
+    [string]$ShipglowsDir = $(if ($env:SHIPGLOWS_DIR) { $env:SHIPGLOWS_DIR } else { Join-Path $env:USERPROFILE '.shipglows' }),
     [string]$InstallMode,
     [switch]$DownloadOnly
 )
@@ -163,6 +163,12 @@ $localInstaller = Join-Path $localDirectory 'install_local.ps1'
 $windowsDirectory = Join-Path $ShipglowsDir 'cli\windows'
 New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $extractRoot -Force | Out-Null
+New-Item -ItemType Directory -Path $ShipglowsDir -Force | Out-Null
+$defaultHiddenRoot = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.shipglows')).TrimEnd('\')
+if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -eq $defaultHiddenRoot) {
+    $installRootItem = Get-Item -LiteralPath $ShipglowsDir -Force
+    $installRootItem.Attributes = $installRootItem.Attributes -bor [IO.FileAttributes]::Hidden
+}
 
 try {
     Write-Info "Downloading ShipGlows Windows files from commit $($source.Commit)..."
