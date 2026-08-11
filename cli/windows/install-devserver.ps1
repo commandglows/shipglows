@@ -185,10 +185,16 @@ function Install-SgShellShortcut([string]$Name, [string]$Command) {
 
 function Disable-SgBlockedPowerShellShim([string]$Name, [string[]]$KnownPaths = @()) {
     $changed = $false
+    $userRoot = [IO.Path]::GetFullPath($env:USERPROFILE).TrimEnd('\') + '\'
     foreach ($cmdPath in $KnownPaths) {
         if (-not $cmdPath -or -not (Test-Path -LiteralPath $cmdPath -PathType Leaf)) { continue }
         $ps1Path = [IO.Path]::ChangeExtension($cmdPath, '.ps1')
         if (-not (Test-Path -LiteralPath $ps1Path -PathType Leaf)) { continue }
+        $resolvedPs1Path = [IO.Path]::GetFullPath($ps1Path)
+        if (-not $resolvedPs1Path.StartsWith($userRoot, [StringComparison]::OrdinalIgnoreCase)) {
+            Write-Host "Protected system PowerShell shim left unchanged for ${Name}: $resolvedPs1Path" -ForegroundColor DarkGray
+            continue
+        }
         try {
             $backupPath = "$ps1Path.shipglows-disabled"
             if (Test-Path -LiteralPath $backupPath) {
