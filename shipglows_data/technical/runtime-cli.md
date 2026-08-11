@@ -172,6 +172,9 @@ account and explicitly clones the selected repository's HTTPS URL. It therefore
 does not inherit a separate GitHub CLI preference for SSH or depend on a local
 SSH configuration; GitHub CLI still owns authentication and credential storage,
 and configures Git's HTTPS credential helper before each picker clone.
+If a repository is outside the Windows DevServer's supported Astro, Python, and
+Flutter Web project kinds, cloning still succeeds and is kept in the workspace;
+the CLI reports that registration was skipped rather than removing the clone.
 The Windows launcher resolves only shortcut paths with a native equivalent:
 dashboard (`s d`), interactive start (`s e`), restart/stop/stop-all/logs under
 `s m ...`, and project navigation (`s m n`). Navigation opens a child

@@ -73,6 +73,8 @@ rg -n 'Remove-SgObsoleteProfileCommand|Removed the obsolete ShipGlows profile co
 ! rg -n 'function shipglows-dev \{ & ' "$INSTALLER"
 rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh auth setup-git|gh api --paginate.*user/repos.*organization_member|gh repo clone \$repository\.url \$temporaryDestination' "$ENTRYPOINT"
 rg -n '\.shipglows-clone-|Move-Item -LiteralPath \$temporaryDestination -Destination \$destination|Remove-Item -LiteralPath \$temporaryDestination -Recurse -Force' "$ENTRYPOINT"
+rg -n 'function Register-SgClonedProject|Clone completed but was not registered|Register-SgClonedProject \$destination' "$ENTRYPOINT"
+rg -n '\$json\.PSObject\.Properties\[\$property\]' "$MODULE"
 rg -n '\$jsonLines = @\(|\$repositories = @\(\$jsonLines.*ConvertFrom-Json|one compact JSON object per line' "$ENTRYPOINT"
 ! rg -n 'gh auth token|GH_TOKEN|GITHUB_TOKEN' "$ENTRYPOINT" "$INSTALLER"
 ! rg -n 'WSL est disponible|Lancement de la configuration locale Windows|Utilise ensuite|Pour les projets locaux' "$BOOTSTRAP"

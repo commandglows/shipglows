@@ -177,6 +177,15 @@ function Invoke-SgGitHubLogin {
     return $true
 }
 
+function Register-SgClonedProject([string]$Destination) {
+    try {
+        Register-SgProject $config $Destination | Out-Null
+        Write-SgInfo "Registered clone: $Destination"
+    } catch {
+        Write-SgWarn "Clone completed but was not registered: $($_.Exception.Message)"
+    }
+}
+
 function Invoke-SgGitHubClone {
     if (-not $choiceUiAvailable) { throw 'The GitHub repository browser requires fzf or Gum; use Enter Git URL instead.' }
     [void](Invoke-SgGitHubLogin)
@@ -207,14 +216,13 @@ function Invoke-SgGitHubClone {
         & $gh repo clone $repository.url $temporaryDestination
         if ($LASTEXITCODE -ne 0) { throw 'GitHub repository clone failed.' }
         Move-Item -LiteralPath $temporaryDestination -Destination $destination -ErrorAction Stop
-        Register-SgProject $config $destination | Out-Null
-        Write-SgInfo "Registered clone: $destination"
     } catch {
         if (Test-Path -LiteralPath $temporaryDestination) {
             Remove-Item -LiteralPath $temporaryDestination -Recurse -Force -ErrorAction SilentlyContinue
         }
         throw
     }
+    Register-SgClonedProject $destination
 }
 
 function Invoke-CloneUrl {
@@ -231,14 +239,13 @@ function Invoke-CloneUrl {
         & $git clone -- $url $temporaryDestination
         if ($LASTEXITCODE -ne 0) { throw 'Git clone failed.' }
         Move-Item -LiteralPath $temporaryDestination -Destination $destination -ErrorAction Stop
-        Register-SgProject $config $destination | Out-Null
-        Write-SgInfo "Registered clone: $destination"
     } catch {
         if (Test-Path -LiteralPath $temporaryDestination) {
             Remove-Item -LiteralPath $temporaryDestination -Recurse -Force -ErrorAction SilentlyContinue
         }
         throw
     }
+    Register-SgClonedProject $destination
 }
 
 function Invoke-Clone {

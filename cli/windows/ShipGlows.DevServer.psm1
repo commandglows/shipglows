@@ -119,7 +119,8 @@ function Get-SgProjectKind([string]$ProjectPath) {
             $json = Get-Content -LiteralPath $package -Raw | ConvertFrom-Json -ErrorAction Stop
             $all = @()
             foreach ($property in @('dependencies','devDependencies','peerDependencies')) {
-                if ($json.$property) { $all += $json.$property.PSObject.Properties.Name }
+                $dependencySection = $json.PSObject.Properties[$property]
+                if ($dependencySection -and $dependencySection.Value) { $all += $dependencySection.Value.PSObject.Properties.Name }
             }
             if ($all -contains 'astro') { return 'astro' }
         } catch { throw "Invalid package.json: $($_.Exception.Message)" }
