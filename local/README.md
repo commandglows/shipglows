@@ -23,7 +23,7 @@ pkg install git openssh autossh
 ```
 
 **Windows :**
-Voir [README_WINDOWS.md](./README_WINDOWS.md) pour les 3 options disponibles:
+Voir le guide canonique [Installation et DevServer Windows](../shipglows_data/technical/operator-guides/windows-devserver.md) pour les 3 options disponibles:
 - ✅ **WSL** (recommandé) - Support complet avec menu interactif
 - ⚡ **PowerShell** - Simple avec OpenSSH natif
 - 🔧 **Git Bash** - Environnement bash familier

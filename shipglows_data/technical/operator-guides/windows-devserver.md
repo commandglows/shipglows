@@ -1,3 +1,33 @@
+---
+artifact: documentation
+metadata_schema_version: "1.0"
+artifact_version: "1.0.0"
+project: ShipGlows
+created: "2026-08-11"
+updated: "2026-08-11"
+status: reviewed
+source_skill: 300-sg-docs
+scope: windows-devserver-operator-guide
+owner: Diane
+confidence: high
+risk_level: medium
+security_impact: yes
+docs_impact: yes
+linked_systems:
+  - install-shipglows.ps1
+  - cli/windows/
+  - local/install_local.ps1
+  - shipglows_data/technical/runtime-cli.md
+  - shipglows_data/technical/installer-and-user-scope.md
+depends_on: []
+supersedes:
+  - local/README_WINDOWS.md
+evidence:
+  - "Migrated without content loss from local/README_WINDOWS.md under the canonical documentation governance contract."
+next_review: "2026-09-11"
+next_step: "/103-sg-verify Windows operator guide"
+---
+
 # ShipGlows - Installation pour Windows
 
 ## 🎯 Options d'installation

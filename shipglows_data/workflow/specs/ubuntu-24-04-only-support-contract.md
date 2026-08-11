@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.1.1"
 project: ShipGlows
 created: "2026-04-28"
 created_at: "2026-04-28 16:44:09 UTC"
-updated: "2026-04-28"
-updated_at: "2026-04-28 16:51:36 UTC"
+updated: "2026-08-11"
+updated_at: "2026-08-11 22:30:00 UTC"
 status: draft
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -29,7 +29,7 @@ linked_systems:
   - "/home/ubuntu/shipglows/README.md"
   - "/home/ubuntu/shipglows/install.sh"
   - "/home/ubuntu/shipglows/local/README.md"
-  - "/home/ubuntu/shipglows/local/README_WINDOWS.md"
+  - "/home/ubuntu/shipglows/shipglows_data/technical/operator-guides/windows-devserver.md"
   - "/home/ubuntu/shipglows/local/install_local.ps1"
   - "/home/ubuntu/shipglows/TASKS.md"
 depends_on:
@@ -198,7 +198,7 @@ Le principe directeur est simple: tout ce qui reste dans le repo n'est pas force
 - `dotfiles/README.md` must become the public source of truth for support status and install entrypoints.
 - `dotfiles/CLAUDE.md`, `BUSINESS.md`, `CONTEXT.md`, and `PRODUCT.md` must stop describing the repo as multi-platform unless the wording is explicitly historical or future-looking.
 - `shipglows/README.md` must stop implicitly broadening the support matrix through generic bootstrap language.
-- `shipglows/local/README.md` and `local/README_WINDOWS.md` must be either:
+- `shipglows/local/README.md` and `shipglows_data/technical/operator-guides/windows-devserver.md` must be either:
   - removed from official onboarding,
   - re-scoped as legacy/local-only/unsupported,
   - or retained behind an explicit disclaimer.
@@ -272,11 +272,11 @@ Le principe directeur est simple: tout ce qui reste dans le repo n'est pas force
   - Notes: Mention generic Linux only if immediately constrained by Ubuntu 24.04 support wording.
 
 - [ ] Task 7: Re-scope or de-publish ShipGlows local Windows and multi-OS tunnel docs
-  - File: `/home/ubuntu/shipglows/local/README.md`, `/home/ubuntu/shipglows/local/README_WINDOWS.md`, `/home/ubuntu/shipglows/local/install_local.ps1`
+  - File: `/home/ubuntu/shipglows/local/README.md`, `/home/ubuntu/shipglows/shipglows_data/technical/operator-guides/windows-devserver.md`, `/home/ubuntu/shipglows/local/install_local.ps1`
   - Action: decide whether these are archived, labeled unsupported, or removed from official surfaces, and update wording accordingly.
   - User story link: stops local helper docs from acting like supported product surfaces.
   - Depends on: Task 1
-  - Validate with: `rg -n "Windows|WSL|macOS|PowerShell|Git Bash" /home/ubuntu/shipglows/local/README.md /home/ubuntu/shipglows/local/README_WINDOWS.md /home/ubuntu/shipglows/local/install_local.ps1`
+  - Validate with: `rg -n "Windows|WSL|macOS|PowerShell|Git Bash" /home/ubuntu/shipglows/local/README.md /home/ubuntu/shipglows/shipglows_data/technical/operator-guides/windows-devserver.md /home/ubuntu/shipglows/local/install_local.ps1`
   - Notes: Code can remain if product wants a private maintainer path, but support status must be explicit.
 
 - [ ] Task 8: Clean the ShipGlows backlog so it reflects the current contract

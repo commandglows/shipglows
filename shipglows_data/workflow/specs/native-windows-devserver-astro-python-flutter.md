@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.22"
+artifact_version: "0.2.23"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
@@ -26,7 +26,7 @@ linked_systems:
   - "cli/windows/"
   - "tests/windows/"
   - "README.md"
-  - "local/README_WINDOWS.md"
+  - "shipglows_data/technical/operator-guides/windows-devserver.md"
   - "shipglows_data/technical/runtime-cli.md"
   - "shipglows_data/technical/installer-and-user-scope.md"
   - "shipglows_data/technical/code-docs-map.md"
@@ -255,7 +255,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 # Documentation Coherence
 
 - Update `README.md` with the Windows DevServer capability matrix, install selector, supported stacks and excluded hosting behavior.
-- Update `local/README_WINDOWS.md` to separate native tunnel mode from native DevServer mode and remove the old implication that WSL is the only complete development path.
+- Update `shipglows_data/technical/operator-guides/windows-devserver.md` to separate native tunnel mode from native DevServer mode and remove the old implication that WSL is the only complete development path.
 - Update `shipglows_data/technical/runtime-cli.md` with the dual-backend architecture, Windows registry/process contracts and supported framework matrix.
 - Update `shipglows_data/technical/installer-and-user-scope.md` with the opt-in DevServer surface, user-scoped paths and dependency authority.
 - Update `shipglows_data/technical/architecture.md`, `context.md` and `context-function-tree.md` for the new entrypoints and invariants.
@@ -361,7 +361,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
   - Notes: No public binding, emulator or shutdown bypass test.
 
 - [ ] Task 10: Align technical and operator documentation
-  - File: `README.md`, `local/README_WINDOWS.md`, `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/installer-and-user-scope.md`, `shipglows_data/technical/architecture.md`, `shipglows_data/technical/context.md`, `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/code-docs-map.md`
+  - File: `README.md`, `shipglows_data/technical/operator-guides/windows-devserver.md`, `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/installer-and-user-scope.md`, `shipglows_data/technical/architecture.md`, `shipglows_data/technical/context.md`, `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/code-docs-map.md`
   - Action: Document dual backends, exact capability matrix, install path, state locations, limitations, Shadow posture, proof commands and documentation update mapping.
   - User story link: Gives the operator an honest migration and recovery path.
   - Depends on: Tasks 1-9.

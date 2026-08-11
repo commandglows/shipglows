@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-07-13"
-updated: "2026-07-13"
+updated: "2026-08-11"
 status: reviewed
 source_skill: 300-sg-docs
 scope: operator-guides-index
@@ -32,5 +32,6 @@ Canonical Markdown references for ShipGlows operators:
 - `focus-tags-cheatsheet.md`: focus-tag vocabulary and routing effects.
 - `opencode-shipglows.md`: OpenCode discovery and configuration.
 - `kilocode-shipglows.md`: KiloCode compatibility and usage.
+- `windows-devserver.md`: native Windows installation, DevServer, tooling, and SSH tunnel guidance.
 
 Public pages may link to these repository files, but the canonical storage owner remains `shipglows_data/technical/operator-guides/`.
