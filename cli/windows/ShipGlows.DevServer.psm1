@@ -9,7 +9,7 @@ function Write-SgWarn([string]$Message) { Write-Host "[ShipGlows] $Message" -For
 function Write-SgError([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Red }
 
 function Get-SgDevConfig {
-    $workspace = if ($env:SHIPGLOWS_WINDOWS_WORKSPACE) { $env:SHIPGLOWS_WINDOWS_WORKSPACE } else { Join-Path $env:USERPROFILE 'ShipGlows\workspace' }
+    $workspace = if ($env:SHIPGLOWS_WINDOWS_WORKSPACE) { $env:SHIPGLOWS_WINDOWS_WORKSPACE } else { Join-Path $env:USERPROFILE 'ShipGlows' }
     $runtime = if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA 'ShipGlows\DevServer' } else { Join-Path $env:USERPROFILE 'AppData\Local\ShipGlows\DevServer' }
     [pscustomobject]@{
         Workspace = [IO.Path]::GetFullPath($workspace)
