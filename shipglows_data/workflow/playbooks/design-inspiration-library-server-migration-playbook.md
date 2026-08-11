@@ -36,7 +36,7 @@ next_step: "Use during server provisioning or before retiring the current server
 
 Restore the private design and sales-page copy inspiration corpus on a new server without exposing source-derived captures, weakening Git LFS storage, or silently redirecting automatic synchronization to a different remote.
 
-This playbook moves the corpus setup, not the public ShipGlows repository or the separate private-data repository under `~/.shipglows/private/data/`.
+This playbook moves the corpus setup, not the public ShipGlows repository or the separate private-data repository under `~/.shipglows/data/`.
 
 ## Applicability
 
@@ -77,7 +77,7 @@ Stop here if `git lfs version` fails. A normal Git clone without LFS is not an a
 The default path is:
 
 ```text
-~/.shipglows/private/design-inspiration-library
+~/.shipglows/design-inspiration-library
 ```
 
 If the server intentionally uses another private parent directory, set `SHIPGLOWS_PRIVATE_DIR` or `SHIPGLOWS_INSPIRATION_LIBRARY_DIR` consistently before invoking design-library operations. Do not place the corpus inside the public ShipGlows working tree or its plugin caches.
@@ -87,7 +87,7 @@ If the server intentionally uses another private parent directory, set `SHIPGLOW
 Obtain the remote URL privately. Do not paste it into a shared shell history, a public ticket, or this playbook.
 
 ```bash
-CORPUS_DIR="$HOME/.shipglows/private/design-inspiration-library"
+CORPUS_DIR="$HOME/.shipglows/design-inspiration-library"
 REMOTE_URL="<private remote supplied outside shared documentation>"
 mkdir -p "$(dirname "$CORPUS_DIR")"
 git clone "$REMOTE_URL" "$CORPUS_DIR"
@@ -127,7 +127,7 @@ Each `check-attr` result must end in `filter: lfs`. `git lfs ls-files` may be em
 Run the bounded synthetic test outside the real corpus:
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 python3 "$SHIPGLOWS_ROOT/tools/capture_design_inspiration.py" \
   --fixture "$SHIPGLOWS_ROOT/tools/fixtures/design-inspiration/sample-sales-page.html" \
   --output "${TMPDIR:-/tmp}/shipglows-inspiration-migration-test" \

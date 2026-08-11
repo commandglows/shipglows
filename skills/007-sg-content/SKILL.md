@@ -8,7 +8,7 @@ Primary artifact type: `master-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, internal scripts, and public skill content must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, internal scripts, and public skill content must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Public Métier Ownership
 
@@ -92,7 +92,7 @@ For ShipGlows skill or workflow changes:
 
 ```bash
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-"${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh" --check --skill 007-sg-content
+"${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/shipglows_sync_skills.sh" --check --skill 007-sg-content
 ```
 
 For ShipGlows docs/specs/content-map artifacts:

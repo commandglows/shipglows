@@ -36,7 +36,7 @@ Apply this doctrine before reading a ShipGlows-owned reference, running a ShipGl
 
 ## Preflight Order
 
-1. Resolve `SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"`.
+1. Resolve `SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"`.
 2. Confirm the owned parent path exists under `$SHIPGLOWS_ROOT`.
 3. Confirm the target reference, tool, script, or owned surface exists at its canonical ShipGlows path.
 4. Only then read, run, mutate, or verify it.

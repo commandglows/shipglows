@@ -35,8 +35,8 @@ Voir [README_WINDOWS.md](./README_WINDOWS.md) pour les 3 options disponibles:
 **Linux / macOS / WSL / Android Termux:**
 ```bash
 # Cloner le repo
-git clone <votre-repo> ~/shipglows
-cd ~/shipglows/local
+git clone <votre-repo> ~/.shipglows/runtime
+cd ~/.shipglows/runtime/local
 
 # Lancer l'installation
 ./install.sh
@@ -89,7 +89,7 @@ Si vous préférez configurer manuellement :
 1. **Configuration SSH** - renseigner `SHIPGLOWS_SSH_REMOTE_HOST` et `SHIPGLOWS_SSH_REMOTE_USER`, puis relancer l'installateur local
 2. **Alias** - Ajouter dans `~/.bashrc` ou `~/.zshrc` :
    ```bash
-   alias urls='~/shipglows/local/local.sh'
+   alias urls='~/.shipglows/runtime/local/local.sh'
    ```
 
 ## 🚀 Utilisation

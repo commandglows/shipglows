@@ -131,7 +131,7 @@ Required rows are blocking unless:
 
 Unresolved required rows (`NOT_RUN`, `FAIL`, `BLOCKED`) produce `partial` or `not verified` unless a safe, documented exception exists.
 
-Use `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_checklist_status.py <checklist>` during verification.
+Use `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/shipglows_checklist_status.py <checklist>` during verification.
 
 ## CI Surface Gate (Path-Filtered Workflows)
 

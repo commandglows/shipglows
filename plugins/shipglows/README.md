@@ -60,7 +60,7 @@ Clone or update the sparse ShipGlows source tree:
 ~/plugins/shipglows/scripts/bootstrap_shipglows_repo.sh
 ```
 
-The default target is `~/.shipglows/source`. The checkout includes the skill/runtime corpus and excludes the site, TUI app, archives, research folders, generated builds, and dependency directories.
+The default target is `~/.shipglows/runtime`. The checkout includes the skill/runtime corpus and excludes the site, TUI app, archives, research folders, generated builds, and dependency directories.
 
 Install from a repo-backed marketplace source:
 

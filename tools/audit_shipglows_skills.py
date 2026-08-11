@@ -199,7 +199,7 @@ def audit_skill(path: Path) -> FindingSet:
             "primary router lacks visible focus-tag execution guidance beyond generic reference loading"
         )
 
-    if "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/" in text and not (
+    if "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/" in text and not (
         has_any(text, PREFLIGHT_SIGNALS) or has_shared_canonical_paths_preflight(path, text)
     ):
         findings.review.append(

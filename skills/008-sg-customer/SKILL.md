@@ -6,7 +6,7 @@ argument-hint: "<audit|flow|onboarding|recovery> <scope>"
 
 ## Canonical Paths
 
-Before resolving a ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). Resolve skills, references, tools, templates, and workflow documents from that root.
+Before resolving a ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). Resolve skills, references, tools, templates, and workflow documents from that root.
 
 ## Public Métier Ownership
 

@@ -5,7 +5,7 @@
 # Canonical local state directory with legacy fallback kept for migration.
 export SHIPGLOWS_STATE_DIR="${SHIPGLOWS_STATE_DIR:-$HOME/.shipglows}"
 export SHIPGLOWS_LEGACY_STATE_DIR="${SHIPGLOWS_LEGACY_STATE_DIR:-$HOME/.shipglows}"
-export SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-${SHIPGLOWS_ROOT:-$HOME/shipglows}}"
+export SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 export SHIPGLOWS_ROOT="$SHIPGLOWS_ROOT"
 
 # Resolve private persistence once for every CLI consumer. The helper reads an
@@ -277,7 +277,7 @@ export SHIPGLOWS_CADDYFILE="${SHIPGLOWS_CADDYFILE:-/etc/caddy/Caddyfile}"
 # ShipGlows-managed user-mode Caddy runtime. This is the default runtime proxy
 # path for development environments; the system Caddy service remains a legacy
 # public HTTPS path only.
-export SHIPGLOWS_RUNTIME_DIR="${SHIPGLOWS_RUNTIME_DIR:-${SHIPGLOWS_RUNTIME_DIR:-$SHIPGLOWS_SECRETS_DIR/runtime}}"
+export SHIPGLOWS_RUNTIME_DIR="${SHIPGLOWS_RUNTIME_DIR:-${SHIPGLOWS_RUNTIME_DIR:-$SHIPGLOWS_SECRETS_DIR/state}}"
 export SHIPGLOWS_USER_CADDY_ENABLED="${SHIPGLOWS_USER_CADDY_ENABLED:-${SHIPGLOWS_USER_CADDY_ENABLED:-true}}"
 export SHIPGLOWS_USER_CADDY_BIND="${SHIPGLOWS_USER_CADDY_BIND:-${SHIPGLOWS_USER_CADDY_BIND:-127.0.0.1}}"
 export SHIPGLOWS_USER_CADDY_PORT="${SHIPGLOWS_USER_CADDY_PORT:-${SHIPGLOWS_USER_CADDY_PORT:-8080}}"

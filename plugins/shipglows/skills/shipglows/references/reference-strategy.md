@@ -83,7 +83,7 @@ https://github.com/commandglows/shipglows.git
 Default target:
 
 ```text
-${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}
+${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}
 ```
 
 The complete-corpus checkout is sparse and includes only the skill/runtime corpus: `skills/`, `templates/`, `tools/`, `shipglows_data/`, and `local/`. It excludes the public site, TUI, generated builds, and dependency directories; canonical workflow history and records remain inside `shipglows_data/`.

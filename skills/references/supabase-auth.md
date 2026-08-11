@@ -82,4 +82,4 @@ Last reviewed: 2026-04-26
 3. Verify redirect config: `SITE_URL`, redirect allow list, app callback route, and provider redirect URI if OAuth is involved.
 4. Inspect SSR cookie wiring and middleware/proxy refresh behavior.
 5. Reproduce in a browser and capture the exact stop point.
-6. If login succeeds but data access fails, cross-check `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-db.md`.
+6. If login succeeds but data access fails, cross-check `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-db.md`.

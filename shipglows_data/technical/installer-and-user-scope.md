@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.10"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-11"
@@ -45,6 +45,8 @@ evidence:
   - "Native Windows prepares pnpm v11's global bin PATH and explicitly allows only the selected official agent package's install script when npm fallback requires it."
   - "Native Windows places managed .cmd application wrappers before npm-generated .ps1 shims, preserving commands under restrictive execution policy."
   - "Native Windows installs collision-safe .cmd shortcuts for c, co, cor, oc, and kc without depending on the PowerShell profile."
+  - "Operator decision 2026-08-11: Linux and Windows converge on ~/.shipglows/runtime, with data and design-inspiration-library as sibling private repositories."
+  - "Migration audit 2026-08-11: mutable Caddy state moves from the former ~/.shipglows/runtime/caddy location to ~/.shipglows/state/caddy so it cannot collide with the canonical code checkout."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
 ---
@@ -78,12 +80,12 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 
 - `curl -fsSL https://shipglows.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
 - Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, and supports `local` or `full`. Interactive mode selection requires `1`, `2`, or `0`; an empty answer only repeats the prompt. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download and before each optional agent CLI (Codex, Claude Code, OpenCode, KiloCode). When Codex is available it also offers workspace permissions (recommended), full access, or preservation of the existing config; `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep` makes that choice deterministic for automation. GitHub authentication is initiated only when private repository browsing is selected; agent authentication is initiated only by the selected agent at first run; credentials remain owned by their respective CLIs.
-- Native Windows keeps internal source and command wrappers under the hidden `%USERPROFILE%\.shipglows` runtime. User repositories live directly under `%USERPROFILE%\ShipGlows`; migration removes only the legacy visible `bin`, `cli`, and `local` runtime directories and removes the old `workspace` directory only when it is empty.
+- Native Windows keeps internal source and command wrappers under `%USERPROFILE%\.shipglows\runtime`; the parent `.shipglows` directory stays hidden and may also contain sibling private data repositories. User repositories live directly under `%USERPROFILE%\ShipGlows`; migration removes only legacy `bin`, `cli`, and `local` runtime directories and removes the old visible `workspace` directory only when it is empty.
 - `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
 - `tools/sync_shipglows_public_bootstrap.sh --check [--site-root <path>]`: verifies that the ShipGlows site serves generated canonical artifacts rather than independently maintained templates.
 - `sudo ./cli/install.sh`: server installer.
 - `./local/install.sh`: local tunnel and remote-login installer, including Android Termux.
-- `configure_command_wrappers`: installs global `shipglows`, `sg`, and helper command symlinks such as `shipglows-turso-login` and `shipglows-turso-ssh`.
+- `configure_command_wrappers`: installs real global wrappers for `shipglows` and `sg`, plus helper command symlinks such as `shipglows-turso-login` and `shipglows-turso-ssh`.
 - `setup_user`: per-user configuration for eligible users.
 - `resolve_install_components`: interactive or env-driven selector for user-space agents (`claude`, `codex`, `opencode`, `kilocode`), ShipGlows runtime config, and TUI.
 - `configure_*_mcp`: Claude/Codex MCP provider setup. Codex MCP entries
@@ -162,12 +164,17 @@ sudo ./cli/install.sh
   owners are preserved with a visible warning.
 - The current user-space agent install path uses `pnpm add -g` inside
   `PNPM_HOME`, so the installer follows the package registry version current at
-  install time instead of shipping pinned local binaries.
+  install time instead of shipping pinned local binaries. `PNPM_HOME` itself is
+  on `PATH` because pnpm writes global executables there; its legacy `bin`
+  subdirectory remains a compatibility fallback. Global packages with a build
+  hook are approved individually through pnpm's `--allow-build` option.
 - The system Node.js install path targets Node.js 24.x through the NodeSource
   `setup_24.x` bootstrap before installing `nodejs`.
-- Symlinks and aliases should be idempotent and updated consistently. The managed bash aliases include `shipglows`/`sg`/`s`, Claude/Codex launch shortcuts, reload helpers, and `ch` for clearing the current terminal plus tmux pane history (`clear; tmux clear-history`).
-- Helper command wrappers under `/usr/local/bin` should point back to scripts in
-  `$SHIPGLOWS_ROOT`; do not duplicate helper logic into generated files.
+- Symlinks, wrappers, and aliases should be idempotent and updated consistently. The managed bash aliases include `shipglows`/`sg`/`s`, Claude/Codex launch shortcuts, reload helpers, and `ch` for clearing the current terminal plus tmux pane history (`clear; tmux clear-history`).
+- The real `/usr/local/bin/shipglows` and `/usr/local/bin/sg` wrappers execute
+  `$SHIPGLOWS_ROOT/cli/shipglows.sh`; they must not be direct symlinks because
+  the CLI resolves sibling files from `BASH_SOURCE`. Other helper wrappers may
+  point back to scripts in `$SHIPGLOWS_ROOT`; do not duplicate helper logic.
 - ShipGlows skill runtime entries under `~/.claude/skills` and `~/.codex/skills` are symlinks to `$SHIPGLOWS_ROOT/skills/<name>`.
 - Codex MCP registrations should default to `enabled = false`; normal Codex
   sessions stay lightweight, and ShipGlows launches MCP-enabled sessions with

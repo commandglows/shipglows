@@ -7,7 +7,7 @@ argument-hint: <type> <name> (e.g., "page about", "component UserCard")
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -157,7 +157,7 @@ If the request appears to create a new public-facing surface, read enough nearby
 - where the canonical design-system authority lives: brand contract, token source, theme carrier, component bridge, layout/motion authority, and forbidden bypasses
 - where auth, validation, analytics, SEO, and error handling are usually enforced
 
-If Supabase is detected and the scaffold touches auth, uploads, storage, or DB-backed CRUD, load only the relevant references among `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-auth.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-storage.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-db.md` before generating code.
+If Supabase is detected and the scaffold touches auth, uploads, storage, or DB-backed CRUD, load only the relevant references among `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-auth.md`, `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-storage.md`, `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-db.md` before generating code.
 
 ### Step 3: Analyze patterns
 

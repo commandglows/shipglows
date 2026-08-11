@@ -10,7 +10,7 @@ The operator should not memorize packaging internals. The source skills remain t
 
 ## Source Of Truth
 
-- Source skills: `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/`
+- Source skills: `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/`
 - Public plugin: `$HOME/plugins/shipglows/`
 - Staged packs: `$HOME/.shipglows/staged-packs/<pack-id>/`
 - Pack catalog: `$HOME/plugins/shipglows/assets/pack-catalog.json`
@@ -39,7 +39,7 @@ Then open a new Codex thread before runtime-testing newly installed plugin behav
 
 1. Reads `assets/pack-catalog.json`.
 2. Replaces the staged pack directory for the requested pack.
-3. Copies cataloged source skills from `${SHIPGLOWS_ROOT:-$HOME/shipglows}`.
+3. Copies cataloged source skills from `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`.
 4. Copies detected references.
 5. Normalizes staged skill metadata when needed for Codex plugin validation.
 6. Writes `.codex-plugin/plugin.json`.

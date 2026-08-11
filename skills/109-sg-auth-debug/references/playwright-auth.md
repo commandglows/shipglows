@@ -2,7 +2,7 @@
 
 Use this reference when `109-sg-auth-debug` needs browser-level evidence or a repeatable auth validation pass.
 
-Before using Playwright MCP, load `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/playwright-mcp-runtime.md` and run its runtime preflight. Browser evidence is not valid if the MCP is still configured to fall back to Google Chrome stable on Linux ARM64.
+Before using Playwright MCP, load `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/playwright-mcp-runtime.md` and run its runtime preflight. Browser evidence is not valid if the MCP is still configured to fall back to Google Chrome stable on Linux ARM64.
 
 Sources checked:
 - https://clerk.com/docs/guides/development/testing/playwright/test-helpers

@@ -120,8 +120,8 @@ matériels non couverts ou une exception justifiée.
 - Chercher des docs existantes (CLAUDE.md, README, docs/)
 - Si l'utilisateur mentionne du code spécifique, scanner les fichiers concernés
 - Repérer le stack technique, les patterns, la structure du projet
-- Si la feature ou le bug dépend d'un framework, SDK, service, API, auth, build, migration, cache, routing ou intégration externe, appliquer `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/documentation-freshness-gate.md` avant de figer l'approche.
-- Si Supabase est dans le stack et que le scope touche auth, storage, upload, ou DB/RLS, charger seulement les références utiles parmi `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-auth.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-storage.md`, `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-db.md`.
+- Si la feature ou le bug dépend d'un framework, SDK, service, API, auth, build, migration, cache, routing ou intégration externe, appliquer `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/documentation-freshness-gate.md` avant de figer l'approche.
+- Si Supabase est dans le stack et que le scope touche auth, storage, upload, ou DB/RLS, charger seulement les références utiles parmi `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-auth.md`, `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-storage.md`, `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-db.md`.
 
 **Poser des questions informées** — pas des questions génériques, mais des questions ancrées dans ce qu'on a trouvé :
 - "Le `AuthService` valide dans le controller — on suit ce pattern ou on crée un validateur dédié ?"
@@ -351,7 +351,7 @@ Couvrir : promesse principale de la user story, `Success Behavior`, `Error Behav
 - **Risques** : points sensibles identifiés (sécurité, perf, données)
 - **Documentation Coherence** : docs, README, guides, FAQ, onboarding, pricing, changelog, exemples ou support à aligner, ou `None, because ...`
 - **Execution Notes** : 3-5 fichiers à lire d'abord, approche d'implémentation en étapes avant code, contraintes explicites (packages à utiliser/éviter, patterns existants, flux de données, abstractions à éviter, limites de scope), ordre d'exécution, commandes de validation, stop conditions / cas de reroute
-- **Fresh External Docs** : inclure dans `Dependencies` ou `Execution Notes` les docs officielles consultées quand `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/documentation-freshness-gate.md` se déclenche, ou `fresh-docs not needed` si le changement est entièrement local
+- **Fresh External Docs** : inclure dans `Dependencies` ou `Execution Notes` les docs officielles consultées quand `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/documentation-freshness-gate.md` se déclenche, ou `fresh-docs not needed` si le changement est entièrement local
 - **Skill Run History** : table persistante `Date UTC | Skill | Model | Action | Result | Next step`, avec une première ligne `100-sg-spec` pour la création ou mise à jour de la spec.
 - **Current Chantier Flow** : résumé lisible des statuts `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, `104-sg-end`, `005-sg-ship` et de la prochaine commande.
 

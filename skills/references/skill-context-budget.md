@@ -151,21 +151,21 @@ Crossing a threshold is a risk signal, not automatic deletion authority.
 Use the canonical audit before adding or expanding skills:
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 "$SHIPGLOWS_ROOT/tools/skill_budget_audit.py" --skills-root "$SHIPGLOWS_ROOT/skills"
 ```
 
 Use Markdown output when embedding the result in an audit report:
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 "$SHIPGLOWS_ROOT/tools/skill_budget_audit.py" --skills-root "$SHIPGLOWS_ROOT/skills" --format markdown
 ```
 
 If the canonical script is not available yet, use this rough estimate:
 
 ```bash
-find "$HOME/shipglows/skills" -mindepth 2 -maxdepth 2 -name SKILL.md -print0 |
+find "$HOME/.shipglows/runtime/skills" -mindepth 2 -maxdepth 2 -name SKILL.md -print0 |
   xargs -0 awk '
     /^name: / {
       name=$0

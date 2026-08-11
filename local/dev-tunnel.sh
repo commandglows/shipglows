@@ -112,7 +112,7 @@ fi
 if [ -z "$REMOTE_HOST" ]; then
     echo -e "${RED}✗ Aucune connexion distante ShipGlows configurée.${NC}"
     echo -e "${YELLOW}  Configurez votre nouveau serveur depuis le menu local:${NC}"
-    echo "  ~/shipglows/local/local.sh"
+    echo "  ~/.shipglows/runtime/local/local.sh"
     echo -e "${YELLOW}  Puis choisissez c) Configurer nouveau serveur.${NC}"
     exit 1
 fi
@@ -171,9 +171,9 @@ echo ""
 fetch_server_session_info() {
     run_remote_ssh "bash -lc '
         for lib_path in \
-            \"\${SHIPGLOWS_ROOT:-\$HOME/shipglows}/lib.sh\" \
-            \"\${SHIPGLOWS_ROOT:-\$HOME/shipglows}/cli/lib.sh\" \
-            \"\$HOME/shipglows/cli/lib.sh\"
+            \"\${SHIPGLOWS_ROOT:-\$HOME/.shipglows/runtime}/lib.sh\" \
+            \"\${SHIPGLOWS_ROOT:-\$HOME/.shipglows/runtime}/cli/lib.sh\" \
+            \"\$HOME/.shipglows/runtime/cli/lib.sh\"
         do
             if [ -f \"\$lib_path\" ]; then
                 source \"\$lib_path\" 2>/dev/null

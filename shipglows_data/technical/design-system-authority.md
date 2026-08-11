@@ -69,7 +69,7 @@ design_system_authority:
     - arbitrary Tailwind values outside token migration
     - screen-local colors, spacing, typography, shadows, motion, safe-area, keyboard, or overlay constants
   validation:
-    - python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --changed --format markdown
+    - python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/design_system_drift_check.py" --changed --format markdown
     - project build/lint command
     - browser/simulator/device proof route when visual behavior changes
 ```
@@ -147,8 +147,8 @@ Update this artifact whenever the project adds a frontend, changes styling techn
     - mobile-nav, hero, spacing, shadow, or elevation values created directly in page/component markup
     - locale-specific visual overrides that diverge from the shared home component system without explicit proof
   - validation:
-    - `python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --root "${SHIPGLOWS_ROOT:-$HOME/shipglows}/shipglows-site" --changed --format markdown`
-    - `npm --prefix "${SHIPGLOWS_ROOT:-$HOME/shipglows}/shipglows-site" run build`
+    - `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/design_system_drift_check.py" --root "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/shipglows-site" --changed --format markdown`
+    - `npm --prefix "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/shipglows-site" run build`
     - browser/mobile proof on `/` and `/fr/` when home or navigation visuals change
 
 - `ShipGlows Atlas overlay`:
@@ -164,6 +164,6 @@ Update this artifact whenever the project adds a frontend, changes styling techn
     - modifying inspected application tokens, components or styles from the overlay
     - loading a remote stylesheet or script for Atlas mode by default
   - validation:
-    - `python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --changed --format markdown`
+    - `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/design_system_drift_check.py" --changed --format markdown`
     - `node --check injectors/web-inspector.js`
     - browser proof on an opted-in dev/preview project before visual completion is claimed

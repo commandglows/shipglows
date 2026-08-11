@@ -27,7 +27,7 @@ Default to read-only analysis unless the operator explicitly asks to edit, insta
 Prefer the local source tree only for development audits:
 
 ```text
-${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}
+${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}
 ```
 
 If that path is missing, explain that the repository skill is available but local source-tree packaging checks cannot run.

@@ -71,4 +71,4 @@ Last reviewed: 2026-04-26
 3. Inspect `storage.objects` policies for each needed operation.
 4. Verify the path scheme matches the ownership model.
 5. Verify the client/server key choice is correct.
-6. If metadata or business records are coupled to the file, cross-check `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-db.md`.
+6. If metadata or business records are coupled to the file, cross-check `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-db.md`.

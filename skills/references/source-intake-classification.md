@@ -147,10 +147,10 @@ When portfolio routing needs reusable pitch contents, use the private memory con
 The approved private root is:
 
 ```text
-${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}
+${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}
 ```
 
-Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}/projects/` for cached project files and summaries. Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}/source-cache/` only as a redacted, short-retention holding area while the source remains unassigned or awaits review.
+Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}/projects/` for cached project files and summaries. Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}/source-cache/` only as a redacted, short-retention holding area while the source remains unassigned or awaits review.
 
 Do not cache raw source text in `$SHIPGLOWS_ROOT`, project repos, public specs, public docs, or generated files under version control.
 
@@ -172,7 +172,7 @@ Not allowed in the public ShipGlows repo:
 - unredacted screenshots, transcripts, or notes
 - generated cache files containing source text
 
-If a source needs temporary private review before its destination is known, use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}/source-cache/` under the rules in `skills/references/private-memory-store.md`. Once the project is known, persist only the justified derivative in the project's governed repository: repurpose packs use `skills/references/repurpose-pack-storage.md`; audience sequences use `skills/references/email-sequence-storage.md`.
+If a source needs temporary private review before its destination is known, use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}/source-cache/` under the rules in `skills/references/private-memory-store.md`. Once the project is known, persist only the justified derivative in the project's governed repository: repurpose packs use `skills/references/repurpose-pack-storage.md`; audience sequences use `skills/references/email-sequence-storage.md`.
 
 ## Classification Output
 
