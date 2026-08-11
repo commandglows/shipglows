@@ -196,10 +196,22 @@ function Invoke-SgGitHubClone {
     $name = @($repository.nameWithOwner -split '/')[-1]
     $destination = Join-Path $config.Workspace $name
     if (Test-Path -LiteralPath $destination) { throw "Clone destination already exists: $destination" }
-    & $gh repo clone $repository.nameWithOwner $destination
-    if ($LASTEXITCODE -ne 0) { throw 'GitHub repository clone failed.' }
-    Register-SgProject $config $destination | Out-Null
-    Write-SgInfo "Registered clone: $destination"
+    $temporaryDestination = Join-Path $config.Workspace (".$name.shipglows-clone-" + [guid]::NewGuid().ToString('N'))
+    # Explicit HTTPS prevents a user's GitHub CLI SSH preference from making
+    # the picker depend on their local SSH configuration or keys. Authentication
+    # remains owned by GitHub CLI.
+    try {
+        & $gh repo clone $repository.url $temporaryDestination
+        if ($LASTEXITCODE -ne 0) { throw 'GitHub repository clone failed.' }
+        Move-Item -LiteralPath $temporaryDestination -Destination $destination -ErrorAction Stop
+        Register-SgProject $config $destination | Out-Null
+        Write-SgInfo "Registered clone: $destination"
+    } catch {
+        if (Test-Path -LiteralPath $temporaryDestination) {
+            Remove-Item -LiteralPath $temporaryDestination -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        throw
+    }
 }
 
 function Invoke-CloneUrl {
@@ -211,10 +223,19 @@ function Invoke-CloneUrl {
     $destination = Join-Path $config.Workspace $name
     if (Test-Path -LiteralPath $destination) { throw "Clone destination already exists: $destination" }
     Ensure-SgDirectory $config.Workspace
-    & $git clone -- $url $destination
-    if ($LASTEXITCODE -ne 0) { throw 'Git clone failed.' }
-    Register-SgProject $config $destination | Out-Null
-    Write-SgInfo "Registered clone: $destination"
+    $temporaryDestination = Join-Path $config.Workspace (".$name.shipglows-clone-" + [guid]::NewGuid().ToString('N'))
+    try {
+        & $git clone -- $url $temporaryDestination
+        if ($LASTEXITCODE -ne 0) { throw 'Git clone failed.' }
+        Move-Item -LiteralPath $temporaryDestination -Destination $destination -ErrorAction Stop
+        Register-SgProject $config $destination | Out-Null
+        Write-SgInfo "Registered clone: $destination"
+    } catch {
+        if (Test-Path -LiteralPath $temporaryDestination) {
+            Remove-Item -LiteralPath $temporaryDestination -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        throw
+    }
 }
 
 function Invoke-Clone {
