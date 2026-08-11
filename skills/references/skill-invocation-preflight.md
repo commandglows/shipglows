@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.1"
+artifact_version: "1.1.2"
 project: ShipGlows
 created: "2026-07-29"
-updated: "2026-08-03"
+updated: "2026-08-11"
 status: active
 source_skill: 102-sg-start
 scope: explicit-skill-invocation-preflight
@@ -25,7 +25,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator decision 2026-07-29: explicit commands are checked automatically across master skills."
-  - "Recovery 2026-08-03: the original untracked implementation was recovered selectively from Git stash and migrated from ShipGlowz to ShipGlows."
+  - "Recovery 2026-08-03: the original untracked implementation was recovered selectively from Git stash and migrated to the canonical ShipGlows namespace."
 next_review: "2026-09-03"
 next_step: "none"
 ---
