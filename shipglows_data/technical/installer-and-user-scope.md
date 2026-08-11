@@ -138,7 +138,9 @@ sudo ./cli/install.sh
   `.ps1` shims when the host forbids PowerShell script execution, without
   weakening the machine's execution policy. A blocked shim beside a verified
   user-scoped `.cmd` launcher is renamed to a unique `shipglows-disabled`
-  backup rather than deleted.
+  backup rather than deleted. System-owned shims outside the user profile are
+  left unchanged because the user-scoped runtime wrapper already takes PATH
+  priority and the installer must not mutate protected package files.
 - Native Windows keeps convenience commands independent from `$PROFILE`.
   `s.cmd` and `shipglows-dev.cmd` launch the DevServer with `-NoProfile` and a
   process-scoped execution-policy bypass. When the names are unclaimed, the
