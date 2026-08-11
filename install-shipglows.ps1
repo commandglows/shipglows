@@ -14,9 +14,8 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-function Resolve-CompatibleValue([string]$Canonical, [string]$LegacyShipglowz, [string]$LegacyShipflow, [string]$Name) {
+function Resolve-CompatibleValue([string]$Canonical, [string]$LegacyShipflow, [string]$Name) {
     if ($Canonical) { return $Canonical }
-    if ($LegacyShipglowz) { Write-Warn "Deprecated SHIPGLOWZ_$Name detected; migrate to SHIPGLOWS_*."; return $LegacyShipglowz }
     if ($LegacyShipflow) { Write-Warn "Deprecated SHIPFLOW_$Name detected; migrate to SHIPGLOWS_*."; return $LegacyShipflow }
     return ''
 }
@@ -44,11 +43,11 @@ function Select-WindowsInstallMode {
     }
 }
 
-$RepoUrl = Resolve-CompatibleValue $RepoUrl $env:SHIPGLOWZ_REPO_URL $env:SHIPFLOW_REPO_URL 'REPO_URL'
+$RepoUrl = Resolve-CompatibleValue $RepoUrl $env:SHIPFLOW_REPO_URL 'REPO_URL'
 if (-not $RepoUrl) { $RepoUrl = 'https://github.com/commandglows/shipglows.git' }
-$Branch = Resolve-CompatibleValue $Branch $env:SHIPGLOWZ_BRANCH $env:SHIPFLOW_BRANCH 'BRANCH'
+$Branch = Resolve-CompatibleValue $Branch $env:SHIPFLOW_BRANCH 'BRANCH'
 if (-not $Branch) { $Branch = 'main' }
-$InstallMode = Resolve-CompatibleValue $InstallMode $env:SHIPGLOWZ_INSTALL_MODE $env:SHIPFLOW_INSTALL_MODE 'INSTALL_MODE'
+$InstallMode = Resolve-CompatibleValue $InstallMode $env:SHIPFLOW_INSTALL_MODE 'INSTALL_MODE'
 if ($InstallMode -and $InstallMode -notin @('local', 'full')) {
     Fail 'InstallMode must be local or full.'
 }

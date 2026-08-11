@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: "ShipGlows"
 created: "2026-08-09"
 created_at: "2026-08-09 15:50:00 UTC"
-updated: "2026-08-09"
-updated_at: "2026-08-09 16:11:00 UTC"
+updated: "2026-08-11"
+updated_at: "2026-08-11 19:30:00 UTC"
 status: reviewed
 source_skill: sg-development
 source_model: "GPT-5 Codex"
@@ -52,7 +52,7 @@ Make `shipglows.com` the canonical owner of the ShipGlows runtime installer and 
 | `/shipglows-script` | Shell installer by default; PowerShell for `format=powershell`, `ps1`, or `windows` |
 | `/dotfiles-script` | Shell dotfiles bootstrap |
 
-The canonical origin is the apex `https://shipglows.com`. CommandGlows legacy routes redirect permanently and preserve the complete query string. Historical ShipGlowz aliases redirect directly to ShipGlows to avoid chains.
+The canonical origin is the apex `https://shipglows.com`. CommandGlows legacy routes redirect permanently and preserve the complete query string. Retired predecessor aliases redirect directly to ShipGlows to avoid chains.
 
 ## Success Behavior
 
@@ -79,7 +79,7 @@ The canonical origin is the apex `https://shipglows.com`. CommandGlows legacy ro
 
 - ShipGlows Astro Vercel adapter, install-page model/component, four localized pages, two script endpoints, generated artifacts and focused tests.
 - Canonical ShipGlows bootstrap self-reference, sync tool, public docs, technical docs, editorial maps and active Windows spec.
-- Exact permanent CommandGlows redirects for ShipGlows, dotfiles and ShipGlowz compatibility routes, plus redirect tests and removal of obsolete implementation ownership.
+- Exact permanent CommandGlows redirects for ShipGlows, dotfiles and retired compatibility routes, plus redirect tests and removal of obsolete implementation ownership.
 - Deployment-order and live HTTP/hash verification preparation.
 
 ### Out
@@ -128,7 +128,7 @@ The batches have exclusive write scopes and may run in parallel locally. Product
 - [x] AC04: generated ShipGlows installer artifacts match canonical root installers byte-for-byte.
 - [x] AC05: `/install` and `/fr/install` remain plugin-first and link to the local runtime pages.
 - [x] AC06: all active commands and docs use the apex ShipGlows endpoint; historical occurrences are not rewritten.
-- [x] AC07: every old CommandGlows page/script route and ShipGlowz alias redirects permanently to the direct ShipGlows destination while preserving query strings.
+- [x] AC07: every old CommandGlows page/script route and retired alias redirects permanently to the direct ShipGlows destination while preserving query strings.
 - [x] AC08: exact-route tests reject accidental child-route or open-redirect behavior.
 - [x] AC09: both Astro sites pass focused tests, check/build, metadata and diff validation.
 - [x] AC10: production ShipGlows destinations are proven before CommandGlows redirects are activated.
