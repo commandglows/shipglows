@@ -20,14 +20,12 @@ linked_systems:
   - Tauri mobile builds
   - Flutter Android builds
   - socialflow/.github/workflows/dev-builds.yml
-  - voiceflowz/.github/workflows/android-build.yml
 depends_on: []
 supersedes: []
 evidence:
   - "Official Blacksmith docs reviewed on 2026-05-10: Quickstart, Instance Types, Logs, Run History, SSH Access, Monitors, Metrics, Test Analytics, Actions cache, Sticky Disks, Static IP, Network & IP Allowlisting, Testboxes."
   - "Official Blacksmith docs rechecked on 2026-05-11: Actions cache, Logs, Run History, and Testboxes pages still support the current guidance; legacy useblacksmith cache forks are archived and upstream GitHub actions are preferred."
   - "Local SocialFlow workflow observed with Android debug APK build on blacksmith-2vcpu-ubuntu-2404."
-  - "Local VoiceFlowz workflow observed with Flutter Android CI and Firestore deploy jobs on blacksmith-2vcpu-ubuntu-2404."
   - "Operator confirmed on 2026-05-10 that Blacksmith SSH Access has been authorized."
 next_review: "2026-06-11"
 next_step: "/sg-spec Blacksmith APK build observability"
@@ -108,23 +106,6 @@ If the job finishes too quickly, add a failure-only keepalive step or configure 
 
 This is the right workflow shape for daily phone testing. The Blacksmith-specific improvement is mostly observability and runner sizing, not a different APK delivery mechanism.
 
-### VoiceFlowz
-
-`voiceflowz/.github/workflows/android-build.yml` contains two jobs that already run on Blacksmith:
-
-- `build` / `Analyze, Test, Build APK` runs on `blacksmith-2vcpu-ubuntu-2404`.
-- `firebase` / `Deploy Firestore Rules and Indexes` runs on `blacksmith-2vcpu-ubuntu-2404`.
-- The Android job uses current upstream GitHub actions: `actions/checkout@v6`, `actions/setup-java@v5`, `subosito/flutter-action@v2`, and `actions/upload-artifact@v7`.
-- The Android job runs `flutter pub get`, `flutter analyze`, `flutter test`, `flutter build apk --debug`, checks `build/app/outputs/flutter-apk/app-debug.apk`, and uploads `voiceflowz-debug-apk`.
-- The Android job injects Firebase client configuration and Sentry build/runtime identifiers through GitHub Secrets and Dart defines.
-- The Firestore job uses GitHub OIDC with `google-github-actions/auth@v3`, installs `firebase-tools@15.17.0`, validates required secrets, and deploys Firestore rules/indexes.
-
-VoiceFlowz is therefore already integrated with Blacksmith for the current Android APK and Firestore deploy needs. The remaining Blacksmith-specific improvements are operational:
-
-- Add a manual failure-only keepalive step only when live SSH debugging is needed for a significant bug.
-- Use Logs queries such as `repo:voiceflowz workflow:"Flutter Android CI" level:error,warn` and `repo:voiceflowz job_name:"Analyze, Test, Build APK" "Execution failed"` when debugging failed runs.
-- Check Metrics before moving VoiceFlowz from `blacksmith-2vcpu-ubuntu-2404` to a larger runner.
-
 ## Useful Blacksmith Features
 
 | Feature | Use for us | Priority |
@@ -166,12 +147,6 @@ repo:socialflow "OutOfMemory"
 repo:socialflow "SIGKILL"
 repo:socialflow "NDK"
 repo:socialflow "tauri android build"
-repo:voiceflowz branch:main level:error,warn
-repo:voiceflowz workflow:"Flutter Android CI" level:error,warn
-repo:voiceflowz job_name:"Analyze, Test, Build APK" level:error,warn
-repo:voiceflowz step_name:"Build debug APK" "Execution failed"
-repo:voiceflowz "SENTRY_DSN"
-repo:voiceflowz "app-debug.apk"
 ```
 
 Current docs describe this as a dashboard capability. No public `blacksmith logs` CLI command was found in the official pages reviewed on 2026-05-10.

@@ -373,78 +373,6 @@
       "type": "dir"
     },
     {
-      "candidate_destination": "/home/claude/VoiceFlowz/(unresolved)",
-      "classification": "conflict",
-      "classification_reason": "project has no local shipglows workspace match",
-      "git_status": "clean",
-      "likely_owner": "project-unknown",
-      "mtime_utc": "2026-05-17T09:18:37+00:00",
-      "path": "projects/VoiceFlowz",
-      "sha256": null,
-      "size": 4096,
-      "type": "dir"
-    },
-    {
-      "candidate_destination": "/home/claude/VoiceFlowz/(unresolved)",
-      "classification": "conflict",
-      "classification_reason": "project has no local shipglows workspace match",
-      "git_status": "clean",
-      "likely_owner": "project-unknown",
-      "mtime_utc": "2026-05-17T13:09:36+00:00",
-      "path": "projects/VoiceFlowz/TASKS.md",
-      "sha256": "07c6e76736ddacda2976e84a310bd7842e33a83d001cd61b4e54b62ce32ca940",
-      "size": 4770,
-      "type": "file"
-    },
-    {
-      "candidate_destination": "/home/claude/VoiceFlowz/(unresolved)",
-      "classification": "conflict",
-      "classification_reason": "project has no local shipglows workspace match",
-      "git_status": "clean",
-      "likely_owner": "project-unknown",
-      "mtime_utc": "2026-05-17T13:09:36+00:00",
-      "path": "projects/VoiceFlowz/concurrent.md",
-      "sha256": "28d39b1213712af3aa9de7778d43910c1919acaa11b11e5c23f115e97bed08bf",
-      "size": 1998,
-      "type": "file"
-    },
-    {
-      "candidate_destination": "/home/claude/VoiceFlowz/(unresolved)",
-      "classification": "conflict",
-      "classification_reason": "project has no local shipglows workspace match",
-      "git_status": "clean",
-      "likely_owner": "project-unknown",
-      "mtime_utc": "2026-05-17T09:18:37+00:00",
-      "path": "projects/VoiceFlowz/docs",
-      "sha256": null,
-      "size": 4096,
-      "type": "dir"
-    },
-    {
-      "candidate_destination": "/home/claude/VoiceFlowz/(unresolved)",
-      "classification": "conflict",
-      "classification_reason": "project has no local shipglows workspace match",
-      "git_status": "clean",
-      "likely_owner": "project-unknown",
-      "mtime_utc": "2026-05-17T09:19:48+00:00",
-      "path": "projects/VoiceFlowz/docs/technical",
-      "sha256": null,
-      "size": 4096,
-      "type": "dir"
-    },
-    {
-      "candidate_destination": "/home/claude/VoiceFlowz/(unresolved)",
-      "classification": "conflict",
-      "classification_reason": "project has no local shipglows workspace match",
-      "git_status": "clean",
-      "likely_owner": "project-unknown",
-      "mtime_utc": "2026-05-17T13:09:10+00:00",
-      "path": "projects/VoiceFlowz/docs/technical/suite-authentication.md",
-      "sha256": "3d9a0de116b217adbfd3c0a7747c8b810f55cb57422ae14e1017d85ea848b4ad",
-      "size": 1794,
-      "type": "file"
-    },
-    {
       "candidate_destination": "/home/claude/app/(unresolved)",
       "classification": "conflict",
       "classification_reason": "project has no local shipglows workspace match",
@@ -1318,42 +1246,6 @@
       "path": "projects/veille-dispatch-2026-05-11.md",
       "sha256": "1439005b12de6125a56378a1db32aa148ee722c1050439cfdcc777ab898f2d06",
       "size": 4457,
-      "type": "file"
-    },
-    {
-      "candidate_destination": "/home/claude/voiceflowz/(unresolved)",
-      "classification": "conflict",
-      "classification_reason": "project has no local shipglows workspace match",
-      "git_status": "clean",
-      "likely_owner": "project-unknown",
-      "mtime_utc": "2026-05-11T12:45:41+00:00",
-      "path": "projects/voiceflowz",
-      "sha256": null,
-      "size": 4096,
-      "type": "dir"
-    },
-    {
-      "candidate_destination": "/home/claude/voiceflowz/(unresolved)",
-      "classification": "conflict",
-      "classification_reason": "project has no local shipglows workspace match",
-      "git_status": "clean",
-      "likely_owner": "project-unknown",
-      "mtime_utc": "2026-05-17T13:09:36+00:00",
-      "path": "projects/voiceflowz/TASKS.md",
-      "sha256": "00e41d70f8cd86adaf0bcdeae1c3cd2ca826f19360a565e67566ef4ce4d9fdff",
-      "size": 730,
-      "type": "file"
-    },
-    {
-      "candidate_destination": "/home/claude/voiceflowz/(unresolved)",
-      "classification": "conflict",
-      "classification_reason": "project has no local shipglows workspace match",
-      "git_status": "clean",
-      "likely_owner": "project-unknown",
-      "mtime_utc": "2026-05-17T13:09:36+00:00",
-      "path": "projects/voiceflowz/concurrent.md",
-      "sha256": "1cb8112cf63abe0e11438f65a2336e6c30388cb295179788975cf74f3ed1028c",
-      "size": 807,
       "type": "file"
     },
     {

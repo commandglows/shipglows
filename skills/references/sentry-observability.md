@@ -35,7 +35,6 @@ evidence:
   - "User doctrine clarification 2026-05-11: Sentry is not necessary on static sites; it becomes necessary when authentication is introduced."
   - "User operational note 2026-05-11: skills never see Sentry dashboard directly; local PM2 logs and Doppler env presence are available evidence sources."
   - "User clarification 2026-05-11: skills will never have direct Sentry dashboard access."
-  - "VoiceFlowz check 2026-05-11: sentry_flutter 9.20.0 is installed, SENTRY_DSN is injected by Blacksmith Android CI, and runtime diagnostics expose Sentry state."
   - "Sentry Flutter docs 2026-05-11: current setup guidance includes early init, optional tracing/profiling/logs/session replay, verification event snippets, navigation observers, and debug symbol/source map guidance."
   - "Blacksmith docs 2026-05-11: Blacksmith runners transparently accelerate official cache actions and provide searchable CI logs for workflow/run/branch/job/step filters."
   - "User Sentry product update 2026-05-12: Sentry Alerts split into Monitors for detection/issue creation and Alerts for notification routing; Metric Alerts migrated to Metric Monitors."
@@ -151,7 +150,7 @@ Doppler rules:
 
 Use this checklist for Flutter apps before recommending more Sentry work:
 
-- Confirm `sentry_flutter` is current enough for the target platform. VoiceFlowz is already on `9.20.0`; do not recommend a migration just because an older docs page shows a lower package detail.
+- Confirm `sentry_flutter` is current enough for the target platform; do not recommend a migration merely because an older documentation page shows a lower package detail.
 - Confirm initialization happens before `runApp` and does not break local development when `SENTRY_DSN` is missing.
 - Confirm `sendDefaultPii=false` for privacy-sensitive apps unless the user explicitly accepts the data tradeoff.
 - Confirm screenshots, view hierarchy, session replay, and user feedback screenshots are disabled or deliberately configured when the app handles voice, keyboard, clipboard, auth, private text, or user-owned files.
@@ -181,7 +180,7 @@ Use conservative defaults for privacy-sensitive ShipGlows apps:
 | Session replay | no | Product/privacy review approves it and masking is proven on target screens. |
 | User feedback screenshots | no | The support flow has explicit consent and redaction. |
 
-For VoiceFlowz-like apps, keep screenshots/view hierarchy/session replay off by default because keyboard, voice, clipboard, auth, and private text surfaces are high-risk.
+For apps handling keyboard, voice, clipboard, authentication, or private text, keep screenshots, view hierarchy, and session replay off by default.
 
 ## Static Sites
 

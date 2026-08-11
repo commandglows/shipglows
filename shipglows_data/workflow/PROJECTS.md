@@ -18,7 +18,6 @@
 | promptflow | /home/claude/promptflow | Vite |
 | ext---toolflowz | ~/ext---toolflowz | Vite |
 | nococaine | ~/nococaine | Node.js |
-| voiceflowz | /home/claude/voiceflowz | Node.js |
 | nantes-gratuit | /home/claude/nantes gratuit | Astro 6, Flutter 3.41, Supabase Auth/Postgres/Storage, npm + Dart |
 | contentflow_site | ~/contentflow/contentflow_site | Astro |
 | contentglowz_lab | ~/contentglowz/contentglowz_lab | Python |
