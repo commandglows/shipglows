@@ -179,7 +179,11 @@ function Invoke-SgGitHubClone {
     [void](Invoke-SgGitHubLogin)
     $json = (& $gh repo list --limit 200 --json nameWithOwner,description,isPrivate,url | Out-String)
     if ($LASTEXITCODE -ne 0) { throw 'GitHub repository listing failed.' }
-    $repositories = @($json | ConvertFrom-Json)
+    # Windows PowerShell 5.1 preserves a JSON top-level array as one pipeline
+    # object when ConvertFrom-Json is nested directly inside @(...). Assigning
+    # first lets the following array expression enumerate each repository.
+    $parsedRepositories = $json | ConvertFrom-Json
+    $repositories = @($parsedRepositories)
     if ($repositories.Count -eq 0) { throw 'No GitHub repositories are available for this account.' }
     $labels = @($repositories | ForEach-Object {
         $visibility = if ($_.isPrivate) { 'private' } else { 'public' }
