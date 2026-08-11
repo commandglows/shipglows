@@ -36,7 +36,7 @@ SHIPGLOWS_PRESET="docs"
 
 infer_shipglows_root() {
   local fallback_root="$1"
-  local candidate="${SHIPGLOWS_ROOT:-${HOME}/shipglows}"
+  local candidate="${SHIPGLOWS_ROOT:-${HOME}/.shipglows/runtime}"
 
   if [ -d "$candidate" ] && [ -d "$candidate/skills" ] && [ -d "$candidate/shipglows_data" ]; then
     printf '%s\n' "$candidate"
@@ -48,7 +48,7 @@ infer_shipglows_root() {
     return 0
   fi
 
-  candidate="${HOME}/shipglows"
+  candidate="${HOME}/.shipglows/runtime"
   if [ -d "$candidate" ] && [ -d "$candidate/skills" ] && [ -d "$candidate/shipglows_data" ]; then
     printf '%s\n' "$candidate"
     return 0
@@ -263,7 +263,7 @@ infer_project_root_from_raw() {
   done < <(grep -Eo '/[^[:space:]`"'"'"'<>),;]+' "$raw_file" | sort -u)
 
   if grep -Eqi '(^|[^a-z0-9-])(shipglows|sg-[a-z0-9-]+)([^a-z0-9-]|$)' "$raw_file"; then
-    root=$(find_project_root_for_path "$HOME/shipglows" 2>/dev/null || true)
+    root=$(find_project_root_for_path "$HOME/.shipglows/runtime" 2>/dev/null || true)
     if [ -n "$root" ]; then
       printf '%s\n' "$root"
       return 0
@@ -564,7 +564,7 @@ if [ -z "$DESTINATION" ]; then
     SLUG="${SLUG}-${STAMP}"
   fi
   if [ "$SHIPGLOWS_PRESET" = "shipglows" ]; then
-    SHIPGLOWS_ROOT_RESOLVED=$(infer_shipglows_root "${HOME}/shipglows") \
+    SHIPGLOWS_ROOT_RESOLVED=$(infer_shipglows_root "${HOME}/.shipglows/runtime") \
       || fail "cannot resolve ShipGlows root; set SHIPGLOWS_ROOT to the ShipGlows repository"
     DESTINATION="${SHIPGLOWS_ROOT_RESOLVED}/shipglows_data/workflow/conversations/${SLUG}.md"
   else
@@ -588,7 +588,7 @@ fi
 OUTPUT=$(absolute_path "$DESTINATION")
 OUTPUT=$(unique_path "$OUTPUT")
 if [ "$SHIPGLOWS_PRESET" = "shipglows" ]; then
-  SHIPGLOWS_ROOT_RESOLVED=$(infer_shipglows_root "${HOME}/shipglows") \
+  SHIPGLOWS_ROOT_RESOLVED=$(infer_shipglows_root "${HOME}/.shipglows/runtime") \
     || fail "cannot resolve ShipGlows root; set SHIPGLOWS_ROOT to the ShipGlows repository"
   validate_shipglows_preset_output "$OUTPUT" "$SHIPGLOWS_ROOT_RESOLVED"
 fi
@@ -633,7 +633,7 @@ if [ "$YES" != "1" ]; then
       OUTPUT=$(absolute_path "$DESTINATION")
       OUTPUT=$(unique_path "$OUTPUT")
       if [ "$SHIPGLOWS_PRESET" = "shipglows" ]; then
-        SHIPGLOWS_ROOT_RESOLVED=$(infer_shipglows_root "${HOME}/shipglows") \
+        SHIPGLOWS_ROOT_RESOLVED=$(infer_shipglows_root "${HOME}/.shipglows/runtime") \
           || fail "cannot resolve ShipGlows root; set SHIPGLOWS_ROOT to the ShipGlows repository"
         validate_shipglows_preset_output "$OUTPUT" "$SHIPGLOWS_ROOT_RESOLVED"
       fi

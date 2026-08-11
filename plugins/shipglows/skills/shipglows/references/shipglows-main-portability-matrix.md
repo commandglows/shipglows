@@ -14,7 +14,7 @@ Source corpus: `/home/claude/shipglows`
 
 `shipglows-main` is partially bundled.
 
-Public help has been folded into the `shipglows` plugin entrypoint through plugin-local references. The remaining execution candidates still assume a local ShipGlows source tree through `$SHIPGLOWS_ROOT`, `$HOME/shipglows`, `shipglows_data/`, ShipGlows-owned `tools/`, or shared references that are not packaged inside the plugin.
+Public help has been folded into the `shipglows` plugin entrypoint through plugin-local references. The remaining execution candidates still assume a local ShipGlows source tree through `$SHIPGLOWS_ROOT`, `$HOME/.shipglows/runtime`, `shipglows_data/`, ShipGlows-owned `tools/`, or shared references that are not packaged inside the plugin.
 
 The next implementation pass should reuse the public-entrypoint pattern: create plugin-local public contracts behind `shipglows`, include only execution-critical safe references, mark unbundled behavior honestly, and keep internal ShipGlows-specific behavior out of the public pack.
 

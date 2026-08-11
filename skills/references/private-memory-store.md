@@ -46,13 +46,13 @@ The repository and clone behavior for that durable private root are defined sepa
 ## Canonical Path
 
 ```text
-${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}
+${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}
 ```
 
 For the current server user, this resolves to:
 
 ```text
-/home/claude/.shipglows/private/data
+/home/claude/.shipglows/data
 ```
 
 This folder is outside `$SHIPGLOWS_ROOT` and is a separate private Git working tree. It is private operator memory, not a public governance artifact.
@@ -133,7 +133,7 @@ Not allowed:
 
 Use `shipglows_data/business/portfolio-project-pitch-links.md` as the public index of project names and pitch URLs.
 
-Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}/projects/` as the private cache for the fetched or summarized pitch contents.
+Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}/projects/` as the private cache for the fetched or summarized pitch contents.
 
 The public index decides which pitch may be relevant. The private cache may speed up classification, but it does not replace project-owned source-of-truth docs.
 
@@ -146,7 +146,7 @@ projects/index.md
 
 ## Source Cache: Pre-Assignment Only
 
-Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}/source-cache/` only while a source has no confirmed project destination or while it awaits operator review. It is not a durable cross-project content library.
+Use `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}/source-cache/` only while a source has no confirmed project destination or while it awaits operator review. It is not a durable cross-project content library.
 
 For an inspiration email or marketing example, store only the minimum redacted routing record:
 
@@ -184,6 +184,6 @@ Validate references after edits with:
 
 ```bash
 python3 tools/shipglows_metadata_lint.py skills/references/private-memory-store.md skills/references/source-intake-classification.md shipglows_data/business/portfolio-project-pitch-links.md shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md skills/references/shipglows-terms.md
-rg -n "private-memory-store|SHIPGLOWS_PRIVATE_DATA_DIR|\\.shipglows/private/data|project-pitches|projects/|source-cache" skills/references shipglows_data/business shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md
-test -d "${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}"
+rg -n "private-memory-store|SHIPGLOWS_PRIVATE_DATA_DIR|\\.shipglows/data|project-pitches|projects/|source-cache" skills/references shipglows_data/business shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md
+test -d "${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}"
 ```

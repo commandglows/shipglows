@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-06-19"
+updated: "2026-08-11"
 status: active
 source_skill: 300-sg-docs
 scope: codex-plugin-packaging
@@ -34,6 +34,7 @@ evidence:
   - "2026-06-11 source/cache plugin validation and diff passed."
   - "2026-06-11 shipglows-core was removed from the personal marketplace path and promoted to internal repo skill 900-shipglows-core."
   - "2026-06-12 operator decision: prefer one public `shipglows` plugin filled as much as possible; treat pack generation as internal packaging infrastructure, not a near-term public multi-pack product."
+  - "2026-08-11 operator decision: the sparse corpus checkout and full runtime share the canonical ~/.shipglows/runtime root."
 next_review: "2026-06-18"
 next_step: "/300-sg-docs technical audit codex-plugin-packaging"
 ---
@@ -46,7 +47,7 @@ next_step: "/300-sg-docs technical audit codex-plugin-packaging"
 
 The public repository now also exposes a repo-backed marketplace source at `/home/claude/shipglows/.agents/plugins/marketplace.json` with a publishable plugin source mirrored under `/home/claude/shipglows/plugins/shipglows/`. External users should install from the repository marketplace path; `/home/claude/plugins/shipglows/` remains the local packaging workspace. This plugin route is distinct from the standalone runtime bootstrap: the latter defaults to a runtime-only sparse checkout and only includes the public corpus when `SHIPGLOWS_INSTALL_SURFACE=corpus` is explicitly requested.
 
-The plugin must stay useful without a huge bundle. When a workflow needs the full local ShipGlows corpus, the plugin exposes an explicit sparse checkout route into `${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}`.
+The plugin must stay useful without a huge bundle. When a workflow needs the full local ShipGlows corpus, the plugin exposes an explicit sparse checkout route into `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`.
 
 Current product posture: ShipGlows is single-plugin-first. The public experience should stay `Install ShipGlows` then `$shipglows <instruction>`. Pack generation remains available as internal packaging infrastructure for staging, validation, and future optional distribution only. It is not a commitment to ship many public plugins now.
 
@@ -84,13 +85,13 @@ Current product posture: ShipGlows is single-plugin-first. The public experience
 2. The routing skill answers basic pack, docs, and readiness questions from bundled files.
 3. If the user needs the complete skill/reference corpus, the routing skill points to the bootstrap script.
 4. The bootstrap script clones or updates `https://github.com/commandglows/shipglows.git` with Git sparse checkout enabled.
-5. The checkout target defaults to `${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}`.
+5. The checkout target defaults to `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`.
 6. The sparse checkout includes `skills/`, `templates/`, `tools/`, `shipglows_data/`, `docs/`, `local/`, and `shipglows_data/workflow/bugs/`.
 7. The sparse checkout excludes `site/`, `tui/`, `shipglows_data/workflow/archives/`, generated builds, and dependency directories.
 
 For pack maintenance:
 
-1. Source skills remain the source of truth under `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/`.
+1. Source skills remain the source of truth under `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/`.
 2. `refresh_shipglows_pack.py <pack-id>` rebuilds the staged pack snapshot under `${HOME}/.shipglows/staged-packs/<pack-id>/`.
 3. The staged pack report records hard/review findings and whether the generated candidate is structurally valid.
 4. Staged packs are for internal staging and validation unless a later product decision promotes them to a public install surface.

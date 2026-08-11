@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-07-08"
-updated: "2026-08-05"
+updated: "2026-08-11"
 status: active
 source_skill: 307-sg-skills-refresh
 scope: private-data-repo-contract
@@ -25,8 +25,9 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Operator decision 2026-07-08: durable private ShipGlows data lives in a separate Git repository cloned into ~/.shipglows/private/data."
+  - "Operator decision 2026-07-08: durable private ShipGlows data lives in a separate Git repository; its original local target was ~/.shipglows/private/data."
   - "Operator decision 2026-07-08: the repository remote must be configurable per user and must not be hardcoded in ShipGlows skill doctrine."
+  - "Operator decision 2026-08-11: the repository moves to ~/.shipglows/data as a sibling of runtime and design-inspiration-library."
 next_review: "2026-08-08"
 next_step: "/103-sg-verify private data repo contract"
 ---
@@ -40,7 +41,7 @@ This reference defines the durable private-data repository used by ShipGlows ope
 It exists so skills can distinguish:
 
 - public ShipGlows code and governance under `$SHIPGLOWS_ROOT`
-- durable private operator data under `~/.shipglows/private/data/`
+- durable private operator data under `~/.shipglows/data/`
 - short-retention private operational state that is still worth versioning under the same private repo
 
 ## Canonical Local Paths
@@ -48,20 +49,20 @@ It exists so skills can distinguish:
 Private parent root:
 
 ```text
-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}
+${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}
 ```
 
 Durable private data repo working tree:
 
 ```text
-${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}
+${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}
 ```
 
 This path is a separate Git working tree from both `$SHIPGLOWS_ROOT` and project repositories.
 
 ## Repository Contract
 
-- `~/.shipglows/private/data/` is intended to be a dedicated Git repository.
+- `~/.shipglows/data/` is intended to be a dedicated Git repository.
 - The remote repository must be resolved from configuration, not hardcoded in shared skill doctrine.
 - Preferred config variable:
 
@@ -98,8 +99,8 @@ Do not use this repository for:
 
 ## Separation Rules
 
-- Durable private memory belongs in `~/.shipglows/private/data/`.
-- Short-retention operational state may also live under `~/.shipglows/private/data/` when versioning materially improves operator safety or recovery.
+- Durable private memory belongs in `~/.shipglows/data/`.
+- Short-retention operational state may also live under `~/.shipglows/data/` when versioning materially improves operator safety or recovery.
 - The important distinction is not "versioned vs not versioned" but durable reference state vs short-retention working state.
 - Working-state folders must declare their own cleanup policy so the private repo does not become an unbounded archive.
 - `source-cache/` is pre-assignment working state, not the canonical home of a source-derived asset. Once a project is chosen, write the durable pack, email sequence, or other derivative to that project's governed repository.
@@ -124,6 +125,6 @@ Validate after edits with:
 
 ```bash
 python3 tools/shipglows_metadata_lint.py skills/references/private-data-repo-contract.md skills/references/private-memory-store.md skills/300-sg-docs/SKILL.md skills/302-sg-help/SKILL.md skills/305-sg-init/SKILL.md
-rg -n "private-data-repo-contract|SHIPGLOWS_PRIVATE_DATA_REPO|SHIPGLOWS_PRIVATE_DATA_DIR|\\.shipglows/private/data|mail-intake" skills/references skills/300-sg-docs/SKILL.md skills/302-sg-help/SKILL.md skills/305-sg-init/SKILL.md
+rg -n "private-data-repo-contract|SHIPGLOWS_PRIVATE_DATA_REPO|SHIPGLOWS_PRIVATE_DATA_DIR|\\.shipglows/data|mail-intake" skills/references skills/300-sg-docs/SKILL.md skills/302-sg-help/SKILL.md skills/305-sg-init/SKILL.md
 bash tests/cli/private-data-config.sh
 ```

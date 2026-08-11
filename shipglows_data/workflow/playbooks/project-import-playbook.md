@@ -28,7 +28,7 @@ depends_on:
 supersedes: []
 evidence:
   - "User decision 2026-07-08: add-project should be a docs mode, not a standalone skill."
-  - "User decision 2026-07-08: the private memory root is ~/.shipglows/private/data/."
+  - "User decision 2026-07-08: the private memory root is ~/.shipglows/data/."
 next_review: "2026-07-22"
 next_step: "/300-sg-docs update add-project playbook"
 ---
@@ -55,7 +55,7 @@ Use the same playbook for refreshes of an existing fiche when the project evolve
 The target artifact is one Markdown file per project:
 
 ```text
-~/.shipglows/private/data/projects/<project-slug>.md
+~/.shipglows/data/projects/<project-slug>.md
 ```
 
 The file must stay short, stable, and reviewable.
@@ -105,7 +105,7 @@ Do not invent claims, numbers, outcomes, or positioning the source does not supp
 Create or update one file at:
 
 ```text
-~/.shipglows/private/data/projects/<project-slug>.md
+~/.shipglows/data/projects/<project-slug>.md
 ```
 
 Use the schema from `skills/references/private-memory-store.md`.

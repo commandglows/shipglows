@@ -120,7 +120,7 @@ Minimum local search:
 
 ```bash
 rg -n "productEntitlements|product_entitlements|entitlement ledger|suiteAccess|suite identity|globalUserId|global_user_id" .
-rg -n "product-entitlements-playbook|suite-authentication|unified-suite-authentication|master-auth-playbook" "$HOME/shipglows" "$HOME/shipglows_data" 2>/dev/null
+rg -n "product-entitlements-playbook|suite-authentication|unified-suite-authentication|master-auth-playbook" "$HOME/.shipglows/runtime" "$HOME/shipglows_data" 2>/dev/null
 ```
 
 If a suite ledger already exists, adapt to it instead of recreating it:
@@ -143,7 +143,7 @@ If duplicate local infrastructure is discovered after implementation, do not kee
 
 Use stable internal identifiers. External ids stay references, never replacements.
 
-- `product_id`: stable allowlisted product id such as `socialglowz`, `winflowz_app`, or `winflowz_formation`.
+- `product_id`: stable allowlisted product id such as `communityglows`, `commandglows_app`, or `commandglows_formation`.
 - `plan_id`: stable allowlisted plan id such as `free`, `trial`, `pro`, `lifetime_deal`, or `team`.
 - `source`: normalized event origin. For active suite direct payments this must
   be `stripe`; historical/manual/migration sources may remain audit references

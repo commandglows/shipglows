@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-11"
@@ -26,6 +26,7 @@ supersedes: []
 evidence:
   - "Windows bootstrap branch installation and migration validated on 2026-08-11."
   - "A download-only refresh left the active DevServer stale during the Windows repository-picker fix on 2026-08-11."
+  - "Operator decision 2026-08-11: native Windows and Linux runtime files converge under the hidden .shipglows/runtime directory."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows bootstrap development workflow"
 ---
@@ -36,7 +37,7 @@ Use this reference when an agent changes or tests the native Windows ShipGlows b
 
 ## Canonical Layout
 
-- Installed runtime: `%USERPROFILE%\.shipglows` (internal and hidden; never edit it as source).
+- Installed runtime: `%USERPROFILE%\.shipglows\runtime` (internal and hidden; never edit it as source).
 - Development clone: `%USERPROFILE%\ShipGlows\shipglows`.
 - User projects: `%USERPROFILE%\ShipGlows\<project>`.
 - The clone is the source of truth for edits. The installed runtime is disposable output produced by the bootstrap.
@@ -49,8 +50,8 @@ Do not push an untested installer change directly to `main`. Use a branch whenev
 
 ## Deployment Truth
 
-- `-DownloadOnly` refreshes and validates the staged Windows files under `%USERPROFILE%\.shipglows\cli\windows`. It does not run `cli/windows/install-devserver.ps1` and does not redeploy `%USERPROFILE%\.shipglows\bin`.
-- The `s` wrapper executes `%USERPROFILE%\.shipglows\bin\shipglows-devserver.ps1`. That active file, not the downloaded staging copy, determines the user's behavior.
+- `-DownloadOnly` refreshes and validates the staged Windows files under `%USERPROFILE%\.shipglows\runtime\cli\windows`. It does not run `cli/windows/install-devserver.ps1` and does not redeploy `%USERPROFILE%\.shipglows\runtime\bin`.
+- The `s` wrapper executes `%USERPROFILE%\.shipglows\runtime\bin\shipglows-devserver.ps1`. That active file, not the downloaded staging copy, determines the user's behavior.
 - A runtime-facing fix is installed only after the full bootstrap completes:
 
   ```powershell
@@ -70,7 +71,7 @@ Do not push an untested installer change directly to `main`. Use a branch whenev
    git switch -c agent/<description>
    ```
 
-2. Modify source files in the clone. Never patch `%USERPROFILE%\.shipglows` directly.
+2. Modify source files in the clone. Never patch `%USERPROFILE%\.shipglows\runtime` directly.
 
 3. Run static validation before publishing the branch.
 
@@ -95,9 +96,9 @@ Do not push an untested installer change directly to `main`. Use a branch whenev
 
 6. Verify behavior proportionally to risk. For path or migration changes, verify at minimum:
 
-   - commands such as `s` resolve to `%USERPROFILE%\.shipglows\bin` in a fresh shell;
-   - `%USERPROFILE%\.shipglows\bin\s.cmd` targets the adjacent `shipglows-devserver.ps1`;
-   - the active `%USERPROFILE%\.shipglows\bin\shipglows-devserver.ps1` matches the tested source after normalizing line endings;
+   - commands such as `s` resolve to `%USERPROFILE%\.shipglows\runtime\bin` in a fresh shell;
+   - `%USERPROFILE%\.shipglows\runtime\bin\s.cmd` targets the adjacent `shipglows-devserver.ps1`;
+   - the active `%USERPROFILE%\.shipglows\runtime\bin\shipglows-devserver.ps1` matches the tested source after normalizing line endings;
    - `%USERPROFILE%\.shipglows` retains the Windows `Hidden` attribute;
    - `%USERPROFILE%\ShipGlows` contains projects only;
    - rerunning the installer is idempotent;
@@ -113,7 +114,7 @@ Do not push an untested installer change directly to `main`. Use a branch whenev
    .\install-shipglows.ps1 -Branch main -InstallMode full
    ```
 
-9. Confirm all three deployment layers: the clone is at merged `main`, the staged copy under `%USERPROFILE%\.shipglows\cli\windows` contains the merged change, and the active copy under `%USERPROFILE%\.shipglows\bin` matches it after normalizing line endings. Confirm `s.cmd` launches that active copy, then report the PR, commit, validations, migration effects, and any recoverable backups.
+9. Confirm all three deployment layers: the clone is at merged `main`, the staged copy under `%USERPROFILE%\.shipglows\runtime\cli\windows` contains the merged change, and the active copy under `%USERPROFILE%\.shipglows\runtime\bin` matches it after normalizing line endings. Confirm `s.cmd` launches that active copy, then report the PR, commit, validations, migration effects, and any recoverable backups.
 
 ## Pressure Scenario: `DOWNLOAD-ONLY-NOT-ACTIVE`
 

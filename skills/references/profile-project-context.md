@@ -189,7 +189,7 @@ If one or more context files in the relevant bundle do not exist:
 
 When the active repository is not ShipGlows itself, resolve project context from the current project root first.
 
-When the task is explicitly about ShipGlows governance or internal behavior, resolve from `${SHIPGLOWS_ROOT:-$HOME/shipglows}`.
+When the task is explicitly about ShipGlows governance or internal behavior, resolve from `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`.
 
 ## Maintenance Rule
 

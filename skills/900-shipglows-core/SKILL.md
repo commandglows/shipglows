@@ -8,7 +8,7 @@ argument-hint: "<audit [scope]|build <target>|refresh <target>|packaging [scope]
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows-owned tools, shared references, skill-local references, templates, workflow docs, and internal scripts resolve from `$SHIPGLOWS_ROOT`.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows-owned tools, shared references, skill-local references, templates, workflow docs, and internal scripts resolve from `$SHIPGLOWS_ROOT`.
 Follow the shared `ShipGlows-Owned Tool Preflight` doctrine from `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`. Do not infer ShipGlows-owned tool paths from the current working directory or ask the operator to run the tool while this preflight is still agent-runnable.
 
 ## Chantier Tracking
@@ -33,13 +33,13 @@ Because this skill is itself ShipGlows infrastructure, invoking `900-shipglows-c
 
 When the operator asks to modify the ShipGlows CLI or TUI from another conversation, treat the default edit targets as:
 
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/shipglows.sh`
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/lib.sh`
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/config.sh`
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/install.sh`
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/install-shipglows.ps1`
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/windows/`
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tui/`
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/shipglows.sh`
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/lib.sh`
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/config.sh`
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/install.sh`
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/install-shipglows.ps1`
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/windows/`
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tui/`
 
 It also protects cross-skill invariants such as product governance: declared products should not rely on ad hoc URL discovery, improvised delivery framing, or unsupported public claims when the project corpus is supposed to hold that truth.
 
@@ -129,7 +129,7 @@ For local skill-quality audits:
 4. Run the versioned audit helper:
 
 ```bash
-python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/audit_shipglows_skills.py"
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/audit_shipglows_skills.py"
 ```
 
 5. Treat the helper as baseline evidence only: `hard` findings block completion until fixed or disproven; `review` findings need scenario-first triage; `style` findings do not justify standalone churn.
@@ -176,7 +176,7 @@ For plugin packaging work:
 
 1. Keep `shipglows` as the canonical public plugin and `$shipglows` as its public entrypoint; `shipglows` is a compatibility alias only.
 2. Keep `900-shipglows-core` internal and repo-synced for operators; `shipglows-core` is a deprecated historical pilot, never canonical or public.
-3. Check that public plugin flows do not require `$HOME/shipglows` or `$HOME/plugins/shipglows-core`.
+3. Check that public plugin flows do not require `$HOME/.shipglows/runtime` or `$HOME/plugins/shipglows-core`.
 4. Use sparse bootstrap only after explicit approval because it changes local state and downloads source.
 5. Never package secrets, private transcripts, customer context, dependency directories, local caches, or machine-specific paths.
 

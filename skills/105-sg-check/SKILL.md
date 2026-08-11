@@ -7,7 +7,7 @@ argument-hint: [fix|nofix]
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 Primary artifact type: `specialist-workflow`.
 
@@ -55,7 +55,7 @@ Treat this skill as a practical confidence pass, not as proof that the product i
 
 Before finalizing, load `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` when a check fails or is blocked so the failure maps to a specific owner and impact.
 
-Before choosing or interpreting checks, read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` and inspect `CLAUDE.md` or `SHIPGLOWS.md`.
+Before choosing or interpreting checks, read `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/project-development-mode.md` and inspect `CLAUDE.md` or `SHIPGLOWS.md`.
 - In `local` mode, local checks are the expected technical confidence pass.
 - In `vercel-preview-push` mode, local checks are pre-push confidence only. Apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md` before claiming preview/browser/manual validation.
 - In `hybrid` mode, local checks are valid for unit/static work, but hosted surfaces still need `/005-sg-ship` -> `/405-sg-prod` before remote validation.
@@ -121,8 +121,8 @@ Prefer scoped checks for low-risk edits. Do not default to a full sequence when 
 Never run full framework-heavy checks purely by habit.
 
 **ShipGlows skill runtime visibility** (when the scope touches `skills/*/SKILL.md`, new/renamed skills, or reported Claude/Codex skill drift):
-- Check one skill: `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh --check --skill <name>`
-- Check all source skills: `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh --check --all`
+- Check one skill: `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/shipglows_sync_skills.sh --check --skill <name>`
+- Check all source skills: `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/shipglows_sync_skills.sh --check --all`
 - Report missing/stale/non-symlink entries; do not repair unless the user asked for fix mode and the current task owns runtime visibility repair.
 
 Before concluding that the project is "green", explicitly note any major gap in coverage:

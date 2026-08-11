@@ -87,7 +87,7 @@ shipglows_private_data_load_config() {
 
 shipglows_private_data_init() {
     local default_private_dir
-    default_private_dir="${SHIPGLOWS_PRIVATE_DIR:-${SHIPGLOWS_STATE_DIR:-$HOME/.shipglows}/private}"
+    default_private_dir="${SHIPGLOWS_PRIVATE_DIR:-${SHIPGLOWS_STATE_DIR:-$HOME/.shipglows}}"
     export SHIPGLOWS_PRIVATE_DIR="$default_private_dir"
 
     shipglows_private_data_load_config || return 1

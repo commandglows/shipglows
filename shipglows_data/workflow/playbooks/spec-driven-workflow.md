@@ -506,13 +506,13 @@ Skill-aligned artifact templates live in `templates/`. They should encode the st
 Validate metadata with:
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-${SHIPGLOWS_ROOT:-$HOME/shipglows}}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}}"
 "$SHIPGLOWS_ROOT/tools/shipglows_metadata_lint.py"
 ```
 
 The linter is intentionally dependency-free. It checks the default ShipGlows artifact locations (`docs/`, `shipglows_data/`, `AGENT.md`, plus legacy root artifact names as migration violations) and can also receive explicit files or folders. Root legacy files such as `BUSINESS.md`, `CONTEXT.md`, `CONTENT_MAP.md`, or `GUIDELINES.md` are not compliant final locations in project repos.
 
-When a skill runs from a project repository, ShipGlows-owned docs, tools, references, templates, and skill-local `references/*` still resolve from `${SHIPGLOWS_ROOT:-${SHIPGLOWS_ROOT:-$HOME/shipglows}}`. Only project artifacts and source files resolve from the current project root.
+When a skill runs from a project repository, ShipGlows-owned docs, tools, references, templates, and skill-local `references/*` still resolve from `${SHIPGLOWS_ROOT:-${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}}`. Only project artifacts and source files resolve from the current project root.
 
 This decision-contract layer is wired into the active ShipGlows workflow: agent routing (`AGENT.md`), project orientation (`shipglows_data/technical/context.md`), documentation doctrine (`README.md`, this file, `shipglows_data/technical/metadata-migration-guide.md`), the `300-sg-docs` skill, and `tools/shipglows_metadata_lint.py`.
 

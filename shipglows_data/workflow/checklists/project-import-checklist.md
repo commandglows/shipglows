@@ -32,7 +32,7 @@ next_step: "/300-sg-docs update project-import checklist"
 
 - [ ] URL or repo is available
 - [ ] Source type is known or can be resolved quickly
-- [ ] Private memory root is available at `~/.shipglows/private/data/`
+- [ ] Private memory root is available at `~/.shipglows/data/`
 
 ## Import
 

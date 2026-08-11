@@ -52,8 +52,8 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         self.assertIn("python3 -m unittest tools.test_900_shipglows_core_contract", self.text)
 
     def test_windows_installer_work_loads_the_canonical_handoff(self) -> None:
-        self.assertIn("`${SHIPGLOWS_ROOT:-$HOME/shipglows}/install-shipglows.ps1`", self.text)
-        self.assertIn("`${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/windows/`", self.text)
+        self.assertIn("`${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/install-shipglows.ps1`", self.text)
+        self.assertIn("`${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/windows/`", self.text)
         self.assertIn(
             "$SHIPGLOWS_ROOT/skills/references/windows-bootstrap-development-workflow.md",
             self.text,
@@ -65,8 +65,8 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
     def test_windows_handoff_distinguishes_staging_from_active_runtime(self) -> None:
         for rule in (
             "-DownloadOnly",
-            r"%USERPROFILE%\.shipglows\cli\windows",
-            r"%USERPROFILE%\.shipglows\bin\shipglows-devserver.ps1",
+            r"%USERPROFILE%\.shipglows\runtime\cli\windows",
+            r"%USERPROFILE%\.shipglows\runtime\bin\shipglows-devserver.ps1",
             "-InstallMode full",
             "DOWNLOAD-ONLY-NOT-ACTIVE",
             "normalizing line endings",

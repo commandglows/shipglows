@@ -6,7 +6,7 @@ argument-hint: <project or feature with access, plans, provider events, or suppo
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -127,7 +127,7 @@ Validate required scenarios `SPE-001` to `SPE-010` by ensuring the contract and 
 Run targeted checks for this contract:
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 rg -n "product-entitlements|product_entitlements|suite ledger|provider event|activation code|snapshot|mirror|backend authorization|600-sg-local-cloud-sync|109-sg-auth-debug|scenario-first" "$SHIPGLOWS_ROOT/skills/601-sg-product-entitlements/SKILL.md"
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
 tools/shipglows_sync_skills.sh --check --skill 601-sg-product-entitlements

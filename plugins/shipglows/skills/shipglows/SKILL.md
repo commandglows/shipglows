@@ -29,7 +29,7 @@ This plugin is the distribution nucleus. It must not assume that the full privat
 Prefer the local source tree only for development audits:
 
 ```text
-${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}
+${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}
 ```
 
 If that path is missing, explain that the plugin is installed but local source-tree packaging checks cannot run.
@@ -106,7 +106,7 @@ For users who want the complete ShipGlows corpus, prefer the complete-corpus set
 scripts/bootstrap_shipglows_repo.sh
 ```
 
-Resolve this script relative to the plugin root. It creates a sparse checkout of the public ShipGlows repository into `${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}`.
+Resolve this script relative to the plugin root. It creates a sparse checkout of the public ShipGlows repository into `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`.
 
 When the operator asks about docs links, inspect:
 
@@ -185,7 +185,7 @@ Use the complete-corpus setup script only when:
 Default target:
 
 ```text
-${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}
+${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}
 ```
 
 Default source:

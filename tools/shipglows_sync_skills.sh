@@ -5,7 +5,7 @@ MODE="check"
 SCOPE=""
 RUNTIME="all"
 TARGET_HOME="${HOME:-}"
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-${SHIPGLOWS_ROOT:-${HOME:-}/shipglows}}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-${HOME:-}/.shipglows/runtime}"
 BACKUP_EXISTING=0
 SKILL_NAME=""
 CLEAN_STALE=0
@@ -25,7 +25,7 @@ Options:
   --runtime claude|codex|all      Runtime directory to check or repair (default: all)
   --catalog public|expert         Public métier skills (default) or all internal engines
   --target-home <path>            Home directory containing .claude/.codex (default: $HOME)
-  --shipglows-root <path>         ShipGlows repository root (default: $SHIPGLOWS_ROOT or $HOME/shipglows)
+  --shipglows-root <path>         ShipGlows repository root (default: $SHIPGLOWS_ROOT or $HOME/.shipglows/runtime)
   --shipglows-root <path>          Legacy alias for --shipglows-root
   --backup-existing               Move non-symlink targets aside before repair
   --clean-stale                   Remove stale symlinks in runtime skill dirs that point into ShipGlows skills

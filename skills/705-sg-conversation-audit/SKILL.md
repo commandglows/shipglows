@@ -8,7 +8,7 @@ argument-hint: "[default|latest|path <file-or-dir>|export shipglows|--trace <rol
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`).
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`).
 
 Canonical paths for this skill:
 
@@ -91,7 +91,7 @@ $900-shipglows-core audit local ShipGlows skills for the skill-contract gap foun
 If the skill is not available in the current session but the local ShipGlows source exists, run the versioned audit tool directly:
 
 ```bash
-python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/audit_shipglows_skills.py"
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/audit_shipglows_skills.py"
 ```
 
 Scope the follow-through to read-only analysis. Do not rewrite ShipGlows skills from this skill unless the operator explicitly asks for an edit pass.

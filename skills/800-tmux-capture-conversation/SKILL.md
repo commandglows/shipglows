@@ -8,7 +8,7 @@ argument-hint: [optional --tab N, title, destination]
 
 ## Canonical Paths
 
-Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`) if present. Resolve this skill's script from `$SHIPGLOWS_ROOT/skills/800-tmux-capture-conversation/scripts/`.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`) if present. Resolve this skill's script from `$SHIPGLOWS_ROOT/skills/800-tmux-capture-conversation/scripts/`.
 
 ## Chantier Tracking
 
@@ -47,7 +47,7 @@ Do not accept the tmux window name as the final title when it is generic (`node`
 
 Use `--preset shipglows` or pass `000-shipglows` as the first positional preset for the ShipGlows-owned root. The legacy `docs` alias remains accepted only for compatibility and never creates a root `docs/` directory.
 
-The `000-shipglows` preset is a protected ShipGlows-owned evidence route. It must resolve to `${SHIPGLOWS_ROOT:-$HOME/shipglows}/shipglows_data/workflow/conversations/`, not to the current project's governance root. If an explicit `--destination` for the `000-shipglows` preset points outside that directory, including a relative `shipglows_data/workflow/conversations/...` path from a product repo, the script must fail before writing. Use the legacy `docs` alias for intentionally project-local conversation notes; it still writes under the project's canonical workflow corpus.
+The `000-shipglows` preset is a protected ShipGlows-owned evidence route. It must resolve to `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/shipglows_data/workflow/conversations/`, not to the current project's governance root. If an explicit `--destination` for the `000-shipglows` preset points outside that directory, including a relative `shipglows_data/workflow/conversations/...` path from a product repo, the script must fail before writing. Use the legacy `docs` alias for intentionally project-local conversation notes; it still writes under the project's canonical workflow corpus.
 
 When no destination is supplied, prefer the project that the captured conversation is about, not the shell's incidental current directory. Use this priority:
 
@@ -62,7 +62,7 @@ For `docs` or no preset:
 - create that directory if needed.
 - write directly under `$HOME` only when the transcript has no identifiable project and the command was actually run from `$HOME`.
 
-For `000-shipglows` preset, resolve `${SHIPGLOWS_ROOT:-$HOME/shipglows}` and write under `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/`.
+For `000-shipglows` preset, resolve `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}` and write under `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/`.
 
 `--destination` overrides preset inference only when it stays valid for that preset. For `000-shipglows`, explicit destinations outside `$SHIPGLOWS_ROOT/shipglows_data/workflow/conversations/` are blocked.
 
@@ -92,21 +92,21 @@ Use `scripts/capture_tmux_conversation.sh` for the deterministic export.
 Preview inferred values without writing:
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 "$SHIPGLOWS_ROOT/skills/800-tmux-capture-conversation/scripts/capture_tmux_conversation.sh" --dry-run
 ```
 
 Capture the current pane after confirmation:
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 "$SHIPGLOWS_ROOT/skills/800-tmux-capture-conversation/scripts/capture_tmux_conversation.sh" --title "Conversation Codex" --destination ./conversation-codex.md --yes
 ```
 
 Capture another tab after confirmation:
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 "$SHIPGLOWS_ROOT/skills/800-tmux-capture-conversation/scripts/capture_tmux_conversation.sh" --tab 2 --title "Conversation Codex" --destination ./conversation-codex.md --yes
 ```
 

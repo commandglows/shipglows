@@ -115,6 +115,36 @@ run_case() {
   CASE_CALLS="$calls"
 }
 
+run_default_layout_case() {
+  local fixture="$1"
+  local output="$fixture/output"
+  local calls="$fixture/calls"
+  : > "$calls"
+  : > "$fixture/git-calls"
+  mkdir -p "$fixture/home/.shipglows/private/data/.git"
+  mkdir -p "$fixture/home/.shipglows/private/design-inspiration-library/.git"
+  mkdir -p "$fixture/home/.shipglows/runtime/caddy"
+  printf 'legacy-caddy-state\n' > "$fixture/home/.shipglows/runtime/caddy/Caddyfile"
+  mkdir -p "$fixture/home/.config/shipglows"
+  printf 'SHIPGLOWS_PRIVATE_DATA_DIR=%s\n' "$fixture/home/.shipglows/private/data" > "$fixture/home/.config/shipglows/private-data.env"
+
+  set +e
+  env -i \
+    PATH="$fixture/bin:/usr/bin:/bin" \
+    HOME="$fixture/home" \
+    USER="tester" \
+    TEST_USER="tester" \
+    TEST_UID=2000 \
+    TEST_CALLS="$calls" \
+    TEST_GIT_CALLS="$fixture/git-calls" \
+    SHIPGLOWS_INSTALL_MODE=local \
+    /bin/sh "$BOOTSTRAP" > "$output" 2>&1
+  CASE_STATUS=$?
+  set -e
+  CASE_OUTPUT="$output"
+  CASE_CALLS="$calls"
+}
+
 termux_fixture="$(make_fixture termux)"
 run_case "$termux_fixture" TEST_UID=2000 TERMUX_VERSION=0.118 PREFIX=/data/data/com.termux/files/usr
 if [ "$CASE_STATUS" -eq 0 ]; then pass "Termux bootstrap exits successfully"; else fail "Termux bootstrap exits successfully"; fi
@@ -127,6 +157,32 @@ run_case "$root_fixture" TEST_UID=0 USER=root TEST_USER=root
 if [ "$CASE_STATUS" -eq 0 ]; then pass "Root bootstrap exits successfully"; else fail "Root bootstrap exits successfully"; fi
 assert_contains "$CASE_OUTPUT" "Mode d'installation: full" "Root auto-selects full mode"
 assert_contains "$CASE_CALLS" "/cli/install.sh" "Root delegates to full installer"
+
+default_layout_fixture="$(make_fixture default-layout)"
+run_default_layout_case "$default_layout_fixture"
+if [ "$CASE_STATUS" -eq 0 ]; then pass "Default canonical layout migration succeeds"; else fail "Default canonical layout migration succeeds"; fi
+assert_contains "$CASE_CALLS" "/.shipglows/runtime/local/install.sh" "Default runtime delegates from the canonical hidden path"
+if [ -d "$default_layout_fixture/home/.shipglows/runtime/.git" ] && [ ! -e "$default_layout_fixture/home/shipglows" ]; then
+  pass "Visible legacy runtime moves to .shipglows/runtime"
+else
+  fail "Visible legacy runtime moves to .shipglows/runtime"
+fi
+if [ -f "$default_layout_fixture/home/.shipglows/state/caddy/Caddyfile" ] && grep -Fq 'legacy-caddy-state' "$default_layout_fixture/home/.shipglows/state/caddy/Caddyfile"; then
+  pass "Mutable Caddy state moves out of the canonical runtime root"
+else
+  fail "Mutable Caddy state moves out of the canonical runtime root"
+fi
+if [ -d "$default_layout_fixture/home/.shipglows/data/.git" ] && [ ! -e "$default_layout_fixture/home/.shipglows/private/data" ]; then
+  pass "Private data moves beside the runtime"
+else
+  fail "Private data moves beside the runtime"
+fi
+if [ -d "$default_layout_fixture/home/.shipglows/design-inspiration-library/.git" ] && [ ! -e "$default_layout_fixture/home/.shipglows/private/design-inspiration-library" ]; then
+  pass "Design library moves beside the runtime"
+else
+  fail "Design library moves beside the runtime"
+fi
+assert_contains "$default_layout_fixture/home/.config/shipglows/private-data.env" "SHIPGLOWS_PRIVATE_DATA_DIR=$default_layout_fixture/home/.shipglows/data" "Configured private-data path migrates with the directory"
 
 local_fixture="$(make_fixture explicit-local)"
 run_case "$local_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local
@@ -211,6 +267,8 @@ assert_not_contains "$invalid_surface_fixture/git-calls" "git:" "Invalid surface
 
 assert_contains "$REPO_ROOT/cli/install.sh" "SHIPGLOWS_INSTALL_SKILL_CORPUS" "CLI installer gates skill synchronization explicitly"
 assert_contains "$REPO_ROOT/cli/install.sh" "Installer le corpus public de skills" "CLI installer prompts for the public skill corpus"
+assert_contains "$BOOTSTRAP" 'SHIPGLOWS_DIR="$INSTALL_HOME/.shipglows/runtime"' "Linux runtime defaults under the hidden ShipGlows root"
+assert_contains "$BOOTSTRAP" 'migrate_legacy_shipglows_layout' "Linux bootstrap migrates the previous visible and private layouts"
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
 test "$failed" -eq 0

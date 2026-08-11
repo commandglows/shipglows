@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
@@ -67,7 +67,7 @@ If closure bookkeeping is still the next unresolved owner, stay with `104-sg-end
 
 `005-sg-ship` has two modes.
 
-Before choosing mode, read `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` and inspect the project-local `## ShipGlows Development Mode` section in `CLAUDE.md` or `SHIPGLOWS.md`. This does not change quick vs full shipping, but it changes the required next action after a successful push.
+Before choosing mode, read `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/project-development-mode.md` and inspect the project-local `## ShipGlows Development Mode` section in `CLAUDE.md` or `SHIPGLOWS.md`. This does not change quick vs full shipping, but it changes the required next action after a successful push.
 
 ### Mode 1 — Quick ship (default)
 
@@ -221,7 +221,7 @@ git add -- path/to/file path/to/other-file
 
 When shipping changes that create, rename, or materially update `skills/*/SKILL.md`, include a pre-commit runtime visibility check in the practical check set:
 ```bash
-${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh --check --skill <name>
+${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/shipglows_sync_skills.sh --check --skill <name>
 ```
 Use `--check --all` for broad skill visibility drift. Do not duplicate symlink repair logic in `005-sg-ship`; route repair to the shared helper or back to the owning lifecycle skill.
 
