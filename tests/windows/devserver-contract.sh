@@ -72,6 +72,7 @@ rg -n 'ExecutionPolicy Bypass -File "%~dp0shipglows-devserver\.ps1" %\*' "$INSTA
 rg -n 'Remove-SgObsoleteProfileCommand|Removed the obsolete ShipGlows profile command|ShipGlows DevServer \(managed\)' "$INSTALLER"
 ! rg -n 'function shipglows-dev \{ & ' "$INSTALLER"
 rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh repo list --limit 200|gh repo clone' "$ENTRYPOINT"
+rg -n '\$parsedRepositories = \$json \| ConvertFrom-Json|\$repositories = @\(\$parsedRepositories\)|Windows PowerShell 5\.1 preserves a JSON top-level array' "$ENTRYPOINT"
 ! rg -n 'gh auth token|GH_TOKEN|GITHUB_TOKEN' "$ENTRYPOINT" "$INSTALLER"
 ! rg -n 'WSL est disponible|Lancement de la configuration locale Windows|Utilise ensuite|Pour les projets locaux' "$BOOTSTRAP"
 ! rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"
