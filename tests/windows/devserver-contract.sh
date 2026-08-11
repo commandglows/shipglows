@@ -26,6 +26,8 @@ rg -n 'newline-delimited stdin|\$lines -join \[Environment\]::NewLine.*\| & \$gu
 rg -n -- "--item\.foreground.*255|--item\.background.*0|--cursor\.foreground.*0|--cursor\.background.*212|--selected\.foreground.*0|--selected\.background.*212" "$ENTRYPOINT"
 rg -n 'ValueFromRemainingArguments|Resolve-SgAction|Show-SgShortcutHelp' "$ENTRYPOINT"
 rg -n "'m n' = 'navigate'|'m r' = 'select-restart'|'m t' = 'select-stop'|'m o' = 'stop-all'|'m l' = 'select-logs'|'e'   = 'select-start'" "$ENTRYPOINT"
+rg -n "'u'   = 'update'|'update' \{ Invoke-SgUpdate \}|s u      Update ShipGlows" "$ENTRYPOINT"
+rg -n 'raw\.githubusercontent\.com/commandglows/shipglows/main/install-shipglows\.ps1|Parser.*ParseFile|InstallMode full -ShipglowsDir|shipglows-update-' "$ENTRYPOINT"
 rg -n "'select-start'|'select-stop'|'select-restart'|'select-logs'" "$ENTRYPOINT"
 rg -n "Unknown Windows shortcut path:.*Run 's h'|exit 2" "$ENTRYPOINT"
 rg -n 'Push-Location -LiteralPath \$entry\.path|NoProfile -ExecutionPolicy Bypass -NoExit|Type exit to return' "$ENTRYPOINT"

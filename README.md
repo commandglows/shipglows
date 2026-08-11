@@ -230,7 +230,9 @@ After a full install, use `s` (or `shipglows-dev`) for the project dashboard.
 The PATH-backed `.cmd` launchers do not depend on the PowerShell profile, so
 they also work on managed hosts that block profile scripts. Supported nested
 menu paths include `s d`, `s e`, `s m r`, `s m t`, `s m o`, `s m l`, and
-`s m n`; run `s h` for the Windows list. When their short names are unclaimed,
+`s m n`; run `s h` for the Windows list. Use `s u` (or `s update`) to download,
+syntax-check, and run the current official Windows bootstrap instead of
+re-running a potentially stale local installer. When their short names are unclaimed,
 the installer also provides `c` (Claude), `co` (Codex), `cor` (`codex resume`),
 `oc` (OpenCode), `kc` (KiloCode), `re` (open a freshly reloaded PowerShell),
 and `ch` (clear PowerShell history and open a clean session). npm-family and agent commands receive

@@ -174,6 +174,11 @@ PowerShell in the selected registered project because a subprocess cannot
 change the parent shell's working directory; `exit` returns to the original
 shell. Unsupported Linux server paths fail with guidance instead of being
 silently remapped.
+The explicit `s u` / `s update` path downloads the public Windows bootstrap
+over HTTPS, validates its PowerShell syntax, and runs full mode against the
+canonical local ShipGlows directory. This is the supported refresh path; the
+already-installed `cli/windows/install-devserver.ps1` only copies its current
+local source and must not be treated as a network updater.
 Flutter is launched in a visible process because PowerShell 5.1 does not
 provide a tmux-equivalent session manager.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and

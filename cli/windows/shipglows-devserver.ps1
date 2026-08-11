@@ -18,7 +18,7 @@ Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','start','stop','restart','register','clone','logs','open','stop-all','refresh','navigate','help','exit')
+    $namedActions = @('menu','dashboard','start','stop','restart','register','clone','logs','open','stop-all','refresh','navigate','update','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -31,6 +31,7 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
         'm o' = 'stop-all'
         'm l' = 'select-logs'
         'm n' = 'navigate'
+        'u'   = 'update'
         'h'   = 'help'
         'x'   = 'exit'
     }
@@ -48,6 +49,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s m o    Stop all projects'
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
+    Write-Host '  s u      Update ShipGlows from the official repository'
     Write-Host '  s         Interactive menu'
     Write-Host ''
     Write-Host 'Linux-only Flox, PM2 and Caddy shortcuts are intentionally unavailable.' -ForegroundColor DarkGray
@@ -89,6 +91,7 @@ $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
 $git = Get-SgApplication 'git.exe' @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe'))
 $gh = Get-SgApplication 'gh.exe' @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe'))
+$curl = Get-SgApplication 'curl.exe' @((Join-Path $env:WINDIR 'System32\curl.exe'))
 
 function Get-SgSelectedIndex([string[]]$Labels, [string]$Selected) {
     for ($index = 0; $index -lt $Labels.Count; $index++) {
@@ -243,6 +246,43 @@ function Invoke-Navigate {
     finally { Pop-Location }
 }
 
+function Invoke-SgUpdate {
+    if (-not $curl) { throw 'curl.exe is unavailable. Download install-shipglows.ps1 from the official ShipGlows repository.' }
+
+    $installerUrl = 'https://raw.githubusercontent.com/commandglows/shipglows/main/install-shipglows.ps1'
+    $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("shipglows-update-" + [guid]::NewGuid().ToString('N'))
+    $installerPath = Join-Path $tempRoot 'install-shipglows.ps1'
+    $shipglowsDir = Split-Path -Parent $PSScriptRoot
+
+    try {
+        [void][IO.Directory]::CreateDirectory($tempRoot)
+        Write-SgInfo 'Downloading the current ShipGlows Windows installer...'
+        & $curl --proto '=https' --tlsv1.2 -fsSL $installerUrl -o $installerPath
+        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $installerPath -PathType Leaf)) {
+            throw 'ShipGlows installer download failed.'
+        }
+
+        $parseTokens = $null
+        $parseErrors = $null
+        [void][System.Management.Automation.Language.Parser]::ParseFile(
+            $installerPath,
+            [ref]$parseTokens,
+            [ref]$parseErrors
+        )
+        if ($parseErrors -and $parseErrors.Count -gt 0) {
+            throw 'The downloaded ShipGlows installer failed PowerShell syntax validation.'
+        }
+
+        & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $installerPath -InstallMode full -ShipglowsDir $shipglowsDir
+        if ($LASTEXITCODE -ne 0) { throw 'ShipGlows update failed.' }
+        Write-SgInfo 'Update completed. Run s again to use the updated CLI.'
+    } finally {
+        if (Test-Path -LiteralPath $tempRoot) {
+            Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
 function Invoke-Menu {
     $menuItems = @(
         '1  Clone a repository',
@@ -254,6 +294,7 @@ function Invoke-Menu {
         '7  Open in browser',
         '8  Stop all projects',
         '9  Refresh',
+        'u  Update ShipGlows',
         '0  Exit'
     )
     while ($true) {
@@ -263,7 +304,7 @@ function Invoke-Menu {
             if (-not $selected) { return }
             $choice = $selected.Substring(0,1)
         } else {
-            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Refresh  0) Exit'
+            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Refresh  u) Update  0) Exit'
             $choice = Read-Host 'Choice'
         }
         try {
@@ -277,6 +318,7 @@ function Invoke-Menu {
                 '7' { $entry = Get-SelectedProject; if ($entry -and $entry.port) { Start-Process "http://127.0.0.1:$($entry.port)" } }
                 '8' { foreach ($entry in @(Read-SgRegistry $config).projects) { Stop-SgProject $config $entry.path } }
                 '9' { Reconcile-SgRegistry $config | Out-Null }
+                'u' { Invoke-SgUpdate; return }
                 '0' { return }
                 default { Write-SgWarn 'Unknown choice.' }
             }
@@ -303,6 +345,7 @@ try {
         'select-restart' { $entry = Get-SelectedProject; if ($entry) { Stop-SgProject $config $entry.path; Start-SgProject $config $entry.path $Port | Out-Null } }
         'select-logs' { $entry = Get-SelectedProject; if ($entry) { Invoke-Logs $entry } }
         'navigate' { Invoke-Navigate }
+        'update' { Invoke-SgUpdate }
         'help' { Show-SgShortcutHelp }
         'exit' { return }
     }
