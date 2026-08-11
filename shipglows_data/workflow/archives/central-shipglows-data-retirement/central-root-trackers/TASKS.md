@@ -1737,7 +1737,6 @@
 | ✅ | Create Firebase CLI/OIDC workflow for Firestore rules/indexes deploy in hosted CI | ✅ done — run `25636532417` Firestore job `75249317806` green, revalidated after IAM hardening in run `25636936089` Firestore job `75250395805` |
 | ✅ | Archive Supabase target docs and point active backend execution to Firebase/backend-agnostic spec | ✅ done |
 | ✅ | Reorganize root migration/metadata docs into `shipglows_data` canonical structure and migrate path references | ✅ done |
-| ✅ | Rename the product/runtime identity from VoiceFlowz to WinFlowzApp across app packages, docs, specs, and trackers | ✅ done — commit `bd81825` |
 | 🟠 | Detach Supabase runtime target path (`task 7`) while preserving legacy compile compatibility until parity decision | ✅ done — Supabase removed from active bootstrap/providers/diagnostics; legacy adapters/tests kept for compatibility |
 | 🟠 | Build Android IME WinFlowzApp Keyboard end-to-end: native keyboard, Settings bridge, privacy gate, clipboard, media, schema, docs, Android device QA | 🔄 in progress — custom swipe-corner keyboard, Settings bridge, privacy gate, native panels, docs, persistent local clipboard fallback/search/copy and Dart checks implemented; Android physical-device clipboard/IME QA still required |
 | ✅ | Run the required Android-current manual platform pass and document non-Android limits | ✅ done — Android remains the only current runtime target; capability/permission limits documented; web local speech disabled; Android real-device QA remains tracked under overlay/IME tasks |

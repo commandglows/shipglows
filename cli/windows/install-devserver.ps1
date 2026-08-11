@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$ShipglowsDir = (Join-Path $env:USERPROFILE 'shipglows'),
-    [string]$Workspace = (Join-Path $env:USERPROFILE 'ShipGlows\workspace'),
+    [string]$ShipglowsDir = (Join-Path $env:USERPROFILE '.shipglows'),
+    [string]$Workspace = (Join-Path $env:USERPROFILE 'ShipGlows'),
     [switch]$SkipProfile
 )
 
@@ -9,11 +9,16 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $sourceDir = Join-Path $ShipglowsDir 'cli\windows'
-$runtimeDir = Join-Path $env:USERPROFILE 'ShipGlows\bin'
+$runtimeDir = Join-Path $ShipglowsDir 'bin'
 $gumVersion = '0.17.0'
 $gumSha256 = 'B2BE80531C6BABC8D4E0E6CA95773D58118A2E1582AE006AACE08DBC55503072'
 New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
 New-Item -ItemType Directory -Path $Workspace -Force | Out-Null
+$defaultHiddenRoot = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.shipglows')).TrimEnd('\')
+if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -eq $defaultHiddenRoot) {
+    $installRootItem = Get-Item -LiteralPath $ShipglowsDir -Force
+    $installRootItem.Attributes = $installRootItem.Attributes -bor [IO.FileAttributes]::Hidden
+}
 
 function Write-SgInstallerWarning([string]$Message) {
     Write-Host "WARNING: $Message" -ForegroundColor Yellow
@@ -40,6 +45,29 @@ function Add-SgUserPathEntry([string]$Directory) {
     $nextPath = @($Directory) + $remainingEntries
     [Environment]::SetEnvironmentVariable('Path', ($nextPath -join ';'), 'User')
     Update-SgProcessPath
+}
+
+function Remove-SgLegacyVisibleRuntime {
+    if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -ne $defaultHiddenRoot) { return }
+    $legacyRoot = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE 'ShipGlows')).TrimEnd('\')
+    $legacyBin = Join-Path $legacyRoot 'bin'
+    $currentUserPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+    $keptPathEntries = @($currentUserPath -split ';' | Where-Object {
+        -not [string]::IsNullOrWhiteSpace($_) -and
+        -not ([IO.Path]::GetFullPath($_).TrimEnd('\') -eq $legacyBin)
+    })
+    [Environment]::SetEnvironmentVariable('Path', ($keptPathEntries -join ';'), 'User')
+    foreach ($technicalDirectory in @('bin', 'cli', 'local')) {
+        $legacyPath = Join-Path $legacyRoot $technicalDirectory
+        if (Test-Path -LiteralPath $legacyPath) {
+            Remove-Item -LiteralPath $legacyPath -Recurse -Force
+            Write-Host "Removed legacy visible ShipGlows runtime: $legacyPath" -ForegroundColor DarkGray
+        }
+    }
+    $legacyWorkspace = Join-Path $legacyRoot 'workspace'
+    if ((Test-Path -LiteralPath $legacyWorkspace) -and -not (Get-ChildItem -LiteralPath $legacyWorkspace -Force | Select-Object -First 1)) {
+        Remove-Item -LiteralPath $legacyWorkspace -Force
+    }
 }
 
 function Add-SgRuntimeToUserPath { Add-SgUserPathEntry $runtimeDir }
@@ -557,6 +585,7 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     }
 }
 
+Remove-SgLegacyVisibleRuntime
 Remove-SgObsoleteProfileCommand
 Install-SgCommandWrappers
 [void](Install-SgGum)

@@ -55,9 +55,8 @@ depends_on:
 supersedes: []
 evidence:
   - "Local PATH check: command -v flutter and command -v dart returned no global binary; command -v flox returned /usr/bin/flox."
-  - "Local Flox check: /home/ubuntu/voiceflowz has flutter.pkg-path = \"flutter\" and flox activate -- flutter --version returns Flutter 3.41.5 / Dart 3.11.3."
-  - "Current Flutter projects found under /home/ubuntu: contentflow_app, shipglows_app, tubeflow_app, voiceflowz."
-  - "contentflow_app and shipglows_app have .flox manifests but no flutter or dart runtime entry; tubeflow_app has no .flox manifest; voiceflowz has flutter configured."
+  - "Current Flutter projects found under /home/ubuntu include contentflow_app, shipglows_app, and tubeflow_app."
+  - "contentflow_app and shipglows_app have .flox manifests but no flutter or dart runtime entry; tubeflow_app has no .flox manifest."
   - "lib.sh detects pubspec.yaml and classifies Flutter projects, but init_flox_env currently warns when global flutter is absent instead of installing Flutter into Flox."
   - "Flox official docs say flox install is transactional, supports -d for a target environment, allows package@version constraints, and stores package descriptors in manifest [install] entries."
   - "Local Flox 1.8.1 smoke: duplicate install of hello into a temp env exited successfully with a warning that package id hello was already installed."
@@ -107,11 +106,8 @@ When ShipGlows detects a Dart or Flutter project through `pubspec.yaml`, startin
 
 ShipGlows already uses Flox as the runtime isolation layer, and it already detects Flutter projects from `pubspec.yaml`. But the Flutter branch in `init_flox_env` only checks the global `PATH`; when `flutter` is absent globally, it prints a warning and points to `sg -> Install SDK`. That path solves the current machine, not the durable per-project environment.
 
-The local workspace shows the mismatch clearly:
-
-- `/home/ubuntu/voiceflowz` has Flutter in Flox and `flox activate -- flutter --version` works.
-- `/home/ubuntu/contentflow/contentflow_app` has `.flox` but no Flutter runtime.
-- `/home/ubuntu/shipglows_app` has `.flox` but no Flutter runtime.
+The local workspace shows the mismatch clearly: projects can have a `.flox`
+manifest without a Flutter runtime entry.
 - `/home/ubuntu/tubeflow_flutter/tubeflow_app` has no `.flox` manifest.
 - Global `flutter` and `dart` are absent.
 
@@ -174,7 +170,6 @@ For the current local projects, the implementation should validate the repair pa
   - Bash
   - Flox local version observed: `1.8.1`
   - Flox catalog currently exposes `flutter@3.41.6-sdk-links`, `flutter@3.41.5-sdk-links`, and related historical versions.
-  - Local proven package: `flutter@3.41.5-sdk-links` in `/home/ubuntu/voiceflowz`.
 - Official fresh docs:
   - `fresh-docs checked`
   - Context7 source: `/websites/flox_dev` official Flox docs

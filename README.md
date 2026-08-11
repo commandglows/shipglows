@@ -221,9 +221,12 @@ When Codex is available, Windows also asks whether to keep the recommended
 workspace permissions, enable full access without approval prompts, or preserve
 the existing configuration. Automated installs can set
 `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep`.
-It clones or registers repositories under `%USERPROFILE%\ShipGlows\workspace`,
+It clones or registers repositories directly under `%USERPROFILE%\ShipGlows`,
 starts them on localhost ports, and keeps a recoverable registry under
 `%LOCALAPPDATA%`. No tunnel is needed for projects running on the Shadow.
+The internal Windows runtime is installed under the hidden
+`%USERPROFILE%\.shipglows` directory; user projects remain separated under
+`%USERPROFILE%\ShipGlows`.
 For automation, pass `-InstallMode local` or `-InstallMode full`; a
 non-interactive call without a mode preserves the local-tunnel fallback. This
 is a local development runtime, not public hosting; Flox, PM2, Caddy, autossh,

@@ -12,6 +12,7 @@ BUILD_PLAYBOOK = ROOT / "skills" / "900-shipglows-core" / "references" / "skill-
 REFRESH_PLAYBOOK = ROOT / "skills" / "900-shipglows-core" / "references" / "skill-refresh-playbook.md"
 PREFERRED_STACKS = ROOT / "skills" / "references" / "preferred-stacks.md"
 QUESTION_CONTRACT = ROOT / "skills" / "references" / "question-contract.md"
+WINDOWS_BOOTSTRAP_WORKFLOW = ROOT / "skills" / "references" / "windows-bootstrap-development-workflow.md"
 READY_SKILL = ROOT / "skills" / "101-sg-ready" / "SKILL.md"
 MAX_ACTIVATION_LINES = 220
 
@@ -24,6 +25,7 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         cls.refresh = REFRESH_PLAYBOOK.read_text(encoding="utf-8")
         cls.preferred_stacks = PREFERRED_STACKS.read_text(encoding="utf-8")
         cls.question_contract = QUESTION_CONTRACT.read_text(encoding="utf-8")
+        cls.windows_bootstrap_workflow = WINDOWS_BOOTSTRAP_WORKFLOW.read_text(encoding="utf-8")
         cls.ready_skill = READY_SKILL.read_text(encoding="utf-8")
 
     def test_system_improvement_fields_have_one_owner_definition(self) -> None:
@@ -48,6 +50,17 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         self.assertIsNone(re.search(r"audit_shipglows_skills(?!\.py)", self.text))
         self.assertIn("audit_shipglows_skills.py", self.text)
         self.assertIn("python3 -m unittest tools.test_900_shipglows_core_contract", self.text)
+
+    def test_windows_installer_work_loads_the_canonical_handoff(self) -> None:
+        self.assertIn("`${SHIPGLOWS_ROOT:-$HOME/shipglows}/install-shipglows.ps1`", self.text)
+        self.assertIn("`${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/windows/`", self.text)
+        self.assertIn(
+            "$SHIPGLOWS_ROOT/skills/references/windows-bootstrap-development-workflow.md",
+            self.text,
+        )
+        for trigger in ("bootstrap", "runtime-path", "migration", "wrapper", "self-update"):
+            self.assertIn(trigger, self.text)
+        self.assertIn("# Windows Bootstrap Development Workflow", self.windows_bootstrap_workflow)
 
     def test_activation_contract_is_compacted(self) -> None:
         self.assertLess(len(self.text.splitlines()), MAX_ACTIVATION_LINES)
@@ -127,7 +140,7 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         for rule in (
             "first-recommendation defaults",
             "Recommend this pair first",
-            "Flutter Web, iOS, and Android from the same application codebase",
+            "Flutter Web, Android, iOS, Windows, macOS, and Linux from the same application codebase",
             "`PSP-005 apparently mobile-only app`",
         ):
             self.assertIn(rule, self.preferred_stacks)

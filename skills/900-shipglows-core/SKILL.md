@@ -37,6 +37,8 @@ When the operator asks to modify the ShipGlows CLI or TUI from another conversat
 - `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/lib.sh`
 - `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/config.sh`
 - `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/install.sh`
+- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/install-shipglows.ps1`
+- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/windows/`
 - `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tui/`
 
 It also protects cross-skill invariants such as product governance: declared products should not rely on ad hoc URL discovery, improvised delivery framing, or unsupported public claims when the project corpus is supposed to hold that truth.
@@ -110,6 +112,7 @@ Load only what the current request needs:
 - `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` before choosing whether a behavior fix belongs in shared doctrine or a local skill contract.
 - `shared:resource-discovery` when building, auditing, or migrating reference/playbook discovery, semantic resource IDs, or resolver behavior.
 - `$SHIPGLOWS_ROOT/shipglows_data/technical/codex-plugin-packaging.md` for public plugin packaging and sparse bootstrap constraints.
+- `$SHIPGLOWS_ROOT/skills/references/windows-bootstrap-development-workflow.md` before auditing, building, testing, or handing off native Windows bootstrap, installer, runtime-path, migration, wrapper, or self-update changes.
 - `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before recommending or making skill-contract edits.
 - `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` and `master-delegation-semantics.md` before `build` chooses lifecycle gates or delegated execution.
 - `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before final reporting.
