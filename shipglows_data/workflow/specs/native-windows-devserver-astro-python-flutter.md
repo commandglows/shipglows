@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.21"
+artifact_version: "0.2.22"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
-updated: "2026-08-09"
-updated_at: "2026-08-09 16:00:00 UTC"
+updated: "2026-08-11"
+updated_at: "2026-08-11 22:00:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -91,7 +91,7 @@ L'operateur telecharge avec `curl.exe` le bootstrap PowerShell depuis l'endpoint
 - Le meme endpoint `https://shipglows.com/shipglows-script?format=powershell` sert l'installateur Windows local et full; sans `-InstallMode`, une console interactive demande explicitement tunnel local ou DevServer full (full recommande). `-InstallMode local|full` reste disponible pour l'automatisation; une entree non interactive sans mode preserve le fallback local historique.
 - Le mode full prepare Git, GitHub CLI, Node LTS/npm, pnpm et uv automatiquement. Flutter Web reste un choix explicite dans l'installateur: si l'operateur accepte, le SDK stable est installe dans le profil utilisateur et le support web est active.
 - Le dashboard decouvre les projets enregistres, affiche `running`, `stopped`, `error` ou `unknown`, le type de projet, le port et l'URL locale.
-- Un clone Git reussi est place par defaut sous `%USERPROFILE%\ShipGlows\workspace\<repo>` et n'est enregistre qu'apres validation du chemin et du depot.
+- Un clone Git reussi est place par defaut directement sous `%USERPROFILE%\ShipGlows\<repo>` et n'est enregistre qu'apres validation du chemin et du depot.
 - Astro respecte le lockfile existant, installe les dependances sans migration implicite, puis expose une URL `http://127.0.0.1:<port>`.
 - Python/FastAPI utilise `uv` et un environnement `.venv`; un projet avec `uv.lock` demarre en mode verrouille et echoue clairement si le lockfile est incoherent.
 - Flutter Web utilise le SDK Windows, execute `flutter pub get`, puis ouvre une session terminal interactive conservant les commandes de hot reload/hot restart.
@@ -123,7 +123,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 
 - Nouveau runtime PowerShell sous `cli/windows/`, compatible Windows PowerShell 5.1 et PowerShell 7.
 - Commande `.cmd` installee `shipglows-dev`, avec raccourci `s` si aucun conflit n'existe; le runtime est ajoute au `PATH` utilisateur et a la session PowerShell d'installation.
-- Workspace par defaut `%USERPROFILE%\ShipGlows\workspace`, configurable par une variable ShipGlows dediee.
+- Racine des projets par defaut `%USERPROFILE%\ShipGlows`, configurable par une variable ShipGlows dediee.
 - Registre local JSON atomique sous `%LOCALAPPDATA%\ShipGlows\DevServer\registry.json`.
 - Detection et lifecycle Astro avec pnpm prioritaire quand `pnpm-lock.yaml` existe, npm quand `package-lock.json` existe, et aucun changement implicite de package manager.
 - Detection et lifecycle Python/FastAPI avec `uv`, `pyproject.toml`, `uv.lock`, `.python-version` et `.venv`; compatibilite bornee `requirements.txt` via un chemin uv explicite.
