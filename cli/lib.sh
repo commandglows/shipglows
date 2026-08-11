@@ -5637,7 +5637,10 @@ list_github_repos() {
     fi
 
     local all_repos
-    all_repos=$(gh repo list --limit "$SHIPGLOWS_GITHUB_REPO_LIMIT" --json name,description --jq '.[] | "\(.name): \(.description)"' 2>/dev/null)
+    all_repos=$(gh api --paginate \
+        '/user/repos?affiliation=owner,organization_member&per_page=100&sort=updated' \
+        --jq '.[] | "\(.full_name): \(.description // "")"' 2>/dev/null | \
+        awk -v limit="$SHIPGLOWS_GITHUB_REPO_LIMIT" 'NR <= limit')
 
     if [ -z "$all_repos" ]; then
         return 0
@@ -5645,7 +5648,8 @@ list_github_repos() {
 
     # Filter out repos already deployed (directory exists in PROJECTS_DIR)
     while IFS= read -r line; do
-        local repo_name="${line%%:*}"
+        local repo_identifier="${line%%:*}"
+        local repo_name="${repo_identifier##*/}"
         local repo_name_lower="${repo_name,,}"
         if [ ! -d "$PROJECTS_DIR/$repo_name_lower" ] && [ ! -d "$PROJECTS_DIR/$repo_name" ]; then
             echo "$line"
@@ -5653,7 +5657,7 @@ list_github_repos() {
     done <<< "$all_repos"
 }
 
-# Validate GitHub repo name
+# Validate a GitHub repository name or owner/name identifier.
 validate_repo_name() {
     local repo=$1
 
@@ -5662,8 +5666,8 @@ validate_repo_name() {
         return 1
     fi
 
-    # GitHub repo names: alphanumeric, dash, underscore, dot
-    if [[ ! "$repo" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+    # GitHub owner and repo names: alphanumeric, dash, underscore, dot.
+    if [[ ! "$repo" =~ ^[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)?$ ]]; then
         error "Invalid repository name: $repo"
         return 1
     fi
@@ -9433,18 +9437,20 @@ print(json.dumps(cfg, indent=2))
 #   deploy_github_project "my-awesome-app"
 # -----------------------------------------------------------------------------
 deploy_github_project() {
-    local repo_name=$1
+    local repo_identifier=$1
 
-    if [ -z "$repo_name" ]; then
+    if [ -z "$repo_identifier" ]; then
         error "Usage: deploy_github_project <repo-name>"
         return 1
     fi
 
     # Validate repo name
-    if ! validate_repo_name "$repo_name"; then
-        error "Invalid repository name: $repo_name"
+    if ! validate_repo_name "$repo_identifier"; then
+        error "Invalid repository name: $repo_identifier"
         return 1
     fi
+
+    local repo_name="${repo_identifier##*/}"
 
     echo ""
     echo -e "${GREEN}📦 Repository: $repo_name${NC}"
@@ -9475,14 +9481,19 @@ deploy_github_project() {
     mkdir -p "$project_dir"
 
     # Clone repository
-    local github_user=$(get_github_username)
-    if [ -z "$github_user" ]; then
-        error "Could not determine GitHub username"
-        rm -rf "$project_dir"
-        return 1
+    local repo_full_name="$repo_identifier"
+    if [[ "$repo_full_name" != */* ]]; then
+        local github_user
+        github_user=$(get_github_username)
+        if [ -z "$github_user" ]; then
+            error "Could not determine GitHub username"
+            rm -rf "$project_dir"
+            return 1
+        fi
+        repo_full_name="$github_user/$repo_name"
     fi
 
-    local repo_url="git@github.com:$github_user/$repo_name.git"
+    local repo_url="git@github.com:$repo_full_name.git"
     echo -e "${YELLOW}Cloning (SSH): $repo_url${NC}"
     echo ""
 
@@ -9494,7 +9505,7 @@ deploy_github_project() {
         log ERROR "Failed to clone repository: $repo_url"
         echo -e "${RED}❌ Failed to clone repository${NC}"
         echo -e "${YELLOW}Please check:${NC}"
-        echo -e "  • Repository exists: https://github.com/$github_user/$repo_name"
+        echo -e "  • Repository exists: https://github.com/$repo_full_name"
         echo -e "  • SSH key is configured: ssh -T git@github.com"
         echo -e "  • Or use: gh auth login --with-token"
         rm -rf "$project_dir"
