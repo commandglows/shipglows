@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-05-16"
 updated: "2026-08-12"
@@ -35,6 +35,7 @@ evidence:
   - "Repeated top-level doctrine across long skills was identified as instruction dilution risk."
   - "Wave 9 formalized the registry-owned skill graph while keeping reference activation conditional and non-inferred."
   - "Wave 10 added bounded reference-activation profiles for two measured pilots."
+  - "Wave 12 established compatibility-preserving decision cores and direct non-chaining doctrine leaves for high-cost shared references."
   - "User decision 2026-06-10: keep SKILL.md contracts short and move detailed playbooks, examples, matrices, and edge cases to references."
   - "User decision 2026-07-07: for any skill-creation or skill-improvement work, improve the shared reference layer first and only add local skill wording when the behavior is truly owner-specific."
   - "User decision 2026-07-12: every skill change must preserve compaction and practical followability instead of adding repeated warning prose."
@@ -137,6 +138,8 @@ Use `$SHIPGLOWS_ROOT/skills/<skill>/references/*.md` for long, skill-specific de
 - edge-case catalogs and troubleshooting branches
 
 Local references should be split by purpose. Avoid creating one new mega-reference.
+
+For a large shared authority with direct readers, preserve its canonical detailed path and introduce a compact `*-core.md` only when the core can make the first decision safely. The skill must directly name the detailed escalation condition; a core is not a silent substitute. For domain doctrine with independent concerns, use one primary invariant reference plus direct leaves. Leaves must not chain to siblings.
 
 ## Compaction Rule
 

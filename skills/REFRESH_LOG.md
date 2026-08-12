@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — shared activation cores and entitlement doctrine wave 12
+
+**Added:** compact lifecycle and delegation decision cores; direct entitlement ledger/authorization, provider-ingestion, and support/proof branches; explicit `SPE-001` through `SPE-010` scenarios; focused cross-contract tests.
+
+**Updated:** the normal `004` multi-stage gate falls from about 8,486 to 1,290 estimated tokens while detailed authorities remain compatible. The `601` primary entitlement gate falls from about 4,403 to 1,368 tokens, with each selected branch adding about 509-692 tokens.
+
+**New phases:** decision core first, detailed lifecycle/topology only on explicit escalation; entitlement invariants first, then one direct non-chaining procedure branch.
+
+**Sources:** 0 external URLs consulted; provider policy and external behavior were unchanged.
+
 ## 2026-08-12 — installed skill discovery budget remediation wave 11
 
 **Added:** focused trigger-vocabulary and canonical/compatibility alias parity checks for compact expert descriptions.

@@ -28,11 +28,12 @@ The accounting profile lives in `skill-invocation-registry.json`; runtime loader
 
 - Before an ownership/proof choice, load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`.
 - Once entitlement work is selected, load `$SHIPGLOWS_ROOT/skills/references/product-entitlements-playbook.md` as primary doctrine.
+- After the primary doctrine selects the next concern, load exactly one direct branch: `product-entitlement-ledger-and-authorization.md`, `product-entitlement-ingestion.md`, or `product-entitlement-support-and-proof.md`. Branches never chain.
 - WinFlowz suite/free/default-access/sync eligibility loads `$SHIPGLOWS_ROOT/skills/references/winflowz-suite-product-registry.md`.
 - Non-trivial behavior change loads `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` before output or mutation.
 - Current provider/webhook/API semantics load `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` and official sources.
 
-Load at most one entitlement doctrine before the first substantive action.
+Load at most one entitlement doctrine before the first substantive action; load a branch only after the primary doctrine has selected it.
 
 ## Activation-Critical Entitlement Gates
 

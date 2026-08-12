@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-06-29"
 updated: "2026-08-12"
@@ -24,13 +24,14 @@ depends_on:
   - artifact: "skills/references/skill-instruction-layering.md"
     artifact_version: "1.0.0"
     required_status: active
-  - artifact: "skills/references/master-workflow-lifecycle.md"
-    artifact_version: "1.4.0"
+  - artifact: "skills/references/master-workflow-lifecycle-core.md"
+    artifact_version: "1.0.0"
     required_status: active
 supersedes: []
 evidence:
   - "Extracted from skills/004-sg-deploy/SKILL.md to keep the activation body compact."
   - "Wave 10 verified this pack as the post-scope release route in the explicit activation profile."
+  - "Wave 12 aligned dependency expansion with the compact lifecycle decision core."
 next_review: "2026-11-12"
 next_step: none
 ---

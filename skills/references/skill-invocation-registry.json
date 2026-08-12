@@ -93,7 +93,9 @@
           "development-mode": ["skills/references/project-development-mode.md"],
           "target-recommendation": ["skills/references/deploy-target-matrix.md"],
           "hosted-proof": ["skills/references/preview-proof-routing.md", "skills/004-sg-deploy/references/release-proof-routing.md"],
-          "multi-stage-lifecycle": ["skills/references/master-workflow-lifecycle.md", "skills/references/master-delegation-semantics.md"],
+          "multi-stage-lifecycle": ["skills/references/master-workflow-lifecycle-core.md", "skills/references/master-delegation-core.md"],
+          "detailed-lifecycle": ["skills/references/master-workflow-lifecycle.md"],
+          "detailed-delegation": ["skills/references/master-delegation-semantics.md"],
           "detailed-report": ["skills/004-sg-deploy/references/deploy-report-template.md"]
         }
       },
@@ -103,6 +105,9 @@
         "gates": {
           "ownership-decision": ["skills/references/decision-quality-contract.md"],
           "entitlement-contract": ["skills/references/product-entitlements-playbook.md"],
+          "ledger-authorization": ["skills/references/product-entitlement-ledger-and-authorization.md"],
+          "provider-ingestion": ["skills/references/product-entitlement-ingestion.md"],
+          "support-proof": ["skills/references/product-entitlement-support-and-proof.md"],
           "winflowz-suite": ["skills/references/winflowz-suite-product-registry.md"],
           "behavior-change": ["skills/references/spec-driven-development-discipline.md"],
           "provider-freshness": ["skills/references/documentation-freshness-gate.md"]

@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.4.0"
+artifact_version: "2.5.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -111,6 +111,7 @@ evidence:
   - "2026-08-03: progressive resource discovery added a read-only resolver with stable semantic IDs, bounded canonical-root scanning, dependency expansion, and explicit authority limits."
   - "2026-08-04 added provider-neutral animation modes to 006-sg-design; GSAP remains optional after project-fit and proof gates."
   - "2026-08-04 added the exact 302-sg-help mode catalog with one line per repository skill and registered free-form help invocation validation."
+  - "2026-08-12 wave 12 added compact lifecycle/delegation decision cores for the 004 pilot and direct entitlement ledger/ingestion/support-proof leaves for 601."
   - "Métier-first public hierarchy separates 13 public owners from numeric internal engines and requires progressive clarification followed by autonomous outcome ownership."
   - "Public skills now have direct runtime folders and matching Codex metadata; numeric prefixes are expert/compatibility identifiers rather than picker names."
   - "Codex expert shortcuts now resolve through public owner modes before internal engines; core remains the sole hard system-context switch."
@@ -203,6 +204,14 @@ sets without parsing prose; `skill_activation_budget.py` validates and measures
 them, and selected-profile failure blocks preflight. Runtime loaders remain the
 execution authority, while resource `depends_on` metadata remains separate.
 
+Wave 12 demonstrates two compatible progressive patterns. `004-sg-deploy`
+loads `master-workflow-lifecycle-core.md` plus `master-delegation-core.md` for
+the normal multi-stage decision and escalates to the existing detailed
+authorities only when the cores identify unresolved detail. `601` loads the
+primary entitlement invariants, then exactly one direct ledger/authorization,
+provider-ingestion, or support/proof branch. Neither pattern uses reference
+chaining or replaces runtime loader authority with profile metadata.
+
 Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 
 - `302-sg-help` explains workflow, doctrine, and skill choice; its default catalogue is public, while `expert` exposes the internal engine list.
@@ -284,6 +293,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/<skill>/references/*.md` | Skill-local heavy checklists, mode playbooks, and report matrices | Keep top-level SKILL focused on activation and gates |
 | `skills/references/master-delegation-semantics.md` | Shared master/orchestrator delegation, subagent, short-approval, and parallelism doctrine | Load before master skills choose execution topology |
 | `skills/references/master-workflow-lifecycle.md` | Shared master/orchestrator lifecycle skeleton and work item model | Load before master skills resolve intake, readiness, model/topology, validation, verification, closure, or ship/deploy routes |
+| `skills/references/master-{workflow-lifecycle,delegation}-core.md` | Compact first-decision lifecycle and topology gates | Load from migrated pilots first; escalate to the detailed authority only on the core's explicit conditions |
 | `skills/references/decision-quality-contract.md` | Shared high-quality decision doctrine: correctness, security, performance, maintainability, durability, best practices, and proof before speed/cost/convenience | Load before routing, model/fallback selection, implementation, fixes, skill-contract changes, verification, or recommended defaults |
 | `skills/references/skill-code-index.md` | Canonical numeric lookup from memorable codes to unchanged skill names | Update whenever a skill is added, removed, or renamed; validate with `python3 tools/skill_code_index_lint.py` |
 | `skills/900-shipglows-core/SKILL.md` | Internal lifecycle owner for ShipGlows skill audit, build, refresh, and packaging modes | Keep out of public plugin packaging and public skill pages unless the operator explicitly changes the policy |
@@ -291,7 +301,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/content-quality-rubric.md` | Shared project-aware content quality scoring schema and blocked-code contract | Load when content owner skills or `103-sg-verify` produce/consume editorial quality gates |
 | `skills/references/reporting-contract.md` | Shared final-report mode contract | Default user reports are concise; detailed reports require explicit handoff mode |
 | `skills/references/sentry-observability.md` | Shared Sentry runtime evidence, PM2/Doppler fallback evidence, release/environment correlation, redaction, and performance-overhead doctrine | Load when runtime behavior, crashes, 5xx, event IDs, deploy confidence, auth/payment/data failures, jobs, webhooks, verification, audits, or perf checks depend on observability |
-| `skills/references/product-entitlements-playbook.md` | Shared product-access doctrine for identity vs entitlement separation, Lifetime Deal/direct/partner code redemption, provider events, revokes/refunds, support runbooks, and smoke proof | Load when projects touch product access, billing providers, activation codes, paid plans, premium gates, quotas, refunds, revocations, or entitlement-backed data access |
+| `skills/references/product-entitlements-playbook.md`, `product-entitlement-{ledger-and-authorization,ingestion,support-and-proof}.md` | Primary product-access invariants plus direct conditional procedure branches | Load the primary doctrine after entitlement selection, then one branch for ledger/backend, ingestion, or support/proof work |
 | `skills/references/design-inspiration-library.md`, `skills/references/design-inspiration/` | Shared private-corpus, capture-bundle, rights, taxonomy, and Inspiration Gate contract | Load for new visual direction, sales/offer-page creation, major redesign, copy-pattern comparison, or explicit inspiration requests; never load the full private corpus by default |
 | `skills/601-sg-product-entitlements/SKILL.md` | Product entitlement skill for access ownership, provider-event handling, backend authorization gates, support flow framing, product-local mirrors, and sync/auth handoffs | Load when projects need an entitlement contract, duplicate-ledger review, product-access guard design, provider/manual grant routing, or entitlement-gated sync preconditions |
 | `skills/600-sg-local-cloud-sync/references/*.md` | Local-to-cloud sync doctrine, UX/security checklist, and Flutter implementation checklist | Load when projects touch local data promotion, cloud hydration, merge/conflict policy, sync state UX, sensitive-data exclusions, or reinstall recovery |

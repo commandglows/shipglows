@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -32,6 +32,7 @@ evidence:
   - "Wave 9 distinguishes the registry ownership graph from deferred reference-activation accounting."
   - "Wave 10 pilots explicit baseline/gate activation accounting on 004 and 601 without parsing prose."
   - "Wave 11 compacted explicit-only expert descriptions while preserving trigger nouns and public descriptions."
+  - "Wave 12 reduced the 004 multi-stage gate from about 8.5k to 1.29k tokens and split the 601 entitlement contract into a 1.37k primary doctrine plus direct 0.5-0.7k branches."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify progressive-skill-discovery-and-activation-budgets"
 ---
@@ -105,6 +106,8 @@ For a selected skill, report:
 - `P-advisory`: bounded resolver starter pack, separately labelled.
 
 Do not infer reference dependencies from prose. The registry-owned activation graph validates public-owner-to-engine routing. Its optional `activation_profiles` section declares measured baseline and gate-specific reference sets only for migrated pilots. Count a shared file once and report body, baseline, each independently selected gate, and worst case with `tools/skill_activation_budget.py`. Skills without a profile continue to use mechanically declared loader measurements.
+
+When a high-fan-out authority is too large for an ordinary decision, keep its detailed compatibility contract and add a compact decision core. The activation body must name both: load the core for the normal gate and escalate to the detailed authority only for conditions the core states explicitly. For multi-branch doctrine, keep non-negotiable invariants in one primary reference and expose direct, non-chaining leaves by real mode or risk gate.
 
 ## Audit Commands
 

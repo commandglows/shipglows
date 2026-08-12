@@ -15,6 +15,7 @@ WAVE_8 = SPECS / "progressive-domain-activation-compaction-wave-8.md"
 WAVE_9 = SPECS / "canonical-skill-activation-graph-and-core-compaction-wave-9.md"
 WAVE_10 = SPECS / "release-entitlement-compaction-and-activation-profile-wave-10.md"
 WAVE_11 = SPECS / "installed-skill-discovery-budget-remediation-wave-11.md"
+WAVE_12 = SPECS / "shared-activation-cores-and-entitlement-doctrine-wave-12.md"
 REFRESH_LOG = ROOT / "skills" / "REFRESH_LOG.md"
 
 
@@ -29,6 +30,7 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         cls.wave_9 = WAVE_9.read_text(encoding="utf-8")
         cls.wave_10 = WAVE_10.read_text(encoding="utf-8")
         cls.wave_11 = WAVE_11.read_text(encoding="utf-8")
+        cls.wave_12 = WAVE_12.read_text(encoding="utf-8")
         cls.refresh_log = REFRESH_LOG.read_text(encoding="utf-8")
 
     def test_shipped_waves_are_not_left_ready_or_next(self) -> None:
@@ -54,6 +56,9 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         self.assertIn("status: reviewed", self.wave_11)
         self.assertIn("005-sg-ship (next)", self.wave_11)
         self.assertNotIn("- [ ]", self.wave_11)
+        self.assertIn("status: reviewed", self.wave_12)
+        self.assertIn("005-sg-ship (next)", self.wave_12)
+        self.assertNotIn("- [ ]", self.wave_12)
 
     def test_wave_five_acceptance_matches_progressive_loading(self) -> None:
         self.assertIn(

@@ -34,7 +34,8 @@ The accounting profile lives in `skill-invocation-registry.json`; runtime loader
 
 - After scope, target, and risk are known, load `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/release-confidence-workflow.md`.
 - After `405` confirms deployment truth, load `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/release-proof-routing.md`.
-- Only after a multi-stage release route is selected, load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` and `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
+- Only after a multi-stage release route is selected, load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle-core.md` and `$SHIPGLOWS_ROOT/skills/references/master-delegation-core.md`.
+- Load detailed `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` or `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` only when the selected core explicitly escalates for unresolved lifecycle/topology detail.
 
 Load at most one local playbook before the first substantive action.
 
