@@ -1,0 +1,80 @@
+---
+artifact: skill_reference
+metadata_schema_version: "1.0"
+artifact_version: "1.0.0"
+project: ShipGlows
+created: "2026-08-12"
+updated: "2026-08-12"
+status: active
+source_skill: 005-sg-ship
+scope: ship-execution
+owner: Diane
+confidence: high
+risk_level: high
+security_impact: yes
+docs_impact: no
+linked_systems:
+  - skills/005-sg-ship/SKILL.md
+depends_on: []
+supersedes: []
+evidence:
+  - "Wave-2 compaction extracted bounded Git execution from the ship activation contract."
+next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
+---
+
+# Ship Execution Playbook
+
+Load this playbook only after `005-sg-ship` has selected quick or full mode and a candidate repository, but before its first Git mutation. The activation contract remains authoritative for every stop.
+
+## Resolve The Repository
+
+Inspect the current repository, branch, status, diff summary, relevant recent commit style, documented development mode, and available project tracker/changelog. If the current directory is not a repository but contains several dirty project repositories, ask one bounded single-select question. Keep every later command inside the selected repository.
+
+If the branch is detached, the target remote is unclear, or several unrelated dirty scopes remain plausible, stop and resolve the target before staging.
+
+## Confirm Intent And Scope
+
+Use quick mode unless explicit end-of-task intent selected full mode. Ask a concise question only when the answer changes closure level, staging scope, release framing, or safety posture, including partial work, skipped proof, sensitive surfaces, behavior/docs drift, or unsupported `done`, `ready`, or `safe` wording.
+
+For bounded staging, enumerate explicit task-owned paths. For `all-dirty`, inspect the complete tracked, deleted, modified, and untracked set. Do not silently exclude unrelated files from an explicitly requested all-dirty ship; stop if any file is unsafe.
+
+## Secret And Bug Gates
+
+Inspect untracked and staged candidates for unignored environment files, credentials, private keys, tokens, or equivalent sensitive material. Stop rather than partially staging an unsafe all-dirty scope.
+
+Read `shipglows_data/workflow/bugs/*.md` as the known-bug source of truth and `shipglows_data/workflow/BUGS.md` only as optional triage context. Open only linked high-impact bug files needed to confirm scope and status; do not turn quick ship into a broad audit.
+
+Classify:
+
+- `blocked`: a linked high/critical bug remains open, needs information/reproduction, is under diagnosis, or only has a fix attempt;
+- `partial-risk`: a linked item is `fixed-pending-verify` or linkage is uncertain;
+- `not assessed`: no usable registry exists or the ship scope cannot be linked safely.
+
+Stop for `blocked` unless the user explicitly accepts risk. Retain `partial-risk` and `not assessed` in evidence.
+
+## Checks
+
+Unless `skip-check` was explicit, run checks proportional to changed surfaces:
+
+- use available typecheck and lint scripts for package projects;
+- syntax-check touched shell files when practical;
+- run focused owner tests for the changed behavior;
+- do not run a full build by default solely because this is a ship action.
+
+Stop on a required or attempted check failure. The user may then request a distinct risk-accepted ship, but the failed proof remains visible.
+
+## Stage, Inspect, Commit
+
+Stage explicit paths for bounded scope; use whole-repository staging only for explicit `all-dirty`, `ship-all`, or `tout-dirty`. Inspect the staged diff and staged file list after staging. If an Atlas registry applies, run its staged-path preflight now and stop on `block`.
+
+When changes create, rename, or materially update `skills/*/SKILL.md`, run the canonical `shipglows_sync_skills` check for the affected skill, or the all-skills check for broad visibility changes. Do not repair runtime links inside this skill.
+
+If there is nothing to commit, do not manufacture a commit. Otherwise derive a concise message from explicit arguments or the bounded outcome, preserve repository commit conventions, and commit without interactive editors.
+
+## Push And Failure Handling
+
+Push the current branch to its configured upstream. If no upstream exists and the branch/remote are unambiguous, establish it without force. Never force-push `main` or `master`.
+
+On rejection or other push failure, stop and report the actual local commit, branch, upstream, dirty state, checks, and error. Do not claim shipment.
+
+After success, use the activation contract's development-mode rule. Hosted-sensitive preview work routes to `405-sg-prod` before downstream proof; a local-mode push needs no invented deployment step.

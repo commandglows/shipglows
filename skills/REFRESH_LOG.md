@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — progressive activation compaction wave 2
+
+**Added:** ten metadata-bearing conditional references and four owner-specific scenario contracts for ship, bug, checks, and scaffolding.
+
+**Updated:** `003-sg-bug`, `005-sg-ship`, `105-sg-check`, and `306-sg-scaffold` now keep activation-critical decisions and stops local while loading procedural state, execution, repair, generation, closure, and evidence playbooks only when needed.
+
+**New phases:** conditional owner playbooks by state or mode; no dependency graph or installed-catalog change.
+
+**Sources:** 0 external URLs consulted; fresh docs not needed because the wave changes local instruction packaging and preserves existing runtime behavior.
+
 ## 2026-08-12 — progressive discovery and activation
 
 **Added:** catalog-aware discovery audits, lexical runtime measurement, bounded reference starter packs, explicit invocation policies for all 65 skills, and scenario contracts for discovery, resource volume, policy, and two activation pilots.
