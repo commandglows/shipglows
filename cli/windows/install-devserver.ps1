@@ -603,10 +603,25 @@ function Set-SgCodexPermissionMode([string]$Mode, [string]$ConfigPath) {
     return $true
 }
 
+function Get-SgNativeNpxPath([string[]]$KnownPaths = @()) {
+    foreach ($path in $KnownPaths) {
+        if ($path -and (Test-Path -LiteralPath $path -PathType Leaf)) { return [IO.Path]::GetFullPath($path) }
+    }
+    $managedWrapper = [IO.Path]::GetFullPath((Join-Path $runtimeDir 'npx.cmd'))
+    foreach ($command in @(Get-Command 'npx.cmd' -CommandType Application -All -ErrorAction SilentlyContinue)) {
+        if (-not $command.Source -or [IO.Path]::GetExtension($command.Source) -ine '.cmd') { continue }
+        $candidate = [IO.Path]::GetFullPath($command.Source)
+        if ($candidate -ine $managedWrapper) { return $candidate }
+    }
+    return $null
+}
+
 function Install-SgCodexPlaywrightMcp([bool]$CodexReady, [string[]]$CodexPaths, [string[]]$NodePaths, [string[]]$NpxPaths) {
     $codex = if ($CodexReady) { Get-SgToolPath 'codex.cmd' $CodexPaths } else { $null }
     $node = Get-SgToolPath 'node.exe' $NodePaths
-    $npx = Get-SgToolPath 'npx.cmd' $NpxPaths
+    # Never persist ShipGlows' own npx wrapper as the MCP command. The wrapper is
+    # created during installation and would otherwise make the second pass drift.
+    $npx = Get-SgNativeNpxPath $NpxPaths
     $prerequisites = Get-SgCodexPlaywrightPrerequisiteStatus $codex $node $npx
     if (-not $prerequisites.Ready) { Write-SgInstallerWarning $prerequisites.Message; return $false }
     $codex = $prerequisites.CodexPath

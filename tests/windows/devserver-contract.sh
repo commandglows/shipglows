@@ -15,7 +15,7 @@ done
 
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
 bash "$ROOT/tests/install/playwright-mcp-contract.sh"
-rg -n 'Install-SgCodexPlaywrightMcp|--package=@playwright/mcp@latest|playwright install chromium|native npx\.cmd|mcp get playwright --json' "$INSTALLER"
+rg -n 'Install-SgCodexPlaywrightMcp|Get-SgNativeNpxPath|managedWrapper|--package=@playwright/mcp@latest|playwright install chromium|native npx\.cmd|mcp get playwright --json' "$INSTALLER"
 rg -n 'mcp_servers\.playwright|@playwright/mcp@latest|enabled = true|--headless.*--browser.*chromium' "$CODEX_MCP_MODULE"
 rg -n 'ShipGlows\.CodexMcp\.psm1' "$BOOTSTRAP" "$INSTALLER"
 
