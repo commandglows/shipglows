@@ -1,11 +1,11 @@
 ---
 artifact: specification
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
-status: ready
+updated: "2026-08-13"
+status: reviewed
 source_skill: sg-engineering
 scope: global-playwright-mcp-for-codex
 owner: Diane
@@ -35,7 +35,9 @@ evidence:
   - "Codex CLI 0.147.0 locally exposes mcp add/get/list/remove and JSON inspection through mcp get."
   - "Microsoft Playwright MCP documents Codex stdio registration through npx and supports headless Chromium."
   - "The existing Linux installer already owns a Playwright MCP block and preserves a Linux ARM64 Chromium invariant."
-next_step: "Implement and verify the branch installation contract"
+  - "Windows remote installs from commit 25b1dcda480c918ee9210a547ebd0b11cf6db2c9 completed twice with an unchanged Codex config SHA-256 on the idempotent pass."
+  - "A fresh Codex CLI 0.147.0 process used only Playwright MCP against http://localhost:3001 and collected navigation, accessibility, screenshot, console, and 1055 successful network requests."
+next_step: "Review and merge pull request, then reinstall from main"
 ---
 
 # Global Playwright MCP for Codex CLI
@@ -157,25 +159,25 @@ l'installation globale et le navigateur réel.
 
 ## Acceptance Criteria
 
-- [ ] AC1 : Windows `full` configure Playwright MCP global et activé lorsque les
+- [x] AC1 : Windows `full` configure Playwright MCP global et activé lorsque les
   prérequis sont disponibles.
-- [ ] AC2 : la commande Windows utilise le chemin absolu de `npx.cmd`.
-- [ ] AC3 : Chromium est installé pendant l'installation ou le run échoue de
+- [x] AC2 : la commande Windows utilise le chemin absolu de `npx.cmd`.
+- [x] AC3 : Chromium est installé pendant l'installation ou le run échoue de
   manière explicite sans annoncer Playwright prêt.
-- [ ] AC4 : la réinstallation est idempotente et préserve les autres entrées du
+- [x] AC4 : la réinstallation est idempotente et préserve les autres entrées du
   profil Codex.
-- [ ] AC5 : l'absence de Codex, Node ou npx produit un diagnostic ciblé.
-- [ ] AC6 : Linux ARM64 conserve Chromium et ne retombe jamais sur Chrome stable.
-- [ ] AC7 : aucun dépôt utilisateur n'est modifié.
-- [ ] AC8 : un nouveau Codex CLI peut fournir navigation, accessibilité,
+- [x] AC5 : l'absence de Codex, Node ou npx produit un diagnostic ciblé.
+- [x] AC6 : Linux ARM64 conserve Chromium et ne retombe jamais sur Chrome stable.
+- [x] AC7 : aucun dépôt utilisateur n'est modifié.
+- [x] AC8 : un nouveau Codex CLI peut fournir navigation, accessibilité,
   capture, console et réseau sur `http://localhost:3001`.
-- [ ] AC9 : la branche distante passe l'installation fraîche et la
+- [x] AC9 : la branche distante passe l'installation fraîche et la
   réinstallation Windows avant ouverture de la PR.
 
 ## Current Chantier Flow
 
-- Specification: ready.
-- Implementation: pending.
-- Verification: pending.
-- Remote branch installation: pending.
+- Specification: reviewed.
+- Implementation: complete.
+- Verification: complete.
+- Remote branch installation: complete.
 - Pull request: pending.
