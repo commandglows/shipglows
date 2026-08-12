@@ -543,6 +543,10 @@ tools/shipglows_sync_skills.sh --repair --all --runtime codex --catalog all
 
 The helper links current-user `~/.claude/skills/<name>` and [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. Use `--catalog expert` for internal engines only, or `--catalog all` for the complete developer catalogue. It reports missing or stale links, blocks non-link collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
 
+On Windows, pass `-CleanStale` with `-Mode repair -Catalog public` to remove only
+obsolete ShipGlows junctions from the selected runtime directories. The helper
+never removes source skills or unrelated/non-link entries.
+
 On native Windows, use the PowerShell helper. It creates directory junctions, which do not require Windows symbolic-link privileges:
 
 ```powershell

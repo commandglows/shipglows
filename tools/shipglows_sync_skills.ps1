@@ -20,7 +20,9 @@ param(
 
     [string]$ShipGlowsRoot = (Split-Path -Parent $PSScriptRoot),
 
-    [switch]$BackupExisting
+    [switch]$BackupExisting,
+
+    [switch]$CleanStale
 )
 
 Set-StrictMode -Version Latest
@@ -160,6 +162,27 @@ function Sync-SgSkill([string]$RuntimeName, [string]$Name, [string]$SourceName) 
     Write-Output "repaired runtime=$RuntimeName skill=$Name target=$targetPath reason=missing"
 }
 
+function Remove-SgStaleLinks([string]$RuntimeName, [System.Collections.Generic.HashSet[string]]$DesiredNames) {
+    if ($Mode -ne 'repair' -or -not $CleanStale) { return }
+    $runtimeDirectory = Get-SgRuntimeDirectory $RuntimeName
+    if (-not (Test-Path -LiteralPath $runtimeDirectory -PathType Container)) { return }
+    $resolvedSkills = Resolve-SgPath (Join-Path $ShipGlowsRoot 'skills')
+
+    foreach ($item in @(Get-ChildItem -LiteralPath $runtimeDirectory -Force)) {
+        if (-not $item.LinkType -or $DesiredNames.Contains($item.Name)) { continue }
+        $resolvedTarget = Get-SgLinkTarget $item
+        if (-not $resolvedTarget) { continue }
+        if (-not $resolvedTarget.StartsWith("$resolvedSkills\", [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+
+        if (-not $item.PSIsContainer) {
+            throw "Refusing to remove a non-directory runtime link: $($item.FullName)"
+        }
+        [System.IO.Directory]::Delete($item.FullName, $false)
+        $script:Repaired++
+        Write-Output "repaired runtime=$RuntimeName skill=$($item.Name) target=$($item.FullName) reason=removed-invalid-shipglows-link"
+    }
+}
+
 if (-not $TargetHome) { throw 'USERPROFILE is unavailable; use -TargetHome.' }
 if (-not (Test-Path -LiteralPath (Join-Path $ShipGlowsRoot 'skills') -PathType Container)) {
     throw "Missing skills directory: $ShipGlowsRoot\skills"
@@ -176,10 +199,15 @@ $pairs = if ($PSCmdlet.ParameterSetName -eq 'Skill') {
 }
 
 $runtimes = if ($Runtime -eq 'all') { @('claude', 'codex') } else { @($Runtime) }
+$desiredNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+foreach ($pair in $pairs) { [void]$desiredNames.Add([string]$pair.Name) }
 foreach ($pair in $pairs) {
     foreach ($runtimeName in $runtimes) {
         Sync-SgSkill $runtimeName $pair.Name $pair.Source
     }
+}
+foreach ($runtimeName in $runtimes) {
+    Remove-SgStaleLinks $runtimeName $desiredNames
 }
 
 Write-Output "summary mode=$Mode runtime=$Runtime catalog=$Catalog checked=$script:Checked ok=$script:Ok repaired=$script:Repaired blocked=$script:Blocked"
