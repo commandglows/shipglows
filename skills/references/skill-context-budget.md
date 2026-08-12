@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -26,11 +26,12 @@ depends_on:
 supersedes: []
 evidence:
   - "Codex skills documentation checked on 2026-08-12."
-  - "2026-08-12 inventory: 65 source skills total 7098 portable characters; 14 implicit public wrappers total 1376 portable and 1712 runtime-lexical characters."
-  - "2026-08-12 runtime inventory: all 65 installed skills total 8658 lexical characters; expert explicit-only policy removes 6946 characters from implicit discovery without uninstalling engines."
+  - "2026-08-12 inventory after wave 11: 65 source skills total 6785 portable characters; 14 implicit public wrappers remain 1376 portable characters."
+  - "2026-08-12 runtime inventory after wave 11: all 65 installed skills total 8345 lexical characters, below the 8500 ceiling with 155 characters of margin."
   - "Operator decision 2026-08-12: separate discovery and activation budgets, retain expert explicit invocation, and compact through conditional references."
   - "Wave 9 distinguishes the registry ownership graph from deferred reference-activation accounting."
   - "Wave 10 pilots explicit baseline/gate activation accounting on 004 and 601 without parsing prose."
+  - "Wave 11 compacted explicit-only expert descriptions while preserving trigger nouns and public descriptions."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify progressive-skill-discovery-and-activation-budgets"
 ---

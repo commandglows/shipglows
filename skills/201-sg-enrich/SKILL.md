@@ -1,6 +1,6 @@
 ---
 name: 201-sg-enrich
-description: "Enrich substantive content with research, audience fit, structure, and conversion quality."
+description: "Enrich substantive content with research, structure, audience fit, and conversion."
 argument-hint: <file-path or folder>
 ---
 

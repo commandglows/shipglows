@@ -1,6 +1,6 @@
 ---
 name: 000-shipglows
-description: "Route non-trivial requests to skills while deterministic micro-edits execute directly."
+description: "Route non-trivial work while executing deterministic micro-edits directly."
 argument-hint: <instruction>
 ---
 

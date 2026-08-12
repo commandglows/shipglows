@@ -1,6 +1,6 @@
 ---
 name: 009-sg-marketing
-description: "Single public entrypoint for market study, GTM, copy clarity, and copywriting persuasion audits."
+description: "Research markets and produce GTM, positioning, copy, and copy audits."
 argument-hint: "<market|gtm|copy|copywriting> <target> | help"
 ---
 

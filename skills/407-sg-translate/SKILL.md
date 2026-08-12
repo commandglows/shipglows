@@ -1,6 +1,6 @@
 ---
 name: 407-sg-translate
-description: "Audit translation and i18n quality or safely sync clearly mapped missing localized entries through one entrypoint."
+description: "Audit translations and safely sync mapped missing localized entries."
 argument-hint: "[audit [path|global] | sync [path] | apply [path] | path | global | help]"
 ---
 

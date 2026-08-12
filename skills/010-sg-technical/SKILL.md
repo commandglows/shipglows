@@ -1,6 +1,6 @@
 ---
 name: 010-sg-technical
-description: "Own architecture, code quality, dependencies, performance, migrations, GitHub hygiene, sync, access, and platform parity."
+description: "Architecture, dependencies, performance, migrations, sync, access, and parity."
 argument-hint: "<audit|architecture|deps|performance|migrate|github|sync|access|parity|help> [target]"
 ---
 

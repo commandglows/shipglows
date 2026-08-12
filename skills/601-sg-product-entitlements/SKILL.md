@@ -1,6 +1,6 @@
 ---
 name: 601-sg-product-entitlements
-description: "Design product access, entitlement, provider-event, mirror, and support contracts."
+description: "Design entitlement, provider-event, mirror, and support contracts."
 argument-hint: <project, access flow, provider event, activation code, premium gate, or support question>
 ---
 

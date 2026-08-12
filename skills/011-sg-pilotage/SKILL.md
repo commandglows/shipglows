@@ -1,6 +1,6 @@
 ---
 name: 011-sg-pilotage
-description: "Pilotage for tasks, backlog, priorities, reviews, and Codex sessions through five explicit modes."
+description: "Tasks, backlog, priorities, reviews, and Codex session management."
 argument-hint: "<tasks|backlog|priorities|review|sessions> [arguments]"
 ---
 

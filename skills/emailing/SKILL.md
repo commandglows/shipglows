@@ -1,6 +1,6 @@
 ---
 name: emailing
-description: "Email writing, sequences, accessible templates, deliverability, authentication, and bounded agent operations."
+description: "Write and audit email, templates, delivery, authentication, and agents."
 argument-hint: [write | sequence | template | deliverability | provider | audit]
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: 006-sg-design
-description: "Internal runtime engine for sg-design design-system work, animation, audits, accessibility, and inspiration curation."
+description: "Design systems, animation, accessibility, audits, and inspiration."
 argument-hint: <system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...>
 ---
 

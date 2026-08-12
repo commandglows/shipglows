@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — installed skill discovery budget remediation wave 11
+
+**Added:** focused trigger-vocabulary and canonical/compatibility alias parity checks for compact expert descriptions.
+
+**Updated:** selected explicit-only expert descriptions now retain their strongest domain/action nouns with less discovery overhead. The complete installed runtime falls from 8670 to 8345 characters; the implicit public catalogue remains unchanged at 1376 portable characters.
+
+**New phases:** none. This is discovery metadata remediation only; no skill removal, public description change, ownership route, body, or reference behavior changed.
+
+**Sources:** 0 external URLs consulted; fresh docs were not needed for local discovery metadata.
+
 ## 2026-08-12 — release and entitlement activation profiles wave 10
 
 **Added:** explicit body/baseline/gate profiles for `004-sg-deploy` and `601-sg-product-entitlements`, deterministic unique-token accounting, selected-profile invocation preflight, and focused scenario contracts.
