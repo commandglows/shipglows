@@ -111,7 +111,7 @@ function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref) {
     $repositoryPath = $Matches[1]
     $encodedRef = [Uri]::EscapeDataString($Ref)
     $commitPatchUrl = "https://github.com/$repositoryPath/commit/$encodedRef.patch"
-    $commitResponse = (& curl.exe -fsSL $commitPatchUrl | Out-String)
+    $commitResponse = (& curl.exe -fsSL --retry 3 --retry-all-errors --retry-delay 2 $commitPatchUrl | Out-String)
     if ($LASTEXITCODE -ne 0) {
         Fail "Could not resolve ShipGlows ref: $Ref"
     }
@@ -172,7 +172,7 @@ if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -eq $defaultRuntimeRoot) 
 
 try {
     Write-Info "Downloading ShipGlows Windows files from commit $($source.Commit)..."
-    & curl.exe -fsSL $source.ArchiveUrl -o $archivePath
+    & curl.exe -fsSL --retry 3 --retry-all-errors --retry-delay 2 $source.ArchiveUrl -o $archivePath
     if ($LASTEXITCODE -ne 0) { Fail 'ShipGlows download failed.' }
 
     [void](Extract-ShipglowsWindowsFiles -ArchivePath $archivePath -DestinationPath $extractRoot -FullMode ($InstallMode -eq 'full'))
