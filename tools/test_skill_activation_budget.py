@@ -26,7 +26,7 @@ class SkillActivationBudgetTests(unittest.TestCase):
         payload = audit_profiles(registry)
         self.assertEqual("valid", payload["status"], payload["errors"])
         self.assertEqual(
-            {"004-sg-deploy", "601-sg-product-entitlements", "900-shipglows-core"},
+            {"004-sg-deploy", "010-sg-technical", "103-sg-verify", "300-sg-docs", "601-sg-product-entitlements", "900-shipglows-core"},
             set(payload["skills"]),
         )
         for skill, result in payload["skills"].items():

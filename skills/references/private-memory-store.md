@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-07-11"
+updated: "2026-08-12"
 status: active
 source_skill: 300-sg-docs
 scope: private-memory-store
@@ -20,15 +20,13 @@ linked_systems:
   - shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md
   - skills/references/email-sequence-storage.md
 depends_on:
-  - artifact: "skills/references/source-intake-classification.md"
-    artifact_version: "1.3.0"
-    required_status: active
   - artifact: "shipglows_data/business/portfolio-project-pitch-links.md"
     artifact_version: "0.1.0"
     required_status: draft
 supersedes: []
 evidence:
   - "Operator approval 2026-06-29: declare an explicit private folder, hidden under the current user's home, for caching all project pitches and other reusable private material."
+  - "Wave 14 removed the reverse dependency on source-intake-classification; intake consumes this storage contract, while linked_systems retains discoverability without a cycle."
 next_review: "2026-07-29"
 next_step: "/103-sg-verify private-memory-store"
 ---

@@ -28,7 +28,7 @@ Select one family and load only its direct playbook:
 | Intent | Mode | Direct family reference |
 | --- | --- | --- |
 | `init`, bootstrap, file path, `readme`, `api`, `components`, empty args | INIT, FILE, README, API, COMPONENTS, AUTO | `references/simple-bootstrap-playbooks.md` |
-| `audit`; `update`; `technical [audit]`; `docs/technical`; `editorial [audit]`; `docs/editorial`; `duplicata`, duplicates, duplicate audit; `migrate-layout`, layout; `metadata`, migrate-frontmatter | AUDIT, UPDATE, TECHNICAL, EDITORIAL, DUPLICATE, LAYOUT MIGRATION, METADATA | `references/governance-playbooks.md` |
+| `audit`; `update`; `technical [audit]`; `docs/technical`; `editorial [audit]`; `docs/editorial`; `duplicata`, duplicates, duplicate audit; `migrate`, `migrate-layout`, layout; `metadata`, migrate-frontmatter | AUDIT, UPDATE, TECHNICAL, EDITORIAL, DUPLICATE, LAYOUT MIGRATION, METADATA | `references/governance-playbooks.md` |
 | `add-project`, project import/refresh, import URL | ADD PROJECT, ADD PROJECT UPDATE | `references/private-project-playbooks.md` |
 
 Load exactly one family before the first mode action. `references/mode-playbooks.md` is a compatibility index only; do not load it during normal execution. Do not load one local family reference from another.

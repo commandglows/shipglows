@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -22,6 +22,9 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Wave 14 expands explicit activation accounting from three to six profiles: 004, 010, 103, 300, 601, and 900."
+  - "2026-08-12 Wave 14 measurement: selected baselines are 11,361 tokens for 010-sg-technical, 9,517 for 103-sg-verify, and 6,791 for 300-sg-docs."
+  - "Wave 14 records shared canonical-path, intent-to-outcome, and decision-quality baseline weight as the next remediation target without compacting it in this wave."
   - "Wave 13 removed a retired root GUIDELINES dependency from the executable reference graph."
   - "Wave 13 profiles 900-shipglows-core and keeps the ordinary reporting path on a compact core, with agent, blocked/audit, and maintenance detail loaded conditionally."
   - "2026-08-12 Wave 13 measurement: 900-shipglows-core body 1592, baseline 4506, report-user +1631, report-agent +405, report-blocked-audit +678, and report-review +618 estimated tokens."
@@ -110,6 +113,14 @@ Do not infer reference dependencies from prose. The registry-owned ownership gra
 When a high-fan-out authority is too large for an ordinary decision, keep its detailed compatibility contract and add a compact decision core. The activation body must name both: load the core for the normal gate and escalate to the detailed authority only for conditions the core states explicitly. For multi-branch doctrine, keep non-negotiable invariants in one primary reference and expose direct, non-chaining leaves by real mode or risk gate. Wave 13 applies this to reporting: successful user mode needs only the compact core; agent handoff, blocked/audit, and maintenance scenarios load direct conditional leaves, with explicit `report=agent` as the sole detailed-report authority.
 
 Wave 13 measured the `900-shipglows-core` profile at 1,592 body tokens and 4,506 selected baseline tokens. Reporting then adds 1,631 for the core user contract, 405 for agent handoff, 678 for blocked/audit, or 618 for maintenance scenarios. These are independently selected gates, not one eager reporting bundle.
+
+Wave 14 expands the measured pilot from three to six profiles by adding
+`010-sg-technical`, `103-sg-verify`, and `300-sg-docs`. Their selected
+baselines are respectively 11,361, 9,517, and 6,791 estimated tokens. These
+hotspots are evidence for the next tranche, not a reason to delete mandatory
+loaders or to describe the profiles as budget-compliant. The likely shared
+baseline candidates are canonical-path resolution, intent-to-outcome autonomy,
+and decision-quality doctrine; Wave 14 performs no compaction of them.
 
 ## Audit Commands
 

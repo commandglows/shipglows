@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — high-traffic activation profiles wave 14
+
+**Added:** explicit activation profiles and scenario contracts for `010-sg-technical`, `103-sg-verify`, and `300-sg-docs`, bringing the measured executable pilot to six profiles.
+
+**Updated:** selected-profile preflight now accounts for the three high-traffic owners. Their measured baselines are 11,361, 9,517, and 6,791 estimated tokens respectively; those costs remain visible and were not reduced in this wave.
+
+**Next debt:** shared baseline weight in canonical-path resolution, intent-to-outcome autonomy, and decision-quality doctrine. Any later compaction must preserve mandatory owner, safety, proof, freshness, and runtime-loader semantics.
+
+**Sources:** 0 external URLs consulted; this wave measures local activation metadata and does not change external behavior.
+
 ## 2026-08-12 — executable resource graph and progressive reporting wave 13
 
 **Added:** an explicit dependency-closure audit for activation-profile resources, combined ownership/resource invocation preflight, a `900-shipglows-core` profile, and direct agent-handoff, blocked/audit, and pressure-scenario reporting leaves.

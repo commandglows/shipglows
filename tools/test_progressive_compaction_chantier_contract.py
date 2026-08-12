@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lifecycle coherence checks for progressive activation compaction waves 4 through 13."""
+"""Lifecycle coherence checks for progressive activation compaction waves 4 through 14."""
 
 from pathlib import Path
 import unittest
@@ -17,6 +17,7 @@ WAVE_10 = SPECS / "release-entitlement-compaction-and-activation-profile-wave-10
 WAVE_11 = SPECS / "installed-skill-discovery-budget-remediation-wave-11.md"
 WAVE_12 = SPECS / "shared-activation-cores-and-entitlement-doctrine-wave-12.md"
 WAVE_13 = SPECS / "executable-resource-graph-and-progressive-reporting-wave-13.md"
+WAVE_14 = SPECS / "high-traffic-activation-profiles-wave-14.md"
 REFRESH_LOG = ROOT / "skills" / "REFRESH_LOG.md"
 
 
@@ -33,6 +34,7 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         cls.wave_11 = WAVE_11.read_text(encoding="utf-8")
         cls.wave_12 = WAVE_12.read_text(encoding="utf-8")
         cls.wave_13 = WAVE_13.read_text(encoding="utf-8")
+        cls.wave_14 = WAVE_14.read_text(encoding="utf-8")
         cls.refresh_log = REFRESH_LOG.read_text(encoding="utf-8")
 
     def test_shipped_waves_are_not_left_ready_or_next(self) -> None:
@@ -64,6 +66,9 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         self.assertIn("status: reviewed", self.wave_13)
         self.assertIn("005-sg-ship (next)", self.wave_13)
         self.assertNotIn("- [ ]", self.wave_13)
+        self.assertIn("status: reviewed", self.wave_14)
+        self.assertIn("005-sg-ship (next)", self.wave_14)
+        self.assertNotIn("- [ ]", self.wave_14)
 
     def test_wave_thirteen_records_executable_graph_and_reporting_boundaries(self) -> None:
         for phrase in (
@@ -76,6 +81,19 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, self.wave_13)
         self.assertIn("executable resource graph and progressive reporting wave 13", self.refresh_log)
+
+    def test_wave_fourteen_records_high_traffic_profiles_without_compaction(self) -> None:
+        for phrase in (
+            "Six activation profiles",
+            "11,361 tokens for",
+            "`010-sg-technical`, 9,517 for `103-sg-verify`, and 6,791 for `300-sg-docs`",
+            "canonical-paths.md",
+            "intent-to-outcome-autonomy.md",
+            "decision-quality-contract.md",
+            "without compacting them",
+        ):
+            self.assertIn(phrase, self.wave_14)
+        self.assertIn("high-traffic activation profiles wave 14", self.refresh_log)
 
     def test_wave_five_acceptance_matches_progressive_loading(self) -> None:
         self.assertIn(

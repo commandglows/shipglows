@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-07-29"
 updated: "2026-08-12"
@@ -30,6 +30,7 @@ evidence:
   - "Wave 9: invocation validation now blocks inconsistent public-to-engine activation graphs before routing."
   - "Wave 10: selected pilot skills also block when their explicit reference-activation profile is inconsistent."
   - "Wave 13: preflight combines ownership validation with the explicit dependency closure of profiled resources."
+  - "Wave 14: executable profile preflight covers six measured owners, including high-traffic 010, 103, and 300."
 next_review: "2026-09-03"
 next_step: "none"
 ---
@@ -56,7 +57,7 @@ The resource closure follows explicit `depends_on` edges under `skills/**` trans
 
 The default graph audit covers the executable activation-profile closure. `python3 "$SHIPGLOWS_ROOT/tools/resource_dependency_graph.py" --all` is a separate diagnostic for historical corpus debt; its findings do not block an otherwise valid profiled invocation.
 
-When the selected engine declares an `activation_profiles.skills` entry in the same registry, preflight validates that profile's body and reference paths before returning `valid`. Profiles are incremental pilots: undeclared skills keep their existing invocation behavior, and declared runtime loaders remain authoritative.
+When the selected engine declares an `activation_profiles.skills` entry in the same registry, preflight validates that profile's body and reference paths before returning `valid`. Six profiles are currently measured: `004`, `010`, `103`, `300`, `601`, and `900`. Profiles remain incremental: undeclared skills keep their existing invocation behavior, and declared runtime loaders remain authoritative.
 
 - `valid`: continue with the explicit skill silently.
 - `invalid`: do not activate any skill; explain the exact error and show a suggestion only when the registry has one uniquely supported correction. A clear spelling typo may receive a `did_you_mean` suggestion.

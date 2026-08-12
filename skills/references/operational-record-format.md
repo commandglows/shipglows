@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-05-22"
-updated: "2026-05-22"
+updated: "2026-08-12"
 status: active
 source_skill: 102-sg-start
 scope: operational-record-format
@@ -21,13 +21,11 @@ linked_systems:
   - "lib/data/shipglows_sources/parsers/"
   - "tui/src/sources/"
   - "skills/*/SKILL.md"
-depends_on:
-  - artifact: "shipglows_data/workflow/specs/traffic-first-markdown-operational-record-format.md"
-    artifact_version: "1.0.0"
-    required_status: ready
+depends_on: []
 supersedes: []
 evidence:
   - "Traffic-first Markdown operational record spec approved on 2026-05-22."
+  - "Wave 14 removed a dependency on a non-existent historical spec; the durable contract and its current consumers are authoritative."
 next_review: "2026-06-22"
 next_step: "/102-sg-start Traffic-first Markdown operational record format Batch 2"
 ---

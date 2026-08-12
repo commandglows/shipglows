@@ -1,5 +1,5 @@
 {
-  "format_version": "2.5",
+  "format_version": "2.6",
   "identity_source": "skills/references/skill-code-index.md",
   "public_catalog": {
     "domains": [
@@ -41,7 +41,7 @@
         "id": "govern",
         "label": "Govern",
         "skills": [
-          {"id": "sg-docs", "public_skill": "sg-docs", "runtime_skill": "300-sg-docs", "modes": ["init", "readme", "api", "components", "audit", "update", "metadata", "migrate", "technical"], "internal_engines": ["301-sg-context", "304-sg-changelog", "305-sg-init"]}
+          {"id": "sg-docs", "public_skill": "sg-docs", "runtime_skill": "300-sg-docs", "modes": ["init", "file", "readme", "api", "components", "auto", "audit", "update", "metadata", "migrate", "migrate-layout", "technical", "editorial", "duplicata", "duplicates", "add-project"], "internal_engines": ["301-sg-context", "304-sg-changelog", "305-sg-init"]}
         ]
       },
       {
@@ -99,6 +99,91 @@
           "detailed-report": ["skills/004-sg-deploy/references/deploy-report-template.md"]
         }
       },
+      "010-sg-technical": {
+        "body": "skills/010-sg-technical/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md", "skills/references/decision-quality-contract.md", "skills/010-sg-technical/references/technical-router.md"],
+        "gates": {
+          "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
+          "audit-protocol": ["skills/010-sg-technical/references/technical-audit-protocol.md"],
+          "audit-file": ["skills/010-sg-technical/references/technical-file-audit.md"],
+          "audit-project": ["skills/010-sg-technical/references/technical-project-audit.md"],
+          "audit-global": ["skills/010-sg-technical/references/technical-global-audit.md"],
+          "deps": ["skills/010-sg-technical/references/dependency-audit-playbook.md"],
+          "performance": ["skills/010-sg-technical/references/performance-audit-playbook.md"],
+          "migrate": ["skills/010-sg-technical/references/migration-playbook.md"],
+          "github": ["skills/010-sg-technical/references/github-hygiene-playbook.md"],
+          "authored-code-quality": ["skills/references/clean-code-quality-contract.md"],
+          "privileged-surface-security": ["skills/references/owasp-application-security-awareness.md"],
+          "email-routing": ["skills/references/email-work-routing.md"],
+          "documentation-freshness": ["skills/references/documentation-freshness-gate.md"],
+          "operational-record": ["skills/references/operational-record-format.md"],
+          "operator-question": ["skills/references/question-contract.md"],
+          "runtime-diagnostics": ["skills/references/runtime-diagnostics-surface.md"],
+          "observability": ["skills/references/sentry-observability.md"],
+          "actionable-failure": ["skills/references/actionable-failure-contract.md"],
+          "chantier": ["skills/references/chantier-tracking.md"],
+          "report-user": ["skills/references/reporting-contract.md"],
+          "report-agent": ["skills/references/reporting-agent-handoff.md"],
+          "report-blocked-audit": ["skills/references/reporting-blocked-and-audit.md"],
+          "instruction-layering": ["skills/references/skill-instruction-layering.md"]
+        }
+      },
+      "103-sg-verify": {
+        "body": "skills/103-sg-verify/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md", "skills/references/shipglows-owned-preflight.md", "skills/103-sg-verify/references/verification-baseline.md", "skills/references/decision-quality-contract.md"],
+        "gates": {
+          "excellence": ["skills/103-sg-verify/references/verification-excellence.md"],
+          "security-ui-runtime": ["skills/103-sg-verify/references/verification-security-ui-runtime.md"],
+          "security": ["skills/references/owasp-application-security-awareness.md"],
+          "ui-visual": ["skills/references/design-system-token-contract.md"],
+          "observability": ["skills/references/sentry-observability.md"],
+          "runtime-diagnostics": ["skills/references/runtime-diagnostics-surface.md"],
+          "coherence": ["skills/103-sg-verify/references/verification-coherence.md"],
+          "product-coherence": ["skills/references/product-decision-chain.md"],
+          "editorial-coherence": ["skills/references/content-quality-rubric.md"],
+          "atlas-coherence": ["skills/references/atlas-protection-preflight.md"],
+          "development-mode": ["skills/references/project-development-mode.md"],
+          "external-behavior": ["skills/references/documentation-freshness-gate.md"],
+          "email": ["skills/references/email-work-routing.md"],
+          "behavior-change": ["skills/references/spec-driven-development-discipline.md"],
+          "progress": ["skills/references/task-application-loop.md"],
+          "closure": ["skills/references/closure-archive-guard.md"],
+          "milestone-docs": ["skills/references/documentation-reflection-gate.md"],
+          "non-trivial-behavior": ["skills/references/zombies-edge-case-heuristic.md"],
+          "changed-code": ["skills/references/clean-code-quality-contract.md"],
+          "hosted-proof": ["skills/references/preview-proof-routing.md"],
+          "operational-record": ["skills/references/operational-record-format.md"],
+          "chantier": ["skills/references/chantier-tracking.md"],
+          "report-user": ["skills/references/reporting-contract.md"],
+          "report-agent": ["skills/references/reporting-agent-handoff.md"],
+          "report-blocked-audit": ["skills/references/reporting-blocked-and-audit.md", "skills/references/actionable-failure-contract.md"]
+        }
+      },
+      "300-sg-docs": {
+        "body": "skills/300-sg-docs/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md"],
+        "gates": {
+          "simple-family": ["skills/300-sg-docs/references/simple-bootstrap-playbooks.md"],
+          "governance-family": ["skills/300-sg-docs/references/governance-playbooks.md", "skills/300-sg-docs/references/core-governance.md"],
+          "private-project-family": ["skills/300-sg-docs/references/private-project-playbooks.md", "shipglows_data/workflow/playbooks/project-import-playbook.md", "shipglows_data/workflow/checklists/project-import-checklist.md", "skills/references/source-intake-classification.md", "skills/references/private-memory-store.md", "skills/references/private-data-repo-contract.md"],
+          "bootstrap": ["skills/300-sg-docs/references/bootstrap-starter-templates.md"],
+          "material-question": ["skills/references/question-contract.md"],
+          "external-freshness": ["skills/references/documentation-freshness-gate.md"],
+          "technical-governance": ["skills/references/technical-docs-corpus.md", "skills/references/code-navigation-and-function-docs.md"],
+          "editorial-governance": ["skills/references/editorial-content-corpus.md"],
+          "operational-follow-up": ["skills/references/task-registry-routing.md"],
+          "project-compliance": ["skills/references/project-governance-rules.md"],
+          "documentation-architecture": ["skills/references/documentation-governance-rules.md"],
+          "metadata-migration": ["shipglows_data/technical/metadata-migration-guide.md"],
+          "business-product-context": ["skills/references/guided-business-product-discovery.md"],
+          "product-decision-links": ["skills/references/product-decision-chain.md"],
+          "skill-budget": ["skills/references/skill-context-budget.md"],
+          "report-user": ["skills/references/reporting-contract.md"],
+          "report-agent": ["skills/references/reporting-agent-handoff.md"],
+          "report-blocked-audit": ["skills/references/reporting-blocked-and-audit.md"],
+          "chantier": ["skills/references/chantier-tracking.md"]
+        }
+      },
       "601-sg-product-entitlements": {
         "body": "skills/601-sg-product-entitlements/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md"],
@@ -149,6 +234,7 @@
     "009-sg-marketing": {"kind": "modes", "modes": {"market": {"min_args": 1}, "gtm": {"min_args": 1}, "copy": {"min_args": 1}, "copywriting": {"min_args": 1}, "help": {"min_args": 0}}},
     "010-sg-technical": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "architecture": {"min_args": 0}, "deps": {"min_args": 0}, "performance": {"min_args": 0}, "migrate": {"min_args": 0}, "github": {"min_args": 0}, "sync": {"min_args": 0}, "access": {"min_args": 0}, "parity": {"min_args": 0}, "help": {"min_args": 0}}},
     "103-sg-verify": {"kind": "modes", "modes": {"standard": {"min_args": 1}, "excellence": {"min_args": 0}}},
+    "300-sg-docs": {"kind": "modes", "modes": {"init": {"min_args": 0}, "file": {"min_args": 1}, "readme": {"min_args": 0}, "api": {"min_args": 0}, "components": {"min_args": 0}, "auto": {"min_args": 0}, "audit": {"min_args": 0}, "update": {"min_args": 0}, "technical": {"min_args": 0}, "editorial": {"min_args": 0}, "duplicata": {"min_args": 0}, "duplicates": {"min_args": 0}, "migrate": {"min_args": 0}, "migrate-layout": {"min_args": 0}, "metadata": {"min_args": 0}, "add-project": {"min_args": 0}}},
     "302-sg-help": {"kind": "freeform", "min_args": 0},
     "407-sg-translate": {"kind": "freeform", "min_args": 0},
     "601-sg-product-entitlements": {"kind": "freeform", "min_args": 0},

@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.6.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -81,6 +81,7 @@ evidence:
   - "Reporting contract clarified: user-mode ship reports should match the user's active language, use outcome/evidence/limits ordering, and allow a few sober status emojis."
   - "Wave 13 combines ownership and executable resource-closure preflight, while retaining --all as a diagnostic of historical dependency debt."
   - "Wave 13 keeps the reporting decision surface in a compact core and moves agent handoff, blocked/audit, and maintenance scenarios to direct conditional leaves."
+  - "Wave 14 adds measured activation profiles for high-traffic owners 010, 103, and 300, bringing the executable pilot to six profiles without changing runtime loaders."
   - "Skill launch cheatsheet added for master and supporting modes."
   - "900-shipglows-core build routes fuzzy skill ideas or placement decisions through 700-sg-explore before 100-sg-spec."
   - "Codex source-tree discovery follows the official ~/.agents/skills user scope, with a native PowerShell junction helper for Windows developers."
@@ -217,6 +218,13 @@ execution authority; no edge is inferred from prose or `linked_systems`.
 The default dependency command covers this executable profiled closure only.
 `resource_dependency_graph.py --all` audits the broader current corpus to expose
 historical dependency debt, but that diagnostic is not an invocation gate.
+
+Wave 14 extends this accounting and preflight pilot to six owners: `004`,
+`010`, `103`, `300`, `601`, and `900`. It records high selected baselines for
+`010` (11,361 tokens), `103` (9,517), and `300` (6,791) without altering their
+runtime loading semantics. The next remediation boundary is repeated shared
+baseline weight in canonical-path resolution, intent-to-outcome autonomy, and
+decision-quality doctrine; that compaction is explicitly outside Wave 14.
 
 Wave 12 demonstrates two compatible progressive patterns. `004-sg-deploy`
 loads `master-workflow-lifecycle-core.md` plus `master-delegation-core.md` for
