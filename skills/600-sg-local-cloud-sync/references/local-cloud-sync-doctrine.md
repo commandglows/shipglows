@@ -1,11 +1,11 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-06-01"
-updated: "2026-06-01"
-status: draft
+updated: "2026-08-12"
+status: active
 source_skill: 600-sg-local-cloud-sync
 scope: local-cloud-sync-doctrine
 owner: Diane
@@ -22,7 +22,8 @@ depends_on:
 supersedes: []
 evidence:
   - "Extracted from WinFlowz local-to-cloud promotion and merge chantier."
-next_step: "/103-sg-verify shipglows_data/workflow/specs/600-sg-local-cloud-sync-skill.md"
+  - "Wave 8 preserved the account, merge, conflict, tombstone, and queue doctrine behind a conditional loader."
+next_step: none
 ---
 
 # Local-Cloud Sync Doctrine

@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — progressive domain activation compaction wave 8
+
+**Added:** gated content governance/delivery packs for `007-sg-content`, one sync proof/report leaf for `600-sg-local-cloud-sync`, and focused owner contracts.
+
+**Updated:** `007` now selects its content lane before loading lifecycle/delegation and defers public governance and delivery proof. `600` now reuses its verified account/merge and UX/security authorities instead of duplicating them, while loss, replay, secrets, durability, and sync-state truth remain local.
+
+**New phases:** domain lane first, then conditional governance/security, then proof/delivery. `900-shipglows-core`, dependency graph, invocation preflight, public routing, and installed catalog remain outside this wave.
+
+**Sources:** 0 external URLs consulted; fresh docs were not needed because this is local instruction packaging with unchanged external behavior.
+
 ## 2026-08-12 — progressive proof activation compaction wave 7
 
 **Added:** direct scenario/record packs for `107-sg-test`, direct browser proof/report packs for `108-sg-browser`, and focused owner contracts.

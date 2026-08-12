@@ -1,11 +1,11 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-06-01"
-updated: "2026-06-01"
-status: draft
+updated: "2026-08-12"
+status: active
 source_skill: 600-sg-local-cloud-sync
 scope: sync-ux-security-checklist
 owner: Diane
@@ -22,7 +22,8 @@ depends_on:
 supersedes: []
 evidence:
   - "Extracted from WinFlowz sync/save status and secrets-policy decisions."
-next_step: "/103-sg-verify shipglows_data/workflow/specs/600-sg-local-cloud-sync-skill.md"
+  - "Wave 8 verified UX, privacy, tenant, logging, and abuse gates as conditional authority."
+next_step: none
 ---
 
 # Sync UX And Security Checklist
