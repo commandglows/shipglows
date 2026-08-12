@@ -253,7 +253,7 @@ resolve_install_components() {
                     SHIPGLOWS_INSTALL_AI_RUNTIME="0"
                 fi
 
-                if prompt_yes_no "Installer le corpus public de skills (Claude/OpenCode/KiloCode) ?" no; then
+                if prompt_yes_no "Installer le corpus public de skills (Claude/Codex developpeur/OpenCode/KiloCode) ?" no; then
                     SHIPGLOWS_INSTALL_SKILL_CORPUS="1"
                 fi
 
@@ -1611,9 +1611,9 @@ configure_skills() {
     fi
 
     mkdir -p "$target_home/.claude/skills"
-    mkdir -p "$target_home/.codex/skills"
+    mkdir -p "$target_home/.agents/skills"
     cleanup_legacy_skill_entries "$target_home/.claude/skills"
-    cleanup_legacy_skill_entries "$target_home/.codex/skills"
+    cleanup_legacy_skill_entries "$target_home/.agents/skills"
 
     if ! bash "$sync_helper" --repair --all --target-home "$target_home" \
         --shipglows-root "$SHIPGLOWS_INSTALL_ROOT" --runtime all --backup-existing; then
@@ -1649,7 +1649,7 @@ configure_aliases() {
     [ -f "$bashrc" ] || touch "$bashrc"
     sed -i '/^# >>> ShipGlows AI aliases >>>$/,/^# <<< ShipGlows AI aliases <<<$/{d}' "$bashrc"
     sed -i '/^# >>> ShipGlows AI aliases >>>$/,/^# <<< ShipGlows AI aliases <<<$/{d}' "$bashrc"
-    sed -i '/^alias \(shipglows\|sg\|c\|co\|cask\|coask\|ch\|re\|reload\|update-codex\)=/d' "$bashrc"
+    sed -i '/^alias \(shipglows\|sg\|c\|co\|cor\|cask\|coask\|ch\|re\|reload\|update-codex\)=/d' "$bashrc"
     cat >> "$bashrc" << ALIASES
 
 # >>> ShipGlows AI aliases >>>
@@ -1657,6 +1657,7 @@ alias shipglows='/usr/local/bin/shipglows'
 alias sg='/usr/local/bin/sg'
 alias c='$c_alias'
 alias co='codex'
+alias cor='codex resume'
 function update-codex {
     local latest installed
     latest="\$(pnpm view @openai/codex@latest version)" || return 1

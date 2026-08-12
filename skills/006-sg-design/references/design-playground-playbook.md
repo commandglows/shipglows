@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-07-15"
+updated: "2026-08-12"
 status: active
 source_skill: 006-sg-design
 scope: design-playground
@@ -22,7 +22,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: skills/references/design-system-token-contract.md
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes:
   - skills/501-sg-design-playground/SKILL.md
@@ -35,7 +35,7 @@ next_step: "/103-sg-verify design playground"
 
 ## Activation
 
-Use for `006-sg-design playground [route-path]`; default route is `/design-system`. This mode scaffolds a versioned UI over an existing canonical design-token source. It must never seed or become a parallel token store.
+Use for `sg-design playground [route-path]`; default route is `/design-system`. This mode scaffolds a versioned UI over an existing canonical design-token source. It must never seed or become a parallel token store.
 
 ## Pre-Checks
 

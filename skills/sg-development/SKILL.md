@@ -5,9 +5,17 @@ description: Build product features, apps, and refactors through verified implem
 
 # sg-development
 
+## Mission
+
+`sg-development` is the public owner for verified product features, apps, and refactors.
+
+## Scope Gate
+
 Own the outcome from clarification through proof. Resolve `project -> product -> surface -> feature`, load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`, and ask only material operator decisions.
 
-Load `../001-sg-build/SKILL.md` for the detailed execution lifecycle. Continue through its internal planning, implementation, checks, documentation, and authorized ship route; `001-sg-build` is an expert/legacy engine, not a public command.
+## Required References
+
+Resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine, verify the root and `$SHIPGLOWS_ROOT/skills/001-sg-build/SKILL.md` exist, then load that canonical engine for the detailed execution lifecycle. If the root or file is missing, stop with a visible error; never fall back to a sibling runtime path. Continue through its internal planning, implementation, checks, documentation, and authorized ship route; `001-sg-build` is an expert/legacy engine, not a public command.
 
 `build` is a hidden expert mode for deliberate lifecycle control. It selects
 the same `001-sg-build` owner path and is reachable as either
@@ -20,3 +28,15 @@ conversation and durable evidence, then invoke `103-sg-verify` with
 `mode=excellence`. Do not begin a new build lifecycle or ask the operator to
 name the verification engine. If the excellence pass finds a repair, retain
 public ownership, coordinate the repair internally, and rerun the pass.
+
+## Validation
+
+Use the selected lifecycle's implementation, check, documentation, and proportional proof gates before handoff.
+
+## Stop Conditions
+
+Stop and follow the runtime contract when scope, authority, a material product decision, or required proof is unresolved.
+
+## Report Modes
+
+Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before reporting; keep internal engine names out of user-facing reports.

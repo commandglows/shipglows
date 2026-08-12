@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.5"
+artifact_version: "1.1.6"
 project: "ShipGlows"
 created: "2026-07-13"
 created_at: "2026-07-13 17:37:20 UTC"
-updated: "2026-08-09"
-updated_at: "2026-08-09 00:30:00 UTC"
+updated: "2026-08-11"
+updated_at: "2026-08-11 22:30:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -17,7 +17,7 @@ confidence: high
 risk_level: high
 security_impact: yes
 docs_impact: yes
-linked_systems: ["local/local.sh", "local/remote-helpers.sh", "local/install.sh", "local/install_local.ps1", "local/README.md", "local/README_WINDOWS.md", "shipglows_data/technical/local-tunnels-and-mcp-login.md", "shipglows_data/technical/context-function-tree.md"]
+linked_systems: ["local/local.sh", "local/remote-helpers.sh", "local/install.sh", "local/install_local.ps1", "local/README.md", "shipglows_data/technical/operator-guides/windows-devserver.md", "shipglows_data/technical/local-tunnels-and-mcp-login.md", "shipglows_data/technical/context-function-tree.md"]
 depends_on:
   - artifact: "shipglows_data/technical/local-tunnels-and-mcp-login.md"
     artifact_version: "1.1.1"
@@ -149,7 +149,7 @@ Add a local-first promotion operation that validates or generates an identity, s
 ## Documentation Coherence
 
 - Update `local/README.md` for password-to-key promotion, one-key-per-device, rollback, and troubleshooting.
-- Update `local/README_WINDOWS.md` to recommend WSL for automation and retain an accurate native PowerShell manual path.
+- Update `shipglows_data/technical/operator-guides/windows-devserver.md` to recommend WSL for automation and retain an accurate native PowerShell manual path.
 - Update `shipglows_data/technical/local-tunnels-and-mcp-login.md` for helpers, invariants, and failures.
 - Update `shipglows_data/technical/context-function-tree.md` for the new connection-management branch.
 - Update global `README.md` only if its local-tunnel capability list would otherwise become incomplete.
@@ -194,7 +194,7 @@ Add a local-first promotion operation that validates or generates an identity, s
   - Notes: no real server or real private key in automated fixtures.
 
 - [x] Task 4: Align local and technical documentation.
-  - File: `local/README.md`, `local/README_WINDOWS.md`, `shipglows_data/technical/local-tunnels-and-mcp-login.md`, `shipglows_data/technical/context-function-tree.md`, optional `README.md`.
+  - File: `local/README.md`, `shipglows_data/technical/operator-guides/windows-devserver.md`, `shipglows_data/technical/local-tunnels-and-mcp-login.md`, `shipglows_data/technical/context-function-tree.md`, optional `README.md`.
   - Action: document flow, device-key model, limits, rollback, Windows/WSL route, and validation.
   - User story link: makes future server pairing reproducible.
   - Depends on: Tasks 1 through 3.

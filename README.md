@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.18.3"
+artifact_version: "0.18.5"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-09"
+updated: "2026-08-12"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -242,7 +242,10 @@ syntax-check, and run the current official Windows bootstrap instead of
 re-running a potentially stale local installer. When their short names are unclaimed,
 the installer also provides `c` (Claude), `co` (Codex), `cor` (`codex resume`),
 `oc` (OpenCode), `kc` (KiloCode), `re` (open a freshly reloaded PowerShell),
-and `ch` (clear PowerShell history and open a clean session). npm-family and agent commands receive
+and `ch` (clear PowerShell history and open a clean session). `gpush` always
+provides `git push`; when persistent profile execution is allowed, ShipGlows
+also replaces PowerShell's built-in `gp -> Get-ItemProperty` alias with the
+expected `gp -> git push` function. npm-family and agent commands receive
 managed `.cmd` wrappers so blocked npm-generated `.ps1` shims do not require a
 machine-wide execution-policy change.
 
@@ -274,7 +277,7 @@ To make the public skill corpus and the OpenCode/KiloCode-compatible repository 
 curl -fsSL https://shipglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
 ```
 
-For a server installation, the interactive installer also asks separately whether to synchronize the public skill corpus into Claude/Codex. Select that option only for a source-tree workflow; Codex plugin users do not need it.
+For a server installation, the interactive installer also asks separately whether to synchronize the public skill corpus into Claude and the Codex user skill directory. Select that option only for a source-tree development workflow; regular Codex users should install the plugin instead.
 
 ### Codex plugin alpha
 
@@ -515,7 +518,7 @@ is a web preview path for browser testing through SSH tunnels, not native
 Android/iOS rendering.
 
 Per-user configuration includes:
-- optional `~/.claude/skills/*` and `~/.codex/skills/*` symlinks for the default public ShipGlows skills when the public skill corpus is explicitly selected; the expert engine catalogue is opt-in
+- optional `~/.claude/skills/*` and `~/.agents/skills/*` links for the default public ShipGlows skills when the public skill corpus is explicitly selected; the expert engine catalogue is opt-in
 - aliases in `~/.bashrc` for `000-shipglows`, `sg`, mode-selected `c`/`co`, safe escape hatches `cask`/`coask`, shell reload (`re`/`reload`), and tmux pane cleanup (`ch` = `clear; tmux clear-history`)
 - `shipglows_data/workflow/TASKS.md`, `shipglows_data/workflow/AUDIT_LOG.md`
 
@@ -524,9 +527,19 @@ Skill runtime visibility can also be checked or repaired without rerunning the f
 ```bash
 tools/shipglows_sync_skills.sh --check --all
 tools/shipglows_sync_skills.sh --repair --skill sg-example
+tools/shipglows_sync_skills.sh --repair --all --runtime codex --catalog all
 ```
 
-The helper links current-user `~/.claude/skills/<name>` and `~/.codex/skills/<name>` entries to the real public skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. Use `--catalog expert` only when the internal engine catalogue is intentionally needed. It reports missing or stale links, blocks non-symlink collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
+The helper links current-user `~/.claude/skills/<name>` and [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. Use `--catalog expert` for internal engines only, or `--catalog all` for the complete developer catalogue. It reports missing or stale links, blocks non-link collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
+
+On native Windows, use the PowerShell helper. It creates directory junctions, which do not require Windows symbolic-link privileges:
+
+```powershell
+.\tools\shipglows_sync_skills.ps1 -Mode repair -All -Runtime codex -Catalog all
+.\tools\shipglows_sync_skills.ps1 -Mode check -All -Runtime codex -Catalog all
+```
+
+The native Windows public installer deliberately does not install this source corpus. Developers run the command above from a ShipGlows checkout; other Codex users use the plugin route.
 
 If your Codex version does not expose one of these items (for example `thread`), adjust interactively in Codex:
 

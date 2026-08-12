@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.10.3"
+artifact_version: "0.10.5"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-05"
+updated: "2026-08-12"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -24,6 +24,12 @@ evidence: []
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-08-12]
+
+### Changed
+- Moved Codex source-tree skill synchronization from the legacy `~/.codex/skills` location to the official `~/.agents/skills` user scope, added a complete developer catalog option, and added a native Windows PowerShell junction helper. Public Windows installs remain plugin-first and do not install the source corpus automatically.
+- Restored the familiar Windows `gp -> git push` shortcut by explicitly replacing PowerShell's read-only `gp -> Get-ItemProperty` alias in a managed user-profile block when profile policy allows it; added profile-independent `gpush` as the locked-host fallback.
 
 ## [2026-08-05]
 

@@ -6,10 +6,14 @@ from tempfile import TemporaryDirectory
 import unittest
 
 from tools.resource_resolver import (
+    DEFAULT_MAX_TOKENS,
+    Resource,
     ResolverError,
+    _bounded_pack,
     build_catalog,
     expand_resource,
     get_resource,
+    resolve_resource_pack,
     resolve_resources,
 )
 
@@ -90,6 +94,95 @@ class ResourceResolverTests(unittest.TestCase):
             [(item.resource_id, item.score) for item in second],
         )
         self.assertLessEqual(len(first), 4)
+        self.assertLessEqual(sum(item.estimated_tokens for item in first), DEFAULT_MAX_TOKENS)
+
+    def test_pack_respects_token_cap_and_reports_oversize_resource(self) -> None:
+        pack = resolve_resource_pack(
+            root=ROOT,
+            skill="009-sg-marketing",
+            mode="copywriting",
+            intent="landing page proof objections CTA sequence",
+            limit=8,
+            max_tokens=5_000,
+        )
+        self.assertLessEqual(pack.estimated_tokens, 5_000)
+        self.assertLessEqual(len(pack.resources), 8)
+        self.assertTrue(pack.skipped)
+        self.assertTrue(
+            all(exclusion.reason == "estimated token budget exceeded" for exclusion in pack.skipped)
+        )
+        for exclusion in pack.skipped:
+            self.assertGreater(exclusion.resource.estimated_tokens, 0)
+            self.assertTrue(exclusion.resource.status)
+
+    def test_oversize_first_candidate_does_not_block_smaller_candidate(self) -> None:
+        resource = get_resource(ROOT, "shared:landing-page-copywriting-framework")
+        oversized = Resource(
+            **{
+                **resource.__dict__,
+                "resource_id": "shared:oversized",
+                "estimated_tokens": 100,
+                "score": 100,
+            }
+        )
+        smaller = Resource(
+            **{
+                **resource.__dict__,
+                "resource_id": "shared:smaller",
+                "path": ROOT / "skills/references/decision-quality-contract.md",
+                "estimated_tokens": 10,
+                "score": 90,
+            }
+        )
+        pack = _bounded_pack((oversized, smaller), limit=2, max_tokens=50)
+        self.assertEqual([item.resource_id for item in pack.resources], ["shared:smaller"])
+        self.assertEqual(pack.skipped[0].resource.resource_id, "shared:oversized")
+
+    def test_duplicate_canonical_resource_is_selected_once_and_reported(self) -> None:
+        resource = get_resource(ROOT, "shared:decision-quality-contract")
+        duplicate = Resource(
+            **{
+                **resource.__dict__,
+                "resource_id": "shared:decision-quality-contract-alias",
+                "score": 90,
+            }
+        )
+        pack = _bounded_pack((resource, duplicate), limit=2, max_tokens=50_000)
+        self.assertEqual(len(pack.resources), 1)
+        self.assertEqual(pack.skipped[0].reason, "duplicate canonical resource")
+
+    def test_statuses_remain_visible_and_reviewed_is_not_rewritten(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            shared = root / "skills/references"
+            shared.mkdir(parents=True)
+            skill = root / "skills/009-sg-marketing"
+            skill.mkdir(parents=True)
+            (skill / "SKILL.md").write_text("---\nname: 009-sg-marketing\n---\n", encoding="utf-8")
+            for status in ("active", "draft", "unknown", "reviewed"):
+                (shared / f"{status}.md").write_text(
+                    "---\nartifact: contract\n"
+                    f"status: {status}\n"
+                    "scope: status-check\n---\n# Status Check\nstatus terms\n",
+                    encoding="utf-8",
+                )
+            pack = resolve_resource_pack(
+                root,
+                "009-sg-marketing",
+                mode="status",
+                intent="status check",
+                limit=4,
+                max_tokens=1_000,
+            )
+            statuses = {item.status for item in pack.resources}
+            self.assertEqual(statuses, {"active", "draft", "unknown", "reviewed"})
+            reasons = {item.status: item.reasons for item in pack.resources}
+            self.assertIn("status: reviewed", reasons["reviewed"])
+            self.assertIn("status: unknown", reasons["unknown"])
+
+    def test_invalid_token_cap_fails_visibly(self) -> None:
+        with self.assertRaisesRegex(ResolverError, "max_tokens must be at least 1"):
+            resolve_resource_pack(ROOT, "009-sg-marketing", "copywriting", "landing", max_tokens=0)
 
     def test_unknown_skill_and_resource_fail_without_guessing(self) -> None:
         with self.assertRaises(ResolverError):

@@ -85,6 +85,25 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
             self.assertIn("intent-to-outcome-autonomy.md", body, public_skill)
             self.assertIn(runtime_skill, body, public_skill)
 
+    # MH-01b: a public wrapper remains followable without requiring agents to
+    # infer missing proof, stop, or reporting behavior from its runtime engine.
+    def test_mh_01b_public_wrappers_expose_compact_activation_signals(self) -> None:
+        required_headings = (
+            "## Mission",
+            "## Scope Gate",
+            "## Required References",
+            "## Validation",
+            "## Stop Conditions",
+            "## Report Modes",
+        )
+        public_entries = self.skills + [self.catalog["router"]]
+        for entry in public_entries:
+            public_skill = str(entry["public_skill"])
+            body = (SKILLS / public_skill / "SKILL.md").read_text(encoding="utf-8")
+            for heading in required_headings:
+                self.assertIn(heading, body, f"{public_skill}: {heading}")
+            self.assertIn("reporting-contract.md", body, public_skill)
+
     # MH-02: projects can contain several products and surfaces.
     def test_mh_02_preserves_the_full_target_hierarchy(self) -> None:
         target = "project -> product -> surface -> feature"

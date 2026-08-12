@@ -1,6 +1,6 @@
 ---
 name: 006-sg-design
-description: "Single public entrypoint for design-system work, animation, design audits, accessibility, and inspiration-library curation."
+description: "Internal runtime engine for sg-design design-system work, animation, audits, accessibility, and inspiration curation."
 argument-hint: <system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...>
 ---
 
@@ -47,7 +47,7 @@ Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/s
 
 ## Mission
 
-`006-sg-design` is the sole public entrypoint for design-related work. It owns lifecycle routing and proof posture for design-system, UI/UX, animation, accessibility, visual-proof, and token migration work, but it does not replace implementation, browser verification, or ship/deploy skills.
+`006-sg-design` is the runtime engine selected by public `sg-design`. It owns lifecycle routing and proof posture for design-system, UI/UX, animation, accessibility, visual-proof, and token migration work, but it does not replace implementation, browser verification, or ship/deploy skills.
 
 ## Scope Gate
 

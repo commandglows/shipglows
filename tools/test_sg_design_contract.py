@@ -8,6 +8,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 TOKEN_CONTRACT = ROOT / "skills" / "references" / "design-system-token-contract.md"
 DESIGN_SKILL = ROOT / "skills" / "006-sg-design" / "SKILL.md"
+PUBLIC_DESIGN_SKILL = ROOT / "skills" / "sg-design" / "SKILL.md"
 TOKEN_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "design-token-audit-playbook.md"
 COMPONENT_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "component-system-audit-playbook.md"
 A11Y_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "accessibility-audit-playbook.md"
@@ -19,6 +20,7 @@ LANDING_COHERENCE = ROOT / "skills" / "references" / "landing-page-experience-co
 README = ROOT / "README.md"
 CHEATSHEET = ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md"
 RUNTIME = ROOT / "shipglows_data" / "technical" / "skill-runtime-and-lifecycle.md"
+HELP_CATALOG = ROOT / "skills" / "302-sg-help" / "references" / "help-modes-catalog.md"
 
 
 def normalized_text(path: Path) -> str:
@@ -27,6 +29,20 @@ def normalized_text(path: Path) -> str:
 
 
 class DesignContractTests(unittest.TestCase):
+    def test_public_design_owner_is_followable_and_hides_runtime_identity(self) -> None:
+        public = PUBLIC_DESIGN_SKILL.read_text(encoding="utf-8")
+        runtime = DESIGN_SKILL.read_text(encoding="utf-8")
+
+        for heading in ("## Mission", "## Scope Gate", "## Required References", "## Validation", "## Stop Conditions", "## Report Modes"):
+            self.assertIn(heading, public)
+        self.assertIn("reporting-contract.md", public)
+        self.assertIn("public `sg-design`", runtime)
+        self.assertNotIn("sole public entrypoint", runtime)
+
+    def test_public_catalog_exposes_every_design_library_operation(self) -> None:
+        catalog = HELP_CATALOG.read_text(encoding="utf-8")
+        self.assertIn("library <add|retry|approve|list|status>", catalog)
+
     def test_parallel_token_files_do_not_prove_shared_authority(self) -> None:
         contract = TOKEN_CONTRACT.read_text(encoding="utf-8")
         audit = TOKEN_AUDIT.read_text(encoding="utf-8")

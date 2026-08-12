@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.21"
+artifact_version: "0.2.27"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
-updated: "2026-08-09"
-updated_at: "2026-08-09 16:00:00 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 10:12:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -26,7 +26,7 @@ linked_systems:
   - "cli/windows/"
   - "tests/windows/"
   - "README.md"
-  - "local/README_WINDOWS.md"
+  - "shipglows_data/technical/operator-guides/windows-devserver.md"
   - "shipglows_data/technical/runtime-cli.md"
   - "shipglows_data/technical/installer-and-user-scope.md"
   - "shipglows_data/technical/code-docs-map.md"
@@ -91,7 +91,7 @@ L'operateur telecharge avec `curl.exe` le bootstrap PowerShell depuis l'endpoint
 - Le meme endpoint `https://shipglows.com/shipglows-script?format=powershell` sert l'installateur Windows local et full; sans `-InstallMode`, une console interactive demande explicitement tunnel local ou DevServer full (full recommande). `-InstallMode local|full` reste disponible pour l'automatisation; une entree non interactive sans mode preserve le fallback local historique.
 - Le mode full prepare Git, GitHub CLI, Node LTS/npm, pnpm et uv automatiquement. Flutter Web reste un choix explicite dans l'installateur: si l'operateur accepte, le SDK stable est installe dans le profil utilisateur et le support web est active.
 - Le dashboard decouvre les projets enregistres, affiche `running`, `stopped`, `error` ou `unknown`, le type de projet, le port et l'URL locale.
-- Un clone Git reussi est place par defaut sous `%USERPROFILE%\ShipGlows\workspace\<repo>` et n'est enregistre qu'apres validation du chemin et du depot.
+- Un clone Git reussi est place par defaut directement sous `%USERPROFILE%\ShipGlows\<repo>` et n'est enregistre qu'apres validation du chemin et du depot.
 - Astro respecte le lockfile existant, installe les dependances sans migration implicite, puis expose une URL `http://127.0.0.1:<port>`.
 - Python/FastAPI utilise `uv` et un environnement `.venv`; un projet avec `uv.lock` demarre en mode verrouille et echoue clairement si le lockfile est incoherent.
 - Flutter Web utilise le SDK Windows, execute `flutter pub get`, puis ouvre une session terminal interactive conservant les commandes de hot reload/hot restart.
@@ -123,7 +123,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 
 - Nouveau runtime PowerShell sous `cli/windows/`, compatible Windows PowerShell 5.1 et PowerShell 7.
 - Commande `.cmd` installee `shipglows-dev`, avec raccourci `s` si aucun conflit n'existe; le runtime est ajoute au `PATH` utilisateur et a la session PowerShell d'installation.
-- Workspace par defaut `%USERPROFILE%\ShipGlows\workspace`, configurable par une variable ShipGlows dediee.
+- Racine des projets par defaut `%USERPROFILE%\ShipGlows`, configurable par une variable ShipGlows dediee.
 - Registre local JSON atomique sous `%LOCALAPPDATA%\ShipGlows\DevServer\registry.json`.
 - Detection et lifecycle Astro avec pnpm prioritaire quand `pnpm-lock.yaml` existe, npm quand `package-lock.json` existe, et aucun changement implicite de package manager.
 - Detection et lifecycle Python/FastAPI avec `uv`, `pyproject.toml`, `uv.lock`, `.python-version` et `.venv`; compatibilite bornee `requirements.txt` via un chemin uv explicite.
@@ -255,7 +255,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 # Documentation Coherence
 
 - Update `README.md` with the Windows DevServer capability matrix, install selector, supported stacks and excluded hosting behavior.
-- Update `local/README_WINDOWS.md` to separate native tunnel mode from native DevServer mode and remove the old implication that WSL is the only complete development path.
+- Update `shipglows_data/technical/operator-guides/windows-devserver.md` to separate native tunnel mode from native DevServer mode and remove the old implication that WSL is the only complete development path.
 - Update `shipglows_data/technical/runtime-cli.md` with the dual-backend architecture, Windows registry/process contracts and supported framework matrix.
 - Update `shipglows_data/technical/installer-and-user-scope.md` with the opt-in DevServer surface, user-scoped paths and dependency authority.
 - Update `shipglows_data/technical/architecture.md`, `context.md` and `context-function-tree.md` for the new entrypoints and invariants.
@@ -361,7 +361,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
   - Notes: No public binding, emulator or shutdown bypass test.
 
 - [ ] Task 10: Align technical and operator documentation
-  - File: `README.md`, `local/README_WINDOWS.md`, `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/installer-and-user-scope.md`, `shipglows_data/technical/architecture.md`, `shipglows_data/technical/context.md`, `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/code-docs-map.md`
+  - File: `README.md`, `shipglows_data/technical/operator-guides/windows-devserver.md`, `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/installer-and-user-scope.md`, `shipglows_data/technical/architecture.md`, `shipglows_data/technical/context.md`, `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/code-docs-map.md`
   - Action: Document dual backends, exact capability matrix, install path, state locations, limitations, Shadow posture, proof commands and documentation update mapping.
   - User story link: Gives the operator an honest migration and recovery path.
   - Depends on: Tasks 1-9.
@@ -499,6 +499,10 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-09 12:52:54 UTC | 300-sg-docs | GPT-5 Codex | Consolidated the native Windows story across architecture, runtime, installer ownership, context/function navigation, code-to-doc routing, README, and the active chantier. | Documentation now distinguishes Linux server and Windows local backends, records full-mode tools and agent choices, and explains profile-independent wrappers and shortcuts. Validation pending; AC27/AC28 remain target-proof gaps rather than documented-as-verified behavior. | Run governance, metadata, link/contract and public-claim coherence checks, then ship the bounded documentation update. |
 | 2026-08-09 12:55:18 UTC | 005-sg-ship | GPT-5 Codex | Prepared the bounded Windows documentation consolidation for iterative shipping after internal and public owner alignment. | Governance topology, metadata lint for eight artifacts, Windows static contract, focused code-to-claim scans, AGENTS compatibility and diff check pass. Native Shadow proof for AC27/AC28 remains outside this docs-only release. | Push the scoped documentation commit; continue target shortcut verification separately. |
 | 2026-08-09 15:40:00 UTC | sg-content | GPT-5 Codex + delegated agents | Aligned the public CommandGlows EN/FR installer copy with the native Windows full runtime, added a secondary Windows DevServer path to the ShipGlows Codex install pages, and declared the external bootstrap pages in editorial governance. | Public copy now distinguishes plugin and runtime installation, documents optional agents and profile-independent commands, and scopes Ubuntu root requirements away from Windows. AC27/AC28 remain pending real Shadow proof. | Validate both Astro sites, targeted installer tests, metadata, links, and canonical/generated PowerShell parity before release. |
+| 2026-08-12 09:09:57 UTC | 602-sg-platform-parity | GPT-5 Codex | Closed a bounded Windows lifecycle parity tranche: Flox-root discovery with native launch-target adaptation, persistent/configured ports, manifest variables, auto-discovered dashboard, safe unregister, process signatures across npm/pnpm/uv/Flutter, and bounded log rotation. | PowerShell 5.1 parsing and the Windows static contract pass; `gocharbon` remains running on its persistent port 3002; reversible unregister preserved `communityglows` sources. FastAPI and Flutter runtime smoke proof remain pending. | Continue native fixture and Shadow proof for FastAPI, Flutter, stale PID recovery and log rotation boundaries. |
+| 2026-08-12 09:25:00 UTC | 103-sg-verify | GPT-5 Codex | Recorded native FastAPI `requirements.txt` proof: `uv` created then reused `.venv`, FastAPI returned HTTP 200 on `127.0.0.1:32111`, and `stop` released the port and reset the tracked PID to `0`; stale-PID recovery was also exercised without terminating an unverified process. | FastAPI lifecycle and stale-PID safety are proven. Flutter runtime smoke and log-rotation boundary proof remain pending. | Continue Flutter Web and log-rotation boundary proof. |
+| 2026-08-12 09:46:00 UTC | 602-sg-platform-parity | GPT-5 Codex | Completed the Windows command-navigation parity correction: every interactive project selector now offers `0 Back to menu`; the root menu names `0 Quit ShipGlows`, and Escape no longer terminates the interactive menu. | PowerShell parser and Windows static contract pass. Remaining gaps are lifecycle proof for Flutter Web and log-rotation boundaries, plus deliberate Windows adaptations for Linux-only Flox runtime, PM2 and Caddy flows. | Continue the remaining runtime proof. |
+| 2026-08-12 10:12:00 UTC | 602-sg-platform-parity | GPT-5 Codex | Audited the Linux menu surface against the native Windows DevServer. | Direct lifecycle parity remains incomplete for environment rename, start-all and restart-all. Linux server-administration, PM2/Caddy, tunnel, tmux, Flutter hot-reload, session/identity, MCP/Turso/Blacksmith, system maintenance and Rust/Go/Dart support are not present in the Windows scope. | Decide which remaining portable lifecycle commands should be implemented next. |
 
 # Current Chantier Flow
 
@@ -507,6 +511,6 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 100-sg-spec | complete | Full implementation contract saved with scope, exclusions, security invariants, ZOMBIES coverage and proof plan. |
 | 101-sg-ready | complete | Spec is ready after structure, security, freshness, cross-repo and proof-contract review. |
 | 102-sg-start | complete | Native runtime, full bootstrap, launcher, public commands, docs and static contracts are implemented locally. |
-| 103-sg-verify | in_progress | Verify Windows PowerShell 5.1 behavior, Shadow reconnect/port recovery and public artifact deployment parity. |
+| 103-sg-verify | in_progress | PowerShell 5.1 parsing, discovered dashboard, persistent Astro port, safe unregister, FastAPI lifecycle and stale-PID recovery are proven on Shadow; Flutter and log-rotation boundary proof remain. |
 | 104-sg-end | pending | Close only after real Shadow proof and documentation coherence. |
 | 005-sg-ship | complete | ShipGlows and CommandGlows scoped commits are pushed to their respective `main` branches. |

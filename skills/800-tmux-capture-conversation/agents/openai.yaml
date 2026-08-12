@@ -2,3 +2,5 @@ interface:
   display_name: "800-tmux-capture-conversation"
   short_description: "Export tmux panes to Markdown files"
   default_prompt: "Use $800-tmux-capture-conversation to export the current tmux conversation to a Markdown transcript."
+policy:
+  allow_implicit_invocation: false

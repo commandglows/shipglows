@@ -52,21 +52,21 @@ test ! -e "$TARGET_HOME_TEST/.claude/skills/001-sg-alpha"
 
 run_helper --repair --skill 001-sg-alpha >/tmp/shipglows-sync-repair.out
 assert_link "$TARGET_HOME_TEST/.claude/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
-assert_link "$TARGET_HOME_TEST/.codex/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
+assert_link "$TARGET_HOME_TEST/.agents/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
 grep -q "summary mode=repair" /tmp/shipglows-sync-repair.out
 
 run_helper --check --skill 001-sg-alpha >/tmp/shipglows-sync-ok.out
 grep -q "ok runtime=claude skill=001-sg-alpha" /tmp/shipglows-sync-ok.out
 grep -q "ok runtime=codex skill=001-sg-alpha" /tmp/shipglows-sync-ok.out
 
-ln -sfn "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha" "$TARGET_HOME_TEST/.codex/skills/002-sg-beta"
+ln -sfn "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha" "$TARGET_HOME_TEST/.agents/skills/002-sg-beta"
 if run_helper --check --skill 002-sg-beta --runtime codex >/tmp/shipglows-sync-stale.out 2>&1; then
     echo "expected stale symlink check to fail" >&2
     exit 1
 fi
 grep -q "stale-or-broken-symlink" /tmp/shipglows-sync-stale.out
 run_helper --repair --skill 002-sg-beta --runtime codex >/tmp/shipglows-sync-stale-repair.out
-assert_link "$TARGET_HOME_TEST/.codex/skills/002-sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/002-sg-beta"
+assert_link "$TARGET_HOME_TEST/.agents/skills/002-sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/002-sg-beta"
 test ! -e "$TARGET_HOME_TEST/.claude/skills/002-sg-beta"
 
 mkdir -p "$TARGET_HOME_TEST/.claude/skills/003-sg-gamma"
@@ -95,17 +95,21 @@ fi
 grep -q "invalid skill name" /tmp/shipglows-sync-invalid2.out
 
 run_helper --repair --all --runtime codex --catalog public >/tmp/shipglows-sync-public-codex.out
-assert_link "$TARGET_HOME_TEST/.codex/skills/sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/sg-alpha"
-assert_link "$TARGET_HOME_TEST/.codex/skills/sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/sg-beta"
-assert_link "$TARGET_HOME_TEST/.codex/skills/shipglows" "$SHIPGLOWS_ROOT_TEST/skills/shipglows"
+assert_link "$TARGET_HOME_TEST/.agents/skills/sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/sg-alpha"
+assert_link "$TARGET_HOME_TEST/.agents/skills/sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/sg-beta"
+assert_link "$TARGET_HOME_TEST/.agents/skills/shipglows" "$SHIPGLOWS_ROOT_TEST/skills/shipglows"
 
 run_helper --repair --all --runtime codex --catalog expert >/tmp/shipglows-sync-all-codex.out
-assert_link "$TARGET_HOME_TEST/.codex/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
-assert_link "$TARGET_HOME_TEST/.codex/skills/002-sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/002-sg-beta"
-assert_link "$TARGET_HOME_TEST/.codex/skills/003-sg-gamma" "$SHIPGLOWS_ROOT_TEST/skills/003-sg-gamma"
+assert_link "$TARGET_HOME_TEST/.agents/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
+assert_link "$TARGET_HOME_TEST/.agents/skills/002-sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/002-sg-beta"
+assert_link "$TARGET_HOME_TEST/.agents/skills/003-sg-gamma" "$SHIPGLOWS_ROOT_TEST/skills/003-sg-gamma"
 
-if find "$HOME/.codex/skills" -maxdepth 0 >/dev/null 2>&1; then
-    test ! -e "$HOME/.codex/skills/001-sg-alpha-test-should-not-exist"
+run_helper --repair --all --runtime codex --catalog all >/tmp/shipglows-sync-complete-codex.out
+assert_link "$TARGET_HOME_TEST/.agents/skills/shipglows" "$SHIPGLOWS_ROOT_TEST/skills/shipglows"
+assert_link "$TARGET_HOME_TEST/.agents/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
+
+if find "$HOME/.agents/skills" -maxdepth 0 >/dev/null 2>&1; then
+    test ! -e "$HOME/.agents/skills/001-sg-alpha-test-should-not-exist"
 fi
 
 echo "test_skill_runtime_sync: passed"

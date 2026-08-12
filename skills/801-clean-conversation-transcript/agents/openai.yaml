@@ -2,3 +2,5 @@ interface:
   display_name: "801-clean-conversation-transcript"
   short_description: "Make tmux transcripts readable and reusable"
   default_prompt: "Use $801-clean-conversation-transcript to clean this exported tmux conversation Markdown file in place."
+policy:
+  allow_implicit_invocation: false

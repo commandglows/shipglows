@@ -2,3 +2,5 @@ interface:
   display_name: "602-sg-platform-parity"
   short_description: "Audit and steer platform parity"
   default_prompt: "Use $602-sg-platform-parity to compare product behavior, implementation evidence, QA proof, and platform-specific adaptations across supported platforms."
+policy:
+  allow_implicit_invocation: false

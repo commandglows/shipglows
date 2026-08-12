@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-08-03"
+updated: "2026-08-12"
 status: active
 source_skill: 900-shipglows-core
 scope: design-system-token-contract
@@ -30,7 +30,7 @@ supersedes: []
 evidence:
   - "User directive 2026-06-11: agents must not customize application design outside the centralized design-system tokens for spacing, typography, colors, shadows, and related visual decisions."
   - "Current platform standards favor centralized tokens and themes: Material Design 3 design tokens, Flutter ThemeData, Tailwind v4 CSS theme variables, WCAG 2.2 target size, and adaptive mobile layout guidance."
-next_review: "2026-06-25"
+next_review: "2026-09-12"
 next_step: "/103-sg-verify design-system-token-contract"
 ---
 

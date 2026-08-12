@@ -16,6 +16,7 @@ from typing import Iterable
 ROOT = Path(__file__).resolve().parents[1]
 MAX_FILE_BYTES = 512_000
 MAX_RESULTS = 20
+DEFAULT_MAX_TOKENS = 12_000
 INACTIVE_STATUSES = {"archived", "deprecated", "inactive", "retired", "superseded"}
 TOKEN_RE = re.compile(r"[a-z0-9]+")
 HEADING_RE = re.compile(r"^#{1,6}\s+(.+)$", re.MULTILINE)
@@ -46,6 +47,7 @@ class Resource:
     depends_on: tuple[str, ...]
     searchable: str
     headings: str
+    estimated_tokens: int
     score: int = 0
     reasons: tuple[str, ...] = ()
 
@@ -58,9 +60,40 @@ class Resource:
             "status": self.status,
             "scope": self.scope,
             "source_skill": self.source_skill or None,
+            "estimated_tokens": self.estimated_tokens,
             "score": self.score,
             "reasons": list(self.reasons),
         }
+
+
+@dataclass(frozen=True)
+class ResourceExclusion:
+    resource: Resource
+    reason: str
+
+    def public_dict(self) -> dict[str, object]:
+        return {
+            "resource_id": self.resource.resource_id,
+            "status": self.resource.status,
+            "estimated_tokens": self.resource.estimated_tokens,
+            "score": self.resource.score,
+            "reason": self.reason,
+        }
+
+
+@dataclass(frozen=True)
+class ResourcePack:
+    resources: tuple[Resource, ...]
+    skipped: tuple[ResourceExclusion, ...]
+    candidate_count: int
+    considered_count: int
+    omitted_by_result_limit: int
+    max_results: int
+    max_tokens: int
+
+    @property
+    def estimated_tokens(self) -> int:
+        return sum(resource.estimated_tokens for resource in self.resources)
 
 
 def _normalize(value: str) -> str:
@@ -79,6 +112,11 @@ def _clean_scalar(value: str) -> str:
     if len(cleaned) >= 2 and cleaned[0] == cleaned[-1] and cleaned[0] in {'"', "'"}:
         return cleaned[1:-1]
     return cleaned
+
+
+def _estimate_tokens(text: str) -> int:
+    """Return a deterministic, tokenizer-independent content estimate."""
+    return max(1, (len(text) + 3) // 4)
 
 
 def _parse_frontmatter(text: str) -> tuple[dict[str, str], dict[str, tuple[str, ...]], str]:
@@ -167,6 +205,7 @@ def _resource_from_path(
         depends_on=lists.get("depends_on", ()),
         searchable=searchable,
         headings=headings,
+        estimated_tokens=_estimate_tokens(text),
     )
 
 
@@ -216,6 +255,11 @@ def build_catalog(root: Path = ROOT, include_inactive: bool = False) -> dict[str
 def _validate_limit(limit: int) -> None:
     if not 1 <= limit <= MAX_RESULTS:
         raise ResolverError(f"limit must be between 1 and {MAX_RESULTS}")
+
+
+def _validate_token_limit(max_tokens: int) -> None:
+    if max_tokens < 1:
+        raise ResolverError("max_tokens must be at least 1")
 
 
 def _rank_resource(resource: Resource, skill: str, mode: str, intent: str) -> Resource | None:
@@ -276,8 +320,11 @@ def _rank_resource(resource: Resource, skill: str, mode: str, intent: str) -> Re
 
     if resource.status == "active":
         score += 5
-    elif resource.status in {"draft", "review"}:
+    elif resource.status in {"draft", "review", "reviewed"}:
         score -= 5
+        reasons.append(f"status: {resource.status}")
+    elif resource.status != "active":
+        score -= 10
         reasons.append(f"status: {resource.status}")
 
     if score <= 0:
@@ -285,15 +332,57 @@ def _rank_resource(resource: Resource, skill: str, mode: str, intent: str) -> Re
     return replace(resource, score=score, reasons=tuple(reasons))
 
 
-def resolve_resources(
+def _bounded_pack(
+    ranked: Iterable[Resource],
+    limit: int,
+    max_tokens: int,
+) -> ResourcePack:
+    _validate_limit(limit)
+    _validate_token_limit(max_tokens)
+    candidates = tuple(ranked)
+    unique: list[Resource] = []
+    skipped: list[ResourceExclusion] = []
+    seen_paths: set[str] = set()
+    for resource in candidates:
+        path_key = str(resource.path).casefold()
+        if path_key in seen_paths:
+            skipped.append(ResourceExclusion(resource, "duplicate canonical resource"))
+            continue
+        seen_paths.add(path_key)
+        unique.append(resource)
+
+    considered = unique[:limit]
+    selected: list[Resource] = []
+    used_tokens = 0
+    for resource in considered:
+        if resource.estimated_tokens > max_tokens - used_tokens:
+            skipped.append(ResourceExclusion(resource, "estimated token budget exceeded"))
+            continue
+        selected.append(resource)
+        used_tokens += resource.estimated_tokens
+
+    return ResourcePack(
+        resources=tuple(selected),
+        skipped=tuple(skipped),
+        candidate_count=len(candidates),
+        considered_count=len(considered),
+        omitted_by_result_limit=max(0, len(unique) - len(considered)),
+        max_results=limit,
+        max_tokens=max_tokens,
+    )
+
+
+def resolve_resource_pack(
     root: Path,
     skill: str,
     mode: str = "",
     intent: str = "",
     limit: int = 8,
     include_inactive: bool = False,
-) -> list[Resource]:
+    max_tokens: int = DEFAULT_MAX_TOKENS,
+) -> ResourcePack:
     _validate_limit(limit)
+    _validate_token_limit(max_tokens)
     root = root.resolve()
     if not (root / "skills" / skill / "SKILL.md").is_file():
         raise ResolverError(f"Unknown ShipGlows skill: {skill}")
@@ -305,7 +394,22 @@ def resolve_resources(
         for resource in catalog.values()
         if (ranked_resource := _rank_resource(resource, skill, mode, intent)) is not None
     ]
-    return sorted(ranked, key=lambda item: (-item.score, item.resource_id))[:limit]
+    ordered = sorted(ranked, key=lambda item: (-item.score, item.resource_id))
+    return _bounded_pack(ordered, limit, max_tokens)
+
+
+def resolve_resources(
+    root: Path,
+    skill: str,
+    mode: str = "",
+    intent: str = "",
+    limit: int = 8,
+    include_inactive: bool = False,
+    max_tokens: int = DEFAULT_MAX_TOKENS,
+) -> list[Resource]:
+    return list(
+        resolve_resource_pack(root, skill, mode, intent, limit, include_inactive, max_tokens).resources
+    )
 
 
 def get_resource(
@@ -327,13 +431,15 @@ def _canonical_relation(value: str) -> str:
     return cleaned
 
 
-def expand_resource(
+def expand_resource_pack(
     root: Path,
     resource_id: str,
     limit: int = 8,
     include_inactive: bool = False,
-) -> list[Resource]:
+    max_tokens: int = DEFAULT_MAX_TOKENS,
+) -> ResourcePack:
     _validate_limit(limit)
+    _validate_token_limit(max_tokens)
     catalog = build_catalog(root, include_inactive=include_inactive)
     target = catalog.get(resource_id.casefold())
     if target is None:
@@ -372,14 +478,41 @@ def expand_resource(
             reasons.append("shared identity terms: " + ", ".join(sorted(shared_terms)[:4]))
         if score:
             related.append(replace(candidate, score=score, reasons=tuple(reasons)))
-    return sorted(related, key=lambda item: (-item.score, item.resource_id))[:limit]
+    ordered = sorted(related, key=lambda item: (-item.score, item.resource_id))
+    return _bounded_pack(ordered, limit, max_tokens)
 
 
-def _print_text(resources: list[Resource]) -> None:
+def expand_resource(
+    root: Path,
+    resource_id: str,
+    limit: int = 8,
+    include_inactive: bool = False,
+    max_tokens: int = DEFAULT_MAX_TOKENS,
+) -> list[Resource]:
+    return list(expand_resource_pack(root, resource_id, limit, include_inactive, max_tokens).resources)
+
+
+def _print_text(resources: list[Resource], pack: ResourcePack | None = None) -> None:
     for resource in resources:
         reasons = "; ".join(resource.reasons)
-        print(f"{resource.resource_id} [{resource.score}] {resource.path}")
+        print(
+            f"{resource.resource_id} [{resource.score}] "
+            f"[{resource.status}] [~{resource.estimated_tokens} tokens] {resource.path}"
+        )
         print(f"  {reasons}")
+    if pack is None:
+        return
+    print(
+        f"Selected {len(pack.resources)}/{pack.max_results} resources, "
+        f"~{pack.estimated_tokens}/{pack.max_tokens} tokens; "
+        f"{pack.omitted_by_result_limit} omitted by result limit."
+    )
+    for exclusion in pack.skipped:
+        resource = exclusion.resource
+        print(
+            f"Skipped {resource.resource_id} [{resource.status}] "
+            f"[~{resource.estimated_tokens} tokens]: {exclusion.reason}"
+        )
 
 
 def main() -> int:
@@ -390,6 +523,12 @@ def main() -> int:
     parser.add_argument("--get", help="Resolve one stable resource ID")
     parser.add_argument("--expand", help="Stable resource ID to expand")
     parser.add_argument("--limit", type=int, default=8)
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=DEFAULT_MAX_TOKENS,
+        help="Maximum deterministic estimated tokens for a ranked starter pack",
+    )
     parser.add_argument("--include-inactive", action="store_true")
     parser.add_argument("--format", choices=("json", "text"), default="json")
     args = parser.parse_args()
@@ -400,27 +539,50 @@ def main() -> int:
             raise ResolverError("Choose exactly one of --skill, --get, or --expand")
         if args.get:
             resources = [get_resource(ROOT, args.get, args.include_inactive)]
+            pack = None
             query = {"get": args.get}
         elif args.expand:
-            resources = expand_resource(ROOT, args.expand, args.limit, args.include_inactive)
+            pack = expand_resource_pack(
+                ROOT,
+                args.expand,
+                args.limit,
+                args.include_inactive,
+                args.max_tokens,
+            )
+            resources = list(pack.resources)
             query = {"expand": args.expand}
         else:
-            resources = resolve_resources(
+            pack = resolve_resource_pack(
                 ROOT,
                 args.skill,
                 args.mode,
                 args.intent,
                 args.limit,
                 args.include_inactive,
+                args.max_tokens,
             )
+            resources = list(pack.resources)
             query = {"skill": args.skill, "mode": args.mode or None, "intent": args.intent or None}
     except (OSError, UnicodeError, json.JSONDecodeError, ResolverError) as error:
         print(json.dumps({"status": "error", "error": str(error)}, ensure_ascii=False), file=sys.stderr)
         return 2
 
     if args.format == "text":
-        _print_text(resources)
+        _print_text(resources, pack)
     else:
+        budget = None
+        skipped: list[dict[str, object]] = []
+        if pack is not None:
+            budget = {
+                "candidate_count": pack.candidate_count,
+                "considered_count": pack.considered_count,
+                "estimated_tokens": pack.estimated_tokens,
+                "max_results": pack.max_results,
+                "max_tokens": pack.max_tokens,
+                "omitted_by_result_limit": pack.omitted_by_result_limit,
+                "skipped_count": len(pack.skipped),
+            }
+            skipped = [exclusion.public_dict() for exclusion in pack.skipped]
         print(
             json.dumps(
                 {
@@ -428,6 +590,8 @@ def main() -> int:
                     "query": query,
                     "count": len(resources),
                     "results": [resource.public_dict() for resource in resources],
+                    "budget": budget,
+                    "skipped": skipped,
                 },
                 ensure_ascii=False,
                 indent=2,

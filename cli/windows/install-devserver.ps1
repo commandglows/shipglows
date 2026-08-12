@@ -94,6 +94,57 @@ function Remove-SgObsoleteProfileCommand {
     }
 }
 
+function Get-SgPersistentProfileExecutionPolicy {
+    foreach ($scope in @('MachinePolicy', 'UserPolicy', 'CurrentUser', 'LocalMachine')) {
+        $policy = Get-ExecutionPolicy -Scope $scope
+        if ($policy -ne 'Undefined') { return $policy }
+    }
+    return 'Restricted'
+}
+
+function Install-SgGitPushProfileShortcut {
+    if ($SkipProfile) {
+        Write-Host "Git shortcut 'gp' skipped with -SkipProfile. Use gpush instead." -ForegroundColor Yellow
+        return $false
+    }
+
+    $persistentPolicy = Get-SgPersistentProfileExecutionPolicy
+    if ($persistentPolicy -notin @('Bypass', 'RemoteSigned', 'Unrestricted')) {
+        Write-SgInstallerWarning "PowerShell profile scripts are governed by '$persistentPolicy'; ShipGlows kept gp unchanged. Use gpush instead."
+        return $false
+    }
+
+    if (Test-Path Function:gp) {
+        Write-SgInstallerWarning "The PowerShell function 'gp' already exists. ShipGlows preserved it; gpush remains available."
+        return $false
+    }
+
+    $profilePath = $PROFILE.CurrentUserAllHosts
+    $profileDirectory = Split-Path -Parent $profilePath
+    New-Item -ItemType Directory -Path $profileDirectory -Force | Out-Null
+    $existing = if (Test-Path -LiteralPath $profilePath -PathType Leaf) {
+        Get-Content -LiteralPath $profilePath -Raw
+    } else {
+        ''
+    }
+    $managedPattern = '(?ms)^# >>> ShipGlows Git shortcuts >>>\r?\n.*?^# <<< ShipGlows Git shortcuts <<<\r?\n?'
+    $withoutManagedBlock = [regex]::Replace($existing, $managedPattern, '').TrimEnd()
+    $managedBlock = @'
+# >>> ShipGlows Git shortcuts >>>
+if (Test-Path Alias:gp) { Remove-Item Alias:gp -Force -ErrorAction SilentlyContinue }
+function global:gp { & git push @args }
+# <<< ShipGlows Git shortcuts <<<
+'@
+    $next = if ($withoutManagedBlock) {
+        $withoutManagedBlock + [Environment]::NewLine + [Environment]::NewLine + $managedBlock + [Environment]::NewLine
+    } else {
+        $managedBlock + [Environment]::NewLine
+    }
+    Set-Content -LiteralPath $profilePath -Value $next -Encoding UTF8
+    Write-Host "PowerShell shortcut installed: gp -> git push (active in new shells)." -ForegroundColor Green
+    return $true
+}
+
 function Install-SgCommandWrappers {
     $wrapper = @'
 @echo off
@@ -662,6 +713,9 @@ Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor
 [void](Install-SgAgentShortcut 'kc' 'kilocode')
 [void](Install-SgShellShortcut 're' 'powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass')
 [void](Install-SgShellShortcut 'ch' 'powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass -Command "Clear-History; try { $historyPath = (Get-PSReadLineOption).HistorySavePath; if ($historyPath -and (Test-Path -LiteralPath $historyPath)) { Remove-Item -LiteralPath $historyPath -Force } } catch { }; Clear-Host"')
+[void](Install-SgShellShortcut 'n' 'nvim %*')
+[void](Install-SgShellShortcut 'gpush' 'git push %*')
+[void](Install-SgGitPushProfileShortcut)
 Add-SgRuntimeToUserPath
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green

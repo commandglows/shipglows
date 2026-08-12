@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-07-15"
+updated: "2026-08-12"
 status: active
 source_skill: 006-sg-design
 scope: design-system-creation
@@ -23,7 +23,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: skills/references/design-system-token-contract.md
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes:
   - skills/500-sg-design-from-scratch/SKILL.md
@@ -36,7 +36,7 @@ next_step: "/103-sg-verify design system creation"
 
 ## Activation
 
-Use for `006-sg-design system [scope]`. Optional modifiers after mode selection are `tokens-only` and `with-playground`; they do not create separate public commands.
+Use for `sg-design system [scope]`. Optional modifiers after mode selection are `tokens-only` and `with-playground`; they do not create separate public commands.
 
 Load the decision-quality, design-system token, and token-migration contracts first. Detect the framework and styling stack, then inspect the existing global styles/theme, root layouts, representative pages, representative components, and brand contract when present.
 

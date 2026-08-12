@@ -80,7 +80,9 @@ function Write-SgRegistry([object]$Config, [object]$Registry) {
         $parsed = (Get-Content -LiteralPath $temp -Raw) | ConvertFrom-Json -ErrorAction Stop
         if ($parsed.schemaVersion -ne $script:RegistryVersion) { throw 'Registry validation failed.' }
         if (Test-Path -LiteralPath $Config.RegistryPath -PathType Leaf) {
-            [IO.File]::Replace($temp, $Config.RegistryPath, $null)
+            $backup = "$($Config.RegistryPath).bak"
+            try { [IO.File]::Replace($temp, $Config.RegistryPath, $backup) }
+            finally { Remove-Item -LiteralPath $backup -Force -ErrorAction SilentlyContinue }
         } else {
             Move-Item -LiteralPath $temp -Destination $Config.RegistryPath -Force
         }
@@ -119,7 +121,8 @@ function Get-SgProjectKind([string]$ProjectPath) {
             $json = Get-Content -LiteralPath $package -Raw | ConvertFrom-Json -ErrorAction Stop
             $all = @()
             foreach ($property in @('dependencies','devDependencies','peerDependencies')) {
-                if ($json.$property) { $all += $json.$property.PSObject.Properties.Name }
+                $dependencySection = $json.PSObject.Properties[$property]
+                if ($dependencySection -and $dependencySection.Value) { $all += $dependencySection.Value.PSObject.Properties.Name }
             }
             if ($all -contains 'astro') { return 'astro' }
         } catch { throw "Invalid package.json: $($_.Exception.Message)" }
@@ -135,8 +138,82 @@ function Get-SgProjectKind([string]$ProjectPath) {
     throw "Unsupported or ambiguous project. Supported kinds: Astro, Python/FastAPI with uv/requirements, Flutter Web."
 }
 
-function Get-SgFreePort([object]$Config, [int]$RequestedPort = 0) {
-    $reserved = @((Read-SgRegistry $Config).projects | Where-Object { $_.port } | ForEach-Object { [int]$_.port })
+function Get-SgProjectDescriptor([string]$ProjectPath) {
+    $root = ConvertTo-SgCanonicalPath $ProjectPath
+    $hasFloxManifest = Test-Path -LiteralPath (Join-Path $root '.flox') -PathType Container
+    try {
+        return [pscustomobject]@{ RootPath = $root; LaunchPath = $root; Kind = (Get-SgProjectKind $root); UsesFloxManifest = $hasFloxManifest }
+    } catch {
+        if (-not $hasFloxManifest) { throw }
+    }
+
+    # Flox marks the environment root, while a monorepo's runnable application
+    # may live below it. Prefer the closest supported application so the same
+    # root project remains the operator-facing environment on Windows.
+    $candidates = @()
+    $queue = New-Object System.Collections.Generic.Queue[object]
+    [void]$queue.Enqueue([pscustomobject]@{ Path = $root; Depth = 0 })
+    $pruneDirs = @('.flox', '.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn')
+    while ($queue.Count -gt 0) {
+        $item = $queue.Dequeue()
+        if ([int]$item.Depth -gt 0) {
+            try {
+                $kind = Get-SgProjectKind ([string]$item.Path)
+                $candidates += [pscustomobject]@{ RootPath = $root; LaunchPath = [string]$item.Path; Kind = $kind; UsesFloxManifest = $true; Depth = [int]$item.Depth }
+            } catch { }
+        }
+        if ([int]$item.Depth -ge 3) { continue }
+        foreach ($dir in @(Get-ChildItem -LiteralPath ([string]$item.Path) -Directory -Force -ErrorAction SilentlyContinue)) {
+            if ($pruneDirs -contains $dir.Name) { continue }
+            if ($dir.Name -match '^\.' ) { continue }
+            [void]$queue.Enqueue([pscustomobject]@{ Path = $dir.FullName; Depth = ([int]$item.Depth + 1) })
+        }
+    }
+    $selected = @($candidates | Sort-Object -Property Depth,LaunchPath | Select-Object -First 1)[0]
+    if (-not $selected) { throw "Flox environment found at $root, but no supported Windows launch target was detected below it." }
+    return $selected
+}
+
+function Get-SgRuntimeSettings([string]$ProjectPath) {
+    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true }
+    $file = Join-Path $ProjectPath '.shipglows.env'
+    if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { return $settings }
+    foreach ($rawLine in @(Get-Content -LiteralPath $file)) {
+        $line = ([string]$rawLine).Trim()
+        if (-not $line -or $line.StartsWith('#')) { continue }
+        if ($line -match '^SHIPGLOWS_ENV_PORT=(.+)$') {
+            $value = $Matches[1].Trim()
+            if ($value -notmatch '^\d+$' -or [int]$value -lt 1024 -or [int]$value -gt 65535) { throw "Invalid SHIPGLOWS_ENV_PORT in $file; expected a port between 1024 and 65535." }
+            $settings.Port = [int]$value
+        } elseif ($line -match '^SHIPGLOWS_AUTO_REPAIR=(true|false)$') {
+            $settings.AutoRepair = $Matches[1] -eq 'true'
+        } else {
+            throw "Unsupported line in ${file}: $line. Allowed keys: SHIPGLOWS_ENV_PORT and SHIPGLOWS_AUTO_REPAIR."
+        }
+    }
+    return $settings
+}
+
+function Get-SgFloxVariables([string]$ProjectPath) {
+    $variables = @{}
+    $manifest = Join-Path $ProjectPath '.flox\env\manifest.toml'
+    if (-not (Test-Path -LiteralPath $manifest -PathType Leaf)) { return $variables }
+    $inVars = $false
+    foreach ($rawLine in @(Get-Content -LiteralPath $manifest)) {
+        $line = ([string]$rawLine).Trim()
+        if ($line -match '^\[([^]]+)\]$') { $inVars = $Matches[1] -eq 'vars'; continue }
+        if (-not $inVars -or -not $line -or $line.StartsWith('#')) { continue }
+        if ($line -notmatch '^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*$') { throw "Unsupported [vars] entry in ${manifest}: $line" }
+        $name = $Matches[1]
+        $value = $Matches[2]
+        if (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'"))) { $value = $value.Substring(1, $value.Length - 2) }
+        $variables[$name] = [string]$value
+    }
+    return $variables
+}
+
+function Get-SgFreePort([object]$Config, [int]$RequestedPort = 0, [string]$OwnerPath = '') {
+    $reserved = @((Read-SgRegistry $Config).projects | Where-Object { $_.port -and (-not $OwnerPath -or $_.path -ne $OwnerPath) } | ForEach-Object { [int]$_.port })
     $candidates = if ($RequestedPort -gt 0) { @($RequestedPort) } else { $Config.PortStart..$Config.PortEnd }
     foreach ($port in $candidates) {
         if ($reserved -contains $port) { continue }
@@ -191,7 +268,22 @@ function Invoke-SgDependencySetup([string]$ProjectPath, [string]$Kind, [string]$
         $pm = $uv
         $venv = Join-Path $ProjectPath '.venv'
         if (Test-Path -LiteralPath (Join-Path $ProjectPath 'uv.lock')) { $args = @('sync','--locked') }
-        elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'requirements.txt')) { $args = @('venv',$venv); & $uv @args 2>&1 | Tee-Object -FilePath $LogPath -Append; if ($LASTEXITCODE -ne 0) { throw 'uv venv failed.' }; $python = Join-Path $venv 'Scripts\python.exe'; $args = @('pip','install','--python',$python,'-r',(Join-Path $ProjectPath 'requirements.txt')) }
+        elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'requirements.txt')) {
+            $python = Join-Path $venv 'Scripts\python.exe'
+            # uv can write informational output to stderr even on success. Do
+            # not let a caller's ErrorActionPreference turn that into a false
+            # failure; the native exit code remains the source of truth.
+            if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
+                $args = @('venv',$venv)
+                $previousErrorActionPreference = $ErrorActionPreference
+                try {
+                    $ErrorActionPreference = 'Continue'
+                    & $uv @args 2>&1 | Tee-Object -FilePath $LogPath -Append
+                    if ($LASTEXITCODE -ne 0) { throw 'uv venv failed.' }
+                } finally { $ErrorActionPreference = $previousErrorActionPreference }
+            }
+            $args = @('pip','install','--python',$python,'-r',(Join-Path $ProjectPath 'requirements.txt'))
+        }
         else { throw 'Python project requires uv.lock or requirements.txt in V1.' }
     } else {
         $flutter = Get-SgCommandPath @('flutter.cmd','flutter.bat','flutter.exe')
@@ -200,25 +292,62 @@ function Invoke-SgDependencySetup([string]$ProjectPath, [string]$Kind, [string]$
         $args = @('pub','get')
     }
     Push-Location $ProjectPath
-    try { & $pm @args 2>&1 | Tee-Object -FilePath $LogPath -Append; if ($LASTEXITCODE -ne 0) { throw "Dependency setup failed for $Kind." } }
-    finally { Pop-Location }
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        # Package managers may report normal progress on stderr; use their
+        # exit code so this is stable with $ErrorActionPreference = 'Stop'.
+        $ErrorActionPreference = 'Continue'
+        & $pm @args 2>&1 | Tee-Object -FilePath $LogPath -Append
+        if ($LASTEXITCODE -ne 0) { throw "Dependency setup failed for $Kind." }
+    }
+    finally { $ErrorActionPreference = $previousErrorActionPreference; Pop-Location }
+}
+
+function Rotate-SgLogFile([string]$Path, [long]$MaxBytes = 5242880) {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return }
+    $file = Get-Item -LiteralPath $Path -ErrorAction Stop
+    if ($file.Length -le $MaxBytes) { return }
+    $rotated = "$Path.previous"
+    Move-Item -LiteralPath $Path -Destination $rotated -Force
 }
 
 function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port) {
+    $signature = Get-SgCommandSignature $ProjectPath $Kind $Port
     if ($Kind -eq 'astro') {
         $pnpm = Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')
-        if ($pnpm) { $file = Get-SgCommandPath @('pnpm.cmd','pnpm.exe'); $args = @('exec','astro','dev','--host','127.0.0.1','--port',"$Port") }
-        else { $file = Get-SgCommandPath @('npm.cmd','npm.exe'); $args = @('run','dev','--','--host','127.0.0.1','--port',"$Port") }
+        if ($pnpm) {
+            $packageManager = Get-SgCommandPath @('pnpm.cmd','pnpm.exe')
+            if (-not $packageManager) { throw 'pnpm is required by pnpm-lock.yaml but is unavailable.' }
+            $file = $env:ComSpec
+            $command = "call `"$packageManager`" exec astro dev --host 127.0.0.1 --port $Port & rem $signature"
+            $args = @('/d','/s','/c',"`"$command`"")
+        } else {
+            $packageManager = Get-SgCommandPath @('npm.cmd','npm.exe')
+            if (-not $packageManager) { throw 'npm is required but is unavailable.' }
+            $file = $env:ComSpec
+            $command = "call `"$packageManager`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
+            $args = @('/d','/s','/c',"`"$command`"")
+        }
     } elseif ($Kind -eq 'python') {
-        $uv = Get-SgCommandPath @('uv.exe','uv.cmd','uv'); if (-not $uv) { throw 'uv is required for Python launch.' }
         $target = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'app\main.py')) { 'app.main:app' } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'main.py')) { 'main:app' } else { throw 'FastAPI entrypoint not found. V1 supports app/main.py or main.py with app.' }
-        $file = $uv; $args = @('run','--locked','uvicorn',$target,'--host','127.0.0.1','--port',"$Port")
+        $file = $env:ComSpec
+        if (Test-Path -LiteralPath (Join-Path $ProjectPath 'uv.lock') -PathType Leaf) {
+            $uv = Get-SgCommandPath @('uv.exe','uv.cmd','uv'); if (-not $uv) { throw 'uv is required for Python launch.' }
+            $command = "call `"$uv`" run --locked uvicorn $target --host 127.0.0.1 --port $Port & rem $signature"
+        } else {
+            $python = Join-Path $ProjectPath '.venv\Scripts\python.exe'
+            if (-not (Test-Path -LiteralPath $python -PathType Leaf)) { throw 'Python virtual environment not found. Dependency setup must create .venv before launch.' }
+            $command = "call `"$python`" -m uvicorn $target --host 127.0.0.1 --port $Port & rem $signature"
+        }
+        $args = @('/d','/s','/c',"`"$command`"")
     } else {
-        $file = Get-SgCommandPath @('flutter.cmd','flutter.bat','flutter.exe'); if (-not $file) { throw 'Flutter SDK is not available on PATH.' }
-        $args = @('run','-d','web-server','--web-hostname','127.0.0.1','--web-port',"$Port")
+        $flutter = Get-SgCommandPath @('flutter.cmd','flutter.bat','flutter.exe'); if (-not $flutter) { throw 'Flutter SDK is not available on PATH.' }
+        $file = $env:ComSpec
+        $command = "call `"$flutter`" run -d web-server --web-hostname 127.0.0.1 --web-port $Port & rem $signature"
+        $args = @('/d','/s','/c',"`"$command`"")
     }
     if (-not $file) { throw "Launch tool missing for $Kind." }
-    [pscustomobject]@{ FilePath = $file; Arguments = $args; Signature = (Get-SgCommandSignature $ProjectPath $Kind $Port); Interactive = ($Kind -eq 'flutter-web') }
+    [pscustomobject]@{ FilePath = $file; Arguments = $args; Signature = $signature; Interactive = ($Kind -eq 'flutter-web') }
 }
 
 function Test-SgHttpReady([int]$Port) {
@@ -240,11 +369,18 @@ function Reconcile-SgRegistry([object]$Config) {
 function Register-SgProject([object]$Config, [string]$ProjectPath) {
     $path = ConvertTo-SgCanonicalPath $ProjectPath
     if (-not (Test-SgProjectPath $path $Config.Workspace)) { throw "Project must be inside the ShipGlows workspace: $($Config.Workspace)" }
-    $kind = Get-SgProjectKind $path
+    $descriptor = Get-SgProjectDescriptor $path
+    $kind = $descriptor.Kind
+    $launchPath = $descriptor.LaunchPath
     $registry = Invoke-SgRegistryMutation $Config {
         param($data)
         $existing = @($data.projects | Where-Object { $_.path -eq $path })
-        if ($existing.Count -eq 0) { $data.projects += [pscustomobject]@{ name = (Split-Path $path -Leaf); path = $path; kind = $kind; port = 0; status = 'stopped'; pid = 0; startTimeUtc = $null; executablePath = $null; commandSignature = $null; logPath = $null; errorLogPath = $null; lastError = $null } }
+        if ($existing.Count -eq 0) {
+            $data.projects += [pscustomobject]@{ name = (Split-Path $path -Leaf); path = $path; launchPath = $launchPath; kind = $kind; port = 0; status = 'stopped'; pid = 0; startTimeUtc = $null; executablePath = $null; commandSignature = $null; logPath = $null; errorLogPath = $null; lastError = $null }
+        } else {
+            $existing[0] | Add-Member -NotePropertyName launchPath -NotePropertyValue $launchPath -Force
+            $existing[0].kind = $kind
+        }
     }
     return @($registry.projects | Where-Object { $_.path -eq $path })[0]
 }
@@ -252,23 +388,59 @@ function Register-SgProject([object]$Config, [string]$ProjectPath) {
 function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0) {
     $entry = Register-SgProject $Config $ProjectPath
     if (Test-SgProcessIdentity $entry) { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
-    $port = Get-SgFreePort $Config $RequestedPort
+    $settings = Get-SgRuntimeSettings $entry.path
+    $configuredPort = $RequestedPort
+    if ($configuredPort -le 0 -and $env:SHIPGLOWS_ENV_PORT) {
+        if ($env:SHIPGLOWS_ENV_PORT -notmatch '^\d+$' -or [int]$env:SHIPGLOWS_ENV_PORT -lt 1024 -or [int]$env:SHIPGLOWS_ENV_PORT -gt 65535) { throw 'SHIPGLOWS_ENV_PORT must be a port between 1024 and 65535.' }
+        $configuredPort = [int]$env:SHIPGLOWS_ENV_PORT
+    }
+    if ($configuredPort -le 0 -and $settings.Port -gt 0) { $configuredPort = [int]$settings.Port }
+    if ($configuredPort -gt 0) {
+        $port = Get-SgFreePort $Config $configuredPort $entry.path
+        Write-SgInfo "Using configured port: $port"
+    } elseif ([int]$entry.port -gt 0) {
+        try {
+            $port = Get-SgFreePort $Config ([int]$entry.port) $entry.path
+            Write-SgInfo "Reusing persistent port: $port"
+        } catch {
+            $port = Get-SgFreePort $Config 0 $entry.path
+            Write-SgWarn "Persistent port $($entry.port) is unavailable; assigned $port."
+        }
+    } else {
+        $port = Get-SgFreePort $Config 0 $entry.path
+        Write-SgInfo "Assigned port: $port"
+    }
     $logDir = Join-Path $Config.LogDirectory $entry.name
     Ensure-SgDirectory $logDir
     $out = Join-Path $logDir 'stdout.log'; $err = Join-Path $logDir 'stderr.log'
     $setupLog = Join-Path $logDir 'setup.log'
-    $kind = Get-SgProjectKind $entry.path
-    try { Invoke-SgDependencySetup $entry.path $kind $setupLog; $launch = Get-SgLaunchSpec $entry.path $kind $port }
+    foreach ($logPath in @($out,$err,$setupLog)) { Rotate-SgLogFile $logPath }
+    $descriptor = Get-SgProjectDescriptor $entry.path
+    $launchPath = $descriptor.LaunchPath
+    $kind = $descriptor.Kind
+    try { Invoke-SgDependencySetup $launchPath $kind $setupLog; $launch = Get-SgLaunchSpec $launchPath $kind $port }
     catch { $entry.status = 'error'; $entry.lastError = $_.Exception.Message; Invoke-SgRegistryMutation $Config { param($data) $found = @($data.projects | Where-Object { $_.path -eq $entry.path })[0]; if ($found) { $found.status = 'error'; $found.lastError = $entry.lastError } }; throw }
-    if ($launch.Interactive) {
-        $process = Start-Process -FilePath $launch.FilePath -ArgumentList $launch.Arguments -WorkingDirectory $entry.path -PassThru -WindowStyle Normal
-    } else {
-        $process = Start-Process -FilePath $launch.FilePath -ArgumentList $launch.Arguments -WorkingDirectory $entry.path -RedirectStandardOutput $out -RedirectStandardError $err -PassThru -WindowStyle Normal
+    $launchEnvironment = Get-SgFloxVariables $entry.path
+    $launchEnvironment['PORT'] = [string]$port
+    if ($kind -eq 'astro') { $launchEnvironment['ASTRO_DEV_BACKGROUND'] = '0' }
+    $previousEnvironment = @{}
+    try {
+        foreach ($name in @($launchEnvironment.Keys)) {
+            $previousEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
+            [Environment]::SetEnvironmentVariable($name, [string]$launchEnvironment[$name], 'Process')
+        }
+        if ($launch.Interactive) {
+            $process = Start-Process -FilePath $launch.FilePath -ArgumentList $launch.Arguments -WorkingDirectory $launchPath -PassThru -WindowStyle Normal
+        } else {
+            $process = Start-Process -FilePath $launch.FilePath -ArgumentList $launch.Arguments -WorkingDirectory $launchPath -RedirectStandardOutput $out -RedirectStandardError $err -PassThru -WindowStyle Hidden
+        }
+    } finally {
+        foreach ($name in @($launchEnvironment.Keys)) { [Environment]::SetEnvironmentVariable($name, $previousEnvironment[$name], 'Process') }
     }
     Start-Sleep -Milliseconds 350
     $snapshot = Get-SgProcessSnapshot $process.Id
     if (-not $snapshot) { throw "Process exited before it could be recorded. See $err" }
-    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $launch.Signature; logPath = $out; errorLogPath = $err; lastError = $null }
+    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $launch.Signature; logPath = $out; errorLogPath = $err; lastError = $null }
     Invoke-SgRegistryMutation $Config { param($data) $data.projects = @($data.projects | Where-Object { $_.path -ne $entry.path }); $data.projects += $entryData }
     Start-Sleep -Seconds 1
     if (-not (Test-SgProcessIdentity $entryData)) { Write-SgWarn "Process exited during startup. See $err"; $entryData.status = 'error'; $entryData.lastError = 'Process exited during startup.'; Invoke-SgRegistryMutation $Config { param($data) $found = @($data.projects | Where-Object { $_.path -eq $entry.path })[0]; if ($found) { $found.status = 'error'; $found.lastError = $entryData.lastError } }; return $entryData }
@@ -295,6 +467,18 @@ function Stop-SgProject([object]$Config, [string]$ProjectPath) {
     Invoke-SgRegistryMutation $Config { param($data) $found = @($data.projects | Where-Object { $_.path -eq $path })[0]; if ($found) { $found.status = 'stopped'; $found.pid = 0; $found.startTimeUtc = $null; $found.lastError = $null } }
 }
 
+function Unregister-SgProject([object]$Config, [string]$ProjectPath) {
+    $path = ConvertTo-SgCanonicalPath $ProjectPath
+    $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
+    if (-not $entry) { throw "Project is not registered: $path" }
+    if (Test-SgProcessIdentity $entry) { throw "Project is still running: $($entry.name). Stop it before unregistering." }
+    Invoke-SgRegistryMutation $Config {
+        param($data)
+        $data.projects = @($data.projects | Where-Object { $_.path -ne $path })
+    } | Out-Null
+    Write-SgInfo "Unregistered project without deleting its files: $path"
+}
+
 function Show-SgDashboard([object]$Config) {
     $registry = Reconcile-SgRegistry $Config
     Write-Host ''; Write-Host 'ShipGlows DevServer Windows' -ForegroundColor Yellow; Write-Host '============================' -ForegroundColor Yellow
@@ -304,4 +488,4 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,Get-SgFreePort
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgRuntimeSettings,Get-SgFloxVariables,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,Get-SgFreePort,Rotate-SgLogFile
