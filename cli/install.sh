@@ -976,6 +976,32 @@ playwright_mcp_args_json() {
     fi
 }
 
+install_playwright_chromium_for_user() {
+    local target_home="$1"
+    local username="$2"
+    local executable_path=""
+
+    executable_path="$(playwright_mcp_executable_path "$target_home" || true)"
+    if [ -n "$executable_path" ] && [[ "$executable_path" == "$target_home/.cache/ms-playwright/"* ]]; then
+        success "Playwright Chromium déjà disponible pour $username"
+        return 0
+    fi
+
+    info "Installation de Playwright Chromium pour $username..."
+    if [ "$username" = "root" ]; then
+        HOME="$target_home" bash -lc 'command -v node >/dev/null 2>&1 || { echo "Node.js est requis pour Playwright MCP" >&2; exit 20; }; command -v npx >/dev/null 2>&1 || { echo "npx est requis pour Playwright MCP" >&2; exit 21; }; npx -y --package=@playwright/mcp@latest playwright install chromium'
+    else
+        sudo -u "$username" -H bash -lc 'command -v node >/dev/null 2>&1 || { echo "Node.js est requis pour Playwright MCP" >&2; exit 20; }; command -v npx >/dev/null 2>&1 || { echo "npx est requis pour Playwright MCP" >&2; exit 21; }; npx -y --package=@playwright/mcp@latest playwright install chromium'
+    fi
+
+    executable_path="$(playwright_mcp_executable_path "$target_home" || true)"
+    if [ -z "$executable_path" ] || [[ "$executable_path" != "$target_home/.cache/ms-playwright/"* ]]; then
+        warning "Playwright Chromium n'a pas été trouvé dans le cache utilisateur de $username"
+        return 1
+    fi
+    success "Playwright Chromium installé pour $username: $executable_path"
+}
+
 # Playwright MCP — uses the local Playwright Chromium on ARM where Chrome stable
 # is not available as /opt/google/chrome/chrome.
 configure_playwright_mcp() {
@@ -1533,7 +1559,7 @@ configure_codex_playwright_mcp() {
         printf '[mcp_servers.playwright]\n'
         printf 'command = "npx"\n'
         printf 'args = %s\n' "$args_json"
-        printf 'enabled = false\n'
+        printf 'enabled = true\n'
         printf '\n'
         printf '[mcp_servers.playwright.tools]\n'
         printf 'browser_snapshot = {}\n'
@@ -2058,6 +2084,7 @@ setup_user() {
     local username="$2"
     local effective_mode="${SHIPGLOWS_AUTONOMY_MODE_RESOLVED:-standard}"
     local setup_failed=0
+    local playwright_ready=0
 
     if [ "$username" = "root" ] && [ "$effective_mode" = "permissive" ] && [ "${SHIPGLOWS_ROOT_AUTONOMOUS_ALLOWED:-0}" != "1" ]; then
         effective_mode="standard"
@@ -2072,7 +2099,13 @@ setup_user() {
         configure_clerk_mcp "$user_home"
         configure_supabase_mcp "$user_home"
         configure_dataforseo_mcp "$user_home"
-        configure_playwright_mcp "$user_home"
+        if install_playwright_chromium_for_user "$user_home" "$username"; then
+            playwright_ready=1
+            configure_playwright_mcp "$user_home"
+        else
+            setup_failed=1
+            warning "Playwright MCP n'est pas configuré pour $username car Chromium est indisponible."
+        fi
         configure_codex_tui "$user_home"
         configure_codex_rmcp "$user_home"
         configure_codex_context7_mcp "$user_home"
@@ -2081,7 +2114,9 @@ setup_user() {
         configure_codex_clerk_mcp "$user_home"
         configure_codex_supabase_mcp "$user_home"
         configure_codex_dataforseo_mcp "$user_home"
-        configure_codex_playwright_mcp "$user_home"
+        if [ "$playwright_ready" = "1" ]; then
+            configure_codex_playwright_mcp "$user_home"
+        fi
     fi
     if [ "$username" != "root" ] && [ "${SHIPGLOWS_INSTALL_AI_AGENTS:-1}" = "1" ]; then
         install_ai_agent_clis_for_user "$user_home" "$username" || setup_failed=1

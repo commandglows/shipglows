@@ -91,8 +91,8 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
         $entries += $installerEntries[0]
     }
     if ($FullMode) {
-        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
-        if ($entries.Count -ne 3) { Fail 'The ShipGlows archive is missing native Windows DevServer files.' }
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
+        if ($entries.Count -ne 4) { Fail 'The ShipGlows archive is missing native Windows DevServer or Codex MCP files.' }
     }
 
     & $tarPath -xf $ArchivePath -C $DestinationPath $entries
@@ -111,7 +111,7 @@ function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref) {
     $repositoryPath = $Matches[1]
     $encodedRef = [Uri]::EscapeDataString($Ref)
     $commitPatchUrl = "https://github.com/$repositoryPath/commit/$encodedRef.patch"
-    $commitResponse = (& curl.exe -fsSL $commitPatchUrl | Out-String)
+    $commitResponse = (& curl.exe -fsSL --retry 3 --retry-all-errors --retry-delay 2 $commitPatchUrl | Out-String)
     if ($LASTEXITCODE -ne 0) {
         Fail "Could not resolve ShipGlows ref: $Ref"
     }
@@ -172,7 +172,7 @@ if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -eq $defaultRuntimeRoot) 
 
 try {
     Write-Info "Downloading ShipGlows Windows files from commit $($source.Commit)..."
-    & curl.exe -fsSL $source.ArchiveUrl -o $archivePath
+    & curl.exe -fsSL --retry 3 --retry-all-errors --retry-delay 2 $source.ArchiveUrl -o $archivePath
     if ($LASTEXITCODE -ne 0) { Fail 'ShipGlows download failed.' }
 
     [void](Extract-ShipglowsWindowsFiles -ArchivePath $archivePath -DestinationPath $extractRoot -FullMode ($InstallMode -eq 'full'))
@@ -213,7 +213,7 @@ if ($InstallMode -eq 'local') {
 }
 
 if ($InstallMode -eq 'full') {
-    foreach ($required in @('ShipGlows.DevServer.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
+    foreach ($required in @('ShipGlows.DevServer.psm1','ShipGlows.CodexMcp.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
         Assert-PowerShellSyntax -Path (Join-Path $windowsDirectory $required)
     }
     Write-Info 'Native Windows DevServer files installed.'

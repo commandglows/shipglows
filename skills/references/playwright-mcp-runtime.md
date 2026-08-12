@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-05-02"
 updated: "2026-05-02"
@@ -44,6 +44,17 @@ Correct runtime config is one of:
 
 Do not recommend or run `npx playwright install chrome` as the fix for Linux ARM64. Chrome stable is the wrong channel for this environment. Use Playwright Chromium or Chromium Headless Shell.
 
+On native Windows, the ShipGlows full installer owns the user-global Codex
+entry `mcp_servers.playwright`. It resolves an absolute `npx.cmd`, downloads
+Chromium with the Playwright version carried by `@playwright/mcp@latest`, and
+enables the server for every project in that Codex profile. It never relies on
+`npx.ps1` and never installs Playwright inside an application repository.
+
+ShipGlows may replace only the Playwright MCP table it owns. Other Codex keys
+and MCP servers must survive installation and repair. A successful installer
+verdict requires both a readable Codex MCP entry and a Chromium executable in
+the user Playwright cache; configuration alone is incomplete.
+
 ## Preflight Before MCP Tool Calls
 
 Before the first `mcp__playwright__*` call in a skill run:
@@ -61,6 +72,8 @@ find "$HOME/.cache/ms-playwright" -maxdepth 4 -type f \
    - Good fallback: Playwright args include `--browser` with `chromium`.
    - Bad: Playwright args are only `["-y", "@playwright/mcp@latest"]`.
    - Bad on ARM64: Playwright args select `chrome` or imply Google Chrome stable.
+   - Good on native Windows: the command is an existing absolute `npx.cmd`,
+     args select headless Chromium, and the server is enabled.
 
 3. If config is bad, do not launch Playwright MCP as proof. Route to:
 
