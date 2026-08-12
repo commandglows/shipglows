@@ -51,7 +51,11 @@ It does not own generic browser proof, full manual QA logging, deployment discov
 
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
-- `references/auth-debug-workflow.md`: Auth debug workflow, provider-reference routing, reproduction strategy, Playwright proof, Sentry/PM2 evidence, and report details.
+- `references/auth-debug-workflow.md`: mandatory compact first-decision core and compatibility index.
+- `references/auth-intake-and-authority.md`: intake, development-mode authority, automation limits, and escalation.
+- `references/auth-provider-routing.md`: provider/stack detection and minimum code inspection.
+- `references/auth-browser-proof.md`: browser reproduction, Playwright runtime, redacted evidence, and Sentry/PM2 correlation.
+- `references/auth-diagnosis-and-report.md`: cause classification, verdict, handoff, and report fields.
 - `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`: required when the auth target exposes settings, support, diagnostics, callback error pages, error boundaries, or copy-log UI.
 - `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md`: required when the bug depends on delivered OTP/magic-link/reset content, sender identity, external provider delivery, authentication results, or client rendering. Mailpit-only wiring stays local and is not external deliverability proof.
 
@@ -64,9 +68,13 @@ For `109-sg-auth-debug`, this preflight also applies before auth-safe runtime di
 
 Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: bounded professional scope, never shortcut quality.
 
-- INTAKE: load `references/auth-debug-workflow.md` to consume existing evidence and choose repro strategy.
-- PROVIDER ROUTING: load the workflow reference, then load only the provider-specific references it selects.
-- BROWSER PROOF: load `$SHIPGLOWS_ROOT/skills/references/playwright-mcp-runtime.md` and relevant auth testing references before Playwright MCP calls.
+- FIRST DECISION: load `references/auth-debug-workflow.md`; it is the compact core/index, not the complete procedure.
+- INTAKE/AUTHORITY: load `references/auth-intake-and-authority.md` when environment authority, automation limits, or escalation is unresolved.
+- PROVIDER ROUTING: load `references/auth-provider-routing.md`, then only the provider-specific references selected there.
+- BROWSER PROOF: load `references/auth-browser-proof.md`; it directly requires the Playwright runtime and auth-testing references before Playwright MCP calls.
+- DIAGNOSIS/REPORT: load `references/auth-diagnosis-and-report.md` when classifying the cause, assigning a verdict/owner, or reporting.
+
+Load leaves directly and only when their gate applies. No leaf may load a sibling leaf.
 
 ## Core Execution Rules
 
@@ -75,6 +83,8 @@ Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skil
 - When the agent can safely navigate the app with Playwright or any other browser/tooling path, proactively look for diagnostics/log-copy UI, use it as redacted evidence, and confirm the commit/build + Paris/UTC build-time header before asking the operator for logs.
 - Evaluate `Chantier potentiel` for auth/session/callback/provider/tenant risk beyond a direct local fix.
 - Never log secrets, cookies, tokens, OTPs, private env values, or unredacted user auth data.
+- Never bypass auth, weaken authorization, use a primary account as test infrastructure, or mutate provider/production state without explicit authority and the owning workflow.
+- Hosted OAuth, callback, domain, deployed-env, edge/serverless, or secure-cookie behavior requires hosted proof when the development-mode contract says so; local success is not authoritative.
 
 ## Stop Conditions
 

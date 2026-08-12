@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -22,6 +22,8 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Wave 16 replaces five monolithic workflow references with compact compatibility cores, direct non-chaining leaves, and five measured activation profiles."
+  - "2026-08-12 Wave 16 measurement: workflow cores move from 7196/6607/6524/6189/5870 to 827/808/672/727/799 tokens; selected baselines are 2222/2097/2961/2821/3544."
   - "Wave 15 compacts canonical paths, intent-to-outcome autonomy, and decision quality into first-decision cores with direct non-chaining leaves."
   - "2026-08-12 Wave 15 measurement: selected baselines are 3128 for 004, 6177 for 010, 5657 for 103, 3451 for 300, 2081 for 601, and 2487 for 900 before conditional gates."
   - "Wave 14 expands explicit activation accounting from three to six profiles: 004, 010, 103, 300, 601, and 900."
@@ -132,6 +134,15 @@ sibling. The resulting selected baselines, before conditional gates, are 3,128
 for `004`, 6,177 for `010`, 5,657 for `103`, 3,451 for `300`, 2,081 for `601`,
 and 2,487 for `900`. Only `004` and `300` newly cross below the 5,000 target;
 `010` and `103` remain explicit hotspots.
+
+Wave 16 applies the same progressive boundary to five expensive domain
+workflows while preserving their canonical compatibility paths. The redact,
+enrich, audit, production-verification, and auth-debug cores move from 7,196,
+6,607, 6,524, 6,189, and 5,870 tokens to 827, 808, 672, 727, and 799. Their new
+selected activation-profile baselines are 2,222, 2,097, 2,961, 2,821, and
+3,544 respectively. Each gate selects a direct leaf; local leaves never load
+siblings and registry profiles remain accounting metadata rather than runtime
+loading authority.
 
 ## Audit Commands
 

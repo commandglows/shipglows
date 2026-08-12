@@ -29,7 +29,11 @@ Default to `report=user`: concise, findings-first for audits and failures, outco
 
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
-- `references/enrichment-workflow.md`: Content enrichment workflow, research, rewrite, AI visibility, conversion layer, quality checks, metadata, and reporting details.
+- `references/enrichment-workflow.md`: compact first-decision index for substantive enrichment.
+- `references/enrichment-context-and-governance.md`: load before public-surface, content-role, product-claim, or metadata changes.
+- `references/enrichment-research.md`: load for current claims, versions, comparisons, statistics, examples, or decay checks.
+- `references/enrichment-rewrite-and-visibility.md`: load for substantive rewriting, AI visibility, structured data, links, or conversion changes.
+- `references/enrichment-quality-and-reporting.md`: load before a readiness verdict, batch summary, or detailed report.
 - `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`: shared rubric for enriched-content quality score and structured feedback.
 
 ## Mode Detection
@@ -38,7 +42,7 @@ Do not activate this skill for a literal placeholder, typo, heading-tag, or one-
 
 Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: bounded professional scope, never shortcut quality.
 
-- CONTENT ENRICHMENT: load `references/enrichment-workflow.md` before research, rewrite, enrichment, or quality checks.
+- CONTENT ENRICHMENT: load `references/enrichment-workflow.md`, then load only its directly selected scenario leaves; leaves never load siblings.
 - PUBLIC CONTENT: load editorial and technical corpus references before changing public pages, claims, schemas, or mapped docs.
 - RESEARCH: use fresh source checks when enriching factual, market, tool, platform, or current-practice content.
 

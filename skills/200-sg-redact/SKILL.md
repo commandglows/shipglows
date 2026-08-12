@@ -29,7 +29,11 @@ Default to `report=user`: concise, findings-first for audits and failures, outco
 
 Always load shared references only when their gate applies. Load skill-local references precisely by mode:
 
-- `references/redaction-workflow.md`: Long-form drafting workflow, identity absorption, planning, research, drafting, optimization, quality control, metadata, and report details.
+- `references/redaction-workflow.md`: compact first-decision index for substantive drafting.
+- `references/redaction-context-and-governance.md`: load before surface, project-truth, author-identity, or metadata decisions.
+- `references/redaction-research-and-planning.md`: load for topic selection, planning, or factual/current research.
+- `references/redaction-drafting-and-optimization.md`: load when writing or optimizing the article and its compatible frontmatter.
+- `references/redaction-quality-and-reporting.md`: load before a readiness verdict or detailed report.
 - `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`: shared rubric for final draft quality score and structured feedback.
 
 ## Inspiration Gate
@@ -40,7 +44,7 @@ For sales-page or offer-page drafting, CTA/proof/objection sequencing, copy-patt
 
 Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: bounded professional scope, never shortcut quality.
 
-- DRAFTING: load `references/redaction-workflow.md` before planning, researching, drafting, optimizing, or quality checking long-form content.
+- DRAFTING: load `references/redaction-workflow.md`, then load only its directly selected scenario leaves; leaves never load siblings.
 - PUBLIC SURFACE: load editorial and technical corpus references before choosing or changing public content surfaces.
 - RESEARCH: apply fresh source checks when factual, market, tool, legal, or current-practice claims are involved.
 

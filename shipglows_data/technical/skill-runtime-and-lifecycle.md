@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.8.0"
+artifact_version: "2.9.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -83,6 +83,7 @@ evidence:
   - "Wave 13 keeps the reporting decision surface in a compact core and moves agent handoff, blocked/audit, and maintenance scenarios to direct conditional leaves."
   - "Wave 14 adds measured activation profiles for high-traffic owners 010, 103, and 300, bringing the executable pilot to six profiles without changing runtime loaders."
   - "Wave 15 compacts three shared baseline authorities in place and exposes detailed path, autonomy, and implementation procedure through direct conditional leaves."
+  - "Wave 16 compacts five domain workflow monoliths into compatibility cores with direct non-chaining leaves and adds five measured activation profiles."
   - "Skill launch cheatsheet added for master and supporting modes."
   - "900-shipglows-core build routes fuzzy skill ideas or placement decisions through 700-sg-explore before 100-sg-spec."
   - "Codex source-tree discovery follows the official ~/.agents/skills user scope, with a native PowerShell junction helper for Windows developers."
@@ -145,7 +146,7 @@ Use `skills/references/skill-instruction-layering.md` as the canonical placement
 
 Compaction must preserve operational guardrails: canonical path resolution, chantier trace semantics, reporting contract loading, security/redaction rules, and documentation-update gates.
 
-Future compaction should split large workflow references by mode when useful, but the top-level `SKILL.md` must remain the activation contract and name the exact references to load.
+Large workflow references should use a compact compatibility core at the established path and direct leaves by real mode, phase, or proof gate. The top-level `SKILL.md` remains the activation contract and names the exact references to load; no local leaf loads a sibling.
 
 ## Public Métier Surface And Internal Engines
 
@@ -236,6 +237,13 @@ Each leaf is selected directly and never chains to a sibling. Before any new
 conditional gate, selected baselines measure `004` 3,128, `010` 6,177, `103`
 5,657, `300` 3,451, `601` 2,081, and `900` 2,487 estimated tokens. The 010 and
 103 baselines remain above target and are reported as follow-up debt.
+
+Wave 16 adds profiles for `109-sg-auth-debug`, `200-sg-redact`,
+`201-sg-enrich`, `400-sg-audit`, and `405-sg-prod`. Their former workflow
+cores measured 5,870, 7,196, 6,607, 6,524, and 6,189 tokens; their compact
+cores now measure 799, 827, 808, 672, and 727. Selected baselines are 3,544,
+2,222, 2,097, 2,961, and 2,821. Phase and proof leaves are direct and
+non-chaining, so profile gates remain independent activation choices.
 
 Wave 12 demonstrates two compatible progressive patterns. `004-sg-deploy`
 loads `master-workflow-lifecycle-core.md` plus `master-delegation-core.md` for

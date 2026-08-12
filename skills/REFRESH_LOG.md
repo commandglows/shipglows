@@ -2,6 +2,18 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — progressive monolithic workflows wave 16
+
+**Added:** five activation profiles and direct, non-chaining leaves for redact, enrich, audit, production verification, and auth-debug.
+
+**Updated:** the compatibility cores fall from `7,196 -> 827` for redact, `6,607 -> 808` for enrich, `6,524 -> 672` for audit, `6,189 -> 727` for production verification, and `5,870 -> 799` for auth-debug. Selected baselines are now `2,222`, `2,097`, `2,961`, `2,821`, and `3,544` estimated tokens respectively.
+
+**New phases:** load the compatibility core at its existing canonical path, then select only the direct leaf required by the current phase or evidence gate. No leaf loads a sibling.
+
+**Next debt:** `010` and `103` remain the measured activation-core hotspots above the 5,000-token target.
+
+**Sources:** 0 external URLs consulted; this wave changes local instruction packaging, activation metadata, and focused contract proof only.
+
 ## 2026-08-12 — shared baseline core compaction wave 15
 
 **Added:** direct runtime/private-root and project-governance leaves for canonical paths, execution and pressure-scenario leaves for intent-to-outcome autonomy, and an implementation-discipline leaf for decision quality.

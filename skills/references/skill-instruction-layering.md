@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-05-16"
 updated: "2026-08-12"
@@ -38,6 +38,7 @@ evidence:
   - "Wave 12 established compatibility-preserving decision cores and direct non-chaining doctrine leaves for high-cost shared references."
   - "Wave 13 validates the executable closure of explicitly profiled resources and splits reporting into a compact core with three direct conditional leaves."
   - "Wave 15 applies first-decision cores and direct non-chaining leaves to canonical paths, intent-to-outcome autonomy, and decision quality."
+  - "Wave 16 applies compact compatibility cores and direct non-chaining phase leaves to five monolithic domain workflows and adds truthful activation profiles for each owner."
   - "User decision 2026-06-10: keep SKILL.md contracts short and move detailed playbooks, examples, matrices, and edge cases to references."
   - "User decision 2026-07-07: for any skill-creation or skill-improvement work, improve the shared reference layer first and only add local skill wording when the behavior is truly owner-specific."
   - "User decision 2026-07-12: every skill change must preserve compaction and practical followability instead of adding repeated warning prose."
@@ -80,6 +81,11 @@ Public wrappers and expert engines have different discovery roles:
 - A missing canonical root or engine is a visible stop, not permission to fall back to a stale runtime copy.
 
 Keep activation decisions explicit without inventing a graph from prose. `skill-invocation-registry.json` is the machine-readable public-owner-to-engine graph. Migrated pilots may add an explicit `activation_profiles` entry with body, baseline, and named conditional gates; runtime loaders in `SKILL.md` remain authoritative. Their declared resources seed a blocking dependency closure: `skills/**` edges are transitive, while profiled `shipglows_data/**` artifacts are verified as terminal governance leaves. The separate `--all` audit exposes historical metadata debt without becoming an invocation gate. Distinguish mandatory references needed before the first decision, conditional references selected by mode/gate, and advisory resolver results. Shared resources are counted once. Generalize profiles only after pilot evidence.
+
+Wave 16 profiles `109-sg-auth-debug`, `200-sg-redact`, `201-sg-enrich`,
+`400-sg-audit`, and `405-sg-prod`. Their established workflow paths remain
+compact compatibility cores; each core routes bounded phase or proof leaves
+directly. A local leaf must never load another local leaf.
 
 ## What Must Stay Local
 

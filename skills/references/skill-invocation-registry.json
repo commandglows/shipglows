@@ -167,6 +167,38 @@
           "report-blocked-audit": ["skills/references/reporting-blocked-and-audit.md", "skills/references/actionable-failure-contract.md"]
         }
       },
+      "109-sg-auth-debug": {
+        "body": "skills/109-sg-auth-debug/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md", "skills/109-sg-auth-debug/references/auth-debug-workflow.md"],
+        "gates": {
+          "intake-authority": ["skills/109-sg-auth-debug/references/auth-intake-and-authority.md"],
+          "provider-routing": ["skills/109-sg-auth-debug/references/auth-provider-routing.md"],
+          "browser-proof": ["skills/109-sg-auth-debug/references/auth-browser-proof.md"],
+          "diagnosis-report": ["skills/109-sg-auth-debug/references/auth-diagnosis-and-report.md"]
+        }
+      },
+      "200-sg-redact": {
+        "body": "skills/200-sg-redact/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md"],
+        "gates": {
+          "workflow-core": ["skills/200-sg-redact/references/redaction-workflow.md"],
+          "context-governance": ["skills/200-sg-redact/references/redaction-context-and-governance.md"],
+          "research-planning": ["skills/200-sg-redact/references/redaction-research-and-planning.md"],
+          "drafting-optimization": ["skills/200-sg-redact/references/redaction-drafting-and-optimization.md"],
+          "quality-reporting": ["skills/200-sg-redact/references/redaction-quality-and-reporting.md"]
+        }
+      },
+      "201-sg-enrich": {
+        "body": "skills/201-sg-enrich/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md"],
+        "gates": {
+          "workflow-core": ["skills/201-sg-enrich/references/enrichment-workflow.md"],
+          "context-governance": ["skills/201-sg-enrich/references/enrichment-context-and-governance.md"],
+          "research": ["skills/201-sg-enrich/references/enrichment-research.md"],
+          "rewrite-visibility": ["skills/201-sg-enrich/references/enrichment-rewrite-and-visibility.md"],
+          "quality-reporting": ["skills/201-sg-enrich/references/enrichment-quality-and-reporting.md"]
+        }
+      },
       "300-sg-docs": {
         "body": "skills/300-sg-docs/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md"],
@@ -209,6 +241,25 @@
           "winflowz-suite": ["skills/references/winflowz-suite-product-registry.md"],
           "behavior-change": ["skills/references/spec-driven-development-discipline.md"],
           "provider-freshness": ["skills/references/documentation-freshness-gate.md"]
+        }
+      },
+      "400-sg-audit": {
+        "body": "skills/400-sg-audit/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md", "skills/400-sg-audit/references/audit-master-workflow.md"],
+        "gates": {
+          "scope-routing": ["skills/400-sg-audit/references/audit-scope-and-routing.md"],
+          "consolidation-proof": ["skills/400-sg-audit/references/audit-consolidation-and-proof.md"],
+          "records-remediation": ["skills/400-sg-audit/references/audit-records-and-remediation.md"]
+        }
+      },
+      "405-sg-prod": {
+        "body": "skills/405-sg-prod/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md", "skills/405-sg-prod/references/production-verification-workflow.md"],
+        "gates": {
+          "deployment-evidence": ["skills/405-sg-prod/references/prod-deployment-evidence.md"],
+          "health-proof": ["skills/405-sg-prod/references/prod-health-and-proof.md"],
+          "runtime-diagnostics": ["skills/405-sg-prod/references/prod-runtime-diagnostics.md"],
+          "verdict-routing": ["skills/405-sg-prod/references/prod-verdict-and-routing.md"]
         }
       },
       "900-shipglows-core": {
