@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-04-29"
 created_at: "2026-04-29 09:43:03 UTC"
-updated: "2026-04-29"
-updated_at: "2026-04-29 10:23:42 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -29,20 +29,9 @@ linked_systems:
   - "Supabase MCP"
   - "SSH local forwarding"
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "BRANDING.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
-  - artifact: "ARCHITECTURE.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): ARCHITECTURE.md, BRANDING.md, BUSINESS.md, GUIDELINES.md."
   - "Observed working manual flow: BROWSER=echo codex mcp login vercel, SSH -L callback port, browser approval, Codex reports Successfully logged in."
   - "Observed working manual flow: BROWSER=echo codex mcp login supabase, SSH -L callback port, browser approval, Codex reports Successfully logged in."
   - "codex mcp login --help exposes OAuth login command: codex mcp login [OPTIONS] <NAME>."

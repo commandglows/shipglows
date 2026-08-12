@@ -27,7 +27,7 @@ linked_systems:
 depends_on:
   - artifact: "shipglows_data/workflow/specs/runtime-installer-and-skill-distribution-separation.md"
     artifact_version: "1.0.0"
-    required_status: ready
+    required_status: "reviewed"
 supersedes: []
 evidence:
   - "2026-08-05 automated installer regression passes 41/41."

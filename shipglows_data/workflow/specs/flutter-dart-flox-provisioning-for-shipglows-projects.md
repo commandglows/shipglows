@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-05-02"
 created_at: "2026-05-02 11:53:16 UTC"
-updated: "2026-05-02"
-updated_at: "2026-05-02 13:48:16 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -28,18 +28,6 @@ linked_systems:
   - "Flutter/Dart projects with pubspec.yaml"
   - "Flox project environments"
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.3.0"
-    required_status: "reviewed"
-  - artifact: "ARCHITECTURE.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
   - artifact: "README.md"
     artifact_version: "0.5.0"
     required_status: "draft"
@@ -54,6 +42,7 @@ depends_on:
     required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): ARCHITECTURE.md, BUSINESS.md, GUIDELINES.md, PRODUCT.md."
   - "Local PATH check: command -v flutter and command -v dart returned no global binary; command -v flox returned /usr/bin/flox."
   - "Current Flutter projects found under /home/ubuntu include contentflow_app, shipglows_app, and tubeflow_app."
   - "contentflow_app and shipglows_app have .flox manifests but no flutter or dart runtime entry; tubeflow_app has no .flox manifest."

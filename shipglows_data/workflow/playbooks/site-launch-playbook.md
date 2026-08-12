@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-06-28"
+updated: "2026-08-12"
 status: draft
 source_skill: 300-sg-docs
 scope: site-launch-playbook
@@ -17,15 +17,13 @@ linked_systems:
   - shipglows_data/workflow/playbooks/README.md
   - shipglows_data/workflow/checklists/site-launch-checklist.md
   - skills/406-sg-seo/references/seo-audit-workflow.md
-depends_on:
-  - artifact: "shipglows_data/workflow/checklists/site-launch-checklist.md"
-    artifact_version: "1.0.0"
-    required_status: draft
+depends_on: []
 supersedes: []
 evidence:
   - "Legacy source recovered from /home/claude/site-launch-playbook.md on 2026-06-28."
   - "Legacy source recovered from /home/claude/site-launch-agent-checklist.md on 2026-06-28."
   - "Playbook normalized to keep the reusable method separate from project-specific execution notes."
+  - "Wave 18 clarified that the playbook owns the launch method; its paired checklist depends on it, while this reverse relation remains provenance through linked_systems only."
 next_review: "2026-07-05"
 next_step: "/300-sg-docs migrate additional launch playbooks into workflow/playbooks"
 ---

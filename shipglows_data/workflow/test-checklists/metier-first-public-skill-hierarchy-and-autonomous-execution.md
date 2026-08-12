@@ -21,7 +21,7 @@ linked_systems:
 depends_on:
   - artifact: "shipglows_data/workflow/specs/metier-first-public-skill-hierarchy-and-autonomous-execution.md"
     artifact_version: "1.1.0"
-    required_status: ready
+    required_status: "reviewed"
 supersedes: []
 evidence:
   - "Scenario-first implementation maps every required MH scenario to deterministic contract tests and a manual language review."

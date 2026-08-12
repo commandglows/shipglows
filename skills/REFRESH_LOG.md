@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — full resource graph debt wave 18
+
+**Updated:** the full diagnostic graph moves from 687 artifacts, 998 dependencies, 3 cycles, and 272 findings to 688 artifacts, 923 dependencies, zero cycles, and 89 findings. The batch repairs 79 safe constraints, migrates 13 active canonical paths, reclassifies 73 historical dependency edges as evidence, and distinguishes schema-valid terminal history from activatable roots.
+
+**Boundary:** `--all` remains diagnostic and non-blocking. Its 73 missing targets, 6 status mismatches, 6 unversioned targets, 3 invalid required-version constraints, and 1 invalid actual status remain explicit; the profiled execution graph stays valid at 133 artifacts, 89 dependencies, and zero cycles.
+
+**Next debt:** continue evidence-backed cleanup of the 104 residual findings after shipping Wave 18; do not reactivate historical artifacts or fabricate dependencies.
+
+**Sources:** 0 external URLs consulted; this wave repairs local metadata and graph classification only.
+
 ## 2026-08-12 — technical and verification baseline wave 17
 
 **Added:** conditional semantic-mode routing for `010-sg-technical` and direct `verification-release-proof` and `verification-ci` leaves for `103-sg-verify`.

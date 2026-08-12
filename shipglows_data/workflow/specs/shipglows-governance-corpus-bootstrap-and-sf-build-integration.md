@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-02"
 created_at: "2026-05-02 04:51:15 UTC"
-updated: "2026-05-02"
-updated_at: "2026-05-02 10:15:32 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -38,26 +38,8 @@ linked_systems:
   - templates/content_map.md
   - tools/shipglows_metadata_lint.py
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: reviewed
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: reviewed
-  - artifact: "BRANDING.md"
-    artifact_version: "1.0.0"
-    required_status: reviewed
-  - artifact: "GTM.md"
-    artifact_version: "1.1.0"
-    required_status: reviewed
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.3.0"
-    required_status: reviewed
   - artifact: "README.md"
     artifact_version: "0.4.0"
-    required_status: draft
-  - artifact: "CONTENT_MAP.md"
-    artifact_version: "0.3.0"
     required_status: draft
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.7.0"
@@ -88,6 +70,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, CONTENT_MAP.md, GTM.md, GUIDELINES.md, PRODUCT.md."
   - "User decision 2026-05-02: the technical and editorial governance layers are not chantiers to rerun manually in every future project."
   - "User decision 2026-05-02: sg-docs should own creation and maintenance of the new documentation corpora."
   - "User decision 2026-05-02: sg-build should integrate the new paths and content map so its agents use the corpora effectively."

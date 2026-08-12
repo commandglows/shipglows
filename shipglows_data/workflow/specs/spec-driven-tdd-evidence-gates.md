@@ -36,10 +36,10 @@ depends_on:
     required_status: "active"
   - artifact: "skills/references/skill-instruction-layering.md"
     artifact_version: "0.1.0"
-    required_status: "draft"
+    required_status: "active"
   - artifact: "skills/references/skill-context-budget.md"
     artifact_version: "0.3.1"
-    required_status: "draft"
+    required_status: "active"
 supersedes: []
 evidence:
   - "User decision 2026-05-17: keep ShipGlows spec-driven development as the outer lifecycle, and try TDD as an implementation gate rather than a replacement methodology."

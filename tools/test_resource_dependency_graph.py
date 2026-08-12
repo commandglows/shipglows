@@ -99,6 +99,25 @@ class ResourceDependencyGraphTests(unittest.TestCase):
             errors = audit_dependency_graph(root, ["skills/references/a.md"])["errors"]
             self.assertIn("invalid_actual_status:skills/references/a.md:obsolete", errors)
 
+    def test_full_graph_accepts_terminal_historical_artifacts(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            refs = root / "skills" / "references"
+            refs.mkdir(parents=True)
+            (refs / "history.md").write_text(artifact(status="superseded"), encoding="utf-8")
+            payload = audit_dependency_graph(root)
+            self.assertEqual("valid", payload["status"], payload["errors"])
+
+    def test_versioned_repository_root_dependency_is_resolved(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            refs = root / "skills" / "references"
+            refs.mkdir(parents=True)
+            (refs / "a.md").write_text(artifact(depends="\n  - artifact: README.md\n    artifact_version: \"1.0.0\"\n    required_status: active"), encoding="utf-8")
+            (root / "README.md").write_text(artifact(), encoding="utf-8")
+            payload = audit_dependency_graph(root)
+            self.assertEqual("valid", payload["status"], payload["errors"])
+
 
 if __name__ == "__main__":
     unittest.main()

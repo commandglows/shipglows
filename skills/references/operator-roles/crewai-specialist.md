@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems: [shipglows_data/technical/external-platforms/crewai.md, shipglows_data/business/agent-profiles/crewai-specialist.md]
 depends_on:
   - artifact: "shipglows_data/technical/external-platforms/crewai.md"
+    artifact_version: "0.1.0"
     required_status: draft
 supersedes: []
 evidence: ["Operator decision 2026-07-12: CrewAI has recurring orchestration decisions that justify a specialist role."]

@@ -22,6 +22,7 @@ linked_systems:
   - skills/000-shipglows/SKILL.md
 depends_on:
   - artifact: "skills/references/operator-roles/neovim-specialist.md"
+    artifact_version: "0.1.0"
     required_status: draft
 supersedes: []
 next_review: "2026-08-12"

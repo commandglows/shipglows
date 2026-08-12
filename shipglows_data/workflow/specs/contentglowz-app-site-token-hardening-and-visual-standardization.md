@@ -32,7 +32,7 @@ linked_systems:
 depends_on:
   - artifact: "shipglows_data/technical/design-system-authority.md"
     artifact_version: "1.0.0"
-    required_status: reviewed
+    required_status: "active"
   - artifact: "skills/references/design-system-token-contract.md"
     artifact_version: "1.0.0"
     required_status: active

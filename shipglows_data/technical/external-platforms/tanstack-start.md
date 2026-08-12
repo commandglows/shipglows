@@ -18,6 +18,7 @@ linked_systems:
   - shipglows_data/technical/external-platforms/README.md
 depends_on:
   - artifact: "shipglows_data/technical/external-platforms/README.md"
+    artifact_version: "1.0.0"
     required_status: draft
 supersedes: []
 evidence:

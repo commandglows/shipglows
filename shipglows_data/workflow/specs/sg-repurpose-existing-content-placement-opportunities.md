@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-05-04"
 created_at: "2026-05-04 11:00:48 UTC"
-updated: "2026-05-04"
-updated_at: "2026-05-04 17:03:03 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -26,14 +26,12 @@ linked_systems:
   - CONTENT_MAP.md
   - docs/editorial/
 depends_on:
-  - artifact: "CONTENT_MAP.md"
-    artifact_version: "0.5.0"
-    required_status: draft
   - artifact: "skills/references/editorial-content-corpus.md"
     artifact_version: "1.1.0"
     required_status: active
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): CONTENT_MAP.md."
   - "User request 2026-05-04: sg-repurpose should include creation ideas and also analyze existing internal documentation and public publication surfaces."
   - "User wants the skill to find where conversation discoveries, explanations, demonstrations, and audience misconceptions can improve existing content."
   - "User review 2026-05-04: existing-content placement is read-heavy and should use parallel read-only subagents when available."

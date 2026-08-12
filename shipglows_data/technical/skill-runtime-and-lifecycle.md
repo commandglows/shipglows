@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.10.0"
+artifact_version: "2.11.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -69,6 +69,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Wave 18 removes all three full-graph cycles, repairs 79 constraints, migrates 13 active canonical paths, and reclassifies 73 historical edges as evidence while preserving the valid profiled graph."
   - "Skill inventory and workflow doctrine."
   - "Editorial content corpus and Editorial Reader role added for public-content impact analysis."
   - "Governance corpus lifecycle added: 305-sg-init bootstraps, 300-sg-docs maintains, 001-sg-build consumes."
@@ -221,6 +222,15 @@ execution authority; no edge is inferred from prose or `linked_systems`.
 The default dependency command covers this executable profiled closure only.
 `resource_dependency_graph.py --all` audits the broader current corpus to expose
 historical dependency debt, but that diagnostic is not an invocation gate.
+
+Wave 18 reduces that full diagnostic from 687 artifacts, 998 dependencies, 3
+cycles, and 272 findings to 688 artifacts, 923 dependencies, zero cycles, and
+89 findings. It repairs 79 safe constraints, migrates 13 active canonical
+paths, and moves 73 historical relationships from executable `depends_on`
+metadata to provenance evidence. The remaining 73 missing targets, 6 status
+mismatches, 6 unversioned targets, 3 invalid required-version constraints, and 1 invalid actual status stay explicit and
+non-blocking. The profiled invocation graph remains valid at 133 artifacts, 89
+dependencies, and zero cycles.
 
 Wave 14 extends this accounting and preflight pilot to six owners: `004`,
 `010`, `103`, `300`, `601`, and `900`. It records high selected baselines for

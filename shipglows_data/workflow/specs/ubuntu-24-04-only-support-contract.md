@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.1.1"
+artifact_version: "0.1.2"
 project: ShipGlows
 created: "2026-04-28"
 created_at: "2026-04-28 16:44:09 UTC"
-updated: "2026-08-11"
-updated_at: "2026-08-11 22:30:00 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: draft
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -33,15 +33,6 @@ linked_systems:
   - "/home/ubuntu/shipglows/local/install_local.ps1"
   - "/home/ubuntu/shipglows/TASKS.md"
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
   - artifact: "dotfiles/PRODUCT.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
@@ -50,6 +41,7 @@ depends_on:
     required_status: "unknown"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): BUSINESS.md, GUIDELINES.md, PRODUCT.md."
   - "dotfiles/README.md currently markets the repository as multi-platform and still lists Windows, Linux/Codespaces, and Termux install paths."
   - "dotfiles/bootstrap.sh says 'Fresh Ubuntu 24.04 LTS Servers' but only checks for /etc/os-release and x86_64/arm64, not Ubuntu 24.04 specifically."
   - "dotfiles/lib.sh still detects linux, macos, and windows, with x86_64, arm64, and armv7 architectures."

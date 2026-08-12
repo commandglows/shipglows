@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems: [shipglows_data/technical/external-platforms/flutter.md, shipglows_data/business/agent-profiles/flutter-specialist.md]
 depends_on:
   - artifact: "shipglows_data/technical/external-platforms/flutter.md"
+    artifact_version: "0.1.0"
     required_status: draft
 supersedes: []
 evidence: ["Operator decision 2026-07-12: add a bounded Flutter specialist profile backed by canonical technical references."]

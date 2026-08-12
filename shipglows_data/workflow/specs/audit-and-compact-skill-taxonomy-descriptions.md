@@ -28,10 +28,10 @@ linked_systems:
 depends_on:
   - artifact: "skills/references/skill-context-budget.md"
     artifact_version: "0.3.1"
-    required_status: "draft"
+    required_status: "active"
   - artifact: "skills/references/skill-instruction-layering.md"
     artifact_version: "0.1.0"
-    required_status: "draft"
+    required_status: "active"
   - artifact: "skills/references/chantier-tracking.md"
     artifact_version: "0.5.0"
     required_status: "draft"

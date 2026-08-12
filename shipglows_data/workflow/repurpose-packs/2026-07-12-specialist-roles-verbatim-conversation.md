@@ -21,6 +21,7 @@ linked_systems:
 next_step: "/200-sg-redact when turning this archive into a blog article"
 depends_on:
   - artifact: "skills/references/repurpose-pack-storage.md"
+    artifact_version: "1.0.0"
     required_status: active
 supersedes: []
 evidence:

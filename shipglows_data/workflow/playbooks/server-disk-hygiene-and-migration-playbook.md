@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-07-13"
-updated: "2026-07-13"
+updated: "2026-08-12"
 status: draft
 source_skill: 300-sg-docs
 scope: server-disk-hygiene-and-migration
@@ -18,16 +18,14 @@ linked_systems:
   - shipglows_data/technical/runtime-cli.md
   - shipglows_data/workflow/checklists/server-disk-hygiene-and-migration-checklist.md
   - shipglows_data/technical/blacksmith.md
-depends_on:
-  - artifact: "shipglows_data/workflow/checklists/server-disk-hygiene-and-migration-checklist.md"
-    artifact_version: "1.1.0"
-    required_status: draft
+depends_on: []
 supersedes: []
 evidence:
   - "2026-07-13 incident: a 75 GB server reached 87% usage with only 9.5 GB free."
   - "The incident inventory found 493,169 Flox upgrade-check logs, PM2 restart storms, stale orphaned codex-acp and Playwright processes, old temporary files, and multiple development caches."
   - "A targeted non-DevServer cleanup increased available space from 9.5 GB to 12 GB without deleting PNPM stores or project sources."
   - "The Avante Codex ACP adapter was changed to launch its native platform binary directly so editor cleanup owns the process it terminates."
+  - "Wave 18 clarified that the playbook owns the reusable method; its paired checklist depends on it, while this reverse relation remains provenance through linked_systems only."
 next_review: "2026-07-20"
 next_step: "/300-sg-docs review server disk hygiene and migration playbook after the new server hand-off"
 ---

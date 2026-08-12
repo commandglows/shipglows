@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.11.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -22,6 +22,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Wave 18 preserves the valid profiled graph at 133 artifacts, 89 dependencies, and zero cycles while reducing the non-blocking full diagnostic from 272 to 89 findings."
   - "Wave 17 reduces the remaining 010 and 103 hotspots to 4562 and 4907 tokens through conditional technical routing and direct verification proof leaves."
   - "Wave 16 replaces five monolithic workflow references with compact compatibility cores, direct non-chaining leaves, and five measured activation profiles."
   - "2026-08-12 Wave 16 measurement: workflow cores move from 7196/6607/6524/6189/5870 to 827/808/672/727/799 tokens; selected baselines are 2222/2097/2961/2821/3544."
@@ -152,6 +153,16 @@ preflight from its baseline and routes release-proof and CI procedure through
 two direct non-chaining leaves, reducing its baseline from 5,657 to 4,907.
 Owner, verdict, security, product, proof, stop, and reporting decisions remain
 activation-local.
+
+Wave 18 preserves the boundary between activation accounting and corpus
+diagnostics. The profiled execution graph remains valid at 133 artifacts, 89
+dependencies, and zero cycles. The full `--all` diagnostic improves from 687
+artifacts, 998 dependencies, 3 cycles, and 272 findings to 688 artifacts, 923
+dependencies, zero cycles, and 89 findings after 79 constraint repairs, 13
+active canonical-path migrations, and 73 historical-edge reclassifications.
+The residual 73 missing targets, 6 status mismatches, 6 unversioned targets, 3
+invalid required-version constraints, and 1 invalid actual status remain non-blocking debt and must not be pulled into activation merely
+to make the diagnostic green.
 
 ## Audit Commands
 

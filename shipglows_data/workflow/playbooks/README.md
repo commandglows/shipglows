@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.2.1"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-07-13"
+updated: "2026-08-12"
 status: draft
 source_skill: 300-sg-docs
 scope: workflow-playbooks-index
@@ -18,16 +18,14 @@ linked_systems:
   - shipglows_data/workflow/checklists/README.md
   - skills/references/canonical-paths.md
   - skills/300-sg-docs/references/core-governance.md
-depends_on:
-  - artifact: "shipglows_data/workflow/checklists/README.md"
-    artifact_version: "1.2.0"
-    required_status: draft
+depends_on: []
 supersedes: []
 evidence:
   - "Operator decision on 2026-06-28: ShipGlows needs reusable transversal playbooks and checklists for business domains shared across many sites and applications."
   - "Current corpus already stores test checklists under shipglows_data/workflow/test-checklists but lacks a canonical home for reusable domain playbooks."
   - "Server disk hygiene and migration playbook added after the 2026-07-13 disk-pressure incident."
   - "Private design-inspiration-library server migration playbook added on 2026-08-07."
+  - "Wave 18 clarified index ownership: the checklist index depends on this method catalog, while the reverse catalog relation remains discoverability through linked_systems only."
 next_review: "2026-07-05"
 next_step: "/300-sg-docs update playbook migration inventory"
 ---

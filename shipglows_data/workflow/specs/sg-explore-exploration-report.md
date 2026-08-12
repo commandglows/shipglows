@@ -38,8 +38,8 @@ depends_on:
     artifact_version: "0.1.0"
     required_status: "draft"
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
-    artifact_version: "unknown"
-    required_status: "active"
+    artifact_version: "0.18.5"
+    required_status: "draft"
 supersedes: []
 evidence:
   - "User request on 2026-04-29: sg-explore should not leave substantial research and brainstorming only in conversation history."

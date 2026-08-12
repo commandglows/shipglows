@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-02"
 created_at: "2026-05-02 05:53:05 UTC"
-updated: "2026-05-02"
-updated_at: "2026-05-02 11:36:16 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -34,9 +34,6 @@ linked_systems:
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - docs/technical/skill-runtime-and-lifecycle.md
 depends_on:
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.3.0"
-    required_status: "reviewed"
   - artifact: "docs/technical/skill-runtime-and-lifecycle.md"
     artifact_version: "1.3.0"
     required_status: "reviewed"
@@ -51,6 +48,7 @@ depends_on:
     required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): GUIDELINES.md."
   - "User request 2026-05-02: create future skill sg-browser after Playwright MCP Linux ARM64 Chrome-stable config issue."
   - "User decision context 2026-05-02: sg-auth-debug should stay auth-specialized; a general browsing skill should cover non-auth browser checks."
   - "User decision 2026-05-02: the full spec contract, including the User Story, must be in English and must follow the strict ShipGlows language doctrine."

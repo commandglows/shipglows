@@ -24,7 +24,7 @@ depends_on:
   - artifact: "README.md"
     artifact_version: "0.1.0"
     required_status: draft
-  - artifact: "GUIDELINES.md"
+  - artifact: "shipglows_data/technical/guidelines.md"
     artifact_version: "1.2.0"
     required_status: reviewed
 supersedes: []

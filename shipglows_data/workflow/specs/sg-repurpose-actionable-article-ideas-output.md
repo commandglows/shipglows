@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-05-04"
 created_at: "2026-05-04 10:47:41 UTC"
-updated: "2026-05-04"
-updated_at: "2026-05-04 10:47:41 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -25,14 +25,12 @@ linked_systems:
   - CONTENT_MAP.md
   - docs/editorial/
 depends_on:
-  - artifact: "CONTENT_MAP.md"
-    artifact_version: "0.5.0"
-    required_status: draft
   - artifact: "skills/references/editorial-content-corpus.md"
     artifact_version: "1.1.0"
     required_status: active
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): CONTENT_MAP.md."
   - "User feedback 2026-05-04: current sg-repurpose reports are too messy and not actionable."
   - "User requested article-name ideas linked to existing content."
   - "User requested article-title ideas for directly repurposing the current conversation."

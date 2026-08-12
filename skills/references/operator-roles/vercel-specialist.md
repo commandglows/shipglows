@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems: [shipglows_data/technical/external-platforms/vercel.md, shipglows_data/business/agent-profiles/vercel-specialist.md]
 depends_on:
   - artifact: "shipglows_data/technical/external-platforms/vercel.md"
+    artifact_version: "0.1.0"
     required_status: draft
 supersedes: []
 evidence: ["Operator decision 2026-07-12: add a bounded Vercel specialist profile backed by canonical technical references."]

@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-04-30"
 created_at: "2026-04-30 22:58:17 UTC"
-updated: "2026-05-01"
-updated_at: "2026-05-01 13:18:50 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -27,17 +27,12 @@ linked_systems:
   - "Codex"
   - "Claude Code"
 depends_on:
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.2.0"
-    required_status: reviewed
-  - artifact: "ARCHITECTURE.md"
-    artifact_version: "1.0.0"
-    required_status: reviewed
   - artifact: "skills/references/skill-context-budget.md"
     artifact_version: "0.2.0"
-    required_status: draft
+    required_status: "active"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): ARCHITECTURE.md, GUIDELINES.md."
   - "User request 2026-04-30: create a spec to enforce one-sentence skill descriptions and verify all current skills at once."
   - "Codex docs 2026-04-30: initial skill list includes name, description, and file path, capped at roughly 2% of context or 8,000 characters when context is unknown."
   - "Claude Code docs 2026-04-30: description helps automatic loading; combined description and when_to_use is truncated at 1,536 characters; full skill content loads only when invoked."

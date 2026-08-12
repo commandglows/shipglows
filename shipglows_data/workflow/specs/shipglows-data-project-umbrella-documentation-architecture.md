@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-09"
 created_at: "2026-05-09 21:04:33 UTC"
-updated: "2026-05-10"
-updated_at: "2026-05-10 08:20:19 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -38,15 +38,6 @@ linked_systems:
   - TASKS.md
   - /home/claude/shipglows_data/
 depends_on:
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.3.0"
-    required_status: reviewed
-  - artifact: "ARCHITECTURE.md"
-    artifact_version: "1.0.0"
-    required_status: reviewed
-  - artifact: "CONTENT_MAP.md"
-    artifact_version: "0.6.0"
-    required_status: draft
   - artifact: "shipglows_data/technical/metadata-migration-guide.md"
     artifact_version: "0.3.0"
     required_status: draft
@@ -58,6 +49,7 @@ depends_on:
     required_status: ready
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): ARCHITECTURE.md, CONTENT_MAP.md, GUIDELINES.md."
   - "User decision 2026-05-09: current file-by-file symlink and Markdown organization is too messy and must be replaced by a project-level umbrella architecture."
   - "User direction 2026-05-09: each GitHub project should have a ShipGlows data folder at repo root with technical documentation, editorial, and business subfolders."
   - "User decision 2026-05-09: the project-local umbrella folder name is shipglows_data."

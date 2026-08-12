@@ -52,7 +52,7 @@ depends_on:
     required_status: active
   - artifact: "skills/references/skill-context-budget.md"
     artifact_version: "0.3.1"
-    required_status: draft
+    required_status: "active"
   - artifact: "skills/references/operational-record-format.md"
     artifact_version: "1.0.0"
     required_status: active

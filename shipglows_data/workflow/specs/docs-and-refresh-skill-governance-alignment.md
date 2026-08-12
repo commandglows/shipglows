@@ -35,7 +35,7 @@ depends_on:
     required_status: active
   - artifact: "skills/references/skill-context-budget.md"
     artifact_version: "0.3.1"
-    required_status: draft
+    required_status: "active"
 supersedes: []
 evidence:
   - "User request 2026-05-22: skills that handle skills, documentation, and freshness must be up to date as priority."

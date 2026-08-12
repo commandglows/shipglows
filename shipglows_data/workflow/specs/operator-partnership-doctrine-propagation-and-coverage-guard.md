@@ -36,7 +36,7 @@ depends_on:
     required_status: active
   - artifact: "shipglows_data/technical/skill-runtime-and-lifecycle.md"
     artifact_version: "1.23.0"
-    required_status: active
+    required_status: "reviewed"
 supersedes: []
 evidence:
   - "User decision 2026-06-28: the operator is not here to code but is happy to answer important business, product, and framing questions when asked precisely."

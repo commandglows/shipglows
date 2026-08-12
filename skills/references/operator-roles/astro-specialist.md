@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems: [shipglows_data/technical/external-platforms/astro.md, shipglows_data/business/agent-profiles/astro-specialist.md]
 depends_on:
   - artifact: "shipglows_data/technical/external-platforms/astro.md"
+    artifact_version: "0.1.0"
     required_status: draft
 supersedes: []
 evidence: ["Operator decision 2026-07-12: add a bounded Astro specialist profile backed by canonical technical references."]

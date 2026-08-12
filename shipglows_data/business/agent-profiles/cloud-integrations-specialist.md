@@ -17,6 +17,7 @@ evidence: ["Operator decision 2026-07-12: make the Cloud Integrations specialist
 linked_systems: [skills/references/operator-roles/cloud-integrations-specialist.md, skills/references/profile-activation.md]
 depends_on:
   - artifact: "skills/references/operator-roles/cloud-integrations-specialist.md"
+    artifact_version: "0.1.0"
     required_status: draft
 supersedes: []
 next_review: "2026-08-12"

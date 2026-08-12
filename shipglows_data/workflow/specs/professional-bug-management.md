@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-04-27"
 created_at: "2026-04-27 12:44:52 UTC"
-updated: "2026-04-29"
-updated_at: "2026-04-29 10:00:31 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -36,23 +36,12 @@ linked_systems:
   - site/src/content/skills/sg-ship.md
   - site/src/content/skills/sg-docs.md
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "BRANDING.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.3.0"
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, GUIDELINES.md, PRODUCT.md."
   - "User feedback 2026-04-27: shipglows_data/workflow/TEST_LOG.md alone will grow without bound if it stores full bug investigation detail."
   - "User feedback 2026-04-27: bug traceability must include how the bug happens and what was attempted to fix it."
   - "Repo investigation: sg-test currently writes shipglows_data/workflow/TEST_LOG.md and shipglows_data/workflow/BUGS.md, but has no per-bug dossier or evidence directory."

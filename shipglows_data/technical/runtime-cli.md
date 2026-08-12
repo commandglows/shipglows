@@ -24,10 +24,10 @@ linked_systems:
   - cli/windows/install-devserver.ps1
   - CONTEXT-FUNCTION-TREE.md
 depends_on:
-  - artifact: "ARCHITECTURE.md"
+  - artifact: "shipglows_data/technical/architecture.md"
     artifact_version: "1.0.0"
     required_status: reviewed
-  - artifact: "GUIDELINES.md"
+  - artifact: "shipglows_data/technical/guidelines.md"
     artifact_version: "1.2.0"
     required_status: reviewed
 supersedes: []

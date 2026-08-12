@@ -20,7 +20,7 @@ linked_systems:
 depends_on:
   - artifact: "shipglows_data/workflow/specs/three-digit-runtime-skill-names.md"
     artifact_version: "1.0.0"
-    required_status: ready
+    required_status: "reviewed"
 supersedes: []
 evidence:
   - "Manual runtime picker confirmation is required before ship if the current agent cannot inspect Codex/Claude UI state."

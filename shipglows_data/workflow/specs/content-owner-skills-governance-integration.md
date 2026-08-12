@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-05-04"
 created_at: "2026-05-04 23:24:03 UTC"
-updated: "2026-05-04"
-updated_at: "2026-05-04 23:30:03 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -31,9 +31,6 @@ linked_systems:
   - site/src/content/skills/
   - skills/REFRESH_LOG.md
 depends_on:
-  - artifact: "CONTENT_MAP.md"
-    artifact_version: "0.6.0"
-    required_status: draft
   - artifact: "docs/editorial/README.md"
     artifact_version: "1.0.0"
     required_status: reviewed
@@ -51,6 +48,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): CONTENT_MAP.md."
   - "User request 2026-05-04: improve the skills with incomplete integration after the governance audit."
   - "Read-only audit found sg-enrich, sg-redact, sg-audit-copy, sg-audit-copywriting, and sg-audit-seo partially or insufficiently integrated with editorial and technical governance."
   - "docs/editorial/README.md defines Editorial Update Plan and Claim Impact Plan outputs."

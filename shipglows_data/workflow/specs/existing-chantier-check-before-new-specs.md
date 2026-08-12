@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.1.1"
 project: ShipGlows
 created: "2026-04-30"
 created_at: "2026-04-30 22:20:07 UTC"
-updated: "2026-04-30"
-updated_at: "2026-04-30 22:20:07 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: draft
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -25,15 +25,6 @@ linked_systems:
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - specs/
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.2.0"
-    required_status: "reviewed"
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.4.0"
     required_status: "draft"
@@ -42,6 +33,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): BUSINESS.md, GUIDELINES.md, PRODUCT.md."
   - "User concern 2026-04-30: a new spec should not be created when the current work is actually a continuation of an existing chantier."
   - "User decision 2026-04-30: default should be to continue an existing chantier when it covers the same promise; create a new spec only for a genuinely new user story or outcome."
   - "Repo investigation 2026-04-30: chantier-tracking.md already says to identify one spec before writing and stop when ambiguous."

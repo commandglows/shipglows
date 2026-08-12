@@ -29,16 +29,16 @@ linked_systems:
   - skills/references/decision-quality-contract.md
   - site/src/pages/
 depends_on:
-  - artifact: "BUSINESS.md"
+  - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.1.0"
     required_status: reviewed
-  - artifact: "PRODUCT.md"
+  - artifact: "shipglows_data/business/product.md"
     artifact_version: "1.1.0"
     required_status: reviewed
-  - artifact: "BRANDING.md"
+  - artifact: "shipglows_data/branding/branding.md"
     artifact_version: "1.0.0"
     required_status: reviewed
-  - artifact: "GTM.md"
+  - artifact: "shipglows_data/business/gtm.md"
     artifact_version: "1.1.0"
     required_status: reviewed
 supersedes: []

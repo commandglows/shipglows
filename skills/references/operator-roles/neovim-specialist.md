@@ -21,6 +21,7 @@ linked_systems:
   - shipglows_data/business/agent-profiles/neovim-specialist.md
 depends_on:
   - artifact: "shipglows_data/technical/external-platforms/neovim.md"
+    artifact_version: "0.1.0"
     required_status: draft
 supersedes: []
 evidence:

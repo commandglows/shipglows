@@ -44,7 +44,7 @@ depends_on:
     required_status: "reviewed"
   - artifact: "skills/references/skill-context-budget.md"
     artifact_version: "0.2.0"
-    required_status: "draft"
+    required_status: "active"
   - artifact: "skills/references/canonical-paths.md"
     artifact_version: "1.1.0"
     required_status: "active"

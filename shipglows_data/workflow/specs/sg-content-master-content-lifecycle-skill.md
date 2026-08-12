@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-05-04"
 created_at: "2026-05-04 06:03:39 UTC"
-updated: "2026-05-04"
-updated_at: "2026-05-04 06:03:39 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -39,9 +39,6 @@ linked_systems:
   - site/src/content/skills/sg-content.md
   - site/src/pages/skill-modes.astro
 depends_on:
-  - artifact: "CONTENT_MAP.md"
-    artifact_version: "0.5.0"
-    required_status: draft
   - artifact: "docs/editorial/README.md"
     artifact_version: "1.0.0"
     required_status: reviewed
@@ -57,17 +54,9 @@ depends_on:
   - artifact: "docs/technical/public-site-and-content-runtime.md"
     artifact_version: "1.3.0"
     required_status: reviewed
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: reviewed
-  - artifact: "BRANDING.md"
-    artifact_version: "1.0.0"
-    required_status: reviewed
-  - artifact: "GTM.md"
-    artifact_version: "1.1.0"
-    required_status: reviewed
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): BRANDING.md, CONTENT_MAP.md, GTM.md, PRODUCT.md."
   - "User request 2026-05-04: create the master skill for content management."
   - "Existing content skills already cover repurposing, long-form drafting, enrichment, copy audits, copywriting audits, SEO audits, docs, veille, and market studies."
   - "CONTENT_MAP.md and docs/editorial/ already define content surfaces, public claims, page intent, Astro runtime schema policy, and missing blog/article stop conditions."

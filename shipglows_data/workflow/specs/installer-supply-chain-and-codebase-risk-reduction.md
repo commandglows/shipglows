@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-04-28"
 created_at: "2026-04-28 20:30:00 UTC"
-updated: "2026-05-01"
-updated_at: "2026-05-01 18:29:34 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -27,23 +27,9 @@ linked_systems:
   - "GUIDELINES.md"
   - "CHANGELOG.md"
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "BRANDING.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
-  - artifact: "ARCHITECTURE.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): ARCHITECTURE.md, BRANDING.md, BUSINESS.md, GUIDELINES.md, PRODUCT.md."
   - "sg-audit-code 2026-04-28 found install.sh uses live remote install scripts/direct downloads and needs pinned, verified install steps and strict failure behavior."
   - "sg-audit-code 2026-04-28 found lib.sh is 5900+ lines and spans lifecycle, publishing, dashboard, inspector, secrets, and metadata behavior."
   - "npm audit --omit=dev in site reported Astro <6.1.6 vulnerable to GHSA-j687-52p2-xcff; forced fix would move to Astro 6."

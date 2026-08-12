@@ -21,6 +21,7 @@ linked_systems:
   - shipglows_data/technical/external-platforms/
 depends_on:
   - artifact: "skills/references/profile-activation.md"
+    artifact_version: "1.3.0"
     required_status: active
 supersedes: []
 evidence:

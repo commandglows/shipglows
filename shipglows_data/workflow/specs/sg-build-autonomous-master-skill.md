@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.3.2"
+artifact_version: "1.3.3"
 project: ShipGlows
 created: "2026-04-29"
 created_at: "2026-04-29 09:02:11 UTC"
-updated: "2026-05-04"
-updated_at: "2026-05-04 09:17:02 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -51,18 +51,6 @@ linked_systems:
   - README.md
   - TASKS.md
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.3.0"
-    required_status: "reviewed"
-  - artifact: "BRANDING.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
   - artifact: "README.md"
     artifact_version: "0.8.0"
     required_status: "draft"
@@ -81,11 +69,9 @@ depends_on:
   - artifact: "docs/technical/code-docs-map.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
-  - artifact: "CONTENT_MAP.md"
-    artifact_version: "0.3.0"
-    required_status: "draft"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, CONTENT_MAP.md, GUIDELINES.md, PRODUCT.md."
   - "User decision 2026-04-29: create a user-facing master skill named sg-build."
   - "User decision 2026-04-29: sg-build must run the full flow through sg-end and sg-ship, not stop after implementation."
   - "User decision 2026-04-29: the user may be prompted multiple times, preferably via integrated prompts with prepared answers, to avoid regressions."

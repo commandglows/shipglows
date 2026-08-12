@@ -49,7 +49,7 @@ depends_on:
     required_status: active
   - artifact: "skills/references/skill-context-budget.md"
     artifact_version: "0.3.1"
-    required_status: draft
+    required_status: "active"
 supersedes: []
 evidence:
   - "User request 2026-05-31: create a reusable onboarding skill so agents stop needing the same principles repeated after feature work."

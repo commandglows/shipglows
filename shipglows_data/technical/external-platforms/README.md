@@ -20,7 +20,7 @@ linked_systems:
   - templates/project_platform_usage.md
 depends_on:
   - artifact: "skills/references/documentation-freshness-gate.md"
-    artifact_version: "unknown"
+    artifact_version: "1.2.0"
     required_status: "active"
 supersedes: []
 evidence:

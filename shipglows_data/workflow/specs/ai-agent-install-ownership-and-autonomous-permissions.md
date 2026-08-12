@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-04-28"
 created_at: "2026-04-28 22:27:54 UTC"
-updated: "2026-05-01"
-updated_at: "2026-05-01 18:29:34 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -27,15 +27,6 @@ linked_systems:
   - dotfiles/codex/config.toml
   - dotfiles/claude/settings.local.json
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "BRANDING.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
   - artifact: "README.md"
     artifact_version: "0.1.0"
     required_status: "draft"
@@ -46,6 +37,7 @@ supersedes:
   - "shipglows_data/workflow/archives/repository-history/root-documentation/INSTALLATION-OWNERSHIP-SPEC.md"
   - "specs/install-user-targeting.md"
 evidence:
+  - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, GUIDELINES.md."
   - "shipglows/install.sh configure deja ~/.claude/settings.json, ~/.codex/config.toml, MCP, skills et aliases pour root puis tous les comptes /home/*."
   - "shipglows/install.sh declare encore claude et codex NON_APPLICABLE / geres par dotfiles dans son rapport d'installation."
   - "dotfiles/install.sh installe @openai/codex dans npm-tools et re-installe @anthropic-ai/claude-code + @openai/codex dans install_ai_tools."

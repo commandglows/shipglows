@@ -18,6 +18,8 @@ DEPENDENCY_FIELD = re.compile(
 )
 TOP_LEVEL = re.compile(r'^([A-Za-z_][A-Za-z0-9_-]*):\s*["\']?(.*?)["\']?\s*$')
 SEMVER = re.compile(r'^(\d+)\.(\d+)\.(\d+)$')
+ACTIVATABLE_STATUSES = {"active", "ready", "reviewed", "draft"}
+TERMINAL_STATUSES = {"stale", "superseded"}
 
 
 @dataclass(frozen=True)
@@ -166,7 +168,8 @@ def audit_dependency_graph(
             errors.append(
                 f"invalid_actual_version:{source_path}:{source.artifact_version or 'missing'}"
             )
-        if source.status not in {"active", "ready", "reviewed", "draft"}:
+        valid_statuses = ACTIVATABLE_STATUSES if profiled else ACTIVATABLE_STATUSES | TERMINAL_STATUSES
+        if source.status not in valid_statuses:
             errors.append(
                 f"invalid_actual_status:{source_path}:{source.status or 'missing'}"
             )
@@ -180,9 +183,12 @@ def audit_dependency_graph(
                 physical = root / target_path
                 if not physical.is_file():
                     errors.append(f"missing:{source_path}:{target_path}")
-                else:
+                    continue
+                target = parse_artifact(physical, root)
+                if not target.artifact_version:
                     errors.append(f"unversioned:{source_path}:{target_path}")
-                continue
+                    continue
+                artifacts[target_path] = target
             edges[source_path].append(target_path)
             if not dependency.artifact_version:
                 errors.append(f"missing_required_version:{source_path}:{target_path}")

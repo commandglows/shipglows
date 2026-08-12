@@ -25,7 +25,7 @@ linked_systems:
   - site/src/pages/
   - site/src/content.config.ts
 depends_on:
-  - artifact: "CONTENT_MAP.md"
+  - artifact: "shipglows_data/editorial/content-map.md"
     artifact_version: "0.3.0"
     required_status: draft
 supersedes: []

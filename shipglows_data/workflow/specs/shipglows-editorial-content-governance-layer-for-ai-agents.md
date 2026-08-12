@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-05-01"
 created_at: "2026-05-01 10:05:10 UTC"
-updated: "2026-05-01"
-updated_at: "2026-05-01 14:50:34 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -42,24 +42,6 @@ linked_systems:
   - shipglows-site/src/components/
   - shipglows-site/src/content/skills/
 depends_on:
-  - artifact: "CONTENT_MAP.md"
-    artifact_version: "0.3.0"
-    required_status: draft
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: reviewed
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: reviewed
-  - artifact: "BRANDING.md"
-    artifact_version: "1.0.0"
-    required_status: reviewed
-  - artifact: "GTM.md"
-    artifact_version: "1.1.0"
-    required_status: reviewed
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.3.0"
-    required_status: reviewed
   - artifact: "README.md"
     artifact_version: "0.3.0"
     required_status: draft
@@ -73,10 +55,11 @@ depends_on:
     artifact_version: "1.0.2"
     required_status: ready
   - artifact: "skills/references/documentation-freshness-gate.md"
-    artifact_version: unknown
+    artifact_version: "1.2.0"
     required_status: active
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, CONTENT_MAP.md, GTM.md, GUIDELINES.md, PRODUCT.md."
   - "User request 2026-05-01: prepare a similar reflection for editorial documentation: blog, site pages, README, and public docs displayed on the Astro site."
   - "Local Astro site uses Astro 6.4.8 from shipglows-site/pnpm-lock.yaml and a skills content collection declared in shipglows-site/src/content.config.ts."
   - "Astro official docs checked through Context7 /withastro/docs: src/pages uses file-based routing; content collections use defineCollection with schema validation; collection entries need dynamic routes with getCollection/getStaticPaths."

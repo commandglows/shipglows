@@ -32,7 +32,7 @@ depends_on:
     required_status: "draft"
   - artifact: "shipglows_data/technical/runtime-cli.md"
     artifact_version: "0.1.0"
-    required_status: "draft"
+    required_status: "reviewed"
   - artifact: "local/README.md"
     artifact_version: "unknown"
     required_status: "unknown"

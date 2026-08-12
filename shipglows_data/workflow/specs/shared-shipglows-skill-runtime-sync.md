@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-05-03"
 created_at: "2026-05-03 04:35:01 UTC"
-updated: "2026-05-03"
-updated_at: "2026-05-03 05:46:55 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -33,21 +33,6 @@ linked_systems:
   - "shipglows_data/workflow/bugs/BUG-2026-05-03-001.md"
   - "shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md"
 depends_on:
-  - artifact: "BUSINESS.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "PRODUCT.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "BRANDING.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
-  - artifact: "GTM.md"
-    artifact_version: "1.1.0"
-    required_status: "reviewed"
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.3.0"
-    required_status: "reviewed"
   - artifact: "README.md"
     artifact_version: "0.5.1"
     required_status: "draft"
@@ -71,6 +56,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, GTM.md, GUIDELINES.md, PRODUCT.md."
   - "User request 2026-05-03: symlink management should likely be a shared mechanism because other skills may need it."
   - "User report 2026-05-03: `sg-build` is not visible in Codex."
   - "Exploration report shipglows_data/workflow/explorations/2026-05-03-skill-runtime-symlink-sync.md found `sg-browser` and `sg-build` missing from both current-user Claude and Codex skill directories."

@@ -49,7 +49,7 @@ depends_on:
     required_status: "draft"
   - artifact: "shipglows_data/business/project-competitors-and-inspirations.md"
     artifact_version: "0.1.0"
-    required_status: "draft"
+    required_status: "reviewed"
   - artifact: "shipglows_data/technical/code-docs-map.md"
     artifact_version: "3.2.0"
     required_status: "reviewed"

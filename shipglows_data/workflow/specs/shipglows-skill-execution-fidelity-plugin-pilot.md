@@ -49,7 +49,7 @@ depends_on:
     required_status: "active"
   - artifact: "skills/references/skill-context-budget.md"
     artifact_version: "0.3.1"
-    required_status: "draft"
+    required_status: "active"
   - artifact: "shipglows_data/workflow/specs/audit-and-compact-skill-taxonomy-descriptions.md"
     artifact_version: "1.0.3"
     required_status: "ready"

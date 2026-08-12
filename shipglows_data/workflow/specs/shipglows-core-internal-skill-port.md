@@ -39,7 +39,7 @@ depends_on:
     required_status: "active"
   - artifact: "shipglows_data/technical/codex-plugin-packaging.md"
     artifact_version: "1.0.0"
-    required_status: "reviewed"
+    required_status: "active"
 supersedes: []
 evidence:
   - "The operator decided that ShipGlows Core is useful internally but should not be packaged as the public user plugin."

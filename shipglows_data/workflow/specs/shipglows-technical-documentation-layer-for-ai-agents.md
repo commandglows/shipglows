@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: "ShipGlows"
 created: "2026-05-01"
 created_at: "2026-05-01 09:32:35 UTC"
-updated: "2026-05-01"
-updated_at: "2026-05-01 18:51:48 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -38,18 +38,6 @@ depends_on:
   - artifact: "AGENT.md"
     artifact_version: "0.4.0"
     required_status: draft
-  - artifact: "ARCHITECTURE.md"
-    artifact_version: "1.0.0"
-    required_status: reviewed
-  - artifact: "CONTEXT.md"
-    artifact_version: "0.3.0"
-    required_status: draft
-  - artifact: "CONTEXT-FUNCTION-TREE.md"
-    artifact_version: "0.1.0"
-    required_status: draft
-  - artifact: "GUIDELINES.md"
-    artifact_version: "1.3.0"
-    required_status: reviewed
   - artifact: "README.md"
     artifact_version: "0.2.0"
     required_status: draft
@@ -59,9 +47,6 @@ depends_on:
   - artifact: "shipglows_data/technical/metadata-migration-guide.md"
     artifact_version: "0.3.0"
     required_status: draft
-  - artifact: "CONTENT_MAP.md"
-    artifact_version: "0.2.1"
-    required_status: draft
   - artifact: "skills/references/canonical-paths.md"
     artifact_version: "1.0.0"
     required_status: active
@@ -69,10 +54,11 @@ depends_on:
     artifact_version: "0.1.0"
     required_status: draft
   - artifact: "skills/references/documentation-freshness-gate.md"
-    artifact_version: unknown
+    artifact_version: "1.2.0"
     required_status: active
 supersedes: []
 evidence:
+  - "Historical migration-source provenance (legacy root documents): ARCHITECTURE.md, CONTENT_MAP.md, CONTEXT-FUNCTION-TREE.md, CONTEXT.md, GUIDELINES.md."
   - "Exploration subagent Euclid, 2026-05-01: ShipGlows has strong agent/workflow documentation but lacks a canonical docs/technical layer and code-docs map."
   - "Spec drafting subagent Ohm, 2026-05-01: proposed a full implementation plan with sequential foundations, disjoint technical-doc waves, and final sequential integration."
   - "Local inventory: AGENT.md, CLAUDE.md, CONTEXT.md, CONTEXT-FUNCTION-TREE.md, ARCHITECTURE.md, GUIDELINES.md, README.md, shipglows_data/workflow/playbooks/spec-driven-workflow.md, shipglows_data/technical/metadata-migration-guide.md, skills/references, templates, tools/codebase-mcp, and local/README.md."
