@@ -1,11 +1,11 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-06-29"
-status: draft
+updated: "2026-08-12"
+status: active
 source_skill: 004-sg-deploy
 scope: 004-sg-deploy-release-proof-routing
 owner: unknown
@@ -30,8 +30,9 @@ depends_on:
 supersedes: []
 evidence:
   - "Extracted from skills/004-sg-deploy/SKILL.md to separate proof routing doctrine from activation."
-next_review: "2026-07-13"
-next_step: "/103-sg-verify 004-sg-deploy release proof routing"
+  - "Wave 10 verified this pack as the post-deployment hosted-proof route."
+next_review: "2026-11-12"
+next_step: none
 ---
 
 # Release Proof Routing

@@ -1,5 +1,5 @@
 {
-  "format_version": "2.4",
+  "format_version": "2.5",
   "identity_source": "skills/references/skill-code-index.md",
   "public_catalog": {
     "domains": [
@@ -78,6 +78,38 @@
     "default_visibility": "expert",
     "require_owned_expert_coverage": true
   },
+  "activation_profiles": {
+    "format_version": "1.0",
+    "skills": {
+      "004-sg-deploy": {
+        "body": "skills/004-sg-deploy/SKILL.md",
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/references/intent-to-outcome-autonomy.md"
+        ],
+        "gates": {
+          "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
+          "release-route": ["skills/004-sg-deploy/references/release-confidence-workflow.md"],
+          "development-mode": ["skills/references/project-development-mode.md"],
+          "target-recommendation": ["skills/references/deploy-target-matrix.md"],
+          "hosted-proof": ["skills/references/preview-proof-routing.md", "skills/004-sg-deploy/references/release-proof-routing.md"],
+          "multi-stage-lifecycle": ["skills/references/master-workflow-lifecycle.md", "skills/references/master-delegation-semantics.md"],
+          "detailed-report": ["skills/004-sg-deploy/references/deploy-report-template.md"]
+        }
+      },
+      "601-sg-product-entitlements": {
+        "body": "skills/601-sg-product-entitlements/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md"],
+        "gates": {
+          "ownership-decision": ["skills/references/decision-quality-contract.md"],
+          "entitlement-contract": ["skills/references/product-entitlements-playbook.md"],
+          "winflowz-suite": ["skills/references/winflowz-suite-product-registry.md"],
+          "behavior-change": ["skills/references/spec-driven-development-discipline.md"],
+          "provider-freshness": ["skills/references/documentation-freshness-gate.md"]
+        }
+      }
+    }
+  },
   "rules": {
     "000-shipglows": {"kind": "freeform", "min_args": 1},
     "001-sg-build": {"kind": "freeform", "min_args": 1, "leading_aliases": ["spark", "codex", "mini", "agents", "sous-agent", "no-agents"]},
@@ -93,6 +125,7 @@
     "103-sg-verify": {"kind": "modes", "modes": {"standard": {"min_args": 1}, "excellence": {"min_args": 0}}},
     "302-sg-help": {"kind": "freeform", "min_args": 0},
     "407-sg-translate": {"kind": "freeform", "min_args": 0},
+    "601-sg-product-entitlements": {"kind": "freeform", "min_args": 0},
     "900-shipglows-core": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "build": {"min_args": 1}, "refresh": {"min_args": 1}, "packaging": {"min_args": 0}, "help": {"min_args": 0}}}
   },
   "mode_suggestions": {

@@ -8,157 +8,52 @@ Primary artifact type: `master-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows-owned files. Project artifacts resolve from the current project root.
 
-## Public Métier Ownership
+## Public Métier, Chantier, And Reporting
 
-Public label: `sg-release`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or release routing. Resolve `project -> product -> surface -> feature` and own the bounded release outcome through checks, ship authorization, deployment truth, post-deploy proof, verification, and closure.
+Public label: `sg-release`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or release routing. Resolve `project -> product -> surface -> feature` and own one bounded release through checks, ship authorization, deployment truth, proof, verification, and closure.
 
-## Chantier Tracking
+Trace category: `obligatoire`. Process role: `lifecycle`. Attach to one unique spec when present and apply `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`; otherwise use `(local)`. Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before the final report. Blocked user reports remain plain-language and offer only safe recovery choices. Detailed handoff loads `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/deploy-report-template.md`.
 
-Trace category: `obligatoire`.
-Process role: `lifecycle`.
+## Mission And Scope Gate
 
-Before deploying a spec-first chantier, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when a unique spec exists. Append a current `004-sg-deploy` row with result `deployed`, `partial`, `blocked`, or `rerouted`, update `Current Chantier Flow`, and open the report with the opening chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
+`004-sg-deploy` answers: what bounded scope can be shipped and proven now? It orchestrates existing owners and never treats a green check, push, deploy status, or `200 OK` as product proof.
 
-If no unique chantier spec is identified, do not write to a spec; use a `(local)` chantier header with a short work name.
+Route narrower requests directly: checks `105`, commit/push `005`, deployed state/logs `405`, non-auth browser `108`, auth/session `109`, durable manual QA `107`, verification `103`, changelog `304`. Route unsettled feature scope to `001`, maintenance dominance to `002`, and one dominant defect to `003`.
 
-## Report Modes
+## Mode Detection And Preflight
 
-Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
+Before explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`. Parse empty/current scope, `skip-check`, `no-changelog`, `--preview`, `--prod`, URL, or project name. `skip-check` skips only `105`; all later gates remain. Production proof is read-only unless mutation is explicitly approved.
 
-Default to `report=user`: concise, evidence-first, and using the opening chantier header. Blocked user reports remain plain-language and end with safe recovery choices. For `report=agent` or explicit handoff, use `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/deploy-report-template.md`.
+A deploy-target recommendation loads `$SHIPGLOWS_ROOT/skills/references/deploy-target-matrix.md` and remains advisory. Before choosing local/preview/hybrid/production proof, load `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md`; hosted proof loads `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`.
 
-## Mission
+## Progressive Release Packs
 
-`004-sg-deploy` is the release confidence orchestrator.
+The accounting profile lives in `skill-invocation-registry.json`; runtime loaders here remain authoritative. Local packs load directly and never chain.
 
-It answers one operational question:
+- After scope, target, and risk are known, load `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/release-confidence-workflow.md`.
+- After `405` confirms deployment truth, load `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/release-proof-routing.md`.
+- Only after a multi-stage release route is selected, load `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` and `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`.
 
-```text
-What bounded release scope should be shipped and proven now, and what proof owners must run before we can trust that release?
-```
+Load at most one local playbook before the first substantive action.
 
-It runs the release path:
+Conditional authorities: `actionable-failure-contract.md` for failure reports; `sentry-observability.md` for runtime/Sentry evidence; `owasp-application-security-awareness.md` for internet-facing or privileged change; `email-work-routing.md` for sending/provider mutation; `shipglows_data/technical/blacksmith.md` for Blacksmith-built release artifacts.
 
-```text
-scope -> 105-sg-check -> 005-sg-ship -> 405-sg-prod -> 108-sg-browser/109-sg-auth-debug/107-sg-test -> 103-sg-verify -> 304-sg-changelog
-```
+## Gate Order And Verdict Boundary
 
-The goal is fewer manual commands, not fewer gates. `004-sg-deploy` must not treat a passing check, pushed commit, deployment status, or `200 OK` as proof that the release works.
+Keep this order: bounded scope/risk → `105-sg-check nofix` unless skipped → `005-sg-ship` → `405-sg-prod` → required `108`/`109`/`107` proof → `103-sg-verify` → optional `304-sg-changelog`.
 
-## Scope Gate
+Record commit/branch/ship mode, matching target URL/provider state, objective-matched proof, verification verdict, and changelog decision. Missing deployment or required proof keeps the result `partial` or `blocked`; never claim `deployed` before final verification.
 
-Orchestrate existing skills; do not duplicate their internals.
+Independent read-only release/CI/runtime evidence may parallelize under the shared matrix. Ship, deploy, tracker, and production mutations remain sequential unless ready non-overlapping `Execution Batches` exist.
 
-- `105-sg-check` owns typecheck, lint, build, tests, and optional repair.
-- `005-sg-ship` owns staging, commit, push, and pre-ship bug risk.
-- `405-sg-prod` owns deployment discovery, provider state, build logs, runtime logs, live health, Sentry runtime correlation when configured, and Blacksmith Run History/Logs/Metrics/SSH escalation.
-- `108-sg-browser` owns non-auth page-level browser proof after the deployment URL is known.
-- `109-sg-auth-debug` owns login, OAuth, cookies, sessions, callbacks, tenants, and protected-route proof.
-- `107-sg-test` owns guided manual QA, durable `shipglows_data/workflow/TEST_LOG.md`, bug files under `shipglows_data/workflow/bugs/*.md`, and optional `shipglows_data/workflow/BUGS.md` triage updates.
-- `103-sg-verify` owns final user-story and coherence verification.
-- `304-sg-changelog` owns release-note generation.
+## Safety And Stop Conditions
 
-Route back before continuing when implementation scope is still unsettled:
+Stop for ambiguous scope; unrelated dirty files; failed checks without authorized skip; blocked ship/push; unmatched, failed, pending, or partial deployment truth; unresolved high/critical release risk; missing browser/auth/manual proof; failed verification; stale public docs; secret/private evidence exposure; production data mutation without approval; or missing required pack/target.
 
-- new feature or product change still needs build ownership -> `001-sg-build`
-- project upkeep or broad maintenance triage still dominates -> `002-sg-maintain`
-- one bug lifecycle still dominates the risk story -> `003-sg-bug`
-
-Route to a narrower skill instead of continuing when the user clearly asks only for commit/push, deployed state/logs, one page assertion, auth diagnosis, or durable manual QA.
-
-## Mode Detection
-
-Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`; invalid or ambiguous preflight never activates this skill.
-
-Parse `$ARGUMENTS`:
-
-- empty -> deploy the current project and current bounded release scope.
-- `skip-check` -> skip `105-sg-check` only; keep ship, prod, proof, and verify gates explicit.
-- `no-changelog` -> skip the optional changelog route.
-- `--preview` -> prefer preview/staging deploy proof.
-- `--prod` -> prefer production deploy proof and keep destructive/manual test steps read-only unless approved.
-- URL -> use it as the deploy or browser-proof target after checking whether `405-sg-prod` still needs to confirm deployment truth.
-- project name -> pass it to `405-sg-prod` and any downstream proof skill.
-
-If one narrower ask is already the whole job, do not keep the operator inside `004-sg-deploy`.
-
-When the operator asks for a deploy-target recommendation rather than release proof on an already chosen target, use `skills/references/deploy-target-matrix.md` as the canonical advisory source. Keep the answer explicit that ShipGlows is advising only and that the final target still depends on project context.
-
-## Required References
-
-Load before execution:
-
-- `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`
-- `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md`
-- `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md`
-- `$SHIPGLOWS_ROOT/skills/references/deploy-target-matrix.md`
-- `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`
-- `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/release-confidence-workflow.md`
-- `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/release-proof-routing.md`
-
-Load conditionally:
-
-- `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` before reporting any failure state.
-- `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` when Sentry evidence, runtime errors, 5xx, auth/payment/data flows, jobs, webhooks, or visible post-deploy errors affect release confidence.
-- `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md` when release scope changes or exposes an internet-facing or privileged surface; route incomplete security proof to verification rather than calling the release ready.
-- `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` when release scope can send or schedule mail, change email recipients/contacts/suppressions, or mutate sending domains, DNS, webhooks, credentials, or provider configuration.
-- `$SHIPGLOWS_ROOT/shipglows_data/technical/blacksmith.md` when deploy, APK, AAB, or release artifacts are built through GitHub Actions on Blacksmith runners.
-- `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/deploy-report-template.md` for detailed reports, blocked runs, or explicit handoff.
-
-## Gate Order
-
-Follow the local workflow reference and keep this gate order visible:
-
-1. Scope and risk gate.
-2. `105-sg-check nofix`, unless `skip-check` is present.
-3. `005-sg-ship [bounded release scope]`.
-4. `405-sg-prod [project or URL]`.
-5. Proof routing through `108-sg-browser`, `109-sg-auth-debug`, or `107-sg-test`.
-6. `103-sg-verify [spec or release scope]`.
-7. `304-sg-changelog`, unless `no-changelog` is present or the release is not verified.
-
-Independent read-only release, CI, runtime, and evidence scopes use the selected read-only batch matrix by default. Deploy, ship, tracker, or other mutations stay delegated sequential unless a ready spec defines safe write `Execution Batches`.
-
-## Stop Conditions
-
-Stop and report `blocked` when:
-
-- release scope is ambiguous
-- checks fail and the user did not request a force-through path
-- `005-sg-ship` blocks or push fails
-- deployment state cannot be matched to the shipped commit/branch
-- `405-sg-prod` reports failed, pending-timeout, or partial deployment truth
-- required browser/auth/manual proof is missing
-- `103-sg-verify` fails
-- public docs or support copy are known stale for the changed behavior
-- the release would include unrelated dirty files without explicit approval
-- logs or screenshots would expose secrets or private data
-- the requested action would mutate production data without explicit approval
+Never print secrets, cookies, tokens, credentials, private headers/payloads/URLs, raw HAR/Sentry/runtime logs, production PII, or sensitive screenshots. Unsafe proof reroutes to a safe environment, explicit approval, or manual evidence.
 
 ## Validation
 
-Required release proof:
-
-- commit SHA, branch, ship mode, and target environment recorded after ship
-- deployment URL and provider/build/runtime state confirmed before browser/auth/manual proof
-- required browser/auth/manual evidence collected or explicitly reported as missing
-- final `103-sg-verify` verdict recorded before any `deployed` claim
-- changelog route run or explicitly skipped by `no-changelog`, internal-only scope, or partial/blocked verdict
-
-Maintenance validation for this skill contract:
-
-```bash
-python3 tools/shipglows_metadata_lint.py skills/004-sg-deploy/references/*.md
-python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-rg -n "^(## Canonical Paths|## Chantier Tracking|## Report Modes|## Mission|## Scope Gate|## Mode Detection|## Required References|## Gate Order|## Stop Conditions|## Validation)" skills/004-sg-deploy/SKILL.md
-```
-
-## Rules
-
-- Keep release truth evidence-based.
-- Prefer blocking over overstating readiness.
-- Use existing skills for implementation, ship, deploy, and proof internals.
-- Temporary build outputs, caches, and preview leftovers used for local release proof are disposable unless the task explicitly requires a durable project artifact.
-- Never print secrets, cookies, tokens, private headers, raw sensitive logs, raw Sentry payloads, breadcrumbs, replay contents, private URLs, or PII.
+Run `tools/test_004_sg_deploy_compaction_contract.py`, delegation/reporting/OWASP consumers, activation-profile audit, metadata, fidelity, budget, and runtime sync.

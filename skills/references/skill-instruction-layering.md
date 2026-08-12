@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-05-16"
 updated: "2026-08-12"
@@ -34,6 +34,7 @@ evidence:
   - "Spec compact-shipglows-skill-instructions.md requested layered compaction for pilot skills."
   - "Repeated top-level doctrine across long skills was identified as instruction dilution risk."
   - "Wave 9 formalized the registry-owned skill graph while keeping reference activation conditional and non-inferred."
+  - "Wave 10 added bounded reference-activation profiles for two measured pilots."
   - "User decision 2026-06-10: keep SKILL.md contracts short and move detailed playbooks, examples, matrices, and edge cases to references."
   - "User decision 2026-07-07: for any skill-creation or skill-improvement work, improve the shared reference layer first and only add local skill wording when the behavior is truly owner-specific."
   - "User decision 2026-07-12: every skill change must preserve compaction and practical followability instead of adding repeated warning prose."
@@ -75,7 +76,7 @@ Public wrappers and expert engines have different discovery roles:
 - Expert engines remain explicitly invocable but set `policy.allow_implicit_invocation: false` in `agents/openai.yaml`.
 - A missing canonical root or engine is a visible stop, not permission to fall back to a stale runtime copy.
 
-Keep activation decisions explicit without inventing a graph from prose. `skill-invocation-registry.json` is the machine-readable public-owner-to-engine graph and its preflight validates ownership and existence. It does not describe reference loading. Distinguish mandatory references needed before the first decision, conditional references selected by mode/gate, and advisory resolver results. Shared resources are counted once. A generalized reference-activation manifest remains deferred until pilot evidence justifies it.
+Keep activation decisions explicit without inventing a graph from prose. `skill-invocation-registry.json` is the machine-readable public-owner-to-engine graph. Migrated pilots may add an explicit `activation_profiles` entry with body, baseline, and named conditional gates; runtime loaders in `SKILL.md` remain authoritative. Distinguish mandatory references needed before the first decision, conditional references selected by mode/gate, and advisory resolver results. Shared resources are counted once. Generalize profiles only after pilot evidence.
 
 ## What Must Stay Local
 

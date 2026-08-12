@@ -142,6 +142,38 @@ def result(status: str, requested: str, **details: Any) -> dict[str, Any]:
     return {"status": status, "requested": requested, **details}
 
 
+def valid_with_profile_preflight(
+    requested: str,
+    registry: dict[str, Any],
+    skills_root: Path,
+    **details: Any,
+) -> dict[str, Any]:
+    selected = (
+        details.get("selected_internal_engine")
+        or details.get("runtime_engine")
+        or details.get("resolved_skill")
+    )
+    profiles = registry.get("activation_profiles", {}).get("skills", {})
+    if selected in profiles:
+        try:
+            from tools.skill_activation_budget import audit_profiles
+        except ModuleNotFoundError:  # Direct `python tools/skill_invocation_check.py`.
+            from skill_activation_budget import audit_profiles
+
+        profile = audit_profiles(registry, skills_root.parent, selected)
+        if profile["status"] != "valid":
+            return result(
+                "invalid",
+                requested,
+                error="activation_profile_invalid",
+                message="The selected skill's activation profile is inconsistent.",
+                resolved_skill=details.get("resolved_skill", selected),
+                profile_errors=profile["errors"],
+            )
+        details["activation_profile"] = selected
+    return result("valid", requested, **details)
+
+
 def edit_distance(left: str, right: str) -> int:
     """Return Levenshtein distance without external dependencies."""
     previous = list(range(len(right) + 1))
@@ -232,7 +264,7 @@ def check(
                         "resolution": resolved_alias["resolution"],
                     }
                 )
-                return result("valid", requested, **payload)
+                return valid_with_profile_preflight(requested, registry, skills_root, **payload)
             hidden_mode = public_entry.get("hidden_modes", {}).get(args[0])
             if hidden_mode is not None:
                 payload["mode"] = hidden_mode.get("owner_mode", args[0])
@@ -243,7 +275,7 @@ def check(
                     payload["selected_engine_mode"] = hidden_mode["engine_mode"]
             elif args[0] in modes:
                 payload["mode"] = args[0]
-        return result("valid", requested, **payload)
+        return valid_with_profile_preflight(requested, registry, skills_root, **payload)
 
     skill = identities.get(first)
     consumed = 1
@@ -278,7 +310,9 @@ def check(
                 error="missing_argument",
                 message="This skill needs an instruction or target.",
             )
-        return result("valid", requested, resolved_skill=skill)
+        return valid_with_profile_preflight(
+            requested, registry, skills_root, resolved_skill=skill
+        )
 
     if not args:
         return result(
@@ -331,7 +365,9 @@ def check(
             mode=mode,
             message="This mode needs an additional target or scope.",
         )
-    return result("valid", requested, resolved_skill=skill, mode=mode)
+    return valid_with_profile_preflight(
+        requested, registry, skills_root, resolved_skill=skill, mode=mode
+    )
 
 
 def main() -> int:

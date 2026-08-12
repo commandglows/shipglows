@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.3.0"
+artifact_version: "2.4.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -35,6 +35,7 @@ linked_systems:
   - skills/305-sg-init/SKILL.md
   - tools/skill_invocation_check.py
   - skills/references/skill-invocation-registry.json
+  - tools/skill_activation_budget.py
   - skills/300-sg-docs/SKILL.md
   - skills/references/reporting-contract.md
   - skills/references/master-workflow-lifecycle.md
@@ -196,9 +197,11 @@ preserves an explicit specialist owner before using its proof path, while
 
 The same registry is the canonical activation graph. `skill_invocation_check.py`
 validates public wrappers, declared engines, alias ownership, and complete expert
-coverage before accepting an explicit invocation. This is an ownership graph,
-not a reference-loading graph; resource `depends_on` metadata remains governed
-separately and no dependency is inferred from prose.
+coverage before accepting an explicit invocation. Optional pilot
+`activation_profiles` declare body, baseline, and named conditional reference
+sets without parsing prose; `skill_activation_budget.py` validates and measures
+them, and selected-profile failure blocks preflight. Runtime loaders remain the
+execution authority, while resource `depends_on` metadata remains separate.
 
 Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 

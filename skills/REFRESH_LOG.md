@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — release and entitlement activation profiles wave 10
+
+**Added:** explicit body/baseline/gate profiles for `004-sg-deploy` and `601-sg-product-entitlements`, deterministic unique-token accounting, selected-profile invocation preflight, and focused scenario contracts.
+
+**Updated:** `004` defers release, proof, development-mode, lifecycle, and reporting detail until their gates; `601` reuses the canonical entitlement doctrine while keeping fail-closed authorization, provider/code/mirror safety, and routing local. Direct-script Python imports are now validated as well as module execution.
+
+**New phases:** measured reference baseline plus independently selectable gates. Runtime loaders remain authoritative; profiles are accounting/preflight metadata and are not inferred from prose.
+
+**Sources:** 0 external URLs consulted; fresh docs were not needed because external release/provider behavior did not change.
+
 ## 2026-08-12 — canonical skill activation graph and core compaction wave 9
 
 **Added:** blocking graph validation and `--audit-graph` in the existing invocation preflight, focused graph scenarios, and direct core audit/packaging packs.

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-07-29"
 updated: "2026-08-12"
@@ -27,6 +27,7 @@ evidence:
   - "Operator decision 2026-07-29: explicit commands are checked automatically across master skills."
   - "Recovery 2026-08-03: the original untracked implementation was recovered selectively from Git stash and migrated to the canonical ShipGlows namespace."
   - "Wave 9: invocation validation now blocks inconsistent public-to-engine activation graphs before routing."
+  - "Wave 10: selected pilot skills also block when their explicit reference-activation profile is inconsistent."
 next_review: "2026-09-03"
 next_step: "none"
 ---
@@ -50,6 +51,8 @@ python3 "$SHIPGLOWS_ROOT/tools/skill_invocation_check.py" --audit-graph
 ```
 
 This graph describes skill ownership and activation only. Reference-level `depends_on` metadata remains resource governance and is not inferred from prose.
+
+When the selected engine declares an `activation_profiles.skills` entry in the same registry, preflight validates that profile's body and reference paths before returning `valid`. Profiles are incremental pilots: undeclared skills keep their existing invocation behavior, and declared runtime loaders remain authoritative.
 
 - `valid`: continue with the explicit skill silently.
 - `invalid`: do not activate any skill; explain the exact error and show a suggestion only when the registry has one uniquely supported correction. A clear spelling typo may receive a `did_you_mean` suggestion.
