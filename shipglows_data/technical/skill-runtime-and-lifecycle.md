@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.7.0"
+artifact_version: "2.8.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -82,6 +82,7 @@ evidence:
   - "Wave 13 combines ownership and executable resource-closure preflight, while retaining --all as a diagnostic of historical dependency debt."
   - "Wave 13 keeps the reporting decision surface in a compact core and moves agent handoff, blocked/audit, and maintenance scenarios to direct conditional leaves."
   - "Wave 14 adds measured activation profiles for high-traffic owners 010, 103, and 300, bringing the executable pilot to six profiles without changing runtime loaders."
+  - "Wave 15 compacts three shared baseline authorities in place and exposes detailed path, autonomy, and implementation procedure through direct conditional leaves."
   - "Skill launch cheatsheet added for master and supporting modes."
   - "900-shipglows-core build routes fuzzy skill ideas or placement decisions through 700-sg-explore before 100-sg-spec."
   - "Codex source-tree discovery follows the official ~/.agents/skills user scope, with a native PowerShell junction helper for Windows developers."
@@ -225,6 +226,16 @@ Wave 14 extends this accounting and preflight pilot to six owners: `004`,
 runtime loading semantics. The next remediation boundary is repeated shared
 baseline weight in canonical-path resolution, intent-to-outcome autonomy, and
 decision-quality doctrine; that compaction is explicitly outside Wave 14.
+
+Wave 15 completes that shared-baseline tranche without changing the six owner
+loaders or canonical authority paths. `canonical-paths.md`, `intent-to-outcome-
+autonomy.md`, and `decision-quality-contract.md` retain the first safe decision;
+five purpose-specific references hold detailed runtime/private-root, project-
+governance, execution, pressure-scenario, and implementation-discipline work.
+Each leaf is selected directly and never chains to a sibling. Before any new
+conditional gate, selected baselines measure `004` 3,128, `010` 6,177, `103`
+5,657, `300` 3,451, `601` 2,081, and `900` 2,487 estimated tokens. The 010 and
+103 baselines remain above target and are reported as follow-up debt.
 
 Wave 12 demonstrates two compatible progressive patterns. `004-sg-deploy`
 loads `master-workflow-lifecycle-core.md` plus `master-delegation-core.md` for

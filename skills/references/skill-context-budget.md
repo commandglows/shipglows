@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -22,6 +22,8 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Wave 15 compacts canonical paths, intent-to-outcome autonomy, and decision quality into first-decision cores with direct non-chaining leaves."
+  - "2026-08-12 Wave 15 measurement: selected baselines are 3128 for 004, 6177 for 010, 5657 for 103, 3451 for 300, 2081 for 601, and 2487 for 900 before conditional gates."
   - "Wave 14 expands explicit activation accounting from three to six profiles: 004, 010, 103, 300, 601, and 900."
   - "2026-08-12 Wave 14 measurement: selected baselines are 11,361 tokens for 010-sg-technical, 9,517 for 103-sg-verify, and 6,791 for 300-sg-docs."
   - "Wave 14 records shared canonical-path, intent-to-outcome, and decision-quality baseline weight as the next remediation target without compacting it in this wave."
@@ -121,6 +123,15 @@ hotspots are evidence for the next tranche, not a reason to delete mandatory
 loaders or to describe the profiles as budget-compliant. The likely shared
 baseline candidates are canonical-path resolution, intent-to-outcome autonomy,
 and decision-quality doctrine; Wave 14 performs no compaction of them.
+
+Wave 15 compacts those three high-fan-out authorities in place. Their canonical
+paths now hold the minimum safe first decision; detailed runtime/private-root,
+project-governance, outcome-execution, pressure-scenario, and implementation-
+discipline procedure lives in direct conditional leaves. No leaf loads a
+sibling. The resulting selected baselines, before conditional gates, are 3,128
+for `004`, 6,177 for `010`, 5,657 for `103`, 3,451 for `300`, 2,081 for `601`,
+and 2,487 for `900`. Only `004` and `300` newly cross below the 5,000 target;
+`010` and `103` remain explicit hotspots.
 
 ## Audit Commands
 

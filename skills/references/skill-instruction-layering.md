@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-05-16"
 updated: "2026-08-12"
@@ -37,6 +37,7 @@ evidence:
   - "Wave 10 added bounded reference-activation profiles for two measured pilots."
   - "Wave 12 established compatibility-preserving decision cores and direct non-chaining doctrine leaves for high-cost shared references."
   - "Wave 13 validates the executable closure of explicitly profiled resources and splits reporting into a compact core with three direct conditional leaves."
+  - "Wave 15 applies first-decision cores and direct non-chaining leaves to canonical paths, intent-to-outcome autonomy, and decision quality."
   - "User decision 2026-06-10: keep SKILL.md contracts short and move detailed playbooks, examples, matrices, and edge cases to references."
   - "User decision 2026-07-07: for any skill-creation or skill-improvement work, improve the shared reference layer first and only add local skill wording when the behavior is truly owner-specific."
   - "User decision 2026-07-12: every skill change must preserve compaction and practical followability instead of adding repeated warning prose."
@@ -143,6 +144,13 @@ Local references should be split by purpose. Avoid creating one new mega-referen
 For a large shared authority with direct readers, preserve its canonical detailed path and introduce a compact `*-core.md` only when the core can make the first decision safely. The skill must directly name the detailed escalation condition; a core is not a silent substitute. For domain doctrine with independent concerns, use one primary invariant reference plus direct leaves. Leaves must not chain to siblings.
 
 Reporting follows this pattern with one compact core and three direct leaves: explicit agent handoff, blocked/audit user outcomes, and maintenance pressure scenarios. Explicit `report=agent` takes sole priority over blocked/audit detail because its handoff leaf already owns detailed risks and audit state.
+
+High-fan-out shared baseline doctrine follows the same direct-leaf rule. The
+canonical authority path retains the minimum owner, safety, stop, and first-
+decision contract. It names each detailed branch and its exact loading gate;
+runtime/private roots, project-governance placement, outcome execution,
+pressure scenarios, and implementation discipline stay independently
+selectable. A leaf must never load a sibling to reconstruct a hidden monolith.
 
 ## Compaction Rule
 

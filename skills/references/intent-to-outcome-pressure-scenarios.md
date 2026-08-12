@@ -1,0 +1,44 @@
+---
+artifact: test_plan
+metadata_schema_version: "1.0"
+artifact_version: "1.0.0"
+project: ShipGlows
+created: "2026-08-12"
+updated: "2026-08-12"
+status: active
+source_skill: 900-shipglows-core
+scope: intent-to-outcome-pressure-scenarios
+owner: Diane
+confidence: high
+risk_level: medium
+security_impact: yes
+docs_impact: yes
+linked_systems:
+  - tools/test_metier_first_public_skills_contract.py
+depends_on:
+  - artifact: skills/references/intent-to-outcome-autonomy.md
+    artifact_version: "1.1.0"
+    required_status: active
+supersedes: []
+evidence:
+  - "Wave 15 retained MH-01 through MH-12 outside normal runtime activation."
+next_review: "2026-09-12"
+next_step: none
+---
+
+# Intent-to-Outcome Pressure Scenarios
+
+This leaf is test and review evidence, not a runtime prerequisite.
+
+- `MH-01`: a sparse request with discoverable context proceeds without a question.
+- `MH-02`: unresolved multi-product ambiguity asks only for the material product or surface choice, then resumes.
+- `MH-03`: missing business truth produces one numbered decision with a recommendation.
+- `MH-04`: missing implementation mechanics are agent-owned and do not trigger a question.
+- `MH-05`: after readiness, the owner continues through implementation and proof without another operator command.
+- `MH-06`: cross-métier work exposes one public owner and internal handoffs remain invisible.
+- `MH-07`: public documentation routes to `sg-content`; internal documentation routes to `sg-docs`.
+- `MH-08`: sync, access/entitlements, provider events, and parity route to `sg-engineering` and an internal engine.
+- `MH-09`: material scope expansion pauses for one decision instead of silently widening authority.
+- `MH-10`: default help shows the public corpus; expert help reveals internal engines.
+- `MH-11`: every capability has one public owner or explicit internal-engine status.
+- `MH-12`: no capability has two competing public owners.

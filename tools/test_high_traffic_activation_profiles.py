@@ -92,7 +92,39 @@ class HighTrafficActivationProfileTests(unittest.TestCase):
         for skill in ("010-sg-technical", "103-sg-verify", "300-sg-docs"):
             result = payload["skills"][skill]
             self.assertEqual([], result["missing"], skill)
-            self.assertGreater(result["baseline_tokens"], 5000, skill)
+        self.assertGreater(payload["skills"]["010-sg-technical"]["baseline_tokens"], 5000)
+        self.assertGreater(payload["skills"]["103-sg-verify"]["baseline_tokens"], 5000)
+        self.assertLess(payload["skills"]["300-sg-docs"]["baseline_tokens"], 5000)
+
+    def test_wave_15_shared_leaves_are_direct_conditional_gates(self) -> None:
+        expected = {
+            "004-sg-deploy": {"outcome-execution", "canonical-runtime-private"},
+            "010-sg-technical": {
+                "outcome-execution",
+                "implementation-discipline",
+                "canonical-runtime-private",
+                "canonical-project-governance",
+            },
+            "103-sg-verify": {"implementation-discipline", "canonical-runtime-private"},
+            "300-sg-docs": {
+                "outcome-execution",
+                "canonical-runtime-private",
+                "canonical-project-governance",
+            },
+            "601-sg-product-entitlements": {"implementation-discipline", "canonical-runtime-private"},
+            "900-shipglows-core": {
+                "implementation-discipline",
+                "canonical-runtime-private",
+                "canonical-project-governance",
+                "autonomy-review",
+            },
+        }
+        for skill, gate_names in expected.items():
+            gates = self.profiles[skill]["gates"]
+            self.assertTrue(gate_names.issubset(gates), skill)
+            for gate in gate_names:
+                self.assertTrue(gates[gate], (skill, gate))
+                self.assertTrue(all("pressure-scenarios" not in path or skill == "900-shipglows-core" for path in gates[gate]))
 
 
 if __name__ == "__main__":

@@ -2,6 +2,18 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — shared baseline core compaction wave 15
+
+**Added:** direct runtime/private-root and project-governance leaves for canonical paths, execution and pressure-scenario leaves for intent-to-outcome autonomy, and an implementation-discipline leaf for decision quality.
+
+**Updated:** the three canonical authority paths now provide compact first-decision cores while preserving path ownership, autonomy, safety, product, operator, proof, structure-replacement, and fast-fix boundaries. The six selected baselines are now `004` 3,128, `010` 6,177, `103` 5,657, `300` 3,451, `601` 2,081, and `900` 2,487 estimated tokens before conditional gates.
+
+**New phases:** compact shared core first, then one explicit direct conditional leaf for the selected placement, execution, pressure, or implementation gate. Leaves never chain to siblings and runtime loaders remain authoritative.
+
+**Next debt:** `010` and `103` remain above the 5,000-token activation-core target; their remaining cost should be audited by direct loader contribution before another compaction tranche.
+
+**Sources:** 0 external URLs consulted; this wave changes local instruction packaging, activation metadata, and focused contract proof only.
+
 ## 2026-08-12 — high-traffic activation profiles wave 14
 
 **Added:** explicit activation profiles and scenario contracts for `010-sg-technical`, `103-sg-verify`, and `300-sg-docs`, bringing the measured executable pilot to six profiles.

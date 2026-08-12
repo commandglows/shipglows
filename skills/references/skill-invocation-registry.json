@@ -1,5 +1,5 @@
 {
-  "format_version": "2.6",
+  "format_version": "2.7",
   "identity_source": "skills/references/skill-code-index.md",
   "public_catalog": {
     "domains": [
@@ -88,6 +88,8 @@
           "skills/references/intent-to-outcome-autonomy.md"
         ],
         "gates": {
+          "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
+          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
           "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
           "release-route": ["skills/004-sg-deploy/references/release-confidence-workflow.md"],
           "development-mode": ["skills/references/project-development-mode.md"],
@@ -103,6 +105,10 @@
         "body": "skills/010-sg-technical/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md", "skills/references/decision-quality-contract.md", "skills/010-sg-technical/references/technical-router.md"],
         "gates": {
+          "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
+          "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
+          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
+          "canonical-project-governance": ["skills/references/canonical-project-governance-placement.md"],
           "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
           "audit-protocol": ["skills/010-sg-technical/references/technical-audit-protocol.md"],
           "audit-file": ["skills/010-sg-technical/references/technical-file-audit.md"],
@@ -132,6 +138,8 @@
         "body": "skills/103-sg-verify/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md", "skills/references/shipglows-owned-preflight.md", "skills/103-sg-verify/references/verification-baseline.md", "skills/references/decision-quality-contract.md"],
         "gates": {
+          "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
+          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
           "excellence": ["skills/103-sg-verify/references/verification-excellence.md"],
           "security-ui-runtime": ["skills/103-sg-verify/references/verification-security-ui-runtime.md"],
           "security": ["skills/references/owasp-application-security-awareness.md"],
@@ -163,6 +171,9 @@
         "body": "skills/300-sg-docs/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md"],
         "gates": {
+          "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
+          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
+          "canonical-project-governance": ["skills/references/canonical-project-governance-placement.md"],
           "simple-family": ["skills/300-sg-docs/references/simple-bootstrap-playbooks.md"],
           "governance-family": ["skills/300-sg-docs/references/governance-playbooks.md", "skills/300-sg-docs/references/core-governance.md"],
           "private-project-family": ["skills/300-sg-docs/references/private-project-playbooks.md", "shipglows_data/workflow/playbooks/project-import-playbook.md", "shipglows_data/workflow/checklists/project-import-checklist.md", "skills/references/source-intake-classification.md", "skills/references/private-memory-store.md", "skills/references/private-data-repo-contract.md"],
@@ -189,6 +200,8 @@
         "baseline": ["skills/references/canonical-paths.md"],
         "gates": {
           "ownership-decision": ["skills/references/decision-quality-contract.md"],
+          "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
+          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
           "entitlement-contract": ["skills/references/product-entitlements-playbook.md"],
           "ledger-authorization": ["skills/references/product-entitlement-ledger-and-authorization.md"],
           "provider-ingestion": ["skills/references/product-entitlement-ingestion.md"],
@@ -202,6 +215,10 @@
         "body": "skills/900-shipglows-core/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md"],
         "gates": {
+          "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
+          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
+          "canonical-project-governance": ["skills/references/canonical-project-governance-placement.md"],
+          "autonomy-review": ["skills/references/intent-to-outcome-pressure-scenarios.md"],
           "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
           "audit": ["skills/900-shipglows-core/references/core-audit-and-improvement.md"],
           "build": ["skills/900-shipglows-core/references/skill-maintenance-playbook.md"],

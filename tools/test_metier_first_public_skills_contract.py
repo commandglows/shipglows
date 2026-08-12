@@ -18,6 +18,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
 AUTONOMY = SKILLS / "references" / "intent-to-outcome-autonomy.md"
+AUTONOMY_EXECUTION = SKILLS / "references" / "intent-to-outcome-execution.md"
+AUTONOMY_SCENARIOS = SKILLS / "references" / "intent-to-outcome-pressure-scenarios.md"
 REGISTRY = SKILLS / "references" / "skill-invocation-registry.json"
 ROUTER = SKILLS / "references" / "entrypoint-routing.md"
 LIFECYCLE = SKILLS / "references" / "master-workflow-lifecycle.md"
@@ -51,6 +53,8 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.autonomy = AUTONOMY.read_text(encoding="utf-8")
+        cls.autonomy_execution = AUTONOMY_EXECUTION.read_text(encoding="utf-8")
+        cls.autonomy_scenarios = AUTONOMY_SCENARIOS.read_text(encoding="utf-8")
         cls.registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         cls.catalog = cls.registry["public_catalog"]
         cls.router = ROUTER.read_text(encoding="utf-8")
@@ -132,21 +136,22 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         for required in (
             "Continue automatically after a successful internal stage",
             "Invoke internal engines without asking the operator to select or schedule them",
-            "Keep one public outcome owner for cross-métier work",
         ):
-            self.assertIn(required, self.autonomy)
+            self.assertIn(required, self.autonomy_execution)
+        self.assertIn("Keep one public outcome owner for cross-métier work", self.autonomy)
         self.assertIn("continue through its owned closure and ship route", self.lifecycle)
         self.assertIn("manual `/104-sg-end`, `/005-sg-ship`, or `/004-sg-deploy`", self.lifecycle)
         self.assertIn("never require the operator to select an owner, skill, or", self.delegation)
 
     # MH-07: public and internal documentation have distinct public owners.
     def test_mh_07_separates_public_content_from_internal_docs(self) -> None:
-        self.assertIn("belong to `sg-docs`", self.autonomy)
-        self.assertIn("belong to `sg-content`", self.autonomy)
-        self.assertIn("Public README", self.autonomy)
-        self.assertIn("Internal architecture", self.autonomy)
         self.assertEqual("007-sg-content", self.owner_by_id()["sg-content"]["runtime_skill"])
         self.assertEqual("300-sg-docs", self.owner_by_id()["sg-docs"]["runtime_skill"])
+        public_content = (SKILLS / "sg-content" / "SKILL.md").read_text(encoding="utf-8")
+        internal_docs = (SKILLS / "sg-docs" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("public documentation and audience content", public_content)
+        self.assertIn("internal architecture, governance, context, metadata", internal_docs)
+        self.assertIn("keep public docs and audience content with `sg-content`", internal_docs)
 
     # MH-08: data-like product infrastructure is one engineering métier.
     def test_mh_08_routes_sync_access_and_parity_through_engineering(self) -> None:
@@ -157,7 +162,6 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
             .issubset(engineering["internal_engines"])
         )
         self.assertNotIn("sg-data", self.owner_by_id())
-        self.assertIn("specialized `600-602` skills remain internal engines", self.autonomy)
 
     # MH-09: autonomy never silently broadens authority.
     def test_mh_09_stops_for_material_scope_or_authority_changes(self) -> None:
@@ -168,6 +172,18 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
             "material scope expansion",
         ):
             self.assertIn(required, self.autonomy)
+
+    def test_autonomy_core_is_compact_and_branches_are_direct(self) -> None:
+        self.assertLessEqual((len(self.autonomy) + 3) // 4, 1050)
+        for branch in (AUTONOMY_EXECUTION.name, AUTONOMY_SCENARIOS.name):
+            self.assertIn(branch, self.autonomy)
+        self.assertNotIn(AUTONOMY_SCENARIOS.name, self.autonomy_execution)
+        self.assertNotIn(AUTONOMY_EXECUTION.name, self.autonomy_scenarios)
+
+    def test_mh_scenarios_remain_complete_and_test_only(self) -> None:
+        for number in range(1, 13):
+            self.assertIn(f"`MH-{number:02}`", self.autonomy_scenarios)
+        self.assertIn("not a runtime prerequisite", self.autonomy_scenarios)
 
     # MH-10: normal help is simple; expert help exposes the runtime corpus.
     def test_mh_10_catalog_is_exactly_the_six_domain_public_surface(self) -> None:

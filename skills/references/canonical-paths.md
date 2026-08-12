@@ -1,14 +1,14 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-08-11"
+updated: "2026-08-12"
 status: active
 source_skill: 102-sg-start
 scope: canonical-path-resolution
-owner: unknown
+owner: Diane
 confidence: high
 risk_level: medium
 security_impact: none
@@ -21,147 +21,49 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "Repeated skill path-resolution failures when running from project repositories"
-  - "Project governance layout decision moved ShipGlows artifacts out of project roots and into shipglows_data/."
-  - "Operator decision on 2026-05-24: monorepos must keep one governance corpus at the monorepo root instead of repeating shipglows_data in each app/package."
-  - "Operator decision on 2026-06-28: generated build and preview folders such as .vercel/output remain disposable local outputs, not canonical project artifacts."
-  - "Operator clarification on 2026-07-13: root compliance is determined by documentary and architecture ownership contracts, with explicit QA, bug, public-reference, and historical exceptions."
-  - "Operator decision on 2026-07-13: archived governance history must resolve under shipglows_data/workflow/archives instead of a root archive directory."
-  - "Operator decision on 2026-07-13: root docs and bug workflow paths must migrate into canonical technical and workflow families."
-  - "Operator decision on 2026-07-23: flat source roots at the monorepo root (site/, app/, backend/, packages/) are the preferred canonical shape for projects using the Astro plus Flutter plus backend split; nested apps/* packaging is allowed only with a documented durable exception."
-  - "Operator decision on 2026-08-05: a project with one browser/web extension uses the singular root source surface ext/; do not pre-create extensions/ until a second independently shipped extension exists."
-  - "Operator decision on 2026-08-03: canonical ShipGlows resources use governed progressive discovery rather than ad hoc path search when the activation contract needs supporting references."
-  - "Operator decision on 2026-08-11: Linux and Windows runtime files live under ~/.shipglows/runtime; private data and the design inspiration library are sibling repositories under ~/.shipglows."
+  - "Repeated failures showed that project cwd and ShipGlows installation ownership must remain distinct."
+  - "Governance decisions require one project-root shipglows_data corpus, with documented standalone exceptions."
+  - "The 2026-08-11 runtime layout standardizes Linux and Windows installs under ~/.shipglows/runtime."
 next_review: "2026-09-03"
 next_step: "/103-sg-verify canonical path policy"
 ---
 
 # ShipGlows Canonical Paths
 
-ShipGlows skills often run from a project repository, but ShipGlows-owned tools and references live in the ShipGlows installation. Resolve paths by ownership, not by the current working directory.
+Resolve paths by ownership, never by filename coincidence or the current working directory.
 
-## Roots
+## Mandatory Roots
 
-- ShipGlows runtime root: `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`
-- Mutable local service state: `${SHIPGLOWS_RUNTIME_DIR:-$HOME/.shipglows/state}`
-- Durable private data repo: `${SHIPGLOWS_PRIVATE_DATA_DIR:-$HOME/.shipglows/data}`
-- Private design inspiration repo: `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-$HOME/.shipglows/design-inspiration-library}`
-- Legacy tracking compatibility path: `${SHIPGLOWS_DATA_DIR:-$HOME/shipglows_data}` (read-only historical, not active source of truth)
-- Project root: current working directory, unless the user explicitly gives another project path
-- Governance root: the nearest canonical root for project-owned ShipGlows artifacts. In a single-project repo, this is the repository root. In a monorepo, this is the monorepo root, not an app/package subdirectory.
+- ShipGlows runtime root: `$SHIPGLOWS_ROOT`, defaulting to the current user's `.shipglows/runtime` directory on Linux and Windows.
+- Project root: the current working directory unless the operator selects another project.
+- Governance root: the repository root for a single project, or the monorepo root rather than an app/package subdirectory.
 
-## Resolution Rules
+Treat environment values as paths, preserve spaces, and use the active shell's safe path handling. Resolve an owned target beneath its declared root; do not accept `..`, symlink, junction, or shadow-directory traversal outside that root.
 
-- ShipGlows-owned tools, shared references, skill references, templates, workflow docs, and internal scripts must be loaded from `$SHIPGLOWS_ROOT`.
-- Skill-local references such as `references/foo.md` mean `$SHIPGLOWS_ROOT/skills/<skill-name>/references/foo.md`, not `./references/foo.md` in the project repo.
-- Project-owned artifacts are resolved from the governance-root `shipglows_data` umbrella.
+## Ownership Rules
 
-  - `shipglows_data/technical/*`
-  - `shipglows_data/business/*`
-  - `shipglows_data/editorial/*`
-  - `shipglows_data/workflow/*`
-
-- In monorepos, prefer theme-first paths inside `shipglows_data/`, then scope by surface only when needed, for example:
-
-  - `shipglows_data/branding/branding.md`
-  - `shipglows_data/branding/voice-and-tone.md`
-  - `shipglows_data/branding/visual-identity.md`
-  - `shipglows_data/business/site/business.md`
-  - `shipglows_data/product/app/product.md`
-  - `shipglows_data/technical/site/*`
-
-- Root compatibility exceptions remain at repository root:
-
-  - `AGENT.md`
-  - `CLAUDE.md`
-  - `README.md`
-  - `AGENTS.md` (must be a compatibility symlink to `AGENT.md`)
-  - `CHANGELOG.md` (optional public/project changelog)
-
-- `shipglows_data/` remains the project governance corpus for this phase; the external `${SHIPGLOWS_DATA_DIR:-$HOME/shipglows_data}` is legacy, read-only, and not used as project-document source of truth.
-- Monorepo rule: keep exactly one canonical `shipglows_data/` at the monorepo root. Do not create parallel `shipglows_data/` directories inside `apps/*`, `packages/*`, or sibling app/site/lab folders unless that subdirectory is intentionally a separately cloned and shipped standalone project.
-- When running from a monorepo subdirectory, source files resolve from the target subdirectory but governance artifacts resolve from the monorepo root `shipglows_data/`.
-- If both a monorepo root `shipglows_data/` and nested subproject `shipglows_data/` directories exist, treat nested copies as migration debt unless the repo documents a standalone exception.
-- `shipglows_data/workflow/` holds project-level workflow artifacts such as `specs/`, `shipglows_data/workflow/bugs/`, `audits/`, `reviews/`, `verification/`, and project-local operational trackers.
-- Root `archive/`, `bugs/`, `docs/`, `specs/`, `research/`, `BUGS.md`, and `TEST_LOG.md` are migration sources. Preserve useful inactive history under `shipglows_data/workflow/archives/<bounded-scope>/`; keep bug, QA, conversation, and exploration records under `shipglows_data/workflow/`; keep operator guides under `shipglows_data/technical/operator-guides/`.
-- `shipglows_data/workflow/playbooks/` holds reusable transversal operating playbooks shared across projects or business domains.
-- `shipglows_data/workflow/checklists/` holds reusable non-test checklists paired to shared playbooks.
-- `shipglows_data/workflow/test-checklists/` holds executed manual proof artifacts, not the reusable checklist library.
-- Project-local `TASKS.md` and `AUDIT_LOG.md` live at `shipglows_data/workflow/TASKS.md` and `shipglows_data/workflow/AUDIT_LOG.md`. Root `TASKS.md` and `AUDIT_LOG.md` are legacy project tracker locations unless an external project tool explicitly requires them.
-- `PROJECTS.md` is a legacy compatibility artifact when present in `${SHIPGLOWS_DATA_DIR:-$HOME/shipglows_data}`; treat it as migration/degraded-discovery input only, not primary governance.
-- Legacy root ShipGlows governance files such as `BUSINESS.md`, `PRODUCT.md`, `BRANDING.md`, `GTM.md`, `ARCHITECTURE.md`, `CONTENT_MAP.md`, `CONTEXT.md`, `CONTEXT-FUNCTION-TREE.md`, `GUIDELINES.md`, `TASKS.md`, and `AUDIT_LOG.md` are migration sources only. They are not compliant project artifact locations.
-- Generated local-output directories such as `node_modules/`, `dist/`, `.astro/`, `.vercel/`, `.vercel/output/`, and `.playwright-mcp/` are disposable runtime artifacts, not governance artifacts, evidence artifacts, or source-of-truth project documents.
-- If a ShipGlows-owned file is missing from `$SHIPGLOWS_ROOT`, report a ShipGlows installation gap. Do not report it missing just because it is absent from the project repository.
-
-## Source Root Conventions
-
-ShipGlows does not mandate one universal source tree shape, but when a project uses the canonical public-site + application + backend split, prefer flat application roots at the monorepo root instead of nested `apps/*` bundles.
-
-Preferred canonical source roots:
-
-- `site/` — public web surface
-- `app/` — application surface
-- `backend/` — data, migrations, server-side authority
-- `ext/` — the default single browser/web extension surface
-- `packages/` or `packages/contracts/` — shared typed contracts when cross-surface contracts are versioned separately
-
-Extension topology rule:
-
-- Use `ext/` for the common case of one independently built and shipped browser/web extension.
-- Do not create `extensions/` as a plural umbrella preemptively.
-- If a second independently shipped extension is added, migrate to `extensions/<extension-name>/` and document the migration in the monorepo governance corpus. Keep each extension's manifest, source, build, and package contract self-contained.
-
-Anti-patterns:
-
-- `apps/site/`, `apps/app/`, `apps/backend/`
-- duplicating the same logical surface under multiple root folders because of historical package boundaries
-- burying the governance corpus under a source app folder; governance stays at the monorepo root
-
-Resolution rule:
-
-- source files resolve from their logical root folder
-- governance artifacts always resolve from the monorepo root `shipglows_data/`, regardless of where the source root lives
-- build, workspace, and deployment configs should be reachable from the monorepo root without assuming nested package management unless the project documents a durable exception
+- ShipGlows-owned skills, references, tools, templates, workflow docs, and internal scripts resolve from `$SHIPGLOWS_ROOT`.
+- `references/foo.md` inside a skill means `$SHIPGLOWS_ROOT/skills/<skill-name>/references/foo.md`, never project `./references/foo.md`.
+- Project source resolves from the selected project root. Project governance resolves from the governance-root `shipglows_data/` corpus.
+- A project-local `skills/`, `tools/`, or `templates/` directory never shadows the ShipGlows installation.
+- If an owned file is absent from `$SHIPGLOWS_ROOT`, report an installation gap. Do not substitute a project copy, continue from memory, or report it missing merely because it is absent from the project.
 
 ## ShipGlows-Owned Tool Preflight
 
-Before running any ShipGlows-owned tool, follow this preflight order exactly:
+Before running a ShipGlows-owned tool:
 
 1. resolve `$SHIPGLOWS_ROOT`
-2. confirm the owned path exists under `$SHIPGLOWS_ROOT`
-3. confirm the target tool file exists
-4. run the tool
+2. confirm the owned parent path exists beneath that root
+3. confirm the exact target tool exists and remains beneath that root
+4. run it with arguments passed safely for the active platform
 
-Do not infer ShipGlows-owned tool paths from the current working directory. If this preflight is still agent-runnable, do not ask the operator to run the tool instead.
+Do not infer the tool path from the project cwd. If the check remains agent-runnable, do not ask the operator to run it.
 
-## Progressive Resource Discovery
+## Direct Conditional Routes
 
-After selecting a skill and mode for non-trivial work, use `tools/resource_resolver.py` when supporting references or playbooks are not already sufficient. Load `skills/references/resource-discovery.md` before relying on ranked or expanded results. Existing activation-critical loaders remain mandatory during migration; resolver recommendations supplement them and never replace owner, safety, freshness, or project-truth gates automatically.
+- Local service state, private data, inspiration storage, or legacy compatibility: load `skills/references/canonical-runtime-and-private-roots.md` directly.
+- Project governance placement, legacy migration, workflow families, or artifact destinations: load `skills/references/canonical-project-governance-placement.md` directly.
+- Monorepo source topology (`site/`, `app/`, `backend/`, `ext/`, packages): load `skills/references/monorepo-governance-topology.md` directly.
+- Ranked or expanded resource discovery: load `skills/references/resource-discovery.md` before using `tools/resource_resolver.py` results. Recommendations supplement mandatory owner, safety, freshness, and project-truth gates; they never replace them.
 
-## Canonical Project Artifact Map
-
-| Legacy root file | Canonical project path |
-| --- | --- |
-| `BUSINESS.md` | `shipglows_data/business/<surface>/business.md` or shared `shipglows_data/business/business.md` |
-| `PRODUCT.md` | `shipglows_data/product/<surface>/product.md` or shared `shipglows_data/product/product.md` |
-| `BRANDING.md` | shared `shipglows_data/branding/branding.md` with optional sibling brand bundle files under `shipglows_data/branding/` |
-| `GTM.md` | `shipglows_data/gtm/<surface>/gtm.md` or shared `shipglows_data/gtm/gtm.md` |
-| `INSPIRATION.md` | `shipglows_data/business/<surface>/project-competitors-and-inspirations.md` |
-| `AFFILIATES.md` | `shipglows_data/business/<surface>/affiliate-programs.md` |
-| `CONTEXT.md` | `shipglows_data/technical/<surface>/context.md` |
-| `CONTEXT-FUNCTION-TREE.md` | `shipglows_data/technical/<surface>/context-function-tree.md` |
-| `ARCHITECTURE.md` | `shipglows_data/technical/<surface>/architecture.md` |
-| `GUIDELINES.md` | `shipglows_data/technical/<surface>/guidelines.md` |
-| `CONTENT_MAP.md` | `shipglows_data/editorial/<surface>/content-map.md` |
-| `TASKS.md` | `shipglows_data/workflow/TASKS.md` |
-| `AUDIT_LOG.md` | `shipglows_data/workflow/AUDIT_LOG.md` |
-| `specs/*.md` | `shipglows_data/workflow/specs/*.md` |
-
-## Command Pattern
-
-```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
-"$SHIPGLOWS_ROOT/tools/shipglows_metadata_lint.py"
-```
-
-Use the same pattern for other ShipGlows-owned tools and scripts.
+Load only the branch required by the current decision. These routes are siblings and never require one another.

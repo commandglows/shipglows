@@ -1,12 +1,12 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-06-11"
+updated: "2026-08-12"
 status: active
-source_skill: 009-sg-skill-build
+source_skill: 900-shipglows-core
 scope: decision-quality-contract
 owner: Diane
 confidence: high
@@ -15,27 +15,21 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/*/SKILL.md
+  - skills/references/decision-quality-implementation-discipline.md
   - skills/references/master-workflow-lifecycle.md
   - skills/references/spec-driven-development-discipline.md
   - skills/references/master-delegation-semantics.md
   - skills/references/operator-partnership-contract.md
   - skills/references/question-contract.md
   - skills/references/design-system-token-contract.md
-  - skills/704-sg-model/references/model-routing.md
-  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
-  - README.md
+  - skills/references/skill-instruction-layering.md
 depends_on: []
 supersedes: []
 evidence:
-  - "Wave 13 removed circular runtime dependencies; question and spec discipline consume this base contract, not the reverse."
-  - "User directive 2026-05-24: ShipGlows must optimize for maximum performance, maximum security, excellence, and durability, not convenience, speed, or the shortest path."
-  - "User directive 2026-05-24: the operator wants high-quality code, modern effective tools, and current best practices; time pressure is not the primary constraint."
-  - "User decision 2026-06-10: central skill rules should stay compact enough for agents to retain the decision signal."
-  - "User directive 2026-06-11: emergency product pragmatism that hardcodes visual sizes, IME/overlay offsets, spacing, or layout values for a quick fix is unacceptable; ShipGlows must take the time needed for coherent professional design-system repairs."
-  - "User directive 2026-06-11: fast fixes are generally unacceptable when they bypass the durable process, homogeneous structure, or long-term coherence expected from agent-assisted work."
-  - "User directive 2026-06-11: ShipGlows skills should reduce operator workload by gathering safe evidence, diagnostics, logs, checks, and proof themselves before asking the user."
-  - "User directive 2026-06-11: UI customization must not bypass centralized design-system tokens for spacing, typography, colors, shadows, motion, or mobile layout constants."
-next_review: "2026-06-24"
+  - "Wave 15 preserves the universal decision gates in the canonical path and moves implementation pressure detail to one direct conditional leaf."
+  - "Operator directives prioritize correctness, security, relevant performance, excellence, durability, and agent-gathered proof before speed or convenience."
+  - "UI implementation remains governed by the existing centralized design-system token contract."
+next_review: "2026-09-12"
 next_step: "/103-sg-verify decision-quality-contract"
 ---
 
@@ -43,140 +37,53 @@ next_step: "/103-sg-verify decision-quality-contract"
 
 ## Purpose
 
-This reference defines the default decision quality bar for ShipGlows agents, skills, model routing, implementation, fixes, audits, documentation, and verification.
+Define the mandatory first decision for ShipGlows routing, implementation, fixes, audits, verification, questions, model choice, and recommendations. Speed, cost, token economy, and convenience are tie-breakers only after the quality bar is met.
 
-Excellence is an instruction-level requirement: choose the strongest professional path that fits the product contract, risk, and evidence needs. Ease, speed, token economy, and local convenience are tie-breakers only after the quality bar is satisfied.
+## Decision Quality Baseline
 
-For the broader role contract of the agent as a business partner and operational advisor rather than a passive code mechanic, also load `skills/references/operator-partnership-contract.md`.
+Optimize, in order appropriate to the risk, for:
 
-## Primary Decision Metrics
+1. correctness and reliability against the accepted outcome;
+2. security, privacy, permissions, tenant isolation, data safety, and abuse resistance;
+3. performance and operational robustness where latency, throughput, resources, reliability, or trust can be affected;
+4. maintainability, clarity, durability, upgradeability, and future evolution;
+5. professional excellence, current proven practice, coherent architecture and UX/API ergonomics;
+6. proof proportional to the claim and cost of error.
 
-Optimize first for:
+Choose cheaper, faster, simpler, or smaller options only when they are quality-equivalent across the applicable metrics.
 
-1. Correctness and reliability against the user story, spec, bug file, or accepted mini-contract.
-2. Security, privacy, permission boundaries, tenant isolation, data safety, and abuse resistance.
-3. Performance and operational robustness when the affected surface can impact latency, throughput, resource use, reliability, or user trust.
-4. Maintainability, clarity, durability, upgradeability, and future evolution.
-5. Professional excellence: current best practices, proven modern tools, appropriate libraries or engines, coherent architecture, high-quality code, careful UX/API ergonomics, and evidence that matches the risk.
+`Smallest safe path` means the smallest complete professional implementation that preserves the product contract, security, relevant performance, maintainability, future evolution, and matching proof. Small blast radius is good engineering; shortcut quality is not.
 
-Speed, cost, latency, token use, local simplicity, or implementation convenience may decide only between options that are already equivalent on correctness, security, performance, maintainability, durability, excellence, and evidence.
+## Structure Replacement Fit
 
-## Structure Replacement Doctrine
+A new rule, tool, layer, dependency, or process must replace a weak point, repeated manual step, ambiguity, slow path, drift, or maintenance burden. If it only adds another structure to maintain without a quality-equivalent reduction elsewhere, do not add it.
 
-In all circumstances, prefer changes that replace part of the current structure with less friction, more speed, or less maintenance while preserving the primary decision metrics.
+## Fast Fix Shortcut Gate
 
-Do not add process, doctrine, tools, checks, phases, dependencies, or storage layers merely because they are current, fashionable, available, or intellectually neat. Novelty is not value. Activity is not progress.
+A change fails this gate when it hides root cause, bypasses the owner or durable structure, weakens proof, or leaves an incoherent exception. Use `root cause -> owner boundary -> smallest complete professional fix -> matching proof`. Label unavoidable temporary mitigation honestly and route durable follow-up; never report mitigation as completion.
 
-For operator-facing decisions, ask the hard business question explicitly when the answer is not obvious:
+Load `skills/references/decision-quality-implementation-discipline.md` only when implementation, repair, refactoring, mitigation, library/tool choice, or shortcut pressure requires the detailed discipline.
 
-- does this replace an existing weak point, repeated manual step, slow path, ambiguity, or maintenance burden
-- does it improve execution speed without lowering correctness, security, durability, maintainability, excellence, or proof
-- does it reduce operational cost, drift, or future complexity rather than creating another layer to maintain
+## Safety Gate
 
-If the answer is no, do not add it.
+Stop or ask before a choice changes security, privacy, permissions, tenant boundaries, data handling, destructive behavior, secrets, irreversible state, or external side effects without authority. Never trade these boundaries or their required proof for speed, cost, or convenience.
 
-## Forbidden Optimizations
+## Product Gate
 
-Do not choose the quickest, easiest, cheapest, or shortest path when it weakens the product contract, security, durability, maintainability, proof quality, or operator trust.
+Ask one targeted operator question when the high-quality routes materially differ in product promise, public behavior, architecture/provider, data model, migration, pricing/claims, material cost, or irreversible business posture. Recommend the strongest professional default. Load `question-contract.md` and, for product meaning or acceptance, `product-decision-chain.md`.
 
-Do not use phrases such as "minimal change to make it work" when they imply shortcut quality. Use "bounded professional implementation" or "smallest safe path" only with the definition below.
+## Operator Autonomy Gate
 
-## Fast Fix Shortcut Ban
+Gather safe evidence, diagnostics, logs, project context, and runnable proof before asking the operator. Sparse intent normally delegates diagnosis and localization; missing file paths or commands are not ambiguity. Ask only for a real decision, secret, privileged/manual-only evidence, unavailable environment, or operator-owned business truth. Load `operator-partnership-contract.md` only for broader partnership or initiative decisions.
 
-Fast fixes are not a ShipGlows virtue. A fix is unacceptable when it bypasses durable process, weakens homogeneous structure, hides root cause, avoids the right owner skill, skips proof, or leaves future agents with incoherent exceptions.
+## Followability Gate
 
-Do not use "quick fix", "temporary workaround", "small patch", or "just make it pass" logic when the real problem requires root-cause diagnosis, contract correction, shared abstraction, migration, security/design review, docs update, proof, or owner-skill routing.
+Before completion, verify that a fresh agent can identify the owner, next required action, conditional reference, stop boundary, and proof from the activation path. If not, keep one compact directive at the owner layer and move detail to the narrowest direct reference. Skill-contract changes load `skill-instruction-layering.md` for the full gate.
 
-The default repair is: root cause -> ownership boundary -> smallest complete professional fix -> matching proof. If temporary mitigation is unavoidable, label it as mitigation, scope it, route durable follow-up, and do not report it as complete.
+## Conditional Routes
 
-Verification must fail or report partial when a change works only by bypassing process, ownership, root cause, shared structure, or required proof.
+- UI, UX, layout, theme, responsive, motion, component, keyboard/IME, or visual work loads `skills/references/design-system-token-contract.md`; unexplained hardcoded visual values fail or remain partial.
+- Model or delegated execution loads its dedicated routing/delegation authority while preserving this baseline.
+- Conditional detail references load directly from the owner decision and never chain through sibling leaves.
 
-## UI And Design-System Shortcut Ban
-
-For UI, UX, IME, keyboard, overlay, responsive, layout, spacing, typography, color, motion, or component fixes, emergency product pragmatism is not acceptable when it creates hardcoded visual drift.
-
-Before UI/design work, load `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`. Do not hardcode one-off dimensions, offsets, breakpoints, z-index values, colors, font sizes, spacing, animation timings, keyboard/IME insets, overlay positions, or viewport-specific constants just to make an immediate visual defect disappear. A literal value is acceptable only when it is already the project-standard token/constant pattern, is required by a platform/API contract, or is deliberately introduced as a named shared token/constant with usage scope and proof.
-
-When a visual bug appears to need a quick hardcoded value, the professional path is:
-
-1. Identify the source of truth: design tokens, theme, component primitive, layout utility, platform inset/measurement API, or documented framework behavior.
-2. Fix the shared source, component contract, or measurement logic instead of patching one screen in isolation.
-3. Preserve responsive behavior, accessibility, reduced-motion/focus/target-size expectations, and cross-platform behavior.
-4. Prove the affected states with token/coherence checks and browser, simulator, device, or manual evidence appropriate to the surface.
-5. If a one-off literal cannot be avoided, document why it is platform-bound, name it as a constant/token, limit its scope, and route follow-up cleanup if the explanation is weak.
-
-Verification must fail or report partial when UI work hides a bug through unexplained hardcoded values or leaves design-system drift as the price of shipping.
-
-## Smallest Safe Path
-
-"Smallest safe path" means the smallest complete, professional, best-practice implementation that satisfies the product contract and preserves security, performance, maintainability, and future evolution.
-
-It never means the fastest hack, the easiest patch, or the least ambitious acceptable workaround.
-
-Small blast radius remains good engineering. A change may be small in file surface, but it must be complete in quality.
-
-## Minimal Targeted Edits
-
-Minimal targeted edits are allowed only as an edit-safety discipline:
-
-- update the intended row, section, function, module, or file when the correct solution is known
-- avoid whole-file rewrites from stale context
-- avoid unrelated refactors and metadata churn
-- keep the diff reviewable and connected to the contract
-
-This does not lower the solution bar. A targeted edit must still satisfy the primary decision metrics, excellence bar, proof path, and documentation/security gates.
-
-## Best Practices And Tools
-
-Prefer modern, proven, effective tools and libraries when the domain has established solutions for rules, parsing, security, cryptography, authentication, migrations, accessibility, UI primitives, testing, observability, performance measurement, or deployment.
-
-Do not hand-roll domain logic for convenience when a maintained library, framework feature, or official provider path is the professional choice for reliability and safety. When current external behavior matters, use the documentation freshness gate and primary sources before deciding.
-
-## Questions And Tradeoffs
-
-Ask a user-facing question only when the high-quality route changes a material decision:
-
-- architecture, framework, provider, dependency, migration, or data model
-- security posture, permissions, privacy, destructive behavior, or tenant boundary
-- public behavior, pricing, claims, SEO/content surface, or support promise
-- cost, runtime, operational burden, or release risk in a way the operator should own
-
-When asking, recommend the option that best preserves the primary decision metrics. Do not recommend the easiest or fastest option unless it is also the best professional default.
-
-## Operator Autonomy Standard
-
-ShipGlows skills should make the operator's work easier. Do not ask the user to provide information, logs, screenshots, diagnostics, status, or validation that the agent can safely obtain with available local tools, browser navigation, project files, tests, logs, or visible app diagnostics.
-
-Before asking for user help, check the safe evidence paths that fit the task: existing docs/specs/bug files, git status/diff, local tests, browser/debug tooling, app diagnostics copy action, PM2 or bounded server logs, CI/build output, and redacted provider/config presence. Use only non-destructive, non-secret, permission-safe actions.
-
-Ask the user only when the missing input is a real decision, credential/secret, account/device/manual-only proof, destructive/external side effect, unavailable environment, or evidence the agent cannot safely access. Reports should state what the agent gathered itself and what remains genuinely unavailable.
-
-Low operator explicitness is not ambiguity by default. In ShipGlows, sparse prompts often mean the operator is intentionally delegating diagnosis, routing, and implementation choice. Do not turn a high-agency prompt into a clarification loop or a passive recommendation loop unless a true decision or safety boundary is actually missing.
-
-Default interpretation rule:
-
-- broad intent plus visible business or system context means "infer the best next action and execute"
-- missing file paths, implementation loci, or exact commands are not blockers when the correct owner layer can be discovered locally
-- if multiple plausible routes exist, choose the narrowest high-quality route yourself unless the choice changes product, security, cost, or irreversible behavior
-
-Failure pattern to avoid:
-
-- restating the problem
-- proposing ideas repeatedly
-- waiting for file-level instructions
-- asking the operator to become the technician for a system the agent can inspect directly
-
-This autonomy is governed by `skills/references/operator-partnership-contract.md`: initiative is expected, but it must stay bounded by owner layers, governance docs, safety, and proof.
-
-## Model And Tool Routing
-
-Model, subagent, and tool choices must follow the same order:
-
-- choose the model or tool that is reliable enough for the risk
-- use cheaper or faster fallbacks only when they remain quality-equivalent for the task
-- escalate reasoning, model strength, validation, specialist tools, or implementation scope when excellence or the cost of error requires it
-- report degraded execution when the available runtime cannot meet the quality bar
-
-## Reporting Language
-
-In user-facing reports, do not frame shortcuts as virtues. It is acceptable to say a change is bounded, focused, or targeted. It is not acceptable to imply that ShipGlows chose a lower-quality path because it was faster for the agent.
+User reports may call work bounded, focused, or targeted, but must not present a lower-quality shortcut as a virtue.
