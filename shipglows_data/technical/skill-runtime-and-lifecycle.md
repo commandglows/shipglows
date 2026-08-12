@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.2.1"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-07"
+updated: "2026-08-12"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -74,6 +74,7 @@ evidence:
   - "Reporting contract clarified: user-mode ship reports should match the user's active language, use outcome/evidence/limits ordering, and allow a few sober status emojis."
   - "Skill launch cheatsheet added for master and supporting modes."
   - "900-shipglows-core build routes fuzzy skill ideas or placement decisions through 700-sg-explore before 100-sg-spec."
+  - "Codex source-tree discovery follows the official ~/.agents/skills user scope, with a native PowerShell junction helper for Windows developers."
   - "007-sg-content added as the master content lifecycle for strategy, repurposing, drafting, enrichment, audits, docs, validation, and ship routing."
   - "008-sg-customer renamed as the customer activation lifecycle for first-success paths, setup guidance, recoverable states, docs impact, and proof routing."
   - "600-sg-local-cloud-sync added as the local-to-cloud data promotion, merge, sync UX, and security contract skill."
@@ -288,7 +289,8 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/profile-activation.md` | Canonical profile resolution, precedence, fallback, and reporting contract | Load before changing named-profile semantics or examples |
 | `skills/references/profile-project-context.md` | Canonical project-context bundle mapping for named profiles | Load before changing how profiles consume project business/product/editorial/technical context |
 | `shipglows_data/business/agent-profiles/*.md` | Human-readable named operator profiles such as `Victoire` or `SEO Specialist` | Profiles bind a display name to one operator role and invocation syntax; they do not become separate skills |
-| `tools/shipglows_sync_skills.sh` | Shared current-user Claude/Codex skill runtime sync helper | Use for check/repair instead of inline symlink snippets |
+| `tools/shipglows_sync_skills.sh` | Unix current-user Claude/Codex skill runtime sync helper | Uses `~/.claude/skills` and Codex `~/.agents/skills` |
+| `tools/shipglows_sync_skills.ps1` | Native Windows source-tree skill sync helper | Uses directory junctions and keeps the public installer plugin-first |
 | `tools/audit_shipglows_skills.py` | Versioned ShipGlows skill execution-fidelity audit helper used by `900-shipglows-core` and conversation follow-through gates | Keep read-only by default; audit findings classify risk but do not authorize broad edits without scenario-first triage |
 | `tools/skill_code_index_lint.py` | Numeric skill-code index validator | Run after changing `skills/references/skill-code-index.md` or the skill set |
 | `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | Global workflow doctrine | Sequential shared file |
@@ -352,7 +354,8 @@ Operator roles and named profiles do not add new primary artifact types:
 - `601-sg-product-entitlements`: product access lifecycle contract (`identity/provider/access separation -> ledger ownership -> backend gates/support -> sync/auth handoff or 001-sg-build`).
 - `006-sg-design`: sole public design entrypoint; `system`, `playground`, explicit `audit ui|tokens|components|a11y`, and `animation <audit|design|implement|tune> [scope]` modes load bounded local playbooks. GSAP is optional after project-fit, current-doc, licensing, lifecycle, reduced-motion, and performance checks.
 - `900-shipglows-core`: sole internal operator skill for ShipGlows skill execution-fidelity audits, maintenance lifecycle (`build`), conservative refresh (`refresh`), and public-plugin packaging readiness checks. Skill maintenance follows `700-sg-explore when needed -> 100-sg-spec -> SKILL.md -> runtime skill links -> 900-shipglows-core refresh -> budget audit -> 103-sg-verify -> 300-sg-docs/help -> 005-sg-ship`. It is repo-synced, not a public user plugin surface.
-- `tools/shipglows_sync_skills.sh --check|--repair`: reusable local helper for current-user Claude/Codex skill visibility and install-time selected-user linking.
+- `tools/shipglows_sync_skills.sh --check|--repair`: reusable Unix helper for current-user Claude/Codex skill visibility and install-time selected-user linking.
+- `tools/shipglows_sync_skills.ps1 -Mode check|repair`: native Windows developer helper for the same source-tree workflow without symbolic-link privilege requirements.
 - `005-sg-ship` and `405-sg-prod`: shipping and deployed verification.
 - `skills/references/master-delegation-semantics.md`: shared execution-topology doctrine for master/orchestrator skills.
 - `skills/references/master-workflow-lifecycle.md`: shared lifecycle and work item doctrine for master/orchestrator skills.
@@ -494,9 +497,10 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - Short natural-language confirmations after diagnosis or proposal continue the current chantier in delegated sequential mode by intent rather than exact keyword, not parallel fan-out.
 - Fresh context is preferred for non-trivial spec-first execution when available.
 - ShipGlows-owned references resolve from `$SHIPGLOWS_ROOT`, not the project repo.
-- A newly created or renamed ShipGlows skill is not runtime-visible until current-user `~/.claude/skills/<name>` and `~/.codex/skills/<name>` symlink to `$SHIPGLOWS_ROOT/skills/<name>` and expose `SKILL.md`.
+- A newly created or renamed ShipGlows skill is not globally runtime-visible until current-user `~/.claude/skills/<name>` and Codex `~/.agents/skills/<name>` link to `$SHIPGLOWS_ROOT/skills/<name>` and expose `SKILL.md`.
 - `tools/shipglows_sync_skills.sh --check` is read-only and reports missing, stale, broken, and non-symlink runtime entries.
 - `tools/shipglows_sync_skills.sh --repair` creates missing links and replaces stale symlinks; it must not overwrite non-symlink entries unless an install-time caller explicitly passes `--backup-existing`.
+- Native Windows developers use `tools/shipglows_sync_skills.ps1`; it creates directory junctions and preserves non-link collisions unless `-BackupExisting` is explicit. Public Codex users install the plugin instead of this corpus.
 - `305-sg-init` bootstraps minimal governance corpus state; `300-sg-docs` owns corpus creation, update, and audit; `001-sg-build` consumes the corpus through gates.
 - Technical governance applies to code projects by default. Editorial governance applies when public pages, README promises, docs, FAQ, pricing, support copy, public skill pages, blog/article intent, claims, or runtime content surfaces exist.
 - Skills that use Playwright MCP for browser evidence must load

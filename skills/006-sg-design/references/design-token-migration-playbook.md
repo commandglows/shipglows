@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-07-15"
+updated: "2026-08-12"
 status: active
 source_skill: 006-sg-design
 scope: design-token-migration-playbook
@@ -18,10 +18,10 @@ linked_systems:
   - tools/design_system_drift_check.py
 depends_on:
   - artifact: skills/references/design-system-token-contract.md
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
   - artifact: skills/references/spec-driven-development-discipline.md
-    artifact_version: "1.5.0"
+    artifact_version: "1.6.0"
     required_status: active
 supersedes: []
 evidence:
@@ -51,7 +51,7 @@ Always distinguish three stages:
 If a run creates tokens or a playground but migration coverage is incomplete, route the next real work explicitly:
 
 ```text
-/006-sg-design "Migrer le site pour consommer les tokens design centralises sans changement visuel volontaire"
+sg-design "Migrer le site pour consommer les tokens design centralises sans changement visuel volontaire"
 ```
 
 Internal lifecycle for that follow-up:

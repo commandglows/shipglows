@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-08-04"
+updated: "2026-08-12"
 status: active
 source_skill: 006-sg-design
 scope: design-proof-and-reporting
@@ -22,10 +22,10 @@ linked_systems:
   - skills/references/reporting-contract.md
 depends_on:
   - artifact: skills/references/reporting-contract.md
-    artifact_version: "1.10.0"
+    artifact_version: "1.11.0"
     required_status: active
   - artifact: skills/references/spec-driven-development-discipline.md
-    artifact_version: "1.5.0"
+    artifact_version: "1.6.0"
     required_status: active
 supersedes: []
 evidence:

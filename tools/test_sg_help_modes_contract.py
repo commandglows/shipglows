@@ -4,6 +4,7 @@
 import json
 from pathlib import Path
 import subprocess
+import sys
 import unittest
 
 
@@ -44,7 +45,7 @@ class HelpModesContractTests(unittest.TestCase):
         expected_grammar = (
             "sg-design system [scope] | playground [route-path] | "
             "audit <ui|tokens|components|a11y> [scope] | "
-            "animation <audit|design|implement|tune> [scope]",
+            "animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status>",
             "sg-experience <audit|flow|onboarding|recovery> <scope>",
             "sg-engineering <audit|architecture|deps|performance|migrate|github|sync|access|parity> [target]",
             "sg-help [default|mode|expert] [topic]",
@@ -85,7 +86,7 @@ class HelpModesContractTests(unittest.TestCase):
         self.assertIn("github", registry["rules"]["010-sg-technical"]["modes"])
         for invocation in ("302-sg-help mode", "302-sg-help modes", "006-sg-design animation audit home"):
             result = subprocess.run(
-                ["python3", str(ROOT / "tools" / "skill_invocation_check.py"), invocation],
+                [sys.executable, str(ROOT / "tools" / "skill_invocation_check.py"), invocation],
                 cwd=ROOT,
                 check=False,
                 capture_output=True,

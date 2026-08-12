@@ -211,6 +211,7 @@ assert_not_contains "$invalid_surface_fixture/git-calls" "git:" "Invalid surface
 
 assert_contains "$REPO_ROOT/cli/install.sh" "SHIPGLOWS_INSTALL_SKILL_CORPUS" "CLI installer gates skill synchronization explicitly"
 assert_contains "$REPO_ROOT/cli/install.sh" "Installer le corpus public de skills" "CLI installer prompts for the public skill corpus"
+assert_contains "$REPO_ROOT/cli/install.sh" "alias cor='codex resume'" "Linux installer provides the Codex resume shortcut"
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
 test "$failed" -eq 0

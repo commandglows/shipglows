@@ -80,7 +80,7 @@ def main() -> None:
     serialized = json.dumps(catalog)
     assert "008-sg-customer" in serialized, "catalog lost canonical identity"
     for runtime in (
-        Path.home() / ".codex/skills/008-sg-customer",
+        Path.home() / ".agents/skills/008-sg-customer",
         Path.home() / ".claude/skills/008-sg-customer",
     ):
         assert runtime.resolve() == (ROOT / "skills/008-sg-customer").resolve(), f"runtime drift: {runtime}"

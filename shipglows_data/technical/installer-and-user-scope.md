@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.10"
+artifact_version: "1.1.12"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-11"
+updated: "2026-08-12"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -45,6 +45,8 @@ evidence:
   - "Native Windows prepares pnpm v11's global bin PATH and explicitly allows only the selected official agent package's install script when npm fallback requires it."
   - "Native Windows places managed .cmd application wrappers before npm-generated .ps1 shims, preserving commands under restrictive execution policy."
   - "Native Windows installs collision-safe .cmd shortcuts for c, co, cor, oc, and kc without depending on the PowerShell profile."
+  - "Native Windows restores gp as git push through a policy-gated managed profile block and installs profile-independent gpush as fallback."
+  - "Codex source-tree skills now use the official user scope under ~/.agents/skills; native Windows developers synchronize them with directory junctions while public users use the plugin."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
 ---
@@ -65,7 +67,8 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 | Path | Role | Edit notes |
 | --- | --- | --- |
 | `cli/install.sh` | Root-level server bootstrap and per-user setup | Preserve idempotence and explicit root-only behavior |
-| `tools/shipglows_sync_skills.sh` | Shared Claude/Codex skill symlink sync helper | Reuse instead of duplicating skill-link repair logic |
+| `tools/shipglows_sync_skills.sh` | Unix Claude/Codex source-skill link helper | Reuse instead of duplicating skill-link repair logic |
+| `tools/shipglows_sync_skills.ps1` | Native Windows Claude/Codex source-skill junction helper | Keep manual and developer-only; the public Windows path remains the plugin |
 | `README.md` | Operator install contract | Update when commands, privilege, or installed tooling changes |
 | `local/install.sh`, `local/install_local.ps1` | Workstation-side setup | Keep separate from root server install assumptions |
 | `install-shipglows.sh` | Canonical remote bootstrap and local/full mode selector | Resolve mode before privilege checks; preserve user home and repository ownership |
@@ -89,7 +92,8 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 - `configure_*_mcp`: Claude/Codex MCP provider setup. Codex MCP entries
   are registered disabled by default and enabled per session by the ShipGlows
   launcher.
-- `configure_skills`: delegates skill symlink check/repair to `tools/shipglows_sync_skills.sh`.
+- `configure_skills`: delegates Unix skill link check/repair to `tools/shipglows_sync_skills.sh`.
+- `tools/shipglows_sync_skills.ps1 -Mode repair -All -Runtime codex -Catalog all`: manual native Windows developer install into `%USERPROFILE%\.agents\skills`.
 - `configure_aliases`, `configure_data`: user workflow setup.
 
 ## Control Flow
@@ -160,6 +164,12 @@ sudo ./cli/install.sh
   `oc -> opencode`, and `kc -> kilocode` as `.cmd` wrappers that call the
   managed agent commands in the same runtime directory. Existing command
   owners are preserved with a visible warning.
+- Git push keeps a profile-independent `gpush.cmd` fallback. Because PowerShell
+  reserves the read-only all-scope alias `gp` for `Get-ItemProperty`, the
+  familiar `gp` spelling requires a managed current-user all-hosts profile
+  block that removes that alias and defines `gp -> git push`. Install it only
+  when persistent profile policy is `Bypass`, `RemoteSigned`, or `Unrestricted`;
+  preserve existing user functions and use `gpush` under stricter policies.
 - The current user-space agent install path uses `pnpm add -g` inside
   `PNPM_HOME`, so the installer follows the package registry version current at
   install time instead of shipping pinned local binaries.
@@ -168,7 +178,8 @@ sudo ./cli/install.sh
 - Symlinks and aliases should be idempotent and updated consistently. The managed bash aliases include `shipglows`/`sg`/`s`, Claude/Codex launch shortcuts, reload helpers, and `ch` for clearing the current terminal plus tmux pane history (`clear; tmux clear-history`).
 - Helper command wrappers under `/usr/local/bin` should point back to scripts in
   `$SHIPGLOWS_ROOT`; do not duplicate helper logic into generated files.
-- ShipGlows skill runtime entries under `~/.claude/skills` and `~/.codex/skills` are symlinks to `$SHIPGLOWS_ROOT/skills/<name>`.
+- ShipGlows source-tree runtime entries use `~/.claude/skills` for Claude and the official `~/.agents/skills` user scope for Codex. Unix uses symlinks; native Windows uses directory junctions to `$SHIPGLOWS_ROOT/skills/<name>`.
+- The native Windows public installer does not publish the source corpus. Developers opt in manually; regular Codex users install the ShipGlows plugin.
 - Codex MCP registrations should default to `enabled = false`; normal Codex
   sessions stay lightweight, and ShipGlows launches MCP-enabled sessions with
   temporary `-c mcp_servers.<name>.enabled=true` overrides.
@@ -205,6 +216,7 @@ tools/sync_shipglows_public_bootstrap.sh --check --site-root /home/claude/shipgl
 bash -n tools/shipglows_sync_skills.sh tests/skills/runtime-sync.sh
 bash tests/skills/runtime-sync.sh
 tools/shipglows_sync_skills.sh --check --all
+powershell -NoProfile -File tools/shipglows_sync_skills.ps1 -Mode check -All -Runtime codex -Catalog all
 rg -n "resolve_install_components|install_ai_agent_clis_for_user|verify_ai_agent_clis_for_user|configure_aliases|configure_skills|configure_data|setup_user|collect_target_users|configure_codex|shipglows-turso-login|shipglows-turso-ssh" cli/install.sh local/
 ```
 

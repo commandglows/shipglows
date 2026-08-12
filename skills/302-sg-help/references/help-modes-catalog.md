@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-05"
+updated: "2026-08-12"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-catalog
@@ -19,7 +19,7 @@ linked_systems:
   - skills/references/skill-invocation-registry.json
 depends_on:
   - artifact: skills/references/skill-code-index.md
-    artifact_version: "2.5.0"
+    artifact_version: "2.7.0"
     required_status: active
 supersedes: []
 evidence:
@@ -34,7 +34,7 @@ next_step: "/103-sg-verify sg-help mode catalog"
 Return only the lines below for exact `302-sg-help mode`, `302-sg-help modes`, `sg-help mode`, or `sg-help modes` requests. The order follows the six public navigation domains, then the universal router. Each line is directly reusable invocation grammar: angle brackets are required choices or values, square brackets are optional.
 
 `sg-development [default|feature|app|refactor] <goal>` — Build a feature, application, or refactor through verified implementation.
-`sg-design system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|approve|list|status> ...` — Design systems, interfaces, accessibility, inspiration, and motion.
+`sg-design system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...` — Design systems, interfaces, accessibility, inspiration, and motion.
 `sg-experience <audit|flow|onboarding|recovery> <scope>` — Improve customer journeys, activation, trust, and recovery.
 `sg-bug [default|reproduce|fix|retest|close] <defect-or-BUG-ID>` — Reproduce, repair, prove, and close product defects.
 `sg-engineering <audit|architecture|deps|performance|migrate|github|sync|access|parity> [target]` — Own technical quality, architecture, dependencies, migrations, access, and parity.

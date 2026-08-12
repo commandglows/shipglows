@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-08-04"
+updated: "2026-08-12"
 status: active
 source_skill: 006-sg-design
 scope: design-lifecycle-routing
@@ -24,7 +24,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: skills/references/design-system-token-contract.md
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes: []
 evidence:
@@ -47,7 +47,7 @@ Use this reference after loading:
 
 ## Canonical Mode Grammar
 
-`006-sg-design` accepts these public commands: `system [scope]`, `playground [route-path]`, `audit ui [scope]`, `audit tokens [scope]`, `audit components [scope]`, `audit a11y [scope]`, `animation <audit|design|implement|tune> [scope]`, `redesign [scope]`, `migration [scope]`, and the separately defined `library ...` operations. `tokens-only` and `with-playground` are optional modifiers of `system`, not public skill aliases. `gsap` is not a public mode or alias.
+Public `sg-design` accepts these commands: `system [scope]`, `playground [route-path]`, `audit ui [scope]`, `audit tokens [scope]`, `audit components [scope]`, `audit a11y [scope]`, `animation <audit|design|implement|tune> [scope]`, `redesign [scope]`, `migration [scope]`, and the separately defined `library ...` operations. `tokens-only` and `with-playground` are optional modifiers of `system`, not public skill aliases. `gsap` is not a public mode or alias.
 
 `audit` without a subtype, an unknown subtype, or an invalid mode must list these supported choices or ask one targeted routing question. Never infer an audit subtype. Load only its mapped primary playbook after a valid selection; `audit ui deep` may then load the three explicit companion audit playbooks required by its contract.
 

@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-05"
+updated: "2026-08-12"
 status: active
 source_skill: 006-sg-design
 scope: component-system-audit
@@ -22,7 +22,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: skills/references/design-system-token-contract.md
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes:
   - skills/504-sg-audit-components/SKILL.md
@@ -37,7 +37,7 @@ next_step: "/103-sg-verify component-system audit"
 
 ## Activation And Pre-Check
 
-Use for `006-sg-design audit components [scope]`.
+Use for `sg-design audit components [scope]`.
 
 - no scope: full project component-system audit
 - file path: deep audit of one component/widget

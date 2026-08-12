@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-03"
+updated: "2026-08-12"
 status: active
 source_skill: 006-sg-design
 scope: accessibility-audit
@@ -22,7 +22,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: skills/references/design-system-token-contract.md
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes:
   - skills/409-sg-audit-a11y/SKILL.md
@@ -36,7 +36,7 @@ next_step: "/103-sg-verify accessibility audit"
 
 ## Activation And Scope
 
-Use for `006-sg-design audit a11y [scope]`.
+Use for `sg-design audit a11y [scope]`.
 
 - no scope: full project audit
 - file/route scope: deep audit the named component or surface

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-07"
+updated: "2026-08-12"
 status: active
 source_skill: 006-sg-design
 scope: design-inspiration-library-operations
@@ -19,7 +19,7 @@ linked_systems:
   - tools/capture_design_inspiration.py
 depends_on:
   - artifact: skills/references/design-inspiration-library.md
-    artifact_version: "1.7.0"
+    artifact_version: "1.9.0"
     required_status: active
 supersedes: []
 evidence:
@@ -45,12 +45,12 @@ For server replacement or corpus recovery, use the shared migration playbook and
 Interpret the following operator forms as direct curation work:
 
 ```text
-/006-sg-design library add https://example.com/sales-page
-/006-sg-design library add https://example.com/sales-page wayback https://web.archive.org/web/.../https://example.com/sales-page
-/006-sg-design library retry example-sales-page
-/006-sg-design library approve example-sales-page
-/006-sg-design library list
-/006-sg-design library status
+sg-design library add https://example.com/sales-page
+sg-design library add https://example.com/sales-page wayback https://web.archive.org/web/.../https://example.com/sales-page
+sg-design library retry example-sales-page
+sg-design library approve example-sales-page
+sg-design library list
+sg-design library status
 ```
 
 The `wayback` argument accepts an already-known archive URL only. It is optional metadata: do not query Internet Archive, create a snapshot, or block capture when no archive exists.
@@ -72,7 +72,7 @@ If the operator supplied a known archive URL, append `--wayback-url "<archive-ur
 Finish with exactly one approval action:
 
 ```text
-/006-sg-design library approve <reference-id>
+sg-design library approve <reference-id>
 ```
 
 No source-derived page text, screenshots, raw HTML, browser storage, credentials, or unredacted source URL query strings may be written into the ShipGlows repository or final report.

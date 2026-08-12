@@ -23,8 +23,8 @@ Usage: tools/shipglows_sync_skills.sh [--check|--repair] (--all|--skill <name>) 
 
 Options:
   --runtime claude|codex|all      Runtime directory to check or repair (default: all)
-  --catalog public|expert         Public métier skills (default) or all internal engines
-  --target-home <path>            Home directory containing .claude/.codex (default: $HOME)
+  --catalog public|expert|all     Public skills (default), internal engines, or both
+  --target-home <path>            Home directory containing .claude/.agents (default: $HOME)
   --shipglows-root <path>         ShipGlows repository root (default: $SHIPGLOWS_ROOT or $HOME/shipglows)
   --shipglows-root <path>          Legacy alias for --shipglows-root
   --backup-existing               Move non-symlink targets aside before repair
@@ -51,7 +51,7 @@ valid_skill_name() {
 runtime_dir() {
     case "$1" in
         claude) printf '%s/.claude/skills' "$TARGET_HOME" ;;
-        codex) printf '%s/.codex/skills' "$TARGET_HOME" ;;
+        codex) printf '%s/.agents/skills' "$TARGET_HOME" ;;
         *) return 1 ;;
     esac
 }
@@ -333,7 +333,7 @@ done
 [ -n "$TARGET_HOME" ] || fail "HOME is unavailable; use --target-home"
 [ -n "$SHIPGLOWS_ROOT" ] || fail "SHIPGLOWS_ROOT is unavailable; use --shipglows-root"
 case "$RUNTIME" in claude|codex|all) ;; *) fail "invalid runtime: $RUNTIME" ;; esac
-case "$CATALOG" in public|expert) ;; *) fail "invalid catalog: $CATALOG" ;; esac
+case "$CATALOG" in public|expert|all) ;; *) fail "invalid catalog: $CATALOG" ;; esac
 [ -n "$SCOPE" ] || SCOPE="all"
 
 if [ "$SCOPE" = "skill" ]; then
@@ -341,8 +341,13 @@ if [ "$SCOPE" = "skill" ]; then
     skill_pairs="$SKILL_NAME|$SKILL_NAME"
 elif [ "$CATALOG" = "public" ]; then
     skill_pairs="$(list_public_pairs)"
-else
+elif [ "$CATALOG" = "expert" ]; then
     skill_pairs="$(list_expert_skills | awk '{ print $0 "|" $0 }')"
+else
+    skill_pairs="$(
+        list_public_pairs
+        list_expert_skills | awk '{ print $0 "|" $0 }'
+    )"
 fi
 
 case "$RUNTIME" in

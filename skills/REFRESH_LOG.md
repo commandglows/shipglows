@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — sg-design
+
+**Added:** compact public activation signals for mission, scope, required references, validation, stop conditions, and reporting.
+
+**Updated:** public design instructions and the help catalog use `sg-design`, retain `retry` among inspiration-library operations, and keep `006-sg-design` as the internal runtime engine.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is local routing, contract, and runtime-portability maintenance.
+
 ---
 
 ## 2026-08-05 — 006-sg-design

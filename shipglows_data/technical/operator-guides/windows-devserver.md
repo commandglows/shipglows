@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-11"
+updated: "2026-08-12"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -24,6 +24,7 @@ supersedes:
   - local/README_WINDOWS.md
 evidence:
   - "Migrated without content loss from local/README_WINDOWS.md under the canonical documentation governance contract."
+  - "PowerShell reserves gp for Get-ItemProperty; ShipGlows now installs a policy-gated gp profile function and a profile-independent gpush fallback."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -112,7 +113,11 @@ ne sont pas requis par le parcours Shadow PC.
    Quand leurs noms ne sont pas déjà occupés, ShipGlows installe également les
    raccourcis d'agents habituels sans profil PowerShell : `c` pour Claude,
    `co` pour Codex, `cor` pour `codex resume`, `oc` pour OpenCode et `kc` pour
-   KiloCode. Une commande préexistante n'est jamais remplacée silencieusement.
+   KiloCode. `gpush` exécute toujours `git push`. Lorsque la politique
+   PowerShell autorise les profils utilisateur, ShipGlows remplace explicitement
+   l'alias natif `gp` (`Get-ItemProperty`) par une fonction `gp` qui exécute
+   `git push`; sinon `gpush` reste le raccourci compatible. Une commande
+   préexistante n'est jamais remplacée silencieusement.
    Flox, PM2, Caddy et autossh sont remplacés par les commandes natives et le
    registre ShipGlows.
 

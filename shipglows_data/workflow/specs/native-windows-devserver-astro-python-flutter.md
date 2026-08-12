@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.23"
+artifact_version: "0.2.27"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
-updated: "2026-08-11"
-updated_at: "2026-08-11 22:00:00 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 10:12:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -499,6 +499,10 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-09 12:52:54 UTC | 300-sg-docs | GPT-5 Codex | Consolidated the native Windows story across architecture, runtime, installer ownership, context/function navigation, code-to-doc routing, README, and the active chantier. | Documentation now distinguishes Linux server and Windows local backends, records full-mode tools and agent choices, and explains profile-independent wrappers and shortcuts. Validation pending; AC27/AC28 remain target-proof gaps rather than documented-as-verified behavior. | Run governance, metadata, link/contract and public-claim coherence checks, then ship the bounded documentation update. |
 | 2026-08-09 12:55:18 UTC | 005-sg-ship | GPT-5 Codex | Prepared the bounded Windows documentation consolidation for iterative shipping after internal and public owner alignment. | Governance topology, metadata lint for eight artifacts, Windows static contract, focused code-to-claim scans, AGENTS compatibility and diff check pass. Native Shadow proof for AC27/AC28 remains outside this docs-only release. | Push the scoped documentation commit; continue target shortcut verification separately. |
 | 2026-08-09 15:40:00 UTC | sg-content | GPT-5 Codex + delegated agents | Aligned the public CommandGlows EN/FR installer copy with the native Windows full runtime, added a secondary Windows DevServer path to the ShipGlows Codex install pages, and declared the external bootstrap pages in editorial governance. | Public copy now distinguishes plugin and runtime installation, documents optional agents and profile-independent commands, and scopes Ubuntu root requirements away from Windows. AC27/AC28 remain pending real Shadow proof. | Validate both Astro sites, targeted installer tests, metadata, links, and canonical/generated PowerShell parity before release. |
+| 2026-08-12 09:09:57 UTC | 602-sg-platform-parity | GPT-5 Codex | Closed a bounded Windows lifecycle parity tranche: Flox-root discovery with native launch-target adaptation, persistent/configured ports, manifest variables, auto-discovered dashboard, safe unregister, process signatures across npm/pnpm/uv/Flutter, and bounded log rotation. | PowerShell 5.1 parsing and the Windows static contract pass; `gocharbon` remains running on its persistent port 3002; reversible unregister preserved `communityglows` sources. FastAPI and Flutter runtime smoke proof remain pending. | Continue native fixture and Shadow proof for FastAPI, Flutter, stale PID recovery and log rotation boundaries. |
+| 2026-08-12 09:25:00 UTC | 103-sg-verify | GPT-5 Codex | Recorded native FastAPI `requirements.txt` proof: `uv` created then reused `.venv`, FastAPI returned HTTP 200 on `127.0.0.1:32111`, and `stop` released the port and reset the tracked PID to `0`; stale-PID recovery was also exercised without terminating an unverified process. | FastAPI lifecycle and stale-PID safety are proven. Flutter runtime smoke and log-rotation boundary proof remain pending. | Continue Flutter Web and log-rotation boundary proof. |
+| 2026-08-12 09:46:00 UTC | 602-sg-platform-parity | GPT-5 Codex | Completed the Windows command-navigation parity correction: every interactive project selector now offers `0 Back to menu`; the root menu names `0 Quit ShipGlows`, and Escape no longer terminates the interactive menu. | PowerShell parser and Windows static contract pass. Remaining gaps are lifecycle proof for Flutter Web and log-rotation boundaries, plus deliberate Windows adaptations for Linux-only Flox runtime, PM2 and Caddy flows. | Continue the remaining runtime proof. |
+| 2026-08-12 10:12:00 UTC | 602-sg-platform-parity | GPT-5 Codex | Audited the Linux menu surface against the native Windows DevServer. | Direct lifecycle parity remains incomplete for environment rename, start-all and restart-all. Linux server-administration, PM2/Caddy, tunnel, tmux, Flutter hot-reload, session/identity, MCP/Turso/Blacksmith, system maintenance and Rust/Go/Dart support are not present in the Windows scope. | Decide which remaining portable lifecycle commands should be implemented next. |
 
 # Current Chantier Flow
 
@@ -507,6 +511,6 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 100-sg-spec | complete | Full implementation contract saved with scope, exclusions, security invariants, ZOMBIES coverage and proof plan. |
 | 101-sg-ready | complete | Spec is ready after structure, security, freshness, cross-repo and proof-contract review. |
 | 102-sg-start | complete | Native runtime, full bootstrap, launcher, public commands, docs and static contracts are implemented locally. |
-| 103-sg-verify | in_progress | Verify Windows PowerShell 5.1 behavior, Shadow reconnect/port recovery and public artifact deployment parity. |
+| 103-sg-verify | in_progress | PowerShell 5.1 parsing, discovered dashboard, persistent Astro port, safe unregister, FastAPI lifecycle and stale-PID recovery are proven on Shadow; Flutter and log-rotation boundary proof remain. |
 | 104-sg-end | pending | Close only after real Shadow proof and documentation coherence. |
 | 005-sg-ship | complete | ShipGlows and CommandGlows scoped commits are pushed to their respective `main` branches. |
