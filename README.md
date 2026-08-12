@@ -221,6 +221,10 @@ When Codex is available, Windows also asks whether to keep the recommended
 workspace permissions, enable full access without approval prompts, or preserve
 the existing configuration. Automated installs can set
 `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep`.
+The full installer also configures Playwright MCP globally for Codex, using an
+absolute native `npx.cmd`, and downloads headless Chromium into the user cache.
+The capability is available to every project after Codex CLI is restarted;
+ShipGlows does not add Playwright files or packages to application repositories.
 It clones or registers repositories directly under `%USERPROFILE%\ShipGlows`,
 starts them on localhost ports, and keeps a recoverable registry under
 `%LOCALAPPDATA%`. No tunnel is needed for projects running on the Shadow.

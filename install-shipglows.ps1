@@ -91,8 +91,8 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
         $entries += $installerEntries[0]
     }
     if ($FullMode) {
-        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
-        if ($entries.Count -ne 3) { Fail 'The ShipGlows archive is missing native Windows DevServer files.' }
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
+        if ($entries.Count -ne 4) { Fail 'The ShipGlows archive is missing native Windows DevServer or Codex MCP files.' }
     }
 
     & $tarPath -xf $ArchivePath -C $DestinationPath $entries
@@ -213,7 +213,7 @@ if ($InstallMode -eq 'local') {
 }
 
 if ($InstallMode -eq 'full') {
-    foreach ($required in @('ShipGlows.DevServer.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
+    foreach ($required in @('ShipGlows.DevServer.psm1','ShipGlows.CodexMcp.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
         Assert-PowerShellSyntax -Path (Join-Path $windowsDirectory $required)
     }
     Write-Info 'Native Windows DevServer files installed.'

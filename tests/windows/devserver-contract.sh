@@ -7,10 +7,17 @@ MODULE="$ROOT/cli/windows/ShipGlows.DevServer.psm1"
 ENTRYPOINT="$ROOT/cli/windows/shipglows-devserver.ps1"
 INSTALLER="$ROOT/cli/windows/install-devserver.ps1"
 BOOTSTRAP="$ROOT/install-shipglows.ps1"
+CODEX_MCP_MODULE="$ROOT/cli/windows/ShipGlows.CodexMcp.psm1"
 
-for file in "$MODULE" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP"; do
+for file in "$MODULE" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE"; do
   test -f "$file"
 done
+
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
+bash "$ROOT/tests/install/playwright-mcp-contract.sh"
+rg -n 'Install-SgCodexPlaywrightMcp|--package=@playwright/mcp@latest|playwright install chromium|native npx\.cmd|mcp get playwright --json' "$INSTALLER"
+rg -n 'mcp_servers\.playwright|@playwright/mcp@latest|enabled = true|--headless.*--browser.*chromium' "$CODEX_MCP_MODULE"
+rg -n 'ShipGlows\.CodexMcp\.psm1' "$BOOTSTRAP" "$INSTALLER"
 
 ! rg -n 'Invoke-Expression|GetRelativePath|Read-SgRegistry \\$Config \.projects' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
 ! rg -n '"[^"\n]*\$[A-Za-z_][A-Za-z0-9_]*:' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
@@ -94,7 +101,7 @@ test -n "$legacy_cleanup_line" && test -n "$wrapper_install_line" && test "$lega
 rg -n "USERPROFILE 'ShipGlows'" "$INSTALLER" "$MODULE"
 ! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
 rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, or 0\.' \}" "$BOOTSTRAP"
-for windows_file in 'ShipGlows\.DevServer\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
+for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.CodexMcp\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
 done
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"

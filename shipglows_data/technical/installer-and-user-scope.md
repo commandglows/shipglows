@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.0.1"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-11"
@@ -39,6 +39,7 @@ evidence:
   - "Unified bootstrap modes route Android Termux to local/install.sh without sudo and retain root-only full server installation."
   - "Native Windows full installs Git and GitHub CLI through WinGet, while GitHub CLI exclusively owns browser authentication and credential storage."
   - "Native Windows full installs Node LTS, pnpm and uv automatically, while Flutter Web is an explicit optional user-local download."
+  - "Native Windows full configures user-global Playwright MCP when Codex, Node and native npx.cmd are available, with Chromium installed in the user cache."
   - "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."
   - "Native Windows full asks separately before each optional coding-agent CLI and leaves authentication to that CLI."
   - "Native Windows interactive mode selection requires an explicit 1, 2, or 0; empty console input never starts an installation."
@@ -176,9 +177,14 @@ sudo ./cli/install.sh
   the CLI resolves sibling files from `BASH_SOURCE`. Other helper wrappers may
   point back to scripts in `$SHIPGLOWS_ROOT`; do not duplicate helper logic.
 - ShipGlows skill runtime entries under `~/.claude/skills` and `~/.codex/skills` are symlinks to `$SHIPGLOWS_ROOT/skills/<name>`.
-- Codex MCP registrations should default to `enabled = false`; normal Codex
-  sessions stay lightweight, and ShipGlows launches MCP-enabled sessions with
-  temporary `-c mcp_servers.<name>.enabled=true` overrides.
+- Codex MCP registrations should default to `enabled = false`; the user-global
+  Playwright browser capability is the explicit exception and stays enabled so
+  standalone Codex CLI sessions can use browser proof in every project. Other
+  MCPs continue to use temporary `-c mcp_servers.<name>.enabled=true` overrides.
+- Native Windows resolves an absolute `npx.cmd`, downloads Chromium with the
+  Playwright dependency carried by `@playwright/mcp@latest`, and replaces only
+  the owned `mcp_servers.playwright` table. It preserves unrelated Codex keys
+  and MCP servers and never writes Playwright dependencies into user projects.
 - Runtime skill link repair blocks on non-symlink targets by default; installer compatibility may pass `--backup-existing` to move collisions aside explicitly.
 - Installer errors should stop before partial or misleading success.
 - `cli/install.sh` provides Flox/system tooling; Flutter/Dart runtimes are provisioned per project Flox environment unless the operator explicitly uses optional global SDK install.

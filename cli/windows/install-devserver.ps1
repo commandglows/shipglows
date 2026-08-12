@@ -10,6 +10,9 @@ Set-StrictMode -Version Latest
 
 $sourceDir = Join-Path $ShipglowsDir 'cli\windows'
 $runtimeDir = Join-Path $ShipglowsDir 'bin'
+$codexMcpModule = Join-Path $sourceDir 'ShipGlows.CodexMcp.psm1'
+if (-not (Test-Path -LiteralPath $codexMcpModule -PathType Leaf)) { throw "Missing Windows Codex MCP helper: $codexMcpModule" }
+Import-Module $codexMcpModule -Force -DisableNameChecking
 $gumVersion = '0.17.0'
 $gumSha256 = 'B2BE80531C6BABC8D4E0E6CA95773D58118A2E1582AE006AACE08DBC55503072'
 New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
@@ -600,6 +603,54 @@ function Set-SgCodexPermissionMode([string]$Mode, [string]$ConfigPath) {
     return $true
 }
 
+function Install-SgCodexPlaywrightMcp([bool]$CodexReady, [string[]]$CodexPaths, [string[]]$NodePaths, [string[]]$NpxPaths) {
+    $codex = if ($CodexReady) { Get-SgToolPath 'codex.cmd' $CodexPaths } else { $null }
+    $node = Get-SgToolPath 'node.exe' $NodePaths
+    $npx = Get-SgToolPath 'npx.cmd' $NpxPaths
+    $prerequisites = Get-SgCodexPlaywrightPrerequisiteStatus $codex $node $npx
+    if (-not $prerequisites.Ready) { Write-SgInstallerWarning $prerequisites.Message; return $false }
+    $codex = $prerequisites.CodexPath
+    $npx = $prerequisites.NpxPath
+
+    Write-Host 'Installing Playwright Chromium for Codex MCP. This can take a few minutes...' -ForegroundColor Cyan
+    $previousPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        & $npx -y '--package=@playwright/mcp@latest' playwright install chromium | Out-Host
+        $browserExitCode = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $previousPreference
+    }
+    if ($browserExitCode -ne 0) {
+        Write-SgInstallerWarning "Playwright Chromium installation failed with exit code $browserExitCode; MCP configuration was not changed."
+        return $false
+    }
+    $chromium = Get-SgPlaywrightChromiumExecutable
+    if (-not $chromium) {
+        Write-SgInstallerWarning 'Playwright Chromium installation completed but no user-scoped Chromium executable was found; MCP configuration was not changed.'
+        return $false
+    }
+
+    $configPath = Join-Path $env:USERPROFILE '.codex\config.toml'
+    [void](Set-SgCodexPlaywrightMcpConfig -ConfigPath $configPath -NpxPath $npx)
+    $previousPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        $json = (& $codex mcp get playwright --json 2>$null | Out-String)
+        $verifyExitCode = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $previousPreference
+    }
+    if ($verifyExitCode -ne 0 -or [string]::IsNullOrWhiteSpace($json)) { throw 'Codex could not read the installed Playwright MCP configuration.' }
+    $actual = $json | ConvertFrom-Json
+    $expectedArgs = @('-y','@playwright/mcp@latest','--headless','--browser','chromium')
+    if ([IO.Path]::GetFullPath([string]$actual.transport.command) -ine $npx -or (@($actual.transport.args) -join "`n") -cne ($expectedArgs -join "`n") -or -not [bool]$actual.enabled) {
+        throw 'Codex reported a Playwright MCP configuration that does not match the ShipGlows contract.'
+    }
+    Write-Host "Playwright MCP enabled globally with Chromium: $($chromium.FullName)" -ForegroundColor Green
+    return $true
+}
+
 function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     if (Test-SgTool 'flutter.bat' $FlutterPaths) {
         Write-Host 'Flutter Web SDK is already installed.' -ForegroundColor Green
@@ -687,6 +738,7 @@ if ($codexReady) {
     $codexPermissionMode = Resolve-SgCodexPermissionMode $codexConfigPath
     if ($codexPermissionMode -ne 'keep') { [void](Set-SgCodexPermissionMode $codexPermissionMode $codexConfigPath) }
 }
+[void](Install-SgCodexPlaywrightMcp $codexReady $codexPaths $nodePaths $npxPaths)
 
 Write-Host ''
 Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor Yellow
