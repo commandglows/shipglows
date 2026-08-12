@@ -1,7 +1,7 @@
 ---
 artifact: specification
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-08-13"
@@ -37,7 +37,8 @@ evidence:
   - "The existing Linux installer already owns a Playwright MCP block and preserves a Linux ARM64 Chromium invariant."
   - "Windows remote installs from commit 25b1dcda480c918ee9210a547ebd0b11cf6db2c9 completed twice with an unchanged Codex config SHA-256 on the idempotent pass."
   - "A fresh Codex CLI 0.147.0 process used only Playwright MCP against http://localhost:3001 and collected navigation, accessibility, screenshot, console, and 1055 successful network requests."
-next_step: "Review and merge pull request, then reinstall from main"
+  - "Pull request #14 merged as 834a7ca57fae2081cba15d239854711908c2db85; the full installer then ran from main and source, staged, and active Windows layers matched."
+next_step: none
 ---
 
 # Global Playwright MCP for Codex CLI
@@ -180,10 +181,10 @@ l'installation globale et le navigateur réel.
 - Implementation: complete.
 - Verification: complete.
 - Remote branch installation: complete.
-- Pull request: open as `commandglows/shipglows#14`.
+- Pull request: merged as `commandglows/shipglows#14`.
 
 ## Skill Run History
 
 | Date UTC | Skill | Model | Action | Result | Next step |
 |----------|-------|-------|--------|--------|-----------|
-| 2026-08-12 | sg-engineering | GPT-5 | Specify, implement, install, and verify global Playwright MCP for Codex CLI | Windows and Linux contracts pass; remote Windows install is idempotent; real localhost browser proof passes; PR #14 is open with CI green | Review and merge PR #14, then reinstall from main |
+| 2026-08-12 | sg-engineering | GPT-5 | Specify, implement, install, and verify global Playwright MCP for Codex CLI | Windows and Linux contracts pass; remote Windows install is idempotent; real localhost browser proof passes; PR #14 merged and main runtime layers verified | None |
