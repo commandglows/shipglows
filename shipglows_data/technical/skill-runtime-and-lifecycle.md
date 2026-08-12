@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.9.0"
+artifact_version: "2.10.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -84,6 +84,7 @@ evidence:
   - "Wave 14 adds measured activation profiles for high-traffic owners 010, 103, and 300, bringing the executable pilot to six profiles without changing runtime loaders."
   - "Wave 15 compacts three shared baseline authorities in place and exposes detailed path, autonomy, and implementation procedure through direct conditional leaves."
   - "Wave 16 compacts five domain workflow monoliths into compatibility cores with direct non-chaining leaves and adds five measured activation profiles."
+  - "Wave 17 reduces the 010 and 103 selected baselines below 5,000 tokens through conditional semantic-mode routing and direct verification release-proof/CI leaves."
   - "Skill launch cheatsheet added for master and supporting modes."
   - "900-shipglows-core build routes fuzzy skill ideas or placement decisions through 700-sg-explore before 100-sg-spec."
   - "Codex source-tree discovery follows the official ~/.agents/skills user scope, with a native PowerShell junction helper for Windows developers."
@@ -244,6 +245,14 @@ cores measured 5,870, 7,196, 6,607, 6,524, and 6,189 tokens; their compact
 cores now measure 799, 827, 808, 672, and 727. Selected baselines are 3,544,
 2,222, 2,097, 2,961, and 2,821. Phase and proof leaves are direct and
 non-chaining, so profile gates remain independent activation choices.
+
+Wave 17 closes the two remaining selected-baseline hotspots. `010` loads its
+technical router only after semantic-mode selection requires it and measures
+4,562 tokens, down from 6,177. `103` no longer pays twice for the
+ShipGlows-owned preflight already expressed by its activation contract; direct
+release-proof and CI leaves load only at their evidence gates. Its baseline is
+4,907 tokens, down from 5,657. These changes preserve owner routing, verdict
+precedence, security/product gates, proof semantics, stops, and reporting.
 
 Wave 12 demonstrates two compatible progressive patterns. `004-sg-deploy`
 loads `master-workflow-lifecycle-core.md` plus `master-delegation-core.md` for

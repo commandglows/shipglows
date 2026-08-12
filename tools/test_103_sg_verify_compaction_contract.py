@@ -13,6 +13,8 @@ PACKS = (
     "verification-excellence.md",
     "verification-security-ui-runtime.md",
     "verification-coherence.md",
+    "verification-release-proof.md",
+    "verification-ci.md",
 )
 
 
@@ -25,6 +27,11 @@ class VerifyCompactionContractTests(unittest.TestCase):
         body = self.skill.split("---", 2)[2].lstrip("\n")
         self.assertLessEqual(len(body) / 4, 1900)
 
+    def test_wave_seventeen_body_and_baseline_have_margin(self) -> None:
+        baseline = (REFS / "verification-baseline.md").read_text(encoding="utf-8")
+        body = self.skill.split("---", 2)[2].lstrip("\n")
+        self.assertLess((len(body) + len(baseline)) / 4, 4300)
+
     def test_standard_route_loads_only_baseline_initially(self) -> None:
         progressive = self.skill.split("## Progressive Verification Packs", 1)[1].split(
             "## Standard Contract", 1
@@ -33,6 +40,8 @@ class VerifyCompactionContractTests(unittest.TestCase):
         self.assertIn("for every run", progressive)
         self.assertIn("Only after standard readiness passes", progressive)
         self.assertIn("then only applicable", progressive)
+        self.assertIn("verification-release-proof.md", progressive)
+        self.assertIn("verification-ci.md", progressive)
         baseline = (REFS / "verification-baseline.md").read_text(encoding="utf-8")
         body = self.skill.split("---", 2)[2]
         self.assertLess((len(body) + len(baseline)) / 4, 5000)
@@ -73,7 +82,6 @@ class VerifyCompactionContractTests(unittest.TestCase):
     def test_conditional_authorities_remain_explicit(self) -> None:
         for phrase in (
             "$SHIPGLOWS_ROOT/skills/references/canonical-paths.md",
-            "$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md",
             "$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-baseline.md",
             "$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-excellence.md",
             "$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-security-ui-runtime.md",

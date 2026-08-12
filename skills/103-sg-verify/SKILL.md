@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Activation And Ownership
 
-Resolve ShipGlows files from `$SHIPGLOWS_ROOT` (default `$HOME/.shipglows/runtime`) after loading `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`. Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before its references, tools, runtime, or sync targets.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving ShipGlows-owned references, tools, runtime, or sync targets.
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
@@ -31,22 +31,23 @@ excellence: Once readiness passes, what material quality gap remains, and who ow
 - `excellent`: standard readiness passes first, the fresh second pass is complete, and no material excellence gap remains.
 - Proof, correctness, security, and blocking-risk verdicts (`partial`, `not verified`, `blocked`) take precedence over excellence verdicts; when one applies, `excellent` is forbidden.
 
-`partial` means implementation appears complete but required proof is missing. Preserve `102-sg-start: implemented` vs `103-sg-verify: partial`. Route every gap with owner, proof type, scenario, and target/environment when known; unknown hosted targets route to `405-sg-prod`. Hosted/provider gaps apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`.
+`partial` means implementation appears complete but proof is missing. Preserve `102-sg-start: implemented` vs `103-sg-verify: partial`. Route every gap with owner, proof type, scenario, and target/environment; unknown hosted targets route to `405-sg-prod`. Hosted/provider gaps apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`.
 
 ## Progressive Verification Packs
 
-Local references load directly and never chain. `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-gates.md` is a compatibility index only.
+Local leaves load directly and never chain. `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-gates.md` is a compatibility index only.
 
 - Load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-baseline.md` and `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` for every run; its `Decision Quality Baseline` applies in every mode.
 - Only after standard readiness passes, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-excellence.md` for the detailed excellence pass; `Excellence Focus Verdict` applies only when the selected mode is `excellence`.
 - For security/data, UI/visual, runtime, auth/browser, hosted, Sentry, or device proof, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-security-ui-runtime.md`, then only applicable `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`, `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`, `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md`, and `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`.
 - For docs/closure/tracker, skill, Atlas, product, editorial, language, dependency, or cross-contract coherence, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-coherence.md`, then applicable `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`, `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`, and `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md`.
+- For bug/manual or CI/workflow scope, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-release-proof.md` or `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-ci.md` respectively.
 
 Conditional shared gates load from `$SHIPGLOWS_ROOT/skills/references/`: `project-development-mode.md` for local/preview/hybrid proof; `documentation-freshness-gate.md` for external behavior; `email-work-routing.md` for email; `spec-driven-development-discipline.md` for behavior/proof; `task-application-loop.md` for progress; `closure-archive-guard.md` for closure; `documentation-reflection-gate.md` for milestones; `zombies-edge-case-heuristic.md` for non-trivial behavior; `clean-code-quality-contract.md` for changed code. Every filename in this sentence resolves under that directory.
 
 ## Standard Contract
 
-Verify user-story outcome, completeness, correctness, coherence, dependencies, risks, and required manual rows. Required `NOT_RUN`, `FAIL`, or `BLOCKED` rows prevent clean verification unless an explicit accepted exception or stronger proof artifact exists.
+Verify outcome, completeness, correctness, coherence, dependencies, risks, and required manual rows. Required `NOT_RUN`, `FAIL`, or `BLOCKED` prevents clean verification absent an accepted exception or stronger proof.
 
 Always report `Success Behavior`, `Error Behavior`, `Proof Path Fit`, development/validation surface, fresh-docs verdict, documentation coherence, bug gate, and `Decision Quality Baseline`.
 
@@ -63,9 +64,9 @@ Passing technical checks never substitutes for product, security, visual, hosted
 
 ## Owner Routing And Tracker Rule
 
-Missing hosted/preview/production/browser/auth/manual proof routes to `005-sg-ship`, `405-sg-prod`, `108-sg-browser`, `109-sg-auth-debug`, or `107-sg-test` with scenario and target. Product meaning or acceptance changes route to `100-sg-spec` (optionally `700-sg-explore`); design, copy, code/security, or performance investigation routes to the matching specialist. Multi-owner or security-sensitive repair requires the ready-spec lifecycle.
+Missing hosted/preview/production/browser/auth/manual proof routes to `005-sg-ship`, `405-sg-prod`, `108-sg-browser`, `109-sg-auth-debug`, or `107-sg-test`. Meaning or acceptance changes route to `100-sg-spec`; investigation routes to the matching specialist. Multi-owner or security-sensitive repair requires a ready spec.
 
-Trackers are read-only: do not edit `TASKS.md`, `AUDIT_LOG.md`, or `PROJECTS.md`. Tracker/spec operational records may use `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` as reader context; exceptional summary repair belongs to its owner.
+Trackers are read-only: do not edit `TASKS.md`, `AUDIT_LOG.md`, or `PROJECTS.md`. Load `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` only to interpret operational records; repairs belong to their owner.
 
 ## Stop Conditions
 

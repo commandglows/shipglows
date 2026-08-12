@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lifecycle coherence checks for progressive activation compaction waves 4 through 16."""
+"""Lifecycle coherence checks for progressive activation compaction waves 4 through 17."""
 
 from pathlib import Path
 import unittest
@@ -20,6 +20,7 @@ WAVE_13 = SPECS / "executable-resource-graph-and-progressive-reporting-wave-13.m
 WAVE_14 = SPECS / "high-traffic-activation-profiles-wave-14.md"
 WAVE_15 = SPECS / "shared-baseline-core-compaction-wave-15.md"
 WAVE_16 = SPECS / "progressive-monolithic-workflows-wave-16.md"
+WAVE_17 = SPECS / "technical-and-verification-baseline-wave-17.md"
 REFRESH_LOG = ROOT / "skills" / "REFRESH_LOG.md"
 
 
@@ -39,6 +40,7 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         cls.wave_14 = WAVE_14.read_text(encoding="utf-8")
         cls.wave_15 = WAVE_15.read_text(encoding="utf-8")
         cls.wave_16 = WAVE_16.read_text(encoding="utf-8")
+        cls.wave_17 = WAVE_17.read_text(encoding="utf-8")
         cls.refresh_log = REFRESH_LOG.read_text(encoding="utf-8")
 
     def test_shipped_waves_are_not_left_ready_or_next(self) -> None:
@@ -79,6 +81,9 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         self.assertIn("status: reviewed", self.wave_16)
         self.assertIn("005-sg-ship (next)", self.wave_16)
         self.assertNotIn("- [ ]", self.wave_16)
+        self.assertIn("status: reviewed", self.wave_17)
+        self.assertIn("005-sg-ship (next)", self.wave_17)
+        self.assertNotIn("- [ ]", self.wave_17)
 
     def test_wave_thirteen_records_executable_graph_and_reporting_boundaries(self) -> None:
         for phrase in (
@@ -136,6 +141,21 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, self.wave_16)
         self.assertIn("progressive monolithic workflows wave 16", self.refresh_log)
+
+    def test_wave_seventeen_records_final_hotspot_compaction(self) -> None:
+        for phrase in (
+            "6,177 -> 4,562",
+            "5,657 -> 4,907",
+            "conditional semantic-mode routing",
+            "verification-release-proof",
+            "verification-ci",
+            "102-sg-start | execute",
+            "900-shipglows-core | refresh",
+            "103-sg-verify | verify",
+            "104-sg-end | close",
+        ):
+            self.assertIn(phrase, self.wave_17)
+        self.assertIn("technical and verification baseline wave 17", self.refresh_log)
 
     def test_wave_five_acceptance_matches_progressive_loading(self) -> None:
         self.assertIn(

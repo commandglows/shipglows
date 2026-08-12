@@ -25,11 +25,9 @@ class HighTrafficActivationProfileTests(unittest.TestCase):
                 "skills/references/canonical-paths.md",
                 "skills/references/intent-to-outcome-autonomy.md",
                 "skills/references/decision-quality-contract.md",
-                "skills/010-sg-technical/references/technical-router.md",
             ],
             "103-sg-verify": [
                 "skills/references/canonical-paths.md",
-                "skills/references/shipglows-owned-preflight.md",
                 "skills/103-sg-verify/references/verification-baseline.md",
                 "skills/references/decision-quality-contract.md",
             ],
@@ -43,6 +41,10 @@ class HighTrafficActivationProfileTests(unittest.TestCase):
 
     def test_technical_modes_remain_independent_direct_gates(self) -> None:
         gates = self.profiles["010-sg-technical"]["gates"]
+        self.assertEqual(
+            ["skills/010-sg-technical/references/technical-router.md"],
+            gates["semantic-mode-routing"],
+        )
         expected = {
             "deps": "dependency-audit-playbook.md",
             "performance": "performance-audit-playbook.md",
@@ -70,6 +72,8 @@ class HighTrafficActivationProfileTests(unittest.TestCase):
         self.assertEqual(["skills/103-sg-verify/references/verification-excellence.md"], gates["excellence"])
         self.assertEqual(["skills/103-sg-verify/references/verification-security-ui-runtime.md"], gates["security-ui-runtime"])
         self.assertEqual(["skills/103-sg-verify/references/verification-coherence.md"], gates["coherence"])
+        self.assertEqual(["skills/103-sg-verify/references/verification-release-proof.md"], gates["release-proof"])
+        self.assertEqual(["skills/103-sg-verify/references/verification-ci.md"], gates["ci"])
         self.assertNotIn("verification-gates.md", "\n".join(path for refs in gates.values() for path in refs))
 
     def test_public_and_direct_invocations_select_new_profiles(self) -> None:
@@ -86,14 +90,14 @@ class HighTrafficActivationProfileTests(unittest.TestCase):
             self.assertEqual("valid", payload["status"], (invocation, payload))
             self.assertEqual(profile, payload["activation_profile"], invocation)
 
-    def test_profile_measurements_expose_large_baselines_without_missing_files(self) -> None:
+    def test_profile_measurements_expose_compacted_baselines_without_missing_files(self) -> None:
         payload = audit_profiles(self.registry)
         self.assertEqual("valid", payload["status"], payload["errors"])
         for skill in ("010-sg-technical", "103-sg-verify", "300-sg-docs"):
             result = payload["skills"][skill]
             self.assertEqual([], result["missing"], skill)
-        self.assertGreater(payload["skills"]["010-sg-technical"]["baseline_tokens"], 5000)
-        self.assertGreater(payload["skills"]["103-sg-verify"]["baseline_tokens"], 5000)
+        self.assertLess(payload["skills"]["010-sg-technical"]["baseline_tokens"], 5000)
+        self.assertLess(payload["skills"]["103-sg-verify"]["baseline_tokens"], 5000)
         self.assertLess(payload["skills"]["300-sg-docs"]["baseline_tokens"], 5000)
 
     def test_wave_15_shared_leaves_are_direct_conditional_gates(self) -> None:

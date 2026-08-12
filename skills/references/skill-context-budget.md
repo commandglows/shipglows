@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.10.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -22,6 +22,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Wave 17 reduces the remaining 010 and 103 hotspots to 4562 and 4907 tokens through conditional technical routing and direct verification proof leaves."
   - "Wave 16 replaces five monolithic workflow references with compact compatibility cores, direct non-chaining leaves, and five measured activation profiles."
   - "2026-08-12 Wave 16 measurement: workflow cores move from 7196/6607/6524/6189/5870 to 827/808/672/727/799 tokens; selected baselines are 2222/2097/2961/2821/3544."
   - "Wave 15 compacts canonical paths, intent-to-outcome autonomy, and decision quality into first-decision cores with direct non-chaining leaves."
@@ -143,6 +144,14 @@ selected activation-profile baselines are 2,222, 2,097, 2,961, 2,821, and
 3,544 respectively. Each gate selects a direct leaf; local leaves never load
 siblings and registry profiles remain accounting metadata rather than runtime
 loading authority.
+
+Wave 17 brings the two remaining profiled hotspots below target. `010` selects
+its semantic mode before loading `technical-router.md`, reducing its baseline
+from 6,177 to 4,562 tokens. `103` removes the duplicated ShipGlows-owned
+preflight from its baseline and routes release-proof and CI procedure through
+two direct non-chaining leaves, reducing its baseline from 5,657 to 4,907.
+Owner, verdict, security, product, proof, stop, and reporting decisions remain
+activation-local.
 
 ## Audit Commands
 

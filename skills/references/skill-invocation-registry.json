@@ -103,8 +103,9 @@
       },
       "010-sg-technical": {
         "body": "skills/010-sg-technical/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md", "skills/references/decision-quality-contract.md", "skills/010-sg-technical/references/technical-router.md"],
+        "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md", "skills/references/decision-quality-contract.md"],
         "gates": {
+          "semantic-mode-routing": ["skills/010-sg-technical/references/technical-router.md"],
           "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
           "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
           "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
@@ -136,8 +137,10 @@
       },
       "103-sg-verify": {
         "body": "skills/103-sg-verify/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/references/shipglows-owned-preflight.md", "skills/103-sg-verify/references/verification-baseline.md", "skills/references/decision-quality-contract.md"],
+        "baseline": ["skills/references/canonical-paths.md", "skills/103-sg-verify/references/verification-baseline.md", "skills/references/decision-quality-contract.md"],
         "gates": {
+          "release-proof": ["skills/103-sg-verify/references/verification-release-proof.md"],
+          "ci": ["skills/103-sg-verify/references/verification-ci.md"],
           "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
           "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
           "excellence": ["skills/103-sg-verify/references/verification-excellence.md"],

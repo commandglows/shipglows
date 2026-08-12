@@ -19,6 +19,8 @@ linked_systems:
   - skills/103-sg-verify/references/verification-excellence.md
   - skills/103-sg-verify/references/verification-security-ui-runtime.md
   - skills/103-sg-verify/references/verification-coherence.md
+  - skills/103-sg-verify/references/verification-release-proof.md
+  - skills/103-sg-verify/references/verification-ci.md
 depends_on: []
 supersedes: []
 evidence:
@@ -36,5 +38,7 @@ Compatibility index only. Normal execution loads packs directly from `SKILL.md`.
 | Excellence | `verification-excellence.md` | Standard readiness passed and excellence mode is explicit |
 | Security, UI, runtime | `verification-security-ui-runtime.md` | Applicable security/data/UI/runtime/external proof surface |
 | Coherence | `verification-coherence.md` | Documentation, closure, skill, Atlas, product, editorial, or cross-contract scope |
+| Release proof | `verification-release-proof.md` | Bug records or required manual checklist rows |
+| CI | `verification-ci.md` | CI or workflow scope |
 
 Pack references are leaves and never load one another.

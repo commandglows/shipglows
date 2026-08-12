@@ -2,6 +2,18 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — technical and verification baseline wave 17
+
+**Added:** conditional semantic-mode routing for `010-sg-technical` and direct `verification-release-proof` and `verification-ci` leaves for `103-sg-verify`.
+
+**Updated:** `010` loads its technical router only when the selected semantic mode requires it; `103` removes the duplicate ShipGlows-owned preflight from its selected baseline while preserving verification authority, verdict precedence, security, product, proof, stop, and reporting decisions. Selected baselines fall from `6,177 -> 4,562` and `5,657 -> 4,907` estimated tokens.
+
+**New phases:** select the 010 semantic mode before technical-router procedure; for 103, load release-proof or CI procedure directly at its evidence gate. Neither leaf loads a sibling.
+
+**Next debt:** ship Wave 17 through `005-sg-ship`; no selected activation-profile baseline remains above the 5,000-token target.
+
+**Sources:** 0 external URLs consulted; this wave changes local instruction packaging, activation metadata, and focused contract proof only.
+
 ## 2026-08-12 — progressive monolithic workflows wave 16
 
 **Added:** five activation profiles and direct, non-chaining leaves for redact, enrich, audit, production verification, and auth-debug.

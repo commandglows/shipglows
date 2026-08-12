@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.10.0"
 project: ShipGlows
 created: "2026-05-16"
 updated: "2026-08-12"
@@ -39,6 +39,7 @@ evidence:
   - "Wave 13 validates the executable closure of explicitly profiled resources and splits reporting into a compact core with three direct conditional leaves."
   - "Wave 15 applies first-decision cores and direct non-chaining leaves to canonical paths, intent-to-outcome autonomy, and decision quality."
   - "Wave 16 applies compact compatibility cores and direct non-chaining phase leaves to five monolithic domain workflows and adds truthful activation profiles for each owner."
+  - "Wave 17 makes the 010 technical router conditional by semantic mode and moves 103 release-proof and CI procedure into direct non-chaining leaves."
   - "User decision 2026-06-10: keep SKILL.md contracts short and move detailed playbooks, examples, matrices, and edge cases to references."
   - "User decision 2026-07-07: for any skill-creation or skill-improvement work, improve the shared reference layer first and only add local skill wording when the behavior is truly owner-specific."
   - "User decision 2026-07-12: every skill change must preserve compaction and practical followability instead of adding repeated warning prose."
@@ -86,6 +87,12 @@ Wave 16 profiles `109-sg-auth-debug`, `200-sg-redact`, `201-sg-enrich`,
 `400-sg-audit`, and `405-sg-prod`. Their established workflow paths remain
 compact compatibility cores; each core routes bounded phase or proof leaves
 directly. A local leaf must never load another local leaf.
+
+Wave 17 applies two narrower patterns: a router used only after semantic-mode
+selection need not be baseline, and duplicated owner preflight must not remain
+eager when the activation body already owns the decision. Verification proof
+procedure is split into direct release-proof and CI leaves; neither leaf loads
+the other.
 
 ## What Must Stay Local
 
