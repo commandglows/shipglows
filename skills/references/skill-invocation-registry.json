@@ -1,5 +1,5 @@
 {
-  "format_version": "2.3",
+  "format_version": "2.4",
   "identity_source": "skills/references/skill-code-index.md",
   "public_catalog": {
     "domains": [
@@ -7,7 +7,7 @@
         "id": "create",
         "label": "Create",
         "skills": [
-          {"id": "sg-development", "public_skill": "sg-development", "runtime_skill": "001-sg-build", "modes": ["default", "feature", "app", "refactor"], "hidden_modes": {"build": {"runtime_engine": "001-sg-build"}, "excellence": {"runtime_engine": "103-sg-verify", "engine_mode": "excellence"}}, "internal_engines": ["100-sg-spec", "101-sg-ready", "102-sg-start", "105-sg-check", "103-sg-verify", "104-sg-end", "005-sg-ship"]},
+          {"id": "sg-development", "public_skill": "sg-development", "runtime_skill": "001-sg-build", "modes": ["default", "feature", "app", "refactor"], "hidden_modes": {"build": {"runtime_engine": "001-sg-build"}, "excellence": {"runtime_engine": "103-sg-verify", "engine_mode": "excellence"}}, "internal_engines": ["100-sg-spec", "101-sg-ready", "102-sg-start", "103-sg-verify", "104-sg-end", "105-sg-check", "005-sg-ship", "306-sg-scaffold"]},
           {"id": "sg-design", "public_skill": "sg-design", "runtime_skill": "006-sg-design", "modes": ["system", "playground", "audit", "animation", "redesign", "migration", "library"], "internal_engines": ["105-sg-check", "108-sg-browser", "103-sg-verify"]},
           {"id": "sg-experience", "public_skill": "sg-experience", "runtime_skill": "008-sg-customer", "modes": ["audit", "flow", "onboarding", "recovery"], "internal_engines": ["006-sg-design", "007-sg-content", "107-sg-test", "108-sg-browser", "109-sg-auth-debug"]}
         ]
@@ -32,7 +32,7 @@
         "id": "grow-audience",
         "label": "Grow audience",
         "skills": [
-          {"id": "sg-content", "public_skill": "sg-content", "runtime_skill": "007-sg-content", "modes": ["plan", "capture", "repurpose", "draft", "enrich", "audit", "editorial", "publish", "emailing"], "hidden_modes": {"tmux": {"owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation"}, "capture-full-conversation": {"owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation"}}, "internal_engines": ["200-sg-redact", "201-sg-enrich", "202-sg-emailing", "203-sg-research", "205-sg-veille", "800-tmux-capture-conversation", "801-clean-conversation-transcript"]},
+          {"id": "sg-content", "public_skill": "sg-content", "runtime_skill": "007-sg-content", "modes": ["plan", "capture", "repurpose", "draft", "enrich", "audit", "editorial", "publish", "emailing"], "hidden_modes": {"tmux": {"owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation"}, "capture-full-conversation": {"owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation"}}, "internal_engines": ["200-sg-redact", "201-sg-enrich", "202-sg-emailing", "203-sg-research", "205-sg-veille", "407-sg-translate", "800-tmux-capture-conversation", "801-clean-conversation-transcript", "emailing"]},
           {"id": "sg-marketing", "public_skill": "sg-marketing", "runtime_skill": "009-sg-marketing", "modes": ["market", "gtm", "copy", "copywriting"], "internal_engines": ["203-sg-research", "400-sg-audit"]},
           {"id": "sg-seo", "public_skill": "sg-seo", "runtime_skill": "406-sg-seo", "modes": ["audit", "launch", "monitoring", "fix", "page", "project", "global"], "internal_engines": ["007-sg-content", "009-sg-marketing", "108-sg-browser", "405-sg-prod"]}
         ]
@@ -48,7 +48,7 @@
         "id": "organize",
         "label": "Organize",
         "skills": [
-          {"id": "sg-planning", "public_skill": "sg-planning", "runtime_skill": "011-sg-pilotage", "modes": ["tasks", "backlog", "priorities", "review", "sessions"], "hidden_modes": {"explore": {"runtime_engine": "700-sg-explore"}, "spec": {"runtime_engine": "100-sg-spec"}, "status": {"runtime_engine": "308-sg-status"}, "resume": {"runtime_engine": "303-sg-resume"}}, "internal_engines": ["100-sg-spec", "301-sg-context", "303-sg-resume", "308-sg-status", "700-sg-explore", "704-sg-model", "705-sg-conversation-audit", "706-continue"]},
+          {"id": "sg-planning", "public_skill": "sg-planning", "runtime_skill": "011-sg-pilotage", "modes": ["tasks", "backlog", "priorities", "review", "sessions"], "hidden_modes": {"explore": {"runtime_engine": "700-sg-explore"}, "spec": {"runtime_engine": "100-sg-spec"}, "status": {"runtime_engine": "308-sg-status"}, "resume": {"runtime_engine": "303-sg-resume"}}, "internal_engines": ["100-sg-spec", "301-sg-context", "303-sg-resume", "308-sg-status", "700-sg-explore", "704-sg-model", "705-sg-conversation-audit", "706-continue", "707-name"]},
           {"id": "sg-help", "public_skill": "sg-help", "runtime_skill": "302-sg-help", "modes": ["default", "mode", "expert"], "internal_engines": []}
         ]
       }
@@ -75,7 +75,8 @@
   "internal_catalog": {
     "identity_source": "skills/references/skill-code-index.md",
     "include_all_runtime_skills": true,
-    "default_visibility": "expert"
+    "default_visibility": "expert",
+    "require_owned_expert_coverage": true
   },
   "rules": {
     "000-shipglows": {"kind": "freeform", "min_args": 1},

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -29,6 +29,7 @@ evidence:
   - "2026-08-12 inventory: 65 source skills total 7098 portable characters; 14 implicit public wrappers total 1376 portable and 1712 runtime-lexical characters."
   - "2026-08-12 runtime inventory: all 65 installed skills total 8658 lexical characters; expert explicit-only policy removes 6946 characters from implicit discovery without uninstalling engines."
   - "Operator decision 2026-08-12: separate discovery and activation budgets, retain expert explicit invocation, and compact through conditional references."
+  - "Wave 9 distinguishes the registry ownership graph from deferred reference-activation accounting."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify progressive-skill-discovery-and-activation-budgets"
 ---
@@ -101,7 +102,7 @@ For a selected skill, report:
 - `C-mode`: unique conditional references for the selected mode;
 - `P-advisory`: bounded resolver starter pack, separately labelled.
 
-Do not infer a dependency graph from prose. Until explicit activation profiles exist, measure pilots and mechanically declared loaders only. Count a shared file once and show both selected-mode and worst-case totals when available.
+Do not infer reference dependencies from prose. The registry-owned activation graph validates public-owner-to-engine routing only; it is not a reference-loading manifest. Until explicit reference activation profiles exist, measure pilots and mechanically declared loaders only. Count a shared file once and show both selected-mode and worst-case totals when available.
 
 ## Audit Commands
 

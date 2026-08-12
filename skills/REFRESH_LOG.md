@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — canonical skill activation graph and core compaction wave 9
+
+**Added:** blocking graph validation and `--audit-graph` in the existing invocation preflight, focused graph scenarios, and direct core audit/packaging packs.
+
+**Updated:** registry 2.4 now owns all 14 public wrappers and 51 expert engines, including the four formerly unattached experts. `900-shipglows-core` now selects one mode pack before procedure while preserving hard core context, bounded repair authority, system-improvement output, Windows routing, and public/internal packaging boundaries.
+
+**New phases:** registry graph validation precedes explicit invocation; reference activation remains independently gated and is never inferred from prose. No second graph file, public taxonomy change, catalog removal, or discovery-budget change.
+
+**Sources:** 0 external URLs consulted; fresh docs were not needed because this is local registry/tooling and instruction architecture.
+
 ## 2026-08-12 — progressive domain activation compaction wave 8
 
 **Added:** gated content governance/delivery packs for `007-sg-content`, one sync proof/report leaf for `600-sg-local-cloud-sync`, and focused owner contracts.

@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.2.1"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -33,6 +33,8 @@ linked_systems:
   - skills/108-sg-browser/SKILL.md
   - skills/003-sg-bug/SKILL.md
   - skills/305-sg-init/SKILL.md
+  - tools/skill_invocation_check.py
+  - skills/references/skill-invocation-registry.json
   - skills/300-sg-docs/SKILL.md
   - skills/references/reporting-contract.md
   - skills/references/master-workflow-lifecycle.md
@@ -191,6 +193,12 @@ internal engine`, declared in `skill-invocation-registry.json` and explained by
 expert help adds the shortcut equivalences and numeric targets. `verify`
 preserves an explicit specialist owner before using its proof path, while
 `core` alone hard-binds the remaining request to ShipGlows-system maintenance.
+
+The same registry is the canonical activation graph. `skill_invocation_check.py`
+validates public wrappers, declared engines, alias ownership, and complete expert
+coverage before accepting an explicit invocation. This is an ownership graph,
+not a reference-loading graph; resource `depends_on` metadata remains governed
+separately and no dependency is inferred from prose.
 
 Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 

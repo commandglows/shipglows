@@ -16,6 +16,114 @@ DEFAULT_REGISTRY = ROOT / "skills/references/skill-invocation-registry.json"
 ROW_RE = re.compile(r"^\|\s*`(?P<code>\d{3})`\s*\|\s*`[^`]+`\s*\|\s*`(?P<skill>[^`]+)`")
 
 
+def public_entries(registry: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    entries = {
+        entry["id"]: entry
+        for domain in registry.get("public_catalog", {}).get("domains", [])
+        for entry in domain.get("skills", [])
+    }
+    router = registry.get("public_catalog", {}).get("router")
+    if router:
+        entries[router["id"]] = router
+    return entries
+
+
+def validate_activation_graph(
+    registry: dict[str, Any],
+    skills_root: Path = ROOT / "skills",
+) -> dict[str, Any]:
+    """Validate the registry-owned public-to-engine activation graph."""
+    entries = public_entries(registry)
+    errors: list[str] = []
+    edges: set[tuple[str, str]] = set()
+    owners: dict[str, set[str]] = {}
+
+    def add_edge(owner: str, engine: str, locus: str) -> None:
+        if not engine:
+            errors.append(f"missing_runtime_engine:{locus}")
+            return
+        edges.add((owner, engine))
+        owners.setdefault(engine, set()).add(owner)
+        if not (skills_root / engine / "SKILL.md").is_file():
+            errors.append(f"missing_engine:{locus}:{engine}")
+
+    public_skills: set[str] = set()
+    for owner, entry in entries.items():
+        wrapper = entry.get("public_skill")
+        if not wrapper:
+            errors.append(f"missing_public_skill:{owner}")
+        else:
+            public_skills.add(wrapper)
+            if not (skills_root / wrapper / "SKILL.md").is_file():
+                errors.append(f"missing_public_wrapper:{owner}:{wrapper}")
+        add_edge(owner, entry.get("runtime_skill", ""), f"{owner}.runtime_skill")
+        for engine in entry.get("internal_engines", []):
+            add_edge(owner, engine, f"{owner}.internal_engines")
+        for mode, route in entry.get("hidden_modes", {}).items():
+            add_edge(owner, route.get("runtime_engine", ""), f"{owner}.hidden_modes.{mode}")
+
+    for alias, mapping in registry.get("codex_expert_aliases", {}).items():
+        owner = mapping.get("public_owner")
+        entry = entries.get(owner)
+        if entry is None:
+            errors.append(f"unknown_alias_owner:{alias}:{owner}")
+            continue
+        declared_modes = set(entry.get("modes", [])) | set(entry.get("hidden_modes", {}))
+        if mapping.get("owner_mode") not in declared_modes:
+            errors.append(f"unknown_alias_mode:{alias}:{owner}:{mapping.get('owner_mode')}")
+        allowed = {entry.get("runtime_skill"), *entry.get("internal_engines", [])}
+        allowed.update(route.get("runtime_engine") for route in entry.get("hidden_modes", {}).values())
+        engine = mapping.get("runtime_engine")
+        if engine not in allowed:
+            errors.append(f"alias_engine_not_owned:{alias}:{owner}:{engine}")
+        for index, specialist in enumerate(mapping.get("specialist_routes", [])):
+            specialist_owner = specialist.get("public_owner")
+            specialist_entry = entries.get(specialist_owner)
+            if specialist_entry is None:
+                errors.append(f"unknown_specialist_owner:{alias}:{index}:{specialist_owner}")
+                continue
+            specialist_modes = set(specialist_entry.get("modes", [])) | set(
+                specialist_entry.get("hidden_modes", {})
+            )
+            if specialist.get("owner_mode") not in specialist_modes:
+                errors.append(
+                    f"unknown_specialist_mode:{alias}:{index}:{specialist_owner}:{specialist.get('owner_mode')}"
+                )
+            specialist_allowed = {
+                specialist_entry.get("runtime_skill"),
+                *specialist_entry.get("internal_engines", []),
+            }
+            specialist_allowed.update(
+                route.get("runtime_engine")
+                for route in specialist_entry.get("hidden_modes", {}).values()
+            )
+            if specialist.get("runtime_engine") not in specialist_allowed:
+                errors.append(
+                    f"specialist_engine_not_owned:{alias}:{index}:{specialist_owner}:{specialist.get('runtime_engine')}"
+                )
+
+    available = {
+        path.parent.name
+        for path in skills_root.glob("*/SKILL.md")
+        if not path.parent.is_symlink()
+    }
+    experts = available - public_skills
+    owned_experts = set(owners) & experts
+    if registry.get("internal_catalog", {}).get("require_owned_expert_coverage"):
+        for engine in sorted(experts - owned_experts):
+            errors.append(f"unowned_expert:{engine}")
+
+    return {
+        "status": "valid" if not errors else "invalid",
+        "errors": sorted(set(errors)),
+        "public_skills": len(public_skills),
+        "expert_skills": len(experts),
+        "owned_experts": len(owned_experts),
+        "edges": len(edges),
+        "owners": {engine: sorted(values) for engine, values in sorted(owners.items())},
+    }
+
+
 def parse_index(path: Path) -> dict[str, str]:
     identities: dict[str, str] = {}
     for line in path.read_text(encoding="utf-8").splitlines():
@@ -66,6 +174,7 @@ def check(
     invocation: str,
     index_path: Path = DEFAULT_INDEX,
     registry_path: Path = DEFAULT_REGISTRY,
+    skills_root: Path = ROOT / "skills",
 ) -> dict[str, Any]:
     requested = invocation.strip()
     tokens = requested.removeprefix("$").removeprefix("/").split()
@@ -78,18 +187,21 @@ def check(
         )
 
     registry = json.loads(registry_path.read_text(encoding="utf-8"))
-    public_entries = {
-        entry["id"]: entry
-        for domain in registry.get("public_catalog", {}).get("domains", [])
-        for entry in domain.get("skills", [])
-    }
-    router = registry.get("public_catalog", {}).get("router")
-    if router:
-        public_entries[router["id"]] = router
+    if registry.get("internal_catalog", {}).get("require_owned_expert_coverage"):
+        graph = validate_activation_graph(registry, skills_root)
+        if graph["status"] != "valid":
+            return result(
+                "invalid",
+                requested,
+                error="activation_graph_invalid",
+                message="The canonical skill activation graph is inconsistent.",
+                graph_errors=graph["errors"],
+            )
+    public_catalog = public_entries(registry)
 
     identities = parse_index(index_path)
     first = tokens[0]
-    public_entry = public_entries.get(first)
+    public_entry = public_catalog.get(first)
     if public_entry is not None:
         args = tokens[1:]
         modes = public_entry.get("modes", ["default"])
@@ -224,16 +336,35 @@ def check(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("invocation", help="Explicit invocation, without executing it")
+    parser.add_argument("invocation", nargs="?", help="Explicit invocation, without executing it")
+    parser.add_argument(
+        "--audit-graph",
+        action="store_true",
+        help="Validate and summarize the canonical public-to-engine activation graph.",
+    )
     parser.add_argument("--format", choices=("json", "text"), default="json")
     args = parser.parse_args()
-    payload = check(args.invocation)
+    if args.audit_graph:
+        registry = json.loads(DEFAULT_REGISTRY.read_text(encoding="utf-8"))
+        payload = validate_activation_graph(registry)
+    elif args.invocation:
+        payload = check(args.invocation)
+    else:
+        parser.error("invocation is required unless --audit-graph is used")
     if args.format == "json":
         print(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+    elif payload["status"] == "valid" and args.audit_graph:
+        print(
+            "Valid graph: "
+            f"public={payload['public_skills']} expert={payload['expert_skills']} "
+            f"owned={payload['owned_experts']} edges={payload['edges']}"
+        )
     elif payload["status"] == "valid":
         print(f"Valid: {payload['resolved_skill']}")
     else:
-        print(payload["message"])
+        print(payload.get("message", "Invalid activation graph."))
+        for error in payload.get("errors", payload.get("graph_errors", [])):
+            print(f"- {error}")
         if "suggestion" in payload:
             print(f"Suggestion: {payload['suggestion']}")
     return 0 if payload["status"] == "valid" else 2

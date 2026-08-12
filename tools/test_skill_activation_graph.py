@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""Scenario-first tests for the registry-owned skill activation graph."""
+
+from copy import deepcopy
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import unittest
+
+from tools.skill_invocation_check import check, validate_activation_graph
+
+
+ROOT = Path(__file__).resolve().parents[1]
+REGISTRY = ROOT / "skills" / "references" / "skill-invocation-registry.json"
+
+
+class SkillActivationGraphTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
+
+    def test_canonical_graph_owns_every_expert(self) -> None:
+        graph = validate_activation_graph(self.registry)
+        self.assertEqual("valid", graph["status"], graph["errors"])
+        self.assertEqual(14, graph["public_skills"])
+        self.assertEqual(51, graph["expert_skills"])
+        self.assertEqual(51, graph["owned_experts"])
+        for engine in ("306-sg-scaffold", "407-sg-translate", "707-name", "emailing"):
+            self.assertIn(engine, graph["owners"])
+
+    def test_missing_engine_blocks_graph_and_invocation(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            skills = root / "skills"
+            skills.mkdir()
+            for name in ("sg-alpha", "engine-alpha"):
+                folder = skills / name
+                folder.mkdir()
+                (folder / "SKILL.md").write_text(f"---\nname: {name}\ndescription: test\n---\n", encoding="utf-8")
+            registry = {
+                "public_catalog": {
+                    "domains": [{"id": "x", "skills": [{
+                        "id": "sg-alpha", "public_skill": "sg-alpha",
+                        "runtime_skill": "engine-alpha", "modes": ["default"],
+                        "internal_engines": ["missing-engine"],
+                    }]}]
+                },
+                "internal_catalog": {"require_owned_expert_coverage": True},
+                "rules": {},
+            }
+            graph = validate_activation_graph(registry, skills)
+            self.assertEqual("invalid", graph["status"])
+            self.assertIn("missing_engine:sg-alpha.internal_engines:missing-engine", graph["errors"])
+
+            registry_path = root / "registry.json"
+            registry_path.write_text(json.dumps(registry), encoding="utf-8")
+            index_path = root / "index.md"
+            index_path.write_text("", encoding="utf-8")
+            payload = check("sg-alpha", index_path, registry_path, skills)
+            self.assertEqual("activation_graph_invalid", payload["error"])
+
+    def test_unowned_expert_is_visible(self) -> None:
+        registry = deepcopy(self.registry)
+        content = next(
+            entry
+            for domain in registry["public_catalog"]["domains"]
+            for entry in domain["skills"]
+            if entry["id"] == "sg-content"
+        )
+        content["internal_engines"].remove("407-sg-translate")
+        graph = validate_activation_graph(registry)
+        self.assertIn("unowned_expert:407-sg-translate", graph["errors"])
+
+    def test_alias_engine_must_belong_to_its_owner(self) -> None:
+        registry = deepcopy(self.registry)
+        registry["codex_expert_aliases"]["spec"]["runtime_engine"] = "407-sg-translate"
+        graph = validate_activation_graph(registry)
+        self.assertIn(
+            "alias_engine_not_owned:spec:sg-planning:407-sg-translate",
+            graph["errors"],
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
