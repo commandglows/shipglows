@@ -28,9 +28,6 @@ linked_systems:
   - README.md
   - shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md
 depends_on:
-  - artifact: skills/006-sg-design/SKILL.md
-    artifact_version: unknown
-    required_status: active
   - artifact: skills/006-sg-design/references/design-lifecycle-routing.md
     artifact_version: "1.2.0"
     required_status: active

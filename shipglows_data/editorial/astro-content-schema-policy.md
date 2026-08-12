@@ -1,7 +1,7 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-05-01"
@@ -26,11 +26,12 @@ linked_systems:
   - site/src/content/skills/
   - site/src/pages/skills/[slug].astro
 depends_on:
-  - artifact: "specs/shipglows-editorial-content-governance-layer-for-ai-agents.md"
+  - artifact: "shipglows_data/workflow/specs/shipglows-editorial-content-governance-layer-for-ai-agents.md"
     artifact_version: "1.0.0"
     required_status: ready
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Local Astro version is 6.4.8 from shipglows-site/pnpm-lock.yaml."
   - "Context7 /withastro/docs confirms src/pages file-based routing, content collections with defineCollection and Zod schema, and getCollection/getStaticPaths routing."
 next_review: "2026-06-01"

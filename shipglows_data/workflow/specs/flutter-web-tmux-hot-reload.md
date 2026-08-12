@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-05-03"
 created_at: "2026-05-03 00:00:00 UTC"
@@ -28,14 +28,15 @@ linked_systems:
   - "docs/technical/runtime-cli.md"
   - "docs/technical/local-tunnels-and-mcp-login.md"
 depends_on:
-  - artifact: "docs/technical/runtime-cli.md"
+  - artifact: "shipglows_data/technical/runtime-cli.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
-  - artifact: "docs/technical/local-tunnels-and-mcp-login.md"
+  - artifact: "shipglows_data/technical/local-tunnels-and-mcp-login.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "User request 2026-05-03: ShipGlows should open Flutter Web dev with hot reload from SSH instead of waiting for Vercel builds."
   - "Existing ShipGlows Flutter Web PM2 command is non-interactive, so it cannot reliably receive Flutter's r/R hot reload controls."
   - "ShipGlows local tunnels currently discover remote ports through PM2; interactive Flutter sessions need a server-side registry so the tunnel tools can expose them too."

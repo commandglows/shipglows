@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-02"
 updated: "2026-05-02"
@@ -20,11 +20,12 @@ linked_systems:
   - skills/references/subagent-roles/technical-reader.md
   - skills/references/subagent-roles/editorial-reader.md
 depends_on:
-  - artifact: "specs/001-sg-build-autonomous-master-skill.md"
+  - artifact: "shipglows_data/workflow/specs/sg-build-autonomous-master-skill.md"
     artifact_version: "1.2.0"
     required_status: "ready"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Ready spec requires delegated sequential execution as the default mode with one active write-capable executor."
 next_review: "2026-06-02"
 next_step: "/103-sg-verify 001-sg-build Autonomous Master Skill"

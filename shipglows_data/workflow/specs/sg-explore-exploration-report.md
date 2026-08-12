@@ -28,12 +28,6 @@ depends_on:
   - artifact: "skills/sg-explore/SKILL.md"
     artifact_version: "unknown"
     required_status: "active"
-  - artifact: "templates/research_report.md"
-    artifact_version: "0.1.0"
-    required_status: "active"
-  - artifact: "templates/decision_record.md"
-    artifact_version: "0.1.0"
-    required_status: "active"
   - artifact: "skills/references/chantier-tracking.md"
     artifact_version: "0.1.0"
     required_status: "draft"
@@ -42,6 +36,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Historical inputs: templates/research_report.md and templates/decision_record.md informed artifact boundaries during design; template drafts are provenance, not executable status constraints."
   - "User request on 2026-04-29: sg-explore should not leave substantial research and brainstorming only in conversation history."
   - "skills/sg-explore/SKILL.md currently says exploration may create reflection documents if asked, but has no default durable artifact or template."
   - "shipglows_data/workflow/playbooks/spec-driven-workflow.md says reusable ShipGlows artifacts should be traceable through metadata, evidence, status, risk, and next step."

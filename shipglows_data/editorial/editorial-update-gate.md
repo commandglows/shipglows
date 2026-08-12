@@ -1,7 +1,7 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.2.1"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-06-28"
@@ -27,11 +27,12 @@ linked_systems:
   - skills/300-sg-docs/SKILL.md
   - skills/007-sg-content/references/repurpose-playbook.md
 depends_on:
-  - artifact: "specs/shipglows-editorial-content-governance-layer-for-ai-agents.md"
+  - artifact: "shipglows_data/workflow/specs/shipglows-editorial-content-governance-layer-for-ai-agents.md"
     artifact_version: "1.0.0"
     required_status: ready
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Ready spec defines Editorial Update Plan, Claim Impact Plan, and pending final copy rules."
 next_review: "2026-06-01"
 next_step: "/103-sg-verify ShipGlows Editorial Content Governance Layer for AI Agents"

@@ -36,11 +36,9 @@ depends_on:
   - artifact: "dotfiles/PRODUCT.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
-  - artifact: "README.md"
-    artifact_version: "unknown"
-    required_status: "unknown"
 supersedes: []
 evidence:
+  - "Historical input: ShipGlows README wording was inspected as support-promise evidence; it is not an executable version/status constraint for this draft migration spec."
   - "Historical migration-source provenance (legacy root documents): BUSINESS.md, GUIDELINES.md, PRODUCT.md."
   - "dotfiles/README.md currently markets the repository as multi-platform and still lists Windows, Linux/Codespaces, and Termux install paths."
   - "dotfiles/bootstrap.sh says 'Fresh Ubuntu 24.04 LTS Servers' but only checks for /etc/os-release and x86_64/arm64, not Ubuntu 24.04 specifically."

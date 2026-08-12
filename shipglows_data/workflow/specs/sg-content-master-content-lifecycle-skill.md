@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: "ShipGlows"
 created: "2026-05-04"
 created_at: "2026-05-04 06:03:39 UTC"
@@ -39,7 +39,7 @@ linked_systems:
   - site/src/content/skills/sg-content.md
   - site/src/pages/skill-modes.astro
 depends_on:
-  - artifact: "docs/editorial/README.md"
+  - artifact: "shipglows_data/editorial/README.md"
     artifact_version: "1.0.0"
     required_status: reviewed
   - artifact: "skills/references/editorial-content-corpus.md"
@@ -48,14 +48,15 @@ depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.14.0"
     required_status: draft
-  - artifact: "docs/technical/skill-runtime-and-lifecycle.md"
+  - artifact: "shipglows_data/technical/skill-runtime-and-lifecycle.md"
     artifact_version: "1.9.0"
     required_status: reviewed
-  - artifact: "docs/technical/public-site-and-content-runtime.md"
+  - artifact: "shipglows_data/technical/public-site-and-content-runtime.md"
     artifact_version: "1.3.0"
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): BRANDING.md, CONTENT_MAP.md, GTM.md, PRODUCT.md."
   - "User request 2026-05-04: create the master skill for content management."
   - "Existing content skills already cover repurposing, long-form drafting, enrichment, copy audits, copywriting audits, SEO audits, docs, veille, and market studies."

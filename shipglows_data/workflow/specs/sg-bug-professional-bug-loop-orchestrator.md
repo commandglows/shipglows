@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-03"
 created_at: "2026-05-03 10:04:53 UTC"
@@ -32,14 +32,15 @@ linked_systems:
   - "site/src/content/skills/sg-bug.md"
   - "skills/REFRESH_LOG.md"
 depends_on:
-  - artifact: "specs/professional-bug-management.md"
+  - artifact: "shipglows_data/workflow/specs/professional-bug-management.md"
     artifact_version: "1.0.0"
     required_status: "ready"
-  - artifact: "docs/technical/skill-runtime-and-lifecycle.md"
-    artifact_version: "unknown"
-    required_status: "draft"
+  - artifact: "shipglows_data/technical/skill-runtime-and-lifecycle.md"
+    artifact_version: "2.11.0"
+    required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "User request 2026-05-03: create sg-bug because the professional bug loop is already defined but not orchestrated."
   - "Professional Bug Management shipped the three-layer model: shipglows_data/workflow/TEST_LOG.md, shipglows_data/workflow/BUGS.md, shipglows_data/workflow/bugs/BUG-ID.md, and test-evidence/BUG-ID/."
   - "Existing skills own individual phases: sg-test logs/retests, sg-fix fixes, sg-auth-debug and sg-browser gather evidence, sg-verify gates closure, sg-ship reports bug risk."

@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: "ShipGlows"
 created: "2026-05-01"
 created_at: "2026-05-01 10:05:10 UTC"
@@ -51,7 +51,7 @@ depends_on:
   - artifact: "specs/sg-build-autonomous-master-skill.md"
     artifact_version: "0.11.0"
     required_status: draft
-  - artifact: "specs/shipglows-technical-documentation-layer-for-ai-agents.md"
+  - artifact: "shipglows_data/workflow/specs/shipglows-technical-documentation-layer-for-ai-agents.md"
     artifact_version: "1.0.2"
     required_status: ready
   - artifact: "skills/references/documentation-freshness-gate.md"
@@ -59,6 +59,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, CONTENT_MAP.md, GTM.md, GUIDELINES.md, PRODUCT.md."
   - "User request 2026-05-01: prepare a similar reflection for editorial documentation: blog, site pages, README, and public docs displayed on the Astro site."
   - "Local Astro site uses Astro 6.4.8 from shipglows-site/pnpm-lock.yaml and a skills content collection declared in shipglows-site/src/content.config.ts."

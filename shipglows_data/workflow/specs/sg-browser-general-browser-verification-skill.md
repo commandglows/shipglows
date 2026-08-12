@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-05-02"
 created_at: "2026-05-02 05:53:05 UTC"
@@ -34,7 +34,7 @@ linked_systems:
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - docs/technical/skill-runtime-and-lifecycle.md
 depends_on:
-  - artifact: "docs/technical/skill-runtime-and-lifecycle.md"
+  - artifact: "shipglows_data/technical/skill-runtime-and-lifecycle.md"
     artifact_version: "1.3.0"
     required_status: "reviewed"
   - artifact: "skills/references/playwright-mcp-runtime.md"
@@ -43,11 +43,12 @@ depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.8.0"
     required_status: "draft"
-  - artifact: "docs/technical/code-docs-map.md"
+  - artifact: "shipglows_data/technical/code-docs-map.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): GUIDELINES.md."
   - "User request 2026-05-02: create future skill sg-browser after Playwright MCP Linux ARM64 Chrome-stable config issue."
   - "User decision context 2026-05-02: sg-auth-debug should stay auth-specialized; a general browsing skill should cover non-auth browser checks."

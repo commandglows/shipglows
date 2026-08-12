@@ -49,9 +49,6 @@ depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
     artifact_version: "1.0.0"
     required_status: "active"
-  - artifact: "skills/sg-content/SKILL.md"
-    artifact_version: "unknown"
-    required_status: "unknown"
 supersedes: []
 evidence:
   - "Veille 2026-05-24: Essay Grader AI shows a useful rubric + score + structured feedback pattern."

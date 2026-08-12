@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-05-03"
 created_at: "2026-05-03 00:00:00 UTC"
@@ -34,10 +34,10 @@ linked_systems:
   - docs/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
 depends_on:
-  - artifact: "docs/technical/code-docs-map.md"
+  - artifact: "shipglows_data/technical/code-docs-map.md"
     artifact_version: "1.0.0"
     required_status: reviewed
-  - artifact: "docs/technical/skill-runtime-and-lifecycle.md"
+  - artifact: "shipglows_data/technical/skill-runtime-and-lifecycle.md"
     artifact_version: "1.9.0"
     required_status: reviewed
   - artifact: "skills/references/chantier-tracking.md"
@@ -45,6 +45,7 @@ depends_on:
     required_status: draft
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "User decision 2026-05-03: sg-ship successful reports should collapse push, repo state, checks, and bookkeeping into one line."
   - "User decision 2026-05-03: default user reports should be concise; detailed reports should remain available for agent handoff."
   - "User decision 2026-05-03: audit skills should follow the same mechanism, with concise findings by default and fuller detail for handoff."

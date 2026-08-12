@@ -33,9 +33,6 @@ depends_on:
   - artifact: "shipglows_data/technical/runtime-cli.md"
     artifact_version: "0.1.0"
     required_status: "reviewed"
-  - artifact: "local/README.md"
-    artifact_version: "unknown"
-    required_status: "unknown"
 supersedes: []
 evidence:
   - "User requested a ShipGlows FRP POC/spec, then removal of FRP from the active research report."

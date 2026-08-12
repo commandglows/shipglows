@@ -26,13 +26,8 @@ linked_systems:
   - "ShipGlows Markdown sources"
   - "shipglows_data/"
   - "ShipGlows ledgers"
+  - "CLAUDE.md"
 depends_on:
-  - artifact: "README.md"
-    artifact_version: "unknown"
-    required_status: "reviewed"
-  - artifact: "CLAUDE.md"
-    artifact_version: "0.2.0"
-    required_status: "draft"
   - artifact: "AGENT.md"
     artifact_version: "0.2.0"
     required_status: "draft"
@@ -47,6 +42,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Historical input: README.md described the local-first, read-only dashboard direction when this spec was prepared; it is provenance, not an executable version/status constraint."
   - "User decision 2026-05-17: put the TUI inside shipglows_app, not in a separate GitHub repository."
   - "User decision 2026-05-23: move the TUI into /home/claude/shipglows/tui next to the terminal skills, not in ShipGlows App."
   - "User decision 2026-05-17: formalize the TUI application with a ShipGlows spec."

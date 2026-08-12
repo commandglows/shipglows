@@ -18,13 +18,12 @@ findings: []
 owner_routes:
   - 100-sg-spec
   - 103-sg-verify
+linked_systems:
+  - "skills/705-sg-conversation-audit/SKILL.md"
 evidence:
   - "shipglows_data/workflow/conversations/conversation-shipglows-doctrine-de-langue-20260530-203004.md"
   - "tools/shipglows_conversation_audit.py --fixtures"
-depends_on:
-  - artifact: "skills/705-sg-conversation-audit/SKILL.md"
-    artifact_version: "unknown"
-    required_status: active
+depends_on: []
 supersedes: []
 next_step: "/100-sg-spec ShipGlows conversation transcript redaction and hygiene"
 ---

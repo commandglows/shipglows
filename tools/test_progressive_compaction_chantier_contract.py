@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lifecycle coherence checks for progressive activation and graph waves 4 through 18."""
+"""Lifecycle coherence checks for progressive activation and graph waves 4 through 19."""
 
 from pathlib import Path
 import unittest
@@ -22,6 +22,7 @@ WAVE_15 = SPECS / "shared-baseline-core-compaction-wave-15.md"
 WAVE_16 = SPECS / "progressive-monolithic-workflows-wave-16.md"
 WAVE_17 = SPECS / "technical-and-verification-baseline-wave-17.md"
 WAVE_18 = SPECS / "full-resource-graph-debt-wave-18.md"
+WAVE_19 = SPECS / "full-resource-graph-debt-wave-19.md"
 REFRESH_LOG = ROOT / "skills" / "REFRESH_LOG.md"
 
 
@@ -43,6 +44,7 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         cls.wave_16 = WAVE_16.read_text(encoding="utf-8")
         cls.wave_17 = WAVE_17.read_text(encoding="utf-8")
         cls.wave_18 = WAVE_18.read_text(encoding="utf-8")
+        cls.wave_19 = WAVE_19.read_text(encoding="utf-8")
         cls.refresh_log = REFRESH_LOG.read_text(encoding="utf-8")
 
     def test_shipped_waves_are_not_left_ready_or_next(self) -> None:
@@ -89,6 +91,9 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         self.assertIn("status: reviewed", self.wave_18)
         self.assertIn("005-sg-ship (next)", self.wave_18)
         self.assertNotIn("- [ ]", self.wave_18)
+        self.assertIn("status: reviewed", self.wave_19)
+        self.assertIn("005-sg-ship (next)", self.wave_19)
+        self.assertNotIn("- [ ]", self.wave_19)
 
     def test_wave_thirteen_records_executable_graph_and_reporting_boundaries(self) -> None:
         for phrase in (
@@ -177,6 +182,22 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, self.wave_18)
         self.assertIn("full resource graph debt wave 18", self.refresh_log)
+
+    def test_wave_nineteen_records_bounded_missing_target_remediation(self) -> None:
+        for phrase in (
+            "689 artifacts, 912 dependencies, zero cycles, and 29 findings",
+            "44 missing paths",
+            "all 10 original constraint",
+            "6 unversioned edges",
+            "two candidate path migrations were reverted",
+            "external resources",
+            "genuinely absent artifacts",
+            "old unversioned skill paths",
+            "inverse relationships",
+            "133 artifacts, 89 dependencies, and zero cycles",
+        ):
+            self.assertIn(phrase, self.wave_19)
+        self.assertIn("full resource graph debt wave 19", self.refresh_log)
 
     def test_wave_five_acceptance_matches_progressive_loading(self) -> None:
         self.assertIn(

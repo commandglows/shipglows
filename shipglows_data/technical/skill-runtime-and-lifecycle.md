@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.11.0"
+artifact_version: "2.12.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -69,6 +69,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Wave 19 migrates 44 proven canonical missing paths, resolves the 10 original constraint findings, reclassifies 6 non-artifact unversioned edges, and retains 29 classified missing targets without introducing cycles or fake metadata."
   - "Wave 18 removes all three full-graph cycles, repairs 79 constraints, migrates 13 active canonical paths, and reclassifies 73 historical edges as evidence while preserving the valid profiled graph."
   - "Skill inventory and workflow doctrine."
   - "Editorial content corpus and Editorial Reader role added for public-content impact analysis."
@@ -231,6 +232,18 @@ metadata to provenance evidence. The remaining 73 missing targets, 6 status
 mismatches, 6 unversioned targets, 3 invalid required-version constraints, and 1 invalid actual status stay explicit and
 non-blocking. The profiled invocation graph remains valid at 133 artifacts, 89
 dependencies, and zero cycles.
+
+Wave 19 continues the diagnostic-only cleanup from 688 artifacts, 923
+dependencies, zero cycles, and 89 findings to 689 artifacts, 912 dependencies,
+zero cycles, and 29 findings. Forty-four missing paths now resolve to proven
+canonical artifacts, all 10 original constraint issues are resolved, and 6
+non-artifact README, template, or executable-skill edges are reclassified
+outside `depends_on` without fake metadata. The 29 remaining findings are all
+missing targets classified as external resources, genuinely absent artifacts,
+old unversioned skill paths without a proven equivalent, or inverse
+relationships that would create cycles. Two candidate migrations were reverted
+after cycle proof. The profiled execution graph remains valid at 133 artifacts,
+89 dependencies, and zero cycles.
 
 Wave 14 extends this accounting and preflight pilot to six owners: `004`,
 `010`, `103`, `300`, `601`, and `900`. It records high selected baselines for

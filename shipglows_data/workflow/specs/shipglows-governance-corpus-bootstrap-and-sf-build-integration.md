@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-05-02"
 created_at: "2026-05-02 04:51:15 UTC"
@@ -44,22 +44,22 @@ depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.7.0"
     required_status: draft
-  - artifact: "specs/sg-build-autonomous-master-skill.md"
+  - artifact: "shipglows_data/workflow/specs/sg-build-autonomous-master-skill.md"
     artifact_version: "1.1.0"
     required_status: ready
-  - artifact: "specs/shipglows-technical-documentation-layer-for-ai-agents.md"
+  - artifact: "shipglows_data/workflow/specs/shipglows-technical-documentation-layer-for-ai-agents.md"
     artifact_version: "1.0.2"
     required_status: ready
-  - artifact: "specs/shipglows-editorial-content-governance-layer-for-ai-agents.md"
+  - artifact: "shipglows_data/workflow/specs/shipglows-editorial-content-governance-layer-for-ai-agents.md"
     artifact_version: "1.0.0"
     required_status: ready
-  - artifact: "docs/technical/README.md"
+  - artifact: "shipglows_data/technical/README.md"
     artifact_version: "1.0.0"
     required_status: reviewed
-  - artifact: "docs/technical/code-docs-map.md"
+  - artifact: "shipglows_data/technical/code-docs-map.md"
     artifact_version: "1.0.0"
     required_status: reviewed
-  - artifact: "docs/editorial/README.md"
+  - artifact: "shipglows_data/editorial/README.md"
     artifact_version: "1.0.0"
     required_status: reviewed
   - artifact: "skills/references/technical-docs-corpus.md"
@@ -70,6 +70,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, CONTENT_MAP.md, GTM.md, GUIDELINES.md, PRODUCT.md."
   - "User decision 2026-05-02: the technical and editorial governance layers are not chantiers to rerun manually in every future project."
   - "User decision 2026-05-02: sg-docs should own creation and maintenance of the new documentation corpora."

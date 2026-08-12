@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-05-03"
 created_at: "2026-05-03 06:00:00 UTC"
@@ -44,10 +44,10 @@ depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.9.0"
     required_status: "draft"
-  - artifact: "docs/technical/skill-runtime-and-lifecycle.md"
+  - artifact: "shipglows_data/technical/skill-runtime-and-lifecycle.md"
     artifact_version: "1.4.0"
     required_status: "reviewed"
-  - artifact: "docs/technical/code-docs-map.md"
+  - artifact: "shipglows_data/technical/code-docs-map.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
   - artifact: "skills/references/project-development-mode.md"
@@ -58,6 +58,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "User request 2026-05-03: create sg-deploy with the proposed flow."
   - "Prior analysis identified release as the highest-priority missing master skill: sg-check -> sg-ship -> sg-prod -> sg-browser/sg-auth-debug/sg-test -> sg-verify -> sg-changelog."
   - "skills/sg-help/SKILL.md already listed /sg-deploy but no skills/sg-deploy/SKILL.md existed."

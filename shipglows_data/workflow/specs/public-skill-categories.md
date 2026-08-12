@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-04-27"
 created_at: "2026-04-27 20:01:16 UTC"
@@ -25,7 +25,7 @@ linked_systems:
   - site/src/components/SkillCard.astro
   - site/src/pages/skill-modes.astro
 depends_on:
-  - artifact: "specs/skill-taxonomy-and-chantier-sources.md"
+  - artifact: "shipglows_data/workflow/specs/skill-taxonomy-and-chantier-sources.md"
     artifact_version: "1.1.0"
     required_status: "ready"
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
@@ -33,6 +33,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "User request 2026-04-27: after shipping internal chantier taxonomy, continue with categorizing skills on the website."
   - "Previous spec explicitly scoped public website taxonomy out of the internal chantier taxonomy."
   - "Repo investigation 2026-04-27: initial public site had 48 skill pages grouped into 6 enum categories in site/src/content.config.ts."

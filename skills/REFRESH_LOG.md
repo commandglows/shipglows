@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — full resource graph debt wave 19
+
+**Updated:** the full diagnostic graph moves from 688 artifacts, 923 dependencies, zero cycles, and 89 findings to 689 artifacts, 912 dependencies, zero cycles, and 29 findings. The batch migrates 44 proven canonical missing paths, resolves all 10 original constraint findings, and reclassifies 6 non-artifact unversioned edges without adding fake metadata.
+
+**Boundary:** all 29 residual findings are missing targets classified as external resources, genuinely absent artifacts, old unversioned skill paths without a proven replacement, or inverse relationships that would create cycles. Two candidate migrations were reverted after cycle proof; the profiled execution graph remains valid at 133 artifacts, 89 dependencies, and zero cycles.
+
+**Next debt:** ship Wave 19 through `005-sg-ship`; retain the 29 classified findings until a real artifact, versioned canonical replacement, or cycle-safe ownership decision exists.
+
+**Sources:** 0 external URLs consulted; this wave repairs local metadata and graph classification only.
+
 ## 2026-08-12 — full resource graph debt wave 18
 
 **Updated:** the full diagnostic graph moves from 687 artifacts, 998 dependencies, 3 cycles, and 272 findings to 688 artifacts, 923 dependencies, zero cycles, and 89 findings. The batch repairs 79 safe constraints, migrates 13 active canonical paths, reclassifies 73 historical dependency edges as evidence, and distinguishes schema-valid terminal history from activatable roots.

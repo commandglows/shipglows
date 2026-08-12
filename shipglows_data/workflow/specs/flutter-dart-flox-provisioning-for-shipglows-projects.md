@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: "shipglows"
 created: "2026-05-02"
 created_at: "2026-05-02 11:53:16 UTC"
@@ -31,17 +31,18 @@ depends_on:
   - artifact: "README.md"
     artifact_version: "0.5.0"
     required_status: "draft"
-  - artifact: "docs/technical/runtime-cli.md"
+  - artifact: "shipglows_data/technical/runtime-cli.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
-  - artifact: "docs/technical/installer-and-user-scope.md"
+  - artifact: "shipglows_data/technical/installer-and-user-scope.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
-  - artifact: "docs/technical/code-docs-map.md"
+  - artifact: "shipglows_data/technical/code-docs-map.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): ARCHITECTURE.md, BUSINESS.md, GUIDELINES.md, PRODUCT.md."
   - "Local PATH check: command -v flutter and command -v dart returned no global binary; command -v flox returned /usr/bin/flox."
   - "Current Flutter projects found under /home/ubuntu include contentflow_app, shipglows_app, and tubeflow_app."

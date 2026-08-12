@@ -5,7 +5,7 @@ artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-02"
 updated: "2026-08-02"
-status: completed
+status: reviewed
 source_skill: 700-sg-explore
 scope: "Project-local .shipglows.env runtime policy"
 owner: unknown

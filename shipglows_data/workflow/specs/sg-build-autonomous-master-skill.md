@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.3.3"
+artifact_version: "1.3.4"
 project: ShipGlows
 created: "2026-04-29"
 created_at: "2026-04-29 09:02:11 UTC"
@@ -66,11 +66,12 @@ depends_on:
   - artifact: "skills/references/editorial-content-corpus.md"
     artifact_version: "1.1.0"
     required_status: "active"
-  - artifact: "docs/technical/code-docs-map.md"
+  - artifact: "shipglows_data/technical/code-docs-map.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, CONTENT_MAP.md, GUIDELINES.md, PRODUCT.md."
   - "User decision 2026-04-29: create a user-facing master skill named sg-build."
   - "User decision 2026-04-29: sg-build must run the full flow through sg-end and sg-ship, not stop after implementation."

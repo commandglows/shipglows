@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.11.0"
+artifact_version: "1.12.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -22,6 +22,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Wave 19 preserves the valid profiled graph at 133 artifacts, 89 dependencies, and zero cycles while reducing the non-blocking full diagnostic from 89 to 29 classified missing-target findings."
   - "Wave 18 preserves the valid profiled graph at 133 artifacts, 89 dependencies, and zero cycles while reducing the non-blocking full diagnostic from 272 to 89 findings."
   - "Wave 17 reduces the remaining 010 and 103 hotspots to 4562 and 4907 tokens through conditional technical routing and direct verification proof leaves."
   - "Wave 16 replaces five monolithic workflow references with compact compatibility cores, direct non-chaining leaves, and five measured activation profiles."
@@ -163,6 +164,17 @@ active canonical-path migrations, and 73 historical-edge reclassifications.
 The residual 73 missing targets, 6 status mismatches, 6 unversioned targets, 3
 invalid required-version constraints, and 1 invalid actual status remain non-blocking debt and must not be pulled into activation merely
 to make the diagnostic green.
+
+Wave 19 reduces the full diagnostic again, from 688 artifacts, 923
+dependencies, zero cycles, and 89 findings to 689 artifacts, 912 dependencies,
+zero cycles, and 29 findings. It migrates 44 proven canonical missing paths,
+resolves all 10 original status/version constraint findings, and reclassifies
+6 README, template, or executable-skill relationships outside `depends_on`
+without fabricating artifact metadata. All residual findings are missing targets
+classified as external, genuinely absent, old unversioned skill paths without a
+proven replacement, or inverse relationships that would create cycles. Two
+candidate migrations were reverted after cycle proof. The profiled execution
+graph remains valid at 133 artifacts, 89 dependencies, and zero cycles.
 
 ## Audit Commands
 

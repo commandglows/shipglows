@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-04-27"
 created_at: "2026-04-27 19:34:21 UTC"
@@ -25,7 +25,7 @@ linked_systems:
   - templates/spec.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
 depends_on:
-  - artifact: "specs/specs-as-chantier-registry.md"
+  - artifact: "shipglows_data/workflow/specs/specs-as-chantier-registry.md"
     artifact_version: "1.0.0"
     required_status: "ready"
   - artifact: "skills/references/chantier-tracking.md"
@@ -36,6 +36,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "User decision 2026-04-27: focus only on internal taxonomy and chantier process; public website taxonomy is out of scope for now."
   - "User problem 2026-04-27: audit and diagnostic skills can produce important follow-up work that remains trapped in the conversation."
   - "Repo investigation 2026-04-27: current chantier doctrine only supports obligatoire, conditionnel, and non-applicable spec tracing."

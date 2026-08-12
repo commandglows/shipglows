@@ -29,11 +29,9 @@ depends_on:
   - artifact: "shipglows_data/workflow/specs/ai-agent-install-ownership-and-autonomous-permissions.md"
     artifact_version: "1.0.0"
     required_status: "ready"
-  - artifact: "README.md"
-    artifact_version: "0.1.0"
-    required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Historical input: README.md documented the installer behavior considered by this superseded detail spec; it is provenance, not an executable version/status constraint."
   - "Current install.sh applies configuration to root and every /home/* user after system package setup."
   - "User request: avoid surprising per-user auto-configuration and ask install target explicitly."
 next_step: "/sg-ready installation-user-targeting"

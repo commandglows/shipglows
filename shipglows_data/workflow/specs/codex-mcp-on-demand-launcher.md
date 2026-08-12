@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-08"
 created_at: "2026-05-08 09:59:29 UTC"
@@ -25,14 +25,15 @@ linked_systems:
   - docs/technical/installer-and-user-scope.md
   - docs/technical/runtime-cli.md
 depends_on:
-  - artifact: "docs/technical/installer-and-user-scope.md"
+  - artifact: "shipglows_data/technical/installer-and-user-scope.md"
     artifact_version: "1.0.1"
     required_status: reviewed
-  - artifact: "docs/technical/runtime-cli.md"
+  - artifact: "shipglows_data/technical/runtime-cli.md"
     artifact_version: "1.0.3"
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Observed Codex startup and machine-load issue caused by multiple long-running MCP server processes for Convex and Playwright."
   - "User decision 2026-05-08: MCP should be off by default and enabled case-by-case for Codex conversations."
   - "User clarification 2026-05-08: ShipGlows must launch Codex itself from an interactive menu; it should not merely print commands for the operator to type."

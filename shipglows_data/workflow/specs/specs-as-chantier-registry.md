@@ -32,11 +32,9 @@ depends_on:
   - artifact: "shipglows_data/technical/metadata-migration-guide.md"
     artifact_version: "0.2.0"
     required_status: "draft"
-  - artifact: "README.md"
-    artifact_version: "unknown"
-    required_status: "unknown"
 supersedes: []
 evidence:
+  - "Historical input: README.md supplied repository context when this chantier-registry spec was prepared; it is provenance, not an executable version/status constraint."
   - "User decision 2026-04-27: the global registry should be the specs folder, not a separate tracker."
   - "User decision 2026-04-27: add the GPT model used to launch/create the spec in metadata."
 - "User decision 2026-04-27: this concerns every skill, but every skill does not necessarily write into a spec."

@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: "ShipGlows"
 created: "2026-05-04"
 created_at: "2026-05-04 23:24:03 UTC"
@@ -31,10 +31,10 @@ linked_systems:
   - site/src/content/skills/
   - skills/REFRESH_LOG.md
 depends_on:
-  - artifact: "docs/editorial/README.md"
+  - artifact: "shipglows_data/editorial/README.md"
     artifact_version: "1.0.0"
     required_status: reviewed
-  - artifact: "docs/editorial/editorial-update-gate.md"
+  - artifact: "shipglows_data/editorial/editorial-update-gate.md"
     artifact_version: "1.0.0"
     required_status: reviewed
   - artifact: "skills/references/editorial-content-corpus.md"
@@ -43,11 +43,12 @@ depends_on:
   - artifact: "skills/references/technical-docs-corpus.md"
     artifact_version: "1.1.0"
     required_status: active
-  - artifact: "docs/technical/code-docs-map.md"
+  - artifact: "shipglows_data/technical/code-docs-map.md"
     artifact_version: "1.0.0"
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): CONTENT_MAP.md."
   - "User request 2026-05-04: improve the skills with incomplete integration after the governance audit."
   - "Read-only audit found sg-enrich, sg-redact, sg-audit-copy, sg-audit-copywriting, and sg-audit-seo partially or insufficiently integrated with editorial and technical governance."

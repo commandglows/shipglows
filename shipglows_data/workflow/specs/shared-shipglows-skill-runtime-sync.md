@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: "shipglows"
 created: "2026-05-03"
 created_at: "2026-05-03 04:35:01 UTC"
@@ -39,13 +39,13 @@ depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.8.1"
     required_status: "draft"
-  - artifact: "docs/technical/code-docs-map.md"
+  - artifact: "shipglows_data/technical/code-docs-map.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
-  - artifact: "docs/technical/installer-and-user-scope.md"
+  - artifact: "shipglows_data/technical/installer-and-user-scope.md"
     artifact_version: "1.0.0"
     required_status: "reviewed"
-  - artifact: "docs/technical/skill-runtime-and-lifecycle.md"
+  - artifact: "shipglows_data/technical/skill-runtime-and-lifecycle.md"
     artifact_version: "1.3.0"
     required_status: "reviewed"
   - artifact: "skills/references/canonical-paths.md"
@@ -56,6 +56,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, GTM.md, GUIDELINES.md, PRODUCT.md."
   - "User request 2026-05-03: symlink management should likely be a shared mechanism because other skills may need it."
   - "User report 2026-05-03: `sg-build` is not visible in Codex."
