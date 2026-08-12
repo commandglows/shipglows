@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.5.0"
+artifact_version: "2.6.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-12"
@@ -34,10 +34,14 @@ linked_systems:
   - skills/003-sg-bug/SKILL.md
   - skills/305-sg-init/SKILL.md
   - tools/skill_invocation_check.py
+  - tools/resource_dependency_graph.py
   - skills/references/skill-invocation-registry.json
   - tools/skill_activation_budget.py
   - skills/300-sg-docs/SKILL.md
   - skills/references/reporting-contract.md
+  - skills/references/reporting-agent-handoff.md
+  - skills/references/reporting-blocked-and-audit.md
+  - skills/references/reporting-pressure-scenarios.md
   - skills/references/master-workflow-lifecycle.md
   - skills/references/decision-quality-contract.md
   - skills/references/spec-driven-development-discipline.md
@@ -75,6 +79,8 @@ evidence:
   - "002-sg-maintain promoted to a master maintenance lifecycle from triage through delegated execution, verification, and ship/deploy routing."
   - "Shared reporting contract added: concise user reports by default, explicit agent handoff reports when requested."
   - "Reporting contract clarified: user-mode ship reports should match the user's active language, use outcome/evidence/limits ordering, and allow a few sober status emojis."
+  - "Wave 13 combines ownership and executable resource-closure preflight, while retaining --all as a diagnostic of historical dependency debt."
+  - "Wave 13 keeps the reporting decision surface in a compact core and moves agent handoff, blocked/audit, and maintenance scenarios to direct conditional leaves."
   - "Skill launch cheatsheet added for master and supporting modes."
   - "900-shipglows-core build routes fuzzy skill ideas or placement decisions through 700-sg-explore before 100-sg-spec."
   - "Codex source-tree discovery follows the official ~/.agents/skills user scope, with a native PowerShell junction helper for Windows developers."
@@ -196,13 +202,21 @@ expert help adds the shortcut equivalences and numeric targets. `verify`
 preserves an explicit specialist owner before using its proof path, while
 `core` alone hard-binds the remaining request to ShipGlows-system maintenance.
 
-The same registry is the canonical activation graph. `skill_invocation_check.py`
+The same registry is the canonical ownership graph. `skill_invocation_check.py`
 validates public wrappers, declared engines, alias ownership, and complete expert
-coverage before accepting an explicit invocation. Optional pilot
+coverage, then validates the executable resource closure before accepting an explicit invocation. Optional pilot
 `activation_profiles` declare body, baseline, and named conditional reference
 sets without parsing prose; `skill_activation_budget.py` validates and measures
-them, and selected-profile failure blocks preflight. Runtime loaders remain the
-execution authority, while resource `depends_on` metadata remains separate.
+them, and selected-profile failure blocks preflight. Their explicit paths seed
+`resource_dependency_graph.py`: `skills/**` dependencies are traversed
+transitively, while profiled `shipglows_data/**` artifacts are verified as
+terminal project-governance leaves. Required semantic versions, exact statuses,
+target metadata, and reachable cycles fail closed. Runtime loaders remain the
+execution authority; no edge is inferred from prose or `linked_systems`.
+
+The default dependency command covers this executable profiled closure only.
+`resource_dependency_graph.py --all` audits the broader current corpus to expose
+historical dependency debt, but that diagnostic is not an invocation gate.
 
 Wave 12 demonstrates two compatible progressive patterns. `004-sg-deploy`
 loads `master-workflow-lifecycle-core.md` plus `master-delegation-core.md` for
@@ -211,6 +225,13 @@ authorities only when the cores identify unresolved detail. `601` loads the
 primary entitlement invariants, then exactly one direct ledger/authorization,
 provider-ingestion, or support/proof branch. Neither pattern uses reference
 chaining or replaces runtime loader authority with profile metadata.
+
+Wave 13 applies the direct-leaf pattern to final reporting. The compact
+`reporting-contract.md` owns the default user decision surface.
+`reporting-agent-handoff.md`, `reporting-blocked-and-audit.md`, and
+`reporting-pressure-scenarios.md` load only at their declared gates and never
+chain to siblings. Explicit `report=agent` has sole priority for detailed risks
+and audit handoffs; it does not also load the blocked/audit leaf.
 
 Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 
@@ -299,7 +320,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/900-shipglows-core/SKILL.md` | Internal lifecycle owner for ShipGlows skill audit, build, refresh, and packaging modes | Keep out of public plugin packaging and public skill pages unless the operator explicitly changes the policy |
 | `skills/references/spec-driven-development-discipline.md` | Shared spec-first/proof-first discipline | Load before execution or verification when behavior, bug, skill contract, UI/docs/auth/deploy, operational, or integration work needs a proof path |
 | `skills/references/content-quality-rubric.md` | Shared project-aware content quality scoring schema and blocked-code contract | Load when content owner skills or `103-sg-verify` produce/consume editorial quality gates |
-| `skills/references/reporting-contract.md` | Shared final-report mode contract | Default user reports are concise; detailed reports require explicit handoff mode |
+| `skills/references/reporting-contract.md` and `skills/references/reporting-*.md` | Compact final-report core plus direct conditional leaves | Successful user mode loads the core; explicit agent mode has sole detailed-report priority; blocked/audit and pressure scenarios load only at their gates |
 | `skills/references/sentry-observability.md` | Shared Sentry runtime evidence, PM2/Doppler fallback evidence, release/environment correlation, redaction, and performance-overhead doctrine | Load when runtime behavior, crashes, 5xx, event IDs, deploy confidence, auth/payment/data failures, jobs, webhooks, verification, audits, or perf checks depend on observability |
 | `skills/references/product-entitlements-playbook.md`, `product-entitlement-{ledger-and-authorization,ingestion,support-and-proof}.md` | Primary product-access invariants plus direct conditional procedure branches | Load the primary doctrine after entitlement selection, then one branch for ledger/backend, ingestion, or support/proof work |
 | `skills/references/design-inspiration-library.md`, `skills/references/design-inspiration/` | Shared private-corpus, capture-bundle, rights, taxonomy, and Inspiration Gate contract | Load for new visual direction, sales/offer-page creation, major redesign, copy-pattern comparison, or explicit inspiration requests; never load the full private corpus by default |

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-04-29"
 updated: "2026-08-12"
@@ -19,12 +19,12 @@ linked_systems:
   - skills/*/agents/openai.yaml
   - tools/skill_budget_audit.py
   - Codex
-depends_on:
-  - artifact: GUIDELINES.md
-    artifact_version: "1.0.0"
-    required_status: reviewed
+depends_on: []
 supersedes: []
 evidence:
+  - "Wave 13 removed a retired root GUIDELINES dependency from the executable reference graph."
+  - "Wave 13 profiles 900-shipglows-core and keeps the ordinary reporting path on a compact core, with agent, blocked/audit, and maintenance detail loaded conditionally."
+  - "2026-08-12 Wave 13 measurement: 900-shipglows-core body 1592, baseline 4506, report-user +1631, report-agent +405, report-blocked-audit +678, and report-review +618 estimated tokens."
   - "Codex skills documentation checked on 2026-08-12."
   - "2026-08-12 inventory after wave 11: 65 source skills total 6785 portable characters; 14 implicit public wrappers remain 1376 portable characters."
   - "2026-08-12 runtime inventory after wave 11: all 65 installed skills total 8345 lexical characters, below the 8500 ceiling with 155 characters of margin."
@@ -105,9 +105,11 @@ For a selected skill, report:
 - `C-mode`: unique conditional references for the selected mode;
 - `P-advisory`: bounded resolver starter pack, separately labelled.
 
-Do not infer reference dependencies from prose. The registry-owned activation graph validates public-owner-to-engine routing. Its optional `activation_profiles` section declares measured baseline and gate-specific reference sets only for migrated pilots. Count a shared file once and report body, baseline, each independently selected gate, and worst case with `tools/skill_activation_budget.py`. Skills without a profile continue to use mechanically declared loader measurements.
+Do not infer reference dependencies from prose. The registry-owned ownership graph validates public-owner-to-engine routing. Its optional `activation_profiles` section declares measured baseline and gate-specific reference sets only for migrated pilots. Those explicit paths also seed the executable resource-dependency preflight; they do not make every conditional gate eager. Count a shared file once and report body, baseline, each independently selected gate, and worst case with `tools/skill_activation_budget.py`. Skills without a profile continue to use mechanically declared loader measurements.
 
-When a high-fan-out authority is too large for an ordinary decision, keep its detailed compatibility contract and add a compact decision core. The activation body must name both: load the core for the normal gate and escalate to the detailed authority only for conditions the core states explicitly. For multi-branch doctrine, keep non-negotiable invariants in one primary reference and expose direct, non-chaining leaves by real mode or risk gate.
+When a high-fan-out authority is too large for an ordinary decision, keep its detailed compatibility contract and add a compact decision core. The activation body must name both: load the core for the normal gate and escalate to the detailed authority only for conditions the core states explicitly. For multi-branch doctrine, keep non-negotiable invariants in one primary reference and expose direct, non-chaining leaves by real mode or risk gate. Wave 13 applies this to reporting: successful user mode needs only the compact core; agent handoff, blocked/audit, and maintenance scenarios load direct conditional leaves, with explicit `report=agent` as the sole detailed-report authority.
+
+Wave 13 measured the `900-shipglows-core` profile at 1,592 body tokens and 4,506 selected baseline tokens. Reporting then adds 1,631 for the core user contract, 405 for agent handoff, 678 for blocked/audit, or 618 for maintenance scenarios. These are independently selected gates, not one eager reporting bundle.
 
 ## Audit Commands
 

@@ -25,7 +25,10 @@ class SkillActivationBudgetTests(unittest.TestCase):
         registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         payload = audit_profiles(registry)
         self.assertEqual("valid", payload["status"], payload["errors"])
-        self.assertEqual({"004-sg-deploy", "601-sg-product-entitlements"}, set(payload["skills"]))
+        self.assertEqual(
+            {"004-sg-deploy", "601-sg-product-entitlements", "900-shipglows-core"},
+            set(payload["skills"]),
+        )
         for skill, result in payload["skills"].items():
             self.assertGreater(result["baseline_tokens"], result["body_tokens"], skill)
             self.assertGreater(result["worst_case_tokens"], result["baseline_tokens"], skill)
@@ -80,6 +83,48 @@ class SkillActivationBudgetTests(unittest.TestCase):
             index_path.write_text("", encoding="utf-8")
             payload = check("sg-alpha", index_path, registry_path, skills)
             self.assertEqual("activation_profile_invalid", payload["error"])
+
+    def test_broken_profile_dependency_blocks_invocation_preflight(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            skills = root / "skills"
+            for name in ("sg-alpha", "engine-alpha"):
+                folder = skills / name
+                folder.mkdir(parents=True)
+                (folder / "SKILL.md").write_text(
+                    f"---\nname: {name}\ndescription: test\n---\n", encoding="utf-8"
+                )
+            refs = skills / "references"
+            refs.mkdir()
+            (refs / "base.md").write_text(
+                "---\nartifact: technical_guidelines\nmetadata_schema_version: \"1.0\"\n"
+                "artifact_version: \"1.0.0\"\nstatus: active\n"
+                "depends_on:\n  - artifact: \"skills/references/target.md\"\n"
+                "    artifact_version: \"2.0.0\"\n    required_status: active\n---\n",
+                encoding="utf-8",
+            )
+            (refs / "target.md").write_text(
+                "---\nartifact: technical_guidelines\nmetadata_schema_version: \"1.0\"\n"
+                "artifact_version: \"1.0.0\"\nstatus: active\ndepends_on: []\n---\n",
+                encoding="utf-8",
+            )
+            registry = {
+                "public_catalog": {"domains": [{"id": "x", "skills": [{
+                    "id": "sg-alpha", "public_skill": "sg-alpha",
+                    "runtime_skill": "engine-alpha", "modes": ["default"],
+                }]}]},
+                "activation_profiles": {"skills": {"engine-alpha": {
+                    "body": "skills/engine-alpha/SKILL.md",
+                    "baseline": ["skills/references/base.md"], "gates": {},
+                }}},
+            }
+            registry_path = root / "registry.json"
+            registry_path.write_text(json.dumps(registry), encoding="utf-8")
+            index_path = root / "index.md"
+            index_path.write_text("", encoding="utf-8")
+            payload = check("sg-alpha", index_path, registry_path, skills)
+            self.assertEqual("resource_dependency_graph_invalid", payload["error"])
+            self.assertTrue(any(error.startswith("version:") for error in payload["dependency_errors"]))
 
     def test_unknown_selected_skill_is_visible(self) -> None:
         payload = audit_profiles({"activation_profiles": {"skills": {}}}, selected_skill="missing")

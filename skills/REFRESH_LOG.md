@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — executable resource graph and progressive reporting wave 13
+
+**Added:** an explicit dependency-closure audit for activation-profile resources, combined ownership/resource invocation preflight, a `900-shipglows-core` profile, and direct agent-handoff, blocked/audit, and pressure-scenario reporting leaves.
+
+**Updated:** `skills/**` dependencies are traversed transitively with required version/status and cycle checks; profiled `shipglows_data/**` artifacts are verified as terminal governance leaves. The default successful user report now loads only the compact reporting core, while explicit `report=agent` has sole priority for detailed handoffs.
+
+**New phases:** executable profiled closure before activation; `--all` remains a non-blocking diagnostic for historical corpus debt. Reporting selects one direct conditional authority without sibling chaining.
+
+**Sources:** 0 external URLs consulted; this wave changes local instruction packaging, metadata validation, and invocation preflight only.
+
 ## 2026-08-12 — shared activation cores and entitlement doctrine wave 12
 
 **Added:** compact lifecycle and delegation decision cores; direct entitlement ledger/authorization, provider-ingestion, and support/proof branches; explicit `SPE-001` through `SPE-010` scenarios; focused cross-contract tests.

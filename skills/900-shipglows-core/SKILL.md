@@ -45,7 +45,7 @@ Local packs load directly and never chain.
 
 Load at most one local playbook before the first substantive action. Missing local playbook, target, graph/runtime path, or proof blocks the mode rather than falling back to memory or a retired command.
 
-Conditional authorities: `skill-execution-fidelity.md` for obedience/audit; `skill-instruction-layering.md` for placement; `resource-discovery.md` for resolver work; `spec-driven-development-discipline.md` before contract edits; `codex-plugin-packaging.md` for plugin bundles; `$SHIPGLOWS_ROOT/skills/references/windows-bootstrap-development-workflow.md` for Windows bootstrap, installer, runtime-path, migration, wrapper, or self-update work.
+Conditional authorities: `skill-execution-fidelity.md` for obedience/audit; `skill-instruction-layering.md` for placement; semantic ID `shared:resource-discovery` at `$SHIPGLOWS_ROOT/skills/references/resource-discovery.md` for resolver work; `spec-driven-development-discipline.md` before contract edits; `codex-plugin-packaging.md` for plugin bundles; `$SHIPGLOWS_ROOT/skills/references/windows-bootstrap-development-workflow.md` for Windows bootstrap, installer, runtime-path, migration, wrapper, or self-update work.
 
 ## Scope And System-Improvement Gate
 
@@ -65,4 +65,4 @@ Stop when `$SHIPGLOWS_ROOT/skills` or a requested tool/pack is absent; the activ
 
 ## Validation
 
-Run `python3 -m unittest tools.test_900_shipglows_core_contract tools.test_skill_activation_graph tools.test_skill_invocation_check`, `python3 tools/skill_invocation_check.py --audit-graph`, `python3 tools/audit_shipglows_skills.py`, the budget audit, metadata lint, and runtime sync.
+Run `python3 -m unittest tools.test_900_shipglows_core_contract tools.test_skill_activation_graph tools.test_resource_dependency_graph tools.test_skill_invocation_check`, `python3 tools/skill_invocation_check.py --audit-graph`, `python3 tools/audit_shipglows_skills.py`, the activation/discovery budget audits, metadata lint, and runtime sync.

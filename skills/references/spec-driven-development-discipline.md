@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-05-18"
 updated: "2026-08-07"
@@ -28,14 +28,12 @@ depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
     artifact_version: "1.1.0"
     required_status: active
-  - artifact: "skills/references/master-workflow-lifecycle.md"
-    artifact_version: "1.4.0"
-    required_status: active
   - artifact: "skills/references/skill-instruction-layering.md"
-    artifact_version: "0.1.0"
-    required_status: draft
+    artifact_version: "1.6.0"
+    required_status: active
 supersedes: []
 evidence:
+  - "Wave 13 removed the reverse lifecycle dependency and aligned layering status/version with current runtime truth."
   - "Spec spec-driven-tdd-evidence-gates.md keeps ShipGlows spec-driven development as the outer lifecycle and adds proof-first implementation discipline."
   - "User decision 2026-05-24: proof paths must support high-quality code and durable decisions, not just the quickest passing change."
   - "User decision 2026-05-24: for Flutter mobile work, prove common UI first with widget tests and Flutter Web smoke before asking for APK/device testing."

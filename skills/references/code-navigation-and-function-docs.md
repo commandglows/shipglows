@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-07-04"
 updated: "2026-07-04"
@@ -21,14 +21,12 @@ linked_systems:
   - templates/technical_behavior_index.md
   - shipglows_data/technical/code-docs-map.md
 depends_on:
-  - artifact: "skills/references/technical-docs-corpus.md"
-    artifact_version: "1.7.0"
-    required_status: active
   - artifact: "skills/references/documentation-governance-rules.md"
     artifact_version: "1.0.0"
     required_status: active
 supersedes: []
 evidence:
+  - "Wave 13 removed the reverse dependency on technical-docs-corpus; that corpus consumes this focused navigation contract."
   - "Ready spec shipglows-code-navigation-and-function-documentation-system.md."
   - "WinFlowz IME swipe investigation showed repeated rediscovery cost across code, docs, specs, and bugs."
   - "Operator clarification 2026-07-01: existing context maps must stay and be integrated."

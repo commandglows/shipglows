@@ -22,6 +22,7 @@ linked_systems:
   - shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md
 depends_on:
   - artifact: "skills/references/product-entitlements-playbook.md"
+    artifact_version: "2.1.0"
     required_status: active
 supersedes: []
 evidence:

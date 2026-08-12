@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-07-29"
 updated: "2026-08-12"
@@ -15,6 +15,7 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - tools/skill_invocation_check.py
+  - tools/resource_dependency_graph.py
   - skills/references/skill-invocation-registry.json
   - skills/references/skill-code-index.md
   - skills/000-shipglows/SKILL.md
@@ -28,6 +29,7 @@ evidence:
   - "Recovery 2026-08-03: the original untracked implementation was recovered selectively from Git stash and migrated to the canonical ShipGlows namespace."
   - "Wave 9: invocation validation now blocks inconsistent public-to-engine activation graphs before routing."
   - "Wave 10: selected pilot skills also block when their explicit reference-activation profile is inconsistent."
+  - "Wave 13: preflight combines ownership validation with the explicit dependency closure of profiled resources."
 next_review: "2026-09-03"
 next_step: "none"
 ---
@@ -44,13 +46,15 @@ The checker is read-only. It resolves public names from
 `skill-invocation-registry.json` and retains `skill-code-index.md` only for
 explicit expert/legacy engine invocations.
 
-Before accepting an invocation, it validates the registry-owned activation graph: every public wrapper and declared engine must exist, every alias must resolve through a declared owner mode, and every installed expert must be owned by at least one public route. Run the same preflight directly with:
+Before accepting an invocation, it validates the registry-owned ownership graph: every public wrapper and declared engine must exist, every alias must resolve through a declared owner mode, and every installed expert must be owned by at least one public route. It then validates the explicit dependency closure declared by activation-profile resources. Run the combined preflight directly with:
 
 ```bash
 python3 "$SHIPGLOWS_ROOT/tools/skill_invocation_check.py" --audit-graph
 ```
 
-This graph describes skill ownership and activation only. Reference-level `depends_on` metadata remains resource governance and is not inferred from prose.
+The resource closure follows explicit `depends_on` edges under `skills/**` transitively. Profiled `shipglows_data/**` artifacts are checked as terminal governance leaves. Every traversed edge must declare `artifact_version` and `required_status`; missing targets, invalid or insufficient versions, mismatched or unsupported statuses, and reachable cycles block activation. Nothing is inferred from prose or `linked_systems`.
+
+The default graph audit covers the executable activation-profile closure. `python3 "$SHIPGLOWS_ROOT/tools/resource_dependency_graph.py" --all` is a separate diagnostic for historical corpus debt; its findings do not block an otherwise valid profiled invocation.
 
 When the selected engine declares an `activation_profiles.skills` entry in the same registry, preflight validates that profile's body and reference paths before returning `valid`. Profiles are incremental pilots: undeclared skills keep their existing invocation behavior, and declared runtime loaders remain authoritative.
 

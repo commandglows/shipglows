@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-03"
 updated: "2026-08-12"
@@ -15,6 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - tools/resource_resolver.py
+  - tools/resource_dependency_graph.py
   - skills/references/canonical-paths.md
   - skills/references/skill-instruction-layering.md
   - skills/references/
@@ -33,6 +34,7 @@ evidence:
   - "Scenario tests prove landing-page starter-pack ranking, exact ID resolution, expansion, inactive filtering, deterministic output, and bounded failure behavior."
   - "2026-08-12 resolver audit found eight-result starter packs between about 16000 and 18500 estimated tokens when only result count was bounded."
   - "Operator decision 2026-08-12: bound advisory reference loading by count and estimated tokens without building a new dependency graph."
+  - "Wave 13 added a separate blocking graph for explicit activation-profile dependencies; advisory resolver ranking remains unchanged."
 next_review: "2026-09-03"
 next_step: "Review semantic resource-profile migration after resolver adoption evidence."
 ---
@@ -42,6 +44,8 @@ next_step: "Review semantic resource-profile migration after resolver adoption e
 ## Purpose
 
 Give ShipGlows agents a bounded, explainable way to find relevant references and playbooks after a skill and mode are known. The resolver reduces physical-path coupling and ad hoc filesystem search; it does not replace skill ownership, required gates, or project evidence.
+
+This resolver is advisory discovery. It is separate from `tools/resource_dependency_graph.py`, which blocks profiled invocation when explicit `depends_on` paths, version/status constraints, or cycles are inconsistent. Resolver scores and `linked_systems` never create dependency edges.
 
 ## Discovery Sequence
 

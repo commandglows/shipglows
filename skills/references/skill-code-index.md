@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.7.0"
+artifact_version: "2.8.0"
 project: ShipGlows
 created: "2026-06-10"
 updated: "2026-08-03"
@@ -23,11 +23,12 @@ linked_systems:
 depends_on:
   - artifact: "shipglows_data/workflow/specs/three-digit-runtime-skill-names.md"
     artifact_version: "1.0.0"
-    required_status: ready
+    required_status: reviewed
 supersedes:
   - artifact: "shipglows_data/workflow/specs/numeric-skill-code-index.md"
     artifact_version: "1.0.0"
 evidence:
+  - "Wave 13 aligned the dependency requirement with the reviewed canonical runtime-name spec."
   - "User decision 2026-06-10: use three digits directly before the skill name for the real runtime-visible skill identity."
   - "User decision 2026-06-10: no symbol-heavy names; keep lowercase letters, numbers, and hyphens only."
   - "2026-06-11 900-shipglows-core added as an internal operator skill in the reserved meta band."

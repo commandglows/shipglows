@@ -7,6 +7,11 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORTING_CONTRACT = ROOT / "skills" / "references" / "reporting-contract.md"
+REPORTING_BRANCHES = (
+    ROOT / "skills" / "references" / "reporting-agent-handoff.md",
+    ROOT / "skills" / "references" / "reporting-blocked-and-audit.md",
+    ROOT / "skills" / "references" / "reporting-pressure-scenarios.md",
+)
 CHANTIER_TRACKING = ROOT / "skills" / "references" / "chantier-tracking.md"
 FINAL_TIMESTAMP = ROOT / "skills" / "references" / "final-report-timestamp.md"
 START_README = ROOT / "skills" / "102-sg-start" / "README.md"
@@ -25,9 +30,28 @@ END_SKILL = ROOT / "skills" / "104-sg-end" / "SKILL.md"
 MIGRATE_SKILL = ROOT / "skills" / "010-sg-technical" / "SKILL.md"
 
 
+def reporting_corpus() -> str:
+    return "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (REPORTING_CONTRACT, *REPORTING_BRANCHES)
+    )
+
+
 class ReportingContractTests(unittest.TestCase):
+    def test_progressive_reporting_branches_are_direct_and_unambiguous(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        for branch in REPORTING_BRANCHES:
+            self.assertTrue(branch.is_file(), branch)
+            self.assertIn(branch.name, core)
+            leaf = branch.read_text(encoding="utf-8")
+            for sibling in REPORTING_BRANCHES:
+                if sibling != branch:
+                    self.assertNotIn(sibling.name, leaf, f"{branch} chains to {sibling}")
+        self.assertIn("In `report=agent`, load only agent-handoff", core)
+        self.assertIn("structured dependencies above validate", core)
+
     def test_user_mode_forbids_modified_file_details(self) -> None:
-        text = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        text = reporting_corpus()
         for rule in (
             "Do not include a modified-files section in `report=user`",
             "file names, paths, or counts",
@@ -48,7 +72,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertNotIn("Files modified:   [count]", text)
 
     def test_user_report_opens_with_chantier_then_verdict(self) -> None:
-        text = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        text = reporting_corpus()
         expected = (
             "🧱 CHANTIER (<local|spec>) : <name>\n"
             "🎯 VERDICT (HH:mm) : <verdict or status>"
@@ -88,7 +112,7 @@ class ReportingContractTests(unittest.TestCase):
             self.assertNotIn("🎯 VERDICT (YYYY-MM-DD HH:mm)", text, str(path))
 
     def test_user_mode_has_compact_validation_summary(self) -> None:
-        text = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        text = reporting_corpus()
         self.assertIn(
             "✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236",
             text,
@@ -96,7 +120,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertIn("SSRP-010 compact validation line", text)
 
     def test_chantier_and_context_emoji_vocabulary(self) -> None:
-        text = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        text = reporting_corpus()
         for rule in (
             "`🧱` for the normal chantier header",
             "`🚧` only when the run is blocked",
@@ -108,7 +132,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertNotIn("🏗️ CHANTIER", text)
 
     def test_unfinished_chantier_requires_plain_language_choices(self) -> None:
-        text = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        text = reporting_corpus()
         for rule in (
             "## Unfinished Chantier Choice",
             "end the message\nwith a numbered, plain-language choice block",
@@ -127,7 +151,7 @@ class ReportingContractTests(unittest.TestCase):
             self.assertNotIn(legacy, text)
 
     def test_user_mode_route_does_not_expose_internal_owners(self) -> None:
-        text = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        text = reporting_corpus()
         self.assertIn("🧭 Suite : <résultat ou décision à obtenir>", text)
         self.assertIn("Never name a skill, command, lifecycle phase", text)
         timestamp = FINAL_TIMESTAMP.read_text(encoding="utf-8")
@@ -138,13 +162,10 @@ class ReportingContractTests(unittest.TestCase):
         self.assertNotIn("Prochaine etape: <next ShipGlows command", chantier)
 
     def test_recurrence_claim_boundary_requires_scope_matched_proof(self) -> None:
-        text = REPORTING_CONTRACT.read_text(encoding="utf-8")
-        boundary = text.split("## Recurrence-Claim Boundary", 1)[1].split(
-            "## Pressure Scenarios", 1
-        )[0]
-        scenarios = text.split("## Pressure Scenarios", 1)[1].split(
-            "## Verdict Header", 1
-        )[0]
+        boundary = REPORTING_BRANCHES[1].read_text(encoding="utf-8").split(
+            "## Recurrence-Claim Boundary", 1
+        )[1]
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
 
         # The local outcome, universal-claim gate, and proof limit must remain
         # linked as one contract; a bare list of prohibited words is insufficient.

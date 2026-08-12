@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-05-24"
 updated: "2026-06-11"
@@ -24,15 +24,10 @@ linked_systems:
   - skills/704-sg-model/references/model-routing.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
-depends_on:
-  - artifact: "skills/references/question-contract.md"
-    artifact_version: "1.3.0"
-    required_status: active
-  - artifact: "skills/references/spec-driven-development-discipline.md"
-    artifact_version: "1.4.0"
-    required_status: active
+depends_on: []
 supersedes: []
 evidence:
+  - "Wave 13 removed circular runtime dependencies; question and spec discipline consume this base contract, not the reverse."
   - "User directive 2026-05-24: ShipGlows must optimize for maximum performance, maximum security, excellence, and durability, not convenience, speed, or the shortest path."
   - "User directive 2026-05-24: the operator wants high-quality code, modern effective tools, and current best practices; time pressure is not the primary constraint."
   - "User decision 2026-06-10: central skill rules should stay compact enough for agents to retain the decision signal."

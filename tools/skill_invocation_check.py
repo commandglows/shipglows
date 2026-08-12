@@ -124,6 +124,28 @@ def validate_activation_graph(
     }
 
 
+def validate_preflight_graph(
+    registry: dict[str, Any],
+    skills_root: Path = ROOT / "skills",
+) -> dict[str, Any]:
+    """Validate ownership plus the executable profiled resource closure."""
+    ownership = validate_activation_graph(registry, skills_root)
+    try:
+        from tools.resource_dependency_graph import audit_dependency_graph, profile_roots
+    except ModuleNotFoundError:
+        from resource_dependency_graph import audit_dependency_graph, profile_roots
+    dependencies = audit_dependency_graph(skills_root.parent, profile_roots(registry))
+    errors = [*ownership["errors"], *(f"resource:{error}" for error in dependencies["errors"])]
+    return {
+        **ownership,
+        "status": "valid" if not errors else "invalid",
+        "errors": sorted(set(errors)),
+        "resource_artifacts": dependencies["artifacts"],
+        "resource_dependencies": dependencies["dependencies"],
+        "resource_cycles": dependencies["cycles"],
+    }
+
+
 def parse_index(path: Path) -> dict[str, str]:
     identities: dict[str, str] = {}
     for line in path.read_text(encoding="utf-8").splitlines():
@@ -169,6 +191,24 @@ def valid_with_profile_preflight(
                 message="The selected skill's activation profile is inconsistent.",
                 resolved_skill=details.get("resolved_skill", selected),
                 profile_errors=profile["errors"],
+            )
+        try:
+            from tools.resource_dependency_graph import audit_dependency_graph
+        except ModuleNotFoundError:  # Direct `python tools/skill_invocation_check.py`.
+            from resource_dependency_graph import audit_dependency_graph
+        selected_profile = profiles[selected]
+        dependency_roots = list(selected_profile.get("baseline", []))
+        for references in selected_profile.get("gates", {}).values():
+            dependency_roots.extend(references)
+        dependency_graph = audit_dependency_graph(skills_root.parent, dependency_roots)
+        if dependency_graph["status"] != "valid":
+            return result(
+                "invalid",
+                requested,
+                error="resource_dependency_graph_invalid",
+                message="The selected skill's explicit resource dependency graph is inconsistent.",
+                resolved_skill=details.get("resolved_skill", selected),
+                dependency_errors=dependency_graph["errors"],
             )
         details["activation_profile"] = selected
     return result("valid", requested, **details)
@@ -382,7 +422,7 @@ def main() -> int:
     args = parser.parse_args()
     if args.audit_graph:
         registry = json.loads(DEFAULT_REGISTRY.read_text(encoding="utf-8"))
-        payload = validate_activation_graph(registry)
+        payload = validate_preflight_graph(registry)
     elif args.invocation:
         payload = check(args.invocation)
     else:
@@ -393,7 +433,9 @@ def main() -> int:
         print(
             "Valid graph: "
             f"public={payload['public_skills']} expert={payload['expert_skills']} "
-            f"owned={payload['owned_experts']} edges={payload['edges']}"
+            f"owned={payload['owned_experts']} edges={payload['edges']} "
+            f"resources={payload['resource_artifacts']} dependencies={payload['resource_dependencies']} "
+            f"cycles={payload['resource_cycles']}"
         )
     elif payload["status"] == "valid":
         print(f"Valid: {payload['resolved_skill']}")

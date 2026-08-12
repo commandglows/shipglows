@@ -112,6 +112,27 @@
           "behavior-change": ["skills/references/spec-driven-development-discipline.md"],
           "provider-freshness": ["skills/references/documentation-freshness-gate.md"]
         }
+      },
+      "900-shipglows-core": {
+        "body": "skills/900-shipglows-core/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md"],
+        "gates": {
+          "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
+          "audit": ["skills/900-shipglows-core/references/core-audit-and-improvement.md"],
+          "build": ["skills/900-shipglows-core/references/skill-maintenance-playbook.md"],
+          "build-lifecycle": ["skills/references/master-workflow-lifecycle.md", "skills/references/master-delegation-semantics.md"],
+          "refresh": ["skills/900-shipglows-core/references/skill-refresh-playbook.md"],
+          "packaging": ["skills/900-shipglows-core/references/core-packaging.md", "shipglows_data/technical/codex-plugin-packaging.md"],
+          "report-user": ["skills/references/reporting-contract.md"],
+          "report-agent": ["skills/references/reporting-agent-handoff.md"],
+          "report-blocked-audit": ["skills/references/reporting-blocked-and-audit.md"],
+          "report-review": ["skills/references/reporting-pressure-scenarios.md"],
+          "instruction-layering": ["skills/references/skill-instruction-layering.md"],
+          "resource-discovery": ["skills/references/resource-discovery.md"],
+          "behavior-change": ["skills/references/spec-driven-development-discipline.md"],
+          "execution-fidelity": ["skills/references/skill-execution-fidelity.md"],
+          "windows-runtime": ["skills/references/windows-bootstrap-development-workflow.md"]
+        }
       }
     }
   },
