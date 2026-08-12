@@ -6,7 +6,7 @@ argument-hint: <optional focus>
 
 ## Canonical Paths
 
-Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). Project files remain relative to the current project root unless stated otherwise.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). Project files remain relative to the current project root unless stated otherwise.
 
 ## Chantier Tracking
 

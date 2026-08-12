@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-11"
 created_at: "2026-08-11 17:29:25 UTC"
 updated: "2026-08-11"
-updated_at: "2026-08-11 18:32:23 UTC"
+updated_at: "2026-08-11 18:55:34 UTC"
 status: ready
 source_skill: sg-docs
 source_model: "GPT-5 Codex"
@@ -43,7 +43,7 @@ evidence:
   - "Operator confirmed there are no users to preserve, allowing a clean provider and entitlement reset without customer grandfathering."
   - "Local batch B on 2026-08-11: the active offer registry, checkout route, Stripe webhook and Convex processor are Stripe-only; CommunityGlows and Formation use Price-ID placeholders; signed handoff is mandatory for every offer; active Lemon Squeezy and Polar runtime paths were removed."
 next_review: "2026-09-11"
-next_step: "Implement the sequential batches below, then run the local acceptance matrix; hosted provider, account, deployment, and device proof remain excluded from this chantier."
+next_step: "Configure approved Stripe Price IDs and run hosted Stripe/Convex plus provider-account and device proof only in a later authorized chantier."
 ---
 
 # Unified Suite Commercial Entitlement And Stripe Contract
@@ -104,6 +104,11 @@ Trial rows and snapshots must be keyed and resolved by canonical global identity
 - `trialRestartEligible` derived only by the server;
 - paid plan, source, and revocation state when applicable.
 
+The generic authenticated mutation
+`bridge:ensureSuiteProductTrialByGlobalUserId` is the bridge-level adapter for
+all registered products, including products without a dedicated client app.
+Dedicated product endpoints remain wrappers over the same writer and policy.
+
 Starting or restarting a trial must be authenticated and idempotent. The first valid start creates attempt 1. A restart is valid only after the prior cycle expired, only when no active paid entitlement already grants the product, and only while fewer than three cycles exist. Concurrent or repeated requests must return one decision without extending the period or consuming more than one attempt.
 
 Paid access takes precedence over trial expiry. Refund, revoke, dispute, fraud, or other verified non-granting commerce state removes paid access and never resets or recreates trial allowance.
@@ -119,6 +124,8 @@ Required rules:
 - prevent a recognized installation that consumed a product trial from obtaining a fresh cycle through another email or identity;
 - allow legitimate identity continuity across new installations without resetting cycle count;
 - pseudonymize network signals with rotating/keyed hashing and short retention;
+- re-pseudonymize any CommunityGlows client hash with a server-only HMAC before
+  persistence or comparison; missing server signal secret is non-granting;
 - never persist raw IP addresses for this entitlement decision;
 - never use IP alone for permanent denial, identity merging, or entitlement ownership;
 - never collect IMEI, MAC address, serial number, advertising ID, or opaque hardware fingerprint for this contract;
@@ -146,6 +153,18 @@ The checkout route and Convex commerce processor must reject or classify as `pen
 Every product client must obtain a short-lived, audience-bound, product-bound signed checkout handoff from the authenticated suite bridge. The checkout server verifies signature, expiry, audience, environment, offer/product compatibility, and replay constraints, then derives the canonical `globalUserId`. Raw client-provided user IDs and email-only matching are rejected. The opaque handoff itself is never copied into Stripe metadata or logs.
 
 If a public marketing page cannot obtain authenticated handoff state, its CTA must lead into the product's authenticated purchase flow. A successful redirect is UX only and never payment or entitlement proof.
+
+Each handoff contains a cryptographically random `jti` and expires after ten
+minutes. The opaque token is accepted only in an encrypted POST body and must
+never appear in a browser query URL, page markup, Stripe metadata, or logs.
+Convex atomically claims a server-keyed hash of the `jti`, binds it to the exact
+identity/product/offer/environment context, and returns one stable Stripe
+idempotency key. Retries may recover the same Checkout Session, but cannot
+create an independent session or reuse the token for a different context.
+
+The additive `commerceCheckoutHandoffs` table stores only the keyed `jti` hash,
+context, lifecycle state, expiry, idempotency key and final provider reference.
+It requires no destructive migration, backfill, or deletion of historical data.
 
 ## Legacy And Clean-Reset Migration
 
@@ -249,8 +268,8 @@ Stop implementation and request an operator decision if:
 - [x] One canonical active spec defines the suite contract and supersedes product-specific exceptions.
 - [x] The central Convex authority, fail-closed behavior, generic trial policy, anti-abuse inputs, Stripe-only allowlist, signed identity handoff, migration behavior, client obligations, sequential batches, local tests, and proof exclusions are explicit.
 - [x] Pricing amounts remain undefined and Price IDs are environment-backed.
-- [ ] Runtime code implements the contract for all current products.
-- [ ] Local acceptance tests pass after implementation.
+- [x] Runtime code implements the contract for all current products.
+- [x] Local acceptance tests pass after implementation.
 - [ ] Hosted/provider/account/device proof is completed in a later authorized chantier.
 
 ## Current Chantier Flow
@@ -260,6 +279,7 @@ Stop implementation and request an operator decision if:
 - implementation batch B: Stripe-only commerce, CommunityGlows and Formation offers, signed checkout handoff, legacy provider runtime removal, and non-Stripe rejection implemented locally
 - implementation batch C: CommunityGlows adapter, pseudonymized installation signal, two-restart/exhaustion UI, authenticated server-side checkout start, public app handoff CTA, active runtime cleanup, tests, and docs implemented locally
 - local verification: CommunityGlows focused billing/composable/installation/deep-link/UI tests, core and Convex typechecks, site build, changed-doc metadata lint, active-runtime scan, and diff check passed; full hosted/provider/device proof remains pending
+- final correction batch: all eight registered products reach the common trial writer; Formation rejects expired trials; checkout handoffs use random ten-minute `jti` values, Convex one-time claims and Stripe idempotency; Founder/app flows keep tokens out of URLs; CommunityGlows signals receive server-keyed HMAC; active IDs, branding and CSP are aligned
 - hosted/provider/account/device proof: explicitly deferred
 
 ## Skill Run History
@@ -269,3 +289,4 @@ Stop implementation and request an operator decision if:
 | 2026-08-11 | sg-docs | GPT-5 Codex | Consolidated all current/future products onto one 30-day × three-cycle entitlement contract and Stripe Managed Payments-only commerce policy; preserved prior CommandGlows, CommunityGlows, Lemon Squeezy, Polar, and default-free decisions as superseded history. | ready | Implement sequential batches 1–6 without inventing prices; defer hosted/provider/account/device proof. |
 | 2026-08-11 | 001-sg-build / sg-development | GPT-5 Codex | Implemented batch B: Stripe-only provider types/registry/checkout, CommunityGlows and Formation Stripe Price-ID placeholders, Clerk-backed Formation/public purchase start, product/environment-bound signed handoff for every offer, central Stripe webhook coverage, Convex non-Stripe rejection, removal of active Lemon Squeezy/Polar routes/adapters/tests/dependency, and directly coupled docs. | implemented | Complete CommunityGlows client batch, then run the final cross-repo acceptance matrix; hosted/provider/account/device proof remains deferred. |
 | 2026-08-11 | 001-sg-build / sg-development + sg-docs | GPT-5 Codex | Implemented batch C in CommunityGlows: server-propagated trial counters and explicit exhaustion, authenticated restart, random installation ID with client-side pseudonymized signal, fail-closed app gate, restart/purchase UI, server-held checkout handoff with Stripe URL-only response, authenticated public purchase deep link, local legacy-provider schema cleanup, tests, and active documentation synchronization. | implemented | Configure approved Stripe Price IDs and run hosted Stripe/Convex plus Windows/Android proof in a later authorized chantier. |
+| 2026-08-11 | sg-engineering + sg-docs | GPT-5 Codex | Closed the five final-review findings: generic eight-product trial entrypoint and Formation expiry guard; one-time/idempotent Stripe handoff authority; POST-only token transport; server-keyed CommunityGlows signal pseudonymization; active IDs, branding and CSP cleanup; focused and full local proof. | implemented | Keep hosted Stripe/Convex, provider-account and device proof deferred until separately authorized. |

@@ -7,7 +7,7 @@ argument-hint: [file-path | "init" | "readme" | "api" | "components" | "audit" |
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project source files resolve from the current target path, but project governance artifacts resolve from the canonical governance root. For monorepos, that means the monorepo-root `shipglows_data/`, not repeated `shipglows_data/` directories inside each app/package.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project source files resolve from the current target path, but project governance artifacts resolve from the canonical governance root. For monorepos, that means the monorepo-root `shipglows_data/`, not repeated `shipglows_data/` directories inside each app/package.
 
 ## Public Métier Ownership
 
@@ -58,7 +58,7 @@ Use `report=agent` for blocked runs, handoff, or explicit verbose request.
 
 ## Always-On Governance Preflight
 
-Before mode selection, run `python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/audit_project_governance_topology.py" .`. Continue normally on `compliant`; enter layout migration on `migration-required`; resolve bootstrap/ownership on `review-required`. Do not report narrow docs work complete while this gate is unresolved.
+Before mode selection, run `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/audit_project_governance_topology.py" .`. Continue normally on `compliant`; enter layout migration on `migration-required`; resolve bootstrap/ownership on `review-required`. Do not report narrow docs work complete while this gate is unresolved.
 
 ## Required References
 
@@ -81,7 +81,7 @@ Load on demand:
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when documentation creates, changes, repairs or audits material links between business goals, customer needs, journeys, capabilities, Atlas nodes, specs and proof.
 - `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when documentation depends on current external framework, SDK, provider, runtime, schema, auth, deployment, or API behavior.
 - `$SHIPGLOWS_ROOT/skills/references/skill-context-budget.md` only when scope touches `skills/`, skill discovery metadata, or Codex/Claude skill compliance.
-- `$SHIPGLOWS_ROOT/skills/references/private-data-repo-contract.md` when scope touches durable private operator data, `~/.shipglows/private/data/`, private project fiches, or bootstrap/install docs that mention the private data repository.
+- `$SHIPGLOWS_ROOT/skills/references/private-data-repo-contract.md` when scope touches durable private operator data, `~/.shipglows/data/`, private project fiches, or bootstrap/install docs that mention the private data repository.
 - `$SHIPGLOWS_ROOT/shipglows_data/technical/metadata-migration-guide.md` when mode is metadata/migrate-frontmatter.
 - `$SHIPGLOWS_ROOT/shipglows_data/workflow/playbooks/project-import-playbook.md` and `$SHIPGLOWS_ROOT/shipglows_data/workflow/checklists/project-import-checklist.md` when mode is `add-project` or `add-project update`.
 
@@ -104,7 +104,7 @@ Load on demand:
 
 ## ADD PROJECT MODE
 
-Use this mode when the operator gives a URL or repository and wants a private project fiche created or refreshed under `~/.shipglows/private/data/projects/`.
+Use this mode when the operator gives a URL or repository and wants a private project fiche created or refreshed under `~/.shipglows/data/projects/`.
 
 Load:
 
@@ -125,7 +125,7 @@ Follow the playbook order exactly:
 
 Do not invent a public story when the source does not support one. If the source is ambiguous or the URL is unavailable, report the gap and ask for the smallest missing URL or project truth needed to continue.
 
-When documenting or generating bootstrap guidance for this mode, keep the storage doctrine explicit: `~/.shipglows/private/data/` is a separate private Git repository, while public governance remains in project repos and ephemeral review state lives elsewhere.
+When documenting or generating bootstrap guidance for this mode, keep the storage doctrine explicit: `~/.shipglows/data/` is a separate private Git repository, while public governance remains in project repos and ephemeral review state lives elsewhere.
 
 ## ADD PROJECT UPDATE MODE
 
@@ -169,9 +169,9 @@ Stop and report `blocked` when:
 Run focused checks for touched surfaces:
 
 ```bash
-python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/audit_project_governance_topology.py" .
-python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_metadata_lint.py" <changed-artifacts>
-rg -n "Maintenance Rule|Validation|Owned Files|Entrypoints" shipglows_data/technical "${SHIPGLOWS_ROOT:-$HOME/shipglows}/templates/technical_module_context.md"
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/audit_project_governance_topology.py" .
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/shipglows_metadata_lint.py" <changed-artifacts>
+rg -n "Maintenance Rule|Validation|Owned Files|Entrypoints" shipglows_data/technical "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/templates/technical_module_context.md"
 rg -n "Editorial Update Plan|Claim Impact Plan|pending final copy|surface missing|Astro content schema" shipglows_data/editorial docs/editorial
 test ! -e AGENTS.md || { test -L AGENTS.md && test "$(readlink AGENTS.md)" = "AGENT.md"; }
 ```
@@ -188,13 +188,13 @@ Use these checks to confirm the source docs were intentionally converted into fa
 When the scope touches skill discovery or skill docs policy:
 
 ```bash
-python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/skill_budget_audit.py" --skills-root "${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills" --format markdown
-"${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_sync_skills.sh" --check --all
-rg -n "Report Modes|Required References|Validation|Stop Conditions" "${SHIPGLOWS_ROOT:-$HOME/shipglows}"/skills/[0-9][0-9][0-9]-*/SKILL.md "${SHIPGLOWS_ROOT:-$HOME/shipglows}"/skills/*/SKILL.md
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/skill_budget_audit.py" --skills-root "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills" --format markdown
+"${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/shipglows_sync_skills.sh" --check --all
+rg -n "Report Modes|Required References|Validation|Stop Conditions" "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"/skills/[0-9][0-9][0-9]-*/SKILL.md "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"/skills/*/SKILL.md
 ```
 
 When the scope touches public skill pages or docs rendered by the site:
 
 ```bash
-pnpm --dir "${SHIPGLOWS_ROOT:-$HOME/shipglows}/shipglows-site" build
+pnpm --dir "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/shipglows-site" build
 ```

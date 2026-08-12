@@ -62,7 +62,7 @@ warning() {
 
 prepare_pnpm() {
     export PNPM_HOME="$HOME/.local/share/pnpm"
-    export PATH="$PNPM_HOME/bin:$PATH"
+    export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
     mkdir -p "$PNPM_HOME/bin"
 
     if ! corepack enable >/dev/null 2>&1; then
@@ -83,7 +83,11 @@ prepare_pnpm() {
 
 expose_pnpm_global_cli() {
     local cli_name="$1"
-    local cli_path="$PNPM_HOME/bin/$cli_name"
+    local cli_path="$PNPM_HOME/$cli_name"
+
+    if [ ! -x "$cli_path" ] && [ -x "$PNPM_HOME/bin/$cli_name" ]; then
+        cli_path="$PNPM_HOME/bin/$cli_name"
+    fi
 
     [ -x "$cli_path" ] || return 0
     cat > "/usr/local/bin/$cli_name" <<EOF
@@ -739,7 +743,7 @@ fi
 # Runs for root + ALL regular users in /home/
 # ──────────────────────────────────────────────────────────────
 
-SHIPGLOWS_INSTALL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SHIPGLOWS_INSTALL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 
 # StatusLine — pointer vers le script ShipGlows
 configure_statusline() {
@@ -1649,8 +1653,8 @@ configure_aliases() {
     cat >> "$bashrc" << ALIASES
 
 # >>> ShipGlows AI aliases >>>
-alias shipglows='$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh'
-alias sg='$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh'
+alias shipglows='/usr/local/bin/shipglows'
+alias sg='/usr/local/bin/sg'
 alias c='$c_alias'
 alias co='codex'
 alias cor='codex resume'
@@ -1686,7 +1690,6 @@ configure_shipglows_environment() {
 
 # >>> ShipGlows environment >>>
 export SHIPGLOWS_ROOT='$SHIPGLOWS_INSTALL_ROOT'
-export SHIPGLOWS_ROOT='$SHIPGLOWS_INSTALL_ROOT'
 
 if [ -d "\$HOME/.local/bin" ]; then
   export PATH="\$HOME/.local/bin:\$PATH"
@@ -1720,15 +1723,20 @@ ENV
 }
 
 configure_command_wrappers() {
-    local shipglows_target="$SHIPGLOWS_INSTALL_ROOT/shipglows.sh"
     local gsc_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-gsc.sh"
     local turso_login_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-login.sh"
     local turso_ssh_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-ssh.sh"
     local bin_dir="/usr/local/bin"
 
     mkdir -p "$bin_dir"
-    ln -sf "$shipglows_target" "$bin_dir/shipglows"
-    ln -sf "$shipglows_target" "$bin_dir/sg"
+    cat > "$bin_dir/shipglows" <<EOF
+#!/bin/sh
+exec "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" "\$@"
+EOF
+    cat > "$bin_dir/sg" <<EOF
+#!/bin/sh
+exec "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" "\$@"
+EOF
     if [ -f "$gsc_target" ]; then
         ln -sf "$gsc_target" "$bin_dir/shipglows-gsc"
         ln -sf "$gsc_target" "$bin_dir/gsc"
@@ -1810,7 +1818,7 @@ ensure_user_local_npm_bootstrap() {
 
 # >>> ShipGlows pnpm bootstrap >>>
 export PNPM_HOME="$HOME/.local/share/pnpm"
-export PATH="$PNPM_HOME/bin:$PATH"
+export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
 # <<< ShipGlows pnpm bootstrap <<<
 BOOTSTRAP
 }
@@ -1823,16 +1831,16 @@ install_ai_agent_clis_for_user() {
     fi
     ensure_user_local_npm_bootstrap "$user_home" "$username"
     if [ "${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}" = "1" ]; then
-        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v claude >/dev/null 2>&1 || pnpm add -g @anthropic-ai/claude-code' || return 1
+        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v claude >/dev/null 2>&1 || pnpm add -g --allow-build=@anthropic-ai/claude-code @anthropic-ai/claude-code' || return 1
     fi
     if [ "${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}" = "1" ]; then
-        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v codex >/dev/null 2>&1 || pnpm add -g @openai/codex' || return 1
+        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v codex >/dev/null 2>&1 || pnpm add -g @openai/codex' || return 1
     fi
     if [ "${SHIPGLOWS_INSTALL_AGENT_OPENCODE:-0}" = "1" ]; then
-        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v opencode >/dev/null 2>&1 || pnpm add -g opencode-ai' || return 1
+        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v opencode >/dev/null 2>&1 || pnpm add -g --allow-build=opencode-ai opencode-ai' || return 1
     fi
     if [ "${SHIPGLOWS_INSTALL_AGENT_KILOCODE:-0}" = "1" ]; then
-        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v kilocode >/dev/null 2>&1 || pnpm add -g @kilocode/cli' || return 1
+        sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; corepack prepare pnpm@latest --activate >/dev/null 2>&1; command -v kilocode >/dev/null 2>&1 || pnpm add -g --allow-build=@kilocode/cli @kilocode/cli' || return 1
     fi
     return 0
 }
@@ -1851,10 +1859,10 @@ verify_ai_agent_clis_for_user() {
         return 0
     fi
 
-    claude_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v claude 2>/dev/null || true')
-    codex_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v codex 2>/dev/null || true')
-    opencode_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v opencode 2>/dev/null || true')
-    kilocode_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v kilocode 2>/dev/null || true')
+    claude_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; command -v claude 2>/dev/null || true')
+    codex_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; command -v codex 2>/dev/null || true')
+    opencode_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; command -v opencode 2>/dev/null || true')
+    kilocode_path=$(sudo -u "$username" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; command -v kilocode 2>/dev/null || true')
 
     if [ "${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}" = "1" ] && [ -n "$claude_path" ]; then
         status_output="${status_output} claude=${claude_path}"
@@ -2189,10 +2197,10 @@ generate_install_report() {
     if command -v git >/dev/null 2>&1; then status_git="present"; else status_git=""; fi
     if command -v jq >/dev/null 2>&1; then status_jq="present"; else status_jq=""; fi
     if command -v fuser >/dev/null 2>&1; then status_fuser="present"; else status_fuser=""; fi
-    report_claude_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v claude 2>/dev/null || true' 2>/dev/null)"
-    report_codex_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v codex 2>/dev/null || true' 2>/dev/null)"
-    report_opencode_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v opencode 2>/dev/null || true' 2>/dev/null)"
-    report_kilocode_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME/bin:$PATH"; command -v kilocode 2>/dev/null || true' 2>/dev/null)"
+    report_claude_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; command -v claude 2>/dev/null || true' 2>/dev/null)"
+    report_codex_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; command -v codex 2>/dev/null || true' 2>/dev/null)"
+    report_opencode_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; command -v opencode 2>/dev/null || true' 2>/dev/null)"
+    report_kilocode_path="$(sudo -u "$PRIMARY_USER" -H bash -lc 'export PNPM_HOME="$HOME/.local/share/pnpm"; export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"; command -v kilocode 2>/dev/null || true' 2>/dev/null)"
 
     cat > "$SHIPGLOWS_REPORT_FILE" << REPORT
 # Rapport d'installation ShipGlows

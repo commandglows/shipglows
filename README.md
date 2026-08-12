@@ -156,7 +156,7 @@ It helps operators run apps on servers, but its deeper job is to reduce ambiguit
 - [Workflow doctrine](./shipglows_data/workflow/playbooks/spec-driven-workflow.md) — ShipGlows V3 workflow for `700-sg-explore`, `100-sg-spec`, `101-sg-ready`, `102-sg-start`, `103-sg-verify`, and `104-sg-end`
 - [Metadata migration guide](./shipglows_data/technical/metadata-migration-guide.md) — how to adopt ShipGlows metadata and versioning in an existing project
 - [skills/references/canonical-paths.md](./skills/references/canonical-paths.md) — path resolution rules for ShipGlows-owned tools, references, templates, and project-local artifacts
-- [skills/references/private-data-repo-contract.md](./skills/references/private-data-repo-contract.md) — contract for the separate private data repository used for durable operator-managed data under `~/.shipglows/private/data/`
+- [skills/references/private-data-repo-contract.md](./skills/references/private-data-repo-contract.md) — contract for the separate private data repository used for durable operator-managed data under `~/.shipglows/data/`
 - [skills/references/design-inspiration-library.md](./skills/references/design-inspiration-library.md) — private rights-aware sales-page/design reference corpus, capture bundle, and bounded operator-selection gate
 - Runtime port and PM2 behavior is documented in [shipglows_data/technical/runtime-cli.md](./shipglows_data/technical/runtime-cli.md); the historical root note is preserved under [repository history](./shipglows_data/workflow/archives/repository-history/root-documentation/ECOSYSTEM-AND-PORTS.md).
 - [local/README.md](./local/README.md) — local tunnel setup
@@ -168,7 +168,7 @@ It helps operators run apps on servers, but its deeper job is to reduce ambiguit
 ShipGlows separates public code from durable private operator data.
 
 - Public code, skills, tools, and governance stay in the ShipGlows repository.
-- Durable private operational data lives in `~/.shipglows/private/data/`.
+- Durable private operational data lives in `~/.shipglows/data/`.
 - That path is intended to be a separate Git repository so operators can version and back up private data without mixing it into public repos.
 - The repository remote must be resolved from configuration such as `SHIPGLOWS_PRIVATE_DATA_REPO`; it must not be hardcoded in shared doctrine.
 
@@ -176,9 +176,9 @@ This private repository is for durable operator-managed data such as project fic
 
 It is not for secrets, OAuth tokens, cookies, SSH keys, or raw email bodies.
 
-Use `~/.shipglows/private/data/mail-intake/` for a short-retention private mail review queue when versioning improves recovery.
+Use `~/.shipglows/data/mail-intake/` for a short-retention private mail review queue when versioning improves recovery.
 
-The separate design/copy inspiration corpus defaults to `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/design-inspiration-library}` because durable cross-project marketing examples do not belong in `~/.shipglows/private/data/`. Capture one synthetic fixture with `python3 tools/capture_design_inspiration.py --fixture tools/fixtures/design-inspiration/sample-sales-page.html --output "$TMPDIR/shipglows-inspiration-test" --id sample-sales-page --no-network`. Source-derived text and images remain private; public files contain only contracts, code, schemas, and synthetic fixtures.
+The separate design/copy inspiration corpus defaults to `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/design-inspiration-library}` because durable cross-project marketing examples do not belong in `~/.shipglows/data/`. Capture one synthetic fixture with `python3 tools/capture_design_inspiration.py --fixture tools/fixtures/design-inspiration/sample-sales-page.html --output "$TMPDIR/shipglows-inspiration-test" --id sample-sales-page --no-network`. Source-derived text and images remain private; public files contain only contracts, code, schemas, and synthetic fixtures.
 
 ## Distribution and Installation
 
@@ -225,7 +225,7 @@ It clones or registers repositories directly under `%USERPROFILE%\ShipGlows`,
 starts them on localhost ports, and keeps a recoverable registry under
 `%LOCALAPPDATA%`. No tunnel is needed for projects running on the Shadow.
 The internal Windows runtime is installed under the hidden
-`%USERPROFILE%\.shipglows` directory; user projects remain separated under
+`%USERPROFILE%\.shipglows\runtime` directory; user projects remain separated under
 `%USERPROFILE%\ShipGlows`.
 For automation, pass `-InstallMode local` or `-InstallMode full`; a
 non-interactive call without a mode preserves the local-tunnel fallback. This
@@ -262,7 +262,7 @@ curl -fsSL https://shipglows.com/shipglows-script | sudo env SHIPGLOWS_INSTALL_M
 Manual equivalents:
 
 ```bash
-cd ~/shipglows
+cd ~/.shipglows/runtime
 ./local/install.sh
 sudo ./cli/install.sh
 ```
@@ -305,7 +305,7 @@ When the complete local ShipGlows corpus is needed, the plugin uses an explicit 
 /home/claude/plugins/shipglows/scripts/bootstrap_shipglows_repo.sh
 ```
 
-The bootstrap target defaults to `${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}`. The legacy `SHIPGLOWS_ROOT` fallback is still accepted. It includes `skills/`, `templates/`, `tools/`, `shipglows_data/`, and `local/`, and excludes public-site assets, terminal UI assets, generated builds, and dependency directories. It must not run silently; cloning or updating source requires explicit operator approval.
+The bootstrap target defaults to `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`. The legacy `SHIPGLOWS_ROOT` fallback is still accepted. It includes `skills/`, `templates/`, `tools/`, `shipglows_data/`, and `local/`, and excludes public-site assets, terminal UI assets, generated builds, and dependency directories. It must not run silently; cloning or updating source requires explicit operator approval.
 
 ### Install Privilege Model
 
@@ -355,7 +355,7 @@ existing project repositories or workspace artifacts. Legacy `~/shipglows_data`
 project by project.
 
 The same install also provisions the optional terminal cockpit in
-`~/shipglows/tui` / `$SHIPGLOWS_ROOT/tui`. After opening a fresh shell, launch it
+`~/.shipglows/runtime/tui` / `$SHIPGLOWS_ROOT/tui`. After opening a fresh shell, launch it
 with:
 
 ```bash
@@ -921,13 +921,13 @@ ShipGlows provides skill-aligned artifact templates in `templates/` and a depend
 - `technical_guidelines.md`
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 "$SHIPGLOWS_ROOT/tools/shipglows_metadata_lint.py"
 ```
 
 This layer is wired into the documentation workflow, agent routing, project context, migration guidance, and lint validation. It is not passive reference material; it is part of how ShipGlows frames, executes, verifies, and documents work.
 
-ShipGlows-owned files are resolved from `${SHIPGLOWS_ROOT:-$HOME/shipglows}` even when a skill is running inside another repository. Project artifacts and source files are the only paths resolved from the current project root.
+ShipGlows-owned files are resolved from `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}` even when a skill is running inside another repository. Project artifacts and source files are the only paths resolved from the current project root.
 
 For legacy projects, use the migration playbook in [`shipglows_data/technical/metadata-migration-guide.md`](./shipglows_data/technical/metadata-migration-guide.md) before normalizing old docs.
 

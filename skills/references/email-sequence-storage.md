@@ -115,7 +115,7 @@ Keep the body sequence-first: campaign intent, segment and exclusions, step-by-s
 - Do not copy raw inbox emails, recipient data, headers, tracking parameters, or proprietary phrasing into a sequence file.
 - Record the structural lesson or a redacted source reference when provenance matters.
 - Keep source-derived packs in `workflow/repurpose-packs/` when the reusable asset is source analysis rather than a finished sequence.
-- Keep `~/.shipglows/private/data/projects/` for routing context and `source-cache/` only for short private review before a project is known.
+- Keep `~/.shipglows/data/projects/` for routing context and `source-cache/` only for short private review before a project is known.
 
 ## Ownership
 

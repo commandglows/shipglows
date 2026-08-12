@@ -181,5 +181,5 @@ Use focused `rg` checks to verify mandatory labels and shared-reference links re
 ## Integration Notes
 
 - Do not rename skill directories, `name:` fields, or invocation keys during compaction.
-- Resolve ShipGlows-owned references from `${SHIPGLOWS_ROOT:-$HOME/shipglows}`.
+- Resolve ShipGlows-owned references from `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`.
 - Keep reports concise for users, detailed only when explicit handoff or blocked state requires it.

@@ -40,7 +40,7 @@ When a project owns `shipglows_data/workflow/atlas/approved-surfaces.json`, an a
 Run the ShipGlows-owned tool with every intended project-relative path:
 
 ```bash
-python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/shipglows_atlas_preflight.py" \
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/shipglows_atlas_preflight.py" \
   --atlas shipglows_data/workflow/atlas/approved-surfaces.json \
   --project-root . \
   --changed site/src/components/Hero.astro

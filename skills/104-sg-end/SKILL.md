@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
@@ -83,7 +83,7 @@ From the conversation, identify:
 - Any gap between "work performed" and "outcome proven"
 - Documentation surfaces updated or possibly stale after the change
 - Documentation Reflection Gate result: `updated`, `not impacted` with reason, or `needs review`
-- Project development mode from `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` and `CLAUDE.md` / `SHIPGLOWS.md`
+- Project development mode from `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/project-development-mode.md` and `CLAUDE.md` / `SHIPGLOWS.md`
 - Whether required preview deployment evidence exists (`005-sg-ship` pushed, `405-sg-prod` confirmed, and preview test/auth proof collected when needed)
 - Whether any source-of-truth delta remains unsynced before closure: tracker, changelog, docs, bug file, spec, public copy, skill runtime links, or archive target
 

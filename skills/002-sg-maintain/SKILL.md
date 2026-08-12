@@ -8,7 +8,7 @@ Primary artifact type: `master-workflow`.
 
 ## Canonical Paths
 
-Before resolving a ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, references, templates, workflow docs, and internal scripts resolve from there; project artifacts resolve from the current project root unless stated otherwise.
+Before resolving a ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, references, templates, workflow docs, and internal scripts resolve from there; project artifacts resolve from the current project root unless stated otherwise.
 
 ## Public Métier Ownership
 

@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-12"
+updated: "2026-08-11"
 status: active
 source_skill: 102-sg-start
 scope: design-inspiration-library
@@ -26,7 +26,7 @@ linked_systems:
   - skills/006-sg-design/SKILL.md
 depends_on:
   - artifact: skills/references/private-data-repo-contract.md
-    artifact_version: "1.2.0"
+    artifact_version: "2.0.0"
     required_status: active
 supersedes: []
 evidence:
@@ -39,6 +39,7 @@ evidence:
   - "Operator correction 2026-08-07: taxonomy exists only when a reference is explicitly classified at approval; empty candidate tags are not a usable creative search index."
   - "Live recovery 2026-08-07: an explicit retry replaces only a failed candidate with no artifacts after a shared capture-runtime repair, preserving the prior reason in private metadata."
   - "Live capture 2026-08-07: very tall pages proportionally downscale only full-page WebP while retaining high-resolution segments; the current bundle remains a static visual snapshot and does not record animation timelines."
+  - "Operator decision 2026-08-11: the separate corpus moves from ~/.shipglows/private/design-inspiration-library to the sibling path ~/.shipglows/design-inspiration-library."
 next_review: "2026-08-15"
 next_step: "/103-sg-verify sales-page-reference-library"
 ---
@@ -56,15 +57,15 @@ Use `shipglows_data/business/project-competitors-and-inspirations.md` for compet
 Public ShipGlows contract and tooling:
 
 ```text
-${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/design-inspiration-library.md
-${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/design-inspiration/
-${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/capture_design_inspiration.py
+${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/design-inspiration-library.md
+${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/design-inspiration/
+${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/capture_design_inspiration.py
 ```
 
 Private source-derived corpus:
 
 ```text
-${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/design-inspiration-library}
+${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/design-inspiration-library}
 ```
 
 Optional remote configuration for the separate corpus:
@@ -73,7 +74,7 @@ Optional remote configuration for the separate corpus:
 SHIPGLOWS_INSPIRATION_LIBRARY_REPO
 ```
 
-The remote is configured externally and must never be hardcoded in this contract or the tool. This corpus is deliberately separate from `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/data}`, whose contract excludes durable cross-project marketing-example libraries.
+The remote is configured externally and must never be hardcoded in this contract or the tool. This corpus is deliberately separate from `${SHIPGLOWS_PRIVATE_DATA_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/data}`, whose contract excludes durable cross-project marketing-example libraries.
 
 ## Versioning And Purge Policy
 
@@ -210,7 +211,7 @@ If a page exceeds the WebP maximum dimension, `full-page.webp` is proportionally
 7. Promote to `approved` only after operator review. Set `rejected`, `blocked`, or `removed` when appropriate.
 8. If a skill discovers a useful URL outside a curation task, report its redacted URL and rationale; do not add it to the corpus until curation is in scope or the operator confirms.
 
-The normal operator entrypoint is `sg-design library add <public-url>`, followed by `sg-design library approve <reference-id>`. Use `sg-design library retry <reference-id>` only after a failed candidate's capture runtime was repaired. The curation tool, not a hand edit, writes retry/promotion metadata and synchronizes `index.yaml`. `library list` and `library status` read only the bounded index. See `skills/006-sg-design/references/design-inspiration-library-operations.md` for the activation contract.
+The normal operator entrypoint is `/006-sg-design library add <public-url>`, followed by `/006-sg-design library approve <reference-id>`. Use `/006-sg-design library retry <reference-id>` only after a failed candidate's capture runtime was repaired. The curation tool, not a hand edit, writes retry/promotion metadata and synchronizes `index.yaml`. `library list` and `library status` read only the bounded index. See `skills/006-sg-design/references/design-inspiration-library-operations.md` for the activation contract.
 
 Live capture reuses the server-wide Playwright Node installation: `node` and the global `playwright` CLI must be in `PATH`, and Chromium must exist in Playwright's shared browser cache. The Python tool resolves the `playwright` Node package from that CLI (including a CLI provided by global `@playwright/test`) and never requires the Python Playwright API or a per-project browser install. If discovery fails, repair the shared server installation indicated by the reason code: `playwright_cli_unavailable`, `node_unavailable`, `playwright_package_unavailable`, or `playwright_browser_unavailable`.
 

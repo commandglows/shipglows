@@ -37,7 +37,7 @@ Ce fichier est le point d'entree rapide pour un agent qui arrive dans le repo. I
 
 ## Route By Task
 
-  - Pour tout fichier interne ShipGlows, resoudre depuis `${SHIPGLOWS_ROOT:-$HOME/shipglows}`. Cela inclut `skills/`, `skills/references/`, `templates/`, `tools/`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` et `shipglows_data/technical/metadata-migration-guide.md`. Le repo courant ne sert de racine que pour les artefacts et le code du projet audite ou modifie.
+  - Pour tout fichier interne ShipGlows, resoudre depuis `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`. Cela inclut `skills/`, `skills/references/`, `templates/`, `tools/`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` et `shipglows_data/technical/metadata-migration-guide.md`. Le repo courant ne sert de racine que pour les artefacts et le code du projet audite ou modifie.
 - Si la tache touche la creation d'une app ou l'utilisation du Blueprint Gate (consommation), lire `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` puis `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md`; le Blueprint Gate appartient à `001-sg-build`.
 - Si la tache touche l'extraction d'un blueprint depuis une app existante (creation/maintenance interne ShipGlows), lire `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md` puis `$SHIPGLOWS_ROOT/skills/app-blueprints/README.md`; la creation d'un blueprint appartient à `900-shipglows-core build`.
 - Si la tache touche le CLI principal, commencer par `cli/shipglows.sh`, `cli/lib.sh`, puis `shipglows_data/technical/context.md`.

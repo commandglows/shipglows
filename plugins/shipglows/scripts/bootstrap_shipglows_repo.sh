@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_url="${SHIPGLOWS_REPO_URL:-https://github.com/commandglows/shipglows.git}"
-target_dir="${SHIPGLOWS_ROOT:-$HOME/.shipglows/source}"
+target_dir="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 ref="${SHIPGLOWS_REF:-main}"
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
@@ -13,7 +13,7 @@ Clones or updates a sparse ShipGlows source checkout for skills.
 
 Environment:
   SHIPGLOWS_REPO_URL  Repository URL. Defaults to https://github.com/commandglows/shipglows.git
-  SHIPGLOWS_ROOT      Target directory. Defaults to $HOME/.shipglows/source
+  SHIPGLOWS_ROOT      Target directory. Defaults to $HOME/.shipglows/runtime
   SHIPGLOWS_REF       Branch, tag, or commit. Defaults to main
 USAGE
   exit 0

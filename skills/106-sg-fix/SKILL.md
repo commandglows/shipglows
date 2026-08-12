@@ -6,7 +6,7 @@ argument-hint: <bug description, error message, or failing behavior>
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 Primary artifact type: `specialist-workflow`.
 
@@ -156,7 +156,7 @@ Use the report shape in `bug-fix-workflow.md`: classification, reason, user stor
 - A direct fix must defend product coherence and security posture, not only pass the local repro.
 - A direct fix must not bypass durable process, root cause, owner routing, shared structure, or proof.
 - A direct visual fix must defend design-system coherence; unexplained hardcoded sizes, offsets, breakpoints, z-indexes, colors, font sizes, spacings, animation timings, IME/keyboard insets, or overlay positions are not acceptable proof of repair.
-- For UI/design fixes, run `python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --changed --format markdown` or route the gap explicitly; unresolved new drift keeps the bug at most `fix-attempted`.
+- For UI/design fixes, run `python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/design_system_drift_check.py" --changed --format markdown` or route the gap explicitly; unresolved new drift keeps the bug at most `fix-attempted`.
 - Do not close a bug without retest evidence in `shipglows_data/workflow/bugs/BUG-ID.md`.
 - For a visual minor exception, do not use resolved/fixed/verified/closed language until a person validates the rendered result; otherwise report only `implemented` plus the proof gap.
 - Do not treat a local retest as closure evidence when project mode requires Vercel preview-push validation.

@@ -45,13 +45,13 @@ Use these names consistently when users talk to ShipGlows through skills or othe
 
 - `ShipGlows` or `ShipGlows system`: the combined package of CLI scripts, skills, local tooling, and documentation.
 - `ShipGlows Dev Server`: the server-side CLI layer that manages environments and runtime behavior. Unless the user says otherwise, this means:
-  - `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/shipglows.sh`
-  - `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/lib.sh`
-  - `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/config.sh`
-  - `${SHIPGLOWS_ROOT:-$HOME/shipglows}/cli/install.sh`
-- `ShipGlows TUI`: the terminal user interface under `${SHIPGLOWS_ROOT:-$HOME/shipglows}/tui/`.
-- `ShipGlows local tools`: the local connection and tunnel helpers under `${SHIPGLOWS_ROOT:-$HOME/shipglows}/local/`.
-- `ShipGlows skills`: the skill system under `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/`.
+  - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/shipglows.sh`
+  - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/lib.sh`
+  - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/config.sh`
+  - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/install.sh`
+- `ShipGlows TUI`: the terminal user interface under `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tui/`.
+- `ShipGlows local tools`: the local connection and tunnel helpers under `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/local/`.
+- `ShipGlows skills`: the skill system under `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/`.
 
 ## Routing Rule
 

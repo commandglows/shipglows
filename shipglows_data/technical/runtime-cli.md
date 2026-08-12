@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.34"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-09"
+updated: "2026-08-11"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -32,6 +32,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Runtime layout migration 2026-08-11: mutable user-mode Caddy state now defaults to ~/.shipglows/state/caddy, leaving ~/.shipglows/runtime available for the canonical code checkout."
   - "Function inventory from cli/shipglows.sh, cli/lib.sh, cli/config.sh, and CONTEXT-FUNCTION-TREE.md."
   - "Blacksmith setup menu added for official CLI/Testbox guidance without token handling."
   - "Remote Blacksmith auth now routes to local SSH callback tunnel instead of direct server login."
@@ -278,7 +279,7 @@ provide a tmux-equivalent session manager.
   sequences from one-key menus do not leak into the next searchable selector.
 - `cli/lib.sh::refresh_user_caddy_from_pm2` and
   `sync_caddy_after_pm2_change`: user-mode Caddy lifecycle helpers. They write
-  runtime config under the operator's `~/.shipglows/runtime/caddy`, refresh
+  mutable service state under the operator's `~/.shipglows/state/caddy`, refresh
   routes from online PM2 apps, and stop Caddy when no PM2 app is online.
 - `cli/lib.sh::action_publish`: public exposure through Caddy and DuckDNS.
 

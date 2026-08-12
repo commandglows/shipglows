@@ -39,7 +39,7 @@ This reference preserves the detailed pre-compaction instructions for `109-sg-au
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -102,13 +102,13 @@ Références locales à charger selon le contexte:
 - `references/python-convex.md` pour scripts Python, jobs, imports et clients Convex
 - `references/sdk-policy.md` pour choisir stable/beta/non-officiel dans le stack ShipGlows
 - `references/flutter-web-clerkjs-bridge.md` pour le pattern ContentFlow: Flutter web + routes HTML ClerkJS + bridge Dart
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` pour savoir si la preuve auth doit se faire en local ou après push sur preview Vercel
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/sentry-observability.md` quand le flow auth échoue avec une exception runtime, un error boundary, un 5xx, un event ID, ou un signal Sentry côté client/serveur
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/runtime-diagnostics-surface.md` quand l'app peut exposer une page/panneau diagnostics, support, settings, callback error, error boundary, ou bouton `Copy diagnostics` / `Copy logs`; l'agent doit l'utiliser lui-même s'il peut naviguer sans action dangereuse
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-auth.md` pour Supabase Auth, `@supabase/ssr`, cookies, redirects, callbacks et limites `getUser()` / `getSession()`
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/flutter-web-clerkjs-auth-pattern.md` comme documentation technique transverse à réutiliser dans les autres repos Flutter
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md` comme documentation technique transverse pour YouTube OAuth via Next.js + Convex
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/playwright-mcp-runtime.md` avant tout appel Playwright MCP, pour eviter le fallback Linux ARM64 vers Google Chrome stable absent
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/project-development-mode.md` pour savoir si la preuve auth doit se faire en local ou après push sur preview Vercel
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/sentry-observability.md` quand le flow auth échoue avec une exception runtime, un error boundary, un 5xx, un event ID, ou un signal Sentry côté client/serveur
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/runtime-diagnostics-surface.md` quand l'app peut exposer une page/panneau diagnostics, support, settings, callback error, error boundary, ou bouton `Copy diagnostics` / `Copy logs`; l'agent doit l'utiliser lui-même s'il peut naviguer sans action dangereuse
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-auth.md` pour Supabase Auth, `@supabase/ssr`, cookies, redirects, callbacks et limites `getUser()` / `getSession()`
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/flutter-web-clerkjs-auth-pattern.md` comme documentation technique transverse à réutiliser dans les autres repos Flutter
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md` comme documentation technique transverse pour YouTube OAuth via Next.js + Convex
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/playwright-mcp-runtime.md` avant tout appel Playwright MCP, pour eviter le fallback Linux ARM64 vers Google Chrome stable absent
 
 Ne charger que les références utiles au bug courant. Si une info de référence est critique et peut avoir changé récemment, vérifier ponctuellement la documentation officielle, puis mettre à jour la référence locale si nécessaire.
 
@@ -154,7 +154,7 @@ Toujours reformuler le problème comme une mini user story:
 - rupture
 - résultat attendu
 
-Lire `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md`, puis inspecter `CLAUDE.md` ou `SHIPGLOWS.md`:
+Lire `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/project-development-mode.md`, puis inspecter `CLAUDE.md` ou `SHIPGLOWS.md`:
 - Si le mode est `vercel-preview-push`, utiliser une URL de déploiement confirmée par `405-sg-prod` comme surface de preuve pour tout bug auth/callback/session qui dépend du navigateur ou de l'environnement hébergé.
 - Si le mode est `hybrid`, utiliser local seulement pour les signaux purement UI/static. Pour OAuth, callbacks, cookies secure/sameSite, domaines autorisés, variables d'env déployées, middleware serverless/edge, ou bug visible seulement en preview/prod, exiger la séquence `005-sg-ship` -> `405-sg-prod` avant de déclarer le flow réparé.
 - Si le mode manque et que Vercel est détecté, classer `unknown-vercel`, signaler le trou documentaire, et ne pas conclure que local prouve preview/prod.
@@ -206,20 +206,20 @@ Lire seulement les fichiers les plus pertinents avant d'agir:
 
 Charger les références locales pertinentes avant de conclure:
 - Clerk ou `@clerk/*` détecté -> lire `references/clerk-tooling.md`, puis `references/clerk-testing.md` si l'agent doit réellement tester, puis `references/clerk.md`
-- Supabase Auth, `@supabase/ssr`, `@supabase/supabase-js`, `supabase.auth`, `auth/v1`, callback email/OAuth Supabase, ou dossier `supabase/` détecté -> lire `references/supabase-tooling.md`, puis `references/supabase-testing.md` si l'agent doit réellement tester, puis `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/supabase-auth.md`
+- Supabase Auth, `@supabase/ssr`, `@supabase/supabase-js`, `supabase.auth`, `auth/v1`, callback email/OAuth Supabase, ou dossier `supabase/` détecté -> lire `references/supabase-tooling.md`, puis `references/supabase-testing.md` si l'agent doit réellement tester, puis `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/supabase-auth.md`
 - Vercel ou problème de runtime/deploy/logs détecté -> lire `references/vercel-tooling.md`
-- Sentry détecté, diagnostics/log-copy UI visible, event ID visible, 5xx, crash, error boundary, ou exception runtime pendant le flow auth -> lire `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/sentry-observability.md`
-- App PM2 sans pointeur Sentry fourni/visible -> utiliser les logs PM2 locaux et les checks Doppler caviardés décrits dans `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/sentry-observability.md`
-- Mode `vercel-preview-push`, `hybrid` avec flow hébergé, ou Vercel détecté -> lire aussi `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` et utiliser `405-sg-prod` pour obtenir l'URL de déploiement fiable avant Playwright
+- Sentry détecté, diagnostics/log-copy UI visible, event ID visible, 5xx, crash, error boundary, ou exception runtime pendant le flow auth -> lire `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/sentry-observability.md`
+- App PM2 sans pointeur Sentry fourni/visible -> utiliser les logs PM2 locaux et les checks Doppler caviardés décrits dans `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/sentry-observability.md`
+- Mode `vercel-preview-push`, `hybrid` avec flow hébergé, ou Vercel détecté -> lire aussi `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/project-development-mode.md` et utiliser `405-sg-prod` pour obtenir l'URL de déploiement fiable avant Playwright
 - Google OAuth direct ou social login Google -> lire `references/google-oauth.md`
 - Convex détecté -> lire `references/convex-tooling.md`
 - Convex avec Clerk ou session backend Convex -> lire `references/convex-clerk.md`
-- Diagnostic Playwright, session persistée, preuve navigateur ou auth automatisée -> lire `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/playwright-mcp-runtime.md`, puis `references/playwright-auth.md`
+- Diagnostic Playwright, session persistée, preuve navigateur ou auth automatisée -> lire `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/playwright-mcp-runtime.md`, puis `references/playwright-auth.md`
 - Astro ou `@clerk/astro` détecté -> lire `references/astro-clerk.md`
 - Flutter, Dart, `clerk_flutter`, `clerk_auth`, ou `convex_dart` détecté -> lire `references/flutter-clerk-convex.md`
 - Flutter web avec ClerkJS, `web_auth/`, `clerk-runtime.js`, `/sign-in`, `/sso-callback`, ou bridge JS/Dart -> lire `references/flutter-web-clerkjs-bridge.md`
-- Implémentation ou correction d'auth Flutter web dans un autre repo -> lire aussi `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/flutter-web-clerkjs-auth-pattern.md`
-- YouTube OAuth, Google API scopes, `refresh_token`, `/api/auth/youtube`, ou connexion YouTube depuis Flutter -> lire aussi `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md`
+- Implémentation ou correction d'auth Flutter web dans un autre repo -> lire aussi `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/flutter-web-clerkjs-auth-pattern.md`
+- YouTube OAuth, Google API scopes, `refresh_token`, `/api/auth/youtube`, ou connexion YouTube depuis Flutter -> lire aussi `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md`
 - Python script/job qui appelle Convex -> lire `references/python-convex.md`
 - Choix de SDK, dépendance beta, package non-officiel, ou choix Clerk/Firebase
   -> lire `references/sdk-policy.md` puis la matrice partagée
@@ -243,7 +243,7 @@ Le but ici est de guider l'observation Playwright, pas de faire une revue exhaus
 
 Utiliser Playwright pour observer le comportement réel.
 
-Avant le premier appel `mcp__playwright__*`, appliquer la preflight Playwright MCP de `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/playwright-mcp-runtime.md`:
+Avant le premier appel `mcp__playwright__*`, appliquer la preflight Playwright MCP de `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/playwright-mcp-runtime.md`:
 - si la config Playwright MCP pointe vers Google Chrome stable, un channel `chrome`, ou seulement `["-y", "@playwright/mcp@latest"]` sur Linux ARM64, ne pas lancer Playwright comme preuve; router vers `/106-sg-fix BUG-2026-05-02-001`
 - si la config est correcte mais que le MCP renvoie encore `/opt/google/chrome/chrome`, conclure que le process MCP courant est stale et demander un reload Codex/MCP avant de retester
 - le rapport final doit indiquer `Playwright MCP runtime: executable-path <path>`, `chromium fallback`, ou `blocked/stale config`

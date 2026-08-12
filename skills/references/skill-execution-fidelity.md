@@ -368,7 +368,7 @@ The `shipglows-core` audit is an internal operator signal, not the source of tru
 Run it through the versioned ShipGlows tool:
 
 ```bash
-python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/audit_shipglows_skills.py"
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/audit_shipglows_skills.py"
 ```
 
 Treat its classifications as:

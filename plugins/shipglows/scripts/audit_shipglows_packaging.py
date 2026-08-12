@@ -154,7 +154,7 @@ def local_reference_names(body: str) -> set[str]:
 def find_nonportable_lines(body: str) -> list[str]:
     patterns = [
         "$SHIPGLOWS_ROOT",
-        "$HOME/shipglows",
+        "$HOME/.shipglows/runtime",
         "/home/claude/shipglows",
         "shipglows_data/",
         "tools/",

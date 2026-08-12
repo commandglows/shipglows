@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$ShipglowsDir = (Join-Path $env:USERPROFILE '.shipglows'),
+    [string]$ShipglowsDir = (Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'runtime'),
     [string]$Workspace = (Join-Path $env:USERPROFILE 'ShipGlows'),
     [switch]$SkipProfile
 )
@@ -14,10 +14,11 @@ $gumVersion = '0.17.0'
 $gumSha256 = 'B2BE80531C6BABC8D4E0E6CA95773D58118A2E1582AE006AACE08DBC55503072'
 New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
 New-Item -ItemType Directory -Path $Workspace -Force | Out-Null
-$defaultHiddenRoot = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.shipglows')).TrimEnd('\')
-if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -eq $defaultHiddenRoot) {
-    $installRootItem = Get-Item -LiteralPath $ShipglowsDir -Force
-    $installRootItem.Attributes = $installRootItem.Attributes -bor [IO.FileAttributes]::Hidden
+$defaultHiddenParent = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.shipglows')).TrimEnd('\')
+$defaultRuntimeRoot = [IO.Path]::GetFullPath((Join-Path $defaultHiddenParent 'runtime')).TrimEnd('\')
+if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -eq $defaultRuntimeRoot) {
+    $hiddenParentItem = Get-Item -LiteralPath $defaultHiddenParent -Force
+    $hiddenParentItem.Attributes = $hiddenParentItem.Attributes -bor [IO.FileAttributes]::Hidden
 }
 
 function Write-SgInstallerWarning([string]$Message) {
@@ -47,24 +48,31 @@ function Add-SgUserPathEntry([string]$Directory) {
     Update-SgProcessPath
 }
 
-function Remove-SgLegacyVisibleRuntime {
-    if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -ne $defaultHiddenRoot) { return }
-    $legacyRoot = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE 'ShipGlows')).TrimEnd('\')
-    $legacyBin = Join-Path $legacyRoot 'bin'
+function Remove-SgLegacyRuntime {
+    if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -ne $defaultRuntimeRoot) { return }
+    $legacyVisibleRoot = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE 'ShipGlows')).TrimEnd('\')
+    $legacyRoots = @($defaultHiddenParent, $legacyVisibleRoot)
     $currentUserPath = [Environment]::GetEnvironmentVariable('Path', 'User')
     $keptPathEntries = @($currentUserPath -split ';' | Where-Object {
-        -not [string]::IsNullOrWhiteSpace($_) -and
-        -not ([IO.Path]::GetFullPath($_).TrimEnd('\') -eq $legacyBin)
+        if ([string]::IsNullOrWhiteSpace($_)) { return $false }
+        $entryPath = [IO.Path]::GetFullPath($_).TrimEnd('\')
+        foreach ($legacyRoot in $legacyRoots) {
+            $legacyBin = [IO.Path]::GetFullPath((Join-Path $legacyRoot 'bin')).TrimEnd('\')
+            if ($entryPath -eq $legacyBin) { return $false }
+        }
+        return $true
     })
     [Environment]::SetEnvironmentVariable('Path', ($keptPathEntries -join ';'), 'User')
-    foreach ($technicalDirectory in @('bin', 'cli', 'local')) {
-        $legacyPath = Join-Path $legacyRoot $technicalDirectory
-        if (Test-Path -LiteralPath $legacyPath) {
-            Remove-Item -LiteralPath $legacyPath -Recurse -Force
-            Write-Host "Removed legacy visible ShipGlows runtime: $legacyPath" -ForegroundColor DarkGray
+    foreach ($legacyRoot in $legacyRoots) {
+        foreach ($technicalDirectory in @('bin', 'cli', 'local')) {
+            $legacyPath = Join-Path $legacyRoot $technicalDirectory
+            if (Test-Path -LiteralPath $legacyPath) {
+                Remove-Item -LiteralPath $legacyPath -Recurse -Force
+                Write-Host "Removed legacy ShipGlows runtime: $legacyPath" -ForegroundColor DarkGray
+            }
         }
     }
-    $legacyWorkspace = Join-Path $legacyRoot 'workspace'
+    $legacyWorkspace = Join-Path $legacyVisibleRoot 'workspace'
     if ((Test-Path -LiteralPath $legacyWorkspace) -and -not (Get-ChildItem -LiteralPath $legacyWorkspace -Force | Select-Object -First 1)) {
         Remove-Item -LiteralPath $legacyWorkspace -Force
     }
@@ -636,7 +644,7 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     }
 }
 
-Remove-SgLegacyVisibleRuntime
+Remove-SgLegacyRuntime
 Remove-SgObsoleteProfileCommand
 Install-SgCommandWrappers
 [void](Install-SgGum)

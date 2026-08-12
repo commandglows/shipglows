@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-06-12"
-updated: "2026-08-06"
+updated: "2026-08-11"
 status: active
 source_skill: 009-sg-skill-build
 scope: winflowz-suite-product-registry
@@ -51,17 +51,17 @@ permanent product access. Convex is the canonical entitlement authority.
 
 Known canonical product ids governed by the unified policy include:
 
-- `winflowz_app`
-- `winflowz_formation`
+- `commandglows_app`
+- `commandglows_formation`
 - `gocharbon`
 - `contentglowz`
 - `shipglows`
 - `replayglowz`
-- `socialglowz`
+- `communityglows`
 - `temu_shopping_lists`
 
-Legacy names remain canonical identifiers only where runtime migration has not
-yet renamed them. Every entry above and every future allowlisted product uses
+Legacy names are aliases for lookup and migration evidence only; they are not
+canonical identifiers and cannot create a separate allowance. Every entry above and every future allowlisted product uses
 the same trial and provider contract; none receives `product_default` access.
 
 ## Commercial Access Policy
@@ -91,7 +91,9 @@ are superseded history.
 
 ## Alias And Exclusion Notes
 
-- `winflowz_android` is not a separate entitlement product. Treat it as the Android surface of `winflowz_app`.
+- `winflowz_android` and `winflowz_app` are historical aliases for the CommandGlows app surface. Normalize them to `commandglows_app`; neither creates a separate entitlement product.
+- `winflowz_formation` is a historical alias for `commandglows_formation`.
+- `socialglowz` is a historical alias for `communityglows`.
 - Do not create new durable `product_id` aliases for marketing names, platform names, provider product ids, or app-store ids. Normalize them to the canonical internal product id first.
 - External provider ids remain references only. They never replace `product_id`.
 - A free public preview or unauthenticated marketing/demo surface may exist

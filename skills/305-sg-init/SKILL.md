@@ -6,7 +6,7 @@ argument-hint: <project path or bootstrap instruction>
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Instruction Layering
 
@@ -38,7 +38,7 @@ Always load shared references only when their gate applies. Load skill-local ref
 - `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`: required when bootstrapping or auditing governance for a project with a UI surface.
 - `$SHIPGLOWS_ROOT/skills/references/atlas-cartography-lifecycle.md`: required for an explicit `atlas` bootstrap or refresh in a product with user-visible surfaces.
 - `$SHIPGLOWS_ROOT/skills/references/guided-business-product-discovery.md`: required when creating or substantially repairing business, product, GTM, brand or customer-led Atlas framing.
-- `$SHIPGLOWS_ROOT/skills/references/private-data-repo-contract.md`: required when bootstrap, install, or repair scope touches the durable private data repository under `~/.shipglows/private/data/`.
+- `$SHIPGLOWS_ROOT/skills/references/private-data-repo-contract.md`: required when bootstrap, install, or repair scope touches the durable private data repository under `~/.shipglows/data/`.
 - `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md`: required only when the operator explicitly requests email-provider, Resend plugin/MCP, sending-domain, or email-operation setup; do not add sending authority for ordinary project bootstrap.
 
 ## Mode Detection
@@ -61,7 +61,7 @@ Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skil
 - Ask only missing business truth in plain language, one decision at a time; do not turn Atlas bootstrap into a technical or exhaustive-feature questionnaire.
 - Never infer customer priority, business model, promise or brand intent from the technical stack alone. Mark proposals as hypotheses until the operator confirms them.
 - When bootstrap scope includes the private data repository, resolve its remote from configuration such as `SHIPGLOWS_PRIVATE_DATA_REPO` instead of hardcoding an operator-specific repository URL.
-- Treat `~/.shipglows/private/data/` as a separate Git working tree for durable private data, not as a subfolder to version inside public repos or `$SHIPGLOWS_ROOT`.
+- Treat `~/.shipglows/data/` as a separate Git working tree for durable private data, not as a subfolder to version inside public repos or `$SHIPGLOWS_ROOT`.
 - Stop and report if the target private data path exists but is not a Git repository, unless the active bootstrap contract explicitly includes migration or repair steps.
 - For monorepos using the Astro plus Flutter plus backend split, prefer flat source roots at the monorepo root (`site/`, `app/`, `backend/`, `ext/`, `packages/`) instead of nested `apps/*` bundles unless the project documents a durable technical exception. Use `ext/` for the default single browser/web extension; only use `extensions/<extension-name>/` after a second independently shipped extension exists.
 

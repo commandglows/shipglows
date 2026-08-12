@@ -108,7 +108,7 @@ Before asking the operator for missing evidence, apply the Operator Autonomy Sta
 
 When classified `direct`:
 
-- follow `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/task-application-loop.md`
+- follow `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/task-application-loop.md`
 - implement the bounded professional repair
 - preserve the user story outcome and product coherence
 - update or flag docs describing fixed behavior

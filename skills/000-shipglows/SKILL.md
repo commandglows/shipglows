@@ -8,7 +8,7 @@ Primary artifact type: `entrypoint-router`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows-owned tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows-owned tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running.
 
 ## Intent-to-Outcome Ownership
 

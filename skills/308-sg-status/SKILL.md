@@ -7,7 +7,7 @@ argument-hint: [optional: all | issues | dirty]
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -68,7 +68,7 @@ If `$ARGUMENTS` is provided, map:
 
 ### Step 1: Read project registry
 
-Derive project paths by scanning workspace roots and project-local markers (`shipglows_data/`), then include ShipGlows itself (`${SHIPGLOWS_ROOT:-$HOME/shipglows}`). Use `local project discovery (`shipglows_data/` markers)` only as legacy compatibility fallback when local discovery is unavailable.
+Derive project paths by scanning workspace roots and project-local markers (`shipglows_data/`), then include ShipGlows itself (`${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`). Use `local project discovery (`shipglows_data/` markers)` only as legacy compatibility fallback when local discovery is unavailable.
 
 `308-sg-status` must not read the external registry as project governance truth. It is a dashboard input only; per-project governance remains under each project's local `shipglows_data/{business,technical,editorial,workflow}` corpus and is not mutated here.
 

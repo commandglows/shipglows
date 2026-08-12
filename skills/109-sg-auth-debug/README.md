@@ -57,8 +57,8 @@ For public UI, visual, console, network, or non-auth navigation checks, use `108
 - `references/flutter-web-clerkjs-bridge.md` for the Flutter web ClerkJS bridge implementation pattern in other repos
 - `references/python-convex.md` for Python scripts and jobs that call Convex
 - `references/sdk-policy.md` for stable, beta, and unofficial SDK choices in the ShipGlows stack
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/flutter-web-clerkjs-auth-pattern.md` as the cross-repo technical guide for implementing this pattern in Flutter web apps
-- `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md` as the cross-repo guide for YouTube OAuth through Next.js, Clerk, and Convex
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/flutter-web-clerkjs-auth-pattern.md` as the cross-repo technical guide for implementing this pattern in Flutter web apps
+- `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/tubeflow-youtube-oauth-nextjs-convex-pattern.md` as the cross-repo guide for YouTube OAuth through Next.js, Clerk, and Convex
 
 ## Typical Examples
 

@@ -17,7 +17,7 @@ run_config() {
 
 mkdir -p "$TEST_ROOT/default/home"
 default_result="$(run_config "$TEST_ROOT/default")"
-[ "$default_result" = "$TEST_ROOT/default/home/.shipglows/private/data||$TEST_ROOT/default/home/.shipglows/private/data" ] || fail "default private path"
+[ "$default_result" = "$TEST_ROOT/default/home/.shipglows/data||$TEST_ROOT/default/home/.shipglows/data" ] || fail "default private path"
 
 mkdir -p "$TEST_ROOT/config/home" "$TEST_ROOT/config/config/shipglows"
 CONFIG_FILE="$TEST_ROOT/config/config/shipglows/private-data.env"

@@ -133,12 +133,12 @@ def private_default_root() -> Path:
     configured = os.environ.get("SHIPGLOWS_INSPIRATION_LIBRARY_DIR")
     if configured:
         return Path(configured).expanduser()
-    private_root = Path(os.environ.get("SHIPGLOWS_PRIVATE_DIR", str(Path.home() / ".shipglows" / "private"))).expanduser()
+    private_root = Path(os.environ.get("SHIPGLOWS_PRIVATE_DIR", str(Path.home() / ".shipglows"))).expanduser()
     return private_root / "design-inspiration-library"
 
 
 def shipglows_root() -> Path:
-    return Path(os.environ.get("SHIPGLOWS_ROOT", str(Path.home() / "shipglows"))).expanduser().resolve()
+    return Path(os.environ.get("SHIPGLOWS_ROOT", str(Path.home() / ".shipglows" / "runtime"))).expanduser().resolve()
 
 
 def is_relative_to(path: Path, parent: Path) -> bool:

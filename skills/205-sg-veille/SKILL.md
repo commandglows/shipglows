@@ -7,7 +7,7 @@ argument-hint: "triage <URLs or pasted content> | help"
 
 ## Canonical Paths
 
-Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows-owned tools, shared references, skill-local references, templates, workflow docs, and internal scripts resolve from `$SHIPGLOWS_ROOT`; project artifacts resolve from the current project governance root.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows-owned tools, shared references, skill-local references, templates, workflow docs, and internal scripts resolve from `$SHIPGLOWS_ROOT`; project artifacts resolve from the current project governance root.
 
 ## Instruction Layering
 

@@ -39,7 +39,7 @@ This reference preserves the detailed pre-compaction instructions for `405-sg-pr
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
 
 ## Chantier Tracking
 
@@ -69,14 +69,14 @@ Because this skill has process role `source-de-chantier`, evaluate the standard 
 Vérifier que le dernier déploiement en production a réussi. Trois checks : status du deploy, health check de l'URL, et accès aux logs si erreur.
 Le but est de donner un signal de confiance honnête sur la prod, pas un faux "tout va bien" basé sur un seul `200 OK`.
 
-Si le déploiement ou le build passe par GitHub Actions sur Blacksmith runners, lire aussi `${SHIPGLOWS_ROOT:-$HOME/shipglows}/shipglows_data/technical/blacksmith.md` avant de conclure sur les logs, les métriques, le sizing runner, ou l'accès SSH.
+Si le déploiement ou le build passe par GitHub Actions sur Blacksmith runners, lire aussi `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/shipglows_data/technical/blacksmith.md` avant de conclure sur les logs, les métriques, le sizing runner, ou l'accès SSH.
 
-Lire `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/sentry-observability.md` quand le projet expose Sentry ou quand le signal prod dépend d'une erreur runtime, d'un 5xx, d'un crash, d'un flow auth/paiement/données, d'un job, d'un webhook, ou d'une erreur visible après déploiement.
+Lire `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/sentry-observability.md` quand le projet expose Sentry ou quand le signal prod dépend d'une erreur runtime, d'un 5xx, d'un crash, d'un flow auth/paiement/données, d'un job, d'un webhook, ou d'une erreur visible après déploiement.
 
 Les anciens registres `PROJECTS.md` sont des artefacts legacy/migration.
 `405-sg-prod` ne doit jamais modifier `TASKS.md`, `AUDIT_LOG.md` ou `PROJECTS.md`.
 
-Lire `${SHIPGLOWS_ROOT:-$HOME/shipglows}/skills/references/project-development-mode.md` avant de choisir la cible. Si le projet est en mode `vercel-preview-push`, `405-sg-prod` vérifie le déploiement Vercel correspondant au dernier commit poussé et renvoie l'URL de preview prête pour les tests. Dans ce mode, le mot "prod" désigne le gate post-push, pas forcément le domaine de production custom.
+Lire `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/project-development-mode.md` avant de choisir la cible. Si le projet est en mode `vercel-preview-push`, `405-sg-prod` vérifie le déploiement Vercel correspondant au dernier commit poussé et renvoie l'URL de preview prête pour les tests. Dans ce mode, le mot "prod" désigne le gate post-push, pas forcément le domaine de production custom.
 
 After `405-sg-prod` confirms the deployment URL and deploy/runtime state, route page-level browser assertions, visual checks, console summaries, and non-auth network checks to `/108-sg-browser [URL] [objective]`. Keep deployment discovery, Vercel status, build logs, runtime logs, and live health ownership in `405-sg-prod`.
 

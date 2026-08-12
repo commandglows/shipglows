@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-08-03"
+updated: "2026-08-11"
 status: active
 source_skill: 102-sg-start
 scope: canonical-path-resolution
@@ -31,6 +31,7 @@ evidence:
   - "Operator decision on 2026-07-23: flat source roots at the monorepo root (site/, app/, backend/, packages/) are the preferred canonical shape for projects using the Astro plus Flutter plus backend split; nested apps/* packaging is allowed only with a documented durable exception."
   - "Operator decision on 2026-08-05: a project with one browser/web extension uses the singular root source surface ext/; do not pre-create extensions/ until a second independently shipped extension exists."
   - "Operator decision on 2026-08-03: canonical ShipGlows resources use governed progressive discovery rather than ad hoc path search when the activation contract needs supporting references."
+  - "Operator decision on 2026-08-11: Linux and Windows runtime files live under ~/.shipglows/runtime; private data and the design inspiration library are sibling repositories under ~/.shipglows."
 next_review: "2026-09-03"
 next_step: "/103-sg-verify canonical path policy"
 ---
@@ -41,7 +42,10 @@ ShipGlows skills often run from a project repository, but ShipGlows-owned tools 
 
 ## Roots
 
-- ShipGlows root: `${SHIPGLOWS_ROOT:-$HOME/shipglows}`
+- ShipGlows runtime root: `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`
+- Mutable local service state: `${SHIPGLOWS_RUNTIME_DIR:-$HOME/.shipglows/state}`
+- Durable private data repo: `${SHIPGLOWS_PRIVATE_DATA_DIR:-$HOME/.shipglows/data}`
+- Private design inspiration repo: `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-$HOME/.shipglows/design-inspiration-library}`
 - Legacy tracking compatibility path: `${SHIPGLOWS_DATA_DIR:-$HOME/shipglows_data}` (read-only historical, not active source of truth)
 - Project root: current working directory, unless the user explicitly gives another project path
 - Governance root: the nearest canonical root for project-owned ShipGlows artifacts. In a single-project repo, this is the repository root. In a monorepo, this is the monorepo root, not an app/package subdirectory.
@@ -156,7 +160,7 @@ After selecting a skill and mode for non-trivial work, use `tools/resource_resol
 ## Command Pattern
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
+SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}"
 "$SHIPGLOWS_ROOT/tools/shipglows_metadata_lint.py"
 ```
 

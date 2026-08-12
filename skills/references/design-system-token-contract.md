@@ -122,13 +122,13 @@ Unexplained literals are defects. Verification must fail or report partial when 
 For changed UI/design files, run:
 
 ```bash
-python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --changed --format markdown
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/design_system_drift_check.py" --changed --format markdown
 ```
 
 For audits or migration planning, run a broader scan:
 
 ```bash
-python3 "${SHIPGLOWS_ROOT:-$HOME/shipglows}/tools/design_system_drift_check.py" --format markdown --warn-only
+python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/design_system_drift_check.py" --format markdown --warn-only
 ```
 
 The scan is evidence, not the only truth. If it reports acceptable platform-bound literals, the report must name the exception reason and proof.

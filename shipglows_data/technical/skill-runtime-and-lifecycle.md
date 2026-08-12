@@ -266,8 +266,8 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | Path | Role | Edit notes |
 | --- | --- | --- |
 | `skills/*/SKILL.md` | Executable skill contracts | Keep descriptions compact; route heavy detail to references |
-| `skills/references/*.md` | Shared doctrine and provider-specific references | Resolve from `${SHIPGLOWS_ROOT:-$HOME/shipglows}` |
-| `tools/resource_resolver.py` | Read-only progressive discovery of relevant shared references, skill-local references, and reusable workflow playbooks | Run only after owner skill/mode selection; resolve from `${SHIPGLOWS_ROOT:-$HOME/shipglows}` and canonical roots |
+| `skills/references/*.md` | Shared doctrine and provider-specific references | Resolve from `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}` |
+| `tools/resource_resolver.py` | Read-only progressive discovery of relevant shared references, skill-local references, and reusable workflow playbooks | Run only after owner skill/mode selection; resolve from `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}` and canonical roots |
 | `skills/references/resource-discovery.md` | Resolver invocation, semantic resource IDs, bounded expansion, migration guidance, and authority boundary | Advisory discovery only; mandatory skill gates, project truth, freshness, owner, and proof contracts remain authoritative |
 | `skills/references/skill-instruction-layering.md` | Canonical layering contract for `SKILL.md` activation rules vs shared or skill-local references | Load before editing or compacting skills |
 | `skills/<skill>/references/*.md` | Skill-local heavy checklists, mode playbooks, and report matrices | Keep top-level SKILL focused on activation and gates |
@@ -474,7 +474,7 @@ eligible design or copy intent
   -> record selected IDs and summarize transferable/anti-copy patterns
 ```
 
-The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows/private}/design-inspiration-library}` and stays outside public repositories. The public repo contains only contracts, schemas, tool code, and synthetic fixtures. Competitor, pricing, positioning, differentiation, and market work continues to use `shipglows_data/business/project-competitors-and-inspirations.md`.
+The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${SHIPGLOWS_PRIVATE_DIR:-$HOME/.shipglows}/design-inspiration-library}` and stays outside public repositories. The public repo contains only contracts, schemas, tool code, and synthetic fixtures. Competitor, pricing, positioning, differentiation, and market work continues to use `shipglows_data/business/project-competitors-and-inspirations.md`.
 
 `006-sg-design` also owns the direct private-library entrypoint: `library add <url>`, optional known `wayback <archive-url>`, `library approve <id>`, `library list`, and `library status`. Add creates a `candidate`; approval requires curation/anti-copy review and atomically updates the record plus `index.yaml`; Wayback remains metadata only and never triggers or blocks an archive request.
 
