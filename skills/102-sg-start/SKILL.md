@@ -8,124 +8,60 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
-
-## Instruction Layering
-
-This `SKILL.md` is the activation contract. Before editing or expanding this skill, load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` and keep bulky workflow detail in skill-local references.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). Project artifacts still resolve from the current project root.
 
 ## Chantier Tracking
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before executing from a ready spec, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, read the spec's `Skill Run History` and `Current Chantier Flow`, and preserve that flow in the execution contract. When a unique spec is used, append a current `102-sg-start` row with result `implemented`, `partial`, `blocked`, or `rerouted`, update `Current Chantier Flow`, and open the report with the opening chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. If the task is direct or no unique chantier spec is identified, do not write to a spec; use a `(local)` chantier header with a short work name.
+For one ready spec, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, preserve its history/flow, append the `102-sg-start` result, and update the flow. Without one unique spec, do not write a spec; use a `(local)` chantier header.
 
-Result semantics:
-- Use `implemented` when the planned code, docs, and tests within `102-sg-start` scope were completed, even if runtime, manual, hosted, production, Sentry, or device-only verification remains pending.
-- Use `partial` only when implementation work itself is incomplete, intentionally deferred, or some planned files or tasks could not be finished.
-- Missing manual QA, hosted preview proof, Sentry dashboard evidence, production verification, or device-only validation must not downgrade `102-sg-start` from `implemented` to `partial`; record those gaps for `103-sg-verify` instead.
-- When local implementation is complete but those gaps stay pending, avoid closure/ship-ready wording and route the next owner or proof step explicitly. Apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md` when deployed proof is required.
-- If local checks fail because the implementation is broken, use `partial` or `blocked` depending on whether the fix can continue. If checks fail because the environment cannot run a proof surface outside `102-sg-start` scope, keep `implemented` and route to `103-sg-verify partial`.
+## Mission And Mode Detection
 
-Auto-verify semantics:
-- When a unique ready spec is in scope and the only remaining lifecycle proof is local, tool-backed, non-destructive verification, `102-sg-start` may run that local verification itself at an explicit checkpoint, end-of-conversation handoff, `SGEND`/`104-sg-end`, `SGSHIP`/`005-sg-ship`, or on explicit operator request, and report `auto-verify: run`. Eligibility alone does not authorize mid-conversation checks.
-- Do not auto-verify when proof needs preview, production, auth/browser flows, Sentry, device testing, manual QA, secret access, a user decision, commit, push, ship, or any external side effect; report `auto-verify: skipped` with the exact owner route instead.
-- Local auto-verify never means `104-sg-end`, `005-sg-ship`, or full lifecycle orchestration; `001-sg-build` remains the owner of full `103-sg-verify -> 104-sg-end -> 005-sg-ship` continuation.
+`102-sg-start` implements one bounded work item; it does not merely plan or claim verification, closure, commit, push, or ship.
 
-Any temporary build output, cache, or scratch preview created during implementation or auto-verify is disposable unless the task explicitly requires a durable project artifact. Remove it before ending the run.
+Before classifying the request, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-workflow.md`.
 
-## Report Modes
+- Atomic direct execution (exact string, placeholder, typo, heading-tag, or formatting replacement) stays outside `102-sg-start` unless explicitly invoked; execute it directly with focused validation.
+- Small, local, clear work uses `direct` mode with a silent mini-contract.
+- Non-trivial, ambiguous, multi-file, auth/data/migration/API/security, external-integration, or cross-domain work uses `spec-first` and requires one matching `ready` spec.
+- Missing or unready contract routes to `100-sg-spec` then `101-sg-ready`; do not write.
 
-Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
+Before reading ShipGlows-owned references or running its tools, apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md`.
 
-Default to `report=user`: concise, outcome-first, and using the opening chantier header. Use `report=agent`, blocked, handoff, verbose, or full report only when detailed evidence is needed.
+## Result And Auto-Verify Boundaries
 
-## Required References
+`implemented` means planned code, docs, and tests in this skill's scope are complete. Use `partial` only when implementation itself is incomplete. Missing manual, hosted, production, Sentry, browser/auth, or device proof does not downgrade implementation; route that gap to `103-sg-verify partial` and avoid ship-ready wording. Broken local implementation checks remain `partial` or `blocked`.
 
-Load only the references needed for the active run:
+Auto-verify may report `auto-verify: run` only at an explicit checkpoint when one ready spec owns the work, implementation and local checks pass, and all remaining proof is local, tool-backed, non-destructive, decision-free, and already defined. Report `auto-verify: skipped` with `owner_skill`, `scenario`, and `target_or_environment` whenever proof needs preview, production, auth/browser flow, Sentry, device/manual QA, secrets, commit, push, ship, provider action, data mutation, or another external side effect. Local auto-verify never runs `104-sg-end` or `005-sg-ship`; `001-sg-build` retains full lifecycle ownership.
 
-- `references/execution-workflow.md`: detailed task identification, scope triage, execution contract, model/delegation choice, implementation loop, validation, spec trace, and final report rules.
-- `$SHIPGLOWS_ROOT/skills/references/project-runtime-policy.md`: when starting or recovering a ShipGlows-managed PM2 environment.
-- `$SHIPGLOWS_ROOT/skills/references/task-application-loop.md`: required before task-by-task implementation to preserve target selection, context loading, progress semantics, stop conditions, and proof routing.
-- `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`: required before selecting direct mode, model, topology, implementation path, or fallback. Bounded implementation is allowed; shortcut quality or shortcut excellence is not.
-- `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`: required before choosing topology or dispatching agents. Two or more independent read-only scopes fan out in parallel by default; mutations are delegated sequentially unless a ready spec defines non-overlapping `Execution Batches` and names the integration owner.
-- `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`: required before creating or mutating task, audit, or `spec:` operational records in `TASKS.md`, `AUDIT_LOG.md`, or spec summary sections.
-- `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md`: required before implementation when the task changes behavior, fixes a bug, changes a skill contract, or needs a proof path. Choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` before editing and report the chosen proof path.
-- `$SHIPGLOWS_ROOT/skills/references/zombies-edge-case-heuristic.md`: required for non-trivial behavioral implementation; map meaningful zero, one, many, boundary, interface, and exceptional cases to the proof plan before editing.
-- `$SHIPGLOWS_ROOT/skills/references/clean-code-quality-contract.md`: required before authored or materially modified code; apply its pragmatic naming, cohesion, complexity, abstraction, error, side-effect, comment, dead-code, and behavior-proof gates.
-- `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`: required before implementation touching an internet-facing or privileged surface; preserve the selected OWASP/ASVS controls and their proof path.
-- `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`: required before UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual proof work.
-- `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md`: required only when the task depends on framework, SDK, service, API, auth/session, build, migration, cache, routing, or integration behavior.
-- `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md`: required before deriving the execution contract for project validation surface.
-- `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`: required when the task touches a runtime app, support/error handling, settings, auth callbacks, deploy proof, Sentry, browser debugging, or log collection.
-- `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md`: required when the target project owns an Atlas registry and implementation can touch registered code.
-- `$SHIPGLOWS_ROOT/skills/references/atlas-cartography-lifecycle.md`: required when implementation creates, splits, retires, or materially remaps a user-visible surface or observable function in an Atlas project.
-- `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`: required before writing when a confirmed product decision changes or implementation affects a traced journey, capability, critical moment, Atlas node, public promise or proof obligation.
-- Supabase, Sentry, auth-debug, browser, or model-routing references only when the workflow reference triggers their gate.
+## Progressive References
 
-## ShipGlows-Owned Preflight
+Load each local reference directly from this activation contract; local references never load one another.
 
-Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before reading ShipGlows-owned references, running ShipGlows-owned tools/scripts, or mutating ShipGlows-owned operational records.
-For `102-sg-start`, this preflight also applies before touching ShipGlows-owned tracker or spec surfaces.
+- Before deriving either a direct mini-contract or ready-spec execution contract, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-contract.md`.
+- Before model or agent topology selection, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-topology.md`, `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`, `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`, and the canonical model-routing reference.
+- Immediately before the first write, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/implementation-and-proof.md` plus only its scope-triggered shared contracts. This includes `task-application-loop.md` for task-by-task work, `spec-driven-development-discipline.md` for behavioral/proof work, `zombies-edge-case-heuristic.md` for non-trivial behavior, `clean-code-quality-contract.md` for code, and `owasp-application-security-awareness.md` for internet-facing or privileged surfaces.
+- Before the final report, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-report.md` and `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
-## Mode Detection
+Conditional gates: PM2 runtime; fresh docs; development mode; UI tokens; diagnostics; operational records; Atlas; `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` before writing when a confirmed decision or traced impact changes; and operator-last-resort evidence.
 
-Parse `$ARGUMENTS`, available ready specs, and the latest user request.
+## Execution Invariants
 
-- Atomic direct execution: an exact string, placeholder, typo, heading-tag, or formatting replacement that needs no implementation judgment stays outside `102-sg-start` unless the user explicitly invoked this skill. Execute it directly with focused validation.
-- Direct mode: small, local, clear tasks may execute without a durable spec; create a silent mini-contract before editing.
-- Spec-first mode: non-trivial, ambiguous, multi-file, auth/data/migration/API/security, external integration, or cross-domain work requires a ready spec before implementation.
-- Existing ready spec: load `references/execution-workflow.md`, read the spec fully, derive the execution contract, then implement.
-- Missing or unready spec: stop and route to `/100-sg-spec`, `/101-sg-ready`, then `/102-sg-start`.
-
-## Core Execution Rules
-
-`102-sg-start` answers one question:
-
-```text
-What implementation can be completed now without overstating proof, closure, or ship status?
-```
-
-- `102-sg-start` implements; it should not stop at planning when a valid execution contract exists.
-- Apply the shared task application loop: identify target state, load required context, implement one bounded slice at a time, update durable progress only after completion, and route proof gaps explicitly.
-- Before the first write in an Atlas project, run its Atlas preflight for every intended changed path. A `block` stops implementation until the active request/spec grants the exact target and dimension; a `review` must be resolved as map expansion or explicit no-impact before claiming coverage.
-- When implementation changes the product map, update the project Atlas in the same bounded slice: preserve stable IDs where the outcome remains the same, add or retire semantic IDs deliberately, and refresh impact/dependency links. Never infer an operator quality level or protected baseline from the implementation.
-- When a confirmed decision changes, run the Decision Change Protocol before the first write: record `before → after`, traverse direct/dependent impacts, preserve unaffected invariants and apply approved edits in canonical-source order. Do not patch the nearest code surface while upstream contracts still disagree.
-- Preserve the user story outcome over task-checkbox completion.
-- Preserve the spec or mini-contract as the source of truth; tests and evidence prove the contract, they do not redefine it.
-- Follow the decision-quality contract: choose bounded excellent professional implementation, not the fastest/easiest patch. Speed, cost, and local convenience are secondary after correctness, security, performance, maintainability, durability, excellence, and proof quality.
-- Apply the `Structure Replacement Doctrine`: when two implementation paths are quality-equivalent, prefer the one that removes repeated operator friction, hidden manual steps, ambiguity, or maintenance burden from the current structure.
-- Obey the `Fast Fix Shortcut Ban`: do not bypass root cause, owner routing, shared structure, documentation, or proof to make a local symptom disappear.
-- For UI, IME, keyboard, overlay, responsive, layout, spacing, typography, color, motion, or component work, obey the `UI And Design-System Shortcut Ban`: do not hardcode one-off visual values as an emergency shortcut; fix the token, theme, component primitive, layout utility, or measurement source unless a named platform-bound constant is explicitly justified and proven.
-- For any UI/design implementation, run or route the changed-file drift check from `design-system-token-contract.md`. New literals outside the canonical token/theme/component source block a clean completion claim unless documented as platform-bound exceptions.
-- For runtime apps, preserve or add the safe diagnostics/log-copy surface from `runtime-diagnostics-surface.md`; prefer the existing project component/helper and ensure copied diagnostics start with commit/build plus Paris/UTC build time.
-- For testable behavior, prefer a `test-first` proof path. For skill/governance changes, use `scenario-first`. For UI/docs/auth/deploy/operational work, use `evidence-first`. If the strongest path is impractical, record `exception-with-proof` and the alternate evidence.
-- For authored or materially modified code, retain a proportional `Clean Code Gate`; do not trade correctness, security, performance, platform constraints, or project conventions for stylistic purity.
-- For applicable security work, retain an `OWASP Security Gate`; do not silently replace server-side controls, trust-boundary validation, integrity checks, or recovery behavior with UI-only or happy-path logic.
-- Read only the files needed for the execution contract and linked systems that can change correctness.
-- Prefer fresh-context execution for non-trivial spec-first work when available, but keep the main thread responsible for integration, validation, and user-facing truth.
-- For executable work, preserve the structured delegation receipt required by `master-delegation-semantics.md` and expose the compact `Agents: <count> · <mode>` line in the final report. If the runtime cannot dispatch the selected topology, report degraded execution explicitly.
-- Do not weaken documentation, security, redaction, chantier, or validation gates to finish faster.
-- Apply `$SHIPGLOWS_ROOT/skills/references/operator-last-resort-evidence.md` before asking the operator for logs, validation status, or similar evidence.
-- If implementation is complete and the next unresolved owner is proof, route to `103-sg-verify` instead of drifting into closure or ship language.
-- Respect canonical source roots from `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`; for monorepos using the Astro plus Flutter plus backend split, keep flat roots at the monorepo root, use `ext/` for the default single browser/web extension, and do not introduce nested `apps/*` layout without a documented durable exception.
-- Before any PM2 restart recovery, load `project-runtime-policy.md`; if the project disables automatic recovery, preserve logs and route the operator to Codex repair without calling `env_start` automatically.
+- Preserve the user-story outcome, spec/mini-contract, dependencies, invariants, linked systems, and chosen proof path.
+- Before writing, resolve product/security/data/tenant/destructive/external-side-effect ambiguity; never substitute checkbox completion or the fastest patch for the accepted outcome.
+- Execute bounded slices, preserve existing user changes, update durable progress only after completion, and stop when scope or authority expands.
+- Passing technical checks never proves product, security, auth, hosted, production, manual, or device behavior.
+- Preserve observable success/failure, documentation coherence, security controls, diagnostics, and design-system sources when applicable.
+- For executable work, retain the delegation receipt and report `Agents: <count> · <mode>`; independent read-only scopes are parallel by default, mutations delegated sequentially, and parallel writes require ready non-overlapping `Execution Batches` plus an integration owner.
 
 ## Stop Conditions
 
-Stop and report blocked or rerouted when:
-
-- No ready spec exists for non-trivial work.
-- The spec is missing minimal behavior, success/error behavior, linked systems, explicit tasks, acceptance criteria, or decisive constraints.
-- Product/security/data/tenant/destructive/external-side-effect ambiguity remains.
-- The implementation path would satisfy listed tasks while missing the promised user outcome.
-- Required references are missing or contradict this activation contract.
+Stop as `blocked` or `rerouted` when no ready spec exists for non-trivial work; the contract lacks behavior, success/error, tasks, acceptance criteria, dependencies, or decisive constraints; authority or safety semantics remain ambiguous; implementation would miss the user outcome; required references are missing or contradictory; or the selected proof path cannot support the claimed result.
 
 ## Validation
 
-Validate this skill after edits with:
-
-- `rg -n "Trace category|Process role|Result semantics|Auto-verify semantics|auto-verify|implemented|partial|Report Modes|Required References|ShipGlows-Owned Preflight|canonical ShipGlows path|Spec-first|ready spec|Atlas|references/execution-workflow|project-runtime-policy|task-application-loop|spec-driven-development-discipline|test-first|evidence-first|proof path" skills/102-sg-start/SKILL.md`
+- `rg -n "Trace category|Process role|Atomic direct execution|stays outside|implemented|partial|auto-verify: run|auto-verify: skipped|execution-workflow|execution-contract|execution-topology|implementation-and-proof|execution-report|Agents: <count>|Stop Conditions" skills/102-sg-start/SKILL.md`
+- `python3 -m unittest tools.test_102_sg_start_compaction_contract tools.test_master_delegation_contract tools.test_skill_selection_proportionality tools.test_reporting_contract`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`
-- `tools/shipglows_sync_skills.sh --check --all`

@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — progressive activation compaction wave 3
+
+**Added:** bounded execution-contract, topology, implementation/proof, reporting, documentation-family, and bug-proof references plus three owner scenario contracts.
+
+**Updated:** `102-sg-start`, `300-sg-docs`, and `106-sg-fix` now defer topology, governance, mutation, and retest doctrine until the deciding gate while preserving lifecycle, preflight, security, visual-proof, and result semantics locally.
+
+**New phases:** direct first-decision packs for execution, documentation families, and repair; no dependency graph or installed-catalog change.
+
+**Sources:** 0 external URLs consulted; fresh docs not needed because the wave changes local instruction packaging without changing public or external behavior.
+
 ## 2026-08-12 — progressive activation compaction wave 2
 
 **Added:** ten metadata-bearing conditional references and four owner-specific scenario contracts for ship, bug, checks, and scaffolding.

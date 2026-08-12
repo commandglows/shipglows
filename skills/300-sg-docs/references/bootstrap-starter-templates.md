@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.2.0"
+artifact_version: "0.3.0"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-06-28"
+updated: "2026-08-12"
 status: draft
 source_skill: 009-sg-skill-build
 scope: 300-sg-docs-bootstrap-starter-templates
@@ -15,20 +15,21 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - skills/300-sg-docs/SKILL.md
-  - skills/300-sg-docs/references/mode-playbooks.md
+  - skills/300-sg-docs/references/simple-bootstrap-playbooks.md
   - shipglows_data/technical/
   - shipglows_data/workflow/
 depends_on:
   - artifact: "skills/300-sg-docs/references/core-governance.md"
     artifact_version: "0.4.0"
     required_status: "draft"
-  - artifact: "skills/300-sg-docs/references/mode-playbooks.md"
-    artifact_version: "0.5.0"
-    required_status: "draft"
+  - artifact: "skills/300-sg-docs/references/simple-bootstrap-playbooks.md"
+    artifact_version: "1.0.0"
+    required_status: "active"
 supersedes: []
 evidence:
   - "Operator decision on 2026-06-28: docs init for empty repositories needs stable starter templates, not only a routing/playbook note."
   - "Operator decision on 2026-06-28: docs init should guide the operator with precise bootstrap questions instead of treating missing framing as blocked."
+  - "Wave-3 compaction routes bootstrap directly through the bounded simple/bootstrap family."
 next_review: "2026-07-12"
 next_step: "/103-sg-verify 300-sg-docs init bootstrap templates"
 ---

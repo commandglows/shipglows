@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: "shipglows"
 created: "2026-06-10"
-updated: "2026-07-18"
+updated: "2026-08-12"
 status: active
 source_skill: 106-sg-fix
 scope: "bug-fix-workflow"
@@ -25,12 +25,13 @@ supersedes: []
 evidence:
   - "Extracted from 106-sg-fix/SKILL.md during residual body-risk cleanup."
   - "Visual bug proof fidelity hardening on 2026-07-18."
+  - "Wave-3 compaction keeps direct-fix intake, memory, and execution detail conditional."
 next_step: "none"
 ---
 
 # Bug Fix Workflow
 
-Use this reference after the top-level `106-sg-fix` activation contract has selected a proof path and classified the bug.
+Use this reference only after the top-level `106-sg-fix` contract classifies the bug as `direct`. It owns intake, durable memory, and bounded repair mechanics; the top-level contract retains classification, authority, security, and stops.
 
 ## Intake Detail
 
@@ -92,23 +93,11 @@ Before choosing `direct`, verify:
 - local-enough blast radius
 - decision quality and excellence
 
-## External Gates
-
-Use documentation freshness when current external behavior matters. Use project development mode before deciding retest surface.
-
-For auth, protected routes, OAuth redirects, Clerk/Supabase session state, callback handling, or code that works statically but fails in browser, use `109-sg-auth-debug` as diagnostic evidence while keeping `106-sg-fix` as execution owner.
-
-For non-auth browser reproduction, prefer `108-sg-browser` evidence before patching when observable runtime behavior matters.
-
-For crashes, error boundaries, 5xx, visible Sentry/support event IDs, production exceptions, deployed-runtime failures, or copyable diagnostics/logs, load Sentry observability and runtime diagnostics surface. Use the app's copy action when reachable, verify the commit/build + Paris/UTC header, and never paste raw payloads, breadcrumbs, replay contents, headers, cookies, tokens, private URLs, or PII into bug files or reports.
-
-Before asking the operator for missing evidence, apply the Operator Autonomy Standard: gather safe local/runtime/browser/app diagnostics evidence yourself. Escalate to the operator only for a real decision, secret, account/device/manual-only proof, unavailable environment, or unsafe external side effect.
-
 ## Direct Fix Execution
 
 When classified `direct`:
 
-- follow `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/task-application-loop.md`
+- load and follow `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/references/task-application-loop.md` plus `clean-code-quality-contract.md` before the first code write
 - implement the bounded professional repair
 - preserve the user story outcome and product coherence
 - update or flag docs describing fixed behavior
@@ -116,52 +105,11 @@ When classified `direct`:
 - mark task in progress only when a clear tracker row exists
 - re-read trackers immediately before edits
 - run relevant checks and at least one user-story sanity check
-- route preview-push retests through `005-sg-ship -> 405-sg-prod -> 107-sg-test --preview --retest BUG-ID`
 - append a Fix Attempts row
 - keep status `fix-attempted` until retest evidence exists
 - allow `fixed-pending-verify` only after passing retest
 - refuse `closed` without retest evidence
-- run `103-sg-verify` logic after retest before closure
 
 For a visual minor exception, the person validates the rendered result in the
 distinct post-fix retest phase; the exception only waives creation of a new
 durable bug file and never substitutes static checks for that validation.
-
-## Spec-First Or Diagnostic-Only
-
-If `spec-first`, do not code. Route to `/100-sg-spec [bug title]`, `/101-sg-ready [bug title or spec path]`, then `/102-sg-start [bug title]`.
-
-If `diagnostic only`, do not code. Route to `109-sg-auth-debug`, `108-sg-browser`, or report suspected root cause and a concrete next command.
-
-## Final Report Shape
-
-```text
-## Bug Intake: [title]
-
-Classification: [direct / spec-first]
-Reason: [short rationale]
-User story: [actor + expected outcome]
-Bug reference: [BUG-ID | minor exception]
-Bug file: [shipglows_data/workflow/bugs/BUG-ID.md | minor exception]
-Bug trace exception: [no | yes + reason]
-Clarifications asked: [none / short list]
-Proof path: [regression-first / evidence-first / exception-with-proof]
-Root cause hypothesis: [short hypothesis or missing]
-Product coherence: [ok / risk]
-Documentation coherence: [ok / risk / not impacted]
-Fresh external docs: [checked / not needed / gap / conflict]
-Sentry evidence: [supplied pointer correlated / no pointer supplied / PM2-Doppler fallback / not applicable]
-Diagnostics/logs evidence: [copied header verified / copied header missing / surface missing / not applicable]
-Operator autonomy: [safe evidence gathered / operator input genuinely needed / gap]
-Development mode: [local / vercel-preview-push / hybrid / unknown-vercel]
-Preview verification gate: [not needed / requires 005-sg-ship -> 405-sg-prod / completed]
-Security posture: [ok / risk]
-Bug status transition: [in-diagnosis -> fix-attempted -> fixed-pending-verify | other]
-Retest evidence: [required / present / missing]
-Action taken: [fixed directly / routed]
-
-Next step:
-- [exact command to run]
-
-Scope estimate: [small / medium / large]
-```
