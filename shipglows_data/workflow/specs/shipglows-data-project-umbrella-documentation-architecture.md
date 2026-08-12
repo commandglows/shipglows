@@ -1,14 +1,14 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-05-09"
 created_at: "2026-05-09 21:04:33 UTC"
 updated: "2026-08-12"
 updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
-source_skill: sg-spec
+source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: migration
 owner: Diane
@@ -44,11 +44,12 @@ depends_on:
   - artifact: "skills/references/canonical-paths.md"
     artifact_version: "1.0.0"
     required_status: active
-  - artifact: "specs/shipglows-governance-corpus-bootstrap-and-sg-build-integration.md"
-    artifact_version: "1.0.0"
+  - artifact: "shipglows_data/workflow/specs/shipglows-governance-corpus-bootstrap-and-sg-build-integration.md"
+    artifact_version: "1.0.3"
     required_status: ready
 supersedes: []
 evidence:
+  - "Wave 20 migrates the governance-bootstrap dependency to its canonical workflow/specs path and the corrected sg-build filename."
   - "Historical migration-source provenance (legacy root documents): ARCHITECTURE.md, CONTENT_MAP.md, GUIDELINES.md."
   - "User decision 2026-05-09: current file-by-file symlink and Markdown organization is too messy and must be replaced by a project-level umbrella architecture."
   - "User direction 2026-05-09: each GitHub project should have a ShipGlows data folder at repo root with technical documentation, editorial, and business subfolders."

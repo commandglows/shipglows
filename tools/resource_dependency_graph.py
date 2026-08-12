@@ -88,6 +88,11 @@ def _version(value: str) -> tuple[int, int, int] | None:
     return tuple(map(int, match.groups())) if match else None
 
 
+def _dependency_path(value: str) -> str:
+    """Normalize separators and only the explicit relative-path prefix."""
+    return value.replace("\\", "/").removeprefix("./")
+
+
 def _iter_artifacts(root: Path) -> Iterable[Path]:
     for base in (root / "skills", root / "shipglows_data"):
         if base.is_dir():
@@ -154,7 +159,7 @@ def audit_dependency_graph(
                 target
                 for dependency in source.dependencies
                 if (
-                    target := dependency.artifact.replace("\\", "/").lstrip("./")
+                    target := _dependency_path(dependency.artifact)
                 ).startswith(("skills/", "shipglows_data/"))
             )
 
@@ -177,7 +182,7 @@ def audit_dependency_graph(
             continue
         for dependency in source.dependencies:
             checked += 1
-            target_path = dependency.artifact.replace("\\", "/").lstrip("./")
+            target_path = _dependency_path(dependency.artifact)
             target = artifacts.get(target_path)
             if target is None:
                 physical = root / target_path

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-07-13"
+updated: "2026-08-12"
 status: reviewed
 source_skill: 300-sg-docs
 scope: kilocode-runtime-docs
@@ -17,13 +17,11 @@ linked_systems:
   - ".agents/skills/shipglows/SKILL.md"
   - "README.md"
   - "shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md"
-depends_on:
-  - artifact: ".agents/skills/shipglows/SKILL.md"
-    artifact_version: "unknown"
-    required_status: "unknown"
+depends_on: []
 supersedes:
   - docs/kilocode-shipglows.md
 evidence:
+  - "Wave 20 reclassifies the repository-local .agents shim as a linked runtime surface rather than a versioned documentation dependency."
   - "Repository docs already state that KiloCode-style runtimes should use natural language or the runtime skill picker."
   - "The repository proves a generic OpenCode-compatible shim at `.agents/skills/shipglows/SKILL.md`, but no dedicated KiloCode shim path."
 next_step: "/300-sg-docs audit shipglows_data/technical/operator-guides/kilocode-shipglows.md"

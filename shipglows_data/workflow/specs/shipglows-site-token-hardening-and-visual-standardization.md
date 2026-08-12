@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-06-11"
 created_at: "2026-06-11 16:05:00 UTC"
-updated: "2026-06-11"
-updated_at: "2026-06-11 16:05:00 UTC"
+updated: "2026-08-13"
+updated_at: "2026-08-13 00:00:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -26,7 +26,7 @@ linked_systems:
   - "skills/503-sg-audit-design-tokens/SKILL.md"
   - "skills/500-sg-design-from-scratch/SKILL.md"
 depends_on:
-  - artifact: "shipglows_data/business/branding.md"
+  - artifact: "shipglows_data/branding/branding.md"
     artifact_version: "1.1.0"
     required_status: reviewed
   - artifact: "shipglows_data/technical/guidelines.md"
@@ -39,6 +39,7 @@ depends_on:
     artifact_version: "1.0.0"
     required_status: active
 evidence:
+  - "Wave 20 migrates the branding dependency to the canonical reviewed authority at shipglows_data/branding/branding.md."
   - "Baseline drift scan: `python3 tools/design_system_drift_check.py --root site --format markdown --warn-only --max-findings 200`."
   - "`site/src/styles/global.css` currently centralizes the most-used tokens and visual aliases via CSS variables."
   - "There is no dedicated component token helper layer yet, so shared component conventions must be defined before removing direct style literals."

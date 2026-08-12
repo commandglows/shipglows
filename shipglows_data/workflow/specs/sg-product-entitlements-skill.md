@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-06-10"
 created_at: "2026-06-10 11:09:38 UTC"
-updated: "2026-06-10"
-updated_at: "2026-06-10 11:35:28 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 00:00:00 UTC"
 status: ready
 source_skill: sg-spec
 source_model: GPT-5 Codex
@@ -18,10 +18,11 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
-  - skills/sg-product-entitlements/SKILL.md
+  - /home/claude/replayglowz/explorations/2026-06-10-suite-entitlements-sync-skill-placement.md
+  - skills/601-sg-product-entitlements/SKILL.md
+  - skills/600-sg-local-cloud-sync/SKILL.md
+  - skills/109-sg-auth-debug/SKILL.md
   - skills/references/product-entitlements-playbook.md
-  - skills/sg-local-cloud-sync/SKILL.md
-  - skills/sg-auth-debug/SKILL.md
   - skills/sg-help/references/help-catalog.md
   - shipglows_data/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/technical/code-docs-map.md
@@ -38,14 +39,12 @@ depends_on:
   - artifact: "skills/references/product-entitlements-playbook.md"
     artifact_version: "1.0.1"
     required_status: active
-  - artifact: "skills/sg-local-cloud-sync/SKILL.md"
-    artifact_version: unknown
+  - artifact: "skills/600-sg-local-cloud-sync/references/local-cloud-sync-doctrine.md"
+    artifact_version: "1.1.0"
     required_status: active
-  - artifact: "explorations/2026-06-10-suite-entitlements-sync-skill-placement.md"
-    artifact_version: "1.0.0"
-    required_status: draft
 supersedes: []
 evidence:
+  - "Wave 20 reclassifies the ReplayGlowz exploration as external provenance and replaces the retired sync-skill dependency with the active 600 local-cloud-sync doctrine."
   - "Exploration report /home/claude/replayglowz/explorations/2026-06-10-suite-entitlements-sync-skill-placement.md recommends one new product-entitlements skill and no standalone data-sync skill."
   - "skills/references/product-entitlements-playbook.md defines the core doctrine: identity, provider events, and product entitlements are separate layers; authentication must not grant product access."
   - "skills/sg-local-cloud-sync/SKILL.md already owns local-to-cloud data promotion, merge, conflict, tombstone, offline queue, UX state, and data-trust proof."

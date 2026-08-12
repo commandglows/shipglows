@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-07-13"
 created_at: "2026-07-13 21:00:14 UTC"
-updated: "2026-07-13"
-updated_at: "2026-07-13 21:27:00 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 00:00:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -18,6 +18,7 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
+  - "/home/claude/dotfiles/nvim/MyNeovim/shipglows_data/workflow/specs/daily-mail-intake-review-v2.md"
   - "skills/references/source-intake-classification.md"
   - "skills/references/private-memory-store.md"
   - "skills/references/schemas/source-analysis-v1.schema.json"
@@ -39,17 +40,9 @@ depends_on:
   - artifact: "shipglows_data/workflow/explorations/2026-06-29-mail-source-intake-automation.md"
     artifact_version: "1.1.0"
     required_status: draft
-  - artifact: "/home/claude/dotfiles/nvim/MyNeovim/shipglows_data/workflow/specs/daily-mail-intake-review-v2.md"
-    artifact_version: "1.0.0"
-    required_status: ready
-  - artifact: "/home/claude/contentglowz/shipglows_data/technical/lab/architecture.md"
-    artifact_version: "1.1.0"
-    required_status: reviewed
-  - artifact: "/home/claude/contentglowz/shipglows_data/branding/branding.md"
-    artifact_version: "1.0.0"
-    required_status: reviewed
 supersedes: []
 evidence:
+  - "Wave 20 reclassifies the external Mail Intelligence spec as a linked multi-repository system and removes ContentGlowz architecture/branding from ShipGlows dependency governance; their body mentions remain historical implementation context only."
   - "Operator request 2026-07-13: pre-enrich every reviewed email with proposed content angles and likely next actions before the operator opens it."
   - "Operator request 2026-07-13: inspect ContentGlowz email capabilities and avoid implementing the same analysis engine twice."
   - "Mail Intelligence already persists one private metadata-only review file per stable local message and exposes a Neovim review surface."

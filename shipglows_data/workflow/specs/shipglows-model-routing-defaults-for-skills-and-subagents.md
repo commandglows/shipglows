@@ -1,14 +1,14 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-05-14"
 created_at: "2026-05-14 10:05:37 UTC"
-updated: "2026-05-14"
-updated_at: "2026-05-14 20:56:37 UTC"
+updated: "2026-08-13"
+updated_at: "2026-08-13 00:00:00 UTC"
 status: ready
-source_skill: sg-spec
+source_skill: 100-sg-spec
 source_model: "GPT-5.5"
 scope: "skill-routing"
 owner: "Diane"
@@ -18,8 +18,8 @@ risk_level: "medium"
 security_impact: "yes"
 docs_impact: "yes"
 linked_systems:
-  - "skills/sg-model/SKILL.md"
-  - "skills/sg-model/references/model-routing.md"
+  - "skills/704-sg-model/SKILL.md"
+  - "skills/704-sg-model/references/model-routing.md"
   - "skills/sg-start/SKILL.md"
   - "skills/references/master-delegation-semantics.md"
   - "skills/references/master-workflow-lifecycle.md"
@@ -36,19 +36,17 @@ depends_on:
   - artifact: "shipglows_data/technical/skill-runtime-and-lifecycle.md"
     artifact_version: "1.12.4"
     required_status: "reviewed"
-  - artifact: "skills/sg-model/references/model-routing.md"
-    artifact_version: "unknown"
-    required_status: "unknown"
   - artifact: "skills/references/master-delegation-semantics.md"
     artifact_version: "1.2.0"
     required_status: "active"
 supersedes: []
 evidence:
+  - "Wave 20 reclassifies the unversioned model-routing runtime contract as a linked system and migrates all active paths to the 704-sg-model owner."
   - "User request 2026-05-14: GPT-5.5 should become default for transverse audits, automatic task prioritization, prompt/docs migration, business risk synthesis, and coherent TASKS/project fiche updates."
   - "User question 2026-05-14: model defaults should apply when skills launch subagents, and the main conversation should clarify whether it can choose its own model."
   - "User request 2026-05-14: gpt-5.3-codex should be explicit as the default for long implementation work."
   - "User confirmation 2026-05-14: ShipGlows generally privileges subagents, so small bounded subagent missions should have an explicit default model."
-  - "skills/sg-model/references/model-routing.md currently routes ambiguous/high-error-cost work to gpt-5.5 but needs refreshed defaults for the latest OpenAI model availability."
+  - "skills/704-sg-model/references/model-routing.md currently routes ambiguous/high-error-cost work and requires official-source refresh for current OpenAI model availability."
   - "skills/sg-start/SKILL.md already reads model-routing.md and supports optional per-group model overrides."
   - "skills/references/master-delegation-semantics.md defines bounded sequential subagents and separates delegation from parallelism."
   - "OpenAI official GPT-5.5 model docs checked 2026-05-14: gpt-5.5 supports Responses/Chat Completions, structured outputs, file search, web search, shell, apply patch, skills, computer use, MCP, and 1M context."
@@ -102,7 +100,7 @@ Mettre a jour la doctrine ShipGlows de routage modele pour faire de GPT-5.5 le d
 
 # Scope In
 
-- Rafraichir `skills/sg-model/references/model-routing.md` pour integrer GPT-5.5 comme default premium courant.
+- Rafraichir `skills/704-sg-model/references/model-routing.md` pour integrer GPT-5.5 comme default premium courant.
 - Mettre a jour `skills/sg-model/SKILL.md` pour distinguer selection conversationnelle, selection de sous-agent, et recommandation de prochain run.
 - Mettre a jour `skills/sg-start/SKILL.md` pour aligner les defaults simples sur GPT-5.5 pour l'ambigu, le transverse, l'audit, la priorisation, les migrations docs/prompts, et les syntheses risque business.
 - Etendre `skills/references/master-delegation-semantics.md` avec une regle de mission subagent: modele et reasoning doivent etre explicites quand disponibles.
@@ -128,7 +126,7 @@ Mettre a jour la doctrine ShipGlows de routage modele pour faire de GPT-5.5 le d
 
 # Dependencies
 
-- `skills/sg-model/references/model-routing.md`: matrice provider-aware a mettre a jour.
+- `skills/704-sg-model/references/model-routing.md`: matrice provider-aware a mettre a jour.
 - `skills/sg-start/SKILL.md`: consommateur principal du routage avant implementation.
 - `skills/references/master-delegation-semantics.md`: doctrine de sous-agents, delegation sequentielle, parallelisme.
 - `skills/references/master-workflow-lifecycle.md`: skeleton partage pour model/topology routing.
@@ -174,11 +172,11 @@ Docs a aligner:
 # Implementation Tasks
 
 - [ ] Tache 1 : Mettre a jour la matrice de routage OpenAI.
-  - Fichier : `skills/sg-model/references/model-routing.md`
+  - Fichier : `skills/704-sg-model/references/model-routing.md`
   - Action : Faire de `gpt-5.5` le default OpenAI pour spec, architecture, audits transverses, priorisation, migrations docs/prompts, synthese risques business, computer/tool-heavy et high-error-cost; garder `gpt-5.4-mini`/`gpt-5.3-codex-spark` pour rapide/economique.
   - User story link : choisit automatiquement le modele adapte.
   - Depends on : none
-  - Validate with : `sed -n '1,120p' skills/sg-model/references/model-routing.md`
+  - Validate with : `sed -n '1,120p' skills/704-sg-model/references/model-routing.md`
   - Notes : Ne pas inventer de prix; mentionner freshness date et source officielle.
 
 - [ ] Tache 2 : Clarifier `sg-model` comme routeur de decision et non runtime switcher.
@@ -246,7 +244,7 @@ Docs a aligner:
 - Static review:
   - `rg -n "gpt-5\\.5|gpt-5\\.4-mini|gpt-5\\.3-codex|subagent|override|auto-switch" skills README.md shipglows_data/workflow/playbooks/spec-driven-workflow.md shipglows_data/technical/skill-runtime-and-lifecycle.md`
 - Contract sanity:
-  - Lire `skills/sg-model/references/model-routing.md` et verifier que chaque profil a primary, reasoning, fast fallback, cheap fallback.
+  - Lire `skills/704-sg-model/references/model-routing.md` et verifier que chaque profil a primary, reasoning, fast fallback, cheap fallback.
   - Lire `skills/sg-start/SKILL.md` et verifier que les defaults simples ne contredisent pas la matrice.
   - Lire `skills/references/master-delegation-semantics.md` et verifier que la mission subagent reste bornee.
 - Manual scenarios:
@@ -268,7 +266,7 @@ Docs a aligner:
 # Execution Notes
 
 - Lire d'abord:
-  - `skills/sg-model/references/model-routing.md`
+  - `skills/704-sg-model/references/model-routing.md`
   - `skills/sg-model/SKILL.md`
   - `skills/sg-start/SKILL.md`
   - `skills/references/master-delegation-semantics.md`

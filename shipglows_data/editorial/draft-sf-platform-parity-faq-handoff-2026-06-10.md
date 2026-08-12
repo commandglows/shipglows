@@ -1,12 +1,12 @@
 ---
 artifact: editorial_draft
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.1.1"
 project: ShipGlows
 created: "2026-06-10"
-updated: "2026-06-10"
+updated: "2026-08-12"
 status: draft
-source_skill: sg-platform-parity
+source_skill: 602-sg-platform-parity
 scope: draft-faq-handoff
 owner: Diane
 confidence: medium
@@ -18,15 +18,13 @@ content_surfaces:
   - future_faq
   - public_skill_pages
 linked_systems:
-  - skills/sg-platform-parity/SKILL.md
+  - skills/602-sg-platform-parity/SKILL.md
   - site/src/content/skills/sg-platform-parity.md
   - shipglows_data/editorial/content-map.md
-depends_on:
-  - artifact: "skills/sg-platform-parity/SKILL.md"
-    artifact_version: "current"
-    required_status: active
+depends_on: []
 supersedes: []
 evidence:
+  - "Wave 20 reclassifies the executable platform-parity skill as a linked runtime system and migrates its canonical path to skills/602-sg-platform-parity/SKILL.md; executable SKILL.md files are not versioned documentation dependencies."
   - "sg-platform-parity skill contract says Flutter/shared UI is not proof of product support by itself."
   - "Public skill page states that scaffolds, permissions, and roadmap language are not proof of support."
 next_step: "/sg-redact or /sg-docs to turn this draft into a governed public FAQ surface"

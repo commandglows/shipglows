@@ -1,14 +1,14 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.1.2"
+artifact_version: "0.1.3"
 project: ShipGlows
 created: "2026-04-28"
 created_at: "2026-04-28 16:44:09 UTC"
-updated: "2026-08-12"
-updated_at: "2026-08-12 20:11:48 UTC"
+updated: "2026-08-13"
+updated_at: "2026-08-13 00:00:00 UTC"
 status: draft
-source_skill: sg-spec
+source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: migration
 owner: "ShipGlows maintainer"
@@ -18,26 +18,16 @@ confidence: high
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - "/home/ubuntu/dotfiles/README.md"
-  - "/home/ubuntu/dotfiles/bootstrap.sh"
-  - "/home/ubuntu/dotfiles/install.sh"
-  - "/home/ubuntu/dotfiles/lib.sh"
-  - "/home/ubuntu/dotfiles/CLAUDE.md"
-  - "/home/ubuntu/dotfiles/BUSINESS.md"
-  - "/home/ubuntu/dotfiles/CONTEXT.md"
-  - "/home/ubuntu/dotfiles/PRODUCT.md"
-  - "/home/ubuntu/shipglows/README.md"
-  - "/home/ubuntu/shipglows/install.sh"
-  - "/home/ubuntu/shipglows/local/README.md"
-  - "/home/ubuntu/shipglows/shipglows_data/technical/operator-guides/windows-devserver.md"
-  - "/home/ubuntu/shipglows/local/install_local.ps1"
-  - "/home/ubuntu/shipglows/TASKS.md"
-depends_on:
-  - artifact: "dotfiles/PRODUCT.md"
-    artifact_version: "1.0.0"
-    required_status: "reviewed"
+  - "README.md"
+  - "install.sh"
+  - "local/README.md"
+  - "shipglows_data/technical/operator-guides/windows-devserver.md"
+  - "local/install_local.ps1"
+  - "TASKS.md"
+depends_on: []
 supersedes: []
 evidence:
+  - "Wave 20 removes dotfiles product governance and machine-specific dotfiles paths from ShipGlows metadata; those observations remain historical research only and cannot govern this repository."
   - "Historical input: ShipGlows README wording was inspected as support-promise evidence; it is not an executable version/status constraint for this draft migration spec."
   - "Historical migration-source provenance (legacy root documents): BUSINESS.md, GUIDELINES.md, PRODUCT.md."
   - "dotfiles/README.md currently markets the repository as multi-platform and still lists Windows, Linux/Codespaces, and Termux install paths."

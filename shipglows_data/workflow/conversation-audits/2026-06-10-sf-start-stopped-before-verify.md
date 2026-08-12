@@ -1,12 +1,12 @@
 ---
 artifact: conversation_audit
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-06-10"
-updated: "2026-06-10"
+updated: "2026-08-12"
 status: draft
-source_skill: sg-conversation-audit
+source_skill: 705-sg-conversation-audit
 scope: "sg-start-follow-through"
 owner: Diane
 confidence: high
@@ -23,23 +23,21 @@ findings:
   - weak_follow_through
   - user_friction
   - stale_skill_contract
+linked_systems:
+  - skills/102-sg-start/SKILL.md
+  - skills/001-sg-build/SKILL.md
 owner_routes:
   - sg-build
   - sg-spec
   - sg-verify
 evidence:
+  - "Wave 20 reclassifies the current 102-sg-start and 001-sg-build contracts as linked runtime systems while preserving the historical sg-start and sg-build evidence verbatim."
   - "User invoked `$sg-start via codex spark 5.3 Residual ShipGlows Skill Body Risk Cleanup`."
   - "Assistant final report ended with `Prochaine etape: /sg-verify Residual ShipGlows Skill Body Risk Cleanup` and `Verdict sg-start: implemented`."
   - "User follow-up asked why the agent stopped instead of continuing/testing itself."
   - "sg-start contract says `sg-start implements` and routes remaining verification to `sg-verify`; sg-build contract owns `start -> verify -> end -> ship` orchestration."
   - "The run did execute local validation: plugin audit, skill budget audit, metadata lint, rg checks, diff check, and sync check."
 depends_on:
-  - artifact: "skills/sg-start/SKILL.md"
-    artifact_version: "current"
-    required_status: active
-  - artifact: "skills/sg-build/SKILL.md"
-    artifact_version: "current"
-    required_status: active
   - artifact: "skills/references/spec-driven-development-discipline.md"
     artifact_version: "1.4.0"
     required_status: active

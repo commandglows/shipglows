@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-06-12"
 created_at: "2026-06-12 20:33:21 UTC"
-updated: "2026-06-12"
-updated_at: "2026-06-12 20:40:49 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 00:00:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -21,7 +21,7 @@ linked_systems:
   - "shipglows_data/technical/design-system-authority.md"
   - "shipglows_data/technical/public-site-and-content-runtime.md"
   - "shipglows_data/editorial/content-map.md"
-  - "shipglows_data/business/branding.md"
+  - "shipglows_data/branding/branding.md"
   - "site/src/pages/index.astro"
   - "site/src/pages/fr/index.astro"
   - "site/src/components/NavBar.astro"
@@ -29,7 +29,7 @@ linked_systems:
   - "site/src/styles/global.css"
   - "skills/references/design-system-token-contract.md"
 depends_on:
-  - artifact: "shipglows_data/business/branding.md"
+  - artifact: "shipglows_data/branding/branding.md"
     artifact_version: "1.1.0"
     required_status: reviewed
   - artifact: "shipglows_data/technical/design-system-authority.md"
@@ -42,6 +42,7 @@ depends_on:
     artifact_version: "1.0.0"
     required_status: active
 evidence:
+  - "Wave 20 migrates every active branding reference to shipglows_data/branding/branding.md while preserving the reviewed 1.1.0 authority."
   - "`site/src/components/NavBar.astro` n'a actuellement ni bouton hamburger ni état mobile dédié."
   - "`site/src/styles/global.css` conserve un `h1` mobile à `clamp(2.5rem, 16vw, 4rem)` et une topbar qui se replie sans navigation compacte."
   - "La source canonique de tokens du site est déjà `site/src/styles/global.css`; la correction doit passer par cette couche."
@@ -131,7 +132,7 @@ Harden the home through a focused mobile-first pass:
 
 ## Dependencies
 
-- `shipglows_data/business/branding.md`
+- `shipglows_data/branding/branding.md`
 - `shipglows_data/technical/design-system-authority.md`
 - `shipglows_data/technical/public-site-and-content-runtime.md`
 - `shipglows_data/editorial/content-map.md`
@@ -150,7 +151,7 @@ Harden the home through a focused mobile-first pass:
 
 Upstream:
 
-- `shipglows_data/business/branding.md` sets the trust posture and visual direction.
+- `shipglows_data/branding/branding.md` sets the trust posture and visual direction.
 - `shipglows_data/technical/design-system-authority.md` must declare the ShipGlows site authority if missing.
 
 Downstream:
@@ -249,7 +250,7 @@ Downstream:
 ## Execution Notes
 
 - Read first:
-  - `shipglows_data/business/branding.md`
+  - `shipglows_data/branding/branding.md`
   - `shipglows_data/technical/design-system-authority.md`
   - `shipglows_data/technical/public-site-and-content-runtime.md`
   - `site/src/components/NavBar.astro`

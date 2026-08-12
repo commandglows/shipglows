@@ -1,10 +1,10 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-05-04"
+updated: "2026-08-12"
 status: ready
 source_skill: sg-spec
 scope: skill
@@ -15,6 +15,9 @@ security_impact: none
 docs_impact: yes
 user_story: "As a ShipGlows operator, I want a skill that creates a complete professional design-token system from an existing UI so projects without tokens can get a central design-system source of truth before playgrounds or deep token audits."
 linked_systems:
+  - skills/006-sg-design/SKILL.md
+  - skills/006-sg-design/references/design-playground-playbook.md
+  - skills/006-sg-design/references/design-token-audit-playbook.md
   - skills/sg-design-from-scratch/SKILL.md
   - skills/sg-design-playground/SKILL.md
   - skills/sg-audit-design/SKILL.md
@@ -26,14 +29,12 @@ linked_systems:
   - docs/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
 depends_on:
-  - artifact: "skills/sg-design-playground/SKILL.md"
-    artifact_version: "local"
-    required_status: active
-  - artifact: "skills/sg-audit-design-tokens/SKILL.md"
-    artifact_version: "local"
-    required_status: active
+  - artifact: "shipglows_data/workflow/specs/consolidate-design-skill-surface-into-modes-and-playbooks.md"
+    artifact_version: "1.1.1"
+    required_status: ready
 supersedes: []
 evidence:
+  - "Wave 20 records that the historical playground and design-token-audit skills were consolidated into direct modes and playbooks owned by 006-sg-design."
   - "User clarified that Design from Scratch should own full design-system creation from existing UI signals instead of leaving the behavior as a weak playground exception."
   - "sg-design-playground currently mentions a from-scratch seed-token exception but does not define a complete design-system creation lifecycle."
   - "sg-audit-design-tokens audits existing token systems and explicitly stops when no system exists."

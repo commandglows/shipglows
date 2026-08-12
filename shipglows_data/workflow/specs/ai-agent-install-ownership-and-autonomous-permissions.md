@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-04-28"
 created_at: "2026-04-28 22:27:54 UTC"
@@ -20,7 +20,7 @@ docs_impact: yes
 linked_systems:
   - shipglows/install.sh
   - shipglows/README.md
-  - shipglows/specs/install-user-targeting.md
+  - shipglows_data/workflow/specs/install-user-targeting.md
   - dotfiles/install.sh
   - dotfiles/lib.sh
   - dotfiles/README.md
@@ -30,13 +30,11 @@ depends_on:
   - artifact: "README.md"
     artifact_version: "0.1.0"
     required_status: "draft"
-  - artifact: "specs/install-user-targeting.md"
-    artifact_version: "0.1.0"
-    required_status: "draft"
 supersedes:
   - "shipglows_data/workflow/archives/repository-history/root-documentation/INSTALLATION-OWNERSHIP-SPEC.md"
-  - "specs/install-user-targeting.md"
+  - "shipglows_data/workflow/specs/install-user-targeting.md"
 evidence:
+  - "Wave 20 removes the inverse executable dependency on install-user-targeting: the detail spec already depends on this principal authority and remains linked/superseded provenance."
   - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, GUIDELINES.md."
   - "shipglows/install.sh configure deja ~/.claude/settings.json, ~/.codex/config.toml, MCP, skills et aliases pour root puis tous les comptes /home/*."
   - "shipglows/install.sh declare encore claude et codex NON_APPLICABLE / geres par dotfiles dans son rapport d'installation."
@@ -141,7 +139,7 @@ Make ShipGlows the sole owner of Claude Code, OpenAI Codex, ShipGlows MCP regist
   - Anthropic Claude Code settings: `permissions.defaultMode` supports `bypassPermissions`, and `skipDangerousModePermissionPrompt` applies to bypass mode in user settings; source: https://docs.anthropic.com/en/docs/claude-code/settings.
 - Existing ShipGlows contracts:
   - The archived root `INSTALLATION-OWNERSHIP-SPEC.md` draft is superseded by this spec.
-  - `specs/install-user-targeting.md` draft is incorporated by this spec.
+  - `shipglows_data/workflow/specs/install-user-targeting.md` draft is incorporated by this spec.
 - Existing dotfiles contracts:
   - dotfiles remains responsible for generic user-local npm prefix and shell PATH setup.
   - ShipGlows may bootstrap only the minimum user-local npm prefix/PATH required for ShipGlows-owned Claude/Codex when dotfiles did not prepare it; this is a compatibility fallback, not a return of generic tooling ownership to ShipGlows.
@@ -187,7 +185,7 @@ Make ShipGlows the sole owner of Claude Code, OpenAI Codex, ShipGlows MCP regist
   - Remove claims that dotfiles installs/configures Claude Code, Codex, or Claude/Codex MCP.
   - Explain that dotfiles prepares generic tooling and that ShipGlows handles AI/code agent workflow.
 - Keep `shipglows_data/workflow/archives/repository-history/root-documentation/INSTALLATION-OWNERSHIP-SPEC.md` as historical evidence; this spec is the canonical contract.
-- Update `specs/install-user-targeting.md`:
+- Update `shipglows_data/workflow/specs/install-user-targeting.md`:
   - Mark as superseded or point to this spec.
 - Update `CHANGELOG.md` after implementation.
 - Optional: update `shipglows_data/workflow/audits/2026-04-28-install-run-trace.md` only if the implementation run reveals notable migration observations.
@@ -219,11 +217,11 @@ Make ShipGlows the sole owner of Claude Code, OpenAI Codex, ShipGlows MCP regist
   - Notes: Do not delete the historical context.
 
 - [ ] Task 2: Consolidate user targeting into this chantier
-  - File: `specs/install-user-targeting.md`
+  - File: `shipglows_data/workflow/specs/install-user-targeting.md`
   - Action: mark the draft as superseded or merged into this spec, keeping its history but pointing future work to this chantier.
   - User story link: avoids implementing user targeting separately from autonomous AI permissions.
   - Depends on: Task 1
-  - Validate with: `rg -n "superseded|ai-agent-install-ownership" specs/install-user-targeting.md`
+  - Validate with: `rg -n "superseded|ai-agent-install-ownership" shipglows_data/workflow/specs/install-user-targeting.md`
   - Notes: This prevents two partially overlapping `/sg-start` efforts.
 
 - [ ] Task 3: Add explicit user target selection in ShipGlows

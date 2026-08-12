@@ -118,6 +118,37 @@ class ResourceDependencyGraphTests(unittest.TestCase):
             payload = audit_dependency_graph(root)
             self.assertEqual("valid", payload["status"], payload["errors"])
 
+    def test_hidden_runtime_directory_keeps_its_leading_dot(self) -> None:
+        for runtime_path in (
+            ".agents/skills/shipglows/SKILL.md",
+            ".opencode/skills/shipglows/SKILL.md",
+        ):
+            with self.subTest(runtime_path=runtime_path), TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                refs = root / "skills" / "references"
+                refs.mkdir(parents=True)
+                (refs / "a.md").write_text(
+                    artifact(
+                        depends=(
+                            f"\n  - artifact: {runtime_path}\n"
+                            '    artifact_version: "1.0.0"\n'
+                            "    required_status: active"
+                        )
+                    ),
+                    encoding="utf-8",
+                )
+                runtime = root / runtime_path
+                runtime.parent.mkdir(parents=True)
+                runtime.write_text("---\nname: shipglows\n---\n", encoding="utf-8")
+
+                errors = audit_dependency_graph(root)["errors"]
+
+                self.assertIn(
+                    f"unversioned:skills/references/a.md:{runtime_path}", errors
+                )
+                self.assertFalse(any(":agents/" in error for error in errors))
+                self.assertFalse(any(":opencode/" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

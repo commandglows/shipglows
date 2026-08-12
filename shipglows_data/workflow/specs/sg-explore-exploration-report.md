@@ -1,14 +1,14 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-04-29"
 created_at: "2026-04-29 11:03:18 UTC"
 updated: "2026-04-30"
 updated_at: "2026-04-30 22:30:51 UTC"
 status: ready
-source_skill: sg-spec
+source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: feature
 owner: "Diane"
@@ -18,6 +18,7 @@ risk_level: medium
 security_impact: yes
 docs_impact: yes
 linked_systems:
+  - "skills/700-sg-explore/SKILL.md"
   - "skills/sg-explore/SKILL.md"
   - "templates/exploration_report.md"
   - "skills/references/chantier-tracking.md"
@@ -25,8 +26,8 @@ linked_systems:
   - "skills/sg-help/SKILL.md"
   - "site/src/content/skills/sg-explore.md"
 depends_on:
-  - artifact: "skills/sg-explore/SKILL.md"
-    artifact_version: "unknown"
+  - artifact: "skills/700-sg-explore/references/durable-exploration-report.md"
+    artifact_version: "1.1.0"
     required_status: "active"
   - artifact: "skills/references/chantier-tracking.md"
     artifact_version: "0.1.0"
@@ -36,6 +37,7 @@ depends_on:
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Wave 20 replaces the retired executable sg-explore dependency with the active durable-exploration-report authority and links the current 700-sg-explore runtime contract."
   - "Historical inputs: templates/research_report.md and templates/decision_record.md informed artifact boundaries during design; template drafts are provenance, not executable status constraints."
   - "User request on 2026-04-29: sg-explore should not leave substantial research and brainstorming only in conversation history."
   - "skills/sg-explore/SKILL.md currently says exploration may create reflection documents if asked, but has no default durable artifact or template."

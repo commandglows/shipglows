@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-07-17"
 created_at: "2026-07-17 13:25:56 UTC"
-updated: "2026-08-01"
-updated_at: "2026-08-01 15:30:00 UTC"
+updated: "2026-08-13"
+updated_at: "2026-08-13 00:00:00 UTC"
 status: active
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -23,10 +23,6 @@ linked_systems:
   - cli/install.sh
   - tests/install/
   - tools/sync_shipglows_public_bootstrap.sh
-  - /home/claude/winglowz/winglowz_site/src/pages/shipglows-script.ts
-  - /home/claude/winglowz/winglowz_site/src/generated/shipglows-installer.sh
-  - /home/claude/winglowz/winglowz_site/src/data/scriptInstallPages.ts
-  - /home/claude/winglowz/winglowz_site/tests/
   - BUG-2026-07-17-001
   - BUG-2026-07-13-002
 depends_on:
@@ -36,11 +32,9 @@ depends_on:
   - artifact: shipglows_data/technical/context.md
     artifact_version: "0.6.1"
     required_status: draft
-  - artifact: /home/claude/winglowz/CLAUDE.md
-    artifact_version: unknown
-    required_status: active
 supersedes: []
 evidence:
+  - "Wave 20 removes Winglowz project files and instructions from ShipGlows dependency/link governance; their historical deployment observations remain evidence only."
   - "BUG-2026-07-17-001 records a real Android Termux failure: sudo is unavailable and the non-root bootstrap never reaches local/install.sh."
   - "The deployed www.winflowz.com bootstrap differs from the ShipGlows bootstrap and duplicates its implementation in the WinGlowz site."
   - "The public endpoint remains the distribution authority; native Windows uses the public GitHub archive because the Windows bootstrap must not require Git."

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lifecycle coherence checks for progressive activation and graph waves 4 through 19."""
+"""Lifecycle coherence checks for progressive activation and graph waves 4 through 20."""
 
 from pathlib import Path
 import unittest
@@ -23,6 +23,7 @@ WAVE_16 = SPECS / "progressive-monolithic-workflows-wave-16.md"
 WAVE_17 = SPECS / "technical-and-verification-baseline-wave-17.md"
 WAVE_18 = SPECS / "full-resource-graph-debt-wave-18.md"
 WAVE_19 = SPECS / "full-resource-graph-debt-wave-19.md"
+WAVE_20 = SPECS / "full-resource-graph-closure-wave-20.md"
 REFRESH_LOG = ROOT / "skills" / "REFRESH_LOG.md"
 
 
@@ -45,6 +46,7 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         cls.wave_17 = WAVE_17.read_text(encoding="utf-8")
         cls.wave_18 = WAVE_18.read_text(encoding="utf-8")
         cls.wave_19 = WAVE_19.read_text(encoding="utf-8")
+        cls.wave_20 = WAVE_20.read_text(encoding="utf-8")
         cls.refresh_log = REFRESH_LOG.read_text(encoding="utf-8")
 
     def test_shipped_waves_are_not_left_ready_or_next(self) -> None:
@@ -94,6 +96,9 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         self.assertIn("status: reviewed", self.wave_19)
         self.assertIn("005-sg-ship (next)", self.wave_19)
         self.assertNotIn("- [ ]", self.wave_19)
+        self.assertIn("status: reviewed", self.wave_20)
+        self.assertIn("005-sg-ship (next)", self.wave_20)
+        self.assertNotIn("- [ ]", self.wave_20)
 
     def test_wave_thirteen_records_executable_graph_and_reporting_boundaries(self) -> None:
         for phrase in (
@@ -198,6 +203,18 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, self.wave_19)
         self.assertIn("full resource graph debt wave 19", self.refresh_log)
+
+    def test_wave_twenty_records_truthful_full_graph_closure(self) -> None:
+        for phrase in (
+            "691 artifacts, 895 dependencies, zero cycles, and zero findings",
+            "133 artifacts, 89 dependencies, and zero cycles",
+            "Runtime `SKILL.md`, `.agents`, and `.opencode`",
+            "other-repository files",
+            "`sf-build` filename is renamed",
+            "no unrelated project authority",
+        ):
+            self.assertIn(phrase, self.wave_20)
+        self.assertIn("full resource graph closure wave 20", self.refresh_log)
 
     def test_wave_five_acceptance_matches_progressive_loading(self) -> None:
         self.assertIn(

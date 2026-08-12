@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-08-09"
+updated: "2026-08-12"
 status: reviewed
 source_skill: 300-sg-docs
 scope: opencode-runtime-docs
@@ -18,16 +18,11 @@ linked_systems:
   - ".agents/skills/shipglows/SKILL.md"
   - "README.md"
   - "shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md"
-depends_on:
-  - artifact: ".opencode/skills/shipglows/SKILL.md"
-    artifact_version: "unknown"
-    required_status: "unknown"
-  - artifact: ".agents/skills/shipglows/SKILL.md"
-    artifact_version: "unknown"
-    required_status: "unknown"
+depends_on: []
 supersedes:
   - docs/opencode-shipglows.md
 evidence:
+  - "Wave 20 reclassifies the .opencode and .agents shims as linked runtime surfaces rather than versioned documentation dependencies."
   - "Repository-local OpenCode shim exists at `.opencode/skills/shipglows/SKILL.md`."
   - "Repository-local generic OpenCode-compatible shim exists at `.agents/skills/shipglows/SKILL.md`."
   - "README and runtime docs already distinguish manual user input from internal runtime calls."

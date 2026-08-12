@@ -1,14 +1,14 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-05-17"
 created_at: "2026-05-17 21:45:03 UTC"
-updated: "2026-05-23"
-updated_at: "2026-05-23 19:48:18 UTC"
+updated: "2026-08-13"
+updated_at: "2026-08-13 00:00:00 UTC"
 status: ready
-source_skill: sg-spec
+source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: "terminal-tui-v1"
 owner: "Diane"
@@ -18,6 +18,7 @@ risk_level: "high"
 security_impact: "yes"
 docs_impact: "yes"
 linked_systems:
+  - "shipglows_data/technical/terminal-tui.md"
   - "ShipGlows CLI"
   - "/home/claude/shipglows/tui"
   - "OpenTUI"
@@ -31,17 +32,9 @@ depends_on:
   - artifact: "AGENT.md"
     artifact_version: "0.2.0"
     required_status: "draft"
-  - artifact: "shipglows_data/workflow/specs/shipglows-dashboard-readonly-projection.md"
-    artifact_version: "0.1.0"
-    required_status: "draft"
-  - artifact: "shipglows_data/technical/markdown-source-of-truth.md"
-    artifact_version: "unknown"
-    required_status: "draft"
-  - artifact: "shipglows_data/technical/runtime-boundary.md"
-    artifact_version: "unknown"
-    required_status: "draft"
 supersedes: []
 evidence:
+  - "Wave 20 removes three never-created planning artifacts from executable dependencies; their read-only projection, Markdown authority, and runtime boundary are fully stated in this spec and the implemented terminal-tui technical contract."
   - "Historical input: README.md described the local-first, read-only dashboard direction when this spec was prepared; it is provenance, not an executable version/status constraint."
   - "User decision 2026-05-17: put the TUI inside shipglows_app, not in a separate GitHub repository."
   - "User decision 2026-05-23: move the TUI into /home/claude/shipglows/tui next to the terminal skills, not in ShipGlows App."
@@ -147,8 +140,8 @@ Flutter remains separate and continues to serve the graphical/dashboard path. Th
   - `README.md` defines the current local-first, read-only ShipGlows dashboard direction.
   - `CLAUDE.md` defines the active ShipGlows runtime, Flutter boundaries, local source-of-truth rule, and security constraints.
   - `AGENT.md` requires active work to target ShipGlows modules and classify legacy reuse before changes.
-  - `shipglows_data/workflow/specs/shipglows-dashboard-readonly-projection.md` defines the existing dashboard read-only projection posture.
-  - `shipglows_data/technical/markdown-source-of-truth.md` and `runtime-boundary.md` govern source authority and active/legacy boundaries.
+  - This spec defines the dashboard read-only projection, Markdown authority, and active/runtime boundary.
+  - `shipglows_data/technical/terminal-tui.md` records the implemented technical contract and source-policy proof.
 - External docs, fresh-docs checked:
   - OpenTUI official docs, `https://opentui.com/docs/getting-started/`, accessed 2026-05-17. Relevant contract: OpenTUI is a native terminal UI core written in Zig with TypeScript bindings; installation is currently Bun-exclusive, with Node and Deno support in progress.
   - Charmbracelet Gum GitHub README, `https://github.com/charmbracelet/gum`, accessed 2026-05-17. Relevant contract: Gum provides ready-to-use shell utilities such as `choose`, `confirm`, `filter`, `input`, `pager`, `spin`, `style`, `table`, and `write`; it is appropriate for shell prompts, not for a persistent dashboard application.

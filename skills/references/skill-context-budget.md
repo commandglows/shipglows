@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.12.0"
+artifact_version: "1.13.0"
 project: ShipGlows
 created: "2026-04-29"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 300-sg-docs
 scope: skill-context-budget
@@ -22,6 +22,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Wave 20 closes the integrated full diagnostic graph at 691 artifacts, 895 dependencies, zero cycles, and zero findings while preserving the profiled graph at 133/89/0."
   - "Wave 19 preserves the valid profiled graph at 133 artifacts, 89 dependencies, and zero cycles while reducing the non-blocking full diagnostic from 89 to 29 classified missing-target findings."
   - "Wave 18 preserves the valid profiled graph at 133 artifacts, 89 dependencies, and zero cycles while reducing the non-blocking full diagnostic from 272 to 89 findings."
   - "Wave 17 reduces the remaining 010 and 103 hotspots to 4562 and 4907 tokens through conditional technical routing and direct verification proof leaves."
@@ -175,6 +176,14 @@ classified as external, genuinely absent, old unversioned skill paths without a
 proven replacement, or inverse relationships that would create cycles. Two
 candidate migrations were reverted after cycle proof. The profiled execution
 graph remains valid at 133 artifacts, 89 dependencies, and zero cycles.
+
+Wave 20 closes the remaining diagnostic debt. The complete `--all` graph is
+valid at 691 artifacts, 895 dependencies, zero cycles, and zero findings; the
+profiled execution graph remains valid at 133 artifacts, 89 dependencies, and
+zero cycles. This does not increase activation cost: executable skills,
+runtime shims, external APIs, historical evidence, and other-project doctrine
+were reclassified outside `depends_on` instead of being loaded or assigned
+artificial artifact metadata.
 
 ## Audit Commands
 

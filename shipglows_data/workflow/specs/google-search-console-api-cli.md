@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-07-14"
 created_at: "2026-07-14 18:55:00 UTC"
 updated: "2026-08-04"
-updated_at: "2026-07-14 18:55:00 UTC"
+updated_at: "2026-08-12 00:00:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -18,6 +18,7 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
+  - Google Search Console API
   - tools/
   - cli/shipglows-gsc.sh
   - cli/install.sh
@@ -29,11 +30,9 @@ depends_on:
   - artifact: "skills/references/documentation-freshness-gate.md"
     artifact_version: "1.2.0"
     required_status: active
-  - artifact: "Google Search Console API"
-    artifact_version: "v1"
-    required_status: current
 supersedes: []
 evidence:
+  - "Wave 20 reclassifies Google Search Console API as an external linked system; documentation-freshness-gate remains the local executable dependency governing current official-source verification."
   - "Local Codex configuration contains a disabled third-party GSC MCP; ShipGlows has no canonical first-party GSC CLI."
   - "Google official docs expose OAuth-protected Search Analytics, Sites, Sitemaps, and URL Inspection endpoints."
   - "Research report: shipglows_data/workflow/research/google-search-console-mcp-api-cli-audit.md"

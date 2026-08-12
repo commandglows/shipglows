@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-06-11"
 created_at: "2026-06-11 14:12:23 UTC"
-updated: "2026-06-11"
+updated: "2026-08-12"
 updated_at: "2026-06-11 14:17:50 UTC"
 status: ready
 source_skill: 100-sg-spec
@@ -32,7 +32,7 @@ depends_on:
   - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.2.0"
     required_status: reviewed
-  - artifact: "shipglows_data/business/branding.md"
+  - artifact: "shipglows_data/branding/branding.md"
     artifact_version: "1.1.0"
     required_status: reviewed
   - artifact: "shipglows_data/technical/guidelines.md"
@@ -46,6 +46,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Wave 20 migrates the branding dependency to the canonical shipglows_data/branding/branding.md authority with the same reviewed 1.1.0 contract."
   - "2026-06-11 server scan found UI/app signals in contentglowz, gocharbon, replayglowz, shipglows_app, socialglowz, temu, and winflowz."
   - "2026-06-11 server scan found design-system authority already present in shipglows and temu."
   - "2026-06-11 server scan found missing design-system authority in contentglowz, gocharbon, replayglowz, shipglows_app, socialglowz, and winflowz."

@@ -1,12 +1,12 @@
 ---
 artifact: verification_evidence
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "ShipGlows"
 created: "2026-06-10"
-updated: "2026-06-10"
+updated: "2026-08-12"
 status: reviewed
-source_skill: sg-verify
+source_skill: 103-sg-verify
 scope: "content-quality-rubric-sample-evidence"
 owner: "Diane"
 confidence: high
@@ -16,7 +16,7 @@ docs_impact: yes
 linked_systems:
   - "shipglows_data/workflow/specs/grille-notation-editoriale-projet-skills-contenu.md"
   - "skills/references/content-quality-rubric.md"
-  - "skills/sg-verify/SKILL.md"
+  - "skills/103-sg-verify/SKILL.md"
 depends_on:
   - artifact: "skills/references/content-quality-rubric.md"
     artifact_version: "1.0.0"
@@ -27,7 +27,7 @@ depends_on:
   - artifact: "shipglows_data/business/product.md"
     artifact_version: "1.2.0"
     required_status: "reviewed"
-  - artifact: "shipglows_data/business/branding.md"
+  - artifact: "shipglows_data/branding/branding.md"
     artifact_version: "1.1.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/editorial/content-map.md"
@@ -38,6 +38,7 @@ depends_on:
     required_status: "reviewed"
 supersedes: []
 evidence:
+  - "Wave 20 migrates the branding authority and all embedded sample provenance from shipglows_data/business/branding.md to shipglows_data/branding/branding.md."
   - "Spec Test Contract requires one normal pass/revision sample and one blocked sample."
   - "Content quality rubric defines schema, final statuses, blocked reason codes, and sg-verify consumption rules."
 next_step: "/sg-end grille notation editoriale projet skills contenu"
@@ -75,7 +76,7 @@ Project/source context:
 
 - Intended surface: `doc`.
 - Input ref: `inline:rubric-sample-ready-v1`.
-- Source refs: `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/branding.md`, `shipglows_data/editorial/claim-register.md`.
+- Source refs: `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md`, `shipglows_data/editorial/claim-register.md`.
 - Content summary: a concise internal doc draft explaining ShipGlows as a disciplined AI delivery framework for solo founders, with explicit caveats around proof and no guaranteed outcome claims.
 - Top weighting reason: brand and product contracts prioritize explicit proof, reduced ambiguity, and operator-grade clarity.
 
@@ -98,7 +99,7 @@ Rubric output:
     "source_refs": [
       "shipglows_data/business/business.md",
       "shipglows_data/business/product.md",
-      "shipglows_data/business/branding.md",
+      "shipglows_data/branding/branding.md",
       "shipglows_data/editorial/claim-register.md"
     ]
   },
@@ -134,7 +135,7 @@ Rubric output:
     },
     {
       "criterion": "brand_voice",
-      "source": "shipglows_data/business/branding.md",
+      "source": "shipglows_data/branding/branding.md",
       "state": "pass"
     },
     {
@@ -160,7 +161,7 @@ Project/source context:
 
 - Intended surface: `doc`.
 - Input ref: `inline:rubric-sample-blocked-v1`.
-- Source refs: `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/branding.md`, `shipglows_data/editorial/claim-register.md`.
+- Source refs: `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md`, `shipglows_data/editorial/claim-register.md`.
 - Content summary: a high-clarity draft claiming ShipGlows makes agents always correct, eliminates regressions, guarantees secure shipping, and improves launch results.
 - Top blocking reason: claim register blocks guaranteed security, guaranteed correctness, and business outcome promises without evidence.
 
@@ -183,7 +184,7 @@ Rubric output:
     "source_refs": [
       "shipglows_data/business/business.md",
       "shipglows_data/business/product.md",
-      "shipglows_data/business/branding.md",
+      "shipglows_data/branding/branding.md",
       "shipglows_data/editorial/claim-register.md"
     ]
   },
@@ -235,7 +236,7 @@ Rubric output:
     },
     {
       "criterion": "brand_voice",
-      "source": "shipglows_data/business/branding.md",
+      "source": "shipglows_data/branding/branding.md",
       "state": "warning"
     }
   ],

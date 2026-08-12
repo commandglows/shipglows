@@ -1,14 +1,14 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: "ShipGlows"
 created: "2026-05-01"
 created_at: "2026-05-01 10:05:10 UTC"
 updated: "2026-08-12"
 updated_at: "2026-08-12 20:11:48 UTC"
 status: ready
-source_skill: sg-spec
+source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: feature
 owner: Diane
@@ -26,7 +26,7 @@ linked_systems:
   - README.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - GUIDELINES.md
-  - specs/sg-build-autonomous-master-skill.md
+  - shipglows_data/workflow/specs/sg-build-autonomous-master-skill.md
   - docs/editorial/
   - templates/content_map.md
   - templates/editorial_content_context.md
@@ -48,9 +48,6 @@ depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
     artifact_version: "0.6.0"
     required_status: draft
-  - artifact: "specs/sg-build-autonomous-master-skill.md"
-    artifact_version: "0.11.0"
-    required_status: draft
   - artifact: "shipglows_data/workflow/specs/shipglows-technical-documentation-layer-for-ai-agents.md"
     artifact_version: "1.0.2"
     required_status: ready
@@ -59,6 +56,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Wave 20 removes the inverse sg-build spec dependency: sg-build consumes the editorial governance corpus and remains a linked downstream system, not an upstream authority."
   - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, CONTENT_MAP.md, GTM.md, GUIDELINES.md, PRODUCT.md."
   - "User request 2026-05-01: prepare a similar reflection for editorial documentation: blog, site pages, README, and public docs displayed on the Astro site."
@@ -211,7 +209,7 @@ Local docs and contracts to inspect before implementation:
 - `README.md`
 - `shipglows_data/workflow/playbooks/spec-driven-workflow.md`
 - `GUIDELINES.md`
-- `specs/sg-build-autonomous-master-skill.md`
+- `shipglows_data/workflow/specs/sg-build-autonomous-master-skill.md`
 - `specs/shipglows-technical-documentation-layer-for-ai-agents.md`
 - `skills/sg-docs/SKILL.md`
 - `skills/sg-repurpose/SKILL.md`

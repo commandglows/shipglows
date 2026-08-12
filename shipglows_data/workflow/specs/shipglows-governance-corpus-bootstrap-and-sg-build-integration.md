@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: ShipGlows
 created: "2026-05-02"
 created_at: "2026-05-02 04:51:15 UTC"
@@ -70,6 +70,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Wave 20 renames the physical spec from the historical sf-build typo to the canonical sg-build integration filename."
   - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Historical migration-source provenance (legacy root documents): BRANDING.md, BUSINESS.md, CONTENT_MAP.md, GTM.md, GUIDELINES.md, PRODUCT.md."
   - "User decision 2026-05-02: the technical and editorial governance layers are not chantiers to rerun manually in every future project."
@@ -414,6 +415,6 @@ Current state:
 
 - Chantier identified: yes.
 - Implementation started: yes.
-- Spec path: `specs/shipglows-governance-corpus-bootstrap-and-sg-build-integration.md`.
+- Spec path: `shipglows_data/workflow/specs/shipglows-governance-corpus-bootstrap-and-sg-build-integration.md`.
 - Required next step: None.
 - Execution rule: sequential by default because the target files are shared workflow contracts; shipped with scoped static/build evidence and without a separate `sg-verify` lifecycle run.

@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-06-10"
 created_at: "2026-06-10 11:15:00 UTC"
-updated: "2026-06-10"
-updated_at: "2026-06-10 11:15:00 UTC"
+updated: "2026-08-12"
+updated_at: "2026-08-12 00:00:00 UTC"
 status: ready
 source_skill: sg-skill-build
 source_model: "GPT-5 Codex"
@@ -18,16 +18,20 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
+  - skills/900-shipglows-core/SKILL.md
+  - skills/602-sg-platform-parity/SKILL.md
+  - skills/602-sg-platform-parity/references/platform-parity-matrix.md
   - skills/sg-platform-parity/SKILL.md
   - skills/sg-platform-parity/references/platform-parity-matrix.md
   - skills/sg-platform-parity/agents/openai.yaml
   - site/src/content/skills/sg-platform-parity.md
 depends_on:
-  - artifact: "skills/sg-skill-build/SKILL.md"
-    artifact_version: "current"
-    required_status: active
+  - artifact: "shipglows_data/workflow/specs/consolidate-skill-maintenance-under-shipglows-core.md"
+    artifact_version: "1.2.4"
+    required_status: ready
 supersedes: []
 evidence:
+  - "Wave 20 preserves sg-skill-build as historical authorship while binding current maintenance ownership to the documented 900-shipglows-core consolidation and current 602 parity runtime."
   - "User request 2026-06-10: create sg-platform-parity in ShipGlows."
   - "User decision 2026-06-10: parity should be quasi-complete across platforms, with adapted experiences accepted only when the result is better or required."
 next_step: "/sg-verify shipglows_data/workflow/specs/sg-platform-parity-skill.md"

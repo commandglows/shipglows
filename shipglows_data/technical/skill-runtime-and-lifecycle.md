@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.12.0"
+artifact_version: "2.13.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -69,6 +69,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Wave 20 closes all 29 residual full-graph findings through canonical migrations, boundary reclassification, inverse-edge repair, and other-project governance removal; integrated complete graph 691/895/0 and profiled graph 133/89/0 are valid."
   - "Wave 19 migrates 44 proven canonical missing paths, resolves the 10 original constraint findings, reclassifies 6 non-artifact unversioned edges, and retains 29 classified missing targets without introducing cycles or fake metadata."
   - "Wave 18 removes all three full-graph cycles, repairs 79 constraints, migrates 13 active canonical paths, and reclassifies 73 historical edges as evidence while preserving the valid profiled graph."
   - "Skill inventory and workflow doctrine."
@@ -244,6 +245,14 @@ old unversioned skill paths without a proven equivalent, or inverse
 relationships that would create cycles. Two candidate migrations were reverted
 after cycle proof. The profiled execution graph remains valid at 133 artifacts,
 89 dependencies, and zero cycles.
+
+Wave 20 closes the integrated full graph at 691 artifacts, 895 dependencies, zero cycles,
+and zero findings while the profiled execution graph remains valid at
+133/89/0. Canonical documentation stays versioned in `depends_on`; executable
+skills and runtime shims stay linked systems; external or historical inputs are
+evidence only; and unrelated project governance is excluded. Dependency-path
+normalization removes only an explicit `./` prefix so `.agents` and `.opencode`
+remain exact hidden-directory paths.
 
 Wave 14 extends this accounting and preflight pilot to six owners: `004`,
 `010`, `103`, `300`, `601`, and `900`. It records high selected baselines for

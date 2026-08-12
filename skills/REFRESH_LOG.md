@@ -2,6 +2,18 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-13 — full resource graph closure wave 20
+
+**Updated:** the complete graph moves from 689 artifacts, 912 dependencies, zero cycles, and 29 missing-target findings to a valid 691 artifacts, 895 dependencies, zero cycles, and zero findings after integrating the reviewed Wave 20 trace and current main. Canonical documentation remains versioned; runtime surfaces, external APIs, historical evidence, and unrelated project doctrine are classified at their real boundary.
+
+**Tooling:** dependency normalization now removes only an explicit `./` prefix and preserves hidden `.agents` and `.opencode` paths exactly. The historical governance-bootstrap filename is corrected from `sf-build` to `sg-build` across the active corpus.
+
+**Boundary:** no executable skill or shim received fabricated artifact metadata, no missing TUI planning file was invented, and ContentGlowz, dotfiles, or Winglowz governance was not imported into ShipGlows.
+
+**Proof:** full graph 691/895/0 valid; profiled graph 133/89/0 valid; focused graph, invocation, activation, metadata, skill audit, and diff checks passed.
+
+**Sources:** 0 external URLs consulted; this wave classifies repository-local metadata and recorded historical provenance.
+
 ## 2026-08-12 — full resource graph debt wave 19
 
 **Updated:** the full diagnostic graph moves from 688 artifacts, 923 dependencies, zero cycles, and 89 findings to 689 artifacts, 912 dependencies, zero cycles, and 29 findings. The batch migrates 44 proven canonical missing paths, resolves all 10 original constraint findings, and reclassifies 6 non-artifact unversioned edges without adding fake metadata.
