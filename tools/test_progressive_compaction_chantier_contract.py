@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SPECS = ROOT / "shipglows_data" / "workflow" / "specs"
 WAVE_4 = SPECS / "progressive-lifecycle-activation-compaction-wave-4.md"
 WAVE_5 = SPECS / "progressive-skill-activation-compaction-wave-5.md"
+WAVE_6 = SPECS / "progressive-contract-activation-compaction-wave-6.md"
 REFRESH_LOG = ROOT / "skills" / "REFRESH_LOG.md"
 
 
@@ -17,14 +18,17 @@ class ProgressiveCompactionChantierContractTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.wave_4 = WAVE_4.read_text(encoding="utf-8")
         cls.wave_5 = WAVE_5.read_text(encoding="utf-8")
+        cls.wave_6 = WAVE_6.read_text(encoding="utf-8")
         cls.refresh_log = REFRESH_LOG.read_text(encoding="utf-8")
 
     def test_shipped_waves_are_not_left_ready_or_next(self) -> None:
         for text in (self.wave_4, self.wave_5):
             self.assertIn("status: reviewed", text)
-            self.assertIn("005-sg-ship (shipped)", text)
             self.assertNotIn("005-sg-ship (next)", text)
         self.assertNotIn("- [ ]", self.wave_5)
+        self.assertIn("status: reviewed", self.wave_6)
+        self.assertIn("005-sg-ship (next)", self.wave_6)
+        self.assertNotIn("- [ ]", self.wave_6)
 
     def test_wave_five_acceptance_matches_progressive_loading(self) -> None:
         self.assertIn(

@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — progressive contract activation compaction wave 6
+
+**Added:** direct intake/authoring/review packs for `100-sg-spec`, baseline/risk/transition packs for `101-sg-ready`, and owner scenario contracts.
+
+**Updated:** `100` now loads about 1.8k tokens for body plus first intake pack instead of roughly 9.9k body plus monolith; `101` loads about 1.5k for body plus baseline instead of roughly 6.3k. Legacy workflow paths remain compatibility indexes and exact product, platform, OWASP, ZOMBIES, proof, status, and reporting authorities remain followable.
+
+**New phases:** direct contract intake and baseline readiness before conditional authoring, risk, transition, persistence, and report packs. `107/108` remain the measured next tranche; no dependency-graph, public-routing, or installed-catalog change.
+
+**Sources:** 0 external URLs consulted; fresh docs were not needed because this is local instruction packaging with unchanged external facts.
+
 ## 2026-08-12 — progressive activation compaction wave 5
 
 **Added:** governed conditional references and scenario contracts for exploration, closure, and research.
