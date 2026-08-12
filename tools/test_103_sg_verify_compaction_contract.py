@@ -32,7 +32,7 @@ class VerifyCompactionContractTests(unittest.TestCase):
         self.assertIn("verification-baseline.md", progressive)
         self.assertIn("for every run", progressive)
         self.assertIn("Only after standard readiness passes", progressive)
-        self.assertIn("only for", progressive)
+        self.assertIn("then only applicable", progressive)
         baseline = (REFS / "verification-baseline.md").read_text(encoding="utf-8")
         body = self.skill.split("---", 2)[2]
         self.assertLess((len(body) + len(baseline)) / 4, 5000)
@@ -73,12 +73,20 @@ class VerifyCompactionContractTests(unittest.TestCase):
     def test_conditional_authorities_remain_explicit(self) -> None:
         for phrase in (
             "$SHIPGLOWS_ROOT/skills/references/canonical-paths.md",
-            "project-development-mode.md` whenever readiness depends on local, preview, or hybrid proof",
-            "email-work-routing.md` when acceptance covers email",
-            "content-quality-rubric.md` for editorial scoring",
-            "atlas-protection-preflight.md` for an Atlas registry",
+            "$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md",
+            "$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-baseline.md",
+            "$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-excellence.md",
+            "$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-security-ui-runtime.md",
+            "$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-coherence.md",
+            "$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md",
+            "$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md",
+            "$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md",
+            "$SHIPGLOWS_ROOT/skills/references/operational-record-format.md",
+            "$SHIPGLOWS_ROOT/skills/references/reporting-contract.md",
+            "$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md",
         ):
             self.assertIn(phrase, self.skill)
+        self.assertIn("Conditional shared gates load from `$SHIPGLOWS_ROOT/skills/references/`", self.skill)
 
     def test_tracker_is_read_only_and_routes_remain_concrete(self) -> None:
         self.assertIn("Trackers are read-only", self.skill)

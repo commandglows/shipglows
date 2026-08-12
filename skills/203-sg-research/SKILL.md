@@ -51,7 +51,7 @@ Use `/205-sg-veille` or other owners if this becomes recurring market monitoring
 - `$SHIPGLOWS_ROOT/skills/203-sg-research/references/research-execution-playbook.md`
   - for research workflow, source triage, and synthesis sequence.
 - `$SHIPGLOWS_ROOT/skills/203-sg-research/references/research-report-template.md`
-  - before saving a durable research artifact.
+  - before saving the required durable research artifact.
 
 ## Stop Conditions
 
@@ -60,11 +60,12 @@ Use `/205-sg-veille` or other owners if this becomes recurring market monitoring
 - Do not publish implementation guidance from incomplete evidence.
 - Do not write a public artifact from this skill if source claims are uncertain.
 - If topic is missing, ask one focused topic question and stop.
+- Do not complete a valid research run without saving its durable report to the canonical research path.
 
 ## Validation
 
 - Always produce a source list with dates or version context for technical claims.
-- Save a durable report when requested or when research materially changes a decision path.
+- Every valid research run saves a durable report; printing a synthesis without saving it is incomplete.
 - Use explicit uncertainty language for conflicts, unknowns, and unresolved consensus.
 - Never route to implementation directly without scope-aware handoff (`001`/`104` or owner skill as appropriate).
 
@@ -74,3 +75,4 @@ Use `/205-sg-veille` or other owners if this becomes recurring market monitoring
 - If the run is tied to a spec and produces durable future work, record optional chantier potential before report.
 - If freshness applies, load and follow freshness guidance before final synthesis.
 - If output includes public-facing claims, ensure editorial gates and content handoff are explicit.
+- Before the final synthesis, load the report template and persist the report to the canonical path defined by the execution playbook.

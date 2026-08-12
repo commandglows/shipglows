@@ -50,7 +50,7 @@ Stop and hand off when:
 - `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md`
   - when business truth, tradeoffs, or strategy belong to the operator.
 - `$SHIPGLOWS_ROOT/skills/700-sg-explore/references/exploration-posture-and-techniques.md`
-  - for posture, options framing, and risk surfacing.
+  - before substantive exploration, for posture, options framing, risk surfacing, and the persistence threshold.
 - `$SHIPGLOWS_ROOT/skills/700-sg-explore/references/durable-exploration-report.md`
   - only when persistence threshold is met or explicit durable output is requested.
 
@@ -67,6 +67,7 @@ Stop and hand off when:
 - Do not claim final proof from exploration only.
 - Keep one operator-facing synthesis paragraph and the chosen next step.
 - If threshold is met, store a durable report with path, source list, and uncertainty notes.
+- An explicit durable-output request always meets the threshold.
 - If threshold is not met, explicitly note that no durable report was written.
 
 ## Activation Map

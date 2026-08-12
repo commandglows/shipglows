@@ -40,7 +40,7 @@ class EndCompactionContractTests(unittest.TestCase):
         self.assertIn("closed", self.skill)
         self.assertIn("partial", self.skill)
         self.assertTrue(PLAYBOOK.is_file())
-        self.assertIn("Closure mode", self.playbook)
+        self.assertIn("Execution mode and closure result", self.playbook)
 
     def test_user_report_markers_are_present(self) -> None:
         self.assertIn("### Step 5 \u2014 Report", self.skill)
@@ -54,6 +54,30 @@ class EndCompactionContractTests(unittest.TestCase):
         )
         for legacy in forbidden:
             self.assertNotIn(legacy, report_section)
+
+    def test_summary_only_is_read_only_and_ship_stays_external(self) -> None:
+        for marker in (
+            "`summary-only`",
+            'argument-hint: "[full|partial|summary-only]',
+            "without mutating trackers, changelog, memory, specs, or archives",
+            "Never commit or push",
+            "In `summary-only`, do not mutate",
+            "operational-record-format.md",
+            "project-development-mode.md",
+            "preview-proof-routing.md",
+        ):
+            self.assertIn(marker, self.skill)
+        self.assertIn("Skip this step entirely in `summary-only`", self.playbook)
+        self.assertIn("never commits or pushes", self.playbook)
+
+    def test_reference_is_governed(self) -> None:
+        for marker in (
+            "artifact: skill_reference",
+            'metadata_schema_version: "1.0"',
+            "status: active",
+            "source_skill: 104-sg-end",
+        ):
+            self.assertIn(marker, self.playbook)
 
 
 if __name__ == "__main__":

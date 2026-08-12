@@ -1,16 +1,42 @@
+---
+artifact: skill_reference
+metadata_schema_version: "1.0"
+artifact_version: "1.1.0"
+project: ShipGlows
+created: "2026-08-12"
+updated: "2026-08-12"
+status: active
+source_skill: 104-sg-end
+scope: closure-bookkeeping-playbook
+owner: Diane
+confidence: high
+risk_level: high
+security_impact: none
+docs_impact: yes
+linked_systems:
+  - skills/104-sg-end/SKILL.md
+depends_on: []
+supersedes: []
+evidence:
+  - "Wave-5 independent audit restored summary-only and ship-ownership boundaries."
+next_step: none
+---
+
 # Closure Bookkeeping Playbook
 
 Use this playbook for all closure bookkeeping decisions.
 
-## Closure mode
+## Execution mode and closure result
 
-Choose one mode:
+Choose execution mode `full`, `partial`, or `summary-only`. Then record one result:
 
 - `closed`: implementation, proof, closure tracking, and source-of-truth sync are complete.
 - `partial`: work advanced but one or more critical proof or docs gates remain.
 - `deferred`: unresolved owner exists and is explicit.
 - `blocked`: missing context or safety gate prevents safe closure.
 - `not applicable`: only closure narrative requested.
+
+In `summary-only`, produce a read-only summary with no tracker, changelog, memory, spec, or archive mutation.
 
 If proof or ship is not complete, never set `closed`.
 
@@ -34,6 +60,7 @@ If proof or ship is not complete, never set `closed`.
 
 ## Step 3: tracker/changelog updates
 
+- Skip this step entirely in `summary-only`.
 - Apply one compact row for the current task entry.
 - Keep changelog scoped by intent (Added/Changed/Fixed/Security/Removed).
 - Never claim production readiness from closure text.
@@ -44,3 +71,5 @@ If proof or ship is not complete, never set `closed`.
 - If ship remains unfinished, route to `005-sg-ship`.
 - If backlog/priority is needed, route to `011-sg-pilotage`.
 - If no unique next owner, keep the result explicit and local.
+
+This playbook never commits or pushes.

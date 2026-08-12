@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — progressive activation compaction wave 5
+
+**Added:** governed conditional references and scenario contracts for exploration, closure, and research.
+
+**Updated:** `700-sg-explore` writes a durable report deterministically at its threshold; `104-sg-end` preserves summary-only read-only behavior and the ship boundary; `203-sg-research` always persists valid research to the canonical path. An independent post-push review also normalized reference metadata, loader followability, and encoding.
+
+**New phases:** independent semantic-preservation audit after structural compaction; no public routing, dependency graph, or installed-catalog change.
+
+**Sources:** 0 external URLs consulted; fresh docs were not needed because this wave changes local instruction packaging without changing external facts.
+
 ## 2026-08-12 — progressive lifecycle activation compaction wave 4
 
 **Added:** bounded build greenfield/readiness/delivery route packs, verification baseline/excellence/security/coherence packs, and owner scenario contracts.

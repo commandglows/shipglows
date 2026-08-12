@@ -1,3 +1,27 @@
+---
+artifact: skill_reference
+metadata_schema_version: "1.0"
+artifact_version: "1.1.0"
+project: ShipGlows
+created: "2026-08-12"
+updated: "2026-08-12"
+status: active
+source_skill: 700-sg-explore
+scope: durable-exploration-report
+owner: Diane
+confidence: high
+risk_level: medium
+security_impact: yes
+docs_impact: yes
+linked_systems:
+  - skills/700-sg-explore/SKILL.md
+depends_on: []
+supersedes: []
+evidence:
+  - "Wave-5 independent audit confirmed the durable-report boundary and redaction gate."
+next_step: none
+---
+
 # Durable Exploration Report
 
 Use this reference only when persistence is required.
@@ -29,17 +53,22 @@ Never persist secrets, credentials, private user content, private tokens, or raw
 ```markdown
 ---
 artifact: exploration_report
+metadata_schema_version: "1.0"
+artifact_version: "1.0.0"
 project: "<project name>"
 created: "<YYYY-MM-DD>"
 updated: "<YYYY-MM-DD>"
-status: reviewed
+status: "<draft|reviewed>"
 source_skill: 700-sg-explore
 scope: "<exploration scope>"
 owner: "<operator>"
-confidence: [high|medium|low]
-risk_level: [low|medium|high]
-security_impact: [none|yes|unknown]
-docs_impact: [none|yes|unknown]
+confidence: "<high|medium|low>"
+risk_level: "<low|medium|high>"
+security_impact: "<none|yes|unknown>"
+docs_impact: "<none|yes|unknown>"
+linked_systems: []
+depends_on: []
+supersedes: []
 evidence:
   - "<source or file path>"
   - "<source or file path>"
@@ -63,3 +92,5 @@ next_step: "<recommended next command or owner>"
 ## Recommendation
 ...
 ```
+
+Use `draft` unless an independent review actually occurred.

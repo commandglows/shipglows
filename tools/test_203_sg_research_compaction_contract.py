@@ -50,6 +50,26 @@ class ResearchCompactionContractTests(unittest.TestCase):
         self.assertIn("source list", self.skill)
         self.assertIn("confidence", self.template)
 
+    def test_every_valid_run_persists_to_canonical_path(self) -> None:
+        self.assertIn("Every valid research run saves a durable report", self.skill)
+        self.assertIn("printing a synthesis without saving it is incomplete", self.skill)
+        self.assertIn("shipglows_data/workflow/research/<topic-slug>.md", self.playbook)
+        self.assertIn("$SHIPGLOWS_ROOT/shipglows_data/workflow/research/<topic-slug>.md", self.playbook)
+        self.assertIn("If persistence fails, report `blocked`", self.playbook)
+
+    def test_references_are_governed_and_cleanly_encoded(self) -> None:
+        for text in (self.playbook, self.template):
+            self.assertIn("artifact: skill_reference", text)
+            self.assertIn('metadata_schema_version: "1.0"', text)
+            self.assertIn("status: active", text)
+            self.assertIn("source_skill: 203-sg-research", text)
+            for broken in ("Ã", "Â", "â€”"):
+                self.assertNotIn(broken, text)
+        self.assertIn("status: <draft|reviewed>", self.template)
+        self.assertIn("never stamp new research `reviewed` by default", self.template)
+        for marker in ("owner:", "linked_systems:", "depends_on:", "supersedes:"):
+            self.assertIn(marker, self.template)
+
 
 if __name__ == "__main__":
     unittest.main()

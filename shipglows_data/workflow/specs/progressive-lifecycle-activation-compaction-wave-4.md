@@ -127,4 +127,4 @@ Update this spec and the refresh log only unless a public promise changes. Fresh
 
 # Current Chantier Flow
 
-`100-sg-spec -> 101-sg-ready -> 102-sg-start -> 900 refresh -> 103-sg-verify -> 104-sg-end -> 005-sg-ship (next)`
+`100-sg-spec -> 101-sg-ready -> 102-sg-start -> 900 refresh -> 103-sg-verify -> 104-sg-end -> 005-sg-ship (shipped)`

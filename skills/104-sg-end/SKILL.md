@@ -1,7 +1,7 @@
 ---
 name: 104-sg-end
 description: "Close tasks with summaries, trackers, and changelog prep."
-argument-hint: [optional summary or notes]
+argument-hint: "[full|partial|summary-only] [optional summary or notes]"
 ---
 
 Primary artifact type: `specialist-workflow`.
@@ -42,6 +42,14 @@ Do not use this skill for:
 - unresolved ship semantics (`005-sg-ship` still needed),
 - unresolved bug diagnosis/fix loops (`003-sg-bug`/`106-sg-fix` still needed).
 
+## Mode Detection
+
+- `full` (default): update closure bookkeeping only when proof and documentation gates support it.
+- `partial`: preserve unfinished state, record the remaining gap, and name the next owner.
+- `summary-only`: produce the closure summary without mutating trackers, changelog, memory, specs, or archives.
+
+When evidence cannot support `full`, select `partial`; never ask the operator to authorize a false clean closure.
+
 ## Required References
 
 - `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md`
@@ -50,6 +58,10 @@ Do not use this skill for:
   - before closing state transitions.
 - `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md`
   - before changelog or tracker text implying completion.
+- `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`
+  - before creating or changing tracker records.
+- `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` and `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`
+  - when closure depends on local, preview, hybrid, hosted, or provider proof.
 - `$SHIPGLOWS_ROOT/skills/104-sg-end/references/closure-bookkeeping-playbook.md`
   - for closure steps and field-level bookkeeping.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`
@@ -62,16 +74,20 @@ Do not use this skill for:
 - Do not mark product work as complete if documentation status is `needs review`.
 - Do not include internal file paths in user `report=user`.
 - Do not claim shipping, release, or implementation truth from closure alone.
+- Never commit or push; git shipping belongs to `005-sg-ship`.
+- In `summary-only`, do not mutate any project or ShipGlows-owned artifact.
 
 ## Validation
 
 Run closure in this order:
 
-1. classify closure mode (`closed`, `partial`, `deferred`, `blocked`, `not applicable`),
+1. select execution mode, then classify the result (`closed`, `partial`, `deferred`, `blocked`, `not applicable`),
 2. apply `closure-archive-guard.md`,
 3. run changelog/tracker preparation rules,
 4. run documentation reflection and route `needs review` cases through `300-sg-docs`,
 5. emit closure limits and next owner clearly.
+
+For `summary-only`, run read-only classification and reporting only; skip steps that write bookkeeping.
 
 ## Activation Map
 

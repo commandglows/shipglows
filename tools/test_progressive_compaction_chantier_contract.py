@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""Lifecycle coherence checks for progressive activation compaction waves 4 and 5."""
+
+from pathlib import Path
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SPECS = ROOT / "shipglows_data" / "workflow" / "specs"
+WAVE_4 = SPECS / "progressive-lifecycle-activation-compaction-wave-4.md"
+WAVE_5 = SPECS / "progressive-skill-activation-compaction-wave-5.md"
+REFRESH_LOG = ROOT / "skills" / "REFRESH_LOG.md"
+
+
+class ProgressiveCompactionChantierContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.wave_4 = WAVE_4.read_text(encoding="utf-8")
+        cls.wave_5 = WAVE_5.read_text(encoding="utf-8")
+        cls.refresh_log = REFRESH_LOG.read_text(encoding="utf-8")
+
+    def test_shipped_waves_are_not_left_ready_or_next(self) -> None:
+        for text in (self.wave_4, self.wave_5):
+            self.assertIn("status: reviewed", text)
+            self.assertIn("005-sg-ship (shipped)", text)
+            self.assertNotIn("005-sg-ship (next)", text)
+        self.assertNotIn("- [ ]", self.wave_5)
+
+    def test_wave_five_acceptance_matches_progressive_loading(self) -> None:
+        self.assertIn(
+            "at most one local playbook loads before the first substantive action",
+            self.wave_5,
+        )
+        self.assertNotIn("one local playbook per owner", self.wave_5)
+        for skill in ("700-sg-explore", "104-sg-end", "203-sg-research"):
+            self.assertIn(skill, self.wave_5)
+
+    def test_independent_hardening_is_traced(self) -> None:
+        self.assertIn("900-shipglows-core | audit/build", self.wave_5)
+        self.assertIn("progressive activation compaction wave 5", self.refresh_log)
+        self.assertIn("independent post-push review", self.refresh_log.lower())
+
+
+if __name__ == "__main__":
+    unittest.main()

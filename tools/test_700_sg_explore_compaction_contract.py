@@ -48,7 +48,21 @@ class ExploreCompactionContractTests(unittest.TestCase):
     def test_threshold_and_persistence_rules(self) -> None:
         self.assertIn("Persistent report trigger", self.posture)
         self.assertIn("at least 2", self.posture)
+        self.assertIn("Write an `exploration_report`", self.posture)
+        self.assertNotIn("propose writing an `exploration_report`", self.posture)
+        self.assertIn("explicit durable-output request always meets the threshold", self.skill.lower())
         self.assertIn("no durable report", self.skill.lower())
+
+    def test_references_are_governed(self) -> None:
+        for text in (self.posture, self.report):
+            self.assertIn("artifact: skill_reference", text)
+            self.assertIn('metadata_schema_version: "1.0"', text)
+            self.assertIn("status: active", text)
+            self.assertIn("source_skill: 700-sg-explore", text)
+        for marker in ("metadata_schema_version", "artifact_version", "linked_systems", "depends_on", "supersedes"):
+            self.assertIn(marker, self.report)
+        self.assertIn("Use `draft` unless an independent review actually occurred", self.report)
+        self.assertIn("Keep `TASKS.md`, `AUDIT_LOG.md`, and changelog untouched", self.posture)
 
 
 if __name__ == "__main__":

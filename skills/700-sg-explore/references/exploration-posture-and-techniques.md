@@ -1,3 +1,27 @@
+---
+artifact: skill_reference
+metadata_schema_version: "1.0"
+artifact_version: "1.1.0"
+project: ShipGlows
+created: "2026-08-12"
+updated: "2026-08-12"
+status: active
+source_skill: 700-sg-explore
+scope: exploration-posture-and-techniques
+owner: Diane
+confidence: high
+risk_level: medium
+security_impact: none
+docs_impact: yes
+linked_systems:
+  - skills/700-sg-explore/SKILL.md
+depends_on: []
+supersedes: []
+evidence:
+  - "Wave-5 independent audit restored deterministic persistence semantics."
+next_step: none
+---
+
 # Exploration Posture and Techniques
 
 Use this playbook for bounded non-implementation exploration.
@@ -24,7 +48,7 @@ Use this playbook for bounded non-implementation exploration.
 
 - No implementation, mutation, or deployment steps.
 - No acceptance claims (ready/verified/done/shipped) from this phase.
-- Keep `TASKS.md` and changelog untouched unless explicit reporting scope is requested.
+- Keep `TASKS.md`, `AUDIT_LOG.md`, and changelog untouched.
 
 ## Transition to next owner
 
@@ -34,7 +58,7 @@ Use this playbook for bounded non-implementation exploration.
 
 ## Persistent report trigger
 
-When at least 2 of the following are true, propose writing an `exploration_report`:
+Write an `exploration_report` when the operator explicitly requests durable output or when at least 2 of the following are true:
 
 - at least 3 relevant project artifacts are reviewed,
 - at least 2 real options were compared,
