@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — progressive proof activation compaction wave 7
+
+**Added:** direct scenario/record packs for `107-sg-test`, direct browser proof/report packs for `108-sg-browser`, and focused owner contracts.
+
+**Updated:** `107` now keeps human-evidence truth, environment routing, durable-record boundaries, and conditional email/runtime diagnostics local while deferring formats and record mechanics. `108` keeps browser preflight, read-only safety, approval, redaction, and narrow verdicts local while deferring proof and reporting procedure. Both legacy reference paths remain compatibility indexes.
+
+**New phases:** one direct local pack at most before the first substantive action, then a separate post-evidence pack. No dependency-graph, preflight, public-routing, or installed-catalog change.
+
+**Sources:** 0 external URLs consulted; fresh docs were not needed because this is local instruction packaging with unchanged external behavior.
+
 ## 2026-08-12 — progressive contract activation compaction wave 6
 
 **Added:** direct intake/authoring/review packs for `100-sg-spec`, baseline/risk/transition packs for `101-sg-ready`, and owner scenario contracts.
