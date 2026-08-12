@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-03"
-updated: "2026-08-03"
+updated: "2026-08-12"
 status: active
 source_skill: 102-sg-start
 scope: progressive-resource-discovery
@@ -25,12 +25,14 @@ depends_on:
     artifact_version: "1.8.0"
     required_status: active
   - artifact: "skills/references/skill-instruction-layering.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: active
 supersedes: []
 evidence:
   - "Operator decision 2026-08-03: prefer smaller searchable reference files and provide agents a governed way to discover the most relevant resources."
   - "Scenario tests prove landing-page starter-pack ranking, exact ID resolution, expansion, inactive filtering, deterministic output, and bounded failure behavior."
+  - "2026-08-12 resolver audit found eight-result starter packs between about 16000 and 18500 estimated tokens when only result count was bounded."
+  - "Operator decision 2026-08-12: bound advisory reference loading by count and estimated tokens without building a new dependency graph."
 next_review: "2026-09-03"
 next_step: "Review semantic resource-profile migration after resolver adoption evidence."
 ---
@@ -62,7 +64,9 @@ Starter pack:
 python3 "$SHIPGLOWS_ROOT/tools/resource_resolver.py" \
   --skill 009-sg-marketing \
   --mode copywriting \
-  --intent "landing page section flow and repetition"
+  --intent "landing page section flow and repetition" \
+  --limit 8 \
+  --max-tokens 12000
 ```
 
 Resolve one semantic resource ID:
@@ -79,7 +83,18 @@ python3 "$SHIPGLOWS_ROOT/tools/resource_resolver.py" \
   --expand shared:landing-page-copywriting-framework
 ```
 
-The JSON result exposes stable ID, resolved canonical path, type, status, score, and reasons. Use `--format text` only for compact human inspection.
+The JSON result exposes stable ID, resolved canonical path, type, actual status, score, reasons, estimated tokens, aggregate token use, and skipped candidates. Use `--format text` only for compact human inspection.
+
+## Starter-Pack Budget
+
+- Apply both result-count and estimated-token limits. The default advisory ceiling is 12,000 estimated tokens.
+- Estimate deterministically from file characters; this is a context guard, not provider billing telemetry.
+- Deduplicate canonical paths before accounting.
+- If a candidate does not fit the remaining budget, skip it whole and report its ID, status, estimate, and reason. Never silently truncate a normative resource.
+- Mandatory activation references are resolved before this advisory pack and accounted separately.
+- A single oversized result does not authorize raising the cap. The caller may exact-resolve it after checking authority and relevance.
+
+Statuses remain literal. `active` gets the normal trust preference; `draft`, `unknown`, and `reviewed` are visibly labelled and never silently promoted to `active`. Inactive statuses stay excluded unless diagnostic inclusion was explicitly requested.
 
 ## Authority Boundary
 
@@ -119,3 +134,5 @@ Do not add keyword stuffing or duplicate prose for ranking. Improve the actual s
 - `RESOURCE-EXPAND`: expanding a resource returns directly declared dependencies and linked owner resources before loose lexical neighbors.
 - `RESOURCE-AUTHORITY`: a recommended resource never overrides a mandatory activation gate, inactive status, or project source of truth.
 - `RESOURCE-BOUNDARY`: resolver execution performs no write, network, subprocess, skill activation, or arbitrary filesystem traversal.
+- `RESOURCE-TOKEN-BOUND`: selected unique resources fit both limits and every skipped oversized candidate is visible.
+- `RESOURCE-STATUS`: `active`, `draft`, `unknown`, and `reviewed` remain distinguishable in ranking and output.

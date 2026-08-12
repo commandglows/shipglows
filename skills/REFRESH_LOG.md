@@ -2,6 +2,46 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — progressive discovery and activation
+
+**Added:** catalog-aware discovery audits, lexical runtime measurement, bounded reference starter packs, explicit invocation policies for all 65 skills, and scenario contracts for discovery, resource volume, policy, and two activation pilots.
+
+**Updated:** 14 public wrappers remain implicit and now load canonical source engines; 51 expert engines remain installed but explicit-only. `704-sg-model` and `706-continue` became compact decision contracts with conditional references. Shared budget, discovery, and layering doctrine now separates discovery from activation cost.
+
+**New phases:** source diagnostics, portable discovery verdict, runtime lexical verdict, and conditional activation accounting. A full dependency graph remains deferred.
+
+**Sources:** OpenAI Codex skills documentation checked on 2026-08-12; local registry, runtime, resolver, and activation measurements supplied the implementation evidence.
+
+## 2026-08-12 — 002-sg-maintain
+
+**Added:** a local maintenance-playbooks reference and activation-contract regression checks.
+
+**Updated:** retained maintenance routing, chantier, security, validation, verification, closure, ship, and stop gates while moving detailed lane playbooks, delegation roles, and report shape out of the activation body.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is local execution-fidelity maintenance.
+
+## 2026-08-12 — 000-shipglows
+
+**Added:** a compactness regression guard for the root router.
+
+**Updated:** retained activation-local routing, atomic-execution, `core`, handoff, and stop contracts; moved duplicate routing detail behind existing canonical references.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is local execution-fidelity maintenance.
+
+## 2026-08-12 — public skill wrappers
+
+**Added:** compact activation signals for mission, scope, required references, validation, stop conditions, and reporting across all public métier wrappers and the public router.
+
+**Updated:** each wrapper retains its existing internal runtime engine while exposing enough local proof and stop behavior to remain independently followable.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is local execution-fidelity maintenance.
+
 ## 2026-08-12 — sg-design
 
 **Added:** compact public activation signals for mission, scope, required references, validation, stop conditions, and reporting.

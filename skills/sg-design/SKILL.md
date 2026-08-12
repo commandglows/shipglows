@@ -15,7 +15,7 @@ Resolve the affected product and surface, then load `$SHIPGLOWS_ROOT/skills/refe
 
 ## Required References
 
-Load `../006-sg-design/SKILL.md` for design, animation, accessibility, and proof playbooks. Execute them end to end; `006-sg-design` remains an expert/legacy engine only.
+Resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine, verify the root and `$SHIPGLOWS_ROOT/skills/006-sg-design/SKILL.md` exist, then load that canonical engine for design, animation, accessibility, and proof playbooks. If the root or file is missing, stop with a visible error; never fall back to a sibling runtime path. Execute it end to end; `006-sg-design` remains an expert/legacy engine only.
 
 ## Validation
 

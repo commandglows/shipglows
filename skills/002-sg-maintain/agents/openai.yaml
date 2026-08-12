@@ -2,3 +2,5 @@ interface:
   display_name: "002-sg-maintain"
   short_description: "Run maintenance through verification and ship"
   default_prompt: "Use $002-sg-maintain to triage maintenance, create or continue a spec when needed, delegate fixes, verify, and route ship."
+policy:
+  allow_implicit_invocation: false

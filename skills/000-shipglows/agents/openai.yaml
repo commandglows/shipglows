@@ -2,3 +2,5 @@ interface:
   display_name: "000-shipglows"
   short_description: "Route a plain-language request to the right ShipGlows skill"
   default_prompt: "Use $000-shipglows with a natural-language instruction to answer directly or hand off to the right ShipGlows skill."
+policy:
+  allow_implicit_invocation: false

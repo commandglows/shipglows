@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit ShipGlows skill discovery metadata.
+"""Audit ShipGlows skill metadata and discovery budgets.
 
 The audit intentionally uses only Python's standard library so it can run in a
 fresh ShipGlows checkout before project dependencies are installed.
@@ -8,10 +8,13 @@ fresh ShipGlows checkout before project dependencies are installed.
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 
 AGGREGATE_BUDGET = 8500
@@ -39,6 +42,16 @@ GENERIC_STARTS = {
 }
 
 
+class AuditInputError(ValueError):
+    """An actionable CLI input or registry error."""
+
+
+def lexical_absolute(path: Path) -> Path:
+    """Return an absolute path without resolving symlinks or junctions."""
+
+    return Path(os.path.abspath(os.fspath(path.expanduser())))
+
+
 @dataclass
 class SkillAudit:
     path: Path
@@ -47,6 +60,7 @@ class SkillAudit:
     description: str = ""
     when_to_use: str = ""
     compatibility: str = ""
+    allow_implicit_invocation: bool = True
     body_lines: int = 0
     body_token_estimate: int = 0
     sentence_count: int = 0
@@ -65,19 +79,81 @@ class SkillAudit:
 
     @property
     def absolute_budget(self) -> int:
-        return len(str(self.path.resolve())) + len(self.name) + len(self.description)
+        """Lexical absolute discovery cost; retained as a compatibility name."""
+
+        return len(str(lexical_absolute(self.path))) + len(self.name) + len(self.description)
 
     @property
     def relative_budget(self) -> int:
+        """Portable source discovery cost; retained as a compatibility name."""
+
         return len(self.display_path) + len(self.name) + len(self.description)
 
 
-def parse_args() -> argparse.Namespace:
+@dataclass(frozen=True)
+class Catalogs:
+    public: frozenset[str]
+    expert: frozenset[str]
+    all: frozenset[str]
+    errors: tuple[str, ...] = ()
+
+    def names(self, catalog: str) -> frozenset[str]:
+        return getattr(self, catalog)
+
+
+@dataclass
+class RuntimeReport:
+    root: Path
+    audits: list[SkillAudit]
+    selected: list[SkillAudit]
+    lexical_budget: int
+    errors: list[str] = field(default_factory=list)
+
+
+def positive_int(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be an integer") from exc
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be greater than zero")
+    return parsed
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--skills-root",
         default="skills",
-        help="Directory containing skill folders. Defaults to ./skills.",
+        help="Directory containing source skill folders. Defaults to ./skills.",
+    )
+    parser.add_argument(
+        "--registry",
+        help="Invocation registry. Defaults to <skills-root>/references/skill-invocation-registry.json.",
+    )
+    parser.add_argument(
+        "--catalog",
+        choices=("public", "expert", "all"),
+        default="all",
+        help="Registry-derived catalog used for discovery budgeting. Defaults to all.",
+    )
+    parser.add_argument(
+        "--discovery-mode",
+        choices=("implicit", "installed"),
+        default="implicit",
+        help="Budget implicit skills only or every installed skill in the catalog. Defaults to implicit.",
+    )
+    parser.add_argument(
+        "--runtime-skills-root",
+        action="append",
+        default=[],
+        help="Runtime skills directory to audit lexically; repeat for multiple runtimes.",
+    )
+    parser.add_argument(
+        "--budget",
+        type=positive_int,
+        default=AGGREGATE_BUDGET,
+        help=f"Aggregate character budget. Defaults to {AGGREGATE_BUDGET}.",
     )
     parser.add_argument(
         "--format",
@@ -102,19 +178,22 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--batch-size",
-        type=int,
+        type=positive_int,
         default=DEFAULT_BATCH_SIZE,
         help=f"Suggested remediation batch size. Defaults to {DEFAULT_BATCH_SIZE}.",
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def iter_skill_files(skills_root: Path) -> list[Path]:
     if not skills_root.exists():
-        raise SystemExit(f"skills root not found: {skills_root}")
+        raise AuditInputError(f"skills root not found: {skills_root}")
     if not skills_root.is_dir():
-        raise SystemExit(f"skills root is not a directory: {skills_root}")
-    return sorted(skills_root.rglob("SKILL.md"))
+        raise AuditInputError(f"skills root is not a directory: {skills_root}")
+    files = sorted(skills_root.glob("*/SKILL.md"))
+    if not files:
+        raise AuditInputError(f"no skill files found under: {skills_root}")
+    return files
 
 
 def display_path(path: Path, skills_root: Path) -> str:
@@ -130,7 +209,10 @@ def estimate_tokens(text: str) -> int:
 
 
 def read_frontmatter(path: Path) -> tuple[dict[str, str], list[str], int, int]:
-    text = path.read_text(encoding="utf-8")
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        return {}, [f"cannot read SKILL.md: {exc}"], 0, 0
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         return {}, ["missing YAML frontmatter"], len(lines), estimate_tokens(text)
@@ -168,6 +250,62 @@ def read_frontmatter(path: Path) -> tuple[dict[str, str], list[str], int, int]:
     return fields, errors, len(lines), estimate_tokens(body_text)
 
 
+def _yaml_scalar(value: str) -> str:
+    return re.split(r"\s+#", value, maxsplit=1)[0].strip().strip("\"'")
+
+
+def read_invocation_policy(skill_dir: Path) -> tuple[bool, list[str]]:
+    """Read the one policy field needed by the audit without a YAML dependency."""
+
+    policy_path = skill_dir / "agents" / "openai.yaml"
+    if not policy_path.exists():
+        return True, []
+    try:
+        lines = policy_path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as exc:
+        return True, [f"agents/openai.yaml cannot be read: {exc}"]
+
+    values: list[str] = []
+    in_policy = False
+    policy_indent = 0
+    errors: list[str] = []
+    for line_number, line in enumerate(lines, start=1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        indent = len(line) - len(line.lstrip())
+        stripped = line.strip()
+        if indent == 0 and stripped.startswith("policy:"):
+            in_policy = True
+            policy_indent = indent
+            remainder = stripped.partition(":")[2].strip()
+            if remainder:
+                inline = re.fullmatch(
+                    r"\{\s*allow_implicit_invocation\s*:\s*([^,}]+)\s*,?\s*\}",
+                    remainder,
+                )
+                if inline:
+                    values.append(_yaml_scalar(inline.group(1)))
+                elif remainder != "{}":
+                    errors.append(f"agents/openai.yaml:{line_number}: policy must be a mapping")
+            continue
+        if indent <= policy_indent:
+            in_policy = False
+        if in_policy:
+            match = re.match(r"^allow_implicit_invocation\s*:\s*(.*)$", stripped)
+            if match:
+                values.append(_yaml_scalar(match.group(1)))
+
+    if len(values) > 1:
+        errors.append("agents/openai.yaml: allow_implicit_invocation must be declared once")
+    if not values:
+        return True, errors
+    normalized = values[-1].lower()
+    if normalized not in {"true", "false"}:
+        errors.append("agents/openai.yaml: allow_implicit_invocation must be true or false")
+        return True, errors
+    return normalized == "true", errors
+
+
 def sentence_count(description: str) -> int:
     if not description:
         return 0
@@ -191,10 +329,13 @@ def audit_skill(path: Path, skills_root: Path, batch: int) -> SkillAudit:
     audit.when_to_use = fields.get("when_to_use", "")
     audit.compatibility = fields.get("compatibility", "")
     audit.sentence_count = sentence_count(audit.description)
+    implicit, policy_errors = read_invocation_policy(path.parent)
+    audit.allow_implicit_invocation = implicit
+    audit.errors.extend(policy_errors)
 
     expected_name = path.parent.name
-    expected_parent = skills_root.resolve()
-    actual_parent = path.parent.parent.resolve()
+    expected_parent = lexical_absolute(skills_root)
+    actual_parent = lexical_absolute(path.parent.parent)
 
     if not audit.name:
         audit.errors.append("missing name")
@@ -251,11 +392,83 @@ def audit_skill(path: Path, skills_root: Path, batch: int) -> SkillAudit:
 
 def audit_all(skills_root: Path, batch_size: int) -> list[SkillAudit]:
     files = iter_skill_files(skills_root)
-    audits: list[SkillAudit] = []
-    for index, path in enumerate(files):
-        batch = (index // max(1, batch_size)) + 1
-        audits.append(audit_skill(path, skills_root, batch))
-    return audits
+    return [
+        audit_skill(path, skills_root, (index // max(1, batch_size)) + 1)
+        for index, path in enumerate(files)
+    ]
+
+
+def load_registry(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise AuditInputError(f"registry not found: {path}")
+    if not path.is_file():
+        raise AuditInputError(f"registry is not a file: {path}")
+    try:
+        registry = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise AuditInputError(f"cannot read registry {path}: {exc}") from exc
+    if not isinstance(registry, dict) or not isinstance(registry.get("public_catalog"), dict):
+        raise AuditInputError(f"registry missing public_catalog object: {path}")
+    return registry
+
+
+def _public_names(registry: dict[str, Any]) -> set[str]:
+    catalog = registry["public_catalog"]
+    names: set[str] = set()
+    for domain in catalog.get("domains", []):
+        if not isinstance(domain, dict):
+            continue
+        for skill in domain.get("skills", []):
+            if isinstance(skill, dict) and isinstance(skill.get("public_skill"), str):
+                names.add(skill["public_skill"])
+    router = catalog.get("router")
+    if isinstance(router, dict) and isinstance(router.get("public_skill"), str):
+        names.add(router["public_skill"])
+    return names
+
+
+def _declared_engine_names(value: Any) -> set[str]:
+    names: set[str] = set()
+    if isinstance(value, dict):
+        for key, child in value.items():
+            if key == "runtime_skill" or key == "runtime_engine":
+                if isinstance(child, str):
+                    names.add(child)
+            elif key == "internal_engines" and isinstance(child, list):
+                names.update(item for item in child if isinstance(item, str))
+            else:
+                names.update(_declared_engine_names(child))
+    elif isinstance(value, list):
+        for child in value:
+            names.update(_declared_engine_names(child))
+    return names
+
+
+def build_catalogs(registry: dict[str, Any], available_names: set[str]) -> Catalogs:
+    public = _public_names(registry)
+    declared_expert = _declared_engine_names(registry.get("public_catalog", {}))
+    declared_expert.update(_declared_engine_names(registry.get("codex_expert_aliases", {})))
+    declared_expert.difference_update(public)
+
+    internal = registry.get("internal_catalog", {})
+    include_all = isinstance(internal, dict) and internal.get("include_all_runtime_skills") is True
+    expert = (available_names - public) if include_all else (declared_expert & available_names)
+    all_names = public | expert
+    missing_public = sorted(public - available_names)
+    errors = tuple(f"public catalog skill missing on disk: {name}" for name in missing_public)
+    return Catalogs(frozenset(public), frozenset(expert), frozenset(all_names), errors)
+
+
+def select_audits(
+    audits: list[SkillAudit], catalogs: Catalogs, catalog: str, discovery_mode: str
+) -> list[SkillAudit]:
+    catalog_names = catalogs.names(catalog)
+    return [
+        audit
+        for audit in audits
+        if audit.name in catalog_names
+        and (discovery_mode == "installed" or audit.allow_implicit_invocation)
+    ]
 
 
 def summary(audits: list[SkillAudit]) -> dict[str, float | int]:
@@ -280,23 +493,76 @@ def summary(audits: list[SkillAudit]) -> dict[str, float | int]:
     }
 
 
-def print_text(audits: list[SkillAudit], aggregate_errors: list[str]) -> None:
-    totals = summary(audits)
-    print("Skill Budget Audit")
+def source_budget_errors(selected: list[SkillAudit], catalogs: Catalogs, budget: int) -> list[str]:
+    errors = list(catalogs.errors)
+    portable = sum(audit.relative_budget for audit in selected)
+    if portable > budget:
+        errors.append(f"portable source aggregate estimate exceeds {budget}: {portable}")
+    return errors
+
+
+def audit_runtime(
+    root: Path,
+    registry: dict[str, Any],
+    catalog: str,
+    discovery_mode: str,
+    batch_size: int,
+    budget: int,
+) -> RuntimeReport:
+    lexical_root = lexical_absolute(root)
+    audits = audit_all(lexical_root, batch_size)
+    catalogs = build_catalogs(registry, {audit.name for audit in audits if audit.name})
+    selected = select_audits(audits, catalogs, catalog, discovery_mode)
+    total = sum(audit.absolute_budget for audit in selected)
+    errors = list(catalogs.errors)
+    for audit in audits:
+        errors.extend(f"{audit.display_path}: {error}" for error in audit.errors)
+    if total > budget:
+        errors.append(f"runtime lexical aggregate estimate exceeds {budget}: {total}")
+    return RuntimeReport(lexical_root, audits, selected, total, errors)
+
+
+def _print_common_text(totals: dict[str, float | int]) -> None:
     print(f"Skills: {totals['skills']}")
     print(f"Hard violations: {totals['errors']}")
     print(f"Warnings: {totals['warnings']}")
     print(f"Separate risks: {totals['risks']}")
-    print(f"Absolute estimate: {totals['absolute_budget']} / {AGGREGATE_BUDGET}")
-    print(f"Repo-relative estimate: {totals['relative_budget']} / {AGGREGATE_BUDGET}")
     print(f"Average description length: {totals['average_description']}")
     print(f"Descriptions >200: {totals['over_200']}")
     print(f"Descriptions >140: {totals['over_140']}")
     print(f"Descriptions >120: {totals['over_120']}")
     print(f"Skill bodies >500 lines: {totals['long_bodies']}")
     print(f"Skill bodies >~5000 tokens: {totals['body_token_risks']}")
+
+
+def print_text(
+    audits: list[SkillAudit],
+    selected: list[SkillAudit],
+    catalog: str,
+    discovery_mode: str,
+    budget: int,
+    aggregate_errors: list[str],
+    runtimes: list[RuntimeReport],
+) -> None:
+    totals = summary(audits)
+    selected_totals = summary(selected)
+    print("Skill Budget Audit")
+    _print_common_text(totals)
+    print(f"Catalog: {catalog}")
+    print(f"Discovery mode: {discovery_mode}")
+    print(f"Budgeted skills: {selected_totals['skills']}")
+    print(f"Repo-relative estimate (portable verdict): {selected_totals['relative_budget']} / {budget}")
+    print(f"Absolute estimate (source diagnostic only): {selected_totals['absolute_budget']} / {budget}")
+    for runtime in runtimes:
+        print(
+            f"Runtime lexical estimate [{runtime.root}]: {runtime.lexical_budget} / {budget} "
+            f"({len(runtime.selected)} skills)"
+        )
     for message in aggregate_errors:
         print(f"ERROR: {message}")
+    for runtime in runtimes:
+        for message in runtime.errors:
+            print(f"ERROR [{runtime.root}]: {message}")
     print()
 
     for audit in audits:
@@ -306,6 +572,7 @@ def print_text(audits: list[SkillAudit], aggregate_errors: list[str]) -> None:
         print(
             f"  name={audit.name or '-'} desc_len={audit.description_length} "
             f"listing_len={audit.listing_text_length} sentences={audit.sentence_count} "
+            f"implicit={str(audit.allow_implicit_invocation).lower()} "
             f"lines={audit.body_lines} body_tokens~{audit.body_token_estimate} batch={audit.batch}"
         )
         for error in audit.errors:
@@ -320,60 +587,122 @@ def markdown_escape(value: str) -> str:
     return value.replace("|", "\\|")
 
 
-def print_markdown(audits: list[SkillAudit], aggregate_errors: list[str]) -> None:
+def print_markdown(
+    audits: list[SkillAudit],
+    selected: list[SkillAudit],
+    catalog: str,
+    discovery_mode: str,
+    budget: int,
+    aggregate_errors: list[str],
+    runtimes: list[RuntimeReport],
+) -> None:
     totals = summary(audits)
+    selected_totals = summary(selected)
     print("## Skill Budget Audit")
     print()
     print(f"- Skills: {totals['skills']}")
     print(f"- Hard violations: {totals['errors']}")
     print(f"- Warnings: {totals['warnings']}")
     print(f"- Separate risks: {totals['risks']}")
-    print(f"- Absolute estimate: {totals['absolute_budget']} / {AGGREGATE_BUDGET}")
-    print(f"- Repo-relative estimate: {totals['relative_budget']} / {AGGREGATE_BUDGET}")
+    print(f"- Catalog: {catalog}")
+    print(f"- Discovery mode: {discovery_mode}")
+    print(f"- Budgeted skills: {selected_totals['skills']}")
+    print(f"- Repo-relative estimate (portable verdict): {selected_totals['relative_budget']} / {budget}")
+    print(f"- Absolute estimate (source diagnostic only): {selected_totals['absolute_budget']} / {budget}")
     print(f"- Average description length: {totals['average_description']}")
     print(f"- Descriptions >200: {totals['over_200']}")
     print(f"- Descriptions >140: {totals['over_140']}")
     print(f"- Descriptions >120: {totals['over_120']}")
     print(f"- Skill bodies >500 lines: {totals['long_bodies']}")
     print(f"- Skill bodies >~5000 tokens: {totals['body_token_risks']}")
+    for runtime in runtimes:
+        print(
+            f"- Runtime lexical estimate `{runtime.root}`: {runtime.lexical_budget} / {budget} "
+            f"({len(runtime.selected)} skills)"
+        )
     for message in aggregate_errors:
         print(f"- ERROR: {message}")
+    for runtime in runtimes:
+        for message in runtime.errors:
+            print(f"- ERROR `{runtime.root}`: {message}")
     print()
-    print("| Batch | Skill | Description chars | Listing chars | Sentences | Lines | Body tokens est. | Status | Issues |")
-    print("|-------|-------|-------------------|---------------|-----------|-------|------------------|--------|--------|")
+    print(
+        "| Batch | Skill | Implicit | Description chars | Listing chars | Sentences | "
+        "Lines | Body tokens est. | Status | Issues |"
+    )
+    print(
+        "|-------|-------|----------|-------------------|---------------|-----------|"
+        "-------|------------------|--------|--------|"
+    )
     for audit in audits:
         issues = audit.errors + audit.warnings + audit.risks
         status = "fail" if audit.errors else "warn" if audit.warnings else "risk" if audit.risks else "ok"
         issue_text = "<br>".join(markdown_escape(issue) for issue in issues) or "-"
         print(
-            f"| {audit.batch} | `{audit.display_path}` | {audit.description_length} | "
-            f"{audit.listing_text_length} | {audit.sentence_count} | {audit.body_lines} | "
-            f"{audit.body_token_estimate} | {status} | {issue_text} |"
+            f"| {audit.batch} | `{audit.display_path}` | {str(audit.allow_implicit_invocation).lower()} | "
+            f"{audit.description_length} | {audit.listing_text_length} | {audit.sentence_count} | "
+            f"{audit.body_lines} | {audit.body_token_estimate} | {status} | {issue_text} |"
         )
 
 
-def main() -> int:
-    args = parse_args()
-    skills_root = Path(args.skills_root).resolve()
+def run(args: argparse.Namespace) -> int:
+    skills_root = lexical_absolute(Path(args.skills_root))
+    registry_path = lexical_absolute(
+        Path(args.registry) if args.registry else skills_root / "references" / "skill-invocation-registry.json"
+    )
     audits = audit_all(skills_root, args.batch_size)
-
-    aggregate_errors: list[str] = []
-    totals = summary(audits)
-    if totals["absolute_budget"] > AGGREGATE_BUDGET:
-        aggregate_errors.append(
-            f"absolute aggregate estimate exceeds {AGGREGATE_BUDGET}: {totals['absolute_budget']}"
+    registry = load_registry(registry_path)
+    catalogs = build_catalogs(registry, {audit.name for audit in audits if audit.name})
+    selected = select_audits(audits, catalogs, args.catalog, args.discovery_mode)
+    aggregate_errors = source_budget_errors(selected, catalogs, args.budget)
+    runtimes = [
+        audit_runtime(
+            Path(runtime_root),
+            registry,
+            args.catalog,
+            args.discovery_mode,
+            args.batch_size,
+            args.budget,
         )
+        for runtime_root in args.runtime_skills_root
+    ]
 
     if args.format == "markdown":
-        print_markdown(audits, aggregate_errors)
+        print_markdown(
+            audits,
+            selected,
+            args.catalog,
+            args.discovery_mode,
+            args.budget,
+            aggregate_errors,
+            runtimes,
+        )
     else:
-        print_text(audits, aggregate_errors)
+        print_text(
+            audits,
+            selected,
+            args.catalog,
+            args.discovery_mode,
+            args.budget,
+            aggregate_errors,
+            runtimes,
+        )
 
     has_errors = any(audit.errors for audit in audits)
     has_warnings = any(audit.warnings for audit in audits)
-    if has_errors or aggregate_errors or (args.strict and has_warnings):
+    runtime_errors = any(runtime.errors for runtime in runtimes)
+    if has_errors or aggregate_errors or runtime_errors or (args.strict and has_warnings):
         return 1
     return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    try:
+        args = parse_args(argv)
+        return run(args)
+    except AuditInputError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

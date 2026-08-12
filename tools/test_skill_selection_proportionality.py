@@ -12,6 +12,7 @@ FIDELITY = ROOT / "skills" / "references" / "skill-execution-fidelity.md"
 CONTENT = ROOT / "skills" / "007-sg-content" / "SKILL.md"
 ENRICH = ROOT / "skills" / "201-sg-enrich" / "SKILL.md"
 ROUTER = ROOT / "skills" / "000-shipglows" / "SKILL.md"
+MAX_ROUTER_LINES = 160
 ENTRYPOINT = ROOT / "skills" / "references" / "entrypoint-routing.md"
 START = ROOT / "skills" / "102-sg-start" / "SKILL.md"
 README = ROOT / "README.md"
@@ -72,6 +73,15 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
         self.assertIn("An explicitly named skill still activates", self.router)
         self.assertNotIn("unless the request reveals a safer owner", self.router)
         self.assertIn("let that skill reroute explicitly", self.router)
+
+    def test_root_router_stays_compact_and_delegates_detail_to_canonical_doctrine(self) -> None:
+        self.assertLessEqual(len(self.router.splitlines()), MAX_ROUTER_LINES)
+        for reference in (
+            "entrypoint-routing.md",
+            "master-delegation-semantics.md",
+            "skill-execution-fidelity.md",
+        ):
+            self.assertIn(reference, self.router)
 
     def test_bounded_internal_reference_updates_short_circuit_to_a_focused_registry_edit(self) -> None:
         self.assertIn("Bounded internal reference-register updates", self.router)

@@ -1,208 +1,124 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.3.1"
-project: "ShipGlows"
+artifact_version: "1.0.0"
+project: ShipGlows
 created: "2026-04-29"
-updated: "2026-05-17"
-status: draft
+updated: "2026-08-12"
+status: active
 source_skill: 300-sg-docs
 scope: skill-context-budget
-owner: "unknown"
+owner: Diane
 confidence: high
-risk_level: medium
+risk_level: high
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - "skills/"
-  - "skills/*/SKILL.md"
-  - "Codex"
-  - "Claude Code"
+  - skills/
+  - skills/*/SKILL.md
+  - skills/*/agents/openai.yaml
+  - tools/skill_budget_audit.py
+  - Codex
 depends_on:
-  - artifact: "GUIDELINES.md"
+  - artifact: GUIDELINES.md
     artifact_version: "1.0.0"
     required_status: reviewed
 supersedes: []
 evidence:
-  - "Codex skills documentation checked on 2026-04-29"
-  - "Claude Code skills documentation checked on 2026-04-29"
-  - "Local ShipGlows skill inventory measured at about 50 skills and about 12.7k initial-list characters"
-  - "User decision 2026-05-01: 300-sg-docs audit should verify skill budget compliance through a dedicated script"
-  - "User decision 2026-05-01: keep skill budget reminders scoped to skill documentation and skill refresh workflows, not global agent context"
-  - "2026-05-17 taxonomy audit compacted discovery descriptions to 3127 total description characters and a 51.3 average while preserving routing distinctions."
-next_review: "2026-05-29"
-next_step: "/103-sg-verify Audit And Compact Skill Taxonomy Descriptions"
+  - "Codex skills documentation checked on 2026-08-12."
+  - "2026-08-12 inventory: 65 source skills total 7098 portable characters; 14 implicit public wrappers total 1376 portable and 1712 runtime-lexical characters."
+  - "2026-08-12 runtime inventory: all 65 installed skills total 8658 lexical characters; expert explicit-only policy removes 6946 characters from implicit discovery without uninstalling engines."
+  - "Operator decision 2026-08-12: separate discovery and activation budgets, retain expert explicit invocation, and compact through conditional references."
+next_review: "2026-09-12"
+next_step: "/103-sg-verify progressive-skill-discovery-and-activation-budgets"
 ---
 
 # Skill Context Budget
 
-## Problem
+## Purpose
 
-ShipGlows has enough skills that the initial skill index can exceed the context budget used by Codex and Claude Code.
+Keep skill discovery reliable without confusing three different costs:
 
-This does not mean every `SKILL.md` body is loaded at startup. The startup cost comes mainly from the skill discovery index:
+- `D-portable`: repository-relative path + name + description for the selected catalogue;
+- `D-runtime`: lexical installed path + name + description for a runtime root explicitly supplied;
+- `A-activation`: selected `SKILL.md` body plus unique mandatory references and the bounded advisory pack.
 
-- skill `707-name`
-- skill `description`
-- skill file path
-- Claude Code also counts `when_to_use` when present
+Compacting a body or moving detail into `references/` reduces activation cost, not discovery cost.
 
-If this index is too large, tools may shorten descriptions or omit some skills from the initial list. That can produce warnings and can make automatic skill selection less reliable.
+## Current Codex Constraint
 
-## External Constraints
+Codex initially exposes each skill's name, description, and path, then reads the full `SKILL.md` only after selection. The initial list is capped at roughly 2% of context or 8,000 characters when context size is unknown; descriptions may be shortened and skills omitted when the set is too large. Source checked 2026-08-12: https://learn.chatgpt.com/docs/build-skills
 
-Codex:
+ShipGlows keeps the historical 8,500-character aggregate guard as a small compatibility margin around that fallback. Changing the threshold requires an explicit migration, never a silent workaround.
 
-- Codex starts with each skill's name, description, and file path.
-- The initial skills list is capped at roughly 2% of the model context window, or 8,000 characters when the context window is unknown.
-- If many skills are installed, Codex shortens skill descriptions first; for very large sets, some skills may be omitted and Codex can show a warning.
-- The full `SKILL.md` is still read when Codex selects a skill.
-- Source: https://developers.openai.com/codex/skills
+## Catalogue Policy
 
-Claude Code:
+- The 14 public métier wrappers use `agents/openai.yaml` with `policy.allow_implicit_invocation: true`.
+- The 51 expert engines use `false`: they stay installed and explicitly invocable, while public wrappers route to their canonical source paths.
+- Installation inventory and implicit discovery are separate. `internal_catalog.include_all_runtime_skills` may remain true.
+- Missing policy is treated as runtime-default implicit behavior and should be reported for repository-owned skills.
 
-- Skill descriptions are loaded into context so Claude knows what is available; full skill content loads when invoked.
-- The combined `description` and `when_to_use` text is capped at 1,536 characters per skill listing.
-- The global skill description budget scales at 1% of the context window, with an 8,000-character fallback.
-- The budget can be raised with `SLASH_COMMAND_TOOL_CHAR_BUDGET`, but ShipGlows should not depend on users doing that.
-- Claude Code recommends keeping each `SKILL.md` under 500 lines and moving detailed material to references.
-- After compaction, Claude Code keeps the first 5,000 tokens of each re-attached skill, with a combined 25,000-token budget.
-- Source: https://code.claude.com/docs/en/skills
+The invocation registry defines public, expert, and all catalogue membership. Do not create a second catalogue in code or docs.
 
-Claude.ai upload:
+## Discovery Measurements
 
-- Uploaded Claude.ai skills limit `description` to 200 characters.
-- The Agent Skills specification allows longer descriptions, but Claude.ai uses the shorter upload limit.
-- Source: https://claude.com/docs/skills/how-to
+The audit must report three labelled views:
 
-Agent Skills specification:
+1. `Source diagnostics`: validate every skill body and frontmatter.
+2. `Portable source estimate`: gate the requested catalogue independently of clone depth.
+3. `Runtime discovery estimate`: when `--runtime-skills-root` is supplied, count lexical installed paths and gate that runtime.
 
-- `707-name`: required, 1 to 64 characters, lowercase letters, numbers, and hyphens only.
-- `707-name`: must not start or end with a hyphen, must not contain consecutive hyphens, and must match the parent directory.
-- `description`: required, 1 to 1024 characters.
-- `compatibility`: optional, 1 to 500 characters if present.
-- `SKILL.md`: keep under 500 lines and move detailed reference material to separate files.
-- Progressive disclosure recommendation: full `SKILL.md` body under about 5000 tokens.
-- Source: https://agentskills.io/specification
+Never call `Path.resolve()` to price a runtime path: a junction would be rewritten to the source checkout and the result would no longer describe what Codex sees.
 
-## ShipGlows Policy
+2026-08-12 baseline:
 
-ShipGlows should optimize for the strict shared path: Codex plus Claude Code plus possible Claude.ai reuse.
+| Catalogue | Skills | Portable | Runtime lexical |
+| --- | ---: | ---: | ---: |
+| Public implicit | 14 | 1,376 | 1,712 |
+| Expert explicit-only | 51 | 5,722 | 6,946 |
+| Installed total | 65 | 7,098 | 8,658 |
 
-Default targets:
+Only the public implicit row is paid at startup after policy application. The total installed row remains useful capacity evidence, not an implicit-discovery verdict.
 
-- `description`: one sentence maximum.
-- `description`: target 80 to 120 characters.
-- `description`: warning above 140 characters.
-- `description`: hard ShipGlows maximum 200 characters unless there is a documented reason.
-- `description`: average across installed skills should stay around 100 to 104 characters while ShipGlows has about 49 to 50 skills.
-- `description`: never contain `Args:`; arguments belong in `argument-hint`.
-- `707-name`: keep stable, short, lowercase, and hyphenated.
-- `707-name`: maximum 64 characters and must match the skill directory name.
-- `707-name`: must not start or end with `-`, and must not contain `--`.
-- `path`: keep the canonical shape `skills/<name>/SKILL.md`; path length counts in the discovery budget.
-- `when_to_use`: avoid by default; if used, `description + when_to_use` must stay under 1,536 characters.
-- `compatibility`: optional; if used, keep it under 500 characters.
-- `SKILL.md`: target under 500 lines and about 5000 body tokens; move long doctrine, examples, and checklists to `references/`.
-- Installed skills: keep the always-enabled set small enough that `name + description + path` stays below 8,000 characters.
+## Metadata And Body Targets
 
-Descriptions must front-load trigger words because both Codex and Claude Code can shorten long descriptions.
+- `description`: one concise sentence, target 80–120 characters, warning above 140, hard ShipGlows maximum 200.
+- Put syntax in `argument-hint`, never `Args:` in a description.
+- Keep names lowercase, hyphenated, stable, under 64 characters, and equal to their directory.
+- `SKILL.md`: target under 500 lines and about 5,000 estimated body tokens.
+- Wrapper target: below 500 tokens; atomic owner 800–1,800; master 1,200–2,200 when safe.
+- Activation core (`body + mandatory references`) should target below 5,000 unique estimated tokens.
+- A reference above 5,000 estimated tokens is a review signal: split only when multiple real loading decisions exist.
 
-This policy should be enforced in skill-specific workflows such as `300-sg-docs` and `900-shipglows-core refresh`, plus the executable audit. Do not add broad reminders to general agent files such as `AGENT.md`, `CONTEXT.md`, or `GUIDELINES.md`; agents working on unrelated tasks should not carry this extra decision load.
+Size is never authority to remove a stop condition, security gate, proof requirement, trace role, or reporting contract.
 
-Good description pattern:
+## Activation Accounting
 
-```yaml
-description: "Audit documentation drift, metadata, README/API/component docs, and stale project contracts."
-```
+For a selected skill, report:
 
-Avoid:
+- `B`: body estimate;
+- `M`: unique references mandatory before the first decision;
+- `C-mode`: unique conditional references for the selected mode;
+- `P-advisory`: bounded resolver starter pack, separately labelled.
 
-```yaml
-description: "Args: file-path, readme, api, components, audit, update, metadata, or migrate-frontmatter. Générer, auditer et harmoniser la documentation — README, API docs, component docs, audit de cohérence, migration frontmatter, ou fichier spécifique"
-```
+Do not infer a dependency graph from prose. Until explicit activation profiles exist, measure pilots and mechanically declared loaders only. Count a shared file once and show both selected-mode and worst-case totals when available.
 
-Arguments belong in `argument-hint` and the body, not in long descriptions.
-
-## Body-Size Risk And Layering
-
-Description compliance and body-size compaction are linked but distinct:
-
-- Discovery metadata (`707-name`, `description`, path) protects startup routing quality.
-- `SKILL.md` body size protects progressive-disclosure quality during execution.
-
-Use `skills/references/skill-instruction-layering.md` as the canonical compaction contract for what must stay local vs what should move to shared or skill-local references.
-
-Current policy state:
-
-- Frontmatter description policy is currently compliant in this repo baseline.
-- Remaining risk is mainly body-size and instruction dilution in long skill bodies.
-- Compaction must preserve guardrails (`Trace category`, `Process role`, chantier/reporting contracts, security/redaction rules, and documentation-update gates).
-
-Practical thresholds stay:
-
-- warning zone: `SKILL.md` over 500 lines
-- progressive-disclosure risk: body estimate over about 5000 tokens
-
-Crossing a threshold is a risk signal, not automatic deletion authority.
-
-## Audit Command
-
-Use the canonical audit before adding or expanding skills:
+## Audit Commands
 
 ```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
-"$SHIPGLOWS_ROOT/tools/skill_budget_audit.py" --skills-root "$SHIPGLOWS_ROOT/skills"
+python3 tools/skill_budget_audit.py --skills-root skills --catalog all --discovery-mode implicit
+python3 tools/skill_budget_audit.py --skills-root skills --catalog public --discovery-mode installed --format markdown
+python3 tools/skill_budget_audit.py --skills-root skills --catalog all --discovery-mode implicit \
+  --runtime-skills-root "$HOME/.agents/skills"
 ```
 
-Use Markdown output when embedding the result in an audit report:
+The source absolute checkout estimate may be printed for diagnosis, but it must not override a passing portable verdict. A runtime estimate is blocking only when its root was explicitly requested.
 
-```bash
-SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-$HOME/shipglows}"
-"$SHIPGLOWS_ROOT/tools/skill_budget_audit.py" --skills-root "$SHIPGLOWS_ROOT/skills" --format markdown
-```
+## Remediation Order
 
-If the canonical script is not available yet, use this rough estimate:
-
-```bash
-find "$HOME/shipglows/skills" -mindepth 2 -maxdepth 2 -name SKILL.md -print0 |
-  xargs -0 awk '
-    /^name: / {
-      name=$0
-      sub(/^name: /, "", name)
-    }
-    /^description: / {
-      desc=$0
-      sub(/^description: /, "", desc)
-      gsub(/^"|"$/, "", desc)
-      count++
-      total += length(name) + length(desc) + length(FILENAME)
-      if (length(desc) > 200) {
-        print length(desc) "\t" FILENAME "\t" desc
-      }
-    }
-    END {
-      print "COUNT=" count
-      print "APPROX_INITIAL_LIST_CHARS=" total
-    }'
-```
-
-Interpretation:
-
-- `APPROX_INITIAL_LIST_CHARS` under 8,000: acceptable baseline.
-- 8,000 to 10,000: warning zone; shorten descriptions before adding more skills.
-- above 10,000: remediation needed; automatic skill discovery may degrade.
-
-## Recommended Remediation
-
-1. Shorten descriptions over 200 characters first.
-2. Move argument syntax out of descriptions into `argument-hint`.
-3. Merge or disable niche skills that are rarely used.
-4. Split long `SKILL.md` bodies into `references/` when the body exceeds 500 lines.
-5. Add a CI or maintenance script that fails when the estimated initial index exceeds 8,000 characters.
-
-## Current ShipGlows Note
-
-On 2026-05-17, the local ShipGlows install measured 61 skills with 3127 total description characters, average description length 51.3, absolute discovery estimate 6805/8000, and repo-relative discovery estimate 5463/8000.
-
-The current baseline is under the fallback discovery budget with zero hard violations, zero warnings, and zero body-size risks. Future remediation should still prefer targeted description edits and routing analysis before deleting, disabling, renaming, or merging skills.
+1. Correct an unintended implicit policy or catalogue membership.
+2. Shorten a description only when its trigger remains precise.
+3. Decouple public loaders from runtime sibling layout.
+4. Compact activation bodies through conditional, purpose-specific references.
+5. Split large mandatory references by real mode or gate.
+6. Remove or merge a skill only through an approved taxonomy change.

@@ -6,205 +6,89 @@ argument-hint: <task description, spec path, ou scope>
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/shipglows`). Project artifacts remain relative to the current project root unless stated otherwise.
 
 ## Chantier Tracking
 
 Trace category: `non-applicable`.
 Process role: `helper`.
 
-This skill does not write to chantier specs. If invoked inside a spec-first flow, do not modify `Skill Run History`; use a `(local)` chantier header with a short work name.
+This skill never writes chantier history. Inside a spec-first flow, use a `(local)` chantier header and leave `Skill Run History` unchanged.
+
+## Mission And Boundary
+
+Choose one quality-safe model policy for the resolved scope, then stop routing and name the execution owner.
+
+This skill owns:
+
+- runtime/provider identification;
+- primary model or stable alias choice;
+- reasoning effort or alias behavior;
+- quality-equivalent fast and cheap fallbacks;
+- whether the choice applies to the current conversation, a subagent override, or the next run.
+
+It does not execute the work, mutate the work item, guarantee model availability, or claim that the active main-thread runtime switched.
+
+Stay here for a concrete model or reasoning decision. Route execution to `102-sg-start`, workflow doctrine to `302-sg-help`, and an unresolved task to `700-sg-explore` or `100-sg-spec`.
+
+## Required References
+
+Load only what the decision needs:
+
+1. Load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` before optimizing cost, speed, or latency.
+2. Load `$SHIPGLOWS_ROOT/skills/704-sg-model/references/model-routing.md` before every model recommendation. It is the sole detailed provider matrix and alias catalogue; do not reproduce it here.
+3. Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` only before the final user report.
+
+## Decision Contract
+
+1. Resolve the requested scope from `$ARGUMENTS`, the current request, or one clearly relevant spec/task. Prefer a durable spec when one exists.
+2. Identify the actual or requested runtime. If none is explicit, use the current session runtime.
+3. Classify only the factors needed by `model-routing.md`: dominant work type, complexity, expected duration, error cost, reversibility, and latency pressure.
+4. Apply the shared quality contract first. Speed and price break ties only between options expected to preserve correctness, security, maintainability, performance relevance, excellence, and proof quality.
+5. Select a primary policy, reasoning effort or alias behavior, and at most one fast and one cheap quality-equivalent fallback.
+6. Record availability evidence and application status separately from the recommendation.
+7. Name the exact next owner or invocation. Do not prolong routing once one defensible policy is clear.
+
+## Runtime Application Boundary
+
+Every recommendation must choose exactly one status:
+
+- `current conversation acceptable`: the active runtime is adequate for the risk;
+- `subagent override applied`: the runtime exposed an override and the dispatch actually used it;
+- `subagent override recommended, not applied`: an override is useful but unavailable or unused;
+- `switch recommended for next run`: the main conversation should change runtime outside this thread.
+
+Never infer access from documentation. Never report an override as applied without runtime evidence.
+
+## Freshness And Evidence
+
+Revalidate official provider documentation when the answer depends on `latest`, `current`, `default`, availability, migration, pricing, context size, or a recent comparison. For OpenAI/Codex, use the official OpenAI documentation connector first and official OpenAI domains as fallback. For Claude Code, prefer documented stable aliases unless the operator requests dated model names.
+
+Provider documentation describes policy; the current runtime or tool model list proves availability. If either source is missing, label the claim `recommended, not applied` or stop when execution risk would be material. Never invent benchmarks, price, capacity, context windows, or accepted reasoning levels.
+
+## Stop Conditions
+
+Stop and ask or reroute when:
+
+- no task scope can be resolved without choosing between materially different work items;
+- runtime/provider ambiguity changes the recommendation materially;
+- no quality-equivalent fallback exists for a requested cost or speed constraint;
+- availability cannot be proved and using the wrong model would make the work unsafe;
+- the user is asking for execution rather than another routing decision.
+
+## Validation
+
+Before reporting, verify that the recommendation:
+
+- follows the current `model-routing.md` and quality contract;
+- separates model choice from reasoning effort;
+- identifies freshness and availability evidence;
+- states application status truthfully;
+- includes upgrade and downgrade conditions based on risk, not prestige;
+- ends with one concrete next action.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` and use the shared chantier-then-verdict opening.
+Use the shared chantier-then-verdict opening. Keep the report decision-focused: scope, runtime, primary policy, reasoning or alias behavior, brief rationale, quality-equivalent fallbacks, freshness and availability evidence, application status, upgrade/downgrade triggers, and the next owner.
 
-## Context
-
-- Current directory: !`pwd`
-- Current date: !`date '+%Y-%m-%d'`
-- Project name: !`basename $(pwd)`
-- Git branch: !`git branch --show-current 2>/dev/null || echo "unknown"`
-- Available specs: !`find docs specs -maxdepth 2 -type f -name "*.md" 2>/dev/null | sort | head -40`
-- Local TASKS.md (if exists): !`cat TASKS.md 2>/dev/null || echo "No local TASKS.md"`
-
-## Your task
-
-Choisir un modèle avant une exécution ShipGlows, que la session tourne dans Codex/OpenAI ou dans Claude Code, sans transformer cette étape en débat interminable.
-
-This skill answers one operator question: which model policy is the best fit for this scope right now, and is that recommendation for the current conversation, a subagent override, or the next run?
-
-It owns model-routing advice only: runtime/provider identification, primary model choice, reasoning level or Claude alias choice, and quality-equivalent fallback guidance.
-
-Keep the boundary explicit:
-- stay here when the user wants model choice, runtime-fit advice, or a decision on reasoning strength before execution
-- hand off to `102-sg-start` once the model choice is clear and the user wants the work executed
-- hand off to `302-sg-help` when the user needs broader workflow doctrine rather than a concrete model choice
-- hand off to `700-sg-explore` or `100-sg-spec` when the task itself is still too fuzzy to route a model credibly
-
-`704-sg-model` does not become the execution owner, does not mutate the work item itself, and does not pretend that recommending a model means the main thread already switched runtime.
-
-Avant toute recommandation, charger `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`. La sélection de modèle optimise d'abord la fiabilité, la sécurité, la performance attendue, la maintenabilité, l'excellence et la qualité de preuve. Les alternatives rapides ou moins chères ne sont valides que si elles restent équivalentes sur ces axes pour le risque réel.
-
-Le but de `704-sg-model` est de répondre à six questions :
-- quel runtime/provider est concerné maintenant ?
-- quel modèle prendre maintenant ?
-- quel niveau de reasoning ou alias Claude choisir ?
-- quelle alternative plus rapide existe sans baisser la qualité attendue ?
-- quelle alternative moins chère existe sans baisser la qualité attendue ?
-- à partir de quand il faut arrêter d'optimiser et juste lancer `/102-sg-start` ?
-
-Lire `references/model-routing.md` avant de décider.
-
-## Runtime application boundary
-
-`704-sg-model` chooses a model policy; it does not guarantee that the already-running main conversation can mutate its own runtime model mid-thread.
-
-Use this distinction in every recommendation:
-
-- `current conversation`: recommend the best model and continue only when the current runtime is acceptable for the risk.
-- `subagent override`: when the runtime supports delegated model overrides, tell the caller to pass the selected `model` and `reasoning_effort` or Claude alias into the subagent mission.
-- `next run`: when the main runtime should change, recommend the exact model/alias for the operator's next session or command.
-
-Never report a model override as applied unless the runtime actually exposed and used that override. If model override support is unavailable or unknown, mark it as `recommended, not applied`.
-
-### Step 1 — Identifier le runtime et le scope
-
-Déterminer d'abord le runtime réel ou demandé :
-- `Codex/OpenAI` si la session utilise Codex, les modèles `gpt-*`, l'OpenAI API, ou une demande explicite OpenAI.
-- `Claude Code` si la session utilise Claude Code, les aliases `opus`, `sonnet`, `haiku`, `opusplan`, ou une demande explicite Claude.
-- Si aucun runtime n'est explicite, choisir celui de la session courante.
-
-Si `$ARGUMENTS` est fourni, l'utiliser comme scope.
-
-Sinon, déduire le meilleur scope possible depuis :
-- la spec la plus probable dans `docs/` ou `specs/`
-- la tâche en cours dans `TASKS.md`
-- le contexte immédiat de la session
-
-Si une spec existe pour ce scope, l'utiliser comme source principale.
-
-### Step 2 — Classifier la tâche
-
-Classer le travail selon la dimension dominante :
-- `architecture` : cadrage, arbitrages, ambiguïtés, contrats
-- `agentic-code` : implémentation longue, multi-fichiers, refacto, debugging
-- `fast-iteration` : petits deltas, triage, exploration, boucles rapides quand la qualité reste équivalente
-- `ui-focus` : ajustements front ciblés, itérations visuelles locales
-- `economy` : tâche claire où budget/latence peuvent arbitrer seulement après satisfaction du contrat qualité
-
-Puis estimer :
-- complexité : `low` / `medium` / `high`
-- longueur de session attendue : `short` / `medium` / `long`
-- coût d'erreur : `low` / `medium` / `high`
-- besoin de vitesse : `low` / `medium` / `high`
-
-### Step 3 — Vérifier la fraîcheur quand nécessaire
-
-Pour les décisions OpenAI qui dépendent de "latest", "current", "default", "best model", disponibilité, migration, pricing ou comparaison actuelle :
-- utiliser d'abord `mcp__openaiDeveloperDocs__fetch_openai_doc` sur `https://developers.openai.com/api/docs/guides/latest-model.md`
-- si besoin, chercher/fetcher d'autres pages avec les outils `mcp__openaiDeveloperDocs__*`
-- si le MCP ne répond pas, fallback seulement vers les domaines officiels OpenAI et signaler le fallback
-
-Pour Claude Code, privilégier les aliases documentés (`opusplan`, `opus`, `sonnet`, `sonnet[1m]`, `haiku`) plutôt que des slugs datés, sauf demande explicite de nom complet.
-
-Ne pas inventer de benchmark, prix, disponibilité, contexte ou capacité.
-
-### Step 4 — Router vers un modèle
-
-Utiliser la matrice provider-aware de `references/model-routing.md` et choisir :
-- un `Primary model`
-- un `Reasoning effort` pour Codex/OpenAI, ou le comportement d'alias pour Claude Code
-- un `Fast fallback`
-- un `Cheap fallback`
-
-Règles de décision Codex/OpenAI :
-- préférer `gpt-5.6-sol` pour les tâches ambiguës, transverses, tool-heavy, ou à fort coût d'erreur
-- préférer `gpt-5.6-terra` quand il faut un équilibre explicite entre intelligence, coût et latence
-- préférer le profil `codex` pour l'implémentation longue, multi-fichiers, refactor, debugging difficile ou boucle terminal/code
-- préférer `gpt-5.6-luna` pour les boucles rapides, le triage, les petites modifs, l'exploration et les tâches répétitives uniquement quand le coût d'erreur est bas et que la qualité attendue reste suffisante
-- utiliser `gpt-5.6-luna` pour les petites missions sous-agent low-risk et quality-equivalent; sinon escalader
-- n'utiliser Spark que sur demande et si le runtime l'expose; le remplacer par Luna seulement si la qualité reste équivalente
-- interpréter `spark`, `codex`, `sous-agent`/`subagent`/`agents`, et `mini` comme des demandes de sous-agent, selon `references/model-routing.md`
-
-Règles de décision Claude Code :
-- préférer `opusplan` quand il faut une vraie phase de plan/architecture puis exécuter efficacement
-- préférer `opus` pour raisonnement complexe, arbitrages risqués, revue adverse ou cadrage difficile
-- préférer `sonnet` pour le coding quotidien, l'implémentation multi-fichiers maîtrisée et les longues boucles équilibrées
-- préférer `sonnet[1m]` quand la contrainte principale est une très longue session/contexte dans Claude Code
-- préférer `haiku` pour triage, tâches simples, classifications, petites recherches ou boucles à coût/latence minimaux
-
-### Step 5 — Calibrer le reasoning
-
-Pour Codex/OpenAI :
-- décider le modèle et le reasoning séparément; conserver le niveau courant comme baseline pendant une migration, puis tester un cran inférieur sur des missions représentatives
-- `none` : baseline de latence seulement, pour une mission très claire et réversible si le runtime le supporte; tester `low` dès qu'un bénéfice de qualité est observé
-- `low` : tâche claire, locale, réversible, low-risk et quality-equivalent
-- `medium` : valeur par défaut pratique pour la plupart des tâches de dev
-- `high` / `xhigh` / `max` : seulement lorsqu'une évaluation montre un gain de qualité qui justifie latence et coût; vérifier les niveaux réellement acceptés par le runtime
-
-Pour Claude Code :
-- utiliser l'alias comme principal levier de raisonnement
-- recommander `/model <alias>` si un changement de modèle est utile
-- ne pas simuler des niveaux OpenAI `low/medium/high` pour Claude
-
-Ne pas sur-utiliser les options lourdes sur les tâches faciles.
-
-### Step 6 — Décider s'il faut vraiment router
-
-Si la tâche est petite, claire et locale, éviter d'ajouter du process :
-- recommander directement le modèle le plus léger qui respecte le contrat qualité
-- dire explicitement de lancer `/102-sg-start`
-
-Si la tâche est non triviale :
-- recommander le modèle
-- donner la commande suivante exacte
-
-### Rapport attendu
-
-```text
-## Model Choice: [scope]
-
-Runtime: [Codex/OpenAI | Claude Code]
-Primary model: [model or alias]
-Reasoning: [none / low / medium / high / xhigh / max when supported, or Claude alias behavior]
-
-Why:
-- [reason 1]
-- [reason 2]
-
-Fast fallback: [model or alias, quality-equivalent only]
-Cheap fallback: [model or alias, quality-equivalent only]
-
-Freshness check:
-- [OpenAI Docs MCP used / not needed / unavailable fallback]
-
-Availability evidence:
-- [runtime/tool model list or explicit refusal]
-
-Policy status:
-- [override applied / recommended only / unavailable in this runtime]
-
-When to upgrade:
-- [condition]
-
-When to downgrade:
-- [condition]
-
-Next step:
-- /102-sg-start [scope]
-
-Runtime application:
-- [current conversation acceptable / switch recommended for next run / subagent override applied / subagent override recommended, not applied]
-```
-
-### Rules
-
-- Être court et décisionnel
-- Lire `references/model-routing.md` à chaque usage
-- Ne pas inventer de benchmark précis
-- Ne considérer aucun modèle comme disponible sans preuve du runtime courant; la documentation officielle guide la politique, elle ne garantit pas l'accès de cette session
-- Si l'utilisateur demande le "latest" ou une comparaison actuelle OpenAI, vérifier la doc OpenAI officielle via MCP avant d'affirmer
-- Pour Claude Code, recommander les aliases stables plutôt que des slugs datés sauf demande explicite
-- Préférer une décision professionnelle suffisamment étayée à une optimisation obsessionnelle; ne pas abaisser le contrat qualité pour éviter le débat
-- Si deux modèles sont proches et qualité-équivalents, arbitrer sur latence, coût, nature agentique et risque d'erreur
+If no valid recommendation can be made, report the blocker and the single missing decision or evidence item instead of filling a model-choice template with guesses.

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-05-16"
-updated: "2026-08-03"
+updated: "2026-08-12"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-instruction-layering
@@ -21,8 +21,8 @@ linked_systems:
   - shipglows_data/technical/skill-runtime-and-lifecycle.md
 depends_on:
   - artifact: "skills/references/skill-context-budget.md"
-    artifact_version: "0.3.1"
-    required_status: "draft"
+    artifact_version: "1.0.0"
+    required_status: "active"
   - artifact: "skills/references/chantier-tracking.md"
     artifact_version: "0.5.0"
     required_status: "draft"
@@ -37,6 +37,7 @@ evidence:
   - "User decision 2026-07-07: for any skill-creation or skill-improvement work, improve the shared reference layer first and only add local skill wording when the behavior is truly owner-specific."
   - "User decision 2026-07-12: every skill change must preserve compaction and practical followability instead of adding repeated warning prose."
   - "Operator decision 2026-08-03: new cross-skill discovery contracts should prefer stable semantic resource IDs over repeated physical paths once resolver equivalence is proven."
+  - "Operator decision 2026-08-12: public wrappers remain implicit while expert engines become explicit-only, and activation cost is tracked separately from discovery."
 next_review: "2026-09-03"
 next_step: "/103-sg-verify skill instruction layering"
 ---
@@ -64,6 +65,16 @@ Required local sections:
 7. Explicit list of required references and when each one must be loaded.
 
 The top-level skill body must prioritize first-screen clarity over exhaustive examples or narrative rationale.
+
+## Discovery And Activation Profiles
+
+Public wrappers and expert engines have different discovery roles:
+
+- Public wrappers remain implicitly invocable and load their engine from `$SHIPGLOWS_ROOT/skills/<engine>/SKILL.md`; never depend on an expert sibling in the installed runtime.
+- Expert engines remain explicitly invocable but set `policy.allow_implicit_invocation: false` in `agents/openai.yaml`.
+- A missing canonical root or engine is a visible stop, not permission to fall back to a stale runtime copy.
+
+Keep activation decisions explicit without inventing a graph from prose. Distinguish mandatory references needed before the first decision, conditional references selected by mode/gate, and advisory resolver results. Shared resources are counted once. A generalized machine-readable activation manifest may be added later only after pilot evidence.
 
 ## What Must Stay Local
 
@@ -155,7 +166,7 @@ Every skill modification must pass two questions before completion: does the cha
 Always run:
 
 ```bash
-python3 tools/skill_budget_audit.py --skills-root skills --format markdown
+python3 tools/skill_budget_audit.py --skills-root skills --catalog all --discovery-mode implicit --format markdown
 tools/shipglows_sync_skills.sh --check --all
 ```
 

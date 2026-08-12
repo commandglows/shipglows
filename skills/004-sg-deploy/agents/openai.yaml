@@ -2,3 +2,5 @@ interface:
   display_name: "004-sg-deploy"
   short_description: "Deploy and verify a release"
   default_prompt: "Use $004-sg-deploy to check, ship, wait for deployment, and route post-deploy verification."
+policy:
+  allow_implicit_invocation: false

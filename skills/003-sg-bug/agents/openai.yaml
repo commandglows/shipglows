@@ -2,3 +2,5 @@ interface:
   display_name: "003-sg-bug"
   short_description: "Execute bug intake and closure"
   default_prompt: "Use $003-sg-bug to run bug intake, bug files, fixes, retests, verification, and ship risk through the right owner skills."
+policy:
+  allow_implicit_invocation: false

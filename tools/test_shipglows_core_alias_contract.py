@@ -38,7 +38,7 @@ class ShipGlowsCoreAliasContractTests(unittest.TestCase):
         compatibility = COMPAT_ROUTER.read_text(encoding="utf-8")
         core = CORE.read_text(encoding="utf-8")
 
-        self.assertIn("Never\nredirect any part of a `core` instruction to the current project", public)
+        self.assertIn("Never redirect any part of a `core` instruction to the current project", public)
         self.assertIn("every remaining word as ShipGlows-system work", compatibility)
         self.assertIn("No later project name, repository path, request, or quoted outcome overrides", core)
         self.assertIn("it does not audit either repository", core)
