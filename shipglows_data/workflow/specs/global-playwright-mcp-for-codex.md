@@ -180,4 +180,4 @@ l'installation globale et le navigateur réel.
 - Implementation: complete.
 - Verification: complete.
 - Remote branch installation: complete.
-- Pull request: pending.
+- Pull request: open as `commandglows/shipglows#14`.
