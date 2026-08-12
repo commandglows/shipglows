@@ -9,7 +9,7 @@ from tools.test_support import optional_public_site
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "103-sg-verify" / "SKILL.md"
-GATES = ROOT / "skills" / "103-sg-verify" / "references" / "verification-gates.md"
+GATES = ROOT / "skills" / "103-sg-verify" / "references" / "verification-excellence.md"
 README = ROOT / "skills" / "103-sg-verify" / "README.md"
 CHEATSHEET = (
     ROOT

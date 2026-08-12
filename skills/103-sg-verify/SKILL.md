@@ -6,200 +6,79 @@ argument-hint: "[mode=standard|mode=excellence] [task or scope]"
 
 Primary artifact type: `specialist-workflow`.
 
-## Canonical Paths
+## Activation And Ownership
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
-
-## Instruction Layering
-
-This `SKILL.md` is the activation contract. Load `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md` before execution; keep local verdict semantics and verification dimensions here, and load detailed gate playbooks from references.
-
-## Chantier Tracking
+Resolve ShipGlows files from `$SHIPGLOWS_ROOT` (default `$HOME/.shipglows/runtime`) after loading `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`. Apply `shipglows-owned-preflight.md` before its references, tools, runtime, or sync targets.
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Before verifying a spec-first chantier, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, then read the spec's `Skill Run History` and `Current Chantier Flow` when a unique spec exists. Append a current `103-sg-verify` row with result `verified`, `verified_with_excellence_gaps`, `excellent`, `not verified`, `partial`, or `blocked`, update `Current Chantier Flow`, and open the report with the opening chantier header from `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. If no unique spec is available, do not write to a spec; use a `(local)` chantier header with a short work name.
-
-Verification semantics:
-
-- `partial`: implementation appears complete but required proof is missing (manual QA, preview/prod proof, browser/auth proof, Sentry pointer, device-only validation). Each missing proof gap must be routed to a concrete next owner (`405-sg-prod`, `108-sg-browser`, `109-sg-auth-debug`, `107-sg-test`, `005-sg-ship`, etc.) with proof type, scenario, and target/environment when knowable; if target/environment is unknown, route to `405-sg-prod` with explicit target discovery task and do not claim readiness.
-- Never downgrade completed `102-sg-start` implementation semantics only because verification evidence is incomplete.
-- Keep the distinction explicit: `102-sg-start: implemented` vs `103-sg-verify: partial`.
-- Record the selected `mode=standard|excellence` in the history action and the matching verdict in the result. Never rewrite or erase an earlier `verified` row when a later excellence pass opens bounded follow-up.
-
-When `103-sg-verify` partial is caused by hosted/deployed/provider proof, the next routing contract is mandatory:
-
-- `103-sg-verify`: when deploy-backed proof is needed, apply `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md` and route the matching proof owner with target and scenario.
-
-Before judging implementation quality, load `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`. Verification must fail or report partial when the work merely takes the fastest/easiest path and leaves correctness, security, performance, maintainability, durability, excellence, or proof quality below the accepted contract.
-When reporting any failure state, load `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` and include the concrete owner route for each evidence-backed issue.
-
-## Report Modes
-
-Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
-
-Default to `report=user`: concise, findings-first when verification fails, opening chantier header.
-Use `report=agent` for handoff, blocked runs, or explicit verbose request.
+`103-sg-verify` owns the verdict, not implementation (`102-sg-start`), closure (`104-sg-end`), shipping (`005-sg-ship`), or redesign. It may repair a bounded local issue only when the correct result is clear.
 
 ## Mode Detection
 
-Parse the request before selecting checks:
+No mode or `mode=standard` selects `standard`: verify métier correctness, contract, proof, risk, and ship readiness; success makes no excellence claim. `mode=excellence` or an unambiguous natural-language request for an excellence pass selects `excellence`: run standard first, then a fresh second pass. conflicting/unknown `mode=` values or unreliable scope stop as `not verified` or `blocked`; do not guess.
 
-- No mode or `mode=standard` selects `standard`: run métier correctness, contract, proof, risk, and ship-readiness gates. A standard pass may return `verified` but makes no excellence claim.
-- `mode=excellence` or an unambiguous natural-language request for an excellence pass selects `excellence`: run the standard gates first, then load the detailed excellence pass in `references/verification-gates.md` and perform a fresh second pass beyond the acceptance criteria.
-- No reliable scope, or conflicting/unknown `mode=` values, stops with the existing `not verified` or `blocked` semantics; do not guess.
-
-Verdict precedence:
-
-- `verified`: standard métier and ship-readiness gates pass; no excellence claim is made.
-- `verified_with_excellence_gaps`: standard readiness passes first, but the explicit excellence pass finds at least one material gap with evidence and a bounded repair or owner route.
-- `excellent`: standard readiness passes first, the fresh second pass is complete, and no material excellence gap remains.
-- Proof, correctness, security, and blocking-risk results (`partial`, `not verified`, `blocked`) take precedence over excellence verdicts; when one applies, `excellent` is forbidden.
-- Always make the selected focus and verdict visible in the report; standard success must not be presented as excellence.
-
-## Mission
-
-`103-sg-verify` judges proof quality and ship-readiness, then challenges merely adequate work when excellence mode is explicit. It may repair stable bounded local issues, but scope-changing, specialist, hosted-proof, product-decision, or security-sensitive gaps must be routed to their owner. Keep verification verdict ownership distinct from `102-sg-start` implementation, `104-sg-end` closure, and `005-sg-ship` commit/push.
-
-`103-sg-verify` answers the question selected by its focus:
+Questions answered:
 
 ```text
 standard: Is this work proven enough to move forward, and who owns missing proof?
 excellence: Once readiness passes, what material quality gap remains, and who owns follow-up?
 ```
 
-## Context
+## Verdict Precedence
 
-- Current directory: !`pwd`
-- Current date: !`date '+%Y-%m-%d'`
-- Project name: !`basename $(pwd)`
-- Git branch: !`git branch --show-current 2>/dev/null || echo "unknown"`
-- Git diff stat: !`git diff HEAD --stat 2>/dev/null || echo "no changes"`
-- Recent commits: !`git log --oneline -10 2>/dev/null || echo "no commits"`
+- `verified`: standard métier and ship-readiness gates pass; no excellence claim.
+- `verified_with_excellence_gaps`: standard readiness passes first; a material evidenced excellence gap has a bounded repair/owner route.
+- `excellent`: standard readiness passes first, the fresh second pass is complete, and no material excellence gap remains.
+- Proof, correctness, security, and blocking-risk verdicts (`partial`, `not verified`, `blocked`) take precedence over excellence verdicts; when one applies, `excellent` is forbidden.
 
-## Verification Contract
+`partial` means implementation appears complete but required proof is missing. Never downgrade completed implementation semantics solely for incomplete verification: keep `102-sg-start: implemented` vs `103-sg-verify: partial`. Route every gap with owner, proof type, scenario, and target/environment when known; unknown hosted target routes to `405-sg-prod` for discovery. Hosted/provider gaps also apply `preview-proof-routing.md`.
 
-Verify ship-readiness across six dimensions:
+## Progressive Verification Packs
 
-1. User story outcome
-2. Completeness
-3. Correctness
-4. Coherence
-5. Dependencies
-6. Risks
+Load local references directly; they never load one another. `references/verification-gates.md` is a compatibility index only.
 
-7. Manual checklist gate: required rows are `PASS` or explicitly exception-handled; unresolved `NOT_RUN`/`FAIL`/`BLOCKED` required rows block clean verification.
+- After scope and mode selection, load `references/verification-baseline.md` for every run plus `decision-quality-contract.md`. Its `Decision Quality Baseline` applies in every mode.
+- Only after standard readiness passes in excellence mode, load `references/verification-excellence.md` for the detailed excellence pass and `Excellence Focus Verdict`; excellence verdicts apply only when the selected mode is `excellence`.
+- Load `references/verification-security-ui-runtime.md` only for internet-facing/privileged, security/data, UI/mobile/visual, runtime, auth/browser, hosted, Sentry, or device proof. Then load only applicable shared contracts: `owasp-application-security-awareness.md`, `design-system-token-contract.md`, `sentry-observability.md`, `runtime-diagnostics-surface.md`.
+- Load `references/verification-coherence.md` only for documentation/closure/tracker, skill contracts, Atlas, product decisions, editorial scores, language, dependencies, or cross-contract coherence. Then load only applicable shared contracts: `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`, `content-quality-rubric.md` for editorial scoring, and `atlas-protection-preflight.md` for an Atlas registry.
 
-Mandatory explicit checks:
+Conditional shared gates load directly: `project-development-mode.md` whenever readiness depends on local, preview, or hybrid proof; `documentation-freshness-gate.md` for external behavior; `email-work-routing.md` when acceptance covers email copy/templates/rendering/delivery/auth/provider events/operations; `spec-driven-development-discipline.md` for behavior/proof; `task-application-loop.md` for progress; `closure-archive-guard.md` for closure; `documentation-reflection-gate.md` for milestone completion; `zombies-edge-case-heuristic.md` for non-trivial behavior; `clean-code-quality-contract.md` for changed code.
 
-- `Success Behavior` pass/partial/fail/not demonstrated
-- `Error Behavior` pass/partial/fail/not demonstrated
-- `Proof Path Fit` pass/partial/fail/not chosen: test-first, regression-first, scenario-first, evidence-first, or exception-with-proof matches the changed surface
-- `Task Application Loop Fit` pass/partial/fail/not applicable: implementation inspected target state, loaded required context, applied bounded slices without checkbox-only drift, updated durable progress after actual completion, and routed proof gaps without conflating implementation and verification
-- `Closure Archive Guard Fit` pass/partial/fail/not applicable: closure, tracker, changelog, docs, bug, spec, skill-runtime, or archive state does not claim stronger completion than implementation, proof, source-of-truth sync, and collision checks support
-- `Structure Replacement Fit` pass/partial/fail: the chosen implementation or workflow change reduces current friction, ambiguity, latency, or maintenance burden when that was part of the stated problem; reject decorative new layers that add churn without operator leverage.
-- `Fast Fix Shortcut Gate` pass/partial/fail: implementation does not bypass root cause, owner routing, shared structure, documentation, or required proof to make a symptom disappear.
-- `Clean Code Gate` pass/partial/fail/not applicable: proportionally verify naming, cohesion, complexity, abstraction/duplication, errors/side effects, comments/dead code, and behavior-focused proof without imposing stylistic dogma.
-- `OWASP Security Gate` pass/partial/fail/not applicable: for applicable surfaces, verify the selected Top 10:2025 risks, ASVS v5.0.0 requirements, evidence, residual gaps, and owner route; never infer complete OWASP coverage from one scan.
-- `Flutter Mobile Proof Ladder` pass/partial/fail/not applicable: widget tests -> agent-run Flutter Web smoke through `108-sg-browser`/`109-sg-auth-debug` -> APK/device proof order is respected for Flutter mobile UI work
-- `Bug Gate` (clear/partial-risk/blocks ship/not assessed)
-- `UI Design-System Shortcut Gate` pass/partial/fail/not applicable: UI, IME, keyboard, overlay, responsive, spacing, typography, color, motion, target-size, layout, or component work does not rely on unexplained one-off hardcoded visual values; any unavoidable literal is named, scoped, platform-bound, and proven.
-- `Design-System Drift Check` pass/partial/fail/not applicable: changed UI/design files were scanned with `tools/design_system_drift_check.py --changed` or equivalent specialist evidence, and any findings are resolved or justified by the canonical token/theme/component source.
-- `Runtime Diagnostics Gate` pass/partial/fail/not applicable: runtime projects preserve or add Sentry, safe diagnostics/log-copy, and commit/build + Paris/UTC build-time header, or document a valid static-site exception.
-- `Operator Autonomy Gate` pass/partial/fail: the agent used available safe tools, files, browser/app diagnostics, logs, and checks before asking the operator; any user request is limited to a real decision, secret, unavailable environment, device/manual-only proof, or unsafe side effect.
-- `Atlas Protection Gate` pass/partial/fail/not applicable: rerun the Atlas preflight against actual changed paths; any unapproved `block` fails verification and unresolved `review` prevents a clean protection claim.
-- `Product Decision Chain` pass/partial/fail/not applicable: compare actual changed artifacts and proof to the accepted upstream need, journey, capability and preserved invariants; unresolved conflicts or material orphan nodes fail a coherence claim.
-- project development mode and validation surface
-- fresh external docs verdict (`fresh-docs checked|not needed|gap|conflict`)
-- documentation coherence verdict
-- language doctrine verdict for ShipGlows artifacts
-- `Decision Quality Baseline` verdict: pass/partial/fail for the primary metrics and shared excellence quality bar in `decision-quality-contract.md`; this applies in every mode.
-- `Excellence Focus Verdict`: report `verified_with_excellence_gaps` or `excellent` only when the selected mode is `excellence`.
-- editorial score gate verdict when a spec/workflow requires content quality proof
+## Standard Contract
 
-## Required References
+Verify user-story outcome, completeness, correctness, coherence, dependencies, risks, and required manual rows. Required `NOT_RUN`, `FAIL`, or `BLOCKED` rows prevent clean verification unless an explicit accepted exception or stronger proof artifact exists.
 
-Always load:
+Always report `Success Behavior`, `Error Behavior`, `Proof Path Fit`, development/validation surface, fresh-docs verdict, documentation coherence, bug gate, and `Decision Quality Baseline`.
 
-1. `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-gates.md`
-2. `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md`
-3. `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md`
-4. `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md`
-5. `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`
-6. `$SHIPGLOWS_ROOT/skills/references/task-application-loop.md` when scope includes task-by-task implementation, direct fixes, skill contract edits, tracker progress, or progress/completion semantics.
-7. `$SHIPGLOWS_ROOT/skills/references/closure-archive-guard.md` when scope includes tracker closure, changelog framing, done/closed wording, archived artifacts, docs/source-of-truth sync, or full-close shipping.
-8. `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` when verification can imply a milestone or user-facing completion.
-8. `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` when scope includes UI, mobile, component, layout, typography, spacing, color, shadow/elevation, motion, safe-area, keyboard/IME, overlay, responsive, token, theme, or visual proof work.
-9. `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md` when scope includes an editorial score or content quality gate.
-10. `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md` when the target project owns an Atlas registry.
-11. `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when scope contains a material product decision, customer journey, capability, critical moment, Atlas mapping or cross-contract change.
-12. `$SHIPGLOWS_ROOT/skills/references/zombies-edge-case-heuristic.md` when verifying non-trivial behavior or its edge-case proof.
-13. `$SHIPGLOWS_ROOT/skills/references/clean-code-quality-contract.md` when the verified scope authored or materially modified code.
-14. `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md` when the verified scope touches an internet-facing or privileged surface.
+When applicable report these mechanically named gates:
 
-Load on demand:
+- `Task Application Loop Fit` and `Closure Archive Guard Fit`
+- `Structure Replacement Fit` and `Fast Fix Shortcut Gate`
+- `Clean Code Gate` pass/partial/fail/not applicable
+- `OWASP Security Gate` pass/partial/fail/not applicable
+- `UI Design-System Shortcut Gate`, `Design-System Drift Check`, `Flutter Mobile Proof Ladder`
+- `Runtime Diagnostics Gate`, `Operator Autonomy Gate`, `Atlas Protection Gate`, `Product Decision Chain`
 
-- `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` when runtime failures/observability/deployed behavior are in scope.
-- `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md` when verifying a runtime app, support/error handling, settings, auth callback, Sentry, browser-debug, log-copy, or deploy-proof surface.
-- `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` when acceptance criteria touch email copy, templates, received rendering, plain text, delivery, authentication, provider events, or agent operations; verify the selected playbook gates.
-- `/109-sg-auth-debug` evidence for auth/session/callback/protected-route proof.
-- `/108-sg-browser` evidence for non-auth browser proof.
+Passing technical checks never substitutes for product, security, visual, hosted, manual, auth, device, or production proof.
 
-## ShipGlows-Owned Preflight
+## Owner Routing And Tracker Rule
 
-Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before reading ShipGlows-owned references, running ShipGlows-owned tools/scripts, or checking ShipGlows-owned sync surfaces.
-For `103-sg-verify`, this preflight also applies before verifying ShipGlows-owned runtime visibility or skill-sync targets.
+Missing hosted/preview/production/browser/auth/manual proof routes to `005-sg-ship`, `405-sg-prod`, `108-sg-browser`, `109-sg-auth-debug`, or `107-sg-test` with scenario and target. Product meaning or acceptance changes route to `100-sg-spec` (optionally `700-sg-explore`); design, copy, code/security, or performance investigation routes to the matching specialist. Multi-owner or security-sensitive repair requires the ready-spec lifecycle.
 
-## Editorial Score Gate
-
-When a chantier asks for an editorial score or content quality gate:
-
-- Validate the rubric schema from `content-quality-rubric.md`: `schema_version`, `run_id`, `run_signature`, `project_id`, `surface`, `evaluator`, `input_refs`, `applied_rules_revision`, `scores`, `weights`, `status`, `blocked_reasons`, `evidence`, `recommendations`, `confidence`, `expires_at_utc`.
-- Reject stale or mismatched signatures with `stale_or_mismatched_score`.
-- Reject recoverable/non-final statuses as verification proof: `needs retry`, `duplicate_in_progress`, `conflicting_score_state`, `stale_or_mismatched_score`.
-- Accept only final statuses: `ready`, `needs revision`, `blocked`, `publishable with caveats`.
-- Treat any blocking criterion or blocking code as non-verified for ship-readiness.
-
-## Skill Coherence Check (when scope touches ShipGlows skills)
-
-When verified changes include `skills/*/SKILL.md`:
-
-- each changed skill must expose `Trace category` and `Process role`
-- changed `source-de-chantier` skills must still contain chantier-potential guidance
-- changed helper skills must not present themselves as chantier sources
-- skill contract changes must show `scenario-first` pressure scenarios, mechanical checks, or `exception-with-proof`
-- non-trivial behavior must show proportional `ZOMBIES coverage`, including justified `not applicable` categories rather than artificial tests
-- if runtime-discoverable skills changed, run `tools/shipglows_sync_skills.sh --check --skill <name>` or `--check --all`
-
-## Tracker Rule
-
-`103-sg-verify` can patch code/docs when contract is stable, but shared trackers are read-only in this skill:
-
-- do not edit `TASKS.md`, `AUDIT_LOG.md`, `PROJECTS.md` from `103-sg-verify`
-- if verification only reads task, audit, or `spec:` operational records, treat `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` as reader context; load it before any exceptional spec-summary repair.
-- do not treat tracker frontmatter absence as defect
+Trackers are read-only: do not edit `TASKS.md`, `AUDIT_LOG.md`, or `PROJECTS.md`. Tracker/spec operational records may use `operational-record-format.md` as reader context; exceptional summary repair belongs to its owner.
 
 ## Stop Conditions
 
-Report `not verified` or `blocked` when:
+Report `not verified` or `blocked` when scope/contract is unreliable; a high/critical bug remains open; required preview/hybrid, external, browser/auth, manual/device, production, or provider proof is missing; proof path and evidence disagree; closure/docs/tracker state overclaims completion; critical security/data/workflow risk is unproven; implementation bypasses root cause/ownership/durable structure; UI/visual work hides a defect with one-off hardcoded values; or changed UI files retain unresolved design-system drift.
 
-- no reliable scope/work-item contract can be identified
-- high/critical bug in scope is still open
-- required validation surface is missing for `vercel-preview-push`/`hybrid` scope
-- completion evidence does not match the chosen proof path, or no proof path was chosen for behavioral, bug, skill-contract, UI/docs/auth/deploy, or operational work
-- closure, archive, tracker, changelog, or docs state would imply stronger completion than source-of-truth sync and proof evidence support
-- critical security/data/workflow risk is unproven or failing
-- the implementation is a shortcut that violates the decision-quality contract
-- the implementation is a quick-fix shortcut that bypasses durable process, ownership, root cause, shared structure, documentation, or required proof
-- UI/design work hides a defect through hardcoded sizes, offsets, breakpoints, z-indexes, colors, font sizes, spacing, animation timings, IME/keyboard insets, overlay positions, or viewport constants instead of repairing the token/theme/component/layout/measurement source of truth
-- changed UI/design files have unresolved drift-check findings outside the canonical design-system source of truth
+## Chantier And Reporting
+
+For one unique spec, load `chantier-tracking.md`, read history/flow, append the current `103-sg-verify` mode and result without rewriting earlier rows, update flow, and use the opening chantier header. Never rewrite or erase an earlier `verified` row when a later excellence pass opens bounded follow-up. Without one unique spec, do not write a spec; use `(local)`.
+
+Before the final report load `reporting-contract.md`; failures also load `actionable-failure-contract.md`. Default to concise findings-first `report=user`; use `report=agent` for handoff, blocked, or explicit detail. Make selected focus, verdict, evidence limits, and concrete owner routes visible.
 
 ## Validation
 
-Run focused checks based on scope and diff:
-
-```bash
-rg -n "Trace category|Process role|Success Behavior|Error Behavior|Proof Path Fit|Task Application Loop Fit|Closure Archive Guard Fit|ShipGlows-Owned Preflight|canonical ShipGlows path|task-application-loop|closure-archive-guard|decision quality|proof path|evidence-first|test-first|scenario-first|fresh-docs|Chantier" skills/103-sg-verify/SKILL.md
-python3 tools/skill_budget_audit.py --skills-root skills --format markdown
-```
+Run focused scenario contracts, relevant technical/proof checks, metadata lint for changed refs, `skill_budget_audit.py`, and the runtime sync check. A green command supports only the scope it actually exercised.

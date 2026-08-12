@@ -2,6 +2,16 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-12 — progressive lifecycle activation compaction wave 4
+
+**Added:** bounded build greenfield/readiness/delivery route packs, verification baseline/excellence/security/coherence packs, and owner scenario contracts.
+
+**Updated:** `001-sg-build` now reroutes before loading lifecycle detail; `103-sg-verify` loads only baseline verification before selecting excellence, security/UI/runtime, or coherence authorities. Exact preflight, decision, email, Atlas, editorial-score, topology, and proof loaders remain explicit.
+
+**New phases:** early lifecycle routing and standard-first verification; no public routing, dependency graph, or installed-catalog change.
+
+**Sources:** 0 external URLs consulted; fresh docs not needed because this is local instruction packaging with unchanged public behavior.
+
 ## 2026-08-12 — progressive activation compaction wave 3
 
 **Added:** bounded execution-contract, topology, implementation/proof, reporting, documentation-family, and bug-proof references plus three owner scenario contracts.
