@@ -18,6 +18,16 @@ from tools import prune_codex_sessions as prune
 UTC = timezone.utc
 
 
+@contextlib.contextmanager
+def closing_connection(path: Path):
+    connection = sqlite3.connect(path)
+    try:
+        with connection:
+            yield connection
+    finally:
+        connection.close()
+
+
 class SessionPruneTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -34,7 +44,7 @@ class SessionPruneTests(unittest.TestCase):
         self.other_project.mkdir()
         self.now = datetime(2026, 7, 16, 12, 0, tzinfo=UTC)
         self.sequence = 0
-        with sqlite3.connect(self.db_path) as connection:
+        with closing_connection(self.db_path) as connection:
             connection.executescript(
                 """
                 CREATE TABLE threads (
@@ -94,7 +104,7 @@ class SessionPruneTests(unittest.TestCase):
         rollout.parent.mkdir(parents=True, exist_ok=True)
         rollout.write_bytes(thread_id.encode())
         timestamp = int((self.now - age).timestamp())
-        with sqlite3.connect(self.db_path) as connection:
+        with closing_connection(self.db_path) as connection:
             connection.execute(
                 "INSERT INTO threads VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
@@ -112,12 +122,12 @@ class SessionPruneTests(unittest.TestCase):
         return thread_id, rollout
 
     def add_edge(self, parent: str, child: str, status: str = "closed") -> None:
-        with sqlite3.connect(self.db_path) as connection:
+        with closing_connection(self.db_path) as connection:
             connection.execute("INSERT INTO thread_spawn_edges VALUES (?, ?, ?)", (parent, child, status))
 
     def assign_work(self, thread_id: str, *, job_status: str, item_status: str) -> None:
         job_id = f"job-{thread_id}"
-        with sqlite3.connect(self.db_path) as connection:
+        with closing_connection(self.db_path) as connection:
             connection.execute("INSERT INTO agent_jobs VALUES (?, ?)", (job_id, job_status))
             connection.execute(
                 "INSERT INTO agent_job_items VALUES (?, 'item', ?, ?)",
@@ -142,16 +152,16 @@ class SessionPruneTests(unittest.TestCase):
 
     def create_auxiliary_db(self, filename: str, table: str) -> Path:
         path = self.sqlite_home / filename
-        with sqlite3.connect(path) as connection:
+        with closing_connection(path) as connection:
             connection.execute(f"CREATE TABLE {table} (thread_id TEXT NOT NULL, value TEXT NOT NULL)")
         return path
 
     def add_auxiliary_row(self, path: Path, table: str, thread_id: str) -> None:
-        with sqlite3.connect(path) as connection:
+        with closing_connection(path) as connection:
             connection.execute(f"INSERT INTO {table} VALUES (?, 'payload')", (thread_id,))
 
     def table(self, name: str) -> list[tuple[object, ...]]:
-        with sqlite3.connect(self.db_path) as connection:
+        with closing_connection(self.db_path) as connection:
             return connection.execute(f"SELECT * FROM {name} ORDER BY 1, 2").fetchall()
 
     def fake_codex(self, calls: list[list[str]], *, mutate: bool = True, returncode: int = 0):
@@ -161,7 +171,7 @@ class SessionPruneTests(unittest.TestCase):
             self.assertEqual(kwargs["env"]["CODEX_SQLITE_HOME"], str(self.db_path.parent))  # type: ignore[index]
             if mutate and returncode == 0:
                 root_id = command[-1]
-                with sqlite3.connect(self.db_path) as connection:
+                with closing_connection(self.db_path) as connection:
                     closure = {root_id}
                     while True:
                         children = {
@@ -205,7 +215,7 @@ class SessionPruneTests(unittest.TestCase):
                 ):
                     auxiliary = self.sqlite_home / filename
                     if auxiliary.exists():
-                        with sqlite3.connect(auxiliary) as connection:
+                        with closing_connection(auxiliary) as connection:
                             if connection.execute(
                                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)
                             ).fetchone():
@@ -266,7 +276,7 @@ class SessionPruneTests(unittest.TestCase):
     def test_apply_requires_canonical_state_db_and_aligns_native_homes(self) -> None:
         candidate, _ = self.add_thread()
         noncanonical = self.root / "custom.sqlite"
-        with sqlite3.connect(self.db_path) as source, sqlite3.connect(noncanonical) as target:
+        with closing_connection(self.db_path) as source, closing_connection(noncanonical) as target:
             source.backup(target)
         dry_run = prune.prune_sessions(self.options(db_path=noncanonical, apply=False))
         self.assertIn(candidate, dry_run["selected_root_ids"])
@@ -418,7 +428,7 @@ class SessionPruneTests(unittest.TestCase):
         compressed = Path(str(rollout) + ".zst")
         compressed.write_bytes(b"compressed")
         unrelated_id, unrelated_rollout = self.add_thread(cwd=self.other_project)
-        with sqlite3.connect(self.db_path) as connection:
+        with closing_connection(self.db_path) as connection:
             connection.execute("INSERT INTO thread_dynamic_tools VALUES (?, 0)", (root_id,))
             connection.execute("INSERT INTO thread_dynamic_tools VALUES (?, 0)", (unrelated_id,))
         self.assign_work(root_id, job_status="completed", item_status="completed")
@@ -449,7 +459,7 @@ class SessionPruneTests(unittest.TestCase):
             {row[3] for row in self.table("agent_job_items")}, {unrelated_id}
         )
         for path, table in auxiliary:
-            with sqlite3.connect(path) as connection:
+            with closing_connection(path) as connection:
                 self.assertEqual(
                     connection.execute(f"SELECT thread_id FROM {table}").fetchall(),
                     [(unrelated_id,)],
@@ -463,7 +473,7 @@ class SessionPruneTests(unittest.TestCase):
 
         def overdelete(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
             completed = native(command, **kwargs)
-            with sqlite3.connect(self.db_path) as connection:
+            with closing_connection(self.db_path) as connection:
                 connection.execute("DELETE FROM threads WHERE id = ?", (unrelated_id,))
             return completed
 

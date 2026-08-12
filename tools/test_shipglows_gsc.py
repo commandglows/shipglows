@@ -22,7 +22,11 @@ class GscTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "profile.json"
             gsc.write_private_json(path, {"refresh_token": "test"})
-            self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+            if os.name == "posix":
+                self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+            else:
+                # Windows uses ACLs; its emulated mode bits cannot prove 0600.
+                self.assertTrue(path.is_file())
             self.assertEqual(json.loads(path.read_text())["refresh_token"], "test")
 
     def test_invalid_profile_is_rejected(self):

@@ -201,7 +201,7 @@ class TranslateContractTests(unittest.TestCase):
             ROOT / "shipglows_data" / "workflow" / "archives",
         )
         found = {
-            str(path.relative_to(ROOT))
+            path.relative_to(ROOT).as_posix()
             for base in scanned_roots
             for path in base.rglob("*.md")
             if OLD_PATTERN.search(path.read_text(encoding="utf-8"))
@@ -212,14 +212,9 @@ class TranslateContractTests(unittest.TestCase):
 
     def test_tr_source_and_runtime_retirement(self) -> None:
         self.assertFalse(OLD_SOURCE.exists())
-        for runtime in (Path.home() / ".claude" / "skills", Path.home() / ".codex" / "skills"):
-            if not runtime.is_dir():
-                continue
-            current = runtime / "407-sg-translate"
-            retired = runtime / "407-sg-audit-translate"
-            self.assertTrue(current.is_symlink(), str(current))
-            self.assertEqual(current.resolve(), (ROOT / "skills" / "407-sg-translate").resolve())
-            self.assertFalse(retired.exists() or retired.is_symlink(), str(retired))
+        self.assertTrue((ROOT / "skills" / "407-sg-translate" / "SKILL.md").is_file())
+        # Runtime installation is optional and user-local. Sync-helper tests
+        # validate links against disposable target homes.
 
     def test_tr_invocation_registry_accepts_current_identity_only(self) -> None:
         for invocation in (

@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class ZombiesEdgeCaseContractTest(unittest.TestCase):
     def test_canonical_heuristic_is_complete_and_proportional(self):
-        text = (ROOT / "skills/references/zombies-edge-case-heuristic.md").read_text()
+        text = (ROOT / "skills/references/zombies-edge-case-heuristic.md").read_text(encoding="utf-8")
         for marker in (
             "Z — Zero",
             "O — One",
@@ -31,12 +31,12 @@ class ZombiesEdgeCaseContractTest(unittest.TestCase):
         )
         for relative_path in consumers:
             with self.subTest(relative_path=relative_path):
-                text = (ROOT / relative_path).read_text()
+                text = (ROOT / relative_path).read_text(encoding="utf-8")
                 self.assertIn("zombies-edge-case-heuristic.md", text)
 
     def test_contract_prevents_test_count_ceremony(self):
-        reference = (ROOT / "skills/references/zombies-edge-case-heuristic.md").read_text()
-        qa = (ROOT / "skills/107-sg-test/SKILL.md").read_text()
+        reference = (ROOT / "skills/references/zombies-edge-case-heuristic.md").read_text(encoding="utf-8")
+        qa = (ROOT / "skills/107-sg-test/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("coverage matters more than test count", reference)
         self.assertIn("seven ceremonial tests", qa)
 

@@ -507,6 +507,13 @@ ShipGlows also installs the terminal tooling commonly needed to operate those in
 - `python3` and `PyYAML`
 - core tools: `git`, `curl`, `jq`, `fuser`, `ss` (`iproute2`), `python3-pip` (if needed)
 
+Run the complete Python contract suite portably on Windows, macOS, or Linux
+without installing test packages globally:
+
+```bash
+uv run --no-project --python 3.14 --with-requirements tools/test-requirements.txt python -m unittest discover -s tools -p 'test_*.py' -q
+```
+
 For Dart/Flutter projects, ShipGlows provisions runtime packages inside each
 project Flox environment (not as a required global SDK). Defaults are
 `SHIPGLOWS_FLOX_DART_PACKAGES=dart` and

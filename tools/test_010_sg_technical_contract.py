@@ -481,19 +481,9 @@ class TechnicalContractTests(unittest.TestCase):
         for predecessor in PREDECESSORS:
             source = ROOT / "skills" / predecessor
             self.assertFalse(source.exists() or source.is_symlink(), predecessor)
-        for runtime_root in (Path.home() / ".codex" / "skills", Path.home() / ".claude" / "skills"):
-            if not runtime_root.exists():
-                continue
-            public_entry = runtime_root / "sg-engineering"
-            self.assertTrue(public_entry.exists(), runtime_root)
-            self.assertEqual(
-                (ROOT / "skills" / "sg-engineering").resolve(),
-                public_entry.resolve(),
-            )
-            self.assertFalse((runtime_root / "010-sg-technical").exists(), runtime_root)
-            for predecessor in PREDECESSORS:
-                retired = runtime_root / predecessor
-                self.assertFalse(retired.exists() or retired.is_symlink(), f"{runtime_root}: {predecessor}")
+        # Runtime installation is optional and user-local. Sync-helper tests
+        # cover it with isolated target homes; this source contract must not
+        # depend on the invoking user's home state.
 
     def test_no_extra_substantive_playbooks(self) -> None:
         actual = {path.name for path in (SKILL.parent / "references").glob("*-playbook.md")}

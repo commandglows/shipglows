@@ -109,7 +109,7 @@ class NodePlaywrightBridgeTests(unittest.TestCase):
                 runtime = capture.discover_node_playwright_runtime()
 
             self.assertEqual(runtime.package_json, package_json.resolve())
-            self.assertEqual(runtime.cli_path, Path("/shared/bin/playwright"))
+            self.assertEqual(runtime.cli_path, Path("/shared/bin/playwright").resolve())
             resolver_command = run.call_args.args[0]
             self.assertEqual(resolver_command[0], "/usr/bin/node")
             self.assertEqual(resolver_command[-1], "/shared/bin/playwright")

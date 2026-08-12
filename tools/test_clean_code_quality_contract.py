@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class CleanCodeQualityContractTest(unittest.TestCase):
     def test_contract_has_observable_and_non_dogmatic_gates(self):
-        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text()
+        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text(encoding="utf-8")
         for marker in (
             "Intent-revealing names",
             "Cohesive responsibility",
@@ -34,15 +34,15 @@ class CleanCodeQualityContractTest(unittest.TestCase):
         )
         for relative_path in consumers:
             with self.subTest(relative_path=relative_path):
-                text = (ROOT / relative_path).read_text()
+                text = (ROOT / relative_path).read_text(encoding="utf-8")
                 self.assertIn("clean-code-quality-contract.md", text)
 
     def test_verification_exposes_clean_code_gate(self):
-        text = (ROOT / "skills/103-sg-verify/SKILL.md").read_text()
+        text = (ROOT / "skills/103-sg-verify/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("`Clean Code Gate` pass/partial/fail/not applicable", text)
 
     def test_contract_separates_domain_and_instance_identity(self):
-        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text()
+        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text(encoding="utf-8")
 
         for marker in (
             "Domain Identifier Gate",
@@ -59,7 +59,7 @@ class CleanCodeQualityContractTest(unittest.TestCase):
                 self.assertIn(marker, text)
 
     def test_contract_defines_registry_lifecycle_and_alias_invariants(self):
-        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text()
+        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text(encoding="utf-8")
 
         for marker in (
             "domain-owned registry",
@@ -79,7 +79,7 @@ class CleanCodeQualityContractTest(unittest.TestCase):
                 self.assertIn(marker, text)
 
     def test_contract_defines_fail_closed_migration_and_exception_boundaries(self):
-        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text()
+        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text(encoding="utf-8")
 
         for marker in (
             "empty or malformed codes",
@@ -107,7 +107,7 @@ class CleanCodeQualityContractTest(unittest.TestCase):
                 self.assertIn(marker, text)
 
     def test_contract_names_domain_identifier_pressure_scenarios(self):
-        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text()
+        text = (ROOT / "skills/references/clean-code-quality-contract.md").read_text(encoding="utf-8")
 
         for scenario in (
             "ID-LABEL-LOCALE",

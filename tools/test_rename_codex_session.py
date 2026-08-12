@@ -14,6 +14,16 @@ from tools import rename_codex_session as rename
 
 ROOT = Path(__file__).resolve().parents[1]
 
+
+@contextlib.contextmanager
+def closing_connection(path: Path):
+    connection = sqlite3.connect(path)
+    try:
+        with connection:
+            yield connection
+    finally:
+        connection.close()
+
 class SessionRenameTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -26,7 +36,7 @@ class SessionRenameTests(unittest.TestCase):
         self.db_path = self.root / "state_5.sqlite"
         self.current_id = "00000000-0000-4000-8000-000000000001"
         self.other_id = "00000000-0000-4000-8000-000000000002"
-        with sqlite3.connect(self.db_path) as connection:
+        with closing_connection(self.db_path) as connection:
             connection.execute(
                 "CREATE TABLE threads (id TEXT PRIMARY KEY, cwd TEXT NOT NULL, title TEXT NOT NULL)"
             )
@@ -39,7 +49,7 @@ class SessionRenameTests(unittest.TestCase):
             )
 
     def titles(self) -> dict[str, str]:
-        with sqlite3.connect(self.db_path) as connection:
+        with closing_connection(self.db_path) as connection:
             return dict(connection.execute("SELECT id, title FROM threads"))
 
     def test_renames_only_current_exact_cwd_thread(self) -> None:
@@ -86,7 +96,7 @@ class SessionRenameTests(unittest.TestCase):
         self.assertEqual(self.titles(), before)
 
     def test_equivalent_but_noncanonical_stored_cwd_is_rejected(self) -> None:
-        with sqlite3.connect(self.db_path) as connection:
+        with closing_connection(self.db_path) as connection:
             connection.execute(
                 "UPDATE threads SET cwd = ? WHERE id = ?",
                 (str(self.project / ".." / "project"), self.current_id),

@@ -7,7 +7,7 @@ import argparse
 import json
 import re
 from collections import Counter
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone, tzinfo
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -78,7 +78,11 @@ def _parse_dt(value: str) -> datetime:
     return parsed
 
 
-def _zone(name: str) -> ZoneInfo:
+def _zone(name: str) -> tzinfo:
+    # Windows does not ship the IANA database used by zoneinfo. UTC is part of
+    # the standard library and must remain available without optional tzdata.
+    if name in {"UTC", "Etc/UTC", "Etc/GMT", "GMT"}:
+        return timezone.utc
     try:
         return ZoneInfo(name)
     except ZoneInfoNotFoundError as exc:

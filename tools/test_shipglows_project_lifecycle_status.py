@@ -2,6 +2,7 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 import sys
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 sys.path.insert(0, str(Path(__file__).parent))
 from shipglows_project_lifecycle_status import LifecycleError, project
@@ -9,6 +10,14 @@ from shipglows_project_lifecycle_status import LifecycleError, project
 
 FIXTURE = Path(__file__).parent / "fixtures/project-lifecycle/sample.md"
 NOW = datetime(2026, 7, 28, 8, 0, tzinfo=timezone.utc)
+
+
+def has_iana_timezone(name: str) -> bool:
+    try:
+        ZoneInfo(name)
+    except ZoneInfoNotFoundError:
+        return False
+    return True
 
 
 class ProjectLifecycleStatusTests(unittest.TestCase):
@@ -32,6 +41,10 @@ class ProjectLifecycleStatusTests(unittest.TestCase):
         item = next(item for item in result["items"] if item["item_id"] == "seo-launch-gate")
         self.assertEqual(item["state"], "waiting_for_evidence")
 
+    @unittest.skipUnless(
+        has_iana_timezone("America/Los_Angeles"),
+        "IANA timezone data is unavailable; install the optional tzdata package",
+    )
     def test_timezone_boundary_projects_into_local_today(self):
         markdown = self.markdown.replace("2026-07-29T10:00:00+00:00", "2026-07-28T23:30:00+00:00")
         result = project(markdown, now=NOW, operator_timezone="America/Los_Angeles")

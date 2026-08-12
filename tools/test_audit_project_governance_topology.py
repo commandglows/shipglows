@@ -77,7 +77,12 @@ class GovernanceTopologyAuditTests(unittest.TestCase):
         temp, root = self.project()
         self.addCleanup(temp.cleanup)
         (root / "AGENT.md").write_text("entry", encoding="utf-8")
-        (root / "AGENTS.md").symlink_to("AGENT.md")
+        try:
+            (root / "AGENTS.md").symlink_to("AGENT.md")
+        except OSError as error:
+            if getattr(error, "winerror", None) == 1314:
+                self.skipTest("Windows symlink privilege is unavailable")
+            raise
         self.assertEqual(audit(root).status, "compliant")
         (root / "AGENTS.md").unlink()
         (root / "AGENTS.md").write_text("duplicate", encoding="utf-8")

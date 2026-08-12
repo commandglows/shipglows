@@ -9,6 +9,7 @@ contract.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import re
@@ -77,7 +78,8 @@ class CleanupSnapshot:
 Runner = Callable[..., subprocess.CompletedProcess[str]]
 
 
-def _connect_read_only(db_path: Path) -> sqlite3.Connection:
+@contextlib.contextmanager
+def _connect_read_only(db_path: Path):
     resolved = db_path.expanduser().resolve()
     if not resolved.is_file():
         raise PruneError("database_missing", f"Codex state database is not a regular file: {resolved}")
@@ -86,7 +88,10 @@ def _connect_read_only(db_path: Path) -> sqlite3.Connection:
     except sqlite3.Error as error:
         raise PruneError("database_open_failed", "Could not open the Codex state database read-only") from error
     connection.row_factory = sqlite3.Row
-    return connection
+    try:
+        yield connection
+    finally:
+        connection.close()
 
 
 def _tables(connection: sqlite3.Connection) -> set[str]:
