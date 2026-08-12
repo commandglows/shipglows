@@ -181,3 +181,9 @@ l'installation globale et le navigateur réel.
 - Verification: complete.
 - Remote branch installation: complete.
 - Pull request: open as `commandglows/shipglows#14`.
+
+## Skill Run History
+
+| Date UTC | Skill | Model | Action | Result | Next step |
+|----------|-------|-------|--------|--------|-----------|
+| 2026-08-12 | sg-engineering | GPT-5 | Specify, implement, install, and verify global Playwright MCP for Codex CLI | Windows and Linux contracts pass; remote Windows install is idempotent; real localhost browser proof passes; PR #14 is open with CI green | Review and merge PR #14, then reinstall from main |
