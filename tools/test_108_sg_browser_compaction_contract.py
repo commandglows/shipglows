@@ -57,6 +57,27 @@ class BrowserCompactionContractTests(unittest.TestCase):
         self.assertIn("Copy diagnostics", proof)
         self.assertIn("Paris/UTC build-time", proof)
 
+    def test_implementation_signoff_has_shared_functional_and_visual_coverage(self) -> None:
+        proof = REFS[PACKS[0]]
+        for marker in (
+            "BROWSER-SIGNOFF-001",
+            "the operator's accepted requirements",
+            "the user-visible features and behavior actually implemented",
+            "every user-visible claim intended for the final report",
+            "at least two safe exploratory or off-happy-path scenarios",
+            "supports persistent handles",
+            "normal user inputs",
+            "Run visual QA separately from the functional pass",
+            "initial viewport before scrolling",
+            "densest realistic reachable state",
+            "minimum supported viewport",
+            "Visible clipping, occlusion, or cutoff remains a failure",
+            "Functional correctness, viewport fit, and visual quality pass independently",
+        ):
+            self.assertIn(marker, proof)
+        self.assertIn("Simple screenshot", SKILL)
+        self.assertIn("do not trigger the full signoff matrix", SKILL)
+
     def test_packs_are_governed_direct_and_report_compatible(self) -> None:
         for name, text in REFS.items():
             for marker in ("artifact: skill_reference", "status: active", "source_skill: 108-sg-browser"):

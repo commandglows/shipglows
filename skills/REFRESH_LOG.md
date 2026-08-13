@@ -1,5 +1,25 @@
 # Skills Refresh Log
 
+## 2026-08-13 — 108-sg-browser
+
+**Added:** a conditional implementation-signoff QA contract with one shared inventory across requirements, controls, state changes, and final visible claims; separate functional, viewport-fit, and visual-quality verdicts; exploratory coverage; dense and transitional state checks; and visible-defect precedence over numeric metrics.
+
+**Updated:** the browser activation boundary and focused proof playbook. Narrow screenshot, state, console, network, and single-assertion checks remain lightweight. Persistent sessions are required only when the active runtime exposes them.
+
+**New phases:** none; the implementation-signoff branch remains inside the existing objective-bounded browser proof playbook.
+
+**Sources:** 1 URL consulted: https://github.com/openai/skills/tree/main/skills/.curated/playwright-interactive. Fresh-docs checked against the current official OpenAI curated skill. Conservative review approved the bounded placement; focused tests, metadata, budget, graph, audit, and targeted Codex runtime sync passed.
+
+## 2026-08-13 — 006-sg-design
+
+**Added:** a conditional reference-driven frontend playbook covering visual-source inventory, project-native translation, responsive/state matrices, and iterative rendered comparison.
+
+**Updated:** the design activation map, lifecycle readiness contract, completion proof, and scenario-first regression coverage. No public mode, invocation, or design-system authority changed.
+
+**New phases:** none; screenshots, mockups, appshots, and visual references select one direct local playbook inside the existing design route.
+
+**Sources:** 2 URLs consulted: https://learn.chatgpt.com/use-cases/frontend-designs and https://github.com/openai/skills/tree/main/skills/.curated/playwright-interactive. Fresh-docs checked against the current official OpenAI sources. Conservative review approved the source contract and browser-proof handoff; both targeted Codex expert runtime links were rechecked.
+
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
 ## 2026-08-13 — context quality contract

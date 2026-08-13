@@ -34,6 +34,7 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/animation-playbook.md` for `animation <audit|design|implement|tune> [scope]` after valid animation selection.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-token-migration-playbook.md` for token centralization and migration handoff.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-proof-and-reporting.md` for design completion and handoff evidence.
+- `$SHIPGLOWS_ROOT/skills/006-sg-design/references/reference-driven-frontend-playbook.md` when screenshots, mockups, appshots, or visual references define the frontend target.
 - `$SHIPGLOWS_ROOT/skills/references/design-inspiration-library.md` when visual direction changes or an explicit inspiration request exists.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when defining experience principles, critical moments, desired/avoided emotion, or a design direction that changes product intent.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-inspiration-library-operations.md` before `library ...` operations.
@@ -104,4 +105,5 @@ Every blocked report must include the exact next recovery route.
 - Use spec-first for broad design implementation and token migration.
 - Always surface the token implementation handoff when centralization exists but site consumption is incomplete.
 - Verify visual claims with visible proof and specialist evidence, not only code scans.
+- For reference-driven frontend work, inventory representative widths and states, translate through project-native components and design tokens, and iterate from rendered browser comparison before claiming fidelity.
 - Treat GSAP as an optional adapter, never as a public alias or implicit dependency installation.

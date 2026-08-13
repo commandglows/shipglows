@@ -16,6 +16,7 @@ ANIMATION_PLAYBOOK = ROOT / "skills" / "006-sg-design" / "references" / "animati
 LIFECYCLE_ROUTING = ROOT / "skills" / "006-sg-design" / "references" / "design-lifecycle-routing.md"
 PROOF_GUIDANCE = ROOT / "skills" / "006-sg-design" / "references" / "design-proof-and-reporting.md"
 DESIGN_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "design-audit-playbook.md"
+REFERENCE_DRIVEN = ROOT / "skills" / "006-sg-design" / "references" / "reference-driven-frontend-playbook.md"
 LANDING_COHERENCE = ROOT / "skills" / "references" / "landing-page-experience-coherence.md"
 README = ROOT / "README.md"
 CHEATSHEET = ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md"
@@ -29,6 +30,32 @@ def normalized_text(path: Path) -> str:
 
 
 class DesignContractTests(unittest.TestCase):
+    def test_reference_driven_frontend_requires_project_native_iterative_visual_proof(self) -> None:
+        skill = normalized_text(DESIGN_SKILL)
+        routing = normalized_text(LIFECYCLE_ROUTING)
+        proof = normalized_text(PROOF_GUIDANCE)
+        playbook = normalized_text(REFERENCE_DRIVEN)
+
+        self.assertIn("reference-driven-frontend-playbook.md", skill)
+        self.assertIn("reference-driven-frontend-playbook.md", routing)
+        self.assertIn("reference-driven-frontend-playbook.md", proof)
+        for phrase in (
+            "DESIGN-REFERENCE-001",
+            "representative desktop and mobile",
+            "loading, empty, error, and success states",
+            "project-native interpretation",
+            "Reuse canonical components",
+            "creating a parallel component layer",
+            "canonical breakpoints",
+            "compare hierarchy, composition, spacing, alignment, typography, imagery, overflow, interaction, and responsive behavior",
+            "rerender affected viewport-state pairs",
+            "A build, lint, unit test, DOM snapshot, or source inspection alone never proves reference fidelity",
+            "separate functional, viewport-fit, and visual-quality verdicts",
+            "visually clipped result fails even when numeric layout metrics appear acceptable",
+            "persistent browser session",
+        ):
+            self.assertIn(phrase, playbook)
+
     def test_public_design_owner_is_followable_and_hides_runtime_identity(self) -> None:
         public = PUBLIC_DESIGN_SKILL.read_text(encoding="utf-8")
         runtime = DESIGN_SKILL.read_text(encoding="utf-8")

@@ -19,11 +19,13 @@ Attach to one unique spec when present; otherwise use `(local)`. Apply `$SHIPGLO
 
 ## Mission
 
-`108-sg-browser` answers one objective-bounded question: what did a real browser observe on this non-auth target? It owns navigation, visible assertions, accessibility snapshots, screenshots, and targeted console/network proof—not auth, durable QA, deploy discovery, production logs, or code repair.
+`108-sg-browser` answers one objective-bounded question: what did a real browser observe on this non-auth target? It owns navigation, visible assertions, accessibility snapshots, screenshots, targeted console/network proof, and implementation-signoff QA inventories bounded to that objective—not auth, durable QA records, deploy discovery, production logs, or code repair.
 
 ## Scope And Owner Gate
 
 Accept a URL, derivable route, environment, visible assertion, console/network objective, viewport, or screenshot request. If no target is derivable, ask once.
+
+When the objective is implementation signoff, reference fidelity, or a user-visible completion claim, treat its requirements, implemented controls and state changes, and intended final-report claims as one bounded QA inventory. Simple screenshot, state, console, network, or single-assertion requests remain focused and do not trigger the full signoff matrix.
 
 Route before browser work:
 
@@ -67,7 +69,7 @@ Never read/report cookies, tokens, storage/session contents, complete headers, r
 
 Use accessibility state before screenshots when sufficient. Console/network evidence is targeted, not a raw dump. When runtime diagnostics are visible, load applicable `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`, `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md`, and `$SHIPGLOWS_ROOT/skills/references/operator-last-resort-evidence.md`; use safe copy/navigation before asking the operator.
 
-Verdicts are objective-bounded: `pass`, `fail`, `partial`, `blocked`, `needs-auth`, `needs-deploy`, `needs-manual-test`, or `unsafe-action`. Evidence mismatch or missing proof cannot be `pass`; a narrow pass never proves the whole feature.
+Verdicts are objective-bounded: `pass`, `fail`, `partial`, `blocked`, `needs-auth`, `needs-deploy`, `needs-manual-test`, or `unsafe-action`. Evidence mismatch or missing proof cannot be `pass`; a narrow pass never proves the whole feature. For implementation signoff, functional behavior, viewport fit, and visual quality must each pass independently.
 
 ## Stop Conditions
 

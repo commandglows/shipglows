@@ -53,6 +53,8 @@ Public `sg-design` accepts these commands: `system [scope]`, `playground [route-
 
 `redesign` is a lifecycle route, not a hidden implementation shortcut: establish current-state evidence with `audit ui` when needed, apply the Inspiration Gate when direction changes, frame a ready spec, then route implementation and visible proof. `migration` loads the token-migration playbook, establishes design-token consumption with `audit tokens`, and uses spec-first execution for cross-surface work.
 
+When screenshots, mockups, appshots, or visual references define the frontend target, load `$SHIPGLOWS_ROOT/skills/006-sg-design/references/reference-driven-frontend-playbook.md` directly. Keep the selected public mode unchanged. The ready contract must inventory representative widths and product-relevant states, identify the repository-native component and design-token authorities, and require iterative rendered comparison against the references rather than build-only proof.
+
 `animation` loads `animation-playbook.md` after the matching token and proof
 contracts. Missing or unknown animation actions must list exactly `audit`,
 `design`, `implement`, and `tune`, then perform no source edit. Audit and
@@ -95,6 +97,7 @@ Before implementation, the ready spec must name:
 - token/theme/component/source-of-truth plan for any visual dimensions, spacing, overlays, IME/keyboard behavior, or responsive layout values
 - mode playbook and lifecycle or proof skills to run
 - validation and browser proof obligations
+- reference viewport/state inventory and acceptable project-system adaptations when visual references are the target
 - docs/editorial impact
 - ship/deploy posture
 

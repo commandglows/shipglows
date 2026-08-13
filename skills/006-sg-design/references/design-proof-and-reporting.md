@@ -58,6 +58,10 @@ Proof must match the claim:
 
 Do not claim visual non-regression without browser proof. Do not claim accessibility safety from screenshots alone.
 
+## Reference-Fidelity Proof
+
+When screenshots, mockups, appshots, or visual references define the target, load `$SHIPGLOWS_ROOT/skills/006-sg-design/references/reference-driven-frontend-playbook.md`. Collect rendered evidence for each representative viewport and applicable product state, compare it back to the target, classify material mismatches and acceptable project-system adaptations, correct material mismatches through canonical components or design tokens, and rerender the affected pairs. A successful build or one final screenshot does not prove reference fidelity.
+
 ## Motion-Specific Proof
 
 For `animation implement` and `animation tune`, implementation claims also
