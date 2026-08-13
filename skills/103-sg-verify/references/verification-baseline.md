@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 103-sg-verify
 scope: 103-sg-verify-baseline
@@ -15,7 +15,11 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - skills/103-sg-verify/SKILL.md
-depends_on: []
+  - skills/references/context-quality-contract.md
+depends_on:
+  - artifact: skills/references/context-quality-contract.md
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Baseline gates extracted from the former monolithic verification-gates reference."
@@ -24,34 +28,34 @@ next_step: "/103-sg-verify progressive lifecycle activation compaction wave 4"
 
 # Verification Baseline
 
-This leaf playbook performs the standard pass after scope and mode selection. The activation contract supplies every applicable shared gate.
+Perform the standard pass after scope/mode selection; the activation contract supplies applicable shared gates.
 
 ## Order
 
-1. Identify work-item contract, changed surfaces, proof path, and development mode.
-2. Verify user-story outcome plus observable success and forbidden error states.
-3. Compare tasks, acceptance criteria, expected files, invariants, and linked consequences with actual state.
-4. Check spec metadata and dependency versions/statuses.
-5. Run proportional technical checks and judge their evidence boundary.
-6. Apply selected risk, decision-quality, documentation, and owner-routing gates.
-7. Return the strongest supported verdict; missing proof stays `partial` or worse.
+1. Identify contract, changed surfaces, proof path, and development mode.
+2. Verify outcome, observable success, and forbidden states.
+3. Compare tasks, acceptance, invariants, dependencies, and consequences with reality.
+4. Run proportional checks and applicable risk, quality, docs, and routing gates.
+5. Return the strongest supported verdict; missing proof stays `partial` or worse.
+
+When context quality affects the claim, load `skills/references/context-quality-contract.md`; compare its capsule with implementation/evidence. Work serving the wrong accepted outcome is `not verified`.
 
 ## Success And Error
 
-Report expected observable success, system effect, and evidence. Report expected error handling, forbidden states, and evidence. Unproven moderate-risk behavior is `partial`; high-risk gaps involving security, data, money, destructive behavior, or critical external integration are `not verified` or `blocked`.
+Report observable success/error behavior and evidence. Unproven moderate risk is `partial`; high-risk security, data, money, destructive, or critical-integration gaps are `not verified` or `blocked`.
 
 ## Proof Path Fit
 
-Confirm `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` matches the changed surface. Passing checks outside the accepted proof path cannot upgrade the verdict. A deterministic atomic change may use focused proportional evidence.
+Confirm the selected proof path fits the surface. Unrelated checks cannot upgrade the verdict; atomic work may use focused evidence.
 
 ## Development And External Proof
 
-Classify local, preview-push, hybrid, unknown preview, or unknown when the validation surface matters. Required hosted/browser/manual proof missing in preview/hybrid scope prevents ship readiness and routes to the concrete proof owner. Current external behavior uses `fresh-docs checked`, `fresh-docs not needed`, `fresh-docs gap`, or `fresh-docs conflict`.
+Classify the validation surface. Missing required hosted/browser/manual proof prevents ship readiness and routes to its proof owner. Use the canonical `fresh-docs` verdicts for external behavior.
 
 ## Decision And Structure
 
-Challenge fastest-path shortcuts. Verify that the result improves the stated friction or outcome, preserves owner boundaries and durable structure, and does not add decorative layers. Clean code is proportional and behavior-focused, not stylistic dogma.
+Challenge shortcuts; require the intended outcome, owner boundaries, durable structure, and proportional behavior-focused code quality.
 
 ## Baseline Result
 
-Summarize user story, success/error, proof-path fit, completeness, correctness, development mode, fresh docs, bug/manual status, risks, documentation, and owner routes. Standard success is `verified`, never `excellent`.
+Summarize outcome, success/error, proof fit, correctness, validation surface, risks, docs, and owner routes. Standard success is `verified`, never `excellent`.

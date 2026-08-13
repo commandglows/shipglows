@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 103-sg-verify
 scope: 103-sg-verify-excellence
@@ -15,10 +15,15 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - skills/103-sg-verify/SKILL.md
-depends_on: []
+  - tools/test_industrial_excellence_contract.py
+depends_on:
+  - artifact: skills/references/decision-quality-contract.md
+    artifact_version: "2.1.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Excellence focus extracted from the former monolithic verification-gates reference."
+  - "Operator directive 2026-08-13: excellence verification must challenge merely functional engineering, generic visual craft, and unsupported high-assurance claims."
 next_step: "/103-sg-verify mode=excellence progressive lifecycle activation compaction wave 4"
 ---
 
@@ -27,6 +32,8 @@ next_step: "/103-sg-verify mode=excellence progressive lifecycle activation comp
 Run only after standard readiness passes and only for explicit `mode=excellence` or an unambiguous natural-language request. This is a fresh second focus beyond acceptance criteria, not a rerun or a demand for more test volume.
 
 Challenge with evidence: user value/comprehension, cross-surface coherence, duplication/structure, user or operator friction, durability/robustness, and merely adequate choices with a bounded professional alternative. Name challenged surfaces and evidence; inherited confidence or the standard checklist cannot prove excellence.
+
+Apply the shared industrial excellence baseline explicitly: challenge merely functional success, weak failure behavior, missing observability or recovery, unmeasured performance risk, speculative future-proofing, and unfinished production detail. For applicable brand surfaces, challenge whether the rendered work reaches award-caliber craft without harming accessibility or product outcomes. For high-consequence systems, require critical-system rigor proportional to the risk. Any unsupported compliance or institutional-assurance claim is a blocking correctness gap, not aspirational copy.
 
 ## Materiality
 

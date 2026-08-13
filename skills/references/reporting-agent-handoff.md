@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-agent-handoff
@@ -15,7 +15,11 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - skills/references/reporting-contract.md
-depends_on: []
+  - skills/references/context-quality-contract.md
+depends_on:
+  - artifact: skills/references/context-quality-contract.md
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Extracted from reporting-contract.md in wave 13."
@@ -28,6 +32,8 @@ next_step: none
 Load only for explicit `report=agent`, `handoff`, `verbose`, or `full-report`.
 
 Include the information the receiving agent needs to continue safely:
+
+- the `Context Capsule` from `context-quality-contract.md`, or an exact governed pointer plus qualified deltas; preserve evidence states and source pointers without reinterpretation;
 
 - resolved work item and scope;
 - files changed and ownership boundaries;

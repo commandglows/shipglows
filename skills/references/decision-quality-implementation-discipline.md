@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: decision-quality-implementation-discipline
@@ -16,14 +16,16 @@ docs_impact: yes
 linked_systems:
   - skills/references/decision-quality-contract.md
   - skills/*/SKILL.md
+  - tools/test_industrial_excellence_contract.py
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
-    artifact_version: "2.0.0"
+    artifact_version: "2.1.0"
     required_status: active
 supersedes: []
 evidence:
   - "Wave 15 extracts conditional implementation pressure detail from the mandatory decision core without changing its quality bar."
   - "Fast repair pressure repeatedly requires explicit root-cause, owner-boundary, mitigation, and proof discipline."
+  - "Operator directive 2026-08-13: implementation quality must be industrial, resilient, performant, maintainable, and future-ready without speculative complexity."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify decision-quality implementation discipline"
 ---
@@ -44,6 +46,16 @@ Load this leaf directly when implementation, repair, refactoring, migration, mit
 6. Update the owning contract or documentation when future execution depends on the decision.
 
 A green generic check is insufficient when the failure involved ownership, structure, security, design coherence, migration, external behavior, or a specific pressure scenario.
+
+## Critical-System Rigor
+
+Scale rigor to consequence, not prestige language. Where failure can affect safety, sensitive data, money, availability, public trust, tenant isolation, or essential service, explicitly design and prove applicable failure modes, observability, recovery, degraded behavior, compatibility and migration, performance budgets, capacity boundaries, security controls, and operator diagnostics. Low-risk bounded work may use lighter evidence, but it may not hide a known failure path or operational burden.
+
+Prefer deterministic behavior, explicit invariants, idempotent or safely retryable operations where relevant, bounded resource use, actionable errors, reversible rollout or migration paths, and maintained dependencies. A happy-path test alone never proves critical-system rigor.
+
+## Future-Proofing Gate
+
+Call a solution future-ready only when a demonstrated evolution pressure is served by stable contracts, replaceable boundaries, maintained dependencies, compatible data evolution, and reversible migrations. Reject speculative abstraction, unused extension points, premature platforms, and layers justified only by imagined scale. The future-proof path is the simplest architecture that can evolve safely under evidenced change, with ownership and removal paths remaining clear.
 
 ## Forbidden Shortcut Patterns
 

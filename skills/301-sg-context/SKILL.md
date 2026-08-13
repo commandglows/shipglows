@@ -1,97 +1,63 @@
 ---
 name: 301-sg-context
-description: "Prime task context with cached memory and focused files."
+description: "Prime a known task with sufficient, qualified, and portable context."
 argument-hint: <what you want to do>
 ---
 
+Primary artifact type: `helper`.
+
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running. Project artifacts and source files still resolve from the current project root unless explicitly stated otherwise.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving ShipGlows-owned resources. Project truth resolves from the selected project root. Load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before deciding that a configured MCP, app, connector, or tool is callable.
 
 ## Chantier Tracking
 
 Trace category: `non-applicable`.
 Process role: `helper`.
 
-This skill does not write to chantier specs. If invoked inside a spec-first flow, do not modify `Skill Run History`; use a `(local)` chantier header with a short work name.
+Do not mutate specs or durable project truth. Use `(local)` reporting and load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before the final result.
 
+## Report Modes
 
-## Context
+Default to concise `report=user`. Use `report=agent` only for an explicit handoff that needs the detailed capsule, source pointers, evidence states, invalidation signals, and gaps.
 
-- Current directory: !`pwd`
-- Project name: !`basename $(pwd)`
+## Mission And Routing
 
-## Your task
+Prime one known task with the minimum sufficient context for a correct next decision. Load `$SHIPGLOWS_ROOT/skills/references/context-quality-contract.md` and return its qualified `Context Capsule` plus verdict.
 
-Prime the session context before starting work. This avoids wasting tokens on broad file exploration.
+Route skill/workflow selection to `000-shipglows`, active-work continuation to `706-continue`, and cross-project status to `308-sg-status`. Empty task input asks one plain-language target question.
 
-`301-sg-context` answers one priming question:
+## Runtime-Adaptive Retrieval
 
-```text
-What is the minimum focused context we should load before starting this known task?
-```
+Inspect current-turn callable tools; configuration alone is not availability.
 
-Keep the boundary explicit: `301-sg-context` prepares context for a known task. It does not own the final route selection, execute the lifecycle work itself, or act as a repo-status dashboard.
+### Contextual MCP Path
 
-Route away instead of staying in `301-sg-context` when the operator really needs:
+When callable, use `context_continue` to recover prior qualified state, `context_retrieve` to rank candidates, and `context_read` for focused excerpts. Cached memory accelerates discovery only: validate material claims against canonical sources and observed state before `context_ready`.
 
-- skill choice or workflow routing -> `000-shipglows` or `302-sg-help`
-- actual continuation of a resolved work item -> `706-continue`
-- cross-project git/sync reporting -> `308-sg-status`
+### Portable Native Fallback
 
-### Step 1 — Check session memory
+When any required contextual MCP operation is not callable, use the current host's read-only filesystem and Git capabilities:
 
-Call `context_continue` with the user's task as the query (`$ARGUMENTS`).
+1. resolve project root, governing instructions, matching work item, and explicitly named paths;
+2. inspect Git branch/`HEAD`/dirty state when it can invalidate prior context;
+3. use `rg --files` and targeted `rg -n` queries to find likely owner files, then read only decision-changing excerpts;
+4. inspect source-of-truth docs, target entry points, adjacent tests/consumers, environment/runtime evidence, and current official sources only as applicable;
+5. stop when the capsule is sufficient or further reading no longer changes a decision.
 
-Read the response carefully:
-- **Files already in memory**: do NOT re-read these — use their previews
-- **Decisions already stored**: incorporate these into your plan
-- **Budget remaining**: note how much read budget is left this turn
+Use platform-equivalent commands if `rg` or Git is unavailable. Do not claim MCP retrieval, memory recovery, budget telemetry, or equivalent evidence that was not actually obtained.
 
-### Step 2 — Retrieve relevant files
+## Verdict And Handoff
 
-If `context_continue` shows no prior memory OR the task needs more files, call `context_retrieve` with `$ARGUMENTS` as the query.
+Return `context_ready`, `context_partial`, `context_conflict`, or `context_stale`, with target/outcome, qualified truths and source pointers, applicable constraints, inspected evidence, material gaps, invalidation signals, and next safe action. Keep user mode concise; detailed capsule data belongs to explicit agent handoff.
 
-Read the ranked file list. Pick the top 3-5 most relevant files only.
+If the invoking owner and next action are already resolved, handoff directly without asking a generic permission question. A context verdict never authorizes mutation or bypasses plan approval, readiness, security, or product decisions.
 
-### Step 3 — Read only what you need
+## Stop Conditions
 
-For each file you actually need to understand:
-- Use `context_read` with the query set to `$ARGUMENTS` (enables smart excerpting)
-- Skip files where the `context_continue` preview is already sufficient
-- Stop reading when budget drops below 4,000 chars
+Do not report `context_ready` when the target/outcome is unresolved; material evidence is stale or conflicting; a required source is inaccessible; private material would be exposed; or current-turn callable tools cannot establish equivalent evidence. Never broaden into exhaustive repository reading merely to fill a budget.
 
-### Step 4 — Report and plan
+## Validation
 
-Output a concise summary:
-```
-## Ready to work on: [task]
-
-**Files in context:**
-- [file] — [one line on what's relevant]
-
-**Key constraints/decisions:**
-- [any stored decisions relevant to this task]
-
-**Plan:**
-1. [step]
-2. [step]
-
-**Budget used:** X / 18,000 chars
-```
-
-Then use the runtime's structured question tool when available, or a concise plain-text question:
-- Question: "Le contexte est prêt. On fait quoi ?"
-- `multiSelect: false`
-- Options:
-  - **Proceed now (recommandé)** — "Tu exécutes le plan avec ce contexte"
-  - **Ajouter 1 fichier clé** — "Tu enrichis le contexte d'un seul fichier supplémentaire"
-  - **Affiner la cible** — "Tu reformules la tâche avant d'aller plus loin"
-
-### Rules
-
-- Do NOT read files not returned by `context_retrieve` or `context_continue`
-- Do NOT do Glob/Grep before Steps 1 and 2
-- Do NOT read more than 5 files in this priming phase
-- If the task mentions a specific file path, add it to the read list regardless of retrieve results
-- If `$ARGUMENTS` is empty, ask the user: "What do you want to work on?" before proceeding
+- `python3 -m unittest tools.test_context_quality_contract`
+- metadata lint, skill budget audit, activation graph, and public runtime sync check.

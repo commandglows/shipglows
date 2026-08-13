@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.14.0"
+artifact_version: "2.16.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-13"
@@ -307,7 +307,7 @@ Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 - `303-sg-resume` summarizes the visible conversation only.
 - `706-continue` advances the currently resolved work item from durable local evidence.
 - `000-shipglows` routes or answers directly at the main entrypoint.
-- `301-sg-context` primes minimal focused context before known work.
+- `301-sg-context` primes minimum sufficient, qualified context before known work. It uses contextual MCP operations only when callable and otherwise falls back to focused native search, reads, Git, environment, and canonical-source evidence.
 - `308-sg-status` reports cross-project git and sync state.
 - `700-sg-explore` frames the problem or option space before commitment.
 - `011-sg-pilotage tasks` maintains the durable execution tracker; editorial/public-content follow-up stays in `shipglows_data/editorial/ROADMAP.md` through content owners.
@@ -384,7 +384,8 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/mutation-plan-approval.md` | Universal plan and explicit post-plan approval gate for intentional mutations | Load before files, configuration, processes, servers, deployments, or external state are changed |
 | `skills/references/master-workflow-lifecycle.md` | Shared master/orchestrator lifecycle skeleton and work item model | Load before master skills resolve intake, readiness, model/topology, validation, verification, closure, or ship/deploy routes |
 | `skills/references/master-{workflow-lifecycle,delegation}-core.md` | Compact first-decision lifecycle and topology gates | Load from migrated pilots first; escalate to the detailed authority only on the core's explicit conditions |
-| `skills/references/decision-quality-contract.md` | Shared high-quality decision doctrine: correctness, security, performance, maintainability, durability, best practices, and proof before speed/cost/convenience | Load before routing, model/fallback selection, implementation, fixes, skill-contract changes, verification, or recommended defaults |
+| `skills/references/decision-quality-contract.md` | Shared industrial-quality doctrine: correctness, security, performance, resilience, maintainability, durable evolution, professional craft, and proof before speed/cost/convenience | Load before routing, model/fallback selection, implementation, fixes, skill-contract changes, verification, or recommended defaults |
+| `skills/references/context-quality-contract.md` | Shared context capsule, evidence-state, authority, invalidation, readiness, and handoff doctrine | Load when context sufficiency, authority, freshness, conflict, compaction, or handoff can change a decision or completion claim |
 | `skills/references/skill-code-index.md` | Canonical numeric lookup from memorable codes to unchanged skill names | Update whenever a skill is added, removed, or renamed; validate with `python3 tools/skill_code_index_lint.py` |
 | `skills/900-shipglows-core/SKILL.md` | Internal lifecycle owner for ShipGlows skill audit, build, refresh, and packaging modes | Keep out of public plugin packaging and public skill pages unless the operator explicitly changes the policy |
 | `skills/references/spec-driven-development-discipline.md` | Shared spec-first/proof-first discipline | Load before execution or verification when behavior, bug, skill contract, UI/docs/auth/deploy, operational, or integration work needs a proof path |
@@ -600,7 +601,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - Shared files are sequential by default.
 - Master/orchestrator skills load `skills/references/master-delegation-semantics.md` before choosing execution topology. Two or more independent read-only scopes fan out in parallel by default; mutations use delegated sequential execution; parallel writes require ready non-overlapping `Execution Batches` with one integration owner.
 - Master/orchestrator skills load `skills/references/master-workflow-lifecycle.md` before resolving lifecycle flow. The shared skeleton is intake, work item resolution, readiness, model/topology routing, owner-skill execution, validation/evidence, verification, post-verify closure, and bounded ship/deploy/release routing.
-- Skills load `skills/references/decision-quality-contract.md` before quality-sensitive routing, model/fallback choice, implementation, fix, verification, or recommendations. The shortest path is acceptable only when it is also the complete professional path for the risk.
+- Skills load `skills/references/decision-quality-contract.md` before quality-sensitive routing, model/fallback choice, implementation, fix, verification, or recommendations. Completion requires industrial-grade quality proportional to consequence; merely functional, unintentionally generic for the accepted product, fragile, cluttered, or unresolved provisional work presented as final remains partial. Brand surfaces use award-caliber craft as a benchmark, while operational interfaces stay clarity-first. Institutional claims require a framework-specific scoped audit against named requirements and direct evidence.
 - Skills should load `skills/references/question-contract.md` before user-facing questions. They ask only when the answer changes route, scope, risk, validation, closure, ship posture, public claims, or technical/product/editorial direction; otherwise they proceed by the best-practice default only when it is clear, low-risk, reversible, context-compatible, and verifiable.
 - Skills should not use the operator as a substitute for local technical inspection. They should, however, ask precise numbered business/product/audience/framing questions when those facts are operator-owned and materially improve the work.
 - When skill bodies are edited or compacted, treat top-level `SKILL.md` as the activation contract. Keep required section labels (`Canonical Paths`, `Trace category`, `Process role`, `Report Modes`) and local non-negotiables there; move only supporting detail to references.

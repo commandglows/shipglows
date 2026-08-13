@@ -14,6 +14,8 @@ Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/referenc
 
 For non-trivial routing, load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Resolve `project -> product -> surface -> feature`, inspect discoverable evidence before asking, and transition into the selected public métier owner in the same conversation. Routing is not terminal: preserve the outcome while the selected owner continues it end to end.
 
+When context sufficiency, authority, freshness, conflict, compaction, or handoff can change the route, load `$SHIPGLOWS_ROOT/skills/references/context-quality-contract.md`, retain its qualified `Context Capsule`, and never treat memory as canonical truth.
+
 ## Chantier Tracking
 
 Trace category: `non-applicable`.

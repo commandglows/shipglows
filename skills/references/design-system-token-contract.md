@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: design-system-token-contract
@@ -22,14 +22,16 @@ linked_systems:
   - skills/106-sg-fix/SKILL.md
   - skills/references/decision-quality-contract.md
   - tools/design_system_drift_check.py
+  - tools/test_industrial_excellence_contract.py
 depends_on:
   - artifact: skills/references/decision-quality-contract.md
-    artifact_version: "1.2.0"
+    artifact_version: "2.1.0"
     required_status: active
 supersedes: []
 evidence:
   - "User directive 2026-06-11: agents must not customize application design outside the centralized design-system tokens for spacing, typography, colors, shadows, and related visual decisions."
   - "Current platform standards favor centralized tokens and themes: Material Design 3 design tokens, Flutter ThemeData, Tailwind v4 CSS theme variables, WCAG 2.2 target size, and adaptive mobile layout guidance."
+  - "Operator directive 2026-08-13: public sites should reach award-caliber craft while every interface remains coherent, accessible, performant, and production-ready."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify design-system-token-contract"
 ---
@@ -61,6 +63,14 @@ The allowed path is:
 2. add or update a named semantic token/constant there only when needed
 3. consume that token through components, variants, utilities, or theme APIs
 4. prove no unintended visual drift with token checks and visual evidence
+
+## Award-Caliber Craft Gate
+
+Public brand and marketing surfaces use a SOTD/Awwwards-level benchmark for craft: distinctive art direction, intentional composition, strong typographic hierarchy, coherent spatial rhythm, refined responsive behavior, meaningful motion, original detail, and whole-page narrative. This is a quality benchmark, not a promise of an award and never permission to imitate a reference. A template-like, generic, visually noisy, internally inconsistent, or visibly unfinished result is `partial` even when every section renders.
+
+For operational and government-service interfaces, remain clarity-first: information architecture, task completion, error prevention, accessibility, trust, and speed outrank spectacle. They still require deliberate hierarchy, excellent typography, coherent density, polished states, and a distinctive but restrained system; clarity-first never means generic or amateur.
+
+Visual ambition must not weaken accessibility, readability, conversion, performance, maintainability, semantic structure, progressive enhancement, or reduced motion. Motion and decoration earn their cost through comprehension, narrative, feedback, or brand value. Prove the result across representative widths and states with rendered evidence; source correctness alone cannot establish award-caliber craft.
 
 ## Canonical Sources
 

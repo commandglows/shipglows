@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: decision-quality-contract
@@ -23,12 +23,12 @@ linked_systems:
   - skills/references/question-contract.md
   - skills/references/design-system-token-contract.md
   - skills/references/skill-instruction-layering.md
+  - tools/test_industrial_excellence_contract.py
 depends_on: []
 supersedes: []
 evidence:
   - "Wave 15 preserves the universal decision gates in the canonical path and moves implementation pressure detail to one direct conditional leaf."
   - "Operator directives prioritize correctness, security, relevant performance, excellence, durability, and agent-gathered proof before speed or convenience."
-  - "UI implementation remains governed by the existing centralized design-system token contract."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify decision-quality-contract"
 ---
@@ -37,7 +37,7 @@ next_step: "/103-sg-verify decision-quality-contract"
 
 ## Purpose
 
-Define the mandatory first decision for ShipGlows routing, implementation, fixes, audits, verification, questions, model choice, and recommendations. Speed, cost, token economy, and convenience are tie-breakers only after the quality bar is met.
+Set the mandatory quality decision for ShipGlows work. Speed, cost, and convenience matter only after the quality bar.
 
 ## Decision Quality Baseline
 
@@ -52,11 +52,15 @@ Optimize, in order appropriate to the risk, for:
 
 Choose cheaper, faster, simpler, or smaller options only when they are quality-equivalent across the applicable metrics.
 
-`Smallest safe path` means the smallest complete professional implementation that preserves the product contract, security, relevant performance, maintainability, future evolution, and matching proof. Small blast radius is good engineering; shortcut quality is not.
+`Smallest safe path` is the smallest complete professional implementation preserving product, security, relevant performance, maintainability, evolution, and matching proof. Small blast radius is good; shortcut quality is not.
+
+## Industrial Excellence Gate
+
+`industrial-grade` completion scales with consequence. Work merely functional, unintentionally generic for the accepted product, fragile, cluttered, or with unresolved provisional elements presented as final is `partial`; complexity is not excellence. NASA, government, ANSSI, RGAA, and SecNumCloud claims require a framework-specific scoped audit and direct evidence.
 
 ## Structure Replacement Fit
 
-A new rule, tool, layer, dependency, or process must replace a weak point, repeated manual step, ambiguity, slow path, drift, or maintenance burden. If it only adds another structure to maintain without a quality-equivalent reduction elsewhere, do not add it.
+A new rule, tool, layer, dependency, or process must replace a weak point, manual step, ambiguity, drift, or maintenance burden. If it only adds structure without a quality-equivalent reduction elsewhere, do not add it.
 
 ## Fast Fix Shortcut Gate
 
@@ -86,4 +90,4 @@ Before completion, verify that a fresh agent can identify the owner, next requir
 - Model or delegated execution loads its dedicated routing/delegation authority while preserving this baseline.
 - Conditional detail references load directly from the owner decision and never chain through sibling leaves.
 
-User reports may call work bounded, focused, or targeted, but must not present a lower-quality shortcut as a virtue.
+Never present a lower-quality shortcut as a virtue.

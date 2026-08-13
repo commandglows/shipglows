@@ -2,6 +2,26 @@
 
 Chronological log of skill refreshes via `/900-shipglows-core refresh <skill>`. Most recent first.
 
+## 2026-08-13 — context quality contract
+
+**Added:** one shared Context Capsule, six evidence states, four readiness verdicts, source-authority and targeted-invalidation rules, lifecycle continuity, and a portable native fallback for context priming.
+
+**Updated:** routing, readiness, execution, verification, agent handoff, `301-sg-context`, activation accounting, runtime documentation, and scenario-first tests. A material `context_partial`, conflict, stale claim, or unresolved target now blocks dependent mutation.
+
+**New phases:** none; context quality is a conditional gate inside existing owners. The capsule is working state and never a parallel durable truth registry.
+
+**Sources:** 0 URLs consulted; this implements an operator-approved repository-local doctrine. Independent conservative review ended approved with no material finding.
+
+## 2026-08-13 — industrial excellence quality doctrine
+
+**Added:** one shared Industrial Excellence Gate, proportional critical-system rigor, evidence-based future-proofing, production-ready finish, and an award-caliber design gate that distinguishes brand craft from operational clarity.
+
+**Updated:** decision quality, implementation, clean-code, design-system, excellence verification, runtime documentation, and scenario-first tests. Standard optimal solutions and explicit prototypes remain valid; only unintended genericity or unresolved provisional work presented as final is blocked.
+
+**New phases:** none; the doctrine strengthens existing execution and verification gates without adding a public skill, mode, lifecycle phase, or invocation.
+
+**Sources:** 0 URLs consulted; the change implements an operator decision and repository-local contract evidence. Independent conservative review completed with no remaining material finding.
+
 ## 2026-08-13 — full resource graph closure wave 20
 
 **Updated:** the complete graph moves from 689 artifacts, 912 dependencies, zero cycles, and 29 missing-target findings to a valid 691 artifacts, 895 dependencies, zero cycles, and zero findings after integrating the reviewed Wave 20 trace and current main. Canonical documentation remains versioned; runtime surfaces, external APIs, historical evidence, and unrelated project doctrine are classified at their real boundary.

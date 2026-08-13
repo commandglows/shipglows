@@ -139,6 +139,7 @@
         "body": "skills/103-sg-verify/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md", "skills/103-sg-verify/references/verification-baseline.md", "skills/references/decision-quality-contract.md"],
         "gates": {
+          "context-quality": ["skills/references/context-quality-contract.md"],
           "release-proof": ["skills/103-sg-verify/references/verification-release-proof.md"],
           "ci": ["skills/103-sg-verify/references/verification-ci.md"],
           "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],

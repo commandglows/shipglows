@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-07"
-updated: "2026-08-08"
+updated: "2026-08-13"
 status: active
 source_skill: 010-sg-technical
 scope: clean-code-quality-contract
@@ -22,9 +22,10 @@ linked_systems:
   - skills/references/zombies-edge-case-heuristic.md
   - skills/references/owasp-application-security-awareness.md
   - tools/test_clean_code_quality_contract.py
+  - tools/test_industrial_excellence_contract.py
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
-    artifact_version: "1.2.0"
+    artifact_version: "2.1.0"
     required_status: active
   - artifact: "skills/references/zombies-edge-case-heuristic.md"
     artifact_version: "1.0.0"
@@ -36,6 +37,7 @@ supersedes: []
 evidence:
   - "User decision 2026-08-07: make Clean Code principles explicit, pragmatic, and mechanically protected across implementation, fixes, technical audit, and verification."
   - "Operator decision 2026-08-08: generated code uses immutable short domain identifiers for stable vocabularies while technical instances retain UUID/ULID or equivalent identities."
+  - "Operator directive 2026-08-13: authored code must reach production-ready finish without placeholders, debug residue, generated clutter, or hidden draft debt."
 next_review: "2027-02-07"
 next_step: "/103-sg-verify clean-code-quality-contract"
 ---
@@ -56,6 +58,7 @@ Use this contract for authored or materially modified code. Treat Clean Code as 
 - **Useful comments and documentation:** explain why, constraints, invariants, non-obvious trade-offs, or external contracts. Do not narrate obvious code or keep commented-out implementations; follow the project’s public API documentation convention.
 - **No unjustified dead code:** do not add unused branches, helpers, dependencies, flags, exports, or compatibility paths. Remove dead code in the owned change surface when proof is sufficient; do not expand scope into speculative cleanup.
 - **Behavior-focused tests:** prove public behavior, boundaries, errors, and regressions without coupling tests unnecessarily to private implementation structure. Apply the shared ZOMBIES heuristic when the behavior is non-trivial.
+- **Production-Ready Finish:** remove unresolved implementation/content placeholders, commented-out alternatives, debug scaffolding, generated clutter, accidental duplication, and misleading temporary names from the owned surface. Consolidate duplicated knowledge at its canonical boundary when the abstraction is evidenced. Any intentional temporary path must be a deliberately accepted follow-up with an owner, bounded risk, removal criterion, and proof path; it is never silently called complete.
 
 ## Domain Identifier Gate
 

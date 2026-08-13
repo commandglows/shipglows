@@ -37,6 +37,7 @@ class DecisionQualityProgressiveContractTests(unittest.TestCase):
             "Followability Gate",
             "Smallest safe path",
             "matching proof",
+            "Industrial Excellence Gate",
         ):
             self.assertIn(marker, self.core)
 

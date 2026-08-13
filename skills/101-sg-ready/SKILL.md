@@ -39,6 +39,8 @@ Load at most one local pack before the first substantive decision.
 
 Load `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` for product decisions. Load applicable `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md`, `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`, `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md`, `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`, and `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`. Inspect project `CLAUDE.md`/`SHIPGLOWS.md`; ShipGlows contract/copy work also reads `shipglows_data/technical/guidelines.md` when present.
 
+Load `$SHIPGLOWS_ROOT/skills/references/context-quality-contract.md` when target/outcome authority, freshness, conflict, memory, or handoff sufficiency is material. A `context_partial`, `context_conflict`, or `context_stale` gap that affects implementation prevents `ready`.
+
 ## Readiness Verdict
 
 A spec is `ready` only when a fresh agent can implement it without blocking ambiguity, generous inference, missing proof, hidden linked-system consequences, or unresolved security/product/platform decisions.
