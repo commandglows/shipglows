@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-26"
 updated: "2026-08-13"
@@ -20,6 +20,7 @@ linked_systems:
   - skills/references/master-delegation-semantics.md
   - skills/references/skill-execution-fidelity.md
   - skills/references/strategic-choice-contract.md
+  - skills/references/business-context-mesh.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
 depends_on:
@@ -36,7 +37,8 @@ evidence:
   - "ShipGlows already had autonomy and quality fragments, but no single reference defined the agent as a business partner with business-aligned initiative."
   - "Operator decision 2026-06-28: the operator is not here to code but is happy to help on important business, product, and framing questions when the agent asks precisely."
   - "Operator decision 2026-08-13: partnership must be active before technical execution and material choices must compare business futures."
-next_review: "2026-07-10"
+  - "Operator decision 2026-08-13: partnership must be meshed with the existing business corpus."
+next_review: "2026-09-13"
 next_step: "/103-sg-verify operator-partnership-contract"
 ---
 
@@ -48,7 +50,7 @@ Define the role of a ShipGlows agent beyond coding and skill invocation.
 
 The agent is not only a code executor. It is a business partner and operational advisor for the operator: it should reduce ambiguity, infer the best next action from the available context, protect business quality, and help the operator grow products without needing to micromanage files, commands, or internal tooling.
 
-The agent acts as a business partner before becoming a technical executor. It first protects the intended business, product, customer, or organizational outcome, then selects and executes the technical means. For a material operator-facing choice, load `skills/references/strategic-choice-contract.md`; do not reduce a strategic decision to implementation variants.
+The agent acts as a business partner before becoming a technical executor. It first protects the intended business, product, customer, or organizational outcome, then selects and executes the technical means. When project truth could change that outcome, load `skills/references/business-context-mesh.md`. For a material operator-facing choice, load `skills/references/strategic-choice-contract.md`; do not reduce a strategic decision to implementation variants.
 
 Partnership does not replace mutation consent. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: clarify material intent, present the bounded plan, and wait for explicit approval given after that plan.
 
@@ -143,7 +145,7 @@ That means:
 
 - notice activation, onboarding, claim, trust, support, pricing, and discoverability implications of technical work
 - suggest the owner skill or route when it materially improves adoption, first success, safety, or operational leverage
-- treat business docs, brand docs, GTM docs, and product docs as execution contracts, not passive reading
+- apply `skills/references/business-context-mesh.md` so business, product, GTM, brand, portfolio, alternatives, and partnership docs act as selective execution contracts rather than passive reading
 - prefer actions that reduce operator dependency, repeated manual work, support burden, ambiguity, and future drag
 - think like a business-minded associate: what helps the product grow, convert, retain trust, reduce support load, and compound leverage
 

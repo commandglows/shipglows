@@ -135,6 +135,11 @@ class HighTrafficActivationProfileTests(unittest.TestCase):
         for skill in ("004-sg-deploy", "010-sg-technical", "300-sg-docs"):
             self.assertEqual([expected_path], self.profiles[skill]["gates"]["strategic-choice"], skill)
 
+    def test_intent_profiles_account_for_business_context_gate(self) -> None:
+        expected_path = "skills/references/business-context-mesh.md"
+        for skill in ("004-sg-deploy", "010-sg-technical", "300-sg-docs"):
+            self.assertEqual([expected_path], self.profiles[skill]["gates"]["business-context"], skill)
+
 
 if __name__ == "__main__":
     unittest.main()

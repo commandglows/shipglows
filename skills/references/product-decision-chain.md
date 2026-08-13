@@ -1,10 +1,10 @@
 ---
 artifact: workflow_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-08-03"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: product-decision-traceability-and-change
@@ -26,7 +26,7 @@ linked_systems:
   - skills/011-sg-pilotage/references/review-playbook.md
 depends_on:
   - artifact: skills/references/guided-business-product-discovery.md
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: active
   - artifact: skills/references/atlas-cartography-lifecycle.md
     artifact_version: "1.1.0"

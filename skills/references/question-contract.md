@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-05-05"
 updated: "2026-08-13"
@@ -21,6 +21,9 @@ linked_systems:
   - skills/references/entrypoint-routing.md
   - skills/references/reporting-contract.md
   - skills/references/strategic-choice-contract.md
+  - skills/references/business-context-mesh.md
+  - skills/references/guided-business-product-discovery.md
+  - skills/references/mutation-plan-approval.md
   - docs/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
 depends_on:
@@ -44,7 +47,8 @@ evidence:
   - "Operator clarification 2026-07-17: Astro/Vercel and cross-platform Flutter are first recommendations; ShipGlows must not default a new app to one mobile platform when one codebase can cover Web, iOS, and Android."
   - "Operator correction 2026-07-18: unfinished-chantier choices stay at the outcome and priority layer; internal skills and commands remain agent-owned."
   - "Operator clarification 2026-08-13: short Questionner and Réorienter labels remain valid when the next agent turn actively guides the decision."
-next_review: "2026-06-05"
+  - "Operator decision 2026-08-13: material gaps in governing context may trigger a guided authority question and authorized canonical update."
+next_review: "2026-09-13"
 next_step: "/104-sg-end greenfield platform footprint question contract"
 ---
 
@@ -97,6 +101,14 @@ Business, product, audience, and framing facts often belong to the operator rath
 The standard is not "ask less no matter what". It is "ask at the partner layer". If a question sharpens business intent, audience nuance, positioning, or product usefulness that the agent cannot infer confidently from the project, asking is part of doing the job well.
 
 Proceed without asking when the safe default is clear, in scope, low-risk or reversible, compatible with project context and current best practices, and verifiable in the current run.
+
+## Governing Context Recovery
+
+When `business-context-mesh.md` finds a material missing, unknown, stale, or conflicting claim, the agent may initiate a guided update pass instead of ending at `blocked` or inventing a default.
+
+Before asking, show the relevant source, the gap, why it can change the current business outcome, the inspected evidence, and one proposed interpretation. Research facts the agent can establish; ask the ordering authority only for intent, priority, promise, appetite, or acceptance they own. Ask one decision at a time through `guided-business-product-discovery.md` and keep the original chantier active.
+
+A question never authorizes mutation. Before writing the governing source, satisfy `mutation-plan-approval.md` unless the active approved scope already includes that exact document family. After confirmation and authorized persistence, resume the original work automatically. Do not interrupt for an irrelevant gap or a stale date that cannot change the decision.
 
 ## Greenfield Platform Footprint Rule
 
@@ -256,3 +268,4 @@ Name the condition that would make another option better when that matters.
 - `SSRP-010 preferred stack preset`: given the established footprint includes a public SEO site plus web/iOS/Android application surfaces, when no project constraint contradicts the defaults, then the agent applies Astro plus Flutter with Vercel web hosting before blueprint matching and asks only about uncovered material providers or justified exceptions.
 - `SSRP-011 cross-platform first`: given the operator asks for a new mobile or browser application without a durable single-platform restriction, then the agent first recommends one Flutter codebase for Web, iOS, and Android and keeps Astro on Vercel for any separate public SEO surface.
 - `SSRP-012 guided short controls`: selecting `Questionner` or `Réorienter` triggers the shared strategic contract's guided follow-up; neither selection authorizes mutation or returns a blank question to the operator.
+- `SSRP-014 governing-context recovery`: a material governing gap produces evidence, a proposed interpretation, one authority-owned question, an authorized canonical update, and automatic return to the original chantier; agent-researchable facts are never offloaded.

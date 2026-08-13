@@ -1,7 +1,7 @@
 ---
 artifact: test_plan
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-08-13"
@@ -17,12 +17,12 @@ linked_systems:
   - tools/test_metier_first_public_skills_contract.py
 depends_on:
   - artifact: skills/references/intent-to-outcome-autonomy.md
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: active
 supersedes: []
 evidence:
   - "Wave 15 retained MH-01 through MH-12 outside normal runtime activation."
-  - "Operator decision 2026-08-13 adds business-partner-first and strategic-choice activation scenarios."
+  - "Operator decision 2026-08-13 adds business-partner-first, strategic-choice, business-context, and active governance-refresh scenarios."
 next_review: "2026-09-12"
 next_step: none
 ---
@@ -45,3 +45,7 @@ This leaf is test and review evidence, not a runtime prerequisite.
 - `MH-12`: no capability has two competing public owners.
 - `MH-13`: a non-trivial request identifies the intended business, product, customer, or organizational outcome before choosing technical means; a technically successful but business-irrelevant result remains partial.
 - `MH-14`: a material operator choice loads the strategic-choice contract and compares credible futures by outcome, stakeholder effect, horizon, and trade-off; routine reversible work remains proportional.
+- `MH-15`: when project business truth could change a non-trivial decision, the owner loads the business-context mesh and the smallest coherent source bundle before selecting technical means.
+- `MH-16`: portfolio, competitor, and affiliate context remains available to every métier but loads only when cross-project direction, differentiation, partnership, monetization, or disclosure can change the outcome.
+- `MH-17`: a material governing-context gap starts a guided refresh with evidence, a proposed interpretation, one ordering-authority question, authorized canonical persistence, and automatic resumption of the original outcome.
+- `MH-18`: agent-discoverable business evidence is researched internally; only unavailable strategic intent, priority, promise, risk appetite, or acceptance becomes an operator question.

@@ -42,9 +42,23 @@ class GuidedDiscoveryContractTests(unittest.TestCase):
         text = REFERENCE.read_text(encoding="utf-8")
         for scenario in ("ATLAS-015", "ATLAS-016", "ATLAS-017", "ATLAS-018"):
             self.assertIn(scenario, text)
-        for state in ("`confirmed`", "`evidence_backed`", "`hypothesis`", "`unknown`"):
+        for state in ("`confirmed`", "`evidence_backed`", "`hypothesis`", "`unknown`", "`stale`", "`conflict`"):
             self.assertIn(state, text)
         self.assertIn("Do not dump a questionnaire", text)
+
+    def test_governance_refresh_questions_then_resumes_original_outcome(self) -> None:
+        text = REFERENCE.read_text(encoding="utf-8")
+        for required in (
+            "## Governance Refresh Entry",
+            "Ask the ordering authority only",
+            "Lead with a synthesis and a proposed interpretation",
+            "Questioning may begin without mutation",
+            "mutation-plan-approval.md",
+            "resume the original chantier automatically",
+            "GOV-REFRESH-01 RESUME-AFTER-UPDATE",
+            "GOV-REFRESH-02 RESEARCH-BEFORE-ASKING",
+        ):
+            self.assertIn(required, text)
 
     def test_decision_chain_owns_lightweight_bmad_patterns(self) -> None:
         text = DECISION_CHAIN.read_text(encoding="utf-8")

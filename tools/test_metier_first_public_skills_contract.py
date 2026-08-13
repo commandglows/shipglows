@@ -21,6 +21,7 @@ AUTONOMY = SKILLS / "references" / "intent-to-outcome-autonomy.md"
 AUTONOMY_EXECUTION = SKILLS / "references" / "intent-to-outcome-execution.md"
 AUTONOMY_SCENARIOS = SKILLS / "references" / "intent-to-outcome-pressure-scenarios.md"
 STRATEGIC_CHOICES = SKILLS / "references" / "strategic-choice-contract.md"
+BUSINESS_MESH = SKILLS / "references" / "business-context-mesh.md"
 PARTNERSHIP = SKILLS / "references" / "operator-partnership-contract.md"
 REGISTRY = SKILLS / "references" / "skill-invocation-registry.json"
 ROUTER = SKILLS / "references" / "entrypoint-routing.md"
@@ -58,6 +59,7 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         cls.autonomy_execution = AUTONOMY_EXECUTION.read_text(encoding="utf-8")
         cls.autonomy_scenarios = AUTONOMY_SCENARIOS.read_text(encoding="utf-8")
         cls.strategic_choices = STRATEGIC_CHOICES.read_text(encoding="utf-8")
+        cls.business_mesh = BUSINESS_MESH.read_text(encoding="utf-8")
         cls.partnership = PARTNERSHIP.read_text(encoding="utf-8")
         cls.registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         cls.catalog = cls.registry["public_catalog"]
@@ -136,6 +138,27 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         self.assertIn("business or product outcome", self.strategic_choices)
         self.assertIn("partner before becoming a technical executor", self.partnership)
 
+    def test_mh_15_and_mh_16_mesh_business_truth_selectively(self) -> None:
+        self.assertIn("business-context-mesh.md", self.autonomy)
+        for required in (
+            "smallest coherent source bundle",
+            "shipglows_data/business/business.md",
+            "shipglows_data/business/product.md",
+            "shipglows_data/business/gtm.md",
+            "shipglows_data/branding/branding.md",
+            "portfolio-project-pitch-links.md",
+            "project-competitors-and-inspirations.md",
+            "affiliate-programs.md",
+            "Do not read every family by default",
+            "business/agent-profiles/",
+            "context_conflict",
+        ):
+            self.assertIn(required, self.business_mesh)
+        self.assertIn("`MH-15`", self.autonomy_scenarios)
+        self.assertIn("`MH-16`", self.autonomy_scenarios)
+        self.assertIn("`MH-17`", self.autonomy_scenarios)
+        self.assertIn("`MH-18`", self.autonomy_scenarios)
+
     # MH-02: projects can contain several products and surfaces.
     def test_mh_02_preserves_the_full_target_hierarchy(self) -> None:
         target = "project -> product -> surface -> feature"
@@ -209,7 +232,7 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         self.assertNotIn(AUTONOMY_EXECUTION.name, self.autonomy_scenarios)
 
     def test_mh_scenarios_remain_complete_and_test_only(self) -> None:
-        for number in range(1, 15):
+        for number in range(1, 19):
             self.assertIn(f"`MH-{number:02}`", self.autonomy_scenarios)
         self.assertIn("not a runtime prerequisite", self.autonomy_scenarios)
 

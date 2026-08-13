@@ -1,10 +1,10 @@
 ---
 artifact: workflow_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-08-02"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: guided-business-product-discovery
@@ -22,19 +22,30 @@ linked_systems:
   - skills/305-sg-init/SKILL.md
   - skills/references/atlas-cartography-lifecycle.md
   - skills/references/product-decision-chain.md
-depends_on: []
+  - skills/references/business-context-mesh.md
+  - skills/references/question-contract.md
+  - skills/references/mutation-plan-approval.md
+depends_on:
+  - artifact: skills/references/question-contract.md
+    artifact_version: "2.1.0"
+    required_status: active
+  - artifact: skills/references/mutation-plan-approval.md
+    artifact_version: "1.2.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Operator decision 2026-08-02: a business owner must be guided to express business identity and customer needs instead of being expected to fill documents alone."
   - "Local BMAD review 2026-08-02: retain sequential discovery, targeted questions, proposed synthesis, explicit confirmation, journeys and capability derivation without importing BMAD complexity."
-next_step: "Use this contract when creating or substantially repairing business, product, GTM, brand or Atlas framing."
+  - "Operator decision 2026-08-13: agents may initiate a guided governing-document update pass when a material gap needs ordering-authority input."
+next_review: "2026-09-13"
+next_step: "Use this contract when creating, refreshing, or substantially repairing business, product, GTM, brand or Atlas framing."
 ---
 
 # Guided Business And Product Discovery
 
 ## Purpose
 
-Turn an incomplete founder idea into durable business, product, GTM and brand decisions. The operator is never asked to fill a blank template alone, and the agent never presents guesses as confirmed facts.
+Turn incomplete, stale, or conflicting business context into durable business, product, GTM and brand decisions. The operator is never asked to fill a blank template alone, and the agent never presents guesses as confirmed facts.
 
 ## Evidence States
 
@@ -44,8 +55,18 @@ Every material statement is one of:
 - `evidence_backed`: supported by an existing product, customer signal, document or source;
 - `hypothesis`: useful proposal awaiting confirmation;
 - `unknown`: unresolved and important enough to keep visible.
+- `stale`: previously supported but outside its applicable freshness boundary;
+- `conflict`: applicable authoritative sources disagree.
 
 Code and stack evidence can prove what exists. They cannot prove who the priority customer is, why they care, which outcome matters most, the intended promise or the desired brand feeling.
+
+## Governance Refresh Entry
+
+`business-context-mesh.md` may start this loop when a material governing claim is missing, unknown, stale, or conflicting. Preserve the original chantier outcome and narrow the pass to the claims that can change it.
+
+Before questioning, inspect the repository, live product, current sources, customer evidence, and researchable market facts. Ask the ordering authority only for business intent, priority, promise, risk appetite, or acceptance that evidence cannot establish. Lead with a synthesis and a proposed interpretation so the question advances a decision rather than transferring research work.
+
+Questioning may begin without mutation. Before persisting any change, satisfy `mutation-plan-approval.md`; reuse an existing approval only when its scope already includes the affected governing documents. After confirmation, update the canonical source and affected dependents, preserve evidence states and superseded decisions, then resume the original chantier automatically.
 
 ## Guided Loop
 
@@ -57,9 +78,9 @@ For one thematic step at a time:
 4. If the operator struggles, offer two or three tailored contrasts and a recommended interpretation. Do not replace their decision.
 5. Draft the exact section that the answer would add or change.
 6. Ask the operator to `Confirmer`, `Corriger` or `Approfondir`. Advance only after confirmation, while preserving explicit hypotheses and unknowns.
-7. Persist the confirmed result and the first unresolved decision so another agent can resume without replaying the conversation.
+7. Persist the confirmed result and first unresolved decision, then resume the original outcome without making the operator re-route the work.
 
-Do not ask again for facts already supported by reliable evidence. When documents are partial, preserve confirmed content and question only the consequential gaps.
+Do not ask again for facts already supported by reliable evidence. When documents are partial, stale, or conflicting, preserve confirmed content and question only the consequential gaps.
 
 ## Discovery Sequence
 
@@ -103,6 +124,8 @@ Use at most one of these lenses when an answer is vague or a decision is risky, 
 - `ATLAS-016 GUIDED-PARTIAL-CORPUS`: given partial existing documents, the agent preserves confirmed content and asks only about the first consequential gap.
 - `ATLAS-017 JOURNEY-TO-CAPABILITY`: given a confirmed customer journey, the agent derives user-observable capabilities and candidate Atlas surfaces/functions without prescribing implementation details.
 - `ATLAS-018 NO-QUESTIONNAIRE-DUMP`: the operator receives one thematic question, a proposed synthesis and visible confirmation choices, never an exhaustive questionnaire.
+- `GOV-REFRESH-01 RESUME-AFTER-UPDATE`: a material business gap discovered during another chantier produces one proposed interpretation and authority-owned question; after authorized canonical update, the original chantier resumes automatically.
+- `GOV-REFRESH-02 RESEARCH-BEFORE-ASKING`: competitor, market, repository, and technical facts are researched by the agent; only the strategic interpretation or decision is asked of the ordering authority.
 
 ## Completion Contract
 

@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.1"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-07-12"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: profile-project-context
@@ -17,6 +17,7 @@ linked_systems:
   - skills/references/profile-activation.md
   - skills/000-shipglows/SKILL.md
   - skills/302-sg-help/SKILL.md
+  - skills/references/business-context-mesh.md
   - shipglows_data/business/
   - shipglows_data/technical/
   - shipglows_data/editorial/content-map.md
@@ -24,11 +25,14 @@ depends_on:
   - artifact: "skills/references/canonical-paths.md"
     artifact_version: "1.0.0"
     required_status: active
+  - artifact: "skills/references/business-context-mesh.md"
+    artifact_version: "1.1.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Operator request 2026-06-28: named profiles must load useful project context, not only their role contract."
   - "Operator decision 2026-07-12: technology specialist profiles load canonical platform notes plus the smallest project-local technical context."
-next_review: "2026-07-12"
+next_review: "2026-09-13"
 next_step: "/103-sg-verify profile-project-context"
 ---
 
@@ -36,7 +40,7 @@ next_step: "/103-sg-verify profile-project-context"
 
 ## Purpose
 
-This contract defines which project context documents named profiles should load beyond their role contract.
+This contract specializes `business-context-mesh.md` for named profiles. It defines which project context documents they should consider beyond their role contract without creating a competing source hierarchy.
 
 Profiles must not answer from role posture alone. They should ground arbitration in the target project's business, product, editorial, and technical context when those documents exist and the task needs them.
 
@@ -45,16 +49,16 @@ Profiles must not answer from role posture alone. They should ground arbitration
 After resolving a named profile and its operator role:
 
 1. identify the relevant project context layer
-2. load the smallest useful project-specific context bundle
+2. apply `business-context-mesh.md` and load the smallest useful project-specific context bundle
 3. shape the answer from both the role contract and the loaded project truth
 
-Do not load every project document by default. Load the narrowest coherent bundle for the current question.
+Do not load every project document by default. The bundles below are candidates, not eager-load exceptions; load the narrowest coherent subset for the current question.
 
-## Context Bundles By Profile
+## Candidate Context Bundles By Profile
 
 ### `growth-operations-lead` -> `Victoire`
 
-Default bundle:
+Core candidates:
 
 - `shipglows_data/business/business.md`
 - `shipglows_data/business/product.md`
@@ -70,7 +74,7 @@ Use this bundle for prioritization, leverage, positioning, growth sequencing, of
 
 ### `risk-and-coherence-guardian` -> `Prudence`
 
-Default bundle:
+Core candidates:
 
 - `shipglows_data/business/product.md`
 - `shipglows_data/technical/context.md`
@@ -86,7 +90,7 @@ Use this bundle for coherence checks, hidden dependencies, scope risk, governanc
 
 ### `product-architecture-planner` -> `Ariane`
 
-Default bundle:
+Core candidates:
 
 - `shipglows_data/business/product.md`
 - `shipglows_data/technical/context.md`
@@ -103,7 +107,7 @@ Use this bundle for phase planning, slice definition, dependency mapping, sequen
 
 ### `end-user-adhesion-reviewer` -> `Adhesion`
 
-Default bundle:
+Core candidates:
 
 - `shipglows_data/business/product.md`
 - `shipglows_data/business/gtm.md`
@@ -119,7 +123,7 @@ Use this bundle for value perception, trust, comprehension, CTA friction, onboar
 
 ### `seo-specialist` -> `SEO Specialist`
 
-Default bundle:
+Core candidates:
 
 - `shipglows_data/editorial/content-map.md`
 - `shipglows_data/business/gtm.md`
@@ -135,7 +139,7 @@ Use this bundle for search intent fit, discoverability, content structure, claim
 
 ### `traffic-manager` -> `Tariq`
 
-Default bundle:
+Core candidates:
 
 - `shipglows_data/business/business.md`
 - `shipglows_data/business/gtm.md`

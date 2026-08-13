@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-13"
@@ -23,7 +23,7 @@ linked_systems:
   - tools/test_context_quality_contract.py
 depends_on:
   - artifact: skills/references/intent-to-outcome-autonomy.md
-    artifact_version: "1.1.0"
+    artifact_version: "1.3.0"
     required_status: active
 supersedes: []
 evidence:

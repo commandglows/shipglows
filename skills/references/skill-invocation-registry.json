@@ -88,6 +88,7 @@
           "skills/references/intent-to-outcome-autonomy.md"
         ],
         "gates": {
+          "business-context": ["skills/references/business-context-mesh.md"],
           "strategic-choice": ["skills/references/strategic-choice-contract.md"],
           "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
           "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
@@ -106,6 +107,7 @@
         "body": "skills/010-sg-technical/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md", "skills/references/decision-quality-contract.md"],
         "gates": {
+          "business-context": ["skills/references/business-context-mesh.md"],
           "strategic-choice": ["skills/references/strategic-choice-contract.md"],
           "semantic-mode-routing": ["skills/010-sg-technical/references/technical-router.md"],
           "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
@@ -209,6 +211,7 @@
         "body": "skills/300-sg-docs/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md"],
         "gates": {
+          "business-context": ["skills/references/business-context-mesh.md"],
           "strategic-choice": ["skills/references/strategic-choice-contract.md"],
           "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
           "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
