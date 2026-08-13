@@ -1,10 +1,10 @@
 ---
 artifact: gtm_context
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-05-11"
+updated: "2026-08-13"
 status: reviewed
 source_skill: manual
 scope: gtm
@@ -12,13 +12,14 @@ owner: "unknown"
 confidence: low
 risk_level: medium
 target_segment: "solo founders first, with adjacent fit for small technical teams and technical builders evaluating a clearer way to ship with AI agents"
-offer: "a unified framework that combines server delivery operations, explicit task contracts, and verification-oriented agent workflows"
+offer: "a business-aware delivery partner that turns governed product truth into métier decisions, bounded chantiers, and verified outcomes, supported by integrated environment and release capabilities"
 channels: "documentation-first discovery, technical content, demos, founder education, and clarity-oriented positioning"
-proof_points: "context routing docs, spec-first workflow, metadata contracts, linter, verification and audit skills, plus concrete server delivery tooling"
+proof_points: "business-context mesh, thirteen public métier owners plus the ShipGlows router, strategic choices, guided governance refresh, outcome-owned workflows, verification and audits, plus concrete environment and delivery tooling"
 security_impact: unknown
 docs_impact: yes
 evidence:
   - "Current repo demonstrates the mechanics of the framework but not yet validated acquisition or conversion data"
+  - "Operator confirmed decision SG-BIZ-2026-08-13-01: partnership and verified outcomes lead the offer; server delivery is supporting proof"
 linked_artifacts:
   - "shipglows_data/business/business.md"
   - "shipglows_data/branding/branding.md"
@@ -26,14 +27,14 @@ linked_artifacts:
   - "shipglows_data/business/portfolio-project-pitch-links.md"
 depends_on:
   - artifact: "shipglows_data/business/business.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/branding/branding.md"
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: "reviewed"
 supersedes: []
-next_review: "2026-05-26"
-next_step: "/sg-docs audit shipglows_data/business/gtm.md"
+next_review: "2026-09-13"
+next_step: "Translate the confirmed offer hierarchy into the external landing, docs, FAQ, and pitch surfaces"
 ---
 
 # GTM Context
@@ -46,9 +47,11 @@ next_step: "/sg-docs audit shipglows_data/business/gtm.md"
 
 ## Offer
 
-- ShipGlows should be presented as a unified framework for reliable AI-assisted software delivery and simple server operations.
-- The offer is stronger when framed around reduced ambiguity, explicit contracts, better verification, and stronger handoffs, not raw coding speed.
-- The first public story should stay simple: ShipGlows helps solo founders ship with agents without losing context.
+- ShipGlows should be presented first as the business-aware partner that connects product truth to decisions, delivery, and proof.
+- Public métier agents make that partnership concrete by owning outcomes instead of returning isolated technical output.
+- The offer is strongest when framed around better judgment, reduced ambiguity, continuity, and verified outcomes, not raw coding speed.
+- The first public story should stay simple: ShipGlows helps solo founders turn their business intent into shipped, verified product outcomes with agents.
+- Environment and server operations demonstrate that the partnership reaches delivery; they should not lead the category story.
 - Small teams should still be able to recognize themselves in the product, but as a secondary audience rather than the lead headline.
 
 ## Positioning
@@ -57,7 +60,7 @@ next_step: "/sg-docs audit shipglows_data/business/gtm.md"
 - Not “just a server CLI with PM2 helpers”.
 - Not “just a methodology or a bundle of prompts for agents”.
 - Not a general-purpose PaaS or platform manager.
-- Best current positioning: a unified framework between AI delivery and server environment management for solo founders, with clear applicability to small technical teams.
+- Best current positioning: a business-aware delivery partner for solo founders, powered by governed métier agents and integrated execution infrastructure, with clear applicability to small technical teams.
 
 ## Channels
 
@@ -84,6 +87,7 @@ next_step: "/sg-docs audit shipglows_data/business/gtm.md"
 - Audit and verification skills built into the same framework.
 - Real server operations tooling in the same operating model.
 - Product governance for declared products: inventory, sales surfaces, delivery paths, and claim coherence.
+- A shared business-context mesh and guided refresh loop that can improve governing truth before dependent work continues.
 
 ## Objections
 
@@ -92,6 +96,8 @@ next_step: "/sg-docs audit shipglows_data/business/gtm.md"
 - “Is this just a server script plus a few helpers?”
 - “Do I need all the docs before I get value?”
 - “Is this only for Bash/server-heavy repos?”
+
+- "Is this genuinely business-aware, or only a technical workflow described in business language?"
 
 ## KPIs
 

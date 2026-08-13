@@ -1,10 +1,10 @@
 ---
 artifact: portfolio_project_pitch_links_index
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.2.0"
 project: "ShipGlows"
 created: "2026-06-27"
-updated: "2026-06-27"
+updated: "2026-08-13"
 status: draft
 source_skill: sg-docs
 scope: "project-pitches"
@@ -19,19 +19,20 @@ linked_systems:
   - skills/references/private-memory-store.md
 evidence:
   - "User asked for an internal governance doc that gives a quick pitch for each project."
+  - "Operator confirmed ShipGlows positioning decision SG-BIZ-2026-08-13-01."
 depends_on:
   - artifact: "shipglows_data/business/business.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
   - artifact: "shipglows_data/business/product.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
   - artifact: "shipglows_data/business/gtm.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
 supersedes: []
-next_review: "2026-07-11"
-next_step: "/300-sg-docs audit project pitches"
+next_review: "2026-09-13"
+next_step: "Validate every portfolio pitch against its current project corpus"
 ---
 
 # Portfolio Project Pitch Links Index
@@ -89,7 +90,7 @@ Do not copy cached pitch bodies, private repo contents, or source excerpts into 
 
 | Project | Pitch file URL | Audience | Business angle | Source of truth | Status | Owner | Evidence date | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ShipGlows | `https://github.com/diane-defores/shipglows/blob/main/shipglows_data/business/portfolio-project-pitch-links.md` | Portfolio index only | Registry of per-project pitch URLs and short routing notes for the ShipGlows portfolio | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md` | reviewed | unknown | 2026-06-27 | Keep this file as the portfolio index; add or refresh project pitch URLs in the project rows below |
+| ShipGlows | `https://github.com/diane-defores/shipglows/blob/main/shipglows_data/business/portfolio-project-pitch-links.md` | Solo founders and autonomous builders shipping real products with AI agents | Business-aware delivery partner that turns governed product truth into métier decisions, bounded chantiers, and verified outcomes; environment operations support delivery and proof | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md` | reviewed | unknown | 2026-08-13 | Propagate the confirmed hierarchy to the external public site while keeping this file as the portfolio index |
 | Winflowz | `https://github.com/diane-defores/winflowz/blob/main/PITCH.md` | Operators shipping a site plus an app from one repo | Monorepo for a governed Astro site and Flutter Android-first app with explicit deployment boundaries | `README.md`, `shipglows_data/business/business.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if positioning changes |
 | Socialglowz | `https://github.com/diane-defores/socialglowz/blob/master/PITCH.md` | Users who need one social dashboard across browser, desktop, and mobile | Unified social control surface with platform-specific behavior kept explicit across targets | `README.md`, `shipglows_data/business/business.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if positioning changes |
 | Temuglowz | `https://github.com/diane-defores/temuglowz/blob/main/PITCH.md` | Users saving Temu links into durable shopping lists | Local-first Android MVP for link capture, list management, and manual observation without fake automation claims | `README.md`, `BUSINESS.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if the product expands beyond MVP |

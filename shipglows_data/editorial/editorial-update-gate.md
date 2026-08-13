@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.2.1"
+artifact_version: "1.2.2"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-06-28"
+updated: "2026-08-13"
 status: reviewed
 source_skill: sg-start
 scope: editorial-update-gate
@@ -34,8 +34,9 @@ supersedes: []
 evidence:
   - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Ready spec defines Editorial Update Plan, Claim Impact Plan, and pending final copy rules."
-next_review: "2026-06-01"
-next_step: "/103-sg-verify ShipGlows Editorial Content Governance Layer for AI Agents"
+  - "Positioning decision SG-BIZ-2026-08-13-01 requires propagation from canonical governance to the external public site."
+next_review: "2026-09-13"
+next_step: "Apply and verify the active SG-BIZ-2026-08-13-01 editorial update plan in the external site repository"
 ---
 
 # Editorial Update Gate
@@ -81,6 +82,19 @@ Run the gate when a workstream changes or verifies any of these:
 ## Claim Impact Plan
 
 When a sensitive claim is affected, add the plan from `docs/editorial/claim-register.md`. The claim plan can stand alone or attach to an Editorial Update Plan item.
+
+## Active Editorial Update Plan: SG-BIZ-2026-08-13-01
+
+- Changed source: confirmed positioning decision `SG-BIZ-2026-08-13-01` and business/product/GTM/brand contracts reviewed on 2026-08-13.
+- Impacted surfaces: external EN/FR landing, about, docs overview, FAQ, pitch, skills discovery, and any shared homepage components carrying equal-pillar or server-first positioning.
+- Source of truth: `shipglows_data/business/business.md` 1.3.0, `product.md` 1.3.0, `gtm.md` 1.3.0, and `shipglows_data/branding/branding.md` 1.2.0.
+- Required action: lead with the business-aware delivery partnership; show governed truth, métier outcome ownership, bounded chantiers, and proof before environment operations.
+- Claim boundary: environment/runtime capability remains valid supporting evidence; do not promise correct business advice, unattended delivery, market success, growth, revenue, conversion, or guaranteed outcomes.
+- Reason: current external surfaces may still express the superseded equal-pillar hierarchy.
+- Owner role: public content owner with human review of the final offer hierarchy.
+- Parallel-safe: no for shared landing, navigation, docs overview, FAQ, or claim components.
+- Validation: EN/FR copy parity, claim-register review, targeted stale-positioning search, site build, and rendered landing/docs/FAQ review.
+- Closure status: `pending final copy`; block a positioning-release claim until the external site repository is updated and verified.
 
 ## Status Rules
 

@@ -1,10 +1,10 @@
 ---
 artifact: affiliate_program_registry
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.1.1"
 project: "ShipGlows"
 created: "2026-05-11"
-updated: "2026-05-11"
+updated: "2026-08-13"
 status: draft
 source_skill: sg-docs
 scope: "affiliate-programs"
@@ -21,13 +21,13 @@ evidence:
   - "User requested a formal file for affiliate programs used."
 depends_on:
   - artifact: "shipglows_data/business/business.md"
-    artifact_version: "1.1.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
   - artifact: "shipglows_data/business/gtm.md"
-    artifact_version: "1.1.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
 supersedes: []
-next_review: "2026-06-11"
+next_review: "2026-09-13"
 next_step: "/sg-docs audit affiliate programs"
 ---
 

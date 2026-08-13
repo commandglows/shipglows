@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-07-17"
+updated: "2026-08-13"
 status: active
 source_skill: 300-sg-docs
 scope: design-system-authority
@@ -20,7 +20,7 @@ linked_systems:
   - skills/references/design-system-token-contract.md
 depends_on:
   - artifact: shipglows_data/branding/branding.md
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: reviewed
   - artifact: skills/references/design-system-token-contract.md
     artifact_version: "1.0.0"
@@ -29,7 +29,8 @@ supersedes: []
 evidence:
   - "User decision 2026-06-11: every managed application must declare the canonical design-system source instead of letting agents infer or customize design per screen."
   - "2026-07-17 DevServer implementation confirms cli/lib.sh ui_* primitives as the shared gum/Bash shell UI authority."
-next_review: "2026-06-25"
+  - "Brand 1.2.0 changes public visual hierarchy to lead with business partnership while preserving existing code-level design authority."
+next_review: "2026-09-13"
 next_step: "/103-sg-verify design-system-authority"
 ---
 

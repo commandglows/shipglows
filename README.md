@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.18.6"
+artifact_version: "0.19.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-08-13"
@@ -73,31 +73,43 @@ evidence:
   - "Added an exact sg-help mode catalog with one line per skill and canonical modes."
   - "Adopted the métier-first public hierarchy: 13 public owners in six domains, with direct public skill folders and numeric engines retained for expert compatibility only."
   - "Documented the native Windows full DevServer, optional coding agents, execution-policy-safe wrappers, nested s shortcuts, and collision-safe agent aliases."
-next_step: "/300-sg-docs audit README.md"
+  - "Operator confirmed positioning decision SG-BIZ-2026-08-13-01: ShipGlows leads as a business-aware delivery partner; environment operations support execution and proof."
+next_step: "Align the external ShipGlows landing, docs, FAQ, and pitch surfaces with SG-BIZ-2026-08-13-01"
 ---
 
 # ShipGlows
 
 > Public-site ownership: the canonical Astro site moved to `/home/claude/shipglows_app/site` on 2026-08-02. The former `shipglows-site/` path in this repository is retired and must not be recreated; remaining references to it are migration debt, not source authority.
 
-ShipGlows is a unified framework for server delivery and AI-assisted execution discipline.
+ShipGlows is a business-aware delivery partner that turns governed product truth into decisions, bounded chantiers, and verified outcomes with AI agents.
 It also includes OpenCode-compatible skill shims under `.opencode/skills/shipglows/` and `.agents/skills/shipglows/` so the same top-level workflow entrypoint can be discovered outside Codex.
 
-It has four active layers:
-- a CLI for managing project environments on a server
-- an optional read-only terminal TUI for operational visibility
-- a skill system for structured coding workflows, audits, documentation, and shipping
-- a lightweight Codex plugin and public site for distribution, onboarding, and pack discovery
+Its operating model has four ordered layers:
 
-It is built for solo founders and autonomous technical builders who want to launch, publish, and maintain software simply without losing context in agent handoffs.
+1. governed business, product, market, brand, portfolio, and evidence context
+2. public métier agents that advise, expose consequential choices, and retain outcome ownership
+3. structured chantiers that continue through execution, verification, and closure
+4. environment, runtime, release, and observability capabilities that make delivery operable and provable
+
+These layers are delivered through a skill system, a server/local CLI, an optional read-only terminal TUI, and a lightweight Codex plugin with public onboarding surfaces.
+
+It is built for solo founders and autonomous builders who want agents to understand the business consequence, carry work through delivery, and prove the intended result without fragile handoffs.
 
 ShipGlows also carries product and claim governance for declared products. The framework does not only route code and docs work; it keeps product inventories, public surfaces, and evidence-backed claims coherent across the package.
 
 ## What ShipGlows Does
 
-ShipGlows is designed to solve one problem first: lost context and weak handoffs in AI-assisted product work.
+ShipGlows is designed to solve one problem first: AI-assisted work that loses the business objective between intent, implementation, delivery, and proof.
 
-It helps operators run apps on servers, but its deeper job is to reduce ambiguity and give AI agents a better execution frame. That is why ShipGlows should not be read as only a PM2-oriented server script, and not as only a methodology or prompt system for agents. It is the combination of both.
+It connects governed project truth to one business-aware métier owner, then carries the outcome through bounded execution and verification. Server and environment operations are differentiated delivery capabilities inside that partnership, not an equal competing promise. ShipGlows should therefore be read as neither a PM2-oriented server script nor a prompt bundle.
+
+### Business-aware delivery partnership
+
+- load only the business and product truth that can change the current decision
+- recommend useful strategic directions instead of reducing every choice to technical variants
+- question the ordering authority when consequential intent cannot be discovered safely
+- refresh canonical governing documents after explicit approval when a material gap would distort the work
+- keep one public métier accountable from the accepted outcome through proportional proof
 
 ### Server environment management
 

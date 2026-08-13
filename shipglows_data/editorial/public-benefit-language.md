@@ -1,10 +1,10 @@
 ---
 artifact: editorial_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: "ShipGlows"
 created: "2026-08-08"
-updated: "2026-08-08"
+updated: "2026-08-13"
 status: active
 source_skill: "sg-content"
 scope: "public benefit-first language"
@@ -26,17 +26,18 @@ linked_systems:
   - "skills/references/owasp-application-security-awareness.md"
 depends_on:
   - artifact: "shipglows_data/editorial/claim-register.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
   - artifact: "shipglows_data/branding/branding.md"
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: reviewed
 supersedes: []
 evidence:
   - "Operator decision 2026-08-08: familiar reader understanding comes before technical vocabulary; technical terms remain accurate second-level proof."
   - "Public benefit-first language spec defines the relevant mechanisms, claim limits, and shared English/French surfaces."
-next_review: "2026-11-08"
-next_step: "Apply to the declared public-site batches in public-benefit-first-language-for-shipglows-skills.md"
+  - "Positioning decision SG-BIZ-2026-08-13-01 establishes the business-aware delivery partner as the reader-first hierarchy."
+next_review: "2026-11-13"
+next_step: "Apply partner-first language to the external public-site surfaces before retaining server-first or equal-pillar wording"
 ---
 
 # Public Benefit-First Language
@@ -61,6 +62,8 @@ Short cards, labels, and CTAs may omit the second step for space, but must not b
 
 | Mechanism | Reader outcome first | Technical evidence second | Allowed wording / claim limit |
 | --- | --- | --- | --- |
+| Business-context mesh | The agent can connect the current task to the customer, promise, priority, and business consequence that matter. | A selective context mesh loads the smallest relevant governed business sources and preserves evidence states. | Say "grounds decisions in governed project truth"; do not imply complete business understanding or correct advice by default. |
+| Public métier ownership | One business-aware owner keeps the intended outcome active through internal handoffs and proof. | Public métier contracts route specialized execution without making the operator coordinate internal engines. | Say "retains outcome ownership" or "carries the chantier through proof"; do not promise unattended delivery or business success. |
 | Context map | A new agent can start without making you reconstruct the project. | An operational context map identifies the relevant entry points, constraints, and documents. | Say “gives agents better context” or “reduces context reconstruction”; do not say an agent always understands the project. |
 | Task or spec contract | Important work is framed before the product changes. | A task contract records scope, invariants, proof, and stop conditions. | Say “makes the intended change explicit”; do not say it prevents every wrong change. |
 | Readiness | Risks and missing decisions are surfaced before implementation. | Readiness checks confirm the contract, ownership, and proof path are sufficiently clear. | Say “surfaces unresolved decisions”; do not imply all risks are discovered. |
@@ -79,6 +82,7 @@ Use native-language equivalents, not literal technical slogans. These examples d
 
 | Situation | English | Français |
 | --- | --- | --- |
+| Partnership | "The agent connects your product intent to a decision, a bounded chantier, and visible proof." | "L’agent relie votre intention produit à une décision, un chantier cadré et une preuve visible." |
 | Context | “A new agent can start without making you reconstruct the project.” | “Un nouvel agent peut commencer sans vous faire reconstruire le projet.” |
 | Work framing | “Important work is framed before the product changes.” | “Les changements importants sont cadrés avant de modifier le produit.” |
 | Verification | “A green build is not the only signal used to judge completion.” | “Un build vert n’est pas le seul signal utilisé pour juger qu’un travail est terminé.” |

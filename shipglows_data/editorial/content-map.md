@@ -1,10 +1,10 @@
 ---
 artifact: content_map
 metadata_schema_version: "1.0"
-artifact_version: "0.12.3"
+artifact_version: "0.13.0"
 project: ShipGlows
 created: "2026-04-26"
-updated: "2026-08-11"
+updated: "2026-08-13"
 status: draft
 source_skill: manual
 scope: content-map
@@ -49,6 +49,7 @@ evidence:
   - "Public skill discovery was curated to six domains, thirteen métier owners, and the ShipGlows router; numeric lifecycle and specialist skills remain internal expert engines."
   - "Public benefit-first language guide added so familiar reader outcomes lead public copy and technical terms remain evidence-safe second-level proof."
   - "ShipGlows EN/FR declared as the canonical public bootstrap surface for server/local installation and the native Windows DevServer; CommandGlows retains compatibility redirects."
+  - "Positioning decision SG-BIZ-2026-08-13-01 establishes business-aware delivery partnership as the primary public story and environment operations as supporting proof."
 linked_artifacts:
   - "README.md"
   - "shipglows_data/business/product.md"
@@ -66,14 +67,14 @@ linked_artifacts:
   - "shipglows_data/editorial/public-benefit-language.md"
 depends_on:
   - artifact: "shipglows_data/business/product.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/business/gtm.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: "reviewed"
 supersedes: []
-next_review: "2026-05-26"
-next_step: "/007-sg-content repurpose <source>"
+next_review: "2026-09-13"
+next_step: "Propagate SG-BIZ-2026-08-13-01 to the external EN/FR landing, docs, FAQ, pitch, and supporting skill discovery surfaces"
 ---
 
 # Content Map
@@ -103,7 +104,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 | Blog index and article collection | `site/src/content/articles/`, `site/src/pages/blog/index.astro`, `site/src/pages/blog/[slug].astro`, `site/src/pages/fr/blog/index.astro`, `site/src/pages/fr/blog/[slug].astro`, `site/src/content.config.ts` | Publish indexed long-form editorial content with collection-backed routing and locale-specific article pages | Markdown collection + Astro routes | `shipglows_data/editorial/page-intent-map.md`, `shipglows_data/editorial/blog-and-article-surface-policy.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/branding/branding.md`, route-specific source docs/specs | A new article is added, collection schema changes, localized article routing changes, or public editorial strategy changes |
 | Public private-data explanation | `site/src/content/articles/en/shipglows-private-data-repo.md`, `site/src/content/articles/fr/pourquoi-shipglows-separe-le-code-public-des-donnees-privees.md`, `site/src/pages/docs.astro`, `site/src/pages/fr/docs.astro` | Explain in public language why ShipGlows keeps durable private operator data in a separate Git repo from the public framework and from ephemeral runtime state | Markdown collection + Astro docs cards | `README.md`, `skills/references/private-data-repo-contract.md`, `skills/references/private-memory-store.md`, install/bootstrap docs | Private-data storage contract, bootstrap behavior, public privacy wording, or docs routing changes |
 | Editorial article pages | `site/src/pages/why-not-just-prompts.astro`, `site/src/pages/remote-mcp-oauth-tunnel.astro`, localized peers under `site/src/pages/fr/` | Publish focused long-form explanations as standalone Astro pages when the topic already has a declared route and page intent | Astro page | `shipglows_data/editorial/page-intent-map.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/branding/branding.md`, route-specific source docs/specs | A declared editorial route changes its message, claims, CTA, or supporting links |
-| Site landing page | `site/src/pages/index.astro` | Present ShipGlows's main offer and framework story | Astro page | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/branding/branding.md` | Product positioning or core workflow changes |
+| Site landing page | `site/src/pages/index.astro` | Present ShipGlows as a business-aware delivery partner; lead with governed truth, métier ownership, bounded chantiers, and verified outcomes, then use environment operations as delivery proof | Astro page | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/branding/branding.md` | Product positioning or core workflow changes |
 | Repo documentation | `README.md` | Canonical repo overview, onboarding, and artifact map | Markdown | Active project artifacts and code structure | Official docs, workflows, or tooling change |
 | Workflow doctrine | `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | Explain ShipGlows V3 work doctrine and artifact rules | Markdown artifact | Active skills, templates, linter behavior | Workflow or artifact doctrine changes |
 | Canonical path policy | `skills/references/canonical-paths.md` | Define how skills resolve ShipGlows-owned tools, references, templates, and project-local artifacts | Markdown reference artifact | ShipGlows install root and skill execution behavior | A skill, tool, template, or reference path rule changes |
@@ -123,7 +124,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 
 | Cluster | Pillar page | Supporting pages | Target intent | Internal link rule | Status |
 |---|---|---|---|---|---|
-| AI-assisted execution discipline | `site/src/pages/index.astro` | `site/src/pages/docs.astro`, `site/src/content/skills/*.md` | Understand ShipGlows as a work framework | Landing page links to docs and skills; skills link back to framework story | live |
+| Business-aware product delivery | `site/src/pages/index.astro` | `site/src/pages/docs.astro`, `site/src/content/skills/*.md`, `README.md` | Understand how ShipGlows turns governed business truth into decisions, chantiers, delivery, and proof | Landing page leads with the partner promise, links to métier skills and docs, and keeps environment/runtime pages as supporting delivery routes | update required externally |
 | Plugin install and activation | `site/src/pages/install.astro`, `site/src/pages/fr/install.astro` | `site/src/pages/docs.astro`, `site/src/pages/faq.astro`, `site/src/content/skills/shipglows.md`, `plugins/shipglows/README.md` | Install ShipGlows into Codex and reach the first successful command quickly | Install page owns the marketplace command and first-run path; docs, FAQ, and public skill pages point to it | live |
 | Server/local bootstrap and Windows DevServer | `https://shipglows.com/shipglows`, `https://shipglows.com/fr/shipglows` | `site/src/pages/install.astro`, `site/src/pages/fr/install.astro`, `README.md`, `shipglows_data/technical/operator-guides/windows-devserver.md` | Choose the server/local runtime install path or prepare a native Windows machine to clone and run supported development projects | ShipGlows owns bootstrap and runtime installation guidance; `/install` preserves Codex-plugin intent and exposes the runtime as a separate path | live |
 | Documentation and decision contracts | `site/src/pages/docs.astro` | `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `skills/references/canonical-paths.md`, `shipglows_data/technical/decisions/project-governance-layout.md`, `templates/*.md` | Learn how context and contracts stay coherent | Docs overview points to canonical repo docs, artifact roles, and root-vs-shipglows_data layout | live |
@@ -138,7 +139,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 
 | Page type | Job | Must include | Must not include |
 |---|---|---|---|
-| Landing page | Explain the offer and drive a qualified visitor to the next action | Product name, audience, core promise, proof direction, CTA | Claims unsupported by product docs or GTM |
+| Landing page | Explain the partner-first offer and drive a qualified visitor to the next action | Product name, founder situation, business-aware outcome promise, métier ownership, proof direction, CTA | Equal-pillar/server-first framing or claims unsupported by product docs and GTM |
 | Docs overview | Explain artifact roles and navigation | Context layer, decision contracts, links to canonical docs | Implementation detail better suited for repo docs |
 | Public skill page | Explain a workflow in human language | Use case, outcome, when to use it | Internal-only implementation prompts |
 | Skill launch cheatsheet | Explain which skill to launch and which arguments switch modes | Master skills, supporting lanes, documented mode switches | Full internal prompt contracts or exhaustive implementation detail |
@@ -185,6 +186,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 
 ## Open Gaps
 
+- [ ] External EN/FR landing, docs, FAQ, pitch, and selected skill-discovery surfaces still need propagation of decision `SG-BIZ-2026-08-13-01`; until then, the canonical business/product/GTM/brand contracts govern the new hierarchy.
 - [ ] No newsletter or social publishing repository surface is declared yet.
 - [ ] Every project with products should maintain a governed product inventory, and every product with marketing or conversion intent should additionally declare canonical sales/product/demo/checkout surfaces inside its own corpus.
 - [ ] Product claims should be validated against source truth, live surfaces, and proof assets before being marked complete.
