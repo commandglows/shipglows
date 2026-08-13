@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.7.0"
+artifact_version: "0.8.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-06-23"
+updated: "2026-08-14"
 status: draft
 source_skill: manual
 scope: "agent-entrypoint"
@@ -16,7 +16,7 @@ docs_impact: "yes"
 linked_systems: ["CLAUDE.md", "shipglows_data/technical/context.md", "shipglows_data/technical/context-function-tree.md", "shipglows_data/editorial/content-map.md", "README.md", "shipglows_data/technical/", "shipglows_data/technical/code-docs-map.md", "shipglows_data/technical/blacksmith.md", "skills/references/canonical-paths.md", "shipglows_data/business/project-competitors-and-inspirations.md", "shipglows_data/business/affiliate-programs.md", "skills/references/app-blueprints.md", "skills/app-blueprints/README.md"]
 depends_on: []
 supersedes: []
-evidence: ["Repository structure and active context docs", "shipglows_data/editorial/content-map.md added as the content routing artifact", "Canonical path resolution added for ShipGlows-owned tools and references", "Technical documentation layer added for code-proximate agent routing", "Blacksmith CI/SSH Access routing added for APK build and log debugging.", "Business registries added for project competitors/inspirations and affiliate programs.", "App blueprints system added: app-blueprints.md contract, flutter-crud-content blueprint from ContentGlowz, Blueprint Gate in 001-sg-build."]
+evidence: ["Repository structure and active context docs", "shipglows_data/editorial/content-map.md added as the content routing artifact", "Canonical path resolution added for ShipGlows-owned tools and references", "Technical documentation layer added for code-proximate agent routing", "Blacksmith CI/SSH Access routing added for APK build and log debugging.", "Business registries added for project competitors/inspirations and affiliate programs.", "App blueprints system added: app-blueprints.md contract, flutter-crud-content blueprint from ContentGlowz, Blueprint Gate in 001-sg-build.", "Operator decision 2026-08-14: two-tier mutation approval keeps explicit consent while reducing ceremony for exact local routine reversible actions."]
 next_step: "/sg-docs update AGENT.md"
 ---
 
@@ -77,7 +77,7 @@ Ce fichier est le point d'entree rapide pour un agent qui arrive dans le repo. I
 
 ## Rules
 
-- Avant toute mutation intentionnelle, lire `skills/references/mutation-plan-approval.md`, présenter `🧭 PLAN À VALIDER`, puis attendre une approbation explicite donnée après ce plan. La demande initiale ne vaut pas approbation.
+- Avant toute mutation intentionnelle, lire `skills/references/mutation-plan-approval.md`, utiliser `🧭 VALIDATION RAPIDE` uniquement si tous ses critères cumulatifs sont établis, sinon présenter `🧭 PLAN À VALIDER`, puis attendre une approbation explicite donnée après le message. La demande initiale ne vaut pas approbation; `git push` reste toujours soumis au plan complet.
 - Ne pas lire tout le repo avant d'identifier la zone utile.
 - Sur hote Linux ARM64 (`aarch64`/`arm64`), ne pas lancer de build Android release local: pas de `flutter build apk --release`, `flutter build appbundle --release`, `./gradlew assembleRelease` ou `./gradlew bundleRelease`; router les APK/AAB vers Blacksmith ou une CI Linux x64. Localement, limiter Flutter a `flutter analyze`, `flutter test` et `flutter build web --release`.
 - Utiliser `shipglows_data/technical/context.md` comme index, pas comme verite absolue.

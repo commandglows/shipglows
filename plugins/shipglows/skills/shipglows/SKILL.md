@@ -24,7 +24,7 @@ Use it when the operator wants to:
 
 Default to read-only analysis unless the operator explicitly asks to edit, install, update, or publish a plugin or skill.
 
-Before any intentional mutation, present `🧭 PLAN À VALIDER` with Objective, Scope, Actions, and Proofs, then wait for explicit approval given after that plan. The initial request is not approval; a material scope change requires a replacement plan and approval.
+Before any intentional mutation, obtain explicit approval given after the approval message. Use a one- or two-sentence `🧭 VALIDATION RAPIDE` naming the exact action, exact target, and main safety guarantee only when the request is explicit and unambiguous, the target is resolved, and the action is local-only, routine, readily reversible, and cannot overwrite, discard, delete, force, publish, deploy, message, change credentials/permissions, or affect unrelated changes. Otherwise present `🧭 PLAN À VALIDER` with Objective, Scope, Actions, Proofs, and contextual choices. The initial request is not approval; a material scope change requires a newly appropriate fast validation or replacement full plan. `git push` always uses the full plan, and force push retains stricter gates.
 
 This plugin is the distribution nucleus. It must not assume that the full private ShipGlows source tree exists on the user's machine.
 

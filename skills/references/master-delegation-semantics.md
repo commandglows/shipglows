@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.10.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: active
 source_skill: 001-sg-build
 scope: master-delegation-semantics
@@ -48,6 +48,7 @@ evidence:
   - "OpenAI latest-model migration guidance checked 2026-08-07: choose model and reasoning independently, verify runtime availability, and promote routing defaults only with representative evidence."
   - "Operator correction 2026-08-07: delegation must be the observable default; use safe read-only parallelism whenever independent investigation benefits from it."
   - "Operator decision 2026-08-07: read-only work parallelizes by default through a selected no-write matrix; concurrent writes require predeclared non-overlapping Execution Batches."
+  - "Operator decision 2026-08-14: delegated writes retain explicit post-message consent through the selected cumulative fast-validation or full-plan path."
 next_review: "2026-11-07"
 next_step: "/103-sg-verify master delegation semantics"
 ---
@@ -86,7 +87,7 @@ Delegation to one sequential subagent is not parallelism. It is the normal way a
 
 When subagents are available, the default topology is `read-only parallel` for two or more independent no-write scopes and `delegated sequential` for mutations, dependent stages, validation that can change state, closure, or ship. Parallel writes require ready non-overlapping `Execution Batches`.
 
-Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out, but never for mutation. Every write mission still requires the explicit post-plan approval in `skills/references/mutation-plan-approval.md`. Ask again when the next action changes material scope, risk, data, permissions, destructive behavior, staging, closure, ship semantics, or introduces parallel writes not already authorized by ready `Execution Batches`.
+Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out, but never for mutation. Every write mission still requires explicit post-message approval through the fast-validation or full-plan path selected by `skills/references/mutation-plan-approval.md`. Ask again when the next action changes material scope, risk, data, permissions, destructive behavior, staging, closure, ship semantics, or introduces parallel writes not already authorized by ready `Execution Batches`.
 
 In `delegated sequential` mode, use one bounded subagent at a time. A small scope may use a mini-contract, but small scope is not an exception to delegation. If file work or validation is needed and subagents are available, the master should delegate instead of doing routine diffs or patches in the master conversation.
 

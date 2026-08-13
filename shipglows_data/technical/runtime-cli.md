@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -66,6 +66,7 @@ evidence:
   - "Project-local .shipglows.env settings pin runtime ports and can disable automatic restart recovery."
   - "The project runtime policy file now has a closed, data-only schema so unknown settings fail loudly instead of silently restoring defaults."
   - "Native Windows exposes one static global development-environment file and one CLI-managed server URL file per project."
+  - "Native Windows installed agent instructions now expose two-tier mutation approval with a cumulative fast path and full-plan-only remote push."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit runtime-cli"
 ---
@@ -230,8 +231,11 @@ The Windows full installer writes `%USERPROFILE%\.shipglows\environment.md`.
 It records the stable host facts: Windows, PowerShell, Codex CLI installation,
 Playwright configuration and the native ShipGlows DevServer. The installer also
 maintains a bounded `~/.codex/AGENTS.md` block that points agents to this file
-without wrapping the Codex command. That block also enforces the universal
-post-plan approval rule before intentional mutations.
+without wrapping the Codex command. That block also enforces explicit
+post-message approval before intentional mutations: a one- or two-sentence fast
+validation is available only for exact local routine readily reversible actions
+that satisfy every no-harm criterion; other actions use the full plan, and
+`git push` is always full-plan-only.
 
 For each registered project, the Windows CLI maintains a bounded ShipGlows block
 inside the visible, versioned `<project-root>\ENVIRONMENT.md`. It preserves any

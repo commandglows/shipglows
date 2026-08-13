@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: active
 source_skill: 102-sg-start
 scope: canonical-path-resolution
@@ -24,6 +24,7 @@ evidence:
   - "Repeated failures showed that project cwd and ShipGlows installation ownership must remain distinct."
   - "Governance decisions require one project-root shipglows_data corpus, with documented standalone exceptions."
   - "The 2026-08-11 runtime layout standardizes Linux and Windows installs under ~/.shipglows/runtime."
+  - "Operator decision 2026-08-14: mutation consent selects a cumulative fast-validation or full-plan path after canonical targets are resolved."
 next_review: "2026-09-03"
 next_step: "/103-sg-verify canonical path policy"
 ---
@@ -32,7 +33,7 @@ next_step: "/103-sg-verify canonical path policy"
 
 Resolve paths by ownership, never by filename coincidence or the current working directory.
 
-Before any intentional mutation, load `skills/references/mutation-plan-approval.md` from the resolved ShipGlows root and satisfy its explicit post-plan approval gate. Read-only path resolution and inspection may precede that approval.
+Before any intentional mutation, load `skills/references/mutation-plan-approval.md` from the resolved ShipGlows root and satisfy its explicit post-message approval gate through the selected fast-validation or full-plan path. Read-only path resolution and inspection may precede that approval.
 
 ## Mandatory Roots
 

@@ -33,7 +33,7 @@ Before handing off an explicit skill name or numeric skill command, load `$SHIPG
 
 ## Atomic Direct-Execution Gate
 
-Before any direct or routed mutation, load `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. No mutation, including a deterministic micro-edit, starts until the compact plan has received explicit post-plan approval.
+Before any direct or routed mutation, load `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. No mutation, including a deterministic micro-edit, starts until its fast validation or full plan has received explicit post-message approval. Use `🧭 VALIDATION RAPIDE` only when every cumulative local, routine, exact, readily reversible, and no-harm criterion is established; otherwise use `🧭 PLAN À VALIDER`.
 
 Before loading routing, topology, or owner-skill references, keep the request in direct main-thread execution when the user supplied one explicit deterministic edit, the target is known or discoverable with one focused lookup, no domain judgment or sensitive boundary is involved, and focused validation is sufficient. Typical cases are an exact string or placeholder replacement, a typo, one formatting token, or one `h1` to `h2` change.
 

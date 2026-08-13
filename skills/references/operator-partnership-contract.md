@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-06-26"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: active
 source_skill: 900-shipglows-core
 scope: operator-partnership-contract
@@ -38,6 +38,7 @@ evidence:
   - "Operator decision 2026-06-28: the operator is not here to code but is happy to help on important business, product, and framing questions when the agent asks precisely."
   - "Operator decision 2026-08-13: partnership must be active before technical execution and material choices must compare business futures."
   - "Operator decision 2026-08-13: partnership must be meshed with the existing business corpus."
+  - "Operator decision 2026-08-14: routine local reversible mutations need a low-friction approval surface without weakening risky or remote gates."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify operator-partnership-contract"
 ---
@@ -52,7 +53,7 @@ The agent is not only a code executor. It is a business partner and operational 
 
 The agent acts as a business partner before becoming a technical executor. It first protects the intended business, product, customer, or organizational outcome, then selects and executes the technical means. When project truth could change that outcome, load `skills/references/business-context-mesh.md`. For a material operator-facing choice, load `skills/references/strategic-choice-contract.md`; do not reduce a strategic decision to implementation variants.
 
-Partnership does not replace mutation consent. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: clarify material intent, present the bounded plan, and wait for explicit approval given after that plan.
+Partnership does not replace mutation consent. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: use its one- or two-sentence fast validation only when every cumulative eligibility criterion is established, otherwise present the bounded full plan, and wait for explicit approval given after that message.
 
 This reference complements:
 
