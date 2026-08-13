@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.3.0"
+artifact_version: "0.4.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-09"
+updated: "2026-08-13"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -16,7 +16,7 @@ docs_impact: "yes"
 linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/shipglows_devserver_gum.sh", "cli/shipglows_devserver_bash.sh", "cli/config.sh", "cli/install.sh", "cli/windows/ShipGlows.DevServer.psm1", "cli/windows/shipglows-devserver.ps1", "cli/windows/install-devserver.ps1", "local/local.sh", "local/dev-tunnel.sh"]
 depends_on: []
 supersedes: []
-evidence: ["Function extraction from shipglows.sh, lib.sh, config.sh, install.sh, local/local.sh, local/dev-tunnel.sh", "Blacksmith setup menu helpers added to lib.sh", "Blacksmith OAuth callback tunnel added to local tooling", "Blacksmith SSH Access guide added to the setup menu", "Codex MCP on-demand launcher added to lib.sh", "Grouped root menu and submenu wrappers added to menu frontends", "Root menu shortcuts aligned with visible menu labels", "Disk overview helpers added to the Health Check monitor", "Agent history and cache cleanup helpers added", "PM2 log cleanup/rotation and disk usage detail helpers added", "Turso setup menu helpers added to lib.sh", "Clerk CLI OAuth callback tunnel added to local tooling", "Local tunnel auth flows grouped under one authentication submenu", "Password-to-key promotion helpers and local menu flow added with independent key-only verification", "Lazy atomic environment registry and parent-shell cache APIs added on 2026-07-17"]
+evidence: ["Function extraction from shipglows.sh, lib.sh, config.sh, install.sh, local/local.sh, local/dev-tunnel.sh", "Blacksmith setup menu helpers added to lib.sh", "Blacksmith OAuth callback tunnel added to local tooling", "Blacksmith SSH Access guide added to the setup menu", "Codex MCP on-demand launcher added to lib.sh", "Grouped root menu and submenu wrappers added to menu frontends", "Root menu shortcuts aligned with visible menu labels", "Disk overview helpers added to the Health Check monitor", "Agent history and cache cleanup helpers added", "PM2 log cleanup/rotation and disk usage detail helpers added", "Turso setup menu helpers added to lib.sh", "Clerk CLI OAuth callback tunnel added to local tooling", "Local tunnel auth flows grouped under one authentication submenu", "Password-to-key promotion helpers and local menu flow added with independent key-only verification", "Lazy atomic environment registry and parent-shell cache APIs added on 2026-07-17", "Linux Flox environment-root and launch-path resolution added on 2026-08-13"]
 next_step: "/sg-docs update CONTEXT-FUNCTION-TREE.md"
 ---
 
@@ -383,15 +383,22 @@ Flutter Web interactive dev
   -> action_flutter_web
 
 environment discovery
+  -> flox_launch_target_is_supported
+  -> flox_path_crosses_nested_environment
+  -> resolve_flox_launch_path_into
   -> scan_flox_projects
   -> ensure_registry
      -> registry_sync (bounded lock, validated temporary file, atomic replace)
+     -> registry_is_current (legacy four-field migration gate)
   -> registry_update
   -> environment_index_load
   -> environment_names_load
   -> environment_identifiers_load
+  -> resolve_project_paths_into (environment root + application launch path)
   -> resolve_project_path_into
+  -> resolve_project_launch_path_into
   -> resolve_project_path (compatibility stdout wrapper)
+  -> resolve_environment_pm2_name_into (bounded legacy PM2 identity migration)
   -> list_all_environments (compatibility stdout wrapper)
   -> list_all_environment_identifiers (compatibility stdout wrapper)
   -> select_environment
@@ -523,8 +530,8 @@ Si tu dois modifier l'installation :
 
 ## Hotspots
 
-- `env_start`: plus gros noeud fonctionnel pour lancement, detection, port, PM2, Flox et refresh Caddy utilisateur.
-- `scan_flox_projects` / `ensure_registry` / `environment_index_load`: chemin critique des listes d'environnement; il doit rester lazy, atomique et sans descente sous `.flox`.
+- `env_start`: plus gros noeud fonctionnel pour lancement, detection, port, PM2, Flox et refresh Caddy utilisateur; PM2 travaille depuis le chemin de lancement tandis que Flox s'active depuis la racine d'environnement.
+- `resolve_flox_launch_path_into` / `scan_flox_projects` / `ensure_registry` / `environment_index_load`: chemin critique des listes d'environnement; il doit rester lazy, atomique, refuser les applications ambiguës et respecter les frontières `.flox` imbriquées.
 - `show_dashboard`: vue centrale d'etat et aggregation PM2.
 - `deploy_github_project`: flux de deploy distant depuis GitHub.
 - `action_publish`: publication Caddy + DuckDNS.

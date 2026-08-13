@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.10.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-08-09"
+updated: "2026-08-13"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -82,6 +82,7 @@ The repo is not split into small services. It is centered around shell-based orc
 
 - Runtime control lives in shell/PowerShell orchestration and external tools rather than in a long-running application server.
 - On Linux, process truth lives in PM2, environment isolation in Flox, and optional public exposure in Caddy/DuckDNS.
+- A Linux Flox environment root and its application launch path are distinct runtime identities. Nested Flox roots own their subtrees; ambiguous sibling applications are never selected implicitly.
 - On Windows, process truth lives in a user-local atomic JSON registry plus revalidated process identity; Node/pnpm, uv, and Flutter own project runtimes, and services bind only to localhost.
 - Windows `.cmd` entrypoints own profile-independent command resolution; Linux-only server components are not emulated.
 - Workflow governance lives in Markdown artifacts, skills, and metadata validation.
@@ -107,6 +108,7 @@ The repo is not split into small services. It is centered around shell-based orc
 ## Data And State
 
 - PM2 state is cached locally for responsiveness and must be invalidated after mutations.
+- The Linux environment registry records `environment_root` and `launch_path`; PM2 uses the latter as its working directory while Flox activates from the former.
 - Secrets and connection state are stored separately from the main workflow docs.
 - Decision state is carried in versioned Markdown artifacts, not in operational trackers.
 

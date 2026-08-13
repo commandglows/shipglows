@@ -18,6 +18,16 @@ export SHIPGLOWS_STRICT_MODE=false
 export SHIPGLOWS_LOGGING_ENABLED=false
 export SHIPGLOWS_LOGGING_ENABLED=false
 
+FAKE_BIN="$TEST_ROOT/bin"
+mkdir -p "$FAKE_BIN"
+cat > "$FAKE_BIN/python3" <<'EOF'
+#!/bin/bash
+# PM2 JSON inspection is outside this focused ecosystem-generation test.
+exit 0
+EOF
+chmod +x "$FAKE_BIN/python3"
+export PATH="$FAKE_BIN:$PATH"
+
 source "$REPO_ROOT/cli/lib.sh"
 trap - ERR 2>/dev/null || true
 
@@ -33,7 +43,15 @@ assert_eq() {
 # Keep this regression focused on ecosystem generation; PM2 lifecycle and
 # discovery behavior are covered by their dedicated test suites.
 validate_project_path() { return 0; }
-resolve_project_path_into() { printf -v "$1" '%s' "$2"; }
+resolve_project_paths_into() {
+    if [ -n "${nested_root:-}" ] && [ "$3" = "$nested_root" ]; then
+        printf -v "$1" '%s' "$nested_root"
+        printf -v "$2" '%s' "$nested_launch"
+    else
+        printf -v "$1" '%s' "$3"
+        printf -v "$2" '%s' "$3"
+    fi
+}
 derive_pm2_app_name() { printf 'runtime-app\n'; }
 detect_project_type() { printf 'python:fastapi\n'; }
 detect_dev_command() { printf './venv/bin/python main.py\n'; }
@@ -66,7 +84,7 @@ EOF
 should_enable_doppler() { return 1; }
 env_start "$project_dir" >/dev/null
 runtime_args="$(node -e "const app = require(process.argv[1]).apps[0]; process.stdout.write(app.args[1]);" "$project_dir/ecosystem.config.cjs")"
-printf '%s' "$runtime_args" | grep -Fq 'export PORT=41000 && flox activate -- bash -lc' \
+printf '%s' "$runtime_args" | grep -Fq "export PORT=41000 && flox activate --dir '$project_dir' -- bash -lc" \
     || fail "project runtime settings pin the generated PM2 port"
 printf '%s' "$runtime_args" | grep -Fq './venv/bin/python main.py' \
     || fail "non-Expo runtime preserves the detected command"
@@ -92,9 +110,23 @@ EOF
 SHIPGLOWS_ENV_PORT=45000
 env_start "$project_dir" >/dev/null
 runtime_args="$(node -e "const app = require(process.argv[1]).apps[0]; process.stdout.write(app.args[1]);" "$project_dir/ecosystem.config.cjs")"
-printf '%s' "$runtime_args" | grep -Fq 'export PORT=45000 && flox activate -- bash -lc' \
+printf '%s' "$runtime_args" | grep -Fq "export PORT=45000 && flox activate --dir '$project_dir' -- bash -lc" \
     || fail "an explicit environment port overrides the persisted PM2 port"
 unset SHIPGLOWS_ENV_PORT
+
+# A parent Flox environment activates from its own root while PM2 and the
+# application command run from the resolved nested launch path.
+nested_root="$TEST_ROOT/gocharbon"
+nested_launch="$nested_root/site"
+mkdir -p "$nested_root/.flox" "$nested_launch/venv/bin"
+: > "$nested_launch/venv/bin/python"
+should_enable_doppler() { return 1; }
+env_start "$nested_root" >/dev/null
+nested_cwd="$(node -e "const app = require(process.argv[1]).apps[0]; process.stdout.write(app.cwd);" "$nested_launch/ecosystem.config.cjs")"
+nested_args="$(node -e "const app = require(process.argv[1]).apps[0]; process.stdout.write(app.args[1]);" "$nested_launch/ecosystem.config.cjs")"
+assert_eq "$nested_cwd" "$nested_launch" "PM2 uses the nested launch path as cwd"
+printf '%s' "$nested_args" | grep -Fq "flox activate --dir '$nested_root' -- bash -lc" \
+    || fail "nested runtime activates the parent Flox environment explicitly"
 
 rm -f "$project_dir/ecosystem.config.cjs" "$project_dir/.shipglows.env"
 should_enable_doppler() { return 0; }
@@ -109,8 +141,10 @@ case "$runtime_args" in
     "doppler run -- bash -lc "*) ;;
     *) fail "Doppler remains the outer runtime wrapper ($runtime_args)" ;;
 esac
-printf '%s' "$runtime_args" | grep -Fq 'export PORT=3000 && flox activate -- bash -lc' \
+printf '%s' "$runtime_args" | grep -Fq 'export PORT=3000 && flox activate --dir' \
     || fail "Doppler launch preserves the Flox runtime command"
+printf '%s' "$runtime_args" | grep -Fq "$project_dir" \
+    || fail "Doppler launch preserves the explicit Flox environment root"
 
 project_runtime_settings_load "$project_dir" test_port test_auto_repair
 assert_eq "$test_auto_repair" "true" "auto-repair defaults to enabled when no project settings file exists"

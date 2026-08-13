@@ -4062,8 +4062,86 @@ _shipglows_assign() {
     printf -v "$__sgdv_assign_target" '%s' "$__sgdv_assign_value"
 }
 
-# Emit one canonical name|path pair for every Flox project. The matched .flox
-# directory is pruned so its package/cache internals are never traversed.
+# Return whether a directory contains a supported application launch target.
+# Run command detection in a subshell because several legacy detectors change
+# their working directory while inspecting manifests.
+flox_launch_target_is_supported() {
+    local launch_path="$1" command=""
+    [ -d "$launch_path" ] || return 1
+    if [ ! -f "$launch_path/package.json" ] && \
+       [ ! -f "$launch_path/requirements.txt" ] && \
+       [ ! -f "$launch_path/pyproject.toml" ] && \
+       [ ! -f "$launch_path/Cargo.toml" ] && \
+       [ ! -f "$launch_path/go.mod" ] && \
+       [ ! -f "$launch_path/pubspec.yaml" ]; then
+        return 1
+    fi
+    command=$(detect_dev_command "$launch_path" 2>/dev/null || true)
+    [ -n "$command" ] && [ "$command" != "echo 'No dev command detected'" ]
+}
+
+# A nested Flox root owns its entire subtree. Parent environments must not
+# claim launch targets from that independently managed environment.
+flox_path_crosses_nested_environment() {
+    local environment_root="${1%/}" candidate="${2%/}" cursor="$candidate"
+    while [ "$cursor" != "$environment_root" ] && [ "$cursor" != "/" ]; do
+        [ -d "$cursor/.flox" ] && return 0
+        cursor=$(dirname "$cursor")
+    done
+    return 1
+}
+
+# Resolve the one application launched inside a Flox environment. Direct
+# applications win. Otherwise exactly one nested native launch target is
+# required; ambiguity is reported and never resolved alphabetically.
+resolve_flox_launch_path_into() {
+    local target="$1" environment_root="${2%/}" candidate_file="" manifest="" candidate=""
+    [ -d "$environment_root/.flox" ] || return 1
+
+    if flox_launch_target_is_supported "$environment_root"; then
+        _shipglows_assign "$target" "$environment_root"
+        return $?
+    fi
+
+    candidate_file=$(mktemp "${TMPDIR:-/tmp}/shipglows-flox-launch.XXXXXX" 2>/dev/null) || return 1
+    register_temp_file "$candidate_file"
+    if ! find "$environment_root" -mindepth 2 -maxdepth 5 \
+        \( -name "node_modules" -o -name ".git" -o -name "venv" -o -name ".venv" \
+           -o -name "__pycache__" -o -name "target" -o -name ".next" -o -name ".nuxt" \
+           -o -name "dist" -o -name ".cache" -o -name ".pnpm" -o -name ".yarn" \) -prune \
+        -o -type f \( -name "package.json" -o -name "requirements.txt" -o -name "pyproject.toml" \
+           -o -name "Cargo.toml" -o -name "go.mod" -o -name "pubspec.yaml" \) -print0 \
+        > "$candidate_file" 2>/dev/null; then
+        rm -f "$candidate_file" 2>/dev/null || true
+        return 1
+    fi
+
+    local candidates=()
+    declare -A seen_candidates=()
+    while IFS= read -r -d '' manifest; do
+        candidate=$(dirname "$manifest")
+        [ -z "${seen_candidates[$candidate]+x}" ] || continue
+        seen_candidates["$candidate"]=1
+        flox_path_crosses_nested_environment "$environment_root" "$candidate" && continue
+        flox_launch_target_is_supported "$candidate" || continue
+        candidates+=("$candidate")
+    done < "$candidate_file"
+    rm -f "$candidate_file" 2>/dev/null || true
+
+    if [ "${#candidates[@]}" -eq 1 ]; then
+        _shipglows_assign "$target" "${candidates[0]}"
+        return $?
+    fi
+    if [ "${#candidates[@]}" -gt 1 ]; then
+        log ERROR "Ambiguous Flox environment $environment_root: multiple launch targets (${candidates[*]})"
+        return 2
+    fi
+    log WARNING "Skipping Flox environment without a supported launch target: $environment_root"
+    return 1
+}
+
+# Emit one canonical name|environment_root|launch_path record for every Flox
+# environment that resolves to exactly one native application.
 scan_flox_projects() {
     [ -d "$PROJECTS_DIR" ] || return 0
 
@@ -4080,18 +4158,24 @@ scan_flox_projects() {
         return 1
     fi
 
-    local flox_dir project_dir name
+    local flox_dir environment_root launch_path name resolve_rc
     declare -A seen_names=()
     while IFS= read -r -d '' flox_dir; do
-        project_dir="${flox_dir%/.flox}"
-        [ -d "$project_dir/.flox" ] || continue
-        case "$project_dir" in
+        environment_root="${flox_dir%/.flox}"
+        [ -d "$environment_root/.flox" ] || continue
+        launch_path=""
+        resolve_flox_launch_path_into launch_path "$environment_root" || {
+            resolve_rc=$?
+            [ "$resolve_rc" -eq 2 ] && log ERROR "Register an explicit application boundary before starting $environment_root"
+            continue
+        }
+        case "$environment_root$launch_path" in
             *'|'*|*$'\n'*)
                 log WARNING "Skipping Flox project with unsupported registry path"
                 continue
                 ;;
         esac
-        name=$(derive_pm2_app_name "$project_dir") || continue
+        name=$(derive_pm2_app_name "$launch_path") || continue
         case "$name" in
             ''|*'|'*|*$'\n'*) continue ;;
         esac
@@ -4100,7 +4184,7 @@ scan_flox_projects() {
             continue
         fi
         seen_names[$name]=1
-        printf '%s|%s\n' "$name" "$project_dir"
+        printf '%s|%s|%s\n' "$name" "$environment_root" "$launch_path"
     done < "$scan_file"
 
     rm -f "$scan_file" 2>/dev/null || true
@@ -4110,13 +4194,25 @@ registry_is_valid() {
     local file="${1:-$SHIPGLOWS_REGISTRY}"
     [ -f "$file" ] || return 1
 
-    local name status port path extra
-    while IFS='|' read -r name status port path extra || [ -n "$name$status$port$path$extra" ]; do
+    local name status port environment_root launch_path extra
+    while IFS='|' read -r name status port environment_root launch_path extra || [ -n "$name$status$port$environment_root$launch_path$extra" ]; do
         [ -n "$name" ] || return 1
         [ -z "$extra" ] || return 1
-        [[ "$path" == /* ]] || return 1
-        [ -d "$path/.flox" ] || return 1
-        case "$name$status$port$path" in *$'\n'*) return 1 ;; esac
+        [[ "$environment_root" == /* ]] || return 1
+        [ -d "$environment_root/.flox" ] || return 1
+        [ -n "$launch_path" ] || launch_path="$environment_root"
+        [[ "$launch_path" == /* ]] && [ -d "$launch_path" ] || return 1
+        case "$launch_path" in "$environment_root"|"$environment_root"/*) ;; *) return 1 ;; esac
+        case "$name$status$port$environment_root$launch_path" in *$'\n'*) return 1 ;; esac
+    done < "$file"
+    return 0
+}
+
+registry_is_current() {
+    local file="${1:-$SHIPGLOWS_REGISTRY}" name status port environment_root launch_path extra
+    registry_is_valid "$file" || return 1
+    while IFS='|' read -r name status port environment_root launch_path extra || [ -n "$name$status$port$environment_root$launch_path$extra" ]; do
+        [ -n "$launch_path" ] && [ -z "$extra" ] || return 1
     done < "$file"
     return 0
 }
@@ -4199,16 +4295,17 @@ invalidate_registry_cache() {
 }
 
 ensure_registry() {
-    local registry_valid=false
+    local registry_valid=false registry_current=false
     registry_is_valid "$SHIPGLOWS_REGISTRY" && registry_valid=true
+    registry_is_current "$SHIPGLOWS_REGISTRY" && registry_current=true
 
     local stale=true now mtime=0 ttl="$SHIPGLOWS_REGISTRY_CACHE_TTL"
     [[ "$ttl" =~ ^[0-9]+$ ]] || ttl=300
     now=$(date +%s)
-    if [ "$SHIPGLOWS_REGISTRY_SYNCED" = "true" ] && [ "$registry_valid" = "true" ] && [ ! -e "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" ] && [ $((now - SHIPGLOWS_REGISTRY_CHECKED_AT)) -lt "$ttl" ]; then
+    if [ "$SHIPGLOWS_REGISTRY_SYNCED" = "true" ] && [ "$registry_valid" = "true" ] && [ "$registry_current" = "true" ] && [ ! -e "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" ] && [ $((now - SHIPGLOWS_REGISTRY_CHECKED_AT)) -lt "$ttl" ]; then
         return 0
     fi
-    if [ "$registry_valid" = "true" ] && [ ! -e "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" ]; then
+    if [ "$registry_valid" = "true" ] && [ "$registry_current" = "true" ] && [ ! -e "$SHIPGLOWS_REGISTRY_INVALIDATED_FILE" ]; then
         mtime=$(stat -c %Y "$SHIPGLOWS_REGISTRY" 2>/dev/null || printf '0')
         if [ $((now - mtime)) -lt "$ttl" ]; then
             stale=false
@@ -4266,51 +4363,55 @@ registry_sync() {
     local pm2_available=true
     pm2_data_load pm2_data 2>/dev/null || pm2_available=false
 
-    declare -A paths=() path_to_name=() previous_status=() previous_port=() seen=() seen_paths=()
-    local name path status port cwd extra
-    while IFS='|' read -r name path extra; do
-        [ -n "$name" ] && [ -n "$path" ] && [ -z "$extra" ] || continue
-        paths[$name]="$path"
-        path_to_name["$path"]="$name"
+    declare -A environment_roots=() launch_paths=() environment_to_name=() launch_to_name=()
+    declare -A previous_status=() previous_port=() previous_status_by_environment=() previous_port_by_environment=()
+    declare -A seen=() seen_environments=()
+    local name environment_root launch_path status port cwd extra canonical_name
+    while IFS='|' read -r name environment_root launch_path extra; do
+        [ -n "$name" ] && [ -n "$environment_root" ] && [ -n "$launch_path" ] && [ -z "$extra" ] || continue
+        environment_roots[$name]="$environment_root"
+        launch_paths[$name]="$launch_path"
+        environment_to_name["$environment_root"]="$name"
+        launch_to_name["$launch_path"]="$name"
     done < "$discovery_file"
 
     if registry_is_valid "$SHIPGLOWS_REGISTRY"; then
-        while IFS='|' read -r name status port path; do
+        while IFS='|' read -r name status port environment_root launch_path extra; do
             previous_status[$name]="$status"
             previous_port[$name]="$port"
+            previous_status_by_environment[$environment_root]="$status"
+            previous_port_by_environment[$environment_root]="$port"
         done < "$SHIPGLOWS_REGISTRY"
     fi
 
     if [ "$pm2_available" = "true" ]; then
         while IFS='|' read -r name status port cwd extra; do
             [ -n "$name" ] && [ -z "$extra" ] || continue
-            path="${paths[$name]:-}"
-            if [ -n "$cwd" ] && [ -d "$cwd/.flox" ]; then
-                path="$cwd"
+            canonical_name="$name"
+            if [ -n "$cwd" ]; then
+                canonical_name="${launch_to_name[$cwd]:-${environment_to_name[$cwd]:-$name}}"
             fi
-            [ -n "$path" ] && [ -d "$path/.flox" ] || continue
-            case "$name$status$port$path" in *'|'*|*$'\n'*) continue ;; esac
-
-            if [ -n "${path_to_name[$path]:-}" ]; then
-                canonical_name="${path_to_name[$path]}"
-                if [ "$canonical_name" != "$name" ]; then
-                    name="$canonical_name"
-                fi
+            if [ -n "${environment_roots[$canonical_name]:-}" ]; then
+                name="$canonical_name"
             fi
+            environment_root="${environment_roots[$name]:-}"
+            launch_path="${launch_paths[$name]:-}"
+            [ -n "$environment_root" ] && [ -d "$environment_root/.flox" ] && [ -d "$launch_path" ] || continue
+            case "$name$status$port$environment_root$launch_path" in *'|'*|*$'\n'*) continue ;; esac
 
-            if [ -n "${seen_paths[$path]:-}" ]; then
+            if [ -n "${seen_environments[$environment_root]:-}" ]; then
                 continue
             fi
-            seen_paths["$path"]="$name"
+            seen_environments["$environment_root"]="$name"
 
-            printf '%s|%s|%s|%s\n' "$name" "${status:-unknown}" "$port" "$path" >> "$snapshot_file"
+            printf '%s|%s|%s|%s|%s\n' "$name" "${status:-unknown}" "$port" "$environment_root" "$launch_path" >> "$snapshot_file"
             seen["$name"]=1
         done <<< "$pm2_data"
     fi
 
-    while IFS='|' read -r name path extra; do
-        [ -n "$name" ] && [ -n "$path" ] && [ -z "$extra" ] || continue
-        if [ -n "${seen_paths[$path]:-}" ]; then
+    while IFS='|' read -r name environment_root launch_path extra; do
+        [ -n "$name" ] && [ -n "$environment_root" ] && [ -n "$launch_path" ] && [ -z "$extra" ] || continue
+        if [ -n "${seen_environments[$environment_root]:-}" ]; then
             continue
         fi
         status="stopped"
@@ -4318,8 +4419,11 @@ registry_sync() {
         if [ "$pm2_available" = "false" ] && [ -n "${previous_status[$name]+x}" ]; then
             status="${previous_status[$name]}"
             port="${previous_port[$name]:-}"
+        elif [ "$pm2_available" = "false" ] && [ -n "${previous_status_by_environment[$environment_root]+x}" ]; then
+            status="${previous_status_by_environment[$environment_root]}"
+            port="${previous_port_by_environment[$environment_root]:-}"
         fi
-        printf '%s|%s|%s|%s\n' "$name" "$status" "$port" "$path" >> "$snapshot_file"
+        printf '%s|%s|%s|%s|%s\n' "$name" "$status" "$port" "$environment_root" "$launch_path" >> "$snapshot_file"
     done < "$discovery_file"
 
     if ! registry_is_valid "$snapshot_file"; then
@@ -4345,14 +4449,14 @@ registry_sync() {
 }
 
 registry_update() {
-    local target_name="$1" target_status="$2" target_port="$3" target_path="${4:-}"
-    case "$target_name$target_status$target_port$target_path" in *'|'*|*$'\n'*) return 1 ;; esac
+    local target_name="$1" target_status="$2" target_port="$3" target_environment_root="${4:-}" target_launch_path="${5:-}"
+    case "$target_name$target_status$target_port$target_environment_root$target_launch_path" in *'|'*|*$'\n'*) return 1 ;; esac
     if ! registry_is_valid "$SHIPGLOWS_REGISTRY"; then
         ensure_registry || return 1
     fi
     _registry_acquire_lock || return 1
 
-    local registry_dir tmp_file name status port path
+    local registry_dir tmp_file name status port environment_root launch_path extra
     registry_dir=$(dirname "$SHIPGLOWS_REGISTRY")
     tmp_file=$(mktemp "$registry_dir/.envs.update.XXXXXX" 2>/dev/null) || {
         _registry_release_lock
@@ -4362,23 +4466,32 @@ registry_update() {
     chmod 600 "$tmp_file" 2>/dev/null || true
 
     local updated=false
-    while IFS='|' read -r name status port path; do
+    while IFS='|' read -r name status port environment_root launch_path extra; do
+        [ -n "$launch_path" ] || launch_path="$environment_root"
         if [ "$name" = "$target_name" ]; then
-            [ -n "$target_path" ] || target_path="$path"
-            printf '%s|%s|%s|%s\n' "$target_name" "$target_status" "$target_port" "$target_path" >> "$tmp_file"
+            [ -n "$target_environment_root" ] || target_environment_root="$environment_root"
+            [ -n "$target_launch_path" ] || target_launch_path="$launch_path"
+            printf '%s|%s|%s|%s|%s\n' "$target_name" "$target_status" "$target_port" "$target_environment_root" "$target_launch_path" >> "$tmp_file"
             updated=true
         else
-            printf '%s|%s|%s|%s\n' "$name" "$status" "$port" "$path" >> "$tmp_file"
+            printf '%s|%s|%s|%s|%s\n' "$name" "$status" "$port" "$environment_root" "$launch_path" >> "$tmp_file"
         fi
     done < "$SHIPGLOWS_REGISTRY"
 
     if [ "$updated" = "false" ]; then
-        [ -n "$target_path" ] && [ -d "$target_path/.flox" ] || {
+        [ -n "$target_environment_root" ] && [ -d "$target_environment_root/.flox" ] || {
             rm -f "$tmp_file" 2>/dev/null || true
             _registry_release_lock
             return 1
         }
-        printf '%s|%s|%s|%s\n' "$target_name" "$target_status" "$target_port" "$target_path" >> "$tmp_file"
+        if [ -z "$target_launch_path" ]; then
+            resolve_flox_launch_path_into target_launch_path "$target_environment_root" || {
+                rm -f "$tmp_file" 2>/dev/null || true
+                _registry_release_lock
+                return 1
+            }
+        fi
+        printf '%s|%s|%s|%s|%s\n' "$target_name" "$target_status" "$target_port" "$target_environment_root" "$target_launch_path" >> "$tmp_file"
     fi
 
     if ! registry_is_valid "$tmp_file" || ! mv -f "$tmp_file" "$SHIPGLOWS_REGISTRY" 2>/dev/null; then
@@ -4900,11 +5013,11 @@ get_pm2_status() {
 pm2_status_load() {
     local __sgdv_pm2_status_target="$1"
     local __sgdv_pm2_status_identifier="$2"
-    local __sgdv_pm2_status_project_dir="" __sgdv_pm2_status_env_name=""
+    local __sgdv_pm2_status_project_dir="" __sgdv_pm2_status_root="" __sgdv_pm2_status_env_name=""
     if [[ "$__sgdv_pm2_status_identifier" == /* ]]; then
-        resolve_project_path_into __sgdv_pm2_status_project_dir "$__sgdv_pm2_status_identifier" || __sgdv_pm2_status_project_dir=""
+        resolve_project_paths_into __sgdv_pm2_status_root __sgdv_pm2_status_project_dir "$__sgdv_pm2_status_identifier" || __sgdv_pm2_status_project_dir=""
         [ -n "$__sgdv_pm2_status_project_dir" ] || { _shipglows_assign "$__sgdv_pm2_status_target" "not-found"; return 1; }
-        __sgdv_pm2_status_env_name=$(derive_pm2_app_name "$__sgdv_pm2_status_project_dir")
+        resolve_environment_pm2_name_into __sgdv_pm2_status_env_name "$__sgdv_pm2_status_root" "$__sgdv_pm2_status_project_dir" || return 1
     else
         __sgdv_pm2_status_env_name="$__sgdv_pm2_status_identifier"
     fi
@@ -4940,11 +5053,11 @@ get_port_from_pm2() {
 pm2_port_load() {
     local __sgdv_pm2_port_target="$1"
     local __sgdv_pm2_port_identifier="$2"
-    local __sgdv_pm2_port_project_dir="" __sgdv_pm2_port_env_name=""
+    local __sgdv_pm2_port_project_dir="" __sgdv_pm2_port_root="" __sgdv_pm2_port_env_name=""
     if [[ "$__sgdv_pm2_port_identifier" == /* ]]; then
-        resolve_project_path_into __sgdv_pm2_port_project_dir "$__sgdv_pm2_port_identifier" || __sgdv_pm2_port_project_dir=""
+        resolve_project_paths_into __sgdv_pm2_port_root __sgdv_pm2_port_project_dir "$__sgdv_pm2_port_identifier" || __sgdv_pm2_port_project_dir=""
         [ -n "$__sgdv_pm2_port_project_dir" ] || return 1
-        __sgdv_pm2_port_env_name=$(derive_pm2_app_name "$__sgdv_pm2_port_project_dir")
+        resolve_environment_pm2_name_into __sgdv_pm2_port_env_name "$__sgdv_pm2_port_root" "$__sgdv_pm2_port_project_dir" || return 1
     else
         __sgdv_pm2_port_env_name="$__sgdv_pm2_port_identifier"
     fi
@@ -5034,9 +5147,9 @@ environment_index_load() {
 
 environment_names_load() {
     local __sgdv_env_names_target="$1" __sgdv_env_names_index="" __sgdv_env_names_output=""
-    local __sgdv_env_names_name __sgdv_env_names_status __sgdv_env_names_port __sgdv_env_names_path
+    local __sgdv_env_names_name __sgdv_env_names_status __sgdv_env_names_port __sgdv_env_names_root __sgdv_env_names_launch
     environment_index_load __sgdv_env_names_index || return 1
-    while IFS='|' read -r __sgdv_env_names_name __sgdv_env_names_status __sgdv_env_names_port __sgdv_env_names_path; do
+    while IFS='|' read -r __sgdv_env_names_name __sgdv_env_names_status __sgdv_env_names_port __sgdv_env_names_root __sgdv_env_names_launch; do
         [ -n "$__sgdv_env_names_name" ] || continue
         [ -n "$__sgdv_env_names_output" ] && __sgdv_env_names_output+=$'\n'
         __sgdv_env_names_output+="$__sgdv_env_names_name"
@@ -5046,44 +5159,70 @@ environment_names_load() {
 
 environment_identifiers_load() {
     local __sgdv_env_ids_target="$1" __sgdv_env_ids_index="" __sgdv_env_ids_output=""
-    local __sgdv_env_ids_name __sgdv_env_ids_status __sgdv_env_ids_port __sgdv_env_ids_path
+    local __sgdv_env_ids_name __sgdv_env_ids_status __sgdv_env_ids_port __sgdv_env_ids_root __sgdv_env_ids_launch
     environment_index_load __sgdv_env_ids_index || return 1
     declare -A __sgdv_env_ids_seen=()
-    while IFS='|' read -r __sgdv_env_ids_name __sgdv_env_ids_status __sgdv_env_ids_port __sgdv_env_ids_path; do
+    while IFS='|' read -r __sgdv_env_ids_name __sgdv_env_ids_status __sgdv_env_ids_port __sgdv_env_ids_root __sgdv_env_ids_launch; do
         [ -n "$__sgdv_env_ids_name" ] || continue
+        [ -n "$__sgdv_env_ids_launch" ] || __sgdv_env_ids_launch="$__sgdv_env_ids_root"
         if [ -z "${__sgdv_env_ids_seen[$__sgdv_env_ids_name]+x}" ]; then
             [ -n "$__sgdv_env_ids_output" ] && __sgdv_env_ids_output+=$'\n'
             __sgdv_env_ids_output+="$__sgdv_env_ids_name"
             __sgdv_env_ids_seen[$__sgdv_env_ids_name]=1
         fi
-        if [ -n "$__sgdv_env_ids_path" ] && [ -z "${__sgdv_env_ids_seen[$__sgdv_env_ids_path]+x}" ]; then
+        if [ -n "$__sgdv_env_ids_root" ] && [ -z "${__sgdv_env_ids_seen[$__sgdv_env_ids_root]+x}" ]; then
             [ -n "$__sgdv_env_ids_output" ] && __sgdv_env_ids_output+=$'\n'
-            __sgdv_env_ids_output+="$__sgdv_env_ids_path"
-            __sgdv_env_ids_seen[$__sgdv_env_ids_path]=1
+            __sgdv_env_ids_output+="$__sgdv_env_ids_root"
+            __sgdv_env_ids_seen[$__sgdv_env_ids_root]=1
+        fi
+        if [ -n "$__sgdv_env_ids_launch" ] && [ -z "${__sgdv_env_ids_seen[$__sgdv_env_ids_launch]+x}" ]; then
+            [ -n "$__sgdv_env_ids_output" ] && __sgdv_env_ids_output+=$'\n'
+            __sgdv_env_ids_output+="$__sgdv_env_ids_launch"
+            __sgdv_env_ids_seen[$__sgdv_env_ids_launch]=1
         fi
     done <<< "$__sgdv_env_ids_index"
     _shipglows_assign "$__sgdv_env_ids_target" "$__sgdv_env_ids_output"
 }
 
-resolve_project_path_into() {
-    local __sgdv_resolve_target="$1" __sgdv_resolve_identifier="$2"
-
-    # Case 1: Identifier is already an absolute path to a ShipGlows project.
-    if [[ "$__sgdv_resolve_identifier" == /* && -d "$__sgdv_resolve_identifier/.flox" ]]; then
-        _shipglows_assign "$__sgdv_resolve_target" "$__sgdv_resolve_identifier"
-        return $?
-    fi
-
-    local __sgdv_resolve_index="" __sgdv_resolve_name __sgdv_resolve_status __sgdv_resolve_port __sgdv_resolve_path
+resolve_project_paths_into() {
+    local __sgdv_resolve_root_target="$1" __sgdv_resolve_launch_target="$2" __sgdv_resolve_identifier="$3"
+    local __sgdv_resolve_index="" __sgdv_resolve_name __sgdv_resolve_status __sgdv_resolve_port
+    local __sgdv_resolve_root __sgdv_resolve_launch
     environment_index_load __sgdv_resolve_index || return 1
-    while IFS='|' read -r __sgdv_resolve_name __sgdv_resolve_status __sgdv_resolve_port __sgdv_resolve_path; do
-        if [ "$__sgdv_resolve_name" = "$__sgdv_resolve_identifier" ] || [ "$__sgdv_resolve_path" = "$__sgdv_resolve_identifier" ]; then
-            _shipglows_assign "$__sgdv_resolve_target" "$__sgdv_resolve_path"
+    while IFS='|' read -r __sgdv_resolve_name __sgdv_resolve_status __sgdv_resolve_port __sgdv_resolve_root __sgdv_resolve_launch; do
+        [ -n "$__sgdv_resolve_launch" ] || __sgdv_resolve_launch="$__sgdv_resolve_root"
+        if [ "$__sgdv_resolve_name" = "$__sgdv_resolve_identifier" ] || \
+           [ "$__sgdv_resolve_root" = "$__sgdv_resolve_identifier" ] || \
+           [ "$__sgdv_resolve_launch" = "$__sgdv_resolve_identifier" ]; then
+            _shipglows_assign "$__sgdv_resolve_root_target" "$__sgdv_resolve_root" || return 1
+            _shipglows_assign "$__sgdv_resolve_launch_target" "$__sgdv_resolve_launch"
             return $?
         fi
     done <<< "$__sgdv_resolve_index"
 
+    # A newly created absolute Flox environment can be resolved before the
+    # cached registry refreshes, but it must still have one unambiguous app.
+    if [[ "$__sgdv_resolve_identifier" == /* && -d "$__sgdv_resolve_identifier/.flox" ]]; then
+        __sgdv_resolve_launch=""
+        resolve_flox_launch_path_into __sgdv_resolve_launch "$__sgdv_resolve_identifier" || return 1
+        _shipglows_assign "$__sgdv_resolve_root_target" "$__sgdv_resolve_identifier" || return 1
+        _shipglows_assign "$__sgdv_resolve_launch_target" "$__sgdv_resolve_launch"
+        return $?
+    fi
+
     return 1
+}
+
+resolve_project_path_into() {
+    local target="$1" identifier="$2" environment_root="" launch_path=""
+    resolve_project_paths_into environment_root launch_path "$identifier" || return 1
+    _shipglows_assign "$target" "$environment_root"
+}
+
+resolve_project_launch_path_into() {
+    local target="$1" identifier="$2" environment_root="" launch_path=""
+    resolve_project_paths_into environment_root launch_path "$identifier" || return 1
+    _shipglows_assign "$target" "$launch_path"
 }
 
 # Description:
@@ -5130,6 +5269,30 @@ derive_pm2_app_name() {
             printf '%s\n' "$role"
             ;;
     esac
+}
+
+# Resolve a running PM2 identity during the environment-root/launch-path
+# migration. A legacy root-derived name is accepted only when PM2 confirms the
+# exact old cwd, so an unrelated process with the same basename is untouched.
+resolve_environment_pm2_name_into() {
+    local target="$1" environment_root="$2" launch_path="$3"
+    local canonical_name legacy_name legacy_cwd=""
+    canonical_name=$(derive_pm2_app_name "$launch_path") || return 1
+    if pm2_app_exists_by_name "$canonical_name"; then
+        _shipglows_assign "$target" "$canonical_name"
+        return $?
+    fi
+
+    legacy_name=$(derive_pm2_app_name "$environment_root") || legacy_name=""
+    if [ -n "$legacy_name" ] && [ "$legacy_name" != "$canonical_name" ] && pm2_app_exists_by_name "$legacy_name"; then
+        pm2_app_data_load legacy_cwd "$legacy_name" "cwd" 2>/dev/null || legacy_cwd=""
+        if [ "$legacy_cwd" = "$environment_root" ]; then
+            _shipglows_assign "$target" "$legacy_name"
+            return $?
+        fi
+    fi
+
+    _shipglows_assign "$target" "$canonical_name"
 }
 
 # List all environments (projects with Flox env)
@@ -6381,7 +6544,7 @@ detect_node_framework() {
 # Detect dev command for project
 detect_dev_command() {
     local project_dir=$1
-    local port=$2  # Port à utiliser
+    local port="${2:-}"  # Optional compatibility argument; commands use $PORT.
     local pubspec_kind=""
     
     cd "$project_dir" || return 1
@@ -7027,6 +7190,7 @@ project_runtime_settings_load() {
 # -----------------------------------------------------------------------------
 env_start() {
     local identifier=$1 # Can be env_name or custom_path
+    local environment_root=""
     local project_dir=""
     local env_name=""
     local pm2_config=""
@@ -7048,8 +7212,11 @@ env_start() {
         fi
     fi
 
-    resolve_project_path_into project_dir "$identifier" || project_dir=""
-    if [ -z "$project_dir" ]; then
+    resolve_project_paths_into environment_root project_dir "$identifier" || {
+        environment_root=""
+        project_dir=""
+    }
+    if [ -z "$environment_root" ] || [ -z "$project_dir" ]; then
         error "Projet introuvable pour l'identifiant: $identifier"
         return 1
     fi
@@ -7057,19 +7224,22 @@ env_start() {
     env_name=$(derive_pm2_app_name "$project_dir")
     pm2_config="$project_dir/ecosystem.config.cjs"
 
-    local project_port="" project_auto_repair="true"
-    project_runtime_settings_load "$project_dir" project_port project_auto_repair || return 1
+    local project_port="" project_auto_repair="true" runtime_settings_root="$project_dir"
+    if [ "$environment_root" != "$project_dir" ] && [ ! -f "$project_dir/.shipglows.env" ] && [ -f "$environment_root/.shipglows.env" ]; then
+        runtime_settings_root="$environment_root"
+    fi
+    project_runtime_settings_load "$runtime_settings_root" project_port project_auto_repair || return 1
 
     local project_type
     project_type=$(detect_project_type "$project_dir")
     local project_lang="${project_type%%:*}"
 
     # Check if Flox env exists, create if not
-    if [ ! -d "$project_dir/.flox" ]; then
+    if [ ! -d "$environment_root/.flox" ]; then
         echo -e "${YELLOW}⚠️  Pas d'environnement Flox détecté${NC}"
-        init_flox_env "$project_dir" "$env_name" || return 1
+        init_flox_env "$environment_root" "$env_name" || return 1
     elif [ "$project_lang" = "dart" ] || [ "$project_lang" = "flutter" ]; then
-        init_flox_env "$project_dir" "$env_name" || return 1
+        init_flox_env "$environment_root" "$env_name" || return 1
     fi
 
     # Auto-install node_modules if missing (prevents "binary not found" restarts)
@@ -7089,14 +7259,14 @@ env_start() {
                 [ $pm_choice_status -ne 0 ] && return 1
             fi
             case "$pm_file" in
-                pnpm) flox activate --dir "$project_dir" -- pnpm install 2>&1 | grep -v "Progress:" || true ;;
-                yarn) flox activate --dir "$project_dir" -- yarn install 2>&1 | grep -v "Progress:" || true ;;
+                pnpm) (cd "$project_dir" && flox activate --dir "$environment_root" -- pnpm install) 2>&1 | grep -v "Progress:" || true ;;
+                yarn) (cd "$project_dir" && flox activate --dir "$environment_root" -- yarn install) 2>&1 | grep -v "Progress:" || true ;;
                 *)
                     local npm_output
-                    npm_output=$(flox activate --dir "$project_dir" -- npm install 2>&1)
+                    npm_output=$(cd "$project_dir" && flox activate --dir "$environment_root" -- npm install 2>&1)
                     if echo "$npm_output" | grep -q "ERESOLVE"; then
                         echo -e "${YELLOW}⚠️  Conflit de peer deps, retry avec --legacy-peer-deps...${NC}"
-                        flox activate --dir "$project_dir" -- npm install --legacy-peer-deps 2>&1 | grep -v "npm WARN" || true
+                        (cd "$project_dir" && flox activate --dir "$environment_root" -- npm install --legacy-peer-deps) 2>&1 | grep -v "npm WARN" || true
                     else
                         echo "$npm_output" | grep -v "npm WARN" || true
                     fi
@@ -7110,14 +7280,14 @@ env_start() {
     if [ "$project_lang" = "python" ] && { [ -f "$project_dir/requirements.txt" ] || [ -f "$project_dir/requirements.lock" ]; }; then
         if [ ! -f "$project_dir/venv/bin/python3" ]; then
             echo -e "${YELLOW}⚠️  venv Python manquant, création...${NC}"
-            if flox activate --dir "$project_dir" -- python3 -m venv "$project_dir/venv" 2>/dev/null; then
+            if flox activate --dir "$environment_root" -- python3 -m venv "$project_dir/venv" 2>/dev/null; then
                 local req_file=""
                 [ -f "$project_dir/requirements-dev.lock" ] && req_file="requirements-dev.lock" \
                 || [ -f "$project_dir/requirements.lock" ] && req_file="requirements.lock" \
                 || [ -f "$project_dir/requirements-dev.txt" ] && req_file="requirements-dev.txt" \
                 || [ -f "$project_dir/requirements.txt" ] && req_file="requirements.txt"
                 if [ -n "$req_file" ]; then
-                    flox activate --dir "$project_dir" -- bash -lc "source $project_dir/venv/bin/activate && pip install -r $project_dir/$req_file 2>&1 | tail -3" 2>/dev/null || true
+                    flox activate --dir "$environment_root" -- bash -lc "cd '$project_dir' && source venv/bin/activate && pip install -r '$req_file' 2>&1 | tail -3" 2>/dev/null || true
                 fi
                 echo -e "${GREEN}✅ Venv Python créé et dépendances installées${NC}"
             else
@@ -7187,6 +7357,20 @@ env_start() {
     local is_expo=false
     if [[ "$dev_cmd" == *"expo start"* ]]; then
         is_expo=true
+    fi
+
+    # Migrate an exact legacy PM2 process whose identity came from the Flox
+    # root. It must be removed before port reuse is evaluated, otherwise the
+    # same environment could be relaunched as a duplicate on another port.
+    local existing_pm2_name=""
+    resolve_environment_pm2_name_into existing_pm2_name "$environment_root" "$project_dir" || existing_pm2_name="$env_name"
+    if [ "$existing_pm2_name" != "$env_name" ]; then
+        warning "Migration PM2: $existing_pm2_name -> $env_name"
+        pm2 delete "$existing_pm2_name" >/dev/null 2>&1 || {
+            error "Impossible de remplacer l'ancien processus PM2 $existing_pm2_name"
+            return 1
+        }
+        invalidate_after_pm2_mutation
     fi
 
     local port=""
@@ -7314,9 +7498,10 @@ env_start() {
     local final_cmd="${dev_cmd//\$PORT/$port}"
     local runtime_cmd="$final_cmd"
     if [ "$is_expo" = "false" ]; then
-        local escaped_final_cmd
+        local escaped_final_cmd escaped_environment_root
         escaped_final_cmd=$(escape_single_quotes_for_bash "$final_cmd")
-        runtime_cmd="export PORT=$port && flox activate -- bash -lc '$escaped_final_cmd'"
+        escaped_environment_root=$(escape_single_quotes_for_bash "$environment_root")
+        runtime_cmd="export PORT=$port && flox activate --dir '$escaped_environment_root' -- bash -lc '$escaped_final_cmd'"
     fi
     local escaped_runtime_cmd
     escaped_runtime_cmd=$(escape_single_quotes_for_bash "$runtime_cmd")
@@ -7480,7 +7665,7 @@ for app in apps:
                 ;;
         esac
     fi
-    registry_update "$env_name" "online" "$port" "$project_dir"
+    registry_update "$env_name" "online" "$port" "$environment_root" "$project_dir"
 }
 
 # -----------------------------------------------------------------------------
@@ -7512,12 +7697,17 @@ env_stop() {
         return 1
     fi
 
-    local project_dir=""
-    resolve_project_path_into project_dir "$identifier" || project_dir=""
+    local environment_root="" project_dir=""
+    resolve_project_paths_into environment_root project_dir "$identifier" || {
+        environment_root=""
+        project_dir=""
+    }
     local pm2_app_name=""
+    local canonical_pm2_name=""
 
     if [ -n "$project_dir" ]; then
-        pm2_app_name=$(derive_pm2_app_name "$project_dir")
+        canonical_pm2_name=$(derive_pm2_app_name "$project_dir")
+        resolve_environment_pm2_name_into pm2_app_name "$environment_root" "$project_dir" || pm2_app_name="$canonical_pm2_name"
     elif pm2_app_exists_by_name "$identifier"; then
         pm2_app_name="$identifier"
         warning "Projet $identifier introuvable sur disque; arrêt de l'entrée PM2 orpheline."
@@ -7531,7 +7721,7 @@ env_stop() {
     if [ "$stop_rc" -eq 0 ]; then
         sync_caddy_after_pm2_change
     fi
-    registry_update "$pm2_app_name" "stopped" ""
+    registry_update "${canonical_pm2_name:-$pm2_app_name}" "stopped" ""
     return "$stop_rc"
 }
 
@@ -7925,8 +8115,11 @@ env_remove() {
         return 1
     fi
 
-    local project_dir=""
-    resolve_project_path_into project_dir "$identifier" || project_dir=""
+    local project_dir="" launch_path=""
+    resolve_project_paths_into project_dir launch_path "$identifier" || {
+        project_dir=""
+        launch_path=""
+    }
 
     if [ -z "$project_dir" ]; then
         warning "Projet $identifier introuvable ou chemin invalide. Impossible de supprimer."
@@ -7934,7 +8127,7 @@ env_remove() {
     fi
 
     local env_name
-    env_name=$(derive_pm2_app_name "$project_dir")
+    env_name=$(derive_pm2_app_name "$launch_path")
 
     # Stop interactive Flutter sessions before removing their working tree.
     stop_flutter_web_sessions_for_project "$project_dir" || return 1
@@ -8035,14 +8228,19 @@ env_rename() {
         return 1
     fi
 
-    local old_dir=""
-    resolve_project_path_into old_dir "$old_identifier" || old_dir=""
+    local old_dir="" old_launch_path=""
+    resolve_project_paths_into old_dir old_launch_path "$old_identifier" || {
+        old_dir=""
+        old_launch_path=""
+    }
     if [ -z "$old_dir" ]; then
         warning "Projet $old_identifier introuvable ou chemin invalide."
         return 1
     fi
 
     local old_name=$(basename "$old_dir")
+    local old_pm2_name
+    old_pm2_name=$(derive_pm2_app_name "$old_launch_path")
     local parent_dir=$(dirname "$old_dir")
     local new_dir="$parent_dir/$new_name"
 
@@ -8071,8 +8269,8 @@ env_rename() {
     log INFO "Renaming environment: $old_name -> $new_name"
 
     # 1. Stop & delete PM2 process (idempotent)
-    pm2 delete "$old_name" 2>/dev/null && {
-        echo -e "${YELLOW}🛑 Process PM2 $old_name supprimé${NC}"
+    pm2 delete "$old_pm2_name" 2>/dev/null && {
+        echo -e "${YELLOW}🛑 Process PM2 $old_pm2_name supprimé${NC}"
     }
     invalidate_after_pm2_mutation
 
@@ -8704,7 +8902,7 @@ show_dashboard() {
     local unhealthy_names=""
     local idle_names=""
     local online_names=()
-    while IFS='|' read -r name status port path; do
+    while IFS='|' read -r name status port path launch_path; do
         [ -z "$name" ] && continue
         ((count++))
         env_names+=("$name")
@@ -8959,18 +9157,32 @@ env_restart() {
     fi
 
     # Resolve project directory
-    local project_dir=""
-    resolve_project_path_into project_dir "$identifier" || project_dir=""
-    if [ -z "$project_dir" ]; then
+    local environment_root="" project_dir=""
+    resolve_project_paths_into environment_root project_dir "$identifier" || {
+        environment_root=""
+        project_dir=""
+    }
+    if [ -z "$environment_root" ] || [ -z "$project_dir" ]; then
         error "Environment not found: $identifier"
         return 1
     fi
 
-    local project_port="" auto_repair="true"
-    project_runtime_settings_load "$project_dir" project_port auto_repair || return 1
+    local project_port="" auto_repair="true" runtime_settings_root="$project_dir"
+    if [ "$environment_root" != "$project_dir" ] && [ ! -f "$project_dir/.shipglows.env" ] && [ -f "$environment_root/.shipglows.env" ]; then
+        runtime_settings_root="$environment_root"
+    fi
+    project_runtime_settings_load "$runtime_settings_root" project_port auto_repair || return 1
 
     local env_name
     env_name=$(derive_pm2_app_name "$project_dir")
+
+    local existing_pm2_name=""
+    resolve_environment_pm2_name_into existing_pm2_name "$environment_root" "$project_dir" || existing_pm2_name="$env_name"
+    if [ "$existing_pm2_name" != "$env_name" ]; then
+        warning "Migration PM2 requise avant redémarrage: $existing_pm2_name -> $env_name"
+        env_start "$environment_root"
+        return $?
+    fi
 
     echo -e "${BLUE}🔄 Restarting environment: $env_name${NC}"
     log INFO "Restarting environment: $env_name"
@@ -8982,7 +9194,7 @@ env_restart() {
     if [ "$status" = "not_found" ]; then
         warning "Environment $env_name not running in PM2"
         echo -e "${YELLOW}Starting instead...${NC}"
-        if env_start "$project_dir"; then
+        if env_start "$environment_root"; then
             return 0
         fi
         offer_codex_environment_repair "$project_dir" "$env_name" "l'environnement n'est pas enregistré dans PM2 ou son démarrage a échoué" || true
@@ -9127,15 +9339,18 @@ view_environment_logs() {
     fi
 
     # Resolve project directory
-    local project_dir=""
-    resolve_project_path_into project_dir "$identifier" || project_dir=""
-    if [ -z "$project_dir" ]; then
+    local environment_root="" project_dir=""
+    resolve_project_paths_into environment_root project_dir "$identifier" || {
+        environment_root=""
+        project_dir=""
+    }
+    if [ -z "$environment_root" ] || [ -z "$project_dir" ]; then
         error "Environment not found: $identifier"
         return 1
     fi
 
     local env_name
-    env_name=$(derive_pm2_app_name "$project_dir")
+    resolve_environment_pm2_name_into env_name "$environment_root" "$project_dir" || env_name=$(derive_pm2_app_name "$project_dir")
 
     # Check if environment exists in PM2
     local status=""
@@ -10073,7 +10288,7 @@ action_inspector() {
     ui_screen_header "Toggle Web Inspector"
     ENV_NAME=$(select_environment "Select environment for web inspector")
     if [ -n "$ENV_NAME" ]; then
-        resolve_project_path_into PROJECT_DIR "$ENV_NAME" || PROJECT_DIR=""
+        resolve_project_launch_path_into PROJECT_DIR "$ENV_NAME" || PROJECT_DIR=""
         if [ -z "$PROJECT_DIR" ]; then
             echo -e "${RED}❌ Project not found: $ENV_NAME${NC}"
         else
@@ -10791,7 +11006,7 @@ blacksmith_select_project_path() {
         "Environnement ShipGlows déployé")
             local env_name
             env_name=$(select_environment "Sélectionne l'environnement projet") || return 1
-            resolve_project_path_into project_dir "$env_name" 2>/dev/null || project_dir=""
+            resolve_project_launch_path_into project_dir "$env_name" 2>/dev/null || project_dir=""
             ;;
         "Chemin personnalisé")
             project_dir=$(ui_input "Chemin projet absolu:" "$PROJECTS_DIR/my-project")

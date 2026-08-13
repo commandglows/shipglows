@@ -42,6 +42,9 @@ CADDY_EVENTS="$TEST_ROOT/caddy-events"
 FLOX_EVENTS="$TEST_ROOT/flox-events"
 FAKE_BIN="$TEST_ROOT/bin"
 mkdir -p "$PROJECT_DIR/.flox" "$FAKE_BIN" "$TMUX_STATE"
+cat > "$PROJECT_DIR/package.json" <<'EOF'
+{"scripts":{"dev":"vite"},"devDependencies":{"vite":"latest"}}
+EOF
 
 cat > "$FAKE_BIN/pm2" <<'EOF'
 #!/bin/bash
@@ -116,6 +119,9 @@ grep -q '^delete --force --dir=' "$FLOX_EVENTS" || fail "Flox environment was no
 
 PROJECT_DIR="$SHIPGLOWS_PROJECTS_DIR/manual-server"
 mkdir -p "$PROJECT_DIR/.flox" "$PROJECT_DIR/nested"
+cat > "$PROJECT_DIR/package.json" <<'EOF'
+{"scripts":{"dev":"vite"},"devDependencies":{"vite":"latest"}}
+EOF
 
 (
     cd "$PROJECT_DIR/nested"
@@ -162,6 +168,9 @@ NON_LISTENER_PID=""
 
 PROJECT_DIR="$SHIPGLOWS_PROJECTS_DIR/blocked-server"
 mkdir -p "$PROJECT_DIR/.flox"
+cat > "$PROJECT_DIR/package.json" <<'EOF'
+{"scripts":{"dev":"vite"},"devDependencies":{"vite":"latest"}}
+EOF
 printf '%s|%s|%s|%s\n' "blocked-server" "unknown" "" "$PROJECT_DIR" >> "$SHIPGLOWS_REGISTRY"
 (
     cd "$PROJECT_DIR"

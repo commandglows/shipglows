@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.9.0"
+artifact_version: "0.10.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-09"
+updated: "2026-08-13"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -16,7 +16,7 @@ docs_impact: "yes"
 linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/config.sh", "cli/install.sh", "cli/windows/", "install-shipglows.ps1", "local/local.sh", "skills/", "skills/references/app-blueprints.md", "skills/app-blueprints/", "shipglows_data/workflow/playbooks/spec-driven-workflow.md", "shipglows_data/technical/context-function-tree.md", "shipglows_data/editorial/content-map.md", "shipglows_data/technical/", "shipglows_data/business/project-competitors-and-inspirations.md", "shipglows_data/business/affiliate-programs.md"]
 depends_on: []
 supersedes: []
-evidence: ["README.md", "CLAUDE.md", "shipglows_data/editorial/content-map.md", function extraction from core shell scripts, "shipglows_data/technical/* as code-proximate subsystem documentation", "Business registries added for project competitors/inspirations and affiliate programs.", "2026-07-17 DevServer startup/cache implementation: lazy atomic registry, pruned Flox discovery, parent-shell cache APIs.", "Métier-first public hierarchy and autonomous execution specification."]
+evidence: ["README.md", "CLAUDE.md", "shipglows_data/editorial/content-map.md", function extraction from core shell scripts, "shipglows_data/technical/* as code-proximate subsystem documentation", "Business registries added for project competitors/inspirations and affiliate programs.", "2026-07-17 DevServer startup/cache implementation: lazy atomic registry, pruned Flox discovery, parent-shell cache APIs.", "2026-08-13 Linux Flox environment-root and launch-path separation with registry and PM2 migration coverage.", "Métier-first public hierarchy and autonomous execution specification."]
 next_step: "/sg-docs update shipglows_data/technical/context.md"
 ---
 
@@ -202,7 +202,8 @@ launcher active uniquement les MCP demandes pour la nouvelle session.
 
 - PM2 est la source d'etat d'execution. Le cache PM2 doit etre invalide apres mutation.
 - Le sourcing de `cli/lib.sh` reste paresseux : aucun `pm2 jlist`, `registry_sync` ou scan Flox avant qu'une action en ait besoin.
-- `scan_flox_projects` est l'unique proprietaire de la decouverte Flox et prune chaque `.flox` trouve; `ensure_registry` fournit ensuite l'index noms/paths persistant.
+- `scan_flox_projects` est l'unique proprietaire de la decouverte Flox. Chaque `.flox` definit une racine d'environnement distincte de son chemin de lancement; les sous-arbres possedant leur propre `.flox` restent independants et les applications ambiguës sont refusees.
+- `ensure_registry` fournit l'index persistant `name|status|port|environment_root|launch_path` et migre atomiquement les anciennes lignes a quatre champs.
 - Les caches qui doivent survivre entre deux appels utilisent les APIs a variable de destination dans le shell parent; les wrappers stdout restent des surfaces de compatibilite.
 - Le registre environnement est ecrit par fichier temporaire voisin + validation + `mv` atomique, avec verrou borne et conservation du dernier snapshot valide.
 - Caddy local est gere par ShipGlows en mode utilisateur et suit l'etat PM2:
@@ -232,7 +233,7 @@ launcher active uniquement les MCP demandes pour la nouvelle session.
 ## Hotspots
 
 - `lib.sh::env_start`: plus gros noeud fonctionnel.
-- `lib.sh::scan_flox_projects`, `ensure_registry`, `environment_index_load`: chemin critique paresseux pour les selecteurs d'environnement.
+- `lib.sh::resolve_flox_launch_path_into`, `scan_flox_projects`, `ensure_registry`, `environment_index_load`: chemin critique paresseux pour les selecteurs d'environnement et les frontieres Flox.
 - `lib.sh::env_start` et `init_flox_env`: auto-install Node avec guidage package manager quand `npm` est detecte, et chemin de migration pnpm optionnel.
 - `lib.sh::show_dashboard`: aggregation d'etat.
 - `lib.sh::deploy_github_project`: deploy depuis GitHub.
@@ -257,7 +258,7 @@ launcher active uniquement les MCP demandes pour la nouvelle session.
 - Changer les regles metadata : `skills/300-sg-docs/SKILL.md`, `tools/shipglows_metadata_lint.py`, `shipglows_data/technical/metadata-migration-guide.md`, `templates/`.
 - Changer la documentation technique proche du code : `shipglows_data/technical/code-docs-map.md` puis le doc primaire dans `shipglows_data/technical/`.
 - Changer l'UI shell (sélecteurs, menus, headers) : `cli/lib.sh` autour des primitives `ui_choose`, `ui_filter_choose`, `ui_text_center`, `ui_list_filter`, `ui_traffic_color`.
-- Changer la decouverte ou les caches DevServer : `cli/lib.sh` autour de `scan_flox_projects`, `ensure_registry`, `pm2_data_load`, `environment_index_load` et `invalidate_after_pm2_mutation`.
+- Changer la decouverte, les frontieres Flox ou les caches DevServer : `cli/lib.sh` autour de `resolve_flox_launch_path_into`, `scan_flox_projects`, `ensure_registry`, `resolve_project_paths_into`, `pm2_data_load`, `environment_index_load` et `invalidate_after_pm2_mutation`.
 - Changer la TUI (dashboard, filtres, tri, statuts) : `tui/src/statusMaps.ts` (mappings partagés), `tui/src/sources/` (lecture/parsing), `tui/src/viewModels/dashboard.ts` (logique de vue), `tui/src/views/dashboardView.ts` (rendu).
 - Changer la cartographie editoriale, les destinations de contenu ou les cocons semantiques : `shipglows_data/editorial/content-map.md`, puis `shipglows-site/src/pages/docs.astro` ou les surfaces concernees.
 - Changer le positionnement, l'audience ou le scope produit : `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/branding/branding.md`.

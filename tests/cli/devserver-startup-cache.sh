@@ -27,6 +27,12 @@ export SHIPGLOWS_REGISTRY_EMPTY_LOCK_GRACE_SECONDS=1
 
 mkdir -p "$SHIPGLOWS_PROJECTS_DIR/app-one/.flox/deep/internal/.flox" \
     "$SHIPGLOWS_PROJECTS_DIR/group/app/.flox/cache"
+cat > "$SHIPGLOWS_PROJECTS_DIR/app-one/package.json" <<'EOF'
+{"scripts":{"dev":"vite"},"devDependencies":{"vite":"latest"}}
+EOF
+cat > "$SHIPGLOWS_PROJECTS_DIR/group/app/package.json" <<'EOF'
+{"scripts":{"dev":"vite"},"devDependencies":{"vite":"latest"}}
+EOF
 
 FAKE_BIN="$TEST_ROOT/bin"
 PM2_COUNT_FILE="$TEST_ROOT/pm2-count"
@@ -40,7 +46,20 @@ if [ "${1:-}" = "jlist" ]; then
     printf '%s\n' '[{"name":"group_app","pm2_env":{"status":"online","env":{"PORT":"3042"},"pm_cwd":"'"$SHIPGLOWS_PROJECTS_DIR"'/group/app"}}]'
 fi
 EOF
-chmod +x "$FAKE_BIN/pm2"
+cat > "$FAKE_BIN/jq" <<'EOF'
+#!/bin/bash
+node -e '
+let body = "";
+process.stdin.on("data", chunk => body += chunk);
+process.stdin.on("end", () => {
+  for (const app of JSON.parse(body)) {
+    const env = app.pm2_env || {};
+    process.stdout.write(`${app.name}|${env.status || "unknown"}|${(env.env || {}).PORT || ""}|${env.pm_cwd || ""}\n`);
+  }
+});
+'
+EOF
+chmod +x "$FAKE_BIN/pm2" "$FAKE_BIN/jq"
 export PM2_COUNT_FILE
 export PATH="$FAKE_BIN:$PATH"
 
@@ -61,11 +80,14 @@ assert_eq() {
 assert_eq "0" "$(cat "$PM2_COUNT_FILE")" "lib source does not fetch PM2"
 [ ! -e "$SHIPGLOWS_REGISTRY" ] || fail "lib source does not create the registry"
 
-# A discovered .flox is emitted once and its internal descendants are pruned.
+# A discovered .flox is emitted once with separate environment and launch
+# paths, and its internal descendants are pruned.
 scan_output="$(scan_flox_projects)"
 assert_eq "2" "$(printf '%s\n' "$scan_output" | grep -c .)" "scanner returns two projects"
 assert_eq "1" "$(printf '%s\n' "$scan_output" | grep -c '^app-one|')" "scanner prunes nested .flox"
 printf '%s\n' "$scan_output" | grep -q '^group_app|' || fail "scanner preserves derived PM2 names"
+printf '%s\n' "$scan_output" | grep -q "^group_app|$SHIPGLOWS_PROJECTS_DIR/group/app|$SHIPGLOWS_PROJECTS_DIR/group/app$" \
+    || fail "direct Flox projects record identical environment and launch paths"
 
 # Destination-variable PM2 reads share one parent-shell snapshot.
 invalidate_pm2_cache
@@ -121,7 +143,10 @@ assert_eq "2" "$(cat "$PM2_COUNT_FILE")" "PM2 mutation invalidates the snapshot"
 # Registry creation is atomic and becomes the shared name/path index.
 registry_sync
 [ -f "$SHIPGLOWS_REGISTRY" ] || fail "registry_sync creates a registry"
-assert_eq "600" "$(stat -c '%a' "$SHIPGLOWS_REGISTRY")" "registry permissions"
+case "$(uname -s)" in
+    MINGW*|MSYS*) ;;
+    *) assert_eq "600" "$(stat -c '%a' "$SHIPGLOWS_REGISTRY")" "registry permissions" ;;
+esac
 environment_names_load names_one
 environment_names_load names_two
 assert_eq "$names_one" "$names_two" "environment snapshot is reused"
@@ -159,7 +184,10 @@ assert_eq "$all_envs" "$(list_all_stop_targets)" "stop targets compatibility wra
 mkdir -p "$SHIPGLOWS_PROJECTS_DIR/external/.flox"
 external_registry="$SHIPGLOWS_STATE_DIR/external.reg"
 cp "$SHIPGLOWS_REGISTRY" "$external_registry"
-printf '%s\n' "external|stopped||$SHIPGLOWS_PROJECTS_DIR/external" >> "$external_registry"
+cat > "$SHIPGLOWS_PROJECTS_DIR/external/package.json" <<'EOF'
+{"scripts":{"dev":"vite"},"devDependencies":{"vite":"latest"}}
+EOF
+printf '%s\n' "external|stopped||$SHIPGLOWS_PROJECTS_DIR/external|$SHIPGLOWS_PROJECTS_DIR/external" >> "$external_registry"
 chmod 600 "$external_registry"
 mv "$external_registry" "$SHIPGLOWS_REGISTRY"
 environment_names_load names_after_external_update

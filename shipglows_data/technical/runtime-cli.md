@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-13"
@@ -61,6 +61,7 @@ evidence:
   - "Turso guided setup added under Agents with local tunnel login routing and schema-check commands."
   - "Completed disk cleanup now offers x as an explicit return to the root menu."
   - "Non-Expo PM2 launch commands activate the project Flox environment at runtime; Doppler remains the outer wrapper when enabled."
+  - "Linux Flox discovery now records environment_root and launch_path separately, respects nested Flox boundaries, migrates the legacy registry idempotently, and rejects ambiguous launch targets."
   - "SHIPGLOWS_ENV_PORT can explicitly replace a persisted PM2 port and refuses collisions."
   - "Project-local .shipglows.env settings pin runtime ports and can disable automatic restart recovery."
   - "The project runtime policy file now has a closed, data-only schema so unknown settings fail loudly instead of silently restoring defaults."
@@ -143,6 +144,31 @@ ShipGlows preserves the existing owner and reports the conflict.
   session identity block inside the same top frame.
 - `cli/lib.sh::ui_screen_header`: prints consistent subcommand screen headers from
   one title plus an optional variant such as `danger` or `success`.
+
+## Linux Flox environment boundaries
+
+The Linux backend treats each directory containing `.flox` as an environment
+root, but no longer assumes that it is also the application working directory.
+Discovery resolves one native application from `package.json`, `pubspec.yaml`,
+`pyproject.toml`, `requirements.txt`, `Cargo.toml`, or `go.mod`. A direct
+application wins; otherwise exactly one nested launch target is required.
+
+A nested directory containing its own `.flox` is an independent environment
+boundary. Its subtree is excluded from its parent's launch-target search. If a
+parent environment contains several remaining launchable applications,
+ShipGlows reports the ambiguity and does not register or start one
+alphabetically.
+
+The Linux registry stores five fields:
+
+`name|status|port|environment_root|launch_path`
+
+Four-field legacy entries remain readable long enough to preserve a
+last-known-good snapshot. The next registry synchronization migrates them
+atomically and idempotently. PM2 runs with `cwd=launch_path`; dependency and
+application commands run from that directory; `flox activate --dir` always
+receives `environment_root`. Destructive environment operations continue to
+target the environment root, never only the nested application directory.
 
 ## Native Windows DevServer
 

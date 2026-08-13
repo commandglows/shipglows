@@ -25,6 +25,11 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
 
+## [2026-08-13]
+
+### Fixed
+- Separated Linux Flox environment roots from application launch paths. Nested Flox environments now own their subtrees, legacy registry rows migrate atomically to the five-field mapping, PM2 runs from the application directory, and ambiguous application boundaries fail explicitly instead of being guessed.
+
 ## [2026-08-12]
 
 ### Changed
