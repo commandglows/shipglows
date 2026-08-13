@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.2.2"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: reviewed
 source_skill: sg-start
 scope: editorial-update-gate
@@ -35,8 +35,10 @@ evidence:
   - "Wave 19 canonicalized exact dependency paths against the current repository resource graph."
   - "Ready spec defines Editorial Update Plan, Claim Impact Plan, and pending final copy rules."
   - "Positioning decision SG-BIZ-2026-08-13-01 requires propagation from canonical governance to the external public site."
+  - "Product-boundary decision SG-BIZ-2026-08-14-01 confirms autonomous software, no service offer, and no current Cockpit SaaS promise."
+  - "commandglows/shipglows_app PR #6 merged on 2026-08-14 and production routes on shipglows.com returned the approved EN/FR positioning."
 next_review: "2026-09-13"
-next_step: "Apply and verify the active SG-BIZ-2026-08-13-01 editorial update plan in the external site repository"
+next_step: "Monitor product-led adoption evidence and prevent service-led or premature Cockpit claims from re-entering public surfaces"
 ---
 
 # Editorial Update Gate
@@ -83,18 +85,19 @@ Run the gate when a workstream changes or verifies any of these:
 
 When a sensitive claim is affected, add the plan from `docs/editorial/claim-register.md`. The claim plan can stand alone or attach to an Editorial Update Plan item.
 
-## Active Editorial Update Plan: SG-BIZ-2026-08-13-01
+## Completed Editorial Update Plan: SG-BIZ-2026-08-13-01 + SG-BIZ-2026-08-14-01
 
-- Changed source: confirmed positioning decision `SG-BIZ-2026-08-13-01` and business/product/GTM/brand contracts reviewed on 2026-08-13.
-- Impacted surfaces: external EN/FR landing, about, docs overview, FAQ, pitch, skills discovery, and any shared homepage components carrying equal-pillar or server-first positioning.
-- Source of truth: `shipglows_data/business/business.md` 1.3.0, `product.md` 1.3.0, `gtm.md` 1.3.0, and `shipglows_data/branding/branding.md` 1.2.0.
-- Required action: lead with the business-aware delivery partnership; show governed truth, métier outcome ownership, bounded chantiers, and proof before environment operations.
-- Claim boundary: environment/runtime capability remains valid supporting evidence; do not promise correct business advice, unattended delivery, market success, growth, revenue, conversion, or guaranteed outcomes.
-- Reason: current external surfaces may still express the superseded equal-pillar hierarchy.
+- Changed source: confirmed positioning decision `SG-BIZ-2026-08-13-01`, product-boundary decision `SG-BIZ-2026-08-14-01`, and reviewed business/product/GTM/brand contracts.
+- Impacted surfaces: external EN/FR landing, about, docs overview, FAQ, product-status route, contact, pitch, skills discovery, and shared homepage components.
+- Source of truth: `shipglows_data/business/business.md` 1.4.0, `product.md` 1.4.0, `gtm.md` 1.4.0, and `shipglows_data/branding/branding.md` 1.2.0.
+- Required action: completed. Public copy leads with the business-aware delivery product, shows governed truth, métier outcome ownership, bounded chantiers, and proof before environment operations, and explicitly excludes service offers and current Cockpit availability.
+- Claim boundary: environment/runtime capability remains valid supporting evidence; the partnership is autonomous product behavior; do not promise human services, current Cockpit availability, correct business advice, unattended delivery, market success, growth, revenue, conversion, or guaranteed outcomes.
+- Reason: external surfaces previously expressed the superseded equal-pillar hierarchy and left service/Cockpit interpretation insufficiently bounded.
 - Owner role: public content owner with human review of the final offer hierarchy.
 - Parallel-safe: no for shared landing, navigation, docs overview, FAQ, or claim components.
-- Validation: EN/FR copy parity, claim-register review, targeted stale-positioning search, site build, and rendered landing/docs/FAQ review.
-- Closure status: `pending final copy`; block a positioning-release claim until the external site repository is updated and verified.
+- Validation: EN/FR copy parity; targeted stale-positioning and service-language searches; Astro check and production build; 19 focused route/install tests; local route checks; Vercel checks; human visual approval; production HTTP and semantic checks on landing, FAQ, product-status, and contact routes.
+- Publication evidence: `commandglows/shipglows_app` PR #6, merge commit `6459f0c220f5ca65fe8265fff68f2e7f1aca7aea`, and verified `https://shipglows.com` production routes.
+- Closure status: `complete`.
 
 ## Status Rules
 
