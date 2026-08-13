@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.0.2"
+artifact_version: "2.0.3"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-13"
@@ -30,6 +30,7 @@ depends_on:
 supersedes: []
 evidence:
   - "README installer section and cli/install.sh function inventory."
+  - "The 2026-08-13 runtime documentation audit aligned the active Codex skill scope with ~/.agents/skills and added a check-before-repair Windows diagnostic."
   - "PM2 boot autostart removed from default installer contract."
   - "Turso SSH helper command wrapper added to installer-managed global commands."
   - "Turso remote login helper command wrapper added."
@@ -183,7 +184,7 @@ sudo ./cli/install.sh
   `$SHIPGLOWS_ROOT/cli/shipglows.sh`; they must not be direct symlinks because
   the CLI resolves sibling files from `BASH_SOURCE`. Other helper wrappers may
   point back to scripts in `$SHIPGLOWS_ROOT`; do not duplicate helper logic.
-- ShipGlows skill runtime entries under `~/.claude/skills` and `~/.codex/skills` are symlinks to `$SHIPGLOWS_ROOT/skills/<name>`.
+- ShipGlows skill runtime entries under `~/.claude/skills` for Claude and `~/.agents/skills` for Codex link to `$SHIPGLOWS_ROOT/skills/<name>`. Unix uses symbolic links; native Windows uses directory junctions.
 - Codex MCP registrations should default to `enabled = false`; the user-global
   Playwright browser capability is the explicit exception and stays enabled so
   standalone Codex CLI sessions can use browser proof in every project. Other
@@ -195,6 +196,23 @@ sudo ./cli/install.sh
 - Runtime skill link repair blocks on non-symlink targets by default; installer compatibility may pass `--backup-existing` to move collisions aside explicitly.
 - Installer errors should stop before partial or misleading success.
 - `cli/install.sh` provides Flox/system tooling; Flutter/Dart runtimes are provisioned per project Flox environment unless the operator explicitly uses optional global SDK install.
+
+### Runtime skill visibility diagnostic
+
+On native Windows, diagnose visibility from the ShipGlows source root before changing files or links:
+
+```powershell
+Get-ChildItem Env:SHIPGLOWS_ROOT
+.\tools\shipglows_sync_skills.ps1 -Mode check -All -Runtime all -Catalog public
+```
+
+Interpret the result in this order:
+
+1. `SHIPGLOWS_ROOT` must identify the intended ShipGlows source root, whose `skills/` directory is canonical.
+2. A summary with `blocked=0` and equal `checked=<n>` / `ok=<n>` counts proves the selected filesystem links or junctions are current. Do not run `repair` in that state.
+3. Missing, stale, broken, or blocked entries justify a scoped `-Mode repair`; preserve unrelated directories and non-link collisions unless explicit backup authority exists.
+4. If the links are current but an already-running agent does not list the current public skills, open a new conversation or reload the agent process. Skill discovery is captured by the process/session; restarting Windows does not rewrite the history or injected skill inventory of an existing conversation.
+5. Historical records may mention the former `~/.codex/skills` layout. They are provenance, not the current Codex user-skill location.
 
 ## Failure Modes
 
