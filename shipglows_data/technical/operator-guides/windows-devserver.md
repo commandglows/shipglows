@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -24,7 +24,8 @@ supersedes:
   - local/README_WINDOWS.md
 evidence:
   - "Migrated without content loss from local/README_WINDOWS.md under the canonical documentation governance contract."
-  - "PowerShell reserves gp for Get-ItemProperty; ShipGlows now installs a policy-gated gp profile function and a profile-independent gpush fallback."
+  - "PowerShell reserves gp for Get-ItemProperty; ShipGlows now installs a policy-gated add/commit/push gp profile function and a profile-independent raw gpush fallback."
+  - "The Windows installer writes a static global development environment and the CLI writes one active server URL file per project."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -116,10 +117,49 @@ ne sont pas requis par le parcours Shadow PC.
    KiloCode. `gpush` exécute toujours `git push`. Lorsque la politique
    PowerShell autorise les profils utilisateur, ShipGlows remplace explicitement
    l'alias natif `gp` (`Get-ItemProperty`) par une fonction `gp` qui exécute
-   `git push`; sinon `gpush` reste le raccourci compatible. Une commande
+   `git add -A`, crée un commit, puis pousse. `gp "message"` choisit le message
+   du commit ; `gp` seul génère un message daté. Si une étape échoue, les
+   suivantes ne sont pas lancées. Sinon `gpush` reste le raccourci compatible
+   pour un push brut. Une commande
    préexistante n'est jamais remplacée silencieusement.
    Flox, PM2, Caddy et autossh sont remplacés par les commandes natives et le
-   registre ShipGlows.
+   registre ShipGlows. Le backend Windows ignore entièrement `.flox` : il ne
+   lit ni ses paquets, ni ses variables, ni ses hooks. Il découvre les apps à
+   partir de leurs manifests natifs (`package.json`, `pubspec.yaml`, etc.).
+
+### Vérifier l'environnement et l'URL utilisés par un agent
+
+Le parcours `full` écrit `%USERPROFILE%\.shipglows\environment.md`. Ce fichier
+global statique indique Windows, PowerShell, Codex CLI, Playwright et le
+DevServer natif. Chaque projet enregistré reçoit aussi un fichier visible et
+versionné `<racine-projet>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le port
+attribué et l'URL canonique sans écraser le reste du document. Le registre
+Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
+documentation du projet.
+
+Sous Windows, la priorité de port est : port demandé explicitement, variable
+`SHIPGLOWS_ENV_PORT` du processus, `.shipglows.env` du projet, registre
+persistant, puis premier port libre de `3000` à `3100`. Le numéro obtenu est
+propre au projet. Si ShipGlows lance le projet sur `3002` alors que le dépôt
+déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
+un fallback de lancement direct. `s open` refuse un statut inactif ou un port
+non attribué dans le registre.
+
+L'installateur maintient un bloc borné dans `%USERPROFILE%\.codex\AGENTS.md`,
+sans wrapper Codex ni remplacement de vos autres instructions. Les apps et
+connecteurs ChatGPT ne sont pas des outils Codex CLI. Seuls les outils exposés
+par le tour Codex courant peuvent être appelés.
+
+Pour recadrer un agent en cas de doute, utilisez :
+
+```text
+$shipglows context
+```
+
+Ce mode lit `%USERPROFILE%\.shipglows\environment.md`, le fichier
+`ENVIRONMENT.md` du projet et son état live dans le registre. Il ne lance aucun
+serveur. Si Playwright est configuré mais non exposé dans le tour courant, il
+le signale comme configuré mais non appelable au lieu de dire qu'il est absent.
 
 4. **Ou exécuter le script d'installation depuis une copie existante:**
    ```powershell

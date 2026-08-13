@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.0.1"
+artifact_version: "2.0.2"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-11"
+updated: "2026-08-13"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -46,6 +46,7 @@ evidence:
   - "Native Windows prepares pnpm v11's global bin PATH and explicitly allows only the selected official agent package's install script when npm fallback requires it."
   - "Native Windows places managed .cmd application wrappers before npm-generated .ps1 shims, preserving commands under restrictive execution policy."
   - "Native Windows installs collision-safe .cmd shortcuts for c, co, cor, oc, and kc without depending on the PowerShell profile."
+  - "Native Windows overrides PowerShell's reserved gp alias with a guarded add-all, commit, and push workflow; raw gpush remains available without profiles."
   - "Operator decision 2026-08-11: Linux and Windows converge on ~/.shipglows/runtime, with data and design-inspiration-library as sibling private repositories."
   - "Migration audit 2026-08-11: mutable Caddy state moves from the former ~/.shipglows/runtime/caddy location to ~/.shipglows/state/caddy so it cannot collide with the canonical code checkout."
 next_review: "2026-06-01"
@@ -163,6 +164,12 @@ sudo ./cli/install.sh
   `oc -> opencode`, and `kc -> kilocode` as `.cmd` wrappers that call the
   managed agent commands in the same runtime directory. Existing command
   owners are preserved with a visible warning.
+- PowerShell reserves `gp` as the read-only all-scope `Get-ItemProperty` alias,
+  so the full Git shortcut is installed as a managed current-user profile
+  function when persistent profile policy permits it. It stages all changes,
+  commits with an explicit or generated message, then pushes; every step stops
+  the sequence on failure. `gpush.cmd` remains a profile-independent raw-push
+  fallback on locked hosts.
 - The current user-space agent install path uses `pnpm add -g` inside
   `PNPM_HOME`, so the installer follows the package registry version current at
   install time instead of shipping pinned local binaries. `PNPM_HOME` itself is

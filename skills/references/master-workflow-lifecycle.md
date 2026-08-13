@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-07"
+updated: "2026-08-13"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -75,6 +75,8 @@ It does not redefine delegation, subagent, short-confirmation, or parallelism se
 Before choosing a lifecycle route, model, topology, owner skill, mini-contract, or direct execution path, load `skills/references/decision-quality-contract.md`. The lifecycle must choose bounded professional work, not the fastest or easiest path. Speed, cost, and convenience are tie-breakers only after correctness, security, performance, maintainability, durability, excellence, and evidence are already sufficient for the risk.
 
 Spec-first is the outer lifecycle contract: it defines user story, scope, success/error behavior, dependencies, risks, and source of truth. Proof-first is the implementation discipline: execution must choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` from `skills/references/spec-driven-development-discipline.md` before claiming completion.
+
+Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, present its compact plan, and wait for explicit post-plan approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for that approval.
 
 ## Applies To
 

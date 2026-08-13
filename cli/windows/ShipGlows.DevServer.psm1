@@ -140,26 +140,23 @@ function Get-SgProjectKind([string]$ProjectPath) {
 
 function Get-SgProjectDescriptor([string]$ProjectPath) {
     $root = ConvertTo-SgCanonicalPath $ProjectPath
-    $hasFloxManifest = Test-Path -LiteralPath (Join-Path $root '.flox') -PathType Container
     try {
-        return [pscustomobject]@{ RootPath = $root; LaunchPath = $root; Kind = (Get-SgProjectKind $root); UsesFloxManifest = $hasFloxManifest }
-    } catch {
-        if (-not $hasFloxManifest) { throw }
-    }
+        return [pscustomobject]@{ RootPath = $root; LaunchPath = $root; Kind = (Get-SgProjectKind $root) }
+    } catch { }
 
-    # Flox marks the environment root, while a monorepo's runnable application
-    # may live below it. Prefer the closest supported application so the same
-    # root project remains the operator-facing environment on Windows.
+    # A registered Windows project may be a monorepo whose runnable application
+    # lives below it. Resolve that launch path from supported app manifests only;
+    # the native Windows backend does not interpret another environment manager.
     $candidates = @()
     $queue = New-Object System.Collections.Generic.Queue[object]
     [void]$queue.Enqueue([pscustomobject]@{ Path = $root; Depth = 0 })
-    $pruneDirs = @('.flox', '.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn')
+    $pruneDirs = @('.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn')
     while ($queue.Count -gt 0) {
         $item = $queue.Dequeue()
         if ([int]$item.Depth -gt 0) {
             try {
                 $kind = Get-SgProjectKind ([string]$item.Path)
-                $candidates += [pscustomobject]@{ RootPath = $root; LaunchPath = [string]$item.Path; Kind = $kind; UsesFloxManifest = $true; Depth = [int]$item.Depth }
+                $candidates += [pscustomobject]@{ RootPath = $root; LaunchPath = [string]$item.Path; Kind = $kind; Depth = [int]$item.Depth }
             } catch { }
         }
         if ([int]$item.Depth -ge 3) { continue }
@@ -170,7 +167,7 @@ function Get-SgProjectDescriptor([string]$ProjectPath) {
         }
     }
     $selected = @($candidates | Sort-Object -Property Depth,LaunchPath | Select-Object -First 1)[0]
-    if (-not $selected) { throw "Flox environment found at $root, but no supported Windows launch target was detected below it." }
+    if (-not $selected) { throw "No supported Windows launch target was detected at or below: $root" }
     return $selected
 }
 
@@ -192,24 +189,6 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
         }
     }
     return $settings
-}
-
-function Get-SgFloxVariables([string]$ProjectPath) {
-    $variables = @{}
-    $manifest = Join-Path $ProjectPath '.flox\env\manifest.toml'
-    if (-not (Test-Path -LiteralPath $manifest -PathType Leaf)) { return $variables }
-    $inVars = $false
-    foreach ($rawLine in @(Get-Content -LiteralPath $manifest)) {
-        $line = ([string]$rawLine).Trim()
-        if ($line -match '^\[([^]]+)\]$') { $inVars = $Matches[1] -eq 'vars'; continue }
-        if (-not $inVars -or -not $line -or $line.StartsWith('#')) { continue }
-        if ($line -notmatch '^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*$') { throw "Unsupported [vars] entry in ${manifest}: $line" }
-        $name = $Matches[1]
-        $value = $Matches[2]
-        if (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'"))) { $value = $value.Substring(1, $value.Length - 2) }
-        $variables[$name] = [string]$value
-    }
-    return $variables
 }
 
 function Get-SgFreePort([object]$Config, [int]$RequestedPort = 0, [string]$OwnerPath = '') {
@@ -366,6 +345,97 @@ function Reconcile-SgRegistry([object]$Config) {
     return $registry
 }
 
+function Get-SgProjectEnvironmentPath([string]$ProjectPath) {
+    return Join-Path (ConvertTo-SgCanonicalPath $ProjectPath) 'ENVIRONMENT.md'
+}
+
+function Remove-SgLegacyProjectServerState([string]$ProjectPath) {
+    $root = ConvertTo-SgCanonicalPath $ProjectPath
+    $legacyPath = Join-Path (Join-Path $root '.shipglows') 'server.env'
+    $legacyFileIsUserOwned = $false
+    if (Test-Path -LiteralPath $legacyPath -PathType Leaf) {
+        $legacyContent = [IO.File]::ReadAllText($legacyPath)
+        if ($legacyContent -match '(?m)^# ShipGlows CLI managed\. Do not edit\.\r?$' -and
+            $legacyContent -match '(?m)^SHIPGLOWS_SERVER_MANAGER=shipglows-devserver\r?$') {
+            Remove-Item -LiteralPath $legacyPath -Force
+            $legacyDirectory = Split-Path -Parent $legacyPath
+            if ((Test-Path -LiteralPath $legacyDirectory -PathType Container) -and
+                @(Get-ChildItem -LiteralPath $legacyDirectory -Force).Count -eq 0) {
+                Remove-Item -LiteralPath $legacyDirectory -Force
+            }
+        } else {
+            $legacyFileIsUserOwned = $true
+        }
+    }
+
+    if ($legacyFileIsUserOwned) { return }
+
+    $git = Get-Command git.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $git) { return }
+    $gitPath = (& $git.Source -C $root rev-parse --git-path info/exclude 2>$null | Select-Object -First 1)
+    $repositoryRoot = (& $git.Source -C $root rev-parse --show-toplevel 2>$null | Select-Object -First 1)
+    if ([string]::IsNullOrWhiteSpace($gitPath) -or [string]::IsNullOrWhiteSpace($repositoryRoot)) { return }
+    $excludePath = [string]$gitPath
+    if (-not [IO.Path]::IsPathRooted($excludePath)) { $excludePath = Join-Path $root $excludePath }
+    if (-not (Test-Path -LiteralPath $excludePath -PathType Leaf)) { return }
+    $canonicalRoot = [IO.Path]::GetFullPath($root).TrimEnd('\','/')
+    $canonicalRepository = [IO.Path]::GetFullPath([string]$repositoryRoot).TrimEnd('\','/')
+    $prefix = if ($canonicalRoot.Length -gt $canonicalRepository.Length) { $canonicalRoot.Substring($canonicalRepository.Length).Trim('\','/').Replace('\','/') + '/' } else { '' }
+    $legacyEntry = '/' + $prefix + '.shipglows/server.env'
+    $lines = @(Get-Content -LiteralPath $excludePath)
+    $next = New-Object System.Collections.Generic.List[string]
+    for ($index = 0; $index -lt $lines.Count; $index++) {
+        if ($lines[$index] -eq $legacyEntry) {
+            if ($next.Count -gt 0 -and $next[$next.Count - 1] -eq '# ShipGlows local runtime') { $next.RemoveAt($next.Count - 1) }
+            continue
+        }
+        $next.Add([string]$lines[$index])
+    }
+    if (($next -join "`n") -cne ($lines -join "`n")) {
+        [IO.File]::WriteAllLines($excludePath, @($next), [Text.UTF8Encoding]::new($false))
+    }
+}
+
+function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0) {
+    if ($Port -ne 0 -and ($Port -lt 1024 -or $Port -gt 65535)) { throw 'ShipGlows project port must be 0 or between 1024 and 65535.' }
+    $path = Get-SgProjectEnvironmentPath $ProjectPath
+    $existing = if (Test-Path -LiteralPath $path -PathType Leaf) { [IO.File]::ReadAllText($path) } else { '' }
+    $pattern = '(?ms)^<!-- >>> ShipGlows development environment >>> -->\r?\n.*?^<!-- <<< ShipGlows development environment <<< -->\r?\n?'
+    $portValue = if ($Port -gt 0) { [string]$Port } else { 'pending first ShipGlows start' }
+    $urlValue = if ($Port -gt 0) { "http://127.0.0.1:$Port" } else { 'pending first ShipGlows start' }
+    $block = @'
+<!-- >>> ShipGlows development environment >>> -->
+## ShipGlows development environment
+
+- Server manager: `shipglows-devserver`
+- Assigned port: `{0}`
+- Canonical local URL: `{1}`
+- Live status authority: Windows ShipGlows DevServer registry
+
+Use this assigned URL for local preview, browser, screenshot, and test work. Do not substitute framework defaults such as Astro/Vite `4321` or a port from another project. Read the ShipGlows registry for `running` or `stopped`; this durable document is not rewritten on start or stop.
+<!-- <<< ShipGlows development environment <<< -->
+'@ -f $portValue,$urlValue
+    $remainder = [regex]::Replace($existing, $pattern, '').Trim([char[]]"`r`n")
+    $next = if ($remainder) { "$remainder`n`n$($block.Trim())`n" } else { "$($block.Trim())`n" }
+    if ($next.Replace("`r`n","`n") -cne $existing.Replace("`r`n","`n")) {
+        [IO.File]::WriteAllText($path, $next, [Text.UTF8Encoding]::new($false))
+    }
+    Remove-SgLegacyProjectServerState $ProjectPath
+    return $path
+}
+
+function Get-SgProjectEnvironment([string]$ProjectPath) {
+    $path = Get-SgProjectEnvironmentPath $ProjectPath
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
+    $content = [IO.File]::ReadAllText($path)
+    if ($content -notmatch '(?m)^- Server manager: `shipglows-devserver`\r?$') { return $null }
+    $port = 0
+    if ($content -match '(?m)^- Assigned port: `(\d+)`\r?$') { $port = [int]$Matches[1] }
+    if ($port -ne 0 -and ($port -lt 1024 -or $port -gt 65535)) { throw "Invalid assigned port in $path." }
+    $url = if ($port -gt 0) { "http://127.0.0.1:$port" } else { '' }
+    [pscustomobject]@{ Path=$path; Port=$port; Url=$url; Manager='shipglows-devserver' }
+}
+
 function Register-SgProject([object]$Config, [string]$ProjectPath) {
     $path = ConvertTo-SgCanonicalPath $ProjectPath
     if (-not (Test-SgProjectPath $path $Config.Workspace)) { throw "Project must be inside the ShipGlows workspace: $($Config.Workspace)" }
@@ -382,7 +452,9 @@ function Register-SgProject([object]$Config, [string]$ProjectPath) {
             $existing[0].kind = $kind
         }
     }
-    return @($registry.projects | Where-Object { $_.path -eq $path })[0]
+    $registered = @($registry.projects | Where-Object { $_.path -eq $path })[0]
+    [void](Write-SgProjectEnvironment $path ([int]$registered.port))
+    return $registered
 }
 
 function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0) {
@@ -420,7 +492,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     $kind = $descriptor.Kind
     try { Invoke-SgDependencySetup $launchPath $kind $setupLog; $launch = Get-SgLaunchSpec $launchPath $kind $port }
     catch { $entry.status = 'error'; $entry.lastError = $_.Exception.Message; Invoke-SgRegistryMutation $Config { param($data) $found = @($data.projects | Where-Object { $_.path -eq $entry.path })[0]; if ($found) { $found.status = 'error'; $found.lastError = $entry.lastError } }; throw }
-    $launchEnvironment = Get-SgFloxVariables $entry.path
+    $launchEnvironment = @{}
     $launchEnvironment['PORT'] = [string]$port
     if ($kind -eq 'astro') { $launchEnvironment['ASTRO_DEV_BACKGROUND'] = '0' }
     $previousEnvironment = @{}
@@ -442,6 +514,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     if (-not $snapshot) { throw "Process exited before it could be recorded. See $err" }
     $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $launch.Signature; logPath = $out; errorLogPath = $err; lastError = $null }
     Invoke-SgRegistryMutation $Config { param($data) $data.projects = @($data.projects | Where-Object { $_.path -ne $entry.path }); $data.projects += $entryData }
+    [void](Write-SgProjectEnvironment $entry.path $port)
     Start-Sleep -Seconds 1
     if (-not (Test-SgProcessIdentity $entryData)) { Write-SgWarn "Process exited during startup. See $err"; $entryData.status = 'error'; $entryData.lastError = 'Process exited during startup.'; Invoke-SgRegistryMutation $Config { param($data) $found = @($data.projects | Where-Object { $_.path -eq $entry.path })[0]; if ($found) { $found.status = 'error'; $found.lastError = $entryData.lastError } }; return $entryData }
     $entryData.status = if (Test-SgHttpReady $port) { 'running' } elseif ($launch.Interactive) { 'running' } else { 'starting' }
@@ -488,4 +561,4 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgRuntimeSettings,Get-SgFloxVariables,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,Get-SgFreePort,Rotate-SgLogFile
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,Get-SgFreePort,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState

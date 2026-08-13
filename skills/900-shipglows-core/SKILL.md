@@ -45,7 +45,7 @@ Local packs load directly and never chain.
 
 Load at most one local playbook before the first substantive action. Missing local playbook, target, graph/runtime path, or proof blocks the mode rather than falling back to memory or a retired command.
 
-Conditional authorities: `skill-execution-fidelity.md` for obedience/audit; `skill-instruction-layering.md` for placement; semantic ID `shared:resource-discovery` at `$SHIPGLOWS_ROOT/skills/references/resource-discovery.md` for resolver work; `spec-driven-development-discipline.md` before contract edits; `codex-plugin-packaging.md` for plugin bundles; `$SHIPGLOWS_ROOT/skills/references/windows-bootstrap-development-workflow.md` for Windows bootstrap, installer, runtime-path, migration, wrapper, or self-update work.
+Conditional authorities: `skill-execution-fidelity.md` for obedience/audit; `skill-instruction-layering.md` for placement; semantic ID `shared:resource-discovery` at `$SHIPGLOWS_ROOT/skills/references/resource-discovery.md` for resolver work; `spec-driven-development-discipline.md` before contract edits; `mutation-plan-approval.md` before any intentional mutation; `codex-plugin-packaging.md` for plugin bundles; `$SHIPGLOWS_ROOT/skills/references/windows-bootstrap-development-workflow.md` for Windows bootstrap, installer, runtime-path, migration, wrapper, or self-update work.
 
 ## Scope And System-Improvement Gate
 

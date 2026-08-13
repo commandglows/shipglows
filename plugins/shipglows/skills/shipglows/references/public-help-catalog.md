@@ -12,6 +12,14 @@ Start with one route:
 $shipglows <what I want to accomplish>
 ```
 
+To reload the local development context before server or browser work:
+
+```text
+$shipglows context
+```
+
+This reads the global ShipGlows development environment, the current project's visible `ENVIRONMENT.md`, and its live DevServer registry entry. It reports the exact active URL and distinguishes Playwright configuration from tools callable in the current turn.
+
 | Domain | Public métier | Owns the outcome |
 | --- | --- | --- |
 | Create | `sg-development` | Product behavior from intent to verified implementation |

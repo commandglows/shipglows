@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.13.0"
+artifact_version: "2.14.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-13"
@@ -381,6 +381,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/skill-instruction-layering.md` | Canonical layering contract for `SKILL.md` activation rules vs shared or skill-local references | Load before editing or compacting skills |
 | `skills/<skill>/references/*.md` | Skill-local heavy checklists, mode playbooks, and report matrices | Keep top-level SKILL focused on activation and gates |
 | `skills/references/master-delegation-semantics.md` | Shared master/orchestrator delegation, subagent, short-approval, and parallelism doctrine | Load before master skills choose execution topology |
+| `skills/references/mutation-plan-approval.md` | Universal plan and explicit post-plan approval gate for intentional mutations | Load before files, configuration, processes, servers, deployments, or external state are changed |
 | `skills/references/master-workflow-lifecycle.md` | Shared master/orchestrator lifecycle skeleton and work item model | Load before master skills resolve intake, readiness, model/topology, validation, verification, closure, or ship/deploy routes |
 | `skills/references/master-{workflow-lifecycle,delegation}-core.md` | Compact first-decision lifecycle and topology gates | Load from migrated pilots first; escalate to the detailed authority only on the core's explicit conditions |
 | `skills/references/decision-quality-contract.md` | Shared high-quality decision doctrine: correctness, security, performance, maintainability, durability, best practices, and proof before speed/cost/convenience | Load before routing, model/fallback selection, implementation, fixes, skill-contract changes, verification, or recommended defaults |

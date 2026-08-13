@@ -31,6 +31,8 @@ Before handing off an explicit skill name or numeric skill command, load `$SHIPG
 
 ## Atomic Direct-Execution Gate
 
+Before any direct or routed mutation, load `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. No mutation, including a deterministic micro-edit, starts until the compact plan has received explicit post-plan approval.
+
 Before loading routing, topology, or owner-skill references, keep the request in direct main-thread execution when the user supplied one explicit deterministic edit, the target is known or discoverable with one focused lookup, no domain judgment or sensitive boundary is involved, and focused validation is sufficient. Typical cases are an exact string or placeholder replacement, a typo, one formatting token, or one `h1` to `h2` change.
 
 Do not load a domain or lifecycle skill for these requests: no owner skill is needed. Apply the bounded edit and run the smallest relevant check. An explicitly named skill still activates and uses its smallest safe mode; if that skill discovers a different safe owner, let that skill reroute explicitly. This is the activation-critical form of the shared Skill Selection Proportionality Gate in `$SHIPGLOWS_ROOT/skills/references/skill-execution-fidelity.md`.
@@ -49,6 +51,12 @@ For requests outside the Atomic Direct-Execution Gate, load `$SHIPGLOWS_ROOT/ski
 
 Before classifying non-trivial work, load `$SHIPGLOWS_ROOT/skills/references/entrypoint-routing.md` and `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`; they are the canonical routing matrix and quality bar. Load `shipglows-terms`, `source-intake-classification`, `profile-activation` plus its minimal profile context, or `operator-partnership-contract` only when their matching trigger is present. Focus tags are binding route-bias cues; three-digit commands resolve through `skill-code-index.md` before classification.
 
+When routing or answering depends on a local server URL, browser, MCP, app,
+connector, or runtime-specific tool, load
+`$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` first. Read the
+global development environment and the selected project's CLI-managed server
+file; the current host turn remains authoritative for callable tools.
+
 ## Mission
 
 `000-shipglows` is the primary natural-language entrypoint for non-technical operators. It routes, answers, or selects bounded direct execution; it does not prime broad context for a known task, generate a portfolio dashboard, or continue a resolved chantier after owner selection is clear.
@@ -58,6 +66,8 @@ ShipGlows-maintenance work defaults to the ShipGlows system under `$SHIPGLOWS_RO
 ## Mode Detection
 
 Parse `$ARGUMENTS` as the operator instruction. Empty/help requests answer directly or route to `302-sg-help` for the full help surface. Named profiles load the matching profile contract; explicit skill names and numeric codes pass preflight, then hand off only when valid. Natural-language work applies the Atomic Direct-Execution Gate before the canonical routing matrix; a selected skill may reroute explicitly rather than being silently substituted.
+
+`context`, `contexte`, `env`, and `environment` are direct read-only modes. Load `agent-runtime-awareness.md`, read the global development-environment file, the current project's `ENVIRONMENT.md`, and the matching live registry entry, then report the active architecture, exact managed URL, Playwright configuration, and current-turn callable tools. Never start a server, substitute a framework default port, or describe configured Playwright as absent merely because its tool is not injected in the current turn.
 
 When the first token is a Codex expert alias, load `$SHIPGLOWS_ROOT/skills/references/expert-mode-aliases.md`, resolve it through `public owner -> owner mode -> internal engine`, run explicit-invocation preflight, and hand off in the same conversation. Aliases are Codex routing syntax only, never CLI arguments.
 

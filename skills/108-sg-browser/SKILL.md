@@ -37,7 +37,14 @@ Read `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` and project
 
 ## Browser Preflight
 
-Before the first browser/Playwright action, load and apply `$SHIPGLOWS_ROOT/skills/references/playwright-mcp-runtime.md`. Stale/unsafe configuration, a mismatched running browser, missing canonical authority, or unavailable target blocks app diagnosis; report the runtime/install/deploy owner instead.
+Before deriving or opening a local URL, load and apply
+`$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md`; use the active
+URL assigned in the project's `ENVIRONMENT.md` only when the matching DevServer registry entry is active. Before the first browser/Playwright
+action, load and apply `$SHIPGLOWS_ROOT/skills/references/playwright-mcp-runtime.md`.
+`configured` or `installed` Playwright/MCP state is not `available` session
+evidence. Stale/unsafe configuration, a mismatched running browser, missing
+canonical authority, or unavailable target blocks app diagnosis; report the
+runtime/install/deploy owner instead.
 
 ## Progressive Browser Packs
 

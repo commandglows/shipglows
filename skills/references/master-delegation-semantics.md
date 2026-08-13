@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-07"
+updated: "2026-08-13"
 status: active
 source_skill: 001-sg-build
 scope: master-delegation-semantics
@@ -86,7 +86,7 @@ Delegation to one sequential subagent is not parallelism. It is the normal way a
 
 When subagents are available, the default topology is `read-only parallel` for two or more independent no-write scopes and `delegated sequential` for mutations, dependent stages, validation that can change state, closure, or ship. Parallel writes require ready non-overlapping `Execution Batches`.
 
-Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out. Ask again only when the next action changes material scope, risk, data, permissions, destructive behavior, staging, closure, ship semantics, or introduces parallel writes not already authorized by ready `Execution Batches`.
+Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out, but never for mutation. Every write mission still requires the explicit post-plan approval in `skills/references/mutation-plan-approval.md`. Ask again when the next action changes material scope, risk, data, permissions, destructive behavior, staging, closure, ship semantics, or introduces parallel writes not already authorized by ready `Execution Batches`.
 
 In `delegated sequential` mode, use one bounded subagent at a time. A small scope may use a mini-contract, but small scope is not an exception to delegation. If file work or validation is needed and subagents are available, the master should delegate instead of doing routine diffs or patches in the master conversation.
 
@@ -127,15 +127,15 @@ Claim a subagent model override only when the runtime accepted it. If overrides 
 
 ## Short Confirmations
 
-After a master skill has diagnosed the current chantier or proposed a bounded
-action, a short natural-language confirmation in the active conversation
-language means, by intent rather than exact keyword:
+After a master skill has displayed the bounded plan required by
+`mutation-plan-approval.md`, a short natural-language confirmation in the
+active conversation language means, by intent rather than exact keyword:
 
 ```text
 continue the current chantier with the canonical topology: read-only parallel for independent no-write scopes, otherwise delegated sequential
 ```
 
-Short confirmations authorize bounded read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`. Ask again only when scope, risk, data, permissions, destructive behavior, staging, closure, or ship semantics change.
+Short confirmations given before that plan authorize no mutation. Confirmations given after it authorize the bounded plan and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`. Ask again when scope, risk, data, permissions, destructive behavior, staging, closure, or ship semantics change.
 
 The next safe mission remains internal. In an unfinished user-facing report,
 offer only plain-language choices about continuing, reprioritizing, changing

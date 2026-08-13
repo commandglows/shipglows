@@ -1,7 +1,7 @@
 ---
 name: shipglows
 description: Route ShipGlows workflows, packs, and packaging audits in OpenCode-compatible agents.
-argument-hint: "<instruction | help | packs | audit packaging>"
+argument-hint: "<instruction | context | help | packs | audit packaging>"
 ---
 
 # ShipGlows for OpenCode-compatible agents
@@ -24,6 +24,8 @@ Use it when the operator wants to:
 
 Default to read-only analysis unless the operator explicitly asks to edit, install, update, or publish a plugin or skill.
 
+Before any intentional mutation, present `🧭 PLAN À VALIDER` with Objective, Scope, Actions, and Proofs, then wait for explicit approval given after that plan. The initial request is not approval; a material scope change requires a replacement plan and approval.
+
 Prefer the local source tree only for development audits:
 
 ```text
@@ -34,6 +36,7 @@ If that path is missing, explain that the repository skill is available but loca
 
 ## Routing
 
+- `context`, `contexte`, `env`, or `environment`: enter the direct runtime-context mode below. Do not route it to generic documentation or planning.
 - `core <instruction>`: treat every remaining word as ShipGlows-system work.
   Project routes, paths, and outcomes are failure evidence; never audit or
   modify the cited project. Leave `core` before requesting project work.
@@ -51,6 +54,19 @@ If that path is missing, explain that the repository skill is available but loca
   owner. The aliases contain no independent workflow behavior.
 - `references`, `docs`, `site`, or `hosted docs`: explain the local-vs-hosted reference policy.
 - `full ShipGlows`, `clone repo`, or `installation complète`: offer the sparse bootstrap route and ask before any networked change.
+
+## Runtime Context Mode
+
+For `$shipglows context`, inspect rather than infer:
+
+1. Read `%USERPROFILE%\.shipglows\environment.md` on Windows, or the corresponding global environment file documented by the installed runtime.
+2. Resolve the current ShipGlows-managed project root from the working directory, then read `<project-root>\ENVIRONMENT.md` and its matching Windows DevServer registry entry.
+3. Report the host, shell, agent surface, server manager, live server status, and exact canonical local URL.
+4. Use that URL for local browser, test, screenshot, or preview work. Never substitute Astro/Vite defaults such as `4321`, repository scripts, remembered ports, or another project's URL.
+5. Report Playwright exactly as the global file states. If it is configured but no browser/Playwright tool is exposed in the current turn, say `Playwright configuré, outil non exposé dans ce tour`; never say that no browser is installed.
+6. Treat the current turn's injected tool inventory as the authority for what can be called now. ChatGPT apps/connectors and Codex CLI tools are different surfaces.
+
+This mode is read-only. A missing project document, missing registry entry, or inactive server blocks only server-dependent actions; it does not authorize launching a replacement server. End with a compact `Contexte actif` summary that subsequent work in the conversation must follow.
 
 ## Reference Strategy
 

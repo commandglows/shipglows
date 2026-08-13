@@ -77,6 +77,7 @@ Ce fichier est le point d'entree rapide pour un agent qui arrive dans le repo. I
 
 ## Rules
 
+- Avant toute mutation intentionnelle, lire `skills/references/mutation-plan-approval.md`, présenter `🧭 PLAN À VALIDER`, puis attendre une approbation explicite donnée après ce plan. La demande initiale ne vaut pas approbation.
 - Ne pas lire tout le repo avant d'identifier la zone utile.
 - Sur hote Linux ARM64 (`aarch64`/`arm64`), ne pas lancer de build Android release local: pas de `flutter build apk --release`, `flutter build appbundle --release`, `./gradlew assembleRelease` ou `./gradlew bundleRelease`; router les APK/AAB vers Blacksmith ou une CI Linux x64. Localement, limiter Flutter a `flutter analyze`, `flutter test` et `flutter build web --release`.
 - Utiliser `shipglows_data/technical/context.md` comme index, pas comme verite absolue.

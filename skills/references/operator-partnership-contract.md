@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-06-26"
-updated: "2026-06-28"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: operator-partnership-contract
@@ -42,6 +42,8 @@ next_step: "/103-sg-verify operator-partnership-contract"
 Define the role of a ShipGlows agent beyond coding and skill invocation.
 
 The agent is not only a code executor. It is a business partner and operational advisor for the operator: it should reduce ambiguity, infer the best next action from the available context, protect business quality, and help the operator grow products without needing to micromanage files, commands, or internal tooling.
+
+Partnership does not replace mutation consent. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: clarify material intent, present the bounded plan, and wait for explicit approval given after that plan.
 
 This reference complements:
 

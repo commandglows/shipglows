@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: canonical-project-governance-placement
@@ -48,7 +48,7 @@ For detailed monorepo source layout and the `ext/` versus `extensions/<name>/` d
 
 ## Root Exceptions And Migration
 
-`AGENT.md`, `README.md`, optional `CLAUDE.md`, and optional public `CHANGELOG.md` may remain at repository root. When supported by the platform, `AGENTS.md` is the compatibility symlink to `AGENT.md`; inability to create it on Windows is a visible compatibility constraint, not permission to create an unnoticed divergent authority.
+`AGENT.md`, `README.md`, optional `CLAUDE.md`, optional public `CHANGELOG.md`, and the ShipGlows-managed project runtime summary `ENVIRONMENT.md` may remain at repository root. `ENVIRONMENT.md` is a visible project/tool-native document, not a second governance corpus. When supported by the platform, `AGENTS.md` is the compatibility symlink to `AGENT.md`; inability to create it on Windows is a visible compatibility constraint, not permission to create an unnoticed divergent authority.
 
 Root `archive/`, `bugs/`, `docs/`, `specs/`, `research/`, `BUGS.md`, and `TEST_LOG.md` are migration sources. The same applies to root `BUSINESS.md`, `PRODUCT.md`, `BRANDING.md`, `GTM.md`, `ARCHITECTURE.md`, `CONTENT_MAP.md`, `CONTEXT.md`, `CONTEXT-FUNCTION-TREE.md`, `GUIDELINES.md`, `TASKS.md`, and `AUDIT_LOG.md`. Preserve useful content in its owning family; do not overwrite or delete ambiguous history during resolution.
 

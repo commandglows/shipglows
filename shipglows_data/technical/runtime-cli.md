@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-11"
+updated: "2026-08-13"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -22,6 +22,7 @@ linked_systems:
   - cli/windows/ShipGlows.DevServer.psm1
   - cli/windows/shipglows-devserver.ps1
   - cli/windows/install-devserver.ps1
+  - skills/references/agent-runtime-awareness.md
   - CONTEXT-FUNCTION-TREE.md
 depends_on:
   - artifact: "shipglows_data/technical/architecture.md"
@@ -63,6 +64,7 @@ evidence:
   - "SHIPGLOWS_ENV_PORT can explicitly replace a persisted PM2 port and refuses collisions."
   - "Project-local .shipglows.env settings pin runtime ports and can disable automatic restart recovery."
   - "The project runtime policy file now has a closed, data-only schema so unknown settings fail loudly instead of silently restoring defaults."
+  - "Native Windows exposes one static global development-environment file and one CLI-managed server URL file per project."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit runtime-cli"
 ---
@@ -152,6 +154,13 @@ identity is checked with PID, start time, executable path, and a command
 signature before stopping a process. The JSON registry is written through a
 validated temporary file and atomic replacement.
 
+The native Windows backend does not activate, parse, or derive project
+boundaries from Flox. It discovers supported applications from native manifests
+such as `package.json`, `pubspec.yaml`, `pyproject.toml`, and
+`requirements.txt`, including nested monorepo launch paths. `.flox` has no
+effect on Windows dependencies, variables, launch commands, ports, or project
+identity.
+
 Linux-only Flox, PM2, Caddy, autossh, and the interactive `urls` menu are not
 emulated on Windows. The full installer prepares Git, GitHub CLI, Node LTS
 (including npm), pnpm and uv. It asks before downloading Flutter Web, then
@@ -188,6 +197,38 @@ over HTTPS, validates its PowerShell syntax, and runs full mode against the
 canonical local ShipGlows directory. This is the supported refresh path; the
 already-installed `cli/windows/install-devserver.ps1` only copies its current
 local source and must not be treated as a network updater.
+
+### Development environment and project URL
+
+The Windows full installer writes `%USERPROFILE%\.shipglows\environment.md`.
+It records the stable host facts: Windows, PowerShell, Codex CLI installation,
+Playwright configuration and the native ShipGlows DevServer. The installer also
+maintains a bounded `~/.codex/AGENTS.md` block that points agents to this file
+without wrapping the Codex command. That block also enforces the universal
+post-plan approval rule before intentional mutations.
+
+For each registered project, the Windows CLI maintains a bounded ShipGlows block
+inside the visible, versioned `<project-root>\ENVIRONMENT.md`. It preserves any
+existing project content and records the manager, durable assigned port and
+canonical loopback URL. The Windows registry remains authoritative for live
+status, so start and stop do not create tracked-document churn. `s open` uses
+the active registry entry instead of guessing from repository scripts.
+
+The installer migrates every registered project. It removes only the former
+ShipGlows-managed `.shipglows/server.env` file and its exact `.git/info/exclude`
+entry; unrelated hidden files and Git exclusions remain untouched.
+
+For a Windows managed start, port precedence is exactly:
+
+`requested port > process SHIPGLOWS_ENV_PORT > project .shipglows.env > persistent registry > first free 3000..3100`
+
+The precedence method is shared; the resulting number is project-specific. A
+port declared in `package.json`, Astro, or Vite is a direct-launch fallback, not
+the URL of the ShipGlows-managed server. `.shipglows.env` remains the separate
+optional committed runtime policy file. ChatGPT apps/connectors and Codex CLI
+tools remain separate surfaces; only tools exposed by the current host turn are
+callable. `$shipglows context` reads the global document, project document and
+registry in read-only mode and never launches a fallback server.
 Flutter is launched in a visible process because PowerShell 5.1 does not
 provide a tmux-equivalent session manager.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and

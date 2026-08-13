@@ -1,7 +1,7 @@
 ---
 name: shipglows
 description: Route ShipGlows plugin workflows, inspect optional packs, and audit local packaging readiness.
-argument-hint: "<instruction | help | packs | audit packaging>"
+argument-hint: "<instruction | context | help | packs | audit packaging>"
 ---
 
 # ShipGlows
@@ -23,6 +23,8 @@ Use it when the operator wants to:
 ## Default Scope
 
 Default to read-only analysis unless the operator explicitly asks to edit, install, update, or publish a plugin or skill.
+
+Before any intentional mutation, present `🧭 PLAN À VALIDER` with Objective, Scope, Actions, and Proofs, then wait for explicit approval given after that plan. The initial request is not approval; a material scope change requires a replacement plan and approval.
 
 This plugin is the distribution nucleus. It must not assume that the full private ShipGlows source tree exists on the user's machine.
 
@@ -79,6 +81,7 @@ Resolve this path relative to this skill directory inside the plugin.
 Parse the operator instruction.
 
 - Empty, `help`, `aide`, `métiers`, or `workflows`: answer from the bundled public help catalog and ask for the outcome to route when useful.
+- `context`, `contexte`, `env`, or `environment`: run the direct runtime-context mode below; do not route it to a generic métier.
 - `packs`, `catalog`, `modules`, or `capabilities`: summarize `references/pack-catalog.md`.
 - `stage pack`, `generate pack`, `refresh pack`, `update pack`, `pack generation`, or `stager pack`: run `scripts/refresh_shipglows_pack.py <pack-id>` when a pack id is supplied and local ShipGlows source exists.
 - `pack maintenance`, `modify skills`, `publish pack`, or skill-to-pack update questions: summarize `references/pack-maintenance-playbook.md`.
@@ -90,6 +93,19 @@ Parse the operator instruction.
 - Requests to install optional packs: install only when the named pack exists as a plugin or skill source. Otherwise report that the pack is planned but not generated yet.
 - Product, code, release, content, design, engineering, docs, or planning work: identify the matching public métier first, then resolve the matching pack and installed capability. Execute only with capabilities that are actually bundled or installed in the current session.
 - For public `shipglows-main` intents, perform the portable gate, planning, checklist, command discovery, or bug triage that can be done from the current workspace. If the requested workflow needs unbundled ShipGlows references, tracking files, or tools, continue in partial mode and state the exact complete-corpus requirement instead of stopping early.
+
+## Runtime Context Mode
+
+For `$shipglows context`, inspect rather than infer:
+
+1. Read `%USERPROFILE%\.shipglows\environment.md` on Windows, or the corresponding global environment file documented by the installed runtime.
+2. Resolve the current ShipGlows-managed project root from the working directory, then read `<project-root>\ENVIRONMENT.md` and its matching Windows DevServer registry entry.
+3. Report host, shell, agent surface, server manager, live server status, and the exact canonical local URL.
+4. Use that URL for browser, test, screenshot, or preview work. Never replace it with Astro/Vite defaults such as `4321`, repository scripts, remembered ports, or another project's URL.
+5. Report Playwright exactly as the global file states. If configured but not injected as a tool in the current turn, say `Playwright configuré, outil non exposé dans ce tour`; never say that no browser is installed.
+6. Treat the tools injected by the current host turn as the authority for calls. ChatGPT apps/connectors and Codex CLI tools are different surfaces.
+
+This mode is read-only. A missing project document, missing registry entry, or inactive server blocks only server-dependent actions and never authorizes launching a replacement server. End with a compact `Contexte actif` summary that governs subsequent work in the conversation.
 
 ## Reference Strategy
 

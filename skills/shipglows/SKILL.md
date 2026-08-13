@@ -24,6 +24,15 @@ is the sole hard context switch and binds the entire remaining instruction to
 ShipGlows system work. `shipglows capture` and `shipglows tmux` both resolve to
 `sg-content capture`.
 
+`shipglows context` is a direct read-only context refresh. Load the canonical
+`000-shipglows` engine, read `%USERPROFILE%\.shipglows\environment.md`, resolve
+the current ShipGlows-managed project root, and read
+`<project-root>\ENVIRONMENT.md` plus the matching DevServer registry entry. Report the exact managed URL and live status,
+architecture, Playwright configuration, and current-turn callable tools. Never
+launch a replacement server, substitute an Astro/Vite default such as `4321`,
+or call configured Playwright absent merely because its tool is not injected in
+the current turn. End with a compact `Contexte actif` summary.
+
 ## Validation
 
 Confirm that one public owner matches the resolved outcome, preserves any named specialist scope, and receives the target hierarchy and authority limits.

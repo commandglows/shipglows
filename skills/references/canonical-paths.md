@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.2.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 102-sg-start
 scope: canonical-path-resolution
@@ -31,6 +31,8 @@ next_step: "/103-sg-verify canonical path policy"
 # ShipGlows Canonical Paths
 
 Resolve paths by ownership, never by filename coincidence or the current working directory.
+
+Before any intentional mutation, load `skills/references/mutation-plan-approval.md` from the resolved ShipGlows root and satisfy its explicit post-plan approval gate. Read-only path resolution and inspection may precede that approval.
 
 ## Mandatory Roots
 

@@ -31,7 +31,6 @@ function Write-SgInstallerWarning([string]$Message) {
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
 Copy-Item -LiteralPath (Join-Path $sourceDir 'ShipGlows.DevServer.psm1') -Destination $runtimeDir -Force
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
-
 function Update-SgProcessPath {
     $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine')
     $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
@@ -117,11 +116,6 @@ function Install-SgGitPushProfileShortcut {
         return $false
     }
 
-    if (Test-Path Function:gp) {
-        Write-SgInstallerWarning "The PowerShell function 'gp' already exists. ShipGlows preserved it; gpush remains available."
-        return $false
-    }
-
     $profilePath = $PROFILE.CurrentUserAllHosts
     $profileDirectory = Split-Path -Parent $profilePath
     New-Item -ItemType Directory -Path $profileDirectory -Force | Out-Null
@@ -131,11 +125,48 @@ function Install-SgGitPushProfileShortcut {
         ''
     }
     $managedPattern = '(?ms)^# >>> ShipGlows Git shortcuts >>>\r?\n.*?^# <<< ShipGlows Git shortcuts <<<\r?\n?'
+    $hasManagedBlock = [regex]::IsMatch($existing, $managedPattern)
+    if ((Test-Path Function:gp) -and -not $hasManagedBlock) {
+        Write-SgInstallerWarning "The PowerShell function 'gp' already exists outside ShipGlows's managed profile block. ShipGlows preserved it; gpush remains available."
+        return $false
+    }
     $withoutManagedBlock = [regex]::Replace($existing, $managedPattern, '').TrimEnd()
     $managedBlock = @'
 # >>> ShipGlows Git shortcuts >>>
 if (Test-Path Alias:gp) { Remove-Item Alias:gp -Force -ErrorAction SilentlyContinue }
-function global:gp { & git push @args }
+function global:gp {
+    [CmdletBinding()]
+    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Message)
+
+    & git rev-parse --is-inside-work-tree 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error 'gp must be run inside a Git repository.'
+        return
+    }
+
+    & git add -A
+    if ($LASTEXITCODE -ne 0) { Write-Error 'gp stopped because git add -A failed.'; return }
+
+    & git diff --cached --quiet
+    $diffStatus = $LASTEXITCODE
+    if ($diffStatus -eq 1) {
+        $commitMessage = if ($Message.Count -gt 0) {
+            $Message -join ' '
+        } else {
+            'chore: sync changes ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')
+        }
+        & git commit -m $commitMessage
+        if ($LASTEXITCODE -ne 0) { Write-Error 'gp stopped because git commit failed.'; return }
+    } elseif ($diffStatus -ne 0) {
+        Write-Error 'gp stopped because staged changes could not be inspected.'
+        return
+    } else {
+        Write-Host 'No changes to commit; pushing existing local commits.' -ForegroundColor DarkGray
+    }
+
+    & git push
+    if ($LASTEXITCODE -ne 0) { Write-Error 'gp stopped because git push failed.' }
+}
 # <<< ShipGlows Git shortcuts <<<
 '@
     $next = if ($withoutManagedBlock) {
@@ -144,7 +175,7 @@ function global:gp { & git push @args }
         $managedBlock + [Environment]::NewLine
     }
     Set-Content -LiteralPath $profilePath -Value $next -Encoding UTF8
-    Write-Host "PowerShell shortcut installed: gp -> git push (active in new shells)." -ForegroundColor Green
+    Write-Host "PowerShell shortcut installed: gp -> git add -A, commit, push (active in new shells)." -ForegroundColor Green
     return $true
 }
 
@@ -169,6 +200,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0shipglows-devserve
     } else {
         Write-SgInstallerWarning "The command 's' is already used by $($existing.Source). ShipGlows kept the non-conflicting command: shipglows-dev."
     }
+
 }
 
 function Test-SgTool([string]$Name, [string[]]$KnownPaths = @()) {
@@ -666,6 +698,64 @@ function Install-SgCodexPlaywrightMcp([bool]$CodexReady, [string[]]$CodexPaths, 
     return $true
 }
 
+function Set-SgCodexEnvironmentInstructions([string]$AgentsPath) {
+    $directory = Split-Path -Parent $AgentsPath
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+    $existing = if (Test-Path -LiteralPath $AgentsPath -PathType Leaf) { [IO.File]::ReadAllText($AgentsPath) } else { '' }
+    $pattern = '(?ms)^# >>> ShipGlows development environment >>>\r?\n.*?^# <<< ShipGlows development environment <<<\r?\n?'
+    $block = @'
+# >>> ShipGlows development environment >>>
+Before any intentional mutation, show a `🧭 PLAN À VALIDER` containing Objective, Scope, Actions, and Proofs, then wait for explicit post-plan approval. The initial request is not approval. If material scope changes, stop and obtain approval for a replacement plan. Read-only exploration is allowed before approval.
+Before local-server or tool-dependent work, read `%USERPROFILE%\.shipglows\environment.md`.
+For a ShipGlows-managed project, then read `<project-root>\ENVIRONMENT.md` for its durable assigned URL and the ShipGlows DevServer registry for live status.
+ChatGPT apps/connectors and Codex CLI tools are different surfaces. Never assume one is callable from the other; the tools exposed by the current Codex turn remain authoritative.
+# <<< ShipGlows development environment <<<
+'@
+    $remainder = [regex]::Replace($existing, $pattern, '').Trim([char[]]"`r`n")
+    $next = if ($remainder) { "$remainder`n`n$($block.Trim())`n" } else { "$($block.Trim())`n" }
+    if ($next.Replace("`r`n","`n") -ceq $existing.Replace("`r`n","`n")) { return $false }
+    [IO.File]::WriteAllText($AgentsPath, $next, [Text.UTF8Encoding]::new($false))
+    return $true
+}
+
+function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [bool]$PlaywrightReady) {
+    $environmentPath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'environment.md'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $environmentPath) -Force | Out-Null
+    $codexStatus = if ($CodexReady) { 'installed' } else { 'not installed by this profile' }
+    $playwrightStatus = if ($PlaywrightReady) { 'configured globally for Codex CLI' } else { 'not configured by this installation' }
+    $content = @"
+# ShipGlows development environment
+
+- Host operating system: Windows
+- Shell: PowerShell
+- Agent instruction host: Codex CLI
+- Codex CLI: $codexStatus
+- Local server manager: ShipGlows native Windows DevServer (shipglows-devserver)
+- Playwright: $playwrightStatus
+
+For a managed project, read `<project-root>\ENVIRONMENT.md` for the durable URL assigned by the ShipGlows CLI, and read the Windows ShipGlows DevServer registry for live status. Do not derive the URL from `package.json`, framework defaults, or another project's port.
+
+ChatGPT apps/connectors and Codex CLI tools are separate surfaces. Installation or configuration does not make a tool callable in the current turn; use only tools actually exposed by the current Codex host.
+"@
+    if ((Test-Path -LiteralPath $environmentPath -PathType Leaf) -and [IO.File]::ReadAllText($environmentPath).Replace("`r`n","`n") -ceq $content.Replace("`r`n","`n")) { return $environmentPath }
+    [IO.File]::WriteAllText($environmentPath, $content, [Text.UTF8Encoding]::new($false))
+    return $environmentPath
+}
+
+function Invoke-SgProjectEnvironmentMigration([string]$ModulePath) {
+    Import-Module $ModulePath -Force -DisableNameChecking
+    $config = Get-SgDevConfig
+    $migrated = 0
+    foreach ($entry in @((Read-SgRegistry $config).projects)) {
+        $projectPath = [string]$entry.path
+        if ([string]::IsNullOrWhiteSpace($projectPath) -or -not (Test-Path -LiteralPath $projectPath -PathType Container)) { continue }
+        $port = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
+        [void](Write-SgProjectEnvironment $projectPath $port)
+        $migrated++
+    }
+    Write-Host "ShipGlows project environments migrated: $migrated" -ForegroundColor Green
+}
+
 function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     if (Test-SgTool 'flutter.bat' $FlutterPaths) {
         Write-Host 'Flutter Web SDK is already installed.' -ForegroundColor Green
@@ -753,7 +843,13 @@ if ($codexReady) {
     $codexPermissionMode = Resolve-SgCodexPermissionMode $codexConfigPath
     if ($codexPermissionMode -ne 'keep') { [void](Set-SgCodexPermissionMode $codexPermissionMode $codexConfigPath) }
 }
-[void](Install-SgCodexPlaywrightMcp $codexReady $codexPaths $nodePaths $npxPaths)
+$playwrightReady = Install-SgCodexPlaywrightMcp $codexReady $codexPaths $nodePaths $npxPaths
+$environmentPath = Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightReady
+Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
+if ($codexReady) {
+    [void](Set-SgCodexEnvironmentInstructions (Join-Path $env:USERPROFILE '.codex\AGENTS.md'))
+}
+[void](Invoke-SgProjectEnvironmentMigration (Join-Path $runtimeDir 'ShipGlows.DevServer.psm1'))
 
 Write-Host ''
 Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor Yellow

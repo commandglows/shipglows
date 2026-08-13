@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.18.5"
+artifact_version: "0.18.6"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -122,7 +122,7 @@ It helps operators run apps on servers, but its deeper job is to reduce ambiguit
 
 ## Core Docs
 
-- Note: the canonical governance corpus lives under `shipglows_data/`. Root-level docs outside `AGENT.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `CHANGELOG.md`, compatibility shell wrappers, and bootstrap entrypoints should be treated as migration debt or explicit compatibility facades, not as the durable source of truth.
+- Note: the canonical governance corpus lives under `shipglows_data/`. Root-level docs outside `AGENT.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `CHANGELOG.md`, the ShipGlows-managed project runtime summary `ENVIRONMENT.md`, compatibility shell wrappers, and bootstrap entrypoints should be treated as migration debt or explicit compatibility facades, not as the durable source of truth.
 
 - [AGENT.md](./AGENT.md) — agent entrypoint: where to look first depending on the task
 - [shipglows_data/technical/context.md](./shipglows_data/technical/context.md) — compact operational map of the project, hotspots, invariants, and edit routing
@@ -248,8 +248,10 @@ the installer also provides `c` (Claude), `co` (Codex), `cor` (`codex resume`),
 `oc` (OpenCode), `kc` (KiloCode), `re` (open a freshly reloaded PowerShell),
 and `ch` (clear PowerShell history and open a clean session). `gpush` always
 provides `git push`; when persistent profile execution is allowed, ShipGlows
-also replaces PowerShell's built-in `gp -> Get-ItemProperty` alias with the
-expected `gp -> git push` function. npm-family and agent commands receive
+also replaces PowerShell's built-in `gp -> Get-ItemProperty` alias with one
+complete shortcut: `git add -A`, commit, then push. Run `gp "message"` to set
+the commit message; bare `gp` generates a dated synchronization message.
+npm-family and agent commands receive
 managed `.cmd` wrappers so blocked npm-generated `.ps1` shims do not require a
 machine-wide execution-policy change.
 
@@ -953,7 +955,7 @@ For internal ShipGlows files, this schema is mandatory for the active official a
 Operational tracking files are intentionally excluded from the mandatory artifact schema: `shipglows_data/workflow/TASKS.md` and `shipglows_data/workflow/AUDIT_LOG.md` are trackers, not decision contracts. Keep them fast to edit. If a task entry contains a durable decision, spec, or business rule, extract that durable content into a dedicated artifact with metadata instead of adding frontmatter to the tracker itself.
 
 Location rule:
-- Project roots should keep only `README.md`, `AGENT.md`, `AGENTS.md` as a symlink to `AGENT.md`, optional `CLAUDE.md`, and project/tool-native docs that are not ShipGlows governance artifacts.
+- Project roots should keep only `README.md`, `AGENT.md`, `AGENTS.md` as a symlink to `AGENT.md`, optional `CLAUDE.md`, the visible ShipGlows-managed `ENVIRONMENT.md`, and project/tool-native docs that are not ShipGlows governance artifacts.
 - Canonical ShipGlows artifacts are stored under project-local `shipglows_data/` in `technical/`, `business/`, `editorial/`, `workflow/`, and `archives/`.
 - Legacy references to `${SHIPGLOWS_DATA_DIR:-$HOME/shipglows_data}` should be treated as
   historical/read-only when encountered; it is no longer the active cross-project

@@ -1,0 +1,78 @@
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+$root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+$modulePath = Join-Path $root 'cli\windows\ShipGlows.DevServer.psm1'
+$tokens = $null
+$errors = $null
+[void][Management.Automation.Language.Parser]::ParseFile($modulePath, [ref]$tokens, [ref]$errors)
+if ($errors.Count -gt 0) { throw ($errors | ForEach-Object Message | Out-String) }
+Import-Module $modulePath -Force -DisableNameChecking
+
+$fixture = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-static-environment-' + [guid]::NewGuid().ToString('N'))
+try {
+    $project = Join-Path $fixture 'project'
+    New-Item -ItemType Directory -Path $project -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $project 'package.json') -Value '{"dependencies":{"astro":"latest"}}' -Encoding UTF8
+    & git init --quiet $project
+    if ($LASTEXITCODE -ne 0) { throw 'Git fixture initialization failed.' }
+
+    $environmentPath = Join-Path $project 'ENVIRONMENT.md'
+    Set-Content -LiteralPath $environmentPath -Value "# Existing project notes`n`nPreserve this paragraph." -Encoding UTF8
+    $legacyDirectory = Join-Path $project '.shipglows'
+    New-Item -ItemType Directory -Path $legacyDirectory -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $legacyDirectory 'server.env') -Value "# ShipGlows CLI managed. Do not edit.`nSHIPGLOWS_SERVER_URL=http://127.0.0.1:3002`nSHIPGLOWS_SERVER_STATUS=running`nSHIPGLOWS_SERVER_MANAGER=shipglows-devserver" -Encoding UTF8
+    $excludePath = & git -C $project rev-parse --git-path info/exclude
+    if (-not [IO.Path]::IsPathRooted($excludePath)) { $excludePath = Join-Path $project $excludePath }
+    Add-Content -LiteralPath $excludePath -Value "# ShipGlows local runtime`n/.shipglows/server.env"
+
+    $writtenPath = Write-SgProjectEnvironment $project 0
+    $registered = Get-SgProjectEnvironment $project
+    if ($registered.Port -ne 0 -or $registered.Url) { throw 'Pending project environment is invalid.' }
+    $content = Get-Content -LiteralPath $writtenPath -Raw
+    if ($content -notmatch 'Preserve this paragraph\.' -or $content -notmatch 'pending first ShipGlows start') { throw 'Existing content or pending assignment was not preserved.' }
+    if (Test-Path -LiteralPath (Join-Path $legacyDirectory 'server.env')) { throw 'Managed legacy server.env was not removed.' }
+    $excludeText = Get-Content -LiteralPath $excludePath -Raw
+    if ($excludeText -match '(?m)^/\.shipglows/server\.env\r?$' -or $excludeText -match '(?m)^# ShipGlows local runtime\r?$') { throw 'Managed legacy Git exclude entry was not removed.' }
+
+    [void](Write-SgProjectEnvironment $project 3002)
+    $assigned = Get-SgProjectEnvironment $project
+    if ($assigned.Url -ne 'http://127.0.0.1:3002' -or $assigned.Manager -ne 'shipglows-devserver') { throw 'Assigned project environment is invalid.' }
+    $assignedContent = Get-Content -LiteralPath $writtenPath -Raw
+    if ($assignedContent -match 'SHIPGLOWS_SERVER_STATUS|(?m)^- Live server status:') { throw 'Project environment contains live server state.' }
+
+    $firstHash = (Get-FileHash -LiteralPath $writtenPath -Algorithm SHA256).Hash
+    [void](Write-SgProjectEnvironment $project 3002)
+    if ((Get-FileHash -LiteralPath $writtenPath -Algorithm SHA256).Hash -ne $firstHash) { throw 'Project environment write is not idempotent.' }
+
+    $approvalContract = Get-Content -LiteralPath (Join-Path $root 'skills\references\mutation-plan-approval.md') -Raw
+    foreach ($required in @('🧭 PLAN À VALIDER','Objectif','Périmètre','Actions','Preuves','initial imperative request does not count as approval','material change')) {
+        if ($approvalContract -notmatch [regex]::Escape($required)) { throw "Mutation approval contract is missing: $required" }
+    }
+
+    $runtimeContract = Get-Content -LiteralPath (Join-Path $root 'skills\references\agent-runtime-awareness.md') -Raw
+    foreach ($required in @('ENVIRONMENT.md','DevServer registry','4321','Playwright configuré, outil non exposé dans ce tour')) {
+        if ($runtimeContract -notmatch [regex]::Escape($required)) { throw "Runtime awareness contract is missing: $required" }
+    }
+
+    $userOwnedProject = Join-Path $fixture 'user-owned-legacy'
+    New-Item -ItemType Directory -Path (Join-Path $userOwnedProject '.shipglows') -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $userOwnedProject '.shipglows\server.env') -Value 'USER_DEFINED=true' -Encoding UTF8
+    [void](Write-SgProjectEnvironment $userOwnedProject 3003)
+    if (-not (Test-Path -LiteralPath (Join-Path $userOwnedProject '.shipglows\server.env'))) { throw 'Unrecognized user-owned legacy file was removed.' }
+
+    $monorepo = Join-Path $fixture 'monorepo-without-environment-manager'
+    $nestedApp = Join-Path $monorepo 'apps\site'
+    New-Item -ItemType Directory -Path $nestedApp -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $nestedApp 'package.json') -Value '{"dependencies":{"astro":"latest"}}' -Encoding UTF8
+    $descriptor = Get-SgProjectDescriptor $monorepo
+    if ($descriptor.RootPath -ne $monorepo -or $descriptor.LaunchPath -ne $nestedApp -or $descriptor.Kind -ne 'astro') { throw 'Native nested application discovery is invalid.' }
+
+    $windowsModule = Get-Content -LiteralPath $modulePath -Raw
+    $windowsLauncher = Get-Content -LiteralPath (Join-Path $root 'cli\windows\shipglows-devserver.ps1') -Raw
+    if (($windowsModule + $windowsLauncher) -match '(?i)flox|\.flox|Get-SgFloxVariables|UsesFloxManifest|InsideFloxProject') { throw 'Windows backend still contains Flox-specific behavior.' }
+
+    Write-Host 'Static Windows development environment regression: OK'
+} finally {
+    if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }
+}

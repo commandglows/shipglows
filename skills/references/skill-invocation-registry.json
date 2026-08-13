@@ -53,7 +53,7 @@
         ]
       }
     ],
-    "router": {"id": "shipglows", "public_skill": "shipglows", "runtime_skill": "000-shipglows", "modes": ["default"], "hidden_modes": {"core": {"runtime_engine": "900-shipglows-core", "context": "shipglows-system"}}}
+    "router": {"id": "shipglows", "public_skill": "shipglows", "runtime_skill": "000-shipglows", "modes": ["default", "context"], "hidden_modes": {"core": {"runtime_engine": "900-shipglows-core", "context": "shipglows-system"}}}
   },
   "codex_expert_aliases": {
     "core": {"public_owner": "shipglows", "owner_mode": "core", "runtime_engine": "900-shipglows-core", "resolution": "hard-context"},

@@ -55,7 +55,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s x      Quit ShipGlows'
     Write-Host '  s         Interactive menu'
     Write-Host ''
-    Write-Host 'Flox project metadata is adapted to native Windows; Flox runtime, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
+    Write-Host 'Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
 }
 
 try { $Action = Resolve-SgAction $Action $ShortcutPath }
@@ -148,28 +148,28 @@ function Read-SgChoice([string]$Header, [string[]]$Options) {
 
 function Get-SgWorkspaceProjectCandidates([object]$Config) {
     $manifests = @('package.json', 'pyproject.toml', 'requirements.txt', 'pubspec.yaml')
-    $pruneDirs = @('.flox', '.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn')
+    $pruneDirs = @('.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn')
     $maxDepth = 4
     $root = $Config.Workspace
 
     $discovered = @()
     $seen = @{}
     $queue = New-Object System.Collections.Generic.Queue[object]
-    [void]$queue.Enqueue([pscustomobject]@{ Path = $root; Depth = 0; InsideFloxProject = $false })
+    [void]$queue.Enqueue([pscustomobject]@{ Path = $root; Depth = 0 })
 
     while ($queue.Count -gt 0) {
         $entry = $queue.Dequeue()
         $path = [string]$entry.Path
         $depth = [int]$entry.Depth
-        $insideFloxProject = [bool]$entry.InsideFloxProject
         if (-not (Test-Path -LiteralPath $path -PathType Container)) { continue }
 
         $normalizedPath = [IO.Path]::GetFullPath($path).TrimEnd('\', '/')
-        $hasFlox = Test-Path -LiteralPath (Join-Path $normalizedPath '.flox') -PathType Container
         $files = Get-ChildItem -LiteralPath $normalizedPath -File -Force -ErrorAction SilentlyContinue
-        if ($hasFlox -or (-not $insideFloxProject -and ($files | Where-Object { $manifests -contains $_.Name }))) {
+        $claimedProject = $false
+        if ($files | Where-Object { $manifests -contains $_.Name }) {
             try { $descriptor = Get-SgProjectDescriptor $normalizedPath } catch { $descriptor = $null }
             if ($descriptor) {
+                $claimedProject = $true
                 $pathKey = $normalizedPath.ToLowerInvariant()
                 if (-not $seen.ContainsKey($pathKey)) {
                     $seen[$pathKey] = $true
@@ -187,13 +187,16 @@ function Get-SgWorkspaceProjectCandidates([object]$Config) {
             }
         }
 
+        # A native project boundary may resolve to a nested launch target. Do not
+        # rediscover that same target as another project while walking descendants.
+        if ($claimedProject) { continue }
         if ($depth -ge $maxDepth) { continue }
 
         $dirs = Get-ChildItem -LiteralPath $normalizedPath -Directory -Force -ErrorAction SilentlyContinue
         foreach ($dir in @($dirs)) {
             if ($dir.Name -match '^\.') { continue }
             if ($pruneDirs -contains $dir.Name) { continue }
-            [void]$queue.Enqueue([pscustomobject]@{ Path = $dir.FullName; Depth = $depth + 1; InsideFloxProject = ($insideFloxProject -or $hasFlox) })
+            [void]$queue.Enqueue([pscustomobject]@{ Path = $dir.FullName; Depth = $depth + 1 })
         }
     }
 
@@ -386,6 +389,13 @@ function Invoke-Logs($entry) {
     if ($entry.errorLogPath -and (Test-Path -LiteralPath $entry.errorLogPath)) { Write-Host '--- stderr ---' -ForegroundColor Yellow; Get-Content -LiteralPath $entry.errorLogPath -Tail 80 }
 }
 
+function Open-SgManagedProject([object]$Entry) {
+    if ($Entry.status -notin @('starting','running') -or [int]$Entry.port -le 0) {
+        throw 'The project has no active ShipGlows server URL. Start the managed project first.'
+    }
+    Start-Process "http://127.0.0.1:$([int]$Entry.port)"
+}
+
 function Invoke-Navigate {
     $entry = Get-SelectedProject
     if (-not $entry) { return }
@@ -471,7 +481,7 @@ function Invoke-Menu {
                 '4' { $entry = Get-SelectedProject; if ($entry) { Stop-SgProject $config $entry.path } }
                 '5' { $entry = Get-SelectedProject; if ($entry) { Stop-SgProject $config $entry.path; Start-SgProject $config $entry.path $Port | Out-Null } }
                 '6' { $entry = Get-SelectedProject; if ($entry) { Invoke-Logs $entry } }
-                '7' { $entry = Get-SelectedProject; if ($entry -and $entry.port) { Start-Process "http://127.0.0.1:$($entry.port)" } }
+                '7' { $entry = Get-SelectedProject; if ($entry) { Open-SgManagedProject $entry } }
                 '8' { foreach ($entry in @(Read-SgRegistry $config).projects) { Stop-SgProject $config $entry.path } }
                 '9' { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } }
                 'r' { Reconcile-SgRegistry $config | Out-Null }
@@ -502,7 +512,7 @@ try {
             else { $entry = Get-SelectedProject; if ($entry) { Stop-SgProject $config $entry.path; Start-SgProject $config $entry.path $Port | Out-Null } }
         }
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1 } else { $entry = Get-SelectedProject }; if ($entry) { Invoke-Logs $entry } }
-        'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1 } else { $entry = Get-SelectedProject }; if ($entry -and $entry.port) { Start-Process "http://127.0.0.1:$($entry.port)" } }
+        'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1 } else { $entry = Get-SelectedProject }; if ($entry) { Open-SgManagedProject $entry } }
         'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { Stop-SgProject $config $entry.path } }
         'select-start' { $entry = Get-SelectedProject; if ($entry) { Start-SgProject $config $entry.path $Port | Out-Null } }
         'select-stop' { $entry = Get-SelectedProject; if ($entry) { Stop-SgProject $config $entry.path } }
