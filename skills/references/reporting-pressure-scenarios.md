@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-pressure-scenarios
@@ -19,6 +19,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Extracted from reporting-contract.md in wave 13 for maintenance-only loading."
+  - "Operator decision 2026-08-13: reporting choices must carry strategic business value and short controls must trigger guided follow-up."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -42,3 +43,7 @@ next_step: none
   - `unsupported-guarantee`: require a preventive invariant whose scope covers the claim; reject “pour toujours”, “garanti”, “ne se reproduira pas” and semantic equivalents otherwise.
   - `proofless-invariant`: an invariant without focused mechanical proof does not authorize a universal non-recurrence claim.
   - `covered-invariant`: state the invariant, its scope, and its focused mechanical proof; claim prevention only for that covered scope.
+- `SSRP-014 strategic business choice`: a material unfinished-chantier decision offers distinct business visions with outcome, stakeholder effect, horizon, trade-off, and a reasoned recommendation; technical workflow variants fail.
+- `SSRP-015 guided questioning`: selecting a short `Questionner` control triggers focused questions that reveal business truth or distinguish credible directions; it never grants mutation approval.
+- `SSRP-016 guided reorientation`: selecting a short `Réorienter` control triggers concrete alternative business directions and their consequences; it never answers with a blank “toward what?”.
+- `SSRP-017 no blank-page handoff`: the operator receives evidence-backed framing, proposals, and a recommendation instead of being asked to invent strategy or technical mechanics.

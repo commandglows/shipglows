@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -25,15 +25,16 @@ depends_on:
     artifact_version: "1.0.0"
     required_status: active
   - artifact: "skills/references/reporting-blocked-and-audit.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes: []
 evidence:
   - "Operator decisions 2026-05-03 through 2026-08-07 define concise human reports, explicit agent handoffs, chantier-first headers, safe choices, bounded recurrence claims, and compact topology receipts."
   - "Wave 13 retained the default user decision surface here and moved conditional handoff, blocked/audit, and maintenance scenarios to direct leaves."
+  - "Operator decision 2026-08-13: unfinished report choices steer business direction and short interaction controls trigger guided follow-up."
 next_review: "2026-11-12"
 next_step: none
 ---

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-05-05"
-updated: "2026-07-18"
+updated: "2026-08-13"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-question-contract
@@ -20,11 +20,15 @@ linked_systems:
   - skills/references/decision-quality-contract.md
   - skills/references/entrypoint-routing.md
   - skills/references/reporting-contract.md
+  - skills/references/strategic-choice-contract.md
   - docs/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
     artifact_version: "1.1.0"
+    required_status: active
+  - artifact: "skills/references/strategic-choice-contract.md"
+    artifact_version: "1.0.0"
     required_status: active
 supersedes: []
 evidence:
@@ -39,6 +43,7 @@ evidence:
   - "Operator correction 2026-07-17: ShipGlows must apply the established Astro-site and Flutter-app preference before proposing a broad greenfield stack comparison."
   - "Operator clarification 2026-07-17: Astro/Vercel and cross-platform Flutter are first recommendations; ShipGlows must not default a new app to one mobile platform when one codebase can cover Web, iOS, and Android."
   - "Operator correction 2026-07-18: unfinished-chantier choices stay at the outcome and priority layer; internal skills and commands remain agent-owned."
+  - "Operator clarification 2026-08-13: short Questionner and Réorienter labels remain valid when the next agent turn actively guides the decision."
 next_review: "2026-06-05"
 next_step: "/104-sg-end greenfield platform footprint question contract"
 ---
@@ -54,6 +59,8 @@ Questions should be rare, useful, and answerable by number. A question is a deci
 The goal is not to avoid questions at all costs. The goal is to avoid useless technical supervision while still asking for operator-owned business truth when that truth materially improves the work.
 
 Load `skills/references/decision-quality-contract.md` before recommending a default. The recommended answer must preserve ShipGlows's quality and excellence bar; do not recommend the fastest, cheapest, or easiest route unless it is also quality-equivalent, excellence-equivalent, and professionally correct.
+
+Load `skills/references/strategic-choice-contract.md` for material operator choices and for every unfinished-chantier choice block. It owns business-vision depth and the guided follow-up required after short `Questionner` or `Réorienter` controls.
 
 ## Applies To
 
@@ -248,3 +255,4 @@ Name the condition that would make another option better when that matters.
 - `SSRP-009 greenfield platform footprint`: given the operator asks for a new Internet product and does not explicitly accept or reject native apps, when platform scope would change the credible framework options, then the agent establishes web/iOS/Android/desktop intent before blueprint matching or stack recommendation and does not silently place mobile apps in `Scope Out`.
 - `SSRP-010 preferred stack preset`: given the established footprint includes a public SEO site plus web/iOS/Android application surfaces, when no project constraint contradicts the defaults, then the agent applies Astro plus Flutter with Vercel web hosting before blueprint matching and asks only about uncovered material providers or justified exceptions.
 - `SSRP-011 cross-platform first`: given the operator asks for a new mobile or browser application without a durable single-platform restriction, then the agent first recommends one Flutter codebase for Web, iOS, and Android and keeps Astro on Vercel for any separate public SEO surface.
+- `SSRP-012 guided short controls`: selecting `Questionner` or `Réorienter` triggers the shared strategic contract's guided follow-up; neither selection authorizes mutation or returns a blank question to the operator.

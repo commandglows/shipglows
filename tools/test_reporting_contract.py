@@ -136,9 +136,9 @@ class ReportingContractTests(unittest.TestCase):
         for rule in (
             "## Unfinished Chantier Choice",
             "end the message\nwith a numbered, plain-language choice block",
-            "1. ✅ Continuer comme prévu",
-            "2. 🧭 Réorienter",
-            "3. ⏸ Mettre en pause",
+            "strategic-choice-contract.md",
+            "business direction",
+            "guided follow-up",
             "must never expose skill names, slash commands, lifecycle",
             "`SSRP-012 unfinished chantier choice`",
         ):

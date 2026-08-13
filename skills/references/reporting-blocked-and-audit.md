@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-blocked-and-audit
@@ -15,10 +15,15 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/references/reporting-contract.md
-depends_on: []
+  - skills/references/strategic-choice-contract.md
+depends_on:
+  - artifact: "skills/references/strategic-choice-contract.md"
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Extracted from reporting-contract.md in wave 13."
+  - "Operator decision 2026-08-13: unfinished chantier choices must support strategic business steering and guided follow-up."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -32,19 +37,19 @@ Concise does not mean vague. State the blocking gate, redacted concrete evidence
 ## Unfinished Chantier Choice
 
 When a user-facing final report returns control while the chantier remains unfinished, end the message
-with a numbered, plain-language choice block. Use two or three outcome choices and recommend the safest current direction. The choices must never expose skill names, slash commands, lifecycle labels, internal owners, or agent topology.
+with a numbered, plain-language choice block. Load `skills/references/strategic-choice-contract.md`, use two or three choices, and recommend the strongest responsible business direction. The choices must never expose skill names, slash commands, lifecycle labels, internal owners, or agent topology.
 
-When no material decision is missing, use:
+When no material decision is missing, keep controls proportional. A short interaction label is allowed because it requires active guided follow-up after selection:
 
 ```text
-1. ✅ Continuer comme prévu — le travail continue avec la priorité actuelle.
-2. 🧭 Réorienter — indique ce que tu veux changer ou privilégier.
-3. ⏸ Mettre en pause — le chantier reste conservé pour plus tard.
+1. ✅ Poursuivre le résultat convenu — conserve la valeur et la priorité déjà validées.
+2. 💬 Questionner
+3. 🧭 Réorienter
 
 Réponds avec le numéro ou indique une autre direction.
 ```
 
-Replace generic choices with a specific business/product/safety/scope/release/risk decision when one is actually required. Completed work receives no choice block. A blocked chantier receives specific safe recovery choices.
+After `Questionner`, conduct useful guided questioning. After `Réorienter`, propose concrete business directions with outcome, horizon, and trade-off; never hand the operator a blank page. When a material decision exists, replace generic controls with specific business direction options covering product, customer, market, investment, scope, trust, release, or risk consequences. Completed work receives no choice block. A blocked chantier receives specific safe recovery choices.
 
 ## Audit Reports
 
