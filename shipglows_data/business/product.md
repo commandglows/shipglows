@@ -1,10 +1,10 @@
 ---
 artifact: product_context
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: reviewed
 source_skill: manual
 scope: product
@@ -14,7 +14,7 @@ risk_level: medium
 target_user: "solo founders and autonomous technical builders using AI agents on real product work"
 user_problem: "lost context, weak agent handoffs, repeated re-explanation, silent ambiguity, and incomplete verification across delivery work"
 desired_outcomes: "business-aware decisions, faster orientation, stronger handoffs, bounded chantiers, verified outcomes, and simpler delivery and operation"
-non_goals: "mass-market beginner education, generic project management, general-purpose PaaS positioning, or replacing engineering judgment with autonomous automation"
+non_goals: "mass-market beginner education, generic project management, general-purpose PaaS positioning, consulting or human-accompaniment services, presenting the unbuilt Cockpit SaaS as available, or replacing engineering judgment with autonomous automation"
 security_impact: yes
 docs_impact: yes
 evidence:
@@ -22,6 +22,7 @@ evidence:
   - "shipglows_data/editorial/content-map.md and the sg-content repurpose mode add a content routing layer for documentation and marketing reuse"
   - "Thirteen public métier owners plus the ShipGlows router now share business-context, strategic-choice, outcome-ownership, and proof contracts"
   - "Operator confirmed decision SG-BIZ-2026-08-13-01: partnership and outcome ownership lead; environment delivery supports execution"
+  - "Operator confirmed decision SG-BIZ-2026-08-14-01: the partnership is delivered by the autonomous ShipGlows product, never by a service offer; Cockpit SaaS remains nonexistent and deferred"
 linked_artifacts:
   - "shipglows_data/business/business.md"
   - "shipglows_data/technical/architecture.md"
@@ -32,7 +33,7 @@ depends_on:
     required_status: "reviewed"
 supersedes: []
 next_review: "2026-09-13"
-next_step: "Verify the new product hierarchy across public onboarding and the external landing page"
+next_step: "Test product adoption and value delivery while keeping service offers and premature Cockpit promises out of scope"
 ---
 
 # Product Context
@@ -67,7 +68,17 @@ next_step: "Verify the new product hierarchy across public onboarding and the ex
 - Keep fast paths for local work, but force structure when the task becomes risky or cross-cutting.
 - Make success and failure visible to the operator.
 - Act as a business partner before selecting technical means.
+- Deliver that partnership through the software product itself, not through consulting or human accompaniment.
 - Keep environment and server operations subordinate to the outcome they enable and prove.
+
+## Product Boundary Decision
+
+Decision `SG-BIZ-2026-08-14-01` is `confirmed`:
+
+- ShipGlows is the autonomous product available today.
+- "Business partner" describes product behavior: useful judgment, guided strategic choices, governed context, outcome ownership, and proof.
+- Consulting, diagnostics, implementation missions, and human accompaniment are outside the intended product and commercial model.
+- Cockpit may become a separate SaaS product later, but it does not exist today and carries no current delivery, roadmap, pricing, or availability promise.
 
 ## Product Capability Hierarchy
 
@@ -101,6 +112,8 @@ The first three layers define the primary product promise. The fourth is a diffe
 - Beginner no-code workflow tooling.
 - Broad cloud hosting abstraction for every deployment model.
 - Generic platform-manager positioning without a strong agent-workflow angle.
+- Consulting, agency work, diagnostics, implementation missions, and human-accompaniment offers.
+- Selling, pricing, or presenting Cockpit as an available SaaS before a distinct product decision and verified implementation exist.
 
 ## Success Signals
 
@@ -119,3 +132,5 @@ The first three layers define the primary product promise. The fourth is a diffe
 - The tool can be mistaken for “just a prompting method” if the environment-delivery layer is underexplained.
 - Documentation volume can grow faster than its clarity if doc roles are not kept exclusive.
 - Content repurposing can drift into generic marketing if `shipglows_data/editorial/content-map.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md`, and `shipglows_data/business/gtm.md` are not kept current.
+- Product language can accidentally imply a human service when "partner" is not paired with autonomous product behavior.
+- A future Cockpit concept can distort current priorities if treated as an existing product or committed roadmap.

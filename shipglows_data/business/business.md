@@ -1,17 +1,17 @@
 ---
 artifact: business_context
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: reviewed
 source_skill: manual
 scope: business
 owner: "unknown"
 confidence: medium
 risk_level: medium
-business_model: "not defined yet; current hypothesis is a simple sales motion for solo founders with product and documentation that support autonomy"
+business_model: "ShipGlows is an autonomous software product, not a service offer; any future monetized product direction belongs to a distinct Cockpit SaaS that does not exist and is not offered today"
 target_audience: "solo founders first, plus small technical teams using AI agents to turn business and product intent into shipped, verified software without fragile handoffs"
 value_proposition: "turn governed business truth into better decisions, bounded chantiers, and verified outcomes through business-aware agent métiers, with delivery infrastructure as an integrated execution capability"
 market: "solo founders first, with adjacent fit for small technical teams and highly autonomous builders running simple product sales cycles"
@@ -22,6 +22,7 @@ evidence:
   - "Repository contains workflow, verification, audit, docs, and metadata tooling rather than a narrow single-purpose CLI"
   - "The public system now exposes thirteen métier owners plus the ShipGlows router, backed by shared business-context, strategic-choice, execution, and verification contracts"
   - "Operator decision 2026-08-13: ShipGlows is first a business and delivery partner; server tooling is an integrated execution capability rather than an equal top-level promise"
+  - "Operator decision SG-BIZ-2026-08-14-01: ShipGlows remains an autonomous product with no service, consulting, diagnostic, or human-accompaniment offer; a future Cockpit SaaS is only a deferred possibility and is not a current product promise"
 linked_artifacts:
   - "shipglows_data/business/product.md"
   - "shipglows_data/business/gtm.md"
@@ -30,7 +31,7 @@ linked_artifacts:
 depends_on: []
 supersedes: []
 next_review: "2026-09-13"
-next_step: "Validate this hierarchy against the external public site and early user evidence"
+next_step: "Collect product-adoption evidence without introducing service-led acquisition or presenting Cockpit as an available offer"
 ---
 
 # Business Context
@@ -68,9 +69,11 @@ This supersedes the prior equal-pillar framing of AI delivery and server environ
 
 ## Business Model
 
-- There is no defined business model yet.
-- Current working assumption: if monetized, the offer should fit a simple sales motion for solo founders rather than a complex enterprise process.
-- The commercial model remains a hypothesis to test after the positioning and product framing are clearer.
+- Decision `SG-BIZ-2026-08-14-01` is `confirmed`: ShipGlows is an autonomous software product, not a service business.
+- ShipGlows does not offer consulting, diagnostics, implementation missions, or human accompaniment as a commercial layer.
+- No service-led acquisition or contact-to-mission funnel should be inferred from the "business partner" positioning; the partnership is delivered by the product itself.
+- If a monetized product is pursued later, the current intended vehicle is a distinct Cockpit SaaS. Cockpit does not exist yet, is not sold today, and must not be presented as an available capability or offer.
+- Pricing and monetization remain open until a real Cockpit product, evidence, and explicit product decision exist.
 
 ## Market
 
@@ -93,7 +96,9 @@ This supersedes the prior equal-pillar framing of AI delivery and server environ
 ## Decision Status
 
 - The audience, problem frame, product hierarchy, and partner-first value proposition are confirmed enough to guide product and documentation work now.
-- The business model remains intentionally open and should not be treated as settled strategy.
+- The no-services boundary and product-delivered partnership are confirmed.
+- The future Cockpit SaaS is a deferred possibility, not a current roadmap commitment or commercial promise.
+- Pricing and monetization remain intentionally open until a product exists to support them.
 
 ## Risks
 
@@ -101,3 +106,5 @@ This supersedes the prior equal-pillar framing of AI delivery and server environ
 - The partnership promise can become generic unless métier decisions remain grounded in project truth and finish with observable proof.
 - Commercial claims should stay behind evidence; the repo shows doctrine strength, not validated market traction.
 - Product strategy can drift if README-level narrative substitutes for explicit business and GTM decisions.
+- The word "partner" can create service expectations unless every offer, CTA, and journey makes the autonomous-product boundary explicit.
+- Premature Cockpit messaging could create a promise for a SaaS that has not been built or validated.

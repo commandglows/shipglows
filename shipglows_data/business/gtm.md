@@ -1,10 +1,10 @@
 ---
 artifact: gtm_context
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: reviewed
 source_skill: manual
 scope: gtm
@@ -12,7 +12,7 @@ owner: "unknown"
 confidence: low
 risk_level: medium
 target_segment: "solo founders first, with adjacent fit for small technical teams and technical builders evaluating a clearer way to ship with AI agents"
-offer: "a business-aware delivery partner that turns governed product truth into métier decisions, bounded chantiers, and verified outcomes, supported by integrated environment and release capabilities"
+offer: "an autonomous business-aware delivery product that turns governed product truth into métier decisions, bounded chantiers, and verified outcomes; it is not a consulting or human-accompaniment service, and the possible future Cockpit SaaS is not a current offer"
 channels: "documentation-first discovery, technical content, demos, founder education, and clarity-oriented positioning"
 proof_points: "business-context mesh, thirteen public métier owners plus the ShipGlows router, strategic choices, guided governance refresh, outcome-owned workflows, verification and audits, plus concrete environment and delivery tooling"
 security_impact: unknown
@@ -20,6 +20,7 @@ docs_impact: yes
 evidence:
   - "Current repo demonstrates the mechanics of the framework but not yet validated acquisition or conversion data"
   - "Operator confirmed decision SG-BIZ-2026-08-13-01: partnership and verified outcomes lead the offer; server delivery is supporting proof"
+  - "Operator confirmed decision SG-BIZ-2026-08-14-01: ShipGlows has no service offer; partnership is product behavior, and Cockpit SaaS remains a deferred possibility rather than a current commercial promise"
 linked_artifacts:
   - "shipglows_data/business/business.md"
   - "shipglows_data/branding/branding.md"
@@ -34,7 +35,7 @@ depends_on:
     required_status: "reviewed"
 supersedes: []
 next_review: "2026-09-13"
-next_step: "Translate the confirmed offer hierarchy into the external landing, docs, FAQ, and pitch surfaces"
+next_step: "Measure product-led discovery and adoption without service CTAs or premature Cockpit conversion promises"
 ---
 
 # GTM Context
@@ -53,6 +54,8 @@ next_step: "Translate the confirmed offer hierarchy into the external landing, d
 - The first public story should stay simple: ShipGlows helps solo founders turn their business intent into shipped, verified product outcomes with agents.
 - Environment and server operations demonstrate that the partnership reaches delivery; they should not lead the category story.
 - Small teams should still be able to recognize themselves in the product, but as a secondary audience rather than the lead headline.
+- The partnership is delivered by ShipGlows itself. There is no consulting, diagnostic, implementation-mission, or human-accompaniment offer behind the message.
+- Cockpit may become the future SaaS vehicle, but it does not exist today and must not appear as an available product, price, waitlist promise, or current conversion destination.
 
 ## Positioning
 
@@ -60,6 +63,7 @@ next_step: "Translate the confirmed offer hierarchy into the external landing, d
 - Not “just a server CLI with PM2 helpers”.
 - Not “just a methodology or a bundle of prompts for agents”.
 - Not a general-purpose PaaS or platform manager.
+- Not an agency, consultancy, fractional team, diagnostic service, or implementation service.
 - Best current positioning: a business-aware delivery partner for solo founders, powered by governed métier agents and integrated execution infrastructure, with clear applicability to small technical teams.
 
 ## Channels
@@ -73,9 +77,10 @@ next_step: "Translate the confirmed offer hierarchy into the external landing, d
 
 - First contact through docs, examples, or technical content.
 - Interest through the concrete mechanics: `AGENT.md`, `shipglows_data/technical/context.md`, `shipglows_data/workflow/specs/`, verification, lintable metadata.
-- Conversion through confidence that the framework improves reliability of real work, not toy demos.
-- The buying motion should stay simple and compatible with a solo-founder audience.
+- Adoption through confidence that the product improves the reliability of real work, not toy demos.
+- The current motion should stay product-led and compatible with a solo-founder audience; it must not route users toward a service consultation or delivery mission.
 - The public story should make clear that declared products, sales surfaces, and public claims are governed with explicit proof rather than improvised copy.
+- Cockpit may receive its own conversion path only after it exists and a separate product decision defines its audience, offer, proof, and availability.
 
 ## Proof Points
 
@@ -104,8 +109,10 @@ next_step: "Translate the confirmed offer hierarchy into the external landing, d
 - To be defined once there is an explicit site and funnel.
 - Early candidate signals: activated repos, repeated use of spec/verify loop, reduction in context-restatement, docs adoption across projects.
 - Business model is not defined yet; pricing and revenue KPIs remain open hypotheses.
+- Service leads and consulting revenue are not target signals. Any future Cockpit SaaS metrics require a real product and a separately confirmed GTM contract.
 
 ## Evidence Limits
 
 - The current GTM contract is reviewed enough to guide wording and funnel experiments.
 - It is not reviewed enough to justify aggressive commercial claims or mature revenue assumptions.
+- It provides no evidence for selling Cockpit or implying a human service layer.
