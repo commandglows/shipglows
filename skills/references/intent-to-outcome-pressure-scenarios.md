@@ -1,10 +1,10 @@
 ---
 artifact: test_plan
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-13"
 status: active
 source_skill: 900-shipglows-core
 scope: intent-to-outcome-pressure-scenarios
@@ -17,11 +17,12 @@ linked_systems:
   - tools/test_metier_first_public_skills_contract.py
 depends_on:
   - artifact: skills/references/intent-to-outcome-autonomy.md
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: active
 supersedes: []
 evidence:
   - "Wave 15 retained MH-01 through MH-12 outside normal runtime activation."
+  - "Operator decision 2026-08-13 adds business-partner-first and strategic-choice activation scenarios."
 next_review: "2026-09-12"
 next_step: none
 ---
@@ -42,3 +43,5 @@ This leaf is test and review evidence, not a runtime prerequisite.
 - `MH-10`: default help shows the public corpus; expert help reveals internal engines.
 - `MH-11`: every capability has one public owner or explicit internal-engine status.
 - `MH-12`: no capability has two competing public owners.
+- `MH-13`: a non-trivial request identifies the intended business, product, customer, or organizational outcome before choosing technical means; a technically successful but business-irrelevant result remains partial.
+- `MH-14`: a material operator choice loads the strategic-choice contract and compares credible futures by outcome, stakeholder effect, horizon, and trade-off; routine reversible work remains proportional.

@@ -20,6 +20,8 @@ SKILLS = ROOT / "skills"
 AUTONOMY = SKILLS / "references" / "intent-to-outcome-autonomy.md"
 AUTONOMY_EXECUTION = SKILLS / "references" / "intent-to-outcome-execution.md"
 AUTONOMY_SCENARIOS = SKILLS / "references" / "intent-to-outcome-pressure-scenarios.md"
+STRATEGIC_CHOICES = SKILLS / "references" / "strategic-choice-contract.md"
+PARTNERSHIP = SKILLS / "references" / "operator-partnership-contract.md"
 REGISTRY = SKILLS / "references" / "skill-invocation-registry.json"
 ROUTER = SKILLS / "references" / "entrypoint-routing.md"
 LIFECYCLE = SKILLS / "references" / "master-workflow-lifecycle.md"
@@ -55,6 +57,8 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         cls.autonomy = AUTONOMY.read_text(encoding="utf-8")
         cls.autonomy_execution = AUTONOMY_EXECUTION.read_text(encoding="utf-8")
         cls.autonomy_scenarios = AUTONOMY_SCENARIOS.read_text(encoding="utf-8")
+        cls.strategic_choices = STRATEGIC_CHOICES.read_text(encoding="utf-8")
+        cls.partnership = PARTNERSHIP.read_text(encoding="utf-8")
         cls.registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         cls.catalog = cls.registry["public_catalog"]
         cls.router = ROUTER.read_text(encoding="utf-8")
@@ -107,6 +111,30 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
             for heading in required_headings:
                 self.assertIn(heading, body, f"{public_skill}: {heading}")
             self.assertIn("reporting-contract.md", body, public_skill)
+
+    def test_mh_13_business_partner_first_is_active_for_every_public_path(self) -> None:
+        for required in (
+            "## Business Partner First",
+            "business, product, customer, or organizational outcome",
+            "Before selecting a technical solution",
+            "technically correct but business-irrelevant output",
+            "strategic-choice-contract.md",
+            "operator-partnership-contract.md",
+        ):
+            self.assertIn(required, self.autonomy)
+
+        runtime_skills = {
+            str(entry["runtime_skill"])
+            for entry in self.skills + [self.catalog["router"]]
+        }
+        for runtime_skill in runtime_skills:
+            body = (SKILLS / runtime_skill / "SKILL.md").read_text(encoding="utf-8")
+            self.assertIn("intent-to-outcome-autonomy.md", body, runtime_skill)
+
+    def test_mh_14_material_choices_load_the_strategic_contract(self) -> None:
+        self.assertIn("Before presenting a material operator-facing choice", self.autonomy)
+        self.assertIn("business or product outcome", self.strategic_choices)
+        self.assertIn("partner before becoming a technical executor", self.partnership)
 
     # MH-02: projects can contain several products and surfaces.
     def test_mh_02_preserves_the_full_target_hierarchy(self) -> None:
@@ -181,7 +209,7 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         self.assertNotIn(AUTONOMY_EXECUTION.name, self.autonomy_scenarios)
 
     def test_mh_scenarios_remain_complete_and_test_only(self) -> None:
-        for number in range(1, 13):
+        for number in range(1, 15):
             self.assertIn(f"`MH-{number:02}`", self.autonomy_scenarios)
         self.assertIn("not a runtime prerequisite", self.autonomy_scenarios)
 

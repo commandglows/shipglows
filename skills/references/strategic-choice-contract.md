@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-13"
@@ -14,6 +14,8 @@ risk_level: high
 security_impact: none
 docs_impact: yes
 linked_systems:
+  - skills/references/intent-to-outcome-autonomy.md
+  - skills/references/operator-partnership-contract.md
   - skills/references/mutation-plan-approval.md
   - skills/references/question-contract.md
   - skills/references/reporting-blocked-and-audit.md
@@ -26,6 +28,7 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-13: plan and chantier choices must support long-horizon business steering rather than expose short-sighted technical controls."
   - "Operator clarification 2026-08-13: Questionner and Réorienter may remain short labels when selection triggers useful guided questions or concrete reorientation proposals."
+  - "Operator decision 2026-08-13: the contract must activate through the common public métier autonomy path, not only at reporting boundaries."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify strategic operator choices"
 ---

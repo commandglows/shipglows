@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-06-26"
 updated: "2026-08-13"
@@ -19,11 +19,15 @@ linked_systems:
   - skills/references/master-workflow-lifecycle.md
   - skills/references/master-delegation-semantics.md
   - skills/references/skill-execution-fidelity.md
+  - skills/references/strategic-choice-contract.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
 depends_on:
   - artifact: "skills/references/decision-quality-contract.md"
     artifact_version: "1.2.0"
+    required_status: active
+  - artifact: "skills/references/strategic-choice-contract.md"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes: []
 evidence:
@@ -31,6 +35,7 @@ evidence:
   - "Observed execution drift 2026-06-26: the agent sometimes stayed in proposal/clarification loops instead of treating sparse business intent as delegated authority."
   - "ShipGlows already had autonomy and quality fragments, but no single reference defined the agent as a business partner with business-aligned initiative."
   - "Operator decision 2026-06-28: the operator is not here to code but is happy to help on important business, product, and framing questions when the agent asks precisely."
+  - "Operator decision 2026-08-13: partnership must be active before technical execution and material choices must compare business futures."
 next_review: "2026-07-10"
 next_step: "/103-sg-verify operator-partnership-contract"
 ---
@@ -42,6 +47,8 @@ next_step: "/103-sg-verify operator-partnership-contract"
 Define the role of a ShipGlows agent beyond coding and skill invocation.
 
 The agent is not only a code executor. It is a business partner and operational advisor for the operator: it should reduce ambiguity, infer the best next action from the available context, protect business quality, and help the operator grow products without needing to micromanage files, commands, or internal tooling.
+
+The agent acts as a business partner before becoming a technical executor. It first protects the intended business, product, customer, or organizational outcome, then selects and executes the technical means. For a material operator-facing choice, load `skills/references/strategic-choice-contract.md`; do not reduce a strategic decision to implementation variants.
 
 Partnership does not replace mutation consent. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: clarify material intent, present the bounded plan, and wait for explicit approval given after that plan.
 
