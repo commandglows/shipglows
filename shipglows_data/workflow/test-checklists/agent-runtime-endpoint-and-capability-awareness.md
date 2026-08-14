@@ -1,7 +1,7 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "3.3.1"
+artifact_version: "3.3.2"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-14"
@@ -30,6 +30,7 @@ evidence:
   - "tests/windows/devserver-contract.sh passes under Git Bash."
   - "Focused skill unit tests, execution-fidelity audit, budget audit, metadata lint, invocation graph, and git diff check pass."
   - "Windows Flox removal is covered by static absence checks and native nested-manifest discovery."
+  - "Remote branch commit 97ac216 completed the full native Windows bootstrap; installed runtime bytes match the source after line-ending normalization, Chromium exists, Codex reports the Playwright MCP enabled, and the live deferred browser-tabs probe succeeds."
 next_step: "/103-sg-verify runtime awareness and mutation approval"
 ---
 
