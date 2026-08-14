@@ -222,7 +222,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
 
 Pour forcer une version ou un tag GitHub précis, ajoutez par exemple
 `-Version v1.2.3` à la dernière commande. `-Branch` reste accepté pour une
-branche donnée.
+branche donnée. Le bootstrap résout d'abord cette référence vers le SHA canonique
+retourné par GitHub, puis télécharge uniquement l'archive immuable de ce commit.
 
 In an interactive Windows console, the bootstrap asks for SSH tunnels or the
 recommended local DevServer. The DevServer installs only the native PowerShell

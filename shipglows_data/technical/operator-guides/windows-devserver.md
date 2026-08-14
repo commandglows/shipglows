@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.4.1"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-14"
@@ -76,7 +76,8 @@ ne sont pas requis par le parcours Shadow PC.
 
    `-Branch`, `-Tag` et `-Ref` sont aussi acceptés comme alias.
 
-   Le bootstrap télécharge l'archive publique ShipGlows sans Git, installe
+   Le bootstrap résout la branche, le tag ou le SHA demandé vers le commit
+   canonique GitHub, puis télécharge uniquement son archive publique immuable sans Git. Il installe
    automatiquement Gum dans le runtime ShipGlows pour le menu interactif,
    puis installe Git, GitHub CLI, Node LTS, pnpm et uv en mode full. Flutter
    Web et chaque agent de code (Codex, Claude Code, OpenCode, KiloCode) sont
