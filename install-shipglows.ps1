@@ -102,7 +102,7 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
 
     return $entries
 }
-function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref) {
+function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref, [string]$CurlPath = 'curl.exe') {
     $archiveBase = $RepositoryUrl.TrimEnd('/') -replace '\.git$', ''
     if ($archiveBase -notmatch '^https://github\.com/([^/]+/[^/]+)$') {
         Fail 'RepoUrl must point to a public GitHub repository for the Windows installation without Git.'
@@ -110,17 +110,21 @@ function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref) {
 
     $repositoryPath = $Matches[1]
     $encodedRef = [Uri]::EscapeDataString($Ref)
-    $commitPatchUrl = "https://github.com/$repositoryPath/commit/$encodedRef.patch"
-    $commitResponse = (& curl.exe -fsSL --retry 3 --retry-all-errors --retry-delay 2 $commitPatchUrl | Out-String)
+    $commitApiUrl = "https://api.github.com/repos/$repositoryPath/commits/$encodedRef"
+    $commitResponse = (& $CurlPath -fsSL --retry 3 --retry-all-errors --retry-delay 2 -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' $commitApiUrl | Out-String)
     if ($LASTEXITCODE -ne 0) {
         Fail "Could not resolve ShipGlows ref: $Ref"
     }
 
-    $commitMatch = [regex]::Match($commitResponse, '(?m)^From ([0-9a-f]{40}) ')
-    if (-not $commitMatch.Success) {
+    try {
+        $commit = $commitResponse | ConvertFrom-Json
+    } catch {
         Fail "GitHub did not return a valid commit for ref: $Ref"
     }
-    $commitSha = $commitMatch.Groups[1].Value
+    $commitSha = [string]$commit.sha
+    if ($commitSha -notmatch '^[0-9a-f]{40}$') {
+        Fail "GitHub did not return a valid commit for ref: $Ref"
+    }
 
     [PSCustomObject]@{
         Commit = $commitSha

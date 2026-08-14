@@ -14,6 +14,7 @@ for file in "$MODULE" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE
 done
 
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/bootstrap-ref-resolution.ps1"
 bash "$ROOT/tests/install/playwright-mcp-contract.sh"
 rg -n 'Install-SgCodexPlaywrightMcp|Get-SgNativeNpxPath|managedWrapper|--package=@playwright/mcp@latest|playwright install chromium|native npx\.cmd|mcp get playwright --json' "$INSTALLER"
 rg -n 'mcp_servers\.playwright|@playwright/mcp@latest|enabled = true|--headless.*--browser.*chromium' "$CODEX_MCP_MODULE"

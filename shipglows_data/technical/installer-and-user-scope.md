@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.1.1"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-14"
@@ -83,7 +83,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 ## Entrypoints
 
 - `curl -fsSL https://shipglows.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
-- Native Windows without WSL uses the same endpoint with `?format=powershell`; it downloads the PowerShell adapter, extracts the public ShipGlows archive without Git, and supports `local` or `full`. Interactive mode selection requires `1`, `2`, or `0`; an empty answer only repeats the prompt. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download and before each optional agent CLI (Codex, Claude Code, OpenCode, KiloCode). When Codex is available it also offers workspace permissions (recommended), full access, or preservation of the existing config; `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep` makes that choice deterministic for automation. GitHub authentication is initiated only when private repository browsing is selected; agent authentication is initiated only by the selected agent at first run; credentials remain owned by their respective CLIs.
+- Native Windows without WSL uses the same endpoint with `?format=powershell`; it resolves the requested branch, tag, or SHA through GitHub's canonical commit API, validates the returned 40-character SHA, and extracts only that immutable public archive without Git. It supports `local` or `full`. Interactive mode selection requires `1`, `2`, or `0`; an empty answer only repeats the prompt. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download and before each optional agent CLI (Codex, Claude Code, OpenCode, KiloCode). When Codex is available it also offers workspace permissions (recommended), full access, or preservation of the existing config; `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep` makes that choice deterministic for automation. GitHub authentication is initiated only when private repository browsing is selected; agent authentication is initiated only by the selected agent at first run; credentials remain owned by their respective CLIs.
 - Native Windows keeps internal source and command wrappers under `%USERPROFILE%\.shipglows\runtime`; the parent `.shipglows` directory stays hidden and may also contain sibling private data repositories. User repositories live directly under `%USERPROFILE%\ShipGlows`; migration removes only legacy `bin`, `cli`, and `local` runtime directories and removes the old visible `workspace` directory only when it is empty.
 - `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
 - `tools/sync_shipglows_public_bootstrap.sh --check [--site-root <path>]`: verifies that the ShipGlows site serves generated canonical artifacts rather than independently maintained templates.

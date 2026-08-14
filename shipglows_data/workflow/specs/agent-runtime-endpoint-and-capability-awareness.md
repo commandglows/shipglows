@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "3.3.2"
+artifact_version: "3.3.3"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-14"
@@ -34,6 +34,7 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 ## Runtime contract
 
 - The full Windows installer writes `%USERPROFILE%\.shipglows\environment.md` idempotently with Windows, PowerShell, Codex CLI, Playwright, DevServer, and tool-surface facts.
+- The Windows bootstrap resolves a requested branch, tag, or SHA through GitHub's canonical commit endpoint, validates one 40-character SHA, and downloads the immutable archive for that exact commit; patch contents are never used as ref-resolution metadata.
 - The full Windows installer uses `uv` to ensure one functional default Python runtime, publishes both `python` and `python3` in the user path, and stops before declaring readiness if either command or the `ssl`/`sqlite3` standard-library imports fail.
 - The global environment document records the detected Python version, manager, and commands from installation results rather than a hardcoded version.
 - The Playwright result records Chromium installation and executable path, MCP configuration and Codex config path, and successful `codex mcp get playwright --json` verification.
@@ -63,6 +64,7 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 ## Verification
 
 - PowerShell parser checks for module, launcher, installer, and focused migration test.
+- Focused Windows bootstrap regression simulates a merge commit response, verifies exact canonical-SHA archive pinning, and rejects malformed SHAs.
 - Focused Windows regression checks for `uv python install --default`, fail-closed runtime validation, structured Playwright evidence, and generated capability fields.
 - The Windows installer AST regression keeps the structured Playwright result inside `Install-SgCodexPlaywrightMcp` and prevents the environment-instruction writer from capturing that result contract.
 - Focused Windows/Linux installer checks that Playwright MCP remains globally enabled and future runtime instructions require deferred discovery before an unavailable verdict.
