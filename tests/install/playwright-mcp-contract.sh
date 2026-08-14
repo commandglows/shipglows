@@ -7,6 +7,7 @@ INSTALLER="$ROOT/cli/install.sh"
 bash -n "$INSTALLER"
 rg -n 'npx -y --package=@playwright/mcp@latest playwright install chromium' "$INSTALLER"
 rg -n 'install_playwright_chromium_for_user|playwright_ready' "$INSTALLER"
+rg -n 'default web-QA transport, registered enabled globally' "$INSTALLER"
 
 playwright_body="$(sed -n '/^configure_codex_playwright_mcp()/,/^}/p' "$INSTALLER")"
 grep -Fq "printf 'enabled = true\\n'" <<<"$playwright_body"

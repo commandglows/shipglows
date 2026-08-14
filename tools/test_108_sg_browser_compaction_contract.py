@@ -33,6 +33,8 @@ class BrowserCompactionContractTests(unittest.TestCase):
             "project-development-mode.md",
             "preview-proof-routing.md",
             "playwright-mcp-runtime.md",
+            "deferred/searchable current-turn tool catalogs",
+            "smallest read-only Playwright probe",
             "blocks app diagnosis",
         ):
             self.assertIn(marker, SKILL)
@@ -77,6 +79,22 @@ class BrowserCompactionContractTests(unittest.TestCase):
             self.assertIn(marker, proof)
         self.assertIn("Simple screenshot", SKILL)
         self.assertIn("do not trigger the full signoff matrix", SKILL)
+
+    def test_deferred_playwright_discovery_prevents_visible_list_false_negative(self) -> None:
+        runtime = (ROOT / "skills/references/agent-runtime-awareness.md").read_text(encoding="utf-8")
+        playwright = (ROOT / "skills/references/playwright-mcp-runtime.md").read_text(encoding="utf-8")
+        direct = runtime.index("inspect tools exposed directly")
+        deferred = runtime.index("deferred or searchable tool catalog")
+        probe = runtime.index("smallest read-only probe")
+        unavailable = runtime.index("Absence from the first visible tool list")
+        self.assertLess(direct, deferred)
+        self.assertLess(deferred, probe)
+        self.assertLess(probe, unavailable)
+        for marker in ("ALL_TOOLS", "tool_search", "mcp__playwright__*", "`discovered`", "`callable`", "`failed`", "`not exposed`"):
+            self.assertIn(marker, runtime)
+        self.assertIn("default browser automation lane", playwright)
+        self.assertIn("playwright-interactive", playwright)
+        self.assertIn("never makes a working\nPlaywright MCP unavailable", playwright)
 
     def test_packs_are_governed_direct_and_report_compatible(self) -> None:
         for name, text in REFS.items():

@@ -57,10 +57,17 @@ try {
     foreach ($required in @('🧭 VALIDATION RAPIDE','one- or two-sentence','exact action','exact target','main safety guarantee','local-only','readily reversible','cannot overwrite, discard, delete, force, publish, deploy, message, change credentials/permissions, or affect unrelated changes','`git push` always uses the full plan')) {
         if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows installed agent instructions are missing: $required" }
     }
+    foreach ($required in @('function Install-SgDefaultPython','python install --default','import ssl, sqlite3','Python manager: $($PythonInfo.Manager)','Python commands: $($PythonInfo.Commands)','Playwright Chromium installed: $playwrightInstalled','Playwright MCP configured: $playwrightConfigured','Playwright MCP verified: $playwrightVerified','Playwright MCP config: $playwrightConfigPath','Playwright Chromium path: $chromiumPath','Install-SgDefaultPython $uvPaths $pythonPaths','Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo')) {
+        if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows runtime capability contract is missing: $required" }
+    }
+    if ($installerSource -notmatch "throw 'ShipGlows requires uv to provide a functional default Python runtime\.'") { throw 'Windows installer can continue without its required Python manager.' }
 
     $runtimeContract = Get-Content -LiteralPath (Join-Path $root 'skills\references\agent-runtime-awareness.md') -Raw
-    foreach ($required in @('ENVIRONMENT.md','DevServer registry','4321','Playwright configuré, outil non exposé dans ce tour')) {
+    foreach ($required in @('ENVIRONMENT.md','DevServer registry','4321','Python as available through `uv`','deferred or searchable tool catalog','ALL_TOOLS','mcp__playwright__*','Playwright configuré, outil non exposé dans ce tour','Absence from the first visible tool list')) {
         if ($runtimeContract -notmatch [regex]::Escape($required)) { throw "Runtime awareness contract is missing: $required" }
+    }
+    foreach ($required in @('Inspect both directly exposed tools and any deferred/searchable catalog','before declaring a configured tool unavailable')) {
+        if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows installed agent capability discovery is missing: $required" }
     }
 
     $userOwnedProject = Join-Path $fixture 'user-owned-legacy'

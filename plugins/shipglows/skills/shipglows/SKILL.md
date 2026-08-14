@@ -102,8 +102,11 @@ For `$shipglows context`, inspect rather than infer:
 2. Resolve the current ShipGlows-managed project root from the working directory, then read `<project-root>\ENVIRONMENT.md` and its matching Windows DevServer registry entry.
 3. Report host, shell, agent surface, server manager, live server status, and the exact canonical local URL.
 4. Use that URL for browser, test, screenshot, or preview work. Never replace it with Astro/Vite defaults such as `4321`, repository scripts, remembered ports, or another project's URL.
-5. Report Playwright exactly as the global file states. If configured but not injected as a tool in the current turn, say `Playwright configuré, outil non exposé dans ce tour`; never say that no browser is installed.
-6. Treat the tools injected by the current host turn as the authority for calls. ChatGPT apps/connectors and Codex CLI tools are different surfaces.
+5. Report Python exactly as the global file states, including detected version, `uv` manager, and `python` / `python3` commands.
+6. Report the Playwright Chromium installation path, MCP configuration path, and Codex verification exactly as the global file states.
+7. Distinguish installed, configured, discovered, callable, failed, and not-exposed states. Inspect directly exposed tools and the host's deferred/searchable catalog (`ALL_TOOLS`, `tool_search`, or equivalent when available), matching namespaces such as `mcp__playwright__*`; absence from the first visible list is not non-availability.
+8. When Playwright is discovered and the objective permits it, use the smallest read-only probe before reporting it callable. If Chromium is installed and Playwright is configured but remains undiscovered after supported discovery, say `Playwright configuré, outil non exposé dans ce tour`; never say that Python, Chromium, or Playwright is absent solely because no matching tool was initially visible.
+9. Treat the direct and deferred/searchable tools exposed by the current host turn as the authority for calls. ChatGPT apps/connectors and Codex CLI tools are different surfaces.
 
 This mode is read-only. A missing project document, missing registry entry, or inactive server blocks only server-dependent actions and never authorizes launching a replacement server. End with a compact `Contexte actif` summary that governs subsequent work in the conversation.
 

@@ -1531,7 +1531,7 @@ configure_codex_dataforseo_mcp() {
     mv "$tmp_file" "$config_file"
 }
 
-# Playwright MCP for Codex — stdio transport, registered disabled by default.
+# Playwright MCP for Codex — default web-QA transport, registered enabled globally.
 configure_codex_playwright_mcp() {
     local target_home="$1"
     local codex_dir="$target_home/.codex"
