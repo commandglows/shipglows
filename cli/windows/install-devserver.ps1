@@ -698,7 +698,13 @@ function Install-SgCodexPlaywrightMcp([bool]$CodexReady, [string[]]$CodexPaths, 
         throw 'Codex reported a Playwright MCP configuration that does not match the ShipGlows contract.'
     }
     Write-Host "Playwright MCP enabled globally with Chromium: $($chromium.FullName)" -ForegroundColor Green
-    return $true
+    return [pscustomobject]@{
+        Installed = $true
+        McpConfigured = $true
+        McpVerified = $true
+        ConfigPath = [IO.Path]::GetFullPath($configPath)
+        ChromiumPath = [IO.Path]::GetFullPath($chromium.FullName)
+    }
 }
 
 function Set-SgCodexEnvironmentInstructions([string]$AgentsPath) {
@@ -718,13 +724,7 @@ ChatGPT apps/connectors and Codex CLI tools are different surfaces. Never assume
     $next = if ($remainder) { "$remainder`n`n$($block.Trim())`n" } else { "$($block.Trim())`n" }
     if ($next.Replace("`r`n","`n") -ceq $existing.Replace("`r`n","`n")) { return $false }
     [IO.File]::WriteAllText($AgentsPath, $next, [Text.UTF8Encoding]::new($false))
-    return [pscustomobject]@{
-        Installed = $true
-        McpConfigured = $true
-        McpVerified = $true
-        ConfigPath = [IO.Path]::GetFullPath($configPath)
-        ChromiumPath = [IO.Path]::GetFullPath($chromium.FullName)
-    }
+    return $true
 }
 
 function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {

@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "3.3.0"
+artifact_version: "3.3.1"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-14"
@@ -64,6 +64,7 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 
 - PowerShell parser checks for module, launcher, installer, and focused migration test.
 - Focused Windows regression checks for `uv python install --default`, fail-closed runtime validation, structured Playwright evidence, and generated capability fields.
+- The Windows installer AST regression keeps the structured Playwright result inside `Install-SgCodexPlaywrightMcp` and prevents the environment-instruction writer from capturing that result contract.
 - Focused Windows/Linux installer checks that Playwright MCP remains globally enabled and future runtime instructions require deferred discovery before an unavailable verdict.
 - Scenario checks for direct absence plus deferred presence, safe-probe success, configured-but-undiscovered state, and discovered-call failure.
 - Project document preservation, idempotence, durable `3002` URL, live-status separation, and legacy cleanup scenarios.
@@ -84,6 +85,7 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 | 2026-08-14 | 900-shipglows-core | Extended runtime context with Python and Playwright/Chromium installation, configuration, verification, and callability evidence. | Implemented on an isolated branch with focused proofs. |
 | 2026-08-14 | 900-shipglows-core | Added direct-plus-deferred tool discovery and MCP-first browser routing. | Implemented; 607 unit tests, focused Windows/Linux contracts, graph/audit/budget checks, and a live deferred Playwright probe passed. |
 | 2026-08-14 | 300-sg-docs | Audited and aligned installer, Windows operator, runtime, lifecycle, plugin, and README documentation. | Complete; topology and metadata checks passed with no unresolved documentation drift. |
+| 2026-08-14 | 005-sg-ship | Exercised the pushed branch through the native Windows bootstrap before merge. | Exposed a misplaced Playwright result object; corrected with a focused AST regression before publication. |
 
 ## Current Chantier Flow
 

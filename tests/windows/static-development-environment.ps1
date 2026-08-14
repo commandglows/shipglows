@@ -54,6 +54,22 @@ try {
     }
 
     $installerSource = Get-Content -LiteralPath (Join-Path $root 'cli\windows\install-devserver.ps1') -Raw
+    $installerTokens = $null
+    $installerErrors = $null
+    $installerAst = [Management.Automation.Language.Parser]::ParseInput($installerSource, [ref]$installerTokens, [ref]$installerErrors)
+    if ($installerErrors.Count -gt 0) { throw ($installerErrors | ForEach-Object Message | Out-String) }
+    $installerFunctions = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] }, $true))
+    $playwrightFunction = @($installerFunctions | Where-Object Name -eq 'Install-SgCodexPlaywrightMcp')
+    $instructionsFunction = @($installerFunctions | Where-Object Name -eq 'Set-SgCodexEnvironmentInstructions')
+    if ($playwrightFunction.Count -ne 1 -or $instructionsFunction.Count -ne 1) { throw 'Windows installer functions could not be resolved uniquely.' }
+    $playwrightFunctionSource = $playwrightFunction[0].Extent.Text
+    $instructionsFunctionSource = $instructionsFunction[0].Extent.Text
+    foreach ($required in @('Installed = $true','McpConfigured = $true','McpVerified = $true','ConfigPath = [IO.Path]::GetFullPath($configPath)','ChromiumPath = [IO.Path]::GetFullPath($chromium.FullName)')) {
+        if ($playwrightFunctionSource -notmatch [regex]::Escape($required)) { throw "Playwright installer result contract is missing: $required" }
+    }
+    if ($instructionsFunctionSource -match '\$(configPath|chromium)\b' -or $instructionsFunctionSource -notmatch [regex]::Escape('return $true')) {
+        throw 'Codex environment instruction writer leaks the Playwright installer result contract.'
+    }
     foreach ($required in @('🧭 VALIDATION RAPIDE','one- or two-sentence','exact action','exact target','main safety guarantee','local-only','readily reversible','cannot overwrite, discard, delete, force, publish, deploy, message, change credentials/permissions, or affect unrelated changes','`git push` always uses the full plan')) {
         if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows installed agent instructions are missing: $required" }
     }
