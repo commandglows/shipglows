@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -26,6 +26,7 @@ evidence:
   - "Migrated without content loss from local/README_WINDOWS.md under the canonical documentation governance contract."
   - "PowerShell reserves gp for Get-ItemProperty; ShipGlows now installs a policy-gated add/commit/push gp profile function and a profile-independent raw gpush fallback."
   - "The Windows installer writes a static global development environment and the CLI writes one active server URL file per project."
+  - "The 2026-08-14 runtime contract distinguishes direct and deferred Codex tool discovery before declaring configured Playwright unavailable."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -147,8 +148,9 @@ non attribué dans le registre.
 
 L'installateur maintient un bloc borné dans `%USERPROFILE%\.codex\AGENTS.md`,
 sans wrapper Codex ni remplacement de vos autres instructions. Les apps et
-connecteurs ChatGPT ne sont pas des outils Codex CLI. Seuls les outils exposés
-par le tour Codex courant peuvent être appelés.
+connecteurs ChatGPT ne sont pas des outils Codex CLI. Le tour Codex courant
+reste l'autorité, mais son inventaire comprend les outils visibles directement
+et son catalogue différé ou recherchable lorsqu'il existe.
 
 Pour recadrer un agent en cas de doute, utilisez :
 
@@ -158,8 +160,11 @@ $shipglows context
 
 Ce mode lit `%USERPROFILE%\.shipglows\environment.md`, le fichier
 `ENVIRONMENT.md` du projet et son état live dans le registre. Il ne lance aucun
-serveur. Si Playwright est configuré mais non exposé dans le tour courant, il
-le signale comme configuré mais non appelable au lieu de dire qu'il est absent.
+serveur. Avant de classer Playwright, il recherche aussi le namespace
+`mcp__playwright__*` dans `ALL_TOOLS`, `tool_search` ou la surface équivalente,
+puis utilise une sonde read-only minimale. S'il est configuré mais reste
+introuvable après cette découverte, le mode le signale comme configuré mais non
+exposé au lieu de dire qu'il est absent.
 
 4. **Ou exécuter le script d'installation depuis une copie existante:**
    ```powershell

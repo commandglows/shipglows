@@ -1,5 +1,45 @@
 # Skills Refresh Log
 
+## 2026-08-14 — shipglows
+
+**Added:** direct-plus-deferred current-turn capability discovery to the public context wrapper, including safe-probe and truthful not-exposed semantics.
+
+**Updated:** the public plugin and source wrapper now distinguish installed, configured, discovered, callable, failed, and not-exposed capability states.
+
+**New phases:** none; capability discovery remains inside the existing read-only context mode.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the change codifies observed local host/tool behavior and the already-reviewed upstream interactive-skill boundary. Conservative review found no new public promise or invocation.
+
+## 2026-08-14 — 301-sg-context
+
+**Added:** deferred/searchable tool-catalog inspection before context classifies a runtime capability.
+
+**Updated:** the existing runtime-adaptive retrieval gate now rejects first-visible-list false negatives without changing its native fallback.
+
+**New phases:** none; this is a narrower capability-discovery rule inside existing context retrieval.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the behavior is defined by the current local host inventory and shared ShipGlows runtime contract.
+
+## 2026-08-14 — 108-sg-browser
+
+**Added:** direct/deferred Playwright MCP discovery and the smallest safe read-only probe before a callable or not-exposed verdict.
+
+**Updated:** Playwright MCP is explicitly the default web-QA lane; optional `playwright-interactive` remains bounded to Electron or complex persistent programs and cannot block MCP.
+
+**New phases:** none; discovery and probing remain part of the existing browser preflight.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because the upstream skill was already reviewed and this refresh repairs a locally observed deferred-tool false negative.
+
+## 2026-08-14 — 000-shipglows
+
+**Added:** discovered, failed, and not-exposed states to the runtime context route.
+
+**Updated:** the main router now loads the shared discovery authority and checks direct plus deferred/searchable catalogs before reporting capability availability.
+
+**New phases:** none; the existing `context` mode retains ownership.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is repository-local routing doctrine backed by focused scenarios.
+
 ## 2026-08-13 — 108-sg-browser
 
 **Added:** a conditional implementation-signoff QA contract with one shared inventory across requirements, controls, state changes, and final visible claims; separate functional, viewport-fit, and visual-quality verdicts; exploratory coverage; dense and transitional state checks; and visible-defect precedence over numeric metrics.

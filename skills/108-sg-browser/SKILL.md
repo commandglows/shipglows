@@ -44,7 +44,9 @@ Before deriving or opening a local URL, load and apply
 URL assigned in the project's `ENVIRONMENT.md` only when the matching DevServer registry entry is active. Before the first browser/Playwright
 action, load and apply `$SHIPGLOWS_ROOT/skills/references/playwright-mcp-runtime.md`.
 `configured` or `installed` Playwright/MCP state is not `available` session
-evidence. Stale/unsafe configuration, a mismatched running browser, missing
+evidence. Inspect direct and deferred/searchable current-turn tool catalogs,
+then use the smallest read-only Playwright probe before reporting `callable` or
+`not exposed`. Stale/unsafe configuration, a mismatched running browser, missing
 canonical authority, or unavailable target blocks app diagnosis; report the
 runtime/install/deploy owner instead.
 

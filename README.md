@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.19.0"
+artifact_version: "0.20.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -237,6 +237,9 @@ The full installer also configures Playwright MCP globally for Codex, using an
 absolute native `npx.cmd`, and downloads headless Chromium into the user cache.
 The capability is available to every project after Codex CLI is restarted;
 ShipGlows does not add Playwright files or packages to application repositories.
+ShipGlows agents inspect both the directly visible tool list and the host's
+deferred/searchable catalog before reporting the configured MCP unavailable;
+a small read-only probe confirms current-session callability.
 It clones or registers repositories directly under `%USERPROFILE%\ShipGlows`,
 starts them on localhost ports, and keeps a recoverable registry under
 `%LOCALAPPDATA%`. No tunnel is needed for projects running on the Shadow.

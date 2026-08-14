@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -60,6 +60,7 @@ evidence:
   - "User decision 2026-06-23: Blueprint Gate fires after work item resolution and before the readiness gate for app creation work items."
   - "Operator correction 2026-07-17: preferred stack presets resolve after platform footprint and before blueprint matching."
   - "Operator decision 2026-08-07: lifecycle orchestration defaults to parallel read-only fan-out and reserves parallel writes for prepared non-overlapping Execution Batches."
+  - "Operator decision 2026-08-14: lifecycle approval has a cumulative fast path for exact local routine reversible mutations and retains the full plan for every ineligible mutation."
 next_review: "2026-11-07"
 next_step: "/103-sg-verify master workflow lifecycle reference"
 ---
@@ -76,7 +77,7 @@ Before choosing a lifecycle route, model, topology, owner skill, mini-contract, 
 
 Spec-first is the outer lifecycle contract: it defines user story, scope, success/error behavior, dependencies, risks, and source of truth. Proof-first is the implementation discipline: execution must choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` from `skills/references/spec-driven-development-discipline.md` before claiming completion.
 
-Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, present its compact plan, and wait for explicit post-plan approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for that approval.
+Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, choose its fast validation only when every cumulative eligibility criterion is established, otherwise present its full plan, and wait for explicit post-message approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for either approval path.
 
 ## Applies To
 

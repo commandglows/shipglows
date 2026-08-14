@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -66,6 +66,8 @@ evidence:
   - "Project-local .shipglows.env settings pin runtime ports and can disable automatic restart recovery."
   - "The project runtime policy file now has a closed, data-only schema so unknown settings fail loudly instead of silently restoring defaults."
   - "Native Windows exposes one static global development-environment file and one CLI-managed server URL file per project."
+  - "Native Windows installed agent instructions now expose two-tier mutation approval with a cumulative fast path and full-plan-only remote push."
+  - "Native Windows installed agent instructions now require direct-plus-deferred tool discovery before declaring a configured capability unavailable."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit runtime-cli"
 ---
@@ -230,8 +232,11 @@ The Windows full installer writes `%USERPROFILE%\.shipglows\environment.md`.
 It records the stable host facts: Windows, PowerShell, Codex CLI installation,
 Playwright configuration and the native ShipGlows DevServer. The installer also
 maintains a bounded `~/.codex/AGENTS.md` block that points agents to this file
-without wrapping the Codex command. That block also enforces the universal
-post-plan approval rule before intentional mutations.
+without wrapping the Codex command. That block also enforces explicit
+post-message approval before intentional mutations: a one- or two-sentence fast
+validation is available only for exact local routine readily reversible actions
+that satisfy every no-harm criterion; other actions use the full plan, and
+`git push` is always full-plan-only.
 
 For each registered project, the Windows CLI maintains a bounded ShipGlows block
 inside the visible, versioned `<project-root>\ENVIRONMENT.md`. It preserves any
@@ -252,8 +257,9 @@ The precedence method is shared; the resulting number is project-specific. A
 port declared in `package.json`, Astro, or Vite is a direct-launch fallback, not
 the URL of the ShipGlows-managed server. `.shipglows.env` remains the separate
 optional committed runtime policy file. ChatGPT apps/connectors and Codex CLI
-tools remain separate surfaces; only tools exposed by the current host turn are
-callable. `$shipglows context` reads the global document, project document and
+tools remain separate surfaces. Current-turn authority includes both directly
+exposed tools and host-provided deferred/searchable catalogs; a configured tool
+is not declared unavailable from the first visible list alone. `$shipglows context` reads the global document, project document and
 registry in read-only mode and never launches a fallback server.
 Flutter is launched in a visible process because PowerShell 5.1 does not
 provide a tmux-equivalent session manager.

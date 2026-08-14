@@ -73,7 +73,9 @@ class ContextQualityContractTests(unittest.TestCase):
             "portable native fallback",
             "rg",
             "git",
-            "current-turn callable tools",
+            "directly exposed tools",
+            "deferred/searchable tool catalog",
+            "absence from the first visible list",
             "do not claim",
         ):
             self.assertIn(marker, skill)

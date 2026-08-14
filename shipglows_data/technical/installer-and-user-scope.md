@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.0.3"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -41,6 +41,7 @@ evidence:
   - "Native Windows full installs Git and GitHub CLI through WinGet, while GitHub CLI exclusively owns browser authentication and credential storage."
   - "Native Windows full installs Node LTS, pnpm and uv automatically, while Flutter Web is an explicit optional user-local download."
   - "Native Windows full configures user-global Playwright MCP when Codex, Node and native npx.cmd are available, with Chromium installed in the user cache."
+  - "The 2026-08-14 capability-discovery repair makes Playwright MCP the enabled default web-QA lane and requires direct-plus-deferred current-turn discovery before an unavailable verdict."
   - "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."
   - "Native Windows full asks separately before each optional coding-agent CLI and leaves authentication to that CLI."
   - "Native Windows interactive mode selection requires an explicit 1, 2, or 0; empty console input never starts an installation."
@@ -91,9 +92,10 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 - `configure_command_wrappers`: installs real global wrappers for `shipglows` and `sg`, plus helper command symlinks such as `shipglows-turso-login` and `shipglows-turso-ssh`.
 - `setup_user`: per-user configuration for eligible users.
 - `resolve_install_components`: interactive or env-driven selector for user-space agents (`claude`, `codex`, `opencode`, `kilocode`), ShipGlows runtime config, and TUI.
-- `configure_*_mcp`: Claude/Codex MCP provider setup. Codex MCP entries
-  are registered disabled by default and enabled per session by the ShipGlows
-  launcher.
+- `configure_*_mcp`: Claude/Codex MCP provider setup. Codex MCP entries are
+  registered disabled by default and enabled per session by the ShipGlows
+  launcher, except Playwright MCP, which stays globally enabled as the default
+  browser-proof lane.
 - `configure_skills`: delegates skill symlink check/repair to `tools/shipglows_sync_skills.sh`.
 - `configure_aliases`, `configure_data`: user workflow setup.
 
@@ -193,6 +195,10 @@ sudo ./cli/install.sh
   Playwright dependency carried by `@playwright/mcp@latest`, and replaces only
   the owned `mcp_servers.playwright` table. It preserves unrelated Codex keys
   and MCP servers and never writes Playwright dependencies into user projects.
+- Installed/configured capability and current-turn callability remain separate.
+  Agents inspect directly exposed tools and the host's deferred/searchable
+  catalog (`ALL_TOOLS`, `tool_search`, or equivalent) before reporting
+  Playwright `not exposed`; a safe read-only probe establishes `callable`.
 - Runtime skill link repair blocks on non-symlink targets by default; installer compatibility may pass `--backup-existing` to move collisions aside explicitly.
 - Installer errors should stop before partial or misleading success.
 - `cli/install.sh` provides Flox/system tooling; Flutter/Dart runtimes are provisioned per project Flox environment unless the operator explicitly uses optional global SDK install.
@@ -222,8 +228,9 @@ Interpret the result in this order:
 - When only some agents are selected, verification and reporting must show
   unselected agents as intentionally skipped rather than failed.
 - Missing Playwright Chromium runtime libraries can still break a
-  Playwright-enabled Codex launch; the installer records the local Chromium
-  path while keeping Playwright MCP disabled until explicitly requested.
+  Playwright-enabled Codex launch. The installer records the local Chromium
+  path and fails its Playwright readiness result rather than presenting the
+  globally enabled MCP as usable without its runtime.
 - Incorrect user targeting can install private workflow config for the wrong account.
 
 ## Security Notes

@@ -28,10 +28,14 @@ ShipGlows system work. `shipglows capture` and `shipglows tmux` both resolve to
 `000-shipglows` engine, read `%USERPROFILE%\.shipglows\environment.md`, resolve
 the current ShipGlows-managed project root, and read
 `<project-root>\ENVIRONMENT.md` plus the matching DevServer registry entry. Report the exact managed URL and live status,
-architecture, Playwright configuration, and current-turn callable tools. Never
+architecture, Python availability through `uv`, Playwright/Chromium installation
+and MCP verification evidence, and current-turn callable tools. Distinguish
+installed, configured, discovered, callable, failed, and not-exposed states;
+inspect direct and deferred/searchable tool catalogs before classifying them. Never
 launch a replacement server, substitute an Astro/Vite default such as `4321`,
-or call configured Playwright absent merely because its tool is not injected in
-the current turn. End with a compact `Contexte actif` summary.
+or call recorded Python or configured Playwright absent merely because its tool
+is missing from the first visible list. End with a compact `Contexte actif`
+summary.
 
 ## Validation
 

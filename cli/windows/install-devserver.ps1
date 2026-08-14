@@ -655,7 +655,10 @@ function Install-SgCodexPlaywrightMcp([bool]$CodexReady, [string[]]$CodexPaths, 
     # created during installation and would otherwise make the second pass drift.
     $npx = Get-SgNativeNpxPath $NpxPaths
     $prerequisites = Get-SgCodexPlaywrightPrerequisiteStatus $codex $node $npx
-    if (-not $prerequisites.Ready) { Write-SgInstallerWarning $prerequisites.Message; return $false }
+    if (-not $prerequisites.Ready) {
+        Write-SgInstallerWarning $prerequisites.Message
+        return [pscustomobject]@{ Installed = $false; McpConfigured = $false; McpVerified = $false; ConfigPath = ''; ChromiumPath = '' }
+    }
     $codex = $prerequisites.CodexPath
     $npx = $prerequisites.NpxPath
 
@@ -670,12 +673,12 @@ function Install-SgCodexPlaywrightMcp([bool]$CodexReady, [string[]]$CodexPaths, 
     }
     if ($browserExitCode -ne 0) {
         Write-SgInstallerWarning "Playwright Chromium installation failed with exit code $browserExitCode; MCP configuration was not changed."
-        return $false
+        return [pscustomobject]@{ Installed = $false; McpConfigured = $false; McpVerified = $false; ConfigPath = ''; ChromiumPath = '' }
     }
     $chromium = Get-SgPlaywrightChromiumExecutable
     if (-not $chromium) {
         Write-SgInstallerWarning 'Playwright Chromium installation completed but no user-scoped Chromium executable was found; MCP configuration was not changed.'
-        return $false
+        return [pscustomobject]@{ Installed = $false; McpConfigured = $false; McpVerified = $false; ConfigPath = ''; ChromiumPath = '' }
     }
 
     $configPath = Join-Path $env:USERPROFILE '.codex\config.toml'
@@ -695,7 +698,13 @@ function Install-SgCodexPlaywrightMcp([bool]$CodexReady, [string[]]$CodexPaths, 
         throw 'Codex reported a Playwright MCP configuration that does not match the ShipGlows contract.'
     }
     Write-Host "Playwright MCP enabled globally with Chromium: $($chromium.FullName)" -ForegroundColor Green
-    return $true
+    return [pscustomobject]@{
+        Installed = $true
+        McpConfigured = $true
+        McpVerified = $true
+        ConfigPath = [IO.Path]::GetFullPath($configPath)
+        ChromiumPath = [IO.Path]::GetFullPath($chromium.FullName)
+    }
 }
 
 function Set-SgCodexEnvironmentInstructions([string]$AgentsPath) {
@@ -705,10 +714,10 @@ function Set-SgCodexEnvironmentInstructions([string]$AgentsPath) {
     $pattern = '(?ms)^# >>> ShipGlows development environment >>>\r?\n.*?^# <<< ShipGlows development environment <<<\r?\n?'
     $block = @'
 # >>> ShipGlows development environment >>>
-Before any intentional mutation, show a `🧭 PLAN À VALIDER` containing Objective, Scope, Actions, and Proofs, then wait for explicit post-plan approval. The initial request is not approval. If material scope changes, stop and obtain approval for a replacement plan. Read-only exploration is allowed before approval.
+Before any intentional mutation, obtain explicit approval given after the approval message. Use a one- or two-sentence `🧭 VALIDATION RAPIDE` with the exact action, exact target, and main safety guarantee only when the request is explicit and unambiguous, the target is resolved, and the action is local-only, routine, readily reversible, and cannot overwrite, discard, delete, force, publish, deploy, message, change credentials/permissions, or affect unrelated changes. Otherwise show a `🧭 PLAN À VALIDER` containing Objective, Scope, Actions, Proofs, and contextual choices. The initial request is not approval. If material scope changes, stop and obtain approval for a newly appropriate fast validation or replacement full plan. `git push` always uses the full plan; force push retains stricter gates. Read-only exploration is allowed before approval.
 Before local-server or tool-dependent work, read `%USERPROFILE%\.shipglows\environment.md`.
 For a ShipGlows-managed project, then read `<project-root>\ENVIRONMENT.md` for its durable assigned URL and the ShipGlows DevServer registry for live status.
-ChatGPT apps/connectors and Codex CLI tools are different surfaces. Never assume one is callable from the other; the tools exposed by the current Codex turn remain authoritative.
+ChatGPT apps/connectors and Codex CLI tools are different surfaces. Never assume one is callable from the other. Inspect both directly exposed tools and any deferred/searchable catalog provided by the current Codex turn before declaring a configured tool unavailable; that current-turn inventory remains authoritative.
 # <<< ShipGlows development environment <<<
 '@
     $remainder = [regex]::Replace($existing, $pattern, '').Trim([char[]]"`r`n")
@@ -718,11 +727,50 @@ ChatGPT apps/connectors and Codex CLI tools are different surfaces. Never assume
     return $true
 }
 
-function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [bool]$PlaywrightReady) {
+function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
+    $uv = Get-SgToolPath 'uv.exe' $UvPaths
+    if (-not $uv) { throw 'uv is required to install the ShipGlows Python runtime, but it is unavailable.' }
+
+    Write-Host 'Ensuring a default Python runtime with uv...' -ForegroundColor Cyan
+    & $uv python install --default | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw "uv could not install a default Python runtime (exit code $LASTEXITCODE)." }
+
+    $pythonBinDirectory = Join-Path $env:USERPROFILE '.local\bin'
+    Add-SgUserPathEntry $pythonBinDirectory
+    foreach ($commandName in @('python.exe', 'python3.exe')) {
+        $commandPath = Join-Path $pythonBinDirectory $commandName
+        if (-not (Test-Path -LiteralPath $commandPath -PathType Leaf)) {
+            throw "$commandName was not published by uv."
+        }
+        & $commandPath -c 'import ssl, sqlite3' 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            throw "$commandName is not functional after uv installed the default Python runtime."
+        }
+    }
+
+    $python = $PythonPaths | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) } | Select-Object -First 1
+    if (-not $python) { throw 'The uv-managed default Python command could not be resolved.' }
+    $version = (& $python --version 2>&1 | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0 -or $version -notmatch '^Python\s+\d+\.\d+\.\d+') {
+        throw 'The uv-managed default Python command did not report a valid version.'
+    }
+    Write-Host "$version installed as python and python3 via uv." -ForegroundColor Green
+    return [pscustomobject]@{
+        Version = $version
+        Manager = 'uv'
+        Commands = 'python, python3'
+    }
+}
+
+function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PythonInfo) {
     $environmentPath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'environment.md'
     New-Item -ItemType Directory -Path (Split-Path -Parent $environmentPath) -Force | Out-Null
     $codexStatus = if ($CodexReady) { 'installed' } else { 'not installed by this profile' }
-    $playwrightStatus = if ($PlaywrightReady) { 'configured globally for Codex CLI' } else { 'not configured by this installation' }
+    $playwrightInstalled = if ($PlaywrightInfo.Installed) { 'yes' } else { 'no' }
+    $playwrightConfigured = if ($PlaywrightInfo.McpConfigured) { 'yes, enabled globally for Codex CLI' } else { 'no' }
+    $playwrightVerified = if ($PlaywrightInfo.McpVerified) { 'yes, via codex mcp get playwright --json' } else { 'no' }
+    $playwrightConfigPath = if ($PlaywrightInfo.ConfigPath) { $PlaywrightInfo.ConfigPath } else { 'not available' }
+    $chromiumPath = if ($PlaywrightInfo.ChromiumPath) { $PlaywrightInfo.ChromiumPath } else { 'not available' }
     $content = @"
 # ShipGlows development environment
 
@@ -731,11 +779,18 @@ function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [bool]$Playwrig
 - Agent instruction host: Codex CLI
 - Codex CLI: $codexStatus
 - Local server manager: ShipGlows native Windows DevServer (shipglows-devserver)
-- Playwright: $playwrightStatus
+- Python: $($PythonInfo.Version)
+- Python manager: $($PythonInfo.Manager)
+- Python commands: $($PythonInfo.Commands)
+- Playwright Chromium installed: $playwrightInstalled
+- Playwright MCP configured: $playwrightConfigured
+- Playwright MCP verified: $playwrightVerified
+- Playwright MCP config: $playwrightConfigPath
+- Playwright Chromium path: $chromiumPath
 
 For a managed project, read `<project-root>\ENVIRONMENT.md` for the durable URL assigned by the ShipGlows CLI, and read the Windows ShipGlows DevServer registry for live status. Do not derive the URL from `package.json`, framework defaults, or another project's port.
 
-ChatGPT apps/connectors and Codex CLI tools are separate surfaces. Installation or configuration does not make a tool callable in the current turn; use only tools actually exposed by the current Codex host.
+ChatGPT apps/connectors and Codex CLI tools are separate surfaces. Installation or configuration does not make a tool callable in the current turn. Inspect both directly exposed tools and any deferred/searchable catalog provided by the current Codex host before declaring a configured tool unavailable; use only tools discovered and callable in that turn.
 "@
     if ((Test-Path -LiteralPath $environmentPath -PathType Leaf) -and [IO.File]::ReadAllText($environmentPath).Replace("`r`n","`n") -ceq $content.Replace("`r`n","`n")) { return $environmentPath }
     [IO.File]::WriteAllText($environmentPath, $content, [Text.UTF8Encoding]::new($false))
@@ -815,6 +870,7 @@ $npxPaths = @((Join-Path $programFiles 'nodejs\npx.cmd'), (Join-Path $programFil
 $corepackPaths = @((Join-Path $programFiles 'nodejs\corepack.cmd'), (Join-Path $programFilesX86 'nodejs\corepack.cmd'), (Join-Path $env:APPDATA 'npm\corepack.cmd'))
 $pnpmPaths = @((Join-Path $env:APPDATA 'npm\pnpm.cmd'))
 $uvPaths = @((Join-Path $env:USERPROFILE '.local\bin\uv.exe'), (Join-Path $env:USERPROFILE '.cargo\bin\uv.exe'))
+$pythonPaths = @((Join-Path $env:USERPROFILE '.local\bin\python.exe'))
 $flutterPaths = @((Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat'), (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.exe'))
 $agentBinDirectory = Join-Path $env:APPDATA 'npm'
 $pnpmAgentBinDirectory = Join-Path $env:LOCALAPPDATA 'pnpm\bin'
@@ -828,7 +884,9 @@ Write-Host 'Preparing Windows developer tools. This step can take a few minutes 
 [void](Install-SgWingetPackage 'fzf.exe' 'junegunn.fzf' $fzfPaths)
 [void](Install-SgWingetPackage 'node.exe' 'OpenJS.NodeJS.LTS' $nodePaths)
 $pnpmReady = Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths
-[void](Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths)
+$uvReady = Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths
+if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional default Python runtime.' }
+$pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
 [void](Install-SgFlutter $flutterPaths $gitPaths)
 
 Write-Host ''
@@ -843,8 +901,8 @@ if ($codexReady) {
     $codexPermissionMode = Resolve-SgCodexPermissionMode $codexConfigPath
     if ($codexPermissionMode -ne 'keep') { [void](Set-SgCodexPermissionMode $codexPermissionMode $codexConfigPath) }
 }
-$playwrightReady = Install-SgCodexPlaywrightMcp $codexReady $codexPaths $nodePaths $npxPaths
-$environmentPath = Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightReady
+$playwrightInfo = Install-SgCodexPlaywrightMcp $codexReady $codexPaths $nodePaths $npxPaths
+$environmentPath = Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
 if ($codexReady) {
     [void](Set-SgCodexEnvironmentInstructions (Join-Path $env:USERPROFILE '.codex\AGENTS.md'))

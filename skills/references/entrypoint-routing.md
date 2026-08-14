@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-13"
+updated: "2026-08-14"
 status: active
 source_skill: 009-sg-skill-build
 scope: entrypoint-routing
@@ -52,6 +52,7 @@ evidence:
   - "User decision 2026-05-06: design-related requests should route to a master `006-sg-design` lifecycle entrypoint."
   - "2026-06-11 ShipGlows Core natural-language routing added for internal 900-shipglows-core."
   - "Operator correction 2026-07-17: deterministic micro-edits must bypass domain and lifecycle routing."
+  - "Operator decision 2026-08-14: exact local routine reversible mutations may use fast validation without loading strategic-choice overhead."
 next_review: "2026-08-17"
 next_step: "/104-sg-end shipglows-skill-execution-fidelity-plugin-pilot"
 ---
@@ -70,7 +71,7 @@ It defines only the routing-question rule. Load `skills/references/question-cont
 
 Route to the smallest existing owner that can safely own the outcome.
 
-Apply the Skill Selection Proportionality Gate from `skills/references/skill-execution-fidelity.md` before domain classification. An explicit deterministic micro-edit with a known or easily found target, no domain judgment or sensitive boundary, and focused deterministic proof stays in direct main-thread execution, but still requires the plan and explicit post-plan approval defined by `skills/references/mutation-plan-approval.md`. Do not load an owner skill merely because the edited file belongs to its domain. An explicitly named skill remains authoritative and uses its smallest safe mode.
+Apply the Skill Selection Proportionality Gate from `skills/references/skill-execution-fidelity.md` before domain classification. An explicit deterministic micro-edit with a known or easily found target, no domain judgment or sensitive boundary, and focused deterministic proof stays in direct main-thread execution, but still requires explicit post-message approval under `skills/references/mutation-plan-approval.md`. Use its fast path only when every cumulative eligibility criterion is established; otherwise present the full plan. Do not load an owner skill merely because the edited file belongs to its domain. An explicitly named skill remains authoritative and uses its smallest safe mode.
 
 Before natural-language routing, check whether the user included one or more focus tags defined in `skills/references/shipglows-terms.md` such as `#partner`, `#offer`, `#growth`, `#traffic`, `#acquisition`, `#clarity`, `#source`, `#rules`, `#docs`, `#canon`, `#quality`, `#shipglows`, or `#proof`. When present, load the referenced canonical documents first and treat them as routing priorities for the current turn.
 

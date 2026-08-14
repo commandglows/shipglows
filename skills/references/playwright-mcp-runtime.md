@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-05-02"
-updated: "2026-05-02"
+updated: "2026-08-14"
 status: active
 source_skill: 106-sg-fix
 scope: playwright-mcp-runtime
@@ -18,13 +18,18 @@ linked_systems:
   - skills/108-sg-browser/SKILL.md
   - skills/109-sg-auth-debug/SKILL.md
   - skills/109-sg-auth-debug/references/playwright-auth.md
+  - skills/references/agent-runtime-awareness.md
   - BUG-2026-05-02-001
-depends_on: []
+depends_on:
+  - artifact: "skills/references/agent-runtime-awareness.md"
+    artifact_version: "3.2.0"
+    required_status: active
 supersedes: []
 evidence:
   - "BUG-2026-05-02-001: Playwright MCP looked for Google Chrome stable at /opt/google/chrome/chrome on Linux ARM64."
   - "Fixed config points Playwright MCP to local Playwright Chromium with --executable-path."
   - "108-sg-browser added as the generic non-auth consumer of browser evidence."
+  - "The 2026-08-14 Codex runtime exposed Playwright only through a deferred tool catalog, proving that visible-list-only discovery creates false negatives."
 next_review: "2026-06-02"
 next_step: "/107-sg-test --retest BUG-2026-05-02-001"
 ---
@@ -34,6 +39,13 @@ next_step: "/107-sg-test --retest BUG-2026-05-02-001"
 Use this reference before any ShipGlows skill calls Playwright MCP directly or uses browser-level evidence through `108-sg-browser` or `109-sg-auth-debug`.
 
 ## Invariant
+
+Playwright MCP is ShipGlows's default browser automation lane for ordinary web
+navigation, snapshots, screenshots, console/network inspection, and bounded UI
+proof. The optional upstream `playwright-interactive` skill is an advanced lane
+for Electron or complex persistent Playwright programs only when its skill and
+REPL runtime are both callable. Its absence or failure never makes a working
+Playwright MCP unavailable and never blocks the default web QA lane.
 
 On Linux ARM64, never let Playwright MCP launch with the bare default config that can fall through to Google Chrome stable.
 
@@ -59,6 +71,12 @@ the user Playwright cache; configuration alone is incomplete.
 
 Before the first `mcp__playwright__*` call in a skill run:
 
+0. Apply `agent-runtime-awareness.md`. Inspect both directly exposed tools and
+   the current host's deferred/searchable catalog for the `mcp__playwright__*`
+   namespace. Record a match as `discovered`, but do not call it until the
+   executable and configuration checks below pass. Do not infer absence from
+   the initial visible tool list.
+
 1. Check whether the repo or current user has an executable Chromium path:
 
 ```bash
@@ -83,6 +101,11 @@ find "$HOME/.cache/ms-playwright" -maxdepth 4 -type f \
 
 4. If config is good but MCP still errors with `/opt/google/chrome/chrome`, assume the current Codex/MCP process is stale and still using old args. Ask for a Codex/MCP reload before claiming browser evidence.
 
+5. After the executable and configuration checks pass, use the smallest
+   read-only probe available. Report `callable` only when that probe or the
+   requested browser action succeeds; report `failed` with the exact error when
+   discovery succeeded but the call did not.
+
 ## Runtime Dependencies
 
 ShipGlows `install.sh` owns the default runtime libraries for Playwright Chromium because Playwright MCP is configured by default.
@@ -96,5 +119,6 @@ A successful browser-auth diagnosis should name the browser runtime used:
 - `Playwright MCP runtime: executable-path <path>`
 - `Playwright MCP runtime: chromium fallback`
 - `Playwright MCP runtime: blocked, stale MCP config`
+- `Playwright MCP capability: callable|failed|not exposed`
 
 Never treat a browser-flow failure as an app or auth failure until the runtime preflight has passed.

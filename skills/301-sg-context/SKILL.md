@@ -29,7 +29,9 @@ Route skill/workflow selection to `000-shipglows`, active-work continuation to `
 
 ## Runtime-Adaptive Retrieval
 
-Inspect current-turn callable tools; configuration alone is not availability.
+Inspect directly exposed tools and the host's deferred/searchable tool catalog
+before classifying current-turn capabilities; configuration alone is not
+availability, and absence from the first visible list is not non-availability.
 
 ### Contextual MCP Path
 

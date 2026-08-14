@@ -8,6 +8,8 @@ The check is intentionally conservative. It is strongest when used with
 from __future__ import annotations
 
 import argparse
+import fnmatch
+import json
 import re
 import subprocess
 import sys
@@ -16,29 +18,35 @@ from pathlib import Path
 
 
 SOURCE_DIRS = ("src", "app", "pages", "components", "lib")
+DEFAULT_CONFIG = Path(".shipglows/design-system-drift.json")
 EXCLUDED_PARTS = {
     ".git",
     ".next",
     ".nuxt",
     ".svelte-kit",
+    ".tauri",
     ".astro",
     "build",
     "coverage",
     "dist",
     "node_modules",
     "test-results",
+    "target",
 }
 EXTENSIONS = {
     ".astro",
     ".css",
     ".dart",
     ".html",
+    ".java",
     ".jsx",
+    ".kt",
     ".scss",
     ".svelte",
     ".ts",
     ".tsx",
     ".vue",
+    ".xml",
 }
 TOKEN_SOURCE_HINTS = (
     "token",
@@ -114,11 +122,29 @@ class Finding:
     line_no: int
     kind: str
     line: str
+    classification: str = "defect"
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class ClassificationRule:
+    classification: str
+    paths: tuple[str, ...]
+    kinds: tuple[str, ...]
+    pattern: re.Pattern[str] | None
+    reason: str
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=".", help="Project root to scan.")
+    parser.add_argument(
+        "--config",
+        help=(
+            "Project-owned JSON classification config. Defaults to "
+            ".shipglows/design-system-drift.json when that file exists."
+        ),
+    )
     parser.add_argument(
         "--changed",
         action="store_true",
@@ -142,6 +168,52 @@ def parse_args() -> argparse.Namespace:
         help="Maximum findings to print. Defaults to 120.",
     )
     return parser.parse_args()
+
+
+def load_classification_rules(root: Path, configured: str | None) -> list[ClassificationRule]:
+    config_path = Path(configured) if configured else root / DEFAULT_CONFIG
+    if configured and not config_path.is_absolute():
+        config_path = root / config_path
+    if not config_path.exists():
+        if configured:
+            raise ValueError(f"classification config does not exist: {config_path}")
+        return []
+
+    try:
+        payload = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"cannot read classification config {config_path}: {error}") from error
+    if not isinstance(payload, dict) or not isinstance(payload.get("rules", []), list):
+        raise ValueError("classification config must be an object with a 'rules' array")
+
+    rules: list[ClassificationRule] = []
+    for index, raw in enumerate(payload.get("rules", []), start=1):
+        if not isinstance(raw, dict):
+            raise ValueError(f"classification rule {index} must be an object")
+        classification = raw.get("classification")
+        if classification not in {"accepted-exception", "brand-data"}:
+            raise ValueError(
+                f"classification rule {index} must use accepted-exception or brand-data"
+            )
+        paths = raw.get("paths")
+        reason = raw.get("reason")
+        kinds = raw.get("kinds", [])
+        if not isinstance(paths, list) or not paths or not all(isinstance(p, str) for p in paths):
+            raise ValueError(f"classification rule {index} requires a non-empty string paths array")
+        if not isinstance(kinds, list) or not all(isinstance(kind, str) for kind in kinds):
+            raise ValueError(f"classification rule {index} kinds must be a string array")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError(f"classification rule {index} requires a reason")
+        try:
+            pattern = re.compile(raw["pattern"]) if "pattern" in raw else None
+        except (TypeError, re.error) as error:
+            raise ValueError(f"classification rule {index} has an invalid pattern: {error}") from error
+        rules.append(
+            ClassificationRule(
+                classification, tuple(paths), tuple(kinds), pattern, reason.strip()
+            )
+        )
+    return rules
 
 
 def run_git(root: Path, args: list[str]) -> list[str]:
@@ -179,10 +251,22 @@ def candidate_files(root: Path, changed: bool) -> list[Path]:
         files = [root / name for name in sorted(names)]
     else:
         roots = [root / item for item in SOURCE_DIRS if (root / item).exists()]
+        roots.extend(
+            path
+            for path in root.glob("*/src")
+            if path.is_dir() and not is_excluded(path.relative_to(root))
+        )
+        roots.extend(
+            path
+            for path in root.rglob("src/main")
+            if path.is_dir()
+            and "android" in path.parts
+            and not is_excluded(path.relative_to(root))
+        )
         if not roots:
             roots = [root]
         files = []
-        for source_root in roots:
+        for source_root in dict.fromkeys(roots):
             files.extend(path for path in source_root.rglob("*") if path.is_file())
 
     return [
@@ -193,6 +277,21 @@ def candidate_files(root: Path, changed: bool) -> list[Path]:
         and path.suffix in EXTENSIONS
         and not is_excluded(path.relative_to(root) if path.is_relative_to(root) else path)
     ]
+
+
+def classify_finding(finding: Finding, rules: list[ClassificationRule]) -> Finding:
+    path = finding.path.as_posix()
+    for rule in rules:
+        if not any(fnmatch.fnmatchcase(path, glob) for glob in rule.paths):
+            continue
+        if rule.kinds and finding.kind not in rule.kinds:
+            continue
+        if rule.pattern and not rule.pattern.search(finding.line):
+            continue
+        finding.classification = rule.classification
+        finding.reason = rule.reason
+        break
+    return finding
 
 
 def should_skip_line(path: Path, line: str) -> bool:
@@ -227,21 +326,32 @@ def scan_file(root: Path, path: Path) -> list[Finding]:
 
 
 def render(findings: list[Finding], files: list[Path], fmt: str, max_findings: int) -> None:
+    counts = {
+        classification: sum(f.classification == classification for f in findings)
+        for classification in ("defect", "accepted-exception", "brand-data")
+    }
     if fmt == "markdown":
         print("# Design-System Drift Check")
         print()
         print(f"- Files scanned: {len(files)}")
         print(f"- Findings: {len(findings)}")
+        print(f"- Defects: {counts['defect']}")
+        print(f"- Accepted exceptions: {counts['accepted-exception']}")
+        print(f"- Brand data: {counts['brand-data']}")
         if not findings:
             print("- Result: pass")
             return
-        print("- Result: drift candidates found")
+        print("- Result: " + ("defects found" if counts["defect"] else "pass with classified findings"))
         print()
-        print("| File | Line | Kind | Evidence |")
-        print("| --- | ---: | --- | --- |")
+        print("| File | Line | Classification | Kind | Evidence | Reason |")
+        print("| --- | ---: | --- | --- | --- | --- |")
         for finding in findings[:max_findings]:
             evidence = finding.line.replace("|", "\\|")
-            print(f"| `{finding.path}` | {finding.line_no} | {finding.kind} | `{evidence}` |")
+            reason = finding.reason.replace("|", "\\|")
+            print(
+                f"| `{finding.path}` | {finding.line_no} | {finding.classification} | "
+                f"{finding.kind} | `{evidence}` | {reason} |"
+            )
         if len(findings) > max_findings:
             print()
             print(f"Only first {max_findings} findings shown.")
@@ -250,8 +360,15 @@ def render(findings: list[Finding], files: list[Path], fmt: str, max_findings: i
     print("Design-system drift check")
     print(f"Files scanned: {len(files)}")
     print(f"Findings: {len(findings)}")
+    print(f"Defects: {counts['defect']}")
+    print(f"Accepted exceptions: {counts['accepted-exception']}")
+    print(f"Brand data: {counts['brand-data']}")
     for finding in findings[:max_findings]:
-        print(f"{finding.path}:{finding.line_no}: {finding.kind}: {finding.line}")
+        reason = f" ({finding.reason})" if finding.reason else ""
+        print(
+            f"{finding.path}:{finding.line_no}: {finding.classification}: "
+            f"{finding.kind}: {finding.line}{reason}"
+        )
     if len(findings) > max_findings:
         print(f"Only first {max_findings} findings shown.")
 
@@ -259,13 +376,18 @@ def render(findings: list[Finding], files: list[Path], fmt: str, max_findings: i
 def main() -> int:
     args = parse_args()
     root = Path(args.root).resolve()
+    try:
+        rules = load_classification_rules(root, args.config)
+    except ValueError as error:
+        print(f"design-system drift config error: {error}", file=sys.stderr)
+        return 2
     files = candidate_files(root, args.changed)
     findings: list[Finding] = []
     for path in files:
-        findings.extend(scan_file(root, path))
+        findings.extend(classify_finding(finding, rules) for finding in scan_file(root, path))
 
     render(findings, files, args.format, args.max_findings)
-    if findings and not args.warn_only:
+    if any(finding.classification == "defect" for finding in findings) and not args.warn_only:
         return 1
     return 0
 
