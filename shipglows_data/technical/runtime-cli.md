@@ -213,6 +213,9 @@ It asks only about emulator support after x64 and nested virtualization evidence
 Validated existing Flutter/Dart, JDK 17 and Android SDK paths are reused without
 rewriting their environment ownership. Otherwise JDK 17 is installed first; the
 Android terms are then shown before hardened ZIP extraction of command-line tools.
+The Windows archive coordinate from Google's SDK repository must match the exact
+filename and SHA-256 in the official Android Studio download table; SHA-1-only
+repository metadata is never treated as sufficient integrity evidence.
 API/platform/build-tools and the emulator image use centralized Android 36
 coordinates. `sdkmanager --licenses` remains explicit. Non-interactive runs
 report pending and never pre-answer them. pnpm's configured global bin directory (the `bin` subdirectory of

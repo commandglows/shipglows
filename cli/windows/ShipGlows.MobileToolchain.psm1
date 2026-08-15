@@ -136,17 +136,26 @@ function Get-SgProjectServiceNeeds {
 }
 
 function Resolve-SgAndroidCommandLineToolsPackage {
-    param([xml]$RepositoryXml, [string]$RepositoryBaseUrl = 'https://dl.google.com/android/repository/')
+    param([xml]$RepositoryXml, [string]$OfficialDownloadHtml, [string]$RepositoryBaseUrl = 'https://dl.google.com/android/repository/')
     if (-not $RepositoryBaseUrl.StartsWith('https://dl.google.com/android/repository/', [StringComparison]::OrdinalIgnoreCase)) { throw 'Android repository base URL is not official.' }
+    if ([string]::IsNullOrWhiteSpace($OfficialDownloadHtml) -or $OfficialDownloadHtml.Length -gt 5MB) { throw 'Official Android SHA-256 download table is missing or unbounded.' }
+    $officialSha256 = @{}
+    foreach ($match in [regex]::Matches($OfficialDownloadHtml, '(?is)(?<file>commandlinetools-win-[0-9]+_latest[.]zip).{0,700}?(?<sha>[0-9a-f]{64})')) {
+        $file = $match.Groups['file'].Value
+        $sha = $match.Groups['sha'].Value.ToUpperInvariant()
+        if ($officialSha256.ContainsKey($file) -and $officialSha256[$file] -ne $sha) { throw "Official Android SHA-256 table contains conflicting checksums for $file." }
+        $officialSha256[$file] = $sha
+    }
+    if ($officialSha256.Count -eq 0) { throw 'Official Android SHA-256 download table contained no Windows command-line tools package.' }
     $packages = New-Object Collections.Generic.List[object]
     foreach ($package in @($RepositoryXml.SelectNodes("//*[local-name()='remotePackage']"))) {
-        if ([string]$package.path -notmatch '^cmdline-tools;') { continue }
-        $archive = @($package.SelectNodes(".//*[local-name()='archive']") | Where-Object { [string]$_.SelectSingleNode("./*[local-name()='host-os']").InnerText -eq 'windows' }) | Select-Object -First 1
+        if ([string]$package.path -notmatch '^cmdline-tools;[0-9]+(?:[.][0-9]+)*$') { continue }
+        $archive = @($package.SelectNodes(".//*[local-name()='archive']") | Where-Object { $hostNode = $_.SelectSingleNode("./*[local-name()='host-os']"); $hostNode -and [string]$hostNode.InnerText -eq 'windows' }) | Select-Object -First 1
         if (-not $archive) { continue }
         $complete = $archive.SelectSingleNode(".//*[local-name()='complete']")
         $url = [string]$complete.SelectSingleNode("./*[local-name()='url']").InnerText
-        $checksum = [string]$complete.SelectSingleNode("./*[local-name()='checksum']").InnerText
-        if ($url -notmatch '^commandlinetools-win-.+[.]zip$' -or $checksum -notmatch '^[0-9A-Fa-f]{64}$') { continue }
+        if ($url -notmatch '^commandlinetools-win-[0-9]+_latest[.]zip$' -or -not $officialSha256.ContainsKey($url)) { continue }
+        $checksum = [string]$officialSha256[$url]
         $revision = $package.SelectSingleNode("./*[local-name()='revision']")
         $major = [int]$revision.SelectSingleNode("./*[local-name()='major']").InnerText
         $minorNode = $revision.SelectSingleNode("./*[local-name()='minor']")
@@ -155,7 +164,7 @@ function Resolve-SgAndroidCommandLineToolsPackage {
         $packages.Add([pscustomobject]@{ SortVersion=[version]("$major.$(if($minorNode){$minorNode.InnerText}else{'0'}).$(if($microNode){$microNode.InnerText}else{'0'})"); Version=$version; Url=$RepositoryBaseUrl.TrimEnd('/') + '/' + $url; Sha256=$checksum.ToUpperInvariant() })
     }
     $selected = $packages | Sort-Object SortVersion -Descending | Select-Object -First 1
-    if (-not $selected) { throw 'Official Android repository metadata contained no Windows command-line tools package.' }
+    if (-not $selected) { throw 'Official Android repository metadata and SHA-256 download table contained no matching Windows command-line tools package.' }
     return [pscustomobject]@{ Version=$selected.Version; Url=$selected.Url; Sha256=$selected.Sha256 }
 }
 

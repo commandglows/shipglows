@@ -232,7 +232,9 @@ Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid existi
 Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
 their environment variables or `PATH`. Otherwise JDK 17 is installed user-scope,
 then the official Android terms are presented before Android command-line tools
-are downloaded; refusal or non-interactive execution remains `pending`.
+are downloaded. Their repository coordinate must match the Windows archive and
+SHA-256 published in the official Android Studio download table; refusal,
+metadata disagreement or non-interactive execution remains `pending`.
 When Android emulation is supported, the only product question is whether to
 install emulator support; otherwise the installer explains the real-phone path.
 Android licenses and Windows confirmations remain explicit, and non-interactive

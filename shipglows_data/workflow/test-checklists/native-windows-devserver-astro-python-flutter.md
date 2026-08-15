@@ -72,7 +72,7 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] The installer resolver prefers an existing `.jsonc` over `.json`; comments, unrelated MCP data and secrets remain byte-identical, no secret-bearing backup is created and the result is explicitly pending.
 - [x] OpenCode v2 plans exact `mcp.servers`; Kilo plans official `kilo` and detects `kilocode` compatibility; Playwright is omitted without proven Chromium and rejects mutable versions.
 - [x] Fresh/existing/partial plans cover external-tool reuse, managed quarantine, x64 rejection before downloads, centralized Android 36 platform/build-tools/system-image coordinates and AVD.
-- [x] Supply-chain fixtures require complete SHA-256 values and reject ZIP traversal and symlink/reparse entries before extraction; service CLI plans reject mutable versions.
+- [x] Supply-chain fixtures cross-check the current SHA-1-only Android repository coordinate against the matching Windows filename and complete SHA-256 from the official Android Studio download table, fail closed on disagreement, and reject ZIP traversal and symlink/reparse entries before extraction; service CLI plans reject mutable versions.
 - [x] PowerShell 5.1 transport preserves argument boundaries for EXE and CMD/BAT across spaces, Unicode, quotes, `&`, `%` and `;`; interactive execution and timeout/tree-stop paths are covered.
 - [x] Service scanning excludes reparse directories and reports its bounded-directory limit.
 - [x] Automated proof uses temporary fixtures only and performs no package download, elevation, registry mutation, Developer Mode change, authentication or user-project write.

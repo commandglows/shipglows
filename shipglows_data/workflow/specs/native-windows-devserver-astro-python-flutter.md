@@ -235,6 +235,7 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
   - Flutter Windows installation: https://docs.flutter.dev/get-started/install/windows
   - Flutter web development: https://docs.flutter.dev/platform-integration/web/building
   - Android command-line tools repository: https://dl.google.com/android/repository/repository2-3.xml
+  - Android command-line tools SHA-256 download table: https://developer.android.com/studio?hl=en
   - Android SDK terms: https://developer.android.com/studio/terms
   - Android emulator acceleration: https://developer.android.com/studio/run/emulator-acceleration
   - Adoptium API: https://api.adoptium.net/q/swagger-ui/

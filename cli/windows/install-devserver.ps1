@@ -797,7 +797,8 @@ function Install-SgAndroidCommandLineTools([string]$SdkRoot) {
     if ($license -notin @('y','yes')) { Write-SgInstallerWarning 'Android command-line tools and licenses remain pending by user choice.'; return '' }
     $repositoryUrl = 'https://dl.google.com/android/repository/repository2-3.xml'
     $repository = [xml](Invoke-WebRequest -UseBasicParsing -Uri $repositoryUrl -TimeoutSec 60).Content
-    $package = Resolve-SgAndroidCommandLineToolsPackage $repository
+    $downloadPage = (Invoke-WebRequest -UseBasicParsing -Uri 'https://developer.android.com/studio?hl=en' -TimeoutSec 60).Content
+    $package = Resolve-SgAndroidCommandLineToolsPackage -RepositoryXml $repository -OfficialDownloadHtml $downloadPage
     $archive = Join-Path ([IO.Path]::GetTempPath()) ("sg-android-tools-$([guid]::NewGuid().ToString('N')).zip")
     $staging = Join-Path ([IO.Path]::GetTempPath()) ("sg-android-tools-$([guid]::NewGuid().ToString('N'))")
     try {

@@ -53,11 +53,15 @@ Assert-Sg (-not $noChromium.Config.mcp.Contains('playwright')) 'Playwright MCP m
 
 $repositoryXml = [xml]@'
 <sdk:sdk-repository xmlns:sdk="http://schemas.android.com/sdk/android/repo/repository2/03">
-  <remotePackage path="cmdline-tools;12.0"><revision><major>12</major></revision><archives><archive><complete><size>10</size><checksum type="sha-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</checksum><url>commandlinetools-win-11076708_latest.zip</url></complete><host-os>windows</host-os></archive></archives></remotePackage>
+  <remotePackage path="cmdline-tools;22.0"><revision><major>22</major></revision><archives><archive><complete><size>10</size><checksum type="sha1">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</checksum><url>commandlinetools-win-15859902_latest.zip</url></complete><host-os>windows</host-os></archive></archives></remotePackage>
 </sdk:sdk-repository>
 '@
-$androidPackage = Resolve-SgAndroidCommandLineToolsPackage -RepositoryXml $repositoryXml -RepositoryBaseUrl 'https://dl.google.com/android/repository/'
-Assert-Sg ($androidPackage.Version -eq '12' -and $androidPackage.Sha256.Length -eq 64 -and $androidPackage.Url -match '^https://dl[.]google[.]com/') 'Android command-line tools must resolve from official repository metadata with SHA-256.'
+$downloadPageHtml = '<table><tr><td>Windows</td><td>commandlinetools-win-15859902_latest.zip</td><td>155.7 MB</td><td>90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a</td></tr></table>'
+$androidPackage = Resolve-SgAndroidCommandLineToolsPackage -RepositoryXml $repositoryXml -OfficialDownloadHtml $downloadPageHtml -RepositoryBaseUrl 'https://dl.google.com/android/repository/'
+Assert-Sg ($androidPackage.Version -eq '22' -and $androidPackage.Sha256 -eq '90AE805D20434428BFFCB699C290860F19BB5F66A67E6B330067E3DE801FB04A' -and $androidPackage.Url -match '^https://dl[.]google[.]com/') 'Android command-line tools must cross-check repository coordinates with the official SHA-256 download table.'
+$androidMismatchRejected = $false
+try { [void](Resolve-SgAndroidCommandLineToolsPackage -RepositoryXml $repositoryXml -OfficialDownloadHtml ($downloadPageHtml -replace '15859902','99999999') -RepositoryBaseUrl 'https://dl.google.com/android/repository/') } catch { $androidMismatchRejected = $_.Exception.Message -match 'SHA-256|cross-check|package' }
+Assert-Sg $androidMismatchRejected 'Android package metadata and official SHA-256 download table must fail closed when filenames differ.'
 $jdkPackage = Resolve-SgAdoptiumJdkPackage -ApiObject ([pscustomobject]@{ binary=[pscustomobject]@{ package=[pscustomobject]@{ link='https://github.com/adoptium/temurin17-binaries/releases/download/jdk.zip'; checksum=('B' * 64) } }; version=[pscustomobject]@{ semver='17.0.12+7' } })
 Assert-Sg ($jdkPackage.Version -eq '17.0.12+7' -and $jdkPackage.Sha256.Length -eq 64) 'JDK package must carry resolved version and checksum evidence.'
 
