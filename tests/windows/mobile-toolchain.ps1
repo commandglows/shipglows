@@ -21,6 +21,8 @@ Assert-Sg (-not $refused.InstallEmulator -and $refused.PhysicalDeviceAlternative
 $headless = Get-SgAndroidInstallPlan -Interactive $false -EmulatorSupported $true -EmulatorChoice ''
 Assert-Sg (-not $headless.AskEmulator -and -not $headless.InstallEmulator) 'Noninteractive installs must never prompt or guess emulator consent.'
 Assert-Sg ($headless.LicensesPending -and $headless.LicenseCommand -eq 'sdkmanager --licenses') 'Noninteractive Android licenses need actionable pending state.'
+Assert-Sg (Test-SgAndroidLicenseResult ([pscustomobject]@{ ExitCode=0; Output="WARNING: sdkmanager is deprecated.`nAll SDK package licenses accepted"; TimedOut=$false })) 'Previously accepted SDK licenses must converge without another interactive prompt.'
+Assert-Sg (-not (Test-SgAndroidLicenseResult ([pscustomobject]@{ ExitCode=0; Output='7 of 7 SDK package licenses not accepted.'; TimedOut=$false }))) 'Unaccepted SDK licenses must remain pending.'
 
 $fresh = Get-SgAndroidProvisionPlan -Interactive $true -JdkReady $false -CommandLineToolsReady $false -LicensesAccepted $false -LicenseChoice 'no'
 Assert-Sg (($fresh.Components -join '|') -eq 'jdk17|android-command-line-tools|platform-tools|platform|build-tools') 'Fresh host plan must include the complete essential chain.'
@@ -173,7 +175,7 @@ try {
     $timeoutRunner = { param($File, $Arguments, $TimeoutSeconds) [pscustomobject]@{ ExitCode=-1; Output='timed out'; TimedOut=$true } }
     $timedOut = Get-SgFlutterAndroidDiagnostic -FlutterPath 'flutter.exe' -DartPath 'dart.bat' -JavaPath 'java.exe' -SdkManagerPath 'sdkmanager.bat' -AdbPath 'adb.exe' -EmulatorPath '' -Runner $timeoutRunner
     Assert-Sg ($timedOut.TimedOut -and -not $timedOut.ToolchainReady) 'Timed-out diagnostics must fail closed.'
-    $zeroDeviceRunner = { param($File, $Arguments, $TimeoutSeconds) $joined=$Arguments -join ' '; if($File -match 'dart'){$output='Dart SDK version: 3.9.0'}elseif($joined -eq '--version'){$output='Flutter 3.35.0'}elseif($joined -eq '-version'){$output='openjdk version 17'}elseif($joined -eq 'doctor -v'){$check=[char]0x2713;$output="[$check] Flutter`n[$check] Android toolchain - develop for Android devices`n    All Android licenses accepted."}elseif($joined -eq 'devices'){$output='No devices detected.'}elseif($File -match 'adb'){$output='Android Debug Bridge version 1.0.41'}else{$output='Version 1.0'}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
+    $zeroDeviceRunner = { param($File, $Arguments, $TimeoutSeconds) $joined=$Arguments -join ' '; if($File -match 'dart'){$output='Dart SDK version: 3.9.0'}elseif($joined -eq '--version'){$output='Flutter 3.35.0'}elseif($joined -eq '-version'){$output='openjdk version 17'}elseif($joined -eq 'doctor -v'){$windowsCheck=[char]0x221A;$bullet=[char]0x2022;$output="[$windowsCheck] Flutter`n[$windowsCheck] Android toolchain - develop for Android devices (Android SDK version 36.0.0) [2,5s]`n    $bullet All Android licenses accepted."}elseif($joined -eq 'devices'){$output='No devices detected.'}elseif($File -match 'adb'){$output='Android Debug Bridge version 1.0.41'}else{$output='Version 1.0'}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
     $zeroDevice = Get-SgFlutterAndroidDiagnostic -FlutterPath 'flutter.exe' -DartPath 'dart.bat' -JavaPath 'java.exe' -SdkManagerPath 'sdkmanager.bat' -AdbPath 'adb.exe' -EmulatorPath '' -Runner $zeroDeviceRunner
     Assert-Sg ($zeroDevice.ToolchainReady -and $zeroDevice.LicensesReady -and -not $zeroDevice.DeviceReady) 'Zero-device state must remain separate from toolchain readiness.'
 
@@ -226,6 +228,10 @@ public static class EchoArgs {
     Assert-Sg $interactive 'Interactive encoded transport failed.'
     $timeout = Invoke-SgBoundedProcess -File "$PSHOME\powershell.exe" -Arguments @('-NoProfile','-Command','Start-Sleep -Seconds 5') -TimeoutSeconds 1
     Assert-Sg ($timeout.TimedOut) 'Encoded transport timeout must stop the exact process identity.'
+    $utf8Cmd = Join-Path $transportDirectory 'utf8 diagnostic.cmd'
+    [IO.File]::WriteAllText($utf8Cmd, "@echo off`r`n@powershell.exe -NoProfile -Command `"[Console]::OutputEncoding=[Text.UTF8Encoding]::new(`$false);[Console]::Write([char]0x2713)`"`r`n", [Text.Encoding]::ASCII)
+    $utf8Check = Invoke-SgBoundedProcess -File $utf8Cmd -Arguments @() -TimeoutSeconds 20
+    Assert-Sg ($utf8Check.ExitCode -eq 0 -and $utf8Check.Output -eq [string][char]0x2713) 'Captured UTF-8 batch diagnostics must preserve the exact positive checkmark.'
 
     $installerPath = Join-Path $root 'cli\windows\install-devserver.ps1'
     $installerSource = Get-Content -LiteralPath $installerPath -Raw

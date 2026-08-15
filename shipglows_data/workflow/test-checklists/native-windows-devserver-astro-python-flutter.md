@@ -67,13 +67,15 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] Zero/one/many service needs select Firebase, FlutterFire and Supabase only from explicit manifests.
 - [x] Supported emulator acceptance, refusal, unsupported hosts and non-interactive installs resolve deterministically; unsupported/non-interactive paths never ask the emulator question.
 - [x] Android terms and `sdkmanager --licenses` remain explicit; tests never pre-answer or execute them, and refusal/non-interactive plans remain pending.
-- [x] Bounded Flutter/Dart/JDK/sdkmanager/adb/doctor/devices diagnostics distinguish healthy, `[!]`, `[X]`, license-pending and timeout states; only the exact positive Android toolchain marker plus accepted-license evidence is ready.
+- [x] Bounded Flutter/Dart/JDK/sdkmanager/adb/doctor/devices diagnostics distinguish healthy, `[!]`, `[X]`, license-pending and timeout states; only Flutter's exact positive `✓` or Windows `√` Android-toolchain marker plus accepted-license evidence is ready.
 - [x] Windows Developer Mode is detected read-only and never activated by the installer.
 - [x] The installer resolver prefers an existing `.jsonc` over `.json`; comments, unrelated MCP data and secrets remain byte-identical, no secret-bearing backup is created and the result is explicitly pending.
 - [x] OpenCode v2 plans exact `mcp.servers`; Kilo plans official `kilo` and detects `kilocode` compatibility; Playwright is omitted without proven Chromium and rejects mutable versions.
 - [x] Fresh/existing/partial plans cover external-tool reuse, managed quarantine, x64 rejection before downloads, centralized Android 36 platform/build-tools/system-image coordinates and AVD.
 - [x] Supply-chain fixtures cross-check the current SHA-1-only Android repository coordinate against the matching Windows filename and complete SHA-256 from the official Android Studio download table, fail closed on disagreement, and reject ZIP traversal and symlink/reparse entries before extraction; service CLI plans reject mutable versions.
 - [x] Android archive download announces resolved version/size and checksum/extraction milestones, with a visible curl progress bar, three bounded retries and partial-transfer resume.
+- [x] Real Shadow validation accepted all seven Android licenses and installed Android SDK/platform/build-tools 36; the exact Windows `√` marker, timing suffix and bullet-prefixed license evidence now produce `toolchain=True`, `licenses=True`, while no Android device correctly remains separate as `device=False`.
+- [x] Already accepted licenses converge through a bounded probe whose only fallback input is `n`; non-interactive reruns can continue without replaying or synthesizing consent.
 - [x] PowerShell 5.1 transport preserves argument boundaries for EXE and CMD/BAT across spaces, Unicode, quotes, `&`, `%` and `;`; interactive execution and timeout/tree-stop paths are covered.
 - [x] Service scanning excludes reparse directories and reports its bounded-directory limit.
 - [x] Automated proof uses temporary fixtures only and performs no package download, elevation, registry mutation, Developer Mode change, authentication or user-project write.

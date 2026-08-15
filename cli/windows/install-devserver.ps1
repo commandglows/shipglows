@@ -851,11 +851,15 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
         foreach ($path in @((Join-Path $sdkRoot 'platform-tools'),(Join-Path $sdkRoot 'cmdline-tools\latest\bin'),(Join-Path $sdkRoot 'emulator'))) { Add-SgUserPathEntry $path }
     }
     if (-not $sdkManager) { return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
-    if (-not $interactive) { Write-SgInstallerWarning 'Android pending: run sdkmanager --licenses interactively; no license was accepted automatically.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
-    Write-Host 'sdkmanager now presents every official Android SDK license. Accept or refuse each license yourself.' -ForegroundColor Yellow
-    [void](Invoke-SgInteractiveBoundedProcess $sdkManager @('--licenses') 600)
-    $licenseCheck = Invoke-SgBoundedProcess $sdkManager @('--licenses') 20
-    $licensesReady = -not $licenseCheck.TimedOut -and $licenseCheck.ExitCode -eq 0 -and $licenseCheck.Output -match '(?i)all sdk package licenses accepted'
+    $licenseCheck = Invoke-SgBoundedProcess -File $sdkManager -Arguments @('--licenses') -TimeoutSeconds 30 -InputText 'n'
+    $licensesReady = Test-SgAndroidLicenseResult $licenseCheck
+    if (-not $licensesReady -and -not $interactive) { Write-SgInstallerWarning 'Android pending: run sdkmanager --licenses interactively; no license was accepted automatically.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    if (-not $licensesReady) {
+        Write-Host 'sdkmanager now presents every official Android SDK license. Accept or refuse each license yourself.' -ForegroundColor Yellow
+        [void](Invoke-SgInteractiveBoundedProcess $sdkManager @('--licenses') 600)
+        $licenseCheck = Invoke-SgBoundedProcess -File $sdkManager -Arguments @('--licenses') -TimeoutSeconds 30 -InputText 'n'
+        $licensesReady = Test-SgAndroidLicenseResult $licenseCheck
+    }
     if (-not $licensesReady) { Write-SgInstallerWarning 'Android SDK licenses are refused or incomplete; essential packages remain pending.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
     $coordinates = Get-SgAndroidCoordinates
     $essential = Invoke-SgBoundedProcess $sdkManager @('platform-tools',$coordinates.PlatformPackage,$coordinates.BuildToolsPackage) 600

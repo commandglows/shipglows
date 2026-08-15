@@ -219,6 +219,9 @@ repository metadata is never treated as sufficient integrity evidence.
 The installer prints the resolved version and size, uses curl's visible progress
 bar, bounded retries and partial-transfer resume, then announces checksum and
 extraction milestones.
+An idempotent rerun probes accepted-license state with only a negative fallback
+input; it never turns pending consent into acceptance, while an already accepted
+host can continue in non-interactive mode.
 API/platform/build-tools and the emulator image use centralized Android 36
 coordinates. `sdkmanager --licenses` remains explicit. Non-interactive runs
 report pending and never pre-answer them. pnpm's configured global bin directory (the `bin` subdirectory of

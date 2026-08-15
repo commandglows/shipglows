@@ -68,6 +68,10 @@ function Get-SgAndroidProvisionPlan {
     }
 }
 
+function Test-SgAndroidLicenseResult($Result) {
+    return $null -ne $Result -and -not [bool]$Result.TimedOut -and [int]$Result.ExitCode -eq 0 -and [string]$Result.Output -match '(?im)^\s*All SDK package licenses accepted[.]?\s*$'
+}
+
 function Test-SgWindowsDeveloperMode {
     try {
         $value = Get-ItemPropertyValue -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock' -Name AllowDevelopmentWithoutDevLicense -ErrorAction Stop
@@ -533,9 +537,11 @@ function Get-SgFlutterAndroidDiagnostic {
     $devices = Invoke-SgDiagnosticCommand $FlutterPath @('devices') $Runner 45
     $timedOut = @($flutterVersion,$dartVersion,$javaVersion,$sdkVersion,$adbVersion,$doctor,$devices | Where-Object TimedOut).Count -gt 0
     $versionsReady = $flutterVersion.ExitCode -eq 0 -and $flutterVersion.Output -match '(?m)^Flutter \d+' -and $dartVersion.ExitCode -eq 0 -and $dartVersion.Output -match '(?i)Dart SDK version|Flutter \d+' -and $javaVersion.ExitCode -eq 0 -and $javaVersion.Output -match '(?i)(openjdk|java).*\b17\b' -and $sdkVersion.ExitCode -eq 0 -and $sdkVersion.Output -match '\d+' -and $adbVersion.ExitCode -eq 0 -and $adbVersion.Output -match '(?i)Android Debug Bridge'
-    $successMarker = [regex]::Escape([string][char]0x2713)
-    $androidDoctor = $doctor.ExitCode -eq 0 -and $doctor.Output -match "(?m)^\[$successMarker\]\s+Android toolchain - develop for Android devices(?:\s+\([^\r\n]+\))?\s*$"
-    $licensesReady = $androidDoctor -and $doctor.Output -match '(?im)^\s*All Android licenses accepted[.]?\s*$'
+    $successMarker = '(?:' + [regex]::Escape([string][char]0x2713) + '|' + [regex]::Escape([string][char]0x221A) + ')'
+    $duration = '(?:\s+\[[0-9]+(?:[.,][0-9]+)?(?:ms|s)\])?'
+    $androidDoctor = $doctor.ExitCode -eq 0 -and $doctor.Output -match "(?m)^\[$successMarker\]\s+Android toolchain - develop for Android devices(?:\s+\([^\r\n]+\))?$duration\s*$"
+    $bullet = [regex]::Escape([string][char]0x2022)
+    $licensesReady = $androidDoctor -and $doctor.Output -match "(?im)^\s*(?:$bullet\s+)?All Android licenses accepted[.]?\s*$"
     $deviceReady = $devices.ExitCode -eq 0 -and $devices.Output -match '(?im)\b(android|device-[0-9]+)\b' -and $devices.Output -notmatch '(?i)No devices detected|0 connected devices'
     $toolchainReady = -not $timedOut -and $versionsReady -and $androidDoctor -and $licensesReady
     $reason = if ($timedOut) { 'A bounded diagnostic timed out.' } elseif (-not $versionsReady) { 'Flutter, Dart, JDK 17, sdkmanager, or adb version evidence is missing.' } elseif (-not $androidDoctor) { 'flutter doctor did not confirm the Android toolchain.' } elseif (-not $licensesReady) { 'Android SDK licenses are pending.' } elseif (-not $deviceReady) { 'No usable Android device is connected.' } else { '' }
@@ -551,4 +557,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgAndroidProvisionPlan,Test-SgWindowsDeveloperMode,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
