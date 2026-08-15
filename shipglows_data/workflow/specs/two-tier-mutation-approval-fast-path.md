@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-14"
 created_at: "2026-08-14 00:00:00 UTC"
@@ -35,6 +35,7 @@ evidence:
   - "Operator decision 2026-08-14: retain a robust full contract for remote, destructive, ambiguous, or materially risky mutations."
   - "The existing universal contract requires four sections and strategic choices even for exact local reversible Git operations."
   - "Operator decision 2026-08-15: a second validation for a micro technical commit already covered by an approved chantier is unacceptable friction."
+  - "Operator decision 2026-08-15: standalone `v` should be a canonical approval shortcut for the immediately preceding pending chantier plan."
 next_step: "/102-sg-start two-tier mutation approval fast path"
 ---
 
@@ -56,6 +57,7 @@ Every intentional mutation still requires explicit approval given after the appr
 - A material change invalidates prior approval and requires a newly appropriate fast validation or full plan.
 - Full-plan mutations retain the chantier opening, four sections, Paris time, and contextual strategic choices.
 - Approval of a bounded technical implementation includes silent exact-scope local commits; their identifiers are reported at the next natural checkpoint.
+- Standalone `v` or `V` approves the immediately preceding pending approval message only when its approval outcome is unambiguous and no intervening control or replacement exists.
 
 ## Error Behavior
 
@@ -70,6 +72,7 @@ Every intentional mutation still requires explicit approval given after the appr
 - Router, lifecycle, partnership, packaged skill, agent-entrypoint, installer, workflow, and technical-documentation references that repeat the gate.
 - Focused Python and Windows static regression checks.
 - Cumulative local commit authority for bounded technical chantiers.
+- Canonical bounded `v` approval shortcut.
 
 ## Scope Out
 
@@ -90,7 +93,7 @@ Every intentional mutation still requires explicit approval given after the appr
 
 - Proof path: `scenario-first`.
 - Automated proof: focused Python contract tests, Windows static contract test, metadata lint on changed metadata-bearing documents, and focused text scans.
-- Pressure scenarios: `MAP-FAST-SWITCH`, `MAP-FAST-WORKTREE`, `MAP-FAST-INELIGIBLE`, `MAP-FAST-REPLACEMENT`, `MAP-REMOTE-PUSH`, `MAP-TECHNICAL-COMMIT`, and `MAP-COMMIT-BOUNDARY`.
+- Pressure scenarios: `MAP-FAST-SWITCH`, `MAP-FAST-WORKTREE`, `MAP-FAST-INELIGIBLE`, `MAP-FAST-REPLACEMENT`, `MAP-REMOTE-PUSH`, `MAP-TECHNICAL-COMMIT`, `MAP-COMMIT-BOUNDARY`, and `MAP-V-SHORTCUT`.
 - No browser, server, package, or external-service proof is needed because this is a local instruction-contract change.
 
 ## Acceptance Criteria
@@ -99,15 +102,17 @@ Every intentional mutation still requires explicit approval given after the appr
 - [x] The fast message is limited to one or two sentences with exact action, exact target, and main safety guarantee.
 - [x] Full-plan form and strategic choices remain required for ineligible mutations.
 - [x] `git push` is mechanically asserted as full-plan-only.
-- [x] All seven named pressure scenarios are present and tested.
+- [x] All eight named pressure scenarios are present and tested.
 - [x] Distributed surfaces and Windows-installed instructions reflect the same boundary.
 - [x] Focused tests and metadata lint pass.
 - [x] Approved bounded technical work may be committed locally without duplicate approval while unrelated, editorial, history-rewriting, and remote actions remain gated.
+- [x] Standalone `v` is accepted only as an immediate unambiguous response to the pending approval message and is inert in every other context.
 
 ## Current Chantier Flow
 
-`900-shipglows-core build` implemented the cumulative local technical commit authority with scenario-first contract coverage. Focused verification is complete; runtime-link repair remains independent installation maintenance, and no push is authorized.
+`900-shipglows-core build` implemented cumulative local technical commit authority and the bounded `v` approval shortcut with scenario-first coverage. Focused verification is complete; runtime-link repair remains independent installation maintenance, and no push is authorized.
 
 ## Skill Run History
 
 - 2026-08-15 — `900-shipglows-core build`: translated the operator friction into `MAP-TECHNICAL-COMMIT` and `MAP-COMMIT-BOUNDARY`, propagated the rule through lifecycle/question/continuation doctrine, refreshed `706-continue`, and validated the focused contract, metadata, audit, and skill budget.
+- 2026-08-15 — `900-shipglows-core build`: added and verified `MAP-V-SHORTCUT` so standalone `v` canonically approves only the immediately preceding unambiguous pending approval message; 76 focused contract/graph tests, metadata, audit, and budget checks passed.

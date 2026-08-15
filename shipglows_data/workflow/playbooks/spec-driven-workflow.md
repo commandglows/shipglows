@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.21.0"
+artifact_version: "0.22.0"
 project: ShipGlows
 created: "2026-04-22"
 updated: "2026-08-15"
@@ -75,6 +75,7 @@ evidence:
   - "Updated on 2026-08-14 to document cumulative fast validation for exact local routine reversible mutations while retaining full-plan approval for ineligible and remote actions."
   - "Updated on 2026-08-15 to make ordinary exact-scope local technical commits cumulative with an approved chantier while preserving explicit gates for editorial, mixed-scope, history-rewriting, release, and remote actions."
   - "Updated on 2026-08-15 to make documentation reflection mandatory and visible in every closure report, with material needs-review results blocking closure language."
+  - "Updated on 2026-08-15 to recognize standalone `v` as an approval shortcut only for the immediately preceding pending approval message."
 next_review: "unknown"
 next_step: "/300-sg-docs audit shipglows_data/workflow/playbooks/spec-driven-workflow.md"
 ---
@@ -361,7 +362,7 @@ Technical governance applies to code projects by default. Editorial governance a
 - Master/orchestrator skills must load `skills/references/master-workflow-lifecycle.md` for the shared skeleton: intake, work item resolution, readiness, model/topology routing, owner execution, validation, verification, post-verify closure, and ship/deploy routing.
 - Skills must load `skills/references/decision-quality-contract.md` before quality-sensitive routing, model choice, fallback choice, implementation, fix, verification, or recommendation. ShipGlows optimizes first for correctness, security, performance where relevant, maintainability, durability, professional best practices, and proof quality.
 - Master/orchestrator skills must load `skills/references/master-delegation-semantics.md` before choosing execution topology. The reference defines delegation, subagents, short approvals, degradation, and spec/batch-gated parallelism.
-- Every intentional mutation must load `skills/references/mutation-plan-approval.md` and receive explicit approval after its approval message. `🧭 VALIDATION RAPIDE` is allowed only when every cumulative exact/local/routine/reversible/no-harm criterion is established; all other mutations use `🧭 PLAN À VALIDER`. Initial imperatives, ready specs, skill invocations, and delegation consent do not replace apply approval. Once bounded technical implementation is approved, ordinary exact-scope local commits are silent and cumulative; unrelated, editorial, history-rewriting, closure, release, and remote actions remain separately gated, and `git push` always uses the full plan.
+- Every intentional mutation must load `skills/references/mutation-plan-approval.md` and receive explicit approval after its approval message. `🧭 VALIDATION RAPIDE` is allowed only when every cumulative exact/local/routine/reversible/no-harm criterion is established; all other mutations use `🧭 PLAN À VALIDER`. Standalone `v` or `V` approves only the immediately preceding pending approval message with one unambiguous approval outcome and no intervening control or replacement. Initial imperatives, ready specs, skill invocations, and delegation consent do not replace apply approval. Once bounded technical implementation is approved, ordinary exact-scope local commits are silent and cumulative; unrelated, editorial, history-rewriting, closure, release, and remote actions remain separately gated, and `git push` always uses the full plan.
 - User-facing questions follow `skills/references/question-contract.md`: ask only when the answer changes route, scope, risk, proof, closure, ship posture, public claims, or technical/product/editorial direction.
 - `001-sg-build` planning questions should be decision briefs for business operators: explain the root problem, business stakes, practical options, and the best-practice recommendation before asking for the decision.
 - `002-sg-maintain` is the master orchestrator for recurring project maintenance and should prefer bounded delegated sequential execution over command recommendations.

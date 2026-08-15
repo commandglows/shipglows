@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.11.0"
+artifact_version: "1.12.0"
 project: ShipGlows
 created: "2026-05-04"
 updated: "2026-08-15"
@@ -37,6 +37,7 @@ supersedes: []
 evidence:
   - "User decision 2026-05-04: the primary `000-shipglows` router should use direct main-thread handoff to selected master skills, not nested master-skill subagents."
   - "Operator decision 2026-08-15: bounded technical implementation approval includes ordinary exact-scope local commits without a duplicate prompt."
+  - "Operator decision 2026-08-15: standalone `v` is a canonical short approval only for the immediately preceding pending approval message."
   - "User decision 2026-05-04: master skills keep the master conversation clean by delegating file, validation, closure, and ship work to bounded sequential subagents when available."
   - "User decision 2026-05-04: delegation/subagent execution is distinct from parallelism; parallelism means simultaneous subagents and requires ready Execution Batches."
   - "User decision 2026-05-04: short natural-language confirmations continue the current chantier in delegated sequential mode after diagnosis or proposal; they are interpreted by intent, not exact keyword."
@@ -137,7 +138,7 @@ active conversation language means, by intent rather than exact keyword:
 continue the current chantier with the canonical topology: read-only parallel for independent no-write scopes, otherwise delegated sequential
 ```
 
-Short confirmations given before that plan authorize no mutation. Confirmations given after it authorize the bounded plan, its ordinary exact-scope technical local commits, and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`. Ask again when scope, risk, data, permissions, destructive behavior, unapproved staging, closure, or ship semantics change.
+Short confirmations given before that plan authorize no mutation. Confirmations given after it — including standalone `v` under `mutation-plan-approval.md` — authorize the bounded plan, its ordinary exact-scope technical local commits, and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`. Ask again when scope, risk, data, permissions, destructive behavior, unapproved staging, closure, or ship semantics change.
 
 The next safe mission remains internal. In an unfinished user-facing report,
 offer only plain-language choices about continuing, reprioritizing, changing

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-15"
@@ -30,6 +30,7 @@ evidence:
   - "Operator decision 2026-08-14: exact local routine reversible mutations may use a one- or two-sentence fast validation; remote or risky mutations retain the full plan."
   - "Operator decision 2026-08-15: approval of a bounded technical chantier grants cumulative authority for its ordinary local commits, avoiding a second approval ceremony."
   - "Operator clarification 2026-08-15: directly mapped project documentation required to close approved technical work truthfully is part of that bounded authority."
+  - "Operator decision 2026-08-15: standalone `v` is an explicit approval shortcut only for the immediately preceding pending approval message."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"
 ---
@@ -63,6 +64,8 @@ Example:
 
 Wait for explicit approval given after this fast validation. The initial imperative request does not count as approval.
 
+A reply consisting only of `v` (case-insensitive, ignoring surrounding whitespace) is explicit approval when it directly answers this immediately preceding pending fast validation and no intervening question, adjustment, reorientation, cancellation, or replacement message exists.
+
 ## Full plan
 
 For every mutation that is not fast-eligible, present a compact user-facing block that opens exactly in this shape:
@@ -82,6 +85,8 @@ Use `(spec)` only when exactly one ready spec owns the proposed mutation; otherw
 Before composing `📌 **Choix**`, load `skills/references/strategic-choice-contract.md`. End with two or three numbered choices adapted to the actual decision the operator can make now. Material alternatives express business directions and their consequences; routine low-impact approval remains proportional. Short `Questionner` or `Réorienter` labels are valid only because selecting them triggers the contract's active guided follow-up. The choices must not be a fixed menu copied into every context. Exactly one choice may grant approval; every other choice must clearly withhold approval or request a different outcome.
 
 Wait for explicit approval given after that plan, such as `validé`, `vas-y`, `applique ce plan`, or an equally unambiguous confirmation. The initial imperative request does not count as approval.
+
+A reply consisting only of `v` (case-insensitive, ignoring surrounding whitespace) is explicit approval when it directly answers the immediately preceding pending plan and that plan has exactly one approval outcome. It never authorizes an earlier, replaced, ambiguous, paused, questioned, or cancelled plan.
 
 A number-only reply is explicit approval only when it maps unambiguously to the single approval choice in the immediately preceding plan. A question, adjustment, alternative, pause, cancellation, or any number mapped to one of those outcomes never authorizes mutation.
 
@@ -119,6 +124,7 @@ Micro-edits and direct-execution paths still require explicit post-message appro
 
 - `MAP-TECHNICAL-COMMIT`: after approval of a bounded technical implementation, stage only its exact paths, run secret and proportional checks, create coherent local commits silently, and report their identifiers at the next natural checkpoint; do not ask for duplicate commit approval.
 - `MAP-COMMIT-BOUNDARY`: unrelated paths, substantive editorial judgment, mixed-scope consolidation, amend, rebase, squash, reset, tag, hook bypass, closure, release preparation, and shipping are outside implicit commit authority and require the applicable explicit approval.
+- `MAP-V-SHORTCUT`: standalone `v` or `V` approves only the immediately preceding pending fast validation or plan with one unambiguous approval outcome; it does nothing before an approval message or after an intervening question, adjustment, reorientation, cancellation, pause, or replacement.
 
 - `MAP-LOCAL`: an imperative without a unique ready spec receives a `(local)` header, current Paris time, the four marked sections, and contextual choices; do not mutate.
 - `MAP-SPEC`: a mutation owned by exactly one ready spec receives `(spec)` and its short title without exposing the spec path in the user-facing plan.

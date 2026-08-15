@@ -146,6 +146,27 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         self.assertIn("initial imperative request does not count as approval", self.text)
         self.assertIn("both approval paths", self.text)
 
+    def test_v_is_a_bounded_immediate_approval_shortcut(self) -> None:
+        for expected in (
+            "consisting only of `v`",
+            "case-insensitive, ignoring surrounding whitespace",
+            "immediately preceding pending fast validation",
+            "immediately preceding pending plan",
+            "exactly one approval outcome",
+            "It never authorizes an earlier, replaced, ambiguous, paused, questioned, or cancelled plan",
+            "MAP-V-SHORTCUT",
+        ):
+            self.assertIn(expected, self.text)
+
+        scenario = self._scenario("MAP-V-SHORTCUT")
+        for boundary in (
+            "standalone `v` or `V`",
+            "immediately preceding pending",
+            "does nothing before an approval message",
+            "intervening question, adjustment, reorientation, cancellation, pause, or replacement",
+        ):
+            self.assertIn(boundary, scenario)
+
     def test_technical_plan_approval_includes_local_commit_authority(self) -> None:
         for expected in (
             "Cumulative local commit authority",

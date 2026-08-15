@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.20.0"
+artifact_version: "2.21.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-15"
@@ -59,7 +59,7 @@ linked_systems:
   - docs/editorial/
 depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
-    artifact_version: "0.21.0"
+    artifact_version: "0.22.0"
     required_status: draft
   - artifact: "skills/references/technical-docs-corpus.md"
     artifact_version: "1.3.0"
@@ -132,6 +132,7 @@ evidence:
   - "Two-tier mutation approval adds a cumulative fast path for exact local routine reversible actions while keeping full plans for ineligible and remote mutations."
   - "2026-08-15: bounded technical chantier approval now includes ordinary exact-scope local commits without duplicate approval."
   - "2026-08-15: every closure now exposes documentation reflection and material documentation gaps prevent closed or shipped wording."
+  - "2026-08-15: standalone `v` canonically approves only the immediately preceding pending approval message."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
