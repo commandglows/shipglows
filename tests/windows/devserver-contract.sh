@@ -147,6 +147,8 @@ rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, or 0\.' \}" "$BOOTST
 for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
 done
+rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
+rg -n '\$entries\.Count -ne 5' "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
 ! rg -n '\$windowsCandidates = @\([^)]*\) \| Where-Object' "$BOOTSTRAP"
 rg -n "127\\.0\\.0\\.1|registry\\.json|registry\\.lock|commandSignature|startTimeUtc" "$MODULE"
