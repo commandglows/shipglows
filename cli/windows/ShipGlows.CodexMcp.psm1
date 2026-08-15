@@ -1,5 +1,16 @@
 Set-StrictMode -Version Latest
 
+if (-not ('ShipGlowsNativeFile' -as [type])) {
+    Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public static class ShipGlowsNativeFile {
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+    public static extern bool MoveFileEx(string existingFileName, string newFileName, int flags);
+}
+'@
+}
+
 function ConvertTo-SgTomlString([string]$Value) {
     return '"' + $Value.Replace('\', '\\').Replace('"', '\"') + '"'
 }
@@ -22,36 +33,37 @@ function Remove-SgPlaywrightMcpBlocks([string]$Content) {
     return ($kept -join "`n").Trim([char[]]"`r`n")
 }
 
-function Get-SgPlaywrightMcpBlock([string]$NpxPath) {
+function Get-SgPlaywrightMcpBlock([string]$NpxPath, [string]$PlaywrightVersion) {
     $command = ConvertTo-SgTomlString ([IO.Path]::GetFullPath($NpxPath))
     return @(
         '# >>> shipglows codex playwright mcp >>>',
         '[mcp_servers.playwright]',
         "command = $command",
-        'args = ["-y", "@playwright/mcp@latest", "--headless", "--browser", "chromium"]',
+        "args = [`"-y`", `"--registry=https://registry.npmjs.org/`", `"@playwright/mcp@$PlaywrightVersion`", `"--headless`", `"--browser`", `"chromium`"]",
         'enabled = true',
         '# <<< shipglows codex playwright mcp <<<'
     ) -join "`n"
 }
 
-function Set-SgCodexPlaywrightMcpConfig([string]$ConfigPath, [string]$NpxPath) {
+function Set-SgCodexPlaywrightMcpConfig([string]$ConfigPath, [string]$NpxPath, [string]$PlaywrightVersion, [string]$ChromiumPath) {
     if (-not (Test-Path -LiteralPath $NpxPath -PathType Leaf)) { throw "Native npx.cmd was not found: $NpxPath" }
     if ([IO.Path]::GetExtension($NpxPath) -ine '.cmd') { throw 'Windows Playwright MCP requires a resolved npx.cmd executable.' }
+    if ($PlaywrightVersion -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'Windows Playwright MCP requires an exact resolved package version.' }
+    if (-not (Test-Path -LiteralPath $ChromiumPath -PathType Leaf)) { throw "Playwright Chromium was not proven: $ChromiumPath" }
     $directory = Split-Path -Parent $ConfigPath
     New-Item -ItemType Directory -Path $directory -Force | Out-Null
     $existing = if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) { [IO.File]::ReadAllText($ConfigPath) } else { '' }
     $remainder = Remove-SgPlaywrightMcpBlocks $existing
-    $block = Get-SgPlaywrightMcpBlock $NpxPath
+    $block = Get-SgPlaywrightMcpBlock $NpxPath $PlaywrightVersion
     $next = if ($remainder) { "$remainder`n`n$block`n" } else { "$block`n" }
     if ($next.Replace("`r`n", "`n") -ceq $existing.Replace("`r`n", "`n")) { return $false }
-    if ($existing) {
-        $backup = "$ConfigPath.shipglows-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-        Copy-Item -LiteralPath $ConfigPath -Destination $backup -ErrorAction Stop
-    }
     $temp = "$ConfigPath.$([guid]::NewGuid().ToString('N')).tmp"
     try {
         [IO.File]::WriteAllText($temp, $next, [Text.UTF8Encoding]::new($false))
-        Move-Item -LiteralPath $temp -Destination $ConfigPath -Force
+        if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) {
+            if (-not [ShipGlowsNativeFile]::MoveFileEx($temp,$ConfigPath,9)) { throw "Atomic Codex config replacement failed with Win32 error $([Runtime.InteropServices.Marshal]::GetLastWin32Error())." }
+        }
+        else { Move-Item -LiteralPath $temp -Destination $ConfigPath }
     } finally {
         if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force }
     }

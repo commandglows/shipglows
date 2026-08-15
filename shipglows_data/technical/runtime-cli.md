@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.7.1"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-15"
@@ -47,9 +47,9 @@ evidence:
   - "Disk details and PM2 log cleanup/rotation added to explain and cap disk usage."
   - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
   - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser."
-  - "Native Windows full installs Node LTS, pnpm and uv automatically; Flutter Web remains an explicit optional download in the interactive installer."
+  - "Native Windows full resolves and validates Flutter/Dart, JDK 17 and Android command-line tools in user scope; Android terms and SDK licenses remain explicitly user-confirmed, with non-interactive runs pending."
   - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
-  - "Native Windows full offers Codex, Claude Code, OpenCode, and KiloCode as separate opt-in prompts; agent authentication remains owned by each CLI."
+  - "Native Windows full prepares Dart/Flutter and exact-version Playwright MCP for installed agents; existing JSON/JSONC is preserved and reported pending when no safe native update is proven."
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."
   - "Native Windows installs priority .cmd wrappers for npm-family and coding-agent commands so restrictive PowerShell execution policies cannot select blocked .ps1 shims."
   - "Native Windows resolves supported nested menu shortcuts such as s m n inside the PATH-backed launcher, without requiring a PowerShell profile."
@@ -93,7 +93,7 @@ PM2/Flox/Caddy behavior, or native Windows process and installer behavior.
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
 | `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Keep PowerShell 5.1-compatible; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
-| `cli/windows/install-devserver.ps1` | Installs the Windows launcher and developer tools | Install Node LTS, pnpm and uv idempotently; remove only ShipGlows's obsolete profile block; ask before Flutter Web or each coding-agent CLI |
+| `cli/windows/install-devserver.ps1` | Installs the Windows launcher and developer tools | Install Node LTS, pnpm, uv, Flutter and the Android path idempotently; preserve explicit Android license/UAC confirmations; configure installed agents only |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
 
 The Windows launcher also owns the profile-independent shortcut paths that
@@ -208,14 +208,20 @@ A `package.json` without `scripts.dev` is ignored as a non-runnable surface.
 
 Linux-only Flox, PM2, Caddy, autossh, and the interactive `urls` menu are not
 emulated on Windows. The full installer prepares Git, GitHub CLI, Node LTS
-(including npm), pnpm and uv. It asks before downloading Flutter Web, then
-clones the stable SDK into the user-local ShipGlows directory and enables web
-support. pnpm's configured global bin directory (the `bin` subdirectory of
+(including npm), pnpm, uv and Flutter, then enables web and Android support.
+It asks only about emulator support after x64 and nested virtualization evidence.
+Validated existing Flutter/Dart, JDK 17 and Android SDK paths are reused without
+rewriting their environment ownership. Otherwise JDK 17 is installed first; the
+Android terms are then shown before hardened ZIP extraction of command-line tools.
+API/platform/build-tools and the emulator image use centralized Android 36
+coordinates. `sdkmanager --licenses` remains explicit. Non-interactive runs
+report pending and never pre-answer them. pnpm's configured global bin directory (the `bin` subdirectory of
 `PNPM_HOME` on pnpm v11) is created, added to the user `PATH`, and checked with
-`pnpm --version` before the installer reports success. It also asks separately,
-with `no` as the default, before installing
-Codex, Claude Code, OpenCode, or KiloCode. It stores no agent credentials and
-never initiates authentication: the selected CLI owns its own first-run login.
+`pnpm --version` before the installer reports success. Already-installed Codex,
+Claude Code, OpenCode and Kilo receive bounded MCP preparation. OpenCode v2 uses
+`mcp.servers`; Kilo prefers `kilo` and detects legacy `kilocode`. Existing
+JSON/JSONC remains byte-identical and pending if no proven native edit is safe.
+The installer stores no credentials or initiates authentication.
 The installer exposes npm, npx, Corepack, pnpm and selected coding agents
 through `.cmd` wrappers in the ShipGlows runtime and moves that runtime to the
 front of the active process `PATH`. User-scoped blocked `.ps1` shims beside a

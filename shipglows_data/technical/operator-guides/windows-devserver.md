@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.5.1"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-15"
@@ -48,10 +48,10 @@ ne sont pas requis par le parcours Shadow PC.
 **Avantages:**
 - ✅ Pas besoin de WSL ni de virtualisation imbriquée
 - ✅ Tunnels SSH avec OpenSSH natif
-- ✅ DevServer natif Astro, Python/FastAPI et Flutter Web en mode full
+- ✅ DevServer natif Astro, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
 - ✅ Clone et registre local des dépôts directement dans `%USERPROFILE%\ShipGlows`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
-- ✅ Codex, Claude Code, OpenCode et KiloCode proposés individuellement, sans installation implicite
+- ✅ MCP Dart/Flutter et Playwright préparés sans authentification; JSON/JSONC existant préservé ou signalé pending
 
 1. **Lancer le bootstrap unique ShipGlows:**
 
@@ -81,12 +81,20 @@ ne sont pas requis par le parcours Shadow PC.
    Le bootstrap résout la branche, le tag ou le SHA demandé vers le commit
    canonique GitHub, puis télécharge uniquement son archive publique immuable sans Git. Il installe
    automatiquement Gum dans le runtime ShipGlows pour le menu interactif,
-   puis installe Git, GitHub CLI, Node LTS, pnpm et uv en mode full. Flutter
-   Web et chaque agent de code (Codex, Claude Code, OpenCode, KiloCode) sont
-   des choix séparés avec `non` par défaut. ShipGlows installe seulement le
-   binaire choisi : chaque agent ouvre sa propre authentification officielle au
-   premier lancement et ShipGlows ne lit ni ne stocke ses identifiants. Flutter
-   Web est proposé séparément, car son téléchargement est plus lourd. Il ne demande ni
+   puis installe Git, GitHub CLI, Node LTS, pnpm, uv et un commit Flutter résolu.
+   Les installations Flutter/Dart, JDK 17 et Android SDK externes valides sont
+   réutilisées sans remplacer leurs variables ni le `PATH`. Sinon JDK 17 est
+   installé dans le profil utilisateur avant la présentation des conditions
+   Android; les archives ZIP sont vérifiées et les packages ciblent Android 36.
+   La seule question produit porte sur l'émulateur, uniquement si le poste le
+   supporte; sinon utilisez un téléphone réel avec le débogage USB. Les licences
+   Android restent à confirmer dans leur flux officiel. En non-interactif,
+   `sdkmanager --licenses` est signalé comme action en attente. L'émulateur
+   requiert accélération, image système et AVD prouvés; Shadow sans virtualisation
+   imbriquée utilise un téléphone réel. Les nouveaux fichiers agent peuvent
+   recevoir Dart/Flutter et Playwright; un JSON/JSONC existant reste intact et
+   explicitement pending si aucune mise à jour native sûre n'est disponible.
+   Aucune authentification n'est démarrée. Il ne demande ni
    `sudo`, ni WSL, ni `autossh`. Au premier accès aux dépôts privés, GitHub CLI
    ouvre son authentification officielle dans le navigateur; ShipGlows ne lit
    et ne stocke jamais le token.

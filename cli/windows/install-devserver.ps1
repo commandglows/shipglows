@@ -13,6 +13,9 @@ $runtimeDir = Join-Path $ShipglowsDir 'bin'
 $codexMcpModule = Join-Path $sourceDir 'ShipGlows.CodexMcp.psm1'
 if (-not (Test-Path -LiteralPath $codexMcpModule -PathType Leaf)) { throw "Missing Windows Codex MCP helper: $codexMcpModule" }
 Import-Module $codexMcpModule -Force -DisableNameChecking
+$mobileModule = Join-Path $sourceDir 'ShipGlows.MobileToolchain.psm1'
+if (-not (Test-Path -LiteralPath $mobileModule -PathType Leaf)) { throw "Missing Windows mobile toolchain helper: $mobileModule" }
+Import-Module $mobileModule -Force -DisableNameChecking
 $gumVersion = '0.17.0'
 $gumSha256 = 'B2BE80531C6BABC8D4E0E6CA95773D58118A2E1582AE006AACE08DBC55503072'
 New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
@@ -477,66 +480,6 @@ function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]
     }
 }
 
-function Install-SgOptionalAgent([string]$DisplayName, [string]$CommandName, [string]$PackageName, [string[]]$KnownPaths, [string[]]$PnpmPaths, [string[]]$NpmPaths, [string]$CompatibilityNote = '', [switch]$AllowInstallScripts) {
-    if (Test-SgToolRuns $CommandName $KnownPaths) {
-        Write-Host "$DisplayName is already installed." -ForegroundColor Green
-        return $true
-    }
-
-    if ([Console]::IsInputRedirected) {
-        Write-Host "$DisplayName skipped because this is a non-interactive installation. Rerun the full installer to choose optional agents." -ForegroundColor Yellow
-        return $false
-    }
-
-    Write-Host ''
-    Write-Host "$DisplayName is optional." -ForegroundColor Yellow
-    if ($CompatibilityNote) { Write-Host $CompatibilityNote -ForegroundColor DarkYellow }
-    Write-Host "ShipGlows only installs the CLI. Authentication happens when you first run $CommandName; ShipGlows never asks for or stores credentials." -ForegroundColor DarkGray
-    $answer = (Read-Host "Install $DisplayName now? [y/N]").Trim().ToLowerInvariant()
-    if ($answer -notin @('y', 'yes')) {
-        Write-Host "$DisplayName skipped. Rerun the full installer when you want it." -ForegroundColor Yellow
-        return $false
-    }
-
-    $pnpm = Get-SgToolPath 'pnpm.cmd' $PnpmPaths
-    $npm = Get-SgToolPath 'npm.cmd' $NpmPaths
-    if (-not $pnpm -and -not $npm) {
-        Write-SgInstallerWarning "$DisplayName could not be installed because neither pnpm nor npm is available."
-        return $false
-    }
-
-    try {
-        if ($pnpm -and -not $AllowInstallScripts) {
-            Write-Host "Installing $DisplayName with pnpm. This can take a few minutes; keep this window open..." -ForegroundColor Cyan
-            & $pnpm add --global $PackageName | Out-Host
-            if ($LASTEXITCODE -eq 0) {
-                Update-SgProcessPath
-                if (Test-SgToolRuns $CommandName $KnownPaths) {
-                    Write-Host "$DisplayName installed." -ForegroundColor Green
-                    return $true
-                }
-            }
-            Write-SgInstallerWarning "pnpm could not make $DisplayName available here; trying the npm fallback."
-        }
-
-        if (-not $npm) { throw "$DisplayName was not discoverable after pnpm and npm is unavailable." }
-        Write-Host "Installing $DisplayName with npm fallback. This can take a few minutes; keep this window open..." -ForegroundColor Cyan
-        if ($AllowInstallScripts) {
-            & $npm install --global "--allow-scripts=$PackageName" $PackageName | Out-Host
-        } else {
-            & $npm install --global $PackageName | Out-Host
-        }
-        if ($LASTEXITCODE -ne 0) { throw "$DisplayName installation returned exit code $LASTEXITCODE." }
-        Update-SgProcessPath
-        if (-not (Test-SgToolRuns $CommandName $KnownPaths)) { throw "$DisplayName was installed but its version check failed." }
-        Write-Host "$DisplayName installed." -ForegroundColor Green
-        return $true
-    } catch {
-        Write-SgInstallerWarning "$DisplayName could not be installed automatically: $($_.Exception.Message)"
-        return $false
-    }
-}
-
 function Get-SgCodexPermissionModeFromConfig([string]$ConfigPath) {
     if (-not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) { return '' }
     foreach ($line in (Get-Content -LiteralPath $ConfigPath)) {
@@ -565,36 +508,14 @@ function Resolve-SgCodexPermissionMode([string]$ConfigPath) {
         { $_ -in @('full', 'permissive', 'danger', 'dangerous') } { return 'full' }
         { $_ -in @('workspace', 'standard', 'safe', 'restricted') } { return 'workspace' }
         { $_ -in @('keep', 'unchanged', 'skip') } { return 'keep' }
-        { $_ -in @('', 'ask') } { break }
+        { $_ -in @('', 'ask') } { Write-SgInstallerWarning 'Codex permission mode ask is not used by the one-question full installer; existing permissions were kept.'; return 'keep' }
         default {
             Write-SgInstallerWarning "Unknown SHIPGLOWS_CODEX_PERMISSION_MODE value '$requested'; the existing Codex configuration was kept."
             return 'keep'
         }
     }
 
-    if ([Console]::IsInputRedirected) {
-        Write-Host 'Codex permission configuration kept because this is a non-interactive installation. Set SHIPGLOWS_CODEX_PERMISSION_MODE=workspace or full to automate it.' -ForegroundColor Yellow
-        return 'keep'
-    }
-
-    $current = Get-SgCodexPermissionModeFromConfig $ConfigPath
-    $defaultChoice = if ($current -eq 'full') { '2' } else { '1' }
-    Write-Host ''
-    Write-Host 'Codex permissions' -ForegroundColor Yellow
-    Write-Host '  1) Workspace access (recommended): edit projects, ask before leaving the workspace or using restricted access.'
-    Write-Host '  2) Full access: no sandbox and no approval prompts. Use only with trusted repositories.'
-    Write-Host '  0) Keep the existing Codex configuration unchanged.'
-    if ($current) { Write-Host "Current mode: $current" -ForegroundColor DarkGray }
-    while ($true) {
-        $answer = (Read-Host "Choose 0, 1, or 2 [$defaultChoice]").Trim()
-        if (-not $answer) { $answer = $defaultChoice }
-        switch ($answer) {
-            '0' { return 'keep' }
-            '1' { return 'workspace' }
-            '2' { return 'full' }
-            default { Write-Host 'Enter 0, 1, or 2.' -ForegroundColor Yellow }
-        }
-    }
+    return 'keep'
 }
 
 function Set-SgCodexPermissionMode([string]$Mode, [string]$ConfigPath) {
@@ -625,12 +546,12 @@ function Set-SgCodexPermissionMode([string]$Mode, [string]$ConfigPath) {
         Write-Host "Codex permissions already configured: $Mode." -ForegroundColor Green
         return $false
     }
-    if ($existing) {
-        $backupPath = "$ConfigPath.shipglows-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-        Copy-Item -LiteralPath $ConfigPath -Destination $backupPath
-        Write-Host "Existing Codex configuration backed up to $backupPath" -ForegroundColor DarkGray
-    }
-    [IO.File]::WriteAllText($ConfigPath, $next, [Text.UTF8Encoding]::new($false))
+    $temp = "$ConfigPath.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        [IO.File]::WriteAllText($temp, $next, [Text.UTF8Encoding]::new($false))
+        if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) { Move-SgAtomicReplace $temp $ConfigPath }
+        else { Move-Item -LiteralPath $temp -Destination $ConfigPath }
+    } finally { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force } }
     Write-Host "Codex permissions configured: $Mode." -ForegroundColor Green
     return $true
 }
@@ -646,65 +567,6 @@ function Get-SgNativeNpxPath([string[]]$KnownPaths = @()) {
         if ($candidate -ine $managedWrapper) { return $candidate }
     }
     return $null
-}
-
-function Install-SgCodexPlaywrightMcp([bool]$CodexReady, [string[]]$CodexPaths, [string[]]$NodePaths, [string[]]$NpxPaths) {
-    $codex = if ($CodexReady) { Get-SgToolPath 'codex.cmd' $CodexPaths } else { $null }
-    $node = Get-SgToolPath 'node.exe' $NodePaths
-    # Never persist ShipGlows' own npx wrapper as the MCP command. The wrapper is
-    # created during installation and would otherwise make the second pass drift.
-    $npx = Get-SgNativeNpxPath $NpxPaths
-    $prerequisites = Get-SgCodexPlaywrightPrerequisiteStatus $codex $node $npx
-    if (-not $prerequisites.Ready) {
-        Write-SgInstallerWarning $prerequisites.Message
-        return [pscustomobject]@{ Installed = $false; McpConfigured = $false; McpVerified = $false; ConfigPath = ''; ChromiumPath = '' }
-    }
-    $codex = $prerequisites.CodexPath
-    $npx = $prerequisites.NpxPath
-
-    Write-Host 'Installing Playwright Chromium for Codex MCP. This can take a few minutes...' -ForegroundColor Cyan
-    $previousPreference = $ErrorActionPreference
-    try {
-        $ErrorActionPreference = 'Continue'
-        & $npx -y '--package=@playwright/mcp@latest' playwright install chromium | Out-Host
-        $browserExitCode = $LASTEXITCODE
-    } finally {
-        $ErrorActionPreference = $previousPreference
-    }
-    if ($browserExitCode -ne 0) {
-        Write-SgInstallerWarning "Playwright Chromium installation failed with exit code $browserExitCode; MCP configuration was not changed."
-        return [pscustomobject]@{ Installed = $false; McpConfigured = $false; McpVerified = $false; ConfigPath = ''; ChromiumPath = '' }
-    }
-    $chromium = Get-SgPlaywrightChromiumExecutable
-    if (-not $chromium) {
-        Write-SgInstallerWarning 'Playwright Chromium installation completed but no user-scoped Chromium executable was found; MCP configuration was not changed.'
-        return [pscustomobject]@{ Installed = $false; McpConfigured = $false; McpVerified = $false; ConfigPath = ''; ChromiumPath = '' }
-    }
-
-    $configPath = Join-Path $env:USERPROFILE '.codex\config.toml'
-    [void](Set-SgCodexPlaywrightMcpConfig -ConfigPath $configPath -NpxPath $npx)
-    $previousPreference = $ErrorActionPreference
-    try {
-        $ErrorActionPreference = 'Continue'
-        $json = (& $codex mcp get playwright --json 2>$null | Out-String)
-        $verifyExitCode = $LASTEXITCODE
-    } finally {
-        $ErrorActionPreference = $previousPreference
-    }
-    if ($verifyExitCode -ne 0 -or [string]::IsNullOrWhiteSpace($json)) { throw 'Codex could not read the installed Playwright MCP configuration.' }
-    $actual = $json | ConvertFrom-Json
-    $expectedArgs = @('-y','@playwright/mcp@latest','--headless','--browser','chromium')
-    if ([IO.Path]::GetFullPath([string]$actual.transport.command) -ine $npx -or (@($actual.transport.args) -join "`n") -cne ($expectedArgs -join "`n") -or -not [bool]$actual.enabled) {
-        throw 'Codex reported a Playwright MCP configuration that does not match the ShipGlows contract.'
-    }
-    Write-Host "Playwright MCP enabled globally with Chromium: $($chromium.FullName)" -ForegroundColor Green
-    return [pscustomobject]@{
-        Installed = $true
-        McpConfigured = $true
-        McpVerified = $true
-        ConfigPath = [IO.Path]::GetFullPath($configPath)
-        ChromiumPath = [IO.Path]::GetFullPath($chromium.FullName)
-    }
 }
 
 function Set-SgCodexEnvironmentInstructions([string]$AgentsPath) {
@@ -811,47 +673,285 @@ function Invoke-SgProjectEnvironmentMigration([string]$ModulePath) {
     Write-Host "ShipGlows project environments migrated: $migrated" -ForegroundColor Green
 }
 
+function Move-SgManagedPartialDirectory([string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path -PathType Container)) { return '' }
+    $quarantine = "$Path.partial-$(Get-Date -Format 'yyyyMMdd-HHmmss')-$([guid]::NewGuid().ToString('N').Substring(0,8))"
+    Move-Item -LiteralPath $Path -Destination $quarantine
+    Write-SgInstallerWarning "Incomplete managed tool was preserved for inspection: $quarantine"
+    return $quarantine
+}
+
+function Save-SgVerifiedDownload([string]$Url, [string]$Sha256, [string]$Destination) {
+    if ($Url -notmatch '^https://' -or $Url -notmatch '[.]zip(?:\?|$)' -or [IO.Path]::GetExtension($Destination) -ine '.zip') { throw 'Only HTTPS ZIP tool downloads are allowed.' }
+    if ($Sha256 -notmatch '^[0-9A-Fa-f]{64}$') { throw 'Tool download requires a complete SHA-256 digest.' }
+    Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $Destination -TimeoutSec 180
+    $actual = (Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash
+    if ($actual -ine $Sha256) { throw "Downloaded archive checksum mismatch for $Url" }
+}
+
 function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
-    if (Test-SgTool 'flutter.bat' $FlutterPaths) {
-        Write-Host 'Flutter Web SDK is already installed.' -ForegroundColor Green
-        return $true
+    $existingFlutter = Get-SgToolPath 'flutter.bat' $FlutterPaths
+    if ($existingFlutter) {
+        $existingRoot = Split-Path (Split-Path $existingFlutter -Parent) -Parent
+        $existingState = Get-SgFlutterInstallState -FlutterRoot $existingRoot
+        if ($existingState.Status -eq 'ready') {
+            Write-Host "Using validated existing Flutter/Dart SDK without changing its location: $existingRoot" -ForegroundColor Green
+            return $true
+        }
     }
-
-    Write-Host ''
-    Write-Host 'Flutter Web SDK is optional and is a larger download.' -ForegroundColor Yellow
-    $answer = (Read-Host 'Install Flutter Web SDK now? [y/N]').Trim().ToLowerInvariant()
-    if ($answer -notin @('y', 'yes')) {
-        Write-Host 'Flutter Web SDK skipped. Rerun the full installer when you need it.' -ForegroundColor Yellow
-        return $false
-    }
-
     $git = Get-SgToolPath 'git.exe' $GitPaths
-    if (-not $git) {
-        Write-SgInstallerWarning 'Flutter Web SDK could not be installed because Git is unavailable.'
-        return $false
-    }
-
+    if (-not $git) { Write-SgInstallerWarning 'Flutter could not be installed because Git is unavailable.'; return $false }
     $flutterDirectory = Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter'
-    $flutterBin = Join-Path $flutterDirectory 'bin'
-    $flutterBatch = Join-Path $flutterBin 'flutter.bat'
-    try {
-        if (-not (Test-Path -LiteralPath $flutterDirectory -PathType Container)) {
-            Write-Host 'Downloading Flutter stable. This can take several minutes; keep this window open...' -ForegroundColor Cyan
-            & $git clone --depth 1 --branch stable https://github.com/flutter/flutter.git $flutterDirectory | Out-Host
-            if ($LASTEXITCODE -ne 0) { throw "Flutter download returned exit code $LASTEXITCODE." }
+    $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory
+    if ($state.Status -eq 'partial') { [void](Move-SgManagedPartialDirectory $flutterDirectory); $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory }
+    if ($state.Status -eq 'absent') {
+        $resolved = Invoke-SgBoundedProcess -File $git -Arguments @('ls-remote','https://github.com/flutter/flutter.git','refs/heads/stable') -TimeoutSeconds 60
+        $commit = if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0 -and $resolved.Output -match '(?m)^([0-9a-f]{40})\s+refs/heads/stable$') { $Matches[1] } else { '' }
+        if (-not $commit) { Write-SgInstallerWarning 'Flutter stable commit could not be resolved and proven; installation is pending.'; return $false }
+        New-Item -ItemType Directory -Path $flutterDirectory | Out-Null
+        foreach ($step in @(
+            @('init'),
+            @('remote','add','origin','https://github.com/flutter/flutter.git'),
+            @('fetch','--depth','1','origin',$commit),
+            @('checkout','--detach','FETCH_HEAD')
+        )) {
+            $arguments = @('-C',$flutterDirectory) + $step
+            $result = Invoke-SgBoundedProcess -File $git -Arguments $arguments -TimeoutSeconds 600
+            if ($result.TimedOut -or $result.ExitCode -ne 0) { [void](Move-SgManagedPartialDirectory $flutterDirectory); Write-SgInstallerWarning 'Flutter resolved-commit installation failed or timed out.'; return $false }
         }
-        if (-not (Test-Path -LiteralPath $flutterBatch -PathType Leaf)) {
-            throw "Flutter was not found in $flutterDirectory. The existing folder was left untouched."
-        }
+    }
+    $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory
+    if ($state.Status -ne 'ready') { Write-SgInstallerWarning 'Flutter/Dart executable validation failed after installation.'; return $false }
+    Add-SgUserPathEntry (Join-Path $flutterDirectory 'bin')
+    $configured = Invoke-SgBoundedProcess -File $state.FlutterPath -Arguments @('config','--enable-web','--enable-android') -TimeoutSeconds 90
+    if ($configured.TimedOut -or $configured.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter platform configuration failed or timed out.'; return $false }
+    Write-Host 'Flutter SDK resolved to a concrete stable commit; Flutter and Dart versions are valid.' -ForegroundColor Green
+    return $true
+}
 
-        Add-SgUserPathEntry $flutterBin
-        & $flutterBatch config --enable-web | Out-Host
-        if ($LASTEXITCODE -ne 0) { throw "Flutter Web configuration returned exit code $LASTEXITCODE." }
-        Write-Host 'Flutter Web SDK installed and web support enabled.' -ForegroundColor Green
-        return $true
-    } catch {
-        Write-SgInstallerWarning "Flutter Web SDK could not be installed automatically: $($_.Exception.Message)"
-        return $false
+function Install-SgJdk17 {
+    $jdkRoot = Join-Path $env:LOCALAPPDATA 'ShipGlows\jdk17'
+    $javaCommand = Get-SgToolPath 'java.exe' @()
+    $existing = Resolve-SgExistingJdk17 -JavaHome $env:JAVA_HOME -JavaCommand $javaCommand
+    if ($existing.Ready) {
+        if ($existing.Home.Equals($jdkRoot,[StringComparison]::OrdinalIgnoreCase)) { [Environment]::SetEnvironmentVariable('JAVA_HOME',$jdkRoot,'User'); $env:JAVA_HOME=$jdkRoot; Add-SgUserPathEntry (Join-Path $jdkRoot 'bin') }
+        else {
+            try { Set-SgResolvedToolProcessEnvironment -JdkHome $existing.Home }
+            catch { Write-SgInstallerWarning "Existing JDK 17 is valid but the child-process environment could not be normalized: $($_.Exception.Message)"; return '' }
+            Write-Host "Using validated existing JDK 17; JAVA_HOME was normalized for this installer and its children only: $($existing.Home)" -ForegroundColor Green
+        }
+        return $existing.JavaPath
+    }
+    $java = Join-Path $jdkRoot 'bin\java.exe'
+    $check = if (Test-Path -LiteralPath $java -PathType Leaf) { Invoke-SgBoundedProcess $java @('-version') 30 } else { $null }
+    if (-not $check -or $check.TimedOut -or $check.ExitCode -ne 0 -or $check.Output -notmatch '(?i)(openjdk|java).*\b17\b') {
+        if (Test-Path -LiteralPath $jdkRoot) { [void](Move-SgManagedPartialDirectory $jdkRoot) }
+        $apiUrl = 'https://api.adoptium.net/v3/assets/latest/17/hotspot?architecture=x64&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=windows&vendor=eclipse'
+        $assets = Invoke-RestMethod -UseBasicParsing -Uri $apiUrl -TimeoutSec 60
+        $package = Resolve-SgAdoptiumJdkPackage (@($assets)[0])
+        $archive = Join-Path ([IO.Path]::GetTempPath()) ("sg-jdk-$([guid]::NewGuid().ToString('N')).zip")
+        $staging = "$jdkRoot.staging-$([guid]::NewGuid().ToString('N'))"
+        try {
+            Save-SgVerifiedDownload $package.Url $package.Sha256 $archive
+            $extractedRoot = Expand-SgVerifiedZip -ArchivePath $archive -DestinationPath $staging -ExpectedRelativePath 'bin\java.exe'
+            Move-Item -LiteralPath $extractedRoot -Destination $jdkRoot
+        } finally {
+            if (Test-Path -LiteralPath $archive) { Remove-Item -LiteralPath $archive -Force }
+            if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
+        }
+    }
+    $check = Invoke-SgBoundedProcess $java @('-version') 30
+    if ($check.TimedOut -or $check.ExitCode -ne 0 -or $check.Output -notmatch '(?i)(openjdk|java).*\b17\b') { throw 'JDK 17 executable validation failed.' }
+    [Environment]::SetEnvironmentVariable('JAVA_HOME',$jdkRoot,'User'); $env:JAVA_HOME=$jdkRoot; Add-SgUserPathEntry (Join-Path $jdkRoot 'bin')
+    return $java
+}
+
+function Install-SgAndroidCommandLineTools([string]$SdkRoot) {
+    $sdkManager = Join-Path $SdkRoot 'cmdline-tools\latest\bin\sdkmanager.bat'
+    if (Test-Path -LiteralPath $sdkManager -PathType Leaf) {
+        $check = Invoke-SgBoundedProcess $sdkManager @('--version') 30
+        if (-not $check.TimedOut -and $check.ExitCode -eq 0 -and $check.Output -match '\d+') { return $sdkManager }
+        [void](Move-SgManagedPartialDirectory (Join-Path $SdkRoot 'cmdline-tools\latest'))
+    }
+    if ([Console]::IsInputRedirected) { Write-SgInstallerWarning 'Android command-line tools pending: license confirmation requires an interactive terminal.'; return '' }
+    Write-Host 'Review the official Android SDK terms: https://developer.android.com/studio/terms' -ForegroundColor Yellow
+    $license = (Read-Host 'Accept the Android SDK terms to download the official command-line tools? [y/N]').Trim().ToLowerInvariant()
+    if ($license -notin @('y','yes')) { Write-SgInstallerWarning 'Android command-line tools and licenses remain pending by user choice.'; return '' }
+    $repositoryUrl = 'https://dl.google.com/android/repository/repository2-3.xml'
+    $repository = [xml](Invoke-WebRequest -UseBasicParsing -Uri $repositoryUrl -TimeoutSec 60).Content
+    $package = Resolve-SgAndroidCommandLineToolsPackage $repository
+    $archive = Join-Path ([IO.Path]::GetTempPath()) ("sg-android-tools-$([guid]::NewGuid().ToString('N')).zip")
+    $staging = Join-Path ([IO.Path]::GetTempPath()) ("sg-android-tools-$([guid]::NewGuid().ToString('N'))")
+    try {
+        Save-SgVerifiedDownload $package.Url $package.Sha256 $archive
+        $toolRoot = Expand-SgVerifiedZip -ArchivePath $archive -DestinationPath $staging -ExpectedRelativePath 'bin\sdkmanager.bat'
+        New-Item -ItemType Directory -Path (Split-Path (Join-Path $SdkRoot 'cmdline-tools\latest') -Parent) -Force | Out-Null
+        Move-Item -LiteralPath $toolRoot -Destination (Join-Path $SdkRoot 'cmdline-tools\latest')
+    } finally {
+        if (Test-Path -LiteralPath $archive) { Remove-Item -LiteralPath $archive -Force }
+        if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
+    }
+    $check = Invoke-SgBoundedProcess $sdkManager @('--version') 30
+    if ($check.TimedOut -or $check.ExitCode -ne 0 -or $check.Output -notmatch '\d+') { throw 'Android sdkmanager validation failed.' }
+    return $sdkManager
+}
+
+function Get-SgHypervisorEvidence {
+    try {
+        $computer = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
+        $cpu = Get-CimInstance Win32_Processor -ErrorAction Stop | Select-Object -First 1
+        return Test-SgWindowsHypervisorEvidence ([bool]$computer.HypervisorPresent) ([bool]$cpu.VirtualizationFirmwareEnabled) ([bool]$cpu.VMMonitorModeExtensions) ([bool]$cpu.SecondLevelAddressTranslationExtensions)
+    } catch { return $false }
+}
+
+function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths) {
+    if (-not $FlutterReady) { Write-SgInstallerWarning 'Android setup is pending because Flutter is unavailable.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    if (-not (Test-SgSupportedAndroidArchitecture)) { Write-SgInstallerWarning 'Android setup is pending: automatic Windows provisioning currently requires an x64 operating system. No Android package was downloaded.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    $interactive = -not [Console]::IsInputRedirected
+    $java = Install-SgJdk17
+    if (-not $java) { return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    $managedSdkRoot = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+    $existingSdk = Resolve-SgExistingAndroidSdk -CandidateRoots @($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,$managedSdkRoot) -SdkManagerCommand (Get-SgToolPath 'sdkmanager.bat' @())
+    $managedSdk = -not $existingSdk.Ready -or ($existingSdk.Root -and $existingSdk.Root.Equals($managedSdkRoot,[StringComparison]::OrdinalIgnoreCase))
+    $sdkRoot = if ($existingSdk.Ready) { $existingSdk.Root } else { $managedSdkRoot }
+    $sdkManager = if ($existingSdk.Ready) { if (-not $managedSdk) { Write-Host "Using validated existing Android SDK; Android homes are normalized for this installer and its children only, without persistent environment or PATH changes: $sdkRoot" -ForegroundColor Green }; $existingSdk.SdkManagerPath } else { Install-SgAndroidCommandLineTools $sdkRoot }
+    if ($existingSdk.Ready -and -not $managedSdk) {
+        try { Set-SgResolvedToolProcessEnvironment -SdkRoot $sdkRoot }
+        catch { Write-SgInstallerWarning "Existing Android SDK is valid but the child-process environment could not be normalized: $($_.Exception.Message)"; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    }
+    if ($managedSdk -and $sdkManager) {
+        [Environment]::SetEnvironmentVariable('ANDROID_HOME',$sdkRoot,'User'); [Environment]::SetEnvironmentVariable('ANDROID_SDK_ROOT',$sdkRoot,'User'); $env:ANDROID_HOME=$sdkRoot; $env:ANDROID_SDK_ROOT=$sdkRoot
+        foreach ($path in @((Join-Path $sdkRoot 'platform-tools'),(Join-Path $sdkRoot 'cmdline-tools\latest\bin'),(Join-Path $sdkRoot 'emulator'))) { Add-SgUserPathEntry $path }
+    }
+    if (-not $sdkManager) { return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    if (-not $interactive) { Write-SgInstallerWarning 'Android pending: run sdkmanager --licenses interactively; no license was accepted automatically.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    Write-Host 'sdkmanager now presents every official Android SDK license. Accept or refuse each license yourself.' -ForegroundColor Yellow
+    [void](Invoke-SgInteractiveBoundedProcess $sdkManager @('--licenses') 600)
+    $licenseCheck = Invoke-SgBoundedProcess $sdkManager @('--licenses') 20
+    $licensesReady = -not $licenseCheck.TimedOut -and $licenseCheck.ExitCode -eq 0 -and $licenseCheck.Output -match '(?i)all sdk package licenses accepted'
+    if (-not $licensesReady) { Write-SgInstallerWarning 'Android SDK licenses are refused or incomplete; essential packages remain pending.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+    $coordinates = Get-SgAndroidCoordinates
+    $essential = Invoke-SgBoundedProcess $sdkManager @('platform-tools',$coordinates.PlatformPackage,$coordinates.BuildToolsPackage) 600
+    if ($essential.TimedOut -or $essential.ExitCode -ne 0) { Write-SgInstallerWarning 'Essential Android SDK package installation failed or timed out.' }
+    $adb = Join-Path $sdkRoot 'platform-tools\adb.exe'
+    $emulatorSupported = Get-SgHypervisorEvidence
+    $choice = if ($emulatorSupported) { (Read-Host 'Install Android emulator support now? [y/N]').Trim() } else { '' }
+    $plan = Get-SgAndroidInstallPlan $interactive $emulatorSupported $choice
+    $emulator = ''
+    if ($plan.InstallEmulator) {
+        $emulatorPlan = Get-SgEmulatorProvisionPlan
+        $emulatorInstall = Invoke-SgBoundedProcess $sdkManager $emulatorPlan.Packages 900
+        $emulator = Join-Path $sdkRoot 'emulator\emulator.exe'
+        if (-not $emulatorInstall.TimedOut -and $emulatorInstall.ExitCode -eq 0 -and (Test-SgAndroidAcceleration $emulator)) {
+            $avdManager = Join-Path $sdkRoot 'cmdline-tools\latest\bin\avdmanager.bat'
+            $image = $emulatorPlan.Packages[1]
+            $create = Invoke-SgBoundedProcess -File $avdManager -Arguments @('create','avd','--force','--name',$emulatorPlan.AvdName,'--package',$image,'--device',$emulatorPlan.Device) -TimeoutSeconds 120 -InputText 'no'
+            $list = Invoke-SgBoundedProcess $emulator @('-list-avds') 30
+            if ($create.TimedOut -or $create.ExitCode -ne 0 -or $list.Output -notmatch "(?m)^$([regex]::Escape($emulatorPlan.AvdName))$") { Write-SgInstallerWarning 'Emulator packages installed but AVD verification is pending.' }
+        } else { Write-SgInstallerWarning 'Emulator acceleration was not proven after installation; use a real phone.' }
+    }
+    if ($plan.PhysicalDeviceAlternative) { Write-Host 'Android alternative: connect a real phone with USB debugging enabled, then run flutter devices.' -ForegroundColor Yellow }
+    if (-not (Test-SgWindowsDeveloperMode)) { Write-Host 'Windows Developer Mode is off and was not changed. Enable it manually only if Flutter requests it.' -ForegroundColor Yellow }
+    $flutterPath = Get-SgToolPath 'flutter.bat' $FlutterPaths
+    $dartPath = if ($flutterPath) { Join-Path (Split-Path $flutterPath -Parent) 'dart.bat' } else { '' }
+    $diagnostic = Get-SgFlutterAndroidDiagnostic -FlutterPath $flutterPath -DartPath $dartPath -JavaPath $java -SdkManagerPath $sdkManager -AdbPath $adb -EmulatorPath $emulator
+    if ($diagnostic.DoctorOutput) { Write-Host $diagnostic.DoctorOutput }; if ($diagnostic.DevicesOutput) { Write-Host $diagnostic.DevicesOutput }
+    Write-Host "Android readiness: toolchain=$($diagnostic.ToolchainReady); licenses=$($diagnostic.LicensesReady); device=$($diagnostic.DeviceReady)" -ForegroundColor Cyan
+    if (-not $diagnostic.ToolchainReady -or -not $diagnostic.LicensesReady -or -not $diagnostic.DeviceReady) { Write-SgInstallerWarning "Flutter Android diagnostic: $($diagnostic.Reason)" }
+    return $diagnostic
+}
+
+function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$NpmPath, [string]$NpxPath) {
+    if (-not $AnyAgentReady -or -not $NpmPath -or -not $NpxPath) { return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
+    $resolved = Invoke-SgBoundedProcess $NpmPath @('view','@playwright/mcp','version','--json','--registry=https://registry.npmjs.org/') 45
+    $version = if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0) { $resolved.Output.Trim().Trim('"') } else { '' }
+    if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { Write-SgInstallerWarning 'Playwright MCP exact version resolution failed; no agent config was changed.'; return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
+    $install = Invoke-SgBoundedProcess $NpxPath @('-y','--registry=https://registry.npmjs.org/',"--package=@playwright/mcp@$version",'playwright','install','chromium') 900
+    $chromium = Get-SgPlaywrightChromiumExecutable
+    $chromiumCheck = if ($chromium) { Invoke-SgBoundedProcess $chromium.FullName @('--version') 30 } else { $null }
+    if ($install.TimedOut -or $install.ExitCode -ne 0 -or -not $chromium -or -not (Test-SgChromiumExecutableResult $chromium.FullName $chromiumCheck)) { Write-SgInstallerWarning 'Playwright Chromium executable usability was not proven; Playwright MCP remains unconfigured.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
+    return [pscustomobject]@{ Ready=$true; Version=$version; ChromiumPath=[IO.Path]::GetFullPath($chromium.FullName) }
+}
+
+function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [string]$NpxPath, $Playwright) {
+    if (-not $DartPath -or -not $NpxPath) { Write-SgInstallerWarning 'Agent MCP setup is pending because validated Dart or npx is unavailable.'; return }
+    if ($AgentReady.OpenCode) {
+        $plan = Get-SgAgentMcpPlan OpenCode (Get-SgToolPath 'opencode.cmd' $opencodePaths) $DartPath $NpxPath $Playwright.Version $Playwright.Ready
+        $resolvedConfig = Resolve-SgAgentConfigPath OpenCode $env:USERPROFILE
+        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config
+        if ($write.Status -eq 'create') { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config) } elseif ($write.Status -eq 'pending') { Write-SgInstallerWarning "OpenCode v2 MCP pending: $($write.Reason)" }
+    }
+    if ($AgentReady.Kilo) {
+        $kiloCommand = Resolve-SgKiloCommand (Get-SgToolPath 'kilo.cmd' $kiloPaths) (Get-SgToolPath 'kilocode.cmd' $kilocodePaths)
+        $plan = Get-SgAgentMcpPlan Kilo $kiloCommand.Path $DartPath $NpxPath $Playwright.Version $Playwright.Ready
+        $resolvedConfig = Resolve-SgAgentConfigPath Kilo $env:USERPROFILE
+        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config
+        if ($write.Status -eq 'create') { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config) } elseif ($write.Status -eq 'pending') { Write-SgInstallerWarning "Kilo MCP pending: $($write.Reason)" }
+    }
+    if ($AgentReady.Claude) {
+        $claude = Get-SgToolPath 'claude.cmd' $claudePaths
+        $definitions = @(@('dart',$DartPath,'mcp-server','--force-roots-fallback'))
+        if ($Playwright.Ready) { $definitions += ,@('playwright',$NpxPath,'-y','--registry=https://registry.npmjs.org/',"@playwright/mcp@$($Playwright.Version)",'--headless','--browser','chromium') }
+        foreach ($server in $definitions) {
+            $get = Invoke-SgBoundedProcess $claude @('mcp','get',$server[0]) 30
+            if ($get.ExitCode -ne 0) {
+                $arguments = @('mcp','add','--transport','stdio','--scope','user',$server[0],'--') + @($server[1..($server.Count-1)])
+                $add = Invoke-SgBoundedProcess $claude $arguments 60
+                if ($add.TimedOut -or $add.ExitCode -ne 0) { Write-SgInstallerWarning "Claude MCP '$($server[0])' remains pending." }
+            } else {
+                $missingArgument = @($server[1..($server.Count-1)] | Where-Object { -not $get.Output.Contains([string]$_) }).Count -gt 0
+                if ($missingArgument) { Write-SgInstallerWarning "Claude MCP '$($server[0])' exists but exact convergence was not proven; it was preserved pending." }
+            }
+        }
+    }
+    if ($AgentReady.Codex) {
+        $codex = Get-SgToolPath 'codex.cmd' $codexPaths
+        $get = Invoke-SgBoundedProcess $codex @('mcp','get','dart','--json') 30
+        if ($get.ExitCode -ne 0) {
+            $add = Invoke-SgBoundedProcess $codex @('mcp','add','dart','--',$DartPath,'mcp-server','--force-roots-fallback') 60
+            if ($add.TimedOut -or $add.ExitCode -ne 0) { Write-SgInstallerWarning 'Codex Dart MCP remains pending.' }
+        } elseif (-not $get.Output.Contains($DartPath) -or $get.Output -notmatch 'mcp-server' -or $get.Output -notmatch 'force-roots-fallback') {
+            Write-SgInstallerWarning 'Codex Dart MCP exists but exact convergence was not proven; it was preserved pending.'
+        }
+        if ($Playwright.Ready) { [void](Set-SgCodexPlaywrightMcpConfig (Join-Path $env:USERPROFILE '.codex\config.toml') $NpxPath $Playwright.Version $Playwright.ChromiumPath) }
+    }
+}
+
+function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
+    $result = Invoke-SgBoundedProcess $NpmPath @('view',$PackageName,'version','--json','--registry=https://registry.npmjs.org/') 45
+    $version = if (-not $result.TimedOut -and $result.ExitCode -eq 0) { $result.Output.Trim().Trim('"') } else { '' }
+    if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw "Exact version resolution failed for $PackageName." }
+    return $version
+}
+
+function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath, [string]$NpmPath, [string]$NpxPath) {
+    $needs = Get-SgProjectServiceNeeds -Workspace $WorkspacePath
+    if (-not ($needs.Firebase -or $needs.FlutterFire -or $needs.Supabase)) { return }
+    $versions = @{}
+    if ($needs.Firebase) { $versions.Firebase = Resolve-SgNpmVersion $NpmPath 'firebase-tools' }
+    if ($needs.Supabase) { $versions.Supabase = Resolve-SgNpmVersion $NpmPath 'supabase' }
+    if ($needs.FlutterFire) {
+        $pub = Invoke-RestMethod -UseBasicParsing -Uri 'https://pub.dev/api/packages/flutterfire_cli' -TimeoutSec 45
+        $versions.FlutterFire = [string]$pub.latest.version
+    }
+    foreach ($item in @(Get-SgServiceCliPlan $needs $versions)) {
+        if ($item.Name -eq 'firebase') {
+            $install = Invoke-SgBoundedProcess $NpmPath @('install','--global',"firebase-tools@$($item.Version)",'--registry=https://registry.npmjs.org/') 600
+            $exe = Get-SgToolPath 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
+            $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
+        } elseif ($item.Name -eq 'flutterfire') {
+            $install = Invoke-SgBoundedProcess $DartPath @('pub','global','activate','flutterfire_cli',$item.Version) 600
+            $pubBin = Join-Path $env:LOCALAPPDATA 'Pub\Cache\bin'; Add-SgUserPathEntry $pubBin
+            $exe = Get-SgToolPath 'flutterfire.bat' @((Join-Path $pubBin 'flutterfire.bat'))
+            $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
+        } else {
+            $install = Invoke-SgBoundedProcess $NpxPath @('-y','--registry=https://registry.npmjs.org/',"supabase@$($item.Version)",'--version') 300
+            $wrapper = Join-Path $runtimeDir 'supabase.cmd'
+            $wrapperContent = "@echo off`r`n@call `"$NpxPath`" -y --registry=https://registry.npmjs.org/ supabase@$($item.Version) %*`r`n"
+            if (-not (Test-Path -LiteralPath $wrapper) -or [IO.File]::ReadAllText($wrapper) -cne $wrapperContent) { [IO.File]::WriteAllText($wrapper,$wrapperContent,[Text.Encoding]::ASCII) }
+            $exe = $wrapper; $verify = Invoke-SgBoundedProcess $exe @('--version') 300
+        }
+        if (-not (Test-SgServiceCliResult $install $verify $exe $item.Version)) { Write-SgInstallerWarning "$($item.Name) CLI exact-version installation or executable verification failed." }
     }
 }
 
@@ -877,6 +977,7 @@ $pnpmAgentBinDirectory = Join-Path $env:LOCALAPPDATA 'pnpm\bin'
 $claudePaths = @((Join-Path $agentBinDirectory 'claude.cmd'), (Join-Path $pnpmAgentBinDirectory 'claude.cmd'))
 $codexPaths = @((Join-Path $agentBinDirectory 'codex.cmd'), (Join-Path $pnpmAgentBinDirectory 'codex.cmd'))
 $opencodePaths = @((Join-Path $agentBinDirectory 'opencode.cmd'), (Join-Path $pnpmAgentBinDirectory 'opencode.cmd'))
+$kiloPaths = @((Join-Path $agentBinDirectory 'kilo.cmd'), (Join-Path $pnpmAgentBinDirectory 'kilo.cmd'))
 $kilocodePaths = @((Join-Path $agentBinDirectory 'kilocode.cmd'), (Join-Path $pnpmAgentBinDirectory 'kilocode.cmd'))
 Write-Host 'Preparing Windows developer tools. This step can take a few minutes on the first installation.' -ForegroundColor Yellow
 [void](Install-SgWingetPackage 'git.exe' 'Git.Git' $gitPaths)
@@ -887,21 +988,28 @@ $pnpmReady = Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths
 $uvReady = Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths
 if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional default Python runtime.' }
 $pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
-[void](Install-SgFlutter $flutterPaths $gitPaths)
+$flutterReady = Install-SgFlutter $flutterPaths $gitPaths
+$androidInfo = Install-SgAndroidToolchain $flutterReady $flutterPaths
 
 Write-Host ''
-Write-Host 'Optional coding agents' -ForegroundColor Yellow
-Write-Host 'Each agent is a separate choice. Press Enter to skip an agent.' -ForegroundColor DarkGray
-$codexReady = Install-SgOptionalAgent 'Codex CLI' 'codex.cmd' '@openai/codex' $codexPaths $pnpmPaths $npmPaths
-[void](Install-SgOptionalAgent 'Claude Code CLI' 'claude.cmd' '@anthropic-ai/claude-code' $claudePaths $pnpmPaths $npmPaths -CompatibilityNote 'On native Windows, Claude Code uses the Git for Windows terminal environment.' -AllowInstallScripts)
-[void](Install-SgOptionalAgent 'OpenCode CLI' 'opencode.cmd' 'opencode-ai' $opencodePaths $pnpmPaths $npmPaths -CompatibilityNote 'Native Windows support may vary by OpenCode release.' -AllowInstallScripts)
-[void](Install-SgOptionalAgent 'KiloCode CLI' 'kilocode.cmd' '@kilocode/cli' $kilocodePaths $pnpmPaths $npmPaths -AllowInstallScripts)
-if ($codexReady) {
+Write-Host 'Configuring installed coding agents (no authentication is started)...' -ForegroundColor Yellow
+$codexReady = Test-SgToolRuns 'codex.cmd' $codexPaths
+$claudeReady = Test-SgToolRuns 'claude.cmd' $claudePaths
+$opencodeReady = Test-SgToolRuns 'opencode.cmd' $opencodePaths
+$kiloResolved = Resolve-SgKiloCommand (Get-SgToolPath 'kilo.cmd' $kiloPaths) (Get-SgToolPath 'kilocode.cmd' $kilocodePaths)
+$kiloReady = if ($kiloResolved.Path) { $check = Invoke-SgBoundedProcess $kiloResolved.Path @('--version') 30; -not $check.TimedOut -and $check.ExitCode -eq 0 -and $check.Output -match '\d+' } else { $false }
+if ($codexReady -and ($env:SHIPGLOWS_CODEX_PERMISSION_MODE -or $env:SHIPGLOWS_AUTONOMY_MODE)) {
     $codexConfigPath = Join-Path $env:USERPROFILE '.codex\config.toml'
     $codexPermissionMode = Resolve-SgCodexPermissionMode $codexConfigPath
     if ($codexPermissionMode -ne 'keep') { [void](Set-SgCodexPermissionMode $codexPermissionMode $codexConfigPath) }
 }
-$playwrightInfo = Install-SgCodexPlaywrightMcp $codexReady $codexPaths $nodePaths $npxPaths
+$dartPath = if ($flutterReady) { Join-Path (Split-Path (Get-SgToolPath 'flutter.bat' $flutterPaths) -Parent) 'dart.bat' } else { '' }
+[void]$androidInfo
+$nativeNpx = Get-SgNativeNpxPath $npxPaths
+$playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeReady -or $opencodeReady -or $kiloReady) (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
+$playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$false; McpVerified=$false; ConfigPath='per-agent; existing JSON/JSONC may remain pending'; ChromiumPath=$playwright.ChromiumPath }
+[void](Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady } $dartPath $nativeNpx $playwright)
+[void](Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) (Get-SgNativeNpxPath $npxPaths))
 $environmentPath = Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
 if ($codexReady) {
@@ -918,6 +1026,7 @@ Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor
 [void](Disable-SgBlockedPowerShellShim 'codex' $codexPaths)
 [void](Disable-SgBlockedPowerShellShim 'claude' $claudePaths)
 [void](Disable-SgBlockedPowerShellShim 'opencode' $opencodePaths)
+[void](Disable-SgBlockedPowerShellShim 'kilo' $kiloPaths)
 [void](Disable-SgBlockedPowerShellShim 'kilocode' $kilocodePaths)
 [void](Install-SgApplicationCommandWrapper 'npm' 'npm.cmd' $npmPaths)
 [void](Install-SgApplicationCommandWrapper 'npx' 'npx.cmd' $npxPaths)
@@ -926,12 +1035,14 @@ Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor
 [void](Install-SgApplicationCommandWrapper 'codex' 'codex.cmd' $codexPaths)
 [void](Install-SgApplicationCommandWrapper 'claude' 'claude.cmd' $claudePaths)
 [void](Install-SgApplicationCommandWrapper 'opencode' 'opencode.cmd' $opencodePaths)
+[void](Install-SgApplicationCommandWrapper 'kilo' 'kilo.cmd' $kiloPaths)
 [void](Install-SgApplicationCommandWrapper 'kilocode' 'kilocode.cmd' $kilocodePaths)
 [void](Install-SgAgentShortcut 'c' 'claude')
 [void](Install-SgAgentShortcut 'co' 'codex')
 [void](Install-SgAgentShortcut 'cor' 'codex' @('resume'))
 [void](Install-SgAgentShortcut 'oc' 'opencode')
-[void](Install-SgAgentShortcut 'kc' 'kilocode')
+$kiloShortcutTarget = if (Test-SgToolRuns 'kilo.cmd' $kiloPaths) { 'kilo' } else { 'kilocode' }
+[void](Install-SgAgentShortcut 'kc' $kiloShortcutTarget)
 [void](Install-SgShellShortcut 're' 'powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass')
 [void](Install-SgShellShortcut 'ch' 'powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass -Command "Clear-History; try { $historyPath = (Get-PSReadLineOption).HistorySavePath; if ($historyPath -and (Test-Path -LiteralPath $historyPath)) { Remove-Item -LiteralPath $historyPath -Force } } catch { }; Clear-Host"')
 [void](Install-SgShellShortcut 'n' 'nvim %*')

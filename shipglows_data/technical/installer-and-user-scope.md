@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.1.1"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-14"
+updated: "2026-08-15"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -39,8 +39,8 @@ evidence:
   - "Installer now supports per-agent user-space selection for Claude, Codex, OpenCode, and KiloCode, plus separate runtime/TUI choices."
   - "Unified bootstrap modes route Android Termux to local/install.sh without sudo and retain root-only full server installation."
   - "Native Windows full installs Git and GitHub CLI through WinGet, while GitHub CLI exclusively owns browser authentication and credential storage."
-  - "Native Windows full installs Node LTS, pnpm and uv automatically, while Flutter Web is an explicit optional user-local download."
-  - "Native Windows full configures user-global Playwright MCP when Codex, Node and native npx.cmd are available, with Chromium installed in the user cache."
+  - "Native Windows full installs Node LTS, pnpm, uv and a resolved Flutter commit automatically; valid external Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing their environment ownership."
+  - "Native Windows full configures user-global Playwright MCP only after exact-version resolution and a runnable Chromium executable check in the user cache."
   - "The 2026-08-14 capability-discovery repair makes Playwright MCP the enabled default web-QA lane and requires direct-plus-deferred current-turn discovery before an unavailable verdict."
   - "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."
   - "Native Windows full asks separately before each optional coding-agent CLI and leaves authentication to that CLI."
@@ -83,7 +83,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 ## Entrypoints
 
 - `curl -fsSL https://shipglows.com/shipglows-script | sh`: short remote bootstrap. Termux selects local mode, root selects full mode, and other interactive shells ask via `/dev/tty`.
-- Native Windows without WSL uses the same endpoint with `?format=powershell`; it resolves the requested branch, tag, or SHA through GitHub's canonical commit API, validates the returned 40-character SHA, and extracts only that immutable public archive without Git. It supports `local` or `full`. Interactive mode selection requires `1`, `2`, or `0`; an empty answer only repeats the prompt. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm and uv without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`; it asks before the larger Flutter Web SDK download and before each optional agent CLI (Codex, Claude Code, OpenCode, KiloCode). When Codex is available it also offers workspace permissions (recommended), full access, or preservation of the existing config; `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep` makes that choice deterministic for automation. GitHub authentication is initiated only when private repository browsing is selected; agent authentication is initiated only by the selected agent at first run; credentials remain owned by their respective CLIs.
+- Native Windows without WSL uses the same endpoint with `?format=powershell`; it resolves the requested branch, tag, or SHA through GitHub's canonical commit API, validates the returned 40-character SHA, and extracts only that immutable public archive without Git. It supports `local` or `full`. Interactive mode selection requires `1`, `2`, or `0`; an empty answer only repeats the prompt. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm, uv and Flutter without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`. It reuses validated external Flutter/Dart, JDK 17 and Android SDK paths without replacing `JAVA_HOME`, `ANDROID_HOME`, `ANDROID_SDK_ROOT` or `PATH`; managed user-scope installs are used only when a valid existing tool is absent. The sole product question is emulator installation after x64/acceleration evidence. Android terms and official license prompts remain explicit system/legal confirmations. Agent CLIs are detected, not installed or authenticated. `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep` keeps Codex permission behavior deterministic for automation.
 - Native Windows keeps internal source and command wrappers under `%USERPROFILE%\.shipglows\runtime`; the parent `.shipglows` directory stays hidden and may also contain sibling private data repositories. User repositories live directly under `%USERPROFILE%\ShipGlows`; migration removes only legacy `bin`, `cli`, and `local` runtime directories and removes the old visible `workspace` directory only when it is empty.
 - `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
 - `tools/sync_shipglows_public_bootstrap.sh --check [--site-root <path>]`: verifies that the ShipGlows site serves generated canonical artifacts rather than independently maintained templates.
@@ -191,10 +191,11 @@ sudo ./cli/install.sh
   Playwright browser capability is the explicit exception and stays enabled so
   standalone Codex CLI sessions can use browser proof in every project. Other
   MCPs continue to use temporary `-c mcp_servers.<name>.enabled=true` overrides.
-- Native Windows resolves an absolute `npx.cmd`, downloads Chromium with the
-  Playwright dependency carried by `@playwright/mcp@latest`, and replaces only
-  the owned `mcp_servers.playwright` table. It preserves unrelated Codex keys
-  and MCP servers and never writes Playwright dependencies into user projects.
+- Native Windows resolves an absolute `npx.cmd`, resolves a concrete Playwright
+  MCP version from the package authority, installs that exact version, and
+  requires a discovered local Chromium executable before writing the owned
+  `mcp_servers.playwright` table. It preserves unrelated Codex keys and MCP
+  servers and never writes Playwright dependencies into user projects.
 - Installed/configured capability and current-turn callability remain separate.
   Agents inspect directly exposed tools and the host's deferred/searchable
   catalog (`ALL_TOOLS`, `tool_search`, or equivalent) before reporting

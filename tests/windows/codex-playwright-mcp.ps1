@@ -33,7 +33,9 @@ enabled = true
 '@ | Set-Content -LiteralPath $config -Encoding UTF8
 
     $beforeForeign = @('[mcp_servers.context7]','[mcp_servers.github]','model = "gpt-5"','node_repl = true')
-    $changed = Set-SgCodexPlaywrightMcpConfig -ConfigPath $config -NpxPath $npx
+    $chromium = Join-Path $fixture 'chromium.exe'
+    Set-Content -LiteralPath $chromium -Value 'fixture'
+    $changed = Set-SgCodexPlaywrightMcpConfig -ConfigPath $config -NpxPath $npx -PlaywrightVersion '0.0.42' -ChromiumPath $chromium
     if (-not $changed) { throw 'The divergent Playwright block should be repaired.' }
     $content = [IO.File]::ReadAllText($config)
     foreach ($needle in $beforeForeign) { if (-not $content.Contains($needle)) { throw "Foreign config was not preserved: $needle" } }
@@ -41,20 +43,28 @@ enabled = true
         '# >>> shipglows codex playwright mcp >>>',
         '[mcp_servers.playwright]',
         'command = "C:\\Program Files\\nodejs\\npx.cmd"',
-        'args = ["-y", "@playwright/mcp@latest", "--headless", "--browser", "chromium"]',
+        'args = ["-y", "--registry=https://registry.npmjs.org/", "@playwright/mcp@0.0.42", "--headless", "--browser", "chromium"]',
         'enabled = true',
         '# <<< shipglows codex playwright mcp <<<'
     )) { if (-not $content.Contains($needle)) { throw "Expected Playwright config is missing: $needle" } }
     if (([regex]::Matches($content, '(?m)^\[mcp_servers\.playwright\]$')).Count -ne 1) { throw 'Playwright table must be unique.' }
+    if (@(Get-ChildItem -LiteralPath $fixture -Filter '*.shipglows-backup-*').Count -ne 0) { throw 'Codex config must not duplicate potentially secret-bearing TOML into persistent backups.' }
 
     $hash = (Get-FileHash -LiteralPath $config -Algorithm SHA256).Hash
-    $changedAgain = Set-SgCodexPlaywrightMcpConfig -ConfigPath $config -NpxPath $npx
+    $changedAgain = Set-SgCodexPlaywrightMcpConfig -ConfigPath $config -NpxPath $npx -PlaywrightVersion '0.0.42' -ChromiumPath $chromium
     if ($changedAgain) { throw 'Second configuration pass must be idempotent.' }
     if ((Get-FileHash -LiteralPath $config -Algorithm SHA256).Hash -ne $hash) { throw 'Idempotent pass changed config bytes.' }
 
     $playwright = Get-SgCodexPlaywrightMcpConfig -ConfigPath $config
     if ($playwright.Command -ne $npx -or -not $playwright.Enabled) { throw 'Parsed Playwright config is invalid.' }
-    if (($playwright.Arguments -join '|') -ne '-y|@playwright/mcp@latest|--headless|--browser|chromium') { throw 'Parsed Playwright arguments are invalid.' }
+    if (($playwright.Arguments -join '|') -ne '-y|--registry=https://registry.npmjs.org/|@playwright/mcp@0.0.42|--headless|--browser|chromium') { throw 'Parsed Playwright arguments are invalid.' }
+
+    $missingChromiumFailed = $false
+    try { [void](Set-SgCodexPlaywrightMcpConfig -ConfigPath (Join-Path $fixture 'missing.toml') -NpxPath $npx -PlaywrightVersion '0.0.42' -ChromiumPath (Join-Path $fixture 'missing.exe')) } catch { $missingChromiumFailed = $_.Exception.Message -match 'Chromium' }
+    if (-not $missingChromiumFailed) { throw 'Codex Playwright MCP must reject absent Chromium.' }
+    $mutableVersionFailed = $false
+    try { [void](Set-SgCodexPlaywrightMcpConfig -ConfigPath (Join-Path $fixture 'latest.toml') -NpxPath $npx -PlaywrightVersion 'latest' -ChromiumPath $chromium) } catch { $mutableVersionFailed = $_.Exception.Message -match 'exact' }
+    if (-not $mutableVersionFailed) { throw 'Codex Playwright MCP must reject mutable package tags.' }
 
     $existingCommand = Join-Path $PSHOME 'powershell.exe'
     $missingCodex = Get-SgCodexPlaywrightPrerequisiteStatus '' $existingCommand $npx

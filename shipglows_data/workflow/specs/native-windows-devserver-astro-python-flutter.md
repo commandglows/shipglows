@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.28"
+artifact_version: "0.5.0"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
@@ -90,7 +90,7 @@ L'operateur telecharge avec `curl.exe` le bootstrap PowerShell depuis l'endpoint
 
 - Depuis Windows PowerShell 5.1 ou PowerShell 7, l'operateur peut lancer `s` ou `shipglows-dev` sans Bash, WSL, Docker, Flox, PM2, Caddy, `sudo` ou virtualisation imbriquee. Ces commandes `.cmd` ne dependent pas du profil PowerShell; `s` est installe seulement si le nom n'est pas deja occupe.
 - Le meme endpoint `https://shipglows.com/shipglows-script?format=powershell` sert l'installateur Windows local et full; sans `-InstallMode`, une console interactive demande explicitement tunnel local ou DevServer full (full recommande). `-InstallMode local|full` reste disponible pour l'automatisation; une entree non interactive sans mode preserve le fallback local historique.
-- Le mode full prepare Git, GitHub CLI, Node LTS/npm, pnpm et uv automatiquement. Flutter Web reste un choix explicite dans l'installateur: si l'operateur accepte, le SDK stable est installe dans le profil utilisateur et le support web est active.
+- Le mode full prepare Git, GitHub CLI, Node LTS/npm, pnpm, uv et un commit Flutter stable resolu. JDK 17 et les outils Android sont user-scope; les conditions et licences Android restent des confirmations officielles explicites. En non-interactif, Android reste `pending`.
 - Le dashboard decouvre les projets enregistres, affiche `running`, `stopped`, `error` ou `unknown`, le type de projet, le port et l'URL locale.
 - Un clone Git reussi est place par defaut directement sous `%USERPROFILE%\ShipGlows\<repo>` et n'est enregistre qu'apres validation du chemin et du depot.
 - Astro respecte le lockfile existant, installe les dependances sans migration implicite, puis expose une URL `http://127.0.0.1:<port>`.
@@ -129,6 +129,12 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Detection et lifecycle Astro avec pnpm prioritaire quand `pnpm-lock.yaml` existe, npm quand `package-lock.json` existe, et aucun changement implicite de package manager.
 - Detection et lifecycle Python/FastAPI avec `uv`, `pyproject.toml`, `uv.lock`, `.python-version` et `.venv`; compatibilite bornee `requirements.txt` via un chemin uv explicite.
 - Detection et lifecycle Flutter Web avec `pubspec.yaml`, dependance `flutter`, dossier `web/`, SDK Flutter Windows et terminal interactif.
+- En mode `full`, reutilisation prioritaire des Flutter/Dart, JDK 17 et Android SDK externes valides sans remplacer leurs variables/PATH; sinon installation user-scope depuis des metadonnees officielles resolues, SHA-256 complet et extraction ZIP bornee rejetant traversal, liens et layouts ambigus. Un clone Flutter partiel gere est mis en quarantaine.
+- Conditions Android presentees avant telechargement et licences via `sdkmanager --licenses`, sans reponse injectee; refus ou non-interactif produit un etat `pending` actionnable.
+- Diagnostics bornes avec transport d'arguments exact PowerShell 5.1 pour EXE/CMD/BAT, identite PID+heure de demarrage avant arret d'arbre et readiness separee `ToolchainReady`, `LicensesReady`, `DeviceReady`; seul le marqueur Android toolchain positif exact avec licences confirmees prouve la toolchain.
+- Provisioning Android automatique limite explicitement a Windows x64 avant tout telechargement. Les packages plateforme/build-tools/image sont centralises sur Android API 36. L'emulateur est propose seulement apres preuve de virtualisation imbriquee; sinon, telephone reel.
+- MCP Dart/Flutter et Playwright exact-version pour les agents installes. OpenCode v2 utilise `mcp.servers`; Kilo prefere `kilo` et detecte `kilocode`. JSON/JSONC existant reste byte-identique et pending si aucun chemin natif sur n'est prouve.
+- Firebase CLI, FlutterFire CLI et Supabase CLI prepares uniquement depuis un scan borne des manifests, avec version exacte resolue, code retour et executable final verifies.
 - Actions dashboard, clone, register existing project, start, stop, restart, logs, open, unregister, stop all et refresh.
 - Allocation de ports dans la plage ShipGlows 3000-3100 avec `Get-NetTCPConnection` et fallback .NET borne.
 - Registre de processus contenant au minimum projet, type, PID, process creation time, executable path, command signature, port, status, started_at, log paths et last_error sans secret.
@@ -149,7 +155,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Flox, Nix, PM2, `systemctl`, `tmux`, `autossh` et emulation de semantiques POSIX.
 - Equivalence du menu local Unix `urls`, tunnels multiples automatiques, OAuth MCP/Clerk/Blacksmith/Turso et promotion automatique de cle SSH.
 - Next.js, Nuxt, Vue, Vite generique, Expo, Dart seul, Go, Rust et autres runtimes dans la premiere version.
-- Emulateur Android. Les builds APK Windows sans emulateur sont un chantier separe et ne font pas partie du DevServer V1.
+- Lifecycle DevServer Android persistant. L'emulateur reste conditionnel aux capacites de virtualisation du poste; un telephone reel est le fallback supporte.
 - iOS, macOS et Linux desktop Flutter.
 - Persistance ou resurrection automatique des processus apres arret/reboot de Shadow.
 - Suppression physique des repos depuis le menu. V1 peut uniquement unregister un projet; la source reste sur disque.
@@ -182,14 +188,22 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Manual proof: execute the complete install, clone/register, start, open, hot reload, restart, stop, stale-state recovery and uninstall/unregister path on the constrained Shadow PC.
 - Ordered proof path: static/parser -> fixture tests -> Windows process integration -> browser localhost checks -> Flutter interactive check -> Shadow manual checklist.
 - Checklist path: `shipglows_data/workflow/test-checklists/native-windows-devserver-astro-python-flutter.md`.
-- Required scenario IDs: `BOOT-FULL-01`, `BOOT-LOCAL-02`, `ASTRO-START-03`, `PYTHON-START-04`, `FLUTTER-WEB-05`, `PORT-RECOVERY-06`, `STALE-PID-07`, `REGISTRY-ATOMIC-08`, `REDACTION-09`, `PUBLIC-PARITY-10`, `SHADOW-RECONNECT-11`.
+- Required scenario IDs: `BOOT-FULL-01`, `BOOT-LOCAL-02`, `ASTRO-START-03`, `PYTHON-START-04`, `FLUTTER-WEB-05`, `PORT-RECOVERY-06`, `STALE-PID-07`, `REGISTRY-ATOMIC-08`, `REDACTION-09`, `PUBLIC-PARITY-10`, `SHADOW-RECONNECT-11`, `ANDROID-FULL-12`, `ANDROID-NONINTERACTIVE-13`, `ANDROID-EMULATOR-14`, `AGENT-MCP-15`, `SERVICE-CLI-16`.
 - Required results: full public bootstrap installs the DevServer without a tunnel; local bootstrap remains compatible; each supported stack starts and serves localhost; process identity and registry recovery are safe; secrets are absent from logs; ShipGlows page/endpoint match the canonical script; Shadow reconnect is recoverable.
-- Exception with proof: Android emulator is excluded because Shadow does not support the required nested virtualization; no emulator test is required.
+- Exception with proof: no real emulator/package/license operation runs in automated proof; capability, refusal, unsupported-host and non-interactive branches use mocks, while a physical device remains the supported fallback.
 - Exception with proof: public URL, Caddy and persistent-hosting tests are excluded by product scope and Shadow restrictions.
 - Runtime observability exception: Sentry is not applicable because this is a local CLI/bootstrap with no hosted application telemetry contract; safe redacted diagnostic/log-copy behavior is required instead.
 - Build-time header exception: web build-time Paris/UTC headers are not applicable to the PowerShell runtime; public ShipGlows Astro build/deployment checks remain required for the installer page and raw endpoint.
 
 ## ZOMBIES coverage
+
+Flutter Android couvre zero/one/many besoins de services detectes avec scan
+borne sans reparse; hote x64 ou non-x64; transport EXE/CMD/BAT avec espaces,
+Unicode, guillemets et metacaracteres; archives traversal/symlink; hote
+emulateur supporte ou non, acceptation et refus; reruns; outils partiels ou
+corrompus; configuration MCP existante avec secrets; licences pending en mode
+non-interactif; remplacement atomique. Aucun test n'accepte les licences,
+n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 
 - Z — Zero: empty registry, no projects, missing tools, no free recorded process, absent logs.
 - O — One: one valid project per supported stack, one process, one port, one log stream.
@@ -206,13 +220,13 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - GitHub CLI for browser authentication and searchable private/public repository discovery; `gh` exclusively owns credentials and ShipGlows never reads or stores tokens. Full installs it automatically where WinGet is available.
 - Node.js LTS/npm and pnpm for Astro. Full installs Node LTS, attempts Corepack first for pnpm, then falls back to npm global installation when Corepack cannot enable it. npm is used only when the repo owns `package-lock.json`.
 - `uv` for Python version/environment/dependency ownership. Full installs it automatically through WinGet; `uv run` and `uv sync --locked` are the preferred project paths.
-- Flutter SDK for Windows with web support and a browser available on the Shadow desktop. Full asks before downloading this optional larger SDK, installs stable into `%LOCALAPPDATA%\\ShipGlows\\flutter`, then enables web support.
-- Optional coding agents: Windows full asks separately for Codex (`@openai/codex`), Claude Code (`@anthropic-ai/claude-code`), OpenCode (`opencode-ai`) and KiloCode (`@kilocode/cli`). No agent is selected by default; ShipGlows installs only the requested CLI and never reads or stores its credentials. pnpm is preferred, with npm global installation as a recovery fallback.
+- Flutter SDK for Windows with web and Android support. Full installs stable into `%LOCALAPPDATA%\\ShipGlows\\flutter`; Android package/system confirmations and licenses remain explicit.
+- Installed coding agents: Windows full detects Codex, Claude Code, OpenCode and Kilo (`kilocode` compatibility), then prepares Dart/Flutter and Playwright MCP without installing agents, reading credentials or starting authentication. Existing JSON/JSONC may remain explicitly pending to preserve comments and secrets.
 - Windows Terminal when available; visible `powershell.exe`/`pwsh.exe` process fallback otherwise.
 - Gum `0.17.0` for the native interactive menu, installed into the ShipGlows user runtime from the official Charmbracelet release after pinned SHA-256 validation; the plain PowerShell menu remains the recovery fallback.
 - Existing `install-shipglows.ps1` distribution path for opt-in bootstrap integration.
 - ShipGlows public distribution authority at `https://shipglows.com/shipglows-script?format=powershell`, backed by `shipglows_app/site/src/generated/shipglows-installer.ps1`.
-- Fresh external docs verdict: `fresh-docs checked` on 2026-08-07 against:
+- Fresh external docs verdict: `fresh-docs checked` on 2026-08-15 against:
   - Astral uv, `Running commands`: https://docs.astral.sh/uv/concepts/projects/run/
   - Astral uv, `Locking and syncing`: https://docs.astral.sh/uv/concepts/projects/sync/
   - Astral uv, `Working on projects`: https://docs.astral.sh/uv/guides/projects/
@@ -220,6 +234,12 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
   - Microsoft NetTCPIP documentation: https://learn.microsoft.com/powershell/module/nettcpip/get-nettcpconnection
   - Flutter Windows installation: https://docs.flutter.dev/get-started/install/windows
   - Flutter web development: https://docs.flutter.dev/platform-integration/web/building
+  - Android command-line tools repository: https://dl.google.com/android/repository/repository2-3.xml
+  - Android SDK terms: https://developer.android.com/studio/terms
+  - Android emulator acceleration: https://developer.android.com/studio/run/emulator-acceleration
+  - Adoptium API: https://api.adoptium.net/q/swagger-ui/
+  - OpenCode v2 MCP servers: https://opencode.ai/v2/docs/mcp-servers
+  - Kilo CLI MCP: https://kilo.ai/docs/automate/mcp/using-in-cli
   - Shadow rules and restrictions: https://support.shadow.tech/hc/en-us/articles/32731830348305-Rules-and-Restrictions-on-Shadow
 - Re-check these sources during readiness/implementation if local installed versions expose a conflict.
 
@@ -359,7 +379,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
   - User story link: Proves the actual migration target rather than only PowerShell syntax.
   - Depends on: Tasks 1-8.
   - Validate with: Completed checklist with versions, observable URLs/statuses and redacted failure evidence.
-  - Notes: No public binding, emulator or shutdown bypass test.
+  - Notes: No public binding, real package/license/emulator/device or shutdown bypass test. Android proof remains mocked until target validation.
 
 - [ ] Task 10: Align technical and operator documentation
   - File: `README.md`, `shipglows_data/technical/operator-guides/windows-devserver.md`, `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/installer-and-user-scope.md`, `shipglows_data/technical/architecture.md`, `shipglows_data/technical/context.md`, `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/code-docs-map.md`
@@ -397,13 +417,13 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - [ ] AC21: Given Git or GitHub CLI is absent during Windows full installation, when WinGet is available, then both are installed automatically; when the operator selects GitHub browsing, official browser authentication is offered if needed, up to 200 accessible private/public repositories are searchable through Gum, and the selected repository is cloned without ShipGlows reading or storing credentials.
 - [ ] AC22: Given PowerShell profile execution is blocked, when Windows full installation completes and `s` is unclaimed, then the current and new shells resolve `s.cmd`, which launches the DevServer through `powershell.exe -NoProfile -ExecutionPolicy Bypass`; `shipglows-dev` remains available if `s` is already claimed.
 - [ ] AC23: Given the public Windows PowerShell bootstrap is launched without `-InstallMode` from an interactive console, when the installer starts, then it requires an explicit `1`, `2`, or `0` before downloading files; empty input repeats the prompt and never starts an installation, while explicit mode arguments and the non-interactive local fallback remain deterministic.
-- [x] AC24: Given Windows full installation with WinGet available, when Node, pnpm or uv is absent, then Node LTS/npm and uv are installed automatically and pnpm is provisioned through Corepack with a safe npm fallback; pnpm v11's configured global bin directory is added to the user PATH and `pnpm --version` must pass before `[ok]` is shown; Flutter Web is downloaded only after the explicit `[y/N]` choice and enables web support in a user-local SDK directory.
-- [x] AC25: Given Windows full installation, when optional coding agents are reached, then Codex, Claude Code, OpenCode and KiloCode are each offered through an individual `[y/N]` choice; declined or non-interactive selections install nothing, authentication is deferred to the selected CLI, and pnpm falls back to npm if its global executable cannot be made available. For selected agent packages requiring a postinstall hook, npm fallback allows only that exact package's install script and verifies the resulting CLI with `--version`.
-- [x] AC26: Given a Windows host whose execution policy blocks npm-generated `.ps1` shims, when the operator invokes `pnpm`, `codex`, `claude`, `opencode`, or `kilocode` by its ordinary command name, then ShipGlows preserves the blocked user-scoped shim under a unique backup name, resolves a managed `.cmd` wrapper or verified underlying `.cmd` executable, and forwards all arguments without changing the execution policy. npm, npx and Corepack receive the same wrapper treatment where their installed path is user-writable.
+- [ ] AC24: Given Windows full on a fresh or existing x64 host, when Android preparation runs, then validated external Flutter/Dart, JDK 17 and Android SDK locations are reused without replacing their environment ownership; missing tools use hardened managed installs, Android 36 coordinates and explicit official terms/licenses. Only managed installs update JAVA_HOME/ANDROID_HOME/ANDROID_SDK_ROOT/PATH. Refusal, non-x64 and non-interactive runs remain pending. Mock proof passes; real host proof remains required.
+- [ ] AC25: Given emulator-capable Windows hardware, when acceleration evidence passes and the operator accepts the sole product question, then emulator package, exact system-image coordinate and named AVD install and verify; without nested virtualization or after refusal, ShipGlows gives the real-phone path. Mock proof passes; real emulator/device proof remains required.
+- [ ] AC26: Given installed agents, when MCP preparation runs, then OpenCode v2 uses `mcp.servers`, Kilo prefers `kilo` with explicit `kilocode` compatibility, `.jsonc` is resolved before `.json`, Playwright requires an exact resolved version plus a runnable Chromium executable, and an existing non-converged config remains byte-identical and pending. Mock/static proof passes; real agent proof remains required.
 - [ ] AC27: Given the PATH-backed Windows `s.cmd` launcher, when the operator invokes a supported Linux-style menu path such as `s d`, `s e`, or `s m n`, then the native PowerShell frontend resolves only Windows-equivalent actions without loading `$PROFILE`; `s m n` selects a registered project and opens a child PowerShell in its directory, unsupported Flox/PM2/Caddy paths fail with `s h` guidance, and existing long-form actions retain their behavior.
-- [ ] AC28: Given Windows full installs one or more coding agents, when the short names are unclaimed, then ShipGlows installs profile-independent `.cmd` wrappers for `c -> claude`, `co -> codex`, `cor -> codex resume`, `oc -> opencode`, and `kc -> kilocode`; each forwards operator arguments to the managed command target, while a pre-existing command owner is preserved with a visible warning.
+- [ ] AC28: Given installed coding agents and unclaimed short names, when wrappers are prepared, then `c`, `co`, `cor`, `oc` and `kc` forward safely; `kc` targets official `kilo` first and only falls back to detected `kilocode` compatibility. Existing command owners remain preserved. Static proof passes; target proof remains required.
 - [x] AC29: Given zero, one, or many supported Windows surfaces, including homonymous leaf folders, when dashboard or a project action opens, then one bounded linear scan feeds a five-minute memory/persistent catalogue; labels are unique workspace-relative launch paths, selection resolves the exact canonical launch identity, the live registry wins status conflicts, and refresh or clone/register/unregister safely rebuilds or invalidates non-authoritative cache state.
-- [ ] AC20: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
+- [ ] AC30: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
 
 # Test Strategy
 
@@ -460,7 +480,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 
 # Open Questions
 
-None. The operator has fixed the platform constraint (native Windows on Shadow), supported stacks (Astro, Python, Flutter), and desired outcome (local workspace plus DevServer lifecycle). Package-level choices, file structure and process mechanics are implementation-owned. Any later request for public hosting, custom project commands, Android emulator/build support or framework expansion requires a separate scope decision.
+None. The operator has fixed the platform constraint (native Windows on Shadow), supported stacks (Astro, Python, Flutter), and desired outcome (local workspace plus DevServer lifecycle and Flutter Android preparation). Package-level choices, file structure and process mechanics are implementation-owned. Any later request for public hosting, custom project commands, persistent Android device lifecycle or framework expansion requires a separate scope decision.
 
 # Skill Run History
 

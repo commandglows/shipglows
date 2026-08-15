@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.20.0"
+artifact_version: "0.21.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-08-14"
@@ -228,15 +228,28 @@ retourné par GitHub, puis télécharge uniquement l'archive immuable de ce comm
 In an interactive Windows console, the bootstrap asks for SSH tunnels or the
 recommended local DevServer. The DevServer installs only the native PowerShell
 runtime for Astro, Vite, Python/FastAPI, and Flutter Web, prepares Git, GitHub CLI,
-Node LTS/npm, pnpm and uv, then asks before the larger Flutter Web download and
-before each optional coding agent (Codex, Claude Code, OpenCode, and KiloCode).
-When Codex is available, Windows also asks whether to keep the recommended
-workspace permissions, enable full access without approval prompts, or preserve
-the existing configuration. Automated installs can set
-`SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep`.
-The full installer also configures Playwright MCP globally for Codex, using an
-absolute native `npx.cmd`, and downloads headless Chromium into the user cache.
-The capability is available to every project after Codex CLI is restarted;
+Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid existing
+Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
+their environment variables or `PATH`. Otherwise JDK 17 is installed user-scope,
+then the official Android terms are presented before Android command-line tools
+are downloaded; refusal or non-interactive execution remains `pending`.
+When Android emulation is supported, the only product question is whether to
+install emulator support; otherwise the installer explains the real-phone path.
+Android licenses and Windows confirmations remain explicit, and non-interactive
+runs report them as pending instead of accepting or blocking.
+Codex permissions remain unchanged unless automation explicitly sets
+`SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep`; the installer adds no
+second product question.
+The full installer prepares Playwright and Dart/Flutter MCP for installed Codex,
+Claude, OpenCode and Kilo agents without authenticating. New JSON configs use
+the agent's exact schema; existing JSON/JSONC stays byte-for-byte unchanged and
+is reported pending when no proven native update is safe. Playwright is never
+registered until an exact package version and a runnable local Chromium executable
+are proven. Android packages are centralized on API/platform/build-tools 36.
+Playwright MCP for Codex uses an
+absolute native `npx.cmd`, and installs headless Chromium into the user cache
+only after both exact-version resolution and executable discovery succeed.
+When configuration succeeds, the capability is available after Codex restarts;
 ShipGlows does not add Playwright files or packages to application repositories.
 ShipGlows agents inspect both the directly visible tool list and the host's
 deferred/searchable catalog before reporting the configured MCP unavailable;

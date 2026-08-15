@@ -217,7 +217,7 @@ if ($InstallMode -eq 'local') {
 }
 
 if ($InstallMode -eq 'full') {
-    foreach ($required in @('ShipGlows.DevServer.psm1','ShipGlows.CodexMcp.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
+    foreach ($required in @('ShipGlows.DevServer.psm1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
         Assert-PowerShellSyntax -Path (Join-Path $windowsDirectory $required)
     }
     Write-Info 'Native Windows DevServer files installed.'
