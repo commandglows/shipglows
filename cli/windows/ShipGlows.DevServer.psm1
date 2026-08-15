@@ -95,7 +95,15 @@ function Invoke-SgRegistryMutation([object]$Config, [scriptblock]$Mutation) {
     Ensure-SgDirectory $Config.RuntimeDirectory
     $lock = $null
     try {
-        $lock = [IO.File]::Open($Config.LockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
+        $deadline = (Get-Date).AddSeconds(15)
+        do {
+            try {
+                $lock = [IO.File]::Open($Config.LockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
+            } catch [IO.IOException] {
+                if ((Get-Date) -ge $deadline) { throw }
+                Start-Sleep -Milliseconds 25
+            }
+        } while (-not $lock)
         $registry = Read-SgRegistry $Config
         & $Mutation $registry
         Write-SgRegistry $Config $registry
@@ -125,6 +133,7 @@ function Get-SgProjectKind([string]$ProjectPath) {
                 if ($dependencySection -and $dependencySection.Value) { $all += $dependencySection.Value.PSObject.Properties.Name }
             }
             if ($all -contains 'astro') { return 'astro' }
+            if ($all -contains 'vite' -and $json.scripts.dev) { return 'vite' }
         } catch { throw "Invalid package.json: $($_.Exception.Message)" }
     }
     if ((Test-Path -LiteralPath $pubspec -PathType Leaf) -and (Test-Path -LiteralPath (Join-Path $ProjectPath 'web') -PathType Container)) {
@@ -135,40 +144,40 @@ function Get-SgProjectKind([string]$ProjectPath) {
         if (Test-Path -LiteralPath (Join-Path $ProjectPath 'requirements.txt') -PathType Leaf) { return 'python' }
     }
     if (Test-Path -LiteralPath (Join-Path $ProjectPath 'requirements.txt') -PathType Leaf) { return 'python' }
-    throw "Unsupported or ambiguous project. Supported kinds: Astro, Python/FastAPI with uv/requirements, Flutter Web."
+    throw "Unsupported or ambiguous project. Supported kinds: Astro, Vite, Python/FastAPI with uv/requirements, Flutter Web."
 }
 
-function Get-SgProjectDescriptor([string]$ProjectPath) {
+function Get-SgProjectDescriptors([string]$ProjectPath) {
     $root = ConvertTo-SgCanonicalPath $ProjectPath
-    try {
-        return [pscustomobject]@{ RootPath = $root; LaunchPath = $root; Kind = (Get-SgProjectKind $root) }
-    } catch { }
-
-    # A registered Windows project may be a monorepo whose runnable application
-    # lives below it. Resolve that launch path from supported app manifests only;
-    # the native Windows backend does not interpret another environment manager.
     $candidates = @()
     $queue = New-Object System.Collections.Generic.Queue[object]
     [void]$queue.Enqueue([pscustomobject]@{ Path = $root; Depth = 0 })
     $pruneDirs = @('.git', 'node_modules', 'venv', '.venv', '__pycache__', 'target', '.next', '.nuxt', 'dist', '.cache', '.pnpm', '.yarn')
     while ($queue.Count -gt 0) {
         $item = $queue.Dequeue()
-        if ([int]$item.Depth -gt 0) {
-            try {
-                $kind = Get-SgProjectKind ([string]$item.Path)
-                $candidates += [pscustomobject]@{ RootPath = $root; LaunchPath = [string]$item.Path; Kind = $kind; Depth = [int]$item.Depth }
-            } catch { }
+        try {
+            $kind = Get-SgProjectKind ([string]$item.Path)
+            $candidates += [pscustomobject]@{ RootPath = $root; LaunchPath = [string]$item.Path; Kind = $kind; Depth = [int]$item.Depth }
+        } catch {
+            if ($_.Exception.Message -notlike 'Unsupported or ambiguous project.*') { throw }
         }
         if ([int]$item.Depth -ge 3) { continue }
         foreach ($dir in @(Get-ChildItem -LiteralPath ([string]$item.Path) -Directory -Force -ErrorAction SilentlyContinue)) {
             if ($pruneDirs -contains $dir.Name) { continue }
             if ($dir.Name -match '^\.' ) { continue }
+            if ($dir.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
             [void]$queue.Enqueue([pscustomobject]@{ Path = $dir.FullName; Depth = ([int]$item.Depth + 1) })
         }
     }
-    $selected = @($candidates | Sort-Object -Property Depth,LaunchPath | Select-Object -First 1)[0]
-    if (-not $selected) { throw "No supported Windows launch target was detected at or below: $root" }
+    $selected = @($candidates | Sort-Object -Property Depth,LaunchPath)
+    if ($selected.Count -eq 0) { throw "No supported Windows launch target was detected at or below: $root" }
     return $selected
+}
+
+function Get-SgProjectDescriptor([string]$ProjectPath) {
+    $descriptors = @(Get-SgProjectDescriptors $ProjectPath)
+    if ($descriptors.Count -gt 1) { throw "Multiple runnable surfaces were detected. Choose one surface instead of the monorepo root: $ProjectPath" }
+    return $descriptors[0]
 }
 
 function Get-SgRuntimeSettings([string]$ProjectPath) {
@@ -208,6 +217,109 @@ function Get-SgFreePort([object]$Config, [int]$RequestedPort = 0, [string]$Owner
     throw "No free localhost port is available in the requested range."
 }
 
+function Test-SgPortAvailable([int]$Port) {
+    if (Get-Command Get-NetTCPConnection -ErrorAction SilentlyContinue) {
+        return -not [bool](Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1)
+    }
+    $tcp = New-Object Net.Sockets.TcpClient
+    try {
+        $tcp.Connect('127.0.0.1', $Port)
+        return $false
+    } catch {
+        return $true
+    } finally {
+        $tcp.Dispose()
+    }
+}
+
+function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [bool]$Explicit = $false) {
+    if ($RequestedPort -ne 0 -and ($RequestedPort -lt 1024 -or $RequestedPort -gt 65535)) { throw 'Requested port must be 0 or between 1024 and 65535.' }
+    $token = [guid]::NewGuid().ToString('N')
+    $result = Invoke-SgRegistryMutation $Config {
+        param($data)
+        $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath } | Select-Object -First 1
+        if (-not $entry) { throw "Project is not registered: $ProjectPath" }
+
+        $now = (Get-Date).ToUniversalTime()
+        foreach ($item in @($data.projects)) {
+            $hasReservationTime = $item.PSObject.Properties['reservationTimeUtc'] -and $item.reservationTimeUtc
+            if ($item.status -in @('reserved','starting') -and $hasReservationTime) {
+                $expired = $true
+                try {
+                    $expired = ($now - [datetime]::Parse([string]$item.reservationTimeUtc).ToUniversalTime()).TotalMinutes -ge 5
+                } catch {
+                    # Corrupt reservation metadata cannot retain a port lock.
+                    $expired = $true
+                }
+                if ($expired -and -not (Test-SgProcessIdentity $item)) {
+                    $item.status = 'stopped'
+                    $item | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
+                    $item | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
+                }
+            }
+        }
+
+        $otherPorts = @($data.projects | Where-Object { $_.path -ne $ProjectPath -and [int]$_.port -gt 0 } | ForEach-Object { [int]$_.port })
+        $existingPort = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
+        $candidates = if ($RequestedPort -gt 0) {
+            @($RequestedPort)
+        } elseif ($existingPort -gt 0) {
+            @($existingPort) + @($Config.PortStart..$Config.PortEnd | Where-Object { $_ -ne $existingPort })
+        } else {
+            @($Config.PortStart..$Config.PortEnd)
+        }
+
+        $selected = 0
+        foreach ($candidate in $candidates) {
+            if ($otherPorts -contains $candidate -or -not (Test-SgPortAvailable $candidate)) {
+                if ($Explicit) { throw "Configured port $candidate is already occupied or reserved." }
+                continue
+            }
+            $selected = $candidate
+            break
+        }
+        if ($selected -le 0) { throw 'No free localhost port is available in the requested range.' }
+
+        $entry.port = $selected
+        $entry.status = 'reserved'
+        $entry | Add-Member -NotePropertyName reservationToken -NotePropertyValue $token -Force
+        $entry | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $now.ToString('o') -Force
+    }
+    $reservedEntry = $result.projects | Where-Object { $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $token } | Select-Object -First 1
+    if (-not $reservedEntry) { throw "Port reservation could not be persisted for: $ProjectPath" }
+    return [pscustomobject]@{ Port = [int]$reservedEntry.port; Token = $token }
+}
+
+function Set-SgReservationState([object]$Config, [string]$ProjectPath, [string]$Token, [string]$Status, [object]$EntryData = $null) {
+    Invoke-SgRegistryMutation $Config {
+        param($data)
+        $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath -and $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $Token } | Select-Object -First 1
+        if (-not $entry) { throw "Port reservation was lost for: $ProjectPath" }
+        if ($EntryData) {
+            foreach ($property in $EntryData.PSObject.Properties) {
+                $entry | Add-Member -NotePropertyName $property.Name -NotePropertyValue $property.Value -Force
+            }
+        }
+        $entry.status = $Status
+        if ($Status -notin @('reserved','starting')) {
+            $entry | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
+            $entry | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
+        }
+    } | Out-Null
+}
+
+function Release-SgProjectPort([object]$Config, [string]$ProjectPath, [string]$Token, [string]$ErrorMessage = '') {
+    Invoke-SgRegistryMutation $Config {
+        param($data)
+        $entry = $data.projects | Where-Object { $_.path -eq $ProjectPath -and $_.PSObject.Properties['reservationToken'] -and $_.reservationToken -eq $Token } | Select-Object -First 1
+        if (-not $entry) { return }
+        $entry.status = 'error'
+        $entry | Add-Member -NotePropertyName lastError -NotePropertyValue $ErrorMessage -Force
+        $entry | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
+        $entry | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
+    } | Out-Null
+}
+
 function Get-SgProcessSnapshot([int]$Pid) {
     if ($Pid -le 0) { return $null }
     $process = Get-Process -Id $Pid -ErrorAction SilentlyContinue
@@ -232,12 +344,70 @@ function Test-SgProcessIdentity([object]$Entry) {
     return $true
 }
 
+function Get-SgRunnableIdentity([object]$Entry) {
+    if (-not $Entry) { return $null }
+    $candidate = if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } elseif ($Entry.PSObject.Properties['path'] -and $Entry.path) { [string]$Entry.path } else { $null }
+    if ([string]::IsNullOrWhiteSpace($candidate)) { return $null }
+    return [IO.Path]::GetFullPath($candidate).TrimEnd('\','/').ToLowerInvariant()
+}
+
+function Get-SgCanonicalSurfaceName([string]$RootPath, [string]$LaunchPath) {
+    $root = [IO.Path]::GetFullPath($RootPath).TrimEnd('\','/')
+    $launch = [IO.Path]::GetFullPath($LaunchPath).TrimEnd('\','/')
+    $rootName = Split-Path $root -Leaf
+    if ($launch.Equals($root, [StringComparison]::OrdinalIgnoreCase)) { return $rootName }
+    $prefix = $root + [IO.Path]::DirectorySeparatorChar
+    if (-not $launch.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) { throw "Launch path is outside its project root: $launch" }
+    return "$rootName-$($launch.Substring($prefix.Length) -replace '[\\/]', '-')"
+}
+
+function Get-SgDisplayName([object]$Entry) {
+    $fallback = if ($Entry.PSObject.Properties['name'] -and $Entry.name) { [string]$Entry.name } else { 'unknown' }
+    if (-not ($Entry.PSObject.Properties['rootPath'] -and $Entry.rootPath)) { return $fallback }
+    try {
+        $root = [IO.Path]::GetFullPath([string]$Entry.rootPath).TrimEnd('\','/')
+        $launch = if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [IO.Path]::GetFullPath([string]$Entry.launchPath).TrimEnd('\','/') } else { [IO.Path]::GetFullPath([string]$Entry.path).TrimEnd('\','/') }
+        return Get-SgCanonicalSurfaceName $root $launch
+    } catch {
+        return $fallback
+    }
+}
+
+function Add-SgDiscoveredMetadata([object]$RegisteredEntry, [object]$Candidate) {
+    if (-not $RegisteredEntry -or -not $Candidate) { return $RegisteredEntry }
+    if ($Candidate.PSObject.Properties['rootPath'] -and $Candidate.rootPath) {
+        $RegisteredEntry | Add-Member -NotePropertyName rootPath -NotePropertyValue ([string]$Candidate.rootPath) -Force
+    }
+    if ($Candidate.PSObject.Properties['launchPath'] -and $Candidate.launchPath) {
+        $RegisteredEntry | Add-Member -NotePropertyName launchPath -NotePropertyValue ([string]$Candidate.launchPath) -Force
+    }
+    return $RegisteredEntry
+}
+
+function Sync-SgDiscoveredProjectMetadata([object]$Config, [object]$Candidate) {
+    $identity = Get-SgRunnableIdentity $Candidate
+    if (-not $identity -or -not ($Candidate.PSObject.Properties['rootPath'] -and $Candidate.rootPath)) { return $null }
+    $rootPath = [IO.Path]::GetFullPath([string]$Candidate.rootPath).TrimEnd('\','/')
+    $launchPath = [IO.Path]::GetFullPath([string]$Candidate.launchPath).TrimEnd('\','/')
+    $name = Get-SgCanonicalSurfaceName $rootPath $launchPath
+    $result = Invoke-SgRegistryMutation $Config {
+        param($data)
+        $entry = $data.projects | Where-Object { (Get-SgRunnableIdentity $_) -eq $identity } | Select-Object -First 1
+        if ($entry) {
+            $entry | Add-Member -NotePropertyName rootPath -NotePropertyValue $rootPath -Force
+            $entry | Add-Member -NotePropertyName launchPath -NotePropertyValue $launchPath -Force
+            $entry | Add-Member -NotePropertyName name -NotePropertyValue $name -Force
+        }
+    }
+    return $result.projects | Where-Object { (Get-SgRunnableIdentity $_) -eq $identity } | Select-Object -First 1
+}
+
 function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port) {
     return "ShipGlows:${Kind}:${Port}:$([IO.Path]::GetFullPath($ProjectPath))"
 }
 
 function Invoke-SgDependencySetup([string]$ProjectPath, [string]$Kind, [string]$LogPath) {
-    if ($Kind -eq 'astro') {
+    if ($Kind -in @('astro','vite')) {
         $pm = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')) { Get-SgCommandPath @('pnpm.cmd','pnpm.exe') } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'package-lock.json')) { Get-SgCommandPath @('npm.cmd','npm.exe') } else { Get-SgCommandPath @('npm.cmd','npm.exe') }
         if (-not $pm) { throw 'Node package manager not found. Install Node.js and pnpm/npm, then retry.' }
         $args = if ($pm -match 'pnpm') { if (Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')) { @('install','--frozen-lockfile') } else { @('install') } } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'package-lock.json')) { @('ci') } else { @('install') }
@@ -307,6 +477,17 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port) {
             $command = "call `"$packageManager`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
             $args = @('/d','/s','/c',"`"$command`"")
         }
+    } elseif ($Kind -eq 'vite') {
+        $pnpm = Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')
+        $packageManager = if ($pnpm) { Get-SgCommandPath @('pnpm.cmd','pnpm.exe') } else { Get-SgCommandPath @('npm.cmd','npm.exe') }
+        if (-not $packageManager) { throw 'A Node package manager is required but unavailable.' }
+        $file = $env:ComSpec
+        if ($pnpm) {
+            $command = "call `"$packageManager`" exec vite --host 127.0.0.1 --port $Port & rem $signature"
+        } else {
+            $command = "call `"$packageManager`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
+        }
+        $args = @('/d','/s','/c',"`"$command`"")
     } elseif ($Kind -eq 'python') {
         $target = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'app\main.py')) { 'app.main:app' } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'main.py')) { 'main:app' } else { throw 'FastAPI entrypoint not found. V1 supports app/main.py or main.py with app.' }
         $file = $env:ComSpec
@@ -326,23 +507,103 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port) {
         $args = @('/d','/s','/c',"`"$command`"")
     }
     if (-not $file) { throw "Launch tool missing for $Kind." }
-    [pscustomobject]@{ FilePath = $file; Arguments = $args; Signature = $signature; Interactive = ($Kind -eq 'flutter-web') }
+    [pscustomobject]@{ FilePath = $file; Arguments = $args; Signature = $signature; Interactive = $false }
 }
 
 function Test-SgHttpReady([int]$Port) {
-    try { Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$Port" -TimeoutSec 2 -ErrorAction Stop | Out-Null; return $true } catch { return $false }
+    try {
+        Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$Port" -TimeoutSec 2 -ErrorAction Stop | Out-Null
+        return $true
+    } catch {
+        $tcp = New-Object Net.Sockets.TcpClient
+        try {
+            $tcp.Connect('127.0.0.1', $Port)
+            return $tcp.Connected
+        } catch {
+            return $false
+        } finally {
+            $tcp.Dispose()
+        }
+    }
+}
+
+function Wait-SgHttpReady([int]$Port, [int]$TimeoutSeconds = 60) {
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        if (Test-SgHttpReady $Port) { return $true }
+        Start-Sleep -Milliseconds 500
+    }
+    return $false
 }
 
 function Reconcile-SgRegistry([object]$Config) {
-    $registry = Read-SgRegistry $Config
-    $changed = $false
-    foreach ($entry in @($registry.projects)) {
-        $live = Test-SgProcessIdentity $entry
-        $next = if ($live) { 'running' } else { 'stopped' }
-        if ($entry.status -ne $next) { $entry.status = $next; $changed = $true }
+    return Invoke-SgRegistryMutation $Config {
+        param($registry)
+        $byIdentity = @{}
+        $normalized = New-Object 'System.Collections.Generic.List[object]'
+        foreach ($entry in @($registry.projects)) {
+            $identity = Get-SgRunnableIdentity $entry
+            if (-not $identity) { continue }
+
+            $launchPath = [IO.Path]::GetFullPath($(if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path })).TrimEnd('\','/')
+            $oldPath = [IO.Path]::GetFullPath([string]$entry.path).TrimEnd('\','/')
+            $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) {
+                [IO.Path]::GetFullPath([string]$entry.rootPath).TrimEnd('\','/')
+            } elseif (-not $oldPath.Equals($launchPath, [StringComparison]::OrdinalIgnoreCase)) {
+                $oldPath
+            } else {
+                $oldPath
+            }
+            $entry | Add-Member -NotePropertyName rootPath -NotePropertyValue $rootPath -Force
+            $entry | Add-Member -NotePropertyName launchPath -NotePropertyValue $launchPath -Force
+            $entry.path = $launchPath
+
+            $live = Test-SgProcessIdentity $entry
+            $freshReservation = $false
+            if (-not $live -and $entry.status -in @('reserved','starting') -and $entry.PSObject.Properties['reservationTimeUtc'] -and $entry.reservationTimeUtc) {
+                try {
+                    $freshReservation = (((Get-Date).ToUniversalTime() - [datetime]::Parse([string]$entry.reservationTimeUtc).ToUniversalTime()).TotalMinutes -lt 5)
+                } catch {
+                    $freshReservation = $false
+                }
+            }
+            if ($live) {
+                $entry.status = 'running'
+                if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
+                if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+            } elseif (-not $freshReservation) {
+                $entry.status = 'stopped'
+                if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
+                if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
+            }
+
+            if (-not $byIdentity.ContainsKey($identity)) {
+                $byIdentity[$identity] = [pscustomobject]@{ Entry = $entry; Live = $live }
+                [void]$normalized.Add($entry)
+                continue
+            }
+
+            $kept = $byIdentity[$identity]
+            $mergeSource = $entry
+            if ($live -and -not $kept.Live) {
+                $mergeSource = $kept.Entry
+                [void]$normalized.Remove($kept.Entry)
+                [void]$normalized.Add($entry)
+                $byIdentity[$identity] = [pscustomobject]@{ Entry = $entry; Live = $true }
+                $kept = $byIdentity[$identity]
+            }
+            $winner = $kept.Entry
+            foreach ($property in @('name','kind','port','pid','startTimeUtc','executablePath','commandSignature','logPath','errorLogPath','lastError','reservationToken','reservationTimeUtc')) {
+                $winnerValue = if ($winner.PSObject.Properties[$property]) { $winner.$property } else { $null }
+                $candidateValue = if ($mergeSource.PSObject.Properties[$property]) { $mergeSource.$property } else { $null }
+                $winnerMissing = $null -eq $winnerValue -or $winnerValue -eq '' -or (($property -in @('port','pid')) -and [int]$winnerValue -eq 0)
+                if ($winnerMissing -and $null -ne $candidateValue -and $candidateValue -ne '') {
+                    $winner | Add-Member -NotePropertyName $property -NotePropertyValue $candidateValue -Force
+                }
+            }
+        }
+        $registry.projects = $normalized.ToArray()
     }
-    if ($changed) { Write-SgRegistry $Config $registry }
-    return $registry
 }
 
 function Get-SgProjectEnvironmentPath([string]$ProjectPath) {
@@ -372,8 +633,14 @@ function Remove-SgLegacyProjectServerState([string]$ProjectPath) {
 
     $git = Get-Command git.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $git) { return }
-    $gitPath = (& $git.Source -C $root rev-parse --git-path info/exclude 2>$null | Select-Object -First 1)
-    $repositoryRoot = (& $git.Source -C $root rev-parse --show-toplevel 2>$null | Select-Object -First 1)
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        $gitPath = (& $git.Source -C $root rev-parse --git-path info/exclude 2>$null | Select-Object -First 1)
+        $repositoryRoot = (& $git.Source -C $root rev-parse --show-toplevel 2>$null | Select-Object -First 1)
+    } finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
     if ([string]::IsNullOrWhiteSpace($gitPath) -or [string]::IsNullOrWhiteSpace($repositoryRoot)) { return }
     $excludePath = [string]$gitPath
     if (-not [IO.Path]::IsPathRooted($excludePath)) { $excludePath = Join-Path $root $excludePath }
@@ -437,28 +704,50 @@ function Get-SgProjectEnvironment([string]$ProjectPath) {
 }
 
 function Register-SgProject([object]$Config, [string]$ProjectPath) {
-    $path = ConvertTo-SgCanonicalPath $ProjectPath
-    if (-not (Test-SgProjectPath $path $Config.Workspace)) { throw "Project must be inside the ShipGlows workspace: $($Config.Workspace)" }
-    $descriptor = Get-SgProjectDescriptor $path
-    $kind = $descriptor.Kind
-    $launchPath = $descriptor.LaunchPath
+    $root = ConvertTo-SgCanonicalPath $ProjectPath
+    if (-not (Test-SgProjectPath $root $Config.Workspace)) { throw "Project must be inside the ShipGlows workspace: $($Config.Workspace)" }
+    [void](Reconcile-SgRegistry $Config)
+    $descriptors = @(Get-SgProjectDescriptors $root)
     $registry = Invoke-SgRegistryMutation $Config {
         param($data)
-        $existing = @($data.projects | Where-Object { $_.path -eq $path })
-        if ($existing.Count -eq 0) {
-            $data.projects += [pscustomobject]@{ name = (Split-Path $path -Leaf); path = $path; launchPath = $launchPath; kind = $kind; port = 0; status = 'stopped'; pid = 0; startTimeUtc = $null; executablePath = $null; commandSignature = $null; logPath = $null; errorLogPath = $null; lastError = $null }
-        } else {
-            $existing[0] | Add-Member -NotePropertyName launchPath -NotePropertyValue $launchPath -Force
-            $existing[0].kind = $kind
+        foreach ($descriptor in $descriptors) {
+            $launchPath = [IO.Path]::GetFullPath([string]$descriptor.LaunchPath).TrimEnd('\','/')
+            $existing = @($data.projects | Where-Object { (Get-SgRunnableIdentity $_) -eq $launchPath.ToLowerInvariant() })
+            $name = Get-SgCanonicalSurfaceName $root $launchPath
+            if ($existing.Count -eq 0) {
+                $data.projects += [pscustomobject]@{
+                    name = $name; path = $launchPath; rootPath = $root; launchPath = $launchPath; kind = $descriptor.Kind
+                    port = 0; status = 'stopped'; pid = 0; startTimeUtc = $null; executablePath = $null
+                    commandSignature = $null; logPath = $null; errorLogPath = $null; lastError = $null
+                    reservationToken = $null; reservationTimeUtc = $null
+                }
+            } else {
+                $existing[0] | Add-Member -NotePropertyName rootPath -NotePropertyValue $root -Force
+                $existing[0] | Add-Member -NotePropertyName launchPath -NotePropertyValue $launchPath -Force
+                $existing[0] | Add-Member -NotePropertyName name -NotePropertyValue $name -Force
+                $existing[0].path = $launchPath
+                $existing[0].kind = $descriptor.Kind
+            }
         }
     }
-    $registered = @($registry.projects | Where-Object { $_.path -eq $path })[0]
-    [void](Write-SgProjectEnvironment $path ([int]$registered.port))
+    $launchPaths = @($descriptors | ForEach-Object { [IO.Path]::GetFullPath([string]$_.LaunchPath).TrimEnd('\','/') })
+    $registered = @($registry.projects | Where-Object { $_.path -in $launchPaths })
+    foreach ($entry in $registered) { [void](Write-SgProjectEnvironment $entry.path ([int]$entry.port)) }
     return $registered
 }
 
 function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0) {
-    $entry = Register-SgProject $Config $ProjectPath
+    $requestedPath = ConvertTo-SgCanonicalPath $ProjectPath
+    $entry = @((Reconcile-SgRegistry $Config).projects | Where-Object { $_.path -eq $requestedPath }) | Select-Object -First 1
+    if (-not $entry) {
+        $registered = @(Register-SgProject $Config $requestedPath)
+        $entry = $registered | Where-Object { $_.path -eq $requestedPath } | Select-Object -First 1
+        if (-not $entry -and $registered.Count -gt 1) {
+            throw "This monorepo has $($registered.Count) runnable surfaces. Choose a surface from the menu instead of starting its root path."
+        }
+        if (-not $entry) { $entry = $registered | Select-Object -First 1 }
+    }
+    if (-not $entry) { throw "No runnable surface could be registered for: $requestedPath" }
     if (Test-SgProcessIdentity $entry) { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
     $settings = Get-SgRuntimeSettings $entry.path
     $configuredPort = $RequestedPort
@@ -467,58 +756,61 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $configuredPort = [int]$env:SHIPGLOWS_ENV_PORT
     }
     if ($configuredPort -le 0 -and $settings.Port -gt 0) { $configuredPort = [int]$settings.Port }
-    if ($configuredPort -gt 0) {
-        $port = Get-SgFreePort $Config $configuredPort $entry.path
-        Write-SgInfo "Using configured port: $port"
-    } elseif ([int]$entry.port -gt 0) {
-        try {
-            $port = Get-SgFreePort $Config ([int]$entry.port) $entry.path
-            Write-SgInfo "Reusing persistent port: $port"
-        } catch {
-            $port = Get-SgFreePort $Config 0 $entry.path
-            Write-SgWarn "Persistent port $($entry.port) is unavailable; assigned $port."
-        }
-    } else {
-        $port = Get-SgFreePort $Config 0 $entry.path
-        Write-SgInfo "Assigned port: $port"
-    }
+    $explicitPort = $configuredPort -gt 0
+    $previousPort = [int]$entry.port
+    $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort
+    $port = $reservation.Port
+    $reservationToken = $reservation.Token
+    if ($explicitPort) { Write-SgInfo "Using configured port: $port" }
+    elseif ($previousPort -gt 0 -and $previousPort -eq $port) { Write-SgInfo "Reusing persistent port: $port" }
+    else { Write-SgInfo "Assigned port: $port" }
     $logDir = Join-Path $Config.LogDirectory $entry.name
     Ensure-SgDirectory $logDir
     $out = Join-Path $logDir 'stdout.log'; $err = Join-Path $logDir 'stderr.log'
     $setupLog = Join-Path $logDir 'setup.log'
     foreach ($logPath in @($out,$err,$setupLog)) { Rotate-SgLogFile $logPath }
-    $descriptor = Get-SgProjectDescriptor $entry.path
-    $launchPath = $descriptor.LaunchPath
-    $kind = $descriptor.Kind
-    try { Invoke-SgDependencySetup $launchPath $kind $setupLog; $launch = Get-SgLaunchSpec $launchPath $kind $port }
-    catch { $entry.status = 'error'; $entry.lastError = $_.Exception.Message; Invoke-SgRegistryMutation $Config { param($data) $found = @($data.projects | Where-Object { $_.path -eq $entry.path })[0]; if ($found) { $found.status = 'error'; $found.lastError = $entry.lastError } }; throw }
+    $launchPath = if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path }
+    $kind = [string]$entry.kind
+    try {
+        Invoke-SgDependencySetup $launchPath $kind $setupLog
+        $launch = Get-SgLaunchSpec $launchPath $kind $port
+    } catch {
+        Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
+        throw
+    }
     $launchEnvironment = @{}
     $launchEnvironment['PORT'] = [string]$port
     if ($kind -eq 'astro') { $launchEnvironment['ASTRO_DEV_BACKGROUND'] = '0' }
     $previousEnvironment = @{}
     try {
+        Set-SgReservationState $Config $entry.path $reservationToken 'starting'
         foreach ($name in @($launchEnvironment.Keys)) {
             $previousEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
             [Environment]::SetEnvironmentVariable($name, [string]$launchEnvironment[$name], 'Process')
         }
-        if ($launch.Interactive) {
-            $process = Start-Process -FilePath $launch.FilePath -ArgumentList $launch.Arguments -WorkingDirectory $launchPath -PassThru -WindowStyle Normal
-        } else {
-            $process = Start-Process -FilePath $launch.FilePath -ArgumentList $launch.Arguments -WorkingDirectory $launchPath -RedirectStandardOutput $out -RedirectStandardError $err -PassThru -WindowStyle Hidden
-        }
+        $process = Start-Process -FilePath $launch.FilePath -ArgumentList $launch.Arguments -WorkingDirectory $launchPath -RedirectStandardOutput $out -RedirectStandardError $err -PassThru -WindowStyle Hidden
+        Start-Sleep -Milliseconds 350
+        $snapshot = Get-SgProcessSnapshot $process.Id
+        if (-not $snapshot) { throw "Process exited before it could be recorded. See $err" }
+    } catch {
+        Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
+        throw
     } finally {
         foreach ($name in @($launchEnvironment.Keys)) { [Environment]::SetEnvironmentVariable($name, $previousEnvironment[$name], 'Process') }
     }
-    Start-Sleep -Milliseconds 350
-    $snapshot = Get-SgProcessSnapshot $process.Id
-    if (-not $snapshot) { throw "Process exited before it could be recorded. See $err" }
-    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $launch.Signature; logPath = $out; errorLogPath = $err; lastError = $null }
-    Invoke-SgRegistryMutation $Config { param($data) $data.projects = @($data.projects | Where-Object { $_.path -ne $entry.path }); $data.projects += $entryData }
+    $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
+    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $launch.Signature; logPath = $out; errorLogPath = $err; lastError = $null }
+    Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData
+    if (-not (Test-SgProcessIdentity $entryData)) {
+        Write-SgWarn "Process exited during startup. See $err"
+        $entryData.status = 'error'
+        $entryData.lastError = 'Process exited during startup.'
+        Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
+        return $entryData
+    }
     [void](Write-SgProjectEnvironment $entry.path $port)
-    Start-Sleep -Seconds 1
-    if (-not (Test-SgProcessIdentity $entryData)) { Write-SgWarn "Process exited during startup. See $err"; $entryData.status = 'error'; $entryData.lastError = 'Process exited during startup.'; Invoke-SgRegistryMutation $Config { param($data) $found = @($data.projects | Where-Object { $_.path -eq $entry.path })[0]; if ($found) { $found.status = 'error'; $found.lastError = $entryData.lastError } }; return $entryData }
-    $entryData.status = if (Test-SgHttpReady $port) { 'running' } elseif ($launch.Interactive) { 'running' } else { 'starting' }
-    Invoke-SgRegistryMutation $Config { param($data) $found = @($data.projects | Where-Object { $_.path -eq $entry.path })[0]; if ($found) { $found.status = $entryData.status; $found.lastError = $entryData.lastError } }
+    $entryData.status = if (Wait-SgHttpReady $port) { 'running' } else { 'starting' }
+    Set-SgReservationState $Config $entry.path $reservationToken $entryData.status $entryData
     Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"
     return $entryData
 }
@@ -531,13 +823,69 @@ function Stop-SgProcessTree([int]$RootPid) {
     foreach ($pid in @($ids | Sort-Object -Descending)) { Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue }
 }
 
+function Get-SgOwnedFlutterListenerPids([object]$Entry) {
+    if (-not $Entry -or $Entry.kind -ne 'flutter-web' -or [int]$Entry.port -le 0) { return @() }
+    $listeners = @(Get-NetTCPConnection -LocalPort ([int]$Entry.port) -State Listen -ErrorAction SilentlyContinue)
+    if ($listeners.Count -eq 0) { return @() }
+
+    $projectPath = [IO.Path]::GetFullPath($(if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } else { [string]$Entry.path })).TrimEnd('\','/').ToLowerInvariant()
+    $projectPattern = [regex]::Escape($projectPath) + '(?:[\\/"''\s]|$)'
+    $signature = if ($Entry.PSObject.Properties['commandSignature']) { ([string]$Entry.commandSignature).ToLowerInvariant() } else { '' }
+    $processes = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue)
+    $byId = @{}
+    foreach ($process in $processes) { $byId[[int]$process.ProcessId] = $process }
+
+    $owned = @()
+    foreach ($listener in $listeners) {
+        $listenerPid = [int]$listener.OwningProcess
+        $currentPid = $listenerPid
+        $depth = 0
+        $flutterEvidence = $false
+        $projectEvidence = $false
+        while ($currentPid -gt 0 -and $depth -lt 8 -and $byId.ContainsKey($currentPid)) {
+            $process = $byId[$currentPid]
+            $commandLine = ([string]$process.CommandLine).ToLowerInvariant()
+            $executable = ([string]$process.ExecutablePath).ToLowerInvariant()
+            if ($commandLine -match 'flutter|dart(vm)?|web-server' -or $executable -match 'dart(vm)?\.exe$|flutter') { $flutterEvidence = $true }
+            if (($signature -and $commandLine.Contains($signature)) -or $commandLine -match $projectPattern) { $projectEvidence = $true }
+            $currentPid = [int]$process.ParentProcessId
+            $depth++
+        }
+        if ($flutterEvidence -and $projectEvidence) { $owned += $listenerPid }
+    }
+    return @($owned | Sort-Object -Unique)
+}
+
+function Stop-SgOwnedFlutterListener([object]$Entry) {
+    $ownedPids = @(Get-SgOwnedFlutterListenerPids $Entry)
+    foreach ($ownedPid in $ownedPids) { Stop-SgProcessTree $ownedPid }
+    return $ownedPids.Count -gt 0
+}
+
 function Stop-SgProject([object]$Config, [string]$ProjectPath) {
     $path = ConvertTo-SgCanonicalPath $ProjectPath
     $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
-    if (-not $entry) { return }
-    if (Test-SgProcessIdentity $entry) { Stop-SgProcessTree ([int]$entry.pid) }
-    else { Write-SgWarn "Stale or unverified process for $($entry.name); no process was terminated." }
-    Invoke-SgRegistryMutation $Config { param($data) $found = @($data.projects | Where-Object { $_.path -eq $path })[0]; if ($found) { $found.status = 'stopped'; $found.pid = 0; $found.startTimeUtc = $null; $found.lastError = $null } }
+    if (-not $entry) { return $false }
+    $alreadyStopped = $entry.status -eq 'stopped' -and [int]$entry.pid -le 0
+    $stoppedFlutterListener = Stop-SgOwnedFlutterListener $entry
+    if ($alreadyStopped -and -not $stoppedFlutterListener) { return $false }
+    $stopped = $stoppedFlutterListener
+    if (Test-SgProcessIdentity $entry) {
+        Stop-SgProcessTree ([int]$entry.pid)
+        $stopped = $true
+    } elseif (-not $stoppedFlutterListener -and [int]$entry.pid -gt 0) {
+        Write-SgWarn "Stale or unverified process for $($entry.name); no process was terminated."
+    }
+    Invoke-SgRegistryMutation $Config {
+        param($data)
+        $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
+        if ($found) {
+            $found.status = 'stopped'; $found.pid = 0; $found.startTimeUtc = $null; $found.lastError = $null
+            if ($found.PSObject.Properties['reservationToken']) { $found.reservationToken = $null }
+            if ($found.PSObject.Properties['reservationTimeUtc']) { $found.reservationTimeUtc = $null }
+        }
+    } | Out-Null
+    return $stopped
 }
 
 function Unregister-SgProject([object]$Config, [string]$ProjectPath) {
@@ -561,4 +909,4 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,Get-SgFreePort,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState
