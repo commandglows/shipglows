@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-14"
+updated: "2026-08-15"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -77,7 +77,7 @@ Before choosing a lifecycle route, model, topology, owner skill, mini-contract, 
 
 Spec-first is the outer lifecycle contract: it defines user story, scope, success/error behavior, dependencies, risks, and source of truth. Proof-first is the implementation discipline: execution must choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` from `skills/references/spec-driven-development-discipline.md` before claiming completion.
 
-Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, choose its fast validation only when every cumulative eligibility criterion is established, otherwise present its full plan, and wait for explicit post-message approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for either approval path.
+Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, choose its fast validation only when every cumulative eligibility criterion is established, otherwise present its full plan, and wait for explicit post-message approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for either approval path. Once a bounded technical implementation is approved, its ordinary exact-scope local commits inherit that approval under the contract's cumulative local commit authority; do not ask a second time merely to stage and record the approved work.
 
 ## Applies To
 
@@ -131,7 +131,7 @@ intake
 
 Normalize the user request into one current work item. Route to the owning skill when the request clearly names only one specialist phase.
 
-Ask only when the answer changes behavior, scope, security, data, permissions, destructive side effects, public claims, closure, staging, or ship risk.
+Ask only when the answer changes behavior, scope, security, data, permissions, destructive side effects, public claims, closure, unapproved staging, or ship risk. Exact-scope staging for an already approved technical commit is not a new decision.
 
 Before asking a user-facing question, load `skills/references/question-contract.md`. The question contract decides when a default is safe enough to choose without asking and how to format numbered decision questions.
 
@@ -175,7 +175,7 @@ Do not start implementation from a draft, ambiguous, or contradictory work item.
 
 Before expensive or risky execution, choose the model profile using `704-sg-model` guidance or the relevant local model-routing reference, bounded by `skills/references/decision-quality-contract.md`.
 
-Before file work, validation, closure preparation, or ship preparation, choose topology using `skills/references/master-delegation-semantics.md`. Favor subagents by default: parallel for two or more independent read-only scopes, sequential for writes, and parallel writes only through ready `Execution Batches`. Master-skill invocation authorizes bounded sequential and read-only parallel subagents; ask again only for material scope, risk, permissions, data, destructive behavior, closure, staging, ship, or unauthorized parallel-write changes.
+Before file work, validation, closure preparation, or ship preparation, choose topology using `skills/references/master-delegation-semantics.md`. Favor subagents by default: parallel for two or more independent read-only scopes, sequential for writes, and parallel writes only through ready `Execution Batches`. Master-skill invocation authorizes bounded sequential and read-only parallel subagents; ask again only for material scope, risk, permissions, data, destructive behavior, closure, unapproved staging, ship, or unauthorized parallel-write changes.
 
 Record the choice when it affects trust, cost, evidence, or handoff.
 
@@ -305,7 +305,7 @@ Stop, ask, or reroute when:
 - validation or evidence is missing for the promised outcome
 - verification fails
 - closure or ship scope includes unrelated dirty files
-- the next action changes material scope, security, data, permissions, destructive behavior, public claims, staging, or release semantics
+- the next action changes material scope, security, data, permissions, destructive behavior, public claims, unapproved staging, or release semantics
 
 ## Reporting
 

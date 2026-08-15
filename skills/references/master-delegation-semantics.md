@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.11.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-14"
+updated: "2026-08-15"
 status: active
 source_skill: 001-sg-build
 scope: master-delegation-semantics
@@ -36,6 +36,7 @@ depends_on:
 supersedes: []
 evidence:
   - "User decision 2026-05-04: the primary `000-shipglows` router should use direct main-thread handoff to selected master skills, not nested master-skill subagents."
+  - "Operator decision 2026-08-15: bounded technical implementation approval includes ordinary exact-scope local commits without a duplicate prompt."
   - "User decision 2026-05-04: master skills keep the master conversation clean by delegating file, validation, closure, and ship work to bounded sequential subagents when available."
   - "User decision 2026-05-04: delegation/subagent execution is distinct from parallelism; parallelism means simultaneous subagents and requires ready Execution Batches."
   - "User decision 2026-05-04: short natural-language confirmations continue the current chantier in delegated sequential mode after diagnosis or proposal; they are interpreted by intent, not exact keyword."
@@ -87,7 +88,7 @@ Delegation to one sequential subagent is not parallelism. It is the normal way a
 
 When subagents are available, the default topology is `read-only parallel` for two or more independent no-write scopes and `delegated sequential` for mutations, dependent stages, validation that can change state, closure, or ship. Parallel writes require ready non-overlapping `Execution Batches`.
 
-Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out, but never for mutation. Every write mission still requires explicit post-message approval through the fast-validation or full-plan path selected by `skills/references/mutation-plan-approval.md`. Ask again when the next action changes material scope, risk, data, permissions, destructive behavior, staging, closure, ship semantics, or introduces parallel writes not already authorized by ready `Execution Batches`.
+Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out, but never for mutation. Every write mission still requires explicit post-message approval through the fast-validation or full-plan path selected by `skills/references/mutation-plan-approval.md`. That approval includes ordinary exact-scope local commits for a bounded technical chantier under the contract's cumulative authority. Ask again when the next action changes material scope, risk, data, permissions, destructive behavior, unapproved staging, closure, ship semantics, or introduces parallel writes not already authorized by ready `Execution Batches`.
 
 In `delegated sequential` mode, use one bounded subagent at a time. A small scope may use a mini-contract, but small scope is not an exception to delegation. If file work or validation is needed and subagents are available, the master should delegate instead of doing routine diffs or patches in the master conversation.
 
@@ -136,7 +137,7 @@ active conversation language means, by intent rather than exact keyword:
 continue the current chantier with the canonical topology: read-only parallel for independent no-write scopes, otherwise delegated sequential
 ```
 
-Short confirmations given before that plan authorize no mutation. Confirmations given after it authorize the bounded plan and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`. Ask again when scope, risk, data, permissions, destructive behavior, staging, closure, or ship semantics change.
+Short confirmations given before that plan authorize no mutation. Confirmations given after it authorize the bounded plan, its ordinary exact-scope technical local commits, and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`. Ask again when scope, risk, data, permissions, destructive behavior, unapproved staging, closure, or ship semantics change.
 
 The next safe mission remains internal. In an unfinished user-facing report,
 offer only plain-language choices about continuing, reprioritizing, changing
@@ -196,7 +197,7 @@ Stop, ask, reroute, or refine the spec when:
 - subagents are unavailable and the user has not accepted degradation
 - requested parallel writes lack ready `Execution Batches`
 - write ownership overlaps or is undefined
-- the next action changes material scope, permissions, data, destructive behavior, closure, staging, or ship semantics
+- the next action changes material scope, permissions, data, destructive behavior, closure, unapproved staging, or ship semantics
 - validation, proof, docs, editorial, closure, or ship gates are unresolved
 - unrelated dirty files would enter the execution or ship scope
 

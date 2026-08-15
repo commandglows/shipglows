@@ -82,7 +82,7 @@ One invocation advances one action-ready unit unless the operator explicitly req
 Stop, ask, or reroute when:
 
 - the current work item is absent or materially ambiguous;
-- the next action changes product behavior, security, data handling, permissions, destructive behavior, cost, external side effects, closure, staging, or ship semantics without authority;
+- the next action changes product behavior, security, data handling, permissions, destructive behavior, cost, external side effects, closure, unapproved staging, or ship semantics without authority;
 - a dependency, earlier task, proof gate, or required owner remains unresolved;
 - write ownership overlaps, unrelated dirty files would enter scope, or concurrent writes lack ready batches;
 - the selected topology or model cannot be applied safely;

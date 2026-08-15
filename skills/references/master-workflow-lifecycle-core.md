@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-15"
 status: active
 source_skill: 900-shipglows-core
 scope: master-workflow-lifecycle-core
@@ -20,6 +20,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Wave 12 measured the detailed lifecycle reference as too costly for an ordinary route decision."
+  - "Operator decision 2026-08-15: exact-scope local technical commits already covered by chantier approval are routine execution, not a new gate."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -44,11 +45,10 @@ Master skills orchestrate; specialist owners retain their internals. Checks, hos
 
 ## Stop And Escalation Gates
 
-Stop or load the detailed lifecycle when no single work item is safe, readiness is ambiguous, an owner gate would be bypassed, evidence does not match the promised outcome, verification fails, unrelated dirty files enter scope, or the next action changes material scope, security, data, permissions, destructive behavior, public claims, staging, closure, or release semantics.
+Stop or load the detailed lifecycle when no single work item is safe, readiness is ambiguous, an owner gate would be bypassed, evidence does not match the promised outcome, verification fails, unrelated dirty files enter scope, or the next action changes material scope, security, data, permissions, destructive behavior, public claims, unapproved staging, closure, or release semantics. Exact-scope local commits already covered by an approved bounded technical chantier are routine execution, not a new gate.
 
 Never treat a green check, push, deployment state, HTTP response, generated changelog, or locally rendered surface as sufficient outcome proof by itself.
 
 ## Handoff Receipt
 
 Record the selected work item, route, topology status, owner sequence, validation/evidence result, verification state, and only real blockers. Detailed lifecycle history belongs in agent/handoff reporting, not the concise user result.
-

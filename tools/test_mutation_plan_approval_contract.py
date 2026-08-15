@@ -8,6 +8,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "skills" / "references" / "mutation-plan-approval.md"
 STRATEGIC = ROOT / "skills" / "references" / "strategic-choice-contract.md"
+LIFECYCLE = ROOT / "skills" / "references" / "master-workflow-lifecycle.md"
+DELEGATION = ROOT / "skills" / "references" / "master-delegation-semantics.md"
 
 
 class MutationPlanApprovalContractTests(unittest.TestCase):
@@ -143,6 +145,37 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
     def test_initial_request_never_approves_either_path(self) -> None:
         self.assertIn("initial imperative request does not count as approval", self.text)
         self.assertIn("both approval paths", self.text)
+
+    def test_technical_plan_approval_includes_local_commit_authority(self) -> None:
+        for expected in (
+            "Cumulative local commit authority",
+            "ordinary local commits by default",
+            "without a second approval message",
+            "unrelated and pre-existing changes remain unstaged",
+            "secret and sensitive-data checks pass",
+            "multiple small coherent commits",
+            "do not interrupt merely to ask permission",
+        ):
+            self.assertIn(expected, self.text)
+
+    def test_implicit_commit_authority_keeps_strict_boundaries(self) -> None:
+        for expected in (
+            "no amend, rebase, squash, reset, tag, push, force, hook bypass, or remote effect",
+            "substantive editorial judgment",
+            "broad mixed-scope consolidation",
+            "`git push` always remains a separate full-plan action",
+            "MAP-TECHNICAL-COMMIT",
+            "MAP-COMMIT-BOUNDARY",
+        ):
+            self.assertIn(expected, self.text)
+
+    def test_master_contracts_propagate_commit_authority_without_duplicate_prompt(self) -> None:
+        lifecycle = LIFECYCLE.read_text(encoding="utf-8")
+        delegation = DELEGATION.read_text(encoding="utf-8")
+        self.assertIn("ordinary exact-scope local commits inherit that approval", lifecycle)
+        self.assertIn("Exact-scope staging for an already approved technical commit", lifecycle)
+        self.assertIn("ordinary exact-scope local commits", delegation)
+        self.assertIn("unapproved staging", delegation)
 
     def _scenario(self, name: str) -> str:
         marker = f"- `{name}`:"

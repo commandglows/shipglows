@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.18.0"
+artifact_version: "2.19.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-14"
+updated: "2026-08-15"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -59,7 +59,7 @@ linked_systems:
   - docs/editorial/
 depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
-    artifact_version: "0.18.0"
+    artifact_version: "0.20.0"
     required_status: draft
   - artifact: "skills/references/technical-docs-corpus.md"
     artifact_version: "1.3.0"
@@ -130,6 +130,7 @@ evidence:
   - "Public skills now have direct runtime folders and matching Codex metadata; numeric prefixes are expert/compatibility identifiers rather than picker names."
   - "Codex expert shortcuts now resolve through public owner modes before internal engines; core remains the sole hard system-context switch."
   - "Two-tier mutation approval adds a cumulative fast path for exact local routine reversible actions while keeping full plans for ineligible and remote mutations."
+  - "2026-08-15: bounded technical chantier approval now includes ordinary exact-scope local commits without duplicate approval."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -383,7 +384,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/skill-instruction-layering.md` | Canonical layering contract for `SKILL.md` activation rules vs shared or skill-local references | Load before editing or compacting skills |
 | `skills/<skill>/references/*.md` | Skill-local heavy checklists, mode playbooks, and report matrices | Keep top-level SKILL focused on activation and gates |
 | `skills/references/master-delegation-semantics.md` | Shared master/orchestrator delegation, subagent, short-approval, and parallelism doctrine | Load before master skills choose execution topology |
-| `skills/references/mutation-plan-approval.md` | Universal two-tier and explicit post-message approval gate for intentional mutations | Use fast validation only when every exact/local/routine/reversible/no-harm criterion is established; otherwise use the full plan, with `git push` always full-plan-only |
+| `skills/references/mutation-plan-approval.md` | Universal two-tier and explicit post-message approval gate for intentional mutations | Use fast validation only when every exact/local/routine/reversible/no-harm criterion is established; otherwise use the full plan. An approved bounded technical chantier includes ordinary exact-scope local commits without a duplicate prompt; unrelated, editorial, history-rewriting, closure, release, and remote actions stay gated, with `git push` always full-plan-only. |
 | `skills/references/master-workflow-lifecycle.md` | Shared master/orchestrator lifecycle skeleton and work item model | Load before master skills resolve intake, readiness, model/topology, validation, verification, closure, or ship/deploy routes |
 | `skills/references/master-{workflow-lifecycle,delegation}-core.md` | Compact first-decision lifecycle and topology gates | Load from migrated pilots first; escalate to the detailed authority only on the core's explicit conditions |
 | `skills/references/decision-quality-contract.md` | Shared industrial-quality doctrine: correctness, security, performance, resilience, maintainability, durable evolution, professional craft, and proof before speed/cost/convenience | Load before routing, model/fallback selection, implementation, fixes, skill-contract changes, verification, or recommended defaults |

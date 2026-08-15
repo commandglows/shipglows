@@ -1,5 +1,15 @@
 # Skills Refresh Log
 
+## 2026-08-15 — 706-continue
+
+**Added:** no new phase; the existing continuation authority now recognizes exact-scope local technical commits already covered by chantier approval.
+
+**Updated:** the staging stop condition now distinguishes unapproved staging from routine cumulative technical commits, preventing duplicate operator prompts.
+
+**New phases:** none.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this change applies the operator-approved local ShipGlows governance contract and no external platform behavior is involved.
+
 ## 2026-08-14 — shipglows
 
 **Added:** direct-plus-deferred current-turn capability discovery to the public context wrapper, including safe-probe and truthful not-exposed semantics.

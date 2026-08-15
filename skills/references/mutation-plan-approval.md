@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-14"
+updated: "2026-08-15"
 status: active
 source_skill: 900-shipglows-core
 scope: universal-mutation-plan-approval
@@ -28,6 +28,7 @@ evidence:
   - "Operator decision 2026-08-13: approval plans share the chantier opening identity, Paris time, visual section markers, and contextual numbered choices."
   - "Operator decision 2026-08-13: material plan choices express business direction, while short Questionner and Réorienter controls trigger guided follow-up."
   - "Operator decision 2026-08-14: exact local routine reversible mutations may use a one- or two-sentence fast validation; remote or risky mutations retain the full plan."
+  - "Operator decision 2026-08-15: approval of a bounded technical chantier grants cumulative authority for its ordinary local commits, avoiding a second approval ceremony."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"
 ---
@@ -93,11 +94,28 @@ Approval covers only the displayed fast action/target/safety guarantee or full o
 
 Routine implementation details inside the approved scope do not require repeated approval. Destructive, privileged, production, credential, billing, publication, and irreversible actions keep their stricter existing gates in addition to this one.
 
+## Cumulative local commit authority
+
+Approval of a bounded technical implementation plan also authorizes its ordinary local commits by default. The agent may stage and commit silently, without a second approval message, when all of these conditions remain true:
+
+- every staged path belongs to the already approved technical scope;
+- unrelated and pre-existing changes remain unstaged;
+- secret and sensitive-data checks pass before the commit;
+- the commit is a new local commit on the current approved branch, with no amend, rebase, squash, reset, tag, push, force, hook bypass, or remote effect;
+- the commit records a coherent completed slice after proportional validation, and its subject describes that slice accurately.
+
+This authority may cover multiple small coherent commits during the same approved chantier. Report their commit identifiers at the next natural checkpoint or final handoff; do not interrupt merely to ask permission to record work the operator already approved.
+
+The cumulative authority does not apply when the operator says `no commit`, when staging would include an unresolved or unrelated path, or when the work is primarily substantive editorial judgment, a broad mixed-scope consolidation, closure, release preparation, or shipping. Those cases must have commit inclusion stated explicitly in the applicable approval plan. `git push` always remains a separate full-plan action.
+
 ## Small changes
 
 Micro-edits and direct-execution paths still require explicit post-message approval. They use fast validation only when every eligibility criterion is established; otherwise they use the full plan. This gate changes approval ceremony, not authority or the proportionality of implementation and testing.
 
 ## Pressure scenarios
+
+- `MAP-TECHNICAL-COMMIT`: after approval of a bounded technical implementation, stage only its exact paths, run secret and proportional checks, create coherent local commits silently, and report their identifiers at the next natural checkpoint; do not ask for duplicate commit approval.
+- `MAP-COMMIT-BOUNDARY`: unrelated paths, substantive editorial judgment, mixed-scope consolidation, amend, rebase, squash, reset, tag, hook bypass, closure, release preparation, and shipping are outside implicit commit authority and require the applicable explicit approval.
 
 - `MAP-LOCAL`: an imperative without a unique ready spec receives a `(local)` header, current Paris time, the four marked sections, and contextual choices; do not mutate.
 - `MAP-SPEC`: a mutation owned by exactly one ready spec receives `(spec)` and its short title without exposing the spec path in the user-facing plan.

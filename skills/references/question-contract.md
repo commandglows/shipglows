@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.2.0"
 project: ShipGlows
 created: "2026-05-05"
-updated: "2026-08-13"
+updated: "2026-08-15"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-question-contract
@@ -35,6 +35,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-08-15: do not ask a duplicate question before an exact-scope local technical commit already covered by chantier approval."
   - "User request 2026-05-04: skill questions should be numbered, explain why, include helpful icons, and identify the recommended answer."
   - "User clarification 2026-05-04: a default is acceptable only when it is compatible with the current technical/product/editorial context and current best practices."
   - "User decision 2026-05-24: recommended defaults must optimize for performance, security, excellence, durability, and high-quality code before speed or convenience."
@@ -73,7 +74,7 @@ Load this contract before any user-facing:
 - routing question
 - clarification question
 - product, persona, scope, or content-surface question
-- security, data, permission, destructive, staging, closure, or ship-risk question
+- security, data, permission, destructive, unapproved staging, closure, or ship-risk question; exact-scope local commits already covered by an approved bounded technical chantier do not create a new question
 - blocked-state recovery question
 - selection question for project, file, URL, domain, check set, package, market, or content source
 - an unfinished-chantier choice block in a final user-facing report
