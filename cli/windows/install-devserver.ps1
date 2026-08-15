@@ -624,7 +624,7 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
     }
 }
 
-function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PythonInfo) {
+function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PythonInfo, [bool]$FlutterReady, [pscustomobject]$AndroidInfo) {
     $environmentPath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'environment.md'
     New-Item -ItemType Directory -Path (Split-Path -Parent $environmentPath) -Force | Out-Null
     $codexStatus = if ($CodexReady) { 'installed' } else { 'not installed by this profile' }
@@ -633,6 +633,19 @@ function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject
     $playwrightVerified = if ($PlaywrightInfo.McpVerified) { 'yes, via codex mcp get playwright --json' } else { 'no' }
     $playwrightConfigPath = if ($PlaywrightInfo.ConfigPath) { $PlaywrightInfo.ConfigPath } else { 'not available' }
     $chromiumPath = if ($PlaywrightInfo.ChromiumPath) { $PlaywrightInfo.ChromiumPath } else { 'not available' }
+    $flutterInstalled = if ($FlutterReady) { 'yes' } else { 'no' }
+    $androidToolchainReady = if ($AndroidInfo.ToolchainReady) { 'yes' } else { 'no' }
+    $androidLicensesReady = if ($AndroidInfo.LicensesReady) { 'yes' } else { 'no' }
+    $androidDeviceReady = if ($AndroidInfo.DeviceReady) { 'yes' } else { 'no' }
+    $androidNextAction = if (-not $FlutterReady) {
+        'rerun the ShipGlows full installer to repair Flutter/Dart.'
+    } elseif (-not $AndroidInfo.LicensesReady) {
+        'rerun the ShipGlows full installer in an interactive PowerShell and review the official Android SDK licenses.'
+    } elseif (-not $AndroidInfo.ToolchainReady) {
+        'rerun the ShipGlows full installer to complete Android SDK provisioning.'
+    } elseif (-not $AndroidInfo.DeviceReady) {
+        'connect a real phone with USB debugging, or install and start the optional ShipGlows Android emulator.'
+    } else { 'none' }
     $content = @"
 # ShipGlows development environment
 
@@ -644,6 +657,11 @@ function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject
 - Python: $($PythonInfo.Version)
 - Python manager: $($PythonInfo.Manager)
 - Python commands: $($PythonInfo.Commands)
+- Flutter and Dart installed: $flutterInstalled
+- Android toolchain ready: $androidToolchainReady
+- Android licenses ready: $androidLicensesReady
+- Android device ready: $androidDeviceReady
+- Android next action: $androidNextAction
 - Playwright Chromium installed: $playwrightInstalled
 - Playwright MCP configured: $playwrightConfigured
 - Playwright MCP verified: $playwrightVerified
@@ -1010,7 +1028,7 @@ $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeRead
 $playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$false; McpVerified=$false; ConfigPath='per-agent; existing JSON/JSONC may remain pending'; ChromiumPath=$playwright.ChromiumPath }
 [void](Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady } $dartPath $nativeNpx $playwright)
 [void](Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) (Get-SgNativeNpxPath $npxPaths))
-$environmentPath = Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo
+$environmentPath = Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo $flutterReady $androidInfo
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
 if ($codexReady) {
     [void](Set-SgCodexEnvironmentInstructions (Join-Path $env:USERPROFILE '.codex\AGENTS.md'))

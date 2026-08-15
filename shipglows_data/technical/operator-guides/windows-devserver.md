@@ -184,8 +184,9 @@ Flutter et le chemin ou la signature de commande du projet enregistré.
 ### Vérifier l'environnement et l'URL utilisés par un agent
 
 Le parcours `full` écrit `%USERPROFILE%\.shipglows\environment.md`. Ce fichier
-global statique indique Windows, PowerShell, Codex CLI, Playwright et le
-DevServer natif. Chaque surface enregistrée reçoit aussi un fichier visible et
+global statique indique Windows, PowerShell, Codex CLI, Python, Flutter/Dart,
+l'état de la toolchain/licences/device Android, la prochaine action Android,
+Playwright et le DevServer natif. Chaque surface enregistrée reçoit aussi un fichier visible et
 versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le port
 attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la

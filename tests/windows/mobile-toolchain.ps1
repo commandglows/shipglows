@@ -223,6 +223,24 @@ public static class EchoArgs {
     $timeout = Invoke-SgBoundedProcess -File "$PSHOME\powershell.exe" -Arguments @('-NoProfile','-Command','Start-Sleep -Seconds 5') -TimeoutSeconds 1
     Assert-Sg ($timeout.TimedOut) 'Encoded transport timeout must stop the exact process identity.'
 
+    $installerPath = Join-Path $root 'cli\windows\install-devserver.ps1'
+    $installerSource = Get-Content -LiteralPath $installerPath -Raw
+    $installerTokens = $null; $installerErrors = $null
+    $installerAst = [Management.Automation.Language.Parser]::ParseInput($installerSource,[ref]$installerTokens,[ref]$installerErrors)
+    Assert-Sg ($installerErrors.Count -eq 0) 'Windows installer must parse before environment-report testing.'
+    $environmentWriter = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Write-SgGlobalDevelopmentEnvironment' },$true))
+    Assert-Sg ($environmentWriter.Count -eq 1) 'Environment report writer must resolve uniquely.'
+    Invoke-Expression $environmentWriter[0].Extent.Text
+    $savedUserProfile = $env:USERPROFILE
+    try {
+        $env:USERPROFILE = Join-Path $fixture 'environment-home'
+        $reportPath = Write-SgGlobalDevelopmentEnvironment $true ([pscustomobject]@{ Installed=$false; McpConfigured=$false; McpVerified=$false; ConfigPath='pending'; ChromiumPath='' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $true ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false })
+        $report = [IO.File]::ReadAllText($reportPath)
+    } finally { $env:USERPROFILE = $savedUserProfile }
+    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','rerun the ShipGlows full installer in an interactive PowerShell')) {
+        Assert-Sg ($report.Contains($expected)) "Environment report is missing actionable mobile state: $expected"
+    }
+
     Add-Type -AssemblyName System.IO.Compression
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $evilZip = Join-Path $fixture 'evil.zip'

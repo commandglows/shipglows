@@ -253,7 +253,8 @@ local source and must not be treated as a network updater.
 
 The Windows full installer writes `%USERPROFILE%\.shipglows\environment.md`.
 It records the stable host facts: Windows, PowerShell, Codex CLI installation,
-Playwright configuration and the native ShipGlows DevServer. The installer also
+Python, Flutter/Dart, Android toolchain/license/device readiness, the next Android
+action when setup is pending, Playwright configuration and the native ShipGlows DevServer. The installer also
 maintains a bounded `~/.codex/AGENTS.md` block that points agents to this file
 without wrapping the Codex command. That block also enforces explicit
 post-message approval before intentional mutations: a one- or two-sentence fast
