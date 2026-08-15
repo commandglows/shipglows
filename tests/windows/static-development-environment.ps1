@@ -73,9 +73,10 @@ try {
     foreach ($required in @('🧭 VALIDATION RAPIDE','one- or two-sentence','exact action','exact target','main safety guarantee','local-only','readily reversible','cannot overwrite, discard, delete, force, publish, deploy, message, change credentials/permissions, or affect unrelated changes','`git push` always uses the full plan')) {
         if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows installed agent instructions are missing: $required" }
     }
-    foreach ($required in @('function Install-SgDefaultPython','python install --default','import ssl, sqlite3','Python manager: $($PythonInfo.Manager)','Python commands: $($PythonInfo.Commands)','Playwright Chromium installed: $playwrightInstalled','Playwright MCP configured: $playwrightConfigured','Playwright MCP verified: $playwrightVerified','Playwright MCP config: $playwrightConfigPath','Playwright Chromium path: $chromiumPath','Install-SgDefaultPython $uvPaths $pythonPaths','Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo')) {
+    foreach ($required in @('function Install-SgDefaultPython','python install --default','import ssl, sqlite3','Python: $($PythonInfo.Version)','Python manager: $($PythonInfo.Manager)','Python commands: $($PythonInfo.Commands)','Playwright Chromium installed: $playwrightInstalled','Playwright MCP configured: $playwrightConfigured','Playwright MCP verified: $playwrightVerified','Playwright MCP config: $playwrightConfigPath','Playwright Chromium path: $chromiumPath','Install-SgDefaultPython $uvPaths $pythonPaths','Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo')) {
         if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows runtime capability contract is missing: $required" }
     }
+    if ($installerSource -match '(?m)^- Python: Python \d+\.\d+\.\d+\s*$') { throw 'Windows environment report hardcodes a Python version.' }
     if ($installerSource -notmatch "throw 'ShipGlows requires uv to provide a functional default Python runtime\.'") { throw 'Windows installer can continue without its required Python manager.' }
 
     $runtimeContract = Get-Content -LiteralPath (Join-Path $root 'skills\references\agent-runtime-awareness.md') -Raw
