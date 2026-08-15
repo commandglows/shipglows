@@ -177,6 +177,15 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         self.assertIn("ordinary exact-scope local commits", delegation)
         self.assertIn("unapproved staging", delegation)
 
+    def test_approved_technical_scope_includes_directly_mapped_closure_docs(self) -> None:
+        for expected in (
+            "directly mapped canonical project documentation",
+            "keep the approved technical behavior truthful at closure",
+            "It does not include substantive editorial rewriting",
+            "broad documentation migration",
+        ):
+            self.assertIn(expected, self.text)
+
     def _scenario(self, name: str) -> str:
         marker = f"- `{name}`:"
         return next(line for line in self.text.splitlines() if line.startswith(marker))

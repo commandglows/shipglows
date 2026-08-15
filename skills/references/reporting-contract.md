@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.2.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-08-13"
+updated: "2026-08-15"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -17,6 +17,7 @@ linked_systems:
   - skills/*/SKILL.md
   - skills/references/chantier-tracking.md
   - skills/references/final-report-timestamp.md
+  - skills/references/documentation-reflection-gate.md
 depends_on:
   - artifact: "skills/references/final-report-timestamp.md"
     artifact_version: "1.0.0"
@@ -30,11 +31,15 @@ depends_on:
   - artifact: "skills/references/reporting-pressure-scenarios.md"
     artifact_version: "1.1.0"
     required_status: active
+  - artifact: "skills/references/documentation-reflection-gate.md"
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Operator decisions 2026-05-03 through 2026-08-07 define concise human reports, explicit agent handoffs, chantier-first headers, safe choices, bounded recurrence claims, and compact topology receipts."
   - "Wave 13 retained the default user decision surface here and moved conditional handoff, blocked/audit, and maintenance scenarios to direct leaves."
   - "Operator decision 2026-08-13: unfinished report choices steer business direction and short interaction controls trigger guided follow-up."
+  - "Operator clarification 2026-08-15: every closure report must expose its documentation reflection instead of leaving documentation updates silent."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -50,6 +55,7 @@ Load direct branches only when their gate applies:
 - explicit `report=agent`, `handoff`, `verbose`, or `full-report`: `$SHIPGLOWS_ROOT/skills/references/reporting-agent-handoff.md`;
 - blocked, partial, risky, security-sensitive, audit, or unfinished user result: `$SHIPGLOWS_ROOT/skills/references/reporting-blocked-and-audit.md`;
 - reporting-contract maintenance or behavioral review: `$SHIPGLOWS_ROOT/skills/references/reporting-pressure-scenarios.md`.
+- any report that claims a work item is closed, complete, done, resolved, or shipped: `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md`.
 
 Branches never chain. The default successful `report=user` needs no branch. In `report=user`, blocked/partial/audit loads the blocked/audit leaf. In `report=agent`, load only agent-handoff: it owns detailed risks and audit handoffs too. Reporting maintenance loads the pressure scenarios plus the one behavioral leaf exercised by the scenario. Otherwise load one branch maximum. The structured dependencies above validate that every leaf exists and is current; they do not make conditional leaves activation-eager.
 
@@ -76,6 +82,8 @@ After the header, keep only:
 2. compact proof/check summary;
 3. limits that change trust or the next decision;
 4. a real operator decision/action only when required.
+
+For every closure report, include the documentation reflection as one compact visible line: `Documentation reflection: updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit this line unless the documentation status materially affects trust.
 
 Do not include a modified-files section in `report=user`. Omit modified file names, paths, or counts. Do not dump checklists, matrices, phase ledgers, raw commands, bulk logs, or lifecycle internals. Durable artifacts and `report=agent` retain that evidence.
 

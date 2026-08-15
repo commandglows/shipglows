@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-15"
 status: active
 source_skill: 104-sg-end
 scope: closure-bookkeeping-playbook
@@ -19,6 +19,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Wave-5 independent audit restored summary-only and ship-ownership boundaries."
+  - "Operator clarification 2026-08-15: documentation reflection must be enforced and visible at closure."
 next_step: none
 ---
 
@@ -58,14 +59,21 @@ If proof or ship is not complete, never set `closed`.
 - Use `partial` when residual risk or stale docs remain.
 - Use `blocked` on missing context, missing tests, or unresolved safety gates.
 
-## Step 3: tracker/changelog updates
+## Step 3: documentation reflection
+
+- Classify documentation as `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`.
+- Apply directly mapped impacted documentation updates before setting `closed`.
+- A material `needs review` result forces `partial`; tests, builds, tracker state, or Git state cannot override it.
+- Include the exact classification visibly in every closure report, including `not impacted`.
+
+## Step 4: tracker/changelog updates
 
 - Skip this step entirely in `summary-only`.
 - Apply one compact row for the current task entry.
 - Keep changelog scoped by intent (Added/Changed/Fixed/Security/Removed).
 - Never claim production readiness from closure text.
 
-## Step 4: next action
+## Step 5: next action
 
 - If proof is unresolved, route to `103-sg-verify`.
 - If ship remains unfinished, route to `005-sg-ship`.

@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-15"
 status: active
 source_skill: 005-sg-ship
 scope: ship-full-close
@@ -12,13 +12,14 @@ owner: Diane
 confidence: high
 risk_level: high
 security_impact: none
-docs_impact: no
+docs_impact: yes
 linked_systems:
   - skills/005-sg-ship/SKILL.md
 depends_on: []
 supersedes: []
 evidence:
   - "Wave-2 compaction extracted full-close bookkeeping from the ship activation contract."
+  - "Operator clarification 2026-08-15: full-close shipping must expose documentation reflection and cannot hide a material docs gap."
 next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
 ---
 
@@ -48,7 +49,7 @@ Do not mark closed when the closure/archive guard, bug risk, documentation refle
 
 Update `CHANGELOG.md` only with meaningful grouped changes supported by the shipped scope. Preserve its established format. Record durable decisions only in the project's authorized memory or decision surface; do not invent a memory system.
 
-Classify documentation as `updated`, `not impacted`, or `needs review`. Route material `updated`/`needs review` work through the documentation owner as required by the shared gate, and retain any unresolved gap in the closing report.
+Classify documentation as `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`. Apply directly mapped impacted documentation updates before closure. Route material `updated`/`needs review` work through the documentation owner as required by the shared gate, retain any unresolved gap in the closing report, and visibly include the exact classification. A material `needs review` result forbids full-closure and `delivered` wording.
 
 ## Continue To Ship
 

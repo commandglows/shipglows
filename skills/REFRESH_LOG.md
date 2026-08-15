@@ -1,5 +1,25 @@
 # Skills Refresh Log
 
+## 2026-08-15 — 104-sg-end
+
+**Added:** mandatory visible documentation reflection in every closure result, including a concrete `not impacted` reason.
+
+**Updated:** material documentation gaps now force partial closure, while directly mapped impacted docs are aligned before `closed`.
+
+**New phases:** none; the existing documentation-reflection step is now enforceable and visible.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an operator-approved local governance rule with no external platform dependency.
+
+## 2026-08-15 — 005-sg-ship
+
+**Added:** mandatory visible documentation reflection to full-close ship reports.
+
+**Updated:** `docs not checked` remains acceptable only for bounded non-closure shipping and now explicitly forbids full closure.
+
+**New phases:** none; quick and full modes retain their existing ownership boundaries.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an operator-approved local governance rule with no external platform dependency.
+
 ## 2026-08-15 — 706-continue
 
 **Added:** no new phase; the existing continuation authority now recognizes exact-scope local technical commits already covered by chantier approval.

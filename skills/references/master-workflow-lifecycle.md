@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.2.0"
 project: ShipGlows
 created: "2026-05-04"
 updated: "2026-08-15"
@@ -255,11 +255,11 @@ If an owner skill such as `102-sg-start` already ran explicitly eligible local a
 
 If verification fails, route back to correction, retest, spec update, or blocked report. Do not proceed to closure or ship as if the work passed.
 
-### 8. Documentation Reflection Before Closure
+### 8. Mandatory Visible Documentation Reflection Before Closure
 
-Before `104-sg-end`, any milestone that can imply completion must load and apply `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` against the changed behavior and the canonical project docs map.
+Before `104-sg-end`, full-close shipping, or any other report/transition claiming `closed`, `complete`, `done`, `resolved`, or `shipped`, load and apply `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` against the changed behavior and the canonical project docs map.
 
-Use the reference's exact classification and routing rules; do not wait for the operator to notice documentation drift.
+Use the reference's exact classification and routing rules; do not wait for the operator to notice documentation drift. Every closure report exposes `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`. A material `needs review` result keeps the chantier partial.
 
 ### 9. Post-Verify Closure And Ship
 

@@ -79,6 +79,22 @@ class EndCompactionContractTests(unittest.TestCase):
         ):
             self.assertIn(marker, self.playbook)
 
+    def test_every_closure_exposes_documentation_reflection(self) -> None:
+        for expected in (
+            "Do not emit any closure result without visibly reporting",
+            "Documentation reflection:",
+            "not impacted — <concrete reason>",
+            "needs review — <surface>",
+        ):
+            self.assertIn(expected, self.skill)
+        for expected in (
+            "Step 3: documentation reflection",
+            "Apply directly mapped impacted documentation updates before setting `closed`",
+            "material `needs review` result forces `partial`",
+            "Include the exact classification visibly in every closure report",
+        ):
+            self.assertIn(expected, self.playbook)
+
 
 if __name__ == "__main__":
     unittest.main()

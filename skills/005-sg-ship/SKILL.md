@@ -73,7 +73,7 @@ Read `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` before choo
 
 ## Step 8 — One report
 
-Immediately before reporting, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/ship-report-evidence.md`. Report the actual commit/push result, repo state, attempted checks, staging scope when notable, bug risk, documentation status, and remaining validation. Match the user's language and keep stable hashes, branches, paths, and status values literal.
+Immediately before reporting, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/ship-report-evidence.md`. Report the actual commit/push result, repo state, checks, notable staging scope, bug risk, documentation status, and remaining validation. Match the user's language and keep stable hashes, branches, paths, and status values literal.
 
 Start with the shared chantier and verdict headers. In `report=user`, never expose a spec path, lifecycle flow, internal owner, skill, or command. If the chantier remains open, use the shared plain-language continuation choices. If push fails, say so and preserve the actual repo/check state. If nothing was committed, say so clearly.
 
@@ -82,5 +82,5 @@ Start with the shared chantier and verdict headers. In `report=user`, never expo
 - Preserve unrelated dirty work unless whole-repo staging was explicitly requested.
 - Re-read mutable trackers immediately before any targeted full-mode edit; never rewrite them from stale startup context.
 - Skill creation, rename, or material `SKILL.md` changes require the shared runtime visibility check before commit.
-- Prefer honest `shipped for iteration`, `checks skipped`, `docs not checked`, or `validation pending` wording over unsupported completion claims.
+- Prefer honest `shipped for iteration`, `checks skipped`, `docs not checked`, or `validation pending` wording. `docs not checked` forbids full closure.
 - A `vercel-preview-push` route never sends `107-sg-test` before `405-sg-prod`.

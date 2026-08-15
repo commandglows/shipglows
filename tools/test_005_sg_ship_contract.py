@@ -83,6 +83,15 @@ class ShipSkillContractTests(unittest.TestCase):
         self.assertIn("never expose a spec path", self.text)
         self.assertIn("Never expose internal skills", self.reporting)
 
+    def test_full_close_exposes_documentation_reflection(self) -> None:
+        for expected in (
+            "documentation status",
+            "`docs not checked` forbids full closure",
+        ):
+            self.assertIn(expected, self.text)
+        self.assertIn("A material `needs review` result forbids full-closure", self.full_close)
+        self.assertIn("Every full-close report visibly includes", self.reporting)
+
 
 if __name__ == "__main__":
     unittest.main()

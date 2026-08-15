@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-06-11"
+updated: "2026-08-15"
 status: active
 source_skill: 102-sg-start
 scope: technical-docs-corpus
@@ -36,6 +36,7 @@ evidence:
   - "Operator decision on 2026-05-24: provider usage notes are risk-driven, not mandatory per technology."
   - "Operator decision on 2026-05-24: monorepos use one root shipglows_data corpus with scoped app/package coverage."
   - "Operator decision on 2026-06-11: UI projects need an explicit design-system authority so agents cannot bypass centralized tokens."
+  - "Operator clarification 2026-08-15: closure must visibly classify documentation and align directly mapped docs before claiming completion."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit"
 ---
@@ -52,7 +53,7 @@ This reference tells ShipGlows skills how to use the internal `shipglows_data/te
 2. Read `shipglows_data/technical/code-docs-map.md` first for any code-changing task when it exists; if it is missing, report a technical governance bootstrap trigger and route to `/300-sg-docs technical`. Legacy `docs/technical/code-docs-map.md` is a migration source only.
 3. Match changed or target paths to the map when present.
 4. Load only the primary technical doc and necessary secondary docs.
-5. Produce a `Documentation Update Plan` after every code-changing execution wave and again during end verification.
+5. Produce a `Documentation Update Plan` after every code-changing execution wave and again during end verification. Before closure, apply `documentation-reflection-gate.md`, align directly mapped impacted docs in the same approved workstream, and expose its exact classification in the closure report.
 6. Keep shared docs sequential unless the ready spec assigns disjoint ownership.
 7. When a task depends on an external provider, SDK, framework, hosting platform, API, or toolchain behavior, read the matching global note under `shipglows_data/technical/external-platforms/` when it exists. Then read the governance-root usage note under `shipglows_data/technical/platforms/` only when it exists or when the task is materially affected by project-specific provider configuration.
 8. For UI projects, read the surface-scoped design-system authority such as `shipglows_data/technical/<surface>/design-system-authority.md`, or the documented equivalent, before UI/design implementation, audits, scaffolding, verification, or platform parity work. If it is missing, report a technical governance bootstrap trigger and route to `/300-sg-docs technical` or `/006-sg-design` before visual changes.
@@ -82,6 +83,7 @@ This reference tells ShipGlows skills how to use the internal `shipglows_data/te
 - report a governance-root platform usage gap only when provider use is project-specific enough to affect validation, auth, deploy, runtime, SDK behavior, storage, security, migrations, secrets handling, observability, compliance, or production proof
 - verify that `technical_module_context` files pass `tools/shipglows_metadata_lint.py`
 - fail or report a blocking gap when a mapped code area changed but no impacted doc appears in the `Documentation Update Plan`
+- fail closure when its report omits the visible `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>` documentation classification
 
 `300-sg-docs update` should also detect missing technical governance in existing projects and report one of `created`, `already existed`, `needs audit`, `skipped - no code areas detected`, or `blocked` with `/300-sg-docs technical` as the recovery command.
 

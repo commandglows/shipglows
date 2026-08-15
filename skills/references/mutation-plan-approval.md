@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-15"
@@ -29,6 +29,7 @@ evidence:
   - "Operator decision 2026-08-13: material plan choices express business direction, while short Questionner and Réorienter controls trigger guided follow-up."
   - "Operator decision 2026-08-14: exact local routine reversible mutations may use a one- or two-sentence fast validation; remote or risky mutations retain the full plan."
   - "Operator decision 2026-08-15: approval of a bounded technical chantier grants cumulative authority for its ordinary local commits, avoiding a second approval ceremony."
+  - "Operator clarification 2026-08-15: directly mapped project documentation required to close approved technical work truthfully is part of that bounded authority."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"
 ---
@@ -103,6 +104,8 @@ Approval of a bounded technical implementation plan also authorizes its ordinary
 - secret and sensitive-data checks pass before the commit;
 - the commit is a new local commit on the current approved branch, with no amend, rebase, squash, reset, tag, push, force, hook bypass, or remote effect;
 - the commit records a coherent completed slice after proportional validation, and its subject describes that slice accurately.
+
+The same bounded approval includes updates to directly mapped canonical project documentation required to keep the approved technical behavior truthful at closure. It does not include substantive editorial rewriting, new public claims, broad documentation migration, or unrelated documentation cleanup.
 
 This authority may cover multiple small coherent commits during the same approved chantier. Report their commit identifiers at the next natural checkpoint or final handoff; do not interrupt merely to ask permission to record work the operator already approved.
 

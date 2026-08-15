@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-13"
+updated: "2026-08-15"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-pressure-scenarios
@@ -20,6 +20,7 @@ supersedes: []
 evidence:
   - "Extracted from reporting-contract.md in wave 13 for maintenance-only loading."
   - "Operator decision 2026-08-13: reporting choices must carry strategic business value and short controls must trigger guided follow-up."
+  - "Operator clarification 2026-08-15: closure reports must make documentation reflection visible."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -47,3 +48,4 @@ next_step: none
 - `SSRP-015 guided questioning`: selecting a short `Questionner` control triggers focused questions that reveal business truth or distinguish credible directions; it never grants mutation approval.
 - `SSRP-016 guided reorientation`: selecting a short `Réorienter` control triggers concrete alternative business directions and their consequences; it never answers with a blank “toward what?”.
 - `SSRP-017 no blank-page handoff`: the operator receives evidence-backed framing, proposals, and a recommendation instead of being asked to invent strategy or technical mechanics.
+- `SSRP-018 visible closure docs`: any report claiming closed, complete, done, resolved, or shipped includes `Documentation reflection: updated | not impacted — <concrete reason> | needs review — <surface>`; material `needs review` forbids closure language.

@@ -70,6 +70,7 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 ## Stop Conditions
 
 - Do not claim done/closed without evidence and required guards.
+- Do not emit any closure result without visibly reporting `Documentation reflection: updated | not impacted — <concrete reason> | needs review — <surface>`.
 - Do not mutate tracker/changelog when proof or docs status is materially incomplete unless closure mode is partial.
 - Do not mark product work as complete if documentation status is `needs review`.
 - Do not include internal file paths in user `report=user`.
@@ -84,7 +85,7 @@ Run closure in this order:
 1. select execution mode, then classify the result (`closed`, `partial`, `deferred`, `blocked`, `not applicable`),
 2. apply `closure-archive-guard.md`,
 3. run changelog/tracker preparation rules,
-4. run documentation reflection and route `needs review` cases through `300-sg-docs`,
+4. run documentation reflection, apply directly mapped updates before closure, expose the exact classification, and route `needs review` cases through `300-sg-docs`,
 5. emit closure limits and next owner clearly.
 
 For `summary-only`, run read-only classification and reporting only; skip steps that write bookkeeping.
@@ -103,6 +104,7 @@ For `summary-only`, run read-only classification and reporting only; skip steps 
 - Key proof boundaries: what was verified, what is missing.
 - Next owner and next action.
 - Tracker/changelog updates made or explicitly skipped.
+- Documentation reflection: `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`.
 
 ### Rules
 

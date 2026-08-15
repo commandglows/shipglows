@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: "ShipGlows"
 created: "2026-06-27"
-updated: "2026-07-28"
+updated: "2026-08-15"
 status: active
 source_skill: 102-sg-start
 scope: task-application-loop
@@ -18,6 +18,7 @@ linked_systems:
   - "skills/106-sg-fix/SKILL.md"
   - "skills/900-shipglows-core/SKILL.md"
   - "skills/103-sg-verify/SKILL.md"
+  - "skills/references/documentation-reflection-gate.md"
 depends_on:
   - artifact: "skills/references/spec-driven-development-discipline.md"
     artifact_version: "1.5.0"
@@ -28,6 +29,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Extracted from auditing OpenSpec's apply-change skill as a reusable execution-fidelity pattern."
+  - "Operator clarification 2026-08-15: completion claims require a visible documentation reflection at closure."
 next_review: "2026-07-27"
 next_step: "Inject into execution and verification skills when they own task-by-task implementation."
 ---
@@ -66,6 +68,7 @@ Before claiming completion:
 - compare completed slices against the user story or source contract
 - run or route the named proof path
 - record any remaining proof gap with owner, scenario, and target/environment when applicable
+- apply `documentation-reflection-gate.md`, update directly mapped impacted docs, and expose its classification; material `needs review` keeps the result partial
 - report progress as state plus evidence, not as unchecked confidence
 
 ## Progress Semantics
@@ -101,4 +104,5 @@ Verification should check:
 - required context was loaded before implementation
 - progress updates followed actual completed slices
 - the final report names the proof run or remaining proof route
+- every closure report visibly classifies documentation as `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`
 - `implemented`, `partial`, `blocked`, and `verified` are not conflated

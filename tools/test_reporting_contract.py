@@ -14,6 +14,7 @@ REPORTING_BRANCHES = (
 )
 CHANTIER_TRACKING = ROOT / "skills" / "references" / "chantier-tracking.md"
 FINAL_TIMESTAMP = ROOT / "skills" / "references" / "final-report-timestamp.md"
+DOCUMENTATION_REFLECTION = ROOT / "skills" / "references" / "documentation-reflection-gate.md"
 START_README = ROOT / "skills" / "102-sg-start" / "README.md"
 START_WORKFLOW = ROOT / "skills" / "102-sg-start" / "references" / "execution-workflow.md"
 BUILD_WORKFLOW = ROOT / "skills" / "001-sg-build" / "references" / "build-lifecycle-workflow.md"
@@ -118,6 +119,26 @@ class ReportingContractTests(unittest.TestCase):
             text,
         )
         self.assertIn("SSRP-010 compact validation line", text)
+
+    def test_closure_reports_make_documentation_reflection_visible(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        reflection = DOCUMENTATION_REFLECTION.read_text(encoding="utf-8")
+        for expected in (
+            "any report that claims a work item is closed, complete, done, resolved, or shipped",
+            "For every closure report",
+            "not impacted — <concrete reason>",
+            "material `needs review` result forbids closure or shipping language",
+        ):
+            self.assertIn(expected, core)
+        self.assertIn("SSRP-018 visible closure docs", scenarios)
+        for scenario in (
+            "DOC-CLOSE-VISIBLE",
+            "DOC-CLOSE-BLOCKED",
+            "DOC-CLOSE-UPDATE",
+            "DOC-CLOSE-NO-FILLER",
+        ):
+            self.assertIn(scenario, reflection)
 
     def test_chantier_and_context_emoji_vocabulary(self) -> None:
         text = reporting_corpus()

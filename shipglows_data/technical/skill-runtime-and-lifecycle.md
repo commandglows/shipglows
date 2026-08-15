@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.19.0"
+artifact_version: "2.20.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-15"
@@ -59,7 +59,7 @@ linked_systems:
   - docs/editorial/
 depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
-    artifact_version: "0.20.0"
+    artifact_version: "0.21.0"
     required_status: draft
   - artifact: "skills/references/technical-docs-corpus.md"
     artifact_version: "1.3.0"
@@ -131,6 +131,7 @@ evidence:
   - "Codex expert shortcuts now resolve through public owner modes before internal engines; core remains the sole hard system-context switch."
   - "Two-tier mutation approval adds a cumulative fast path for exact local routine reversible actions while keeping full plans for ineligible and remote mutations."
   - "2026-08-15: bounded technical chantier approval now includes ordinary exact-scope local commits without duplicate approval."
+  - "2026-08-15: every closure now exposes documentation reflection and material documentation gaps prevent closed or shipped wording."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -502,6 +503,7 @@ source skill
   -> Editorial Update Plan after public-content or claim-impacting wave
   -> 103-sg-verify
   -> Documentation Update Plan during end verification
+  -> visible documentation reflection before every closed/complete/resolved/shipped report
   -> Editorial Update Plan during end verification when public content is impacted
   -> 104-sg-end / 005-sg-ship
 ```
@@ -645,7 +647,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 ## Failure Modes
 
 - A weak spec that lacks success/error behavior or explicit constraints must route back to readiness instead of being silently repaired during coding.
-- If mapped docs are missing from a `Documentation Update Plan`, the docs gate fails.
+- If mapped docs are missing from a `Documentation Update Plan`, the docs gate fails. If a closure report omits its visible `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>` classification, closure fails.
 - If public content, README, FAQ, pricing, public docs, skill pages, or claims are affected but missing from an `Editorial Update Plan`, the editorial gate fails.
 - If `001-sg-build` prepares implementation with missing or stale `docs/technical/code-docs-map.md`, applicable `docs/editorial/`, or `CONTENT_MAP.md`, it must route to `300-sg-docs` or record explicit no-impact/no-surface status before proceeding.
 - If a master skill patches in the master conversation merely because a file change is small while subagents are available, treat that as workflow drift. Small scope may use a mini-contract, but the execution mode remains delegated sequential for file work.

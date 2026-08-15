@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.20.0"
+artifact_version: "0.21.0"
 project: ShipGlows
 created: "2026-04-22"
 updated: "2026-08-15"
@@ -74,6 +74,7 @@ evidence:
   - "Updated on 2026-08-04 to route review-template ownership through 011-sg-pilotage review after the pilotage consolidation."
   - "Updated on 2026-08-14 to document cumulative fast validation for exact local routine reversible mutations while retaining full-plan approval for ineligible and remote actions."
   - "Updated on 2026-08-15 to make ordinary exact-scope local technical commits cumulative with an approved chantier while preserving explicit gates for editorial, mixed-scope, history-rewriting, release, and remote actions."
+  - "Updated on 2026-08-15 to make documentation reflection mandatory and visible in every closure report, with material needs-review results blocking closure language."
 next_review: "unknown"
 next_step: "/300-sg-docs audit shipglows_data/workflow/playbooks/spec-driven-workflow.md"
 ---
@@ -299,7 +300,7 @@ This layer does not replace `shipglows_data/technical/architecture.md`, `shipglo
 
 ### Documentation Update Gate
 
-After every code-changing execution wave, the Reader must produce a `Documentation Update Plan` from `shipglows_data/technical/code-docs-map.md`. End verification must produce or re-check the plan again.
+After every code-changing execution wave, the Reader must produce a `Documentation Update Plan` from `shipglows_data/technical/code-docs-map.md`. End verification must produce or re-check the plan again. Before any closed, complete, resolved, or shipped report, apply the documentation reflection gate, align directly mapped impacted docs, and visibly report `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`. Material `needs review` blocks closure language.
 
 ```markdown
 ## Documentation Update Plan

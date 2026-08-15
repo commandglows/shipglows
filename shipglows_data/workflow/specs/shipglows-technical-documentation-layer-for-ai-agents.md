@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.3"
+artifact_version: "1.0.4"
 project: "ShipGlows"
 created: "2026-05-01"
 created_at: "2026-05-01 09:32:35 UTC"
-updated: "2026-08-12"
-updated_at: "2026-08-12 20:11:48 UTC"
+updated: "2026-08-15"
+updated_at: "2026-08-15 11:50:00 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -66,6 +66,7 @@ evidence:
   - "User decisions, 2026-05-01: AGENT.md remains canonical; AGENTS.md is symlink compatibility only; technical_module_context is linted; docs/technical remains internal-only; Technical Reader plans after every wave plus end verification; no stale-doc shipping exception; no per-file last_verified_against in v1."
   - "User decision 2026-05-01: rename the generic technical reader terminology to Technical Reader so it can coexist cleanly with the separate Editorial Reader role, without removing any technical documentation responsibilities."
   - "sg-verify 2026-05-01 revalidated the chantier against current linked artifact versions after implementation updates."
+  - "Operator clarification 2026-08-15: closure is the primary documentation-reflection enforcement point, and every closure report must expose its documentation status."
 next_step: "None"
 ---
 
@@ -538,6 +539,7 @@ Freshness rules:
 - The Technical Reader produces a `Documentation Update Plan` after every execution wave that changes code and again during end verification.
 - The workflow says explicitly that the Technical Reader diagnoses and an executor/integrator applies updates.
 - Code changes cannot ship unless mapped technical documentation updates accompany the change.
+- Every closure report visibly records `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`; a material `needs review` result forbids closure and shipping language.
 - Shared files are sequential by default.
 - Parallel work is limited to spec-defined disjoint files.
 - `AGENT.md`, `CONTEXT.md`, `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, and `GUIDELINES.md` point to the layer without becoming mega-docs.
@@ -708,6 +710,7 @@ None.
 | 2026-05-01 14:37:51 UTC | sg-spec | GPT-5 Codex | Normalized the generic Reader terminology to Technical Reader so the technical documentation layer aligns with the new Technical Reader / Editorial Reader role split. | Ready spec updated without changing the implemented technical-doc responsibilities. | `/sg-verify ShipGlows Technical Documentation Layer for AI Agents` |
 | 2026-05-01 14:48:58 UTC | sg-verify | GPT-5 Codex | Verified the implementation against the ready spec, fixed a missing `Entrypoints` section in the decisions technical doc, corrected a stale public skill route reference, and reran targeted metadata and structural checks. | verified | `/sg-end ShipGlows Technical Documentation Layer for AI Agents` |
 | 2026-05-01 18:51:48 UTC | sg-ship | GPT-5 Codex | Ran full ship closeout for the technical documentation layer, updated changelog, included scoped metadata normalization required for a clean metadata baseline, and prepared scoped staging while leaving unrelated editorial/sg-build work dirty. | shipped | `None` |
+| 2026-08-15 11:50:00 UTC | 900-shipglows-core | GPT-5 Codex | Hardened closure documentation reflection across shared reporting, lifecycle, end, and full-close ship contracts with scenario-first regression coverage. | verified locally: 109 focused/contract tests, activation graph, metadata, skill audit, and budget passed; local commit pending | Create the approved local commit; runtime links remain separate installation maintenance. |
 
 ## Current Chantier Flow
 
@@ -718,6 +721,7 @@ sg-start: implemented
 sg-verify: verified
 sg-end: closed via sg-ship full
 sg-ship: shipped
+2026 closure-reflection refinement: verified locally, commit pending
 ```
 
 Current state:
@@ -725,5 +729,5 @@ Current state:
 - Chantier identified: yes.
 - Implementation started: yes.
 - Spec path: `specs/shipglows-technical-documentation-layer-for-ai-agents.md`.
-- Required next step: None.
+- Required next step: approved local commit for the 2026 closure-reflection refinement; runtime-link repair remains separate installation maintenance.
 - Execution rule: sequential by default; parallel only for spec-defined disjoint files after foundation.
