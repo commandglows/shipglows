@@ -259,6 +259,12 @@ registered with its own stable display name, persistent localhost port, logs,
 and `ENVIRONMENT.md`. Discovery is bounded to four workspace levels and three
 levels below a project root, and skips dependency, build, cache, and hidden
 directories. It does not claim to recognize every possible monorepo layout.
+One linear scan feeds every dashboard and project picker. Its non-authoritative
+project index is cached in memory and atomically on disk for five minutes;
+refresh rebuilds it, while clone/register/unregister invalidate it. The live
+registry remains authoritative for status, ports, and process metadata. Project
+names are explicit workspace-relative launch paths, and navigation selects by
+canonical launch identity rather than by a potentially ambiguous label.
 
 Port selection and reservation share one inter-process registry lock, preventing
 concurrent starts from assigning the same port to different surfaces. Existing
@@ -271,6 +277,8 @@ ShipGlows command signature.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
 After a full install, use `s` (or `shipglows-dev`) for the project dashboard.
+The main interactive menu includes `n  Navigate to a project`; it opens a child
+PowerShell in the selected project directory, and `exit` returns to the initial shell.
 The PATH-backed `.cmd` launchers do not depend on the PowerShell profile, so
 they also work on managed hosts that block profile scripts. Supported nested
 menu paths include `s d`, `s e`, `s m r`, `s m t`, `s m o`, `s m l`, and

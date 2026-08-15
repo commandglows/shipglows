@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.4.0"
+artifact_version: "0.4.1"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-13"
+updated: "2026-08-15"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -16,7 +16,7 @@ docs_impact: "yes"
 linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/shipglows_devserver_gum.sh", "cli/shipglows_devserver_bash.sh", "cli/config.sh", "cli/install.sh", "cli/windows/ShipGlows.DevServer.psm1", "cli/windows/shipglows-devserver.ps1", "cli/windows/install-devserver.ps1", "local/local.sh", "local/dev-tunnel.sh"]
 depends_on: []
 supersedes: []
-evidence: ["Function extraction from shipglows.sh, lib.sh, config.sh, install.sh, local/local.sh, local/dev-tunnel.sh", "Blacksmith setup menu helpers added to lib.sh", "Blacksmith OAuth callback tunnel added to local tooling", "Blacksmith SSH Access guide added to the setup menu", "Codex MCP on-demand launcher added to lib.sh", "Grouped root menu and submenu wrappers added to menu frontends", "Root menu shortcuts aligned with visible menu labels", "Disk overview helpers added to the Health Check monitor", "Agent history and cache cleanup helpers added", "PM2 log cleanup/rotation and disk usage detail helpers added", "Turso setup menu helpers added to lib.sh", "Clerk CLI OAuth callback tunnel added to local tooling", "Local tunnel auth flows grouped under one authentication submenu", "Password-to-key promotion helpers and local menu flow added with independent key-only verification", "Lazy atomic environment registry and parent-shell cache APIs added on 2026-07-17", "Linux Flox environment-root and launch-path resolution added on 2026-08-13"]
+evidence: ["Function extraction from shipglows.sh, lib.sh, config.sh, install.sh, local/local.sh, local/dev-tunnel.sh", "Blacksmith setup menu helpers added to lib.sh", "Blacksmith OAuth callback tunnel added to local tooling", "Blacksmith SSH Access guide added to the setup menu", "Codex MCP on-demand launcher added to lib.sh", "Grouped root menu and submenu wrappers added to menu frontends", "Root menu shortcuts aligned with visible menu labels", "Disk overview helpers added to the Health Check monitor", "Agent history and cache cleanup helpers added", "PM2 log cleanup/rotation and disk usage detail helpers added", "Turso setup menu helpers added to lib.sh", "Clerk CLI OAuth callback tunnel added to local tooling", "Local tunnel auth flows grouped under one authentication submenu", "Password-to-key promotion helpers and local menu flow added with independent key-only verification", "Lazy atomic environment registry and parent-shell cache APIs added on 2026-07-17", "Linux Flox environment-root and launch-path resolution added on 2026-08-13", "Native Windows shared project catalogue, atomic discovery index, and identity-resolved picker flow added on 2026-08-15"]
 next_step: "/sg-docs update CONTEXT-FUNCTION-TREE.md"
 ---
 
@@ -118,8 +118,16 @@ shipglows-devserver.ps1
   -> Resolve-SgAction (long action or supported s shortcut path)
   -> Invoke-Menu OR one-shot action
   -> Get-SelectedProject
+     -> Get-SgProjectCatalog
+     -> Read-SgChoice label-to-identity mapping
+     -> Resolve-SgProjectCatalogEntry revalidation
   -> Invoke-Navigate OR Start/Stop/Restart/Logs
-  -> ShipGlows.DevServer.psm1 registry/process functions
+  -> ShipGlows.DevServer.psm1
+     -> Get-SgWorkspaceProjectCandidates (memory/persistent cache)
+        -> Find-SgWorkspaceProjectCandidates (single bounded linear scan)
+        -> Write-SgProjectIndex (validated atomic replacement)
+     -> Reconcile-SgRegistry (live-state authority)
+     -> registry/process lifecycle functions
 ```
 
 ### `local/dev-tunnel.sh`

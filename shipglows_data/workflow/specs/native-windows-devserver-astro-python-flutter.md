@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.2.27"
+artifact_version: "0.2.28"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
-updated: "2026-08-12"
-updated_at: "2026-08-12 10:12:00 UTC"
+updated: "2026-08-15"
+updated_at: "2026-08-15 19:19:35 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -65,6 +65,7 @@ evidence:
   - "Operator clarification on 2026-08-07: native Windows full must be installable from the same public curl.exe endpoint already used for Windows local, Linux and Termux, and the CommandGlows ShipGlows installer page must expose that route."
   - "CommandGlows evidence: commandglows_site/src/data/scriptInstallPages.ts already defines windows-full but marks it unavailable, while /shipglows-script serves the generated PowerShell bootstrap through ?format=powershell."
   - "OWASP ASVS 5.0.0 official guidance identifies v5.0.0-1.2.5 for OS command injection and v5.0.0-5.3.2 for strict file path validation; both apply to this installer/runtime boundary."
+  - "Operator-approved 2026-08-15 catalogue contract: all Windows menus share one cached linear discovery pass, select by canonical launch identity, and retain the registry as live-state authority."
   - "Official Codex, Claude Code and OpenCode documentation confirms package-managed CLI installation; Windows full keeps every coding agent as an explicit per-agent choice and does not own authentication."
 next_step: "/102-sg-start native-windows-devserver-astro-python-flutter"
 ---
@@ -401,6 +402,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - [x] AC26: Given a Windows host whose execution policy blocks npm-generated `.ps1` shims, when the operator invokes `pnpm`, `codex`, `claude`, `opencode`, or `kilocode` by its ordinary command name, then ShipGlows preserves the blocked user-scoped shim under a unique backup name, resolves a managed `.cmd` wrapper or verified underlying `.cmd` executable, and forwards all arguments without changing the execution policy. npm, npx and Corepack receive the same wrapper treatment where their installed path is user-writable.
 - [ ] AC27: Given the PATH-backed Windows `s.cmd` launcher, when the operator invokes a supported Linux-style menu path such as `s d`, `s e`, or `s m n`, then the native PowerShell frontend resolves only Windows-equivalent actions without loading `$PROFILE`; `s m n` selects a registered project and opens a child PowerShell in its directory, unsupported Flox/PM2/Caddy paths fail with `s h` guidance, and existing long-form actions retain their behavior.
 - [ ] AC28: Given Windows full installs one or more coding agents, when the short names are unclaimed, then ShipGlows installs profile-independent `.cmd` wrappers for `c -> claude`, `co -> codex`, `cor -> codex resume`, `oc -> opencode`, and `kc -> kilocode`; each forwards operator arguments to the managed command target, while a pre-existing command owner is preserved with a visible warning.
+- [x] AC29: Given zero, one, or many supported Windows surfaces, including homonymous leaf folders, when dashboard or a project action opens, then one bounded linear scan feeds a five-minute memory/persistent catalogue; labels are unique workspace-relative launch paths, selection resolves the exact canonical launch identity, the live registry wins status conflicts, and refresh or clone/register/unregister safely rebuilds or invalidates non-authoritative cache state.
 - [ ] AC20: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
 
 # Test Strategy
@@ -416,6 +418,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 9. Run current Bash syntax and focused Linux CLI/bootstrap suites to prove additive platform separation.
 10. Complete the real Shadow checklist, including shutdown/stale registry recovery on a later session.
 11. Run metadata lint and documentation map checks before readiness/ship claims.
+12. Exercise the Windows catalogue fixtures for zero/one/many and homonymous surfaces, schema/workspace/scanner/TTL boundaries, corruption, moved paths, identity normalization, concurrent index writers, and five-run cold/warm performance medians.
 
 # Risks
 
@@ -503,6 +506,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-12 09:25:00 UTC | 103-sg-verify | GPT-5 Codex | Recorded native FastAPI `requirements.txt` proof: `uv` created then reused `.venv`, FastAPI returned HTTP 200 on `127.0.0.1:32111`, and `stop` released the port and reset the tracked PID to `0`; stale-PID recovery was also exercised without terminating an unverified process. | FastAPI lifecycle and stale-PID safety are proven. Flutter runtime smoke and log-rotation boundary proof remain pending. | Continue Flutter Web and log-rotation boundary proof. |
 | 2026-08-12 09:46:00 UTC | 602-sg-platform-parity | GPT-5 Codex | Completed the Windows command-navigation parity correction: every interactive project selector now offers `0 Back to menu`; the root menu names `0 Quit ShipGlows`, and Escape no longer terminates the interactive menu. | PowerShell parser and Windows static contract pass. Remaining gaps are lifecycle proof for Flutter Web and log-rotation boundaries, plus deliberate Windows adaptations for Linux-only Flox runtime, PM2 and Caddy flows. | Continue the remaining runtime proof. |
 | 2026-08-12 10:12:00 UTC | 602-sg-platform-parity | GPT-5 Codex | Audited the Linux menu surface against the native Windows DevServer. | Direct lifecycle parity remains incomplete for environment rename, start-all and restart-all. Linux server-administration, PM2/Caddy, tunnel, tmux, Flutter hot-reload, session/identity, MCP/Turso/Blacksmith, system maintenance and Rust/Go/Dart support are not present in the Windows scope. | Decide which remaining portable lifecycle commands should be implemented next. |
+| 2026-08-15 19:19:35 UTC | 900-shipglows-core | GPT-5 Codex | Replaced repeated Windows project discovery with a shared identity-based catalogue, five-minute atomic cache, action-specific picker projections, and safe invalidation/revalidation. | Regression-first catalogue suite and full Windows contract pass; final workspace benchmark medians are 902.05 ms cold and 31.96 ms warm. Runtime installation and live user registry were not modified. | Integrate through the parent chantier without commit or push. |
 
 # Current Chantier Flow
 
@@ -510,7 +514,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | --- | --- | --- |
 | 100-sg-spec | complete | Full implementation contract saved with scope, exclusions, security invariants, ZOMBIES coverage and proof plan. |
 | 101-sg-ready | complete | Spec is ready after structure, security, freshness, cross-repo and proof-contract review. |
-| 102-sg-start | complete | Native runtime, full bootstrap, launcher, public commands, docs and static contracts are implemented locally. |
-| 103-sg-verify | in_progress | PowerShell 5.1 parsing, discovered dashboard, persistent Astro port, safe unregister, FastAPI lifecycle and stale-PID recovery are proven on Shadow; Flutter and log-rotation boundary proof remain. |
+| 102-sg-start | complete | Native runtime, full bootstrap, launcher, shared cached project catalogue, public commands, docs and static contracts are implemented locally. |
+| 103-sg-verify | in_progress | PowerShell 5.1 parsing, isolated catalogue/cache fixtures, workspace performance, discovered dashboard, persistent Astro port, safe unregister, FastAPI lifecycle and stale-PID recovery are proven; installed-runtime catalogue proof, Flutter and log-rotation boundaries remain. |
 | 104-sg-end | pending | Close only after real Shadow proof and documentation coherence. |
 | 005-sg-ship | complete | ShipGlows and CommandGlows scoped commits are pushed to their respective `main` branches. |

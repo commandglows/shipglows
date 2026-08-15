@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.7.1"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-14"
+updated: "2026-08-15"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -68,6 +68,7 @@ evidence:
   - "Native Windows exposes one static global development-environment file and one CLI-managed server URL file per project."
   - "Native Windows installed agent instructions now expose two-tier mutation approval with a cumulative fast path and full-plan-only remote push."
   - "Native Windows installed agent instructions now require direct-plus-deferred tool discovery before declaring a configured capability unavailable."
+  - "Native Windows project discovery now uses one cached linear catalogue shared by every dashboard and picker, while the registry remains authoritative for live state."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit runtime-cli"
 ---
@@ -189,6 +190,22 @@ such as `package.json`, `pubspec.yaml`, `pyproject.toml`, and
 effect on Windows dependencies, variables, launch commands, ports, or project
 identity.
 
+All Windows menus consume the same catalogue produced by one linear workspace
+scan. The discovery index is cached in memory and atomically at
+`%LOCALAPPDATA%\ShipGlows\DevServer\project-index.json` with its schema,
+workspace, scanner version, generation time, and a five-minute TTL. It is only
+an acceleration layer: invalid or stale cache data is ignored, refresh forces a
+rebuild, and clone/register/unregister invalidate both cache layers. Registry
+entries win when discovery and runtime state overlap, so the registry remains
+the authority for status, ports, logs, and process identity.
+
+The catalogue identity is the canonical runnable `launchPath`. Display names
+are the launch path relative to the workspace with `/` separators, or the full
+canonical path outside the workspace. Navigation shows only that name; lifecycle
+pickers may project status, kind, and port. Every picker maps its displayed row
+back to the exact identity and revalidates the current manifest before acting.
+A `package.json` without `scripts.dev` is ignored as a non-runnable surface.
+
 Linux-only Flox, PM2, Caddy, autossh, and the interactive `urls` menu are not
 emulated on Windows. The full installer prepares Git, GitHub CLI, Node LTS
 (including npm), pnpm and uv. It asks before downloading Flutter Web, then
@@ -216,7 +233,7 @@ the CLI reports that registration was skipped rather than removing the clone.
 The Windows launcher resolves only shortcut paths with a native equivalent:
 dashboard (`s d`), interactive start (`s e`), restart/stop/stop-all/logs under
 `s m ...`, and project navigation (`s m n`). Navigation opens a child
-PowerShell in the selected registered project because a subprocess cannot
+PowerShell in the selected discovered or registered project because a subprocess cannot
 change the parent shell's working directory; `exit` returns to the original
 shell. Unsupported Linux server paths fail with guidance instead of being
 silently remapped.

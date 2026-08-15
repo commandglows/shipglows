@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.5.1"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-15"
@@ -28,6 +28,7 @@ evidence:
   - "The Windows installer writes a static global development environment and the CLI writes one active server URL file per project."
   - "The 2026-08-14 runtime contract distinguishes direct and deferred Codex tool discovery before declaring configured Playwright unavailable."
   - "The 2026-08-15 Windows runtime registers monorepo surfaces independently and reserves their ports transactionally."
+  - "The 2026-08-15 Windows project catalogue reuses one bounded scan across every menu and keeps live status authority in the registry."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -102,6 +103,9 @@ ne sont pas requis par le parcours Shadow PC.
    `shipglows-dev` reste disponible comme commande explicite. Ces commandes
    n'utilisent pas le profil PowerShell, donc elles fonctionnent aussi quand
    l'execution des scripts de profil est interdite.
+   Le menu interactif principal propose `n  Navigate to a project` : il permet
+   de choisir un projet puis ouvre un PowerShell enfant dans son dossier
+   (`exit` revient au shell initial).
    Les raccourcis imbriques compatibles Windows sont aussi interprétés par le
    lanceur `.cmd`, sans alias ni profil PowerShell. Par exemple, `s d` affiche
    le dashboard et `s m n` permet de choisir un projet puis ouvre un PowerShell
@@ -143,6 +147,19 @@ trois niveaux sous une racine de projet. Elle ignore les dossiers cachés, les
 dépendances, les caches et les sorties de build. Une structure plus profonde ou
 sans manifest reconnaissable doit être enregistrée par sa surface exécutable ;
 ShipGlows ne prétend pas reconnaître toutes les conventions de monorepo.
+
+Le dashboard et tous les sélecteurs réutilisent le même catalogue. Un scan
+linéaire alimente un index non autoritaire conservé cinq minutes en mémoire et
+dans `%LOCALAPPDATA%\ShipGlows\DevServer\project-index.json`. `Refresh` le
+reconstruit ; clone, register et unregister l'invalident. Un index corrompu,
+périmé ou lié à un autre workspace est ignoré. Le registre reste la seule
+autorité pour le statut live, le port, les journaux et l'identité du processus.
+
+Les noms affichés sont les chemins de lancement relatifs au workspace, avec `/`
+comme séparateur. La navigation n'affiche que ce nom ; les autres actions peuvent
+ajouter statut, type et port. La ligne choisie est toujours résolue vers le
+`launchPath` canonique exact, puis le manifest est revérifié avant l'action.
+Un `package.json` sans `scripts.dev` n'est pas une surface lançable.
 
 La sélection et la réservation d'un port utilisent le même verrou interprocessus
 que l'écriture du registre. Deux démarrages concurrents ne peuvent donc pas

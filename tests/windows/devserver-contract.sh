@@ -23,6 +23,7 @@ for regression in \
   devserver-flutter-background.ps1 \
   devserver-flutter-stop.ps1 \
   devserver-metadata-sync.ps1 \
+  devserver-project-catalog.ps1 \
   devserver-start-state.ps1 \
   devserver-stop-behavior.ps1; do
   powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/$regression"
@@ -136,10 +137,14 @@ rg -n 'uv\.lock.*PathType Leaf|run --locked uvicorn|\.venv\\Scripts\\python\.exe
 rg -n "ErrorActionPreference = 'Continue'|uv venv failed\.|-not \(Test-Path -LiteralPath \$python -PathType Leaf\)" "$MODULE"
 rg -n 'Get-SgRuntimeSettings|SHIPGLOWS_ENV_PORT|SHIPGLOWS_AUTO_REPAIR|Reusing persistent port' "$MODULE"
 rg -n 'launchEnvironment.*PORT|ASTRO_DEV_BACKGROUND' "$MODULE"
-rg -n 'Get-SgWorkspaceProjectCandidates|Get-SgCandidateProjects|Get-SgProjectDescriptor' "$ENTRYPOINT"
+rg -n 'function Find-SgWorkspaceProjectCandidates|function Get-SgWorkspaceProjectCandidates|function Get-SgProjectCatalog|ProjectIndexPath|scannerVersion|generatedAt' "$MODULE"
+! rg -n 'function Get-SgWorkspaceProjectCandidates|function Get-SgCandidateProjects|Get-SgProjectDescriptors' "$ENTRYPOINT"
+rg -n 'IdentityByLabel|Resolve-SgProjectCatalogEntry|Get-SelectedProject .navigate.|Get-SgProjectCatalog.*ForceRefresh' "$ENTRYPOINT"
 ! rg -ni 'flox|\.flox|Get-SgFloxVariables|UsesFloxManifest|InsideFloxProject' "$MODULE" "$ENTRYPOINT"
 rg -n 'function Show-SgWindowsDashboard|No projects discovered in the ShipGlows workspace|Show-SgWindowsDashboard' "$ENTRYPOINT"
 rg -n "backOption = '0  Back to menu'|\[0\] Back to menu|if \(\$selected -eq \$backOption\)|if \(\$choice -eq '0'\)" "$ENTRYPOINT"
 rg -n "'0  Quit ShipGlows'|0\) Quit ShipGlows|s x      Quit ShipGlows" "$ENTRYPOINT"
+rg -n "'n  Navigate to a project'|n\) Navigate" "$ENTRYPOINT"
+rg -n "'n' \{ Invoke-Navigate \}" "$ENTRYPOINT"
 
 echo "Windows DevServer static contract: OK"
