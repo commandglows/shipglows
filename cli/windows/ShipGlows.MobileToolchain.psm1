@@ -156,16 +156,19 @@ function Resolve-SgAndroidCommandLineToolsPackage {
         $url = [string]$complete.SelectSingleNode("./*[local-name()='url']").InnerText
         if ($url -notmatch '^commandlinetools-win-[0-9]+_latest[.]zip$' -or -not $officialSha256.ContainsKey($url)) { continue }
         $checksum = [string]$officialSha256[$url]
+        $sizeBytes = 0L
+        $sizeNode = $complete.SelectSingleNode("./*[local-name()='size']")
+        if (-not $sizeNode -or -not [long]::TryParse([string]$sizeNode.InnerText,[ref]$sizeBytes) -or $sizeBytes -le 0) { continue }
         $revision = $package.SelectSingleNode("./*[local-name()='revision']")
         $major = [int]$revision.SelectSingleNode("./*[local-name()='major']").InnerText
         $minorNode = $revision.SelectSingleNode("./*[local-name()='minor']")
         $microNode = $revision.SelectSingleNode("./*[local-name()='micro']")
         $version = if ($minorNode -or $microNode) { "$major.$(if($minorNode){$minorNode.InnerText}else{'0'}).$(if($microNode){$microNode.InnerText}else{'0'})" } else { [string]$major }
-        $packages.Add([pscustomobject]@{ SortVersion=[version]("$major.$(if($minorNode){$minorNode.InnerText}else{'0'}).$(if($microNode){$microNode.InnerText}else{'0'})"); Version=$version; Url=$RepositoryBaseUrl.TrimEnd('/') + '/' + $url; Sha256=$checksum.ToUpperInvariant() })
+        $packages.Add([pscustomobject]@{ SortVersion=[version]("$major.$(if($minorNode){$minorNode.InnerText}else{'0'}).$(if($microNode){$microNode.InnerText}else{'0'})"); Version=$version; Url=$RepositoryBaseUrl.TrimEnd('/') + '/' + $url; Sha256=$checksum.ToUpperInvariant(); SizeBytes=$sizeBytes })
     }
     $selected = $packages | Sort-Object SortVersion -Descending | Select-Object -First 1
     if (-not $selected) { throw 'Official Android repository metadata and SHA-256 download table contained no matching Windows command-line tools package.' }
-    return [pscustomobject]@{ Version=$selected.Version; Url=$selected.Url; Sha256=$selected.Sha256 }
+    return [pscustomobject]@{ Version=$selected.Version; Url=$selected.Url; Sha256=$selected.Sha256; SizeBytes=$selected.SizeBytes }
 }
 
 function Resolve-SgAdoptiumJdkPackage {

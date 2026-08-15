@@ -235,6 +235,8 @@ then the official Android terms are presented before Android command-line tools
 are downloaded. Their repository coordinate must match the Windows archive and
 SHA-256 published in the official Android Studio download table; refusal,
 metadata disagreement or non-interactive execution remains `pending`.
+The archive download announces its resolved version and size, shows curl progress,
+and uses bounded retries with partial-transfer resume before checksum validation.
 When Android emulation is supported, the only product question is whether to
 install emulator support; otherwise the installer explains the real-phone path.
 Android licenses and Windows confirmations remain explicit, and non-interactive

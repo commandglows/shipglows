@@ -216,6 +216,9 @@ Android terms are then shown before hardened ZIP extraction of command-line tool
 The Windows archive coordinate from Google's SDK repository must match the exact
 filename and SHA-256 in the official Android Studio download table; SHA-1-only
 repository metadata is never treated as sufficient integrity evidence.
+The installer prints the resolved version and size, uses curl's visible progress
+bar, bounded retries and partial-transfer resume, then announces checksum and
+extraction milestones.
 API/platform/build-tools and the emulator image use centralized Android 36
 coordinates. `sdkmanager --licenses` remains explicit. Non-interactive runs
 report pending and never pre-answer them. pnpm's configured global bin directory (the `bin` subdirectory of

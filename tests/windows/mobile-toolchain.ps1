@@ -58,7 +58,7 @@ $repositoryXml = [xml]@'
 '@
 $downloadPageHtml = '<table><tr><td>Windows</td><td>commandlinetools-win-15859902_latest.zip</td><td>155.7 MB</td><td>90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a</td></tr></table>'
 $androidPackage = Resolve-SgAndroidCommandLineToolsPackage -RepositoryXml $repositoryXml -OfficialDownloadHtml $downloadPageHtml -RepositoryBaseUrl 'https://dl.google.com/android/repository/'
-Assert-Sg ($androidPackage.Version -eq '22' -and $androidPackage.Sha256 -eq '90AE805D20434428BFFCB699C290860F19BB5F66A67E6B330067E3DE801FB04A' -and $androidPackage.Url -match '^https://dl[.]google[.]com/') 'Android command-line tools must cross-check repository coordinates with the official SHA-256 download table.'
+Assert-Sg ($androidPackage.Version -eq '22' -and $androidPackage.SizeBytes -eq 10 -and $androidPackage.Sha256 -eq '90AE805D20434428BFFCB699C290860F19BB5F66A67E6B330067E3DE801FB04A' -and $androidPackage.Url -match '^https://dl[.]google[.]com/') 'Android command-line tools must cross-check repository coordinates, size and the official SHA-256 download table.'
 $androidMismatchRejected = $false
 try { [void](Resolve-SgAndroidCommandLineToolsPackage -RepositoryXml $repositoryXml -OfficialDownloadHtml ($downloadPageHtml -replace '15859902','99999999') -RepositoryBaseUrl 'https://dl.google.com/android/repository/') } catch { $androidMismatchRejected = $_.Exception.Message -match 'SHA-256|cross-check|package' }
 Assert-Sg $androidMismatchRejected 'Android package metadata and official SHA-256 download table must fail closed when filenames differ.'

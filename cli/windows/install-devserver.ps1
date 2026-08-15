@@ -702,7 +702,10 @@ function Move-SgManagedPartialDirectory([string]$Path) {
 function Save-SgVerifiedDownload([string]$Url, [string]$Sha256, [string]$Destination) {
     if ($Url -notmatch '^https://' -or $Url -notmatch '[.]zip(?:\?|$)' -or [IO.Path]::GetExtension($Destination) -ine '.zip') { throw 'Only HTTPS ZIP tool downloads are allowed.' }
     if ($Sha256 -notmatch '^[0-9A-Fa-f]{64}$') { throw 'Tool download requires a complete SHA-256 digest.' }
-    Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $Destination -TimeoutSec 180
+    $curl = Get-SgToolPath 'curl.exe' @((Join-Path $env:SystemRoot 'System32\curl.exe'))
+    if (-not $curl) { throw 'Verified tool downloads require the Windows curl.exe client.' }
+    & $curl --fail --location --progress-bar --retry 3 --retry-all-errors --retry-delay 2 --connect-timeout 30 --max-time 1200 --continue-at - --output $Destination $Url
+    if ($LASTEXITCODE -ne 0) { throw "Verified tool download failed after bounded retries: $Url" }
     $actual = (Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash
     if ($actual -ine $Sha256) { throw "Downloaded archive checksum mismatch for $Url" }
 }
@@ -795,14 +798,18 @@ function Install-SgAndroidCommandLineTools([string]$SdkRoot) {
     Write-Host 'Review the official Android SDK terms: https://developer.android.com/studio/terms' -ForegroundColor Yellow
     $license = (Read-Host 'Accept the Android SDK terms to download the official command-line tools? [y/N]').Trim().ToLowerInvariant()
     if ($license -notin @('y','yes')) { Write-SgInstallerWarning 'Android command-line tools and licenses remain pending by user choice.'; return '' }
+    Write-Host 'Resolving the official Android command-line tools package and SHA-256...' -ForegroundColor Yellow
     $repositoryUrl = 'https://dl.google.com/android/repository/repository2-3.xml'
     $repository = [xml](Invoke-WebRequest -UseBasicParsing -Uri $repositoryUrl -TimeoutSec 60).Content
     $downloadPage = (Invoke-WebRequest -UseBasicParsing -Uri 'https://developer.android.com/studio?hl=en' -TimeoutSec 60).Content
     $package = Resolve-SgAndroidCommandLineToolsPackage -RepositoryXml $repository -OfficialDownloadHtml $downloadPage
+    $sizeMb = [math]::Ceiling([double]$package.SizeBytes / 1MB)
+    Write-Host "Downloading Android command-line tools $($package.Version) ($sizeMb MB)..." -ForegroundColor Yellow
     $archive = Join-Path ([IO.Path]::GetTempPath()) ("sg-android-tools-$([guid]::NewGuid().ToString('N')).zip")
     $staging = Join-Path ([IO.Path]::GetTempPath()) ("sg-android-tools-$([guid]::NewGuid().ToString('N'))")
     try {
         Save-SgVerifiedDownload $package.Url $package.Sha256 $archive
+        Write-Host 'Android command-line tools SHA-256 verified. Extracting the archive...' -ForegroundColor Yellow
         $toolRoot = Expand-SgVerifiedZip -ArchivePath $archive -DestinationPath $staging -ExpectedRelativePath 'bin\sdkmanager.bat'
         New-Item -ItemType Directory -Path (Split-Path (Join-Path $SdkRoot 'cmdline-tools\latest') -Parent) -Force | Out-Null
         Move-Item -LiteralPath $toolRoot -Destination (Join-Path $SdkRoot 'cmdline-tools\latest')
@@ -812,6 +819,7 @@ function Install-SgAndroidCommandLineTools([string]$SdkRoot) {
     }
     $check = Invoke-SgBoundedProcess $sdkManager @('--version') 30
     if ($check.TimedOut -or $check.ExitCode -ne 0 -or $check.Output -notmatch '\d+') { throw 'Android sdkmanager validation failed.' }
+    Write-Host 'Android command-line tools installed and executable validation passed.' -ForegroundColor Green
     return $sdkManager
 }
 
