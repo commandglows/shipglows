@@ -710,7 +710,7 @@ None.
 | 2026-05-01 14:37:51 UTC | sg-spec | GPT-5 Codex | Normalized the generic Reader terminology to Technical Reader so the technical documentation layer aligns with the new Technical Reader / Editorial Reader role split. | Ready spec updated without changing the implemented technical-doc responsibilities. | `/sg-verify ShipGlows Technical Documentation Layer for AI Agents` |
 | 2026-05-01 14:48:58 UTC | sg-verify | GPT-5 Codex | Verified the implementation against the ready spec, fixed a missing `Entrypoints` section in the decisions technical doc, corrected a stale public skill route reference, and reran targeted metadata and structural checks. | verified | `/sg-end ShipGlows Technical Documentation Layer for AI Agents` |
 | 2026-05-01 18:51:48 UTC | sg-ship | GPT-5 Codex | Ran full ship closeout for the technical documentation layer, updated changelog, included scoped metadata normalization required for a clean metadata baseline, and prepared scoped staging while leaving unrelated editorial/sg-build work dirty. | shipped | `None` |
-| 2026-08-15 11:50:00 UTC | 900-shipglows-core | GPT-5 Codex | Hardened closure documentation reflection across shared reporting, lifecycle, end, and full-close ship contracts with scenario-first regression coverage. | verified locally: 109 focused/contract tests, activation graph, metadata, skill audit, and budget passed; local commit pending | Create the approved local commit; runtime links remain separate installation maintenance. |
+| 2026-08-15 11:50:00 UTC | 900-shipglows-core | GPT-5 Codex | Hardened closure documentation reflection across shared reporting, lifecycle, end, and full-close ship contracts with scenario-first regression coverage. | verified locally: 109 focused/contract tests, activation graph, metadata, skill audit, and budget passed; committed as `9989e58` | None for source governance; runtime links remain separate installation maintenance. |
 
 ## Current Chantier Flow
 
@@ -721,7 +721,7 @@ sg-start: implemented
 sg-verify: verified
 sg-end: closed via sg-ship full
 sg-ship: shipped
-2026 closure-reflection refinement: verified locally, commit pending
+2026 closure-reflection refinement: verified and committed locally
 ```
 
 Current state:
@@ -729,5 +729,5 @@ Current state:
 - Chantier identified: yes.
 - Implementation started: yes.
 - Spec path: `specs/shipglows-technical-documentation-layer-for-ai-agents.md`.
-- Required next step: approved local commit for the 2026 closure-reflection refinement; runtime-link repair remains separate installation maintenance.
+- Required next step: None for source governance; runtime-link repair remains separate installation maintenance.
 - Execution rule: sequential by default; parallel only for spec-defined disjoint files after foundation.
