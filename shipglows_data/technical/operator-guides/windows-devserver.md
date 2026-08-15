@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.4.1"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-14"
+updated: "2026-08-15"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -27,6 +27,7 @@ evidence:
   - "PowerShell reserves gp for Get-ItemProperty; ShipGlows now installs a policy-gated add/commit/push gp profile function and a profile-independent raw gpush fallback."
   - "The Windows installer writes a static global development environment and the CLI writes one active server URL file per project."
   - "The 2026-08-14 runtime contract distinguishes direct and deferred Codex tool discovery before declaring configured Playwright unavailable."
+  - "The 2026-08-15 Windows runtime registers monorepo surfaces independently and reserves their ports transactionally."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -129,12 +130,38 @@ ne sont pas requis par le parcours Shadow PC.
    lit ni ses paquets, ni ses variables, ni ses hooks. Il découvre les apps à
    partir de leurs manifests natifs (`package.json`, `pubspec.yaml`, etc.).
 
+### Monorepos, registre et Flutter Web
+
+Le DevServer détecte Astro, Vite, Python/FastAPI et Flutter Web à partir des
+manifests et signaux de framework, jamais à partir d'un nom de dossier imposé.
+Une racine de dépôt ou un monorepo enregistré explicitement peut donc produire
+plusieurs surfaces. Chacune possède sa propre entrée de registre, son nom
+qualifié, son port persistant, ses journaux et son `ENVIRONMENT.md`.
+
+La recherche est volontairement bornée à quatre niveaux dans le workspace et
+trois niveaux sous une racine de projet. Elle ignore les dossiers cachés, les
+dépendances, les caches et les sorties de build. Une structure plus profonde ou
+sans manifest reconnaissable doit être enregistrée par sa surface exécutable ;
+ShipGlows ne prétend pas reconnaître toutes les conventions de monorepo.
+
+La sélection et la réservation d'un port utilisent le même verrou interprocessus
+que l'écriture du registre. Deux démarrages concurrents ne peuvent donc pas
+réserver le même port pour deux surfaces. La migration d'une ancienne entrée
+racine vers sa surface se fait par chemin exécutable et préserve les métadonnées
+d'un processus dont l'identité est encore vérifiée.
+
+Flutter Web est lancé en arrière-plan et écrit dans les journaux gérés. L'action
+Restart arrête l'arbre de processus attribué à la surface puis crée une nouvelle
+session ; elle ne correspond ni au hot reload `r`, ni au hot restart `R` de
+Flutter. Un listener orphelin n'est arrêté que si son ascendance prouve à la fois
+Flutter et le chemin ou la signature de commande du projet enregistré.
+
 ### Vérifier l'environnement et l'URL utilisés par un agent
 
 Le parcours `full` écrit `%USERPROFILE%\.shipglows\environment.md`. Ce fichier
 global statique indique Windows, PowerShell, Codex CLI, Playwright et le
-DevServer natif. Chaque projet enregistré reçoit aussi un fichier visible et
-versionné `<racine-projet>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le port
+DevServer natif. Chaque surface enregistrée reçoit aussi un fichier visible et
+versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le port
 attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
 documentation du projet.
@@ -142,7 +169,7 @@ documentation du projet.
 Sous Windows, la priorité de port est : port demandé explicitement, variable
 `SHIPGLOWS_ENV_PORT` du processus, `.shipglows.env` du projet, registre
 persistant, puis premier port libre de `3000` à `3100`. Le numéro obtenu est
-propre au projet. Si ShipGlows lance le projet sur `3002` alors que le dépôt
+propre à la surface. Si ShipGlows lance la surface sur `3002` alors que le dépôt
 déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port
 non attribué dans le registre.

@@ -165,18 +165,28 @@ function Get-SgWorkspaceProjectCandidates([object]$Config) {
 
         $normalizedPath = [IO.Path]::GetFullPath($path).TrimEnd('\', '/')
         $files = Get-ChildItem -LiteralPath $normalizedPath -File -Force -ErrorAction SilentlyContinue
-        $claimedProject = $false
-        if ($files | Where-Object { $manifests -contains $_.Name }) {
-            try { $descriptor = Get-SgProjectDescriptor $normalizedPath } catch { $descriptor = $null }
-            if ($descriptor) {
-                $claimedProject = $true
-                $pathKey = $normalizedPath.ToLowerInvariant()
-                if (-not $seen.ContainsKey($pathKey)) {
+        $isRepositoryRoot = Test-Path -LiteralPath (Join-Path $normalizedPath '.git')
+        $hasProjectManifest = [bool]($files | Where-Object { $manifests -contains $_.Name })
+        $claimedBoundary = $false
+        if ($isRepositoryRoot -or $hasProjectManifest) {
+            try {
+                $descriptors = @(Get-SgProjectDescriptors $normalizedPath)
+            } catch {
+                if ($_.Exception.Message -like 'No supported Windows launch target*') { $descriptors = @() }
+                else { throw }
+            }
+            if ($descriptors.Count -gt 0) {
+                $claimedBoundary = $true
+                foreach ($descriptor in $descriptors) {
+                    $launchPath = [IO.Path]::GetFullPath([string]$descriptor.LaunchPath).TrimEnd('\','/')
+                    $pathKey = $launchPath.ToLowerInvariant()
+                    if ($seen.ContainsKey($pathKey)) { continue }
                     $seen[$pathKey] = $true
                     $discovered += [pscustomobject]@{
-                        name = (Split-Path $normalizedPath -Leaf)
-                        path = $normalizedPath
-                        launchPath = $descriptor.LaunchPath
+                        name = (Get-SgCanonicalSurfaceName $normalizedPath $launchPath)
+                        path = $launchPath
+                        rootPath = $normalizedPath
+                        launchPath = $launchPath
                         kind = $descriptor.Kind
                         status = 'discovered'
                         port = 0
@@ -187,15 +197,16 @@ function Get-SgWorkspaceProjectCandidates([object]$Config) {
             }
         }
 
-        # A native project boundary may resolve to a nested launch target. Do not
-        # rediscover that same target as another project while walking descendants.
-        if ($claimedProject) { continue }
+        # Once a repository or manifest boundary owns runnable descriptors, its
+        # descendants are surfaces of that project rather than separate projects.
+        if ($claimedBoundary) { continue }
         if ($depth -ge $maxDepth) { continue }
 
         $dirs = Get-ChildItem -LiteralPath $normalizedPath -Directory -Force -ErrorAction SilentlyContinue
         foreach ($dir in @($dirs)) {
             if ($dir.Name -match '^\.') { continue }
             if ($pruneDirs -contains $dir.Name) { continue }
+            if ($dir.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
             [void]$queue.Enqueue([pscustomobject]@{ Path = $dir.FullName; Depth = $depth + 1 })
         }
     }
@@ -207,7 +218,8 @@ function Get-SgCandidateProjects([object]$Config) {
     $registry = Reconcile-SgRegistry $Config
     $registryMap = @{}
     foreach ($entry in @($registry.projects)) {
-        if ($entry -and $entry.path) { $registryMap[([string]$entry.path).ToLowerInvariant()] = $entry }
+        $identity = Get-SgRunnableIdentity $entry
+        if ($identity) { $registryMap[$identity] = $entry }
     }
 
     $items = New-Object 'System.Collections.Generic.List[object]'
@@ -215,8 +227,13 @@ function Get-SgCandidateProjects([object]$Config) {
 
     foreach ($candidate in @(Get-SgWorkspaceProjectCandidates $Config)) {
         if (-not $candidate -or -not $candidate.path) { continue }
-        $key = ([string]$candidate.path).ToLowerInvariant()
-        if ($registryMap.ContainsKey($key)) { continue }
+        $key = Get-SgRunnableIdentity $candidate
+        if ($registryMap.ContainsKey($key)) {
+            $synced = Sync-SgDiscoveredProjectMetadata $Config $candidate
+            Add-SgDiscoveredMetadata $registryMap[$key] $candidate | Out-Null
+            if ($synced -and $synced.name) { $registryMap[$key] | Add-Member -NotePropertyName name -NotePropertyValue $synced.name -Force }
+            continue
+        }
         [void]$items.Add($candidate)
     }
 
@@ -229,7 +246,7 @@ function Get-SelectedProject {
     if ($choiceUiAvailable) {
         $labels = @($items | ForEach-Object {
             $status = if ($_.status) { $_.status } else { 'unknown' }
-            "$($_.name)  [$status]  $($_.kind)  :$($_.port)"
+            "$(Get-SgDisplayName $_)  [$status]  $($_.kind)  :$($_.port)"
         })
         $backOption = '0  Back to menu'
         $labels += $backOption
@@ -268,7 +285,7 @@ function Get-SelectedRegisteredProject([string]$Header = 'Choose a registered pr
     $items = @((Reconcile-SgRegistry $config).projects)
     if ($items.Count -eq 0) { Write-SgWarn 'No registered projects.'; return $null }
     if ($choiceUiAvailable) {
-        $labels = @($items | ForEach-Object { "$($_.name)  [$($_.status)]  $($_.kind)  :$($_.port)" })
+        $labels = @($items | ForEach-Object { "$(Get-SgDisplayName $_)  [$($_.status)]  $($_.kind)  :$($_.port)" })
         $backOption = '0  Back to menu'
         $labels += $backOption
         $selected = Read-SgChoice $Header $labels
@@ -297,7 +314,7 @@ function Show-SgWindowsDashboard {
     foreach ($entry in $items) {
         $status = if ($entry.status) { $entry.status } else { 'unknown' }
         $port = if ([int]$entry.port -gt 0) { [string]$entry.port } else { '-' }
-        Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$status,$entry.kind,$port,$entry.path)
+        Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$status,$entry.kind,$port,(Get-SgDisplayName $entry))
         $index++
     }
 }

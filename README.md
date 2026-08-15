@@ -227,7 +227,7 @@ retourné par GitHub, puis télécharge uniquement l'archive immuable de ce comm
 
 In an interactive Windows console, the bootstrap asks for SSH tunnels or the
 recommended local DevServer. The DevServer installs only the native PowerShell
-runtime for Astro, Python/FastAPI, and Flutter Web, prepares Git, GitHub CLI,
+runtime for Astro, Vite, Python/FastAPI, and Flutter Web, prepares Git, GitHub CLI,
 Node LTS/npm, pnpm and uv, then asks before the larger Flutter Web download and
 before each optional coding agent (Codex, Claude Code, OpenCode, and KiloCode).
 When Codex is available, Windows also asks whether to keep the recommended
@@ -251,6 +251,23 @@ For automation, pass `-InstallMode local` or `-InstallMode full`; a
 non-interactive call without a mode preserves the local-tunnel fallback. This
 is a local development runtime, not public hosting; Flox, PM2, Caddy, autossh,
 and the Linux `urls` menu are intentionally not part of this path.
+
+The Windows DevServer discovers runnable surfaces from native manifests rather
+than folder names. A repository or explicitly registered monorepo can expose
+separate Astro, Vite, Python/FastAPI, and Flutter Web surfaces; each surface is
+registered with its own stable display name, persistent localhost port, logs,
+and `ENVIRONMENT.md`. Discovery is bounded to four workspace levels and three
+levels below a project root, and skips dependency, build, cache, and hidden
+directories. It does not claim to recognize every possible monorepo layout.
+
+Port selection and reservation share one inter-process registry lock, preventing
+concurrent starts from assigning the same port to different surfaces. Existing
+single-surface registry entries are migrated by runnable path while preserving
+verified live process metadata. Flutter Web runs in the background with managed
+logs; Restart is a complete process-tree restart, not Flutter hot reload (`r`)
+or hot restart (`R`). Orphan listeners are stopped only when their process
+ancestry contains both Flutter evidence and the registered project path or
+ShipGlows command signature.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
 After a full install, use `s` (or `shipglows-dev`) for the project dashboard.

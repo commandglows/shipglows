@@ -15,6 +15,18 @@ done
 
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/bootstrap-ref-resolution.ps1"
+for regression in \
+  devserver-monorepo-detection.ps1 \
+  devserver-display-name.ps1 \
+  devserver-port-reservation.ps1 \
+  devserver-registry-migration.ps1 \
+  devserver-flutter-background.ps1 \
+  devserver-flutter-stop.ps1 \
+  devserver-metadata-sync.ps1 \
+  devserver-start-state.ps1 \
+  devserver-stop-behavior.ps1; do
+  powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/$regression"
+done
 bash "$ROOT/tests/install/playwright-mcp-contract.sh"
 rg -n 'Install-SgCodexPlaywrightMcp|Get-SgNativeNpxPath|managedWrapper|--package=@playwright/mcp@latest|playwright install chromium|native npx\.cmd|mcp get playwright --json' "$INSTALLER"
 rg -n 'mcp_servers\.playwright|@playwright/mcp@latest|enabled = true|--headless.*--browser.*chromium' "$CODEX_MCP_MODULE"
