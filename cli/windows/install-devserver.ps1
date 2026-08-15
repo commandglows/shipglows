@@ -890,7 +890,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
     }
     if ($AgentReady.Claude) {
         $claude = Get-SgToolPath 'claude.cmd' $claudePaths
-        $definitions = @(@('dart',$DartPath,'mcp-server','--force-roots-fallback'))
+        $definitions = @(,@('dart',$DartPath,'mcp-server','--force-roots-fallback'))
         if ($Playwright.Ready) { $definitions += ,@('playwright',$NpxPath,'-y','--registry=https://registry.npmjs.org/',"@playwright/mcp@$($Playwright.Version)",'--headless','--browser','chromium') }
         foreach ($server in $definitions) {
             $get = Invoke-SgBoundedProcess $claude @('mcp','get',$server[0]) 30
