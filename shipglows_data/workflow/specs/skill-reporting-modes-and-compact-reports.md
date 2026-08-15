@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.1"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-05-03"
 created_at: "2026-05-03 00:00:00 UTC"
-updated: "2026-05-04"
-updated_at: "2026-05-04 06:05:33 UTC"
+updated: "2026-08-15"
+updated_at: "2026-08-15 12:38:27 UTC"
 status: ready
 source_skill: sg-build
 source_model: "GPT-5 Codex"
@@ -50,6 +50,7 @@ evidence:
   - "User decision 2026-05-03: default user reports should be concise; detailed reports should remain available for agent handoff."
   - "User decision 2026-05-03: audit skills should follow the same mechanism, with concise findings by default and fuller detail for handoff."
   - "User decision 2026-05-04: sg-ship user reports should be clearer, ordered as outcome, evidence, then limits, and include a few sober status emojis."
+  - "User decision 2026-08-15: successful closure reports use a structured visual card; proof and documentation evidence each remain on one line separated by middle dots."
 next_step: "none"
 ---
 
@@ -77,6 +78,8 @@ ShipGlows skills that produce final reports must use a shared reporting contract
 - Empty `Reste a faire`, `Prochaine etape`, `Trace spec`, and verdict boilerplate are omitted in user mode.
 - Audit reports remain findings-first but default to top issues, proof gaps, and next step instead of full matrices.
 - Agent mode may use existing detailed templates, validation matrices, evidence lists, and handoff notes.
+- Successful closure reports use four ordered blocks: `✨ RÉSULTAT`, `🧪 PREUVES`, `📚 DOCUMENTATION`, and `📦 LIVRAISON`.
+- Proof and documentation content each occupy one line separated by ` · `; empty limits and next-action blocks are omitted.
 
 ## Error Behavior
 
@@ -109,6 +112,11 @@ ShipGlows skills that produce final reports must use a shared reporting contract
 | sg-verify | verified |
 | sg-end | closed |
 | sg-ship | shipped |
+| 900-shipglows-core | implemented |
+
+## Follow-up Verification: Visual Closure Card
+
+`ZOMBIES coverage`: zero/empty limits and next-action blocks are omitted; one or many proof/documentation items stay on their single owned line; many items use ` · `; the `needs review` boundary still blocks closure; the shared contract is the interface inherited by `104-sg-end` and `005-sg-ship`; failed or skipped proof stays explicit; the smallest complete solution is one shared card plus focused owner directives and regression tests.
 
 ## Skill Run History
 
@@ -121,3 +129,5 @@ ShipGlows skills that produce final reports must use a shared reporting contract
 | 2026-05-04 04:45:00 UTC | sg-ship | GPT-5 Codex | Ran scoped checks, committed, and pushed compact skill reporting modes. | shipped | none |
 | 2026-05-04 06:05:33 UTC | sg-build | GPT-5 Codex | Applied and targeted-validated a follow-up amendment for clearer user-mode ship reports with active-language labels, outcome/evidence/limits ordering, and sober status emojis. | implemented | /sg-ship "Polish sg-ship user report" |
 | 2026-05-04 06:17:29 UTC | sg-ship | GPT-5 Codex | Closed and shipped the sg-ship user-report polish with scoped changelog and spec trace updates. | shipped | none |
+| 2026-08-15 12:38:27 UTC | 900-shipglows-core | GPT-5 Codex | Implemented the approved visual closure card, compact one-line proof/documentation evidence, owner alignment, tests, and mapped documentation. | implemented | 103-sg-verify standard pass |
+| 2026-08-15 12:38:27 UTC | 103-sg-verify | GPT-5 Codex | Verified section ordering, one-line separators, documentation closure boundary, owner inheritance, metadata, activation graph, skill audit, and context budgets. | verified | local commit |

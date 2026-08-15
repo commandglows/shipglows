@@ -120,18 +120,43 @@ class ReportingContractTests(unittest.TestCase):
         )
         self.assertIn("SSRP-010 compact validation line", text)
 
+    def test_successful_closure_uses_visual_card_with_compact_lines(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        ordered_blocks = (
+            "✨ RÉSULTAT",
+            "🧪 PREUVES",
+            "📚 DOCUMENTATION",
+            "📦 LIVRAISON",
+        )
+        card = core.split("For every successful closure report", 1)[1].split(
+            "Translate the four labels", 1
+        )[0].split("```text", 1)[1].split("```", 1)[0]
+        positions = [card.index(block) for block in ordered_blocks]
+        self.assertEqual(positions, sorted(positions))
+        for rule in (
+            "content beneath `🧪 PREUVES` on exactly one line",
+            "content beneath `📚 DOCUMENTATION` on exactly one line",
+            "separate proof items with ` · `",
+            "`⚠️ LIMITES` and `🧭 SUITE` are conditional",
+        ):
+            self.assertIn(rule, core)
+        self.assertIn("SSRP-019 visual closure card", scenarios)
+
     def test_closure_reports_make_documentation_reflection_visible(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         reflection = DOCUMENTATION_REFLECTION.read_text(encoding="utf-8")
         for expected in (
             "any report that claims a work item is closed, complete, done, resolved, or shipped",
-            "For every closure report",
-            "not impacted — <concrete reason>",
+            "For every successful closure report",
+            "➖ not impacted · <concrete reason>",
             "material `needs review` result forbids closure or shipping language",
         ):
             self.assertIn(expected, core)
         self.assertIn("SSRP-018 visible closure docs", scenarios)
+        self.assertIn("📚 DOCUMENTATION", reflection)
+        self.assertIn("use ` · ` for additional compact items", reflection)
         for scenario in (
             "DOC-CLOSE-VISIBLE",
             "DOC-CLOSE-BLOCKED",

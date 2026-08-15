@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-15"
@@ -29,10 +29,10 @@ depends_on:
     artifact_version: "1.1.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "1.1.0"
+    artifact_version: "1.3.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes: []
 evidence:
@@ -40,6 +40,7 @@ evidence:
   - "Wave 13 retained the default user decision surface here and moved conditional handoff, blocked/audit, and maintenance scenarios to direct leaves."
   - "Operator decision 2026-08-13: unfinished report choices steer business direction and short interaction controls trigger guided follow-up."
   - "Operator clarification 2026-08-15: every closure report must expose its documentation reflection instead of leaving documentation updates silent."
+  - "Operator decision 2026-08-15: closure reports use a stable visual card whose proof and documentation evidence each stay on one compact line separated by middle dots."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -76,14 +77,32 @@ Start every user report with exactly:
 
 Use `🚧 CHANTIER` instead of `🧱 CHANTIER` only for a genuinely blocked verdict. Use `(spec)` only when exactly one spec owns the run; otherwise derive a short stable `(local)` name. Do not expose spec paths, trace metadata, or a trailing chantier block.
 
-After the header, keep only:
+For a progress report, keep only:
 
 1. completed outcome;
 2. compact proof/check summary;
 3. limits that change trust or the next decision;
 4. a real operator decision/action only when required.
 
-For every closure report, include the documentation reflection as one compact visible line: `Documentation reflection: updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit this line unless the documentation status materially affects trust.
+For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📚 DOCUMENTATION` on exactly one line and separate its status, scope, or reason with ` · `.
+
+```text
+✨ RÉSULTAT
+<one compact outcome paragraph>
+
+🧪 PREUVES
+✅ <proof 1> · <proof 2> · <proof 3>
+
+📚 DOCUMENTATION
+✅ updated · <aligned documentation scope>
+
+📦 LIVRAISON
+✅ Commit local : `<sha>` · ➖ Push : non effectué
+```
+
+Translate the four labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📚 DOCUMENTATION`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` and `🧭 SUITE` are conditional and must be omitted when empty. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`.
+
+The documentation line uses exactly one of: `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit the documentation block unless its status materially affects trust.
 
 Do not include a modified-files section in `report=user`. Omit modified file names, paths, or counts. Do not dump checklists, matrices, phase ledgers, raw commands, bulk logs, or lifecycle internals. Durable artifacts and `report=agent` retain that evidence.
 
@@ -105,7 +124,7 @@ Never name a skill, command, lifecycle phase, delegated agent, or internal owner
 
 ## Compact Validation And Status Vocabulary
 
-Combine successful current-run checks on one line when useful:
+Combine successful current-run checks on one line. Closure cards place this compact line beneath `🧪 PREUVES`:
 
 ```text
 ✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236
@@ -113,14 +132,14 @@ Combine successful current-run checks on one line when useful:
 
 Include only evidence actually run. Do not disguise warnings, failures, skips, or proof gaps as success. Prefer `All checks passed ✅`, `✅ Checks passed: <short list>`, `Checks skipped: <reason>`, or `Checks failed: <check>` as applicable.
 
-Use at most one semantic emoji per labelled line except the compact validation line:
+Use at most one semantic emoji per labelled line except the compact proof and delivery lines:
 
 - `🧱` for the normal chantier header;
 - `🚧` only when the run is blocked;
 - `📂` for a dossier or scope;
 - `🔨` for active implementation or repair;
 - `📌` for a priority, decision, or next action;
-- `🎯` verdict, `🧭` route, `✅` passed/recommended, `⚠️` risk, `🚀` shipped, `📝` docs, `🧾` metadata, `🔄` sync.
+- `🎯` verdict, `✨` result, `🧪` proof, `📚` documentation, `📦` delivery, `🧭` route, `✅` passed/recommended, `⚠️` risk, `➖` neutral/not applicable, `🚀` shipped, `🧾` metadata, `🔄` sync.
 
 Do not use `🏗️`, `🛠️`, or `⚙️` as chantier markers.
 

@@ -90,7 +90,13 @@ class ShipSkillContractTests(unittest.TestCase):
         ):
             self.assertIn(expected, self.text)
         self.assertIn("A material `needs review` result forbids full-closure", self.full_close)
-        self.assertIn("Every full-close report visibly includes", self.reporting)
+        for expected in (
+            "Every full-close report uses the shared ordered card",
+            "`🧪 PREUVES`",
+            "`📚 DOCUMENTATION`",
+            "separated by ` · `",
+        ):
+            self.assertIn(expected, self.reporting)
 
 
 if __name__ == "__main__":

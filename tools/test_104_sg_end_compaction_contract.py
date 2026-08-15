@@ -81,10 +81,12 @@ class EndCompactionContractTests(unittest.TestCase):
 
     def test_every_closure_exposes_documentation_reflection(self) -> None:
         for expected in (
-            "Do not emit any closure result without visibly reporting",
-            "Documentation reflection:",
-            "not impacted — <concrete reason>",
-            "needs review — <surface>",
+            "Do not emit any closure result without the shared visual closure card",
+            "✨ RÉSULTAT",
+            "🧪 PREUVES",
+            "📚 DOCUMENTATION",
+            "📦 LIVRAISON",
+            "separated by ` · `",
         ):
             self.assertIn(expected, self.skill)
         for expected in (

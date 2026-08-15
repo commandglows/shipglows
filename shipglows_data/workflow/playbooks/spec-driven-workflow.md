@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.22.0"
+artifact_version: "0.23.0"
 project: ShipGlows
 created: "2026-04-22"
 updated: "2026-08-15"
@@ -75,6 +75,7 @@ evidence:
   - "Updated on 2026-08-14 to document cumulative fast validation for exact local routine reversible mutations while retaining full-plan approval for ineligible and remote actions."
   - "Updated on 2026-08-15 to make ordinary exact-scope local technical commits cumulative with an approved chantier while preserving explicit gates for editorial, mixed-scope, history-rewriting, release, and remote actions."
   - "Updated on 2026-08-15 to make documentation reflection mandatory and visible in every closure report, with material needs-review results blocking closure language."
+  - "Updated on 2026-08-15 to standardize successful closure reports as a four-block visual card with one-line proof and documentation evidence."
   - "Updated on 2026-08-15 to recognize standalone `v` as an approval shortcut only for the immediately preceding pending approval message."
 next_review: "unknown"
 next_step: "/300-sg-docs audit shipglows_data/workflow/playbooks/spec-driven-workflow.md"
@@ -377,7 +378,7 @@ Technical governance applies to code projects by default. Editorial governance a
 
 ## Report Modes
 
-ShipGlows skills default to concise user-facing final reports. The default mode is `report=user`: outcome first, active user language for labels and explanations, compact check summary, compact chantier flow, no empty `Reste a faire` or `Prochaine etape`, and no redundant verdict lines when the heading already carries the result. Ship reports should read as outcome, evidence, then limits. A few sober status emojis are allowed when they improve scanning; do not decorate every line.
+ShipGlows skills default to concise user-facing final reports. The default mode is `report=user`: outcome first, active user language for labels and explanations, no empty boilerplate, and no redundant verdict lines when the heading already carries the result. Successful closure reports use the ordered card `✨ RÉSULTAT`, `🧪 PREUVES`, `📚 DOCUMENTATION`, `📦 LIVRAISON`; proof and documentation content each stay on one line separated by ` · `. `⚠️ LIMITES` and `🧭 SUITE` appear only when material.
 
 Detailed reports are explicit. Use `report=agent`, `handoff`, `verbose`, or `full-report` when an orchestrator or downstream agent needs file lists, validation matrices, evidence trails, phase details, or handoff context. Skills must not infer caller identity from runtime state; master skills pass a handoff flag when they need detailed downstream evidence.
 

@@ -2,6 +2,26 @@
 
 ## 2026-08-15 — 104-sg-end
 
+**Added:** the shared four-block visual closure card with fixed result, proof, documentation, and delivery sections.
+
+**Updated:** proof and documentation evidence now stay on one line separated by middle dots; empty limits and next-action blocks remain hidden.
+
+**New phases:** none; this refines the existing final-report step without changing closure ownership.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an operator-approved local presentation contract with no external platform dependency.
+
+## 2026-08-15 — 005-sg-ship
+
+**Added:** full-close shipping now inherits the shared four-block visual closure card.
+
+**Updated:** ship proof and documentation evidence use the same compact one-line middle-dot convention as every successful closure.
+
+**New phases:** none; Git and full-close boundaries are unchanged.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an operator-approved local presentation contract with no external platform dependency.
+
+## 2026-08-15 — 104-sg-end
+
 **Added:** mandatory visible documentation reflection in every closure result, including a concrete `not impacted` reason.
 
 **Updated:** material documentation gaps now force partial closure, while directly mapped impacted docs are aligned before `closed`.
