@@ -43,7 +43,7 @@ Load each local reference directly from this activation contract; local referenc
 - Before deriving either a direct mini-contract or ready-spec execution contract, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-contract.md`.
 - Before model or agent topology selection, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-topology.md`, `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`, `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`, and the canonical model-routing reference.
 - Immediately before the first write, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/implementation-and-proof.md` plus only its scope-triggered shared contracts. This includes `task-application-loop.md` for task-by-task work, `spec-driven-development-discipline.md` for behavioral/proof work, `zombies-edge-case-heuristic.md` for non-trivial behavior, `clean-code-quality-contract.md` for code, and `owasp-application-security-awareness.md` for internet-facing or privileged surfaces.
-- Before the final report, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-report.md` and `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
+- After approval, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`; emit its start card once before substantive work. Before the final report, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-report.md`; reuse it.
 
 Conditional gates: PM2 runtime; fresh docs; development mode; UI tokens; diagnostics; operational records; Atlas; `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` before writing when a confirmed decision or traced impact changes; and operator-last-resort evidence.
 

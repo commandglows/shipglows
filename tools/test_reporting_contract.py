@@ -55,7 +55,8 @@ class ReportingContractTests(unittest.TestCase):
         text = reporting_corpus()
         for rule in (
             "Do not include a modified-files section in `report=user`",
-            "file names, paths, or counts",
+            "Omit file names, paths, counts, and clickable technical file links",
+            "operator must open, edit, or provide it to proceed",
             "SSRP-008 no modified-file inventory",
         ):
             self.assertIn(rule, text)
@@ -126,7 +127,7 @@ class ReportingContractTests(unittest.TestCase):
         ordered_blocks = (
             "✨ RÉSULTAT",
             "🧪 PREUVES",
-            "📚 DOCUMENTATION",
+            "📖 DOCUMENTATION",
             "📦 LIVRAISON",
         )
         card = core.split("For every successful closure report", 1)[1].split(
@@ -136,12 +137,36 @@ class ReportingContractTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
         for rule in (
             "content beneath `🧪 PREUVES` on exactly one line",
-            "content beneath `📚 DOCUMENTATION` on exactly one line",
+            "content beneath `📖 DOCUMENTATION` on exactly one line",
             "separate proof items with ` · `",
             "`⚠️ LIMITES` and `🧭 SUITE` are conditional",
         ):
             self.assertIn(rule, core)
         self.assertIn("SSRP-019 visual closure card", scenarios)
+
+    def test_approved_substantive_chantier_uses_visual_start_card(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        card = core.split("After approval and at the true start", 1)[1].split(
+            "Use `🎯 VERDICT", 1
+        )[0].split("```text", 1)[1].split("```", 1)[0]
+        ordered_blocks = (
+            "✨ OBJECTIF",
+            "📐 PÉRIMÈTRE",
+            "🧪 PREUVES ATTENDUES",
+            "📖 DOCUMENTATION PRÉVUE",
+        )
+        positions = [card.index(block) for block in ordered_blocks]
+        self.assertEqual(positions, sorted(positions))
+        for rule in (
+            "Do not use it while approval is pending",
+            "Keep the content beneath scope, expected proof, and planned documentation each on exactly one line",
+            "Add `🧭 APPROCHE` only when the strategy materially improves operator understanding",
+            "only the closure card may use `updated`, `not impacted`, or `needs review`",
+        ):
+            self.assertIn(rule, core)
+        self.assertIn("SSRP-020 visual start card", scenarios)
+        self.assertIn("SSRP-021 no technical path leakage", scenarios)
 
     def test_closure_reports_make_documentation_reflection_visible(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
@@ -155,7 +180,7 @@ class ReportingContractTests(unittest.TestCase):
         ):
             self.assertIn(expected, core)
         self.assertIn("SSRP-018 visible closure docs", scenarios)
-        self.assertIn("📚 DOCUMENTATION", reflection)
+        self.assertIn("📖 DOCUMENTATION", reflection)
         self.assertIn("use ` · ` for additional compact items", reflection)
         for scenario in (
             "DOC-CLOSE-VISIBLE",

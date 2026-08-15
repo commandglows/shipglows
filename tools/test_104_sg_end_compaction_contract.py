@@ -84,7 +84,7 @@ class EndCompactionContractTests(unittest.TestCase):
             "Do not emit any closure result without the shared visual closure card",
             "✨ RÉSULTAT",
             "🧪 PREUVES",
-            "📚 DOCUMENTATION",
+            "📖 DOCUMENTATION",
             "📦 LIVRAISON",
             "separated by ` · `",
         ):

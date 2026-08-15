@@ -1,5 +1,15 @@
 # Skills Refresh Log
 
+## 2026-08-15 — 102-sg-start
+
+**Added:** one shared visual start card after approval for substantive chantiers, covering objective, scope, expected proof, and planned documentation impact.
+
+**Updated:** user execution reports now omit file names, paths, and clickable technical file links unless operator action on the exact artifact is required.
+
+**New phases:** none; the card is a single announcement immediately before the existing execution phase and is skipped for micro-actions.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an operator-approved local reporting contract with no external platform dependency.
+
 ## 2026-08-15 — 104-sg-end
 
 **Added:** the shared four-block visual closure card with fixed result, proof, documentation, and delivery sections.

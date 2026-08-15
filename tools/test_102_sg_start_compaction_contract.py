@@ -68,6 +68,16 @@ class StartCompactionContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, self.skill)
 
+    def test_substantive_execution_emits_start_card_after_approval(self) -> None:
+        report = self.refs["execution-report.md"]
+        for phrase in (
+            "After approval",
+            "emit its start card once before substantive work",
+            "reuse it",
+        ):
+            self.assertIn(phrase, self.skill)
+        self.assertIn("clickable technical file links", report)
+
     def test_each_local_reference_has_metadata_and_no_nested_local_loader(self) -> None:
         required = (
             "artifact: skill_reference",

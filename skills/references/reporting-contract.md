@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.3.0"
+artifact_version: "2.4.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-15"
@@ -29,10 +29,10 @@ depends_on:
     artifact_version: "1.1.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.4.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: active
 supersedes: []
 evidence:
@@ -41,6 +41,8 @@ evidence:
   - "Operator decision 2026-08-13: unfinished report choices steer business direction and short interaction controls trigger guided follow-up."
   - "Operator clarification 2026-08-15: every closure report must expose its documentation reflection instead of leaving documentation updates silent."
   - "Operator decision 2026-08-15: closure reports use a stable visual card whose proof and documentation evidence each stay on one compact line separated by middle dots."
+  - "Operator decision 2026-08-15: approved substantive chantiers use a matching start card with objective, scope, expected proof, and planned documentation impact."
+  - "Operator decision 2026-08-15: user reports omit file paths, file names, and technical file links unless the operator must act on the exact artifact or explicitly requests detail."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -77,14 +79,34 @@ Start every user report with exactly:
 
 Use `🚧 CHANTIER` instead of `🧱 CHANTIER` only for a genuinely blocked verdict. Use `(spec)` only when exactly one spec owns the run; otherwise derive a short stable `(local)` name. Do not expose spec paths, trace metadata, or a trailing chantier block.
 
-For a progress report, keep only:
+After approval and at the true start of a substantive chantier, render this card once. Do not use it while approval is pending or for a branch-free micro-action.
+
+```text
+✨ OBJECTIF
+<one compact outcome promise>
+
+📐 PÉRIMÈTRE
+✅ <in scope> · ➖ <material out of scope>
+
+🧪 PREUVES ATTENDUES
+✅ <proof 1> · <proof 2> · <proof 3>
+
+📖 DOCUMENTATION PRÉVUE
+✅ Impactée · <mapped documentation scope>
+```
+
+Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the four main icons. Keep the content beneath scope, expected proof, and planned documentation each on exactly one line separated by ` · `. The four blocks are mandatory. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
+
+The planned documentation line uses exactly one of: `✅ Impactée · <scope included in the chantier>`, `➖ Non impactée · <concrete reason>`, or `⚠️ À confirmer · <surface>`. It is a plan, not a closure claim; only the closure card may use `updated`, `not impacted`, or `needs review`.
+
+For another progress report, keep only:
 
 1. completed outcome;
 2. compact proof/check summary;
 3. limits that change trust or the next decision;
 4. a real operator decision/action only when required.
 
-For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📚 DOCUMENTATION` on exactly one line and separate its status, scope, or reason with ` · `.
+For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line and separate its status, scope, or reason with ` · `.
 
 ```text
 ✨ RÉSULTAT
@@ -93,18 +115,18 @@ For every successful closure report, render this stable card after the header. K
 🧪 PREUVES
 ✅ <proof 1> · <proof 2> · <proof 3>
 
-📚 DOCUMENTATION
+📖 DOCUMENTATION
 ✅ updated · <aligned documentation scope>
 
 📦 LIVRAISON
 ✅ Commit local : `<sha>` · ➖ Push : non effectué
 ```
 
-Translate the four labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📚 DOCUMENTATION`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` and `🧭 SUITE` are conditional and must be omitted when empty. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`.
+Translate the four labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` and `🧭 SUITE` are conditional and must be omitted when empty. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`.
 
 The documentation line uses exactly one of: `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit the documentation block unless its status materially affects trust.
 
-Do not include a modified-files section in `report=user`. Omit modified file names, paths, or counts. Do not dump checklists, matrices, phase ledgers, raw commands, bulk logs, or lifecycle internals. Durable artifacts and `report=agent` retain that evidence.
+Do not include a modified-files section in `report=user`. Omit file names, paths, counts, and clickable technical file links. Show an exact artifact only when the operator must open, edit, or provide it to proceed, or explicitly requests detailed evidence. Do not dump checklists, matrices, phase ledgers, raw commands, bulk logs, or lifecycle internals. Durable artifacts and `report=agent` retain that evidence.
 
 When executable work used agents, expose only `Agents: <count> · <mode>` if topology affects trust. Count directly dispatched successful agents only; routine mission detail stays internal.
 
@@ -139,7 +161,7 @@ Use at most one semantic emoji per labelled line except the compact proof and de
 - `📂` for a dossier or scope;
 - `🔨` for active implementation or repair;
 - `📌` for a priority, decision, or next action;
-- `🎯` verdict, `✨` result, `🧪` proof, `📚` documentation, `📦` delivery, `🧭` route, `✅` passed/recommended, `⚠️` risk, `➖` neutral/not applicable, `🚀` shipped, `🧾` metadata, `🔄` sync.
+- `🎯` verdict, `✨` objective/result, `📐` scope, `🧪` proof, `📖` documentation, `📦` delivery, `🧭` route/approach, `✅` passed/recommended, `⚠️` risk, `➖` neutral/not applicable, `🚀` started/shipped, `🧾` metadata, `🔄` sync.
 
 Do not use `🏗️`, `🛠️`, or `⚙️` as chantier markers.
 

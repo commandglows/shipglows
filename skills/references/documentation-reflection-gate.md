@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-26"
 updated: "2026-08-15"
@@ -20,6 +20,7 @@ evidence:
   - "Operator request 2026-07-26: milestones and SGEND should automatically trigger technical-documentation reflection."
   - "Operator clarification 2026-08-15: closure is the primary enforcement point and its documentation verdict must be visible to the operator."
   - "Operator decision 2026-08-15: the visible documentation verdict sits beneath the main documentation icon on one line separated by middle dots."
+  - "Operator decision 2026-08-15: the documentation section uses the open-book icon in both start and closure cards."
 next_review: "2026-08-26"
 next_step: "Apply the gate in closure and milestone owner skills."
 ---
@@ -67,7 +68,7 @@ When the impacted canonical documentation is directly mapped to the already appr
 Every user-facing closure report must include the main documentation section icon and one compact evidence line in the user's active language, preserving one of the three stable status values:
 
 ```text
-📚 DOCUMENTATION
+📖 DOCUMENTATION
 ✅ updated · <scope> | ➖ not impacted · <concrete reason> | ⚠️ needs review · <surface>
 ```
 
@@ -81,7 +82,7 @@ Update this reference when closure ownership, documentation routing, canonical d
 
 ## Pressure Scenarios
 
-- `DOC-CLOSE-VISIBLE`: a closure report without `📚 DOCUMENTATION` followed by `updated`, `not impacted · <concrete reason>`, or `needs review · <surface>` on one compact line fails even when tests and builds pass.
+- `DOC-CLOSE-VISIBLE`: a closure report without `📖 DOCUMENTATION` followed by `updated`, `not impacted · <concrete reason>`, or `needs review · <surface>` on one compact line fails even when tests and builds pass.
 - `DOC-CLOSE-BLOCKED`: a material `needs review` classification forces partial status and forbids completion or shipping language.
 - `DOC-CLOSE-UPDATE`: directly mapped documentation impacted by approved work is updated before closure in the same workstream.
 - `DOC-CLOSE-NO-FILLER`: an honestly unimpacted task records a concrete reason without creating ceremonial documentation.
