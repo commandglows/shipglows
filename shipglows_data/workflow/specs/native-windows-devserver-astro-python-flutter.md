@@ -6,7 +6,7 @@ project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-16"
-updated_at: "2026-08-16 01:12:44 UTC"
+updated_at: "2026-08-16 01:17:06 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -530,6 +530,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-15 19:19:35 UTC | 900-shipglows-core | GPT-5 Codex | Replaced repeated Windows project discovery with a shared identity-based catalogue, five-minute atomic cache, action-specific picker projections, and safe invalidation/revalidation. | Regression-first catalogue suite and full Windows contract pass; final workspace benchmark medians are 902.05 ms cold and 31.96 ms warm. Runtime installation and live user registry were not modified. | Integrate through the parent chantier without commit or push. |
 | 2026-08-16 01:04:46 UTC | 103-sg-verify mode=excellence | GPT-5 Codex | Reverified the published Shadow emulator correction, then identified and bounded the remaining rerun-friction and durable-trace gaps. Added complete/partial emulator provisioning state so a complete rerun skips the question and a partial state offers repair. | Regression-first emulator-state proof and the full Windows contract pass; real main/runtime rerun proof remains pending before publication. | Validate metadata and runtime behavior, publish the bounded correction, then reinstall from main without an emulator prompt or provisioning download. |
 | 2026-08-16 01:12:44 UTC | 103-sg-verify mode=excellence | GPT-5 Codex | Reinstalled the full Windows runtime from the published validation branch on the real Shadow host with its existing emulator, exact image, and AVD. | The installer reported the complete existing state, skipped the emulator question and provisioning download, retained `toolchain=True`, `licenses=True`, `device=False`, and completed successfully. | Publish the proven commit to main, reinstall from main, and verify source/runtime parity. |
+| 2026-08-16 01:17:06 UTC | 103-sg-verify mode=excellence | GPT-5 Codex | Reinstalled the full Windows runtime from published `main` after the fast-forward. | Main resolved to `0d9c549`; the installer again skipped the complete emulator state without prompting or provisioning, Android readiness remained truthful, and the full install completed successfully. | Verify source/runtime parity and remove the temporary validation branch. |
 
 # Current Chantier Flow
 
