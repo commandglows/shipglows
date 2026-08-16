@@ -266,6 +266,8 @@ function Install-SgApplicationCommandWrapper([string]$Name, [string]$CommandName
     $wrapper = @"
 @echo off
 @call "$target" %*
+@exit /b %ERRORLEVEL%
+# cmd-shim-target=$target
 "@
     Set-Content -LiteralPath $wrapperPath -Value $wrapper -Encoding ASCII
     Write-Host "Application command installed: $Name" -ForegroundColor Green

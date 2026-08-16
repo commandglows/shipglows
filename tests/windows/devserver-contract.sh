@@ -102,6 +102,7 @@ rg -n '@google/gemini-cli|Get-SgGeminiMcpAddArguments|Get-SgGeminiMcpConfigState
 rg -n "'auth'|s a.*Manage CLI authentication|Authentication" "$ENTRYPOINT"
 rg -n 'Get-SgAuthenticationDefinitions|Get-SgAuthenticationState|interactive-cli|project-required' "$AUTH_MODULE"
 rg -F -n "foreach (\$launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1'))" "$INSTALLER"
+rg -F -n '# cmd-shim-target=$target' "$INSTALLER"
 rg -n 'Install-SgManagedPlaywrightRuntimes|playwright-cli|Motion runtime ready|Playwright Chromium revision' "$INSTALLER" "$AUTH_MODULE"
 ! rg -n 'gemini.*(auth|login)|GEMINI_API_KEY|GOOGLE_API_KEY' "$INSTALLER" "$MOBILE_MODULE"
 ! rg -n 'foreach \(\$server in @\(\$serverDefinitions\)\)' "$INSTALLER"
