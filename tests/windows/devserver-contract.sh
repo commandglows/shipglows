@@ -22,6 +22,7 @@ for environment_contract in schema-contract.py state-contract.py plan-contract.p
 done
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-observation.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-mise-adapter.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-installed-runtime.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/mobile-toolchain.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/agent-instructions.ps1"
@@ -177,8 +178,9 @@ for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.CodexMcp\.psm1' 'Sh
   rg -n "$windows_file" "$BOOTSTRAP"
 done
 rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
-rg -n '\$entries\.Count -ne 7' "$BOOTSTRAP"
+rg -n '\$entries\.Count -ne 12' "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
+rg -n '\$environmentCandidates = @\(|Assert-EnvironmentPackage|cli/environment/.*shipglows_environment' "$BOOTSTRAP"
 ! rg -n '\$windowsCandidates = @\([^)]*\) \| Where-Object' "$BOOTSTRAP"
 rg -n "127\\.0\\.0\\.1|registry\\.json|registry\\.lock|commandSignature|startTimeUtc" "$MODULE"
 rg -n "Test-SgGitUrl|embedded credentials|Only HTTPS and SSH" "$MODULE" "$ENTRYPOINT"

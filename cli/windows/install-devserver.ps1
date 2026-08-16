@@ -10,6 +10,12 @@ Set-StrictMode -Version Latest
 
 $sourceDir = Join-Path $ShipglowsDir 'cli\windows'
 $runtimeDir = Join-Path $ShipglowsDir 'bin'
+$environmentCli = Join-Path $ShipglowsDir 'cli\environment\shipglows_environment.py'
+$environmentSchema = Join-Path $ShipglowsDir 'cli\environment\schemas\shipglows-environment-v1.schema.json'
+if (-not (Test-Path -LiteralPath $environmentCli -PathType Leaf)) { throw "Missing environment control-plane command: $environmentCli" }
+if (-not (Test-Path -LiteralPath $environmentSchema -PathType Leaf)) { throw "Missing environment control-plane schema: $environmentSchema" }
+try { [void]([IO.File]::ReadAllText($environmentSchema) | ConvertFrom-Json) }
+catch { throw "Invalid environment control-plane schema: $environmentSchema" }
 $codexMcpModule = Join-Path $sourceDir 'ShipGlows.CodexMcp.psm1'
 if (-not (Test-Path -LiteralPath $codexMcpModule -PathType Leaf)) { throw "Missing Windows Codex MCP helper: $codexMcpModule" }
 Import-Module $codexMcpModule -Force -DisableNameChecking
@@ -611,7 +617,15 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
         Version = $version
         Manager = 'uv'
         Commands = 'python, python3'
+        Path = $python
     }
+}
+
+function Assert-SgEnvironmentPythonPackage([string]$PythonPath, [string]$EnvironmentDirectory) {
+    $pythonFiles = @('__init__.py','core.py','mise_backend.py','shipglows_environment.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
+    $script = 'import ast,pathlib,sys; [ast.parse(pathlib.Path(p).read_text(encoding="utf-8"), filename=p) for p in sys.argv[1:]]'
+    & $PythonPath -c $script @pythonFiles
+    if ($LASTEXITCODE -ne 0) { throw 'The installed ShipGlows environment Python package failed syntax validation.' }
 }
 
 function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PlaywrightRuntimeInfo, [pscustomobject]$PythonInfo, [bool]$FlutterReady, [pscustomobject]$AndroidInfo, [pscustomobject]$IdeInfo, [pscustomobject]$ServiceInfo, [bool]$DeveloperModeReady) {
@@ -1339,6 +1353,7 @@ $pnpmReady = Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths
 $uvReady = Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths
 if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional default Python runtime.' }
 $pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
+Assert-SgEnvironmentPythonPackage $pythonInfo.Path (Join-Path $ShipglowsDir 'cli\environment')
 $flutterReady = Install-SgFlutter $flutterPaths $gitPaths
 $androidInfo = Install-SgAndroidToolchain $flutterReady $flutterPaths
 $ideInfo = Install-SgWindowsIdeToolchains $flutterReady $flutterPaths

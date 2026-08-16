@@ -1,7 +1,7 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-16"
 updated: "2026-08-16"
@@ -23,7 +23,7 @@ linked_systems:
   - tests/windows/environment-mise-adapter.ps1
 depends_on:
   - artifact: shipglows_data/workflow/specs/shipglows-reproducible-environment-control-plane.md
-    artifact_version: "1.4.2"
+    artifact_version: "1.6.0"
     required_status: active
 supersedes: []
 evidence:
@@ -36,7 +36,7 @@ evidence:
   - "Independent Task 5 verification first reproduced arbitrary external PATH executable trust, executable digest drift, inherited secret leakage and incomplete mise config isolation, then proved the bounded corrections green."
   - "The approved Best Fried Chicken provider smoke acquired mise through the official jdx.mise WinGet package and verified locked Node 24.19.0 plus pnpm 10.34.5 for PowerShell and agent-child consumers without running project dependencies."
   - "The real smoke reproduced and closed Windows App Execution Alias identity, fresh-install PATH discovery, false global-tool readiness and project-root ceiling errors before convergence."
-next_step: "Package the source control-plane command into the installed native Windows runtime before a generally shipped readiness claim."
+next_step: "Keep later backend adapters separately approval-gated."
 ---
 
 # Reproducible environment control-plane foundation and mise pilot checklist
@@ -72,7 +72,7 @@ next_step: "Package the source control-plane command into the installed native W
 - [x] No Flox, mise, WinGet Configuration, Dev Container, Android, Flutter, Playwright or agent installation command is executed by the foundation.
 - [x] Automated fixtures perform no authentication, license acceptance, elevation, PATH/profile edit, download, deployment, publish, commit or push; the separately approved real smoke downloaded only mise, Node and pnpm and did not run project dependency installation.
 - [x] Existing editorial roadmap changes are outside the implementation scope and remain preserved.
-- [x] Technical documentation labels the Windows command source-only until installer packaging is separately approved and proven.
+- [x] Technical documentation defines the installed-runtime layout and keeps shipped-readiness evidence separate until the isolated installer proof passes.
 
 ## Windows mise plus Node 24 and pnpm 10 source-pilot proof
 
@@ -102,11 +102,19 @@ next_step: "Package the source control-plane command into the installed native W
 - [x] OWASP A05: repository strings, task/hook/template content, persisted argv and repository-resolved executables cannot become process commands.
 - [x] OWASP A08: approval digest, current source digest, exact lock evidence, backend version and complete operation semantics are revalidated before apply runner use.
 - [x] OWASP A10: missing, broken, timeout, nonzero, empty, offline, drift and second-run states fail closed or converge without false success.
-- [x] Auto-verification eligibility/result: repository-local contracts passed, then separately approved provider evidence verified the source pilot on Windows; installed-runtime packaging remains outside this proof.
+- [x] Auto-verification eligibility/result: repository-local contracts passed, then separately approved provider evidence verified the source pilot on Windows; installed-runtime packaging has its own proof block below.
+
+## Native Windows installed-runtime packaging proof
+
+- [x] Root bootstrap extraction runs against a synthetic complete archive, returns the exact twelve-file allowlist and rejects a second archive missing one environment module.
+- [x] Native installer validates the environment schema before setup and validates every packaged Python module with the uv-managed Python runtime before continuing.
+- [x] Installed `s env` resolves `%USERPROFILE%\.shipglows\runtime\cli\environment` while the source entrypoint still resolves its sibling source package.
+- [x] An isolated installed-runtime invocation of `s env inspect` succeeds from an unmanaged temporary project without creating DevServer workspace, registry or menu-cache state.
+- [x] Packaging proof performs no Android/Flutter install, authentication, license acceptance, project dependency installation, live-runtime overwrite, commit or push.
 
 ## Deferred platform evidence
 
-- [ ] Package the control-plane files into the installed native Windows runtime in a separately approved installer slice.
+- [x] Close the approved installed-runtime packaging proof above.
 - [x] Prove one project-local Node 24 plus pnpm 10 cycle through mise on fresh, existing, partial, conflicting-PATH and offline installed-cache Windows fixtures using injected runners only.
 - [x] Run the explicitly approved real-provider smoke on `dianedef/bestfriedchicken`, without `pnpm install`, application execution, commit or push.
 - [ ] Prove Flox, WinGet Configuration and Dev Container adapters only in their owning later tasks.

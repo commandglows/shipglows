@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.13.0"
+artifact_version: "1.14.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-16"
@@ -68,7 +68,7 @@ evidence:
   - "Linux Flox discovery now records environment_root and launch_path separately, respects nested Flox boundaries, migrates the legacy registry idempotently, and rejects ambiguous launch targets."
   - "SHIPGLOWS_ENV_PORT can explicitly replace a persisted PM2 port and refuses collisions."
   - "The environment control-plane foundation exposes strict inspect/plan/verify/status commands in source checkouts and refuses apply until an executable backend exists."
-  - "The source-only Windows pilot executes only approval-digest-bound jdx.mise acquisition or locked project-local Node 24 and pnpm 10 operations through fixed structured argv; the Best Fried Chicken smoke proved the real provider cycle."
+  - "The Windows pilot executes only approval-digest-bound jdx.mise acquisition or locked project-local Node 24 and pnpm 10 operations through fixed structured argv; the Best Fried Chicken smoke proved the real provider cycle."
   - "Independent Task 5 verification binds canonical external mise/WinGet executable paths and SHA-256 identities into approved plans, revalidates them before runner use, and treats those hashes as approved identity evidence rather than official provenance."
   - "Project-local .shipglows.env settings pin runtime ports and can disable automatic restart recovery."
   - "The project runtime policy file now has a closed, data-only schema so unknown settings fail loudly instead of silently restoring defaults."
@@ -113,7 +113,9 @@ The native PowerShell source entrypoint accepts the equivalent form `s env <comm
 
 The pilot requires root `mise.toml` to contain only `[tools] node = "24"` and `pnpm = "10"`, rejects alternate local/early mise configuration, and requires `mise.lock` to pin one exact `core:node` entry and one exact `aqua:pnpm/pnpm` entry. Each Windows artifact URL must match the exact version, architecture and official Node or pnpm release authority/path, with a checksum value in the supported format. If `package.json#packageManager` exists, it must equal `pnpm@<exact locked version>`; its absence remains valid because the ShipGlows manifest and mise lock already declare ownership. Injected fixtures remain synthetic; the approved Best Fried Chicken smoke additionally acquired mise 2026.8.2 and converged Node 24.19.0 plus pnpm 10.34.5 from their locked official release coordinates without installing application dependencies. `--offline` maps to `MISE_OFFLINE=1`: already installed exact mise-managed tools are ready, while any missing install blocks because mise documents downloaded archives as an unsupported offline cache and recommends retaining the installs directory. Existing global Node, pnpm and persistent `PATH` remain outside this owner. A `mise.exe` or `winget.exe` resolved from inside the repository or outside the adapter's canonical package-manager roots is never invoked; executable path and SHA-256 identity are approval-bound and revalidated before apply runner use.
 
-Current official authorities checked for this pilot are mise's [Windows installation](https://mise.jdx.dev/installing-mise.html#windows-winget), [`mise exec`](https://mise.jdx.dev/cli/exec.html), [`mise.lock`](https://mise.jdx.dev/dev-tools/mise-lock.html), [direct Node plus pnpm project configuration](https://mise.jdx.dev/demo), [configuration cascade and overrides](https://mise.jdx.dev/configuration.html), [safe mode](https://mise.jdx.dev/continuous-integration.html#running-against-untrusted-config-safe-mode), and [offline/cache settings](https://mise.jdx.dev/configuration/settings.html#offline). The source command is still not included in the staged native Windows runtime because installer/packaging changes remain outside this slice. Public and installer documentation must not describe it as installed or generally shipped until that later proof.
+Current official authorities checked for this pilot are mise's [Windows installation](https://mise.jdx.dev/installing-mise.html#windows-winget), [`mise exec`](https://mise.jdx.dev/cli/exec.html), [`mise.lock`](https://mise.jdx.dev/dev-tools/mise-lock.html), [direct Node plus pnpm project configuration](https://mise.jdx.dev/demo), [configuration cascade and overrides](https://mise.jdx.dev/configuration.html), [safe mode](https://mise.jdx.dev/continuous-integration.html#running-against-untrusted-config-safe-mode), and [offline/cache settings](https://mise.jdx.dev/configuration/settings.html#offline).
+
+The native Windows full-install contract packages the closed `cli/environment` Python tree and schema under `%USERPROFILE%\.shipglows\runtime\cli\environment`. The installed launcher in `runtime\bin` resolves that path; the source launcher resolves its sibling source tree. Both dispatch `s env` before importing the DevServer module. Bootstrap extraction uses an exact file allowlist, rejects incomplete packages, and validates the installed Python sources/schema before claiming success. The isolated installer proof invokes the installed launcher with `inspect` from an unmanaged temporary project and requires no workspace, registry, menu cache, profile, Android/Flutter installation, authentication or network mutation.
 
 ## Owned Files
 

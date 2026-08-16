@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-16"
 created_at: "2026-08-16 16:48:28 UTC"
 updated: "2026-08-16"
-updated_at: "2026-08-16 19:36:46 UTC"
+updated_at: "2026-08-16 20:58:22 UTC"
 status: active
 source_skill: sg-spec
 source_model: GPT-5 Codex
@@ -35,10 +35,10 @@ depends_on:
     artifact_version: "1.4.0"
     required_status: reviewed
   - artifact: shipglows_data/technical/architecture.md
-    artifact_version: "1.12.1"
+    artifact_version: "1.14.0"
     required_status: reviewed
   - artifact: shipglows_data/technical/runtime-cli.md
-    artifact_version: "1.12.0"
+    artifact_version: "1.14.0"
     required_status: reviewed
   - artifact: shipglows_data/technical/guidelines.md
     artifact_version: "1.7.0"
@@ -63,12 +63,14 @@ evidence:
   - "Official mise configuration docs define inherited global/system configuration, local variants and MISE_OVERRIDE_CONFIG_FILENAMES; the pilot strips inherited MISE controls, selects only mise.toml and rejects alternate repository configuration: https://mise.jdx.dev/configuration.html"
   - "Official mise demo documents direct project-local Node plus pnpm ownership through `[tools] node` and `pnpm`, avoiding a Corepack hook surface: https://mise.jdx.dev/demo"
   - "Independent Task 5 verification reproduced arbitrary external PATH executable trust, executable drift, inherited environment leakage and incomplete mise cascade isolation before bounded hardening; all source contracts and the complete Windows suite then passed without live provider execution."
-next_step: "Keep native Windows provider readiness and installed-runtime packaging open until separately approved real evidence exists"
+  - "The approved Best Fried Chicken provider smoke acquired mise 2026.8.2 and converged locked Node 24.19.0 plus pnpm 10.34.5 without installing project dependencies."
+  - "Operator approval 2026-08-16: document, package and prove the control-plane command in the native Windows installed runtime after committing the verified source pilot."
+next_step: "Plan Task 6 only after separate operator approval"
 ---
 
 # Spec: ShipGlows Reproducible Environment Control Plane
 
-🟠 [ShipGlows] spec: ShipGlows Reproducible Environment Control Plane | status: active | path: shipglows_data/workflow/specs/shipglows-reproducible-environment-control-plane.md | next: approve real provider and installed-runtime proof separately
+🟠 [ShipGlows] spec: ShipGlows Reproducible Environment Control Plane | status: active | path: shipglows_data/workflow/specs/shipglows-reproducible-environment-control-plane.md | next: package and prove the native Windows installed runtime
 
 ## Title
 
@@ -76,7 +78,7 @@ ShipGlows Reproducible Environment Control Plane
 
 ## Status
 
-Active. Tasks 1-3 and the Task 5 source/injected-fixture pilot are independently verified at standard depth; real WinGet/mise/Node provider smoke, installed Windows runtime packaging, other adapters and legacy-code migration remain outside this execution.
+Active. Tasks 1-3, the Task 5 mise pilot and Task 5b native Windows installed-runtime packaging are verified, including one approved real WinGet/mise/Node/pnpm provider smoke. Other adapters and legacy-code migration remain outside this execution.
 
 ## User Story
 
@@ -422,7 +424,16 @@ Interactive menus project the same plan and state model. Non-interactive mode ne
   - Depends on: Tasks 1-3.
   - Validate with: `powershell.exe -NoProfile -File tests/windows/environment-mise-adapter.ps1` covering clean/partial/external/conflicting PATH hosts, exact lock, checksum/provenance when available, offline cache, rerun and rollback.
   - Notes: the pilot proves project-local tool ownership only; it must not replace or remove machine-global Node/pnpm paths required by installers or agent CLIs, run `pnpm install`, edit a PowerShell profile, or rely on implicit shell activation.
-  - Result: implemented in the source control plane with a structured injectable runner, exact code-free Node/pnpm config and lock grammar, optional exact `packageManager` reconciliation, isolated inherited configuration, rejection of repository-resolved executables, distinct acquisition/replan boundary, fixed per-tool install argv, PowerShell and agent-child `mise exec` evidence, offline installed-cache semantics and fail-closed recovery. Automated proof used fakes only; no provider/platform readiness claim is made from those fixtures.
+  - Result: implemented in the source control plane with a structured injectable runner, exact code-free Node/pnpm config and lock grammar, optional exact `packageManager` reconciliation, isolated inherited configuration, rejection of repository-resolved executables, distinct acquisition/replan boundary, fixed per-tool install argv, PowerShell and agent-child `mise exec` evidence, offline installed-cache semantics and fail-closed recovery. Automated fixtures remain isolated; a separately approved Best Fried Chicken smoke additionally proved the real provider cycle.
+
+- [x] Task 5b: Package the environment command into the native Windows runtime.
+  - File: root Windows bootstrap, native Windows installer/entrypoint, environment package, installer contract test and mapped documentation.
+  - Action: extract and copy the closed `cli/environment` runtime tree, preserve the source and installed path layouts, validate required Python/schema files, and dispatch `s env inspect|plan|verify|status|apply` before DevServer initialization.
+  - User story link: makes the proven control plane available to a newly installed Windows user instead of only to a ShipGlows source checkout.
+  - Depends on: Tasks 1-3 and Task 5 real-provider proof.
+  - Validate with: regression-first installed-runtime contract, an isolated fresh-runtime invocation from its installed launcher, all environment contracts, PowerShell 5.1 parsing and the complete Windows suite.
+  - Notes: the packaging test must not install Android/Flutter, authenticate, accept licenses, alter the live runtime, run `pnpm install`, or require a profile.
+  - Result: the root bootstrap extracts the exact five-file environment package alongside the seven Windows files, rejects incomplete archives, copies the package under `runtime\cli\environment`, validates schema/Python syntax, and the installed launcher resolves it before DevServer initialization. The isolated runtime smoke passed without touching live state.
 
 - [ ] Task 6: Add a trusted WinGet Configuration machine adapter.
   - File: WinGet adapter, generated/referenced configuration validation and Windows fixtures.
@@ -494,6 +505,7 @@ Interactive menus project the same plan and state model. Non-interactive mode ne
 - [ ] AC 26: Given `.shipglows.env`, when it contains its existing allowed runtime-policy keys, then those policies remain effective without duplication; capability/version/backend keys are rejected as outside that file's ownership.
 - [ ] AC 27: Given mise is absent on Windows, when planning the Node pilot, then ShipGlows shows a distinct official `jdx.mise` WinGet acquisition operation; Node installation cannot start until that operation is approved and mise is observed.
 - [ ] AC 28: Given mise and Node are ready, when an agent-like child process runs the project tool, then ShipGlows proves it through `mise exec` without depending on a PowerShell profile or global shim activation.
+- [x] AC 29: Given a native Windows full installation, when its installed launcher runs `s env inspect` from an unmanaged temporary project, then the packaged Python/schema runtime executes before DevServer initialization without creating workspace, registry or menu-cache state.
 
 ## Test Strategy
 
@@ -572,14 +584,15 @@ None. Node 24 plus pnpm 10 form the fixed first mise pilot for project-local own
 | 2026-08-16 18:25:43 UTC | sg-start | GPT-5.6 Codex | Hardened Task 5 against inherited/alternate mise configuration and repository-resolved executables, then ran the complete source proof stack. | Local auto-verification passed, including all environment contracts, Unix/PowerShell adapters, PowerShell 5.1 parsing and the complete Windows DevServer contract; real provider execution remains unclaimed. | Independent Task 5 verification; opt-in provider smoke remains manual |
 | 2026-08-16 18:53:01 UTC | sg-verify | GPT-5.6 Codex | Independently reproduced and repaired arbitrary external executable trust, approval-to-runner executable drift, inherited environment leakage and incomplete mise cascade isolation; rechecked current official mise semantics and the complete source proof stack. | Verified at standard depth for the Task 5 source/injected-fixture pilot only; executable path plus SHA-256 proves approved identity, not official provenance, and native provider/installed-runtime readiness remains open. | Separately approve a real disposable provider smoke and packaging proof before any shipped-readiness claim. |
 | 2026-08-16 19:36:46 UTC | sg-engineering | GPT-5.6 Codex | Extended the approved Task 5 source pilot from Node-only ownership to explicit Node 24 plus pnpm 10 ownership, exact dual lock semantics, optional `packageManager` reconciliation, independent fixed install operations and dual-consumer evidence. | Regression-first pnpm proof, all environment contracts, Unix/PowerShell adapters and the complete Windows suite pass; no real provider, dependency install, global tool, installed runtime, commit or push was touched. | Keep real provider and packaging proof separately approval-gated. |
+| 2026-08-16 20:58:22 UTC | sg-development | GPT-5.6 Codex | Documented then implemented Task 5b native Windows runtime packaging, exact archive extraction and installed launcher resolution. | Regression-first installed-runtime proof, incomplete-archive rejection, isolated inspect, all environment contracts and the complete Windows suite pass without changing the live runtime. | Plan Task 6 only after separate approval. |
 
 ## Current Chantier Flow
 
 - `sg-spec`: done, draft spec created.
 - `sg-ready`: done, ready for implementation.
-- `sg-start`: done for Tasks 1-3 and implemented for the separately approved Task 5 source pilot, including Node 24 plus pnpm 10.
-- `sg-verify`: done at standard depth for Tasks 1-3 and for the Task 5 source/injected-fixture pilot; pnpm regression proof is integrated, while native provider and installed-runtime proof remain open.
+- `sg-start`: done for Tasks 1-3, Task 5 Node 24 plus pnpm 10 and Task 5b installed-runtime packaging.
+- `sg-verify`: done at standard depth for Tasks 1-3, the Task 5 source/real-provider pilot and Task 5b isolated installed-runtime proof.
 - `sg-end`: not launched.
 - `sg-ship`: not launched.
 
-Next step: keep any real WinGet/mise/Node smoke and installed-runtime packaging as separate explicitly approved proof before claiming native Windows readiness.
+Next step: keep Task 6 WinGet Configuration and later adapters separately approval-gated.

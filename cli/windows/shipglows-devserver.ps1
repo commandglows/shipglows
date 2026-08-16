@@ -21,9 +21,13 @@ if ($Action.Trim().ToLowerInvariant() -eq 'env') {
         [Console]::Error.WriteLine('Usage: s env <inspect|plan|verify|status|apply> [-ProjectPath <path>]')
         exit 2
     }
-    $environmentScript = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\environment\shipglows_environment.py'))
-    if (-not (Test-Path -LiteralPath $environmentScript -PathType Leaf)) {
-        [Console]::Error.WriteLine("ShipGlows environment control-plane script not found: $environmentScript")
+    $environmentCandidates = @(
+        [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\environment\shipglows_environment.py')),
+        [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\cli\environment\shipglows_environment.py'))
+    )
+    $environmentScript = $environmentCandidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+    if (-not $environmentScript) {
+        [Console]::Error.WriteLine("ShipGlows environment control-plane script not found in the source or installed runtime.")
         exit 2
     }
     $python = @(
@@ -88,6 +92,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
     Write-Host '  s a      Manage CLI authentication with official interactive flows'
+    Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
     Write-Host '  s u      Update ShipGlows from the official repository'
     Write-Host '  s x      Quit ShipGlows'
     Write-Host '  s         Interactive menu'

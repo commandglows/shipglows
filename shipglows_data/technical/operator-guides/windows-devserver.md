@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.11.0"
+artifact_version: "1.12.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-16"
@@ -29,6 +29,7 @@ evidence:
   - "The 2026-08-14 runtime contract distinguishes direct and deferred Codex tool discovery before declaring configured Playwright unavailable."
   - "The 2026-08-15 Windows runtime registers monorepo surfaces independently and reserves their ports transactionally."
   - "The 2026-08-15 Windows project catalogue reuses one bounded scan across every menu and keeps live status authority in the registry."
+  - "Native Windows full packages the reproducible-environment command so s env works from the installed runtime rather than only from a source checkout."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -139,6 +140,11 @@ ne sont pas requis par le parcours Shadow PC.
    `shipglows-dev` reste disponible comme commande explicite. Ces commandes
    n'utilisent pas le profil PowerShell, donc elles fonctionnent aussi quand
    l'execution des scripts de profil est interdite.
+   Le même lanceur expose `s env inspect`, `s env plan`, `s env apply`,
+   `s env verify` et `s env status`. Ces commandes lisent le contrat
+   reproductible du projet et délèguent les versions de Node/pnpm à `mise`;
+   elles ne lancent jamais `pnpm install` automatiquement. `inspect`, `plan`,
+   `verify` et `status` ne demandent aucune initialisation du DevServer.
    Le menu interactif principal propose `n  Navigate to a project` : il permet
    de choisir un projet puis ouvre un PowerShell enfant dans son dossier
    (`exit` revient au shell initial).

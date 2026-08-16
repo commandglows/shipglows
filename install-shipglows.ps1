@@ -92,7 +92,8 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
     }
     if ($FullMode) {
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
-        if ($entries.Count -ne 7) { Fail 'The ShipGlows archive is missing native Windows DevServer, mobile toolchain, authentication, agent instructions, or Codex MCP files.' }
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/environment/(?:__init__\.py|core\.py|mise_backend\.py|shipglows_environment\.py|schemas/shipglows-environment-v1\.schema\.json)$' })
+        if ($entries.Count -ne 12) { Fail 'The ShipGlows archive is missing native Windows DevServer, authentication, agent instructions, or environment control-plane files.' }
     }
 
     & $tarPath -xf $ArchivePath -C $DestinationPath $entries
@@ -148,6 +149,25 @@ function Assert-PowerShellSyntax([string]$Path) {
     }
 }
 
+function Assert-EnvironmentPackage([string]$EnvironmentDirectory) {
+    $required = @(
+        '__init__.py',
+        'core.py',
+        'mise_backend.py',
+        'shipglows_environment.py',
+        'schemas\shipglows-environment-v1.schema.json'
+    )
+    foreach ($relativePath in $required) {
+        $path = Join-Path $EnvironmentDirectory $relativePath
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { Fail "Installed environment control-plane file not found: $path" }
+    }
+    try {
+        [void]([IO.File]::ReadAllText((Join-Path $EnvironmentDirectory 'schemas\shipglows-environment-v1.schema.json')) | ConvertFrom-Json)
+    } catch {
+        Fail 'Installed environment control-plane schema is not valid JSON.'
+    }
+}
+
 if (Get-Command wsl.exe -ErrorAction SilentlyContinue) {
     $wslProbeOutput = (& wsl.exe -e sh -lc 'printf ok' 2>$null | Out-String).Trim()
     if ($LASTEXITCODE -eq 0 -and $wslProbeOutput -eq 'ok') {
@@ -164,6 +184,7 @@ $extractRoot = Join-Path $tempRoot 'extract'
 $localDirectory = Join-Path $ShipglowsDir 'local'
 $localInstaller = Join-Path $localDirectory 'install_local.ps1'
 $windowsDirectory = Join-Path $ShipglowsDir 'cli\windows'
+$environmentDirectory = Join-Path $ShipglowsDir 'cli\environment'
 New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $extractRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $ShipglowsDir -Force | Out-Null
@@ -196,8 +217,21 @@ try {
                 Where-Object { Test-Path (Join-Path $_.FullName 'install-devserver.ps1') }
         )
         if ($windowsCandidates.Count -ne 1) { Fail 'Native Windows DevServer directory was not found in the archive.' }
+        $environmentCandidates = @(
+            Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -Directory -Filter 'environment' |
+                Where-Object {
+                    (Test-Path (Join-Path $_.FullName 'shipglows_environment.py')) -and
+                    (Test-Path (Join-Path $_.FullName 'schemas\shipglows-environment-v1.schema.json'))
+                }
+        )
+        if ($environmentCandidates.Count -ne 1) { Fail 'Environment control-plane directory was not found in the archive.' }
         New-Item -ItemType Directory -Path $windowsDirectory -Force | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $environmentDirectory 'schemas') -Force | Out-Null
         Get-ChildItem -LiteralPath $windowsCandidates[0].FullName -Force -File | Copy-Item -Destination $windowsDirectory -Force
+        foreach ($pythonFile in @('__init__.py','core.py','mise_backend.py','shipglows_environment.py')) {
+            Copy-Item -LiteralPath (Join-Path $environmentCandidates[0].FullName $pythonFile) -Destination (Join-Path $environmentDirectory $pythonFile) -Force
+        }
+        Copy-Item -LiteralPath (Join-Path $environmentCandidates[0].FullName 'schemas\shipglows-environment-v1.schema.json') -Destination (Join-Path $environmentDirectory 'schemas\shipglows-environment-v1.schema.json') -Force
     }
 } finally {
     Remove-PathIfPresent $tempRoot
@@ -220,6 +254,7 @@ if ($InstallMode -eq 'full') {
     foreach ($required in @('ShipGlows.DevServer.psm1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
         Assert-PowerShellSyntax -Path (Join-Path $windowsDirectory $required)
     }
+    Assert-EnvironmentPackage -EnvironmentDirectory $environmentDirectory
     Write-Info 'Native Windows DevServer files installed.'
 }
 
