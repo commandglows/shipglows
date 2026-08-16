@@ -149,6 +149,7 @@ class ShipSkillContractTests(unittest.TestCase):
             "Every full-close report uses the shared ordered card",
             "`🧪 PREUVES`",
             "`📖 DOCUMENTATION`",
+            "`✏️ ÉDITORIAL`",
             "separated by ` · `",
         ):
             self.assertIn(expected, self.reporting)

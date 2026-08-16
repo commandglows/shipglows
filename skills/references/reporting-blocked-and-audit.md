@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-13"
+updated: "2026-08-16"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-blocked-and-audit
@@ -18,7 +18,7 @@ linked_systems:
   - skills/references/strategic-choice-contract.md
 depends_on:
   - artifact: "skills/references/strategic-choice-contract.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.2.0"
     required_status: active
 supersedes: []
 evidence:

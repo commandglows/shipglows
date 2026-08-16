@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-13"
+updated: "2026-08-16"
 status: active
 source_skill: 900-shipglows-core
 scope: operator-facing-strategic-choices
@@ -29,6 +29,7 @@ evidence:
   - "Operator decision 2026-08-13: plan and chantier choices must support long-horizon business steering rather than expose short-sighted technical controls."
   - "Operator clarification 2026-08-13: Questionner and Réorienter may remain short labels when selection triggers useful guided questions or concrete reorientation proposals."
   - "Operator decision 2026-08-13: the contract must activate through the common public métier autonomy path, not only at reporting boundaries."
+  - "Operator decision 2026-08-16: completed chantiers may offer Approfondir beside Réorienter when the delivered result supports useful follow-up."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify strategic operator choices"
 ---
@@ -57,11 +58,12 @@ Do not expose commands, files, packages, skills, lifecycle phases, agent topolog
 
 ## Interaction Controls
 
-Short interaction labels such as `Questionner` and `Réorienter` are allowed. Their value comes from the guided follow-up after selection, so the initial label does not need to contain the full brief.
+Short interaction labels such as `Questionner`, `Approfondir`, and `Réorienter` are allowed. Their value comes from the guided follow-up after selection, so the initial label does not need to contain the full brief.
 
 - After `Questionner`, ask one focused decision brief or a compact sequence of inseparable questions that reveals missing business truth, tests assumptions, or distinguishes the credible directions. Explain why the answer matters and recommend a default when evidence supports one.
+- After `Approfondir`, examine evidence-backed opportunities, risks, assumptions, and lessons in the delivered result, then recommend the most valuable deeper question or extension. Do not silently reopen the completed chantier.
 - After `Réorienter`, proactively offer two or three concrete business or product directions with their outcome, horizon, and material trade-off. The agent must not ask the operator to invent the next direction from a blank page.
-- After either control, continue guiding until a concrete direction is selected or the operator pauses or cancels. Selecting either never grants approval for mutation.
+- After any control, continue guiding until a concrete direction is selected or the operator pauses or cancels. Selecting a control never grants approval for mutation.
 
 `Mettre en pause` and `Annuler` may also remain short when their immediate consequence is obvious. They are state controls, not strategic alternatives, and must not displace useful business directions when a material decision exists.
 
@@ -71,10 +73,13 @@ For a mutation plan whose objective already embodies one settled direction, the 
 
 For an unfinished or blocked chantier, propose specific business directions whenever evidence supports them. Generic continue, redirect, or pause controls are insufficient as the only choices when the run has revealed a real product, market, investment, scope, trust, or release decision.
 
+For a completed chantier, offer `Approfondir` and `Réorienter` only when the delivered result has a useful continuation surface. These controls continue the conversation without changing the truthful completed state; omit them when they would be ceremonial.
+
 ## Pressure Scenarios
 
 - `SC-BUSINESS-VISIONS`: competing directions state materially different outcomes, affected stakeholders, horizons, and trade-offs; package or workflow variants alone fail.
 - `SC-QUESTIONNER`: selecting the short `Questionner` label produces focused, decision-relevant questions and useful framing before any mutation.
+- `SC-APPROFONDIR`: selecting the short `Approfondir` label deepens evidence-backed opportunities, risks, assumptions, and lessons without silently reopening completed delivery.
 - `SC-REORIENTER`: selecting the short `Réorienter` label produces concrete alternative directions and a recommendation rather than “what do you want?”.
 - `SC-NO-BLANK-PAGE`: the operator is never asked to invent strategy, alternatives, or implementation mechanics without agent-provided framing.
 - `SC-PROPORTIONALITY`: a reversible micro-edit with no differing business consequence keeps a compact approval choice and does not fabricate strategic alternatives.

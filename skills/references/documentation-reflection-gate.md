@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-07-26"
 updated: "2026-08-15"
@@ -21,6 +21,7 @@ evidence:
   - "Operator clarification 2026-08-15: closure is the primary enforcement point and its documentation verdict must be visible to the operator."
   - "Operator decision 2026-08-15: the visible documentation verdict sits beneath the main documentation icon on one line separated by middle dots."
   - "Operator decision 2026-08-15: the documentation section uses the open-book icon in both start and closure cards."
+  - "Operator decision 2026-08-16: editorial impact receives an independent closure gate and visible classification."
 next_review: "2026-08-26"
 next_step: "Apply the gate in closure and milestone owner skills."
 ---
@@ -30,6 +31,9 @@ next_step: "Apply the gate in closure and milestone owner skills."
 ## Purpose
 
 Ensure that a closure cannot imply completion while documentation has silently drifted from the changed behavior. This gate complements the technical documentation map, the `Documentation Update Plan`, and the external documentation freshness gate; it does not replace them.
+
+Public/editorial impact is classified separately by `editorial-reflection-gate.md`.
+An `updated` documentation result never proves that public promises are aligned.
 
 ## Trigger
 

@@ -1,7 +1,7 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-08-15"
@@ -20,6 +20,7 @@ supersedes: []
 evidence:
   - "Wave-5 independent audit restored summary-only and ship-ownership boundaries."
   - "Operator clarification 2026-08-15: documentation reflection must be enforced and visible at closure."
+  - "Operator decision 2026-08-16: editorial impact is classified independently and visibly at every closure."
 next_step: none
 ---
 
@@ -65,6 +66,14 @@ If proof or ship is not complete, never set `closed`.
 - Apply directly mapped impacted documentation updates before setting `closed`.
 - A material `needs review` result forces `partial`; tests, builds, tracker state, or Git state cannot override it.
 - Include the exact classification visibly in every closure report, including `not impacted`.
+
+## Step 3b: editorial reflection
+
+- Classify editorial impact independently as `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`.
+- Inspect declared public surfaces and user-visible promises; documentation status never substitutes for this classification.
+- `No declared public surface` is a valid no-impact reason when project evidence proves it.
+- Apply directly mapped public updates already inside approved scope before setting `closed`; otherwise a material `needs review` result forces `partial`.
+- Include the exact editorial classification visibly in every closure report and never create filler content to satisfy the gate.
 
 ## Step 4: tracker/changelog updates
 

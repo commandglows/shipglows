@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-15"
+updated: "2026-08-16"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-pressure-scenarios
@@ -23,6 +23,8 @@ evidence:
   - "Operator clarification 2026-08-15: closure reports must make documentation reflection visible."
   - "Operator decision 2026-08-15: closure proof and documentation evidence each stay on one visually labelled line separated by middle dots."
   - "Operator decision 2026-08-15: true chantier starts receive the same visual structure without exposing file paths or technical links."
+  - "Operator decision 2026-08-16: closure reports expose editorial impact separately and reject ceremonial content."
+  - "Operator decision 2026-08-16: a useful completed result may offer guided deepening or reorientation without reopening delivery."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -51,6 +53,8 @@ next_step: none
 - `SSRP-016 guided reorientation`: selecting a short `Réorienter` control triggers concrete alternative business directions and their consequences; it never answers with a blank “toward what?”.
 - `SSRP-017 no blank-page handoff`: the operator receives evidence-backed framing, proposals, and a recommendation instead of being asked to invent strategy or technical mechanics.
 - `SSRP-018 visible closure docs`: any report claiming closed, complete, done, resolved, or shipped includes `📖 DOCUMENTATION`, then exactly one compact line using `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`; material `needs review` forbids closure language.
-- `SSRP-019 visual closure card`: a successful closure uses the four ordered blocks `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, and `📦 LIVRAISON`; proof and documentation content each occupy one line with ` · ` separators, while empty `⚠️ LIMITES` and `🧭 SUITE` blocks are absent.
+- `SSRP-019 visual closure card`: a successful closure uses the five ordered blocks `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, and `📦 LIVRAISON`; proof, documentation, and editorial content each occupy one line with ` · ` separators, while empty `⚠️ LIMITES` and `🧭 SUITE` blocks are absent.
 - `SSRP-020 visual start card`: after approval, a substantive chantier starts once with `🚀 Démarré` and the ordered blocks `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, and `📖 DOCUMENTATION PRÉVUE`; the card never replaces a pending approval prompt or decorates a micro-action.
 - `SSRP-021 no technical path leakage`: `report=user` omits file names, paths, and clickable technical file links unless the operator must act on that exact artifact or explicitly requests detailed evidence.
+- `SSRP-022 visible closure editorial`: every completion claim includes `✏️ ÉDITORIAL` with `updated`, `not impacted · <concrete reason>`, or `needs review · <surface>`; a material gap blocks closure, `No declared public surface` is valid evidence, and unaffected work creates no filler content.
+- `SSRP-023 completed chantier follow-up`: when a delivered result has a useful decision surface, the closure may offer `Approfondir` and `Réorienter`; either starts guided follow-up, does not reopen the completed chantier, and never grants mutation approval. An empty ceremonial menu fails.
