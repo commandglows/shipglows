@@ -18,7 +18,7 @@ To reload the local development context before server or browser work:
 $shipglows context
 ```
 
-This reads the global ShipGlows development environment, the current project's visible `ENVIRONMENT.md`, and its live DevServer registry entry. It reports the exact active URL and distinguishes Playwright configuration from tools callable in the current turn.
+This reads the global ShipGlows development environment, the current project's visible `ENVIRONMENT.md`, and its live DevServer registry entry. It reports the exact active URL, the relevant mobile and Windows toolchain state and exact next action, and distinguishes Playwright or Firebase Device Streaming configuration from tools and devices callable in the current turn.
 
 | Domain | Public métier | Owns the outcome |
 | --- | --- | --- |

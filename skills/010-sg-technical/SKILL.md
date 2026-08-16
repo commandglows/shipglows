@@ -12,7 +12,7 @@ Resolve ShipGlows-owned files through `$SHIPGLOWS_ROOT/skills/references/canonic
 
 `010-sg-technical` is the runtime engine behind public `sg-engineering`. It owns architecture, code/security quality, dependencies, performance, GitHub hygiene, breaking migrations, sync, access/entitlements, provider events, and parity. Resolve `project -> product -> surface -> feature`; keep the single public owner and sequence the required internal engines.
 
-For authored-code `audit` or `architecture`, conditionally load `clean-code-quality-contract.md`. For internet-facing or privileged `audit`, `architecture`, `deps`, or `migrate`, load `owasp-application-security-awareness.md`. For email sending or delivery concerns, load `email-work-routing.md` and only its selected leaves. Before editing this contract, load `skill-instruction-layering.md`.
+For authored-code `audit` or `architecture`, conditionally load `clean-code-quality-contract.md`. For internet-facing or privileged `audit`, `architecture`, `deps`, or `migrate`, load `owasp-application-security-awareness.md`. For email sending or delivery concerns, load `email-work-routing.md` and only its selected leaves. For Flutter, Android, Windows desktop, or Firebase Device Streaming platform/toolchain/parity work, load `agent-runtime-awareness.md` before choosing evidence or remediation. Before editing this contract, load `skill-instruction-layering.md`.
 
 ## Modes
 

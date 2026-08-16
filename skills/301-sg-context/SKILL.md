@@ -33,6 +33,12 @@ Inspect directly exposed tools and the host's deferred/searchable tool catalog
 before classifying current-turn capabilities; configuration alone is not
 availability, and absence from the first visible list is not non-availability.
 
+When the task depends on Flutter, Android, Windows desktop, or Firebase Device
+Streaming, carry the relevant mobile and Windows toolchain fields and their
+exact next action from `agent-runtime-awareness.md` into the qualified context
+capsule. Do not collapse installed, configured, accelerated, device-ready, and
+current-turn callable into one readiness claim.
+
 ### Contextual MCP Path
 
 When callable, use `context_continue` to recover prior qualified state, `context_retrieve` to rank candidates, and `context_read` for focused excerpts. Cached memory accelerates discovery only: validate material claims against canonical sources and observed state before `context_ready`.

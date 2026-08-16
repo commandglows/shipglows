@@ -23,6 +23,11 @@ skill retains technical-quality ownership. Their `shipglows` aliases are
 convenience routes only. When `verify` names an explicit design, SEO, release,
 or bug scope, the router preserves that specialist public owner instead.
 
+When engineering evidence depends on Flutter, Android, Windows desktop, or Firebase Device Streaming,
+load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before diagnosing
+dependencies, device execution, or platform parity. Preserve the distinction between
+the recorded mobile and Windows toolchain state and current-turn callability.
+
 ## Validation
 
 Use the selected workflow's technical checks and proportional proof; do not report an engineering outcome from an unverified code change alone.

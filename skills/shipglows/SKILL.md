@@ -25,11 +25,13 @@ ShipGlows system work. `shipglows capture` and `shipglows tmux` both resolve to
 `sg-content capture`.
 
 `shipglows context` is a direct read-only context refresh. Load the canonical
-`000-shipglows` engine, read `%USERPROFILE%\.shipglows\environment.md`, resolve
+`000-shipglows` engine and `agent-runtime-awareness.md`, read
+`%USERPROFILE%\.shipglows\environment.md`, resolve
 the current ShipGlows-managed project root, and read
 `<project-root>\ENVIRONMENT.md` plus the matching DevServer registry entry. Report the exact managed URL and live status,
 architecture, Python availability through `uv`, Playwright/Chromium installation
-and MCP verification evidence, and current-turn callable tools. Distinguish
+and MCP verification evidence, the relevant mobile and Windows toolchain state
+and exact next action, and current-turn callable tools. Distinguish
 installed, configured, discovered, callable, failed, and not-exposed states;
 inspect direct and deferred/searchable tool catalogs before classifying them. Never
 launch a replacement server, substitute an Astro/Vite default such as `4321`,

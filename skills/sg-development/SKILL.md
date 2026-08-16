@@ -22,6 +22,11 @@ the same `001-sg-build` owner path and is reachable as either
 `sg-development build <task>` or `shipglows build <task>`; the shortcut adds no
 behavior of its own.
 
+When delivery targets Flutter, Android, Windows desktop, or Firebase Device Streaming,
+load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before selecting
+the build and proof route. Treat its recorded mobile and Windows toolchain decisions
+as environment evidence, while current-turn discovery remains the callability authority.
+
 `excellence` is a hidden public shortcut, not a catalog mode. For
 `sg-development excellence [task or scope]`, resolve the current work from
 conversation and durable evidence, then invoke `103-sg-verify` with

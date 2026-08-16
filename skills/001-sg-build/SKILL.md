@@ -45,7 +45,7 @@ Local references are loaded directly here and never chain locally.
 - After route selection and before implementation readiness, load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-readiness-route.md` for spec/readiness, governance, documentation, profiles, questions, and model gates.
 - Once the contract is ready, load `$SHIPGLOWS_ROOT/skills/001-sg-build/references/build-delivery-route.md` for `102-sg-start`, proof ownership, verification, onboarding, closure, and ship.
 
-Conditional shared loaders remain conditional: `$SHIPGLOWS_ROOT/skills/references/question-contract.md` and `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md` before a material question; `$SHIPGLOWS_ROOT/skills/references/profile-activation.md` for named profiles; `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` for UI; `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` for email work; `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` for a failure handoff.
+Conditional shared loaders remain conditional: `$SHIPGLOWS_ROOT/skills/references/question-contract.md` and `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md` before a material question; `$SHIPGLOWS_ROOT/skills/references/profile-activation.md` for named profiles; `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` for UI; `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md` for email work; `$SHIPGLOWS_ROOT/skills/references/actionable-failure-contract.md` for a failure handoff; `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before choosing build or proof lanes for Flutter, Android, Windows desktop, or Firebase Device Streaming.
 
 ## Readiness And Proof Owners
 

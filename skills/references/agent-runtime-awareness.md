@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.2.0"
+artifact_version: "3.3.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-14"
+updated: "2026-08-16"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -19,6 +19,10 @@ linked_systems:
   - cli/install.sh
   - skills/000-shipglows/SKILL.md
   - skills/301-sg-context/SKILL.md
+  - skills/sg-development/SKILL.md
+  - skills/sg-engineering/SKILL.md
+  - skills/001-sg-build/SKILL.md
+  - skills/010-sg-technical/SKILL.md
   - skills/108-sg-browser/SKILL.md
   - plugins/shipglows/skills/shipglows/SKILL.md
 depends_on: []
@@ -48,6 +52,40 @@ Report runtime capabilities from the global file before attempting tool discover
 - report Python as available through `uv` when its detected version, manager, and `python` / `python3` commands are recorded;
 - report Playwright Chromium as installed when its installation flag and executable path are recorded;
 - report the Playwright MCP as configured and verified only when the global file records those facts, including its Codex config path.
+
+## Mobile And Windows Toolchain Decisions
+
+`MOBILE-RUNTIME-CONTEXT`: when work targets Flutter, Android, Windows desktop,
+or Firebase Device Streaming, report the relevant recorded fields before
+choosing a build, test, or device route:
+
+- `Flutter and Dart installed`;
+- `Android toolchain ready` and `Android licenses ready`;
+- `Android device ready`;
+- `Android emulator installed`;
+- `Android virtual device ready` (the installed Android virtual device (AVD));
+- `Android emulator acceleration ready`;
+- `Android next action` as the Exact next action;
+- `Android Studio installed`;
+- `Flutter Windows desktop toolchain ready`;
+- `Firebase Android Device Streaming configured`;
+- `Firebase Android Device Streaming next action` as the Exact next action.
+
+`FLUTTER-WINDOWS-CONSUMER`: a Flutter Windows desktop build is ready only when
+`Flutter Windows desktop toolchain ready` is `yes`. Android readiness does not
+prove the Visual Studio C++ workload required for a Windows desktop build.
+
+`ANDROID-DEVICE-DECISION`: distinguish SDK readiness, licenses, emulator
+installation, AVD creation, acceleration, and a ready device.
+An installed AVD without acceleration and without a ready device is not a runnable Android target.
+Use the recorded `Android next action`; valid routes can include fixing local
+acceleration, connecting a physical device, or using a hosted device.
+
+`FIREBASE-DEVICE-STREAMING-BOUNDARY`: Android Studio being installed provides
+an entry point; it does not mean Firebase Device Streaming is configured.
+Firebase Device Streaming authentication, project selection, billing, and device reservation remain user-owned
+and must never be automated. Report the recorded Firebase state and exact next
+action without claiming a hosted device is callable until the current turn proves it.
 
 Keep installation, configuration, discovery, and callability distinct. ChatGPT apps/connectors and Codex CLI tools are separate surfaces. The global file describes what ShipGlows installed or configured, while the current host turn decides what can be called.
 
