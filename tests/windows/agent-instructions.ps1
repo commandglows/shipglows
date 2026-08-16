@@ -39,7 +39,7 @@ try {
     Assert-Sg (-not (Test-Path -LiteralPath (Join-Path $sandbox '.config\opencode'))) 'An unavailable agent must not receive files or directories.'
     foreach ($path in @($codexPath, $claudePath, $kiloPath)) {
         $content = [IO.File]::ReadAllText($path)
-        Assert-Sg (([regex]::Matches($content, '(?m)^# >>> ShipGlows development environment >>>$')).Count -eq 1) "Managed block duplication in $path"
+        Assert-Sg (([regex]::Matches($content, '(?m)^# >>> ShipGlows development environment >>>\r?$')).Count -eq 1) "Managed block duplication in $path"
         Assert-Sg ($content -match 'purpose-built tool') "Purpose-built tool guidance missing in $path"
         Assert-Sg ($content -match 'deferred/searchable catalog') "Deferred tool catalog guidance missing in $path"
         Assert-Sg ($content -match '\$shipglows context') "ShipGlows context recovery guidance missing in $path"
