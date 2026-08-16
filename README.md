@@ -261,6 +261,10 @@ Codex permissions remain unchanged unless automation explicitly sets
 one grouped proposal installs only missing Codex, Claude, OpenCode, Kilo and Gemini CLIs
 at exact resolved versions; non-interactive runs infer no consent and
 authentication always remains user-owned.
+The runtime menu exposes `s a` / **Authentication** to inspect redacted local
+status and launch each installed CLI's official interactive connect, reconnect,
+or confirmed logout flow. ShipGlows never reads or stores credentials; Gemini
+uses its own interactive CLI, while Convex remains explicitly project-scoped.
 The full installer prepares Playwright, Dart/Flutter, Firebase, Convex, Clerk and
 the official read-only GitHub MCP
 for installed agents when the matching workspace stacks are detected, without
@@ -277,6 +281,10 @@ absolute native `npx.cmd`, and installs headless Chromium into the user cache
 only after both exact-version resolution and executable discovery succeed.
 When configuration succeeds, the capability is available after Codex restarts;
 ShipGlows does not add Playwright files or packages to application repositories.
+Windows full also installs exact managed `playwright` and `playwright-cli`
+runtimes, exposes both through ShipGlows's PATH-priority wrappers, installs the
+Chromium revision declared by the stable runtime, and records stable, agent-CLI,
+MCP, browser-revision, and motion readiness separately.
 ShipGlows agents inspect both the directly visible tool list and the host's
 deferred/searchable catalog before reporting the configured MCP unavailable;
 a small read-only probe confirms current-session callability.

@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.11.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-16"
@@ -120,6 +120,12 @@ ne sont pas requis par le parcours Shadow PC.
    `sudo`, ni WSL, ni `autossh`. Au premier accès aux dépôts privés, GitHub CLI
    ouvre son authentification officielle dans le navigateur; ShipGlows ne lit
    et ne stocke jamais le token.
+   Après installation, `s a` ouvre le tableau **Authentication**. Il affiche
+   uniquement `connected`, `disconnected`, `unknown`, `unavailable` ou
+   `project-required`, puis lance le flux officiel du CLI choisi. Les déconnexions
+   demandent confirmation; ShipGlows ne lit jamais les sorties de compte ni les
+   jetons. Le rapport d'environnement distingue aussi `playwright`,
+   `playwright-cli`, Playwright MCP, la révision Chromium et la disponibilité motion.
 
    Le bootstrap teste l'exécution réelle de WSL (`wsl.exe -e sh -lc "printf ok"`)
    au lieu de considérer la seule présence de `wsl.exe` comme une preuve de

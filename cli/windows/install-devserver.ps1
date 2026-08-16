@@ -16,6 +16,9 @@ Import-Module $codexMcpModule -Force -DisableNameChecking
 $mobileModule = Join-Path $sourceDir 'ShipGlows.MobileToolchain.psm1'
 if (-not (Test-Path -LiteralPath $mobileModule -PathType Leaf)) { throw "Missing Windows mobile toolchain helper: $mobileModule" }
 Import-Module $mobileModule -Force -DisableNameChecking
+$authModule = Join-Path $sourceDir 'ShipGlows.Auth.psm1'
+if (-not (Test-Path -LiteralPath $authModule -PathType Leaf)) { throw "Missing Windows authentication helper: $authModule" }
+Import-Module $authModule -Force -DisableNameChecking
 $agentInstructionsModule = Join-Path $sourceDir 'ShipGlows.AgentInstructions.psm1'
 if (-not (Test-Path -LiteralPath $agentInstructionsModule -PathType Leaf)) { throw "Missing Windows agent instructions helper: $agentInstructionsModule" }
 Import-Module $agentInstructionsModule -Force -DisableNameChecking
@@ -607,7 +610,7 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
     }
 }
 
-function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PythonInfo, [bool]$FlutterReady, [pscustomobject]$AndroidInfo, [pscustomobject]$IdeInfo, [pscustomobject]$ServiceInfo, [bool]$DeveloperModeReady) {
+function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PlaywrightRuntimeInfo, [pscustomobject]$PythonInfo, [bool]$FlutterReady, [pscustomobject]$AndroidInfo, [pscustomobject]$IdeInfo, [pscustomobject]$ServiceInfo, [bool]$DeveloperModeReady) {
     $environmentPath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'environment.md'
     New-Item -ItemType Directory -Path (Split-Path -Parent $environmentPath) -Force | Out-Null
     $codexStatus = if ($AgentInfo.Codex.Installed) { 'installed' } else { 'not installed' }
@@ -687,6 +690,12 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
 - Playwright MCP verified: $playwrightVerified
 - Playwright MCP config: $playwrightConfigPath
 - Playwright Chromium path: $chromiumPath
+- Playwright CLI installed: $($PlaywrightRuntimeInfo.StableReady)
+- Playwright CLI version: $($PlaywrightRuntimeInfo.StableVersion)
+- Playwright Chromium revision: $($PlaywrightRuntimeInfo.StableRevision)
+- Playwright Agent CLI installed: $($PlaywrightRuntimeInfo.AgentCliReady)
+- Playwright Agent CLI version: $($PlaywrightRuntimeInfo.AgentCliVersion)
+- Motion runtime ready: $($PlaywrightRuntimeInfo.MotionReady)
 $($agentLines -join [Environment]::NewLine)
 $($serviceLines -join [Environment]::NewLine)
 
@@ -1072,11 +1081,24 @@ function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$Np
     $resolved = Invoke-SgBoundedProcess $NpmPath @('view','@playwright/mcp','version','--json','--registry=https://registry.npmjs.org/') 45
     $version = if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0) { $resolved.Output.Trim().Trim('"') } else { '' }
     if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { Write-SgInstallerWarning 'Playwright MCP exact version resolution failed; no agent config was changed.'; return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
-    $install = Invoke-SgBoundedProcess $NpxPath @('-y','--registry=https://registry.npmjs.org/',"--package=@playwright/mcp@$version",'playwright','install','chromium') 900
-    $chromium = Get-SgPlaywrightChromiumExecutable
+    $managedRoot = Join-Path $env:LOCALAPPDATA "ShipGlows\node-tools\playwright-mcp-$version"
+    $packageJson = Join-Path $managedRoot 'node_modules\@playwright\mcp\package.json'
+    if (-not (Test-Path $packageJson -PathType Leaf)) {
+        New-Item -ItemType Directory -Path $managedRoot -Force | Out-Null
+        $packageInstall = Invoke-SgBoundedProcess $NpmPath @('install','--prefix',$managedRoot,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"@playwright/mcp@$version") 600
+        if ($packageInstall.TimedOut -or $packageInstall.ExitCode -ne 0) { Write-SgInstallerWarning 'Playwright MCP exact package installation failed.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
+    }
+    $playwrightCommand = Join-Path $managedRoot 'node_modules\.bin\playwright.cmd'
+    $browserMetadata = Join-Path $managedRoot 'node_modules\playwright-core\browsers.json'
+    if (-not (Test-Path $playwrightCommand -PathType Leaf) -or -not (Test-Path $browserMetadata -PathType Leaf)) { Write-SgInstallerWarning 'Playwright MCP browser metadata is unavailable.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
+    $metadata = Get-Content -Raw $browserMetadata | ConvertFrom-Json
+    $revision = [string](@($metadata.browsers | Where-Object name -eq 'chromium')[0].revision)
+    if ($revision -notmatch '^\d+$') { Write-SgInstallerWarning 'Playwright MCP Chromium revision is invalid.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
+    $install = Invoke-SgBoundedProcess $playwrightCommand @('install','chromium') 900
+    $chromium = Get-SgPlaywrightChromiumExecutable -Revision $revision
     $chromiumCheck = if ($chromium) { Invoke-SgBoundedProcess $chromium.FullName @('--version') 30 } else { $null }
     if ($install.TimedOut -or $install.ExitCode -ne 0 -or -not $chromium -or -not (Test-SgChromiumExecutableResult $chromium.FullName $chromiumCheck)) { Write-SgInstallerWarning 'Playwright Chromium executable usability was not proven; Playwright MCP remains unconfigured.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
-    return [pscustomobject]@{ Ready=$true; Version=$version; ChromiumPath=[IO.Path]::GetFullPath($chromium.FullName) }
+    return [pscustomobject]@{ Ready=$true; Version=$version; Revision=$revision; ChromiumPath=[IO.Path]::GetFullPath($chromium.FullName) }
 }
 
 function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [string]$NpxPath, $Playwright, [object[]]$StackMcpDefinitions = @()) {
@@ -1165,6 +1187,47 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
         $results.Codex = [pscustomobject]@{ Installed=$true; McpSummary=if($pendingNames.Count){"partial: ready $($readyNames -join ', '); pending $($pendingNames -join ', ')"}else{"ready: $($readyNames -join ', ')"}; ReadyServers=$readyNames.ToArray(); PendingServers=$pendingNames.ToArray() }
     }
     return $results
+}
+
+function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
+    $empty=[pscustomobject]@{StableReady='no';StableVersion='not available';StableRevision='not available';StablePath='';AgentCliReady='no';AgentCliVersion='not available';AgentCliPath='';MotionReady='no'}
+    if(-not $NpmPath){Write-SgInstallerWarning 'Managed Playwright runtimes are pending because npm is unavailable.';return $empty}
+    try {
+        $stableVersion=Resolve-SgNpmVersion $NpmPath 'playwright'
+        $agentVersion=Resolve-SgNpmVersion $NpmPath '@playwright/cli'
+        $root=Join-Path $env:LOCALAPPDATA 'ShipGlows\node-tools'
+        $stableRoot=Join-Path $root "playwright-$stableVersion"
+        $agentRoot=Join-Path $root "playwright-cli-$agentVersion"
+        foreach($install in @(@{Root=$stableRoot;Package='playwright';Version=$stableVersion},@{Root=$agentRoot;Package='@playwright/cli';Version=$agentVersion})){
+            $packageJson=Join-Path (Join-Path $install.Root 'node_modules') (Join-Path $install.Package 'package.json')
+            if(-not (Test-Path $packageJson -PathType Leaf)){
+                New-Item -ItemType Directory -Path $install.Root -Force|Out-Null
+                $result=Invoke-SgBoundedProcess $NpmPath @('install','--prefix',$install.Root,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"$($install.Package)@$($install.Version)") 600
+                if($result.TimedOut -or $result.ExitCode -ne 0){throw "Exact $($install.Package) installation failed."}
+            }
+        }
+        $stableCommand=Join-Path $stableRoot 'node_modules\.bin\playwright.cmd'
+        $agentCommand=Join-Path $agentRoot 'node_modules\.bin\playwright-cli.cmd'
+        $browserMetadata=Join-Path $stableRoot 'node_modules\playwright-core\browsers.json'
+        if(-not (Test-Path $stableCommand -PathType Leaf) -or -not (Test-Path $agentCommand -PathType Leaf) -or -not (Test-Path $browserMetadata -PathType Leaf)){throw 'Managed Playwright commands or browser metadata are missing.'}
+        $metadata=Get-Content -Raw $browserMetadata|ConvertFrom-Json
+        $revision=[string](@($metadata.browsers|Where-Object name -eq 'chromium')[0].revision)
+        if($revision -notmatch '^\d+$'){throw 'Managed Playwright Chromium revision is invalid.'}
+        $browser=Join-Path $env:LOCALAPPDATA "ms-playwright\chromium-$revision\chrome-win64\chrome.exe"
+        if(-not (Test-Path $browser -PathType Leaf)){
+            $installBrowser=Invoke-SgBoundedProcess $stableCommand @('install','chromium') 900
+            if($installBrowser.TimedOut -or $installBrowser.ExitCode -ne 0){throw 'Managed Playwright Chromium installation failed.'}
+        }
+        $agentBrowserInstall=Invoke-SgBoundedProcess $agentCommand @('install-browser') 900
+        if($agentBrowserInstall.TimedOut -or $agentBrowserInstall.ExitCode -ne 0){throw 'Managed Playwright Agent CLI browser installation failed.'}
+        $stableCheck=Invoke-SgBoundedProcess $stableCommand @('--version') 30
+        $agentCheck=Invoke-SgBoundedProcess $agentCommand @('--help') 30
+        $browserCheck=if(Test-Path $browser -PathType Leaf){Invoke-SgBoundedProcess $browser @('--version') 30}else{$null}
+        $stableReady=-not $stableCheck.TimedOut -and $stableCheck.ExitCode -eq 0 -and $stableCheck.Output -match [regex]::Escape($stableVersion)
+        $agentReady=-not $agentCheck.TimedOut -and $agentCheck.ExitCode -eq 0
+        $browserReady=$browserCheck -and -not $browserCheck.TimedOut -and $browserCheck.ExitCode -eq 0
+        return [pscustomobject]@{StableReady=if($stableReady){'yes'}else{'no'};StableVersion=$stableVersion;StableRevision=$revision;StablePath=$stableCommand;AgentCliReady=if($agentReady){'yes'}else{'no'};AgentCliVersion=$agentVersion;AgentCliPath=$agentCommand;MotionReady=if($stableReady -and $browserReady){'yes'}else{'no'}}
+    } catch {Write-SgInstallerWarning "Managed Playwright runtime pending: $($_.Exception.Message)";return $empty}
 }
 
 function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
@@ -1303,11 +1366,12 @@ $nativeNpx = Get-SgNativeNpxPath $npxPaths
 $serviceInfo = Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
 $stackMcpDefinitions = @(Get-SgStackMcpDefinitions $serviceInfo.Needs $serviceInfo.Versions $nativeNpx)
 $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeReady -or $opencodeReady -or $kiloReady -or $geminiReady) (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
+$playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
 $agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $stackMcpDefinitions
 $playwrightConfigured = @($agentInfo.Values | Where-Object { $_.ReadyServers -contains 'playwright' }).Count -gt 0
 $playwrightPending = @($agentInfo.Values | Where-Object { $_.PendingServers -contains 'playwright' }).Count -gt 0
 $playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$playwrightConfigured; McpVerified=$playwrightConfigured -and -not $playwrightPending; ConfigPath='per-agent; readiness listed below'; ChromiumPath=$playwright.ChromiumPath }
-$environmentPath = Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightInfo $pythonInfo $flutterReady $androidInfo $ideInfo $serviceInfo (Test-SgWindowsDeveloperMode)
+$environmentPath = Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightInfo $playwrightRuntime $pythonInfo $flutterReady $androidInfo $ideInfo $serviceInfo (Test-SgWindowsDeveloperMode)
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
 $agentInstructionChanges = @(Install-SgAgentEnvironmentInstructions -UserProfile $env:USERPROFILE -AgentReady @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady })
 if ($agentInstructionChanges.Count) { Write-Host "ShipGlows tool context installed for $($agentInstructionChanges.Count) coding agent(s)." -ForegroundColor Green }
@@ -1335,6 +1399,8 @@ Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor
 [void](Install-SgApplicationCommandWrapper 'kilo' 'kilo.cmd' $kiloPaths)
 [void](Install-SgApplicationCommandWrapper 'kilocode' 'kilocode.cmd' $kilocodePaths)
 [void](Install-SgApplicationCommandWrapper 'gemini' 'gemini.cmd' $geminiPaths)
+if($playwrightRuntime.StablePath){[void](Install-SgApplicationCommandWrapper 'playwright' 'playwright.cmd' @($playwrightRuntime.StablePath))}
+if($playwrightRuntime.AgentCliPath){[void](Install-SgApplicationCommandWrapper 'playwright-cli' 'playwright-cli.cmd' @($playwrightRuntime.AgentCliPath))}
 [void](Install-SgAgentShortcut 'c' 'claude')
 [void](Install-SgAgentShortcut 'co' 'codex')
 [void](Install-SgAgentShortcut 'cor' 'codex' @('resume'))

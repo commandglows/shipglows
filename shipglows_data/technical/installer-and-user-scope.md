@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.6.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-16"
@@ -204,6 +204,14 @@ sudo ./cli/install.sh
   requires a discovered local Chromium executable before writing the owned
   `mcp_servers.playwright` table. It preserves unrelated Codex keys and MCP
   servers and never writes Playwright dependencies into user projects.
+- Native Windows additionally installs exact managed `playwright` and
+  `@playwright/cli` packages under `%LOCALAPPDATA%\ShipGlows\node-tools`, exposes
+  `playwright` and `playwright-cli` through runtime wrappers, reads the stable
+  package's `browsers.json`, and requires its exact Chromium revision before
+  motion is reported ready. MCP ownership and browser revision remain separate.
+- `s a` owns authentication orchestration, not credentials: bounded status
+  checks are redacted, official interactive CLI flows own login, logout requires
+  confirmation, Gemini uses its interactive CLI, and Convex remains project-scoped.
 - Installed/configured capability and current-turn callability remain separate.
   Agents inspect directly exposed tools and the host's deferred/searchable
   catalog (`ALL_TOOLS`, `tool_search`, or equivalent) before reporting

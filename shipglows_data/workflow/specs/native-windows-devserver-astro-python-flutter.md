@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.9.0"
+artifact_version: "0.10.0"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-16"
-updated_at: "2026-08-16 12:27:39 UTC"
+updated_at: "2026-08-16 14:41:26 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -141,6 +141,8 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Diagnostics bornes avec transport d'arguments exact PowerShell 5.1 pour EXE/CMD/BAT, identite PID+heure de demarrage avant arret d'arbre et readiness separee `ToolchainReady`, `LicensesReady`, `DeviceReady`; seul le marqueur Android toolchain positif exact avec licences confirmees prouve la toolchain.
 - Provisioning Android automatique limite explicitement a Windows x64 avant tout telechargement. Les packages plateforme/build-tools/image sont centralises sur Android API 36. L'emulateur est propose seulement apres preuve de virtualisation imbriquee; sinon, telephone reel.
 - Proposition groupee interactive des CLIs Codex, Claude, OpenCode, Kilo et Gemini manquants, versions exactes et verification executable, sans authentification ni consentement infere en non-interactif.
+- Menu `s a` pour etat redige et flux officiels connect/reconnect/logout des CLIs installees; aucun secret n'est lu, Gemini reste interactif et Convex reste lie au projet.
+- Runtimes Playwright stable et agent CLI exacts hors projets, wrappers PATH, revision Chromium issue du metadata stable, MCP et motion suivis separement.
 - MCP Dart/Flutter, Playwright exact-version, Firebase, Convex et Clerk pour les agents installes, plus GitHub officiel en lecture seule. OpenCode v2 utilise `mcp.servers`; Kilo prefere `kilo` et detecte `kilocode`. JSON/JSONC existant reste byte-identique et pending si aucun chemin natif sur n'est prouve; l'etat est enregistre par agent.
 - Firebase CLI, FlutterFire CLI, Supabase CLI, Convex CLI, Vercel CLI et Clerk CLI prepares uniquement depuis un scan borne des manifests, avec version exacte resolue, code retour et executable final verifies. Clerk init, SDK projet, liaison, secrets et authentification restent explicites. Les besoins NDK/CMake sont signales pour revue des versions projet.
 - Actions dashboard, clone, register existing project, start, stop, restart, logs, open, unregister, stop all et refresh.
@@ -441,6 +443,8 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 - [x] AC33: Given a visitor opens the English or French ShipGlows installer surfaces, when Windows full is described or downloaded, then the pages and PowerShell introduction name Flutter web, Android, and Windows rather than optional Flutter Web alone. They describe Android Studio, Visual Studio Community C++, emulator acceleration, physical-phone and Firebase Device Streaming alternatives, separate readiness states, and the exact next action without claiming that Firebase authentication, project selection, billing, reservation, or a runnable emulator is automatic. The public PowerShell artifact remains byte-identical to the canonical installer, and focused bilingual content, endpoint, type, build, and visual-route proofs pass before deployment.
 - [x] AC34: Given Codex, Claude, OpenCode, Kilo, or Gemini is detected by Windows full, when agent setup converges, then ShipGlows atomically maintains exactly one bounded environment block in that agent's native global instruction file, including Gemini's official global `.gemini/GEMINI.md`. Foreign content is preserved, unavailable agents receive no file, malformed markers fail closed, and reruns are byte-idempotent. The block points to the dynamic global environment, requires direct and deferred tool discovery, prefers purpose-built callable tools, and redirects uncertain state to `$shipglows context` without embedding a static tool list or changing authentication, permissions, or MCP ownership.
 - [ ] AC35: Given an interactive Windows full install and preferred-stack manifests, when coding-agent and service preparation runs, then one grouped consent gate installs only missing Codex/Claude/OpenCode/Kilo/Gemini CLIs at exact versions, bounded detection prepares Firebase, FlutterFire, Convex, Vercel, Supabase and Clerk CLIs, official Firebase/Convex/Clerk plus Dart/Playwright MCP definitions and the official read-only GitHub MCP converge where safe across all five agents, and `%USERPROFILE%\.shipglows\environment.md` records truthful per-agent readiness. Gemini configuration uses its official user-scope CLI and local JSON verification without initiating connection; Clerk init/linking/SDK injection and all authentication remain explicit. Developer Mode may open official settings only after consent and is never changed automatically. Automated fixtures and static contracts pass; remote-branch full-install proof remains required.
+- [ ] AC36: Given installed Windows CLIs, when `s a` opens, then ShipGlows reports only redacted authentication state and delegates connect/reconnect or confirmed logout to native CLI flows without reading credentials; Gemini is interactive and Convex remains project-scoped.
+- [ ] AC37: Given an agent or motion workflow needs Playwright, when Windows full converges, then exact managed `playwright` and `playwright-cli` commands are on ShipGlows PATH, the stable package's declared Chromium revision launches, MCP stays separately pinned, and environment state distinguishes all four surfaces.
 
 # Test Strategy
 

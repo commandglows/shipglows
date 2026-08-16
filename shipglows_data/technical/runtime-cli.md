@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.12.0"
+artifact_version: "1.13.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-16"
@@ -249,6 +249,13 @@ project linking, SDK injection or secret retrieval is started. The environment
 report records installed and ready/pending MCP state separately for each agent.
 Developer Mode remains read-only; the installer can only offer to open the
 official Windows settings surface.
+The interactive Windows runtime adds `s a` and a root **Authentication** entry.
+It reports only redacted states and delegates connect/reconnect/logout to each
+official CLI; logout is confirmed, Gemini owns its interactive flow, and Convex
+is labelled project-scoped. Credentials and provider output are never copied to
+ShipGlows state. Full installation also owns exact user-scope `playwright` and
+`playwright-cli` packages outside projects, verifies the stable package's declared
+Chromium revision, and exposes both commands through runtime PATH wrappers.
 After the Android CLI preparation, one grouped Windows IDE proposal lists only
 missing outcomes. `Google.AndroidStudio` provides the current Android IDE and the
 Firebase Device Streaming entry point. `Microsoft.VisualStudio.2022.Community`

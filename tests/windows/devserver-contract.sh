@@ -10,14 +10,16 @@ BOOTSTRAP="$ROOT/install-shipglows.ps1"
 CODEX_MCP_MODULE="$ROOT/cli/windows/ShipGlows.CodexMcp.psm1"
 MOBILE_MODULE="$ROOT/cli/windows/ShipGlows.MobileToolchain.psm1"
 AGENT_INSTRUCTIONS_MODULE="$ROOT/cli/windows/ShipGlows.AgentInstructions.psm1"
+AUTH_MODULE="$ROOT/cli/windows/ShipGlows.Auth.psm1"
 
-for file in "$MODULE" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$AGENT_INSTRUCTIONS_MODULE"; do
+for file in "$MODULE" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE"; do
   test -f "$file"
 done
 
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/mobile-toolchain.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/agent-instructions.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/auth-playwright.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/bootstrap-ref-resolution.ps1"
 for regression in \
   devserver-monorepo-detection.ps1 \
@@ -97,6 +99,9 @@ rg -n 'Android emulator installed|Android virtual device ready|Android emulator 
 ! rg -n "create','avd','--force" "$INSTALLER"
 rg -n 'Preparing coding-agent CLIs and MCPs|Test-SgToolRuns.*codex|Test-SgToolRuns.*claude|Test-SgToolRuns.*opencode|Resolve-SgKiloCommand' "$INSTALLER"
 rg -n '@google/gemini-cli|Get-SgGeminiMcpAddArguments|Get-SgGeminiMcpConfigState|Gemini.*MCP readiness|[.]gemini\\GEMINI[.]md' "$INSTALLER" "$MOBILE_MODULE" "$AGENT_INSTRUCTIONS_MODULE"
+rg -n "'auth'|s a.*Manage CLI authentication|Authentication" "$ENTRYPOINT"
+rg -n 'Get-SgAuthenticationDefinitions|Get-SgAuthenticationState|interactive-cli|project-required' "$AUTH_MODULE"
+rg -n 'Install-SgManagedPlaywrightRuntimes|playwright-cli|Motion runtime ready|Playwright Chromium revision' "$INSTALLER" "$AUTH_MODULE"
 ! rg -n 'gemini.*(auth|login)|GEMINI_API_KEY|GOOGLE_API_KEY' "$INSTALLER" "$MOBILE_MODULE"
 ! rg -n 'foreach \(\$server in @\(\$serverDefinitions\)\)' "$INSTALLER"
 ! rg -n 'Install Codex CLI now\? \[y/N\]|Each agent is a separate choice' "$INSTALLER"
@@ -159,11 +164,11 @@ test -n "$legacy_cleanup_line" && test -n "$wrapper_install_line" && test "$lega
 rg -n "USERPROFILE 'ShipGlows'" "$INSTALLER" "$MODULE"
 ! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
 rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, or 0\.' \}" "$BOOTSTRAP"
-for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
+for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
 done
-rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.AgentInstructions\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
-rg -n '\$entries\.Count -ne 6' "$BOOTSTRAP"
+rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
+rg -n '\$entries\.Count -ne 7' "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
 ! rg -n '\$windowsCandidates = @\([^)]*\) \| Where-Object' "$BOOTSTRAP"
 rg -n "127\\.0\\.0\\.1|registry\\.json|registry\\.lock|commandSignature|startTimeUtc" "$MODULE"
@@ -180,7 +185,7 @@ rg -F -n 'Android next action: $androidNextAction' "$INSTALLER"
 rg -F -n 'Android Studio installed: $androidStudioReady' "$INSTALLER"
 rg -F -n 'Flutter Windows desktop toolchain ready: $visualStudioCppReady' "$INSTALLER"
 rg -F -n 'Firebase Android Device Streaming configured: $firebaseDeviceStreamingReady' "$INSTALLER"
-rg -F -n 'Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightInfo $pythonInfo $flutterReady $androidInfo $ideInfo $serviceInfo (Test-SgWindowsDeveloperMode)' "$INSTALLER"
+rg -F -n 'Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightInfo $playwrightRuntime $pythonInfo $flutterReady $androidInfo $ideInfo $serviceInfo (Test-SgWindowsDeveloperMode)' "$INSTALLER"
 rg -F -n 'Resolving the official Android command-line tools package and SHA-256' "$INSTALLER"
 rg -F -n 'Downloading Android command-line tools $($package.Version)' "$INSTALLER"
 rg -F -n 'Android command-line tools SHA-256 verified. Extracting the archive' "$INSTALLER"

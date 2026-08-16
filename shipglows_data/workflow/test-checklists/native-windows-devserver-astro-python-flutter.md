@@ -1,7 +1,7 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-08-15"
 updated: "2026-08-16"
@@ -87,6 +87,9 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] PowerShell 5.1 transport preserves argument boundaries for EXE and CMD/BAT across spaces, Unicode, quotes, `&`, `%` and `;`; interactive execution and timeout/tree-stop paths are covered.
 - [x] Service scanning excludes reparse directories and reports its bounded-directory limit.
 - [x] Automated proof uses temporary fixtures only and performs no package download, elevation, registry mutation, Developer Mode change, authentication or user-project write.
+- [x] Authentication fixtures cover five agents and supported services, redact status output, preserve project-scoped Convex, use native Gemini interaction, and forbid token/key/secret arguments.
+- [x] Playwright planning keeps stable CLI, agent CLI and MCP ownership separate, pins exact versions, binds stable Chromium revision, and exposes motion readiness independently.
+- [ ] Real Shadow proof must run `playwright --version`, `playwright-cli --help`, launch the declared Chromium revision, exercise one motion capture, and complete only operator-selected authentication flows.
 - [x] Multi-agent instruction fixtures prove the exact Codex, Claude, OpenCode, Kilo and Gemini global paths, detected-agent filtering, foreign Unicode/newline preservation, managed-block replacement, fail-closed malformed markers, atomic temp cleanup and byte-idempotent reruns.
 - [ ] Run full installation on a fresh Windows target and record accepted/refused license outcomes, exact resolved versions and readiness fields.
 - [ ] Validate `ShipGlows_API_36` through `adb` and `flutter devices` on a host that exposes nested virtualization; Shadow software-mode failure is already recorded.

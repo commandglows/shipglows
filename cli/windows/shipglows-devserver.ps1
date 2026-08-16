@@ -13,12 +13,16 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $module = Join-Path $PSScriptRoot 'ShipGlows.DevServer.psm1'
 Import-Module $module -Force -DisableNameChecking
+$authModule = Join-Path $PSScriptRoot 'ShipGlows.Auth.psm1'
+$mobileModule = Join-Path $PSScriptRoot 'ShipGlows.MobileToolchain.psm1'
+Import-Module $authModule -Force -DisableNameChecking
+Import-Module $mobileModule -Force -DisableNameChecking
 $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','update','help','exit')
+    $namedActions = @('menu','dashboard','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -32,6 +36,7 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
         'm o' = 'stop-all'
         'm l' = 'select-logs'
         'm n' = 'navigate'
+        'a'   = 'auth'
         'u'   = 'update'
         'h'   = 'help'
         'x'   = 'exit'
@@ -51,6 +56,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s m o    Stop all projects'
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
+    Write-Host '  s a      Manage CLI authentication with official interactive flows'
     Write-Host '  s u      Update ShipGlows from the official repository'
     Write-Host '  s x      Quit ShipGlows'
     Write-Host '  s         Interactive menu'
@@ -377,6 +383,53 @@ function Invoke-SgUpdate {
     }
 }
 
+function Get-SgAuthenticationMenuState {
+    param($Definition)
+    $runner = { param($File,$Arguments,$TimeoutSeconds) Invoke-SgBoundedProcess -File $File -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds }
+    return Get-SgAuthenticationState -Definition $Definition -Runner $runner
+}
+
+function Invoke-SgAuthenticationMenu {
+    while ($true) {
+        $definitions = @(Get-SgAuthenticationDefinitions)
+        $labels = New-Object 'System.Collections.Generic.List[string]'
+        $byLabel = @{}
+        foreach ($definition in $definitions) {
+            $state = Get-SgAuthenticationMenuState $definition
+            $label = "$($definition.Category) - $($definition.Name)  [$($state.Status)]"
+            [void]$labels.Add($label); $byLabel[$label] = $definition
+        }
+        [void]$labels.Add('0  Back to menu')
+        if ($choiceUiAvailable) {
+            $selected = Read-SgChoice 'Authentication - official CLI flows only' $labels.ToArray()
+            if (-not $selected -or $selected -eq '0  Back to menu') { return }
+        } else {
+            Write-Host ''; for($i=0;$i -lt $definitions.Count;$i++){Write-Host ("[{0}] {1}" -f ($i+1),$labels[$i])}; Write-Host '[0] Back to menu'
+            $number=Read-Host 'Tool number'; if($number -eq '0'){return}; if($number -notmatch '^\d+$' -or [int]$number -lt 1 -or [int]$number -gt $definitions.Count){Write-SgWarn 'Invalid tool number.';continue}; $selected=$labels[[int]$number-1]
+        }
+        $definition = $byLabel[$selected]
+        $command = Get-SgApplication $definition.Command @()
+        if (-not $command) { Write-SgWarn "$($definition.Name) CLI is unavailable. Rerun the full installer."; continue }
+        if ($definition.LoginMode -eq 'project') { Write-SgWarn "$($definition.Name) authentication is project-scoped. Navigate to the project and run its official development command."; continue }
+        $action = if($choiceUiAvailable){Read-SgChoice "$($definition.Name) authentication" @('Connect or reconnect','Logout','Back')}else{Read-Host 'Choose connect, logout, or back'}
+        if (-not $action -or $action -match '^(Back|back)$') { continue }
+        if ($action -match '^(Logout|logout)$') {
+            $confirm=(Read-Host "Logout $($definition.Name) on this Windows account? [y/N]").Trim().ToLowerInvariant()
+            if($confirm -notin @('y','yes')){Write-SgInfo 'Logout cancelled.';continue}
+            if(-not @($definition.LogoutArguments).Count){Write-SgWarn "$($definition.Name) has no safe native logout command; use its own account UI.";continue}
+            & $command @($definition.LogoutArguments)
+        } elseif ($definition.LoginMode -eq 'interactive-cli') {
+            Write-SgInfo "$($definition.Name) will open its official interactive authentication flow. ShipGlows never reads or stores credentials."
+            & $command
+        } else {
+            Write-SgInfo "$($definition.Name) will open its official authentication flow. ShipGlows never reads or stores credentials."
+            & $command @($definition.LoginArguments)
+            if($definition.Name -eq 'GitHub' -and $LASTEXITCODE -eq 0){& $command auth setup-git}
+        }
+        if($LASTEXITCODE -ne 0){Write-SgWarn "$($definition.Name) authentication was cancelled, failed, or remains provider-managed."}else{Write-SgInfo "$($definition.Name) authentication flow finished; status will be refreshed locally."}
+    }
+}
+
 function Invoke-Menu {
     $menuItems = @(
         '1  Clone a repository',
@@ -389,6 +442,7 @@ function Invoke-Menu {
         '8  Stop all projects',
         '9  Unregister a project',
         'n  Navigate to a project',
+        'a  Authentication',
         'r  Refresh',
         'u  Update ShipGlows',
         '0  Quit ShipGlows'
@@ -400,7 +454,7 @@ function Invoke-Menu {
             if (-not $selected) { continue }
             $choice = $selected.Substring(0,1)
         } else {
-            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  r) Refresh  u) Update  0) Quit ShipGlows'
+            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  r) Refresh  u) Update  0) Quit ShipGlows'
             $choice = Read-Host 'Choice'
         }
         try {
@@ -415,6 +469,7 @@ function Invoke-Menu {
                 '8' { foreach ($entry in @(Read-SgRegistry $config).projects) { Stop-SgProject $config $entry.path } }
                 '9' { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } }
                 'n' { Invoke-Navigate }
+                'a' { Invoke-SgAuthenticationMenu }
                 'r' { Get-SgProjectCatalog $config -ForceRefresh | Out-Null }
                 'u' { Invoke-SgUpdate; return }
                 '0' { return }
@@ -451,6 +506,7 @@ try {
         'select-restart' { $entry = Get-SelectedProject 'restart'; if ($entry) { Stop-SgProject $config $entry.path; Start-SgProject $config $entry.path $Port | Out-Null } }
         'select-logs' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
         'navigate' { Invoke-Navigate }
+        'auth' { Invoke-SgAuthenticationMenu }
         'update' { Invoke-SgUpdate }
         'help' { Show-SgShortcutHelp }
         'exit' { return }

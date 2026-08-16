@@ -74,6 +74,19 @@ enabled = true
     $missingNpx = Get-SgCodexPlaywrightPrerequisiteStatus $existingCommand $existingCommand ''
     if ($missingNpx.Ready -or $missingNpx.Message -notmatch 'npx.cmd is unavailable') { throw 'Missing npx diagnostic is not explicit.' }
 
+    $previousLocalAppData = $env:LOCALAPPDATA
+    try {
+        $env:LOCALAPPDATA = $fixture
+        $exactBrowser = Join-Path $fixture 'ms-playwright\chromium-1237\chrome-win64\chrome.exe'
+        $otherBrowser = Join-Path $fixture 'ms-playwright\chromium-9999\chrome-win64\chrome.exe'
+        New-Item -ItemType Directory -Path (Split-Path $exactBrowser -Parent),(Split-Path $otherBrowser -Parent) -Force | Out-Null
+        Set-Content -LiteralPath $exactBrowser -Value 'exact'
+        Set-Content -LiteralPath $otherBrowser -Value 'other'
+        $resolvedExact = Get-SgPlaywrightChromiumExecutable -Revision '1237'
+        if (-not $resolvedExact -or $resolvedExact.FullName -ne $exactBrowser) { throw 'Chromium resolution must honor the exact requested Playwright revision.' }
+        if (Get-SgPlaywrightChromiumExecutable -Revision '4040') { throw 'An absent exact Chromium revision must not fall back to another cached browser.' }
+    } finally { $env:LOCALAPPDATA = $previousLocalAppData }
+
     Write-Host 'Windows Codex Playwright MCP config regression: OK'
 } finally {
     if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }

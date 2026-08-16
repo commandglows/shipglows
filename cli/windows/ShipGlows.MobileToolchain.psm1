@@ -374,7 +374,9 @@ function Get-SgGeminiMcpConfigState {
     if (-not $entryProperty) { return [pscustomobject]@{ Status='missing'; Reason='MCP entry is absent' } }
     $entry = $entryProperty.Value
     if ([string]$Server.Type -eq 'remote') {
-        $ready = $entry.PSObject.Properties['httpUrl'] -and [string]$entry.httpUrl -ceq [string]$Server.Url
+        $documentedHttp = $entry.PSObject.Properties['httpUrl'] -and [string]$entry.httpUrl -ceq [string]$Server.Url
+        $nativeHttp = $entry.PSObject.Properties['url'] -and [string]$entry.url -ceq [string]$Server.Url -and $entry.PSObject.Properties['type'] -and [string]$entry.type -ceq 'http'
+        $ready = $documentedHttp -or $nativeHttp
     } else {
         $actualArguments = if ($entry.PSObject.Properties['args']) { @($entry.args | ForEach-Object { [string]$_ }) } else { @() }
         $expectedArguments = @($Server.Arguments | ForEach-Object { [string]$_ })
