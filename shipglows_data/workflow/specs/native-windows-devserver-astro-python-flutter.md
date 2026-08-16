@@ -6,7 +6,7 @@ project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-16"
-updated_at: "2026-08-16 14:41:26 UTC"
+updated_at: "2026-08-16 15:23:08 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -558,6 +558,8 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-16 11:56:59 UTC | sg-development | GPT-5 Codex | Closed the preferred-stack audit gap for Clerk and GitHub: bounded Clerk detection, exact Clerk CLI planning, official Clerk remote MCP and official GitHub read-only MCP now project into Codex, Claude, OpenCode and Kilo without automatic authentication, project linking, SDK injection or secret retrieval. | Regression-first Clerk fixtures, PowerShell 5.1 parsing, the full Windows contract, 27 public installer tests, bootstrap parity, metadata lint, Astro check and production build pass. Real CLI installation, remote MCP authentication/callability and runtime convergence remain unexecuted. | Publish the two validated branches under separate authority, then run the full installer from the remote branch on Shadow before merging. |
 | 2026-08-16 12:27:39 UTC | sg-development | GPT-5 Codex | Added Gemini CLI as the fifth Windows coding agent with exact package planning, its official global context file and user-scope MCP commands verified locally from settings without starting authentication or a remote connection. | Regression-first Gemini fixtures, PowerShell 5.1 parsing, the full Windows contract and 27 public installer tests pass. Real Gemini installation, authentication and MCP callability remain unexecuted. | Complete the final site and metadata proofs, then request separate authority to publish and validate the installer from the remote branch. |
 
+| 2026-08-16 15:23:08 UTC | sg-engineering | GPT-5 Codex | Added redacted operator-owned CLI authentication, exact isolated Playwright stable/agent/MCP runtimes, native Gemini HTTP MCP recognition, PATH wrappers with resolvable package targets, and launcher module packaging. | Full Windows/static/public-site proofs pass; remote commit `534b0ee` installed successfully on Shadow; `playwright` 1.62.1, agent CLI 0.1.18, MCP Chromium 1237 and a real synthetic no-network WebM capture are proven. No authentication was inferred or started. | Merge source then site to main, reinstall main, verify normalized parity, and remove merged branches/worktrees. |
+
 # Current Chantier Flow
 
 | Stage | Status | Evidence / next action |
@@ -565,6 +567,6 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 100-sg-spec | complete | Full implementation contract saved with scope, exclusions, security invariants, ZOMBIES coverage and proof plan. |
 | 101-sg-ready | complete | Spec is ready after structure, security, freshness, cross-repo and proof-contract review. |
 | 102-sg-start | complete | Native runtime, full bootstrap, launcher, shared cached project catalogue, public commands, docs and static contracts are implemented locally. |
-| 103-sg-verify | in_progress | PowerShell 5.1 parsing, preferred-stack/five-agent fixtures including Gemini, the full Windows contract, public bootstrap parity, 27 focused site tests, Astro check and build pass. Remote-branch full-install proof of agent/CLI/MCP convergence on Shadow remains required. |
+| 103-sg-verify | complete | PowerShell 5.1 parsing, the full Windows contract, public bootstrap parity, 27 site tests, Astro check/build, repeated remote-branch installs, exact Playwright/MCP browser proof, launcher packaging, and a real synthetic no-network motion capture pass on Shadow. Authentication remains an operator-owned post-install choice. |
 | 104-sg-end | pending | Close only after real Shadow proof and documentation coherence. |
-| 005-sg-ship | pending | Current ShipGlows source and public-site branches remain local; publishing requires a separate full-plan approval and remote-branch installer proof. |
+| 005-sg-ship | in_progress | Source commit `534b0ee` and public-site commit `b71564d` are published on the validation branch; merge to `main`, final main reinstall/parity, and branch/worktree cleanup remain. |

@@ -89,7 +89,8 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] Automated proof uses temporary fixtures only and performs no package download, elevation, registry mutation, Developer Mode change, authentication or user-project write.
 - [x] Authentication fixtures cover five agents and supported services, redact status output, preserve project-scoped Convex, use native Gemini interaction, and forbid token/key/secret arguments.
 - [x] Playwright planning keeps stable CLI, agent CLI and MCP ownership separate, pins exact versions, binds stable Chromium revision, and exposes motion readiness independently.
-- [ ] Real Shadow proof must run `playwright --version`, `playwright-cli --help`, launch the declared Chromium revision, exercise one motion capture, and complete only operator-selected authentication flows.
+- [x] Real Shadow proof resolves stable Playwright `1.62.1` with Chromium revision `1234`, agent CLI `0.1.18`, MCP Chromium revision `1237`, launches and closes an agent-CLI browser session, and captures one synthetic no-network WebM with `motion_status=captured` before deleting the temporary corpus.
+- [ ] Complete only operator-selected authentication flows through `s a`; ShipGlows must not infer an account choice, read credentials, or persist status-command output.
 - [x] Multi-agent instruction fixtures prove the exact Codex, Claude, OpenCode, Kilo and Gemini global paths, detected-agent filtering, foreign Unicode/newline preservation, managed-block replacement, fail-closed malformed markers, atomic temp cleanup and byte-idempotent reruns.
 - [ ] Run full installation on a fresh Windows target and record accepted/refused license outcomes, exact resolved versions and readiness fields.
 - [ ] Validate `ShipGlows_API_36` through `adb` and `flutter devices` on a host that exposes nested virtualization; Shadow software-mode failure is already recorded.
