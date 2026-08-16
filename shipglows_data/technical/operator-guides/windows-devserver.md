@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.7.2"
+artifact_version: "1.7.3"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-15"
@@ -218,11 +218,14 @@ déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port
 non attribué dans le registre.
 
-L'installateur maintient un bloc borné dans `%USERPROFILE%\.codex\AGENTS.md`,
-sans wrapper Codex ni remplacement de vos autres instructions. Les apps et
-connecteurs ChatGPT ne sont pas des outils Codex CLI. Le tour Codex courant
-reste l'autorité, mais son inventaire comprend les outils visibles directement
-et son catalogue différé ou recherchable lorsqu'il existe.
+L'installateur maintient un bloc borné dans le fichier global natif de chaque
+agent détecté : `%USERPROFILE%\.codex\AGENTS.md`,
+`%USERPROFILE%\.claude\CLAUDE.md`, `%USERPROFILE%\.config\opencode\AGENTS.md`
+et `%USERPROFILE%\.config\kilo\AGENTS.md`. Il ne remplace pas vos autres
+instructions et n'enveloppe aucune commande. Ce bloc renvoie vers le fichier
+d'environnement dynamique, demande de préférer un outil spécialisé réellement
+appelable et rappelle d'inspecter l'inventaire direct puis différé ou recherchable.
+Les apps et connecteurs ChatGPT ne sont pas automatiquement des outils CLI.
 
 Pour recadrer un agent en cas de doute, utilisez :
 

@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.9.2"
+artifact_version: "1.9.3"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-15"
@@ -288,8 +288,14 @@ Python, Flutter/Dart, Android toolchain/license/device readiness, emulator packa
 named-AVD and acceleration readiness, the next Android action when setup is pending, Playwright
 configuration, Android Studio, Flutter Windows C++ readiness, Firebase Device
 Streaming state and the native ShipGlows DevServer. The installer also
-maintains a bounded `~/.codex/AGENTS.md` block that points agents to this file
-without wrapping the Codex command. That block also enforces explicit
+maintains bounded native instruction blocks for detected agents: Codex
+`~/.codex/AGENTS.md`, Claude `~/.claude/CLAUDE.md`, OpenCode
+`~/.config/opencode/AGENTS.md`, and Kilo `~/.config/kilo/AGENTS.md`. Existing
+instructions outside the block remain unchanged. The shared block points to this
+file, prefers a purpose-built callable tool, checks direct and deferred discovery,
+and redirects uncertain capability state to `$shipglows context` instead of
+embedding a stale machine-specific tool list. It does not wrap agent commands.
+That block also enforces explicit
 post-message approval before intentional mutations: a one- or two-sentence fast
 validation is available only for exact local routine readily reversible actions
 that satisfy every no-harm criterion; other actions use the full plan, and

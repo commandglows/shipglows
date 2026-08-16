@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.21.1"
+artifact_version: "0.21.2"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-08-16"
@@ -273,6 +273,12 @@ ShipGlows does not add Playwright files or packages to application repositories.
 ShipGlows agents inspect both the directly visible tool list and the host's
 deferred/searchable catalog before reporting the configured MCP unavailable;
 a small read-only probe confirms current-session callability.
+For each detected agent, Windows full also maintains one bounded instruction
+block in its native global file: Codex `.codex\AGENTS.md`, Claude
+`.claude\CLAUDE.md`, OpenCode `.config\opencode\AGENTS.md`, or Kilo
+`.config\kilo\AGENTS.md`. Existing instructions outside the block are preserved;
+the block points to `%USERPROFILE%\.shipglows\environment.md` and to
+`$shipglows context` instead of copying a machine-specific tool inventory.
 It clones or registers repositories directly under `%USERPROFILE%\ShipGlows`,
 starts them on localhost ports, and keeps a recoverable registry under
 `%LOCALAPPDATA%`. No tunnel is needed for projects running on the Shadow.

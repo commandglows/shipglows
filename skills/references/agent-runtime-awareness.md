@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.3.0"
+artifact_version: "3.3.1"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-16"
@@ -16,6 +16,8 @@ docs_impact: yes
 linked_systems:
   - cli/windows/ShipGlows.DevServer.psm1
   - cli/windows/install-devserver.ps1
+  - cli/windows/ShipGlows.AgentInstructions.psm1
+  - tests/windows/agent-instructions.ps1
   - cli/install.sh
   - skills/000-shipglows/SKILL.md
   - skills/301-sg-context/SKILL.md
@@ -32,6 +34,7 @@ evidence:
   - "Each managed project exposes its durable assigned URL in a visible, versioned ENVIRONMENT.md file."
   - "The Windows DevServer registry remains the live status authority."
   - "A Playwright MCP false negative on 2026-08-14 showed that direct tool listings can omit callable tools retained in the host's deferred catalog."
+  - "The Windows installer atomically projects this stable discovery contract into each detected agent's native global instruction file while dynamic facts remain in environment.md."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify Windows runtime awareness"
 ---
@@ -88,6 +91,13 @@ and must never be automated. Report the recorded Firebase state and exact next
 action without claiming a hosted device is callable until the current turn proves it.
 
 Keep installation, configuration, discovery, and callability distinct. ChatGPT apps/connectors and Codex CLI tools are separate surfaces. The global file describes what ShipGlows installed or configured, while the current host turn decides what can be called.
+
+Windows full projects this stable rule into bounded blocks in the native global
+instruction files for detected Codex, Claude, OpenCode, and Kilo agents. It must
+not copy the current tool inventory into those files: machine facts stay in
+`%USERPROFILE%\.shipglows\environment.md`, while the current turn remains the
+authority for discovery and callability. Existing instructions outside the
+managed block are preserved.
 
 ## Current-Turn Capability Discovery
 

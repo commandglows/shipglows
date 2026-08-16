@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.3.1"
+artifact_version: "2.3.2"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-15"
@@ -160,6 +160,14 @@ sudo ./cli/install.sh
   backup rather than deleted. System-owned shims outside the user profile are
   left unchanged because the user-scoped runtime wrapper already takes PATH
   priority and the installer must not mutate protected package files.
+- For each detected coding agent, native Windows atomically maintains a bounded
+  ShipGlows block in the agent's official global instruction file: Codex
+  `.codex\AGENTS.md`, Claude `.claude\CLAUDE.md`, OpenCode
+  `.config\opencode\AGENTS.md`, and Kilo `.config\kilo\AGENTS.md`. Content outside
+  the block is preserved, unavailable agents receive no file, and malformed
+  managed markers fail closed. Dynamic tool facts stay in
+  `.shipglows\environment.md`; the instruction block only defines discovery,
+  callability, purpose-built-tool preference, and `$shipglows context` recovery.
 - Native Windows keeps convenience commands independent from `$PROFILE`.
   `s.cmd` and `shipglows-dev.cmd` launch the DevServer with `-NoProfile` and a
   process-scoped execution-policy bypass. When the names are unclaimed, the

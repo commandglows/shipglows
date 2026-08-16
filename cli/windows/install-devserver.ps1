@@ -16,6 +16,9 @@ Import-Module $codexMcpModule -Force -DisableNameChecking
 $mobileModule = Join-Path $sourceDir 'ShipGlows.MobileToolchain.psm1'
 if (-not (Test-Path -LiteralPath $mobileModule -PathType Leaf)) { throw "Missing Windows mobile toolchain helper: $mobileModule" }
 Import-Module $mobileModule -Force -DisableNameChecking
+$agentInstructionsModule = Join-Path $sourceDir 'ShipGlows.AgentInstructions.psm1'
+if (-not (Test-Path -LiteralPath $agentInstructionsModule -PathType Leaf)) { throw "Missing Windows agent instructions helper: $agentInstructionsModule" }
+Import-Module $agentInstructionsModule -Force -DisableNameChecking
 $gumVersion = '0.17.0'
 $gumSha256 = 'B2BE80531C6BABC8D4E0E6CA95773D58118A2E1582AE006AACE08DBC55503072'
 New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
@@ -567,26 +570,6 @@ function Get-SgNativeNpxPath([string[]]$KnownPaths = @()) {
         if ($candidate -ine $managedWrapper) { return $candidate }
     }
     return $null
-}
-
-function Set-SgCodexEnvironmentInstructions([string]$AgentsPath) {
-    $directory = Split-Path -Parent $AgentsPath
-    New-Item -ItemType Directory -Path $directory -Force | Out-Null
-    $existing = if (Test-Path -LiteralPath $AgentsPath -PathType Leaf) { [IO.File]::ReadAllText($AgentsPath) } else { '' }
-    $pattern = '(?ms)^# >>> ShipGlows development environment >>>\r?\n.*?^# <<< ShipGlows development environment <<<\r?\n?'
-    $block = @'
-# >>> ShipGlows development environment >>>
-Before any intentional mutation, obtain explicit approval given after the approval message. Use a one- or two-sentence `🧭 VALIDATION RAPIDE` with the exact action, exact target, and main safety guarantee only when the request is explicit and unambiguous, the target is resolved, and the action is local-only, routine, readily reversible, and cannot overwrite, discard, delete, force, publish, deploy, message, change credentials/permissions, or affect unrelated changes. Otherwise show a `🧭 PLAN À VALIDER` containing Objective, Scope, Actions, Proofs, and contextual choices. The initial request is not approval. If material scope changes, stop and obtain approval for a newly appropriate fast validation or replacement full plan. `git push` always uses the full plan; force push retains stricter gates. Read-only exploration is allowed before approval.
-Before local-server or tool-dependent work, read `%USERPROFILE%\.shipglows\environment.md`.
-For a ShipGlows-managed project, then read `<project-root>\ENVIRONMENT.md` for its durable assigned URL and the ShipGlows DevServer registry for live status.
-ChatGPT apps/connectors and Codex CLI tools are different surfaces. Never assume one is callable from the other. Inspect both directly exposed tools and any deferred/searchable catalog provided by the current Codex turn before declaring a configured tool unavailable; that current-turn inventory remains authoritative.
-# <<< ShipGlows development environment <<<
-'@
-    $remainder = [regex]::Replace($existing, $pattern, '').Trim([char[]]"`r`n")
-    $next = if ($remainder) { "$remainder`n`n$($block.Trim())`n" } else { "$($block.Trim())`n" }
-    if ($next.Replace("`r`n","`n") -ceq $existing.Replace("`r`n","`n")) { return $false }
-    [IO.File]::WriteAllText($AgentsPath, $next, [Text.UTF8Encoding]::new($false))
-    return $true
 }
 
 function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
@@ -1174,9 +1157,8 @@ $playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=
 [void](Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) (Get-SgNativeNpxPath $npxPaths))
 $environmentPath = Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo $flutterReady $androidInfo $ideInfo
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
-if ($codexReady) {
-    [void](Set-SgCodexEnvironmentInstructions (Join-Path $env:USERPROFILE '.codex\AGENTS.md'))
-}
+$agentInstructionChanges = @(Install-SgAgentEnvironmentInstructions -UserProfile $env:USERPROFILE -AgentReady @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady })
+if ($agentInstructionChanges.Count) { Write-Host "ShipGlows tool context installed for $($agentInstructionChanges.Count) coding agent(s)." -ForegroundColor Green }
 [void](Invoke-SgProjectEnvironmentMigration (Join-Path $runtimeDir 'ShipGlows.DevServer.psm1'))
 
 Write-Host ''
