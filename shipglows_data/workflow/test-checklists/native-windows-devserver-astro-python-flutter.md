@@ -1,10 +1,10 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.3.2"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-15"
-updated: "2026-08-15"
+updated: "2026-08-16"
 status: active
 source_skill: 900-shipglows-core
 scope: native-windows-devserver-project-catalog-and-flutter-android
@@ -23,7 +23,7 @@ linked_systems:
   - shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md
 depends_on:
   - artifact: shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md
-    artifact_version: "0.5.0"
+    artifact_version: "0.6.0"
     required_status: draft
 supersedes: []
 evidence:
@@ -85,3 +85,13 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [ ] Run full installation on a fresh Windows target and record accepted/refused license outcomes, exact resolved versions and readiness fields.
 - [ ] Validate `ShipGlows_API_36` through `adb` and `flutter devices` on a host that exposes nested virtualization; Shadow software-mode failure is already recorded.
 - [ ] Validate MCP convergence in real Codex, Claude, OpenCode v2 and Kilo configs, including an existing JSONC file.
+
+## Windows IDE and Firebase entry-point proof
+
+- [x] Plan fixtures cover both IDEs absent, one present, both present, refusal and non-interactive execution; only missing outcomes are selected.
+- [x] Android Studio detection requires a real `studio64.exe`; Visual Studio readiness requires both a Community instance and `Microsoft.VisualStudio.Workload.NativeDesktop` through `vswhere`.
+- [x] Static contract pins the official WinGet package IDs, native desktop workload, recommended components and `--norestart`, and rejects Firebase login/auth automation.
+- [x] Real Shadow installation provides Android Studio build `AI-261.26222.65.2613.15948027` and Visual Studio Community 2022 `17.14.38` with the native desktop workload.
+- [x] Real `flutter doctor -v` reports Android, Visual Studio Community 2022, Chrome and connected Windows/web devices healthy, with `No issues found`.
+- [x] Existing Flutter 3.44.9, JDK 17, Android SDK/build-tools 36, accepted licenses, emulator package and `ShipGlows_API_36` were preserved; Windows was not restarted automatically.
+- [ ] Open Android Studio once, keep the existing SDK, sign in personally, choose a Firebase project and confirm the Firebase Device Streaming surface. No automation may accept billing or reserve a device.

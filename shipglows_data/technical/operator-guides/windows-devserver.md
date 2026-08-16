@@ -51,6 +51,7 @@ ne sont pas requis par le parcours Shadow PC.
 - ✅ DevServer natif Astro, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
 - ✅ Clone et registre local des dépôts directement dans `%USERPROFILE%\ShipGlows`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
+- ✅ Android Studio proposé pour Android/Firebase Device Streaming et Visual Studio Community C++ pour compiler Flutter Windows
 - ✅ MCP Dart/Flutter et Playwright préparés sans authentification; JSON/JSONC existant préservé ou signalé pending
 
 1. **Lancer le bootstrap unique ShipGlows:**
@@ -86,7 +87,7 @@ ne sont pas requis par le parcours Shadow PC.
    réutilisées sans remplacer leurs variables ni le `PATH`. Sinon JDK 17 est
    installé dans le profil utilisateur avant la présentation des conditions
    Android; les archives ZIP sont vérifiées et les packages ciblent Android 36.
-   La seule question produit porte sur l'émulateur et elle n'est posée que si
+   La question émulateur n'est posée que si
    l'émulateur, l'image Android 36 ou `ShipGlows_API_36` manque. Un état partiel
    propose une réparation; un état complet supprime la question. Si l'accélération
    n'est pas prouvée, ShipGlows prévient
@@ -97,7 +98,15 @@ ne sont pas requis par le parcours Shadow PC.
    `sdkmanager --licenses` est signalé comme action en attente. L'émulateur
    accéléré requiert toujours une virtualisation prouvée; sans elle, l'AVD reste
    installé mais le mode logiciel n'est qu'un diagnostic qui peut être inutilisable
-   ou ne jamais terminer son démarrage. Les nouveaux fichiers agent peuvent
+   ou ne jamais terminer son démarrage. Une proposition groupée distincte liste
+   ensuite uniquement les gros outils IDE manquants. Android Studio apporte l'IDE
+   Android et l'accès à Firebase Device Streaming; Visual Studio Community 2022
+   avec « Desktop development with C++ » apporte le compilateur Flutter Windows.
+   Une installation déjà complète supprime la question et un Visual Studio partiel
+   reçoit uniquement le workload manquant. La progression reste visible et aucun
+   redémarrage Windows n'est automatique. L'authentification Firebase, le choix du
+   projet, la facturation et la réservation d'un appareil distant restent à faire
+   personnellement dans Android Studio. Les nouveaux fichiers agent peuvent
    recevoir Dart/Flutter et Playwright; un JSON/JSONC existant reste intact et
    explicitement pending si aucune mise à jour native sûre n'est disponible.
    Aucune authentification n'est démarrée. Il ne demande ni
@@ -194,6 +203,7 @@ global statique indique Windows, PowerShell, Codex CLI, Python, Flutter/Dart,
 l'état de la toolchain/licences/device Android, du package émulateur, de l'AVD
 et de son accélération,
 ainsi que la prochaine action Android,
+Android Studio, le compilateur Flutter Windows, l'état Firebase Device Streaming,
 Playwright et le DevServer natif. Chaque surface enregistrée reçoit aussi un fichier visible et
 versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le port
 attribué et l'URL canonique sans écraser le reste du document. Le registre

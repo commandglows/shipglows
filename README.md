@@ -239,7 +239,7 @@ The archive download announces its resolved version and size, shows curl progres
 and uses bounded retries with partial-transfer resume before checksum validation.
 On rerun, already accepted SDK licenses are recognized by a bounded non-accepting
 probe, so non-interactive convergence can continue without replaying consent.
-On an interactive x64 install, the only product question is whether to install
+On an interactive x64 install, the emulator question asks whether to install
 the Android emulator and create the `ShipGlows_API_36` virtual device. A rerun
 skips that question when the emulator, Android 36 image, and named AVD are all
 present; a partial state offers repair instead. If hardware acceleration is
@@ -247,9 +247,18 @@ uncertain, the installer warns before asking but never silently chooses the phon
 path; accepted downloads keep progress visible.
 Android licenses and Windows confirmations remain explicit, and non-interactive
 runs report them as pending instead of accepting or blocking.
+The installer then makes one grouped proposal for whichever large IDE toolchains
+are still missing: current Android Studio for Android development and the Firebase
+Device Streaming entry point, plus Visual Studio Community 2022 with Desktop
+development with C++ for Flutter Windows builds. Existing valid installations
+skip the proposal, partial Visual Studio installations receive only the missing
+workload, progress remains visible, and Windows is never restarted automatically.
+Refusal or non-interactive execution leaves an actionable pending state. ShipGlows
+does not sign in to Firebase, choose a project, accept billing, or reserve a remote
+device; those account-owned actions remain inside Android Studio.
 Codex permissions remain unchanged unless automation explicitly sets
 `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep`; the installer adds no
-second product question.
+agent-install question.
 The full installer prepares Playwright and Dart/Flutter MCP for installed Codex,
 Claude, OpenCode and Kilo agents without authenticating. New JSON configs use
 the agent's exact schema; existing JSON/JSONC stays byte-for-byte unchanged and

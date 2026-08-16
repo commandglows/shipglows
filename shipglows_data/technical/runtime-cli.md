@@ -209,7 +209,7 @@ A `package.json` without `scripts.dev` is ignored as a non-runnable surface.
 Linux-only Flox, PM2, Caddy, autossh, and the interactive `urls` menu are not
 emulated on Windows. The full installer prepares Git, GitHub CLI, Node LTS
 (including npm), pnpm, uv and Flutter, then enables web and Android support.
-An interactive x64 install asks the sole product question about installing the
+An interactive x64 install asks the emulator product question about installing the
 Android emulator and creating `ShipGlows_API_36` only when that provisioned state
 is incomplete. A complete emulator, Android 36 image, and named AVD skip the
 question; a partial state offers repair. Nested-virtualization evidence changes
@@ -240,6 +240,19 @@ Claude Code, OpenCode and Kilo receive bounded MCP preparation. OpenCode v2 uses
 `mcp.servers`; Kilo prefers `kilo` and detects legacy `kilocode`. Existing
 JSON/JSONC remains byte-identical and pending if no proven native edit is safe.
 The installer stores no credentials or initiates authentication.
+After the Android CLI preparation, one grouped Windows IDE proposal lists only
+missing outcomes. `Google.AndroidStudio` provides the current Android IDE and the
+Firebase Device Streaming entry point. `Microsoft.VisualStudio.2022.Community`
+is installed with `Microsoft.VisualStudio.Workload.NativeDesktop` and recommended
+components so Flutter can compile Windows desktop apps. Detection uses the real
+`studio64.exe` and `vswhere` workload evidence; a complete rerun skips the prompt,
+while a partial Visual Studio installation is repaired through the official
+installer. The flow is bounded, keeps installer progress visible, passes
+`--norestart`, and never infers consent in non-interactive execution. It never
+starts Firebase authentication, selects a Firebase project, changes billing, or
+reserves a remote device; `%USERPROFILE%\.shipglows\environment.md` records that
+Device Streaming remains pending until the operator completes those steps inside
+Android Studio.
 The installer exposes npm, npx, Corepack, pnpm and selected coding agents
 through `.cmd` wrappers in the ShipGlows runtime and moves that runtime to the
 front of the active process `PATH`. User-scoped blocked `.ps1` shims beside a
@@ -273,7 +286,8 @@ The Windows full installer writes `%USERPROFILE%\.shipglows\environment.md`.
 It records the stable host facts: Windows, PowerShell, Codex CLI installation,
 Python, Flutter/Dart, Android toolchain/license/device readiness, emulator package,
 named-AVD and acceleration readiness, the next Android action when setup is pending, Playwright
-configuration and the native ShipGlows DevServer. The installer also
+configuration, Android Studio, Flutter Windows C++ readiness, Firebase Device
+Streaming state and the native ShipGlows DevServer. The installer also
 maintains a bounded `~/.codex/AGENTS.md` block that points agents to this file
 without wrapping the Codex command. That block also enforces explicit
 post-message approval before intentional mutations: a one- or two-sentence fast

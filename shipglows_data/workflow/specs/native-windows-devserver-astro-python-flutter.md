@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.5.2"
+artifact_version: "0.6.0"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-16"
-updated_at: "2026-08-16 01:17:06 UTC"
+updated_at: "2026-08-16 06:56:27 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -425,6 +425,7 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 - [ ] AC28: Given installed coding agents and unclaimed short names, when wrappers are prepared, then `c`, `co`, `cor`, `oc` and `kc` forward safely; `kc` targets official `kilo` first and only falls back to detected `kilocode` compatibility. Existing command owners remain preserved. Static proof passes; target proof remains required.
 - [x] AC29: Given zero, one, or many supported Windows surfaces, including homonymous leaf folders, when dashboard or a project action opens, then one bounded linear scan feeds a five-minute memory/persistent catalogue; labels are unique workspace-relative launch paths, selection resolves the exact canonical launch identity, the live registry wins status conflicts, and refresh or clone/register/unregister safely rebuilds or invalidates non-authoritative cache state.
 - [ ] AC30: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
+- [ ] AC31: Given an interactive Windows x64 full install, when Android Studio or the Flutter Windows compiler is missing, then ShipGlows makes one grouped proposal that names only the missing outcomes. Acceptance installs current Android Studio through the official WinGet package and Visual Studio Community 2022 with `Microsoft.VisualStudio.Workload.NativeDesktop` plus recommended components, preserves the existing Flutter/JDK/Android SDK/AVD, shows progress and forbids automatic restart. A valid complete host skips the question; a partial Visual Studio host receives only the missing workload; refusal and non-interactive execution install nothing and remain pending. `%USERPROFILE%\.shipglows\environment.md` records Android Studio, Flutter Windows C++ and Firebase Device Streaming readiness separately. ShipGlows never authenticates Firebase, chooses a project, changes billing or reserves a remote device. Fixtures, parser/static proof and real Shadow installation pass; first-launch Firebase UI confirmation remains operator-owned.
 
 # Test Strategy
 

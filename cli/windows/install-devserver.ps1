@@ -624,7 +624,7 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
     }
 }
 
-function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PythonInfo, [bool]$FlutterReady, [pscustomobject]$AndroidInfo) {
+function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PythonInfo, [bool]$FlutterReady, [pscustomobject]$AndroidInfo, [pscustomobject]$IdeInfo) {
     $environmentPath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'environment.md'
     New-Item -ItemType Directory -Path (Split-Path -Parent $environmentPath) -Force | Out-Null
     $codexStatus = if ($CodexReady) { 'installed' } else { 'not installed by this profile' }
@@ -640,6 +640,14 @@ function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject
     $androidEmulatorInstalled = if ($AndroidInfo.PSObject.Properties['EmulatorInstalled'] -and $AndroidInfo.EmulatorInstalled) { 'yes' } else { 'no' }
     $androidAvdReady = if ($AndroidInfo.PSObject.Properties['AvdReady'] -and $AndroidInfo.AvdReady) { 'yes' } else { 'no' }
     $androidEmulatorAccelerationReady = if ($AndroidInfo.PSObject.Properties['EmulatorAccelerationReady'] -and $AndroidInfo.EmulatorAccelerationReady) { 'yes' } else { 'no' }
+    $androidStudioReady = if ($IdeInfo.AndroidStudioReady) { 'yes' } else { 'no' }
+    $visualStudioCppReady = if ($IdeInfo.VisualStudioCppReady) { 'yes' } else { 'no' }
+    $firebaseDeviceStreamingReady = if ($IdeInfo.FirebaseDeviceStreamingReady) { 'yes' } else { 'no' }
+    $firebaseDeviceStreamingNextAction = if (-not $IdeInfo.AndroidStudioReady) {
+        'rerun the interactive ShipGlows full installer and accept the Windows IDE bundle.'
+    } elseif (-not $IdeInfo.FirebaseDeviceStreamingReady) {
+        'open Android Studio, sign in yourself, select a Firebase project, then open Device Manager > Firebase.'
+    } else { 'none' }
     $androidNextAction = if (-not $FlutterReady) {
         'rerun the ShipGlows full installer to repair Flutter/Dart.'
     } elseif (-not $AndroidInfo.LicensesReady) {
@@ -671,6 +679,10 @@ function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject
 - Android virtual device ready: $androidAvdReady
 - Android emulator acceleration ready: $androidEmulatorAccelerationReady
 - Android next action: $androidNextAction
+- Android Studio installed: $androidStudioReady
+- Flutter Windows desktop toolchain ready: $visualStudioCppReady
+- Firebase Android Device Streaming configured: $firebaseDeviceStreamingReady
+- Firebase Android Device Streaming next action: $firebaseDeviceStreamingNextAction
 - Playwright Chromium installed: $playwrightInstalled
 - Playwright MCP configured: $playwrightConfigured
 - Playwright MCP verified: $playwrightVerified
@@ -933,6 +945,83 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     return $diagnostic
 }
 
+function Get-SgCurrentWindowsIdeState {
+    $androidStudioPaths = @(
+        (Join-Path ([Environment]::GetFolderPath('ProgramFiles')) 'Android\Android Studio\bin\studio64.exe'),
+        (Join-Path $env:LOCALAPPDATA 'Programs\Android Studio\bin\studio64.exe')
+    )
+    $androidStudio = Get-SgAndroidStudioState -CandidatePaths $androidStudioPaths
+    $vsWhere = Join-Path ([Environment]::GetFolderPath('ProgramFilesX86')) 'Microsoft Visual Studio\Installer\vswhere.exe'
+    $visualStudio = Get-SgVisualStudioCppState -VsWherePath $vsWhere
+    [pscustomobject]@{
+        AndroidStudioReady = $androidStudio.Ready
+        AndroidStudioPath = $androidStudio.Path
+        VisualStudioInstalled = $visualStudio.Installed
+        VisualStudioCppReady = $visualStudio.Ready
+        VisualStudioInstallationPath = $visualStudio.InstallationPath
+        FirebaseDeviceStreamingReady = $false
+    }
+}
+
+function Invoke-SgWingetIdeInstall([string]$DisplayName, [string[]]$Arguments, [int]$TimeoutSeconds) {
+    $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $winget) { Write-SgInstallerWarning "WinGet is unavailable; $DisplayName remains pending."; return $false }
+    Write-Host "Installing $DisplayName. Progress is shown below; keep this window open." -ForegroundColor Cyan
+    $ok = Invoke-SgInteractiveBoundedProcess -File $winget.Source -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds
+    if (-not $ok) { Write-SgInstallerWarning "$DisplayName installation failed, was cancelled, or timed out." }
+    Update-SgProcessPath
+    return $ok
+}
+
+function Install-SgWindowsIdeToolchains([bool]$FlutterReady, [string[]]$FlutterPaths) {
+    $state = Get-SgCurrentWindowsIdeState
+    $interactive = -not [Console]::IsInputRedirected
+    $initialPlan = Get-SgWindowsIdeInstallPlan -Interactive $interactive -AndroidStudioReady $state.AndroidStudioReady -VisualStudioCppReady $state.VisualStudioCppReady
+    if ($initialPlan.Status -eq 'ready') {
+        Write-Host 'Android Studio and Visual Studio Community C++ are already ready; skipping the IDE question.' -ForegroundColor Green
+        return $state
+    }
+    $missingText = $initialPlan.Missing -join '; '
+    Write-Host "Missing optional IDE toolchains: $missingText" -ForegroundColor Yellow
+    Write-Host 'Android Studio provides the Android IDE and Firebase Device Streaming entry point. Visual Studio Community C++ compiles Flutter Windows desktop apps.' -ForegroundColor DarkGray
+    if (-not $interactive) {
+        Write-SgInstallerWarning 'Windows IDE bundle pending: rerun the full installer interactively; no multi-gigabyte IDE install was inferred.'
+        return $state
+    }
+    $choice = (Read-Host 'Install the missing Windows IDE toolchains now? [y/N]').Trim()
+    $plan = Get-SgWindowsIdeInstallPlan -Interactive $true -AndroidStudioReady $state.AndroidStudioReady -VisualStudioCppReady $state.VisualStudioCppReady -Choice $choice
+    if ($plan.Status -ne 'install') {
+        Write-SgInstallerWarning 'Windows IDE bundle was declined; Android Studio and/or Flutter Windows compilation remain pending.'
+        return $state
+    }
+    if ($plan.InstallAndroidStudio) {
+        [void](Invoke-SgWingetIdeInstall 'Android Studio' @('install','--id','Google.AndroidStudio','--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') 3600)
+    }
+    if ($plan.InstallVisualStudioCpp) {
+        if ($state.VisualStudioInstalled -and $state.VisualStudioInstallationPath) {
+            $setup = Join-Path ([Environment]::GetFolderPath('ProgramFilesX86')) 'Microsoft Visual Studio\Installer\setup.exe'
+            if (Test-Path -LiteralPath $setup -PathType Leaf) {
+                Write-Host 'Adding Desktop development with C++ to the existing Visual Studio Community installation. This can take a long time.' -ForegroundColor Cyan
+                $modified = Invoke-SgInteractiveBoundedProcess -File $setup -Arguments @('modify','--installPath',$state.VisualStudioInstallationPath,'--add','Microsoft.VisualStudio.Workload.NativeDesktop','--includeRecommended','--passive','--norestart') -TimeoutSeconds 10800
+                if (-not $modified) { Write-SgInstallerWarning 'Visual Studio C++ workload modification failed, was cancelled, or timed out.' }
+            } else { Write-SgInstallerWarning 'Visual Studio Installer was not found; the C++ workload remains pending.' }
+        } else {
+            Write-Host 'Visual Studio Community with C++ is a large download and may request UAC. ShipGlows will not restart Windows automatically.' -ForegroundColor Yellow
+            [void](Invoke-SgWingetIdeInstall 'Visual Studio Community with Desktop development with C++' @('install','--id','Microsoft.VisualStudio.2022.Community','--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--disable-interactivity','--override','--passive --wait --norestart --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended') 10800)
+        }
+    }
+    $state = Get-SgCurrentWindowsIdeState
+    if ($FlutterReady -and $state.VisualStudioCppReady) {
+        $flutter = Get-SgToolPath 'flutter.bat' $FlutterPaths
+        $config = if ($flutter) { Invoke-SgBoundedProcess -File $flutter -Arguments @('config','--enable-windows-desktop') -TimeoutSeconds 60 } else { $null }
+        if (-not $config -or $config.TimedOut -or $config.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter Windows desktop enablement could not be proven.' }
+    }
+    if (-not $state.AndroidStudioReady) { Write-SgInstallerWarning 'Android Studio remains pending.' }
+    if (-not $state.VisualStudioCppReady) { Write-SgInstallerWarning 'Visual Studio Community with the native desktop C++ workload remains pending.' }
+    if ($state.AndroidStudioReady) { Write-Host 'Android Studio is installed. Firebase Device Streaming still requires your own sign-in and Firebase project selection inside Android Studio.' -ForegroundColor Green }
+    return $state
+}
+
 function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$NpmPath, [string]$NpxPath) {
     if (-not $AnyAgentReady -or -not $NpmPath -or -not $NpxPath) { return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
     $resolved = Invoke-SgBoundedProcess $NpmPath @('view','@playwright/mcp','version','--json','--registry=https://registry.npmjs.org/') 45
@@ -1062,6 +1151,7 @@ if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional defaul
 $pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
 $flutterReady = Install-SgFlutter $flutterPaths $gitPaths
 $androidInfo = Install-SgAndroidToolchain $flutterReady $flutterPaths
+$ideInfo = Install-SgWindowsIdeToolchains $flutterReady $flutterPaths
 
 Write-Host ''
 Write-Host 'Configuring installed coding agents (no authentication is started)...' -ForegroundColor Yellow
@@ -1082,7 +1172,7 @@ $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeRead
 $playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$false; McpVerified=$false; ConfigPath='per-agent; existing JSON/JSONC may remain pending'; ChromiumPath=$playwright.ChromiumPath }
 [void](Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady } $dartPath $nativeNpx $playwright)
 [void](Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) (Get-SgNativeNpxPath $npxPaths))
-$environmentPath = Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo $flutterReady $androidInfo
+$environmentPath = Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo $flutterReady $androidInfo $ideInfo
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
 if ($codexReady) {
     [void](Set-SgCodexEnvironmentInstructions (Join-Path $env:USERPROFILE '.codex\AGENTS.md'))

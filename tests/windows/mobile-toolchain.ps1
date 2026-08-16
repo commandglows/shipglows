@@ -28,6 +28,18 @@ Assert-Sg (-not $completePlan.AskEmulator -and -not $completePlan.InstallEmulato
 Assert-Sg (Test-SgAndroidLicenseResult ([pscustomobject]@{ ExitCode=0; Output="WARNING: sdkmanager is deprecated.`nAll SDK package licenses accepted"; TimedOut=$false })) 'Previously accepted SDK licenses must converge without another interactive prompt.'
 Assert-Sg (-not (Test-SgAndroidLicenseResult ([pscustomobject]@{ ExitCode=0; Output='7 of 7 SDK package licenses not accepted.'; TimedOut=$false }))) 'Unaccepted SDK licenses must remain pending.'
 
+$ideMissing = Get-SgWindowsIdeInstallPlan -Interactive $true -AndroidStudioReady $false -VisualStudioCppReady $false -Choice 'yes'
+Assert-Sg ($ideMissing.Ask -and $ideMissing.InstallAndroidStudio -and $ideMissing.InstallVisualStudioCpp) 'Interactive acceptance must install both missing Windows IDE toolchains.'
+Assert-Sg (($ideMissing.Missing -join '|') -eq 'Android Studio|Visual Studio Community with Desktop development with C++') 'The IDE proposal must name the two product outcomes clearly.'
+$idePartial = Get-SgWindowsIdeInstallPlan -Interactive $true -AndroidStudioReady $true -VisualStudioCppReady $false -Choice 'yes'
+Assert-Sg (-not $idePartial.InstallAndroidStudio -and $idePartial.InstallVisualStudioCpp) 'A partial host must install only the missing IDE toolchain.'
+$ideRefused = Get-SgWindowsIdeInstallPlan -Interactive $true -AndroidStudioReady $false -VisualStudioCppReady $false -Choice 'no'
+Assert-Sg ($ideRefused.Status -eq 'pending' -and -not $ideRefused.InstallAndroidStudio -and -not $ideRefused.InstallVisualStudioCpp) 'IDE bundle refusal must remain pending without installation.'
+$ideHeadless = Get-SgWindowsIdeInstallPlan -Interactive $false -AndroidStudioReady $false -VisualStudioCppReady $false
+Assert-Sg (-not $ideHeadless.Ask -and $ideHeadless.Status -eq 'pending') 'Noninteractive installs must never infer consent for multi-gigabyte IDEs.'
+$ideComplete = Get-SgWindowsIdeInstallPlan -Interactive $true -AndroidStudioReady $true -VisualStudioCppReady $true -Choice 'yes'
+Assert-Sg (-not $ideComplete.Ask -and $ideComplete.Status -eq 'ready') 'A complete host must skip the IDE question and installation.'
+
 $fresh = Get-SgAndroidProvisionPlan -Interactive $true -JdkReady $false -CommandLineToolsReady $false -LicensesAccepted $false -LicenseChoice 'no'
 Assert-Sg (($fresh.Components -join '|') -eq 'jdk17|android-command-line-tools|platform-tools|platform|build-tools') 'Fresh host plan must include the complete essential chain.'
 Assert-Sg ($fresh.Status -eq 'pending' -and $fresh.Reason -match 'license') 'Refused licenses must remain explicitly pending.'
@@ -121,6 +133,18 @@ try {
     Assert-Sg ($sdkFromPath.Ready -and $sdkFromPath.Root -eq $externalSdk) 'A valid PATH sdkmanager must win over invalid inherited Android homes.'
     $javaFromPath = Resolve-SgExistingJdk17 -JavaHome $invalidHome -JavaCommand $externalJava -Runner { param($f,$a,$t) [pscustomobject]@{ExitCode=0;Output='openjdk version 17.0.12';TimedOut=$false} }
     Assert-Sg ($javaFromPath.Ready -and $javaFromPath.Home -eq $externalJdk) 'A valid PATH JDK 17 must win over invalid inherited JAVA_HOME.'
+    $androidStudioExe = Join-Path $fixture 'Android Studio\bin\studio64.exe'
+    New-Item -ItemType Directory -Path (Split-Path $androidStudioExe -Parent) -Force | Out-Null; Set-Content -LiteralPath $androidStudioExe -Value 'fixture'
+    $androidStudioState = Get-SgAndroidStudioState -CandidatePaths @((Join-Path $fixture 'missing.exe'),$androidStudioExe)
+    Assert-Sg ($androidStudioState.Ready -and $androidStudioState.Path -eq $androidStudioExe) 'Android Studio detection must select an existing studio64 executable.'
+    $vsWhere = Join-Path $fixture 'vswhere.exe'; Set-Content -LiteralPath $vsWhere -Value 'fixture'
+    $vsRoot = Join-Path $fixture 'Visual Studio\2022\Community'
+    $devenv = Join-Path $vsRoot 'Common7\IDE\devenv.exe'
+    New-Item -ItemType Directory -Path (Split-Path $devenv -Parent) -Force | Out-Null; Set-Content -LiteralPath $devenv -Value 'fixture'
+    $vsReady = Get-SgVisualStudioCppState -VsWherePath $vsWhere -Runner { param($f,$a,$t) [pscustomobject]@{ ExitCode=0; Output=$vsRoot; TimedOut=$false } }
+    Assert-Sg ($vsReady.Ready -and $vsReady.WorkloadReady -and $vsReady.InstallationPath -eq $vsRoot) 'Visual Studio detection must require the native desktop workload and a real IDE executable.'
+    $vsPartial = Get-SgVisualStudioCppState -VsWherePath $vsWhere -Runner { param($f,$a,$t) if ($a -contains '-requires') { [pscustomobject]@{ ExitCode=0; Output=''; TimedOut=$false } } else { [pscustomobject]@{ ExitCode=0; Output=$vsRoot; TimedOut=$false } } }
+    Assert-Sg ($vsPartial.Installed -and -not $vsPartial.WorkloadReady -and -not $vsPartial.Ready) 'Visual Studio without the native desktop workload must remain repairable.'
     $userJavaBefore = [Environment]::GetEnvironmentVariable('JAVA_HOME','User')
     $userAndroidBefore = [Environment]::GetEnvironmentVariable('ANDROID_HOME','User')
     $userSdkBefore = [Environment]::GetEnvironmentVariable('ANDROID_SDK_ROOT','User')
@@ -266,10 +290,10 @@ public static class EchoArgs {
     $savedUserProfile = $env:USERPROFILE
     try {
         $env:USERPROFILE = Join-Path $fixture 'environment-home'
-        $reportPath = Write-SgGlobalDevelopmentEnvironment $true ([pscustomobject]@{ Installed=$false; McpConfigured=$false; McpVerified=$false; ConfigPath='pending'; ChromiumPath='' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $true ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false })
+        $reportPath = Write-SgGlobalDevelopmentEnvironment $true ([pscustomobject]@{ Installed=$false; McpConfigured=$false; McpVerified=$false; ConfigPath='pending'; ChromiumPath='' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $true ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false }) ([pscustomobject]@{ AndroidStudioReady=$true; VisualStudioCppReady=$false; FirebaseDeviceStreamingReady=$false })
         $report = [IO.File]::ReadAllText($reportPath)
     } finally { $env:USERPROFILE = $savedUserProfile }
-    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','rerun the ShipGlows full installer in an interactive PowerShell')) {
+    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','Android Studio installed: yes','Flutter Windows desktop toolchain ready: no','Firebase Android Device Streaming configured: no','rerun the ShipGlows full installer in an interactive PowerShell')) {
         Assert-Sg ($report.Contains($expected)) "Environment report is missing actionable mobile state: $expected"
     }
 

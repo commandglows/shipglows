@@ -49,6 +49,58 @@ function Get-SgAndroidInstallPlan {
     }
 }
 
+function Get-SgWindowsIdeInstallPlan {
+    param(
+        [bool]$Interactive,
+        [bool]$AndroidStudioReady,
+        [bool]$VisualStudioCppReady,
+        [string]$Choice = ''
+    )
+    $missing = New-Object Collections.Generic.List[string]
+    if (-not $AndroidStudioReady) { $missing.Add('Android Studio') }
+    if (-not $VisualStudioCppReady) { $missing.Add('Visual Studio Community with Desktop development with C++') }
+    $ask = $Interactive -and $missing.Count -gt 0
+    $accepted = $ask -and $Choice.Trim().ToLowerInvariant() -in @('y','yes')
+    [pscustomobject]@{
+        Ask = $ask
+        Missing = $missing.ToArray()
+        InstallAndroidStudio = $accepted -and -not $AndroidStudioReady
+        InstallVisualStudioCpp = $accepted -and -not $VisualStudioCppReady
+        Status = if ($missing.Count -eq 0) { 'ready' } elseif ($accepted) { 'install' } else { 'pending' }
+    }
+}
+
+function Get-SgAndroidStudioState {
+    param([string[]]$CandidatePaths)
+    foreach ($candidate in @($CandidatePaths | Where-Object { $_ })) {
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+            return [pscustomobject]@{ Ready=$true; Path=[IO.Path]::GetFullPath($candidate) }
+        }
+    }
+    return [pscustomobject]@{ Ready=$false; Path='' }
+}
+
+function Get-SgVisualStudioCppState {
+    param([string]$VsWherePath, [scriptblock]$Runner = $null)
+    if ([string]::IsNullOrWhiteSpace($VsWherePath) -or -not (Test-Path -LiteralPath $VsWherePath -PathType Leaf)) {
+        return [pscustomobject]@{ Installed=$false; WorkloadReady=$false; Ready=$false; InstallationPath='' }
+    }
+    $baseArguments = @('-latest','-products','Microsoft.VisualStudio.Product.Community','-property','installationPath')
+    $installedResult = Invoke-SgDiagnosticCommand -File $VsWherePath -Arguments $baseArguments -Runner $Runner -TimeoutSeconds 30
+    $installationPath = if (-not $installedResult.TimedOut -and $installedResult.ExitCode -eq 0) { ([string]$installedResult.Output).Trim() } else { '' }
+    $installed = $installationPath -and (Test-Path -LiteralPath (Join-Path $installationPath 'Common7\IDE\devenv.exe') -PathType Leaf)
+    $workloadArguments = @('-latest','-products','Microsoft.VisualStudio.Product.Community','-requires','Microsoft.VisualStudio.Workload.NativeDesktop','-property','installationPath')
+    $workloadResult = Invoke-SgDiagnosticCommand -File $VsWherePath -Arguments $workloadArguments -Runner $Runner -TimeoutSeconds 30
+    $workloadPath = if (-not $workloadResult.TimedOut -and $workloadResult.ExitCode -eq 0) { ([string]$workloadResult.Output).Trim() } else { '' }
+    $workloadReady = $workloadPath -and (Test-Path -LiteralPath (Join-Path $workloadPath 'Common7\IDE\devenv.exe') -PathType Leaf)
+    [pscustomobject]@{
+        Installed = [bool]$installed
+        WorkloadReady = [bool]$workloadReady
+        Ready = [bool]($installed -and $workloadReady)
+        InstallationPath = if ($workloadReady) { [IO.Path]::GetFullPath($workloadPath) } elseif ($installed) { [IO.Path]::GetFullPath($installationPath) } else { '' }
+    }
+}
+
 function Get-SgAndroidProvisionPlan {
     param(
         [bool]$Interactive,
@@ -593,4 +645,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
