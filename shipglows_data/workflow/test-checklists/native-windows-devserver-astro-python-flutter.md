@@ -1,7 +1,7 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.3.1"
+artifact_version: "1.3.2"
 project: ShipGlows
 created: "2026-08-15"
 updated: "2026-08-15"
@@ -75,10 +75,11 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] Supply-chain fixtures cross-check the current SHA-1-only Android repository coordinate against the matching Windows filename and complete SHA-256 from the official Android Studio download table, fail closed on disagreement, and reject ZIP traversal and symlink/reparse entries before extraction; service CLI plans reject mutable versions.
 - [x] Android archive download announces resolved version/size and checksum/extraction milestones, with a visible curl progress bar, three bounded retries and partial-transfer resume.
 - [x] Real Shadow validation accepted all seven Android licenses and installed Android SDK/platform/build-tools 36; the exact Windows `√` marker, timing suffix and bullet-prefixed license evidence now produce `toolchain=True`, `licenses=True`, while no Android device correctly remains separate as `device=False`.
+- [x] Real Shadow emulator validation installed the emulator, Android 36 Google APIs x86_64 image and `ShipGlows_API_36`; both `emulator -list-avds` and `flutter emulators` list it. `-accel-check` exits 3 because Shadow exposes no usable virtualization extensions, and two bounded software starts remained black/`offline` without `sys.boot_completed`, so the AVD is installed but honestly not device-ready on this host.
 - [x] Already accepted licenses converge through a bounded probe whose only fallback input is `n`; non-interactive reruns can continue without replaying or synthesizing consent.
 - [x] PowerShell 5.1 transport preserves argument boundaries for EXE and CMD/BAT across spaces, Unicode, quotes, `&`, `%` and `;`; interactive execution and timeout/tree-stop paths are covered.
 - [x] Service scanning excludes reparse directories and reports its bounded-directory limit.
 - [x] Automated proof uses temporary fixtures only and performs no package download, elevation, registry mutation, Developer Mode change, authentication or user-project write.
 - [ ] Run full installation on a fresh Windows target and record accepted/refused license outcomes, exact resolved versions and readiness fields.
-- [ ] Validate `ShipGlows_API_36` on Shadow with accelerated startup when available and the explicit software fallback otherwise; record `adb` and `flutter devices` evidence.
+- [ ] Validate `ShipGlows_API_36` through `adb` and `flutter devices` on a host that exposes nested virtualization; Shadow software-mode failure is already recorded.
 - [ ] Validate MCP convergence in real Codex, Claude, OpenCode v2 and Kilo configs, including an existing JSONC file.

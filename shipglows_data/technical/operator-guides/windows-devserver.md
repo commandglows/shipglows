@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.7.1"
+artifact_version: "1.7.2"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-15"
@@ -93,8 +93,9 @@ ne sont pas requis par le parcours Shadow PC.
    avec une progression visible. Un téléphone réel reste l'alternative. Les licences
    Android restent à confirmer dans leur flux officiel. En non-interactif,
    `sdkmanager --licenses` est signalé comme action en attente. L'émulateur
-   accéléré requiert toujours une virtualisation prouvée; sans elle, l'AVD peut
-   être lancé en mode logiciel, potentiellement très lent. Les nouveaux fichiers agent peuvent
+   accéléré requiert toujours une virtualisation prouvée; sans elle, l'AVD reste
+   installé mais le mode logiciel n'est qu'un diagnostic qui peut être inutilisable
+   ou ne jamais terminer son démarrage. Les nouveaux fichiers agent peuvent
    recevoir Dart/Flutter et Playwright; un JSON/JSONC existant reste intact et
    explicitement pending si aucune mise à jour native sûre n'est disponible.
    Aucune authentification n'est démarrée. Il ne demande ni
@@ -188,7 +189,8 @@ Flutter et le chemin ou la signature de commande du projet enregistré.
 
 Le parcours `full` écrit `%USERPROFILE%\.shipglows\environment.md`. Ce fichier
 global statique indique Windows, PowerShell, Codex CLI, Python, Flutter/Dart,
-l'état de la toolchain/licences/device Android, du package émulateur et de l'AVD,
+l'état de la toolchain/licences/device Android, du package émulateur, de l'AVD
+et de son accélération,
 ainsi que la prochaine action Android,
 Playwright et le DevServer natif. Chaque surface enregistrée reçoit aussi un fichier visible et
 versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le port

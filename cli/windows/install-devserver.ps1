@@ -639,6 +639,7 @@ function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject
     $androidDeviceReady = if ($AndroidInfo.DeviceReady) { 'yes' } else { 'no' }
     $androidEmulatorInstalled = if ($AndroidInfo.PSObject.Properties['EmulatorInstalled'] -and $AndroidInfo.EmulatorInstalled) { 'yes' } else { 'no' }
     $androidAvdReady = if ($AndroidInfo.PSObject.Properties['AvdReady'] -and $AndroidInfo.AvdReady) { 'yes' } else { 'no' }
+    $androidEmulatorAccelerationReady = if ($AndroidInfo.PSObject.Properties['EmulatorAccelerationReady'] -and $AndroidInfo.EmulatorAccelerationReady) { 'yes' } else { 'no' }
     $androidNextAction = if (-not $FlutterReady) {
         'rerun the ShipGlows full installer to repair Flutter/Dart.'
     } elseif (-not $AndroidInfo.LicensesReady) {
@@ -646,7 +647,8 @@ function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject
     } elseif (-not $AndroidInfo.ToolchainReady) {
         'rerun the ShipGlows full installer to complete Android SDK provisioning.'
     } elseif (-not $AndroidInfo.DeviceReady) {
-        if ($androidAvdReady -eq 'yes') { 'start ShipGlows_API_36 with `flutter emulators --launch ShipGlows_API_36`, or connect a real phone with USB debugging.' }
+        if ($androidAvdReady -eq 'yes' -and $androidEmulatorAccelerationReady -eq 'yes') { 'start ShipGlows_API_36 with `flutter emulators --launch ShipGlows_API_36`, or connect a real phone with USB debugging.' }
+        elseif ($androidAvdReady -eq 'yes') { 'ShipGlows_API_36 is installed but hardware acceleration is unavailable; use a real phone or a hosted Android device.' }
         elseif ($androidEmulatorInstalled -eq 'yes') { 'rerun the interactive full installer to create ShipGlows_API_36, or connect a real phone with USB debugging.' }
         else { 'connect a real phone with USB debugging, or install and start the optional ShipGlows Android emulator.' }
     } else { 'none' }
@@ -667,6 +669,7 @@ function Write-SgGlobalDevelopmentEnvironment([bool]$CodexReady, [pscustomobject
 - Android device ready: $androidDeviceReady
 - Android emulator installed: $androidEmulatorInstalled
 - Android virtual device ready: $androidAvdReady
+- Android emulator acceleration ready: $androidEmulatorAccelerationReady
 - Android next action: $androidNextAction
 - Playwright Chromium installed: $playwrightInstalled
 - Playwright MCP configured: $playwrightConfigured
@@ -901,7 +904,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
                 Write-Host "Android virtual device ready: $($emulatorPlan.AvdName)" -ForegroundColor Green
                 $emulatorAccelerationReady = Test-SgAndroidAcceleration $emulator
                 if (-not $emulatorAccelerationReady) {
-                    Write-SgInstallerWarning "The AVD is installed, but hardware acceleration remains unavailable. Software startup is possible with: emulator -avd $($emulatorPlan.AvdName) -accel off -gpu software"
+                    Write-SgInstallerWarning "The AVD is installed, but hardware acceleration remains unavailable. A diagnostic-only software attempt can use: emulator -avd $($emulatorPlan.AvdName) -accel off -gpu software. It may be unusably slow or fail to boot."
                 }
             } else { Write-SgInstallerWarning 'Emulator packages installed but AVD verification is pending.' }
         } else {
@@ -913,12 +916,14 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
         $existingAvds = Invoke-SgBoundedProcess $emulator @('-list-avds') 30
         $avdReady = -not $existingAvds.TimedOut -and $existingAvds.ExitCode -eq 0 -and $existingAvds.Output -match '(?m)^ShipGlows_API_36\r?$'
     }
+    if ($avdReady -and -not $emulatorAccelerationReady) { $emulatorAccelerationReady = Test-SgAndroidAcceleration $emulator }
     if ($plan.PhysicalDeviceAlternative -or ($plan.InstallEmulator -and -not $emulatorAccelerationReady)) { Write-Host 'Android alternative: connect a real phone with USB debugging enabled, then run flutter devices.' -ForegroundColor Yellow }
     if (-not (Test-SgWindowsDeveloperMode)) { Write-Host 'Windows Developer Mode is off and was not changed. Enable it manually only if Flutter requests it.' -ForegroundColor Yellow }
     $flutterPath = Get-SgToolPath 'flutter.bat' $FlutterPaths
     $dartPath = if ($flutterPath) { Join-Path (Split-Path $flutterPath -Parent) 'dart.bat' } else { '' }
     $diagnostic = Get-SgFlutterAndroidDiagnostic -FlutterPath $flutterPath -DartPath $dartPath -JavaPath $java -SdkManagerPath $sdkManager -AdbPath $adb -EmulatorPath $emulator
     $diagnostic | Add-Member -NotePropertyName AvdReady -NotePropertyValue $avdReady -Force
+    $diagnostic | Add-Member -NotePropertyName EmulatorAccelerationReady -NotePropertyValue $emulatorAccelerationReady -Force
     if ($diagnostic.DoctorOutput) { Write-Host $diagnostic.DoctorOutput }; if ($diagnostic.DevicesOutput) { Write-Host $diagnostic.DevicesOutput }
     Write-Host "Android readiness: toolchain=$($diagnostic.ToolchainReady); licenses=$($diagnostic.LicensesReady); device=$($diagnostic.DeviceReady)" -ForegroundColor Cyan
     if (-not $diagnostic.ToolchainReady -or -not $diagnostic.LicensesReady -or -not $diagnostic.DeviceReady) { Write-SgInstallerWarning "Flutter Android diagnostic: $($diagnostic.Reason)" }

@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.9.1"
+artifact_version: "1.9.2"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-15"
@@ -214,8 +214,9 @@ the Android emulator and creating `ShipGlows_API_36`. Nested-virtualization
 evidence changes the warning, not the operator's ability to choose. Accepted
 emulator and Android 36 image downloads run with visible progress; the AVD is
 created before acceleration is checked. Without hardware acceleration it remains
-installed with an explicit, potentially very slow `-accel off -gpu software`
-startup path. Non-interactive installs never prompt or infer consent.
+installed, but ShipGlows records that it is not device-ready; the documented
+`-accel off -gpu software` path is diagnostic-only and may be unusably slow or
+fail to boot. Non-interactive installs never prompt or infer consent.
 Validated existing Flutter/Dart, JDK 17 and Android SDK paths are reused without
 rewriting their environment ownership. Otherwise JDK 17 is installed first; the
 Android terms are then shown before hardened ZIP extraction of command-line tools.
@@ -268,8 +269,8 @@ local source and must not be treated as a network updater.
 
 The Windows full installer writes `%USERPROFILE%\.shipglows\environment.md`.
 It records the stable host facts: Windows, PowerShell, Codex CLI installation,
-Python, Flutter/Dart, Android toolchain/license/device readiness, emulator package
-and named-AVD readiness, the next Android action when setup is pending, Playwright
+Python, Flutter/Dart, Android toolchain/license/device readiness, emulator package,
+named-AVD and acceleration readiness, the next Android action when setup is pending, Playwright
 configuration and the native ShipGlows DevServer. The installer also
 maintains a bounded `~/.codex/AGENTS.md` block that points agents to this file
 without wrapping the Codex command. That block also enforces explicit
