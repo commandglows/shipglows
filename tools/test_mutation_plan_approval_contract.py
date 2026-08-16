@@ -153,7 +153,7 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
             "immediately preceding pending fast validation",
             "immediately preceding pending plan",
             "exactly one approval outcome",
-            "It never authorizes an earlier, replaced, ambiguous, paused, questioned, or cancelled plan",
+            "It never authorizes a replaced, ambiguous, paused, materially changed, or cancelled proposal",
             "MAP-V-SHORTCUT",
         ):
             self.assertIn(expected, self.text)
@@ -161,9 +161,51 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         scenario = self._scenario("MAP-V-SHORTCUT")
         for boundary in (
             "standalone `v` or `V`",
-            "immediately preceding pending",
+            "immediately preceding pending approval message",
             "does nothing before an approval message",
-            "intervening question, adjustment, reorientation, cancellation, pause, or replacement",
+            "still-current unchanged proposal",
+            "explicitly preserved the `v` mapping",
+        ):
+            self.assertIn(boundary, scenario)
+
+    def test_non_material_clarification_keeps_proposal_pending_without_reissue(self) -> None:
+        for expected in (
+            "non-material clarification",
+            "answer it without reissuing or restating the unchanged approval message",
+            "same proposal remains pending",
+            "MAP-PENDING-CLARIFICATION",
+        ):
+            self.assertIn(expected, self.text)
+
+        scenario = self._scenario("MAP-PENDING-CLARIFICATION")
+        self.assertIn("answer the question", scenario)
+        self.assertIn("do not repeat the validation or plan", scenario)
+
+    def test_neutral_acknowledgement_neither_approves_nor_reprompts(self) -> None:
+        for expected in (
+            "Neutral acknowledgements",
+            "`ok`, `compris`, `merci`, or `thanks`",
+            "neither authorize mutation nor trigger another approval prompt",
+            "MAP-NEUTRAL-ACK",
+        ):
+            self.assertIn(expected, self.text)
+
+    def test_later_explicit_approval_can_authorize_unchanged_proposal(self) -> None:
+        for expected in (
+            "later explicit and unambiguous action approval",
+            "still-current unchanged proposal",
+            "without restating it",
+            "MAP-LATER-APPROVAL",
+        ):
+            self.assertIn(expected, self.text)
+
+    def test_material_change_still_invalidates_pending_proposal(self) -> None:
+        scenario = self._scenario("MAP-PENDING-MATERIAL-CHANGE")
+        for boundary in (
+            "scope, behavior, target, risk, data, permissions",
+            "destructive or external effects",
+            "proof strategy",
+            "replacement approval message",
         ):
             self.assertIn(boundary, scenario)
 
@@ -197,6 +239,17 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         self.assertIn("Exact-scope staging for an already approved technical commit", lifecycle)
         self.assertIn("ordinary exact-scope local commits", delegation)
         self.assertIn("unapproved staging", delegation)
+
+    def test_master_contract_propagates_pending_proposal_turn_semantics(self) -> None:
+        delegation = DELEGATION.read_text(encoding="utf-8")
+        for expected in (
+            "A non-material clarification keeps the unchanged proposal pending",
+            "Neutral acknowledgements such as `ok`, `compris`, `merci`, or `thanks`",
+            "neither approve nor trigger a repeated approval prompt",
+            "A later explicit and unambiguous action approval may authorize that still-current unchanged proposal",
+            "Material changes invalidate it",
+        ):
+            self.assertIn(expected, delegation)
 
     def test_approved_technical_scope_includes_directly_mapped_closure_docs(self) -> None:
         for expected in (

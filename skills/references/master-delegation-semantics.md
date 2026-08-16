@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.12.0"
+artifact_version: "1.13.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-15"
+updated: "2026-08-16"
 status: active
 source_skill: 001-sg-build
 scope: master-delegation-semantics
@@ -37,10 +37,11 @@ supersedes: []
 evidence:
   - "User decision 2026-05-04: the primary `000-shipglows` router should use direct main-thread handoff to selected master skills, not nested master-skill subagents."
   - "Operator decision 2026-08-15: bounded technical implementation approval includes ordinary exact-scope local commits without a duplicate prompt."
-  - "Operator decision 2026-08-15: standalone `v` is a canonical short approval only for the immediately preceding pending approval message."
+  - "Operator decision 2026-08-15: standalone `v` is a canonical short approval only for one unambiguous pending proposal; the 2026-08-16 correction preserves a narrowly framed mapping across non-material clarification."
+  - "Operator correction 2026-08-16: clarification and acknowledgement turns preserve an unchanged pending proposal without duplicate approval prompts or implicit mutation authority."
   - "User decision 2026-05-04: master skills keep the master conversation clean by delegating file, validation, closure, and ship work to bounded sequential subagents when available."
   - "User decision 2026-05-04: delegation/subagent execution is distinct from parallelism; parallelism means simultaneous subagents and requires ready Execution Batches."
-  - "User decision 2026-05-04: short natural-language confirmations continue the current chantier in delegated sequential mode after diagnosis or proposal; they are interpreted by intent, not exact keyword."
+  - "User decision 2026-05-04: explicit natural-language action confirmations continue the current chantier in delegated sequential mode after diagnosis or proposal; they are interpreted by intent, not exact keyword."
   - "User decision 2026-05-06: 006-sg-design joins the master/orchestrator topology set."
   - "User decision 2026-05-14: an `agents` argument should explicitly validate delegated sequential execution; parallelism remains spec-gated through `Execution Batches`, not an `agents parallel` shortcut."
   - "User decision 2026-05-24: delegated execution must optimize for quality, security, performance, and durability before speed or cost."
@@ -131,14 +132,16 @@ Claim a subagent model override only when the runtime accepted it. If overrides 
 ## Short Confirmations
 
 After a master skill has displayed the bounded plan required by
-`mutation-plan-approval.md`, a short natural-language confirmation in the
-active conversation language means, by intent rather than exact keyword:
+`mutation-plan-approval.md`, an explicit natural-language action approval in
+the active conversation language means, by intent rather than exact keyword:
 
 ```text
 continue the current chantier with the canonical topology: read-only parallel for independent no-write scopes, otherwise delegated sequential
 ```
 
-Short confirmations given before that plan authorize no mutation. Confirmations given after it — including standalone `v` under `mutation-plan-approval.md` — authorize the bounded plan, its ordinary exact-scope technical local commits, and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`. Ask again when scope, risk, data, permissions, destructive behavior, unapproved staging, closure, or ship semantics change.
+Action approvals given before that plan authorize no mutation. Explicit action approvals given after it — including standalone `v` only under the bounded mapping in `mutation-plan-approval.md` — authorize the bounded plan, its ordinary exact-scope technical local commits, and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`.
+
+A non-material clarification keeps the unchanged proposal pending: answer it without restating the plan or asking again. Neutral acknowledgements such as `ok`, `compris`, `merci`, or `thanks` neither approve nor trigger a repeated approval prompt. A later explicit and unambiguous action approval may authorize that still-current unchanged proposal without a new plan. Material changes invalidate it and require the replacement approval path defined by `mutation-plan-approval.md`, including changes to scope, behavior, target, risk, data, permissions, destructive or external effects, proof strategy, unapproved staging, closure, or ship semantics.
 
 The next safe mission remains internal. In an unfinished user-facing report,
 offer only plain-language choices about continuing, reprioritizing, changing

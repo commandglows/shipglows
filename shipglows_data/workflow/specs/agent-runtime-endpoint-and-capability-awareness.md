@@ -1,10 +1,10 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "3.3.3"
+artifact_version: "3.3.4"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-14"
+updated: "2026-08-16"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness-and-mutation-approval
@@ -26,6 +26,7 @@ supersedes: []
 evidence:
   - "Operator approved one global environment document, one visible project ENVIRONMENT.md, registry-owned live state, and a retained read-only $shipglows context mode."
   - "Operator approved a universal explicit post-plan mutation gate."
+  - "Operator correction 2026-08-16: unchanged pending proposals survive clarification and neutral acknowledgement without repeated approval prompts."
 next_step: "/103-sg-verify runtime awareness and mutation approval"
 ---
 
@@ -56,6 +57,8 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 - Read-only discovery may precede approval.
 - A material scope, behavior, risk, permission, data, destructive-effect, external-state, or proof change invalidates approval and requires a replacement plan.
 - Micro-edits and server/process actions remain subject to the gate; their plan may be compact.
+- A non-material clarification is answered without restating the unchanged pending validation or plan; a neutral acknowledgement neither approves mutation nor triggers another approval prompt.
+- A later explicit action approval may authorize the still-current unchanged proposal without restatement. Standalone `v` after clarification is valid only when the agent explicitly preserved its exact mapping; material change always requires replacement approval.
 
 ## Out of scope
 
@@ -70,7 +73,8 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 - Focused Windows/Linux installer checks that Playwright MCP remains globally enabled and future runtime instructions require deferred discovery before an unavailable verdict.
 - Scenario checks for direct absence plus deferred presence, safe-probe success, configured-but-undiscovered state, and discovered-call failure.
 - Project document preservation, idempotence, durable `3002` URL, live-status separation, and legacy cleanup scenarios.
-- Scenario checks for initial imperative, explicit post-plan approval, material-plan change, micro-edit, and server-process mutation.
+- Scenario checks for initial imperative, explicit post-plan approval, clarification without reissue, neutral acknowledgement without approval or reprompt, later explicit approval, bounded `v`, material-plan change, micro-edit, and server-process mutation.
+- ZOMBIES coverage: zero pending proposal grants no authority; one unchanged proposal survives non-material turns; repeated acknowledgements stay inert; interface intent distinguishes clarification, acknowledgement, approval, and material change; ambiguous or changed state fails closed.
 - Skill budget, metadata, runtime sync, focused contract tests, and `git diff --check`.
 
 ## 2026-08-14 Runtime capability visibility slice
@@ -88,6 +92,7 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 | 2026-08-14 | 900-shipglows-core | Added direct-plus-deferred tool discovery and MCP-first browser routing. | Implemented; 607 unit tests, focused Windows/Linux contracts, graph/audit/budget checks, and a live deferred Playwright probe passed. |
 | 2026-08-14 | 300-sg-docs | Audited and aligned installer, Windows operator, runtime, lifecycle, plugin, and README documentation. | Complete; topology and metadata checks passed with no unresolved documentation drift. |
 | 2026-08-14 | 005-sg-ship | Exercised the pushed branch through the native Windows bootstrap before merge. | First run exposed a misplaced Playwright result object; after the focused AST regression, remote commit `97ac216` installed successfully and the deferred MCP probe returned the live browser tab. |
+| 2026-08-16 | 900-shipglows-core | Hardened pending-approval turn semantics after repeated unwanted validation prompts. | Scenario-first contract covers clarification, neutral acknowledgement, later explicit approval, bounded `v`, and material-change invalidation. |
 
 ## Current Chantier Flow
 

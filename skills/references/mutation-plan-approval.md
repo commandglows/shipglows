@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-15"
+updated: "2026-08-16"
 status: active
 source_skill: 900-shipglows-core
 scope: universal-mutation-plan-approval
@@ -30,7 +30,8 @@ evidence:
   - "Operator decision 2026-08-14: exact local routine reversible mutations may use a one- or two-sentence fast validation; remote or risky mutations retain the full plan."
   - "Operator decision 2026-08-15: approval of a bounded technical chantier grants cumulative authority for its ordinary local commits, avoiding a second approval ceremony."
   - "Operator clarification 2026-08-15: directly mapped project documentation required to close approved technical work truthfully is part of that bounded authority."
-  - "Operator decision 2026-08-15: standalone `v` is an explicit approval shortcut only for the immediately preceding pending approval message."
+  - "Operator decision 2026-08-15: standalone `v` is an explicit approval shortcut only for one unambiguous pending proposal; the 2026-08-16 correction preserves a narrowly framed mapping across non-material clarification."
+  - "Operator correction 2026-08-16: non-material clarification and neutral acknowledgement must not cause repeated approval prompts; later explicit approval may authorize the still-current unchanged proposal."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"
 ---
@@ -64,7 +65,7 @@ Example:
 
 Wait for explicit approval given after this fast validation. The initial imperative request does not count as approval.
 
-A reply consisting only of `v` (case-insensitive, ignoring surrounding whitespace) is explicit approval when it directly answers this immediately preceding pending fast validation and no intervening question, adjustment, reorientation, cancellation, or replacement message exists.
+A reply consisting only of `v` (case-insensitive, ignoring surrounding whitespace) is explicit approval when it directly answers this immediately preceding pending fast validation. After a non-material clarification, the bounded continuation rule below controls whether `v` still maps safely to the unchanged proposal.
 
 ## Full plan
 
@@ -86,13 +87,23 @@ Before composing `📌 **Choix**`, load `skills/references/strategic-choice-cont
 
 Wait for explicit approval given after that plan, such as `validé`, `vas-y`, `applique ce plan`, or an equally unambiguous confirmation. The initial imperative request does not count as approval.
 
-A reply consisting only of `v` (case-insensitive, ignoring surrounding whitespace) is explicit approval when it directly answers the immediately preceding pending plan and that plan has exactly one approval outcome. It never authorizes an earlier, replaced, ambiguous, paused, questioned, or cancelled plan.
+A reply consisting only of `v` (case-insensitive, ignoring surrounding whitespace) is explicit approval when it directly answers the immediately preceding pending plan and that plan has exactly one approval outcome. It never authorizes a replaced, ambiguous, paused, materially changed, or cancelled proposal.
 
 A number-only reply is explicit approval only when it maps unambiguously to the single approval choice in the immediately preceding plan. A question, adjustment, alternative, pause, cancellation, or any number mapped to one of those outcomes never authorizes mutation.
 
 This full-plan path applies to ambiguous or unresolved mutations and to files, configuration, installation, package changes, generated persistent artifacts, processes, servers, deployments, publishing, messages, and other external writes unless every fast-path criterion is established. `git push` always requires the full plan because it changes remote state and may trigger CI, deployments, or notifications. Force push retains every stricter gate in addition to the full plan. Incidental caches produced by read-only diagnostics are not implementation.
 
 No spec, tracker, plan file, branch, backup, or other persistent artifact may be created before approval merely to record the proposed work.
+
+## Pending approval across conversation turns
+
+A displayed fast validation or full plan remains the current pending proposal until it is approved, cancelled, replaced, paused, or materially changed. Classify each intervening operator message by intent before deciding whether the proposal is still current:
+
+- For a non-material clarification about the same proposal, answer it without reissuing or restating the unchanged approval message. State only when useful that the same proposal remains pending; do not append another approval request.
+- Neutral acknowledgements such as `ok`, `compris`, `merci`, or `thanks` neither authorize mutation nor trigger another approval prompt. Acknowledge briefly if useful and leave the same proposal pending silently.
+- A later explicit and unambiguous action approval such as `vas-y`, `applique ce plan`, or `continue avec cette proposition` may authorize the still-current unchanged proposal without restating it. Politeness, understanding, discussion, or topic continuation is not action approval.
+- Standalone `v` keeps its immediate-answer meaning by default. After a non-material clarification, it may approve the still-current unchanged proposal only when the agent's intervening answer explicitly preserved the `v` mapping to that exact proposal; merely saying that a proposal is pending is insufficient. This bounded exception does not require reissuing the validation or plan.
+- Any material change to scope, behavior, target, risk, data, permissions, destructive or external effects, or proof strategy invalidates the pending proposal. Present a newly appropriate fast validation or replacement full plan before mutation.
 
 ## Approval boundary
 
@@ -124,7 +135,11 @@ Micro-edits and direct-execution paths still require explicit post-message appro
 
 - `MAP-TECHNICAL-COMMIT`: after approval of a bounded technical implementation, stage only its exact paths, run secret and proportional checks, create coherent local commits silently, and report their identifiers at the next natural checkpoint; do not ask for duplicate commit approval.
 - `MAP-COMMIT-BOUNDARY`: unrelated paths, substantive editorial judgment, mixed-scope consolidation, amend, rebase, squash, reset, tag, hook bypass, closure, release preparation, and shipping are outside implicit commit authority and require the applicable explicit approval.
-- `MAP-V-SHORTCUT`: standalone `v` or `V` approves only the immediately preceding pending fast validation or plan with one unambiguous approval outcome; it does nothing before an approval message or after an intervening question, adjustment, reorientation, cancellation, pause, or replacement.
+- `MAP-V-SHORTCUT`: standalone `v` or `V` approves the immediately preceding pending approval message with one unambiguous approval outcome; it does nothing before an approval message, and after clarification it can approve the still-current unchanged proposal only when the agent explicitly preserved the `v` mapping to that exact proposal.
+- `MAP-PENDING-CLARIFICATION`: when the operator asks a non-material question about a pending unchanged proposal, answer the question and do not repeat the validation or plan; the proposal stays pending without a new prompt.
+- `MAP-NEUTRAL-ACK`: `ok`, `compris`, `merci`, or `thanks` alone neither approve mutation nor trigger another approval prompt; retain the unchanged proposal silently.
+- `MAP-LATER-APPROVAL`: after clarification or neutral acknowledgement, a later explicit and unambiguous action approval authorizes the still-current unchanged proposal without restating it; discussion or politeness does not.
+- `MAP-PENDING-MATERIAL-CHANGE`: any change to scope, behavior, target, risk, data, permissions, destructive or external effects, or proof strategy invalidates the pending proposal and requires a replacement approval message before mutation.
 
 - `MAP-LOCAL`: an imperative without a unique ready spec receives a `(local)` header, current Paris time, the four marked sections, and contextual choices; do not mutate.
 - `MAP-SPEC`: a mutation owned by exactly one ready spec receives `(spec)` and its short title without exposing the spec path in the user-facing plan.
