@@ -38,7 +38,9 @@ function Write-SgInstallerWarning([string]$Message) {
 }
 
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
-Copy-Item -LiteralPath (Join-Path $sourceDir 'ShipGlows.DevServer.psm1') -Destination $runtimeDir -Force
+foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1')) {
+    Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
+}
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
 function Update-SgProcessPath {
     $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine')
