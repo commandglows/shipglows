@@ -1124,7 +1124,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
     if ($AgentReady.Claude) {
         $claude = Get-SgToolPath 'claude.cmd' $claudePaths
         $readyNames = New-Object Collections.Generic.List[string]; $pendingNames = New-Object Collections.Generic.List[string]
-        foreach ($server in @($serverDefinitions)) {
+        foreach ($server in $serverDefinitions) {
             $get = Invoke-SgBoundedProcess $claude @('mcp','get',$server.Name) 30
             if ($get.ExitCode -ne 0) {
                 $arguments = if ($server.Type -eq 'remote') { @('mcp','add','--transport','http','--scope','user',$server.Name,$server.Url) } else { @('mcp','add','--transport','stdio','--scope','user',$server.Name,'--',$server.Command) + @($server.Arguments) }
@@ -1143,7 +1143,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
     if ($AgentReady.Codex) {
         $codex = Get-SgToolPath 'codex.cmd' $codexPaths
         $readyNames = New-Object Collections.Generic.List[string]; $pendingNames = New-Object Collections.Generic.List[string]
-        foreach ($server in @($serverDefinitions | Where-Object Name -ne 'playwright')) {
+        foreach ($server in ($serverDefinitions | Where-Object Name -ne 'playwright')) {
             $get = Invoke-SgBoundedProcess $codex @('mcp','get',$server.Name,'--json') 30
             if ($get.ExitCode -ne 0) {
                 $addArguments = if ($server.Type -eq 'remote') { @('mcp','add',$server.Name,'--url',$server.Url) } else { @('mcp','add',$server.Name,'--',$server.Command) + @($server.Arguments) }
