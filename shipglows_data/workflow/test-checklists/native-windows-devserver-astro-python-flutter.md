@@ -1,7 +1,7 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.4.1"
 project: ShipGlows
 created: "2026-08-15"
 updated: "2026-08-16"
@@ -23,7 +23,7 @@ linked_systems:
   - shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md
 depends_on:
   - artifact: shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md
-    artifact_version: "0.6.0"
+    artifact_version: "0.6.1"
     required_status: draft
 supersedes: []
 evidence:
@@ -94,4 +94,5 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] Real Shadow installation provides Android Studio build `AI-261.26222.65.2613.15948027` and Visual Studio Community 2022 `17.14.38` with the native desktop workload.
 - [x] Real `flutter doctor -v` reports Android, Visual Studio Community 2022, Chrome and connected Windows/web devices healthy, with `No issues found`.
 - [x] Existing Flutter 3.44.9, JDK 17, Android SDK/build-tools 36, accepted licenses, emulator package and `ShipGlows_API_36` were preserved; Windows was not restarted automatically.
+- [x] Published-main rerun resolved commit `2d354118770008df997eda57b19d7ca6299f087c`, skipped the complete Android Studio/Visual Studio question and heavy downloads, and recorded IDE readiness plus user-owned Firebase pending state in `%USERPROFILE%\.shipglows\environment.md`.
 - [ ] Open Android Studio once, keep the existing SDK, sign in personally, choose a Firebase project and confirm the Firebase Device Streaming surface. No automation may accept billing or reserve a device.
