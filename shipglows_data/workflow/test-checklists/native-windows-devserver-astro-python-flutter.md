@@ -1,7 +1,7 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.4.1"
+artifact_version: "1.4.2"
 project: ShipGlows
 created: "2026-08-15"
 updated: "2026-08-16"
@@ -17,13 +17,15 @@ linked_systems:
   - cli/windows/ShipGlows.DevServer.psm1
   - cli/windows/shipglows-devserver.ps1
   - cli/windows/ShipGlows.MobileToolchain.psm1
+  - cli/windows/ShipGlows.AgentInstructions.psm1
   - cli/windows/install-devserver.ps1
   - tests/windows/devserver-project-catalog.ps1
   - tests/windows/mobile-toolchain.ps1
+  - tests/windows/agent-instructions.ps1
   - shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md
 depends_on:
   - artifact: shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md
-    artifact_version: "0.6.1"
+    artifact_version: "0.6.4"
     required_status: draft
 supersedes: []
 evidence:
@@ -82,6 +84,7 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] PowerShell 5.1 transport preserves argument boundaries for EXE and CMD/BAT across spaces, Unicode, quotes, `&`, `%` and `;`; interactive execution and timeout/tree-stop paths are covered.
 - [x] Service scanning excludes reparse directories and reports its bounded-directory limit.
 - [x] Automated proof uses temporary fixtures only and performs no package download, elevation, registry mutation, Developer Mode change, authentication or user-project write.
+- [x] Multi-agent instruction fixtures prove the exact Codex, Claude, OpenCode and Kilo global paths, detected-agent filtering, foreign Unicode/newline preservation, managed-block replacement, fail-closed malformed markers, atomic temp cleanup and byte-idempotent reruns.
 - [ ] Run full installation on a fresh Windows target and record accepted/refused license outcomes, exact resolved versions and readiness fields.
 - [ ] Validate `ShipGlows_API_36` through `adb` and `flutter devices` on a host that exposes nested virtualization; Shadow software-mode failure is already recorded.
 - [ ] Validate MCP convergence in real Codex, Claude, OpenCode v2 and Kilo configs, including an existing JSONC file.
