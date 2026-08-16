@@ -874,18 +874,22 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     $essential = Invoke-SgBoundedProcess $sdkManager @('platform-tools',$coordinates.PlatformPackage,$coordinates.BuildToolsPackage) 600
     if ($essential.TimedOut -or $essential.ExitCode -ne 0) { Write-SgInstallerWarning 'Essential Android SDK package installation failed or timed out.' }
     $adb = Join-Path $sdkRoot 'platform-tools\adb.exe'
+    $emulatorPlan = Get-SgEmulatorProvisionPlan
+    $emulatorCandidate = Join-Path $sdkRoot 'emulator\emulator.exe'
+    $emulatorState = Get-SgAndroidEmulatorProvisionState -SdkRoot $sdkRoot -EmulatorPath $emulatorCandidate -ImagePackage $emulatorPlan.Packages[1] -AvdName $emulatorPlan.AvdName
     $emulatorSupported = Get-SgHypervisorEvidence
-    if ($interactive -and -not $emulatorSupported) {
+    if ($emulatorState.Complete) {
+        Write-Host "Android emulator and $($emulatorPlan.AvdName) are already installed; skipping the emulator question." -ForegroundColor Green
+    } elseif ($interactive -and -not $emulatorSupported) {
         Write-SgInstallerWarning 'Android emulator hardware acceleration is not proven on this machine. You can still install it, but startup may fail or software emulation may be very slow.'
     }
-    $choice = if ($interactive) { (Read-Host 'Install the Android emulator and create ShipGlows_API_36 now? [y/N]').Trim() } else { '' }
-    $plan = Get-SgAndroidInstallPlan $interactive $emulatorSupported $choice
-    $emulatorCandidate = Join-Path $sdkRoot 'emulator\emulator.exe'
+    $emulatorPrompt = if ($emulatorState.EmulatorInstalled -or $emulatorState.ImageInstalled -or $emulatorState.AvdReady) { 'Repair the Android emulator and ShipGlows_API_36 now? [y/N]' } else { 'Install the Android emulator and create ShipGlows_API_36 now? [y/N]' }
+    $choice = if ($interactive -and -not $emulatorState.Complete) { (Read-Host $emulatorPrompt).Trim() } else { '' }
+    $plan = Get-SgAndroidInstallPlan -Interactive $interactive -EmulatorSupported $emulatorSupported -EmulatorChoice $choice -EmulatorReady $emulatorState.Complete
     $emulator = if (Test-Path -LiteralPath $emulatorCandidate -PathType Leaf) { $emulatorCandidate } else { '' }
     $emulatorAccelerationReady = $false
-    $avdReady = $false
+    $avdReady = $emulatorState.Complete
     if ($plan.InstallEmulator) {
-        $emulatorPlan = Get-SgEmulatorProvisionPlan
         Write-Host 'Downloading the Android emulator and Android 36 system image. Progress remains visible; this can use several gigabytes.' -ForegroundColor Yellow
         $emulatorInstallSucceeded = Invoke-SgInteractiveBoundedProcess $sdkManager $emulatorPlan.Packages 1800
         $emulator = $emulatorCandidate
@@ -912,10 +916,9 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
             $emulator = if (Test-Path -LiteralPath $emulatorCandidate -PathType Leaf) { $emulatorCandidate } else { '' }
         }
     }
-    if (-not $avdReady -and -not [string]::IsNullOrWhiteSpace($emulator)) {
-        $existingAvds = Invoke-SgBoundedProcess $emulator @('-list-avds') 30
-        $avdReady = -not $existingAvds.TimedOut -and $existingAvds.ExitCode -eq 0 -and $existingAvds.Output -match '(?m)^ShipGlows_API_36\r?$'
-    }
+    $emulatorState = Get-SgAndroidEmulatorProvisionState -SdkRoot $sdkRoot -EmulatorPath $emulatorCandidate -ImagePackage $emulatorPlan.Packages[1] -AvdName $emulatorPlan.AvdName
+    $emulator = if ($emulatorState.EmulatorInstalled) { $emulatorCandidate } else { '' }
+    $avdReady = $emulatorState.Complete
     if ($avdReady -and -not $emulatorAccelerationReady) { $emulatorAccelerationReady = Test-SgAndroidAcceleration $emulator }
     if ($plan.PhysicalDeviceAlternative -or ($plan.InstallEmulator -and -not $emulatorAccelerationReady)) { Write-Host 'Android alternative: connect a real phone with USB debugging enabled, then run flutter devices.' -ForegroundColor Yellow }
     if (-not (Test-SgWindowsDeveloperMode)) { Write-Host 'Windows Developer Mode is off and was not changed. Enable it manually only if Flutter requests it.' -ForegroundColor Yellow }

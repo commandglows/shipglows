@@ -209,11 +209,13 @@ A `package.json` without `scripts.dev` is ignored as a non-runnable surface.
 Linux-only Flox, PM2, Caddy, autossh, and the interactive `urls` menu are not
 emulated on Windows. The full installer prepares Git, GitHub CLI, Node LTS
 (including npm), pnpm, uv and Flutter, then enables web and Android support.
-Every interactive x64 install asks the sole product question about installing
-the Android emulator and creating `ShipGlows_API_36`. Nested-virtualization
-evidence changes the warning, not the operator's ability to choose. Accepted
-emulator and Android 36 image downloads run with visible progress; the AVD is
-created before acceleration is checked. Without hardware acceleration it remains
+An interactive x64 install asks the sole product question about installing the
+Android emulator and creating `ShipGlows_API_36` only when that provisioned state
+is incomplete. A complete emulator, Android 36 image, and named AVD skip the
+question; a partial state offers repair. Nested-virtualization evidence changes
+the warning, not the operator's ability to choose. Accepted emulator and Android
+36 image downloads run with visible progress; the AVD is created before
+acceleration is checked. Without hardware acceleration it remains
 installed, but ShipGlows records that it is not device-ready; the documented
 `-accel off -gpu software` path is diagnostic-only and may be unusably slow or
 fail to boot. Non-interactive installs never prompt or infer consent.

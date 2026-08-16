@@ -34,12 +34,13 @@ function Test-SgSupportedAndroidArchitecture {
 }
 
 function Get-SgAndroidInstallPlan {
-    param([bool]$Interactive, [bool]$EmulatorSupported, [string]$EmulatorChoice = '')
-    $ask = $Interactive
+    param([bool]$Interactive, [bool]$EmulatorSupported, [string]$EmulatorChoice = '', [bool]$EmulatorReady = $false)
+    $ask = $Interactive -and -not $EmulatorReady
     $installEmulator = $ask -and $EmulatorChoice.Trim().ToLowerInvariant() -in @('y','yes')
     [pscustomobject]@{
         AskEmulator = $ask
         InstallEmulator = $installEmulator
+        EmulatorReady = $EmulatorReady
         AccelerationProven = $EmulatorSupported
         AccelerationWarning = $ask -and -not $EmulatorSupported
         PhysicalDeviceAlternative = -not $installEmulator
@@ -97,6 +98,39 @@ function Get-SgEmulatorProvisionPlan {
     param([int]$ApiLevel = 36, [string]$Abi = 'x86_64', [string]$AvdName = 'ShipGlows_API_36')
     if ($ApiLevel -lt 21 -or $Abi -notin @('x86_64','arm64-v8a') -or $AvdName -notmatch '^[A-Za-z0-9_.-]+$') { throw 'Invalid bounded Android emulator plan.' }
     [pscustomobject]@{ Packages=@('emulator',"system-images;android-$ApiLevel;google_apis;$Abi"); AvdName=$AvdName; Device='pixel_6' }
+}
+
+function Get-SgAndroidEmulatorProvisionState {
+    param(
+        [Parameter(Mandatory=$true)][string]$SdkRoot,
+        [Parameter(Mandatory=$true)][string]$EmulatorPath,
+        [Parameter(Mandatory=$true)][string]$ImagePackage,
+        [Parameter(Mandatory=$true)][string]$AvdName,
+        [scriptblock]$Runner = $null
+    )
+    $segments = @($ImagePackage -split ';')
+    $invalidSegments = @($segments | Where-Object { $_ -notmatch '^[A-Za-z0-9_.-]+$' -or $_ -in @('.','..') })
+    if ($segments.Count -ne 4 -or $segments[0] -ne 'system-images' -or $invalidSegments.Count -gt 0) {
+        throw 'Invalid bounded Android system-image package.'
+    }
+    $imagePackageXml = Join-Path $SdkRoot (Join-Path ($segments -join '\') 'package.xml')
+    $emulatorInstalled = Test-Path -LiteralPath $EmulatorPath -PathType Leaf
+    $imageInstalled = $false
+    if (Test-Path -LiteralPath $imagePackageXml -PathType Leaf) {
+        try { [void][xml][IO.File]::ReadAllText($imagePackageXml); $imageInstalled = $true } catch { $imageInstalled = $false }
+    }
+    $avdReady = $false
+    if ($emulatorInstalled) {
+        $list = Invoke-SgDiagnosticCommand -File $EmulatorPath -Arguments @('-list-avds') -Runner $Runner -TimeoutSeconds 30
+        $avdReady = -not $list.TimedOut -and $list.ExitCode -eq 0 -and $list.Output -match "(?m)^$([regex]::Escape($AvdName))\r?$"
+    }
+    [pscustomobject]@{
+        EmulatorInstalled = $emulatorInstalled
+        ImageInstalled = $imageInstalled
+        AvdReady = $avdReady
+        Complete = $emulatorInstalled -and $imageInstalled -and $avdReady
+        ImagePackagePath = $imagePackageXml
+    }
 }
 
 function Get-SgFlutterInstallState {
@@ -559,4 +593,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic

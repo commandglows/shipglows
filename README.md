@@ -239,10 +239,12 @@ The archive download announces its resolved version and size, shows curl progres
 and uses bounded retries with partial-transfer resume before checksum validation.
 On rerun, already accepted SDK licenses are recognized by a bounded non-accepting
 probe, so non-interactive convergence can continue without replaying consent.
-On every interactive x64 install, the only product question is whether to
-install the Android emulator and create the `ShipGlows_API_36` virtual device.
-If hardware acceleration is uncertain, the installer warns before asking but
-never silently chooses the phone path; accepted downloads keep progress visible.
+On an interactive x64 install, the only product question is whether to install
+the Android emulator and create the `ShipGlows_API_36` virtual device. A rerun
+skips that question when the emulator, Android 36 image, and named AVD are all
+present; a partial state offers repair instead. If hardware acceleration is
+uncertain, the installer warns before asking but never silently chooses the phone
+path; accepted downloads keep progress visible.
 Android licenses and Windows confirmations remain explicit, and non-interactive
 runs report them as pending instead of accepting or blocking.
 Codex permissions remain unchanged unless automation explicitly sets

@@ -86,8 +86,10 @@ ne sont pas requis par le parcours Shadow PC.
    réutilisées sans remplacer leurs variables ni le `PATH`. Sinon JDK 17 est
    installé dans le profil utilisateur avant la présentation des conditions
    Android; les archives ZIP sont vérifiées et les packages ciblent Android 36.
-   La seule question produit porte sur l'émulateur et elle est posée sur tout
-   poste x64 interactif. Si l'accélération n'est pas prouvée, ShipGlows prévient
+   La seule question produit porte sur l'émulateur et elle n'est posée que si
+   l'émulateur, l'image Android 36 ou `ShipGlows_API_36` manque. Un état partiel
+   propose une réparation; un état complet supprime la question. Si l'accélération
+   n'est pas prouvée, ShipGlows prévient
    du risque de lenteur ou d'échec mais laisse l'opérateur choisir; une réponse
    positive installe l'émulateur, l'image Android 36 et crée `ShipGlows_API_36`
    avec une progression visible. Un téléphone réel reste l'alternative. Les licences

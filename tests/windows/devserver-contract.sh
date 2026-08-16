@@ -85,6 +85,7 @@ rg -n 'rejected unsafe NUL/CR/LF|sg-transport-|Start-SgEncodedProcess' "$MOBILE_
 test "$(rg -c 'Read-Host' "$INSTALLER")" -eq 2
 rg -n 'Accept the Android SDK terms.*\[y/N\]|Install the Android emulator and create ShipGlows_API_36 now\? \[y/N\]' "$INSTALLER"
 rg -n 'AccelerationWarning|hardware acceleration is not proven|Invoke-SgInteractiveBoundedProcess \$sdkManager \$emulatorPlan\.Packages 1800|Android virtual device ready' "$INSTALLER" "$MOBILE_MODULE"
+rg -n 'Get-SgAndroidEmulatorProvisionState|already installed; skipping the emulator question|Repair the Android emulator and ShipGlows_API_36 now\? \[y/N\]' "$INSTALLER" "$MOBILE_MODULE"
 rg -n 'Android emulator installed|Android virtual device ready|Android emulator acceleration ready|flutter emulators --launch ShipGlows_API_36|hosted Android device' "$INSTALLER"
 ! rg -n "create','avd','--force" "$INSTALLER"
 rg -n 'Configuring installed coding agents|Test-SgToolRuns.*codex|Test-SgToolRuns.*claude|Test-SgToolRuns.*opencode|Test-SgToolRuns.*kilocode' "$INSTALLER"

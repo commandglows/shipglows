@@ -23,6 +23,8 @@ Assert-Sg (-not $refused.InstallEmulator -and $refused.PhysicalDeviceAlternative
 $headless = Get-SgAndroidInstallPlan -Interactive $false -EmulatorSupported $false -EmulatorChoice ''
 Assert-Sg (-not $headless.AskEmulator -and -not $headless.InstallEmulator) 'Noninteractive installs must never prompt or guess emulator consent.'
 Assert-Sg ($headless.LicensesPending -and $headless.LicenseCommand -eq 'sdkmanager --licenses') 'Noninteractive Android licenses need actionable pending state.'
+$completePlan = Get-SgAndroidInstallPlan -Interactive $true -EmulatorSupported $false -EmulatorChoice 'yes' -EmulatorReady $true
+Assert-Sg (-not $completePlan.AskEmulator -and -not $completePlan.InstallEmulator -and $completePlan.EmulatorReady) 'A complete existing emulator must skip both the question and provisioning.'
 Assert-Sg (Test-SgAndroidLicenseResult ([pscustomobject]@{ ExitCode=0; Output="WARNING: sdkmanager is deprecated.`nAll SDK package licenses accepted"; TimedOut=$false })) 'Previously accepted SDK licenses must converge without another interactive prompt.'
 Assert-Sg (-not (Test-SgAndroidLicenseResult ([pscustomobject]@{ ExitCode=0; Output='7 of 7 SDK package licenses not accepted.'; TimedOut=$false }))) 'Unaccepted SDK licenses must remain pending.'
 
@@ -43,6 +45,24 @@ $coordinates = Get-SgAndroidCoordinates
 Assert-Sg ($coordinates.ApiLevel -eq 36 -and $coordinates.BuildToolsVersion -eq '36.0.0') 'Android coordinates must be centralized on API/build-tools 36.'
 $emulatorPlan = Get-SgEmulatorProvisionPlan
 Assert-Sg (($emulatorPlan.Packages -join '|') -eq 'emulator|system-images;android-36;google_apis;x86_64' -and $emulatorPlan.AvdName -eq 'ShipGlows_API_36') 'Emulator provisioning must include current package, system image, and AVD.'
+$emulatorStateRoot = Join-Path ([IO.Path]::GetTempPath()) ('sg-emulator-state-' + [guid]::NewGuid().ToString('N'))
+try {
+    $emulatorExe = Join-Path $emulatorStateRoot 'emulator\emulator.exe'
+    $imagePackage = Join-Path $emulatorStateRoot 'system-images\android-36\google_apis\x86_64\package.xml'
+    New-Item -ItemType Directory -Path (Split-Path $emulatorExe -Parent),(Split-Path $imagePackage -Parent) -Force | Out-Null
+    New-Item -ItemType File -Path $emulatorExe -Force | Out-Null
+    [IO.File]::WriteAllText($imagePackage, '<localPackage path="system-images;android-36;google_apis;x86_64" />')
+    $completeState = Get-SgAndroidEmulatorProvisionState -SdkRoot $emulatorStateRoot -EmulatorPath $emulatorExe -ImagePackage $emulatorPlan.Packages[1] -AvdName $emulatorPlan.AvdName -Runner { param($f,$a,$timeout) [pscustomobject]@{ ExitCode=0; Output="Other_AVD`nShipGlows_API_36"; TimedOut=$false } }
+    Assert-Sg ($completeState.Complete -and $completeState.EmulatorInstalled -and $completeState.ImageInstalled -and $completeState.AvdReady) 'A complete existing emulator state must be recognized without provisioning.'
+    Remove-Item -LiteralPath $imagePackage -Force
+    $partialState = Get-SgAndroidEmulatorProvisionState -SdkRoot $emulatorStateRoot -EmulatorPath $emulatorExe -ImagePackage $emulatorPlan.Packages[1] -AvdName $emulatorPlan.AvdName -Runner { param($f,$a,$timeout) [pscustomobject]@{ ExitCode=0; Output='ShipGlows_API_36'; TimedOut=$false } }
+    Assert-Sg (-not $partialState.Complete -and $partialState.EmulatorInstalled -and -not $partialState.ImageInstalled -and $partialState.AvdReady) 'A partial emulator state must remain repairable instead of being called complete.'
+    $unsafePackageRejected = $false
+    try { [void](Get-SgAndroidEmulatorProvisionState -SdkRoot $emulatorStateRoot -EmulatorPath $emulatorExe -ImagePackage 'system-images;..;google_apis;x86_64' -AvdName $emulatorPlan.AvdName) } catch { $unsafePackageRejected = $true }
+    Assert-Sg $unsafePackageRejected 'Unsafe or malformed emulator package coordinates must fail before path construction.'
+} finally {
+    if (Test-Path -LiteralPath $emulatorStateRoot) { Remove-Item -LiteralPath $emulatorStateRoot -Recurse -Force }
+}
 Assert-Sg (Test-SgSupportedAndroidArchitecture -Is64BitOperatingSystem $true -Architecture 'AMD64') 'Windows x64 must be supported.'
 Assert-Sg (-not (Test-SgSupportedAndroidArchitecture -Is64BitOperatingSystem $true -Architecture 'ARM64')) 'Non-x64 Windows must become pending before downloads.'
 
