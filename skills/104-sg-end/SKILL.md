@@ -72,7 +72,7 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 ## Stop Conditions
 
 - Do not claim done/closed without evidence and required guards.
-- Do not emit any closure result without the shared visual closure card and its one-line `📖 DOCUMENTATION` and `📰 ÉDITORIAL` classifications.
+- Do not emit any closure result without the shared visual closure card and its one-line `📖 DOCUMENTATION` and `✏️ ÉDITORIAL` classifications.
 - Do not mutate tracker/changelog when proof or docs status is materially incomplete unless closure mode is partial.
 - Do not mark product work as complete if documentation or editorial status is `needs review`.
 - Do not include internal file paths in user `report=user`.
@@ -102,7 +102,7 @@ For `summary-only`, run read-only classification and reporting only; skip steps 
 
 ### Final closure summary
 
-- Use the shared ordered card: `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `📰 ÉDITORIAL`, `📦 LIVRAISON`.
+- Use the shared ordered card: `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📦 LIVRAISON`.
 - Keep proof, documentation, and editorial evidence each on one line separated by ` · `.
 - Add `⚠️ LIMITES` or `🧭 SUITE` only when material; never print an empty block.
 

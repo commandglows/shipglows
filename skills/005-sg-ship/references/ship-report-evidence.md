@@ -51,7 +51,7 @@ Use `shared for iteration` or equivalent outcome language. State that quick mode
 
 ## Full Mode
 
-Use `delivered` only when closure guards and required proof support it. Otherwise use `delivered with validation remaining`, `blocked`, or another bounded outcome. Mention tracker/changelog only when actually updated. Every full-close report uses the shared ordered card and keeps `🧪 PREUVES`, `📖 DOCUMENTATION`, and `📰 ÉDITORIAL` evidence on one line each, separated by ` · `; a material documentation or editorial `needs review` result forbids `delivered`.
+Use `delivered` only when closure guards and required proof support it. Otherwise use `delivered with validation remaining`, `blocked`, or another bounded outcome. Mention tracker/changelog only when actually updated. Every full-close report uses the shared ordered card and keeps `🧪 PREUVES`, `📖 DOCUMENTATION`, and `✏️ ÉDITORIAL` evidence on one line each, separated by ` · `; a material documentation or editorial `needs review` result forbids `delivered`.
 
 ## Failure And Limits
 

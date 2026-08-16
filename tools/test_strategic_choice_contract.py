@@ -31,12 +31,16 @@ class StrategicChoiceContractTests(unittest.TestCase):
     def test_short_interaction_labels_trigger_guided_follow_up(self) -> None:
         for expected in (
             "`Questionner`",
+            "`Approfondir`",
             "`Réorienter`",
             "guided follow-up",
             "must not ask the operator to invent the next direction from a blank page",
             "never grants approval",
         ):
             self.assertIn(expected, self.strategic)
+
+        self.assertIn("`SC-APPROFONDIR`", self.strategic)
+        self.assertIn("evidence-backed opportunities, risks, assumptions, and lessons", self.strategic)
 
     def test_all_choice_surfaces_load_shared_contract(self) -> None:
         for path in (PLAN, QUESTION, REPORT):

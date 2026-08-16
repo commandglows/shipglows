@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-05-05"
 updated: "2026-08-15"
@@ -31,7 +31,7 @@ depends_on:
     artifact_version: "1.1.0"
     required_status: active
   - artifact: "skills/references/strategic-choice-contract.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.2.0"
     required_status: active
 supersedes: []
 evidence:
@@ -65,7 +65,7 @@ The goal is not to avoid questions at all costs. The goal is to avoid useless te
 
 Load `skills/references/decision-quality-contract.md` before recommending a default. The recommended answer must preserve ShipGlows's quality and excellence bar; do not recommend the fastest, cheapest, or easiest route unless it is also quality-equivalent, excellence-equivalent, and professionally correct.
 
-Load `skills/references/strategic-choice-contract.md` for material operator choices and for every unfinished-chantier choice block. It owns business-vision depth and the guided follow-up required after short `Questionner` or `Réorienter` controls.
+Load `skills/references/strategic-choice-contract.md` for material operator choices, every unfinished-chantier choice block, and useful completed-chantier continuation controls. It owns business-vision depth and the guided follow-up required after short `Questionner`, `Approfondir`, or `Réorienter` controls.
 
 ## Applies To
 
@@ -268,5 +268,5 @@ Name the condition that would make another option better when that matters.
 - `SSRP-009 greenfield platform footprint`: given the operator asks for a new Internet product and does not explicitly accept or reject native apps, when platform scope would change the credible framework options, then the agent establishes web/iOS/Android/desktop intent before blueprint matching or stack recommendation and does not silently place mobile apps in `Scope Out`.
 - `SSRP-010 preferred stack preset`: given the established footprint includes a public SEO site plus web/iOS/Android application surfaces, when no project constraint contradicts the defaults, then the agent applies Astro plus Flutter with Vercel web hosting before blueprint matching and asks only about uncovered material providers or justified exceptions.
 - `SSRP-011 cross-platform first`: given the operator asks for a new mobile or browser application without a durable single-platform restriction, then the agent first recommends one Flutter codebase for Web, iOS, and Android and keeps Astro on Vercel for any separate public SEO surface.
-- `SSRP-012 guided short controls`: selecting `Questionner` or `Réorienter` triggers the shared strategic contract's guided follow-up; neither selection authorizes mutation or returns a blank question to the operator.
+- `SSRP-012 guided short controls`: selecting `Questionner`, `Approfondir`, or `Réorienter` triggers the shared strategic contract's guided follow-up; no selection authorizes mutation or returns a blank question to the operator.
 - `SSRP-014 governing-context recovery`: a material governing gap produces evidence, a proposed interpretation, one authority-owned question, an authorized canonical update, and automatic return to the original chantier; agent-researchable facts are never offloaded.

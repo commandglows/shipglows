@@ -84,7 +84,7 @@ public claim.
 Every closure report includes exactly one compact line:
 
 ```text
-📰 ÉDITORIAL
+✏️ ÉDITORIAL
 ✅ updated · <aligned public surface>
 ```
 

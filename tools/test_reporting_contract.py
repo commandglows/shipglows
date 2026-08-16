@@ -129,7 +129,7 @@ class ReportingContractTests(unittest.TestCase):
             "✨ RÉSULTAT",
             "🧪 PREUVES",
             "📖 DOCUMENTATION",
-            "📰 ÉDITORIAL",
+            "✏️ ÉDITORIAL",
             "📦 LIVRAISON",
         )
         card = core.split("For every successful closure report", 1)[1].split(
@@ -140,7 +140,7 @@ class ReportingContractTests(unittest.TestCase):
         for rule in (
             "content beneath `🧪 PREUVES` on exactly one line",
             "content beneath `📖 DOCUMENTATION` on exactly one line",
-            "content beneath `📰 ÉDITORIAL` on exactly one line",
+            "content beneath `✏️ ÉDITORIAL` on exactly one line",
             "separate proof items with ` · `",
             "`⚠️ LIMITES` and `🧭 SUITE` are conditional",
         ):
@@ -198,7 +198,7 @@ class ReportingContractTests(unittest.TestCase):
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         reflection = EDITORIAL_REFLECTION.read_text(encoding="utf-8")
         for expected in (
-            "📰 ÉDITORIAL",
+            "✏️ ÉDITORIAL",
             "Editorial impact is classified independently from documentation impact",
             "A material editorial `needs review` result forbids closure or shipping language",
             "No declared public surface",
@@ -213,6 +213,20 @@ class ReportingContractTests(unittest.TestCase):
         ):
             self.assertIn(scenario, reflection)
         self.assertIn("SSRP-022 visible closure editorial", scenarios)
+        self.assertNotIn("📰 ÉDITORIAL", core + scenarios + reflection)
+
+    def test_completed_chantier_can_offer_guided_deepening_or_reorientation(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        blocked = REPORTING_BRANCHES[1].read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        for expected in (
+            "`Approfondir`",
+            "`Réorienter`",
+            "does not reopen the completed chantier",
+            "never grants mutation approval",
+            "SSRP-023 completed chantier follow-up",
+        ):
+            self.assertIn(expected, core + blocked + scenarios)
 
     def test_chantier_and_context_emoji_vocabulary(self) -> None:
         text = reporting_corpus()

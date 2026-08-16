@@ -85,7 +85,7 @@ class EndCompactionContractTests(unittest.TestCase):
             "✨ RÉSULTAT",
             "🧪 PREUVES",
             "📖 DOCUMENTATION",
-            "📰 ÉDITORIAL",
+            "✏️ ÉDITORIAL",
             "📦 LIVRAISON",
             "separated by ` · `",
         ):
