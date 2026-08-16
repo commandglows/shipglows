@@ -92,12 +92,14 @@ function Get-SgCodexPlaywrightMcpConfig([string]$ConfigPath) {
 function Get-SgPlaywrightChromiumExecutable([string]$Revision = '') {
     $cache = Join-Path $env:LOCALAPPDATA 'ms-playwright'
     if (-not (Test-Path -LiteralPath $cache -PathType Container)) { return $null }
-    $searchRoot = if ($Revision) { Join-Path $cache "chromium-$Revision" } else { $cache }
-    if (-not (Test-Path -LiteralPath $searchRoot -PathType Container)) { return $null }
+    $searchRoots = if ($Revision) { @((Join-Path $cache "chromium_headless_shell-$Revision"),(Join-Path $cache "chromium-$Revision")) } else { @($cache) }
     $candidates = @(
-        Get-ChildItem -LiteralPath $searchRoot -Recurse -File -ErrorAction SilentlyContinue |
-            Where-Object { $_.Name -in @('chrome.exe', 'headless_shell.exe') -and $_.FullName -match 'chromium' } |
-            Sort-Object FullName -Descending
+        foreach ($searchRoot in $searchRoots) {
+            if (Test-Path -LiteralPath $searchRoot -PathType Container) {
+                Get-ChildItem -LiteralPath $searchRoot -Recurse -File -ErrorAction SilentlyContinue |
+                    Where-Object { $_.Name -in @('chrome-headless-shell.exe', 'headless_shell.exe', 'chrome.exe') -and $_.FullName -match 'chromium' }
+            }
+        }
     )
     return $candidates | Select-Object -First 1
 }

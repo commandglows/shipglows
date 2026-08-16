@@ -77,7 +77,7 @@ enabled = true
     $previousLocalAppData = $env:LOCALAPPDATA
     try {
         $env:LOCALAPPDATA = $fixture
-        $exactBrowser = Join-Path $fixture 'ms-playwright\chromium-1237\chrome-win64\chrome.exe'
+        $exactBrowser = Join-Path $fixture 'ms-playwright\chromium_headless_shell-1237\chrome-headless-shell-win64\chrome-headless-shell.exe'
         $otherBrowser = Join-Path $fixture 'ms-playwright\chromium-9999\chrome-win64\chrome.exe'
         New-Item -ItemType Directory -Path (Split-Path $exactBrowser -Parent),(Split-Path $otherBrowser -Parent) -Force | Out-Null
         Set-Content -LiteralPath $exactBrowser -Value 'exact'

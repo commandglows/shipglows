@@ -1221,10 +1221,10 @@ function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
         $agentBrowserInstall=Invoke-SgBoundedProcess $agentCommand @('install-browser') 900
         if($agentBrowserInstall.TimedOut -or $agentBrowserInstall.ExitCode -ne 0){throw 'Managed Playwright Agent CLI browser installation failed.'}
         $stableCheck=Invoke-SgBoundedProcess $stableCommand @('--version') 30
-        $agentCheck=Invoke-SgBoundedProcess $agentCommand @('--help') 30
         $browserCheck=if(Test-Path $browser -PathType Leaf){Invoke-SgBoundedProcess $browser @('--version') 30}else{$null}
         $stableReady=-not $stableCheck.TimedOut -and $stableCheck.ExitCode -eq 0 -and $stableCheck.Output -match [regex]::Escape($stableVersion)
-        $agentReady=-not $agentCheck.TimedOut -and $agentCheck.ExitCode -eq 0
+        $agentPackageVersion=[string]((Get-Content -Raw (Join-Path $agentRoot 'node_modules\@playwright\cli\package.json')|ConvertFrom-Json).version)
+        $agentReady=-not $agentBrowserInstall.TimedOut -and $agentBrowserInstall.ExitCode -eq 0 -and $agentPackageVersion -eq $agentVersion
         $browserReady=$browserCheck -and -not $browserCheck.TimedOut -and $browserCheck.ExitCode -eq 0
         return [pscustomobject]@{StableReady=if($stableReady){'yes'}else{'no'};StableVersion=$stableVersion;StableRevision=$revision;StablePath=$stableCommand;AgentCliReady=if($agentReady){'yes'}else{'no'};AgentCliVersion=$agentVersion;AgentCliPath=$agentCommand;MotionReady=if($stableReady -and $browserReady){'yes'}else{'no'}}
     } catch {Write-SgInstallerWarning "Managed Playwright runtime pending: $($_.Exception.Message)";return $empty}
