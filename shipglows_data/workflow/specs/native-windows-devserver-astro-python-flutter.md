@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.6.2"
+artifact_version: "0.6.3"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-16"
-updated_at: "2026-08-16 07:27:08 UTC"
+updated_at: "2026-08-16 07:56:20 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -36,6 +36,9 @@ linked_systems:
   - "plugins/shipglows/skills/shipglows/SKILL.md"
   - "tools/sync_shipglows_public_bootstrap.sh"
   - "/home/claude/shipglows_app/site/src/generated/shipglows-installer.ps1"
+  - "/home/claude/shipglows_app/site/src/data/installPages.ts"
+  - "/home/claude/shipglows_app/site/src/pages/install.astro"
+  - "/home/claude/shipglows_app/site/src/pages/fr/install.astro"
   - "/home/claude/shipglows_app/site/src/pages/shipglows-script.ts"
   - "/home/claude/shipglows_app/site/tests/install/shipglowsInstaller.test.ts"
 depends_on:
@@ -431,6 +434,7 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 - [ ] AC30: Given unregister is selected, when the operator confirms, then only the registry entry is removed and the repository remains on disk.
 - [x] AC31: Given an interactive Windows x64 full install, when Android Studio or the Flutter Windows compiler is missing, then ShipGlows makes one grouped proposal that names only the missing outcomes. Acceptance installs current Android Studio through the official WinGet package and Visual Studio Community 2022 with `Microsoft.VisualStudio.Workload.NativeDesktop` plus recommended components, preserves the existing Flutter/JDK/Android SDK/AVD, shows progress and forbids automatic restart. A valid complete host skips the question; a partial Visual Studio host receives only the missing workload; refusal and non-interactive execution install nothing and remain pending. `%USERPROFILE%\.shipglows\environment.md` records Android Studio, Flutter Windows C++ and Firebase Device Streaming readiness separately. ShipGlows never authenticates Firebase, chooses a project, changes billing or reserves a remote device. Fixtures, parser/static proof and real Shadow installation pass; first-launch Firebase UI confirmation remains operator-owned.
 - [x] AC32: Given a ShipGlows context, development, or engineering request that depends on Flutter, Android, Windows desktop, or Firebase Device Streaming, when a user-facing or expert skill chooses a route, then it loads the shared runtime-awareness contract and reports the recorded toolchain state plus exact next action. It keeps SDK, license, AVD, acceleration, device, IDE, hosted-device configuration, discovery, and callability distinct; an unaccelerated AVD without a ready device is never called runnable; Firebase authentication, project, billing, and reservation remain user-owned. Source skills, the bundled public plugin, and every produced Windows environment field pass one focused scenario contract.
+- [x] AC33: Given a visitor opens the English or French ShipGlows installer surfaces, when Windows full is described or downloaded, then the pages and PowerShell introduction name Flutter web, Android, and Windows rather than optional Flutter Web alone. They describe Android Studio, Visual Studio Community C++, emulator acceleration, physical-phone and Firebase Device Streaming alternatives, separate readiness states, and the exact next action without claiming that Firebase authentication, project selection, billing, reservation, or a runnable emulator is automatic. The public PowerShell artifact remains byte-identical to the canonical installer, and focused bilingual content, endpoint, type, build, and visual-route proofs pass before deployment.
 
 # Test Strategy
 
@@ -539,6 +543,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-16 01:17:06 UTC | 103-sg-verify mode=excellence | GPT-5 Codex | Reinstalled the full Windows runtime from published `main` after the fast-forward. | Main resolved to `0d9c549`; the installer again skipped the complete emulator state without prompting or provisioning, Android readiness remained truthful, and the full install completed successfully. | Verify source/runtime parity and remove the temporary validation branch. |
 | 2026-08-16 07:04:11 UTC | sg-development | GPT-5 Codex | Added a grouped Windows IDE proposal, installed Android Studio and Visual Studio Community 2022 with native desktop C++, then reinstalled the published runtime from `main`. | Fixtures, PowerShell 5.1 parsing, the full Windows contract, metadata and diff checks pass. Real `flutter doctor -v` reports no issues; the published rerun skips both complete IDEs and records Firebase Device Streaming as user-owned pending state. | Confirm source/runtime parity; optionally perform the operator-confirmed Android Studio first-launch and Firebase UI check without automating authentication. |
 | 2026-08-16 07:23:11 UTC | 900-shipglows-core | GPT-5 Codex | Connected the Windows mobile/desktop environment fields to the shared runtime contract, context modes, development and engineering owners, expert engines, and bundled public plugin. | Six focused consumer scenarios, 76 relevant skill contracts, the full Windows suite, metadata, budget, packaging, execution-fidelity, diff, and changed-line secret checks pass. The isolated Windows runtime-sync fixture remains non-portable because CRLF reaches its Bash skill-name validator; no live skill links were changed. | Publish the dedicated branch for integration without touching the concurrent local `main`. |
+| 2026-08-16 07:56:20 UTC | sg-content | GPT-5 Codex | Aligned the canonical Windows installer introduction and the declared ShipGlows public installer surfaces with the verified Flutter Android/Windows toolchain, then corrected the installer page locale switch found during browser proof. | Regression-first bilingual copy, handoff, parity and locale-route assertions pass; the full Windows suite, full Astro tests/check/build, and isolated browser proof across EN/FR installer routes pass with no console warnings or errors. No deployment was performed. | Publish the two dedicated branches, integrate the ShipGlows source branch before the site branch, then deploy through the normal site release path. |
 
 # Current Chantier Flow
 

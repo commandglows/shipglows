@@ -29,7 +29,7 @@ function Select-WindowsInstallMode {
     Write-Host '  1) SSH tunnel only (local)'
     Write-Host '     Connect this Windows PC to projects already running on another server.'
     Write-Host '  2) Local DevServer (full, recommended)'
-    Write-Host '     Clone and run Astro, Python/FastAPI, and Flutter Web projects on this PC.'
+    Write-Host '     Clone and run Astro, Python/FastAPI, and Flutter for web, Android, and Windows on this PC.'
     Write-Host '  0) Cancel'
     while ($true) {
         $choice = Read-Host 'Choose 1 or 2'
