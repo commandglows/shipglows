@@ -9,6 +9,19 @@
 #   shipglows_devserver_bash.sh — pure bash menus (fallback)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# The environment control plane is intentionally independent from the legacy
+# DevServer prerequisite/menu bootstrap. Its inspect/plan/status paths must not
+# create setup markers or require Flox, PM2, Caddy, Gum, or fzf.
+if [ "${1:-}" = "env" ]; then
+    shift
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "ShipGlows environment commands require Python 3." >&2
+        exit 2
+    fi
+    exec python3 "$SCRIPT_DIR/environment/shipglows_environment.py" "$@"
+fi
+
 source "$SCRIPT_DIR/lib.sh"
 
 # Load the right menu frontend

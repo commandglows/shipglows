@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shipglows.com/schemas/shipglows-environment-v1.schema.json",
+  "title": "ShipGlows environment manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema"],
+  "properties": {
+    "schema": {"const": "shipglows.environment/v1"},
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1}
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tools": {"$ref": "#/$defs/capabilities"},
+        "targets": {"$ref": "#/$defs/capabilities"},
+        "agents": {"$ref": "#/$defs/capabilities"},
+        "integrations": {"$ref": "#/$defs/capabilities"}
+      }
+    },
+    "backends": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "windows": {"$ref": "#/$defs/backendReferences"},
+        "unix": {"$ref": "#/$defs/backendReferences"},
+        "container": {"$ref": "#/$defs/backendReferences"}
+      }
+    },
+    "policies": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "native_host_required": {"type": "boolean"},
+        "consent": {"enum": ["explicit"]},
+        "secrets": {"enum": ["redact"]}
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*[./][A-Za-z0-9._/-]+$"}
+    }
+  },
+  "$defs": {
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "constraint": {"type": "string", "minLength": 1},
+          "platforms": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"enum": ["windows", "unix", "container"]}
+          }
+        }
+      }
+    },
+    "backendReferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mise": {"type": "string", "minLength": 1},
+        "flox": {"type": "string", "minLength": 1},
+        "winget_configuration": {"type": "string", "minLength": 1},
+        "devcontainer": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

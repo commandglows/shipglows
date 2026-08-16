@@ -22,6 +22,10 @@ linked_systems:
   - cli/windows/ShipGlows.DevServer.psm1
   - cli/windows/shipglows-devserver.ps1
   - cli/windows/install-devserver.ps1
+  - cli/environment/core.py
+  - cli/environment/mise_backend.py
+  - cli/environment/shipglows_environment.py
+  - cli/environment/schemas/shipglows-environment-v1.schema.json
   - skills/references/agent-runtime-awareness.md
   - CONTEXT-FUNCTION-TREE.md
 depends_on:
@@ -46,7 +50,7 @@ evidence:
   - "Aggressive disk cleanup preserves PNPM homes, configured stores, and global PNPM binaries."
   - "Disk details and PM2 log cleanup/rotation added to explain and cap disk usage."
   - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
-  - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser."
+  - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser that excludes repositories already installed in the workspace."
   - "Native Windows full resolves and validates Flutter/Dart, JDK 17 and Android command-line tools in user scope; Android terms and SDK licenses remain explicitly user-confirmed, with non-interactive runs pending."
   - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
   - "Native Windows full prepares Dart/Flutter and exact-version Playwright MCP for installed agents; existing JSON/JSONC is preserved and reported pending when no safe native update is proven."
@@ -63,6 +67,9 @@ evidence:
   - "Non-Expo PM2 launch commands activate the project Flox environment at runtime; Doppler remains the outer wrapper when enabled."
   - "Linux Flox discovery now records environment_root and launch_path separately, respects nested Flox boundaries, migrates the legacy registry idempotently, and rejects ambiguous launch targets."
   - "SHIPGLOWS_ENV_PORT can explicitly replace a persisted PM2 port and refuses collisions."
+  - "The environment control-plane foundation exposes strict inspect/plan/verify/status commands in source checkouts and refuses apply until an executable backend exists."
+  - "The source-only Windows pilot executes only approval-digest-bound jdx.mise acquisition or locked project-local Node 24 and pnpm 10 operations through fixed structured argv; the Best Fried Chicken smoke proved the real provider cycle."
+  - "Independent Task 5 verification binds canonical external mise/WinGet executable paths and SHA-256 identities into approved plans, revalidates them before runner use, and treats those hashes as approved identity evidence rather than official provenance."
   - "Project-local .shipglows.env settings pin runtime ports and can disable automatic restart recovery."
   - "The project runtime policy file now has a closed, data-only schema so unknown settings fail loudly instead of silently restoring defaults."
   - "Native Windows exposes one static global development-environment file and one CLI-managed server URL file per project."
@@ -81,6 +88,32 @@ This doc covers both runtime backends: the Linux server CLI and the native
 Windows local DevServer. It is the first technical doc to read when changing
 environment lifecycle, dashboard, project shortcuts, publishing, health,
 PM2/Flox/Caddy behavior, or native Windows process and installer behavior.
+
+## Environment control-plane foundation
+
+The source CLI exposes one dependency-light contract on Unix and Windows:
+
+```text
+sg env inspect [--project PATH]
+sg env plan [--project PATH]
+sg env verify [--project PATH]
+sg env status [--project PATH]
+sg env apply [--project PATH] [--plan-digest DIGEST]
+```
+
+The native PowerShell source entrypoint accepts the equivalent form `s env <command> -ProjectPath PATH -PlanDigest DIGEST`. It dispatches before DevServer initialization, so inspection does not create a workspace, registry, setup marker, or menu cache. The Unix entrypoint likewise dispatches before legacy prerequisite checks.
+
+- `inspect` validates and normalizes sources, then resolves PATH presence only for the fixed trusted probe registry. It launches no tool process, performs no network or state write, and disables Python bytecode generation for the source CLI path. Unknown repository capability names remain `unknown` and are never resolved or executed.
+- `plan` returns stable operation ordering and a SHA-256 digest over source, platform, architecture, ownership and declared effects. Outside the exact pilot it marks every operation non-executable. For an explicit Windows Node 24 plus pnpm 10/mise contract it performs bounded read-only backend/version observations through the structured runner, distinguishes the official `jdx.mise` acquisition from project-tool installation, and never combines acquisition with tool installation in one approval.
+- `verify` may run five-second structured `--version` probes only for the fixed trusted tool registry. The mise pilot first requires `mise --locked which <tool>` ownership, then probes both the PowerShell consumer and a separate agent-child consumer through `mise --locked exec -- node --version` and `mise --locked exec -- pnpm --version`, with every current auto-install setting disabled. It records `mise_project` ownership and exact locked/observed versions without putting a full executable path in the Markdown attestation. Verify then atomically replaces the record under `%LOCALAPPDATA%\ShipGlows\Environment` on Windows or `${XDG_STATE_HOME:-~/.local/state}/shipglows/environment` on Unix. A successful generic probe with no version evidence is `degraded`; unsupported constraints remain `unknown`. Unix state directories/files are forced to `0700`/`0600`; abandoned locks become recoverable after the bounded stale interval. Tests may override the root with `SHIPGLOWS_ENVIRONMENT_STATE_ROOT`.
+- `status` reads the last complete record and makes stale evidence `drifted` or `unknown`; corrupt or partial JSON is never trusted.
+- `apply` requires an explicit `--plan-digest`; omission or any digest/source/config/lock/backend drift exits with code `3` before mutation. The exact Windows pilot reconstructs only `winget install --id jdx.mise --exact --source winget --disable-interactivity`, `mise --locked install node`, or `mise --locked install pnpm` from adapter semantics. Acquisition is a separate plan and conservatively declares network, download, consent and possible privilege effects. It sets process-local `MISE_SAFE=1`, removes inherited `MISE_*` controls from the child, disables hooks/config environments/all auto-install modes/system-dependency installation, selects only `mise.toml`, fences discovery at the project parent, isolates global/system config, preserves `PATH`, and never executes `pnpm install`, persisted argv, or repository task/hook/template strings. A zero-byte WinGet App Execution Alias is never hashed as executable proof: ShipGlows resolves and binds the registered Desktop App Installer package binary instead. All other capabilities/backends exit `no_active_backend`.
+
+`shipglows.environment.json` is strict JSON using schema ID `shipglows.environment/v1`: duplicate keys, non-finite numbers, unknown fields, unsupported majors, control-character paths, escaping references and symlink escapes fail closed. JSON inputs are capped at 1 MiB, runtime-policy input at 64 KiB, referenced source hashing at 8 MiB and persisted state reads at 4 MiB. `.shipglows.env` remains separate and accepts only its existing `SHIPGLOWS_ENV_PORT` and `SHIPGLOWS_AUTO_REPAIR` runtime policies.
+
+The pilot requires root `mise.toml` to contain only `[tools] node = "24"` and `pnpm = "10"`, rejects alternate local/early mise configuration, and requires `mise.lock` to pin one exact `core:node` entry and one exact `aqua:pnpm/pnpm` entry. Each Windows artifact URL must match the exact version, architecture and official Node or pnpm release authority/path, with a checksum value in the supported format. If `package.json#packageManager` exists, it must equal `pnpm@<exact locked version>`; its absence remains valid because the ShipGlows manifest and mise lock already declare ownership. Injected fixtures remain synthetic; the approved Best Fried Chicken smoke additionally acquired mise 2026.8.2 and converged Node 24.19.0 plus pnpm 10.34.5 from their locked official release coordinates without installing application dependencies. `--offline` maps to `MISE_OFFLINE=1`: already installed exact mise-managed tools are ready, while any missing install blocks because mise documents downloaded archives as an unsupported offline cache and recommends retaining the installs directory. Existing global Node, pnpm and persistent `PATH` remain outside this owner. A `mise.exe` or `winget.exe` resolved from inside the repository or outside the adapter's canonical package-manager roots is never invoked; executable path and SHA-256 identity are approval-bound and revalidated before apply runner use.
+
+Current official authorities checked for this pilot are mise's [Windows installation](https://mise.jdx.dev/installing-mise.html#windows-winget), [`mise exec`](https://mise.jdx.dev/cli/exec.html), [`mise.lock`](https://mise.jdx.dev/dev-tools/mise-lock.html), [direct Node plus pnpm project configuration](https://mise.jdx.dev/demo), [configuration cascade and overrides](https://mise.jdx.dev/configuration.html), [safe mode](https://mise.jdx.dev/continuous-integration.html#running-against-untrusted-config-safe-mode), and [offline/cache settings](https://mise.jdx.dev/configuration/settings.html#offline). The source command is still not included in the staged native Windows runtime because installer/packaging changes remain outside this slice. Public and installer documentation must not describe it as installed or generally shipped until that later proof.
 
 ## Owned Files
 
@@ -276,7 +309,11 @@ verified `.cmd` launcher are preserved under a `shipglows-disabled` backup
 name, so pnpm and agent command names remain usable without weakening the
 execution policy.
 The GitHub repository picker lists repositories accessible to the authenticated
-account and explicitly clones the selected repository's HTTPS URL. It therefore
+account, normalizes local HTTPS/SSH origins to case-insensitive `owner/repository`
+identities, and removes already installed repositories before rendering. Multiple
+runnable surfaces in one monorepo therefore hide one repository exactly once, and
+a successful clone disappears from the next picker immediately. The picker explicitly
+clones the selected repository's HTTPS URL. It therefore
 does not inherit a separate GitHub CLI preference for SSH or depend on a local
 SSH configuration; GitHub CLI still owns authentication and credential storage,
 and configures Git's HTTPS credential helper before each picker clone.

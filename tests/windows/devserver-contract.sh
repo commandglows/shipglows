@@ -11,11 +11,17 @@ CODEX_MCP_MODULE="$ROOT/cli/windows/ShipGlows.CodexMcp.psm1"
 MOBILE_MODULE="$ROOT/cli/windows/ShipGlows.MobileToolchain.psm1"
 AGENT_INSTRUCTIONS_MODULE="$ROOT/cli/windows/ShipGlows.AgentInstructions.psm1"
 AUTH_MODULE="$ROOT/cli/windows/ShipGlows.Auth.psm1"
+ENVIRONMENT_CLI="$ROOT/cli/environment/shipglows_environment.py"
 
-for file in "$MODULE" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE"; do
+for file in "$MODULE" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE" "$ENVIRONMENT_CLI"; do
   test -f "$file"
 done
 
+for environment_contract in schema-contract.py state-contract.py plan-contract.py executor-contract.py security-contract.py; do
+  python "$ROOT/tests/environment/$environment_contract"
+done
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-observation.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-mise-adapter.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/mobile-toolchain.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/agent-instructions.ps1"
@@ -30,6 +36,7 @@ for regression in \
   devserver-flutter-stop.ps1 \
   devserver-metadata-sync.ps1 \
   devserver-project-catalog.ps1 \
+  github-clone-filter.ps1 \
   devserver-start-state.ps1 \
   devserver-stop-behavior.ps1; do
   powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/$regression"

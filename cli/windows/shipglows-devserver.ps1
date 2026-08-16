@@ -5,12 +5,43 @@ param(
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$ShortcutPath = @(),
     [string]$ProjectPath = '',
+    [string]$PlanDigest = '',
+    [switch]$Offline,
     [string]$RepositoryUrl = '',
     [int]$Port = 0
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+
+# Keep the environment control plane outside the DevServer bootstrap: its
+# read-only commands must not create the workspace, registry, or menu cache.
+if ($Action.Trim().ToLowerInvariant() -eq 'env') {
+    if (@($ShortcutPath).Count -ne 1 -or $ShortcutPath[0].Trim().ToLowerInvariant() -notin @('inspect','plan','verify','status','apply')) {
+        [Console]::Error.WriteLine('Usage: s env <inspect|plan|verify|status|apply> [-ProjectPath <path>]')
+        exit 2
+    }
+    $environmentScript = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\environment\shipglows_environment.py'))
+    if (-not (Test-Path -LiteralPath $environmentScript -PathType Leaf)) {
+        [Console]::Error.WriteLine("ShipGlows environment control-plane script not found: $environmentScript")
+        exit 2
+    }
+    $python = @(
+        Get-Command python.exe -CommandType Application -ErrorAction SilentlyContinue
+        Get-Command python3.exe -CommandType Application -ErrorAction SilentlyContinue
+    ) | Where-Object { $_ } | Select-Object -First 1
+    if (-not $python) {
+        [Console]::Error.WriteLine('ShipGlows environment commands require Python 3.')
+        exit 2
+    }
+    $resolvedProject = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+    $environmentArguments = @($environmentScript, $ShortcutPath[0].Trim().ToLowerInvariant(), '--project', $resolvedProject)
+    if ($PlanDigest) { $environmentArguments += @('--plan-digest', $PlanDigest) }
+    if ($Offline) { $environmentArguments += '--offline' }
+    & $python.Source @environmentArguments
+    exit $LASTEXITCODE
+}
+
 $module = Join-Path $PSScriptRoot 'ShipGlows.DevServer.psm1'
 Import-Module $module -Force -DisableNameChecking
 $authModule = Join-Path $PSScriptRoot 'ShipGlows.Auth.psm1'
@@ -253,6 +284,12 @@ function Invoke-SgGitHubClone {
     # with Windows PowerShell 5.1 and does not collapse the picker into one row.
     $repositories = @($jsonLines | Where-Object { $_ } | ForEach-Object { $_ | ConvertFrom-Json })
     if ($repositories.Count -eq 0) { throw 'No GitHub repositories are available for this account.' }
+    $installedRepositories = @(Get-SgInstalledGitHubRepositoryIdentities $config $git)
+    $repositories = @(Select-SgGitHubCloneCandidates $repositories $installedRepositories)
+    if ($repositories.Count -eq 0) {
+        Write-SgInfo 'All available GitHub repositories are already installed in the ShipGlows workspace.'
+        return
+    }
     $labels = @($repositories | ForEach-Object {
         $visibility = if ($_.isPrivate) { 'private' } else { 'public' }
         $description = if ($_.description) { " - $($_.description)" } else { '' }

@@ -411,6 +411,97 @@ function Add-SgDiscoveredMetadata([object]$RegisteredEntry, [object]$Candidate) 
     return $RegisteredEntry
 }
 
+function ConvertTo-SgGitHubRepositoryIdentity([string]$Value) {
+    if ([string]::IsNullOrWhiteSpace($Value)) { return $null }
+    $candidate = $Value.Trim()
+    $repositoryPath = $null
+
+    if ($candidate -match '^(?<owner>[A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))/(?<repository>[A-Za-z0-9._-]+?)(?:[.]git)?$') {
+        $repositoryPath = "$($Matches.owner)/$($Matches.repository)"
+    } elseif ($candidate -match '^(?i)git@github[.]com:(?<path>[^?#]+)$') {
+        $repositoryPath = [string]$Matches.path
+    } else {
+        $uri = $null
+        if (-not [uri]::TryCreate($candidate, [UriKind]::Absolute, [ref]$uri)) { return $null }
+        if (-not $uri.Host.Equals('github.com', [StringComparison]::OrdinalIgnoreCase)) { return $null }
+        if ($uri.Scheme -notin @('https','ssh')) { return $null }
+        if ($uri.Query -or $uri.Fragment) { return $null }
+        $repositoryPath = $uri.AbsolutePath.Trim('/')
+    }
+
+    $repositoryPath = $repositoryPath -replace '[.]git$',''
+    if ($repositoryPath -notmatch '^(?<owner>[A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))/(?<repository>[A-Za-z0-9._-]+)$') { return $null }
+    return "$($Matches.owner)/$($Matches.repository)".ToLowerInvariant()
+}
+
+function Get-SgInstalledGitHubRepositoryIdentities([object]$Config, [string]$GitPath = '') {
+    $workspace = ConvertTo-SgCanonicalPath ([string]$Config.Workspace)
+    if ([string]::IsNullOrWhiteSpace($GitPath)) {
+        $gitCommand = Get-Command git.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if (-not $gitCommand) { return @() }
+        $GitPath = [string]$gitCommand.Source
+    }
+    if (-not (Test-Path -LiteralPath $GitPath -PathType Leaf)) { return @() }
+
+    $candidatePaths = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    try {
+        foreach ($directory in @(Get-ChildItem -LiteralPath $workspace -Directory -Force -ErrorAction Stop)) {
+            if ($directory.Name.StartsWith('.') -or ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint)) { continue }
+            [void]$candidatePaths.Add([IO.Path]::GetFullPath($directory.FullName).TrimEnd('\','/'))
+        }
+    } catch [UnauthorizedAccessException] { }
+    foreach ($entry in @(Get-SgProjectCatalog $Config)) {
+        $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } elseif ($entry.PSObject.Properties['path']) { [string]$entry.path } else { '' }
+        if ($rootPath) {
+            try { [void]$candidatePaths.Add([IO.Path]::GetFullPath($rootPath).TrimEnd('\','/')) } catch { }
+        }
+    }
+
+    $workspacePrefix = $workspace.TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
+    $repositoryRoots = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    $identities = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    $previousPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        foreach ($candidatePath in $candidatePaths) {
+            $repositoryRootOutput = @(& $GitPath -C $candidatePath rev-parse --show-toplevel 2>$null)
+            $repositoryRootExitCode = $LASTEXITCODE
+            $repositoryRoot = $repositoryRootOutput | Select-Object -First 1
+            if ($repositoryRootExitCode -ne 0 -or [string]::IsNullOrWhiteSpace([string]$repositoryRoot)) { continue }
+            try { $repositoryRoot = [IO.Path]::GetFullPath([string]$repositoryRoot).TrimEnd('\','/') } catch { continue }
+            if (-not ($repositoryRoot.Equals($workspace, [StringComparison]::OrdinalIgnoreCase) -or $repositoryRoot.StartsWith($workspacePrefix, [StringComparison]::OrdinalIgnoreCase))) { continue }
+            if (-not $repositoryRoots.Add($repositoryRoot)) { continue }
+            $originOutput = @(& $GitPath -C $repositoryRoot remote get-url origin 2>$null)
+            $originExitCode = $LASTEXITCODE
+            $origin = $originOutput | Select-Object -First 1
+            if ($originExitCode -ne 0) { continue }
+            $identity = ConvertTo-SgGitHubRepositoryIdentity ([string]$origin)
+            if ($identity) { [void]$identities.Add($identity) }
+        }
+    } finally {
+        $ErrorActionPreference = $previousPreference
+    }
+    return @($identities | Sort-Object)
+}
+
+function Select-SgGitHubCloneCandidates([object[]]$Repositories, [string[]]$InstalledRepositoryIdentities = @()) {
+    $installed = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    foreach ($identity in @($InstalledRepositoryIdentities)) {
+        $normalized = ConvertTo-SgGitHubRepositoryIdentity ([string]$identity)
+        if ($normalized) { [void]$installed.Add($normalized) }
+    }
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    $available = New-Object 'System.Collections.Generic.List[object]'
+    foreach ($repository in @($Repositories)) {
+        if (-not $repository) { continue }
+        $value = if ($repository.PSObject.Properties['nameWithOwner']) { [string]$repository.nameWithOwner } elseif ($repository.PSObject.Properties['url']) { [string]$repository.url } else { '' }
+        $identity = ConvertTo-SgGitHubRepositoryIdentity $value
+        if (-not $identity -or $installed.Contains($identity) -or -not $seen.Add($identity)) { continue }
+        [void]$available.Add($repository)
+    }
+    return @($available.ToArray())
+}
+
 function Get-SgProjectIndexPath([object]$Config) {
     if ($Config.PSObject.Properties['ProjectIndexPath'] -and $Config.ProjectIndexPath) {
         return [IO.Path]::GetFullPath([string]$Config.ProjectIndexPath)
@@ -1179,4 +1270,4 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap

@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.13.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-08-13"
+updated: "2026-08-16"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -17,6 +17,7 @@ linked_systems:
   - "cli/config.sh"
   - "cli/install.sh"
   - "cli/windows/"
+  - "cli/environment/"
   - "install-shipglows.ps1"
   - "local/local.sh"
   - "skills/"
@@ -38,6 +39,7 @@ invariants:
   - "ShipGlows artifact docs must use versioned metadata"
   - "Project governance artifacts must live under project-local shipglows_data/ subdirectories"
   - "UI projects must declare a design-system authority before visual implementation changes"
+  - "Environment intent, planning, observation, and backend execution remain separate states; only an approved executable backend may mutate tools"
 security_impact: yes
 docs_impact: yes
 evidence:
@@ -49,6 +51,8 @@ evidence:
   - "Operator decision 2026-07-13 moves useful repository history into shipglows_data/workflow/archives and rejects a root archive surface."
   - "Operator decision 2026-07-13 rejects root docs and bug workflow exceptions in favor of one canonical shipglows_data corpus."
   - "Operator decision 2026-07-13 flattens the single-child templates/artifacts hierarchy into templates/."
+  - "The 2026-08-16 environment foundation adds one strict cross-platform capability contract, deterministic plans, and redacted private observations without activating a package-manager backend."
+  - "The 2026-08-16 source pilot activates only Windows mise plus project-local Node 24 and pnpm 10 behind approval-digest validation and an injectable structured runner; the Best Fried Chicken provider smoke proves that bounded cycle while every other backend/capability remains fail-closed."
 depends_on:
   - artifact: "shipglows_data/technical/guidelines.md"
     artifact_version: "1.0.0"
@@ -68,6 +72,18 @@ ShipGlows has two connected layers:
 - a documentation and workflow layer for AI-assisted execution discipline
 
 The repo is not split into small services. It is centered around shell-based orchestration plus Markdown artifact governance.
+
+### Reproducible environment control plane
+
+`cli/environment/` is a thin, Python-standard-library control plane above native environment engines. It owns the ShipGlows capability vocabulary and keeps three truths distinct:
+
+- desired state comes from a strict `shipglows.environment.json`, the closed runtime-policy allowlist in `.shipglows.env`, and recognized native manifest references;
+- resolved state is a deterministic, digest-bound plan whose operations expose ownership and effects;
+- observed state is fresh process evidence stored atomically and redacted in the user-private ShipGlows state directory.
+
+The first executable source pilot recognizes only an explicit Windows `mise.toml` containing the code-free `[tools] node = "24"` and `pnpm = "10"` shape plus exact `mise.lock` Windows artifact entries. Missing mise produces a distinct approval-gated `jdx.mise` WinGet acquisition operation; a fresh plan is required before tool installation. Existing mise installs are observed rather than adopted, each missing tool is installed by its own fixed `mise --locked install <tool>` operation, and ownership is proven with `mise --locked which <tool>` before every structured user/agent `mise --locked exec -- <tool> --version` probe. When `package.json#packageManager` exists it must equal the exact locked pnpm version. ShipGlows never runs `pnpm install` in this pilot, activates shims globally, edits a profile, rewrites persistent `PATH`, or takes ownership of global Node or pnpm.
+
+The backend boundary reconstructs fixed argv after validating the complete semantic plan, approval digest, current source digests, safe config shape, exact lock entries, backend version, and official package identity. Repository command names and manifest strings never become executable input. The runner is injectable for fixture proof and uses `shell=False` in the OS implementation. It removes inherited `MISE_*` controls from the child only, supplies its own safe/config/offline controls, preserves `PATH`, rejects alternate project mise configuration and refuses a backend executable resolved inside the repository. Windows App Execution Alias and fresh WinGet package discovery are resolved through canonical package roots rather than arbitrary PATH entries. Outside that exact pilot, `apply` retains the foundation's `no_active_backend` refusal. The source pilot is not yet packaged into the installed native Windows runtime; the approved Best Fried Chicken smoke acquired mise and converged locked Node 24.19.0 plus pnpm 10.34.5 without dependency installation, profile/PATH mutation, commit or push.
 
 ## Entry Points
 

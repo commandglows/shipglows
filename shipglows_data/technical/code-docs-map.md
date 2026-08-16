@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "3.13.0"
+artifact_version: "3.16.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-13"
+updated: "2026-08-16"
 status: reviewed
 source_skill: 102-sg-start
 scope: code-docs-map
@@ -53,6 +53,8 @@ evidence:
   - "Pilotage consolidation mapped 011-sg-pilotage, its five playbooks, session helpers, and focused contract tests to active runtime documentation."
   - "Progressive resource discovery mapped the read-only resolver, semantic resource IDs, canonical-root boundary, and scenario-first validation to the skill runtime documentation."
   - "Private inspiration-library storage now records the private Git LFS and justified repository-rotation policy for source-derived captures."
+  - "Cross-platform environment schema, state, planner, source CLI adapters and regression contracts mapped on 2026-08-16."
+  - "Windows mise plus project-local Node 24 and pnpm 10 pilot, injected runner fixtures, approval semantics and PowerShell wrapper proof mapped on 2026-08-16."
   - "Capture add/approval now performs bounded automatic synchronization only after private-origin fingerprint and per-WebP Git LFS checks."
   - "Private inspiration-library server migration playbook and checklist cover Git LFS restore, origin verification, and safe corpus recovery."
   - "Approved references now require explicit searchable taxonomy, propagated atomically from record to bounded index."
@@ -77,6 +79,7 @@ Shared files in this map are sequential integration files. Do not assign concurr
 | Path pattern | Subsystem | Primary technical doc | Secondary docs | Required validation | Docs update trigger |
 | --- | --- | --- | --- | --- | --- |
 | `cli/shipglows.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/architecture.md` | `bash -n cli/shipglows.sh`; focused CLI smoke when behavior changes | Entrypoint, sourcing, menu dispatch, startup, or visible CLI behavior changes |
+| `cli/environment/**`, `tests/environment/**`, `tests/runtime/environment-observation.sh`, `tests/windows/environment-observation.ps1`, `tests/windows/environment-mise-adapter.ps1` | Reproducible environment control plane and Windows mise pilot | `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/architecture.md`, `shipglows_data/workflow/specs/shipglows-reproducible-environment-control-plane.md` | `shipglows_data/workflow/test-checklists/reproducible-environment-control-plane.md` | all `tests/environment/*-contract.py`; Bash/PowerShell observation adapters; `powershell.exe -NoProfile -File tests/windows/environment-mise-adapter.ps1` | Manifest/state/plan schema, redaction, digest, discovery, observation, CLI adapter, backend execution boundary, approval, mise/lock/offline semantics, or apply refusal changes |
 | `cli/shipglows_devserver_gum.sh`, `cli/shipglows_devserver_bash.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/context-function-tree.md` | `bash -n cli/shipglows_devserver_gum.sh cli/shipglows_devserver_bash.sh`; focused CLI smoke when behavior changes | Root menu layout, grouped submenu behavior, key handling, or visible CLI behavior changes |
 | `cli/lib.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/guidelines.md` | `bash -n cli/lib.sh`; relevant function smoke or grep proof | PM2/Flox/Caddy/DuckDNS behavior, validation, dashboard, health, publish, or environment lifecycle changes |
 | `cli/config.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `README.md` | `bash -n cli/config.sh`; config validation smoke when changed | Config variable, default, or validation contract changes |
