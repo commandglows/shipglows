@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-05"
-updated: "2026-08-05"
+updated: "2026-08-16"
 status: active
 source_skill: 000-shipglows
 scope: codex-expert-mode-aliases
@@ -26,6 +26,7 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-05: add short expert modes for Codex without changing the shell CLI."
   - "Operator decision 2026-08-05: shipglows capture and shipglows tmux resolve to sg-content capture."
+  - "Operator decision 2026-08-16: shipglows git provides manual PR, branch, and worktree hygiene."
 next_review: "2026-09-05"
 next_step: "/103-sg-verify expert mode aliases"
 ---
@@ -61,11 +62,16 @@ owner and selected internal engine.
 | `verify` | `sg-engineering` by default; specialist owner when explicit | `verify` or specialist audit mode | `103-sg-verify` or specialist proof engine |
 | `test` | `sg-engineering` | `test` | `107-sg-test` |
 | `browser` | `sg-engineering` | `browser` | `108-sg-browser` |
+| `git` | `sg-engineering` | `github` | `010-sg-technical` |
 | `capture` | `sg-content` | `capture` | `800-tmux-capture-conversation` |
 | `tmux` | `sg-content` | `capture` | `800-tmux-capture-conversation` |
 | `ship` | `sg-release` | `ship` | `005-sg-ship` |
 | `deploy` | `sg-release` | `deploy` | `004-sg-deploy` |
 | `prod` | `sg-release` | `prod` | `405-sg-prod` |
+
+`shipglows hygiene git` is a conversational synonym for `shipglows git`, not
+a broad `hygiene` alias. The narrower mapping avoids silently mixing Git
+cleanup with dependency, security, documentation, or product maintenance.
 
 `verify` preserves specialist ownership when its scope is explicit: design,
 accessibility, UI, or animation routes to `sg-design`; SEO or search routes to

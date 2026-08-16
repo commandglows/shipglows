@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.23.0"
+artifact_version: "2.24.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-15"
+updated: "2026-08-16"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -459,7 +459,7 @@ Operator roles and named profiles do not add new primary artifact types:
 - `300-sg-docs`: documentation generation, governance bootstrap, audit, metadata, and technical-docs mode.
 - `300-sg-docs technical`: technical governance bootstrap, code-docs map creation, and audit.
 - `300-sg-docs editorial`: editorial governance scaffolding and audit for public-content drift, claim register, page intent, and runtime content schema preservation.
-- `010-sg-technical github`: git/GitHub hygiene lane for sync drift, stale branches, PR drift, and Dependabot backlog triage with bounded safe fixes.
+- `shipglows git` -> `sg-engineering github` -> `010-sg-technical`: manual read-only PR/branch/worktree dashboard; `reconcile` proposes exact merge candidates and `clean` applies the shared post-integration lifecycle only after fresh approval.
 - `003-sg-bug`: professional bug loop lifecycle executor (`107-sg-test -> bug file -> 106-sg-fix -> 107-sg-test --retest -> 103-sg-verify -> 005-sg-ship`).
 - `002-sg-maintain`: master project maintenance lifecycle for bugs, dependencies, docs, checks, audits, migrations, tasks, security posture, delegated remediation, verification, and ship/deploy routing.
 - `108-sg-browser`: generic non-auth browser verification through Playwright MCP for URLs, page-level assertions, screenshots, console summaries, and network summaries.
@@ -635,7 +635,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - `004-sg-deploy` owns release orchestration only; `005-sg-ship` owns commit/push, `405-sg-prod` owns deployed truth, and proof skills own observed behavior.
 - `003-sg-bug` owns bug lifecycle execution through owner skills and bounded subagents; phase skills still own bug record mutation, diagnosis, retest evidence, verification, and shipping internals.
 - `002-sg-maintain` owns the maintenance lifecycle; bugs, dependencies, docs, checks, audits, migrations, tasks, security review, repair, verification, and ship still run through their specialist owner skills and gates.
-- `010-sg-technical github` owns focused git/GitHub hygiene; commit/push stays with `005-sg-ship`, dependency risk stays with `010-sg-technical deps`, major upgrade lanes stay with `010-sg-technical migrate`, and CI diagnosis stays with `github:gh-fix-ci`.
+- `010-sg-technical github` owns focused Git/GitHub hygiene as one `worktree -> branch -> pull request` graph. Its public `shipglows git` route defaults to read-only audit; `reconcile` and `clean` retain fresh approval gates. Commit/push stays with `005-sg-ship`, dependency risk with `010-sg-technical deps`, major upgrades with `010-sg-technical migrate`, and CI diagnosis with `github:gh-fix-ci`.
 - `007-sg-content` owns content-management orchestration; repurposing, drafting, enrichment, marketing modes, SEO audit, docs, veille, browser proof, verification, and ship still run through their specialist owner skills and gates.
 - Design and content skills use the shared Inspiration Gate only for eligible creative direction; they shortlist from `index.yaml`, require operator selection, record selected reference IDs, and never treat discovery as approval to imitate.
 - Content owner skills (`007-sg-content` including `repurpose`, `200-sg-redact`, `201-sg-enrich`, `009-sg-marketing copy|copywriting|gtm`, `406-sg-seo`) and `103-sg-verify` must use one shared rubric contract from `skills/references/content-quality-rubric.md`; recoverable score states (`needs retry`, `duplicate_in_progress`, `conflicting_score_state`, `stale_or_mismatched_score`) are never valid verification proof.

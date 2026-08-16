@@ -89,6 +89,15 @@ class SkillInvocationCheckTests(unittest.TestCase):
         self.assertEqual(payload["selected_internal_engine"], "100-sg-spec")
         self.assertEqual(payload["resolution"], "direct")
 
+    def test_git_alias_routes_to_engineering_github_hygiene(self) -> None:
+        payload = check("shipglows git reconcile current repo")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["router_alias"], "git")
+        self.assertEqual(payload["public_owner"], "sg-engineering")
+        self.assertEqual(payload["mode"], "github")
+        self.assertEqual(payload["selected_internal_engine"], "010-sg-technical")
+        self.assertEqual(payload["resolution"], "direct")
+
     def test_capture_aliases_resolve_to_the_content_capture_engine(self) -> None:
         for invocation in ("shipglows capture", "shipglows tmux"):
             payload = check(invocation)

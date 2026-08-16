@@ -241,7 +241,7 @@ class TechnicalContractTests(unittest.TestCase):
             "`deps [global]`",
             "`performance [<file|project|global>]`",
             "`migrate [package@version]`",
-            "`github [audit|branches|dependabot|fix] [current repo|workspace]`",
+            "`github [audit|reconcile|clean|branches|dependabot|fix] [current repo|workspace]`",
             "`sync [target]`",
             "`access [target]`",
             "`parity [target]`",
@@ -250,6 +250,20 @@ class TechnicalContractTests(unittest.TestCase):
             self.assertIn(grammar, self.skill)
         for safe_input in ("Bare input", "unknown modes", "materially ambiguous intent", "Never infer from a previous task"):
             self.assertIn(safe_input, self.skill)
+
+    def test_github_hygiene_unifies_pr_branch_and_worktree_lifecycle(self) -> None:
+        github = self.playbooks["github"]
+        for phrase in (
+            "`git` alias",
+            "`git worktree list --porcelain`",
+            "worktree -> branch -> pull request",
+            "`merge-ready`",
+            "`reconcile`",
+            "`clean`",
+            "terminal cleanup disposition",
+            "fresh approval",
+        ):
+            self.assertIn(phrase, github)
 
     def test_tech_lazy_02_one_playbook_per_mode(self) -> None:
         expected = {

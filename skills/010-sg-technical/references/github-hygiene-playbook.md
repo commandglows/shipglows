@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-04"
+updated: "2026-08-16"
 status: active
 source_skill: 010-sg-technical
 scope: github-hygiene-playbook
@@ -16,7 +16,11 @@ docs_impact: yes
 linked_systems:
   - skills/010-sg-technical/SKILL.md
   - skills/010-sg-technical/references/github-hygiene-playbook.md
-depends_on: []
+  - skills/references/git-temporary-artifact-lifecycle.md
+depends_on:
+  - artifact: skills/references/git-temporary-artifact-lifecycle.md
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes:
   - skills/310-sg-github-hygiene/SKILL.md
 evidence:
@@ -43,7 +47,11 @@ Default to `report=user`: concise hygiene verdict, concrete git/GitHub findings,
 
 ## Mission
 
-Keep a repository or workspace git/GitHub surface healthy by detecting sync drift, stale branches, risky local state, outdated pull requests, and Dependabot backlog, then applying only bounded safe maintenance.
+Keep a repository or workspace git/GitHub surface healthy by detecting sync drift, stale branches, risky local state, outdated pull requests, worktree residue, and Dependabot backlog, then applying only bounded safe maintenance.
+
+The public `git` alias routes here through `sg-engineering github`. The phrase
+`shipglows hygiene git` is a conversational synonym; neither form is a shell
+command.
 
 ## Scope Gate
 
@@ -51,6 +59,8 @@ Use this skill when the operator wants one of these outcomes:
 
 - verify whether local branches and remotes are up to date
 - identify stale local or remote branches
+- relate worktrees, branches, and pull requests before deciding what is disposable
+- reconcile an explicitly approved merge candidate and finish its lifecycle
 - check whether feature branches or PRs are behind their base branch
 - review Dependabot coverage and open Dependabot pull requests
 - apply low-risk git/GitHub cleanup after the hygiene state is clear
@@ -65,7 +75,9 @@ Do not use this skill for:
 
 Default mode is `audit`.
 
-- `audit`: read-only diagnosis for the current repo or selected workspace repos
+- `audit`: read-only PR, branch, and worktree dashboard for the current repo or selected workspace repos
+- `reconcile`: classify merge candidates, propose an exact merge, and execute only after fresh approval
+- `clean`: remove only proven integrated temporary branches and worktrees after fresh approval
 - `branches`: focus on branch sync, stale refs, merged branches, and PR drift
 - `dependabot`: focus on `.github/dependabot.yml`, open Dependabot PRs, and blocked update lanes
 - `fix`: apply bounded hygiene repairs only after the audit has classified the risk
@@ -93,11 +105,14 @@ For workspace mode:
 
 For each selected repo, gather a fresh baseline:
 
+The worktree inventory command is `git worktree list --porcelain`.
+
 ```bash
 git -C [path] status --short
 git -C [path] branch --show-current
 git -C [path] remote -v
 git -C [path] fetch --all --prune --tags
+git -C [path] worktree list --porcelain
 git -C [path] branch -vv
 git -C [path] for-each-ref --format='%(refname:short)|%(upstream:short)|%(upstream:track)|%(committerdate:short)|%(authorname)|%(subject)' refs/heads
 git -C [path] symbolic-ref refs/remotes/origin/HEAD
@@ -107,9 +122,14 @@ If GitHub-specific maintenance is needed and the repo has a GitHub remote, also 
 
 ```bash
 gh auth status
-gh -R [owner/repo] pr list --state open --limit 100
+gh -R [owner/repo] pr list --state all --limit 100
 gh -R [owner/repo] pr list --state open --author 'app/dependabot'
 ```
+
+Build one relationship graph per repository: `worktree -> branch -> pull request`.
+Use exact canonical paths, branch refs, PR head/base refs, and refreshed remote
+truth. A worktree is never itself merged: its branch or PR is integrated first,
+then the temporary worktree and branch become cleanup candidates.
 
 ### Step 3 - Classify hygiene findings
 
@@ -123,6 +143,9 @@ Classify findings per repo into these buckets:
 - `orphaned`: local branch has no upstream or remote branch was deleted
 - `dirty`: uncommitted or untracked files make branch-changing actions unsafe
 - `dependabot-backlog`: Dependabot PRs open, failing, blocked, or missing coverage
+- `merge-ready`: non-draft PR with the expected base/head, satisfied repository policy, and green required checks
+- `needs-review`: merge candidate whose review, checks, base, ownership, or intent is not yet proven
+- `integrated`: merge result is proven in the durable target, including squash merges by refreshed PR merge state and merged commit identity
 
 Treat these as attention items:
 
@@ -136,6 +159,23 @@ Treat these as attention items:
 ### Step 4 - Choose the safe maintenance lane
 
 Read-only `audit` mode stops after classification and report generation.
+
+`reconcile` mode starts read-only. Present the exact repository, PR or branch,
+base, head, merge method, current checks/reviews, and follow-up cleanup set. A
+`merge-ready` classification is a proposal, never authority. Obtain fresh
+approval for the exact remote PR merge or local branch merge, refresh truth,
+then perform only that approved mutation. Never choose conflict resolution,
+rebase, force push, protection bypass, or a different merge method silently.
+After successful integration, load
+`$SHIPGLOWS_ROOT/skills/references/git-temporary-artifact-lifecycle.md` and
+continue through its terminal cleanup disposition.
+
+`clean` mode loads that shared lifecycle and inventories both registered and
+prunable worktrees plus their local/remote branches. It proposes the exact
+removals, obtains fresh approval, removes in the shared safe order, and records
+a terminal cleanup disposition for every candidate. Dirty worktrees, unique
+commits, uncertain integration, protected/durable branches, active ownership,
+or unrelated residue remain `blocked`, `deferred`, or `retained` with reason.
 
 `branches` mode may propose or perform only these bounded actions:
 
@@ -162,6 +202,7 @@ Apply these rules before mutating anything:
 - Never auto-merge auth, billing, deploy, infra, workflow, permissions, or security-sensitive Dependabot PRs.
 - Never delete the current branch, default branch, protected release branch, or a branch with unique local commits.
 - Never bulk-delete remote branches.
+- Never treat a green check or `merge-ready` label as approval to merge.
 - Never resolve merge conflicts silently.
 - Prefer `git pull --ff-only` over merge pulls.
 - Prefer one repo at a time for mutating actions, even in workspace mode.
@@ -213,6 +254,12 @@ Use `scenario-first` proof for this skill contract and operational proof for eac
 
 Pressure scenarios:
 
+- `GIT-DASHBOARD-ZERO`: Given no open PR or temporary worktree, `git` reports a clean read-only dashboard and mutates nothing.
+- `GIT-DASHBOARD-MANY`: Given several PRs, branches, and worktrees, `git` links each `worktree -> branch -> pull request` identity without conflating homonyms.
+- `GIT-RECONCILE-APPROVAL`: Given one `merge-ready` PR, `reconcile` presents its exact merge method and obtains fresh approval before the remote mutation.
+- `GIT-CLEAN-SQUASH`: Given a squash-merged PR, `clean` proves integration from refreshed PR state before assigning a terminal cleanup disposition to its worktree and branches.
+- `GIT-CLEAN-DIRTY`: Given a dirty worktree, `clean` preserves it and reports the exact blocker.
+
 - Given a clean repo with branches behind origin, when `fix` is requested, then the skill fast-forwards only safe branches and reports the rest as blocked or approval-needed.
 - Given merged local branches, when `branches` is requested, then the skill deletes only branches that are fully merged and non-protected.
 - Given open Dependabot PRs, when `dependabot` is requested, then the skill separates safe patch/minor lanes from major or sensitive updates before any merge suggestion.
@@ -222,7 +269,7 @@ After edits to this skill, validate with:
 
 ```bash
 rg -n "Mission|Scope Gate|Required References|Stop Conditions|Validation|Report Modes" skills/010-sg-technical/SKILL.md skills/010-sg-technical/references/github-hygiene-playbook.md
-python3 -m unittest tools.test_310_github_hygiene_contract
+python3 -m unittest tools.test_010_sg_technical_contract tools.test_skill_invocation_check
 python3 tools/audit_shipglows_skills.py
 python3 tools/skill_budget_audit.py --skills-root skills --format markdown
 tools/shipglows_sync_skills.sh --check --skill 010-sg-technical

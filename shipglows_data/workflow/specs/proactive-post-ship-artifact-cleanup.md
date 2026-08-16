@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: "ShipGlows"
 created: "2026-08-16"
 created_at: "2026-08-16 08:16:08 UTC"
 updated: "2026-08-16"
-updated_at: "2026-08-16 08:42:23 UTC"
+updated_at: "2026-08-16 08:59:09 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: "GPT-5 Codex"
@@ -24,7 +24,11 @@ linked_systems:
   - "skills/005-sg-ship/SKILL.md"
   - "skills/005-sg-ship/references/ship-execution-playbook.md"
   - "skills/005-sg-ship/references/ship-report-evidence.md"
+  - "skills/010-sg-technical/references/github-hygiene-playbook.md"
+  - "skills/references/skill-invocation-registry.json"
   - "tools/test_005_sg_ship_contract.py"
+  - "tools/test_010_sg_technical_contract.py"
+  - "tools/test_skill_invocation_check.py"
 depends_on:
   - artifact: "skills/references/skill-execution-fidelity.md"
     artifact_version: "1.5.0"
@@ -46,6 +50,7 @@ evidence:
   - "Operator critique 2026-08-16: after two temporary branches and worktrees were reconciled with main, ShipGlows did not propose their removal until the operator asked."
   - "Read-only audit: 005-sg-ship ends after push and hosted-proof routing; no active contract inventories temporary Git artifacts after durable integration."
   - "Operator decision 2026-08-16: merged task branches and worktrees should be removed within the same lifecycle so dead Git artifacts do not require later chantier archaeology."
+  - "Operator decision 2026-08-16: expose the same PR, branch, and worktree lifecycle as a manual shipglows git mode."
 next_step: "/102-sg-start proactive post-ship artifact cleanup"
 ---
 
@@ -58,6 +63,11 @@ ready
 ## Minimal Behavior Contract
 
 Agent-created task branches and worktrees are temporary by default unless declared durable at creation. After successful integration, ShipGlows proves ancestry or an exact merged pull request, then immediately proposes safe cleanup. The lifecycle remains active until `removed`, `retained-explicit`, `blocked`, or `not-applicable` is recorded. No branch, worktree, directory, cache, pull request, or remote ref is deleted without fresh approval.
+
+`shipglows git` exposes the same rules manually: read-only dashboard by default,
+`reconcile` for exact approved merge candidates, and `clean` for exact approved
+post-integration removal. Worktrees are linked to their branch and pull request;
+they are never described as independently mergeable.
 
 ## Success Behavior
 
@@ -75,9 +85,9 @@ Agent-created task branches and worktrees are temporary by default unless declar
 
 ## Scope
 
-In scope: shared disposable-artifact doctrine, the 005 activation signal, detailed post-ship decision rules, report evidence, and scenario-first mechanical proof.
+In scope: shared disposable-artifact doctrine, the 005 activation signal, detailed post-ship decision rules, the public manual Git hygiene route, report evidence, and scenario-first mechanical proof.
 
-Out of scope: implementing a cleanup CLI, automatically deleting artifacts, changing GitHub retention policy, deleting ordinary feature branches, or modifying the current Windows installer/site behavior.
+Out of scope: implementing a shell cleanup CLI, automatically deleting artifacts, changing GitHub retention policy, deleting ordinary feature branches without proof and approval, or modifying the current Windows installer/site behavior.
 
 ## Pressure Scenarios
 
@@ -90,6 +100,9 @@ Out of scope: implementing a cleanup CLI, automatically deleting artifacts, chan
 - `SHIP-SQUASH-MERGED`: Given ancestry cannot prove a squash merge, when authoritative hosted metadata matches the exact source head and intended target, then integration is proven without weakening the deletion gates.
 - `SHIP-DISPOSITION-PENDING`: Given an owned temporary artifact remains pending, then the lifecycle cannot report a fully clean completion.
 - `SHIP-RETAINED-EXPLICIT`: Given cleanup is declined, then retention is terminal only with a reason and review date.
+- `GIT-DASHBOARD-MANY`: Given several PRs, branches, and worktrees, the manual route links each identity without conflating names and mutates nothing.
+- `GIT-RECONCILE-APPROVAL`: Given a merge-ready PR, the exact base, head, method, checks, and cleanup set are shown before fresh approval.
+- `GIT-CLEAN-DIRTY`: Given a dirty worktree, manual cleanup preserves it and records the blocker.
 
 ## ZOMBIES Coverage
 
@@ -110,6 +123,9 @@ Out of scope: implementing a cleanup CLI, automatically deleting artifacts, chan
 - [x] Define task-scoped agent Git artifacts as temporary by default and record their creation receipt.
 - [x] Support ancestry and exact merged-PR integration proof without trusting content similarity.
 - [x] Require one terminal cleanup disposition and keep pending/blocked state visible across lifecycle reporting.
+- [x] Add `shipglows git` as the canonical public manual hygiene alias.
+- [x] Add read-only `audit`, guided `reconcile`, and post-integration `clean` modes that include worktrees.
+- [x] Preserve legacy `branches`, `dependabot`, and `fix` behavior.
 
 ## Acceptance Criteria
 
@@ -120,6 +136,9 @@ Out of scope: implementing a cleanup CLI, automatically deleting artifacts, chan
 - [x] AC5: The 005 skill remains within its activation budget and runtime-visible contract checks pass.
 - [x] AC6: Squash/rebase integration is accepted only through exact authoritative merged-PR evidence.
 - [x] AC7: A task-owned temporary artifact cannot disappear from reporting while its disposition is pending, blocked, or explicitly retained.
+- [x] AC8: `shipglows git` resolves to `sg-engineering github` and defaults to a read-only PR/branch/worktree dashboard.
+- [x] AC9: `reconcile` never merges from check status alone and requires fresh approval for the exact merge mutation.
+- [x] AC10: `clean` applies the shared terminal-disposition lifecycle to worktrees and branches without deleting dirty, unique, protected, or ambiguous state.
 
 ## Test Contract
 
@@ -134,6 +153,7 @@ Out of scope: implementing a cleanup CLI, automatically deleting artifacts, chan
 | 2026-08-16 08:16:08 UTC | 900-shipglows-core | GPT-5 Codex | Converted the missed post-integration cleanup proposal into a bounded scenario-first repair contract. | ready; implementation authorized in an isolated worktree | Add the failing 005 contract scenario, then implement the narrow shared/local repair. |
 | 2026-08-16 08:25:00 UTC | 900-shipglows-core | GPT-5 Codex | Added the shared safety doctrine, 005 post-ship review, retained-state reporting, and regression contract. | focused and cross-contract suites pass; metadata, budget, graph, audit, and isolated Windows runtime visibility pass | Commit and publish the dedicated branch; retain it until integration because it is not yet disposable. |
 | 2026-08-16 08:42:23 UTC | 900-shipglows-core | GPT-5 Codex | Hardened the proposal into a complete Git artifact lifecycle with temporary-by-default classification, merge-strategy-aware proof, and terminal dispositions. | 89 focused/cross-contract tests, full dependency and activation graphs, metadata, budget, audit, runtime visibility, diff, and secret checks pass | Commit and update the dedicated remote branch; retain it until integration because it is not yet disposable. |
+| 2026-08-16 08:59:09 UTC | 900-shipglows-core | GPT-5 Codex | Exposed the lifecycle as `shipglows git` with read-only audit, guided reconcile, and worktree-aware clean modes. | 130 focused/cross-contract tests pass; metadata, dependency graph, budget, audit, isolated runtime visibility, and diff checks pass | Publish this commit on the dedicated branch, then retain it until durable integration. |
 
 ## Current Chantier Flow
 
@@ -141,7 +161,7 @@ Out of scope: implementing a cleanup CLI, automatically deleting artifacts, chan
 | --- | --- | --- |
 | 100-sg-spec | complete | Behavior, safety boundary, ZOMBIES coverage and proof path defined. |
 | 101-sg-ready | complete | Exact owner surfaces and destructive-action stops are resolved. |
-| 102-sg-start | complete | Scenario-first lifecycle hardening implemented on the existing dedicated branch. |
-| 103-sg-verify | complete | 89 tests, full graphs, metadata, budget, audit, runtime visibility, diff, and secret checks pass. |
-| 104-sg-end | complete | Shared doctrine, lifecycle, ship references, refresh log, and active spec are aligned; public/editorial surfaces are not impacted. |
-| 005-sg-ship | in_progress | Commit and push the dedicated branch only; integration into main remains outside this run. |
+| 102-sg-start | complete | Scenario-first lifecycle hardening and the manual public Git hygiene route are implemented on the existing dedicated branch. |
+| 103-sg-verify | complete | 130 focused/cross-contract tests, full resource graph, metadata, budget, audit, isolated runtime visibility, diff, and secret checks pass. |
+| 104-sg-end | complete | Shared doctrine, lifecycle, public routing/help, technical docs, refresh log, and active spec are aligned; the separate public website has no surface in this checkout. |
+| 005-sg-ship | in_progress | Publish the dedicated branch only; retain its worktree and branches until integration into the durable target is proven. |

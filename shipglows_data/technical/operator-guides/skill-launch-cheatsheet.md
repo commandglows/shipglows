@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.2.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-07"
+updated: "2026-08-16"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: skill-launch-cheatsheet
@@ -96,6 +96,12 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 
 `sg-content` owns documentation written for an audience. `sg-docs` owns the
 internal corpus that lets projects and agents operate safely.
+
+For manual Git hygiene, use `shipglows git` for the read-only dashboard,
+`shipglows git reconcile` to review merge candidates, and
+`shipglows git clean` to remove proven merged branches and worktrees. These are
+Codex skill routes, not PowerShell or shell commands. `shipglows hygiene git`
+expresses the same intent conversationally.
 
 Animation uses `sg-design animation <audit|design|implement|tune> [scope]`.
 GSAP is optional and must pass project-fit, accessibility, reduced-motion,

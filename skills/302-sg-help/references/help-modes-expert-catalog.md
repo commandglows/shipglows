@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-05"
+updated: "2026-08-16"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-expert-catalog
@@ -47,6 +47,7 @@ from the named public skill mode.
 `shipglows verify` -> contextual specialist owner, otherwise `sg-engineering verify` -> `103-sg-verify`
 `shipglows test` -> `sg-engineering test` -> `107-sg-test`
 `shipglows browser` -> `sg-engineering browser` -> `108-sg-browser`
+`shipglows git` -> `sg-engineering github` -> `010-sg-technical`
 `shipglows ship` -> `sg-release ship` -> `005-sg-ship`
 `shipglows deploy` -> `sg-release deploy` -> `004-sg-deploy`
 `shipglows prod` -> `sg-release prod` -> `405-sg-prod`

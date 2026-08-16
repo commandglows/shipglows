@@ -1,5 +1,27 @@
 # Skills Refresh Log
 
+## 2026-08-16 — shipglows
+
+**Added:** the owner-bound `git` expert alias, routed to `sg-engineering github`, plus the conversational `hygiene git` synonym.
+
+**Updated:** help and operator guidance now expose the manual audit, reconcile, and cleanup forms while clearly distinguishing them from shell commands.
+
+**New phases:** none; this is a thin public route into the existing engineering owner.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal ShipGlows routing contract.
+
+## 2026-08-16 — 010-sg-technical
+
+**Added:** the public `shipglows git` route with a read-only PR, branch, and worktree dashboard plus explicit `reconcile` and `clean` modes.
+
+**Updated:** Git hygiene now models `worktree -> branch -> pull request`, reuses the shared temporary-artifact lifecycle, and preserves the existing `branches`, `dependabot`, and `fix` lanes.
+
+**New phases:** guided reconciliation proposes an exact merge and cleanup set, then waits for fresh approval; manual cleanup proves integration before removing any worktree or branch.
+
+**Hardened:** green checks never grant merge authority, worktrees are never treated as independently mergeable, and dirty, unique, protected, durable, or ambiguous artifacts fail closed with a terminal disposition.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal ShipGlows Git-lifecycle route using existing safety invariants.
+
 ## 2026-08-16 — 005-sg-ship
 
 **Added:** proactive post-integration review for branches and worktrees explicitly classified as temporary, with an exact cleanup proposal only after containment, clean-state, ownership, path, process, review, and proof gates pass.

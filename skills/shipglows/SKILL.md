@@ -22,7 +22,8 @@ canonical public owner and owner mode before an internal engine is selected;
 they are not shell CLI commands. The aliases own no workflow behavior. `core`
 is the sole hard context switch and binds the entire remaining instruction to
 ShipGlows system work. `shipglows capture` and `shipglows tmux` both resolve to
-`sg-content capture`.
+`sg-content capture`. `shipglows git` resolves to `sg-engineering github` for
+manual PR, branch, and worktree hygiene; its default is read-only.
 
 `shipglows context` is a direct read-only context refresh. Load the canonical
 `000-shipglows` engine and `agent-runtime-awareness.md`, read
