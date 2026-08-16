@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-05"
+updated: "2026-08-16"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-expert-catalog
@@ -24,6 +24,7 @@ depends_on:
 supersedes: []
 evidence:
   - "The métier-first public catalog keeps numeric runtime identities available through an explicit expert view."
+  - "Operator decision 2026-08-16: document current-project hygiene and its safe Git cleanup specialization."
 next_review: "2026-09-04"
 next_step: "none"
 ---
@@ -47,6 +48,9 @@ from the named public skill mode.
 `shipglows verify` -> contextual specialist owner, otherwise `sg-engineering verify` -> `103-sg-verify`
 `shipglows test` -> `sg-engineering test` -> `107-sg-test`
 `shipglows browser` -> `sg-engineering browser` -> `108-sg-browser`
+`shipglows git` -> `sg-engineering github` -> `010-sg-technical`
+`shipglows hygiene` -> `sg-maintenance hygiene` -> `002-sg-maintain`
+`shipglows hygiene git` -> `sg-engineering github clean` -> `010-sg-technical`
 `shipglows ship` -> `sg-release ship` -> `005-sg-ship`
 `shipglows deploy` -> `sg-release deploy` -> `004-sg-deploy`
 `shipglows prod` -> `sg-release prod` -> `405-sg-prod`

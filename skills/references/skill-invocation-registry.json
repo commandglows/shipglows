@@ -1,5 +1,5 @@
 {
-  "format_version": "2.8",
+  "format_version": "2.9",
   "identity_source": "skills/references/skill-code-index.md",
   "public_catalog": {
     "domains": [
@@ -18,7 +18,7 @@
         "skills": [
           {"id": "sg-bug", "public_skill": "sg-bug", "runtime_skill": "003-sg-bug", "modes": ["default", "reproduce", "fix", "retest", "close"], "internal_engines": ["106-sg-fix", "107-sg-test", "108-sg-browser", "109-sg-auth-debug", "103-sg-verify"]},
           {"id": "sg-engineering", "public_skill": "sg-engineering", "runtime_skill": "010-sg-technical", "modes": ["audit", "architecture", "deps", "performance", "migrate", "github", "sync", "access", "parity"], "hidden_modes": {"verify": {"runtime_engine": "103-sg-verify", "engine_mode": "standard"}, "test": {"runtime_engine": "107-sg-test"}, "browser": {"runtime_engine": "108-sg-browser"}}, "internal_engines": ["105-sg-check", "400-sg-audit", "103-sg-verify", "107-sg-test", "108-sg-browser", "600-sg-local-cloud-sync", "601-sg-product-entitlements", "602-sg-platform-parity"]},
-          {"id": "sg-maintenance", "public_skill": "sg-maintenance", "runtime_skill": "002-sg-maintain", "modes": ["quick", "full", "security", "deps", "docs", "audits", "global", "no-ship"], "internal_engines": ["003-sg-bug", "010-sg-technical", "105-sg-check", "300-sg-docs", "400-sg-audit"]}
+          {"id": "sg-maintenance", "public_skill": "sg-maintenance", "runtime_skill": "002-sg-maintain", "modes": ["quick", "full", "security", "deps", "docs", "audits", "global", "no-ship"], "hidden_modes": {"hygiene": {"runtime_engine": "002-sg-maintain"}}, "internal_engines": ["003-sg-bug", "010-sg-technical", "105-sg-check", "300-sg-docs", "400-sg-audit"]}
         ]
       },
       {
@@ -66,6 +66,8 @@
     "verify": {"public_owner": "sg-engineering", "owner_mode": "verify", "runtime_engine": "103-sg-verify", "resolution": "contextual-specialist", "specialist_routes": [{"public_owner": "sg-design", "owner_mode": "audit", "runtime_engine": "006-sg-design", "keywords": ["design", "accessibility", "accessible", "a11y", "ui", "ux", "animation", "motion"]}, {"public_owner": "sg-seo", "owner_mode": "audit", "runtime_engine": "406-sg-seo", "keywords": ["seo", "search", "serp", "indexing", "crawl"]}, {"public_owner": "sg-release", "owner_mode": "verify", "runtime_engine": "004-sg-deploy", "keywords": ["release", "deploy", "deployment", "preview", "live", "production", "prod"]}, {"public_owner": "sg-bug", "owner_mode": "retest", "runtime_engine": "107-sg-test", "keywords": ["bug", "defect", "regression", "reproduce", "retest"]}]},
     "test": {"public_owner": "sg-engineering", "owner_mode": "test", "runtime_engine": "107-sg-test", "resolution": "direct"},
     "browser": {"public_owner": "sg-engineering", "owner_mode": "browser", "runtime_engine": "108-sg-browser", "resolution": "direct"},
+    "git": {"public_owner": "sg-engineering", "owner_mode": "github", "runtime_engine": "010-sg-technical", "resolution": "direct"},
+    "hygiene": {"public_owner": "sg-maintenance", "owner_mode": "hygiene", "runtime_engine": "002-sg-maintain", "resolution": "contextual-specialist", "forbidden_keywords": ["global", "workspace", "multi-project", "multiproject", "projects"], "forbidden_scope_message": "shipglows hygiene is limited to the current project; multi-project hygiene is deferred.", "specialist_routes": [{"public_owner": "sg-engineering", "owner_mode": "github", "runtime_engine": "010-sg-technical", "engine_mode": "clean", "keywords": ["git"]}]},
     "capture": {"public_owner": "sg-content", "owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation", "resolution": "direct"},
     "tmux": {"public_owner": "sg-content", "owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation", "resolution": "direct"},
     "ship": {"public_owner": "sg-release", "owner_mode": "ship", "runtime_engine": "005-sg-ship", "resolution": "direct"},

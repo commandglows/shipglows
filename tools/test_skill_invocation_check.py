@@ -89,6 +89,39 @@ class SkillInvocationCheckTests(unittest.TestCase):
         self.assertEqual(payload["selected_internal_engine"], "100-sg-spec")
         self.assertEqual(payload["resolution"], "direct")
 
+    def test_git_alias_routes_to_engineering_github_hygiene(self) -> None:
+        payload = check("shipglows git reconcile current repo")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["router_alias"], "git")
+        self.assertEqual(payload["public_owner"], "sg-engineering")
+        self.assertEqual(payload["mode"], "github")
+        self.assertEqual(payload["selected_internal_engine"], "010-sg-technical")
+        self.assertEqual(payload["resolution"], "direct")
+
+    def test_hygiene_alias_defaults_to_current_project_read_only_audit(self) -> None:
+        payload = check("shipglows hygiene")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["router_alias"], "hygiene")
+        self.assertEqual(payload["public_owner"], "sg-maintenance")
+        self.assertEqual(payload["mode"], "hygiene")
+        self.assertEqual(payload["selected_internal_engine"], "002-sg-maintain")
+        self.assertEqual(payload["resolution"], "contextual-specialist")
+
+    def test_hygiene_git_is_the_safe_git_clean_workflow_alias(self) -> None:
+        payload = check("shipglows hygiene git")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["public_owner"], "sg-engineering")
+        self.assertEqual(payload["mode"], "github")
+        self.assertEqual(payload["selected_internal_engine"], "010-sg-technical")
+        self.assertEqual(payload["selected_engine_mode"], "clean")
+        self.assertEqual(payload["resolution"], "specialist")
+
+    def test_hygiene_rejects_multi_project_scope(self) -> None:
+        payload = check("shipglows hygiene global")
+        self.assertEqual(payload["status"], "invalid")
+        self.assertEqual(payload["error"], "unsupported_alias_scope")
+        self.assertEqual(payload["router_alias"], "hygiene")
+
     def test_capture_aliases_resolve_to_the_content_capture_engine(self) -> None:
         for invocation in ("shipglows capture", "shipglows tmux"):
             payload = check(invocation)

@@ -24,6 +24,8 @@ EXPECTED_ALIASES = {
     "verify",
     "test",
     "browser",
+    "git",
+    "hygiene",
     "capture",
     "tmux",
     "ship",

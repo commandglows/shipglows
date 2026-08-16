@@ -30,9 +30,9 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before Sh
 
 ## Mission And Ownership
 
-`005-sg-ship` owns bounded Git shipping: checks, staging, commit, push, and required post-push routing. It does not prove implementation completeness (`102-sg-start`), proof completeness (`103-sg-verify`), production truth (`405-sg-prod`), or closure bookkeeping (`104-sg-end`) unless full-close mode was explicit.
+`005-sg-ship` owns bounded Git shipping and terminal cleanup disposition for agent-created task branches/worktrees, temporary by default. Destruction needs fresh approval. Other owners retain implementation, proof, production, and closure unless full-close is explicit.
 
-It answers: `What git state should be shipped now, and with what explicit limits?`
+It answers: `What Git state ships now?`
 
 If closure bookkeeping is the next unresolved owner, remain with `104-sg-end`; quick ship is not a closure substitute.
 
@@ -49,6 +49,8 @@ Quick mode performs bounded checks when practical, stages, commits, pushes, and 
 Full mode may update trackers, changelog, and durable decisions before the same Git ship sequence. Before it does so, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/full-close-playbook.md`; also load `closure-archive-guard.md` and `documentation-reflection-gate.md`. A material documentation gap prevents full-closure wording and routes to `300-sg-docs`.
 
 Before either mode mutates Git, load exactly one local reference: `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/ship-execution-playbook.md`. Full mode loads its full-close playbook only after the common pre-mutation gates pass.
+
+After terminal post-push proof, load `$SHIPGLOWS_ROOT/skills/references/git-temporary-artifact-lifecycle.md` when the run owns a task-scoped branch or worktree.
 
 ## Stops Before Mutation
 

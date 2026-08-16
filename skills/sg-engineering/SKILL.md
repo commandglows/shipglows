@@ -1,13 +1,13 @@
 ---
 name: sg-engineering
-description: Architecture, quality, dependencies, performance, migrations, sync, access, and parity.
+description: Architecture, quality, dependencies, performance, Git hygiene, migrations, sync, access, and parity.
 ---
 
 # sg-engineering
 
 ## Mission
 
-`sg-engineering` is the public owner for architecture, quality, dependencies, performance, migrations, sync, access, and parity.
+`sg-engineering` is the public owner for architecture, quality, dependencies, performance, Git/GitHub hygiene, migrations, sync, access, and parity.
 
 ## Scope Gate
 
@@ -22,6 +22,10 @@ Hidden expert modes are `verify`, `test`, and `browser`. They select
 skill retains technical-quality ownership. Their `shipglows` aliases are
 convenience routes only. When `verify` names an explicit design, SEO, release,
 or bug scope, the router preserves that specialist public owner instead.
+
+The expert alias `shipglows git` selects `github`; its default is a read-only
+PR/branch/worktree dashboard. `shipglows hygiene git` is the same intent in
+conversational form, not a separate workflow or shell command.
 
 When engineering evidence depends on Flutter, Android, Windows desktop, or Firebase Device Streaming,
 load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before diagnosing

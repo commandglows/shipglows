@@ -51,6 +51,21 @@ class MaintainContractTests(unittest.TestCase):
     def test_activation_contract_stays_below_its_compaction_ceiling(self) -> None:
         self.assertLessEqual(len(self.skill.splitlines()), MAX_SKILL_LINES)
 
+    def test_hygiene_mode_is_current_project_read_only_and_proposal_first(self) -> None:
+        for phrase in (
+            "`hygiene` -> comprehensive read-only hygiene audit for the current project",
+            "Git and temporary worktree residue",
+            "dependencies and supply-chain posture",
+            "security and trust-boundary gaps",
+            "documentation and governance drift",
+            "checks, audits, and quality debt",
+            "grouped correction proposal",
+            "fresh approval",
+            "Never invoke native `git clean`",
+            "No mutation is authorized by the hygiene invocation",
+        ):
+            self.assertIn(phrase, self.skill + self.playbook)
+
 
 if __name__ == "__main__":
     unittest.main()

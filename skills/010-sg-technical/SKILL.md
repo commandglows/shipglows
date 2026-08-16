@@ -21,7 +21,7 @@ For authored-code `audit` or `architecture`, conditionally load `clean-code-qual
 - `deps [global]`: load only `dependency-audit-playbook.md`.
 - `performance [<file|project|global>]`: load only `performance-audit-playbook.md`.
 - `migrate [package@version]`: load only `migration-playbook.md`.
-- `github [audit|branches|dependabot|fix] [current repo|workspace]`: load only `github-hygiene-playbook.md`.
+- `github [audit|reconcile|clean|branches|dependabot|fix] [current repo|workspace]`: load only `github-hygiene-playbook.md`.
 - `sync [target]`, `access [target]`, `parity [target]`: transition respectively to `600-sg-local-cloud-sync`, `601-sg-product-entitlements`, or `602-sg-platform-parity`, preserving `sg-engineering` ownership.
 - `help`: list modes and targets; load no substantive playbook.
 

@@ -1,5 +1,49 @@
 # Skills Refresh Log
 
+## 2026-08-16 — shipglows
+
+**Added:** owner-bound `git` and `hygiene` expert aliases; hygiene defaults to a non-mutating current-project audit and specializes explicit Git scope to `github clean`.
+
+**Updated:** help and operator guidance expose the general audit, Git dashboard, reconcile, and cleanup forms while clearly distinguishing them from shell commands and rejecting multi-project hygiene.
+
+**New phases:** one contextual branch maps `hygiene git` to the existing safe Git cleanup workflow; the default route remains with maintenance ownership.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal ShipGlows routing contract.
+
+## 2026-08-16 — 002-sg-maintain
+
+**Added:** a comprehensive `hygiene` audit for Git residue, dependencies, security, documentation, checks, audits, quality debt, and disposable residue in the current project.
+
+**Updated:** maintenance now returns one deduplicated, risk-ranked correction proposal without authorizing fetches, installs, edits, fixes, commits, merges, deployments, or deletions.
+
+**New phases:** none; the read-only aggregate reuses existing owner lanes and stops before their execution thresholds.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal orchestration and routing contract using existing owners.
+
+## 2026-08-16 — 010-sg-technical
+
+**Added:** the public `shipglows git` route with a read-only PR, branch, and worktree dashboard plus explicit `reconcile` and `clean` modes.
+
+**Updated:** Git hygiene now models `worktree -> branch -> pull request`, reuses the shared temporary-artifact lifecycle, and preserves the existing `branches`, `dependabot`, and `fix` lanes.
+
+**New phases:** guided reconciliation proposes an exact merge and cleanup set, then waits for fresh approval; manual cleanup proves integration before removing any worktree or branch.
+
+**Hardened:** green checks never grant merge authority, worktrees are never treated as independently mergeable, and dirty, unique, protected, durable, or ambiguous artifacts fail closed with a terminal disposition.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal ShipGlows Git-lifecycle route using existing safety invariants.
+
+## 2026-08-16 — 005-sg-ship
+
+**Added:** proactive post-integration review for branches and worktrees explicitly classified as temporary, with an exact cleanup proposal only after containment, clean-state, ownership, path, process, review, and proof gates pass.
+
+**Updated:** retained temporary Git artifacts now remain visible when cleanup is declined, blocked, or partial; every deletion still requires fresh approval and never uses force.
+
+**New phases:** one terminal post-ship artifact review after required hosted or production proof; it proposes cleanup but performs no automatic deletion.
+
+**Hardened:** agent-created task branches and worktrees are now temporary by default, support ancestry or exact merged-PR proof for squash/rebase workflows, and remain lifecycle-owned until `removed`, `retained-explicit`, `blocked`, or `not-applicable` is recorded.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal ShipGlows Git-lifecycle contract using existing safety invariants.
+
 ## 2026-08-15 — 102-sg-start
 
 **Added:** one shared visual start card after approval for substantive chantiers, covering objective, scope, expected proof, and planned documentation impact.

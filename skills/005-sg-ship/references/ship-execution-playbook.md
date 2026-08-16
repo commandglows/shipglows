@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-16"
 status: active
 source_skill: 005-sg-ship
 scope: ship-execution
@@ -15,10 +15,16 @@ security_impact: yes
 docs_impact: no
 linked_systems:
   - skills/005-sg-ship/SKILL.md
-depends_on: []
+  - skills/references/git-temporary-artifact-lifecycle.md
+depends_on:
+  - artifact: "skills/references/git-temporary-artifact-lifecycle.md"
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Wave-2 compaction extracted bounded Git execution from the ship activation contract."
+  - "Operator critique 2026-08-16: completed temporary branches and worktrees should be surfaced for cleanup without requiring the operator to notice them."
+  - "Operator decision 2026-08-16: task-scoped agent Git artifacts remain owned through a terminal cleanup disposition after integration."
 next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
 ---
 
@@ -78,3 +84,19 @@ Push the current branch to its configured upstream. If no upstream exists and th
 On rejection or other push failure, stop and report the actual local commit, branch, upstream, dirty state, checks, and error. Do not claim shipment.
 
 After success, use the activation contract's development-mode rule. Hosted-sensitive preview work routes to `405-sg-prod` before downstream proof; a local-mode push needs no invented deployment step.
+
+## Post-Ship Temporary Artifact Review
+
+After the push and every required hosted or production proof reaches a terminal result, apply `skills/references/git-temporary-artifact-lifecycle.md`. Task-scoped branches and worktrees created by the agent are temporary by default unless declared durable at creation; never infer that an ordinary operator, shared, release, or protected branch is disposable merely because its push or merge succeeded.
+
+Propose cleanup only when all of these are proven with fresh read-only checks:
+
+- the refreshed intended remote target contains the temporary branch tip, or authoritative hosted metadata proves a merged pull request with the exact source head and target;
+- the temporary worktree has no tracked or untracked changes;
+- the branch has no unique commits, unresolved review purpose, protection, release ownership, or concurrent operator ownership;
+- the exact worktree path is resolved, task-owned, and not used by a running process;
+- every required deployment, hosted proof, and post-push verification is terminal.
+
+When the gate passes, propose the exact cleanup scope without waiting for the operator to notice it and follow the shared removal order from a surviving canonical worktree. Obtain fresh destructive-action approval under `mutation-plan-approval.md`; remote ref deletion always uses its full-plan path. Multiple repositories are proposed together only when each target is exact, then cleaned sequentially; never delete automatically, never force branch deletion, and never touch a shared dependency store or unrelated main worktree.
+
+If the gate fails or cleanup is declined, preserve the artifacts and record the shared cleanup disposition. Explicit retention requires a reason and review date; `pending` never supports a fully clean completion. If Git removes worktree metadata but ignored residue remains, re-inspect the exact directory before any approved deletion and stop on unexpected content, shared-store boundaries, locks, or ownership ambiguity.

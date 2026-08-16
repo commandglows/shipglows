@@ -9,6 +9,10 @@ description: Complete upkeep across quality, dependency, security, documentation
 
 `sg-maintenance` is the public owner for product upkeep across quality, dependencies, security, documentation, and audit lanes.
 
+The expert alias `shipglows hygiene` selects its hidden `hygiene` mode: a
+comprehensive read-only audit of the current project followed by a grouped
+correction proposal. Multi-project scope is not supported by this alias.
+
 ## Scope Gate
 
 Resolve the relevant product scope and load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Retain ownership of the upkeep outcome and use internal owner lanes without asking the operator to coordinate them.

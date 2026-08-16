@@ -1,7 +1,7 @@
 ---
 name: 002-sg-maintain
 description: "Orchestrate project maintenance from triage to ship."
-argument-hint: [optional: quick | full | security | deps | docs | audits | global | no-ship | report=agent]
+argument-hint: [optional: quick | hygiene | full | security | deps | docs | audits | global | no-ship | report=agent]
 ---
 
 Primary artifact type: `master-workflow`.
@@ -50,6 +50,7 @@ Use `main-only` only for conversation or one focused read-only scope. For indepe
 Parse `$ARGUMENTS` after preflight:
 
 - empty -> full maintenance lifecycle for the current project; `quick` -> read-only triage only.
+- `hygiene` -> comprehensive read-only hygiene audit for the current project; return a grouped correction proposal, but authorize no mutation.
 - `full` -> broad maintenance lifecycle; `security` -> security maintenance through bug, dependency, code-audit, remediation, verification, and ship gates.
 - `deps`, `docs`, or `audits` -> the matching owner lane, then remediation lifecycle when findings cross the implementation threshold.
 - `global` -> read-only workspace dashboard; ask for a project before modifying more than one project.
@@ -57,6 +58,10 @@ Parse `$ARGUMENTS` after preflight:
 - `report=agent`, `handoff`, `verbose`, or `full-report` -> detailed evidence in addition to the selected mode.
 
 If a request is specifically to fix, migrate, deploy, or build one thing, retain this master only when it is maintenance work; otherwise hand off to that owner.
+
+The `shipglows hygiene` alias selects `hygiene`. It rejects workspace or
+multi-project scope. `shipglows hygiene git` bypasses this aggregate lane and
+selects the safe `010-sg-technical github clean` workflow.
 
 ## Lifecycle And Gates
 
