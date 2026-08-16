@@ -33,7 +33,8 @@ function Get-SgAgentInstructionTargets {
         [pscustomobject]@{ Agent='Codex'; RelativePath='.codex\AGENTS.md' },
         [pscustomobject]@{ Agent='Claude'; RelativePath='.claude\CLAUDE.md' },
         [pscustomobject]@{ Agent='OpenCode'; RelativePath='.config\opencode\AGENTS.md' },
-        [pscustomobject]@{ Agent='Kilo'; RelativePath='.config\kilo\AGENTS.md' }
+        [pscustomobject]@{ Agent='Kilo'; RelativePath='.config\kilo\AGENTS.md' },
+        [pscustomobject]@{ Agent='Gemini'; RelativePath='.gemini\GEMINI.md' }
     )
     foreach ($definition in $definitions) {
         if ($AgentReady.ContainsKey($definition.Agent) -and [bool]$AgentReady[$definition.Agent]) {

@@ -165,19 +165,62 @@ try {
     $readyState = Get-SgFlutterInstallState -FlutterRoot $partialFlutter -Runner { param($f,$a,$timeout) $output=if($f -match 'dart'){'Dart SDK version: 3.9.0'}else{'Flutter 3.35.0'}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
     Assert-Sg ($readyState.Status -eq 'ready' -and $readyState.Recovery -eq 'none') 'Existing Flutter must require executable version evidence.'
     $empty = Get-SgProjectServiceNeeds -Workspace $fixture
-    Assert-Sg (-not $empty.Firebase -and -not $empty.FlutterFire -and -not $empty.Supabase) 'Zero-service workspace detected false dependencies.'
+    Assert-Sg (-not $empty.Firebase -and -not $empty.FlutterFire -and -not $empty.Supabase -and -not $empty.Convex -and -not $empty.Vercel -and -not $empty.Clerk -and -not $empty.AndroidNative) 'Zero-service workspace detected false dependencies.'
     $oneProject = Join-Path $fixture 'one\nested'
     New-Item -ItemType Directory -Path $oneProject -Force | Out-Null
     Set-Content -LiteralPath (Join-Path $oneProject 'firebase.json') -Value '{}'
     $one = Get-SgProjectServiceNeeds -Workspace $fixture
     Assert-Sg ($one.Firebase -and -not $one.FlutterFire -and -not $one.Supabase) 'One nested service need was not detected exactly.'
     Set-Content -LiteralPath (Join-Path $fixture 'pubspec.yaml') -Value "dependencies:`n  firebase_core: any"
+    Set-Content -LiteralPath (Join-Path $fixture 'package.json') -Value '{"dependencies":{"convex":"^1.0.0","@clerk/astro":"^6.0.0"},"scripts":{"deploy":"vercel"}}'
+    Set-Content -LiteralPath (Join-Path $fixture 'vercel.json') -Value '{}'
+    New-Item -ItemType Directory -Path (Join-Path $fixture 'android\app') -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $fixture 'android\app\CMakeLists.txt') -Value 'cmake_minimum_required(VERSION 3.22.1)'
     New-Item -ItemType Directory -Path (Join-Path $fixture 'supabase') | Out-Null
     Set-Content -LiteralPath (Join-Path $fixture 'supabase\config.toml') -Value 'project_id = "fixture"'
     $many = Get-SgProjectServiceNeeds -Workspace $fixture
-    Assert-Sg ($many.Firebase -and $many.FlutterFire -and $many.Supabase) 'Many-service workspace detection is incomplete.'
+    Assert-Sg ($many.Firebase -and $many.FlutterFire -and $many.Supabase -and $many.Convex -and $many.Vercel -and $many.Clerk -and $many.AndroidNative) 'Many-service workspace detection is incomplete.'
     $bounded = Get-SgProjectServiceNeeds -Workspace $fixture -MaxDirectories 1
     Assert-Sg ($bounded.ScanLimitReached) 'Service scanning must stop at its directory bound.'
+
+    $stackVersions = @{ Firebase='14.0.0'; FlutterFire='1.3.1'; Supabase='2.45.0'; Convex='1.28.0'; Vercel='48.0.0'; Clerk='0.4.0' }
+    $stackPlan = @(Get-SgServiceCliPlan $many $stackVersions)
+    Assert-Sg (($stackPlan.Name -join '|') -eq 'firebase|flutterfire|supabase|convex|vercel|clerk') 'Preferred-stack CLI plan must cover Firebase, FlutterFire, Supabase, Convex, Vercel, and Clerk.'
+    Assert-Sg (@($stackPlan | Where-Object { $_.Version -notmatch '^\d+\.\d+\.\d+' }).Count -eq 0) 'Every service CLI must use an exact resolved version.'
+
+    $agentPlan = Get-SgAgentInstallPlan -Interactive $true -Choice 'yes' -AgentReady @{ Codex=$false; Claude=$true; OpenCode=$false; Kilo=$false; Gemini=$false }
+    Assert-Sg ($agentPlan.Ask -and ($agentPlan.Install -join '|') -eq 'Codex|OpenCode|Kilo|Gemini' -and -not ($agentPlan.Install -contains 'Claude')) 'Agent proposal must install only missing coding-agent CLIs, including Gemini.'
+    $agentHeadless = Get-SgAgentInstallPlan -Interactive $false -Choice 'yes' -AgentReady @{ Codex=$false; Claude=$false; OpenCode=$false; Kilo=$false; Gemini=$false }
+    Assert-Sg (-not $agentHeadless.Ask -and @($agentHeadless.Install).Count -eq 0 -and $agentHeadless.Status -eq 'pending') 'Noninteractive installs must not infer coding-agent consent.'
+
+    $developerModePlan = Get-SgDeveloperModeGuidancePlan -Interactive $true -DeveloperModeReady $false -Choice 'yes'
+    Assert-Sg ($developerModePlan.Ask -and $developerModePlan.OpenSettings -and $developerModePlan.SettingsUri -eq 'ms-settings:developers') 'Developer Mode guidance must offer the official Windows settings surface without changing policy.'
+    Assert-Sg (-not $developerModePlan.ChangeRegistry) 'Developer Mode guidance must never mutate the registry.'
+
+    $stackMcps = @(Get-SgStackMcpDefinitions $many $stackVersions 'C:\Program Files\nodejs\npx.cmd')
+    Assert-Sg (($stackMcps.Name -join '|') -eq 'firebase|convex|clerk|github') 'Detected stacks must receive Clerk and the global read-only GitHub MCP alongside Firebase and Convex.'
+    Assert-Sg (($stackMcps | Where-Object Name -eq 'firebase').Arguments -join ' ' -eq '-y --registry=https://registry.npmjs.org/ firebase-tools@14.0.0 mcp') 'Firebase MCP must use the exact resolved firebase-tools version.'
+    Assert-Sg (($stackMcps | Where-Object Name -eq 'convex').Arguments -join ' ' -eq '-y --registry=https://registry.npmjs.org/ convex@1.28.0 mcp start') 'Convex MCP must use the official CLI entrypoint and exact version.'
+    Assert-Sg (($stackMcps | Where-Object Name -eq 'clerk').Type -eq 'remote' -and ($stackMcps | Where-Object Name -eq 'clerk').Url -eq 'https://mcp.clerk.com/mcp') 'Clerk MCP must use the official remote endpoint.'
+    Assert-Sg (($stackMcps | Where-Object Name -eq 'github').Type -eq 'remote' -and ($stackMcps | Where-Object Name -eq 'github').Url -eq 'https://api.githubcopilot.com/mcp/readonly') 'GitHub MCP must default to the official read-only endpoint.'
+    $remoteAgentPlan = Get-SgAgentMcpPlan OpenCode 'opencode.cmd' 'dart.bat' 'npx.cmd' '0.0.42' $true $stackMcps
+    Assert-Sg ($remoteAgentPlan.Config.mcp.servers.clerk.type -eq 'remote' -and $remoteAgentPlan.Config.mcp.servers.github.url -match '/readonly$') 'JSON agent plans must preserve remote MCP transport and read-only GitHub scope.'
+    $remoteKiloPlan = Get-SgAgentMcpPlan Kilo 'kilo.cmd' 'dart.bat' 'npx.cmd' '0.0.42' $true $stackMcps
+    Assert-Sg ($remoteKiloPlan.Config.mcp.clerk.url -eq 'https://mcp.clerk.com/mcp' -and $remoteKiloPlan.Config.mcp.github.type -eq 'remote') 'Kilo plans must preserve Clerk and GitHub remote MCP definitions.'
+    $globalMcps = @(Get-SgStackMcpDefinitions $empty @{} 'npx.cmd')
+    Assert-Sg (($globalMcps.Name -join '|') -eq 'github') 'The read-only GitHub MCP must remain global even when no optional stack is detected.'
+
+    $geminiLocalArguments = @(Get-SgGeminiMcpAddArguments ([pscustomobject]@{ Name='dart'; Type='local'; Command='C:\Program Files\dart.bat'; Arguments=@('mcp-server','--force-roots-fallback') }))
+    Assert-Sg (($geminiLocalArguments -join '|') -eq 'mcp|add|--scope|user|dart|C:\Program Files\dart.bat|mcp-server|--force-roots-fallback') 'Gemini local MCP arguments must use the official user-scope CLI syntax.'
+    $geminiRemoteArguments = @(Get-SgGeminiMcpAddArguments ([pscustomobject]@{ Name='github'; Type='remote'; Url='https://api.githubcopilot.com/mcp/readonly'; Command=''; Arguments=@() }))
+    Assert-Sg (($geminiRemoteArguments -join '|') -eq 'mcp|add|--scope|user|--transport|http|github|https://api.githubcopilot.com/mcp/readonly') 'Gemini remote MCP arguments must use official Streamable HTTP user scope.'
+    $geminiSettings = Join-Path $fixture '.gemini\settings.json'
+    New-Item -ItemType Directory -Path (Split-Path $geminiSettings -Parent) -Force | Out-Null
+    [IO.File]::WriteAllText($geminiSettings, '{"foreign":{"secret":"keep"},"mcpServers":{"github":{"httpUrl":"https://api.githubcopilot.com/mcp/readonly"}}}')
+    Assert-Sg ((Get-SgGeminiMcpConfigState $geminiSettings ([pscustomobject]@{ Name='github'; Type='remote'; Url='https://api.githubcopilot.com/mcp/readonly'; Command=''; Arguments=@() })).Status -eq 'ready') 'Gemini must recognize an exact existing remote MCP without connecting.'
+    $geminiHash = (Get-FileHash $geminiSettings -Algorithm SHA256).Hash
+    Assert-Sg ((Get-SgGeminiMcpConfigState $geminiSettings ([pscustomobject]@{ Name='github'; Type='remote'; Url='https://different.invalid/mcp'; Command=''; Arguments=@() })).Status -eq 'pending') 'Gemini must preserve an existing non-converged MCP entry.'
+    Assert-Sg ((Get-FileHash $geminiSettings -Algorithm SHA256).Hash -eq $geminiHash) 'Gemini MCP planning changed an existing secret-bearing settings file.'
 
     $jsoncPreferred = Join-Path $fixture '.config\opencode\opencode.jsonc'
     $jsonFallback = Join-Path $fixture '.config\opencode\opencode.json'
@@ -290,10 +333,18 @@ public static class EchoArgs {
     $savedUserProfile = $env:USERPROFILE
     try {
         $env:USERPROFILE = Join-Path $fixture 'environment-home'
-        $reportPath = Write-SgGlobalDevelopmentEnvironment $true ([pscustomobject]@{ Installed=$false; McpConfigured=$false; McpVerified=$false; ConfigPath='pending'; ChromiumPath='' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $true ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false }) ([pscustomobject]@{ AndroidStudioReady=$true; VisualStudioCppReady=$false; FirebaseDeviceStreamingReady=$false })
+        $agentInfo = @{
+            Codex=[pscustomobject]@{Installed=$true;McpSummary='ready: dart, firebase'}
+            Claude=[pscustomobject]@{Installed=$true;McpSummary='partial: ready dart; pending firebase'}
+            OpenCode=[pscustomobject]@{Installed=$false;McpSummary='not applicable'}
+            Kilo=[pscustomobject]@{Installed=$false;McpSummary='not applicable'}
+            Gemini=[pscustomobject]@{Installed=$true;McpSummary='ready: dart, github'}
+        }
+        $services = [pscustomobject]@{ Firebase='ready (14.0.0)'; FlutterFire='ready (1.3.1)'; Convex='ready (1.28.0)'; Vercel='ready (48.0.0)'; Supabase='not detected'; Clerk='ready (0.4.0)'; AndroidNative='not detected' }
+        $reportPath = Write-SgGlobalDevelopmentEnvironment $agentInfo ([pscustomobject]@{ Installed=$true; McpConfigured=$true; McpVerified=$true; ConfigPath='per-agent'; ChromiumPath='C:\chromium.exe' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $true ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false }) ([pscustomobject]@{ AndroidStudioReady=$true; VisualStudioCppReady=$false; FirebaseDeviceStreamingReady=$false }) $services $false
         $report = [IO.File]::ReadAllText($reportPath)
     } finally { $env:USERPROFILE = $savedUserProfile }
-    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','Android Studio installed: yes','Flutter Windows desktop toolchain ready: no','Firebase Android Device Streaming configured: no','rerun the ShipGlows full installer in an interactive PowerShell')) {
+    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','Android Studio installed: yes','Flutter Windows desktop toolchain ready: no','Windows Developer Mode enabled: no','Firebase Android Device Streaming configured: no','Playwright MCP configured: yes','Codex MCP readiness: ready: dart, firebase','Claude MCP readiness: partial: ready dart; pending firebase','Gemini MCP readiness: ready: dart, github','Convex development tooling: ready (1.28.0)','Clerk development tooling: ready (0.4.0)','Windows-supported Flutter targets: web, Android, Windows desktop','rerun the ShipGlows full installer in an interactive PowerShell')) {
         Assert-Sg ($report.Contains($expected)) "Environment report is missing actionable mobile state: $expected"
     }
 

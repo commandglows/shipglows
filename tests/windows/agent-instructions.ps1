@@ -15,10 +15,10 @@ function Assert-Sg([bool]$Condition, [string]$Message) { if (-not $Condition) { 
 $sandbox = Join-Path ([IO.Path]::GetTempPath()) ('sg-agent-instructions-' + [guid]::NewGuid().ToString('N'))
 try {
     New-Item -ItemType Directory -Path $sandbox | Out-Null
-    $targets = @(Get-SgAgentInstructionTargets -UserProfile $sandbox -AgentReady @{ Codex=$true; Claude=$true; OpenCode=$true; Kilo=$true })
-    Assert-Sg ($targets.Count -eq 4) 'The instruction target plan must contain all four supported agents.'
+    $targets = @(Get-SgAgentInstructionTargets -UserProfile $sandbox -AgentReady @{ Codex=$true; Claude=$true; OpenCode=$true; Kilo=$true; Gemini=$true })
+    Assert-Sg ($targets.Count -eq 5) 'The instruction target plan must contain all five supported agents.'
     $sandboxPrefix = [IO.Path]::GetFullPath($sandbox).TrimEnd('\') + '\'
-    Assert-Sg (($targets.Path | ForEach-Object { $_.Substring($sandboxPrefix.Length) }) -join '|' -eq '.codex\AGENTS.md|.claude\CLAUDE.md|.config\opencode\AGENTS.md|.config\kilo\AGENTS.md') 'Native instruction paths drifted.'
+    Assert-Sg (($targets.Path | ForEach-Object { $_.Substring($sandboxPrefix.Length) }) -join '|' -eq '.codex\AGENTS.md|.claude\CLAUDE.md|.config\opencode\AGENTS.md|.config\kilo\AGENTS.md|.gemini\GEMINI.md') 'Native instruction paths drifted.'
 
     $codexPath = Join-Path $sandbox '.codex\AGENTS.md'
     New-Item -ItemType Directory -Path (Split-Path -Parent $codexPath) -Force | Out-Null
@@ -33,11 +33,12 @@ try {
     $kiloPath = Join-Path $sandbox '.config\kilo\AGENTS.md'
     New-Item -ItemType Directory -Path (Split-Path -Parent $kiloPath) -Force | Out-Null
     [IO.File]::WriteAllText($kiloPath, "instruction Kilo Ω`n", [Text.UTF8Encoding]::new($true))
+    $geminiPath = Join-Path $sandbox '.gemini\GEMINI.md'
 
-    $changed = @(Install-SgAgentEnvironmentInstructions -UserProfile $sandbox -AgentReady @{ Codex=$true; Claude=$true; OpenCode=$false; Kilo=$true })
-    Assert-Sg ($changed.Count -eq 3) 'Only detected agents must receive the managed instruction block.'
+    $changed = @(Install-SgAgentEnvironmentInstructions -UserProfile $sandbox -AgentReady @{ Codex=$true; Claude=$true; OpenCode=$false; Kilo=$true; Gemini=$true })
+    Assert-Sg ($changed.Count -eq 4) 'Only detected agents must receive the managed instruction block.'
     Assert-Sg (-not (Test-Path -LiteralPath (Join-Path $sandbox '.config\opencode'))) 'An unavailable agent must not receive files or directories.'
-    foreach ($path in @($codexPath, $claudePath, $kiloPath)) {
+    foreach ($path in @($codexPath, $claudePath, $kiloPath, $geminiPath)) {
         $content = [IO.File]::ReadAllText($path)
         Assert-Sg (([regex]::Matches($content, '(?m)^# >>> ShipGlows development environment >>>\r?$')).Count -eq 1) "Managed block duplication in $path"
         Assert-Sg ($content -match 'purpose-built tool') "Purpose-built tool guidance missing in $path"
@@ -54,8 +55,8 @@ try {
     Assert-Sg ($kiloBytes.Length -ge 3 -and $kiloBytes[0] -eq 0xEF -and $kiloBytes[1] -eq 0xBB -and $kiloBytes[2] -eq 0xBF) 'An existing UTF-8 BOM was not preserved.'
 
     $before = @{}
-    foreach ($path in @($codexPath, $claudePath, $kiloPath)) { $before[$path] = [IO.File]::ReadAllBytes($path) }
-    $second = @(Install-SgAgentEnvironmentInstructions -UserProfile $sandbox -AgentReady @{ Codex=$true; Claude=$true; OpenCode=$false; Kilo=$true })
+    foreach ($path in @($codexPath, $claudePath, $kiloPath, $geminiPath)) { $before[$path] = [IO.File]::ReadAllBytes($path) }
+    $second = @(Install-SgAgentEnvironmentInstructions -UserProfile $sandbox -AgentReady @{ Codex=$true; Claude=$true; OpenCode=$false; Kilo=$true; Gemini=$true })
     Assert-Sg ($second.Count -eq 0) 'A converged rerun must report no changed files.'
     foreach ($path in $before.Keys) {
         $afterBytes = [IO.File]::ReadAllBytes($path)

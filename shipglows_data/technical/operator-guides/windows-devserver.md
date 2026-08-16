@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.7.3"
+artifact_version: "1.10.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-15"
+updated: "2026-08-16"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -53,6 +53,8 @@ ne sont pas requis par le parcours Shadow PC.
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
 - ✅ Android Studio proposé pour Android/Firebase Device Streaming et Visual Studio Community C++ pour compiler Flutter Windows
 - ✅ MCP Dart/Flutter et Playwright préparés sans authentification; JSON/JSONC existant préservé ou signalé pending
+- ✅ Proposition groupée des agents Codex, Claude, OpenCode, Kilo ou Gemini manquants et CLIs Firebase, FlutterFire, Convex, Vercel, Supabase ou Clerk selon les manifests
+- ✅ MCP Firebase, Convex et Clerk officiels, plus GitHub officiel en lecture seule, ajoutés aux agents détectés avec readiness agent par agent
 
 1. **Lancer le bootstrap unique ShipGlows:**
 
@@ -106,9 +108,14 @@ ne sont pas requis par le parcours Shadow PC.
    reçoit uniquement le workload manquant. La progression reste visible et aucun
    redémarrage Windows n'est automatique. L'authentification Firebase, le choix du
    projet, la facturation et la réservation d'un appareil distant restent à faire
-   personnellement dans Android Studio. Les nouveaux fichiers agent peuvent
-   recevoir Dart/Flutter et Playwright; un JSON/JSONC existant reste intact et
+   personnellement dans Android Studio. ShipGlows propose aussi d'ouvrir les
+   paramètres Developer Mode sans modifier le registre; ce réglage est distinct
+   de l'accélération de l'émulateur. Codex, Claude, OpenCode, Kilo et Gemini manquants sont proposés dans une
+   question groupée, sans authentification. Les nouveaux fichiers agent peuvent
+   recevoir Dart/Flutter, Playwright, Firebase, Convex, Clerk et GitHub en lecture seule; Gemini utilise son CLI natif user-scope puis une vérification locale de `settings.json`, sans connexion; un JSON/JSONC existant reste intact et
    explicitement pending si aucune mise à jour native sûre n'est disponible.
+   Le CLI Clerk n'est préparé que si un manifest le déclare; `clerk init`, le lien
+   d'application, les SDK projet et toute authentification restent explicites.
    Aucune authentification n'est démarrée. Il ne demande ni
    `sudo`, ni WSL, ni `autossh`. Au premier accès aux dépôts privés, GitHub CLI
    ouvre son authentification officielle dans le navigateur; ShipGlows ne lit

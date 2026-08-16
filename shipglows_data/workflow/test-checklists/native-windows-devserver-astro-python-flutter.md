@@ -1,7 +1,7 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.4.2"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-08-15"
 updated: "2026-08-16"
@@ -66,11 +66,14 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 ## Flutter Android full-install proof
 
 - [x] Regression-first test failed on the missing mobile-toolchain module before implementation.
-- [x] Zero/one/many service needs select Firebase, FlutterFire and Supabase only from explicit manifests.
+- [x] Zero/one/many service needs select Firebase, FlutterFire, Supabase, Convex, Vercel, Clerk and Android-native review only from bounded explicit manifests.
 - [x] Interactive x64 emulator acceptance, refusal, proven acceleration and uncertain acceleration resolve deterministically; uncertainty warns without suppressing the question, while non-interactive installs never prompt or infer consent.
 - [x] Android terms and `sdkmanager --licenses` remain explicit; tests never pre-answer or execute them, and refusal/non-interactive plans remain pending.
 - [x] Bounded Flutter/Dart/JDK/sdkmanager/adb/doctor/devices diagnostics distinguish healthy, `[!]`, `[X]`, license-pending and timeout states; only Flutter's exact positive `✓` or Windows `√` Android-toolchain marker plus accepted-license evidence is ready.
 - [x] Windows Developer Mode is detected read-only and never activated by the installer.
+- [x] Interactive Developer Mode guidance can open only `ms-settings:developers`; it never writes the registry and non-interactive execution stays pending.
+- [x] Missing Codex, Claude, OpenCode, Kilo and Gemini CLIs use one grouped consent gate, exact package versions and executable verification; non-interactive execution installs none.
+- [x] Firebase and Convex MCP definitions use exact resolved CLI versions; Clerk uses its official remote endpoint and GitHub uses the official read-only endpoint. Readiness is recorded per agent rather than hard-coded false, and no authentication is started.
 - [x] The installer resolver prefers an existing `.jsonc` over `.json`; comments, unrelated MCP data and secrets remain byte-identical, no secret-bearing backup is created and the result is explicitly pending.
 - [x] OpenCode v2 plans exact `mcp.servers`; Kilo plans official `kilo` and detects `kilocode` compatibility; Playwright is omitted without proven Chromium and rejects mutable versions.
 - [x] Fresh/existing/partial plans cover external-tool reuse, managed quarantine, x64 rejection before downloads, centralized Android 36 platform/build-tools/system-image coordinates and AVD.
@@ -84,10 +87,10 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] PowerShell 5.1 transport preserves argument boundaries for EXE and CMD/BAT across spaces, Unicode, quotes, `&`, `%` and `;`; interactive execution and timeout/tree-stop paths are covered.
 - [x] Service scanning excludes reparse directories and reports its bounded-directory limit.
 - [x] Automated proof uses temporary fixtures only and performs no package download, elevation, registry mutation, Developer Mode change, authentication or user-project write.
-- [x] Multi-agent instruction fixtures prove the exact Codex, Claude, OpenCode and Kilo global paths, detected-agent filtering, foreign Unicode/newline preservation, managed-block replacement, fail-closed malformed markers, atomic temp cleanup and byte-idempotent reruns.
+- [x] Multi-agent instruction fixtures prove the exact Codex, Claude, OpenCode, Kilo and Gemini global paths, detected-agent filtering, foreign Unicode/newline preservation, managed-block replacement, fail-closed malformed markers, atomic temp cleanup and byte-idempotent reruns.
 - [ ] Run full installation on a fresh Windows target and record accepted/refused license outcomes, exact resolved versions and readiness fields.
 - [ ] Validate `ShipGlows_API_36` through `adb` and `flutter devices` on a host that exposes nested virtualization; Shadow software-mode failure is already recorded.
-- [ ] Validate MCP convergence in real Codex, Claude, OpenCode v2 and Kilo configs, including an existing JSONC file.
+- [ ] Validate MCP convergence in real Codex, Claude, OpenCode v2, Kilo and Gemini configs, including existing JSONC and Gemini settings files.
 
 ## Windows IDE and Firebase entry-point proof
 

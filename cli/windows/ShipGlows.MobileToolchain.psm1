@@ -134,6 +134,18 @@ function Test-SgWindowsDeveloperMode {
     } catch { return $false }
 }
 
+function Get-SgDeveloperModeGuidancePlan {
+    param([bool]$Interactive, [bool]$DeveloperModeReady, [string]$Choice = '')
+    $ask = $Interactive -and -not $DeveloperModeReady
+    [pscustomobject]@{
+        Ask = $ask
+        OpenSettings = $ask -and $Choice.Trim().ToLowerInvariant() -in @('y','yes')
+        SettingsUri = 'ms-settings:developers'
+        ChangeRegistry = $false
+        Status = if ($DeveloperModeReady) { 'ready' } else { 'pending' }
+    }
+}
+
 function Test-SgWindowsHypervisorEvidence {
     param([bool]$HypervisorPresent, [bool]$VirtualizationFirmwareEnabled, [bool]$VmMonitorModeExtensions, [bool]$SecondLevelAddressTranslationExtensions)
     return $HypervisorPresent -and $VirtualizationFirmwareEnabled -and $VmMonitorModeExtensions -and $SecondLevelAddressTranslationExtensions
@@ -197,12 +209,24 @@ function Get-SgFlutterInstallState {
     [pscustomobject]@{ Status=if($ready){'ready'}else{'partial'}; Recovery=if($ready){'none'}else{'quarantine'}; FlutterPath=$flutter; DartPath=$dart }
 }
 
+function Read-SgBoundedManifestText([string]$Path, [long]$MaxBytes = 2097152) {
+    try {
+        $file = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
+        if (-not $file.PSIsContainer -and $file.Length -ge 0 -and $file.Length -le $MaxBytes) { return [IO.File]::ReadAllText($file.FullName) }
+    } catch { }
+    return ''
+}
+
 function Get-SgProjectServiceNeeds {
     param([Parameter(Mandatory=$true)][string]$Workspace, [int]$MaxDirectories = 5000)
     $root = [IO.Path]::GetFullPath($Workspace)
     $flutterFire = $false
     $firebase = $false
     $supabase = $false
+    $convex = $false
+    $vercel = $false
+    $clerk = $false
+    $androidNative = $false
     $queue = New-Object Collections.Generic.Queue[object]
     $queue.Enqueue([pscustomobject]@{ Path=$root; Depth=0 })
     $visited = 0
@@ -213,9 +237,27 @@ function Get-SgProjectServiceNeeds {
         $visited++
         if ((Test-Path -LiteralPath (Join-Path $current.Path 'firebase.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $current.Path '.firebaserc') -PathType Leaf)) { $firebase = $true }
         if (Test-Path -LiteralPath (Join-Path $current.Path 'supabase\config.toml') -PathType Leaf) { $supabase = $true }
+        if ((Test-Path -LiteralPath (Join-Path $current.Path 'convex') -PathType Container) -or (Test-Path -LiteralPath (Join-Path $current.Path 'convex.json') -PathType Leaf)) { $convex = $true }
+        if ((Test-Path -LiteralPath (Join-Path $current.Path 'vercel.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $current.Path '.vercel\project.json') -PathType Leaf)) { $vercel = $true }
+        if ((Test-Path -LiteralPath (Join-Path $current.Path 'CMakeLists.txt') -PathType Leaf) -and $current.Path -match '(?i)[\\/]android(?:[\\/]|$)') { $androidNative = $true }
+        $packageJson = Join-Path $current.Path 'package.json'
+        if (Test-Path -LiteralPath $packageJson -PathType Leaf) {
+            try {
+                $packageText = Read-SgBoundedManifestText $packageJson
+                $convex = $convex -or $packageText -match '(?i)"convex"\s*:'
+                $vercel = $vercel -or $packageText -match '(?i)"(?:vercel|@astrojs/vercel)"\s*:|"[^"\r\n]*"\s*:\s*"[^"]*\bvercel\b'
+                $clerk = $clerk -or $packageText -match '(?i)"(?:clerk|@clerk/[^"/]+)"\s*:'
+            } catch { }
+        }
+        foreach ($gradleName in @('build.gradle','build.gradle.kts')) {
+            $gradle = Join-Path $current.Path $gradleName
+            if (Test-Path -LiteralPath $gradle -PathType Leaf) {
+                try { $androidNative = $androidNative -or (Read-SgBoundedManifestText $gradle) -match '(?i)externalNativeBuild|ndkVersion|cmake\s*\{' } catch { }
+            }
+        }
         $pubspec = Join-Path $current.Path 'pubspec.yaml'
         if (Test-Path -LiteralPath $pubspec -PathType Leaf) {
-            $flutterFire = $flutterFire -or [regex]::IsMatch([IO.File]::ReadAllText($pubspec), '(?m)^\s*(firebase_core|cloud_firestore|firebase_auth|firebase_[a-z0-9_]+)\s*:')
+            $flutterFire = $flutterFire -or [regex]::IsMatch((Read-SgBoundedManifestText $pubspec), '(?m)^\s*(firebase_core|cloud_firestore|firebase_auth|firebase_[a-z0-9_]+)\s*:')
         }
         if ($current.Depth -ge 4) { continue }
         foreach ($directory in @(Get-ChildItem -LiteralPath $current.Path -Directory -Force -ErrorAction SilentlyContinue)) {
@@ -224,7 +266,7 @@ function Get-SgProjectServiceNeeds {
             $queue.Enqueue([pscustomobject]@{ Path=$directory.FullName; Depth=$current.Depth + 1 })
         }
     }
-    [pscustomobject]@{ Firebase=[bool]$firebase; FlutterFire=[bool]$flutterFire; Supabase=[bool]$supabase; DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
+    [pscustomobject]@{ Firebase=[bool]$firebase; FlutterFire=[bool]$flutterFire; Supabase=[bool]$supabase; Convex=[bool]$convex; Vercel=[bool]$vercel; Clerk=[bool]$clerk; AndroidNative=[bool]$androidNative; DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
 }
 
 function Resolve-SgAndroidCommandLineToolsPackage {
@@ -278,14 +320,88 @@ function Get-SgServiceCliPlan {
     foreach ($definition in @(
         @{ Need='Firebase'; Name='firebase'; Package='firebase-tools'; Manager='npm' },
         @{ Need='FlutterFire'; Name='flutterfire'; Package='flutterfire_cli'; Manager='dart' },
-        @{ Need='Supabase'; Name='supabase'; Package='supabase'; Manager='npx' }
+        @{ Need='Supabase'; Name='supabase'; Package='supabase'; Manager='npx' },
+        @{ Need='Convex'; Name='convex'; Package='convex'; Manager='npx' },
+        @{ Need='Vercel'; Name='vercel'; Package='vercel'; Manager='npm' },
+        @{ Need='Clerk'; Name='clerk'; Package='clerk'; Manager='npm' }
     )) {
-        if (-not [bool]$Needs.($definition.Need)) { continue }
+        $needProperty = $Needs.PSObject.Properties[$definition.Need]
+        if (-not $needProperty -or -not [bool]$needProperty.Value) { continue }
         $version = [string]$Versions[$definition.Need]
         if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw "$($definition.Name) requires an exact resolved version." }
         $plan.Add([pscustomobject]@{ Name=$definition.Name; Package=$definition.Package; Manager=$definition.Manager; Version=$version })
     }
     return $plan.ToArray()
+}
+
+function Get-SgAgentInstallPlan {
+    param([bool]$Interactive, [hashtable]$AgentReady, [string]$Choice = '')
+    $missing = New-Object Collections.Generic.List[string]
+    foreach ($name in @('Codex','Claude','OpenCode','Kilo','Gemini')) {
+        if (-not [bool]$AgentReady[$name]) { $missing.Add($name) }
+    }
+    $ask = $Interactive -and $missing.Count -gt 0
+    $accepted = $ask -and $Choice.Trim().ToLowerInvariant() -in @('y','yes')
+    [pscustomobject]@{
+        Ask = $ask
+        Missing = $missing.ToArray()
+        Install = if ($accepted) { $missing.ToArray() } else { @() }
+        Status = if ($missing.Count -eq 0) { 'ready' } elseif ($accepted) { 'install' } else { 'pending' }
+    }
+}
+
+function Get-SgGeminiMcpAddArguments {
+    param([Parameter(Mandatory=$true)]$Server)
+    if ([string]$Server.Name -notmatch '^[a-z][a-z0-9-]*$') { throw 'Invalid Gemini MCP server name.' }
+    if ([string]$Server.Type -eq 'remote') {
+        if ([string]$Server.Url -notmatch '^https://[^\s]+$') { throw 'Invalid Gemini remote MCP URL.' }
+        return @('mcp','add','--scope','user','--transport','http',[string]$Server.Name,[string]$Server.Url)
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$Server.Command)) { throw 'Invalid Gemini local MCP command.' }
+    return @('mcp','add','--scope','user',[string]$Server.Name,[string]$Server.Command) + @($Server.Arguments | ForEach-Object { [string]$_ })
+}
+
+function Get-SgGeminiMcpConfigState {
+    param([Parameter(Mandatory=$true)][string]$SettingsPath, [Parameter(Mandatory=$true)]$Server)
+    if (-not (Test-Path -LiteralPath $SettingsPath -PathType Leaf)) { return [pscustomobject]@{ Status='missing'; Reason='settings file or MCP entry is absent' } }
+    try {
+        $text = Read-SgBoundedManifestText -Path $SettingsPath
+        if (-not $text) { throw 'settings file is empty or exceeds the size bound' }
+        $settings = $text | ConvertFrom-Json -ErrorAction Stop
+    } catch { return [pscustomobject]@{ Status='pending'; Reason='existing Gemini settings JSON is invalid or unbounded and was preserved' } }
+    if (-not $settings.PSObject.Properties['mcpServers'] -or -not $settings.mcpServers) { return [pscustomobject]@{ Status='missing'; Reason='MCP entry is absent' } }
+    $entryProperty = $settings.mcpServers.PSObject.Properties[[string]$Server.Name]
+    if (-not $entryProperty) { return [pscustomobject]@{ Status='missing'; Reason='MCP entry is absent' } }
+    $entry = $entryProperty.Value
+    if ([string]$Server.Type -eq 'remote') {
+        $ready = $entry.PSObject.Properties['httpUrl'] -and [string]$entry.httpUrl -ceq [string]$Server.Url
+    } else {
+        $actualArguments = if ($entry.PSObject.Properties['args']) { @($entry.args | ForEach-Object { [string]$_ }) } else { @() }
+        $expectedArguments = @($Server.Arguments | ForEach-Object { [string]$_ })
+        $ready = $entry.PSObject.Properties['command'] -and [string]$entry.command -ceq [string]$Server.Command -and ($actualArguments -join "`0") -ceq ($expectedArguments -join "`0")
+    }
+    if ($ready) { return [pscustomobject]@{ Status='ready'; Reason='' } }
+    return [pscustomobject]@{ Status='pending'; Reason='existing Gemini MCP entry differs and was preserved' }
+}
+
+function Get-SgStackMcpDefinitions {
+    param($Needs, [hashtable]$Versions, [string]$NpxPath)
+    $definitions = New-Object Collections.Generic.List[object]
+    if ($Needs.PSObject.Properties['Firebase'] -and [bool]$Needs.Firebase) {
+        $version = [string]$Versions.Firebase
+        if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'Firebase MCP requires an exact firebase-tools version.' }
+        $definitions.Add([pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"firebase-tools@$version",'mcp'); RequiresAuthentication=$true })
+    }
+    if ($Needs.PSObject.Properties['Convex'] -and [bool]$Needs.Convex) {
+        $version = [string]$Versions.Convex
+        if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'Convex MCP requires an exact Convex version.' }
+        $definitions.Add([pscustomobject]@{ Name='convex'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"convex@$version",'mcp','start'); RequiresAuthentication=$true })
+    }
+    if ($Needs.PSObject.Properties['Clerk'] -and [bool]$Needs.Clerk) {
+        $definitions.Add([pscustomobject]@{ Name='clerk'; Type='remote'; Url='https://mcp.clerk.com/mcp'; Command=''; Arguments=@(); RequiresAuthentication=$false })
+    }
+    $definitions.Add([pscustomobject]@{ Name='github'; Type='remote'; Url='https://api.githubcopilot.com/mcp/readonly'; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
+    return $definitions.ToArray()
 }
 
 function Test-SgServiceCliResult {
@@ -311,13 +427,24 @@ function Get-SgAgentMcpPlan {
     param(
         [ValidateSet('OpenCode','Kilo')][string]$Agent,
         [string]$CommandPath, [string]$DartPath, [string]$NpxPath,
-        [string]$PlaywrightVersion, [bool]$ChromiumReady
+        [string]$PlaywrightVersion, [bool]$ChromiumReady,
+        [object[]]$AdditionalServers = @()
     )
     $servers = [ordered]@{
         dart = [ordered]@{ type='local'; command=@($DartPath,'mcp-server','--force-roots-fallback'); enabled=$true }
     }
     if ($ChromiumReady -and $PlaywrightVersion -match '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') {
         $servers.playwright = [ordered]@{ type='local'; command=@($NpxPath,'-y','--registry=https://registry.npmjs.org/',"@playwright/mcp@$PlaywrightVersion",'--headless','--browser','chromium'); enabled=$true }
+    }
+    foreach ($server in @($AdditionalServers)) {
+        if (-not $server -or [string]$server.Name -notmatch '^[a-z][a-z0-9-]*$') { throw 'Invalid bounded stack MCP definition.' }
+        if ([string]$server.Type -eq 'remote') {
+            if ([string]$server.Url -notmatch '^https://[^\s]+$') { throw 'Invalid bounded remote MCP definition.' }
+            $servers[[string]$server.Name] = [ordered]@{ type='remote'; url=[string]$server.Url; enabled=$true }
+        } else {
+            if ([string]::IsNullOrWhiteSpace([string]$server.Command)) { throw 'Invalid bounded local MCP definition.' }
+            $servers[[string]$server.Name] = [ordered]@{ type='local'; command=@([string]$server.Command) + @($server.Arguments | ForEach-Object { [string]$_ }); enabled=$true }
+        }
     }
     if ($Agent -eq 'OpenCode') {
         $config = [ordered]@{ '$schema'='https://opencode.ai/config.json'; mcp=[ordered]@{ servers=$servers } }
@@ -645,4 +772,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic

@@ -257,10 +257,17 @@ Refusal or non-interactive execution leaves an actionable pending state. ShipGlo
 does not sign in to Firebase, choose a project, accept billing, or reserve a remote
 device; those account-owned actions remain inside Android Studio.
 Codex permissions remain unchanged unless automation explicitly sets
-`SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep`; the installer adds no
-agent-install question.
-The full installer prepares Playwright and Dart/Flutter MCP for installed Codex,
-Claude, OpenCode and Kilo agents without authenticating. New JSON configs use
+`SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep`. In an interactive run,
+one grouped proposal installs only missing Codex, Claude, OpenCode, Kilo and Gemini CLIs
+at exact resolved versions; non-interactive runs infer no consent and
+authentication always remains user-owned.
+The full installer prepares Playwright, Dart/Flutter, Firebase, Convex, Clerk and
+the official read-only GitHub MCP
+for installed agents when the matching workspace stacks are detected, without
+authenticating. GitHub MCP is global because GitHub CLI is part of full mode;
+Clerk MCP and its exact-version CLI are enabled only when bounded manifests detect
+Clerk. Firebase, FlutterFire, Convex, Vercel and Supabase CLIs are
+prepared only from bounded manifest detection and exact resolved versions. New JSON configs use
 the agent's exact schema; existing JSON/JSONC stays byte-for-byte unchanged and
 is reported pending when no proven native update is safe. Playwright is never
 registered until an exact package version and a runnable local Chromium executable
@@ -275,10 +282,16 @@ deferred/searchable catalog before reporting the configured MCP unavailable;
 a small read-only probe confirms current-session callability.
 For each detected agent, Windows full also maintains one bounded instruction
 block in its native global file: Codex `.codex\AGENTS.md`, Claude
-`.claude\CLAUDE.md`, OpenCode `.config\opencode\AGENTS.md`, or Kilo
-`.config\kilo\AGENTS.md`. Existing instructions outside the block are preserved;
+`.claude\CLAUDE.md`, OpenCode `.config\opencode\AGENTS.md`, Kilo
+`.config\kilo\AGENTS.md`, or Gemini `.gemini\GEMINI.md`. Existing instructions outside the block are preserved;
 the block points to `%USERPROFILE%\.shipglows\environment.md` and to
 `$shipglows context` instead of copying a machine-specific tool inventory.
+That environment report records CLI and MCP readiness separately for every
+agent, including partial or preserved configurations. Developer Mode remains an
+explicit Windows choice: ShipGlows can open the official settings page but never
+changes the registry. Developer Mode is distinct from emulator acceleration.
+Clerk SDK installation and `clerk init` remain project-owned actions; ShipGlows
+never links a Clerk application, pulls environment variables or starts GitHub/Clerk authentication.
 It clones or registers repositories directly under `%USERPROFILE%\ShipGlows`,
 starts them on localhost ports, and keeps a recoverable registry under
 `%LOCALAPPDATA%`. No tunnel is needed for projects running on the Shadow.

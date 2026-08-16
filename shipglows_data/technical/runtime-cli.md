@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.9.3"
+artifact_version: "1.12.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-15"
+updated: "2026-08-16"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -235,11 +235,20 @@ API/platform/build-tools and the emulator image use centralized Android 36
 coordinates. `sdkmanager --licenses` remains explicit. Non-interactive runs
 report pending and never pre-answer them. pnpm's configured global bin directory (the `bin` subdirectory of
 `PNPM_HOME` on pnpm v11) is created, added to the user `PATH`, and checked with
-`pnpm --version` before the installer reports success. Already-installed Codex,
-Claude Code, OpenCode and Kilo receive bounded MCP preparation. OpenCode v2 uses
+`pnpm --version` before the installer reports success. Missing Codex, Claude
+Code, OpenCode, Kilo and Gemini CLIs are offered once as a grouped interactive
+exact-version installation; authentication is never started. Installed agents receive bounded MCP preparation. OpenCode v2 uses
 `mcp.servers`; Kilo prefers `kilo` and detects legacy `kilocode`. Existing
 JSON/JSONC remains byte-identical and pending if no proven native edit is safe.
-The installer stores no credentials or initiates authentication.
+The installer stores no credentials or initiates authentication. Bounded project
+detection also prepares exact-version Firebase, FlutterFire, Convex, Vercel,
+Supabase and Clerk CLIs, plus official Firebase, Convex and Clerk MCP entrypoints.
+The official GitHub MCP is configured globally at its read-only endpoint while
+`gh` remains the sole credential owner. Neither Clerk nor GitHub authentication,
+project linking, SDK injection or secret retrieval is started. The environment
+report records installed and ready/pending MCP state separately for each agent.
+Developer Mode remains read-only; the installer can only offer to open the
+official Windows settings surface.
 After the Android CLI preparation, one grouped Windows IDE proposal lists only
 missing outcomes. `Google.AndroidStudio` provides the current Android IDE and the
 Firebase Device Streaming entry point. `Microsoft.VisualStudio.2022.Community`
@@ -290,7 +299,8 @@ configuration, Android Studio, Flutter Windows C++ readiness, Firebase Device
 Streaming state and the native ShipGlows DevServer. The installer also
 maintains bounded native instruction blocks for detected agents: Codex
 `~/.codex/AGENTS.md`, Claude `~/.claude/CLAUDE.md`, OpenCode
-`~/.config/opencode/AGENTS.md`, and Kilo `~/.config/kilo/AGENTS.md`. Existing
+`~/.config/opencode/AGENTS.md`, Kilo `~/.config/kilo/AGENTS.md`, and Gemini
+`~/.gemini/GEMINI.md`. Existing
 instructions outside the block remain unchanged. The shared block points to this
 file, prefers a purpose-built callable tool, checks direct and deferred discovery,
 and redirects uncertain capability state to `$shipglows context` instead of
