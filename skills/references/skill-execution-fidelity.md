@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: "ShipGlows"
 created: "2026-05-25"
 updated: "2026-08-16"
@@ -37,6 +37,7 @@ evidence:
   - "User decision 2026-06-10: SKILL.md is the activation contract; detailed playbooks, examples, matrices, and edge cases belong in references."
   - "User correction 2026-07-17: an explicit Lorem ipsum replacement must not trigger content, design, or lifecycle skill exploration."
   - "Operator critique 2026-08-16: ShipGlows should proactively surface cleanup for fully integrated temporary branches and worktrees instead of waiting for the operator to notice them."
+  - "Operator decision 2026-08-16: agent-created task branches and worktrees are temporary by default and stay owned until a terminal cleanup disposition."
 next_review: "2026-08-17"
 next_step: "/104-sg-end shipglows-skill-execution-fidelity-plugin-pilot"
 ---
@@ -292,7 +293,7 @@ Generated artifacts created for verification, preview, exploration, or scratch w
 - Delete temporary build outputs, caches, previews, and scratch exports after the proof they supported is complete.
 - Promote only the minimal durable artifact to the canonical project location when the run explicitly needs a persistent record.
 - If a durable artifact is expected, write it in the canonical governance path, not beside source files or in a random root folder.
-- Treat branches and worktrees as disposable only when the current work explicitly created or classified them as temporary. After terminal integration proof, inventory them proactively and propose exact cleanup when remote containment, clean state, ownership, path, process, review, and proof gates pass. Never delete automatically: fresh destructive-action approval remains mandatory, and ambiguous, dirty, unique, durable, shared, or still-active artifacts are preserved and reported.
+- Treat agent-created task branches and worktrees as temporary by default unless declared durable at creation. Track them through `git-temporary-artifact-lifecycle.md` until a terminal disposition; never delete automatically, and preserve ambiguous, dirty, unique, durable, shared, or active artifacts under fresh destructive-action approval.
 
 ## Alias Policy
 

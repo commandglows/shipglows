@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-15"
+updated: "2026-08-16"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -29,6 +29,7 @@ linked_systems:
   - skills/references/chantier-tracking.md
   - skills/references/preferred-stacks.md
   - skills/references/app-blueprints.md
+  - skills/references/git-temporary-artifact-lifecycle.md
   - docs/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
@@ -45,6 +46,9 @@ depends_on:
   - artifact: "skills/references/chantier-tracking.md"
     artifact_version: "0.4.4"
     required_status: draft
+  - artifact: "skills/references/git-temporary-artifact-lifecycle.md"
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "User decision 2026-05-04: master skills should share the same workflow skeleton instead of duplicating lifecycle doctrine."
@@ -61,6 +65,7 @@ evidence:
   - "Operator correction 2026-07-17: preferred stack presets resolve after platform footprint and before blueprint matching."
   - "Operator decision 2026-08-07: lifecycle orchestration defaults to parallel read-only fan-out and reserves parallel writes for prepared non-overlapping Execution Batches."
   - "Operator decision 2026-08-14: lifecycle approval has a cumulative fast path for exact local routine reversible mutations and retains the full plan for every ineligible mutation."
+  - "Operator decision 2026-08-16: task-scoped agent branches and worktrees remain lifecycle-owned until removal or another explicit terminal disposition."
 next_review: "2026-11-07"
 next_step: "/103-sg-verify master workflow lifecycle reference"
 ---
@@ -264,6 +269,8 @@ Use the reference's exact classification and routing rules; do not wait for the 
 ### 9. Post-Verify Closure And Ship
 
 After verification passes, the master skill should continue through its owned closure and ship route unless a named stop condition blocks it.
+
+When the run created a task-scoped branch or worktree, continue through `005-sg-ship` until `git-temporary-artifact-lifecycle.md` records a terminal Git disposition. `pending` forbids a fully clean completion; `retained-explicit` is terminal only with a concrete reason and review date, while `blocked` remains a visible limit.
 
 Typical routes:
 

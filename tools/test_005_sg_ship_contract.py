@@ -8,6 +8,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "005-sg-ship" / "SKILL.md"
 REFS = SKILL.parent / "references"
+SHARED = ROOT / "skills" / "references"
 
 
 class ShipSkillContractTests(unittest.TestCase):
@@ -17,6 +18,12 @@ class ShipSkillContractTests(unittest.TestCase):
         cls.execution = (REFS / "ship-execution-playbook.md").read_text(encoding="utf-8")
         cls.full_close = (REFS / "full-close-playbook.md").read_text(encoding="utf-8")
         cls.reporting = (REFS / "ship-report-evidence.md").read_text(encoding="utf-8")
+        cls.git_lifecycle = (SHARED / "git-temporary-artifact-lifecycle.md").read_text(
+            encoding="utf-8"
+        )
+        cls.master_lifecycle = (SHARED / "master-workflow-lifecycle.md").read_text(
+            encoding="utf-8"
+        )
 
     def test_activation_size_is_bounded(self) -> None:
         self.assertLessEqual((len(self.text) + 3) // 4, 1600)
@@ -71,26 +78,51 @@ class ShipSkillContractTests(unittest.TestCase):
 
     def test_temporary_artifacts_are_proposed_for_safe_cleanup_after_integration(self) -> None:
         for phrase in (
-            "explicitly temporary branch or worktree",
-            "fresh cleanup approval",
+            "temporary by default",
+            "fresh approval",
         ):
             self.assertIn(phrase, self.text)
 
         for phrase in (
             "Post-Ship Temporary Artifact Review",
-            "remote target contains the temporary branch tip",
+            "refreshed intended remote target contains the temporary branch tip",
             "tracked or untracked changes",
-            "never infer that an ordinary branch is disposable",
+            "never infer that an ordinary operator",
             "propose the exact cleanup scope",
             "never delete automatically",
         ):
             self.assertIn(phrase, self.execution)
 
         for phrase in (
-            "retained temporary branches or worktrees",
-            "cleanup was declined, blocked, or partial",
+            "cleanup disposition",
+            "task-owned temporary branches and worktrees",
         ):
             self.assertIn(phrase, self.reporting)
+
+    def test_agent_created_task_artifacts_have_a_terminal_git_disposition(self) -> None:
+        for phrase in (
+            "temporary by default",
+            "intended target branch",
+            "cleanup disposition",
+            "`removed`",
+            "`retained-explicit`",
+            "review date",
+        ):
+            self.assertIn(phrase, self.git_lifecycle)
+
+        for phrase in (
+            "branch tip is an ancestor",
+            "merged pull request",
+            "source head SHA",
+            "intended target branch",
+            "worktree metadata",
+            "local branch",
+            "remote branch",
+        ):
+            self.assertIn(phrase, self.git_lifecycle)
+
+        self.assertIn("terminal Git disposition", self.master_lifecycle)
+        self.assertIn("cleanup disposition", self.reporting)
 
     def test_full_close_reloads_mutable_trackers(self) -> None:
         self.assertIn("Immediately before editing", self.full_close)

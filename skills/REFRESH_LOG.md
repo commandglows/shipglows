@@ -8,6 +8,8 @@
 
 **New phases:** one terminal post-ship artifact review after required hosted or production proof; it proposes cleanup but performs no automatic deletion.
 
+**Hardened:** agent-created task branches and worktrees are now temporary by default, support ancestry or exact merged-PR proof for squash/rebase workflows, and remain lifecycle-owned until `removed`, `retained-explicit`, `blocked`, or `not-applicable` is recorded.
+
 **Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal ShipGlows Git-lifecycle contract using existing safety invariants.
 
 ## 2026-08-15 — 102-sg-start
