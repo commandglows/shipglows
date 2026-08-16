@@ -1,5 +1,15 @@
 # Skills Refresh Log
 
+## 2026-08-16 — 005-sg-ship
+
+**Added:** proactive post-integration review for branches and worktrees explicitly classified as temporary, with an exact cleanup proposal only after containment, clean-state, ownership, path, process, review, and proof gates pass.
+
+**Updated:** retained temporary Git artifacts now remain visible when cleanup is declined, blocked, or partial; every deletion still requires fresh approval and never uses force.
+
+**New phases:** one terminal post-ship artifact review after required hosted or production proof; it proposes cleanup but performs no automatic deletion.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal ShipGlows Git-lifecycle contract using existing safety invariants.
+
 ## 2026-08-15 — 102-sg-start
 
 **Added:** one shared visual start card after approval for substantive chantiers, covering objective, scope, expected proof, and planned documentation impact.

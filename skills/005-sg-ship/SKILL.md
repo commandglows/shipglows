@@ -30,9 +30,9 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before Sh
 
 ## Mission And Ownership
 
-`005-sg-ship` owns bounded Git shipping: checks, staging, commit, push, and required post-push routing. It does not prove implementation completeness (`102-sg-start`), proof completeness (`103-sg-verify`), production truth (`405-sg-prod`), or closure bookkeeping (`104-sg-end`) unless full-close mode was explicit.
+`005-sg-ship` owns bounded Git shipping: checks, staging, commit, push, post-push routing, and safe proposals for any explicitly temporary branch or worktree. Cleanup always requires fresh cleanup approval. It does not prove implementation completeness (`102-sg-start`), proof completeness (`103-sg-verify`), production truth (`405-sg-prod`), or closure bookkeeping (`104-sg-end`) unless full-close mode was explicit.
 
-It answers: `What git state should be shipped now, and with what explicit limits?`
+It answers: `What bounded Git state ships now?`
 
 If closure bookkeeping is the next unresolved owner, remain with `104-sg-end`; quick ship is not a closure substitute.
 

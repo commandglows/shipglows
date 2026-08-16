@@ -69,6 +69,29 @@ class ShipSkillContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, self.text)
 
+    def test_temporary_artifacts_are_proposed_for_safe_cleanup_after_integration(self) -> None:
+        for phrase in (
+            "explicitly temporary branch or worktree",
+            "fresh cleanup approval",
+        ):
+            self.assertIn(phrase, self.text)
+
+        for phrase in (
+            "Post-Ship Temporary Artifact Review",
+            "remote target contains the temporary branch tip",
+            "tracked or untracked changes",
+            "never infer that an ordinary branch is disposable",
+            "propose the exact cleanup scope",
+            "never delete automatically",
+        ):
+            self.assertIn(phrase, self.execution)
+
+        for phrase in (
+            "retained temporary branches or worktrees",
+            "cleanup was declined, blocked, or partial",
+        ):
+            self.assertIn(phrase, self.reporting)
+
     def test_full_close_reloads_mutable_trackers(self) -> None:
         self.assertIn("Immediately before editing", self.full_close)
         self.assertIn("re-read the authoritative file from disk", self.full_close)

@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-15"
+updated: "2026-08-16"
 status: active
 source_skill: 005-sg-ship
 scope: ship-report-evidence
@@ -22,6 +22,7 @@ evidence:
   - "Operator clarification 2026-08-15: full-close ship reports expose documentation reflection even when not impacted."
   - "Operator decision 2026-08-15: full-close ship reports use the shared visual closure card and compact one-line evidence."
   - "Operator decision 2026-08-15: the documentation section uses the shared open-book icon."
+  - "Operator critique 2026-08-16: terminal ship reports must expose retained temporary Git artifacts when cleanup is not completed."
 next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
 ---
 
@@ -42,6 +43,7 @@ Record, when applicable:
 - linked bug result: `blocked`, `partial-risk`, or `not assessed`;
 - docs/bookkeeping result in full mode;
 - development mode and hosted validation still required;
+- retained temporary branches or worktrees when cleanup was declined, blocked, or partial;
 - explicit risk acceptance without converting it into closure or safety proof.
 
 ## Quick Mode
