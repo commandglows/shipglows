@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.4.0"
+artifact_version: "2.5.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-15"
@@ -18,6 +18,7 @@ linked_systems:
   - skills/references/chantier-tracking.md
   - skills/references/final-report-timestamp.md
   - skills/references/documentation-reflection-gate.md
+  - skills/references/editorial-reflection-gate.md
 depends_on:
   - artifact: "skills/references/final-report-timestamp.md"
     artifact_version: "1.0.0"
@@ -29,10 +30,13 @@ depends_on:
     artifact_version: "1.1.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "1.4.0"
+    artifact_version: "1.5.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
+    required_status: active
+  - artifact: "skills/references/editorial-reflection-gate.md"
+    artifact_version: "1.0.0"
     required_status: active
 supersedes: []
 evidence:
@@ -43,6 +47,7 @@ evidence:
   - "Operator decision 2026-08-15: closure reports use a stable visual card whose proof and documentation evidence each stay on one compact line separated by middle dots."
   - "Operator decision 2026-08-15: approved substantive chantiers use a matching start card with objective, scope, expected proof, and planned documentation impact."
   - "Operator decision 2026-08-15: user reports omit file paths, file names, and technical file links unless the operator must act on the exact artifact or explicitly requests detail."
+  - "Operator decision 2026-08-16: every closure exposes a separate editorial reflection without creating ceremonial public content."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -58,9 +63,9 @@ Load direct branches only when their gate applies:
 - explicit `report=agent`, `handoff`, `verbose`, or `full-report`: `$SHIPGLOWS_ROOT/skills/references/reporting-agent-handoff.md`;
 - blocked, partial, risky, security-sensitive, audit, or unfinished user result: `$SHIPGLOWS_ROOT/skills/references/reporting-blocked-and-audit.md`;
 - reporting-contract maintenance or behavioral review: `$SHIPGLOWS_ROOT/skills/references/reporting-pressure-scenarios.md`.
-- any report that claims a work item is closed, complete, done, resolved, or shipped: `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md`.
+- any report that claims a work item is closed, complete, done, resolved, or shipped: load both `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` and `$SHIPGLOWS_ROOT/skills/references/editorial-reflection-gate.md`.
 
-Branches never chain. The default successful `report=user` needs no branch. In `report=user`, blocked/partial/audit loads the blocked/audit leaf. In `report=agent`, load only agent-handoff: it owns detailed risks and audit handoffs too. Reporting maintenance loads the pressure scenarios plus the one behavioral leaf exercised by the scenario. Otherwise load one branch maximum. The structured dependencies above validate that every leaf exists and is current; they do not make conditional leaves activation-eager.
+Branches never chain. Closure is the only dual-reflection case: documentation and editorial impact are mandatory and independent. The default successful `report=user` needs no branch. In `report=user`, blocked/partial/audit loads the blocked/audit leaf. In `report=agent`, load only agent-handoff: it owns detailed risks and audit handoffs too. Reporting maintenance loads the pressure scenarios plus the behavioral leaf exercised by the scenario. Otherwise load one branch maximum. The structured dependencies above validate that every leaf exists and is current; they do not make conditional leaves activation-eager.
 
 ## Report Modes
 
@@ -106,7 +111,7 @@ For another progress report, keep only:
 3. limits that change trust or the next decision;
 4. a real operator decision/action only when required.
 
-For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line and separate its status, scope, or reason with ` · `.
+For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line and the content beneath `📰 ÉDITORIAL` on exactly one line; separate each status, scope, or reason with ` · `.
 
 ```text
 ✨ RÉSULTAT
@@ -118,13 +123,18 @@ For every successful closure report, render this stable card after the header. K
 📖 DOCUMENTATION
 ✅ updated · <aligned documentation scope>
 
+📰 ÉDITORIAL
+➖ not impacted · <concrete reason>
+
 📦 LIVRAISON
 ✅ Commit local : `<sha>` · ➖ Push : non effectué
 ```
 
-Translate the four labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` and `🧭 SUITE` are conditional and must be omitted when empty. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`.
+Translate the five labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `📰 ÉDITORIAL`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` and `🧭 SUITE` are conditional and must be omitted when empty. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`.
 
 The documentation line uses exactly one of: `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit the documentation block unless its status materially affects trust.
+
+The editorial line independently uses the same three status values. A material editorial `needs review` result forbids closure or shipping language. `No declared public surface` is a valid concrete `not impacted` reason; never create filler content to avoid that result.
 
 Do not include a modified-files section in `report=user`. Omit file names, paths, counts, and clickable technical file links. Show an exact artifact only when the operator must open, edit, or provide it to proceed, or explicitly requests detailed evidence. Do not dump checklists, matrices, phase ledgers, raw commands, bulk logs, or lifecycle internals. Durable artifacts and `report=agent` retain that evidence.
 
@@ -161,7 +171,7 @@ Use at most one semantic emoji per labelled line except the compact proof and de
 - `📂` for a dossier or scope;
 - `🔨` for active implementation or repair;
 - `📌` for a priority, decision, or next action;
-- `🎯` verdict, `✨` objective/result, `📐` scope, `🧪` proof, `📖` documentation, `📦` delivery, `🧭` route/approach, `✅` passed/recommended, `⚠️` risk, `➖` neutral/not applicable, `🚀` started/shipped, `🧾` metadata, `🔄` sync.
+- `🎯` verdict, `✨` objective/result, `📐` scope, `🧪` proof, `📖` documentation, `📰` editorial, `📦` delivery, `🧭` route/approach, `✅` passed/recommended, `⚠️` risk, `➖` neutral/not applicable, `🚀` started/shipped, `🧾` metadata, `🔄` sync.
 
 Do not use `🏗️`, `🛠️`, or `⚙️` as chantier markers.
 

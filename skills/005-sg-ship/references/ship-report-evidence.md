@@ -1,7 +1,7 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-08-15"
@@ -22,6 +22,7 @@ evidence:
   - "Operator clarification 2026-08-15: full-close ship reports expose documentation reflection even when not impacted."
   - "Operator decision 2026-08-15: full-close ship reports use the shared visual closure card and compact one-line evidence."
   - "Operator decision 2026-08-15: the documentation section uses the shared open-book icon."
+  - "Operator decision 2026-08-16: full-close reports expose editorial reflection independently from documentation."
 next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
 ---
 
@@ -40,7 +41,7 @@ Record, when applicable:
 - checks actually attempted, passed, failed, or explicitly skipped;
 - bounded versus explicit whole-repository staging when scope needs clarification;
 - linked bug result: `blocked`, `partial-risk`, or `not assessed`;
-- docs/bookkeeping result in full mode;
+- documentation, editorial, and bookkeeping results in full mode;
 - development mode and hosted validation still required;
 - explicit risk acceptance without converting it into closure or safety proof.
 
@@ -50,7 +51,7 @@ Use `shared for iteration` or equivalent outcome language. State that quick mode
 
 ## Full Mode
 
-Use `delivered` only when closure guards and required proof support it. Otherwise use `delivered with validation remaining`, `blocked`, or another bounded outcome. Mention tracker/changelog only when actually updated. Every full-close report uses the shared ordered card and keeps both `🧪 PREUVES` and `📖 DOCUMENTATION` evidence on one line separated by ` · `; a material `needs review` result forbids `delivered`.
+Use `delivered` only when closure guards and required proof support it. Otherwise use `delivered with validation remaining`, `blocked`, or another bounded outcome. Mention tracker/changelog only when actually updated. Every full-close report uses the shared ordered card and keeps `🧪 PREUVES`, `📖 DOCUMENTATION`, and `📰 ÉDITORIAL` evidence on one line each, separated by ` · `; a material documentation or editorial `needs review` result forbids `delivered`.
 
 ## Failure And Limits
 

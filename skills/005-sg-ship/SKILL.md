@@ -46,7 +46,7 @@ If closure bookkeeping is the next unresolved owner, remain with `104-sg-end`; q
 
 Quick mode performs bounded checks when practical, stages, commits, pushes, and reports. It never updates `TASKS.md` or `CHANGELOG.md` and never claims formal closure.
 
-Full mode may update trackers, changelog, and durable decisions before the same Git ship sequence. Before it does so, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/full-close-playbook.md`; also load `closure-archive-guard.md` and `documentation-reflection-gate.md`. A material documentation gap prevents full-closure wording and routes to `300-sg-docs`.
+Full mode may update trackers, changelog, and durable decisions before the same Git ship sequence. Before it does so, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/full-close-playbook.md`; also load `closure-archive-guard.md`, `documentation-reflection-gate.md`, and `editorial-reflection-gate.md`. A material documentation or editorial gap prevents full-closure wording and routes to the matching owner.
 
 Before either mode mutates Git, load exactly one local reference: `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/ship-execution-playbook.md`. Full mode loads its full-close playbook only after the common pre-mutation gates pass.
 
@@ -82,5 +82,6 @@ Start with the shared chantier and verdict headers. In `report=user`, never expo
 - Preserve unrelated dirty work unless whole-repo staging was explicitly requested.
 - Re-read mutable trackers immediately before any targeted full-mode edit; never rewrite them from stale startup context.
 - Skill creation, rename, or material `SKILL.md` changes require the shared runtime visibility check before commit.
-- Prefer honest `shipped for iteration`, `checks skipped`, `docs not checked`, or `validation pending` wording. `docs not checked` forbids full closure.
+- Prefer honest `shipped for iteration`, `checks skipped`, or `validation pending` wording.
+- `docs not checked` forbids full closure; so does `editorial not checked`.
 - A `vercel-preview-push` route never sends `107-sg-test` before `405-sg-prod`.

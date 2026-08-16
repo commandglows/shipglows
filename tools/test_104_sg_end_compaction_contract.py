@@ -85,6 +85,7 @@ class EndCompactionContractTests(unittest.TestCase):
             "✨ RÉSULTAT",
             "🧪 PREUVES",
             "📖 DOCUMENTATION",
+            "📰 ÉDITORIAL",
             "📦 LIVRAISON",
             "separated by ` · `",
         ):
@@ -94,6 +95,8 @@ class EndCompactionContractTests(unittest.TestCase):
             "Apply directly mapped impacted documentation updates before setting `closed`",
             "material `needs review` result forces `partial`",
             "Include the exact classification visibly in every closure report",
+            "Classify editorial impact independently",
+            "No declared public surface",
         ):
             self.assertIn(expected, self.playbook)
 
