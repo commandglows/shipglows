@@ -2,13 +2,23 @@
 
 ## 2026-08-16 — shipglows
 
-**Added:** the owner-bound `git` expert alias, routed to `sg-engineering github`, plus the conversational `hygiene git` synonym.
+**Added:** owner-bound `git` and `hygiene` expert aliases; hygiene defaults to a non-mutating current-project audit and specializes explicit Git scope to `github clean`.
 
-**Updated:** help and operator guidance now expose the manual audit, reconcile, and cleanup forms while clearly distinguishing them from shell commands.
+**Updated:** help and operator guidance expose the general audit, Git dashboard, reconcile, and cleanup forms while clearly distinguishing them from shell commands and rejecting multi-project hygiene.
 
-**New phases:** none; this is a thin public route into the existing engineering owner.
+**New phases:** one contextual branch maps `hygiene git` to the existing safe Git cleanup workflow; the default route remains with maintenance ownership.
 
 **Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal ShipGlows routing contract.
+
+## 2026-08-16 — 002-sg-maintain
+
+**Added:** a comprehensive `hygiene` audit for Git residue, dependencies, security, documentation, checks, audits, quality debt, and disposable residue in the current project.
+
+**Updated:** maintenance now returns one deduplicated, risk-ranked correction proposal without authorizing fetches, installs, edits, fixes, commits, merges, deployments, or deletions.
+
+**New phases:** none; the read-only aggregate reuses existing owner lanes and stops before their execution thresholds.
+
+**Sources:** 0 URLs consulted; fresh-docs not needed because this is an internal orchestration and routing contract using existing owners.
 
 ## 2026-08-16 — 010-sg-technical
 

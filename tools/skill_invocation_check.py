@@ -286,8 +286,24 @@ def check(
             expert_alias = registry.get("codex_expert_aliases", {}).get(args[0]) if first == "shipglows" else None
             if expert_alias is not None:
                 resolved_alias = expert_alias
+                scope_tokens = {token.lower().strip(".,:;!?()[]{}") for token in args[1:]}
+                forbidden_scope = sorted(
+                    scope_tokens.intersection(expert_alias.get("forbidden_keywords", []))
+                )
+                if forbidden_scope:
+                    return result(
+                        "invalid",
+                        requested,
+                        resolved_skill=public_entry.get("public_skill", first),
+                        router_alias=args[0],
+                        error="unsupported_alias_scope",
+                        unsupported_scope=forbidden_scope,
+                        message=expert_alias.get(
+                            "forbidden_scope_message",
+                            "This alias does not support the requested scope.",
+                        ),
+                    )
                 if expert_alias.get("resolution") == "contextual-specialist":
-                    scope_tokens = {token.lower().strip(".,:;!?()[]{}") for token in args[1:]}
                     matches = [
                         route
                         for route in expert_alias.get("specialist_routes", [])
@@ -304,6 +320,8 @@ def check(
                         "resolution": resolved_alias["resolution"],
                     }
                 )
+                if "engine_mode" in resolved_alias:
+                    payload["selected_engine_mode"] = resolved_alias["engine_mode"]
                 return valid_with_profile_preflight(requested, registry, skills_root, **payload)
             hidden_mode = public_entry.get("hidden_modes", {}).get(args[0])
             if hidden_mode is not None:

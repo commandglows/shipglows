@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.24.0"
+artifact_version: "2.25.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-16"
@@ -135,6 +135,7 @@ evidence:
   - "2026-08-15: successful closure reports now use a stable four-block visual card with one-line proof and documentation evidence separated by middle dots."
   - "2026-08-15: approved substantive chantiers now open with a matching four-block start card, use the open-book documentation icon, and omit technical file links from user reports."
   - "2026-08-15: standalone `v` canonically approves only the immediately preceding pending approval message."
+  - "2026-08-16: current-project hygiene is read-only and proposal-first; explicit Git scope specializes to the safe Git cleanup workflow."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -460,6 +461,7 @@ Operator roles and named profiles do not add new primary artifact types:
 - `300-sg-docs technical`: technical governance bootstrap, code-docs map creation, and audit.
 - `300-sg-docs editorial`: editorial governance scaffolding and audit for public-content drift, claim register, page intent, and runtime content schema preservation.
 - `shipglows git` -> `sg-engineering github` -> `010-sg-technical`: manual read-only PR/branch/worktree dashboard; `reconcile` proposes exact merge candidates and `clean` applies the shared post-integration lifecycle only after fresh approval.
+- `shipglows hygiene` -> `sg-maintenance hygiene` -> `002-sg-maintain`: comprehensive non-mutating audit of the current project across Git residue, dependencies, security, documentation, checks, audits, and quality debt; `hygiene git` specializes to `github clean`, while multi-project scope is rejected.
 - `003-sg-bug`: professional bug loop lifecycle executor (`107-sg-test -> bug file -> 106-sg-fix -> 107-sg-test --retest -> 103-sg-verify -> 005-sg-ship`).
 - `002-sg-maintain`: master project maintenance lifecycle for bugs, dependencies, docs, checks, audits, migrations, tasks, security posture, delegated remediation, verification, and ship/deploy routing.
 - `108-sg-browser`: generic non-auth browser verification through Playwright MCP for URLs, page-level assertions, screenshots, console summaries, and network summaries.

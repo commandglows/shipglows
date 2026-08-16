@@ -73,9 +73,9 @@ Parse `$ARGUMENTS` as the operator instruction. Empty/help requests answer direc
 
 When the first token is a Codex expert alias, load `$SHIPGLOWS_ROOT/skills/references/expert-mode-aliases.md`, resolve it through `public owner -> owner mode -> internal engine`, run explicit-invocation preflight, and hand off in the same conversation. Aliases are Codex routing syntax only, never CLI arguments.
 
-`git` routes to `sg-engineering github`; the natural phrase `hygiene git`
-resolves to the same owner and preserves any `audit`, `reconcile`, or `clean`
-instruction.
+`git` routes to `sg-engineering github`. `hygiene` routes to the current-project
+read-only `sg-maintenance hygiene` audit; `hygiene git` specializes exactly to
+`sg-engineering github clean`. Reject workspace or multi-project hygiene scope.
 
 `core` is a hard ShipGlows-system context: all remaining text belongs to `900-shipglows-core`, including project names or quoted desired outcomes. Never redirect any part of a `core` instruction to the current project.
 

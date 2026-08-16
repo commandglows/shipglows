@@ -1,7 +1,7 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-05"
 updated: "2026-08-16"
@@ -27,6 +27,7 @@ evidence:
   - "Operator decision 2026-08-05: add short expert modes for Codex without changing the shell CLI."
   - "Operator decision 2026-08-05: shipglows capture and shipglows tmux resolve to sg-content capture."
   - "Operator decision 2026-08-16: shipglows git provides manual PR, branch, and worktree hygiene."
+  - "Operator decision 2026-08-16: shipglows hygiene audits the current project without mutation; hygiene git selects the safe Git clean workflow."
 next_review: "2026-09-05"
 next_step: "/103-sg-verify expert mode aliases"
 ---
@@ -63,15 +64,18 @@ owner and selected internal engine.
 | `test` | `sg-engineering` | `test` | `107-sg-test` |
 | `browser` | `sg-engineering` | `browser` | `108-sg-browser` |
 | `git` | `sg-engineering` | `github` | `010-sg-technical` |
+| `hygiene` | `sg-maintenance` by default; `sg-engineering` for explicit Git scope | `hygiene` or `github clean` | `002-sg-maintain` or `010-sg-technical` |
 | `capture` | `sg-content` | `capture` | `800-tmux-capture-conversation` |
 | `tmux` | `sg-content` | `capture` | `800-tmux-capture-conversation` |
 | `ship` | `sg-release` | `ship` | `005-sg-ship` |
 | `deploy` | `sg-release` | `deploy` | `004-sg-deploy` |
 | `prod` | `sg-release` | `prod` | `405-sg-prod` |
 
-`shipglows hygiene git` is a conversational synonym for `shipglows git`, not
-a broad `hygiene` alias. The narrower mapping avoids silently mixing Git
-cleanup with dependency, security, documentation, or product maintenance.
+`shipglows hygiene` is current-project-only and read-only. It returns one
+grouped proposal across maintenance families; corrections require a new exact
+approval. `shipglows hygiene git` specializes exactly to the safe
+`shipglows git clean` skill workflow. It never invokes native `git clean`.
+Workspace or multi-project hygiene is rejected rather than silently widened.
 
 `verify` preserves specialist ownership when its scope is explicit: design,
 accessibility, UI, or animation routes to `sg-design`; SEO or search routes to

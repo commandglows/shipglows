@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-16"
 status: active
 source_skill: 002-sg-maintain
 scope: maintenance-playbooks
@@ -27,6 +27,7 @@ depends_on:
 supersedes: []
 evidence:
   - "2026-08-12: extracted 002-sg-maintain lane detail so its activation contract stays below the progressive-disclosure risk threshold."
+  - "2026-08-16: operator approved a current-project-only, proposal-first hygiene audit."
 next_review: "2026-11-12"
 next_step: "/103-sg-verify maintenance-playbooks"
 ---
@@ -40,6 +41,31 @@ Before triage, inspect only evidence relevant to the selected lanes: current pro
 ## Quick Triage
 
 `quick` is read-only. Inspect bugs, tasks, audits, docs, dependencies, check coverage, and development-mode state; return the three highest-value maintenance actions with their owner routes. Classify documentation findings as bootstrap gap, migration debt, drift, or non-compliance. Do not launch audits, edits, installs, commits, or ships.
+
+## Current-Project Hygiene
+
+`hygiene` is a comprehensive read-only audit, not the abbreviated `quick`
+triage and not the mutating `full` lifecycle. Inspect the current project only:
+
+- Git and temporary worktree residue, using local status, refs, worktree metadata, and already available PR evidence without an implicit fetch
+- dependencies and supply-chain posture
+- security and trust-boundary gaps
+- documentation and governance drift
+- checks, audits, and quality debt
+- stale generated, cache, build, or task residue only when ownership and disposability can be classified without deleting it
+
+Deduplicate findings by evidence identity, rank them by risk and leverage, name
+their normal owner route, and return one grouped correction proposal. Distinguish
+verified findings, freshness gaps, unavailable-tool gaps, and informational
+notes. Zero findings returns a clean verdict; one or many findings retain the
+same report shape.
+
+No mutation is authorized by the hygiene invocation. Do not fetch, install,
+edit, fix, migrate, commit, push, merge, close, deploy, or delete. A correction
+requires a new exact plan and fresh approval under its normal owner contract.
+Never invoke native `git clean`; `shipglows hygiene git` instead routes to the
+safe `shipglows git clean` workflow, which audits PRs, branches, and worktrees
+and preserves its own approval and terminal-disposition gates.
 
 ## Full Lane Order
 

@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-05-04"
 updated: "2026-08-16"
@@ -27,6 +27,7 @@ supersedes:
 evidence:
   - "Métier-first public hierarchy and autonomous execution specification."
   - "Current runtime skill inventory and operator collaboration contracts."
+  - "Operator decision 2026-08-16: expose current-project hygiene and the safe hygiene git alias."
 next_step: "/103-sg-verify public skill catalogue"
 ---
 
@@ -97,11 +98,13 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 `sg-content` owns documentation written for an audience. `sg-docs` owns the
 internal corpus that lets projects and agents operate safely.
 
+Use `shipglows hygiene` for a comprehensive, non-mutating audit of the current
+project and one grouped correction proposal. Multi-project hygiene is deferred.
 For manual Git hygiene, use `shipglows git` for the read-only dashboard,
 `shipglows git reconcile` to review merge candidates, and
 `shipglows git clean` to remove proven merged branches and worktrees. These are
 Codex skill routes, not PowerShell or shell commands. `shipglows hygiene git`
-expresses the same intent conversationally.
+is the exact safe alias of `shipglows git clean`, never native `git clean`.
 
 Animation uses `sg-design animation <audit|design|implement|tune> [scope]`.
 GSAP is optional and must pass project-fit, accessibility, reduced-motion,
