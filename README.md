@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.21.0"
+artifact_version: "0.21.1"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-14"
+updated: "2026-08-16"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -239,8 +239,10 @@ The archive download announces its resolved version and size, shows curl progres
 and uses bounded retries with partial-transfer resume before checksum validation.
 On rerun, already accepted SDK licenses are recognized by a bounded non-accepting
 probe, so non-interactive convergence can continue without replaying consent.
-When Android emulation is supported, the only product question is whether to
-install emulator support; otherwise the installer explains the real-phone path.
+On every interactive x64 install, the only product question is whether to
+install the Android emulator and create the `ShipGlows_API_36` virtual device.
+If hardware acceleration is uncertain, the installer warns before asking but
+never silently chooses the phone path; accepted downloads keep progress visible.
 Android licenses and Windows confirmations remain explicit, and non-interactive
 runs report them as pending instead of accepting or blocking.
 Codex permissions remain unchanged unless automation explicitly sets

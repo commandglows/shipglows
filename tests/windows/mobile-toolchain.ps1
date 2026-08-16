@@ -11,14 +11,16 @@ Import-Module $modulePath -Force -DisableNameChecking
 
 function Assert-Sg([bool]$Condition, [string]$Message) { if (-not $Condition) { throw $Message } }
 
-$unsupported = Get-SgAndroidInstallPlan -Interactive $true -EmulatorSupported $false -EmulatorChoice ''
-Assert-Sg (-not $unsupported.AskEmulator) 'Unsupported hosts must not ask the emulator product question.'
-Assert-Sg ($unsupported.PhysicalDeviceAlternative) 'Unsupported hosts must offer a physical-device path.'
+$uncertain = Get-SgAndroidInstallPlan -Interactive $true -EmulatorSupported $false -EmulatorChoice ''
+Assert-Sg ($uncertain.AskEmulator) 'Interactive x64 hosts must keep the emulator choice even when acceleration is uncertain.'
+Assert-Sg ($uncertain.AccelerationWarning -and $uncertain.PhysicalDeviceAlternative) 'Uncertain acceleration must be disclosed without silently choosing for the operator.'
+$uncertainAccepted = Get-SgAndroidInstallPlan -Interactive $true -EmulatorSupported $false -EmulatorChoice 'yes'
+Assert-Sg ($uncertainAccepted.InstallEmulator -and $uncertainAccepted.AccelerationWarning) 'Explicit emulator acceptance must survive uncertain acceleration evidence.'
 $accepted = Get-SgAndroidInstallPlan -Interactive $true -EmulatorSupported $true -EmulatorChoice 'yes'
-Assert-Sg ($accepted.AskEmulator -and $accepted.InstallEmulator) 'Supported accepted emulator choice was lost.'
+Assert-Sg ($accepted.AskEmulator -and $accepted.InstallEmulator -and -not $accepted.AccelerationWarning) 'Supported accepted emulator choice was lost.'
 $refused = Get-SgAndroidInstallPlan -Interactive $true -EmulatorSupported $true -EmulatorChoice 'no'
 Assert-Sg (-not $refused.InstallEmulator -and $refused.PhysicalDeviceAlternative) 'Refusal must keep the phone alternative.'
-$headless = Get-SgAndroidInstallPlan -Interactive $false -EmulatorSupported $true -EmulatorChoice ''
+$headless = Get-SgAndroidInstallPlan -Interactive $false -EmulatorSupported $false -EmulatorChoice ''
 Assert-Sg (-not $headless.AskEmulator -and -not $headless.InstallEmulator) 'Noninteractive installs must never prompt or guess emulator consent.'
 Assert-Sg ($headless.LicensesPending -and $headless.LicenseCommand -eq 'sdkmanager --licenses') 'Noninteractive Android licenses need actionable pending state.'
 Assert-Sg (Test-SgAndroidLicenseResult ([pscustomobject]@{ ExitCode=0; Output="WARNING: sdkmanager is deprecated.`nAll SDK package licenses accepted"; TimedOut=$false })) 'Previously accepted SDK licenses must converge without another interactive prompt.'

@@ -1,7 +1,7 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.3.1"
 project: ShipGlows
 created: "2026-08-15"
 updated: "2026-08-15"
@@ -65,7 +65,7 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 
 - [x] Regression-first test failed on the missing mobile-toolchain module before implementation.
 - [x] Zero/one/many service needs select Firebase, FlutterFire and Supabase only from explicit manifests.
-- [x] Supported emulator acceptance, refusal, unsupported hosts and non-interactive installs resolve deterministically; unsupported/non-interactive paths never ask the emulator question.
+- [x] Interactive x64 emulator acceptance, refusal, proven acceleration and uncertain acceleration resolve deterministically; uncertainty warns without suppressing the question, while non-interactive installs never prompt or infer consent.
 - [x] Android terms and `sdkmanager --licenses` remain explicit; tests never pre-answer or execute them, and refusal/non-interactive plans remain pending.
 - [x] Bounded Flutter/Dart/JDK/sdkmanager/adb/doctor/devices diagnostics distinguish healthy, `[!]`, `[X]`, license-pending and timeout states; only Flutter's exact positive `✓` or Windows `√` Android-toolchain marker plus accepted-license evidence is ready.
 - [x] Windows Developer Mode is detected read-only and never activated by the installer.
@@ -80,5 +80,5 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] Service scanning excludes reparse directories and reports its bounded-directory limit.
 - [x] Automated proof uses temporary fixtures only and performs no package download, elevation, registry mutation, Developer Mode change, authentication or user-project write.
 - [ ] Run full installation on a fresh Windows target and record accepted/refused license outcomes, exact resolved versions and readiness fields.
-- [ ] Validate a real phone on Shadow; validate an emulator only on a host where nested virtualization and `-accel-check` succeed.
+- [ ] Validate `ShipGlows_API_36` on Shadow with accelerated startup when available and the explicit software fallback otherwise; record `adb` and `flutter devices` evidence.
 - [ ] Validate MCP convergence in real Codex, Claude, OpenCode v2 and Kilo configs, including an existing JSONC file.

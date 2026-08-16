@@ -35,11 +35,13 @@ function Test-SgSupportedAndroidArchitecture {
 
 function Get-SgAndroidInstallPlan {
     param([bool]$Interactive, [bool]$EmulatorSupported, [string]$EmulatorChoice = '')
-    $ask = $Interactive -and $EmulatorSupported
+    $ask = $Interactive
     $installEmulator = $ask -and $EmulatorChoice.Trim().ToLowerInvariant() -in @('y','yes')
     [pscustomobject]@{
         AskEmulator = $ask
         InstallEmulator = $installEmulator
+        AccelerationProven = $EmulatorSupported
+        AccelerationWarning = $ask -and -not $EmulatorSupported
         PhysicalDeviceAlternative = -not $installEmulator
         LicensesPending = -not $Interactive
         LicenseCommand = 'sdkmanager --licenses'

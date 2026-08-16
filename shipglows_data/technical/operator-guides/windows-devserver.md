@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.7.1"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-15"
@@ -86,12 +86,15 @@ ne sont pas requis par le parcours Shadow PC.
    réutilisées sans remplacer leurs variables ni le `PATH`. Sinon JDK 17 est
    installé dans le profil utilisateur avant la présentation des conditions
    Android; les archives ZIP sont vérifiées et les packages ciblent Android 36.
-   La seule question produit porte sur l'émulateur, uniquement si le poste le
-   supporte; sinon utilisez un téléphone réel avec le débogage USB. Les licences
+   La seule question produit porte sur l'émulateur et elle est posée sur tout
+   poste x64 interactif. Si l'accélération n'est pas prouvée, ShipGlows prévient
+   du risque de lenteur ou d'échec mais laisse l'opérateur choisir; une réponse
+   positive installe l'émulateur, l'image Android 36 et crée `ShipGlows_API_36`
+   avec une progression visible. Un téléphone réel reste l'alternative. Les licences
    Android restent à confirmer dans leur flux officiel. En non-interactif,
    `sdkmanager --licenses` est signalé comme action en attente. L'émulateur
-   requiert accélération, image système et AVD prouvés; Shadow sans virtualisation
-   imbriquée utilise un téléphone réel. Les nouveaux fichiers agent peuvent
+   accéléré requiert toujours une virtualisation prouvée; sans elle, l'AVD peut
+   être lancé en mode logiciel, potentiellement très lent. Les nouveaux fichiers agent peuvent
    recevoir Dart/Flutter et Playwright; un JSON/JSONC existant reste intact et
    explicitement pending si aucune mise à jour native sûre n'est disponible.
    Aucune authentification n'est démarrée. Il ne demande ni
@@ -185,7 +188,8 @@ Flutter et le chemin ou la signature de commande du projet enregistré.
 
 Le parcours `full` écrit `%USERPROFILE%\.shipglows\environment.md`. Ce fichier
 global statique indique Windows, PowerShell, Codex CLI, Python, Flutter/Dart,
-l'état de la toolchain/licences/device Android, la prochaine action Android,
+l'état de la toolchain/licences/device Android, du package émulateur et de l'AVD,
+ainsi que la prochaine action Android,
 Playwright et le DevServer natif. Chaque surface enregistrée reçoit aussi un fichier visible et
 versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le port
 attribué et l'URL canonique sans écraser le reste du document. Le registre

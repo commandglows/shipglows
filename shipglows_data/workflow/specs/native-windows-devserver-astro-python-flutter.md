@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.5.0"
+artifact_version: "0.5.1"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
-updated: "2026-08-15"
-updated_at: "2026-08-15 19:19:35 UTC"
+updated: "2026-08-16"
+updated_at: "2026-08-16 00:04:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -190,7 +190,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Checklist path: `shipglows_data/workflow/test-checklists/native-windows-devserver-astro-python-flutter.md`.
 - Required scenario IDs: `BOOT-FULL-01`, `BOOT-LOCAL-02`, `ASTRO-START-03`, `PYTHON-START-04`, `FLUTTER-WEB-05`, `PORT-RECOVERY-06`, `STALE-PID-07`, `REGISTRY-ATOMIC-08`, `REDACTION-09`, `PUBLIC-PARITY-10`, `SHADOW-RECONNECT-11`, `ANDROID-FULL-12`, `ANDROID-NONINTERACTIVE-13`, `ANDROID-EMULATOR-14`, `AGENT-MCP-15`, `SERVICE-CLI-16`.
 - Required results: full public bootstrap installs the DevServer without a tunnel; local bootstrap remains compatible; each supported stack starts and serves localhost; process identity and registry recovery are safe; secrets are absent from logs; ShipGlows page/endpoint match the canonical script; Shadow reconnect is recoverable.
-- Exception with proof: no real emulator/package/license operation runs in automated proof; capability, refusal, unsupported-host and non-interactive branches use mocks, while a physical device remains the supported fallback.
+- Exception with proof: no real emulator/package/license operation runs in automated proof; acceptance, refusal, acceleration-proven, acceleration-uncertain and non-interactive branches use mocks, while the approved Shadow bootstrap supplies the real package/AVD proof.
 - Exception with proof: public URL, Caddy and persistent-hosting tests are excluded by product scope and Shadow restrictions.
 - Runtime observability exception: Sentry is not applicable because this is a local CLI/bootstrap with no hosted application telemetry contract; safe redacted diagnostic/log-copy behavior is required instead.
 - Build-time header exception: web build-time Paris/UTC headers are not applicable to the PowerShell runtime; public ShipGlows Astro build/deployment checks remain required for the installer page and raw endpoint.
@@ -199,8 +199,8 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 
 Flutter Android couvre zero/one/many besoins de services detectes avec scan
 borne sans reparse; hote x64 ou non-x64; transport EXE/CMD/BAT avec espaces,
-Unicode, guillemets et metacaracteres; archives traversal/symlink; hote
-emulateur supporte ou non, acceptation et refus; reruns; outils partiels ou
+Unicode, guillemets et metacaracteres; archives traversal/symlink; acceleration
+emulateur prouvee ou incertaine, acceptation et refus; reruns; outils partiels ou
 corrompus; configuration MCP existante avec secrets; licences pending en mode
 non-interactif; remplacement atomique. Aucun test n'accepte les licences,
 n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
@@ -419,7 +419,7 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 - [ ] AC22: Given PowerShell profile execution is blocked, when Windows full installation completes and `s` is unclaimed, then the current and new shells resolve `s.cmd`, which launches the DevServer through `powershell.exe -NoProfile -ExecutionPolicy Bypass`; `shipglows-dev` remains available if `s` is already claimed.
 - [ ] AC23: Given the public Windows PowerShell bootstrap is launched without `-InstallMode` from an interactive console, when the installer starts, then it requires an explicit `1`, `2`, or `0` before downloading files; empty input repeats the prompt and never starts an installation, while explicit mode arguments and the non-interactive local fallback remain deterministic.
 - [ ] AC24: Given Windows full on a fresh or existing x64 host, when Android preparation runs, then validated external Flutter/Dart, JDK 17 and Android SDK locations are reused without replacing their environment ownership; missing tools use hardened managed installs, Android 36 coordinates and explicit official terms/licenses. Only managed installs update JAVA_HOME/ANDROID_HOME/ANDROID_SDK_ROOT/PATH. Refusal, non-x64 and non-interactive runs remain pending, and `%USERPROFILE%\.shipglows\environment.md` records Flutter/Dart presence, Android toolchain/license/device readiness and the exact next action. Mock proof passes; real host proof remains required.
-- [ ] AC25: Given emulator-capable Windows hardware, when acceleration evidence passes and the operator accepts the sole product question, then emulator package, exact system-image coordinate and named AVD install and verify; without nested virtualization or after refusal, ShipGlows gives the real-phone path. Mock proof passes; real emulator/device proof remains required.
+- [ ] AC25: Given an interactive Windows x64 host, when Android preparation runs, then ShipGlows asks the sole emulator question even if acceleration is uncertain, discloses that uncertainty before the choice, and never substitutes a phone decision. Acceptance installs the emulator and exact Android 36 image with visible progress, creates or reuses the named AVD without overwriting its state, then reports accelerated readiness or the explicit slow software-start path; refusal and non-interactive runs install nothing. Mock proof passes; real Shadow AVD/device proof remains required.
 - [ ] AC26: Given installed agents, when MCP preparation runs, then OpenCode v2 uses `mcp.servers`, Kilo prefers `kilo` with explicit `kilocode` compatibility, `.jsonc` is resolved before `.json`, Playwright requires an exact resolved version plus a runnable Chromium executable, and an existing non-converged config remains byte-identical and pending. Mock/static proof passes; real agent proof remains required.
 - [ ] AC27: Given the PATH-backed Windows `s.cmd` launcher, when the operator invokes a supported Linux-style menu path such as `s d`, `s e`, or `s m n`, then the native PowerShell frontend resolves only Windows-equivalent actions without loading `$PROFILE`; `s m n` selects a registered project and opens a child PowerShell in its directory, unsupported Flox/PM2/Caddy paths fail with `s h` guidance, and existing long-form actions retain their behavior.
 - [ ] AC28: Given installed coding agents and unclaimed short names, when wrappers are prepared, then `c`, `co`, `cor`, `oc` and `kc` forward safely; `kc` targets official `kilo` first and only falls back to detected `kilocode` compatibility. Existing command owners remain preserved. Static proof passes; target proof remains required.

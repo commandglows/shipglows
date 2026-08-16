@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.9.1"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-15"
@@ -209,7 +209,13 @@ A `package.json` without `scripts.dev` is ignored as a non-runnable surface.
 Linux-only Flox, PM2, Caddy, autossh, and the interactive `urls` menu are not
 emulated on Windows. The full installer prepares Git, GitHub CLI, Node LTS
 (including npm), pnpm, uv and Flutter, then enables web and Android support.
-It asks only about emulator support after x64 and nested virtualization evidence.
+Every interactive x64 install asks the sole product question about installing
+the Android emulator and creating `ShipGlows_API_36`. Nested-virtualization
+evidence changes the warning, not the operator's ability to choose. Accepted
+emulator and Android 36 image downloads run with visible progress; the AVD is
+created before acceleration is checked. Without hardware acceleration it remains
+installed with an explicit, potentially very slow `-accel off -gpu software`
+startup path. Non-interactive installs never prompt or infer consent.
 Validated existing Flutter/Dart, JDK 17 and Android SDK paths are reused without
 rewriting their environment ownership. Otherwise JDK 17 is installed first; the
 Android terms are then shown before hardened ZIP extraction of command-line tools.
@@ -262,8 +268,9 @@ local source and must not be treated as a network updater.
 
 The Windows full installer writes `%USERPROFILE%\.shipglows\environment.md`.
 It records the stable host facts: Windows, PowerShell, Codex CLI installation,
-Python, Flutter/Dart, Android toolchain/license/device readiness, the next Android
-action when setup is pending, Playwright configuration and the native ShipGlows DevServer. The installer also
+Python, Flutter/Dart, Android toolchain/license/device readiness, emulator package
+and named-AVD readiness, the next Android action when setup is pending, Playwright
+configuration and the native ShipGlows DevServer. The installer also
 maintains a bounded `~/.codex/AGENTS.md` block that points agents to this file
 without wrapping the Codex command. That block also enforces explicit
 post-message approval before intentional mutations: a one- or two-sentence fast
