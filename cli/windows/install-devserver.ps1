@@ -1110,7 +1110,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
         $gemini = Get-SgToolPath 'gemini.cmd' $geminiPaths
         $settingsPath = Join-Path $env:USERPROFILE '.gemini\settings.json'
         $readyNames = New-Object Collections.Generic.List[string]; $pendingNames = New-Object Collections.Generic.List[string]
-        foreach ($server in @($serverDefinitions)) {
+        foreach ($server in $serverDefinitions) {
             $state = Get-SgGeminiMcpConfigState -SettingsPath $settingsPath -Server $server
             if ($state.Status -eq 'missing') {
                 $add = Invoke-SgBoundedProcess $gemini (Get-SgGeminiMcpAddArguments $server) 60

@@ -98,6 +98,7 @@ rg -n 'Android emulator installed|Android virtual device ready|Android emulator 
 rg -n 'Preparing coding-agent CLIs and MCPs|Test-SgToolRuns.*codex|Test-SgToolRuns.*claude|Test-SgToolRuns.*opencode|Resolve-SgKiloCommand' "$INSTALLER"
 rg -n '@google/gemini-cli|Get-SgGeminiMcpAddArguments|Get-SgGeminiMcpConfigState|Gemini.*MCP readiness|[.]gemini\\GEMINI[.]md' "$INSTALLER" "$MOBILE_MODULE" "$AGENT_INSTRUCTIONS_MODULE"
 ! rg -n 'gemini.*(auth|login)|GEMINI_API_KEY|GOOGLE_API_KEY' "$INSTALLER" "$MOBILE_MODULE"
+! rg -n 'foreach \(\$server in @\(\$serverDefinitions\)\)' "$INSTALLER"
 ! rg -n 'Install Codex CLI now\? \[y/N\]|Each agent is a separate choice' "$INSTALLER"
 rg -n 'Resolve-SgCodexPermissionMode|Set-SgCodexPermissionMode|SHIPGLOWS_CODEX_PERMISSION_MODE|one-question full installer|existing permissions were kept' "$INSTALLER"
 rg -n "approvalPolicy.*'never'.*'on-request'|permissionProfile.*':danger-full-access'.*':workspace'" "$INSTALLER"
