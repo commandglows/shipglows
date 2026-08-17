@@ -584,6 +584,14 @@ function Test-SgServiceCliResult {
     return @($matches | Where-Object { $_.Groups['version'].Value -ceq $ExpectedVersion }).Count -gt 0
 }
 
+function Test-SgMiseVersionResult {
+    param($Result)
+    if (-not $Result -or $Result.TimedOut -or $Result.ExitCode -ne 0) { return $false }
+    $output = [string]$Result.Output
+    if ([string]::IsNullOrWhiteSpace($output) -or $output.Length -gt 65536 -or $output.Contains([char]0)) { return $false }
+    return $output -match '(?m)^\s*(?:mise\s+)?20\d{2}\.(?:[1-9]|1[0-2])\.\d+(?![0-9.])(?:\s|$)'
+}
+
 function Test-SgCodexMcpResult {
     param($Result,[Parameter(Mandatory=$true)]$Server)
     if (-not $Result -or $Result.TimedOut -or $Result.ExitCode -ne 0) { return $false }
@@ -964,4 +972,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic

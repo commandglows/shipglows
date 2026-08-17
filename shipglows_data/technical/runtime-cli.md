@@ -352,12 +352,17 @@ interactive selector. It also emits phase and awaiting-input transitions. The
 console adapter owns consent prompts, renders the current phase immediately,
 prints an explicit input-wait state, and renders a time-aware spinner for captured long-running work; redirected/non-interactive
 output receives deterministic start and terminal lines without animation.
+Phase timing is suspended across the input boundary and resumes only after the
+console reports that an answer was received, so elapsed time never includes a
+human consent pause.
 Quick probes remain silent, while agent/service CLI installs, captured MCP
 configuration, Flutter/Android preparation, Playwright packages and browser
 preparation use the visible operation boundary.
 Provider command exit codes are provisional until bounded final observation:
 trusted `mise`, an exact runnable service CLI, native Claude re-read, and decoded
 Codex MCP JSON may establish convergence after an ambiguous provider exit.
+Trusted mise observation accepts the native autonomous calendar version emitted
+by current Windows builds, including output accompanied by separate warnings.
 
 ### Development environment and project URL
 

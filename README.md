@@ -250,6 +250,8 @@ runs report them as pending instead of accepting or blocking.
 Interactive updates show the current high-level phase immediately, retain elapsed
 time on captured long-running commands, and print an explicit `[input]` state
 before every question so an active installer is not mistaken for a frozen window.
+The phase duration counts installer work only: time spent waiting for a human
+answer is suspended, then a clear `[continue] Answer received` line restarts it.
 When the workspace contains a Tauri Android project, the same full installer
 offers one reusable host setup: the ShipGlows-validated Rust toolchain and four
 Android targets through an isolated `mise` environment, plus the exact NDK through
@@ -258,6 +260,8 @@ environment without a PowerShell profile. ShipGlows never rewrites an older proj
 an optional Codex migration handoff after a separate confirmation. Build Tools
 and NDK versions omitted from generated Gradle files remain host-owned defaults;
 only explicit incompatible project declarations create migration differences.
+The trusted WinGet `mise.exe` probe accepts its native calendar-version output
+(`YYYY.M.P windows-x64 (...)`) as well as the labeled compatibility form.
 The installer then makes one grouped proposal for whichever large IDE toolchains
 are still missing: current Android Studio for Android development and the Firebase
 Device Streaming entry point, plus Visual Studio Community 2022 with Desktop

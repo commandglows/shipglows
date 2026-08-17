@@ -55,6 +55,17 @@ Assert-Sg ($answer -eq 'y') 'Installer input boundary did not return the adapter
 Assert-Sg (($promptEvents.Code -join '|') -eq 'INSTALL_STEP_AWAITING_INPUT|INSTALL_STEP_INPUT_RECEIVED') 'Installer input boundary omitted its waiting/resumed events.'
 $waitingText = Format-SgInstallerConsoleEvent -Event $promptEvents[0] -Interactive $true
 Assert-Sg ($waitingText.Text -match '\[input\]' -and $waitingText.Text -match 'Updating Codex CLI') 'Interactive input state is not explicit.'
+$receivedText = Format-SgInstallerConsoleEvent -Event $promptEvents[1] -Interactive $true
+Assert-Sg ($receivedText.Text -match 'Answer received - continuing' -and $receivedText.Text -notmatch '\[resume\]') 'Post-input copy must confirm the answer clearly instead of displaying an ambiguous resume label.'
+
+$clockValues = New-Object Collections.Generic.Queue[datetimeoffset]
+foreach ($instant in @('2026-08-17T10:00:00Z','2026-08-17T10:00:05Z','2026-08-17T10:10:05Z','2026-08-17T10:10:08Z')) { $clockValues.Enqueue([datetimeoffset]$instant) }
+$fakeClock = { $clockValues.Dequeue() }.GetNewClosure()
+$phaseEvents = New-Object Collections.Generic.List[object]
+$phase = Start-SgInstallerPhase -Operation $operation -EventSink { param($event) $phaseEvents.Add($event) } -Clock $fakeClock
+[void](Invoke-SgInstallerInput -Operation $operation -Phase $phase -EventSink { param($event) $phaseEvents.Add($event) } -Reader { 'y' })
+[void](Complete-SgInstallerPhase $phase)
+Assert-Sg ($phaseEvents[-1].ElapsedSeconds -eq 8) 'Phase duration must exclude the ten-minute human input wait while retaining five seconds before and three seconds after it.'
 
 $realEvents = New-Object Collections.Generic.List[object]
 $realOperation = New-SgInstallerOperation -Id 'proof.progress' -Label 'Proving live progress' -TimeoutSeconds 5

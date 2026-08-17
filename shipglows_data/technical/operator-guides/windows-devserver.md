@@ -476,4 +476,7 @@ The generated Gradle project may omit `buildToolsVersion` and `ndkVersion`; in
 that case the validated host packages remain authoritative and no migration is
 invented. An explicit incompatible project value still produces a migration
 difference. During `s u`, the active phase and elapsed operation stay visible,
-and `[input]` identifies every point where the installer is waiting for you.
+`[input]` identifies every point where the installer is waiting for you, and
+`[continue] Answer received` marks the restart. Phase duration excludes that wait.
+Current trusted Windows `mise` output starts with its calendar version
+(`2026.8.2 windows-x64 (...)`); warnings on separate lines do not invalidate it.

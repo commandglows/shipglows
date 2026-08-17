@@ -141,6 +141,13 @@ try {
     Assert-Sg (-not (Test-SgServiceCliResult $null ([pscustomobject]@{ExitCode=0;Output='114.2.1';TimedOut=$false}) $serviceExe '14.2.1')) 'An adjacent numeric prefix must not satisfy an exact CLI version.'
     Assert-Sg (-not (Test-SgServiceCliResult $null ([pscustomobject]@{ExitCode=0;Output='14.2.1.7';TimedOut=$false}) $serviceExe '14.2.1')) 'An adjacent numeric suffix must not satisfy an exact CLI version.'
 
+    Assert-Sg (Test-SgMiseVersionResult ([pscustomobject]@{ExitCode=0;Output="warning: cached metadata`n2026.8.2 windows-x64 (2026-08-12)";TimedOut=$false})) 'The real calendar-version-first mise output must verify despite a separate warning line.'
+    Assert-Sg (Test-SgMiseVersionResult ([pscustomobject]@{ExitCode=0;Output='mise 2026.8.2';TimedOut=$false})) 'The labeled mise calendar version remains compatible.'
+    foreach ($invalidMiseOutput in @('x2026.8.2 windows-x64','2026.13.2 windows-x64','2026.8.2.1 windows-x64','1.2.3 windows-x64')) {
+        Assert-Sg (-not (Test-SgMiseVersionResult ([pscustomobject]@{ExitCode=0;Output=$invalidMiseOutput;TimedOut=$false}))) "Invalid or non-autonomous mise version output must fail: $invalidMiseOutput"
+    }
+    Assert-Sg (-not (Test-SgMiseVersionResult ([pscustomobject]@{ExitCode=1;Output='2026.8.2 windows-x64';TimedOut=$false}))) 'A nonzero mise version probe must fail closed.'
+
     $codexJson = '{"name":"firebase","enabled":true,"transport":{"type":"stdio","command":"C:\\Program Files\\nodejs\\npx.cmd","args":["-y","--registry=https://registry.npmjs.org/","firebase-tools@15.27.0","mcp"]}}'
     $firebaseServer = [pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command='C:\Program Files\nodejs\npx.cmd'; Arguments=@('-y','--registry=https://registry.npmjs.org/','firebase-tools@15.27.0','mcp') }
     Assert-Sg (Test-SgCodexMcpResult -Result ([pscustomobject]@{ExitCode=0;Output=$codexJson;TimedOut=$false}) -Server $firebaseServer) 'Codex MCP JSON must compare decoded path and argument values, not serialized backslashes.'

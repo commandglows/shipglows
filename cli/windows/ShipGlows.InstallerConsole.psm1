@@ -18,7 +18,7 @@ function Format-SgInstallerConsoleEvent {
         'INSTALL_STEP_TIMED_OUT' { return [pscustomobject]@{ Text=("[timeout] {0} ({1}s)" -f $Event.Label,$elapsed); NoNewline=$false; Color='Yellow' } }
         'INSTALL_STEP_FAILED' { return [pscustomobject]@{ Text=("[failed] {0} ({1}s)" -f $Event.Label,$elapsed); NoNewline=$false; Color='Yellow' } }
         'INSTALL_STEP_AWAITING_INPUT' { return [pscustomobject]@{ Text=("[input] {0}" -f $Event.Label); NoNewline=$false; Color='Yellow' } }
-        'INSTALL_STEP_INPUT_RECEIVED' { return [pscustomobject]@{ Text=("[resume] {0}" -f $Event.Label); NoNewline=$false; Color='Cyan' } }
+        'INSTALL_STEP_INPUT_RECEIVED' { return [pscustomobject]@{ Text=("[continue] Answer received - continuing: {0}" -f $Event.Label); NoNewline=$false; Color='Cyan' } }
         default { throw "Unknown installer event code: $($Event.Code)" }
     }
 }

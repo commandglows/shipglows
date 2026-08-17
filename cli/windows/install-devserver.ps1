@@ -29,6 +29,7 @@ $installerConsoleModule = Join-Path $sourceDir 'ShipGlows.InstallerConsole.psm1'
 if (-not (Test-Path -LiteralPath $installerConsoleModule -PathType Leaf)) { throw "Missing Windows installer console adapter: $installerConsoleModule" }
 Import-Module $installerConsoleModule -Force -DisableNameChecking
 $installerEventSink = New-SgInstallerConsoleEventSink
+$script:activeInstallerPhase = $null
 
 function Invoke-SgVisibleBoundedProcess {
     param(
@@ -50,7 +51,7 @@ function Read-SgVisibleInstallerChoice {
     param([bool]$Interactive,[string]$Prompt,[string]$OperationId='installer.input',[string]$Label='Waiting for your answer')
     if (-not $Interactive) { return '' }
     $operation = New-SgInstallerOperation -Id $OperationId -Label $Label -TimeoutSeconds 7200
-    return Invoke-SgInstallerInput -Operation $operation -EventSink $installerEventSink -Reader {
+    return Invoke-SgInstallerInput -Operation $operation -EventSink $installerEventSink -Phase $script:activeInstallerPhase -Reader {
         Read-SgInstallerChoice -Interactive $true -Prompt $Prompt
     }
 }
@@ -59,7 +60,7 @@ function Read-SgVisibleInstallerConsent {
     param([bool]$Interactive,[string[]]$Missing,[string[]]$Outdated,[string]$Subject,[string]$Guidance,[string]$Prompt,[string]$OperationId,[string]$Label)
     if (-not $Interactive -or (-not $Missing.Count -and -not $Outdated.Count)) { return '' }
     $operation = New-SgInstallerOperation -Id $OperationId -Label $Label -TimeoutSeconds 7200
-    return Invoke-SgInstallerInput -Operation $operation -EventSink $installerEventSink -Reader {
+    return Invoke-SgInstallerInput -Operation $operation -EventSink $installerEventSink -Phase $script:activeInstallerPhase -Reader {
         Read-SgInstallerConsent -Interactive $true -Missing $Missing -Outdated $Outdated -Subject $Subject -Guidance $Guidance -Prompt $Prompt
     }
 }
@@ -1133,7 +1134,7 @@ function Resolve-SgTrustedMisePath {
             $item = Get-Item -LiteralPath $full -Force
             if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
             $check = Invoke-SgBoundedProcess $full @('--version') 30
-            if (-not $check.TimedOut -and $check.ExitCode -eq 0 -and $check.Output -match '(?i)mise\s+\d{4}[.]\d+') { return $full }
+            if (Test-SgMiseVersionResult $check) { return $full }
         } catch { }
     }
     return ''
@@ -1570,6 +1571,7 @@ $kiloPaths = @((Join-Path $agentBinDirectory 'kilo.cmd'), (Join-Path $pnpmAgentB
 $kilocodePaths = @((Join-Path $agentBinDirectory 'kilocode.cmd'), (Join-Path $pnpmAgentBinDirectory 'kilocode.cmd'))
 $geminiPaths = @((Join-Path $agentBinDirectory 'gemini.cmd'), (Join-Path $pnpmAgentBinDirectory 'gemini.cmd'))
 $corePhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.core-tools' -Label 'Preparing core Windows developer tools' -TimeoutSeconds 7200) -EventSink $installerEventSink
+$script:activeInstallerPhase = $corePhase
 Write-Host 'Preparing Windows developer tools. This step can take a few minutes on the first installation.' -ForegroundColor Yellow
 [void](Install-SgWingetPackage 'git.exe' 'Git.Git' $gitPaths)
 [void](Install-SgWingetPackage 'gh.exe' 'GitHub.cli' $ghPaths)
@@ -1582,6 +1584,7 @@ $pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
 Assert-SgEnvironmentPythonPackage $pythonInfo.Path (Join-Path $ShipglowsDir 'cli\environment')
 [void](Complete-SgInstallerPhase $corePhase)
 $mobilePhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.mobile-toolchains' -Label 'Inspecting and preparing mobile toolchains' -TimeoutSeconds 7200) -EventSink $installerEventSink
+$script:activeInstallerPhase = $mobilePhase
 $flutterReady = Install-SgFlutter $flutterPaths $gitPaths
 $tauriState = try { Get-SgTauriAndroidProjectState -Workspace $Workspace } catch { Write-SgInstallerWarning "Tauri Android inspection is unknown: $($_.Exception.Message)"; [pscustomobject]@{ IsTauri=$false; Status='unknown'; ProjectRoot=''; Differences=@('inspection failed') } }
 $tauriInstallApproved = $false
@@ -1608,6 +1611,7 @@ $ideInfo = Install-SgWindowsIdeToolchains $flutterReady $flutterPaths
 
 Write-Host ''
 $agentPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.coding-agents' -Label 'Preparing coding-agent CLIs and MCPs' -TimeoutSeconds 7200) -EventSink $installerEventSink
+$script:activeInstallerPhase = $agentPhase
 Write-Host 'Preparing coding-agent CLIs and MCPs (no authentication is started)...' -ForegroundColor Yellow
 $initialAgentReady = @{
     Codex = Test-SgToolRuns 'codex.cmd' $codexPaths
@@ -1639,6 +1643,7 @@ $playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cm
 $agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $stackMcpDefinitions
 [void](Complete-SgInstallerPhase $agentPhase)
 $activationPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.activation' -Label 'Recording environment and activating commands' -TimeoutSeconds 7200) -EventSink $installerEventSink
+$script:activeInstallerPhase = $activationPhase
 $playwrightConfigured = @($agentInfo.Values | Where-Object { $_.ReadyServers -contains 'playwright' }).Count -gt 0
 $playwrightPending = @($agentInfo.Values | Where-Object { $_.PendingServers -contains 'playwright' }).Count -gt 0
 $playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$playwrightConfigured; McpVerified=$playwrightConfigured -and -not $playwrightPending; ConfigPath='per-agent; readiness listed below'; ChromiumPath=$playwright.ChromiumPath }
@@ -1685,6 +1690,7 @@ $kiloShortcutTarget = if (Test-SgToolRuns 'kilo.cmd' $kiloPaths) { 'kilo' } else
 [void](Install-SgGitPushProfileShortcut)
 Add-SgRuntimeToUserPath
 [void](Complete-SgInstallerPhase $activationPhase)
+$script:activeInstallerPhase = $null
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green
 Write-Host "Workspace: $Workspace"

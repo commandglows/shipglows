@@ -64,30 +64,59 @@ function Invoke-SgInstallerOperation {
 function Start-SgInstallerPhase {
     param(
         [Parameter(Mandatory=$true)][object]$Operation,
-        [scriptblock]$EventSink
+        [scriptblock]$EventSink,
+        [scriptblock]$Clock = { [datetimeoffset]::UtcNow }
     )
-    $watch = [Diagnostics.Stopwatch]::StartNew()
+    $startedAt = [datetimeoffset](& $Clock)
     Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_STARTED' $Operation 0)
-    [pscustomobject]@{ Operation=$Operation; Stopwatch=$watch; EventSink=$EventSink }
+    [pscustomobject]@{ Operation=$Operation; EventSink=$EventSink; Clock=$Clock; ActiveSince=$startedAt; AccumulatedTicks=[long]0; Suspended=$false; Completed=$false }
+}
+
+function Suspend-SgInstallerPhase {
+    param([object]$Phase)
+    if (-not $Phase -or $Phase.Completed -or $Phase.Suspended) { return }
+    $now = [datetimeoffset](& $Phase.Clock)
+    $delta = $now - [datetimeoffset]$Phase.ActiveSince
+    if ($delta.Ticks -gt 0) { $Phase.AccumulatedTicks = [long]$Phase.AccumulatedTicks + $delta.Ticks }
+    $Phase.Suspended = $true
+}
+
+function Resume-SgInstallerPhase {
+    param([object]$Phase)
+    if (-not $Phase -or $Phase.Completed -or -not $Phase.Suspended) { return }
+    $Phase.ActiveSince = [datetimeoffset](& $Phase.Clock)
+    $Phase.Suspended = $false
 }
 
 function Complete-SgInstallerPhase {
     param([Parameter(Mandatory=$true)][object]$Phase,[string]$Failure='')
-    $elapsed = [int][Math]::Floor($Phase.Stopwatch.Elapsed.TotalSeconds)
+    if ($Phase.Completed) { throw 'Installer phase was already completed.' }
+    $ticks = [long]$Phase.AccumulatedTicks
+    if (-not $Phase.Suspended) {
+        $now = [datetimeoffset](& $Phase.Clock)
+        $delta = $now - [datetimeoffset]$Phase.ActiveSince
+        if ($delta.Ticks -gt 0) { $ticks += $delta.Ticks }
+    }
+    $elapsed = [int][Math]::Floor(([timespan]::FromTicks([Math]::Max(0,$ticks))).TotalSeconds)
     $code = if ([string]::IsNullOrWhiteSpace($Failure)) { 'INSTALL_STEP_COMPLETED' } else { 'INSTALL_STEP_FAILED' }
     Invoke-SgInstallerEventSink $Phase.EventSink (New-SgInstallerEvent $code $Phase.Operation $elapsed $Failure)
-    $Phase.Stopwatch.Stop()
+    $Phase.Completed = $true
 }
 
 function Invoke-SgInstallerInput {
     param(
         [Parameter(Mandatory=$true)][object]$Operation,
         [Parameter(Mandatory=$true)][scriptblock]$Reader,
-        [scriptblock]$EventSink
+        [scriptblock]$EventSink,
+        [object]$Phase
     )
+    Suspend-SgInstallerPhase $Phase
     Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_AWAITING_INPUT' $Operation 0)
     try { return & $Reader }
-    finally { Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_INPUT_RECEIVED' $Operation 0) }
+    finally {
+        Invoke-SgInstallerEventSink $EventSink (New-SgInstallerEvent 'INSTALL_STEP_INPUT_RECEIVED' $Operation 0)
+        Resume-SgInstallerPhase $Phase
+    }
 }
 
 Export-ModuleMember -Function New-SgInstallerOperation,Invoke-SgInstallerOperation,Start-SgInstallerPhase,Complete-SgInstallerPhase,Invoke-SgInstallerInput
