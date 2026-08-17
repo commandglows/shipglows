@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.11.0"
+artifact_version: "0.12.0"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-17"
-updated_at: "2026-08-17 08:08:47 UTC"
+updated_at: "2026-08-17 09:19:30 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -411,6 +411,14 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
   - Validate with: Failure injection, stale-file removal, directory rollback, concurrent-update rejection, byte-idempotent rerun, consent fixtures, PowerShell 5.1 parsing and the full Windows contract.
   - Notes: Runtime rollback covers ShipGlows-managed files only; completed third-party package-manager effects are not transactionally reversible.
 
+- [x] Task 12: Decouple the native Windows installer engine from its console UI
+  - File: `cli/windows/ShipGlows.InstallerEngine.psm1`, `cli/windows/ShipGlows.InstallerConsole.psm1`, `cli/windows/install-devserver.ps1`, `tests/windows/installer-engine-ui.ps1`
+  - Action: Model long-running work as validated operations with stable lifecycle events, keep prompts and rendering in a console adapter, and project interactive progress or deterministic redirected output without changing process transport and timeout safety.
+  - User story link: Keeps the installer responsive and understandable while allowing the same engine to support future Windows UIs and automation.
+  - Depends on: Task 11.
+  - Validate with: Mechanical UI-token isolation, mocked event sequences, a real bounded-process progress callback, non-interactive rendering, PowerShell 5.1 parsing and the full Windows contract.
+  - Notes: Fast read-only probes remain silent; officially interactive license and authentication commands keep their native UI.
+
 # Acceptance Criteria
 
 - [ ] AC01: Given a Shadow PC with WSL unavailable, when the operator installs the explicit DevServer surface, then `shipglows-dev` launches under native Windows PowerShell without Bash, WSL, Flox, PM2 or Caddy.
@@ -454,6 +462,7 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 - [ ] AC36: Given installed Windows CLIs, when `s a` opens, then ShipGlows reports only redacted authentication state and delegates connect/reconnect or confirmed logout to native CLI flows without reading credentials; Gemini is interactive and Convex remains project-scoped.
 - [ ] AC37: Given an agent or motion workflow needs Playwright, when Windows full converges, then exact managed `playwright` and `playwright-cli` commands are on ShipGlows PATH, the stable package's declared Chromium revision launches, MCP stays separately pinned, and environment state distinguishes all four surfaces.
 - [x] AC38: Given an absent, current, drifted, legacy, partial, or concurrently updating native Windows runtime, when the public bootstrap runs, then it reports install/update/repair/no-op, validates the staged immutable payload before mutation, permits only one activation, removes stale manifest-owned files, preserves unrelated files, and restores the previous managed file and directory tree byte-for-byte if activation or the child installer fails. A rerun is byte-idempotent. Existing valid external SDKs remain in place; missing or version-drifted coding-agent CLIs are proposed as one explicit interactive choice and are never upgraded by inference in non-interactive mode.
+- [x] AC39: Given a captured native Windows installation operation can take perceptible time, when it executes, then a UI-free engine emits started/progress/completed/failed/timed-out events while the console adapter alone owns consent, animation, colors and host output. Interactive consoles show the operation label and elapsed time without exposing command arguments; redirected or non-interactive output emits deterministic start and terminal lines. Engine isolation, event order, real progress, timeout, adapter rendering, archive packaging and PowerShell 5.1 compatibility pass automated proof.
 
 # Test Strategy
 
@@ -568,6 +577,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 | 2026-08-16 12:27:39 UTC | sg-development | GPT-5 Codex | Added Gemini CLI as the fifth Windows coding agent with exact package planning, its official global context file and user-scope MCP commands verified locally from settings without starting authentication or a remote connection. | Regression-first Gemini fixtures, PowerShell 5.1 parsing, the full Windows contract and 27 public installer tests pass. Real Gemini installation, authentication and MCP callability remain unexecuted. | Complete the final site and metadata proofs, then request separate authority to publish and validate the installer from the remote branch. |
 
 | 2026-08-16 15:23:08 UTC | sg-engineering | GPT-5 Codex | Added redacted operator-owned CLI authentication, exact isolated Playwright stable/agent/MCP runtimes, native Gemini HTTP MCP recognition, PATH wrappers with resolvable package targets, and launcher module packaging. | Full Windows/static/public-site proofs pass; remote commit `534b0ee` installed successfully on Shadow; `playwright` 1.62.1, agent CLI 0.1.18, MCP Chromium 1237 and a real synthetic no-network WebM capture are proven. No authentication was inferred or started. | Merge source then site to main, reinstall main, verify normalized parity, and remove merged branches/worktrees. |
+| 2026-08-17 09:19:30 UTC | sg-engineering | GPT-5 Codex | Decoupled native Windows installation operations from console rendering through a UI-free event engine and separate interactive/non-interactive adapter, then routed long agent, service, MCP, Flutter/Android and Playwright work through visible progress. | Regression-first engine/UI contract, real bounded-process progress, PowerShell 5.1 parsing, archive/runtime packaging, metadata and the full Windows suite pass. No runtime installation or push was performed. | Commit the local bounded lot; publish and run one real `s u` loader proof only under separate authority. |
 
 # Current Chantier Flow
 

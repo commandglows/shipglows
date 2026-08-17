@@ -22,6 +22,29 @@ Import-Module $codexMcpModule -Force -DisableNameChecking
 $mobileModule = Join-Path $sourceDir 'ShipGlows.MobileToolchain.psm1'
 if (-not (Test-Path -LiteralPath $mobileModule -PathType Leaf)) { throw "Missing Windows mobile toolchain helper: $mobileModule" }
 Import-Module $mobileModule -Force -DisableNameChecking
+$installerEngineModule = Join-Path $sourceDir 'ShipGlows.InstallerEngine.psm1'
+if (-not (Test-Path -LiteralPath $installerEngineModule -PathType Leaf)) { throw "Missing Windows installer engine: $installerEngineModule" }
+Import-Module $installerEngineModule -Force -DisableNameChecking
+$installerConsoleModule = Join-Path $sourceDir 'ShipGlows.InstallerConsole.psm1'
+if (-not (Test-Path -LiteralPath $installerConsoleModule -PathType Leaf)) { throw "Missing Windows installer console adapter: $installerConsoleModule" }
+Import-Module $installerConsoleModule -Force -DisableNameChecking
+$installerEventSink = New-SgInstallerConsoleEventSink
+
+function Invoke-SgVisibleBoundedProcess {
+    param(
+        [Parameter(Mandatory=$true)][string]$OperationId,
+        [Parameter(Mandatory=$true)][string]$Label,
+        [Parameter(Mandatory=$true)][string]$File,
+        [string[]]$Arguments = @(),
+        [int]$TimeoutSeconds = 60,
+        [string]$InputText = ''
+    )
+    $operation = New-SgInstallerOperation -Id $OperationId -Label $Label -TimeoutSeconds $TimeoutSeconds
+    return Invoke-SgInstallerOperation -Operation $operation -EventSink $installerEventSink -Runner {
+        param($progress)
+        Invoke-SgBoundedProcess -File $File -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds -InputText $InputText -ProgressCallback $progress
+    }
+}
 $authModule = Join-Path $sourceDir 'ShipGlows.Auth.psm1'
 if (-not (Test-Path -LiteralPath $authModule -PathType Leaf)) { throw "Missing Windows authentication helper: $authModule" }
 Import-Module $authModule -Force -DisableNameChecking
@@ -764,17 +787,14 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady) 
     }
     $initial = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice ''
     if ($initial.Ask) {
-        if (@($initial.Missing).Count) { Write-Host "Missing coding-agent CLIs: $($initial.Missing -join ', ')." -ForegroundColor Yellow }
-        if (@($initial.Outdated).Count) { Write-Host "Coding-agent CLI updates available: $($initial.Outdated -join ', ')." -ForegroundColor Yellow }
-        Write-Host 'ShipGlows installs only the CLI binaries; authentication and provider credentials remain yours.' -ForegroundColor DarkGray
-        $choice = (Read-Host 'Install the missing or update the outdated coding-agent CLIs now? [y/N]').Trim()
+        $choice = Read-SgInstallerConsent -Interactive $interactive -Missing @($initial.Missing) -Outdated @($initial.Outdated) -Subject 'coding-agent CLIs' -Guidance 'ShipGlows installs only the CLI binaries; authentication and provider credentials remain yours.' -Prompt 'Install the missing or update the outdated coding-agent CLIs now? [y/N]'
     }
     $plan = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice $choice
     foreach ($name in @($plan.Install)) {
         $definition = $definitions[$name]
         try {
             $version = if ($resolvedVersions[$name]) { $resolvedVersions[$name] } else { Resolve-SgNpmVersion $NpmPath $definition.Package }
-            $install = Invoke-SgBoundedProcess $NpmPath @('install','--global',"$($definition.Package)@$version",'--registry=https://registry.npmjs.org/') 900
+            $install = Invoke-SgVisibleBoundedProcess -OperationId ("agent." + $name.ToLowerInvariant()) -Label ("Installing $name CLI $version") -File $NpmPath -Arguments @('install','--global',"$($definition.Package)@$version",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 900
             $ready = -not $install.TimedOut -and $install.ExitCode -eq 0 -and (Test-SgToolRuns $definition.Command $definition.Paths)
             if (-not $ready) { Write-SgInstallerWarning "$name CLI exact-version installation or executable verification failed." }
         } catch { Write-SgInstallerWarning "$name CLI remains pending: $($_.Exception.Message)" }
@@ -848,14 +868,14 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
             @('checkout','--detach','FETCH_HEAD')
         )) {
             $arguments = @('-C',$flutterDirectory) + $step
-            $result = Invoke-SgBoundedProcess -File $git -Arguments $arguments -TimeoutSeconds 600
+            $result = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.clone' -Label 'Installing Flutter stable SDK' -File $git -Arguments $arguments -TimeoutSeconds 600
             if ($result.TimedOut -or $result.ExitCode -ne 0) { [void](Move-SgManagedPartialDirectory $flutterDirectory); Write-SgInstallerWarning 'Flutter resolved-commit installation failed or timed out.'; return $false }
         }
     }
     $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory
     if ($state.Status -ne 'ready') { Write-SgInstallerWarning 'Flutter/Dart executable validation failed after installation.'; return $false }
     Add-SgUserPathEntry (Join-Path $flutterDirectory 'bin')
-    $configured = Invoke-SgBoundedProcess -File $state.FlutterPath -Arguments @('config','--enable-web','--enable-android') -TimeoutSeconds 90
+    $configured = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.configure' -Label 'Configuring Flutter web and Android targets' -File $state.FlutterPath -Arguments @('config','--enable-web','--enable-android') -TimeoutSeconds 90
     if ($configured.TimedOut -or $configured.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter platform configuration failed or timed out.'; return $false }
     Write-Host 'Flutter SDK resolved to a concrete stable commit; Flutter and Dart versions are valid.' -ForegroundColor Green
     return $true
@@ -907,7 +927,7 @@ function Install-SgAndroidCommandLineTools([string]$SdkRoot) {
     }
     if ([Console]::IsInputRedirected) { Write-SgInstallerWarning 'Android command-line tools pending: license confirmation requires an interactive terminal.'; return '' }
     Write-Host 'Review the official Android SDK terms: https://developer.android.com/studio/terms' -ForegroundColor Yellow
-    $license = (Read-Host 'Accept the Android SDK terms to download the official command-line tools? [y/N]').Trim().ToLowerInvariant()
+    $license = (Read-SgInstallerChoice -Interactive $interactive -Prompt 'Accept the Android SDK terms to download the official command-line tools? [y/N]').ToLowerInvariant()
     if ($license -notin @('y','yes')) { Write-SgInstallerWarning 'Android command-line tools and licenses remain pending by user choice.'; return '' }
     Write-Host 'Resolving the official Android command-line tools package and SHA-256...' -ForegroundColor Yellow
     $repositoryUrl = 'https://dl.google.com/android/repository/repository2-3.xml'
@@ -973,7 +993,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     }
     if (-not $licensesReady) { Write-SgInstallerWarning 'Android SDK licenses are refused or incomplete; essential packages remain pending.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
     $coordinates = Get-SgAndroidCoordinates
-    $essential = Invoke-SgBoundedProcess $sdkManager @('platform-tools',$coordinates.PlatformPackage,$coordinates.BuildToolsPackage) 600
+    $essential = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.android.essential' -Label 'Installing Android platform and build tools' -File $sdkManager -Arguments @('platform-tools',$coordinates.PlatformPackage,$coordinates.BuildToolsPackage) -TimeoutSeconds 600
     if ($essential.TimedOut -or $essential.ExitCode -ne 0) { Write-SgInstallerWarning 'Essential Android SDK package installation failed or timed out.' }
     $adb = Join-Path $sdkRoot 'platform-tools\adb.exe'
     $emulatorPlan = Get-SgEmulatorProvisionPlan
@@ -986,7 +1006,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
         Write-SgInstallerWarning 'Android emulator hardware acceleration is not proven on this machine. You can still install it, but startup may fail or software emulation may be very slow.'
     }
     $emulatorPrompt = if ($emulatorState.EmulatorInstalled -or $emulatorState.ImageInstalled -or $emulatorState.AvdReady) { 'Repair the Android emulator and ShipGlows_API_36 now? [y/N]' } else { 'Install the Android emulator and create ShipGlows_API_36 now? [y/N]' }
-    $choice = if ($interactive -and -not $emulatorState.Complete) { (Read-Host $emulatorPrompt).Trim() } else { '' }
+    $choice = Read-SgInstallerChoice -Interactive ($interactive -and -not $emulatorState.Complete) -Prompt $emulatorPrompt
     $plan = Get-SgAndroidInstallPlan -Interactive $interactive -EmulatorSupported $emulatorSupported -EmulatorChoice $choice -EmulatorReady $emulatorState.Complete
     $emulator = if (Test-Path -LiteralPath $emulatorCandidate -PathType Leaf) { $emulatorCandidate } else { '' }
     $emulatorAccelerationReady = $false
@@ -1001,7 +1021,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
             $list = Invoke-SgBoundedProcess $emulator @('-list-avds') 30
             $avdPattern = "(?m)^$([regex]::Escape($emulatorPlan.AvdName))\r?$"
             if ($list.Output -notmatch $avdPattern) {
-                $create = Invoke-SgBoundedProcess -File $avdManager -Arguments @('create','avd','--name',$emulatorPlan.AvdName,'--package',$image,'--device',$emulatorPlan.Device) -TimeoutSeconds 120 -InputText 'no'
+                $create = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.android.avd' -Label "Creating Android virtual device $($emulatorPlan.AvdName)" -File $avdManager -Arguments @('create','avd','--name',$emulatorPlan.AvdName,'--package',$image,'--device',$emulatorPlan.Device) -TimeoutSeconds 120 -InputText 'no'
                 if ($create.TimedOut -or $create.ExitCode -ne 0) { Write-SgInstallerWarning 'Emulator packages installed but AVD creation failed or timed out.' }
                 $list = Invoke-SgBoundedProcess $emulator @('-list-avds') 30
             }
@@ -1026,7 +1046,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     $developerModeReady = Test-SgWindowsDeveloperMode
     if (-not $developerModeReady) {
         Write-Host 'Windows Developer Mode is off. It can be required for Flutter plugins that use symbolic links; it does not provide Android emulator acceleration.' -ForegroundColor Yellow
-        $developerChoice = if ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) { (Read-Host 'Open the official Windows Developer Mode settings now? [y/N]').Trim() } else { '' }
+        $developerChoice = Read-SgInstallerChoice -Interactive ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) -Prompt 'Open the official Windows Developer Mode settings now? [y/N]'
         $developerPlan = Get-SgDeveloperModeGuidancePlan -Interactive ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) -DeveloperModeReady $false -Choice $developerChoice
         if ($developerPlan.OpenSettings) { Start-Process $developerPlan.SettingsUri }
     }
@@ -1084,7 +1104,7 @@ function Install-SgWindowsIdeToolchains([bool]$FlutterReady, [string[]]$FlutterP
         Write-SgInstallerWarning 'Windows IDE bundle pending: rerun the full installer interactively; no multi-gigabyte IDE install was inferred.'
         return $state
     }
-    $choice = (Read-Host 'Install the missing Windows IDE toolchains now? [y/N]').Trim()
+    $choice = Read-SgInstallerChoice -Interactive $interactive -Prompt 'Install the missing Windows IDE toolchains now? [y/N]'
     $plan = Get-SgWindowsIdeInstallPlan -Interactive $true -AndroidStudioReady $state.AndroidStudioReady -VisualStudioCppReady $state.VisualStudioCppReady -Choice $choice
     if ($plan.Status -ne 'install') {
         Write-SgInstallerWarning 'Windows IDE bundle was declined; Android Studio and/or Flutter Windows compilation remain pending.'
@@ -1109,7 +1129,7 @@ function Install-SgWindowsIdeToolchains([bool]$FlutterReady, [string[]]$FlutterP
     $state = Get-SgCurrentWindowsIdeState
     if ($FlutterReady -and $state.VisualStudioCppReady) {
         $flutter = Get-SgToolPath 'flutter.bat' $FlutterPaths
-        $config = if ($flutter) { Invoke-SgBoundedProcess -File $flutter -Arguments @('config','--enable-windows-desktop') -TimeoutSeconds 60 } else { $null }
+        $config = if ($flutter) { Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.windows' -Label 'Configuring Flutter Windows desktop target' -File $flutter -Arguments @('config','--enable-windows-desktop') -TimeoutSeconds 60 } else { $null }
         if (-not $config -or $config.TimedOut -or $config.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter Windows desktop enablement could not be proven.' }
     }
     if (-not $state.AndroidStudioReady) { Write-SgInstallerWarning 'Android Studio remains pending.' }
@@ -1127,7 +1147,7 @@ function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$Np
     $packageJson = Join-Path $managedRoot 'node_modules\@playwright\mcp\package.json'
     if (-not (Test-Path $packageJson -PathType Leaf)) {
         New-Item -ItemType Directory -Path $managedRoot -Force | Out-Null
-        $packageInstall = Invoke-SgBoundedProcess $NpmPath @('install','--prefix',$managedRoot,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"@playwright/mcp@$version") 600
+        $packageInstall = Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.mcp' -Label "Installing Playwright MCP $version" -File $NpmPath -Arguments @('install','--prefix',$managedRoot,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"@playwright/mcp@$version") -TimeoutSeconds 600
         if ($packageInstall.TimedOut -or $packageInstall.ExitCode -ne 0) { Write-SgInstallerWarning 'Playwright MCP exact package installation failed.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
     }
     $playwrightCommand = Join-Path $managedRoot 'node_modules\.bin\playwright.cmd'
@@ -1136,7 +1156,7 @@ function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$Np
     $metadata = Get-Content -Raw $browserMetadata | ConvertFrom-Json
     $revision = [string](@($metadata.browsers | Where-Object name -eq 'chromium')[0].revision)
     if ($revision -notmatch '^\d+$') { Write-SgInstallerWarning 'Playwright MCP Chromium revision is invalid.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
-    $install = Invoke-SgBoundedProcess $playwrightCommand @('install','chromium') 900
+    $install = Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.mcp-browser' -Label 'Installing Playwright MCP Chromium' -File $playwrightCommand -Arguments @('install','chromium') -TimeoutSeconds 900
     $chromium = Get-SgPlaywrightChromiumExecutable -Revision $revision
     $chromiumCheck = if ($chromium) { Invoke-SgBoundedProcess $chromium.FullName @('--version') 30 } else { $null }
     if ($install.TimedOut -or $install.ExitCode -ne 0 -or -not $chromium -or -not (Test-SgChromiumExecutableResult $chromium.FullName $chromiumCheck)) { Write-SgInstallerWarning 'Playwright Chromium executable usability was not proven; Playwright MCP remains unconfigured.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
@@ -1177,7 +1197,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
         foreach ($server in $serverDefinitions) {
             $state = Get-SgGeminiMcpConfigState -SettingsPath $settingsPath -Server $server
             if ($state.Status -eq 'missing') {
-                $add = Invoke-SgBoundedProcess $gemini (Get-SgGeminiMcpAddArguments $server) 60
+                $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.gemini." + $server.Name) -Label ("Configuring Gemini $($server.Name) MCP") -File $gemini -Arguments (Get-SgGeminiMcpAddArguments $server) -TimeoutSeconds 60
                 $state = if (-not $add.TimedOut -and $add.ExitCode -eq 0) { Get-SgGeminiMcpConfigState -SettingsPath $settingsPath -Server $server } else { [pscustomobject]@{ Status='pending'; Reason='native Gemini MCP add failed or timed out' } }
             }
             if ($state.Status -eq 'ready') { $readyNames.Add($server.Name) }
@@ -1192,7 +1212,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
             $get = Invoke-SgBoundedProcess $claude @('mcp','get',$server.Name) 30
             if ($get.ExitCode -ne 0) {
                 $arguments = if ($server.Type -eq 'remote') { @('mcp','add','--transport','http','--scope','user',$server.Name,$server.Url) } else { @('mcp','add','--transport','stdio','--scope','user',$server.Name,'--',$server.Command) + @($server.Arguments) }
-                $add = Invoke-SgBoundedProcess $claude $arguments 60
+                $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.claude." + $server.Name) -Label ("Configuring Claude $($server.Name) MCP") -File $claude -Arguments $arguments -TimeoutSeconds 60
                 $verified = if (-not $add.TimedOut -and $add.ExitCode -eq 0) { Invoke-SgBoundedProcess $claude @('mcp','get',$server.Name) 30 } else { $null }
                 $expected = if ($server.Type -eq 'remote') { @($server.Url) } else { @($server.Command) + @($server.Arguments) }
                 if (-not $verified -or $verified.ExitCode -ne 0 -or @($expected | Where-Object { -not $verified.Output.Contains([string]$_) }).Count) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Claude MCP '$($server.Name)' remains pending." } else { $readyNames.Add($server.Name) }
@@ -1211,7 +1231,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
             $get = Invoke-SgBoundedProcess $codex @('mcp','get',$server.Name,'--json') 30
             if ($get.ExitCode -ne 0) {
                 $addArguments = if ($server.Type -eq 'remote') { @('mcp','add',$server.Name,'--url',$server.Url) } else { @('mcp','add',$server.Name,'--',$server.Command) + @($server.Arguments) }
-                $add = Invoke-SgBoundedProcess $codex $addArguments 60
+                $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.codex." + $server.Name) -Label ("Configuring Codex $($server.Name) MCP") -File $codex -Arguments $addArguments -TimeoutSeconds 60
                 $verified = if (-not $add.TimedOut -and $add.ExitCode -eq 0) { Invoke-SgBoundedProcess $codex @('mcp','get',$server.Name,'--json') 30 } else { $null }
                 $expected = if ($server.Type -eq 'remote') { @($server.Url) } else { @($server.Command) + @($server.Arguments) }
                 if (-not $verified -or $verified.ExitCode -ne 0 -or @($expected | Where-Object { -not $verified.Output.Contains([string]$_) }).Count) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Codex MCP '$($server.Name)' remains pending." } else { $readyNames.Add($server.Name) }
@@ -1244,7 +1264,7 @@ function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
             $packageJson=Join-Path (Join-Path $install.Root 'node_modules') (Join-Path $install.Package 'package.json')
             if(-not (Test-Path $packageJson -PathType Leaf)){
                 New-Item -ItemType Directory -Path $install.Root -Force|Out-Null
-                $result=Invoke-SgBoundedProcess $NpmPath @('install','--prefix',$install.Root,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"$($install.Package)@$($install.Version)") 600
+                $result=Invoke-SgVisibleBoundedProcess -OperationId ("tool.node." + $install.Name.ToLowerInvariant()) -Label ("Installing $($install.Name) $($install.Version)") -File $NpmPath -Arguments @('install','--prefix',$install.Root,'--no-save','--ignore-scripts','--registry=https://registry.npmjs.org/',"$($install.Package)@$($install.Version)") -TimeoutSeconds 600
                 if($result.TimedOut -or $result.ExitCode -ne 0){throw "Exact $($install.Package) installation failed."}
             }
         }
@@ -1257,10 +1277,10 @@ function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
         if($revision -notmatch '^\d+$'){throw 'Managed Playwright Chromium revision is invalid.'}
         $browser=Join-Path $env:LOCALAPPDATA "ms-playwright\chromium-$revision\chrome-win64\chrome.exe"
         if(-not (Test-Path $browser -PathType Leaf)){
-            $installBrowser=Invoke-SgBoundedProcess $stableCommand @('install','chromium') 900
+            $installBrowser=Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.browser' -Label 'Installing Playwright Chromium' -File $stableCommand -Arguments @('install','chromium') -TimeoutSeconds 900
             if($installBrowser.TimedOut -or $installBrowser.ExitCode -ne 0){throw 'Managed Playwright Chromium installation failed.'}
         }
-        $agentBrowserInstall=Invoke-SgBoundedProcess $agentCommand @('install-browser') 900
+        $agentBrowserInstall=Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright-agent.browser' -Label 'Installing Playwright agent browser' -File $agentCommand -Arguments @('install-browser') -TimeoutSeconds 900
         if($agentBrowserInstall.TimedOut -or $agentBrowserInstall.ExitCode -ne 0){throw 'Managed Playwright Agent CLI browser installation failed.'}
         $stableCheck=Invoke-SgBoundedProcess $stableCommand @('--version') 30
         $browserCheck=if(Test-Path $browser -PathType Leaf){Invoke-SgBoundedProcess $browser @('--version') 30}else{$null}
@@ -1314,24 +1334,23 @@ function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath
     foreach ($item in @(Get-SgServiceCliPlan $resolvedNeeds $versions)) {
         $install = $null; $verify = $null; $exe = ''
         if ($item.Name -eq 'firebase') {
-            $install = Invoke-SgBoundedProcess $NpmPath @('install','--global',"firebase-tools@$($item.Version)",'--registry=https://registry.npmjs.org/') 600
+            $install = Invoke-SgVisibleBoundedProcess -OperationId 'service.firebase' -Label "Installing Firebase CLI $($item.Version)" -File $NpmPath -Arguments @('install','--global',"firebase-tools@$($item.Version)",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 600
             $exe = Get-SgToolPath 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
             $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
         } elseif ($item.Name -eq 'flutterfire') {
-            $install = Invoke-SgBoundedProcess $DartPath @('pub','global','activate','flutterfire_cli',$item.Version) 600
+            $install = Invoke-SgVisibleBoundedProcess -OperationId 'service.flutterfire' -Label "Installing FlutterFire CLI $($item.Version)" -File $DartPath -Arguments @('pub','global','activate','flutterfire_cli',$item.Version) -TimeoutSeconds 600
             $pubBin = Join-Path $env:LOCALAPPDATA 'Pub\Cache\bin'; Add-SgUserPathEntry $pubBin
             $exe = Get-SgToolPath 'flutterfire.bat' @((Join-Path $pubBin 'flutterfire.bat'))
             $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
         } elseif ($item.Name -in @('supabase','convex')) {
-            $install = Invoke-SgBoundedProcess $NpxPath @('-y','--registry=https://registry.npmjs.org/',"supabase@$($item.Version)",'--version') 300
             $package = $item.Package
-            if ($item.Name -eq 'convex') { $install = Invoke-SgBoundedProcess $NpxPath @('-y','--registry=https://registry.npmjs.org/',"convex@$($item.Version)",'--version') 300 }
+            $install = Invoke-SgVisibleBoundedProcess -OperationId ("service." + $item.Name) -Label ("Preparing $($item.Name) CLI $($item.Version)") -File $NpxPath -Arguments @('-y','--registry=https://registry.npmjs.org/',"$package@$($item.Version)",'--version') -TimeoutSeconds 300
             $wrapper = Join-Path $runtimeDir "$($item.Name).cmd"
             $wrapperContent = "@echo off`r`n@call `"$NpxPath`" -y --registry=https://registry.npmjs.org/ $package@$($item.Version) %*`r`n"
             if (-not (Test-Path -LiteralPath $wrapper) -or [IO.File]::ReadAllText($wrapper) -cne $wrapperContent) { [IO.File]::WriteAllText($wrapper,$wrapperContent,[Text.Encoding]::ASCII) }
             $exe = $wrapper; $verify = Invoke-SgBoundedProcess $exe @('--version') 300
         } else {
-            $install = Invoke-SgBoundedProcess $NpmPath @('install','--global',"$($item.Package)@$($item.Version)",'--registry=https://registry.npmjs.org/') 600
+            $install = Invoke-SgVisibleBoundedProcess -OperationId ("service." + $item.Name.ToLowerInvariant()) -Label ("Installing $($item.Name) CLI $($item.Version)") -File $NpmPath -Arguments @('install','--global',"$($item.Package)@$($item.Version)",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 600
             $exe = Get-SgToolPath "$($item.Name).cmd" @((Join-Path $env:APPDATA "npm\$($item.Name).cmd"))
             $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
         }

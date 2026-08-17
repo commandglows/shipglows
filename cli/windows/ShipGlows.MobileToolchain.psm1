@@ -693,16 +693,20 @@ function Start-SgEncodedProcess {
 }
 
 function Invoke-SgBoundedProcess {
-    param([string]$File, [string[]]$Arguments, [int]$TimeoutSeconds = 60, [string]$InputText = '')
+    param([string]$File, [string[]]$Arguments, [int]$TimeoutSeconds = 60, [string]$InputText = '', [scriptblock]$ProgressCallback)
     $process = $null
     try {
         $process = Start-SgEncodedProcess -File $File -Arguments $Arguments -InputText $InputText -Capture
         $startTime = $process.StartTime.ToUniversalTime()
         $stdoutTask = $process.StandardOutput.ReadToEndAsync()
         $stderrTask = $process.StandardError.ReadToEndAsync()
-        if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
-            Stop-SgProcessTree $process.Id $startTime
-            return [pscustomobject]@{ ExitCode=-1; Output='Command timed out and its process tree was stopped.'; TimedOut=$true }
+        $watch = [Diagnostics.Stopwatch]::StartNew()
+        while (-not $process.WaitForExit(200)) {
+            if ($ProgressCallback) { & $ProgressCallback ([int][Math]::Floor($watch.Elapsed.TotalSeconds)) }
+            if ($watch.Elapsed.TotalSeconds -ge $TimeoutSeconds) {
+                Stop-SgProcessTree $process.Id $startTime
+                return [pscustomobject]@{ ExitCode=-1; Output='Command timed out and its process tree was stopped.'; TimedOut=$true }
+            }
         }
         $process.WaitForExit()
         $output = @($stdoutTask.Result,$stderrTask.Result) -join [Environment]::NewLine

@@ -1,7 +1,7 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.10.0"
 project: ShipGlows
 created: "2026-08-15"
 updated: "2026-08-17"
@@ -117,3 +117,13 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] A second successful update pass is byte-idempotent.
 - [x] Missing and version-drifted coding-agent CLIs share one interactive consent decision and exact-version installation; non-interactive execution preserves them pending.
 - [x] Runtime rollback is documented as bounded to ShipGlows-managed files and does not claim to reverse completed WinGet, pnpm, npm, SDK or legal-consent effects.
+
+## Native Windows installer engine/UI separation proof
+
+- [x] The operation engine contains no `Read-Host`, `Write-Host`, Gum, color or raw-console dependency.
+- [x] Validated operations emit ordered started/progress/completed events and distinct failed/timed-out terminal events.
+- [x] A real PowerShell 5.1 child process produces progress before completion through the existing bounded transport.
+- [x] The console adapter owns every full-installer prompt and formats operation label plus elapsed time for interactive progress.
+- [x] Redirected/non-interactive rendering emits only deterministic start and terminal lines, with no animation control characters.
+- [x] Coding-agent, detected service, captured MCP, Flutter/Android and Playwright long-running operations use the visible operation boundary; quick probes stay silent and explicit license flows retain their native UI.
+- [x] Bootstrap extraction and managed-runtime manifests include both installer modules, and incomplete archives still fail closed.

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.4.1"
+artifact_version: "0.5.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-15"
+updated: "2026-08-17"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -64,6 +64,8 @@ run_menu_shortcut()
 - `cli/windows/ShipGlows.DevServer.psm1`: detection projet, registre, ports et processus Windows.
 - `cli/windows/shipglows-devserver.ps1`: menu, actions longues et chemins courts `s ...`.
 - `cli/windows/install-devserver.ps1`: outils Windows, PATH et wrappers `.cmd`.
+- `cli/windows/ShipGlows.InstallerEngine.psm1`: operations longues et evenements d'installation, sans UI.
+- `cli/windows/ShipGlows.InstallerConsole.psm1`: consentements, loader interactif et rendu non interactif.
 
 ## Function Tree
 
@@ -107,6 +109,9 @@ codex / shell setup
 
 ```text
 install-devserver.ps1
+  -> ShipGlows.InstallerConsole.psm1 (questions et rendu)
+  -> ShipGlows.InstallerEngine.psm1 (cycle des operations)
+     -> Invoke-SgBoundedProcess (transport, timeout et progression)
   -> Install-SgCommandWrappers
   -> Install-SgGum / Install-SgWingetPackage / Install-SgPnpm / Install-SgFlutter
   -> Install-SgOptionalAgent

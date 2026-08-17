@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.15.0"
+artifact_version: "1.16.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-17"
@@ -342,6 +342,16 @@ version-drifted coding-agent CLIs, installs only accepted exact versions, and
 never infers upgrade consent in non-interactive mode. This is the supported
 refresh path; the already-installed `cli/windows/install-devserver.ps1` only
 copies its current local source and must not be treated as a network updater.
+
+The native full installer composes a UI-free operation engine with a console
+adapter. The engine emits stable started/progress/completed/failed/timed-out
+events and never reads input, writes host output, chooses colors, or invokes an
+interactive selector. The console adapter owns consent prompts and renders a
+time-aware spinner for captured long-running work; redirected/non-interactive
+output receives deterministic start and terminal lines without animation.
+Quick probes remain silent, while agent/service CLI installs, captured MCP
+configuration, Flutter/Android preparation, Playwright packages and browser
+preparation use the visible operation boundary.
 
 ### Development environment and project URL
 

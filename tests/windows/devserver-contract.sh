@@ -9,11 +9,13 @@ INSTALLER="$ROOT/cli/windows/install-devserver.ps1"
 BOOTSTRAP="$ROOT/install-shipglows.ps1"
 CODEX_MCP_MODULE="$ROOT/cli/windows/ShipGlows.CodexMcp.psm1"
 MOBILE_MODULE="$ROOT/cli/windows/ShipGlows.MobileToolchain.psm1"
+INSTALLER_ENGINE_MODULE="$ROOT/cli/windows/ShipGlows.InstallerEngine.psm1"
+INSTALLER_CONSOLE_MODULE="$ROOT/cli/windows/ShipGlows.InstallerConsole.psm1"
 AGENT_INSTRUCTIONS_MODULE="$ROOT/cli/windows/ShipGlows.AgentInstructions.psm1"
 AUTH_MODULE="$ROOT/cli/windows/ShipGlows.Auth.psm1"
 ENVIRONMENT_CLI="$ROOT/cli/environment/shipglows_environment.py"
 
-for file in "$MODULE" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE" "$ENVIRONMENT_CLI"; do
+for file in "$MODULE" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$INSTALLER_ENGINE_MODULE" "$INSTALLER_CONSOLE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE" "$ENVIRONMENT_CLI"; do
   test -f "$file"
 done
 
@@ -24,6 +26,7 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/win
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-mise-adapter.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-installed-runtime.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/runtime-update-transaction.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/installer-engine-ui.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/mobile-toolchain.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/agent-instructions.ps1"
@@ -98,7 +101,8 @@ rg -n 'ApiLevel = 36|platforms;android-36|build-tools;36\.0\.0|system-images;and
 rg -n 'Expand-SgVerifiedZip|MaxEntries|MaxExpandedBytes|unsafe entry|ReparsePoint|Is64BitOperatingSystem' "$INSTALLER" "$MOBILE_MODULE"
 rg -n 'Resolve-SgExistingJdk17|Resolve-SgExistingAndroidSdk|Set-SgResolvedToolProcessEnvironment|installer and its children only|without persistent environment or PATH changes' "$INSTALLER" "$MOBILE_MODULE"
 rg -n 'rejected unsafe NUL/CR/LF|sg-transport-|Start-SgEncodedProcess' "$MOBILE_MODULE"
-test "$(rg -c 'Read-Host' "$INSTALLER")" -eq 5
+! rg -n 'Read-Host' "$INSTALLER"
+rg -n 'Read-SgInstallerChoice|Read-SgInstallerConsent|New-SgInstallerConsoleEventSink|Invoke-SgInstallerOperation' "$INSTALLER" "$INSTALLER_CONSOLE_MODULE" "$INSTALLER_ENGINE_MODULE"
 rg -n 'Accept the Android SDK terms.*\[y/N\]|Install the Android emulator and create ShipGlows_API_36 now\? \[y/N\]|Install the missing Windows IDE toolchains now\? \[y/N\]' "$INSTALLER"
 rg -n 'Get-SgWindowsIdeInstallPlan|Get-SgAndroidStudioState|Get-SgVisualStudioCppState|Google\.AndroidStudio|Microsoft\.VisualStudio\.2022\.Community|Microsoft\.VisualStudio\.Workload\.NativeDesktop|--norestart' "$INSTALLER" "$MOBILE_MODULE"
 ! rg -n 'Firebase.*(login|signin)|gcloud auth|firebase login|--includeOptional' "$INSTALLER" "$MOBILE_MODULE"
@@ -175,11 +179,11 @@ test -n "$legacy_cleanup_line" && test -n "$wrapper_install_line" && test "$lega
 rg -n "USERPROFILE 'ShipGlows'" "$INSTALLER" "$MODULE"
 ! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
 rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, or 0\.' \}" "$BOOTSTRAP"
-for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
+for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.InstallerEngine\.psm1' 'ShipGlows\.InstallerConsole\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
 done
-rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
-rg -n '\$entries\.Count -ne 12' "$BOOTSTRAP"
+rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
+rg -n '\$entries\.Count -ne 14' "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
 rg -n '\$environmentCandidates = @\(|Assert-EnvironmentPackage|cli/environment/.*shipglows_environment' "$BOOTSTRAP"
 ! rg -n '\$windowsCandidates = @\([^)]*\) \| Where-Object' "$BOOTSTRAP"
