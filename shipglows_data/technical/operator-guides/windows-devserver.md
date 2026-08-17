@@ -192,11 +192,18 @@ sans manifest reconnaissable doit être enregistrée par sa surface exécutable 
 ShipGlows ne prétend pas reconnaître toutes les conventions de monorepo.
 
 Le dashboard et tous les sélecteurs réutilisent le même catalogue. Un scan
-linéaire alimente un index non autoritaire conservé cinq minutes en mémoire et
-dans `%LOCALAPPDATA%\ShipGlows\DevServer\project-index.json`. `Refresh` le
-reconstruit ; clone, register et unregister l'invalident. Un index corrompu,
-périmé ou lié à un autre workspace est ignoré. Le registre reste la seule
+linéaire alimente un index non autoritaire en mémoire et dans
+`%LOCALAPPDATA%\ShipGlows\DevServer\project-index.json`. Le dernier index valide
+s'affiche immédiatement, même après cinq minutes ; le menu le rafraîchit alors
+en arrière-plan et adopte le résultat au prochain affichage. `Refresh` force un
+scan synchrone. Clone, register et unregister conservent l'index utilisable mais
+le marquent à rafraîchir. Un index corrompu, incompatible ou lié à un autre
+workspace est refusé et reconstruit avant usage. Le registre reste la seule
 autorité pour le statut live, le port, les journaux et l'identité du processus.
+
+Les commandes d'aide et de sortie évitent le chargement complet du DevServer.
+Les modules d'authentification et les outils GitHub/update sont chargés seulement
+quand leur action est ouverte.
 
 Les noms affichés sont les chemins de lancement relatifs au workspace, avec `/`
 comme séparateur. La navigation n'affiche que ce nom ; les autres actions peuvent

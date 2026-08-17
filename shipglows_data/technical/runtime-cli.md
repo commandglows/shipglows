@@ -230,11 +230,20 @@ identity.
 All Windows menus consume the same catalogue produced by one linear workspace
 scan. The discovery index is cached in memory and atomically at
 `%LOCALAPPDATA%\ShipGlows\DevServer\project-index.json` with its schema,
-workspace, scanner version, generation time, and a five-minute TTL. It is only
-an acceleration layer: invalid or stale cache data is ignored, refresh forces a
-rebuild, and clone/register/unregister invalidate both cache layers. Registry
+workspace, scanner version, and generation time. A structurally valid older
+index is displayed immediately; in the interactive menu, an index older than
+five minutes is rebuilt by a background job and adopted on the next dashboard
+render. Explicit refresh remains synchronous. Clone/register/unregister retain
+the last usable index and mark it stale instead of forcing a blocking rescan.
+Invalid schema, scanner, workspace, timestamp, or JSON still fails closed and
+triggers a synchronous rebuild because its identities cannot be trusted. Registry
 entries win when discovery and runtime state overlap, so the registry remains
 the authority for status, ports, logs, and process identity.
+
+The entrypoint dispatches `help`, `exit`, and environment-control commands
+before normal DevServer initialization. Authentication and GitHub/update tools
+are resolved only when their actions are entered; the Windows menu does not
+load the mobile installer module.
 
 The catalogue identity is the canonical runnable `launchPath`. Display names
 are the launch path relative to the workspace with `/` separators, or the full

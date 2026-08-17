@@ -528,22 +528,26 @@ function Get-SgProjectCatalogCacheKey([object]$Config) {
     return "$workspace|$((Get-SgProjectIndexPath $Config).ToLowerInvariant())"
 }
 
-function Test-SgProjectIndex([object]$Config, [object]$Index) {
+function Test-SgProjectIndex([object]$Config, [object]$Index, [switch]$AllowStale) {
     if (-not $Index -or $Index.schemaVersion -ne $script:ProjectIndexSchemaVersion -or [string]$Index.scannerVersion -ne $script:ProjectScannerVersion -or $null -eq $Index.projects) { return $false }
     $workspace = [IO.Path]::GetFullPath([string]$Config.Workspace).TrimEnd('\','/')
     $indexedWorkspace = try { [IO.Path]::GetFullPath([string]$Index.workspace).TrimEnd('\','/') } catch { return $false }
     if (-not $workspace.Equals($indexedWorkspace, [StringComparison]::OrdinalIgnoreCase)) { return $false }
     try { $generatedAt = [datetime]::Parse([string]$Index.generatedAt).ToUniversalTime() } catch { return $false }
     $age = ((Get-Date).ToUniversalTime() - $generatedAt).TotalMinutes
-    return $age -ge 0 -and $age -lt $script:ProjectIndexTtlMinutes
+    return $age -ge 0 -and ($AllowStale -or $age -lt $script:ProjectIndexTtlMinutes)
 }
 
-function Read-SgProjectIndex([object]$Config) {
+function Get-SgProjectIndexStalePath([object]$Config) {
+    return "$(Get-SgProjectIndexPath $Config).stale"
+}
+
+function Read-SgProjectIndex([object]$Config, [switch]$AllowStale) {
     $path = Get-SgProjectIndexPath $Config
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
     try {
         $index = (Get-Content -LiteralPath $path -Raw -ErrorAction Stop) | ConvertFrom-Json -ErrorAction Stop
-        if (Test-SgProjectIndex $Config $index) { return $index }
+        if (Test-SgProjectIndex $Config $index -AllowStale:$AllowStale) { return $index }
     } catch { }
     return $null
 }
@@ -581,6 +585,7 @@ function Write-SgProjectIndex([object]$Config, [object[]]$Projects) {
         } else {
             Move-Item -LiteralPath $temp -Destination $path -Force
         }
+        Remove-Item -LiteralPath (Get-SgProjectIndexStalePath $Config) -Force -ErrorAction SilentlyContinue
         return $index
     } finally {
         if ($lock) { $lock.Dispose() }
@@ -604,10 +609,25 @@ function Clear-SgProjectCatalogCache([object]$Config) {
                 Start-Sleep -Milliseconds 20
             }
         } while (-not $lock)
-        if (Test-Path -LiteralPath $path -PathType Leaf) { Remove-Item -LiteralPath $path -Force -ErrorAction Stop }
+        if (Test-Path -LiteralPath $path -PathType Leaf) {
+            [IO.File]::WriteAllText((Get-SgProjectIndexStalePath $Config), 'stale', [Text.UTF8Encoding]::new($false))
+        }
     } finally {
         if ($lock) { $lock.Dispose() }
     }
+}
+
+function Clear-SgProjectCatalogMemoryCache([object]$Config) {
+    [void]$script:ProjectCatalogMemory.Remove((Get-SgProjectCatalogCacheKey $Config))
+}
+
+function Test-SgProjectCatalogRefreshRequired([object]$Config, [switch]$DiskOnly) {
+    if (Test-Path -LiteralPath (Get-SgProjectIndexStalePath $Config) -PathType Leaf) { return $true }
+    $key = Get-SgProjectCatalogCacheKey $Config
+    if (-not $DiskOnly -and $script:ProjectCatalogMemory.ContainsKey($key)) {
+        return -not (Test-SgProjectIndex $Config $script:ProjectCatalogMemory[$key])
+    }
+    return -not [bool](Read-SgProjectIndex $Config)
 }
 
 function Find-SgWorkspaceProjectCandidates([object]$Config) {
@@ -679,11 +699,11 @@ function Get-SgWorkspaceProjectCandidates([object]$Config, [switch]$ForceRefresh
     $key = Get-SgProjectCatalogCacheKey $Config
     if (-not $ForceRefresh -and $script:ProjectCatalogMemory.ContainsKey($key)) {
         $memoryIndex = $script:ProjectCatalogMemory[$key]
-        if (Test-SgProjectIndex $Config $memoryIndex) { return @($memoryIndex.projects) }
+        if (Test-SgProjectIndex $Config $memoryIndex -AllowStale) { return @($memoryIndex.projects) }
         [void]$script:ProjectCatalogMemory.Remove($key)
     }
     if (-not $ForceRefresh) {
-        $persisted = Read-SgProjectIndex $Config
+        $persisted = Read-SgProjectIndex $Config -AllowStale
         if ($persisted) { $script:ProjectCatalogMemory[$key] = $persisted; return @($persisted.projects) }
     }
     $projects = @(Find-SgWorkspaceProjectCandidates $Config)
@@ -1487,3 +1507,4 @@ function Show-SgDashboard([object]$Config) {
 }
 
 Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

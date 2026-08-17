@@ -339,8 +339,10 @@ and `ENVIRONMENT.md`. Discovery is bounded to four workspace levels and three
 levels below a project root, and skips dependency, build, cache, and hidden
 directories. It does not claim to recognize every possible monorepo layout.
 One linear scan feeds every dashboard and project picker. Its non-authoritative
-project index is cached in memory and atomically on disk for five minutes;
-refresh rebuilds it, while clone/register/unregister invalidate it. The live
+project index is cached in memory and atomically on disk. The last structurally
+valid index is displayed immediately; after five minutes the interactive menu
+refreshes it in the background, while explicit refresh remains synchronous.
+Clone/register/unregister retain the usable index and mark it stale. The live
 registry remains authoritative for status, ports, and process metadata. Project
 names are explicit workspace-relative launch paths, and navigation selects by
 canonical launch identity rather than by a potentially ambiguous label.

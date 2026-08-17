@@ -46,12 +46,41 @@ if ($Action.Trim().ToLowerInvariant() -eq 'env') {
     exit $LASTEXITCODE
 }
 
+function Test-SgImmediateAction([string]$RequestedAction, [string[]]$RemainingPath) {
+    return @($RemainingPath).Count -eq 0 -and $RequestedAction.Trim().ToLowerInvariant() -in @('h','help','x','exit')
+}
+
+function Show-SgShortcutHelp {
+    Write-Host ''
+    Write-Host 'ShipGlows Windows shortcuts' -ForegroundColor Cyan
+    Write-Host '  s d      Dashboard'
+    Write-Host '  s e      Start a project'
+    Write-Host '  s m r    Restart a project'
+    Write-Host '  s m t    Stop a project'
+    Write-Host '  s m w    Unregister a stopped project (files are preserved)'
+    Write-Host '  s m o    Stop all projects'
+    Write-Host '  s m l    View project logs'
+    Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
+    Write-Host '  s a      Manage CLI authentication with official interactive flows'
+    Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
+    Write-Host '  s u      Update ShipGlows from the official repository'
+    Write-Host '  s x      Quit ShipGlows'
+    Write-Host '  s         Interactive menu'
+    Write-Host ''
+    Write-Host 'Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
+}
+
+if (Test-SgImmediateAction $Action $ShortcutPath) {
+    $immediateAction = $Action.Trim().ToLowerInvariant()
+    if ($immediateAction -in @('x','exit')) { exit 0 }
+    Show-SgShortcutHelp
+    exit 0
+}
+
 $module = Join-Path $PSScriptRoot 'ShipGlows.DevServer.psm1'
 Import-Module $module -Force -DisableNameChecking
 $authModule = Join-Path $PSScriptRoot 'ShipGlows.Auth.psm1'
-$mobileModule = Join-Path $PSScriptRoot 'ShipGlows.MobileToolchain.psm1'
-Import-Module $authModule -Force -DisableNameChecking
-Import-Module $mobileModule -Force -DisableNameChecking
+$script:authenticationModuleLoaded = $false
 $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
@@ -78,26 +107,6 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
     }
     if ($shortcuts.ContainsKey($shortcut)) { return $shortcuts[$shortcut] }
     throw "Unknown Windows shortcut path: $shortcut. Run 's h' to list supported shortcuts."
-}
-
-function Show-SgShortcutHelp {
-    Write-Host ''
-    Write-Host 'ShipGlows Windows shortcuts' -ForegroundColor Cyan
-    Write-Host '  s d      Dashboard'
-    Write-Host '  s e      Start a project'
-    Write-Host '  s m r    Restart a project'
-    Write-Host '  s m t    Stop a project'
-    Write-Host '  s m w    Unregister a stopped project (files are preserved)'
-    Write-Host '  s m o    Stop all projects'
-    Write-Host '  s m l    View project logs'
-    Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
-    Write-Host '  s a      Manage CLI authentication with official interactive flows'
-    Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
-    Write-Host '  s u      Update ShipGlows from the official repository'
-    Write-Host '  s x      Quit ShipGlows'
-    Write-Host '  s         Interactive menu'
-    Write-Host ''
-    Write-Host 'Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
 }
 
 try { $Action = Resolve-SgAction $Action $ShortcutPath }
@@ -134,9 +143,20 @@ $fzf = Get-SgFzfCommand
 $choiceUiAvailable = [bool]($fzf -or $gum)
 $programFiles = [Environment]::GetFolderPath('ProgramFiles')
 $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
-$git = Get-SgApplication 'git.exe' @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe'))
-$gh = Get-SgApplication 'gh.exe' @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe'))
-$curl = Get-SgApplication 'curl.exe' @((Join-Path $env:WINDIR 'System32\curl.exe'))
+$git = $null
+$gh = $null
+$curl = $null
+
+function Initialize-SgGitTools([switch]$IncludeGitHub) {
+    if (-not $git) { $script:git = Get-SgApplication 'git.exe' @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe')) }
+    if ($IncludeGitHub -and -not $gh) { $script:gh = Get-SgApplication 'gh.exe' @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe')) }
+}
+
+function Import-SgAuthenticationModule {
+    if ($script:authenticationModuleLoaded) { return }
+    Import-Module $authModule -Force -DisableNameChecking
+    $script:authenticationModuleLoaded = $true
+}
 
 function Get-SgSelectedIndex([string[]]$Labels, [string]$Selected) {
     for ($index = 0; $index -lt $Labels.Count; $index++) {
@@ -238,6 +258,7 @@ function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Ch
 }
 
 function Invoke-SgGitHubLogin {
+    Initialize-SgGitTools -IncludeGitHub
     if (-not $gh) { throw 'GitHub CLI is unavailable. Rerun the ShipGlows full installer.' }
     & $gh auth status --hostname github.com *> $null
     if ($LASTEXITCODE -ne 0) {
@@ -327,6 +348,7 @@ function Invoke-SgGitHubClone {
 }
 
 function Invoke-CloneUrl {
+    Initialize-SgGitTools
     $url = if ($RepositoryUrl) { $RepositoryUrl } else { Read-SgInput 'Git URL' 'https://github.com/owner/repository.git' }
     if (-not $url) { return }
     if (-not (Test-SgGitUrl $url)) { throw 'Only HTTPS and SSH Git URLs without embedded credentials are accepted.' }
@@ -386,6 +408,7 @@ function Invoke-Navigate {
 }
 
 function Invoke-SgUpdate {
+    if (-not $curl) { $script:curl = Get-SgApplication 'curl.exe' @((Join-Path $env:WINDIR 'System32\curl.exe')) }
     if (-not $curl) { throw 'curl.exe is unavailable. Download install-shipglows.ps1 from the official ShipGlows repository.' }
 
     $installerUrl = 'https://raw.githubusercontent.com/commandglows/shipglows/main/install-shipglows.ps1'
@@ -429,6 +452,7 @@ function Get-SgAuthenticationMenuState {
 }
 
 function Invoke-SgAuthenticationMenu {
+    Import-SgAuthenticationModule
     while ($true) {
         $definitions = @(Get-SgAuthenticationDefinitions)
         $labels = New-Object 'System.Collections.Generic.List[string]'
@@ -469,6 +493,56 @@ function Invoke-SgAuthenticationMenu {
     }
 }
 
+$script:catalogRefreshPath = "$($config.ProjectIndexPath).refreshing"
+$script:catalogRefreshObserved = $false
+
+function Complete-SgBackgroundCatalogRefresh {
+    if ($script:catalogRefreshObserved -and -not (Test-Path -LiteralPath $script:catalogRefreshPath -PathType Leaf) -and -not (Test-SgProjectCatalogRefreshRequired $config -DiskOnly)) {
+        Clear-SgProjectCatalogMemoryCache $config
+        $script:catalogRefreshObserved = $false
+    }
+}
+
+function Start-SgBackgroundCatalogRefresh {
+    if (-not (Test-SgProjectCatalogRefreshRequired $config)) { return }
+    if (Test-Path -LiteralPath $script:catalogRefreshPath -PathType Leaf) {
+        if (((Get-Date) - (Get-Item -LiteralPath $script:catalogRefreshPath).LastWriteTime).TotalMinutes -lt 5) { return }
+        Remove-Item -LiteralPath $script:catalogRefreshPath -Force -ErrorAction SilentlyContinue
+    }
+    $claim = $null
+    try { $claim = [IO.File]::Open($script:catalogRefreshPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None) }
+    catch [IO.IOException] { return }
+    finally { if ($claim) { $claim.Dispose() } }
+
+    $refresher = Join-Path $PSScriptRoot 'ShipGlows.ProjectCatalogRefresh.ps1'
+    $powershell = Join-Path $PSHOME 'powershell.exe'
+    if (-not (Test-Path -LiteralPath $refresher -PathType Leaf) -or $refresher -match '["\r\n]') {
+        Remove-Item -LiteralPath $script:catalogRefreshPath -Force -ErrorAction SilentlyContinue
+        return
+    }
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $powershell
+    $startInfo.Arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$refresher`""
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
+    $startInfo.EnvironmentVariables['SHIPGLOWS_CATALOG_WORKSPACE'] = $config.Workspace
+    $startInfo.EnvironmentVariables['SHIPGLOWS_CATALOG_RUNTIME'] = $config.RuntimeDirectory
+    try {
+        $process = [Diagnostics.Process]::Start($startInfo)
+        if (-not $process) { throw 'Background refresh process did not start.' }
+        $process.Dispose()
+        $script:catalogRefreshObserved = $true
+    } catch {
+        Remove-Item -LiteralPath $script:catalogRefreshPath -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Wait-SgBackgroundCatalogRefresh {
+    $deadline = (Get-Date).AddSeconds(10)
+    while ((Test-Path -LiteralPath $script:catalogRefreshPath -PathType Leaf) -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 50 }
+}
+
 function Invoke-Menu {
     $menuItems = @(
         '1  Clone a repository',
@@ -487,7 +561,9 @@ function Invoke-Menu {
         '0  Quit ShipGlows'
     )
     while ($true) {
+        Complete-SgBackgroundCatalogRefresh
         Show-SgWindowsDashboard
+        Start-SgBackgroundCatalogRefresh
         if ($choiceUiAvailable) {
             $selected = Read-SgChoice 'What do you want to do?' $menuItems
             if (-not $selected) { continue }
@@ -509,7 +585,7 @@ function Invoke-Menu {
                 '9' { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } }
                 'n' { Invoke-Navigate }
                 'a' { Invoke-SgAuthenticationMenu }
-                'r' { Get-SgProjectCatalog $config -ForceRefresh | Out-Null }
+                'r' { Wait-SgBackgroundCatalogRefresh; Get-SgProjectCatalog $config -ForceRefresh | Out-Null }
                 'u' { Invoke-SgUpdate; return }
                 '0' { return }
                 default { Write-SgWarn 'Unknown choice.' }

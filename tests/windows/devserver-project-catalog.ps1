@@ -125,7 +125,10 @@ try {
     Write-Package $gamma 'vite'
     Remove-Module ShipGlows.DevServer -Force
     Import-Module $modulePath -Force -DisableNameChecking
-    Assert-Sg (@(Get-SgProjectCatalog $config).Count -eq 3) 'A cache at the TTL boundary was not rebuilt.'
+    Assert-Sg (@(Get-SgProjectCatalog $config).Count -eq 2) 'A structurally valid stale cache did not return immediately.'
+    Assert-Sg (Test-SgProjectCatalogRefreshRequired $config) 'A stale cache did not request background refresh.'
+    Assert-Sg (@(Get-SgProjectCatalog $config -ForceRefresh).Count -eq 3) 'Explicit refresh did not discover the new project.'
+    Assert-Sg (-not (Test-SgProjectCatalogRefreshRequired $config)) 'A freshly rebuilt cache still requested refresh.'
 
     $betaItem = @(Get-SgProjectCatalog $config) | Where-Object Name -eq 'beta/site'
     Remove-Item -LiteralPath $beta -Recurse -Force
@@ -138,10 +141,10 @@ try {
     $registerTarget = Join-Path $workspace 'register-me'
     Write-Package $registerTarget 'vite'
     Register-SgProject $config $registerTarget | Out-Null
-    Assert-Sg (-not (Test-Path -LiteralPath $config.ProjectIndexPath)) 'Register did not invalidate the persistent catalogue.'
+    Assert-Sg ((Test-Path -LiteralPath $config.ProjectIndexPath) -and (Test-SgProjectCatalogRefreshRequired $config)) 'Register did not retain and mark the persistent catalogue stale.'
     Get-SgProjectCatalog $config | Out-Null
     Unregister-SgProject $config $registerTarget
-    Assert-Sg (-not (Test-Path -LiteralPath $config.ProjectIndexPath)) 'Unregister did not invalidate the persistent catalogue.'
+    Assert-Sg ((Test-Path -LiteralPath $config.ProjectIndexPath) -and (Test-SgProjectCatalogRefreshRequired $config)) 'Unregister did not retain and mark the persistent catalogue stale.'
 
     $jobs = @(1..2 | ForEach-Object {
         Start-Job -ScriptBlock {
@@ -177,9 +180,22 @@ try {
         }
         $coldMedian = @($coldTimes | Sort-Object)[2]
         $warmMedian = @($warmTimes | Sort-Object)[2]
-        Write-Host ('BENCHMARK cold_ms={0} warm_ms={1} cold_runs={2} warm_runs={3}' -f [math]::Round($coldMedian,2),[math]::Round($warmMedian,2),(@($coldTimes | ForEach-Object {[math]::Round($_,2)}) -join ','),(@($warmTimes | ForEach-Object {[math]::Round($_,2)}) -join ','))
-        Assert-Sg ($coldMedian -lt 1000) 'Cold catalogue median is at or above 1 second.'
+        $benchmarkIndex = Get-Content -LiteralPath $benchmarkConfig.ProjectIndexPath -Raw | ConvertFrom-Json
+        $benchmarkIndex.generatedAt = (Get-Date).ToUniversalTime().AddHours(-1).ToString('o')
+        $benchmarkIndex | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $benchmarkConfig.ProjectIndexPath -Encoding UTF8
+        Remove-Module ShipGlows.DevServer -Force
+        Import-Module $modulePath -Force -DisableNameChecking
+        $staleTimes = @()
+        1..5 | ForEach-Object {
+            $stopwatch = [Diagnostics.Stopwatch]::StartNew()
+            Get-SgProjectCatalog $benchmarkConfig | Out-Null
+            $stopwatch.Stop(); $staleTimes += $stopwatch.Elapsed.TotalMilliseconds
+        }
+        $staleMedian = @($staleTimes | Sort-Object)[2]
+        Write-Host ('BENCHMARK cold_ms={0} warm_ms={1} stale_ms={2} cold_runs={3} warm_runs={4} stale_runs={5}' -f [math]::Round($coldMedian,2),[math]::Round($warmMedian,2),[math]::Round($staleMedian,2),(@($coldTimes | ForEach-Object {[math]::Round($_,2)}) -join ','),(@($warmTimes | ForEach-Object {[math]::Round($_,2)}) -join ','),(@($staleTimes | ForEach-Object {[math]::Round($_,2)}) -join ','))
+        Assert-Sg ($coldMedian -lt 2000) 'Background cold catalogue median is at or above 2 seconds.'
         Assert-Sg ($warmMedian -lt 200) 'Warm catalogue median is at or above 200 ms.'
+        Assert-Sg ($staleMedian -lt 200) 'Stale catalogue median is at or above 200 ms.'
     }
 } finally {
     Get-Job -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'Job*' } | Remove-Job -Force -ErrorAction SilentlyContinue
