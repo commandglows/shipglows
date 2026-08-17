@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.3.0"
+artifact_version: "2.4.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-16"
+updated: "2026-08-17"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -66,6 +66,7 @@ evidence:
   - "Operator decision 2026-08-07: lifecycle orchestration defaults to parallel read-only fan-out and reserves parallel writes for prepared non-overlapping Execution Batches."
   - "Operator decision 2026-08-14: lifecycle approval has a cumulative fast path for exact local routine reversible mutations and retains the full plan for every ineligible mutation."
   - "Operator decision 2026-08-16: task-scoped agent branches and worktrees remain lifecycle-owned until removal or another explicit terminal disposition."
+  - "Operator correction 2026-08-17: daily MVP work should privilege construction, use zero or one focused check when sufficient, and commit/push every clean completed chantier by default."
 next_review: "2026-11-07"
 next_step: "/103-sg-verify master workflow lifecycle reference"
 ---
@@ -240,6 +241,15 @@ continue the implementation. A deferred check is not a failure or a claim that
 the work is verified. The next checkpoint must run the proportional proof before
 completion, closure, or ship claims.
 
+For daily construction, start from the smallest useful proof rather than from a suite:
+
+- a low-risk local edit may use zero automated checks when no focused check can materially detect a regression;
+- a behavior change normally uses one focused regression, contract, syntax, or smoke check;
+- do not stack lint, typecheck, build, tests, metadata, budget, audit, and full-suite commands merely because they exist;
+- reserve full suites and broad audit/check bundles for release preparation, explicit health or security audits, dependency/platform migrations, broad shared-runtime changes, high-risk security/data/auth/payment/destructive surfaces, or a focused failure that establishes the need.
+
+Document the narrow proof or the concrete reason for no check. Skipped irrelevant broad checks do not weaken an iteration claim; an attempted failing check still blocks normal shipping.
+
 Run checks and evidence collection that match the changed surface. Do not invent proof.
 
 For behavior, bug, skill-contract, UI/docs/auth/deploy, operational, or integration changes, name the chosen proof path and verify that the evidence matches it.
@@ -269,6 +279,8 @@ Use the reference's exact classification and routing rules; do not wait for the 
 ### 9. Post-Verify Closure And Ship
 
 After verification passes, the master skill should continue through its owned closure and ship route unless a named stop condition blocks it.
+
+For a clean completed daily chantier, the default terminal route is bounded commit and push, not an unpushed local handoff. When push is already the intended outcome, include it in the chantier approval plan before implementation so the remote approval gate is satisfied without a new closing ceremony. Leave commits local only on explicit local-only intent, missing remote approval, or a concrete push failure/blocker.
 
 When the run created a task-scoped branch or worktree, continue through `005-sg-ship` until `git-temporary-artifact-lifecycle.md` records a terminal Git disposition. `pending` forbids a fully clean completion; `retained-explicit` is terminal only with a concrete reason and review date, while `blocked` remains a visible limit.
 

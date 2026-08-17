@@ -26,7 +26,7 @@ Use `report=agent` only for handoff details, blocked proof, or audit-grade trace
 
 `104-sg-end` closes a work session by preparing closure bookkeeping and explicit next work.
 
-It owns summary and tracker/changelog prep, not implementation proof and not shipping.
+It owns summary and tracker/changelog prep, not implementation proof and not shipping. A clean completed daily chantier hands off immediately to bounded shipping; unpushed commits remain delivery pending rather than silently complete.
 
 ## Scope Gate
 
@@ -78,6 +78,7 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 - Do not include internal file paths in user `report=user`.
 - Do not claim shipping, release, or implementation truth from closure alone.
 - Never commit or push; git shipping belongs to `005-sg-ship`.
+- Do not present an otherwise clean completed chantier as terminal while bounded commit/push remains available and intended; route it directly to shipping unless the operator chose local-only work or a concrete blocker exists.
 - In `summary-only`, do not mutate any project or ShipGlows-owned artifact.
 
 ## Validation
@@ -88,7 +89,7 @@ Run closure in this order:
 2. apply `closure-archive-guard.md`,
 3. run changelog/tracker preparation rules,
 4. run documentation reflection and classify editorial impact independently; apply directly mapped updates before closure, expose both classifications, and route each `needs review` case to its owner. `No declared public surface` is a valid editorial no-impact reason,
-5. emit closure limits and next owner clearly.
+5. route a clean completed daily chantier directly to bounded shipping, otherwise emit the concrete delivery limit and next owner clearly.
 
 For `summary-only`, run read-only classification and reporting only; skip steps that write bookkeeping.
 

@@ -42,7 +42,7 @@ If closure bookkeeping is the next unresolved owner, remain with `104-sg-end`; q
 - Select whole-repo staging only when `$ARGUMENTS` explicitly includes `all-dirty`, `ship-all`, or `tout-dirty`.
 - `skip-check` skips checks but never skips secret, dirty-scope, bug-risk, protected-surface, or proof-claim gates.
 
-Quick mode performs bounded checks when practical, stages, commits, pushes, and reports. It never updates `TASKS.md` or `CHANGELOG.md` and never claims formal closure.
+Quick mode is the default daily delivery path. It uses zero or one focused check when sufficient, stages, commits, pushes, and reports. It never updates `TASKS.md` or `CHANGELOG.md` and never claims formal closure.
 
 Full mode may update trackers, changelog, and durable decisions before the same Git ship sequence. Before it does so, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/full-close-playbook.md`; also load `closure-archive-guard.md`, `documentation-reflection-gate.md`, and `editorial-reflection-gate.md`. A material documentation or editorial gap prevents full-closure wording and routes to the matching owner.
 
@@ -83,5 +83,6 @@ Start with the shared chantier and verdict headers. In `report=user`, never expo
 - Re-read mutable trackers immediately before any targeted full-mode edit; never rewrite them from stale startup context.
 - Skill creation, rename, or material `SKILL.md` changes require the shared runtime visibility check before commit.
 - Prefer honest `shipped for iteration`, `checks skipped`, or `validation pending` wording.
+- Do not turn quick daily shipping into a release rehearsal: full suites and broad check bundles require a material release, audit, migration, shared-runtime, or high-risk trigger.
 - `docs not checked` forbids full closure; so does `editorial not checked`.
 - A `vercel-preview-push` route never sends `107-sg-test` before `405-sg-prod`.

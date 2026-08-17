@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-15"
+updated: "2026-08-17"
 status: active
 source_skill: 104-sg-end
 scope: closure-bookkeeping-playbook
@@ -21,6 +21,7 @@ evidence:
   - "Wave-5 independent audit restored summary-only and ship-ownership boundaries."
   - "Operator clarification 2026-08-15: documentation reflection must be enforced and visible at closure."
   - "Operator decision 2026-08-16: editorial impact is classified independently and visibly at every closure."
+  - "Operator correction 2026-08-17: clean completed daily work proceeds to bounded commit/push by default instead of accumulating locally."
 next_step: none
 ---
 
@@ -85,7 +86,7 @@ If proof or ship is not complete, never set `closed`.
 ## Step 5: next action
 
 - If proof is unresolved, route to `103-sg-verify`.
-- If ship remains unfinished, route to `005-sg-ship`.
+- If a clean completed daily chantier is not pushed, route directly to `005-sg-ship`; treat delivery as pending until push succeeds, the operator explicitly chooses local-only work, or a concrete blocker is recorded.
 - If backlog/priority is needed, route to `011-sg-pilotage`.
 - If no unique next owner, keep the result explicit and local.
 

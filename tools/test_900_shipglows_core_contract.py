@@ -46,10 +46,12 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         self.assertIn("A passing generic audit is not completion proof", self.text)
         self.assertIn("Require focused mechanical or pressure-scenario proof", self.text)
 
-    def test_validation_uses_current_tool_and_focused_test(self) -> None:
-        self.assertIsNone(re.search(r"audit_shipglows_skills(?!\.py)", self.text))
-        self.assertIn("audit_shipglows_skills.py", self.text)
-        self.assertIn("python3 -m unittest tools.test_900_shipglows_core_contract", self.text)
+    def test_validation_defaults_to_focused_proof_not_global_audit(self) -> None:
+        validation = self.text.split("## Validation", 1)[1]
+        self.assertIn("focused contract or pressure-scenario test", validation)
+        self.assertIn("global skill audit", validation)
+        self.assertIn("only for explicit audit/release work", validation)
+        self.assertNotIn("Run `python3 -m unittest", validation)
 
     def test_windows_installer_work_loads_the_canonical_handoff(self) -> None:
         self.assertIn("`${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/install-shipglows.ps1`", self.text)
@@ -137,15 +139,21 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         ):
             self.assertIn(rule, self.refresh)
 
-    def test_build_requires_refresh_before_verify_with_narrow_exceptions(self) -> None:
-        self.assertIn("900 refresh -> 103", self.text)
-        self.assertIn("Every material skill edit receives conservative `refresh <target>` review", self.text)
-        self.assertIn("before the final budget audit and `103-sg-verify`", self.build)
+    def test_build_uses_refresh_only_for_high_assurance_triggers(self) -> None:
+        self.assertIn("Bounded daily repairs use one focused pressure-scenario proof", self.text)
+        self.assertIn("broad semantic, public-routing, packaging, security, audit, and release work", self.text)
+        self.assertIn("broad semantic rewrites", self.build)
+        self.assertIn("bounded daily contract repair", self.build)
+        self.assertIn("zero or one focused scenario/contract check", self.build)
+        self.assertIn("only when the changed surface", self.build)
         self.assertIn("ordinary self-refresh stays prohibited", self.build)
         self.assertIn("independent manual review", self.build)
-        self.assertIn("scenario-first and source-completeness proof", self.build)
-        self.assertIn("`refresh not needed` only with a written justification and focused proof", self.build)
-        self.assertIn("`fresh-docs not needed` is not that justification", self.build)
+
+    def test_activation_validation_is_surgical_by_default(self) -> None:
+        validation = self.text.split("## Validation", 1)[1]
+        self.assertIn("bounded daily repair", validation)
+        self.assertIn("focused contract or pressure-scenario test", validation)
+        self.assertIn("only for explicit audit/release work", validation)
 
     def test_preferred_stack_is_cross_platform_first_not_mobile_only(self) -> None:
         for rule in (

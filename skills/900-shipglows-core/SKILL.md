@@ -53,7 +53,7 @@ Audit, packaging, and help are read-only unless edits are requested. `build`/`re
 
 For confirmed non-style failures, report exactly once: `Observed problem`, `System cause`, `Prevention rule`, and `Contract/tooling improvement proposal`. Before editing, name the pressure scenario, apply the shared `Followability Gate`, and choose the narrowest owner layer. A passing generic audit is not completion proof. Require focused mechanical or pressure-scenario proof.
 
-Prefer one local contract for one owner, shared doctrine for repeated ownership, and tooling when recurrence should be caught mechanically. Every material skill edit receives conservative `refresh <target>` review before final budget and `103`; the lifecycle is `100 -> 101 -> 102 -> 900 refresh -> 103 -> 104 -> 005`. Ordinary self-refresh stays prohibited and requires independent spec-backed review.
+Prefer one local contract for one owner, shared doctrine for repeated ownership, and tooling when recurrence should be caught mechanically. Bounded daily repairs use one focused pressure-scenario proof and continue to `103 -> 104 -> 005`; broad semantic, public-routing, packaging, security, audit, and release work also receives conservative `refresh <target>` review. Ordinary self-refresh stays prohibited and high-assurance self-work requires independent spec-backed review.
 
 ## Internal And Packaging Boundary
 
@@ -65,4 +65,4 @@ Stop when `$SHIPGLOWS_ROOT/skills` or a requested tool/pack is absent; the activ
 
 ## Validation
 
-Run `python3 -m unittest tools.test_900_shipglows_core_contract tools.test_skill_activation_graph tools.test_resource_dependency_graph tools.test_skill_invocation_check`, `python3 tools/skill_invocation_check.py --audit-graph`, `python3 tools/audit_shipglows_skills.py`, the activation/discovery budget audits, metadata lint, and runtime sync.
+For a bounded daily repair, run only its focused contract or pressure-scenario test and affected-skill runtime sync when discoverability changed. Run activation/resource graphs, global skill audit, budget audits, metadata lint, broad suites, and all-skill sync only for explicit audit/release work or when the changed surface materially depends on them.

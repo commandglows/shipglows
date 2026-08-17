@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-16"
+updated: "2026-08-17"
 status: active
 source_skill: 005-sg-ship
 scope: ship-execution
@@ -25,6 +25,7 @@ evidence:
   - "Wave-2 compaction extracted bounded Git execution from the ship activation contract."
   - "Operator critique 2026-08-16: completed temporary branches and worktrees should be surfaced for cleanup without requiring the operator to notice them."
   - "Operator decision 2026-08-16: task-scoped agent Git artifacts remain owned through a terminal cleanup disposition after integration."
+  - "Operator correction 2026-08-17: quick daily shipping uses zero or one focused check when sufficient; broad suites are reserved for release, audit, migration, shared-runtime, or high-risk triggers."
 next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
 ---
 
@@ -60,12 +61,13 @@ Stop for `blocked` unless the user explicitly accepts risk. Retain `partial-risk
 
 ## Checks
 
-Unless `skip-check` was explicit, run checks proportional to changed surfaces:
+Unless `skip-check` was explicit, choose the smallest useful daily proof:
 
-- use available typecheck and lint scripts for package projects;
-- syntax-check touched shell files when practical;
-- run focused owner tests for the changed behavior;
-- do not run a full build by default solely because this is a ship action.
+- use no automated check for a low-risk localized change when no focused check adds meaningful regression signal, and record that reason;
+- otherwise run one focused owner test, contract test, syntax check, or smoke check for the changed behavior;
+- add a second check only when it covers a distinct material failure boundary;
+- do not automatically combine lint, typecheck, build, tests, metadata, budget, audit, and full-suite commands because this is a ship action;
+- use a full suite or broad check bundle only for release preparation, an explicit health/security audit, dependency/platform migration, broad shared-runtime change, high-risk security/data/auth/payment/destructive behavior, or after a focused failure proves broader diagnosis is needed.
 
 Stop on a required or attempted check failure. The user may then request a distinct risk-accepted ship, but the failed proof remains visible.
 

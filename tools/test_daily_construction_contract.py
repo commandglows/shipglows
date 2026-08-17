@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""Focused contract proof for daily construction throughput and default push."""
+
+from pathlib import Path
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class DailyConstructionContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.core = (ROOT / "skills/references/master-workflow-lifecycle-core.md").read_text(encoding="utf-8")
+        cls.lifecycle = (ROOT / "skills/references/master-workflow-lifecycle.md").read_text(encoding="utf-8")
+        cls.ship = (ROOT / "skills/005-sg-ship/SKILL.md").read_text(encoding="utf-8")
+        cls.ship_execution = (ROOT / "skills/005-sg-ship/references/ship-execution-playbook.md").read_text(encoding="utf-8")
+        cls.end = (ROOT / "skills/104-sg-end/SKILL.md").read_text(encoding="utf-8")
+        cls.core_build = (ROOT / "skills/900-shipglows-core/references/skill-maintenance-playbook.md").read_text(encoding="utf-8")
+
+    def test_clean_daily_completion_defaults_to_push(self) -> None:
+        self.assertIn("clean completed daily chantier proceeds to bounded commit and push by default", self.core)
+        self.assertIn("default terminal route is bounded commit and push", self.lifecycle)
+        self.assertIn("unpushed commits remain delivery pending", self.end)
+
+    def test_daily_validation_is_zero_or_one_focused_check(self) -> None:
+        self.assertIn("zero or one focused check", self.ship)
+        self.assertIn("use no automated check for a low-risk localized change", self.ship_execution)
+        self.assertIn("otherwise run one focused owner test", self.ship_execution)
+        self.assertIn("zero or one focused scenario/contract check", self.core_build)
+
+    def test_broad_validation_requires_a_material_trigger(self) -> None:
+        for text in (self.core, self.lifecycle, self.ship_execution, self.core_build):
+            self.assertIn("release", text.lower())
+            self.assertIn("audit", text.lower())
+        self.assertIn("do not automatically combine lint, typecheck, build, tests", self.ship_execution)
+
+    def test_safety_and_truth_boundaries_remain(self) -> None:
+        self.assertIn("git push` always requires the full plan", (ROOT / "skills/references/mutation-plan-approval.md").read_text(encoding="utf-8"))
+        self.assertIn("Never commit secrets", self.ship)
+        self.assertIn("Stop on a required or attempted check failure", self.ship_execution)
+        self.assertIn("never claims formal closure", self.ship)
+
+
+if __name__ == "__main__":
+    unittest.main()

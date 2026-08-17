@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-07-15"
+updated: "2026-08-17"
 status: active
 source_skill: 900-shipglows-core
 scope: skill-maintenance-lifecycle
@@ -23,6 +23,7 @@ supersedes:
   - skills/009-sg-skill-build/SKILL.md
 evidence:
   - "2026-07-15 operator decision: consolidate internal skill maintenance under 900-shipglows-core."
+  - "2026-08-17 operator correction: bounded daily skill repairs prioritize construction, focused proof and prompt push; global audits and full suites belong to explicit high-assurance work."
 next_step: "/103-sg-verify consolidate skill maintenance under shipglows core"
 ---
 
@@ -47,8 +48,8 @@ Use for `900-shipglows-core build <skill, path, or maintenance goal>`. `900` is 
 ## Runtime, Surfaces, And Proof
 
 1. On a new/renamed invocation directory, require `agents/openai.yaml` display name to equal the exact invocation key when that file exists. Repair then check current-user Claude/Codex links with `tools/shipglows_sync_skills.sh`; non-symlink collisions block. Install-wide distribution and runtime reload are separate, explicit follow-ups.
-2. After every material skill edit, run `900-shipglows-core refresh <target>` as conservative review before the final budget audit and `103-sg-verify`. For target `900-shipglows-core`, ordinary self-refresh stays prohibited: the spec-backed build run loads and applies `skill-refresh-playbook.md` as an independent manual review, with scenario-first and source-completeness proof.
-3. A strictly mechanical change may record `refresh not needed` only with a written justification and focused proof that no refresh concern can apply; `fresh-docs not needed` is not that justification.
-4. Load `skill-context-budget` before material body, discovery, or public-page growth. Run focused scenarios, metadata lint, `audit_shipglows_skills.py`, the budget audit, and runtime sync; run site/plugin checks only for affected surfaces.
+2. Use `900-shipglows-core refresh <target>` for broad semantic rewrites, public routing/packaging changes, security-sensitive contracts, explicit audits, and release preparation. A bounded daily contract repair may record `refresh deferred` or `refresh not needed` when one focused pressure-scenario proof covers the observed failure. For target `900-shipglows-core`, ordinary self-refresh stays prohibited; high-assurance work uses the spec-backed independent manual review from `skill-refresh-playbook.md`.
+3. Daily validation starts with zero or one focused scenario/contract check. Run metadata lint, `audit_shipglows_skills.py`, budget audit, full suites, or all-skill runtime sync only when the changed surface or an explicit release/health/security/audit goal makes that evidence material. Affected-skill runtime sync remains appropriate when runtime discoverability changed.
+4. Load `skill-context-budget` only before material activation-body, discovery, or public-page growth. Do not spend daily implementation time on unrelated global health evidence.
 5. Align help, routing, README/workflow/lifecycle docs, and public skill pages when the target's discoverability, promise, or invocation changes. Preserve the target's approved visibility; a brand-new material skill workflow is public by default unless its ready spec explicitly approves an internal-only exception. This policy never publishes internal-only `900`. Report both `Documentation Update Plan` and `Editorial Update Plan` as complete, no impact, or blocked.
 6. Route implementation to `103-sg-verify`; this playbook neither closes nor ships. Report target, placement, lifecycle/proof, refresh or justified exception, runtime/reload status, changed surfaces, docs/editorial statuses, and remaining blockers.
