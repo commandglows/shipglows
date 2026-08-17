@@ -1158,7 +1158,7 @@ function Install-SgOfficialMiseForTauri {
 }
 
 function Invoke-SgManagedTauriMise {
-    param([string]$MisePath, [string]$ToolchainRoot, [string[]]$Arguments, [int]$TimeoutSeconds = 120, [switch]$Visible)
+    param([string]$MisePath, [string]$ToolchainRoot, [string[]]$Arguments, [int]$TimeoutSeconds = 120, [switch]$Visible, [string]$OperationId = 'tool.rust.tauri', [string]$Label = 'Installing the validated Rust toolchain')
     $names = @('MISE_SAFE','MISE_NO_HOOKS','MISE_NO_ENV','MISE_AUTO_INSTALL','MISE_EXEC_AUTO_INSTALL','MISE_NOT_FOUND_AUTO_INSTALL','MISE_RUN_AUTO_INSTALL','MISE_OVERRIDE_CONFIG_FILENAMES','MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES','MISE_CONFIG_DIR','MISE_CEILING_PATHS','MISE_SYSTEM_DEPS')
     $previous = @{}; foreach($name in $names){$previous[$name]=[Environment]::GetEnvironmentVariable($name,'Process')}
     try {
@@ -1166,7 +1166,7 @@ function Invoke-SgManagedTauriMise {
         $env:MISE_SAFE='1'; $env:MISE_NO_HOOKS='1'; $env:MISE_NO_ENV='1'; $env:MISE_AUTO_INSTALL='false'; $env:MISE_EXEC_AUTO_INSTALL='false'; $env:MISE_NOT_FOUND_AUTO_INSTALL='false'; $env:MISE_RUN_AUTO_INSTALL='false'; $env:MISE_OVERRIDE_CONFIG_FILENAMES='mise.toml'; $env:MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES='none'; $env:MISE_CONFIG_DIR=$emptyConfig; $env:MISE_CEILING_PATHS=(Split-Path $ToolchainRoot -Parent); $env:MISE_SYSTEM_DEPS='ignore'
         Push-Location $ToolchainRoot
         try {
-            if ($Visible) { return Invoke-SgVisibleBoundedProcess -OperationId 'tool.rust.tauri' -Label 'Installing the validated Rust toolchain and Android targets' -File $MisePath -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds }
+            if ($Visible) { return Invoke-SgVisibleBoundedProcess -OperationId $OperationId -Label $Label -File $MisePath -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds }
             return Invoke-SgBoundedProcess $MisePath $Arguments $TimeoutSeconds
         } finally { Pop-Location }
     } finally { foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$previous[$name],'Process')} }
@@ -1214,6 +1214,8 @@ function Install-SgTauriAndroidToolchain {
             }
             $install = Invoke-SgManagedTauriMise $mise $root @('install','rust') 1800 -Visible
             if ($install.TimedOut -or $install.ExitCode -ne 0) { Write-SgInstallerWarning 'Validated Tauri Rust installation failed or timed out.' }
+            $targetAdd = Invoke-SgManagedTauriMise $mise $root (Get-SgTauriRustTargetAddArguments -Baseline $baseline) 1800 -Visible -OperationId 'tool.rust-targets.tauri' -Label 'Installing the validated Rust Android targets'
+            if (-not (Test-SgTauriRustTargetAddResult $targetAdd)) { Write-SgInstallerWarning 'Validated Tauri Rust Android target installation failed or timed out.' }
             $rustReady = Test-SgTauriRustToolchain $mise $root $baseline
         }
     }

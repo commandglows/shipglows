@@ -82,6 +82,8 @@ Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+service\.') 'S
 Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+mcp\.') 'Captured MCP configuration does not use the visible operation boundary.'
 Assert-Sg ($installerText -match 'Read-SgVisibleInstallerChoice') 'Installer prompts do not publish the explicit waiting-for-input state.'
 Assert-Sg ($installerText -match 'Get-SgTauriRustWrapperContent') 'Installed Rust wrappers do not use the shared isolated mise wrapper contract.'
+Assert-Sg ($installerText -match 'Get-SgTauriRustTargetAddArguments' -and $installerText -match "OperationId 'tool\.rust-targets\.tauri'" -and $installerText -match 'Test-SgTauriRustTargetAddResult') 'Tauri provisioning must explicitly add exact Android Rust targets through a separate visible bounded operation.'
+Assert-Sg ($installerText -match 'Validated Tauri Rust Android target installation failed or timed out') 'A failed explicit Rust target installation must remain visibly pending.'
 Assert-Sg ($installerText -notmatch "-Label 'Waiting for") 'Prompt source labels must describe the consent subject; the console adapter owns waiting/continuing copy.'
 
 Write-Host 'Windows installer engine/UI contract: OK' -ForegroundColor Green

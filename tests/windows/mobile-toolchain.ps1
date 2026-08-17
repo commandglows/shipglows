@@ -61,6 +61,14 @@ Assert-Sg ($tauriBaseline.ValidatedAt -eq '2026-08-17' -and $tauriBaseline.RustT
 foreach ($value in @($tauriBaseline.RustToolchainVersion,$tauriBaseline.TauriCliVersion,$tauriBaseline.TauriApiVersion,$tauriBaseline.TauriRustVersion,$tauriBaseline.TauriBuildVersion,$tauriBaseline.AndroidApiLevel,$tauriBaseline.BuildToolsVersion,$tauriBaseline.NdkVersion)) {
     Assert-Sg (-not [string]::IsNullOrWhiteSpace([string]$value) -and [string]$value -notmatch '(?i)latest|stable|nightly|beta|[x*^~<>]') 'Tauri Android baseline must contain exact validated coordinates only.'
 }
+$targetAddArguments = @(Get-SgTauriRustTargetAddArguments -Baseline $tauriBaseline)
+Assert-Sg (($targetAddArguments -join "`0") -ceq ((@('exec','--','rustup','target','add') + @($tauriBaseline.RustTargets)) -join "`0")) 'Tauri Rust Android targets must use exact argv without a shell command string.'
+Assert-Sg (Test-SgTauriRustTargetAddResult ([pscustomobject]@{ExitCode=0;Output='info: component rust-std is up to date';TimedOut=$false})) 'Successful bounded rustup target add must converge.'
+Assert-Sg (-not (Test-SgTauriRustTargetAddResult ([pscustomobject]@{ExitCode=1;Output='target unavailable';TimedOut=$false}))) 'Failed rustup target add must remain pending.'
+Assert-Sg (-not (Test-SgTauriRustTargetAddResult ([pscustomobject]@{ExitCode=0;Output='';TimedOut=$true}))) 'Timed-out rustup target add must remain pending.'
+$unsafeTargetRejected = $false
+try { [void](Get-SgTauriRustTargetAddArguments -Baseline ([pscustomobject]@{RustTargets=@('x86_64-linux-android & whoami')})) } catch { $unsafeTargetRejected = $true }
+Assert-Sg $unsafeTargetRejected 'Tauri Rust target argv must reject shell-shaped or unvalidated target names.'
 Assert-Sg (($tauriBaseline.RustTargets -join '|') -eq 'aarch64-linux-android|armv7-linux-androideabi|i686-linux-android|x86_64-linux-android') 'Tauri Android baseline must declare the complete validated Rust Android target set.'
 $tauriHostPlan = Get-SgTauriAndroidHostPlan -TauriDetected $true -MiseReady $false -RustReady $false -NdkReady $false -MigrationRequired $true -Interactive $true -CodexReady $true -CodexChoice 'y'
 Assert-Sg ($tauriHostPlan.NeedMise -and $tauriHostPlan.NeedRust -and $tauriHostPlan.NeedNdk) 'A missing Tauri Android host must plan mise, Rust, and the validated NDK.'
