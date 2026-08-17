@@ -623,7 +623,10 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
 
 function Assert-SgEnvironmentPythonPackage([string]$PythonPath, [string]$EnvironmentDirectory) {
     $pythonFiles = @('__init__.py','core.py','mise_backend.py','shipglows_environment.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
-    $script = 'import ast,pathlib,sys; [ast.parse(pathlib.Path(p).read_text(encoding="utf-8"), filename=p) for p in sys.argv[1:]]'
+    # Windows PowerShell 5.1 removes embedded double quotes while rebuilding a
+    # native argv. Python accepts single-quoted literals, which survive that
+    # boundary and keep the -c program intact.
+    $script = "import ast,pathlib,sys; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8'), filename=p) for p in sys.argv[1:]]"
     & $PythonPath -c $script @pythonFiles
     if ($LASTEXITCODE -ne 0) { throw 'The installed ShipGlows environment Python package failed syntax validation.' }
 }

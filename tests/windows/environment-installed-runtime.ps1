@@ -22,6 +22,15 @@ function Import-BootstrapExtractionFunction([string]$Path) {
     return $functionAst.Extent.Text
 }
 
+function Import-NamedFunction([string]$Path, [string]$Name) {
+    $tokens = $null; $errors = $null
+    $ast = [System.Management.Automation.Language.Parser]::ParseFile($Path, [ref]$tokens, [ref]$errors)
+    if ($errors.Count -gt 0) { throw "Could not parse function source: $Path" }
+    $functionAst = $ast.Find({ param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $Name }, $true)
+    if (-not $functionAst) { throw "Function was not found: $Name" }
+    return $functionAst.Extent.Text
+}
+
 function Fail([string]$Message) { throw $Message }
 
 try {
@@ -32,6 +41,10 @@ try {
     Assert-Contains $bootstrapText "'cli\\environment'" 'Windows bootstrap does not target runtime\cli\environment.'
     Assert-Contains $installerText "cli\\environment\\shipglows_environment\.py" 'Native installer does not validate the packaged environment command.'
     Assert-Contains $installerText "cli\\environment\\schemas\\shipglows-environment-v1\.schema\.json" 'Native installer does not validate the packaged environment schema.'
+
+    Invoke-Expression (Import-NamedFunction $installer 'Assert-SgEnvironmentPythonPackage')
+    $pythonCommand = Get-Command python.exe -ErrorAction Stop
+    Assert-SgEnvironmentPythonPackage -PythonPath $pythonCommand.Source -EnvironmentDirectory $environmentSource
 
     Invoke-Expression (Import-BootstrapExtractionFunction $bootstrap)
     $archiveSource = Join-Path $tempRoot 'archive-source\shipglows-test'
