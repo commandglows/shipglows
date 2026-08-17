@@ -1,10 +1,10 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-08-15"
-updated: "2026-08-16"
+updated: "2026-08-17"
 status: active
 source_skill: 900-shipglows-core
 scope: native-windows-devserver-project-catalog-and-flutter-android
@@ -106,3 +106,14 @@ next_step: "/103-sg-verify native Windows project catalogue on installed runtime
 - [x] Existing Flutter 3.44.9, JDK 17, Android SDK/build-tools 36, accepted licenses, emulator package and `ShipGlows_API_36` were preserved; Windows was not restarted automatically.
 - [x] Published-main rerun resolved commit `2d354118770008df997eda57b19d7ca6299f087c`, skipped the complete Android Studio/Visual Studio question and heavy downloads, and recorded IDE readiness plus user-owned Firebase pending state in `%USERPROFILE%\.shipglows\environment.md`.
 - [ ] Open Android Studio once, keep the existing SDK, sign in personally, choose a Firebase project and confirm the Firebase Device Streaming surface. No automation may accept billing or reserve a device.
+
+## Existing native Windows runtime update proof
+
+- [x] Absent, legacy, changed and current fixture states classify as install, repair, update and no-op before activation.
+- [x] The complete managed payload is staged and syntax/schema validated before any active-runtime replacement.
+- [x] The managed-path manifest removes obsolete owned files while unrelated runtime files remain untouched.
+- [x] Injected child-action failure restores managed files and directories byte-for-byte and propagates the original failure.
+- [x] A per-runtime lock rejects a concurrent update before activation; lock and rollback temporary files are cleaned afterward.
+- [x] A second successful update pass is byte-idempotent.
+- [x] Missing and version-drifted coding-agent CLIs share one interactive consent decision and exact-version installation; non-interactive execution preserves them pending.
+- [x] Runtime rollback is documented as bounded to ShipGlows-managed files and does not claim to reverse completed WinGet, pnpm, npm, SDK or legal-consent effects.

@@ -23,6 +23,7 @@ done
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-observation.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-mise-adapter.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-installed-runtime.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/runtime-update-transaction.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/codex-playwright-mcp.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/mobile-toolchain.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/agent-instructions.ps1"

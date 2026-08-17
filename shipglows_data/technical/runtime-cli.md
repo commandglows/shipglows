@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.14.0"
+artifact_version: "1.15.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-16"
+updated: "2026-08-17"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -330,10 +330,18 @@ change the parent shell's working directory; `exit` returns to the original
 shell. Unsupported Linux server paths fail with guidance instead of being
 silently remapped.
 The explicit `s u` / `s update` path downloads the public Windows bootstrap
-over HTTPS, validates its PowerShell syntax, and runs full mode against the
-canonical local ShipGlows directory. This is the supported refresh path; the
-already-installed `cli/windows/install-devserver.ps1` only copies its current
-local source and must not be treated as a network updater.
+over HTTPS, resolves an immutable source commit, stages and validates the full
+managed payload, then classifies the target as `install`, `update`, `repair`, or
+`no-op`. Activation is serialized per runtime and transactionally replaces only
+the paths recorded in the mode-scoped `.shipglows-runtime-files.<mode>.json`; a child-installer failure
+restores the previous managed files and directory tree byte-for-byte. The
+rollback does not reverse third-party package-manager side effects that completed
+before a later failure. Existing valid external SDKs and tools remain owned by
+the user. Interactive full mode makes one grouped proposal for missing or
+version-drifted coding-agent CLIs, installs only accepted exact versions, and
+never infers upgrade consent in non-interactive mode. This is the supported
+refresh path; the already-installed `cli/windows/install-devserver.ps1` only
+copies its current local source and must not be treated as a network updater.
 
 ### Development environment and project URL
 

@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.10.0"
+artifact_version: "0.11.0"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
-updated: "2026-08-16"
-updated_at: "2026-08-16 15:23:08 UTC"
+updated: "2026-08-17"
+updated_at: "2026-08-17 08:08:47 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -403,6 +403,14 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
   - Validate with: Metadata lint, link/path checks, capability-claim comparison against completed tests and documentation map review.
   - Notes: Do not claim Windows parity beyond the three proven stacks.
 
+- [x] Task 11: Make existing native Windows installations safely updateable
+  - File: `install-shipglows.ps1`, `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.MobileToolchain.psm1`, `tests/windows/runtime-update-transaction.ps1`, `tests/windows/mobile-toolchain.ps1`
+  - Action: Classify install/update/repair/no-op, stage and validate the complete managed payload, serialize activation, record managed paths, roll back failed activation byte-for-byte, and require grouped interactive consent before replacing version-drifted coding-agent CLIs.
+  - User story link: Lets an existing ShipGlows Windows host refresh safely without reinstalling every valid SDK or silently replacing user-owned tools.
+  - Depends on: Tasks 6 and 8.
+  - Validate with: Failure injection, stale-file removal, directory rollback, concurrent-update rejection, byte-idempotent rerun, consent fixtures, PowerShell 5.1 parsing and the full Windows contract.
+  - Notes: Runtime rollback covers ShipGlows-managed files only; completed third-party package-manager effects are not transactionally reversible.
+
 # Acceptance Criteria
 
 - [ ] AC01: Given a Shadow PC with WSL unavailable, when the operator installs the explicit DevServer surface, then `shipglows-dev` launches under native Windows PowerShell without Bash, WSL, Flox, PM2 or Caddy.
@@ -445,6 +453,7 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 - [ ] AC35: Given an interactive Windows full install and preferred-stack manifests, when coding-agent and service preparation runs, then one grouped consent gate installs only missing Codex/Claude/OpenCode/Kilo/Gemini CLIs at exact versions, bounded detection prepares Firebase, FlutterFire, Convex, Vercel, Supabase and Clerk CLIs, official Firebase/Convex/Clerk plus Dart/Playwright MCP definitions and the official read-only GitHub MCP converge where safe across all five agents, and `%USERPROFILE%\.shipglows\environment.md` records truthful per-agent readiness. Gemini configuration uses its official user-scope CLI and local JSON verification without initiating connection; Clerk init/linking/SDK injection and all authentication remain explicit. Developer Mode may open official settings only after consent and is never changed automatically. Automated fixtures and static contracts pass; remote-branch full-install proof remains required.
 - [ ] AC36: Given installed Windows CLIs, when `s a` opens, then ShipGlows reports only redacted authentication state and delegates connect/reconnect or confirmed logout to native CLI flows without reading credentials; Gemini is interactive and Convex remains project-scoped.
 - [ ] AC37: Given an agent or motion workflow needs Playwright, when Windows full converges, then exact managed `playwright` and `playwright-cli` commands are on ShipGlows PATH, the stable package's declared Chromium revision launches, MCP stays separately pinned, and environment state distinguishes all four surfaces.
+- [x] AC38: Given an absent, current, drifted, legacy, partial, or concurrently updating native Windows runtime, when the public bootstrap runs, then it reports install/update/repair/no-op, validates the staged immutable payload before mutation, permits only one activation, removes stale manifest-owned files, preserves unrelated files, and restores the previous managed file and directory tree byte-for-byte if activation or the child installer fails. A rerun is byte-idempotent. Existing valid external SDKs remain in place; missing or version-drifted coding-agent CLIs are proposed as one explicit interactive choice and are never upgraded by inference in non-interactive mode.
 
 # Test Strategy
 

@@ -335,18 +335,22 @@ function Get-SgServiceCliPlan {
 }
 
 function Get-SgAgentInstallPlan {
-    param([bool]$Interactive, [hashtable]$AgentReady, [string]$Choice = '')
+    param([bool]$Interactive, [hashtable]$AgentReady, [hashtable]$AgentOutdated = @{}, [string]$Choice = '')
     $missing = New-Object Collections.Generic.List[string]
+    $outdated = New-Object Collections.Generic.List[string]
     foreach ($name in @('Codex','Claude','OpenCode','Kilo','Gemini')) {
         if (-not [bool]$AgentReady[$name]) { $missing.Add($name) }
+        elseif ([bool]$AgentOutdated[$name]) { $outdated.Add($name) }
     }
-    $ask = $Interactive -and $missing.Count -gt 0
+    $candidates = @($missing.ToArray()) + @($outdated.ToArray())
+    $ask = $Interactive -and $candidates.Count -gt 0
     $accepted = $ask -and $Choice.Trim().ToLowerInvariant() -in @('y','yes')
     [pscustomobject]@{
         Ask = $ask
         Missing = $missing.ToArray()
-        Install = if ($accepted) { $missing.ToArray() } else { @() }
-        Status = if ($missing.Count -eq 0) { 'ready' } elseif ($accepted) { 'install' } else { 'pending' }
+        Outdated = $outdated.ToArray()
+        Install = if ($accepted) { $candidates } else { @() }
+        Status = if ($candidates.Count -eq 0) { 'ready' } elseif ($accepted) { 'install' } else { 'pending' }
     }
 }
 

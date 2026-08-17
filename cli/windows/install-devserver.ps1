@@ -729,27 +729,48 @@ ChatGPT apps/connectors and Codex CLI tools are separate surfaces. Installation 
     return $environmentPath
 }
 
+function Get-SgInstalledCommandVersion([string]$CommandName, [string[]]$KnownPaths = @()) {
+    $command = Get-SgToolPath $CommandName $KnownPaths
+    if (-not $command) { return '' }
+    $result = Invoke-SgBoundedProcess $command @('--version') 30
+    if ($result.TimedOut -or $result.ExitCode -ne 0) { return '' }
+    $match = [regex]::Match($result.Output,'(?<!\d)(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)(?!\d)')
+    return $(if ($match.Success) { $match.Groups[1].Value } else { '' })
+}
+
 function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady) {
     $interactive = [Environment]::UserInteractive -and -not [Console]::IsInputRedirected
     $choice = ''
-    $initial = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -Choice ''
-    if ($initial.Ask) {
-        Write-Host "Missing coding-agent CLIs: $($initial.Missing -join ', ')." -ForegroundColor Yellow
-        Write-Host 'ShipGlows installs only the CLI binaries; authentication and provider credentials remain yours.' -ForegroundColor DarkGray
-        $choice = (Read-Host 'Install the missing coding-agent CLIs now? [y/N]').Trim()
-    }
-    $plan = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -Choice $choice
     $definitions = @{
         Codex    = @{ Package='@openai/codex'; Command='codex.cmd'; Paths=$codexPaths }
         Claude   = @{ Package='@anthropic-ai/claude-code'; Command='claude.cmd'; Paths=$claudePaths }
         OpenCode = @{ Package='opencode-ai'; Command='opencode.cmd'; Paths=$opencodePaths }
-        Kilo     = @{ Package='@kilocode/cli'; Command='kilo.cmd'; Paths=$kiloPaths }
+        Kilo     = @{ Package='@kilocode/cli'; Command='kilo.cmd'; Paths=@($kiloPaths + $kilocodePaths) }
         Gemini   = @{ Package='@google/gemini-cli'; Command='gemini.cmd'; Paths=$geminiPaths }
     }
+    $outdated = @{}; $resolvedVersions = @{}
+    foreach ($name in $definitions.Keys) {
+        $outdated[$name] = $false
+        if (-not [bool]$CurrentReady[$name]) { continue }
+        try {
+            $resolvedVersions[$name] = Resolve-SgNpmVersion $NpmPath $definitions[$name].Package
+            $installedVersion = Get-SgInstalledCommandVersion $definitions[$name].Command $definitions[$name].Paths
+            if ($installedVersion -and $installedVersion -ne $resolvedVersions[$name]) { $outdated[$name] = $true }
+            elseif (-not $installedVersion) { Write-SgInstallerWarning "$name CLI runs, but its installed version could not be proven; it was preserved." }
+        } catch { Write-SgInstallerWarning "$name CLI version comparison remains pending: $($_.Exception.Message)" }
+    }
+    $initial = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice ''
+    if ($initial.Ask) {
+        if (@($initial.Missing).Count) { Write-Host "Missing coding-agent CLIs: $($initial.Missing -join ', ')." -ForegroundColor Yellow }
+        if (@($initial.Outdated).Count) { Write-Host "Coding-agent CLI updates available: $($initial.Outdated -join ', ')." -ForegroundColor Yellow }
+        Write-Host 'ShipGlows installs only the CLI binaries; authentication and provider credentials remain yours.' -ForegroundColor DarkGray
+        $choice = (Read-Host 'Install the missing or update the outdated coding-agent CLIs now? [y/N]').Trim()
+    }
+    $plan = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice $choice
     foreach ($name in @($plan.Install)) {
         $definition = $definitions[$name]
         try {
-            $version = Resolve-SgNpmVersion $NpmPath $definition.Package
+            $version = if ($resolvedVersions[$name]) { $resolvedVersions[$name] } else { Resolve-SgNpmVersion $NpmPath $definition.Package }
             $install = Invoke-SgBoundedProcess $NpmPath @('install','--global',"$($definition.Package)@$version",'--registry=https://registry.npmjs.org/') 900
             $ready = -not $install.TimedOut -and $install.ExitCode -eq 0 -and (Test-SgToolRuns $definition.Command $definition.Paths)
             if (-not $ready) { Write-SgInstallerWarning "$name CLI exact-version installation or executable verification failed." }

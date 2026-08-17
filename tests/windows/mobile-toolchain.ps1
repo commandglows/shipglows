@@ -191,6 +191,10 @@ try {
     $agentPlan = Get-SgAgentInstallPlan -Interactive $true -Choice 'yes' -AgentReady @{ Codex=$false; Claude=$true; OpenCode=$false; Kilo=$false; Gemini=$false }
     Assert-Sg ($agentPlan.Ask -and ($agentPlan.Install -join '|') -eq 'Codex|OpenCode|Kilo|Gemini' -and -not ($agentPlan.Install -contains 'Claude')) 'Agent proposal must install only missing coding-agent CLIs, including Gemini.'
     $agentHeadless = Get-SgAgentInstallPlan -Interactive $false -Choice 'yes' -AgentReady @{ Codex=$false; Claude=$false; OpenCode=$false; Kilo=$false; Gemini=$false }
+    $agentUpgrade = Get-SgAgentInstallPlan -Interactive $true -Choice 'yes' -AgentReady @{ Codex=$true; Claude=$true; OpenCode=$true; Kilo=$true; Gemini=$true } -AgentOutdated @{ Codex=$true; Claude=$false; OpenCode=$false; Kilo=$false; Gemini=$false }
+    Assert-Sg ($agentUpgrade.Ask -and $agentUpgrade.Outdated -contains 'Codex' -and $agentUpgrade.Install -contains 'Codex') 'Existing outdated agent CLIs must use the grouped consent plan.'
+    $agentUpgradeHeadless = Get-SgAgentInstallPlan -Interactive $false -Choice 'yes' -AgentReady @{ Codex=$true; Claude=$true; OpenCode=$true; Kilo=$true; Gemini=$true } -AgentOutdated @{ Codex=$true }
+    Assert-Sg (-not $agentUpgradeHeadless.Ask -and $agentUpgradeHeadless.Status -eq 'pending' -and -not @($agentUpgradeHeadless.Install).Count) 'Non-interactive reruns must not infer consent for agent upgrades.'
     Assert-Sg (-not $agentHeadless.Ask -and @($agentHeadless.Install).Count -eq 0 -and $agentHeadless.Status -eq 'pending') 'Noninteractive installs must not infer coding-agent consent.'
 
     $developerModePlan = Get-SgDeveloperModeGuidancePlan -Interactive $true -DeveloperModeReady $false -Choice 'yes'
