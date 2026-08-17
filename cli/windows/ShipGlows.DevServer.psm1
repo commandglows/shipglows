@@ -339,6 +339,8 @@ function Release-SgProjectPort([object]$Config, [string]$ProjectPath, [string]$T
         if (-not $entry) { return }
         $entry.status = 'error'
         $entry | Add-Member -NotePropertyName lastError -NotePropertyValue $ErrorMessage -Force
+        $entry | Add-Member -NotePropertyName pid -NotePropertyValue 0 -Force
+        $entry | Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $null -Force
         $entry | Add-Member -NotePropertyName reservationToken -NotePropertyValue $null -Force
         $entry | Add-Member -NotePropertyName reservationTimeUtc -NotePropertyValue $null -Force
     } | Out-Null
@@ -1287,11 +1289,15 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force}
     Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData
     if (-not (Test-SgProcessIdentity $entryData)) {
-        Copy-SgFlutterDiagnostics $entryData $out $err
-        if($kind-eq'flutter-web'-and(Wait-SgFlutterOwnedExtinction $entryData 2)){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entryData)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
+        if($kind-eq'flutter-web'){
+            Copy-SgFlutterDiagnostics $entryData $out $err
+            if(Wait-SgFlutterOwnedExtinction $entryData 2){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entryData)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
+        }
         Write-SgWarn "Process exited during startup. See $err"
         $entryData.status = 'error'
         $entryData.lastError = 'Process exited during startup.'
+        $entryData.pid = 0
+        $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
         return $entryData
     }
@@ -1306,9 +1312,13 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $entryData.status = 'error'
         $entryData.lastError = if ($readiness.Error) { [string]$readiness.Error } else { 'Application readiness failed.' }
         if (Test-SgProcessIdentity $entryData) { Stop-SgProcessTree ([int]$entryData.pid) }
-        [void](Stop-SgOwnedFlutterBrowser $entryData)
-        Copy-SgFlutterDiagnostics $entryData $out $err
-        if(Wait-SgFlutterOwnedExtinction $entryData 8){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entryData)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}else{Write-SgWarn 'Flutter processes did not prove extinction; launch diagnostics were preserved.'}
+        if($kind-eq'flutter-web'){
+            [void](Stop-SgOwnedFlutterBrowser $entryData)
+            Copy-SgFlutterDiagnostics $entryData $out $err
+            if(Wait-SgFlutterOwnedExtinction $entryData 8){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entryData)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}else{Write-SgWarn 'Flutter processes did not prove extinction; launch diagnostics were preserved.'}
+        }
+        $entryData.pid = 0
+        $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
     }
     Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"
