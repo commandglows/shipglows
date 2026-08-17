@@ -51,7 +51,7 @@ try {
     $archiveWindows = Join-Path $archiveSource 'cli\windows'
     $archiveEnvironment = Join-Path $archiveSource 'cli\environment'
     New-Item -ItemType Directory -Path $archiveWindows,(Join-Path $archiveEnvironment 'schemas') -Force | Out-Null
-    foreach ($windowsFile in @('ShipGlows.DevServer.psm1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
+    foreach ($windowsFile in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
         Copy-Item -LiteralPath (Join-Path $root "cli\windows\$windowsFile") -Destination (Join-Path $archiveWindows $windowsFile)
     }
     foreach ($pythonFile in @('__init__.py','core.py','mise_backend.py','shipglows_environment.py')) {
@@ -64,10 +64,10 @@ try {
     $extract = Join-Path $tempRoot 'archive-extract'
     New-Item -ItemType Directory -Path $extract | Out-Null
     $entries = @(Extract-ShipglowsWindowsFiles -ArchivePath $archive -DestinationPath $extract -FullMode $true)
-    if ($entries.Count -ne 14) { throw "Installer extracted $($entries.Count) files instead of the closed set of 14." }
+    if ($entries.Count -ne 15) { throw "Installer extracted $($entries.Count) files instead of the closed set of 15." }
     if (-not (Test-Path -LiteralPath (Join-Path $extract 'shipglows-test\cli\environment\schemas\shipglows-environment-v1.schema.json') -PathType Leaf)) { throw 'Installer did not extract the environment schema.' }
 
-    Remove-Item -LiteralPath (Join-Path $archiveEnvironment 'mise_backend.py') -Force
+    Remove-Item -LiteralPath (Join-Path $archiveWindows 'ShipGlows.FlutterSupervisor.ps1') -Force
     $incompleteArchive = Join-Path $tempRoot 'incomplete.zip'
     & (Join-Path $env:WINDIR 'System32\tar.exe') -a -cf $incompleteArchive -C (Split-Path $archiveSource -Parent) (Split-Path $archiveSource -Leaf)
     if ($LASTEXITCODE -ne 0) { throw 'Could not create the incomplete installer fixture archive.' }

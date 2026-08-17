@@ -111,7 +111,7 @@ The native PowerShell source entrypoint accepts the equivalent form `s env <comm
 - `status` reads the last complete record and makes stale evidence `drifted` or `unknown`; corrupt or partial JSON is never trusted.
 - `apply` requires an explicit `--plan-digest`; omission or any digest/source/config/lock/backend drift exits with code `3` before mutation. The exact Windows pilot reconstructs only `winget install --id jdx.mise --exact --source winget --disable-interactivity`, `mise --locked install node`, or `mise --locked install pnpm` from adapter semantics. Acquisition is a separate plan and conservatively declares network, download, consent and possible privilege effects. It sets process-local `MISE_SAFE=1`, removes inherited `MISE_*` controls from the child, disables hooks/config environments/all auto-install modes/system-dependency installation, selects only `mise.toml`, fences discovery at the project parent, isolates global/system config, preserves `PATH`, and never executes `pnpm install`, persisted argv, or repository task/hook/template strings. A zero-byte WinGet App Execution Alias is never hashed as executable proof: ShipGlows resolves and binds the registered Desktop App Installer package binary instead. All other capabilities/backends exit `no_active_backend`.
 
-`shipglows.environment.json` is strict JSON using schema ID `shipglows.environment/v1`: duplicate keys, non-finite numbers, unknown fields, unsupported majors, control-character paths, escaping references and symlink escapes fail closed. JSON inputs are capped at 1 MiB, runtime-policy input at 64 KiB, referenced source hashing at 8 MiB and persisted state reads at 4 MiB. `.shipglows.env` remains separate and accepts only its existing `SHIPGLOWS_ENV_PORT` and `SHIPGLOWS_AUTO_REPAIR` runtime policies.
+`shipglows.environment.json` is strict JSON using schema ID `shipglows.environment/v1`: duplicate keys, non-finite numbers, unknown fields, unsupported majors, control-character paths, escaping references and symlink escapes fail closed. JSON inputs are capped at 1 MiB, runtime-policy input at 64 KiB, referenced source hashing at 8 MiB and persisted state reads at 4 MiB. `.shipglows.env` remains separate. In addition to `SHIPGLOWS_ENV_PORT` and `SHIPGLOWS_AUTO_REPAIR`, native Windows Flutter accepts the bounded `SHIPGLOWS_FLUTTER_DEVICE=chrome|web-server` and `SHIPGLOWS_DART_DEFINE_FILE=<project-relative-path>` policies.
 
 The pilot requires root `mise.toml` to contain only `[tools] node = "24"` and `pnpm = "10"`, rejects alternate local/early mise configuration, and requires `mise.lock` to pin one exact `core:node` entry and one exact `aqua:pnpm/pnpm` entry. Each Windows artifact URL must match the exact version, architecture and official Node or pnpm release authority/path, with a checksum value in the supported format. If `package.json#packageManager` exists, it must equal `pnpm@<exact locked version>`; its absence remains valid because the ShipGlows manifest and mise lock already declare ownership. Injected fixtures remain synthetic; the approved Best Fried Chicken smoke additionally acquired mise 2026.8.2 and converged Node 24.19.0 plus pnpm 10.34.5 from their locked official release coordinates without installing application dependencies. `--offline` maps to `MISE_OFFLINE=1`: already installed exact mise-managed tools are ready, while any missing install blocks because mise documents downloaded archives as an unsupported offline cache and recommends retaining the installs directory. Existing global Node, pnpm and persistent `PATH` remain outside this owner. A `mise.exe` or `winget.exe` resolved from inside the repository or outside the adapter's canonical package-manager roots is never invoked; executable path and SHA-256 identity are approval-bound and revalidated before apply runner use.
 
@@ -409,14 +409,26 @@ tools remain separate surfaces. Current-turn authority includes both directly
 exposed tools and host-provided deferred/searchable catalogs; a configured tool
 is not declared unavailable from the first visible list alone. `$shipglows context` reads the global document, project document and
 registry in read-only mode and never launches a fallback server.
-Flutter is launched in a visible process because PowerShell 5.1 does not
-provide a tmux-equivalent session manager.
+Native Windows Flutter Web starts through `flutter run --machine -d chrome` in
+a ShipGlows-owned headless Chrome profile. Readiness requires matching
+`app.start` and `app.started` JSON events; HTTP or TCP availability alone never
+marks it running. `s open` restarts that managed Flutter session with visible
+Chrome while preserving debug/hot-reload support. The advanced
+`SHIPGLOWS_FLUTTER_DEVICE=web-server` policy retains the manual Dart Debug
+browser workflow. A bounded per-launch supervisor retains Flutter machine stdin
+and stdout after the CLI exits. It debounces relevant `lib/**/*.dart` changes
+for 500 ms and issues the allowlisted `app.restart` request; authenticated local
+IPC owns only reload, stop, and open operations.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.
 - A project may commit a data-only runtime policy file named `.shipglows.env`.
   Its closed schema accepts blank lines, comments, and only
   `SHIPGLOWS_ENV_PORT=<1024-65535>` and `SHIPGLOWS_AUTO_REPAIR=true|false`.
+  Native Windows Flutter additionally accepts
+  `SHIPGLOWS_FLUTTER_DEVICE=chrome|web-server` and a project-contained existing
+  `SHIPGLOWS_DART_DEFINE_FILE=<relative-path>`. ShipGlows passes only that path
+  to `--dart-define-from-file`; it does not copy referenced values to logs.
   The file is never sourced as shell code and must contain neither secrets nor
   general dotenv configuration. Unknown or malformed entries fail the launch
   loudly, so a typo cannot silently restore a safety-sensitive default. When

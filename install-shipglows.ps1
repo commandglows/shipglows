@@ -91,9 +91,9 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
         $entries += $installerEntries[0]
     }
     if ($FullMode) {
-        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/environment/(?:__init__\.py|core\.py|mise_backend\.py|shipglows_environment\.py|schemas/shipglows-environment-v1\.schema\.json)$' })
-        if ($entries.Count -ne 14) { Fail 'The ShipGlows archive is missing native Windows DevServer, installer engine/UI, authentication, agent instructions, or environment control-plane files.' }
+        if ($entries.Count -ne 15) { Fail 'The ShipGlows archive is missing native Windows DevServer, Flutter supervisor, installer engine/UI, authentication, agent instructions, or environment control-plane files.' }
     }
 
     & $tarPath -xf $ArchivePath -C $DestinationPath $entries
@@ -359,9 +359,9 @@ try {
                 }
         )
         if ($environmentCandidates.Count -ne 1) { Fail 'Environment control-plane directory was not found in the archive.' }
-        $windowsFiles = @('ShipGlows.DevServer.psm1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','shipglows-devserver.ps1','install-devserver.ps1')
+        $windowsFiles = @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','shipglows-devserver.ps1','install-devserver.ps1')
         $pythonFiles = @('__init__.py','core.py','mise_backend.py','shipglows_environment.py')
-        $managedRelativePaths = @($windowsFiles | ForEach-Object { "cli/windows/$_" }) + @($pythonFiles | ForEach-Object { "cli/environment/$_" }) + @('cli/environment/schemas/shipglows-environment-v1.schema.json') + @('bin/ShipGlows.DevServer.psm1','bin/ShipGlows.Auth.psm1','bin/ShipGlows.MobileToolchain.psm1','bin/shipglows-devserver.ps1')
+        $managedRelativePaths = @($windowsFiles | ForEach-Object { "cli/windows/$_" }) + @($pythonFiles | ForEach-Object { "cli/environment/$_" }) + @('cli/environment/schemas/shipglows-environment-v1.schema.json') + @('bin/ShipGlows.DevServer.psm1','bin/ShipGlows.FlutterSupervisor.ps1','bin/ShipGlows.Auth.psm1','bin/ShipGlows.MobileToolchain.psm1','bin/shipglows-devserver.ps1')
         $stagedWindows = Join-Path $payloadRoot 'cli\windows'
         $stagedEnvironment = Join-Path $payloadRoot 'cli\environment'
         $stagedBin = Join-Path $payloadRoot 'bin'
@@ -373,7 +373,7 @@ try {
         foreach ($pythonFile in $pythonFiles) { Copy-Item -LiteralPath (Join-Path $environmentCandidates[0].FullName $pythonFile) -Destination (Join-Path $stagedEnvironment $pythonFile) }
         Copy-Item -LiteralPath (Join-Path $environmentCandidates[0].FullName 'schemas\shipglows-environment-v1.schema.json') -Destination (Join-Path $stagedEnvironment 'schemas\shipglows-environment-v1.schema.json')
         Assert-EnvironmentPackage -EnvironmentDirectory $stagedEnvironment
-        foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1')) { Copy-Item -LiteralPath (Join-Path $stagedWindows $launcherModule) -Destination (Join-Path $stagedBin $launcherModule) }
+        foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1')) { Copy-Item -LiteralPath (Join-Path $stagedWindows $launcherModule) -Destination (Join-Path $stagedBin $launcherModule) }
         Copy-Item -LiteralPath (Join-Path $stagedWindows 'shipglows-devserver.ps1') -Destination (Join-Path $stagedBin 'shipglows-devserver.ps1')
     }
     $installState = [ordered]@{ schemaVersion=1; sourceCommit=$source.Commit; installMode=$InstallMode }

@@ -367,10 +367,7 @@ function Invoke-Logs($entry) {
 }
 
 function Open-SgManagedProject([object]$Entry) {
-    if ($Entry.status -notin @('starting','running') -or [int]$Entry.port -le 0) {
-        throw 'The project has no active ShipGlows server URL. Start the managed project first.'
-    }
-    Start-Process "http://127.0.0.1:$([int]$Entry.port)"
+    Open-SgProject $config $Entry | Out-Null
 }
 
 function Invoke-Navigate {

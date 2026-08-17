@@ -348,11 +348,12 @@ canonical launch identity rather than by a potentially ambiguous label.
 Port selection and reservation share one inter-process registry lock, preventing
 concurrent starts from assigning the same port to different surfaces. Existing
 single-surface registry entries are migrated by runnable path while preserving
-verified live process metadata. Flutter Web runs in the background with managed
-logs; Restart is a complete process-tree restart, not Flutter hot reload (`r`)
-or hot restart (`R`). Orphan listeners are stopped only when their process
-ancestry contains both Flutter evidence and the registered project path or
-ShipGlows command signature.
+verified live process metadata. Flutter Web runs through a small persistent
+machine-protocol supervisor with managed logs and headless Chrome by default.
+Matching `app.start`/`app.started` events establish readiness, Dart changes under
+`lib/` trigger debounced hot reload, Open promotes the session to managed visible
+Chrome, and Restart remains a complete controlled restart. Orphan listeners and
+browsers are stopped only with exact ShipGlows launch evidence.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
 After a full install, use `s` (or `shipglows-dev`) for the project dashboard.

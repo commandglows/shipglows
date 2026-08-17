@@ -210,11 +210,24 @@ réserver le même port pour deux surfaces. La migration d'une ancienne entrée
 racine vers sa surface se fait par chemin exécutable et préserve les métadonnées
 d'un processus dont l'identité est encore vérifiée.
 
-Flutter Web est lancé en arrière-plan et écrit dans les journaux gérés. L'action
-Restart arrête l'arbre de processus attribué à la surface puis crée une nouvelle
-session ; elle ne correspond ni au hot reload `r`, ni au hot restart `R` de
-Flutter. Un listener orphelin n'est arrêté que si son ascendance prouve à la fois
-Flutter et le chemin ou la signature de commande du projet enregistré.
+Flutter Web démarre silencieusement dans un Chrome headless dédié et contrôlé
+par Flutter. Le registre ne passe à `running` qu'après les événements machine
+`app.start` puis `app.started` ; une réponse HTTP ou TCP seule ne prouve pas que
+l'application a exécuté `main()`. L'action Open remplace cette session headless
+par un Chrome visible toujours contrôlé par Flutter, afin de conserver le hot
+reload. Restart recrée une session gérée complète.
+
+Un petit superviseur persistant conserve le canal machine Flutter après la fin
+de la commande CLI. Les modifications `*.dart` sous `lib/` sont regroupées sur
+une fenêtre calme de 500 ms puis déclenchent `app.restart` en mode hot reload.
+Le canal local n'accepte que reload, stop et open, avec l'identité secrète du
+lancement, une taille et des délais bornés ; il n'exécute aucune commande libre.
+
+Chaque lancement Chrome reçoit un profil ShipGlows unique. Stop et Restart ne
+recherchent un éventuel navigateur orphelin qu'avec le chemin exact de ce profil
+et ne terminent jamais Chrome par son seul nom. Le mode historique `web-server`,
+qui exige une connexion manuelle compatible avec Dart Debug, reste disponible
+uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
 ### Vérifier l'environnement et l'URL utilisés par un agent
 
@@ -237,6 +250,13 @@ propre à la surface. Si ShipGlows lance la surface sur `3002` alors que le dép
 déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port
 non attribué dans le registre.
+
+Pour Flutter, `.shipglows.env` accepte aussi
+`SHIPGLOWS_DART_DEFINE_FILE=<chemin-relatif>` afin de transmettre durablement un
+fichier JSON ou `.env` existant avec `--dart-define-from-file`, sans inscrire son
+contenu dans les journaux. Le chemin doit rester dans le projet. Ce fichier de
+valeurs peut être ignoré par Git lorsqu'il contient des secrets ; seule sa
+référence appartient à la politique ShipGlows.
 
 L'installateur maintient un bloc borné dans le fichier global natif de chaque
 agent détecté : `%USERPROFILE%\.codex\AGENTS.md`,
