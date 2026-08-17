@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-05-03"
 created_at: "2026-05-03 00:00:00 UTC"
-updated: "2026-08-15"
-updated_at: "2026-08-15 13:16:09 UTC"
+updated: "2026-08-18"
+updated_at: "2026-08-17 22:33:17 UTC"
 status: ready
 source_skill: sg-build
 source_model: "GPT-5 Codex"
@@ -52,6 +52,7 @@ evidence:
   - "User decision 2026-05-04: sg-ship user reports should be clearer, ordered as outcome, evidence, then limits, and include a few sober status emojis."
   - "User decision 2026-08-15: successful closure reports use a structured visual card; proof and documentation evidence each remain on one line separated by middle dots."
   - "User decision 2026-08-15: approved substantive chantiers use a matching start card, documentation uses the open-book icon, and user reports omit technical file paths and links."
+  - "User decision 2026-08-18: report cards must remain nearly free for agents by reusing required work, accepting one meaningful proof, and forbidding report-only work."
 next_step: "none"
 ---
 
@@ -84,6 +85,8 @@ ShipGlows skills that produce final reports must use a shared reporting contract
 - Successful closure reports use four ordered blocks: `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, and `📦 LIVRAISON`.
 - Proof and documentation content each occupy one line separated by ` · `; empty limits and next-action blocks are omitted.
 - User reports omit file names, paths, and clickable technical file links unless operator action on the exact artifact is required or detailed evidence was requested.
+- Report cards reuse evidence and decisions already required by the chantier; they never trigger extra checks, audits, research, documentation, content, or detail solely to fill a block.
+- One meaningful proof may support the verdict, placeholder counts are illustrative rather than quotas, and prose stays to one sentence per block.
 
 ## Error Behavior
 
@@ -137,3 +140,4 @@ ShipGlows skills that produce final reports must use a shared reporting contract
 | 2026-08-15 12:38:27 UTC | 103-sg-verify | GPT-5 Codex | Verified section ordering, one-line separators, documentation closure boundary, owner inheritance, metadata, activation graph, skill audit, and context budgets. | verified | local commit |
 | 2026-08-15 13:14:29 UTC | 900-shipglows-core | GPT-5 Codex | Added the approved post-validation start card, open-book documentation icon, and no-technical-path user-report boundary across the shared contract and lifecycle owners. | implemented | 103-sg-verify standard pass |
 | 2026-08-15 13:16:09 UTC | 103-sg-verify | GPT-5 Codex | Verified start-card timing and ordering, one-line evidence, path suppression, start/end/ship inheritance, activation budget, metadata, runtime sync, and full resource graph. | verified | local commit |
+| 2026-08-17 22:33:17 UTC | 900-shipglows-core | GPT-5 Codex | Added the approved reporting-effort ceiling to prevent card formatting from creating extra agent work. | implemented | focused reporting-contract verification |

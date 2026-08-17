@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.26.0"
+artifact_version: "2.27.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-17"
@@ -134,6 +134,7 @@ evidence:
   - "2026-08-15: every closure now exposes documentation reflection and material documentation gaps prevent closed or shipped wording."
   - "2026-08-15: successful closure reports now use a stable four-block visual card with one-line proof and documentation evidence separated by middle dots."
   - "2026-08-15: approved substantive chantiers now open with a matching four-block start card, use the open-book documentation icon, and omit technical file links from user reports."
+  - "2026-08-18: report cards now have an explicit effort ceiling: one meaningful proof may suffice and no work is created merely to fill a block."
   - "2026-08-15: standalone `v` canonically approves only the immediately preceding pending approval message."
   - "2026-08-16: current-project hygiene is read-only and proposal-first; explicit Git scope specializes to the safe Git cleanup workflow."
 next_review: "2026-06-01"
@@ -645,7 +646,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - `008-sg-customer` owns customer contracts through four exact modes: `audit`, `flow`, `onboarding`, and `recovery`; implementation, visual design, docs/content, browser proof, manual QA, and auth diagnosis still run through `001-sg-build`, `006-sg-design`, `300-sg-docs`/`007-sg-content`, `108-sg-browser`, `107-sg-test`, and `109-sg-auth-debug` when needed.
 - `900-shipglows-core build` owns internal skill-maintenance orchestration and must route to `700-sg-explore` before `100-sg-spec` when skill intent, placement, public promise, or governance policy is too fuzzy for one targeted question to settle.
 - A release is not considered verified from push success, provider success, or a bare `200 OK` alone.
-- User-facing reports default to `report=user`: concise, outcome-first, matched to the user's active language, without file paths, file names, or technical file links unless the operator must act on the exact artifact. After approval, substantive chantiers open once with `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`. Successful closure reports use `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `📦 LIVRAISON`; compact evidence stays on one line separated by ` · `. Detailed `report=agent` handoff must be explicit.
+- User-facing reports default to `report=user`: concise, outcome-first, matched to the user's active language, without file paths, file names, or technical file links unless the operator must act on the exact artifact. After approval, substantive chantiers open once with `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`. Successful closure reports use `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `📦 LIVRAISON`; compact evidence stays on one line separated by ` · `. Cards reuse already-required work: one meaningful proof may suffice, prose stays to one sentence per block, and no extra check, research, documentation, or content is created solely for reporting. Detailed `report=agent` handoff must be explicit.
 - `001-sg-build` planning questions are business decision briefs, not bare technical prompts: they name the problem root, business stakes, practical options, and recommended best-practice answer before asking for a decision.
 - Audit skills still report findings first, but default user reports should summarize top findings, proof gaps, chantier potential, and next action; full matrices and domain checklists belong in `report=agent`.
 

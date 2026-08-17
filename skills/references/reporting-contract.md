@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.6.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-16"
@@ -30,7 +30,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "1.6.0"
+    artifact_version: "1.7.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.3.0"
@@ -47,6 +47,7 @@ evidence:
   - "Operator decision 2026-08-15: closure reports use a stable visual card whose proof and documentation evidence each stay on one compact line separated by middle dots."
   - "Operator decision 2026-08-15: approved substantive chantiers use a matching start card with objective, scope, expected proof, and planned documentation impact."
   - "Operator decision 2026-08-15: user reports omit file paths, file names, and technical file links unless the operator must act on the exact artifact or explicitly requests detail."
+  - "Operator decision 2026-08-18: report cards summarize already-required work and must never create extra checks, research, documentation, or content merely to fill a block."
   - "Operator decision 2026-08-16: every closure exposes a separate editorial reflection without creating ceremonial public content."
   - "Operator decision 2026-08-16: completed chantiers may offer guided Approfondir and Réorienter follow-up without reopening delivery or authorizing mutation."
 next_review: "2026-11-12"
@@ -104,6 +105,12 @@ After approval and at the true start of a substantive chantier, render this card
 Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the four main icons. Keep the content beneath scope, expected proof, and planned documentation each on exactly one line separated by ` · `. The four blocks are mandatory. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
 
 The planned documentation line uses exactly one of: `✅ Impactée · <scope included in the chantier>`, `➖ Non impactée · <concrete reason>`, or `⚠️ À confirmer · <surface>`. It is a plan, not a closure claim; only the closure card may use `updated`, `not impacted`, or `needs review`.
+
+## Reporting Effort Ceiling
+
+A report card formats evidence and decisions already required by the chantier; it never expands the work merely to populate a block. Do not run an extra check or audit, perform new research, create documentation or content, or manufacture detail solely for reporting. Required implementation proof, documentation, editorial work, and safety gates remain required for the chantier itself.
+
+One meaningful proof is enough when it supports the verdict; example placeholders such as `<proof 1> · <proof 2> · <proof 3>` illustrate formatting, not a quota. Keep prose content to one sentence per block and keep compact evidence blocks to one line. Prefer an honest short status or concrete `not impacted` reason over filler.
 
 For another progress report, keep only:
 

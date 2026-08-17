@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.25.0"
+artifact_version: "0.26.0"
 project: ShipGlows
 created: "2026-04-22"
 updated: "2026-08-17"
@@ -379,7 +379,7 @@ Technical governance applies to code projects by default. Editorial governance a
 
 ## Report Modes
 
-ShipGlows skills default to concise user-facing reports without file paths, file names, or technical file links unless the operator must act on the exact artifact. After approval, a substantive chantier opens once with `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`; it never replaces the approval prompt or decorates a micro-action. Successful closure reports use `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `📦 LIVRAISON`. Compact evidence stays on one line separated by ` · `; optional blocks appear only when material.
+ShipGlows skills default to concise user-facing reports without file paths, file names, or technical file links unless the operator must act on the exact artifact. After approval, a substantive chantier opens once with `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`; it never replaces the approval prompt or decorates a micro-action. Successful closure reports use `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `📦 LIVRAISON`. Compact evidence stays on one line separated by ` · `; optional blocks appear only when material. Cards summarize already-required work: one meaningful proof may suffice, prose stays to one sentence per block, and no extra check, audit, research, documentation, or content is created solely for reporting.
 
 Detailed reports are explicit. Use `report=agent`, `handoff`, `verbose`, or `full-report` when an orchestrator or downstream agent needs file lists, validation matrices, evidence trails, phase details, or handoff context. Skills must not infer caller identity from runtime state; master skills pass a handoff flag when they need detailed downstream evidence.
 

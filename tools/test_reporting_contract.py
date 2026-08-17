@@ -171,6 +171,22 @@ class ReportingContractTests(unittest.TestCase):
         self.assertIn("SSRP-020 visual start card", scenarios)
         self.assertIn("SSRP-021 no technical path leakage", scenarios)
 
+    def test_user_report_has_an_effort_ceiling(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        for rule in (
+            "## Reporting Effort Ceiling",
+            "never expands the work merely to populate a block",
+            "solely for reporting",
+            "One meaningful proof is enough",
+            "illustrate formatting, not a quota",
+            "one sentence per block",
+            "genuinely required by the chantier remain mandatory",
+        ):
+            corpus = scenarios if rule == "genuinely required by the chantier remain mandatory" else core
+            self.assertIn(rule, corpus)
+        self.assertIn("SSRP-022 reporting effort ceiling", scenarios)
+
     def test_closure_reports_make_documentation_reflection_visible(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
