@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.10.0"
+artifact_version: "2.11.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-17"
@@ -40,6 +40,7 @@ evidence:
   - "Unified bootstrap modes route Android Termux to local/install.sh without sudo and retain root-only full server installation."
   - "Native Windows full installs Git and GitHub CLI through WinGet, while GitHub CLI exclusively owns browser authentication and credential storage."
   - "Native Windows full installs Node LTS, pnpm, uv and a resolved Flutter commit automatically; valid external Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing their environment ownership."
+  - "Tauri Android support is project-triggered: one explicit prompt provisions the validated Rust toolchain and Android targets through a ShipGlows-owned isolated mise config and the exact NDK through sdkmanager; project migration is always a separate Codex handoff, never an installer mutation."
   - "Native Windows full configures user-global Playwright MCP only after exact-version resolution and a runnable Chromium executable check in the user cache."
   - "The 2026-08-14 capability-discovery repair makes Playwright MCP the enabled default web-QA lane and requires direct-plus-deferred current-turn discovery before an unavailable verdict."
   - "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."

@@ -49,7 +49,7 @@ with tempfile.TemporaryDirectory() as directory:
         "cli.environment.core.subprocess.run",
         side_effect=AssertionError("an unknown manifest capability executed a process"),
     ) as process_run:
-        observed = observe_project(desired)
+        observed = observe_project(desired, architecture="x86_64")
     assert not process_run.called
     assert observed["capabilities"][0]["status"] == "unknown"
 
@@ -63,7 +63,7 @@ with tempfile.TemporaryDirectory() as directory:
         "cli.environment.core.subprocess.run",
         side_effect=AssertionError("inspect executed a version probe"),
     ) as process_run:
-        observed = observe_project(desired)
+        observed = observe_project(desired, architecture="x86_64")
     assert not process_run.called
     assert observed["capabilities"][0]["status"] == "unknown"
 
@@ -77,7 +77,7 @@ with tempfile.TemporaryDirectory() as directory:
     with patch("cli.environment.core.shutil.which", return_value=str(fixture / "node")), patch(
         "cli.environment.core.subprocess.run", return_value=completed
     ):
-        constrained = observe_project(desired, probe_versions=True)
+        constrained = observe_project(desired, architecture="x86_64", probe_versions=True)
     assert constrained["capabilities"][0]["status"] == "unknown"
 
     unconstrained_manifest = {
@@ -90,7 +90,7 @@ with tempfile.TemporaryDirectory() as directory:
     with patch("cli.environment.core.shutil.which", return_value=str(fixture / "git")), patch(
         "cli.environment.core.subprocess.run", return_value=empty_version
     ):
-        empty = observe_project(desired, probe_versions=True)
+        empty = observe_project(desired, architecture="x86_64", probe_versions=True)
     assert empty["capabilities"][0]["status"] == "degraded"
 
     copied_root = fixture / "copied-runtime"

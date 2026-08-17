@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-08-16"
 created_at: "2026-08-16 16:48:28 UTC"
-updated: "2026-08-16"
-updated_at: "2026-08-16 20:58:22 UTC"
+updated: "2026-08-17"
+updated_at: "2026-08-17 10:30:00 UTC"
 status: active
 source_skill: sg-spec
 source_model: GPT-5 Codex
@@ -458,6 +458,7 @@ Interactive menus project the same plan and state model. Non-interactive mode ne
   - Depends on: Tasks 1-6.
   - Validate with: `powershell.exe -NoProfile -File tests/windows/mobile-toolchain.ps1`, `powershell.exe -NoProfile -File tests/windows/codex-playwright-mcp.ps1` and `bash tests/windows/devserver-contract.sh`, extended with fresh, existing, partial, corrupt, license-refused, auth-pending, no-acceleration and agent-PATH scenarios.
   - Notes: no capability loses current recovery behavior during migration.
+  - Implemented slice: Tauri Android detection compares bounded project evidence with one exact validated baseline. A detected project may provision Rust plus four Android targets through a ShipGlows-owned isolated `mise` config and the exact NDK through `sdkmanager`; older or incomplete declarations become `migration_required`. The installer never runs Tauri/Cargo migration commands and opens Codex only after a separate explicit confirmation.
 
 - [ ] Task 9: Remove redundant installation paths after parity proof.
   - File: legacy installer functions, docs, tests and compatibility shims identified by ownership inventory.
@@ -506,6 +507,7 @@ Interactive menus project the same plan and state model. Non-interactive mode ne
 - [ ] AC 27: Given mise is absent on Windows, when planning the Node pilot, then ShipGlows shows a distinct official `jdx.mise` WinGet acquisition operation; Node installation cannot start until that operation is approved and mise is observed.
 - [ ] AC 28: Given mise and Node are ready, when an agent-like child process runs the project tool, then ShipGlows proves it through `mise exec` without depending on a PowerShell profile or global shim activation.
 - [x] AC 29: Given a native Windows full installation, when its installed launcher runs `s env inspect` from an unmanaged temporary project, then the packaged Python/schema runtime executes before DevServer initialization without creating workspace, registry or menu-cache state.
+- [x] AC 30: Given a Tauri Android project under the Windows workspace, when the full installer inspects it, then bounded evidence is compared with one exact ShipGlows baseline; host Rust/targets and NDK require explicit consent, project files remain byte-unchanged, and migration-required projects receive only a deterministic optional Codex handoff.
 
 ## Test Strategy
 
@@ -583,6 +585,7 @@ None. Node 24 plus pnpm 10 form the fixed first mise pilot for project-local own
 | 2026-08-16 18:15:06 UTC | sg-start | GPT-5.6 Codex | Implemented the separately approved Task 5 source pilot regression-first with official mise semantics, an injectable structured runner, exact lock ownership and fixture-only Windows/agent proof. | Implemented and locally auto-verified: the pilot is executable only for the narrow approval-digest-bound Windows mise/Node 24 grammar; every real install, provider smoke and installed-runtime packaging action remained untouched. | Independent Task 5 verification; opt-in provider smoke remains manual |
 | 2026-08-16 18:25:43 UTC | sg-start | GPT-5.6 Codex | Hardened Task 5 against inherited/alternate mise configuration and repository-resolved executables, then ran the complete source proof stack. | Local auto-verification passed, including all environment contracts, Unix/PowerShell adapters, PowerShell 5.1 parsing and the complete Windows DevServer contract; real provider execution remains unclaimed. | Independent Task 5 verification; opt-in provider smoke remains manual |
 | 2026-08-16 18:53:01 UTC | sg-verify | GPT-5.6 Codex | Independently reproduced and repaired arbitrary external executable trust, approval-to-runner executable drift, inherited environment leakage and incomplete mise cascade isolation; rechecked current official mise semantics and the complete source proof stack. | Verified at standard depth for the Task 5 source/injected-fixture pilot only; executable path plus SHA-256 proves approved identity, not official provenance, and native provider/installed-runtime readiness remains open. | Separately approve a real disposable provider smoke and packaging proof before any shipped-readiness claim. |
+| 2026-08-17 10:30:00 UTC | sg-development | GPT-5.6 Codex | Implemented the approved Task 8 Tauri Android slice with an exact baseline, bounded project inspection, isolated mise-owned Rust targets, exact sdkmanager NDK provisioning and an optional Codex migration handoff. | Focused mobile regression and the complete Windows contract pass without installing a provider, accepting a license, opening Codex or mutating a project. | Run an operator-approved interactive update to prove the real Rust/NDK provider path on an existing Windows host. |
 | 2026-08-16 19:36:46 UTC | sg-engineering | GPT-5.6 Codex | Extended the approved Task 5 source pilot from Node-only ownership to explicit Node 24 plus pnpm 10 ownership, exact dual lock semantics, optional `packageManager` reconciliation, independent fixed install operations and dual-consumer evidence. | Regression-first pnpm proof, all environment contracts, Unix/PowerShell adapters and the complete Windows suite pass; no real provider, dependency install, global tool, installed runtime, commit or push was touched. | Keep real provider and packaging proof separately approval-gated. |
 | 2026-08-16 20:58:22 UTC | sg-development | GPT-5.6 Codex | Documented then implemented Task 5b native Windows runtime packaging, exact archive extraction and installed launcher resolution. | Regression-first installed-runtime proof, incomplete-archive rejection, isolated inspect, all environment contracts and the complete Windows suite pass without changing the live runtime. | Plan Task 6 only after separate approval. |
 

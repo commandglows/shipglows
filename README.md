@@ -247,6 +247,12 @@ uncertain, the installer warns before asking but never silently chooses the phon
 path; accepted downloads keep progress visible.
 Android licenses and Windows confirmations remain explicit, and non-interactive
 runs report them as pending instead of accepting or blocking.
+When the workspace contains a Tauri Android project, the same full installer
+offers one reusable host setup: the ShipGlows-validated Rust toolchain and four
+Android targets through an isolated `mise` environment, plus the exact NDK through
+`sdkmanager`. PATH-backed `cargo`, `rustc`, and `rustup` wrappers use that managed
+environment without a PowerShell profile. ShipGlows never rewrites an older project automatically; it offers
+an optional Codex migration handoff after a separate confirmation.
 The installer then makes one grouped proposal for whichever large IDE toolchains
 are still missing: current Android Studio for Android development and the Firebase
 Device Streaming entry point, plus Visual Studio Community 2022 with Desktop

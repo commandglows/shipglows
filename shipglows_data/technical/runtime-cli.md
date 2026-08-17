@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.16.0"
+artifact_version: "1.17.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-17"
@@ -52,6 +52,7 @@ evidence:
   - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
   - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser that excludes repositories already installed in the workspace."
   - "Native Windows full resolves and validates Flutter/Dart, JDK 17 and Android command-line tools in user scope; Android terms and SDK licenses remain explicitly user-confirmed, with non-interactive runs pending."
+  - "Native Windows full detects Tauri Android projects, offers exact Rust/Android targets through an isolated mise environment and the validated NDK through sdkmanager, and records older projects as migration-required without mutating them."
   - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
   - "Native Windows full prepares Dart/Flutter and exact-version Playwright MCP for installed agents; existing JSON/JSONC is preserved and reported pending when no safe native update is proven."
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."

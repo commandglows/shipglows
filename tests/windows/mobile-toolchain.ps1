@@ -55,6 +55,23 @@ Assert-Sg (Test-SgWindowsHypervisorEvidence $true $true $true $true) 'Complete h
 Assert-Sg (-not (Test-SgWindowsHypervisorEvidence $true $true $false $true)) 'A VM without nested monitor extensions must use the phone fallback.'
 $coordinates = Get-SgAndroidCoordinates
 Assert-Sg ($coordinates.ApiLevel -eq 36 -and $coordinates.BuildToolsVersion -eq '36.0.0') 'Android coordinates must be centralized on API/build-tools 36.'
+$tauriBaseline = Get-SgTauriAndroidBaseline
+Assert-Sg ($tauriBaseline.Schema -eq 'shipglows.tauri-android-baseline/v1') 'Tauri Android baseline must be explicitly versioned.'
+Assert-Sg ($tauriBaseline.ValidatedAt -eq '2026-08-17' -and $tauriBaseline.RustToolchainVersion -eq '1.97.1' -and $tauriBaseline.TauriCliVersion -eq '2.11.4' -and $tauriBaseline.TauriApiVersion -eq '2.11.1' -and $tauriBaseline.TauriRustVersion -eq '2.11.5' -and $tauriBaseline.TauriBuildVersion -eq '2.6.3' -and $tauriBaseline.NdkVersion -eq '29.0.14206865') 'Tauri Android baseline must match the current ShipGlows-validated stable coordinates.'
+foreach ($value in @($tauriBaseline.RustToolchainVersion,$tauriBaseline.TauriCliVersion,$tauriBaseline.TauriApiVersion,$tauriBaseline.TauriRustVersion,$tauriBaseline.TauriBuildVersion,$tauriBaseline.AndroidApiLevel,$tauriBaseline.BuildToolsVersion,$tauriBaseline.NdkVersion)) {
+    Assert-Sg (-not [string]::IsNullOrWhiteSpace([string]$value) -and [string]$value -notmatch '(?i)latest|stable|nightly|beta|[x*^~<>]') 'Tauri Android baseline must contain exact validated coordinates only.'
+}
+Assert-Sg (($tauriBaseline.RustTargets -join '|') -eq 'aarch64-linux-android|armv7-linux-androideabi|i686-linux-android|x86_64-linux-android') 'Tauri Android baseline must declare the complete validated Rust Android target set.'
+$tauriHostPlan = Get-SgTauriAndroidHostPlan -TauriDetected $true -MiseReady $false -RustReady $false -NdkReady $false -MigrationRequired $true -Interactive $true -CodexReady $true -CodexChoice 'y'
+Assert-Sg ($tauriHostPlan.NeedMise -and $tauriHostPlan.NeedRust -and $tauriHostPlan.NeedNdk) 'A missing Tauri Android host must plan mise, Rust, and the validated NDK.'
+Assert-Sg (($tauriHostPlan.AndroidPackages -join '|') -eq 'platform-tools|platforms;android-36|build-tools;36.0.0|ndk;29.0.14206865') 'Tauri Android host packages must use only the validated ShipGlows baseline.'
+Assert-Sg ($tauriHostPlan.OfferCodex -and $tauriHostPlan.OpenCodex -and -not $tauriHostPlan.ProjectMutationAuthorized) 'Opening Codex must remain an explicit offer and must not authorize project mutation.'
+$tauriNoopPlan = Get-SgTauriAndroidHostPlan -TauriDetected $false -MiseReady $false -RustReady $false -NdkReady $false
+Assert-Sg ($tauriNoopPlan.Status -eq 'not_applicable' -and -not $tauriNoopPlan.NeedMise -and @($tauriNoopPlan.AndroidPackages).Count -eq 0) 'A workspace without Tauri must not plan Tauri tooling.'
+$tauriNonInteractive = Get-SgTauriAndroidHostPlan -TauriDetected $true -MiseReady $true -RustReady $true -NdkReady $true -MigrationRequired $true -Interactive $false -CodexReady $true -CodexChoice 'y'
+Assert-Sg ($tauriNonInteractive.Status -eq 'migration_required' -and -not $tauriNonInteractive.OfferCodex -and -not $tauriNonInteractive.OpenCodex) 'Non-interactive installation must leave project migration as a handoff.'
+$tauriMiseConfig = Get-SgTauriMiseConfig -Baseline $tauriBaseline
+Assert-Sg ($tauriMiseConfig -match 'rust\s*=\s*\{\s*version\s*=\s*"1[.]97[.]1"' -and $tauriMiseConfig -match 'aarch64-linux-android' -and $tauriMiseConfig -notmatch '(?i)latest|stable|nightly|hook|task|exec') 'The managed mise config must be exact, code-free, and include the Android Rust targets.'
 $emulatorPlan = Get-SgEmulatorProvisionPlan
 Assert-Sg (($emulatorPlan.Packages -join '|') -eq 'emulator|system-images;android-36;google_apis;x86_64' -and $emulatorPlan.AvdName -eq 'ShipGlows_API_36') 'Emulator provisioning must include current package, system image, and AVD.'
 $emulatorStateRoot = Join-Path ([IO.Path]::GetTempPath()) ('sg-emulator-state-' + [guid]::NewGuid().ToString('N'))
@@ -182,6 +199,52 @@ try {
     Assert-Sg ($many.Firebase -and $many.FlutterFire -and $many.Supabase -and $many.Convex -and $many.Vercel -and $many.Clerk -and $many.AndroidNative) 'Many-service workspace detection is incomplete.'
     $bounded = Get-SgProjectServiceNeeds -Workspace $fixture -MaxDirectories 1
     Assert-Sg ($bounded.ScanLimitReached) 'Service scanning must stop at its directory bound.'
+
+    $tauriRoot = Join-Path $fixture 'tauri-contracts'
+    $readyProject = Join-Path $tauriRoot 'ready'
+    New-Item -ItemType Directory -Path (Join-Path $readyProject 'src-tauri\gen\android\app') -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $readyProject 'package.json') -Value ('{"devDependencies":{"@tauri-apps/cli":"' + $tauriBaseline.TauriCliVersion + '"},"dependencies":{"@tauri-apps/api":"' + $tauriBaseline.TauriApiVersion + '"}}')
+    Set-Content -LiteralPath (Join-Path $readyProject 'src-tauri\Cargo.toml') -Value ("[package]`nname=`"ready`"`nrust-version=`"1.88.0`"`n[build-dependencies]`ntauri-build=`"=$($tauriBaseline.TauriBuildVersion)`"`n[dependencies]`ntauri=`"=$($tauriBaseline.TauriRustVersion)`"")
+    Set-Content -LiteralPath (Join-Path $readyProject 'src-tauri\gen\android\app\build.gradle.kts') -Value ("android { compileSdk = $($tauriBaseline.AndroidApiLevel); buildToolsVersion = `"$($tauriBaseline.BuildToolsVersion)`"; ndkVersion = `"$($tauriBaseline.NdkVersion)`" }")
+    $readyTauri = Get-SgTauriAndroidProjectState -Workspace $readyProject -Baseline $tauriBaseline
+    Assert-Sg ($readyTauri.IsTauri -and $readyTauri.Status -eq 'ready' -and @($readyTauri.Differences).Count -eq 0) 'An exact Tauri Android baseline match must be ready.'
+
+    $oldProject = Join-Path $tauriRoot 'old'
+    Copy-Item -LiteralPath $readyProject -Destination $oldProject -Recurse
+    Set-Content -LiteralPath (Join-Path $oldProject 'package.json') -Value '{"devDependencies":{"@tauri-apps/cli":"2.0.0"},"dependencies":{"@tauri-apps/api":"2.0.0"}}'
+    $oldTauri = Get-SgTauriAndroidProjectState -Workspace $oldProject -Baseline $tauriBaseline
+    Assert-Sg ($oldTauri.Status -eq 'migration_required' -and @($oldTauri.Differences).Count -ge 1) 'An older Tauri project must require migration rather than provisioning an old toolchain.'
+    $handoff = New-SgTauriAndroidMigrationHandoff -ProjectState $oldTauri -Baseline $tauriBaseline
+    Assert-Sg ($handoff.Schema -eq 'shipglows.tauri-android-migration-handoff/v1' -and $handoff.Action -eq 'offer_codex' -and -not $handoff.ProjectMutationAuthorized) 'Migration handoff must remain opt-in and must not authorize project mutation.'
+    Assert-Sg (($handoff.Differences -join '|') -eq ((@($handoff.Differences) | Sort-Object) -join '|')) 'Migration handoff differences must be deterministic.'
+    Assert-Sg (($handoff | ConvertTo-Json -Depth 8) -notmatch '(?i)token|secret|password|authorization') 'Migration handoff must not expose secret-bearing project content.'
+
+    $unknownProject = Join-Path $tauriRoot 'unknown'
+    New-Item -ItemType Directory -Path (Join-Path $unknownProject 'src-tauri') -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $unknownProject 'package.json') -Value '{"dependencies":{"@tauri-apps/api":'
+    Set-Content -LiteralPath (Join-Path $unknownProject 'src-tauri\Cargo.toml') -Value "[dependencies]`ntauri = `"2`""
+    $unknownTauri = Get-SgTauriAndroidProjectState -Workspace $unknownProject -Baseline $tauriBaseline
+    Assert-Sg ($unknownTauri.IsTauri -and $unknownTauri.Status -eq 'unknown') 'Malformed or incomplete Tauri declarations must remain unknown, never ready.'
+
+    $negativeProject = Join-Path $tauriRoot 'negative'
+    New-Item -ItemType Directory -Path $negativeProject -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $negativeProject 'package.json') -Value '{"name":"plain-web"}'
+    $negativeTauri = Get-SgTauriAndroidProjectState -Workspace $negativeProject -Baseline $tauriBaseline
+    Assert-Sg (-not $negativeTauri.IsTauri -and $negativeTauri.Status -eq 'unknown') 'A non-Tauri project must not become a false ready match.'
+
+    $monorepo = Join-Path $tauriRoot 'monorepo'
+    New-Item -ItemType Directory -Path (Join-Path $monorepo 'apps') -Force | Out-Null
+    Copy-Item -LiteralPath $readyProject -Destination (Join-Path $monorepo 'apps\desktop') -Recurse
+    $monorepoTauri = Get-SgTauriAndroidProjectState -Workspace $monorepo -Baseline $tauriBaseline
+    Assert-Sg ($monorepoTauri.IsTauri -and $monorepoTauri.Status -eq 'ready' -and $monorepoTauri.ProjectRoot -eq (Join-Path $monorepo 'apps\desktop')) 'Bounded inspection must find one nested Tauri project and report its exact root.'
+
+    $outsideProject = Join-Path $fixture 'outside-tauri'
+    Copy-Item -LiteralPath $readyProject -Destination $outsideProject -Recurse
+    $reparseRoot = Join-Path $tauriRoot 'reparse-only'
+    New-Item -ItemType Directory -Path $reparseRoot -Force | Out-Null
+    New-Item -ItemType Junction -Path (Join-Path $reparseRoot 'linked') -Target $outsideProject | Out-Null
+    $reparseState = Get-SgTauriAndroidProjectState -Workspace $reparseRoot -Baseline $tauriBaseline
+    Assert-Sg (-not $reparseState.IsTauri -and $reparseState.Status -eq 'unknown') 'Tauri inspection must never traverse reparse points.'
 
     $stackVersions = @{ Firebase='14.0.0'; FlutterFire='1.3.1'; Supabase='2.45.0'; Convex='1.28.0'; Vercel='48.0.0'; Clerk='0.4.0' }
     $stackPlan = @(Get-SgServiceCliPlan $many $stackVersions)

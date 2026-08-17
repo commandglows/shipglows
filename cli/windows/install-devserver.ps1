@@ -654,7 +654,7 @@ function Assert-SgEnvironmentPythonPackage([string]$PythonPath, [string]$Environ
     if ($LASTEXITCODE -ne 0) { throw 'The installed ShipGlows environment Python package failed syntax validation.' }
 }
 
-function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PlaywrightRuntimeInfo, [pscustomobject]$PythonInfo, [bool]$FlutterReady, [pscustomobject]$AndroidInfo, [pscustomobject]$IdeInfo, [pscustomobject]$ServiceInfo, [bool]$DeveloperModeReady) {
+function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomobject]$PlaywrightInfo, [pscustomobject]$PlaywrightRuntimeInfo, [pscustomobject]$PythonInfo, [bool]$FlutterReady, [pscustomobject]$AndroidInfo, [pscustomobject]$IdeInfo, [pscustomobject]$ServiceInfo, [bool]$DeveloperModeReady, [pscustomobject]$TauriInfo) {
     $environmentPath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'environment.md'
     New-Item -ItemType Directory -Path (Split-Path -Parent $environmentPath) -Force | Out-Null
     $codexStatus = if ($AgentInfo.Codex.Installed) { 'installed' } else { 'not installed' }
@@ -674,6 +674,13 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
     $visualStudioCppReady = if ($IdeInfo.VisualStudioCppReady) { 'yes' } else { 'no' }
     $firebaseDeviceStreamingReady = if ($IdeInfo.FirebaseDeviceStreamingReady) { 'yes' } else { 'no' }
     $developerModeStatus = if ($DeveloperModeReady) { 'yes' } else { 'no' }
+    $tauriDetected = if ($TauriInfo -and $TauriInfo.Detected) { 'yes' } else { 'no' }
+    $tauriHostReady = if ($TauriInfo -and $TauriInfo.HostReady) { 'yes' } else { 'no' }
+    $tauriRustReady = if ($TauriInfo -and $TauriInfo.RustReady) { 'yes' } else { 'no' }
+    $tauriNdkReady = if ($TauriInfo -and $TauriInfo.NdkReady) { 'yes' } else { 'no' }
+    $tauriProjectStatus = if ($TauriInfo -and $TauriInfo.ProjectStatus) { [string]$TauriInfo.ProjectStatus } else { 'not_applicable' }
+    $tauriBaseline = if ($TauriInfo -and $TauriInfo.Baseline) { "Rust $($TauriInfo.Baseline.RustToolchainVersion); Tauri CLI $($TauriInfo.Baseline.TauriCliVersion); Android API $($TauriInfo.Baseline.AndroidApiLevel); NDK $($TauriInfo.Baseline.NdkVersion)" } else { 'not applicable' }
+    $tauriNextAction = if ($tauriDetected -eq 'no') { 'none' } elseif ($tauriHostReady -eq 'no') { 'rerun the interactive ShipGlows full installer and accept the reusable Tauri Android toolchain.' } elseif ($tauriProjectStatus -eq 'migration_required') { 'use the generated handoff to migrate the project with Codex; ShipGlows never mutates it automatically.' } elseif ($tauriProjectStatus -eq 'unknown') { 'inspect the reported Tauri manifests before claiming compatibility.' } else { 'none' }
     $agentLines = @()
     foreach ($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')) {
         $agent = $AgentInfo[$agentName]
@@ -729,6 +736,13 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
 - Windows Developer Mode next action: $(if ($DeveloperModeReady) { 'none' } else { 'open Windows Settings > System > For developers; ShipGlows never changes this policy automatically.' })
 - Firebase Android Device Streaming configured: $firebaseDeviceStreamingReady
 - Firebase Android Device Streaming next action: $firebaseDeviceStreamingNextAction
+- Tauri Android project detected: $tauriDetected
+- Tauri Android host toolchain ready: $tauriHostReady
+- Tauri Rust toolchain ready: $tauriRustReady
+- Tauri Android NDK ready: $tauriNdkReady
+- Tauri project compatibility: $tauriProjectStatus
+- Tauri validated baseline: $tauriBaseline
+- Tauri next action: $tauriNextAction
 - Playwright Chromium installed: $playwrightInstalled
 - Playwright MCP configured: $playwrightConfigured
 - Playwright MCP verified: $playwrightVerified
@@ -962,8 +976,8 @@ function Get-SgHypervisorEvidence {
     } catch { return $false }
 }
 
-function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths) {
-    if (-not $FlutterReady) { Write-SgInstallerWarning 'Android setup is pending because Flutter is unavailable.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
+function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths, [bool]$TauriRequired = $false) {
+    if (-not $FlutterReady -and -not $TauriRequired) { Write-SgInstallerWarning 'Android setup is pending because no Flutter or Tauri Android consumer was detected.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false; SdkRoot=''; NdkReady=$false } }
     if (-not (Test-SgSupportedAndroidArchitecture)) { Write-SgInstallerWarning 'Android setup is pending: automatic Windows provisioning currently requires an x64 operating system. No Android package was downloaded.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
     $interactive = -not [Console]::IsInputRedirected
     $java = Install-SgJdk17
@@ -993,8 +1007,18 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     }
     if (-not $licensesReady) { Write-SgInstallerWarning 'Android SDK licenses are refused or incomplete; essential packages remain pending.'; return [pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false } }
     $coordinates = Get-SgAndroidCoordinates
-    $essential = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.android.essential' -Label 'Installing Android platform and build tools' -File $sdkManager -Arguments @('platform-tools',$coordinates.PlatformPackage,$coordinates.BuildToolsPackage) -TimeoutSeconds 600
+    $essentialPackages = @('platform-tools',$coordinates.PlatformPackage,$coordinates.BuildToolsPackage)
+    $tauriBaseline = Get-SgTauriAndroidBaseline
+    if ($TauriRequired) { $essentialPackages += "ndk;$($tauriBaseline.NdkVersion)" }
+    $essential = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.android.essential' -Label 'Installing Android platform, build tools, and required native components' -File $sdkManager -Arguments $essentialPackages -TimeoutSeconds 1800
     if ($essential.TimedOut -or $essential.ExitCode -ne 0) { Write-SgInstallerWarning 'Essential Android SDK package installation failed or timed out.' }
+    $ndkRoot = Join-Path $sdkRoot "ndk\$($tauriBaseline.NdkVersion)"
+    $ndkReady = Test-Path -LiteralPath (Join-Path $ndkRoot 'source.properties') -PathType Leaf
+    if ($TauriRequired -and $ndkReady) {
+        [Environment]::SetEnvironmentVariable('NDK_HOME',$ndkRoot,'User')
+        [Environment]::SetEnvironmentVariable('ANDROID_NDK_HOME',$ndkRoot,'User')
+        $env:NDK_HOME=$ndkRoot; $env:ANDROID_NDK_HOME=$ndkRoot
+    } elseif ($TauriRequired) { Write-SgInstallerWarning "Tauri Android NDK $($tauriBaseline.NdkVersion) remains pending." }
     $adb = Join-Path $sdkRoot 'platform-tools\adb.exe'
     $emulatorPlan = Get-SgEmulatorProvisionPlan
     $emulatorCandidate = Join-Path $sdkRoot 'emulator\emulator.exe'
@@ -1052,13 +1076,137 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     }
     $flutterPath = Get-SgToolPath 'flutter.bat' $FlutterPaths
     $dartPath = if ($flutterPath) { Join-Path (Split-Path $flutterPath -Parent) 'dart.bat' } else { '' }
-    $diagnostic = Get-SgFlutterAndroidDiagnostic -FlutterPath $flutterPath -DartPath $dartPath -JavaPath $java -SdkManagerPath $sdkManager -AdbPath $adb -EmulatorPath $emulator
+    $diagnostic = if ($flutterPath) {
+        Get-SgFlutterAndroidDiagnostic -FlutterPath $flutterPath -DartPath $dartPath -JavaPath $java -SdkManagerPath $sdkManager -AdbPath $adb -EmulatorPath $emulator
+    } else {
+        $sdkReady = -not $essential.TimedOut -and $essential.ExitCode -eq 0 -and (Test-Path -LiteralPath $adb -PathType Leaf)
+        [pscustomobject]@{ ToolchainReady=$sdkReady; LicensesReady=$licensesReady; DeviceReady=$false; TimedOut=$false; Reason=if($sdkReady){'Android host toolchain is ready; device proof remains separate.'}else{'Android SDK provisioning is incomplete.'}; DoctorOutput=''; DevicesOutput='' }
+    }
     $diagnostic | Add-Member -NotePropertyName AvdReady -NotePropertyValue $avdReady -Force
     $diagnostic | Add-Member -NotePropertyName EmulatorAccelerationReady -NotePropertyValue $emulatorAccelerationReady -Force
+    $diagnostic | Add-Member -NotePropertyName SdkRoot -NotePropertyValue $sdkRoot -Force
+    $diagnostic | Add-Member -NotePropertyName NdkReady -NotePropertyValue $ndkReady -Force
     if ($diagnostic.DoctorOutput) { Write-Host $diagnostic.DoctorOutput }; if ($diagnostic.DevicesOutput) { Write-Host $diagnostic.DevicesOutput }
     Write-Host "Android readiness: toolchain=$($diagnostic.ToolchainReady); licenses=$($diagnostic.LicensesReady); device=$($diagnostic.DeviceReady)" -ForegroundColor Cyan
     if (-not $diagnostic.ToolchainReady -or -not $diagnostic.LicensesReady -or -not $diagnostic.DeviceReady) { Write-SgInstallerWarning "Flutter Android diagnostic: $($diagnostic.Reason)" }
     return $diagnostic
+}
+
+function Resolve-SgTrustedMisePath {
+    $packageRoot = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages\jdx.mise_Microsoft.Winget.Source_8wekyb3d8bbwe'
+    $allowedRoot = [IO.Path]::GetFullPath($packageRoot).TrimEnd('\') + '\'
+    $candidates = New-Object Collections.Generic.List[string]
+    $command = Get-Command mise.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($command -and $command.Source) { $candidates.Add([string]$command.Source) }
+    if (Test-Path -LiteralPath $packageRoot -PathType Container) {
+        foreach ($item in @(Get-ChildItem -LiteralPath $packageRoot -Recurse -Filter mise.exe -File -ErrorAction SilentlyContinue)) { $candidates.Add($item.FullName) }
+    }
+    foreach ($candidate in @($candidates | Select-Object -Unique)) {
+        try {
+            $full = [IO.Path]::GetFullPath($candidate)
+            if (-not $full.StartsWith($allowedRoot,[StringComparison]::OrdinalIgnoreCase)) { continue }
+            $item = Get-Item -LiteralPath $full -Force
+            if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
+            $check = Invoke-SgBoundedProcess $full @('--version') 30
+            if (-not $check.TimedOut -and $check.ExitCode -eq 0 -and $check.Output -match '(?i)mise\s+\d{4}[.]\d+') { return $full }
+        } catch { }
+    }
+    return ''
+}
+
+function Install-SgOfficialMiseForTauri {
+    $mise = Resolve-SgTrustedMisePath
+    if ($mise) { return $mise }
+    $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $winget) { Write-SgInstallerWarning 'Tauri Android pending: WinGet is unavailable, so the official mise package cannot be acquired.'; return '' }
+    $installed = Invoke-SgVisibleBoundedProcess -OperationId 'tool.mise.tauri' -Label 'Installing the official mise tool manager for Tauri' -File $winget.Source -Arguments @('install','--id','jdx.mise','--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
+    Update-SgProcessPath
+    if ($installed.TimedOut -or $installed.ExitCode -ne 0) { Write-SgInstallerWarning 'Tauri Android pending: official mise installation failed or timed out.'; return '' }
+    $mise = Resolve-SgTrustedMisePath
+    if (-not $mise) { Write-SgInstallerWarning 'Tauri Android pending: mise was installed but its trusted WinGet executable could not be proven.' }
+    return $mise
+}
+
+function Invoke-SgManagedTauriMise {
+    param([string]$MisePath, [string]$ToolchainRoot, [string[]]$Arguments, [int]$TimeoutSeconds = 120, [switch]$Visible)
+    $names = @('MISE_SAFE','MISE_NO_HOOKS','MISE_NO_ENV','MISE_AUTO_INSTALL','MISE_EXEC_AUTO_INSTALL','MISE_NOT_FOUND_AUTO_INSTALL','MISE_RUN_AUTO_INSTALL','MISE_OVERRIDE_CONFIG_FILENAMES','MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES','MISE_CONFIG_DIR','MISE_CEILING_PATHS','MISE_SYSTEM_DEPS')
+    $previous = @{}; foreach($name in $names){$previous[$name]=[Environment]::GetEnvironmentVariable($name,'Process')}
+    try {
+        $emptyConfig = Join-Path $ToolchainRoot '.shipglows-no-user-mise-config'; New-Item -ItemType Directory -Path $emptyConfig -Force | Out-Null
+        $env:MISE_SAFE='1'; $env:MISE_NO_HOOKS='1'; $env:MISE_NO_ENV='1'; $env:MISE_AUTO_INSTALL='false'; $env:MISE_EXEC_AUTO_INSTALL='false'; $env:MISE_NOT_FOUND_AUTO_INSTALL='false'; $env:MISE_RUN_AUTO_INSTALL='false'; $env:MISE_OVERRIDE_CONFIG_FILENAMES='mise.toml'; $env:MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES='none'; $env:MISE_CONFIG_DIR=$emptyConfig; $env:MISE_CEILING_PATHS=(Split-Path $ToolchainRoot -Parent); $env:MISE_SYSTEM_DEPS='ignore'
+        Push-Location $ToolchainRoot
+        try {
+            if ($Visible) { return Invoke-SgVisibleBoundedProcess -OperationId 'tool.rust.tauri' -Label 'Installing the validated Rust toolchain and Android targets' -File $MisePath -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds }
+            return Invoke-SgBoundedProcess $MisePath $Arguments $TimeoutSeconds
+        } finally { Pop-Location }
+    } finally { foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$previous[$name],'Process')} }
+}
+
+function Test-SgTauriRustToolchain {
+    param([string]$MisePath, [string]$ToolchainRoot, $Baseline = (Get-SgTauriAndroidBaseline))
+    if (-not $MisePath -or -not (Test-Path -LiteralPath (Join-Path $ToolchainRoot 'mise.toml') -PathType Leaf)) { return $false }
+    $rust = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec','--','rustc','--version') 60
+    $cargo = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec','--','cargo','--version') 60
+    $targets = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec','--','rustup','target','list','--installed') 60
+    if ($rust.TimedOut -or $rust.ExitCode -ne 0 -or $rust.Output -notmatch "(?m)^rustc $([regex]::Escape([string]$Baseline.RustToolchainVersion))\b" -or $cargo.TimedOut -or $cargo.ExitCode -ne 0) { return $false }
+    return @($Baseline.RustTargets | Where-Object { $targets.Output -notmatch "(?m)^$([regex]::Escape([string]$_))\r?$" }).Count -eq 0
+}
+
+function Install-SgTauriRustWrappers {
+    param([string]$MisePath, [string]$ToolchainRoot)
+    if (-not $MisePath -or -not (Test-Path -LiteralPath $MisePath -PathType Leaf)) { return $false }
+    foreach ($command in @('cargo','rustc','rustup')) {
+        $wrapper = Join-Path $runtimeDir "$command.cmd"
+        $content = "@echo off`r`n@`"$MisePath`" -C `"$ToolchainRoot`" exec -- $command %*`r`n"
+        if (-not (Test-Path -LiteralPath $wrapper -PathType Leaf) -or [IO.File]::ReadAllText($wrapper) -cne $content) {
+            [IO.File]::WriteAllText($wrapper,$content,[Text.Encoding]::ASCII)
+        }
+    }
+    return $true
+}
+
+function Install-SgTauriAndroidToolchain {
+    param($ProjectState, [bool]$InstallApproved, [pscustomobject]$AndroidInfo)
+    $baseline = Get-SgTauriAndroidBaseline
+    if (-not $ProjectState.IsTauri) { return [pscustomobject]@{ Detected=$false; HostReady=$false; RustReady=$false; NdkReady=$false; ProjectStatus='not_applicable'; Baseline=$baseline } }
+    $root = Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-android'
+    $configPath = Join-Path $root 'mise.toml'
+    $mise = Resolve-SgTrustedMisePath
+    $rustReady = Test-SgTauriRustToolchain $mise $root $baseline
+    if ($InstallApproved -and -not $rustReady) {
+        if (-not $mise) { $mise = Install-SgOfficialMiseForTauri }
+        if ($mise) {
+            New-Item -ItemType Directory -Path $root -Force | Out-Null
+            $expected = Get-SgTauriMiseConfig $baseline
+            if (-not (Test-Path -LiteralPath $configPath -PathType Leaf) -or [IO.File]::ReadAllText($configPath).Replace("`r`n","`n") -cne $expected.Replace("`r`n","`n")) {
+                $temporary = "$configPath.tmp-$([guid]::NewGuid().ToString('N'))"
+                [IO.File]::WriteAllText($temporary,$expected,[Text.UTF8Encoding]::new($false)); Move-SgAtomicReplace $temporary $configPath
+            }
+            $install = Invoke-SgManagedTauriMise $mise $root @('install','rust') 1800 -Visible
+            if ($install.TimedOut -or $install.ExitCode -ne 0) { Write-SgInstallerWarning 'Validated Tauri Rust installation failed or timed out.' }
+            $rustReady = Test-SgTauriRustToolchain $mise $root $baseline
+        }
+    }
+    if ($rustReady) { [void](Install-SgTauriRustWrappers $mise $root) }
+    $ndkReady = $AndroidInfo.PSObject.Properties['NdkReady'] -and [bool]$AndroidInfo.NdkReady
+    [pscustomobject]@{ Detected=$true; HostReady=$rustReady -and $ndkReady; RustReady=$rustReady; NdkReady=$ndkReady; ProjectStatus=[string]$ProjectState.Status; Baseline=$baseline; ToolchainRoot=$root }
+}
+
+function Invoke-SgTauriMigrationHandoff {
+    param($ProjectState, [bool]$CodexReady, [string[]]$CodexPaths)
+    if (-not $ProjectState.IsTauri -or $ProjectState.Status -ne 'migration_required') { return $false }
+    $handoff = New-SgTauriAndroidMigrationHandoff $ProjectState
+    Write-Host "Tauri Android migration required for: $($handoff.ProjectRoot)" -ForegroundColor Yellow
+    foreach($difference in @($handoff.Differences)){Write-Host "  - $difference" -ForegroundColor DarkGray}
+    if (-not $CodexReady -or [Console]::IsInputRedirected) { Write-SgInstallerWarning 'Tauri migration handoff is ready, but Codex was not opened. The project was not modified.'; return $false }
+    $choice = Read-SgInstallerChoice -Interactive $true -Prompt $handoff.Prompt
+    $plan = Get-SgTauriAndroidHostPlan -TauriDetected $true -MiseReady $true -RustReady $true -NdkReady $true -MigrationRequired $true -Interactive $true -CodexReady $CodexReady -CodexChoice $choice
+    if (-not $plan.OpenCodex) { Write-SgInstallerWarning 'Tauri migration was left as a handoff; the project was not modified.'; return $false }
+    $codex = Get-SgToolPath 'codex.cmd' $CodexPaths
+    if (-not $codex) { Write-SgInstallerWarning 'Codex could not be resolved for the Tauri migration handoff.'; return $false }
+    $prompt = 'Migrate this Tauri Android project to the ShipGlows-validated baseline described in the handoff shown by the installer. Preserve product behavior, do not run tauri android init until you have inspected the project, and ask for approval before project mutations.'
+    Write-Host 'Opening Codex in the Tauri project. The installer will continue when that Codex session exits.' -ForegroundColor Cyan
+    return Invoke-SgInteractiveBoundedProcess $codex @('-C',$handoff.ProjectRoot,$prompt) 14400
 }
 
 function Get-SgCurrentWindowsIdeState {
@@ -1398,7 +1546,26 @@ if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional defaul
 $pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
 Assert-SgEnvironmentPythonPackage $pythonInfo.Path (Join-Path $ShipglowsDir 'cli\environment')
 $flutterReady = Install-SgFlutter $flutterPaths $gitPaths
-$androidInfo = Install-SgAndroidToolchain $flutterReady $flutterPaths
+$tauriState = try { Get-SgTauriAndroidProjectState -Workspace $Workspace } catch { Write-SgInstallerWarning "Tauri Android inspection is unknown: $($_.Exception.Message)"; [pscustomobject]@{ IsTauri=$false; Status='unknown'; ProjectRoot=''; Differences=@('inspection failed') } }
+$tauriInstallApproved = $false
+if ($tauriState.IsTauri) {
+    Write-Host "Tauri Android project detected: $($tauriState.ProjectRoot)" -ForegroundColor Cyan
+    $tauriBaseline = Get-SgTauriAndroidBaseline
+    $tauriManagedRoot = Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-android'
+    $tauriExistingRustReady = Test-SgTauriRustToolchain (Resolve-SgTrustedMisePath) $tauriManagedRoot $tauriBaseline
+    $tauriExistingNdkRoots = @($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,(Join-Path $env:LOCALAPPDATA 'Android\Sdk')) | Where-Object { $_ }
+    $tauriExistingNdkReady = @($tauriExistingNdkRoots | Where-Object { Test-Path -LiteralPath (Join-Path $_ "ndk\$($tauriBaseline.NdkVersion)\source.properties") -PathType Leaf }).Count -gt 0
+    if ($tauriExistingRustReady -and $tauriExistingNdkReady) {
+        Write-Host 'Validated Tauri Android Rust targets and NDK are already ready; skipping the toolchain question.' -ForegroundColor Green
+    } else {
+        $tauriChoice = Read-SgInstallerChoice -Interactive (-not [Console]::IsInputRedirected) -Prompt 'Prepare the reusable Tauri Android toolchain (Rust + NDK) now? [y/N]'
+        $tauriInstallApproved = $tauriChoice -in @('y','yes')
+        if (-not $tauriInstallApproved) { Write-SgInstallerWarning 'Tauri Android host preparation remains pending; no project file was modified.' }
+    }
+}
+$androidInfo = Install-SgAndroidToolchain $flutterReady $flutterPaths ($tauriState.IsTauri -and $tauriInstallApproved)
+if ($tauriState.IsTauri -and $tauriExistingNdkReady) { $androidInfo | Add-Member -NotePropertyName NdkReady -NotePropertyValue $true -Force }
+$tauriInfo = Install-SgTauriAndroidToolchain -ProjectState $tauriState -InstallApproved $tauriInstallApproved -AndroidInfo $androidInfo
 $ideInfo = Install-SgWindowsIdeToolchains $flutterReady $flutterPaths
 
 Write-Host ''
@@ -1417,6 +1584,7 @@ $opencodeReady = [bool]$agentReady.OpenCode
 $kiloResolved = Resolve-SgKiloCommand (Get-SgToolPath 'kilo.cmd' $kiloPaths) (Get-SgToolPath 'kilocode.cmd' $kilocodePaths)
 $kiloReady = [bool]$agentReady.Kilo
 $geminiReady = [bool]$agentReady.Gemini
+[void](Invoke-SgTauriMigrationHandoff -ProjectState $tauriState -CodexReady $codexReady -CodexPaths $codexPaths)
 if ($codexReady -and ($env:SHIPGLOWS_CODEX_PERMISSION_MODE -or $env:SHIPGLOWS_AUTONOMY_MODE)) {
     $codexConfigPath = Join-Path $env:USERPROFILE '.codex\config.toml'
     $codexPermissionMode = Resolve-SgCodexPermissionMode $codexConfigPath
@@ -1433,7 +1601,7 @@ $agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady
 $playwrightConfigured = @($agentInfo.Values | Where-Object { $_.ReadyServers -contains 'playwright' }).Count -gt 0
 $playwrightPending = @($agentInfo.Values | Where-Object { $_.PendingServers -contains 'playwright' }).Count -gt 0
 $playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$playwrightConfigured; McpVerified=$playwrightConfigured -and -not $playwrightPending; ConfigPath='per-agent; readiness listed below'; ChromiumPath=$playwright.ChromiumPath }
-$environmentPath = Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightInfo $playwrightRuntime $pythonInfo $flutterReady $androidInfo $ideInfo $serviceInfo (Test-SgWindowsDeveloperMode)
+$environmentPath = Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightInfo $playwrightRuntime $pythonInfo $flutterReady $androidInfo $ideInfo $serviceInfo (Test-SgWindowsDeveloperMode) $tauriInfo
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
 $agentInstructionChanges = @(Install-SgAgentEnvironmentInstructions -UserProfile $env:USERPROFILE -AgentReady @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady })
 if ($agentInstructionChanges.Count) { Write-Host "ShipGlows tool context installed for $($agentInstructionChanges.Count) coding agent(s)." -ForegroundColor Green }

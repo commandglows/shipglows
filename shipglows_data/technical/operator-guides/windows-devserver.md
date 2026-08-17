@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.12.0"
+artifact_version: "1.13.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-16"
+updated: "2026-08-17"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -463,3 +463,10 @@ sudo apt install autossh
 - **WSL Documentation:** https://aka.ms/wsl
 - **OpenSSH pour Windows:** https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse
 - **Git for Windows:** https://git-scm.com/download/win
+## Tauri Android on Windows
+
+When a Tauri Android project is detected, the full installer separately offers
+the reusable ShipGlows baseline: exact Rust and Android targets through an
+isolated `mise` environment, plus the exact NDK through `sdkmanager`. Older or
+incomplete projects remain untouched and become `migration_required`; an optional
+Codex handoff opens only after explicit confirmation.

@@ -17,6 +17,166 @@ function Move-SgAtomicReplace([string]$SourcePath, [string]$DestinationPath) {
     }
 }
 
+function Get-SgTauriAndroidBaseline {
+    [pscustomobject]@{
+        Schema = 'shipglows.tauri-android-baseline/v1'
+        ValidatedAt = '2026-08-17'
+        RustToolchainVersion = '1.97.1'
+        RustTargets = @('aarch64-linux-android','armv7-linux-androideabi','i686-linux-android','x86_64-linux-android')
+        TauriCliVersion = '2.11.4'
+        TauriApiVersion = '2.11.1'
+        TauriRustVersion = '2.11.5'
+        TauriBuildVersion = '2.6.3'
+        AndroidApiLevel = 36
+        BuildToolsVersion = '36.0.0'
+        NdkVersion = '29.0.14206865'
+    }
+}
+
+function Test-SgExactVersionCoordinate([string]$Value) {
+    return -not [string]::IsNullOrWhiteSpace($Value) -and $Value -match '^\d+(?:[.]\d+){1,3}(?:-[0-9A-Za-z.-]+)?$'
+}
+
+function Get-SgTauriAndroidProjectState {
+    param(
+        [Parameter(Mandatory=$true)][string]$Workspace,
+        $Baseline = (Get-SgTauriAndroidBaseline),
+        [int]$MaxDirectories = 5000,
+        [int]$MaxDepth = 4,
+        [long]$MaxManifestBytes = 2097152
+    )
+    if ($MaxDirectories -lt 1 -or $MaxDepth -lt 0 -or $MaxManifestBytes -lt 1 -or $MaxManifestBytes -gt 8MB) { throw 'Invalid bounded Tauri inspection limits.' }
+    $root = [IO.Path]::GetFullPath($Workspace)
+    if (-not (Test-Path -LiteralPath $root -PathType Container)) { throw "Tauri inspection root is unavailable: $root" }
+    $queue = New-Object Collections.Generic.Queue[object]
+    $queue.Enqueue([pscustomobject]@{ Path=$root; Depth=0 })
+    $candidates = New-Object Collections.Generic.List[object]
+    $visited = 0
+    $limitReached = $false
+    while ($queue.Count -gt 0) {
+        if ($visited -ge $MaxDirectories) { $limitReached=$true; break }
+        $current = $queue.Dequeue(); $visited++
+        $packagePath = Join-Path $current.Path 'package.json'
+        $cargoPath = Join-Path $current.Path 'src-tauri\Cargo.toml'
+        $packageText = if (Test-Path -LiteralPath $packagePath -PathType Leaf) { Read-SgBoundedManifestText $packagePath $MaxManifestBytes } else { '' }
+        $cargoText = if (Test-Path -LiteralPath $cargoPath -PathType Leaf) { Read-SgBoundedManifestText $cargoPath $MaxManifestBytes } else { '' }
+        $packageMarker = $packageText -match '"@tauri-apps/(?:api|cli)"\s*:'
+        $cargoMarker = $cargoText -match '(?m)^\s*tauri\s*='
+        if ($packageMarker -or $cargoMarker -or (Test-Path -LiteralPath (Join-Path $current.Path 'src-tauri\tauri.conf.json') -PathType Leaf)) {
+            $candidates.Add([pscustomobject]@{ Root=$current.Path; PackagePath=$packagePath; PackageText=$packageText; CargoPath=$cargoPath; CargoText=$cargoText })
+        }
+        if ($current.Depth -ge $MaxDepth) { continue }
+        foreach ($directory in @(Get-ChildItem -LiteralPath $current.Path -Directory -Force -ErrorAction SilentlyContinue | Sort-Object Name)) {
+            if ($directory.Name -in @('.git','node_modules','target','build','.dart_tool','.venv','.idea')) { continue }
+            if (($directory.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
+            $queue.Enqueue([pscustomobject]@{ Path=$directory.FullName; Depth=$current.Depth + 1 })
+        }
+    }
+    if ($candidates.Count -eq 0) {
+        return [pscustomobject]@{ IsTauri=$false; Status='unknown'; ProjectRoot=''; Differences=@(); Unknown=@('tauri-project'); DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
+    }
+    $candidate = $candidates | Sort-Object Root | Select-Object -First 1
+    $observed = [ordered]@{ TauriCli=''; TauriApi=''; CargoTauri=''; CargoTauriBuild=''; RustMsrv=''; AndroidApiLevel=''; BuildToolsVersion=''; NdkVersion='' }
+    $invalid = New-Object Collections.Generic.List[string]
+    if ($candidate.PackageText) {
+        try {
+            $package = $candidate.PackageText | ConvertFrom-Json -ErrorAction Stop
+            foreach ($sectionName in @('dependencies','devDependencies')) {
+                $section = $package.$sectionName
+                if (-not $section) { continue }
+                $cli = $section.PSObject.Properties['@tauri-apps/cli']; if ($cli) { $observed.TauriCli=[string]$cli.Value }
+                $api = $section.PSObject.Properties['@tauri-apps/api']; if ($api) { $observed.TauriApi=[string]$api.Value }
+            }
+        } catch { $invalid.Add('package.json') }
+    }
+    if ($candidate.CargoText) {
+        $rustMatch = [regex]::Match($candidate.CargoText, '(?m)^\s*rust-version\s*=\s*"(?<value>[^"]+)"')
+        if ($rustMatch.Success) { $observed.RustMsrv=$rustMatch.Groups['value'].Value }
+        $tauriMatch = [regex]::Match($candidate.CargoText, '(?m)^\s*tauri\s*=\s*(?:"(?<simple>[^"]+)"|\{[^}\r\n]*version\s*=\s*"(?<table>[^"]+)")')
+        if ($tauriMatch.Success) { $observed.CargoTauri=if($tauriMatch.Groups['simple'].Success){$tauriMatch.Groups['simple'].Value}else{$tauriMatch.Groups['table'].Value} }
+        $tauriBuildMatch = [regex]::Match($candidate.CargoText, '(?m)^\s*tauri-build\s*=\s*(?:"(?<simple>[^"]+)"|\{[^}\r\n]*version\s*=\s*"(?<table>[^"]+)")')
+        if ($tauriBuildMatch.Success) { $observed.CargoTauriBuild=if($tauriBuildMatch.Groups['simple'].Success){$tauriBuildMatch.Groups['simple'].Value}else{$tauriBuildMatch.Groups['table'].Value} }
+    }
+    $androidRoot = Join-Path $candidate.Root 'src-tauri\gen\android'
+    if (Test-Path -LiteralPath $androidRoot -PathType Container) {
+        foreach ($gradle in @(Get-ChildItem -LiteralPath $androidRoot -File -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '[.]gradle(?:[.]kts)?$' } | Sort-Object FullName)) {
+            if (($gradle.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $gradle.Length -gt $MaxManifestBytes) { continue }
+            $text = Read-SgBoundedManifestText $gradle.FullName $MaxManifestBytes
+            if (-not $observed.AndroidApiLevel) { $m=[regex]::Match($text,'\bcompileSdk(?:Version)?\s*(?:=\s*)?(?<value>\d+)'); if($m.Success){$observed.AndroidApiLevel=$m.Groups['value'].Value} }
+            if (-not $observed.BuildToolsVersion) { $m=[regex]::Match($text,'\bbuildToolsVersion\s*(?:=\s*)?"(?<value>[^"]+)"'); if($m.Success){$observed.BuildToolsVersion=$m.Groups['value'].Value} }
+            if (-not $observed.NdkVersion) { $m=[regex]::Match($text,'\bndkVersion\s*(?:=\s*)?"(?<value>[^"]+)"'); if($m.Success){$observed.NdkVersion=$m.Groups['value'].Value} }
+        }
+    }
+    $expected = [ordered]@{ TauriCli=[string]$Baseline.TauriCliVersion; TauriApi=[string]$Baseline.TauriApiVersion; CargoTauri=[string]$Baseline.TauriRustVersion; CargoTauriBuild=[string]$Baseline.TauriBuildVersion; AndroidApiLevel=[string]$Baseline.AndroidApiLevel; BuildToolsVersion=[string]$Baseline.BuildToolsVersion; NdkVersion=[string]$Baseline.NdkVersion }
+    $differences = New-Object Collections.Generic.List[string]
+    $unknown = New-Object Collections.Generic.List[string]
+    foreach ($name in $expected.Keys) {
+        $raw = [string]$observed[$name]
+        if ([string]::IsNullOrWhiteSpace($raw)) { $differences.Add("$name`: missing -> $($expected[$name])"); continue }
+        $normalized = if ($name -in @('CargoTauri','CargoTauriBuild')) { $raw.TrimStart('=') } else { $raw }
+        $valid = if ($name -eq 'AndroidApiLevel') { $normalized -match '^\d+$' } else { Test-SgExactVersionCoordinate $normalized }
+        if (-not $valid) { $unknown.Add($name); continue }
+        if ($normalized -ne [string]$expected[$name]) { $differences.Add("$name`: $normalized -> $($expected[$name])") }
+    }
+    $rustMsrv = [string]$observed.RustMsrv
+    if ([string]::IsNullOrWhiteSpace($rustMsrv) -or -not (Test-SgExactVersionCoordinate $rustMsrv)) { $unknown.Add('RustMsrv') }
+    elseif ([version]$rustMsrv -gt [version]$Baseline.RustToolchainVersion) { $differences.Add("RustMsrv: $rustMsrv exceeds validated toolchain $($Baseline.RustToolchainVersion)") }
+    foreach ($name in $invalid) { $unknown.Add($name) }
+    $status = if ($invalid.Count -gt 0 -or $limitReached) { 'unknown' } elseif ($differences.Count -gt 0) { 'migration_required' } elseif ($unknown.Count -gt 0) { 'unknown' } else { 'ready' }
+    [pscustomobject]@{ IsTauri=$true; Status=$status; ProjectRoot=[IO.Path]::GetFullPath($candidate.Root); Differences=@($differences | Sort-Object); Unknown=@($unknown | Sort-Object -Unique); DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
+}
+
+function New-SgTauriAndroidMigrationHandoff {
+    param([Parameter(Mandatory=$true)]$ProjectState, $Baseline = (Get-SgTauriAndroidBaseline))
+    if (-not $ProjectState.IsTauri -or $ProjectState.Status -ne 'migration_required') { throw 'A migration handoff requires a Tauri project in migration_required state.' }
+    [pscustomobject]@{
+        Schema = 'shipglows.tauri-android-migration-handoff/v1'
+        Action = 'offer_codex'
+        ProjectRoot = [IO.Path]::GetFullPath([string]$ProjectState.ProjectRoot)
+        TargetBaseline = [pscustomobject]@{ RustToolchainVersion=[string]$Baseline.RustToolchainVersion; TauriCliVersion=[string]$Baseline.TauriCliVersion; TauriApiVersion=[string]$Baseline.TauriApiVersion; TauriRustVersion=[string]$Baseline.TauriRustVersion; TauriBuildVersion=[string]$Baseline.TauriBuildVersion; AndroidApiLevel=[int]$Baseline.AndroidApiLevel; BuildToolsVersion=[string]$Baseline.BuildToolsVersion; NdkVersion=[string]$Baseline.NdkVersion }
+        Differences = @($ProjectState.Differences | ForEach-Object { [string]$_ } | Sort-Object -Unique)
+        ProjectMutationAuthorized = $false
+        Prompt = 'Open Codex in this project to perform and verify the migration?'
+    }
+}
+
+function Get-SgTauriMiseConfig {
+    param($Baseline = (Get-SgTauriAndroidBaseline))
+    if (-not (Test-SgExactVersionCoordinate ([string]$Baseline.RustToolchainVersion))) { throw 'Tauri Rust toolchain baseline must be exact.' }
+    $targets = @($Baseline.RustTargets)
+    if ($targets.Count -ne 4 -or @($targets | Where-Object { $_ -notmatch '^[a-z0-9_]+-[a-z0-9_]+-android(?:eabi)?$' }).Count -gt 0) { throw 'Tauri Rust Android targets are invalid.' }
+    $quotedTargets = @($targets | ForEach-Object { '"' + $_ + '"' }) -join ', '
+    return "[tools]`nrust = { version = `"$($Baseline.RustToolchainVersion)`", profile = `"default`", targets = [$quotedTargets] }`n"
+}
+
+function Get-SgTauriAndroidHostPlan {
+    param(
+        [bool]$TauriDetected,
+        [bool]$MiseReady,
+        [bool]$RustReady,
+        [bool]$NdkReady,
+        [bool]$MigrationRequired = $false,
+        [bool]$Interactive = $false,
+        [bool]$CodexReady = $false,
+        [string]$CodexChoice = '',
+        $Baseline = (Get-SgTauriAndroidBaseline)
+    )
+    if (-not $TauriDetected) {
+        return [pscustomobject]@{ Status='not_applicable'; NeedMise=$false; NeedRust=$false; NeedNdk=$false; AndroidPackages=@(); OfferCodex=$false; OpenCodex=$false; ProjectMutationAuthorized=$false }
+    }
+    $offerCodex = $MigrationRequired -and $Interactive -and $CodexReady
+    [pscustomobject]@{
+        Status = if ($MigrationRequired) { 'migration_required' } elseif ($MiseReady -and $RustReady -and $NdkReady) { 'ready' } else { 'pending' }
+        NeedMise = -not $MiseReady
+        NeedRust = -not $RustReady
+        NeedNdk = -not $NdkReady
+        AndroidPackages = @('platform-tools',"platforms;android-$($Baseline.AndroidApiLevel)","build-tools;$($Baseline.BuildToolsVersion)","ndk;$($Baseline.NdkVersion)")
+        OfferCodex = $offerCodex
+        OpenCodex = $offerCodex -and $CodexChoice.Trim().ToLowerInvariant() -in @('y','yes')
+        ProjectMutationAuthorized = $false
+    }
+}
+
 function Get-SgAndroidCoordinates {
     [pscustomobject]@{
         ApiLevel = 36
@@ -782,4 +942,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
