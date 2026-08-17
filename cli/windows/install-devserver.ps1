@@ -45,6 +45,24 @@ function Invoke-SgVisibleBoundedProcess {
         Invoke-SgBoundedProcess -File $File -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds -InputText $InputText -ProgressCallback $progress
     }
 }
+
+function Read-SgVisibleInstallerChoice {
+    param([bool]$Interactive,[string]$Prompt,[string]$OperationId='installer.input',[string]$Label='Waiting for your answer')
+    if (-not $Interactive) { return '' }
+    $operation = New-SgInstallerOperation -Id $OperationId -Label $Label -TimeoutSeconds 7200
+    return Invoke-SgInstallerInput -Operation $operation -EventSink $installerEventSink -Reader {
+        Read-SgInstallerChoice -Interactive $true -Prompt $Prompt
+    }
+}
+
+function Read-SgVisibleInstallerConsent {
+    param([bool]$Interactive,[string[]]$Missing,[string[]]$Outdated,[string]$Subject,[string]$Guidance,[string]$Prompt,[string]$OperationId,[string]$Label)
+    if (-not $Interactive -or (-not $Missing.Count -and -not $Outdated.Count)) { return '' }
+    $operation = New-SgInstallerOperation -Id $OperationId -Label $Label -TimeoutSeconds 7200
+    return Invoke-SgInstallerInput -Operation $operation -EventSink $installerEventSink -Reader {
+        Read-SgInstallerConsent -Interactive $true -Missing $Missing -Outdated $Outdated -Subject $Subject -Guidance $Guidance -Prompt $Prompt
+    }
+}
 $authModule = Join-Path $sourceDir 'ShipGlows.Auth.psm1'
 if (-not (Test-Path -LiteralPath $authModule -PathType Leaf)) { throw "Missing Windows authentication helper: $authModule" }
 Import-Module $authModule -Force -DisableNameChecking
@@ -801,7 +819,7 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady) 
     }
     $initial = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice ''
     if ($initial.Ask) {
-        $choice = Read-SgInstallerConsent -Interactive $interactive -Missing @($initial.Missing) -Outdated @($initial.Outdated) -Subject 'coding-agent CLIs' -Guidance 'ShipGlows installs only the CLI binaries; authentication and provider credentials remain yours.' -Prompt 'Install the missing or update the outdated coding-agent CLIs now? [y/N]'
+        $choice = Read-SgVisibleInstallerConsent -Interactive $interactive -Missing @($initial.Missing) -Outdated @($initial.Outdated) -Subject 'coding-agent CLIs' -Guidance 'ShipGlows installs only the CLI binaries; authentication and provider credentials remain yours.' -Prompt 'Install the missing or update the outdated coding-agent CLIs now? [y/N]' -OperationId 'input.agent-cli' -Label 'Waiting for coding-agent CLI consent'
     }
     $plan = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice $choice
     foreach ($name in @($plan.Install)) {
@@ -941,7 +959,7 @@ function Install-SgAndroidCommandLineTools([string]$SdkRoot) {
     }
     if ([Console]::IsInputRedirected) { Write-SgInstallerWarning 'Android command-line tools pending: license confirmation requires an interactive terminal.'; return '' }
     Write-Host 'Review the official Android SDK terms: https://developer.android.com/studio/terms' -ForegroundColor Yellow
-    $license = (Read-SgInstallerChoice -Interactive $interactive -Prompt 'Accept the Android SDK terms to download the official command-line tools? [y/N]').ToLowerInvariant()
+    $license = (Read-SgVisibleInstallerChoice -Interactive $interactive -Prompt 'Accept the Android SDK terms to download the official command-line tools? [y/N]' -OperationId 'input.android-terms' -Label 'Waiting for Android SDK terms consent').ToLowerInvariant()
     if ($license -notin @('y','yes')) { Write-SgInstallerWarning 'Android command-line tools and licenses remain pending by user choice.'; return '' }
     Write-Host 'Resolving the official Android command-line tools package and SHA-256...' -ForegroundColor Yellow
     $repositoryUrl = 'https://dl.google.com/android/repository/repository2-3.xml'
@@ -1030,7 +1048,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
         Write-SgInstallerWarning 'Android emulator hardware acceleration is not proven on this machine. You can still install it, but startup may fail or software emulation may be very slow.'
     }
     $emulatorPrompt = if ($emulatorState.EmulatorInstalled -or $emulatorState.ImageInstalled -or $emulatorState.AvdReady) { 'Repair the Android emulator and ShipGlows_API_36 now? [y/N]' } else { 'Install the Android emulator and create ShipGlows_API_36 now? [y/N]' }
-    $choice = Read-SgInstallerChoice -Interactive ($interactive -and -not $emulatorState.Complete) -Prompt $emulatorPrompt
+    $choice = Read-SgVisibleInstallerChoice -Interactive ($interactive -and -not $emulatorState.Complete) -Prompt $emulatorPrompt -OperationId 'input.android-emulator' -Label 'Waiting for Android emulator choice'
     $plan = Get-SgAndroidInstallPlan -Interactive $interactive -EmulatorSupported $emulatorSupported -EmulatorChoice $choice -EmulatorReady $emulatorState.Complete
     $emulator = if (Test-Path -LiteralPath $emulatorCandidate -PathType Leaf) { $emulatorCandidate } else { '' }
     $emulatorAccelerationReady = $false
@@ -1070,14 +1088,21 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     $developerModeReady = Test-SgWindowsDeveloperMode
     if (-not $developerModeReady) {
         Write-Host 'Windows Developer Mode is off. It can be required for Flutter plugins that use symbolic links; it does not provide Android emulator acceleration.' -ForegroundColor Yellow
-        $developerChoice = Read-SgInstallerChoice -Interactive ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) -Prompt 'Open the official Windows Developer Mode settings now? [y/N]'
+        $developerChoice = Read-SgVisibleInstallerChoice -Interactive ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) -Prompt 'Open the official Windows Developer Mode settings now? [y/N]' -OperationId 'input.developer-mode' -Label 'Waiting for Windows Developer Mode choice'
         $developerPlan = Get-SgDeveloperModeGuidancePlan -Interactive ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) -DeveloperModeReady $false -Choice $developerChoice
         if ($developerPlan.OpenSettings) { Start-Process $developerPlan.SettingsUri }
     }
     $flutterPath = Get-SgToolPath 'flutter.bat' $FlutterPaths
     $dartPath = if ($flutterPath) { Join-Path (Split-Path $flutterPath -Parent) 'dart.bat' } else { '' }
     $diagnostic = if ($flutterPath) {
-        Get-SgFlutterAndroidDiagnostic -FlutterPath $flutterPath -DartPath $dartPath -JavaPath $java -SdkManagerPath $sdkManager -AdbPath $adb -EmulatorPath $emulator
+        $diagnosticRunner = {
+            param($File,$Arguments,$TimeoutSeconds)
+            $joined = $Arguments -join ' '
+            if ($joined -eq 'doctor -v') { return Invoke-SgVisibleBoundedProcess -OperationId 'diagnostic.flutter-doctor' -Label 'Checking Flutter and Android readiness' -File $File -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds }
+            if ($joined -eq 'devices') { return Invoke-SgVisibleBoundedProcess -OperationId 'diagnostic.flutter-devices' -Label 'Checking available Flutter devices' -File $File -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds }
+            return Invoke-SgBoundedProcess -File $File -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds
+        }
+        Get-SgFlutterAndroidDiagnostic -FlutterPath $flutterPath -DartPath $dartPath -JavaPath $java -SdkManagerPath $sdkManager -AdbPath $adb -EmulatorPath $emulator -Runner $diagnosticRunner
     } else {
         $sdkReady = -not $essential.TimedOut -and $essential.ExitCode -eq 0 -and (Test-Path -LiteralPath $adb -PathType Leaf)
         [pscustomobject]@{ ToolchainReady=$sdkReady; LicensesReady=$licensesReady; DeviceReady=$false; TimedOut=$false; Reason=if($sdkReady){'Android host toolchain is ready; device proof remains separate.'}else{'Android SDK provisioning is incomplete.'}; DoctorOutput=''; DevicesOutput='' }
@@ -1121,9 +1146,13 @@ function Install-SgOfficialMiseForTauri {
     if (-not $winget) { Write-SgInstallerWarning 'Tauri Android pending: WinGet is unavailable, so the official mise package cannot be acquired.'; return '' }
     $installed = Invoke-SgVisibleBoundedProcess -OperationId 'tool.mise.tauri' -Label 'Installing the official mise tool manager for Tauri' -File $winget.Source -Arguments @('install','--id','jdx.mise','--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
     Update-SgProcessPath
-    if ($installed.TimedOut -or $installed.ExitCode -ne 0) { Write-SgInstallerWarning 'Tauri Android pending: official mise installation failed or timed out.'; return '' }
     $mise = Resolve-SgTrustedMisePath
-    if (-not $mise) { Write-SgInstallerWarning 'Tauri Android pending: mise was installed but its trusted WinGet executable could not be proven.' }
+    if (-not $mise) {
+        $detail = if ($installed.TimedOut) { 'timed out' } elseif ($installed.ExitCode -ne 0) { "returned exit code $($installed.ExitCode)" } else { 'completed without a trusted executable' }
+        Write-SgInstallerWarning "Tauri Android pending: WinGet $detail and the final trusted mise executable could not be proven."
+    } elseif ($installed.TimedOut -or $installed.ExitCode -ne 0) {
+        Write-Host 'WinGet returned an ambiguous result, but the final trusted mise executable is installed and validated.' -ForegroundColor Green
+    }
     return $mise
 }
 
@@ -1199,7 +1228,7 @@ function Invoke-SgTauriMigrationHandoff {
     Write-Host "Tauri Android migration required for: $($handoff.ProjectRoot)" -ForegroundColor Yellow
     foreach($difference in @($handoff.Differences)){Write-Host "  - $difference" -ForegroundColor DarkGray}
     if (-not $CodexReady -or [Console]::IsInputRedirected) { Write-SgInstallerWarning 'Tauri migration handoff is ready, but Codex was not opened. The project was not modified.'; return $false }
-    $choice = Read-SgInstallerChoice -Interactive $true -Prompt $handoff.Prompt
+    $choice = Read-SgVisibleInstallerChoice -Interactive $true -Prompt $handoff.Prompt -OperationId 'input.tauri-handoff' -Label 'Waiting for Tauri migration handoff choice'
     $plan = Get-SgTauriAndroidHostPlan -TauriDetected $true -MiseReady $true -RustReady $true -NdkReady $true -MigrationRequired $true -Interactive $true -CodexReady $CodexReady -CodexChoice $choice
     if (-not $plan.OpenCodex) { Write-SgInstallerWarning 'Tauri migration was left as a handoff; the project was not modified.'; return $false }
     $codex = Get-SgToolPath 'codex.cmd' $CodexPaths
@@ -1252,7 +1281,7 @@ function Install-SgWindowsIdeToolchains([bool]$FlutterReady, [string[]]$FlutterP
         Write-SgInstallerWarning 'Windows IDE bundle pending: rerun the full installer interactively; no multi-gigabyte IDE install was inferred.'
         return $state
     }
-    $choice = Read-SgInstallerChoice -Interactive $interactive -Prompt 'Install the missing Windows IDE toolchains now? [y/N]'
+    $choice = Read-SgVisibleInstallerChoice -Interactive $interactive -Prompt 'Install the missing Windows IDE toolchains now? [y/N]' -OperationId 'input.windows-ide' -Label 'Waiting for Windows IDE toolchain consent'
     $plan = Get-SgWindowsIdeInstallPlan -Interactive $true -AndroidStudioReady $state.AndroidStudioReady -VisualStudioCppReady $state.VisualStudioCppReady -Choice $choice
     if ($plan.Status -ne 'install') {
         Write-SgInstallerWarning 'Windows IDE bundle was declined; Android Studio and/or Flutter Windows compilation remain pending.'
@@ -1361,7 +1390,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
             if ($get.ExitCode -ne 0) {
                 $arguments = if ($server.Type -eq 'remote') { @('mcp','add','--transport','http','--scope','user',$server.Name,$server.Url) } else { @('mcp','add','--transport','stdio','--scope','user',$server.Name,'--',$server.Command) + @($server.Arguments) }
                 $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.claude." + $server.Name) -Label ("Configuring Claude $($server.Name) MCP") -File $claude -Arguments $arguments -TimeoutSeconds 60
-                $verified = if (-not $add.TimedOut -and $add.ExitCode -eq 0) { Invoke-SgBoundedProcess $claude @('mcp','get',$server.Name) 30 } else { $null }
+                $verified = Invoke-SgBoundedProcess $claude @('mcp','get',$server.Name) 30
                 $expected = if ($server.Type -eq 'remote') { @($server.Url) } else { @($server.Command) + @($server.Arguments) }
                 if (-not $verified -or $verified.ExitCode -ne 0 -or @($expected | Where-Object { -not $verified.Output.Contains([string]$_) }).Count) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Claude MCP '$($server.Name)' remains pending." } else { $readyNames.Add($server.Name) }
             } else {
@@ -1380,12 +1409,10 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
             if ($get.ExitCode -ne 0) {
                 $addArguments = if ($server.Type -eq 'remote') { @('mcp','add',$server.Name,'--url',$server.Url) } else { @('mcp','add',$server.Name,'--',$server.Command) + @($server.Arguments) }
                 $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.codex." + $server.Name) -Label ("Configuring Codex $($server.Name) MCP") -File $codex -Arguments $addArguments -TimeoutSeconds 60
-                $verified = if (-not $add.TimedOut -and $add.ExitCode -eq 0) { Invoke-SgBoundedProcess $codex @('mcp','get',$server.Name,'--json') 30 } else { $null }
-                $expected = if ($server.Type -eq 'remote') { @($server.Url) } else { @($server.Command) + @($server.Arguments) }
-                if (-not $verified -or $verified.ExitCode -ne 0 -or @($expected | Where-Object { -not $verified.Output.Contains([string]$_) }).Count) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Codex MCP '$($server.Name)' remains pending." } else { $readyNames.Add($server.Name) }
+                $verified = Invoke-SgBoundedProcess $codex @('mcp','get',$server.Name,'--json') 30
+                if (-not (Test-SgCodexMcpResult -Result $verified -Server $server)) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Codex MCP '$($server.Name)' remains pending." } else { $readyNames.Add($server.Name) }
             } else {
-                $expected = if ($server.Type -eq 'remote') { @($server.Url) } else { @($server.Command) + @($server.Arguments) }
-                if (@($expected | Where-Object { -not $get.Output.Contains([string]$_) }).Count) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Codex MCP '$($server.Name)' exists but exact convergence was not proven; it was preserved pending." } else { $readyNames.Add($server.Name) }
+                if (-not (Test-SgCodexMcpResult -Result $get -Server $server)) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Codex MCP '$($server.Name)' exists but exact convergence was not proven; it was preserved pending." } else { $readyNames.Add($server.Name) }
             }
         }
         if ($Playwright.Ready) {
@@ -1481,7 +1508,15 @@ function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath
     }
     foreach ($item in @(Get-SgServiceCliPlan $resolvedNeeds $versions)) {
         $install = $null; $verify = $null; $exe = ''
+        $property = if ($item.Name -eq 'flutterfire') { 'FlutterFire' } else { $item.Name.Substring(0,1).ToUpperInvariant() + $item.Name.Substring(1) }
         if ($item.Name -eq 'firebase') {
+            $exe = Get-SgToolPath 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
+            $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
+            if (Test-SgServiceCliResult $null $verify $exe $item.Version) {
+                $states[$property] = "ready ($($item.Version))"
+                Write-Host "Using exact existing Firebase CLI $($item.Version); installation skipped." -ForegroundColor Green
+                continue
+            }
             $install = Invoke-SgVisibleBoundedProcess -OperationId 'service.firebase' -Label "Installing Firebase CLI $($item.Version)" -File $NpmPath -Arguments @('install','--global',"firebase-tools@$($item.Version)",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 600
             $exe = Get-SgToolPath 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
             $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
@@ -1503,7 +1538,6 @@ function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath
             $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
         }
         $ready = Test-SgServiceCliResult $install $verify $exe $item.Version
-        $property = if ($item.Name -eq 'flutterfire') { 'FlutterFire' } else { $item.Name.Substring(0,1).ToUpperInvariant() + $item.Name.Substring(1) }
         $states[$property] = if ($ready) { "ready ($($item.Version))" } else { "pending ($($item.Version))" }
         if (-not $ready) { Write-SgInstallerWarning "$($item.Name) CLI exact-version installation or executable verification failed." }
     }
@@ -1535,6 +1569,7 @@ $opencodePaths = @((Join-Path $agentBinDirectory 'opencode.cmd'), (Join-Path $pn
 $kiloPaths = @((Join-Path $agentBinDirectory 'kilo.cmd'), (Join-Path $pnpmAgentBinDirectory 'kilo.cmd'))
 $kilocodePaths = @((Join-Path $agentBinDirectory 'kilocode.cmd'), (Join-Path $pnpmAgentBinDirectory 'kilocode.cmd'))
 $geminiPaths = @((Join-Path $agentBinDirectory 'gemini.cmd'), (Join-Path $pnpmAgentBinDirectory 'gemini.cmd'))
+$corePhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.core-tools' -Label 'Preparing core Windows developer tools' -TimeoutSeconds 7200) -EventSink $installerEventSink
 Write-Host 'Preparing Windows developer tools. This step can take a few minutes on the first installation.' -ForegroundColor Yellow
 [void](Install-SgWingetPackage 'git.exe' 'Git.Git' $gitPaths)
 [void](Install-SgWingetPackage 'gh.exe' 'GitHub.cli' $ghPaths)
@@ -1545,6 +1580,8 @@ $uvReady = Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths
 if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional default Python runtime.' }
 $pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
 Assert-SgEnvironmentPythonPackage $pythonInfo.Path (Join-Path $ShipglowsDir 'cli\environment')
+[void](Complete-SgInstallerPhase $corePhase)
+$mobilePhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.mobile-toolchains' -Label 'Inspecting and preparing mobile toolchains' -TimeoutSeconds 7200) -EventSink $installerEventSink
 $flutterReady = Install-SgFlutter $flutterPaths $gitPaths
 $tauriState = try { Get-SgTauriAndroidProjectState -Workspace $Workspace } catch { Write-SgInstallerWarning "Tauri Android inspection is unknown: $($_.Exception.Message)"; [pscustomobject]@{ IsTauri=$false; Status='unknown'; ProjectRoot=''; Differences=@('inspection failed') } }
 $tauriInstallApproved = $false
@@ -1558,7 +1595,7 @@ if ($tauriState.IsTauri) {
     if ($tauriExistingRustReady -and $tauriExistingNdkReady) {
         Write-Host 'Validated Tauri Android Rust targets and NDK are already ready; skipping the toolchain question.' -ForegroundColor Green
     } else {
-        $tauriChoice = Read-SgInstallerChoice -Interactive (-not [Console]::IsInputRedirected) -Prompt 'Prepare the reusable Tauri Android toolchain (Rust + NDK) now? [y/N]'
+        $tauriChoice = Read-SgVisibleInstallerChoice -Interactive (-not [Console]::IsInputRedirected) -Prompt 'Prepare the reusable Tauri Android toolchain (Rust + NDK) now? [y/N]' -OperationId 'input.tauri-toolchain' -Label 'Waiting for Tauri Android toolchain consent'
         $tauriInstallApproved = $tauriChoice -in @('y','yes')
         if (-not $tauriInstallApproved) { Write-SgInstallerWarning 'Tauri Android host preparation remains pending; no project file was modified.' }
     }
@@ -1567,8 +1604,10 @@ $androidInfo = Install-SgAndroidToolchain $flutterReady $flutterPaths ($tauriSta
 if ($tauriState.IsTauri -and $tauriExistingNdkReady) { $androidInfo | Add-Member -NotePropertyName NdkReady -NotePropertyValue $true -Force }
 $tauriInfo = Install-SgTauriAndroidToolchain -ProjectState $tauriState -InstallApproved $tauriInstallApproved -AndroidInfo $androidInfo
 $ideInfo = Install-SgWindowsIdeToolchains $flutterReady $flutterPaths
+[void](Complete-SgInstallerPhase $mobilePhase)
 
 Write-Host ''
+$agentPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.coding-agents' -Label 'Preparing coding-agent CLIs and MCPs' -TimeoutSeconds 7200) -EventSink $installerEventSink
 Write-Host 'Preparing coding-agent CLIs and MCPs (no authentication is started)...' -ForegroundColor Yellow
 $initialAgentReady = @{
     Codex = Test-SgToolRuns 'codex.cmd' $codexPaths
@@ -1598,6 +1637,8 @@ $stackMcpDefinitions = @(Get-SgStackMcpDefinitions $serviceInfo.Needs $serviceIn
 $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeReady -or $opencodeReady -or $kiloReady -or $geminiReady) (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
 $playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
 $agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $stackMcpDefinitions
+[void](Complete-SgInstallerPhase $agentPhase)
+$activationPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.activation' -Label 'Recording environment and activating commands' -TimeoutSeconds 7200) -EventSink $installerEventSink
 $playwrightConfigured = @($agentInfo.Values | Where-Object { $_.ReadyServers -contains 'playwright' }).Count -gt 0
 $playwrightPending = @($agentInfo.Values | Where-Object { $_.PendingServers -contains 'playwright' }).Count -gt 0
 $playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$playwrightConfigured; McpVerified=$playwrightConfigured -and -not $playwrightPending; ConfigPath='per-agent; readiness listed below'; ChromiumPath=$playwright.ChromiumPath }
@@ -1643,6 +1684,7 @@ $kiloShortcutTarget = if (Test-SgToolRuns 'kilo.cmd' $kiloPaths) { 'kilo' } else
 [void](Install-SgShellShortcut 'gpush' 'git push %*')
 [void](Install-SgGitPushProfileShortcut)
 Add-SgRuntimeToUserPath
+[void](Complete-SgInstallerPhase $activationPhase)
 
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green
 Write-Host "Workspace: $Workspace"

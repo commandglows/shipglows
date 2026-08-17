@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.17.0"
+artifact_version: "1.18.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-17"
@@ -53,6 +53,7 @@ evidence:
   - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser that excludes repositories already installed in the workspace."
   - "Native Windows full resolves and validates Flutter/Dart, JDK 17 and Android command-line tools in user scope; Android terms and SDK licenses remain explicitly user-confirmed, with non-interactive runs pending."
   - "Native Windows full detects Tauri Android projects, offers exact Rust/Android targets through an isolated mise environment and the validated NDK through sdkmanager, and records older projects as migration-required without mutating them."
+  - "The first live Tauri Windows update exposed ambiguous provider exits, mojibake Flutter diagnostics, serialized Codex MCP path comparison, and invisible prompt gaps; regression coverage now makes final observation authoritative and renders phases plus input waits explicitly."
   - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
   - "Native Windows full prepares Dart/Flutter and exact-version Playwright MCP for installed agents; existing JSON/JSONC is preserved and reported pending when no safe native update is proven."
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."
@@ -347,12 +348,16 @@ copies its current local source and must not be treated as a network updater.
 The native full installer composes a UI-free operation engine with a console
 adapter. The engine emits stable started/progress/completed/failed/timed-out
 events and never reads input, writes host output, chooses colors, or invokes an
-interactive selector. The console adapter owns consent prompts and renders a
-time-aware spinner for captured long-running work; redirected/non-interactive
+interactive selector. It also emits phase and awaiting-input transitions. The
+console adapter owns consent prompts, renders the current phase immediately,
+prints an explicit input-wait state, and renders a time-aware spinner for captured long-running work; redirected/non-interactive
 output receives deterministic start and terminal lines without animation.
 Quick probes remain silent, while agent/service CLI installs, captured MCP
 configuration, Flutter/Android preparation, Playwright packages and browser
 preparation use the visible operation boundary.
+Provider command exit codes are provisional until bounded final observation:
+trusted `mise`, an exact runnable service CLI, native Claude re-read, and decoded
+Codex MCP JSON may establish convergence after an ambiguous provider exit.
 
 ### Development environment and project URL
 

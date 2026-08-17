@@ -5,7 +5,7 @@ function Format-SgInstallerConsoleEvent {
     $elapsed = [Math]::Max(0,[int]$Event.ElapsedSeconds)
     switch ([string]$Event.Code) {
         'INSTALL_STEP_STARTED' {
-            if ($Interactive) { return $null }
+            if ($Interactive) { return [pscustomobject]@{ Text=("| {0}... 0s" -f $Event.Label); NoNewline=$false; Color='Cyan' } }
             return [pscustomobject]@{ Text="[ShipGlows] $($Event.Label)..."; NoNewline=$false; Color='Cyan' }
         }
         'INSTALL_STEP_PROGRESS' {
@@ -17,6 +17,8 @@ function Format-SgInstallerConsoleEvent {
         'INSTALL_STEP_COMPLETED' { return [pscustomobject]@{ Text=("[ok] {0} ({1}s)" -f $Event.Label,$elapsed); NoNewline=$false; Color='Green' } }
         'INSTALL_STEP_TIMED_OUT' { return [pscustomobject]@{ Text=("[timeout] {0} ({1}s)" -f $Event.Label,$elapsed); NoNewline=$false; Color='Yellow' } }
         'INSTALL_STEP_FAILED' { return [pscustomobject]@{ Text=("[failed] {0} ({1}s)" -f $Event.Label,$elapsed); NoNewline=$false; Color='Yellow' } }
+        'INSTALL_STEP_AWAITING_INPUT' { return [pscustomobject]@{ Text=("[input] {0}" -f $Event.Label); NoNewline=$false; Color='Yellow' } }
+        'INSTALL_STEP_INPUT_RECEIVED' { return [pscustomobject]@{ Text=("[resume] {0}" -f $Event.Label); NoNewline=$false; Color='Cyan' } }
         default { throw "Unknown installer event code: $($Event.Code)" }
     }
 }

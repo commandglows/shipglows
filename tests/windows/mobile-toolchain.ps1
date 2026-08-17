@@ -134,7 +134,18 @@ try {
     $okResult = [pscustomobject]@{ ExitCode=0; Output='14.2.1'; TimedOut=$false }
     $failedResult = [pscustomobject]@{ ExitCode=1; Output='failed'; TimedOut=$false }
     Assert-Sg (Test-SgServiceCliResult $okResult $okResult $serviceExe '14.2.1') 'Exact installed service CLI should verify.'
-    Assert-Sg (-not (Test-SgServiceCliResult $failedResult $okResult $serviceExe '14.2.1')) 'Failed service CLI install must not verify.'
+    Assert-Sg (Test-SgServiceCliResult $failedResult $okResult $serviceExe '14.2.1') 'Exact final executable evidence must win over an ambiguous installer exit code.'
+    Assert-Sg (Test-SgServiceCliResult $null $okResult $serviceExe '14.2.1') 'An already exact service CLI must be reusable without reinstalling it.'
+    Assert-Sg (-not (Test-SgServiceCliResult $okResult $failedResult $serviceExe '14.2.1')) 'Missing final executable evidence must fail closed.'
+    Assert-Sg (Test-SgServiceCliResult $null ([pscustomobject]@{ExitCode=0;Output='Firebase CLI v14.2.1';TimedOut=$false}) $serviceExe '14.2.1') 'A labeled CLI version with a conventional v prefix should verify exactly.'
+    Assert-Sg (-not (Test-SgServiceCliResult $null ([pscustomobject]@{ExitCode=0;Output='114.2.1';TimedOut=$false}) $serviceExe '14.2.1')) 'An adjacent numeric prefix must not satisfy an exact CLI version.'
+    Assert-Sg (-not (Test-SgServiceCliResult $null ([pscustomobject]@{ExitCode=0;Output='14.2.1.7';TimedOut=$false}) $serviceExe '14.2.1')) 'An adjacent numeric suffix must not satisfy an exact CLI version.'
+
+    $codexJson = '{"name":"firebase","enabled":true,"transport":{"type":"stdio","command":"C:\\Program Files\\nodejs\\npx.cmd","args":["-y","--registry=https://registry.npmjs.org/","firebase-tools@15.27.0","mcp"]}}'
+    $firebaseServer = [pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command='C:\Program Files\nodejs\npx.cmd'; Arguments=@('-y','--registry=https://registry.npmjs.org/','firebase-tools@15.27.0','mcp') }
+    Assert-Sg (Test-SgCodexMcpResult -Result ([pscustomobject]@{ExitCode=0;Output=$codexJson;TimedOut=$false}) -Server $firebaseServer) 'Codex MCP JSON must compare decoded path and argument values, not serialized backslashes.'
+    $wrongCodexJson = $codexJson.Replace('15.27.0','15.26.0')
+    Assert-Sg (-not (Test-SgCodexMcpResult -Result ([pscustomobject]@{ExitCode=0;Output=$wrongCodexJson;TimedOut=$false}) -Server $firebaseServer)) 'Codex MCP JSON must reject an explicit version mismatch.'
     $externalJdk = Join-Path $fixture 'external-jdk'
     New-Item -ItemType Directory -Path (Join-Path $externalJdk 'bin') -Force | Out-Null
     $externalJava = Join-Path $externalJdk 'bin\java.exe'; Set-Content -LiteralPath $externalJava -Value 'fixture'
@@ -208,6 +219,14 @@ try {
     Set-Content -LiteralPath (Join-Path $readyProject 'src-tauri\gen\android\app\build.gradle.kts') -Value ("android { compileSdk = $($tauriBaseline.AndroidApiLevel); buildToolsVersion = `"$($tauriBaseline.BuildToolsVersion)`"; ndkVersion = `"$($tauriBaseline.NdkVersion)`" }")
     $readyTauri = Get-SgTauriAndroidProjectState -Workspace $readyProject -Baseline $tauriBaseline
     Assert-Sg ($readyTauri.IsTauri -and $readyTauri.Status -eq 'ready' -and @($readyTauri.Differences).Count -eq 0) 'An exact Tauri Android baseline match must be ready.'
+
+    Set-Content -LiteralPath (Join-Path $readyProject 'src-tauri\gen\android\app\build.gradle.kts') -Value ("android { compileSdk = $($tauriBaseline.AndroidApiLevel) }")
+    $implicitHostTauri = Get-SgTauriAndroidProjectState -Workspace $readyProject -Baseline $tauriBaseline
+    Assert-Sg ($implicitHostTauri.Status -eq 'ready' -and @($implicitHostTauri.Differences | Where-Object { $_ -match 'BuildToolsVersion|NdkVersion' }).Count -eq 0) 'Omitted host-owned Build Tools and NDK declarations must not force a project migration.'
+    Set-Content -LiteralPath (Join-Path $readyProject 'src-tauri\gen\android\app\build.gradle.kts') -Value ("android { compileSdk = $($tauriBaseline.AndroidApiLevel); ndkVersion = `"28.0.13004108`" }")
+    $explicitNdkMismatch = Get-SgTauriAndroidProjectState -Workspace $readyProject -Baseline $tauriBaseline
+    Assert-Sg ($explicitNdkMismatch.Status -eq 'migration_required' -and ($explicitNdkMismatch.Differences -join '|') -match 'NdkVersion') 'An explicit project NDK mismatch must remain a migration difference.'
+    Set-Content -LiteralPath (Join-Path $readyProject 'src-tauri\gen\android\app\build.gradle.kts') -Value ("android { compileSdk = $($tauriBaseline.AndroidApiLevel); buildToolsVersion = `"$($tauriBaseline.BuildToolsVersion)`"; ndkVersion = `"$($tauriBaseline.NdkVersion)`" }")
 
     $oldProject = Join-Path $tauriRoot 'old'
     Copy-Item -LiteralPath $readyProject -Destination $oldProject -Recurse
@@ -334,6 +353,10 @@ try {
     $zeroDeviceRunner = { param($File, $Arguments, $TimeoutSeconds) $joined=$Arguments -join ' '; if($File -match 'dart'){$output='Dart SDK version: 3.9.0'}elseif($joined -eq '--version'){$output='Flutter 3.35.0'}elseif($joined -eq '-version'){$output='openjdk version 17'}elseif($joined -eq 'doctor -v'){$windowsCheck=[char]0x221A;$bullet=[char]0x2022;$output="[$windowsCheck] Flutter`n[$windowsCheck] Android toolchain - develop for Android devices (Android SDK version 36.0.0) [2,5s]`n    $bullet All Android licenses accepted."}elseif($joined -eq 'devices'){$output='No devices detected.'}elseif($File -match 'adb'){$output='Android Debug Bridge version 1.0.41'}else{$output='Version 1.0'}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
     $zeroDevice = Get-SgFlutterAndroidDiagnostic -FlutterPath 'flutter.exe' -DartPath 'dart.bat' -JavaPath 'java.exe' -SdkManagerPath 'sdkmanager.bat' -AdbPath 'adb.exe' -EmulatorPath '' -Runner $zeroDeviceRunner
     Assert-Sg ($zeroDevice.ToolchainReady -and $zeroDevice.LicensesReady -and -not $zeroDevice.DeviceReady) 'Zero-device state must remain separate from toolchain readiness.'
+
+    $mojibakeDoctorRunner = { param($File,$Arguments,$TimeoutSeconds) $joined=$Arguments -join ' '; if($File -match 'dart'){$output='Dart SDK version: 3.12.2'}elseif($joined -eq '--version'){$output='Flutter 3.44.9'}elseif($joined -eq '-version'){$output='openjdk version 17.0.20'}elseif($joined -eq 'doctor -v'){$marker=([char]0x00D4)+([char]0x00EA)+([char]0x00DC);$mojibakeBullet=([char]0x00D4)+([char]0x00C7)+([char]0x00B3);$output="[$marker] Android toolchain - develop for Android devices (Android SDK version 36.0.0)`n    $mojibakeBullet All Android licenses accepted.`n$mojibakeBullet No issues found!"}elseif($joined -eq 'devices'){$output='No devices detected.'}elseif($File -match 'adb'){$output='Android Debug Bridge version 1.0.41'}else{$output='Version 1.0'}; [pscustomobject]@{ExitCode=0;Output=$output;TimedOut=$false} }
+    $mojibakeHealthy = Get-SgFlutterAndroidDiagnostic 'flutter.exe' 'dart.bat' 'java.exe' 'sdkmanager.bat' 'adb.exe' '' $mojibakeDoctorRunner
+    Assert-Sg ($mojibakeHealthy.ToolchainReady -and $mojibakeHealthy.LicensesReady) 'A healthy localized/mojibake flutter doctor report must not become a false negative.'
 
     foreach ($marker in @('[!] Android toolchain - licenses not accepted','[X] Android toolchain - missing')) {
         $badDoctor = { param($File,$Arguments,$TimeoutSeconds) $joined=$Arguments -join ' '; if($File -match 'dart'){$output='Dart SDK version: 3.9.0'}elseif($joined -eq '--version'){$output='Flutter 3.35.0'}elseif($joined -eq '-version'){$output='openjdk version 17'}elseif($joined -eq 'doctor -v'){$output=$marker}elseif($joined -eq 'devices'){$output='No devices detected.'}elseif($File -match 'adb'){$output='Android Debug Bridge version 1.0.41'}else{$output='Version 1.0'}; [pscustomobject]@{ExitCode=0;Output=$output;TimedOut=$false} }.GetNewClosure()

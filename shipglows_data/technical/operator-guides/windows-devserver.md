@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.13.0"
+artifact_version: "1.14.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-17"
@@ -30,6 +30,7 @@ evidence:
   - "The 2026-08-15 Windows runtime registers monorepo surfaces independently and reserves their ports transactionally."
   - "The 2026-08-15 Windows project catalogue reuses one bounded scan across every menu and keeps live status authority in the registry."
   - "Native Windows full packages the reproducible-environment command so s env works from the installed runtime rather than only from a source checkout."
+  - "The first live Tauri update led to explicit phase/input progress and final-state re-observation for mise, Firebase, Claude/Codex MCP, and localized Flutter diagnostics."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -470,3 +471,9 @@ the reusable ShipGlows baseline: exact Rust and Android targets through an
 isolated `mise` environment, plus the exact NDK through `sdkmanager`. Older or
 incomplete projects remain untouched and become `migration_required`; an optional
 Codex handoff opens only after explicit confirmation.
+
+The generated Gradle project may omit `buildToolsVersion` and `ndkVersion`; in
+that case the validated host packages remain authoritative and no migration is
+invented. An explicit incompatible project value still produces a migration
+difference. During `s u`, the active phase and elapsed operation stay visible,
+and `[input]` identifies every point where the installer is waiting for you.

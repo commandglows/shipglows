@@ -110,9 +110,13 @@ function Get-SgTauriAndroidProjectState {
     $expected = [ordered]@{ TauriCli=[string]$Baseline.TauriCliVersion; TauriApi=[string]$Baseline.TauriApiVersion; CargoTauri=[string]$Baseline.TauriRustVersion; CargoTauriBuild=[string]$Baseline.TauriBuildVersion; AndroidApiLevel=[string]$Baseline.AndroidApiLevel; BuildToolsVersion=[string]$Baseline.BuildToolsVersion; NdkVersion=[string]$Baseline.NdkVersion }
     $differences = New-Object Collections.Generic.List[string]
     $unknown = New-Object Collections.Generic.List[string]
+    $hostOwnedOptional = @('BuildToolsVersion','NdkVersion')
     foreach ($name in $expected.Keys) {
         $raw = [string]$observed[$name]
-        if ([string]::IsNullOrWhiteSpace($raw)) { $differences.Add("$name`: missing -> $($expected[$name])"); continue }
+        if ([string]::IsNullOrWhiteSpace($raw)) {
+            if ($name -notin $hostOwnedOptional) { $differences.Add("$name`: missing -> $($expected[$name])") }
+            continue
+        }
         $normalized = if ($name -in @('CargoTauri','CargoTauriBuild')) { $raw.TrimStart('=') } else { $raw }
         $valid = if ($name -eq 'AndroidApiLevel') { $normalized -match '^\d+$' } else { Test-SgExactVersionCoordinate $normalized }
         if (-not $valid) { $unknown.Add($name); continue }
@@ -573,8 +577,24 @@ function Get-SgStackMcpDefinitions {
 function Test-SgServiceCliResult {
     param($InstallResult, $VerifyResult, [string]$ExecutablePath, [string]$ExpectedVersion)
     if ($ExpectedVersion -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { return $false }
-    $pattern = [regex]::Escape($ExpectedVersion)
-    return $InstallResult -and -not $InstallResult.TimedOut -and $InstallResult.ExitCode -eq 0 -and $VerifyResult -and -not $VerifyResult.TimedOut -and $VerifyResult.ExitCode -eq 0 -and (Test-Path -LiteralPath $ExecutablePath -PathType Leaf) -and $VerifyResult.Output -match $pattern
+    if (-not $VerifyResult -or $VerifyResult.TimedOut -or $VerifyResult.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $ExecutablePath -PathType Leaf)) { return $false }
+    $output = [string]$VerifyResult.Output
+    if ([string]::IsNullOrWhiteSpace($output) -or $output.Length -gt 65536 -or $output.Contains([char]0)) { return $false }
+    $matches = [regex]::Matches($output,'(?<![0-9A-Za-z])v?(?<version>\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)(?![0-9A-Za-z.+-])')
+    return @($matches | Where-Object { $_.Groups['version'].Value -ceq $ExpectedVersion }).Count -gt 0
+}
+
+function Test-SgCodexMcpResult {
+    param($Result,[Parameter(Mandatory=$true)]$Server)
+    if (-not $Result -or $Result.TimedOut -or $Result.ExitCode -ne 0) { return $false }
+    try { $config = [string]$Result.Output | ConvertFrom-Json -ErrorAction Stop } catch { return $false }
+    if (-not $config.enabled -or -not $config.transport) { return $false }
+    if ([string]$Server.Type -eq 'remote') {
+        return [string]$config.transport.type -in @('http','streamable_http') -and [string]$config.transport.url -ceq [string]$Server.Url
+    }
+    $actualArguments = @($config.transport.args | ForEach-Object { [string]$_ })
+    $expectedArguments = @($Server.Arguments | ForEach-Object { [string]$_ })
+    return [string]$config.transport.type -ceq 'stdio' -and [string]$config.transport.command -ceq [string]$Server.Command -and ($actualArguments -join "`0") -ceq ($expectedArguments -join "`0")
 }
 
 function Test-SgChromiumExecutableResult {
@@ -922,11 +942,13 @@ function Get-SgFlutterAndroidDiagnostic {
     $devices = Invoke-SgDiagnosticCommand $FlutterPath @('devices') $Runner 45
     $timedOut = @($flutterVersion,$dartVersion,$javaVersion,$sdkVersion,$adbVersion,$doctor,$devices | Where-Object TimedOut).Count -gt 0
     $versionsReady = $flutterVersion.ExitCode -eq 0 -and $flutterVersion.Output -match '(?m)^Flutter \d+' -and $dartVersion.ExitCode -eq 0 -and $dartVersion.Output -match '(?i)Dart SDK version|Flutter \d+' -and $javaVersion.ExitCode -eq 0 -and $javaVersion.Output -match '(?i)(openjdk|java).*\b17\b' -and $sdkVersion.ExitCode -eq 0 -and $sdkVersion.Output -match '\d+' -and $adbVersion.ExitCode -eq 0 -and $adbVersion.Output -match '(?i)Android Debug Bridge'
+    $androidLine = '(?im)^.*Android toolchain - develop for Android devices(?:\s+\([^\r\n]+\))?(?:\s+\[[0-9]+(?:[.,][0-9]+)?(?:ms|s)\])?\s*$'
+    $explicitAndroidFailure = $doctor.Output -match '(?im)^\s*\[(?:!|X)\]\s+Android toolchain\b'
+    $explicitHealthySummary = $doctor.Output -match '(?im)\bNo issues found!\s*$'
     $successMarker = '(?:' + [regex]::Escape([string][char]0x2713) + '|' + [regex]::Escape([string][char]0x221A) + ')'
-    $duration = '(?:\s+\[[0-9]+(?:[.,][0-9]+)?(?:ms|s)\])?'
-    $androidDoctor = $doctor.ExitCode -eq 0 -and $doctor.Output -match "(?m)^\[$successMarker\]\s+Android toolchain - develop for Android devices(?:\s+\([^\r\n]+\))?$duration\s*$"
-    $bullet = [regex]::Escape([string][char]0x2022)
-    $licensesReady = $androidDoctor -and $doctor.Output -match "(?im)^\s*(?:$bullet\s+)?All Android licenses accepted[.]?\s*$"
+    $explicitHealthyAndroid = $doctor.Output -match "(?im)^\[$successMarker\]\s+Android toolchain\b"
+    $androidDoctor = $doctor.ExitCode -eq 0 -and $doctor.Output -match $androidLine -and -not $explicitAndroidFailure -and ($explicitHealthyAndroid -or $explicitHealthySummary)
+    $licensesReady = $androidDoctor -and $doctor.Output -match '(?im)All Android licenses accepted[.]?\s*$'
     $deviceReady = $devices.ExitCode -eq 0 -and $devices.Output -match '(?im)\b(android|device-[0-9]+)\b' -and $devices.Output -notmatch '(?i)No devices detected|0 connected devices'
     $toolchainReady = -not $timedOut -and $versionsReady -and $androidDoctor -and $licensesReady
     $reason = if ($timedOut) { 'A bounded diagnostic timed out.' } elseif (-not $versionsReady) { 'Flutter, Dart, JDK 17, sdkmanager, or adb version evidence is missing.' } elseif (-not $androidDoctor) { 'flutter doctor did not confirm the Android toolchain.' } elseif (-not $licensesReady) { 'Android SDK licenses are pending.' } elseif (-not $deviceReady) { 'No usable Android device is connected.' } else { '' }
@@ -942,4 +964,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic

@@ -46,6 +46,15 @@ Assert-Sg ($written[0].Text -match 'Updating Codex CLI') 'Non-interactive start 
 
 $progressText = Format-SgInstallerConsoleEvent -Event $events[1] -Interactive $true
 Assert-Sg ($progressText.Text -match 'Updating Codex CLI' -and $progressText.Text -match '2s' -and $progressText.NoNewline) 'Interactive progress format omitted loader context.'
+$startedText = Format-SgInstallerConsoleEvent -Event $events[0] -Interactive $true
+Assert-Sg ($startedText.Text -match 'Updating Codex CLI' -and $startedText.Text -match '0s' -and -not $startedText.NoNewline) 'Interactive phases must show a readable loader immediately, before their first progress tick.'
+
+$promptEvents = New-Object Collections.Generic.List[object]
+$answer = Invoke-SgInstallerInput -Operation $operation -EventSink { param($event) $promptEvents.Add($event) } -Reader { 'y' }
+Assert-Sg ($answer -eq 'y') 'Installer input boundary did not return the adapter answer.'
+Assert-Sg (($promptEvents.Code -join '|') -eq 'INSTALL_STEP_AWAITING_INPUT|INSTALL_STEP_INPUT_RECEIVED') 'Installer input boundary omitted its waiting/resumed events.'
+$waitingText = Format-SgInstallerConsoleEvent -Event $promptEvents[0] -Interactive $true
+Assert-Sg ($waitingText.Text -match '\[input\]' -and $waitingText.Text -match 'Updating Codex CLI') 'Interactive input state is not explicit.'
 
 $realEvents = New-Object Collections.Generic.List[object]
 $realOperation = New-SgInstallerOperation -Id 'proof.progress' -Label 'Proving live progress' -TimeoutSeconds 5
@@ -60,5 +69,6 @@ Assert-Sg ($installerText -notmatch 'Read-Host') 'Installer composition root byp
 Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+agent\.') 'Coding-agent installation does not use the visible operation boundary.'
 Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+service\.') 'Service CLI installation does not use the visible operation boundary.'
 Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+mcp\.') 'Captured MCP configuration does not use the visible operation boundary.'
+Assert-Sg ($installerText -match 'Read-SgVisibleInstallerChoice') 'Installer prompts do not publish the explicit waiting-for-input state.'
 
 Write-Host 'Windows installer engine/UI contract: OK' -ForegroundColor Green

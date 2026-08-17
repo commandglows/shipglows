@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-08-16"
 created_at: "2026-08-16 16:48:28 UTC"
 updated: "2026-08-17"
-updated_at: "2026-08-17 10:30:00 UTC"
+updated_at: "2026-08-17 11:18:27 UTC"
 status: active
 source_skill: sg-spec
 source_model: GPT-5 Codex
@@ -64,6 +64,7 @@ evidence:
   - "Official mise demo documents direct project-local Node plus pnpm ownership through `[tools] node` and `pnpm`, avoiding a Corepack hook surface: https://mise.jdx.dev/demo"
   - "Independent Task 5 verification reproduced arbitrary external PATH executable trust, executable drift, inherited environment leakage and incomplete mise cascade isolation before bounded hardening; all source contracts and the complete Windows suite then passed without live provider execution."
   - "The approved Best Fried Chicken provider smoke acquired mise 2026.8.2 and converged locked Node 24.19.0 plus pnpm 10.34.5 without installing project dependencies."
+  - "The first approved native Windows Tauri update installed the exact NDK and mise package but exposed false pending states from ambiguous provider exits, localized/mojibake Flutter output, serialized Codex JSON paths, and Claude post-add exit handling, plus gaps between visible progress operations."
   - "Operator approval 2026-08-16: document, package and prove the control-plane command in the native Windows installed runtime after committing the verified source pilot."
 next_step: "Plan Task 6 only after separate operator approval"
 ---
@@ -458,7 +459,7 @@ Interactive menus project the same plan and state model. Non-interactive mode ne
   - Depends on: Tasks 1-6.
   - Validate with: `powershell.exe -NoProfile -File tests/windows/mobile-toolchain.ps1`, `powershell.exe -NoProfile -File tests/windows/codex-playwright-mcp.ps1` and `bash tests/windows/devserver-contract.sh`, extended with fresh, existing, partial, corrupt, license-refused, auth-pending, no-acceleration and agent-PATH scenarios.
   - Notes: no capability loses current recovery behavior during migration.
-  - Implemented slice: Tauri Android detection compares bounded project evidence with one exact validated baseline. A detected project may provision Rust plus four Android targets through a ShipGlows-owned isolated `mise` config and the exact NDK through `sdkmanager`; older or incomplete declarations become `migration_required`. The installer never runs Tauri/Cargo migration commands and opens Codex only after a separate explicit confirmation.
+  - Implemented slice: Tauri Android detection compares bounded project evidence with one exact validated baseline. A detected project may provision Rust plus four Android targets through a ShipGlows-owned isolated `mise` config and the exact NDK through `sdkmanager`; older incompatible declarations become `migration_required`, while omitted host-owned Build Tools/NDK declarations do not invent project drift. The installer never runs Tauri/Cargo migration commands and opens Codex only after a separate explicit confirmation. High-level phases and input waits are explicit, and final bounded observation can recover from ambiguous WinGet/npm/agent-CLI exit codes.
 
 - [ ] Task 9: Remove redundant installation paths after parity proof.
   - File: legacy installer functions, docs, tests and compatibility shims identified by ownership inventory.
@@ -508,6 +509,7 @@ Interactive menus project the same plan and state model. Non-interactive mode ne
 - [ ] AC 28: Given mise and Node are ready, when an agent-like child process runs the project tool, then ShipGlows proves it through `mise exec` without depending on a PowerShell profile or global shim activation.
 - [x] AC 29: Given a native Windows full installation, when its installed launcher runs `s env inspect` from an unmanaged temporary project, then the packaged Python/schema runtime executes before DevServer initialization without creating workspace, registry or menu-cache state.
 - [x] AC 30: Given a Tauri Android project under the Windows workspace, when the full installer inspects it, then bounded evidence is compared with one exact ShipGlows baseline; host Rust/targets and NDK require explicit consent, project files remain byte-unchanged, and migration-required projects receive only a deterministic optional Codex handoff.
+- [x] AC 31: Given an interactive native Windows update, when a provider command runs or user input is required, then the current phase/input state is visible; an ambiguous provider exit never overrides stronger bounded final evidence from a trusted executable, exact service CLI, native Claude re-read, decoded Codex MCP JSON, or a healthy Flutter doctor report without `[!]`/`[X]` Android failure markers.
 
 ## Test Strategy
 
@@ -588,6 +590,7 @@ None. Node 24 plus pnpm 10 form the fixed first mise pilot for project-local own
 | 2026-08-17 10:30:00 UTC | sg-development | GPT-5.6 Codex | Implemented the approved Task 8 Tauri Android slice with an exact baseline, bounded project inspection, isolated mise-owned Rust targets, exact sdkmanager NDK provisioning and an optional Codex migration handoff. | Focused mobile regression and the complete Windows contract pass without installing a provider, accepting a license, opening Codex or mutating a project. | Run an operator-approved interactive update to prove the real Rust/NDK provider path on an existing Windows host. |
 | 2026-08-16 19:36:46 UTC | sg-engineering | GPT-5.6 Codex | Extended the approved Task 5 source pilot from Node-only ownership to explicit Node 24 plus pnpm 10 ownership, exact dual lock semantics, optional `packageManager` reconciliation, independent fixed install operations and dual-consumer evidence. | Regression-first pnpm proof, all environment contracts, Unix/PowerShell adapters and the complete Windows suite pass; no real provider, dependency install, global tool, installed runtime, commit or push was touched. | Keep real provider and packaging proof separately approval-gated. |
 | 2026-08-16 20:58:22 UTC | sg-development | GPT-5.6 Codex | Documented then implemented Task 5b native Windows runtime packaging, exact archive extraction and installed launcher resolution. | Regression-first installed-runtime proof, incomplete-archive rejection, isolated inspect, all environment contracts and the complete Windows suite pass without changing the live runtime. | Plan Task 6 only after separate approval. |
+| 2026-08-17 11:18:27 UTC | sg-bug | GPT-5.6 Codex | Reproduced the first live Windows update false negatives and progress gaps regression-first, then repaired final-state observation, localized Flutter parsing, Tauri host/project ownership, MCP verification, and phase/input rendering. | Focused regressions and the complete Windows contract pass without provider installation, authentication, Codex launch, or project mutation. | Publish and repeat the approved interactive update to verify the installed runtime. |
 
 ## Current Chantier Flow
 
@@ -595,7 +598,8 @@ None. Node 24 plus pnpm 10 form the fixed first mise pilot for project-local own
 - `sg-ready`: done, ready for implementation.
 - `sg-start`: done for Tasks 1-3, Task 5 Node 24 plus pnpm 10 and Task 5b installed-runtime packaging.
 - `sg-verify`: done at standard depth for Tasks 1-3, the Task 5 source/real-provider pilot and Task 5b isolated installed-runtime proof.
+- `sg-bug`: source repair implemented and locally verified for the first Task 8 live-update findings; installed-runtime retest remains pending publication.
 - `sg-end`: not launched.
 - `sg-ship`: not launched.
 
-Next step: keep Task 6 WinGet Configuration and later adapters separately approval-gated.
+Next step: publish the Task 8 repair and repeat the approved interactive Windows update; keep Task 6 WinGet Configuration and later adapters separately approval-gated.

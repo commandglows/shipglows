@@ -247,12 +247,17 @@ uncertain, the installer warns before asking but never silently chooses the phon
 path; accepted downloads keep progress visible.
 Android licenses and Windows confirmations remain explicit, and non-interactive
 runs report them as pending instead of accepting or blocking.
+Interactive updates show the current high-level phase immediately, retain elapsed
+time on captured long-running commands, and print an explicit `[input]` state
+before every question so an active installer is not mistaken for a frozen window.
 When the workspace contains a Tauri Android project, the same full installer
 offers one reusable host setup: the ShipGlows-validated Rust toolchain and four
 Android targets through an isolated `mise` environment, plus the exact NDK through
 `sdkmanager`. PATH-backed `cargo`, `rustc`, and `rustup` wrappers use that managed
 environment without a PowerShell profile. ShipGlows never rewrites an older project automatically; it offers
-an optional Codex migration handoff after a separate confirmation.
+an optional Codex migration handoff after a separate confirmation. Build Tools
+and NDK versions omitted from generated Gradle files remain host-owned defaults;
+only explicit incompatible project declarations create migration differences.
 The installer then makes one grouped proposal for whichever large IDE toolchains
 are still missing: current Android Studio for Android development and the Firebase
 Device Streaming entry point, plus Visual Studio Community 2022 with Desktop
@@ -282,6 +287,10 @@ the agent's exact schema; existing JSON/JSONC stays byte-for-byte unchanged and
 is reported pending when no proven native update is safe. Playwright is never
 registered until an exact package version and a runnable local Chromium executable
 are proven. Android packages are centralized on API/platform/build-tools 36.
+Final observation is authoritative after an installer command: an exact runnable
+CLI or a natively re-readable MCP configuration is ready even when the provider
+returned an ambiguous installation exit code, and exact existing CLIs are skipped
+on rerun.
 Playwright MCP for Codex uses an
 absolute native `npx.cmd`, and installs headless Chromium into the user cache
 only after both exact-version resolution and executable discovery succeed.
