@@ -81,5 +81,7 @@ Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+agent\.') 'Cod
 Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+service\.') 'Service CLI installation does not use the visible operation boundary.'
 Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+mcp\.') 'Captured MCP configuration does not use the visible operation boundary.'
 Assert-Sg ($installerText -match 'Read-SgVisibleInstallerChoice') 'Installer prompts do not publish the explicit waiting-for-input state.'
+Assert-Sg ($installerText -match 'Get-SgTauriRustWrapperContent') 'Installed Rust wrappers do not use the shared isolated mise wrapper contract.'
+Assert-Sg ($installerText -notmatch "-Label 'Waiting for") 'Prompt source labels must describe the consent subject; the console adapter owns waiting/continuing copy.'
 
 Write-Host 'Windows installer engine/UI contract: OK' -ForegroundColor Green

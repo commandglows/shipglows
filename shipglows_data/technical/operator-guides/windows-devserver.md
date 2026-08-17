@@ -472,6 +472,9 @@ isolated `mise` environment, plus the exact NDK through `sdkmanager`. Older or
 incomplete projects remain untouched and become `migration_required`; an optional
 Codex handoff opens only after explicit confirmation.
 
+The installed `cargo`, `rustc`, and `rustup` wrappers reproduce ShipGlows's safe
+isolated `mise` environment; they neither require nor modify global `mise trust`.
+
 The generated Gradle project may omit `buildToolsVersion` and `ndkVersion`; in
 that case the validated host packages remain authoritative and no migration is
 invented. An explicit incompatible project value still produces a migration

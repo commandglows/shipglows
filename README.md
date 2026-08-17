@@ -255,8 +255,9 @@ answer is suspended, then a clear `[continue] Answer received` line restarts it.
 When the workspace contains a Tauri Android project, the same full installer
 offers one reusable host setup: the ShipGlows-validated Rust toolchain and four
 Android targets through an isolated `mise` environment, plus the exact NDK through
-`sdkmanager`. PATH-backed `cargo`, `rustc`, and `rustup` wrappers use that managed
-environment without a PowerShell profile. ShipGlows never rewrites an older project automatically; it offers
+`sdkmanager`. PATH-backed `cargo`, `rustc`, and `rustup` wrappers reproduce that
+isolated safe environment without a PowerShell profile or a global `mise trust` change.
+ShipGlows never rewrites an older project automatically; it offers
 an optional Codex migration handoff after a separate confirmation. Build Tools
 and NDK versions omitted from generated Gradle files remain host-owned defaults;
 only explicit incompatible project declarations create migration differences.

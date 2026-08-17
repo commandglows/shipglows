@@ -592,6 +592,45 @@ function Test-SgMiseVersionResult {
     return $output -match '(?m)^\s*(?:mise\s+)?20\d{2}\.(?:[1-9]|1[0-2])\.\d+(?![0-9.])(?:\s|$)'
 }
 
+function ConvertTo-SgBatchQuotedPath([string]$Path,[string]$Subject) {
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not [IO.Path]::IsPathRooted($Path) -or $Path -match '[\r\n\0"]') { throw "Invalid $Subject path for a Windows command wrapper." }
+    $full = [IO.Path]::GetFullPath($Path)
+    # Every use is inside double quotes. A caret is literal there and must not be
+    # doubled; percent still needs batch-file escaping before cmd parses the line.
+    return $full.Replace('%','%%')
+}
+
+function Get-SgTauriRustWrapperContent {
+    param(
+        [Parameter(Mandatory=$true)][string]$MisePath,
+        [Parameter(Mandatory=$true)][string]$ToolchainRoot,
+        [ValidateSet('cargo','rustc','rustup')][string]$Command
+    )
+    $mise = ConvertTo-SgBatchQuotedPath $MisePath 'mise executable'
+    $root = ConvertTo-SgBatchQuotedPath $ToolchainRoot 'Tauri toolchain'
+    $config = ConvertTo-SgBatchQuotedPath (Join-Path $ToolchainRoot '.shipglows-no-user-mise-config') 'mise config directory'
+    $ceiling = ConvertTo-SgBatchQuotedPath (Split-Path $ToolchainRoot -Parent) 'mise ceiling'
+    return (@(
+        '@echo off',
+        'setlocal DisableDelayedExpansion',
+        'set "MISE_SAFE=1"',
+        'set "MISE_NO_HOOKS=1"',
+        'set "MISE_NO_ENV=1"',
+        'set "MISE_AUTO_INSTALL=false"',
+        'set "MISE_EXEC_AUTO_INSTALL=false"',
+        'set "MISE_NOT_FOUND_AUTO_INSTALL=false"',
+        'set "MISE_RUN_AUTO_INSTALL=false"',
+        'set "MISE_OVERRIDE_CONFIG_FILENAMES=mise.toml"',
+        'set "MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES=none"',
+        "set `"MISE_CONFIG_DIR=$config`"",
+        "set `"MISE_CEILING_PATHS=$ceiling`"",
+        'set "MISE_SYSTEM_DEPS=ignore"',
+        "@`"$mise`" -C `"$root`" exec -- $Command %*",
+        'set "SHIPGLOWS_EXIT_CODE=%ERRORLEVEL%"',
+        'endlocal & exit /b %SHIPGLOWS_EXIT_CODE%'
+    ) -join "`r`n") + "`r`n"
+}
+
 function Test-SgCodexMcpResult {
     param($Result,[Parameter(Mandatory=$true)]$Server)
     if (-not $Result -or $Result.TimedOut -or $Result.ExitCode -ne 0) { return $false }
@@ -972,4 +1011,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic

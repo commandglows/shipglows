@@ -148,6 +148,37 @@ try {
     }
     Assert-Sg (-not (Test-SgMiseVersionResult ([pscustomobject]@{ExitCode=1;Output='2026.8.2 windows-x64';TimedOut=$false}))) 'A nonzero mise version probe must fail closed.'
 
+    $wrapperFixture = Join-Path $fixture 'wrapper space & caret^ percent% metachar'
+    $fakeMise = Join-Path $wrapperFixture 'mise bin\mise.cmd'
+    $fakeToolchain = Join-Path $wrapperFixture 'toolchain root & safe'
+    New-Item -ItemType Directory -Path (Split-Path $fakeMise -Parent) -Force | Out-Null
+    New-Item -ItemType Directory -Path $fakeToolchain -Force | Out-Null
+    Set-Content -LiteralPath $fakeMise -Encoding Ascii -Value @'
+@echo off
+set "SELF=%~f0"
+set SELF
+echo SAFE=%MISE_SAFE% HOOKS=%MISE_NO_HOOKS% ENV=%MISE_NO_ENV% AUTO=%MISE_AUTO_INSTALL%
+set MISE_CONFIG_DIR
+set MISE_CEILING_PATHS
+echo ARGS=%*
+exit /b 23
+'@
+    # Keep the wrapper itself on a plain path so this fixture exercises the
+    # paths embedded by ShipGlows rather than Invoke-SgBoundedProcess's .cmd transport.
+    $cargoWrapper = Join-Path $fixture 'cargo-wrapper.cmd'
+    [IO.File]::WriteAllText($cargoWrapper,(Get-SgTauriRustWrapperContent -MisePath $fakeMise -ToolchainRoot $fakeToolchain -Command cargo),[Text.Encoding]::ASCII)
+    $wrapperRun = Invoke-SgBoundedProcess -File $cargoWrapper -Arguments @('alpha','space value','amp&ersand') -TimeoutSeconds 20
+    Assert-Sg ($wrapperRun.ExitCode -eq 23) "Tauri Rust wrapper must preserve the mise child exit code across endlocal. Actual exit=$($wrapperRun.ExitCode); output=$($wrapperRun.Output)"
+    Assert-Sg ($wrapperRun.Output -match ('SELF=' + [regex]::Escape($fakeMise))) "Tauri Rust wrapper did not execute the exact mise path containing caret and percent characters. Output=$($wrapperRun.Output)"
+    Assert-Sg ($wrapperRun.Output -match 'SAFE=1 HOOKS=1 ENV=1 AUTO=false') 'Tauri Rust wrapper did not reproduce the managed safe environment.'
+    Assert-Sg ($wrapperRun.Output -match ('MISE_CONFIG_DIR=' + [regex]::Escape((Join-Path $fakeToolchain '.shipglows-no-user-mise-config')))) 'Tauri Rust wrapper did not isolate the mise config directory.'
+    Assert-Sg ($wrapperRun.Output -match ('MISE_CEILING_PATHS=' + [regex]::Escape((Split-Path $fakeToolchain -Parent)))) 'Tauri Rust wrapper did not preserve the mise ceiling boundary.'
+    Assert-Sg ($wrapperRun.Output -match 'ARGS=-C .*toolchain root & safe.* exec -- cargo "?alpha"? "space value" "amp&ersand"') 'Tauri Rust wrapper changed mise argv or forwarded argument boundaries.'
+    $wrapperText = [IO.File]::ReadAllText($cargoWrapper)
+    foreach ($requiredWrapperSetting in @('setlocal DisableDelayedExpansion','MISE_EXEC_AUTO_INSTALL=false','MISE_NOT_FOUND_AUTO_INSTALL=false','MISE_RUN_AUTO_INSTALL=false','MISE_OVERRIDE_CONFIG_FILENAMES=mise.toml','MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES=none','MISE_SYSTEM_DEPS=ignore','endlocal & exit /b')) {
+        Assert-Sg ($wrapperText.Contains($requiredWrapperSetting)) "Tauri Rust wrapper omitted isolation or exit preservation: $requiredWrapperSetting"
+    }
+
     $codexJson = '{"name":"firebase","enabled":true,"transport":{"type":"stdio","command":"C:\\Program Files\\nodejs\\npx.cmd","args":["-y","--registry=https://registry.npmjs.org/","firebase-tools@15.27.0","mcp"]}}'
     $firebaseServer = [pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command='C:\Program Files\nodejs\npx.cmd'; Arguments=@('-y','--registry=https://registry.npmjs.org/','firebase-tools@15.27.0','mcp') }
     Assert-Sg (Test-SgCodexMcpResult -Result ([pscustomobject]@{ExitCode=0;Output=$codexJson;TimedOut=$false}) -Server $firebaseServer) 'Codex MCP JSON must compare decoded path and argument values, not serialized backslashes.'

@@ -820,7 +820,7 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady) 
     }
     $initial = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice ''
     if ($initial.Ask) {
-        $choice = Read-SgVisibleInstallerConsent -Interactive $interactive -Missing @($initial.Missing) -Outdated @($initial.Outdated) -Subject 'coding-agent CLIs' -Guidance 'ShipGlows installs only the CLI binaries; authentication and provider credentials remain yours.' -Prompt 'Install the missing or update the outdated coding-agent CLIs now? [y/N]' -OperationId 'input.agent-cli' -Label 'Waiting for coding-agent CLI consent'
+        $choice = Read-SgVisibleInstallerConsent -Interactive $interactive -Missing @($initial.Missing) -Outdated @($initial.Outdated) -Subject 'coding-agent CLIs' -Guidance 'ShipGlows installs only the CLI binaries; authentication and provider credentials remain yours.' -Prompt 'Install the missing or update the outdated coding-agent CLIs now? [y/N]' -OperationId 'input.agent-cli' -Label 'coding-agent CLI consent'
     }
     $plan = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice $choice
     foreach ($name in @($plan.Install)) {
@@ -960,7 +960,7 @@ function Install-SgAndroidCommandLineTools([string]$SdkRoot) {
     }
     if ([Console]::IsInputRedirected) { Write-SgInstallerWarning 'Android command-line tools pending: license confirmation requires an interactive terminal.'; return '' }
     Write-Host 'Review the official Android SDK terms: https://developer.android.com/studio/terms' -ForegroundColor Yellow
-    $license = (Read-SgVisibleInstallerChoice -Interactive $interactive -Prompt 'Accept the Android SDK terms to download the official command-line tools? [y/N]' -OperationId 'input.android-terms' -Label 'Waiting for Android SDK terms consent').ToLowerInvariant()
+    $license = (Read-SgVisibleInstallerChoice -Interactive $interactive -Prompt 'Accept the Android SDK terms to download the official command-line tools? [y/N]' -OperationId 'input.android-terms' -Label 'Android SDK terms consent').ToLowerInvariant()
     if ($license -notin @('y','yes')) { Write-SgInstallerWarning 'Android command-line tools and licenses remain pending by user choice.'; return '' }
     Write-Host 'Resolving the official Android command-line tools package and SHA-256...' -ForegroundColor Yellow
     $repositoryUrl = 'https://dl.google.com/android/repository/repository2-3.xml'
@@ -1049,7 +1049,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
         Write-SgInstallerWarning 'Android emulator hardware acceleration is not proven on this machine. You can still install it, but startup may fail or software emulation may be very slow.'
     }
     $emulatorPrompt = if ($emulatorState.EmulatorInstalled -or $emulatorState.ImageInstalled -or $emulatorState.AvdReady) { 'Repair the Android emulator and ShipGlows_API_36 now? [y/N]' } else { 'Install the Android emulator and create ShipGlows_API_36 now? [y/N]' }
-    $choice = Read-SgVisibleInstallerChoice -Interactive ($interactive -and -not $emulatorState.Complete) -Prompt $emulatorPrompt -OperationId 'input.android-emulator' -Label 'Waiting for Android emulator choice'
+    $choice = Read-SgVisibleInstallerChoice -Interactive ($interactive -and -not $emulatorState.Complete) -Prompt $emulatorPrompt -OperationId 'input.android-emulator' -Label 'Android emulator choice'
     $plan = Get-SgAndroidInstallPlan -Interactive $interactive -EmulatorSupported $emulatorSupported -EmulatorChoice $choice -EmulatorReady $emulatorState.Complete
     $emulator = if (Test-Path -LiteralPath $emulatorCandidate -PathType Leaf) { $emulatorCandidate } else { '' }
     $emulatorAccelerationReady = $false
@@ -1089,7 +1089,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     $developerModeReady = Test-SgWindowsDeveloperMode
     if (-not $developerModeReady) {
         Write-Host 'Windows Developer Mode is off. It can be required for Flutter plugins that use symbolic links; it does not provide Android emulator acceleration.' -ForegroundColor Yellow
-        $developerChoice = Read-SgVisibleInstallerChoice -Interactive ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) -Prompt 'Open the official Windows Developer Mode settings now? [y/N]' -OperationId 'input.developer-mode' -Label 'Waiting for Windows Developer Mode choice'
+        $developerChoice = Read-SgVisibleInstallerChoice -Interactive ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) -Prompt 'Open the official Windows Developer Mode settings now? [y/N]' -OperationId 'input.developer-mode' -Label 'Windows Developer Mode choice'
         $developerPlan = Get-SgDeveloperModeGuidancePlan -Interactive ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) -DeveloperModeReady $false -Choice $developerChoice
         if ($developerPlan.OpenSettings) { Start-Process $developerPlan.SettingsUri }
     }
@@ -1187,7 +1187,7 @@ function Install-SgTauriRustWrappers {
     if (-not $MisePath -or -not (Test-Path -LiteralPath $MisePath -PathType Leaf)) { return $false }
     foreach ($command in @('cargo','rustc','rustup')) {
         $wrapper = Join-Path $runtimeDir "$command.cmd"
-        $content = "@echo off`r`n@`"$MisePath`" -C `"$ToolchainRoot`" exec -- $command %*`r`n"
+        $content = Get-SgTauriRustWrapperContent -MisePath $MisePath -ToolchainRoot $ToolchainRoot -Command $command
         if (-not (Test-Path -LiteralPath $wrapper -PathType Leaf) -or [IO.File]::ReadAllText($wrapper) -cne $content) {
             [IO.File]::WriteAllText($wrapper,$content,[Text.Encoding]::ASCII)
         }
@@ -1229,7 +1229,7 @@ function Invoke-SgTauriMigrationHandoff {
     Write-Host "Tauri Android migration required for: $($handoff.ProjectRoot)" -ForegroundColor Yellow
     foreach($difference in @($handoff.Differences)){Write-Host "  - $difference" -ForegroundColor DarkGray}
     if (-not $CodexReady -or [Console]::IsInputRedirected) { Write-SgInstallerWarning 'Tauri migration handoff is ready, but Codex was not opened. The project was not modified.'; return $false }
-    $choice = Read-SgVisibleInstallerChoice -Interactive $true -Prompt $handoff.Prompt -OperationId 'input.tauri-handoff' -Label 'Waiting for Tauri migration handoff choice'
+    $choice = Read-SgVisibleInstallerChoice -Interactive $true -Prompt $handoff.Prompt -OperationId 'input.tauri-handoff' -Label 'Tauri migration handoff choice'
     $plan = Get-SgTauriAndroidHostPlan -TauriDetected $true -MiseReady $true -RustReady $true -NdkReady $true -MigrationRequired $true -Interactive $true -CodexReady $CodexReady -CodexChoice $choice
     if (-not $plan.OpenCodex) { Write-SgInstallerWarning 'Tauri migration was left as a handoff; the project was not modified.'; return $false }
     $codex = Get-SgToolPath 'codex.cmd' $CodexPaths
@@ -1282,7 +1282,7 @@ function Install-SgWindowsIdeToolchains([bool]$FlutterReady, [string[]]$FlutterP
         Write-SgInstallerWarning 'Windows IDE bundle pending: rerun the full installer interactively; no multi-gigabyte IDE install was inferred.'
         return $state
     }
-    $choice = Read-SgVisibleInstallerChoice -Interactive $interactive -Prompt 'Install the missing Windows IDE toolchains now? [y/N]' -OperationId 'input.windows-ide' -Label 'Waiting for Windows IDE toolchain consent'
+    $choice = Read-SgVisibleInstallerChoice -Interactive $interactive -Prompt 'Install the missing Windows IDE toolchains now? [y/N]' -OperationId 'input.windows-ide' -Label 'Windows IDE toolchain consent'
     $plan = Get-SgWindowsIdeInstallPlan -Interactive $true -AndroidStudioReady $state.AndroidStudioReady -VisualStudioCppReady $state.VisualStudioCppReady -Choice $choice
     if ($plan.Status -ne 'install') {
         Write-SgInstallerWarning 'Windows IDE bundle was declined; Android Studio and/or Flutter Windows compilation remain pending.'
@@ -1598,7 +1598,7 @@ if ($tauriState.IsTauri) {
     if ($tauriExistingRustReady -and $tauriExistingNdkReady) {
         Write-Host 'Validated Tauri Android Rust targets and NDK are already ready; skipping the toolchain question.' -ForegroundColor Green
     } else {
-        $tauriChoice = Read-SgVisibleInstallerChoice -Interactive (-not [Console]::IsInputRedirected) -Prompt 'Prepare the reusable Tauri Android toolchain (Rust + NDK) now? [y/N]' -OperationId 'input.tauri-toolchain' -Label 'Waiting for Tauri Android toolchain consent'
+        $tauriChoice = Read-SgVisibleInstallerChoice -Interactive (-not [Console]::IsInputRedirected) -Prompt 'Prepare the reusable Tauri Android toolchain (Rust + NDK) now? [y/N]' -OperationId 'input.tauri-toolchain' -Label 'Tauri Android toolchain consent'
         $tauriInstallApproved = $tauriChoice -in @('y','yes')
         if (-not $tauriInstallApproved) { Write-SgInstallerWarning 'Tauri Android host preparation remains pending; no project file was modified.' }
     }
