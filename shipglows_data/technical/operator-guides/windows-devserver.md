@@ -243,6 +243,13 @@ attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
 documentation du projet.
 
+Le bloc géré porte le schéma explicite
+`shipglows-project-environment/v1`. Un ancien bloc ShipGlows sans version est
+considéré comme `legacy/v0` puis migré automatiquement lors d'un enregistrement,
+d'un démarrage ou de la réconciliation de l'installateur. Le contenu placé hors
+des marqueurs ShipGlows est conservé. Un schéma futur inconnu, des marqueurs
+incomplets ou plusieurs blocs provoquent un refus sans réécriture du fichier.
+
 Sous Windows, la priorité de port est : port demandé explicitement, variable
 `SHIPGLOWS_ENV_PORT` du processus, `.shipglows.env` du projet, registre
 persistant, puis premier port libre de `3000` à `3100`. Le numéro obtenu est

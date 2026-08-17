@@ -7,6 +7,9 @@ $script:ProjectIndexSchemaVersion = 1
 $script:ProjectScannerVersion = '1'
 $script:ProjectIndexTtlMinutes = 5
 $script:ProjectCatalogMemory = @{}
+$script:ProjectEnvironmentSchema = 'shipglows-project-environment/v1'
+$script:ProjectEnvironmentBegin = '<!-- >>> ShipGlows development environment >>> -->'
+$script:ProjectEnvironmentEnd = '<!-- <<< ShipGlows development environment <<< -->'
 
 function Write-SgInfo([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Cyan }
 function Write-SgWarn([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Yellow }
@@ -1075,6 +1078,23 @@ function Get-SgProjectEnvironmentPath([string]$ProjectPath) {
     return Join-Path (ConvertTo-SgCanonicalPath $ProjectPath) 'ENVIRONMENT.md'
 }
 
+function Get-SgProjectEnvironmentBlock([string]$Content) {
+    $text = if ($null -eq $Content) { '' } else { [string]$Content }
+    $beginCount = [regex]::Matches($text, [regex]::Escape($script:ProjectEnvironmentBegin)).Count
+    $endCount = [regex]::Matches($text, [regex]::Escape($script:ProjectEnvironmentEnd)).Count
+    if ($beginCount -eq 0 -and $endCount -eq 0) { return [pscustomobject]@{ Exists=$false; Schema=$null; Match=$null } }
+    if ($beginCount -ne 1 -or $endCount -ne 1) { throw 'ShipGlows project environment markers are incomplete or duplicated; the file was preserved.' }
+    $pattern = '(?ms)^' + [regex]::Escape($script:ProjectEnvironmentBegin) + '\r?\n.*?^' + [regex]::Escape($script:ProjectEnvironmentEnd) + '\r?\n?'
+    $blocks = [regex]::Matches($text, $pattern)
+    if ($blocks.Count -ne 1) { throw 'ShipGlows project environment markers are incomplete or duplicated; the file was preserved.' }
+    $schemaPattern = '(?m)^- Environment schema: `([^`]+)`\r?$'
+    $schemas = [regex]::Matches($blocks[0].Value, $schemaPattern)
+    if ($schemas.Count -gt 1) { throw 'ShipGlows project environment schema is duplicated; the file was preserved.' }
+    $schema = if ($schemas.Count -eq 0) { 'legacy/v0' } else { [string]$schemas[0].Groups[1].Value }
+    if ($schema -notin @('legacy/v0',$script:ProjectEnvironmentSchema)) { throw "Unsupported ShipGlows project environment schema '$schema'; the file was preserved." }
+    return [pscustomobject]@{ Exists=$true; Schema=$schema; Match=$blocks[0] }
+}
+
 function Remove-SgLegacyProjectServerState([string]$ProjectPath) {
     $root = ConvertTo-SgCanonicalPath $ProjectPath
     $legacyPath = Join-Path (Join-Path $root '.shipglows') 'server.env'
@@ -1132,13 +1152,14 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0) {
     if ($Port -ne 0 -and ($Port -lt 1024 -or $Port -gt 65535)) { throw 'ShipGlows project port must be 0 or between 1024 and 65535.' }
     $path = Get-SgProjectEnvironmentPath $ProjectPath
     $existing = if (Test-Path -LiteralPath $path -PathType Leaf) { [IO.File]::ReadAllText($path) } else { '' }
-    $pattern = '(?ms)^<!-- >>> ShipGlows development environment >>> -->\r?\n.*?^<!-- <<< ShipGlows development environment <<< -->\r?\n?'
+    $managed = Get-SgProjectEnvironmentBlock $existing
     $portValue = if ($Port -gt 0) { [string]$Port } else { 'pending first ShipGlows start' }
     $urlValue = if ($Port -gt 0) { "http://127.0.0.1:$Port" } else { 'pending first ShipGlows start' }
     $block = @'
 <!-- >>> ShipGlows development environment >>> -->
 ## ShipGlows development environment
 
+- Environment schema: `{2}`
 - Server manager: `shipglows-devserver`
 - Assigned port: `{0}`
 - Canonical local URL: `{1}`
@@ -1146,8 +1167,9 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0) {
 
 Use this assigned URL for local preview, browser, screenshot, and test work. Do not substitute framework defaults such as Astro/Vite `4321` or a port from another project. Read the ShipGlows registry for `running` or `stopped`; this durable document is not rewritten on start or stop.
 <!-- <<< ShipGlows development environment <<< -->
-'@ -f $portValue,$urlValue
-    $remainder = [regex]::Replace($existing, $pattern, '').Trim([char[]]"`r`n")
+'@ -f $portValue,$urlValue,$script:ProjectEnvironmentSchema
+    $remainderText = if ($managed.Exists) { $existing.Remove($managed.Match.Index, $managed.Match.Length) } else { $existing }
+    $remainder = $remainderText.Trim([char[]]"`r`n")
     $next = if ($remainder) { "$remainder`n`n$($block.Trim())`n" } else { "$($block.Trim())`n" }
     if ($next.Replace("`r`n","`n") -cne $existing.Replace("`r`n","`n")) {
         [IO.File]::WriteAllText($path, $next, [Text.UTF8Encoding]::new($false))
@@ -1160,12 +1182,13 @@ function Get-SgProjectEnvironment([string]$ProjectPath) {
     $path = Get-SgProjectEnvironmentPath $ProjectPath
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
     $content = [IO.File]::ReadAllText($path)
-    if ($content -notmatch '(?m)^- Server manager: `shipglows-devserver`\r?$') { return $null }
+    $managed = Get-SgProjectEnvironmentBlock $content
+    if (-not $managed.Exists -or $managed.Match.Value -notmatch '(?m)^- Server manager: `shipglows-devserver`\r?$') { return $null }
     $port = 0
-    if ($content -match '(?m)^- Assigned port: `(\d+)`\r?$') { $port = [int]$Matches[1] }
+    if ($managed.Match.Value -match '(?m)^- Assigned port: `(\d+)`\r?$') { $port = [int]$Matches[1] }
     if ($port -ne 0 -and ($port -lt 1024 -or $port -gt 65535)) { throw "Invalid assigned port in $path." }
     $url = if ($port -gt 0) { "http://127.0.0.1:$port" } else { '' }
-    [pscustomobject]@{ Path=$path; Port=$port; Url=$url; Manager='shipglows-devserver' }
+    [pscustomobject]@{ Path=$path; Port=$port; Url=$url; Manager='shipglows-devserver'; Schema=$managed.Schema }
 }
 
 function Register-SgProject([object]$Config, [string]$ProjectPath) {

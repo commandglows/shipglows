@@ -37,6 +37,7 @@ for regression in \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
   devserver-port-reservation.ps1 \
+  project-environment-schema.ps1 \
   devserver-registry-migration.ps1 \
   devserver-flutter-background.ps1 \
   devserver-flutter-supervisor.ps1 \

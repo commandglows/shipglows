@@ -393,7 +393,14 @@ canonical loopback URL. The Windows registry remains authoritative for live
 status, so start and stop do not create tracked-document churn. `s open` uses
 the active registry entry instead of guessing from repository scripts.
 
-The installer migrates every registered project. It removes only the former
+The managed block carries the explicit schema
+`shipglows-project-environment/v1`. An unversioned legacy ShipGlows block is
+treated as `legacy/v0` and upgraded automatically on registration, start, or
+installer reconciliation. Rewriting v1 is byte-idempotent and preserves all
+content outside the managed markers. Unknown future schemas, incomplete
+markers, and duplicated blocks fail closed without changing the file.
+
+The installer reconciles every registered project. It removes only the former
 ShipGlows-managed `.shipglows/server.env` file and its exact `.git/info/exclude`
 entry; unrelated hidden files and Git exclusions remain untouched.
 
