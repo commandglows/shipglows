@@ -51,6 +51,17 @@ function New-SgFlutterHostArguments([string]$FlutterRoot,[string]$Snapshot,[obje
     return @("--packages=$packageConfig",$Snapshot)+@($ToolArguments)
 }
 
+function New-SgFlutterRunArguments([ValidateSet('chrome','web-server')][string]$Device,[int]$Port,[string]$ProfilePath,[bool]$Visible) {
+    if ($Port -lt 1024 -or $Port -gt 65535) { throw 'Invalid Flutter web port.' }
+    $arguments=@('run','--machine','-d',$Device,'--web-hostname','127.0.0.1','--web-port',[string]$Port)
+    if ($Device -eq 'chrome') {
+        Assert-SgFlutterSafeValue $ProfilePath 'browser profile path'
+        if (-not $Visible) { $arguments+='--web-run-headless' }
+        $arguments+="--web-browser-flag=--user-data-dir=$ProfilePath"
+    }
+    return $arguments
+}
+
 function New-SgFlutterStreamPump([Diagnostics.Process]$Process) { [pscustomobject]@{Process=$Process;OutputTask=$Process.StandardOutput.ReadLineAsync();ErrorTask=$Process.StandardError.ReadLineAsync();OutputEnded=$false;ErrorEnded=$false} }
 function Pump-SgFlutterStreams([object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$OutputQueue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[int]$MaxLines=256) {
     $remaining=[Math]::Max(1,$MaxLines)
@@ -179,8 +190,7 @@ function Invoke-SgFlutterSupervisor {
     if (-not (Test-Path -LiteralPath $dart -PathType Leaf) -or -not (Test-Path -LiteralPath $snapshot -PathType Leaf)) { throw 'Validated Flutter Dart host files are missing.' }
     $packageConfig=Join-Path $flutterRoot 'packages\flutter_tools\.dart_tool\package_config.json'
     if (-not (Test-Path -LiteralPath $packageConfig -PathType Leaf)) { throw 'Validated Flutter tool package configuration is missing.' }
-    $args=@(New-SgFlutterHostArguments $flutterRoot $snapshot @('run','--machine','-d',$Device,'--web-hostname','127.0.0.1','--web-port',[string]$Port))
-    if ($Device -eq 'chrome') { Assert-SgFlutterSafeValue $ProfilePath 'browser profile path'; if (-not $Visible) {$args+='--web-run-headless'}; $args+="--web-browser-flag=--user-data-dir=$ProfilePath" }
+    $args=@(New-SgFlutterHostArguments $flutterRoot $snapshot @(New-SgFlutterRunArguments $Device $Port $ProfilePath ([bool]$Visible)))
     if ($DartDefineFile) { Assert-SgFlutterSafeValue $DartDefineFile 'Dart define file path'; $args+="--dart-define-from-file=$DartDefineFile" }
     $psi=New-Object Diagnostics.ProcessStartInfo
     $psi.FileName=$dart; $psi.Arguments=(@($args | ForEach-Object { ConvertTo-SgWindowsArgument ([string]$_) }) -join ' '); $psi.WorkingDirectory=$projectRoot

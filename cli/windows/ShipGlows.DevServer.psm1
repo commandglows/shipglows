@@ -1498,7 +1498,7 @@ function Open-SgProject([object]$Config, [object]$Entry) {
         $deadline=(Get-Date).AddSeconds(8);while((Get-Date)-lt $deadline -and (Test-SgProcessIdentity $Entry)){Start-Sleep -Milliseconds 200}
         if(Test-SgProcessIdentity $Entry){throw 'Flutter supervisor did not stop after open; visible relaunch was refused.'}
         [void](Stop-SgOwnedFlutterListener $Entry);[void](Stop-SgOwnedFlutterBrowser $Entry)
-        if(@(Get-SgOwnedFlutterListenerPids $Entry).Count -gt 0 -or @(Get-SgOwnedFlutterBrowserPids $Entry).Count -gt 0){throw 'Owned Flutter processes remain after open; visible relaunch was refused.'}
+        if(-not(Wait-SgFlutterOwnedExtinction $Entry 8)){throw 'Owned Flutter processes remain after open; visible relaunch was refused.'}
         [void](Remove-SgFlutterLaunchArtifacts $Config $Entry)
         return Start-SgProject $Config ([string]$Entry.path) $port -FlutterVisible
     }

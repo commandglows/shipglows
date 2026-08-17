@@ -14,6 +14,7 @@ try {
         $spec = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false $profile 'chrome' '' $launch 'ShipGlowsFlutter-launch-123'
         if ($spec.Interactive) { throw 'Flutter Web launch must be managed in the background.' }
         $arguments = $spec.Arguments -join ' '
+        if ($arguments -match '(?:^|\s)-Visible(?:\s|$)') { throw 'Normal Flutter start must remain headless until the explicit Open action.' }
         foreach ($expected in @('ShipGlows.FlutterSupervisor.ps1','-LaunchDirectory','-ProjectPath','-FlutterPath','-Port 3010','-Device chrome','-LaunchIdentity ShipGlowsFlutter-launch-123')) {
             if (-not $arguments.Contains($expected)) { throw "Flutter Web managed launch is missing: $expected" }
         }
@@ -40,11 +41,20 @@ try {
         $script:realSupervisorCommand=${function:Invoke-SgFlutterSupervisorCommand}
         function Invoke-SgFlutterSupervisorCommand { param($Entry,$Method,$Timeout) if($Entry.PSObject.Properties['flutterTokenPath']){return & $script:realSupervisorCommand $Entry $Method $Timeout};$script:openCalls += "ipc:$Method"; [pscustomobject]@{ok=$true} }
         function Test-SgProcessIdentity { $false }
+        function Wait-SgFlutterOwnedExtinction { param($Entry,$Timeout) $script:openCalls += "wait:$Timeout"; $true }
+        function Stop-SgOwnedFlutterListener { $script:openCalls += 'stop-listener'; $false }
+        function Stop-SgOwnedFlutterBrowser { $script:openCalls += 'stop-browser'; $false }
+        function Remove-SgFlutterLaunchArtifacts { $script:openCalls += 'remove-artifacts'; $true }
         function Stop-SgProject { param($Config,$Path) $script:openCalls += "stop:$Path"; $true }
         function Start-SgProject { param($Config,$Path,$Port,[switch]$FlutterVisible) $script:openCalls += "start:${Path}:${Port}:$([bool]$FlutterVisible)"; [pscustomobject]@{status='running'} }
         $entry = [pscustomobject]@{kind='flutter-web';status='running';port=3010;path='C:\workspace\app';flutterHeadless=$true;flutterDevice='chrome'}
         [void](Open-SgProject ([pscustomobject]@{}) $entry)
-        if (($script:openCalls -join '|') -ne 'ipc:open|start:C:\workspace\app:3010:True') { throw 'Explicit open did not promote the headless Flutter session safely.' }
+        if (($script:openCalls -join '|') -ne 'ipc:open|stop-listener|stop-browser|wait:8|remove-artifacts|start:C:\workspace\app:3010:True') { throw 'Explicit open did not promote the headless Flutter session through proven owned-process extinction.' }
+
+        $script:openCalls=@()
+        $visibleEntry=[pscustomobject]@{kind='flutter-web';status='running';port=3010;path='C:\workspace\app';flutterHeadless=$false;flutterDevice='chrome'}
+        $sameVisibleEntry=Open-SgProject ([pscustomobject]@{}) $visibleEntry
+        if(-not[object]::ReferenceEquals($sameVisibleEntry,$visibleEntry)-or$script:openCalls.Count-ne0){throw 'Open restarted or duplicated an already-visible managed Flutter session.'}
         $script:openCalls=@();$script:clock=[datetime]'2026-08-17T10:00:00Z'
         function Test-SgProcessIdentity { $true }
         function Get-Date { $script:clock=$script:clock.AddSeconds(9);$script:clock }

@@ -224,7 +224,16 @@ par Flutter. Le registre ne passe à `running` qu'après les événements machin
 `app.start` puis `app.started` ; une réponse HTTP ou TCP seule ne prouve pas que
 l'application a exécuté `main()`. L'action Open remplace cette session headless
 par un Chrome visible toujours contrôlé par Flutter, afin de conserver le hot
-reload. Restart recrée une session gérée complète.
+reload. Start et Restart restent silencieux et recréent une session headless
+gérée ; aucun navigateur ne s'ouvre avant l'action explicite Open.
+
+L'onglet ouvert par Open est volontairement une session de développement
+spéciale, avec son profil ShipGlows isolé. Ouvrir manuellement la même URL dans
+Vivaldi ou dans un autre navigateur crée un client secondaire : le premier
+chargement peut fonctionner, mais Flutter ne garantit pas son cycle DDC après
+un rechargement. Pour tester et recharger l'application avec le hot reload,
+utilisez donc Open et conservez l'URL exacte `http://127.0.0.1:<port>` ; ShipGlows
+n'ouvre ni ne recommande l'alias `localhost` pour cette session.
 
 Un petit superviseur persistant conserve le canal machine Flutter après la fin
 de la commande CLI. Les modifications `*.dart` sous `lib/` sont regroupées sur

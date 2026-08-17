@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "0.12.0"
+artifact_version: "0.13.0"
 project: "ShipGlows"
 created: "2026-08-07"
 created_at: "2026-08-07 21:55:18 UTC"
 updated: "2026-08-17"
-updated_at: "2026-08-17 09:19:30 UTC"
+updated_at: "2026-08-17 21:00:00 UTC"
 status: draft
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -74,6 +74,7 @@ evidence:
   - "OWASP ASVS 5.0.0 official guidance identifies v5.0.0-1.2.5 for OS command injection and v5.0.0-5.3.2 for strict file path validation; both apply to this installer/runtime boundary."
   - "Operator-approved 2026-08-15 catalogue contract: all Windows menus share one cached linear discovery pass, select by canonical launch identity, and retain the registry as live-state authority."
   - "Official Codex, Claude Code and OpenCode documentation confirms package-managed CLI installation; Windows full keeps every coding agent as an explicit per-agent choice and does not own authentication."
+  - "Operator-confirmed Flutter Web contract on 2026-08-17: start and restart stay silent in a managed headless Chrome session; only the explicit Open action promotes that session to Flutter-owned visible Chrome on 127.0.0.1, because a manually opened secondary browser is not a reliable DDC reload client."
 next_step: "/102-sg-start native-windows-devserver-astro-python-flutter"
 ---
 
@@ -102,7 +103,7 @@ L'operateur telecharge avec `curl.exe` le bootstrap PowerShell depuis l'endpoint
 - Un clone Git reussi est place par defaut directement sous `%USERPROFILE%\ShipGlows\<repo>` et n'est enregistre qu'apres validation du chemin et du depot.
 - Astro respecte le lockfile existant, installe les dependances sans migration implicite, puis expose une URL `http://127.0.0.1:<port>`.
 - Python/FastAPI utilise `uv` et un environnement `.venv`; un projet avec `uv.lock` demarre en mode verrouille et echoue clairement si le lockfile est incoherent.
-- Flutter Web utilise le SDK Windows, execute `flutter pub get`, puis ouvre une session terminal interactive conservant les commandes de hot reload/hot restart.
+- Flutter Web utilise le SDK Windows, execute `flutter pub get`, puis conserve le canal machine et le hot reload dans un superviseur silencieux. Start et restart utilisent Chrome headless; Open remplace explicitement cette session par un Chrome visible possede par Flutter, avec un profil ShipGlows isole et l'URL canonique `http://127.0.0.1:<port>`.
 - Les actions start, stop, restart, logs et open produisent toujours un resultat visible et mettent a jour atomiquement le registre local.
 - Apres extinction/reconnexion Shadow, le prochain lancement marque les anciens processus comme stale/stopped sans supprimer les projets ni cibler un PID recycle.
 
@@ -135,7 +136,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Registre local JSON atomique sous `%LOCALAPPDATA%\ShipGlows\DevServer\registry.json`.
 - Detection et lifecycle Astro avec pnpm prioritaire quand `pnpm-lock.yaml` existe, npm quand `package-lock.json` existe, et aucun changement implicite de package manager.
 - Detection et lifecycle Python/FastAPI avec `uv`, `pyproject.toml`, `uv.lock`, `.python-version` et `.venv`; compatibilite bornee `requirements.txt` via un chemin uv explicite.
-- Detection et lifecycle Flutter Web avec `pubspec.yaml`, dependance `flutter`, dossier `web/`, SDK Flutter Windows et terminal interactif.
+- Detection et lifecycle Flutter Web avec `pubspec.yaml`, dependance `flutter`, dossier `web/`, SDK Flutter Windows, superviseur machine persistant et Chrome gere headless ou visible selon l'action explicite.
 - En mode `full`, reutilisation prioritaire des Flutter/Dart, JDK 17 et Android SDK externes valides sans remplacer leurs variables/PATH; sinon installation user-scope depuis des metadonnees officielles resolues, SHA-256 complet et extraction ZIP bornee rejetant traversal, liens et layouts ambigus. Un clone Flutter partiel gere est mis en quarantaine.
 - Conditions Android presentees avant telechargement et licences via `sdkmanager --licenses`, sans reponse injectee; refus ou non-interactif produit un etat `pending` actionnable.
 - Diagnostics bornes avec transport d'arguments exact PowerShell 5.1 pour EXE/CMD/BAT, identite PID+heure de demarrage avant arret d'arbre et readiness separee `ToolchainReady`, `LicensesReady`, `DeviceReady`; seul le marqueur Android toolchain positif exact avec licences confirmees prouve la toolchain.
@@ -148,7 +149,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Actions dashboard, clone, register existing project, start, stop, restart, logs, open, unregister, stop all et refresh.
 - Allocation de ports dans la plage ShipGlows 3000-3100 avec `Get-NetTCPConnection` et fallback .NET borne.
 - Registre de processus contenant au minimum projet, type, PID, process creation time, executable path, command signature, port, status, started_at, log paths et last_error sans secret.
-- Fenetre de stabilite avant annonce `running` et probe HTTP bornee pour Astro/FastAPI/Flutter Web.
+- Fenetre de stabilite avant annonce `running`, probe HTTP bornee pour Astro/FastAPI et preuve machine Flutter `app.start` puis `app.started` pour Flutter Web.
 - Logs stdout/stderr bornes ou rotation simple pour les processus non interactifs.
 - Extension opt-in du bootstrap PowerShell pour installer la surface DevServer sans changer le comportement tunnel par defaut.
 - Contrat de modes PowerShell `local|full`: `local` installe la couche tunnel existante; `full` installe le DevServer Windows natif sans tunnel automatique.
@@ -196,7 +197,7 @@ Ajouter un backend DevServer Windows natif, borne a Astro, Python/FastAPI et Flu
 - Automated proof: PowerShell parser checks; unit-like fixture scripts for validation, framework detection, port allocation, atomic registry, stale PID protection, command construction and redaction; existing Bash tests remain green.
 - Integration proof: start/health/log/stop cycles against minimal Astro and FastAPI fixtures on a Windows host; Flutter fixture runs through dependency and interactive-launch checks.
 - Manual proof: execute the complete install, clone/register, start, open, hot reload, restart, stop, stale-state recovery and uninstall/unregister path on the constrained Shadow PC.
-- Ordered proof path: static/parser -> fixture tests -> Windows process integration -> browser localhost checks -> Flutter interactive check -> Shadow manual checklist.
+- Ordered proof path: static/parser -> fixture tests -> Windows process integration -> browser `127.0.0.1` checks -> Flutter headless/open-promotion check -> Shadow manual checklist.
 - Checklist path: `shipglows_data/workflow/test-checklists/native-windows-devserver-astro-python-flutter.md`.
 - Required scenario IDs: `BOOT-FULL-01`, `BOOT-LOCAL-02`, `ASTRO-START-03`, `PYTHON-START-04`, `FLUTTER-WEB-05`, `PORT-RECOVERY-06`, `STALE-PID-07`, `REGISTRY-ATOMIC-08`, `REDACTION-09`, `PUBLIC-PARITY-10`, `SHADOW-RECONNECT-11`, `ANDROID-FULL-12`, `ANDROID-NONINTERACTIVE-13`, `ANDROID-EMULATOR-14`, `AGENT-MCP-15`, `SERVICE-CLI-16`.
 - Required results: full public bootstrap installs the DevServer without a tunnel; local bootstrap remains compatible; each supported stack starts and serves localhost; process identity and registry recovery are safe; secrets are absent from logs; ShipGlows page/endpoint match the canonical script; Shadow reconnect is recoverable.
@@ -470,7 +471,7 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 2. Run table-driven fixture tests for validation, stack detection, command arguments, ports, registry atomicity, redaction and stale PID identity.
 3. Run process integration tests in a unique temporary workspace with explicit cleanup and verify no foreign process is stopped.
 4. Start minimal Astro and FastAPI fixtures, wait for bounded HTTP health, inspect logs, restart and stop.
-5. Launch Flutter Web in a visible terminal, prove URL readiness and manually trigger hot reload/restart.
+5. Launch Flutter Web silently, prove machine readiness, invoke Open to promote it to the managed visible Chrome profile on `127.0.0.1`, then prove reload, hot reload and restart without a duplicate managed browser.
 6. Exercise bootstrap default/local/full surfaces, including malformed archive/traversal rejection and interrupted install recovery.
 7. Synchronize canonical bootstrap artifacts into the ShipGlows site, run installer/route tests and prove the EN/FR Windows full selector.
 8. Fetch the hosted PowerShell endpoint, compare its body with the canonical script and run the downloaded full installer on Shadow.
@@ -485,7 +486,7 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 - High: Building commands as strings creates injection and quoting vulnerabilities. Mitigation: executable resolution plus argument arrays; forbid `Invoke-Expression`.
 - High: The public bootstrap downloads executable PowerShell. Mitigation: retain exact archive-entry validation, commit resolution/hash evidence and opt-in installation.
 - Medium: Astro/Python conventions vary across repos. Mitigation: support only explicit V1 conventions, fail closed on ambiguity and expand only from proven project fixtures.
-- Medium: Flutter interactive lifecycle does not map cleanly to redirected background processes. Mitigation: visible terminal ownership and registry reconciliation rather than simulated stdin control.
+- Medium: a browser opened manually on a Flutter development port can load once yet lose the DDC lifecycle on reload. Mitigation: retain the Flutter machine channel in the supervisor, keep start/restart headless, and make Open perform an owned-process extinction proof before relaunching the same port in Flutter-owned visible Chrome.
 - Medium: Shadow can shut down automatically, interrupting installs and processes. Mitigation: atomic state, temporary clone directories, recoverable dependency operations and no persistence promise.
 - Medium: uv or Flutter behavior may change. Mitigation: freshness gate, version capture in test evidence and official-doc recheck during readiness.
 - Medium: Windows PowerShell 5.1 and PowerShell 7 differ in JSON/process behavior. Mitigation: target the common subset and prove both runtimes.
@@ -510,7 +511,7 @@ n'active Developer Mode, n'authentifie un agent ou ne modifie un projet reel.
 - Prefer `127.0.0.1` bindings on Shadow. `0.0.0.0`, firewall rules, port forwarding and public exposure are outside scope.
 - Use `uv run --locked` when `uv.lock` exists. Do not create/update a lockfile silently during ordinary start.
 - For Astro, honor the repo lockfile and existing dev script; inject the port through documented CLI arguments/environment without rewriting Astro config in V1.
-- For Flutter, use a visible terminal process and reconcile state after manual closure. Do not emulate `tmux` attach semantics.
+- For Flutter, use the persistent machine-protocol supervisor. Start/restart are headless; Open is the only promotion to visible managed Chrome. Never treat `localhost` or a manually opened secondary browser as equivalent to the canonical `127.0.0.1` session.
 - Keep install dependency actions explicit. Detection and guidance may be automatic; UAC/network/package installation requires visible consent in the installer flow.
 - Implementation stop conditions: a required process identity cannot be proven safely; PowerShell 5.1 compatibility would require string evaluation; Shadow proof needs public hosting; a stack requires unsupported custom command execution; official docs conflict with the planned runtime behavior.
 - Public bootstrap command contract: download, inspectable temporary file, explicit PowerShell execution. The documented interactive form is equivalent to `$installer = Join-Path $env:TEMP 'shipglows-install.ps1'; curl.exe -fsSL 'https://shipglows.com/shipglows-script?format=powershell' -o $installer; powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer`; `-InstallMode full` remains the deterministic automation suffix.
@@ -578,6 +579,7 @@ None. The operator has fixed the platform constraint (native Windows on Shadow),
 
 | 2026-08-16 15:23:08 UTC | sg-engineering | GPT-5 Codex | Added redacted operator-owned CLI authentication, exact isolated Playwright stable/agent/MCP runtimes, native Gemini HTTP MCP recognition, PATH wrappers with resolvable package targets, and launcher module packaging. | Full Windows/static/public-site proofs pass; remote commit `534b0ee` installed successfully on Shadow; `playwright` 1.62.1, agent CLI 0.1.18, MCP Chromium 1237 and a real synthetic no-network WebM capture are proven. No authentication was inferred or started. | Merge source then site to main, reinstall main, verify normalized parity, and remove merged branches/worktrees. |
 | 2026-08-17 09:19:30 UTC | sg-engineering | GPT-5 Codex | Decoupled native Windows installation operations from console rendering through a UI-free event engine and separate interactive/non-interactive adapter, then routed long agent, service, MCP, Flutter/Android and Playwright work through visible progress. | Regression-first engine/UI contract, real bounded-process progress, PowerShell 5.1 parsing, archive/runtime packaging, metadata and the full Windows suite pass. No runtime installation or push was performed. | Commit the local bounded lot; publish and run one real `s u` loader proof only under separate authority. |
+| 2026-08-17 21:00:00 UTC | sg-bug | GPT-5 Codex | Reconciled Flutter Web with the operator's browser workflow: start/restart remain silent and headless, while Open alone performs an extinction-proven promotion to Flutter-owned visible Chrome on `127.0.0.1`; extracted the launch-argument contract so tests prove headless/visible/profile/host separation directly. | Regression-first focused tests and the complete Windows source/static contract pass. One cold performance run exceeded its threshold, then the isolated rerun and official suite passed at 374.1 ms reconciliation. No installed runtime, live registry, project process, application, commit or push was touched. | Request separate authority for installed-runtime and visual reload proof. |
 
 # Current Chantier Flow
 

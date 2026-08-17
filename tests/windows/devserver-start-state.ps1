@@ -49,6 +49,23 @@ try {
     $failedStored = (Read-SgRegistry $config).projects | Where-Object { $_.path -eq $flutterSurface } | Select-Object -First 1
     if ($failedStored.status -ne 'error' -or -not $failedStored.lastError) { throw 'Flutter readiness failure was not persisted as error.' }
 
+    & $module { param($Config,$Surface) Invoke-SgRegistryMutation $Config {param($data);$item=@($data.projects|Where-Object{$_.path-eq$Surface})[0];$item.status='stopped';$item.pid=0;$item.startTimeUtc=$null} | Out-Null } $config $flutterSurface
+    $visibleStarted=& $module {
+        param($Config,$Surface)
+        $script:launchWasVisible=$false
+        function Test-SgPortAvailable { $true }
+        function Invoke-SgDependencySetup { }
+        function Get-SgLaunchSpec { param($ProjectPath,$Kind,$Port,$FlutterVisible) $script:launchWasVisible=[bool]$FlutterVisible;[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='visible-signature';Interactive=$false;FlutterSdkRoot='C:\flutter'} }
+        function Start-Process { [pscustomobject]@{Id=89} }
+        function Get-SgProcessSnapshot { [pscustomobject]@{Pid=89;StartTimeUtc='2026-08-15T00:00:02Z';ExecutablePath='mock.exe';CommandLine='visible-signature'} }
+        function Test-SgProcessIdentity { param($Entry) [int]$Entry.pid -eq 89 }
+        function Wait-SgFlutterSupervisorReady { [pscustomobject]@{Ready=$true;AppId='visible-app';Error=$null;DaemonPid=890} }
+        $result=Start-SgProject $Config $Surface 0 -FlutterVisible
+        [pscustomobject]@{Result=$result;LaunchWasVisible=$script:launchWasVisible}
+    } $config $flutterSurface
+    $visibleStored=(Read-SgRegistry $config).projects|Where-Object{$_.path-eq$flutterSurface}|Select-Object -First 1
+    if(-not$visibleStarted.LaunchWasVisible-or$visibleStarted.Result.flutterHeadless-or$visibleStored.flutterHeadless-or$visibleStored.status-ne'running'){throw 'Visible Flutter promotion was not recorded as a non-headless managed session.'}
+
     $astroSurface=Join-Path $fixture 'astro-site';New-Item -ItemType Directory -Path $astroSurface -Force|Out-Null
     Set-Content (Join-Path $astroSurface 'package.json') '{"dependencies":{"astro":"latest"},"scripts":{"dev":"astro dev"}}' -Encoding UTF8
     $astroRunning=& $module { param($Config,$Surface) function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='astro-signature';Interactive=$false}};function Start-Process{[pscustomobject]@{Id=99}};function Get-SgProcessSnapshot{[pscustomobject]@{Pid=99;StartTimeUtc='2026-08-17T00:00:00Z';ExecutablePath='mock.exe';CommandLine='astro-signature'}};function Test-SgProcessIdentity{param($Entry) [int]$Entry.pid-eq99};function Wait-SgProjectReady{[pscustomobject]@{Ready=$true;AppId=$null;Error=$null}};Start-SgProject $Config $Surface } $config $astroSurface
