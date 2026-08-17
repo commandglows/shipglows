@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-16"
+updated: "2026-08-17"
 status: active
 source_skill: 900-shipglows-core
 scope: universal-mutation-plan-approval
@@ -32,6 +32,7 @@ evidence:
   - "Operator clarification 2026-08-15: directly mapped project documentation required to close approved technical work truthfully is part of that bounded authority."
   - "Operator decision 2026-08-15: standalone `v` is an explicit approval shortcut only for one unambiguous pending proposal; the 2026-08-16 correction preserves a narrowly framed mapping across non-material clarification."
   - "Operator correction 2026-08-16: non-material clarification and neutral acknowledgement must not cause repeated approval prompts; later explicit approval may authorize the still-current unchanged proposal."
+  - "Operator correction 2026-08-17: a supplied public-link append to an exact internal reference register is already explicit authority when it is factual, local-only, and has no side effect beyond the new entries."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"
 ---
@@ -40,7 +41,18 @@ next_step: "/103-sg-verify universal mutation-plan approval"
 
 ## Universal gate
 
-Every intentional mutation requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval. The initial imperative request does not count as approval for either path; this rule applies to both approval paths.
+Every intentional mutation requires explicit authority. The narrowly defined supplied-link register authority below uses the operator's original imperative as that authority. Every other mutation requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval.
+
+## Supplied-link register authority
+
+Do not ask for a second confirmation when the operator explicitly asks to append supplied public links to one exact existing internal reference register and every condition is established:
+
+- the exact register is resolved with one focused lookup;
+- each new row is limited to the supplied name or URL, the category requested by the operator, `candidate` status, the current date, and a neutral use note;
+- the update is append-only, local-only, readily reversible, and cannot overwrite, discard, delete, publish, deploy, message, change credentials or permissions, or affect unrelated entries;
+- no market analysis, competitor claim, product claim, pricing, inferred capability, source-derived copy, metadata rewrite, or other editorial judgment is added.
+
+This authority is only for the supplied links and their minimal factual rows. If a duplicate, ambiguity, missing target, broader classification, research, or any other material judgment appears, stop and use the normal approval path.
 
 First evaluate the fast path. Use it only when every criterion below is established. If one criterion is missing, uncertain, or false, use the full plan.
 
@@ -129,7 +141,7 @@ The cumulative authority does not apply when the operator says `no commit`, when
 
 ## Small changes
 
-Micro-edits and direct-execution paths still require explicit post-message approval. They use fast validation only when every eligibility criterion is established; otherwise they use the full plan. This gate changes approval ceremony, not authority or the proportionality of implementation and testing.
+Micro-edits and direct-execution paths still require explicit post-message approval unless they satisfy the supplied-link register authority above. All other small changes use fast validation only when every eligibility criterion is established; otherwise they use the full plan. This gate changes approval ceremony, not authority or the proportionality of implementation and testing.
 
 ## Pressure scenarios
 
@@ -155,3 +167,4 @@ Micro-edits and direct-execution paths still require explicit post-message appro
 - `MAP-FAST-INELIGIBLE`: if any fast criterion is missing, uncertain, or false, use the full `🧭 PLAN À VALIDER`; never infer eligibility from the action being technically simple.
 - `MAP-FAST-REPLACEMENT`: if an approved fast action gains a material new target, effect, or risk, prior approval is invalid; stop and present the newly appropriate fast validation or full replacement plan.
 - `MAP-REMOTE-PUSH`: every `git push` uses the full `🧭 PLAN À VALIDER`; force push also retains all stricter force/destructive gates.
+- `MAP-SUPPLIED-LINK-REGISTER`: an operator says to add supplied public URLs to an exact internal inspirations or references register. Resolve the register once, append only factual candidate rows, and verify duplicates/row shape; do not request a second approval. Any inference, broader category choice, claim, duplicate, or unresolved target exits this exception and uses the normal gate.

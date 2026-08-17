@@ -33,6 +33,8 @@ Before handing off an explicit skill name or numeric skill command, load `$SHIPG
 
 ## Atomic Direct-Execution Gate
 
+The supplied-link register authority in `mutation-plan-approval.md` is the sole direct-authority exception: it accepts the operator's original request only for an exact, factual, append-only local reference-register update and never for inferred claims or broader edits.
+
 Before any direct or routed mutation, load `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. No mutation, including a deterministic micro-edit, starts until its fast validation or full plan has received explicit post-message approval. Use `🧭 VALIDATION RAPIDE` only when every cumulative local, routine, exact, readily reversible, and no-harm criterion is established; otherwise use `🧭 PLAN À VALIDER`.
 
 Before loading routing, topology, or owner-skill references, keep the request in direct main-thread execution when the user supplied one explicit deterministic edit, the target is known or discoverable with one focused lookup, no domain judgment or sensitive boundary is involved, and focused validation is sufficient. Typical cases are an exact string or placeholder replacement, a typo, one formatting token, or one `h1` to `h2` change.
@@ -41,7 +43,9 @@ Do not load a domain or lifecycle skill for these requests: no owner skill is ne
 
 ### Bounded internal reference-register updates
 
-Treat a supplied-link update as direct execution when its register needs one focused local lookup, one primary-source check per supplied reference, no market interpretation or public claim, and focused duplicate/metadata proof. Append it factually without launching source intake, market study, or documentation topology work; otherwise use normal routing.
+For a supplied-link update that meets the shared direct-authority exception, the initial request is sufficient; do not present a second approval prompt.
+
+Treat a supplied-link update as direct execution and original-request authority when its register needs one focused local lookup, the operator supplied the public URLs and requested category, `candidate` is the only added status, no market interpretation or public claim is needed, and focused duplicate/row-shape proof is sufficient. Append it factually without launching source intake, market study, documentation topology work, or a second approval prompt; otherwise use normal routing and the normal mutation gate.
 
 `veille <URL>` analyzes without persistence and does not automatically persist the source. `concurrent <URL>` or `inspiration <URL>` updates the matching internal register. `veille` takes precedence.
 

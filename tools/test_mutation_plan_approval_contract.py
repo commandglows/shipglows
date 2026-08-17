@@ -142,9 +142,26 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         self.assertIn("only when every fast-path criterion is established", scenario)
         self.assertIn("otherwise it uses the full", scenario)
 
-    def test_initial_request_never_approves_either_path(self) -> None:
-        self.assertIn("initial imperative request does not count as approval", self.text)
-        self.assertIn("both approval paths", self.text)
+    def test_supplied_link_register_append_uses_original_request_authority(self) -> None:
+        for expected in (
+            "## Supplied-link register authority",
+            "Do not ask for a second confirmation",
+            "append supplied public links",
+            "exact existing internal reference register",
+            "the category requested by the operator, `candidate` status",
+            "append-only, local-only, readily reversible",
+            "no market analysis, competitor claim, product claim, pricing",
+            "MAP-SUPPLIED-LINK-REGISTER",
+        ):
+            self.assertIn(expected, self.text)
+
+        scenario = self._scenario("MAP-SUPPLIED-LINK-REGISTER")
+        self.assertIn("do not request a second approval", scenario)
+        self.assertIn("uses the normal gate", scenario)
+
+    def test_initial_request_never_approves_normal_paths(self) -> None:
+        self.assertIn("Every other mutation requires one of the two approval paths", self.text)
+        self.assertIn("explicit approval given after its message", self.text)
 
     def test_v_is_a_bounded_immediate_approval_shortcut(self) -> None:
         for expected in (
