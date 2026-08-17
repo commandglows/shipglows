@@ -122,18 +122,19 @@ pm2_data_load data
 pm2_status_load status "group_app"
 pm2_port_load port "group_app"
 pm2_app_data_load cwd "group_app" "cwd"
+refresh_cli_project_catalog
 user_caddy_routes_load routes
 assert_eq "$first_pm2" "$data" "data production destination"
 assert_eq "online" "$status" "status production destination"
 assert_eq "3042" "$port" "port production destination"
 assert_eq "$SHIPGLOWS_PROJECTS_DIR/group/app" "$cwd" "cwd production destination"
-assert_eq "group_app|3042" "$routes" "routes production destination"
+[[ "$routes" =~ ^group-app-[a-f0-9]{8}\.preview\.shipglows\.com\|3042$ ]] || fail "catalog routes use a stable exact host"
 
 assert_eq "$first_pm2" "$(get_pm2_data_cached)" "PM2 data compatibility wrapper"
 assert_eq "online" "$(get_pm2_status group_app)" "PM2 status compatibility wrapper"
 assert_eq "3042" "$(get_port_from_pm2 group_app)" "PM2 port compatibility wrapper"
 assert_eq "$SHIPGLOWS_PROJECTS_DIR/group/app" "$(get_pm2_app_data group_app cwd)" "PM2 cwd compatibility wrapper"
-assert_eq "group_app|3042" "$(user_caddy_routes_from_pm2)" "Caddy routes compatibility wrapper"
+assert_eq "$routes" "$(user_caddy_routes_from_pm2)" "Caddy routes compatibility wrapper"
 
 # A known mutation invalidates the session snapshot before the next read.
 invalidate_after_pm2_mutation

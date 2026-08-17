@@ -38,17 +38,17 @@ write_package_json() {
 vue_cli_dir="$TMP_ROOT/vue-cli"
 write_package_json "$vue_cli_dir" '{"scripts":{"dev":"vue-cli-service serve"},"dependencies":{"vue":"3.5.0"},"devDependencies":{"@vue/cli-service":"5.0.8"}}'
 touch "$vue_cli_dir/pnpm-lock.yaml"
-assert_eq 'pnpm exec vue-cli-service serve --port $PORT --host 0.0.0.0' "$(detect_dev_command "$vue_cli_dir" 3010)" "pnpm Vue CLI uses its local binary with port and host"
+assert_eq 'pnpm exec vue-cli-service serve --port $PORT --host 127.0.0.1' "$(detect_dev_command "$vue_cli_dir" 3010)" "pnpm Vue CLI uses its local binary on loopback"
 
 vue_vite_dir="$TMP_ROOT/vue-vite"
 write_package_json "$vue_vite_dir" '{"scripts":{"dev":"vite"},"dependencies":{"vue":"3.5.0"},"devDependencies":{"vite":"6.0.0"}}'
 touch "$vue_vite_dir/pnpm-lock.yaml"
-assert_eq 'pnpm exec vite --port $PORT --host' "$(detect_dev_command "$vue_vite_dir" 3011)" "Vue on Vite keeps the Vite command"
+assert_eq 'pnpm exec vite --port $PORT --host 127.0.0.1' "$(detect_dev_command "$vue_vite_dir" 3011)" "Vue on Vite binds to loopback"
 
 nuxt_dir="$TMP_ROOT/nuxt"
 write_package_json "$nuxt_dir" '{"scripts":{"dev":"nuxt dev"},"dependencies":{"nuxt":"4.0.0","vite":"6.0.0"}}'
 touch "$nuxt_dir/pnpm-lock.yaml"
-assert_eq 'pnpm exec nuxt dev --port $PORT' "$(detect_dev_command "$nuxt_dir" 3012)" "Nuxt takes precedence over its Vite dependency"
+assert_eq 'pnpm exec nuxt dev --port $PORT --host 127.0.0.1' "$(detect_dev_command "$nuxt_dir" 3012)" "Nuxt takes precedence and binds to loopback"
 
 generic_dir="$TMP_ROOT/generic"
 write_package_json "$generic_dir" '{"scripts":{"dev":"vite --host 0.0.0.0"}}'

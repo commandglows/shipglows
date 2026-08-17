@@ -2326,16 +2326,129 @@ stop_user_caddy() {
     echo -e "${GREEN}Stopped user Caddy.${NC}"
 }
 
-user_caddy_routes_load() {
-    local __sgdv_caddy_target="$1" __sgdv_caddy_data="" __sgdv_caddy_routes=""
-    local __sgdv_caddy_name __sgdv_caddy_status __sgdv_caddy_port __sgdv_caddy_cwd
-    pm2_data_load __sgdv_caddy_data 2>/dev/null || return 1
-    while IFS='|' read -r __sgdv_caddy_name __sgdv_caddy_status __sgdv_caddy_port __sgdv_caddy_cwd; do
-        if [[ "$__sgdv_caddy_status" =~ ^(online|launching)$ ]] && [[ "$__sgdv_caddy_port" =~ ^[0-9]+$ ]] && [[ "$__sgdv_caddy_name" =~ ^[A-Za-z0-9._-]+$ ]]; then
-            [ -n "$__sgdv_caddy_routes" ] && __sgdv_caddy_routes+=$'\n'
-            __sgdv_caddy_routes+="$__sgdv_caddy_name|$__sgdv_caddy_port"
+refresh_cli_project_catalog() {
+    command -v node >/dev/null 2>&1 || return 1
+
+    local catalog_file="$SHIPGLOWS_CLI_PROJECT_CATALOG_FILE"
+    local catalog_dir pm2_file flutter_file candidate pm2_data=""
+    catalog_dir=$(dirname "$catalog_file")
+    mkdir -p "$catalog_dir" 2>/dev/null || return 1
+    chmod 700 "$catalog_dir" 2>/dev/null || true
+    pm2_file=$(mktemp "$catalog_dir/.catalog-pm2.XXXXXX") || return 1
+    flutter_file=$(mktemp "$catalog_dir/.catalog-flutter.XXXXXX") || return 1
+    candidate=$(mktemp "$catalog_dir/.catalog-v1.XXXXXX") || return 1
+    register_temp_file "$pm2_file"
+    register_temp_file "$flutter_file"
+    register_temp_file "$candidate"
+    chmod 600 "$pm2_file" "$flutter_file" "$candidate" 2>/dev/null || true
+
+    pm2_data_load pm2_data 2>/dev/null || pm2_data=""
+    [ -n "$pm2_data" ] && printf '%s\n' "$pm2_data" > "$pm2_file"
+
+    local name port cwd session status
+    while IFS='|' read -r name port cwd session; do
+        [ -n "$name" ] || continue
+        status="stopped"
+        if command -v tmux >/dev/null 2>&1 && tmux has-session -t "$session" 2>/dev/null; then
+            status="online"
         fi
-    done <<< "$__sgdv_caddy_data"
+        printf '%s|%s|%s|%s|%s\n' "$name" "$status" "$port" "$cwd" "$session" >> "$flutter_file"
+    done < <(flutter_web_registry_lines false)
+
+    if ! node - "$pm2_file" "$flutter_file" "$catalog_file" "$candidate" \
+        "$SHIPGLOWS_CLI_PROJECT_CATALOG_MAX_PROJECTS" "$SHIPGLOWS_CLI_PROJECT_CATALOG_MAX_BYTES" <<'NODE' 2>/dev/null
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const [pm2File, flutterFile, previousFile, outputFile, maxProjectsRaw, maxBytesRaw] = process.argv.slice(2);
+const maxProjects = Number(maxProjectsRaw);
+const maxBytes = Number(maxBytesRaw);
+const schemaVersion = 'shipglows.cli-project-catalog.v1';
+const safeText = (value, max = 255) => typeof value === 'string' && value.length > 0 && value.length <= max && !/[\u0000-\u001f|]/.test(value);
+const validStatus = new Set(['online', 'launching', 'stopped', 'errored', 'unknown']);
+const normalizeStatus = value => validStatus.has(value) ? value : 'unknown';
+const validPort = value => Number.isInteger(value) && value >= 1 && value <= 65535;
+const canonicalPath = value => path.resolve(value);
+const slugify = value => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'project';
+const digest = value => crypto.createHash('sha256').update(value).digest('hex');
+const readLines = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean);
+let previous = {projects: []};
+try {
+  previous = JSON.parse(fs.readFileSync(previousFile, 'utf8'));
+  if (previous.schemaVersion !== schemaVersion || !Array.isArray(previous.projects)) previous = {projects: []};
+} catch {}
+const priorByCwd = new Map(previous.projects.filter(p => safeText(p.cwd, 4096)).map(p => [canonicalPath(p.cwd), p]));
+const projects = new Map();
+const ingest = (line, source) => {
+  const fields = line.split('|');
+  if ((source === 'pm2' && fields.length !== 4) || (source === 'flutter-web' && fields.length !== 5)) throw new Error('invalid source row');
+  const [displayName, rawStatus, rawPort, rawCwd, tmuxSession = ''] = fields;
+  if (!safeText(displayName) || !safeText(rawCwd, 4096) || (tmuxSession && !safeText(tmuxSession))) throw new Error('invalid project fields');
+  const cwd = canonicalPath(rawCwd);
+  const status = normalizeStatus(rawStatus);
+  const port = rawPort === '' ? null : Number(rawPort);
+  if (port !== null && !validPort(port)) throw new Error('invalid project port');
+  const prior = priorByCwd.get(cwd);
+  const id = prior && /^prj_[a-f0-9]{32}$/.test(prior.id) ? prior.id : `prj_${digest(cwd).slice(0, 32)}`;
+  const previewSlug = prior && /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(prior.previewSlug)
+    ? prior.previewSlug : `${slugify(displayName).slice(0, 42)}-${digest(cwd).slice(0, 8)}`;
+  const incoming = {id, displayName, previewSlug, status, source, cwd, port, tmuxSession: tmuxSession || null};
+  const current = projects.get(cwd);
+  if (!current) return projects.set(cwd, incoming);
+  const currentLive = /^(online|launching)$/.test(current.status);
+  const incomingLive = /^(online|launching)$/.test(status);
+  if (currentLive && incomingLive && current.port !== port) throw new Error('conflicting live project ports');
+  const preferred = incomingLive && !currentLive ? incoming : current;
+  preferred.source = current.source === source ? source : 'pm2+flutter-web';
+  preferred.tmuxSession = incoming.tmuxSession || current.tmuxSession;
+  projects.set(cwd, preferred);
+};
+for (const line of readLines(pm2File)) ingest(line, 'pm2');
+for (const line of readLines(flutterFile)) ingest(line, 'flutter-web');
+const result = [...projects.values()].sort((a, b) => a.id.localeCompare(b.id));
+if (!Number.isInteger(maxProjects) || maxProjects < 1 || result.length > maxProjects) throw new Error('catalog project boundary exceeded');
+const ids = new Set(), slugs = new Set(), livePorts = new Map();
+for (const item of result) {
+  if (ids.has(item.id) || slugs.has(item.previewSlug)) throw new Error('duplicate catalog identity');
+  ids.add(item.id); slugs.add(item.previewSlug);
+  if (/^(online|launching)$/.test(item.status)) {
+    if (!validPort(item.port)) throw new Error('live project without a port');
+    if (livePorts.has(item.port) && livePorts.get(item.port) !== item.id) throw new Error('duplicate live port');
+    livePorts.set(item.port, item.id);
+  }
+}
+const json = JSON.stringify({schemaVersion, generatedAt: new Date().toISOString(), projects: result}, null, 2) + '\n';
+if (!Number.isInteger(maxBytes) || maxBytes < 1024 || Buffer.byteLength(json) > maxBytes) throw new Error('catalog byte boundary exceeded');
+fs.writeFileSync(outputFile, json, {mode: 0o600});
+NODE
+    then
+        rm -f "$pm2_file" "$flutter_file" "$candidate" 2>/dev/null || true
+        return 1
+    fi
+
+    chmod 600 "$candidate" 2>/dev/null || true
+    mv -f "$candidate" "$catalog_file" || return 1
+    chmod 600 "$catalog_file" 2>/dev/null || true
+    rm -f "$pm2_file" "$flutter_file" 2>/dev/null || true
+}
+
+user_caddy_routes_load() {
+    local __sgdv_caddy_target="$1" __sgdv_caddy_routes=""
+    [ -f "$SHIPGLOWS_CLI_PROJECT_CATALOG_FILE" ] || return 1
+    __sgdv_caddy_routes=$(node - "$SHIPGLOWS_CLI_PROJECT_CATALOG_FILE" "$SHIPGLOWS_PREVIEW_DOMAIN" <<'NODE'
+const fs = require('fs');
+const [file, domain] = process.argv.slice(2);
+if (domain.length > 253 || domain.split('.').some(label => !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label))) process.exit(1);
+const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+if (data.schemaVersion !== 'shipglows.cli-project-catalog.v1' || !Array.isArray(data.projects)) process.exit(1);
+for (const item of data.projects) {
+  if (!/^(online|launching)$/.test(item.status)) continue;
+  if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(item.previewSlug)) process.exit(1);
+  if (!Number.isInteger(item.port) || item.port < 1 || item.port > 65535) process.exit(1);
+  console.log(`${item.previewSlug}.${domain}|${item.port}`);
+}
+NODE
+    ) || return 1
     _shipglows_assign "$__sgdv_caddy_target" "$__sgdv_caddy_routes"
 }
 
@@ -2349,18 +2462,22 @@ user_caddy_routes_from_pm2() {
 write_user_caddyfile() {
     local routes="$1"
     local route_lines=""
-    local name port
+    local name port route_index=0 candidate
 
     while IFS='|' read -r name port; do
         [ -n "$name" ] || continue
-        route_lines="${route_lines}    handle /${name}* {"$'\n'
+        route_index=$((route_index + 1))
+        route_lines="${route_lines}    @preview_${route_index} host ${name}"$'\n'
+        route_lines="${route_lines}    handle @preview_${route_index} {"$'\n'
         route_lines="${route_lines}        reverse_proxy 127.0.0.1:${port}"$'\n'
         route_lines="${route_lines}    }"$'\n'
     done <<< "$routes"
 
     ensure_user_caddy_dir || return 1
 
-    cat > "$SHIPGLOWS_USER_CADDYFILE" << EOF
+    candidate=$(mktemp "$SHIPGLOWS_USER_CADDY_DIR/.Caddyfile.XXXXXX") || return 1
+    register_temp_file "$candidate"
+    cat > "$candidate" << EOF
 {
     admin off
     storage file_system $SHIPGLOWS_USER_CADDY_STORAGE_DIR
@@ -2375,10 +2492,20 @@ http://$SHIPGLOWS_USER_CADDY_BIND:$SHIPGLOWS_USER_CADDY_PORT {
         }
     }
     encode gzip
-${route_lines}    respond "ShipGlows user Caddy: no matching PM2 route" 404
+${route_lines}    respond "ShipGlows preview unavailable" 404
 }
 EOF
-    caddy fmt --overwrite "$SHIPGLOWS_USER_CADDYFILE" >/dev/null 2>&1 || true
+    caddy fmt --overwrite "$candidate" >/dev/null 2>&1 || true
+    caddy validate --config "$candidate" --adapter caddyfile >/dev/null 2>&1 || {
+        rm -f "$candidate" 2>/dev/null || true
+        return 1
+    }
+    chmod 600 "$candidate" 2>/dev/null || true
+    if [ -f "$SHIPGLOWS_USER_CADDYFILE" ]; then
+        cp -f "$SHIPGLOWS_USER_CADDYFILE" "${SHIPGLOWS_USER_CADDYFILE}.previous" || return 1
+        chmod 600 "${SHIPGLOWS_USER_CADDYFILE}.previous" 2>/dev/null || true
+    fi
+    mv -f "$candidate" "$SHIPGLOWS_USER_CADDYFILE"
 }
 
 start_user_caddy() {
@@ -2404,6 +2531,9 @@ start_user_caddy() {
     fi
 
     if ! caddy validate --config "$SHIPGLOWS_USER_CADDYFILE" --adapter caddyfile >/dev/null 2>&1; then
+        if [ -f "${SHIPGLOWS_USER_CADDYFILE}.previous" ]; then
+            mv -f "${SHIPGLOWS_USER_CADDYFILE}.previous" "$SHIPGLOWS_USER_CADDYFILE" 2>/dev/null || true
+        fi
         warning "Caddyfile utilisateur invalide: $SHIPGLOWS_USER_CADDYFILE"
         return 1
     fi
@@ -2413,10 +2543,14 @@ start_user_caddy() {
     sleep 0.5
 
     if user_caddy_is_running; then
+        rm -f "${SHIPGLOWS_USER_CADDYFILE}.previous" 2>/dev/null || true
         echo -e "${GREEN}User Caddy running:${NC} http://$SHIPGLOWS_USER_CADDY_BIND:$SHIPGLOWS_USER_CADDY_PORT"
         return 0
     fi
 
+    if [ -f "${SHIPGLOWS_USER_CADDYFILE}.previous" ]; then
+        mv -f "${SHIPGLOWS_USER_CADDYFILE}.previous" "$SHIPGLOWS_USER_CADDYFILE" 2>/dev/null || true
+    fi
     warning "User Caddy did not stay running; see $SHIPGLOWS_USER_CADDY_STDOUT_FILE"
     return 1
 }
@@ -2431,6 +2565,10 @@ refresh_user_caddy_from_pm2() {
         return 0
     fi
 
+    refresh_cli_project_catalog || {
+        warning "Catalogue projet invalide; configuration Caddy prÃ©cÃ©dente conservÃ©e."
+        return 1
+    }
     local routes=""
     user_caddy_routes_load routes || routes=""
     if [ -z "$routes" ]; then
@@ -6498,14 +6636,10 @@ fix_port_config() {
             
             if grep -q "server.*:.*{" "$config_file" && grep -q "port.*:.*[0-9]" "$config_file"; then
                 sed -i 's/port: *[0-9]\+/port: parseInt(process.env.PORT) || 3000/' "$config_file"
-                # Add HMR configuration if not present
-                if ! grep -q "hmr.*:.*{" "$config_file"; then
-                    sed -i '/server.*:.*{/a\    hmr: {\n      protocol: '\''ws'\'',\n      host: '\''localhost'\'',\n      port: parseInt(process.env.PORT) || 3000\n    },' "$config_file"
-                fi
-                echo -e "${GREEN}✅ Configuration Vite mise à jour avec HMR${NC}"
+                echo -e "${GREEN}✅ Configuration Vite mise à jour${NC}"
             elif grep -q "export default defineConfig({" "$config_file"; then
-                sed -i '/export default defineConfig({/a\  server: {\n    port: parseInt(process.env.PORT) || 3000,\n    host: true,\n    hmr: {\n      protocol: '\''ws'\'',\n      host: '\''localhost'\'',\n      port: parseInt(process.env.PORT) || 3000\n    }\n  },' "$config_file"
-                echo -e "${GREEN}✅ Configuration Vite ajoutée avec HMR${NC}"
+                sed -i '/export default defineConfig({/a\  server: {\n    port: parseInt(process.env.PORT) || 3000,\n    host: '\''127.0.0.1'\''\n  },' "$config_file"
+                echo -e "${GREEN}✅ Configuration Vite ajoutée${NC}"
             fi
         fi
     fi
@@ -6592,37 +6726,37 @@ detect_dev_command() {
                     ;;
                 astro)
                     if [ "$pm_cmd" = "pnpm" ]; then
-                        echo "pnpm exec astro dev --port \$PORT --force"
+                        echo "pnpm exec astro dev --port \$PORT --host 127.0.0.1 --force"
                     else
-                        echo "$pm_cmd dev -- --port \$PORT --force"
+                        echo "$pm_cmd dev -- --port \$PORT --host 127.0.0.1 --force"
                     fi
                     ;;
                 next)
                     if [ "$pm_cmd" = "pnpm" ]; then
-                        echo "pnpm exec next dev"
+                        echo "pnpm exec next dev -H 127.0.0.1"
                     else
-                        echo "$pm_cmd dev"
+                        echo "$pm_cmd dev -- -H 127.0.0.1"
                     fi
                     ;;
                 vite)
                     if [ "$pm_cmd" = "pnpm" ]; then
-                        echo "pnpm exec vite --port \$PORT --host"
+                        echo "pnpm exec vite --port \$PORT --host 127.0.0.1"
                     else
-                        echo "$pm_cmd dev -- --port \$PORT --host"
+                        echo "$pm_cmd dev -- --port \$PORT --host 127.0.0.1"
                     fi
                     ;;
                 nuxt)
                     if [ "$pm_cmd" = "pnpm" ]; then
-                        echo "pnpm exec nuxt dev --port \$PORT"
+                        echo "pnpm exec nuxt dev --port \$PORT --host 127.0.0.1"
                     else
-                        echo "$pm_cmd dev --port \$PORT"
+                        echo "$pm_cmd dev --port \$PORT --host 127.0.0.1"
                     fi
                     ;;
                 vue-cli)
                     if [ "$pm_cmd" = "pnpm" ]; then
-                        echo "pnpm exec vue-cli-service serve --port \$PORT --host 0.0.0.0"
+                        echo "pnpm exec vue-cli-service serve --port \$PORT --host 127.0.0.1"
                     else
-                        echo "$pm_cmd dev -- --port \$PORT --host 0.0.0.0"
+                        echo "$pm_cmd dev -- --port \$PORT --host 127.0.0.1"
                     fi
                     ;;
                 *)
@@ -6643,7 +6777,7 @@ detect_dev_command() {
         local py_cmd=""
         py_cmd=$(python_runtime_command "$project_dir")
         if [ -f "manage.py" ]; then
-            echo "$py_cmd manage.py runserver 0.0.0.0:\$PORT"
+            echo "$py_cmd manage.py runserver 127.0.0.1:\$PORT"
         elif [ -f "app.py" ]; then
             echo "$py_cmd app.py"
         elif [ -f "main.py" ]; then
@@ -6670,7 +6804,7 @@ detect_dev_command() {
         elif [ -x "./build.sh" ]; then
             echo "./build.sh --serve"
         elif [ -d "web" ]; then
-            echo "flutter config --enable-web >/dev/null 2>&1 || true && flutter pub get && flutter run -d web-server --web-hostname 0.0.0.0 --web-port \$PORT"
+            echo "flutter config --enable-web >/dev/null 2>&1 || true && flutter pub get && flutter run -d web-server --web-hostname 127.0.0.1 --web-port \$PORT"
         else
             echo "echo 'Flutter project detected but no web target or pm2 entrypoint found' && exit 1"
         fi
@@ -6835,6 +6969,7 @@ stop_flutter_web_sessions_for_project() {
             return 1
         }
     done <<< "$lines"
+    refresh_user_caddy_from_pm2 || true
 }
 
 select_flutter_web_project() {
@@ -6963,7 +7098,7 @@ start_flutter_web_tmux_session() {
     fi
 
     local flutter_cmd
-    flutter_cmd="export PORT=$port; flutter config --enable-web >/dev/null 2>&1 || true; flutter pub get && flutter run -d web-server --web-hostname 0.0.0.0 --web-port $port"
+    flutter_cmd="export PORT=$port; flutter config --enable-web >/dev/null 2>&1 || true; flutter pub get && flutter run -d web-server --web-hostname 127.0.0.1 --web-port $port"
     local escaped_flutter_cmd
     escaped_flutter_cmd=$(escape_single_quotes_for_bash "$flutter_cmd")
     local runtime_cmd="flox activate -- bash -lc '$escaped_flutter_cmd'"
@@ -6988,6 +7123,7 @@ start_flutter_web_tmux_session() {
     fi
 
     flutter_web_write_registry_entry "$env_name" "$port" "$project_dir" "$session_name" || return 1
+    refresh_user_caddy_from_pm2 || true
 
     success "Flutter Web lancé en session interactive"
     echo -e "  ${BLUE}URL tunnelable:${NC} ${CYAN}http://localhost:$port${NC}"
@@ -7008,6 +7144,7 @@ send_flutter_web_key() {
     if ! tmux has-session -t "$session_name" 2>/dev/null; then
         error "Session tmux introuvable: $session_name"
         flutter_web_remove_registry_entry "$session_name" || true
+        refresh_user_caddy_from_pm2 || true
         return 1
     fi
 
@@ -7035,6 +7172,7 @@ stop_flutter_web_session() {
     IFS='|' read -r name port project_dir session_name <<< "$line"
     if tmux kill-session -t "$session_name" 2>/dev/null; then
         flutter_web_remove_registry_entry "$session_name" || true
+        refresh_user_caddy_from_pm2 || true
         success "Session Flutter Web arrêtée: $name"
     else
         error "Impossible d'arrêter la session: $session_name"
@@ -7718,10 +7856,10 @@ env_stop() {
 
     local stop_rc=0
     pm2_stop_app_by_name "$pm2_app_name" || stop_rc=$?
+    registry_update "${canonical_pm2_name:-$pm2_app_name}" "stopped" ""
     if [ "$stop_rc" -eq 0 ]; then
         sync_caddy_after_pm2_change
     fi
-    registry_update "${canonical_pm2_name:-$pm2_app_name}" "stopped" ""
     return "$stop_rc"
 }
 

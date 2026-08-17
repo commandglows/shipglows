@@ -535,9 +535,20 @@ fi
 
 echo ""
 
-# 4. PM2 autostart policy
-info "PM2 installé sans démarrage automatique au boot"
-shipglows_log "INFO" "PM2 startup intentionally not configured. ShipGlows environments run under the operator user when started."
+# 4. PM2 autostart policy. Personal-cloud hosts opt in explicitly; local
+# workstations retain the existing user-session lifecycle.
+if [ "${SHIPGLOWS_CLOUD_MODE:-false}" = "true" ]; then
+    PM2_STARTUP_USER="${SUDO_USER:-$(id -un)}"
+    PM2_STARTUP_HOME=$(getent passwd "$PM2_STARTUP_USER" | cut -d: -f6)
+    if [ -n "$PM2_STARTUP_HOME" ] && pm2 startup systemd -u "$PM2_STARTUP_USER" --hp "$PM2_STARTUP_HOME" >/dev/null 2>&1; then
+        success "PM2 configuré pour restaurer les processus au boot ($PM2_STARTUP_USER)"
+    else
+        warning "Impossible de configurer PM2 au boot; relance l'installation avec un utilisateur opérateur valide"
+    fi
+else
+    info "PM2 installé sans démarrage automatique au boot"
+    shipglows_log "INFO" "PM2 startup intentionally not configured. ShipGlows environments run under the operator user when started."
+fi
 
 echo ""
 
@@ -717,7 +728,7 @@ else
     fi
 fi
 
-if command -v caddy >/dev/null 2>&1 && command -v systemctl >/dev/null 2>&1; then
+if command -v caddy >/dev/null 2>&1 && command -v systemctl >/dev/null 2>&1 && [ "${SHIPGLOWS_CLOUD_MODE:-false}" != "true" ]; then
     info "Désactivation du service Caddy système par défaut..."
     if systemctl disable --now caddy >/dev/null 2>&1; then
         success "Caddy système désactivé; ShipGlows lancera Caddy en mode utilisateur quand nécessaire"
