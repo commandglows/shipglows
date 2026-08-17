@@ -341,7 +341,10 @@ directories. It does not claim to recognize every possible monorepo layout.
 One linear scan feeds every dashboard and project picker. Its non-authoritative
 project index is cached in memory and atomically on disk. The last structurally
 valid index is displayed immediately; after five minutes the interactive menu
-refreshes it in the background, while explicit refresh remains synchronous.
+refreshes it and reconciles live process state in the background, while
+explicit refresh remains synchronous. Project actions still revalidate their
+target before mutation; the first dashboard render never waits on process
+inspection.
 Clone/register/unregister retain the usable index and mark it stale. The live
 registry remains authoritative for status, ports, and process metadata. Project
 names are explicit workspace-relative launch paths, and navigation selects by

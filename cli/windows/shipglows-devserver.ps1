@@ -217,7 +217,7 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
 }
 
 function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Choose a project') {
-    $items = @(Get-SgProjectCatalog $config)
+    $items = @(Get-SgProjectCatalog $config -SkipProcessReconciliation)
     switch ($Action) {
         'start' { $items = @($items) }
         'navigate' { $items = @($items) }
@@ -278,7 +278,7 @@ function Get-SelectedRegisteredProject([string]$Header = 'Choose a registered pr
 }
 
 function Show-SgWindowsDashboard {
-    $items = @(Get-SgProjectCatalog $config)
+    $items = @(Get-SgProjectCatalog $config -SkipProcessReconciliation)
     Write-Host ''
     Write-Host 'ShipGlows DevServer Windows' -ForegroundColor Yellow
     Write-Host '============================' -ForegroundColor Yellow
@@ -495,6 +495,7 @@ function Invoke-SgAuthenticationMenu {
 
 $script:catalogRefreshPath = "$($config.ProjectIndexPath).refreshing"
 $script:catalogRefreshObserved = $false
+$script:backgroundRefreshStarted = $false
 
 function Complete-SgBackgroundCatalogRefresh {
     if ($script:catalogRefreshObserved -and -not (Test-Path -LiteralPath $script:catalogRefreshPath -PathType Leaf) -and -not (Test-SgProjectCatalogRefreshRequired $config -DiskOnly)) {
@@ -504,20 +505,22 @@ function Complete-SgBackgroundCatalogRefresh {
 }
 
 function Start-SgBackgroundCatalogRefresh {
-    if (-not (Test-SgProjectCatalogRefreshRequired $config)) { return }
+    if ($script:backgroundRefreshStarted) { return }
+    $script:backgroundRefreshStarted = $true
     if (Test-Path -LiteralPath $script:catalogRefreshPath -PathType Leaf) {
-        if (((Get-Date) - (Get-Item -LiteralPath $script:catalogRefreshPath).LastWriteTime).TotalMinutes -lt 5) { return }
+        if (((Get-Date) - (Get-Item -LiteralPath $script:catalogRefreshPath).LastWriteTime).TotalMinutes -lt 5) { $script:catalogRefreshObserved = $true; return }
         Remove-Item -LiteralPath $script:catalogRefreshPath -Force -ErrorAction SilentlyContinue
     }
     $claim = $null
     try { $claim = [IO.File]::Open($script:catalogRefreshPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None) }
-    catch [IO.IOException] { return }
+    catch [IO.IOException] { $script:catalogRefreshObserved = $true; return }
     finally { if ($claim) { $claim.Dispose() } }
 
     $refresher = Join-Path $PSScriptRoot 'ShipGlows.ProjectCatalogRefresh.ps1'
     $powershell = Join-Path $PSHOME 'powershell.exe'
     if (-not (Test-Path -LiteralPath $refresher -PathType Leaf) -or $refresher -match '["\r\n]') {
         Remove-Item -LiteralPath $script:catalogRefreshPath -Force -ErrorAction SilentlyContinue
+        $script:backgroundRefreshStarted = $false
         return
     }
     $startInfo = [Diagnostics.ProcessStartInfo]::new()
@@ -526,15 +529,20 @@ function Start-SgBackgroundCatalogRefresh {
     $startInfo.UseShellExecute = $false
     $startInfo.CreateNoWindow = $true
     $startInfo.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
+    $startInfo.RedirectStandardInput = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
     $startInfo.EnvironmentVariables['SHIPGLOWS_CATALOG_WORKSPACE'] = $config.Workspace
     $startInfo.EnvironmentVariables['SHIPGLOWS_CATALOG_RUNTIME'] = $config.RuntimeDirectory
     try {
         $process = [Diagnostics.Process]::Start($startInfo)
         if (-not $process) { throw 'Background refresh process did not start.' }
+        $process.StandardInput.Close()
         $process.Dispose()
         $script:catalogRefreshObserved = $true
     } catch {
         Remove-Item -LiteralPath $script:catalogRefreshPath -Force -ErrorAction SilentlyContinue
+        $script:backgroundRefreshStarted = $false
     }
 }
 

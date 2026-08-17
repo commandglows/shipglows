@@ -232,8 +232,11 @@ scan. The discovery index is cached in memory and atomically at
 `%LOCALAPPDATA%\ShipGlows\DevServer\project-index.json` with its schema,
 workspace, scanner version, and generation time. A structurally valid older
 index is displayed immediately; in the interactive menu, an index older than
-five minutes is rebuilt by a background job and adopted on the next dashboard
-render. Explicit refresh remains synchronous. Clone/register/unregister retain
+five minutes is rebuilt by a background job that also reconciles live process
+state, then adopted on the next dashboard render. The first render therefore
+uses the last registry snapshot without waiting on WMI/CIM; lifecycle actions
+still revalidate the selected process before mutation. Explicit refresh remains
+synchronous. Clone/register/unregister retain
 the last usable index and mark it stale instead of forcing a blocking rescan.
 Invalid schema, scanner, workspace, timestamp, or JSON still fails closed and
 triggers a synchronous rebuild because its identities cannot be trusted. Registry

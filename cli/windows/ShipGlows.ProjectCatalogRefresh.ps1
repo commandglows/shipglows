@@ -27,7 +27,10 @@ try {
         PortStart = 3000
         PortEnd = 3100
     }
-    Get-SgWorkspaceProjectCandidates $config -ForceRefresh | Out-Null
+    Reconcile-SgRegistry $config | Out-Null
+    if (Test-SgProjectCatalogRefreshRequired $config -DiskOnly) {
+        Get-SgWorkspaceProjectCandidates $config -ForceRefresh | Out-Null
+    }
 } finally {
     Remove-Item -LiteralPath $refreshPath -Force -ErrorAction SilentlyContinue
 }

@@ -364,8 +364,34 @@ function Get-SgProcessSnapshot([int]$Pid) {
     }
 }
 
-function Test-SgProcessIdentity([object]$Entry) {
-    $current = Get-SgProcessSnapshot ([int]$Entry.pid)
+function Get-SgProcessSnapshotMap([int[]]$Pids) {
+    $result = @{}
+    $ids = @($Pids | Where-Object { $_ -gt 0 } | Sort-Object -Unique)
+    if ($ids.Count -eq 0) { return $result }
+    $processById = @{}
+    foreach ($process in @(Get-Process -Id $ids -ErrorAction SilentlyContinue)) { $processById[[int]$process.Id] = $process }
+    if ($processById.Count -eq 0) { return $result }
+    $filter = (@($processById.Keys | ForEach-Object { "ProcessId = $_" }) -join ' OR ')
+    $cimById = @{}
+    foreach ($cim in @(Get-CimInstance Win32_Process -Filter $filter -ErrorAction SilentlyContinue)) { $cimById[[int]$cim.ProcessId] = $cim }
+    foreach ($id in @($processById.Keys)) {
+        $process = $processById[$id]
+        $cim = if ($cimById.ContainsKey($id)) { $cimById[$id] } else { $null }
+        $start = $null
+        try { $start = $process.StartTime.ToUniversalTime().ToString('o') } catch { }
+        $result[$id] = [pscustomobject]@{
+            Pid = $id
+            StartTimeUtc = $start
+            ExecutablePath = if ($cim) { $cim.ExecutablePath } else { $null }
+            CommandLine = if ($cim) { $cim.CommandLine } else { $null }
+        }
+    }
+    return $result
+}
+
+function Test-SgProcessIdentity([object]$Entry, [hashtable]$SnapshotByPid = $null) {
+    $pidValue = [int]$Entry.pid
+    $current = if ($null -ne $SnapshotByPid) { if ($SnapshotByPid.ContainsKey($pidValue)) { $SnapshotByPid[$pidValue] } else { $null } } else { Get-SgProcessSnapshot $pidValue }
     if (-not $current) { return $false }
     if ($Entry.startTimeUtc -and $current.StartTimeUtc -ne $Entry.startTimeUtc) { return $false }
     if ($Entry.executablePath -and $current.ExecutablePath -and [IO.Path]::GetFullPath($Entry.executablePath) -ne [IO.Path]::GetFullPath($current.ExecutablePath)) { return $false }
@@ -712,8 +738,8 @@ function Get-SgWorkspaceProjectCandidates([object]$Config, [switch]$ForceRefresh
     return $projects
 }
 
-function Get-SgProjectCatalog([object]$Config, [switch]$ForceRefresh) {
-    $registry = Reconcile-SgRegistry $Config
+function Get-SgProjectCatalog([object]$Config, [switch]$ForceRefresh, [switch]$SkipProcessReconciliation) {
+    $registry = if ($SkipProcessReconciliation) { Read-SgRegistry $Config } else { Reconcile-SgRegistry $Config }
     $registeredByIdentity = @{}
     $items = New-Object 'System.Collections.Generic.List[object]'
     foreach ($entry in @($registry.projects)) {
@@ -1027,6 +1053,7 @@ function Remove-SgFlutterLaunchArtifacts([object]$Config,[object]$Entry) {
 function Reconcile-SgRegistry([object]$Config) {
     return Invoke-SgRegistryMutation $Config {
         param($registry)
+        $processSnapshots = Get-SgProcessSnapshotMap @($registry.projects | ForEach-Object { [int]$_.pid })
         $byIdentity = @{}
         $normalized = New-Object 'System.Collections.Generic.List[object]'
         foreach ($entry in @($registry.projects)) {
@@ -1046,7 +1073,7 @@ function Reconcile-SgRegistry([object]$Config) {
             $entry | Add-Member -NotePropertyName launchPath -NotePropertyValue $launchPath -Force
             $entry.path = $launchPath
 
-            $live = Test-SgProcessIdentity $entry
+            $live = Test-SgProcessIdentity $entry $processSnapshots
             $freshReservation = $false
             if (-not $live -and $entry.status -in @('reserved','starting') -and $entry.PSObject.Properties['reservationTimeUtc'] -and $entry.reservationTimeUtc) {
                 try {

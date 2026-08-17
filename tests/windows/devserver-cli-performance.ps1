@@ -6,16 +6,20 @@ Set-StrictMode -Version Latest
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $entrypoint = Join-Path $root 'cli\windows\shipglows-devserver.ps1'
 $refresher = Join-Path $root 'cli\windows\ShipGlows.ProjectCatalogRefresh.ps1'
+$modulePath = Join-Path $root 'cli\windows\ShipGlows.DevServer.psm1'
 $source = [IO.File]::ReadAllText($entrypoint)
+$moduleSource = [IO.File]::ReadAllText($modulePath)
 
 if (-not (Test-Path -LiteralPath $refresher -PathType Leaf)) { throw 'The detached project-catalog refresher is missing.' }
 
 if ($source -notmatch [regex]::Escape('if (Test-SgImmediateAction $Action $ShortcutPath)')) { throw 'The CLI immediate-action fast path is missing.' }
 if ($source -notmatch [regex]::Escape('Import-SgAuthenticationModule')) { throw 'The authentication module is not lazy-loaded.' }
 if ($source -match '(?m)^Import-Module \$mobileModule -Force -DisableNameChecking\s*$') { throw 'The unused mobile module is still eagerly loaded.' }
+if ($moduleSource -notmatch [regex]::Escape('function Get-SgProcessSnapshotMap')) { throw 'The registry process snapshot batch is missing.' }
 foreach ($required in @('function Start-SgBackgroundCatalogRefresh','Test-SgProjectCatalogRefreshRequired $config','[Diagnostics.Process]::Start($startInfo)','Clear-SgProjectCatalogMemoryCache $config','function Complete-SgBackgroundCatalogRefresh')) {
     if ($source -notmatch [regex]::Escape($required)) { throw "The non-blocking catalogue refresh contract is missing: $required" }
 }
+if ([regex]::Matches($source, [regex]::Escape('Get-SgProjectCatalog $config -SkipProcessReconciliation')).Count -lt 2) { throw 'Dashboard and picker still block on process reconciliation.' }
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('sg-catalog-refresh-' + [guid]::NewGuid().ToString('N'))
 try {
@@ -32,6 +36,21 @@ try {
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $runtime 'project-index.json') -PathType Leaf)) { throw 'The detached catalogue refresher did not build its index.' }
     if (Test-Path -LiteralPath (Join-Path $runtime 'project-index.json.refreshing')) { throw 'The detached catalogue refresher did not release its claim.' }
 
+    Import-Module $modulePath -Force -DisableNameChecking
+    $process = Get-Process -Id $PID
+    $entries = @()
+    1..9 | ForEach-Object {
+        $entryPath = Join-Path $workspace "registered-$_"
+        New-Item -ItemType Directory -Path $entryPath -Force | Out-Null
+        $entries += [pscustomobject]@{name="registered-$_";path=$entryPath;rootPath=$entryPath;launchPath=$entryPath;kind='astro';port=(33000+$_);status='running';pid=$PID;startTimeUtc=$process.StartTime.ToUniversalTime().ToString('o');executablePath=$process.Path;commandSignature=$null;logPath=$null;errorLogPath=$null;lastError=$null}
+    }
+    [pscustomobject]@{schemaVersion=1;projects=$entries} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $runtime 'registry.json') -Encoding UTF8
+    $config = [pscustomobject]@{Workspace=$workspace;RuntimeDirectory=$runtime;RegistryPath=(Join-Path $runtime 'registry.json');LockPath=(Join-Path $runtime 'registry.lock');ProjectIndexPath=(Join-Path $runtime 'project-index.json');LogDirectory=(Join-Path $runtime 'logs');PortStart=33000;PortEnd=33100}
+    $reconcileWatch = [Diagnostics.Stopwatch]::StartNew()
+    Reconcile-SgRegistry $config | Out-Null
+    $reconcileWatch.Stop()
+    if ($reconcileWatch.Elapsed.TotalMilliseconds -ge 800) { throw "Batched registry reconciliation took $([math]::Round($reconcileWatch.Elapsed.TotalMilliseconds,1)) ms." }
+
 } finally {
     if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }
 }
@@ -46,4 +65,31 @@ $times = @()
 }
 $median = @($times | Sort-Object)[3]
 if ($median -ge $MaximumHelpMedianMs) { throw "Windows CLI help median $([math]::Round($median,1)) ms exceeds $MaximumHelpMedianMs ms." }
-Write-Host ('Windows CLI performance regression: OK help_median_ms={0}' -f [math]::Round($median,1))
+$dashboardTimes = @()
+$dashboardFixture = Join-Path ([IO.Path]::GetTempPath()) ('sg-dashboard-perf-' + [guid]::NewGuid().ToString('N'))
+$previousLocalAppData = $env:LOCALAPPDATA
+$previousWorkspace = $env:SHIPGLOWS_WINDOWS_WORKSPACE
+try {
+    $dashboardWorkspace = Join-Path $dashboardFixture 'workspace'
+    $dashboardLocalAppData = Join-Path $dashboardFixture 'localappdata'
+    $dashboardRuntime = Join-Path $dashboardLocalAppData 'ShipGlows\DevServer'
+    New-Item -ItemType Directory -Path $dashboardWorkspace,$dashboardRuntime -Force | Out-Null
+    [pscustomobject]@{schemaVersion=1;workspace=[IO.Path]::GetFullPath($dashboardWorkspace);scannerVersion='1';generatedAt=(Get-Date).ToUniversalTime().AddHours(-1).ToString('o');projects=@()} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $dashboardRuntime 'project-index.json') -Encoding UTF8
+    [pscustomobject]@{schemaVersion=1;projects=@()} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $dashboardRuntime 'registry.json') -Encoding UTF8
+    $env:LOCALAPPDATA = $dashboardLocalAppData
+    $env:SHIPGLOWS_WINDOWS_WORKSPACE = $dashboardWorkspace
+    1..7 | ForEach-Object {
+        $watch = [Diagnostics.Stopwatch]::StartNew()
+        & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $entrypoint d *> $null
+        if ($LASTEXITCODE -ne 0) { throw 'The dashboard fast path failed.' }
+        $watch.Stop()
+        $dashboardTimes += $watch.Elapsed.TotalMilliseconds
+    }
+} finally {
+    $env:LOCALAPPDATA = $previousLocalAppData
+    if ($null -eq $previousWorkspace) { Remove-Item Env:SHIPGLOWS_WINDOWS_WORKSPACE -ErrorAction SilentlyContinue } else { $env:SHIPGLOWS_WINDOWS_WORKSPACE = $previousWorkspace }
+    if (Test-Path -LiteralPath $dashboardFixture) { Remove-Item -LiteralPath $dashboardFixture -Recurse -Force }
+}
+$dashboardMedian = @($dashboardTimes | Sort-Object)[3]
+if ($dashboardMedian -ge 1000) { throw "Windows CLI dashboard median $([math]::Round($dashboardMedian,1)) ms exceeds 1000 ms." }
+Write-Host ('Windows CLI performance regression: OK help_median_ms={0} dashboard_median_ms={1} reconcile_ms={2}' -f [math]::Round($median,1),[math]::Round($dashboardMedian,1),[math]::Round($reconcileWatch.Elapsed.TotalMilliseconds,1))
