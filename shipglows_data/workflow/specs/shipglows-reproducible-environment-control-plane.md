@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.8.1"
 project: ShipGlows
 created: "2026-08-16"
 created_at: "2026-08-16 16:48:28 UTC"
 updated: "2026-08-17"
-updated_at: "2026-08-17 11:18:27 UTC"
+updated_at: "2026-08-17 12:42:09 UTC"
 status: active
 source_skill: sg-spec
 source_model: GPT-5 Codex
@@ -65,13 +65,14 @@ evidence:
   - "Independent Task 5 verification reproduced arbitrary external PATH executable trust, executable drift, inherited environment leakage and incomplete mise cascade isolation before bounded hardening; all source contracts and the complete Windows suite then passed without live provider execution."
   - "The approved Best Fried Chicken provider smoke acquired mise 2026.8.2 and converged locked Node 24.19.0 plus pnpm 10.34.5 without installing project dependencies."
   - "The first approved native Windows Tauri update installed the exact NDK and mise package but exposed false pending states from ambiguous provider exits, localized/mojibake Flutter output, serialized Codex JSON paths, and Claude post-add exit handling, plus gaps between visible progress operations."
+  - "The final approved installed-runtime update from commit 1801ae0 completed with exit code 0 and proved Rust 1.97.1, Cargo 1.97.1, NDK 29.0.14206865 and all four validated Rust Android targets through the PATH-backed wrappers; CommunityGlows remained unmodified and correctly reported migration_required."
   - "Operator approval 2026-08-16: document, package and prove the control-plane command in the native Windows installed runtime after committing the verified source pilot."
 next_step: "Plan Task 6 only after separate operator approval"
 ---
 
 # Spec: ShipGlows Reproducible Environment Control Plane
 
-🟠 [ShipGlows] spec: ShipGlows Reproducible Environment Control Plane | status: active | path: shipglows_data/workflow/specs/shipglows-reproducible-environment-control-plane.md | next: package and prove the native Windows installed runtime
+🟠 [ShipGlows] spec: ShipGlows Reproducible Environment Control Plane | status: active | path: shipglows_data/workflow/specs/shipglows-reproducible-environment-control-plane.md | next: plan Task 6 only after separate operator approval
 
 ## Title
 
@@ -227,6 +228,10 @@ Read-only evidence from the actual consumer surface: executable and version, res
 4. Existing `.shipglows.env` operational runtime policy, only for its closed allowlisted keys; it cannot declare tools, backends, versions or credentials.
 5. Bounded detection of project manifests as suggestions requiring plan visibility.
 6. Existing valid external tool installations as observed candidates, never automatically taken over.
+
+## Backward compatibility and `.shipglows.env` migration
+
+`shipglows` does not replace `.shipglows.env` on update. Managed runtime keys are idempotent and bounded to allowlisted names; all unknown or user-owned keys remain intact. Legacy generated files should only be migrated by an explicit update workflow that preserves manual sections and records the migration state in the generated state artifacts.
 
 ShipGlows must not rewrite a user-owned native manifest merely to match detection. A generated or ShipGlows-owned native file is clearly marked, written atomically and changed only by its adapter. Conflicting owners for one capability block planning until one owner wins by explicit policy.
 
@@ -591,6 +596,7 @@ None. Node 24 plus pnpm 10 form the fixed first mise pilot for project-local own
 | 2026-08-16 19:36:46 UTC | sg-engineering | GPT-5.6 Codex | Extended the approved Task 5 source pilot from Node-only ownership to explicit Node 24 plus pnpm 10 ownership, exact dual lock semantics, optional `packageManager` reconciliation, independent fixed install operations and dual-consumer evidence. | Regression-first pnpm proof, all environment contracts, Unix/PowerShell adapters and the complete Windows suite pass; no real provider, dependency install, global tool, installed runtime, commit or push was touched. | Keep real provider and packaging proof separately approval-gated. |
 | 2026-08-16 20:58:22 UTC | sg-development | GPT-5.6 Codex | Documented then implemented Task 5b native Windows runtime packaging, exact archive extraction and installed launcher resolution. | Regression-first installed-runtime proof, incomplete-archive rejection, isolated inspect, all environment contracts and the complete Windows suite pass without changing the live runtime. | Plan Task 6 only after separate approval. |
 | 2026-08-17 11:18:27 UTC | sg-bug | GPT-5.6 Codex | Reproduced the first live Windows update false negatives and progress gaps regression-first, then repaired final-state observation, localized Flutter parsing, Tauri host/project ownership, MCP verification, and phase/input rendering. | Focused regressions and the complete Windows contract pass without provider installation, authentication, Codex launch, or project mutation. | Publish and repeat the approved interactive update to verify the installed runtime. |
+| 2026-08-17 12:42:09 UTC | sg-docs | GPT-5.6 Codex | Reconciled the Task 8 documentation with the completed installed-runtime update and its post-run probes. | Live Windows proof now records Rust, Cargo, NDK and all four Android targets as ready while preserving the intentional CommunityGlows migration handoff and no-device limitation. | Plan Task 6 only after separate operator approval. |
 
 ## Current Chantier Flow
 
@@ -598,8 +604,8 @@ None. Node 24 plus pnpm 10 form the fixed first mise pilot for project-local own
 - `sg-ready`: done, ready for implementation.
 - `sg-start`: done for Tasks 1-3, Task 5 Node 24 plus pnpm 10 and Task 5b installed-runtime packaging.
 - `sg-verify`: done at standard depth for Tasks 1-3, the Task 5 source/real-provider pilot and Task 5b isolated installed-runtime proof.
-- `sg-bug`: source repair implemented and locally verified for the first Task 8 live-update findings; installed-runtime retest remains pending publication.
+- `sg-bug`: done for the Task 8 live-update findings; the published installed-runtime retest and final Rust/NDK/target probes passed.
 - `sg-end`: not launched.
 - `sg-ship`: not launched.
 
-Next step: publish the Task 8 repair and repeat the approved interactive Windows update; keep Task 6 WinGet Configuration and later adapters separately approval-gated.
+Next step: plan Task 6 WinGet Configuration only after separate operator approval; keep later adapters separately approval-gated.

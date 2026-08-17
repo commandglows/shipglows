@@ -1,10 +1,10 @@
 ---
 artifact: test_checklist
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-08-16"
-updated: "2026-08-16"
+updated: "2026-08-17"
 status: active
 source_skill: sg-engineering
 scope: reproducible-environment-control-plane-foundation-and-mise-pilot
@@ -23,7 +23,7 @@ linked_systems:
   - tests/windows/environment-mise-adapter.ps1
 depends_on:
   - artifact: shipglows_data/workflow/specs/shipglows-reproducible-environment-control-plane.md
-    artifact_version: "1.6.0"
+    artifact_version: "1.8.1"
     required_status: active
 supersedes: []
 evidence:
@@ -36,6 +36,7 @@ evidence:
   - "Independent Task 5 verification first reproduced arbitrary external PATH executable trust, executable digest drift, inherited secret leakage and incomplete mise config isolation, then proved the bounded corrections green."
   - "The approved Best Fried Chicken provider smoke acquired mise through the official jdx.mise WinGet package and verified locked Node 24.19.0 plus pnpm 10.34.5 for PowerShell and agent-child consumers without running project dependencies."
   - "The real smoke reproduced and closed Windows App Execution Alias identity, fresh-install PATH discovery, false global-tool readiness and project-root ceiling errors before convergence."
+  - "The approved Task 8 installed-runtime update from commit 1801ae0 exited 0 and the final probes verified Rust 1.97.1, Cargo 1.97.1, NDK 29.0.14206865 and the four required Rust Android targets without mutating CommunityGlows."
 next_step: "Keep later backend adapters separately approval-gated."
 ---
 
@@ -70,6 +71,7 @@ next_step: "Keep later backend adapters separately approval-gated."
 ## Scope and safety proof
 
 - [x] No Flox, mise, WinGet Configuration, Dev Container, Android, Flutter, Playwright or agent installation command is executed by the foundation.
+- [x] Backward-compatibility migration policy for existing `.shipglows.env` is documented and validated as an explicit editorial boundary.
 - [x] Automated fixtures perform no authentication, license acceptance, elevation, PATH/profile edit, download, deployment, publish, commit or push; the separately approved real smoke downloaded only mise, Node and pnpm and did not run project dependency installation.
 - [x] Existing editorial roadmap changes are outside the implementation scope and remain preserved.
 - [x] Technical documentation defines the installed-runtime layout and keeps shipped-readiness evidence separate until the isolated installer proof passes.
@@ -117,5 +119,6 @@ next_step: "Keep later backend adapters separately approval-gated."
 - [x] Close the approved installed-runtime packaging proof above.
 - [x] Prove one project-local Node 24 plus pnpm 10 cycle through mise on fresh, existing, partial, conflicting-PATH and offline installed-cache Windows fixtures using injected runners only.
 - [x] Run the explicitly approved real-provider smoke on `dianedef/bestfriedchicken`, without `pnpm install`, application execution, commit or push.
+- [x] Run the published native Windows Task 8 update and verify the PATH-backed `rustc`, `cargo` and `rustup` wrappers, exact NDK and all four Rust Android targets on the existing host; preserve CommunityGlows as `migration_required` without project mutation.
 - [ ] Prove Flox, WinGet Configuration and Dev Container adapters only in their owning later tasks.
 - [ ] Generate or merge a project `ENVIRONMENT.md` managed block only after its ownership and non-overwrite contract is approved.
