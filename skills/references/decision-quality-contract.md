@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.2.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-08-13"
+updated: "2026-08-17"
 status: active
 source_skill: 900-shipglows-core
 scope: decision-quality-contract
@@ -28,7 +28,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Wave 15 preserves the universal decision gates in the canonical path and moves implementation pressure detail to one direct conditional leaf."
-  - "Operator directives prioritize correctness, security, relevant performance, excellence, durability, and agent-gathered proof before speed or convenience."
+  - "Operator correction 2026-08-17: ShipGlows is business-oriented and must ship product value quickly while preserving a coherent architecture and non-negotiable safety boundaries; process and maximal proof are not the product."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify decision-quality-contract"
 ---
@@ -37,26 +37,27 @@ next_step: "/103-sg-verify decision-quality-contract"
 
 ## Purpose
 
-Set the mandatory quality decision for ShipGlows work. Speed, cost, and convenience matter only after the quality bar.
+Set the mandatory decision posture for ShipGlows work: ship useful product value quickly through the smallest coherent architecture that can support the accepted horizon.
 
 ## Decision Quality Baseline
 
-Optimize, in order appropriate to the risk, for:
+The primary goal is shipped business and user value. Architecture, correctness, security, maintainability, and proof are enabling constraints, not competing deliverables. Optimize the work as follows:
 
-1. correctness and reliability against the accepted outcome;
-2. security, privacy, permissions, tenant isolation, data safety, and abuse resistance;
-3. performance and operational robustness where latency, throughput, resources, reliability, or trust can be affected;
-4. maintainability, clarity, durability, upgradeability, and future evolution;
-5. professional excellence, current proven practice, coherent architecture and UX/API ergonomics;
-6. proof proportional to the claim and cost of error.
+1. identify the smallest valuable product outcome that can be shipped and learned from;
+2. choose the shortest credible path to production or real-user feedback;
+3. preserve correctness and reliability for that accepted outcome;
+4. use coherent boundaries and maintainable architecture proportionate to the product horizon and demonstrated evolution pressure;
+5. preserve non-negotiable security, privacy, permissions, tenant isolation, data safety, and abuse resistance;
+6. protect performance and operational robustness where they materially affect use, cost, reliability, or trust;
+7. gather only proof proportional to the claim and cost of error.
 
-Choose cheaper, faster, simpler, or smaller options only when they are quality-equivalent across the applicable metrics.
+Once the applicable floor is met, prefer the faster, simpler, smaller implementation. Choose a slower path only when it prevents a concrete material risk or near-term structural dead end. Do not trade shipping speed for speculative architecture, ceremonial process, exhaustive optional proof, or hypothetical future requirements.
 
-`Smallest safe path` is the smallest complete professional implementation preserving product, security, relevant performance, maintainability, evolution, and matching proof. Small blast radius is good; shortcut quality is not.
+`Smallest safe path` is the smallest shippable professional implementation preserving the accepted product outcome, coherent ownership boundaries, non-negotiable safety, and enough maintainability for the known horizon. Small blast radius and short lead time are strengths; hidden debt and bypassed invariants are not.
 
 ## Industrial Excellence Gate
 
-`industrial-grade` completion scales with consequence. Work merely functional, unintentionally generic for the accepted product, fragile, cluttered, or with unresolved provisional elements presented as final is `partial`; complexity is not excellence. NASA, government, ANSSI, RGAA, and SecNumCloud claims require a framework-specific scoped audit and direct evidence.
+`industrial-grade` completion scales with consequence. Work merely functional, unintentionally generic for the accepted product, fragile, cluttered, or with unresolved provisional elements presented as final is `partial`; complexity, extra layers, and long validation rituals are not excellence. MVP architecture must remain coherent and evolvable without solving unproven future problems. NASA, government, ANSSI, RGAA, and SecNumCloud claims require a framework-specific scoped audit and direct evidence.
 
 ## Structure Replacement Fit
 
@@ -90,4 +91,4 @@ Before completion, verify that a fresh agent can identify the owner, next requir
 - Model or delegated execution loads its dedicated routing/delegation authority while preserving this baseline.
 - Conditional detail references load directly from the owner decision and never chain through sibling leaves.
 
-Never present a lower-quality shortcut as a virtue.
+Never present hidden debt as speed, and never present avoidable process or overengineering as quality.

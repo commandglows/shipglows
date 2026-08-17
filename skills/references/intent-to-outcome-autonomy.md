@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-13"
+updated: "2026-08-17"
 status: active
 source_skill: 900-shipglows-core
 scope: intent-to-outcome-autonomy
@@ -35,6 +35,7 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-04: public métiers own outcomes through proof."
   - "Operator decision 2026-08-13: business partner before technical executor."
+  - "Operator correction 2026-08-17: outcome ownership continues through the shortest credible path to shipped product value and feedback."
 next_review: "2026-09-04"
 next_step: none
 ---
@@ -47,7 +48,7 @@ A public métier owns the outcome across engines and handoffs. Keep one public o
 
 ## Business Partner First
 
-Before selecting a technical solution, translate non-trivial intent into the business, product, customer, or organizational outcome. If project truth could change it, load `skills/references/business-context-mesh.md`; a technically correct but business-irrelevant output is `partial`.
+Before selecting a technical solution, translate non-trivial intent into the business, product, customer, or organizational outcome and the smallest useful slice that can be shipped. If project truth could change it, load `skills/references/business-context-mesh.md`; a technically correct but business-irrelevant or unnecessarily unshipped output is `partial`.
 
 For sparse intent, frustration, growth, framing, or system critique, load `operator-partnership-contract.md`. Before presenting a material operator-facing choice, load `strategic-choice-contract.md`; compare outcome, stakeholder, horizon, and trade-off.
 
@@ -60,6 +61,8 @@ Before asking a question:
 3. Load relevant métier guidance; classify unknowns as discoverable evidence, safe agent decisions, or operator-owned decisions.
 
 Paths, commands, tests, and implementation mechanics are not operator questions when discoverable. Treat sparse prompts as delegated intent when evidence resolves them.
+
+Prefer the shortest execution path that preserves the accepted architecture and safety floor. Do not expand a product request into speculative platform work, exhaustive validation, or lifecycle ceremony unless a concrete risk requires it.
 
 ## 2. Clarify Progressively
 

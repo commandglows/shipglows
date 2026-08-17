@@ -17,6 +17,11 @@ class DailyConstructionContractTests(unittest.TestCase):
         cls.ship_execution = (ROOT / "skills/005-sg-ship/references/ship-execution-playbook.md").read_text(encoding="utf-8")
         cls.end = (ROOT / "skills/104-sg-end/SKILL.md").read_text(encoding="utf-8")
         cls.core_build = (ROOT / "skills/900-shipglows-core/references/skill-maintenance-playbook.md").read_text(encoding="utf-8")
+        cls.decision = (ROOT / "skills/references/decision-quality-contract.md").read_text(encoding="utf-8")
+        cls.partnership = (ROOT / "skills/references/operator-partnership-contract.md").read_text(encoding="utf-8")
+        cls.autonomy = (ROOT / "skills/references/intent-to-outcome-autonomy.md").read_text(encoding="utf-8")
+        cls.questions = (ROOT / "skills/references/question-contract.md").read_text(encoding="utf-8")
+        cls.delegation = (ROOT / "skills/references/master-delegation-semantics.md").read_text(encoding="utf-8")
 
     def test_clean_daily_completion_defaults_to_push(self) -> None:
         self.assertIn("clean completed daily chantier proceeds to bounded commit and push by default", self.core)
@@ -40,6 +45,22 @@ class DailyConstructionContractTests(unittest.TestCase):
         self.assertIn("Never commit secrets", self.ship)
         self.assertIn("Stop on a required or attempted check failure", self.ship_execution)
         self.assertIn("never claims formal closure", self.ship)
+
+    def test_corpus_prioritizes_shipped_business_value(self) -> None:
+        self.assertIn("primary goal is shipped business and user value", self.decision)
+        self.assertIn("valuable outcome -> smallest coherent slice -> build -> proportional proof -> commit/push -> real feedback", self.partnership)
+        self.assertIn("smallest useful slice that can be shipped", self.autonomy)
+        self.assertIn("Recommend the fastest, simplest path", self.questions)
+
+    def test_architecture_is_a_high_standard_enabler_not_ceremony(self) -> None:
+        self.assertIn("coherent boundaries and maintainable architecture proportionate", self.decision)
+        self.assertIn("speculative architecture, ceremonial process", self.decision)
+        self.assertIn("never present avoidable process or overengineering as quality", self.decision)
+
+    def test_delegation_must_repay_coordination_cost(self) -> None:
+        self.assertIn("lowest-overhead topology", self.delegation)
+        self.assertIn("coordination must buy measurable speed, isolation, or evidence", self.delegation)
+        self.assertIn("Missing subagent capability is not degradation", self.delegation)
 
 
 if __name__ == "__main__":

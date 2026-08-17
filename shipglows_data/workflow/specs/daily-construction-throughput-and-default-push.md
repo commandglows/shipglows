@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-17"
 created_at: "2026-08-17 20:01:00 UTC"
 updated: "2026-08-17"
-updated_at: "2026-08-17 20:01:00 UTC"
-status: ready
+updated_at: "2026-08-17 20:18:00 UTC"
+status: active
 source_skill: 900-shipglows-core
 source_model: GPT-5 Codex
 scope: daily-construction-throughput-and-default-push
@@ -28,7 +28,8 @@ supersedes: []
 evidence:
   - "Operator correction 2026-08-17: completed clean daily work should be committed and pushed by default instead of accumulating locally."
   - "Operator correction 2026-08-17: daily construction should use zero or one focused check when sufficient; broad suites belong to release, health, security, migration, or explicit audit work."
-next_step: "Implement, run the focused contract proof, commit, and push main."
+  - "Operator correction 2026-08-17: shipped business value and execution speed are the corpus-wide objective; architecture and safety are high-standard enabling constraints rather than reasons for overengineering or ceremony."
+next_step: "Run the focused doctrine proof, commit, and push main."
 ---
 
 # Daily construction throughput and default push
@@ -47,6 +48,8 @@ As a solo operator building MVPs, I want ShipGlows to spend daily effort on cons
 - Broader proof is reserved for release preparation, explicit audit requests, security/data/auth/payment/destructive boundaries, dependency or platform migrations, broad shared-runtime changes, or evidence that the narrow proof is insufficient.
 - Failed attempted checks remain blocking unless risk-accepted explicitly. Skipping irrelevant broad checks is not a failure.
 - Unrelated dirty files remain excluded unless the operator explicitly includes them.
+- The corpus optimizes for shipped business value and real feedback. Architecture stays coherent for the known horizon; speed is a first-class delivery constraint.
+- Delegation, questions, documentation, and validation must earn their coordination cost. They are removed or narrowed when they do not materially improve delivery, safety, or learning.
 
 ## Acceptance criteria
 
@@ -57,6 +60,7 @@ As a solo operator building MVPs, I want ShipGlows to spend daily effort on cons
 5. Release, health, security, migration, and explicit audit workflows retain stronger proof.
 6. One focused contract test mechanically protects the policy.
 7. The change is committed separately from pre-existing documentation and pushed to `origin/main` without force.
+8. Decision, partnership, autonomy, questioning, delegation, and lifecycle contracts all expose the same business-first shipping principle without the former speed-last contradiction.
 
 ## Non-goals
 

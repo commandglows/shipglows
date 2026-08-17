@@ -54,7 +54,7 @@ Conditional gates: PM2 runtime; fresh docs; development mode; UI tokens; diagnos
 - Execute bounded slices, preserve existing user changes, update durable progress only after completion, and stop when scope or authority expands.
 - Passing technical checks never proves product, security, auth, hosted, production, manual, or device behavior.
 - Preserve observable success/failure, documentation coherence, security controls, diagnostics, and design-system sources when applicable.
-- For executable work, retain the delegation receipt and report `Agents: <count> · <mode>`; independent read-only scopes are parallel by default, mutations delegated sequentially, and parallel writes require ready non-overlapping `Execution Batches` plus an integration owner.
+- For executable work, retain the topology receipt and report `Agents: <count> · <mode>`; use the lowest-overhead capable topology, parallelize independent scopes only for net time/coverage gain, and require ready non-overlapping `Execution Batches` plus an integration owner for parallel writes.
 
 ## Stop Conditions
 

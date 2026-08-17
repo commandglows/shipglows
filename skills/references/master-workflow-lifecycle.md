@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.4.0"
+artifact_version: "2.5.0"
 project: ShipGlows
 created: "2026-05-04"
 updated: "2026-08-17"
@@ -56,7 +56,7 @@ evidence:
   - "User decision 2026-05-04: user-facing questions should share a numbered, context-aware question/default contract."
   - "User decision 2026-05-06: 006-sg-design joins the master lifecycle set."
   - "User decision 2026-05-08: 003-sg-bug is a lifecycle executor through owner skills and bounded subagents, not a simple next-command router."
-  - "User decision 2026-05-24: ShipGlows optimizes first for performance, security, excellence, durability, and professional best practices; speed and convenience are secondary tie-breakers only."
+  - "Operator correction 2026-08-17: ShipGlows prioritizes shipped business value and execution speed while preserving coherent architecture and non-negotiable safety proportional to real risk."
   - "User decision refined 2026-08-07: favor subagents broadly; independent read-only scopes run in parallel by default, mutations are delegated sequentially, and parallel writes require prepared non-overlapping Execution Batches."
   - "User decision 2026-06-10: master-skill invocation is consent for bounded sequential subagents; `spark`, `codex`, `sous-agent`/`subagent`, and `mini` arguments request model-specific subagent delegation."
   - "Spec auto-follow-through-for-local-only-102-sg-start-verification.md defines bounded local auto-verify for 102-sg-start without changing full 001-sg-build lifecycle ownership."
@@ -79,7 +79,7 @@ This reference defines the shared lifecycle skeleton for ShipGlows master and or
 
 It does not redefine delegation, subagent, short-confirmation, or parallelism semantics. Load `skills/references/master-delegation-semantics.md` for execution topology.
 
-Before choosing a lifecycle route, model, topology, owner skill, mini-contract, or direct execution path, load `skills/references/decision-quality-contract.md`. The lifecycle must choose bounded professional work, not the fastest or easiest path. Speed, cost, and convenience are tie-breakers only after correctness, security, performance, maintainability, durability, excellence, and evidence are already sufficient for the risk.
+Before choosing a lifecycle route, model, topology, owner skill, mini-contract, or direct execution path, load `skills/references/decision-quality-contract.md`. The lifecycle must target the smallest valuable shippable outcome. Architecture and safety remain professional constraints; among paths that meet the applicable floor, choose the fastest and simplest. Extra ceremony, proof, abstraction, or orchestration needs a concrete risk or delivery benefit.
 
 Spec-first is the outer lifecycle contract: it defines user story, scope, success/error behavior, dependencies, risks, and source of truth. Proof-first is the implementation discipline: execution must choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` from `skills/references/spec-driven-development-discipline.md` before claiming completion.
 

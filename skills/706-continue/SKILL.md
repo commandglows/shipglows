@@ -58,7 +58,7 @@ Classify the selected unit as one of:
 - `lifecycle route`: another owner must run the next gate;
 - `blocked`: a user decision, authority, or external state is required.
 
-Before any agent dispatch, follow `master-delegation-semantics.md`. Two or more independent read-only scopes run in parallel by default; mutations use delegated sequential execution unless a ready spec defines non-overlapping `Execution Batches` with one integration owner.
+Before any agent dispatch, follow `master-delegation-semantics.md`. Use main-only for one cohesive bounded stream, parallelize independent read-only scopes only for net time/coverage gain, and use delegated sequential execution when isolation materially helps; parallel writes require non-overlapping `Execution Batches` with one integration owner.
 
 Delegated missions must state the outcome, owned and forbidden surfaces, relevant evidence, chosen model status, validation, and stop condition. Do not paste shared skill bodies or reusable prompt templates into this activation contract.
 

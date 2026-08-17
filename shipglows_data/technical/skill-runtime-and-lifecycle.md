@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.25.0"
+artifact_version: "2.26.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-16"
+updated: "2026-08-17"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -112,7 +112,7 @@ evidence:
   - "Pilot compaction applied to 300-sg-docs, the former design-audit contract, and 103-sg-verify while preserving chantier/reporting/security/doc-update gates."
   - "Skill taxonomy description audit applied compact routing descriptions across 61 skills while preserving names, trace categories, process roles, and runtime visibility."
   - "103-sg-verify aligned stale dependency metadata during the skill taxonomy description verification."
-- "Decision quality contract added: ShipGlows optimizes for correctness, security, performance, maintainability, durability, professional best practices, and proof quality before speed, cost, or convenience."
+- "Decision quality contract: ShipGlows optimizes for shipped business value and short lead time through coherent architecture, with safety and proof proportional to concrete risk."
 - "Skill instruction layering refreshed: SKILL.md is the activation contract; detailed playbooks, examples, matrices, and edge cases belong in references."
 - "Codex model wording refreshed to use the current `codex` implementation profile instead of pinning long implementations to a deprecated slug."
   - "102-sg-start local auto-verify contract added: eligible local, tool-backed, non-destructive verification can run inside 102-sg-start, while hosted/browser/manual/production/ship proof stays with owner skills and 001-sg-build remains full lifecycle orchestrator."
@@ -392,7 +392,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/mutation-plan-approval.md` | Universal two-tier and explicit post-message approval gate for intentional mutations | Use fast validation only when every exact/local/routine/reversible/no-harm criterion is established; otherwise use the full plan. An approved bounded technical chantier includes ordinary exact-scope local commits without a duplicate prompt; unrelated, editorial, history-rewriting, closure, release, and remote actions stay gated, with `git push` always full-plan-only. |
 | `skills/references/master-workflow-lifecycle.md` | Shared master/orchestrator lifecycle skeleton and work item model | Load before master skills resolve intake, readiness, model/topology, validation, verification, closure, or ship/deploy routes |
 | `skills/references/master-{workflow-lifecycle,delegation}-core.md` | Compact first-decision lifecycle and topology gates | Load from migrated pilots first; escalate to the detailed authority only on the core's explicit conditions |
-| `skills/references/decision-quality-contract.md` | Shared industrial-quality doctrine: correctness, security, performance, resilience, maintainability, durable evolution, professional craft, and proof before speed/cost/convenience | Load before routing, model/fallback selection, implementation, fixes, skill-contract changes, verification, or recommended defaults |
+| `skills/references/decision-quality-contract.md` | Shared shipping-quality doctrine: business value and short lead time, coherent architecture, non-negotiable safety, relevant performance, maintainability, and proportional proof | Load before routing, model/fallback selection, implementation, fixes, skill-contract changes, verification, or recommended defaults |
 | `skills/references/context-quality-contract.md` | Shared context capsule, evidence-state, authority, invalidation, readiness, and handoff doctrine | Load when context sufficiency, authority, freshness, conflict, compaction, or handoff can change a decision or completion claim |
 | `skills/references/skill-code-index.md` | Canonical numeric lookup from memorable codes to unchanged skill names | Update whenever a skill is added, removed, or renamed; validate with `python3 tools/skill_code_index_lint.py` |
 | `skills/900-shipglows-core/SKILL.md` | Internal lifecycle owner for ShipGlows skill audit, build, refresh, and packaging modes | Keep out of public plugin packaging and public skill pages unless the operator explicitly changes the policy |

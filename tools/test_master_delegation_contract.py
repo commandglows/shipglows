@@ -47,8 +47,8 @@ class MasterDelegationContractTests(unittest.TestCase):
     def test_read_only_parallel_has_its_own_default_matrix(self) -> None:
         body = section(self.contract, "Read-Only Parallel Batch Matrix")
         for required in (
-            "by default",
             "two or more independent",
+            "materially improve elapsed time or coverage",
             "selected batch matrix",
             "read-only constraint",
             "requested evidence",
@@ -126,7 +126,7 @@ class MasterDelegationContractTests(unittest.TestCase):
             self.assertIn("master-delegation-semantics.md", body, skill)
             self.assertIn("Agents: <count> · <mode>", body, skill)
 
-    def test_execution_consumers_encode_topology_defaults(self) -> None:
+    def test_execution_consumers_encode_low_overhead_topology(self) -> None:
         corpus = "\n".join(
             (
                 (SKILLS / "102-sg-start" / "SKILL.md").read_text(encoding="utf-8"),
@@ -136,12 +136,22 @@ class MasterDelegationContractTests(unittest.TestCase):
         )
         for required in (
             "independent read-only",
-            "parallel by default",
+            "net time/coverage gain",
+            "lowest-overhead",
             "delegated sequential",
             "non-overlapping `Execution Batches`",
             "integration owner",
         ):
             self.assertIn(required, corpus)
+
+    def test_main_only_is_valid_for_bounded_delivery(self) -> None:
+        for required in (
+            "main-only` for one cohesive bounded mission",
+            "coordination must buy measurable speed, isolation, or evidence",
+            "Missing subagent capability is not degradation",
+            "one cohesive bounded mutation, focused check, closure, or ship",
+        ):
+            self.assertIn(required, self.contract)
 
     def test_execution_consumers_do_not_duplicate_legacy_model_catalogue(self) -> None:
         paths = (

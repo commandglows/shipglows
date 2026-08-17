@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.24.0"
+artifact_version: "0.25.0"
 project: ShipGlows
 created: "2026-04-22"
-updated: "2026-08-15"
+updated: "2026-08-17"
 status: draft
 source_skill: 300-sg-docs
 scope: spec-driven-workflow
@@ -162,7 +162,7 @@ Optional model-selection entrypoint before execution:
 704-sg-model -> choose model / reasoning / fallbacks before 102-sg-start
 ```
 
-`704-sg-model` chooses a model policy, not a guaranteed mid-thread runtime switch. Model choice follows `skills/references/decision-quality-contract.md`: speed, cost, and latency are fallbacks only when quality-equivalent for the risk. In Codex/OpenAI, use `gpt-5.4-mini` for small bounded low-risk missions, `gpt-5.3-codex-spark` for Spark-eligible summaries, text-only handoffs, micro-code, or targeted UI/local edits when it does not replace needed reasoning and credits/availability permit, the `codex` implementation profile for long implementation, multi-file coding, refactors, hard debugging, and terminal-heavy agentic execution, and `gpt-5.5` with calibrated `low`/`medium`/`high`/`xhigh` reasoning for ambiguous, cross-project, governance-heavy, transverse audit, task-prioritization, prompt/docs migration, and business-risk synthesis work. When subagents are available and the runtime accepts model overrides, each bounded mission should state the model, reasoning effort, quality-equivalent fallback, and whether the override is applied or only recommended.
+`704-sg-model` chooses a model policy, not a guaranteed mid-thread runtime switch. Model choice follows `skills/references/decision-quality-contract.md`: use the fastest capable model and lowest sufficient reasoning that preserve the concrete product, architecture, and safety floor; spend more only when ambiguity or error cost justifies it. In Codex/OpenAI, use `gpt-5.4-mini` for small bounded low-risk missions, `gpt-5.3-codex-spark` for Spark-eligible summaries, text-only handoffs, micro-code, or targeted UI/local edits when it does not replace needed reasoning and credits/availability permit, the `codex` implementation profile for long implementation, multi-file coding, refactors, hard debugging, and terminal-heavy agentic execution, and `gpt-5.5` with calibrated `low`/`medium`/`high`/`xhigh` reasoning for ambiguous, cross-project, governance-heavy, transverse audit, task-prioritization, prompt/docs migration, and business-risk synthesis work. When subagents are available and the runtime accepts model overrides, each bounded mission should state the model, reasoning effort, capable fallback, and whether the override is applied or only recommended.
 
 Primary non-technical router entrypoint:
 

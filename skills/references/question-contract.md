@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.3.0"
+artifact_version: "2.4.0"
 project: ShipGlows
 created: "2026-05-05"
-updated: "2026-08-15"
+updated: "2026-08-17"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-question-contract
@@ -38,7 +38,7 @@ evidence:
   - "Operator decision 2026-08-15: do not ask a duplicate question before an exact-scope local technical commit already covered by chantier approval."
   - "User request 2026-05-04: skill questions should be numbered, explain why, include helpful icons, and identify the recommended answer."
   - "User clarification 2026-05-04: a default is acceptable only when it is compatible with the current technical/product/editorial context and current best practices."
-  - "User decision 2026-05-24: recommended defaults must optimize for performance, security, excellence, durability, and high-quality code before speed or convenience."
+  - "Operator correction 2026-08-17: recommended defaults should ship useful product value quickly while preserving coherent architecture and non-negotiable safety."
   - "User decision 2026-06-09: skills should be almost fully autonomous and professionally effective, asking fewer questions and only in plain decision language when the operator truly owns the decision."
   - "User decision 2026-06-10: autonomy and question rules should be compact enough to preserve the signal."
   - "User decision 2026-06-28: the operator is not here to code, but is happy to answer precise business-critical questions that the repository cannot answer."
@@ -63,7 +63,7 @@ Questions should be rare, useful, and answerable by number. A question is a deci
 
 The goal is not to avoid questions at all costs. The goal is to avoid useless technical supervision while still asking for operator-owned business truth when that truth materially improves the work.
 
-Load `skills/references/decision-quality-contract.md` before recommending a default. The recommended answer must preserve ShipGlows's quality and excellence bar; do not recommend the fastest, cheapest, or easiest route unless it is also quality-equivalent, excellence-equivalent, and professionally correct.
+Load `skills/references/decision-quality-contract.md` before recommending a default. Recommend the fastest, simplest path that meets the accepted product, architecture, and safety floor. Do not demand maximal excellence or proof when a smaller professional slice can ship sooner and teach more.
 
 Load `skills/references/strategic-choice-contract.md` for material operator choices, every unfinished-chantier choice block, and useful completed-chantier continuation controls. It owns business-vision depth and the guided follow-up required after short `Questionner`, `Approfondir`, or `Réorienter` controls.
 
@@ -251,7 +251,7 @@ Prefer recommendations that:
 - match the current spec, product contract, and repo conventions
 - respect technical docs, `docs/technical/code-docs-map.md`, `CONTENT_MAP.md`, editorial governance, and public claim boundaries when applicable
 - follow current best practices for the stack, provider, security model, and deployment mode
-- minimize cost or public exposure only after correctness, security, performance, maintainability, durability, and excellence are satisfied
+- minimize lead time and coordination overhead while preserving the concrete product, architecture, security, performance, and maintainability needs of the accepted horizon
 - keep implementation scope bounded enough to verify without lowering solution quality
 - avoid premature shipping when proof is missing
 

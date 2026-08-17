@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-08-17"
@@ -22,6 +22,7 @@ evidence:
   - "Wave 12 measured the detailed lifecycle reference as too costly for an ordinary route decision."
   - "Operator decision 2026-08-15: exact-scope local technical commits already covered by chantier approval are routine execution, not a new gate."
   - "Operator correction 2026-08-17: daily MVP construction defaults to bounded commit and push at clean completion, with zero or one focused check unless a material risk or release/audit mode justifies broader proof."
+  - "Operator correction 2026-08-17: the lifecycle exists to ship business value quickly through coherent architecture; gates scale to real consequence rather than procedural completeness."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -33,6 +34,8 @@ Use this core to select and guard a multi-stage route. Load the detailed `skills
 ## Decision Contract
 
 Pilot one current work item: ready spec, bug file, bounded mini-contract, release scope, audit finding set, content surface, or skill-maintenance target. Existing durable truth wins; several plausible work items require one targeted choice. Non-trivial, cross-surface, security/data/deployment/public-claim work requires a ready durable contract. A mini-contract is only for narrow, local, low-risk work verifiable now.
+
+The lifecycle serves shipment, not itself. Select the smallest valuable slice, keep architecture coherent for the known horizon, minimize coordination and proof overhead, and reach commit/push plus real feedback as quickly as the actual risk permits.
 
 Use this order, omitting inapplicable gates:
 
