@@ -877,7 +877,7 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         $signature = $FlutterLaunchIdentity
     }
     if (-not $file) { throw "Launch tool missing for $Kind." }
-    [pscustomobject]@{ FilePath = $file; Arguments = $args; Signature = $signature; Interactive = $false }
+    [pscustomobject]@{ FilePath = $file; Arguments = $args; Signature = $signature; Interactive = $false; FlutterSdkRoot=$(if($Kind-eq'flutter-web'){Split-Path (Split-Path $flutter -Parent) -Parent}else{$null}) }
 }
 
 function Test-SgHttpReady([int]$Port) {
@@ -975,6 +975,22 @@ function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload',
     $id=[guid]::NewGuid().ToString('N');$commandDir=Join-Path $launch 'commands';$response=Join-Path (Join-Path $launch 'responses') "$id.json";Ensure-SgDirectory $commandDir
     $target=Join-Path $commandDir "$id.json";$temp="$target.tmp";$json=[ordered]@{token=$token;id=$id;method=$Method}|ConvertTo-Json -Compress;[IO.File]::WriteAllText($temp,$json,(New-Object Text.UTF8Encoding($false)));Move-Item -LiteralPath $temp -Destination $target -Force
     try{$deadline=(Get-Date).AddSeconds($TimeoutSeconds);while((Get-Date)-lt $deadline){if(Test-Path -LiteralPath $response -PathType Leaf){$info=Get-Item -LiteralPath $response;if($info.Length-gt65536){throw 'Flutter supervisor response exceeds 64 KiB.'};try{$result=Get-Content -LiteralPath $response -Raw|ConvertFrom-Json -ErrorAction Stop}finally{Remove-Item -LiteralPath $response -Force -ErrorAction SilentlyContinue};$names=@($result.PSObject.Properties.Name);if($result -is[array]-or-not($result.PSObject.Properties['ok'])-or$result.ok-isnot[bool]){throw 'Malformed Flutter supervisor response.'};if($result.ok){if(($names|Sort-Object)-join',' -ne 'method,ok'-or[string]$result.method-cne$Method){throw 'Mismatched Flutter supervisor response.'};return $result}else{if(($names|Sort-Object)-join',' -ne 'error,ok'){throw 'Malformed Flutter supervisor response.'};throw 'Flutter supervisor command failed.'}};Start-Sleep -Milliseconds 100};throw "Flutter supervisor $Method command timed out."}finally{if(Test-Path -LiteralPath $target -PathType Leaf){Remove-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue};if(Test-Path -LiteralPath $temp -PathType Leaf){Remove-Item -LiteralPath $temp -Force -ErrorAction SilentlyContinue}}
+}
+
+function Get-SgBoundedFileTail([string]$Path,[int]$MaxBytes=262144) {
+    $stream=[IO.File]::Open($Path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite);try{$count=[int][Math]::Min([int64][Math]::Max(0,$MaxBytes),$stream.Length);[void]$stream.Seek(-$count,[IO.SeekOrigin]::End);$buffer=New-Object byte[] $count;$read=0;while($read-lt$count){$n=$stream.Read($buffer,$read,$count-$read);if($n-le0){break};$read+=$n};[Text.Encoding]::UTF8.GetString($buffer,0,$read)}finally{$stream.Dispose()}
+}
+
+function Copy-SgFlutterDiagnostics([object]$Entry,[string]$DurableOut,[string]$DurableErr) {
+    if(-not$Entry-or-not$Entry.PSObject.Properties['flutterLaunchDirectory']){return}
+    $launch=[string]$Entry.flutterLaunchDirectory;if(-not(Test-Path -LiteralPath $launch -PathType Container)){return};Assert-SgNoReparseTree $launch
+    foreach($pair in @(@('flutter.stdout.log',$DurableOut),@('flutter.stderr.log',$DurableErr))){$source=Join-Path $launch $pair[0];if(Test-Path -LiteralPath $source -PathType Leaf){$text=Get-SgBoundedFileTail $source 262144;$text=$text-replace'(?i)(token|secret|password|authorization|bearer|api[-_]?key|dart-define)(\s*[:=]\s*)[^\s,;]+','$1$2[REDACTED]';Add-Content -LiteralPath $pair[1] -Value $text}}
+    $statePath=Join-Path $launch 'state.json';if(Test-Path -LiteralPath $statePath -PathType Leaf){try{if((Get-Item -LiteralPath $statePath).Length-gt262144){throw 'Oversized Flutter supervisor state.'};$state=(Get-SgBoundedFileTail $statePath 262144)|ConvertFrom-Json -ErrorAction Stop;$lastError=([string]$state.lastError)-replace'(?i)(token|secret|password|authorization|bearer|api[-_]?key|dart-define)(\s*[:=]\s*)[^\s,;]+','$1$2[REDACTED]';$summary=[ordered]@{status=[string]$state.status;lastError=$lastError;appId=[string]$state.appId;daemonPid=[int]$state.daemonPid}|ConvertTo-Json -Compress;Add-Content -LiteralPath $DurableOut -Value $summary}catch{Add-Content -LiteralPath $DurableErr -Value 'Flutter supervisor state could not be preserved.'}}
+}
+
+function Wait-SgFlutterOwnedExtinction([object]$Entry,[int]$TimeoutSeconds=8) {
+    $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds))
+    do{if(-not(Test-SgProcessIdentity $Entry)-and@(Get-SgOwnedFlutterBrowserPids $Entry).Count-eq0-and@(Get-SgOwnedFlutterListenerPids $Entry).Count-eq0){return $true};if((Get-Date)-ge$deadline){return $false};Start-Sleep -Milliseconds 100}while($true)
 }
 
 function Remove-SgFlutterLaunchArtifacts([object]$Config,[object]$Entry) {
@@ -1268,8 +1284,11 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     }
     $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
     $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $launch.Signature; logPath = $out; errorLogPath = $err; lastError = $null; flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
+    if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force}
     Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData
     if (-not (Test-SgProcessIdentity $entryData)) {
+        Copy-SgFlutterDiagnostics $entryData $out $err
+        if($kind-eq'flutter-web'-and(Wait-SgFlutterOwnedExtinction $entryData 2)){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entryData)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
         Write-SgWarn "Process exited during startup. See $err"
         $entryData.status = 'error'
         $entryData.lastError = 'Process exited during startup.'
@@ -1288,6 +1307,8 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $entryData.lastError = if ($readiness.Error) { [string]$readiness.Error } else { 'Application readiness failed.' }
         if (Test-SgProcessIdentity $entryData) { Stop-SgProcessTree ([int]$entryData.pid) }
         [void](Stop-SgOwnedFlutterBrowser $entryData)
+        Copy-SgFlutterDiagnostics $entryData $out $err
+        if(Wait-SgFlutterOwnedExtinction $entryData 8){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entryData)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}else{Write-SgWarn 'Flutter processes did not prove extinction; launch diagnostics were preserved.'}
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
     }
     Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"
@@ -1310,6 +1331,8 @@ function Get-SgOwnedFlutterListenerPids([object]$Entry) {
     $projectPath = [IO.Path]::GetFullPath($(if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } else { [string]$Entry.path })).TrimEnd('\','/').ToLowerInvariant()
     $projectPattern = [regex]::Escape($projectPath) + '(?:[\\/"''\s]|$)'
     $signature = if ($Entry.PSObject.Properties['commandSignature']) { ([string]$Entry.commandSignature).ToLowerInvariant() } else { '' }
+    $managedPaths=@();foreach($property in @('browserProfilePath','flutterLaunchDirectory')){if($Entry.PSObject.Properties[$property]-and$Entry.$property){$managedPaths+=[IO.Path]::GetFullPath([string]$Entry.$property).TrimEnd('\','/').ToLowerInvariant()}}
+    $managedPatterns=@($managedPaths|ForEach-Object{'(?i)(?:^|[\s"''])'+[regex]::Escape($_)+'(?:[\s"'']|$)'})
     $processes = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue)
     $byId = @{}
     foreach ($process in $processes) { $byId[[int]$process.ProcessId] = $process }
@@ -1317,20 +1340,13 @@ function Get-SgOwnedFlutterListenerPids([object]$Entry) {
     $owned = @()
     foreach ($listener in $listeners) {
         $listenerPid = [int]$listener.OwningProcess
-        $currentPid = $listenerPid
-        $depth = 0
-        $flutterEvidence = $false
-        $projectEvidence = $false
-        while ($currentPid -gt 0 -and $depth -lt 8 -and $byId.ContainsKey($currentPid)) {
-            $process = $byId[$currentPid]
-            $commandLine = ([string]$process.CommandLine).ToLowerInvariant()
-            $executable = ([string]$process.ExecutablePath).ToLowerInvariant()
-            if ($commandLine -match 'flutter|dart(vm)?|web-server' -or $executable -match 'dart(vm)?\.exe$|flutter') { $flutterEvidence = $true }
-            if (($signature -and $commandLine.Contains($signature)) -or $commandLine -match $projectPattern) { $projectEvidence = $true }
-            $currentPid = [int]$process.ParentProcessId
-            $depth++
-        }
-        if ($flutterEvidence -and $projectEvidence) { $owned += $listenerPid }
+        if(-not$byId.ContainsKey($listenerPid)-or-not$Entry.PSObject.Properties['flutterSdkRoot']-or-not$Entry.flutterSdkRoot-or$managedPatterns.Count-eq0){continue}
+        $process=$byId[$listenerPid]
+        try{$executable=[IO.Path]::GetFullPath([string]$process.ExecutablePath);$sdkDartRoot=[IO.Path]::GetFullPath((Join-Path ([string]$Entry.flutterSdkRoot) 'bin\cache\dart-sdk\bin'));$allowedExecutables=@([IO.Path]::GetFullPath((Join-Path $sdkDartRoot 'dart.exe')),[IO.Path]::GetFullPath((Join-Path $sdkDartRoot 'dartvm.exe')))}catch{continue}
+        $executableAllowed=@($allowedExecutables|Where-Object{$executable.Equals($_,[StringComparison]::OrdinalIgnoreCase)}).Count-eq 1
+        if(-not$executableAllowed){continue}
+        $commandLine=[string]$process.CommandLine;$managedEvidence=$false;foreach($managedPattern in $managedPatterns){if($commandLine-match$managedPattern){$managedEvidence=$true;break}}
+        if($managedEvidence){$owned+=$listenerPid}
     }
     return @($owned | Sort-Object -Unique)
 }
@@ -1378,7 +1394,7 @@ function Stop-SgProject([object]$Config, [string]$ProjectPath) {
     if (Test-SgProcessIdentity $entry) {
         Stop-SgProcessTree ([int]$entry.pid)
         $stopped = $true
-    } elseif (-not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and [int]$entry.pid -gt 0) {
+    } elseif (-not $stoppedBySupervisor -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and [int]$entry.pid -gt 0) {
         Write-SgWarn "Stale or unverified process for $($entry.name); no process was terminated."
     }
     Invoke-SgRegistryMutation $Config {
