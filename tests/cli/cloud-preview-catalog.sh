@@ -30,7 +30,7 @@ source "$REPO_ROOT/cli/lib.sh"
 trap - ERR 2>/dev/null || true
 
 fail() { printf 'FAIL: %s\n' "$1" >&2; exit 1; }
-pm2_fixture="demo|online|3005|$SHIPGLOWS_PROJECTS_DIR/demo"
+pm2_fixture="demo|online|3005|$SHIPGLOWS_PROJECTS_DIR/demo"$'\n'"shipglows-runner|online||$HOME/services/runner"
 flutter_fixture=""
 pm2_data_load() { _shipglows_assign "$1" "$pm2_fixture"; }
 flutter_web_registry_lines() { [ -n "$flutter_fixture" ] && printf '%s\n' "$flutter_fixture"; return 0; }
@@ -49,7 +49,7 @@ if (p.port !== 3005 || p.status !== 'online' || p.source !== 'pm2') process.exit
 NODE
 
 first_identity=$(node -e 'const p=require(process.argv[1]).projects[0]; console.log(`${p.id}|${p.previewSlug}`)' "$catalog")
-pm2_fixture="renamed|online|3005|$SHIPGLOWS_PROJECTS_DIR/demo"
+pm2_fixture="renamed|online|3005|$SHIPGLOWS_PROJECTS_DIR/demo"$'\n'"shipglows-runner|online||$HOME/services/runner"
 refresh_cli_project_catalog || fail "stable catalog refresh"
 second_identity=$(node -e 'const p=require(process.argv[1]).projects[0]; console.log(`${p.id}|${p.previewSlug}`)' "$catalog")
 [ "$first_identity" = "$second_identity" ] || fail "identity and slug remain stable after display rename"

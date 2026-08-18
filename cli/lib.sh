@@ -2384,6 +2384,10 @@ const ingest = (line, source) => {
   if ((source === 'pm2' && fields.length !== 4) || (source === 'flutter-web' && fields.length !== 5)) throw new Error('invalid source row');
   const [displayName, rawStatus, rawPort, rawCwd, tmuxSession = ''] = fields;
   if (!safeText(displayName) || !safeText(rawCwd, 4096) || (tmuxSession && !safeText(tmuxSession))) throw new Error('invalid project fields');
+  // PM2 also supervises internal ShipGlows services. Only port-bearing PM2
+  // applications are preview projects; workspace-only projects come from the
+  // explicit Flutter/tmux registry instead.
+  if (source === 'pm2' && rawPort === '') return;
   const cwd = canonicalPath(rawCwd);
   const status = normalizeStatus(rawStatus);
   const port = rawPort === '' ? null : Number(rawPort);
