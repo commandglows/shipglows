@@ -2368,6 +2368,7 @@ const safeText = (value, max = 255) => typeof value === 'string' && value.length
 const validStatus = new Set(['online', 'launching', 'stopped', 'errored', 'unknown']);
 const normalizeStatus = value => validStatus.has(value) ? value : 'unknown';
 const validPort = value => Number.isInteger(value) && value >= 1 && value <= 65535;
+const validTmuxSession = value => typeof value === 'string' && /^[A-Za-z0-9._-]{1,128}$/.test(value);
 const canonicalPath = value => path.resolve(value);
 const slugify = value => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'project';
 const digest = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -2383,7 +2384,7 @@ const ingest = (line, source) => {
   const fields = line.split('|');
   if ((source === 'pm2' && fields.length !== 4) || (source === 'flutter-web' && fields.length !== 5)) throw new Error('invalid source row');
   const [displayName, rawStatus, rawPort, rawCwd, tmuxSession = ''] = fields;
-  if (!safeText(displayName) || !safeText(rawCwd, 4096) || (tmuxSession && !safeText(tmuxSession))) throw new Error('invalid project fields');
+  if (!safeText(displayName) || !safeText(rawCwd, 4096) || (tmuxSession && !validTmuxSession(tmuxSession))) throw new Error('invalid project fields');
   // PM2 also supervises internal ShipGlows services. Only port-bearing PM2
   // applications are preview projects; workspace-only projects come from the
   // explicit Flutter/tmux registry instead.
@@ -2396,7 +2397,8 @@ const ingest = (line, source) => {
   const id = prior && /^prj_[a-f0-9]{32}$/.test(prior.id) ? prior.id : `prj_${digest(cwd).slice(0, 32)}`;
   const previewSlug = prior && /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(prior.previewSlug)
     ? prior.previewSlug : `${slugify(displayName).slice(0, 42)}-${digest(cwd).slice(0, 8)}`;
-  const incoming = {id, displayName, previewSlug, status, source, cwd, port, tmuxSession: tmuxSession || null};
+  const stableTmuxSession = tmuxSession || (prior && validTmuxSession(prior.tmuxSession) ? prior.tmuxSession : `sg-${id}`);
+  const incoming = {id, displayName, previewSlug, status, source, cwd, port, tmuxSession: stableTmuxSession};
   const current = projects.get(cwd);
   if (!current) return projects.set(cwd, incoming);
   const currentLive = /^(online|launching)$/.test(current.status);
@@ -2411,10 +2413,10 @@ for (const line of readLines(pm2File)) ingest(line, 'pm2');
 for (const line of readLines(flutterFile)) ingest(line, 'flutter-web');
 const result = [...projects.values()].sort((a, b) => a.id.localeCompare(b.id));
 if (!Number.isInteger(maxProjects) || maxProjects < 1 || result.length > maxProjects) throw new Error('catalog project boundary exceeded');
-const ids = new Set(), slugs = new Set(), livePorts = new Map();
+const ids = new Set(), slugs = new Set(), tmuxSessions = new Set(), livePorts = new Map();
 for (const item of result) {
-  if (ids.has(item.id) || slugs.has(item.previewSlug)) throw new Error('duplicate catalog identity');
-  ids.add(item.id); slugs.add(item.previewSlug);
+  if (ids.has(item.id) || slugs.has(item.previewSlug) || tmuxSessions.has(item.tmuxSession)) throw new Error('duplicate catalog identity');
+  ids.add(item.id); slugs.add(item.previewSlug); tmuxSessions.add(item.tmuxSession);
   if (/^(online|launching)$/.test(item.status)) {
     if (!validPort(item.port)) throw new Error('live project without a port');
     if (livePorts.has(item.port) && livePorts.get(item.port) !== item.id) throw new Error('duplicate live port');

@@ -46,12 +46,13 @@ if (data.projects.length !== 1) process.exit(1);
 const p = data.projects[0];
 if (!/^prj_[a-f0-9]{32}$/.test(p.id) || !/^[a-z0-9-]+$/.test(p.previewSlug)) process.exit(1);
 if (p.port !== 3005 || p.status !== 'online' || p.source !== 'pm2') process.exit(1);
+if (p.tmuxSession !== `sg-${p.id}`) process.exit(1);
 NODE
 
-first_identity=$(node -e 'const p=require(process.argv[1]).projects[0]; console.log(`${p.id}|${p.previewSlug}`)' "$catalog")
+first_identity=$(node -e 'const p=require(process.argv[1]).projects[0]; console.log(`${p.id}|${p.previewSlug}|${p.tmuxSession}`)' "$catalog")
 pm2_fixture="renamed|online|3005|$SHIPGLOWS_PROJECTS_DIR/demo"$'\n'"shipglows-runner|online||$HOME/services/runner"
 refresh_cli_project_catalog || fail "stable catalog refresh"
-second_identity=$(node -e 'const p=require(process.argv[1]).projects[0]; console.log(`${p.id}|${p.previewSlug}`)' "$catalog")
+second_identity=$(node -e 'const p=require(process.argv[1]).projects[0]; console.log(`${p.id}|${p.previewSlug}|${p.tmuxSession}`)' "$catalog")
 [ "$first_identity" = "$second_identity" ] || fail "identity and slug remain stable after display rename"
 
 before_failure=$(sha256sum "$catalog" | cut -d' ' -f1)
