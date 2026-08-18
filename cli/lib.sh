@@ -2372,6 +2372,7 @@ const validTmuxSession = value => typeof value === 'string' && /^[A-Za-z0-9._-]{
 const canonicalPath = value => path.resolve(value);
 const slugify = value => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'project';
 const digest = value => crypto.createHash('sha256').update(value).digest('hex');
+const reservedPreviewSlugs = new Set(['app', 'api', 'runner', 'www']);
 const readLines = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean);
 let previous = {projects: []};
 try {
@@ -2395,7 +2396,7 @@ const ingest = (line, source) => {
   if (port !== null && !validPort(port)) throw new Error('invalid project port');
   const prior = priorByCwd.get(cwd);
   const id = prior && /^prj_[a-f0-9]{32}$/.test(prior.id) ? prior.id : `prj_${digest(cwd).slice(0, 32)}`;
-  const previewSlug = prior && /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(prior.previewSlug)
+  const previewSlug = prior && /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(prior.previewSlug) && !reservedPreviewSlugs.has(prior.previewSlug)
     ? prior.previewSlug : `${slugify(displayName).slice(0, 42)}-${digest(cwd).slice(0, 8)}`;
   const stableTmuxSession = tmuxSession || (prior && validTmuxSession(prior.tmuxSession) ? prior.tmuxSession : `sg-${id}`);
   const incoming = {id, displayName, previewSlug, status, source, cwd, port, tmuxSession: stableTmuxSession};
@@ -2415,7 +2416,7 @@ const result = [...projects.values()].sort((a, b) => a.id.localeCompare(b.id));
 if (!Number.isInteger(maxProjects) || maxProjects < 1 || result.length > maxProjects) throw new Error('catalog project boundary exceeded');
 const ids = new Set(), slugs = new Set(), tmuxSessions = new Set(), livePorts = new Map();
 for (const item of result) {
-  if (ids.has(item.id) || slugs.has(item.previewSlug) || tmuxSessions.has(item.tmuxSession)) throw new Error('duplicate catalog identity');
+  if (reservedPreviewSlugs.has(item.previewSlug) || ids.has(item.id) || slugs.has(item.previewSlug) || tmuxSessions.has(item.tmuxSession)) throw new Error('duplicate or reserved catalog identity');
   ids.add(item.id); slugs.add(item.previewSlug); tmuxSessions.add(item.tmuxSession);
   if (/^(online|launching)$/.test(item.status)) {
     if (!validPort(item.port)) throw new Error('live project without a port');
@@ -2446,10 +2447,11 @@ const fs = require('fs');
 const [file, domain] = process.argv.slice(2);
 if (domain.length > 253 || domain.split('.').some(label => !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label))) process.exit(1);
 const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+const reservedPreviewSlugs = new Set(['app', 'api', 'runner', 'www']);
 if (data.schemaVersion !== 'shipglows.cli-project-catalog.v1' || !Array.isArray(data.projects)) process.exit(1);
 for (const item of data.projects) {
   if (!/^(online|launching)$/.test(item.status)) continue;
-  if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(item.previewSlug)) process.exit(1);
+  if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(item.previewSlug) || reservedPreviewSlugs.has(item.previewSlug)) process.exit(1);
   if (!Number.isInteger(item.port) || item.port < 1 || item.port > 65535) process.exit(1);
   console.log(`${item.previewSlug}.${domain}|${item.port}`);
 }
