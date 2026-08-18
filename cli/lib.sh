@@ -2488,6 +2488,7 @@ write_user_caddyfile() {
 }
 
 http://$SHIPGLOWS_USER_CADDY_BIND:$SHIPGLOWS_USER_CADDY_PORT {
+    bind $SHIPGLOWS_USER_CADDY_BIND
     log {
         output file $SHIPGLOWS_USER_CADDY_LOG_FILE {
             roll_size 5mb

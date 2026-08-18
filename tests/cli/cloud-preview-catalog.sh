@@ -67,6 +67,7 @@ user_caddy_routes_load routes || fail "load exact-host routes"
 write_user_caddyfile "$routes" || fail "validated Caddyfile"
 grep -Eq '^\s*@preview_1 host [a-z0-9-]+\.preview\.example\.test$' "$SHIPGLOWS_USER_CADDYFILE" || fail "exact Host matcher"
 grep -q 'reverse_proxy 127.0.0.1:3005' "$SHIPGLOWS_USER_CADDYFILE" || fail "loopback upstream"
+grep -Eq '^\s*bind 127\.0\.0\.1$' "$SHIPGLOWS_USER_CADDYFILE" || fail "loopback listener bind"
 if grep -q 'handle /' "$SHIPGLOWS_USER_CADDYFILE"; then fail "no path-prefix routing"; fi
 if grep -Fq "$SHIPGLOWS_PROJECTS_DIR" "$SHIPGLOWS_USER_CADDYFILE"; then fail "no private path in proxy config"; fi
 
