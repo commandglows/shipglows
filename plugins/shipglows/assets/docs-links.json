@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "status": "planned",
+  "status": "active",
   "baseUrlEnv": "SHIPGLOWS_DOCS_BASE_URL",
-  "defaultBaseUrl": "https://shipglowszsite.vercel.app",
-  "version": "v0.1",
+  "defaultBaseUrl": "https://shipglows.com",
+  "version": "v0.2",
   "policy": {
     "executionRequiresNetwork": false,
     "localReferencesRemainAuthoritative": true,

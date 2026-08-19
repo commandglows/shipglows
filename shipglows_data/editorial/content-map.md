@@ -1,10 +1,10 @@
 ---
 artifact: content_map
 metadata_schema_version: "1.0"
-artifact_version: "0.14.0"
+artifact_version: "0.15.0"
 project: ShipGlows
 created: "2026-04-26"
-updated: "2026-08-14"
+updated: "2026-08-19"
 status: draft
 source_skill: manual
 scope: content-map
@@ -52,6 +52,7 @@ evidence:
   - "Positioning decision SG-BIZ-2026-08-13-01 establishes business-aware delivery partnership as the primary public story and environment operations as supporting proof."
   - "Product-boundary decision SG-BIZ-2026-08-14-01 establishes autonomous software, no service offer, and no current Cockpit SaaS promise."
   - "External EN/FR positioning published through commandglows/shipglows_app PR #6 and verified on shipglows.com on 2026-08-14."
+  - "Public install surfaces aligned on 2026-08-19 with verified Ubuntu/Debian support, automatic skill-corpus selection, and the canonical commandglows/shipglows repository."
 linked_artifacts:
   - "README.md"
   - "shipglows_data/business/product.md"

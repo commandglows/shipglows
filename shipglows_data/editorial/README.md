@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-06-28"
+updated: "2026-08-19"
 status: reviewed
 source_skill: sg-start
 scope: editorial-governance-index
@@ -37,6 +37,7 @@ supersedes: []
 evidence:
   - "Ready spec defines shipglows_data/editorial as the public-content governance layer."
   - "shipglows_data/editorial/content-map.md remains the canonical content routing artifact."
+  - "The canonical public-surface map was restored from the declared Astro routes and installer/content contracts on 2026-08-19."
 next_review: "2026-06-01"
 next_step: "/sg-verify ShipGlows Editorial Content Governance Layer for AI Agents"
 ---
