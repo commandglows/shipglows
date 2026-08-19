@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.14.0"
+artifact_version: "2.15.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-19"
@@ -57,6 +57,7 @@ evidence:
   - "Migration audit 2026-08-11: mutable Caddy state moves from the former ~/.shipglows/runtime/caddy location to ~/.shipglows/state/caddy so it cannot collide with the canonical code checkout."
   - "Linux system pnpm CLIs now live under a world-readable ShipGlows prefix, use atomic /usr/local/bin wrappers, and must pass an execution probe before the installer reports success."
   - "Codex Playwright MCP refresh now removes only owned mcp_servers.playwright tables, preserving project trust, marketplace, plugin, notice, and other adjacent configuration across repeated installs."
+  - "Linux system pnpm migration now pins both global-dir and global-bin-dir and ignores executable root-private legacy wrappers when deciding whether a managed CLI is installed."
   - "The native Windows full-install contract packages the reproducible-environment Python control plane and schema, then exposes it through the profile-independent s launcher."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
@@ -200,6 +201,10 @@ sudo ./cli/install.sh
   wrappers into that prefix. Installer health checks execute each CLI's
   `--version` probe, so a stale wrapper or an inaccessible root-private target
   is a failure rather than a false `present` status.
+- System package installation passes explicit PNPM `global-dir` and
+  `global-bin-dir` values on every invocation. Presence and health are checked
+  against the managed prefix itself, so root access to an older wrapper under
+  `/root` cannot suppress migration into the shared prefix.
 - The system Node.js install path targets Node.js 24.x through the NodeSource
   `setup_24.x` bootstrap before installing `nodejs`.
 - Symlinks, wrappers, and aliases should be idempotent and updated consistently. The managed bash aliases include `shipglows`/`sg`/`s`, Claude/Codex launch shortcuts, reload helpers, and `ch` for clearing the current terminal plus tmux pane history (`clear; tmux clear-history`).
