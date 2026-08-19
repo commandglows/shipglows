@@ -61,6 +61,7 @@ warning() {
 }
 
 SHIPGLOWS_SYSTEM_PNPM_HOME="${SHIPGLOWS_SYSTEM_PNPM_HOME:-/usr/local/lib/shipglows/pnpm}"
+SHIPGLOWS_SYSTEM_PNPM_GLOBAL_DIR="${SHIPGLOWS_SYSTEM_PNPM_GLOBAL_DIR:-$SHIPGLOWS_SYSTEM_PNPM_HOME/global}"
 SHIPGLOWS_SYSTEM_BIN_DIR="${SHIPGLOWS_SYSTEM_BIN_DIR:-/usr/local/bin}"
 
 cli_command_works() {
@@ -71,10 +72,44 @@ cli_command_works() {
     "$cli_name" "$@" >/dev/null 2>&1
 }
 
+managed_pnpm_cli_path() {
+    local cli_name="$1"
+
+    if [ -x "$SHIPGLOWS_SYSTEM_PNPM_HOME/$cli_name" ]; then
+        printf '%s\n' "$SHIPGLOWS_SYSTEM_PNPM_HOME/$cli_name"
+        return 0
+    fi
+    if [ -x "$SHIPGLOWS_SYSTEM_PNPM_HOME/bin/$cli_name" ]; then
+        printf '%s\n' "$SHIPGLOWS_SYSTEM_PNPM_HOME/bin/$cli_name"
+        return 0
+    fi
+    return 1
+}
+
+managed_pnpm_cli_works() {
+    local cli_name="$1"
+    local cli_path
+    shift
+
+    cli_path="$(managed_pnpm_cli_path "$cli_name")" || return 1
+    "$cli_path" "$@" >/dev/null 2>&1
+}
+
+install_managed_pnpm_cli() {
+    local package_name="$1"
+
+    PATH="$SHIPGLOWS_SYSTEM_PNPM_HOME:$SHIPGLOWS_SYSTEM_PNPM_HOME/bin:$PATH" \
+        PNPM_HOME="$SHIPGLOWS_SYSTEM_PNPM_HOME" \
+        pnpm \
+            --global-dir "$SHIPGLOWS_SYSTEM_PNPM_GLOBAL_DIR" \
+            --global-bin-dir "$SHIPGLOWS_SYSTEM_PNPM_HOME" \
+            add -g "$package_name"
+}
+
 prepare_pnpm() {
     export PNPM_HOME="$SHIPGLOWS_SYSTEM_PNPM_HOME"
     export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
-    install -d -m 0755 "$PNPM_HOME" "$PNPM_HOME/bin"
+    install -d -m 0755 "$PNPM_HOME" "$PNPM_HOME/bin" "$SHIPGLOWS_SYSTEM_PNPM_GLOBAL_DIR"
 
     if ! corepack enable >/dev/null 2>&1; then
         error "Échec de l'activation de Corepack pour pnpm"
@@ -94,15 +129,11 @@ prepare_pnpm() {
 
 expose_pnpm_global_cli() {
     local cli_name="$1"
-    local cli_path="$PNPM_HOME/$cli_name"
+    local cli_path
     local wrapper_path="$SHIPGLOWS_SYSTEM_BIN_DIR/$cli_name"
     local wrapper_tmp
 
-    if [ ! -x "$cli_path" ] && [ -x "$PNPM_HOME/bin/$cli_name" ]; then
-        cli_path="$PNPM_HOME/bin/$cli_name"
-    fi
-
-    if [ ! -x "$cli_path" ]; then
+    if ! cli_path="$(managed_pnpm_cli_path "$cli_name")"; then
         error "Impossible d'exposer $cli_name: exécutable pnpm introuvable dans $PNPM_HOME"
         return 1
     fi
@@ -360,10 +391,10 @@ SHIPGLOWS_PRE_STATUS_FUSER=""
 
 shipglows_capture_status() {
     command -v node >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_DIR_NODE="present" || true
-    cli_command_works pm2 --version && SHIPGLOWS_PRE_STATUS_PM2="present" || true
-    cli_command_works vercel --version && SHIPGLOWS_PRE_STATUS_VERCEL="present" || true
-    cli_command_works convex --version && SHIPGLOWS_PRE_STATUS_CONVEX="present" || true
-    cli_command_works clerk --version && SHIPGLOWS_PRE_STATUS_CLERK="present" || true
+    managed_pnpm_cli_works pm2 --version && SHIPGLOWS_PRE_STATUS_PM2="present" || true
+    managed_pnpm_cli_works vercel --version && SHIPGLOWS_PRE_STATUS_VERCEL="present" || true
+    managed_pnpm_cli_works convex --version && SHIPGLOWS_PRE_STATUS_CONVEX="present" || true
+    managed_pnpm_cli_works clerk --version && SHIPGLOWS_PRE_STATUS_CLERK="present" || true
     command -v supabase >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_SUPABASE="present" || true
     command -v flox >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_FLOX="present" || true
     command -v gh >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_GH="present" || true
@@ -450,16 +481,16 @@ echo ""
 # 2. Installer PM2
 prepare_pnpm || exit 1
 
-if cli_command_works pm2 --version; then
-    PM2_VERSION=$(pm2 --version)
+if managed_pnpm_cli_works pm2 --version; then
+    PM2_VERSION=$("$(managed_pnpm_cli_path pm2)" --version)
     success "PM2 déjà installé: $PM2_VERSION"
 else
     info "Installation de PM2..."
-    pnpm add -g pm2
+    install_managed_pnpm_cli pm2
     hash -r 2>/dev/null
 
-    if cli_command_works pm2 --version; then
-        success "PM2 installé: $(pm2 --version)"
+    if managed_pnpm_cli_works pm2 --version; then
+        success "PM2 installé: $("$(managed_pnpm_cli_path pm2)" --version)"
     else
         error "Échec de l'installation de PM2"
         exit 1
@@ -470,15 +501,15 @@ expose_pnpm_global_cli pm2 || exit 1
 echo ""
 
 # 3. Installer les CLI Node globales utiles
-if cli_command_works vercel --version; then
-    success "Vercel CLI déjà installé: $(vercel --version 2>/dev/null | head -n1)"
+if managed_pnpm_cli_works vercel --version; then
+    success "Vercel CLI déjà installé: $("$(managed_pnpm_cli_path vercel)" --version 2>/dev/null | head -n1)"
 else
     info "Installation de Vercel CLI..."
-    pnpm add -g vercel
+    install_managed_pnpm_cli vercel
     hash -r 2>/dev/null
 
-    if cli_command_works vercel --version; then
-        success "Vercel CLI installé: $(vercel --version 2>/dev/null | head -n1)"
+    if managed_pnpm_cli_works vercel --version; then
+        success "Vercel CLI installé: $("$(managed_pnpm_cli_path vercel)" --version 2>/dev/null | head -n1)"
     else
         error "Échec de l'installation de Vercel CLI"
         exit 1
@@ -488,15 +519,15 @@ expose_pnpm_global_cli vercel || exit 1
 
 echo ""
 
-if cli_command_works convex --version; then
-    success "Convex CLI déjà installé: $(convex --version 2>/dev/null | head -n1)"
+if managed_pnpm_cli_works convex --version; then
+    success "Convex CLI déjà installé: $("$(managed_pnpm_cli_path convex)" --version 2>/dev/null | head -n1)"
 else
     info "Installation de Convex CLI..."
-    pnpm add -g convex
+    install_managed_pnpm_cli convex
     hash -r 2>/dev/null
 
-    if cli_command_works convex --version; then
-        success "Convex CLI installé: $(convex --version 2>/dev/null | head -n1)"
+    if managed_pnpm_cli_works convex --version; then
+        success "Convex CLI installé: $("$(managed_pnpm_cli_path convex)" --version 2>/dev/null | head -n1)"
     else
         error "Échec de l'installation de Convex CLI"
         exit 1
@@ -506,15 +537,15 @@ expose_pnpm_global_cli convex || exit 1
 
 echo ""
 
-if cli_command_works clerk --version; then
-    success "Clerk CLI déjà installé: $(clerk --version 2>/dev/null | head -n1)"
+if managed_pnpm_cli_works clerk --version; then
+    success "Clerk CLI déjà installé: $("$(managed_pnpm_cli_path clerk)" --version 2>/dev/null | head -n1)"
 else
     info "Installation de Clerk CLI..."
-    pnpm add -g clerk
+    install_managed_pnpm_cli clerk
     hash -r 2>/dev/null
 
-    if cli_command_works clerk --version; then
-        success "Clerk CLI installé: $(clerk --version 2>/dev/null | head -n1)"
+    if managed_pnpm_cli_works clerk --version; then
+        success "Clerk CLI installé: $("$(managed_pnpm_cli_path clerk)" --version 2>/dev/null | head -n1)"
     else
         error "Échec de l'installation de Clerk CLI"
         exit 1
@@ -2246,10 +2277,10 @@ echo ""
 # Résumé des installations
 echo -e "${BLUE}🎯 Résumé :${NC}"
 echo -e "  • Node.js: $(command -v node >/dev/null 2>&1 && echo '✅' || echo '❌')"
-echo -e "  • PM2: $(cli_command_works pm2 --version && echo '✅' || echo '❌')"
-echo -e "  • Vercel CLI: $(cli_command_works vercel --version && echo '✅' || echo '❌')"
-echo -e "  • Convex CLI: $(cli_command_works convex --version && echo '✅' || echo '❌')"
-echo -e "  • Clerk CLI: $(cli_command_works clerk --version && echo '✅' || echo '❌')"
+echo -e "  • PM2: $(managed_pnpm_cli_works pm2 --version && echo '✅' || echo '❌')"
+echo -e "  • Vercel CLI: $(managed_pnpm_cli_works vercel --version && echo '✅' || echo '❌')"
+echo -e "  • Convex CLI: $(managed_pnpm_cli_works convex --version && echo '✅' || echo '❌')"
+echo -e "  • Clerk CLI: $(managed_pnpm_cli_works clerk --version && echo '✅' || echo '❌')"
 echo -e "  • Supabase CLI: $(command -v supabase >/dev/null 2>&1 && echo '✅' || echo '❌')"
 echo -e "  • Flox: $(command -v flox >/dev/null 2>&1 && echo '✅' || echo '⚠️ Installation manuelle requise')"
 echo -e "  • GitHub CLI: $(command -v gh >/dev/null 2>&1 && echo '✅' || echo '❌')"
@@ -2275,10 +2306,10 @@ generate_install_report() {
     local status_node status_pm2 status_vercel status_convex status_clerk status_supabase status_flox status_gh status_python3 status_pyyaml status_caddy status_git status_jq status_fuser
     local report_claude_path report_codex_path report_opencode_path report_kilocode_path
     if command -v node >/dev/null 2>&1; then status_node="present"; else status_node=""; fi
-    if cli_command_works pm2 --version; then status_pm2="present"; else status_pm2=""; fi
-    if cli_command_works vercel --version; then status_vercel="present"; else status_vercel=""; fi
-    if cli_command_works convex --version; then status_convex="present"; else status_convex=""; fi
-    if cli_command_works clerk --version; then status_clerk="present"; else status_clerk=""; fi
+    if managed_pnpm_cli_works pm2 --version; then status_pm2="present"; else status_pm2=""; fi
+    if managed_pnpm_cli_works vercel --version; then status_vercel="present"; else status_vercel=""; fi
+    if managed_pnpm_cli_works convex --version; then status_convex="present"; else status_convex=""; fi
+    if managed_pnpm_cli_works clerk --version; then status_clerk="present"; else status_clerk=""; fi
     if command -v supabase >/dev/null 2>&1; then status_supabase="present"; else status_supabase=""; fi
     if command -v flox >/dev/null 2>&1; then status_flox="present"; else status_flox=""; fi
     if command -v gh >/dev/null 2>&1; then status_gh="present"; else status_gh=""; fi
@@ -2309,7 +2340,7 @@ generate_install_report() {
 - Version script: local
 - Machine: $(hostname)
 - Log brut: $SHIPGLOWS_LOG_FILE
-- Statut global: $(if command -v node >/dev/null 2>&1 && cli_command_works pm2 --version && cli_command_works vercel --version; then echo "SUCCÈS"; else echo "PARTIEL"; fi)
+- Statut global: $(if command -v node >/dev/null 2>&1 && managed_pnpm_cli_works pm2 --version && managed_pnpm_cli_works vercel --version; then echo "SUCCÈS"; else echo "PARTIEL"; fi)
 
 ## Packages / outils
 
