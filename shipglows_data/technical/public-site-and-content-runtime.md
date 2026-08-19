@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.7.1"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-05"
+updated: "2026-08-19"
 status: reviewed
 source_skill: sg-start
 scope: public-site-and-content-runtime
@@ -36,6 +36,7 @@ evidence:
   - "shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md added as the Markdown reference for the public launch cheatsheet."
   - "Public docs page now needs to present the project governance layout decision."
   - "French locale added for primary public routes while public skill contracts remain intentionally English for agent reliability."
+  - "The 2026-08-19 installer alignment updates EN/FR runtime claims for Ubuntu/Debian support, automatic corpus selection, the canonical commandglows/shipglows repository, and the shipglows.com hosted-docs origin."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit /home/claude/shipglows_app/site"
 ---

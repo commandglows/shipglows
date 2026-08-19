@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-13"
+updated: "2026-08-19"
 status: reviewed
 source_skill: sg-start
 scope: page-intent-map
@@ -45,6 +45,7 @@ evidence:
   - "shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md added as the Markdown reference behind the public skill modes route."
   - "ShipGlows EN/FR runtime pages declared as the canonical server/local bootstrap and native Windows DevServer surfaces; `/install` routes keep the Codex plugin as their primary intent."
   - "Positioning decision SG-BIZ-2026-08-13-01 makes business-aware outcome ownership the landing-page lead and environment delivery supporting proof."
+  - "The 2026-08-19 installer alignment keeps EN/FR runtime pages exact about Ubuntu/Debian support, corpus selection, and the canonical public repository."
 next_review: "2026-09-13"
 next_step: "Apply SG-BIZ-2026-08-13-01 to the external EN/FR landing, docs, FAQ, and pitch surfaces"
 ---
