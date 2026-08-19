@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.12.0"
+artifact_version: "2.13.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-17"
+updated: "2026-08-19"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -55,6 +55,7 @@ evidence:
   - "Native Windows overrides PowerShell's reserved gp alias with a guarded add-all, commit, and push workflow; raw gpush remains available without profiles."
   - "Operator decision 2026-08-11: Linux and Windows converge on ~/.shipglows/runtime, with data and design-inspiration-library as sibling private repositories."
   - "Migration audit 2026-08-11: mutable Caddy state moves from the former ~/.shipglows/runtime/caddy location to ~/.shipglows/state/caddy so it cannot collide with the canonical code checkout."
+  - "Linux system pnpm CLIs now live under a world-readable ShipGlows prefix, use atomic /usr/local/bin wrappers, and must pass an execution probe before the installer reports success."
   - "The native Windows full-install contract packages the reproducible-environment Python control plane and schema, then exposes it through the profile-independent s launcher."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
@@ -193,6 +194,11 @@ sudo ./cli/install.sh
   on `PATH` because pnpm writes global executables there; its legacy `bin`
   subdirectory remains a compatibility fallback. Global packages with a build
   hook are approved individually through pnpm's `--allow-build` option.
+- Root-installed server CLIs use the dedicated world-readable pnpm prefix
+  `/usr/local/lib/shipglows/pnpm`; `/usr/local/bin` contains only atomic
+  wrappers into that prefix. Installer health checks execute each CLI's
+  `--version` probe, so a stale wrapper or an inaccessible root-private target
+  is a failure rather than a false `present` status.
 - The system Node.js install path targets Node.js 24.x through the NodeSource
   `setup_24.x` bootstrap before installing `nodejs`.
 - Symlinks, wrappers, and aliases should be idempotent and updated consistently. The managed bash aliases include `shipglows`/`sg`/`s`, Claude/Codex launch shortcuts, reload helpers, and `ch` for clearing the current terminal plus tmux pane history (`clear; tmux clear-history`).
@@ -267,6 +273,8 @@ Interpret the result in this order:
 ```bash
 sh -n install-shipglows.sh
 bash -n cli/install.sh local/install.sh local/turso-login.sh local/turso-ssh.sh
+bash tests/cli/pnpm-bootstrap.sh
+bash tests/install/pnpm-global-cli-health.sh
 bash tests/install/bootstrap-mode-selection.sh
 bash tests/windows/devserver-contract.sh
 tools/sync_shipglows_public_bootstrap.sh --check --site-root /home/claude/shipglows_app/site
