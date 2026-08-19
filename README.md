@@ -209,6 +209,11 @@ It is the public explanation, docs, pricing hypothesis, FAQ, and skill-discovery
 curl -fsSL https://shipglows.com/shipglows-script | sh
 ```
 
+The Linux `full` server mode supports Ubuntu, Debian, and derivatives whose
+`/etc/os-release` explicitly declares Ubuntu or Debian compatibility. Other
+Linux distributions are rejected before package installation; `local` mode
+remains available where its own dependencies are already supported.
+
 On native Windows without WSL, the same public endpoint exposes the
 PowerShell local installer. It downloads the public repository as a ZIP and
 installs the Windows OpenSSH Client automatically when needed. Windows may
@@ -401,7 +406,7 @@ sudo ./cli/install.sh
 
 ### Runtime, skills, and Codex distribution
 
-The bootstrap defaults to the lightweight `runtime` surface: it uses Git sparse checkout for the CLI, local installer, TUI, and runtime settings only. It does not download the public skill corpus by default.
+The bootstrap defaults to the lightweight `runtime` surface: it uses Git sparse checkout for the CLI, local installer, TUI, and runtime settings only. It does not download the public skill corpus by default. When `SHIPGLOWS_INSTALL_COMPONENTS=all`, `skills`, or `corpus` requests skills without an explicit surface, the bootstrap automatically selects the `corpus` surface.
 
 To make the public skill corpus and the OpenCode/KiloCode-compatible repository shims available locally, request it explicitly:
 
@@ -462,7 +467,7 @@ When the install runs interactively, ShipGlows asks once whether to enable the p
 The recommended server shape is:
 
 - use `root` or `sudo` for first-time system setup
-- use a regular non-root account such as `ubuntu`, `opc`, `debian`, `ec2-user`, or a manually created user for daily work
+- use a regular non-root operational account for daily work
 - keep user-level config, credentials, project files, Claude/Codex settings, and ShipGlows data scoped to the operational user
 - start ShipGlows environments explicitly when needed instead of relying on PM2 resurrection at boot
 - let ShipGlows manage the local Caddy proxy with the environment lifecycle
