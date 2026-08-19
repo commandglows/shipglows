@@ -1574,24 +1574,23 @@ configure_codex_playwright_mcp() {
     local codex_dir="$target_home/.codex"
     local config_file="$codex_dir/config.toml"
     local tmp_file="$config_file.tmp.$$"
+    local clean_file="$tmp_file.clean"
+    local block_file="$tmp_file.block"
     local args_json
 
     mkdir -p "$codex_dir"
     [ -f "$config_file" ] || touch "$config_file"
 
     awk '
-        /^# >>> shipglows codex playwright mcp >>>$/ { skip = 1; next }
-        /^# <<< shipglows codex playwright mcp <<</ { skip = 0; next }
-        /^# >>> shipglows codex playwright mcp >>>$/ { skip = 1; next }
-        /^# <<< shipglows codex playwright mcp <<</ { skip = 0; next }
+        /^# >>> shipglows codex playwright mcp >>>$/ { next }
+        /^# <<< shipglows codex playwright mcp <<</ { next }
         /^\[mcp_servers\.playwright(\.|\])?/ { skip = 1; next }
         /^\[/ && $0 !~ /^\[mcp_servers\.playwright(\.|\])?/ && skip == 1 { skip = 0 }
         !skip { print }
-    ' "$config_file" > "$tmp_file"
+    ' "$config_file" > "$clean_file"
 
     args_json="$(playwright_mcp_args_json "$target_home")"
     {
-        printf '\n'
         printf '# >>> shipglows codex playwright mcp >>>\n'
         printf '[mcp_servers.playwright]\n'
         printf 'command = "npx"\n'
@@ -1613,9 +1612,29 @@ configure_codex_playwright_mcp() {
         printf '[mcp_servers.playwright.tools.browser_resize]\n'
         printf 'approval_mode = "approve"\n'
         printf '# <<< shipglows codex playwright mcp <<<\n'
-    } >> "$tmp_file"
+    } > "$block_file"
+
+    awk -v block_file="$block_file" '
+        function emit_block(line) {
+            while ((getline line < block_file) > 0) print line
+            close(block_file)
+        }
+        !inserted && /^\[/ {
+            emit_block()
+            print ""
+            inserted = 1
+        }
+        { print }
+        END {
+            if (!inserted) {
+                print ""
+                emit_block()
+            }
+        }
+    ' "$clean_file" > "$tmp_file"
 
     mv "$tmp_file" "$config_file"
+    rm -f "$clean_file" "$block_file"
 }
 
 # Configure skills symlinks for a user

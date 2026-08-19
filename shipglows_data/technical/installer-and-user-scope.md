@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.13.0"
+artifact_version: "2.14.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-19"
@@ -56,6 +56,7 @@ evidence:
   - "Operator decision 2026-08-11: Linux and Windows converge on ~/.shipglows/runtime, with data and design-inspiration-library as sibling private repositories."
   - "Migration audit 2026-08-11: mutable Caddy state moves from the former ~/.shipglows/runtime/caddy location to ~/.shipglows/state/caddy so it cannot collide with the canonical code checkout."
   - "Linux system pnpm CLIs now live under a world-readable ShipGlows prefix, use atomic /usr/local/bin wrappers, and must pass an execution probe before the installer reports success."
+  - "Codex Playwright MCP refresh now removes only owned mcp_servers.playwright tables, preserving project trust, marketplace, plugin, notice, and other adjacent configuration across repeated installs."
   - "The native Windows full-install contract packages the reproducible-environment Python control plane and schema, then exposes it through the profile-independent s launcher."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
@@ -211,6 +212,10 @@ sudo ./cli/install.sh
   Playwright browser capability is the explicit exception and stays enabled so
   standalone Codex CLI sessions can use browser proof in every project. Other
   MCPs continue to use temporary `-c mcp_servers.<name>.enabled=true` overrides.
+- Playwright refresh removes only `mcp_servers.playwright` and its nested
+  tables. Managed marker migration must never consume adjacent Codex project,
+  marketplace, plugin, notice, or third-party MCP configuration, including
+  entries that Codex inserted before an old trailing marker.
 - Native Windows resolves an absolute `npx.cmd`, resolves a concrete Playwright
   MCP version from the package authority, installs that exact version, and
   requires a discovered local Chromium executable before writing the owned
