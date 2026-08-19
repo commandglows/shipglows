@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# Regression test: a GitHub deployment must start the directory it has just
-# cloned, even when the lazy environment registry was built before .flox
-# existed and therefore does not yet contain the repository name.
+# Regression test: a GitHub clone catalogues launch surfaces without creating
+# Flox state, installing dependencies, prompting for a surface, or starting it.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -29,7 +28,6 @@ fail() {
     exit 1
 }
 
-started_identifier=""
 cloned_url=""
 
 get_github_username() {
@@ -39,22 +37,37 @@ get_github_username() {
 git() {
     [ "${1:-}" = "clone" ] || return 1
     cloned_url="$2"
-    mkdir -p "$3"
-}
-
-init_flox_env() {
-    local project_dir="$1" project_name="$2" unresolved=""
-    mkdir -p "$project_dir/.flox"
-
-    # The deployment's earlier existence check populated the registry before
-    # this new .flox directory existed. The name must still be absent here.
-    if resolve_project_path_into unresolved "$project_name"; then
-        fail "fresh project name unexpectedly resolved through stale registry"
+    mkdir -p "$3/.git"
+    if [ "$(basename "$3")" = "monorepo" ]; then
+        mkdir -p "$3/site" "$3/worker"
     fi
 }
 
+init_flox_env() {
+    fail "clone must not initialize Flox"
+}
+
+registry_sync() {
+    mkdir -p "$(dirname "$SHIPGLOWS_REGISTRY")"
+    if [ -d "$SHIPGLOWS_PROJECTS_DIR/monorepo/.git" ]; then
+        printf '%s\n' \
+            "monorepo_site|uninitialized||$SHIPGLOWS_PROJECTS_DIR/monorepo/site|$SHIPGLOWS_PROJECTS_DIR/monorepo/site" \
+            "monorepo_worker|uninitialized||$SHIPGLOWS_PROJECTS_DIR/monorepo/worker|$SHIPGLOWS_PROJECTS_DIR/monorepo/worker" \
+            > "$SHIPGLOWS_REGISTRY"
+    elif [ -d "$SHIPGLOWS_PROJECTS_DIR/gocharbon_quiz/.git" ]; then
+        printf '%s\n' "gocharbon_quiz|uninitialized||$SHIPGLOWS_PROJECTS_DIR/gocharbon_quiz|$SHIPGLOWS_PROJECTS_DIR/gocharbon_quiz" > "$SHIPGLOWS_REGISTRY"
+    else
+        : > "$SHIPGLOWS_REGISTRY"
+    fi
+    invalidate_environment_index_cache
+}
+
+ui_choose() {
+    fail "clone must not prompt for a launch surface"
+}
+
 env_start() {
-    started_identifier="$1"
+    fail "clone must not start an environment"
 }
 
 shipglows_init_project() { :; }
@@ -63,9 +76,34 @@ pm2_port_load() { return 1; }
 deploy_github_project 'commandglows/gocharbon_quiz' >/dev/null
 
 expected_path="$SHIPGLOWS_PROJECTS_DIR/gocharbon_quiz"
-[ "$started_identifier" = "$expected_path" ] || \
-    fail "deployment must start cloned path (got '$started_identifier')"
 [ "$cloned_url" = 'git@github.com:commandglows/gocharbon_quiz.git' ] || \
     fail "deployment must preserve the selected organization owner (got '$cloned_url')"
+[ ! -e "$expected_path/.flox" ] || fail "single-app clone must not create Flox state"
+grep -Fqx "gocharbon_quiz|uninitialized||$expected_path|$expected_path" "$SHIPGLOWS_REGISTRY" || \
+    fail "single-app clone must be catalogued as uninitialized"
 
-printf 'PASS: GitHub deployment starts the authoritative cloned path\n'
+printf 'PASS: GitHub clone catalogues a single app without initializing or starting it\n'
+
+cloned_url=""
+deploy_github_project 'commandglows/monorepo' >/dev/null
+
+monorepo_root="$SHIPGLOWS_PROJECTS_DIR/monorepo"
+[ ! -e "$monorepo_root/.flox" ] && [ ! -e "$monorepo_root/site/.flox" ] && [ ! -e "$monorepo_root/worker/.flox" ] || \
+    fail "monorepo clone must not create Flox state"
+grep -Fqx "monorepo_site|uninitialized||$monorepo_root/site|$monorepo_root/site" "$SHIPGLOWS_REGISTRY" || \
+    fail "monorepo site must be catalogued as uninitialized"
+grep -Fqx "monorepo_worker|uninitialized||$monorepo_root/worker|$monorepo_root/worker" "$SHIPGLOWS_REGISTRY" || \
+    fail "monorepo worker must be catalogued as uninitialized"
+
+printf 'PASS: GitHub monorepo clone catalogues every surface without prompting or starting\n'
+
+existing_marker="$expected_path/preserved.txt"
+printf 'keep me\n' > "$existing_marker"
+set +e
+deploy_github_project 'commandglows/gocharbon_quiz' >/dev/null
+existing_rc=$?
+set -e
+[ "$existing_rc" -ne 0 ] || fail "clone must reject an existing destination"
+grep -Fqx 'keep me' "$existing_marker" || fail "existing destination must remain unchanged"
+
+printf 'PASS: GitHub clone refuses an existing destination without deleting it\n'

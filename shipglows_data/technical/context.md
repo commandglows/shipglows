@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.10.0"
+artifact_version: "0.11.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-13"
+updated: "2026-08-19"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -16,7 +16,7 @@ docs_impact: "yes"
 linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/config.sh", "cli/install.sh", "cli/windows/", "install-shipglows.ps1", "local/local.sh", "skills/", "skills/references/app-blueprints.md", "skills/app-blueprints/", "shipglows_data/workflow/playbooks/spec-driven-workflow.md", "shipglows_data/technical/context-function-tree.md", "shipglows_data/editorial/content-map.md", "shipglows_data/technical/", "shipglows_data/business/project-competitors-and-inspirations.md", "shipglows_data/business/affiliate-programs.md"]
 depends_on: []
 supersedes: []
-evidence: ["README.md", "CLAUDE.md", "shipglows_data/editorial/content-map.md", function extraction from core shell scripts, "shipglows_data/technical/* as code-proximate subsystem documentation", "Business registries added for project competitors/inspirations and affiliate programs.", "2026-07-17 DevServer startup/cache implementation: lazy atomic registry, pruned Flox discovery, parent-shell cache APIs.", "2026-08-13 Linux Flox environment-root and launch-path separation with registry and PM2 migration coverage.", "Métier-first public hierarchy and autonomous execution specification."]
+evidence: ["README.md", "CLAUDE.md", "shipglows_data/editorial/content-map.md", function extraction from core shell scripts, "shipglows_data/technical/* as code-proximate subsystem documentation", "Business registries added for project competitors/inspirations and affiliate programs.", "2026-07-17 DevServer startup/cache implementation: lazy atomic registry, pruned Flox discovery, parent-shell cache APIs.", "2026-08-13 Linux Flox environment-root and launch-path separation with registry and PM2 migration coverage.", "2026-08-19 Linux clone/start separation with uninitialized catalogue entries and first-start Flox initialization.", "Métier-first public hierarchy and autonomous execution specification."]
 next_step: "/sg-docs update shipglows_data/technical/context.md"
 ---
 
@@ -202,8 +202,8 @@ launcher active uniquement les MCP demandes pour la nouvelle session.
 
 - PM2 est la source d'etat d'execution. Le cache PM2 doit etre invalide apres mutation.
 - Le sourcing de `cli/lib.sh` reste paresseux : aucun `pm2 jlist`, `registry_sync` ou scan Flox avant qu'une action en ait besoin.
-- `scan_flox_projects` est l'unique proprietaire de la decouverte Flox. Chaque `.flox` definit une racine d'environnement distincte de son chemin de lancement; les sous-arbres possedant leur propre `.flox` restent independants et les applications ambiguës sont refusees.
-- `ensure_registry` fournit l'index persistant `name|status|port|environment_root|launch_path` et migre atomiquement les anciennes lignes a quatre champs.
+- `scan_managed_projects` fusionne les environnements Flox et les surfaces de dépôts Git cataloguées sans runtime. Chaque `.flox` définit une racine d'environnement distincte de son chemin de lancement; une surface clonée sans Flox reste valide avec le statut `uninitialized`.
+- `ensure_registry` fournit l'index persistant `name|status|port|environment_root|launch_path`, accepte les surfaces `uninitialized` et migre atomiquement les anciennes lignes à quatre champs.
 - Les caches qui doivent survivre entre deux appels utilisent les APIs a variable de destination dans le shell parent; les wrappers stdout restent des surfaces de compatibilite.
 - Le registre environnement est ecrit par fichier temporaire voisin + validation + `mv` atomique, avec verrou borne et conservation du dernier snapshot valide.
 - Caddy local est gere par ShipGlows en mode utilisateur et suit l'etat PM2:

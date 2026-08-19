@@ -60,10 +60,21 @@ warning() {
     shipglows_log "WARN" "WARN: $1"
 }
 
+SHIPGLOWS_SYSTEM_PNPM_HOME="${SHIPGLOWS_SYSTEM_PNPM_HOME:-/usr/local/lib/shipglows/pnpm}"
+SHIPGLOWS_SYSTEM_BIN_DIR="${SHIPGLOWS_SYSTEM_BIN_DIR:-/usr/local/bin}"
+
+cli_command_works() {
+    local cli_name="$1"
+    shift
+
+    command -v "$cli_name" >/dev/null 2>&1 || return 1
+    "$cli_name" "$@" >/dev/null 2>&1
+}
+
 prepare_pnpm() {
-    export PNPM_HOME="$HOME/.local/share/pnpm"
+    export PNPM_HOME="$SHIPGLOWS_SYSTEM_PNPM_HOME"
     export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
-    mkdir -p "$PNPM_HOME/bin"
+    install -d -m 0755 "$PNPM_HOME" "$PNPM_HOME/bin"
 
     if ! corepack enable >/dev/null 2>&1; then
         error "Échec de l'activation de Corepack pour pnpm"
@@ -84,17 +95,32 @@ prepare_pnpm() {
 expose_pnpm_global_cli() {
     local cli_name="$1"
     local cli_path="$PNPM_HOME/$cli_name"
+    local wrapper_path="$SHIPGLOWS_SYSTEM_BIN_DIR/$cli_name"
+    local wrapper_tmp
 
     if [ ! -x "$cli_path" ] && [ -x "$PNPM_HOME/bin/$cli_name" ]; then
         cli_path="$PNPM_HOME/bin/$cli_name"
     fi
 
-    [ -x "$cli_path" ] || return 0
-    cat > "/usr/local/bin/$cli_name" <<EOF
+    if [ ! -x "$cli_path" ]; then
+        error "Impossible d'exposer $cli_name: exécutable pnpm introuvable dans $PNPM_HOME"
+        return 1
+    fi
+
+    chmod -R a+rX "$PNPM_HOME"
+    install -d -m 0755 "$SHIPGLOWS_SYSTEM_BIN_DIR"
+    wrapper_tmp="$(mktemp "$SHIPGLOWS_SYSTEM_BIN_DIR/.${cli_name}.shipglows.XXXXXX")"
+    cat > "$wrapper_tmp" <<EOF
 #!/bin/sh
 exec "$cli_path" "\$@"
 EOF
-    chmod 755 "/usr/local/bin/$cli_name"
+    chmod 755 "$wrapper_tmp"
+    mv "$wrapper_tmp" "$wrapper_path"
+
+    if ! cli_command_works "$wrapper_path" --version; then
+        error "Wrapper $wrapper_path présent mais non exécutable"
+        return 1
+    fi
 }
 
 warn_flutter_android_ci_policy() {
@@ -334,10 +360,10 @@ SHIPGLOWS_PRE_STATUS_FUSER=""
 
 shipglows_capture_status() {
     command -v node >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_DIR_NODE="present" || true
-    command -v pm2 >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_PM2="present" || true
-    command -v vercel >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_VERCEL="present" || true
-    command -v convex >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_CONVEX="present" || true
-    command -v clerk >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_CLERK="present" || true
+    cli_command_works pm2 --version && SHIPGLOWS_PRE_STATUS_PM2="present" || true
+    cli_command_works vercel --version && SHIPGLOWS_PRE_STATUS_VERCEL="present" || true
+    cli_command_works convex --version && SHIPGLOWS_PRE_STATUS_CONVEX="present" || true
+    cli_command_works clerk --version && SHIPGLOWS_PRE_STATUS_CLERK="present" || true
     command -v supabase >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_SUPABASE="present" || true
     command -v flox >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_FLOX="present" || true
     command -v gh >/dev/null 2>&1 && SHIPGLOWS_PRE_STATUS_GH="present" || true
@@ -424,7 +450,7 @@ echo ""
 # 2. Installer PM2
 prepare_pnpm || exit 1
 
-if command -v pm2 >/dev/null 2>&1; then
+if cli_command_works pm2 --version; then
     PM2_VERSION=$(pm2 --version)
     success "PM2 déjà installé: $PM2_VERSION"
 else
@@ -432,69 +458,69 @@ else
     pnpm add -g pm2
     hash -r 2>/dev/null
 
-    if command -v pm2 >/dev/null 2>&1; then
+    if cli_command_works pm2 --version; then
         success "PM2 installé: $(pm2 --version)"
     else
         error "Échec de l'installation de PM2"
         exit 1
     fi
 fi
-expose_pnpm_global_cli pm2
+expose_pnpm_global_cli pm2 || exit 1
 
 echo ""
 
 # 3. Installer les CLI Node globales utiles
-if command -v vercel >/dev/null 2>&1; then
+if cli_command_works vercel --version; then
     success "Vercel CLI déjà installé: $(vercel --version 2>/dev/null | head -n1)"
 else
     info "Installation de Vercel CLI..."
     pnpm add -g vercel
     hash -r 2>/dev/null
 
-    if command -v vercel >/dev/null 2>&1; then
+    if cli_command_works vercel --version; then
         success "Vercel CLI installé: $(vercel --version 2>/dev/null | head -n1)"
     else
         error "Échec de l'installation de Vercel CLI"
         exit 1
     fi
 fi
-expose_pnpm_global_cli vercel
+expose_pnpm_global_cli vercel || exit 1
 
 echo ""
 
-if command -v convex >/dev/null 2>&1; then
+if cli_command_works convex --version; then
     success "Convex CLI déjà installé: $(convex --version 2>/dev/null | head -n1)"
 else
     info "Installation de Convex CLI..."
     pnpm add -g convex
     hash -r 2>/dev/null
 
-    if command -v convex >/dev/null 2>&1; then
+    if cli_command_works convex --version; then
         success "Convex CLI installé: $(convex --version 2>/dev/null | head -n1)"
     else
         error "Échec de l'installation de Convex CLI"
         exit 1
     fi
 fi
-expose_pnpm_global_cli convex
+expose_pnpm_global_cli convex || exit 1
 
 echo ""
 
-if command -v clerk >/dev/null 2>&1; then
+if cli_command_works clerk --version; then
     success "Clerk CLI déjà installé: $(clerk --version 2>/dev/null | head -n1)"
 else
     info "Installation de Clerk CLI..."
     pnpm add -g clerk
     hash -r 2>/dev/null
 
-    if command -v clerk >/dev/null 2>&1; then
+    if cli_command_works clerk --version; then
         success "Clerk CLI installé: $(clerk --version 2>/dev/null | head -n1)"
     else
         error "Échec de l'installation de Clerk CLI"
         exit 1
     fi
 fi
-expose_pnpm_global_cli clerk
+expose_pnpm_global_cli clerk || exit 1
 
 echo ""
 
@@ -1548,24 +1574,23 @@ configure_codex_playwright_mcp() {
     local codex_dir="$target_home/.codex"
     local config_file="$codex_dir/config.toml"
     local tmp_file="$config_file.tmp.$$"
+    local clean_file="$tmp_file.clean"
+    local block_file="$tmp_file.block"
     local args_json
 
     mkdir -p "$codex_dir"
     [ -f "$config_file" ] || touch "$config_file"
 
     awk '
-        /^# >>> shipglows codex playwright mcp >>>$/ { skip = 1; next }
-        /^# <<< shipglows codex playwright mcp <<</ { skip = 0; next }
-        /^# >>> shipglows codex playwright mcp >>>$/ { skip = 1; next }
-        /^# <<< shipglows codex playwright mcp <<</ { skip = 0; next }
+        /^# >>> shipglows codex playwright mcp >>>$/ { next }
+        /^# <<< shipglows codex playwright mcp <<</ { next }
         /^\[mcp_servers\.playwright(\.|\])?/ { skip = 1; next }
         /^\[/ && $0 !~ /^\[mcp_servers\.playwright(\.|\])?/ && skip == 1 { skip = 0 }
         !skip { print }
-    ' "$config_file" > "$tmp_file"
+    ' "$config_file" > "$clean_file"
 
     args_json="$(playwright_mcp_args_json "$target_home")"
     {
-        printf '\n'
         printf '# >>> shipglows codex playwright mcp >>>\n'
         printf '[mcp_servers.playwright]\n'
         printf 'command = "npx"\n'
@@ -1587,9 +1612,29 @@ configure_codex_playwright_mcp() {
         printf '[mcp_servers.playwright.tools.browser_resize]\n'
         printf 'approval_mode = "approve"\n'
         printf '# <<< shipglows codex playwright mcp <<<\n'
-    } >> "$tmp_file"
+    } > "$block_file"
+
+    awk -v block_file="$block_file" '
+        function emit_block(line) {
+            while ((getline line < block_file) > 0) print line
+            close(block_file)
+        }
+        !inserted && /^\[/ {
+            emit_block()
+            print ""
+            inserted = 1
+        }
+        { print }
+        END {
+            if (!inserted) {
+                print ""
+                emit_block()
+            }
+        }
+    ' "$clean_file" > "$tmp_file"
 
     mv "$tmp_file" "$config_file"
+    rm -f "$clean_file" "$block_file"
 }
 
 # Configure skills symlinks for a user
@@ -2201,10 +2246,10 @@ echo ""
 # Résumé des installations
 echo -e "${BLUE}🎯 Résumé :${NC}"
 echo -e "  • Node.js: $(command -v node >/dev/null 2>&1 && echo '✅' || echo '❌')"
-echo -e "  • PM2: $(command -v pm2 >/dev/null 2>&1 && echo '✅' || echo '❌')"
-echo -e "  • Vercel CLI: $(command -v vercel >/dev/null 2>&1 && echo '✅' || echo '❌')"
-echo -e "  • Convex CLI: $(command -v convex >/dev/null 2>&1 && echo '✅' || echo '❌')"
-echo -e "  • Clerk CLI: $(command -v clerk >/dev/null 2>&1 && echo '✅' || echo '❌')"
+echo -e "  • PM2: $(cli_command_works pm2 --version && echo '✅' || echo '❌')"
+echo -e "  • Vercel CLI: $(cli_command_works vercel --version && echo '✅' || echo '❌')"
+echo -e "  • Convex CLI: $(cli_command_works convex --version && echo '✅' || echo '❌')"
+echo -e "  • Clerk CLI: $(cli_command_works clerk --version && echo '✅' || echo '❌')"
 echo -e "  • Supabase CLI: $(command -v supabase >/dev/null 2>&1 && echo '✅' || echo '❌')"
 echo -e "  • Flox: $(command -v flox >/dev/null 2>&1 && echo '✅' || echo '⚠️ Installation manuelle requise')"
 echo -e "  • GitHub CLI: $(command -v gh >/dev/null 2>&1 && echo '✅' || echo '❌')"
@@ -2230,10 +2275,10 @@ generate_install_report() {
     local status_node status_pm2 status_vercel status_convex status_clerk status_supabase status_flox status_gh status_python3 status_pyyaml status_caddy status_git status_jq status_fuser
     local report_claude_path report_codex_path report_opencode_path report_kilocode_path
     if command -v node >/dev/null 2>&1; then status_node="present"; else status_node=""; fi
-    if command -v pm2 >/dev/null 2>&1; then status_pm2="present"; else status_pm2=""; fi
-    if command -v vercel >/dev/null 2>&1; then status_vercel="present"; else status_vercel=""; fi
-    if command -v convex >/dev/null 2>&1; then status_convex="present"; else status_convex=""; fi
-    if command -v clerk >/dev/null 2>&1; then status_clerk="present"; else status_clerk=""; fi
+    if cli_command_works pm2 --version; then status_pm2="present"; else status_pm2=""; fi
+    if cli_command_works vercel --version; then status_vercel="present"; else status_vercel=""; fi
+    if cli_command_works convex --version; then status_convex="present"; else status_convex=""; fi
+    if cli_command_works clerk --version; then status_clerk="present"; else status_clerk=""; fi
     if command -v supabase >/dev/null 2>&1; then status_supabase="present"; else status_supabase=""; fi
     if command -v flox >/dev/null 2>&1; then status_flox="present"; else status_flox=""; fi
     if command -v gh >/dev/null 2>&1; then status_gh="present"; else status_gh=""; fi
@@ -2264,7 +2309,7 @@ generate_install_report() {
 - Version script: local
 - Machine: $(hostname)
 - Log brut: $SHIPGLOWS_LOG_FILE
-- Statut global: $(if command -v node >/dev/null 2>&1 && command -v pm2 >/dev/null 2>&1 && command -v vercel >/dev/null 2>&1; then echo "SUCCÈS"; else echo "PARTIEL"; fi)
+- Statut global: $(if command -v node >/dev/null 2>&1 && cli_command_works pm2 --version && cli_command_works vercel --version; then echo "SUCCÈS"; else echo "PARTIEL"; fi)
 
 ## Packages / outils
 
