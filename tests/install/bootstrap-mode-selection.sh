@@ -183,6 +183,25 @@ assert_contains "$runtime_fixture/git-calls" "clone --quiet --no-checkout --bran
 assert_contains "$runtime_fixture/git-calls" "sparse-checkout set --cone cli local tui .claude" "Runtime checkout excludes the skill corpus"
 assert_not_contains "$runtime_fixture/git-calls" "sparse-checkout set --cone cli local tui .claude .agents" "Runtime does not select corpus paths"
 
+all_components_fixture="$(make_fixture all-components-corpus)"
+rm -rf "$all_components_fixture/home/shipglows"
+run_case "$all_components_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_COMPONENTS=all
+if [ "$CASE_STATUS" -eq 0 ]; then pass "All components select the corpus surface"; else fail "All components select the corpus surface"; fi
+assert_contains "$CASE_OUTPUT" "Surface d'installation: corpus" "All components report the corpus surface"
+assert_contains "$all_components_fixture/git-calls" "sparse-checkout set --cone cli local tui .claude .agents .opencode .kilo plugins skills templates tools shipglows_data" "All components include the skill corpus"
+
+skills_component_fixture="$(make_fixture skills-component-corpus)"
+rm -rf "$skills_component_fixture/home/shipglows"
+run_case "$skills_component_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_COMPONENTS=skills
+if [ "$CASE_STATUS" -eq 0 ]; then pass "Skills component selects the corpus surface"; else fail "Skills component selects the corpus surface"; fi
+assert_contains "$CASE_OUTPUT" "Surface d'installation: corpus" "Skills component reports the corpus surface"
+
+explicit_runtime_fixture="$(make_fixture explicit-runtime-components)"
+rm -rf "$explicit_runtime_fixture/home/shipglows"
+run_case "$explicit_runtime_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=runtime SHIPGLOWS_INSTALL_COMPONENTS=all
+if [ "$CASE_STATUS" -eq 0 ]; then pass "Explicit runtime surface remains authoritative"; else fail "Explicit runtime surface remains authoritative"; fi
+assert_contains "$CASE_OUTPUT" "Surface d'installation: runtime" "Explicit runtime overrides component inference"
+
 upgrade_fixture="$(make_fixture runtime-upgrade)"
 run_case "$upgrade_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus
 if [ "$CASE_STATUS" -eq 0 ]; then pass "Existing checkout surface upgrade succeeds"; else fail "Existing checkout surface upgrade succeeds"; fi

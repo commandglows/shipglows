@@ -63,6 +63,48 @@ warning() {
 SHIPGLOWS_SYSTEM_PNPM_HOME="${SHIPGLOWS_SYSTEM_PNPM_HOME:-/usr/local/lib/shipglows/pnpm}"
 SHIPGLOWS_SYSTEM_PNPM_GLOBAL_DIR="${SHIPGLOWS_SYSTEM_PNPM_GLOBAL_DIR:-$SHIPGLOWS_SYSTEM_PNPM_HOME/global}"
 SHIPGLOWS_SYSTEM_BIN_DIR="${SHIPGLOWS_SYSTEM_BIN_DIR:-/usr/local/bin}"
+SHIPGLOWS_OS_RELEASE_FILE="${SHIPGLOWS_OS_RELEASE_FILE:-/etc/os-release}"
+
+require_supported_linux_distribution() {
+    local os_id=""
+    local os_like=""
+
+    if [ ! -r "$SHIPGLOWS_OS_RELEASE_FILE" ]; then
+        error "Distribution Linux indétectable: $SHIPGLOWS_OS_RELEASE_FILE est absent ou illisible. Le mode full prend en charge Ubuntu et Debian."
+        return 1
+    fi
+
+    os_id="$(sed -n 's/^ID=//p' "$SHIPGLOWS_OS_RELEASE_FILE" | head -n 1 | tr -d '\"')"
+    os_like="$(sed -n 's/^ID_LIKE=//p' "$SHIPGLOWS_OS_RELEASE_FILE" | head -n 1 | tr -d '\"')"
+    case " $os_id $os_like " in
+        *" ubuntu "*|*" debian "*)
+            info "Distribution Linux prise en charge: ${os_id:-dérivée Debian/Ubuntu}"
+            return 0
+            ;;
+        *)
+            error "Distribution Linux non prise en charge: ${os_id:-inconnue}. Le mode full prend en charge Ubuntu, Debian et leurs dérivées déclarées compatibles."
+            return 1
+            ;;
+    esac
+}
+
+write_shipglows_command_wrapper() {
+    local cli_name="$1"
+    local cli_target="$2"
+    local wrapper_path="$SHIPGLOWS_SYSTEM_BIN_DIR/$cli_name"
+    local wrapper_tmp
+
+    install -d -m 0755 "$SHIPGLOWS_SYSTEM_BIN_DIR" || return 1
+    wrapper_tmp="$(mktemp "$SHIPGLOWS_SYSTEM_BIN_DIR/.${cli_name}.shipglows.XXXXXX")" || return 1
+    if ! printf '#!/bin/sh\nexec "%s" "$@"\n' "$cli_target" > "$wrapper_tmp"; then
+        rm -f "$wrapper_tmp"
+        return 1
+    fi
+    if ! chmod 755 "$wrapper_tmp" || ! mv -f "$wrapper_tmp" "$wrapper_path"; then
+        rm -f "$wrapper_tmp"
+        return 1
+    fi
+}
 
 cli_command_works() {
     local cli_name="$1"
@@ -446,6 +488,8 @@ fi
 info "Mode root confirmé : installation système + configuration ShipGlows du compte principal"
 echo -e "${BLUE}ℹ️${NC} Scope root appliqué : /usr/local, /etc/dokploy, Caddy, Flox, outils globaux"
 shipglows_log "INFO" "Privilege scope: root run. Applying system/global setup plus ShipGlows user configuration."
+
+require_supported_linux_distribution || exit 1
 
 shipglows_capture_status
 
@@ -1839,17 +1883,10 @@ configure_command_wrappers() {
     local gsc_target="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows-gsc.sh"
     local turso_login_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-login.sh"
     local turso_ssh_target="$SHIPGLOWS_INSTALL_ROOT/local/turso-ssh.sh"
-    local bin_dir="/usr/local/bin"
+    local bin_dir="$SHIPGLOWS_SYSTEM_BIN_DIR"
 
-    mkdir -p "$bin_dir"
-    cat > "$bin_dir/shipglows" <<EOF
-#!/bin/sh
-exec "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" "\$@"
-EOF
-    cat > "$bin_dir/sg" <<EOF
-#!/bin/sh
-exec "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" "\$@"
-EOF
+    write_shipglows_command_wrapper shipglows "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" || return 1
+    write_shipglows_command_wrapper sg "$SHIPGLOWS_INSTALL_ROOT/cli/shipglows.sh" || return 1
     if [ -f "$gsc_target" ]; then
         ln -sf "$gsc_target" "$bin_dir/shipglows-gsc"
         ln -sf "$gsc_target" "$bin_dir/gsc"
@@ -2230,36 +2267,55 @@ setup_user() {
 
     if [ "$setup_failed" -eq 0 ]; then
         echo -e "  ${GREEN}✅ Utilisateur configuré :${NC} $username"
+        return 0
     else
         echo -e "  ${YELLOW}⚠️ Utilisateur configuré avec warnings :${NC} $username"
+        return 1
     fi
 }
 
 echo ""
 echo -e "${BLUE}👥 Configuration par utilisateur...${NC}"
-configure_command_wrappers
-
 collect_target_users
 resolve_autonomy_mode
 resolve_root_autonomy_opt_in
 resolve_install_components
+if [ "${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}" = "1" ] && { [ ! -d "$SHIPGLOWS_INSTALL_ROOT/skills" ] || [ ! -x "$SHIPGLOWS_INSTALL_ROOT/tools/shipglows_sync_skills.sh" ]; }; then
+    error "Le corpus de skills a été demandé mais il manque dans $SHIPGLOWS_INSTALL_ROOT. Relancez l'installeur public avec SHIPGLOWS_INSTALL_SURFACE=corpus."
+    exit 1
+fi
+configure_command_wrappers || {
+    error "Impossible d'installer les commandes système shipglows et sg"
+    exit 1
+}
 info "Mode IA autonome ShipGlows: ${SHIPGLOWS_AUTONOMY_MODE_RESOLVED}"
 info "Autonomie root: $([ "${SHIPGLOWS_ROOT_AUTONOMOUS_ALLOWED:-0}" = "1" ] && echo autorisee || echo standard)"
 info "Composants user ShipGlows: claude=${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}, codex=${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}, opencode=${SHIPGLOWS_INSTALL_AGENT_OPENCODE:-0}, kilocode=${SHIPGLOWS_INSTALL_AGENT_KILOCODE:-0}, ai-runtime=${SHIPGLOWS_INSTALL_AI_RUNTIME:-1}, skill-corpus=${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}, tui=${SHIPGLOWS_INSTALL_TUI:-1}"
-setup_user "$PRIMARY_USER_HOME" "$PRIMARY_USER"
+SHIPGLOWS_USER_SETUP_FAILED=0
+if ! setup_user "$PRIMARY_USER_HOME" "$PRIMARY_USER"; then
+    SHIPGLOWS_USER_SETUP_FAILED=1
+fi
 for username in "${TARGET_USERS[@]}"; do
     [ "$username" = "$PRIMARY_USER" ] && continue
     user_home="$(getent passwd "$username" | cut -d: -f6)"
     [ -n "$user_home" ] || continue
-    setup_user "$user_home" "$username"
+    if ! setup_user "$user_home" "$username"; then
+        SHIPGLOWS_USER_SETUP_FAILED=1
+    fi
 done
 
 TARGET_USERS_SUMMARY="$(target_users_summary)"
 
 echo ""
-echo -e "${GREEN}╔══════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║${NC}          ${YELLOW}Installation terminée !${NC}              ${CYAN}║${NC}"
-echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
+if [ "$SHIPGLOWS_USER_SETUP_FAILED" -eq 0 ]; then
+    echo -e "${GREEN}╔══════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║${NC}          ${YELLOW}Installation terminée !${NC}              ${CYAN}║${NC}"
+    echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
+else
+    echo -e "${RED}╔══════════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}║${NC}          ${YELLOW}Installation incomplète${NC}               ${RED}║${NC}"
+    echo -e "${RED}╚══════════════════════════════════════════════════╝${NC}"
+fi
 echo ""
 
 echo -e "${BLUE}📝 Prochaines étapes :${NC}"
@@ -2300,7 +2356,6 @@ fi
 echo ""
 echo -e "${BLUE}🗂️  Logs :${NC}"
 echo -e "  • Fichier: ${SHIPGLOWS_LOG_FILE}"
-shipglows_log "INFO" "ShipGlows install completed"
 
 generate_install_report() {
     local status_node status_pm2 status_vercel status_convex status_clerk status_supabase status_flox status_gh status_python3 status_pyyaml status_caddy status_git status_jq status_fuser
@@ -2340,7 +2395,7 @@ generate_install_report() {
 - Version script: local
 - Machine: $(hostname)
 - Log brut: $SHIPGLOWS_LOG_FILE
-- Statut global: $(if command -v node >/dev/null 2>&1 && managed_pnpm_cli_works pm2 --version && managed_pnpm_cli_works vercel --version; then echo "SUCCÈS"; else echo "PARTIEL"; fi)
+- Statut global: $(if [ "${SHIPGLOWS_USER_SETUP_FAILED:-1}" -eq 0 ] && command -v node >/dev/null 2>&1 && managed_pnpm_cli_works pm2 --version && managed_pnpm_cli_works vercel --version; then echo "SUCCÈS"; else echo "PARTIEL"; fi)
 
 ## Packages / outils
 
@@ -2386,6 +2441,7 @@ generate_install_report() {
 - Avertissements:
 - Sur hôte ARM64, éviter \`flutter build apk --release\` local; router Android release vers Blacksmith ou une CI Linux x64.
 - Erreurs bloquantes:
+- $(if [ "${SHIPGLOWS_USER_SETUP_FAILED:-1}" -eq 0 ]; then echo "Aucune erreur de configuration utilisateur détectée."; else echo "Au moins une configuration utilisateur a échoué; consulter le log brut."; fi)
 - Recommandations:
 REPORT
 }
@@ -2395,4 +2451,10 @@ generate_install_report
 echo -e "${BLUE}🗒️  Rapport :${NC}"
 echo -e "  • Fichier: ${SHIPGLOWS_REPORT_FILE}"
 
+if [ "$SHIPGLOWS_USER_SETUP_FAILED" -ne 0 ]; then
+    error "Installation incomplète: au moins une configuration utilisateur a échoué. Consultez $SHIPGLOWS_LOG_FILE"
+    exit 1
+fi
+
+shipglows_log "INFO" "ShipGlows install completed successfully"
 success "Installation complète pour tous les utilisateurs !"

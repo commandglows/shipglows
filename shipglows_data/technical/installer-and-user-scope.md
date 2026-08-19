@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.15.0"
+artifact_version: "2.16.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-19"
@@ -58,6 +58,7 @@ evidence:
   - "Linux system pnpm CLIs now live under a world-readable ShipGlows prefix, use atomic /usr/local/bin wrappers, and must pass an execution probe before the installer reports success."
   - "Codex Playwright MCP refresh now removes only owned mcp_servers.playwright tables, preserving project trust, marketplace, plugin, notice, and other adjacent configuration across repeated installs."
   - "Linux system pnpm migration now pins both global-dir and global-bin-dir and ignores executable root-private legacy wrappers when deciding whether a managed CLI is installed."
+  - "Linux full mode now rejects unsupported distributions before package installation, replaces legacy sg/shipglows symlinks atomically, selects the corpus surface from skill-bearing component requests, and propagates user-setup failures instead of printing a false success banner."
   - "The native Windows full-install contract packages the reproducible-environment Python control plane and schema, then exposes it through the profile-independent s launcher."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit installer"
@@ -94,7 +95,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 - Native Windows without WSL uses the same endpoint with `?format=powershell`; it resolves the requested branch, tag, or SHA through GitHub's canonical commit API, validates the returned 40-character SHA, and extracts only that immutable public archive without Git. It supports `local` or `full`. Interactive mode selection requires `1`, `2`, or `0`; an empty answer only repeats the prompt. Before changing an existing runtime, the bootstrap stages and syntax-validates the complete managed payload, classifies the operation as install/update/repair/no-op, takes a per-runtime lock, and activates only the manifest-owned files transactionally. Failure restores the prior managed file and directory tree; third-party package-manager changes already completed remain outside that rollback boundary. Full adds the native Astro/Python/Flutter DevServer, Gum, Git, GitHub CLI, Node LTS, pnpm, uv and Flutter without `sudo`, `autossh`, Flox, PM2, or mandatory `ssh-agent`. It reuses validated external Flutter/Dart, JDK 17 and Android SDK paths without replacing `JAVA_HOME`, `ANDROID_HOME`, `ANDROID_SDK_ROOT` or `PATH`; managed user-scope installs are used only when a valid existing tool is absent. An interactive x64 run asks about the emulator only when the emulator, Android 36 image, and named AVD are not already complete; a partial state offers repair. Uncertain acceleration produces a warning instead of suppressing the choice. Acceptance installs missing components with visible progress, while non-interactive runs never infer consent. Android terms and official license prompts remain explicit system/legal confirmations. Every high-level phase renders immediately, each question exposes awaiting-input/answer-received states, and phase work duration excludes human wait time. A second grouped proposal installs only missing large IDE outcomes: current Android Studio, and Visual Studio Community 2022 with the native desktop C++ workload for Flutter Windows. Existing complete installations skip the proposal, partial Visual Studio installs are repaired, progress remains visible and `--norestart` forbids an automatic reboot. Firebase authentication, project choice, billing and remote-device reservation stay user-owned inside Android Studio. One grouped agent proposal installs missing or version-drifted Codex, Claude, OpenCode, Kilo and Gemini CLIs only after consent and at exact resolved versions; non-interactive execution preserves them pending and authentication remains user-owned. Bounded workspace detection prepares exact-version Firebase, FlutterFire, Convex, Vercel, Supabase and Clerk CLIs, then Dart/Flutter, Playwright, Firebase, Convex and Clerk MCP definitions for installed agents. Provider exit codes are not treated as final truth: bounded re-observation recognizes an exact existing CLI, trusted `mise` calendar-version output, Claude MCP re-read, or decoded Codex MCP JSON after an ambiguous exit. The official GitHub MCP is registered globally at its read-only endpoint because GitHub CLI is part of full mode. Gemini MCP entries use its official user-scope CLI, then local `settings.json` verification without connecting; its global context uses `.gemini/GEMINI.md`. `gh` exclusively owns GitHub credentials; Clerk project linking, SDK injection, environment retrieval and authentication remain explicit project actions. Existing secret-bearing JSON/JSONC is preserved when exact native convergence cannot be proven and that pending state is recorded per agent. Developer Mode is detected read-only; ShipGlows may open its official Windows settings page after consent but never changes policy or registry values. `SHIPGLOWS_CODEX_PERMISSION_MODE=workspace|full|keep` keeps Codex permission behavior deterministic for automation.
 - Native Windows keeps internal source and command wrappers under `%USERPROFILE%\.shipglows\runtime`; the parent `.shipglows` directory stays hidden and may also contain sibling private data repositories. User repositories live directly under `%USERPROFILE%\ShipGlows`; migration removes only legacy `bin`, `cli`, and `local` runtime directories and removes the old visible `workspace` directory only when it is empty.
 - Native Windows full copies the exact `cli/environment` Python package and schema into `%USERPROFILE%\.shipglows\runtime\cli\environment`. The installed `s` launcher resolves that tree directly and exposes `s env inspect|plan|verify|status|apply` without a PowerShell profile. Read-only environment commands dispatch before DevServer initialization and therefore do not create its workspace, registry or menu cache.
-- `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process.
+- `install-shipglows.sh`: canonical bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process. Without an explicit surface, `SHIPGLOWS_INSTALL_COMPONENTS=all|skills|corpus` selects the corpus sparse checkout automatically.
 - `tools/sync_shipglows_public_bootstrap.sh --check [--site-root <path>]`: verifies that the ShipGlows site serves generated canonical artifacts rather than independently maintained templates.
 - `sudo ./cli/install.sh`: server installer.
 - `./local/install.sh`: local tunnel and remote-login installer, including Android Termux.
@@ -114,6 +115,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 curl -fsSL https://shipglows.com/shipglows-script | sh
   -> resolve SHIPGLOWS_INSTALL_MODE, Termux, root, or /dev/tty choice
   -> reject ambiguous non-interactive and unsupported Termux/full combinations
+  -> infer the corpus surface when the selected components require skills
   -> install bootstrap dependencies with pkg (Termux) or apt (full server)
   -> download and extract the public ShipGlows archive under the selected user's home
   -> local: exec user-local local/install.sh
@@ -121,10 +123,12 @@ curl -fsSL https://shipglows.com/shipglows-script | sh
 
 sudo ./cli/install.sh
   -> verify root scope
+  -> accept Ubuntu/Debian or a derivative declaring that compatibility
   -> install system tools
-  -> configure global commands
   -> collect eligible users
   -> resolve user-space component selection
+  -> fail before user setup when a requested skill corpus is absent
+  -> atomically replace global shipglows/sg wrappers without following legacy symlinks
   -> setup_user
   -> write aliases, skill links, MCP config, Codex config, shipglows_data
   -> generate install report
@@ -133,6 +137,7 @@ sudo ./cli/install.sh
 ## Invariants
 
 - Server install is root-level and should fail clearly without root.
+- Server full mode supports Ubuntu, Debian, and derivatives declaring either family in `ID_LIKE`; other Linux distributions fail before package installation.
 - The remote bootstrap must resolve the mode before enforcing privileges. `local` never requires `sudo`; `full` preserves the root boundary and runs through `cli/install.sh` as root.
 - Android Termux always selects or accepts only `local`, even if `sudo` or `tsu` happens to be installed.
 - Prompts read `/dev/tty`, never the script pipeline's standard input. Ambiguous non-interactive runs fail with explicit mode commands.
@@ -146,6 +151,8 @@ sudo ./cli/install.sh
   default system `caddy.service`; normal environment proxying is launched later
   by ShipGlows in user mode and tied to PM2 app lifecycle.
 - Existing user config must be preserved outside ShipGlows-managed blocks.
+- Global `shipglows` and `sg` wrappers are installed by same-directory atomic replacement, so an old symlink is replaced rather than its target being overwritten.
+- A requested skill corpus must exist before command or user configuration begins. Any per-user setup failure must produce a non-zero installer exit and an incomplete report/banner.
 - Codex autonomy uses the current permission-profile keys: standard mode writes
   `approval_policy = "on-request"` with `default_permissions = ":workspace"`;
   permissive mode writes `approval_policy = "never"` with
@@ -286,6 +293,7 @@ bash -n cli/install.sh local/install.sh local/turso-login.sh local/turso-ssh.sh
 bash tests/cli/pnpm-bootstrap.sh
 bash tests/install/pnpm-global-cli-health.sh
 bash tests/install/bootstrap-mode-selection.sh
+bash tests/install/full-installer-paths.sh
 bash tests/windows/devserver-contract.sh
 tools/sync_shipglows_public_bootstrap.sh --check --site-root /home/claude/shipglows_app/site
 bash -n tools/shipglows_sync_skills.sh tests/skills/runtime-sync.sh
