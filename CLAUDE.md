@@ -24,10 +24,10 @@ Guidance for Claude Code when working in this repository.
 **Env Registry** (`~/.shipglows/envs.reg`) — Zero-subprocess dashboard data:
 ```bash
 ensure_registry()    # Lazy refresh only when the registry is missing, invalidated, or stale
-scan_flox_projects() # Shared bounded scanner; emits and prunes each matched .flox
-registry_sync()      # Atomically rebuild from one Flox scan + one PM2 snapshot
+scan_managed_projects() # Merges bounded Git catalogue discovery with existing Flox environments
+registry_sync()      # Atomically rebuild from catalogue/Flox discovery + one PM2 snapshot
 registry_update()    # Atomically update one env entry after lifecycle mutations
-# Format: name|status|port|path per line
+# Format: name|status|port|environment_root|launch_path per line; cloned surfaces may be uninitialized
 # A valid last-known snapshot survives refresh or lock failures
 ```
 

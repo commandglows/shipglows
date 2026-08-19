@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.19.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-17"
+updated: "2026-08-19"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Linux clone/start separation 2026-08-19: clone catalogues bounded surfaces as uninitialized without Flox, dependency, picker, or PM2 side effects; first explicit start initializes only the selected surface."
   - "Runtime layout migration 2026-08-11: mutable user-mode Caddy state now defaults to ~/.shipglows/state/caddy, leaving ~/.shipglows/runtime available for the canonical code checkout."
   - "Function inventory from cli/shipglows.sh, cli/lib.sh, cli/config.sh, and CONTEXT-FUNCTION-TREE.md."
   - "Blacksmith setup menu added for official CLI/Testbox guidance without token handling."
@@ -187,17 +188,21 @@ ShipGlows preserves the existing owner and reports the conflict.
 
 ## Linux Flox environment boundaries
 
-The Linux backend treats each directory containing `.flox` as an environment
-root, but no longer assumes that it is also the application working directory.
-Discovery resolves one native application from `package.json`, `pubspec.yaml`,
-`pyproject.toml`, `requirements.txt`, `Cargo.toml`, or `go.mod`. A direct
-application wins; otherwise exactly one nested launch target is required.
+The Linux backend separates repository discovery from runtime initialization.
+Cloned Git repositories are scanned from native `package.json`, `pubspec.yaml`,
+`pyproject.toml`, `requirements.txt`, `Cargo.toml`, or `go.mod` manifests without
+creating `.flox`, installing dependencies, opening a picker, or starting PM2.
+Each discovered surface enters the registry as `uninitialized`.
+
+An explicit start reuses an owning Flox environment when one exists. Otherwise
+it initializes `.flox` in the selected launch surface only, changes that entry
+to `stopped`, and continues through dependency setup and PM2 startup. A clone is
+therefore never also an implicit start.
 
 A nested directory containing its own `.flox` is an independent environment
-boundary. Its subtree is excluded from its parent's launch-target search. If a
-parent environment contains several remaining launchable applications,
-ShipGlows reports the ambiguity and does not register or start one
-alphabetically.
+boundary. Its subtree is excluded from its parent's launch-target search. Every
+bounded monorepo surface is catalogued separately, while an ambiguous root path
+is never resolved to one surface alphabetically.
 
 The Linux registry stores five fields:
 
@@ -494,9 +499,11 @@ IPC owns only reload, stop, and open operations.
 - `cli/lib.sh::action_github_auth`: official GitHub CLI login/status screen for
   repository listing and deploy-from-GitHub readiness. It delegates token
   handling to `gh` and must not read or store GitHub tokens.
-- `cli/lib.sh::deploy_github_project`: starts a freshly cloned repository from
-  its authoritative absolute path, rather than through the lazy environment
-  registry that can predate the new `.flox` directory.
+- `cli/lib.sh::deploy_github_project`: clones and synchronizes every bounded
+  runnable surface into the Linux registry as `uninitialized`, then returns.
+  It creates no Flox state, installs no dependencies, opens no launch picker,
+  and starts no PM2 process, matching the native Windows clone contract. An
+  existing destination is refused and left unchanged.
 - `cli/lib.sh::action_reboot_vm`: explicit confirmed VM reboot action from the
   system menu. It supports `SHIPGLOWS_REBOOT_DRY_RUN=1` for smoke checks.
 - `cli/lib.sh::mcp_cleanup_menu`: health-menu cleanup for local MCP process

@@ -218,6 +218,7 @@ ui_traffic_color() {
         launching)     printf '🟠';;
         error|errored) printf '🔴';;
         stopped)       printf '🟡';;
+        uninitialized) printf '⚪';;
         *)             printf '⚪';;
     esac
 }
@@ -4238,24 +4239,26 @@ flox_path_crosses_nested_environment() {
     return 1
 }
 
-# Resolve the one application launched inside a Flox environment. Direct
-# applications win. Otherwise exactly one nested native launch target is
-# required; ambiguity is reported and never resolved alphabetically.
-resolve_flox_launch_path_into() {
-    local target="$1" environment_root="${2%/}" candidate_file="" manifest="" candidate=""
-    [ -d "$environment_root/.flox" ] || return 1
+# Emit every supported application launch target below a project boundary.
+# Direct applications win. Otherwise scan only ordinary project directories:
+# hidden implementation trees and surfaces deeper than the native Windows
+# catalogue boundary are not user-launchable project surfaces.
+list_project_launch_paths() {
+    local project_root="${1%/}" candidate_file="" manifest="" candidate=""
+    [ -d "$project_root" ] || return 1
 
-    if flox_launch_target_is_supported "$environment_root"; then
-        _shipglows_assign "$target" "$environment_root"
-        return $?
+    if flox_launch_target_is_supported "$project_root"; then
+        printf '%s\n' "$project_root"
+        return 0
     fi
 
     candidate_file=$(mktemp "${TMPDIR:-/tmp}/shipglows-flox-launch.XXXXXX" 2>/dev/null) || return 1
     register_temp_file "$candidate_file"
-    if ! find "$environment_root" -mindepth 2 -maxdepth 5 \
+    if ! find "$project_root" -mindepth 1 -maxdepth 4 \
         \( -name "node_modules" -o -name ".git" -o -name "venv" -o -name ".venv" \
            -o -name "__pycache__" -o -name "target" -o -name ".next" -o -name ".nuxt" \
-           -o -name "dist" -o -name ".cache" -o -name ".pnpm" -o -name ".yarn" \) -prune \
+           -o -name "dist" -o -name ".cache" -o -name ".pnpm" -o -name ".yarn" \
+           -o -type d -name ".*" \) -prune \
         -o -type f \( -name "package.json" -o -name "requirements.txt" -o -name "pyproject.toml" \
            -o -name "Cargo.toml" -o -name "go.mod" -o -name "pubspec.yaml" \) -print0 \
         > "$candidate_file" 2>/dev/null; then
@@ -4263,17 +4266,33 @@ resolve_flox_launch_path_into() {
         return 1
     fi
 
-    local candidates=()
     declare -A seen_candidates=()
     while IFS= read -r -d '' manifest; do
         candidate=$(dirname "$manifest")
         [ -z "${seen_candidates[$candidate]+x}" ] || continue
         seen_candidates["$candidate"]=1
-        flox_path_crosses_nested_environment "$environment_root" "$candidate" && continue
+        flox_path_crosses_nested_environment "$project_root" "$candidate" && continue
         flox_launch_target_is_supported "$candidate" || continue
-        candidates+=("$candidate")
+        printf '%s\n' "$candidate"
     done < "$candidate_file"
     rm -f "$candidate_file" 2>/dev/null || true
+}
+
+list_flox_launch_paths() {
+    local environment_root="${1%/}"
+    [ -d "$environment_root/.flox" ] || return 1
+    list_project_launch_paths "$environment_root"
+}
+
+# Resolve the one application launched inside a Flox environment. Callers that
+# operate on a root path must still reject ambiguity and require an explicit
+# registered surface instead of silently choosing alphabetically.
+resolve_flox_launch_path_into() {
+    local target="$1" environment_root="${2%/}" candidate=""
+    local candidates=()
+    while IFS= read -r candidate; do
+        [ -n "$candidate" ] && candidates+=("$candidate")
+    done < <(list_flox_launch_paths "$environment_root")
 
     if [ "${#candidates[@]}" -eq 1 ]; then
         _shipglows_assign "$target" "${candidates[0]}"
@@ -4287,8 +4306,8 @@ resolve_flox_launch_path_into() {
     return 1
 }
 
-# Emit one canonical name|environment_root|launch_path record for every Flox
-# environment that resolves to exactly one native application.
+# Emit one canonical name|environment_root|launch_path record for every native
+# application surface owned by a Flox environment.
 scan_flox_projects() {
     [ -d "$PROJECTS_DIR" ] || return 0
 
@@ -4305,36 +4324,104 @@ scan_flox_projects() {
         return 1
     fi
 
-    local flox_dir environment_root launch_path name resolve_rc
+    local flox_dir environment_root launch_path name
     declare -A seen_names=()
     while IFS= read -r -d '' flox_dir; do
         environment_root="${flox_dir%/.flox}"
         [ -d "$environment_root/.flox" ] || continue
-        launch_path=""
-        resolve_flox_launch_path_into launch_path "$environment_root" || {
-            resolve_rc=$?
-            [ "$resolve_rc" -eq 2 ] && log ERROR "Register an explicit application boundary before starting $environment_root"
-            continue
-        }
-        case "$environment_root$launch_path" in
-            *'|'*|*$'\n'*)
-                log WARNING "Skipping Flox project with unsupported registry path"
+        while IFS= read -r launch_path; do
+            [ -n "$launch_path" ] || continue
+            case "$environment_root$launch_path" in
+                *'|'*|*$'\n'*)
+                    log WARNING "Skipping Flox project with unsupported registry path"
+                    continue
+                    ;;
+            esac
+            name=$(derive_pm2_app_name "$launch_path") || continue
+            case "$name" in
+                ''|*'|'*|*$'\n'*) continue ;;
+            esac
+            if [ -n "${seen_names[$name]+x}" ]; then
+                log WARNING "Skipping duplicate environment name: $name"
                 continue
-                ;;
-        esac
-        name=$(derive_pm2_app_name "$launch_path") || continue
-        case "$name" in
-            ''|*'|'*|*$'\n'*) continue ;;
-        esac
+            fi
+            seen_names[$name]=1
+            printf '%s|%s|%s\n' "$name" "$environment_root" "$launch_path"
+        done < <(list_flox_launch_paths "$environment_root")
+    done < "$scan_file"
+
+    rm -f "$scan_file" 2>/dev/null || true
+}
+
+# Discover runnable surfaces in cloned Git repositories without creating Flox
+# state. Each uninitialized surface owns its future environment directory.
+scan_workspace_projects() {
+    [ -d "$PROJECTS_DIR" ] || return 0
+
+    local repo_file
+    repo_file=$(mktemp "${TMPDIR:-/tmp}/shipglows-repositories.XXXXXX" 2>/dev/null) || return 1
+    register_temp_file "$repo_file"
+    if ! find "$PROJECTS_DIR" -mindepth 1 -maxdepth 4 \
+        \( -type d -name ".*" ! -name ".git" \) -prune \
+        -o -type d -name ".git" -print0 -prune > "$repo_file" 2>/dev/null; then
+        rm -f "$repo_file" 2>/dev/null || true
+        return 1
+    fi
+
+    local git_dir repo_root launch_path environment_root name cursor
+    declare -A seen_names=()
+    while IFS= read -r -d '' git_dir; do
+        repo_root="${git_dir%/.git}"
+        while IFS= read -r launch_path; do
+            [ -n "$launch_path" ] || continue
+            environment_root="$launch_path"
+            cursor="$launch_path"
+            while [ "$cursor" != "$repo_root" ] && [ "$cursor" != "/" ]; do
+                if [ -d "$cursor/.flox" ]; then
+                    environment_root="$cursor"
+                    break
+                fi
+                cursor=$(dirname "$cursor")
+            done
+            if [ "$cursor" = "$repo_root" ] && [ -d "$repo_root/.flox" ]; then
+                environment_root="$repo_root"
+            fi
+            name=$(derive_pm2_app_name "$launch_path") || continue
+            case "$name$environment_root$launch_path" in
+                ''|*'|'*|*$'\n'*) continue ;;
+            esac
+            [ -z "${seen_names[$name]+x}" ] || continue
+            seen_names[$name]=1
+            printf '%s|%s|%s\n' "$name" "$environment_root" "$launch_path"
+        done < <(list_project_launch_paths "$repo_root")
+    done < "$repo_file"
+    rm -f "$repo_file" 2>/dev/null || true
+}
+
+# Merge runtime-owned Flox environments with clone catalogue entries. Flox
+# records win, while launch-path deduplication keeps one durable row per app.
+scan_managed_projects() {
+    local combined_file name environment_root launch_path extra
+    combined_file=$(mktemp "${TMPDIR:-/tmp}/shipglows-managed-projects.XXXXXX" 2>/dev/null) || return 1
+    register_temp_file "$combined_file"
+    if ! scan_flox_projects > "$combined_file" || ! scan_workspace_projects >> "$combined_file"; then
+        rm -f "$combined_file" 2>/dev/null || true
+        return 1
+    fi
+
+    declare -A seen_launch_paths=() seen_names=()
+    while IFS='|' read -r name environment_root launch_path extra; do
+        [ -n "$name" ] && [ -n "$environment_root" ] && [ -n "$launch_path" ] && [ -z "$extra" ] || continue
+        [ -z "${seen_launch_paths[$launch_path]+x}" ] || continue
         if [ -n "${seen_names[$name]+x}" ]; then
             log WARNING "Skipping duplicate environment name: $name"
             continue
         fi
+        seen_launch_paths[$launch_path]=1
         seen_names[$name]=1
         printf '%s|%s|%s\n' "$name" "$environment_root" "$launch_path"
-    done < "$scan_file"
-
-    rm -f "$scan_file" 2>/dev/null || true
+    done < "$combined_file"
+    rm -f "$combined_file" 2>/dev/null || true
 }
 
 registry_is_valid() {
@@ -4346,7 +4433,11 @@ registry_is_valid() {
         [ -n "$name" ] || return 1
         [ -z "$extra" ] || return 1
         [[ "$environment_root" == /* ]] || return 1
-        [ -d "$environment_root/.flox" ] || return 1
+        if [ "$status" = "uninitialized" ]; then
+            [ -d "$environment_root" ] || return 1
+        else
+            [ -d "$environment_root/.flox" ] || return 1
+        fi
         [ -n "$launch_path" ] || launch_path="$environment_root"
         [[ "$launch_path" == /* ]] && [ -d "$launch_path" ] || return 1
         case "$launch_path" in "$environment_root"|"$environment_root"/*) ;; *) return 1 ;; esac
@@ -4500,7 +4591,7 @@ registry_sync() {
     register_temp_file "$snapshot_file"
     chmod 600 "$discovery_file" "$snapshot_file" 2>/dev/null || true
 
-    if ! scan_flox_projects > "$discovery_file"; then
+    if ! scan_managed_projects > "$discovery_file"; then
         rm -f "$discovery_file" "$snapshot_file" 2>/dev/null || true
         _registry_release_lock
         return 1
@@ -4511,14 +4602,19 @@ registry_sync() {
     pm2_data_load pm2_data 2>/dev/null || pm2_available=false
 
     declare -A environment_roots=() launch_paths=() environment_to_name=() launch_to_name=()
-    declare -A previous_status=() previous_port=() previous_status_by_environment=() previous_port_by_environment=()
-    declare -A seen=() seen_environments=()
+    declare -A previous_status=() previous_port=() previous_status_by_launch=() previous_port_by_launch=()
+    declare -A previous_status_by_environment=() previous_port_by_environment=()
+    declare -A seen=() seen_launch_paths=()
     local name environment_root launch_path status port cwd extra canonical_name
     while IFS='|' read -r name environment_root launch_path extra; do
         [ -n "$name" ] && [ -n "$environment_root" ] && [ -n "$launch_path" ] && [ -z "$extra" ] || continue
         environment_roots[$name]="$environment_root"
         launch_paths[$name]="$launch_path"
-        environment_to_name["$environment_root"]="$name"
+        if [ -z "${environment_to_name[$environment_root]+x}" ]; then
+            environment_to_name["$environment_root"]="$name"
+        else
+            environment_to_name["$environment_root"]="__ambiguous__"
+        fi
         launch_to_name["$launch_path"]="$name"
     done < "$discovery_file"
 
@@ -4526,6 +4622,10 @@ registry_sync() {
         while IFS='|' read -r name status port environment_root launch_path extra; do
             previous_status[$name]="$status"
             previous_port[$name]="$port"
+            if [ -n "$launch_path" ]; then
+                previous_status_by_launch[$launch_path]="$status"
+                previous_port_by_launch[$launch_path]="$port"
+            fi
             previous_status_by_environment[$environment_root]="$status"
             previous_port_by_environment[$environment_root]="$port"
         done < "$SHIPGLOWS_REGISTRY"
@@ -4537,6 +4637,7 @@ registry_sync() {
             canonical_name="$name"
             if [ -n "$cwd" ]; then
                 canonical_name="${launch_to_name[$cwd]:-${environment_to_name[$cwd]:-$name}}"
+                [ "$canonical_name" = "__ambiguous__" ] && canonical_name="$name"
             fi
             if [ -n "${environment_roots[$canonical_name]:-}" ]; then
                 name="$canonical_name"
@@ -4546,10 +4647,10 @@ registry_sync() {
             [ -n "$environment_root" ] && [ -d "$environment_root/.flox" ] && [ -d "$launch_path" ] || continue
             case "$name$status$port$environment_root$launch_path" in *'|'*|*$'\n'*) continue ;; esac
 
-            if [ -n "${seen_environments[$environment_root]:-}" ]; then
+            if [ -n "${seen_launch_paths[$launch_path]:-}" ]; then
                 continue
             fi
-            seen_environments["$environment_root"]="$name"
+            seen_launch_paths["$launch_path"]="$name"
 
             printf '%s|%s|%s|%s|%s\n' "$name" "${status:-unknown}" "$port" "$environment_root" "$launch_path" >> "$snapshot_file"
             seen["$name"]=1
@@ -4558,15 +4659,24 @@ registry_sync() {
 
     while IFS='|' read -r name environment_root launch_path extra; do
         [ -n "$name" ] && [ -n "$environment_root" ] && [ -n "$launch_path" ] && [ -z "$extra" ] || continue
-        if [ -n "${seen_environments[$environment_root]:-}" ]; then
+        if [ -n "${seen_launch_paths[$launch_path]:-}" ]; then
             continue
         fi
-        status="stopped"
+        if [ -d "$environment_root/.flox" ]; then
+            status="stopped"
+        else
+            status="uninitialized"
+        fi
         port=""
         if [ "$pm2_available" = "false" ] && [ -n "${previous_status[$name]+x}" ]; then
             status="${previous_status[$name]}"
             port="${previous_port[$name]:-}"
-        elif [ "$pm2_available" = "false" ] && [ -n "${previous_status_by_environment[$environment_root]+x}" ]; then
+        elif [ "$pm2_available" = "false" ] && [ -n "${previous_status_by_launch[$launch_path]+x}" ]; then
+            status="${previous_status_by_launch[$launch_path]}"
+            port="${previous_port_by_launch[$launch_path]:-}"
+        elif [ "$pm2_available" = "false" ] && \
+             [ "${environment_to_name[$environment_root]:-__ambiguous__}" != "__ambiguous__" ] && \
+             [ -n "${previous_status_by_environment[$environment_root]+x}" ]; then
             status="${previous_status_by_environment[$environment_root]}"
             port="${previous_port_by_environment[$environment_root]:-}"
         fi
@@ -5334,18 +5444,28 @@ environment_identifiers_load() {
 resolve_project_paths_into() {
     local __sgdv_resolve_root_target="$1" __sgdv_resolve_launch_target="$2" __sgdv_resolve_identifier="$3"
     local __sgdv_resolve_index="" __sgdv_resolve_name __sgdv_resolve_status __sgdv_resolve_port
-    local __sgdv_resolve_root __sgdv_resolve_launch
+    local __sgdv_resolve_root __sgdv_resolve_launch __sgdv_resolve_root_match="" __sgdv_resolve_root_count=0
     environment_index_load __sgdv_resolve_index || return 1
     while IFS='|' read -r __sgdv_resolve_name __sgdv_resolve_status __sgdv_resolve_port __sgdv_resolve_root __sgdv_resolve_launch; do
         [ -n "$__sgdv_resolve_launch" ] || __sgdv_resolve_launch="$__sgdv_resolve_root"
         if [ "$__sgdv_resolve_name" = "$__sgdv_resolve_identifier" ] || \
-           [ "$__sgdv_resolve_root" = "$__sgdv_resolve_identifier" ] || \
            [ "$__sgdv_resolve_launch" = "$__sgdv_resolve_identifier" ]; then
             _shipglows_assign "$__sgdv_resolve_root_target" "$__sgdv_resolve_root" || return 1
             _shipglows_assign "$__sgdv_resolve_launch_target" "$__sgdv_resolve_launch"
             return $?
         fi
+        if [ "$__sgdv_resolve_root" = "$__sgdv_resolve_identifier" ]; then
+            __sgdv_resolve_root_match="$__sgdv_resolve_launch"
+            __sgdv_resolve_root_count=$((__sgdv_resolve_root_count + 1))
+        fi
     done <<< "$__sgdv_resolve_index"
+
+    if [ "$__sgdv_resolve_root_count" -eq 1 ]; then
+        _shipglows_assign "$__sgdv_resolve_root_target" "$__sgdv_resolve_identifier" || return 1
+        _shipglows_assign "$__sgdv_resolve_launch_target" "$__sgdv_resolve_root_match"
+        return $?
+    fi
+    [ "$__sgdv_resolve_root_count" -eq 0 ] || return 2
 
     # A newly created absolute Flox environment can be resolved before the
     # cached registry refreshes, but it must still have one unambiguous app.
@@ -6434,6 +6554,19 @@ python_runtime_command() {
     fi
 }
 
+# Resolve the runtime environment for an explicitly selected launch surface.
+# Existing shared/owned Flox roots are reused; catalog-only surfaces initialize
+# Flox in their own launch directory on first start.
+ensure_launch_flox_environment_into() {
+    local target="$1" environment_root="$2" launch_path="$3" env_name="$4"
+    if [ -d "$environment_root/.flox" ]; then
+        _shipglows_assign "$target" "$environment_root"
+        return $?
+    fi
+    init_flox_env "$launch_path" "$env_name" || return 1
+    _shipglows_assign "$target" "$launch_path"
+}
+
 # Create or init Flox environment for project
 init_flox_env() {
     local project_dir=$1
@@ -7381,10 +7514,14 @@ env_start() {
     project_type=$(detect_project_type "$project_dir")
     local project_lang="${project_type%%:*}"
 
-    # Check if Flox env exists, create if not
+    # A catalogued surface may not have runtime state yet. Initialize Flox only
+    # when that exact surface is explicitly started; never mutate its repo root
+    # merely because the repository was cloned.
     if [ ! -d "$environment_root/.flox" ]; then
         echo -e "${YELLOW}⚠️  Pas d'environnement Flox détecté${NC}"
-        init_flox_env "$environment_root" "$env_name" || return 1
+        ensure_launch_flox_environment_into environment_root "$environment_root" "$project_dir" "$env_name" || return 1
+        registry_update "$env_name" "stopped" "" "$environment_root" "$project_dir" || \
+            warning "Environnement Flox créé, mais le registre n'a pas pu être rafraîchi immédiatement"
     elif [ "$project_lang" = "dart" ] || [ "$project_lang" = "flutter" ]; then
         init_flox_env "$environment_root" "$env_name" || return 1
     fi
@@ -8475,6 +8612,7 @@ get_status_icon() {
     case "$status" in
         online)        echo "🟢";;
         stopped)       echo "🟡";;
+        uninitialized) echo "⚪";;
         errored|error) echo "🔴";;
         *)             echo "⚪";;
     esac
@@ -8683,7 +8821,7 @@ health_check_all() {
         ((total_count++))
 
         # Skip stopped apps (they're intentionally stopped)
-        [ "$status" = "stopped" ] && continue
+        { [ "$status" = "stopped" ] || [ "$status" = "uninitialized" ]; } && continue
 
         local health
         health=$(detect_crash_loop "$name" "$restarts" "$uptime_ms" "$status")
@@ -9035,7 +9173,7 @@ show_dashboard() {
     fi
 
     # Display environments with status
-    echo -e "  🟢 online  🟡 stopped  🔴 error  ⚪ unknown"
+    echo -e "  🟢 online  🟡 stopped  🔴 error  ⚪ not initialized"
     echo ""
 
     local total_envs=$(echo "$reg_data" | grep -c .)
@@ -9772,12 +9910,11 @@ print(json.dumps(cfg, indent=2))
 # deploy_github_project - Deploy a project from GitHub repository
 #
 # Description:
-#   Complete workflow to deploy a GitHub repository:
+#   Clone and catalogue a GitHub repository:
 #   - Creates project directory
 #   - Clones repository from GitHub
-#   - Initializes Flox environment
-#   - Starts the application with PM2
-#   - Handles existing projects (asks to replace)
+#   - Catalogues supported launch surfaces without initializing or starting them
+#   - Refuses an existing destination without modifying it
 #
 # Arguments:
 #   $1 - Repository name (e.g., "my-repo")
@@ -9787,13 +9924,12 @@ print(json.dumps(cfg, indent=2))
 #   1 - Error occurred
 #
 # Outputs:
-#   Progress messages and final URLs to stdout
+#   Progress messages and catalogue result to stdout
 #
 # Side Effects:
 #   - Creates directory in PROJECTS_DIR
 #   - Clones git repository
-#   - Initializes Flox environment
-#   - Starts PM2 process
+#   - Atomically refreshes the project registry
 #
 # Example:
 #   deploy_github_project "my-awesome-app"
@@ -9826,16 +9962,11 @@ deploy_github_project() {
     # Check if project already exists
     local existing_project=""
     resolve_project_path_into existing_project "$project_name" || existing_project=""
+    [ -n "$existing_project" ] || { [ -e "$project_dir" ] && existing_project="$project_dir"; }
     if [ -n "$existing_project" ]; then
         echo -e "${YELLOW}⚠️  Project $project_name already exists at $existing_project${NC}"
-        if ! ui_confirm "Replace it?"; then
-            echo -e "${BLUE}❌ Cancelled${NC}"
-            return 1
-        fi
-
-        # Remove old project
-        echo -e "${YELLOW}Removing old project...${NC}"
-        env_remove "$project_name"
+        echo -e "${BLUE}Existing project files were left unchanged.${NC}"
+        return 1
     fi
 
     # Create project directory
@@ -9874,78 +10005,34 @@ deploy_github_project() {
         return 1
     fi
 
-    # Initialize Flox environment
-    echo ""
-    echo -e "${YELLOW}🔧 Initializing Flox environment...${NC}"
-    if ! init_flox_env "$project_dir" "$project_name"; then
-        log ERROR "Flox initialization failed for $project_name at $project_dir"
-        echo -e "${RED}❌ Flox initialization failed${NC}"
-        echo -e "${YELLOW}Cleanup: Removing project directory${NC}"
-        rm -rf "$project_dir"
+    # Catalogue every runnable surface without creating Flox state, installing
+    # dependencies, or starting a process. Clone and start are separate actions.
+    if ! registry_sync; then
+        log ERROR "Failed to register cloned project surfaces: $project_name"
+        echo -e "${RED}❌ Failed to register cloned project surfaces${NC}"
         return 1
     fi
 
-    # Start the environment
-    echo ""
-    echo -e "${GREEN}🚀 Starting application...${NC}"
-    local env_start_rc=0
-    # The registry may have been populated by the existence check before this
-    # clone gained its .flox directory. Start from the authoritative path we
-    # just created rather than requiring that stale name index to know it.
-    env_start "$project_dir"
-    env_start_rc=$?
-    if [ $env_start_rc -eq 20 ]; then
-        echo ""
-        echo -e "${BLUE}🧭 Migration pnpm confiée à Codex pour $project_name.${NC}"
-        echo -e "${YELLOW}Relance le démarrage ShipGlows après la migration.${NC}"
-        return 0
-    fi
-    if [ $env_start_rc -ne 0 ]; then
-        log ERROR "Failed to start application after deploy: $project_name"
-        echo -e "${RED}❌ Failed to start application${NC}"
-        echo -e "${YELLOW}Project cloned but not started. Try manually:${NC}"
-        echo -e "  cd $project_dir"
-        echo -e "  flox activate"
+    local registered_launch_paths=()
+    local registered_name registered_status registered_port registered_root registered_launch registered_extra
+    while IFS='|' read -r registered_name registered_status registered_port registered_root registered_launch registered_extra; do
+        case "$registered_launch" in
+            "$project_dir"|"$project_dir"/*) ;;
+            *) continue ;;
+        esac
+        [ -n "$registered_launch" ] && [ -z "$registered_extra" ] || continue
+        registered_launch_paths+=("$registered_launch")
+    done < "$SHIPGLOWS_REGISTRY"
+
+    if [ "${#registered_launch_paths[@]}" -eq 0 ]; then
+        log ERROR "No runnable surface detected after clone: $project_name"
+        echo -e "${RED}❌ No runnable application detected in the cloned repository${NC}"
         return 1
     fi
 
-    # Initialize ShipGlows tracking (TASKS.md + CHANGELOG.md)
-    shipglows_init_project "$project_name" "$project_dir"
-
-    # Get port and display success
-    local port=""
-    pm2_port_load port "$project_name" || port=""
-
     echo ""
-    ui_screen_header "Deployment Successful!" success
-    echo -e "${BLUE}📊 Project Information:${NC}"
-    echo -e "  • Name: $project_name"
-    echo -e "  • Directory: $project_dir"
-
-    if [ -n "$port" ]; then
-        echo -e "  • Port: $port"
-        echo ""
-        echo -e "${BLUE}🌐 Access URLs:${NC}"
-        echo -e "  • Local: ${CYAN}http://localhost:$port${NC}"
-    else
-        echo ""
-        echo -e "${BLUE}📱 Projet mobile (Expo)${NC}"
-        echo -e "  • URL tunnel: ${CYAN}pm2 logs $project_name --lines 30${NC}"
-        echo -e "  • Installe l'APK dev build sur ton téléphone, puis scan le QR"
-    fi
-
-    echo ""
-    echo -e "${YELLOW}📝 Next steps:${NC}"
-    echo -e "  • View logs: Option 7 → View Logs → Select '$project_name'"
-    echo -e "  • Edit code: cd $project_dir"
-    if [ -z "$port" ]; then
-        echo -e "  • APK build (1 seule fois): eas build --profile development --platform android"
-    else
-        echo -e "  • Publish web: Option 6 (Publish to Web)"
-    fi
-    echo ""
-
-    log INFO "Successfully deployed GitHub project: $repo_name"
+    echo -e "${GREEN}✅ Repository cloned and ${#registered_launch_paths[@]} application(s) catalogued${NC}"
+    echo -e "${BLUE}No environment was initialized and no process was started.${NC}"
     return 0
 }
 
