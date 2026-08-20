@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.21.2"
+artifact_version: "0.23.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-16"
+updated: "2026-08-20"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -32,6 +32,7 @@ linked_systems:
   - skills/000-shipglows/SKILL.md
   - skills/references/decision-quality-contract.md
   - skills/references/question-contract.md
+  - skills/references/execution-posture-tags.md
   - skills/references/app-blueprints.md
   - skills/references/design-inspiration-library.md
   - shipglows-site/src/content/skills/shipglows.md
@@ -74,6 +75,8 @@ evidence:
   - "Adopted the métier-first public hierarchy: 13 public owners in six domains, with direct public skill folders and numeric engines retained for expert compatibility only."
   - "Documented the native Windows full DevServer, optional coding agents, execution-policy-safe wrappers, nested s shortcuts, and collision-safe agent aliases."
   - "Operator confirmed positioning decision SG-BIZ-2026-08-13-01: ShipGlows leads as a business-aware delivery partner; environment operations support execution and proof."
+  - "Operator decision 2026-08-20: document #local, #nolocal, and #ci as composable agent execution tags distinct from workflow modes."
+  - "Operator decision 2026-08-20: normal installers offer the official Codex plugin, while source contributors use shipglows skills link for live clone-backed skills without a release loop."
 next_step: "Align the external ShipGlows landing, docs, FAQ, and pitch surfaces with SG-BIZ-2026-08-13-01"
 ---
 
@@ -82,7 +85,7 @@ next_step: "Align the external ShipGlows landing, docs, FAQ, and pitch surfaces 
 > Public-site ownership: the canonical Astro site moved to `/home/claude/shipglows_app/site` on 2026-08-02. The former `shipglows-site/` path in this repository is retired and must not be recreated; remaining references to it are migration debt, not source authority.
 
 ShipGlows is a business-aware delivery partner that turns governed product truth into decisions, bounded chantiers, and verified outcomes with AI agents.
-It also includes OpenCode-compatible skill shims under `.opencode/skills/shipglows/` and `.agents/skills/shipglows/` so the same top-level workflow entrypoint can be discovered outside Codex.
+It also includes a dedicated OpenCode skill shim under `.opencode/skills/shipglows/`. The generic repository-level `.agents/skills/shipglows/` shim is intentionally absent because Codex already discovers user skills and plugins there, and exposing both creates duplicate public entrypoints.
 
 Its operating model has four ordered layers:
 
@@ -145,12 +148,12 @@ It connects governed project truth to one business-aware métier owner, then car
 - [shipglows_data/technical/code-docs-map.md](./shipglows_data/technical/code-docs-map.md) — map from code paths to primary docs, validations, and documentation update triggers
 - [shipglows_data/technical/codex-plugin-packaging.md](./shipglows_data/technical/codex-plugin-packaging.md) — internal contract for the lightweight Codex plugin, sparse bootstrap, marketplace entry, and docs links
 - [.opencode/skills/shipglows/SKILL.md](./.opencode/skills/shipglows/SKILL.md) — OpenCode-compatible repository skill shim
-- [.agents/skills/shipglows/SKILL.md](./.agents/skills/shipglows/SKILL.md) — fallback OpenCode-compatible skill shim
 - [shipglows_data/technical/operator-guides/opencode-shipglows.md](./shipglows_data/technical/operator-guides/opencode-shipglows.md) — repo-visible OpenCode usage, discovery, and configuration page
 - [shipglows_data/technical/operator-guides/kilocode-shipglows.md](./shipglows_data/technical/operator-guides/kilocode-shipglows.md) — repo-visible KiloCode usage and compatibility-boundary page
 - [shipglows_data/technical/public-site-and-content-runtime.md](./shipglows_data/technical/public-site-and-content-runtime.md) — internal contract for the Astro public site and public/private documentation boundary
-- [shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md](./shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md) — Markdown cheatsheet for master skills, supporting skills, and argument modes
-- [shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md](./shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md) — public cheatsheet for lightweight recentering tags across business, content, governance, execution, and system focus such as `#partner`, `#offer`, `#growth`, `#clarity`, `#pitch`, `#portfolio`, `#rules`, `#docs`, `#canon`, `#ship`, `#vfbf`, and `#shipglow`
+- [shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md](./shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md) — Markdown cheatsheet for public modes, expert routes, and composable execution tags
+- [shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md](./shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md) — public cheatsheet for lightweight recentering and execution-posture tags, including `#local`, `#nolocal`, and `#ci`
+- [skills/references/execution-posture-tags.md](./skills/references/execution-posture-tags.md) — canonical semantics, conflicts, authority boundaries, CI deferral, and legacy normalization for execution tags
 - [skills/references/decision-quality-contract.md](./skills/references/decision-quality-contract.md) — shared doctrine for high-quality decisions, code, model routing, and fallback choices
 - [skills/references/shipglows-terms.md](./skills/references/shipglows-terms.md) — shared terminology and lightweight focus tags such as `#partner`, `#offer`, `#quality`, `#vfbf`, `#growth`, `#clarity`, `#pitch`, `#portfolio`, `#rules`, `#docs`, `#canon`, `#shipglow`, `#routing`, and `#proof`
 - [skills/references/operator-partnership-contract.md](./skills/references/operator-partnership-contract.md) — shared doctrine for agent autonomy, business-partner behavior, and business-aware initiative
@@ -414,7 +417,42 @@ To make the public skill corpus and the OpenCode/KiloCode-compatible repository 
 curl -fsSL https://shipglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
 ```
 
-For a server installation, the interactive installer also asks separately whether to synchronize the public skill corpus into Claude and the Codex user skill directory. Select that option only for a source-tree development workflow; regular Codex users should install the plugin instead.
+For a normal installation, ShipGlows detects Codex and offers to install the
+official public plugin. Interactive installs ask before changing Codex plugin
+state; non-interactive installs use
+`SHIPGLOWS_INSTALL_CODEX_PLUGIN=yes|no|ask` and default to no when no terminal
+can confirm. The public plugin does not require the full skill corpus.
+
+For a server installation, the interactive installer also asks separately whether to synchronize the public skill corpus into Claude and the Codex user skill directory. Select that option only for a source-tree development workflow. The public plugin and the live corpus are mutually exclusive for `$shipglows`; an explicit attempt to install both is rejected.
+
+Contributors clone the repository and select the live development channel from
+that clone:
+
+```bash
+shipglows skills status
+shipglows skills link
+```
+
+`link` verifies the Git checkout, refuses links owned by another clone, asks
+before removing an enabled ShipGlows plugin, links the public catalogue into
+Codex and Claude, configures that clone as `SHIPGLOWS_ROOT` in existing Bash or
+Zsh startup files, points managed user-local `shipglows` launchers at the clone,
+and verifies the result. Source edits become visible without a push, plugin
+release, or reinstall after Codex or Claude is restarted from a new shell. To
+return to the public channel:
+
+```bash
+shipglows skills unlink --install-plugin
+```
+
+`unlink` removes only public symlinks proven to be managed by a ShipGlows
+checkout. It preserves the clone, personal skills, regular files, and unrelated
+links.
+
+If an older root-run installer owns `~/.agents/skills`, `link` and `unlink`
+stop before changing either catalogue. Correct the owner of that exact directory
+for the daily user, then rerun the command; the tool never escalates privileges
+or broadens ownership on its own.
 
 ### Codex plugin alpha
 
@@ -426,9 +464,10 @@ Public install path:
 
 ```bash
 codex plugin marketplace add commandglows/shipglows --ref main --sparse .agents/plugins --sparse plugins/shipglows
+codex plugin add shipglows@shipglows
 ```
 
-Then restart Codex, open the plugin directory, choose the `ShipGlows` marketplace, install `shipglows`, and start with:
+Then restart Codex and start with:
 
 ```text
 $shipglows help me choose the right workflow
@@ -666,7 +705,15 @@ Per-user configuration includes:
 - aliases in `~/.bashrc` for `000-shipglows`, `sg`, mode-selected `c`/`co`, safe escape hatches `cask`/`coask`, shell reload (`re`/`reload`), and tmux pane cleanup (`ch` = `clear; tmux clear-history`)
 - `shipglows_data/workflow/TASKS.md`, `shipglows_data/workflow/AUDIT_LOG.md`
 
-Skill runtime visibility can also be checked or repaired without rerunning the full installer:
+The native developer commands cover the normal source-contributor workflow:
+
+```bash
+shipglows skills status
+shipglows skills link
+shipglows skills unlink
+```
+
+The lower-level skill runtime helper remains available for targeted diagnostics or expert catalogue repair without rerunning the full installer:
 
 ```bash
 tools/shipglows_sync_skills.sh --check --all
@@ -674,7 +721,7 @@ tools/shipglows_sync_skills.sh --repair --skill sg-example
 tools/shipglows_sync_skills.sh --repair --all --runtime codex --catalog all
 ```
 
-The helper links current-user `~/.claude/skills/<name>` and [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. Use `--catalog expert` for internal engines only, or `--catalog all` for the complete developer catalogue. It reports missing or stale links, blocks non-link collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
+The helper links current-user `~/.claude/skills/<name>` and [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. `--codex-entrypoint linked` keeps the live developer `$shipglows` and fails when the plugin is simultaneously enabled; `--codex-entrypoint plugin` removes only the managed Codex router link and leaves the plugin as owner. Use `--catalog expert` for internal engines only, or `--catalog all` for the complete developer catalogue. The helper reports missing or stale links, blocks non-link collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
 
 On Windows, pass `-CleanStale` with `-Mode repair -Catalog public` to remove only
 obsolete ShipGlows junctions from the selected runtime directories. The helper
@@ -753,6 +800,21 @@ form a second workflow taxonomy. `verify` preserves an explicit specialist
 owner, while `core` is the sole hard ShipGlows-system context switch. The
 complete mapping is in [the expert mode reference](./skills/references/expert-mode-aliases.md).
 
+Execution posture composes with those routes and every public métier command:
+
+```text
+sg-development feature checkout #local
+sg-bug fix payment callback #nolocal
+sg-engineering verify checkout #ci
+shipglows auto #ci until=18:00
+```
+
+`#ci` implies `#nolocal` and only identifies deferred proof; it does not
+authorize push or workflow dispatch. `shipglows auto` always implies
+`#nolocal` and rejects `#local`. The older `shipglows nolocal <objective>` form
+remains accepted as a compatibility alias. These are agent-invocation tags,
+not native shell arguments; an unquoted `#` starts a comment in Bash.
+
 ShipGlows resolves work in this order:
 
 ```text
@@ -790,7 +852,7 @@ Other named profiles can coexist when they carry a distinct decision posture, fo
 Canonical syntax split:
 
 - `%<Profile>` for named operator profiles
-- `#<Tag>` for focus tags
+- `#<Tag>` for focus or execution-posture tags; execution uses exactly `#local`, `#nolocal`, or `#ci`
 
 ## Public Skill Domains
 

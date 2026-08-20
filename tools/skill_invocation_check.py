@@ -37,6 +37,17 @@ def validate_activation_graph(
     errors: list[str] = []
     edges: set[tuple[str, str]] = set()
     owners: dict[str, set[str]] = {}
+    execution_tags = registry.get("execution_tags", {})
+    for tag, definition in execution_tags.items():
+        if not re.fullmatch(r"[a-z][a-z0-9-]*", tag):
+            errors.append(f"invalid_execution_tag:{tag}")
+        for relation in ("implies", "conflicts"):
+            for target in definition.get(relation, []):
+                if target not in execution_tags:
+                    errors.append(f"unknown_execution_tag_{relation}:{tag}:{target}")
+        reference = definition.get("policy_reference")
+        if reference and not (skills_root.parent / reference).is_file():
+            errors.append(f"missing_execution_tag_reference:{tag}:{reference}")
 
     def add_edge(owner: str, engine: str, locus: str) -> None:
         if not engine:
@@ -63,6 +74,16 @@ def validate_activation_graph(
             if mode not in entry.get("modes", []):
                 errors.append(f"undeclared_public_mode_route:{owner}:{mode}")
             add_edge(owner, route.get("runtime_engine", ""), f"{owner}.mode_routes.{mode}")
+            for field in ("implied_execution_tags", "forbidden_execution_tags"):
+                for tag in route.get(field, []):
+                    if tag not in execution_tags:
+                        errors.append(f"unknown_{field}:{owner}:{mode}:{tag}")
+        for alias, route in entry.get("legacy_execution_aliases", {}).items():
+            if alias in entry.get("modes", []):
+                errors.append(f"legacy_execution_alias_is_mode:{owner}:{alias}")
+            tag = route.get("execution_tag")
+            if tag not in execution_tags:
+                errors.append(f"unknown_legacy_execution_tag:{owner}:{alias}:{tag}")
         for mode, route in entry.get("hidden_modes", {}).items():
             add_edge(owner, route.get("runtime_engine", ""), f"{owner}.hidden_modes.{mode}")
 
@@ -253,6 +274,57 @@ def close_typo_candidates(value: str, candidates: set[str]) -> list[str]:
     return closest if distance <= maximum else []
 
 
+def parse_execution_tags(
+    tokens: list[str], registry: dict[str, Any]
+) -> tuple[list[str], list[str]]:
+    """Remove only registered execution tags; ordinary focus tags stay intact."""
+    definitions = registry.get("execution_tags", {})
+    remaining: list[str] = []
+    requested: set[str] = set()
+    for token in tokens:
+        normalized = token.casefold()
+        if normalized.startswith("#") and normalized[1:] in definitions:
+            requested.add(normalized[1:])
+        else:
+            remaining.append(token)
+    return remaining, sorted(requested)
+
+
+def resolve_execution_tags(
+    registry: dict[str, Any], requested: list[str], implied: list[str] | None = None
+) -> tuple[dict[str, Any], list[str] | None]:
+    """Resolve implications and return a deterministic payload or conflict."""
+    definitions = registry.get("execution_tags", {})
+    implied_set = set(implied or [])
+    effective = set(requested) | implied_set
+    pending = list(effective)
+    while pending:
+        tag = pending.pop()
+        for dependency in definitions.get(tag, {}).get("implies", []):
+            if dependency not in effective:
+                effective.add(dependency)
+                pending.append(dependency)
+    for tag in sorted(effective):
+        conflicts = set(definitions.get(tag, {}).get("conflicts", []))
+        collision = sorted(conflicts.intersection(effective))
+        if collision:
+            return {}, sorted({tag, collision[0]})
+    if not effective:
+        return {}, None
+    posture = "ci" if "ci" in effective else "nolocal" if "nolocal" in effective else "local"
+    payload: dict[str, Any] = {
+        "requested_execution_tags": [f"#{tag}" for tag in sorted(requested)],
+        "effective_execution_tags": [f"#{tag}" for tag in sorted(effective)],
+        "execution_posture": posture,
+    }
+    if implied_set:
+        payload["implied_execution_tags"] = [f"#{tag}" for tag in sorted(implied_set)]
+    proof_target = definitions.get(posture, {}).get("deferred_proof_target")
+    if proof_target:
+        payload["deferred_proof_target"] = proof_target
+    return payload, None
+
+
 def check(
     invocation: str,
     index_path: Path = DEFAULT_INDEX,
@@ -270,6 +342,52 @@ def check(
         )
 
     registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    tokens, requested_execution_tags = parse_execution_tags(tokens, registry)
+    _, tag_conflict = resolve_execution_tags(registry, requested_execution_tags)
+    if tag_conflict:
+        return result(
+            "invalid",
+            requested,
+            error="conflicting_execution_tags",
+            conflicting_tags=[f"#{tag}" for tag in tag_conflict],
+            message="The requested execution posture tags conflict.",
+        )
+    if not tokens:
+        return result(
+            "invalid",
+            requested,
+            error="missing_invocation",
+            message="Execution posture tags need a ShipGlows command or instruction.",
+        )
+
+    def valid_payload(
+        *, implied: list[str] | None = None, forbidden: list[str] | None = None, **details: Any
+    ) -> dict[str, Any]:
+        forbidden_requested = sorted(set(forbidden or []).intersection(requested_execution_tags))
+        if forbidden_requested:
+            return result(
+                "invalid",
+                requested,
+                error="unsupported_execution_tag",
+                unsupported_execution_tags=[f"#{tag}" for tag in forbidden_requested],
+                message="The selected mode does not support this execution posture tag.",
+                **details,
+            )
+        resolved_tags, conflict = resolve_execution_tags(
+            registry, requested_execution_tags, implied
+        )
+        if conflict:
+            return result(
+                "invalid",
+                requested,
+                error="conflicting_execution_tags",
+                conflicting_tags=[f"#{tag}" for tag in conflict],
+                message="The selected mode and execution posture tags conflict.",
+                **details,
+            )
+        return valid_with_profile_preflight(
+            requested, registry, skills_root, **details, **resolved_tags
+        )
     if registry.get("internal_catalog", {}).get("require_owned_expert_coverage"):
         graph = validate_activation_graph(registry, skills_root)
         if graph["status"] != "valid":
@@ -333,7 +451,26 @@ def check(
                 )
                 if "engine_mode" in resolved_alias:
                     payload["selected_engine_mode"] = resolved_alias["engine_mode"]
-                return valid_with_profile_preflight(requested, registry, skills_root, **payload)
+                return valid_payload(**payload)
+            legacy_alias = public_entry.get("legacy_execution_aliases", {}).get(args[0])
+            if legacy_alias is not None:
+                remaining = args[1:]
+                if len(remaining) < legacy_alias.get("min_args", 0):
+                    return result(
+                        "invalid",
+                        requested,
+                        resolved_skill=public_entry.get("public_skill", first),
+                        mode_alias=args[0],
+                        error="missing_argument",
+                        message=f"{first} {args[0]} needs an objective.",
+                    )
+                payload["mode"] = "default"
+                payload["mode_alias"] = args[0]
+                payload["selected_internal_engine"] = public_entry["runtime_skill"]
+                payload["normalized_invocation"] = " ".join(
+                    [first, *remaining, f"#{legacy_alias['execution_tag']}"]
+                )
+                return valid_payload(implied=[legacy_alias["execution_tag"]], **payload)
             mode_route = public_entry.get("mode_routes", {}).get(args[0])
             if mode_route is not None:
                 remaining = args[1:]
@@ -358,7 +495,11 @@ def check(
                     )
                 payload["mode"] = args[0]
                 payload["selected_internal_engine"] = mode_route["runtime_engine"]
-                return valid_with_profile_preflight(requested, registry, skills_root, **payload)
+                return valid_payload(
+                    implied=mode_route.get("implied_execution_tags", []),
+                    forbidden=mode_route.get("forbidden_execution_tags", []),
+                    **payload,
+                )
             hidden_mode = public_entry.get("hidden_modes", {}).get(args[0])
             if hidden_mode is not None:
                 payload["mode"] = hidden_mode.get("owner_mode", args[0])
@@ -369,7 +510,7 @@ def check(
                     payload["selected_engine_mode"] = hidden_mode["engine_mode"]
             elif args[0] in modes:
                 payload["mode"] = args[0]
-        return valid_with_profile_preflight(requested, registry, skills_root, **payload)
+        return valid_payload(**payload)
 
     skill = identities.get(first)
     consumed = 1
@@ -404,9 +545,7 @@ def check(
                 error="missing_argument",
                 message="This skill needs an instruction or target.",
             )
-        return valid_with_profile_preflight(
-            requested, registry, skills_root, resolved_skill=skill
-        )
+        return valid_payload(resolved_skill=skill)
 
     if not args:
         return result(
@@ -459,9 +598,7 @@ def check(
             mode=mode,
             message="This mode needs an additional target or scope.",
         )
-    return valid_with_profile_preflight(
-        requested, registry, skills_root, resolved_skill=skill, mode=mode
-    )
+    return valid_payload(resolved_skill=skill, mode=mode)
 
 
 def main() -> int:

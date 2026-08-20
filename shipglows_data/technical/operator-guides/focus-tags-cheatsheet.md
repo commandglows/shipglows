@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.3.1"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-27"
 updated: "2026-07-13"
@@ -19,6 +19,7 @@ linked_systems:
   - skills/references/entrypoint-routing.md
   - skills/references/operator-partnership-contract.md
   - skills/references/decision-quality-contract.md
+  - skills/references/execution-posture-tags.md
   - skills/008-sg-customer/SKILL.md
   - shipglows_data/business/gtm.md
   - README.md
@@ -27,13 +28,14 @@ linked_systems:
   - shipglows_data/editorial/content-map.md
 depends_on:
   - artifact: "skills/references/shipglows-terms.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.3.0"
     required_status: active
 supersedes:
   - docs/focus-tags-cheatsheet.md
 evidence:
   - "Public focus-tag families requested on 2026-06-27 so the operator can recenter the agent without invoking a full skill."
   - "Focus tags are now defined canonically in skills/references/shipglows-terms.md and loaded by entrypoint-routing."
+  - "Operator decision 2026-08-20: document #local, #nolocal, and #ci as execution posture tags distinct from workflow modes and recenter tags."
 next_review: "2026-07-11"
 next_step: "/300-sg-docs audit shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md"
 ---
@@ -43,6 +45,34 @@ next_step: "/300-sg-docs audit shipglows_data/technical/operator-guides/focus-ta
 Use focus tags when you want to recenter the agent fast without launching a whole new skill just to restate doctrine.
 
 These tags are lightweight conversation cues. They do not replace owner-skill routing. They tell ShipGlows which contract to reload before it answers, routes, edits, or verifies.
+
+## Execution Posture Tags
+
+These tags compose with a métier command. They control permitted proof effects;
+they do not choose the owner or grant authority.
+
+| Tag | Use when you want... | Important boundary |
+| --- | --- | --- |
+| `#local` | proportional local proof to be permitted | does not force a build or test |
+| `#nolocal` | static inspection and edits without local/application/validation workloads | result stays unverified where runtime proof is deferred |
+| `#ci` | executable proof deferred to existing CI | implies `#nolocal`; does not authorize push or CI dispatch |
+
+`#local` conflicts with `#nolocal` and `#ci`. `#nolocal #ci` is valid. Use
+`shipglows <objective> #nolocal`; the older `shipglows nolocal <objective>`
+form is compatibility syntax only. `shipglows auto` already implies
+`#nolocal`, accepts `#ci`, and rejects `#local`.
+
+Examples:
+
+```text
+sg-development feature onboarding #local
+sg-bug fix callback #nolocal
+sg-engineering verify checkout #ci
+shipglows auto #ci until=18:00
+```
+
+These are agent-conversation tags. In Bash, an unquoted `#` starts a shell
+comment, so do not copy them as bare native shell arguments.
 
 ## Business Recenter Tags
 
@@ -214,4 +244,4 @@ Do the most useful thing for adoption and stop wandering.
 
 If you use one or more focus tags, ShipGlows should reload those canonical documents first and keep them as high-priority context for the current turn.
 
-If you combine several tags, ShipGlows should merge them in the narrowest coherent way instead of treating them as conflicting by default.
+If you combine several tags, ShipGlows should merge them in the narrowest coherent way instead of treating them as conflicting by default. The explicit execution-posture conflicts above are the exception and must be rejected.

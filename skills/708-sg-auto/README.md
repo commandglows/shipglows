@@ -13,6 +13,7 @@ It may inspect and edit files inside the frozen root, but it never executes
 project workloads, installs dependencies, commits, pushes, deploys, changes
 Codex Fast settings, or claims verification.
 
-Operators should use `shipglows auto`, not the numeric engine name. Use
-`shipglows nolocal <objective>` when the objective is already selected and only
-the no-local-execution restriction is wanted.
+Operators should use `shipglows auto`, not the numeric engine name. Add
+`#nolocal` to an ordinary métier command when the objective is already selected
+and only the no-local-execution restriction is wanted. The former
+`shipglows nolocal <objective>` spelling remains a compatibility alias.

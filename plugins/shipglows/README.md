@@ -33,6 +33,30 @@ Execution-critical references stay local to the plugin. Hosted docs are optional
 
 ## Local Development
 
+Do not enable this public plugin in the same Codex profile that exposes the
+live linked ShipGlows corpus. Maintainers use the linked runtime router for
+instant source updates; plugin behavior is validated in an isolated profile or
+fresh thread. Public users install this plugin without the linked corpus.
+
+From a complete ShipGlows Git clone, maintainers switch to live source with:
+
+```bash
+shipglows skills status
+shipglows skills link
+```
+
+The command removes an enabled ShipGlows plugin only after confirmation, then
+creates and verifies managed Codex and Claude links and selects the clone as the
+shell `SHIPGLOWS_ROOT`. Return to the public plugin channel with
+`shipglows skills unlink --install-plugin`. Restart the agent from a new shell
+after either transition. Neither transition requires publishing a plugin
+release.
+
+The plugin understands `$shipglows resume`, the bounded `auto` route, and the
+`#local`, `#nolocal`, and `#ci` execution-posture tags even when the full corpus
+is not bundled. Work that needs the complete workflow remains explicit about
+that requirement.
+
 Validate the plugin:
 
 ```bash
@@ -66,9 +90,10 @@ Install from a repo-backed marketplace source:
 
 ```bash
 codex plugin marketplace add commandglows/shipglows --ref main --sparse .agents/plugins --sparse plugins/shipglows
+codex plugin add shipglows@shipglows
 ```
 
-Then restart Codex, open the plugin directory, choose the `ShipGlows` marketplace, and install the `shipglows` plugin.
+Then restart Codex so the newly installed plugin is discovered.
 
 Start with:
 

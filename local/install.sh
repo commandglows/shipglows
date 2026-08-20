@@ -14,6 +14,63 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/remote-helpers.sh"
 SSH_CONFIG="$HOME/.ssh/config"
 SHELL_RC="$HOME/.bashrc"
+SHIPGLOWS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+
+install_local_shipglows_commands() {
+    local bin_dir="$HOME/.local/bin"
+    local target="$SHIPGLOWS_ROOT/cli/shipglows.sh"
+    local command_path
+
+    mkdir -p "$bin_dir"
+    for command_path in "$bin_dir/shipglows" "$bin_dir/sg"; do
+        if [ -L "$command_path" ]; then
+            if [ "$(readlink -f "$command_path" 2>/dev/null || true)" != "$(readlink -f "$target")" ]; then
+                echo -e "${YELLOW}   ⚠ $command_path pointe ailleurs et n'a pas été remplacé${NC}"
+                continue
+            fi
+        elif [ -e "$command_path" ]; then
+            echo -e "${YELLOW}   ⚠ $command_path existe et n'a pas été remplacé${NC}"
+            continue
+        fi
+        ln -sfn "$target" "$command_path"
+    done
+
+    if ! grep -Fq '# ShipGlows - Local CLI path' "$SHELL_RC" 2>/dev/null; then
+        printf '\n%s\n%s\n' \
+            '# ShipGlows - Local CLI path' \
+            'export PATH="$HOME/.local/bin:$PATH"' >> "$SHELL_RC"
+    fi
+}
+
+install_codex_shipglows_plugin() {
+    local requested="${SHIPGLOWS_INSTALL_CODEX_PLUGIN:-ask}"
+    local helper="$SHIPGLOWS_ROOT/cli/shipglows_skills.py"
+    local install_plugin="no"
+
+    if ! command -v codex >/dev/null 2>&1; then
+        [ "$requested" = "yes" ] && echo -e "${YELLOW}   ⚠ Codex absent; plugin ShipGlows ignoré${NC}"
+        return 0
+    fi
+    case "$requested" in
+        1|true|yes|install) install_plugin="yes" ;;
+        0|false|no|skip) install_plugin="no" ;;
+        ask)
+            if [ -r /dev/tty ] && [ -w /dev/tty ]; then
+                printf 'Installer le plugin ShipGlows officiel pour Codex ? [Y/n] ' >/dev/tty
+                IFS= read -r answer </dev/tty || answer="n"
+                case "$answer" in n|N|no|NO|non|NON) install_plugin="no" ;; *) install_plugin="yes" ;; esac
+            fi
+            ;;
+        *)
+            echo -e "${RED}   ✗ SHIPGLOWS_INSTALL_CODEX_PLUGIN doit valoir ask, yes ou no${NC}"
+            return 1
+            ;;
+    esac
+
+    if [ "$install_plugin" = "yes" ]; then
+        python3 "$helper" --target-home "$HOME" plugin-install --yes
+    fi
+}
 
 # Détecter le système d'exploitation
 IS_WSL=false
@@ -167,9 +224,14 @@ chmod +x "$SCRIPT_DIR/clerk-login.sh"
 chmod +x "$SCRIPT_DIR/blacksmith-login.sh"
 chmod +x "$SCRIPT_DIR/turso-login.sh"
 chmod +x "$SCRIPT_DIR/turso-ssh.sh"
+install_local_shipglows_commands
 echo -e "${GREEN}   ✓ Scripts exécutables${NC}"
 
-# 5. Résumé
+echo ""
+echo -e "${BLUE}5. Configuration du canal Codex ShipGlows...${NC}"
+install_codex_shipglows_plugin
+
+# 6. Résumé
 echo ""
 echo -e "${GREEN}✅ Installation terminée !${NC}"
 echo ""
@@ -180,6 +242,8 @@ echo -e "   ${GREEN}shipglows-clerk-login${NC} - Login Clerk CLI distant via tun
 echo -e "   ${GREEN}shipglows-blacksmith-login${NC} - Login Blacksmith distant via tunnel éphémère"
 echo -e "   ${GREEN}shipglows-turso-login${NC} - Login Turso distant via tunnel/headless"
 echo -e "   ${GREEN}shipglows-turso-ssh${NC} - Copie auth Turso vers le serveur + checks SQL"
+echo -e "   ${GREEN}shipglows skills status${NC} - Afficher le canal plugin ou développement"
+echo -e "   ${GREEN}shipglows skills link${NC}   - Lier un clone Git ShipGlows pour le développement"
 echo -e "   ${YELLOW}Legacy aliases:${NC} shipglows-mcp-login, shipglows-clerk-login, shipglows-blacksmith-login, shipglows-turso-login, shipglows-turso-ssh"
 echo -e "   ${YELLOW}Primary aliases:${NC} shipglows-mcp-login, shipglows-clerk-login, shipglows-blacksmith-login, shipglows-turso-login, shipglows-turso-ssh"
 echo ""

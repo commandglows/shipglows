@@ -99,6 +99,23 @@ assert_link "$TARGET_HOME_TEST/.agents/skills/sg-alpha" "$SHIPGLOWS_ROOT_TEST/sk
 assert_link "$TARGET_HOME_TEST/.agents/skills/sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/sg-beta"
 assert_link "$TARGET_HOME_TEST/.agents/skills/shipglows" "$SHIPGLOWS_ROOT_TEST/skills/shipglows"
 
+mkdir -p "$TARGET_HOME_TEST/.codex"
+printf '%s\n' '[plugins."shipglows@shipglows"]' 'enabled = true' > "$TARGET_HOME_TEST/.codex/config.toml"
+if run_helper --check --all --runtime codex --catalog public --codex-entrypoint linked >/tmp/shipglows-sync-channel-conflict.out 2>&1; then
+    echo "expected linked router plus enabled plugin to fail" >&2
+    exit 1
+fi
+grep -q "Codex ShipGlows entrypoint conflict" /tmp/shipglows-sync-channel-conflict.out
+
+run_helper --repair --all --runtime codex --catalog public --codex-entrypoint plugin >/tmp/shipglows-sync-plugin-channel.out
+test ! -e "$TARGET_HOME_TEST/.agents/skills/shipglows"
+assert_link "$TARGET_HOME_TEST/.agents/skills/sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/sg-alpha"
+grep -q "plugin-entrypoint-selected" /tmp/shipglows-sync-plugin-channel.out
+
+rm -f "$TARGET_HOME_TEST/.codex/config.toml"
+run_helper --repair --all --runtime codex --catalog public --codex-entrypoint linked >/tmp/shipglows-sync-linked-channel.out
+assert_link "$TARGET_HOME_TEST/.agents/skills/shipglows" "$SHIPGLOWS_ROOT_TEST/skills/shipglows"
+
 run_helper --repair --all --runtime codex --catalog expert >/tmp/shipglows-sync-all-codex.out
 assert_link "$TARGET_HOME_TEST/.agents/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
 assert_link "$TARGET_HOME_TEST/.agents/skills/002-sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/002-sg-beta"

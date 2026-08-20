@@ -311,6 +311,14 @@ resolve_root_autonomy_opt_in() {
 
 resolve_install_components() {
     local value="${SHIPGLOWS_INSTALL_COMPONENTS:-${SHIPGLOWS_INSTALL_COMPONENTS:-ask}}"
+    SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED="${SHIPGLOWS_CODEX_ENTRYPOINT:-linked}"
+    case "$SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED" in
+        linked|plugin) ;;
+        *)
+            error "SHIPGLOWS_CODEX_ENTRYPOINT doit valoir linked ou plugin"
+            return 1
+            ;;
+    esac
     SHIPGLOWS_INSTALL_AI_AGENTS="1"
     SHIPGLOWS_INSTALL_AGENT_CLAUDE="1"
     SHIPGLOWS_INSTALL_AGENT_CODEX="1"
@@ -414,6 +422,40 @@ resolve_install_components() {
             ;;
     esac
 
+}
+
+resolve_codex_plugin_install() {
+    local requested="${SHIPGLOWS_INSTALL_CODEX_PLUGIN:-ask}"
+    case "$requested" in
+        1|true|yes|install) SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED="yes" ;;
+        0|false|no|skip) SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED="no" ;;
+        ask)
+            if [ "${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}" != "1" ]; then
+                SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED="no"
+            elif [ "${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}" = "1" ]; then
+                # An explicit corpus checkout is the developer/live-link path.
+                SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED="no"
+            elif [ -r /dev/tty ] && [ -w /dev/tty ]; then
+                if prompt_yes_no "Installer le plugin ShipGlows officiel pour Codex ?" yes; then
+                    SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED="yes"
+                else
+                    SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED="no"
+                fi
+            else
+                SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED="no"
+            fi
+            ;;
+        *)
+            error "SHIPGLOWS_INSTALL_CODEX_PLUGIN doit valoir ask, yes ou no"
+            return 1
+            ;;
+    esac
+
+    if [ "$SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED" = "yes" ] \
+        && [ "${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}" = "1" ]; then
+        error "Le plugin public et le corpus live sont deux canaux exclusifs. Désactivez l'un des deux; les développeurs utilisent la commande shipglows skills link depuis leur clone."
+        return 1
+    fi
 }
 
 SHIPGLOWS_PRE_STATUS_DIR_NODE=""
@@ -1773,19 +1815,52 @@ configure_skills() {
     cleanup_legacy_skill_entries "$target_home/.agents/skills"
 
     if ! bash "$sync_helper" --repair --all --target-home "$target_home" \
-        --shipglows-root "$SHIPGLOWS_INSTALL_ROOT" --runtime all --backup-existing; then
+        --shipglows-root "$SHIPGLOWS_INSTALL_ROOT" --runtime all --backup-existing \
+        --codex-entrypoint "$SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED"; then
         warning "Synchronisation des skills incomplète pour $target_home"
         return 1
     fi
 
     if ! bash "$sync_helper" --check --all --target-home "$target_home" \
-        --shipglows-root "$SHIPGLOWS_INSTALL_ROOT" --runtime all; then
+        --shipglows-root "$SHIPGLOWS_INSTALL_ROOT" --runtime all \
+        --codex-entrypoint "$SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED"; then
         warning "Vérification des skills incomplète pour $target_home"
         return 1
     fi
 
-    echo -e "  ${GREEN}✅ Skills liés :${NC} Claude + Codex synchronisés"
+    echo -e "  ${GREEN}✅ Skills liés :${NC} Claude + Codex synchronisés (entrée Codex: $SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED)"
     return 0
+}
+
+install_codex_shipglows_plugin_for_user() {
+    local target_home="$1"
+    local username="$2"
+    local helper="$SHIPGLOWS_INSTALL_ROOT/cli/shipglows_skills.py"
+    local user_path="$target_home/.local/share/pnpm:$target_home/.local/share/pnpm/bin:$PATH"
+
+    [ "${SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED:-no}" = "yes" ] || return 0
+    if [ ! -f "$helper" ]; then
+        warning "Gestionnaire du plugin Codex ShipGlows introuvable: $helper"
+        return 1
+    fi
+
+    if [ "$username" = "root" ]; then
+        if ! HOME="$target_home" PATH="$user_path" command -v codex >/dev/null 2>&1; then
+            warning "Codex est absent pour root; plugin ShipGlows ignoré"
+            return 0
+        fi
+        HOME="$target_home" PATH="$user_path" python3 "$helper" \
+            --target-home "$target_home" plugin-install --yes
+        return $?
+    fi
+
+    if ! sudo -u "$username" -H env HOME="$target_home" PATH="$user_path" \
+        sh -c 'command -v codex >/dev/null 2>&1'; then
+        warning "Codex est absent pour $username; plugin ShipGlows ignoré"
+        return 0
+    fi
+    sudo -u "$username" -H env HOME="$target_home" PATH="$user_path" \
+        python3 "$helper" --target-home "$target_home" plugin-install --yes
 }
 
 # Configure aliases in bashrc
@@ -2253,6 +2328,7 @@ setup_user() {
             configure_skills "$user_home" || setup_failed=1
         fi
     fi
+    install_codex_shipglows_plugin_for_user "$user_home" "$username" || setup_failed=1
     configure_shipglows_environment "$user_home"
     if [ "${SHIPGLOWS_INSTALL_AI_RUNTIME:-1}" = "1" ]; then
         configure_aliases "$user_home" "$effective_mode"
@@ -2279,7 +2355,8 @@ echo -e "${BLUE}👥 Configuration par utilisateur...${NC}"
 collect_target_users
 resolve_autonomy_mode
 resolve_root_autonomy_opt_in
-resolve_install_components
+resolve_install_components || exit 1
+resolve_codex_plugin_install || exit 1
 if [ "${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}" = "1" ] && { [ ! -d "$SHIPGLOWS_INSTALL_ROOT/skills" ] || [ ! -x "$SHIPGLOWS_INSTALL_ROOT/tools/shipglows_sync_skills.sh" ]; }; then
     error "Le corpus de skills a été demandé mais il manque dans $SHIPGLOWS_INSTALL_ROOT. Relancez l'installeur public avec SHIPGLOWS_INSTALL_SURFACE=corpus."
     exit 1
@@ -2291,6 +2368,10 @@ configure_command_wrappers || {
 info "Mode IA autonome ShipGlows: ${SHIPGLOWS_AUTONOMY_MODE_RESOLVED}"
 info "Autonomie root: $([ "${SHIPGLOWS_ROOT_AUTONOMOUS_ALLOWED:-0}" = "1" ] && echo autorisee || echo standard)"
 info "Composants user ShipGlows: claude=${SHIPGLOWS_INSTALL_AGENT_CLAUDE:-0}, codex=${SHIPGLOWS_INSTALL_AGENT_CODEX:-0}, opencode=${SHIPGLOWS_INSTALL_AGENT_OPENCODE:-0}, kilocode=${SHIPGLOWS_INSTALL_AGENT_KILOCODE:-0}, ai-runtime=${SHIPGLOWS_INSTALL_AI_RUNTIME:-1}, skill-corpus=${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}, tui=${SHIPGLOWS_INSTALL_TUI:-1}"
+info "Plugin Codex ShipGlows: ${SHIPGLOWS_INSTALL_CODEX_PLUGIN_RESOLVED:-no}"
+if [ "${SHIPGLOWS_INSTALL_SKILL_CORPUS:-0}" = "1" ]; then
+    info "Canal d'entrée Codex ShipGlows: ${SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED:-linked}"
+fi
 SHIPGLOWS_USER_SETUP_FAILED=0
 if ! setup_user "$PRIMARY_USER_HOME" "$PRIMARY_USER"; then
     SHIPGLOWS_USER_SETUP_FAILED=1

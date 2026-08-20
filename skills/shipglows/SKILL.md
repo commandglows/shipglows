@@ -51,12 +51,15 @@ always applies the shared no-local-execution policy implicitly. It has no
 local-execution override, never forces reasoning or agents to consume credits,
 never self-activates Fast, and never promises exact credit exhaustion.
 
-`shipglows nolocal <objective>` applies only that no-local-execution policy to
-an ordinary operator-selected objective. It preserves normal métier ownership
-and mutation approval; it does not choose a portfolio or grant autonomous
-authority. Both modes may inspect and edit in-scope files, but they defer builds,
-tests, lint, typechecks, installation, servers, browser/device work, migrations,
-commits, pushes, deployments, and every external write.
+`#local`, `#nolocal`, and `#ci` are transversal execution posture tags, not
+métier modes. Load `execution-posture-tags.md` whenever one appears. `#local`
+permits proportional local proof without forcing it; `#nolocal` applies the
+no-local-execution policy; `#ci` implies `#nolocal` and records existing CI as
+the deferred proof destination without authorizing push, dispatch, deploy, or
+another external write. Conflicting tags fail closed. The legacy
+`shipglows nolocal <objective>` spelling remains accepted and normalizes to
+`shipglows <objective> #nolocal` with ordinary métier ownership and mutation
+approval.
 
 ## Validation
 

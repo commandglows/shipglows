@@ -230,6 +230,12 @@ assert_not_contains "$invalid_surface_fixture/git-calls" "git:" "Invalid surface
 
 assert_contains "$REPO_ROOT/cli/install.sh" "SHIPGLOWS_INSTALL_SKILL_CORPUS" "CLI installer gates skill synchronization explicitly"
 assert_contains "$REPO_ROOT/cli/install.sh" "Installer le corpus public de skills" "CLI installer prompts for the public skill corpus"
+assert_contains "$REPO_ROOT/cli/install.sh" "SHIPGLOWS_CODEX_ENTRYPOINT" "CLI installer exposes an explicit Codex entrypoint channel"
+assert_contains "$REPO_ROOT/cli/install.sh" '--codex-entrypoint "$SHIPGLOWS_CODEX_ENTRYPOINT_RESOLVED"' "CLI installer forwards the selected Codex entrypoint channel"
+assert_contains "$REPO_ROOT/cli/install.sh" "SHIPGLOWS_INSTALL_CODEX_PLUGIN" "CLI installer exposes an explicit Codex plugin choice"
+assert_contains "$REPO_ROOT/cli/install.sh" "install_codex_shipglows_plugin_for_user" "CLI installer installs the public plugin through the governed helper"
+assert_contains "$REPO_ROOT/local/install.sh" "install_codex_shipglows_plugin" "Local installer can offer the public Codex plugin"
+assert_contains "$REPO_ROOT/cli/shipglows.sh" '"${1:-}" = "skills"' "CLI exposes the lightweight skills command before DevServer setup"
 assert_contains "$REPO_ROOT/cli/install.sh" "alias cor='codex resume'" "Linux installer provides the Codex resume shortcut"
 assert_contains "$BOOTSTRAP" 'SHIPGLOWS_DIR="$INSTALL_HOME/.shipglows/runtime"' "Linux runtime defaults under the hidden ShipGlows root"
 assert_contains "$BOOTSTRAP" 'migrate_legacy_shipglows_layout' "Linux bootstrap migrates the previous visible and private layouts"

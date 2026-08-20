@@ -49,12 +49,13 @@ class HelpModesContractTests(unittest.TestCase):
             "sg-experience <audit|flow|onboarding|recovery> <scope>",
             "sg-engineering <audit|architecture|deps|performance|migrate|github|sync|access|parity> [target]",
             "sg-help [default|mode|expert] [topic]",
-            "shipglows <request>",
+            "shipglows [context|auto] <request>",
         )
         for grammar in expected_grammar:
             self.assertIn(f"`{grammar}", catalog)
         self.assertIn("angle brackets are required", catalog)
         self.assertIn("square brackets are optional", catalog)
+        self.assertIn("Execution tags: `#local | #nolocal | #ci`", catalog)
 
     def test_expert_catalog_has_every_runtime_skill_and_is_not_the_default(self) -> None:
         registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
@@ -76,7 +77,8 @@ class HelpModesContractTests(unittest.TestCase):
         skill = HELP_SKILL.read_text(encoding="utf-8")
         self.assertIn("<mode|modes|mode --expert|help topic or route question>", skill)
         self.assertIn("If the exact request is `mode` or `modes`", skill)
-        self.assertIn("one line per public métier plus `shipglows`, name and modes only", skill)
+        self.assertIn("one line per public métier plus `shipglows`", skill)
+        self.assertIn("distinct execution-tag line", skill)
         self.assertIn("expert", skill)
 
     def test_explicit_help_and_animation_invocations_are_registered(self) -> None:

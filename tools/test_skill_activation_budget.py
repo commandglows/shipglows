@@ -29,7 +29,8 @@ class SkillActivationBudgetTests(unittest.TestCase):
             {
                 "004-sg-deploy", "010-sg-technical", "103-sg-verify", "109-sg-auth-debug",
                 "200-sg-redact", "201-sg-enrich", "300-sg-docs", "400-sg-audit",
-                "405-sg-prod", "601-sg-product-entitlements", "900-shipglows-core",
+                "405-sg-prod", "601-sg-product-entitlements", "708-sg-auto",
+                "900-shipglows-core",
             },
             set(payload["skills"]),
         )

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-20"
 updated: "2026-08-20"
@@ -18,6 +18,7 @@ linked_systems:
   - skills/708-sg-auto/SKILL.md
   - skills/references/mutation-plan-approval.md
   - skills/references/spec-driven-development-discipline.md
+  - skills/references/execution-posture-tags.md
 depends_on:
   - artifact: skills/references/spec-driven-development-discipline.md
     artifact_version: "1.7.0"
@@ -27,6 +28,7 @@ evidence:
   - "Operator decision 2026-08-20: no-local execution must exist independently from credit-window autonomy."
   - "Operator decision 2026-08-20: auto must spend the available window on model reasoning and generation rather than waiting for builds, tests, or installation."
   - "Operator decision 2026-08-20: auto always implies nolocal, including for every delegated subagent."
+  - "Operator decision 2026-08-20: nolocal is canonically the transversal #nolocal execution tag; #ci implies it and the former shipglows nolocal form remains compatible."
 next_review: "2026-09-20"
 next_step: "/103-sg-verify shipglows auto and nolocal modes"
 ---
@@ -35,12 +37,13 @@ next_step: "/103-sg-verify shipglows auto and nolocal modes"
 
 ## Purpose
 
-Apply this policy when the operator invokes `shipglows nolocal <objective>` or
-when another contract, including `shipglows auto`, explicitly composes it. It
+Apply this policy when the operator adds `#nolocal`, adds `#ci`, uses the legacy
+`shipglows nolocal <objective>` alias, or when another contract including
+`shipglows auto` explicitly composes it. It
 restricts workload and external-state execution while preserving the static
 inspection and file editing needed to produce useful work.
 
-`nolocal` is an execution policy. It does not select work, grant mutation
+`#nolocal` is an execution posture tag and policy. It does not select work, grant mutation
 authority, waive a material product or safety decision, or imply autonomous
 portfolio execution. `nolocal` alone grants no mutation authority; the normal
 mutation approval contract remains active unless another exact authority owns
@@ -109,8 +112,8 @@ Stop the current slice when safe implementation requires executing a forbidden
 operation, observing runtime behavior, accessing secrets/private data, changing
 authority, or overwriting unrelated work. In `shipglows auto`, return control to
 the auto candidate loop so it can skip that candidate and continue. In ordinary
-`shipglows nolocal`, follow the selected owner's normal blocked or decision
-contract.
+`#nolocal` work, including its legacy alias, follow the selected owner's normal
+blocked or decision contract.
 
 The handoff records changed files, assumptions, known gaps, deferred commands,
 and the exact first normal proof owner. A deferred command is an instruction for

@@ -153,6 +153,7 @@ audit findings, releases, or security/compliance claims.
 - `AUTO-FAST-TRUTH`: Fast is used only when runtime evidence says it is active; the agent never claims to self-activate it or edits user configuration.
 - `AUTO-NO-BUSYWORK`: no eligible work produces `no safe actionable work`, not invented features or verbose filler.
 - `AUTO-SKIP-CONTINUE`: one candidate needs runtime proof; preserve it as skipped and continue another independent candidate without asking.
-- `AUTO-NOLOCAL-REDUNDANT`: `shipglows auto nolocal` behaves exactly as `shipglows auto`; `shipglows auto local` is unsupported.
+- `AUTO-NOLOCAL-REDUNDANT`: `shipglows auto #nolocal` and legacy `shipglows auto nolocal` behave exactly as `shipglows auto`; `#local` and legacy `local` are unsupported.
+- `AUTO-CI-DEFERRED`: `shipglows auto #ci` retains nolocal and records existing CI only as a deferred proof destination; it never triggers remote execution.
 - `AUTO-UNVERIFIED`: static edits yield `implemented — unverified` plus deferred verification commands, never a fixed/secure/compliant/closed claim.
 - `AUTO-SELF-GUARD`: an auto run never expands its own authority, no-local policy, agent permissions, or safety guardrails.

@@ -37,6 +37,7 @@ Always load shared references only when their gate applies. Load skill-local ref
 - `references/help-modes-catalog.md`: canonical one-line-per-public-métier mode list for exact `mode` or `modes` requests.
 - `references/help-modes-expert-catalog.md`: complete runtime-engine list for exact `mode --expert`, `modes --expert`, or explicit internal-catalog requests.
 - `skills/references/shipglows-terms.md`: canonical package terminology for `Dev Server`, `TUI`, `local tools`, and skill-scope references.
+- `skills/references/execution-posture-tags.md`: canonical distinction between workflow modes and `#local`, `#nolocal`, or `#ci` proof posture.
 - `skills/references/question-contract.md`: canonical doctrine for when ShipGlows should ask questions, what shape they should take, and when not asking is the correct autonomous behavior.
 - `skills/references/operator-partnership-contract.md`: canonical doctrine for operator collaboration, delegated intent, and the boundary between technical autonomy and operator-owned business truth.
 - `skills/references/profile-activation.md`: canonical profile resolution, precedence, fallback, and reporting contract.
@@ -67,7 +68,7 @@ What workflow, skill, mode, or doctrine does the operator need explained right n
 ```
 
 - If the user asks a direct help question, answer concisely from the top-level route and the indexed local reference as needed.
-- If the exact request is `mode` or `modes`, load `references/help-modes-catalog.md` and return its list verbatim: one line per public métier plus `shipglows`, name and modes only, preserving the six-domain order.
+- If the exact request is `mode` or `modes`, load `references/help-modes-catalog.md` and return its list verbatim: one line per public métier plus `shipglows`, followed by the distinct execution-tag line, preserving the six-domain order.
 - If the exact request is `mode --expert`, `modes --expert`, or asks for internal engines, load `references/help-modes-expert-catalog.md` and return its complete runtime list verbatim.
 - If the user asks for skill codes, numeric prefixes, or shortcut lookup, load `skill-code-index.md` and answer from the code table without renaming canonical skills.
 - If the user asks how ShipGlows is invoked from Codex, Claude, OpenCode, KiloCode, another runtime, skill codes, taxonomy, or blueprints, load `references/help-skill-discovery.md`.
@@ -76,6 +77,7 @@ What workflow, skill, mode, or doctrine does the operator need explained right n
 - If the user asks about passivity, autonomy, collaboration style, business framing, or what the operator is expected to provide, load `skills/references/operator-partnership-contract.md`.
 - If the user asks about a named profile such as `Victoire`, `SEO Specialist`, or `Tariq`, or asks who should answer a business/growth/search/acquisition question, load the matching profile plus its operator role and answer from that distinction.
 - If the user asks whether `%Victoire` or `#Victoire` should be used, answer: `%<Profile>` is the canonical named-profile syntax at the router/governance layer; `#<Tag>` stays for focus tags.
+- If the user asks about `#local`, `#nolocal`, `#ci`, or the difference between a mode and an execution tag, load `skills/references/execution-posture-tags.md` and preserve the authority boundary.
 - If the user asks about `#feature:<term>`, explain it as an optional technical-navigation hint for behavior-index recovery before broad search, not a command language, and note that the free-text request still matters.
 - If the user asks what `#rules`, `#docs`, `#public-docs`, or `#internal-docs` mean, load the matching governance reference and explain the distinction rather than answering from local shorthand.
 - If the user asks about `~/.shipglows/data/`, the private memory repo, versioned private data, or why it is separate from public repos, load `skills/references/private-data-repo-contract.md` and explain the storage contract vs clone contract distinction.

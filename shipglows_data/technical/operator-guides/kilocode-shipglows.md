@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-08-12"
+updated: "2026-08-20"
 status: reviewed
 source_skill: 300-sg-docs
 scope: kilocode-runtime-docs
@@ -14,16 +14,14 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
-  - ".agents/skills/shipglows/SKILL.md"
   - "README.md"
   - "shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md"
 depends_on: []
 supersedes:
   - docs/kilocode-shipglows.md
 evidence:
-  - "Wave 20 reclassifies the repository-local .agents shim as a linked runtime surface rather than a versioned documentation dependency."
   - "Repository docs already state that KiloCode-style runtimes should use natural language or the runtime skill picker."
-  - "The repository proves a generic OpenCode-compatible shim at `.agents/skills/shipglows/SKILL.md`, but no dedicated KiloCode shim path."
+  - "Operator decision 2026-08-20 removes the generic .agents repository shim to prevent duplicate Codex routers; no dedicated KiloCode shim path is currently proven."
 next_step: "/300-sg-docs audit shipglows_data/technical/operator-guides/kilocode-shipglows.md"
 ---
 
@@ -51,16 +49,16 @@ Those are runtime internals, not manual operator commands.
 
 This repository does **not** currently ship a dedicated `KiloCode`-named shim folder.
 
-What it does prove is:
-
-- a generic OpenCode-compatible shim at `.agents/skills/shipglows/SKILL.md`
-- repo-visible guidance that OpenCode or KiloCode-style runtimes should use natural language invocation or the runtime skill picker
+What it does prove is repo-visible guidance that KiloCode-style runtimes should
+use natural language invocation or the runtime skill picker. The former generic
+`.agents/skills/shipglows/` fallback was removed because Codex discovers that
+path alongside its live user router or plugin.
 
 ## Configuration Boundary
 
-If your KiloCode setup supports repository-local compatible skills, use the generic `.agents/skills/shipglows/` shim as the repo-visible compatibility surface.
-
-If your KiloCode build uses a different import or registration path, follow KiloCode's own runtime configuration flow, then expose the visible `shipglows` entrypoint to the operator. This repository does not claim a stronger KiloCode-specific install contract than that.
+Follow KiloCode's own runtime configuration flow, then expose the visible
+`shipglows` entrypoint to the operator. This repository does not claim a
+KiloCode-specific skill path that it does not currently ship.
 
 ## What ShipGlows Does After Discovery
 
@@ -77,10 +75,9 @@ The operator boundary stays the same: ask for ShipGlows, then let the owner skil
 Use this order:
 
 1. ask for ShipGlows in natural language or pick it in the runtime UI
-2. if repository-local compatible-skill import is needed, install the explicit public corpus with `SHIPGLOWS_INSTALL_SURFACE=corpus`, then use `.agents/skills/shipglows/`
-3. treat internal runtime calls as implementation details only
-4. do not assume a dedicated KiloCode repo shim unless the repo later adds one explicitly
+2. treat internal runtime calls as implementation details only
+3. do not assume a dedicated KiloCode repo shim unless the repo later adds one explicitly
 
 ## Installer Note
 
-When you use `ShipGlows`'s root installer on a server, `cli/install.sh` can also install the user-space `kilocode` CLI via `pnpm` if the operator selects it. That does not change the repository boundary documented here: the repo still proves only the generic compatible shim path, not a dedicated KiloCode-named shim directory.
+When you use `ShipGlows`'s root installer on a server, `cli/install.sh` can also install the user-space `kilocode` CLI via `pnpm` if the operator selects it. That does not create a dedicated KiloCode skill shim.

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-05-04"
 updated: "2026-08-14"
@@ -28,6 +28,7 @@ linked_systems:
   - skills/references/master-delegation-semantics.md
   - skills/references/question-contract.md
   - skills/references/skill-execution-fidelity.md
+  - skills/references/execution-posture-tags.md
   - shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md
   - README.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
@@ -53,6 +54,7 @@ evidence:
   - "2026-06-11 ShipGlows Core natural-language routing added for internal 900-shipglows-core."
   - "Operator correction 2026-07-17: deterministic micro-edits must bypass domain and lifecycle routing."
   - "Operator decision 2026-08-14: exact local routine reversible mutations may use fast validation without loading strategic-choice overhead."
+  - "Operator decision 2026-08-20: execution posture is expressed by transversal #local, #nolocal, and #ci tags rather than métier modes."
 next_review: "2026-08-17"
 next_step: "/104-sg-end shipglows-skill-execution-fidelity-plugin-pilot"
 ---
@@ -74,6 +76,13 @@ Route to the smallest existing owner that can safely own the outcome.
 Apply the Skill Selection Proportionality Gate from `skills/references/skill-execution-fidelity.md` before domain classification. An explicit deterministic micro-edit with a known or easily found target, no domain judgment or sensitive boundary, and focused deterministic proof stays in direct main-thread execution, but still requires explicit post-message approval under `skills/references/mutation-plan-approval.md`. Use its fast path only when every cumulative eligibility criterion is established; otherwise present the full plan. Do not load an owner skill merely because the edited file belongs to its domain. An explicitly named skill remains authoritative and uses its smallest safe mode.
 
 Before natural-language routing, check whether the user included one or more focus tags defined in `skills/references/shipglows-terms.md` such as `#partner`, `#offer`, `#growth`, `#traffic`, `#acquisition`, `#clarity`, `#source`, `#rules`, `#docs`, `#canon`, `#quality`, `#shipglows`, or `#proof`. When present, load the referenced canonical documents first and treat them as routing priorities for the current turn.
+
+Execution posture tags are a distinct transversal family. When `#local`,
+`#nolocal`, or `#ci` appears anywhere in the instruction, load
+`skills/references/execution-posture-tags.md`, apply it after owner/mode
+resolution, and keep the free-text objective active. These tags change allowed
+proof effects, not ownership or authority. Reject conflicts rather than using
+argument order as precedence.
 
 Focus tags are not decorative reminders. They change execution posture, artifact preference, and route bias for the current turn. Do not merely acknowledge them; apply their routing implications below.
 

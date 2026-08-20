@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.0.3"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-06-28"
-updated: "2026-08-12"
+updated: "2026-08-20"
 status: reviewed
 source_skill: 300-sg-docs
 scope: opencode-runtime-docs
@@ -15,16 +15,15 @@ security_impact: none
 docs_impact: yes
 linked_systems:
   - ".opencode/skills/shipglows/SKILL.md"
-  - ".agents/skills/shipglows/SKILL.md"
   - "README.md"
   - "shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md"
 depends_on: []
 supersedes:
   - docs/opencode-shipglows.md
 evidence:
-  - "Wave 20 reclassifies the .opencode and .agents shims as linked runtime surfaces rather than versioned documentation dependencies."
+  - "Wave 20 reclassifies the .opencode shim as a linked runtime surface rather than a versioned documentation dependency."
   - "Repository-local OpenCode shim exists at `.opencode/skills/shipglows/SKILL.md`."
-  - "Repository-local generic OpenCode-compatible shim exists at `.agents/skills/shipglows/SKILL.md`."
+  - "Operator decision 2026-08-20 removes the generic .agents repository shim because Codex discovers it beside the live runtime or plugin router."
   - "README and runtime docs already distinguish manual user input from internal runtime calls."
 next_step: "/300-sg-docs audit shipglows_data/technical/operator-guides/opencode-shipglows.md"
 ---
@@ -51,12 +50,11 @@ Those calls may appear in runtime implementations or logs, but they are runtime 
 
 ## How This Repository Exposes ShipGlows to OpenCode
 
-The repository currently proves two relevant runtime surfaces:
+The repository proves one dedicated runtime surface:
 
 - `.opencode/skills/shipglows/SKILL.md` is the explicit OpenCode repository shim.
-- `.agents/skills/shipglows/SKILL.md` is the generic OpenCode-compatible fallback shim.
 
-If your OpenCode setup supports repo-local skill import or repository skill discovery, point it at the explicit `.opencode/skills/shipglows/` surface first. Use `.agents/skills/shipglows/` only when your setup expects the generic compatible path. The regular ShipGlows runtime bootstrap intentionally omits both paths; use the explicit corpus surface when OpenCode needs them.
+If your OpenCode setup supports repo-local skill import or repository skill discovery, point it at `.opencode/skills/shipglows/`. The generic `.agents/skills/shipglows/` repository fallback is intentionally absent because it creates a second public router in Codex. The regular ShipGlows runtime bootstrap omits the OpenCode path; use the explicit corpus surface when OpenCode needs it.
 
 ## What ShipGlows Does After Discovery
 
@@ -70,14 +68,13 @@ This means the repo-level `shipglows` entrypoint is for choosing the right workf
 
 ## Configuration Notes
 
-This repository proves the skill shims above. It does not claim every OpenCode installation uses the same import UI or configuration screen.
+This repository proves the dedicated skill shim above. It does not claim every OpenCode installation uses the same import UI or configuration screen.
 
 Use this repo contract:
 
 1. keep the repository checkout visible to OpenCode
 2. prefer `.opencode/skills/shipglows/`
-3. fall back to `.agents/skills/shipglows/` only when your runtime expects the generic compatible path
-4. launch the visible `shipglows` skill or ask for it in natural language
+3. launch the visible `shipglows` skill or ask for it in natural language
 
 ## When You Need the Full ShipGlows Corpus
 

@@ -48,7 +48,8 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
     def test_public_modes_route_without_colliding_with_local_auto_modes(self) -> None:
         router_entry = self.registry["public_catalog"]["router"]
         self.assertIn("auto", router_entry["modes"])
-        self.assertIn("nolocal", router_entry["modes"])
+        self.assertNotIn("nolocal", router_entry["modes"])
+        self.assertIn("nolocal", router_entry["legacy_execution_aliases"])
         self.assertIn("708-sg-auto", router_entry["internal_engines"])
         self.assertIn("shipglows auto", self.public_flat)
         self.assertIn("`shipglows nolocal <objective>`", self.public_flat)
@@ -61,7 +62,9 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         self.assertEqual("708-sg-auto", auto["activation_profile"])
         nolocal = check("shipglows nolocal improve checkout")
         self.assertEqual("valid", nolocal["status"])
-        self.assertEqual("nolocal", nolocal["mode"])
+        self.assertEqual("default", nolocal["mode"])
+        self.assertEqual("nolocal", nolocal["mode_alias"])
+        self.assertEqual(["#nolocal"], nolocal["effective_execution_tags"])
         self.assertEqual("000-shipglows", nolocal["selected_internal_engine"])
 
         docs_auto = check("sg-docs auto")
@@ -71,6 +74,9 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         auto_local = check("shipglows auto local")
         self.assertEqual("invalid", auto_local["status"])
         self.assertEqual("unsupported_mode_option", auto_local["error"])
+        auto_tag_local = check("shipglows auto #local")
+        self.assertEqual("invalid", auto_tag_local["status"])
+        self.assertEqual("unsupported_execution_tag", auto_tag_local["error"])
         bare_nolocal = check("shipglows nolocal")
         self.assertEqual("invalid", bare_nolocal["status"])
         self.assertEqual("missing_argument", bare_nolocal["error"])
@@ -79,8 +85,9 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         for text in (self.router, self.auto, self.playbook):
             self.assertIn("no-local-execution-policy.md", text)
         self.assertIn("always and implicitly applies", self.auto_flat)
-        self.assertIn("`auto local` is invalid", self.auto_flat)
+        self.assertIn("legacy `auto local` are invalid", self.auto_flat)
         self.assertIn("`auto nolocal`", self.auto_flat)
+        self.assertIn("`auto #nolocal`", self.auto_flat)
         self.assertIn("Every delegated mission inherits the frozen root and nolocal", self.playbook_flat)
 
     def test_useful_value_not_credit_burn_owns_priority_and_effort(self) -> None:
@@ -164,7 +171,8 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
     def test_auto_authority_is_bounded_and_nolocal_is_not_an_authority_bypass(self) -> None:
         self.assertIn("Auto-session authority", self.approval_flat)
         self.assertIn("explicit `shipglows auto` invocation", self.approval_flat)
-        self.assertIn("`nolocal` alone grants no mutation authority", self.approval_flat)
+        self.assertIn("`#local`, `#nolocal`, and `#ci`", self.approval_flat)
+        self.assertIn("grant no mutation authority", self.approval_flat)
         for forbidden in (
             "destructive",
             "credential",

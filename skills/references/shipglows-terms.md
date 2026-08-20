@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-06-26"
 updated: "2026-06-29"
@@ -23,6 +23,7 @@ linked_systems:
   - cli/install.sh
   - local/
   - tui/
+  - skills/references/execution-posture-tags.md
 depends_on: []
 supersedes: []
 evidence:
@@ -33,6 +34,7 @@ evidence:
   - "Operator approval 2026-06-29: add a private memory store for cached project pitches and approved reusable source material."
   - "Operator request 2026-06-29: add traffic-manager profile routing and acquisition-focused recentering tags."
   - "Operator decision 2026-06-29: name the traffic-manager profile Tariq."
+  - "Operator decision 2026-08-20: add #local, #nolocal, and #ci as transversal execution posture tags while retaining nolocal mode syntax as compatibility only."
 next_review: "2026-07-11"
 next_step: "/103-sg-verify shared terminology routing"
 ---
@@ -64,6 +66,24 @@ If the user names another project explicitly, keep that project as the target an
 ## Focus Tags
 
 ShipGlows also accepts lightweight conversation recentering tags. These tags do not replace owner-skill routing. They tell the agent which canonical contract to reload before answering, routing, or editing.
+
+### Execution posture tags
+
+These three tags affect permitted proof execution rather than métier routing.
+They are position-independent in agent invocations and load
+`$SHIPGLOWS_ROOT/skills/references/execution-posture-tags.md`.
+
+| Tag | Meaning | Canonical document |
+| --- | --- | --- |
+| `#local` | Permit proportional local workloads under normal authority; never force unnecessary execution | `$SHIPGLOWS_ROOT/skills/references/execution-posture-tags.md` |
+| `#nolocal` | Forbid local/application/validation workloads and external effects while retaining static inspection and bounded edits | `$SHIPGLOWS_ROOT/skills/references/execution-posture-tags.md` |
+| `#ci` | Imply `#nolocal` and identify existing CI as deferred proof, without authorizing push or workflow dispatch | `$SHIPGLOWS_ROOT/skills/references/execution-posture-tags.md` |
+
+`#local` conflicts with the other two. `#nolocal #ci` is valid. These tags do
+not grant mutation or external-write authority. In native Bash syntax an
+unquoted `#` starts a comment; the forms above are agent-conversation tags.
+
+### Recenter and navigation tags
 
 If a tag is present, treat it as a high-priority context cue even when the rest of the prompt is short or fuzzy.
 
@@ -134,4 +154,4 @@ When one or more focus tags appear:
 - keep the tag meaning active as a conversation-level priority for the current turn
 - do not ask the operator to restate the same doctrine in natural language when the tag already resolves it
 
-If several tags appear, combine them in the narrowest coherent way rather than treating them as conflicting by default.
+If several tags appear, combine them in the narrowest coherent way rather than treating them as conflicting by default. The execution-posture conflicts defined above are the explicit exception and fail closed.

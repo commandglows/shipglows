@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.5.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-05-04"
 updated: "2026-08-20"
@@ -20,6 +20,7 @@ linked_systems:
   - skills/references/skill-code-index.md
   - skills/references/question-contract.md
   - skills/references/operator-partnership-contract.md
+  - skills/references/execution-posture-tags.md
   - shipglows_data/technical/skill-runtime-and-lifecycle.md
 depends_on: []
 supersedes:
@@ -30,6 +31,8 @@ evidence:
   - "Operator decision 2026-08-16: expose current-project hygiene and the safe hygiene git alias."
   - "Operator decision 2026-08-20: expose a global autonomous credit-window mode that always defers local workloads, plus an independent nolocal execution policy for operator-selected work."
   - "Operator refinement 2026-08-20: auto optimizes useful value rather than token burn, recommends useful subagents, stays inside its launch root, and never self-activates Fast."
+  - "Operator decision 2026-08-20: local, nolocal, and ci become composable execution posture tags; nolocal remains a compatibility alias and auto keeps implicit nolocal."
+  - "Operator decision 2026-08-20: distinguish native shipglows skills channel commands from agent workflow invocations."
 next_step: "/103-sg-verify public skill catalogue"
 ---
 
@@ -38,6 +41,20 @@ next_step: "/103-sg-verify public skill catalogue"
 ShipGlows has a small public surface for choosing work, and a larger internal
 engine surface that performs it. Start from the métier, not a numeric code.
 
+## Native Skill Channel Commands
+
+These are terminal commands, not agent modes:
+
+| Command | Purpose |
+| --- | --- |
+| `shipglows skills status` | Report whether Codex uses the public plugin, a linked clone, a conflicting double channel, or no ShipGlows entrypoint. |
+| `shipglows skills link` | From a complete Git clone, replace the plugin channel after confirmation and expose live public skills to Codex and Claude. |
+| `shipglows skills unlink` | Remove only proven ShipGlows-managed public links; add `--install-plugin` to return to the public Codex channel. |
+
+After changing channel, restart Codex or Claude from a new shell so both its
+skill catalogue and managed `SHIPGLOWS_ROOT` are rediscovered. Editing a linked
+clone then needs no push or plugin release.
+
 ## Default Route
 
 Use `shipglows <instruction>` when you do not want to choose a métier. It
@@ -45,27 +62,36 @@ resolves the target as far as repository evidence allows, asks only for a
 material missing decision, then hands the same conversation to the owner. It
 does not leave the operator to invoke the next internal step.
 
-Two global execution modes refine that default:
+One global workflow mode and three transversal execution tags refine that
+default. A mode says what workflow owns the work; a tag says where and how
+executable proof may run.
 
 - `shipglows auto [scope or horizon]` autonomously selects safe work already
   grounded in roadmap, planning, specs, architecture, security, or compliance
   evidence. After safety and authority eligibility, it prioritizes durable
   value per wall-clock minute. It freezes the launch root, coordinates claims
   across concurrent conversations, and recommends subagents when independent
-  useful missions exist. It always implies `nolocal`, continues past
+  useful missions exist. It always implies `#nolocal`, continues past
   individually blocked candidates, and reports every edit as
   `implemented — unverified`.
-- `shipglows nolocal <objective>` keeps the objective and normal métier owner
-  selected by the operator, but defers builds, tests, lint, typechecks,
-  installation, servers, browsers/devices, containers, migrations, commits,
-  pushes, deployments, and external writes. It grants no additional mutation
-  authority.
 
-Both modes may read and edit in-scope files and inspect Git status/diffs. `auto`
-has no local override and cannot guarantee an exact credit balance because the
-runtime may not expose one. It chooses model effort for task quality, never to
-burn credits. It uses Fast only when the client already proves it active; enable
-it before invocation with `/fast on` when desired.
+| Execution tag | Meaning |
+| --- | --- |
+| `#local` | Local builds/tests and other proportional proof are permitted under normal owner authority; the tag does not force unnecessary execution. |
+| `#nolocal` | Static inspection and bounded edits may continue, but builds, tests, lint, typechecks, installation, servers, browsers/devices, containers, migrations, commits, pushes, deployments, and external writes are deferred. |
+| `#ci` | Implies `#nolocal` and records existing CI as the deferred proof target. It does not authorize commit, push, workflow dispatch, deployment, or another remote write. |
+
+The tags may appear anywhere after or around the agent command. `#local`
+conflicts with `#nolocal` and `#ci`; `#nolocal #ci` is valid. They never grant
+mutation authority. `shipglows nolocal <objective>` remains accepted as a
+legacy alias for `shipglows <objective> #nolocal`, but new prompts should use
+the tag. `auto #local` is invalid; `auto #ci` is valid and still performs no
+local or remote workload itself.
+
+`auto` cannot guarantee an exact credit balance because the runtime may not
+expose one. It chooses model effort for task quality, never to burn credits. It
+uses Fast only when the client already proves it active; enable it before
+invocation with `/fast on` when desired.
 
 `mode=excellence` can be set explicitly in `103-sg-verify` requests.
 A non-ambiguous natural-language request for excellence maps to `excellence`
@@ -118,6 +144,41 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 | Gouverner | `sg-docs` | Internal documentation, architecture, governance, and metadata | `300-sg-docs` |
 | Organiser | `sg-planning` | Tasks, backlog, priorities, reviews, and sessions | `011-sg-pilotage` |
 | Organiser | `sg-help` | Orientation, modes, doctrine, and public/expert discovery | `302-sg-help` |
+
+## Public Modes Quick Reference
+
+Modes belong to one owner and select a workflow. Execution tags remain
+composable with every command unless that mode declares a conflict.
+
+| Public command | Modes |
+| --- | --- |
+| `shipglows` | default routing, `context`, `auto` |
+| `sg-development` | `default`, `feature`, `app`, `refactor` |
+| `sg-design` | `system`, `playground`, `audit`, `animation`, `redesign`, `migration`, `library` |
+| `sg-experience` | `audit`, `flow`, `onboarding`, `recovery` |
+| `sg-bug` | `default`, `reproduce`, `fix`, `retest`, `close` |
+| `sg-engineering` | `audit`, `architecture`, `deps`, `performance`, `migrate`, `github`, `sync`, `access`, `parity` |
+| `sg-maintenance` | `quick`, `full`, `security`, `deps`, `docs`, `audits`, `global`, `no-ship` |
+| `sg-release` | `default`, `preview`, `prod`, `verify` |
+| `sg-content` | `plan`, `capture`, `repurpose`, `draft`, `enrich`, `audit`, `editorial`, `publish`, `emailing` |
+| `sg-marketing` | `market`, `gtm`, `copy`, `copywriting` |
+| `sg-seo` | `audit`, `launch`, `monitoring`, `fix`, `page`, `project`, `global` |
+| `sg-docs` | `init`, `file`, `readme`, `api`, `components`, `auto`, `audit`, `update`, `metadata`, `migrate`, `migrate-layout`, `technical`, `editorial`, `duplicata`, `duplicates`, `add-project` |
+| `sg-planning` | `tasks`, `backlog`, `priorities` (`prio`), `review`, `sessions` |
+| `sg-help` | `default`, `mode`, `expert` |
+
+Examples of composition:
+
+```text
+sg-development feature checkout #local
+sg-bug fix payment callback #nolocal
+sg-engineering verify checkout #ci
+shipglows auto #ci until=18:00
+```
+
+These are agent-invocation examples, not native shell commands. In Bash, an
+unquoted `#` starts a comment; quote the complete string when passing one to a
+diagnostic command.
 
 `sg-content` owns documentation written for an audience. `sg-docs` owns the
 internal corpus that lets projects and agents operate safely.
@@ -201,8 +262,9 @@ taxonomy and should not be required for normal operation.
 ```text
 shipglows Ajoute une animation accessible sur le site marketing
 shipglows auto until=18:00
-shipglows nolocal Implémente le prochain chantier prêt sans lancer ses validations
+shipglows Implémente le prochain chantier prêt sans lancer ses validations #nolocal
 sg-engineering Prépare la synchronisation locale/cloud de ce produit
+sg-engineering verify checkout #ci
 sg-content Mets à jour la FAQ publique après ce changement
 sg-docs Mets à jour la documentation interne de cette architecture
 sg-help expert

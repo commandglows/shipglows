@@ -1,18 +1,18 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-20"
 created_at: "2026-08-20 07:59:01 UTC"
 updated: "2026-08-20"
-updated_at: "2026-08-20 13:04:39 UTC"
+updated_at: "2026-08-20 15:40:23 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
-scope: "shipglows auto and nolocal modes"
+scope: "shipglows auto and execution posture tags"
 owner: Diane
-user_story: "As the ShipGlows operator approaching an AI-credit deadline, I want autonomous conversations that maximize useful project value without artificial token burn, stay confined to their launch root, coordinate independent agents, and always defer local workloads, plus an independent no-local modifier for ordinary work."
+user_story: "As the ShipGlows operator, I want auto to remain an autonomous workflow mode while local, nolocal, and ci are composable execution tags, so every métier command can express its proof posture without confusing ownership or authority."
 confidence: high
 risk_level: high
 security_impact: yes
@@ -23,15 +23,17 @@ linked_systems:
   - skills/708-sg-auto/SKILL.md
   - skills/708-sg-auto/references/auto-session-coordination.md
   - skills/references/no-local-execution-policy.md
+  - skills/references/execution-posture-tags.md
   - skills/references/mutation-plan-approval.md
   - skills/references/skill-invocation-registry.json
   - skills/references/skill-code-index.md
   - shipglows_data/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md
   - tools/test_shipglows_auto_nolocal_contract.py
+  - tools/test_execution_posture_tags.py
 depends_on:
   - artifact: skills/references/mutation-plan-approval.md
-    artifact_version: "1.10.0"
+    artifact_version: "1.11.0"
     required_status: active
   - artifact: skills/references/master-delegation-semantics.md
     artifact_version: "1.15.0"
@@ -46,14 +48,15 @@ evidence:
   - "Current router exposes no global auto or nolocal contract; sg-docs auto and 102-sg-start auto-verify are unrelated local modes."
   - "Operator correction 2026-08-20: useful work, not raw reasoning-token consumption, is the optimization target; effort and agents must be justified by task value."
   - "Operator decision 2026-08-20: auto recommends useful subagents, freezes the launch root for all agents, coordinates concurrent claims, treats Fast as pre-existing client state, and always implies nolocal."
+  - "Operator decision 2026-08-20: local, nolocal, and ci are execution posture tags rather than modes; ci implies nolocal, auto implies nolocal, and the legacy nolocal command remains compatible."
 next_step: "Close the verified instruction-contract chantier when the operator requests lifecycle closure"
 ---
 
-# Spec: ShipGlows Auto And Nolocal Modes
+# Spec: ShipGlows Auto And Execution Posture Tags
 
 ## Title
 
-ShipGlows Auto And Nolocal Modes
+ShipGlows Auto And Execution Posture Tags
 
 ## Status
 
@@ -61,17 +64,17 @@ ready
 
 ## User Story
 
-As the ShipGlows operator approaching an AI-credit deadline, I want autonomous conversations that maximize useful project value without artificial token burn, stay confined to their launch root, coordinate independent agents, and always defer local workloads, plus an independent no-local modifier for ordinary work.
+As the ShipGlows operator, I want auto to remain an autonomous workflow mode while local, nolocal, and ci are composable execution tags, so every métier command can express its proof posture without confusing ownership or authority.
 
 ## Minimal Behavior Contract
 
-`shipglows auto [optional scope or horizon]` starts a bounded autonomous useful-work window, treats that invocation as authority for safe local reversible edits and useful delegated agents, freezes the launch project root, ranks eligible work by durable value per wall-clock minute, and always applies `nolocal` implicitly. Reasoning effort, Fast, generation volume, and agent count are never consumption targets. `shipglows nolocal <objective>` keeps the ordinary owner and approval lifecycle for an operator-selected objective while applying only the execution restriction. Both modes may inspect and edit in-scope files, but they never run builds, tests, lint, typechecks, dependency installation, application servers, browsers, emulators, containers, executed migrations, commits, pushes, deployments, or other workload/external-state operations. If a candidate is unsafe, ambiguous, blocked, duplicated by a fresh claim, already dependent on missing proof, or not backed by roadmap/planning/security/compliance evidence, `auto` skips it and selects the next safe candidate; it never invents busywork or reasoning to consume credits.
+`shipglows auto [optional scope or horizon]` remains the bounded autonomous useful-work mode and always receives effective `#nolocal`. `#local`, `#nolocal`, and `#ci` are position-independent execution posture tags that compose with ordinary métier and expert invocations. `#local` permits proportional local proof without forcing it; `#nolocal` defers workloads and external effects; `#ci` implies `#nolocal` and names CI only as deferred proof. Tags never grant mutation or external-write authority. `shipglows nolocal <objective>` remains a legacy alias normalized to `shipglows <objective> #nolocal`.
 
 ## Success Behavior
 
 - Preconditions: A current project root is resolved and frozen and contains at least one safe actionable roadmap, planning, security, compliance, architecture, refactor, or implementation surface.
-- Trigger: The operator invokes `shipglows auto`, optionally with a scope or horizon, or invokes `shipglows nolocal <objective>`.
-- User/operator result: `auto` proceeds without avoidable discussion and returns a concise portfolio handoff; `nolocal` executes the selected objective under normal ownership with a visible deferred-proof boundary.
+- Trigger: The operator invokes `shipglows auto`, adds an execution posture tag to a command, or uses the legacy `shipglows nolocal <objective>` alias.
+- User/operator result: `auto` proceeds without avoidable discussion; ordinary commands retain their owner and apply the selected proof posture with a visible deferred-proof boundary where relevant.
 - System effect: Safe local files and ignored coordination claims may be created or edited below the frozen root; useful subagents inherit the same root and nolocal boundary; no workload execution or external state change occurs; every touched work item remains open as `implemented — unverified` until normal proof runs later.
 - Success proof: Scenario-first contract tests prove routing, authority, priority order, forbidden operations, status vocabulary, stop/skip behavior, and mode separation.
 - Silent success: Not allowed; the final handoff names changed work, deferred proof, and stop reason.
@@ -90,14 +93,15 @@ The normal ShipGlows lifecycle optimizes delivery quality and proportional proof
 
 ## Solution
 
-Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to internal `708-sg-auto`, freeze its launch root, recommend bounded subagents for independent useful missions, coordinate concurrent claims below that root, and compose the shared no-local-execution policy implicitly. Keep `nolocal` independently loadable by ordinary routed work. The narrowly bounded auto-session authority lets explicit `shipglows auto` and its delegated missions proceed continuously without defeating the universal safety boundary.
+Keep `auto` as the global autonomous ShipGlows mode. Move local execution posture to registry-backed `#local`, `#nolocal`, and `#ci` tags applied after owner/mode resolution. Route `auto` to internal `708-sg-auto` with implied `#nolocal`; retain `shipglows nolocal <objective>` only as a normalized compatibility alias. Fail closed on conflicts and keep tags separate from authority.
 
 ## Scope In
 
-- Public `shipglows auto` and `shipglows nolocal <objective>` discovery and routing.
+- Public `shipglows auto`, transversal execution tags, and legacy `shipglows nolocal <objective>` compatibility routing.
 - Internal-only `708-sg-auto` engine for multi-chantier selection, ranking, execution, skip/stop behavior, receipts, and handoff.
 - Shared `no-local-execution-policy.md` defining allowed static inspection/editing and forbidden workload/external-state operations.
-- Auto-session authority limited to safe, reversible, current-project local edits; ordinary `nolocal` retains normal mutation approval.
+- Auto-session authority limited to safe, reversible, current-project local edits; posture tags retain normal mutation approval.
+- `#ci` as a deferred proof target only, with no push, dispatch, remote execution, or deployment authority.
 - Useful-work priority order: after safety, authority, root, claims, and evidence eligibility, maximize durable value per wall-clock minute.
 - Bounded subagents recommended for independent useful missions, with task-fit model and reasoning choices and no artificial fan-out.
 - Root-local ignored coordination claims for concurrent conversations and non-overlapping file ownership.
@@ -110,15 +114,16 @@ Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to in
 - Measuring or guaranteeing exact OpenAI credit consumption.
 - Accessing account quota, estimating a burn curve, or forcing model effort to consume an expiring balance.
 - Purchasing credits, changing plans, accessing billing, or querying private account usage.
-- Builds, tests, lint, typechecks, installs, upgrades, servers, browser/device runs, containers, migrations, commits, pushes, deployments, or publication inside either mode.
+- Builds, tests, lint, typechecks, installs, upgrades, servers, browser/device runs, containers, migrations, commits, pushes, deployments, or publication under effective `#nolocal` or `#ci`.
 - Destructive edits, deletion, credential/secret/permission changes, production or tenant mutation, billing/payment work, or irreversible/external actions.
 - Replacing normal verification, closure, release, or compliance certification.
 - Changing the unrelated `sg-docs auto` or `102-sg-start` auto-verify meanings.
 
 ## Constraints
 
-- `auto` always applies `nolocal` implicitly; no `auto local` override is supported.
-- `nolocal` is an execution policy, not an autonomous priority selector and not an authority bypass.
+- `auto` always applies `#nolocal` implicitly; no `#local` or legacy `local` override is supported.
+- `#local`, `#nolocal`, and `#ci` are execution posture tags, not owner selectors, autonomous priority selectors, or authority bypasses.
+- `#local` conflicts with `#nolocal` and `#ci`; `#ci` implies `#nolocal`; argument order never resolves a conflict.
 - Static repository discovery, source reading, bounded file editing, and read-only Git status/diff inspection remain allowed because they produce the requested work without executing the application workload.
 - A candidate must have durable evidence in roadmap, planning, specs, backlog, code risk, or a legitimate security/compliance/architecture audit surface.
 - Auto-session authority never covers remote, destructive, privileged, secret, billing, auth/permission, production, or irreversible effects.
@@ -138,7 +143,7 @@ Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to in
 - Safety and explicit authority eligibility gate the candidate pool before credit intensity is scored.
 - Within the safe eligible pool, durable project value per wall-clock minute is the primary ordering dimension; model, reasoning, generation, and agents remain task-fit implementation choices.
 - `auto` never pauses for a routine implementation choice; it skips a blocked candidate and continues.
-- `nolocal` alone never grants autonomous multi-chantier selection or mutation authority.
+- Execution posture tags alone never grant autonomous multi-chantier selection, mutation authority, or external effects.
 - Deferred proof remains explicit and executable later; no work item is closed from static inspection alone.
 - Useful subagents are authorized and recommended for independent missions. Parallel writes require ready, non-overlapping execution batches and remain bound by frozen-root, claim, and dirty-file ownership.
 - `auto` never changes Fast itself; unobservable Fast state is recorded as unknown and does not interrupt the run.
@@ -158,8 +163,10 @@ Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to in
 ## Edge Cases
 
 - `shipglows auto` with no explicit horizon runs until platform stop, operator interruption, or no safe actionable candidate; it cannot promise to exhaust a numeric balance.
-- `shipglows auto nolocal` is accepted as redundant and behaves exactly like `shipglows auto`.
+- `shipglows auto #nolocal` and legacy `shipglows auto nolocal` are redundant and behave exactly like `shipglows auto`.
+- `shipglows auto #ci` retains nolocal and records CI only as deferred proof; `shipglows auto #local` is invalid.
 - `shipglows nolocal` without an objective reports the missing objective instead of selecting work autonomously.
+- `#local #nolocal` and `#local #ci` fail closed; duplicate compatible tags collapse deterministically.
 - A high-credit candidate requiring a build/test to know how to edit is skipped or left as analysis-only; it is not guessed into a verified fix.
 - A small high-value repair may outrank a reasoning-intensive chantier when it delivers more durable value per minute; token intensity is not a ranking goal.
 - Ten concurrent auto conversations share no account-quota telemetry. Each stays task-fit and uses root-local claims to avoid duplicate useful work rather than attempting a per-session burn curve.
@@ -171,7 +178,7 @@ Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to in
 - Zero: no eligible candidate produces a clean stop report and no mutation.
 - One: one eligible candidate is implemented and handed off as unverified.
 - Many: independent candidates are ranked, bounded, and processed without mixing ownership.
-- Boundaries: expired horizon, context/platform stop, dirty collision, absent objective, and redundant `auto nolocal` are deterministic.
+- Boundaries: expired horizon, context/platform stop, dirty collision, absent legacy objective, redundant nolocal, and tag conflicts are deterministic.
 - Interfaces: router, registry, auto engine, shared policy, selected owner, and deferred-proof handoff retain explicit ownership.
 - Exceptions: unsafe, privileged, destructive, ambiguous, or proof-dependent candidates are skipped without weakening the global safety contract.
 - Simple scenarios: contract tests cover route, priority, forbidden actions, status, and mode separation without executing an application.
@@ -200,7 +207,7 @@ Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to in
   - User story link: Makes both commands deterministic and discoverable.
   - Depends on: Tasks 1-2.
   - Validate with: `python3 -m unittest tools.test_shipglows_auto_nolocal_contract tools.test_skill_invocation_check && python3 tools/skill_code_index_lint.py`
-  - Notes: `auto` and `nolocal` are public router modes; 708 remains internal.
+  - Notes: This task originally introduced both router forms; Task 7 retains `auto` as the mode and migrates `nolocal` to a compatibility alias for the transversal tag.
 
 - [x] Task 4: Add scenario-first regression coverage.
   - File: `tools/test_shipglows_auto_nolocal_contract.py`, `tools/test_skill_invocation_check.py`
@@ -226,6 +233,14 @@ Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to in
   - Validate with: `python3 -m unittest tools.test_shipglows_auto_nolocal_contract tools.test_shipglows_auto_claim tools.test_skill_invocation_check`
   - Notes: Claim execution is minimal root-local control-plane bookkeeping explicitly allowed by nolocal; it never runs the application workload.
 
+- [x] Task 7: Replace nolocal mode semantics with composable execution posture tags.
+  - File: `skills/references/execution-posture-tags.md`, `skills/references/skill-invocation-registry.json`, `tools/skill_invocation_check.py`, router contracts, and operator cheatsheets.
+  - Action: Add position-independent `#local`, `#nolocal`, and `#ci`; make CI imply nolocal, reject conflicts, preserve legacy nolocal normalization, and document public modes separately from execution posture.
+  - User story link: Lets every métier or expert command express its proof environment without changing owner, workflow, or authority.
+  - Depends on: Tasks 1-6.
+  - Validate with: `python3 -m unittest tools.test_execution_posture_tags tools.test_shipglows_auto_nolocal_contract tools.test_skill_invocation_check`
+  - Notes: Tags are agent-invocation syntax. In Bash an unquoted hash starts a comment; no native shell flag is introduced by this task.
+
 ## Acceptance Criteria
 
 - [x] AC 1: Given `shipglows auto`, when routing resolves the mode, then it hands off to internal `708-sg-auto`, applies `nolocal` mandatorily, and treats no `local` override as valid.
@@ -241,13 +256,18 @@ Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to in
 - [x] AC 11: Given concurrent auto conversations in one root, when they claim the same candidate or overlapping paths, then atomic root-local coordination grants one owner and the others skip; abandoned claims are never silently reclaimed.
 - [x] AC 12: Given an effort or model decision, when auto selects it, then required task quality and risk justify the choice; expiring credits, elapsed time, or a desire to consume never justify escalation or artificial output.
 - [x] AC 13: Given Fast is active, inactive, or unobservable, when auto runs, then it uses only a runtime-proven active state and never self-activates Fast, edits user configuration, pauses, or attributes the parent's state to a child without evidence.
+- [x] AC 14: Given a public or expert invocation with one execution posture tag in any token position, when preflight resolves it, then owner/mode resolution is preserved and requested/effective posture is returned deterministically.
+- [x] AC 15: Given `#ci`, when posture resolves, then effective tags include `#nolocal`, CI is only the deferred proof target, and no commit, push, dispatch, remote execution, deploy, or closure authority is added.
+- [x] AC 16: Given `#local #nolocal` or `#local #ci`, when preflight resolves posture, then it rejects the conflict instead of using argument order as precedence.
+- [x] AC 17: Given `shipglows auto`, `auto #ci`, or `auto #local`, when routing resolves the mode, then effective nolocal is implicit, CI remains deferred-only, and local is rejected.
+- [x] AC 18: Given legacy `shipglows nolocal <objective>`, when preflight resolves it, then it normalizes to the default router objective plus `#nolocal`; a missing objective remains invalid.
 
 ## Test Strategy
 
-- Unit: `python3 -m unittest tools.test_shipglows_auto_nolocal_contract tools.test_shipglows_auto_claim tools.test_skill_invocation_check`
+- Unit: `python3 -m unittest tools.test_execution_posture_tags tools.test_shipglows_auto_nolocal_contract tools.test_shipglows_auto_claim tools.test_skill_invocation_check`
 - Integration: `python3 tools/skill_code_index_lint.py`, activation-graph validation, metadata lint for changed governed docs, and focused skill budget audit.
 - Runtime: affected-skill synchronization and byte/target checks for `shipglows`, `000-shipglows`, and `708-sg-auto`.
-- Manual: Independent semantic review of AC 1-13; no application workload, browser, device, provider, or deployment proof.
+- Manual: Semantic review of AC 1-18; no application workload, browser, device, provider, or deployment proof.
 
 ## Test Contract
 
@@ -261,7 +281,7 @@ Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to in
 
 - Needed: no.
 - Checklist path: None, because no rendered or provider-native behavior changes.
-- Required scenario coverage: AC 1 through AC 13.
+- Required scenario coverage: AC 1 through AC 18.
 - Exception with proof: Application build/test/install is intentionally irrelevant to this instruction-only feature; focused contract and runtime-discovery evidence prove the changed surface.
 
 ### Required evidence stack
@@ -285,7 +305,7 @@ Keep `auto` and `nolocal` as distinct global ShipGlows modes. Route `auto` to in
 - Security impact: High if autonomy authority is vague; mitigated by an explicit allowlist, forbidden external/destructive surfaces, dirty ownership checks, and truthful unverified status.
 - Product/data/performance risk: Auto may produce broad unverified diffs; mitigate with roadmap evidence, bounded candidate slices, non-overlapping ownership, deferred proof commands, and no commit/push.
 - Credit-optimization risk: Token usage cannot be guaranteed or observed reliably; mitigate by optimizing useful value per minute, using natural multi-conversation throughput, and forbidding artificial effort, agents, or output.
-- Governance risk: `nolocal` could accidentally become an approval bypass; tests and contract wording keep authority exclusive to explicit `shipglows auto`.
+- Governance risk: an execution tag could accidentally become an approval or remote-action bypass; tests and contract wording keep authority separate and make CI deferred-only.
 
 ## Execution Notes
 
@@ -308,13 +328,14 @@ None
 | 2026-08-20 08:08:32 UTC | 102-sg-start | GPT-5 Codex | Implemented shared nolocal policy, bounded auto authority, internal 708 engine, public routing, registry/index identity, scenario tests, and mapped documentation | in progress: focused source proof passed; independent review and runtime sync pending | /103-sg-verify shipglows auto and nolocal modes |
 | 2026-08-20 08:16:51 UTC | 103-sg-verify | GPT-5 Codex | Verified AC 1-8 in source and installed runtime; independent review found and confirmed repair of public mode-route selection and invalid-form rejection | partial: behavior verified and runtime files identical; direct Codex expert link for 708 blocked by root-owned ~/.agents/skills | create the exact 708 Codex symlink with sudo, then recheck runtime discovery |
 | 2026-08-20 13:04:39 UTC | 103-sg-verify | GPT-5 Codex | Verified useful-work prioritization, mandatory nolocal, bounded subagents, frozen root, atomic claims, lock symlink defense, task-fit effort, per-agent Fast truth, runtime parity, and direct discovery | verified: 56 focused scenarios pass; independent re-review validated all AC 1-13 | await operator lifecycle closure request |
+| 2026-08-20 15:40:23 UTC | 103-sg-verify | GPT-5 Codex | Migrated nolocal from public mode semantics to registry-backed execution tags, added local/ci composition and conflicts, preserved legacy normalization, and expanded public/expert mode cheatsheets | verified: 87 focused scenarios pass in source and runtime; graph, metadata, skill audit, budget, links, and parity pass for AC 14-18 | await operator lifecycle closure request |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done, draft spec created.
 - `101-sg-ready`: done, ready.
 - `102-sg-start`: done, implementation and mapped documentation complete.
-- `103-sg-verify`: done, AC 1-13 and installed runtime verified independently.
+- `103-sg-verify`: done, AC 1-18 and installed runtime verified.
 - `104-sg-end`: not launched.
 - `005-sg-ship`: not launched.
 

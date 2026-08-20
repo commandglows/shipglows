@@ -10,6 +10,7 @@ BACKUP_EXISTING=0
 SKILL_NAME=""
 CLEAN_STALE=0
 CATALOG="public"
+CODEX_ENTRYPOINT="linked"
 
 checked=0
 ok=0
@@ -24,6 +25,9 @@ Usage: tools/shipglows_sync_skills.sh [--check|--repair] (--all|--skill <name>) 
 Options:
   --runtime claude|codex|all      Runtime directory to check or repair (default: all)
   --catalog public|expert|all     Public skills (default), internal engines, or both
+  --codex-entrypoint linked|plugin
+                                 Keep the live linked router (developer default), or defer the
+                                 public router name to the installed Codex plugin
   --target-home <path>            Home directory containing .claude/.agents (default: $HOME)
   --shipglows-root <path>         ShipGlows repository root (default: $SHIPGLOWS_ROOT or $HOME/.shipglows/runtime)
   --shipglows-root <path>          Legacy alias for --shipglows-root
@@ -190,6 +194,67 @@ clean_stale_runtime_links() {
     done
 }
 
+codex_plugin_enabled() {
+    local config="$TARGET_HOME/.codex/config.toml"
+    [ -f "$config" ] || return 1
+    python3 - "$config" <<'PY'
+import sys
+import tomllib
+
+try:
+    with open(sys.argv[1], "rb") as handle:
+        config = tomllib.load(handle)
+except (OSError, tomllib.TOMLDecodeError):
+    raise SystemExit(1)
+
+plugins = config.get("plugins", {})
+for name, settings in plugins.items():
+    if name.startswith("shipglows@") and isinstance(settings, dict) and settings.get("enabled") is True:
+        raise SystemExit(0)
+raise SystemExit(1)
+PY
+}
+
+reconcile_codex_router_channel() {
+    local target_path="$TARGET_HOME/.agents/skills/shipglows"
+    local resolved_target=""
+    local resolved_skills=""
+
+    if [ "$CODEX_ENTRYPOINT" = "linked" ]; then
+        if codex_plugin_enabled; then
+            fail "Codex ShipGlows entrypoint conflict: the plugin is enabled while --codex-entrypoint linked was selected. Remove/disable the plugin or use --codex-entrypoint plugin."
+        fi
+        return 0
+    fi
+
+    if ! codex_plugin_enabled; then
+        fail "Codex ShipGlows plugin entrypoint was selected, but no enabled shipglows plugin is recorded in $TARGET_HOME/.codex/config.toml."
+    fi
+
+    if [ -L "$target_path" ]; then
+        resolved_target="$(resolve_path "$target_path")"
+        resolved_skills="$(resolve_path "$SHIPGLOWS_ROOT/skills")"
+        case "$resolved_target" in
+            "$resolved_skills"/*)
+                if [ "$MODE" = "repair" ]; then
+                    rm -f "$target_path" || fail "cannot remove linked Codex router: $target_path"
+                    repaired=$((repaired + 1))
+                    log "repaired runtime=codex skill=shipglows target=$target_path reason=plugin-entrypoint-selected"
+                else
+                    blocked=$((blocked + 1))
+                    log "conflict runtime=codex skill=shipglows target=$target_path reason=plugin-entrypoint-selected"
+                    return 1
+                fi
+                ;;
+            *) fail "Codex router path is a symlink outside ShipGlows ownership: $target_path" ;;
+        esac
+    elif [ -e "$target_path" ]; then
+        fail "Codex router path is not a managed symlink: $target_path"
+    fi
+    skipped=$((skipped + 1))
+    log "skipped runtime=codex skill=shipglows reason=plugin-entrypoint-selected"
+}
+
 check_one() {
     local runtime="$1"
     local name="$2"
@@ -313,6 +378,11 @@ while [ "$#" -gt 0 ]; do
             CATALOG="$2"
             shift 2
             ;;
+        --codex-entrypoint)
+            [ "$#" -ge 2 ] || fail "--codex-entrypoint requires linked or plugin"
+            CODEX_ENTRYPOINT="$2"
+            shift 2
+            ;;
         --target-home)
             [ "$#" -ge 2 ] || fail "--target-home requires a path"
             TARGET_HOME="$2"
@@ -334,6 +404,7 @@ done
 [ -n "$SHIPGLOWS_ROOT" ] || fail "SHIPGLOWS_ROOT is unavailable; use --shipglows-root"
 case "$RUNTIME" in claude|codex|all) ;; *) fail "invalid runtime: $RUNTIME" ;; esac
 case "$CATALOG" in public|expert|all) ;; *) fail "invalid catalog: $CATALOG" ;; esac
+case "$CODEX_ENTRYPOINT" in linked|plugin) ;; *) fail "invalid Codex entrypoint: $CODEX_ENTRYPOINT" ;; esac
 [ -n "$SCOPE" ] || SCOPE="all"
 
 if [ "$SCOPE" = "skill" ]; then
@@ -356,6 +427,9 @@ case "$RUNTIME" in
 esac
 
 status=0
+case " $runtimes " in
+    *" codex "*) reconcile_codex_router_channel || status=1 ;;
+esac
 for runtime in $runtimes; do
     clean_stale_runtime_links "$runtime" || status=1
 done
@@ -363,11 +437,14 @@ for skill_pair in $skill_pairs; do
     skill="${skill_pair%%|*}"
     source_skill="${skill_pair#*|}"
     for runtime in $runtimes; do
+        if [ "$runtime" = "codex" ] && [ "$skill" = "shipglows" ] && [ "$CODEX_ENTRYPOINT" = "plugin" ]; then
+            continue
+        fi
         check_one "$runtime" "$skill" "$source_skill" || status=1
     done
 done
 
-log "summary mode=$MODE runtime=$RUNTIME scope=$SCOPE catalog=$CATALOG checked=$checked ok=$ok repaired=$repaired skipped=$skipped blocked=$blocked"
+log "summary mode=$MODE runtime=$RUNTIME scope=$SCOPE catalog=$CATALOG codex_entrypoint=$CODEX_ENTRYPOINT checked=$checked ok=$ok repaired=$repaired skipped=$skipped blocked=$blocked"
 if [ "$MODE" = "repair" ]; then
     log "note: already-running Claude or Codex sessions may need a reload or new session before repaired skills appear in the skill list."
 fi

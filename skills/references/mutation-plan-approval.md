@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.11.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-20"
@@ -20,6 +20,7 @@ linked_systems:
   - skills/references/strategic-choice-contract.md
   - skills/708-sg-auto/SKILL.md
   - skills/references/no-local-execution-policy.md
+  - skills/references/execution-posture-tags.md
 depends_on:
   - artifact: "skills/references/strategic-choice-contract.md"
     artifact_version: "1.0.0"
@@ -37,6 +38,7 @@ evidence:
   - "Operator correction 2026-08-17: a supplied public-link append to an exact internal reference register is already explicit authority when it is factual, local-only, and has no side effect beyond the new entries."
   - "Operator decision 2026-08-20: an explicit shipglows auto invocation grants one bounded current-project local edit session so useful reasoning-intensive work can continue without repeated approval, while nolocal alone grants no authority and every destructive, privileged, external, production, credential, permission, billing, commit, push, deploy, build, test, and installation effect remains forbidden."
   - "Operator decision 2026-08-20: the bounded auto authority includes useful delegated subagents, always inherits nolocal, and remains confined to the root captured when auto starts."
+  - "Operator decision 2026-08-20: #local, #nolocal, and #ci alter execution posture only and never grant mutation or external-write authority."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"
 ---
@@ -53,7 +55,7 @@ An explicit `shipglows auto` invocation is authority for one bounded autonomous
 session of safe, reversible, current-project local file creation and editing.
 This is a narrow first-message exception so the credit-window mode can continue
 without a plan/approval round trip for every selected candidate. Quoted text,
-discussion about the mode, `nolocal` alone, an implicit inference, or an
+discussion about the mode, any execution posture tag alone, an implicit inference, or an
 invocation aimed at an unresolved project does not activate it.
 
 At activation, freeze the current Git top-level when available, otherwise the
@@ -98,10 +100,12 @@ candidate remains, the platform/horizon ends, or continuing would require a
 material product/security/data decision absent from governed truth. Never widen
 the authority merely to keep the session busy.
 
-`shipglows nolocal <objective>` remains subject to the ordinary approval path:
-`nolocal` alone grants no mutation authority. `shipglows auto nolocal` is a
-redundant spelling of the same bounded Auto-session authority; no `local`
-override exists.
+`#local`, `#nolocal`, and `#ci` remain subject to the ordinary approval path and
+grant no mutation authority. The legacy `shipglows nolocal <objective>` alias
+does the same. `shipglows auto #nolocal` and legacy `shipglows auto nolocal` are
+redundant spellings of the same bounded Auto-session authority; no `#local` or
+legacy `local` override exists. `#ci` never authorizes push, dispatch, remote
+execution, deployment, or another external write.
 
 ## Supplied-link register authority
 

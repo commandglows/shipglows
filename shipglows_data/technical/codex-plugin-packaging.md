@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-08-19"
+updated: "2026-08-20"
 status: active
 source_skill: 300-sg-docs
 scope: codex-plugin-packaging
@@ -36,6 +36,8 @@ evidence:
   - "2026-06-12 operator decision: prefer one public `shipglows` plugin filled as much as possible; treat pack generation as internal packaging infrastructure, not a near-term public multi-pack product."
   - "2026-08-11 operator decision: the sparse corpus checkout and full runtime share the canonical ~/.shipglows/runtime root."
   - "2026-08-19 installer contract: skill-bearing component requests select the corpus surface automatically, and hosted plugin links use the canonical shipglows.com domain."
+  - "2026-08-20 operator decision: developer linked-corpus and public plugin entrypoints are mutually exclusive so Codex exposes one $shipglows while maintainers retain live source updates."
+  - "2026-08-20 installer and contributor contract: normal installs offer the official plugin; shipglows skills status/link/unlink owns safe transitions to and from a complete Git clone."
 next_review: "2026-06-18"
 next_step: "/300-sg-docs technical audit codex-plugin-packaging"
 ---
@@ -51,6 +53,17 @@ The public repository now also exposes a repo-backed marketplace source at `/hom
 The plugin must stay useful without a huge bundle. When a workflow needs the full local ShipGlows corpus, the plugin exposes an explicit sparse checkout route into `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`.
 
 Current product posture: ShipGlows is single-plugin-first. The public experience should stay `Install ShipGlows` then `$shipglows <instruction>`. Pack generation remains available as internal packaging infrastructure for staging, validation, and future optional distribution only. It is not a commitment to ship many public plugins now.
+
+Maintainer posture is deliberately different: a source-tree developer runs
+`shipglows skills link` from a complete Git clone and does not keep the public
+plugin enabled in that Codex profile. The command validates repository identity,
+refuses another clone or unmanaged collision, obtains confirmation before
+removing the plugin, delegates link creation to the low-level synchronizer, and
+selects the clone as the managed shell `SHIPGLOWS_ROOT` before requiring an
+agent restart. `shipglows skills status` reports `plugin`,
+`linked`, `conflict`, or `none`; `shipglows skills unlink` removes only proven
+managed public links and can restore the plugin. This local channel choice
+removes the need for a plugin release during source iteration.
 
 `900-shipglows-core` is not part of the public plugin surface. It is an internal operator skill in the ShipGlows repo for skill execution-fidelity audits and packaging-readiness checks. The old `shipglows-core` plugin source may remain as local pilot history, but public users should install or discover `shipglows`, not `shipglows-core`.
 
@@ -68,11 +81,13 @@ Current product posture: ShipGlows is single-plugin-first. The public experience
 - `/home/claude/plugins/shipglows/scripts/stage_shipglows_pack.py` stages a catalog pack as a local plugin candidate.
 - `/home/claude/plugins/shipglows/scripts/refresh_shipglows_pack.py` refreshes and validates a staged local plugin candidate.
 - `/home/claude/.agents/plugins/marketplace.json` registers the personal plugin during local development.
+- `cli/shipglows_skills.py` owns public-plugin installation and safe `status`, `link`, and `unlink` channel transitions.
+- `tools/shipglows_sync_skills.sh` remains the low-level link and parity engine used by the developer command.
 - `skills/900-shipglows-core/SKILL.md` and `tools/audit_shipglows_skills.py` are internal repo-synced operator tools, not public plugin files.
 
 ## Entrypoints
 
-- External users add the ShipGlows repository as a marketplace source, then install `shipglows` from that marketplace.
+- Normal installers offer to add the ShipGlows repository marketplace and install `shipglows`; external users may still run the same Codex marketplace commands directly.
 - Codex loads the plugin through `shipglows@personal` when available, or through the current compatibility alias `shipglows@personal`.
 - Users invoke the plugin through the contributed `shipglows` skill.
 - The optional full-corpus path is `/home/claude/plugins/shipglows/scripts/bootstrap_shipglows_repo.sh`.
@@ -122,11 +137,21 @@ This means technical pack boundaries may still exist in the catalog, but they ar
 - Execution-critical contracts stay local to the plugin or the sparse checkout. Hosted docs are optional, not the runtime source of truth.
 - The GitHub repository remains the source of truth for the full ShipGlows corpus.
 - Public plugin packaging must not rely on symlinks into a developer checkout.
+- One Codex environment must not expose both the linked runtime router and the plugin-contributed `shipglows` skill.
+- Normal non-interactive installation must not change plugin state unless `SHIPGLOWS_INSTALL_CODEX_PLUGIN=yes` is explicit.
+- `shipglows skills link` must require a complete Git checkout, preserve unmanaged entries, and refuse a link owned by another clone.
+- A non-default linked clone must also be the managed shell `SHIPGLOWS_ROOT`; a link/root mismatch is a conflict rather than a successful developer channel.
+- `shipglows skills unlink` must remove only public links whose targets prove ShipGlows repository ownership.
+- The generic repository `.agents/skills/shipglows` shim must remain absent; OpenCode uses its dedicated `.opencode/skills/shipglows` adapter.
 - Private transcripts, secrets, local caches, dependency directories, and generated builds must not be packaged.
 - Staged pack directories must stay outside the main plugin source tree so local packaging experiments do not bloat the installed `shipglows` plugin.
 
 ## Failure Modes
 
+- If the linked developer router and an enabled ShipGlows plugin coexist, runtime synchronization must stop with a channel-conflict diagnosis instead of preserving duplicate entrypoints.
+- If a developer switches clones, `link` must stop until the old managed links are removed explicitly.
+- If Codex or its marketplace cannot be reached during plugin installation, the installer must report the failure instead of claiming the public channel is active.
+- If an agent catalogue directory is not writable by the target user, channel transition must fail in preflight before removing the plugin or any writable-runtime links; privilege escalation remains an explicit operator action.
 - If `SHIPGLOWS_ROOT` points to an existing non-Git directory, the bootstrap script must refuse to overwrite it.
 - If the public repo is unavailable, plugin-local workflows must still explain available packs and next steps.
 - If the sparse checkout is missing required paths, treat the plugin as not portable until the bootstrap script or pack contents are fixed.

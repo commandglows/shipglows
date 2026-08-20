@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-07-29"
 updated: "2026-08-12"
@@ -19,6 +19,7 @@ linked_systems:
   - skills/references/skill-invocation-registry.json
   - skills/references/skill-code-index.md
   - skills/000-shipglows/SKILL.md
+  - skills/references/execution-posture-tags.md
 depends_on:
   - artifact: "skills/references/skill-code-index.md"
     artifact_version: "2.5.0"
@@ -31,6 +32,7 @@ evidence:
   - "Wave 10: selected pilot skills also block when their explicit reference-activation profile is inconsistent."
   - "Wave 13: preflight combines ownership validation with the explicit dependency closure of profiled resources."
   - "Wave 14: executable profile preflight covers six measured owners, including high-traffic 010, 103, and 300."
+  - "Operator decision 2026-08-20: explicit agent invocations accept position-independent #local, #nolocal, and #ci execution posture tags with fail-closed conflicts."
 next_review: "2026-09-03"
 next_step: "none"
 ---
@@ -46,6 +48,14 @@ python3 "$SHIPGLOWS_ROOT/tools/skill_invocation_check.py" "$ARGUMENTS"
 The checker is read-only. It resolves public names from
 `skill-invocation-registry.json` and retains `skill-code-index.md` only for
 explicit expert/legacy engine invocations.
+
+It removes only the registry-declared execution posture tags `#local`,
+`#nolocal`, and `#ci` before resolving the command, then returns requested and
+effective tags. `#ci` implies `#nolocal`; conflicts are invalid. Other focus
+tags remain part of the instruction. Mode-implied posture is applied after
+routing, so `shipglows auto` always receives effective `#nolocal` and rejects
+`#local`. The legacy `shipglows nolocal <objective>` form normalizes to the
+default router objective plus `#nolocal`.
 
 Before accepting an invocation, it validates the registry-owned ownership graph: every public wrapper and declared engine must exist, every alias must resolve through a declared owner mode, and every installed expert must be owned by at least one public route. It then validates the explicit dependency closure declared by activation-profile resources. Run the combined preflight directly with:
 

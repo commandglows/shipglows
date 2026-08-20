@@ -10,6 +10,17 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Skill distribution is a lightweight control plane. It must remain usable
+# without bootstrapping the DevServer menu or its local prerequisites.
+if [ "${1:-}" = "skills" ]; then
+    shift
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "ShipGlows skill commands require Python 3." >&2
+        exit 2
+    fi
+    exec python3 "$SCRIPT_DIR/shipglows_skills.py" "$@"
+fi
+
 # The environment control plane is intentionally independent from the legacy
 # DevServer prerequisite/menu bootstrap. Its inspect/plan/status paths must not
 # create setup markers or require Flox, PM2, Caddy, Gum, or fzf.

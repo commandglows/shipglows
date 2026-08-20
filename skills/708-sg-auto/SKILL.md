@@ -19,10 +19,12 @@ architecture, security, or compliance evidence. Continue without avoidable
 operator discussion, skip blocked candidates, and never manufacture work,
 reasoning, agents, or output merely to consume credits.
 
-`shipglows auto` always and implicitly applies
-`$SHIPGLOWS_ROOT/skills/references/no-local-execution-policy.md`. `nolocal`
-cannot be disabled in this mode: `auto local` is invalid and `auto nolocal` is
-only a redundant spelling with identical behavior.
+`shipglows auto` always and implicitly applies the effective `#nolocal` posture
+and `$SHIPGLOWS_ROOT/skills/references/no-local-execution-policy.md`. It cannot
+be disabled in this mode: `auto #local` and legacy `auto local` are invalid;
+`auto #nolocal` and legacy `auto nolocal` are redundant spellings with
+identical behavior. `auto #ci` is valid only as a deferred proof destination
+and grants no CI trigger, push, or external-write authority.
 
 ## Frozen project root
 

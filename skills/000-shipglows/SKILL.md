@@ -77,17 +77,26 @@ ShipGlows-maintenance work defaults to the ShipGlows system under `$SHIPGLOWS_RO
 
 Parse `$ARGUMENTS` as the operator instruction. Empty/help requests answer directly or route to `302-sg-help` for the full help surface. Named profiles load the matching profile contract; explicit skill names and numeric codes pass preflight, then hand off only when valid. Natural-language work applies the Atomic Direct-Execution Gate before the canonical routing matrix; a selected skill may reroute explicitly rather than being silently substituted.
 
+Before mode selection, extract registered `#local`, `#nolocal`, and `#ci`
+execution posture tags from any argument position and load
+`$SHIPGLOWS_ROOT/skills/references/execution-posture-tags.md`. Keep ordinary
+focus tags in the instruction. Reject conflicts; preserve the selected owner
+and its authority. `#ci` implies `#nolocal` and only names deferred proof.
+
 `auto` is a global autonomous credit-window mode. Run explicit-invocation
 preflight, then hand off the remaining scope or horizon to `708-sg-auto` in the
 same main conversation. That owner always loads
 `$SHIPGLOWS_ROOT/skills/references/no-local-execution-policy.md` implicitly,
 freezes the current project root for parent and subagents, and recommends
-delegation only for independent useful work. `auto nolocal` is redundant and
-`auto local` is unsupported. Do not classify `auto` as the unrelated
+delegation only for independent useful work. `auto #nolocal` and legacy
+`auto nolocal` are redundant; `auto #local` and legacy `auto local` are
+unsupported. `auto #ci` keeps nolocal and records CI only as deferred proof.
+Do not classify `auto` as the unrelated
 `300-sg-docs auto` mode.
 
-`nolocal <objective>` is a transversal execution-policy mode, not an owner or
-authority bypass. Require a non-empty objective, load
+`nolocal <objective>` is a legacy compatibility alias, not a mode, owner, or
+authority bypass. Require a non-empty objective, normalize it to
+`<objective> #nolocal`, load
 `$SHIPGLOWS_ROOT/skills/references/no-local-execution-policy.md`, resolve the
 ordinary public métier owner from the remaining instruction, and preserve its
 normal mutation approval while forbidding workload and external-state

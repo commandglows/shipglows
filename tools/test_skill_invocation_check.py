@@ -171,7 +171,7 @@ class SkillInvocationCheckTests(unittest.TestCase):
         self.assertEqual(payload["mode_alias"], "prio")
         self.assertEqual(payload["selected_internal_engine"], "011-sg-pilotage")
 
-    def test_global_auto_and_nolocal_modes_remain_distinct(self) -> None:
+    def test_global_auto_mode_and_legacy_nolocal_alias_remain_distinct(self) -> None:
         auto = check("shipglows auto until=18:00")
         self.assertEqual(auto["status"], "valid")
         self.assertEqual(auto["resolved_skill"], "shipglows")
@@ -184,7 +184,9 @@ class SkillInvocationCheckTests(unittest.TestCase):
         self.assertEqual(nolocal["status"], "valid")
         self.assertEqual(nolocal["resolved_skill"], "shipglows")
         self.assertEqual(nolocal["runtime_engine"], "000-shipglows")
-        self.assertEqual(nolocal["mode"], "nolocal")
+        self.assertEqual(nolocal["mode"], "default")
+        self.assertEqual(nolocal["mode_alias"], "nolocal")
+        self.assertEqual(nolocal["effective_execution_tags"], ["#nolocal"])
         self.assertEqual(nolocal["selected_internal_engine"], "000-shipglows")
 
         docs_auto = check("sg-docs auto")

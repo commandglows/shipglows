@@ -1,7 +1,6 @@
 ---
 name: shipglows
 description: Route ShipGlows plugin workflows, inspect optional packs, and audit local packaging readiness.
-argument-hint: "<instruction | context | help | packs | audit packaging>"
 ---
 
 # ShipGlows
@@ -80,8 +79,16 @@ Resolve this path relative to this skill directory inside the plugin.
 
 Parse the operator instruction.
 
+Before mode routing, extract execution-posture tags. `#local`, `#nolocal`, and
+`#ci` are transversal controls rather than modes. `#ci` implies `#nolocal`;
+`#local` conflicts with either `#nolocal` or `#ci` and must fail closed. Tags
+never grant mutation, installation, push, workflow-dispatch, deployment, or
+other external-write authority.
+
 - Empty, `help`, `aide`, `métiers`, or `workflows`: answer from the bundled public help catalog and ask for the outcome to route when useful.
 - `context`, `contexte`, `env`, or `environment`: run the direct runtime-context mode below; do not route it to a generic métier.
+- `resume`, `résume`, or `reprends`: summarize the current conversation state: active outcome, settled decisions, completed work, pending proof, blockers, and the next safe action. This mode is read-only. It never approves a pending plan, installation, mutation, or external action merely because work is being resumed.
+- `auto [scope or horizon]`: when the complete corpus is available, route to its canonical autonomous workflow. Otherwise report that autonomous execution needs the complete corpus and keep the lightweight plugin read-only. `auto` always implies `#nolocal`, rejects `#local`, permits useful subagents only for independently valuable work, and never creates busywork merely to consume credits.
 - `packs`, `catalog`, `modules`, or `capabilities`: summarize `references/pack-catalog.md`.
 - `stage pack`, `generate pack`, `refresh pack`, `update pack`, `pack generation`, or `stager pack`: run `scripts/refresh_shipglows_pack.py <pack-id>` when a pack id is supplied and local ShipGlows source exists.
 - `pack maintenance`, `modify skills`, `publish pack`, or skill-to-pack update questions: summarize `references/pack-maintenance-playbook.md`.

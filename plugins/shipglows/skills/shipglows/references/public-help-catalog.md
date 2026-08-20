@@ -20,6 +20,22 @@ $shipglows context
 
 This reads the global ShipGlows development environment, the current project's visible `ENVIRONMENT.md`, and its live DevServer registry entry. It reports the exact active URL, the relevant mobile and Windows toolchain state and exact next action, and distinguishes Playwright or Firebase Device Streaming configuration from tools and devices callable in the current turn.
 
+To summarize the active conversation and continue from its last safe state:
+
+```text
+$shipglows resume
+```
+
+`resume` reports the active outcome, settled decisions, completed work,
+pending proof, blockers, and next safe action. It never counts as approval for
+a pending mutation or installation.
+
+With the complete corpus, `$shipglows auto [scope or horizon]` selects useful
+project-grounded work autonomously. It always implies `#nolocal` and never
+invents work merely to consume credits. Execution-posture tags `#local`,
+`#nolocal`, and `#ci` compose with agent commands; `#ci` implies `#nolocal`,
+while conflicts with `#local` fail closed.
+
 | Domain | Public métier | Owns the outcome |
 | --- | --- | --- |
 | Create | `sg-development` | Product behavior from intent to verified implementation |

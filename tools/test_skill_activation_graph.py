@@ -88,6 +88,15 @@ class SkillActivationGraphTests(unittest.TestCase):
         self.assertIn("undeclared_public_mode_route:shipglows:surprise", graph["errors"])
         self.assertIn("missing_engine:shipglows.mode_routes.surprise:missing-engine", graph["errors"])
 
+    def test_execution_tag_graph_fails_on_unknown_implication_or_mode_alias(self) -> None:
+        registry = deepcopy(self.registry)
+        registry["execution_tags"]["ci"]["implies"] = ["imaginary"]
+        router = registry["public_catalog"]["router"]
+        router["modes"].append("nolocal")
+        graph = validate_activation_graph(registry)
+        self.assertIn("unknown_execution_tag_implies:ci:imaginary", graph["errors"])
+        self.assertIn("legacy_execution_alias_is_mode:shipglows:nolocal", graph["errors"])
+
 
 if __name__ == "__main__":
     unittest.main()

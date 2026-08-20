@@ -1,6 +1,11 @@
 {
-  "format_version": "2.11",
+  "format_version": "2.12",
   "identity_source": "skills/references/skill-code-index.md",
+  "execution_tags": {
+    "local": {"conflicts": ["nolocal", "ci"]},
+    "nolocal": {"conflicts": ["local"], "policy_reference": "skills/references/no-local-execution-policy.md"},
+    "ci": {"implies": ["nolocal"], "conflicts": ["local"], "deferred_proof_target": "ci", "policy_reference": "skills/references/execution-posture-tags.md"}
+  },
   "public_catalog": {
     "domains": [
       {
@@ -53,7 +58,7 @@
         ]
       }
     ],
-    "router": {"id": "shipglows", "public_skill": "shipglows", "runtime_skill": "000-shipglows", "modes": ["default", "context", "auto", "nolocal"], "mode_routes": {"auto": {"runtime_engine": "708-sg-auto", "min_args": 0, "forbidden_first_args": ["local"]}, "nolocal": {"runtime_engine": "000-shipglows", "min_args": 1}}, "hidden_modes": {"core": {"runtime_engine": "900-shipglows-core", "context": "shipglows-system"}}, "internal_engines": ["708-sg-auto"]}
+    "router": {"id": "shipglows", "public_skill": "shipglows", "runtime_skill": "000-shipglows", "modes": ["default", "context", "auto"], "mode_routes": {"auto": {"runtime_engine": "708-sg-auto", "min_args": 0, "forbidden_first_args": ["local"], "forbidden_execution_tags": ["local"], "implied_execution_tags": ["nolocal"]}}, "legacy_execution_aliases": {"nolocal": {"execution_tag": "nolocal", "min_args": 1}}, "hidden_modes": {"core": {"runtime_engine": "900-shipglows-core", "context": "shipglows-system"}}, "internal_engines": ["708-sg-auto"]}
   },
   "codex_expert_aliases": {
     "core": {"public_owner": "shipglows", "owner_mode": "core", "runtime_engine": "900-shipglows-core", "resolution": "hard-context"},
@@ -276,7 +281,7 @@
       },
       "708-sg-auto": {
         "body": "skills/708-sg-auto/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/references/no-local-execution-policy.md", "skills/references/mutation-plan-approval.md"],
+        "baseline": ["skills/references/canonical-paths.md", "skills/references/execution-posture-tags.md", "skills/references/no-local-execution-policy.md", "skills/references/mutation-plan-approval.md"],
         "gates": {
           "candidate-loop": ["skills/708-sg-auto/references/auto-credit-window-playbook.md"],
           "multi-session-coordination": ["skills/708-sg-auto/references/auto-session-coordination.md"],
