@@ -8,7 +8,16 @@
 #   shipglows_devserver_gum.sh  — pure gum menus (when gum is installed)
 #   shipglows_devserver_bash.sh — pure bash menus (fallback)
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SCRIPT_SOURCE" ]; do
+    SCRIPT_LINK_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" && pwd)"
+    SCRIPT_SOURCE="$(readlink "$SCRIPT_SOURCE")"
+    case "$SCRIPT_SOURCE" in
+        /*) ;;
+        *) SCRIPT_SOURCE="$SCRIPT_LINK_DIR/$SCRIPT_SOURCE" ;;
+    esac
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" && pwd)"
 
 # Skill distribution is a lightweight control plane. It must remain usable
 # without bootstrapping the DevServer menu or its local prerequisites.

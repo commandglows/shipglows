@@ -85,6 +85,12 @@ test -L "$HOME_FIXTURE/.agents/skills/shipglows"
 test -L "$HOME_FIXTURE/.claude/skills/shipglows"
 test "$(readlink -f "$HOME_FIXTURE/.local/bin/shipglows")" = "$REPO_ROOT/cli/shipglows.sh"
 test "$(readlink -f "$HOME_FIXTURE/.local/bin/sg")" = "$REPO_ROOT/cli/shipglows.sh"
+HOME="$HOME_FIXTURE" \
+SHIPGLOWS_TARGET_HOME="$HOME_FIXTURE" \
+SHIPGLOWS_CODEX_BIN="$BIN_FIXTURE/codex" \
+FAKE_CODEX_STATE="$STATE_FIXTURE" \
+FAKE_CODEX_CALLS="$CALLS_FIXTURE" \
+"$HOME_FIXTURE/.local/bin/shipglows" skills status --json | grep -q '"state": "linked"'
 grep -Fq "export SHIPGLOWS_ROOT='$REPO_ROOT'" "$HOME_FIXTURE/.bashrc" || \
     grep -Fq "export SHIPGLOWS_ROOT=$REPO_ROOT" "$HOME_FIXTURE/.bashrc"
 python3 - "$HOME_FIXTURE/.config/shipglows/linked-skill-root.json" "$REPO_ROOT" <<'PY'
