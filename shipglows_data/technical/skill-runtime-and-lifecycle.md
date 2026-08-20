@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.27.0"
+artifact_version: "2.29.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-17"
+updated: "2026-08-20"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -20,6 +20,8 @@ linked_systems:
   - skills/references/skill-context-budget.md
   - skills/references/expert-mode-aliases.md
   - skills/000-shipglows/SKILL.md
+  - skills/708-sg-auto/SKILL.md
+  - skills/references/no-local-execution-policy.md
   - skills/references/entrypoint-routing.md
   - skills/001-sg-build/SKILL.md
   - skills/004-sg-deploy/SKILL.md
@@ -137,6 +139,8 @@ evidence:
   - "2026-08-18: report cards now have an explicit effort ceiling: one meaningful proof may suffice and no work is created merely to fill a block."
   - "2026-08-15: standalone `v` canonically approves only the immediately preceding pending approval message."
   - "2026-08-16: current-project hygiene is read-only and proposal-first; explicit Git scope specializes to the safe Git cleanup workflow."
+  - "2026-08-20: shipglows auto added as a bounded autonomous credit-window route through internal 708-sg-auto; it always composes the independent nolocal policy, prioritizes useful reasoning/generation after safety eligibility, and leaves all work implemented but unverified."
+  - "2026-08-20: auto was refined to optimize durable value rather than token burn, freeze the launch root, coordinate concurrent claims, recommend useful subagents, and treat Fast as an external pre-existing client state."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -604,7 +608,13 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 ## Invariants
 
 - Lifecycle skills trace into exactly one chantier spec when one is identified.
-- `000-shipglows <instruction>` is a router, not a hidden master runner: it answers pure conversation directly, asks one numbered question when ambiguous, and otherwise hands the main thread to the selected skill.
+- `000-shipglows <instruction>` is a router, not a hidden master runner: it answers pure conversation directly, asks one numbered question when ambiguous, and otherwise hands the main thread to the selected skill. Its global `auto` mode hands off to `708-sg-auto`; `nolocal` applies a policy before the ordinary owner handoff.
+- `708-sg-auto` is the internal owner for public `shipglows auto`. It selects several evidence-backed candidates when useful, ranks durable value per wall-clock minute after safety, authority, readiness, claim, and dirty-ownership gates, and always applies `no-local-execution-policy.md` implicitly.
+- Auto freezes the launch Git/managed root for the parent and every subagent. Concurrent conversations use ignored root-local claims to avoid duplicate candidates and overlapping paths. Subagents are authorized and recommended only when independent useful missions improve time, isolation, or coverage.
+- Auto never raises reasoning effort, creates agents, or generates output merely to consume credits. Fast is used only when the runtime proves it already active; the agent never self-activates it or edits user-level configuration.
+- `shipglows nolocal <objective>` is not an autonomous selector or approval bypass. It preserves ordinary métier ownership and mutation approval while deferring workload execution and external writes.
+- Auto-session authority covers only safe reversible current-project local edits. It forbids builds, tests, lint, typechecks, installation, servers, browser/device work, containers, migrations, commits, pushes, deployments, destructive/privileged effects, secrets, permission/auth/billing/production changes, and self-expansion of its own guardrails.
+- Work produced under `auto` or `nolocal` remains `implemented — unverified`; deferred commands are reported but not executed, and lifecycle closure stays open.
 - `102-sg-start` implements from the ready contract; it should not rediscover product intent while coding.
 - Spec-first is the outer lifecycle contract; proof-first is the implementation discipline. Execution and verification skills choose a proof path (`test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof`) before claiming completion.
 - The Reader diagnoses docs impact; the executor or integrator applies docs updates.
@@ -659,6 +669,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - If a master skill patches in the master conversation merely because a file change is small while subagents are available, treat that as workflow drift. Small scope may use a mini-contract, but the execution mode remains delegated sequential for file work.
 - If `001-sg-build agents` touches files, runs validation, prepares closure, or prepares ship without launching a bounded subagent and without explicitly reporting degraded execution, treat that as workflow drift.
 - If the `000-shipglows <instruction>` router nests `001-sg-build`, `002-sg-maintain`, `003-sg-bug`, `004-sg-deploy`, `007-sg-content`, or `900-shipglows-core build` inside a subagent instead of handing off the main thread, treat that as workflow drift.
+- If `shipglows auto` runs a workload/external effect, leaves its frozen root, duplicates a fresh claimed scope, invents work or reasoning to consume credits, self-activates Fast, claims verification/compliance/closure, or modifies its own authority guardrails, treat that as workflow drift. If `shipglows nolocal` bypasses ordinary mutation approval or selects a portfolio autonomously, treat that as the separate-policy boundary failing.
 - If a short natural-language confirmation is treated as consent for parallel writes without ready non-overlapping `Execution Batches`, treat that as workflow drift. Independent read-only parallel fan-out remains the default.
 - If future projects are told to rerun ShipGlows's shipped governance specs instead of using `305-sg-init` and `300-sg-docs`, treat that as workflow drift.
 - If a new skill exists under `skills/<name>/SKILL.md` but is missing from current-user Claude or Codex skill directories, treat the skill lifecycle as incomplete until the runtime symlinks are repaired.

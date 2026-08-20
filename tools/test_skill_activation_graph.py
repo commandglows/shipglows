@@ -23,9 +23,9 @@ class SkillActivationGraphTests(unittest.TestCase):
         graph = validate_activation_graph(self.registry)
         self.assertEqual("valid", graph["status"], graph["errors"])
         self.assertEqual(14, graph["public_skills"])
-        self.assertEqual(51, graph["expert_skills"])
-        self.assertEqual(51, graph["owned_experts"])
-        for engine in ("306-sg-scaffold", "407-sg-translate", "707-name", "emailing"):
+        self.assertEqual(52, graph["expert_skills"])
+        self.assertEqual(52, graph["owned_experts"])
+        for engine in ("306-sg-scaffold", "407-sg-translate", "707-name", "708-sg-auto", "emailing"):
             self.assertIn(engine, graph["owners"])
 
     def test_missing_engine_blocks_graph_and_invocation(self) -> None:
@@ -79,6 +79,14 @@ class SkillActivationGraphTests(unittest.TestCase):
             "alias_engine_not_owned:spec:sg-planning:407-sg-translate",
             graph["errors"],
         )
+
+    def test_public_mode_route_must_be_declared_and_resolve_to_an_engine(self) -> None:
+        registry = deepcopy(self.registry)
+        router = registry["public_catalog"]["router"]
+        router["mode_routes"]["surprise"] = {"runtime_engine": "missing-engine"}
+        graph = validate_activation_graph(registry)
+        self.assertIn("undeclared_public_mode_route:shipglows:surprise", graph["errors"])
+        self.assertIn("missing_engine:shipglows.mode_routes.surprise:missing-engine", graph["errors"])
 
 
 if __name__ == "__main__":

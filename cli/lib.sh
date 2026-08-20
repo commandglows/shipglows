@@ -1927,17 +1927,56 @@ mem_total_human() {
     fi
 }
 
-# mem_is_low - Returns 0 if available memory < SHIPGLOWS_MEM_WARN_GB
-mem_is_low() {
-    local avail_kb
+# mem_swap_total_kb - Configured swap in KB
+mem_swap_total_kb() {
+    awk '/^SwapTotal:/ {print $2}' /proc/meminfo 2>/dev/null
+}
+
+# mem_pressure_level - Print ok, warning, or critical from available RAM
+mem_pressure_level() {
+    local avail_kb total_kb
     avail_kb=$(mem_available_kb)
-    [ -z "$avail_kb" ] && return 1
-    local warn_gb="${SHIPGLOWS_MEM_WARN_GB:-4}"
-    if ! [[ "$warn_gb" =~ ^[0-9]+$ ]]; then
-        warn_gb=4
+    total_kb=$(mem_total_kb)
+    if ! [[ "$avail_kb" =~ ^[0-9]+$ ]] || ! [[ "$total_kb" =~ ^[1-9][0-9]*$ ]]; then
+        echo "unknown"
+        return
     fi
-    local warn_kb=$((warn_gb * 1024 * 1024))
-    [ "$avail_kb" -lt "$warn_kb" ]
+
+    local warn_pct="${SHIPGLOWS_MEM_WARN_PCT:-20}"
+    local critical_pct="${SHIPGLOWS_MEM_CRITICAL_PCT:-10}"
+    [[ "$warn_pct" =~ ^[1-9][0-9]*$ ]] && [ "$warn_pct" -le 100 ] || warn_pct=20
+    [[ "$critical_pct" =~ ^[1-9][0-9]*$ ]] && [ "$critical_pct" -le 100 ] || critical_pct=10
+    if [ "$critical_pct" -ge "$warn_pct" ]; then
+        warn_pct=20
+        critical_pct=10
+    fi
+
+    if [ $((avail_kb * 100)) -lt $((total_kb * critical_pct)) ]; then
+        echo "critical"
+        return
+    fi
+
+    if [ $((avail_kb * 100)) -lt $((total_kb * warn_pct)) ]; then
+        echo "warning"
+        return
+    fi
+
+    # Compatibility override for installations that intentionally set an
+    # absolute threshold. It is no longer enabled by default on small VMs.
+    local warn_gb="${SHIPGLOWS_MEM_WARN_GB:-}"
+    if [[ "$warn_gb" =~ ^[1-9][0-9]*$ ]] && [ "$avail_kb" -lt $((warn_gb * 1024 * 1024)) ]; then
+        echo "warning"
+        return
+    fi
+
+    echo "ok"
+}
+
+# mem_is_low - Returns 0 for warning or critical available-memory pressure
+mem_is_low() {
+    local level
+    level=$(mem_pressure_level)
+    [ "$level" = "warning" ] || [ "$level" = "critical" ]
 }
 
 # mem_top_processes - Top N processes sorted by RSS memory
@@ -2812,13 +2851,21 @@ aggressive_cleanup_menu() {
 mem_alerts() {
     local alerts=()
 
-    # Check low memory
-    if mem_is_low; then
+    # Check current memory pressure independently from total VM capacity.
+    local memory_level
+    memory_level=$(mem_pressure_level)
+    if [ "$memory_level" = "warning" ] || [ "$memory_level" = "critical" ]; then
         local avail
         avail=$(mem_available_human)
         local total
         total=$(mem_total_human)
-        alerts+=("critical|RAM critically low: ${avail} available of ${total} total")
+        alerts+=("${memory_level}|RAM ${memory_level}: ${avail} available of ${total} total")
+    fi
+
+    local swap_total_kb
+    swap_total_kb=$(mem_swap_total_kb)
+    if [[ "$swap_total_kb" =~ ^[0-9]+$ ]] && [ "$swap_total_kb" -eq 0 ]; then
+        alerts+=("warning|Swap is not configured; memory spikes have no swap buffer")
     fi
 
     # Check for long-running heavy processes
@@ -2962,7 +3009,7 @@ system_monitor_menu() {
 
     # --- Swap ---
     local swap_total swap_used
-    swap_total=$(awk '/^SwapTotal:/ {print $2}' /proc/meminfo 2>/dev/null)
+    swap_total=$(mem_swap_total_kb)
     swap_used=$(awk '/^SwapFree:/ {print $2}' /proc/meminfo 2>/dev/null)
     if [ -n "$swap_total" ] && [ "$swap_total" -gt 0 ]; then
         local swap_used_kb=$((swap_total - swap_used))
@@ -3149,10 +3196,8 @@ refresh_menu_status_cache_sync() {
     mem_human=$(mem_available_human)
     local mem_total_human
     mem_total_human=$(mem_total_human)
-    local low_mem=0
-    if mem_is_low; then
-        low_mem=1
-    fi
+    local low_mem
+    low_mem=$(mem_pressure_level)
 
     local pm2_unhealthy=""
     if command -v pm2 >/dev/null 2>&1; then
@@ -10116,9 +10161,7 @@ print_header() {
         header_level=$(disk_pressure_level "" "$header_used_pct" 2>/dev/null || echo "warning")
         print_disk_pressure_warning "$header_level" "$header_free_human" "$header_used_pct"
     fi
-    if [ "${MENU_STATUS_LOW_MEM:-0}" = "1" ]; then
-        echo -e "${RED}⚠️  Low memory (RAM). Press h) Health Check.${NC}"
-    fi
+    print_memory_pressure_warning "${MENU_STATUS_LOW_MEM:-0}"
 
     local long_count="${MENU_STATUS_LONG_COUNT:-}"
     if [ -z "$long_count" ]; then
@@ -10129,6 +10172,18 @@ print_header() {
     fi
 
     echo ""
+}
+
+print_memory_pressure_warning() {
+    case "${1:-0}" in
+        critical)
+            echo -e "${RED}⚠️  Memory critically low. Press h) Health Check.${NC}"
+            ;;
+        warning|1)
+            # `1` keeps caches written by older CLI versions readable.
+            echo -e "${YELLOW}⚠️  Memory running low. Press h) Health Check.${NC}"
+            ;;
+    esac
 }
 
 # ============================================================================

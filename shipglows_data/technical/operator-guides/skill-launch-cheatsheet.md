@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.3.0"
+artifact_version: "2.5.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-16"
+updated: "2026-08-20"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: skill-launch-cheatsheet
@@ -28,6 +28,8 @@ evidence:
   - "Métier-first public hierarchy and autonomous execution specification."
   - "Current runtime skill inventory and operator collaboration contracts."
   - "Operator decision 2026-08-16: expose current-project hygiene and the safe hygiene git alias."
+  - "Operator decision 2026-08-20: expose a global autonomous credit-window mode that always defers local workloads, plus an independent nolocal execution policy for operator-selected work."
+  - "Operator refinement 2026-08-20: auto optimizes useful value rather than token burn, recommends useful subagents, stays inside its launch root, and never self-activates Fast."
 next_step: "/103-sg-verify public skill catalogue"
 ---
 
@@ -42,6 +44,28 @@ Use `shipglows <instruction>` when you do not want to choose a métier. It
 resolves the target as far as repository evidence allows, asks only for a
 material missing decision, then hands the same conversation to the owner. It
 does not leave the operator to invoke the next internal step.
+
+Two global execution modes refine that default:
+
+- `shipglows auto [scope or horizon]` autonomously selects safe work already
+  grounded in roadmap, planning, specs, architecture, security, or compliance
+  evidence. After safety and authority eligibility, it prioritizes durable
+  value per wall-clock minute. It freezes the launch root, coordinates claims
+  across concurrent conversations, and recommends subagents when independent
+  useful missions exist. It always implies `nolocal`, continues past
+  individually blocked candidates, and reports every edit as
+  `implemented — unverified`.
+- `shipglows nolocal <objective>` keeps the objective and normal métier owner
+  selected by the operator, but defers builds, tests, lint, typechecks,
+  installation, servers, browsers/devices, containers, migrations, commits,
+  pushes, deployments, and external writes. It grants no additional mutation
+  authority.
+
+Both modes may read and edit in-scope files and inspect Git status/diffs. `auto`
+has no local override and cannot guarantee an exact credit balance because the
+runtime may not expose one. It chooses model effort for task quality, never to
+burn credits. It uses Fast only when the client already proves it active; enable
+it before invocation with `/fast on` when desired.
 
 `mode=excellence` can be set explicitly in `103-sg-verify` requests.
 A non-ambiguous natural-language request for excellence maps to `excellence`
@@ -80,7 +104,7 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 
 | Domain | Public skill | Owns | Current internal engine(s) |
 | --- | --- | --- | --- |
-| Router | `shipglows` | Natural-language routing and direct handoff | `000-shipglows` |
+| Router | `shipglows` | Natural-language routing, auto credit windows, nolocal policy, and direct handoff | `000-shipglows`, `708-sg-auto` |
 | Créer | `sg-development` | Product, feature, app, code, and site delivery | `001-sg-build` |
 | Créer | `sg-design` | Visual system, interface, accessibility, and motion | `006-sg-design` |
 | Créer | `sg-experience` | Journeys, activation, onboarding, trust, and recovery | `008-sg-customer` |
@@ -166,7 +190,7 @@ modes. Typical internal lanes include:
   `203-sg-research`, `205-sg-veille`
 - helpers and context: `301-sg-context`, `303-sg-resume`, `304-sg-changelog`,
   `305-sg-init`, `306-sg-scaffold`, `308-sg-status`, `700-sg-explore`,
-  `704-sg-model`, `706-continue`, `707-name`
+  `704-sg-model`, `706-continue`, `707-name`, `708-sg-auto`
 - ShipGlows maintenance only: `900-shipglows-core`
 
 Numeric codes are still a precise runtime lookup. They are not a second public
@@ -176,6 +200,8 @@ taxonomy and should not be required for normal operation.
 
 ```text
 shipglows Ajoute une animation accessible sur le site marketing
+shipglows auto until=18:00
+shipglows nolocal Implémente le prochain chantier prêt sans lancer ses validations
 sg-engineering Prépare la synchronisation locale/cloud de ce produit
 sg-content Mets à jour la FAQ publique après ce changement
 sg-docs Mets à jour la documentation interne de cette architecture

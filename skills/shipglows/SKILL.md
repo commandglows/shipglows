@@ -43,6 +43,21 @@ or call recorded Python or configured Playwright absent merely because its tool
 is missing from the first visible list. End with a compact `Contexte actif`
 summary.
 
+`shipglows auto [scope or horizon]` is the public autonomous credit-window
+mode. The canonical router hands it to internal `708-sg-auto`, which freezes the
+current project root, prioritizes safe evidence-backed work by durable value per
+wall-clock minute, recommends subagents for independent useful missions, and
+always applies the shared no-local-execution policy implicitly. It has no
+local-execution override, never forces reasoning or agents to consume credits,
+never self-activates Fast, and never promises exact credit exhaustion.
+
+`shipglows nolocal <objective>` applies only that no-local-execution policy to
+an ordinary operator-selected objective. It preserves normal métier ownership
+and mutation approval; it does not choose a portfolio or grant autonomous
+authority. Both modes may inspect and edit in-scope files, but they defer builds,
+tests, lint, typechecks, installation, servers, browser/device work, migrations,
+commits, pushes, deployments, and every external write.
+
 ## Validation
 
 Confirm that one public owner matches the resolved outcome, preserves any named specialist scope, and receives the target hierarchy and authority limits.

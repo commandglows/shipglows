@@ -57,8 +57,8 @@ class SkillInvocationPolicyContractTests(unittest.TestCase):
 
     def test_registry_drives_exact_public_and_expert_partitions(self) -> None:
         self.assertEqual(14, len(self.public))
-        self.assertEqual(65, len(self.installed))
-        self.assertEqual(51, len(self.expert))
+        self.assertEqual(66, len(self.installed))
+        self.assertEqual(52, len(self.expert))
         self.assertFalse(self.public & self.expert)
         self.assertEqual(self.installed, self.public | self.expert)
         self.assertTrue(self.registry["internal_catalog"]["include_all_runtime_skills"])

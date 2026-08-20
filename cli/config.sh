@@ -193,9 +193,12 @@ export SHIPGLOWS_MENU_STATUS_CACHE_TTL="$SHIPGLOWS_MENU_STATUS_CACHE_TTL"
 # MEMORY (RAM) MONITORING CONFIGURATION
 # ============================================================================
 
-# Low memory warning threshold in GB (shows alert in menu header)
-export SHIPGLOWS_MEM_WARN_GB="${SHIPGLOWS_MEM_WARN_GB:-${SHIPGLOWS_MEM_WARN_GB:-4}}"
-export SHIPGLOWS_MEM_WARN_GB="$SHIPGLOWS_MEM_WARN_GB"
+# Available-memory thresholds. Percentages scale across VM sizes; the legacy
+# absolute GiB threshold remains available only when explicitly configured.
+export SHIPGLOWS_MEM_WARN_PCT="${SHIPGLOWS_MEM_WARN_PCT:-20}"
+export SHIPGLOWS_MEM_CRITICAL_PCT="${SHIPGLOWS_MEM_CRITICAL_PCT:-10}"
+export SHIPGLOWS_MEM_WARN_GB="${SHIPGLOWS_MEM_WARN_GB:-}"
+export SHIPGLOWS_MEM_WARN_PCT SHIPGLOWS_MEM_CRITICAL_PCT SHIPGLOWS_MEM_WARN_GB
 
 export SHIPGLOWS_DISK_CRITICAL_GB="${SHIPGLOWS_DISK_CRITICAL_GB:-${SHIPGLOWS_DISK_CRITICAL_GB:-3}}"
 export SHIPGLOWS_DISK_HIGH_GB="${SHIPGLOWS_DISK_HIGH_GB:-${SHIPGLOWS_DISK_HIGH_GB:-5}}"

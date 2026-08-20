@@ -1,5 +1,5 @@
 {
-  "format_version": "2.9",
+  "format_version": "2.11",
   "identity_source": "skills/references/skill-code-index.md",
   "public_catalog": {
     "domains": [
@@ -48,12 +48,12 @@
         "id": "organize",
         "label": "Organize",
         "skills": [
-          {"id": "sg-planning", "public_skill": "sg-planning", "runtime_skill": "011-sg-pilotage", "modes": ["tasks", "backlog", "priorities", "review", "sessions"], "hidden_modes": {"explore": {"runtime_engine": "700-sg-explore"}, "spec": {"runtime_engine": "100-sg-spec"}, "status": {"runtime_engine": "308-sg-status"}, "resume": {"runtime_engine": "303-sg-resume"}}, "internal_engines": ["100-sg-spec", "301-sg-context", "303-sg-resume", "308-sg-status", "700-sg-explore", "704-sg-model", "705-sg-conversation-audit", "706-continue", "707-name"]},
+          {"id": "sg-planning", "public_skill": "sg-planning", "runtime_skill": "011-sg-pilotage", "modes": ["tasks", "backlog", "priorities", "review", "sessions"], "hidden_modes": {"prio": {"owner_mode": "priorities", "runtime_engine": "011-sg-pilotage"}, "explore": {"runtime_engine": "700-sg-explore"}, "spec": {"runtime_engine": "100-sg-spec"}, "status": {"runtime_engine": "308-sg-status"}, "resume": {"runtime_engine": "303-sg-resume"}}, "internal_engines": ["100-sg-spec", "301-sg-context", "303-sg-resume", "308-sg-status", "700-sg-explore", "704-sg-model", "705-sg-conversation-audit", "706-continue", "707-name"]},
           {"id": "sg-help", "public_skill": "sg-help", "runtime_skill": "302-sg-help", "modes": ["default", "mode", "expert"], "internal_engines": []}
         ]
       }
     ],
-    "router": {"id": "shipglows", "public_skill": "shipglows", "runtime_skill": "000-shipglows", "modes": ["default", "context"], "hidden_modes": {"core": {"runtime_engine": "900-shipglows-core", "context": "shipglows-system"}}}
+    "router": {"id": "shipglows", "public_skill": "shipglows", "runtime_skill": "000-shipglows", "modes": ["default", "context", "auto", "nolocal"], "mode_routes": {"auto": {"runtime_engine": "708-sg-auto", "min_args": 0, "forbidden_first_args": ["local"]}, "nolocal": {"runtime_engine": "000-shipglows", "min_args": 1}}, "hidden_modes": {"core": {"runtime_engine": "900-shipglows-core", "context": "shipglows-system"}}, "internal_engines": ["708-sg-auto"]}
   },
   "codex_expert_aliases": {
     "core": {"public_owner": "shipglows", "owner_mode": "core", "runtime_engine": "900-shipglows-core", "resolution": "hard-context"},
@@ -274,6 +274,16 @@
           "verdict-routing": ["skills/405-sg-prod/references/prod-verdict-and-routing.md"]
         }
       },
+      "708-sg-auto": {
+        "body": "skills/708-sg-auto/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md", "skills/references/no-local-execution-policy.md", "skills/references/mutation-plan-approval.md"],
+        "gates": {
+          "candidate-loop": ["skills/708-sg-auto/references/auto-credit-window-playbook.md"],
+          "multi-session-coordination": ["skills/708-sg-auto/references/auto-session-coordination.md"],
+          "delegation": ["skills/references/master-delegation-semantics.md"],
+          "report": ["skills/references/reporting-contract.md"]
+        }
+      },
       "900-shipglows-core": {
         "body": "skills/900-shipglows-core/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md"],
@@ -318,6 +328,7 @@
     "302-sg-help": {"kind": "freeform", "min_args": 0},
     "407-sg-translate": {"kind": "freeform", "min_args": 0},
     "601-sg-product-entitlements": {"kind": "freeform", "min_args": 0},
+    "708-sg-auto": {"kind": "freeform", "min_args": 0},
     "900-shipglows-core": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "build": {"min_args": 1}, "refresh": {"min_args": 1}, "packaging": {"min_args": 0}, "help": {"min_args": 0}}}
   },
   "mode_suggestions": {

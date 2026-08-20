@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.19.0"
+artifact_version: "1.19.1"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-19"
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Linux memory monitoring 2026-08-20: available-RAM severity now scales at 20% warning and 10% critical, preserves severity through the menu cache, and reports missing swap independently."
   - "Linux clone/start separation 2026-08-19: clone catalogues bounded surfaces as uninitialized without Flox, dependency, picker, or PM2 side effects; first explicit start initializes only the selected surface."
   - "Runtime layout migration 2026-08-11: mutable user-mode Caddy state now defaults to ~/.shipglows/state/caddy, leaving ~/.shipglows/runtime available for the canonical code checkout."
   - "Function inventory from cli/shipglows.sh, cli/lib.sh, cli/config.sh, and CONTEXT-FUNCTION-TREE.md."
@@ -512,7 +513,13 @@ IPC owns only reload, stop, and open operations.
 - `cli/lib.sh::action_health`: renders the system monitor with RAM, disk, swap,
   process, and PM2 health first, then uses explicit one-key actions for cleanup
   commands. It must not route destructive cleanup options through
-  searchable/default-select menus.
+  searchable/default-select menus. Available RAM is healthy at or above 20%,
+  warning below 20%, and critical below 10%; those levels remain distinct in
+  the menu cache and header. `SHIPGLOWS_MEM_WARN_PCT` and
+  `SHIPGLOWS_MEM_CRITICAL_PCT` configure the proportional thresholds. The
+  legacy `SHIPGLOWS_MEM_WARN_GB` absolute threshold applies only when set
+  explicitly. Missing swap is a separate capacity-risk warning and never, by
+  itself, means current RAM is low.
 - `cli/lib.sh::disk_cleanup_menu`: one-key disk cleanup flow for old Codex/Claude
   history files, agent caches/logs, safe dev caches, and heavier regenerated
   dev state. The light tier targets low-risk package/tool caches; the

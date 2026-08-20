@@ -163,6 +163,43 @@ class SkillInvocationCheckTests(unittest.TestCase):
         self.assertEqual(payload["mode"], "status")
         self.assertEqual(payload["selected_internal_engine"], "308-sg-status")
 
+    def test_planning_prio_alias_resolves_to_priorities_mode(self) -> None:
+        payload = check("sg-planning prio blockers")
+        self.assertEqual(payload["status"], "valid")
+        self.assertEqual(payload["resolved_skill"], "sg-planning")
+        self.assertEqual(payload["mode"], "priorities")
+        self.assertEqual(payload["mode_alias"], "prio")
+        self.assertEqual(payload["selected_internal_engine"], "011-sg-pilotage")
+
+    def test_global_auto_and_nolocal_modes_remain_distinct(self) -> None:
+        auto = check("shipglows auto until=18:00")
+        self.assertEqual(auto["status"], "valid")
+        self.assertEqual(auto["resolved_skill"], "shipglows")
+        self.assertEqual(auto["runtime_engine"], "000-shipglows")
+        self.assertEqual(auto["mode"], "auto")
+        self.assertEqual(auto["selected_internal_engine"], "708-sg-auto")
+        self.assertEqual(auto["activation_profile"], "708-sg-auto")
+
+        nolocal = check("shipglows nolocal improve checkout")
+        self.assertEqual(nolocal["status"], "valid")
+        self.assertEqual(nolocal["resolved_skill"], "shipglows")
+        self.assertEqual(nolocal["runtime_engine"], "000-shipglows")
+        self.assertEqual(nolocal["mode"], "nolocal")
+        self.assertEqual(nolocal["selected_internal_engine"], "000-shipglows")
+
+        docs_auto = check("sg-docs auto")
+        self.assertEqual(docs_auto["status"], "valid")
+        self.assertEqual(docs_auto["resolved_skill"], "sg-docs")
+        self.assertEqual(docs_auto["mode"], "auto")
+
+        auto_local = check("shipglows auto local")
+        self.assertEqual(auto_local["status"], "invalid")
+        self.assertEqual(auto_local["error"], "unsupported_mode_option")
+
+        bare_nolocal = check("shipglows nolocal")
+        self.assertEqual(bare_nolocal["status"], "invalid")
+        self.assertEqual(bare_nolocal["error"], "missing_argument")
+
     def test_expert_excellence_engine_remains_valid_when_explicitly_available(self) -> None:
         payload = check("103-sg-verify excellence")
         self.assertEqual(payload["status"], "valid")

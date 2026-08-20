@@ -33,7 +33,11 @@ Before handing off an explicit skill name or numeric skill command, load `$SHIPG
 
 ## Atomic Direct-Execution Gate
 
-The supplied-link register authority in `mutation-plan-approval.md` is the sole direct-authority exception: it accepts the operator's original request only for an exact, factual, append-only local reference-register update and never for inferred claims or broader edits.
+The supplied-link register authority and bounded Auto-session authority in
+`mutation-plan-approval.md` are the only direct-authority exceptions. The first
+accepts only an exact factual append-only register update; the second activates
+only from explicit `shipglows auto` and is constrained by the mandatory
+no-local-execution policy.
 
 Before any direct or routed mutation, load `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. No mutation, including a deterministic micro-edit, starts until its fast validation or full plan has received explicit post-message approval. Use `🧭 VALIDATION RAPIDE` only when every cumulative local, routine, exact, readily reversible, and no-harm criterion is established; otherwise use `🧭 PLAN À VALIDER`.
 
@@ -72,6 +76,22 @@ ShipGlows-maintenance work defaults to the ShipGlows system under `$SHIPGLOWS_RO
 ## Mode Detection
 
 Parse `$ARGUMENTS` as the operator instruction. Empty/help requests answer directly or route to `302-sg-help` for the full help surface. Named profiles load the matching profile contract; explicit skill names and numeric codes pass preflight, then hand off only when valid. Natural-language work applies the Atomic Direct-Execution Gate before the canonical routing matrix; a selected skill may reroute explicitly rather than being silently substituted.
+
+`auto` is a global autonomous credit-window mode. Run explicit-invocation
+preflight, then hand off the remaining scope or horizon to `708-sg-auto` in the
+same main conversation. That owner always loads
+`$SHIPGLOWS_ROOT/skills/references/no-local-execution-policy.md` implicitly,
+freezes the current project root for parent and subagents, and recommends
+delegation only for independent useful work. `auto nolocal` is redundant and
+`auto local` is unsupported. Do not classify `auto` as the unrelated
+`300-sg-docs auto` mode.
+
+`nolocal <objective>` is a transversal execution-policy mode, not an owner or
+authority bypass. Require a non-empty objective, load
+`$SHIPGLOWS_ROOT/skills/references/no-local-execution-policy.md`, resolve the
+ordinary public métier owner from the remaining instruction, and preserve its
+normal mutation approval while forbidding workload and external-state
+execution. Do not send bare `nolocal` to `708-sg-auto` or select work for it.
 
 `context`, `contexte`, `env`, and `environment` are direct read-only modes. Load `agent-runtime-awareness.md`, read the global development-environment file, the current project's `ENVIRONMENT.md`, and the matching live registry entry, then report the active architecture, exact managed URL, Python version/`uv`/commands, Playwright Chromium installation path, MCP configuration and verification, relevant mobile and Windows toolchain state, its exact next action, and current-turn callable tools. Inspect direct and deferred/searchable tool catalogs before classifying capability; distinguish installed, configured, discovered, callable, failed, and not-exposed states. Never start a server, substitute a framework default port, or describe configured Playwright or recorded Python as absent merely because its tool is missing from the first visible list.
 

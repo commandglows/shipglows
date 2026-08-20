@@ -39,6 +39,8 @@ Default to `report=user`: concise outcome, mutation truth, evidence limit, and n
 
 Parse `$ARGUMENTS` before reading a tracker, review artifact, changelog, conversation, or Codex state:
 
+Normalize the first token `prio` to the canonical `priorities` mode before selection, preserving every remaining argument. This alias loads the same priorities playbook and never creates a sixth mode.
+
 - `tasks [focus]` -> load only `references/tasks-playbook.md`.
 - `backlog [add <item>|defer [item]|review|clean]` -> load only `references/backlog-playbook.md`.
 - `priorities [impact|effort|blockers|high-roi|quick-wins]` -> load only `references/priorities-playbook.md`.
@@ -91,4 +93,4 @@ git diff --check
 - Keep exactly five public modes and one local playbook per mode.
 - Keep `sessions` first-class; `tasks` accepts no session operation.
 - Keep neighboring owners discoverable and independent.
-- Do not add aliases, wrappers, remembered-mode fallback, hidden cross-mode chains, or a sixth discovery mode.
+- Keep exactly one bounded compatibility alias, `prio` -> `priorities`; do not add other aliases, wrappers, remembered-mode fallback, hidden cross-mode chains, or a sixth discovery mode.

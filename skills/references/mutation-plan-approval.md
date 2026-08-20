@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.10.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-17"
+updated: "2026-08-20"
 status: active
 source_skill: 900-shipglows-core
 scope: universal-mutation-plan-approval
@@ -18,6 +18,8 @@ linked_systems:
   - skills/references/master-workflow-lifecycle.md
   - skills/references/operator-partnership-contract.md
   - skills/references/strategic-choice-contract.md
+  - skills/708-sg-auto/SKILL.md
+  - skills/references/no-local-execution-policy.md
 depends_on:
   - artifact: "skills/references/strategic-choice-contract.md"
     artifact_version: "1.0.0"
@@ -33,6 +35,8 @@ evidence:
   - "Operator decision 2026-08-15: standalone `v` is an explicit approval shortcut only for one unambiguous pending proposal; the 2026-08-16 correction preserves a narrowly framed mapping across non-material clarification."
   - "Operator correction 2026-08-16: non-material clarification and neutral acknowledgement must not cause repeated approval prompts; later explicit approval may authorize the still-current unchanged proposal."
   - "Operator correction 2026-08-17: a supplied public-link append to an exact internal reference register is already explicit authority when it is factual, local-only, and has no side effect beyond the new entries."
+  - "Operator decision 2026-08-20: an explicit shipglows auto invocation grants one bounded current-project local edit session so useful reasoning-intensive work can continue without repeated approval, while nolocal alone grants no authority and every destructive, privileged, external, production, credential, permission, billing, commit, push, deploy, build, test, and installation effect remains forbidden."
+  - "Operator decision 2026-08-20: the bounded auto authority includes useful delegated subagents, always inherits nolocal, and remains confined to the root captured when auto starts."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"
 ---
@@ -41,7 +45,63 @@ next_step: "/103-sg-verify universal mutation-plan approval"
 
 ## Universal gate
 
-Every intentional mutation requires explicit authority. The narrowly defined supplied-link register authority below uses the operator's original imperative as that authority. Every other mutation requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval.
+Every intentional mutation requires explicit authority. The narrowly defined supplied-link register authority and Auto-session authority below use the operator's original exact invocation as that authority. Every other mutation requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval.
+
+## Auto-session authority
+
+An explicit `shipglows auto` invocation is authority for one bounded autonomous
+session of safe, reversible, current-project local file creation and editing.
+This is a narrow first-message exception so the credit-window mode can continue
+without a plan/approval round trip for every selected candidate. Quoted text,
+discussion about the mode, `nolocal` alone, an implicit inference, or an
+invocation aimed at an unresolved project does not activate it.
+
+At activation, freeze the current Git top-level when available, otherwise the
+already resolved managed project root. This authority covers only project edits
+and ignored auto-coordination claims below that root. Reading canonical
+ShipGlows contracts or current official sources outside it does not authorize
+outside-project edits. Switching repositories, cloning, creating or entering a
+different worktree, or following a roadmap item into another project is outside
+the authority.
+
+The authority applies only while every selected candidate:
+
+- is grounded in existing roadmap, planning, spec, backlog, architecture,
+  code-risk, security, or compliance evidence;
+- has resolved current-project ownership and no collision with unrelated dirty
+  work;
+- is limited to non-destructive, readily reviewable local file edits;
+- loads and obeys `skills/references/no-local-execution-policy.md`;
+- remains inside the supplied scope or current project and preserves governed
+  product, architecture, data, and security decisions;
+- records its result as `implemented — unverified` with deferred proof.
+
+The same invocation authorizes bounded subagents dispatched by `708-sg-auto`
+when their mission is independently useful and explicitly carries the frozen
+root, mandatory nolocal policy, owned paths, forbidden paths, reasoning choice,
+and stop conditions. It does not authorize agents created merely to consume
+credits. Parallel writes still require ready non-overlapping Execution Batches;
+cross-conversation claims make ownership visible but never widen it.
+
+This authority never permits destructive or irreversible changes; deletion;
+credential, secret, permission, auth-policy, billing, payment, production,
+tenant, or private-data mutation; dependency installation or upgrade; builds,
+tests, lint, typechecks, servers, browsers, containers, migrations, or runtime
+workloads; commits, branches, worktrees, tags, pushes, pull requests, releases,
+deployments, publication, messages, or any external write. It also never permits
+the auto run to modify its own authority, no-local policy, agent permissions, or
+equivalent safety guardrails.
+
+When one candidate reaches an excluded boundary, skip it and continue another
+safe candidate. Stop the whole session when the project is unresolved, no safe
+candidate remains, the platform/horizon ends, or continuing would require a
+material product/security/data decision absent from governed truth. Never widen
+the authority merely to keep the session busy.
+
+`shipglows nolocal <objective>` remains subject to the ordinary approval path:
+`nolocal` alone grants no mutation authority. `shipglows auto nolocal` is a
+redundant spelling of the same bounded Auto-session authority; no `local`
+override exists.
 
 ## Supplied-link register authority
 

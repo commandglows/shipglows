@@ -69,6 +69,8 @@ class PilotageContractTests(unittest.TestCase):
         self.assertIn("mutates nothing", self.skill)
         self.assertIn("exactly these five choices", self.skill)
         self.assertNotRegex(self.skill, r"(?m)^- `help(?: |`)" )
+        self.assertIn("`prio` to the canonical `priorities` mode", self.skill)
+        self.assertIn("one bounded compatibility alias", self.skill)
 
     def test_pilotage_one_playbook_per_mode(self) -> None:
         for mode, path in PLAYBOOKS.items():

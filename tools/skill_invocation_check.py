@@ -59,6 +59,10 @@ def validate_activation_graph(
         add_edge(owner, entry.get("runtime_skill", ""), f"{owner}.runtime_skill")
         for engine in entry.get("internal_engines", []):
             add_edge(owner, engine, f"{owner}.internal_engines")
+        for mode, route in entry.get("mode_routes", {}).items():
+            if mode not in entry.get("modes", []):
+                errors.append(f"undeclared_public_mode_route:{owner}:{mode}")
+            add_edge(owner, route.get("runtime_engine", ""), f"{owner}.mode_routes.{mode}")
         for mode, route in entry.get("hidden_modes", {}).items():
             add_edge(owner, route.get("runtime_engine", ""), f"{owner}.hidden_modes.{mode}")
 
@@ -68,10 +72,11 @@ def validate_activation_graph(
         if entry is None:
             errors.append(f"unknown_alias_owner:{alias}:{owner}")
             continue
-        declared_modes = set(entry.get("modes", [])) | set(entry.get("hidden_modes", {}))
+        declared_modes = set(entry.get("modes", [])) | set(entry.get("mode_routes", {})) | set(entry.get("hidden_modes", {}))
         if mapping.get("owner_mode") not in declared_modes:
             errors.append(f"unknown_alias_mode:{alias}:{owner}:{mapping.get('owner_mode')}")
         allowed = {entry.get("runtime_skill"), *entry.get("internal_engines", [])}
+        allowed.update(route.get("runtime_engine") for route in entry.get("mode_routes", {}).values())
         allowed.update(route.get("runtime_engine") for route in entry.get("hidden_modes", {}).values())
         engine = mapping.get("runtime_engine")
         if engine not in allowed:
@@ -83,6 +88,8 @@ def validate_activation_graph(
                 errors.append(f"unknown_specialist_owner:{alias}:{index}:{specialist_owner}")
                 continue
             specialist_modes = set(specialist_entry.get("modes", [])) | set(
+                specialist_entry.get("mode_routes", {})
+            ) | set(
                 specialist_entry.get("hidden_modes", {})
             )
             if specialist.get("owner_mode") not in specialist_modes:
@@ -93,6 +100,10 @@ def validate_activation_graph(
                 specialist_entry.get("runtime_skill"),
                 *specialist_entry.get("internal_engines", []),
             }
+            specialist_allowed.update(
+                route.get("runtime_engine")
+                for route in specialist_entry.get("mode_routes", {}).values()
+            )
             specialist_allowed.update(
                 route.get("runtime_engine")
                 for route in specialist_entry.get("hidden_modes", {}).values()
@@ -322,6 +333,31 @@ def check(
                 )
                 if "engine_mode" in resolved_alias:
                     payload["selected_engine_mode"] = resolved_alias["engine_mode"]
+                return valid_with_profile_preflight(requested, registry, skills_root, **payload)
+            mode_route = public_entry.get("mode_routes", {}).get(args[0])
+            if mode_route is not None:
+                remaining = args[1:]
+                if len(remaining) < mode_route.get("min_args", 0):
+                    return result(
+                        "invalid",
+                        requested,
+                        resolved_skill=public_entry.get("public_skill", first),
+                        mode=args[0],
+                        error="missing_argument",
+                        message=f"{first} {args[0]} needs an objective.",
+                    )
+                if remaining and remaining[0] in mode_route.get("forbidden_first_args", []):
+                    return result(
+                        "invalid",
+                        requested,
+                        resolved_skill=public_entry.get("public_skill", first),
+                        mode=args[0],
+                        error="unsupported_mode_option",
+                        unsupported_option=remaining[0],
+                        message=f"{first} {args[0]} does not support {remaining[0]}.",
+                    )
+                payload["mode"] = args[0]
+                payload["selected_internal_engine"] = mode_route["runtime_engine"]
                 return valid_with_profile_preflight(requested, registry, skills_root, **payload)
             hidden_mode = public_entry.get("hidden_modes", {}).get(args[0])
             if hidden_mode is not None:
