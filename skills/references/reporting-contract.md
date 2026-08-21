@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.11.0"
+artifact_version: "2.12.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-21"
@@ -21,18 +21,19 @@ linked_systems:
   - skills/references/editorial-reflection-gate.md
   - skills/references/next-outcome-selection.md
   - skills/references/audit-cadence-matrix.json
+  - skills/references/conversation-continuity-contract.md
 depends_on:
   - artifact: "skills/references/final-report-timestamp.md"
     artifact_version: "1.0.0"
     required_status: active
   - artifact: "skills/references/reporting-agent-handoff.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-blocked-and-audit.md"
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "1.9.0"
+    artifact_version: "2.0.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.3.0"
@@ -55,6 +56,7 @@ evidence:
   - "Operator correction 2026-08-21: SUITE is mandatory business continuity and may never resolve to no action; it selects from unfinished conversation work, pending proof or delivery, active chantiers, tracker priority, overdue audits, then grounded improvement."
   - "Operator decision 2026-08-21: persistence reporting distinguishes local, remote backup, and deployment without adding a block when healthy delivery evidence is already clear."
   - "Operator decision 2026-08-16: completed chantiers may offer guided Approfondir and Réorienter follow-up without reopening delivery or authorizing mutation."
+  - "Operator approval 2026-08-21: restart recommendations follow context quality rather than length, stabilize durable state first, and remain operator-started."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -153,6 +155,8 @@ Translate the five labels and explanatory text into the user's active language w
 Every final user report contains a `🧭 SUITE` block. It names one concrete evidence-backed next outcome, missing action or proof, or operator decision and is never `none`, “no action required,” an empty ceremonial menu, or a semantic equivalent. Before writing it, load and apply `skills/references/next-outcome-selection.md`: current conversation work and pending delivery beat active chantiers; active chantiers beat `P0 -> P1 -> P2 -> P3` tracker work; tracker work beats an overdue audit; only then select a grounded business improvement. Keep the result useful and concise, never omit the block, and never invent urgency or authority. When numbered choices follow, the block introduces the decision they resolve.
 
 If an in-scope continuation is already authorized and safely agent-runnable, continue it before final reporting. When selection reaches a new or materially expanded chantier, state the next outcome and preserve its normal approval boundary; selection itself never authorizes mutation.
+
+When context reliability or a new independent outcome makes a fresh conversation preferable, load `conversation-continuity-contract.md`. Stabilize and deliver the current work before recommending restart, then state that only the operator can open the new conversation and provide the required copyable prompt. Length and compaction alone never justify this recommendation.
 
 ## Persistence Evidence
 

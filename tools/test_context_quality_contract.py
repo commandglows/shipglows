@@ -14,6 +14,7 @@ READY = ROOT / "skills/101-sg-ready/SKILL.md"
 EXECUTION = ROOT / "skills/102-sg-start/references/execution-contract.md"
 VERIFY = ROOT / "skills/103-sg-verify/references/verification-baseline.md"
 HANDOFF = ROOT / "skills/references/reporting-agent-handoff.md"
+CONTINUITY = ROOT / "skills/references/conversation-continuity-contract.md"
 SPEC = ROOT / "shipglows_data/workflow/specs/context-quality-contract.md"
 
 
@@ -129,6 +130,52 @@ class ContextQualityContractTests(unittest.TestCase):
         self.assertIn("not a new durable truth registry", spec)
         self.assertIn("explicit prototype", spec)
         self.assertIn("stage-appropriate context", spec)
+
+    def test_conversation_length_alone_never_forces_restart(self) -> None:
+        doctrine = text(CONTINUITY)
+        self.assertIn("length alone", doctrine)
+        self.assertIn("compaction", doctrine)
+        self.assertIn("continue the current conversation", doctrine)
+
+    def test_restart_signals_are_quality_and_outcome_based(self) -> None:
+        doctrine = text(CONTINUITY)
+        for marker in (
+            "independent outcome",
+            "mixed targets",
+            "contradictory decisions",
+            "repeated reconstruction",
+            "stale source",
+            "repository confusion",
+        ):
+            self.assertIn(marker, doctrine)
+
+    def test_restart_is_user_started_after_stabilization(self) -> None:
+        doctrine = text(CONTINUITY)
+        self.assertIn("cannot restart", doctrine)
+        self.assertIn("operator starts", doctrine)
+        self.assertIn("stabilization gate", doctrine)
+        for marker in ("commit", "push", "durable", "incomplete"):
+            self.assertIn(marker, doctrine)
+
+    def test_restart_prompt_is_self_contained_and_redacted(self) -> None:
+        doctrine = text(CONTINUITY)
+        for marker in (
+            "copyable restart prompt",
+            "accepted outcome",
+            "source pointers",
+            "last delivered commit",
+            "evidence states",
+            "unresolved work",
+            "first verification action",
+            "secrets",
+            "hidden reasoning",
+        ):
+            self.assertIn(marker, doctrine)
+
+    def test_context_and_handoff_contracts_route_to_conversation_continuity(self) -> None:
+        path = "conversation-continuity-contract.md"
+        self.assertIn(path, text(CONTRACT))
+        self.assertIn(path, text(HANDOFF))
 
 
 if __name__ == "__main__":

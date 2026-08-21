@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-08-21"
@@ -27,6 +27,7 @@ evidence:
   - "Operator decision 2026-08-16: closure reports expose editorial impact separately and reject ceremonial content."
   - "Operator correction 2026-08-21: SUITE must select real business continuity and reject no-action-required outcomes."
   - "Operator decision 2026-08-16: a useful completed result may offer guided deepening or reorientation without reopening delivery."
+  - "Operator approval 2026-08-21: conversation restart recommendations are quality-based, stabilized, resumable, and operator-started."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -67,3 +68,6 @@ next_step: none
 - `SSRP-027 overdue audit fallback`: when no actionable tracked work exists, compare `AUDIT_LOG.md` with the audit cadence matrix and choose the first event-triggered, never-run, or most overdue applicable audit instead of claiming completion has no sequel.
 - `SSRP-028 grounded business continuation`: when conversation, delivery, active work, tracker, and audit freshness are clear, select one evidence-backed product, customer, editorial, security, quality, or funnel improvement; speculative busywork fails.
 - `SSRP-029 authority boundary`: choosing a next outcome never grants mutation authority for a new or expanded chantier, bypasses a pause, or turns reporting into hidden execution.
+- `SSRP-030 restart capability truth`: Codex never claims it can restart, reset, close, or replace its active conversation; only the operator starts a new one.
+- `SSRP-031 no length-only restart`: message count, elapsed time, conversation length, and compaction alone never justify restart while the principal outcome and context remain coherent.
+- `SSRP-032 stabilized resumable restart`: a quality-based restart recommendation follows durable-state and Git stabilization, reports any incomplete state honestly, and includes one redacted self-contained copyable prompt for a fresh agent.

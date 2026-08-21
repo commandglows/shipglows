@@ -193,6 +193,14 @@ class ReportingContractTests(unittest.TestCase):
         ):
             self.assertIn(marker, text)
 
+    def test_restart_recommendation_is_truthful_and_resumable(self) -> None:
+        reporting = REPORTING_CONTRACT.read_text(encoding="utf-8").casefold()
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8").casefold()
+        self.assertIn("conversation-continuity-contract.md", reporting)
+        self.assertIn("only the operator", reporting)
+        for marker in ("ssrp-030", "ssrp-031", "ssrp-032"):
+            self.assertIn(marker, scenarios)
+
     def test_approved_substantive_chantier_uses_visual_start_card(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")

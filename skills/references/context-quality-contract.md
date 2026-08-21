@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-13"
+updated: "2026-08-21"
 status: active
 source_skill: 900-shipglows-core
 scope: context-quality-contract
@@ -20,6 +20,7 @@ linked_systems:
   - skills/102-sg-start/references/execution-contract.md
   - skills/103-sg-verify/references/verification-baseline.md
   - skills/references/reporting-agent-handoff.md
+  - skills/references/conversation-continuity-contract.md
   - tools/test_context_quality_contract.py
 depends_on:
   - artifact: skills/references/intent-to-outcome-autonomy.md
@@ -28,6 +29,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator approval 2026-08-13: context quality is a shared lifecycle requirement and contextual MCP capabilities require a portable native fallback."
+  - "Operator approval 2026-08-21: material context drift routes through the shared conversation-continuity and restart-handoff contract."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify context quality contract"
 ---
@@ -93,6 +95,7 @@ Re-evaluate the capsule when relevant Git `HEAD`/branch or dirty state, spec/ver
 - Execution revalidates invalidated claims before writes and preserves stage, invariants, authority, and proof boundaries.
 - Verification compares the accepted capsule with actual implementation and evidence; technically valid work serving the wrong outcome is not verified.
 - Explicit agent handoff carries the capsule or an exact pointer plus deltas; compaction preserves evidence states and source pointers.
+- When context quality itself may justify ending the active conversation, load `conversation-continuity-contract.md`; length or compaction alone is never sufficient.
 
 ## Stop Conditions
 
