@@ -5,7 +5,7 @@ artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
-status: ready
+status: reviewed
 source_skill: 900-shipglows-core
 scope: project-delivery-posture-and-remote-persistence
 owner: Diane
@@ -28,14 +28,14 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-21: project maturity, validation surface, and remote Git persistence are separate concerns."
   - "Operator decision 2026-08-21: GitHub backup remains mandatory during development, including after validated milestones."
-next_step: /103-sg-verify project-delivery-posture-and-remote-persistence
+next_step: none
 ---
 
 # Project Delivery Posture And Remote Persistence
 
 ## Status
 
-ready
+complete
 
 ## Scope In
 
@@ -66,10 +66,10 @@ ready
 
 ## Implementation Tasks
 
-- [ ] Add the shared project delivery policy and align milestone persistence.
-- [ ] Integrate bootstrap and lifecycle owners.
-- [ ] Add focused contract tests and canonical documentation.
-- [ ] Commit and push each completed milestone, then complete final delivery.
+- [x] Add the shared project delivery policy and align milestone persistence.
+- [x] Integrate bootstrap and lifecycle owners.
+- [x] Add focused contract tests and canonical documentation.
+- [x] Commit and push each completed milestone, then complete final delivery.
 
 ## Pressure Scenarios
 
@@ -91,7 +91,7 @@ ready
 
 ## Current Chantier Flow
 
-`900-shipglows-core ✅ -> 100-sg-spec ✅ -> 101-sg-ready ✅ -> 102-sg-start -> milestone commit/push -> 103-sg-verify -> 104-sg-end -> final commit/push`
+`900-shipglows-core ✅ -> 100-sg-spec ✅ -> 101-sg-ready ✅ -> 102-sg-start ✅ -> milestone commit/push ✅ -> 103-sg-verify ✅ -> 104-sg-end ✅ -> final commit/push ✅`
 
 ## Skill Run History
 
@@ -100,3 +100,6 @@ ready
 | 2026-08-21 | 900-shipglows-core | approved | Operator approved the corrected plan with mandatory GitHub persistence in every posture and after each validated milestone. | 102-sg-start |
 | 2026-08-21 | 100-sg-spec | ready | Scope, migration boundary, pressure scenarios, and two sequential pushed milestones are explicit. | 101-sg-ready |
 | 2026-08-21 | 101-sg-ready | ready | Existing development-mode and Git-delivery contracts provide compatible extension points; unrelated dirty files are excluded. | 102-sg-start |
+| 2026-08-21 | 102-sg-start | milestone pushed | Added the canonical posture contract, milestone-push authority, ship behavior, and focused pressure tests. Commit `4b81843` is present on the configured upstream. | lifecycle integration |
+| 2026-08-21 | 103-sg-verify | verified | 41 focused scenarios and six metadata artifacts pass; diff whitespace is clean. The source contract remains provider-agnostic and legacy development modes remain compatible. | 104-sg-end |
+| 2026-08-21 | 104-sg-end | complete | Bootstrap, start, verify, end, ship, deploy, production verification, and canonical technical guidelines consume the delivery policy. Commit `ed3afe9` is present on the configured upstream. Runtime alias installation was intentionally excluded; the read-only sync check reported missing local aliases. | final commit/push |
