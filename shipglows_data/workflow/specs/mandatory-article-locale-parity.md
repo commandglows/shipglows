@@ -71,7 +71,7 @@ A clean readiness, completion, closure, or delivery verdict is forbidden while a
 
 ## Current Chantier Flow
 
-`operator correction ✅ -> spec/ready ✅ -> scenario-first contract ✅ -> focused proof ✅ -> documentation sync ✅ -> commit/push pending`
+`operator correction ✅ -> spec/ready ✅ -> scenario-first contract ✅ -> focused proof ✅ -> documentation sync ✅ -> commit/push ✅`
 
 ## Skill Run History
 
@@ -79,3 +79,4 @@ A clean readiness, completion, closure, or delivery verdict is forbidden while a
 | --- | --- | --- | --- | --- |
 | 2026-08-21 | shipglows-core | ready | Operator approved mandatory translation enforcement for every article on multilingual surfaces. | implement pressure-scenario contract |
 | 2026-08-21 | shipglows-core | reviewed | Content and drafting contracts now own every declared locale; the deterministic linter blocks missing peers, one-sided updates, asymmetric alternate slugs, and publication-state drift while preserving explicit monolingual surfaces. Focused tests pass 10/10 and the real Git/GitHub EN/FR pair passes. | exact-scope commit and push |
+| 2026-08-21 | shipglows-core | delivered | Implementation commit `c404120` was pushed to the active ShipGlows PR without staging unrelated dirty files. | review PR 24 |
