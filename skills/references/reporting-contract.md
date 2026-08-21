@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.7.0"
+artifact_version: "2.8.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-08-16"
+updated: "2026-08-21"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -48,6 +48,7 @@ evidence:
   - "Operator decision 2026-08-15: approved substantive chantiers use a matching start card with objective, scope, expected proof, and planned documentation impact."
   - "Operator decision 2026-08-15: user reports omit file paths, file names, and technical file links unless the operator must act on the exact artifact or explicitly requests detail."
   - "Operator decision 2026-08-18: report cards summarize already-required work and must never create extra checks, research, documentation, or content merely to fill a block."
+  - "Operator decision 2026-08-21: substantive code chantiers expose one compact implementation-guardrail receipt after pre-write classification."
   - "Operator decision 2026-08-16: every closure exposes a separate editorial reflection without creating ceremonial public content."
   - "Operator decision 2026-08-16: completed chantiers may offer guided Approfondir and Réorienter follow-up without reopening delivery or authorizing mutation."
 next_review: "2026-11-12"
@@ -95,6 +96,9 @@ After approval and at the true start of a substantive chantier, render this card
 📐 PÉRIMÈTRE
 ✅ <in scope> · ➖ <material out of scope>
 
+🛡️ GARDE-FOUS
+✅ <applicable mandatory implementation rules>
+
 🧪 PREUVES ATTENDUES
 ✅ <proof 1> · <proof 2> · <proof 3>
 
@@ -102,7 +106,7 @@ After approval and at the true start of a substantive chantier, render this card
 ✅ Impactée · <mapped documentation scope>
 ```
 
-Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the four main icons. Keep the content beneath scope, expected proof, and planned documentation each on exactly one line separated by ` · `. The four blocks are mandatory. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
+Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep the content beneath scope, expected proof, and planned documentation each on exactly one line; the guardrails line follows the same rule and uses ` · `. Objective, scope, expected proof, and planned documentation are always mandatory. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
 
 The planned documentation line uses exactly one of: `✅ Impactée · <scope included in the chantier>`, `➖ Non impactée · <concrete reason>`, or `⚠️ À confirmer · <surface>`. It is a plan, not a closure claim; only the closure card may use `updated`, `not impacted`, or `needs review`.
 

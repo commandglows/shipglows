@@ -173,7 +173,7 @@
           "closure": ["skills/references/closure-archive-guard.md"],
           "milestone-docs": ["skills/references/documentation-reflection-gate.md"],
           "non-trivial-behavior": ["skills/references/zombies-edge-case-heuristic.md"],
-          "changed-code": ["skills/references/clean-code-quality-contract.md"],
+          "changed-code": ["skills/references/implementation-excellence-preflight.md", "skills/references/clean-code-quality-contract.md"],
           "hosted-proof": ["skills/references/preview-proof-routing.md"],
           "operational-record": ["skills/references/operational-record-format.md"],
           "chantier": ["skills/references/chantier-tracking.md"],

@@ -43,7 +43,7 @@ Local leaves load directly and never chain. `$SHIPGLOWS_ROOT/skills/103-sg-verif
 - For docs/closure/tracker, skill, Atlas, product, editorial, language, dependency, or cross-contract coherence, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-coherence.md`, then applicable `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`, `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`, and `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md`.
 - For bug/manual or CI/workflow scope, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-release-proof.md` or `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-ci.md` respectively.
 
-Conditional shared gates load from `$SHIPGLOWS_ROOT/skills/references/`: `project-development-mode.md` for local/preview/hybrid proof; `documentation-freshness-gate.md` for external behavior; `email-work-routing.md` for email; `spec-driven-development-discipline.md` for behavior/proof; `task-application-loop.md` for progress; `closure-archive-guard.md` for closure; `documentation-reflection-gate.md` for milestones; `zombies-edge-case-heuristic.md` for non-trivial behavior; `clean-code-quality-contract.md` for changed code. Every filename in this sentence resolves under that directory.
+Conditional shared gates load from `$SHIPGLOWS_ROOT/skills/references/`: `project-development-mode.md`, `documentation-freshness-gate.md`, `email-work-routing.md`, `spec-driven-development-discipline.md`, `task-application-loop.md`, `closure-archive-guard.md`, `documentation-reflection-gate.md`, and `zombies-edge-case-heuristic.md` for their named scopes; `implementation-excellence-preflight.md` and `clean-code-quality-contract.md` for changed code.
 
 ## Standard Contract
 
@@ -56,11 +56,12 @@ When applicable report these mechanically named gates:
 - `Task Application Loop Fit` and `Closure Archive Guard Fit`
 - `Structure Replacement Fit` and `Fast Fix Shortcut Gate`
 - `Clean Code Gate` pass/partial/fail/not applicable
+- `Implementation Excellence Gate` pass/partial/fail/not applicable
 - `OWASP Security Gate` pass/partial/fail/not applicable
 - `UI Design-System Shortcut Gate`, `Design-System Drift Check`, `Flutter Mobile Proof Ladder`
 - `Runtime Diagnostics Gate`, `Operator Autonomy Gate`, `Atlas Protection Gate`, `Product Decision Chain`
 
-Passing technical checks never substitutes for product, security, visual, hosted, manual, auth, device, or production proof.
+For changed code, independently reconstruct preflight scope and enforce it on the diff. Passing technical checks never substitutes for implementation-excellence, product, security, visual, hosted, manual, auth, device, or production proof.
 
 ## Owner Routing And Tracker Rule
 
@@ -70,7 +71,7 @@ Trackers are read-only: do not edit `TASKS.md`, `AUDIT_LOG.md`, or `PROJECTS.md`
 
 ## Stop Conditions
 
-Report `not verified` or `blocked` when scope/contract is unreliable; a high/critical bug remains open; required preview/hybrid, external, browser/auth, manual/device, production, or provider proof is missing; proof path and evidence disagree; closure/docs/tracker state overclaims completion; critical security/data/workflow risk is unproven; implementation bypasses root cause/ownership/durable structure; UI/visual work hides a defect with one-off hardcoded values; or changed UI files retain unresolved design-system drift.
+Report `not verified` or `blocked` when scope/contract is unreliable; a high/critical bug remains open; required preview/hybrid, external, browser/auth, manual/device, production, or provider proof is missing; proof path and evidence disagree; closure/docs/tracker state overclaims completion; critical security/data/workflow risk is unproven; implementation bypasses root cause/ownership/durable structure; the excellence gate has a material gap; UI/visual work hides a defect with one-off hardcoded values; or changed UI files retain unresolved design-system drift.
 
 ## Chantier And Reporting
 

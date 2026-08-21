@@ -42,10 +42,10 @@ Load each local reference directly from this activation contract; local referenc
 
 - Before deriving either a direct mini-contract or ready-spec execution contract, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-contract.md`.
 - Before model or agent topology selection, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-topology.md`, `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`, `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`, and the canonical model-routing reference.
-- Immediately before the first write, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/implementation-and-proof.md` plus only its scope-triggered shared contracts. This includes `task-application-loop.md` for task-by-task work, `spec-driven-development-discipline.md` for behavioral/proof work, `zombies-edge-case-heuristic.md` for non-trivial behavior, `clean-code-quality-contract.md` for code, and `owasp-application-security-awareness.md` for internet-facing or privileged surfaces.
+- Before first code write, load `implementation-excellence-preflight.md`; classify and emit its `🛡️ GARDE-FOUS` receipt. Load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/implementation-and-proof.md` and directly applicable `task-application-loop.md`, `spec-driven-development-discipline.md`, `zombies-edge-case-heuristic.md`, `clean-code-quality-contract.md`, `design-system-token-contract.md`, or `owasp-application-security-awareness.md`.
 - After approval, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`; emit its start card once before substantive work. Before the final report, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-report.md`; reuse it.
 
-Conditional gates: PM2 runtime; fresh docs; development mode; UI tokens; diagnostics; operational records; Atlas; `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` before writing when a confirmed decision or traced impact changes; and operator-last-resort evidence.
+Conditional gates: PM2, fresh docs, development mode, UI tokens, diagnostics, operational records, Atlas, `product-decision-chain.md` before a decision change, and operator-last-resort evidence.
 
 ## Execution Invariants
 
@@ -54,6 +54,7 @@ Conditional gates: PM2 runtime; fresh docs; development mode; UI tokens; diagnos
 - Execute bounded slices, preserve existing user changes, update durable progress only after completion, and stop when scope or authority expands.
 - Passing technical checks never proves product, security, auth, hosted, production, manual, or device behavior.
 - Preserve observable success/failure, documentation coherence, security controls, diagnostics, and design-system sources when applicable.
+- Reclassify on scope growth; an unresolved final `Implementation Excellence Gate` prevents `implemented`.
 - For executable work, retain the topology receipt and report `Agents: <count> · <mode>`; use the lowest-overhead capable topology, parallelize independent scopes only for net time/coverage gain, and require ready non-overlapping `Execution Batches` plus an integration owner for parallel writes.
 
 ## Stop Conditions
