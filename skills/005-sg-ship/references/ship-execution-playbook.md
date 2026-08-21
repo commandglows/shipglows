@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-17"
+updated: "2026-08-21"
 status: active
 source_skill: 005-sg-ship
 scope: ship-execution
@@ -26,12 +26,13 @@ evidence:
   - "Operator critique 2026-08-16: completed temporary branches and worktrees should be surfaced for cleanup without requiring the operator to notice them."
   - "Operator decision 2026-08-16: task-scoped agent Git artifacts remain owned through a terminal cleanup disposition after integration."
   - "Operator correction 2026-08-17: quick daily shipping uses zero or one focused check when sufficient; broad suites are reserved for release, audit, migration, shared-runtime, or high-risk triggers."
+  - "Operator decision 2026-08-21: checkpoint mode commits every coherent validated milestone, while final delivery pushes all owned commits before clean closure."
 next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
 ---
 
 # Ship Execution Playbook
 
-Load this playbook only after `005-sg-ship` has selected quick or full mode and a candidate repository, but before its first Git mutation. The activation contract remains authoritative for every stop.
+Load this playbook only after `005-sg-ship` has selected checkpoint, quick, or full mode and a candidate repository, but before its first Git mutation. The activation contract remains authoritative for every stop.
 
 ## Resolve The Repository
 
@@ -41,7 +42,7 @@ If the branch is detached, the target remote is unclear, or several unrelated di
 
 ## Confirm Intent And Scope
 
-Use quick mode unless explicit end-of-task intent selected full mode. Ask a concise question only when the answer changes closure level, staging scope, release framing, or safety posture, including partial work, skipped proof, sensitive surfaces, behavior/docs drift, or unsupported `done`, `ready`, or `safe` wording.
+Use checkpoint only for a declared coherent validated milestone, quick for ordinary delivery, and full for explicit end-of-task intent. Ask only when the answer changes closure, staging, release, or safety posture.
 
 For bounded staging, enumerate explicit task-owned paths. For `all-dirty`, inspect the complete tracked, deleted, modified, and untracked set. Do not silently exclude unrelated files from an explicitly requested all-dirty ship; stop if any file is unsafe.
 
@@ -79,9 +80,11 @@ When changes create, rename, or materially update `skills/*/SKILL.md`, run the c
 
 If there is nothing to commit, do not manufacture a commit. Otherwise derive a concise message from explicit arguments or the bounded outcome, preserve repository commit conventions, and commit without interactive editors.
 
+For checkpoint mode, record the commit SHA and return to implementation without pushing. The chantier remains open.
+
 ## Push And Failure Handling
 
-Push the current branch to its configured upstream. If no upstream exists and the branch/remote are unambiguous, establish it without force. Never force-push `main` or `master`.
+Quick and full modes push the current branch to its configured upstream. If no upstream exists and the branch/remote are unambiguous, establish it without force. Full closure requires every chantier-owned commit reachable from the pushed branch. Never force-push `main` or `master`.
 
 On rejection or other push failure, stop and report the actual local commit, branch, upstream, dirty state, checks, and error. Do not claim shipment.
 

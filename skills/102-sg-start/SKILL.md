@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). Project artifacts still resolve from the current project root.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows-owned paths. Project artifacts resolve from project root.
 
 ## Chantier Tracking
 
@@ -45,7 +45,7 @@ Load each local reference directly from this activation contract; local referenc
 - Before first code write, load `implementation-excellence-preflight.md`; classify and emit its `🛡️ GARDE-FOUS` receipt. Load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/implementation-and-proof.md` and directly applicable `task-application-loop.md`, `spec-driven-development-discipline.md`, `zombies-edge-case-heuristic.md`, `clean-code-quality-contract.md`, `design-system-token-contract.md`, or `owasp-application-security-awareness.md`.
 - After approval, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`; emit its start card once before substantive work. Before the final report, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-report.md`; reuse it.
 
-Conditional gates: PM2, fresh docs, development mode, UI tokens, diagnostics, operational records, Atlas, `product-decision-chain.md` before a decision change, and operator-last-resort evidence.
+Conditional gates: PM2, fresh docs, development mode, UI tokens, diagnostics, records, Atlas, product decisions, and operator evidence.
 
 ## Execution Invariants
 
@@ -55,6 +55,7 @@ Conditional gates: PM2, fresh docs, development mode, UI tokens, diagnostics, op
 - Passing technical checks never proves product, security, auth, hosted, production, manual, or device behavior.
 - Preserve observable success/failure, documentation coherence, security controls, diagnostics, and design-system sources when applicable.
 - Reclassify on scope growth; an unresolved final `Implementation Excellence Gate` prevents `implemented`.
+- Apply `git-milestone-delivery-contract.md`; after milestone proof, route to `005-sg-ship checkpoint` before more writes.
 - For executable work, retain the topology receipt and report `Agents: <count> · <mode>`; use the lowest-overhead capable topology, parallelize independent scopes only for net time/coverage gain, and require ready non-overlapping `Execution Batches` plus an integration owner for parallel writes.
 
 ## Stop Conditions

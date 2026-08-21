@@ -1,28 +1,28 @@
 ---
 name: 005-sg-ship
 description: "Ship with checks, commits, pushes, and closure when needed."
-argument-hint: [optional: commit message | "end la tache" for full close | skip-check | all-dirty]
+argument-hint: [optional: checkpoint | commit message | "end la tache" for full close | skip-check | all-dirty]
 ---
 
 Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving ShipGlows-owned content, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). Resolve shared and local references from that root; resolve project artifacts from the selected project root.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows content. Resolve project artifacts from project root.
 
 ## Instruction Layering
 
-This activation contract keeps ownership, mode selection, pre-mutation stops, proof limits, and reference triggers local. Load at most one local playbook before the first substantive action; local references do not chain.
+Keep ownership, modes, mutation stops, proof limits, and reference triggers local. Load at most one local playbook; local references do not chain.
 
 ## Chantier Tracking
 
 Trace category: `obligatoire`. Process role: `lifecycle`.
 
-For a unique spec-first chantier, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`, read its history and flow, then record `005-sg-ship` as `shipped`, `not shipped`, `blocked`, or `skipped checks`. Otherwise use a `(local)` chantier header without writing to a spec.
+For one unique spec, load `chantier-tracking.md`, preserve history/flow, and record `shipped`, `not shipped`, `blocked`, or `skipped checks`. Otherwise use `(local)` without writing a spec.
 
 ## Report Modes
 
-Before the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. Default to concise, outcome-first `report=user`; use detailed evidence only for explicit agent, handoff, verbose, or full-report requests.
+Before the final report load `reporting-contract.md`. Default to concise `report=user`; detail requires explicit agent, handoff, verbose, or full-report intent.
 
 ## ShipGlows-Owned Preflight
 
@@ -37,6 +37,7 @@ If closure bookkeeping is the next unresolved owner, remain with `104-sg-end`; q
 ## Mode And Scope Decision
 
 - Default mode is `quick`.
+- `checkpoint` commits one validated milestone without push or closure.
 - Select `full` only when `$ARGUMENTS` includes `end la tache`, `end`, `fin`, or `close task` as an explicit end-of-task intent.
 - Default staging is limited to files clearly belonging to the current task or intentionally selected scope.
 - Select whole-repo staging only when `$ARGUMENTS` explicitly includes `all-dirty`, `ship-all`, or `tout-dirty`.

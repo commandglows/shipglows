@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.11.0"
+artifact_version: "1.12.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-20"
+updated: "2026-08-21"
 status: active
 source_skill: 900-shipglows-core
 scope: universal-mutation-plan-approval
@@ -21,6 +21,7 @@ linked_systems:
   - skills/708-sg-auto/SKILL.md
   - skills/references/no-local-execution-policy.md
   - skills/references/execution-posture-tags.md
+  - skills/references/git-milestone-delivery-contract.md
 depends_on:
   - artifact: "skills/references/strategic-choice-contract.md"
     artifact_version: "1.0.0"
@@ -39,6 +40,7 @@ evidence:
   - "Operator decision 2026-08-20: an explicit shipglows auto invocation grants one bounded current-project local edit session so useful reasoning-intensive work can continue without repeated approval, while nolocal alone grants no authority and every destructive, privileged, external, production, credential, permission, billing, commit, push, deploy, build, test, and installation effect remains forbidden."
   - "Operator decision 2026-08-20: the bounded auto authority includes useful delegated subagents, always inherits nolocal, and remains confined to the root captured when auto starts."
   - "Operator decision 2026-08-20: #local, #nolocal, and #ci alter execution posture only and never grant mutation or external-write authority."
+  - "Operator decision 2026-08-21: every explicit validated milestone requires an exact-scope commit, and every clean chantier end requires its final commit and ordinary push."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"
 ---
@@ -189,7 +191,7 @@ Routine implementation details inside the approved scope do not require repeated
 
 ## Cumulative local commit authority
 
-Approval of a bounded technical implementation plan also authorizes its ordinary local commits by default. The agent may stage and commit silently, without a second approval message, when all of these conditions remain true:
+Approval of a bounded technical implementation plan also authorizes its ordinary local commits by default. Apply `git-milestone-delivery-contract.md`: every explicit coherent validated milestone must be committed before the next milestone starts. The agent may stage and commit silently, without a second approval message, when all of these conditions remain true:
 
 - every staged path belongs to the already approved technical scope;
 - unrelated and pre-existing changes remain unstaged;
@@ -199,9 +201,15 @@ Approval of a bounded technical implementation plan also authorizes its ordinary
 
 The same bounded approval includes updates to directly mapped canonical project documentation required to keep the approved technical behavior truthful at closure. It does not include substantive editorial rewriting, new public claims, broad documentation migration, or unrelated documentation cleanup.
 
-This authority may cover multiple small coherent commits during the same approved chantier. Report their commit identifiers at the next natural checkpoint or final handoff; do not interrupt merely to ask permission to record work the operator already approved.
+This authority may cover multiple small coherent commits during the same approved chantier and now requires them at declared milestones. A milestone is a completed slice, not a message or arbitrary edit. Report commit identifiers at the next natural checkpoint or final handoff; do not interrupt merely to ask permission to record approved work.
 
-The cumulative authority does not apply when the operator says `no commit`, when staging would include an unresolved or unrelated path, or when the work is primarily substantive editorial judgment, a broad mixed-scope consolidation, closure, release preparation, or shipping. Those cases must have commit inclusion stated explicitly in the applicable approval plan. `git push` always remains a separate full-plan action.
+The cumulative authority does not apply when the operator says `no commit`, when staging would include an unresolved or unrelated path, or when the work is primarily substantive editorial judgment or a broad mixed-scope consolidation. Those cases require explicit commit scope in the approval plan. `git push` always remains a separate full-plan action, but one approved full technical chantier plan may authorize its ordinary current-branch final push upfront; no second closing approval is then required. Force, history rewriting, tags, releases, deployments, merges, and unrelated remote effects remain outside that authority.
+
+## Mandatory final delivery authority
+
+A full technical chantier plan includes exact-scope milestone commits and ordinary final push by default. The plan must expose the remote effect before approval. At completion, commit any remaining owned diff, or reuse the latest owned milestone commit when nothing remains, then push the resolved current branch/upstream. Never manufacture an empty final commit.
+
+Push failure, ambiguous remote/branch, missing authentication, rejected updates, suspected secrets, unrelated staged paths, or failed required proof preserves local commits and leaves the chantier `delivery pending`; it never becomes clean closure. Explicit `no push` or `local only` also leaves delivery pending/local-only rather than standard closed. Read-only and non-Git work are not applicable.
 
 ## Small changes
 
@@ -210,6 +218,8 @@ Micro-edits and direct-execution paths still require explicit post-message appro
 ## Pressure scenarios
 
 - `MAP-TECHNICAL-COMMIT`: after approval of a bounded technical implementation, stage only its exact paths, run secret and proportional checks, create coherent local commits silently, and report their identifiers at the next natural checkpoint; do not ask for duplicate commit approval.
+- `MAP-MILESTONE-COMMIT`: cross an explicit coherent validated milestone only after its exact owned diff is committed; messages, partial edits, failing experiments, and arbitrary time intervals are not milestones.
+- `MAP-FINAL-DELIVERY`: a full approved technical chantier plan authorizes its ordinary final current-branch push; commit remaining owned changes or reuse the latest owned milestone commit, never create an empty commit, and keep closure delivery pending until push succeeds.
 - `MAP-COMMIT-BOUNDARY`: unrelated paths, substantive editorial judgment, mixed-scope consolidation, amend, rebase, squash, reset, tag, hook bypass, closure, release preparation, and shipping are outside implicit commit authority and require the applicable explicit approval.
 - `MAP-V-SHORTCUT`: standalone `v` or `V` approves the immediately preceding pending approval message with one unambiguous approval outcome; it does nothing before an approval message, and after clarification it can approve the still-current unchanged proposal only when the agent explicitly preserved the `v` mapping to that exact proposal.
 - `MAP-PENDING-CLARIFICATION`: when the operator asks a non-material question about a pending unchanged proposal, answer the question and do not repeat the validation or plan; the proposal stays pending without a new prompt.
@@ -230,5 +240,5 @@ Micro-edits and direct-execution paths still require explicit post-message appro
 - `MAP-FAST-WORKTREE`: creating an exact local branch and worktree from a resolved base may use `🧭 VALIDATION RAPIDE` only after confirming exact branch availability, exact path availability, and the resolved base, while guaranteeing the current worktree remains untouched.
 - `MAP-FAST-INELIGIBLE`: if any fast criterion is missing, uncertain, or false, use the full `🧭 PLAN À VALIDER`; never infer eligibility from the action being technically simple.
 - `MAP-FAST-REPLACEMENT`: if an approved fast action gains a material new target, effect, or risk, prior approval is invalid; stop and present the newly appropriate fast validation or full replacement plan.
-- `MAP-REMOTE-PUSH`: every `git push` uses the full `🧭 PLAN À VALIDER`; force push also retains all stricter force/destructive gates.
+- `MAP-REMOTE-PUSH`: every `git push` uses the full `🧭 PLAN À VALIDER`; an approved plan that explicitly included ordinary final delivery needs no duplicate closing approval, while force push also retains all stricter force/destructive gates.
 - `MAP-SUPPLIED-LINK-REGISTER`: an operator says to add supplied public URLs to an exact internal inspirations or references register. Resolve the register once, append only factual candidate rows, and verify duplicates/row shape; do not request a second approval. Any inference, broader category choice, claim, duplicate, or unresolved target exits this exception and uses the normal gate.

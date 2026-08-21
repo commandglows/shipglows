@@ -26,7 +26,7 @@ Use `report=agent` only for handoff details, blocked proof, or audit-grade trace
 
 `104-sg-end` closes a work session by preparing closure bookkeeping and explicit next work.
 
-It owns summary and tracker/changelog prep, not implementation proof and not shipping. A clean completed daily chantier hands off immediately to bounded shipping; unpushed commits remain delivery pending rather than silently complete.
+It owns summary and tracker/changelog prep, not implementation proof or shipping. Apply `git-milestone-delivery-contract.md`: a clean chantier hands off immediately for final commit/push; unpushed commits remain delivery pending.
 
 ## Scope Gate
 
@@ -78,7 +78,7 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 - Do not include internal file paths in user `report=user`.
 - Do not claim shipping, release, or implementation truth from closure alone.
 - Never commit or push; git shipping belongs to `005-sg-ship`.
-- Do not present an otherwise clean completed chantier as terminal while bounded commit/push remains available and intended; route it directly to shipping unless the operator chose local-only work or a concrete blocker exists.
+- Do not present an otherwise clean completed chantier as terminal before final commit/push succeeds; local-only intent or a blocker remains explicitly delivery pending.
 - In `summary-only`, do not mutate any project or ShipGlows-owned artifact.
 
 ## Validation

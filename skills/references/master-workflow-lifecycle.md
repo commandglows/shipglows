@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.5.0"
+artifact_version: "2.6.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-17"
+updated: "2026-08-21"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -30,6 +30,7 @@ linked_systems:
   - skills/references/preferred-stacks.md
   - skills/references/app-blueprints.md
   - skills/references/git-temporary-artifact-lifecycle.md
+  - skills/references/git-milestone-delivery-contract.md
   - docs/technical/skill-runtime-and-lifecycle.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
@@ -65,6 +66,7 @@ evidence:
   - "Operator correction 2026-07-17: preferred stack presets resolve after platform footprint and before blueprint matching."
   - "Operator decision 2026-08-07: lifecycle orchestration defaults to parallel read-only fan-out and reserves parallel writes for prepared non-overlapping Execution Batches."
   - "Operator decision 2026-08-14: lifecycle approval has a cumulative fast path for exact local routine reversible mutations and retains the full plan for every ineligible mutation."
+  - "Operator decision 2026-08-21: validated implementation milestones commit before execution continues, and clean chantier closure requires ordinary final push."
   - "Operator decision 2026-08-16: task-scoped agent branches and worktrees remain lifecycle-owned until removal or another explicit terminal disposition."
   - "Operator correction 2026-08-17: daily MVP work should privilege construction, use zero or one focused check when sufficient, and commit/push every clean completed chantier by default."
 next_review: "2026-11-07"
@@ -83,7 +85,7 @@ Before choosing a lifecycle route, model, topology, owner skill, mini-contract, 
 
 Spec-first is the outer lifecycle contract: it defines user story, scope, success/error behavior, dependencies, risks, and source of truth. Proof-first is the implementation discipline: execution must choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` from `skills/references/spec-driven-development-discipline.md` before claiming completion.
 
-Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, choose its fast validation only when every cumulative eligibility criterion is established, otherwise present its full plan, and wait for explicit post-message approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for either approval path. Once a bounded technical implementation is approved, its ordinary exact-scope local commits inherit that approval under the contract's cumulative local commit authority; do not ask a second time merely to stage and record the approved work.
+Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, choose its fast validation only when every cumulative eligibility criterion is established, otherwise present its full plan, and wait for explicit post-message approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for either approval path. For mutating technical chantiers, also load `git-milestone-delivery-contract.md`: ordinary exact-scope local commits inherit that approval at milestones, and the explicitly planned ordinary final push needs no duplicate approval.
 
 ## Applies To
 
@@ -241,6 +243,8 @@ continue the implementation. A deferred check is not a failure or a claim that
 the work is verified. The next checkpoint must run the proportional proof before
 completion, closure, or ship claims.
 
+After an explicit coherent milestone passes its proportional proof, route immediately to `005-sg-ship checkpoint`. Do not begin the next milestone while its owned diff remains uncommitted. A message or partial edit is not a milestone.
+
 For daily construction, start from the smallest useful proof rather than from a suite:
 
 - a low-risk local edit may use zero automated checks when no focused check can materially detect a regression;
@@ -280,7 +284,7 @@ Use the reference's exact classification and routing rules; do not wait for the 
 
 After verification passes, the master skill should continue through its owned closure and ship route unless a named stop condition blocks it.
 
-For a clean completed daily chantier, the default terminal route is bounded commit and push, not an unpushed local handoff. When push is already the intended outcome, include it in the chantier approval plan before implementation so the remote approval gate is satisfied without a new closing ceremony. Leave commits local only on explicit local-only intent, missing remote approval, or a concrete push failure/blocker.
+For a clean completed daily chantier, the default terminal route is bounded commit and push, and it is mandatory rather than an unpushed handoff. Include ordinary current-branch push in the approval plan so no closing ceremony repeats. If no closure diff remains, the latest owned milestone commit is final; never create an empty commit. Explicit local-only intent or a push blocker leaves delivery pending and forbids standard clean closure.
 
 When the run created a task-scoped branch or worktree, continue through `005-sg-ship` until `git-temporary-artifact-lifecycle.md` records a terminal Git disposition. `pending` forbids a fully clean completion; `retained-explicit` is terminal only with a concrete reason and review date, while `blocked` remains a visible limit.
 
