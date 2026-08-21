@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.30.0"
+artifact_version: "2.31.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-20"
+updated: "2026-08-21"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -46,6 +46,7 @@ linked_systems:
   - skills/references/reporting-blocked-and-audit.md
   - skills/references/reporting-pressure-scenarios.md
   - skills/references/master-workflow-lifecycle.md
+  - skills/references/git-milestone-delivery-contract.md
   - skills/references/decision-quality-contract.md
   - skills/references/spec-driven-development-discipline.md
   - skills/references/content-quality-rubric.md
@@ -143,6 +144,7 @@ evidence:
   - "2026-08-20: shipglows auto added as a bounded autonomous credit-window route through internal 708-sg-auto; it always composes the independent nolocal policy, prioritizes useful reasoning/generation after safety eligibility, and leaves all work implemented but unverified."
   - "2026-08-20: auto was refined to optimize durable value rather than token burn, freeze the launch root, coordinate concurrent claims, recommend useful subagents, and treat Fast as an external pre-existing client state."
   - "2026-08-20: #local, #nolocal, and #ci became position-independent execution posture tags; #ci implies #nolocal, auto implies #nolocal, and shipglows nolocal remains compatibility syntax."
+  - "2026-08-21: every explicit coherent validated implementation milestone commits before the next slice, and standard clean chantier closure requires final commit plus ordinary upstream push."
 next_review: "2026-06-01"
 next_step: "/300-sg-docs technical audit skills"
 ---
@@ -396,7 +398,8 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/skill-instruction-layering.md` | Canonical layering contract for `SKILL.md` activation rules vs shared or skill-local references | Load before editing or compacting skills |
 | `skills/<skill>/references/*.md` | Skill-local heavy checklists, mode playbooks, and report matrices | Keep top-level SKILL focused on activation and gates |
 | `skills/references/master-delegation-semantics.md` | Shared master/orchestrator delegation, subagent, short-approval, and parallelism doctrine | Load before master skills choose execution topology |
-| `skills/references/mutation-plan-approval.md` | Universal two-tier and explicit post-message approval gate for intentional mutations | Use fast validation only when every exact/local/routine/reversible/no-harm criterion is established; otherwise use the full plan. An approved bounded technical chantier includes ordinary exact-scope local commits without a duplicate prompt; unrelated, editorial, history-rewriting, closure, release, and remote actions stay gated, with `git push` always full-plan-only. |
+| `skills/references/mutation-plan-approval.md` | Universal two-tier and explicit post-message approval gate for intentional mutations | A full approved technical chantier includes exact-scope milestone commits and its disclosed ordinary final push; force, history rewrite, unrelated scope, and undisclosed remote effects remain gated. |
+| `skills/references/git-milestone-delivery-contract.md` | Mandatory Git persistence at coherent milestones and clean chantier end | Commit each declared validated slice before continuing; commit remaining closure changes and push all owned commits before standard clean closure. Never create empty commits or absorb unrelated dirty paths. |
 | `skills/references/master-workflow-lifecycle.md` | Shared master/orchestrator lifecycle skeleton and work item model | Load before master skills resolve intake, readiness, model/topology, validation, verification, closure, or ship/deploy routes |
 | `skills/references/master-{workflow-lifecycle,delegation}-core.md` | Compact first-decision lifecycle and topology gates | Load from migrated pilots first; escalate to the detailed authority only on the core's explicit conditions |
 | `skills/references/decision-quality-contract.md` | Shared shipping-quality doctrine: business value and short lead time, coherent architecture, non-negotiable safety, relevant performance, maintainability, and proportional proof | Load before routing, model/fallback selection, implementation, fixes, skill-contract changes, verification, or recommended defaults |
@@ -534,7 +537,7 @@ intake
   -> bounded ship/deploy/release routing
 ```
 
-`102-sg-start` may record `auto-verify: run` for eligible local proof only. It must record `auto-verify: skipped` and route to the proof owner when verification needs preview, production, auth/browser, Sentry, device, manual QA, secret access, commit, push, ship, or any external side effect. This does not replace `001-sg-build` as the full lifecycle owner through `103-sg-verify`, `104-sg-end`, and `005-sg-ship`.
+`102-sg-start` may record `auto-verify: run` for eligible local proof only. At each declared coherent validated milestone it routes to `005-sg-ship checkpoint` for an exact-scope commit before continuing. Final push still follows `103-sg-verify -> 104-sg-end -> 005-sg-ship`; hosted/browser/manual/production proof stays with its owner.
 
 Model routing is a lifecycle gate, not a promise that the active conversation can switch its own runtime model. Master skills use `skills/704-sg-model/references/model-routing.md` as the detailed source and `skills/references/decision-quality-contract.md` as the quality boundary. Sol covers frontier/high-cost-of-error reasoning, Terra balanced daily work, Luna bounded low-risk/high-volume missions when quality remains equivalent, and the `codex` profile long agentic implementation. Spark is used only when the runtime explicitly exposes it. Delegated missions include model, reasoning, quality-equivalent fallback, availability evidence, and whether the override was actually applied.
 
@@ -648,7 +651,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
   or complex persistent programs and cannot shadow or block a working MCP lane.
 - Skills that use runtime failure evidence, deploy confidence, bug evidence, auth/payment/data failure diagnosis, jobs, webhooks, verification, or performance telemetry must load `skills/references/sentry-observability.md` when Sentry is configured, visible, or materially relevant. Skills never have direct Sentry dashboard access; Sentry evidence means a redacted issue/event pointer supplied by the operator, visible in the app, visible in logs, or already present in context. When no Sentry pointer is available, bounded PM2 logs and Doppler key presence/scope checks may be used as supporting evidence without printing secrets.
 - `108-sg-browser` owns generic non-auth browser proof. `109-sg-auth-debug` owns auth, session, callback, provider, tenant, and protected-route browser proof.
-- `004-sg-deploy` owns release orchestration only; `005-sg-ship` owns commit/push, `405-sg-prod` owns deployed truth, and proof skills own observed behavior.
+- `004-sg-deploy` owns release orchestration only; `005-sg-ship` owns checkpoint commits and final commit/push, `405-sg-prod` owns deployed truth, and proof skills own observed behavior.
 - `003-sg-bug` owns bug lifecycle execution through owner skills and bounded subagents; phase skills still own bug record mutation, diagnosis, retest evidence, verification, and shipping internals.
 - `002-sg-maintain` owns the maintenance lifecycle; bugs, dependencies, docs, checks, audits, migrations, tasks, security review, repair, verification, and ship still run through their specialist owner skills and gates.
 - `010-sg-technical github` owns focused Git/GitHub hygiene as one `worktree -> branch -> pull request` graph. Its public `shipglows git` route defaults to read-only audit; `reconcile` and `clean` retain fresh approval gates. Commit/push stays with `005-sg-ship`, dependency risk with `010-sg-technical deps`, major upgrades with `010-sg-technical migrate`, and CI diagnosis with `github:gh-fix-ci`.
