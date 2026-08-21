@@ -45,6 +45,7 @@ Parse `$ARGUMENTS` and choose the smallest safe mode under `$SHIPGLOWS_ROOT/skil
 - DEPLOYMENT CHECK: load `references/production-verification-workflow.md` to verify deploy status and choose preview/production target.
 - RUNTIME EVIDENCE: load the workflow reference before health checks, logs, Sentry, diagnostics/log-copy UI, PM2, Vercel, or Blacksmith evidence.
 - PREVIEW-PUSH: load `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` when the project uses preview-push validation.
+- DELIVERY POSTURE: load `$SHIPGLOWS_ROOT/skills/references/project-delivery-policy.md`; enforce preview for published deployable changes and staging or documented equivalent isolation for sensitive production, without treating a successful Git push as deployment proof.
 
 ## Core Execution Rules
 

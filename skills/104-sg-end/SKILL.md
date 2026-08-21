@@ -64,6 +64,8 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
   - before creating or changing tracker records.
 - `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` and `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`
   - when closure depends on local, preview, hybrid, hosted, or provider proof.
+- `$SHIPGLOWS_ROOT/skills/references/project-delivery-policy.md`
+  - when closure depends on branch, preview, staging, production, or remote-persistence obligations; development posture never permits local-only clean closure.
 - `$SHIPGLOWS_ROOT/skills/104-sg-end/references/closure-bookkeeping-playbook.md`
   - for closure steps and field-level bookkeeping.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`

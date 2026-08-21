@@ -26,7 +26,7 @@ Route narrower requests directly: checks `105`, commit/push `005`, deployed stat
 
 Before explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md`. Parse empty/current scope, `skip-check`, `no-changelog`, `--preview`, `--prod`, URL, or project name. `skip-check` skips only `105`; all later gates remain. Production proof is read-only unless mutation is explicitly approved.
 
-A deploy-target recommendation loads `$SHIPGLOWS_ROOT/skills/references/deploy-target-matrix.md` and remains advisory. Before choosing local/preview/hybrid/production proof, load `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md`; hosted proof loads `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`.
+A deploy-target recommendation loads `$SHIPGLOWS_ROOT/skills/references/deploy-target-matrix.md` and remains advisory. Load `$SHIPGLOWS_ROOT/skills/references/project-delivery-policy.md` before deciding whether preview, staging, or production gates are required; then load `project-development-mode.md` to choose the authoritative proof surface. Hosted proof loads `preview-proof-routing.md`. A push establishes remote persistence only, never deployment readiness.
 
 ## Progressive Release Packs
 

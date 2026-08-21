@@ -43,6 +43,8 @@ For an approved mutating chantier in a Git repository:
 
 The approved technical chantier plan grants these exact-scope checkpoint commits and ordinary current-branch pushes, plus final delivery, when the plan names remote delivery. It never grants force push, history rewriting, tags, releases, deployments, merges, pull requests, hook bypass, or unrelated staging.
 
+A checkpoint push proves persistence, not deployment, preview readiness, production behavior, or product acceptance. Apply the project's delivery posture and development mode for those separate obligations.
+
 ## Milestone Definition
 
 A milestone is a coherent completed slice declared by the ready spec, approved plan, execution batches, or implementation contract. It has a stable outcome, bounded owned paths, and proportional passing proof. An assistant message, file save, tiny edit, failing experiment, incomplete batch, or arbitrary elapsed interval is not a milestone.
