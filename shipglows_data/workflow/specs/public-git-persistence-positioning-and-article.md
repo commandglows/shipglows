@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
@@ -33,7 +33,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator decision 2026-08-21: Git and GitHub integration is a high-impact public trust and positioning pillar."
-  - "Operator-approved message: Each milestone backed up. Every delivery traceable."
+  - "Operator correction 2026-08-21: public copy must describe saved work in plain language and avoid milestone jargon."
 next_step: Review and merge ShipGlows PR 24 before the dependent site PR 13; production publication remains a separate approval.
 ---
 
@@ -51,9 +51,9 @@ reviewed
 
 ## Core Promise
 
-**Each milestone backed up. Every delivery traceable.**
+**Your work is backed up. You can always see what changed.**
 
-French: **Chaque jalon sauvegardé. Chaque livraison traçable.**
+French: **Votre travail est sauvegardé. Vous retrouvez facilement chaque modification.**
 
 ## Claim Impact Plan
 
@@ -85,7 +85,7 @@ French: **Chaque jalon sauvegardé. Chaque livraison traçable.**
 
 - EN: `Your agent changed the code. But is your work actually backed up?`
 - FR: `Votre agent a modifié le code. Mais votre travail est-il vraiment sauvegardé ?`
-- Structure: hidden local-only risk; coherent milestones; local/backed-up/deployed; interruption recovery; sensitive recovery points; honest limits; evaluation checklist.
+- Structure: hidden local-only risk; useful recovery points; local/backed-up/deployed; interruption recovery; sensitive recovery points; honest limits; evaluation checklist.
 
 ## Acceptance Criteria
 
@@ -118,7 +118,7 @@ French: **Chaque jalon sauvegardé. Chaque livraison traçable.**
 ## Delivery Evidence
 
 - Canonical milestone: commit `d83d4f2` pushed to `codex/public-install-guidance`; draft ShipGlows PR [#24](https://github.com/commandglows/shipglows/pull/24).
-- Public-site milestone: commit `3b0978b` pushed to `codex/git-persistence-positioning`; draft site PR [#13](https://github.com/commandglows/shipglows_app/pull/13).
+- Public-site milestones: initial commit `3b0978b` and plain-language refinement `bc498b3` pushed to `codex/git-persistence-positioning`; draft site PR [#13](https://github.com/commandglows/shipglows_app/pull/13).
 - Vercel deployment and preview-comment checks: successful on site PR #13.
 - Preview URL: `https://shipglows-site-git-codex-git-persisten-899813-diane-ds-projects.vercel.app`.
 - Rendered-content proof: pending reviewer access because Vercel Deployment Protection serves its login surface to anonymous requests and the installed Vercel CLI is logged out. This does not invalidate the successful deployment check, but it prevents claiming visual preview verification.
@@ -138,13 +138,13 @@ French: **Chaque jalon sauvegardé. Chaque livraison traçable.**
     "initiated_by": "operator"
   },
   "scores": {
-    "overall": 94,
-    "clarity": 92,
+    "overall": 96,
+    "clarity": 97,
     "structure": 94,
     "source_faithfulness": 96,
     "compliance": 97,
-    "brand_voice": 91,
-    "call_to_action": 88
+    "brand_voice": 94,
+    "call_to_action": 90
   },
   "weights": {
     "clarity": 0.2,
@@ -192,3 +192,4 @@ Fresh external documentation was not required: the copy describes internal imple
 | 2026-08-21 | content planning | ready | Audience, promise, surfaces, evidence, caveats, article direction, batches, and publication stop are explicit. | batch A |
 | 2026-08-21 | sg-content | reviewed | Canonical truth and bilingual public surfaces were committed and pushed; static checks passed; draft PRs #24 and #13 are linked by dependency. | merge source PR first |
 | 2026-08-21 | CI/preview observation | publishable with caveats | Vercel checks passed; anonymous rendered verification is unavailable because Deployment Protection requires authentication. | authenticated visual review before publication |
+| 2026-08-21 | sg-content | refined | Replaced public milestone jargon with plain-language wording about saved work, completed blocks, and changes that are easy to find; site commit `bc498b3` pushed. | focused content proof and source update |

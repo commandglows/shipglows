@@ -135,23 +135,23 @@ It connects governed project truth to one business-aware métier owner, then car
 - documentation and research workflows
 - product registry and claim-coherence checks for declared products, sales surfaces, and proof-backed public copy
 
-### Each milestone backed up. Every delivery traceable.
+### Your work is backed up. You can always see what changed.
 
-ShipGlows treats Git persistence as part of delivery, not as cleanup left for
-the end. For approved technical chantiers, its governed workflow requires an
-exact-scope commit and remote push after each validated milestone and before a
-clean closure. A lightweight read-only preflight checks for work that still
-exists only on the current machine when a mutating chantier starts or resumes,
-before sensitive operations, and at closure. Healthy state stays silent.
+ShipGlows treats Git backup as part of the work, not as cleanup left for the
+end. For approved technical chantiers, it saves each completed block in a
+commit containing only that work, then pushes it to the project's Git repository. It also
+checks for work that still exists only on the current machine when work starts
+or resumes, before sensitive changes, and before completion. When everything
+is safe, that check stays silent.
 
 The evidence remains explicit:
 
-- `local`: changes or commits are not yet proven on the resolved upstream;
-- `backed up`: the relevant commit is proven reachable from that upstream;
-- `deployed`: matching hosting or provider evidence confirms the intended
-  commit on the named preview, staging, or production target.
+- `local`: changes still depend on the current machine;
+- `backed up`: the relevant work is available from the project's remote Git repository;
+- `deployed`: the hosting platform confirms that the intended version is live
+  on preview, staging, or production.
 
-A push proves remote persistence, not deployment. ShipGlows does not guarantee
+A push proves remote backup, not deployment. ShipGlows does not guarantee
 GitHub availability, zero data loss, repository protection settings, or
 unattended production shipping.
 
