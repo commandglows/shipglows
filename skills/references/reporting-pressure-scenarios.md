@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-16"
+updated: "2026-08-21"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-pressure-scenarios
@@ -25,7 +25,7 @@ evidence:
   - "Operator decision 2026-08-15: true chantier starts receive the same visual structure without exposing file paths or technical links."
   - "Operator decision 2026-08-18: reporting structure must not create work merely to fill its blocks."
   - "Operator decision 2026-08-16: closure reports expose editorial impact separately and reject ceremonial content."
-  - "Operator correction 2026-08-21: every final user report must expose a useful SUITE block."
+  - "Operator correction 2026-08-21: SUITE must select real business continuity and reject no-action-required outcomes."
   - "Operator decision 2026-08-16: a useful completed result may offer guided deepening or reorientation without reopening delivery."
 next_review: "2026-11-12"
 next_step: none
@@ -61,4 +61,9 @@ next_step: none
 - `SSRP-022 reporting effort ceiling`: one meaningful proof may support a verdict; placeholder counts are not quotas; prose stays to one sentence per block; no extra check, audit, research, documentation, content, or detail is created solely for reporting, while proof and documentation genuinely required by the chantier remain mandatory.
 - `SSRP-022 visible closure editorial`: every completion claim includes `✏️ ÉDITORIAL` with `updated`, `not impacted · <concrete reason>`, or `needs review · <surface>`; a material gap blocks closure, `No declared public surface` is valid evidence, and unaffected work creates no filler content.
 - `SSRP-023 completed chantier follow-up`: when a delivered result has a useful decision surface, the closure may offer `Approfondir` and `Réorienter`; either starts guided follow-up, does not reopen the completed chantier, and never grants mutation approval. An empty ceremonial menu fails.
-- `SSRP-024 mandatory next block`: every final user report includes a useful `🧭 SUITE`; it states the next outcome, missing action/proof, operator decision, or truthful no-action-required result and is never omitted.
+- `SSRP-024 mandatory next block`: every final user report includes a useful `🧭 SUITE`; `none`, no-action-required wording, semantic equivalents, and empty ceremonial menus fail.
+- `SSRP-025 conversation continuity`: unfinished operator goals, earlier open chantiers, and pending review, PR, preview, proof, commit, push, or delivery in the current conversation beat tracker, audit, and new-idea candidates; safely agent-runnable authorized work continues before final reporting.
+- `SSRP-026 tracker priority`: when conversation, proof, delivery, and active chantiers are clear, select actionable `TASKS.md` work in `P0 -> P1 -> P2 -> P3` order without inflating severity; skip a higher item only with evidence that it is blocked or inapplicable.
+- `SSRP-027 overdue audit fallback`: when no actionable tracked work exists, compare `AUDIT_LOG.md` with the audit cadence matrix and choose the first event-triggered, never-run, or most overdue applicable audit instead of claiming completion has no sequel.
+- `SSRP-028 grounded business continuation`: when conversation, delivery, active work, tracker, and audit freshness are clear, select one evidence-backed product, customer, editorial, security, quality, or funnel improvement; speculative busywork fails.
+- `SSRP-029 authority boundary`: choosing a next outcome never grants mutation authority for a new or expanded chantier, bypasses a pause, or turns reporting into hidden execution.

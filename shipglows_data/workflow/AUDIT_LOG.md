@@ -1,5 +1,7 @@
 # Audit Log
 
+> Audit freshness uses `skills/references/audit-cadence-matrix.json`. New traffic-first audit records should include `domain: <matrix-id>` and keep `date`, `overall`, `issues`, and `scope`; historical table and alias-based records remain readable by the cadence checker.
+
 | Date | Scope | Design | Copy | SEO | GTM | Translate | Deps | Perf | Code | Issues |
 |------|-------|--------|------|-----|-----|-----------|------|------|------|--------|
 | 2026-04-28 | project | — | — | — | — | — | — | — | C | 0 critical / 2 high fixed / 2 high open / 2 medium open |

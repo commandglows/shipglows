@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.10.0"
+artifact_version: "2.11.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-21"
@@ -19,6 +19,8 @@ linked_systems:
   - skills/references/final-report-timestamp.md
   - skills/references/documentation-reflection-gate.md
   - skills/references/editorial-reflection-gate.md
+  - skills/references/next-outcome-selection.md
+  - skills/references/audit-cadence-matrix.json
 depends_on:
   - artifact: "skills/references/final-report-timestamp.md"
     artifact_version: "1.0.0"
@@ -50,7 +52,7 @@ evidence:
   - "Operator decision 2026-08-18: report cards summarize already-required work and must never create extra checks, research, documentation, or content merely to fill a block."
   - "Operator decision 2026-08-21: substantive code chantiers expose one compact implementation-guardrail receipt after pre-write classification."
   - "Operator decision 2026-08-16: every closure exposes a separate editorial reflection without creating ceremonial public content."
-  - "Operator correction 2026-08-21: every final user report exposes a SUITE block, even when the truthful outcome is that no operator action is required."
+  - "Operator correction 2026-08-21: SUITE is mandatory business continuity and may never resolve to no action; it selects from unfinished conversation work, pending proof or delivery, active chantiers, tracker priority, overdue audits, then grounded improvement."
   - "Operator decision 2026-08-21: persistence reporting distinguishes local, remote backup, and deployment without adding a block when healthy delivery evidence is already clear."
   - "Operator decision 2026-08-16: completed chantiers may offer guided Approfondir and Réorienter follow-up without reopening delivery or authorizing mutation."
 next_review: "2026-11-12"
@@ -148,7 +150,9 @@ Translate the five labels and explanatory text into the user's active language w
 
 ## Mandatory Next Block
 
-Every final user report contains a `🧭 SUITE` block. State the next outcome when work continues, the missing action or proof when delivery is partial, the operator decision when one is genuinely required, or explicitly state that no operator action is required after terminal completion. Keep it useful and concise, but never omit the block. When numbered choices follow, the block introduces the decision they resolve.
+Every final user report contains a `🧭 SUITE` block. It names one concrete evidence-backed next outcome, missing action or proof, or operator decision and is never `none`, “no action required,” an empty ceremonial menu, or a semantic equivalent. Before writing it, load and apply `skills/references/next-outcome-selection.md`: current conversation work and pending delivery beat active chantiers; active chantiers beat `P0 -> P1 -> P2 -> P3` tracker work; tracker work beats an overdue audit; only then select a grounded business improvement. Keep the result useful and concise, never omit the block, and never invent urgency or authority. When numbered choices follow, the block introduces the decision they resolve.
+
+If an in-scope continuation is already authorized and safely agent-runnable, continue it before final reporting. When selection reaches a new or materially expanded chantier, state the next outcome and preserve its normal approval boundary; selection itself never authorizes mutation.
 
 ## Persistence Evidence
 

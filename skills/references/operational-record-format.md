@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-05-22"
-updated: "2026-08-12"
+updated: "2026-08-21"
 status: active
 source_skill: 102-sg-start
 scope: operational-record-format
@@ -26,6 +26,7 @@ supersedes: []
 evidence:
   - "Traffic-first Markdown operational record spec approved on 2026-05-22."
   - "Wave 14 removed a dependency on a non-existent historical spec; the durable contract and its current consumers are authoritative."
+  - "Audit cadence hardening on 2026-08-21 added stable domain identifiers and optional due/trigger context for deterministic freshness checks."
 next_review: "2026-06-22"
 next_step: "/102-sg-start Traffic-first Markdown operational record format Batch 2"
 ---
@@ -75,7 +76,7 @@ Only those characters are escaped. A backslash before any other character remain
 | Kind | Required fields | Optional fields | Value rules |
 | --- | --- | --- | --- |
 | `task` | `status` | `area`, `id` | `status` is a non-empty workflow state token. Canonical output uses lower-case labels such as `todo`, `in_progress`, `blocked`, `done`, or `ready` when meaningful in the source. |
-| `audit` | `date`, `overall`, `issues` | `id`, `scope` | `date` is ISO `YYYY-MM-DD`; `overall` is a short grade or documented equivalent; `issues` is a stable concise count or summary token. |
+| `audit` | `date`, `overall`, `issues` | `id`, `scope`, `domain`, `next_due`, `trigger` | `date` and `next_due` are ISO `YYYY-MM-DD`; `overall` is a short grade or documented equivalent; `issues` is a stable concise count or summary token; `domain` is a stable identifier from the applicable audit-cadence matrix. |
 | `spec` | `status`, `path`, `next` | `id` | `status` matches the spec lifecycle vocabulary; `path` is repository-relative Markdown; `next` is a short command or label, not executable parser input. |
 
 Specs keep YAML frontmatter and full contract sections. A `spec:` operational line is only a raw-scan summary. Canonical spec summary lines belong immediately after the `# Spec: ...` title block and before `## Title`.
@@ -118,6 +119,8 @@ Writer skills must:
 - preserve unknown fields when updating an existing canonical record
 - avoid introducing duplicate canonical and legacy representations for the same operational item
 - treat compact display lines that do not match this grammar as display-only output, never source format
+- include `domain` on new audit records when an audit-cadence matrix applies; readers may infer legacy records conservatively, but writers must not rely on title inference
+- include `next_due` when a project override differs from the shared cadence, and `trigger` when an event made the audit due independently of age
 
 ## Migration Compatibility
 
@@ -131,6 +134,6 @@ When `--write` migration is required for a live source, zero unmapped/legacy-act
 
 ```text
 🔴 [shipglows_app] task: Run /103-sg-verify for shipglows-github-managed-clone-indexer.md | status: todo | area: github-clone-indexer
-🟠 [ShipGlows] audit: dependencies | date: 2026-04-27 | overall: C | issues: 0/1/2
+🟠 [ShipGlows] audit: dependencies | date: 2026-04-27 | overall: C | issues: 0/1/2 | domain: dependencies | next_due: 2026-05-11
 🟢 [ShipGlows] spec: ShipGlows Terminal TUI V1 | status: ready | path: shipglows_data/workflow/specs/shipglows-terminal-tui-v1.md | next: /102-sg-start ShipGlows Terminal TUI V1
 ```

@@ -16,6 +16,7 @@ CHANTIER_TRACKING = ROOT / "skills" / "references" / "chantier-tracking.md"
 FINAL_TIMESTAMP = ROOT / "skills" / "references" / "final-report-timestamp.md"
 DOCUMENTATION_REFLECTION = ROOT / "skills" / "references" / "documentation-reflection-gate.md"
 EDITORIAL_REFLECTION = ROOT / "skills" / "references" / "editorial-reflection-gate.md"
+NEXT_OUTCOME_SELECTION = ROOT / "skills" / "references" / "next-outcome-selection.md"
 START_README = ROOT / "skills" / "102-sg-start" / "README.md"
 START_WORKFLOW = ROOT / "skills" / "102-sg-start" / "references" / "execution-workflow.md"
 BUILD_WORKFLOW = ROOT / "skills" / "001-sg-build" / "references" / "build-lifecycle-workflow.md"
@@ -154,12 +155,43 @@ class ReportingContractTests(unittest.TestCase):
             "Every final user report contains a `🧭 SUITE` block",
             "next outcome",
             "missing action or proof",
-            "no operator action is required",
             "never omit the block",
+            "never `none`",
+            "next-outcome-selection.md",
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, core)
-        self.assertIn("SSRP-024 mandatory next block", scenarios)
+        self.assertNotIn("no operator action is required", core)
+        for scenario in (
+            "SSRP-024 mandatory next block",
+            "SSRP-025 conversation continuity",
+            "SSRP-026 tracker priority",
+            "SSRP-027 overdue audit fallback",
+            "SSRP-028 grounded business continuation",
+            "SSRP-029 authority boundary",
+        ):
+            self.assertIn(scenario, scenarios)
+
+    def test_next_outcome_selection_has_ordered_business_continuity(self) -> None:
+        text = NEXT_OUTCOME_SELECTION.read_text(encoding="utf-8")
+        ordered = (
+            "Current conversation outcome",
+            "Pending proof or delivery",
+            "Active chantier",
+            "Prioritized tracker",
+            "Overdue audit",
+            "Grounded business improvement",
+        )
+        positions = [text.index(marker) for marker in ordered]
+        self.assertEqual(positions, sorted(positions))
+        for marker in (
+            "P0 -> P1 -> P2 -> P3",
+            "shipglows_data/workflow/TASKS.md",
+            "shipglows_data/workflow/AUDIT_LOG.md",
+            "audit-cadence-matrix.json",
+            "never grants mutation authority",
+        ):
+            self.assertIn(marker, text)
 
     def test_approved_substantive_chantier_uses_visual_start_card(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
