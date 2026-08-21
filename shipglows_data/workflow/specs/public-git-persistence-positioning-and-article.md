@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
@@ -45,7 +45,7 @@ reviewed
 
 ## Audience And Reader Job
 
-- Primary audience: solo founders and autonomous technical builders using agents on real product work.
+- Primary audience: solo founders and autonomous technical builders using agents on real product work, including beginner vibe coders who do not yet understand Git or GitHub.
 - Reader job: determine whether ShipGlows merely edits files or protects work through interruption, recovery, and delivery.
 - Desired belief: ShipGlows makes remote persistence and delivery state explicit without adding workflow ceremony when Git is healthy.
 
@@ -83,9 +83,9 @@ French: **Votre travail est sauvegardé. Vous retrouvez facilement chaque modifi
 
 ## Article Direction
 
-- EN: `Your agent changed the code. But is your work actually backed up?`
-- FR: `Votre agent a modifié le code. Mais votre travail est-il vraiment sauvegardé ?`
-- Structure: hidden local-only risk; useful recovery points; local/backed-up/deployed; interruption recovery; sensitive recovery points; honest limits; evaluation checklist.
+- EN: `How ShipGlows protects your work from start to finish with Git and GitHub`
+- FR: `Comment ShipGlows protège votre travail du début à la fin avec Git et GitHub`
+- Structure: beginner definitions for Git, GitHub, commits, and pushes; pre-work risk check; completed-block backup; sensitive recovery points; interruption recovery; completion proof; local/backed-up/deployed; honest limits; evaluation checklist.
 
 ## Acceptance Criteria
 
@@ -118,7 +118,7 @@ French: **Votre travail est sauvegardé. Vous retrouvez facilement chaque modifi
 ## Delivery Evidence
 
 - Canonical milestone: commit `d83d4f2` pushed to `codex/public-install-guidance`; draft ShipGlows PR [#24](https://github.com/commandglows/shipglows/pull/24).
-- Public-site milestones: initial commit `3b0978b` and plain-language refinement `bc498b3` pushed to `codex/git-persistence-positioning`; draft site PR [#13](https://github.com/commandglows/shipglows_app/pull/13).
+- Public-site milestones: initial commit `3b0978b`, plain-language refinement `bc498b3`, and beginner guide expansion `ff9ee3c` pushed to `codex/git-persistence-positioning`; draft site PR [#13](https://github.com/commandglows/shipglows_app/pull/13).
 - Vercel deployment and preview-comment checks: successful on site PR #13.
 - Preview URL: `https://shipglows-site-git-codex-git-persisten-899813-diane-ds-projects.vercel.app`.
 - Rendered-content proof: pending reviewer access because Vercel Deployment Protection serves its login surface to anonymous requests and the installed Vercel CLI is logged out. This does not invalidate the successful deployment check, but it prevents claiming visual preview verification.
@@ -193,3 +193,4 @@ Fresh external documentation was not required: the copy describes internal imple
 | 2026-08-21 | sg-content | reviewed | Canonical truth and bilingual public surfaces were committed and pushed; static checks passed; draft PRs #24 and #13 are linked by dependency. | merge source PR first |
 | 2026-08-21 | CI/preview observation | publishable with caveats | Vercel checks passed; anonymous rendered verification is unavailable because Deployment Protection requires authentication. | authenticated visual review before publication |
 | 2026-08-21 | sg-content | refined | Replaced public milestone jargon with plain-language wording about saved work, completed blocks, and changes that are easy to find; site commit `bc498b3` pushed. | focused content proof and source update |
+| 2026-08-21 | sg-content | expanded | Repositioned the paired article as a beginner-friendly Git/GitHub guide covering protection before, during, after interruption, before sensitive work, and at completion; site commit `ff9ee3c` pushed. | CI preview observation and source update |
