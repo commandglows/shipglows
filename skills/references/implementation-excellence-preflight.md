@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
@@ -24,7 +24,7 @@ linked_systems:
   - skills/references/owasp-application-security-awareness.md
 depends_on:
   - artifact: skills/references/design-system-token-contract.md
-    artifact_version: "1.2.0"
+    artifact_version: "1.4.0"
     required_status: active
   - artifact: skills/references/clean-code-quality-contract.md
     artifact_version: "1.2.0"
@@ -36,6 +36,8 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-21: mandatory implementation rules must be explicit before code starts and mechanically enforced again at the end."
   - "Bento review demonstrated that conditional design-token guidance can be skipped when scope recognition remains implicit."
+  - "Operator directive 2026-08-21: the frontend preflight must guarantee that essential homepage content remains visible if JavaScript or animation fails."
+  - "Operator directive 2026-08-21: the frontend preflight must prefer semantic HTML and native CSS and require a functional justification for JavaScript."
 next_review: "2026-11-21"
 next_step: /103-sg-verify implementation-excellence-preflight
 ---
@@ -72,6 +74,10 @@ For any UI, layout, component, theme, motion, interaction, responsive, or visual
 - inspect and reuse maintained shared components, variants, utilities, and native/headless primitives before creating a new control
 - keep behavior and semantics in maintained primitives while project wrappers own composition and tokenized visuals
 - prove keyboard/focus behavior, accessible names/states, contrast, target sizes, reduced motion, responsive/adaptive behavior, text scaling, and supported themes when applicable
+- keep essential content and primary actions present in the initial semantic document; JavaScript, observers, hydration, transitions, and animation may enhance presentation but must not be required to reveal or unlock them
+- use semantic HTML and native CSS by default for structure, layout, responsive behavior, visual states, themes, transitions, and decorative motion; add JavaScript only for a concrete need involving state, data, complex interaction, coordination, or runtime measurement that HTML/CSS cannot express robustly
+- record the functional justification for presentation-layer JavaScript and keep its client-owned behavior as small as practical; framework convenience, visual novelty, or library availability alone does not pass the gate
+- prove content visibility with failed or disabled JavaScript/animation initialization on public and product-critical pages when applicable; build success or source inspection alone does not prove this fallback
 - keep reusable state and domain decisions outside screen-specific presentation code when that improves reuse and proof
 
 Load the design-system token contract directly from the activating skill and apply its drift scan to changed UI files. A local component or raw literal is not justified merely because it is faster.
@@ -115,6 +121,8 @@ Use `pass`, `partial`, `fail`, or `not applicable`, with evidence for exceptions
 
 - `IEP-FRONTEND-TOKENS`: raw visual values outside the canonical design authority fail or require the existing narrow exception proof.
 - `IEP-FRONTEND-PRIMITIVE`: a bespoke control that duplicates a maintained shared or accessible primitive fails until reused or explicitly justified and proven.
+- `IEP-FRONTEND-CONTENT-AVAILABILITY`: essential content or primary actions hidden until JavaScript, observers, hydration, or animation initializes fail the frontend gate until the initial semantic document and failure-path proof preserve access.
+- `IEP-FRONTEND-CSS-FIRST`: presentation-layer JavaScript without a recorded functional need that HTML/CSS cannot robustly meet fails the frontend gate; retain the smallest justified behavior over a JavaScript-free dogma when state, data, complex interaction, coordination, or runtime measurement is genuinely required.
 - `IEP-BACKEND-AUTHZ`: client-only permission checks fail the backend gate.
 - `IEP-BACKEND-CONCURRENCY`: mutation or autosave code must address applicable stale-write, replay, idempotence, partial-failure, and recovery behavior.
 - `IEP-SHARED-BOUNDARY`: reusable domain decisions stay independent of presentation or provider adapters when that boundary has concrete value.
