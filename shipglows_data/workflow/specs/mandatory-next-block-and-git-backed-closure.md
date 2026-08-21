@@ -1,15 +1,15 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "2.0.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
-status: reviewed
+status: ready
 source_skill: 900-shipglows-core
 scope: mandatory-next-block-and-git-backed-closure
 owner: Diane
-user_story: "As a ShipGlows operator, I want every final report to state what follows and every mutated Git chantier to be remotely persisted before closure, so I never mistake local work for delivered work."
+user_story: "As a ShipGlows operator, I want every chantier report to identify the highest-value evidence-backed continuation and every mutated Git chantier to be remotely persisted before closure, so ShipGlows behaves as an autonomous business partner instead of ending with ceremonial or null next steps."
 confidence: high
 risk_level: high
 security_impact: yes
@@ -17,11 +17,19 @@ docs_impact: yes
 linked_systems:
   - skills/references/reporting-contract.md
   - skills/references/reporting-pressure-scenarios.md
+  - skills/references/next-outcome-selection.md
+  - skills/references/audit-cadence-matrix.json
   - skills/references/git-milestone-delivery-contract.md
+  - skills/011-sg-pilotage/references/priorities-playbook.md
+  - skills/002-sg-maintain/references/maintenance-playbooks.md
   - skills/104-sg-end/SKILL.md
+  - tools/audit_cadence_status.py
+  - tools/test_audit_cadence_status.py
+  - shipglows_data/workflow/TASKS.md
+  - shipglows_data/workflow/AUDIT_LOG.md
 depends_on:
   - artifact: skills/references/reporting-contract.md
-    artifact_version: "2.8.0"
+    artifact_version: "2.10.0"
     required_status: active
   - artifact: skills/references/git-milestone-delivery-contract.md
     artifact_version: "1.1.0"
@@ -30,18 +38,25 @@ supersedes: []
 evidence:
   - "Operator correction 2026-08-21: every final report must include a SUITE block."
   - "Operator defect example 2026-08-21: a documentation chantier was reported corrected while its changes remained local without commit or push."
-next_step: none
+  - "Operator correction 2026-08-21: no-action-required wording violates business continuity; SUITE must select open conversational work, pending proof or delivery, active chantiers, tracker priorities, overdue audits, then a grounded business improvement."
+  - "Read-only audit 2026-08-21: TASKS.md and AUDIT_LOG.md exist, but no canonical audit-cadence matrix exists."
+next_step: Implement the next-outcome ladder, audit cadence matrix, deterministic overdue-audit status, and focused pressure scenarios.
 ---
 
 # Mandatory Next Block And Git-Backed Closure
 
 ## Status
 
-complete
+ready — reopened after the original contract institutionalized a null continuation
 
 ## Acceptance Criteria
 
-- Every final user report contains `🧭 SUITE` with the next outcome, missing action/proof, decision surface, or explicit no-action-required statement.
+- Every chantier report contains `🧭 SUITE` with one concrete evidence-backed next outcome; `none`, `no action required`, ceremonial menus, and semantic equivalents are forbidden.
+- Continuation selection follows this order: unfinished current-conversation outcome; pending proof/review/PR/delivery; active chantier; `TASKS.md` P0 then P1/P2/P3; most overdue audit; grounded product/business improvement.
+- Agent-runnable work inside the authorized current chantier continues before a final report instead of being downgraded into a suggestion.
+- A new unrelated chantier remains subject to normal scope and mutation approval; autonomy never invents urgency or authority.
+- A canonical audit-cadence matrix defines default maximum ages and event triggers, while projects may document stricter overrides.
+- `AUDIT_LOG.md` supplies last-run truth and the deterministic checker ranks overdue or never-run audit domains.
 - A Git-backed chantier with any intentional mutation cannot close with no commit, a local-only commit, a missing push, or a failed push.
 - `Aucun commit ni push` is truthful only for genuinely read-only, non-mutating, or non-Git work.
 - Documentation-only mutations obey the same commit/push closure invariant as code changes.
@@ -50,7 +65,12 @@ complete
 
 ## Pressure Scenarios
 
-- `SSRP-024 mandatory next block`: every final user report includes a useful `🧭 SUITE`, including a truthful no-action-required outcome after terminal completion.
+- `SSRP-024 mandatory next block`: every chantier report includes a useful `🧭 SUITE` and rejects null or no-action-required outcomes.
+- `SSRP-025 conversation continuity`: an unfinished outcome or pending PR/proof in the current conversation wins over tracker and audit candidates.
+- `SSRP-026 tracker priority`: when conversation and delivery are clear, P0 then P1/P2/P3 wins without urgency inflation.
+- `SSRP-027 overdue audit fallback`: when no actionable tracker item exists, the most overdue required audit becomes the suite.
+- `SSRP-028 grounded business continuation`: when operational sources are clear, choose one evidence-backed product, editorial, security, quality, or funnel improvement rather than fabricate busywork.
+- `SSRP-029 authority boundary`: a selected next outcome does not silently authorize a new unrelated mutation.
 - `GMD-MUTATED-DOC-NO-LOCAL-CLOSURE`: changed documentation plus `Aucun commit ni push · modifications locales prêtes` cannot produce a completed verdict.
 - `GMD-LOCAL-COMMIT-NO-CLOSURE`: a commit not present upstream remains `delivery pending`.
 
@@ -60,10 +80,16 @@ complete
 - [x] Harden Git-backed closure for every mutation, including documentation.
 - [x] Add focused mechanical proof and align closure guidance.
 - [x] Commit and push the validated milestone and final record.
+- [ ] Replace null continuation with the deterministic next-outcome ladder.
+- [ ] Add the canonical audit-cadence matrix and overdue-audit checker.
+- [ ] Connect pilotage and maintenance discovery to the same shared sources.
+- [ ] Add focused pressure scenarios for conversation, delivery, tracker, audit, business fallback, and authority.
+- [ ] Record the correction in TASKS/AUDIT_LOG doctrine without rewriting operational history.
+- [ ] Commit and push each validated correction milestone.
 
 ## Current Chantier Flow
 
-`900-shipglows-core ✅ -> 100-sg-spec ✅ -> 101-sg-ready ✅ -> 102-sg-start ✅ -> 103-sg-verify ✅ -> 104-sg-end ✅ -> commit/push ✅`
+`original contract ✅ -> null-continuation defect confirmed ✅ -> spec/reopened ready ✅ -> next-outcome ladder -> audit cadence -> focused proof -> commit/push`
 
 ## Skill Run History
 
@@ -75,3 +101,4 @@ complete
 | 2026-08-21 | 102-sg-start | milestone pushed | Mandatory SUITE, Git-backed documentation closure, supplied failure cases, and focused tests implemented in commit `a347490` and pushed upstream. | 103-sg-verify |
 | 2026-08-21 | 103-sg-verify | verified | 30 reporting/Git delivery tests and 6 closure compaction tests pass; four metadata artifacts and diff whitespace pass. | 104-sg-end |
 | 2026-08-21 | 104-sg-end | complete | Closure guidance now rejects local-ready mutations and always states the next outcome. Runtime alias installation remained explicitly out of scope; unrelated dirty files remained unstaged. | final commit/push |
+| 2026-08-21 | 900-shipglows-core | ready | Operator rejected the prior no-action-required escape hatch and approved a continuity ladder backed by conversation state, delivery proof, tracker priority, audit cadence, and business value. | implement scenario-first correction |
