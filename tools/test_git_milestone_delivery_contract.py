@@ -81,6 +81,18 @@ class GitMilestoneDeliveryContractTests(unittest.TestCase):
         self.assertIn("Push failure", self.approval)
         self.assertIn("forbids standard clean closure", self.lifecycle)
 
+    def test_mutated_documentation_cannot_close_as_local_ready_work(self) -> None:
+        for marker in (
+            "Every intentional mutation, including documentation-only work",
+            "Aucun commit ni push",
+            "modifications locales prêtes",
+            "GMD-MUTATED-DOC-NO-LOCAL-CLOSURE",
+            "GMD-LOCAL-COMMIT-NO-CLOSURE",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, self.contract)
+        self.assertIn("delivery pending", self.end)
+
     def test_pressure_scenarios_cover_required_boundaries(self) -> None:
         for scenario in (
             "GMD-MILESTONE-COMMIT",
@@ -91,6 +103,8 @@ class GitMilestoneDeliveryContractTests(unittest.TestCase):
             "GMD-UNRELATED-DIRTY",
             "GMD-PUSH-FAILURE",
             "GMD-NON-GIT",
+            "GMD-MUTATED-DOC-NO-LOCAL-CLOSURE",
+            "GMD-LOCAL-COMMIT-NO-CLOSURE",
             "MAP-MILESTONE-COMMIT",
             "MAP-FINAL-DELIVERY",
         ):

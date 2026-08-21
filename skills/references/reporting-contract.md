@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.8.0"
+artifact_version: "2.9.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-21"
@@ -50,6 +50,7 @@ evidence:
   - "Operator decision 2026-08-18: report cards summarize already-required work and must never create extra checks, research, documentation, or content merely to fill a block."
   - "Operator decision 2026-08-21: substantive code chantiers expose one compact implementation-guardrail receipt after pre-write classification."
   - "Operator decision 2026-08-16: every closure exposes a separate editorial reflection without creating ceremonial public content."
+  - "Operator correction 2026-08-21: every final user report exposes a SUITE block, even when the truthful outcome is that no operator action is required."
   - "Operator decision 2026-08-16: completed chantiers may offer guided Approfondir and Réorienter follow-up without reopening delivery or authorizing mutation."
 next_review: "2026-11-12"
 next_step: none
@@ -142,13 +143,17 @@ For every successful closure report, render this stable card after the header. K
 ✅ Commit local : `<sha>` · ➖ Push : non effectué
 ```
 
-Translate the five labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` and `🧭 SUITE` are conditional and must be omitted when empty. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`.
+Translate the five labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
+
+## Mandatory Next Block
+
+Every final user report contains a `🧭 SUITE` block. State the next outcome when work continues, the missing action or proof when delivery is partial, the operator decision when one is genuinely required, or explicitly state that no operator action is required after terminal completion. Keep it useful and concise, but never omit the block. When numbered choices follow, the block introduces the decision they resolve.
 
 The documentation line uses exactly one of: `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit the documentation block unless its status materially affects trust.
 
 The editorial line independently uses the same three status values. A material editorial `needs review` result forbids closure or shipping language. `No declared public surface` is a valid concrete `not impacted` reason; never create filler content to avoid that result.
 
-After the stable closure card, a completed chantier may offer this compact continuation block only when the delivered result has a useful decision surface:
+After the mandatory `🧭 SUITE`, a completed chantier may additionally offer this compact continuation choice block only when the delivered result has a useful decision surface:
 
 ```text
 1. 🔎 Approfondir — examiner davantage les opportunités, risques, hypothèses ou enseignements du résultat.

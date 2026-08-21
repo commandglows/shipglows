@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
@@ -27,6 +27,7 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-21: every validated milestone is committed and every completed chantier is committed and pushed to prevent local work loss."
   - "Operator clarification 2026-08-21: every validated milestone is also pushed so development work is never protected only by the local machine."
+  - "Operator defect correction 2026-08-21: documentation changes reported as locally ready without commit or push cannot be closed."
 next_review: "2026-11-21"
 next_step: /103-sg-verify git-milestone-delivery-contract
 ---
@@ -73,6 +74,8 @@ After verification and closure bookkeeping:
 
 An ordinary final push is mandatory for clean closure. Explicit operator `no push` or `local only` changes the result to delivery-pending/local-only rather than standard closed. Non-Git or genuinely read-only work reports Git delivery as not applicable.
 
+Every intentional mutation, including documentation-only work, follows the same closure invariant. A report containing `Aucun commit ni push` or `modifications locales prêtes` cannot use a completed, corrected, delivered, resolved, or closed verdict when tracked or untracked chantier-owned changes exist. Classify it as `delivery pending`; the mandatory next block names exact-scope commit and push. `Aucun commit ni push` is valid only for genuinely read-only, non-mutating, or non-Git work. A local commit absent from the resolved upstream is also `delivery pending`.
+
 ## Stop And Recovery
 
 Stop before commit for ambiguous scope, unrelated staged paths, suspected secrets, failed required proof, protected-surface failure, or an ambiguous repository/branch. Preserve all work unstaged or locally committed as appropriate.
@@ -89,3 +92,5 @@ On missing remote, authentication failure, rejection, network failure, branch pr
 - `GMD-UNRELATED-DIRTY`: exact-scope staging preserves unrelated and pre-existing dirty paths.
 - `GMD-PUSH-FAILURE`: local commits survive push failure and the chantier remains delivery pending.
 - `GMD-NON-GIT`: read-only and non-Git work never invent commits or pushes.
+- `GMD-MUTATED-DOC-NO-LOCAL-CLOSURE`: changed documentation plus `Aucun commit ni push · modifications locales prêtes` cannot produce a completed verdict.
+- `GMD-LOCAL-COMMIT-NO-CLOSURE`: a chantier-owned commit absent from the resolved upstream remains `delivery pending`.

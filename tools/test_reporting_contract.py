@@ -142,10 +142,24 @@ class ReportingContractTests(unittest.TestCase):
             "content beneath `📖 DOCUMENTATION` on exactly one line",
             "content beneath `✏️ ÉDITORIAL` on exactly one line",
             "separate proof items with ` · `",
-            "`⚠️ LIMITES` and `🧭 SUITE` are conditional",
+            "`⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory",
         ):
             self.assertIn(rule, core)
         self.assertIn("SSRP-019 visual closure card", scenarios)
+
+    def test_every_final_user_report_has_a_useful_next_block(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        for marker in (
+            "Every final user report contains a `🧭 SUITE` block",
+            "next outcome",
+            "missing action or proof",
+            "no operator action is required",
+            "never omit the block",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, core)
+        self.assertIn("SSRP-024 mandatory next block", scenarios)
 
     def test_approved_substantive_chantier_uses_visual_start_card(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
