@@ -180,6 +180,20 @@ class ContextQualityContractTests(unittest.TestCase):
         self.assertIn(path, text(CONTRACT))
         self.assertIn(path, text(HANDOFF))
 
+    def test_context_health_check_is_proportional_and_signal_driven(self) -> None:
+        doctrine = text(CONTINUITY)
+        for marker in (
+            "lightweight transition check",
+            "no full conversation reread",
+            "signal-driven refresh",
+            "only the affected sources",
+            "end of a chantier",
+            "major subject change",
+            "compaction",
+        ):
+            self.assertIn(marker, doctrine)
+        self.assertIn("does not trigger a handoff", doctrine)
+
 
 if __name__ == "__main__":
     unittest.main()

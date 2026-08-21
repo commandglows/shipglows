@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.13.0"
+artifact_version: "2.14.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-21"
@@ -33,7 +33,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "2.1.0"
+    artifact_version: "2.2.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.3.0"
@@ -58,6 +58,7 @@ evidence:
   - "Operator decision 2026-08-16: completed chantiers may offer guided Approfondir and Réorienter follow-up without reopening delivery or authorizing mutation."
   - "Operator approval 2026-08-21: restart recommendations follow context quality rather than length, stabilize durable state first, and remain operator-started."
   - "Operator correction 2026-08-21: an independent outcome alone never triggers restart; user-facing language calls the restart prompt a handoff."
+  - "Operator approval 2026-08-22: context health checks are lightweight at transitions and targeted only after a material degradation signal."
 next_review: "2026-11-12"
 next_step: none
 ---

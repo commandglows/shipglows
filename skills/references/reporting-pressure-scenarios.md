@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.2.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-08-21"
@@ -29,6 +29,7 @@ evidence:
   - "Operator decision 2026-08-16: a useful completed result may offer guided deepening or reorientation without reopening delivery."
   - "Operator approval 2026-08-21: conversation restart recommendations are quality-based, stabilized, resumable, and operator-started."
   - "Operator correction 2026-08-21: a new objective alone does not trigger restart; useful context must be materially unreliable."
+  - "Operator approval 2026-08-22: context checking must be proportional, transition-light, and signal-driven."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -72,3 +73,4 @@ next_step: none
 - `SSRP-030 restart capability truth`: Codex never claims it can restart, reset, close, or replace its active conversation; only the operator starts a new one.
 - `SSRP-031 no superficial restart`: message count, elapsed time, conversation length, compaction, and an independent outcome alone never justify restart while useful context remains reliable.
 - `SSRP-032 stabilized resumable restart`: a quality-based restart recommendation follows durable-state and Git stabilization, reports any incomplete state honestly, and includes one redacted self-contained copyable prompt for a fresh agent.
+- `SSRP-033 proportional context cost`: chantier end, compaction, or major subject change receives only a lightweight state check; no full conversation reread occurs by default, and a targeted refresh reads only affected sources after a concrete degradation signal.
