@@ -5,7 +5,7 @@ artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
-status: ready
+status: reviewed
 source_skill: 900-shipglows-core
 scope: lightweight-git-persistence-preflight
 owner: Diane
@@ -29,14 +29,14 @@ supersedes: []
 evidence:
   - "Operator approval 2026-08-21: add lightweight Git safeguards without making the workflow heavy."
   - "Operator decision 2026-08-21: healthy state stays silent; checks run at mutating start, interrupted resume, before sensitive operations, and closure."
-next_step: /103-sg-verify lightweight-git-persistence-preflight
+next_step: none
 ---
 
 # Lightweight Git Persistence Preflight
 
 ## Status
 
-ready
+complete
 
 ## Acceptance Criteria
 
@@ -61,14 +61,14 @@ ready
 
 ## Implementation Tasks
 
-- [ ] Add the shared lightweight persistence preflight.
-- [ ] Integrate start, resume, sensitive-operation, closure, and reporting boundaries.
-- [ ] Add focused pressure tests and canonical documentation.
-- [ ] Commit and push each validated milestone and final record.
+- [x] Add the shared lightweight persistence preflight.
+- [x] Integrate start, resume, sensitive-operation, closure, and reporting boundaries.
+- [x] Add focused pressure tests and canonical documentation.
+- [x] Commit and push each validated milestone and final record.
 
 ## Current Chantier Flow
 
-`900-shipglows-core ✅ -> 100-sg-spec ✅ -> 101-sg-ready ✅ -> 102-sg-start -> milestone commit/push -> 103-sg-verify -> 104-sg-end -> final commit/push`
+`900-shipglows-core ✅ -> 100-sg-spec ✅ -> 101-sg-ready ✅ -> 102-sg-start ✅ -> milestone commit/push ✅ -> 103-sg-verify ✅ -> 104-sg-end ✅ -> final commit/push ✅`
 
 ## Skill Run History
 
@@ -77,3 +77,6 @@ ready
 | 2026-08-21 | 900-shipglows-core | approved | Operator approved lightweight persistence safeguards with a strict no-workflow-bloat condition. | 102-sg-start |
 | 2026-08-21 | 100-sg-spec | ready | Boundaries, silent healthy behavior, state separation, recovery, and failure scenarios are explicit. | 101-sg-ready |
 | 2026-08-21 | 101-sg-ready | ready | Existing lifecycle boundaries support one shared read-only preflight without a new manual phase. | 102-sg-start |
+| 2026-08-21 | 102-sg-start | milestones pushed | Shared preflight, start/resume/closure/sensitive boundaries, reporting states, and bug-fix coverage implemented in commits `0a1bc4e` and `f766a82`, both present upstream. | 103-sg-verify |
+| 2026-08-21 | 103-sg-verify | verified | 56 focused lifecycle, reporting, Git delivery, start, closure, and bug-fix tests pass; five metadata artifacts, all skill budgets, and diff whitespace pass. | 104-sg-end |
+| 2026-08-21 | 104-sg-end | complete | Healthy state stays silent, unrelated dirty work remains excluded, and local/backed-up/deployed evidence is distinct. No installation, provider mutation, build, or artifact was introduced. | final commit/push |
