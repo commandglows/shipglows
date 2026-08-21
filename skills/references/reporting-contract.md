@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.12.0"
+artifact_version: "2.13.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-21"
@@ -33,7 +33,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "2.0.0"
+    artifact_version: "2.1.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.3.0"
@@ -57,6 +57,7 @@ evidence:
   - "Operator decision 2026-08-21: persistence reporting distinguishes local, remote backup, and deployment without adding a block when healthy delivery evidence is already clear."
   - "Operator decision 2026-08-16: completed chantiers may offer guided Approfondir and Réorienter follow-up without reopening delivery or authorizing mutation."
   - "Operator approval 2026-08-21: restart recommendations follow context quality rather than length, stabilize durable state first, and remain operator-started."
+  - "Operator correction 2026-08-21: an independent outcome alone never triggers restart; user-facing language calls the restart prompt a handoff."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -156,7 +157,7 @@ Every final user report contains a `🧭 SUITE` block. It names one concrete evi
 
 If an in-scope continuation is already authorized and safely agent-runnable, continue it before final reporting. When selection reaches a new or materially expanded chantier, state the next outcome and preserve its normal approval boundary; selection itself never authorizes mutation.
 
-When context reliability or a new independent outcome makes a fresh conversation preferable, load `conversation-continuity-contract.md`. Stabilize and deliver the current work before recommending restart, then state that only the operator can open the new conversation and provide the required copyable prompt. Length and compaction alone never justify this recommendation.
+When useful context has become insufficiently reliable, load `conversation-continuity-contract.md`. Stabilize and deliver the current work before recommending restart, then state that only the operator can open the new conversation and provide the required handoff. Length, compaction, or an independent outcome alone never justifies this recommendation.
 
 ## Persistence Evidence
 

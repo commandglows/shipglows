@@ -140,7 +140,6 @@ class ContextQualityContractTests(unittest.TestCase):
     def test_restart_signals_are_quality_and_outcome_based(self) -> None:
         doctrine = text(CONTINUITY)
         for marker in (
-            "independent outcome",
             "mixed targets",
             "contradictory decisions",
             "repeated reconstruction",
@@ -148,6 +147,10 @@ class ContextQualityContractTests(unittest.TestCase):
             "repository confusion",
         ):
             self.assertIn(marker, doctrine)
+        self.assertIn("independent outcome alone", doctrine)
+        self.assertIn("never sufficient", doctrine)
+        self.assertIn("useful context", doctrine)
+        self.assertIn("insufficiently reliable", doctrine)
 
     def test_restart_is_user_started_after_stabilization(self) -> None:
         doctrine = text(CONTINUITY)

@@ -198,6 +198,8 @@ class ReportingContractTests(unittest.TestCase):
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8").casefold()
         self.assertIn("conversation-continuity-contract.md", reporting)
         self.assertIn("only the operator", reporting)
+        self.assertIn("independent outcome alone", reporting)
+        self.assertIn("handoff", reporting)
         for marker in ("ssrp-030", "ssrp-031", "ssrp-032"):
             self.assertIn(marker, scenarios)
 

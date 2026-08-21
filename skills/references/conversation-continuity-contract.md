@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
@@ -31,6 +31,7 @@ evidence:
   - "Operator decision 2026-08-21: conversation boundaries follow outcome coherence and context reliability, not an arbitrary message count."
   - "Operator clarification 2026-08-21: Codex cannot restart its active conversation; only the operator can start a fresh one."
   - "Operator approval 2026-08-21: a restart recommendation follows stabilization and includes a self-contained copyable prompt."
+  - "Operator correction 2026-08-21: useful context becoming insufficiently reliable is the trigger; an independent outcome alone is never sufficient."
 next_review: "2026-11-21"
 next_step: Review this contract against observed restart handoffs after three uses.
 ---
@@ -39,21 +40,22 @@ next_step: Review this contract against observed restart handoffs after three us
 
 ## Purpose
 
-Keep one principal outcome coherent for as long as the current conversation remains a reliable workspace, then provide a safe operator-started handoff when a fresh conversation will improve reliability. Conversation length alone, elapsed time, message count, or compaction never forces a restart.
+Keep the useful context available for as long as the current conversation remains a reliable workspace, then provide a safe operator-started handoff only when that useful context has become insufficiently reliable. Conversation length alone, elapsed time, message count, compaction, or an independent outcome alone is never sufficient to force or recommend a restart.
 
 ## Continue Or Recommend Restart
 
 Continue the current conversation when its principal outcome, target, accepted decisions, repository, authority, and proof path remain coherent. Compaction is a context-management mechanism, not evidence that the conversation has failed.
 
-Recommend a new conversation when at least one material signal is evidence-backed:
+Recommend a new conversation only when the useful context is insufficiently reliable for safe continuation and at least one material degradation signal is evidence-backed:
 
-- a new independent outcome has become primary and no unfinished work from the current outcome should be mixed into it;
 - mixed targets or mixed products make ownership unreliable;
 - contradictory decisions cannot be safely reconciled inside the active context;
 - repeated reconstruction is needed to recover already-established scope or decisions;
 - a stale source is repeatedly treated as current despite revalidation;
 - repository confusion, branch confusion, or cross-project leakage creates a material risk;
 - the agent repeats resolved questions, loses constraints, or cannot produce a trustworthy `Context Capsule` from governed sources.
+
+A new independent outcome, repository, product, or subject may motivate a bounded context check, but it never justifies a new-conversation recommendation on its own. Continue in the current conversation whenever the useful prior context remains reliable and does not contaminate the new work.
 
 Before recommending restart, attempt one bounded context refresh from canonical sources. If that restores a reliable capsule without material conflict, continue instead. Do not use restart as a shortcut around ordinary verification, documentation, delivery, or a difficult unresolved task.
 
@@ -69,9 +71,9 @@ Codex cannot restart, close, reset, or replace its own active conversation. Only
 
 The recommendation is advisory and grants no authority for a new chantier, external write, destructive action, or scope expansion.
 
-## Copyable Restart Prompt
+## Handoff
 
-Produce one concise, self-contained copyable restart prompt in the operator's active language. A fresh capable agent must be able to begin without reading the old transcript. Include:
+Produce one concise, self-contained copyable restart prompt in the operator's active language. Call it a `handoff` in user-facing explanations: a complete passage-of-relay message without sensitive data. A fresh capable agent must be able to begin without reading the old transcript. Include:
 
 - exact `target` and current work item;
 - the accepted outcome and relevant scope boundaries;
@@ -91,7 +93,7 @@ State plainly that the operator must open a new conversation. Then provide the p
 ## Pressure Scenarios
 
 - `CCR-001 LENGTH-ONLY`: long and coherent continues, even after compaction.
-- `CCR-002 DELIVERED-BOUNDARY`: a delivered outcome followed by an independent outcome receives a fresh-conversation recommendation.
+- `CCR-002 INDEPENDENT-OUTCOME`: a new independent outcome alone is never sufficient; continue when useful context remains reliable.
 - `CCR-003 CONTEXT-DRIFT`: mixed targets, contradiction, reconstruction, stale truth, or repository confusion triggers refresh then handoff if unresolved.
 - `CCR-004 UNSAFE-ABANDONMENT`: unsecured mutations or missing durable state block clean-handoff language.
 - `CCR-005 CAPABILITY-TRUTH`: only the operator starts the new conversation; Codex never claims self-restart.

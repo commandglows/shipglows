@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
@@ -27,13 +27,14 @@ depends_on:
     artifact_version: "1.1.0"
     required_status: active
   - artifact: skills/references/reporting-contract.md
-    artifact_version: "2.12.0"
+    artifact_version: "2.13.0"
     required_status: active
 supersedes: []
 evidence:
   - "Operator decision 2026-08-21: one conversation should retain one principal outcome and should end when that outcome is delivered or an independent outcome takes priority."
   - "Operator clarification 2026-08-21: Codex cannot restart its own active conversation; it must recommend a user-started new conversation truthfully."
   - "Operator approval 2026-08-21: before recommending restart, secure authorized work, persist durable state, and generate a self-contained continuation prompt."
+  - "Operator correction 2026-08-21: useful context degradation is the primary trigger; an independent outcome alone must never cause a restart recommendation."
 next_step: Review and merge ShipGlows PR 24, then complete the authenticated visual review of site PR 13.
 ---
 
@@ -47,7 +48,8 @@ complete — restart recommendations are now quality-based, stabilized, truthful
 
 - Conversation length alone never forces a restart; quality signals and outcome boundaries control the recommendation.
 - Continue while one principal outcome remains coherent and the active context is reliable enough to finish it safely.
-- Recommend a new conversation when an independent outcome becomes primary or context reliability materially degrades through mixed targets, contradictory decisions, repeated reconstruction, stale source use, or repository confusion.
+- Recommend a new conversation only when useful context becomes insufficiently reliable through mixed targets, contradictory decisions, repeated reconstruction, stale source use, repository confusion, or equivalent material drift.
+- A new independent outcome, repository, product, or subject may trigger a context check but is never sufficient by itself to recommend a new conversation.
 - Codex never claims it can close, restart, reset, or replace its own active conversation.
 - Before recommending restart, finish safe authorized work when possible; otherwise record the exact incomplete state, blockers, decisions, proofs, and next outcome in governed sources.
 - Any intentional Git mutation is committed and pushed under the existing delivery contract before a clean handoff claim.
@@ -58,7 +60,7 @@ complete — restart recommendations are now quality-based, stabilized, truthful
 ## Pressure Scenarios
 
 - `CCR-001 length-only`: a long but coherent, correctly grounded chantier continues; no restart is recommended merely because compaction occurred.
-- `CCR-002 delivered-boundary`: a fully delivered principal outcome plus a new independent goal triggers a clean new-conversation recommendation.
+- `CCR-002 independent-outcome`: a new independent goal alone does not trigger a new-conversation recommendation while useful context remains reliable.
 - `CCR-003 context-drift`: mixed repositories, contradictory decisions, repeated already-answered questions, or stale-source reliance triggers stabilization and restart handoff.
 - `CCR-004 unsafe-abandonment`: uncommitted or undocumented authorized work forbids a clean restart recommendation until secured or explicitly reported incomplete.
 - `CCR-005 capability-truth`: Codex says the operator must open the new conversation and never claims self-restart capability.
@@ -89,3 +91,4 @@ complete — restart recommendations are now quality-based, stabilized, truthful
 | 2026-08-21 | 102-sg-start | milestone pushed | The shared continuity rule, stabilization gate, truthful capability boundary, redacted restart prompt, reporting integration, and scenarios shipped in commit `49ddc9f`. | 103-sg-verify |
 | 2026-08-21 | 103-sg-verify | verified | 43 focused scenarios pass; six governed artifacts pass metadata lint; governance topology and diff hygiene pass without a build. | 104-sg-end |
 | 2026-08-21 | 104-sg-end | complete | A long coherent conversation continues, material drift first receives a bounded refresh, and only the operator is instructed to start a fresh conversation after durable stabilization. | review and merge PR 24, then visually review site PR 13 |
+| 2026-08-21 | 900-shipglows-core | correction | The operator clarified that context degradation, not merely a new independent outcome, is the actual restart trigger; user-facing wording should say handoff. | update scenarios and shared doctrine |
