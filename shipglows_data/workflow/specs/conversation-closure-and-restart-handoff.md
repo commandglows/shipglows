@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
@@ -27,7 +27,7 @@ depends_on:
     artifact_version: "1.1.0"
     required_status: active
   - artifact: skills/references/reporting-contract.md
-    artifact_version: "2.13.0"
+    artifact_version: "2.14.0"
     required_status: active
 supersedes: []
 evidence:
@@ -35,6 +35,7 @@ evidence:
   - "Operator clarification 2026-08-21: Codex cannot restart its own active conversation; it must recommend a user-started new conversation truthfully."
   - "Operator approval 2026-08-21: before recommending restart, secure authorized work, persist durable state, and generate a self-contained continuation prompt."
   - "Operator correction 2026-08-21: useful context degradation is the primary trigger; an independent outcome alone must never cause a restart recommendation."
+  - "Operator approval 2026-08-22: use a cheap transition check and refresh only affected sources after a concrete drift signal."
 next_step: Review and merge ShipGlows PR 24, then complete the authenticated visual review of site PR 13.
 ---
 
@@ -55,6 +56,8 @@ complete — restart recommendations are now quality-based, stabilized, truthful
 - Any intentional Git mutation is committed and pushed under the existing delivery contract before a clean handoff claim.
 - The handoff contains one self-contained copyable restart prompt with target, accepted outcome, durable source pointers, last delivered commit when applicable, evidence state, unresolved work, constraints, and first verification action.
 - Secrets, private payloads, transient reasoning, and unnecessary conversation transcript content never enter the restart prompt.
+- End-of-chantier, compaction, and major-topic transitions use a lightweight check of carried state only; they never cause a full transcript or repository reread by default.
+- A deeper refresh requires a concrete degradation signal and reads only the affected canonical sources before deciding whether a handoff is warranted.
 - The recommendation remains advisory: only the operator starts the new conversation.
 
 ## Pressure Scenarios
@@ -67,6 +70,7 @@ complete — restart recommendations are now quality-based, stabilized, truthful
 - `CCR-006 resumable-prompt`: a fresh agent can identify the target, outcome, source of truth, last delivery, constraints, remaining work, and first check without reading the old transcript.
 - `CCR-007 redaction`: restart prompts exclude secrets, cookies, tokens, private logs, raw payloads, and hidden reasoning.
 - `CCR-008 operator-control`: recommending a restart does not open, close, or mutate another conversation and does not authorize a new chantier.
+- `CCR-009 proportional-check`: transitions receive a cheap carried-state check; only an evidenced drift signal permits a targeted affected-source refresh.
 
 ## Implementation Tasks
 
@@ -93,3 +97,4 @@ complete — restart recommendations are now quality-based, stabilized, truthful
 | 2026-08-21 | 104-sg-end | complete | A long coherent conversation continues, material drift first receives a bounded refresh, and only the operator is instructed to start a fresh conversation after durable stabilization. | review and merge PR 24, then visually review site PR 13 |
 | 2026-08-21 | 900-shipglows-core | correction | The operator clarified that context degradation, not merely a new independent outcome, is the actual restart trigger; user-facing wording should say handoff. | update scenarios and shared doctrine |
 | 2026-08-21 | 103-sg-verify | corrected | Commit `e11e4f1` makes useful-context degradation mandatory, makes an independent outcome alone explicitly insufficient, and uses handoff in user-facing guidance; 43 focused scenarios, metadata, topology, and diff hygiene pass. | close and push the corrected durable record |
+| 2026-08-22 | 900-shipglows-core | approved | The operator approved a proportional cost rule: lightweight transition checks, targeted refresh on signal, and no default full-history reread. | implement and verify the focused scenario |

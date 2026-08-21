@@ -202,6 +202,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertIn("handoff", reporting)
         for marker in ("ssrp-030", "ssrp-031", "ssrp-032"):
             self.assertIn(marker, scenarios)
+        self.assertIn("ssrp-033", scenarios)
 
     def test_approved_substantive_chantier_uses_visual_start_card(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")

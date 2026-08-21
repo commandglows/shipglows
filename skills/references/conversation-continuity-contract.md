@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
@@ -32,6 +32,7 @@ evidence:
   - "Operator clarification 2026-08-21: Codex cannot restart its active conversation; only the operator can start a fresh one."
   - "Operator approval 2026-08-21: a restart recommendation follows stabilization and includes a self-contained copyable prompt."
   - "Operator correction 2026-08-21: useful context becoming insufficiently reliable is the trigger; an independent outcome alone is never sufficient."
+  - "Operator approval 2026-08-22: context health checks stay lightweight at transitions and refresh only affected sources when a degradation signal exists."
 next_review: "2026-11-21"
 next_step: Review this contract against observed restart handoffs after three uses.
 ---
@@ -58,6 +59,14 @@ Recommend a new conversation only when the useful context is insufficiently reli
 A new independent outcome, repository, product, or subject may motivate a bounded context check, but it never justifies a new-conversation recommendation on its own. Continue in the current conversation whenever the useful prior context remains reliable and does not contaminate the new work.
 
 Before recommending restart, attempt one bounded context refresh from canonical sources. If that restores a reliable capsule without material conflict, continue instead. Do not use restart as a shortcut around ordinary verification, documentation, delivery, or a difficult unresolved task.
+
+## Proportional Context Check
+
+Use a lightweight transition check at the end of a chantier, after compaction, or on a major subject change. Inspect only already-carried state: current outcome, target, durable owner, repository, accepted decisions, and next action. This check is silent, requires no full conversation reread, and does not trigger a handoff by itself.
+
+Run a signal-driven refresh only when the lightweight check or current behavior exposes a material degradation signal. Re-read only the affected sources needed to resolve that signal, such as the owning spec, relevant tracker record, current Git state, or one conflicting decision. Never reload the whole repository or reconstruct the full transcript by default.
+
+If the targeted refresh restores reliable useful context, continue. Recommend a handoff only when the material reliability problem remains after that bounded refresh.
 
 ## Stabilization Gate
 
@@ -100,3 +109,4 @@ State plainly that the operator must open a new conversation. Then provide the p
 - `CCR-006 RESUMABLE-PROMPT`: a fresh agent can act from the prompt and governed sources alone.
 - `CCR-007 REDACTION`: sensitive or hidden context never enters the prompt.
 - `CCR-008 OPERATOR-CONTROL`: recommendation creates no new authority or external side effect.
+- `CCR-009 PROPORTIONAL-CHECK`: transitions receive a lightweight state check; only a concrete degradation signal permits an affected-source refresh, never a default full-history reread.
