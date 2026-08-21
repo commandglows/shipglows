@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-06-28"
+updated: "2026-08-21"
 status: reviewed
 source_skill: sg-start
 scope: blog-and-article-surface-policy
@@ -32,6 +32,7 @@ supersedes: []
 evidence:
   - "Current site/src/pages inventory includes `/blog` and `/fr/blog` routes."
   - "site/src/content.config.ts declares an `articles` collection."
+  - "Operator correction 2026-08-21: every new or materially updated ShipGlows article must include its EN/FR translation."
 next_review: "2026-06-01"
 next_step: "/sg-verify ShipGlows Editorial Content Governance Layer for AI Agents"
 ---
@@ -54,6 +55,8 @@ ShipGlows also keeps declared standalone editorial article routes under `site/sr
 - localized peers under `site/src/pages/fr/`
 
 Agents may add new indexed articles through the declared `articles` collection when the topic fits the blog surface, or update standalone editorial pages when the topic clearly matches their narrower route intent and source-of-truth constraints.
+
+Every new or materially updated indexed article requires a paired English and French article in the same workstream. Both peers share one `articleKey`, use their own locale-native `slug`, map each other through `alternateSlug`, keep publication state and material claims aligned, and receive substantive source-faithful translation rather than placeholder or literal copy. Missing or stale EN/FR parity blocks readiness, closure, and delivery; the absence of a peer is never evidence that the article is intentionally monolingual.
 
 Agents must still not invent parallel article content under undeclared paths such as `posts/`, ad hoc `site/src/content/blog/`, or a second article system outside the declared collection and routes.
 

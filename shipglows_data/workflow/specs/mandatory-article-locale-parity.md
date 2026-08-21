@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
-status: ready
+status: reviewed
 source_skill: shipglows-core
 scope: mandatory-article-locale-parity
 owner: Diane
@@ -20,7 +20,9 @@ linked_systems:
   - skills/007-sg-content/references/content-delivery-and-proof.md
   - skills/200-sg-redact/SKILL.md
   - shipglows_data/editorial/blog-and-article-surface-policy.md
+  - tools/article_locale_parity_lint.py
   - tools/test_007_sg_content_compaction_contract.py
+  - tools/test_article_locale_parity_lint.py
 depends_on:
   - artifact: skills/references/editorial-content-corpus.md
     artifact_version: "1.4.0"
@@ -28,14 +30,14 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator correction 2026-08-21: article creation must automatically include every declared translation because agents sometimes omit translation entirely."
-next_step: Implement the scenario-first article locale parity contract and focused proof.
+next_step: Review the updated ShipGlows PR 24; apply the scoped validator whenever an article is created or materially updated.
 ---
 
 # Mandatory Article Locale Parity
 
 ## Status
 
-ready
+reviewed
 
 ## Outcome Contract
 
@@ -60,19 +62,20 @@ A clean readiness, completion, closure, or delivery verdict is forbidden while a
 
 ## Acceptance Criteria
 
-- [ ] The content owner resolves declared article locales before drafting and owns peer creation/update automatically.
-- [ ] The drafting owner exposes the locale-parity invariant in its activation contract.
-- [ ] Content validation treats missing, stale, or structurally mismatched peers as a blocking failure.
-- [ ] ShipGlows public article policy explicitly requires paired FR/EN articles.
-- [ ] Focused contract tests prove all four pressure scenarios remain followable.
-- [ ] Exact-scope commits and pushes preserve unrelated dirty files.
+- [x] The content owner resolves declared article locales before drafting and owns peer creation/update automatically.
+- [x] The drafting owner exposes the locale-parity invariant in its activation contract.
+- [x] Content validation treats missing, stale, or structurally mismatched peers as a blocking failure.
+- [x] ShipGlows public article policy explicitly requires paired FR/EN articles.
+- [x] Focused contract tests prove all four pressure scenarios remain followable.
+- [x] Exact-scope commits and pushes preserve unrelated dirty files.
 
 ## Current Chantier Flow
 
-`operator correction ✅ -> spec/ready ✅ -> scenario-first contract -> focused proof -> documentation sync -> commit/push`
+`operator correction ✅ -> spec/ready ✅ -> scenario-first contract ✅ -> focused proof ✅ -> documentation sync ✅ -> commit/push pending`
 
 ## Skill Run History
 
 | Date | Skill | Result | Evidence | Next step |
 | --- | --- | --- | --- | --- |
 | 2026-08-21 | shipglows-core | ready | Operator approved mandatory translation enforcement for every article on multilingual surfaces. | implement pressure-scenario contract |
+| 2026-08-21 | shipglows-core | reviewed | Content and drafting contracts now own every declared locale; the deterministic linter blocks missing peers, one-sided updates, asymmetric alternate slugs, and publication-state drift while preserving explicit monolingual surfaces. Focused tests pass 10/10 and the real Git/GitHub EN/FR pair passes. | exact-scope commit and push |
