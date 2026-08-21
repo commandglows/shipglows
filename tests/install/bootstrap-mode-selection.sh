@@ -220,6 +220,7 @@ run_case "$plugin_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_
 if [ "$CASE_STATUS" -eq 0 ]; then pass "Codex plugin guidance succeeds"; else fail "Codex plugin guidance succeeds"; fi
 assert_contains "$CASE_OUTPUT" "plugin Codex" "Codex plugin surface explains its mode"
 assert_contains "$CASE_OUTPUT" "commandglows/shipglows" "Codex plugin guidance uses the public repository"
+assert_contains "$CASE_OUTPUT" "codex plugin add shipglows@shipglows" "Codex plugin guidance includes the direct install command"
 assert_not_contains "$plugin_fixture/git-calls" "git:" "Codex plugin surface does not clone the repository"
 
 invalid_surface_fixture="$(make_fixture invalid-surface)"
