@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-08-13"
+updated: "2026-08-21"
 status: active
 source_skill: 900-shipglows-core
 scope: design-system-token-contract
@@ -32,6 +32,8 @@ evidence:
   - "User directive 2026-06-11: agents must not customize application design outside the centralized design-system tokens for spacing, typography, colors, shadows, and related visual decisions."
   - "Current platform standards favor centralized tokens and themes: Material Design 3 design tokens, Flutter ThemeData, Tailwind v4 CSS theme variables, WCAG 2.2 target size, and adaptive mobile layout guidance."
   - "Operator directive 2026-08-13: public sites should reach award-caliber craft while every interface remains coherent, accessible, performant, and production-ready."
+  - "Operator directive 2026-08-21: essential homepage content must remain visible when JavaScript or animation fails."
+  - "Operator directive 2026-08-21: prefer semantic HTML and native CSS for presentation, and require a concrete functional reason before adding JavaScript."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify design-system-token-contract"
 ---
@@ -71,6 +73,31 @@ Public brand and marketing surfaces use a SOTD/Awwwards-level benchmark for craf
 For operational and government-service interfaces, remain clarity-first: information architecture, task completion, error prevention, accessibility, trust, and speed outrank spectacle. They still require deliberate hierarchy, excellent typography, coherent density, polished states, and a distinctive but restrained system; clarity-first never means generic or amateur.
 
 Visual ambition must not weaken accessibility, readability, conversion, performance, maintainability, semantic structure, progressive enhancement, or reduced motion. Motion and decoration earn their cost through comprehension, narrative, feedback, or brand value. Prove the result across representative widths and states with rendered evidence; source correctness alone cannot establish award-caliber craft.
+
+## Content Availability And Progressive Enhancement Gate
+
+Essential content and primary actions must be present, readable, and usable in
+the initial semantic document. JavaScript, observers, hydration, transitions,
+and animation engines may enhance their presentation, but must never be the
+only mechanism that reveals or unlocks them.
+
+Use semantic HTML and native CSS by default for content structure, layout,
+responsive adaptation, visual states, themes, transitions, and decorative
+motion. Add JavaScript only when the required outcome genuinely depends on
+application state, data, complex interaction, coordination, or runtime
+measurement that HTML and CSS cannot express robustly. Framework convenience,
+visual novelty, or an animation library's availability is not sufficient
+justification.
+
+When JavaScript is justified, keep the semantic HTML/CSS baseline independently
+usable, minimize the client-owned behavior, and document the functional reason
+in the implementation contract or review evidence.
+
+For public and product-critical pages, fail the design preflight when content
+starts hidden and depends on successful client initialization without a proven
+fallback. Proof must cover disabled or failed JavaScript/animation
+initialization where applicable, plus `prefers-reduced-motion`; a build or
+source-only review is insufficient for a visibility claim.
 
 ## Canonical Sources
 
