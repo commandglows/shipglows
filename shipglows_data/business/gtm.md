@@ -1,7 +1,7 @@
 ---
 artifact: gtm_context
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: "ShipGlows"
 created: "2026-04-26"
 updated: "2026-08-14"
@@ -21,6 +21,7 @@ evidence:
   - "Current repo demonstrates the mechanics of the framework but not yet validated acquisition or conversion data"
   - "Operator confirmed decision SG-BIZ-2026-08-13-01: partnership and verified outcomes lead the offer; server delivery is supporting proof"
   - "Operator confirmed decision SG-BIZ-2026-08-14-01: ShipGlows has no service offer; partnership is product behavior, and Cockpit SaaS remains a deferred possibility rather than a current commercial promise"
+  - "Operator decision 2026-08-21: Git/GitHub persistence and recovery should be presented as a major trust proof for solo founders, subordinate to the business-aware delivery promise."
 linked_artifacts:
   - "shipglows_data/business/business.md"
   - "shipglows_data/branding/branding.md"
@@ -53,6 +54,7 @@ next_step: "Measure product-led discovery and adoption without service CTAs or p
 - The offer is strongest when framed around better judgment, reduced ambiguity, continuity, and verified outcomes, not raw coding speed.
 - The first public story should stay simple: ShipGlows helps solo founders turn their business intent into shipped, verified product outcomes with agents.
 - Environment and server operations demonstrate that the partnership reaches delivery; they should not lead the category story.
+- Git-backed milestone persistence, interruption recovery, and explicit local/backed-up/deployed states are high-impact trust proof that the partnership protects real work beyond file generation.
 - Small teams should still be able to recognize themselves in the product, but as a secondary audience rather than the lead headline.
 - The partnership is delivered by ShipGlows itself. There is no consulting, diagnostic, implementation-mission, or human-accompaniment offer behind the message.
 - Cockpit may become the future SaaS vehicle, but it does not exist today and must not appear as an available product, price, waitlist promise, or current conversion destination.
@@ -91,6 +93,7 @@ next_step: "Measure product-led discovery and adoption without service CTAs or p
 - Metadata-linted documentation contracts.
 - Audit and verification skills built into the same framework.
 - Real server operations tooling in the same operating model.
+- Exact-scope milestone commits and remote pushes, lightweight recovery preflight, and explicit separation between backup and deployment.
 - Product governance for declared products: inventory, sales surfaces, delivery paths, and claim coherence.
 - A shared business-context mesh and guided refresh loop that can improve governing truth before dependent work continues.
 

@@ -135,6 +135,26 @@ It connects governed project truth to one business-aware métier owner, then car
 - documentation and research workflows
 - product registry and claim-coherence checks for declared products, sales surfaces, and proof-backed public copy
 
+### Each milestone backed up. Every delivery traceable.
+
+ShipGlows treats Git persistence as part of delivery, not as cleanup left for
+the end. For approved technical chantiers, its governed workflow requires an
+exact-scope commit and remote push after each validated milestone and before a
+clean closure. A lightweight read-only preflight checks for work that still
+exists only on the current machine when a mutating chantier starts or resumes,
+before sensitive operations, and at closure. Healthy state stays silent.
+
+The evidence remains explicit:
+
+- `local`: changes or commits are not yet proven on the resolved upstream;
+- `backed up`: the relevant commit is proven reachable from that upstream;
+- `deployed`: matching hosting or provider evidence confirms the intended
+  commit on the named preview, staging, or production target.
+
+A push proves remote persistence, not deployment. ShipGlows does not guarantee
+GitHub availability, zero data loss, repository protection settings, or
+unattended production shipping.
+
 ## Core Docs
 
 - Note: the canonical governance corpus lives under `shipglows_data/`. Root-level docs outside `AGENT.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `CHANGELOG.md`, the ShipGlows-managed project runtime summary `ENVIRONMENT.md`, compatibility shell wrappers, and bootstrap entrypoints should be treated as migration debt or explicit compatibility facades, not as the durable source of truth.
