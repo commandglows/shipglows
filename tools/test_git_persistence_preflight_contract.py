@@ -15,6 +15,7 @@ class GitPersistencePreflightContractTests(unittest.TestCase):
         cls.preflight = PREFLIGHT.read_text(encoding="utf-8")
         cls.start = (ROOT / "skills/102-sg-start/SKILL.md").read_text(encoding="utf-8")
         cls.resume = (ROOT / "skills/706-continue/SKILL.md").read_text(encoding="utf-8")
+        cls.fix = (ROOT / "skills/106-sg-fix/SKILL.md").read_text(encoding="utf-8")
         cls.end = (ROOT / "skills/104-sg-end/SKILL.md").read_text(encoding="utf-8")
         cls.lifecycle = (
             ROOT / "skills/references/master-workflow-lifecycle.md"
@@ -71,6 +72,7 @@ class GitPersistencePreflightContractTests(unittest.TestCase):
         for name, corpus in (
             ("start", self.start),
             ("resume", self.resume),
+            ("fix", self.fix),
             ("end", self.end),
         ):
             with self.subTest(owner=name):

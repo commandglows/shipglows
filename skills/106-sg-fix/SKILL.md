@@ -40,7 +40,7 @@ Choose `regression-first`, `evidence-first`, or `exception-with-proof`. For non-
 ## Conditional Reference Map
 
 - For a `direct` classification, load `references/bug-fix-workflow.md` before bug-memory mutation or repair.
-- Before the first code write, load `implementation-excellence-preflight.md`; classify and emit `🛡️ GARDE-FOUS`; load applicable authorities, `task-application-loop.md`, and `clean-code-quality-contract.md`.
+- Before the first code write, load `implementation-excellence-preflight.md`, emit `🛡️ GARDE-FOUS`, then load `git-persistence-preflight.md`, `task-application-loop.md`, and `clean-code-quality-contract.md`.
 - Before selecting or claiming a retest surface, load `project-development-mode.md` and `references/bug-proof-and-reporting.md`.
 - Load `project-runtime-policy.md` for ShipGlows-managed PM2 startup failures or crash loops.
 - Load `design-system-token-contract.md` before UI, mobile, layout, token, theme, motion, keyboard/IME, overlay, responsive, or visual repair; changed UI files also require the design drift check.
