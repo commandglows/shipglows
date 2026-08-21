@@ -1,7 +1,7 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-08-21"
@@ -27,6 +27,7 @@ evidence:
   - "Operator decision 2026-08-16: task-scoped agent Git artifacts remain owned through a terminal cleanup disposition after integration."
   - "Operator correction 2026-08-17: quick daily shipping uses zero or one focused check when sufficient; broad suites are reserved for release, audit, migration, shared-runtime, or high-risk triggers."
   - "Operator decision 2026-08-21: checkpoint mode commits every coherent validated milestone, while final delivery pushes all owned commits before clean closure."
+  - "Operator clarification 2026-08-21: checkpoint mode also pushes every validated milestone so no accepted slice remains only on the local machine."
 next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
 ---
 
@@ -80,11 +81,11 @@ When changes create, rename, or materially update `skills/*/SKILL.md`, run the c
 
 If there is nothing to commit, do not manufacture a commit. Otherwise derive a concise message from explicit arguments or the bounded outcome, preserve repository commit conventions, and commit without interactive editors.
 
-For checkpoint mode, record the commit SHA and return to implementation without pushing. The chantier remains open.
+For checkpoint mode, push the current branch to its configured unambiguous upstream without force, record the commit SHA and push result, then return to implementation. The chantier remains open; the push proves persistence, not deployment or product behavior.
 
 ## Push And Failure Handling
 
-Quick and full modes push the current branch to its configured upstream. If no upstream exists and the branch/remote are unambiguous, establish it without force. Full closure requires every chantier-owned commit reachable from the pushed branch. Never force-push `main` or `master`.
+Checkpoint, quick, and full modes push the current branch to its configured upstream. If no upstream exists and the branch/remote are unambiguous, establish it without force. Full closure requires every chantier-owned commit reachable from the pushed branch. Never force-push `main` or `master`.
 
 On rejection or other push failure, stop and report the actual local commit, branch, upstream, dirty state, checks, and error. Do not claim shipment.
 

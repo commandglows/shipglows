@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
@@ -26,6 +26,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator decision 2026-08-21: every validated milestone is committed and every completed chantier is committed and pushed to prevent local work loss."
+  - "Operator clarification 2026-08-21: every validated milestone is also pushed so development work is never protected only by the local machine."
 next_review: "2026-11-21"
 next_step: /103-sg-verify git-milestone-delivery-contract
 ---
@@ -36,11 +37,11 @@ next_step: /103-sg-verify git-milestone-delivery-contract
 
 For an approved mutating chantier in a Git repository:
 
-1. commit every explicit coherent milestone after its proportional proof passes and before starting the next milestone
+1. commit and push every explicit coherent milestone after its proportional proof passes and before starting the next milestone
 2. at chantier end, commit every remaining owned change and push all owned commits to the resolved current branch upstream
 3. do not claim clean closure until that push succeeds
 
-The approved technical chantier plan grants these exact-scope checkpoint commits and its ordinary final push when the plan names remote delivery. It never grants force push, history rewriting, tags, releases, deployments, merges, pull requests, hook bypass, or unrelated staging.
+The approved technical chantier plan grants these exact-scope checkpoint commits and ordinary current-branch pushes, plus final delivery, when the plan names remote delivery. It never grants force push, history rewriting, tags, releases, deployments, merges, pull requests, hook bypass, or unrelated staging.
 
 ## Milestone Definition
 
@@ -53,9 +54,10 @@ Before crossing a milestone boundary:
 - inspect the staged diff and exclude every unrelated or pre-existing path
 - scan the staged scope for suspected secrets or sensitive data
 - create one non-interactive commit with an accurate project-conventional subject
-- record its short SHA in the chantier evidence, then continue without asking again
+- push the current branch to its configured unambiguous upstream without force
+- record its short SHA and push result in the chantier evidence, then continue without asking again
 
-If the owned milestone has no diff, do not manufacture an empty commit. Record `nothing to commit` and continue only when the absence is expected and proven.
+If the owned milestone has no diff, do not manufacture an empty commit. Record `nothing to commit`; confirm previously owned commits are already present upstream before continuing.
 
 ## Final Delivery
 
@@ -78,6 +80,7 @@ On missing remote, authentication failure, rejection, network failure, branch pr
 ## Pressure Scenarios
 
 - `GMD-MILESTONE-COMMIT`: a declared coherent validated slice cannot be crossed with owned uncommitted changes.
+- `GMD-MILESTONE-PUSH`: a validated milestone cannot be crossed while its owned commit exists only locally.
 - `GMD-NO-MESSAGE-COMMITS`: messages and partial edits never generate arbitrary commit noise.
 - `GMD-FINAL-PUSH`: clean closure requires the ordinary upstream push to succeed.
 - `GMD-NO-EMPTY-FINAL`: the latest owned milestone commit serves as final when no closure diff remains.

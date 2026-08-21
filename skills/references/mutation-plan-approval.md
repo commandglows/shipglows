@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.12.0"
+artifact_version: "1.13.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-21"
@@ -41,6 +41,7 @@ evidence:
   - "Operator decision 2026-08-20: the bounded auto authority includes useful delegated subagents, always inherits nolocal, and remains confined to the root captured when auto starts."
   - "Operator decision 2026-08-20: #local, #nolocal, and #ci alter execution posture only and never grant mutation or external-write authority."
   - "Operator decision 2026-08-21: every explicit validated milestone requires an exact-scope commit, and every clean chantier end requires its final commit and ordinary push."
+  - "Operator clarification 2026-08-21: every validated milestone also requires an ordinary push so development work is remotely protected."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify universal mutation-plan approval"
 ---
@@ -191,23 +192,23 @@ Routine implementation details inside the approved scope do not require repeated
 
 ## Cumulative local commit authority
 
-Approval of a bounded technical implementation plan also authorizes its ordinary local commits by default. Apply `git-milestone-delivery-contract.md`: every explicit coherent validated milestone must be committed before the next milestone starts. The agent may stage and commit silently, without a second approval message, when all of these conditions remain true:
+Approval of a bounded technical implementation plan that disclosed milestone remote persistence also authorizes its ordinary milestone commits and pushes by default. Apply `git-milestone-delivery-contract.md`: every explicit coherent validated milestone must be committed and pushed before the next milestone starts. The agent may stage, commit, and push silently, without a second approval message, when all of these conditions remain true:
 
 - every staged path belongs to the already approved technical scope;
 - unrelated and pre-existing changes remain unstaged;
 - secret and sensitive-data checks pass before the commit;
-- the commit is a new local commit on the current approved branch, with no amend, rebase, squash, reset, tag, push, force, hook bypass, or remote effect;
+- the commit is new on the current approved branch and the push targets only its resolved unambiguous upstream, with no amend, rebase, squash, reset, tag, force, hook bypass, merge, deployment, or unrelated remote effect;
 - the commit records a coherent completed slice after proportional validation, and its subject describes that slice accurately.
 
 The same bounded approval includes updates to directly mapped canonical project documentation required to keep the approved technical behavior truthful at closure. It does not include substantive editorial rewriting, new public claims, broad documentation migration, or unrelated documentation cleanup.
 
-This authority may cover multiple small coherent commits during the same approved chantier and now requires them at declared milestones. A milestone is a completed slice, not a message or arbitrary edit. Report commit identifiers at the next natural checkpoint or final handoff; do not interrupt merely to ask permission to record approved work.
+This authority may cover multiple small coherent commits and their ordinary pushes during the same approved chantier and requires both at declared milestones. A milestone is a completed slice, not a message or arbitrary edit. Report commit identifiers and push results at the next natural checkpoint or final handoff; do not interrupt merely to ask permission to protect approved work remotely.
 
-The cumulative authority does not apply when the operator says `no commit`, when staging would include an unresolved or unrelated path, or when the work is primarily substantive editorial judgment or a broad mixed-scope consolidation. Those cases require explicit commit scope in the approval plan. `git push` always remains a separate full-plan action, but one approved full technical chantier plan may authorize its ordinary current-branch final push upfront; no second closing approval is then required. Force, history rewriting, tags, releases, deployments, merges, and unrelated remote effects remain outside that authority.
+The cumulative authority does not apply when the operator says `no commit`, when staging would include an unresolved or unrelated path, or when the work is primarily substantive editorial judgment or a broad mixed-scope consolidation. Those cases require explicit commit scope in the approval plan. `git push` always requires a full plan, but one approved full technical chantier plan may authorize its ordinary milestone and final current-branch pushes upfront; no duplicate approval is then required. Force, history rewriting, tags, releases, deployments, merges, and unrelated remote effects remain outside that authority.
 
 ## Mandatory final delivery authority
 
-A full technical chantier plan includes exact-scope milestone commits and ordinary final push by default. The plan must expose the remote effect before approval. At completion, commit any remaining owned diff, or reuse the latest owned milestone commit when nothing remains, then push the resolved current branch/upstream. Never manufacture an empty final commit.
+A full technical chantier plan includes exact-scope milestone commits and pushes plus ordinary final delivery by default. The plan must expose every remote persistence effect before approval. At completion, commit any remaining owned diff, or reuse the latest owned milestone commit when nothing remains, then confirm the resolved current branch/upstream contains every owned commit. Never manufacture an empty final commit.
 
 Push failure, ambiguous remote/branch, missing authentication, rejected updates, suspected secrets, unrelated staged paths, or failed required proof preserves local commits and leaves the chantier `delivery pending`; it never becomes clean closure. Explicit `no push` or `local only` also leaves delivery pending/local-only rather than standard closed. Read-only and non-Git work are not applicable.
 
@@ -218,7 +219,7 @@ Micro-edits and direct-execution paths still require explicit post-message appro
 ## Pressure scenarios
 
 - `MAP-TECHNICAL-COMMIT`: after approval of a bounded technical implementation, stage only its exact paths, run secret and proportional checks, create coherent local commits silently, and report their identifiers at the next natural checkpoint; do not ask for duplicate commit approval.
-- `MAP-MILESTONE-COMMIT`: cross an explicit coherent validated milestone only after its exact owned diff is committed; messages, partial edits, failing experiments, and arbitrary time intervals are not milestones.
+- `MAP-MILESTONE-COMMIT`: cross an explicit coherent validated milestone only after its exact owned diff is committed and pushed; messages, partial edits, failing experiments, and arbitrary time intervals are not milestones.
 - `MAP-FINAL-DELIVERY`: a full approved technical chantier plan authorizes its ordinary final current-branch push; commit remaining owned changes or reuse the latest owned milestone commit, never create an empty commit, and keep closure delivery pending until push succeeds.
 - `MAP-COMMIT-BOUNDARY`: unrelated paths, substantive editorial judgment, mixed-scope consolidation, amend, rebase, squash, reset, tag, hook bypass, closure, release preparation, and shipping are outside implicit commit authority and require the applicable explicit approval.
 - `MAP-V-SHORTCUT`: standalone `v` or `V` approves the immediately preceding pending approval message with one unambiguous approval outcome; it does nothing before an approval message, and after clarification it can approve the still-current unchanged proposal only when the agent explicitly preserved the `v` mapping to that exact proposal.

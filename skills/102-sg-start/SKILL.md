@@ -55,7 +55,7 @@ Conditional gates: PM2, fresh docs, development mode, UI tokens, diagnostics, re
 - Passing technical checks never proves product, security, auth, hosted, production, manual, or device behavior.
 - Preserve observable success/failure, documentation coherence, security controls, diagnostics, and design-system sources when applicable.
 - Reclassify on scope growth; an unresolved final `Implementation Excellence Gate` prevents `implemented`.
-- Apply `git-milestone-delivery-contract.md`; after milestone proof, route to `005-sg-ship checkpoint` before more writes.
+- Apply `git-milestone-delivery-contract.md`; after milestone proof, route to `005-sg-ship checkpoint` for exact-scope commit and remote persistence before more writes.
 - For executable work, retain the topology receipt and report `Agents: <count> · <mode>`; use the lowest-overhead capable topology, parallelize independent scopes only for net time/coverage gain, and require ready non-overlapping `Execution Batches` plus an integration owner for parallel writes.
 
 ## Stop Conditions

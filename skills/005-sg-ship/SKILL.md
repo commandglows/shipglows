@@ -37,7 +37,7 @@ If closure bookkeeping is the next unresolved owner, remain with `104-sg-end`; q
 ## Mode And Scope Decision
 
 - Default mode is `quick`.
-- `checkpoint` commits one validated milestone without push or closure.
+- `checkpoint` commits and pushes one validated milestone without closure.
 - Select `full` only when `$ARGUMENTS` includes `end la tache`, `end`, `fin`, or `close task` as an explicit end-of-task intent.
 - Default staging is limited to files clearly belonging to the current task or intentionally selected scope.
 - Select whole-repo staging only when `$ARGUMENTS` explicitly includes `all-dirty`, `ship-all`, or `tout-dirty`.
@@ -70,7 +70,7 @@ When a project owns an Atlas registry, load `$SHIPGLOWS_ROOT/skills/references/a
 
 Classify linked bug risk as `blocked`, `partial-risk`, or `not assessed`; quick mode reports it even with skipped checks. A green check, clean push, updated tracker, or changelog is not proof that the user story, product, security, visual behavior, auth flow, or production behavior is complete.
 
-Read `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` before choosing post-push proof. For `vercel-preview-push`, and for hosted-sensitive `hybrid` changes, a successful push routes immediately to `405-sg-prod`; do not request or claim browser/manual proof first.
+Read `$SHIPGLOWS_ROOT/skills/references/project-delivery-policy.md` and `project-development-mode.md` before choosing post-push proof. Delivery posture never waives remote persistence; development mode decides whether hosted proof is authoritative. For `vercel-preview-push`, and for hosted-sensitive `hybrid` changes, a successful push routes immediately to `405-sg-prod`; do not request or claim browser/manual proof first.
 
 ## Step 8 — One report
 

@@ -44,8 +44,18 @@ class GitMilestoneDeliveryContractTests(unittest.TestCase):
                 self.assertIn(marker, self.contract)
         self.assertIn("005-sg-ship checkpoint", self.lifecycle)
         self.assertIn("005-sg-ship checkpoint", self.start)
-        self.assertIn("`checkpoint` commits one validated milestone", self.ship)
-        self.assertIn("return to implementation without pushing", self.execution)
+        self.assertIn("`checkpoint` commits and pushes one validated milestone", self.ship)
+        self.assertIn("push the current branch", self.contract)
+
+    def test_validated_milestone_is_pushed_before_more_work(self) -> None:
+        for marker in (
+            "commit and push every explicit coherent milestone",
+            "before starting the next milestone",
+            "configured unambiguous upstream without force",
+            "GMD-MILESTONE-PUSH",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, self.contract)
 
     def test_final_delivery_requires_push_without_empty_commit(self) -> None:
         for marker in (
@@ -57,7 +67,7 @@ class GitMilestoneDeliveryContractTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.contract)
         self.assertIn("Mandatory final delivery authority", self.approval)
-        self.assertIn("no second closing approval", self.approval)
+        self.assertIn("no duplicate approval", self.approval)
         self.assertIn("final commit/push", self.end)
 
     def test_failure_preserves_local_commit_and_blocks_clean_closure(self) -> None:
@@ -74,6 +84,7 @@ class GitMilestoneDeliveryContractTests(unittest.TestCase):
     def test_pressure_scenarios_cover_required_boundaries(self) -> None:
         for scenario in (
             "GMD-MILESTONE-COMMIT",
+            "GMD-MILESTONE-PUSH",
             "GMD-NO-MESSAGE-COMMITS",
             "GMD-FINAL-PUSH",
             "GMD-NO-EMPTY-FINAL",

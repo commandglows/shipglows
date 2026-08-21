@@ -66,7 +66,7 @@ evidence:
   - "Operator correction 2026-07-17: preferred stack presets resolve after platform footprint and before blueprint matching."
   - "Operator decision 2026-08-07: lifecycle orchestration defaults to parallel read-only fan-out and reserves parallel writes for prepared non-overlapping Execution Batches."
   - "Operator decision 2026-08-14: lifecycle approval has a cumulative fast path for exact local routine reversible mutations and retains the full plan for every ineligible mutation."
-  - "Operator decision 2026-08-21: validated implementation milestones commit before execution continues, and clean chantier closure requires ordinary final push."
+  - "Operator decision 2026-08-21: validated implementation milestones commit and push before execution continues, and clean chantier closure requires ordinary final push."
   - "Operator decision 2026-08-16: task-scoped agent branches and worktrees remain lifecycle-owned until removal or another explicit terminal disposition."
   - "Operator correction 2026-08-17: daily MVP work should privilege construction, use zero or one focused check when sufficient, and commit/push every clean completed chantier by default."
 next_review: "2026-11-07"
@@ -85,7 +85,7 @@ Before choosing a lifecycle route, model, topology, owner skill, mini-contract, 
 
 Spec-first is the outer lifecycle contract: it defines user story, scope, success/error behavior, dependencies, risks, and source of truth. Proof-first is the implementation discipline: execution must choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` from `skills/references/spec-driven-development-discipline.md` before claiming completion.
 
-Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, choose its fast validation only when every cumulative eligibility criterion is established, otherwise present its full plan, and wait for explicit post-message approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for either approval path. For mutating technical chantiers, also load `git-milestone-delivery-contract.md`: ordinary exact-scope local commits inherit that approval at milestones, and the explicitly planned ordinary final push needs no duplicate approval.
+Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, choose its fast validation only when every cumulative eligibility criterion is established, otherwise present its full plan, and wait for explicit post-message approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for either approval path. For mutating technical chantiers, also load `git-milestone-delivery-contract.md`: ordinary exact-scope milestone commits and pushes inherit an approved full plan that disclosed remote persistence, and need no duplicate approval.
 
 ## Applies To
 
@@ -243,7 +243,7 @@ continue the implementation. A deferred check is not a failure or a claim that
 the work is verified. The next checkpoint must run the proportional proof before
 completion, closure, or ship claims.
 
-After an explicit coherent milestone passes its proportional proof, route immediately to `005-sg-ship checkpoint`. Do not begin the next milestone while its owned diff remains uncommitted. A message or partial edit is not a milestone.
+After an explicit coherent milestone passes its proportional proof, route immediately to `005-sg-ship checkpoint`. Do not begin the next milestone while its owned diff remains uncommitted or its owned commit remains only local. A message or partial edit is not a milestone.
 
 For daily construction, start from the smallest useful proof rather than from a suite:
 
