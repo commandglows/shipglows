@@ -32,7 +32,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "1.7.0"
+    artifact_version: "1.9.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.3.0"

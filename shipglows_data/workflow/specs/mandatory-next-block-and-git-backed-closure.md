@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
-status: ready
+status: reviewed
 source_skill: 900-shipglows-core
 scope: mandatory-next-block-and-git-backed-closure
 owner: Diane
@@ -29,7 +29,7 @@ linked_systems:
   - shipglows_data/workflow/AUDIT_LOG.md
 depends_on:
   - artifact: skills/references/reporting-contract.md
-    artifact_version: "2.10.0"
+    artifact_version: "2.11.0"
     required_status: active
   - artifact: skills/references/git-milestone-delivery-contract.md
     artifact_version: "1.1.0"
@@ -40,14 +40,14 @@ evidence:
   - "Operator defect example 2026-08-21: a documentation chantier was reported corrected while its changes remained local without commit or push."
   - "Operator correction 2026-08-21: no-action-required wording violates business continuity; SUITE must select open conversational work, pending proof or delivery, active chantiers, tracker priorities, overdue audits, then a grounded business improvement."
   - "Read-only audit 2026-08-21: TASKS.md and AUDIT_LOG.md exist, but no canonical audit-cadence matrix exists."
-next_step: Implement the next-outcome ladder, audit cadence matrix, deterministic overdue-audit status, and focused pressure scenarios.
+next_step: Review and merge ShipGlows PR 24, then complete the authenticated visual review of site PR 13.
 ---
 
 # Mandatory Next Block And Git-Backed Closure
 
 ## Status
 
-ready — reopened after the original contract institutionalized a null continuation
+complete — the null-continuation escape hatch is removed and the evidence-backed continuity ladder is shipped
 
 ## Acceptance Criteria
 
@@ -80,16 +80,16 @@ ready — reopened after the original contract institutionalized a null continua
 - [x] Harden Git-backed closure for every mutation, including documentation.
 - [x] Add focused mechanical proof and align closure guidance.
 - [x] Commit and push the validated milestone and final record.
-- [ ] Replace null continuation with the deterministic next-outcome ladder.
-- [ ] Add the canonical audit-cadence matrix and overdue-audit checker.
-- [ ] Connect pilotage and maintenance discovery to the same shared sources.
-- [ ] Add focused pressure scenarios for conversation, delivery, tracker, audit, business fallback, and authority.
-- [ ] Record the correction in TASKS/AUDIT_LOG doctrine without rewriting operational history.
-- [ ] Commit and push each validated correction milestone.
+- [x] Replace null continuation with the deterministic next-outcome ladder.
+- [x] Add the canonical audit-cadence matrix and overdue-audit checker.
+- [x] Connect pilotage and maintenance discovery to the same shared sources.
+- [x] Add focused pressure scenarios for conversation, delivery, tracker, audit, business fallback, and authority.
+- [x] Record the correction in TASKS/AUDIT_LOG doctrine without rewriting operational history.
+- [x] Commit and push each validated correction milestone.
 
 ## Current Chantier Flow
 
-`original contract ✅ -> null-continuation defect confirmed ✅ -> spec/reopened ready ✅ -> next-outcome ladder -> audit cadence -> focused proof -> commit/push`
+`original contract ✅ -> null-continuation defect confirmed ✅ -> spec/reopened ready ✅ -> next-outcome ladder ✅ -> audit cadence ✅ -> focused proof ✅ -> commit/push ✅`
 
 ## Skill Run History
 
@@ -102,3 +102,6 @@ ready — reopened after the original contract institutionalized a null continua
 | 2026-08-21 | 103-sg-verify | verified | 30 reporting/Git delivery tests and 6 closure compaction tests pass; four metadata artifacts and diff whitespace pass. | 104-sg-end |
 | 2026-08-21 | 104-sg-end | complete | Closure guidance now rejects local-ready mutations and always states the next outcome. Runtime alias installation remained explicitly out of scope; unrelated dirty files remained unstaged. | final commit/push |
 | 2026-08-21 | 900-shipglows-core | ready | Operator rejected the prior no-action-required escape hatch and approved a continuity ladder backed by conversation state, delivery proof, tracker priority, audit cadence, and business value. | implement scenario-first correction |
+| 2026-08-21 | 102-sg-start | milestone pushed | The deterministic continuity ladder, cadence matrix, audit status checker, writer doctrine, pilotage/maintenance routing, and focused scenarios shipped in commit `f415441`. | 103-sg-verify |
+| 2026-08-21 | 103-sg-verify | verified | 29 focused scenarios pass; metadata, JSON parsing, and diff hygiene pass; the real audit log yields deterministic actionable freshness results without misclassifying issue text. | 104-sg-end |
+| 2026-08-21 | 104-sg-end | complete | The supplied null-SUITE failure is prevented, operational history is preserved, and unrelated design/preflight changes remain unstaged. | review and merge PR 24, then visually review site PR 13 |
