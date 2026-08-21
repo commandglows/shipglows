@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
-status: ready
+status: reviewed
 source_skill: sg-content
 scope: public-git-persistence-positioning-and-article
 owner: Diane
@@ -34,14 +34,14 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-21: Git and GitHub integration is a high-impact public trust and positioning pillar."
   - "Operator-approved message: Each milestone backed up. Every delivery traceable."
-next_step: /103-sg-verify public-git-persistence-positioning-and-article
+next_step: Review and merge ShipGlows PR 24 before the dependent site PR 13; production publication remains a separate approval.
 ---
 
 # Public Git Persistence Positioning And Article
 
 ## Status
 
-ready
+reviewed
 
 ## Audience And Reader Job
 
@@ -98,10 +98,10 @@ French: **Chaque jalon sauvegardé. Chaque livraison traçable.**
 
 ## Implementation Tasks
 
-- [ ] Align canonical product, GTM, claim register, README, and content record.
-- [ ] Create isolated site branch/worktree and author EN/FR landing, docs, FAQ, and articles.
-- [ ] Run focused schema, parity, link, claim, and secret checks without a local build.
-- [ ] Push both milestones, open linked draft PRs, and record CI/preview state.
+- [x] Align canonical product, GTM, claim register, README, and content record.
+- [x] Create isolated site branch/worktree and author EN/FR landing, docs, FAQ, and articles.
+- [x] Run focused schema, parity, link, claim, and secret checks without a local build.
+- [x] Push both milestones, open linked draft PRs, and record CI/preview state.
 
 ## Execution Batches
 
@@ -113,7 +113,76 @@ French: **Chaque jalon sauvegardé. Chaque livraison traçable.**
 
 ## Current Chantier Flow
 
-`sg-content ✅ -> spec/ready ✅ -> canonical truth -> site content -> content proof -> draft PRs -> publication pending`
+`sg-content ✅ -> spec/reviewed ✅ -> canonical truth ✅ -> site content ✅ -> static content proof ✅ -> draft PRs ✅ -> source merge pending -> visual preview review pending -> publication pending`
+
+## Delivery Evidence
+
+- Canonical milestone: commit `d83d4f2` pushed to `codex/public-install-guidance`; draft ShipGlows PR [#24](https://github.com/commandglows/shipglows/pull/24).
+- Public-site milestone: commit `3b0978b` pushed to `codex/git-persistence-positioning`; draft site PR [#13](https://github.com/commandglows/shipglows_app/pull/13).
+- Vercel deployment and preview-comment checks: successful on site PR #13.
+- Preview URL: `https://shipglows-site-git-codex-git-persisten-899813-diane-ds-projects.vercel.app`.
+- Rendered-content proof: pending reviewer access because Vercel Deployment Protection serves its login surface to anonymous requests and the installed Vercel CLI is logged out. This does not invalidate the successful deployment check, but it prevents claiming visual preview verification.
+- Local build and generated artifacts: intentionally not run, per operator constraint.
+
+## Content Quality Evaluation
+
+```json
+{
+  "schema_version": "1.0",
+  "run_id": "public-git-persistence-positioning-2026-08-21",
+  "project_id": "ShipGlows",
+  "surface": "article",
+  "evaluator": {
+    "skill": "007-sg-content",
+    "role": "producer",
+    "initiated_by": "operator"
+  },
+  "scores": {
+    "overall": 94,
+    "clarity": 92,
+    "structure": 94,
+    "source_faithfulness": 96,
+    "compliance": 97,
+    "brand_voice": 91,
+    "call_to_action": 88
+  },
+  "weights": {
+    "clarity": 0.2,
+    "structure": 0.15,
+    "source_faithfulness": 0.2,
+    "compliance": 0.2,
+    "brand_voice": 0.15,
+    "call_to_action": 0.1
+  },
+  "status": "publishable with caveats",
+  "blocked_reasons": [],
+  "evidence": [
+    {
+      "criterion": "claim honesty and source faithfulness",
+      "source": "claim register, Git delivery contracts, and EN/FR public copy",
+      "state": "pass"
+    },
+    {
+      "criterion": "locale and metadata parity",
+      "source": "paired EN/FR article frontmatter and internal-link checks",
+      "state": "pass"
+    },
+    {
+      "criterion": "rendered preview",
+      "source": "Vercel-protected PR preview",
+      "state": "warning"
+    }
+  ],
+  "recommendations": [
+    "Merge the canonical ShipGlows implementation before the dependent public-site change.",
+    "Perform the final visual review through an authenticated Vercel preview before publication."
+  ],
+  "confidence": 0.95,
+  "expires_at_utc": null
+}
+```
+
+Fresh external documentation was not required: the copy describes internal implemented contracts and deliberately avoids current third-party capability promises.
 
 ## Skill Run History
 
@@ -121,3 +190,5 @@ French: **Chaque jalon sauvegardé. Chaque livraison traçable.**
 | --- | --- | --- | --- | --- |
 | 2026-08-21 | sg-content | approved | Operator approved a publication-ready EN/FR positioning chantier with linked PRs and no automatic production merge. | canonical truth |
 | 2026-08-21 | content planning | ready | Audience, promise, surfaces, evidence, caveats, article direction, batches, and publication stop are explicit. | batch A |
+| 2026-08-21 | sg-content | reviewed | Canonical truth and bilingual public surfaces were committed and pushed; static checks passed; draft PRs #24 and #13 are linked by dependency. | merge source PR first |
+| 2026-08-21 | CI/preview observation | publishable with caveats | Vercel checks passed; anonymous rendered verification is unavailable because Deployment Protection requires authentication. | authenticated visual review before publication |
