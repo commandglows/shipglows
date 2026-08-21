@@ -1,7 +1,7 @@
 ---
 artifact: product_context
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: "ShipGlows"
 created: "2026-04-26"
 updated: "2026-08-14"
@@ -23,6 +23,7 @@ evidence:
   - "Thirteen public métier owners plus the ShipGlows router now share business-context, strategic-choice, outcome-ownership, and proof contracts"
   - "Operator confirmed decision SG-BIZ-2026-08-13-01: partnership and outcome ownership lead; environment delivery supports execution"
   - "Operator confirmed decision SG-BIZ-2026-08-14-01: the partnership is delivered by the autonomous ShipGlows product, never by a service offer; Cockpit SaaS remains nonexistent and deferred"
+  - "Operator decision 2026-08-21: Git-backed persistence, interruption recovery, and delivery-state clarity are high-impact supporting proof of ShipGlows outcome ownership."
 linked_artifacts:
   - "shipglows_data/business/business.md"
   - "shipglows_data/technical/architecture.md"
@@ -87,6 +88,8 @@ Decision `SG-BIZ-2026-08-14-01` is `confirmed`:
 3. **Chantier delivery:** frame, execute, verify, close, and report the accepted outcome across internal handoffs.
 4. **Operational capability:** install, run, expose, observe, release, and recover supported environments when the outcome requires it.
 
+Git-backed delivery continuity supports layers three and four: validated milestones are committed and pushed, interrupted work is inspected before new risk is added, and local, remotely backed-up, and deployed states remain distinct.
+
 The first three layers define the primary product promise. The fourth is a differentiated execution capability, not a separate equal product category.
 
 ## Core Workflows
@@ -97,6 +100,7 @@ The first three layers define the primary product promise. The fourth is a diffe
 - Docs and metadata path for keeping context and decision artifacts consistent.
 - Content map and sg-content repurpose path for turning product work or source ideas into faithful docs, marketing, landing-page, FAQ, and semantic-cluster material.
 - Server environment lifecycle path for deploy, restart, publish, and health management.
+- Git persistence path for milestone backup, interruption recovery, sensitive-operation recovery points, and truthful delivery-state reporting.
 
 ## Scope In
 
@@ -122,6 +126,7 @@ The first three layers define the primary product promise. The fourth is a diffe
 - Specs and docs become usable contracts rather than passive notes.
 - Workflow-critical changes are less likely to ship with silent success, silent failure, or stale docs.
 - A founder can move from repo state to executable change with less manual framing overhead.
+- A founder can tell whether agent work exists only locally, is backed up remotely, or is actually deployed.
 - Content and documentation updates are routed through a known content map instead of being rediscovered in each conversation.
 - Declared products are kept coherent through a governed product inventory, public-surface mapping, and evidence-backed claim handling instead of scattered ad hoc notes.
 

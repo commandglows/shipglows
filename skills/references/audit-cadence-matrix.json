@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0",
+  "policy": "Maximum age in active projects; event triggers make a domain due immediately. Project governance may declare stricter intervals.",
+  "domains": [
+    {
+      "id": "security",
+      "label": "Security",
+      "max_age_days": 30,
+      "priority": 1,
+      "aliases": ["security", "securite", "security audit"],
+      "event_triggers": ["authentication or authorization change", "payment or webhook change", "secret or permission change", "security advisory", "production incident"]
+    },
+    {
+      "id": "privacy-data",
+      "label": "Privacy and data",
+      "max_age_days": 60,
+      "priority": 2,
+      "aliases": ["privacy", "data", "tenant", "donnees"],
+      "event_triggers": ["data-model migration", "new personal-data flow", "retention change", "tenant-boundary change"]
+    },
+    {
+      "id": "dependencies",
+      "label": "Dependencies",
+      "max_age_days": 14,
+      "priority": 3,
+      "aliases": ["deps", "dependency", "dependencies", "dependances"],
+      "event_triggers": ["lockfile change", "major dependency upgrade", "supply-chain advisory"]
+    },
+    {
+      "id": "reliability",
+      "label": "Tests and reliability",
+      "max_age_days": 30,
+      "priority": 4,
+      "aliases": ["reliability", "tests", "qa", "quality"],
+      "event_triggers": ["production defect", "test-suite regression", "critical workflow change"]
+    },
+    {
+      "id": "code",
+      "label": "Code quality",
+      "max_age_days": 45,
+      "priority": 5,
+      "aliases": ["code", "architecture", "maintainability"],
+      "event_triggers": ["major refactor", "new service boundary", "architecture migration"]
+    },
+    {
+      "id": "performance",
+      "label": "Performance",
+      "max_age_days": 45,
+      "priority": 6,
+      "aliases": ["perf", "performance", "latency"],
+      "event_triggers": ["performance regression", "traffic-shape change", "critical rendering or startup change"]
+    },
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "max_age_days": 90,
+      "priority": 7,
+      "aliases": ["accessibility", "a11y", "accessibilite"],
+      "event_triggers": ["major interaction change", "navigation change", "public UI release"]
+    },
+    {
+      "id": "design",
+      "label": "Design system and UI consistency",
+      "max_age_days": 90,
+      "priority": 8,
+      "aliases": ["design", "ui", "design tokens"],
+      "event_triggers": ["new visual surface", "design-system change", "major responsive change"]
+    },
+    {
+      "id": "seo",
+      "label": "SEO and AI discoverability",
+      "max_age_days": 30,
+      "priority": 9,
+      "aliases": ["seo", "aeo", "discoverability", "indexability"],
+      "event_triggers": ["public route change", "site migration", "indexing or sitemap change"]
+    },
+    {
+      "id": "gtm-funnel",
+      "label": "GTM and funnel",
+      "max_age_days": 30,
+      "priority": 10,
+      "aliases": ["gtm", "funnel", "conversion", "go-to-market"],
+      "event_triggers": ["offer change", "pricing change", "launch", "conversion-path change"]
+    },
+    {
+      "id": "copy-editorial",
+      "label": "Copy and editorial quality",
+      "max_age_days": 45,
+      "priority": 11,
+      "aliases": ["copy", "editorial", "content"],
+      "event_triggers": ["positioning change", "new public claim", "major public-content batch"]
+    },
+    {
+      "id": "translation",
+      "label": "Translation parity",
+      "max_age_days": 30,
+      "priority": 12,
+      "aliases": ["translate", "translation", "locale", "traduction"],
+      "event_triggers": ["source-locale content change", "new public locale", "localized-route change"]
+    },
+    {
+      "id": "documentation-claims",
+      "label": "Documentation and claims",
+      "max_age_days": 45,
+      "priority": 13,
+      "aliases": ["docs", "documentation", "claims", "claim"],
+      "event_triggers": ["behavior change", "public-promise change", "install or API change"]
+    },
+    {
+      "id": "recovery-release",
+      "label": "Recovery and release",
+      "max_age_days": 90,
+      "priority": 14,
+      "aliases": ["recovery", "release", "backup", "deployment"],
+      "event_triggers": ["hosting change", "release-process change", "backup or restore change", "production migration"]
+    }
+  ]
+}

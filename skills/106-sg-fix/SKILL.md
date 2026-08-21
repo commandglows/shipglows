@@ -6,7 +6,7 @@ argument-hint: <bug description, error message, or failing behavior>
 
 ## Canonical Paths
 
-Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving ShipGlows-owned files (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). Resolve project artifacts and source from the project root.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows paths. Resolve project artifacts from project root.
 
 Primary artifact type: `specialist-workflow`.
 
@@ -21,13 +21,13 @@ Load `chantier-tracking.md` before reporting when exactly one spec-first chantie
 
 Answer: `Ce bug est-il assez clair et borné pour un correctif direct sûr ?`
 
-Own intake, classification, bounded repair, bug memory, and retest routing; not spec design, specialist diagnosis, verification, or shipping.
+Own intake, classification, bounded repair, bug memory, and retest routing; not specs, specialist diagnosis, verification, or shipping.
 
 Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before ShipGlows-owned reads, tools, runtime/bug-memory checks, or writes. Apply `$SHIPGLOWS_ROOT/skills/references/operator-last-resort-evidence.md` before asking the operator for logs, screenshots, reproduction, status, or validation.
 
 ## Classification
 
-Reconstruct actor, trigger, broken behavior, and expected value. Choose:
+Reconstruct actor, trigger, broken behavior, and expected value; choose:
 
 - `direct`: small, local, clear, low-risk, with an obvious expected behavior and named proof path.
 - `spec-first`: multi-file/cross-system behavior, unclear product meaning, likely edge cases, migration/data/auth/performance implications, or material permission, visibility, workflow-integrity, security, destructive, or external-side-effect ambiguity. Load `spec-driven-development-discipline.md`; do not code; route through spec readiness and implementation.
@@ -40,7 +40,7 @@ Choose `regression-first`, `evidence-first`, or `exception-with-proof`. For non-
 ## Conditional Reference Map
 
 - For a `direct` classification, load `references/bug-fix-workflow.md` before bug-memory mutation or repair.
-- Before the first code write, load `task-application-loop.md` and `clean-code-quality-contract.md`.
+- Before the first code write, load `implementation-excellence-preflight.md`, emit `🛡️ GARDE-FOUS`, then load `git-persistence-preflight.md`, `task-application-loop.md`, and `clean-code-quality-contract.md`.
 - Before selecting or claiming a retest surface, load `project-development-mode.md` and `references/bug-proof-and-reporting.md`.
 - Load `project-runtime-policy.md` for ShipGlows-managed PM2 startup failures or crash loops.
 - Load `design-system-token-contract.md` before UI, mobile, layout, token, theme, motion, keyboard/IME, overlay, responsive, or visual repair; changed UI files also require the design drift check.
@@ -48,6 +48,8 @@ Choose `regression-first`, `evidence-first`, or `exception-with-proof`. For non-
 - Load `atlas-protection-preflight.md` before writing to a project with an Atlas registry; a bug report never authorizes Gold/Diamond changes.
 - Load `owasp-application-security-awareness.md` before writing to an internet-facing or privileged surface. Load only triggered Supabase, Sentry, diagnostics, auth-debug, or browser references.
 - Load `reporting-contract.md` before the final report.
+
+Reclassify on growth; a failed `Implementation Excellence Gate` forbids `fixed-pending-verify`.
 
 ## Durable Memory And Result Semantics
 

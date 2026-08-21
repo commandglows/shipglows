@@ -10,6 +10,10 @@ from tools.skill_budget_audit import read_frontmatter
 ROOT = Path(__file__).resolve().parents[1]
 DIR = ROOT / "skills" / "007-sg-content"
 SKILL = (DIR / "SKILL.md").read_text(encoding="utf-8")
+REDACT = (ROOT / "skills" / "200-sg-redact" / "SKILL.md").read_text(encoding="utf-8")
+ARTICLE_POLICY = (
+    ROOT / "shipglows_data" / "editorial" / "blog-and-article-surface-policy.md"
+).read_text(encoding="utf-8")
 PACKS = ("content-router.md", "content-governance-and-quality.md", "content-delivery-and-proof.md")
 REFS = {name: (DIR / "references" / name).read_text(encoding="utf-8") for name in PACKS}
 
@@ -43,6 +47,31 @@ class ContentCompactionContractTests(unittest.TestCase):
             self.assertIsNone(re.search(r"skills/007-sg-content/references/[^`\s]+\.md", REFS[name]), name)
         self.assertIn("bare `repurpose` asks for a source", REFS["content-router.md"])
         self.assertIn("fresh-docs not needed", REFS["content-delivery-and-proof.md"])
+
+    def test_multilingual_article_parity_is_blocking_and_followable(self) -> None:
+        governance = REFS["content-governance-and-quality.md"]
+        delivery = REFS["content-delivery-and-proof.md"]
+
+        for marker in (
+            "all declared public article locales",
+            "ARTICLE-LOCALE-MISSING",
+            "ARTICLE-LOCALE-STALE",
+            "explicitly monolingual",
+        ):
+            self.assertIn(marker, governance)
+
+        self.assertIn("all declared public article locales", SKILL)
+
+        for marker in (
+            "blocking validation failure",
+            "article identity",
+            "alternate-locale mapping",
+            "publication state",
+        ):
+            self.assertIn(marker, delivery)
+
+        self.assertIn("all declared public article locales", REDACT)
+        self.assertIn("paired English and French article", ARTICLE_POLICY)
 
 
 if __name__ == "__main__":

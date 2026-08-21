@@ -16,6 +16,7 @@ CHANTIER_TRACKING = ROOT / "skills" / "references" / "chantier-tracking.md"
 FINAL_TIMESTAMP = ROOT / "skills" / "references" / "final-report-timestamp.md"
 DOCUMENTATION_REFLECTION = ROOT / "skills" / "references" / "documentation-reflection-gate.md"
 EDITORIAL_REFLECTION = ROOT / "skills" / "references" / "editorial-reflection-gate.md"
+NEXT_OUTCOME_SELECTION = ROOT / "skills" / "references" / "next-outcome-selection.md"
 START_README = ROOT / "skills" / "102-sg-start" / "README.md"
 START_WORKFLOW = ROOT / "skills" / "102-sg-start" / "references" / "execution-workflow.md"
 BUILD_WORKFLOW = ROOT / "skills" / "001-sg-build" / "references" / "build-lifecycle-workflow.md"
@@ -142,10 +143,65 @@ class ReportingContractTests(unittest.TestCase):
             "content beneath `📖 DOCUMENTATION` on exactly one line",
             "content beneath `✏️ ÉDITORIAL` on exactly one line",
             "separate proof items with ` · `",
-            "`⚠️ LIMITES` and `🧭 SUITE` are conditional",
+            "`⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory",
         ):
             self.assertIn(rule, core)
         self.assertIn("SSRP-019 visual closure card", scenarios)
+
+    def test_every_final_user_report_has_a_useful_next_block(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        for marker in (
+            "Every final user report contains a `🧭 SUITE` block",
+            "next outcome",
+            "missing action or proof",
+            "never omit the block",
+            "never `none`",
+            "next-outcome-selection.md",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, core)
+        self.assertNotIn("no operator action is required", core)
+        for scenario in (
+            "SSRP-024 mandatory next block",
+            "SSRP-025 conversation continuity",
+            "SSRP-026 tracker priority",
+            "SSRP-027 overdue audit fallback",
+            "SSRP-028 grounded business continuation",
+            "SSRP-029 authority boundary",
+        ):
+            self.assertIn(scenario, scenarios)
+
+    def test_next_outcome_selection_has_ordered_business_continuity(self) -> None:
+        text = NEXT_OUTCOME_SELECTION.read_text(encoding="utf-8")
+        ordered = (
+            "Current conversation outcome",
+            "Pending proof or delivery",
+            "Active chantier",
+            "Prioritized tracker",
+            "Overdue audit",
+            "Grounded business improvement",
+        )
+        positions = [text.index(marker) for marker in ordered]
+        self.assertEqual(positions, sorted(positions))
+        for marker in (
+            "P0 -> P1 -> P2 -> P3",
+            "shipglows_data/workflow/TASKS.md",
+            "shipglows_data/workflow/AUDIT_LOG.md",
+            "audit-cadence-matrix.json",
+            "never grants mutation authority",
+        ):
+            self.assertIn(marker, text)
+
+    def test_restart_recommendation_is_truthful_and_resumable(self) -> None:
+        reporting = REPORTING_CONTRACT.read_text(encoding="utf-8").casefold()
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8").casefold()
+        self.assertIn("conversation-continuity-contract.md", reporting)
+        self.assertIn("only the operator", reporting)
+        self.assertIn("independent outcome alone", reporting)
+        self.assertIn("handoff", reporting)
+        for marker in ("ssrp-030", "ssrp-031", "ssrp-032"):
+            self.assertIn(marker, scenarios)
 
     def test_approved_substantive_chantier_uses_visual_start_card(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")

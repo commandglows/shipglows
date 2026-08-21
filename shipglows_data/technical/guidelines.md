@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.9.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-08-02"
+updated: "2026-08-21"
 status: reviewed
 source_skill: manual
 scope: guidelines
@@ -29,6 +29,8 @@ evidence:
   - "User decision 2026-05-11: root ShipGlows governance Markdown is not compliant; canonical project artifacts live under shipglows_data/."
   - "User decision 2026-06-11: managed applications need a declared design-system authority before agents customize UI implementation."
   - "User decision 2026-08-02: .shipglows.env is the optional, durable project runtime policy surface; it must remain data-only and closed-schema."
+  - "Operator decision 2026-08-21: project delivery posture is declared separately from validation surface; remote Git persistence remains mandatory in development and after every validated milestone."
+  - "Operator decision 2026-08-21: Git persistence preflight is silent when healthy and runs only at existing mutating-start, resume, sensitive-operation, and closure boundaries."
 depends_on: []
 supersedes: []
 next_review: "2026-05-26"
@@ -56,6 +58,8 @@ This file defines stable engineering and documentation rules for working inside 
 - Prefer idempotent operations over check-then-act races.
 - Do not treat generated runtime config as primary source of truth.
 - Treat `.shipglows.env` as optional committed runtime policy, never as an executable dotenv or secret store. Its supported keys are allowlisted; unknown entries must fail loudly.
+- Keep project delivery posture in the data-only `ShipGlows Delivery Policy` governance section, not in `.shipglows.env`: maturity, validation surface, and observed provider state are separate axes. Every posture requires milestone and final remote Git persistence; `development` never means local-only.
+- Apply the lightweight Git persistence preflight at existing lifecycle boundaries, never before every edit: preserve unrelated dirty work, distinguish local/remote/deployed evidence, and require a remote recovery point before sensitive mutation.
 - Keep automatic recovery enabled by default. A project may opt out with `SHIPGLOWS_AUTO_REPAIR=false`; failed restart and crash-loop paths must then show PM2 logs, offer Codex repair, return failure, and never call `env_start` automatically.
 - Keep documentation contracts versioned when they guide implementation or audits.
 - Keep code-proximate technical docs aligned through `shipglows_data/technical/code-docs-map.md`.

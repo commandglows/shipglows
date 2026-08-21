@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-16"
+updated: "2026-08-21"
 status: active
 source_skill: 002-sg-maintain
 scope: maintenance-playbooks
@@ -17,6 +17,8 @@ linked_systems:
   - skills/002-sg-maintain/SKILL.md
   - skills/references/master-workflow-lifecycle.md
   - skills/references/master-delegation-semantics.md
+  - skills/references/audit-cadence-matrix.json
+  - skills/references/next-outcome-selection.md
 depends_on:
   - artifact: skills/references/master-workflow-lifecycle.md
     artifact_version: "1.8.0"
@@ -28,6 +30,7 @@ supersedes: []
 evidence:
   - "2026-08-12: extracted 002-sg-maintain lane detail so its activation contract stays below the progressive-disclosure risk threshold."
   - "2026-08-16: operator approved a current-project-only, proposal-first hygiene audit."
+  - "2026-08-21: operator required audit freshness to become the deterministic fallback after active conversation and tracker work are exhausted."
 next_review: "2026-11-12"
 next_step: "/103-sg-verify maintenance-playbooks"
 ---
@@ -36,11 +39,11 @@ next_step: "/103-sg-verify maintenance-playbooks"
 
 ## Context Discovery
 
-Before triage, inspect only evidence relevant to the selected lanes: current project and git state; documented development mode and package scripts; bug files then the optional bug index; recent tests; local tasks and audit log; active specs; and the applicable docs/governance surfaces (`AGENTS.md`/`CLAUDE.md`, technical/editorial maps, claim register, `SECURITY.md`, `.env.example`). Use focused discovery rather than treating an absent optional tracker as negative evidence.
+Before triage, inspect only evidence relevant to the selected lanes: current project and git state; documented development mode and package scripts; bug files then the optional bug index; recent tests; local tasks and audit log; active specs; and the applicable docs/governance surfaces (`AGENTS.md`/`CLAUDE.md`, technical/editorial maps, claim register, `SECURITY.md`, `.env.example`). Compare audit-log dates with `skills/references/audit-cadence-matrix.json` through `tools/audit_cadence_status.py`; event-triggered, never-run, and overdue domains are freshness findings, while project governance may declare stricter intervals. Use focused discovery rather than treating an absent optional tracker as negative evidence.
 
 ## Quick Triage
 
-`quick` is read-only. Inspect bugs, tasks, audits, docs, dependencies, check coverage, and development-mode state; return the three highest-value maintenance actions with their owner routes. Classify documentation findings as bootstrap gap, migration debt, drift, or non-compliance. Do not launch audits, edits, installs, commits, or ships.
+`quick` is read-only. Inspect bugs, tasks, audit freshness, docs, dependencies, check coverage, and development-mode state; return the three highest-value maintenance actions with their owner routes. Classify documentation findings as bootstrap gap, migration debt, drift, or non-compliance. Rank event-triggered and overdue audits through the shared matrix without inventing severity. Do not launch audits, edits, installs, commits, or ships.
 
 ## Current-Project Hygiene
 

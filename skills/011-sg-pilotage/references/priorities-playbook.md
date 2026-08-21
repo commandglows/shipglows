@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-03"
-updated: "2026-08-03"
+updated: "2026-08-21"
 status: active
 source_skill: 011-sg-pilotage
 scope: pilotage-priorities-mode
@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/011-sg-pilotage/SKILL.md
   - shipglows_data/workflow/TASKS.md
+  - skills/references/next-outcome-selection.md
 depends_on:
   - artifact: skills/references/operational-record-format.md
     artifact_version: "1.0.0"
@@ -23,6 +24,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Transferred from 702-sg-priorities under the approved pilotage consolidation."
+  - "Operator correction 2026-08-21: the mandatory SUITE uses tracker priority only after current conversation, proof, delivery, and active-chantier continuity are resolved."
 next_step: "$011-sg-pilotage priorities"
 ---
 
@@ -67,3 +69,5 @@ When the tracker is mutated, record the prioritization criteria and current date
 ## Execution Boundary
 
 Return the ranked active set, the chosen next target, reasoning, dependencies, and evidence gaps. Route an already-active current chantier to `706-continue`; route a new ready implementation to `102-sg-start`. The priorities mode does not execute, verify, close, commit, or push the target.
+
+When priorities feed a chantier report's mandatory `🧭 SUITE`, apply `skills/references/next-outcome-selection.md`. Current conversational work, pending proof or delivery, and active chantiers outrank the tracker. Within the tracker, preserve `P0 -> P1 -> P2 -> P3`; if no actionable task remains, fall through to audit freshness rather than returning no next action.

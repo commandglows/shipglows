@@ -51,6 +51,8 @@ Only after a substantive multi-phase lifecycle is selected, load `$SHIPGLOWS_ROO
 
 Treat public claims as product promises. Never publish secrets, private URLs/logs, tokens, credentials, keys, sensitive operations, roadmap/speculation as shipped, or stronger security/privacy/compliance/reliability/speed/savings/pricing/outcome claims without evidence. Preserve runtime schemas and unrelated dirty files.
 
+For article creation or material article updates, all declared public article locales form one atomic outcome. Create or update every mapped locale peer in the same workstream; a missing or stale peer blocks readiness, closure, and delivery unless the project explicitly declares that article surface monolingual.
+
 Keep source truth separate from public claims. Declared surfaces beat invented paths. For Diane, public content is the default, but the exact declared surface must still be resolved. `repurpose ... verbatim` remains exact archival preservation, independent from cleanup or analysis.
 
 ## Stop Conditions

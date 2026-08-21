@@ -26,7 +26,7 @@ Use `report=agent` only for handoff details, blocked proof, or audit-grade trace
 
 `104-sg-end` closes a work session by preparing closure bookkeeping and explicit next work.
 
-It owns summary and tracker/changelog prep, not implementation proof and not shipping. A clean completed daily chantier hands off immediately to bounded shipping; unpushed commits remain delivery pending rather than silently complete.
+It owns summary and tracker/changelog prep, not implementation proof or shipping. Apply `git-milestone-delivery-contract.md`: a clean chantier hands off immediately for final commit/push; unpushed commits remain delivery pending.
 
 ## Scope Gate
 
@@ -64,6 +64,10 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
   - before creating or changing tracker records.
 - `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` and `$SHIPGLOWS_ROOT/skills/references/preview-proof-routing.md`
   - when closure depends on local, preview, hybrid, hosted, or provider proof.
+- `$SHIPGLOWS_ROOT/skills/references/project-delivery-policy.md`
+  - when closure depends on branch, preview, staging, production, or remote-persistence obligations; development posture never permits local-only clean closure.
+- `$SHIPGLOWS_ROOT/skills/references/git-persistence-preflight.md`
+  - before closure classification in a Git-backed chantier; healthy state stays silent, while local-only or ambiguous delivery remains pending.
 - `$SHIPGLOWS_ROOT/skills/104-sg-end/references/closure-bookkeeping-playbook.md`
   - for closure steps and field-level bookkeeping.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`
@@ -78,7 +82,7 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 - Do not include internal file paths in user `report=user`.
 - Do not claim shipping, release, or implementation truth from closure alone.
 - Never commit or push; git shipping belongs to `005-sg-ship`.
-- Do not present an otherwise clean completed chantier as terminal while bounded commit/push remains available and intended; route it directly to shipping unless the operator chose local-only work or a concrete blocker exists.
+- Do not present an otherwise clean completed chantier as terminal before final commit/push succeeds; local-only intent or a blocker remains explicitly delivery pending.
 - In `summary-only`, do not mutate any project or ShipGlows-owned artifact.
 
 ## Validation
@@ -105,7 +109,8 @@ For `summary-only`, run read-only classification and reporting only; skip steps 
 
 - Use the shared ordered card: `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📦 LIVRAISON`.
 - Keep proof, documentation, and editorial evidence each on one line separated by ` · `.
-- Add `⚠️ LIMITES` or `🧭 SUITE` only when material; never print an empty block.
+- Add `⚠️ LIMITES` only when material. Always print a useful `🧭 SUITE`: next outcome, missing delivery/proof, operator decision, or explicit no-action-required completion.
+- Any intentional mutation, including documentation-only work, with no commit, no push, a local-only commit, or a failed push is `delivery pending`; never pair `Aucun commit ni push` or `modifications locales prêtes` with a completed verdict.
 
 ### Rules
 
