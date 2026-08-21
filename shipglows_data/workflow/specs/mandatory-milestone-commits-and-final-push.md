@@ -90,7 +90,7 @@ ready
 
 ## Current Chantier Flow
 
-`900-shipglows-core ✅ -> 100-sg-spec ✅ -> 101-sg-ready ✅ -> 102-sg-start ✅ -> milestone commit ✅ -> 103-sg-verify ✅ -> 104-sg-end ✅ -> final commit/push 🔨`
+`900-shipglows-core ✅ -> 100-sg-spec ✅ -> 101-sg-ready ✅ -> 102-sg-start ✅ -> milestone commit ✅ -> 103-sg-verify ✅ -> 104-sg-end ✅ -> final commit/push ✅`
 
 ## Skill Run History
 
@@ -102,3 +102,4 @@ ready
 | 2026-08-21 | 102-sg-start | milestone committed | Authority, lifecycle, checkpoint mode, implementation route, closure route, and shared contract passed 58 focused tests and metadata lint. Commit `e12c896`. | Proof/documentation batch |
 | 2026-08-21 | 103-sg-verify | verified | 63 focused scenarios pass; six metadata artifacts and all skill budgets pass; diff whitespace is clean. | 104-sg-end |
 | 2026-08-21 | 104-sg-end | complete | Canonical lifecycle documentation and the durable chantier record are aligned; final exact-scope commit/push is authorized. | 005-sg-ship |
+| 2026-08-21 | 005-sg-ship | shipped | Milestone `e12c896` and proof/documentation `ecca0b0` pushed successfully to the configured current-branch upstream; unrelated dirty paths remained unstaged. | none |
