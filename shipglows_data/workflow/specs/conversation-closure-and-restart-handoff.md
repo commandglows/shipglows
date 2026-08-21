@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-21"
-status: ready
+status: reviewed
 source_skill: 900-shipglows-core
 scope: conversation-closure-and-restart-handoff
 owner: Diane
@@ -24,24 +24,24 @@ linked_systems:
   - shipglows_data/workflow/TASKS.md
 depends_on:
   - artifact: skills/references/context-quality-contract.md
-    artifact_version: "1.0.1"
+    artifact_version: "1.1.0"
     required_status: active
   - artifact: skills/references/reporting-contract.md
-    artifact_version: "2.11.0"
+    artifact_version: "2.12.0"
     required_status: active
 supersedes: []
 evidence:
   - "Operator decision 2026-08-21: one conversation should retain one principal outcome and should end when that outcome is delivered or an independent outcome takes priority."
   - "Operator clarification 2026-08-21: Codex cannot restart its own active conversation; it must recommend a user-started new conversation truthfully."
   - "Operator approval 2026-08-21: before recommending restart, secure authorized work, persist durable state, and generate a self-contained continuation prompt."
-next_step: Add scenario-first proof, then implement the bounded shared conversation-closure contract.
+next_step: Review and merge ShipGlows PR 24, then complete the authenticated visual review of site PR 13.
 ---
 
 # Conversation Closure And Restart Handoff
 
 ## Status
 
-ready
+complete — restart recommendations are now quality-based, stabilized, truthful about Codex capability, and resumable from a redacted prompt
 
 ## Acceptance Criteria
 
@@ -69,20 +69,23 @@ ready
 ## Implementation Tasks
 
 - [x] Record the approved outcome, boundaries, and pressure scenarios.
-- [ ] Add focused mechanical checks before changing shared doctrine.
-- [ ] Define the conversation continuity and restart-recommendation decision rule.
-- [ ] Define the stabilization checklist and copyable restart-prompt contract.
-- [ ] Connect reporting and explicit agent handoff to the shared rule.
-- [ ] Update tracker state without rewriting operational history.
-- [ ] Verify metadata, topology, focused scenarios, and diff hygiene.
-- [ ] Commit and push the implementation and closure milestones.
+- [x] Add focused mechanical checks before changing shared doctrine.
+- [x] Define the conversation continuity and restart-recommendation decision rule.
+- [x] Define the stabilization checklist and copyable restart-prompt contract.
+- [x] Connect reporting and explicit agent handoff to the shared rule.
+- [x] Update tracker state without rewriting operational history.
+- [x] Verify metadata, topology, focused scenarios, and diff hygiene.
+- [x] Commit and push the implementation and closure milestones.
 
 ## Current Chantier Flow
 
-`operator decision ✅ -> capability clarification ✅ -> approval ✅ -> spec ready ✅ -> scenario-first proof -> doctrine -> verification -> commit/push`
+`operator decision ✅ -> capability clarification ✅ -> approval ✅ -> spec ready ✅ -> scenario-first proof ✅ -> doctrine ✅ -> verification ✅ -> commit/push ✅`
 
 ## Skill Run History
 
 | Date | Skill | Result | Evidence | Next step |
 | --- | --- | --- | --- | --- |
 | 2026-08-21 | 900-shipglows-core | ready | The operator approved a lightweight conversation-end and restart-handoff contract after confirming that Codex cannot restart its own conversation. | add focused scenarios before doctrine edits |
+| 2026-08-21 | 102-sg-start | milestone pushed | The shared continuity rule, stabilization gate, truthful capability boundary, redacted restart prompt, reporting integration, and scenarios shipped in commit `49ddc9f`. | 103-sg-verify |
+| 2026-08-21 | 103-sg-verify | verified | 43 focused scenarios pass; six governed artifacts pass metadata lint; governance topology and diff hygiene pass without a build. | 104-sg-end |
+| 2026-08-21 | 104-sg-end | complete | A long coherent conversation continues, material drift first receives a bounded refresh, and only the operator is instructed to start a fresh conversation after durable stabilization. | review and merge PR 24, then visually review site PR 13 |
