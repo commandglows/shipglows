@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.6.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-05-04"
 updated: "2026-08-21"
@@ -69,6 +69,7 @@ evidence:
   - "Operator decision 2026-08-21: validated implementation milestones commit and push before execution continues, and clean chantier closure requires ordinary final push."
   - "Operator decision 2026-08-16: task-scoped agent branches and worktrees remain lifecycle-owned until removal or another explicit terminal disposition."
   - "Operator correction 2026-08-17: daily MVP work should privilege construction, use zero or one focused check when sufficient, and commit/push every clean completed chantier by default."
+  - "Operator decision 2026-08-21: lightweight Git persistence preflight runs at existing start, resume, sensitive-operation, and closure boundaries while healthy state stays silent."
 next_review: "2026-11-07"
 next_step: "/103-sg-verify master workflow lifecycle reference"
 ---
@@ -86,6 +87,8 @@ Before choosing a lifecycle route, model, topology, owner skill, mini-contract, 
 Spec-first is the outer lifecycle contract: it defines user story, scope, success/error behavior, dependencies, risks, and source of truth. Proof-first is the implementation discipline: execution must choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` from `skills/references/spec-driven-development-discipline.md` before claiming completion.
 
 Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, choose its fast validation only when every cumulative eligibility criterion is established, otherwise present its full plan, and wait for explicit post-message approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for either approval path. For mutating technical chantiers, also load `git-milestone-delivery-contract.md`: ordinary exact-scope milestone commits and pushes inherit an approved full plan that disclosed remote persistence, and need no duplicate approval.
+
+At the first-write, interrupted-resume, sensitive-operation, and closure boundaries of a Git-backed chantier, apply `git-persistence-preflight.md`. This is one silent read-only inspection when healthy, not a new lifecycle stage. Before auth, payment, permission, migration, destructive, tenant, secret, production, or private-data mutation, require the relevant baseline backed up remotely; never manufacture a checkpoint from incomplete, failing, secret-bearing, ambiguous, or unrelated work.
 
 ## Applies To
 

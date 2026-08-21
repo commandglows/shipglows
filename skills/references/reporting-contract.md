@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.9.0"
+artifact_version: "2.10.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-08-21"
@@ -51,6 +51,7 @@ evidence:
   - "Operator decision 2026-08-21: substantive code chantiers expose one compact implementation-guardrail receipt after pre-write classification."
   - "Operator decision 2026-08-16: every closure exposes a separate editorial reflection without creating ceremonial public content."
   - "Operator correction 2026-08-21: every final user report exposes a SUITE block, even when the truthful outcome is that no operator action is required."
+  - "Operator decision 2026-08-21: persistence reporting distinguishes local, remote backup, and deployment without adding a block when healthy delivery evidence is already clear."
   - "Operator decision 2026-08-16: completed chantiers may offer guided Approfondir and Réorienter follow-up without reopening delivery or authorizing mutation."
 next_review: "2026-11-12"
 next_step: none
@@ -148,6 +149,17 @@ Translate the five labels and explanatory text into the user's active language w
 ## Mandatory Next Block
 
 Every final user report contains a `🧭 SUITE` block. State the next outcome when work continues, the missing action or proof when delivery is partial, the operator decision when one is genuinely required, or explicitly state that no operator action is required after terminal completion. Keep it useful and concise, but never omit the block. When numbered choices follow, the block introduces the decision they resolve.
+
+## Persistence Evidence
+
+When interruption recovery, local-only work, remote ambiguity, or deployment distinction materially affects trust, add this compact block:
+
+```text
+📦 PERSISTANCE
+✅ Local · ✅ Git distant · ➖ Déployé
+```
+
+Report only evidence-backed states. A commit may still be local; a successful push supports `Git distant` but never `Déployé`; deployed status requires matching provider evidence. Omit this additional block on the healthy silent path when `📦 LIVRAISON` already communicates the same truth.
 
 The documentation line uses exactly one of: `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit the documentation block unless its status materially affects trust.
 

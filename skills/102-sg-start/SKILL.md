@@ -40,12 +40,12 @@ Auto-verify may report `auto-verify: run` only at an explicit checkpoint when on
 
 Load each local reference directly from this activation contract; local references never load one another.
 
-- Before deriving either a direct mini-contract or ready-spec execution contract, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-contract.md`.
-- Before model or agent topology selection, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-topology.md`, `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`, `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`, and the canonical model-routing reference.
+- Before deriving an execution contract, load `references/execution-contract.md`.
+- Before topology selection, load `references/execution-topology.md`, `decision-quality-contract.md`, `master-delegation-semantics.md`, and canonical model routing.
 - Before first code write, load `implementation-excellence-preflight.md`; classify and emit its `🛡️ GARDE-FOUS` receipt. Load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/implementation-and-proof.md` and directly applicable `task-application-loop.md`, `spec-driven-development-discipline.md`, `zombies-edge-case-heuristic.md`, `clean-code-quality-contract.md`, `design-system-token-contract.md`, or `owasp-application-security-awareness.md`.
-- After approval, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`; emit its start card once before substantive work. Before the final report, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-report.md`; reuse it.
+- After approval, load `reporting-contract.md`; emit its start card once before substantive work. Before reporting, load `references/execution-report.md`; reuse it.
 
-Conditional gates: PM2, fresh docs, delivery posture, development mode, UI tokens, diagnostics, records, Atlas, product decisions, and operator evidence. Load `project-delivery-policy.md` before branch, preview, staging, production, or remote-persistence decisions; never equate development posture with local-only work.
+Conditional gates: PM2, docs, delivery/mode/Git, UI, diagnostics, records, Atlas, product decisions, operator evidence. Before first Git write load `git-persistence-preflight.md`; healthy state stays silent. Development never means local-only.
 
 ## Execution Invariants
 
@@ -55,7 +55,7 @@ Conditional gates: PM2, fresh docs, delivery posture, development mode, UI token
 - Passing technical checks never proves product, security, auth, hosted, production, manual, or device behavior.
 - Preserve observable success/failure, documentation coherence, security controls, diagnostics, and design-system sources when applicable.
 - Reclassify on scope growth; an unresolved final `Implementation Excellence Gate` prevents `implemented`.
-- Apply `git-milestone-delivery-contract.md`; after milestone proof, route to `005-sg-ship checkpoint` for exact-scope commit and remote persistence before more writes.
+- After milestone proof apply `git-milestone-delivery-contract.md` and `005-sg-ship checkpoint` before more writes.
 - For executable work, retain the topology receipt and report `Agents: <count> · <mode>`; use the lowest-overhead capable topology, parallelize independent scopes only for net time/coverage gain, and require ready non-overlapping `Execution Batches` plus an integration owner for parallel writes.
 
 ## Stop Conditions

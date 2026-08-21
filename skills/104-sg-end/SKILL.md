@@ -66,6 +66,8 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
   - when closure depends on local, preview, hybrid, hosted, or provider proof.
 - `$SHIPGLOWS_ROOT/skills/references/project-delivery-policy.md`
   - when closure depends on branch, preview, staging, production, or remote-persistence obligations; development posture never permits local-only clean closure.
+- `$SHIPGLOWS_ROOT/skills/references/git-persistence-preflight.md`
+  - before closure classification in a Git-backed chantier; healthy state stays silent, while local-only or ambiguous delivery remains pending.
 - `$SHIPGLOWS_ROOT/skills/104-sg-end/references/closure-bookkeeping-playbook.md`
   - for closure steps and field-level bookkeeping.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`
