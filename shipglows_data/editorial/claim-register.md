@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-13"
+updated: "2026-08-22"
 status: reviewed
 source_skill: sg-start
 scope: claim-register
@@ -30,16 +30,16 @@ linked_systems:
   - site/src/pages/
 depends_on:
   - artifact: "shipglows_data/business/business.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.5.0"
     required_status: reviewed
   - artifact: "shipglows_data/business/product.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.6.0"
     required_status: reviewed
   - artifact: "shipglows_data/branding/branding.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
   - artifact: "shipglows_data/business/gtm.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.6.0"
     required_status: reviewed
 supersedes: []
 evidence:
@@ -48,8 +48,9 @@ evidence:
   - "OWASP Top 10:2025 awareness, selected ASVS v5.0.0 requirements, ZOMBIES edge-case coverage, and the pragmatic Clean Code gate are now explicit ShipGlows workflow controls."
   - "Positioning decision SG-BIZ-2026-08-13-01 establishes evidence-safe business-partner and outcome-ownership wording."
   - "Operator decision 2026-08-21 adds Git-backed persistence and recovery as public trust proof with explicit availability and deployment caveats."
+  - "Operator decision 2026-08-22 establishes the shared human-agent business-framework category and the identity, impact, and technical-execution tagline without guaranteeing commercial outcomes."
 next_review: "2026-09-13"
-next_step: "Verify external public claims against the partner-first hierarchy before publication"
+next_step: "Verify that public surfaces preserve the framework category, human-agent usability, and business-outcome caveats before publication"
 ---
 
 # Claim Register
@@ -83,7 +84,7 @@ This register gives agents a safe boundary for sensitive public claims. It does 
 | Savings | ShipGlows can discuss lower ambiguity and fewer weak handoffs. It must not claim cost savings or revenue impact without proof. | `BUSINESS.md`, `GTM.md` | `needs proof` | Pricing, landing | Block cost reduction, revenue lift, or ROI claims without data |
 | Availability | ShipGlows can describe local tools and server operations, but must not claim service uptime, hosted availability, or SLA. | Runtime docs and current repo | `blocked` for SLA; `allowed with caveat` for local behavior | Pricing, docs, README | Block uptime, SLA, or hosted reliability claims |
 | Pricing | ShipGlows can describe pricing as a hypothesis and state there is no final business model yet. It must not present packages as live offers unless a pricing decision exists. | `BUSINESS.md`, `GTM.md`, `site/src/pages/pricing.astro` | `allowed with caveat` | Pricing page, homepage pricing component, FAQ | Block fixed price, payment availability, or plan comparison claims without a reviewed pricing decision |
-| Business outcomes | ShipGlows can say it acts as a business-aware delivery partner that connects governed product truth to métier decisions, bounded chantiers, and visible proof. It can say environment operations support delivery. It must not imply that its advice is always correct or promise market, launch, revenue, growth, or conversion success. | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/branding/branding.md` | `allowed with caveat` | Landing, FAQ, docs, pitch | Block guaranteed judgment, launch, revenue, growth, conversion, or unattended business success claims |
+| Identity and business outcomes | ShipGlows can present itself as a business framework shared by humans and agents and use “Create distinctive identities. Build businesses that make an impact. Give every ambition a solid technical execution.” as a brand ambition. It can describe business-aware partnership, governed métier ownership, and visible proof. It must not present distinctiveness, impact, judgment, launch, revenue, growth, conversion, or technical quality as guaranteed outcomes. | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/branding/branding.md` | `allowed with caveat` | Landing, FAQ, docs, pitch | Block guarantees of distinctiveness, commercial or social impact, technical quality, judgment, launch, revenue, growth, conversion, or unattended business success |
 
 ## Claim Impact Plan
 

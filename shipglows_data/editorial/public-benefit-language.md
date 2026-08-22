@@ -1,10 +1,10 @@
 ---
 artifact: editorial_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: "ShipGlows"
 created: "2026-08-08"
-updated: "2026-08-13"
+updated: "2026-08-22"
 status: active
 source_skill: "sg-content"
 scope: "public benefit-first language"
@@ -26,18 +26,19 @@ linked_systems:
   - "skills/references/owasp-application-security-awareness.md"
 depends_on:
   - artifact: "shipglows_data/editorial/claim-register.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.5.0"
     required_status: reviewed
   - artifact: "shipglows_data/branding/branding.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
 supersedes: []
 evidence:
   - "Operator decision 2026-08-08: familiar reader understanding comes before technical vocabulary; technical terms remain accurate second-level proof."
   - "Public benefit-first language spec defines the relevant mechanisms, claim limits, and shared English/French surfaces."
   - "Positioning decision SG-BIZ-2026-08-13-01 establishes the business-aware delivery partner as the reader-first hierarchy."
+  - "Operator decision 2026-08-22 establishes ShipGlows as a business framework shared by humans and agents, with identity, business impact, and solid technical execution as the public ambition."
 next_review: "2026-11-13"
-next_step: "Apply partner-first language to the external public-site surfaces before retaining server-first or equal-pillar wording"
+next_step: "Test whether newcomers understand the shared human-agent framework without reading it as a code library, AI-only tool, or human service"
 ---
 
 # Public Benefit-First Language
@@ -45,6 +46,8 @@ next_step: "Apply partner-first language to the external public-site surfaces be
 ## Purpose
 
 Use this guide when public ShipGlows copy explains a workflow, skill, quality gate, or delivery practice. Lead with the practical change a capable founder can recognize. Put the technical mechanism next only when it makes the promise more credible, useful, or actionable.
+
+The public hierarchy is: **business framework** as category; **distinctive identities, impactful businesses, and solid technical execution** as ambition; **business-aware delivery partner** as behavior; governed truth, métiers, contracts, chantiers, and proof as mechanisms. Humans can use the framework directly, while agents can act through the same contracts and ownership model.
 
 This is a wording guide, not a new product claim. `claim-register.md` remains the authority for sensitive claims; source skills remain the authority for actual workflow behavior.
 
@@ -62,6 +65,7 @@ Short cards, labels, and CTAs may omit the second step for space, but must not b
 
 | Mechanism | Reader outcome first | Technical evidence second | Allowed wording / claim limit |
 | --- | --- | --- | --- |
+| Shared business framework | Humans and agents can work from the same business truth across identity, brand, content, product, technology, growth, delivery, and proof. | Governed artifacts, métier ownership, explicit contracts, and verification provide a common operating model. | Say “for humans and agents” or “shared business framework”; do not imply that every activity is automated or that impact is guaranteed. |
 | Business-context mesh | The agent can connect the current task to the customer, promise, priority, and business consequence that matter. | A selective context mesh loads the smallest relevant governed business sources and preserves evidence states. | Say "grounds decisions in governed project truth"; do not imply complete business understanding or correct advice by default. |
 | Public métier ownership | One business-aware owner keeps the intended outcome active through internal handoffs and proof. | Public métier contracts route specialized execution without making the operator coordinate internal engines. | Say "retains outcome ownership" or "carries the chantier through proof"; do not promise unattended delivery or business success. |
 | Context map | A new agent can start without making you reconstruct the project. | An operational context map identifies the relevant entry points, constraints, and documents. | Say “gives agents better context” or “reduces context reconstruction”; do not say an agent always understands the project. |
@@ -82,7 +86,8 @@ Use native-language equivalents, not literal technical slogans. These examples d
 
 | Situation | English | Français |
 | --- | --- | --- |
-| Partnership | "The agent connects your product intent to a decision, a bounded chantier, and visible proof." | "L’agent relie votre intention produit à une décision, un chantier cadré et une preuve visible." |
+| Shared framework | "Humans can use the contracts directly; agents can act through the same governed framework." | "Les humains utilisent directement les contrats ; les agents agissent depuis le même framework gouverné." |
+| Partnership behavior | "ShipGlows connects your intent to a decision, a bounded chantier, and visible proof." | "ShipGlows relie votre intention à une décision, un chantier cadré et une preuve visible." |
 | Context | “A new agent can start without making you reconstruct the project.” | “Un nouvel agent peut commencer sans vous faire reconstruire le projet.” |
 | Work framing | “Important work is framed before the product changes.” | “Les changements importants sont cadrés avant de modifier le produit.” |
 | Verification | “A green build is not the only signal used to judge completion.” | “Un build vert n’est pas le seul signal utilisé pour juger qu’un travail est terminé.” |
@@ -99,6 +104,7 @@ Use native-language equivalents, not literal technical slogans. These examples d
 - Do not turn coordination into autonomy: ShipGlows can orchestrate guarded workflows; it does not promise unattended shipping or replace engineering judgment.
 - Do not turn parallelism into a speed claim: use it only for independent, read-only inspection or preplanned exclusive write batches; do not claim universal parallelism or measured time savings.
 - Do not invent customer, conversion, reliability, revenue, adoption, availability, or ROI evidence. Use qualitative, evidence-safe language until proof exists.
+- Treat “build businesses that make an impact” as a brand ambition, not evidence of market, revenue, growth, conversion, or social impact already achieved.
 - If the technical mechanism cannot be translated truthfully, keep it in a technical context and explain it rather than inventing a familiar but false analogy.
 
 ## Review Prompt

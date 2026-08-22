@@ -1,19 +1,19 @@
 ---
 artifact: product_context
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-14"
+updated: "2026-08-22"
 status: reviewed
 source_skill: manual
 scope: product
 owner: "unknown"
 confidence: medium
 risk_level: medium
-target_user: "solo founders and autonomous technical builders using AI agents on real product work"
+target_user: "solo founders, small teams, and AI agents using a shared business framework to shape identities, content, products, technology, growth, and delivery"
 user_problem: "lost context, weak agent handoffs, repeated re-explanation, silent ambiguity, and incomplete verification across delivery work"
-desired_outcomes: "business-aware decisions, faster orientation, stronger handoffs, bounded chantiers, verified outcomes, and simpler delivery and operation"
+desired_outcomes: "distinctive identities, impactful businesses, business-aware decisions, stronger human-agent handoffs, bounded chantiers, verified outcomes, and simpler delivery"
 non_goals: "mass-market beginner education, generic project management, general-purpose PaaS positioning, consulting or human-accompaniment services, presenting the unbuilt Cockpit SaaS as available, or replacing engineering judgment with autonomous automation"
 security_impact: yes
 docs_impact: yes
@@ -24,13 +24,14 @@ evidence:
   - "Operator confirmed decision SG-BIZ-2026-08-13-01: partnership and outcome ownership lead; environment delivery supports execution"
   - "Operator confirmed decision SG-BIZ-2026-08-14-01: the partnership is delivered by the autonomous ShipGlows product, never by a service offer; Cockpit SaaS remains nonexistent and deferred"
   - "Operator decision 2026-08-21: Git-backed persistence, interruption recovery, and delivery-state clarity are high-impact supporting proof of ShipGlows outcome ownership."
+  - "Operator decision 2026-08-22: the product category is a business framework shared by humans and agents; identities and impactful businesses lead, while software remains one possible expression"
 linked_artifacts:
   - "shipglows_data/business/business.md"
   - "shipglows_data/technical/architecture.md"
   - "shipglows_data/technical/guidelines.md"
 depends_on:
   - artifact: "shipglows_data/business/business.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.5.0"
     required_status: "reviewed"
 supersedes: []
 next_review: "2026-09-13"
@@ -38,6 +39,14 @@ next_step: "Test product adoption and value delivery while keeping service offer
 ---
 
 # Product Context
+
+## Product Category
+
+ShipGlows is a business framework shared by humans and AI agents. It connects the truth that should govern a business to the people, agents, métiers, contracts, execution paths, documentation, and proof involved in shaping its identity and producing real outcomes.
+
+The framework can support a brand, a content site, a product, software, a growth initiative, or another business expression. Code is an important execution material, not the boundary of the product.
+
+“Business-aware delivery partner” describes how the autonomous framework behaves: it challenges weak framing, recommends credible directions, retains outcome ownership, and carries accepted work through verification. It does not describe a consulting or human service.
 
 ## Target User
 
@@ -83,6 +92,8 @@ Decision `SG-BIZ-2026-08-14-01` is `confirmed`:
 
 ## Product Capability Hierarchy
 
+The framework organizes four layers around the intended business outcome:
+
 1. **Truth mesh:** select the smallest coherent business, product, market, brand, portfolio, and evidence context for the decision.
 2. **Métier partnership:** route to one public outcome owner that advises, questions when useful, and preserves strategic consequences.
 3. **Chantier delivery:** frame, execute, verify, close, and report the accepted outcome across internal handoffs.
@@ -104,6 +115,7 @@ The first three layers define the primary product promise. The fourth is a diffe
 
 ## Scope In
 
+- Shared business, identity, brand, content, product, technology, growth, delivery, and proof contracts for humans and agents.
 - Workflow governance for AI-assisted engineering work.
 - Context routing and artifact-based execution.
 - Server-hosted environment management for developer workflows.
@@ -132,7 +144,7 @@ The first three layers define the primary product promise. The fourth is a diffe
 
 ## Risks
 
-- The product can become too broad if its capabilities are presented without the confirmed partnership-first hierarchy.
+- The product can become too broad if its capabilities are presented without the confirmed business-framework category and partner-behavior hierarchy.
 - The tool can be mistaken for “just a PM2 server script with helpers” if the AI framing layer is underexplained.
 - The tool can be mistaken for “just a prompting method” if the environment-delivery layer is underexplained.
 - Documentation volume can grow faster than its clarity if doc roles are not kept exclusive.

@@ -1,18 +1,18 @@
 ---
 artifact: gtm_context
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-14"
+updated: "2026-08-22"
 status: reviewed
 source_skill: manual
 scope: gtm
 owner: "unknown"
 confidence: low
 risk_level: medium
-target_segment: "solo founders first, with adjacent fit for small technical teams and technical builders evaluating a clearer way to ship with AI agents"
-offer: "an autonomous business-aware delivery product that turns governed product truth into métier decisions, bounded chantiers, and verified outcomes; it is not a consulting or human-accompaniment service, and the possible future Cockpit SaaS is not a current offer"
+target_segment: "solo founders first, with adjacent fit for small teams that want humans and AI agents to work from the same business truth across identity, content, product, technology, growth, and delivery"
+offer: "a shared business framework for humans and AI agents that helps create distinctive identities and businesses that make an impact through governed truth, métier ownership, bounded chantiers, and visible proof"
 channels: "documentation-first discovery, technical content, demos, founder education, and clarity-oriented positioning"
 proof_points: "business-context mesh, thirteen public métier owners plus the ShipGlows router, strategic choices, guided governance refresh, outcome-owned workflows, verification and audits, plus concrete environment and delivery tooling"
 security_impact: unknown
@@ -22,6 +22,7 @@ evidence:
   - "Operator confirmed decision SG-BIZ-2026-08-13-01: partnership and verified outcomes lead the offer; server delivery is supporting proof"
   - "Operator confirmed decision SG-BIZ-2026-08-14-01: ShipGlows has no service offer; partnership is product behavior, and Cockpit SaaS remains a deferred possibility rather than a current commercial promise"
   - "Operator decision 2026-08-21: Git/GitHub persistence and recovery should be presented as a major trust proof for solo founders, subordinate to the business-aware delivery promise."
+  - "Operator decision 2026-08-22: lead with a business framework shared by humans and agents; distinctive identities and impactful businesses define the ambition, while software is only one possible output"
 linked_artifacts:
   - "shipglows_data/business/business.md"
   - "shipglows_data/branding/branding.md"
@@ -29,10 +30,10 @@ linked_artifacts:
   - "shipglows_data/business/portfolio-project-pitch-links.md"
 depends_on:
   - artifact: "shipglows_data/business/business.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.5.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/branding/branding.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: "reviewed"
 supersedes: []
 next_review: "2026-09-13"
@@ -49,8 +50,8 @@ next_step: "Measure product-led discovery and adoption without service CTAs or p
 
 ## Offer
 
-- ShipGlows should be presented first as the business-aware partner that connects product truth to decisions, delivery, and proof.
-- Public métier agents make that partnership concrete by owning outcomes instead of returning isolated technical output.
+- ShipGlows should be presented first as a business framework shared by humans and agents: it organizes vision, identity, brand, content, product, technology, growth, delivery, and proof around one governed truth.
+- Public métier agents make the framework’s partner behavior concrete by owning outcomes instead of returning isolated technical output.
 - The offer is strongest when framed around better judgment, reduced ambiguity, continuity, and verified outcomes, not raw coding speed.
 - The first public story should stay simple: ShipGlows helps solo founders turn their business intent into shipped, verified product outcomes with agents.
 - Environment and server operations demonstrate that the partnership reaches delivery; they should not lead the category story.
@@ -61,12 +62,16 @@ next_step: "Measure product-led discovery and adoption without service CTAs or p
 
 ## Positioning
 
+- Category: a business framework for humans and AI agents.
+- Promise: create distinctive identities and build businesses that make an impact.
+- Behavior: a business-aware delivery partner that challenges, recommends, owns, and proves.
+- Mechanism: shared governed context, public métiers, explicit contracts, bounded chantiers, execution capabilities, and verification.
 - Not “another coding assistant”.
 - Not “just a server CLI with PM2 helpers”.
 - Not “just a methodology or a bundle of prompts for agents”.
 - Not a general-purpose PaaS or platform manager.
 - Not an agency, consultancy, fractional team, diagnostic service, or implementation service.
-- Best current positioning: a business-aware delivery partner for solo founders, powered by governed métier agents and integrated execution infrastructure, with clear applicability to small technical teams.
+- Best current positioning: a business framework that lets founders, teams, and agents work from the same truth to shape a distinctive identity and carry business ambitions into verifiable outcomes.
 
 ## Channels
 

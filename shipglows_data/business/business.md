@@ -1,10 +1,10 @@
 ---
 artifact: business_context
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-14"
+updated: "2026-08-22"
 status: reviewed
 source_skill: manual
 scope: business
@@ -12,8 +12,8 @@ owner: "unknown"
 confidence: medium
 risk_level: medium
 business_model: "ShipGlows is an autonomous software product, not a service offer; any future monetized product direction belongs to a distinct Cockpit SaaS that does not exist and is not offered today"
-target_audience: "solo founders first, plus small technical teams using AI agents to turn business and product intent into shipped, verified software without fragile handoffs"
-value_proposition: "turn governed business truth into better decisions, bounded chantiers, and verified outcomes through business-aware agent métiers, with delivery infrastructure as an integrated execution capability"
+target_audience: "solo founders first, plus small teams and AI agents using one shared framework to turn business intent into distinctive identities, impactful ventures, and verifiable outcomes"
+value_proposition: "provide a shared business framework that aligns humans and agents around governed truth across identity, brand, content, product, technology, growth, delivery, and proof"
 market: "solo founders first, with adjacent fit for small technical teams and highly autonomous builders running simple product sales cycles"
 security_impact: yes
 docs_impact: yes
@@ -23,6 +23,7 @@ evidence:
   - "The public system now exposes thirteen métier owners plus the ShipGlows router, backed by shared business-context, strategic-choice, execution, and verification contracts"
   - "Operator decision 2026-08-13: ShipGlows is first a business and delivery partner; server tooling is an integrated execution capability rather than an equal top-level promise"
   - "Operator decision SG-BIZ-2026-08-14-01: ShipGlows remains an autonomous product with no service, consulting, diagnostic, or human-accompaniment offer; a future Cockpit SaaS is only a deferred possibility and is not a current product promise"
+  - "Operator decision 2026-08-22: ShipGlows is a business framework shared by humans and AI agents for creating distinctive identities and businesses that make an impact; software and code are capabilities, not the defining category"
 linked_artifacts:
   - "shipglows_data/business/product.md"
   - "shipglows_data/business/gtm.md"
@@ -38,7 +39,7 @@ next_step: "Collect product-adoption evidence without introducing service-led ac
 
 ## Mission
 
-ShipGlows exists to help solo founders turn business and product truth into better decisions, bounded chantiers, and verified software outcomes with AI agents, without accepting fragile handoffs, repeated context rebuilding, or technically correct work that misses the business objective.
+ShipGlows is a business framework for humans and AI agents. It exists to help solo founders and small teams turn business truth into distinctive identities, businesses that make an impact, and verifiable outcomes without accepting fragile handoffs, repeated context rebuilding, or polished work that misses the real objective.
 
 ## Audience
 
@@ -49,8 +50,9 @@ ShipGlows exists to help solo founders turn business and product truth into bett
 
 ## Value Proposition
 
+- ShipGlows aligns humans and agents around one governed business truth across vision, identity, brand, content, product, technology, growth, delivery, and proof.
 - ShipGlows turns governed business truth into decisions, chantiers, and results that can be verified against the intended outcome.
-- Its public métier agents act as business-aware owners before they become technical executors.
+- The framework behaves like a business-aware delivery partner: its public métier agents act as outcome owners before they become technical executors.
 - The core value is not raw speed. It is stronger judgment, less lost context, less ambiguity, and continuity from intent through proof.
 - Environment and server-delivery tooling strengthens execution and operational proof; it is a capability inside the partnership, not a competing product promise.
 - The product narrative stays solo-founder-first, but the same operating model can work well for small teams that want more rigor without enterprise overhead.
@@ -95,7 +97,7 @@ This supersedes the prior equal-pillar framing of AI delivery and server environ
 
 ## Decision Status
 
-- The audience, problem frame, product hierarchy, and partner-first value proposition are confirmed enough to guide product and documentation work now.
+- The audience, problem frame, product hierarchy, and business-framework category are confirmed enough to guide product and documentation work now.
 - The no-services boundary and product-delivered partnership are confirmed.
 - The future Cockpit SaaS is a deferred possibility, not a current roadmap commitment or commercial promise.
 - Pricing and monetization remain intentionally open until a product exists to support them.
@@ -107,4 +109,5 @@ This supersedes the prior equal-pillar framing of AI delivery and server environ
 - Commercial claims should stay behind evidence; the repo shows doctrine strength, not validated market traction.
 - Product strategy can drift if README-level narrative substitutes for explicit business and GTM decisions.
 - The word "partner" can create service expectations unless every offer, CTA, and journey makes the autonomous-product boundary explicit.
+- The word "framework" can sound like a code library unless public copy immediately explains that humans and agents can use it across business, identity, content, product, technology, growth, and delivery.
 - Premature Cockpit messaging could create a promise for a SaaS that has not been built or validated.

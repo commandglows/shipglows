@@ -1,10 +1,10 @@
 ---
 artifact: content_map
 metadata_schema_version: "1.0"
-artifact_version: "0.15.0"
+artifact_version: "0.16.0"
 project: ShipGlows
 created: "2026-04-26"
-updated: "2026-08-19"
+updated: "2026-08-22"
 status: draft
 source_skill: manual
 scope: content-map
@@ -53,6 +53,7 @@ evidence:
   - "Product-boundary decision SG-BIZ-2026-08-14-01 establishes autonomous software, no service offer, and no current Cockpit SaaS promise."
   - "External EN/FR positioning published through commandglows/shipglows_app PR #6 and verified on shipglows.com on 2026-08-14."
   - "Public install surfaces aligned on 2026-08-19 with verified Ubuntu/Debian support, automatic skill-corpus selection, and the canonical commandglows/shipglows repository."
+  - "Operator decision 2026-08-22 defines ShipGlows as a business framework shared by humans and agents, with a public ambition spanning identity, business impact, and solid technical execution."
 linked_artifacts:
   - "README.md"
   - "shipglows_data/business/product.md"
@@ -70,10 +71,10 @@ linked_artifacts:
   - "shipglows_data/editorial/public-benefit-language.md"
 depends_on:
   - artifact: "shipglows_data/business/product.md"
-    artifact_version: "1.4.0"
+    artifact_version: "1.6.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/business/gtm.md"
-    artifact_version: "1.4.0"
+    artifact_version: "1.6.0"
     required_status: "reviewed"
 supersedes: []
 next_review: "2026-09-13"
@@ -127,7 +128,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 
 | Cluster | Pillar page | Supporting pages | Target intent | Internal link rule | Status |
 |---|---|---|---|---|---|
-| Business-aware product delivery | `site/src/pages/index.astro` | `site/src/pages/docs.astro`, `site/src/content/skills/*.md`, `README.md` | Understand how ShipGlows turns governed business truth into decisions, chantiers, delivery, and proof | Landing page leads with the autonomous-product partner promise, links to métier skills and docs, keeps environment/runtime pages as supporting delivery routes, and excludes service or current Cockpit claims | live |
+| Shared business framework | `site/src/pages/index.astro` | `site/src/pages/docs.astro`, `site/src/content/skills/*.md`, `README.md` | Understand how humans and agents use one governed framework across identity, brand, content, product, technology, growth, delivery, and proof | Landing page leads with the business-framework category and identity-impact-technical ambition, explains partner behavior, links to métier skills and docs, and excludes guaranteed outcomes, service, or current Cockpit claims | live |
 | Plugin install and activation | `site/src/pages/install.astro`, `site/src/pages/fr/install.astro` | `site/src/pages/docs.astro`, `site/src/pages/faq.astro`, `site/src/content/skills/shipglows.md`, `plugins/shipglows/README.md` | Install ShipGlows into Codex and reach the first successful command quickly | Install page owns the marketplace command and first-run path; docs, FAQ, and public skill pages point to it | live |
 | Server/local bootstrap and Windows DevServer | `https://shipglows.com/shipglows`, `https://shipglows.com/fr/shipglows` | `site/src/pages/install.astro`, `site/src/pages/fr/install.astro`, `README.md`, `shipglows_data/technical/operator-guides/windows-devserver.md` | Choose the server/local runtime install path or prepare a native Windows machine to clone and run supported development projects | ShipGlows owns bootstrap and runtime installation guidance; `/install` preserves Codex-plugin intent and exposes the runtime as a separate path | live |
 | Documentation and decision contracts | `site/src/pages/docs.astro` | `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `skills/references/canonical-paths.md`, `shipglows_data/technical/decisions/project-governance-layout.md`, `templates/*.md` | Learn how context and contracts stay coherent | Docs overview points to canonical repo docs, artifact roles, and root-vs-shipglows_data layout | live |
@@ -142,7 +143,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 
 | Page type | Job | Must include | Must not include |
 |---|---|---|---|
-| Landing page | Explain the partner-first offer and drive a qualified visitor to the next action | Product name, founder situation, business-aware outcome promise, métier ownership, proof direction, CTA | Equal-pillar/server-first framing or claims unsupported by product docs and GTM |
+| Landing page | Explain the shared business framework and drive a qualified visitor to the next action | Product name, human-agent audience, identity-impact-technical ambition, business-aware behavior, métier ownership, proof direction, CTA | AI-only, software-only, equal-pillar/server-first framing, or claims unsupported by product docs and GTM |
 | Docs overview | Explain artifact roles and navigation | Context layer, decision contracts, links to canonical docs | Implementation detail better suited for repo docs |
 | Public skill page | Explain a workflow in human language | Use case, outcome, when to use it | Internal-only implementation prompts |
 | Skill launch cheatsheet | Explain which skill to launch and which arguments switch modes | Master skills, supporting lanes, documented mode switches | Full internal prompt contracts or exhaustive implementation detail |

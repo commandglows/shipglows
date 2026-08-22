@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.23.0"
+artifact_version: "0.24.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-20"
+updated: "2026-08-22"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -77,14 +77,15 @@ evidence:
   - "Operator confirmed positioning decision SG-BIZ-2026-08-13-01: ShipGlows leads as a business-aware delivery partner; environment operations support execution and proof."
   - "Operator decision 2026-08-20: document #local, #nolocal, and #ci as composable agent execution tags distinct from workflow modes."
   - "Operator decision 2026-08-20: normal installers offer the official Codex plugin, while source contributors use shipglows skills link for live clone-backed skills without a release loop."
-next_step: "Align the external ShipGlows landing, docs, FAQ, and pitch surfaces with SG-BIZ-2026-08-13-01"
+  - "Operator decision 2026-08-22: ShipGlows is a business framework shared by humans and AI agents for creating distinctive identities and businesses that make an impact."
+next_step: "Test whether the business-framework category is understood without implying a code library or human service"
 ---
 
 # ShipGlows
 
 > Public-site ownership: the canonical Astro site moved to `/home/claude/shipglows_app/site` on 2026-08-02. The former `shipglows-site/` path in this repository is retired and must not be recreated; remaining references to it are migration debt, not source authority.
 
-ShipGlows is a business-aware delivery partner that turns governed product truth into decisions, bounded chantiers, and verified outcomes with AI agents.
+ShipGlows is a business framework for humans and AI agents. It aligns them around shared truth to create distinctive identities and build businesses that make an impact across brand, content, product, technology, growth, delivery, and proof.
 It also includes a dedicated OpenCode skill shim under `.opencode/skills/shipglows/`. The generic repository-level `.agents/skills/shipglows/` shim is intentionally absent because Codex already discovers user skills and plugins there, and exposing both creates duplicate public entrypoints.
 
 Its operating model has four ordered layers:
@@ -106,7 +107,7 @@ ShipGlows is designed to solve one problem first: AI-assisted work that loses th
 
 It connects governed project truth to one business-aware métier owner, then carries the outcome through bounded execution and verification. Server and environment operations are differentiated delivery capabilities inside that partnership, not an equal competing promise. ShipGlows should therefore be read as neither a PM2-oriented server script nor a prompt bundle.
 
-### Business-aware delivery partnership
+### Business framework, partner behavior
 
 - load only the business and product truth that can change the current decision
 - recommend useful strategic directions instead of reducing every choice to technical variants
@@ -1079,9 +1080,9 @@ The recent step forward is structural clarity:
 
 This means the framework is no longer just documented. It is organized so a fresh agent can enter, locate the right contract, and distinguish decision artifacts from operational tracking or app-rendered content.
 
-## ShipGlows as a Professional Work Framework
+## ShipGlows as a Business Framework for Humans and Agents
 
-ShipGlows is not just a collection of prompts or isolated skills. It is a work framework built around explicit decision contracts.
+ShipGlows is not just a collection of prompts or isolated skills. It is a shared business framework built around explicit decision contracts that humans can use directly and agents can execute against.
 
 The core idea is that serious product work depends on more than code. A feature is shaped by user stories, business positioning, brand promises, security assumptions, documentation, pricing, onboarding, support, and operational constraints. ShipGlows treats these as first-class project artifacts rather than informal chat context.
 
