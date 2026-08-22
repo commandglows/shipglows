@@ -369,7 +369,9 @@ function Get-SgFlutterInstallState {
     if (-not (Test-Path -LiteralPath $flutter -PathType Leaf) -or -not (Test-Path -LiteralPath $dart -PathType Leaf)) { return [pscustomobject]@{ Status='partial'; Recovery='quarantine'; FlutterPath=$flutter; DartPath=$dart } }
     $flutterVersion = Invoke-SgDiagnosticCommand $flutter @('--version') $Runner 600
     $dartVersion = Invoke-SgDiagnosticCommand $dart @('--version') $Runner 60
-    $ready = -not $flutterVersion.TimedOut -and -not $dartVersion.TimedOut -and $flutterVersion.ExitCode -eq 0 -and $flutterVersion.Output -match '(?m)^Flutter \d+' -and $dartVersion.ExitCode -eq 0 -and $dartVersion.Output -match '(?i)Dart SDK version'
+    $flutterReleaseEvidence = $flutterVersion.Output -match '(?im)^\s*Flutter\s+\d+'
+    $flutterDetachedEvidence = $flutterVersion.Output -match '(?im)^\s*Flutter\s+\u2022\s+channel\s+\[user-branch\]' -and $flutterVersion.Output -match '(?im)^\s*Framework\s+\u2022\s+revision\s+[0-9a-f]{40}\b' -and $flutterVersion.Output -match '(?im)^\s*Tools\s+\u2022\s+Dart\s+\d+'
+    $ready = -not $flutterVersion.TimedOut -and -not $dartVersion.TimedOut -and $flutterVersion.ExitCode -eq 0 -and ($flutterReleaseEvidence -or $flutterDetachedEvidence) -and $dartVersion.ExitCode -eq 0 -and $dartVersion.Output -match '(?i)Dart SDK version'
     [pscustomobject]@{ Status=if($ready){'ready'}else{'partial'}; Recovery=if($ready){'none'}else{'quarantine'}; FlutterPath=$flutter; DartPath=$dart }
 }
 

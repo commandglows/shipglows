@@ -238,6 +238,10 @@ exit /b 23
     Set-Content -LiteralPath (Join-Path $partialFlutter 'bin\dart.bat') -Value '@exit /b 0'
     $readyState = Get-SgFlutterInstallState -FlutterRoot $partialFlutter -Runner { param($f,$a,$timeout) $output=if($f -match 'dart'){'Dart SDK version: 3.9.0'}else{'Flutter 3.35.0'}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
     Assert-Sg ($readyState.Status -eq 'ready' -and $readyState.Recovery -eq 'none') 'Existing Flutter must require executable version evidence.'
+    $prefixedReadyState = Get-SgFlutterInstallState -FlutterRoot $partialFlutter -Runner { param($f,$a,$timeout) $output=if($f -match 'dart'){'Dart SDK version: 3.13.1'}else{$revision='a' * 40; $bullet=[char]0x2022; "Flutter $bullet channel [user-branch] $bullet https://github.com/flutter/flutter.git`nFramework $bullet revision $revision`nTools $bullet Dart 3.13.1 $bullet DevTools 2.60.0"}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
+    Assert-Sg ($prefixedReadyState.Status -eq 'ready') 'A valid detached Flutter SDK with exact framework and Dart evidence must not become a false negative.'
+    $unprovenUserBranch = Get-SgFlutterInstallState -FlutterRoot $partialFlutter -Runner { param($f,$a,$timeout) $output=if($f -match 'dart'){'Dart SDK version: 3.13.1'}else{"Flutter $([char]0x2022) channel [user-branch]"}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
+    Assert-Sg ($unprovenUserBranch.Status -eq 'partial') 'A detached Flutter label without framework revision and Dart evidence must fail closed.'
     $empty = Get-SgProjectServiceNeeds -Workspace $fixture
     Assert-Sg (-not $empty.Firebase -and -not $empty.FlutterFire -and -not $empty.Supabase -and -not $empty.Convex -and -not $empty.Vercel -and -not $empty.Clerk -and -not $empty.AndroidNative) 'Zero-service workspace detected false dependencies.'
     $oneProject = Join-Path $fixture 'one\nested'

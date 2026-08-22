@@ -283,8 +283,8 @@ function Test-SgToolRuns([string]$Name, [string[]]$KnownPaths = @(), [string[]]$
     $executable = Get-SgToolPath $Name $KnownPaths
     if (-not $executable) { return $false }
     try {
-        & $executable @Arguments 2>$null | Out-Null
-        return $LASTEXITCODE -eq 0
+        $result = Invoke-SgBoundedProcess -File $executable -Arguments $Arguments -TimeoutSeconds 30
+        return -not $result.TimedOut -and $result.ExitCode -eq 0
     } catch {
         return $false
     }
@@ -476,12 +476,12 @@ function Initialize-SgPnpmGlobalBin([string[]]$PnpmPaths) {
         New-Item -ItemType Directory -Path $defaultGlobalBin -Force | Out-Null
         Add-SgUserPathEntry $defaultGlobalBin
 
-        $configuredOutput = @(& $pnpm config get global-bin-dir 2>$null)
-        $globalBin = ($configuredOutput | Out-String).Trim()
-        if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($globalBin) -or $globalBin -in @('null', 'undefined')) {
+        $configured = Invoke-SgBoundedProcess -File $pnpm -Arguments @('config','get','global-bin-dir') -TimeoutSeconds 30
+        $globalBin = $configured.Output.Trim()
+        if ($configured.TimedOut -or $configured.ExitCode -ne 0 -or [string]::IsNullOrWhiteSpace($globalBin) -or $globalBin -in @('null', 'undefined')) {
             $globalBin = $defaultGlobalBin
-            & $pnpm config set global-bin-dir $globalBin --global | Out-Host
-            if ($LASTEXITCODE -ne 0) { throw 'pnpm global-bin-dir configuration failed.' }
+            $configured = Invoke-SgBoundedProcess -File $pnpm -Arguments @('config','set','global-bin-dir',$globalBin,'--global') -TimeoutSeconds 30
+            if ($configured.TimedOut -or $configured.ExitCode -ne 0) { throw 'pnpm global-bin-dir configuration failed or timed out.' }
         }
         New-Item -ItemType Directory -Path $globalBin -Force | Out-Null
         Add-SgUserPathEntry $globalBin
@@ -507,14 +507,14 @@ function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]
 
     try {
         Write-Host 'Preparing pnpm with Corepack...' -ForegroundColor Cyan
-        & $npm install --global corepack@latest | Out-Host
-        if ($LASTEXITCODE -ne 0) { throw "Corepack installation returned exit code $LASTEXITCODE." }
+        $corepackInstall = Invoke-SgVisibleBoundedProcess -OperationId 'tool.corepack' -Label 'Installing Corepack' -File $npm -Arguments @('install','--global','corepack@latest') -TimeoutSeconds 300
+        if ($corepackInstall.TimedOut -or $corepackInstall.ExitCode -ne 0) { throw "Corepack installation failed or timed out: $($corepackInstall.Output)" }
         Update-SgProcessPath
 
         $corepack = Get-SgToolPath 'corepack.cmd' $CorepackPaths
         if ($corepack) {
-            & $corepack enable pnpm | Out-Host
-            if ($LASTEXITCODE -eq 0) {
+            $corepackEnable = Invoke-SgVisibleBoundedProcess -OperationId 'tool.corepack-pnpm' -Label 'Enabling pnpm with Corepack' -File $corepack -Arguments @('enable','pnpm') -TimeoutSeconds 120
+            if (-not $corepackEnable.TimedOut -and $corepackEnable.ExitCode -eq 0) {
                 Update-SgProcessPath
                 if (Test-SgToolRuns 'pnpm.cmd' $PnpmPaths) {
                     Write-Host 'pnpm installed with Corepack.' -ForegroundColor Green
@@ -526,8 +526,8 @@ function Install-SgPnpm([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]
         }
 
         Write-Host 'Installing pnpm with npm fallback...' -ForegroundColor Cyan
-        & $npm install --global pnpm@latest | Out-Host
-        if ($LASTEXITCODE -ne 0) { throw "pnpm installation returned exit code $LASTEXITCODE." }
+        $pnpmInstall = Invoke-SgVisibleBoundedProcess -OperationId 'tool.pnpm' -Label 'Installing pnpm' -File $npm -Arguments @('install','--global','pnpm@latest') -TimeoutSeconds 300
+        if ($pnpmInstall.TimedOut -or $pnpmInstall.ExitCode -ne 0) { throw "pnpm installation failed or timed out: $($pnpmInstall.Output)" }
         Update-SgProcessPath
         if (-not (Test-SgToolRuns 'pnpm.cmd' $PnpmPaths)) { throw 'pnpm was installed but its version check failed.' }
         Write-Host 'pnpm installed.' -ForegroundColor Green
@@ -1334,13 +1334,15 @@ function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$Np
     $browserMetadata = Join-Path $managedRoot 'node_modules\playwright-core\browsers.json'
     if (-not (Test-Path $playwrightCommand -PathType Leaf) -or -not (Test-Path $browserMetadata -PathType Leaf)) { Write-SgInstallerWarning 'Playwright MCP browser metadata is unavailable.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
     $metadata = Get-Content -Raw $browserMetadata | ConvertFrom-Json
-    $revision = [string](@($metadata.browsers | Where-Object name -eq 'chromium')[0].revision)
+    $chromiumMetadata = @($metadata.browsers | Where-Object { $_.PSObject.Properties['name'] -and $_.name -eq 'chromium' } | Select-Object -First 1)
+    $revision = if ($chromiumMetadata.Count -eq 1 -and $chromiumMetadata[0].PSObject.Properties['revision']) { [string]$chromiumMetadata[0].revision } else { '' }
     if ($revision -notmatch '^\d+$') { Write-SgInstallerWarning 'Playwright MCP Chromium revision is invalid.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
     $install = Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.mcp-browser' -Label 'Installing Playwright MCP Chromium' -File $playwrightCommand -Arguments @('install','chromium') -TimeoutSeconds 900
     $chromium = Get-SgPlaywrightChromiumExecutable -Revision $revision
-    $chromiumCheck = if ($chromium) { Invoke-SgBoundedProcess $chromium.FullName @('--version') 30 } else { $null }
-    if ($install.TimedOut -or $install.ExitCode -ne 0 -or -not $chromium -or -not (Test-SgChromiumExecutableResult $chromium.FullName $chromiumCheck)) { Write-SgInstallerWarning 'Playwright Chromium executable usability was not proven; Playwright MCP remains unconfigured.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
-    return [pscustomobject]@{ Ready=$true; Version=$version; Revision=$revision; ChromiumPath=[IO.Path]::GetFullPath($chromium.FullName) }
+    $chromiumPath = if ($chromium -is [IO.FileSystemInfo]) { $chromium.FullName } else { [string]$chromium }
+    $chromiumCheck = if ($chromiumPath) { Invoke-SgBoundedProcess $chromiumPath @('--version') 30 } else { $null }
+    if ($install.TimedOut -or $install.ExitCode -ne 0 -or -not $chromiumPath -or -not (Test-SgChromiumExecutableResult $chromiumPath $chromiumCheck)) { Write-SgInstallerWarning 'Playwright Chromium executable usability was not proven; Playwright MCP remains unconfigured.'; return [pscustomobject]@{ Ready=$false; Version=$version; ChromiumPath='' } }
+    return [pscustomobject]@{ Ready=$true; Version=$version; Revision=$revision; ChromiumPath=[IO.Path]::GetFullPath($chromiumPath) }
 }
 
 function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [string]$NpxPath, $Playwright, [object[]]$StackMcpDefinitions = @()) {
