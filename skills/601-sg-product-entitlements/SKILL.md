@@ -22,7 +22,7 @@ Route sync/hydration/promotion/reinstall recovery to `600`; OAuth/session/callba
 
 ## Mode And Progressive Authorities
 
-Accept read-only contract/audit, provider/manual grant/LTD/activation code, backend premium guard/quota, local mirror/cache, support runbook, sync precondition, auth debug, or implementation intent.
+Accept read-only contract/audit, provider/manual grant/LTD/activation code, backend premium guard/quota, local mirror/cache, trial-transition UX, support runbook, sync precondition, auth debug, or implementation intent.
 
 The accounting profile lives in `skill-invocation-registry.json`; runtime loaders here remain authoritative.
 
@@ -46,6 +46,7 @@ Load at most one entitlement doctrine before the first substantive action; load 
 - Activation/redemption codes are bearer credentials: never raw-log or persist them client-side.
 - Mirrors require TTL/refresh and revocation/refund/expiry propagation; stale divergence never remains active.
 - Backend/provider authorization owns premium reads/writes; UI and client claims are non-authoritative.
+- Trial-transition UX preserves pre-expiry calm, progressive clarity, data truth, valid restart/recovery actions, evidenced value showcases, governed offer terms, and non-coercive founder voice.
 
 ## Stop Conditions
 
@@ -53,7 +54,7 @@ Stop or reroute when identity and entitlement are conflated; a duplicate durable
 
 ## Proof And Report Boundary
 
-Use scenario-first proof covering suite adaptation, standalone model, identity/claims denial, provider safety, code handling, mirror fail-closed behavior, backend gates, sync/auth routing, and support grant/revoke/refund/expiry paths. The detailed scenario family remains `SPE-001` through `SPE-010` in the primary doctrine.
+Use scenario-first proof covering suite adaptation, standalone model, identity/claims denial, provider safety, code handling, mirror fail-closed behavior, backend gates, sync/auth routing, support grant/revoke/refund/expiry paths, and the complete trial-transition journey. The authorization scenario family remains `SPE-001` through `SPE-010`; trial-transition UX uses `TEX-001` through `TEX-010` in the support-and-proof branch.
 
 Report result, route, proof limit, and documentation status. Never claim access correctness from UI state, local claims, or an unverified provider event.
 
