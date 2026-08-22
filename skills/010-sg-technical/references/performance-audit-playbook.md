@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-07-17"
+updated: "2026-08-22"
 status: active
 source_skill: 010-sg-technical
 scope: performance-audit-playbook
@@ -19,6 +19,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Transferred exhaustively from the retired performance skill during the 010-sg-technical consolidation."
+  - "Operator-approved 2026-08-22 lesson from the ShipGlows terminal transition: process startup was already fast while transport attachment, partial redraw, and opaque incoming-canvas publication still produced visible latency."
 next_step: "/103-sg-verify consolidate technical skills under sg-technical"
 ---
 
@@ -245,6 +246,47 @@ Analyze the project's build output and dependency weight.
 - [ ] Long lists (>50 items) use virtualization (react-window, @tanstack/virtual)
 - [ ] Tables with many rows are virtualized
 - [ ] Infinite scroll uses proper windowing
+
+#### 2.5 Perceived Latency And Atomic Transitions
+
+Apply this framework-neutral gate to stateful interfaces, embedded runtimes,
+editors, terminals, media surfaces, canvases, route transitions, and any flow
+that replaces one useful state with another.
+
+- [ ] Measure the complete user-visible timeline separately: trigger, resource
+  admission, process/provider readiness, transport attachment, component mount,
+  first complete content, and first stable paint. Do not optimize the easiest
+  phase merely because it is measurable.
+- [ ] Distinguish cold start, warm start, repeat navigation, reconnect, and
+  return-to-surface behavior. Report both objective latency and perceived
+  continuity; one does not prove the other.
+- [ ] Preserve the last trustworthy state while the replacement prepares when
+  product and privacy boundaries allow it. A blank, skeleton, or partially
+  redrawn replacement is not faster merely because it appears earlier.
+- [ ] Stage or coalesce incremental replacement data offscreen and publish one
+  coherent state at an explicit readiness boundary. A fade, morph, or opacity
+  transition never substitutes for atomic visual commit.
+- [ ] When the incoming surface must mount before it can size or request its
+  final data, mount it behind the stable state, wait for a bounded quiet or
+  readiness condition, then reveal it. Bound the hold so continuous output
+  cannot hide the live state indefinitely.
+- [ ] Keep reused state volatile and bounded unless persistence is explicitly
+  required. Invalidate it on identity, tenant, project, permission, schema, or
+  freshness-boundary changes; never trade isolation for perceived speed.
+- [ ] Prefetch only a likely safe next state and never allocate a second
+  privileged session, duplicate mutation lease, or hidden paid resource merely
+  to make navigation look instant.
+- [ ] Prove rapid repeated switching, resize/remount, slow or fragmented input,
+  continuous output, reduced motion, and cache-boundary changes. Canvas or
+  other visually stateful surfaces require rendered evidence; green unit tests
+  alone cannot prove the absence of flashes or partial frames.
+
+Pressure scenario `PERF-PERCEIVED-ATOMIC-TRANSITION`: a measured process starts
+in tens of milliseconds, yet users see a two-second blank or a redraw flash.
+The audit must decompose the timeline through first stable paint, test whether
+output is lost before attachment or painted incrementally, preserve the last
+safe frame, and require atomic replacement plus rendered proof. It must not
+recommend process tuning or a cosmetic fade as the primary fix without evidence.
 
 ---
 

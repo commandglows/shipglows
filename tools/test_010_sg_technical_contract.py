@@ -310,6 +310,21 @@ class TechnicalContractTests(unittest.TestCase):
             for phrase in phrases:
                 self.assertIn(phrase, audit_text if mode == "audit" else self.playbooks[mode], f"{mode}: {phrase}")
 
+    def test_tech_performance_06_perceived_latency_requires_atomic_transition_proof(self) -> None:
+        performance = " ".join(self.playbooks["performance"].split())
+        for phrase in (
+            "Perceived Latency And Atomic Transitions",
+            "first stable paint",
+            "transition never substitutes for atomic visual commit.",
+            "mount it behind the stable state",
+            "continuous output cannot hide the live state indefinitely",
+            "never trade isolation for perceived speed",
+            "never allocate a second privileged session",
+            "PERF-PERCEIVED-ATOMIC-TRANSITION",
+            "green unit tests alone cannot prove the absence of flashes or partial frames",
+        ):
+            self.assertIn(phrase, performance)
+
     def test_tech_github_09_queue_safety_transfers_from_310(self) -> None:
         github = self.playbooks["github"]
         for phrase in (
