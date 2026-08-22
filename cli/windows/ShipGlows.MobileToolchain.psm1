@@ -370,7 +370,10 @@ function Get-SgFlutterInstallState {
     $flutterVersion = Invoke-SgDiagnosticCommand $flutter @('--version') $Runner 600
     $dartVersion = Invoke-SgDiagnosticCommand $dart @('--version') $Runner 60
     $flutterReleaseEvidence = $flutterVersion.Output -match '(?im)^\s*Flutter\s+\d+'
-    $flutterDetachedEvidence = $flutterVersion.Output -match '(?im)^\s*Flutter\s+\u2022\s+channel\s+\[user-branch\]' -and $flutterVersion.Output -match '(?im)^\s*Framework\s+\u2022\s+revision\s+[0-9a-f]{40}\b' -and $flutterVersion.Output -match '(?im)^\s*Tools\s+\u2022\s+Dart\s+\d+'
+    # Flutter abbreviates the framework revision in its human-readable version output.
+    # Accept Git's normal minimum abbreviation while retaining the surrounding
+    # detached-checkout and Dart evidence so an arbitrary user-branch label fails closed.
+    $flutterDetachedEvidence = $flutterVersion.Output -match '(?im)^\s*Flutter\s+\u2022\s+channel\s+\[user-branch\]' -and $flutterVersion.Output -match '(?im)^\s*Framework\s+\u2022\s+revision\s+[0-9a-f]{7,40}\b' -and $flutterVersion.Output -match '(?im)^\s*Tools\s+\u2022\s+Dart\s+\d+'
     $ready = -not $flutterVersion.TimedOut -and -not $dartVersion.TimedOut -and $flutterVersion.ExitCode -eq 0 -and ($flutterReleaseEvidence -or $flutterDetachedEvidence) -and $dartVersion.ExitCode -eq 0 -and $dartVersion.Output -match '(?i)Dart SDK version'
     [pscustomobject]@{ Status=if($ready){'ready'}else{'partial'}; Recovery=if($ready){'none'}else{'quarantine'}; FlutterPath=$flutter; DartPath=$dart }
 }
