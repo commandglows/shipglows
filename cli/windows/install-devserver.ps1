@@ -1440,7 +1440,7 @@ function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
         $root=Join-Path $env:LOCALAPPDATA 'ShipGlows\node-tools'
         $stableRoot=Join-Path $root "playwright-$stableVersion"
         $agentRoot=Join-Path $root "playwright-cli-$agentVersion"
-        foreach($install in @(@{Root=$stableRoot;Package='playwright';Version=$stableVersion},@{Root=$agentRoot;Package='@playwright/cli';Version=$agentVersion})){
+        foreach($install in @(@{Name='Playwright';Root=$stableRoot;Package='playwright';Version=$stableVersion},@{Name='Playwright Agent CLI';Root=$agentRoot;Package='@playwright/cli';Version=$agentVersion})){
             $packageJson=Join-Path (Join-Path $install.Root 'node_modules') (Join-Path $install.Package 'package.json')
             if(-not (Test-Path $packageJson -PathType Leaf)){
                 New-Item -ItemType Directory -Path $install.Root -Force|Out-Null

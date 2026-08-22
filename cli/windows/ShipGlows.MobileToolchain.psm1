@@ -1007,7 +1007,9 @@ function Get-SgFlutterAndroidDiagnostic {
     $doctor = Invoke-SgDiagnosticCommand $FlutterPath @('doctor','-v') $Runner 90
     $devices = Invoke-SgDiagnosticCommand $FlutterPath @('devices') $Runner 45
     $timedOut = @($flutterVersion,$dartVersion,$javaVersion,$sdkVersion,$adbVersion,$doctor,$devices | Where-Object TimedOut).Count -gt 0
-    $versionsReady = $flutterVersion.ExitCode -eq 0 -and $flutterVersion.Output -match '(?m)^Flutter \d+' -and $dartVersion.ExitCode -eq 0 -and $dartVersion.Output -match '(?i)Dart SDK version|Flutter \d+' -and $javaVersion.ExitCode -eq 0 -and $javaVersion.Output -match '(?i)(openjdk|java).*\b17\b' -and $sdkVersion.ExitCode -eq 0 -and $sdkVersion.Output -match '\d+' -and $adbVersion.ExitCode -eq 0 -and $adbVersion.Output -match '(?i)Android Debug Bridge'
+    $flutterReleaseEvidence = $flutterVersion.Output -match '(?m)^Flutter \d+'
+    $flutterDetachedEvidence = $flutterVersion.Output -match '(?im)^\s*Flutter\s+\u2022\s+channel\s+\[user-branch\]' -and $flutterVersion.Output -match '(?im)^\s*Framework\s+\u2022\s+revision\s+[0-9a-f]{7,40}\b' -and $flutterVersion.Output -match '(?im)^\s*Tools\s+\u2022\s+Dart\s+\d+'
+    $versionsReady = $flutterVersion.ExitCode -eq 0 -and ($flutterReleaseEvidence -or $flutterDetachedEvidence) -and $dartVersion.ExitCode -eq 0 -and $dartVersion.Output -match '(?i)Dart SDK version|Flutter \d+' -and $javaVersion.ExitCode -eq 0 -and $javaVersion.Output -match '(?i)(openjdk|java).*\b17\b' -and $sdkVersion.ExitCode -eq 0 -and $sdkVersion.Output -match '\d+' -and $adbVersion.ExitCode -eq 0 -and $adbVersion.Output -match '(?i)Android Debug Bridge'
     $androidLine = '(?im)^.*Android toolchain - develop for Android devices(?:\s+\([^\r\n]+\))?(?:\s+\[[0-9]+(?:[.,][0-9]+)?(?:ms|s)\])?\s*$'
     $explicitAndroidFailure = $doctor.Output -match '(?im)^\s*\[(?:!|X)\]\s+Android toolchain\b'
     $explicitHealthySummary = $doctor.Output -match '(?im)\bNo issues found!\s*$'
