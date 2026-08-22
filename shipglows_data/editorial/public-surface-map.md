@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-19"
-updated: "2026-08-19"
+updated: "2026-08-22"
 status: reviewed
 source_skill: sg-docs
 scope: public-surface-map
@@ -30,15 +30,16 @@ linked_systems:
   - shipglows_data/editorial/page-intent-map.md
 depends_on:
   - artifact: "shipglows_data/editorial/content-map.md"
-    artifact_version: "0.15.0"
+    artifact_version: "0.16.0"
     required_status: draft
   - artifact: "shipglows_data/editorial/page-intent-map.md"
-    artifact_version: "1.5.0"
+    artifact_version: "1.6.0"
     required_status: reviewed
 supersedes: []
 evidence:
   - "Inventory of the Astro routes, generated install endpoints, shared components, skill collection, and indexed article collection on 2026-08-19."
   - "The canonical EN/FR runtime installer surfaces are /shipglows and /fr/shipglows; /install and /fr/install remain plugin-first."
+  - "The 2026-08-22 positioning update aligns the primary EN/FR pages around the shared business framework, identity and impact ambition, preserved partner behavior, and technical execution strength."
 next_review: "2026-09-19"
 next_step: none
 ---

@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-19"
+updated: "2026-08-22"
 status: reviewed
 source_skill: sg-start
 scope: page-intent-map
@@ -26,16 +26,16 @@ linked_systems:
   - skills/references/decision-quality-contract.md
 depends_on:
   - artifact: "shipglows_data/business/business.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.4.0"
     required_status: reviewed
   - artifact: "shipglows_data/business/product.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.5.0"
     required_status: reviewed
   - artifact: "shipglows_data/branding/branding.md"
     artifact_version: "1.2.0"
     required_status: reviewed
   - artifact: "shipglows_data/business/gtm.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.5.0"
     required_status: reviewed
 supersedes: []
 evidence:
@@ -46,8 +46,9 @@ evidence:
   - "ShipGlows EN/FR runtime pages declared as the canonical server/local bootstrap and native Windows DevServer surfaces; `/install` routes keep the Codex plugin as their primary intent."
   - "Positioning decision SG-BIZ-2026-08-13-01 makes business-aware outcome ownership the landing-page lead and environment delivery supporting proof."
   - "The 2026-08-19 installer alignment keeps EN/FR runtime pages exact about Ubuntu/Debian support, corpus selection, and the canonical public repository."
+  - "Operator decision 2026-08-22 makes the business framework the category, identity and impact the ambition, partnership the behavior, and technical execution a core strength for humans and agents."
 next_review: "2026-09-13"
-next_step: "Apply SG-BIZ-2026-08-13-01 to the external EN/FR landing, docs, FAQ, and pitch surfaces"
+next_step: "Test whether visitors understand the framework category and partner behavior as complementary rather than competing definitions"
 ---
 
 # Page Intent Map
@@ -60,8 +61,8 @@ This map states the job of each public Astro page so agents can update copy with
 
 | Route | File | Audience | Job | Primary CTA | Source of truth | Update trigger | Shared-file risk |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/` | `site/src/pages/index.astro` plus homepage components | Solo founders and autonomous builders evaluating whether agents can understand and deliver their product intent | Lead with ShipGlows as a business-aware delivery partner; show governed truth, métier ownership, bounded chantiers, and verified outcomes before presenting environment operations as delivery proof | Skills hub, docs, pricing, GitHub | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/branding/branding.md`, `skills/references/decision-quality-contract.md` | Offer, audience, workflow, proof, pricing, FAQ, quality positioning, or claim changes | High: homepage components are reused and claim-heavy |
-| `/about` | `site/src/pages/about.astro` | Visitors asking why the product exists | Explain why technical execution must remain connected to business truth, useful judgment, and visible proof | Docs or GitHub | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md` | Mission, audience, positioning, proof posture | Medium |
+| `/` | `site/src/pages/index.astro` plus homepage components | Solo founders and small teams evaluating a shared framework for human and agent work | Lead with ShipGlows as a business framework for humans and agents; present distinctive identity and impact as ambition, business partnership as behavior, and solid technical execution as a core strength before detailing the métiers and proof model | Skills hub, docs, pricing, GitHub | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md`, `shipglows_data/branding/branding.md`, `skills/references/decision-quality-contract.md` | Offer, audience, workflow, proof, pricing, FAQ, quality positioning, or claim changes | High: homepage components are reused and claim-heavy |
+| `/about` | `site/src/pages/about.astro` | Visitors asking what the framework is, who can use it, and why it exists | Explain how humans and agents share governed truth across identity, content, product, technology, growth, delivery, and proof while ShipGlows behaves like an accountable business partner | Docs or GitHub | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/branding/branding.md` | Mission, audience, positioning, proof posture | Medium |
 | `/contact` | `site/src/pages/contact.astro` | Visitors who want a direct next step | Give a simple contact path without inventing support promises | Contact method or GitHub | `GTM.md`, `BRANDING.md` | Sales/support channel changes | Low |
 | `/docs` | `site/src/pages/docs.astro` | Public evaluators and operators orienting in docs | Explain context docs, decision contracts, public skills, and governance without exposing internal-only detail | Skills hub and GitHub docs | `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `CONTENT_MAP.md`, `docs/editorial/README.md`, `skills/references/decision-quality-contract.md` | New artifact, content governance, technical docs layer, workflow doctrine, quality positioning, or docs routing changes | High: public/private boundary |
 | `/fr/docs` | `site/src/pages/fr/docs.astro` | French-speaking public evaluators and operators orienting in docs | Explain context docs, decision contracts, public skills, and governance in French without exposing internal-only detail | Skills hub and GitHub docs | `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `CONTENT_MAP.md`, `docs/editorial/README.md`, `skills/references/decision-quality-contract.md` | New artifact, content governance, technical docs layer, workflow doctrine, quality positioning, or docs routing changes | High: public/private boundary |

@@ -1,10 +1,10 @@
 ---
 artifact: editorial_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: "ShipGlows"
 created: "2026-08-08"
-updated: "2026-08-13"
+updated: "2026-08-22"
 status: active
 source_skill: "sg-content"
 scope: "public benefit-first language"
@@ -26,7 +26,7 @@ linked_systems:
   - "skills/references/owasp-application-security-awareness.md"
 depends_on:
   - artifact: "shipglows_data/editorial/claim-register.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.5.0"
     required_status: reviewed
   - artifact: "shipglows_data/branding/branding.md"
     artifact_version: "1.2.0"
@@ -36,8 +36,9 @@ evidence:
   - "Operator decision 2026-08-08: familiar reader understanding comes before technical vocabulary; technical terms remain accurate second-level proof."
   - "Public benefit-first language spec defines the relevant mechanisms, claim limits, and shared English/French surfaces."
   - "Positioning decision SG-BIZ-2026-08-13-01 establishes the business-aware delivery partner as the reader-first hierarchy."
+  - "Operator decision 2026-08-22 makes the shared business framework the category while preserving business-aware partnership as the product's behavior."
 next_review: "2026-11-13"
-next_step: "Apply partner-first language to the external public-site surfaces before retaining server-first or equal-pillar wording"
+next_step: "Keep framework category, identity and impact ambition, partner behavior, and technical execution legible as distinct layers on public surfaces"
 ---
 
 # Public Benefit-First Language
@@ -62,6 +63,7 @@ Short cards, labels, and CTAs may omit the second step for space, but must not b
 
 | Mechanism | Reader outcome first | Technical evidence second | Allowed wording / claim limit |
 | --- | --- | --- | --- |
+| Shared business framework | Humans and agents can work from the same governed truth across vision, identity, brand, content, product, technology, growth, delivery, and proof. | Reviewed business, product, GTM, brand, métier, and decision contracts give each kind of truth and work an explicit role. | Say "a business framework for humans and agents"; do not imply universal coverage, correct decisions by default, or guaranteed business impact. |
 | Business-context mesh | The agent can connect the current task to the customer, promise, priority, and business consequence that matter. | A selective context mesh loads the smallest relevant governed business sources and preserves evidence states. | Say "grounds decisions in governed project truth"; do not imply complete business understanding or correct advice by default. |
 | Public métier ownership | One business-aware owner keeps the intended outcome active through internal handoffs and proof. | Public métier contracts route specialized execution without making the operator coordinate internal engines. | Say "retains outcome ownership" or "carries the chantier through proof"; do not promise unattended delivery or business success. |
 | Context map | A new agent can start without making you reconstruct the project. | An operational context map identifies the relevant entry points, constraints, and documents. | Say “gives agents better context” or “reduces context reconstruction”; do not say an agent always understands the project. |
@@ -82,7 +84,7 @@ Use native-language equivalents, not literal technical slogans. These examples d
 
 | Situation | English | Français |
 | --- | --- | --- |
-| Partnership | "The agent connects your product intent to a decision, a bounded chantier, and visible proof." | "L’agent relie votre intention produit à une décision, un chantier cadré et une preuve visible." |
+| Partnership | "ShipGlows behaves like a business-aware partner: it challenges weak framing, recommends a direction, and keeps the outcome active through proof." | "ShipGlows se comporte comme un partenaire business-aware : il questionne les cadrages faibles, recommande une direction et garde le résultat actif jusqu’à la preuve." |
 | Context | “A new agent can start without making you reconstruct the project.” | “Un nouvel agent peut commencer sans vous faire reconstruire le projet.” |
 | Work framing | “Important work is framed before the product changes.” | “Les changements importants sont cadrés avant de modifier le produit.” |
 | Verification | “A green build is not the only signal used to judge completion.” | “Un build vert n’est pas le seul signal utilisé pour juger qu’un travail est terminé.” |
