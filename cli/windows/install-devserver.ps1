@@ -1055,7 +1055,7 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     $emulatorAccelerationReady = $false
     $avdReady = $emulatorState.Complete
     if ($plan.InstallEmulator) {
-        Write-Host 'Downloading the Android emulator and Android 36 system image. Progress remains visible; this can use several gigabytes.' -ForegroundColor Yellow
+        Write-Host 'Downloading the Android emulator and Android 36 system image. sdkmanager may remain silent during this several-gigabyte bounded download.' -ForegroundColor Yellow
         $emulatorInstallSucceeded = Invoke-SgInteractiveBoundedProcess $sdkManager $emulatorPlan.Packages 1800
         $emulator = $emulatorCandidate
         if ($emulatorInstallSucceeded -and (Test-Path -LiteralPath $emulator -PathType Leaf)) {
