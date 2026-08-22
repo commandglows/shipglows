@@ -85,8 +85,8 @@ jobs:
               throw "Windows bootstrap exited with code $LASTEXITCODE"
             }
             $installed = Join-Path $target 'local\install_local.ps1'
-            if (-not (Test-Path -LiteralPath $installed)) {
-              throw "Selective bootstrap did not install: $installed"
+            if (Test-Path -LiteralPath $installed) {
+              throw "Download-only validation unexpectedly installed: $installed"
             }
           } finally {
             if (Test-Path -LiteralPath $target) {
