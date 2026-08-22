@@ -132,7 +132,7 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 | --- | --- | --- | --- |
 | Router | `shipglows` | Natural-language routing, auto credit windows, nolocal policy, and direct handoff | `000-shipglows`, `708-sg-auto` |
 | Créer | `sg-development` | Product, feature, app, code, and site delivery | `001-sg-build` |
-| Créer | `sg-design` | Visual system, interface, accessibility, and motion | `006-sg-design` |
+| Créer | `sg-design` | Brand identity, visual system, interface, accessibility, and motion | `006-sg-design` |
 | Créer | `sg-experience` | Journeys, activation, onboarding, trust, and recovery | `008-sg-customer` |
 | Qualité | `sg-bug` | Observed defects through repair and proof | `003-sg-bug` |
 | Qualité | `sg-engineering` | Architecture, dependencies, performance, migration, sync, access, and parity | `010-sg-technical`, `600`, `601`, `602` |
@@ -154,7 +154,7 @@ composable with every command unless that mode declares a conflict.
 | --- | --- |
 | `shipglows` | default routing, `context`, `auto` |
 | `sg-development` | `default`, `feature`, `app`, `refactor` |
-| `sg-design` | `system`, `playground`, `audit`, `animation`, `redesign`, `migration`, `library` |
+| `sg-design` | `identity`, `system`, `playground`, `audit`, `animation`, `redesign`, `migration`, `library` |
 | `sg-experience` | `audit`, `flow`, `onboarding`, `recovery` |
 | `sg-bug` | `default`, `reproduce`, `fix`, `retest`, `close` |
 | `sg-engineering` | `audit`, `architecture`, `deps`, `performance`, `migrate`, `github`, `sync`, `access`, `parity` |

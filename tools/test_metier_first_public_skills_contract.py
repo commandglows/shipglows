@@ -3,7 +3,7 @@
 
 These tests deliberately verify machine-readable ownership and activation
 anchors, rather than pretending to evaluate an LLM conversation.  The
-pressure scenarios (MH-01 through MH-12) stay deterministic by checking the
+pressure scenarios (MH-01 through MH-23) stay deterministic by checking the
 contract that every public owner must load and the canonical catalog that
 drives public discovery.
 """
@@ -117,9 +117,9 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
     def test_mh_13_business_partner_first_is_active_for_every_public_path(self) -> None:
         for required in (
             "## Business Partner First",
-            "business, product, customer, or organizational outcome",
-            "Before selecting a technical solution",
-            "technically correct but business-irrelevant output",
+            "business, brand, product, customer, or organizational outcome",
+            "Before technical selection",
+            "business-irrelevant work",
             "strategic-choice-contract.md",
             "operator-partnership-contract.md",
         ):
@@ -134,7 +134,7 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
             self.assertIn("intent-to-outcome-autonomy.md", body, runtime_skill)
 
     def test_mh_14_material_choices_load_the_strategic_contract(self) -> None:
-        self.assertIn("Before presenting a material operator-facing choice", self.autonomy)
+        self.assertIn("Material choices load `strategic-choice-contract.md`", self.autonomy)
         self.assertIn("business or product outcome", self.strategic_choices)
         self.assertIn("partner before becoming a technical executor", self.partnership)
 
@@ -159,12 +159,11 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         self.assertIn("`MH-17`", self.autonomy_scenarios)
         self.assertIn("`MH-18`", self.autonomy_scenarios)
 
-    # MH-02: projects can contain several products and surfaces.
+    # MH-02: projects can contain several business, brand, product, and surface outcomes.
     def test_mh_02_preserves_the_full_target_hierarchy(self) -> None:
-        target = "project -> product -> surface -> feature"
+        target = "project -> business/brand/product -> outcome -> surface -> work item"
         self.assertIn(target, self.autonomy)
-        self.assertIn("One project may contain several products", self.autonomy)
-        self.assertIn("one product may expose several surfaces", self.autonomy)
+        self.assertIn("software is one possible form, not the default", self.autonomy)
         self.assertIn(target, self.router)
 
     # MH-03 / MH-04: only operator-owned business truth becomes a question.
@@ -173,11 +172,11 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
             "Ask one numbered decision at a time",
             "recommend the strongest professional default",
             "never front-load a generic questionnaire",
-            "Stop questioning as soon as a fresh capable agent could execute",
-            "implementation mechanics are not operator questions",
+            "Stop when a fresh capable agent can execute and prove safely",
+            "Discoverable paths, commands, tests, and mechanics are agent decisions",
         ):
             self.assertIn(required, self.autonomy)
-        self.assertIn("product behavior", self.autonomy)
+        self.assertIn("behavior, promise, scope", self.autonomy)
         self.assertIn("security", self.autonomy)
         self.assertIn("cost", self.autonomy)
 
@@ -189,7 +188,7 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
             "Invoke internal engines without asking the operator to select or schedule them",
         ):
             self.assertIn(required, self.autonomy_execution)
-        self.assertIn("Keep one public outcome owner for cross-métier work", self.autonomy)
+        self.assertIn("A public métier owns the outcome across internal engines and handoffs", self.autonomy)
         self.assertIn("continue through its owned closure and ship route", self.lifecycle)
         self.assertIn("manual `/104-sg-end`, `/005-sg-ship`, or `/004-sg-deploy`", self.lifecycle)
         self.assertIn("never require the operator to select an owner, skill, or", self.delegation)
@@ -200,7 +199,7 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         self.assertEqual("300-sg-docs", self.owner_by_id()["sg-docs"]["runtime_skill"])
         public_content = (SKILLS / "sg-content" / "SKILL.md").read_text(encoding="utf-8")
         internal_docs = (SKILLS / "sg-docs" / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("public documentation and audience content", public_content)
+        self.assertIn("editorial brand expression, public documentation, and audience content", public_content)
         self.assertIn("internal architecture, governance, context, metadata", internal_docs)
         self.assertIn("keep public docs and audience content with `sg-content`", internal_docs)
 

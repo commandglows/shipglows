@@ -1,17 +1,17 @@
 ---
 name: sg-design
-description: Design interfaces, systems, accessibility, audits, inspiration, and animation.
+description: Brand identity, interface and design-system creation, accessibility, inspiration, and animation.
 ---
 
 # sg-design
 
 ## Mission
 
-`sg-design` is the public owner for interfaces, design systems, accessibility, inspiration, and animation.
+`sg-design` is the public owner for visual identity, interfaces, design systems, accessibility, inspiration, and animation.
 
 ## Scope Gate
 
-Resolve the affected product and surface, then load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Retain outcome ownership and clarify only decisions that materially affect the result.
+Resolve the affected business, brand or product, intended outcome, and surface, then load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Retain outcome ownership and clarify only decisions that materially affect the result.
 
 ## Required References
 

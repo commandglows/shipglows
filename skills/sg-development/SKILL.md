@@ -11,7 +11,7 @@ description: Build product features, apps, and refactors through verified implem
 
 ## Scope Gate
 
-Own the outcome from clarification through proof. Resolve `project -> product -> surface -> feature`, load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`, and ask only material operator decisions.
+Own the outcome from clarification through proof. Resolve `project -> business/brand/product -> outcome -> surface -> work item`, load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`, and ask only material operator decisions.
 
 ## Required References
 

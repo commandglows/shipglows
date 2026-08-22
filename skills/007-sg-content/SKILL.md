@@ -14,7 +14,7 @@ Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows-own
 
 Public label: `sg-content`. Trace category: `obligatoire`. Process role: `lifecycle`.
 
-Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`; own public content from intent through authorized publication. Internal architecture/governance/agent docs belong to `sg-docs`. Attach to one unique spec when present and apply `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`; otherwise do not mutate a spec. Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before the final report. Default to outcome-first `report=user`.
+Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`; own the editorial expression of a business or brand and its public content from intent through authorized publication. Marketing owns positioning and message strategy; design owns the visual identity system; internal architecture/governance/agent docs belong to `sg-docs`. Attach to one unique spec when present and apply `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`; otherwise do not mutate a spec. Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before the final report. Default to outcome-first `report=user`.
 
 ## Explicit Invocation And Scope Gate
 

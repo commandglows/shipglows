@@ -10,7 +10,7 @@ Before resolving a ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references
 
 ## Public Métier Ownership
 
-Public label: `sg-experience`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or journey routing. Resolve `project -> product -> surface -> feature` and own the customer outcome through diagnosis, design/content/implementation collaboration, behavioral proof, and closure.
+Public label: `sg-experience`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or journey routing. Resolve `project -> business/brand/product -> outcome -> surface -> work item` and own the customer outcome through diagnosis, design/content/implementation collaboration, behavioral proof, and closure.
 
 ## Instruction Layering
 

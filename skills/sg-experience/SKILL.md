@@ -11,7 +11,7 @@ description: Improve customer journeys, onboarding, trust, and recovery.
 
 ## Scope Gate
 
-Resolve `project -> product -> surface -> feature` and load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Retain customer-outcome ownership, including internal collaboration with design, content, and implementation.
+Resolve `project -> business/brand/product -> outcome -> surface -> work item` and load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Retain customer-outcome ownership, including internal collaboration with design, content, and implementation.
 
 ## Required References
 

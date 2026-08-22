@@ -10,7 +10,7 @@ Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/referenc
 
 ## Public Métier Ownership
 
-Public label: `sg-seo`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or SEO mode selection. Resolve `project -> product -> surface -> feature` and own the organic-search outcome through audit, remediation, content/marketing collaboration, monitoring proof, affected public documentation, and closure.
+Public label: `sg-seo`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or SEO mode selection. Resolve `project -> business/brand/product -> outcome -> surface -> work item` and own the organic-search outcome through audit, remediation, content/marketing collaboration, monitoring proof, affected public documentation, and closure.
 
 ## Instruction Layering
 

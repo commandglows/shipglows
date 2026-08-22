@@ -13,7 +13,7 @@
         "label": "Create",
         "skills": [
           {"id": "sg-development", "public_skill": "sg-development", "runtime_skill": "001-sg-build", "modes": ["default", "feature", "app", "refactor"], "hidden_modes": {"build": {"runtime_engine": "001-sg-build"}, "excellence": {"runtime_engine": "103-sg-verify", "engine_mode": "excellence"}}, "internal_engines": ["100-sg-spec", "101-sg-ready", "102-sg-start", "103-sg-verify", "104-sg-end", "105-sg-check", "005-sg-ship", "306-sg-scaffold"]},
-          {"id": "sg-design", "public_skill": "sg-design", "runtime_skill": "006-sg-design", "modes": ["system", "playground", "audit", "animation", "redesign", "migration", "library"], "internal_engines": ["105-sg-check", "108-sg-browser", "103-sg-verify"]},
+          {"id": "sg-design", "public_skill": "sg-design", "runtime_skill": "006-sg-design", "modes": ["identity", "system", "playground", "audit", "animation", "redesign", "migration", "library"], "internal_engines": ["105-sg-check", "108-sg-browser", "103-sg-verify"]},
           {"id": "sg-experience", "public_skill": "sg-experience", "runtime_skill": "008-sg-customer", "modes": ["audit", "flow", "onboarding", "recovery"], "internal_engines": ["006-sg-design", "007-sg-content", "107-sg-test", "108-sg-browser", "109-sg-auth-debug"]}
         ]
       },
@@ -323,7 +323,7 @@
     "003-sg-bug": {"kind": "freeform", "min_args": 0},
     "004-sg-deploy": {"kind": "freeform", "min_args": 0},
     "005-sg-ship": {"kind": "freeform", "min_args": 0},
-    "006-sg-design": {"kind": "modes", "modes": {"system": {"min_args": 0}, "playground": {"min_args": 0}, "audit": {"min_args": 1}, "animation": {"min_args": 1}, "redesign": {"min_args": 0}, "migration": {"min_args": 0}, "library": {"min_args": 1}}},
+    "006-sg-design": {"kind": "modes", "modes": {"identity": {"min_args": 0}, "system": {"min_args": 0}, "playground": {"min_args": 0}, "audit": {"min_args": 1}, "animation": {"min_args": 1}, "redesign": {"min_args": 0}, "migration": {"min_args": 0}, "library": {"min_args": 1}}},
     "007-sg-content": {"kind": "modes", "modes": {"plan": {"min_args": 0}, "capture": {"min_args": 0}, "tmux": {"min_args": 0}, "capture-full-conversation": {"min_args": 0}, "clean-transcript": {"min_args": 0}, "repurpose": {"min_args": 1}, "draft": {"min_args": 0}, "enrich": {"min_args": 0}, "audit": {"min_args": 0}, "marketing": {"min_args": 0}, "seo": {"min_args": 0}, "editorial": {"min_args": 0}, "apply": {"min_args": 0}, "ship": {"min_args": 0}}},
     "008-sg-customer": {"kind": "modes", "modes": {"audit": {"min_args": 1}, "flow": {"min_args": 1}, "onboarding": {"min_args": 1}, "recovery": {"min_args": 1}}},
     "009-sg-marketing": {"kind": "modes", "modes": {"market": {"min_args": 1}, "gtm": {"min_args": 1}, "copy": {"min_args": 1}, "copywriting": {"min_args": 1}, "help": {"min_args": 0}}},

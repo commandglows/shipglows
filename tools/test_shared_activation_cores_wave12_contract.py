@@ -24,7 +24,7 @@ class SharedActivationCoresWave12ContractTests(unittest.TestCase):
 
     def test_lifecycle_core_keeps_route_and_escalation_gates(self) -> None:
         for marker in (
-            "one current work item", "readiness", "owner execution",
+            "one current work item", "readiness", "owner creation/execution",
             "checkpoint-based", "verification fails", "master-workflow-lifecycle.md",
         ):
             self.assertIn(marker, self.lifecycle)

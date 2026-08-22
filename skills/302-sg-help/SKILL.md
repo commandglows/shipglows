@@ -10,7 +10,7 @@ Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/referenc
 
 ## Public Métier Ownership
 
-Public label: `sg-help`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. For explanation-only requests, answer directly. For an actionable request whose owner becomes clear, transition into that public métier owner in the same conversation instead of requiring the operator to invoke another command. Resolve `project -> product -> surface -> feature` only to the depth needed for accurate help.
+Public label: `sg-help`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. For explanation-only requests, answer directly. For an actionable request whose owner becomes clear, transition into that public métier owner in the same conversation instead of requiring the operator to invoke another command. Resolve `project -> business/brand/product -> outcome -> surface -> work item` only to the depth needed for accurate help.
 
 ## Instruction Layering
 

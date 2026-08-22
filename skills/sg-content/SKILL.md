@@ -7,7 +7,7 @@ description: Public documentation and audience-content lifecycles.
 
 ## Mission
 
-`sg-content` is the public owner for public documentation and audience content.
+`sg-content` is the public owner for editorial brand expression, public documentation, and audience content.
 
 ## Scope Gate
 

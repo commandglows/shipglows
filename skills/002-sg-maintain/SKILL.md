@@ -12,7 +12,7 @@ Before resolving a ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references
 
 ## Public Métier Ownership
 
-Public label: `sg-maintenance`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or lane selection. Resolve `project -> product -> surface -> feature`, ask only material operator decisions, and retain the maintenance outcome through proof and closure.
+Public label: `sg-maintenance`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or lane selection. Resolve `project -> business/brand/product -> outcome -> surface -> work item`, ask only material operator decisions, and retain the maintenance outcome through proof and closure.
 
 ## Chantier Tracking
 

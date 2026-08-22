@@ -24,7 +24,7 @@ class DailyConstructionContractTests(unittest.TestCase):
         cls.delegation = (ROOT / "skills/references/master-delegation-semantics.md").read_text(encoding="utf-8")
 
     def test_clean_daily_completion_defaults_to_push(self) -> None:
-        self.assertIn("clean completed daily chantier proceeds to bounded commit and push by default", self.core)
+        self.assertIn("clean completed daily chantier with durable repository artifacts proceeds to bounded commit and push by default", self.core)
         self.assertIn("default terminal route is bounded commit and push", self.lifecycle)
         self.assertIn("unpushed commits remain delivery pending", self.end)
 
@@ -48,8 +48,8 @@ class DailyConstructionContractTests(unittest.TestCase):
 
     def test_corpus_prioritizes_shipped_business_value(self) -> None:
         self.assertIn("primary goal is shipped business and user value", self.decision)
-        self.assertIn("valuable outcome -> smallest coherent slice -> build -> proportional proof -> commit/push -> real feedback", self.partnership)
-        self.assertIn("smallest useful slice that can be shipped", self.autonomy)
+        self.assertIn("valuable outcome -> smallest coherent slice -> create -> proportional proof -> commit/push -> activate at the real destination -> learn", self.partnership)
+        self.assertIn("smallest useful deliverable", self.autonomy)
         self.assertIn("Recommend the fastest, simplest path", self.questions)
 
     def test_architecture_is_a_high_standard_enabler_not_ceremony(self) -> None:

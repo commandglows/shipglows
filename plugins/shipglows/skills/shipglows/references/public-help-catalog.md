@@ -39,7 +39,7 @@ while conflicts with `#local` fail closed.
 | Domain | Public métier | Owns the outcome |
 | --- | --- | --- |
 | Create | `sg-development` | Product behavior from intent to verified implementation |
-| Create | `sg-design` | Interfaces, design systems, accessibility, visual audits, inspiration, and animation |
+| Create | `sg-design` | Brand identities, interfaces, design systems, accessibility, visual audits, inspiration, and animation |
 | Create | `sg-experience` | Customer journeys, activation, trust, support, and recovery |
 | Quality | `sg-bug` | Reproduce, fix, retest, prove, and close a defect |
 | Quality | `sg-engineering` | Architecture, code quality, performance, dependencies, sync, access, and platform parity |

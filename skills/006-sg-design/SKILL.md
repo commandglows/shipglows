@@ -1,7 +1,7 @@
 ---
 name: 006-sg-design
-description: "Design systems, animation, accessibility, audits, and inspiration."
-argument-hint: <system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...>
+description: "Design systems, brand identity, accessibility, animation, and audits."
+argument-hint: <identity [scope] | system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...>
 ---
 
 Primary artifact type: `master-workflow`.
@@ -12,7 +12,7 @@ Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/referenc
 
 ## Public Métier Ownership
 
-Public label: `sg-design`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or mode selection. Resolve `project -> product -> surface -> feature` and retain ownership from design intent through implementation, accessibility/performance proof, documentation coherence, and closure.
+Public label: `sg-design`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or mode selection. Resolve `project -> business/brand/product -> outcome -> surface -> work item` and retain ownership from identity or design intent through implementation, accessibility/performance proof, documentation coherence, and closure.
 
 ## Chantier Tracking
 
@@ -31,6 +31,7 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` before choosing topology; parallelize independent read-only design evidence by default and require ready write batches for concurrent edits.
 - `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` before any UI, layout, token, theme, or visual-proof work.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` for mode grammar, scope gates, and sequencing.
+- `$SHIPGLOWS_ROOT/skills/006-sg-design/references/brand-identity-playbook.md` for `identity [scope]` after positioning, audience, and existing brand truth are resolved.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/animation-playbook.md` for `animation <audit|design|implement|tune> [scope]` after valid animation selection.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-token-migration-playbook.md` for token centralization and migration handoff.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-proof-and-reporting.md` for design completion and handoff evidence.
@@ -48,7 +49,7 @@ Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/s
 
 ## Mission
 
-`006-sg-design` is the runtime engine selected by public `sg-design`. It owns lifecycle routing and proof posture for design-system, UI/UX, animation, accessibility, visual-proof, and token migration work, but it does not replace implementation, browser verification, or ship/deploy skills.
+`006-sg-design` is the runtime engine selected by public `sg-design`. It owns lifecycle routing and proof posture for brand identity, design-system, UI/UX, animation, accessibility, visual-proof, and token migration work, but it does not replace marketing positioning, content expression, implementation, browser verification, or ship/deploy skills.
 
 ## Scope Gate
 
@@ -62,6 +63,7 @@ When the request is ambiguous enough that one routing question cannot settle sco
 
 Use the exact mode grammar and playbook mapping from `design-lifecycle-routing.md`.
 
+- `identity` for visual identity creation or evolution from governed business, audience, positioning, and brand truth
 - `system` for design-system creation
 - `playground` for token and route exploration
 - `audit ui|tokens|components|a11y` for bounded audits
@@ -86,7 +88,7 @@ Run `006-sg-design audit tokens`, `006-sg-design audit a11y`, `108-sg-browser`, 
 Stop and report `blocked` when:
 
 - the design intent is too ambiguous for one targeted routing question and needs `700-sg-explore`
-- brand direction, visual identity, public claim, or product surface choice changes materially and the user has not decided
+- positioning, audience promise, public claim, or identity acceptance criteria change materially and the user has not decided
 - broad implementation lacks a ready spec
 - validation or specialist proof required by the design claim is missing
 - visual non-regression is claimed but browser proof was not collected

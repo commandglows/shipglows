@@ -36,7 +36,7 @@ next_step: "/103-sg-verify sg-help mode catalog"
 Return only the lines below for exact `302-sg-help mode`, `302-sg-help modes`, `sg-help mode`, or `sg-help modes` requests. The order follows the six public navigation domains, then the universal router and the transversal execution tags. Each command line is directly reusable agent-invocation grammar: angle brackets are required choices or values, square brackets are optional.
 
 `sg-development [default|feature|app|refactor] <goal>` — Build a feature, application, or refactor through verified implementation.
-`sg-design system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...` — Design systems, interfaces, accessibility, inspiration, and motion.
+`sg-design identity [scope] | system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...` — Brand identity, design systems, interfaces, accessibility, inspiration, and motion.
 `sg-experience <audit|flow|onboarding|recovery> <scope>` — Improve customer journeys, activation, trust, and recovery.
 `sg-bug [default|reproduce|fix|retest|close] <defect-or-BUG-ID>` — Reproduce, repair, prove, and close product defects.
 `sg-engineering <audit|architecture|deps|performance|migrate|github|sync|access|parity> [target]` — Own technical quality, architecture, dependencies, migrations, access, and parity.

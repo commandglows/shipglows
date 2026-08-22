@@ -12,7 +12,7 @@ Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows-own
 
 ## Public Métier, Chantier, And Reporting
 
-Public label: `sg-release`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or release routing. Resolve `project -> product -> surface -> feature` and own one bounded release through checks, ship authorization, deployment truth, proof, verification, and closure.
+Public label: `sg-release`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or release routing. Resolve `project -> business/brand/product -> outcome -> surface -> work item` and own one bounded release through checks, ship authorization, deployment truth, proof, verification, and closure.
 
 Trace category: `obligatoire`. Process role: `lifecycle`. Attach to one unique spec when present and apply `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md`; otherwise use `(local)`. Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before the final report. Blocked user reports remain plain-language and offer only safe recovery choices. Detailed handoff loads `$SHIPGLOWS_ROOT/skills/004-sg-deploy/references/deploy-report-template.md`.
 

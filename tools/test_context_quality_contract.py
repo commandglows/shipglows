@@ -27,7 +27,7 @@ class ContextQualityContractTests(unittest.TestCase):
         doctrine = text(CONTRACT)
         for marker in (
             "context capsule",
-            "project -> product -> surface -> feature",
+            "project -> business/brand/product -> outcome -> surface -> work item",
             "accepted outcome",
             "context_ready",
             "context_partial",

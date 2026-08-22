@@ -43,7 +43,7 @@ class HelpModesContractTests(unittest.TestCase):
     def test_default_catalog_exposes_reusable_exact_invocation_grammar(self) -> None:
         catalog = CATALOG.read_text(encoding="utf-8")
         expected_grammar = (
-            "sg-design system [scope] | playground [route-path] | "
+            "sg-design identity [scope] | system [scope] | playground [route-path] | "
             "audit <ui|tokens|components|a11y> [scope] | "
             "animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status>",
             "sg-experience <audit|flow|onboarding|recovery> <scope>",

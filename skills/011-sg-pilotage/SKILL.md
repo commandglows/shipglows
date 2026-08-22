@@ -12,7 +12,7 @@ Before resolving ShipGlows-owned files, load `$SHIPGLOWS_ROOT/skills/references/
 
 ## Public Métier Ownership
 
-Public label: `sg-planning`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or planning mode selection. Resolve `project -> product -> surface -> feature`, infer discoverable state, ask only for material priority decisions, and carry planning/bookkeeping outcomes through durable updates and proof.
+Public label: `sg-planning`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or planning mode selection. Resolve `project -> business/brand/product -> outcome -> surface -> work item`, infer discoverable state, ask only for material priority decisions, and carry planning/bookkeeping outcomes through durable updates and proof.
 
 ## Instruction Layering
 

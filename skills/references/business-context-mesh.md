@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-13"
+updated: "2026-08-22"
 status: active
 source_skill: 900-shipglows-core
 scope: business-context-mesh
@@ -39,6 +39,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-08-22: the target mesh resolves business, brand, product, outcome, surface, and work item without assuming software."
   - "Operator decision 2026-08-13: every métier must act as a business partner grounded in the existing business corpus."
   - "Core audit 2026-08-13: business sources existed but no shared runtime selector connected them to every public outcome path."
   - "Operator decision 2026-08-13: a material governing-context gap may trigger a guided update pass with the ordering authority."
@@ -54,7 +55,7 @@ Ground non-trivial ShipGlows work in the target project's existing business trut
 
 ## Activation Rule
 
-After resolving `project -> product -> surface -> feature`, load the smallest coherent source bundle when customer value, product promise, market position, monetization, trust, portfolio priority, or organizational leverage could materially change the decision. Start from the active project's governance root, including a monorepo root; use the ShipGlows corpus only when ShipGlows itself is the target.
+After resolving `project -> business/brand/product -> outcome -> surface -> work item`, load the smallest coherent source bundle when customer value, product promise, identity, market position, monetization, trust, portfolio priority, or organizational leverage could materially change the decision. Start from the active project's governance root, including a monorepo root; use the ShipGlows corpus only when ShipGlows itself is the target.
 
 Skip this mesh for routine reversible mechanics whose outcome cannot differ under any applicable business source. Do not use lexical resource discovery as proof that no business context exists.
 

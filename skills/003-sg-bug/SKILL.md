@@ -12,7 +12,7 @@ Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving Shi
 
 ## Public Métier Ownership
 
-Public label: `sg-bug`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or lifecycle routing. Resolve `project -> product -> surface -> feature` and retain ownership through proportional proof and authorized closure or ship.
+Public label: `sg-bug`. Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md` before clarification or lifecycle routing. Resolve `project -> business/brand/product -> outcome -> surface -> work item` and retain ownership through proportional proof and authorized closure or ship.
 
 ## Chantier Tracking
 

@@ -11,7 +11,7 @@ description: Route ShipGlows requests to the right métier owner.
 
 ## Scope Gate
 
-Use this as the canonical public router. Resolve `project -> product -> surface -> feature`, load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`, and select the public métier owner without asking the operator to choose an internal skill.
+Use this as the canonical public router. Resolve `project -> business/brand/product -> outcome -> surface -> work item`, load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`, and select the public métier owner without asking the operator to choose an internal skill.
 
 ## Required References
 

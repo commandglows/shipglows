@@ -13,6 +13,7 @@ TOKEN_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "design-token-a
 COMPONENT_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "component-system-audit-playbook.md"
 A11Y_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "accessibility-audit-playbook.md"
 ANIMATION_PLAYBOOK = ROOT / "skills" / "006-sg-design" / "references" / "animation-playbook.md"
+IDENTITY_PLAYBOOK = ROOT / "skills" / "006-sg-design" / "references" / "brand-identity-playbook.md"
 LIFECYCLE_ROUTING = ROOT / "skills" / "006-sg-design" / "references" / "design-lifecycle-routing.md"
 PROOF_GUIDANCE = ROOT / "skills" / "006-sg-design" / "references" / "design-proof-and-reporting.md"
 DESIGN_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "design-audit-playbook.md"
@@ -30,6 +31,28 @@ def normalized_text(path: Path) -> str:
 
 
 class DesignContractTests(unittest.TestCase):
+    def test_identity_is_a_first_class_non_software_design_outcome(self) -> None:
+        skill = normalized_text(DESIGN_SKILL)
+        public = normalized_text(PUBLIC_DESIGN_SKILL)
+        routing = normalized_text(LIFECYCLE_ROUTING)
+        identity = normalized_text(IDENTITY_PLAYBOOK)
+
+        for text in (skill, public, routing):
+            self.assertIn("identity", text)
+        for phrase in (
+            "An identity is a business system",
+            "not necessarily a software interface",
+            "Marketing owns market, offer, positioning, message strategy, and verbal foundations",
+            "Design owns art direction",
+            "Content owns editorial expression",
+            "Do not require a website, application, or software product",
+            "Persist every repository-representable artifact",
+            "canonical source link",
+            "without agent mediation",
+            "IDENTITY-TECH-05",
+        ):
+            self.assertIn(phrase, identity)
+
     def test_reference_driven_frontend_requires_project_native_iterative_visual_proof(self) -> None:
         skill = normalized_text(DESIGN_SKILL)
         routing = normalized_text(LIFECYCLE_ROUTING)

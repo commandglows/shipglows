@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-08-12"
+updated: "2026-08-22"
 status: active
 source_skill: 006-sg-design
 scope: design-lifecycle-routing
@@ -28,6 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-08-22 adds identity as a first-class design outcome with explicit marketing, content, implementation, Git, and human-usability boundaries."
   - "2026-07-15 consolidation replaced six public specialist routes with explicit 006-sg-design modes and bounded playbooks."
   - "2026-08-04 added the provider-neutral animation mode and its bounded playbook."
 next_review: "2026-08-15"
@@ -47,7 +48,9 @@ Use this reference after loading:
 
 ## Canonical Mode Grammar
 
-Public `sg-design` accepts these commands: `system [scope]`, `playground [route-path]`, `audit ui [scope]`, `audit tokens [scope]`, `audit components [scope]`, `audit a11y [scope]`, `animation <audit|design|implement|tune> [scope]`, `redesign [scope]`, `migration [scope]`, and the separately defined `library ...` operations. `tokens-only` and `with-playground` are optional modifiers of `system`, not public skill aliases. `gsap` is not a public mode or alias.
+Public `sg-design` accepts these commands: `identity [scope]`, `system [scope]`, `playground [route-path]`, `audit ui [scope]`, `audit tokens [scope]`, `audit components [scope]`, `audit a11y [scope]`, `animation <audit|design|implement|tune> [scope]`, `redesign [scope]`, `migration [scope]`, and the separately defined `library ...` operations. `tokens-only` and `with-playground` are optional modifiers of `system`, not public skill aliases. `gsap` is not a public mode or alias.
+
+`identity` loads `brand-identity-playbook.md`. It creates or evolves the visual identity system from governed business, audience, positioning, promise, and brand truth. Marketing owns market, offer, positioning, message strategy, and verbal foundations; design owns art direction and the visual identity system; content owns editorial expression; implementation owners apply the accepted system to technical surfaces. One public owner retains the outcome and coordinates these boundaries internally.
 
 `audit` without a subtype, an unknown subtype, or an invalid mode must list these supported choices or ask one targeted routing question. Never infer an audit subtype. Load only its mapped primary playbook after a valid selection; `audit ui deep` may then load the three explicit companion audit playbooks required by its contract.
 
@@ -107,6 +110,12 @@ Typical flow for design-system creation:
 
 ```text
 006-sg-design system -> 006-sg-design audit tokens -> 006-sg-design playground optional -> 103-sg-verify
+```
+
+Typical flow for brand identity creation or evolution:
+
+```text
+006-sg-design identity -> 100-sg-spec -> 101-sg-ready -> 102-sg-start -> identity proof -> 103-sg-verify -> commit/push -> authorized application
 ```
 
 Typical flow for token migration across a site:

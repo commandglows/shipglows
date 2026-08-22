@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-21"
+updated: "2026-08-22"
 status: active
 source_skill: 900-shipglows-core
 scope: context-quality-contract
@@ -28,6 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-08-22: context capsules resolve business, brand, product, outcome, surface, and work item rather than a software-only feature chain."
   - "Operator approval 2026-08-13: context quality is a shared lifecycle requirement and contextual MCP capabilities require a portable native fallback."
   - "Operator approval 2026-08-21: material context drift routes through the shared conversation-continuity and restart-handoff contract."
 next_review: "2026-09-13"
@@ -44,7 +45,7 @@ Use the minimum sufficient context for a correct decision, scaled by consequence
 
 Carry one compact `Context Capsule` across routing, readiness, execution, verification, compaction, and explicit agent handoff:
 
-- `target`: `project -> product -> surface -> feature` and current work item;
+- `target`: `project -> business/brand/product -> outcome -> surface -> work item`;
 - `accepted_outcome` (accepted outcome): observable result, stage, scope, invariants, and forbidden outcomes;
 - `qualified_truth`: material claims with state, canonical source pointer, relevant version/date, and applicability boundary;
 - `constraints`: product, security/data, architecture, design, runtime, external behavior, and proof surfaces that apply;

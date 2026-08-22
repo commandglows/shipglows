@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.10.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-14"
+updated: "2026-08-22"
 status: active
 source_skill: 009-sg-skill-build
 scope: entrypoint-routing
@@ -47,6 +47,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-08-22: route business, identity, editorial expression, and software implementation as distinct outcomes instead of sending every site or business change to build."
   - "User decision 2026-05-04: create `000-shipglows` as the primary non-technical router across the existing skill taxonomy."
   - "User decision 2026-05-04: `000-shipglows` should use direct main-thread handoff to selected master skills instead of nested master-skill subagents."
   - "User decision 2026-05-04: ambiguous routing questions should be numbered decision briefs with a responsible recommendation."
@@ -174,7 +175,7 @@ A read-only routing scout is allowed only for cheap classification evidence and 
 
 ### Public Target And Owner Resolution
 
-Resolve every actionable request as `project -> product -> surface -> feature` before selecting an owner. Inspect conversation and repository evidence before asking. Never assume that one project contains only one product. Ask only when an unresolved product or surface choice materially changes the outcome; after the answer, continue under one public métier owner.
+Resolve every actionable request as `project -> business/brand/product -> outcome -> surface -> work item` before selecting an owner. A project may contain several businesses, brands, products, or public expressions. Inspect conversation and repository evidence before asking, and ask only when an unresolved choice materially changes the outcome; after the answer, continue under one public métier owner.
 
 The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-bug`, `sg-engineering`, `sg-maintenance`, `sg-release`, `sg-content`, `sg-marketing`, `sg-seo`, `sg-docs`, `sg-planning`, and `sg-help`. Numeric runtime skills remain internal engines and compatibility identities. Load `skills/references/intent-to-outcome-autonomy.md` and keep the original outcome active through internal routing.
 
@@ -184,14 +185,18 @@ The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-
 | Exact string, placeholder, typo, heading-tag, or formatting replacement with no domain judgment or sensitive boundary | Direct main-thread execution with focused validation; no owner skill |
 | Numeric skill code such as `001`, `001-sg-build`, or `001sfbuild` | Runtime skill from `skills/references/skill-code-index.md` |
 | Build or change a user-facing feature and also think about end-user clarity, UX/UI friction, activation, beginner adoption, or first-success guidance | `001-sg-build` first; `001-sg-build` evaluates the post-implementation `008-sg-customer` gate |
-| Feature, product change, code work, site work, docs work, workflow improvement, broad bug-like goal without durable bug state | `001-sg-build` |
+| Software feature, application behavior, code implementation, technical site implementation, or broad code-like goal without durable bug state | `001-sg-build` |
+| Business model, offer, market, positioning, message strategy, or verbal brand foundation | public `sg-marketing`; internal `009-sg-marketing` selects its bounded mode |
+| Brand identity, visual identity system, art direction, logo system, palette, typography, or cross-surface visual expression | public `sg-design identity`; internal `006-sg-design identity` |
+| Audience content, editorial expression, content site strategy, public documentation, or publication lifecycle | `007-sg-content` |
+| Internal documentation, governed business truth, workflow contract, or agent documentation | `300-sg-docs` |
 | Recurring upkeep, dependency posture, docs drift, checks, audits, migrations, project hygiene, security maintenance | `002-sg-maintain` |
 | Observed defect, `BUG-ID`, retest, bug closure, bug fix state, bug ship risk | `003-sg-bug` |
 | Release confidence, preview/prod deployment, deployed truth, runtime logs, production health, post-deploy proof | `004-sg-deploy` |
 | Deploy-target recommendation for an app project | `004-sg-deploy` using `skills/references/deploy-target-matrix.md` as the canonical advisory source |
 | Content strategy, repurposing, drafting, enrichment, SEO/copy audit, editorial governance, content apply/publish | `007-sg-content` |
 | Source intake, pasted email/article/transcript/URL classification, project fit, useful angle, or owner-skill choice | Load `skills/references/source-intake-classification.md`, then route to the owner skill |
-| Design request, UI/UX work, redesign, design tokens, design playground, accessibility design, component design, visual proof, or token migration | `006-sg-design` |
+| Design request, identity work, UI/UX work, redesign, design tokens, design playground, accessibility design, component design, visual proof, or token migration | `006-sg-design` |
 | End-user experience, UX/UI clarity, trust, friction, feature activation, onboarding, setup guidance, first-success path, permission/setup sequencing, or recoverable states | `008-sg-customer <audit|flow|onboarding|recovery> <target>`; ambiguous intent asks among the four modes |
 | Local-first data promotion, cloud hydration, account sync, merge/conflict policy, reinstall recovery, or sync/save UX state | public `sg-engineering sync`; internal engine `600-sg-local-cloud-sync` |
 | Product access, paid plans, premium gates, entitlement ledgers, provider events, activation codes, refunds/revokes, support access flows, or backend access gates | public `sg-engineering access`; internal engine `601-sg-product-entitlements` |
