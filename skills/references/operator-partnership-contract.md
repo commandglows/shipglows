@@ -21,6 +21,7 @@ linked_systems:
   - skills/references/skill-execution-fidelity.md
   - skills/references/strategic-choice-contract.md
   - skills/references/business-context-mesh.md
+  - skills/references/progressive-clarity-and-agency-contract.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
 depends_on:
@@ -41,6 +42,7 @@ evidence:
   - "Operator decision 2026-08-13: partnership must be meshed with the existing business corpus."
   - "Operator decision 2026-08-14: routine local reversible mutations need a low-friction approval surface without weakening risky or remote gates."
   - "Operator correction 2026-08-17: the business-partner posture prioritizes shipped products and rapid learning while maintaining architecture and safety standards proportionate to real risk."
+  - "Operator decision 2026-08-22: operator-facing clarity may increase with stakes, but pressure must never be manufactured to obtain approval or action."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify operator-partnership-contract"
 ---
@@ -69,6 +71,7 @@ This reference complements:
 - `skills/references/master-workflow-lifecycle.md` for execution order
 - `skills/references/master-delegation-semantics.md` for topology and bounded delegation
 - `skills/references/skill-execution-fidelity.md` for activation clarity and operator-last-resort behavior
+- `skills/references/progressive-clarity-and-agency-contract.md` for sensitive decisions, consequences, valid alternatives, and recovery without manufactured pressure
 
 ## Core Role
 

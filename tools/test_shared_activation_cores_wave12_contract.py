@@ -75,6 +75,22 @@ class SharedActivationCoresWave12ContractTests(unittest.TestCase):
             corpus = self.entitlement + (REFS / "product-entitlement-support-and-proof.md").read_text(encoding="utf-8")
             self.assertIn(marker, corpus)
 
+    def test_trial_transition_experience_preserves_value_truth_and_recovery(self) -> None:
+        support = (REFS / "product-entitlement-support-and-proof.md").read_text(encoding="utf-8")
+        for marker in (
+            "Value-Led Trial Transition Contract",
+            "Increase information and decision clarity",
+            "Transition Timeline",
+            "Value Showcase",
+            "retained user data are not deleted",
+            "server-authorized restart",
+            "founder note",
+            "must not imply that the user owes a purchase",
+            "TEX-001",
+            "TEX-010",
+        ):
+            self.assertIn(marker, support)
+
     def test_entitlement_profile_exposes_each_branch(self) -> None:
         gates = self.profiles["601-sg-product-entitlements"]["gates"]
         for gate in ("entitlement-contract", "ledger-authorization", "provider-ingestion", "support-proof"):

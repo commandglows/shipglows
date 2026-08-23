@@ -1,10 +1,10 @@
 ---
 artifact: workflow_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.1"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-02"
-updated: "2026-08-13"
+updated: "2026-08-22"
 status: active
 source_skill: 900-shipglows-core
 scope: product-decision-traceability-and-change
@@ -24,6 +24,7 @@ linked_systems:
   - skills/104-sg-end/SKILL.md
   - skills/300-sg-docs/SKILL.md
   - skills/011-sg-pilotage/references/review-playbook.md
+  - skills/references/progressive-clarity-and-agency-contract.md
 depends_on:
   - artifact: skills/references/guided-business-product-discovery.md
     artifact_version: "1.2.0"
@@ -36,6 +37,7 @@ evidence:
   - "Operator approval 2026-08-02: reuse BMAD's change-impact, cross-artifact alignment, critical moments, traceability, focused elicitation and retrospective learning without its process weight."
   - "Local BMAD review 2026-08-02: useful patterns came from UX alignment, correct-course, journey/capability, emotional-response and retrospective workflows."
   - "Pilotage consolidation on 2026-08-03 transferred retrospective synthesis to 011-sg-pilotage review."
+  - "Operator decision 2026-08-22: critical moments should increase clarity and recovery guidance with stakes without manufacturing emotional pressure."
 next_step: "Apply this contract to material product decisions and Atlas-changing work."
 ---
 
@@ -113,6 +115,8 @@ For each selected moment record:
 - acceptable failure/recovery behavior;
 - success signal and proof;
 - protection or focus consequence.
+
+When a critical moment can affect trust, consent, access, money, data, safety, or recovery, apply `progressive-clarity-and-agency-contract.md`. Increase consequence visibility and recovery guidance with the real stakes; do not manufacture urgency merely to increase conversion or compliance.
 
 These records inform design and Atlas priority. They do not assign Gold or Diamond automatically; only the operator approves those levels.
 

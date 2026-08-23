@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-05-29"
-updated: "2026-08-12"
+updated: "2026-08-22"
 status: active
 source_skill: 601-sg-product-entitlements
 scope: product-entitlements
@@ -22,6 +22,8 @@ supersedes: []
 evidence:
   - "Suite authentication separates global identity, product entitlements, and product data namespaces."
   - "Wave 12 moved branch procedures to direct conditional leaves while preserving authorization doctrine here."
+  - "Operator decision 2026-08-22: trial-expiry UX must make suspended product value concrete while preserving data safety, eligible restarts, recovery, and non-coercive founder voice."
+  - "Operator decision 2026-08-22: govern the complete trial transition from calm pre-expiry reminders through expiration and recovery, with progressive clarity but no progressive pressure."
 next_review: "2026-09-12"
 next_step: "Implement and locally verify the unified suite contract in shipglows_data/workflow/specs/unified-suite-commercial-entitlement-and-stripe.md."
 ---
@@ -50,7 +52,7 @@ After this doctrine, load at most one branch before the next substantive action:
 
 - Ledger creation/adoption, statuses, backend authorization, product namespace, quota, or mirror/cache: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-ledger-and-authorization.md`.
 - Checkout, provider webhooks, manual/LTD/activation codes, refunds, revocations, replay, or ingestion: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-ingestion.md`.
-- UI access states, operator support, reconciliation, redaction, or completion proof: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-support-and-proof.md`.
+- UI access states, pre-expiry reminders, trial-transition conversion, operator support, reconciliation, redaction, or completion proof: `$SHIPGLOWS_ROOT/skills/references/product-entitlement-support-and-proof.md`.
 
 For suite ids/defaults/sync eligibility, load `$SHIPGLOWS_ROOT/skills/references/winflowz-suite-product-registry.md` directly from the skill. For current provider semantics, load `documentation-freshness-gate.md` and official sources directly from the skill. Branch files never load one another.
 
