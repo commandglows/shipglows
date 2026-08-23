@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-22"
 updated: "2026-08-23"
@@ -49,7 +49,7 @@ Create one compact shared doctrine for sensitive product and operator interactio
 
 Proof path: `scenario-first`, verified during the 2026-08-23 recovery run.
 
-The focused proof covers `PCA-001` through `PCA-008`, the state-to-recovery sequence, genuine-urgency evidence, progressive-disclosure limits, preserved alternatives, targeted discovery, and the entitlement specialization. The focused tests, metadata, dependency graph, skill audits, topology, and runtime sync passed on the recovery branch; PR integration remains pending.
+The focused proof covers `PCA-001` through `PCA-008`, the state-to-recovery sequence, genuine-urgency evidence, progressive-disclosure limits, preserved alternatives, targeted discovery, and the entitlement specialization. The focused tests, metadata, dependency graph, skill audits, topology, and runtime sync passed on the recovery branch; PR #27 then merged the validated recovery into `main` as `bbc07fe`.
 
 ## Current Chantier Flow
 
@@ -59,7 +59,7 @@ The focused proof covers `PCA-001` through `PCA-008`, the state-to-recovery sequ
 | Implementation | done | Shared doctrine and targeted consumers authored under `#nolocal`. |
 | Verification | done | Focused tests and repository-governance checks passed on 2026-08-23. |
 | Closure | done | The validated recovery was integrated without the superseded positioning commit. |
-| Ship | done | PR #27 merged into `main` as `bbc07fe`; final closure receipt follows on `main`. |
+| Ship | done | PR #27 merged into `main` as `bbc07fe`; this artifact records the final closure receipt. |
 
 ## Skill Run History
 
