@@ -357,7 +357,8 @@ The internal Windows runtime is installed under the hidden
 For automation, pass `-InstallMode local` or `-InstallMode full`; add
 `-InstallSurface corpus` for a contributor workstation. That surface clones or
 validates `%USERPROFILE%\ShipGlows\shipglows`, removes the conflicting public
-Codex plugin, and links the public Codex skills directly to the editable clone.
+Codex plugin, and links the public Codex skills directly to the complete,
+editable multi-branch clone.
 `SHIPGLOWS_INSTALL_COMPONENTS=all|skills|corpus` selects the same corpus surface
 for compatibility with the Unix bootstrap. A
 non-interactive call without a mode preserves the local-tunnel fallback. This

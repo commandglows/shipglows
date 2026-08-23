@@ -86,7 +86,7 @@ function Install-SgDeveloperCheckout {
     New-Item -ItemType Directory -Path $parent -Force | Out-Null
     $staging = Join-Path $parent ('.shipglows-clone-' + [guid]::NewGuid().ToString('N'))
     try {
-        & $gitPath clone --branch $Ref --single-branch -- $RepositoryUrl $staging
+        & $gitPath clone --branch $Ref -- $RepositoryUrl $staging
         if ($LASTEXITCODE -ne 0) { throw "Could not clone ShipGlows ref $Ref." }
         [void](Assert-SgDeveloperCheckout -Path $staging -RepositoryUrl $RepositoryUrl -GitPath $gitPath)
         if (Test-Path -LiteralPath $target) { throw "Developer target appeared during clone: $target" }

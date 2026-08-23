@@ -10,6 +10,8 @@ $module = Join-Path $repoRoot 'cli\windows\ShipGlows.DeveloperCorpus.psm1'
 $fixtureHome = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-developer-corpus-' + [guid]::NewGuid().ToString('N'))
 
 try {
+    $moduleText = [IO.File]::ReadAllText($module)
+    Assert-Sg ($moduleText -notmatch '--single-branch') 'Contributor clones must fetch the complete branch namespace.'
     Import-Module $module -Force
     $configDirectory = Join-Path $fixtureHome '.codex'
     New-Item -ItemType Directory -Path $configDirectory -Force | Out-Null
