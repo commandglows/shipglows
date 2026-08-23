@@ -165,10 +165,17 @@ try {
     $wrapperFixture = Join-Path $fixture 'wrapper space & caret^ percent% metachar'
     $fakeMise = Join-Path $wrapperFixture 'mise bin\mise.cmd'
     $fakeToolchain = Join-Path $wrapperFixture 'toolchain root & safe'
+    $fakeResolvedBin = Join-Path $fixture 'resolved-bin'
+    $fakeFirebase = Join-Path $fakeResolvedBin 'firebase.cmd'
     New-Item -ItemType Directory -Path (Split-Path $fakeMise -Parent) -Force | Out-Null
     New-Item -ItemType Directory -Path $fakeToolchain -Force | Out-Null
+    New-Item -ItemType Directory -Path $fakeResolvedBin -Force | Out-Null
     Set-Content -LiteralPath $fakeMise -Encoding Ascii -Value @'
 @echo off
+if "%~3"=="which" if "%~4"=="firebase" (
+  echo __FAKE_FIREBASE__
+  exit /b 0
+)
 set "SELF=%~f0"
 set SELF
 echo SAFE=%MISE_SAFE% HOOKS=%MISE_NO_HOOKS% ENV=%MISE_NO_ENV% AUTO=%MISE_AUTO_INSTALL%
@@ -177,6 +184,8 @@ set MISE_CEILING_PATHS
 echo ARGS=%*
 exit /b 23
 '@
+    Set-Content -LiteralPath $fakeFirebase -Encoding Ascii -Value "@echo off`r`necho RESOLVED_FIREBASE=%~f0 ARGS=%*`r`nexit /b 23`r`n"
+    (Get-Content -LiteralPath $fakeMise -Raw).Replace('__FAKE_FIREBASE__',$fakeFirebase.Substring(0,$fakeFirebase.Length - 4)) | Set-Content -LiteralPath $fakeMise -Encoding Ascii
     # Keep the wrapper itself on a plain path so this fixture exercises the
     # paths embedded by ShipGlows rather than Invoke-SgBoundedProcess's .cmd transport.
     $cargoWrapper = Join-Path $fixture 'cargo-wrapper.cmd'
@@ -195,7 +204,8 @@ exit /b 23
     $firebaseWrapper = Join-Path $fixture 'firebase-wrapper.cmd'
     [IO.File]::WriteAllText($firebaseWrapper,(Get-SgMachineToolboxWrapperContent -MisePath $fakeMise -ToolboxRoot $fakeToolchain -Command firebase),[Text.Encoding]::ASCII)
     $firebaseWrapperRun = Invoke-SgBoundedProcess -File $firebaseWrapper -Arguments @('--version') -TimeoutSeconds 20
-    Assert-Sg ($firebaseWrapperRun.ExitCode -eq 23 -and $firebaseWrapperRun.Output -match 'exec -- firebase') 'Machine toolbox wrapper must preserve the isolated mise boundary and child exit code.'
+    Assert-Sg ($firebaseWrapperRun.ExitCode -eq 23 -and $firebaseWrapperRun.Output -match 'RESOLVED_FIREBASE=.*ARGS="?--version"?') "Machine toolbox wrapper must resolve the exact mise executable and preserve its child exit code. Exit=$($firebaseWrapperRun.ExitCode); output=$($firebaseWrapperRun.Output)"
+    Assert-Sg ([IO.File]::ReadAllText($firebaseWrapper).Contains('which firebase')) 'Machine toolbox wrapper must fail closed through mise which instead of falling back to PATH command resolution.'
 
     $codexJson = '{"name":"firebase","enabled":true,"transport":{"type":"stdio","command":"C:\\Program Files\\nodejs\\npx.cmd","args":["-y","--registry=https://registry.npmjs.org/","firebase-tools@15.27.0","mcp"]}}'
     $firebaseServer = [pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command='C:\Program Files\nodejs\npx.cmd'; Arguments=@('-y','--registry=https://registry.npmjs.org/','firebase-tools@15.27.0','mcp') }

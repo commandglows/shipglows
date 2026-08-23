@@ -1609,14 +1609,15 @@ function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [st
                 [IO.File]::WriteAllText($temporary,$expected,[Text.UTF8Encoding]::new($false)); Move-SgAtomicReplace $temporary $configPath
             }
             $installed = Invoke-SgManagedTauriMise $mise $root @('install') 1800 -Visible -OperationId 'tool.machine-toolbox' -Label 'Installing the ShipGlows machine CLI toolbox'
-            if ($installed.TimedOut -or $installed.ExitCode -ne 0) { Write-SgInstallerWarning 'Machine CLI toolbox installation failed or timed out.' }
+            $toolboxInstalled = -not $installed.TimedOut -and $installed.ExitCode -eq 0
+            if (-not $toolboxInstalled) { Write-SgInstallerWarning "Machine CLI toolbox installation failed or timed out (exit=$($installed.ExitCode)). Stable commands were not exposed." }
             foreach ($item in $plan) {
                 $wrapper = Join-Path $runtimeDir "$($item.Command).cmd"
                 $content = Get-SgMachineToolboxWrapperContent -MisePath $mise -ToolboxRoot $root -Command $item.Command
-                if (-not (Test-Path -LiteralPath $wrapper -PathType Leaf) -or [IO.File]::ReadAllText($wrapper) -cne $content) { [IO.File]::WriteAllText($wrapper,$content,[Text.Encoding]::ASCII) }
-                $verify = Invoke-SgBoundedProcess $wrapper @('--version') 60
+                if ($toolboxInstalled -and (-not (Test-Path -LiteralPath $wrapper -PathType Leaf) -or [IO.File]::ReadAllText($wrapper) -cne $content)) { [IO.File]::WriteAllText($wrapper,$content,[Text.Encoding]::ASCII) }
+                $verify = if($toolboxInstalled -and (Test-Path -LiteralPath $wrapper -PathType Leaf)){Invoke-SgBoundedProcess $wrapper @('--version') 60}else{$null}
                 $property = $item.Name.Substring(0,1).ToUpperInvariant() + $item.Name.Substring(1)
-                $ready = Test-SgServiceCliResult $installed $verify $wrapper $item.Version
+                $ready = $toolboxInstalled -and (Test-SgServiceCliResult $installed $verify $wrapper $item.Version)
                 $states[$property] = if($ready){"ready ($($item.Version))"}else{"pending ($($item.Version))"}
                 if (-not $ready) { Write-SgInstallerWarning "$($item.Name) machine CLI executable verification failed." }
             }
