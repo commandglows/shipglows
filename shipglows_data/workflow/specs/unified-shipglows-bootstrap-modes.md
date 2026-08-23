@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-07-17"
 created_at: "2026-07-17 13:25:56 UTC"
-updated: "2026-08-13"
-updated_at: "2026-08-13 00:00:00 UTC"
+updated: "2026-08-23"
+updated_at: "2026-08-23 04:45:00 UTC"
 status: active
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -38,6 +38,7 @@ evidence:
   - "BUG-2026-07-17-001 records a real Android Termux failure: sudo is unavailable and the non-root bootstrap never reaches local/install.sh."
   - "The deployed www.winflowz.com bootstrap differs from the ShipGlows bootstrap and duplicates its implementation in the WinGlowz site."
   - "The public endpoint remains the distribution authority; native Windows uses the public GitHub archive because the Windows bootstrap must not require Git."
+  - "The 2026-08-23 Windows owner setup exposed that corpus, full, all, and development had diverging Unix/Windows meanings; the maintainer channel now requires its own explicit non-public-default surface."
   - "BUG-2026-07-13-002 already proves that local/install.sh has a Termux-aware path once the bootstrap reaches it."
 next_step: "/405-sg-prod then /107-sg-test --retest BUG-2026-07-17-001"
 ---
@@ -83,6 +84,19 @@ Le bootstrap public force aujourd'hui une installation serveur root avant toute 
 ## Solution
 
 Faire de `install-shipglows.sh` l'autorite comportementale des modes `local|full`, avec detection avant elevation et prompt sur `/dev/tty`. Le code public est distribue en HTTPS; le parcours Windows telecharge une archive ZIP et installe OpenSSH avec UAC si necessaire. Synchroniser byte-for-byte les artefacts vers WinGlowz; le endpoint les importe comme texte brut avec Vite `?raw`. Un outil ShipGlows possede les modes `--write` et `--check`, et la preuve hebergee compare ensuite les corps publics aux autorites canoniques.
+
+## Public, Skills, Runtime, And Maintainer Contract
+
+The platform mode (`local|full`) and installation surface are independent. `full` describes the platform toolchain, never source ownership.
+
+| Surface | Meaning | Unix | Native Windows |
+| --- | --- | --- | --- |
+| `plugin` | Lightweight public Codex entrypoint | Public default when selected | Public default |
+| `runtime` | Project development/runtime tooling | Sparse runtime checkout | Native DevServer and toolchain |
+| `skills` | Sparse public skills compatibility corpus | Supported; legacy `corpus` is input-only | Use the public plugin; explicit `skills`/`corpus` must not escalate |
+| `maintainer` | Complete editable multi-branch ShipGlows owner checkout with live linked skills | Deliberately outside the public Unix bootstrap | Explicit option 3 or `-InstallSurface maintainer` only |
+
+`SHIPGLOWS_INSTALL_COMPONENTS=all` selects public components only. It must never remove the public plugin, clone the full maintainer repository, or switch the live Codex entrypoint. Generic `full`, `all`, `development environment`, and `corpus` wording carries no maintainer authority.
 
 ## Scope In
 
@@ -217,6 +231,26 @@ Faire de `install-shipglows.sh` l'autorite comportementale des modes `local|full
   - Depends on : Taches 1-5
   - Validate with : `005-sg-ship -> 405-sg-prod -> 107-sg-test --retest BUG-2026-07-17-001`
 
+- [x] Tache 7 : Séparer le résolveur Windows mainteneur des composants publics.
+  - Fichiers : `install-shipglows.ps1`, `tests/windows/install-surface-contract.ps1`
+  - Action : réserver `maintainer` au clone propriétaire explicite, conserver `runtime` par défaut et refuser que `skills`, `corpus` ou `all` soient réinterprétés comme ce canal.
+  - Validate with : `powershell.exe -NoProfile -File tests/windows/install-surface-contract.ps1`
+
+- [x] Tache 8 : Canonicaliser le corpus public Unix sous le nom `skills`.
+  - Fichiers : `install-shipglows.sh`, `tests/install/bootstrap-mode-selection.sh`
+  - Action : normaliser l'ancien alias `corpus` vers `skills` et garder le parcours mainteneur hors du bootstrap Unix public.
+  - Validate with : `bash tests/install/bootstrap-mode-selection.sh`
+
+- [x] Tache 9 : Rendre l'intention mainteneur déterministe dans le routeur et la documentation.
+  - Fichiers : routeurs ShipGlows, README, documentation technique et guide Windows.
+  - Action : distinguer « version dev de ShipGlows » du développement générique de projets et du corpus sparse.
+  - Validate with : test transversal de contrat et lint documentaire ciblé.
+
+- [x] Tache 10 : Aligner la surface publique EN/FR et les artefacts générés.
+  - Fichiers : `shipglows_app/site/src/`, tests install du site, scripts générés.
+  - Action : garder le plugin en parcours principal, exposer une note mainteneur discrète et synchroniser byte-for-byte les bootstraps canoniques.
+  - Validate with : tests install du site, Astro check et contrôle de parité.
+
 ## Acceptance Criteria
 
 - [x] CA1 : Given Android Termux non-root, when la commande publique sans `sudo` est executee, then le mode local est choisi et `local/install.sh` est lance.
@@ -231,6 +265,11 @@ Faire de `install-shipglows.sh` l'autorite comportementale des modes `local|full
 - [x] CA10 : Given une revision canonique, when l'adaptateur public est teste, then son corps/revision est mecaniquement en parite et la divergence bloque la validation.
 - [x] CA11 : Given les pages EN/FR, when l'utilisateur lit ou copie la commande, then aucun `sudo` n'est impose au chemin local et la limite d'acces autorise est visible.
 - [ ] CA12 : Given le deploiement Vercel correspondant, when le endpoint public est recupere puis execute sur le vrai Termux, then le flow local passe avant que le bug puisse devenir `fixed-pending-verify`.
+- [x] CA13 : Given Windows `full` ou `SHIPGLOWS_INSTALL_COMPONENTS=all`, when aucune surface mainteneur explicite n'est fournie, then le runtime reste sélectionné et le plugin public n'est pas retiré.
+- [x] CA14 : Given Windows `-InstallSurface maintainer`, when le mode est `full`, then le clone propriétaire complet est validé ou créé et les skills sont liés à ce clone.
+- [x] CA15 : Given Windows `skills` ou l'ancien `corpus`, when la commande est évaluée, then elle explique d'utiliser le plugin public et ne réinterprète jamais la demande comme mainteneur.
+- [x] CA16 : Given Unix `skills`, `corpus` ou les composants publics correspondants, when la surface est résolue, then le nom canonique observé est `skills` et le checkout reste sparse.
+- [x] CA17 : Given la page `/install` et le routeur du plugin, when l'opératrice demande explicitement la version dev de ShipGlows, then le parcours mainteneur Windows exact est découvrable sans devenir un appel public à contribution.
 
 ## Test Strategy
 
@@ -285,13 +324,14 @@ None. The safest Windows distribution default is the public ZIP path with automa
 | 2026-08-01 17:25 UTC | 106-sg-fix | GPT-5 Codex | Removed TypeScript-only selector generics from the inline Astro runtime, synchronized active button styling, and added an anti-regression assertion | 81 unit tests, Astro check (0 errors), and local Playwright Windows local/full smoke pass; production redeploy pending | Push scoped WinGlowz fix, then rerun production browser proof |
 | 2026-08-01 17:27 UTC | 108-sg-browser | GPT-5 Codex | Retested the repaired selector in the local Astro dev environment | Windows local command and Windows full unavailable state update correctly; unrelated Clerk/Preline dev errors remain | Production browser retest after deployment |
 | 2026-08-01 17:40 UTC | 106-sg-fix | GPT-5 Codex | Rewrote `local/install_local.ps1` as native PowerShell, corrected generated tunnel/profile scripts, replaced shell colors, added a real WSL probe, and kept `ssh.exe` as the tunnel client | ASCII and escaped-variable scans plus diff checks pass; PowerShell Parser and Windows VM execution remain pending because this host has no PowerShell runtime | Run the exact Parser API command and native Windows smoke |
+| 2026-08-23 08:56 UTC | 001-sg-build | GPT-5 Codex | Separated the explicit Windows maintainer workstation from public plugin/runtime/skills surfaces, canonicalized Unix `skills`, aligned EN/FR install guidance, and synchronized generated installers | Windows, Unix, cross-surface, site, Astro, plugin, routing, and Codex runtime-link proofs pass locally; deployment intentionally excluded | Review and merge both scoped branches, then deploy and run hosted/device verification under a new approved plan |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: draft created
 - `101-sg-ready`: ready
 - `102-sg-start`: implemented
-- `103-sg-verify`: local automated and build proof passed; hosted/device proof pending
+- `103-sg-verify`: Windows, Unix, cross-surface, site, Astro, plugin, routing, and Codex runtime-link proofs pass locally; hosted/device proof pending
 - `104-sg-end`: not launched
-- `005-sg-ship`: scoped WinGlowz installer changes shipped in commit `855dd45`; ShipGlows changes remain unshipped
-- Next step: push and deploy the selector fix, retest the public page in production, then verify the Windows adapter manually from the constrained Windows VM
+- `005-sg-ship`: the maintainer/public-surface repair is prepared on scoped ShipGlows and ShipGlows App branches; merge and deployment remain intentionally pending
+- Next step: review and merge both scoped branches under an approved ship plan, deploy the public site, then run hosted Windows and Termux verification

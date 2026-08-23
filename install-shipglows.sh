@@ -34,7 +34,7 @@ resolve_install_surface() {
         INSTALL_SURFACE="$(normalize_mode "$REQUESTED_SURFACE")"
     else
         case ",$(normalize_mode "$REQUESTED_COMPONENTS")," in
-            *,all,*|*,skills,*|*,corpus,*) INSTALL_SURFACE=corpus ;;
+            *,all,*|*,skills,*|*,corpus,*) INSTALL_SURFACE=skills ;;
             *) INSTALL_SURFACE=runtime ;;
         esac
     fi
@@ -44,7 +44,7 @@ resolve_install_surface() {
             SPARSE_PATHS="cli local tui .claude"
             ;;
         corpus|skills|opencode|kilocode)
-            INSTALL_SURFACE=corpus
+            INSTALL_SURFACE=skills
             SPARSE_PATHS="cli local tui .claude .agents .opencode .kilo plugins skills templates tools shipglows_data"
             ;;
         codex|plugin|codex-plugin)
@@ -52,7 +52,11 @@ resolve_install_surface() {
             SPARSE_PATHS=""
             ;;
         *)
-            log "Surface d'installation invalide: $REQUESTED_SURFACE. Utilisez runtime, corpus ou codex-plugin."
+            if [ "$(normalize_mode "$REQUESTED_SURFACE")" = maintainer ]; then
+                log "La surface maintainer n'est pas exposée par le bootstrap Unix public. Utilisez un clone Git complet explicite, puis liez les skills depuis ce clone."
+            else
+                log "Surface d'installation invalide: $REQUESTED_SURFACE. Utilisez runtime, skills ou codex-plugin."
+            fi
             return 1
             ;;
     esac

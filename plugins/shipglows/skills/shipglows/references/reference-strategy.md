@@ -70,9 +70,9 @@ ShipGlows
 
 Hosted docs help discovery, onboarding, SEO, and paid-product conversion. They must not be the hidden dependency that makes the plugin work.
 
-## Complete Corpus Rule
+## Public Skills Corpus Rule
 
-When the lightweight plugin is not enough, clone the public ShipGlows repo instead of making the plugin huge.
+When the lightweight plugin is not enough, clone the sparse public ShipGlows skills corpus instead of making the plugin huge. This is not the complete editable maintainer checkout.
 
 Default repo:
 
@@ -86,6 +86,6 @@ Default target:
 ${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}
 ```
 
-The complete-corpus checkout is sparse and includes only the skill/runtime corpus: `skills/`, `templates/`, `tools/`, `shipglows_data/`, and `local/`. It excludes the public site, TUI, generated builds, and dependency directories; canonical workflow history and records remain inside `shipglows_data/`.
+The public skills checkout is sparse and includes only the skill/runtime corpus: `skills/`, `templates/`, `tools/`, `shipglows_data/`, and `local/`. It excludes the public site, TUI, generated builds, and dependency directories; canonical workflow history and records remain inside `shipglows_data/`.
 
-This keeps one source of truth. The repo remains versioned; the plugin stays small; hosted docs stay optional. The complete-corpus setup route still needs explicit operator approval because it uses network and writes to disk.
+This keeps one source of truth. The repo remains versioned; the plugin stays small; hosted docs stay optional. The sparse-corpus setup route still needs explicit operator approval because it uses network and writes to disk. Maintainer setup requires a separate explicit full clone and channel switch.

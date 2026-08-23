@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-11"
+updated: "2026-08-23"
 status: active
 source_skill: manual
 scope: windows-bootstrap-development-workflow
@@ -27,6 +27,7 @@ evidence:
   - "Windows bootstrap branch installation and migration validated on 2026-08-11."
   - "A download-only refresh left the active DevServer stale during the Windows repository-picker fix on 2026-08-11."
   - "Operator decision 2026-08-11: native Windows and Linux runtime files converge under the hidden .shipglows/runtime directory."
+  - "Operator decision 2026-08-23: the complete editable owner checkout is selected only by the explicit maintainer surface; generic full, all, skills, and corpus inputs never switch channels."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows bootstrap development workflow"
 ---
@@ -38,9 +39,10 @@ Use this reference when an agent changes or tests the native Windows ShipGlows b
 ## Canonical Layout
 
 - Installed runtime: `%USERPROFILE%\.shipglows\runtime` (internal and hidden; never edit it as source).
-- Development clone: `%USERPROFILE%\ShipGlows\shipglows`.
+- Maintainer clone: `%USERPROFILE%\ShipGlows\shipglows`; it is selected only by interactive option 3 or `-InstallSurface maintainer`.
 - User projects: `%USERPROFILE%\ShipGlows\<project>`.
 - The clone is the source of truth for edits. The installed runtime is disposable output produced by the bootstrap.
+- Public users keep the Codex plugin. `full` describes the Windows toolchain, while `maintainer` alone authorizes the complete editable clone and linked skill channel.
 
 ## Why Test From A Branch
 

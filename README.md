@@ -355,12 +355,13 @@ The internal Windows runtime is installed under the hidden
 `%USERPROFILE%\.shipglows\runtime` directory; user projects remain separated under
 `%USERPROFILE%\ShipGlows`.
 For automation, pass `-InstallMode local` or `-InstallMode full`; add
-`-InstallSurface corpus` for a contributor workstation. That surface clones or
+`-InstallSurface maintainer` only for the ShipGlows owner workstation. That explicit surface clones or
 validates `%USERPROFILE%\ShipGlows\shipglows`, removes the conflicting public
 Codex plugin, and links the public Codex skills directly to the complete,
 editable multi-branch clone.
-`SHIPGLOWS_INSTALL_COMPONENTS=all|skills|corpus` selects the same corpus surface
-for compatibility with the Unix bootstrap. A
+Generic `all`, `full`, `skills`, and legacy `corpus` requests never select the
+maintainer channel. Native Windows keeps the public Codex plugin for ordinary
+users; the Unix bootstrap retains a separate sparse `skills` surface. A
 non-interactive call without a mode preserves the local-tunnel fallback. This
 is a local development runtime, not public hosting; Flox, PM2, Caddy, autossh,
 and the Linux `urls` menu are intentionally not part of this path.
@@ -435,12 +436,12 @@ sudo ./cli/install.sh
 
 ### Runtime, skills, and Codex distribution
 
-The bootstrap defaults to the lightweight `runtime` surface: it uses Git sparse checkout for the CLI, local installer, TUI, and runtime settings only. It does not download the public skill corpus by default. When `SHIPGLOWS_INSTALL_COMPONENTS=all`, `skills`, or `corpus` requests skills without an explicit surface, the bootstrap automatically selects the `corpus` surface.
+The Unix bootstrap defaults to the lightweight `runtime` surface: it uses Git sparse checkout for the CLI, local installer, TUI, and runtime settings only. It does not download the public skill corpus by default. When `SHIPGLOWS_INSTALL_COMPONENTS=all`, `skills`, or legacy `corpus` requests skills without an explicit surface, the Unix bootstrap automatically selects the canonical sparse `skills` surface. Native Windows does not reinterpret these component values as maintainer authority.
 
 To make the public skill corpus and the OpenCode/KiloCode-compatible repository shims available locally, request it explicitly:
 
 ```bash
-curl -fsSL https://shipglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
+curl -fsSL https://shipglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=skills sh
 ```
 
 For a normal installation, ShipGlows detects Codex and offers to install the
@@ -451,8 +452,9 @@ can confirm. The public plugin does not require the full skill corpus.
 
 For a server installation, the interactive installer also asks separately whether to synchronize the public skill corpus into Claude and the Codex user skill directory. Select that option only for a source-tree development workflow. The public plugin and the live corpus are mutually exclusive for `$shipglows`; an explicit attempt to install both is rejected.
 
-Contributors clone the repository and select the live development channel from
-that clone:
+Maintainers explicitly clone the complete repository and select the live
+development channel from that clone. This is distinct from the sparse public
+skills surface:
 
 ```bash
 shipglows skills status
@@ -731,7 +733,7 @@ Per-user configuration includes:
 - aliases in `~/.bashrc` for `000-shipglows`, `sg`, mode-selected `c`/`co`, safe escape hatches `cask`/`coask`, shell reload (`re`/`reload`), and tmux pane cleanup (`ch` = `clear; tmux clear-history`)
 - `shipglows_data/workflow/TASKS.md`, `shipglows_data/workflow/AUDIT_LOG.md`
 
-The native developer commands cover the normal source-contributor workflow:
+The native developer commands cover the explicit ShipGlows maintainer workflow:
 
 ```bash
 shipglows skills status
@@ -763,8 +765,8 @@ On native Windows, use the PowerShell helper. It creates directory junctions, wh
 ```
 
 The native Windows public installer keeps the runtime-only path by default.
-Developers select option 3 interactively or pass
-`-InstallMode full -InstallSurface corpus`; other Codex users keep the plugin
+ShipGlows maintainers select option 3 interactively or pass
+`-InstallMode full -InstallSurface maintainer`; other Codex users keep the plugin
 route.
 
 If your Codex version does not expose one of these items (for example `thread`), adjust interactively in Codex:

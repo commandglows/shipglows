@@ -34,6 +34,7 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/win
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/agent-instructions.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/auth-playwright.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/bootstrap-ref-resolution.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/install-surface-contract.ps1"
 for regression in \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
@@ -179,7 +180,7 @@ rg -n 'does not clone the ShipGlows contributor source repository' "$BOOTSTRAP"
 ! rg -n "ValidateSet\\('local','full'\\)" "$BOOTSTRAP"
 ! rg -n 'InstallMode = \$\(if \(\$env:SHIPGLOWS_INSTALL_MODE' "$BOOTSTRAP"
 rg -n '\[string\]\$InstallMode,|InstallMode must be local or full|\$InstallMode -notin @\(' "$BOOTSTRAP"
-rg -n 'Select-WindowsInstallMode|Choose 1, 2, or 3|Local DevServer \(full, recommended\)|contributor workstation|IsInputRedirected' "$BOOTSTRAP"
+rg -n 'Select-WindowsInstallMode|Choose 1, 2, or 3|Local DevServer \(full, recommended\)|maintainer workstation|IsInputRedirected' "$BOOTSTRAP"
 rg -n "USERPROFILE '.shipglows'.*'runtime'|FileAttributes.*Hidden|defaultRuntimeRoot" "$BOOTSTRAP" "$INSTALLER"
 rg -n "runtimeDir = Join-Path \$ShipglowsDir 'bin'|Remove-SgLegacyRuntime|@\('bin', 'cli', 'local'\)|legacyBin" "$INSTALLER"
 rg -n 'function Install-SgDefaultPython|python install --default|import ssl, sqlite3|Python manager:|Python commands:' "$INSTALLER"

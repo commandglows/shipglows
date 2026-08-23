@@ -17,7 +17,8 @@ Use it when the operator wants to:
 - route a project-shipping request to the right ShipGlows capability
 - inspect the planned optional packs without installing many plugins manually
 - audit a local ShipGlows source tree before packaging more skills
-- install or update the complete ShipGlows corpus when the lightweight plugin is not enough
+- install or update the sparse public skills corpus when the lightweight plugin is not enough
+- prepare an editable ShipGlows maintainer checkout when the operator explicitly develops ShipGlows itself
 
 ## Default Scope
 
@@ -96,7 +97,8 @@ other external-write authority.
 - `spec`, `ready`, `start`, `verify`, `check`, `fix`, or their French equivalents: route through `references/shipglows-main-intents.md`.
 - `references`, `docs`, `site`, `web docs`, or `hosted docs`: summarize `references/reference-strategy.md`.
 - `audit packaging`, `audit packs`, `portability`, or `local ShipGlows packaging`: run the packaging audit script when available.
-- `installation complète`, `corpus complet`, `clone repo`, `install full repo`, or `full ShipGlows`: offer the complete ShipGlows corpus setup script and run it only with explicit operator approval.
+- `version dev de ShipGlows`, `develop ShipGlows itself`, `maintainer`, `owner workstation`, `editable ShipGlows clone`, or an equivalent explicit request to modify ShipGlows itself: use the maintainer workstation route below. Never reinterpret generic `full`, `all`, `development environment`, or `corpus` wording as maintainer authority.
+- `installation complète`, `corpus complet`, `install skills corpus`, or `full ShipGlows skills`: offer the sparse public skills-corpus setup script and run it only with explicit operator approval.
 - Requests to install optional packs: install only when the named pack exists as a plugin or skill source. Otherwise report that the pack is planned but not generated yet.
 - Product, code, release, content, design, engineering, docs, or planning work: identify the matching public métier first, then resolve the matching pack and installed capability. Execute only with capabilities that are actually bundled or installed in the current session.
 - For public `shipglows-main` intents, perform the portable gate, planning, checklist, command discovery, or bug triage that can be done from the current workspace. If the requested workflow needs unbundled ShipGlows references, tracking files, or tools, continue in partial mode and state the exact complete-corpus requirement instead of stopping early.
@@ -128,7 +130,7 @@ ShipGlows uses a hybrid reference model:
 
 Do not require browsing for core workflow execution. Hosted docs can enrich an answer, but the plugin must remain usable when the network is unavailable or browsing is disabled.
 
-For users who want the complete ShipGlows corpus, prefer the complete-corpus setup route instead of bundling every private reference into the plugin:
+For users who want the complete public skills corpus, prefer the sparse-corpus setup route instead of bundling every reference into the plugin:
 
 ```bash
 scripts/bootstrap_shipglows_repo.sh
@@ -200,13 +202,13 @@ Do not present numeric engine names or a list of many manual installation steps
 as the default user experience. Reveal engine names only for expert packaging,
 portability, or complete-corpus troubleshooting.
 
-## Complete ShipGlows Corpus Setup
+## Public Skills Corpus Setup
 
-The lightweight plugin is the default install surface. The full repo is an optional source corpus.
+The lightweight plugin is the default install surface. The sparse public skills corpus is an optional compatibility surface; it is not a maintainer checkout.
 
-Use the complete-corpus setup script only when:
+Use the sparse skills-corpus setup script only when:
 
-- the operator asks for the full ShipGlows source, all skills, or local packaging work
+- the operator asks for all public skills or local packaging work without an editable maintainer checkout
 - a requested workflow needs references or tools that are not bundled in the plugin
 - the operator approves network access and the target directory
 
@@ -222,7 +224,7 @@ Default source:
 https://github.com/commandglows/shipglows.git
 ```
 
-The complete-corpus checkout includes only the skill/runtime corpus:
+The sparse skills checkout includes only the skill/runtime corpus:
 
 - `skills/`
 - `templates/`
@@ -233,6 +235,20 @@ The complete-corpus checkout includes only the skill/runtime corpus:
 It intentionally excludes the public site, TUI app, generated builds, and dependency directories. Canonical archives, research, operator guides, and bug workflow records remain inside `shipglows_data/`.
 
 If the target already exists and is a Git repo, update it by fetching and checking out the requested ref. If the target exists and is not a Git repo, stop and ask before changing anything.
+
+## Maintainer Workstation Setup
+
+This route is intentionally discreet and is never the public default. Use it only when the operator explicitly says they are developing or maintaining ShipGlows itself. It requires a complete editable, multi-branch Git clone; the sparse skills corpus is not sufficient.
+
+On native Windows, use the canonical public PowerShell bootstrap with:
+
+```powershell
+-InstallMode full -InstallSurface maintainer
+```
+
+The expected target is `%USERPROFILE%\ShipGlows\shipglows`. The installer validates an existing checkout without updating or switching it, removes the conflicting public Codex plugin only after the approved channel switch, and links the public skills to that exact clone.
+
+On Unix, the public bootstrap intentionally does not expose maintainer setup. Use an explicitly approved full Git clone, verify its origin and working-tree ownership, then run the repository's `shipglows skills link` workflow. Never replace this with the sparse corpus helper and never update an existing maintainer checkout implicitly.
 
 ## Operator-Last-Resort Rule
 

@@ -77,6 +77,8 @@ ShipGlows-maintenance work defaults to the ShipGlows system under `$SHIPGLOWS_RO
 
 Parse `$ARGUMENTS` as the operator instruction. Empty/help requests answer directly or route to `302-sg-help` for the full help surface. Named profiles load the matching profile contract; explicit skill names and numeric codes pass preflight, then hand off only when valid. Natural-language work applies the Atomic Direct-Execution Gate before the canonical routing matrix; a selected skill may reroute explicitly rather than being silently substituted.
 
+An explicit request for the ShipGlows maintainer workstation, an editable full ShipGlows clone, or the "version dev de ShipGlows" preserves maintainer intent through technical installation ownership. Generic `full`, `all`, `development environment`, or `corpus` language never grants or implies that channel switch.
+
 Before mode selection, extract registered `#local`, `#nolocal`, and `#ci`
 execution posture tags from any argument position and load
 `$SHIPGLOWS_ROOT/skills/references/execution-posture-tags.md`. Keep ordinary

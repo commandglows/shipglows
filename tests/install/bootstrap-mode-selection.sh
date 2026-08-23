@@ -186,15 +186,15 @@ assert_not_contains "$runtime_fixture/git-calls" "sparse-checkout set --cone cli
 all_components_fixture="$(make_fixture all-components-corpus)"
 rm -rf "$all_components_fixture/home/shipglows"
 run_case "$all_components_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_COMPONENTS=all
-if [ "$CASE_STATUS" -eq 0 ]; then pass "All components select the corpus surface"; else fail "All components select the corpus surface"; fi
-assert_contains "$CASE_OUTPUT" "Surface d'installation: corpus" "All components report the corpus surface"
+if [ "$CASE_STATUS" -eq 0 ]; then pass "All components select the public skills surface"; else fail "All components select the public skills surface"; fi
+assert_contains "$CASE_OUTPUT" "Surface d'installation: skills" "All components report the public skills surface"
 assert_contains "$all_components_fixture/git-calls" "sparse-checkout set --cone cli local tui .claude .agents .opencode .kilo plugins skills templates tools shipglows_data" "All components include the skill corpus"
 
 skills_component_fixture="$(make_fixture skills-component-corpus)"
 rm -rf "$skills_component_fixture/home/shipglows"
 run_case "$skills_component_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_COMPONENTS=skills
-if [ "$CASE_STATUS" -eq 0 ]; then pass "Skills component selects the corpus surface"; else fail "Skills component selects the corpus surface"; fi
-assert_contains "$CASE_OUTPUT" "Surface d'installation: corpus" "Skills component reports the corpus surface"
+if [ "$CASE_STATUS" -eq 0 ]; then pass "Skills component selects the public skills surface"; else fail "Skills component selects the public skills surface"; fi
+assert_contains "$CASE_OUTPUT" "Surface d'installation: skills" "Skills component reports the public skills surface"
 
 explicit_runtime_fixture="$(make_fixture explicit-runtime-components)"
 rm -rf "$explicit_runtime_fixture/home/shipglows"
@@ -211,8 +211,13 @@ corpus_fixture="$(make_fixture corpus-sparse)"
 rm -rf "$corpus_fixture/home/shipglows"
 run_case "$corpus_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus
 if [ "$CASE_STATUS" -eq 0 ]; then pass "Corpus sparse checkout succeeds"; else fail "Corpus sparse checkout succeeds"; fi
-assert_contains "$CASE_OUTPUT" "Surface d'installation: corpus" "Corpus surface is reported"
+assert_contains "$CASE_OUTPUT" "Surface d'installation: skills" "Legacy corpus alias reports the canonical skills surface"
 assert_contains "$corpus_fixture/git-calls" "sparse-checkout set --cone cli local tui .claude .agents .opencode .kilo plugins skills templates tools shipglows_data" "Corpus checkout selects public skills and shims"
+
+maintainer_fixture="$(make_fixture maintainer-unsupported)"
+run_case "$maintainer_fixture" TEST_UID=2000 SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=maintainer
+if [ "$CASE_STATUS" -ne 0 ]; then pass "Unix public bootstrap keeps maintainer setup out of the public surface"; else fail "Unix public bootstrap keeps maintainer setup out of the public surface"; fi
+assert_contains "$CASE_OUTPUT" "maintainer" "Unsupported Unix maintainer request returns an actionable boundary"
 
 plugin_fixture="$(make_fixture codex-plugin)"
 rm -rf "$plugin_fixture/home/shipglows"

@@ -13,6 +13,8 @@ description: Route ShipGlows requests to the right métier owner.
 
 Use this as the canonical public router. Resolve `project -> business/brand/product -> outcome -> surface -> work item`, load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`, and select the public métier owner without asking the operator to choose an internal skill.
 
+An explicit request to develop or maintain ShipGlows itself, install its "version dev", or prepare an editable owner checkout is a maintainer-workstation intent. Preserve that exact meaning; never normalize it to a generic project development runtime, `full`, `all`, or sparse skills corpus.
+
 ## Required References
 
 For detailed routing and authority rules, resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine, verify the root and `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md` exist, then load that canonical engine. If the root or file is missing, stop with a visible error; never fall back to a sibling runtime path. Retain the operator's outcome through the handoff; the numbered skill is an expert/legacy engine, not a public command to return to the operator.
