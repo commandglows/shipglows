@@ -17,7 +17,7 @@ An explicit request to develop or maintain ShipGlows itself, install its "versio
 
 ## Required References
 
-For detailed routing and authority rules, resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine, verify the root and `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md` exist, then load that canonical engine. If the root or file is missing, stop with a visible error; never fall back to a sibling runtime path. Retain the operator's outcome through the handoff; the numbered skill is an expert/legacy engine, not a public command to return to the operator.
+For detailed routing and authority rules, resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine. On Windows, do not rely only on the current process environment: when `SHIPGLOWS_ROOT` is empty, read its current-user environment value, then inspect `%USERPROFILE%\.shipglows\development-channel.json`. A valid `channel: linked` state with an absolute `root` and the required canonical engine selects that developer checkout before the installed-runtime default. This handles coding-agent hosts that were already running when the developer channel was enabled. Verify the resolved root and `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md` exist, then load that canonical engine. If every canonical source is missing or invalid, stop with a visible error; never substitute a sibling repository by filename coincidence. Retain the operator's outcome through the handoff; the numbered skill is an expert/legacy engine, not a public command to return to the operator.
 
 In Codex, short expert modes such as `shipglows core` are resolved through the
 canonical public owner and owner mode before an internal engine is selected;

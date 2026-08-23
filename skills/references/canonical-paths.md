@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.3.0"
+artifact_version: "2.4.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-08-14"
+updated: "2026-08-24"
 status: active
 source_skill: 102-sg-start
 scope: canonical-path-resolution
@@ -37,11 +37,11 @@ Before any intentional mutation, load `skills/references/mutation-plan-approval.
 
 ## Mandatory Roots
 
-- ShipGlows runtime root: `$SHIPGLOWS_ROOT`, defaulting to the current user's `.shipglows/runtime` directory on Linux and Windows.
+- ShipGlows runtime root: `$SHIPGLOWS_ROOT`. Resolve it from the current process first. On Windows, if the process value is empty, read the current-user environment value and then `%USERPROFILE%\.shipglows\development-channel.json`; a validated `channel: linked` entry selects its absolute developer-checkout root. This explicit durable fallback is required because an already-running coding-agent host does not inherit later user-environment changes. Only when no valid explicit or linked root exists does it default to the current user's `.shipglows/runtime` directory. On Linux, use the exported value before the same installed-runtime default.
 - Project root: the current working directory unless the operator selects another project.
 - Governance root: the repository root for a single project, or the monorepo root rather than an app/package subdirectory.
 
-Treat environment values as paths, preserve spaces, and use the active shell's safe path handling. Resolve an owned target beneath its declared root; do not accept `..`, symlink, junction, or shadow-directory traversal outside that root.
+Treat environment and linked-channel values as paths, preserve spaces, and use the active shell's safe path handling. A linked-channel root is valid only when it is absolute and contains `skills/000-shipglows/SKILL.md`; never infer one from a nearby checkout. Resolve an owned target beneath its declared root; do not accept `..`, symlink, junction, or shadow-directory traversal outside that root.
 
 ## Ownership Rules
 

@@ -201,7 +201,13 @@ function Sync-SgSkill([string]$RuntimeName, [string]$Name, [string]$SourceName) 
             return
         }
 
-        Remove-Item -LiteralPath $targetPath -Force
+        if (-not $item.PSIsContainer) {
+            throw "Refusing to replace a non-directory runtime link: $targetPath"
+        }
+        # Windows PowerShell 5.1 can throw a NullReferenceException when
+        # Remove-Item targets a directory junction. Directory.Delete removes
+        # the junction itself without traversing or deleting its source.
+        [System.IO.Directory]::Delete($item.FullName, $false)
         New-SgDirectoryLink $targetPath $sourcePath
         $script:Repaired++
         Write-Output "repaired runtime=$RuntimeName skill=$Name target=$targetPath reason=stale-or-broken-link"

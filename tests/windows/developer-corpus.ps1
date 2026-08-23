@@ -12,6 +12,12 @@ $fixtureHome = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-developer-corpus
 try {
     $moduleText = [IO.File]::ReadAllText($module)
     Assert-Sg ($moduleText -notmatch '--single-branch') 'Contributor clones must fetch the complete branch namespace.'
+    $publicRouterText = [IO.File]::ReadAllText((Join-Path $repoRoot 'skills\shipglows\SKILL.md'))
+    $canonicalPathsText = [IO.File]::ReadAllText((Join-Path $repoRoot 'skills\references\canonical-paths.md'))
+    foreach ($requiredEvidence in @('current-user environment value','development-channel.json','already running')) {
+        Assert-Sg ($publicRouterText.Contains($requiredEvidence) -or $canonicalPathsText.Contains($requiredEvidence)) "Developer root doctrine is missing stale-process recovery evidence: $requiredEvidence"
+    }
+    Assert-Sg ($publicRouterText.Contains('channel: linked') -and $publicRouterText.Contains('skills/000-shipglows/SKILL.md')) 'The public router must validate durable linked-channel state before falling back to the installed runtime.'
     Import-Module $module -Force
     $configDirectory = Join-Path $fixtureHome '.codex'
     New-Item -ItemType Directory -Path $configDirectory -Force | Out-Null

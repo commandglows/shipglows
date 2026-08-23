@@ -41,6 +41,17 @@ try {
     Assert-Sg ($router.LinkType -eq 'Junction') 'Developer router must be a directory junction.'
     Assert-Sg ($linkedOutput -match 'codex_entrypoint=linked') 'Linked summary must expose channel ownership.'
 
+    $routerPath = Join-Path $fixtureHome '.agents\skills\shipglows'
+    [System.IO.Directory]::Delete($routerPath, $false)
+    New-Item -ItemType Junction -Path $routerPath -Target (Join-Path $repoRoot 'skills\sg-bug') | Out-Null
+    $staleRepairOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $helper `
+        -Mode repair -All -Runtime codex -Catalog public -CodexEntrypoint linked `
+        -TargetHome $fixtureHome -ShipGlowsRoot $repoRoot 2>&1 | Out-String
+    Assert-Sg ($LASTEXITCODE -eq 0) "Stale junction repair failed: $staleRepairOutput"
+    $repairedRouter = Get-Item -LiteralPath $routerPath -Force
+    Assert-Sg ((Resolve-Path -LiteralPath $repairedRouter.Target[0]).Path -eq (Resolve-Path -LiteralPath (Join-Path $repoRoot 'skills\shipglows')).Path) 'Stale developer router junction must be replaced without traversing its source.'
+    Assert-Sg ($staleRepairOutput -match 'reason=stale-or-broken-link') 'Stale junction repair must remain observable.'
+
     [IO.File]::WriteAllText(
         $configPath,
         "[plugins.`"shipglows@shipglows`"]`nenabled = true`n",
