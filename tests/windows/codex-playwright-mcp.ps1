@@ -3,11 +3,14 @@ Set-StrictMode -Version Latest
 
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $modulePath = Join-Path $root 'cli\windows\ShipGlows.CodexMcp.psm1'
+$installerPath = Join-Path $root 'cli\windows\install-devserver.ps1'
 $parseTokens = $null
 $parseErrors = $null
 [void][System.Management.Automation.Language.Parser]::ParseFile($modulePath, [ref]$parseTokens, [ref]$parseErrors)
 if ($parseErrors.Count -gt 0) { throw ($parseErrors | ForEach-Object Message | Out-String) }
 Import-Module $modulePath -Force -DisableNameChecking
+$installerSource = Get-Content -LiteralPath $installerPath -Raw
+if ($installerSource -notmatch "Id='playwright-agent-cli';Name='Playwright Agent CLI'" -or $installerSource -notmatch '\$install\.Id') { throw 'Managed Playwright operations must keep a safe technical id separate from the display name.' }
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-codex-mcp-' + [guid]::NewGuid().ToString('N'))
 try {

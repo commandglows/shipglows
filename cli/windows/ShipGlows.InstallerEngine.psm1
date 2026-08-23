@@ -97,7 +97,7 @@ function Complete-SgInstallerPhase {
         $delta = $now - [datetimeoffset]$Phase.ActiveSince
         if ($delta.Ticks -gt 0) { $ticks += $delta.Ticks }
     }
-    $elapsed = [int][Math]::Floor(([timespan]::FromTicks([Math]::Max(0,$ticks))).TotalSeconds)
+    $elapsed = [int][Math]::Floor(([timespan]::FromTicks([Math]::Max([long]0,$ticks))).TotalSeconds)
     $code = if ([string]::IsNullOrWhiteSpace($Failure)) { 'INSTALL_STEP_COMPLETED' } else { 'INSTALL_STEP_FAILED' }
     Invoke-SgInstallerEventSink $Phase.EventSink (New-SgInstallerEvent $code $Phase.Operation $elapsed $Failure)
     $Phase.Completed = $true
