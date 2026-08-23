@@ -58,22 +58,23 @@ try {
     $installerErrors = $null
     $installerAst = [Management.Automation.Language.Parser]::ParseInput($installerSource, [ref]$installerTokens, [ref]$installerErrors)
     if ($installerErrors.Count -gt 0) { throw ($installerErrors | ForEach-Object Message | Out-String) }
-    $installerFunctions = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] }, $true))
-    $playwrightFunction = @($installerFunctions | Where-Object Name -eq 'Install-SgCodexPlaywrightMcp')
-    $instructionsFunction = @($installerFunctions | Where-Object Name -eq 'Set-SgCodexEnvironmentInstructions')
-    if ($playwrightFunction.Count -ne 1 -or $instructionsFunction.Count -ne 1) { throw 'Windows installer functions could not be resolved uniquely.' }
-    $playwrightFunctionSource = $playwrightFunction[0].Extent.Text
-    $instructionsFunctionSource = $instructionsFunction[0].Extent.Text
-    foreach ($required in @('Installed = $true','McpConfigured = $true','McpVerified = $true','ConfigPath = [IO.Path]::GetFullPath($configPath)','ChromiumPath = [IO.Path]::GetFullPath($chromium.FullName)')) {
-        if ($playwrightFunctionSource -notmatch [regex]::Escape($required)) { throw "Playwright installer result contract is missing: $required" }
+    $codexMcpSource = Get-Content -LiteralPath (Join-Path $root 'cli\windows\ShipGlows.CodexMcp.psm1') -Raw
+    $agentInstructionsSource = Get-Content -LiteralPath (Join-Path $root 'cli\windows\ShipGlows.AgentInstructions.psm1') -Raw
+    $codexMcpAst = [Management.Automation.Language.Parser]::ParseInput($codexMcpSource, [ref]$null, [ref]$null)
+    $agentInstructionsAst = [Management.Automation.Language.Parser]::ParseInput($agentInstructionsSource, [ref]$null, [ref]$null)
+    $playwrightFunction = @($codexMcpAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Set-SgCodexPlaywrightMcpConfig' }, $true))
+    $instructionsFunction = @($agentInstructionsAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Set-SgAgentEnvironmentInstructions' }, $true))
+    if ($playwrightFunction.Count -ne 1 -or $instructionsFunction.Count -ne 1) { throw 'Windows capability helper functions could not be resolved uniquely.' }
+    if ($playwrightFunction[0].Extent.Text -match 'AgentEnvironmentInstructions' -or $instructionsFunction[0].Extent.Text -match '\$(configPath|chromium)\b') {
+        throw 'Agent instructions and Playwright MCP configuration must remain separate capability helpers.'
     }
-    if ($instructionsFunctionSource -match '\$(configPath|chromium)\b' -or $instructionsFunctionSource -notmatch [regex]::Escape('return $true')) {
-        throw 'Codex environment instruction writer leaks the Playwright installer result contract.'
+    foreach ($required in @('Set-SgCodexPlaywrightMcpConfig $configPath $NpxPath $Playwright.Version $Playwright.ChromiumPath','Install-SgAgentEnvironmentInstructions -UserProfile $env:USERPROFILE','McpConfigured=$playwrightConfigured','McpVerified=$playwrightConfigured -and -not $playwrightPending','ChromiumPath=$playwright.ChromiumPath')) {
+        if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows installer capability aggregation is missing: $required" }
     }
     foreach ($required in @('🧭 VALIDATION RAPIDE','one- or two-sentence','exact action','exact target','main safety guarantee','local-only','readily reversible','cannot overwrite, discard, delete, force, publish, deploy, message, change credentials/permissions, or affect unrelated changes','`git push` always uses the full plan')) {
-        if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows installed agent instructions are missing: $required" }
+        if ($agentInstructionsSource -notmatch [regex]::Escape($required)) { throw "Windows installed agent instructions are missing: $required" }
     }
-    foreach ($required in @('function Install-SgDefaultPython','python install --default','import ssl, sqlite3','Python: $($PythonInfo.Version)','Python manager: $($PythonInfo.Manager)','Python commands: $($PythonInfo.Commands)','Playwright Chromium installed: $playwrightInstalled','Playwright MCP configured: $playwrightConfigured','Playwright MCP verified: $playwrightVerified','Playwright MCP config: $playwrightConfigPath','Playwright Chromium path: $chromiumPath','Install-SgDefaultPython $uvPaths $pythonPaths','Write-SgGlobalDevelopmentEnvironment $codexReady $playwrightInfo $pythonInfo')) {
+    foreach ($required in @('function Install-SgDefaultPython','python install --default','import ssl, sqlite3','Python: $($PythonInfo.Version)','Python manager: $($PythonInfo.Manager)','Python commands: $($PythonInfo.Commands)','Playwright Chromium installed: $playwrightInstalled','Playwright MCP configured: $playwrightConfigured','Playwright MCP verified: $playwrightVerified','Playwright MCP config: $playwrightConfigPath','Playwright Chromium path: $chromiumPath','Install-SgDefaultPython $uvPaths $pythonPaths','Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightInfo $playwrightRuntime $pythonInfo')) {
         if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows runtime capability contract is missing: $required" }
     }
     if ($installerSource -match '(?m)^- Python: Python \d+\.\d+\.\d+\s*$') { throw 'Windows environment report hardcodes a Python version.' }
@@ -83,8 +84,8 @@ try {
     foreach ($required in @('ENVIRONMENT.md','DevServer registry','4321','Python as available through `uv`','deferred or searchable tool catalog','ALL_TOOLS','mcp__playwright__*','Playwright configuré, outil non exposé dans ce tour','Absence from the first visible tool list')) {
         if ($runtimeContract -notmatch [regex]::Escape($required)) { throw "Runtime awareness contract is missing: $required" }
     }
-    foreach ($required in @('Inspect both directly exposed tools and any deferred/searchable catalog','before declaring a configured tool unavailable')) {
-        if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows installed agent capability discovery is missing: $required" }
+    foreach ($required in @('Inspect directly exposed tools and any deferred/searchable catalog','before declaring a configured tool unavailable')) {
+        if ($agentInstructionsSource -notmatch [regex]::Escape($required)) { throw "Windows installed agent capability discovery is missing: $required" }
     }
 
     $userOwnedProject = Join-Path $fixture 'user-owned-legacy'
@@ -96,7 +97,7 @@ try {
     $monorepo = Join-Path $fixture 'monorepo-without-environment-manager'
     $nestedApp = Join-Path $monorepo 'apps\site'
     New-Item -ItemType Directory -Path $nestedApp -Force | Out-Null
-    Set-Content -LiteralPath (Join-Path $nestedApp 'package.json') -Value '{"dependencies":{"astro":"latest"}}' -Encoding UTF8
+    Set-Content -LiteralPath (Join-Path $nestedApp 'package.json') -Value '{"dependencies":{"astro":"latest"},"scripts":{"dev":"astro dev"}}' -Encoding UTF8
     $descriptor = Get-SgProjectDescriptor $monorepo
     if ($descriptor.RootPath -ne $monorepo -or $descriptor.LaunchPath -ne $nestedApp -or $descriptor.Kind -ne 'astro') { throw 'Native nested application discovery is invalid.' }
 

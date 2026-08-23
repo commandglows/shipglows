@@ -1,10 +1,10 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "3.3.4"
+artifact_version: "3.3.5"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-16"
+updated: "2026-08-23"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness-and-mutation-approval
@@ -27,6 +27,7 @@ evidence:
   - "Operator approved one global environment document, one visible project ENVIRONMENT.md, registry-owned live state, and a retained read-only $shipglows context mode."
   - "Operator approved a universal explicit post-plan mutation gate."
   - "Operator correction 2026-08-16: unchanged pending proposals survive clarification and neutral acknowledgement without repeated approval prompts."
+  - "The 2026-08-23 native Windows retest exposed an installer migration that replaced durable project ports with pending whenever the stopped registry recorded zero."
 next_step: "/103-sg-verify runtime awareness and mutation approval"
 ---
 
@@ -42,6 +43,7 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 - Windows and Linux installers keep Playwright MCP enabled as the default web-QA lane; `playwright-interactive` remains an optional advanced Electron/persistent-program lane.
 - Every registered project has a visible, versioned `<project-root>\ENVIRONMENT.md` with a bounded ShipGlows block. Existing user content is preserved.
 - The project document stores the durable server manager, assigned port, and canonical loopback URL. It is updated only when registration or a real port assignment changes those facts.
+- Installer migration preserves an existing valid project-document port when the registry temporarily records zero, and project start recovers that durable port before allocating a new one.
 - The Windows DevServer registry remains the sole live-status authority. Start and stop do not rewrite project documentation merely to change status.
 - The native Windows backend ignores Flox completely and resolves direct or nested launch targets only from supported application manifests.
 - `$shipglows context` resolves the project from the current directory, reads both documents and the registry, reports Python and Playwright evidence, and distinguishes installed/configured/discovered/callable/failed/not-exposed states.
@@ -72,7 +74,7 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 - The Windows installer AST regression keeps the structured Playwright result inside `Install-SgCodexPlaywrightMcp` and prevents the environment-instruction writer from capturing that result contract.
 - Focused Windows/Linux installer checks that Playwright MCP remains globally enabled and future runtime instructions require deferred discovery before an unavailable verdict.
 - Scenario checks for direct absence plus deferred presence, safe-probe success, configured-but-undiscovered state, and discovered-call failure.
-- Project document preservation, idempotence, durable `3002` URL, live-status separation, and legacy cleanup scenarios.
+- Project document preservation, idempotence, durable `3002` URL, zero-registry-port recovery, live-status separation, and legacy cleanup scenarios.
 - Scenario checks for initial imperative, explicit post-plan approval, clarification without reissue, neutral acknowledgement without approval or reprompt, later explicit approval, bounded `v`, material-plan change, micro-edit, and server-process mutation.
 - ZOMBIES coverage: zero pending proposal grants no authority; one unchanged proposal survives non-material turns; repeated acknowledgements stay inert; interface intent distinguishes clarification, acknowledgement, approval, and material change; ambiguous or changed state fails closed.
 - Skill budget, metadata, runtime sync, focused contract tests, and `git diff --check`.

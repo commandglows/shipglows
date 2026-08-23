@@ -31,6 +31,40 @@ try {
     catch { $confirmationBlocked = $_.Exception.Message -match 'explicit confirmation' }
     Assert-Sg $confirmationBlocked 'Developer channel mutation must require explicit confirmation.'
 
+    $environmentWrites = New-Object System.Collections.Generic.List[object]
+    $environmentWriter = {
+        param($Name,$Value,$Target)
+        $environmentWrites.Add([pscustomobject]@{ Name=$Name; Value=$Value; Target=$Target })
+    }.GetNewClosure()
+    $loadedModule = Get-Module ShipGlows.DeveloperCorpus
+    $statePath = & $loadedModule {
+        param($Root,$TargetHome,$Writer)
+        Save-SgDeveloperChannelState -Root $Root -TargetHome $TargetHome -EnvironmentWriter $Writer
+    } $repoRoot $fixtureHome $environmentWriter
+    $state = [IO.File]::ReadAllText($statePath) | ConvertFrom-Json
+    Assert-Sg ($state.channel -eq 'linked' -and $state.root -eq $repoRoot) 'Developer channel state must identify the exact linked root.'
+    Assert-Sg (@($environmentWrites | Where-Object { $_.Name -eq 'SHIPGLOWS_ROOT' -and $_.Value -eq $repoRoot -and $_.Target -eq 'User' }).Count -eq 1) 'Developer channel must persist SHIPGLOWS_ROOT for the current user.'
+    Assert-Sg (@($environmentWrites | Where-Object { $_.Name -eq 'SHIPGLOWS_ROOT' -and $_.Value -eq $repoRoot -and $_.Target -eq 'Process' }).Count -eq 1) 'Developer channel must activate SHIPGLOWS_ROOT for the current process.'
+
+    $rollbackHome = Join-Path $fixtureHome 'rollback-home'
+    $failedProcessWrite = $false
+    $rollbackWriter = {
+        param($Name,$Value,$Target)
+        if ($Target -eq 'Process' -and $Value -eq $repoRoot -and -not $failedProcessWrite) {
+            $failedProcessWrite = $true
+            throw 'simulated process environment failure'
+        }
+    }.GetNewClosure()
+    $rollbackObserved = $false
+    try {
+        & $loadedModule {
+            param($Root,$TargetHome,$Writer)
+            Save-SgDeveloperChannelState -Root $Root -TargetHome $TargetHome -EnvironmentWriter $Writer
+        } $repoRoot $rollbackHome $rollbackWriter
+    } catch { $rollbackObserved = $_.Exception.Message -match 'simulated process environment failure' }
+    Assert-Sg $rollbackObserved 'Developer channel persistence failure must remain observable.'
+    Assert-Sg (-not (Test-Path -LiteralPath (Join-Path $rollbackHome '.shipglows\development-channel.json'))) 'Failed developer channel persistence must roll back its new state file.'
+
     $source = Join-Path $fixtureHome 'source'
     foreach ($relative in @('skills\shipglows', 'skills\references', 'tools', 'plugins\shipglows\.codex-plugin')) {
         New-Item -ItemType Directory -Path (Join-Path $source $relative) -Force | Out-Null
@@ -38,6 +72,7 @@ try {
     foreach ($relative in @(
         'skills\shipglows\SKILL.md',
         'skills\references\skill-invocation-registry.json',
+        'skills\references\canonical-paths.md',
         'tools\shipglows_sync_skills.ps1',
         'plugins\shipglows\.codex-plugin\plugin.json'
     )) {

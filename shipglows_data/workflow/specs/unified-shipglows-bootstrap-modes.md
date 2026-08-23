@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-07-17"
 created_at: "2026-07-17 13:25:56 UTC"
@@ -39,6 +39,7 @@ evidence:
   - "The deployed www.winflowz.com bootstrap differs from the ShipGlows bootstrap and duplicates its implementation in the WinGlowz site."
   - "The public endpoint remains the distribution authority; native Windows uses the public GitHub archive because the Windows bootstrap must not require Git."
   - "The 2026-08-23 Windows owner setup exposed that corpus, full, all, and development had diverging Unix/Windows meanings; the maintainer channel now requires its own explicit non-public-default surface."
+  - "The 2026-08-23 native Windows retest proved that linked skills alone are insufficient: the maintainer channel must persist the validated checkout as user SHIPGLOWS_ROOT and activate it in the current process."
   - "BUG-2026-07-13-002 already proves that local/install.sh has a Termux-aware path once the bootstrap reaches it."
 next_step: "/405-sg-prod then /107-sg-test --retest BUG-2026-07-17-001"
 ---
@@ -95,6 +96,12 @@ The platform mode (`local|full`) and installation surface are independent. `full
 | `runtime` | Project development/runtime tooling | Sparse runtime checkout | Native DevServer and toolchain |
 | `skills` | Sparse public skills compatibility corpus | Supported; legacy `corpus` is input-only | Use the public plugin; explicit `skills`/`corpus` must not escalate |
 | `maintainer` | Complete editable multi-branch ShipGlows owner checkout with live linked skills | Deliberately outside the public Unix bootstrap | Explicit option 3 or `-InstallSurface maintainer` only |
+
+On native Windows, successful `maintainer` convergence records the exact
+validated checkout in `development-channel.json`, persists it as the current
+user's `SHIPGLOWS_ROOT`, and activates it in the installer process. Failure to
+persist either state rolls back the prior state instead of reporting a linked
+channel whose canonical source cannot be resolved by a new agent session.
 
 `SHIPGLOWS_INSTALL_COMPONENTS=all` selects public components only. It must never remove the public plugin, clone the full maintainer repository, or switch the live Codex entrypoint. Generic `full`, `all`, `development environment`, and `corpus` wording carries no maintainer authority.
 

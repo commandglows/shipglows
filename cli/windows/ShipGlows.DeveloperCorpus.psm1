@@ -56,6 +56,7 @@ function Assert-SgDeveloperCheckout {
     foreach ($relative in @(
         'skills\shipglows\SKILL.md',
         'skills\references\skill-invocation-registry.json',
+        'skills\references\canonical-paths.md',
         'tools\shipglows_sync_skills.ps1',
         'plugins\shipglows\.codex-plugin\plugin.json'
     )) {
@@ -64,6 +65,53 @@ function Assert-SgDeveloperCheckout {
         }
     }
     return $actual
+}
+
+function Save-SgDeveloperChannelState {
+    param(
+        [Parameter(Mandatory=$true)][string]$Root,
+        [Parameter(Mandatory=$true)][string]$TargetHome,
+        [scriptblock]$EnvironmentWriter
+    )
+
+    $stateDirectory = Join-Path $TargetHome '.shipglows'
+    $statePath = Join-Path $stateDirectory 'development-channel.json'
+    $stateExisted = Test-Path -LiteralPath $statePath -PathType Leaf
+    $previousState = if ($stateExisted) { [IO.File]::ReadAllText($statePath) } else { $null }
+    $previousUserRoot = [Environment]::GetEnvironmentVariable('SHIPGLOWS_ROOT', 'User')
+    $previousProcessRoot = [Environment]::GetEnvironmentVariable('SHIPGLOWS_ROOT', 'Process')
+    $writeEnvironment = if ($EnvironmentWriter) {
+        $EnvironmentWriter
+    } else {
+        { param($Name,$Value,$Target) [Environment]::SetEnvironmentVariable($Name,$Value,$Target) }
+    }
+
+    try {
+        New-Item -ItemType Directory -Path $stateDirectory -Force | Out-Null
+        $state = [ordered]@{
+            schemaVersion = 1
+            channel = 'linked'
+            root = $Root
+            linkedAt = [DateTimeOffset]::UtcNow.ToString('o')
+        }
+        [IO.File]::WriteAllText($statePath, ($state | ConvertTo-Json -Compress), [Text.UTF8Encoding]::new($false))
+        & $writeEnvironment 'SHIPGLOWS_ROOT' $Root 'User'
+        & $writeEnvironment 'SHIPGLOWS_ROOT' $Root 'Process'
+    } catch {
+        try {
+            if ($stateExisted) {
+                [IO.File]::WriteAllText($statePath, $previousState, [Text.UTF8Encoding]::new($false))
+            } elseif (Test-Path -LiteralPath $statePath) {
+                Remove-Item -LiteralPath $statePath -Force
+            }
+            & $writeEnvironment 'SHIPGLOWS_ROOT' $previousUserRoot 'User'
+            & $writeEnvironment 'SHIPGLOWS_ROOT' $previousProcessRoot 'Process'
+        } catch {
+            throw 'ShipGlows developer channel state could not be persisted or rolled back safely.'
+        }
+        throw
+    }
+    return $statePath
 }
 
 function Install-SgDeveloperCheckout {
@@ -141,16 +189,7 @@ function Enable-SgWindowsDeveloperChannel {
         throw
     }
 
-    $stateDirectory = Join-Path $TargetHome '.shipglows'
-    $statePath = Join-Path $stateDirectory 'development-channel.json'
-    New-Item -ItemType Directory -Path $stateDirectory -Force | Out-Null
-    $state = [ordered]@{
-        schemaVersion = 1
-        channel = 'linked'
-        root = $root
-        linkedAt = [DateTimeOffset]::UtcNow.ToString('o')
-    }
-    [IO.File]::WriteAllText($statePath, ($state | ConvertTo-Json -Compress), [Text.UTF8Encoding]::new($false))
+    [void](Save-SgDeveloperChannelState -Root $root -TargetHome $TargetHome)
     Write-Output "ShipGlows developer channel linked to $root"
     return $root
 }

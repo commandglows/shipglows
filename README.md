@@ -372,7 +372,10 @@ For automation, pass `-InstallMode local` or `-InstallMode full`; add
 `-InstallSurface maintainer` only for the ShipGlows owner workstation. That explicit surface clones or
 validates `%USERPROFILE%\ShipGlows\shipglows`, removes the conflicting public
 Codex plugin, and links the public Codex skills directly to the complete,
-editable multi-branch clone.
+editable multi-branch clone. A successful switch also persists
+`SHIPGLOWS_ROOT` for the current Windows user and activates it in the installer
+process, so new agent sessions resolve the same editable source without relying
+on their working directory.
 Generic `all`, `full`, `skills`, and legacy `corpus` requests never select the
 maintainer channel. Native Windows keeps the public Codex plugin for ordinary
 users; the Unix bootstrap retains a separate sparse `skills` surface. A
@@ -387,6 +390,9 @@ registered with its own stable display name, persistent localhost port, logs,
 and `ENVIRONMENT.md`. Discovery is bounded to four workspace levels and three
 levels below a project root, and skips dependency, build, cache, and hidden
 directories. It does not claim to recognize every possible monorepo layout.
+Installer migration never replaces an existing valid assigned port with
+`pending` merely because the live registry currently records zero; a later
+start recovers that durable port before allocating a new one.
 One linear scan feeds every dashboard and project picker. Its non-authoritative
 project index is cached in memory and atomically on disk. The last structurally
 valid index is displayed immediately; after five minutes the interactive menu

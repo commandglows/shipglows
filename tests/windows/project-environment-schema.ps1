@@ -37,6 +37,11 @@ try {
     [void](Write-SgProjectEnvironment $project 3002)
     if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $hash) { throw 'The v1 rewrite is not byte-idempotent.' }
 
+    [void](Write-SgProjectEnvironment $project 0)
+    $preserved = Get-SgProjectEnvironment $project
+    if ($preserved.Port -ne 3002) { throw 'A zero registry port erased the durable project port.' }
+    if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $hash) { throw 'A zero registry port rewrote an already durable environment.' }
+
     foreach ($invalid in @(
         [pscustomobject]@{ Name='future'; Content="# Notes`n`n<!-- >>> ShipGlows development environment >>> -->`n## ShipGlows development environment`n`n- Environment schema: ``shipglows-project-environment/v2```n- Server manager: ``shipglows-devserver```n<!-- <<< ShipGlows development environment <<< -->`n"; Error='Unsupported ShipGlows project environment schema' },
         [pscustomobject]@{ Name='incomplete'; Content="# Notes`n`n<!-- >>> ShipGlows development environment >>> -->`nDo not overwrite me.`n"; Error='incomplete or duplicated' },

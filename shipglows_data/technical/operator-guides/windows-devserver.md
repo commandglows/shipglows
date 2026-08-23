@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.17.0"
+artifact_version: "1.17.1"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-23"
@@ -274,6 +274,12 @@ attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
 documentation du projet.
 
+Une réconciliation ou réinstallation qui lit temporairement le port `0` dans
+le registre conserve un port valide déjà inscrit dans `ENVIRONMENT.md`. Au
+prochain démarrage, ce port durable est réutilisé avec la même réservation
+transactionnelle qu'un port demandé explicitement; il n'est remplacé par
+`pending first ShipGlows start` que lorsqu'aucune affectation n'existe encore.
+
 Un SDK Flutter géré et déjà valide reconverge son répertoire `bin` dans le
 `PATH` utilisateur et dans le processus d'installation à chaque relance. Le
 rapport distingue le workload Visual Studio Desktop C++ de la disponibilité
@@ -290,8 +296,10 @@ des marqueurs ShipGlows est conservé. Un schéma futur inconnu, des marqueurs
 incomplets ou plusieurs blocs provoquent un refus sans réécriture du fichier.
 
 Sous Windows, la priorité de port est : port demandé explicitement, variable
-`SHIPGLOWS_ENV_PORT` du processus, `.shipglows.env` du projet, registre
-persistant, puis premier port libre de `3000` à `3100`. Le numéro obtenu est
+`SHIPGLOWS_ENV_PORT` du processus, `.shipglows.env` du projet, port durable de
+`ENVIRONMENT.md`, registre persistant, puis premier port libre de `3000` à
+`3100`. Quand le registre ne porte aucun port, `ENVIRONMENT.md` est consulté
+avant l'allocation libre. Le numéro obtenu est
 propre à la surface. Si ShipGlows lance la surface sur `3002` alors que le dépôt
 déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port

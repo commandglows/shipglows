@@ -1200,8 +1200,14 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0) {
     $path = Get-SgProjectEnvironmentPath $ProjectPath
     $existing = if (Test-Path -LiteralPath $path -PathType Leaf) { [IO.File]::ReadAllText($path) } else { '' }
     $managed = Get-SgProjectEnvironmentBlock $existing
-    $portValue = if ($Port -gt 0) { [string]$Port } else { 'pending first ShipGlows start' }
-    $urlValue = if ($Port -gt 0) { "http://127.0.0.1:$Port" } else { 'pending first ShipGlows start' }
+    $effectivePort = $Port
+    if ($effectivePort -eq 0 -and $managed.Exists -and $managed.Match.Value -match '(?m)^- Assigned port: `(\d+)`\r?$') {
+        $durablePort = [int]$Matches[1]
+        if ($durablePort -lt 1024 -or $durablePort -gt 65535) { throw "Invalid assigned port in $path." }
+        $effectivePort = $durablePort
+    }
+    $portValue = if ($effectivePort -gt 0) { [string]$effectivePort } else { 'pending first ShipGlows start' }
+    $urlValue = if ($effectivePort -gt 0) { "http://127.0.0.1:$effectivePort" } else { 'pending first ShipGlows start' }
     $block = @'
 <!-- >>> ShipGlows development environment >>> -->
 ## ShipGlows development environment
@@ -1293,6 +1299,10 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $configuredPort = [int]$env:SHIPGLOWS_ENV_PORT
     }
     if ($configuredPort -le 0 -and $settings.Port -gt 0) { $configuredPort = [int]$settings.Port }
+    if ($configuredPort -le 0) {
+        $projectEnvironment = Get-SgProjectEnvironment $entry.path
+        if ($projectEnvironment -and $projectEnvironment.Port -gt 0) { $configuredPort = [int]$projectEnvironment.Port }
+    }
     $explicitPort = $configuredPort -gt 0
     $previousPort = [int]$entry.port
     $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort
