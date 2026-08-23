@@ -344,7 +344,7 @@ if (Get-Command wsl.exe -ErrorAction SilentlyContinue) {
     # Windows can expose the wsl.exe stub before a distribution/runtime is
     # usable. Invoking that optional probe under ErrorActionPreference=Stop can
     # terminate a fresh native install, so detection remains non-executing.
-    Write-Warn "WSL is detected; this installer will continue in native Windows $InstallMode mode."
+    Write-Warn "The WSL launcher is present, but its runtime and distributions were not probed; this installer will continue in native Windows $InstallMode mode."
 }
 
 $source = Resolve-GitHubSource -RepositoryUrl $RepoUrl -Ref $Branch
