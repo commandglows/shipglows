@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-08-21"
+updated: "2026-08-23"
 status: active
 source_skill: 900-shipglows-core
 scope: implementation-excellence-preflight
@@ -38,8 +38,9 @@ evidence:
   - "Bento review demonstrated that conditional design-token guidance can be skipped when scope recognition remains implicit."
   - "Operator directive 2026-08-21: the frontend preflight must guarantee that essential homepage content remains visible if JavaScript or animation fails."
   - "Operator directive 2026-08-21: the frontend preflight must prefer semantic HTML and native CSS and require a functional justification for JavaScript."
+  - "Recovery verification 2026-08-23: focused frontend-gate tests and repository-governance checks passed on the current main baseline."
 next_review: "2026-11-21"
-next_step: /103-sg-verify implementation-excellence-preflight
+next_step: "Apply the preflight before the next substantive authored-code chantier."
 ---
 
 # Implementation Excellence Preflight

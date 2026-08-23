@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-08-21"
+updated: "2026-08-23"
 status: active
 source_skill: 900-shipglows-core
 scope: design-system-token-contract
@@ -34,8 +34,9 @@ evidence:
   - "Operator directive 2026-08-13: public sites should reach award-caliber craft while every interface remains coherent, accessible, performant, and production-ready."
   - "Operator directive 2026-08-21: essential homepage content must remain visible when JavaScript or animation fails."
   - "Operator directive 2026-08-21: prefer semantic HTML and native CSS for presentation, and require a concrete functional reason before adding JavaScript."
+  - "Recovery verification 2026-08-23: content-availability, CSS-first, metadata, dependency, skill, topology, and runtime-sync checks passed on the current main baseline."
 next_review: "2026-09-12"
-next_step: "/103-sg-verify design-system-token-contract"
+next_step: "Apply the gate to the next public or product-critical interface change."
 ---
 
 # Design-System Token Contract

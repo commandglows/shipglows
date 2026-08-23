@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-22"
-updated: "2026-08-22"
+updated: "2026-08-23"
 status: ready
 source_skill: 900-shipglows-core
 scope: trial-transition-experience-contract
@@ -28,7 +28,8 @@ evidence:
   - "CommunityGlows trial reminders and its expired-access gate exposed a reusable boundary between truthful entitlement state, concrete suspended value, recovery, and ethical conversion."
   - "Operator decision 2026-08-22: entrench this flow in ShipGlows doctrine linked to trials, entitlements, and UX."
   - "Operator clarification 2026-08-22: the reusable innovation is the full reminder-to-expiry journey that turns anxiety into a pressure-free showcase of the product's best evidenced features."
-next_step: "Run the deferred focused contract test, metadata validation, and runtime sync under a local verification posture."
+  - "Recovery verification 2026-08-23: trial-transition scenarios, metadata, dependency graph, skill audit, budget audit, topology, and runtime sync all passed on the current main baseline."
+next_step: "Merge the validated recovery branch without reintroducing the superseded positioning commit."
 ---
 
 # Value-Led Trial Transition Experience Contract
@@ -53,9 +54,9 @@ Extend the existing product-entitlement support and proof branch so every Glows 
 
 ## Proof Contract
 
-Proof path: `scenario-first`, deferred under `#nolocal`.
+Proof path: `scenario-first`, verified during the 2026-08-23 recovery run.
 
-The focused contract check must cover `TEX-001` through `TEX-010`, canonical link discovery, the complete reminder-to-recovery timeline, showcase evidence boundaries, truth/recovery markers, and founder-message anti-coercion language. Metadata and runtime consistency remain pending; no workload, commit, or push is authorized in this run.
+The focused contract check covers `TEX-001` through `TEX-010`, canonical link discovery, the complete reminder-to-recovery timeline, showcase evidence boundaries, truth/recovery markers, and founder-message anti-coercion language. The focused tests, metadata, dependency graph, skill audits, topology, and runtime sync passed on the recovery branch; PR integration remains pending.
 
 ## Current Chantier Flow
 
@@ -63,9 +64,9 @@ The focused contract check must cover `TEX-001` through `TEX-010`, canonical lin
 |------|--------|-------|
 | Spec and readiness | done | Placement, invariants, scenarios, and proof path are explicit. |
 | Implementation | done | Canonical doctrine, owner activation, and focused contract coverage authored under `#nolocal`. |
-| Verification | pending | Focused test, metadata validation, budget/fidelity checks, and runtime sync were not run. |
-| Closure | pending | Forbidden until verification succeeds. |
-| Ship | pending | No commit or push authorized under `#nolocal`. |
+| Verification | done | Focused tests and repository-governance checks passed on 2026-08-23. |
+| Closure | pending | Recovery is validated; closure waits for PR integration into `main`. |
+| Ship | pending | The validated recovery branch still needs its reviewed PR and merge. |
 
 ## Skill Run History
 
@@ -73,3 +74,4 @@ The focused contract check must cover `TEX-001` through `TEX-010`, canonical lin
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-22 | shipglows core | GPT-5 | Added canonical trial-expiry UX doctrine, pressure scenarios, owner discovery, and deferred focused proof | implemented — unverified | Expand the contract across the full trial transition |
 | 2026-08-22 | shipglows core | GPT-5 | Expanded the doctrine from the expired gate to the complete reminder-to-recovery journey with value-showcase and progressive-clarity rules | implemented — unverified | Run the deferred proof contract |
+| 2026-08-23 | recovery | GPT-5 | Recovered the complete trial-transition doctrine onto current `main` and ran focused plus governance proof | verified | Open and merge the recovery PR |

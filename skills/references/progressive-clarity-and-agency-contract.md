@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-08-22"
-updated: "2026-08-22"
+updated: "2026-08-23"
 status: active
 source_skill: 900-shipglows-core
 scope: progressive-clarity-and-agency
@@ -22,8 +22,9 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-22: generalize the trial-transition principle so ShipGlows increases clarity without manufacturing pressure across other sensitive experiences."
   - "Existing marketing, priority, question, recovery, and async-feedback contracts already enforce compatible fragments without a shared named doctrine."
+  - "Recovery verification 2026-08-23: focused scenarios and repository-governance checks passed on the current main baseline."
 next_review: "2026-09-22"
-next_step: "Run the deferred focused contract test and review adoption only when a sensitive journey or operator interaction changes."
+next_step: "Review adoption when a sensitive journey or operator interaction changes."
 ---
 
 # Progressive Clarity And Preserved Agency

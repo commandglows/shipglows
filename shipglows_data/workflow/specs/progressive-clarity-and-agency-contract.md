@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-08-22"
-updated: "2026-08-22"
+updated: "2026-08-23"
 status: ready
 source_skill: 900-shipglows-core
 scope: progressive-clarity-and-agency
@@ -26,7 +26,8 @@ evidence:
   - "The CommunityGlows trial-transition work demonstrated that increasing clarity without increasing pressure can turn an anxious moment into value recognition and confident recovery."
   - "Read-only review found compatible but fragmented rules across marketing, priorities, questions, async feedback, product recovery, and operator reporting."
   - "Operator approval 2026-08-22: make the principle targeted shared ShipGlows doctrine."
-next_step: "Run the deferred focused contract test, metadata validation, and affected-reference checks under a local verification posture."
+  - "Recovery verification 2026-08-23: focused scenarios, metadata, dependency graph, skill audit, budget audit, topology, and runtime sync all passed on the current main baseline."
+next_step: "Merge the validated recovery branch without reintroducing the superseded positioning commit."
 ---
 
 # Progressive Clarity And Preserved Agency
@@ -45,9 +46,9 @@ Create one compact shared doctrine for sensitive product and operator interactio
 
 ## Proof Contract
 
-Proof path: `scenario-first`, deferred under `#nolocal`.
+Proof path: `scenario-first`, verified during the 2026-08-23 recovery run.
 
-The focused proof covers `PCA-001` through `PCA-008`, the state-to-recovery sequence, genuine-urgency evidence, progressive-disclosure limits, preserved alternatives, targeted discovery, and the entitlement specialization. Metadata, runtime, and behavioral pressure checks remain pending; no workload, commit, or push is authorized in this run.
+The focused proof covers `PCA-001` through `PCA-008`, the state-to-recovery sequence, genuine-urgency evidence, progressive-disclosure limits, preserved alternatives, targeted discovery, and the entitlement specialization. The focused tests, metadata, dependency graph, skill audits, topology, and runtime sync passed on the recovery branch; PR integration remains pending.
 
 ## Current Chantier Flow
 
@@ -55,12 +56,13 @@ The focused proof covers `PCA-001` through `PCA-008`, the state-to-recovery sequ
 |------|--------|-------|
 | Spec and readiness | done | General principle, limits, placement, and scenario proof are explicit. |
 | Implementation | done | Shared doctrine and targeted consumers authored under `#nolocal`. |
-| Verification | pending | Focused test and metadata/runtime checks were not run. |
-| Closure | pending | Forbidden until verification succeeds. |
-| Ship | pending | No commit or push authorized under `#nolocal`. |
+| Verification | done | Focused tests and repository-governance checks passed on 2026-08-23. |
+| Closure | pending | Recovery is validated; closure waits for PR integration into `main`. |
+| Ship | pending | The validated recovery branch still needs its reviewed PR and merge. |
 
 ## Skill Run History
 
 | Date UTC | Skill | Model | Action | Result | Next step |
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-22 | shipglows core | GPT-5 | Generalized progressive clarity and preserved agency into targeted shared doctrine with eight pressure scenarios | implemented — unverified | Run the deferred proof contract |
+| 2026-08-23 | recovery | GPT-5 | Recovered the doctrine onto current `main` without the superseded positioning commit and ran focused plus governance proof | verified | Open and merge the recovery PR |
