@@ -8,7 +8,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ROUTER = ROOT / "skills" / "000-shipglows" / "SKILL.md"
-COMPAT_ROUTER = ROOT / ".agents" / "skills" / "shipglows" / "SKILL.md"
+COMPAT_ROUTER = ROOT / "skills" / "shipglows" / "SKILL.md"
 CORE = ROOT / "skills" / "900-shipglows-core" / "SKILL.md"
 REGISTRY = ROOT / "skills" / "references" / "skill-invocation-registry.json"
 ALIASES = ROOT / "skills" / "references" / "expert-mode-aliases.md"
@@ -37,11 +37,11 @@ EXPECTED_ALIASES = {
 class ShipGlowsCoreAliasContractTests(unittest.TestCase):
     def test_core_is_a_hard_shipglows_context_in_every_entrypoint(self) -> None:
         public = PUBLIC_ROUTER.read_text(encoding="utf-8")
-        compatibility = COMPAT_ROUTER.read_text(encoding="utf-8")
+        compatibility = " ".join(COMPAT_ROUTER.read_text(encoding="utf-8").split())
         core = CORE.read_text(encoding="utf-8")
 
         self.assertIn("Never redirect any part of a `core` instruction to the current project", public)
-        self.assertIn("every remaining word as ShipGlows-system work", compatibility)
+        self.assertIn("`core` is the sole hard context switch", compatibility)
         self.assertIn("No later project name, repository path, request, or quoted outcome overrides", core)
         self.assertIn("it does not audit either repository", core)
 

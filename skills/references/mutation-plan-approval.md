@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.13.0"
+artifact_version: "1.14.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-21"
+updated: "2026-08-23"
 status: active
 source_skill: 900-shipglows-core
 scope: universal-mutation-plan-approval
@@ -28,6 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Contract-suite repair 2026-08-23 aligns the authority name and focused tests with the approved milestone commit-and-push policy introduced on 2026-08-21."
   - "Operator decision 2026-08-13: every intentional mutation requires visible consent and explicit approval after the consent message; the original decision used the full-plan form, which the 2026-08-14 two-tier refinement makes proportional."
   - "Operator decision 2026-08-13: approval plans share the chantier opening identity, Paris time, visual section markers, and contextual numbered choices."
   - "Operator decision 2026-08-13: material plan choices express business direction, while short Questionner and Réorienter controls trigger guided follow-up."
@@ -190,7 +191,7 @@ Approval covers only the displayed fast action/target/safety guarantee or full o
 
 Routine implementation details inside the approved scope do not require repeated approval. Destructive, privileged, production, credential, billing, publication, and irreversible actions keep their stricter existing gates in addition to this one.
 
-## Cumulative local commit authority
+## Cumulative milestone persistence authority
 
 Approval of a bounded technical implementation plan that disclosed milestone remote persistence also authorizes its ordinary milestone commits and pushes by default. Apply `git-milestone-delivery-contract.md`: every explicit coherent validated milestone must be committed and pushed before the next milestone starts. The agent may stage, commit, and push silently, without a second approval message, when all of these conditions remain true:
 

@@ -226,10 +226,10 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         ):
             self.assertIn(boundary, scenario)
 
-    def test_technical_plan_approval_includes_local_commit_authority(self) -> None:
+    def test_technical_plan_approval_includes_milestone_persistence_authority(self) -> None:
         for expected in (
-            "Cumulative local commit authority",
-            "ordinary local commits by default",
+            "Cumulative milestone persistence authority",
+            "ordinary milestone commits and pushes by default",
             "without a second approval message",
             "unrelated and pre-existing changes remain unstaged",
             "secret and sensitive-data checks pass",
@@ -240,11 +240,13 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
 
     def test_implicit_commit_authority_keeps_strict_boundaries(self) -> None:
         for expected in (
-            "no amend, rebase, squash, reset, tag, push, force, hook bypass, or remote effect",
+            "no amend, rebase, squash, reset, tag, force, hook bypass, merge, deployment, or unrelated remote effect",
+            "resolved unambiguous upstream",
             "substantive editorial judgment",
             "broad mixed-scope consolidation",
-            "`git push` always remains a separate full-plan action",
+            "`git push` always requires a full plan",
             "MAP-TECHNICAL-COMMIT",
+            "MAP-MILESTONE-COMMIT",
             "MAP-COMMIT-BOUNDARY",
         ):
             self.assertIn(expected, self.text)
@@ -252,9 +254,9 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
     def test_master_contracts_propagate_commit_authority_without_duplicate_prompt(self) -> None:
         lifecycle = LIFECYCLE.read_text(encoding="utf-8")
         delegation = DELEGATION.read_text(encoding="utf-8")
-        self.assertIn("ordinary exact-scope local commits inherit that approval", lifecycle)
+        self.assertIn("ordinary exact-scope milestone commits and pushes inherit", lifecycle)
         self.assertIn("Exact-scope staging for an already approved technical commit", lifecycle)
-        self.assertIn("ordinary exact-scope local commits", delegation)
+        self.assertIn("ordinary exact-scope milestone commits and pushes", delegation)
         self.assertIn("unapproved staging", delegation)
 
     def test_master_contract_propagates_pending_proposal_turn_semantics(self) -> None:
