@@ -386,6 +386,17 @@ exit /b 23
     $jsoncHash = (Get-FileHash $jsonc -Algorithm SHA256).Hash
     $jsoncPlan = Get-SgAgentConfigWritePlan -ConfigPath $jsonc -Config ([ordered]@{ mcp=$servers })
     Assert-Sg ($jsoncPlan.Status -eq 'pending' -and (Get-FileHash $jsonc -Algorithm SHA256).Hash -eq $jsoncHash) 'JSONC comments/secrets must be preserved byte-for-byte.'
+    $skeleton = Join-Path $fixture 'kilo-skeleton.jsonc'
+    $kiloConfig = [ordered]@{ '$schema'='https://app.kilo.ai/config.json'; mcp=$servers }
+    [IO.File]::WriteAllText($skeleton, "{`n  `"`$schema`": `"https://app.kilo.ai/config.json`"`n}`n")
+    Assert-Sg ((Get-SgAgentConfigWritePlan -ConfigPath $skeleton -Config $kiloConfig).Status -eq 'replace-skeleton') 'A schema-only Kilo skeleton should be safely replaceable.'
+    Assert-Sg (Write-SgNewAgentConfig -ConfigPath $skeleton -Config $kiloConfig -ReplaceSkeleton) 'Schema-only Kilo config should be completed atomically.'
+    Assert-Sg ((Get-SgAgentConfigWritePlan -ConfigPath $skeleton -Config $kiloConfig).Status -eq 'unchanged') 'Completed Kilo config should converge idempotently.'
+    $foreignSkeleton = Join-Path $fixture 'kilo-foreign.jsonc'
+    [IO.File]::WriteAllText($foreignSkeleton, "{`n  `"`$schema`": `"https://app.kilo.ai/config.json`",`n  `"theme`": `"custom`"`n}`n")
+    $foreignHash = (Get-FileHash $foreignSkeleton -Algorithm SHA256).Hash
+    Assert-Sg ((Get-SgAgentConfigWritePlan -ConfigPath $foreignSkeleton -Config $kiloConfig).Status -eq 'pending') 'A Kilo config with user fields must remain protected.'
+    Assert-Sg ((Get-FileHash $foreignSkeleton -Algorithm SHA256).Hash -eq $foreignHash) 'Protected Kilo config changed during planning.'
     $newConfig = Join-Path $fixture 'new-agent.json'
     Assert-Sg (Write-SgNewAgentConfig -ConfigPath $newConfig -Config ([ordered]@{ mcp=$servers })) 'Absent config should be created atomically.'
     Assert-Sg (-not (Write-SgNewAgentConfig -ConfigPath $newConfig -Config ([ordered]@{ mcp=$servers }))) 'New-config rerun must converge idempotently.'

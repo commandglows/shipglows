@@ -1435,7 +1435,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
         $plan = Get-SgAgentMcpPlan OpenCode (Get-SgToolPath 'opencode.cmd' $opencodePaths) $DartPath $NpxPath $Playwright.Version $Playwright.Ready $StackMcpDefinitions
         $resolvedConfig = Resolve-SgAgentConfigPath OpenCode $env:USERPROFILE
         $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config
-        if ($write.Status -eq 'create') { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
+        if ($write.Status -in @('create','replace-skeleton')) { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config -ReplaceSkeleton:($write.Status -eq 'replace-skeleton')); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
         if ($ready) { $results.OpenCode = [pscustomobject]@{ Installed=$true; McpSummary="ready: $(@($serverDefinitions.Name) -join ', ')"; ReadyServers=@($serverDefinitions.Name); PendingServers=@() } }
         else { $results.OpenCode = [pscustomobject]@{ Installed=$true; McpSummary='pending: existing JSON/JSONC preserved'; ReadyServers=@(); PendingServers=@($serverDefinitions.Name) }; Write-SgInstallerWarning "OpenCode v2 MCP pending: $($write.Reason)" }
     }
@@ -1444,7 +1444,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
         $plan = Get-SgAgentMcpPlan Kilo $kiloCommand.Path $DartPath $NpxPath $Playwright.Version $Playwright.Ready $StackMcpDefinitions
         $resolvedConfig = Resolve-SgAgentConfigPath Kilo $env:USERPROFILE
         $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config
-        if ($write.Status -eq 'create') { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
+        if ($write.Status -in @('create','replace-skeleton')) { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config -ReplaceSkeleton:($write.Status -eq 'replace-skeleton')); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
         if ($ready) { $results.Kilo = [pscustomobject]@{ Installed=$true; McpSummary="ready: $(@($serverDefinitions.Name) -join ', ')"; ReadyServers=@($serverDefinitions.Name); PendingServers=@() } }
         else { $results.Kilo = [pscustomobject]@{ Installed=$true; McpSummary='pending: existing JSON/JSONC preserved'; ReadyServers=@(); PendingServers=@($serverDefinitions.Name) }; Write-SgInstallerWarning "Kilo MCP pending: $($write.Reason)" }
     }

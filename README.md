@@ -327,8 +327,9 @@ authenticating. GitHub MCP is global because GitHub CLI is part of full mode;
 Clerk MCP and its exact-version CLI are enabled only when bounded manifests detect
 Clerk. Firebase, FlutterFire, Convex, Vercel and Supabase CLIs are
 prepared only from bounded manifest detection and exact resolved versions. New JSON configs use
-the agent's exact schema; existing JSON/JSONC stays byte-for-byte unchanged and
-is reported pending when no proven native update is safe. Playwright is never
+the agent's exact schema. A schema-only OpenCode or Kilo placeholder can be completed
+atomically, while any config with comments, user fields, providers, or secrets stays
+byte-for-byte unchanged and is reported pending. Playwright is never
 registered until an exact package version and a runnable local Chromium executable
 are proven. Android packages are centralized on API/platform/build-tools 36.
 Final observation is authoritative after an installer command: an exact runnable
