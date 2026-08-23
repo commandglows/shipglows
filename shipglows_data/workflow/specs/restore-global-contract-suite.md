@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-23"
 created_at: "2026-08-23 11:00:14 UTC"
 updated: "2026-08-23"
-updated_at: "2026-08-23 11:12:00 UTC"
+updated_at: "2026-08-23 11:16:00 UTC"
 status: active
 source_skill: 900-shipglows-core
 source_model: GPT-5 Codex
@@ -31,7 +31,7 @@ supersedes: []
 evidence:
   - "The complete contract suite reports eight failures and one portability error across five confirmed causes."
   - "Operator approval 2026-08-23 authorizes the complete repair, proportional proof, exact commit, and push to main."
-next_step: "Persist the verified repair, then close and ship the chantier."
+next_step: none
 ---
 
 # Restore the global contract suite
@@ -42,7 +42,7 @@ Restore the global contract suite without weakening current ShipGlows doctrine.
 
 ## Status
 
-Implemented and verified; persistence and closure remain.
+Completed, verified, committed, and pushed.
 
 ## User Story
 
@@ -164,6 +164,8 @@ None. The operator selected the complete repair and approved its remote persiste
 | 2026-08-23 | 101-sg-ready | GPT-5 Codex | Review structure, behavior, proof, boundaries, and execution autonomy | ready | Implement the bounded repairs |
 | 2026-08-23 | 102-sg-start | GPT-5 Codex | Repair the five diagnosed contract causes | implemented | Run complete contract proof |
 | 2026-08-23 | 103-sg-verify | GPT-5 Codex | Run focused and global contract, audit, graph, metadata, budget, sync, JSON, and diff proof | verified | Persist the verified repair |
+| 2026-08-23 | 104-sg-end | GPT-5 Codex | Reconcile acceptance, documentation, editorial, and proof state | completed | Ship the verified repair |
+| 2026-08-23 | 005-sg-ship | GPT-5 Codex | Commit and push the exact verified scope | shipped (`4a19b7e`) | Record final trace |
 
 ## Current Chantier Flow
 
@@ -171,5 +173,5 @@ None. The operator selected the complete repair and approved its remote persiste
 - 101-sg-ready: ready
 - 102-sg-start: implemented
 - 103-sg-verify: verified
-- 104-sg-end: pending
-- 005-sg-ship: pending
+- 104-sg-end: completed
+- 005-sg-ship: shipped (`4a19b7e`)
