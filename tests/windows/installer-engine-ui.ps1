@@ -67,6 +67,13 @@ $phase = Start-SgInstallerPhase -Operation $operation -EventSink { param($event)
 [void](Complete-SgInstallerPhase $phase)
 Assert-Sg ($phaseEvents[-1].ElapsedSeconds -eq 8) 'Phase duration must exclude the ten-minute human input wait while retaining five seconds before and three seconds after it.'
 
+$longClockValues = New-Object Collections.Generic.Queue[datetimeoffset]
+foreach ($instant in @('2026-08-17T11:00:00Z','2026-08-17T11:05:00Z')) { $longClockValues.Enqueue([datetimeoffset]$instant) }
+$longPhaseEvents = New-Object Collections.Generic.List[object]
+$longPhase = Start-SgInstallerPhase -Operation $operation -EventSink { param($event) $longPhaseEvents.Add($event) } -Clock { $longClockValues.Dequeue() }.GetNewClosure()
+[void](Complete-SgInstallerPhase $longPhase)
+Assert-Sg ($longPhaseEvents[-1].ElapsedSeconds -eq 300) 'Phase duration must preserve Int64 ticks beyond the Int32 overflow boundary.'
+
 $realEvents = New-Object Collections.Generic.List[object]
 $realOperation = New-SgInstallerOperation -Id 'proof.progress' -Label 'Proving live progress' -TimeoutSeconds 5
 [void](Invoke-SgInstallerOperation -Operation $realOperation -EventSink { param($event) $realEvents.Add($event) } -Runner {

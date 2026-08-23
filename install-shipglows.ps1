@@ -29,7 +29,8 @@ function Select-WindowsInstallMode {
     Write-Host '  1) SSH tunnel only (local)'
     Write-Host '     Connect this Windows PC to projects already running on another server.'
     Write-Host '  2) Local DevServer (full, recommended)'
-    Write-Host '     Clone and run Astro, Python/FastAPI, and Flutter for web, Android, and Windows on this PC.'
+    Write-Host '     Clone and run your Astro, Python/FastAPI, and Flutter project repositories on this PC.'
+    Write-Host '     This runtime install does not clone the ShipGlows contributor source repository.'
     Write-Host '  0) Cancel'
     while ($true) {
         $choice = Read-Host 'Choose 1 or 2'
@@ -305,12 +306,10 @@ function Invoke-SgRuntimePayloadTransaction {
 }
 
 if (Get-Command wsl.exe -ErrorAction SilentlyContinue) {
-    $wslProbeOutput = (& wsl.exe -e sh -lc 'printf ok' 2>$null | Out-String).Trim()
-    if ($LASTEXITCODE -eq 0 -and $wslProbeOutput -eq 'ok') {
-        Write-Warn 'WSL is available. Use the WSL installation path for the complete Linux CLI.'
-    } else {
-        Write-Warn "WSL is detected but unusable on this machine; using native Windows $InstallMode mode."
-    }
+    # Windows can expose the wsl.exe stub before a distribution/runtime is
+    # usable. Invoking that optional probe under ErrorActionPreference=Stop can
+    # terminate a fresh native install, so detection remains non-executing.
+    Write-Warn "WSL is detected; this installer will continue in native Windows $InstallMode mode."
 }
 
 $source = Resolve-GitHubSource -RepositoryUrl $RepoUrl -Ref $Branch
