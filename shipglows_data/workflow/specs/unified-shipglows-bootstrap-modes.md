@@ -333,13 +333,14 @@ None. The safest Windows distribution default is the public ZIP path with automa
 | 2026-08-01 17:40 UTC | 106-sg-fix | GPT-5 Codex | Rewrote `local/install_local.ps1` as native PowerShell, corrected generated tunnel/profile scripts, replaced shell colors, added a real WSL probe, and kept `ssh.exe` as the tunnel client | ASCII and escaped-variable scans plus diff checks pass; PowerShell Parser and Windows VM execution remain pending because this host has no PowerShell runtime | Run the exact Parser API command and native Windows smoke |
 | 2026-08-23 08:56 UTC | 001-sg-build | GPT-5 Codex | Separated the explicit Windows maintainer workstation from public plugin/runtime/skills surfaces, canonicalized Unix `skills`, aligned EN/FR install guidance, and synchronized generated installers | Windows, Unix, cross-surface, site, Astro, plugin, routing, and Codex runtime-link proofs pass locally; deployment intentionally excluded | Review and merge both scoped branches, then deploy and run hosted/device verification under a new approved plan |
 | 2026-08-23 16:36 UTC | sg-maintenance | GPT-5 Codex | Repaired Windows agent MCP convergence so an exact schema-only OpenCode or Kilo placeholder is completed atomically without weakening preservation of user fields, comments, providers, or secrets | All 28 native Windows regression scripts pass; real maintainer bootstrap retest remains | Push the scoped ShipGlows branch, rerun its real maintainer bootstrap, then verify Kilo MCP readiness |
+| 2026-08-23 16:49 UTC | sg-maintenance | GPT-5 Codex | Added bounded DevServer fallback to the complete ShipGlows-managed Flutter/Dart pair when an already-open parent process has a stale PATH | Focused Flutter background and start-state regressions pass; installed-runtime retest remains | Push and reinstall the scoped branch, then start the real Flutter Web project from the stale Codex session |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: draft created
 - `101-sg-ready`: ready
 - `102-sg-start`: implemented
-- `103-sg-verify`: all 28 native Windows regression scripts pass, including schema-only Kilo convergence and preservation of non-empty JSON/JSONC; real bootstrap/device proof pending
+- `103-sg-verify`: all 28 native Windows regressions pass; real maintainer bootstrap converges Kilo, Android APK runs on the API 36 emulator, and stale-session Flutter fallback awaits installed-runtime proof
 - `104-sg-end`: not launched
 - `005-sg-ship`: the maintainer/public-surface repair is prepared on scoped ShipGlows and ShipGlows App branches; merge and deployment remain intentionally pending
-- Next step: push the scoped ShipGlows repair, rerun the real Windows maintainer bootstrap from that branch, then finish app device/web proof before any merge or deployment
+- Next step: push and reinstall the stale-session Flutter fallback, prove the real web DevServer from the existing Codex process, then finish the scoped app delivery without merge or deployment

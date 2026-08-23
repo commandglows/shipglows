@@ -129,6 +129,22 @@ function Get-SgCommandPath([string[]]$Names) {
     return $null
 }
 
+function Get-SgFlutterCommandPath {
+    $command = Get-SgCommandPath @('flutter.cmd','flutter.bat','flutter.exe')
+    if ($command) { return $command }
+    $localAppData = if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { [Environment]::GetFolderPath('LocalApplicationData') }
+    if ([string]::IsNullOrWhiteSpace($localAppData)) { return $null }
+    $managedRoot = Join-Path $localAppData 'ShipGlows\flutter'
+    $flutter = Join-Path $managedRoot 'bin\flutter.bat'
+    $dart = Join-Path $managedRoot 'bin\dart.bat'
+    foreach ($path in @($managedRoot,$flutter,$dart)) {
+        if (-not (Test-Path -LiteralPath $path)) { return $null }
+        $item = Get-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
+        if (-not $item -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { return $null }
+    }
+    return [IO.Path]::GetFullPath($flutter)
+}
+
 function Get-SgProjectKind([string]$ProjectPath) {
     $package = Join-Path $ProjectPath 'package.json'
     $pubspec = Join-Path $ProjectPath 'pubspec.yaml'
@@ -851,7 +867,7 @@ function Invoke-SgDependencySetup([string]$ProjectPath, [string]$Kind, [string]$
         }
         else { throw 'Python project requires uv.lock or requirements.txt in V1.' }
     } else {
-        $flutter = Get-SgCommandPath @('flutter.cmd','flutter.bat','flutter.exe')
+        $flutter = Get-SgFlutterCommandPath
         if (-not $flutter) { throw 'Flutter SDK is not available on PATH.' }
         $pm = $flutter
         $args = @('pub','get')
@@ -917,7 +933,7 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         }
         $args = @('/d','/s','/c',"`"$command`"")
     } else {
-        $flutter = Get-SgCommandPath @('flutter.cmd','flutter.bat','flutter.exe'); if (-not $flutter) { throw 'Flutter SDK is not available on PATH.' }
+        $flutter = Get-SgFlutterCommandPath; if (-not $flutter) { throw 'Flutter SDK is unavailable on PATH and at the ShipGlows-managed location.' }
         $supervisor = Join-Path $PSScriptRoot 'ShipGlows.FlutterSupervisor.ps1'
         if (-not (Test-Path -LiteralPath $supervisor -PathType Leaf)) { throw 'ShipGlows Flutter supervisor is missing.' }
         if ([string]::IsNullOrWhiteSpace($FlutterLaunchDirectory) -or [string]::IsNullOrWhiteSpace($FlutterLaunchIdentity)) { throw 'Managed Flutter launch identity is required.' }

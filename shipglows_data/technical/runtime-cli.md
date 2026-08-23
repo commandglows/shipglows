@@ -443,7 +443,10 @@ Chrome while preserving debug/hot-reload support. The advanced
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin
 and stdout after the CLI exits. It debounces relevant `lib/**/*.dart` changes
 for 500 ms and issues the allowlisted `app.restart` request; authenticated local
-IPC owns only reload, stop, and open operations.
+IPC owns only reload, stop, and open operations. Command resolution prefers the
+active process `PATH`, then accepts only the complete non-reparse Flutter/Dart
+pair under `%LOCALAPPDATA%\ShipGlows\flutter`; this keeps an already-open agent
+usable immediately after the installer persistently updates the user `PATH`.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.

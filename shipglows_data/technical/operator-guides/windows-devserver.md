@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.17.1"
+artifact_version: "1.17.2"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-23"
@@ -33,6 +33,7 @@ evidence:
   - "The first live Tauri update led to explicit phase/input progress and final-state re-observation for mise, Firebase, Claude/Codex MCP, and localized Flutter diagnostics."
   - "The 2026-08-23 Windows maintainer surface clones or validates the owner repository and enforces one Codex ShipGlows entrypoint channel without accepting generic all/components as authority."
   - "The 2026-08-23 Flutter repair reconverges the managed SDK PATH on every validated rerun and separates Visual Studio C++ readiness from aggregate Flutter Windows build readiness."
+  - "The 2026-08-23 stale-session repair lets the DevServer resolve a complete non-reparse ShipGlows-managed Flutter SDK even when its parent process predates the persistent PATH update."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -282,6 +283,9 @@ transactionnelle qu'un port demandé explicitement; il n'est remplacé par
 
 Un SDK Flutter géré et déjà valide reconverge son répertoire `bin` dans le
 `PATH` utilisateur et dans le processus d'installation à chaque relance. Le
+DevServer résout aussi directement ce SDK géré lorsque le terminal ou l'agent
+parent a été ouvert avant la mise à jour du `PATH`; il exige alors les binaires
+Flutter et Dart complets et refuse les chemins de réanalyse. Le
 rapport distingue le workload Visual Studio Desktop C++ de la disponibilité
 Flutter Windows complète, qui exige aussi Flutter/Dart et Developer Mode. Si
 Flutter remplace temporairement son cache Dart, attendre la fin de l'opération
