@@ -19,6 +19,7 @@ $savedLocalAppData=$env:LOCALAPPDATA;$savedChromeExecutable=$env:CHROME_EXECUTAB
 try {
     $env:LOCALAPPDATA=$browserFixture;$managedBrowser=Join-Path $browserFixture 'ms-playwright\chromium-1234\chrome-win64\chrome.exe';New-Item -ItemType Directory -Path (Split-Path $managedBrowser -Parent) -Force|Out-Null;New-Item -ItemType File -Path $managedBrowser -Force|Out-Null;$env:CHROME_EXECUTABLE=$managedBrowser
     if((Resolve-SgFlutterChromeExecutable 'chrome')-cne[IO.Path]::GetFullPath($managedBrowser)){throw 'Flutter supervisor did not resolve the managed Playwright Chromium executable.'}
+    $env:CHROME_EXECUTABLE='';if((Resolve-SgFlutterChromeExecutable 'chrome' $managedBrowser)-cne[IO.Path]::GetFullPath($managedBrowser)){throw 'Flutter supervisor did not recover persisted Chromium for a stale parent process.'};$env:CHROME_EXECUTABLE=$managedBrowser
     $externalBrowser=Join-Path $browserFixture 'external\chrome.exe';New-Item -ItemType Directory -Path (Split-Path $externalBrowser -Parent) -Force|Out-Null;New-Item -ItemType File -Path $externalBrowser -Force|Out-Null;$env:CHROME_EXECUTABLE=$externalBrowser
     try{[void](Resolve-SgFlutterChromeExecutable 'chrome');throw 'Flutter supervisor accepted a browser outside the managed Playwright runtime.'}catch{if($_.Exception.Message-eq'Flutter supervisor accepted a browser outside the managed Playwright runtime.'){throw}}
     if((Resolve-SgFlutterChromeExecutable 'web-server')-ne''){throw 'Flutter web-server mode unexpectedly required Chromium.'}

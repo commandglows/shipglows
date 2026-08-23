@@ -447,6 +447,9 @@ IPC owns only reload, stop, and open operations. Command resolution prefers the
 active process `PATH`, then accepts only the complete non-reparse Flutter/Dart
 pair under `%LOCALAPPDATA%\ShipGlows\flutter`; this keeps an already-open agent
 usable immediately after the installer persistently updates the user `PATH`.
+The Flutter supervisor applies the same stale-process recovery to the persisted
+user `CHROME_EXECUTABLE`, then still requires a non-reparse executable below
+the managed `%LOCALAPPDATA%\ms-playwright` root.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.

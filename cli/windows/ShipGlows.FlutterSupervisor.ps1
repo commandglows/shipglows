@@ -62,9 +62,10 @@ function New-SgFlutterRunArguments([ValidateSet('chrome','web-server')][string]$
     return $arguments
 }
 
-function Resolve-SgFlutterChromeExecutable([ValidateSet('chrome','web-server')][string]$Device) {
+function Resolve-SgFlutterChromeExecutable([ValidateSet('chrome','web-server')][string]$Device,[string]$UserChromeExecutable=([Environment]::GetEnvironmentVariable('CHROME_EXECUTABLE','User'))) {
     if ($Device -ne 'chrome') { return '' }
     $candidate = [string]$env:CHROME_EXECUTABLE
+    if ([string]::IsNullOrWhiteSpace($candidate) -or -not (Test-Path -LiteralPath $candidate -PathType Leaf)) { $candidate=$UserChromeExecutable }
     if ([string]::IsNullOrWhiteSpace($candidate) -or -not (Test-Path -LiteralPath $candidate -PathType Leaf)) { throw 'ShipGlows managed Chromium is unavailable for the Flutter chrome device.' }
     $resolved = [IO.Path]::GetFullPath($candidate)
     $managedRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'ms-playwright')).TrimEnd('\') + '\'

@@ -285,7 +285,9 @@ Un SDK Flutter géré et déjà valide reconverge son répertoire `bin` dans le
 `PATH` utilisateur et dans le processus d'installation à chaque relance. Le
 DevServer résout aussi directement ce SDK géré lorsque le terminal ou l'agent
 parent a été ouvert avant la mise à jour du `PATH`; il exige alors les binaires
-Flutter et Dart complets et refuse les chemins de réanalyse. Le
+Flutter et Dart complets et refuse les chemins de réanalyse. Le superviseur
+relit de même le `CHROME_EXECUTABLE` persistant lorsque la variable du processus
+parent est absente, puis réapplique sa contrainte au cache Playwright géré. Le
 rapport distingue le workload Visual Studio Desktop C++ de la disponibilité
 Flutter Windows complète, qui exige aussi Flutter/Dart et Developer Mode. Si
 Flutter remplace temporairement son cache Dart, attendre la fin de l'opération
