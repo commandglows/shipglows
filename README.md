@@ -354,7 +354,12 @@ starts them on localhost ports, and keeps a recoverable registry under
 The internal Windows runtime is installed under the hidden
 `%USERPROFILE%\.shipglows\runtime` directory; user projects remain separated under
 `%USERPROFILE%\ShipGlows`.
-For automation, pass `-InstallMode local` or `-InstallMode full`; a
+For automation, pass `-InstallMode local` or `-InstallMode full`; add
+`-InstallSurface corpus` for a contributor workstation. That surface clones or
+validates `%USERPROFILE%\ShipGlows\shipglows`, removes the conflicting public
+Codex plugin, and links the public Codex skills directly to the editable clone.
+`SHIPGLOWS_INSTALL_COMPONENTS=all|skills|corpus` selects the same corpus surface
+for compatibility with the Unix bootstrap. A
 non-interactive call without a mode preserves the local-tunnel fallback. This
 is a local development runtime, not public hosting; Flox, PM2, Caddy, autossh,
 and the Linux `urls` menu are intentionally not part of this path.
@@ -745,7 +750,9 @@ The helper links current-user `~/.claude/skills/<name>` and [Codex's official us
 
 On Windows, pass `-CleanStale` with `-Mode repair -Catalog public` to remove only
 obsolete ShipGlows junctions from the selected runtime directories. The helper
-never removes source skills or unrelated/non-link entries.
+never removes source skills or unrelated/non-link entries. It also accepts
+`-CodexEntrypoint linked|plugin` and refuses an enabled plugin together with a
+linked developer router.
 
 On native Windows, use the PowerShell helper. It creates directory junctions, which do not require Windows symbolic-link privileges:
 
@@ -754,7 +761,10 @@ On native Windows, use the PowerShell helper. It creates directory junctions, wh
 .\tools\shipglows_sync_skills.ps1 -Mode check -All -Runtime codex -Catalog all
 ```
 
-The native Windows public installer deliberately does not install this source corpus. Developers run the command above from a ShipGlows checkout; other Codex users use the plugin route.
+The native Windows public installer keeps the runtime-only path by default.
+Developers select option 3 interactively or pass
+`-InstallMode full -InstallSurface corpus`; other Codex users keep the plugin
+route.
 
 If your Codex version does not expose one of these items (for example `thread`), adjust interactively in Codex:
 

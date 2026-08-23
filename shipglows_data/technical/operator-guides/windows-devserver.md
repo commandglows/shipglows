@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.14.0"
+artifact_version: "1.15.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-17"
+updated: "2026-08-23"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -31,6 +31,7 @@ evidence:
   - "The 2026-08-15 Windows project catalogue reuses one bounded scan across every menu and keeps live status authority in the registry."
   - "Native Windows full packages the reproducible-environment command so s env works from the installed runtime rather than only from a source checkout."
   - "The first live Tauri update led to explicit phase/input progress and final-state re-observation for mise, Firebase, Claude/Codex MCP, and localized Flutter diagnostics."
+  - "The 2026-08-23 Windows corpus surface clones or validates the contributor repository and enforces one Codex ShipGlows entrypoint channel."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -71,9 +72,16 @@ ne sont pas requis par le parcours Shadow PC.
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
    ```
 
-   Sans `-InstallMode`, le script demande simplement si vous voulez les tunnels
-   SSH ou le DevServer local complet. Le DevServer (`full`) est recommandé pour
-   cloner et lancer vos projets sur le PC Windows.
+   Sans `-InstallMode`, le script propose les tunnels SSH, le DevServer local
+   complet, ou le poste contributeur ShipGlows. Le troisième choix clone ou
+   valide `%USERPROFILE%\ShipGlows\shipglows`, retire le plugin public Codex
+   concurrent et relie les skills directement au clone éditable.
+
+   Pour automatiser exactement le poste contributeur :
+
+   ```powershell
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer -InstallMode full -InstallSurface corpus
+   ```
 
    Pour forcer une version ou un tag précis :
 

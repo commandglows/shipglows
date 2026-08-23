@@ -16,6 +16,9 @@ param(
     [ValidateSet('public', 'expert', 'all')]
     [string]$Catalog = 'public',
 
+    [ValidateSet('linked', 'plugin')]
+    [string]$CodexEntrypoint = 'linked',
+
     [string]$TargetHome = $env:USERPROFILE,
 
     [string]$ShipGlowsRoot = (Split-Path -Parent $PSScriptRoot),
@@ -31,6 +34,7 @@ $script:Checked = 0
 $script:Ok = 0
 $script:Repaired = 0
 $script:Blocked = 0
+$script:Skipped = 0
 
 function Resolve-SgPath([string]$Path) {
     return (Resolve-Path -LiteralPath $Path).Path.TrimEnd('\')
@@ -104,6 +108,59 @@ function New-SgDirectoryLink([string]$TargetPath, [string]$SourcePath) {
     $parent = Split-Path -Parent $TargetPath
     New-Item -ItemType Directory -Path $parent -Force | Out-Null
     New-Item -ItemType Junction -Path $TargetPath -Target $SourcePath | Out-Null
+}
+
+function Test-SgCodexPluginEnabled {
+    $configPath = Join-Path $TargetHome '.codex\config.toml'
+    if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) { return $false }
+
+    $inShipGlowsPlugin = $false
+    foreach ($line in Get-Content -LiteralPath $configPath) {
+        if ($line -match '^\s*\[(?<section>.+)\]\s*$') {
+            $section = $Matches.section.Trim()
+            $inShipGlowsPlugin = $section -match '^plugins\.(["'']?)shipglows@[^"'']+\1$'
+            continue
+        }
+        if ($inShipGlowsPlugin -and $line -match '^\s*enabled\s*=\s*true\s*(?:#.*)?$') {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Reconcile-SgCodexRouterChannel {
+    $targetPath = Join-Path (Get-SgRuntimeDirectory 'codex') 'shipglows'
+    if ($CodexEntrypoint -eq 'linked') {
+        if (Test-SgCodexPluginEnabled) {
+            throw 'Codex ShipGlows entrypoint conflict: the plugin is enabled while -CodexEntrypoint linked was selected. Remove the plugin or select the plugin entrypoint.'
+        }
+        return
+    }
+
+    if (-not (Test-SgCodexPluginEnabled)) {
+        throw "Codex ShipGlows plugin entrypoint was selected, but no enabled ShipGlows plugin is recorded in $TargetHome\.codex\config.toml."
+    }
+
+    $item = Get-Item -LiteralPath $targetPath -Force -ErrorAction SilentlyContinue
+    if (-not $item) {
+        $script:Skipped++
+        Write-Output 'skipped runtime=codex skill=shipglows reason=plugin-entrypoint-selected'
+        return
+    }
+    $resolvedTarget = Get-SgLinkTarget $item
+    $resolvedSkills = Resolve-SgPath (Join-Path $ShipGlowsRoot 'skills')
+    if (-not $resolvedTarget -or -not $resolvedTarget.StartsWith("$resolvedSkills\", [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Codex router path is not a ShipGlows-managed junction: $targetPath"
+    }
+    if ($Mode -eq 'check') {
+        $script:Blocked++
+        Write-Output "conflict runtime=codex skill=shipglows target=$targetPath reason=plugin-entrypoint-selected"
+        return
+    }
+    [System.IO.Directory]::Delete($item.FullName, $false)
+    $script:Repaired++
+    $script:Skipped++
+    Write-Output "repaired runtime=codex skill=shipglows target=$targetPath reason=plugin-entrypoint-selected"
 }
 
 function Sync-SgSkill([string]$RuntimeName, [string]$Name, [string]$SourceName) {
@@ -199,10 +256,13 @@ $pairs = if ($PSCmdlet.ParameterSetName -eq 'Skill') {
 }
 
 $runtimes = if ($Runtime -eq 'all') { @('claude', 'codex') } else { @($Runtime) }
+$codexSelected = $runtimes -contains 'codex'
+if ($codexSelected) { Reconcile-SgCodexRouterChannel }
 $desiredNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 foreach ($pair in $pairs) { [void]$desiredNames.Add([string]$pair.Name) }
 foreach ($pair in $pairs) {
     foreach ($runtimeName in $runtimes) {
+        if ($runtimeName -eq 'codex' -and $pair.Name -eq 'shipglows' -and $CodexEntrypoint -eq 'plugin') { continue }
         Sync-SgSkill $runtimeName $pair.Name $pair.Source
     }
 }
@@ -210,7 +270,7 @@ foreach ($runtimeName in $runtimes) {
     Remove-SgStaleLinks $runtimeName $desiredNames
 }
 
-Write-Output "summary mode=$Mode runtime=$Runtime catalog=$Catalog checked=$script:Checked ok=$script:Ok repaired=$script:Repaired blocked=$script:Blocked"
+Write-Output "summary mode=$Mode runtime=$Runtime catalog=$Catalog codex_entrypoint=$CodexEntrypoint checked=$script:Checked ok=$script:Ok repaired=$script:Repaired skipped=$script:Skipped blocked=$script:Blocked"
 if ($Mode -eq 'repair') {
     Write-Output 'note: already-running Claude or Codex sessions may need a reload or new session before repaired skills appear.'
 }
