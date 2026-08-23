@@ -27,7 +27,8 @@ evidence:
   - "Read-only review found compatible but fragmented rules across marketing, priorities, questions, async feedback, product recovery, and operator reporting."
   - "Operator approval 2026-08-22: make the principle targeted shared ShipGlows doctrine."
   - "Recovery verification 2026-08-23: focused scenarios, metadata, dependency graph, skill audit, budget audit, topology, and runtime sync all passed on the current main baseline."
-next_step: "Merge the validated recovery branch without reintroducing the superseded positioning commit."
+  - "PR #27 merged as bbc07fe on 2026-08-23, integrating the validated recovery without the superseded positioning commit."
+next_step: "Apply the doctrine when a sensitive journey or operator interaction changes."
 ---
 
 # Progressive Clarity And Preserved Agency
@@ -57,8 +58,8 @@ The focused proof covers `PCA-001` through `PCA-008`, the state-to-recovery sequ
 | Spec and readiness | done | General principle, limits, placement, and scenario proof are explicit. |
 | Implementation | done | Shared doctrine and targeted consumers authored under `#nolocal`. |
 | Verification | done | Focused tests and repository-governance checks passed on 2026-08-23. |
-| Closure | pending | Recovery is validated; closure waits for PR integration into `main`. |
-| Ship | pending | The validated recovery branch still needs its reviewed PR and merge. |
+| Closure | done | The validated recovery was integrated without the superseded positioning commit. |
+| Ship | done | PR #27 merged into `main` as `bbc07fe`; final closure receipt follows on `main`. |
 
 ## Skill Run History
 
@@ -66,3 +67,4 @@ The focused proof covers `PCA-001` through `PCA-008`, the state-to-recovery sequ
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-22 | shipglows core | GPT-5 | Generalized progressive clarity and preserved agency into targeted shared doctrine with eight pressure scenarios | implemented — unverified | Run the deferred proof contract |
 | 2026-08-23 | recovery | GPT-5 | Recovered the doctrine onto current `main` without the superseded positioning commit and ran focused plus governance proof | verified | Open and merge the recovery PR |
+| 2026-08-23 | recovery | GPT-5 | Merged PR #27 and confirmed the recovered doctrine on `main` | shipped | Apply the doctrine at its next trigger |

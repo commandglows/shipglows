@@ -29,7 +29,8 @@ evidence:
   - "Operator decision 2026-08-22: entrench this flow in ShipGlows doctrine linked to trials, entitlements, and UX."
   - "Operator clarification 2026-08-22: the reusable innovation is the full reminder-to-expiry journey that turns anxiety into a pressure-free showcase of the product's best evidenced features."
   - "Recovery verification 2026-08-23: trial-transition scenarios, metadata, dependency graph, skill audit, budget audit, topology, and runtime sync all passed on the current main baseline."
-next_step: "Merge the validated recovery branch without reintroducing the superseded positioning commit."
+  - "PR #27 merged as bbc07fe on 2026-08-23, integrating the validated recovery without the superseded positioning commit."
+next_step: "Apply the doctrine when a governed product introduces or changes a trial transition."
 ---
 
 # Value-Led Trial Transition Experience Contract
@@ -65,8 +66,8 @@ The focused contract check covers `TEX-001` through `TEX-010`, canonical link di
 | Spec and readiness | done | Placement, invariants, scenarios, and proof path are explicit. |
 | Implementation | done | Canonical doctrine, owner activation, and focused contract coverage authored under `#nolocal`. |
 | Verification | done | Focused tests and repository-governance checks passed on 2026-08-23. |
-| Closure | pending | Recovery is validated; closure waits for PR integration into `main`. |
-| Ship | pending | The validated recovery branch still needs its reviewed PR and merge. |
+| Closure | done | The validated recovery was integrated without the superseded positioning commit. |
+| Ship | done | PR #27 merged into `main` as `bbc07fe`; final closure receipt follows on `main`. |
 
 ## Skill Run History
 
@@ -75,3 +76,4 @@ The focused contract check covers `TEX-001` through `TEX-010`, canonical link di
 | 2026-08-22 | shipglows core | GPT-5 | Added canonical trial-expiry UX doctrine, pressure scenarios, owner discovery, and deferred focused proof | implemented — unverified | Expand the contract across the full trial transition |
 | 2026-08-22 | shipglows core | GPT-5 | Expanded the doctrine from the expired gate to the complete reminder-to-recovery journey with value-showcase and progressive-clarity rules | implemented — unverified | Run the deferred proof contract |
 | 2026-08-23 | recovery | GPT-5 | Recovered the complete trial-transition doctrine onto current `main` and ran focused plus governance proof | verified | Open and merge the recovery PR |
+| 2026-08-23 | recovery | GPT-5 | Merged PR #27 and confirmed the trial-transition doctrine on `main` | shipped | Apply the doctrine at its next product trigger |
