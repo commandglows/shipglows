@@ -334,13 +334,14 @@ None. The safest Windows distribution default is the public ZIP path with automa
 | 2026-08-23 08:56 UTC | 001-sg-build | GPT-5 Codex | Separated the explicit Windows maintainer workstation from public plugin/runtime/skills surfaces, canonicalized Unix `skills`, aligned EN/FR install guidance, and synchronized generated installers | Windows, Unix, cross-surface, site, Astro, plugin, routing, and Codex runtime-link proofs pass locally; deployment intentionally excluded | Review and merge both scoped branches, then deploy and run hosted/device verification under a new approved plan |
 | 2026-08-23 16:36 UTC | sg-maintenance | GPT-5 Codex | Repaired Windows agent MCP convergence so an exact schema-only OpenCode or Kilo placeholder is completed atomically without weakening preservation of user fields, comments, providers, or secrets | All 28 native Windows regression scripts pass; real maintainer bootstrap retest remains | Push the scoped ShipGlows branch, rerun its real maintainer bootstrap, then verify Kilo MCP readiness |
 | 2026-08-23 16:49 UTC | sg-maintenance | GPT-5 Codex | Added bounded stale-process fallback to the complete ShipGlows-managed Flutter/Dart pair and persisted managed Playwright Chromium | Flutter background, supervisor, and start-state regressions pass; installed-runtime retest remains | Push and reinstall the scoped branch, then start the real Flutter Web project from the stale Codex session |
+| 2026-08-23 17:02 UTC | sg-maintenance | GPT-5 Codex | Reinstalled the pushed maintainer branch, verified Kilo MCP convergence, launched the API 36 Android app, and started the real Flutter Web DevServer from the stale Codex process | Installed runtime, Android, web, Windows build, browser console, 328 Flutter tests, and 28 Windows regressions pass; scoped branches pushed | Review the two scoped branches, then merge or deploy only under a separately approved delivery plan |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: draft created
 - `101-sg-ready`: ready
 - `102-sg-start`: implemented
-- `103-sg-verify`: all 28 native Windows regressions pass; real maintainer bootstrap converges Kilo, Android APK runs on the API 36 emulator, and stale-session Flutter/Chromium fallback awaits installed-runtime proof
-- `104-sg-end`: not launched
-- `005-sg-ship`: the maintainer/public-surface repair is prepared on scoped ShipGlows and ShipGlows App branches; merge and deployment remain intentionally pending
-- Next step: push and reinstall the stale-session Flutter/Chromium fallback, prove the real web DevServer from the existing Codex process, then finish the scoped app delivery without merge or deployment
+- `103-sg-verify`: all 28 native Windows regressions, 328 Flutter tests, Android APK launch, web and Windows release builds, installed maintainer bootstrap, Kilo MCP, stale-session DevServer, and browser-console proofs pass
+- `104-sg-end`: local Windows maintainer parity repair closed with known future Kotlin built-in migration debt recorded by Flutter; no current build blocker remains
+- `005-sg-ship`: scoped ShipGlows and ShipGlows App branches are committed and pushed; merge and deployment remain intentionally pending
+- Next step: review the two scoped branches, then merge or deploy only under a separately approved delivery plan
