@@ -472,6 +472,20 @@ public static class EchoArgs {
     $installerTokens = $null; $installerErrors = $null
     $installerAst = [Management.Automation.Language.Parser]::ParseInput($installerSource,[ref]$installerTokens,[ref]$installerErrors)
     Assert-Sg ($installerErrors.Count -eq 0) 'Windows installer must parse before environment-report testing.'
+    $flutterBaselineDefinition = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Get-SgFlutterBaseline' },$true))
+    Assert-Sg ($flutterBaselineDefinition.Count -eq 1) 'Flutter baseline must resolve uniquely.'
+    Invoke-Expression $flutterBaselineDefinition[0].Extent.Text
+    $flutterBaseline = Get-SgFlutterBaseline
+    Assert-Sg ($flutterBaseline.Schema -eq 'shipglows.flutter-baseline/v1' -and $flutterBaseline.ValidatedAt -eq '2026-08-23' -and $flutterBaseline.FlutterVersion -eq '3.47.1' -and $flutterBaseline.DartVersion -eq '3.13.1' -and $flutterBaseline.Commit -eq '6655482ec06e547f90abf8ae7590466f4415978d') 'Flutter baseline must use the exact validated ShipGlows coordinates.'
+    foreach ($value in @($flutterBaseline.FlutterVersion,$flutterBaseline.DartVersion,$flutterBaseline.Commit)) { Assert-Sg ([string]$value -notmatch '(?i)latest|stable|nightly|beta|[x*^~<>]') 'Flutter baseline must not contain a moving version coordinate.' }
+    $serviceInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgDetectedServiceClis' },$true))
+    Assert-Sg ($serviceInstaller.Count -eq 1) 'Service CLI installer must resolve uniquely.'
+    $serviceInstallerSource = $serviceInstaller[0].Extent.Text
+    Assert-Sg ($serviceInstallerSource -match '(?s)elseif \(\$item[.]Name -eq ''flutterfire''\).*?Test-SgServiceCliResult \$null \$verify \$exe \$item[.]Version.*?continue.*?OperationId ''service[.]flutterfire''') 'Exact FlutterFire CLI evidence must skip activation before the installer call.'
+    Assert-Sg ($serviceInstallerSource -match '(?s)\} else \{\s+\$exe = Get-SgToolPath.*?Test-SgServiceCliResult \$null \$verify \$exe \$item[.]Version.*?continue.*?npm.*?install') 'Exact global npm service CLI evidence must skip installation before the installer call.'
+    $playwrightRuntimeCall = $installerSource.IndexOf("`$playwrightRuntime = Install-SgManagedPlaywrightRuntimes",[StringComparison]::Ordinal)
+    $androidToolchainCall = $installerSource.IndexOf("`$androidInfo = Install-SgAndroidToolchain",[StringComparison]::Ordinal)
+    Assert-Sg ($playwrightRuntimeCall -ge 0 -and $androidToolchainCall -ge 0 -and $playwrightRuntimeCall -lt $androidToolchainCall) 'Managed Chromium must be wired before the Android Flutter doctor runs.'
     $environmentWriter = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Write-SgGlobalDevelopmentEnvironment' },$true))
     Assert-Sg ($environmentWriter.Count -eq 1) 'Environment report writer must resolve uniquely.'
     $flutterInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgFlutter' },$true))
@@ -507,7 +521,7 @@ public static class EchoArgs {
             if ($joined -match 'remote get-url origin$') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output='https://github.com/flutter/flutter.git'} }
             if ($joined -match 'status --porcelain --untracked-files=no$') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=''} }
             if ($joined -match 'rev-parse HEAD$') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=$previousCommit} }
-            if ($joined -match 'rev-parse refs/remotes/origin/stable$') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=$stableCommit} }
+            if ($joined -match 'rev-parse refs/remotes/origin/shipglows-stable$') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=$stableCommit} }
             return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=''}
         }
         function Invoke-SgVisibleBoundedProcess([string]$OperationId,[string]$Label,[string]$File,[string[]]$Arguments,[int]$TimeoutSeconds) { [void]$visibleArguments.Add(($Arguments -join ' ')); return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=''} }

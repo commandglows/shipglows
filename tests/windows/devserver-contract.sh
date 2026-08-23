@@ -3,6 +3,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+WINDOWS_DIR="$ROOT/cli/windows"
 MODULE="$ROOT/cli/windows/ShipGlows.DevServer.psm1"
 FLUTTER_SUPERVISOR="$ROOT/cli/windows/ShipGlows.FlutterSupervisor.ps1"
 CATALOG_REFRESHER="$ROOT/cli/windows/ShipGlows.ProjectCatalogRefresh.ps1"
@@ -92,8 +93,11 @@ pnpm_path_line="$(rg -n 'Add-SgUserPathEntry \$defaultGlobalBin' "$INSTALLER" | 
 pnpm_config_line="$(rg -n "@\('config','get','global-bin-dir'\)" "$INSTALLER" | head -1 | cut -d: -f1)"
 test -n "$pnpm_path_line" && test -n "$pnpm_config_line" && test "$pnpm_path_line" -lt "$pnpm_config_line"
 rg -n 'Install-SgFlutter|Install-SgJdk17|Install-SgAndroidCommandLineTools|Install-SgAndroidToolchain|Install the Android emulator and create ShipGlows_API_36 now\? \[y/N\]|sdkmanager.*--licenses|Get-SgFlutterAndroidDiagnostic' "$INSTALLER"
-rg -F -n 'refs/heads/stable:refs/remotes/origin/stable' "$INSTALLER"
+rg -F -n 'refs/remotes/origin/shipglows-stable' "$INSTALLER"
 rg -F -n "@('checkout','-B','stable'" "$INSTALLER"
+rg -F -n "Schema = 'shipglows.flutter-baseline/v1'" "$INSTALLER"
+rg -F -n "FlutterVersion = '3.47.1'" "$INSTALLER"
+rg -F -n "Commit = '6655482ec06e547f90abf8ae7590466f4415978d'" "$INSTALLER"
 rg -F -n 'Flutter stable convergence failed; restored the previous managed revision.' "$INSTALLER"
 rg -F -n "SetEnvironmentVariable('CHROME_EXECUTABLE'" "$INSTALLER"
 rg -F -n 'chromium_headless_shell-$revision\chrome-headless-shell-win64\chrome-headless-shell.exe' "$INSTALLER"

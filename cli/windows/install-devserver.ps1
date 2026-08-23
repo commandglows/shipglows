@@ -876,10 +876,21 @@ function Save-SgVerifiedDownload([string]$Url, [string]$Sha256, [string]$Destina
     if ($actual -ine $Sha256) { throw "Downloaded archive checksum mismatch for $Url" }
 }
 
+function Get-SgFlutterBaseline {
+    return [pscustomobject]@{
+        Schema = 'shipglows.flutter-baseline/v1'
+        ValidatedAt = '2026-08-23'
+        FlutterVersion = '3.47.1'
+        DartVersion = '3.13.1'
+        Commit = '6655482ec06e547f90abf8ae7590466f4415978d'
+    }
+}
+
 function Resolve-SgFlutterStableCommit([string]$GitPath) {
     if ([string]::IsNullOrWhiteSpace($GitPath)) { return '' }
+    $baseline = Get-SgFlutterBaseline
     $resolved = Invoke-SgBoundedProcess -File $GitPath -Arguments @('ls-remote','https://github.com/flutter/flutter.git','refs/heads/stable') -TimeoutSeconds 60
-    if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0 -and $resolved.Output -match '(?m)^([0-9a-f]{40})\s+refs/heads/stable$') { return $Matches[1] }
+    if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0 -and $resolved.Output -match '(?m)^[0-9a-f]{40}\s+refs/heads/stable$') { return $baseline.Commit }
     return ''
 }
 
@@ -898,20 +909,20 @@ function Set-SgManagedFlutterStableRevision([string]$GitPath, [string]$FlutterRo
     $previousCommit = if (-not $head.TimedOut -and $head.ExitCode -eq 0 -and $head.Output.Trim() -match '^[0-9a-f]{40}$') { $head.Output.Trim() } else { '' }
     if (-not $previousCommit) { throw 'Managed Flutter current revision could not be proven.' }
 
-    $fetch = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.update' -Label 'Updating Flutter stable SDK' -File $GitPath -Arguments @('-C',$resolvedRoot,'fetch','--depth','1','origin','+refs/heads/stable:refs/remotes/origin/stable') -TimeoutSeconds 600
-    if ($fetch.TimedOut -or $fetch.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter stable fetch failed or timed out; the existing managed SDK was preserved.'; return $false }
-    $remote = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'rev-parse','refs/remotes/origin/stable') -TimeoutSeconds 30
-    if ($remote.TimedOut -or $remote.ExitCode -ne 0 -or $remote.Output.Trim() -cne $Commit) { Write-SgInstallerWarning 'Fetched Flutter stable revision did not match the resolved commit; the existing managed SDK was preserved.'; return $false }
+    $fetch = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.update' -Label 'Converging the validated Flutter SDK baseline' -File $GitPath -Arguments @('-C',$resolvedRoot,'fetch','--depth','1','origin',("+{0}:refs/remotes/origin/shipglows-stable" -f $Commit)) -TimeoutSeconds 600
+    if ($fetch.TimedOut -or $fetch.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter baseline fetch failed or timed out; the existing managed SDK was preserved.'; return $false }
+    $remote = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'rev-parse','refs/remotes/origin/shipglows-stable') -TimeoutSeconds 30
+    if ($remote.TimedOut -or $remote.ExitCode -ne 0 -or $remote.Output.Trim() -cne $Commit) { Write-SgInstallerWarning 'Fetched Flutter baseline did not match the validated commit; the existing managed SDK was preserved.'; return $false }
     if ($previousCommit -ceq $Commit) {
         $checkoutCurrent = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.checkout' -Label 'Naming the Flutter stable SDK branch' -File $GitPath -Arguments @('-C',$resolvedRoot,'checkout','-B','stable',$Commit) -TimeoutSeconds 120
         if ($checkoutCurrent.TimedOut -or $checkoutCurrent.ExitCode -ne 0) { return $false }
-        [void](Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'branch','--set-upstream-to=origin/stable','stable') -TimeoutSeconds 30)
+        [void](Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'branch','--set-upstream-to=origin/shipglows-stable','stable') -TimeoutSeconds 30)
         return $true
     }
 
     $checkout = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.checkout' -Label 'Activating Flutter stable SDK' -File $GitPath -Arguments @('-C',$resolvedRoot,'checkout','-B','stable',$Commit) -TimeoutSeconds 120
     if (-not $checkout.TimedOut -and $checkout.ExitCode -eq 0) {
-        [void](Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'branch','--set-upstream-to=origin/stable','stable') -TimeoutSeconds 30)
+        [void](Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'branch','--set-upstream-to=origin/shipglows-stable','stable') -TimeoutSeconds 30)
         $updatedState = Get-SgFlutterInstallState -FlutterRoot $resolvedRoot
         if ($updatedState.Status -eq 'ready') { return $true }
     }
@@ -961,9 +972,9 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
         foreach ($step in @(
             @('init'),
             @('remote','add','origin','https://github.com/flutter/flutter.git'),
-            @('fetch','--depth','1','origin','+refs/heads/stable:refs/remotes/origin/stable'),
+            @('fetch','--depth','1','origin',("+{0}:refs/remotes/origin/shipglows-stable" -f $commit)),
             @('checkout','-B','stable',$commit),
-            @('branch','--set-upstream-to=origin/stable','stable')
+            @('branch','--set-upstream-to=origin/shipglows-stable','stable')
         )) {
             $arguments = @('-C',$flutterDirectory) + $step
             $result = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.clone' -Label 'Installing Flutter stable SDK' -File $git -Arguments $arguments -TimeoutSeconds 600
@@ -1602,8 +1613,15 @@ function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath
             $exe = Get-SgToolPath 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
             $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
         } elseif ($item.Name -eq 'flutterfire') {
-            $install = Invoke-SgVisibleBoundedProcess -OperationId 'service.flutterfire' -Label "Installing FlutterFire CLI $($item.Version)" -File $DartPath -Arguments @('pub','global','activate','flutterfire_cli',$item.Version) -TimeoutSeconds 600
             $pubBin = Join-Path $env:LOCALAPPDATA 'Pub\Cache\bin'; Add-SgUserPathEntry $pubBin
+            $exe = Get-SgToolPath 'flutterfire.bat' @((Join-Path $pubBin 'flutterfire.bat'))
+            $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
+            if (Test-SgServiceCliResult $null $verify $exe $item.Version) {
+                $states[$property] = "ready ($($item.Version))"
+                Write-Host "Using exact existing FlutterFire CLI $($item.Version); installation skipped." -ForegroundColor Green
+                continue
+            }
+            $install = Invoke-SgVisibleBoundedProcess -OperationId 'service.flutterfire' -Label "Installing FlutterFire CLI $($item.Version)" -File $DartPath -Arguments @('pub','global','activate','flutterfire_cli',$item.Version) -TimeoutSeconds 600
             $exe = Get-SgToolPath 'flutterfire.bat' @((Join-Path $pubBin 'flutterfire.bat'))
             $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
         } elseif ($item.Name -in @('supabase','convex')) {
@@ -1614,6 +1632,13 @@ function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath
             if (-not (Test-Path -LiteralPath $wrapper) -or [IO.File]::ReadAllText($wrapper) -cne $wrapperContent) { [IO.File]::WriteAllText($wrapper,$wrapperContent,[Text.Encoding]::ASCII) }
             $exe = $wrapper; $verify = Invoke-SgBoundedProcess $exe @('--version') 300
         } else {
+            $exe = Get-SgToolPath "$($item.Name).cmd" @((Join-Path $env:APPDATA "npm\$($item.Name).cmd"))
+            $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
+            if (Test-SgServiceCliResult $null $verify $exe $item.Version) {
+                $states[$property] = "ready ($($item.Version))"
+                Write-Host "Using exact existing $($item.Name) CLI $($item.Version); installation skipped." -ForegroundColor Green
+                continue
+            }
             $install = Invoke-SgVisibleBoundedProcess -OperationId ("service." + $item.Name.ToLowerInvariant()) -Label ("Installing $($item.Name) CLI $($item.Version)") -File $NpmPath -Arguments @('install','--global',"$($item.Package)@$($item.Version)",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 600
             $exe = Get-SgToolPath "$($item.Name).cmd" @((Join-Path $env:APPDATA "npm\$($item.Name).cmd"))
             $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
@@ -1663,6 +1688,8 @@ if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional defaul
 $pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
 Assert-SgEnvironmentPythonPackage $pythonInfo.Path (Join-Path $ShipglowsDir 'cli\environment')
 [void](Complete-SgInstallerPhase $corePhase)
+$playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
+[void](Set-SgFlutterChromeExecutable $playwrightRuntime.BrowserPath)
 $mobilePhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.mobile-toolchains' -Label 'Inspecting and preparing mobile toolchains' -TimeoutSeconds 7200) -EventSink $installerEventSink
 $script:activeInstallerPhase = $mobilePhase
 $flutterReady = Install-SgFlutter $flutterPaths $gitPaths
@@ -1719,8 +1746,6 @@ $nativeNpx = Get-SgNativeNpxPath $npxPaths
 $serviceInfo = Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
 $stackMcpDefinitions = @(Get-SgStackMcpDefinitions $serviceInfo.Needs $serviceInfo.Versions $nativeNpx)
 $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeReady -or $opencodeReady -or $kiloReady -or $geminiReady) (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
-$playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
-[void](Set-SgFlutterChromeExecutable $playwrightRuntime.BrowserPath)
 $agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $stackMcpDefinitions
 [void](Complete-SgInstallerPhase $agentPhase)
 $activationPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.activation' -Label 'Recording environment and activating commands' -TimeoutSeconds 7200) -EventSink $installerEventSink

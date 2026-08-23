@@ -260,11 +260,15 @@ Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid extern
 Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
 their environment variables or `PATH`; a validated ShipGlows-managed Flutter SDK
 always reconverges its own `bin` directory into the user and active installer
-`PATH`. On every full rerun, that managed SDK also resolves the official Flutter
-`stable` ref, fetches it into `origin/stable`, and checks out a local tracking
-branch named `stable`. ShipGlows refuses a non-official origin or tracked local
-changes and restores the previously validated revision if the new SDK cannot
-start. External Flutter installations are never updated by this convergence.
+`PATH`. Every full rerun converges that managed SDK to the exact
+ShipGlows-validated Flutter baseline (Flutter 3.47.1, Dart 3.13.1, commit
+`6655482ec06e547f90abf8ae7590466f4415978d`) and checks out a local branch named
+`stable` tracking the pinned `origin/shipglows-stable` ref. This baseline moves
+only through an intentional ShipGlows maintenance change, so rerunning the
+installer cannot silently change a project's SDK. ShipGlows refuses a
+non-official origin or tracked local changes and restores the previously
+validated revision if the baseline cannot start. External Flutter installations
+are never updated by this convergence.
 Otherwise JDK 17 is installed user-scope,
 then the official Android terms are presented before Android command-line tools
 are downloaded. Their repository coordinate must match the Windows archive and
@@ -340,6 +344,9 @@ Windows full also installs exact managed `playwright` and `playwright-cli`
 runtimes, exposes both through ShipGlows's PATH-priority wrappers, installs the
 Chromium revision declared by the stable runtime, and records stable, agent-CLI,
 MCP, browser-revision, and motion readiness separately.
+The managed Chromium path is wired before Flutter's install-time doctor runs,
+so that diagnostic reflects the final browser configuration instead of a
+temporary missing-Chrome state.
 ShipGlows agents inspect both the directly visible tool list and the host's
 deferred/searchable catalog before reporting the configured MCP unavailable;
 a small read-only probe confirms current-session callability.
