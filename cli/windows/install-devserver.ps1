@@ -1521,6 +1521,7 @@ function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
         $revision=[string](@($metadata.browsers|Where-Object name -eq 'chromium')[0].revision)
         if($revision -notmatch '^\d+$'){throw 'Managed Playwright Chromium revision is invalid.'}
         $browser=Join-Path $env:LOCALAPPDATA "ms-playwright\chromium-$revision\chrome-win64\chrome.exe"
+        $browserProbe=Join-Path $env:LOCALAPPDATA "ms-playwright\chromium_headless_shell-$revision\chrome-headless-shell-win64\chrome-headless-shell.exe"
         if(-not (Test-Path $browser -PathType Leaf)){
             $installBrowser=Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.browser' -Label 'Installing Playwright Chromium' -File $stableCommand -Arguments @('install','chromium') -TimeoutSeconds 900
             if($installBrowser.TimedOut -or $installBrowser.ExitCode -ne 0){throw 'Managed Playwright Chromium installation failed.'}
@@ -1528,11 +1529,11 @@ function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
         $agentBrowserInstall=Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright-agent.browser' -Label 'Installing Playwright agent browser' -File $agentCommand -Arguments @('install-browser') -TimeoutSeconds 900
         if($agentBrowserInstall.TimedOut -or $agentBrowserInstall.ExitCode -ne 0){throw 'Managed Playwright Agent CLI browser installation failed.'}
         $stableCheck=Invoke-SgBoundedProcess $stableCommand @('--version') 30
-        $browserCheck=if(Test-Path $browser -PathType Leaf){Invoke-SgBoundedProcess $browser @('--version') 30}else{$null}
+        $browserCheck=if((Test-Path $browser -PathType Leaf)-and(Test-Path $browserProbe -PathType Leaf)){Invoke-SgBoundedProcess $browserProbe @('--version') 30}else{$null}
         $stableReady=-not $stableCheck.TimedOut -and $stableCheck.ExitCode -eq 0 -and $stableCheck.Output -match [regex]::Escape($stableVersion)
         $agentPackageVersion=[string]((Get-Content -Raw (Join-Path $agentRoot 'node_modules\@playwright\cli\package.json')|ConvertFrom-Json).version)
         $agentReady=-not $agentBrowserInstall.TimedOut -and $agentBrowserInstall.ExitCode -eq 0 -and $agentPackageVersion -eq $agentVersion
-        $browserReady=$browserCheck -and -not $browserCheck.TimedOut -and $browserCheck.ExitCode -eq 0
+        $browserReady=(Test-Path $browser -PathType Leaf)-and(Test-SgChromiumExecutableResult $browserProbe $browserCheck)
         return [pscustomobject]@{StableReady=if($stableReady){'yes'}else{'no'};StableVersion=$stableVersion;StableRevision=$revision;StablePath=$stableCommand;BrowserPath=if($browserReady){$browser}else{''};AgentCliReady=if($agentReady){'yes'}else{'no'};AgentCliVersion=$agentVersion;AgentCliPath=$agentCommand;MotionReady=if($stableReady -and $browserReady){'yes'}else{'no'}}
     } catch {Write-SgInstallerWarning "Managed Playwright runtime pending: $($_.Exception.Message)";return $empty}
 }
