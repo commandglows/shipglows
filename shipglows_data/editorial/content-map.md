@@ -1,10 +1,10 @@
 ---
 artifact: content_map
 metadata_schema_version: "1.0"
-artifact_version: "0.16.0"
+artifact_version: "0.16.1"
 project: ShipGlows
 created: "2026-04-26"
-updated: "2026-08-22"
+updated: "2026-08-23"
 status: draft
 source_skill: manual
 scope: content-map
@@ -71,10 +71,10 @@ linked_artifacts:
   - "shipglows_data/editorial/public-benefit-language.md"
 depends_on:
   - artifact: "shipglows_data/business/product.md"
-    artifact_version: "1.5.0"
+    artifact_version: "1.6.0"
     required_status: "reviewed"
   - artifact: "shipglows_data/business/gtm.md"
-    artifact_version: "1.5.0"
+    artifact_version: "1.6.0"
     required_status: "reviewed"
 supersedes: []
 next_review: "2026-09-13"

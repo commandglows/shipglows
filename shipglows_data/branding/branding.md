@@ -1,10 +1,10 @@
 ---
 artifact: brand_context
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-13"
+updated: "2026-08-23"
 status: reviewed
 source_skill: manual
 scope: brand
@@ -19,16 +19,17 @@ evidence:
   - "Current repository guidance consistently favors clarity, rigor, constraints, and explicit validation"
   - "The framework distinguishes implemented, verified, assumed, stale, and partial rather than optimistic framing"
   - "Operator confirmed decision SG-BIZ-2026-08-13-01: ShipGlows presents itself as a business and delivery partner before its infrastructure capabilities"
+  - "Operator decision 2026-08-22: ShipGlows leads as a business framework shared by humans and agents, centered on distinctive identities, business impact, and solid technical execution"
 linked_artifacts:
   - "shipglows_data/business/business.md"
   - "shipglows_data/business/gtm.md"
 depends_on:
   - artifact: "shipglows_data/business/business.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.5.0"
     required_status: "reviewed"
 supersedes: []
 next_review: "2026-09-13"
-next_step: "Validate partner-first language and visual hierarchy on the external public site"
+next_step: "Validate business-framework comprehension and partner-behavior hierarchy with real users"
 ---
 
 # Brand Context
@@ -44,12 +45,17 @@ next_step: "Validate partner-first language and visual hierarchy on the external
 ## Trust Posture
 
 - ShipGlows should sound like a framework built by people who have felt the pain of ambiguity, not like a generic AI booster.
-- ShipGlows should behave like a partner who understands the objective, challenges weak framing, proposes a direction, and remains accountable through proof.
+- ShipGlows is a business framework shared by humans and AI agents. It should behave like a partner who understands the objective, challenges weak framing, proposes a direction, and remains accountable through proof.
 - Claims should be scoped tightly and tied to visible mechanisms: specs, readiness, verification, metadata, audits, context docs.
 - Trust is earned by naming constraints, failure modes, and tradeoffs explicitly.
 
 ## Vocabulary
 
+- Prefer “business framework” when naming the product category.
+- Use “for humans and agents” when the shared operating model needs to be explicit; never imply that ShipGlows only has value through AI execution.
+- Use “business-aware delivery partner” to explain behavior, never to imply a human service.
+- Lead with “Create distinctive identities. Build businesses that make an impact. Give every ambition a solid technical execution.” as the core ambition, without turning it into a guaranteed outcome.
+- Explain the breadth concretely through vision, identity, brand, content, product, technology, growth, delivery, and proof.
 - Prefer: outcome, decision, customer, value, consequence, chantier, proof, context, contract, verification, scope.
 - Avoid: magic, autonomous genius, instant, effortless, perfect, seamless unless the constraint is truly negligible.
 - Prefer “reduces ambiguity” over “solves everything”.
@@ -80,7 +86,7 @@ next_step: "Validate partner-first language and visual hierarchy on the external
 
 - The product should read as operational and work-focused rather than playful or futuristic.
 - Visual trust should come from structure, legibility, and specificity, not decorative hype.
-- Any future site should make the hierarchy legible quickly: business-aware delivery partner first; métier agents, governed execution, and environment operations as supporting capabilities.
+- The public site should make the hierarchy legible quickly: shared business framework as category; distinctive identities, impactful businesses, and solid technical execution as ambition; business-aware partnership as behavior; métiers and execution capabilities as mechanisms.
 
 ## Bundle Boundary
 
