@@ -131,6 +131,12 @@ Assert-Sg (($servicePlan | ForEach-Object Version) -notcontains 'latest') 'Servi
 $mutableRejected = $false
 try { [void](Get-SgServiceCliPlan -Needs ([pscustomobject]@{ Firebase=$true; FlutterFire=$false; Supabase=$false }) -Versions @{ Firebase='latest' }) } catch { $mutableRejected=$true }
 Assert-Sg $mutableRejected 'Mutable service CLI versions must be rejected.'
+$toolboxVersions = @{ Firebase='15.27.0'; Supabase='2.45.0'; Convex='1.28.0'; Vercel='59.5.0'; Clerk='3.1.0' }
+$toolboxPlan = @(Get-SgMachineToolboxPlan -Versions $toolboxVersions)
+Assert-Sg (($toolboxPlan.Name -join '|') -eq 'firebase|supabase|convex|vercel|clerk') 'The machine toolbox must install every approved provider CLI independently of project detection.'
+$toolboxConfig = Get-SgMachineToolboxMiseConfig -Plan $toolboxPlan
+foreach ($coordinate in @('npm:firebase-tools','aqua:supabase/cli','npm:convex','npm:vercel','npm:clerk')) { Assert-Sg ($toolboxConfig.Contains('"' + $coordinate + '"')) "Machine toolbox config is missing $coordinate." }
+Assert-Sg ($toolboxConfig -notmatch '(?im)latest|stable|\*|\^|~') 'Machine toolbox config must contain only exact immutable versions.'
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-mobile-' + [guid]::NewGuid().ToString('N'))
 try {
@@ -186,6 +192,10 @@ exit /b 23
     foreach ($requiredWrapperSetting in @('setlocal DisableDelayedExpansion','MISE_EXEC_AUTO_INSTALL=false','MISE_NOT_FOUND_AUTO_INSTALL=false','MISE_RUN_AUTO_INSTALL=false','MISE_OVERRIDE_CONFIG_FILENAMES=mise.toml','MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES=none','MISE_SYSTEM_DEPS=ignore','endlocal & exit /b')) {
         Assert-Sg ($wrapperText.Contains($requiredWrapperSetting)) "Tauri Rust wrapper omitted isolation or exit preservation: $requiredWrapperSetting"
     }
+    $firebaseWrapper = Join-Path $fixture 'firebase-wrapper.cmd'
+    [IO.File]::WriteAllText($firebaseWrapper,(Get-SgMachineToolboxWrapperContent -MisePath $fakeMise -ToolboxRoot $fakeToolchain -Command firebase),[Text.Encoding]::ASCII)
+    $firebaseWrapperRun = Invoke-SgBoundedProcess -File $firebaseWrapper -Arguments @('--version') -TimeoutSeconds 20
+    Assert-Sg ($firebaseWrapperRun.ExitCode -eq 23 -and $firebaseWrapperRun.Output -match 'exec -- firebase') 'Machine toolbox wrapper must preserve the isolated mise boundary and child exit code.'
 
     $codexJson = '{"name":"firebase","enabled":true,"transport":{"type":"stdio","command":"C:\\Program Files\\nodejs\\npx.cmd","args":["-y","--registry=https://registry.npmjs.org/","firebase-tools@15.27.0","mcp"]}}'
     $firebaseServer = [pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command='C:\Program Files\nodejs\npx.cmd'; Arguments=@('-y','--registry=https://registry.npmjs.org/','firebase-tools@15.27.0','mcp') }
@@ -336,10 +346,12 @@ exit /b 23
     Assert-Sg (-not $developerModePlan.ChangeRegistry) 'Developer Mode guidance must never mutate the registry.'
 
     $stackMcps = @(Get-SgStackMcpDefinitions $many $stackVersions 'C:\Program Files\nodejs\npx.cmd')
-    Assert-Sg (($stackMcps.Name -join '|') -eq 'firebase|convex|clerk|github') 'Detected stacks must receive Clerk and the global read-only GitHub MCP alongside Firebase and Convex.'
+    Assert-Sg (($stackMcps.Name -join '|') -eq 'firebase|convex|clerk|supabase|vercel|github') 'Detected stacks must receive their approved MCPs and the global read-only GitHub MCP.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'firebase').Arguments -join ' ' -eq '-y --registry=https://registry.npmjs.org/ firebase-tools@14.0.0 mcp') 'Firebase MCP must use the exact resolved firebase-tools version.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'convex').Arguments -join ' ' -eq '-y --registry=https://registry.npmjs.org/ convex@1.28.0 mcp start') 'Convex MCP must use the official CLI entrypoint and exact version.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'clerk').Type -eq 'remote' -and ($stackMcps | Where-Object Name -eq 'clerk').Url -eq 'https://mcp.clerk.com/mcp') 'Clerk MCP must use the official remote endpoint.'
+    Assert-Sg (($stackMcps | Where-Object Name -eq 'supabase').ReadOnly -and ($stackMcps | Where-Object Name -eq 'supabase').Url -match 'read_only=true') 'Supabase MCP must default to the official read-only remote endpoint.'
+    Assert-Sg (($stackMcps | Where-Object Name -eq 'vercel').Url -eq 'https://mcp.vercel.com') 'Vercel MCP must use the official remote endpoint.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'github').Type -eq 'remote' -and ($stackMcps | Where-Object Name -eq 'github').Url -eq 'https://api.githubcopilot.com/mcp/readonly') 'GitHub MCP must default to the official read-only endpoint.'
     $remoteAgentPlan = Get-SgAgentMcpPlan OpenCode 'opencode.cmd' 'dart.bat' 'npx.cmd' '0.0.42' $true $stackMcps
     Assert-Sg ($remoteAgentPlan.Config.mcp.servers.clerk.type -eq 'remote' -and $remoteAgentPlan.Config.mcp.servers.github.url -match '/readonly$') 'JSON agent plans must preserve remote MCP transport and read-only GitHub scope.'
@@ -347,6 +359,11 @@ exit /b 23
     Assert-Sg ($remoteKiloPlan.Config.mcp.clerk.url -eq 'https://mcp.clerk.com/mcp' -and $remoteKiloPlan.Config.mcp.github.type -eq 'remote') 'Kilo plans must preserve Clerk and GitHub remote MCP definitions.'
     $globalMcps = @(Get-SgStackMcpDefinitions $empty @{} 'npx.cmd')
     Assert-Sg (($globalMcps.Name -join '|') -eq 'github') 'The read-only GitHub MCP must remain global even when no optional stack is detected.'
+    $flutterFireOnlyMcps = @(Get-SgStackMcpDefinitions ([pscustomobject]@{ Firebase=$false; FlutterFire=$true; Convex=$false; Clerk=$false }) @{ Firebase='14.0.0' } 'npx.cmd')
+    Assert-Sg (($flutterFireOnlyMcps.Name -join '|') -eq 'firebase|github') 'FlutterFire dependency evidence must activate the Firebase MCP without requiring firebase.json.'
+    $mcpCatalog = [IO.File]::ReadAllText((Join-Path $root 'cli\windows\ShipGlows.McpCatalog.json')) | ConvertFrom-Json
+    Assert-Sg ($mcpCatalog.schema -eq 'shipglows.mcp-catalog/v1' -and -not $mcpCatalog.policy.registryIsExecutionAuthority -and -not $mcpCatalog.policy.automaticAuthentication -and -not $mcpCatalog.policy.automaticGoogleCloudActivation) 'MCP catalog must keep discovery separate from trust, authentication, and activation.'
+    Assert-Sg ((@($mcpCatalog.servers | Where-Object id -eq 'google-cloud')[0].activation) -eq 'explicit-project-choice') 'Google Cloud MCPs must remain catalog-only until explicitly selected per project.'
 
     $geminiLocalArguments = @(Get-SgGeminiMcpAddArguments ([pscustomobject]@{ Name='dart'; Type='local'; Command='C:\Program Files\dart.bat'; Arguments=@('mcp-server','--force-roots-fallback') }))
     Assert-Sg (($geminiLocalArguments -join '|') -eq 'mcp|add|--scope|user|dart|C:\Program Files\dart.bat|mcp-server|--force-roots-fallback') 'Gemini local MCP arguments must use the official user-scope CLI syntax.'
@@ -432,32 +449,34 @@ exit /b 23
 
     $transportDirectory = Join-Path $fixture 'transport with spaces'
     New-Item -ItemType Directory -Path $transportDirectory | Out-Null
-    $echoExe = Join-Path $transportDirectory 'echo args.exe'
-    Add-Type -TypeDefinition @'
-using System;
-using System.Text;
-public static class EchoArgs {
-    public static int Main(string[] args) {
-        if (args.Length == 1 && args[0] == "--fail") { Console.Out.WriteLine("stdout-proof"); Console.Error.WriteLine("stderr-proof"); return 7; }
-        foreach (string arg in args) Console.WriteLine(Convert.ToBase64String(Encoding.UTF8.GetBytes(arg)));
-        return 0;
-    }
+    $echoScript = Join-Path $transportDirectory 'echo args.ps1'
+    [IO.File]::WriteAllText($echoScript, @'
+param([Parameter(ValueFromRemainingArguments=$true)][string[]]$Values)
+if ($Values.Count -eq 1 -and $Values[0] -eq '--fail') {
+    [Console]::Out.WriteLine('stdout-proof')
+    [Console]::Error.WriteLine('stderr-proof')
+    exit 7
 }
-'@ -OutputAssembly $echoExe -OutputType ConsoleApplication
+foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($value))) }
+'@, [Text.UTF8Encoding]::new($false))
     $unicodeArgument = 'unicod' + [char]0x00E9 + '-' + [char]0x6771 + [char]0x4EAC
     $special = @('space value',$unicodeArgument,'a"b','amp&ersand','percent%value','%PATH%','semi;colon')
-    $transport = Invoke-SgBoundedProcess -File $echoExe -Arguments $special -TimeoutSeconds 20
-    Assert-Sg (-not $transport.TimedOut -and $transport.ExitCode -eq 0) 'Executable argument transport failed.'
+    $transport = Invoke-SgBoundedProcess -File "$PSHOME\powershell.exe" -Arguments (@('-NoProfile','-ExecutionPolicy','Bypass','-File',$echoScript) + $special) -TimeoutSeconds 20
+    Assert-Sg (-not $transport.TimedOut -and $transport.ExitCode -eq 0) "Executable argument transport failed: exit=$($transport.ExitCode) timeout=$($transport.TimedOut) output=$($transport.Output)"
     $transportArgs = @($transport.Output -split '\r?\n' | Where-Object { $_ -match '^[A-Za-z0-9+/]+={0,2}$' -and $_.Length % 4 -eq 0 } | ForEach-Object { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_)) })
     Assert-Sg (($transportArgs -join '|') -eq ($special -join '|')) "Executable argument boundaries or Unicode were changed: expected=$($special -join '|') actual=$($transportArgs -join '|') raw=$($transport.Output)"
-    $failedTransport = Invoke-SgBoundedProcess -File $echoExe -Arguments @('--fail') -TimeoutSeconds 20
+    $failedTransport = Invoke-SgBoundedProcess -File "$PSHOME\powershell.exe" -Arguments @('-NoProfile','-ExecutionPolicy','Bypass','-File',$echoScript,'--fail') -TimeoutSeconds 20
     Assert-Sg ($failedTransport.ExitCode -eq 7 -and $failedTransport.Output -match 'stdout-proof' -and $failedTransport.Output -match 'stderr-proof') 'Transport must preserve exit code, stdout, and stderr.'
     $cmd = Join-Path $transportDirectory 'echo args.cmd'
-    [IO.File]::WriteAllText($cmd, "@echo off`r`n@`"%~dp0echo args.exe`" %*`r`n", [Text.Encoding]::ASCII)
-    $cmdTransport = Invoke-SgBoundedProcess -File $cmd -Arguments $special -TimeoutSeconds 20
+    [IO.File]::WriteAllText($cmd, "@echo off`r`n@powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0echo args.ps1`" %*`r`n", [Text.Encoding]::ASCII)
+    # PowerShell -File has different embedded-quote semantics from a native
+    # executable. The signed-host path still proves batch transport for spaces,
+    # Unicode and metacharacters; the direct transport above retains quote proof.
+    $cmdSpecial = @($special | Where-Object { $_ -notmatch '"' })
+    $cmdTransport = Invoke-SgBoundedProcess -File $cmd -Arguments $cmdSpecial -TimeoutSeconds 20
     Assert-Sg (-not $cmdTransport.TimedOut -and $cmdTransport.ExitCode -eq 0) "CMD/BAT argument transport failed: exit=$($cmdTransport.ExitCode) output=$($cmdTransport.Output)"
     $cmdArgs = @($cmdTransport.Output -split '\r?\n' | Where-Object { $_ -match '^[A-Za-z0-9+/]+={0,2}$' -and $_.Length % 4 -eq 0 } | ForEach-Object { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_)) })
-    Assert-Sg (($cmdArgs -join '|') -eq ($special -join '|')) "CMD/BAT argument boundaries were changed: expected=$($special -join '|') actual=$($cmdArgs -join '|') raw=$($cmdTransport.Output)"
+    Assert-Sg (($cmdArgs -join '|') -eq ($cmdSpecial -join '|')) "CMD/BAT argument boundaries were changed: expected=$($cmdSpecial -join '|') actual=$($cmdArgs -join '|') raw=$($cmdTransport.Output)"
     $transportBefore = @(Get-ChildItem -LiteralPath ([IO.Path]::GetTempPath()) -Filter 'sg-transport-*.cmd' -ErrorAction SilentlyContinue | ForEach-Object FullName)
     foreach ($unsafe in @("line`nfeed","carriage`rreturn",("nul" + [char]0 + "value"))) {
         $unsafeResult = Invoke-SgBoundedProcess -File $cmd -Arguments @($unsafe) -TimeoutSeconds 20
@@ -489,11 +508,13 @@ public static class EchoArgs {
     $flutterBaseline = Get-SgFlutterBaseline
     Assert-Sg ($flutterBaseline.Schema -eq 'shipglows.flutter-baseline/v1' -and $flutterBaseline.ValidatedAt -eq '2026-08-23' -and $flutterBaseline.FlutterVersion -eq '3.47.1' -and $flutterBaseline.DartVersion -eq '3.13.1' -and $flutterBaseline.Commit -eq '6655482ec06e547f90abf8ae7590466f4415978d') 'Flutter baseline must use the exact validated ShipGlows coordinates.'
     foreach ($value in @($flutterBaseline.FlutterVersion,$flutterBaseline.DartVersion,$flutterBaseline.Commit)) { Assert-Sg ([string]$value -notmatch '(?i)latest|stable|nightly|beta|[x*^~<>]') 'Flutter baseline must not contain a moving version coordinate.' }
-    $serviceInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgDetectedServiceClis' },$true))
-    Assert-Sg ($serviceInstaller.Count -eq 1) 'Service CLI installer must resolve uniquely.'
+    $serviceInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgMachineToolbox' },$true))
+    Assert-Sg ($serviceInstaller.Count -eq 1) 'Machine CLI toolbox installer must resolve uniquely.'
     $serviceInstallerSource = $serviceInstaller[0].Extent.Text
-    Assert-Sg ($serviceInstallerSource -match '(?s)elseif \(\$item[.]Name -eq ''flutterfire''\).*?Test-SgServiceCliResult \$null \$verify \$exe \$item[.]Version.*?continue.*?OperationId ''service[.]flutterfire''') 'Exact FlutterFire CLI evidence must skip activation before the installer call.'
-    Assert-Sg ($serviceInstallerSource -match '(?s)\} else \{\s+\$exe = Get-SgToolPath.*?Test-SgServiceCliResult \$null \$verify \$exe \$item[.]Version.*?continue.*?npm.*?install') 'Exact global npm service CLI evidence must skip installation before the installer call.'
+    Assert-Sg ($serviceInstallerSource -match 'Get-SgMachineToolboxPlan' -and $serviceInstallerSource -match "@\('install'\)" -and $serviceInstallerSource -match 'Get-SgMachineToolboxWrapperContent') 'Machine CLI toolbox must install one isolated exact mise plan and expose stable wrappers.'
+    Assert-Sg ($serviceInstallerSource -match 'FlutterFire is a Dart Pub tool' -and $serviceInstallerSource -match "pub','global','activate','flutterfire_cli") 'FlutterFire must remain a machine-scoped Dart Pub tool independent of project detection.'
+    $playwrightInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgManagedPlaywrightRuntimes' },$true))
+    Assert-Sg ($playwrightInstaller.Count -eq 1 -and $playwrightInstaller[0].Extent.Text -notmatch '@playwright/cli' -and $playwrightInstaller[0].Extent.Text -match "cli %\*") 'Playwright agent commands must use the CLI bundled with the validated Playwright package.'
     $playwrightRuntimeCall = $installerSource.IndexOf("`$playwrightRuntime = Install-SgManagedPlaywrightRuntimes",[StringComparison]::Ordinal)
     $androidToolchainCall = $installerSource.IndexOf("`$androidInfo = Install-SgAndroidToolchain",[StringComparison]::Ordinal)
     Assert-Sg ($playwrightRuntimeCall -ge 0 -and $androidToolchainCall -ge 0 -and $playwrightRuntimeCall -lt $androidToolchainCall) 'Managed Chromium must be wired before the Android Flutter doctor runs.'

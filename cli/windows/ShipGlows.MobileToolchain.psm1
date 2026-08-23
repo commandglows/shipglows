@@ -503,6 +503,68 @@ function Get-SgServiceCliPlan {
     return $plan.ToArray()
 }
 
+function Get-SgMachineToolboxPlan {
+    param([Parameter(Mandatory=$true)][hashtable]$Versions)
+    $plan = New-Object Collections.Generic.List[object]
+    foreach ($definition in @(
+        @{ Name='firebase';  Tool='npm:firebase-tools'; Command='firebase';   VersionKey='Firebase' },
+        @{ Name='supabase';  Tool='aqua:supabase/cli'; Command='supabase';    VersionKey='Supabase' },
+        @{ Name='convex';    Tool='npm:convex';         Command='convex';      VersionKey='Convex' },
+        @{ Name='vercel';    Tool='npm:vercel';         Command='vercel';      VersionKey='Vercel' },
+        @{ Name='clerk';     Tool='npm:clerk';          Command='clerk';       VersionKey='Clerk' }
+    )) {
+        $version = [string]$Versions[$definition.VersionKey]
+        if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw "$($definition.Name) requires an exact resolved machine-toolbox version." }
+        $plan.Add([pscustomobject]@{ Name=$definition.Name; Tool=$definition.Tool; Command=$definition.Command; Version=$version })
+    }
+    return $plan.ToArray()
+}
+
+function Get-SgMachineToolboxMiseConfig {
+    param([Parameter(Mandatory=$true)][object[]]$Plan)
+    $expectedNames = @('firebase','supabase','convex','vercel','clerk')
+    if (($Plan.Name -join '|') -cne ($expectedNames -join '|')) { throw 'Machine toolbox plan is incomplete or out of canonical order.' }
+    $lines = New-Object Collections.Generic.List[string]
+    $lines.Add('[tools]')
+    foreach ($item in $Plan) {
+        if ([string]$item.Tool -notmatch '^(?:npm:[a-z0-9@/._-]+|aqua:supabase/cli)$' -or [string]$item.Version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'Machine toolbox contains an invalid or mutable coordinate.' }
+        $lines.Add(('"{0}" = "{1}"' -f [string]$item.Tool,[string]$item.Version))
+    }
+    return ($lines -join "`n") + "`n"
+}
+
+function Get-SgMachineToolboxWrapperContent {
+    param(
+        [Parameter(Mandatory=$true)][string]$MisePath,
+        [Parameter(Mandatory=$true)][string]$ToolboxRoot,
+        [Parameter(Mandatory=$true)][string]$Command
+    )
+    if ($Command -notmatch '^[a-z][a-z0-9-]{0,31}$') { throw 'Invalid machine-toolbox command.' }
+    $mise = ConvertTo-SgBatchQuotedPath $MisePath 'mise executable'
+    $root = ConvertTo-SgBatchQuotedPath $ToolboxRoot 'machine toolbox'
+    $config = ConvertTo-SgBatchQuotedPath (Join-Path $ToolboxRoot '.shipglows-no-user-mise-config') 'mise config directory'
+    $ceiling = ConvertTo-SgBatchQuotedPath (Split-Path $ToolboxRoot -Parent) 'mise ceiling'
+    return (@(
+        '@echo off',
+        'setlocal DisableDelayedExpansion',
+        'set "MISE_SAFE=1"',
+        'set "MISE_NO_HOOKS=1"',
+        'set "MISE_NO_ENV=1"',
+        'set "MISE_AUTO_INSTALL=false"',
+        'set "MISE_EXEC_AUTO_INSTALL=false"',
+        'set "MISE_NOT_FOUND_AUTO_INSTALL=false"',
+        'set "MISE_RUN_AUTO_INSTALL=false"',
+        'set "MISE_OVERRIDE_CONFIG_FILENAMES=mise.toml"',
+        'set "MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES=none"',
+        "set `"MISE_CONFIG_DIR=$config`"",
+        "set `"MISE_CEILING_PATHS=$ceiling`"",
+        'set "MISE_SYSTEM_DEPS=ignore"',
+        "@`"$mise`" -C `"$root`" exec -- $Command %*",
+        'set "SHIPGLOWS_EXIT_CODE=%ERRORLEVEL%"',
+        'endlocal & exit /b %SHIPGLOWS_EXIT_CODE%'
+    ) -join "`r`n") + "`r`n"
+}
+
 function Get-SgAgentInstallPlan {
     param([bool]$Interactive, [hashtable]$AgentReady, [hashtable]$AgentOutdated = @{}, [string]$Choice = '')
     $missing = New-Object Collections.Generic.List[string]
@@ -562,7 +624,7 @@ function Get-SgGeminiMcpConfigState {
 function Get-SgStackMcpDefinitions {
     param($Needs, [hashtable]$Versions, [string]$NpxPath)
     $definitions = New-Object Collections.Generic.List[object]
-    if ($Needs.PSObject.Properties['Firebase'] -and [bool]$Needs.Firebase) {
+    if (($Needs.PSObject.Properties['Firebase'] -and [bool]$Needs.Firebase) -or ($Needs.PSObject.Properties['FlutterFire'] -and [bool]$Needs.FlutterFire)) {
         $version = [string]$Versions.Firebase
         if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'Firebase MCP requires an exact firebase-tools version.' }
         $definitions.Add([pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"firebase-tools@$version",'mcp'); RequiresAuthentication=$true })
@@ -574,6 +636,12 @@ function Get-SgStackMcpDefinitions {
     }
     if ($Needs.PSObject.Properties['Clerk'] -and [bool]$Needs.Clerk) {
         $definitions.Add([pscustomobject]@{ Name='clerk'; Type='remote'; Url='https://mcp.clerk.com/mcp'; Command=''; Arguments=@(); RequiresAuthentication=$false })
+    }
+    if ($Needs.PSObject.Properties['Supabase'] -and [bool]$Needs.Supabase) {
+        $definitions.Add([pscustomobject]@{ Name='supabase'; Type='remote'; Url='https://mcp.supabase.com/mcp?read_only=true'; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
+    }
+    if ($Needs.PSObject.Properties['Vercel'] -and [bool]$Needs.Vercel) {
+        $definitions.Add([pscustomobject]@{ Name='vercel'; Type='remote'; Url='https://mcp.vercel.com'; Command=''; Arguments=@(); RequiresAuthentication=$true })
     }
     $definitions.Add([pscustomobject]@{ Name='github'; Type='remote'; Url='https://api.githubcopilot.com/mcp/readonly'; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
     return $definitions.ToArray()
@@ -1046,4 +1114,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
