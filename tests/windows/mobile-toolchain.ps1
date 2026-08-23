@@ -474,6 +474,19 @@ public static class EchoArgs {
     Assert-Sg ($installerErrors.Count -eq 0) 'Windows installer must parse before environment-report testing.'
     $environmentWriter = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Write-SgGlobalDevelopmentEnvironment' },$true))
     Assert-Sg ($environmentWriter.Count -eq 1) 'Environment report writer must resolve uniquely.'
+    $flutterInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgFlutter' },$true))
+    Assert-Sg ($flutterInstaller.Count -eq 1) 'Flutter installer must resolve uniquely.'
+    $existingFlutterAddsPath = & {
+        $capturedPath = [Collections.Generic.List[string]]::new()
+        $managedFlutterBin = Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin'
+        function Get-SgToolPath([string]$Name,[string[]]$Paths) { if ($Name -eq 'flutter.bat') { return (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat') }; return '' }
+        function Get-SgFlutterInstallState([string]$FlutterRoot) { [pscustomobject]@{ Status='ready'; Recovery='none'; FlutterPath=(Join-Path $FlutterRoot 'bin\flutter.bat'); DartPath=(Join-Path $FlutterRoot 'bin\dart.bat') } }
+        function Add-SgUserPathEntry([string]$Directory) { [void]$capturedPath.Add($Directory) }
+        Invoke-Expression $flutterInstaller[0].Extent.Text
+        [void](Install-SgFlutter @((Join-Path $managedFlutterBin 'flutter.bat')) @())
+        return $capturedPath.Contains($managedFlutterBin)
+    }
+    Assert-Sg $existingFlutterAddsPath 'A validated existing Flutter SDK must still converge its bin directory into PATH.'
     Invoke-Expression $environmentWriter[0].Extent.Text
     $savedUserProfile = $env:USERPROFILE
     try {
@@ -488,10 +501,14 @@ public static class EchoArgs {
         $services = [pscustomobject]@{ Firebase='ready (14.0.0)'; FlutterFire='ready (1.3.1)'; Convex='ready (1.28.0)'; Vercel='ready (48.0.0)'; Supabase='not detected'; Clerk='ready (0.4.0)'; AndroidNative='not detected' }
         $reportPath = Write-SgGlobalDevelopmentEnvironment $agentInfo ([pscustomobject]@{ Installed=$true; McpConfigured=$true; McpVerified=$true; ConfigPath='per-agent'; ChromiumPath='C:\chromium.exe' }) ([pscustomobject]@{ StableReady='yes'; StableVersion='1.62.1'; StableRevision='1234'; AgentCliReady='yes'; AgentCliVersion='0.1.0'; MotionReady='yes' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $true ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false }) ([pscustomobject]@{ AndroidStudioReady=$true; VisualStudioCppReady=$false; FirebaseDeviceStreamingReady=$false }) $services $false
         $report = [IO.File]::ReadAllText($reportPath)
+        $incompleteWindowsReportPath = Write-SgGlobalDevelopmentEnvironment $agentInfo ([pscustomobject]@{ Installed=$true; McpConfigured=$true; McpVerified=$true; ConfigPath='per-agent'; ChromiumPath='C:\chromium.exe' }) ([pscustomobject]@{ StableReady='yes'; StableVersion='1.62.1'; StableRevision='1234'; AgentCliReady='yes'; AgentCliVersion='0.1.0'; MotionReady='yes' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $false ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false }) ([pscustomobject]@{ AndroidStudioReady=$true; VisualStudioCppReady=$true; FirebaseDeviceStreamingReady=$false }) $services $true
+        $incompleteWindowsReport = [IO.File]::ReadAllText($incompleteWindowsReportPath)
     } finally { $env:USERPROFILE = $savedUserProfile }
-    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','Android Studio installed: yes','Flutter Windows desktop toolchain ready: no','Windows Developer Mode enabled: no','Firebase Android Device Streaming configured: no','Playwright MCP configured: yes','Playwright CLI installed: yes','Playwright CLI version: 1.62.1','Playwright Chromium revision: 1234','Playwright Agent CLI installed: yes','Motion runtime ready: yes','Codex MCP readiness: ready: dart, firebase','Claude MCP readiness: partial: ready dart; pending firebase','Gemini MCP readiness: ready: dart, github','Convex development tooling: ready (1.28.0)','Clerk development tooling: ready (0.4.0)','Windows-supported Flutter targets: web, Android, Windows desktop','rerun the ShipGlows full installer in an interactive PowerShell')) {
+    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','Android Studio installed: yes','Visual Studio Desktop C++ workload ready: no','Flutter Windows desktop toolchain ready: no','Windows Developer Mode enabled: no','Firebase Android Device Streaming configured: no','Playwright MCP configured: yes','Playwright CLI installed: yes','Playwright CLI version: 1.62.1','Playwright Chromium revision: 1234','Playwright Agent CLI installed: yes','Motion runtime ready: yes','Codex MCP readiness: ready: dart, firebase','Claude MCP readiness: partial: ready dart; pending firebase','Gemini MCP readiness: ready: dart, github','Convex development tooling: ready (1.28.0)','Clerk development tooling: ready (0.4.0)','Windows-supported Flutter targets: web, Android, Windows desktop','rerun the ShipGlows full installer in an interactive PowerShell')) {
         Assert-Sg ($report.Contains($expected)) "Environment report is missing actionable mobile state: $expected"
     }
+    Assert-Sg ($incompleteWindowsReport.Contains('Flutter and Dart installed: no')) 'The environment report must retain the failed Flutter prerequisite.'
+    Assert-Sg ($incompleteWindowsReport.Contains('Flutter Windows desktop toolchain ready: no')) 'Visual Studio and Developer Mode must not report Windows desktop ready when Flutter is unavailable.'
 
     Add-Type -AssemblyName System.IO.Compression
     Add-Type -AssemblyName System.IO.Compression.FileSystem

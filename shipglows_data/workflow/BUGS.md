@@ -2,6 +2,7 @@
 
 | Bug ID | Status | Severity | Title | Last tested | Next step |
 |--------|--------|----------|-------|-------------|-----------|
+| [BUG-2026-08-23-001](shipglows_data/workflow/bugs/BUG-2026-08-23-001.md) | fix-attempted | high | Validated Flutter SDK skips PATH activation and overstates Windows readiness | 2026-08-23 | Retest the installed machine and Flutter Windows build |
 | [BUG-2026-08-19-001](shipglows_data/workflow/bugs/BUG-2026-08-19-001.md) | closed | medium | CLI always reports low RAM on VMs smaller than its absolute threshold | 2026-08-20 | none |
 | [BUG-2026-08-03-002](shipglows_data/workflow/bugs/BUG-2026-08-03-002.md) | closed | high | env_remove leaves manual project devservers running | 2026-08-03 | none |
 | [BUG-2026-08-03-001](shipglows_data/workflow/bugs/BUG-2026-08-03-001.md) | closed | medium | Global contract suite fails after repository and skill-name migrations | 2026-08-03 | none |

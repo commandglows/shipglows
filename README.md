@@ -256,9 +256,11 @@ retourné par GitHub, puis télécharge uniquement l'archive immuable de ce comm
 In an interactive Windows console, the bootstrap asks for SSH tunnels or the
 recommended local DevServer. The DevServer installs only the native PowerShell
 runtime for Astro, Vite, Python/FastAPI, and Flutter Web, prepares Git, GitHub CLI,
-Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid existing
+Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid external
 Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
-their environment variables or `PATH`. Otherwise JDK 17 is installed user-scope,
+their environment variables or `PATH`; a validated ShipGlows-managed Flutter SDK
+always reconverges its own `bin` directory into the user and active installer
+`PATH`. Otherwise JDK 17 is installed user-scope,
 then the official Android terms are presented before Android command-line tools
 are downloaded. Their repository coordinate must match the Windows archive and
 SHA-256 published in the official Android Studio download table; refusal,

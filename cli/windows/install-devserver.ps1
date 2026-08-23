@@ -691,6 +691,7 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
     $androidEmulatorAccelerationReady = if ($AndroidInfo.PSObject.Properties['EmulatorAccelerationReady'] -and $AndroidInfo.EmulatorAccelerationReady) { 'yes' } else { 'no' }
     $androidStudioReady = if ($IdeInfo.AndroidStudioReady) { 'yes' } else { 'no' }
     $visualStudioCppReady = if ($IdeInfo.VisualStudioCppReady) { 'yes' } else { 'no' }
+    $windowsDesktopReady = if ($FlutterReady -and $IdeInfo.VisualStudioCppReady -and $DeveloperModeReady) { 'yes' } else { 'no' }
     $firebaseDeviceStreamingReady = if ($IdeInfo.FirebaseDeviceStreamingReady) { 'yes' } else { 'no' }
     $developerModeStatus = if ($DeveloperModeReady) { 'yes' } else { 'no' }
     $tauriDetected = if ($TauriInfo -and $TauriInfo.Detected) { 'yes' } else { 'no' }
@@ -750,7 +751,8 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
 - Android emulator acceleration ready: $androidEmulatorAccelerationReady
 - Android next action: $androidNextAction
 - Android Studio installed: $androidStudioReady
-- Flutter Windows desktop toolchain ready: $visualStudioCppReady
+- Visual Studio Desktop C++ workload ready: $visualStudioCppReady
+- Flutter Windows desktop toolchain ready: $windowsDesktopReady
 - Windows Developer Mode enabled: $developerModeStatus
 - Windows Developer Mode next action: $(if ($DeveloperModeReady) { 'none' } else { 'open Windows Settings > System > For developers; ShipGlows never changes this policy automatically.' })
 - Firebase Android Device Streaming configured: $firebaseDeviceStreamingReady
@@ -875,18 +877,21 @@ function Save-SgVerifiedDownload([string]$Url, [string]$Sha256, [string]$Destina
 }
 
 function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
+    $flutterDirectory = Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter'
     $existingFlutter = Get-SgToolPath 'flutter.bat' $FlutterPaths
     if ($existingFlutter) {
         $existingRoot = Split-Path (Split-Path $existingFlutter -Parent) -Parent
         $existingState = Get-SgFlutterInstallState -FlutterRoot $existingRoot
         if ($existingState.Status -eq 'ready') {
+            if ([IO.Path]::GetFullPath($existingRoot).TrimEnd('\') -eq [IO.Path]::GetFullPath($flutterDirectory).TrimEnd('\')) {
+                Add-SgUserPathEntry (Join-Path $existingRoot 'bin')
+            }
             Write-Host "Using validated existing Flutter/Dart SDK without changing its location: $existingRoot" -ForegroundColor Green
             return $true
         }
     }
     $git = Get-SgToolPath 'git.exe' $GitPaths
     if (-not $git) { Write-SgInstallerWarning 'Flutter could not be installed because Git is unavailable.'; return $false }
-    $flutterDirectory = Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter'
     $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory
     if ($state.Status -eq 'partial') { [void](Move-SgManagedPartialDirectory $flutterDirectory); $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory }
     if ($state.Status -eq 'absent') {

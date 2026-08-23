@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.16.0"
+artifact_version: "1.17.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-23"
@@ -32,6 +32,7 @@ evidence:
   - "Native Windows full packages the reproducible-environment command so s env works from the installed runtime rather than only from a source checkout."
   - "The first live Tauri update led to explicit phase/input progress and final-state re-observation for mise, Firebase, Claude/Codex MCP, and localized Flutter diagnostics."
   - "The 2026-08-23 Windows maintainer surface clones or validates the owner repository and enforces one Codex ShipGlows entrypoint channel without accepting generic all/components as authority."
+  - "The 2026-08-23 Flutter repair reconverges the managed SDK PATH on every validated rerun and separates Visual Studio C++ readiness from aggregate Flutter Windows build readiness."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -272,6 +273,14 @@ versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le por
 attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
 documentation du projet.
+
+Un SDK Flutter géré et déjà valide reconverge son répertoire `bin` dans le
+`PATH` utilisateur et dans le processus d'installation à chaque relance. Le
+rapport distingue le workload Visual Studio Desktop C++ de la disponibilité
+Flutter Windows complète, qui exige aussi Flutter/Dart et Developer Mode. Si
+Flutter remplace temporairement son cache Dart, attendre la fin de l'opération
+bornée puis revalider les commandes ; l'absence instantanée de `dart.exe` ne
+prouve pas à elle seule une corruption durable.
 
 Le bloc géré porte le schéma explicite
 `shipglows-project-environment/v1`. Un ancien bloc ShipGlows sans version est
