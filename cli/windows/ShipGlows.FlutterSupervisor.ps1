@@ -62,6 +62,17 @@ function New-SgFlutterRunArguments([ValidateSet('chrome','web-server')][string]$
     return $arguments
 }
 
+function Resolve-SgFlutterChromeExecutable([ValidateSet('chrome','web-server')][string]$Device) {
+    if ($Device -ne 'chrome') { return '' }
+    $candidate = [string]$env:CHROME_EXECUTABLE
+    if ([string]::IsNullOrWhiteSpace($candidate) -or -not (Test-Path -LiteralPath $candidate -PathType Leaf)) { throw 'ShipGlows managed Chromium is unavailable for the Flutter chrome device.' }
+    $resolved = [IO.Path]::GetFullPath($candidate)
+    $managedRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'ms-playwright')).TrimEnd('\') + '\'
+    if (-not $resolved.StartsWith($managedRoot,[StringComparison]::OrdinalIgnoreCase)) { throw 'Flutter chrome device requires the ShipGlows-managed Chromium executable.' }
+    Assert-SgFlutterNoReparsePath $resolved
+    return $resolved
+}
+
 function New-SgFlutterStreamPump([Diagnostics.Process]$Process) { [pscustomobject]@{Process=$Process;OutputTask=$Process.StandardOutput.ReadLineAsync();ErrorTask=$Process.StandardError.ReadLineAsync();OutputEnded=$false;ErrorEnded=$false} }
 function Pump-SgFlutterStreams([object]$Pump,[Collections.Concurrent.ConcurrentQueue[string]]$OutputQueue,[Collections.Concurrent.ConcurrentQueue[string]]$ErrorQueue,[int]$MaxLines=256) {
     $remaining=[Math]::Max(1,$MaxLines)
@@ -196,6 +207,8 @@ function Invoke-SgFlutterSupervisor {
     $psi.FileName=$dart; $psi.Arguments=(@($args | ForEach-Object { ConvertTo-SgWindowsArgument ([string]$_) }) -join ' '); $psi.WorkingDirectory=$projectRoot
     $psi.UseShellExecute=$false; $psi.CreateNoWindow=$true; $psi.RedirectStandardInput=$true; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true
     $psi.EnvironmentVariables['FLUTTER_ROOT']=$flutterRoot
+    $chromeExecutable=Resolve-SgFlutterChromeExecutable $Device
+    if($chromeExecutable){$psi.EnvironmentVariables['CHROME_EXECUTABLE']=$chromeExecutable}
     $process=New-Object Diagnostics.Process; $process.StartInfo=$psi
     $outQueue=New-Object 'Collections.Concurrent.ConcurrentQueue[string]'; $errQueue=New-Object 'Collections.Concurrent.ConcurrentQueue[string]'
     if (-not $process.Start()) { throw 'Flutter host process could not start.' }

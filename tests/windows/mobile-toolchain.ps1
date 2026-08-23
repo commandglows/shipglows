@@ -478,15 +478,49 @@ public static class EchoArgs {
     Assert-Sg ($flutterInstaller.Count -eq 1) 'Flutter installer must resolve uniquely.'
     $existingFlutterAddsPath = & {
         $capturedPath = [Collections.Generic.List[string]]::new()
+        $stableConvergence = [Collections.Generic.List[string]]::new()
         $managedFlutterBin = Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin'
-        function Get-SgToolPath([string]$Name,[string[]]$Paths) { if ($Name -eq 'flutter.bat') { return (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat') }; return '' }
+        function Get-SgToolPath([string]$Name,[string[]]$Paths) { if ($Name -eq 'flutter.bat') { return (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat') }; if ($Name -eq 'git.exe') { return 'C:\git.exe' }; return '' }
         function Get-SgFlutterInstallState([string]$FlutterRoot) { [pscustomobject]@{ Status='ready'; Recovery='none'; FlutterPath=(Join-Path $FlutterRoot 'bin\flutter.bat'); DartPath=(Join-Path $FlutterRoot 'bin\dart.bat') } }
         function Add-SgUserPathEntry([string]$Directory) { [void]$capturedPath.Add($Directory) }
+        function Resolve-SgFlutterStableCommit([string]$GitPath) { return '6655482ec06e547f90abf8ae7590466f4415978d' }
+        function Set-SgManagedFlutterStableRevision([string]$GitPath,[string]$FlutterRoot,[string]$Commit) { [void]$stableConvergence.Add($Commit); return $true }
+        function Invoke-SgVisibleBoundedProcess { [pscustomobject]@{ TimedOut=$false; ExitCode=0; Output='' } }
         Invoke-Expression $flutterInstaller[0].Extent.Text
         [void](Install-SgFlutter @((Join-Path $managedFlutterBin 'flutter.bat')) @())
-        return $capturedPath.Contains($managedFlutterBin)
+        return $capturedPath.Contains($managedFlutterBin) -and $stableConvergence.Contains('6655482ec06e547f90abf8ae7590466f4415978d')
     }
-    Assert-Sg $existingFlutterAddsPath 'A validated existing Flutter SDK must still converge its bin directory into PATH.'
+    Assert-Sg $existingFlutterAddsPath 'A validated existing managed Flutter SDK must converge PATH and the resolved stable revision.'
+    $stableRevisionSetter = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Set-SgManagedFlutterStableRevision' },$true))
+    Assert-Sg ($stableRevisionSetter.Count -eq 1) 'Managed Flutter stable revision setter must resolve uniquely.'
+    $stableRollback = & {
+        $savedLocalAppData = $env:LOCALAPPDATA
+        $testLocalAppData = Join-Path $fixture 'stable-rollback-local'
+        $managedRoot = Join-Path $testLocalAppData 'ShipGlows\flutter'
+        $previousCommit = '1111111111111111111111111111111111111111'
+        $stableCommit = '6655482ec06e547f90abf8ae7590466f4415978d'
+        $visibleArguments = [Collections.Generic.List[string]]::new()
+        $warnings = [Collections.Generic.List[string]]::new()
+        $stateCounter = @{ Value = 0 }
+        function Invoke-SgBoundedProcess([string]$File,[string[]]$Arguments,[int]$TimeoutSeconds) {
+            $joined = $Arguments -join ' '
+            if ($joined -match 'remote get-url origin$') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output='https://github.com/flutter/flutter.git'} }
+            if ($joined -match 'status --porcelain --untracked-files=no$') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=''} }
+            if ($joined -match 'rev-parse HEAD$') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=$previousCommit} }
+            if ($joined -match 'rev-parse refs/remotes/origin/stable$') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=$stableCommit} }
+            return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=''}
+        }
+        function Invoke-SgVisibleBoundedProcess([string]$OperationId,[string]$Label,[string]$File,[string[]]$Arguments,[int]$TimeoutSeconds) { [void]$visibleArguments.Add(($Arguments -join ' ')); return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=''} }
+        function Get-SgFlutterInstallState([string]$FlutterRoot) { $stateCounter.Value++; return [pscustomobject]@{Status=if($stateCounter.Value -eq 1){'partial'}else{'ready'}} }
+        function Write-SgInstallerWarning([string]$Message) { [void]$warnings.Add($Message) }
+        try {
+            $env:LOCALAPPDATA = $testLocalAppData
+            Invoke-Expression $stableRevisionSetter[0].Extent.Text
+            $result = Set-SgManagedFlutterStableRevision 'C:\git.exe' $managedRoot $stableCommit
+            return -not $result -and @($visibleArguments | Where-Object { $_ -match "checkout -B stable $stableCommit$" }).Count -eq 1 -and @($visibleArguments | Where-Object { $_ -match "checkout -B stable $previousCommit$" }).Count -eq 1 -and $warnings.Contains('Flutter stable convergence failed; restored the previous managed revision.')
+        } finally { $env:LOCALAPPDATA = $savedLocalAppData }
+    }
+    Assert-Sg $stableRollback 'A failed Flutter stable validation must restore and revalidate the previous managed revision.'
     Invoke-Expression $environmentWriter[0].Extent.Text
     $savedUserProfile = $env:USERPROFILE
     try {

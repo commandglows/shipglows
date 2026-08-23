@@ -260,7 +260,12 @@ Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid extern
 Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
 their environment variables or `PATH`; a validated ShipGlows-managed Flutter SDK
 always reconverges its own `bin` directory into the user and active installer
-`PATH`. Otherwise JDK 17 is installed user-scope,
+`PATH`. On every full rerun, that managed SDK also resolves the official Flutter
+`stable` ref, fetches it into `origin/stable`, and checks out a local tracking
+branch named `stable`. ShipGlows refuses a non-official origin or tracked local
+changes and restores the previously validated revision if the new SDK cannot
+start. External Flutter installations are never updated by this convergence.
+Otherwise JDK 17 is installed user-scope,
 then the official Android terms are presented before Android command-line tools
 are downloaded. Their repository coordinate must match the Windows archive and
 SHA-256 published in the official Android Studio download table; refusal,
@@ -392,6 +397,9 @@ concurrent starts from assigning the same port to different surfaces. Existing
 single-surface registry entries are migrated by runnable path while preserving
 verified live process metadata. Flutter Web runs through a small persistent
 machine-protocol supervisor with managed logs and headless Chrome by default.
+The full installer exposes its validated Playwright Chromium through the standard
+`CHROME_EXECUTABLE` user environment variable, and the supervisor passes only
+that existing ShipGlows-managed executable to Flutter's `chrome` device.
 Matching `app.start`/`app.started` events establish readiness, Dart changes under
 `lib/` trigger debounced hot reload, Open promotes the session to managed visible
 Chrome, and Restart remains a complete controlled restart. Orphan listeners and

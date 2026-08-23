@@ -876,6 +876,53 @@ function Save-SgVerifiedDownload([string]$Url, [string]$Sha256, [string]$Destina
     if ($actual -ine $Sha256) { throw "Downloaded archive checksum mismatch for $Url" }
 }
 
+function Resolve-SgFlutterStableCommit([string]$GitPath) {
+    if ([string]::IsNullOrWhiteSpace($GitPath)) { return '' }
+    $resolved = Invoke-SgBoundedProcess -File $GitPath -Arguments @('ls-remote','https://github.com/flutter/flutter.git','refs/heads/stable') -TimeoutSeconds 60
+    if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0 -and $resolved.Output -match '(?m)^([0-9a-f]{40})\s+refs/heads/stable$') { return $Matches[1] }
+    return ''
+}
+
+function Set-SgManagedFlutterStableRevision([string]$GitPath, [string]$FlutterRoot, [string]$Commit) {
+    if ($Commit -notmatch '^[0-9a-f]{40}$') { throw 'Flutter stable convergence requires a proven commit.' }
+    $managedRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter')).TrimEnd('\')
+    $resolvedRoot = [IO.Path]::GetFullPath($FlutterRoot).TrimEnd('\')
+    if (-not $resolvedRoot.Equals($managedRoot,[StringComparison]::OrdinalIgnoreCase)) { throw 'Flutter stable convergence is restricted to the ShipGlows-managed SDK.' }
+
+    $origin = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'remote','get-url','origin') -TimeoutSeconds 30
+    $originUrl = if (-not $origin.TimedOut -and $origin.ExitCode -eq 0) { $origin.Output.Trim().TrimEnd('/') } else { '' }
+    if ($originUrl -notmatch '(?i)^https://github[.]com/flutter/flutter(?:[.]git)?$') { throw 'Managed Flutter origin is not the official Flutter repository.' }
+    $status = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'status','--porcelain','--untracked-files=no') -TimeoutSeconds 30
+    if ($status.TimedOut -or $status.ExitCode -ne 0 -or -not [string]::IsNullOrWhiteSpace($status.Output)) { throw 'Managed Flutter has tracked local changes; stable convergence was safely skipped.' }
+    $head = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'rev-parse','HEAD') -TimeoutSeconds 30
+    $previousCommit = if (-not $head.TimedOut -and $head.ExitCode -eq 0 -and $head.Output.Trim() -match '^[0-9a-f]{40}$') { $head.Output.Trim() } else { '' }
+    if (-not $previousCommit) { throw 'Managed Flutter current revision could not be proven.' }
+
+    $fetch = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.update' -Label 'Updating Flutter stable SDK' -File $GitPath -Arguments @('-C',$resolvedRoot,'fetch','--depth','1','origin','+refs/heads/stable:refs/remotes/origin/stable') -TimeoutSeconds 600
+    if ($fetch.TimedOut -or $fetch.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter stable fetch failed or timed out; the existing managed SDK was preserved.'; return $false }
+    $remote = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'rev-parse','refs/remotes/origin/stable') -TimeoutSeconds 30
+    if ($remote.TimedOut -or $remote.ExitCode -ne 0 -or $remote.Output.Trim() -cne $Commit) { Write-SgInstallerWarning 'Fetched Flutter stable revision did not match the resolved commit; the existing managed SDK was preserved.'; return $false }
+    if ($previousCommit -ceq $Commit) {
+        $checkoutCurrent = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.checkout' -Label 'Naming the Flutter stable SDK branch' -File $GitPath -Arguments @('-C',$resolvedRoot,'checkout','-B','stable',$Commit) -TimeoutSeconds 120
+        if ($checkoutCurrent.TimedOut -or $checkoutCurrent.ExitCode -ne 0) { return $false }
+        [void](Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'branch','--set-upstream-to=origin/stable','stable') -TimeoutSeconds 30)
+        return $true
+    }
+
+    $checkout = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.checkout' -Label 'Activating Flutter stable SDK' -File $GitPath -Arguments @('-C',$resolvedRoot,'checkout','-B','stable',$Commit) -TimeoutSeconds 120
+    if (-not $checkout.TimedOut -and $checkout.ExitCode -eq 0) {
+        [void](Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'branch','--set-upstream-to=origin/stable','stable') -TimeoutSeconds 30)
+        $updatedState = Get-SgFlutterInstallState -FlutterRoot $resolvedRoot
+        if ($updatedState.Status -eq 'ready') { return $true }
+    }
+
+    $rollback = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.rollback' -Label 'Restoring the previous Flutter SDK revision' -File $GitPath -Arguments @('-C',$resolvedRoot,'checkout','-B','stable',$previousCommit) -TimeoutSeconds 120
+    $rollbackState = if (-not $rollback.TimedOut -and $rollback.ExitCode -eq 0) { Get-SgFlutterInstallState -FlutterRoot $resolvedRoot } else { $null }
+    if (-not $rollbackState -or $rollbackState.Status -ne 'ready') { throw 'Flutter stable convergence and automatic rollback both failed; the managed SDK needs inspection.' }
+    Write-SgInstallerWarning 'Flutter stable convergence failed; restored the previous managed revision.'
+    return $false
+}
+
 function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     $flutterDirectory = Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter'
     $existingFlutter = Get-SgToolPath 'flutter.bat' $FlutterPaths
@@ -885,7 +932,20 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
         if ($existingState.Status -eq 'ready') {
             if ([IO.Path]::GetFullPath($existingRoot).TrimEnd('\') -eq [IO.Path]::GetFullPath($flutterDirectory).TrimEnd('\')) {
                 Add-SgUserPathEntry (Join-Path $existingRoot 'bin')
+                $managedGit = Get-SgToolPath 'git.exe' $GitPaths
+                if ($managedGit) {
+                    $stableCommit = Resolve-SgFlutterStableCommit $managedGit
+                    if ($stableCommit) {
+                        try { [void](Set-SgManagedFlutterStableRevision $managedGit $existingRoot $stableCommit) }
+                        catch { Write-SgInstallerWarning "Flutter stable convergence was safely skipped: $($_.Exception.Message)" }
+                    }
+                    else { Write-SgInstallerWarning 'Flutter stable commit could not be resolved; the existing managed SDK was preserved.' }
+                    $existingState = Get-SgFlutterInstallState -FlutterRoot $existingRoot
+                } else { Write-SgInstallerWarning 'Git is unavailable; the existing managed Flutter SDK could not be checked for a stable update.' }
             }
+            if ($existingState.Status -ne 'ready') { Write-SgInstallerWarning 'Flutter/Dart validation failed after stable convergence.'; return $false }
+            $configured = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.configure' -Label 'Configuring Flutter web, Android, and Windows targets' -File $existingState.FlutterPath -Arguments @('config','--enable-web','--enable-android','--enable-windows-desktop') -TimeoutSeconds 90
+            if ($configured.TimedOut -or $configured.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter platform configuration failed or timed out.'; return $false }
             Write-Host "Using validated existing Flutter/Dart SDK without changing its location: $existingRoot" -ForegroundColor Green
             return $true
         }
@@ -895,15 +955,15 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory
     if ($state.Status -eq 'partial') { [void](Move-SgManagedPartialDirectory $flutterDirectory); $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory }
     if ($state.Status -eq 'absent') {
-        $resolved = Invoke-SgBoundedProcess -File $git -Arguments @('ls-remote','https://github.com/flutter/flutter.git','refs/heads/stable') -TimeoutSeconds 60
-        $commit = if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0 -and $resolved.Output -match '(?m)^([0-9a-f]{40})\s+refs/heads/stable$') { $Matches[1] } else { '' }
+        $commit = Resolve-SgFlutterStableCommit $git
         if (-not $commit) { Write-SgInstallerWarning 'Flutter stable commit could not be resolved and proven; installation is pending.'; return $false }
         New-Item -ItemType Directory -Path $flutterDirectory | Out-Null
         foreach ($step in @(
             @('init'),
             @('remote','add','origin','https://github.com/flutter/flutter.git'),
-            @('fetch','--depth','1','origin',$commit),
-            @('checkout','--detach','FETCH_HEAD')
+            @('fetch','--depth','1','origin','+refs/heads/stable:refs/remotes/origin/stable'),
+            @('checkout','-B','stable',$commit),
+            @('branch','--set-upstream-to=origin/stable','stable')
         )) {
             $arguments = @('-C',$flutterDirectory) + $step
             $result = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.clone' -Label 'Installing Flutter stable SDK' -File $git -Arguments $arguments -TimeoutSeconds 600
@@ -913,7 +973,7 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory
     if ($state.Status -ne 'ready') { Write-SgInstallerWarning 'Flutter/Dart executable validation failed after installation.'; return $false }
     Add-SgUserPathEntry (Join-Path $flutterDirectory 'bin')
-    $configured = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.configure' -Label 'Configuring Flutter web and Android targets' -File $state.FlutterPath -Arguments @('config','--enable-web','--enable-android') -TimeoutSeconds 90
+    $configured = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.configure' -Label 'Configuring Flutter web, Android, and Windows targets' -File $state.FlutterPath -Arguments @('config','--enable-web','--enable-android','--enable-windows-desktop') -TimeoutSeconds 90
     if ($configured.TimedOut -or $configured.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter platform configuration failed or timed out.'; return $false }
     Write-Host 'Flutter SDK resolved to a concrete stable commit; Flutter and Dart versions are valid.' -ForegroundColor Green
     return $true
@@ -1437,7 +1497,7 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
 }
 
 function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
-    $empty=[pscustomobject]@{StableReady='no';StableVersion='not available';StableRevision='not available';StablePath='';AgentCliReady='no';AgentCliVersion='not available';AgentCliPath='';MotionReady='no'}
+    $empty=[pscustomobject]@{StableReady='no';StableVersion='not available';StableRevision='not available';StablePath='';BrowserPath='';AgentCliReady='no';AgentCliVersion='not available';AgentCliPath='';MotionReady='no'}
     if(-not $NpmPath){Write-SgInstallerWarning 'Managed Playwright runtimes are pending because npm is unavailable.';return $empty}
     try {
         $stableVersion=Resolve-SgNpmVersion $NpmPath 'playwright'
@@ -1473,8 +1533,18 @@ function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
         $agentPackageVersion=[string]((Get-Content -Raw (Join-Path $agentRoot 'node_modules\@playwright\cli\package.json')|ConvertFrom-Json).version)
         $agentReady=-not $agentBrowserInstall.TimedOut -and $agentBrowserInstall.ExitCode -eq 0 -and $agentPackageVersion -eq $agentVersion
         $browserReady=$browserCheck -and -not $browserCheck.TimedOut -and $browserCheck.ExitCode -eq 0
-        return [pscustomobject]@{StableReady=if($stableReady){'yes'}else{'no'};StableVersion=$stableVersion;StableRevision=$revision;StablePath=$stableCommand;AgentCliReady=if($agentReady){'yes'}else{'no'};AgentCliVersion=$agentVersion;AgentCliPath=$agentCommand;MotionReady=if($stableReady -and $browserReady){'yes'}else{'no'}}
+        return [pscustomobject]@{StableReady=if($stableReady){'yes'}else{'no'};StableVersion=$stableVersion;StableRevision=$revision;StablePath=$stableCommand;BrowserPath=if($browserReady){$browser}else{''};AgentCliReady=if($agentReady){'yes'}else{'no'};AgentCliVersion=$agentVersion;AgentCliPath=$agentCommand;MotionReady=if($stableReady -and $browserReady){'yes'}else{'no'}}
     } catch {Write-SgInstallerWarning "Managed Playwright runtime pending: $($_.Exception.Message)";return $empty}
+}
+
+function Set-SgFlutterChromeExecutable([string]$BrowserPath) {
+    if ([string]::IsNullOrWhiteSpace($BrowserPath) -or -not (Test-Path -LiteralPath $BrowserPath -PathType Leaf)) { return $false }
+    $resolved = [IO.Path]::GetFullPath($BrowserPath)
+    $managedRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'ms-playwright')).TrimEnd('\') + '\'
+    if (-not $resolved.StartsWith($managedRoot,[StringComparison]::OrdinalIgnoreCase)) { Write-SgInstallerWarning 'Flutter browser wiring rejected a browser outside the managed Playwright runtime.'; return $false }
+    [Environment]::SetEnvironmentVariable('CHROME_EXECUTABLE',$resolved,'User')
+    $env:CHROME_EXECUTABLE = $resolved
+    return $true
 }
 
 function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
@@ -1649,6 +1719,7 @@ $serviceInfo = Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPat
 $stackMcpDefinitions = @(Get-SgStackMcpDefinitions $serviceInfo.Needs $serviceInfo.Versions $nativeNpx)
 $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeReady -or $opencodeReady -or $kiloReady -or $geminiReady) (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
 $playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
+[void](Set-SgFlutterChromeExecutable $playwrightRuntime.BrowserPath)
 $agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $stackMcpDefinitions
 [void](Complete-SgInstallerPhase $agentPhase)
 $activationPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.activation' -Label 'Recording environment and activating commands' -TimeoutSeconds 7200) -EventSink $installerEventSink

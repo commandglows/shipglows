@@ -2,7 +2,9 @@
 
 | Bug ID | Status | Severity | Title | Last tested | Next step |
 |--------|--------|----------|-------|-------------|-----------|
-| [BUG-2026-08-23-001](shipglows_data/workflow/bugs/BUG-2026-08-23-001.md) | fixed-pending-verify | high | Validated Flutter SDK skips PATH activation and overstates Windows readiness | 2026-08-23 | Resolve the project lockfile decision, then verify the Windows build |
+| [BUG-2026-08-23-003](shipglows_data/workflow/bugs/BUG-2026-08-23-003.md) | fixed-pending-verify | high | Flutter Web ignores the Chromium already managed by ShipGlows | 2026-08-23 | Rerun the branch installer and verify `flutter doctor -v` |
+| [BUG-2026-08-23-002](shipglows_data/workflow/bugs/BUG-2026-08-23-002.md) | fixed-pending-verify | high | Managed Flutter reruns preserve a stale detached SDK | 2026-08-23 | Rerun the branch installer, then verify the locked project and Windows build |
+| [BUG-2026-08-23-001](shipglows_data/workflow/bugs/BUG-2026-08-23-001.md) | fixed-pending-verify | high | Validated Flutter SDK skips PATH activation and overstates Windows readiness | 2026-08-23 | Verify doctor, project checks, and the Windows build with the converged stable SDK |
 | [BUG-2026-08-19-001](shipglows_data/workflow/bugs/BUG-2026-08-19-001.md) | closed | medium | CLI always reports low RAM on VMs smaller than its absolute threshold | 2026-08-20 | none |
 | [BUG-2026-08-03-002](shipglows_data/workflow/bugs/BUG-2026-08-03-002.md) | closed | high | env_remove leaves manual project devservers running | 2026-08-03 | none |
 | [BUG-2026-08-03-001](shipglows_data/workflow/bugs/BUG-2026-08-03-001.md) | closed | medium | Global contract suite fails after repository and skill-name migrations | 2026-08-03 | none |
