@@ -172,6 +172,7 @@ try {
     New-Item -ItemType Directory -Path $fakeResolvedBin -Force | Out-Null
     Set-Content -LiteralPath $fakeMise -Encoding Ascii -Value @'
 @echo off
+if "%~3"=="which" if not "%~5"=="" exit /b 91
 if "%~3"=="which" if "%~4"=="firebase" (
   echo __FAKE_FIREBASE__
   exit /b 0

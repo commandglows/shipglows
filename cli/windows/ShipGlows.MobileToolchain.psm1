@@ -560,7 +560,7 @@ function Get-SgMachineToolboxWrapperContent {
         "set `"MISE_CEILING_PATHS=$ceiling`"",
         'set "MISE_SYSTEM_DEPS=ignore"',
         'set "SHIPGLOWS_TOOLBOX_EXECUTABLE="',
-        "for /f `"usebackq delims=`" %%I in (``@`"$mise`" -C `"$root`" which $Command 2^^^>nul``) do if not defined SHIPGLOWS_TOOLBOX_EXECUTABLE set `"SHIPGLOWS_TOOLBOX_EXECUTABLE=%%I`"",
+        "for /f `"usebackq delims=`" %%I in (``@`"$mise`" -C `"$root`" which $Command 2^>nul``) do if not defined SHIPGLOWS_TOOLBOX_EXECUTABLE set `"SHIPGLOWS_TOOLBOX_EXECUTABLE=%%I`"",
         'if not defined SHIPGLOWS_TOOLBOX_EXECUTABLE exit /b 127',
         'if exist "%SHIPGLOWS_TOOLBOX_EXECUTABLE%.cmd" set "SHIPGLOWS_TOOLBOX_EXECUTABLE=%SHIPGLOWS_TOOLBOX_EXECUTABLE%.cmd"',
         'call "%SHIPGLOWS_TOOLBOX_EXECUTABLE%" %*',
