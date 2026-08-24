@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.5.1"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-22"
+updated: "2026-08-23"
 status: reviewed
 source_skill: sg-start
 scope: claim-register
@@ -30,16 +30,16 @@ linked_systems:
   - site/src/pages/
 depends_on:
   - artifact: "shipglows_data/business/business.md"
-    artifact_version: "1.4.0"
+    artifact_version: "1.5.0"
     required_status: reviewed
   - artifact: "shipglows_data/business/product.md"
-    artifact_version: "1.5.0"
+    artifact_version: "1.6.0"
     required_status: reviewed
   - artifact: "shipglows_data/branding/branding.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
   - artifact: "shipglows_data/business/gtm.md"
-    artifact_version: "1.5.0"
+    artifact_version: "1.6.0"
     required_status: reviewed
 supersedes: []
 evidence:

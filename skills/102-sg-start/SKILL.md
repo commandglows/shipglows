@@ -45,7 +45,7 @@ Load each local reference directly from this activation contract; local referenc
 - Before first code write, load `implementation-excellence-preflight.md`; classify and emit its `🛡️ GARDE-FOUS` receipt. Load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/implementation-and-proof.md` and directly applicable `task-application-loop.md`, `spec-driven-development-discipline.md`, `zombies-edge-case-heuristic.md`, `clean-code-quality-contract.md`, `design-system-token-contract.md`, or `owasp-application-security-awareness.md`.
 - After approval, load `reporting-contract.md`; emit its start card once before substantive work. Before reporting, load `references/execution-report.md`; reuse it.
 
-Conditional gates: PM2, docs, delivery/mode/Git, UI, diagnostics, records, Atlas, product decisions, operator evidence. Before first Git write load `git-persistence-preflight.md`; healthy state stays silent. Development never means local-only.
+Conditional gates: PM2, docs, UI, diagnostics, records, Atlas, and operator evidence. Product decisions load `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`; delivery decisions load `project-delivery-policy.md`. Before Git writes load `git-persistence-preflight.md`; development is never local-only.
 
 ## Execution Invariants
 

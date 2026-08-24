@@ -8,16 +8,16 @@ Primary artifact type: `specialist-workflow`.
 
 ## Activation And Ownership
 
-Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving ShipGlows-owned references, tools, runtime, or sync targets.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows-owned paths.
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-`103-sg-verify` owns the verdict, not implementation (`102-sg-start`), closure (`104-sg-end`), shipping (`005-sg-ship`), or redesign. It may repair one clear bounded local issue.
+`103-sg-verify` owns the verdict, not implementation (`102-sg-start`), closure (`104-sg-end`), shipping (`005-sg-ship`), or redesign.
 
 ## Mode Detection
 
-No mode or `mode=standard` selects `standard`: verify métier correctness, contract, proof, risk, and ship readiness; success makes no excellence claim. `mode=excellence` or an unambiguous natural-language request for an excellence pass selects `excellence`: run standard first, then a fresh second pass. conflicting/unknown `mode=` values or unreliable scope stop as `not verified` or `blocked`; do not guess.
+No mode or `mode=standard` selects `standard` and makes no excellence claim: verify métier correctness, contract, proof, risk, and ship readiness. `mode=excellence` or an unambiguous natural-language request selects `excellence`: run standard, then a fresh second pass. conflicting/unknown `mode=` values or unreliable scope stop as `not verified` or `blocked`; do not guess.
 
 ```text
 standard: Is this work proven enough to move forward, and who owns missing proof?

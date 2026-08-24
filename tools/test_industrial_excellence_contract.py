@@ -80,7 +80,7 @@ class IndustrialExcellenceContractTests(unittest.TestCase):
         decision = normalized(DECISION)
         implementation = normalized(IMPLEMENTATION)
         design = normalized(DESIGN)
-        self.assertIn("complexity is not excellence", decision)
+        self.assertIn("complexity, extra layers, and long validation rituals are not excellence", decision)
         self.assertIn("reject speculative abstraction", implementation)
         self.assertIn("not a promise of an award", design)
         self.assertIn("never permission to imitate", design)
