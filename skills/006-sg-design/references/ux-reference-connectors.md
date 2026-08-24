@@ -1,7 +1,7 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-24"
 updated: "2026-08-24"
@@ -19,15 +19,17 @@ linked_systems:
   - skills/references/design-inspiration-library.md
 depends_on:
   - artifact: skills/references/ux-reference-intelligence.md
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes: []
 evidence:
   - "Mobbin Docs, Overview, reviewed 2026-08-24: https://docs.mobbin.com/overview"
   - "Mobbin Docs, MCP Introduction, reviewed 2026-08-24: https://docs.mobbin.com/mcp/introduction"
   - "Mobbin Docs, MCP Features, reviewed 2026-08-24: https://docs.mobbin.com/mcp/features"
+  - "Checklist Design public catalog, reviewed 2026-08-24: https://www.checklist.design/"
+  - "Checklist Design browse index, reviewed 2026-08-24: https://www.checklist.design/browse"
 next_review: "2026-09-24"
-next_step: "Recheck official provider documentation before configuring a live connector."
+next_step: "Recheck provider documentation and public-page behavior before configuring or automating any connector."
 ---
 
 # UX Reference Connectors
@@ -130,6 +132,64 @@ through the project design system and the reference-driven frontend contract.
   contract, including attribution, approval, takedown, private Git, and Git LFS.
 - Fallback role: first-party curated evidence when external providers are absent;
   an empty index is not a failure and never creates fabricated consensus.
+
+## Checklist Design Public Web
+
+### Identity And Evidence
+
+- Source ID: `checklist-design-public-web`
+- Adapter class: `public-web`
+- Provider: Checklist Design
+- Public catalog: `https://www.checklist.design/`
+- Browse index: `https://www.checklist.design/browse`
+- Last reviewed: `2026-08-24`
+- Freshness verdict: `fresh-public-pages checked`
+
+### Observed Capabilities
+
+The public catalog groups practical UX/UI checklist items by website page,
+component, flow, topic, brand, and design-system concern. It can suggest states
+or details worth considering for a bounded product question, including
+accessibility, search, checkout, maintenance, and coming-soon experiences.
+
+This profile records only what was observed on public pages. It does not validate
+every checklist item, provider claim, statistic, linked template, or implied best
+practice, and it does not make catalog coverage evidence of completeness.
+
+### Access And Runtime Boundary
+
+- Documentation state: `documented` from public pages.
+- Access method: bounded public-web inspection without authentication bypass,
+  bulk capture, or automated mirroring.
+- Current-session state: resolve at runtime; a catalog entry does not imply that
+  browsing is available or that a page was inspected for the current task.
+- Provider skills, agent packages, Figma skills, and plugins are not installed by
+  this connector profile; installation requires a separate dependency, security,
+  permission, and mutation review.
+
+### Safe Use And Product Filter
+
+Use Checklist Design as an indicator among other evidence. Extract only candidate
+scenarios relevant to the current product responsibility, user task, surface,
+and risk. Apply the shared Authority Order, retain the source URL, and keep one
+catalog as one source regardless of its number of items.
+
+Never import a full checklist, convert every item into scope, claim consensus,
+or use completed checkboxes as usability or quality proof. Claims and statistics
+remain unverified until independently sourced. Only selected scenarios that fit
+the governed product may enter its specification and verification contract.
+
+### Failure And Fallback
+
+- unavailable or blocked public pages: record the limitation and continue with
+  project evidence, platform guidance, other eligible adapters, or the private
+  corpus;
+- irrelevant or over-broad checklist: retain `zero relevant candidates` rather
+  than expanding product scope;
+- conflict with product truth, accessibility, safety, privacy, or platform
+  guidance: reject or adapt the item through the higher authority;
+- unclear provenance or unsupported claim: preserve it as unverified context or
+  omit it; never promote it into an acceptance criterion.
 
 ## Future Connector Admission
 

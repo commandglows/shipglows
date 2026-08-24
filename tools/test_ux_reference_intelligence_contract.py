@@ -73,6 +73,21 @@ class UxReferenceIntelligenceContractTests(unittest.TestCase):
             "uxref-not-callable",
             "uxref-rights",
             "uxref-anti-copy",
+            "uxref-checklist-one",
+            "uxref-checklist-proof",
+        ):
+            self.assertIn(marker, text)
+
+    def test_checklist_sources_are_candidates_not_exhaustive_requirements(self) -> None:
+        text = normalized(CORE)
+        for marker in (
+            "candidate scenarios, not requirements, consensus, acceptance criteria",
+            "never import or apply an entire external checklist by default",
+            "concrete functional responsibility",
+            "one checklist remains one attributed source",
+            "a checked box is never evidence that the behavior works",
+            "only selected, product-relevant scenarios",
+            "never the source's full list",
         ):
             self.assertIn(marker, text)
 
@@ -100,6 +115,22 @@ class UxReferenceIntelligenceContractTests(unittest.TestCase):
             "`rate-limited`",
             "zero relevant results",
             "do not request credentials",
+        ):
+            self.assertIn(marker, text)
+
+    def test_checklist_design_is_a_bounded_public_web_indicator(self) -> None:
+        text = normalized(CONNECTORS)
+        for marker in (
+            "source id: `checklist-design-public-web`",
+            "adapter class: `public-web`",
+            "https://www.checklist.design/",
+            "indicator among other evidence",
+            "never import a full checklist",
+            "completed checkboxes as usability or quality proof",
+            "claims and statistics remain unverified until independently sourced",
+            "only selected scenarios",
+            "provider skills, agent packages, figma skills, and plugins are not installed",
+            "zero relevant candidates",
         ):
             self.assertIn(marker, text)
 

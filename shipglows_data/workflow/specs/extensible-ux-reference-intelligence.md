@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-24"
 created_at: "2026-08-24 19:23:00 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 19:29:22 UTC"
+updated_at: "2026-08-24 19:52:13 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: gpt-5
@@ -35,7 +35,9 @@ evidence:
   - "Operator decision 2026-08-24: ShipGlows will build applications for many audiences and needs common, already-understood usage conventions."
   - "Operator decision 2026-08-24: the system must accept additional inspiration sources later rather than binding the design workflow to Mobbin."
   - "Mobbin official documentation reviewed 2026-08-24: its remote MCP exposes screen, flow, and website-section search to AI agents on paid plans."
-next_step: "Pilot a live external connector when the operator chooses a provider plan."
+  - "Operator decision 2026-08-24: Checklist Design will be used as an indicator among other evidence, never as an exhaustive requirement source."
+  - "Checklist Design public catalog reviewed 2026-08-24: it groups UX/UI checklist items by pages, components, flows, topics, brands, and design-system concerns."
+next_step: "Recheck Checklist Design public pages at the scheduled connector freshness review."
 ---
 
 # Extensible UX Reference Intelligence
@@ -95,6 +97,8 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 - No bulk screenshot import, authenticated scraping, redistribution, or provider-content mirroring.
 - No redesign of a current product and no replacement of project research, accessibility, platform guidance, or user analytics.
 - No promise that every catalog supports agent access.
+- No installation of Checklist Design agent/Figma skills, plugins, packages, or
+  provider integrations.
 
 ## Constraints
 
@@ -188,6 +192,12 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
   - User story link: prevents a Mobbin-only or inspiration-as-authority regression.
   - Depends on: Tasks 1-3.
   - Validate with: focused test, metadata lint, affected design test, and diff review.
+- [x] Task 5: Admit Checklist Design as a bounded public-web indicator.
+  - Target: `skills/references/ux-reference-intelligence.md`, `skills/006-sg-design/references/ux-reference-connectors.md`, `tools/test_ux_reference_intelligence_contract.py`, this spec.
+  - Action: define the checklist-source boundary, document the public-web adapter, prohibit exhaustive import and proof-by-checkbox, and pass only selected product scenarios into specification and verification.
+  - User story link: expands functional scenario awareness without allowing a catalog to drive product scope or quality claims.
+  - Depends on: Tasks 1-4 and operator approval on 2026-08-24.
+  - Validate with: focused checklist pressure scenarios, metadata lint, affected design test, and diff review.
 
 ## Acceptance Criteria
 
@@ -199,6 +209,9 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 - [x] AC 6: The private inspiration library remains separately stored and governed by its stricter capture, rights, approval, and takedown contract.
 - [x] AC 7: A new provider can be added by documenting one adapter profile without rewriting the shared decision algorithm or public skill surface.
 - [x] AC 8: Focused tests and metadata lint pass, and no account, dependency, provider, deployment, or public claim is mutated.
+- [x] AC 9: Checklist Design is represented as one `public-web` connector and one indicator among other evidence.
+- [x] AC 10: Checklist items remain candidates until tied to a concrete product responsibility and filtered through higher authorities.
+- [x] AC 11: No full-list import, proof-by-checkbox, unsupported claim promotion, or external skill/plugin installation occurs.
 
 ## Test Strategy
 
@@ -231,7 +244,7 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 - Boundaries: provider count, result limit, authorization, rights, freshness, and confidence boundaries are explicit.
 - Interfaces: MCP/API/web/manual/platform/private-corpus adapters normalize into one observation contract.
 - Exceptions: outage, auth expiry, rate limit, unsupported query, partial result, stale evidence, and accessibility conflict fail safely.
-- Simple scenarios: Mobbin plus the existing private corpus is the first representative multi-source path.
+- Simple scenarios: Mobbin, Checklist Design public pages, and the existing private corpus exercise MCP, public-web, and private-corpus paths without making any one source mandatory.
 
 ## Execution Notes
 
@@ -254,6 +267,10 @@ None
 | 2026-08-24 19:29:22 UTC | 103-sg-verify | gpt-5 | Verified source-neutral scenarios, design activation, metadata, dependency graph, budgets, runtime visibility, and official provider evidence | verified | 104-sg-end |
 | 2026-08-24 19:29:22 UTC | 104-sg-end | gpt-5 | Closed the bounded contract chantier; canonical documentation is aligned and public editorial surfaces are unaffected | closed | 005-sg-ship |
 | 2026-08-24 19:29:22 UTC | 005-sg-ship | gpt-5 | Prepared exact-scope final delivery to the configured branch upstream | shipped | Pilot a live connector only after provider selection and authorization |
+| 2026-08-24 19:52:13 UTC | 102-sg-start | gpt-5 | Added the checklist-source boundary and Checklist Design public-web adapter profile | implemented | 103-sg-verify |
+| 2026-08-24 19:52:13 UTC | 103-sg-verify | gpt-5 | Verified candidate-only semantics, product-responsibility filtering, no proof-by-checkbox, no third-party installation, metadata, and design activation | verified | 104-sg-end |
+| 2026-08-24 19:52:13 UTC | 104-sg-end | gpt-5 | Closed the adapter extension with no account, dependency, runtime, or public-surface mutation | closed | 005-sg-ship |
+| 2026-08-24 19:52:13 UTC | 005-sg-ship | gpt-5 | Prepared the verified Checklist Design adapter extension for the configured branch upstream | shipped | Recheck public pages at the scheduled freshness review |
 
 ## Current Chantier Flow
 
@@ -263,5 +280,8 @@ None
 - `103-sg-verify`: verified; focused scenarios, design coherence, security boundaries, metadata, dependency graph, budgets, public runtime visibility, and official provider evidence pass.
 - `104-sg-end`: closed; documentation updated and no declared public/editorial promise changed.
 - `005-sg-ship`: shipped; exact-scope commits are present on the configured upstream.
+- Checklist Design extension: shipped as a bounded `public-web` indicator; no
+  provider package, skill, plugin, account, or runtime connector was installed.
 
-Next step: Pilot a live external connector when the operator chooses a provider plan and authorizes account configuration.
+Next step: Recheck Checklist Design public pages at the scheduled connector
+freshness review; any future automated connector requires separate approval.

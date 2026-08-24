@@ -1,7 +1,7 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-24"
 updated: "2026-08-24"
@@ -27,8 +27,9 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-24: ShipGlows needs familiar common usage conventions for applications serving varied audiences."
   - "Operator decision 2026-08-24: additional inspiration sources must remain addable after the first Mobbin integration."
+  - "Operator decision 2026-08-24: UX checklists are indicators among other evidence, not authorities or exhaustive requirements."
 next_review: "2026-09-24"
-next_step: "/103-sg-verify extensible UX reference intelligence"
+next_step: "Revalidate checklist-source boundaries when a new checklist provider or automated connector is proposed."
 ---
 
 # UX Reference Intelligence
@@ -127,6 +128,25 @@ or turn provider ranking into ShipGlows confidence.
    active spec, design decision, or copy artifact. Persist no provider media
    unless a stricter source-specific contract explicitly permits it.
 
+## Checklist-Source Boundary
+
+A checklist source exposes candidate scenarios, not requirements, consensus,
+acceptance criteria, or proof that a product is complete. Never import or apply
+an entire external checklist by default.
+
+For each candidate item, identify the concrete functional responsibility it
+serves for the current product, user, task, surface, and risk. Reject or defer it
+when that responsibility is absent, when a higher authority contradicts it, or
+when its cost would add complexity without protecting a material outcome. One
+checklist remains one attributed source even when it contains many items.
+
+Treat source claims, statistics, ratings, and asserted best practices as
+unverified unless independently supported by an authoritative source. A checked
+box is never evidence that the behavior works. Only selected, product-relevant
+scenarios may become specification acceptance criteria or verification cases;
+verification covers those accepted project scenarios, never the source's full
+list.
+
 ## Familiarity Without Generic Design
 
 Use familiar conventions for learned tasks such as navigation, selection,
@@ -196,6 +216,10 @@ justifies a core-contract change.
   only permitted observations and links are retained.
 - `UXREF-ANTI-COPY`: a close visual reference is translated into task and design
   principles, not replicated as layout, copy, assets, code, or branding.
+- `UXREF-CHECKLIST-ONE`: one checklist proposes many items; each stays a candidate
+  until a concrete product responsibility and higher-authority fit are recorded.
+- `UXREF-CHECKLIST-PROOF`: a checked item is not treated as product evidence;
+  only accepted project scenarios pass into specification and verification.
 
 ## Stop Conditions
 
