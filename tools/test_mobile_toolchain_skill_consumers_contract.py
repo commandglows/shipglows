@@ -22,7 +22,8 @@ class MobileToolchainSkillConsumersContractTests(unittest.TestCase):
             "Android emulator acceleration ready: $androidEmulatorAccelerationReady",
             "Android next action: $androidNextAction",
             "Android Studio installed: $androidStudioReady",
-            "Flutter Windows desktop toolchain ready: $visualStudioCppReady",
+            "Visual Studio Desktop C++ workload ready: $visualStudioCppReady",
+            "Flutter Windows desktop toolchain ready: $windowsDesktopReady",
             "Firebase Android Device Streaming configured: $firebaseDeviceStreamingReady",
             "Firebase Android Device Streaming next action: $firebaseDeviceStreamingNextAction",
         ):
@@ -53,6 +54,7 @@ class MobileToolchainSkillConsumersContractTests(unittest.TestCase):
             "Firebase Device Streaming authentication, project selection, billing, and device reservation remain user-owned",
             runtime,
         )
+        self.assertIn("transient cache replacement", runtime)
 
     def test_context_consumers_report_mobile_and_desktop_state(self) -> None:
         for relative_path in (

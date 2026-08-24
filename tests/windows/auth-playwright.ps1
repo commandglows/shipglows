@@ -34,11 +34,11 @@ try {
     Assert-Sg ((Get-SgGeminiMcpConfigState $settings $geminiNative).Status -eq 'ready') 'Gemini native url/type HTTP schema must be ready.'
 } finally { if (Test-Path $fixture) { Remove-Item $fixture -Recurse -Force } }
 
-$runtime = Get-SgPlaywrightRuntimePlan -StableVersion '1.62.1' -StableRevision '1234' -AgentCliVersion '0.1.0' -McpVersion '0.0.79' -McpRevision '1237' -Root 'C:\Tools\ShipGlows'
+$runtime = Get-SgPlaywrightRuntimePlan -StableVersion '1.62.1' -StableRevision '1234' -AgentCliVersion '1.62.1' -McpVersion '0.0.79' -McpRevision '1237' -Root 'C:\Tools\ShipGlows'
 Assert-Sg ($runtime.Stable.CommandName -eq 'playwright' -and $runtime.Stable.Revision -eq '1234') 'Stable Playwright plan is invalid.'
-Assert-Sg ($runtime.AgentCli.CommandName -eq 'playwright-cli') 'Agent Playwright CLI plan is invalid.'
+Assert-Sg ($runtime.AgentCli.CommandName -eq 'playwright-cli' -and $runtime.AgentCli.Package -eq 'playwright' -and ($runtime.AgentCli.EntryArguments -join ' ') -eq 'cli') 'Agent Playwright CLI plan must use the bundled Playwright entrypoint.'
 Assert-Sg ($runtime.Mcp.Revision -eq '1237' -and $runtime.Mcp.Version -eq '0.0.79') 'MCP Playwright plan is invalid.'
-Assert-Sg ($runtime.Stable.Root -ne $runtime.Mcp.Root -and $runtime.AgentCli.Root -ne $runtime.Mcp.Root) 'Playwright runtimes must remain isolated.'
+Assert-Sg ($runtime.Stable.Root -ne $runtime.Mcp.Root -and $runtime.AgentCli.Root -eq $runtime.Stable.Root) 'Bundled Playwright CLI must share stable package ownership while MCP remains isolated.'
 Assert-Sg ($runtime.Stable.Root -ne $runtime.Mcp.Root) 'Stable and MCP runtimes must not share package ownership.'
 
 Write-Host 'Windows authentication and Playwright runtime regression: OK'

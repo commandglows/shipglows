@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.10.6"
+artifact_version: "0.10.7"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-13"
+updated: "2026-08-23"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -24,6 +24,11 @@ evidence: []
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-08-23]
+
+### Fixed
+- Added a real native Windows contributor surface that clones or validates the canonical ShipGlows checkout, removes the conflicting public Codex plugin, links the public skill catalogue to live source, and rejects plugin/router conflicts on subsequent checks.
 
 ## [2026-08-13]
 

@@ -7,7 +7,9 @@ param(
     [Alias('Version', 'Tag', 'Ref')]
     [string]$Branch = $(if ($env:SHIPGLOWS_BRANCH) { $env:SHIPGLOWS_BRANCH } else { '' }),
     [string]$ShipglowsDir = $(if ($env:SHIPGLOWS_DIR) { $env:SHIPGLOWS_DIR } else { Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'runtime' }),
-    [string]$InstallMode,
+    [string]$InstallMode = $(if ($env:SHIPGLOWS_INSTALL_MODE) { $env:SHIPGLOWS_INSTALL_MODE } else { '' }),
+    [string]$InstallSurface = $(if ($env:SHIPGLOWS_INSTALL_SURFACE) { $env:SHIPGLOWS_INSTALL_SURFACE } else { '' }),
+    [string]$DevelopmentRoot = $(if ($env:SHIPGLOWS_DEVELOPMENT_ROOT) { $env:SHIPGLOWS_DEVELOPMENT_ROOT } else { Join-Path (Join-Path $env:USERPROFILE 'ShipGlows') 'shipglows' }),
     [switch]$DownloadOnly
 )
 
@@ -23,6 +25,26 @@ function Resolve-CompatibleValue([string]$Canonical, [string]$LegacyShipflow, [s
 function Write-Info([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Cyan }
 function Write-Warn([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Yellow }
 function Fail([string]$Message) { Write-Error "[ShipGlows] $Message"; exit 1 }
+function Resolve-SgInstallSurface {
+    param(
+        [string]$RequestedSurface,
+        [string]$InteractiveSurface,
+        [Parameter(Mandatory=$true)][string]$InstallMode
+    )
+
+    $surface = if ($RequestedSurface) { $RequestedSurface.Trim().ToLowerInvariant() } elseif ($InteractiveSurface) { $InteractiveSurface } else { 'runtime' }
+    switch ($surface) {
+        { $_ -in @('runtime', 'cli') } { return 'runtime' }
+        { $_ -in @('maintainer', 'developer', 'contributor') } {
+            if ($InstallMode -ne 'full') { throw 'The maintainer surface requires InstallMode full.' }
+            return 'maintainer'
+        }
+        { $_ -in @('skills', 'corpus') } {
+            throw 'Native Windows uses the public Codex plugin for the public skill corpus. Use InstallSurface runtime for ordinary work or InstallSurface maintainer for an editable ShipGlows owner checkout.'
+        }
+        default { throw 'InstallSurface must be runtime or maintainer.' }
+    }
+}
 function Select-WindowsInstallMode {
     Write-Host ''
     Write-Host 'What would you like to install?' -ForegroundColor Cyan
@@ -31,15 +53,18 @@ function Select-WindowsInstallMode {
     Write-Host '  2) Local DevServer (full, recommended)'
     Write-Host '     Clone and run your Astro, Python/FastAPI, and Flutter project repositories on this PC.'
     Write-Host '     This runtime install does not clone the ShipGlows contributor source repository.'
+    Write-Host '  3) ShipGlows maintainer workstation (editable source)'
+    Write-Host '     Install the DevServer, clone ShipGlows, disable the public plugin, and link live source skills.'
     Write-Host '  0) Cancel'
     while ($true) {
-        $choice = Read-Host 'Choose 1 or 2'
+        $choice = Read-Host 'Choose 1, 2, or 3'
         switch ($choice.Trim()) {
-            '' { Write-Warn 'A choice is required. Enter 1, 2, or 0.' }
+            '' { Write-Warn 'A choice is required. Enter 1, 2, 3, or 0.' }
             '1' { return 'local' }
             '2' { return 'full' }
+            '3' { $script:InteractiveInstallSurface = 'maintainer'; return 'full' }
             '0' { Fail 'Installation cancelled.' }
-            default { Write-Warn 'Enter 1 for SSH tunnel, 2 for Local DevServer, or 0 to cancel.' }
+            default { Write-Warn 'Enter 1 for SSH tunnel, 2 for Local DevServer, 3 for ShipGlows maintainer setup, or 0 to cancel.' }
         }
     }
 }
@@ -49,6 +74,7 @@ if (-not $RepoUrl) { $RepoUrl = 'https://github.com/commandglows/shipglows.git' 
 $Branch = Resolve-CompatibleValue $Branch $env:SHIPFLOW_BRANCH 'BRANCH'
 if (-not $Branch) { $Branch = 'main' }
 $InstallMode = Resolve-CompatibleValue $InstallMode $env:SHIPFLOW_INSTALL_MODE 'INSTALL_MODE'
+$script:InteractiveInstallSurface = ''
 if ($InstallMode -and $InstallMode -notin @('local', 'full')) {
     Fail 'InstallMode must be local or full.'
 }
@@ -59,6 +85,15 @@ if (-not $InstallMode) {
     } else {
         $InstallMode = Select-WindowsInstallMode
     }
+}
+try {
+    $InstallSurface = Resolve-SgInstallSurface -RequestedSurface $InstallSurface -InteractiveSurface $script:InteractiveInstallSurface -InstallMode $InstallMode
+} catch {
+    Fail $_.Exception.Message
+}
+$requestedComponents = [string]$env:SHIPGLOWS_INSTALL_COMPONENTS
+if ($InstallSurface -eq 'runtime' -and $requestedComponents -in @('all', 'skills', 'corpus')) {
+    Write-Warn 'Public component selection does not activate the private maintainer channel. Codex users keep the public plugin unless InstallSurface maintainer is selected explicitly.'
 }
 function Remove-PathIfPresent([string]$Path) {
     if (Test-Path -LiteralPath $Path) {
@@ -92,9 +127,9 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
         $entries += $installerEntries[0]
     }
     if ($FullMode) {
-        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/environment/(?:__init__\.py|core\.py|mise_backend\.py|shipglows_environment\.py|schemas/shipglows-environment-v1\.schema\.json)$' })
-        if ($entries.Count -ne 16) { Fail 'The ShipGlows archive is missing native Windows DevServer, project catalogue refresher, Flutter supervisor, installer engine/UI, authentication, agent instructions, or environment control-plane files.' }
+        if ($entries.Count -ne 18) { Fail 'The ShipGlows archive is missing native Windows DevServer, MCP catalog, developer corpus channel, project catalogue refresher, Flutter supervisor, installer engine/UI, authentication, agent instructions, or environment control-plane files.' }
     }
 
     & $tarPath -xf $ArchivePath -C $DestinationPath $entries
@@ -309,7 +344,7 @@ if (Get-Command wsl.exe -ErrorAction SilentlyContinue) {
     # Windows can expose the wsl.exe stub before a distribution/runtime is
     # usable. Invoking that optional probe under ErrorActionPreference=Stop can
     # terminate a fresh native install, so detection remains non-executing.
-    Write-Warn "WSL is detected; this installer will continue in native Windows $InstallMode mode."
+    Write-Warn "The WSL launcher is present, but its runtime and distributions were not probed; this installer will continue in native Windows $InstallMode mode."
 }
 
 $source = Resolve-GitHubSource -RepositoryUrl $RepoUrl -Ref $Branch
@@ -358,7 +393,7 @@ try {
                 }
         )
         if ($environmentCandidates.Count -ne 1) { Fail 'Environment control-plane directory was not found in the archive.' }
-        $windowsFiles = @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','shipglows-devserver.ps1','install-devserver.ps1')
+        $windowsFiles = @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','shipglows-devserver.ps1','install-devserver.ps1')
         $pythonFiles = @('__init__.py','core.py','mise_backend.py','shipglows_environment.py')
         $managedRelativePaths = @($windowsFiles | ForEach-Object { "cli/windows/$_" }) + @($pythonFiles | ForEach-Object { "cli/environment/$_" }) + @('cli/environment/schemas/shipglows-environment-v1.schema.json') + @('bin/ShipGlows.DevServer.psm1','bin/ShipGlows.FlutterSupervisor.ps1','bin/ShipGlows.ProjectCatalogRefresh.ps1','bin/ShipGlows.Auth.psm1','bin/ShipGlows.MobileToolchain.psm1','bin/shipglows-devserver.ps1')
         $stagedWindows = Join-Path $payloadRoot 'cli\windows'
@@ -367,15 +402,15 @@ try {
         New-Item -ItemType Directory -Path $stagedWindows,(Join-Path $stagedEnvironment 'schemas'),$stagedBin -Force | Out-Null
         foreach ($windowsFile in $windowsFiles) {
             Copy-Item -LiteralPath (Join-Path $windowsCandidates[0].FullName $windowsFile) -Destination (Join-Path $stagedWindows $windowsFile)
-            Assert-PowerShellSyntax -Path (Join-Path $stagedWindows $windowsFile)
+            if ([IO.Path]::GetExtension($windowsFile) -in @('.ps1','.psm1')) { Assert-PowerShellSyntax -Path (Join-Path $stagedWindows $windowsFile) }
         }
         foreach ($pythonFile in $pythonFiles) { Copy-Item -LiteralPath (Join-Path $environmentCandidates[0].FullName $pythonFile) -Destination (Join-Path $stagedEnvironment $pythonFile) }
         Copy-Item -LiteralPath (Join-Path $environmentCandidates[0].FullName 'schemas\shipglows-environment-v1.schema.json') -Destination (Join-Path $stagedEnvironment 'schemas\shipglows-environment-v1.schema.json')
         Assert-EnvironmentPackage -EnvironmentDirectory $stagedEnvironment
-        foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1')) { Copy-Item -LiteralPath (Join-Path $stagedWindows $launcherModule) -Destination (Join-Path $stagedBin $launcherModule) }
+        foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.McpCatalog.json')) { Copy-Item -LiteralPath (Join-Path $stagedWindows $launcherModule) -Destination (Join-Path $stagedBin $launcherModule) }
         Copy-Item -LiteralPath (Join-Path $stagedWindows 'shipglows-devserver.ps1') -Destination (Join-Path $stagedBin 'shipglows-devserver.ps1')
     }
-    $installState = [ordered]@{ schemaVersion=1; sourceCommit=$source.Commit; installMode=$InstallMode }
+    $installState = [ordered]@{ schemaVersion=1; sourceCommit=$source.Commit; installMode=$InstallMode; installSurface=$InstallSurface }
     [IO.File]::WriteAllText((Join-Path $payloadRoot '.shipglows-install.json'),($installState | ConvertTo-Json -Compress),[Text.UTF8Encoding]::new($false))
     $managedRelativePaths = @($managedRelativePaths) + @('.shipglows-install.json')
     $runtimeOperation = Get-SgRuntimeUpdateOperation -RuntimeRoot $ShipglowsDir -PayloadRoot $payloadRoot -ManagedRelativePaths $managedRelativePaths -SourceCommit $source.Commit
@@ -393,9 +428,18 @@ try {
             if ($LASTEXITCODE -ne 0) { throw 'Native Windows configuration failed.' }
         } else {
             Write-Info 'Installing the native Windows DevServer launcher.'
-            & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $windowsDirectory 'install-devserver.ps1') -ShipglowsDir $ShipglowsDir
+            $devServerArguments = @('-NoProfile','-ExecutionPolicy','Bypass','-File',(Join-Path $windowsDirectory 'install-devserver.ps1'),'-ShipglowsDir',$ShipglowsDir)
+            if ($InstallSurface -eq 'maintainer') { $devServerArguments += '-ReplaceAgentConfigs' }
+            & powershell.exe @devServerArguments
             if ($LASTEXITCODE -ne 0) { throw 'Native Windows DevServer installation failed.' }
         }
+    }
+    if ($InstallSurface -eq 'maintainer') {
+        Write-Info "Preparing the ShipGlows maintainer checkout at $DevelopmentRoot."
+        Import-Module (Join-Path $windowsDirectory 'ShipGlows.DeveloperCorpus.psm1') -Force
+        $developerRoot = Install-SgDeveloperCheckout -TargetPath $DevelopmentRoot -RepositoryUrl $RepoUrl -Ref $Branch
+        [void](Enable-SgWindowsDeveloperChannel -ShipGlowsRoot $developerRoot -RepositoryUrl $RepoUrl -TargetHome $env:USERPROFILE -ConfirmChannelSwitch)
+        Write-Info 'Codex now uses the live ShipGlows maintainer skill channel. Start a new Codex session to load it.'
     }
     Write-Info 'Validated runtime activation completed.'
 } finally { Remove-PathIfPresent $tempRoot }

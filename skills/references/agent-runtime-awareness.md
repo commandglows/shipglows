@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.3.1"
+artifact_version: "3.4.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-16"
+updated: "2026-08-23"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -70,13 +70,25 @@ choosing a build, test, or device route:
 - `Android emulator acceleration ready`;
 - `Android next action` as the Exact next action;
 - `Android Studio installed`;
+- `Visual Studio Desktop C++ workload ready`;
 - `Flutter Windows desktop toolchain ready`;
 - `Firebase Android Device Streaming configured`;
 - `Firebase Android Device Streaming next action` as the Exact next action.
 
 `FLUTTER-WINDOWS-CONSUMER`: a Flutter Windows desktop build is ready only when
-`Flutter Windows desktop toolchain ready` is `yes`. Android readiness does not
-prove the Visual Studio C++ workload required for a Windows desktop build.
+`Flutter Windows desktop toolchain ready` is `yes`. That aggregate requires a
+validated Flutter/Dart SDK, the Visual Studio Desktop C++ workload, and Windows
+Developer Mode. Keep the separate Visual Studio field visible so host compiler
+readiness is not confused with end-to-end Flutter build readiness. Android
+readiness does not prove the Windows prerequisites.
+
+`FLUTTER-CACHE-TRANSITION`: never classify a validated SDK as incomplete from
+one missing `dart.exe` snapshot while Flutter may be replacing its cache. Treat
+an active Flutter process, a changing cache stamp, or a held Flutter lock as a
+transient cache replacement; wait for the bounded operation to settle, then
+revalidate with the SDK's `flutter --version` and `dart --version`. Report
+`failed` only when executable validation still fails after the transition, and
+distinguish a persistent `PATH` omission from SDK corruption.
 
 `ANDROID-DEVICE-DECISION`: distinguish SDK readiness, licenses, emulator
 installation, AVD creation, acceleration, and a ready device.

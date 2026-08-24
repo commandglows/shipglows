@@ -6,6 +6,20 @@ Import-Module $modulePath -Force -DisableNameChecking
 try {
     $module = Get-Module ShipGlows.DevServer
     & $module {
+        $fallbackRoot = Join-Path ([IO.Path]::GetTempPath()) ("sg-managed-flutter-{0}" -f [guid]::NewGuid().ToString('N'))
+        $previousLocalAppData = $env:LOCALAPPDATA
+        try {
+            New-Item -ItemType Directory -Path (Join-Path $fallbackRoot 'ShipGlows\flutter\bin') -Force | Out-Null
+            [IO.File]::WriteAllText((Join-Path $fallbackRoot 'ShipGlows\flutter\bin\flutter.bat'),'@exit /b 0')
+            [IO.File]::WriteAllText((Join-Path $fallbackRoot 'ShipGlows\flutter\bin\dart.bat'),'@exit /b 0')
+            $env:LOCALAPPDATA = $fallbackRoot
+            function Get-SgCommandPath { $null }
+            $managedFlutter = Get-SgFlutterCommandPath
+            if ($managedFlutter -ne (Join-Path $fallbackRoot 'ShipGlows\flutter\bin\flutter.bat')) { throw 'DevServer did not recover the validated managed Flutter path for a stale parent PATH.' }
+        } finally {
+            $env:LOCALAPPDATA = $previousLocalAppData
+            Remove-Item -LiteralPath $fallbackRoot -Recurse -Force -ErrorAction SilentlyContinue
+        }
         $diagRoot=Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-diag-{0}" -f [guid]::NewGuid().ToString('N'));$durable=Join-Path $diagRoot 'durable';$launch=Join-Path $diagRoot 'launch';New-Item -ItemType Directory -Path $durable,$launch -Force|Out-Null
         try{$secret='token=0123456789abcdef0123456789abcdef';[IO.File]::WriteAllText((Join-Path $launch 'flutter.stdout.log'),(('x'*300000)+"`nmachine-line`n$secret"));[IO.File]::WriteAllText((Join-Path $launch 'flutter.stderr.log'),'host-error');[IO.File]::WriteAllText((Join-Path $launch 'state.json'),'{"Status":"error","LastError":"startup failed"}');$entry=[pscustomobject]@{flutterLaunchDirectory=$launch};$out=Join-Path $durable 'stdout.log';$err=Join-Path $durable 'stderr.log';Copy-SgFlutterDiagnostics $entry $out $err;$durableText=Get-Content $out -Raw;if($durableText-notmatch'machine-line|startup failed'-or(Get-Content $err -Raw)-notmatch'host-error'){throw 'Flutter diagnostics were not copied to durable logs before cleanup.'};if($durableText.Length-gt270000-or$durableText-match'0123456789abcdef'){throw 'Flutter diagnostics were not tail-bounded and redacted.'};$large=Join-Path $diagRoot 'multi-mib.log';$stream=[IO.File]::OpenWrite($large);try{$stream.SetLength(8MB);$stream.Seek(-4,[IO.SeekOrigin]::End)|Out-Null;$bytes=[Text.Encoding]::UTF8.GetBytes('TAIL');$stream.Write($bytes,0,$bytes.Length)}finally{$stream.Dispose()};$tail=Get-SgBoundedFileTail $large 262144;if($tail.Length-gt262144-or-not$tail.EndsWith('TAIL')){throw 'Bounded tail helper did not seek within a multi-MiB file.'}}finally{Remove-Item $diagRoot -Recurse -Force -ErrorAction SilentlyContinue}
         function Get-SgCommandPath { 'C:\flutter\bin\flutter.bat' }

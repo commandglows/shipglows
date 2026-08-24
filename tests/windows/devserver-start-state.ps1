@@ -10,6 +10,7 @@ try {
     Import-Module $modulePath -Force -DisableNameChecking
     $module = Get-Module ShipGlows.DevServer
     $config = [pscustomobject]@{Workspace=$fixture;RuntimeDirectory=$runtime;RegistryPath=(Join-Path $runtime 'registry.json');LockPath=(Join-Path $runtime 'registry.lock');LogDirectory=$logs;PortStart=32200;PortEnd=32209}
+    [void](Write-SgProjectEnvironment $surface 32205)
     $result = & $module {
         param($Config,$Surface)
         function Test-SgPortAvailable { $true }
@@ -21,7 +22,7 @@ try {
         function Wait-SgProjectReady { [pscustomobject]@{ Ready=$true; AppId=$null; Error=$null } }
         Start-SgProject $Config $Surface
     } $config $surface
-    if ($result.status -ne 'running' -or $result.port -lt 32200) { throw 'Successful launch state was not returned.' }
+    if ($result.status -ne 'running' -or $result.port -ne 32205) { throw 'Successful launch did not recover the durable project port when the registry port was zero.' }
     $stored = (Read-SgRegistry $config).projects | Select-Object -First 1
     if ($stored.status -ne 'running' -or $stored.pid -ne 77 -or $stored.reservationToken) { throw 'Successful launch state was not committed atomically.' }
     $environment = Get-SgProjectEnvironment $surface

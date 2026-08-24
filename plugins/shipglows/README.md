@@ -12,7 +12,7 @@ $shipglows <what I want to accomplish>
 
 ShipGlows routes to: `sg-development`, `sg-design`, `sg-experience`, `sg-bug`, `sg-engineering`, `sg-maintenance`, `sg-release`, `sg-content`, `sg-marketing`, `sg-seo`, `sg-docs`, `sg-planning`, or `sg-help`.
 
-The public names describe the result you want. A pack may still be planned or partial; the plugin reports that honestly and offers the complete corpus only when it is needed.
+The public names describe the result you want. A pack may still be planned or partial; the plugin reports that honestly and offers the sparse public skills corpus only when it is needed.
 
 This alpha intentionally ships a small nucleus:
 
@@ -24,10 +24,10 @@ This alpha intentionally ships a small nucleus:
 - `skills/shipglows/references/shipglows-main-intents.md`: public partial-mode intent contracts for `spec`, `ready`, `start`, `verify`, `check`, and `fix`
 - `assets/docs-links.json`: optional hosted-docs link map
 - `scripts/audit_shipglows_packaging.py`: local audit for deciding which private ShipGlows skills can be packaged next
-- `scripts/bootstrap_shipglows_repo.sh`: optional clone/update helper for the full ShipGlows source tree
+- `scripts/bootstrap_shipglows_repo.sh`: optional clone/update helper for the sparse public skills corpus
 - `scripts/refresh_shipglows_pack.py`: one-command pack staging and validation helper
 
-It does not copy the full ShipGlows skill tree into the plugin. Users who need the complete corpus can bootstrap the public repository locally instead of installing many plugin packs.
+It does not copy the full ShipGlows skill tree into the plugin. Users who need the public skills corpus can bootstrap a sparse repository locally instead of installing many plugin packs; this is not the complete maintainer checkout.
 
 Execution-critical references stay local to the plugin. Hosted docs are optional support material for public explanation, tutorials, SEO, and paid-product upgrade paths.
 
@@ -78,13 +78,18 @@ python3 ~/plugins/shipglows/scripts/refresh_shipglows_pack.py shipglows-main
 
 The staged pack is written to `~/.shipglows/staged-packs/<pack-id>/` by default and includes a `shipglows-pack-report.json` audit report. Shared references are copied outside `skills/` so the staged plugin remains structurally valid. Treat review findings as portability work before publishing.
 
-Clone or update the sparse ShipGlows source tree:
+Clone or update the sparse ShipGlows skills corpus:
 
 ```bash
 ~/plugins/shipglows/scripts/bootstrap_shipglows_repo.sh
 ```
 
 The default target is `~/.shipglows/runtime`. The checkout includes the skill/runtime corpus and excludes the site, TUI app, archives, research folders, generated builds, and dependency directories.
+
+Maintainers developing ShipGlows itself use a separate complete editable clone.
+On native Windows, the canonical bootstrap selects it only through
+`-InstallMode full -InstallSurface maintainer`; generic `full`, `all`, or
+skills-corpus requests never switch the Codex entrypoint channel.
 
 Install from a repo-backed marketplace source:
 

@@ -2,7 +2,8 @@
 param(
     [string]$ShipglowsDir = (Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'runtime'),
     [string]$Workspace = (Join-Path $env:USERPROFILE 'ShipGlows'),
-    [switch]$SkipProfile
+    [switch]$SkipProfile,
+    [switch]$ReplaceAgentConfigs
 )
 
 $ErrorActionPreference = 'Stop'
@@ -86,7 +87,7 @@ function Write-SgInstallerWarning([string]$Message) {
 }
 
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
-foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1')) {
+foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.McpCatalog.json')) {
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
@@ -678,8 +679,8 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
     New-Item -ItemType Directory -Path (Split-Path -Parent $environmentPath) -Force | Out-Null
     $codexStatus = if ($AgentInfo.Codex.Installed) { 'installed' } else { 'not installed' }
     $playwrightInstalled = if ($PlaywrightInfo.Installed) { 'yes' } else { 'no' }
-    $playwrightConfigured = if ($PlaywrightInfo.McpConfigured) { 'yes, see per-agent readiness below' } else { 'no' }
-    $playwrightVerified = if ($PlaywrightInfo.McpVerified) { 'yes, per-agent configuration converged' } else { 'no' }
+    $playwrightConfigured = if ($PlaywrightInfo.McpConfigured) { 'yes, see per-project readiness below' } else { 'no' }
+    $playwrightVerified = if ($PlaywrightInfo.McpVerified) { 'yes, per-project configuration converged' } else { 'no' }
     $playwrightConfigPath = if ($PlaywrightInfo.ConfigPath) { $PlaywrightInfo.ConfigPath } else { 'not available' }
     $chromiumPath = if ($PlaywrightInfo.ChromiumPath) { $PlaywrightInfo.ChromiumPath } else { 'not available' }
     $flutterInstalled = if ($FlutterReady) { 'yes' } else { 'no' }
@@ -691,6 +692,7 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
     $androidEmulatorAccelerationReady = if ($AndroidInfo.PSObject.Properties['EmulatorAccelerationReady'] -and $AndroidInfo.EmulatorAccelerationReady) { 'yes' } else { 'no' }
     $androidStudioReady = if ($IdeInfo.AndroidStudioReady) { 'yes' } else { 'no' }
     $visualStudioCppReady = if ($IdeInfo.VisualStudioCppReady) { 'yes' } else { 'no' }
+    $windowsDesktopReady = if ($FlutterReady -and $IdeInfo.VisualStudioCppReady -and $DeveloperModeReady) { 'yes' } else { 'no' }
     $firebaseDeviceStreamingReady = if ($IdeInfo.FirebaseDeviceStreamingReady) { 'yes' } else { 'no' }
     $developerModeStatus = if ($DeveloperModeReady) { 'yes' } else { 'no' }
     $tauriDetected = if ($TauriInfo -and $TauriInfo.Detected) { 'yes' } else { 'no' }
@@ -709,7 +711,7 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
         $agentLines += "- $agentName MCP readiness: $mcp"
     }
     $serviceLines = @()
-    foreach ($serviceName in @('Firebase','FlutterFire','Convex','Vercel','Supabase','Clerk','AndroidNative')) {
+    foreach ($serviceName in @('Firebase','FlutterFire','Convex','Vercel','Supabase','Clerk','GoogleCloud','AndroidNative')) {
         $state = if ($ServiceInfo -and $ServiceInfo.PSObject.Properties[$serviceName]) { [string]$ServiceInfo.$serviceName } else { 'not detected' }
         $serviceLines += "- $serviceName development tooling: $state"
     }
@@ -750,7 +752,8 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
 - Android emulator acceleration ready: $androidEmulatorAccelerationReady
 - Android next action: $androidNextAction
 - Android Studio installed: $androidStudioReady
-- Flutter Windows desktop toolchain ready: $visualStudioCppReady
+- Visual Studio Desktop C++ workload ready: $visualStudioCppReady
+- Flutter Windows desktop toolchain ready: $windowsDesktopReady
 - Windows Developer Mode enabled: $developerModeStatus
 - Windows Developer Mode next action: $(if ($DeveloperModeReady) { 'none' } else { 'open Windows Settings > System > For developers; ShipGlows never changes this policy automatically.' })
 - Firebase Android Device Streaming configured: $firebaseDeviceStreamingReady
@@ -773,6 +776,8 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
 - Playwright Agent CLI installed: $($PlaywrightRuntimeInfo.AgentCliReady)
 - Playwright Agent CLI version: $($PlaywrightRuntimeInfo.AgentCliVersion)
 - Motion runtime ready: $($PlaywrightRuntimeInfo.MotionReady)
+- mise machine toolbox: $(if($ServiceInfo -and $ServiceInfo.PSObject.Properties['Mise']){[string]$ServiceInfo.Mise}else{'pending'})
+- mise machine toolbox root: $(if($ServiceInfo -and $ServiceInfo.PSObject.Properties['ToolboxRoot']){[string]$ServiceInfo.ToolboxRoot}else{'not available'})
 $($agentLines -join [Environment]::NewLine)
 $($serviceLines -join [Environment]::NewLine)
 
@@ -845,14 +850,17 @@ function Invoke-SgProjectEnvironmentMigration([string]$ModulePath) {
     Import-Module $ModulePath -Force -DisableNameChecking
     $config = Get-SgDevConfig
     $migrated = 0
+    $projectPaths = New-Object Collections.Generic.List[string]
     foreach ($entry in @((Read-SgRegistry $config).projects)) {
         $projectPath = [string]$entry.path
         if ([string]::IsNullOrWhiteSpace($projectPath) -or -not (Test-Path -LiteralPath $projectPath -PathType Container)) { continue }
         $port = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
         [void](Write-SgProjectEnvironment $projectPath $port)
+        $projectPaths.Add([IO.Path]::GetFullPath($projectPath))
         $migrated++
     }
     Write-Host "ShipGlows project environments migrated: $migrated" -ForegroundColor Green
+    return $projectPaths.ToArray()
 }
 
 function Move-SgManagedPartialDirectory([string]$Path) {
@@ -874,31 +882,105 @@ function Save-SgVerifiedDownload([string]$Url, [string]$Sha256, [string]$Destina
     if ($actual -ine $Sha256) { throw "Downloaded archive checksum mismatch for $Url" }
 }
 
+function Get-SgFlutterBaseline {
+    return [pscustomobject]@{
+        Schema = 'shipglows.flutter-baseline/v1'
+        ValidatedAt = '2026-08-23'
+        FlutterVersion = '3.47.1'
+        DartVersion = '3.13.1'
+        Commit = '6655482ec06e547f90abf8ae7590466f4415978d'
+    }
+}
+
+function Resolve-SgFlutterStableCommit([string]$GitPath) {
+    if ([string]::IsNullOrWhiteSpace($GitPath)) { return '' }
+    $baseline = Get-SgFlutterBaseline
+    $resolved = Invoke-SgBoundedProcess -File $GitPath -Arguments @('ls-remote','https://github.com/flutter/flutter.git','refs/heads/stable') -TimeoutSeconds 60
+    if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0 -and $resolved.Output -match '(?m)^[0-9a-f]{40}\s+refs/heads/stable$') { return $baseline.Commit }
+    return ''
+}
+
+function Set-SgManagedFlutterStableRevision([string]$GitPath, [string]$FlutterRoot, [string]$Commit) {
+    if ($Commit -notmatch '^[0-9a-f]{40}$') { throw 'Flutter stable convergence requires a proven commit.' }
+    $managedRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter')).TrimEnd('\')
+    $resolvedRoot = [IO.Path]::GetFullPath($FlutterRoot).TrimEnd('\')
+    if (-not $resolvedRoot.Equals($managedRoot,[StringComparison]::OrdinalIgnoreCase)) { throw 'Flutter stable convergence is restricted to the ShipGlows-managed SDK.' }
+
+    $origin = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'remote','get-url','origin') -TimeoutSeconds 30
+    $originUrl = if (-not $origin.TimedOut -and $origin.ExitCode -eq 0) { $origin.Output.Trim().TrimEnd('/') } else { '' }
+    if ($originUrl -notmatch '(?i)^https://github[.]com/flutter/flutter(?:[.]git)?$') { throw 'Managed Flutter origin is not the official Flutter repository.' }
+    $status = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'status','--porcelain','--untracked-files=no') -TimeoutSeconds 30
+    if ($status.TimedOut -or $status.ExitCode -ne 0 -or -not [string]::IsNullOrWhiteSpace($status.Output)) { throw 'Managed Flutter has tracked local changes; stable convergence was safely skipped.' }
+    $head = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'rev-parse','HEAD') -TimeoutSeconds 30
+    $previousCommit = if (-not $head.TimedOut -and $head.ExitCode -eq 0 -and $head.Output.Trim() -match '^[0-9a-f]{40}$') { $head.Output.Trim() } else { '' }
+    if (-not $previousCommit) { throw 'Managed Flutter current revision could not be proven.' }
+
+    $fetch = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.update' -Label 'Converging the validated Flutter SDK baseline' -File $GitPath -Arguments @('-C',$resolvedRoot,'fetch','--depth','1','origin',("+{0}:refs/remotes/origin/shipglows-stable" -f $Commit)) -TimeoutSeconds 600
+    if ($fetch.TimedOut -or $fetch.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter baseline fetch failed or timed out; the existing managed SDK was preserved.'; return $false }
+    $remote = Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'rev-parse','refs/remotes/origin/shipglows-stable') -TimeoutSeconds 30
+    if ($remote.TimedOut -or $remote.ExitCode -ne 0 -or $remote.Output.Trim() -cne $Commit) { Write-SgInstallerWarning 'Fetched Flutter baseline did not match the validated commit; the existing managed SDK was preserved.'; return $false }
+    if ($previousCommit -ceq $Commit) {
+        $checkoutCurrent = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.checkout' -Label 'Naming the Flutter stable SDK branch' -File $GitPath -Arguments @('-C',$resolvedRoot,'checkout','-B','stable',$Commit) -TimeoutSeconds 120
+        if ($checkoutCurrent.TimedOut -or $checkoutCurrent.ExitCode -ne 0) { return $false }
+        [void](Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'branch','--set-upstream-to=origin/shipglows-stable','stable') -TimeoutSeconds 30)
+        return $true
+    }
+
+    $checkout = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.checkout' -Label 'Activating Flutter stable SDK' -File $GitPath -Arguments @('-C',$resolvedRoot,'checkout','-B','stable',$Commit) -TimeoutSeconds 120
+    if (-not $checkout.TimedOut -and $checkout.ExitCode -eq 0) {
+        [void](Invoke-SgBoundedProcess -File $GitPath -Arguments @('-C',$resolvedRoot,'branch','--set-upstream-to=origin/shipglows-stable','stable') -TimeoutSeconds 30)
+        $updatedState = Get-SgFlutterInstallState -FlutterRoot $resolvedRoot
+        if ($updatedState.Status -eq 'ready') { return $true }
+    }
+
+    $rollback = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.rollback' -Label 'Restoring the previous Flutter SDK revision' -File $GitPath -Arguments @('-C',$resolvedRoot,'checkout','-B','stable',$previousCommit) -TimeoutSeconds 120
+    $rollbackState = if (-not $rollback.TimedOut -and $rollback.ExitCode -eq 0) { Get-SgFlutterInstallState -FlutterRoot $resolvedRoot } else { $null }
+    if (-not $rollbackState -or $rollbackState.Status -ne 'ready') { throw 'Flutter stable convergence and automatic rollback both failed; the managed SDK needs inspection.' }
+    Write-SgInstallerWarning 'Flutter stable convergence failed; restored the previous managed revision.'
+    return $false
+}
+
 function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
+    $flutterDirectory = Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter'
     $existingFlutter = Get-SgToolPath 'flutter.bat' $FlutterPaths
     if ($existingFlutter) {
         $existingRoot = Split-Path (Split-Path $existingFlutter -Parent) -Parent
         $existingState = Get-SgFlutterInstallState -FlutterRoot $existingRoot
         if ($existingState.Status -eq 'ready') {
+            if ([IO.Path]::GetFullPath($existingRoot).TrimEnd('\') -eq [IO.Path]::GetFullPath($flutterDirectory).TrimEnd('\')) {
+                Add-SgUserPathEntry (Join-Path $existingRoot 'bin')
+                $managedGit = Get-SgToolPath 'git.exe' $GitPaths
+                if ($managedGit) {
+                    $stableCommit = Resolve-SgFlutterStableCommit $managedGit
+                    if ($stableCommit) {
+                        try { [void](Set-SgManagedFlutterStableRevision $managedGit $existingRoot $stableCommit) }
+                        catch { Write-SgInstallerWarning "Flutter stable convergence was safely skipped: $($_.Exception.Message)" }
+                    }
+                    else { Write-SgInstallerWarning 'Flutter stable commit could not be resolved; the existing managed SDK was preserved.' }
+                    $existingState = Get-SgFlutterInstallState -FlutterRoot $existingRoot
+                } else { Write-SgInstallerWarning 'Git is unavailable; the existing managed Flutter SDK could not be checked for a stable update.' }
+            }
+            if ($existingState.Status -ne 'ready') { Write-SgInstallerWarning 'Flutter/Dart validation failed after stable convergence.'; return $false }
+            $configured = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.configure' -Label 'Configuring Flutter web, Android, and Windows targets' -File $existingState.FlutterPath -Arguments @('config','--enable-web','--enable-android','--enable-windows-desktop') -TimeoutSeconds 90
+            if ($configured.TimedOut -or $configured.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter platform configuration failed or timed out.'; return $false }
             Write-Host "Using validated existing Flutter/Dart SDK without changing its location: $existingRoot" -ForegroundColor Green
             return $true
         }
     }
     $git = Get-SgToolPath 'git.exe' $GitPaths
     if (-not $git) { Write-SgInstallerWarning 'Flutter could not be installed because Git is unavailable.'; return $false }
-    $flutterDirectory = Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter'
     $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory
     if ($state.Status -eq 'partial') { [void](Move-SgManagedPartialDirectory $flutterDirectory); $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory }
     if ($state.Status -eq 'absent') {
-        $resolved = Invoke-SgBoundedProcess -File $git -Arguments @('ls-remote','https://github.com/flutter/flutter.git','refs/heads/stable') -TimeoutSeconds 60
-        $commit = if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0 -and $resolved.Output -match '(?m)^([0-9a-f]{40})\s+refs/heads/stable$') { $Matches[1] } else { '' }
+        $commit = Resolve-SgFlutterStableCommit $git
         if (-not $commit) { Write-SgInstallerWarning 'Flutter stable commit could not be resolved and proven; installation is pending.'; return $false }
         New-Item -ItemType Directory -Path $flutterDirectory | Out-Null
         foreach ($step in @(
             @('init'),
             @('remote','add','origin','https://github.com/flutter/flutter.git'),
-            @('fetch','--depth','1','origin',$commit),
-            @('checkout','--detach','FETCH_HEAD')
+            @('fetch','--depth','1','origin',("+{0}:refs/remotes/origin/shipglows-stable" -f $commit)),
+            @('checkout','-B','stable',$commit),
+            @('branch','--set-upstream-to=origin/shipglows-stable','stable')
         )) {
             $arguments = @('-C',$flutterDirectory) + $step
             $result = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.clone' -Label 'Installing Flutter stable SDK' -File $git -Arguments $arguments -TimeoutSeconds 600
@@ -908,7 +990,7 @@ function Install-SgFlutter([string[]]$FlutterPaths, [string[]]$GitPaths) {
     $state = Get-SgFlutterInstallState -FlutterRoot $flutterDirectory
     if ($state.Status -ne 'ready') { Write-SgInstallerWarning 'Flutter/Dart executable validation failed after installation.'; return $false }
     Add-SgUserPathEntry (Join-Path $flutterDirectory 'bin')
-    $configured = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.configure' -Label 'Configuring Flutter web and Android targets' -File $state.FlutterPath -Arguments @('config','--enable-web','--enable-android') -TimeoutSeconds 90
+    $configured = Invoke-SgVisibleBoundedProcess -OperationId 'sdk.flutter.configure' -Label 'Configuring Flutter web, Android, and Windows targets' -File $state.FlutterPath -Arguments @('config','--enable-web','--enable-android','--enable-windows-desktop') -TimeoutSeconds 90
     if ($configured.TimedOut -or $configured.ExitCode -ne 0) { Write-SgInstallerWarning 'Flutter platform configuration failed or timed out.'; return $false }
     Write-Host 'Flutter SDK resolved to a concrete stable commit; Flutter and Dart versions are valid.' -ForegroundColor Green
     return $true
@@ -1140,22 +1222,24 @@ function Resolve-SgTrustedMisePath {
     return ''
 }
 
-function Install-SgOfficialMiseForTauri {
+function Install-SgOfficialMise {
     $mise = Resolve-SgTrustedMisePath
     if ($mise) { return $mise }
     $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-    if (-not $winget) { Write-SgInstallerWarning 'Tauri Android pending: WinGet is unavailable, so the official mise package cannot be acquired.'; return '' }
-    $installed = Invoke-SgVisibleBoundedProcess -OperationId 'tool.mise.tauri' -Label 'Installing the official mise tool manager for Tauri' -File $winget.Source -Arguments @('install','--id','jdx.mise','--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
+    if (-not $winget) { Write-SgInstallerWarning 'ShipGlows toolbox pending: WinGet is unavailable, so the official mise package cannot be acquired.'; return '' }
+    $installed = Invoke-SgVisibleBoundedProcess -OperationId 'tool.mise' -Label 'Installing the official mise tool manager' -File $winget.Source -Arguments @('install','--id','jdx.mise','--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 900
     Update-SgProcessPath
     $mise = Resolve-SgTrustedMisePath
     if (-not $mise) {
         $detail = if ($installed.TimedOut) { 'timed out' } elseif ($installed.ExitCode -ne 0) { "returned exit code $($installed.ExitCode)" } else { 'completed without a trusted executable' }
-        Write-SgInstallerWarning "Tauri Android pending: WinGet $detail and the final trusted mise executable could not be proven."
+        Write-SgInstallerWarning "ShipGlows toolbox pending: WinGet $detail and the final trusted mise executable could not be proven."
     } elseif ($installed.TimedOut -or $installed.ExitCode -ne 0) {
         Write-Host 'WinGet returned an ambiguous result, but the final trusted mise executable is installed and validated.' -ForegroundColor Green
     }
     return $mise
 }
+
+function Install-SgOfficialMiseForTauri { return Install-SgOfficialMise }
 
 function Invoke-SgManagedTauriMise {
     param([string]$MisePath, [string]$ToolchainRoot, [string[]]$Arguments, [int]$TimeoutSeconds = 120, [switch]$Visible, [string]$OperationId = 'tool.rust.tauri', [string]$Label = 'Installing the validated Rust toolchain')
@@ -1204,7 +1288,7 @@ function Install-SgTauriAndroidToolchain {
     $mise = Resolve-SgTrustedMisePath
     $rustReady = Test-SgTauriRustToolchain $mise $root $baseline
     if ($InstallApproved -and -not $rustReady) {
-        if (-not $mise) { $mise = Install-SgOfficialMiseForTauri }
+        if (-not $mise) { $mise = Install-SgOfficialMise }
         if ($mise) {
             New-Item -ItemType Directory -Path $root -Force | Out-Null
             $expected = Get-SgTauriMiseConfig $baseline
@@ -1345,102 +1429,132 @@ function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$Np
     return [pscustomobject]@{ Ready=$true; Version=$version; Revision=$revision; ChromiumPath=[IO.Path]::GetFullPath($chromiumPath) }
 }
 
-function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [string]$NpxPath, $Playwright, [object[]]$StackMcpDefinitions = @()) {
-    $results = @{}
-    foreach ($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')) {
-        $results[$agentName] = [pscustomobject]@{ Installed=[bool]$AgentReady[$agentName]; McpSummary=if($AgentReady[$agentName]){'pending'}else{'not applicable'}; ReadyServers=@(); PendingServers=@() }
+function Read-SgProjectMcpState([string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return [pscustomobject]@{ schemaVersion=1; entries=@() } }
+    try {
+        $state = [IO.File]::ReadAllText($Path) | ConvertFrom-Json -ErrorAction Stop
+        if ($state.schemaVersion -ne 1 -or $null -eq $state.entries) { throw 'unsupported state' }
+        return $state
+    } catch { Write-SgInstallerWarning 'Project MCP state is invalid and was ignored; existing project configs remain protected.'; return [pscustomobject]@{ schemaVersion=1; entries=@() } }
+}
+
+function Write-SgProjectMcpState([string]$Path, [object[]]$Entries) {
+    $directory = Split-Path $Path -Parent
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+    $content = ([ordered]@{ schemaVersion=1; entries=@($Entries | Sort-Object path) } | ConvertTo-Json -Depth 8) + [Environment]::NewLine
+    $temp = "$Path.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        [IO.File]::WriteAllText($temp,$content,[Text.UTF8Encoding]::new($false))
+        if (Test-Path -LiteralPath $Path -PathType Leaf) { Move-SgAtomicReplace $temp $Path } else { Move-Item -LiteralPath $temp -Destination $Path }
+    } finally { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force } }
+}
+
+function Add-SgProjectMcpGitExclude([string]$ProjectPath, [string]$ConfigPath) {
+    $probe = [IO.Path]::GetFullPath($ProjectPath)
+    $repoRoot = ''
+    while ($probe) {
+        if (Test-Path -LiteralPath (Join-Path $probe '.git')) { $repoRoot=$probe; break }
+        $parent=Split-Path $probe -Parent
+        if (-not $parent -or $parent -eq $probe) { break }
+        $probe=$parent
     }
-    if (-not $DartPath -or -not $NpxPath) { Write-SgInstallerWarning 'Agent MCP setup is pending because validated Dart or npx is unavailable.'; return $results }
-    $serverDefinitions = New-Object Collections.Generic.List[object]
-    $serverDefinitions.Add([pscustomobject]@{ Name='dart'; Type='local'; Url=''; Command=$DartPath; Arguments=@('mcp-server','--force-roots-fallback') })
-    if ($Playwright.Ready) { $serverDefinitions.Add([pscustomobject]@{ Name='playwright'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"@playwright/mcp@$($Playwright.Version)",'--headless','--browser','chromium') }) }
-    foreach ($definition in @($StackMcpDefinitions)) { $serverDefinitions.Add($definition) }
-    if ($AgentReady.OpenCode) {
-        $plan = Get-SgAgentMcpPlan OpenCode (Get-SgToolPath 'opencode.cmd' $opencodePaths) $DartPath $NpxPath $Playwright.Version $Playwright.Ready $StackMcpDefinitions
-        $resolvedConfig = Resolve-SgAgentConfigPath OpenCode $env:USERPROFILE
-        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config
-        if ($write.Status -eq 'create') { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
-        if ($ready) { $results.OpenCode = [pscustomobject]@{ Installed=$true; McpSummary="ready: $(@($serverDefinitions.Name) -join ', ')"; ReadyServers=@($serverDefinitions.Name); PendingServers=@() } }
-        else { $results.OpenCode = [pscustomobject]@{ Installed=$true; McpSummary='pending: existing JSON/JSONC preserved'; ReadyServers=@(); PendingServers=@($serverDefinitions.Name) }; Write-SgInstallerWarning "OpenCode v2 MCP pending: $($write.Reason)" }
+    if (-not $repoRoot) { return }
+    $gitMetadata = Join-Path $repoRoot '.git'
+    if (Test-Path -LiteralPath $gitMetadata -PathType Leaf) {
+        $pointer=[IO.File]::ReadAllText($gitMetadata)
+        if ($pointer -notmatch '^gitdir:\s*(.+)\s*$') { return }
+        $gitMetadata=$matches[1].Trim()
+        if (-not [IO.Path]::IsPathRooted($gitMetadata)) { $gitMetadata=Join-Path $repoRoot $gitMetadata }
     }
-    if ($AgentReady.Kilo) {
-        $kiloCommand = Resolve-SgKiloCommand (Get-SgToolPath 'kilo.cmd' $kiloPaths) (Get-SgToolPath 'kilocode.cmd' $kilocodePaths)
-        $plan = Get-SgAgentMcpPlan Kilo $kiloCommand.Path $DartPath $NpxPath $Playwright.Version $Playwright.Ready $StackMcpDefinitions
-        $resolvedConfig = Resolve-SgAgentConfigPath Kilo $env:USERPROFILE
-        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config
-        if ($write.Status -eq 'create') { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
-        if ($ready) { $results.Kilo = [pscustomobject]@{ Installed=$true; McpSummary="ready: $(@($serverDefinitions.Name) -join ', ')"; ReadyServers=@($serverDefinitions.Name); PendingServers=@() } }
-        else { $results.Kilo = [pscustomobject]@{ Installed=$true; McpSummary='pending: existing JSON/JSONC preserved'; ReadyServers=@(); PendingServers=@($serverDefinitions.Name) }; Write-SgInstallerWarning "Kilo MCP pending: $($write.Reason)" }
+    $excludePath=Join-Path ([IO.Path]::GetFullPath($gitMetadata)) 'info\exclude'
+    $repoPrefix=$repoRoot.TrimEnd('\')+'\'
+    $fullConfig=[IO.Path]::GetFullPath($ConfigPath)
+    if (-not $fullConfig.StartsWith($repoPrefix,[StringComparison]::OrdinalIgnoreCase)) { return }
+    $pattern='/' + $fullConfig.Substring($repoPrefix.Length).Replace('\','/')
+    $existing=if(Test-Path -LiteralPath $excludePath -PathType Leaf){[IO.File]::ReadAllText($excludePath)}else{''}
+    if (@($existing -split '\r?\n') -contains $pattern) { return }
+    New-Item -ItemType Directory -Path (Split-Path $excludePath -Parent) -Force | Out-Null
+    $prefix=if($existing -and -not $existing.EndsWith("`n")){"`n"}else{''}
+    [IO.File]::AppendAllText($excludePath,"$prefix$pattern`n",[Text.UTF8Encoding]::new($false))
+}
+
+function Remove-SgGlobalJsonMcpEntries([string]$Path, [string[]]$Names, [ValidateSet('top-level','opencode','kilo')][string]$Shape = 'top-level') {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return }
+    try { $document=[IO.File]::ReadAllText($Path)|ConvertFrom-Json -ErrorAction Stop } catch { Write-SgInstallerWarning "Global MCP cleanup preserved invalid JSON: $Path"; return }
+    $servers = if($Shape -eq 'top-level'){
+        if($document.PSObject.Properties['mcpServers']){$document.mcpServers}else{$null}
+    }elseif($Shape -eq 'opencode'){
+        if($document.PSObject.Properties['mcp'] -and $document.mcp -and $document.mcp.PSObject.Properties['servers']){$document.mcp.servers}else{$null}
+    }else{
+        if($document.PSObject.Properties['mcp']){$document.mcp}else{$null}
     }
-    if ($AgentReady.Gemini) {
-        $gemini = Get-SgToolPath 'gemini.cmd' $geminiPaths
-        $settingsPath = Join-Path $env:USERPROFILE '.gemini\settings.json'
-        $readyNames = New-Object Collections.Generic.List[string]; $pendingNames = New-Object Collections.Generic.List[string]
-        foreach ($server in $serverDefinitions) {
-            $state = Get-SgGeminiMcpConfigState -SettingsPath $settingsPath -Server $server
-            if ($state.Status -eq 'missing') {
-                $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.gemini." + $server.Name) -Label ("Configuring Gemini $($server.Name) MCP") -File $gemini -Arguments (Get-SgGeminiMcpAddArguments $server) -TimeoutSeconds 60
-                $state = if (-not $add.TimedOut -and $add.ExitCode -eq 0) { Get-SgGeminiMcpConfigState -SettingsPath $settingsPath -Server $server } else { [pscustomobject]@{ Status='pending'; Reason='native Gemini MCP add failed or timed out' } }
+    if(-not $servers){return}
+    $changed=$false
+    foreach($name in $Names){if($servers.PSObject.Properties[$name]){$servers.PSObject.Properties.Remove($name);$changed=$true}}
+    if(-not $changed){return}
+    $content=($document|ConvertTo-Json -Depth 64)+[Environment]::NewLine
+    $temp="$Path.$([guid]::NewGuid().ToString('N')).tmp"
+    try{[IO.File]::WriteAllText($temp,$content,[Text.UTF8Encoding]::new($false));Move-SgAtomicReplace $temp $Path}finally{if(Test-Path -LiteralPath $temp){Remove-Item -LiteralPath $temp -Force}}
+}
+
+function Remove-SgMaintainerGlobalMcpConfigs([hashtable]$AgentReady) {
+    $names=@('dart','playwright','firebase','convex','clerk','supabase','vercel','github')
+    if($AgentReady.Codex){$codex=Get-SgToolPath 'codex.cmd' $codexPaths;foreach($name in $names){$get=Invoke-SgBoundedProcess $codex @('mcp','get',$name,'--json') 30;if($get.ExitCode -eq 0){[void](Invoke-SgBoundedProcess $codex @('mcp','remove',$name) 30)}}}
+    if($AgentReady.Claude){Remove-SgGlobalJsonMcpEntries (Join-Path $env:USERPROFILE '.claude.json') $names}
+    if($AgentReady.Gemini){Remove-SgGlobalJsonMcpEntries (Join-Path $env:USERPROFILE '.gemini\settings.json') $names}
+    if($AgentReady.OpenCode){$resolved=Resolve-SgAgentConfigPath OpenCode $env:USERPROFILE;Remove-SgGlobalJsonMcpEntries $resolved.Path $names opencode}
+    if($AgentReady.Kilo){$resolved=Resolve-SgAgentConfigPath Kilo $env:USERPROFILE;Remove-SgGlobalJsonMcpEntries $resolved.Path $names kilo}
+}
+
+function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [string]$NpxPath, $Playwright, [string[]]$ProjectPaths, [hashtable]$ServiceVersions, [bool]$ReplaceExistingAgentConfigs = $false) {
+    $results=@{}
+    foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){$results[$agentName]=[pscustomobject]@{Installed=[bool]$AgentReady[$agentName];McpSummary=if($AgentReady[$agentName]){'pending'}else{'not applicable'};ReadyServers=@();PendingServers=@()}}
+    if(-not $DartPath -or -not $NpxPath){Write-SgInstallerWarning 'Project MCP setup is pending because validated Dart or npx is unavailable.';return $results}
+    if($ReplaceExistingAgentConfigs){Remove-SgMaintainerGlobalMcpConfigs $AgentReady}
+    $statePath=Join-Path $env:LOCALAPPDATA 'ShipGlows\agent-mcp-project-state.json'
+    $state=Read-SgProjectMcpState $statePath
+    $nextEntries=New-Object Collections.Generic.List[object]
+    $readyByAgent=@{};$pendingByAgent=@{}
+    foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){$readyByAgent[$agentName]=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase);$pendingByAgent[$agentName]=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)}
+    foreach($projectPath in @($ProjectPaths|Where-Object{$_}|Select-Object -Unique)){
+        $needs=Get-SgProjectServiceNeeds -Workspace $projectPath
+        $servers=@(Get-SgProjectMcpDefinitions -Needs $needs -Versions $ServiceVersions -DartPath $DartPath -NpxPath $NpxPath -Playwright $Playwright)
+        foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){
+            if(-not [bool]$AgentReady[$agentName]){continue}
+            $configPlan=Get-SgProjectAgentMcpConfigPlan -Agent $agentName -ProjectPath $projectPath -Servers $servers
+            $record=@($state.entries|Where-Object{[string]$_.path -eq [string]$configPlan.ConfigPath}|Select-Object -First 1)
+            $recordedHash=if($record){[string]$record[0].sha256}else{''}
+            $write=Write-SgManagedProjectConfig -ConfigPath $configPlan.ConfigPath -Content $configPlan.Content -RecordedHash $recordedHash -ReplaceExisting:$ReplaceExistingAgentConfigs
+            if($write.Status -eq 'pending'){
+                foreach($name in @($configPlan.ServerNames)){[void]$pendingByAgent[$agentName].Add($name)}
+                Write-SgInstallerWarning "$agentName project MCP config was preserved pending: $($configPlan.ConfigPath)"
+                if($record){$nextEntries.Add($record[0])}
+            }else{
+                foreach($name in @($configPlan.ServerNames)){[void]$readyByAgent[$agentName].Add($name)}
+                Add-SgProjectMcpGitExclude $projectPath $configPlan.ConfigPath
+                $nextEntries.Add([pscustomobject]@{path=[string]$configPlan.ConfigPath;sha256=[string]$write.ExpectedHash;agent=$agentName;project=[IO.Path]::GetFullPath($projectPath)})
             }
-            if ($state.Status -eq 'ready') { $readyNames.Add($server.Name) }
-            else { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Gemini MCP '$($server.Name)' remains pending: $($state.Reason)." }
         }
-        $results.Gemini = [pscustomobject]@{ Installed=$true; McpSummary=if($pendingNames.Count){"partial: ready $($readyNames -join ', '); pending $($pendingNames -join ', ')"}else{"ready: $($readyNames -join ', ')"}; ReadyServers=$readyNames.ToArray(); PendingServers=$pendingNames.ToArray() }
     }
-    if ($AgentReady.Claude) {
-        $claude = Get-SgToolPath 'claude.cmd' $claudePaths
-        $readyNames = New-Object Collections.Generic.List[string]; $pendingNames = New-Object Collections.Generic.List[string]
-        foreach ($server in $serverDefinitions) {
-            $get = Invoke-SgBoundedProcess $claude @('mcp','get',$server.Name) 30
-            if ($get.ExitCode -ne 0) {
-                $arguments = if ($server.Type -eq 'remote') { @('mcp','add','--transport','http','--scope','user',$server.Name,$server.Url) } else { @('mcp','add','--transport','stdio','--scope','user',$server.Name,'--',$server.Command) + @($server.Arguments) }
-                $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.claude." + $server.Name) -Label ("Configuring Claude $($server.Name) MCP") -File $claude -Arguments $arguments -TimeoutSeconds 60
-                $verified = Invoke-SgBoundedProcess $claude @('mcp','get',$server.Name) 30
-                $expected = if ($server.Type -eq 'remote') { @($server.Url) } else { @($server.Command) + @($server.Arguments) }
-                if (-not $verified -or $verified.ExitCode -ne 0 -or @($expected | Where-Object { -not $verified.Output.Contains([string]$_) }).Count) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Claude MCP '$($server.Name)' remains pending." } else { $readyNames.Add($server.Name) }
-            } else {
-                $expected = if ($server.Type -eq 'remote') { @($server.Url) } else { @($server.Command) + @($server.Arguments) }
-                $missingArgument = @($expected | Where-Object { -not $get.Output.Contains([string]$_) }).Count -gt 0
-                if ($missingArgument) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Claude MCP '$($server.Name)' exists but exact convergence was not proven; it was preserved pending." } else { $readyNames.Add($server.Name) }
-            }
-        }
-        $results.Claude = [pscustomobject]@{ Installed=$true; McpSummary=if($pendingNames.Count){"partial: ready $($readyNames -join ', '); pending $($pendingNames -join ', ')"}else{"ready: $($readyNames -join ', ')"}; ReadyServers=$readyNames.ToArray(); PendingServers=$pendingNames.ToArray() }
-    }
-    if ($AgentReady.Codex) {
-        $codex = Get-SgToolPath 'codex.cmd' $codexPaths
-        $readyNames = New-Object Collections.Generic.List[string]; $pendingNames = New-Object Collections.Generic.List[string]
-        foreach ($server in ($serverDefinitions | Where-Object Name -ne 'playwright')) {
-            $get = Invoke-SgBoundedProcess $codex @('mcp','get',$server.Name,'--json') 30
-            if ($get.ExitCode -ne 0) {
-                $addArguments = if ($server.Type -eq 'remote') { @('mcp','add',$server.Name,'--url',$server.Url) } else { @('mcp','add',$server.Name,'--',$server.Command) + @($server.Arguments) }
-                $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.codex." + $server.Name) -Label ("Configuring Codex $($server.Name) MCP") -File $codex -Arguments $addArguments -TimeoutSeconds 60
-                $verified = Invoke-SgBoundedProcess $codex @('mcp','get',$server.Name,'--json') 30
-                if (-not (Test-SgCodexMcpResult -Result $verified -Server $server)) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Codex MCP '$($server.Name)' remains pending." } else { $readyNames.Add($server.Name) }
-            } else {
-                if (-not (Test-SgCodexMcpResult -Result $get -Server $server)) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Codex MCP '$($server.Name)' exists but exact convergence was not proven; it was preserved pending." } else { $readyNames.Add($server.Name) }
-            }
-        }
-        if ($Playwright.Ready) {
-            $configPath = Join-Path $env:USERPROFILE '.codex\config.toml'
-            [void](Set-SgCodexPlaywrightMcpConfig $configPath $NpxPath $Playwright.Version $Playwright.ChromiumPath)
-            $config = Get-SgCodexPlaywrightMcpConfig $configPath
-            if ($config -and $config.Enabled -and $config.Command -eq $NpxPath -and ($config.Arguments -contains "@playwright/mcp@$($Playwright.Version)")) { $readyNames.Add('playwright') } else { $pendingNames.Add('playwright') }
-        }
-        $results.Codex = [pscustomobject]@{ Installed=$true; McpSummary=if($pendingNames.Count){"partial: ready $($readyNames -join ', '); pending $($pendingNames -join ', ')"}else{"ready: $($readyNames -join ', ')"}; ReadyServers=$readyNames.ToArray(); PendingServers=$pendingNames.ToArray() }
+    Write-SgProjectMcpState $statePath $nextEntries.ToArray()
+    foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){
+        if(-not [bool]$AgentReady[$agentName]){continue}
+        $ready=@($readyByAgent[$agentName]|Sort-Object);$pending=@($pendingByAgent[$agentName]|Sort-Object)
+        $summary=if($pending.Count){"partial per project: ready $($ready -join ', '); pending $($pending -join ', ')"}else{"ready per project: $($ready -join ', ')"}
+        $results[$agentName]=[pscustomobject]@{Installed=$true;McpSummary=$summary;ReadyServers=$ready;PendingServers=$pending}
     }
     return $results
 }
 
 function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
-    $empty=[pscustomobject]@{StableReady='no';StableVersion='not available';StableRevision='not available';StablePath='';AgentCliReady='no';AgentCliVersion='not available';AgentCliPath='';MotionReady='no'}
+    $empty=[pscustomobject]@{StableReady='no';StableVersion='not available';StableRevision='not available';StablePath='';BrowserPath='';AgentCliReady='no';AgentCliVersion='not available';AgentCliPath='';MotionReady='no'}
     if(-not $NpmPath){Write-SgInstallerWarning 'Managed Playwright runtimes are pending because npm is unavailable.';return $empty}
     try {
         $stableVersion=Resolve-SgNpmVersion $NpmPath 'playwright'
-        $agentVersion=Resolve-SgNpmVersion $NpmPath '@playwright/cli'
+        $agentVersion=$stableVersion
         $root=Join-Path $env:LOCALAPPDATA 'ShipGlows\node-tools'
         $stableRoot=Join-Path $root "playwright-$stableVersion"
-        $agentRoot=Join-Path $root "playwright-cli-$agentVersion"
-        foreach($install in @(@{Id='playwright';Name='Playwright';Root=$stableRoot;Package='playwright';Version=$stableVersion},@{Id='playwright-agent-cli';Name='Playwright Agent CLI';Root=$agentRoot;Package='@playwright/cli';Version=$agentVersion})){
+        foreach($install in @(@{Id='playwright';Name='Playwright';Root=$stableRoot;Package='playwright';Version=$stableVersion})){
             $packageJson=Join-Path (Join-Path $install.Root 'node_modules') (Join-Path $install.Package 'package.json')
             if(-not (Test-Path $packageJson -PathType Leaf)){
                 New-Item -ItemType Directory -Path $install.Root -Force|Out-Null
@@ -1449,27 +1563,40 @@ function Install-SgManagedPlaywrightRuntimes([string]$NpmPath) {
             }
         }
         $stableCommand=Join-Path $stableRoot 'node_modules\.bin\playwright.cmd'
-        $agentCommand=Join-Path $agentRoot 'node_modules\.bin\playwright-cli.cmd'
+        $agentCommand=Join-Path $stableRoot 'playwright-cli.cmd'
         $browserMetadata=Join-Path $stableRoot 'node_modules\playwright-core\browsers.json'
-        if(-not (Test-Path $stableCommand -PathType Leaf) -or -not (Test-Path $agentCommand -PathType Leaf) -or -not (Test-Path $browserMetadata -PathType Leaf)){throw 'Managed Playwright commands or browser metadata are missing.'}
+        if(-not (Test-Path $stableCommand -PathType Leaf) -or -not (Test-Path $browserMetadata -PathType Leaf)){throw 'Managed Playwright command or browser metadata is missing.'}
+        $agentWrapper="@echo off`r`n@call `"$stableCommand`" cli %*`r`n"
+        if(-not (Test-Path $agentCommand -PathType Leaf)-or[IO.File]::ReadAllText($agentCommand)-cne $agentWrapper){[IO.File]::WriteAllText($agentCommand,$agentWrapper,[Text.Encoding]::ASCII)}
         $metadata=Get-Content -Raw $browserMetadata|ConvertFrom-Json
         $revision=[string](@($metadata.browsers|Where-Object name -eq 'chromium')[0].revision)
         if($revision -notmatch '^\d+$'){throw 'Managed Playwright Chromium revision is invalid.'}
         $browser=Join-Path $env:LOCALAPPDATA "ms-playwright\chromium-$revision\chrome-win64\chrome.exe"
+        $browserProbe=Join-Path $env:LOCALAPPDATA "ms-playwright\chromium_headless_shell-$revision\chrome-headless-shell-win64\chrome-headless-shell.exe"
         if(-not (Test-Path $browser -PathType Leaf)){
             $installBrowser=Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright.browser' -Label 'Installing Playwright Chromium' -File $stableCommand -Arguments @('install','chromium') -TimeoutSeconds 900
             if($installBrowser.TimedOut -or $installBrowser.ExitCode -ne 0){throw 'Managed Playwright Chromium installation failed.'}
         }
-        $agentBrowserInstall=Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright-agent.browser' -Label 'Installing Playwright agent browser' -File $agentCommand -Arguments @('install-browser') -TimeoutSeconds 900
+        $agentBrowserInstall=Invoke-SgVisibleBoundedProcess -OperationId 'tool.playwright-agent.browser' -Label 'Verifying the bundled Playwright CLI browser' -File $agentCommand -Arguments @('install-browser','chromium') -TimeoutSeconds 900
         if($agentBrowserInstall.TimedOut -or $agentBrowserInstall.ExitCode -ne 0){throw 'Managed Playwright Agent CLI browser installation failed.'}
         $stableCheck=Invoke-SgBoundedProcess $stableCommand @('--version') 30
-        $browserCheck=if(Test-Path $browser -PathType Leaf){Invoke-SgBoundedProcess $browser @('--version') 30}else{$null}
+        $agentCheck=Invoke-SgBoundedProcess $agentCommand @('--version') 30
+        $browserCheck=if((Test-Path $browser -PathType Leaf)-and(Test-Path $browserProbe -PathType Leaf)){Invoke-SgBoundedProcess $browserProbe @('--version') 30}else{$null}
         $stableReady=-not $stableCheck.TimedOut -and $stableCheck.ExitCode -eq 0 -and $stableCheck.Output -match [regex]::Escape($stableVersion)
-        $agentPackageVersion=[string]((Get-Content -Raw (Join-Path $agentRoot 'node_modules\@playwright\cli\package.json')|ConvertFrom-Json).version)
-        $agentReady=-not $agentBrowserInstall.TimedOut -and $agentBrowserInstall.ExitCode -eq 0 -and $agentPackageVersion -eq $agentVersion
-        $browserReady=$browserCheck -and -not $browserCheck.TimedOut -and $browserCheck.ExitCode -eq 0
-        return [pscustomobject]@{StableReady=if($stableReady){'yes'}else{'no'};StableVersion=$stableVersion;StableRevision=$revision;StablePath=$stableCommand;AgentCliReady=if($agentReady){'yes'}else{'no'};AgentCliVersion=$agentVersion;AgentCliPath=$agentCommand;MotionReady=if($stableReady -and $browserReady){'yes'}else{'no'}}
+        $agentReady=-not $agentCheck.TimedOut -and $agentCheck.ExitCode -eq 0 -and $agentCheck.Output -match [regex]::Escape($agentVersion)
+        $browserReady=(Test-Path $browser -PathType Leaf)-and(Test-SgChromiumExecutableResult $browserProbe $browserCheck)
+        return [pscustomobject]@{StableReady=if($stableReady){'yes'}else{'no'};StableVersion=$stableVersion;StableRevision=$revision;StablePath=$stableCommand;BrowserPath=if($browserReady){$browser}else{''};AgentCliReady=if($agentReady){'yes'}else{'no'};AgentCliVersion=$agentVersion;AgentCliPath=$agentCommand;MotionReady=if($stableReady -and $browserReady){'yes'}else{'no'}}
     } catch {Write-SgInstallerWarning "Managed Playwright runtime pending: $($_.Exception.Message)";return $empty}
+}
+
+function Set-SgFlutterChromeExecutable([string]$BrowserPath) {
+    if ([string]::IsNullOrWhiteSpace($BrowserPath) -or -not (Test-Path -LiteralPath $BrowserPath -PathType Leaf)) { return $false }
+    $resolved = [IO.Path]::GetFullPath($BrowserPath)
+    $managedRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'ms-playwright')).TrimEnd('\') + '\'
+    if (-not $resolved.StartsWith($managedRoot,[StringComparison]::OrdinalIgnoreCase)) { Write-SgInstallerWarning 'Flutter browser wiring rejected a browser outside the managed Playwright runtime.'; return $false }
+    [Environment]::SetEnvironmentVariable('CHROME_EXECUTABLE',$resolved,'User')
+    $env:CHROME_EXECUTABLE = $resolved
+    return $true
 }
 
 function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
@@ -1479,74 +1606,87 @@ function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
     return $version
 }
 
-function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath, [string]$NpmPath, [string]$NpxPath) {
+function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [string]$NpmPath, [bool]$GoogleCloudReady) {
     $needs = Get-SgProjectServiceNeeds -Workspace $WorkspacePath
     $versions = @{}
     $resolvedNeeds = [pscustomobject]@{ Firebase=$false; FlutterFire=$false; Supabase=$false; Convex=$false; Vercel=$false; Clerk=$false; AndroidNative=$needs.AndroidNative }
-    foreach ($definition in @(
-        @{ Need='Firebase'; Package='firebase-tools' },
-        @{ Need='Supabase'; Package='supabase' },
-        @{ Need='Convex'; Package='convex' },
-        @{ Need='Vercel'; Package='vercel' },
-        @{ Need='Clerk'; Package='clerk' }
-    )) {
-        if (-not [bool]$needs.($definition.Need)) { continue }
-        try { $versions[$definition.Need] = Resolve-SgNpmVersion $NpmPath $definition.Package; $resolvedNeeds.($definition.Need) = $true }
-        catch { Write-SgInstallerWarning "$($definition.Need) exact-version resolution failed; its CLI and MCP remain pending." }
+    $states = [ordered]@{ Firebase='pending'; FlutterFire='pending'; Convex='pending'; Vercel='pending'; Supabase='pending'; Clerk='pending'; GoogleCloud=if($GoogleCloudReady){'ready'}else{'pending'}; AndroidNative=if($needs.AndroidNative){'detected; project-specific NDK/CMake versions must be reviewed'}else{'not detected'} }
+    $mise = Resolve-SgTrustedMisePath
+    if (-not $mise) { $mise = Install-SgOfficialMise }
+    $root = Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\machine-toolbox'
+    New-Item -ItemType Directory -Path $root -Force | Out-Null
+
+    if (-not $mise) {
+        Write-SgInstallerWarning 'Machine CLI toolbox pending: the trusted mise executable is unavailable.'
+    } else {
+        foreach ($definition in @(
+            @{ Need='Firebase'; Package='firebase-tools' },
+            @{ Need='Convex'; Package='convex' },
+            @{ Need='Vercel'; Package='vercel' },
+            @{ Need='Clerk'; Package='clerk' }
+        )) {
+            try { $versions[$definition.Need] = Resolve-SgNpmVersion $NpmPath $definition.Package; $resolvedNeeds.($definition.Need) = $true }
+            catch { Write-SgInstallerWarning "$($definition.Need) exact-version resolution failed; its machine CLI remains pending." }
+        }
+        try {
+            $latest = Invoke-SgManagedTauriMise $mise $root @('latest','aqua:supabase/cli') 120
+            $version = if (-not $latest.TimedOut -and $latest.ExitCode -eq 0) { $latest.Output.Trim() -replace '^v','' } else { '' }
+            if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'mise returned no exact Supabase version.' }
+            $versions.Supabase = $version; $resolvedNeeds.Supabase = $true
+        } catch { Write-SgInstallerWarning 'Supabase exact-version resolution failed; its machine CLI remains pending.' }
+
+        if (@('Firebase','Supabase','Convex','Vercel','Clerk' | Where-Object { -not $versions.ContainsKey($_) }).Count -eq 0) {
+            $plan = @(Get-SgMachineToolboxPlan -Versions $versions)
+            $configPath = Join-Path $root 'mise.toml'
+            $expected = Get-SgMachineToolboxMiseConfig -Plan $plan
+            if (-not (Test-Path -LiteralPath $configPath -PathType Leaf) -or [IO.File]::ReadAllText($configPath).Replace("`r`n","`n") -cne $expected.Replace("`r`n","`n")) {
+                $temporary = "$configPath.tmp-$([guid]::NewGuid().ToString('N'))"
+                [IO.File]::WriteAllText($temporary,$expected,[Text.UTF8Encoding]::new($false)); Move-SgAtomicReplace $temporary $configPath
+            }
+            $installed = Invoke-SgManagedTauriMise $mise $root @('install') 1800 -Visible -OperationId 'tool.machine-toolbox' -Label 'Installing the ShipGlows machine CLI toolbox'
+            $toolboxInstalled = -not $installed.TimedOut -and $installed.ExitCode -eq 0
+            if (-not $toolboxInstalled) { Write-SgInstallerWarning "Machine CLI toolbox installation failed or timed out (exit=$($installed.ExitCode)). Stable commands were not exposed." }
+            foreach ($item in $plan) {
+                $wrapper = Join-Path $runtimeDir "$($item.Command).cmd"
+                $content = Get-SgMachineToolboxWrapperContent -MisePath $mise -ToolboxRoot $root -Command $item.Command
+                if ($toolboxInstalled -and (-not (Test-Path -LiteralPath $wrapper -PathType Leaf) -or [IO.File]::ReadAllText($wrapper) -cne $content)) { [IO.File]::WriteAllText($wrapper,$content,[Text.Encoding]::ASCII) }
+                $verify = if($toolboxInstalled -and (Test-Path -LiteralPath $wrapper -PathType Leaf)){Invoke-SgBoundedProcess $wrapper @('--version') 60}else{$null}
+                $property = $item.Name.Substring(0,1).ToUpperInvariant() + $item.Name.Substring(1)
+                $ready = $toolboxInstalled -and (Test-SgServiceCliResult $installed $verify $wrapper $item.Version)
+                $states[$property] = if($ready){"ready ($($item.Version))"}else{"pending ($($item.Version))"}
+                if (-not $ready) { Write-SgInstallerWarning "$($item.Name) machine CLI executable verification failed." }
+            }
+        }
     }
-    if ($needs.FlutterFire) {
+
+    # FlutterFire is a Dart Pub tool, but it is still machine-scoped and is
+    # installed independently of project detection.
+    if ($DartPath) {
         try {
             $pub = Invoke-RestMethod -UseBasicParsing -Uri 'https://pub.dev/api/packages/flutterfire_cli' -TimeoutSec 45
             $version = [string]$pub.latest.version
             if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'pub.dev returned no exact FlutterFire version.' }
             $versions.FlutterFire = $version; $resolvedNeeds.FlutterFire = $true
-        } catch { Write-SgInstallerWarning 'FlutterFire exact-version resolution failed; its CLI remains pending.' }
-    }
-    $states = [ordered]@{
-        Firebase=if($needs.Firebase){'detected; pending'}else{'not detected'}
-        FlutterFire=if($needs.FlutterFire){'detected; pending'}else{'not detected'}
-        Convex=if($needs.Convex){'detected; pending'}else{'not detected'}
-        Vercel=if($needs.Vercel){'detected; pending'}else{'not detected'}
-        Supabase=if($needs.Supabase){'detected; pending'}else{'not detected'}
-        Clerk=if($needs.Clerk){'detected; pending'}else{'not detected'}
-        AndroidNative=if($needs.AndroidNative){'detected; project-specific NDK/CMake versions must be reviewed'}else{'not detected'}
-    }
-    foreach ($item in @(Get-SgServiceCliPlan $resolvedNeeds $versions)) {
-        $install = $null; $verify = $null; $exe = ''
-        $property = if ($item.Name -eq 'flutterfire') { 'FlutterFire' } else { $item.Name.Substring(0,1).ToUpperInvariant() + $item.Name.Substring(1) }
-        if ($item.Name -eq 'firebase') {
-            $exe = Get-SgToolPath 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
-            $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
-            if (Test-SgServiceCliResult $null $verify $exe $item.Version) {
-                $states[$property] = "ready ($($item.Version))"
-                Write-Host "Using exact existing Firebase CLI $($item.Version); installation skipped." -ForegroundColor Green
-                continue
-            }
-            $install = Invoke-SgVisibleBoundedProcess -OperationId 'service.firebase' -Label "Installing Firebase CLI $($item.Version)" -File $NpmPath -Arguments @('install','--global',"firebase-tools@$($item.Version)",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 600
-            $exe = Get-SgToolPath 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
-            $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
-        } elseif ($item.Name -eq 'flutterfire') {
-            $install = Invoke-SgVisibleBoundedProcess -OperationId 'service.flutterfire' -Label "Installing FlutterFire CLI $($item.Version)" -File $DartPath -Arguments @('pub','global','activate','flutterfire_cli',$item.Version) -TimeoutSeconds 600
             $pubBin = Join-Path $env:LOCALAPPDATA 'Pub\Cache\bin'; Add-SgUserPathEntry $pubBin
-            $exe = Get-SgToolPath 'flutterfire.bat' @((Join-Path $pubBin 'flutterfire.bat'))
-            $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
-        } elseif ($item.Name -in @('supabase','convex')) {
-            $package = $item.Package
-            $install = Invoke-SgVisibleBoundedProcess -OperationId ("service." + $item.Name) -Label ("Preparing $($item.Name) CLI $($item.Version)") -File $NpxPath -Arguments @('-y','--registry=https://registry.npmjs.org/',"$package@$($item.Version)",'--version') -TimeoutSeconds 300
-            $wrapper = Join-Path $runtimeDir "$($item.Name).cmd"
-            $wrapperContent = "@echo off`r`n@call `"$NpxPath`" -y --registry=https://registry.npmjs.org/ $package@$($item.Version) %*`r`n"
-            if (-not (Test-Path -LiteralPath $wrapper) -or [IO.File]::ReadAllText($wrapper) -cne $wrapperContent) { [IO.File]::WriteAllText($wrapper,$wrapperContent,[Text.Encoding]::ASCII) }
-            $exe = $wrapper; $verify = Invoke-SgBoundedProcess $exe @('--version') 300
-        } else {
-            $install = Invoke-SgVisibleBoundedProcess -OperationId ("service." + $item.Name.ToLowerInvariant()) -Label ("Installing $($item.Name) CLI $($item.Version)") -File $NpmPath -Arguments @('install','--global',"$($item.Package)@$($item.Version)",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 600
-            $exe = Get-SgToolPath "$($item.Name).cmd" @((Join-Path $env:APPDATA "npm\$($item.Name).cmd"))
-            $verify = if ($exe) { Invoke-SgBoundedProcess $exe @('--version') 30 } else { $null }
-        }
-        $ready = Test-SgServiceCliResult $install $verify $exe $item.Version
-        $states[$property] = if ($ready) { "ready ($($item.Version))" } else { "pending ($($item.Version))" }
-        if (-not $ready) { Write-SgInstallerWarning "$($item.Name) CLI exact-version installation or executable verification failed." }
+            $exe = Join-Path $pubBin 'flutterfire.bat'
+            $verify = if(Test-Path -LiteralPath $exe -PathType Leaf){Invoke-SgBoundedProcess $exe @('--version') 60}else{$null}
+            if (-not (Test-SgServiceCliResult $null $verify $exe $version)) {
+                $activate = Invoke-SgVisibleBoundedProcess -OperationId 'service.flutterfire' -Label "Installing FlutterFire CLI $version" -File $DartPath -Arguments @('pub','global','activate','flutterfire_cli',$version) -TimeoutSeconds 600
+                $verify = if(Test-Path -LiteralPath $exe -PathType Leaf){Invoke-SgBoundedProcess $exe @('--version') 60}else{$null}
+            } else { $activate = $null }
+            $ready = Test-SgServiceCliResult $activate $verify $exe $version
+            $states.FlutterFire = if($ready){"ready ($version)"}else{"pending ($version)"}
+            if (-not $ready) { Write-SgInstallerWarning 'FlutterFire CLI executable verification failed.' }
+        } catch { Write-SgInstallerWarning "FlutterFire machine CLI remains pending: $($_.Exception.Message)" }
     }
-    return [pscustomobject]@{ Needs=$resolvedNeeds; DetectedNeeds=$needs; Versions=$versions; Firebase=$states.Firebase; FlutterFire=$states.FlutterFire; Convex=$states.Convex; Vercel=$states.Vercel; Supabase=$states.Supabase; Clerk=$states.Clerk; AndroidNative=$states.AndroidNative }
+
+    return [pscustomobject]@{ Needs=$needs; DetectedNeeds=$needs; Versions=$versions; Mise=if($mise){'ready'}else{'pending'}; ToolboxRoot=$root; Firebase=$states.Firebase; FlutterFire=$states.FlutterFire; Convex=$states.Convex; Vercel=$states.Vercel; Supabase=$states.Supabase; Clerk=$states.Clerk; GoogleCloud=$states.GoogleCloud; AndroidNative=$states.AndroidNative }
+}
+
+function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath, [string]$NpmPath, [string]$NpxPath, [bool]$GoogleCloudReady = $false) {
+    # Backward-compatible entrypoint: detection now controls MCP activation,
+    # while the machine CLI toolbox is always installed by a full install.
+    return Install-SgMachineToolbox $WorkspacePath $DartPath $NpmPath $GoogleCloudReady
 }
 
 Remove-SgLegacyRuntime
@@ -1566,6 +1706,11 @@ $pnpmPaths = @((Join-Path $env:APPDATA 'npm\pnpm.cmd'))
 $uvPaths = @((Join-Path $env:USERPROFILE '.local\bin\uv.exe'), (Join-Path $env:USERPROFILE '.cargo\bin\uv.exe'))
 $pythonPaths = @((Join-Path $env:USERPROFILE '.local\bin\python.exe'))
 $flutterPaths = @((Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.bat'), (Join-Path $env:LOCALAPPDATA 'ShipGlows\flutter\bin\flutter.exe'))
+$gcloudPaths = @(
+    (Join-Path $env:LOCALAPPDATA 'Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd'),
+    (Join-Path $programFiles 'Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd'),
+    (Join-Path $programFilesX86 'Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd')
+)
 $agentBinDirectory = Join-Path $env:APPDATA 'npm'
 $pnpmAgentBinDirectory = Join-Path $env:LOCALAPPDATA 'pnpm\bin'
 $claudePaths = @((Join-Path $agentBinDirectory 'claude.cmd'), (Join-Path $pnpmAgentBinDirectory 'claude.cmd'))
@@ -1581,12 +1726,17 @@ Write-Host 'Preparing Windows developer tools. This step can take a few minutes 
 [void](Install-SgWingetPackage 'gh.exe' 'GitHub.cli' $ghPaths)
 [void](Install-SgWingetPackage 'fzf.exe' 'junegunn.fzf' $fzfPaths)
 [void](Install-SgWingetPackage 'node.exe' 'OpenJS.NodeJS.LTS' $nodePaths)
+$misePath = Install-SgOfficialMise
+if (-not $misePath) { Write-SgInstallerWarning 'mise remains pending; the machine CLI toolbox cannot converge.' }
+$googleCloudReady = Install-SgWingetPackage 'gcloud.cmd' 'Google.CloudSDK' $gcloudPaths
 $pnpmReady = Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths
 $uvReady = Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths
 if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional default Python runtime.' }
 $pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
 Assert-SgEnvironmentPythonPackage $pythonInfo.Path (Join-Path $ShipglowsDir 'cli\environment')
 [void](Complete-SgInstallerPhase $corePhase)
+$playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
+[void](Set-SgFlutterChromeExecutable $playwrightRuntime.BrowserPath)
 $mobilePhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.mobile-toolchains' -Label 'Inspecting and preparing mobile toolchains' -TimeoutSeconds 7200) -EventSink $installerEventSink
 $script:activeInstallerPhase = $mobilePhase
 $flutterReady = Install-SgFlutter $flutterPaths $gitPaths
@@ -1640,22 +1790,20 @@ if ($codexReady -and ($env:SHIPGLOWS_CODEX_PERMISSION_MODE -or $env:SHIPGLOWS_AU
 $dartPath = if ($flutterReady) { Join-Path (Split-Path (Get-SgToolPath 'flutter.bat' $flutterPaths) -Parent) 'dart.bat' } else { '' }
 [void]$androidInfo
 $nativeNpx = Get-SgNativeNpxPath $npxPaths
-$serviceInfo = Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
-$stackMcpDefinitions = @(Get-SgStackMcpDefinitions $serviceInfo.Needs $serviceInfo.Versions $nativeNpx)
+$serviceInfo = Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx $googleCloudReady
 $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeReady -or $opencodeReady -or $kiloReady -or $geminiReady) (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
-$playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
-$agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $stackMcpDefinitions
 [void](Complete-SgInstallerPhase $agentPhase)
 $activationPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.activation' -Label 'Recording environment and activating commands' -TimeoutSeconds 7200) -EventSink $installerEventSink
 $script:activeInstallerPhase = $activationPhase
+$managedProjectPaths = @(Invoke-SgProjectEnvironmentMigration (Join-Path $runtimeDir 'ShipGlows.DevServer.psm1'))
+$agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $managedProjectPaths $serviceInfo.Versions $ReplaceAgentConfigs.IsPresent
 $playwrightConfigured = @($agentInfo.Values | Where-Object { $_.ReadyServers -contains 'playwright' }).Count -gt 0
 $playwrightPending = @($agentInfo.Values | Where-Object { $_.PendingServers -contains 'playwright' }).Count -gt 0
-$playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$playwrightConfigured; McpVerified=$playwrightConfigured -and -not $playwrightPending; ConfigPath='per-agent; readiness listed below'; ChromiumPath=$playwright.ChromiumPath }
+$playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$playwrightConfigured; McpVerified=$playwrightConfigured -and -not $playwrightPending; ConfigPath='per-project agent configs; readiness listed below'; ChromiumPath=$playwright.ChromiumPath }
 $environmentPath = Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightInfo $playwrightRuntime $pythonInfo $flutterReady $androidInfo $ideInfo $serviceInfo (Test-SgWindowsDeveloperMode) $tauriInfo
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
 $agentInstructionChanges = @(Install-SgAgentEnvironmentInstructions -UserProfile $env:USERPROFILE -AgentReady @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady })
 if ($agentInstructionChanges.Count) { Write-Host "ShipGlows tool context installed for $($agentInstructionChanges.Count) coding agent(s)." -ForegroundColor Green }
-[void](Invoke-SgProjectEnvironmentMigration (Join-Path $runtimeDir 'ShipGlows.DevServer.psm1'))
 
 Write-Host ''
 Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor Yellow

@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.19.1"
+artifact_version: "1.20.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-19"
+updated: "2026-08-24"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -57,7 +57,9 @@ evidence:
   - "Native Windows full detects Tauri Android projects, offers exact Rust/Android targets through an isolated mise environment and the validated NDK through sdkmanager, and records older projects as migration-required without mutating them; its cargo, rustc and rustup wrappers reproduce the same isolation without mutating global mise trust."
   - "The first live Tauri Windows update exposed ambiguous provider exits, mojibake Flutter diagnostics, serialized Codex MCP path comparison, and invisible prompt gaps; regression coverage now makes final observation authoritative and renders phases plus input waits explicitly."
   - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
-  - "Native Windows full prepares Dart/Flutter and exact-version Playwright MCP for installed agents; existing JSON/JSONC is preserved and reported pending when no safe native update is proven."
+  - "Native Windows full installs Dart/Flutter and exact-version Playwright at machine scope, then generates agent-native MCP activation only inside registered ShipGlows project surfaces; ordinary installs preserve divergent local files, while the owner-only maintainer surface may converge recorded files and remove former ShipGlows global entries."
+  - "Native Windows full permanently installs trusted WinGet mise plus Google Cloud CLI, owns an isolated exact-version machine toolbox for Firebase, Supabase, Convex, Vercel and Clerk, keeps FlutterFire under Dart Pub, and uses project detection only for MCP activation."
+  - "The Windows MCP allowlist records official discovery authority separately from execution trust; Google Cloud stays catalog-only and Supabase defaults to its official read-only remote endpoint."
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."
   - "Native Windows installs priority .cmd wrappers for npm-family and coding-agent commands so restrictive PowerShell execution policies cannot select blocked .ps1 shims."
   - "Native Windows resolves supported nested menu shortcuts such as s m n inside the PATH-backed launcher, without requiring a PowerShell profile."
@@ -132,7 +134,7 @@ The native Windows full-install contract packages the closed `cli/environment` P
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
 | `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Keep PowerShell 5.1-compatible; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
-| `cli/windows/install-devserver.ps1` | Installs the Windows launcher and developer tools | Install Node LTS, pnpm, uv, Flutter and the Android path idempotently; preserve explicit Android license/UAC confirmations; configure installed agents only |
+| `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
 
 The Windows launcher also owns the profile-independent shortcut paths that
@@ -295,11 +297,15 @@ Code, OpenCode, Kilo and Gemini CLIs are offered once as a grouped interactive
 exact-version installation; authentication is never started. Installed agents receive bounded MCP preparation. OpenCode v2 uses
 `mcp.servers`; Kilo prefers `kilo` and detects legacy `kilocode`. Existing
 JSON/JSONC remains byte-identical and pending if no proven native edit is safe.
-The installer stores no credentials or initiates authentication. Bounded project
-detection also prepares exact-version Firebase, FlutterFire, Convex, Vercel,
-Supabase and Clerk CLIs, plus official Firebase, Convex and Clerk MCP entrypoints.
-The official GitHub MCP is configured globally at its read-only endpoint while
-`gh` remains the sole credential owner. Neither Clerk nor GitHub authentication,
+The installer stores no credentials or initiates authentication. Every full
+install prepares exact Firebase, Convex, Vercel, Supabase and Clerk CLIs in an
+isolated machine `mise` toolbox, FlutterFire through Dart Pub, and Google Cloud
+CLI through WinGet. Bounded project detection writes agent-native project
+configuration and activates only matching Dart, Playwright, official Firebase,
+Convex, Clerk, read-only Supabase, Vercel and read-only GitHub MCP entrypoints.
+The generated machine-specific files are kept outside commits through each
+repository's local Git exclude file. Google Cloud MCPs remain catalog-only until
+explicitly selected. `gh` remains the sole GitHub credential owner. Neither Clerk nor GitHub authentication,
 project linking, SDK injection or secret retrieval is started. The environment
 report records installed and ready/pending MCP state separately for each agent.
 Developer Mode remains read-only; the installer can only offer to open the
@@ -308,9 +314,10 @@ The interactive Windows runtime adds `s a` and a root **Authentication** entry.
 It reports only redacted states and delegates connect/reconnect/logout to each
 official CLI; logout is confirmed, Gemini owns its interactive flow, and Convex
 is labelled project-scoped. Credentials and provider output are never copied to
-ShipGlows state. Full installation also owns exact user-scope `playwright` and
-`playwright-cli` packages outside projects, verifies the stable package's declared
-Chromium revision, and exposes both commands through runtime PATH wrappers.
+ShipGlows state. Full installation owns one exact user-scope `playwright`
+package outside projects, verifies its declared Chromium revision, and exposes
+both `playwright` and its bundled `playwright cli` entrypoint through runtime
+PATH wrappers.
 After the Android CLI preparation, one grouped Windows IDE proposal lists only
 missing outcomes. `Google.AndroidStudio` provides the current Android IDE and the
 Firebase Device Streaming entry point. `Microsoft.VisualStudio.2022.Community`
@@ -443,7 +450,13 @@ Chrome while preserving debug/hot-reload support. The advanced
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin
 and stdout after the CLI exits. It debounces relevant `lib/**/*.dart` changes
 for 500 ms and issues the allowlisted `app.restart` request; authenticated local
-IPC owns only reload, stop, and open operations.
+IPC owns only reload, stop, and open operations. Command resolution prefers the
+active process `PATH`, then accepts only the complete non-reparse Flutter/Dart
+pair under `%LOCALAPPDATA%\ShipGlows\flutter`; this keeps an already-open agent
+usable immediately after the installer persistently updates the user `PATH`.
+The Flutter supervisor applies the same stale-process recovery to the persisted
+user `CHROME_EXECUTABLE`, then still requires a non-reparse executable below
+the managed `%LOCALAPPDATA%\ms-playwright` root.
 - `cli/lib.sh::ui_box_header` (deprecated: use `ui_screen_header` or `ui_text_center`): prints fixed-width boxed CLI headers so left and
   right borders stay aligned across dashboard, logs, health, and success blocks.
 - `cli/lib.sh::env_start`, `env_stop`, `env_restart`, `env_remove`: core environment lifecycle.

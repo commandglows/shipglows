@@ -45,10 +45,11 @@ function Get-SgPlaywrightRuntimePlan {
         [Parameter(Mandatory=$true)][string]$Root
     )
     foreach($version in @($StableVersion,$AgentCliVersion,$McpVersion)){ if($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$'){throw 'Playwright packages require exact versions.'} }
+    if ($AgentCliVersion -ne $StableVersion) { throw 'Playwright CLI is bundled with Playwright and must use the same exact version.' }
     foreach($revision in @($StableRevision,$McpRevision)){ if($revision -notmatch '^\d+$'){throw 'Playwright browser revisions must be numeric.'} }
     [pscustomobject]@{
         Stable=[pscustomobject]@{ CommandName='playwright'; Package='playwright'; Version=$StableVersion; Revision=$StableRevision; Root=(Join-Path $Root "playwright-$StableVersion") }
-        AgentCli=[pscustomobject]@{ CommandName='playwright-cli'; Package='@playwright/cli'; Version=$AgentCliVersion; Revision='managed-by-agent-cli'; Root=(Join-Path $Root "playwright-cli-$AgentCliVersion") }
+        AgentCli=[pscustomobject]@{ CommandName='playwright-cli'; Package='playwright'; Version=$StableVersion; Revision=$StableRevision; Root=(Join-Path $Root "playwright-$StableVersion"); EntryArguments=@('cli') }
         Mcp=[pscustomobject]@{ CommandName='playwright-mcp'; Package='@playwright/mcp'; Version=$McpVersion; Revision=$McpRevision; Root=(Join-Path $Root "playwright-mcp-$McpVersion") }
     }
 }

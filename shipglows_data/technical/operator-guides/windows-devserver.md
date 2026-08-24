@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.14.0"
+artifact_version: "1.18.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-17"
+updated: "2026-08-24"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -31,6 +31,10 @@ evidence:
   - "The 2026-08-15 Windows project catalogue reuses one bounded scan across every menu and keeps live status authority in the registry."
   - "Native Windows full packages the reproducible-environment command so s env works from the installed runtime rather than only from a source checkout."
   - "The first live Tauri update led to explicit phase/input progress and final-state re-observation for mise, Firebase, Claude/Codex MCP, and localized Flutter diagnostics."
+  - "The 2026-08-23 Windows maintainer surface clones or validates the owner repository and enforces one Codex ShipGlows entrypoint channel without accepting generic all/components as authority."
+  - "The 2026-08-23 Flutter repair reconverges the managed SDK PATH on every validated rerun and separates Visual Studio C++ readiness from aggregate Flutter Windows build readiness."
+  - "The 2026-08-23 stale-session repair lets the DevServer resolve a complete non-reparse ShipGlows-managed Flutter SDK even when its parent process predates the persistent PATH update."
+  - "The 2026-08-24 Windows toolbox contract installs provider CLIs machine-wide while activating MCPs only in registered projects from project evidence, with generated agent files excluded locally from Git."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -54,9 +58,9 @@ ne sont pas requis par le parcours Shadow PC.
 - ✅ Clone et registre local des dépôts directement dans `%USERPROFILE%\ShipGlows`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
 - ✅ Android Studio proposé pour Android/Firebase Device Streaming et Visual Studio Community C++ pour compiler Flutter Windows
-- ✅ MCP Dart/Flutter et Playwright préparés sans authentification; JSON/JSONC existant préservé ou signalé pending
-- ✅ Proposition groupée des agents Codex, Claude, OpenCode, Kilo ou Gemini manquants et CLIs Firebase, FlutterFire, Convex, Vercel, Supabase ou Clerk selon les manifests
-- ✅ MCP Firebase, Convex et Clerk officiels, plus GitHub officiel en lecture seule, ajoutés aux agents détectés avec readiness agent par agent
+- ✅ Proposition groupée des agents Codex, Claude, OpenCode, Kilo ou Gemini manquants
+- ✅ Boîte à outils versionnée Firebase, FlutterFire, Convex, Vercel, Supabase, Clerk et Google Cloud installée globalement pour la machine
+- ✅ MCP activés uniquement dans les projets enregistrés selon leurs manifests et preuves Git, via les formats locaux natifs de chaque agent
 
 1. **Lancer le bootstrap unique ShipGlows:**
 
@@ -71,9 +75,20 @@ ne sont pas requis par le parcours Shadow PC.
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
    ```
 
-   Sans `-InstallMode`, le script demande simplement si vous voulez les tunnels
-   SSH ou le DevServer local complet. Le DevServer (`full`) est recommandé pour
-   cloner et lancer vos projets sur le PC Windows.
+   Sans `-InstallMode`, le script propose les tunnels SSH, le DevServer local
+   complet, ou le poste mainteneur ShipGlows. Le troisième choix clone ou
+   valide `%USERPROFILE%\ShipGlows\shipglows`, retire le plugin public Codex
+   concurrent et relie les skills directement au clone éditable.
+
+   Pour automatiser exactement le poste mainteneur :
+
+   ```powershell
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer -InstallMode full -InstallSurface maintainer
+   ```
+
+   Les valeurs génériques `full`, `all`, `skills` et l’ancien alias `corpus`
+   ne sélectionnent jamais ce canal propriétaire. Les utilisateurs Codex
+   ordinaires conservent le plugin public.
 
    Pour forcer une version ou un tag précis :
 
@@ -113,11 +128,21 @@ ne sont pas requis par le parcours Shadow PC.
    personnellement dans Android Studio. ShipGlows propose aussi d'ouvrir les
    paramètres Developer Mode sans modifier le registre; ce réglage est distinct
    de l'accélération de l'émulateur. Codex, Claude, OpenCode, Kilo et Gemini manquants sont proposés dans une
-   question groupée, sans authentification. Les nouveaux fichiers agent peuvent
-   recevoir Dart/Flutter, Playwright, Firebase, Convex, Clerk et GitHub en lecture seule; Gemini utilise son CLI natif user-scope puis une vérification locale de `settings.json`, sans connexion; un JSON/JSONC existant reste intact et
-   explicitement pending si aucune mise à jour native sûre n'est disponible.
-   Le CLI Clerk n'est préparé que si un manifest le déclare; `clerk init`, le lien
-   d'application, les SDK projet et toute authentification restent explicites.
+   question groupée, sans authentification. La boîte à outils versionnée Firebase,
+   FlutterFire, Convex, Vercel, Supabase, Clerk et Google Cloud est installée au
+   niveau de la machine, indépendamment des projets détectés. Dans chaque projet
+   enregistré, ShipGlows déduit ensuite l'inventaire MCP de ses manifests et de
+   ses preuves Git, puis écrit uniquement les configurations locales natives des
+   agents installés pour Dart/Flutter, Playwright, Firebase, Convex, Clerk,
+   Supabase, Vercel et GitHub officiel en lecture seule lorsque ces outils sont
+   pertinents. Ces fichiers propres à la machine sont ajoutés à
+   `.git/info/exclude` et ne doivent pas être commités. Les configurations de
+   projet divergentes sont préservées en parcours ordinaire; le parcours
+   mainteneur peut reconverger les fichiers ShipGlows enregistrés et retirer les
+   anciennes entrées globales connues. Le MCP Google Cloud reste au catalogue
+   jusqu'à sa sélection explicite pour un projet.
+   `clerk init`, le lien d'application, les SDK projet et toute authentification
+   restent explicites.
    Aucune authentification n'est démarrée. Il ne demande ni
    `sudo`, ni WSL, ni `autossh`. Au premier accès aux dépôts privés, GitHub CLI
    ouvre son authentification officielle dans le navigateur; ShipGlows ne lit
@@ -261,6 +286,25 @@ attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
 documentation du projet.
 
+Une réconciliation ou réinstallation qui lit temporairement le port `0` dans
+le registre conserve un port valide déjà inscrit dans `ENVIRONMENT.md`. Au
+prochain démarrage, ce port durable est réutilisé avec la même réservation
+transactionnelle qu'un port demandé explicitement; il n'est remplacé par
+`pending first ShipGlows start` que lorsqu'aucune affectation n'existe encore.
+
+Un SDK Flutter géré et déjà valide reconverge son répertoire `bin` dans le
+`PATH` utilisateur et dans le processus d'installation à chaque relance. Le
+DevServer résout aussi directement ce SDK géré lorsque le terminal ou l'agent
+parent a été ouvert avant la mise à jour du `PATH`; il exige alors les binaires
+Flutter et Dart complets et refuse les chemins de réanalyse. Le superviseur
+relit de même le `CHROME_EXECUTABLE` persistant lorsque la variable du processus
+parent est absente, puis réapplique sa contrainte au cache Playwright géré. Le
+rapport distingue le workload Visual Studio Desktop C++ de la disponibilité
+Flutter Windows complète, qui exige aussi Flutter/Dart et Developer Mode. Si
+Flutter remplace temporairement son cache Dart, attendre la fin de l'opération
+bornée puis revalider les commandes ; l'absence instantanée de `dart.exe` ne
+prouve pas à elle seule une corruption durable.
+
 Le bloc géré porte le schéma explicite
 `shipglows-project-environment/v1`. Un ancien bloc ShipGlows sans version est
 considéré comme `legacy/v0` puis migré automatiquement lors d'un enregistrement,
@@ -269,8 +313,10 @@ des marqueurs ShipGlows est conservé. Un schéma futur inconnu, des marqueurs
 incomplets ou plusieurs blocs provoquent un refus sans réécriture du fichier.
 
 Sous Windows, la priorité de port est : port demandé explicitement, variable
-`SHIPGLOWS_ENV_PORT` du processus, `.shipglows.env` du projet, registre
-persistant, puis premier port libre de `3000` à `3100`. Le numéro obtenu est
+`SHIPGLOWS_ENV_PORT` du processus, `.shipglows.env` du projet, port durable de
+`ENVIRONMENT.md`, registre persistant, puis premier port libre de `3000` à
+`3100`. Quand le registre ne porte aucun port, `ENVIRONMENT.md` est consulté
+avant l'allocation libre. Le numéro obtenu est
 propre à la surface. Si ShipGlows lance la surface sur `3002` alors que le dépôt
 déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port

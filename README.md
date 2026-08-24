@@ -259,9 +259,20 @@ retourné par GitHub, puis télécharge uniquement l'archive immuable de ce comm
 In an interactive Windows console, the bootstrap asks for SSH tunnels or the
 recommended local DevServer. The DevServer installs only the native PowerShell
 runtime for Astro, Vite, Python/FastAPI, and Flutter Web, prepares Git, GitHub CLI,
-Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid existing
+Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid external
 Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
-their environment variables or `PATH`. Otherwise JDK 17 is installed user-scope,
+their environment variables or `PATH`; a validated ShipGlows-managed Flutter SDK
+always reconverges its own `bin` directory into the user and active installer
+`PATH`. Every full rerun converges that managed SDK to the exact
+ShipGlows-validated Flutter baseline (Flutter 3.47.1, Dart 3.13.1, commit
+`6655482ec06e547f90abf8ae7590466f4415978d`) and checks out a local branch named
+`stable` tracking the pinned `origin/shipglows-stable` ref. This baseline moves
+only through an intentional ShipGlows maintenance change, so rerunning the
+installer cannot silently change a project's SDK. ShipGlows refuses a
+non-official origin or tracked local changes and restores the previously
+validated revision if the baseline cannot start. External Flutter installations
+are never updated by this convergence.
+Otherwise JDK 17 is installed user-scope,
 then the official Android terms are presented before Android command-line tools
 are downloaded. Their repository coordinate must match the Windows archive and
 SHA-256 published in the official Android Studio download table; refusal,
@@ -312,15 +323,22 @@ The runtime menu exposes `s a` / **Authentication** to inspect redacted local
 status and launch each installed CLI's official interactive connect, reconnect,
 or confirmed logout flow. ShipGlows never reads or stores credentials; Gemini
 uses its own interactive CLI, while Convex remains explicitly project-scoped.
-The full installer prepares Playwright, Dart/Flutter, Firebase, Convex, Clerk and
-the official read-only GitHub MCP
-for installed agents when the matching workspace stacks are detected, without
-authenticating. GitHub MCP is global because GitHub CLI is part of full mode;
-Clerk MCP and its exact-version CLI are enabled only when bounded manifests detect
-Clerk. Firebase, FlutterFire, Convex, Vercel and Supabase CLIs are
-prepared only from bounded manifest detection and exact resolved versions. New JSON configs use
-the agent's exact schema; existing JSON/JSONC stays byte-for-byte unchanged and
-is reported pending when no proven native update is safe. Playwright is never
+The full installer permanently acquires the trusted WinGet `mise` package and
+uses an isolated machine toolbox for exact Firebase, Supabase, Convex, Vercel
+and Clerk CLI versions. FlutterFire remains an exact Dart Pub installation,
+Google Cloud CLI comes from `Google.CloudSDK`, and Playwright keeps its dedicated
+managed runtime. These machine CLI installations do not depend on the current
+workspace and do not trust project `mise.toml` files, enable global shims, or
+start authentication. Project detection controls MCP activation instead. For every
+project registered with the ShipGlows DevServer, Windows writes agent-native local
+configuration for Codex, Claude, Gemini, OpenCode and Kilo. Those machine-specific
+files are excluded through the repository's local Git exclude file rather than
+committed. Dart, Playwright, Firebase/FlutterFire, Convex, Clerk, read-only Supabase,
+Vercel and read-only GitHub are activated only when the project manifests or Git
+metadata require them. Google Cloud MCPs are catalogued but require an explicit
+project choice. A divergent local config remains byte-for-byte unchanged and is
+reported pending unless it still matches ShipGlows' recorded hash or the owner runs
+the explicit maintainer surface. Playwright is never
 registered until an exact package version and a runnable local Chromium executable
 are proven. Android packages are centralized on API/platform/build-tools 36.
 Final observation is authoritative after an installer command: an exact runnable
@@ -332,10 +350,13 @@ absolute native `npx.cmd`, and installs headless Chromium into the user cache
 only after both exact-version resolution and executable discovery succeed.
 When configuration succeeds, the capability is available after Codex restarts;
 ShipGlows does not add Playwright files or packages to application repositories.
-Windows full also installs exact managed `playwright` and `playwright-cli`
-runtimes, exposes both through ShipGlows's PATH-priority wrappers, installs the
-Chromium revision declared by the stable runtime, and records stable, agent-CLI,
-MCP, browser-revision, and motion readiness separately.
+Windows full installs one exact managed `playwright` package, exposes its normal
+command and bundled `playwright cli` entrypoint through ShipGlows PATH-priority
+wrappers, installs the Chromium revision declared by that runtime, and records
+stable, agent-CLI, MCP, browser-revision, and motion readiness separately.
+The managed Chromium path is wired before Flutter's install-time doctor runs,
+so that diagnostic reflects the final browser configuration instead of a
+temporary missing-Chrome state.
 ShipGlows agents inspect both the directly visible tool list and the host's
 deferred/searchable catalog before reporting the configured MCP unavailable;
 a small read-only probe confirms current-session callability.
@@ -357,7 +378,21 @@ starts them on localhost ports, and keeps a recoverable registry under
 The internal Windows runtime is installed under the hidden
 `%USERPROFILE%\.shipglows\runtime` directory; user projects remain separated under
 `%USERPROFILE%\ShipGlows`.
-For automation, pass `-InstallMode local` or `-InstallMode full`; a
+For automation, pass `-InstallMode local` or `-InstallMode full`; add
+`-InstallSurface maintainer` only for the ShipGlows owner workstation. That explicit surface clones or
+validates `%USERPROFILE%\ShipGlows\shipglows`, removes the conflicting public
+Codex plugin, and links the public Codex skills directly to the complete,
+editable multi-branch clone. On this explicit owner-only surface, ShipGlows also
+removes the former ShipGlows MCP entries from agent-global configuration and
+authoritatively converges the generated project-local files; unrelated global agent
+settings remain preserved. Ordinary runtime installs preserve divergent project
+files and report unresolved differences as pending. A successful switch also persists
+`SHIPGLOWS_ROOT` for the current Windows user and activates it in the installer
+process, so new agent sessions resolve the same editable source without relying
+on their working directory.
+Generic `all`, `full`, `skills`, and legacy `corpus` requests never select the
+maintainer channel. Native Windows keeps the public Codex plugin for ordinary
+users; the Unix bootstrap retains a separate sparse `skills` surface. A
 non-interactive call without a mode preserves the local-tunnel fallback. This
 is a local development runtime, not public hosting; Flox, PM2, Caddy, autossh,
 and the Linux `urls` menu are intentionally not part of this path.
@@ -369,6 +404,9 @@ registered with its own stable display name, persistent localhost port, logs,
 and `ENVIRONMENT.md`. Discovery is bounded to four workspace levels and three
 levels below a project root, and skips dependency, build, cache, and hidden
 directories. It does not claim to recognize every possible monorepo layout.
+Installer migration never replaces an existing valid assigned port with
+`pending` merely because the live registry currently records zero; a later
+start recovers that durable port before allocating a new one.
 One linear scan feeds every dashboard and project picker. Its non-authoritative
 project index is cached in memory and atomically on disk. The last structurally
 valid index is displayed immediately; after five minutes the interactive menu
@@ -386,6 +424,9 @@ concurrent starts from assigning the same port to different surfaces. Existing
 single-surface registry entries are migrated by runnable path while preserving
 verified live process metadata. Flutter Web runs through a small persistent
 machine-protocol supervisor with managed logs and headless Chrome by default.
+The full installer exposes its validated Playwright Chromium through the standard
+`CHROME_EXECUTABLE` user environment variable, and the supervisor passes only
+that existing ShipGlows-managed executable to Flutter's `chrome` device.
 Matching `app.start`/`app.started` events establish readiness, Dart changes under
 `lib/` trigger debounced hot reload, Open promotes the session to managed visible
 Chrome, and Restart remains a complete controlled restart. Orphan listeners and
@@ -432,12 +473,12 @@ sudo ./cli/install.sh
 
 ### Runtime, skills, and Codex distribution
 
-The bootstrap defaults to the lightweight `runtime` surface: it uses Git sparse checkout for the CLI, local installer, TUI, and runtime settings only. It does not download the public skill corpus by default. When `SHIPGLOWS_INSTALL_COMPONENTS=all`, `skills`, or `corpus` requests skills without an explicit surface, the bootstrap automatically selects the `corpus` surface.
+The Unix bootstrap defaults to the lightweight `runtime` surface: it uses Git sparse checkout for the CLI, local installer, TUI, and runtime settings only. It does not download the public skill corpus by default. When `SHIPGLOWS_INSTALL_COMPONENTS=all`, `skills`, or legacy `corpus` requests skills without an explicit surface, the Unix bootstrap automatically selects the canonical sparse `skills` surface. Native Windows does not reinterpret these component values as maintainer authority.
 
 To make the public skill corpus and the OpenCode/KiloCode-compatible repository shims available locally, request it explicitly:
 
 ```bash
-curl -fsSL https://shipglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=corpus sh
+curl -fsSL https://shipglows.com/shipglows-script | SHIPGLOWS_INSTALL_MODE=local SHIPGLOWS_INSTALL_SURFACE=skills sh
 ```
 
 For a normal installation, ShipGlows detects Codex and offers to install the
@@ -448,8 +489,9 @@ can confirm. The public plugin does not require the full skill corpus.
 
 For a server installation, the interactive installer also asks separately whether to synchronize the public skill corpus into Claude and the Codex user skill directory. Select that option only for a source-tree development workflow. The public plugin and the live corpus are mutually exclusive for `$shipglows`; an explicit attempt to install both is rejected.
 
-Contributors clone the repository and select the live development channel from
-that clone:
+Maintainers explicitly clone the complete repository and select the live
+development channel from that clone. This is distinct from the sparse public
+skills surface:
 
 ```bash
 shipglows skills status
@@ -728,7 +770,7 @@ Per-user configuration includes:
 - aliases in `~/.bashrc` for `000-shipglows`, `sg`, mode-selected `c`/`co`, safe escape hatches `cask`/`coask`, shell reload (`re`/`reload`), and tmux pane cleanup (`ch` = `clear; tmux clear-history`)
 - `shipglows_data/workflow/TASKS.md`, `shipglows_data/workflow/AUDIT_LOG.md`
 
-The native developer commands cover the normal source-contributor workflow:
+The native developer commands cover the explicit ShipGlows maintainer workflow:
 
 ```bash
 shipglows skills status
@@ -748,7 +790,9 @@ The helper links current-user `~/.claude/skills/<name>` and [Codex's official us
 
 On Windows, pass `-CleanStale` with `-Mode repair -Catalog public` to remove only
 obsolete ShipGlows junctions from the selected runtime directories. The helper
-never removes source skills or unrelated/non-link entries.
+never removes source skills or unrelated/non-link entries. It also accepts
+`-CodexEntrypoint linked|plugin` and refuses an enabled plugin together with a
+linked developer router.
 
 On native Windows, use the PowerShell helper. It creates directory junctions, which do not require Windows symbolic-link privileges:
 
@@ -757,7 +801,10 @@ On native Windows, use the PowerShell helper. It creates directory junctions, wh
 .\tools\shipglows_sync_skills.ps1 -Mode check -All -Runtime codex -Catalog all
 ```
 
-The native Windows public installer deliberately does not install this source corpus. Developers run the command above from a ShipGlows checkout; other Codex users use the plugin route.
+The native Windows public installer keeps the runtime-only path by default.
+ShipGlows maintainers select option 3 interactively or pass
+`-InstallMode full -InstallSurface maintainer`; other Codex users keep the plugin
+route.
 
 If your Codex version does not expose one of these items (for example `thread`), adjust interactively in Codex:
 
