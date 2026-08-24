@@ -18,6 +18,7 @@ LIFECYCLE_ROUTING = ROOT / "skills" / "006-sg-design" / "references" / "design-l
 PROOF_GUIDANCE = ROOT / "skills" / "006-sg-design" / "references" / "design-proof-and-reporting.md"
 DESIGN_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "design-audit-playbook.md"
 REFERENCE_DRIVEN = ROOT / "skills" / "006-sg-design" / "references" / "reference-driven-frontend-playbook.md"
+SYSTEM_CREATION = ROOT / "skills" / "006-sg-design" / "references" / "design-system-creation-playbook.md"
 LANDING_COHERENCE = ROOT / "skills" / "references" / "landing-page-experience-coherence.md"
 README = ROOT / "README.md"
 CHEATSHEET = ROOT / "shipglows_data" / "technical" / "operator-guides" / "skill-launch-cheatsheet.md"
@@ -31,6 +32,27 @@ def normalized_text(path: Path) -> str:
 
 
 class DesignContractTests(unittest.TestCase):
+    def test_shared_iconography_canon_is_functional_and_project_overridable(self) -> None:
+        contract = normalized_text(TOKEN_CONTRACT)
+        creation = normalized_text(SYSTEM_CREATION)
+
+        for phrase in (
+            "## Shared Iconography Canon",
+            "Phosphor as the default functional icon family",
+            "Regular weight by default",
+            "Fill may communicate selected or active state",
+            "Use Simple Icons only for third-party brand marks",
+            "Unicon is an optional web discovery and export tool, not an icon family",
+            "constrain its source to Phosphor",
+            "project-local design-system authority",
+            "one dominant iconography language per surface",
+            "Do not retrofit existing projects solely to satisfy this default",
+        ):
+            self.assertIn(phrase, contract)
+
+        self.assertIn("Iconography: [Phosphor default / documented project exception]", creation)
+        self.assertIn("functional iconography follows the shared canon", creation)
+
     def test_identity_is_a_first_class_non_software_design_outcome(self) -> None:
         skill = normalized_text(DESIGN_SKILL)
         public = normalized_text(PUBLIC_DESIGN_SKILL)

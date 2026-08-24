@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-08-23"
+updated: "2026-08-24"
 status: active
 source_skill: 900-shipglows-core
 scope: design-system-token-contract
@@ -35,6 +35,7 @@ evidence:
   - "Operator directive 2026-08-21: essential homepage content must remain visible when JavaScript or animation fails."
   - "Operator directive 2026-08-21: prefer semantic HTML and native CSS for presentation, and require a concrete functional reason before adding JavaScript."
   - "Recovery verification 2026-08-23: content-availability, CSS-first, metadata, dependency, skill, topology, and runtime-sync checks passed on the current main baseline."
+  - "Operator decision 2026-08-24: Phosphor is the default functional icon family, Unicon is a source-constrained web tool, and Simple Icons is reserved for brand marks."
 next_review: "2026-09-12"
 next_step: "Apply the gate to the next public or product-critical interface change."
 ---
@@ -113,6 +114,27 @@ Treat the existing project declaration as authoritative. If it is missing, infer
 
 If multiple sources exist, stop or ask one targeted question to choose the canonical source before writing design values. Record the decision in the project design-system authority artifact, not only in the final report.
 
+## Shared Iconography Canon
+
+Use Phosphor as the default functional icon family for new ShipGlows app and
+web work. Use its Regular weight by default. Fill may communicate selected or
+active state when the state also remains understandable without icon style
+alone; do not mix weights decoratively or combine unrelated functional icon
+families on one surface.
+
+Use Simple Icons only for third-party brand marks, subject to the brand's
+trademark rules and accessible-name requirements. Unicon is an optional web
+discovery and export tool, not an icon family or visual authority: constrain
+its source to Phosphor for functional icons and to Simple Icons for brand
+marks.
+
+A project may choose another coherent family, a custom SVG, or a
+platform-native icon only when its project-local design-system authority names
+the functional, platform, accessibility, or brand reason. Keep that exception
+bounded and preserve one dominant iconography language per surface. Do not
+retrofit existing projects solely to satisfy this default; adopt it during new
+work or an already-authorized design-system migration.
+
 ## Cross-Surface Identity Gate
 
 Multiple applications do not share a design system merely because each one uses variables, themes, or similarly named design tokens. A cross-platform or app/site parity claim requires one of these architectures:
@@ -184,3 +206,5 @@ Stop, reroute, or report `partial`/`not verified` when:
 - accessibility, reduced motion, dynamic type, contrast, focus, or target-size safety would be weakened to satisfy token discipline
 - a cross-surface parity claim relies on parallel token files without a canonical mapping or resolved-value comparison
 - a component-library migration replaces mature interaction behavior with copied or bespoke controls without keyboard, focus, and semantics proof
+- functional icons mix unrelated families without a documented project exception
+- Unicon output is accepted without constraining and recording its source family
