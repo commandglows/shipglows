@@ -6,7 +6,7 @@ project: "ShipGlows"
 created: "2026-08-24"
 created_at: "2026-08-24 17:34:21 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 18:16:28 UTC"
+updated_at: "2026-08-24 18:49:29 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "gpt-5.6"
@@ -36,7 +36,8 @@ evidence:
   - "Operator approval 2026-08-24: cover every bookmark root in the Vivaldi Default profile and permit reversible JSON edits only while Vivaldi is closed."
   - "The live profile contains bookmark_bar, other, synced, and trash roots; its stored checksum matches Chromium-compatible traversal."
   - "Synthetic mutation coverage proves add, update, move-to-Trash, restore, dry-run, stale-checksum rejection, and running-browser refusal."
-next_step: "Complete closed-browser live mutation proof, persist the updated branch remotely, then integrate it into main."
+  - "Closed-browser live proof completed add-folder, add-url, update, move, archive, and restore; six private backups were created before exact byte-for-byte restoration of the original 4,105-bookmark file and checksum."
+next_step: "Integrate the remotely persisted task branch into main, then remove the temporary worktree after integration proof."
 ---
 
 # Spec: Complete Vivaldi Bookmark Bridge
@@ -47,7 +48,7 @@ Complete Vivaldi Bookmark Bridge
 
 ## Status
 
-The complete-profile read and reversible mutation implementation passes focused verification. Live checksum validation and running-browser refusal pass; the temporary live mutation lifecycle remains pending until the operator closes Vivaldi. Remote persistence and integration follow that proof.
+The complete-profile read and reversible mutation implementation passes focused and live verification. A closed-browser temporary lifecycle exercised every mutation class, created six private backups, and restored the original bookmark file exactly. Integration into `main` remains before terminal cleanup.
 
 ## User Story
 
@@ -178,7 +179,8 @@ None.
 | 2026-08-24 18:17:26 UTC | 100-sg-spec revision | ready | Operator expanded scope to every Default-profile bookmark and approved reversible offline JSON edits | Implement complete-profile mutation bridge |
 | 2026-08-24 18:17:26 UTC | 102-sg-start | implemented | Full-root reads, complete private URLs, ID/GUID mutations, Chromium checksum, dry-run, private backup, atomic write, Trash archive/restore, and running-browser guard implemented | Complete live proof |
 | 2026-08-24 18:17:26 UTC | 103-sg-verify standard | partial | 29 focused tests, syntax, metadata lint, real checksum validation, no-write dry run, and live running-browser refusal pass; Vivaldi remains open | Close Vivaldi and run temporary mutation/restore proof |
+| 2026-08-24 18:49:29 UTC | 103-sg-verify live | verified | Closed-browser add-folder, add-url, update, move, archive, and restore passed with six backups; original bytes, SHA-256, bookmark count, and Chromium checksum restored exactly | Persist proof and integrate branch |
 
 ## Current Chantier Flow
 
-`100-sg-spec revised -> 102-sg-start implemented -> 103-sg-verify partial (closed-browser live proof pending) -> 005-sg-ship pending update -> 104-sg-end pending integration`
+`100-sg-spec revised -> 102-sg-start implemented -> 103-sg-verify verified -> 005-sg-ship branch update pending -> 104-sg-end pending integration`
