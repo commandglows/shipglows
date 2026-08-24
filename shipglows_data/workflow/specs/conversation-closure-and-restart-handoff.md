@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-08-24"
-status: ready
+status: reviewed
 source_skill: 900-shipglows-core
 scope: conversation-closure-and-restart-handoff
 owner: Diane
@@ -37,14 +37,14 @@ evidence:
   - "Operator correction 2026-08-21: useful context degradation is the primary trigger; an independent outcome alone must never cause a restart recommendation."
   - "Operator approval 2026-08-22: use a cheap transition check and refresh only affected sources after a concrete drift signal."
   - "Operator approval 2026-08-24: compact the shared continuity contract without changing behavior or losing any pressure scenario."
-next_step: Reduce the shared contract below 800 words while preserving CCR-001 through CCR-009 and all focused tests.
+next_step: Review and merge the focused handoff-compaction PR.
 ---
 
 # Conversation Closure And Restart Handoff
 
 ## Status
 
-ready — reopened for behavior-preserving compaction
+complete — behavior preserved while the active contract was reduced by approximately one third
 
 ## Acceptance Criteria
 
@@ -83,13 +83,13 @@ ready — reopened for behavior-preserving compaction
 - [x] Update tracker state without rewriting operational history.
 - [x] Verify metadata, topology, focused scenarios, and diff hygiene.
 - [x] Commit and push the implementation and closure milestones.
-- [ ] Reduce the shared contract below 800 words without changing its decision sequence.
-- [ ] Preserve all nine pressure scenarios and the existing 44-test baseline.
-- [ ] Record measured before/after size and push the compaction milestone.
+- [x] Reduce the shared contract below 800 words without changing its decision sequence.
+- [x] Preserve all nine pressure scenarios and the existing 44-test baseline.
+- [x] Record measured before/after size and push the compaction milestone.
 
 ## Current Chantier Flow
 
-`existing behavior verified ✅ -> compaction approved ✅ -> spec reopened ready ✅ -> size guard -> contract compaction -> verification -> commit/push`
+`existing behavior verified ✅ -> compaction approved ✅ -> spec reopened ready ✅ -> size guard ✅ -> contract compaction ✅ -> verification ✅ -> commit/push ✅`
 
 ## Skill Run History
 
@@ -104,3 +104,4 @@ ready — reopened for behavior-preserving compaction
 | 2026-08-22 | 900-shipglows-core | approved | The operator approved a proportional cost rule: lightweight transition checks, targeted refresh on signal, and no default full-history reread. | implement and verify the focused scenario |
 | 2026-08-22 | 103-sg-verify | verified | Commit `ba0c433` implements the proportional check; 44 focused scenarios, metadata, topology, and diff hygiene pass without a build. | commit, push, and open the focused review |
 | 2026-08-24 | 900-shipglows-core | ready | The operator approved a behavior-preserving compaction after the active contract measured 1,055 words across 112 lines. | add a size and scenario-preservation guard before editing |
+| 2026-08-24 | 103-sg-verify | verified | Commit `1d0d870` reduces the active contract to 706 words; all 45 focused tests, CCR-001 through CCR-009, metadata, topology, and diff hygiene pass. | commit the durable closure and open the focused review |

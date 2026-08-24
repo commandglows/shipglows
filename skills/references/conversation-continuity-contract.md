@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-08-21"
+updated: "2026-08-24"
 status: active
 source_skill: 900-shipglows-core
 scope: conversation-continuity-and-restart-handoff
@@ -33,6 +33,7 @@ evidence:
   - "Operator approval 2026-08-21: a restart recommendation follows stabilization and includes a self-contained copyable prompt."
   - "Operator correction 2026-08-21: useful context becoming insufficiently reliable is the trigger; an independent outcome alone is never sufficient."
   - "Operator approval 2026-08-22: context health checks stay lightweight at transitions and refresh only affected sources when a degradation signal exists."
+  - "Operator approval 2026-08-24: the active contract was reduced from 1,055 to 706 words while preserving behavior and CCR-001 through CCR-009."
 next_review: "2026-11-21"
 next_step: Review this contract against observed restart handoffs after three uses.
 ---
