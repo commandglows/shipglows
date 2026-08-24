@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.8.2"
+artifact_version: "1.8.3"
 project: "ShipGlows"
 created: "2026-07-15"
 created_at: "2026-07-15 07:29:01 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 14:51:24 UTC"
+updated_at: "2026-08-24 14:52:42 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "gpt-5.5 high"
@@ -508,6 +508,7 @@ None. The storage/privacy decision is resolved by defining a separate private in
 | 2026-08-07 06:45:00 UTC | 006-sg-design | gpt-5 | Captured the operator-authorized Unlearn page, added tall-page WebP bounding with detailed segments, and documented that animation capture is outside the current static bundle. | implemented | /103-sg-verify sales-page-reference-library storage sync correction |
 | 2026-08-24 14:49:03 UTC | 003-sg-bug / 106-sg-fix / 107-sg-test | gpt-5.6-sol + delegated gpt-5.6-luna | Reproduced and repaired the missing Windows linked-development-channel fallback in the capture tool, then passed its 33-test module and the complete 756-test UTF-8 Python suite. | fixed-pending-verify | /103-sg-verify BUG-2026-08-24-001 |
 | 2026-08-24 14:51:24 UTC | 103-sg-verify | gpt-5.6-sol | Independently verified resolution precedence, invalid-channel fallback, the original two failures, the real-machine linked-root result, complete-suite proof, exact diff scope, and documentation coherence. | verified | /005-sg-ship BUG-2026-08-24-001 |
+| 2026-08-24 14:52:42 UTC | 005-sg-ship | gpt-5.6-sol | Committed the bounded six-file correction as `5461188` and pushed `codex/capture-path-resolution` to `origin` without force. | shipped | open and merge the validated pull request |
 
 ## Current Chantier Flow
 
@@ -523,6 +524,7 @@ None. The storage/privacy decision is resolved by defining a separate private in
 - `104-sg-end`: prior release closed; correction closure is ready.
 - `005-sg-ship`: prior release shipped; both verified corrections remain unshipped.
 - `003-sg-bug` / `106-sg-fix` / `107-sg-test`: Windows linked developer-root resolution was repaired and retested under `BUG-2026-08-24-001`.
-- `103-sg-verify`: `BUG-2026-08-24-001` is independently verified and closed; Git delivery remains.
+- `103-sg-verify`: `BUG-2026-08-24-001` is independently verified and closed; the verified result was handed to Git delivery.
+- `005-sg-ship`: `BUG-2026-08-24-001` is committed and remotely persisted on `codex/capture-path-resolution`; PR integration remains.
 
-Next step: `/005-sg-ship BUG-2026-08-24-001`, then resume the remaining post-ship correction closure.
+Next step: merge the validated correction PR into `main`, then resume the remaining post-ship correction closure.
