@@ -779,7 +779,7 @@ function Get-SgAgentMcpPlan {
 }
 
 function Get-SgAgentConfigWritePlan {
-    param([string]$ConfigPath, [Collections.IDictionary]$Config)
+    param([string]$ConfigPath, [Collections.IDictionary]$Config, [switch]$ReplaceExisting)
     if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) {
         $existing = [IO.File]::ReadAllText($ConfigPath)
         $expected = ($Config | ConvertTo-Json -Depth 32) + [Environment]::NewLine
@@ -792,6 +792,9 @@ function Get-SgAgentConfigWritePlan {
                 return [pscustomobject]@{ Status='replace-skeleton'; Reason='schema-only agent config can be completed safely'; ConfigPath=$ConfigPath }
             }
         } catch {}
+        if ($ReplaceExisting) {
+            return [pscustomobject]@{ Status='replace-existing'; Reason='explicit maintainer install owns the complete agent MCP inventory'; ConfigPath=$ConfigPath }
+        }
         return [pscustomobject]@{ Status='pending'; Reason='existing config must be updated by a proven native CLI; bytes and secrets were preserved'; ConfigPath=$ConfigPath }
     }
     [pscustomobject]@{ Status='create'; Reason=''; ConfigPath=$ConfigPath }
@@ -904,24 +907,25 @@ function Expand-SgVerifiedZip {
 }
 
 function Write-SgNewAgentConfig {
-    param([string]$ConfigPath, [Collections.IDictionary]$Config, [switch]$ReplaceSkeleton)
+    param([string]$ConfigPath, [Collections.IDictionary]$Config, [switch]$ReplaceSkeleton, [switch]$ReplaceExisting)
     $next = ($Config | ConvertTo-Json -Depth 32) + [Environment]::NewLine
-    $replaceExisting = $false
+    $isReplacement = $false
     if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) {
         $existing = [IO.File]::ReadAllText($ConfigPath)
         if ($existing.Replace("`r`n","`n") -ceq $next.Replace("`r`n","`n")) { return $false }
-        $writePlan = Get-SgAgentConfigWritePlan -ConfigPath $ConfigPath -Config $Config
-        if (-not $ReplaceSkeleton -or $writePlan.Status -ne 'replace-skeleton') {
+        $writePlan = Get-SgAgentConfigWritePlan -ConfigPath $ConfigPath -Config $Config -ReplaceExisting:$ReplaceExisting
+        $allowed = ($ReplaceSkeleton -and $writePlan.Status -eq 'replace-skeleton') -or ($ReplaceExisting -and $writePlan.Status -eq 'replace-existing')
+        if (-not $allowed) {
             throw "Existing agent config was preserved; use the agent native CLI or update it manually: $ConfigPath"
         }
-        $replaceExisting = $true
+        $isReplacement = $true
     }
     $directory = Split-Path -Parent $ConfigPath
     New-Item -ItemType Directory -Path $directory -Force | Out-Null
     $temp = "$ConfigPath.$([guid]::NewGuid().ToString('N')).tmp"
     try {
         [IO.File]::WriteAllText($temp, $next, [Text.UTF8Encoding]::new($false))
-        if ($replaceExisting) { Move-SgAtomicReplace $temp $ConfigPath }
+        if ($isReplacement) { Move-SgAtomicReplace $temp $ConfigPath }
         else { Move-Item -LiteralPath $temp -Destination $ConfigPath }
     } finally { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force } }
     return $true

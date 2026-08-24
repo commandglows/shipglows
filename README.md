@@ -376,7 +376,10 @@ For automation, pass `-InstallMode local` or `-InstallMode full`; add
 `-InstallSurface maintainer` only for the ShipGlows owner workstation. That explicit surface clones or
 validates `%USERPROFILE%\ShipGlows\shipglows`, removes the conflicting public
 Codex plugin, and links the public Codex skills directly to the complete,
-editable multi-branch clone. A successful switch also persists
+editable multi-branch clone. On this explicit owner-only surface, ShipGlows also
+replaces divergent OpenCode and Kilo JSON/JSONC files with its canonical MCP
+inventory; ordinary runtime installs continue preserving existing agent files
+and report unresolved differences as pending. A successful switch also persists
 `SHIPGLOWS_ROOT` for the current Windows user and activates it in the installer
 process, so new agent sessions resolve the same editable source without relying
 on their working directory.

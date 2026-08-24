@@ -105,6 +105,7 @@ rg -F -n 'Test-SgChromiumExecutableResult $browserProbe $browserCheck' "$INSTALL
 rg -F -n "EnvironmentVariables['CHROME_EXECUTABLE']" "$WINDOWS_DIR/ShipGlows.FlutterSupervisor.ps1"
 ! rg -n 'Install Flutter Web SDK now\? \[y/N\]|--accept.*license|yes.*android-licenses' "$INSTALLER" "$MOBILE_MODULE"
 rg -n 'Get-SgAgentMcpPlan|Get-SgAgentConfigWritePlan|Write-SgNewAgentConfig|Get-SgAndroidInstallPlan|Get-SgProjectServiceNeeds|Test-SgWindowsDeveloperMode' "$INSTALLER" "$MOBILE_MODULE"
+rg -n 'ReplaceAgentConfigs|ReplaceExistingAgentConfigs|replace-existing|explicit maintainer install owns the complete agent MCP inventory' "$INSTALLER" "$MOBILE_MODULE" "$BOOTSTRAP"
 rg -n 'Resolve-SgAgentConfigPath.*OpenCode|Resolve-SgAgentConfigPath.*Kilo|\.jsonc' "$INSTALLER" "$MOBILE_MODULE"
 rg -n "mcp=.*servers|McpShape='servers'|opencode\.json|kilo\.json|Resolve-SgKiloCommand|kilo\.cmd|kilocode\.cmd" "$INSTALLER" "$MOBILE_MODULE"
 rg -n 'Install-SgDetectedServiceClis|Resolve-SgNpmVersion|firebase-tools@|flutterfire_cli.*Version|supabase@.*Version|executable verification failed' "$INSTALLER"

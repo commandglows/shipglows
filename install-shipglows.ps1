@@ -428,7 +428,9 @@ try {
             if ($LASTEXITCODE -ne 0) { throw 'Native Windows configuration failed.' }
         } else {
             Write-Info 'Installing the native Windows DevServer launcher.'
-            & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $windowsDirectory 'install-devserver.ps1') -ShipglowsDir $ShipglowsDir
+            $devServerArguments = @('-NoProfile','-ExecutionPolicy','Bypass','-File',(Join-Path $windowsDirectory 'install-devserver.ps1'),'-ShipglowsDir',$ShipglowsDir)
+            if ($InstallSurface -eq 'maintainer') { $devServerArguments += '-ReplaceAgentConfigs' }
+            & powershell.exe @devServerArguments
             if ($LASTEXITCODE -ne 0) { throw 'Native Windows DevServer installation failed.' }
         }
     }

@@ -2,7 +2,8 @@
 param(
     [string]$ShipglowsDir = (Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'runtime'),
     [string]$Workspace = (Join-Path $env:USERPROFILE 'ShipGlows'),
-    [switch]$SkipProfile
+    [switch]$SkipProfile,
+    [switch]$ReplaceAgentConfigs
 )
 
 $ErrorActionPreference = 'Stop'
@@ -1425,7 +1426,7 @@ function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$Np
     return [pscustomobject]@{ Ready=$true; Version=$version; Revision=$revision; ChromiumPath=[IO.Path]::GetFullPath($chromiumPath) }
 }
 
-function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [string]$NpxPath, $Playwright, [object[]]$StackMcpDefinitions = @()) {
+function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [string]$NpxPath, $Playwright, [object[]]$StackMcpDefinitions = @(), [bool]$ReplaceExistingAgentConfigs = $false) {
     $results = @{}
     foreach ($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')) {
         $results[$agentName] = [pscustomobject]@{ Installed=[bool]$AgentReady[$agentName]; McpSummary=if($AgentReady[$agentName]){'pending'}else{'not applicable'}; ReadyServers=@(); PendingServers=@() }
@@ -1438,8 +1439,8 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
     if ($AgentReady.OpenCode) {
         $plan = Get-SgAgentMcpPlan OpenCode (Get-SgToolPath 'opencode.cmd' $opencodePaths) $DartPath $NpxPath $Playwright.Version $Playwright.Ready $StackMcpDefinitions
         $resolvedConfig = Resolve-SgAgentConfigPath OpenCode $env:USERPROFILE
-        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config
-        if ($write.Status -in @('create','replace-skeleton')) { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config -ReplaceSkeleton:($write.Status -eq 'replace-skeleton')); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
+        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config -ReplaceExisting:$ReplaceExistingAgentConfigs
+        if ($write.Status -in @('create','replace-skeleton','replace-existing')) { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config -ReplaceSkeleton:($write.Status -eq 'replace-skeleton') -ReplaceExisting:($write.Status -eq 'replace-existing')); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
         if ($ready) { $results.OpenCode = [pscustomobject]@{ Installed=$true; McpSummary="ready: $(@($serverDefinitions.Name) -join ', ')"; ReadyServers=@($serverDefinitions.Name); PendingServers=@() } }
         else { $results.OpenCode = [pscustomobject]@{ Installed=$true; McpSummary='pending: existing JSON/JSONC preserved'; ReadyServers=@(); PendingServers=@($serverDefinitions.Name) }; Write-SgInstallerWarning "OpenCode v2 MCP pending: $($write.Reason)" }
     }
@@ -1447,8 +1448,8 @@ function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [s
         $kiloCommand = Resolve-SgKiloCommand (Get-SgToolPath 'kilo.cmd' $kiloPaths) (Get-SgToolPath 'kilocode.cmd' $kilocodePaths)
         $plan = Get-SgAgentMcpPlan Kilo $kiloCommand.Path $DartPath $NpxPath $Playwright.Version $Playwright.Ready $StackMcpDefinitions
         $resolvedConfig = Resolve-SgAgentConfigPath Kilo $env:USERPROFILE
-        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config
-        if ($write.Status -in @('create','replace-skeleton')) { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config -ReplaceSkeleton:($write.Status -eq 'replace-skeleton')); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
+        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config -ReplaceExisting:$ReplaceExistingAgentConfigs
+        if ($write.Status -in @('create','replace-skeleton','replace-existing')) { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config -ReplaceSkeleton:($write.Status -eq 'replace-skeleton') -ReplaceExisting:($write.Status -eq 'replace-existing')); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
         if ($ready) { $results.Kilo = [pscustomobject]@{ Installed=$true; McpSummary="ready: $(@($serverDefinitions.Name) -join ', ')"; ReadyServers=@($serverDefinitions.Name); PendingServers=@() } }
         else { $results.Kilo = [pscustomobject]@{ Installed=$true; McpSummary='pending: existing JSON/JSONC preserved'; ReadyServers=@(); PendingServers=@($serverDefinitions.Name) }; Write-SgInstallerWarning "Kilo MCP pending: $($write.Reason)" }
     }
@@ -1758,7 +1759,7 @@ $nativeNpx = Get-SgNativeNpxPath $npxPaths
 $serviceInfo = Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx $googleCloudReady
 $stackMcpDefinitions = @(Get-SgStackMcpDefinitions $serviceInfo.Needs $serviceInfo.Versions $nativeNpx)
 $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeReady -or $opencodeReady -or $kiloReady -or $geminiReady) (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
-$agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $stackMcpDefinitions
+$agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $stackMcpDefinitions $ReplaceAgentConfigs.IsPresent
 [void](Complete-SgInstallerPhase $agentPhase)
 $activationPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.activation' -Label 'Recording environment and activating commands' -TimeoutSeconds 7200) -EventSink $installerEventSink
 $script:activeInstallerPhase = $activationPhase

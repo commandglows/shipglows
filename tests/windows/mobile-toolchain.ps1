@@ -409,11 +409,20 @@ exit /b 23
     Assert-Sg ($existingPlan.Status -eq 'pending' -and $existingPlan.Reason -match 'existing') 'Existing JSON must use native CLI or remain pending.'
     Assert-Sg ((Get-FileHash $config -Algorithm SHA256).Hash -eq $hash) 'Existing config or secret changed during planning.'
     Assert-Sg (-not (Test-Path "$config.shipglows-backup-*")) 'Secret-bearing backups must not be created.'
+    $maintainerPlan = Get-SgAgentConfigWritePlan -ConfigPath $config -Config ([ordered]@{ mcp=$servers }) -ReplaceExisting
+    Assert-Sg ($maintainerPlan.Status -eq 'replace-existing' -and $maintainerPlan.Reason -match 'maintainer') 'Explicit maintainer planning must own a divergent JSON agent config.'
+    Assert-Sg (Write-SgNewAgentConfig -ConfigPath $config -Config ([ordered]@{ mcp=$servers }) -ReplaceExisting) 'Explicit maintainer mode must replace a divergent JSON agent config atomically.'
+    Assert-Sg ((Get-SgAgentConfigWritePlan -ConfigPath $config -Config ([ordered]@{ mcp=$servers })).Status -eq 'unchanged') 'Maintainer JSON replacement must converge idempotently.'
+    Assert-Sg (-not (Test-Path "$config.shipglows-backup-*")) 'Maintainer JSON replacement must not create a secret-bearing backup.'
     $jsonc = Join-Path $fixture 'agent.jsonc'
     [IO.File]::WriteAllText($jsonc, "{`n // keep this comment`n `"provider`": { `"secret`": `"keep-me`" }`n}")
     $jsoncHash = (Get-FileHash $jsonc -Algorithm SHA256).Hash
     $jsoncPlan = Get-SgAgentConfigWritePlan -ConfigPath $jsonc -Config ([ordered]@{ mcp=$servers })
     Assert-Sg ($jsoncPlan.Status -eq 'pending' -and (Get-FileHash $jsonc -Algorithm SHA256).Hash -eq $jsoncHash) 'JSONC comments/secrets must be preserved byte-for-byte.'
+    Assert-Sg ((Get-SgAgentConfigWritePlan -ConfigPath $jsonc -Config ([ordered]@{ mcp=$servers }) -ReplaceExisting).Status -eq 'replace-existing') 'Explicit maintainer planning must own a divergent JSONC agent config.'
+    Assert-Sg (Write-SgNewAgentConfig -ConfigPath $jsonc -Config ([ordered]@{ mcp=$servers }) -ReplaceExisting) 'Explicit maintainer mode must replace a divergent JSONC agent config atomically.'
+    Assert-Sg ((Get-SgAgentConfigWritePlan -ConfigPath $jsonc -Config ([ordered]@{ mcp=$servers })).Status -eq 'unchanged') 'Maintainer JSONC replacement must converge idempotently.'
+    Assert-Sg (-not (Test-Path "$jsonc.shipglows-backup-*")) 'Maintainer JSONC replacement must not create a secret-bearing backup.'
     $skeleton = Join-Path $fixture 'kilo-skeleton.jsonc'
     $kiloConfig = [ordered]@{ '$schema'='https://app.kilo.ai/config.json'; mcp=$servers }
     [IO.File]::WriteAllText($skeleton, "{`n  `"`$schema`": `"https://app.kilo.ai/config.json`"`n}`n")
