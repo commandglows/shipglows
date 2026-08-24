@@ -26,7 +26,7 @@ linked_systems:
   - "shipglows_data/technical/code-docs-map.md"
 depends_on:
   - artifact: "skills/references/canonical-runtime-and-private-roots.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
   - artifact: "skills/references/design-inspiration-library.md"
     artifact_version: "2.0.0"
@@ -36,7 +36,7 @@ evidence:
   - "Operator approval 2026-08-24: cover every bookmark root in the Vivaldi Default profile and permit reversible JSON edits only while Vivaldi is closed."
   - "The live profile contains bookmark_bar, other, synced, and trash roots; its stored checksum matches Chromium-compatible traversal."
   - "Synthetic mutation coverage proves add, update, move-to-Trash, restore, dry-run, stale-checksum rejection, and running-browser refusal."
-  - "Closed-browser live proof completed add-folder, add-url, update, move, archive, and restore; six private backups were created before exact byte-for-byte restoration of the original 4,105-bookmark file and checksum."
+  - "Closed-browser live proof completed every supported mutation class with private backups before exact byte-for-byte restoration; no live count, checksum, path, or bookmark value is retained publicly."
 next_step: "Integrate the remotely persisted task branch into main, then remove the temporary worktree after integration proof."
 ---
 
@@ -157,7 +157,7 @@ Update the design-inspiration operations reference and technical code map. Publi
 
 ## Execution Notes
 
-- Worktree: `C:\Users\Diane\ShipGlows\worktrees\shipglows-vivaldi-bookmarks`.
+- Worktree: isolated task worktree owned by this spec; its machine-specific path remains private.
 - Branch: `codex/vivaldi-bookmark-bridge` from `origin/main`.
 - Temporary Git artifact: branch and worktree owned by this spec; intended target `main`; cleanup disposition `pending` until integration is proven.
 - Preserve the unrelated dirty DevServer worktree completely.

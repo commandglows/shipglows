@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.32.0"
+artifact_version: "2.33.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-24"
@@ -176,7 +176,7 @@ Large workflow references should use a compact compatibility core at the establi
 Discovery descriptions are routing triggers, not workflow summaries. Keep them
 short, one sentence, and front-loaded with the work type or domain.
 
-The normal operator surface is one router plus thirteen public métier owners:
+The normal operator surface is one router plus fourteen public métier owners:
 
 | Domain | Public owner | Engine mapping |
 | --- | --- | --- |
@@ -185,7 +185,7 @@ The normal operator surface is one router plus thirteen public métier owners:
 | Publier | `sg-release` | `004-sg-deploy` |
 | Développer l’audience | `sg-content`, `sg-marketing`, `sg-seo` | `007-sg-content`, `009-sg-marketing`, `406-sg-seo` |
 | Gouverner | `sg-docs` | `300-sg-docs` |
-| Organiser | `sg-planning`, `sg-help` | `011-sg-pilotage`, `302-sg-help` |
+| Organiser | `sg-planning`, `sg-private`, `sg-help` | `011-sg-pilotage`, `603-sg-private`, `302-sg-help` |
 
 `shipglows` is the public natural-language router. Each public owner has a
 real folder and matching `name:` metadata (`skills/sg-development/`,

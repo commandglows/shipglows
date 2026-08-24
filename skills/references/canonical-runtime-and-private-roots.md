@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-24"
 status: active
 source_skill: 900-shipglows-core
 scope: canonical-runtime-and-private-roots
@@ -15,6 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/references/canonical-paths.md
+  - skills/603-sg-private/SKILL.md
   - tools/
 depends_on:
   - artifact: "skills/references/canonical-paths.md"
@@ -35,6 +36,7 @@ Load this leaf only when work needs a local runtime, private corpus, inspiration
 ## Root Map
 
 - Mutable local service state: `$SHIPGLOWS_RUNTIME_DIR`, defaulting to the current user's `.shipglows/state` directory.
+- Machine-specific remembered pointers: `$SHIPGLOWS_RUNTIME_DIR/private-memory/locations.json`; this local alias registry is mutable state, not synchronized durable private data.
 - Durable private data: `$SHIPGLOWS_PRIVATE_DATA_DIR`, defaulting to `.shipglows/data` under the current user directory. A supported parent override such as `$SHIPGLOWS_PRIVATE_DIR` may supply the `.shipglows` parent where the owning private-data contract allows it.
 - Private design inspiration: `$SHIPGLOWS_INSPIRATION_LIBRARY_DIR`, defaulting to `.shipglows/design-inspiration-library` under the current user directory.
 - Legacy compatibility input: `$SHIPGLOWS_DATA_DIR`, defaulting to `shipglows_data` under the current user directory. It is read-only historical input, never active project truth.

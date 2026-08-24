@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-16"
+updated: "2026-08-24"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-expert-catalog
@@ -19,7 +19,7 @@ linked_systems:
   - skills/references/skill-invocation-registry.json
 depends_on:
   - artifact: skills/references/skill-code-index.md
-    artifact_version: "2.6.0"
+    artifact_version: "2.10.0"
     required_status: active
 supersedes: []
 evidence:
@@ -98,6 +98,7 @@ from the named public skill mode.
 `600-sg-local-cloud-sync` — default
 `601-sg-product-entitlements` — default
 `602-sg-platform-parity` — default | platforms=web,android,ios,windows,macos,linux
+`603-sg-private` — memory <instruction>
 `700-sg-explore` — default
 `704-sg-model` — default
 `705-sg-conversation-audit` — default | latest | path | export shipglows

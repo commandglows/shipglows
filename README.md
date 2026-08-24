@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.24.0"
+artifact_version: "0.25.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-23"
+updated: "2026-08-24"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -933,14 +933,16 @@ Canonical syntax split:
 | Publier | `sg-release` |
 | Développer l’audience | `sg-content`, `sg-marketing`, `sg-seo` |
 | Gouverner | `sg-docs` |
-| Organiser | `sg-planning`, `sg-help` |
+| Organiser | `sg-planning`, `sg-private`, `sg-help` |
 
 Design animation remains available through `sg-design animation <audit|design|implement|tune> [scope]`; GSAP is optional and selected only when project fit and proof gates support it.
 
 `sg-content` owns audience-facing documentation and content. `sg-docs` owns
 internal architecture, governance, agent context, and metadata. `sg-engineering`
 contains technical architecture and quality plus the internal sync, access, and
-platform-parity engines.
+platform-parity engines. `sg-private memory` remembers or retrieves explicit
+machine-local paths, URLs, aliases, and Vivaldi bookmarks while its code stays
+public and all operator values remain outside Git.
 
 Use `sg-help` for orientation or `sg-help expert` for the exact internal engine
 catalog. In Codex or Claude-style runtimes, invoke the visible public name; in

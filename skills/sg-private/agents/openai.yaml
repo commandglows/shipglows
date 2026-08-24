@@ -1,0 +1,6 @@
+interface:
+  display_name: "ShipGlows Private Memory"
+  short_description: "Remember and retrieve private paths and links"
+  default_prompt: "Use $sg-private memory to remember or retrieve a private path, URL, or Vivaldi bookmark."
+policy:
+  allow_implicit_invocation: true

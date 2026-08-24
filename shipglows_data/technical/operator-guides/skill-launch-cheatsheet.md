@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.7.0"
+artifact_version: "2.8.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-20"
+updated: "2026-08-24"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: skill-launch-cheatsheet
@@ -143,6 +143,7 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 | Développer l’audience | `sg-seo` | Search audits, launches, monitoring, and fixes | `406-sg-seo` |
 | Gouverner | `sg-docs` | Internal documentation, architecture, governance, and metadata | `300-sg-docs` |
 | Organiser | `sg-planning` | Tasks, backlog, priorities, reviews, and sessions | `011-sg-pilotage` |
+| Organiser | `sg-private` | Explicit private path, URL, alias, and Vivaldi bookmark memory | `603-sg-private` |
 | Organiser | `sg-help` | Orientation, modes, doctrine, and public/expert discovery | `302-sg-help` |
 
 ## Public Modes Quick Reference
@@ -165,6 +166,7 @@ composable with every command unless that mode declares a conflict.
 | `sg-seo` | `audit`, `launch`, `monitoring`, `fix`, `page`, `project`, `global` |
 | `sg-docs` | `init`, `file`, `readme`, `api`, `components`, `auto`, `audit`, `update`, `metadata`, `migrate`, `migrate-layout`, `technical`, `editorial`, `duplicata`, `duplicates`, `add-project` |
 | `sg-planning` | `tasks`, `backlog`, `priorities` (`prio`), `review`, `sessions` |
+| `sg-private` | `memory` |
 | `sg-help` | `default`, `mode`, `expert` |
 
 Examples of composition:

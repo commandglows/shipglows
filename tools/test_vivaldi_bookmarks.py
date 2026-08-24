@@ -1,6 +1,7 @@
 import hashlib
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -41,7 +42,8 @@ class VivaldiBookmarksTests(unittest.TestCase):
         self.profile = self.root / "Vivaldi" / "User Data" / "Default"
         self.profile.mkdir(parents=True)
         self.bookmarks = self.profile / "Bookmarks"
-        self.backups = self.root / "private-backups"
+        self.runtime = self.root / "state"
+        self.backups = self.runtime / "backups" / "vivaldi-bookmarks"
 
         def folder(node_id, guid, name, children=None):
             return {"id": node_id, "guid": guid, "type": "folder", "name": name,
@@ -69,8 +71,10 @@ class VivaldiBookmarksTests(unittest.TestCase):
         self.temp.cleanup()
 
     def run_tool(self, *args):
+        environment = os.environ.copy()
+        environment["SHIPGLOWS_RUNTIME_DIR"] = str(self.runtime)
         return subprocess.run([sys.executable, str(TOOL), "--config", str(self.config), *args],
-                              text=True, capture_output=True, check=False)
+                              text=True, capture_output=True, check=False, env=environment)
 
     def current(self):
         return json.loads(self.bookmarks.read_text(encoding="utf-8"))
@@ -146,7 +150,8 @@ class VivaldiBookmarksTests(unittest.TestCase):
         before = self.bookmarks.read_bytes()
         args = SimpleNamespace(command="add-folder", parent="1", title="Nope", index=None,
                                expected_checksum=self.checksum(), apply=True)
-        config = BRIDGE.load_config(self.config)
+        with patch.dict(os.environ, {"SHIPGLOWS_RUNTIME_DIR": str(self.runtime)}):
+            config = BRIDGE.load_config(self.config)
         payload, original = BRIDGE.read_stable_snapshot(self.bookmarks)
         with patch.object(BRIDGE, "is_live_profile", return_value=True):
             with self.assertRaisesRegex(BRIDGE.BridgeError, "Vivaldi is running"):
@@ -154,6 +159,30 @@ class VivaldiBookmarksTests(unittest.TestCase):
                                         running_check=lambda: True)
         self.assertEqual(self.bookmarks.read_bytes(), before)
         self.assertFalse(self.backups.exists())
+
+    def test_added_urls_reject_credentials_and_authentication_parameters(self):
+        for url in (
+            "https://user:pass@example.test/path",
+            "https://example.test/?token=value",
+            "https://example.test/?refresh_token=value",
+            "https://example.test/?client_secret=value",
+            "https://example.test/?id_token=value",
+            "https://example.test/?X-Amz-Credential=value&X-Amz-Signature=value",
+            "https://example.test/callback#access_token=value",
+        ):
+            with self.subTest(url=url):
+                result = self.run_tool("add-url", "--parent", "10", "--title", "Nope",
+                    "--url", url, "--expected-checksum", self.checksum(), "--apply")
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("authentication", result.stderr)
+
+    def test_backup_dir_cannot_escape_private_runtime_root(self):
+        config = json.loads(self.config.read_text(encoding="utf-8"))
+        config["backup_dir"] = str(self.root / "public-backups")
+        self.config.write_text(json.dumps(config), encoding="utf-8")
+        result = self.run_tool("status")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("SHIPGLOWS_RUNTIME_DIR", result.stderr)
 
     def test_move_rejects_folder_cycle(self):
         result = self.run_tool("move", "--node", "10", "--parent", "10",

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.9.0"
+artifact_version: "2.10.0"
 project: ShipGlows
 created: "2026-06-10"
-updated: "2026-08-20"
+updated: "2026-08-24"
 status: active
 source_skill: 102-sg-start
 scope: skill-code-index
@@ -39,6 +39,7 @@ evidence:
   - "2026-08-03 pilotage consolidation assigned 011 and retired 309 and 701-703; tasks, backlog, priorities, review, and sessions now live as explicit modes under 011-sg-pilotage."
   - "2026-08-04: Codex no longer needs numeric picker labels; numbers remain as expert/compatibility engine identifiers while public skills use direct métier names."
   - "2026-08-20: 708-sg-auto added as the internal engine for the public shipglows auto credit-window mode; nolocal remains a transversal policy rather than a separate engine."
+  - "2026-08-24: 603-sg-private added as the internal engine for the public sg-private memory owner."
 next_review: "2026-08-15"
 next_step: "/103-sg-verify consolidate pilotage skills under sg-pilotage"
 ---
@@ -132,6 +133,7 @@ Frequency wins over family when a skill belongs to both. For example `007-sg-con
 | `600` | `sg-local-cloud-sync` | `600-sg-local-cloud-sync` | Data/activation |
 | `601` | `sg-product-entitlements` | `601-sg-product-entitlements` | Data/activation |
 | `602` | `sg-platform-parity` | `602-sg-platform-parity` | Data/activation |
+| `603` | `sg-private` | `603-sg-private` | Data/activation |
 | `700` | `sg-explore` | `700-sg-explore` | Pilotage/session |
 | `704` | `sg-model` | `704-sg-model` | Pilotage/session |
 | `705` | `sg-conversation-audit` | `705-sg-conversation-audit` | Pilotage/session |

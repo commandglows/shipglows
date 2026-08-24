@@ -16,23 +16,36 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlsplit
 
 MAX_SOURCE_BYTES = 32 * 1024 * 1024
 MAX_RESULTS = 1000
 SCHEMA_VERSION = 2
 ROOT_ORDER = ("bookmark_bar", "other", "synced", "trash")
 MUTATION_COMMANDS = {"add-url", "add-folder", "update", "move", "archive", "restore"}
+SENSITIVE_QUERY_KEYS = {
+    "apikey", "auth", "authorization", "credential", "credentials", "jwt",
+    "password", "passwd", "secret", "sig", "signature", "token",
+}
+SENSITIVE_QUERY_SUFFIXES = (
+    "credential", "credentials", "password", "passwd", "secret", "signature", "token",
+)
 
 
 class BridgeError(ValueError):
     """A bounded operator-facing bridge failure."""
 
 
-def default_config_path() -> Path:
+def runtime_root() -> Path:
     state_root = Path(os.environ.get(
         "SHIPGLOWS_RUNTIME_DIR", str(Path.home() / ".shipglows" / "state")))
-    return state_root.expanduser() / "sources" / "vivaldi-design-bookmarks.json"
+    if not state_root.expanduser().is_absolute():
+        raise BridgeError("SHIPGLOWS_RUNTIME_DIR must be absolute")
+    return state_root.expanduser().resolve(strict=False)
+
+
+def default_config_path() -> Path:
+    return runtime_root() / "sources" / "vivaldi-design-bookmarks.json"
 
 
 def add_write_guards(parser: argparse.ArgumentParser) -> None:
@@ -129,6 +142,11 @@ def validate_backup_dir(raw_path: object, source: Path) -> Path:
     if not backup.is_absolute():
         raise BridgeError("configuration backup_dir must be absolute")
     backup = backup.resolve(strict=False)
+    try:
+        backup.relative_to(runtime_root())
+    except ValueError as error:
+        raise BridgeError(
+            "configuration backup_dir must stay under SHIPGLOWS_RUNTIME_DIR") from error
     try:
         backup.relative_to(source.parent)
     except ValueError:
@@ -269,6 +287,14 @@ def normalize_title(value: object) -> str:
     return value.strip()
 
 
+def has_authentication_query(query: str) -> bool:
+    for key, _value in parse_qsl(query, keep_blank_values=True):
+        compact = "".join(character for character in key.casefold() if character.isalnum())
+        if compact in SENSITIVE_QUERY_KEYS or compact.endswith(SENSITIVE_QUERY_SUFFIXES):
+            return True
+    return False
+
+
 def normalize_url(value: object) -> str:
     if not isinstance(value, str) or len(value) > 16384:
         raise BridgeError("bookmark URL must be a bounded HTTP(S) URL")
@@ -278,6 +304,10 @@ def normalize_url(value: object) -> str:
         raise BridgeError("bookmark URL is invalid") from error
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
         raise BridgeError("bookmark URL must use HTTP or HTTPS")
+    if (parsed.username is not None or parsed.password is not None or
+            has_authentication_query(parsed.query) or
+            has_authentication_query(parsed.fragment)):
+        raise BridgeError("bookmark URL must not contain authentication material")
     return value
 
 

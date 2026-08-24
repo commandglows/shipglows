@@ -56,9 +56,9 @@ class SkillInvocationPolicyContractTests(unittest.TestCase):
         cls.expert = cls.installed - cls.public
 
     def test_registry_drives_exact_public_and_expert_partitions(self) -> None:
-        self.assertEqual(14, len(self.public))
-        self.assertEqual(66, len(self.installed))
-        self.assertEqual(52, len(self.expert))
+        self.assertEqual(15, len(self.public))
+        self.assertEqual(68, len(self.installed))
+        self.assertEqual(53, len(self.expert))
         self.assertFalse(self.public & self.expert)
         self.assertEqual(self.installed, self.public | self.expert)
         self.assertTrue(self.registry["internal_catalog"]["include_all_runtime_skills"])
@@ -72,7 +72,7 @@ class SkillInvocationPolicyContractTests(unittest.TestCase):
                 implicit.add(skill)
 
         self.assertEqual(self.public, implicit)
-        self.assertEqual(14, len(implicit))
+        self.assertEqual(15, len(implicit))
         self.assertTrue(all(not read_invocation_policy(SKILLS / skill / "agents" / "openai.yaml") for skill in self.expert))
 
     def test_explicit_only_experts_remain_installed_and_named_for_dollar_invocation(self) -> None:
