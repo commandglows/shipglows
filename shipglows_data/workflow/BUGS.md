@@ -2,6 +2,7 @@
 
 | Bug ID | Status | Severity | Title | Last tested | Next step |
 |--------|--------|----------|-------|-------------|-----------|
+| [BUG-2026-08-24-001](shipglows_data/workflow/bugs/BUG-2026-08-24-001.md) | closed | medium | Capture tool ignores the linked ShipGlows developer root on Windows | 2026-08-24 | none |
 | [BUG-2026-08-23-003](shipglows_data/workflow/bugs/BUG-2026-08-23-003.md) | fixed-pending-verify | high | Flutter Web ignores the Chromium already managed by ShipGlows | 2026-08-23 | Verify one managed Flutter Web launch in a separate project scope |
 | [BUG-2026-08-23-002](shipglows_data/workflow/bugs/BUG-2026-08-23-002.md) | fixed-pending-verify | high | Managed Flutter reruns preserve a stale detached SDK | 2026-08-23 | Decide the app lockfile update, then verify analyze, tests, and Windows build |
 | [BUG-2026-08-23-001](shipglows_data/workflow/bugs/BUG-2026-08-23-001.md) | fixed-pending-verify | high | Validated Flutter SDK skips PATH activation and overstates Windows readiness | 2026-08-23 | Decide the app lockfile update, then verify analyze, tests, and Windows build |
