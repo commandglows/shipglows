@@ -6,7 +6,7 @@ project: "ShipGlows"
 created: "2026-08-24"
 created_at: "2026-08-24 17:34:21 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 17:42:34 UTC"
+updated_at: "2026-08-24 17:43:55 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "gpt-5.6"
@@ -36,7 +36,7 @@ evidence:
   - "Operator approval 2026-08-24: create a safe ShipGlows bridge to the Vivaldi design-bookmark folder while keeping private paths and bookmark data outside the public repository."
   - "Read-only discovery found one Vivaldi Default profile and the logical design subtree under Signets / Dev / Design, including Fonts & Colors and Outils Design."
   - "Focused verification passed 27 tests; live redacted status found 340 unique public-Web candidates and collapsed 3 duplicates without writing Vivaldi."
-next_step: "Persist the verified task branch remotely, then integrate it into main and remove the temporary worktree after integration proof."
+next_step: "Integrate the remotely persisted task branch into main, then remove the temporary worktree after integration proof."
 ---
 
 # Spec: Vivaldi Design Bookmark Bridge
@@ -47,7 +47,7 @@ Vivaldi Design Bookmark Bridge
 
 ## Status
 
-Implemented and verified locally. Remote branch persistence and later integration into `main` remain before terminal cleanup of the temporary branch/worktree.
+Implemented, verified locally, and persisted on the remote task branch. Integration into `main` remains before terminal cleanup of the temporary branch/worktree.
 
 ## User Story
 
@@ -172,7 +172,8 @@ None.
 | 2026-08-24 17:34:21 UTC | 100-sg-spec | ready | Operator-approved scope, storage boundary, selectors, proof, and delivery route recorded | Implement and verify |
 | 2026-08-24 17:42:34 UTC | 102-sg-start | implemented | Read-only adapter, synthetic tests, private configuration, and mapped documentation created | Verify |
 | 2026-08-24 17:42:34 UTC | 103-sg-verify standard | verified | 27 focused tests passed; metadata lint passed for 4 artifacts; live status/search smoke passed; private Vivaldi path absent from repository | Persist branch remotely |
+| 2026-08-24 17:43:55 UTC | 005-sg-ship checkpoint | backed up | Commit `e1d235e` pushed to `origin/codex/vivaldi-bookmark-bridge` without force | Integrate into main, then prove cleanup eligibility |
 
 ## Current Chantier Flow
 
-`100-sg-spec ready -> 102-sg-start implemented -> 103-sg-verify verified -> 104-sg-end pending integration -> 005-sg-ship branch persistence pending`
+`100-sg-spec ready -> 102-sg-start implemented -> 103-sg-verify verified -> 005-sg-ship branch backed up -> 104-sg-end pending integration`
