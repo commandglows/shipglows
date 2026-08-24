@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "2.0.0"
+artifact_version: "2.1.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-11"
+updated: "2026-08-24"
 status: active
 source_skill: 102-sg-start
 scope: design-inspiration-library
@@ -14,6 +14,8 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
+  - skills/references/ux-reference-intelligence.md
+  - skills/006-sg-design/references/ux-reference-connectors.md
   - skills/references/design-inspiration/
   - tools/capture_design_inspiration.py
   - tools/capture_design_inspiration_playwright.js
@@ -40,8 +42,9 @@ evidence:
   - "Live recovery 2026-08-07: an explicit retry replaces only a failed candidate with no artifacts after a shared capture-runtime repair, preserving the prior reason in private metadata."
   - "Live capture 2026-08-07: very tall pages proportionally downscale only full-page WebP while retaining high-resolution segments; the current bundle remains a static visual snapshot and does not record animation timelines."
   - "Operator decision 2026-08-11: the separate corpus moves from ~/.shipglows/private/design-inspiration-library to the sibling path ~/.shipglows/design-inspiration-library."
-next_review: "2026-08-15"
-next_step: "/103-sg-verify sales-page-reference-library"
+  - "Operator decision 2026-08-24: this private corpus acts as one stricter first-party adapter inside a provider-neutral UX reference system; external sources remain replaceable."
+next_review: "2026-09-24"
+next_step: "/103-sg-verify extensible UX reference intelligence"
 ---
 
 # Design Inspiration Library
@@ -51,6 +54,8 @@ next_step: "/103-sg-verify sales-page-reference-library"
 This contract governs a private, cross-project library of visual composition and sales-page copy patterns. It lets design and content skills study reusable structure without confusing creative references with project-level competitor, pricing, positioning, or market intelligence.
 
 Use `shipglows_data/business/project-competitors-and-inspirations.md` for competitor, alternative, differentiation, pricing, positioning, or market work. Use this library only for design hierarchy, page composition, persuasive sequence, proof, objection, CTA, density, rhythm, and related creative patterns.
+
+For application journeys, navigation models, common interactions, or cross-source convention evidence, load `skills/references/ux-reference-intelligence.md` first. This library then participates as the `shipglows-private-inspiration` private-corpus adapter. The shared system may compare its bounded approved summaries with other eligible sources, but it never weakens this contract's private storage, detailed-bundle selection, rights, approval, takedown, or Git LFS rules.
 
 ## Canonical Paths
 

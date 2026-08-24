@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-08-24"
 created_at: "2026-08-24 19:23:00 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 19:24:32 UTC"
+updated_at: "2026-08-24 19:30:00 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: gpt-5
@@ -164,25 +164,25 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 
 ## Implementation Tasks
 
-- [ ] Task 1: Add the provider-neutral UX-reference intelligence contract.
+- [x] Task 1: Add the provider-neutral UX-reference intelligence contract.
   - Target: `skills/references/ux-reference-intelligence.md`
   - Action: define activation, source adapters, normalized observation schema, evidence hierarchy, comparison, fallback, rights, and stop conditions.
   - User story link: makes common UX conventions reusable without vendor lock-in.
   - Depends on: ready spec.
   - Validate with: `python3 tools/test_ux_reference_intelligence_contract.py`.
-- [ ] Task 2: Document the first connector and future adapter boundary.
+- [x] Task 2: Document the first connector and future adapter boundary.
   - Target: `skills/006-sg-design/references/ux-reference-connectors.md`
   - Action: document connector states and Mobbin MCP capabilities, access boundary, freshness evidence, safe use, and fallback; keep other providers as future adapters rather than promised integrations.
   - User story link: makes Mobbin useful now while preserving extensibility.
   - Depends on: Task 1.
   - Validate with: focused contract test and metadata lint.
-- [ ] Task 3: Integrate with design activation and the private corpus.
+- [x] Task 3: Integrate with design activation and the private corpus.
   - Target: `skills/006-sg-design/SKILL.md`, `skills/references/design-inspiration-library.md`
   - Action: load the shared contract for material UX-reference decisions and identify the private corpus as a stricter first-party adapter.
   - User story link: makes the capability reachable from ordinary design work.
   - Depends on: Tasks 1-2.
   - Validate with: focused contract test and `tools/test_sg_design_contract.py`.
-- [ ] Task 4: Add focused mechanical proof and complete lifecycle evidence.
+- [x] Task 4: Add focused mechanical proof and complete lifecycle evidence.
   - Target: `tools/test_ux_reference_intelligence_contract.py`, this spec.
   - Action: assert provider neutrality, source-state distinction, evidence priority, fallback, anti-copy, connector facts, and fresh-agent followability.
   - User story link: prevents a Mobbin-only or inspiration-as-authority regression.
@@ -191,14 +191,14 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 
 ## Acceptance Criteria
 
-- [ ] AC 1: A fresh agent can resolve a UX question through zero, one, or several eligible sources without requiring Mobbin.
-- [ ] AC 2: Mobbin is represented as one external MCP connector with documented plan/auth boundaries and no implied installation.
-- [ ] AC 3: Every normalized observation retains provenance, task context, platform, states, confidence, accessibility notes, limitations, and anti-copy guidance.
-- [ ] AC 4: Product/user evidence, accessibility, platform guidance, and project design authority outrank pattern prevalence.
-- [ ] AC 5: Unavailable, unauthenticated, rate-limited, rights-restricted, or conflicting sources produce explicit fallback behavior rather than fabricated evidence.
-- [ ] AC 6: The private inspiration library remains separately stored and governed by its stricter capture, rights, approval, and takedown contract.
-- [ ] AC 7: A new provider can be added by documenting one adapter profile without rewriting the shared decision algorithm or public skill surface.
-- [ ] AC 8: Focused tests and metadata lint pass, and no account, dependency, provider, deployment, or public claim is mutated.
+- [x] AC 1: A fresh agent can resolve a UX question through zero, one, or several eligible sources without requiring Mobbin.
+- [x] AC 2: Mobbin is represented as one external MCP connector with documented plan/auth boundaries and no implied installation.
+- [x] AC 3: Every normalized observation retains provenance, task context, platform, states, confidence, accessibility notes, limitations, and anti-copy guidance.
+- [x] AC 4: Product/user evidence, accessibility, platform guidance, and project design authority outrank pattern prevalence.
+- [x] AC 5: Unavailable, unauthenticated, rate-limited, rights-restricted, or conflicting sources produce explicit fallback behavior rather than fabricated evidence.
+- [x] AC 6: The private inspiration library remains separately stored and governed by its stricter capture, rights, approval, and takedown contract.
+- [x] AC 7: A new provider can be added by documenting one adapter profile without rewriting the shared decision algorithm or public skill surface.
+- [x] AC 8: Focused tests and metadata lint pass, and no account, dependency, provider, deployment, or public claim is mutated.
 
 ## Test Strategy
 
@@ -250,14 +250,15 @@ None
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-24 19:23:00 UTC | 100-sg-spec | gpt-5 | Created the provider-neutral UX reference intelligence contract | draft | 101-sg-ready |
 | 2026-08-24 19:24:32 UTC | 101-sg-ready | gpt-5 | Reviewed scope, source boundaries, failure semantics, security, documentation consequences, and proof contract | ready | 102-sg-start |
+| 2026-08-24 19:30:00 UTC | 102-sg-start | gpt-5 | Added the shared source-neutral contract, Mobbin connector profile, private-corpus bridge, design activation, and focused scenarios | implemented | 103-sg-verify |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done, draft spec created.
 - `101-sg-ready`: ready; the contract is autonomous, provider-neutral, and implementation-safe.
-- `102-sg-start`: pending.
+- `102-sg-start`: implemented; all four bounded tasks are complete.
 - `103-sg-verify`: pending.
 - `104-sg-end`: pending.
 - `005-sg-ship`: pending.
 
-Next step: Implement the provider-neutral UX reference contract.
+Next step: Verify the provider-neutral UX reference contract and its design integration.
