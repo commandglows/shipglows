@@ -1,5 +1,18 @@
 # Test Log
 
+## 2026-08-24 - Windows linked developer root resolution
+
+- Scope: BUG-2026-08-24-001 / sales-page-reference-library.md
+- Environment: Windows local worktree, Python 3.14 through uv
+- Tester: Codex tooling
+- Source: 107-sg-test
+- Status: pass
+- Confidence: high
+- Result summary: Before the fix, two public-repository protection tests returned `git_repo_target`; after implementing the canonical linked-channel fallback, all 33 capture-tool tests and the complete 756-test UTF-8 suite passed (4 skipped).
+- Bug pointer: BUG-2026-08-24-001 -> shipglows_data/workflow/bugs/BUG-2026-08-24-001.md
+- Evidence pointer: synthetic unit tests and local command output only; no private corpus data retained
+- Follow-up: none; independently verified and closed on 2026-08-24
+
 ## 2026-07-05 - Deploy target matrix founder-app routing proof
 
 - Scope: shipglows_data/workflow/specs/deploy-target-matrix-for-shipglows-managed-app-projects.md
