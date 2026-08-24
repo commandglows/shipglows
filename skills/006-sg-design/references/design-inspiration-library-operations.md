@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-12"
+updated: "2026-08-24"
 status: active
 source_skill: 006-sg-design
 scope: design-inspiration-library-operations
@@ -17,6 +17,7 @@ linked_systems:
   - skills/006-sg-design/SKILL.md
   - skills/references/design-inspiration-library.md
   - tools/capture_design_inspiration.py
+  - tools/vivaldi_bookmarks.py
 depends_on:
   - artifact: skills/references/design-inspiration-library.md
     artifact_version: "1.9.0"
@@ -28,6 +29,7 @@ evidence:
   - "Operator request 2026-08-07: a reusable server-migration playbook restores the private corpus without exposing its remote."
   - "Operator correction 2026-08-07: approval supplies explicit, searchable creative taxonomy rather than leaving candidate defaults in the index."
   - "Live recovery 2026-08-07: add an explicit retry route for failed artifact-free candidates after shared runtime repair."
+  - "Operator approval 2026-08-24: expose a read-only, privately configured Vivaldi design-bookmark bridge as candidate intake without widening access to unrelated bookmarks."
 next_review: "2026-08-15"
 next_step: "/103-sg-verify sales-page-reference-library"
 ---
@@ -128,6 +130,20 @@ python3 "$SHIPGLOWS_ROOT/tools/capture_design_inspiration.py" --status-only
 ```
 
 `--list` returns IDs and safe summaries with source query strings redacted. `--status-only` returns aggregate capture and lifecycle counts. Neither command writes the corpus or loads page bundles.
+
+### Private Vivaldi Bookmark Intake
+
+When the operator has configured the machine-local Vivaldi bridge, use it only to discover candidate public references inside the selected folders:
+
+```bash
+python3 "$SHIPGLOWS_ROOT/tools/vivaldi_bookmarks.py" status
+python3 "$SHIPGLOWS_ROOT/tools/vivaldi_bookmarks.py" --format markdown list
+python3 "$SHIPGLOWS_ROOT/tools/vivaldi_bookmarks.py" --format json search "<design need>"
+```
+
+The adapter reads its source and exact logical folder selectors from `${SHIPGLOWS_RUNTIME_DIR:-$HOME/.shipglows/state}/sources/vivaldi-design-bookmarks.json`. That configuration, the Vivaldi profile path, and real bookmark results stay private and outside the ShipGlows repository; rendered URLs drop embedded credentials, query strings, and fragments. Never replace a missing or unresolved selector with the whole bookmark collection, and never inspect adjacent Vivaldi profile files.
+
+A bookmark is an unverified candidate, not an approved inspiration record, rights decision, accessibility proof, current product recommendation, or authorization to copy. Open or analyze only the bounded references needed for the active design outcome. Promote a chosen public reference through `library add` and the ordinary candidate-review flow when durable capture is justified.
 
 ## Consumption Boundary
 

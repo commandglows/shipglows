@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.31.0"
+artifact_version: "2.32.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-21"
+updated: "2026-08-24"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -54,6 +54,7 @@ linked_systems:
   - skills/references/sentry-observability.md
   - skills/references/design-inspiration-library.md
   - tools/capture_design_inspiration.py
+  - tools/vivaldi_bookmarks.py
   - tools/audit_shipglows_skills.py
   - specs/001-sg-build-autonomous-master-skill.md
   - specs/skill-reporting-modes-and-compact-reports.md
@@ -84,6 +85,7 @@ evidence:
   - "900-shipglows-core build is the sole internal lifecycle mode for ShipGlows skill maintenance."
   - "004-sg-deploy added as the dedicated release confidence orchestrator."
   - "006-sg-design added as the master design lifecycle orchestrator for UI/UX, tokens, playgrounds, visual proof, verification, and ship routing."
+  - "Private Vivaldi bookmark intake reads only configured design subtrees and keeps machine paths and real results outside the public repository."
   - "002-sg-maintain promoted to a master maintenance lifecycle from triage through delegated execution, verification, and ship/deploy routing."
   - "Shared reporting contract added: concise user reports by default, explicit agent handoff reports when requested."
   - "Reporting contract clarified: user-mode ship reports should match the user's active language, use outcome/evidence/limits ordering, and allow a few sober status emojis."
@@ -411,7 +413,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/reporting-contract.md` and `skills/references/reporting-*.md` | Compact final-report core plus direct conditional leaves | Successful user mode loads the core; explicit agent mode has sole detailed-report priority; blocked/audit and pressure scenarios load only at their gates |
 | `skills/references/sentry-observability.md` | Shared Sentry runtime evidence, PM2/Doppler fallback evidence, release/environment correlation, redaction, and performance-overhead doctrine | Load when runtime behavior, crashes, 5xx, event IDs, deploy confidence, auth/payment/data failures, jobs, webhooks, verification, audits, or perf checks depend on observability |
 | `skills/references/product-entitlements-playbook.md`, `product-entitlement-{ledger-and-authorization,ingestion,support-and-proof}.md` | Primary product-access invariants plus direct conditional procedure branches | Load the primary doctrine after entitlement selection, then one branch for ledger/backend, ingestion, or support/proof work |
-| `skills/references/design-inspiration-library.md`, `skills/references/design-inspiration/` | Shared private-corpus, capture-bundle, rights, taxonomy, and Inspiration Gate contract | Load for new visual direction, sales/offer-page creation, major redesign, copy-pattern comparison, or explicit inspiration requests; never load the full private corpus by default |
+| `skills/references/design-inspiration-library.md`, `skills/references/design-inspiration/`, `tools/vivaldi_bookmarks.py` | Shared private-corpus, capture-bundle, rights, taxonomy, Inspiration Gate, and optional read-only bookmark intake | Load for new visual direction, sales/offer-page creation, major redesign, copy-pattern comparison, or explicit inspiration requests; search only privately configured Vivaldi subtrees, treat results as candidates, and never load the full bookmark collection or private corpus by default |
 | `skills/601-sg-product-entitlements/SKILL.md` | Product entitlement skill for access ownership, provider-event handling, backend authorization gates, support flow framing, product-local mirrors, and sync/auth handoffs | Load when projects need an entitlement contract, duplicate-ledger review, product-access guard design, provider/manual grant routing, or entitlement-gated sync preconditions |
 | `skills/600-sg-local-cloud-sync/references/*.md` | Local-to-cloud sync doctrine, UX/security checklist, and Flutter implementation checklist | Load when projects touch local data promotion, cloud hydration, merge/conflict policy, sync state UX, sensitive-data exclusions, or reinstall recovery |
 | `skills/references/subagent-roles/*.md` | Internal role contracts such as Technical Reader and Editorial Reader | Role files are read by orchestration skills; keep read-only roles explicit |
