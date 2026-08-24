@@ -7,8 +7,12 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 CORE = ROOT / "skills/references/ux-reference-intelligence.md"
-CONNECTORS = ROOT / "skills/006-sg-design/references/ux-reference-connectors.md"
+CONNECTORS = ROOT / "skills/references/ux-reference-connectors.md"
 DESIGN = ROOT / "skills/006-sg-design/SKILL.md"
+BUILD = ROOT / "skills/001-sg-build/SKILL.md"
+EXPERIENCE = ROOT / "skills/008-sg-customer/SKILL.md"
+SPEC_SKILL = ROOT / "skills/100-sg-spec/SKILL.md"
+RESOURCE_DISCOVERY = ROOT / "skills/references/resource-discovery.md"
 PRIVATE_LIBRARY = ROOT / "skills/references/design-inspiration-library.md"
 SPEC = ROOT / "shipglows_data/workflow/specs/extensible-ux-reference-intelligence.md"
 
@@ -59,6 +63,17 @@ class UxReferenceIntelligenceContractTests(unittest.TestCase):
             "possible duplicate-source lineage",
             "must_not_copy",
             "unknown stays unknown",
+        ):
+            self.assertIn(marker, text)
+
+    def test_runtime_availability_freshness_and_eligibility_are_distinct(self) -> None:
+        text = normalized(CORE)
+        for marker in (
+            "availability, freshness, and eligibility are separate decisions",
+            "inspect the current runtime's exposed tools, apps, and mcp connectors",
+            "accessible but stale",
+            "ineligible by default",
+            "never infer current relevance from url reachability",
         ):
             self.assertIn(marker, text)
 
@@ -134,6 +149,22 @@ class UxReferenceIntelligenceContractTests(unittest.TestCase):
         ):
             self.assertIn(marker, text)
 
+    def test_collectui_is_accessible_but_freshness_unverified(self) -> None:
+        text = normalized(CONNECTORS)
+        for marker in (
+            "source id: `collectui-public-web`",
+            "adapter class: `public-web`",
+            "https://collectui.com/",
+            "availability state: `accessible`",
+            "freshness state: `unverified`",
+            "eligibility: `ineligible-by-default`",
+            "zero shots published yesterday and during the previous week",
+            "manual visual archive",
+            "not evidence of a current convention",
+            "not a real-product flow source",
+        ):
+            self.assertIn(marker, text)
+
     def test_private_library_remains_stricter_first_party_adapter(self) -> None:
         core = normalized(CORE)
         private = normalized(PRIVATE_LIBRARY)
@@ -151,6 +182,27 @@ class UxReferenceIntelligenceContractTests(unittest.TestCase):
         self.assertIn("replaceable evidence adapters", text)
         self.assertIn("complete fallback when no external connector is callable", text)
 
+    def test_build_experience_and_spec_activate_the_shared_contract(self) -> None:
+        for path in (BUILD, EXPERIENCE, SPEC_SKILL):
+            text = normalized(path)
+            self.assertIn("skills/references/ux-reference-intelligence.md", text)
+            self.assertIn("skills/references/ux-reference-connectors.md", text)
+        self.assertIn("material journey", normalized(EXPERIENCE))
+        self.assertIn("before readiness", normalized(BUILD))
+        self.assertIn("selected observations", normalized(SPEC_SKILL))
+
+    def test_resource_discovery_routes_external_experience_sources_explicitly(self) -> None:
+        text = normalized(RESOURCE_DISCOVERY)
+        self.assertIn("shared:ux-reference-intelligence", text)
+        self.assertIn("shared:ux-reference-connectors", text)
+        self.assertIn("external experience evidence", text)
+
+    def test_connector_catalog_is_shared_not_design_local(self) -> None:
+        self.assertTrue(CONNECTORS.is_file())
+        self.assertFalse(
+            (ROOT / "skills/006-sg-design/references/ux-reference-connectors.md").exists()
+        )
+
     def test_ready_spec_preserves_extensibility_and_no_install_scope(self) -> None:
         text = normalized(SPEC)
         for marker in (
@@ -158,6 +210,8 @@ class UxReferenceIntelligenceContractTests(unittest.TestCase):
             "mobbin as the first documented connector",
             "no subscription purchase, billing, oauth authorization, api key, mcp configuration",
             "a new provider can be added",
+            "cross-skill activation",
+            "collect ui as a documented `public-web` archive",
         ):
             self.assertIn(marker, text)
 

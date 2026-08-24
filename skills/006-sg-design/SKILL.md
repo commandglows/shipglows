@@ -37,7 +37,7 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-proof-and-reporting.md` for design completion and handoff evidence.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/reference-driven-frontend-playbook.md` when screenshots, mockups, appshots, or visual references define the frontend target.
 - `$SHIPGLOWS_ROOT/skills/references/design-inspiration-library.md` when visual direction changes or an explicit inspiration request exists.
-- `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` when a material journey, navigation model, common interaction, or visual direction needs cross-source convention evidence; load `$SHIPGLOWS_ROOT/skills/006-sg-design/references/ux-reference-connectors.md` only before selecting or using an external connector.
+- `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` when a material journey, navigation model, common interaction, or visual direction needs cross-source convention evidence; load the shared `$SHIPGLOWS_ROOT/skills/references/ux-reference-connectors.md` only before selecting or using an external connector.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` when defining experience principles, critical moments, desired/avoided emotion, or a design direction that changes product intent.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-inspiration-library-operations.md` before `library ...` operations.
 - `$SHIPGLOWS_ROOT/skills/600-sg-local-cloud-sync/references/sync-guidance-overlay-ui.md` before sync-related UI work; hand off data/merge authority to `600-sg-local-cloud-sync`.

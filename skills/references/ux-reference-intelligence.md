@@ -1,7 +1,7 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-24"
 updated: "2026-08-24"
@@ -14,8 +14,12 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
+  - skills/001-sg-build/SKILL.md
   - skills/006-sg-design/SKILL.md
-  - skills/006-sg-design/references/ux-reference-connectors.md
+  - skills/008-sg-customer/SKILL.md
+  - skills/100-sg-spec/SKILL.md
+  - skills/references/ux-reference-connectors.md
+  - skills/references/resource-discovery.md
   - skills/references/design-inspiration-library.md
   - skills/006-sg-design/references/reference-driven-frontend-playbook.md
   - shipglows_data/workflow/specs/extensible-ux-reference-intelligence.md
@@ -28,8 +32,10 @@ evidence:
   - "Operator decision 2026-08-24: ShipGlows needs familiar common usage conventions for applications serving varied audiences."
   - "Operator decision 2026-08-24: additional inspiration sources must remain addable after the first Mobbin integration."
   - "Operator decision 2026-08-24: UX checklists are indicators among other evidence, not authorities or exhaustive requirements."
+  - "Operator decision 2026-08-24: construction, specification, design, and experience skills must discover and apply the same reference system according to current relevance and availability."
+  - "Operator decision 2026-08-24: Collect UI must not be treated as regularly updated without dated activity evidence."
 next_review: "2026-09-24"
-next_step: "Revalidate checklist-source boundaries when a new checklist provider or automated connector is proposed."
+next_step: "Revalidate connector freshness before promoting any source whose maintenance cadence is unproven."
 ---
 
 # UX Reference Intelligence
@@ -89,6 +95,29 @@ Installed or documented is not callable. Never claim that an agent searched a
 source without a current tool result, API response, public-page observation, or
 explicit private-corpus record.
 
+## Runtime Discovery And Eligibility
+
+Availability, freshness, and eligibility are separate decisions. A source may
+be reachable yet stale, configured yet not exposed to the current agent, or
+callable yet irrelevant to the current task.
+
+Before selecting an external adapter:
+
+1. inspect the current runtime's exposed tools, apps, and MCP connectors;
+2. classify the source's current access state without installing, authorizing,
+   subscribing, or asking for credentials;
+3. check dated freshness evidence proportionate to the claim the source would
+   support;
+4. evaluate task fit, authority level, provenance, rights, and persistence;
+5. select only sources that are currently eligible for that exact question;
+6. continue through the strongest eligible fallback when none qualify.
+
+An accessible but stale or freshness-unverified source is ineligible by default
+for claims about current conventions, prevalence, or regularly shipped product
+behavior. It may remain a labelled manual archive for bounded visual ideation
+when higher authorities govern the decision. Never infer current relevance from
+URL reachability, marketing cadence claims, archive size, or search indexing.
+
 ## Normalized Observation Contract
 
 Normalize findings, not protected provider payloads. One observation contains:
@@ -112,8 +141,9 @@ or turn provider ranking into ShipGlows confidence.
 
 1. Resolve product, audience, platform, user task, success/failure behavior, and
    the decision that reference evidence can change.
-2. Select only adapters whose declared capabilities and current callable state
-   fit that question. Use the connector catalog for external-provider details.
+2. Exact-resolve the shared connector catalog, then select only adapters whose
+   capabilities, availability, freshness, eligibility, and rights fit that
+   question.
 3. Query the smallest useful source set. Prefer two independent sources for a
    claim that a convention is common; one source stays labelled as one example.
 4. Normalize observations, deduplicate shared underlying examples, and compare
@@ -212,6 +242,9 @@ justifies a core-contract change.
   the higher authority wins and the pattern is rejected or adapted.
 - `UXREF-NOT-CALLABLE`: a connector is documented or configured but absent from
   the current tool runtime; it is reported `not-exposed`, never searched by claim.
+- `UXREF-ACCESSIBLE-STALE`: a public archive is reachable but dated maintenance
+  evidence is absent or contradictory; it remains ineligible by default for
+  current-pattern claims.
 - `UXREF-RIGHTS`: a source is authenticated, restricted, or non-redistributable;
   only permitted observations and links are retained.
 - `UXREF-ANTI-COPY`: a close visual reference is translated into task and design
@@ -233,6 +266,6 @@ would override an unresolved product, accessibility, platform, or brand decision
 
 ```bash
 python3 tools/test_ux_reference_intelligence_contract.py
-python3 tools/shipglows_metadata_lint.py skills/references/ux-reference-intelligence.md skills/006-sg-design/references/ux-reference-connectors.md skills/references/design-inspiration-library.md shipglows_data/workflow/specs/extensible-ux-reference-intelligence.md
-python3 -m unittest tools.test_sg_design_contract
+python3 tools/shipglows_metadata_lint.py skills/references/ux-reference-intelligence.md skills/references/ux-reference-connectors.md skills/references/design-inspiration-library.md shipglows_data/workflow/specs/extensible-ux-reference-intelligence.md
+python3 -m unittest tools.test_sg_design_contract tools.test_sg_customer_contract tools.test_001_sg_build_compaction_contract tools.test_100_sg_spec_compaction_contract
 ```

@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-24"
 created_at: "2026-08-24 19:23:00 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 19:52:13 UTC"
+updated_at: "2026-08-24 20:20:42 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: gpt-5
@@ -19,9 +19,13 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/references/ux-reference-intelligence.md
-  - skills/006-sg-design/references/ux-reference-connectors.md
+  - skills/references/ux-reference-connectors.md
+  - skills/references/resource-discovery.md
   - skills/references/design-inspiration-library.md
+  - skills/001-sg-build/SKILL.md
   - skills/006-sg-design/SKILL.md
+  - skills/008-sg-customer/SKILL.md
+  - skills/100-sg-spec/SKILL.md
   - tools/test_ux_reference_intelligence_contract.py
 depends_on:
   - artifact: skills/references/design-inspiration-library.md
@@ -37,7 +41,9 @@ evidence:
   - "Mobbin official documentation reviewed 2026-08-24: its remote MCP exposes screen, flow, and website-section search to AI agents on paid plans."
   - "Operator decision 2026-08-24: Checklist Design will be used as an indicator among other evidence, never as an exhaustive requirement source."
   - "Checklist Design public catalog reviewed 2026-08-24: it groups UX/UI checklist items by pages, components, flows, topics, brands, and design-system concerns."
-next_step: "Recheck Checklist Design public pages at the scheduled connector freshness review."
+  - "Operator decision 2026-08-24: cross-skill activation must make relevant external experience tools and references discoverable according to availability and current chantier fit."
+  - "Collect UI public pages were reachable on 2026-08-24, but its statistics reported zero shots published yesterday and during the previous week; it remains ineligible by default for current-pattern claims."
+next_step: "Revalidate source eligibility when dated provider evidence or runtime callability changes."
 ---
 
 # Extensible UX Reference Intelligence
@@ -56,7 +62,7 @@ As a ShipGlows operator building applications for varied audiences, I want agent
 
 ## Minimal Behavior Contract
 
-When a design task changes a product journey, navigation model, common interaction, or visual direction, ShipGlows classifies the UX question, queries only sources whose declared capabilities and current availability fit it, normalizes provenance and observations, and presents a bounded comparison before any reference becomes direction. If a source is unavailable, unauthorized, contradictory, stale, or rights-restricted, the system reports that state and continues through another eligible source, platform guidance, project evidence, or the private library without inventing evidence. The easily missed case is a popular pattern that conflicts with accessibility, platform conventions, product intent, or observed user behavior: popularity never overrides those authorities.
+When construction, specification, design, or customer-experience work changes a product journey, navigation model, common interaction, or visual direction, ShipGlows classifies the UX question, discovers the shared source contract, and queries only sources whose capabilities, availability, freshness, eligibility, and rights fit it. If a source is unavailable, unauthorized, contradictory, stale, or rights-restricted, the system reports that state and continues through another eligible source, platform guidance, project evidence, or the private library without inventing evidence. The easily missed case is an accessible visual archive whose current maintenance is unproven: reachability never promotes it into evidence of current conventions.
 
 ## Success Behavior
 
@@ -74,11 +80,11 @@ When a design task changes a product journey, navigation model, common interacti
 
 ## Problem
 
-The private design-inspiration library preserves curated page and copy references, but ShipGlows has no provider-neutral contract for discovering and comparing common application flows across MCP, API, web, manual, platform-guideline, and private-corpus sources. Binding this capability directly to Mobbin would create vendor lock-in and make future sources expensive to add.
+The provider-neutral contract exists, but only the design engine activates it directly and its connector catalog is design-local. Construction, specification, and customer-experience skills can therefore miss the shared source system, while an accessible but stale public gallery lacks a machine-followable ineligibility decision.
 
 ## Solution
 
-Add one shared UX-reference intelligence contract, one design-owned connector catalog, and a narrow activation rule in the design engine. Treat Mobbin as the first documented connector and the private library as a first-party corpus adapter. Normalize evidence, not source payloads, and retain the existing operator-selection and anti-copy boundary.
+Promote the connector catalog to the shared reference layer, keep Mobbin as the first documented connector, add exact cross-skill activation for construction, specification, design, and customer experience, and separate availability, freshness, and eligibility. Retain Checklist Design and the private corpus within their existing boundaries; catalogue Collect UI as accessible but freshness-unverified and ineligible by default.
 
 ## Scope In
 
@@ -87,7 +93,8 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 - Source selection, bounded comparison, confidence, conflict resolution, fallback, and operator selection.
 - Connector classes for MCP, API, public web, manual URL, platform guidance, and private corpus.
 - Mobbin as the first documented external connector, without installation or authentication.
-- Integration with `sg-design` and the private design-inspiration library.
+- Cross-skill activation through `sg-development`, `sg-design`, `sg-experience`, and specification, plus the private design-inspiration library.
+- Collect UI as a documented `public-web` archive that is ineligible by default until dated maintenance evidence improves.
 - Focused scenario-first tests and metadata/dependency validation.
 
 ## Scope Out
@@ -99,34 +106,35 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 - No promise that every catalog supports agent access.
 - No installation of Checklist Design agent/Figma skills, plugins, packages, or
   provider integrations.
+- No claim that Collect UI is currently maintained or representative of current product conventions.
 
 ## Constraints
 
 - Product intent, user evidence, accessibility, platform conventions, and the project design system outrank inspiration frequency.
 - A provider must declare capabilities, access method, availability state, provenance, rights boundary, and fallback behavior before use.
 - Discovery never grants permission to copy or persist source-derived media.
-- The core contract must remain provider-neutral; vendor details stay in the design-owned connector catalog.
+- The core contract must remain provider-neutral; vendor details stay in the shared connector catalog.
 - Existing projects must remain fully operable when no external connector is callable.
 
 ## Test Contract
 
 ### Surface
 
-- Stack/surface: ShipGlows shared design doctrine, connector catalog, activation contract, and private inspiration corpus contract.
+- Stack/surface: ShipGlows shared UX doctrine, shared connector catalog, cross-skill activation contracts, and private inspiration corpus contract.
 - Primary proof mode: scenario-first contract tests.
 - Proof order: focused Python contract test, metadata lint, activation/followability checks, diff review.
 
 ### Required evidence stack
 
-- Automated: focused contract assertions for source neutrality, Mobbin profile, normalization, priority, fallback, and rights boundaries.
-- Integration: metadata lint and the affected design contract test.
+- Automated: focused contract assertions for source neutrality, cross-skill activation, Mobbin, Checklist Design, Collect UI freshness ineligibility, normalization, fallback, and rights boundaries.
+- Integration: metadata lint and the affected build, design, experience, and spec contract tests.
 - Provider: official documentation URLs and dated capability statements only; no live account call is required.
 - Browser/auth/device: not applicable because this chantier configures no provider and changes no product runtime.
 
 ## Dependencies
 
 - Existing private design-inspiration library contract and Inspiration Gate.
-- Existing `sg-design` public owner and `006-sg-design` runtime engine.
+- Existing development, design, experience, and specification owners.
 - Current official Mobbin MCP documentation for connector capability and plan availability.
 - No runtime package or paid service dependency.
 
@@ -148,9 +156,9 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 ## Documentation Coherence
 
 - Add the shared UX-reference intelligence contract.
-- Add the design-owned connector catalog with Mobbin as the first documented adapter.
+- Promote the connector catalog to shared ownership with Mobbin as the first documented adapter.
 - Update the private inspiration library to declare its adapter role and preserve its stricter storage/rights rules.
-- Update the design engine activation map without adding a new public mode.
+- Update construction, specification, design, and experience activation maps without adding a new public mode.
 - Public help and marketing claims are not impacted because no new operator command or guaranteed integration is exposed.
 
 ## Edge Cases
@@ -165,6 +173,7 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 - A source returns screenshots without enough task or state context.
 - The same screen appears through several aggregators and must not be counted as independent evidence.
 - User analytics contradict gallery prevalence.
+- A public gallery is reachable but its publication cadence is contradicted by its own statistics.
 
 ## Implementation Tasks
 
@@ -175,7 +184,7 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
   - Depends on: ready spec.
   - Validate with: `python3 tools/test_ux_reference_intelligence_contract.py`.
 - [x] Task 2: Document the first connector and future adapter boundary.
-  - Target: `skills/006-sg-design/references/ux-reference-connectors.md`
+  - Target: `skills/references/ux-reference-connectors.md` (promoted from its original design-local location by Task 6).
   - Action: document connector states and Mobbin MCP capabilities, access boundary, freshness evidence, safe use, and fallback; keep other providers as future adapters rather than promised integrations.
   - User story link: makes Mobbin useful now while preserving extensibility.
   - Depends on: Task 1.
@@ -193,11 +202,35 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
   - Depends on: Tasks 1-3.
   - Validate with: focused test, metadata lint, affected design test, and diff review.
 - [x] Task 5: Admit Checklist Design as a bounded public-web indicator.
-  - Target: `skills/references/ux-reference-intelligence.md`, `skills/006-sg-design/references/ux-reference-connectors.md`, `tools/test_ux_reference_intelligence_contract.py`, this spec.
+  - Target: `skills/references/ux-reference-intelligence.md`, the connector catalog, `tools/test_ux_reference_intelligence_contract.py`, this spec.
   - Action: define the checklist-source boundary, document the public-web adapter, prohibit exhaustive import and proof-by-checkbox, and pass only selected product scenarios into specification and verification.
   - User story link: expands functional scenario awareness without allowing a catalog to drive product scope or quality claims.
   - Depends on: Tasks 1-4 and operator approval on 2026-08-24.
   - Validate with: focused checklist pressure scenarios, metadata lint, affected design test, and diff review.
+- [x] Task 6: Promote the connector catalog to shared ownership.
+  - Target: shared UX connector catalog and every canonical reference to its former design-local path.
+  - Action: move provider facts into one cross-skill catalog and preserve the existing source-neutral decision algorithm.
+  - User story link: makes source knowledge discoverable beyond design without duplicating provider details.
+  - Depends on: Tasks 1-5 and operator approval on 2026-08-24.
+  - Validate with: focused path, metadata, dependency, and exact-resource discovery checks.
+- [x] Task 7: Add cross-skill activation.
+  - Target: construction, specification, design, customer-experience, and progressive resource-discovery contracts.
+  - Action: load the shared intelligence and connector catalog only for material experience-reference decisions before implementation scope freezes.
+  - User story link: makes ordinary app work use relevant sources without requiring a Mobbin-specific command.
+  - Depends on: Task 6.
+  - Validate with: fresh-agent activation pressure scenarios and affected skill contracts.
+- [x] Task 8: Separate source availability, freshness, and eligibility.
+  - Target: shared core, shared catalog, and focused tests.
+  - Action: classify Collect UI as accessible, freshness-unverified, and ineligible by default after public statistics showed no recent publication activity.
+  - User story link: proves the system can discover a source and correctly decide not to use it.
+  - Depends on: Task 6.
+  - Validate with: `UXREF-ACCESSIBLE-STALE` and Collect UI profile assertions.
+- [x] Task 9: Verify and close the cross-skill extension.
+  - Target: focused tests, metadata, resource graph, budgets, runtime sync, this spec, and exact-scope Git delivery.
+  - Action: prove followability, record the final lifecycle evidence, commit, and push the bounded change.
+  - User story link: leaves the architecture remotely durable and usable by fresh agents.
+  - Depends on: Tasks 6-8.
+  - Validate with: the complete proof stack declared for this extension.
 
 ## Acceptance Criteria
 
@@ -212,11 +245,15 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 - [x] AC 9: Checklist Design is represented as one `public-web` connector and one indicator among other evidence.
 - [x] AC 10: Checklist items remain candidates until tied to a concrete product responsibility and filtered through higher authorities.
 - [x] AC 11: No full-list import, proof-by-checkbox, unsupported claim promotion, or external skill/plugin installation occurs.
+- [x] AC 12: Cross-skill activation makes the shared contract and catalog reachable from construction, specification, design, and customer-experience work.
+- [x] AC 13: Availability, freshness, and eligibility remain separate; an accessible but stale source can be rejected without disabling the architecture.
+- [x] AC 14: Collect UI remains ineligible by default and can be used only as an explicitly labelled manual visual archive, never as evidence of current conventions or real-product flows.
+- [x] AC 15: Implementation consumes selected observations from the ready contract rather than reopening unbounded inspiration discovery during coding.
 
 ## Test Strategy
 
 - Unit: focused textual contract tests for normative markers and source state semantics.
-- Integration: existing design contract test and metadata/dependency validation for changed artifacts.
+- Integration: affected build, design, experience, and spec contract tests plus metadata/dependency validation for changed artifacts.
 - Manual: inspect the diff for provider leakage into the core, duplicated Inspiration Gate rules, unsupported provider promises, and weak rights boundaries.
 
 ## Risks
@@ -227,6 +264,7 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 - Copyright/terms: mitigated by provenance, no authenticated scraping, no redistribution, and provider-specific access boundaries.
 - Credential/session exposure: no credentials are configured; future connectors must use provider-supported authorization and never persist secrets in design artifacts.
 - Staleness: provider claims carry official source URLs and review dates.
+- Reachability bias: mitigated by separate availability, freshness, and eligibility decisions and Collect UI's ineligible-by-default profile.
 
 ## OWASP Security Gate
 
@@ -244,11 +282,11 @@ Add one shared UX-reference intelligence contract, one design-owned connector ca
 - Boundaries: provider count, result limit, authorization, rights, freshness, and confidence boundaries are explicit.
 - Interfaces: MCP/API/web/manual/platform/private-corpus adapters normalize into one observation contract.
 - Exceptions: outage, auth expiry, rate limit, unsupported query, partial result, stale evidence, and accessibility conflict fail safely.
-- Simple scenarios: Mobbin, Checklist Design public pages, and the existing private corpus exercise MCP, public-web, and private-corpus paths without making any one source mandatory.
+- Simple scenarios: Mobbin, Checklist Design, Collect UI, and the existing private corpus exercise callable, candidate-only, accessible-but-ineligible, and private-corpus paths without making any one source mandatory.
 
 ## Execution Notes
 
-- Read first: the existing design-inspiration library, `006-sg-design`, reference-driven frontend playbook, documentation freshness gate, rights/private-data contract, and current official Mobbin MCP documentation.
+- Read first: the existing design-inspiration library, construction/specification/design/experience activation contracts, progressive resource discovery, documentation freshness, rights/private-data contracts, current Mobbin documentation, and current public evidence for checklist/gallery sources.
 - Topology: main-only; the change is one cohesive contract stream and delegation would add handoff cost without independent coverage gain.
 - Proof path: scenario-first with one focused contract test, metadata lint, affected design test, and diff review.
 - Stop if implementation would configure an external account, add a dependency, expose credentials, broaden public promises, duplicate the private corpus, or require provider-specific behavior unsupported by official evidence.
@@ -271,17 +309,22 @@ None
 | 2026-08-24 19:52:13 UTC | 103-sg-verify | gpt-5 | Verified candidate-only semantics, product-responsibility filtering, no proof-by-checkbox, no third-party installation, metadata, and design activation | verified | 104-sg-end |
 | 2026-08-24 19:52:13 UTC | 104-sg-end | gpt-5 | Closed the adapter extension with no account, dependency, runtime, or public-surface mutation | closed | 005-sg-ship |
 | 2026-08-24 19:52:13 UTC | 005-sg-ship | gpt-5 | Prepared the verified Checklist Design adapter extension for the configured branch upstream | shipped | Recheck public pages at the scheduled freshness review |
+| 2026-08-24 20:26:08 UTC | 102-sg-start | gpt-5 | Promoted the connector catalog, added cross-skill activation, and separated availability, freshness, and eligibility | implemented | 103-sg-verify |
+| 2026-08-24 20:26:08 UTC | 103-sg-verify | gpt-5 | Verified 97 focused scenarios, metadata, resource graph, invocation graph, budgets, skill audit, exact resource IDs, and public runtime routes | verified | 104-sg-end |
+| 2026-08-24 20:26:08 UTC | 104-sg-end | gpt-5 | Closed the cross-skill extension with canonical documentation aligned and no public capability claim added | closed | 005-sg-ship |
+| 2026-08-24 20:26:08 UTC | 005-sg-ship | gpt-5 | Prepared exact-scope final commit and ordinary push to the configured main upstream | shipped | Revalidate source eligibility when dated evidence or runtime callability changes |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done, draft spec created.
 - `101-sg-ready`: ready; the contract is autonomous, provider-neutral, and implementation-safe.
-- `102-sg-start`: implemented; all four bounded tasks are complete.
-- `103-sg-verify`: verified; focused scenarios, design coherence, security boundaries, metadata, dependency graph, budgets, public runtime visibility, and official provider evidence pass.
-- `104-sg-end`: closed; documentation updated and no declared public/editorial promise changed.
-- `005-sg-ship`: shipped; exact-scope commits are present on the configured upstream.
+- `102-sg-start`: implemented; all nine bounded tasks are complete.
+- `103-sg-verify`: verified; focused scenarios, cross-skill followability, source eligibility, metadata, dependency and invocation graphs, budgets, skill audit, and public runtime visibility pass.
+- `104-sg-end`: closed; canonical documentation is updated and no public capability claim changed.
+- `005-sg-ship`: shipped; the exact-scope final commit is required on the configured `main` upstream before the user-facing closure verdict.
 - Checklist Design extension: shipped as a bounded `public-web` indicator; no
   provider package, skill, plugin, account, or runtime connector was installed.
 
-Next step: Recheck Checklist Design public pages at the scheduled connector
-freshness review; any future automated connector requires separate approval.
+Next step: Revalidate source eligibility when dated provider evidence or current
+runtime callability changes; any connector installation still requires separate
+approval.

@@ -1,7 +1,7 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "2.1.0"
+artifact_version: "2.2.0"
 project: ShipGlows
 created: "2026-07-15"
 updated: "2026-08-24"
@@ -15,7 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/references/ux-reference-intelligence.md
-  - skills/006-sg-design/references/ux-reference-connectors.md
+  - skills/references/ux-reference-connectors.md
   - skills/references/design-inspiration/
   - tools/capture_design_inspiration.py
   - tools/capture_design_inspiration_playwright.js
@@ -43,6 +43,7 @@ evidence:
   - "Live capture 2026-08-07: very tall pages proportionally downscale only full-page WebP while retaining high-resolution segments; the current bundle remains a static visual snapshot and does not record animation timelines."
   - "Operator decision 2026-08-11: the separate corpus moves from ~/.shipglows/private/design-inspiration-library to the sibling path ~/.shipglows/design-inspiration-library."
   - "Operator decision 2026-08-24: this private corpus acts as one stricter first-party adapter inside a provider-neutral UX reference system; external sources remain replaceable."
+  - "Operator decision 2026-08-24: connector facts moved to one shared catalog so construction, specification, design, and experience use the same source eligibility decisions."
 next_review: "2026-09-24"
 next_step: "/103-sg-verify extensible UX reference intelligence"
 ---
