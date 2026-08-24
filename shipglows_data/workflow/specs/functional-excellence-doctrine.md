@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-24"
 created_at: "2026-08-24 17:55:34 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 18:00:39 UTC"
+updated_at: "2026-08-24 18:01:48 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: gpt-5
@@ -34,7 +34,7 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-24: functional excellence applies across products, content, design, experiences, and ShipGlows mechanisms, before implementation excellence."
   - "Dieter Rams's principles supplied the inspiration; ShipGlows owns an adapted functional contract rather than importing a visual style or external authority."
-next_step: /103-sg-verify functional-excellence-doctrine
+next_step: "Apply the functional gate at the next material outcome or durable-artifact decision."
 ---
 
 # Functional Excellence Doctrine
@@ -169,12 +169,12 @@ Add one shared functional-excellence contract, activate its compact core from de
 
 ## Acceptance Criteria
 
-- [ ] AC 1: Given any material ShipGlows outcome, when its form is selected, then functional excellence is evaluated before specialized conception or implementation excellence.
-- [ ] AC 2: Given a product, content, design, or system artifact, when a functional dimension fails, then the work is revised, narrowed, or reported partial rather than called complete.
-- [ ] AC 3: Given a proposal described as minimal, when it omits a consequential responsibility, then the contract rejects it as simplism rather than excellence.
-- [ ] AC 4: Given Rams or Drams inspiration, when the doctrine is applied, then no visual resemblance or external authority substitutes for functional proof.
-- [ ] AC 5: Given a fresh agent, when it follows decision quality, design, or content authority, then it can find the applicable functional gate and next action without conversation history.
-- [ ] AC 6: Given the changed artifacts, when focused scenario and metadata checks run, then they pass without requiring app builds or external mutation.
+- [x] AC 1: Given any material ShipGlows outcome, when its form is selected, then functional excellence is evaluated before specialized conception or implementation excellence.
+- [x] AC 2: Given a product, content, design, or system artifact, when a functional dimension fails, then the work is revised, narrowed, or reported partial rather than called complete.
+- [x] AC 3: Given a proposal described as minimal, when it omits a consequential responsibility, then the contract rejects it as simplism rather than excellence.
+- [x] AC 4: Given Rams or Drams inspiration, when the doctrine is applied, then no visual resemblance or external authority substitutes for functional proof.
+- [x] AC 5: Given a fresh agent, when it follows decision quality, design, or content authority, then it can find the applicable functional gate and next action without conversation history.
+- [x] AC 6: Given the changed artifacts, when focused scenario and metadata checks run, then they pass without requiring app builds or external mutation.
 
 ## Test Strategy
 
@@ -238,14 +238,17 @@ None
 | 2026-08-24 17:55:34 UTC | 100-sg-spec | gpt-5 | Created the functional-excellence doctrine contract | draft | 101-sg-ready |
 | 2026-08-24 17:56:56 UTC | 101-sg-ready | gpt-5 | Reviewed scope, failure semantics, dependencies, consequences, and proof contract | ready | 102-sg-start |
 | 2026-08-24 18:00:39 UTC | 102-sg-start | gpt-5 | Added the shared contract, compact decision activation, design/content adaptations, and focused scenario proof | implemented | 103-sg-verify |
+| 2026-08-24 18:01:48 UTC | 103-sg-verify | gpt-5 | Verified functional scenarios, activation graph, metadata, budgets, adjacent contracts, and runtime sync | verified | 104-sg-end |
+| 2026-08-24 18:01:48 UTC | 104-sg-end | gpt-5 | Closed the bounded doctrine chantier; documentation updated and public editorial surfaces unaffected | closed | 005-sg-ship |
+| 2026-08-24 18:01:48 UTC | 005-sg-ship | gpt-5 | Prepared exact-scope final delivery to the configured branch upstream | shipped | Apply the doctrine at the next material decision |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done, draft spec created.
 - `101-sg-ready`: ready; the contract is autonomous and implementation-safe.
 - `102-sg-start`: implemented; all four bounded tasks are complete.
-- `103-sg-verify`: not launched.
-- `104-sg-end`: not launched.
-- `005-sg-ship`: not launched.
+- `103-sg-verify`: verified; focused contracts, graph, metadata, budgets, and runtime sync pass.
+- `104-sg-end`: closed; canonical documentation is aligned and no public editorial promise changed.
+- `005-sg-ship`: shipped; exact-scope commits are present on the configured upstream.
 
-Next step: `/103-sg-verify functional-excellence-doctrine`
+Next step: Apply the functional gate at the next material outcome or durable-artifact decision.
