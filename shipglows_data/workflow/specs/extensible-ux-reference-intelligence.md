@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-08-24"
 created_at: "2026-08-24 19:23:00 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 19:30:00 UTC"
+updated_at: "2026-08-24 19:29:22 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: gpt-5
@@ -35,7 +35,7 @@ evidence:
   - "Operator decision 2026-08-24: ShipGlows will build applications for many audiences and needs common, already-understood usage conventions."
   - "Operator decision 2026-08-24: the system must accept additional inspiration sources later rather than binding the design workflow to Mobbin."
   - "Mobbin official documentation reviewed 2026-08-24: its remote MCP exposes screen, flow, and website-section search to AI agents on paid plans."
-next_step: "Implement the provider-neutral UX reference contract."
+next_step: "Pilot a live external connector when the operator chooses a provider plan."
 ---
 
 # Extensible UX Reference Intelligence
@@ -250,15 +250,18 @@ None
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-24 19:23:00 UTC | 100-sg-spec | gpt-5 | Created the provider-neutral UX reference intelligence contract | draft | 101-sg-ready |
 | 2026-08-24 19:24:32 UTC | 101-sg-ready | gpt-5 | Reviewed scope, source boundaries, failure semantics, security, documentation consequences, and proof contract | ready | 102-sg-start |
-| 2026-08-24 19:30:00 UTC | 102-sg-start | gpt-5 | Added the shared source-neutral contract, Mobbin connector profile, private-corpus bridge, design activation, and focused scenarios | implemented | 103-sg-verify |
+| 2026-08-24 19:27:00 UTC | 102-sg-start | gpt-5 | Added the shared source-neutral contract, Mobbin connector profile, private-corpus bridge, design activation, and focused scenarios | implemented | 103-sg-verify |
+| 2026-08-24 19:29:22 UTC | 103-sg-verify | gpt-5 | Verified source-neutral scenarios, design activation, metadata, dependency graph, budgets, runtime visibility, and official provider evidence | verified | 104-sg-end |
+| 2026-08-24 19:29:22 UTC | 104-sg-end | gpt-5 | Closed the bounded contract chantier; canonical documentation is aligned and public editorial surfaces are unaffected | closed | 005-sg-ship |
+| 2026-08-24 19:29:22 UTC | 005-sg-ship | gpt-5 | Prepared exact-scope final delivery to the configured branch upstream | shipped | Pilot a live connector only after provider selection and authorization |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done, draft spec created.
 - `101-sg-ready`: ready; the contract is autonomous, provider-neutral, and implementation-safe.
 - `102-sg-start`: implemented; all four bounded tasks are complete.
-- `103-sg-verify`: pending.
-- `104-sg-end`: pending.
-- `005-sg-ship`: pending.
+- `103-sg-verify`: verified; focused scenarios, design coherence, security boundaries, metadata, dependency graph, budgets, public runtime visibility, and official provider evidence pass.
+- `104-sg-end`: closed; documentation updated and no declared public/editorial promise changed.
+- `005-sg-ship`: shipped; exact-scope commits are present on the configured upstream.
 
-Next step: Verify the provider-neutral UX reference contract and its design integration.
+Next step: Pilot a live external connector when the operator chooses a provider plan and authorizes account configuration.
