@@ -38,6 +38,8 @@ flutter_web_registry_lines() { [ -n "$flutter_fixture" ] && printf '%s\n' "$flut
 refresh_cli_project_catalog || fail "initial catalog"
 catalog="$SHIPGLOWS_CLI_PROJECT_CATALOG_FILE"
 [ -f "$catalog" ] || fail "catalog file"
+capabilities="$SHIPGLOWS_CLI_CAPABILITIES_FILE"
+[ -f "$capabilities" ] || fail "capability snapshot file"
 node - "$catalog" <<'NODE' || exit 1
 const fs = require('fs');
 const data = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
@@ -48,6 +50,49 @@ if (!/^prj_[a-f0-9]{32}$/.test(p.id) || !/^[a-z0-9-]+$/.test(p.previewSlug)) pro
 if (p.port !== 3005 || p.status !== 'online' || p.source !== 'pm2') process.exit(1);
 if (p.tmuxSession !== `sg-${p.id}`) process.exit(1);
 NODE
+
+node - "$capabilities" <<'NODE' || exit 1
+const fs = require('fs');
+const data = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+if (data.schemaVersion !== 'shipglows.cli-capabilities.v1') process.exit(1);
+if (!/^\d{4}-\d{2}-\d{2}T/.test(data.generatedAt) || data.capabilities.length !== 30) process.exit(1);
+const byId = new Map(data.capabilities.map(item => [item.id, item]));
+if (byId.get('project.catalog.read')?.state !== 'available') process.exit(1);
+if (byId.get('project.runtime.restart')?.reasonCode !== 'approvalRequired') process.exit(1);
+if (byId.get('credentials.manage')?.reasonCode !== 'operatorOnly') process.exit(1);
+if (/command|argument|path|port|secret|credential/i.test(JSON.stringify(data).replace('credentials.manage', ''))) process.exit(1);
+NODE
+
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*) ;;
+    *)
+        capability_mode=$(stat -c '%a' "$capabilities")
+        [ "$capability_mode" = "600" ] || fail "capability snapshot permissions"
+        ;;
+esac
+
+fixture_rows="$TEST_ROOT/capability-fixture.tsv"
+fixture_output="$TEST_ROOT/capability-fixture.json"
+: > "$fixture_rows"
+write_cli_capability_snapshot "$fixture_rows" "$fixture_output" 65536 || fail "zero capability fixture"
+node -e 'const data=require(process.argv[1]); if (data.capabilities.length !== 0) process.exit(1)' "$fixture_output"
+
+printf '%s\n' 'system.health.read|available|' > "$fixture_rows"
+rm -f "$fixture_output"
+write_cli_capability_snapshot "$fixture_rows" "$fixture_output" 65536 || fail "one capability fixture"
+node -e 'const data=require(process.argv[1]); if (data.capabilities.length !== 1) process.exit(1)' "$fixture_output"
+
+printf '%s\n' 'system.health.read|available|' 'system.memory.read|degraded|probeUnavailable' > "$fixture_rows"
+rm -f "$fixture_output"
+write_cli_capability_snapshot "$fixture_rows" "$fixture_output" 65536 || fail "many capability fixture"
+node -e 'const data=require(process.argv[1]); if (data.capabilities.length !== 2) process.exit(1)' "$fixture_output"
+
+before_capability_failure=$(sha256sum "$capabilities" | cut -d' ' -f1)
+SHIPGLOWS_CLI_CAPABILITIES_MAX_BYTES=8
+if refresh_cli_capability_snapshot; then fail "invalid capability byte boundary rejected"; fi
+after_capability_failure=$(sha256sum "$capabilities" | cut -d' ' -f1)
+[ "$before_capability_failure" = "$after_capability_failure" ] || fail "failed capability snapshot preserves previous file"
+SHIPGLOWS_CLI_CAPABILITIES_MAX_BYTES=65536
 
 first_identity=$(node -e 'const p=require(process.argv[1]).projects[0]; console.log(`${p.id}|${p.previewSlug}|${p.tmuxSession}`)' "$catalog")
 pm2_fixture="renamed|online|3005|$SHIPGLOWS_PROJECTS_DIR/demo"$'\n'"shipglows-runner|online||$HOME/services/runner"

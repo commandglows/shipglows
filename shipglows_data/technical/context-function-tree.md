@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.6.0"
+artifact_version: "0.7.0"
 project: "shipglows"
 created: "2026-04-25"
 updated: "2026-08-24"
@@ -64,6 +64,7 @@ run_menu_shortcut()
 
 - `cli/shipglows.sh`: point d'entree du CLI.
 - `cli/lib.sh`: coeur applicatif. UI, validation, PM2, Flox, sessions, dashboard, deploy, publish.
+- `cli/lib.sh::refresh_cli_capability_snapshot`: publie atomiquement le contrat prive `shipglows.cli-capabilities.v1`; il inventorie seulement des capacites fermees et n'execute aucune action SaaS.
 - `cli/config.sh`: variables d'environnement et validation de config.
 - `cli/install.sh`: bootstrap serveur, aliases, Codex config, liens de skills.
 - `local/local.sh`: menu local pour tunnels SSH et statut distant.

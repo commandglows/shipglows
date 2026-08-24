@@ -2341,6 +2341,115 @@ user_caddy_is_running() {
     user_caddy_pid >/dev/null
 }
 
+cli_capability_read_row() {
+    local capability_id="$1" implementation_function="$2"
+    if declare -F "$implementation_function" >/dev/null 2>&1; then
+        printf '%s|available|\n' "$capability_id"
+    else
+        printf '%s|unavailable|implementationUnavailable\n' "$capability_id"
+    fi
+}
+
+cli_capability_rows() {
+    cli_capability_read_row "project.catalog.read" "refresh_cli_project_catalog"
+    cli_capability_read_row "project.runtime.status.read" "pm2_data_load"
+    cli_capability_read_row "preview.status.read" "user_caddy_routes_load"
+    cli_capability_read_row "workspace.status.read" "flutter_web_registry_lines"
+    cli_capability_read_row "system.health.read" "action_health"
+    cli_capability_read_row "system.storage.read" "disk_free_bytes"
+    cli_capability_read_row "system.memory.read" "mem_available_kb"
+    cli_capability_read_row "toolchain.status.read" "show_tools_status"
+    cli_capability_read_row "updates.status.read" "updates_total_cached"
+    cli_capability_read_row "agents.status.read" "codex_configured_mcp_names"
+    cli_capability_read_row "mcp.status.read" "codex_configured_mcp_names"
+
+    printf '%s|disabled|approvalRequired\n' \
+        "project.runtime.start" \
+        "project.runtime.stop" \
+        "project.runtime.restart" \
+        "preview.refresh" \
+        "workspace.open" \
+        "workspace.close" \
+        "agent.session.open"
+
+    printf '%s|disabled|operatorOnly\n' \
+        "system.logs.read" \
+        "system.cleanup" \
+        "system.process.stop" \
+        "system.reboot" \
+        "system.update" \
+        "toolchain.install" \
+        "mcp.configure" \
+        "credentials.manage" \
+        "proxy.configure" \
+        "environment.remove" \
+        "release.publish" \
+        "shipglows.install"
+}
+
+write_cli_capability_snapshot() {
+    local rows_file="$1" output_file="$2" max_bytes="$3"
+    command -v node >/dev/null 2>&1 || return 1
+
+    node - "$rows_file" "$output_file" "$max_bytes" <<'NODE' 2>/dev/null
+const fs = require('fs');
+const [rowsFile, outputFile, maxBytesRaw] = process.argv.slice(2);
+const schemaVersion = 'shipglows.cli-capabilities.v1';
+const knownIds = new Set([
+  'project.catalog.read', 'project.runtime.status.read', 'preview.status.read',
+  'workspace.status.read', 'system.health.read', 'system.storage.read',
+  'system.memory.read', 'toolchain.status.read', 'updates.status.read',
+  'agents.status.read', 'mcp.status.read', 'project.runtime.start',
+  'project.runtime.stop', 'project.runtime.restart', 'preview.refresh',
+  'workspace.open', 'workspace.close', 'agent.session.open', 'system.logs.read',
+  'system.cleanup', 'system.process.stop', 'system.reboot', 'system.update',
+  'toolchain.install', 'mcp.configure', 'credentials.manage', 'proxy.configure',
+  'environment.remove', 'release.publish', 'shipglows.install',
+]);
+const validStates = new Set(['available', 'unavailable', 'degraded', 'disabled']);
+const maxBytes = Number(maxBytesRaw);
+if (!Number.isInteger(maxBytes) || maxBytes < 1024 || maxBytes > 1048576) process.exit(1);
+
+const seen = new Set();
+const capabilities = [];
+for (const line of fs.readFileSync(rowsFile, 'utf8').split(/\r?\n/).filter(Boolean)) {
+  const fields = line.split('|');
+  if (fields.length !== 3) process.exit(1);
+  const [id, state, reasonCode] = fields;
+  if (!knownIds.has(id) || seen.has(id) || !validStates.has(state)) process.exit(1);
+  if (reasonCode && !/^[a-z][a-zA-Z0-9]{0,63}$/.test(reasonCode)) process.exit(1);
+  seen.add(id);
+  capabilities.push({id, state, ...(reasonCode ? {reasonCode} : {})});
+}
+capabilities.sort((left, right) => left.id.localeCompare(right.id));
+const json = JSON.stringify({schemaVersion, generatedAt: new Date().toISOString(), capabilities}, null, 2) + '\n';
+if (Buffer.byteLength(json) > maxBytes) process.exit(1);
+fs.writeFileSync(outputFile, json, {mode: 0o600, flag: 'w'});
+NODE
+}
+
+refresh_cli_capability_snapshot() {
+    local snapshot_file="$SHIPGLOWS_CLI_CAPABILITIES_FILE"
+    local snapshot_dir rows_file candidate
+    snapshot_dir=$(dirname "$snapshot_file")
+    mkdir -p "$snapshot_dir" 2>/dev/null || return 1
+    chmod 700 "$snapshot_dir" 2>/dev/null || true
+    rows_file=$(mktemp "$snapshot_dir/.capabilities-rows.XXXXXX") || return 1
+    candidate=$(mktemp "$snapshot_dir/.capabilities-v1.XXXXXX") || return 1
+    register_temp_file "$rows_file"
+    register_temp_file "$candidate"
+    chmod 600 "$rows_file" 2>/dev/null || true
+    cli_capability_rows > "$rows_file" || return 1
+    write_cli_capability_snapshot "$rows_file" "$candidate" "$SHIPGLOWS_CLI_CAPABILITIES_MAX_BYTES" || {
+        rm -f "$rows_file" "$candidate" 2>/dev/null || true
+        return 1
+    }
+    chmod 600 "$candidate" 2>/dev/null || true
+    mv -f "$candidate" "$snapshot_file" || return 1
+    chmod 600 "$snapshot_file" 2>/dev/null || true
+    rm -f "$rows_file" 2>/dev/null || true
+}
+
 stop_user_caddy() {
     local pid
     pid=$(user_caddy_pid || true)
@@ -2477,6 +2586,7 @@ NODE
     mv -f "$candidate" "$catalog_file" || return 1
     chmod 600 "$catalog_file" 2>/dev/null || true
     rm -f "$pm2_file" "$flutter_file" 2>/dev/null || true
+    refresh_cli_capability_snapshot || true
 }
 
 user_caddy_routes_load() {
