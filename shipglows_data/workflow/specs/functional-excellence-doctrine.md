@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-24"
 created_at: "2026-08-24 17:55:34 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 18:01:48 UTC"
+updated_at: "2026-08-24 19:22:57 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: gpt-5
@@ -28,12 +28,13 @@ depends_on:
     artifact_version: "2.2.0"
     required_status: active
   - artifact: skills/references/intent-to-outcome-autonomy.md
-    artifact_version: "1.5.0"
+    artifact_version: "1.6.0"
     required_status: active
 supersedes: []
 evidence:
   - "Operator decision 2026-08-24: functional excellence applies across products, content, design, experiences, and ShipGlows mechanisms, before implementation excellence."
   - "Dieter Rams's principles supplied the inspiration; ShipGlows owns an adapted functional contract rather than importing a visual style or external authority."
+  - "Operator correction 2026-08-24: activate functional excellence after outcome resolution and before surface or métier selection, not only during later decision or review stages."
 next_step: "Apply the functional gate at the next material outcome or durable-artifact decision."
 ---
 
@@ -78,7 +79,7 @@ ShipGlows has strong decision-quality and implementation-excellence rules, but i
 
 ## Solution
 
-Add one shared functional-excellence contract, activate its compact core from decision quality, and expose direct design and content adaptations without copying the doctrine into owner skills. Keep Dieter Rams and Drams as provenance only; ShipGlows owns the normative formulation.
+Add one shared functional-excellence contract, activate it universally from intent-to-outcome autonomy before surface selection, retain its compact decision-quality gate, and expose direct design and content adaptations without copying the doctrine into owner skills. Keep Dieter Rams and Drams as provenance only; ShipGlows owns the normative formulation.
 
 ## Scope In
 
@@ -166,6 +167,13 @@ Add one shared functional-excellence contract, activate its compact core from de
   - Depends on: Tasks 1-3.
   - Validate with: `python3 tools/test_functional_excellence_contract.py && python3 tools/shipglows_metadata_lint.py skills/references/functional-excellence-contract.md skills/references/decision-quality-contract.md skills/references/design-system-token-contract.md skills/references/content-quality-rubric.md shipglows_data/workflow/specs/functional-excellence-doctrine.md`
   - Notes: run only proportional skill/runtime checks required by the changed dependency surface.
+- [x] Task 5: Move the primary trigger before surface and métier selection.
+  - File: `skills/references/intent-to-outcome-autonomy.md`, `tools/test_functional_excellence_contract.py`
+  - Action: load functional excellence after outcome resolution, define the materiality boundary, and mechanically prove every public métier inherits the ordered trigger.
+  - User story link: prevents early product or content form selection from bypassing the doctrine.
+  - Depends on: Tasks 1-4 and operator correction.
+  - Validate with: `python3 tools/test_functional_excellence_contract.py`
+  - Notes: atomic mechanical edits remain proportional and do not create doctrine ceremony.
 
 ## Acceptance Criteria
 
@@ -175,6 +183,7 @@ Add one shared functional-excellence contract, activate its compact core from de
 - [x] AC 4: Given Rams or Drams inspiration, when the doctrine is applied, then no visual resemblance or external authority substitutes for functional proof.
 - [x] AC 5: Given a fresh agent, when it follows decision quality, design, or content authority, then it can find the applicable functional gate and next action without conversation history.
 - [x] AC 6: Given the changed artifacts, when focused scenario and metadata checks run, then they pass without requiring app builds or external mutation.
+- [x] AC 7: Given any public métier route, when it resolves a material outcome, then functional excellence runs before `surface -> work item` and specialized métier selection.
 
 ## Test Strategy
 
@@ -241,14 +250,18 @@ None
 | 2026-08-24 18:01:48 UTC | 103-sg-verify | gpt-5 | Verified functional scenarios, activation graph, metadata, budgets, adjacent contracts, and runtime sync | verified | 104-sg-end |
 | 2026-08-24 18:01:48 UTC | 104-sg-end | gpt-5 | Closed the bounded doctrine chantier; documentation updated and public editorial surfaces unaffected | closed | 005-sg-ship |
 | 2026-08-24 18:01:48 UTC | 005-sg-ship | gpt-5 | Prepared exact-scope final delivery to the configured branch upstream | shipped | Apply the doctrine at the next material decision |
+| 2026-08-24 19:22:57 UTC | 900-shipglows-core | gpt-5 | Moved the primary functional trigger into intent-to-outcome autonomy before surface selection | implemented | 103-sg-verify |
+| 2026-08-24 19:22:57 UTC | 103-sg-verify | gpt-5 | Proved ordered activation and inheritance across every public métier | verified | 104-sg-end |
+| 2026-08-24 19:22:57 UTC | 104-sg-end | gpt-5 | Reclosed the corrected doctrine with canonical documentation aligned | closed | 005-sg-ship |
+| 2026-08-24 19:22:57 UTC | 005-sg-ship | gpt-5 | Prepared exact-scope corrective delivery to the configured upstream | shipped | Apply the doctrine at the next material outcome |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done, draft spec created.
 - `101-sg-ready`: ready; the contract is autonomous and implementation-safe.
-- `102-sg-start`: implemented; all four bounded tasks are complete.
-- `103-sg-verify`: verified; focused contracts, graph, metadata, budgets, and runtime sync pass.
+- `102-sg-start`: implemented; all five bounded tasks, including the universal trigger correction, are complete.
+- `103-sg-verify`: verified; ordered public-métier activation, focused contracts, graph, metadata, budgets, and runtime sync pass.
 - `104-sg-end`: closed; canonical documentation is aligned and no public editorial promise changed.
-- `005-sg-ship`: shipped; exact-scope commits are present on the configured upstream.
+- `005-sg-ship`: shipped; exact-scope doctrine and corrective commits are present on the configured upstream.
 
 Next step: Apply the functional gate at the next material outcome or durable-artifact decision.
