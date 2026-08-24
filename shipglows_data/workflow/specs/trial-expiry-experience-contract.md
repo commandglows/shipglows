@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-08-22"
 updated: "2026-08-23"
@@ -57,7 +57,7 @@ Extend the existing product-entitlement support and proof branch so every Glows 
 
 Proof path: `scenario-first`, verified during the 2026-08-23 recovery run.
 
-The focused contract check covers `TEX-001` through `TEX-010`, canonical link discovery, the complete reminder-to-recovery timeline, showcase evidence boundaries, truth/recovery markers, and founder-message anti-coercion language. The focused tests, metadata, dependency graph, skill audits, topology, and runtime sync passed on the recovery branch; PR integration remains pending.
+The focused contract check covers `TEX-001` through `TEX-010`, canonical link discovery, the complete reminder-to-recovery timeline, showcase evidence boundaries, truth/recovery markers, and founder-message anti-coercion language. The focused tests, metadata, dependency graph, skill audits, topology, and runtime sync passed on the recovery branch; PR #27 then merged the validated recovery into `main` as `bbc07fe`.
 
 ## Current Chantier Flow
 
@@ -67,7 +67,7 @@ The focused contract check covers `TEX-001` through `TEX-010`, canonical link di
 | Implementation | done | Canonical doctrine, owner activation, and focused contract coverage authored under `#nolocal`. |
 | Verification | done | Focused tests and repository-governance checks passed on 2026-08-23. |
 | Closure | done | The validated recovery was integrated without the superseded positioning commit. |
-| Ship | done | PR #27 merged into `main` as `bbc07fe`; final closure receipt follows on `main`. |
+| Ship | done | PR #27 merged into `main` as `bbc07fe`; this artifact records the final closure receipt. |
 
 ## Skill Run History
 
