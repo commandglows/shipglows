@@ -1,10 +1,10 @@
 ---
 artifact: product_context
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.6.1"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-23"
+updated: "2026-08-24"
 status: reviewed
 source_skill: manual
 scope: product
@@ -20,7 +20,7 @@ docs_impact: yes
 evidence:
   - "Repo artifacts strongly emphasize context routing, specs, readiness, verification, audits, and environment operations"
   - "shipglows_data/editorial/content-map.md and the sg-content repurpose mode add a content routing layer for documentation and marketing reuse"
-  - "Thirteen public métier owners plus the ShipGlows router now share business-context, strategic-choice, outcome-ownership, and proof contracts"
+  - "Fourteen public métier owners plus the ShipGlows router now share business-context, strategic-choice, outcome-ownership, and proof contracts"
   - "Operator confirmed decision SG-BIZ-2026-08-13-01: partnership and outcome ownership lead; environment delivery supports execution"
   - "Operator confirmed decision SG-BIZ-2026-08-14-01: the partnership is delivered by the autonomous ShipGlows product, never by a service offer; Cockpit SaaS remains nonexistent and deferred"
   - "Operator decision 2026-08-21: Git-backed persistence, interruption recovery, and delivery-state clarity are high-impact supporting proof of ShipGlows outcome ownership."

@@ -50,6 +50,7 @@ EXPECTED_OWNERS = {
     "sg-seo": "406-sg-seo",
     "sg-docs": "300-sg-docs",
     "sg-planning": "011-sg-pilotage",
+    "sg-private": "603-sg-private",
     "sg-help": "302-sg-help",
 }
 class MetierFirstPublicSkillsContractTests(unittest.TestCase):

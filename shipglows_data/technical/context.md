@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.11.0"
+artifact_version: "0.12.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-19"
+updated: "2026-08-24"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -148,14 +148,14 @@ project -> product -> surface -> feature -> spec or bounded contract ->
 implementation -> proof -> documentation reflection -> closure
 ```
 
-La surface publique comprend le routeur `shipglows` et treize métiers :
+La surface publique comprend le routeur `shipglows` et quatorze métiers :
 
 - Créer : `sg-development`, `sg-design`, `sg-experience`
 - Qualité : `sg-bug`, `sg-engineering`, `sg-maintenance`
 - Publier : `sg-release`
 - Développer l’audience : `sg-content`, `sg-marketing`, `sg-seo`
 - Gouverner : `sg-docs`
-- Organiser : `sg-planning`, `sg-help`
+- Organiser : `sg-planning`, `sg-private`, `sg-help`
 
 Les noms numériques restent des moteurs internes. Les propriétaires publics les
 choisissent et les enchaînent sans demander à l’opérateur de micro-manager le

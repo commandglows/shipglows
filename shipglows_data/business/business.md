@@ -1,10 +1,10 @@
 ---
 artifact: business_context
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.5.1"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-23"
+updated: "2026-08-24"
 status: reviewed
 source_skill: manual
 scope: business
@@ -20,7 +20,7 @@ docs_impact: yes
 evidence:
   - "README.md describes ShipGlows as a server-first environment manager plus structured AI workflow system"
   - "Repository contains workflow, verification, audit, docs, and metadata tooling rather than a narrow single-purpose CLI"
-  - "The public system now exposes thirteen métier owners plus the ShipGlows router, backed by shared business-context, strategic-choice, execution, and verification contracts"
+  - "The public system now exposes fourteen métier owners plus the ShipGlows router, backed by shared business-context, strategic-choice, execution, and verification contracts"
   - "Operator decision 2026-08-13: ShipGlows is first a business and delivery partner; server tooling is an integrated execution capability rather than an equal top-level promise"
   - "Operator decision SG-BIZ-2026-08-14-01: ShipGlows remains an autonomous product with no service, consulting, diagnostic, or human-accompaniment offer; a future Cockpit SaaS is only a deferred possibility and is not a current product promise"
   - "Operator decision 2026-08-22: ShipGlows is a business framework shared by humans and AI agents; software and code are capabilities, not the defining category"

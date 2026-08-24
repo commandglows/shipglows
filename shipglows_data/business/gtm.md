@@ -1,10 +1,10 @@
 ---
 artifact: gtm_context
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.6.1"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-23"
+updated: "2026-08-24"
 status: reviewed
 source_skill: manual
 scope: gtm
@@ -14,7 +14,7 @@ risk_level: medium
 target_segment: "solo founders first, with adjacent fit for small teams that want humans and AI agents to work from the same business truth across identity, content, product, technology, growth, and delivery"
 offer: "a shared business framework for humans and AI agents that helps create distinctive identities and businesses that make an impact through governed truth, métier ownership, bounded chantiers, and visible proof"
 channels: "documentation-first discovery, technical content, demos, founder education, and clarity-oriented positioning"
-proof_points: "business-context mesh, thirteen public métier owners plus the ShipGlows router, strategic choices, guided governance refresh, outcome-owned workflows, verification and audits, plus concrete environment and delivery tooling"
+proof_points: "business-context mesh, fourteen public métier owners plus the ShipGlows router, strategic choices, guided governance refresh, outcome-owned workflows, verification and audits, plus concrete environment and delivery tooling"
 security_impact: unknown
 docs_impact: yes
 evidence:

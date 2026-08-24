@@ -1,10 +1,10 @@
 ---
 artifact: content_map
 metadata_schema_version: "1.0"
-artifact_version: "0.16.1"
+artifact_version: "0.16.2"
 project: ShipGlows
 created: "2026-04-26"
-updated: "2026-08-23"
+updated: "2026-08-24"
 status: draft
 source_skill: manual
 scope: content-map
@@ -54,6 +54,7 @@ evidence:
   - "External EN/FR positioning published through commandglows/shipglows_app PR #6 and verified on shipglows.com on 2026-08-14."
   - "Public install surfaces aligned on 2026-08-19 with verified Ubuntu/Debian support, automatic skill-corpus selection, and the canonical commandglows/shipglows repository."
   - "Operator decision 2026-08-22 establishes the business framework as category, distinctive identity and impact as ambition, business partnership as behavior, and solid technical execution as a core métier promise."
+  - "The 2026-08-24 sg-private addition expands current public discovery to fourteen métier owners plus the ShipGlows router while keeping private operator values outside public surfaces."
 linked_artifacts:
   - "README.md"
   - "shipglows_data/business/product.md"
@@ -99,7 +100,7 @@ For public-content governance details, use `shipglows_data/editorial/` after thi
 | Public install guide | `site/src/pages/install.astro`, `site/src/pages/fr/install.astro` | Explain the Codex marketplace install path for the public `shipglows` plugin and the first command to run after install | Astro page | `README.md`, `plugins/shipglows/README.md`, `plugins/shipglows/assets/docs-links.json`, `shipglows_data/technical/codex-plugin-packaging.md` | Marketplace source, plugin install flow, first-run command, or public packaging posture changes |
 | Public runtime and DevServer installer | `https://shipglows.com/shipglows`, `https://shipglows.com/fr/shipglows` | Provide the official server/local bootstrap path and explain the native Windows DevServer separately from the Codex workflow plugin | Canonical ShipGlows install pages | `install-shipglows.sh`, `install-shipglows.ps1`, `README.md`, `shipglows_data/technical/operator-guides/windows-devserver.md`, verified installer behavior | Bootstrap command or endpoint, install mode, supported platform, dependency set, Windows DevServer capability, launcher, or public install wording changes |
 | Terminal TUI operator docs | `tui/README.md`, `shipglows_data/technical/terminal-tui.md`, `site/src/pages/docs.astro#terminal-tui` | Explain how the optional read-only terminal cockpit is installed, launched, bounded, and positioned against skills, Gum, and Flutter | Markdown + Astro section | TUI spec, verified launcher behavior, TUI source policy | TUI install, command aliases, interaction model, source policy, or read/write boundary changes |
-| Public skill pages | `/home/claude/shipglows_app/site/src/content/skills/` | Present only the thirteen métier owners plus the ShipGlows router as readable public workflow pages; keep numeric engines in expert/internal documentation | Markdown content collection | `skills/references/skill-invocation-registry.json`, public owner skills, product positioning docs | A public métier is added, renamed, repositioned, or its language policy changes |
+| Public skill pages | `/home/claude/shipglows_app/site/src/content/skills/` | Present only the fourteen métier owners plus the ShipGlows router as readable public workflow pages; keep numeric engines in expert/internal documentation | Markdown content collection | `skills/references/skill-invocation-registry.json`, public owner skills, product positioning docs | A public métier is added, renamed, repositioned, or its language policy changes |
 | Public benefit-first language | `shipglows_data/editorial/public-benefit-language.md` | Translate public workflow mechanisms into familiar reader outcomes while preserving technical evidence and claim limits | Markdown editorial guide | Claim register, business/product/GTM/brand contracts, active skill contracts | Public copy introduces a workflow mechanism, quality/security control, delegation practice, or sensitive product promise |
 | Skill launch cheatsheet | `/home/claude/shipglows_app/site/src/pages/skill-modes.astro` | Explain the six public domains and métier modes; link expert engine details without mixing them into default discovery | Astro page | `skills/references/skill-invocation-registry.json`, `shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md`, `README.md`, public skill pages | Public métier inventory, modes, ownership, or routing changes |
 | Skill launch Markdown reference | `shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md` | Preserve the repo Markdown version of master skills, supporting skills, and explicit mode switches | Markdown artifact | `shipglows_data/workflow/playbooks/spec-driven-workflow.md`, `skills/*/SKILL.md`, public skill pages | Skill inventory, master skill modes, argument contracts, or lifecycle routing changes |

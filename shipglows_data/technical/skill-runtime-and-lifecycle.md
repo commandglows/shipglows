@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.31.0"
+artifact_version: "2.33.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-21"
+updated: "2026-08-24"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -54,6 +54,7 @@ linked_systems:
   - skills/references/sentry-observability.md
   - skills/references/design-inspiration-library.md
   - tools/capture_design_inspiration.py
+  - tools/vivaldi_bookmarks.py
   - tools/audit_shipglows_skills.py
   - specs/001-sg-build-autonomous-master-skill.md
   - specs/skill-reporting-modes-and-compact-reports.md
@@ -84,6 +85,7 @@ evidence:
   - "900-shipglows-core build is the sole internal lifecycle mode for ShipGlows skill maintenance."
   - "004-sg-deploy added as the dedicated release confidence orchestrator."
   - "006-sg-design added as the master design lifecycle orchestrator for UI/UX, tokens, playgrounds, visual proof, verification, and ship routing."
+  - "The private Vivaldi bookmark bridge reads the complete configured profile and permits only backed-up, checksum-guarded offline edits while Vivaldi is closed."
   - "002-sg-maintain promoted to a master maintenance lifecycle from triage through delegated execution, verification, and ship/deploy routing."
   - "Shared reporting contract added: concise user reports by default, explicit agent handoff reports when requested."
   - "Reporting contract clarified: user-mode ship reports should match the user's active language, use outcome/evidence/limits ordering, and allow a few sober status emojis."
@@ -174,7 +176,7 @@ Large workflow references should use a compact compatibility core at the establi
 Discovery descriptions are routing triggers, not workflow summaries. Keep them
 short, one sentence, and front-loaded with the work type or domain.
 
-The normal operator surface is one router plus thirteen public métier owners:
+The normal operator surface is one router plus fourteen public métier owners:
 
 | Domain | Public owner | Engine mapping |
 | --- | --- | --- |
@@ -183,7 +185,7 @@ The normal operator surface is one router plus thirteen public métier owners:
 | Publier | `sg-release` | `004-sg-deploy` |
 | Développer l’audience | `sg-content`, `sg-marketing`, `sg-seo` | `007-sg-content`, `009-sg-marketing`, `406-sg-seo` |
 | Gouverner | `sg-docs` | `300-sg-docs` |
-| Organiser | `sg-planning`, `sg-help` | `011-sg-pilotage`, `302-sg-help` |
+| Organiser | `sg-planning`, `sg-private`, `sg-help` | `011-sg-pilotage`, `603-sg-private`, `302-sg-help` |
 
 `shipglows` is the public natural-language router. Each public owner has a
 real folder and matching `name:` metadata (`skills/sg-development/`,
@@ -411,7 +413,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/reporting-contract.md` and `skills/references/reporting-*.md` | Compact final-report core plus direct conditional leaves | Successful user mode loads the core; explicit agent mode has sole detailed-report priority; blocked/audit and pressure scenarios load only at their gates |
 | `skills/references/sentry-observability.md` | Shared Sentry runtime evidence, PM2/Doppler fallback evidence, release/environment correlation, redaction, and performance-overhead doctrine | Load when runtime behavior, crashes, 5xx, event IDs, deploy confidence, auth/payment/data failures, jobs, webhooks, verification, audits, or perf checks depend on observability |
 | `skills/references/product-entitlements-playbook.md`, `product-entitlement-{ledger-and-authorization,ingestion,support-and-proof}.md` | Primary product-access invariants plus direct conditional procedure branches | Load the primary doctrine after entitlement selection, then one branch for ledger/backend, ingestion, or support/proof work |
-| `skills/references/design-inspiration-library.md`, `skills/references/design-inspiration/` | Shared private-corpus, capture-bundle, rights, taxonomy, and Inspiration Gate contract | Load for new visual direction, sales/offer-page creation, major redesign, copy-pattern comparison, or explicit inspiration requests; never load the full private corpus by default |
+| `skills/references/design-inspiration-library.md`, `skills/references/design-inspiration/`, `tools/vivaldi_bookmarks.py` | Shared private-corpus, capture-bundle, rights, taxonomy, Inspiration Gate, and private complete-profile bookmark operations | Load for bookmark work or eligible creative direction; search narrowly by default, keep results private, require Vivaldi closed plus checksum/dry-run/backup guards for edits, and treat design results as unapproved candidates |
 | `skills/601-sg-product-entitlements/SKILL.md` | Product entitlement skill for access ownership, provider-event handling, backend authorization gates, support flow framing, product-local mirrors, and sync/auth handoffs | Load when projects need an entitlement contract, duplicate-ledger review, product-access guard design, provider/manual grant routing, or entitlement-gated sync preconditions |
 | `skills/600-sg-local-cloud-sync/references/*.md` | Local-to-cloud sync doctrine, UX/security checklist, and Flutter implementation checklist | Load when projects touch local data promotion, cloud hydration, merge/conflict policy, sync state UX, sensitive-data exclusions, or reinstall recovery |
 | `skills/references/subagent-roles/*.md` | Internal role contracts such as Technical Reader and Editorial Reader | Role files are read by orchestration skills; keep read-only roles explicit |

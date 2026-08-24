@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.10.7"
+artifact_version: "0.10.8"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-23"
+updated: "2026-08-24"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -24,6 +24,11 @@ evidence: []
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-08-24]
+
+### Added
+- Added `sg-private memory` as the fourteenth public métier owner for explicit machine-local path, URL, alias, and Vivaldi bookmark memory while keeping operator values and backups outside public Git.
 
 ## [2026-08-23]
 

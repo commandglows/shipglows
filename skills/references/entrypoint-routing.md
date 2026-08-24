@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.11.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-22"
+updated: "2026-08-24"
 status: active
 source_skill: 009-sg-skill-build
 scope: entrypoint-routing
@@ -23,6 +23,7 @@ linked_systems:
   - skills/006-sg-design/SKILL.md
   - skills/008-sg-customer/SKILL.md
   - skills/600-sg-local-cloud-sync/SKILL.md
+  - skills/603-sg-private/SKILL.md
   - skills/900-shipglows-core/SKILL.md
   - skills/400-sg-audit/SKILL.md
   - skills/references/master-delegation-semantics.md
@@ -177,7 +178,7 @@ A read-only routing scout is allowed only for cheap classification evidence and 
 
 Resolve every actionable request as `project -> business/brand/product -> outcome -> surface -> work item` before selecting an owner. A project may contain several businesses, brands, products, or public expressions. Inspect conversation and repository evidence before asking, and ask only when an unresolved choice materially changes the outcome; after the answer, continue under one public métier owner.
 
-The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-bug`, `sg-engineering`, `sg-maintenance`, `sg-release`, `sg-content`, `sg-marketing`, `sg-seo`, `sg-docs`, `sg-planning`, and `sg-help`. Numeric runtime skills remain internal engines and compatibility identities. Load `skills/references/intent-to-outcome-autonomy.md` and keep the original outcome active through internal routing.
+The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-bug`, `sg-engineering`, `sg-maintenance`, `sg-release`, `sg-content`, `sg-marketing`, `sg-seo`, `sg-docs`, `sg-planning`, `sg-private`, and `sg-help`. Numeric runtime skills remain internal engines and compatibility identities. Load `skills/references/intent-to-outcome-autonomy.md` and keep the original outcome active through internal routing.
 
 | Operator intent | Primary route |
 | --- | --- |
@@ -201,6 +202,7 @@ The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-
 | Local-first data promotion, cloud hydration, account sync, merge/conflict policy, reinstall recovery, or sync/save UX state | public `sg-engineering sync`; internal engine `600-sg-local-cloud-sync` |
 | Product access, paid plans, premium gates, entitlement ledgers, provider events, activation codes, refunds/revokes, support access flows, or backend access gates | public `sg-engineering access`; internal engine `601-sg-product-entitlements` |
 | Cross-platform behavior or capability parity | public `sg-engineering parity`; internal engine `602-sg-platform-parity` |
+| Explicitly remember, retrieve, search, archive, or restore a private local path, URL, alias, or Vivaldi bookmark | public `sg-private memory`; internal `603-sg-private memory` |
 | New skill, skill modification, skill runtime visibility, skill public page, skill docs/help coherence | `900-shipglows-core build` |
 | ShipGlows Core execution-fidelity audit or public-plugin packaging readiness for ShipGlows itself | `900-shipglows-core audit <scope>` or `900-shipglows-core packaging <scope>` |
 | One obvious audit domain only | relevant `400-sg-audit-*` or `400-sg-audit` |
