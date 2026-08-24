@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-08-17"
+updated: "2026-08-24"
 status: active
 source_skill: 900-shipglows-core
 scope: decision-quality-contract
@@ -16,6 +16,7 @@ docs_impact: yes
 linked_systems:
   - skills/*/SKILL.md
   - skills/references/decision-quality-implementation-discipline.md
+  - skills/references/functional-excellence-contract.md
   - skills/references/master-workflow-lifecycle.md
   - skills/references/spec-driven-development-discipline.md
   - skills/references/master-delegation-semantics.md
@@ -24,11 +25,15 @@ linked_systems:
   - skills/references/design-system-token-contract.md
   - skills/references/skill-instruction-layering.md
   - tools/test_industrial_excellence_contract.py
-depends_on: []
+depends_on:
+  - artifact: skills/references/functional-excellence-contract.md
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Wave 15 preserves the universal decision gates in the canonical path and moves implementation pressure detail to one direct conditional leaf."
   - "Operator correction 2026-08-17: ShipGlows is business-oriented and must ship product value quickly while preserving a coherent architecture and non-negotiable safety boundaries; process and maximal proof are not the product."
+  - "Operator decision 2026-08-24: functional excellence precedes conception and implementation."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify decision-quality-contract"
 ---
@@ -54,6 +59,14 @@ The primary goal is shipped business and user value. Architecture, correctness, 
 Once the applicable floor is met, prefer the faster, simpler, smaller implementation. Choose a slower path only when it prevents a concrete material risk or near-term structural dead end. Do not trade shipping speed for speculative architecture, ceremonial process, exhaustive optional proof, or hypothetical future requirements.
 
 `Smallest safe path` is the smallest shippable professional implementation preserving the accepted product outcome, coherent ownership boundaries, non-negotiable safety, and enough maintainability for the known horizon. Small blast radius and short lead time are strengths; hidden debt and bypassed invariants are not.
+
+## Functional Excellence Gate
+
+Before conception or implementation, load
+`skills/references/functional-excellence-contract.md` for every material outcome
+and durable artifact. Accept only the smallest complete form with evidenced
+utility, clarity, honesty, and durability. `Minimal`
+never means incomplete or weaker safety, accessibility, recovery, nuance, or proof.
 
 ## Industrial Excellence Gate
 

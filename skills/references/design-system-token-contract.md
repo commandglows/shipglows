@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-06-11"
 updated: "2026-08-24"
@@ -21,11 +21,15 @@ linked_systems:
   - skills/103-sg-verify/SKILL.md
   - skills/106-sg-fix/SKILL.md
   - skills/references/decision-quality-contract.md
+  - skills/references/functional-excellence-contract.md
   - tools/design_system_drift_check.py
   - tools/test_industrial_excellence_contract.py
 depends_on:
   - artifact: skills/references/decision-quality-contract.md
     artifact_version: "2.1.0"
+    required_status: active
+  - artifact: skills/references/functional-excellence-contract.md
+    artifact_version: "1.0.0"
     required_status: active
 supersedes: []
 evidence:
@@ -36,6 +40,7 @@ evidence:
   - "Operator directive 2026-08-21: prefer semantic HTML and native CSS for presentation, and require a concrete functional reason before adding JavaScript."
   - "Recovery verification 2026-08-23: content-availability, CSS-first, metadata, dependency, skill, topology, and runtime-sync checks passed on the current main baseline."
   - "Operator decision 2026-08-24: Phosphor is the default functional icon family, Unicon is a source-constrained web tool, and Simple Icons is reserved for brand marks."
+  - "Operator decision 2026-08-24: visual conception adapts the shared functional-excellence dimensions; resemblance to an admired aesthetic never proves usefulness or understanding."
 next_review: "2026-09-12"
 next_step: "Apply the gate to the next public or product-critical interface change."
 ---
@@ -67,6 +72,19 @@ The allowed path is:
 2. add or update a named semantic token/constant there only when needed
 3. consume that token through components, variants, utilities, or theme APIs
 4. prove no unintended visual drift with token checks and visual evidence
+
+## Functional Design Gate
+
+Apply `skills/references/functional-excellence-contract.md` before selecting a
+visual form. Hierarchy, affordances, feedback, motion, imagery, decoration, and
+component choice must earn their presence through understanding, task
+completion, trust, accessibility, or meaningful brand expression.
+
+A minimal interface is incomplete when it hides state, recovery, labels,
+focus, consequences, or accessible alternatives. A polished interface is not
+functionally excellent when style imitation, novelty, or spectacle weakens the
+product outcome. Preserve the simplest complete experience, not the fewest
+visible elements.
 
 ## Award-Caliber Craft Gate
 

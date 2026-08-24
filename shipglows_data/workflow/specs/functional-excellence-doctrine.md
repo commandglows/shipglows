@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-08-24"
 created_at: "2026-08-24 17:55:34 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 17:56:56 UTC"
+updated_at: "2026-08-24 18:00:39 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: gpt-5
@@ -34,7 +34,7 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-24: functional excellence applies across products, content, design, experiences, and ShipGlows mechanisms, before implementation excellence."
   - "Dieter Rams's principles supplied the inspiration; ShipGlows owns an adapted functional contract rather than importing a visual style or external authority."
-next_step: /102-sg-start functional-excellence-doctrine
+next_step: /103-sg-verify functional-excellence-doctrine
 ---
 
 # Functional Excellence Doctrine
@@ -138,28 +138,28 @@ Add one shared functional-excellence contract, activate its compact core from de
 
 ## Implementation Tasks
 
-- [ ] Task 1: Add the shared functional-excellence contract.
+- [x] Task 1: Add the shared functional-excellence contract.
   - File: `skills/references/functional-excellence-contract.md`
   - Action: define the functional dimensions, sequence, failure semantics, adaptations, and pressure scenarios.
   - User story link: establishes one shared standard across artifact types.
   - Depends on: approved doctrine and this ready spec.
   - Validate with: `python3 tools/test_functional_excellence_contract.py`
   - Notes: source inspiration is attribution evidence, not normative dependency.
-- [ ] Task 2: Activate the compact functional gate from decision quality.
+- [x] Task 2: Activate the compact functional gate from decision quality.
   - File: `skills/references/decision-quality-contract.md`
   - Action: add the minimum baseline and direct loading rule without duplicating detailed criteria.
   - User story link: ensures the standard precedes implementation decisions.
   - Depends on: Task 1.
   - Validate with: `python3 tools/test_functional_excellence_contract.py`
   - Notes: preserve first-screen decision clarity and activation budget.
-- [ ] Task 3: Add targeted design and content adaptations.
+- [x] Task 3: Add targeted design and content adaptations.
   - File: `skills/references/design-system-token-contract.md`, `skills/references/content-quality-rubric.md`
   - Action: reference and operationalize the applicable functional dimensions in each existing authority.
   - User story link: makes the doctrine actionable outside generic system decisions.
   - Depends on: Task 1.
   - Validate with: `python3 tools/test_functional_excellence_contract.py`
   - Notes: do not copy the complete doctrine or add new skill modes.
-- [ ] Task 4: Add focused scenario-first proof and metadata validation.
+- [x] Task 4: Add focused scenario-first proof and metadata validation.
   - File: `tools/test_functional_excellence_contract.py`, changed frontmatter artifacts, this spec.
   - Action: assert placement, ordering, minimum completeness, anti-aesthetic and anti-simplism guards, and targeted adaptations.
   - User story link: prevents the doctrine from becoming decorative prose.
@@ -237,14 +237,15 @@ None
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-24 17:55:34 UTC | 100-sg-spec | gpt-5 | Created the functional-excellence doctrine contract | draft | 101-sg-ready |
 | 2026-08-24 17:56:56 UTC | 101-sg-ready | gpt-5 | Reviewed scope, failure semantics, dependencies, consequences, and proof contract | ready | 102-sg-start |
+| 2026-08-24 18:00:39 UTC | 102-sg-start | gpt-5 | Added the shared contract, compact decision activation, design/content adaptations, and focused scenario proof | implemented | 103-sg-verify |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done, draft spec created.
 - `101-sg-ready`: ready; the contract is autonomous and implementation-safe.
-- `102-sg-start`: not launched.
+- `102-sg-start`: implemented; all four bounded tasks are complete.
 - `103-sg-verify`: not launched.
 - `104-sg-end`: not launched.
 - `005-sg-ship`: not launched.
 
-Next step: `/102-sg-start functional-excellence-doctrine`
+Next step: `/103-sg-verify functional-excellence-doctrine`
