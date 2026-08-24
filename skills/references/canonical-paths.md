@@ -21,52 +21,42 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
-  - "Repeated failures showed that project cwd and ShipGlows installation ownership must remain distinct."
-  - "Governance decisions require one project-root shipglows_data corpus, with documented standalone exceptions."
-  - "The 2026-08-11 runtime layout standardizes Linux and Windows installs under ~/.shipglows/runtime."
-  - "Operator decision 2026-08-14: mutation consent selects a cumulative fast-validation or full-plan path after canonical targets are resolved."
+  - "Governance uses one project-root shipglows_data corpus."
+  - "The 2026-08-11 runtime layout uses ~/.shipglows/runtime on Linux and Windows."
+  - "The 2026-08-14 mutation gate follows target resolution."
 next_review: "2026-09-03"
 next_step: "/103-sg-verify canonical path policy"
 ---
 
 # ShipGlows Canonical Paths
 
-Resolve paths by ownership, never by filename coincidence or the current working directory.
-
-Before any intentional mutation, load `skills/references/mutation-plan-approval.md` from the resolved ShipGlows root and satisfy its explicit post-message approval gate through the selected fast-validation or full-plan path. Read-only path resolution and inspection may precede that approval.
+Resolve paths by ownership, never by filename coincidence or cwd. Before mutation, load `skills/references/mutation-plan-approval.md` from the resolved root and obtain its post-message approval; read-only resolution may precede it.
 
 ## Mandatory Roots
 
-- ShipGlows runtime root: `$SHIPGLOWS_ROOT`. Resolve it from the current process first. On Windows, if the process value is empty, read the current-user environment value and then `%USERPROFILE%\.shipglows\development-channel.json`; a validated `channel: linked` entry selects its absolute developer-checkout root. This explicit durable fallback is required because an already-running coding-agent host does not inherit later user-environment changes. Only when no valid explicit or linked root exists does it default to the current user's `.shipglows/runtime` directory. On Linux, use the exported value before the same installed-runtime default.
+- ShipGlows root: resolve `$SHIPGLOWS_ROOT` from the process. On Windows, if empty, read its current-user environment value, then `%USERPROFILE%\.shipglows\development-channel.json`; a valid absolute `channel: linked` root containing `skills/000-shipglows/SKILL.md` wins. This supports an already running agent that missed environment updates. Otherwise use the user's `.shipglows/runtime`; Linux uses the exported value, then that default.
 - Project root: the current working directory unless the operator selects another project.
 - Governance root: the repository root for a single project, or the monorepo root rather than an app/package subdirectory.
 
-Treat environment and linked-channel values as paths, preserve spaces, and use the active shell's safe path handling. A linked-channel root is valid only when it is absolute and contains `skills/000-shipglows/SKILL.md`; never infer one from a nearby checkout. Resolve an owned target beneath its declared root; do not accept `..`, symlink, junction, or shadow-directory traversal outside that root.
+Treat values as paths, preserve spaces, and reject `..`, symlink, junction, shadow-directory, or nearby-checkout inference outside the owned root.
 
 ## Ownership Rules
 
-- ShipGlows-owned skills, references, tools, templates, workflow docs, and internal scripts resolve from `$SHIPGLOWS_ROOT`.
-- `references/foo.md` inside a skill means `$SHIPGLOWS_ROOT/skills/<skill-name>/references/foo.md`, never project `./references/foo.md`.
-- Project source resolves from the selected project root. Project governance resolves from the governance-root `shipglows_data/` corpus.
-- A project-local `skills/`, `tools/`, or `templates/` directory never shadows the ShipGlows installation.
-- If an owned file is absent from `$SHIPGLOWS_ROOT`, report an installation gap. Do not substitute a project copy, continue from memory, or report it missing merely because it is absent from the project.
+- ShipGlows skills, references, tools, templates, workflow docs, and scripts resolve from `$SHIPGLOWS_ROOT`; project-local names never shadow them.
+- A project-local `skills/`, `tools/`, or `templates/` directory never shadows the installation.
+- Skill `references/foo.md` means `$SHIPGLOWS_ROOT/skills/<skill>/references/foo.md`.
+- Project source uses the selected project root; governance uses its root `shipglows_data/`.
+- If an owned file is absent from `$SHIPGLOWS_ROOT`, report an installation gap. Do not substitute a project copy, continue from memory, or search the project.
 
 ## ShipGlows-Owned Tool Preflight
 
-Before running a ShipGlows-owned tool:
-
-1. resolve `$SHIPGLOWS_ROOT`
-2. confirm the owned parent path exists beneath that root
-3. confirm the exact target tool exists and remains beneath that root
-4. run it with arguments passed safely for the active platform
-
-Do not infer the tool path from the project cwd. If the check remains agent-runnable, do not ask the operator to run it.
+Resolve `$SHIPGLOWS_ROOT`; confirm the exact target tool exists and remains beneath that root; pass arguments safely. Never infer from project cwd or ask the operator to run an agent-runnable check.
 
 ## Direct Conditional Routes
 
-- Local service state, private data, inspiration storage, or legacy compatibility: load `skills/references/canonical-runtime-and-private-roots.md` directly.
-- Project governance placement, legacy migration, workflow families, or artifact destinations: load `skills/references/canonical-project-governance-placement.md` directly.
-- Monorepo source topology (`site/`, `app/`, `backend/`, `ext/`, packages): load `skills/references/monorepo-governance-topology.md` directly.
-- Ranked or expanded resource discovery: load `skills/references/resource-discovery.md` before using `tools/resource_resolver.py` results. Recommendations supplement mandatory owner, safety, freshness, and project-truth gates; they never replace them.
+- Runtime/private roots or legacy compatibility -> `canonical-runtime-and-private-roots.md`.
+- Governance placement, migration, workflow families, or destinations -> `canonical-project-governance-placement.md`.
+- Monorepo topology -> `monorepo-governance-topology.md`.
+- Ranked discovery -> `resource-discovery.md` before `tools/resource_resolver.py`; recommendations never replace owner, safety, freshness, or project truth.
 
-Load only the branch required by the current decision. These routes are siblings and never require one another.
+Load only the required branch. These routes are siblings and never require one another.

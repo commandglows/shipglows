@@ -49,7 +49,9 @@ Do not load a domain or lifecycle skill for these requests: no owner skill is ne
 
 For a supplied-link update that meets the shared direct-authority exception, the initial request is sufficient; do not present a second approval prompt.
 
-Treat a supplied-link update as direct execution and original-request authority when its register needs one focused local lookup, the operator supplied the public URLs and requested category, `candidate` is the only added status, no market interpretation or public claim is needed, and focused duplicate/row-shape proof is sufficient. Append it factually without launching source intake, market study, documentation topology work, or a second approval prompt; otherwise use normal routing and the normal mutation gate.
+Treat a supplied-link update as direct execution and original-request authority when its register needs one focused local lookup, the operator supplied the public URLs and requested category, `candidate` is the only added status, no market interpretation or public claim is needed, and focused duplicate/row-shape proof is sufficient. Append it factually without launching source intake, market study, or documentation topology work; do not add a second approval prompt. Otherwise use normal routing and the normal mutation gate.
+
+Use one primary-source check per supplied reference.
 
 `veille <URL>` analyzes without persistence and does not automatically persist the source. `concurrent <URL>` or `inspiration <URL>` updates the matching internal register. `veille` takes precedence.
 

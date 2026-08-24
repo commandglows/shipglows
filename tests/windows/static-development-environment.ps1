@@ -68,7 +68,7 @@ try {
     if ($playwrightFunction[0].Extent.Text -match 'AgentEnvironmentInstructions' -or $instructionsFunction[0].Extent.Text -match '\$(configPath|chromium)\b') {
         throw 'Agent instructions and Playwright MCP configuration must remain separate capability helpers.'
     }
-    foreach ($required in @('Set-SgCodexPlaywrightMcpConfig $configPath $NpxPath $Playwright.Version $Playwright.ChromiumPath','Install-SgAgentEnvironmentInstructions -UserProfile $env:USERPROFILE','McpConfigured=$playwrightConfigured','McpVerified=$playwrightConfigured -and -not $playwrightPending','ChromiumPath=$playwright.ChromiumPath')) {
+    foreach ($required in @('Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady }','ReadyServers -contains ''playwright''','PendingServers -contains ''playwright''','Install-SgAgentEnvironmentInstructions -UserProfile $env:USERPROFILE','McpConfigured=$playwrightConfigured','McpVerified=$playwrightConfigured -and -not $playwrightPending','ConfigPath=''per-project agent configs; readiness listed below''','ChromiumPath=$playwright.ChromiumPath')) {
         if ($installerSource -notmatch [regex]::Escape($required)) { throw "Windows installer capability aggregation is missing: $required" }
     }
     foreach ($required in @('🧭 VALIDATION RAPIDE','one- or two-sentence','exact action','exact target','main safety guarantee','local-only','readily reversible','cannot overwrite, discard, delete, force, publish, deploy, message, change credentials/permissions, or affect unrelated changes','`git push` always uses the full plan')) {
