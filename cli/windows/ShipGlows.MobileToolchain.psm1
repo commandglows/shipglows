@@ -389,6 +389,9 @@ function Read-SgBoundedManifestText([string]$Path, [long]$MaxBytes = 2097152) {
 function Get-SgProjectServiceNeeds {
     param([Parameter(Mandatory=$true)][string]$Workspace, [int]$MaxDirectories = 5000)
     $root = [IO.Path]::GetFullPath($Workspace)
+    $dart = $false
+    $playwright = $false
+    $github = $false
     $flutterFire = $false
     $firebase = $false
     $supabase = $false
@@ -400,6 +403,13 @@ function Get-SgProjectServiceNeeds {
     $queue.Enqueue([pscustomobject]@{ Path=$root; Depth=0 })
     $visited = 0
     $limitReached = $false
+    $gitProbe = $root
+    while ($gitProbe) {
+        if (Test-Path -LiteralPath (Join-Path $gitProbe '.git')) { $github = $true; break }
+        $parent = Split-Path $gitProbe -Parent
+        if (-not $parent -or $parent -eq $gitProbe) { break }
+        $gitProbe = $parent
+    }
     while ($queue.Count -gt 0) {
         if ($visited -ge $MaxDirectories) { $limitReached = $true; break }
         $current = $queue.Dequeue()
@@ -413,6 +423,7 @@ function Get-SgProjectServiceNeeds {
         if (Test-Path -LiteralPath $packageJson -PathType Leaf) {
             try {
                 $packageText = Read-SgBoundedManifestText $packageJson
+                $playwright = $playwright -or $packageText -match '(?i)"(?:@playwright/test|playwright|astro|next|nuxt|react|react-dom|svelte|vue|vite|@angular/core|@remix-run/[^"/]+)"\s*:'
                 $convex = $convex -or $packageText -match '(?i)"convex"\s*:'
                 $vercel = $vercel -or $packageText -match '(?i)"(?:vercel|@astrojs/vercel)"\s*:|"[^"\r\n]*"\s*:\s*"[^"]*\bvercel\b'
                 $clerk = $clerk -or $packageText -match '(?i)"(?:clerk|@clerk/[^"/]+)"\s*:'
@@ -426,7 +437,10 @@ function Get-SgProjectServiceNeeds {
         }
         $pubspec = Join-Path $current.Path 'pubspec.yaml'
         if (Test-Path -LiteralPath $pubspec -PathType Leaf) {
-            $flutterFire = $flutterFire -or [regex]::IsMatch((Read-SgBoundedManifestText $pubspec), '(?m)^\s*(firebase_core|cloud_firestore|firebase_auth|firebase_[a-z0-9_]+)\s*:')
+            $pubspecText = Read-SgBoundedManifestText $pubspec
+            $dart = $true
+            $playwright = $playwright -or $pubspecText -match '(?m)^\s*flutter\s*:\s*$|^\s*sdk\s*:\s*flutter\s*$'
+            $flutterFire = $flutterFire -or [regex]::IsMatch($pubspecText, '(?m)^\s*(firebase_core|cloud_firestore|firebase_auth|firebase_[a-z0-9_]+)\s*:')
         }
         if ($current.Depth -ge 4) { continue }
         foreach ($directory in @(Get-ChildItem -LiteralPath $current.Path -Directory -Force -ErrorAction SilentlyContinue)) {
@@ -435,7 +449,7 @@ function Get-SgProjectServiceNeeds {
             $queue.Enqueue([pscustomobject]@{ Path=$directory.FullName; Depth=$current.Depth + 1 })
         }
     }
-    [pscustomobject]@{ Firebase=[bool]$firebase; FlutterFire=[bool]$flutterFire; Supabase=[bool]$supabase; Convex=[bool]$convex; Vercel=[bool]$vercel; Clerk=[bool]$clerk; AndroidNative=[bool]$androidNative; DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
+    [pscustomobject]@{ Dart=[bool]$dart; Playwright=[bool]$playwright; GitHub=[bool]$github; Firebase=[bool]$firebase; FlutterFire=[bool]$flutterFire; Supabase=[bool]$supabase; Convex=[bool]$convex; Vercel=[bool]$vercel; Clerk=[bool]$clerk; AndroidNative=[bool]$androidNative; DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
 }
 
 function Resolve-SgAndroidCommandLineToolsPackage {
@@ -647,8 +661,104 @@ function Get-SgStackMcpDefinitions {
     if ($Needs.PSObject.Properties['Vercel'] -and [bool]$Needs.Vercel) {
         $definitions.Add([pscustomobject]@{ Name='vercel'; Type='remote'; Url='https://mcp.vercel.com'; Command=''; Arguments=@(); RequiresAuthentication=$true })
     }
-    $definitions.Add([pscustomobject]@{ Name='github'; Type='remote'; Url='https://api.githubcopilot.com/mcp/readonly'; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
+    if (-not $Needs.PSObject.Properties['GitHub'] -or [bool]$Needs.GitHub) {
+        $definitions.Add([pscustomobject]@{ Name='github'; Type='remote'; Url='https://api.githubcopilot.com/mcp/readonly'; Command=''; Arguments=@(); RequiresAuthentication=$true; ReadOnly=$true })
+    }
     return $definitions.ToArray()
+}
+
+function Get-SgProjectMcpDefinitions {
+    param($Needs, [hashtable]$Versions, [string]$DartPath, [string]$NpxPath, $Playwright)
+    $definitions = New-Object Collections.Generic.List[object]
+    if ($Needs.PSObject.Properties['Dart'] -and [bool]$Needs.Dart) {
+        $definitions.Add([pscustomobject]@{ Name='dart'; Type='local'; Url=''; Command=$DartPath; Arguments=@('mcp-server','--force-roots-fallback') })
+    }
+    if ($Needs.PSObject.Properties['Playwright'] -and [bool]$Needs.Playwright -and $Playwright.Ready) {
+        $definitions.Add([pscustomobject]@{ Name='playwright'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"@playwright/mcp@$($Playwright.Version)",'--headless','--browser','chromium') })
+    }
+    foreach ($definition in @(Get-SgStackMcpDefinitions -Needs $Needs -Versions $Versions -NpxPath $NpxPath)) { $definitions.Add($definition) }
+    return $definitions.ToArray()
+}
+
+function ConvertTo-SgTomlQuotedString([string]$Value) {
+    if ($null -eq $Value -or $Value -match '[\r\n\0]') { throw 'Invalid value for generated project TOML.' }
+    return '"' + $Value.Replace('\','\\').Replace('"','\"') + '"'
+}
+
+function Get-SgProjectAgentMcpConfigPlan {
+    param(
+        [ValidateSet('Codex','Claude','OpenCode','Kilo','Gemini')][string]$Agent,
+        [Parameter(Mandatory=$true)][string]$ProjectPath,
+        [Parameter(Mandatory=$true)][object[]]$Servers
+    )
+    $root = [IO.Path]::GetFullPath($ProjectPath)
+    if ($Agent -eq 'Codex') {
+        $lines = New-Object Collections.Generic.List[string]
+        $lines.Add('# >>> shipglows project mcp >>>')
+        foreach ($server in @($Servers)) {
+            $lines.Add("[mcp_servers.$($server.Name)]")
+            if ([string]$server.Type -eq 'remote') { $lines.Add("url = $(ConvertTo-SgTomlQuotedString ([string]$server.Url))") }
+            else {
+                $lines.Add("command = $(ConvertTo-SgTomlQuotedString ([string]$server.Command))")
+                $arguments = @($server.Arguments | ForEach-Object { ConvertTo-SgTomlQuotedString ([string]$_) })
+                $lines.Add("args = [$($arguments -join ', ')]")
+            }
+            $lines.Add('enabled = true')
+            $lines.Add('')
+        }
+        $lines.Add('# <<< shipglows project mcp <<<')
+        return [pscustomobject]@{ Agent=$Agent; ProjectPath=$root; RelativePath='.codex\config.toml'; ConfigPath=Join-Path $root '.codex\config.toml'; Content=($lines -join "`n") + "`n"; ServerNames=@($Servers.Name) }
+    }
+    $entries = [ordered]@{}
+    foreach ($server in @($Servers)) {
+        if ($Agent -eq 'Claude') {
+            $entries[[string]$server.Name] = if ([string]$server.Type -eq 'remote') { [ordered]@{ type='http'; url=[string]$server.Url } } else { [ordered]@{ type='stdio'; command=[string]$server.Command; args=@($server.Arguments) } }
+        } elseif ($Agent -eq 'Gemini') {
+            $entries[[string]$server.Name] = if ([string]$server.Type -eq 'remote') { [ordered]@{ httpUrl=[string]$server.Url } } else { [ordered]@{ command=[string]$server.Command; args=@($server.Arguments) } }
+        } elseif ($Agent -eq 'OpenCode') {
+            $entries[[string]$server.Name] = if ([string]$server.Type -eq 'remote') { [ordered]@{ type='remote'; url=[string]$server.Url; disabled=$false } } else { [ordered]@{ type='local'; command=@([string]$server.Command) + @($server.Arguments); disabled=$false } }
+        } else {
+            $entries[[string]$server.Name] = if ([string]$server.Type -eq 'remote') { [ordered]@{ type='remote'; url=[string]$server.Url; enabled=$true } } else { [ordered]@{ type='local'; command=@([string]$server.Command) + @($server.Arguments); enabled=$true } }
+        }
+    }
+    if ($Agent -eq 'Claude') { $relative='.mcp.json'; $config=[ordered]@{ mcpServers=$entries } }
+    elseif ($Agent -eq 'Gemini') { $relative='.gemini\settings.json'; $config=[ordered]@{ mcpServers=$entries } }
+    elseif ($Agent -eq 'OpenCode') { $relative='.opencode\opencode.json'; $config=[ordered]@{ '$schema'='https://opencode.ai/config.json'; mcp=[ordered]@{ servers=$entries } } }
+    else { $relative='.kilo\kilo.json'; $config=[ordered]@{ '$schema'='https://app.kilo.ai/config.json'; mcp=$entries } }
+    return [pscustomobject]@{ Agent=$Agent; ProjectPath=$root; RelativePath=$relative; ConfigPath=Join-Path $root $relative; Content=($config | ConvertTo-Json -Depth 32) + [Environment]::NewLine; ServerNames=@($Servers.Name) }
+}
+
+function Get-SgStringSha256([string]$Content) {
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return ([BitConverter]::ToString($sha.ComputeHash([Text.UTF8Encoding]::new($false).GetBytes($Content)))).Replace('-','') }
+    finally { $sha.Dispose() }
+}
+
+function Get-SgManagedProjectConfigWritePlan {
+    param([string]$ConfigPath, [string]$Content, [string]$RecordedHash = '', [switch]$ReplaceExisting)
+    $expectedHash = Get-SgStringSha256 $Content
+    if (-not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) { return [pscustomobject]@{ Status='create'; ExpectedHash=$expectedHash; ConfigPath=$ConfigPath } }
+    $existing = [IO.File]::ReadAllText($ConfigPath)
+    $existingHash = Get-SgStringSha256 $existing
+    if ($existingHash -ceq $expectedHash) { return [pscustomobject]@{ Status='unchanged'; ExpectedHash=$expectedHash; ConfigPath=$ConfigPath } }
+    if ($ReplaceExisting -or ($RecordedHash -match '^[0-9A-F]{64}$' -and $existingHash -ceq $RecordedHash)) { return [pscustomobject]@{ Status='replace-managed'; ExpectedHash=$expectedHash; ConfigPath=$ConfigPath } }
+    return [pscustomobject]@{ Status='pending'; ExpectedHash=$expectedHash; ConfigPath=$ConfigPath }
+}
+
+function Write-SgManagedProjectConfig {
+    param([string]$ConfigPath, [string]$Content, [string]$RecordedHash = '', [switch]$ReplaceExisting)
+    $plan = Get-SgManagedProjectConfigWritePlan -ConfigPath $ConfigPath -Content $Content -RecordedHash $RecordedHash -ReplaceExisting:$ReplaceExisting
+    if ($plan.Status -eq 'unchanged') { return $plan }
+    if ($plan.Status -eq 'pending') { return $plan }
+    $directory = Split-Path $ConfigPath -Parent
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+    $temp = "$ConfigPath.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        [IO.File]::WriteAllText($temp,$Content,[Text.UTF8Encoding]::new($false))
+        if (Test-Path -LiteralPath $ConfigPath -PathType Leaf) { Move-SgAtomicReplace $temp $ConfigPath }
+        else { Move-Item -LiteralPath $temp -Destination $ConfigPath }
+    } finally { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force } }
+    return [pscustomobject]@{ Status=$plan.Status; ExpectedHash=$plan.ExpectedHash; ConfigPath=$ConfigPath }
 }
 
 function Test-SgServiceCliResult {
@@ -1122,4 +1232,4 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Get-SgProjectMcpDefinitions,Get-SgProjectAgentMcpConfigPlan,Get-SgManagedProjectConfigWritePlan,Write-SgManagedProjectConfig,Get-SgStringSha256,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic

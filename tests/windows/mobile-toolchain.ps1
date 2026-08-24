@@ -266,7 +266,7 @@ exit /b 23
     $unprovenUserBranch = Get-SgFlutterInstallState -FlutterRoot $partialFlutter -Runner { param($f,$a,$timeout) $output=if($f -match 'dart'){'Dart SDK version: 3.13.1'}else{"Flutter $([char]0x2022) channel [user-branch]"}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
     Assert-Sg ($unprovenUserBranch.Status -eq 'partial') 'A detached Flutter label without framework revision and Dart evidence must fail closed.'
     $empty = Get-SgProjectServiceNeeds -Workspace $fixture
-    Assert-Sg (-not $empty.Firebase -and -not $empty.FlutterFire -and -not $empty.Supabase -and -not $empty.Convex -and -not $empty.Vercel -and -not $empty.Clerk -and -not $empty.AndroidNative) 'Zero-service workspace detected false dependencies.'
+    Assert-Sg (-not $empty.Dart -and -not $empty.Playwright -and -not $empty.GitHub -and -not $empty.Firebase -and -not $empty.FlutterFire -and -not $empty.Supabase -and -not $empty.Convex -and -not $empty.Vercel -and -not $empty.Clerk -and -not $empty.AndroidNative) 'Zero-service workspace detected false dependencies.'
     $oneProject = Join-Path $fixture 'one\nested'
     New-Item -ItemType Directory -Path $oneProject -Force | Out-Null
     Set-Content -LiteralPath (Join-Path $oneProject 'firebase.json') -Value '{}'
@@ -275,12 +275,13 @@ exit /b 23
     Set-Content -LiteralPath (Join-Path $fixture 'pubspec.yaml') -Value "dependencies:`n  firebase_core: any"
     Set-Content -LiteralPath (Join-Path $fixture 'package.json') -Value '{"dependencies":{"convex":"^1.0.0","@clerk/astro":"^6.0.0"},"scripts":{"deploy":"vercel"}}'
     Set-Content -LiteralPath (Join-Path $fixture 'vercel.json') -Value '{}'
+    New-Item -ItemType Directory -Path (Join-Path $fixture '.git') -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $fixture 'android\app') -Force | Out-Null
     Set-Content -LiteralPath (Join-Path $fixture 'android\app\CMakeLists.txt') -Value 'cmake_minimum_required(VERSION 3.22.1)'
     New-Item -ItemType Directory -Path (Join-Path $fixture 'supabase') | Out-Null
     Set-Content -LiteralPath (Join-Path $fixture 'supabase\config.toml') -Value 'project_id = "fixture"'
     $many = Get-SgProjectServiceNeeds -Workspace $fixture
-    Assert-Sg ($many.Firebase -and $many.FlutterFire -and $many.Supabase -and $many.Convex -and $many.Vercel -and $many.Clerk -and $many.AndroidNative) 'Many-service workspace detection is incomplete.'
+    Assert-Sg ($many.Dart -and -not $many.Playwright -and $many.GitHub -and $many.Firebase -and $many.FlutterFire -and $many.Supabase -and $many.Convex -and $many.Vercel -and $many.Clerk -and $many.AndroidNative) 'Many-service workspace detection is incomplete.'
     $bounded = Get-SgProjectServiceNeeds -Workspace $fixture -MaxDirectories 1
     Assert-Sg ($bounded.ScanLimitReached) 'Service scanning must stop at its directory bound.'
 
@@ -357,7 +358,7 @@ exit /b 23
     Assert-Sg (-not $developerModePlan.ChangeRegistry) 'Developer Mode guidance must never mutate the registry.'
 
     $stackMcps = @(Get-SgStackMcpDefinitions $many $stackVersions 'C:\Program Files\nodejs\npx.cmd')
-    Assert-Sg (($stackMcps.Name -join '|') -eq 'firebase|convex|clerk|supabase|vercel|github') 'Detected stacks must receive their approved MCPs and the global read-only GitHub MCP.'
+    Assert-Sg (($stackMcps.Name -join '|') -eq 'firebase|convex|clerk|supabase|vercel|github') 'Detected project stacks must receive their approved MCPs and the project-local read-only GitHub MCP.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'firebase').Arguments -join ' ' -eq '-y --registry=https://registry.npmjs.org/ firebase-tools@14.0.0 mcp') 'Firebase MCP must use the exact resolved firebase-tools version.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'convex').Arguments -join ' ' -eq '-y --registry=https://registry.npmjs.org/ convex@1.28.0 mcp start') 'Convex MCP must use the official CLI entrypoint and exact version.'
     Assert-Sg (($stackMcps | Where-Object Name -eq 'clerk').Type -eq 'remote' -and ($stackMcps | Where-Object Name -eq 'clerk').Url -eq 'https://mcp.clerk.com/mcp') 'Clerk MCP must use the official remote endpoint.'
@@ -369,9 +370,35 @@ exit /b 23
     $remoteKiloPlan = Get-SgAgentMcpPlan Kilo 'kilo.cmd' 'dart.bat' 'npx.cmd' '0.0.42' $true $stackMcps
     Assert-Sg ($remoteKiloPlan.Config.mcp.clerk.url -eq 'https://mcp.clerk.com/mcp' -and $remoteKiloPlan.Config.mcp.github.type -eq 'remote') 'Kilo plans must preserve Clerk and GitHub remote MCP definitions.'
     $globalMcps = @(Get-SgStackMcpDefinitions $empty @{} 'npx.cmd')
-    Assert-Sg (($globalMcps.Name -join '|') -eq 'github') 'The read-only GitHub MCP must remain global even when no optional stack is detected.'
-    $flutterFireOnlyMcps = @(Get-SgStackMcpDefinitions ([pscustomobject]@{ Firebase=$false; FlutterFire=$true; Convex=$false; Clerk=$false }) @{ Firebase='14.0.0' } 'npx.cmd')
-    Assert-Sg (($flutterFireOnlyMcps.Name -join '|') -eq 'firebase|github') 'FlutterFire dependency evidence must activate the Firebase MCP without requiring firebase.json.'
+    Assert-Sg ($globalMcps.Count -eq 0) 'A project without Git metadata or optional stacks must not receive an MCP activation.'
+    $flutterFireOnlyMcps = @(Get-SgStackMcpDefinitions ([pscustomobject]@{ Firebase=$false; FlutterFire=$true; Convex=$false; Clerk=$false; GitHub=$false }) @{ Firebase='14.0.0' } 'npx.cmd')
+    Assert-Sg (($flutterFireOnlyMcps.Name -join '|') -eq 'firebase') 'FlutterFire dependency evidence must activate only the Firebase MCP without requiring firebase.json.'
+
+    $projectMcps = @(Get-SgProjectMcpDefinitions -Needs $many -Versions $stackVersions -DartPath 'C:\Program Files\flutter\bin\dart.bat' -NpxPath 'C:\Program Files\nodejs\npx.cmd' -Playwright ([pscustomobject]@{ Ready=$true; Version='0.0.42' }))
+    Assert-Sg (($projectMcps.Name -join '|') -eq 'dart|firebase|convex|clerk|supabase|vercel|github') 'Per-project MCP inventory must combine language, detected providers, and GitHub without adding Playwright to a non-web manifest.'
+    foreach ($agentName in @('Codex','Claude','Gemini','OpenCode','Kilo')) {
+        $projectConfig = Get-SgProjectAgentMcpConfigPlan -Agent $agentName -ProjectPath $fixture -Servers $projectMcps
+        Assert-Sg ($projectConfig.ConfigPath.StartsWith([IO.Path]::GetFullPath($fixture),[StringComparison]::OrdinalIgnoreCase)) "$agentName MCP configuration must be rooted in the managed project."
+        Assert-Sg (($projectConfig.ServerNames -join '|') -eq ($projectMcps.Name -join '|')) "$agentName MCP configuration lost a project server."
+        if ($agentName -eq 'OpenCode') {
+            $openCodeProjectConfig = $projectConfig.Content | ConvertFrom-Json
+            Assert-Sg ($openCodeProjectConfig.mcp.servers.github.disabled -eq $false -and -not $openCodeProjectConfig.mcp.servers.github.PSObject.Properties['enabled']) 'OpenCode v2 project MCP must use disabled=false rather than the legacy enabled field.'
+        }
+    }
+    $codexProjectConfig = Get-SgProjectAgentMcpConfigPlan -Agent Codex -ProjectPath $fixture -Servers $projectMcps
+    Assert-Sg ($codexProjectConfig.RelativePath -eq '.codex\config.toml' -and $codexProjectConfig.Content -match '(?m)^\[mcp_servers\.dart\]$') 'Codex MCP activation must be emitted in project .codex/config.toml.'
+
+    $managedConfig = Join-Path $fixture 'managed-config.json'
+    $firstWrite = Write-SgManagedProjectConfig -ConfigPath $managedConfig -Content "one`n"
+    Assert-Sg ($firstWrite.Status -eq 'create' -and [IO.File]::ReadAllText($managedConfig) -ceq "one`n") 'Missing project MCP config must be created atomically.'
+    Assert-Sg ((Write-SgManagedProjectConfig -ConfigPath $managedConfig -Content "one`n").Status -eq 'unchanged') 'Converged project MCP config must remain unchanged.'
+    $managedHash = $firstWrite.ExpectedHash
+    [IO.File]::WriteAllText($managedConfig,"user-owned`n",[Text.UTF8Encoding]::new($false))
+    $preservedWrite = Write-SgManagedProjectConfig -ConfigPath $managedConfig -Content "two`n" -RecordedHash $managedHash
+    Assert-Sg ($preservedWrite.Status -eq 'pending' -and [IO.File]::ReadAllText($managedConfig) -ceq "user-owned`n") 'Divergent project MCP config must remain byte-preserved without maintainer authority.'
+    [IO.File]::WriteAllText($managedConfig,"one`n",[Text.UTF8Encoding]::new($false))
+    Assert-Sg ((Write-SgManagedProjectConfig -ConfigPath $managedConfig -Content "two`n" -RecordedHash $managedHash).Status -eq 'replace-managed') 'Previously recorded ShipGlows project config must be safely replaceable.'
+    Assert-Sg ((Write-SgManagedProjectConfig -ConfigPath $managedConfig -Content "three`n" -ReplaceExisting).Status -eq 'replace-managed') 'Explicit maintainer replacement must converge a divergent project MCP config.'
     $mcpCatalog = [IO.File]::ReadAllText((Join-Path $root 'cli\windows\ShipGlows.McpCatalog.json')) | ConvertFrom-Json
     Assert-Sg ($mcpCatalog.schema -eq 'shipglows.mcp-catalog/v1' -and -not $mcpCatalog.policy.registryIsExecutionAuthority -and -not $mcpCatalog.policy.automaticAuthentication -and -not $mcpCatalog.policy.automaticGoogleCloudActivation) 'MCP catalog must keep discovery separate from trust, authentication, and activation.'
     Assert-Sg ((@($mcpCatalog.servers | Where-Object id -eq 'google-cloud')[0].activation) -eq 'explicit-project-choice') 'Google Cloud MCPs must remain catalog-only until explicitly selected per project.'

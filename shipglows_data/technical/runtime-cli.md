@@ -57,7 +57,7 @@ evidence:
   - "Native Windows full detects Tauri Android projects, offers exact Rust/Android targets through an isolated mise environment and the validated NDK through sdkmanager, and records older projects as migration-required without mutating them; its cargo, rustc and rustup wrappers reproduce the same isolation without mutating global mise trust."
   - "The first live Tauri Windows update exposed ambiguous provider exits, mojibake Flutter diagnostics, serialized Codex MCP path comparison, and invisible prompt gaps; regression coverage now makes final observation authoritative and renders phases plus input waits explicitly."
   - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
-  - "Native Windows full prepares Dart/Flutter and exact-version Playwright MCP for installed agents; ordinary runtime installs preserve divergent JSON/JSONC and report them pending, while the explicit owner-only maintainer surface atomically replaces OpenCode and Kilo configs with the canonical MCP inventory."
+  - "Native Windows full installs Dart/Flutter and exact-version Playwright at machine scope, then generates agent-native MCP activation only inside registered ShipGlows project surfaces; ordinary installs preserve divergent local files, while the owner-only maintainer surface may converge recorded files and remove former ShipGlows global entries."
   - "Native Windows full permanently installs trusted WinGet mise plus Google Cloud CLI, owns an isolated exact-version machine toolbox for Firebase, Supabase, Convex, Vercel and Clerk, keeps FlutterFire under Dart Pub, and uses project detection only for MCP activation."
   - "The Windows MCP allowlist records official discovery authority separately from execution trust; Google Cloud stays catalog-only and Supabase defaults to its official read-only remote endpoint."
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."
@@ -300,11 +300,12 @@ JSON/JSONC remains byte-identical and pending if no proven native edit is safe.
 The installer stores no credentials or initiates authentication. Every full
 install prepares exact Firebase, Convex, Vercel, Supabase and Clerk CLIs in an
 isolated machine `mise` toolbox, FlutterFire through Dart Pub, and Google Cloud
-CLI through WinGet. Bounded project detection activates only the matching
-official Firebase, Convex, Clerk, read-only Supabase and Vercel MCP entrypoints;
-Google Cloud MCPs remain catalog-only until explicitly selected.
-The official GitHub MCP is configured globally at its read-only endpoint while
-`gh` remains the sole credential owner. Neither Clerk nor GitHub authentication,
+CLI through WinGet. Bounded project detection writes agent-native project
+configuration and activates only matching Dart, Playwright, official Firebase,
+Convex, Clerk, read-only Supabase, Vercel and read-only GitHub MCP entrypoints.
+The generated machine-specific files are kept outside commits through each
+repository's local Git exclude file. Google Cloud MCPs remain catalog-only until
+explicitly selected. `gh` remains the sole GitHub credential owner. Neither Clerk nor GitHub authentication,
 project linking, SDK injection or secret retrieval is started. The environment
 report records installed and ready/pending MCP state separately for each agent.
 Developer Mode remains read-only; the installer can only offer to open the

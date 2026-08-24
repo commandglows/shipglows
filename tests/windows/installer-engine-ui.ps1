@@ -86,7 +86,7 @@ $installerText = [IO.File]::ReadAllText($installerPath)
 Assert-Sg ($installerText -notmatch 'Read-Host') 'Installer composition root bypasses the console adapter for a prompt.'
 Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+agent\.') 'Coding-agent installation does not use the visible operation boundary.'
 Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+service\.') 'Service CLI installation does not use the visible operation boundary.'
-Assert-Sg ($installerText -match 'Invoke-SgVisibleBoundedProcess.+mcp\.') 'Captured MCP configuration does not use the visible operation boundary.'
+Assert-Sg ($installerText -match "Invoke-SgVisibleBoundedProcess.+OperationId 'tool\.playwright\.mcp") 'Managed MCP runtime installation does not use the visible operation boundary.'
 Assert-Sg ($installerText -match 'Read-SgVisibleInstallerChoice') 'Installer prompts do not publish the explicit waiting-for-input state.'
 Assert-Sg ($installerText -match 'Get-SgTauriRustWrapperContent') 'Installed Rust wrappers do not use the shared isolated mise wrapper contract.'
 Assert-Sg ($installerText -match 'Get-SgTauriRustTargetAddArguments' -and $installerText -match "OperationId 'tool\.rust-targets\.tauri'" -and $installerText -match 'Test-SgTauriRustTargetAddResult') 'Tauri provisioning must explicitly add exact Android Rust targets through a separate visible bounded operation.'

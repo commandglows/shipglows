@@ -326,13 +326,16 @@ and Clerk CLI versions. FlutterFire remains an exact Dart Pub installation,
 Google Cloud CLI comes from `Google.CloudSDK`, and Playwright keeps its dedicated
 managed runtime. These machine CLI installations do not depend on the current
 workspace and do not trust project `mise.toml` files, enable global shims, or
-start authentication. Project detection controls MCP activation instead:
-Firebase/FlutterFire, Convex, Clerk, read-only Supabase and Vercel are configured
-only for matching stacks. GitHub remains the global read-only baseline. Google
-Cloud MCPs are catalogued but require an explicit project choice. New JSON configs use
-the agent's exact schema. A schema-only OpenCode or Kilo placeholder can be completed
-atomically, while any config with comments, user fields, providers, or secrets stays
-byte-for-byte unchanged and is reported pending. Playwright is never
+start authentication. Project detection controls MCP activation instead. For every
+project registered with the ShipGlows DevServer, Windows writes agent-native local
+configuration for Codex, Claude, Gemini, OpenCode and Kilo. Those machine-specific
+files are excluded through the repository's local Git exclude file rather than
+committed. Dart, Playwright, Firebase/FlutterFire, Convex, Clerk, read-only Supabase,
+Vercel and read-only GitHub are activated only when the project manifests or Git
+metadata require them. Google Cloud MCPs are catalogued but require an explicit
+project choice. A divergent local config remains byte-for-byte unchanged and is
+reported pending unless it still matches ShipGlows' recorded hash or the owner runs
+the explicit maintainer surface. Playwright is never
 registered until an exact package version and a runnable local Chromium executable
 are proven. Android packages are centralized on API/platform/build-tools 36.
 Final observation is authoritative after an installer command: an exact runnable
@@ -377,9 +380,10 @@ For automation, pass `-InstallMode local` or `-InstallMode full`; add
 validates `%USERPROFILE%\ShipGlows\shipglows`, removes the conflicting public
 Codex plugin, and links the public Codex skills directly to the complete,
 editable multi-branch clone. On this explicit owner-only surface, ShipGlows also
-replaces divergent OpenCode and Kilo JSON/JSONC files with its canonical MCP
-inventory; ordinary runtime installs continue preserving existing agent files
-and report unresolved differences as pending. A successful switch also persists
+removes the former ShipGlows MCP entries from agent-global configuration and
+authoritatively converges the generated project-local files; unrelated global agent
+settings remain preserved. Ordinary runtime installs preserve divergent project
+files and report unresolved differences as pending. A successful switch also persists
 `SHIPGLOWS_ROOT` for the current Windows user and activates it in the installer
 process, so new agent sessions resolve the same editable source without relying
 on their working directory.

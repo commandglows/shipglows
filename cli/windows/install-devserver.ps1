@@ -679,8 +679,8 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
     New-Item -ItemType Directory -Path (Split-Path -Parent $environmentPath) -Force | Out-Null
     $codexStatus = if ($AgentInfo.Codex.Installed) { 'installed' } else { 'not installed' }
     $playwrightInstalled = if ($PlaywrightInfo.Installed) { 'yes' } else { 'no' }
-    $playwrightConfigured = if ($PlaywrightInfo.McpConfigured) { 'yes, see per-agent readiness below' } else { 'no' }
-    $playwrightVerified = if ($PlaywrightInfo.McpVerified) { 'yes, per-agent configuration converged' } else { 'no' }
+    $playwrightConfigured = if ($PlaywrightInfo.McpConfigured) { 'yes, see per-project readiness below' } else { 'no' }
+    $playwrightVerified = if ($PlaywrightInfo.McpVerified) { 'yes, per-project configuration converged' } else { 'no' }
     $playwrightConfigPath = if ($PlaywrightInfo.ConfigPath) { $PlaywrightInfo.ConfigPath } else { 'not available' }
     $chromiumPath = if ($PlaywrightInfo.ChromiumPath) { $PlaywrightInfo.ChromiumPath } else { 'not available' }
     $flutterInstalled = if ($FlutterReady) { 'yes' } else { 'no' }
@@ -850,14 +850,17 @@ function Invoke-SgProjectEnvironmentMigration([string]$ModulePath) {
     Import-Module $ModulePath -Force -DisableNameChecking
     $config = Get-SgDevConfig
     $migrated = 0
+    $projectPaths = New-Object Collections.Generic.List[string]
     foreach ($entry in @((Read-SgRegistry $config).projects)) {
         $projectPath = [string]$entry.path
         if ([string]::IsNullOrWhiteSpace($projectPath) -or -not (Test-Path -LiteralPath $projectPath -PathType Container)) { continue }
         $port = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
         [void](Write-SgProjectEnvironment $projectPath $port)
+        $projectPaths.Add([IO.Path]::GetFullPath($projectPath))
         $migrated++
     }
     Write-Host "ShipGlows project environments migrated: $migrated" -ForegroundColor Green
+    return $projectPaths.ToArray()
 }
 
 function Move-SgManagedPartialDirectory([string]$Path) {
@@ -1426,88 +1429,119 @@ function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$Np
     return [pscustomobject]@{ Ready=$true; Version=$version; Revision=$revision; ChromiumPath=[IO.Path]::GetFullPath($chromiumPath) }
 }
 
-function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [string]$NpxPath, $Playwright, [object[]]$StackMcpDefinitions = @(), [bool]$ReplaceExistingAgentConfigs = $false) {
-    $results = @{}
-    foreach ($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')) {
-        $results[$agentName] = [pscustomobject]@{ Installed=[bool]$AgentReady[$agentName]; McpSummary=if($AgentReady[$agentName]){'pending'}else{'not applicable'}; ReadyServers=@(); PendingServers=@() }
+function Read-SgProjectMcpState([string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return [pscustomobject]@{ schemaVersion=1; entries=@() } }
+    try {
+        $state = [IO.File]::ReadAllText($Path) | ConvertFrom-Json -ErrorAction Stop
+        if ($state.schemaVersion -ne 1 -or $null -eq $state.entries) { throw 'unsupported state' }
+        return $state
+    } catch { Write-SgInstallerWarning 'Project MCP state is invalid and was ignored; existing project configs remain protected.'; return [pscustomobject]@{ schemaVersion=1; entries=@() } }
+}
+
+function Write-SgProjectMcpState([string]$Path, [object[]]$Entries) {
+    $directory = Split-Path $Path -Parent
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+    $content = ([ordered]@{ schemaVersion=1; entries=@($Entries | Sort-Object path) } | ConvertTo-Json -Depth 8) + [Environment]::NewLine
+    $temp = "$Path.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        [IO.File]::WriteAllText($temp,$content,[Text.UTF8Encoding]::new($false))
+        if (Test-Path -LiteralPath $Path -PathType Leaf) { Move-SgAtomicReplace $temp $Path } else { Move-Item -LiteralPath $temp -Destination $Path }
+    } finally { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force } }
+}
+
+function Add-SgProjectMcpGitExclude([string]$ProjectPath, [string]$ConfigPath) {
+    $probe = [IO.Path]::GetFullPath($ProjectPath)
+    $repoRoot = ''
+    while ($probe) {
+        if (Test-Path -LiteralPath (Join-Path $probe '.git')) { $repoRoot=$probe; break }
+        $parent=Split-Path $probe -Parent
+        if (-not $parent -or $parent -eq $probe) { break }
+        $probe=$parent
     }
-    if (-not $DartPath -or -not $NpxPath) { Write-SgInstallerWarning 'Agent MCP setup is pending because validated Dart or npx is unavailable.'; return $results }
-    $serverDefinitions = New-Object Collections.Generic.List[object]
-    $serverDefinitions.Add([pscustomobject]@{ Name='dart'; Type='local'; Url=''; Command=$DartPath; Arguments=@('mcp-server','--force-roots-fallback') })
-    if ($Playwright.Ready) { $serverDefinitions.Add([pscustomobject]@{ Name='playwright'; Type='local'; Url=''; Command=$NpxPath; Arguments=@('-y','--registry=https://registry.npmjs.org/',"@playwright/mcp@$($Playwright.Version)",'--headless','--browser','chromium') }) }
-    foreach ($definition in @($StackMcpDefinitions)) { $serverDefinitions.Add($definition) }
-    if ($AgentReady.OpenCode) {
-        $plan = Get-SgAgentMcpPlan OpenCode (Get-SgToolPath 'opencode.cmd' $opencodePaths) $DartPath $NpxPath $Playwright.Version $Playwright.Ready $StackMcpDefinitions
-        $resolvedConfig = Resolve-SgAgentConfigPath OpenCode $env:USERPROFILE
-        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config -ReplaceExisting:$ReplaceExistingAgentConfigs
-        if ($write.Status -in @('create','replace-skeleton','replace-existing')) { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config -ReplaceSkeleton:($write.Status -eq 'replace-skeleton') -ReplaceExisting:($write.Status -eq 'replace-existing')); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
-        if ($ready) { $results.OpenCode = [pscustomobject]@{ Installed=$true; McpSummary="ready: $(@($serverDefinitions.Name) -join ', ')"; ReadyServers=@($serverDefinitions.Name); PendingServers=@() } }
-        else { $results.OpenCode = [pscustomobject]@{ Installed=$true; McpSummary='pending: existing JSON/JSONC preserved'; ReadyServers=@(); PendingServers=@($serverDefinitions.Name) }; Write-SgInstallerWarning "OpenCode v2 MCP pending: $($write.Reason)" }
+    if (-not $repoRoot) { return }
+    $gitMetadata = Join-Path $repoRoot '.git'
+    if (Test-Path -LiteralPath $gitMetadata -PathType Leaf) {
+        $pointer=[IO.File]::ReadAllText($gitMetadata)
+        if ($pointer -notmatch '^gitdir:\s*(.+)\s*$') { return }
+        $gitMetadata=$matches[1].Trim()
+        if (-not [IO.Path]::IsPathRooted($gitMetadata)) { $gitMetadata=Join-Path $repoRoot $gitMetadata }
     }
-    if ($AgentReady.Kilo) {
-        $kiloCommand = Resolve-SgKiloCommand (Get-SgToolPath 'kilo.cmd' $kiloPaths) (Get-SgToolPath 'kilocode.cmd' $kilocodePaths)
-        $plan = Get-SgAgentMcpPlan Kilo $kiloCommand.Path $DartPath $NpxPath $Playwright.Version $Playwright.Ready $StackMcpDefinitions
-        $resolvedConfig = Resolve-SgAgentConfigPath Kilo $env:USERPROFILE
-        $write = Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config -ReplaceExisting:$ReplaceExistingAgentConfigs
-        if ($write.Status -in @('create','replace-skeleton','replace-existing')) { [void](Write-SgNewAgentConfig $resolvedConfig.Path $plan.Config -ReplaceSkeleton:($write.Status -eq 'replace-skeleton') -ReplaceExisting:($write.Status -eq 'replace-existing')); $ready = (Get-SgAgentConfigWritePlan $resolvedConfig.Path $plan.Config).Status -eq 'unchanged' } else { $ready = $write.Status -eq 'unchanged' }
-        if ($ready) { $results.Kilo = [pscustomobject]@{ Installed=$true; McpSummary="ready: $(@($serverDefinitions.Name) -join ', ')"; ReadyServers=@($serverDefinitions.Name); PendingServers=@() } }
-        else { $results.Kilo = [pscustomobject]@{ Installed=$true; McpSummary='pending: existing JSON/JSONC preserved'; ReadyServers=@(); PendingServers=@($serverDefinitions.Name) }; Write-SgInstallerWarning "Kilo MCP pending: $($write.Reason)" }
+    $excludePath=Join-Path ([IO.Path]::GetFullPath($gitMetadata)) 'info\exclude'
+    $repoPrefix=$repoRoot.TrimEnd('\')+'\'
+    $fullConfig=[IO.Path]::GetFullPath($ConfigPath)
+    if (-not $fullConfig.StartsWith($repoPrefix,[StringComparison]::OrdinalIgnoreCase)) { return }
+    $pattern='/' + $fullConfig.Substring($repoPrefix.Length).Replace('\','/')
+    $existing=if(Test-Path -LiteralPath $excludePath -PathType Leaf){[IO.File]::ReadAllText($excludePath)}else{''}
+    if (@($existing -split '\r?\n') -contains $pattern) { return }
+    New-Item -ItemType Directory -Path (Split-Path $excludePath -Parent) -Force | Out-Null
+    $prefix=if($existing -and -not $existing.EndsWith("`n")){"`n"}else{''}
+    [IO.File]::AppendAllText($excludePath,"$prefix$pattern`n",[Text.UTF8Encoding]::new($false))
+}
+
+function Remove-SgGlobalJsonMcpEntries([string]$Path, [string[]]$Names, [ValidateSet('top-level','opencode','kilo')][string]$Shape = 'top-level') {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return }
+    try { $document=[IO.File]::ReadAllText($Path)|ConvertFrom-Json -ErrorAction Stop } catch { Write-SgInstallerWarning "Global MCP cleanup preserved invalid JSON: $Path"; return }
+    $servers = if($Shape -eq 'top-level'){
+        if($document.PSObject.Properties['mcpServers']){$document.mcpServers}else{$null}
+    }elseif($Shape -eq 'opencode'){
+        if($document.PSObject.Properties['mcp'] -and $document.mcp -and $document.mcp.PSObject.Properties['servers']){$document.mcp.servers}else{$null}
+    }else{
+        if($document.PSObject.Properties['mcp']){$document.mcp}else{$null}
     }
-    if ($AgentReady.Gemini) {
-        $gemini = Get-SgToolPath 'gemini.cmd' $geminiPaths
-        $settingsPath = Join-Path $env:USERPROFILE '.gemini\settings.json'
-        $readyNames = New-Object Collections.Generic.List[string]; $pendingNames = New-Object Collections.Generic.List[string]
-        foreach ($server in $serverDefinitions) {
-            $state = Get-SgGeminiMcpConfigState -SettingsPath $settingsPath -Server $server
-            if ($state.Status -eq 'missing') {
-                $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.gemini." + $server.Name) -Label ("Configuring Gemini $($server.Name) MCP") -File $gemini -Arguments (Get-SgGeminiMcpAddArguments $server) -TimeoutSeconds 60
-                $state = if (-not $add.TimedOut -and $add.ExitCode -eq 0) { Get-SgGeminiMcpConfigState -SettingsPath $settingsPath -Server $server } else { [pscustomobject]@{ Status='pending'; Reason='native Gemini MCP add failed or timed out' } }
+    if(-not $servers){return}
+    $changed=$false
+    foreach($name in $Names){if($servers.PSObject.Properties[$name]){$servers.PSObject.Properties.Remove($name);$changed=$true}}
+    if(-not $changed){return}
+    $content=($document|ConvertTo-Json -Depth 64)+[Environment]::NewLine
+    $temp="$Path.$([guid]::NewGuid().ToString('N')).tmp"
+    try{[IO.File]::WriteAllText($temp,$content,[Text.UTF8Encoding]::new($false));Move-SgAtomicReplace $temp $Path}finally{if(Test-Path -LiteralPath $temp){Remove-Item -LiteralPath $temp -Force}}
+}
+
+function Remove-SgMaintainerGlobalMcpConfigs([hashtable]$AgentReady) {
+    $names=@('dart','playwright','firebase','convex','clerk','supabase','vercel','github')
+    if($AgentReady.Codex){$codex=Get-SgToolPath 'codex.cmd' $codexPaths;foreach($name in $names){$get=Invoke-SgBoundedProcess $codex @('mcp','get',$name,'--json') 30;if($get.ExitCode -eq 0){[void](Invoke-SgBoundedProcess $codex @('mcp','remove',$name) 30)}}}
+    if($AgentReady.Claude){Remove-SgGlobalJsonMcpEntries (Join-Path $env:USERPROFILE '.claude.json') $names}
+    if($AgentReady.Gemini){Remove-SgGlobalJsonMcpEntries (Join-Path $env:USERPROFILE '.gemini\settings.json') $names}
+    if($AgentReady.OpenCode){$resolved=Resolve-SgAgentConfigPath OpenCode $env:USERPROFILE;Remove-SgGlobalJsonMcpEntries $resolved.Path $names opencode}
+    if($AgentReady.Kilo){$resolved=Resolve-SgAgentConfigPath Kilo $env:USERPROFILE;Remove-SgGlobalJsonMcpEntries $resolved.Path $names kilo}
+}
+
+function Install-SgAgentMcpConfigs([hashtable]$AgentReady, [string]$DartPath, [string]$NpxPath, $Playwright, [string[]]$ProjectPaths, [hashtable]$ServiceVersions, [bool]$ReplaceExistingAgentConfigs = $false) {
+    $results=@{}
+    foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){$results[$agentName]=[pscustomobject]@{Installed=[bool]$AgentReady[$agentName];McpSummary=if($AgentReady[$agentName]){'pending'}else{'not applicable'};ReadyServers=@();PendingServers=@()}}
+    if(-not $DartPath -or -not $NpxPath){Write-SgInstallerWarning 'Project MCP setup is pending because validated Dart or npx is unavailable.';return $results}
+    if($ReplaceExistingAgentConfigs){Remove-SgMaintainerGlobalMcpConfigs $AgentReady}
+    $statePath=Join-Path $env:LOCALAPPDATA 'ShipGlows\agent-mcp-project-state.json'
+    $state=Read-SgProjectMcpState $statePath
+    $nextEntries=New-Object Collections.Generic.List[object]
+    $readyByAgent=@{};$pendingByAgent=@{}
+    foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){$readyByAgent[$agentName]=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase);$pendingByAgent[$agentName]=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)}
+    foreach($projectPath in @($ProjectPaths|Where-Object{$_}|Select-Object -Unique)){
+        $needs=Get-SgProjectServiceNeeds -Workspace $projectPath
+        $servers=@(Get-SgProjectMcpDefinitions -Needs $needs -Versions $ServiceVersions -DartPath $DartPath -NpxPath $NpxPath -Playwright $Playwright)
+        foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){
+            if(-not [bool]$AgentReady[$agentName]){continue}
+            $configPlan=Get-SgProjectAgentMcpConfigPlan -Agent $agentName -ProjectPath $projectPath -Servers $servers
+            $record=@($state.entries|Where-Object{[string]$_.path -eq [string]$configPlan.ConfigPath}|Select-Object -First 1)
+            $recordedHash=if($record){[string]$record[0].sha256}else{''}
+            $write=Write-SgManagedProjectConfig -ConfigPath $configPlan.ConfigPath -Content $configPlan.Content -RecordedHash $recordedHash -ReplaceExisting:$ReplaceExistingAgentConfigs
+            if($write.Status -eq 'pending'){
+                foreach($name in @($configPlan.ServerNames)){[void]$pendingByAgent[$agentName].Add($name)}
+                Write-SgInstallerWarning "$agentName project MCP config was preserved pending: $($configPlan.ConfigPath)"
+                if($record){$nextEntries.Add($record[0])}
+            }else{
+                foreach($name in @($configPlan.ServerNames)){[void]$readyByAgent[$agentName].Add($name)}
+                Add-SgProjectMcpGitExclude $projectPath $configPlan.ConfigPath
+                $nextEntries.Add([pscustomobject]@{path=[string]$configPlan.ConfigPath;sha256=[string]$write.ExpectedHash;agent=$agentName;project=[IO.Path]::GetFullPath($projectPath)})
             }
-            if ($state.Status -eq 'ready') { $readyNames.Add($server.Name) }
-            else { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Gemini MCP '$($server.Name)' remains pending: $($state.Reason)." }
         }
-        $results.Gemini = [pscustomobject]@{ Installed=$true; McpSummary=if($pendingNames.Count){"partial: ready $($readyNames -join ', '); pending $($pendingNames -join ', ')"}else{"ready: $($readyNames -join ', ')"}; ReadyServers=$readyNames.ToArray(); PendingServers=$pendingNames.ToArray() }
     }
-    if ($AgentReady.Claude) {
-        $claude = Get-SgToolPath 'claude.cmd' $claudePaths
-        $readyNames = New-Object Collections.Generic.List[string]; $pendingNames = New-Object Collections.Generic.List[string]
-        foreach ($server in $serverDefinitions) {
-            $get = Invoke-SgBoundedProcess $claude @('mcp','get',$server.Name) 30
-            if ($get.ExitCode -ne 0) {
-                $arguments = if ($server.Type -eq 'remote') { @('mcp','add','--transport','http','--scope','user',$server.Name,$server.Url) } else { @('mcp','add','--transport','stdio','--scope','user',$server.Name,'--',$server.Command) + @($server.Arguments) }
-                $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.claude." + $server.Name) -Label ("Configuring Claude $($server.Name) MCP") -File $claude -Arguments $arguments -TimeoutSeconds 60
-                $verified = Invoke-SgBoundedProcess $claude @('mcp','get',$server.Name) 30
-                $expected = if ($server.Type -eq 'remote') { @($server.Url) } else { @($server.Command) + @($server.Arguments) }
-                if (-not $verified -or $verified.ExitCode -ne 0 -or @($expected | Where-Object { -not $verified.Output.Contains([string]$_) }).Count) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Claude MCP '$($server.Name)' remains pending." } else { $readyNames.Add($server.Name) }
-            } else {
-                $expected = if ($server.Type -eq 'remote') { @($server.Url) } else { @($server.Command) + @($server.Arguments) }
-                $missingArgument = @($expected | Where-Object { -not $get.Output.Contains([string]$_) }).Count -gt 0
-                if ($missingArgument) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Claude MCP '$($server.Name)' exists but exact convergence was not proven; it was preserved pending." } else { $readyNames.Add($server.Name) }
-            }
-        }
-        $results.Claude = [pscustomobject]@{ Installed=$true; McpSummary=if($pendingNames.Count){"partial: ready $($readyNames -join ', '); pending $($pendingNames -join ', ')"}else{"ready: $($readyNames -join ', ')"}; ReadyServers=$readyNames.ToArray(); PendingServers=$pendingNames.ToArray() }
-    }
-    if ($AgentReady.Codex) {
-        $codex = Get-SgToolPath 'codex.cmd' $codexPaths
-        $readyNames = New-Object Collections.Generic.List[string]; $pendingNames = New-Object Collections.Generic.List[string]
-        foreach ($server in ($serverDefinitions | Where-Object Name -ne 'playwright')) {
-            $get = Invoke-SgBoundedProcess $codex @('mcp','get',$server.Name,'--json') 30
-            if ($get.ExitCode -ne 0) {
-                $addArguments = if ($server.Type -eq 'remote') { @('mcp','add',$server.Name,'--url',$server.Url) } else { @('mcp','add',$server.Name,'--',$server.Command) + @($server.Arguments) }
-                $add = Invoke-SgVisibleBoundedProcess -OperationId ("mcp.codex." + $server.Name) -Label ("Configuring Codex $($server.Name) MCP") -File $codex -Arguments $addArguments -TimeoutSeconds 60
-                $verified = Invoke-SgBoundedProcess $codex @('mcp','get',$server.Name,'--json') 30
-                if (-not (Test-SgCodexMcpResult -Result $verified -Server $server)) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Codex MCP '$($server.Name)' remains pending." } else { $readyNames.Add($server.Name) }
-            } else {
-                if (-not (Test-SgCodexMcpResult -Result $get -Server $server)) { $pendingNames.Add($server.Name); Write-SgInstallerWarning "Codex MCP '$($server.Name)' exists but exact convergence was not proven; it was preserved pending." } else { $readyNames.Add($server.Name) }
-            }
-        }
-        if ($Playwright.Ready) {
-            $configPath = Join-Path $env:USERPROFILE '.codex\config.toml'
-            [void](Set-SgCodexPlaywrightMcpConfig $configPath $NpxPath $Playwright.Version $Playwright.ChromiumPath)
-            $config = Get-SgCodexPlaywrightMcpConfig $configPath
-            if ($config -and $config.Enabled -and $config.Command -eq $NpxPath -and ($config.Arguments -contains "@playwright/mcp@$($Playwright.Version)")) { $readyNames.Add('playwright') } else { $pendingNames.Add('playwright') }
-        }
-        $results.Codex = [pscustomobject]@{ Installed=$true; McpSummary=if($pendingNames.Count){"partial: ready $($readyNames -join ', '); pending $($pendingNames -join ', ')"}else{"ready: $($readyNames -join ', ')"}; ReadyServers=$readyNames.ToArray(); PendingServers=$pendingNames.ToArray() }
+    Write-SgProjectMcpState $statePath $nextEntries.ToArray()
+    foreach($agentName in @('Codex','Claude','OpenCode','Kilo','Gemini')){
+        if(-not [bool]$AgentReady[$agentName]){continue}
+        $ready=@($readyByAgent[$agentName]|Sort-Object);$pending=@($pendingByAgent[$agentName]|Sort-Object)
+        $summary=if($pending.Count){"partial per project: ready $($ready -join ', '); pending $($pending -join ', ')"}else{"ready per project: $($ready -join ', ')"}
+        $results[$agentName]=[pscustomobject]@{Installed=$true;McpSummary=$summary;ReadyServers=$ready;PendingServers=$pending}
     }
     return $results
 }
@@ -1757,20 +1791,19 @@ $dartPath = if ($flutterReady) { Join-Path (Split-Path (Get-SgToolPath 'flutter.
 [void]$androidInfo
 $nativeNpx = Get-SgNativeNpxPath $npxPaths
 $serviceInfo = Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx $googleCloudReady
-$stackMcpDefinitions = @(Get-SgStackMcpDefinitions $serviceInfo.Needs $serviceInfo.Versions $nativeNpx)
 $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeReady -or $opencodeReady -or $kiloReady -or $geminiReady) (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
-$agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $stackMcpDefinitions $ReplaceAgentConfigs.IsPresent
 [void](Complete-SgInstallerPhase $agentPhase)
 $activationPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.activation' -Label 'Recording environment and activating commands' -TimeoutSeconds 7200) -EventSink $installerEventSink
 $script:activeInstallerPhase = $activationPhase
+$managedProjectPaths = @(Invoke-SgProjectEnvironmentMigration (Join-Path $runtimeDir 'ShipGlows.DevServer.psm1'))
+$agentInfo = Install-SgAgentMcpConfigs @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady } $dartPath $nativeNpx $playwright $managedProjectPaths $serviceInfo.Versions $ReplaceAgentConfigs.IsPresent
 $playwrightConfigured = @($agentInfo.Values | Where-Object { $_.ReadyServers -contains 'playwright' }).Count -gt 0
 $playwrightPending = @($agentInfo.Values | Where-Object { $_.PendingServers -contains 'playwright' }).Count -gt 0
-$playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$playwrightConfigured; McpVerified=$playwrightConfigured -and -not $playwrightPending; ConfigPath='per-agent; readiness listed below'; ChromiumPath=$playwright.ChromiumPath }
+$playwrightInfo = [pscustomobject]@{ Installed=$playwright.Ready; McpConfigured=$playwrightConfigured; McpVerified=$playwrightConfigured -and -not $playwrightPending; ConfigPath='per-project agent configs; readiness listed below'; ChromiumPath=$playwright.ChromiumPath }
 $environmentPath = Write-SgGlobalDevelopmentEnvironment $agentInfo $playwrightInfo $playwrightRuntime $pythonInfo $flutterReady $androidInfo $ideInfo $serviceInfo (Test-SgWindowsDeveloperMode) $tauriInfo
 Write-Host "ShipGlows development environment recorded: $environmentPath" -ForegroundColor Green
 $agentInstructionChanges = @(Install-SgAgentEnvironmentInstructions -UserProfile $env:USERPROFILE -AgentReady @{ Codex=$codexReady; Claude=$claudeReady; OpenCode=$opencodeReady; Kilo=$kiloReady; Gemini=$geminiReady })
 if ($agentInstructionChanges.Count) { Write-Host "ShipGlows tool context installed for $($agentInstructionChanges.Count) coding agent(s)." -ForegroundColor Green }
-[void](Invoke-SgProjectEnvironmentMigration (Join-Path $runtimeDir 'ShipGlows.DevServer.psm1'))
 
 Write-Host ''
 Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor Yellow

@@ -39,7 +39,7 @@ Assert-Sg $localMaintainerBlocked 'Maintainer setup must require the full Window
 $source = [IO.File]::ReadAllText($bootstrapPath)
 Assert-Sg ($source -notmatch 'if\s*\(-not\s+\$InstallSurface\s+-and\s+\$requestedComponents') 'Component selection must never choose an install surface implicitly.'
 Assert-Sg ($source -notmatch '\$InstallSurface\s*=\s*''corpus''') 'The legacy corpus name must never become the Windows maintainer surface.'
-Assert-Sg ($source -match 'if \(\$InstallSurface -eq ''maintainer''\) \{ \$devServerArguments \+= ''-ReplaceAgentConfigs'' \}') 'Only the explicit maintainer surface may request authoritative OpenCode/Kilo MCP replacement.'
+Assert-Sg ($source -match 'if \(\$InstallSurface -eq ''maintainer''\) \{ \$devServerArguments \+= ''-ReplaceAgentConfigs'' \}') 'Only the explicit maintainer surface may request authoritative project MCP replacement and former-global cleanup.'
 Assert-Sg (([regex]::Matches($source, "'-ReplaceAgentConfigs'")).Count -eq 1) 'The authoritative agent-config switch must have one gated bootstrap call site.'
 
 Write-Output 'Windows install-surface contract tests passed.'
