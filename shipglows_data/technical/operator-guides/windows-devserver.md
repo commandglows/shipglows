@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.17.2"
+artifact_version: "1.18.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-23"
+updated: "2026-08-24"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -34,6 +34,7 @@ evidence:
   - "The 2026-08-23 Windows maintainer surface clones or validates the owner repository and enforces one Codex ShipGlows entrypoint channel without accepting generic all/components as authority."
   - "The 2026-08-23 Flutter repair reconverges the managed SDK PATH on every validated rerun and separates Visual Studio C++ readiness from aggregate Flutter Windows build readiness."
   - "The 2026-08-23 stale-session repair lets the DevServer resolve a complete non-reparse ShipGlows-managed Flutter SDK even when its parent process predates the persistent PATH update."
+  - "The 2026-08-24 Windows toolbox contract installs provider CLIs machine-wide while activating MCPs only in registered projects from project evidence, with generated agent files excluded locally from Git."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -57,9 +58,9 @@ ne sont pas requis par le parcours Shadow PC.
 - ✅ Clone et registre local des dépôts directement dans `%USERPROFILE%\ShipGlows`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
 - ✅ Android Studio proposé pour Android/Firebase Device Streaming et Visual Studio Community C++ pour compiler Flutter Windows
-- ✅ MCP Dart/Flutter et Playwright préparés sans authentification; JSON/JSONC existant préservé ou signalé pending
-- ✅ Proposition groupée des agents Codex, Claude, OpenCode, Kilo ou Gemini manquants et CLIs Firebase, FlutterFire, Convex, Vercel, Supabase ou Clerk selon les manifests
-- ✅ MCP Firebase, Convex et Clerk officiels, plus GitHub officiel en lecture seule, ajoutés aux agents détectés avec readiness agent par agent
+- ✅ Proposition groupée des agents Codex, Claude, OpenCode, Kilo ou Gemini manquants
+- ✅ Boîte à outils versionnée Firebase, FlutterFire, Convex, Vercel, Supabase, Clerk et Google Cloud installée globalement pour la machine
+- ✅ MCP activés uniquement dans les projets enregistrés selon leurs manifests et preuves Git, via les formats locaux natifs de chaque agent
 
 1. **Lancer le bootstrap unique ShipGlows:**
 
@@ -127,11 +128,21 @@ ne sont pas requis par le parcours Shadow PC.
    personnellement dans Android Studio. ShipGlows propose aussi d'ouvrir les
    paramètres Developer Mode sans modifier le registre; ce réglage est distinct
    de l'accélération de l'émulateur. Codex, Claude, OpenCode, Kilo et Gemini manquants sont proposés dans une
-   question groupée, sans authentification. Les nouveaux fichiers agent peuvent
-   recevoir Dart/Flutter, Playwright, Firebase, Convex, Clerk et GitHub en lecture seule; Gemini utilise son CLI natif user-scope puis une vérification locale de `settings.json`, sans connexion; un JSON/JSONC existant reste intact et
-   explicitement pending si aucune mise à jour native sûre n'est disponible.
-   Le CLI Clerk n'est préparé que si un manifest le déclare; `clerk init`, le lien
-   d'application, les SDK projet et toute authentification restent explicites.
+   question groupée, sans authentification. La boîte à outils versionnée Firebase,
+   FlutterFire, Convex, Vercel, Supabase, Clerk et Google Cloud est installée au
+   niveau de la machine, indépendamment des projets détectés. Dans chaque projet
+   enregistré, ShipGlows déduit ensuite l'inventaire MCP de ses manifests et de
+   ses preuves Git, puis écrit uniquement les configurations locales natives des
+   agents installés pour Dart/Flutter, Playwright, Firebase, Convex, Clerk,
+   Supabase, Vercel et GitHub officiel en lecture seule lorsque ces outils sont
+   pertinents. Ces fichiers propres à la machine sont ajoutés à
+   `.git/info/exclude` et ne doivent pas être commités. Les configurations de
+   projet divergentes sont préservées en parcours ordinaire; le parcours
+   mainteneur peut reconverger les fichiers ShipGlows enregistrés et retirer les
+   anciennes entrées globales connues. Le MCP Google Cloud reste au catalogue
+   jusqu'à sa sélection explicite pour un projet.
+   `clerk init`, le lien d'application, les SDK projet et toute authentification
+   restent explicites.
    Aucune authentification n'est démarrée. Il ne demande ni
    `sudo`, ni WSL, ni `autossh`. Au premier accès aux dépôts privés, GitHub CLI
    ouvre son authentification officielle dans le navigateur; ShipGlows ne lit
