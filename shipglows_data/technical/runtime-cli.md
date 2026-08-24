@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.19.1"
+artifact_version: "1.20.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-19"
+updated: "2026-08-24"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "CLI/SaaS capability snapshot 2026-08-24: the CLI emits a bounded, closed, read-only JSON capability inventory for the runner without exposing commands, arguments, paths, ports, secrets, or credentials."
   - "Linux memory monitoring 2026-08-20: available-RAM severity now scales at 20% warning and 10% critical, preserves severity through the menu cache, and reports missing swap independently."
   - "Linux clone/start separation 2026-08-19: clone catalogues bounded surfaces as uninitialized without Flox, dependency, picker, or PM2 side effects; first explicit start initializes only the selected surface."
   - "Runtime layout migration 2026-08-11: mutable user-mode Caddy state now defaults to ~/.shipglows/state/caddy, leaving ~/.shipglows/runtime available for the canonical code checkout."
@@ -204,6 +205,25 @@ A nested directory containing its own `.flox` is an independent environment
 boundary. Its subtree is excluded from its parent's launch-target search. Every
 bounded monorepo surface is catalogued separately, while an ambiguous root path
 is never resolved to one surface alphabetically.
+
+## CLI/SaaS capability snapshot
+
+After a successful Linux project-catalog refresh, the CLI also refreshes
+`$SHIPGLOWS_STATE_DIR/cli-capabilities.v1.json`. This snapshot is a bounded,
+versioned inventory for the SaaS runner; it is not a remote-command transport.
+Its schema is `shipglows.cli-capabilities.v1`, its capability identifiers come
+from a closed 30-entry set shared with the runner contract, and every entry has
+one of four closed states: `available`, `unavailable`, `degraded`, or `disabled`.
+
+Read-only capabilities derive availability only from already-defined CLI
+functions. Authorized actions are advertised as disabled with
+`approvalRequired`; operator-only functions are disabled with `operatorOnly`.
+The document contains no command, argument, path, port, secret, or credential
+payload. Generation rejects unknown or duplicate identifiers, invalid states,
+invalid reason codes, and output beyond
+`SHIPGLOWS_CLI_CAPABILITIES_MAX_BYTES` (64 KiB by default). It writes a private
+candidate in the state directory, atomically replaces the published snapshot,
+and preserves the previous valid snapshot if generation fails.
 
 The Linux registry stores five fields:
 
