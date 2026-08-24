@@ -180,6 +180,12 @@ class ContextQualityContractTests(unittest.TestCase):
         self.assertIn(path, text(CONTRACT))
         self.assertIn(path, text(HANDOFF))
 
+    def test_conversation_continuity_stays_compact_without_losing_scenarios(self) -> None:
+        raw = CONTINUITY.read_text(encoding="utf-8")
+        self.assertLessEqual(len(raw.split()), 800)
+        for number in range(1, 10):
+            self.assertIn(f"CCR-{number:03d}", raw)
+
     def test_context_health_check_is_proportional_and_signal_driven(self) -> None:
         doctrine = text(CONTINUITY)
         for marker in (
