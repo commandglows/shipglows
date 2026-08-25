@@ -12,6 +12,11 @@ $fixture=Join-Path ([IO.Path]::GetTempPath()) ('sg-start-detach-'+[guid]::NewGui
 $surface=Join-Path $fixture 'workspace\site'
 $isolatedLocalAppData=Join-Path $fixture 'localappdata'
 $hostPowerShell=(Get-Process -Id $PID -ErrorAction Stop).Path
+$runtimeManifest=Get-Content -LiteralPath (Join-Path $root 'cli\windows\ShipGlows.PowerShellRuntime.json') -Raw|ConvertFrom-Json
+$expectedManagedPowerShell=[IO.Path]::GetFullPath((Join-Path $env:USERPROFILE ".shipglows\toolchains\powershell\$($runtimeManifest.version)\$($runtimeManifest.platform)\pwsh.exe"))
+if([IO.Path]::GetFullPath($hostPowerShell)-ine$expectedManagedPowerShell){throw "Detached integration must run under the ShipGlows-managed PowerShell host: $expectedManagedPowerShell"}
+$previousManagedPowerShell=$env:SHIPGLOWS_MANAGED_PWSH
+$env:SHIPGLOWS_MANAGED_PWSH=$hostPowerShell
 $port=0
 $startProcess=$null
 
@@ -26,6 +31,7 @@ function New-SgCliProcess([string]$Action,[bool]$RedirectOutput=$true) {
     $info.RedirectStandardError=$RedirectOutput
     $info.EnvironmentVariables['SHIPGLOWS_WINDOWS_WORKSPACE']=(Join-Path $fixture 'workspace')
     $info.EnvironmentVariables['LOCALAPPDATA']=$isolatedLocalAppData
+    $info.EnvironmentVariables['SHIPGLOWS_MANAGED_PWSH']=$hostPowerShell
     $process=New-Object Diagnostics.Process
     $process.StartInfo=$info
     [void]$process.Start()
@@ -87,7 +93,8 @@ http.createServer((_request, response) => response.end('ready')).listen(port, '1
         $cliError=if($startProcess.HasExited-and$stderrTask.IsCompleted){$stderrTask.Result}else{''}
         $cliOutput=if($startProcess.HasExited-and$stdoutTask.IsCompleted){$stdoutTask.Result}else{''}
         $exitCode=if($startProcess.HasExited){$startProcess.ExitCode}else{-1}
-        throw "Source CLI did not reach running/HTTP readiness (exited=$($startProcess.HasExited), exitCode=$exitCode, registryStatus=$($entry.status), setup=$setupTail, launch=$launchTail, stdout=$cliOutput, stderr=$cliError)."
+        $registryStatus=if($entry-and$entry.PSObject.Properties['status']){[string]$entry.status}else{'missing'}
+        throw "Source CLI did not reach running/HTTP readiness (exited=$($startProcess.HasExited), exitCode=$exitCode, registryStatus=$registryStatus, setup=$setupTail, launch=$launchTail, stdout=$cliOutput, stderr=$cliError)."
     }
     $returned=$startProcess.WaitForExit(5000)
     $streamsClosed=[Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdoutTask,$stderrTask),5000)
@@ -168,6 +175,7 @@ http.createServer((_request, response) => response.end('ready')).listen(port, '1
     } catch {}
     if($startProcess-and-not$startProcess.HasExited){$startProcess.Kill();[void]$startProcess.WaitForExit(5000)}
     if($startProcess){$startProcess.Dispose()}
+    $env:SHIPGLOWS_MANAGED_PWSH=$previousManagedPowerShell
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $fixture -Recurse -Force -ErrorAction SilentlyContinue
 }
