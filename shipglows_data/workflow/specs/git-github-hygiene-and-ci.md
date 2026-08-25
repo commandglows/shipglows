@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-08-25"
 created_at: "2026-08-25 17:01:25 UTC"
 updated: "2026-08-25"
-updated_at: "2026-08-25 17:21:00 UTC"
+updated_at: "2026-08-25 17:48:00 UTC"
 status: ready
 source_skill: sg-planning
 source_model: GPT-5 Codex
@@ -208,12 +208,13 @@ None for spec authoring. The professional default is pull-request integration wi
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-25 | sg-planning | GPT-5 Codex | Consolidated the Git/GitHub/runtime audit into one staged durable implementation contract. | draft | Run readiness review. |
 | 2026-08-25 | 101-sg-ready | GPT-5 Codex | Reviewed user-story fit, execution autonomy, proof, linked consequences, stale-state handling, GitHub governance, and scoped OWASP risks against current local and remote evidence. | ready | Start staged implementation under explicit mutation authority. |
+| 2026-08-25 | 102-sg-start | GPT-5 Codex | Converged the Windows user developer root and all 68 Codex skill links, then implemented the stable path-aware repository gate and its focused regression contract. | in progress | Publish the CI milestone and prove the exact check on a real pull request before changing repository rules. |
 
 ## Current Chantier Flow
 
 - specification: ready
 - readiness: ready
-- implementation: pending
+- implementation: in progress
 - verification: pending
 - closure: pending
 - delivery: pending

@@ -307,6 +307,8 @@ Interpret the result in this order:
 
 ## Validation
 
+GitHub exposes one stable required-check candidate named `ShipGlows required gate` on every pull request into `main` and every push to `main`. Its deterministic path classifier reports a successful no-Windows-impact result for unrelated changes; changes to the Windows bootstrap, local installer, native Windows runtime/tests, environment control plane, runtime-skill synchronization, classifier, or workflow run the complete `tests/windows/devserver-contract.sh` contract. The workflow checks out and verifies the exact event SHA, uses read-only repository permissions, persists no checkout credential, and fails closed on invalid refs or unsafe paths.
+
 ```bash
 sh -n install-shipglows.sh
 bash -n cli/install.sh local/install.sh local/turso-login.sh local/turso-ssh.sh

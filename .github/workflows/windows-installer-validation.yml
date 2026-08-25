@@ -1,78 +1,95 @@
-name: Windows installer validation
+name: ShipGlows repository gate
 
 on:
   push:
     branches: [main]
-    paths:
-      - install-shipglows.ps1
-      - local/install_local.ps1
-      - .github/workflows/windows-installer-validation.yml
   pull_request:
-    paths:
-      - install-shipglows.ps1
-      - local/install_local.ps1
-      - .github/workflows/windows-installer-validation.yml
+    branches: [main]
   workflow_dispatch:
+    inputs:
+      force_failure:
+        description: Prove required-gate failure propagation
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
-jobs:
-  parser:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
+concurrency:
+  group: shipglows-required-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
-      - name: Validate PowerShell 5.1 installers
-        shell: powershell
+jobs:
+  required:
+    name: ShipGlows required gate
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out the exact tested revision
+        # actions/checkout v7.0.1, pinned to its verified commit.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify revision and classify changed paths
+        id: impact
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          COMPARE_MODE: ${{ github.event_name == 'pull_request' && 'merge-base' || 'direct' }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $files = @(
-            'install-shipglows.ps1',
-            'local/install_local.ps1'
-          )
+          if ($env:HEAD_SHA -notmatch '^[0-9a-f]{40}$') {
+            throw "Invalid head SHA: $env:HEAD_SHA"
+          }
+          $actualHead = (git rev-parse HEAD).Trim()
+          if ($actualHead -cne $env:HEAD_SHA) {
+            throw "Checked-out SHA mismatch: expected $env:HEAD_SHA, got $actualHead"
+          }
 
-          foreach ($file in $files) {
-            $tokens = $null
-            $parseErrors = $null
-            [void][System.Management.Automation.Language.Parser]::ParseFile(
-              (Resolve-Path $file),
-              [ref]$tokens,
-              [ref]$parseErrors
-            )
-            if ($parseErrors -and $parseErrors.Count -gt 0) {
-              $parseErrors | ForEach-Object {
-                Write-Error ("{0}:{1}: {2}" -f $file, $_.Extent.StartLineNumber, $_.Message)
-              }
-              throw "PowerShell syntax validation failed: $file"
+          $pathsFile = Join-Path $env:RUNNER_TEMP 'shipglows-changed-paths.txt'
+          if ($env:EVENT_NAME -eq 'workflow_dispatch') {
+            Set-Content -LiteralPath $pathsFile -Encoding UTF8 -Value 'tests/windows/devserver-contract.sh'
+          } elseif ($env:BASE_SHA -match '^0{40}$') {
+            git ls-tree -r --name-only $env:HEAD_SHA | Set-Content -LiteralPath $pathsFile -Encoding UTF8
+          } else {
+            if ($env:BASE_SHA -notmatch '^[0-9a-f]{40}$') {
+              throw "Invalid base SHA: $env:BASE_SHA"
             }
-            Write-Host "Parser.ParseFile passed: $file"
-          }
-
-          $localInstaller = 'local/install_local.ps1'
-          $bytes = [IO.File]::ReadAllBytes((Resolve-Path $localInstaller))
-          if ($bytes.Length -lt 3 -or $bytes[0] -ne 0xEF -or $bytes[1] -ne 0xBB -or $bytes[2] -ne 0xBF) {
-            throw "$localInstaller must use UTF-8 with BOM."
-          }
-
-          $text = [Text.Encoding]::UTF8.GetString($bytes)
-          $forbidden = @(
-            ([string][char]96 + [char]36),
-            ([char]36 + '{YELLOW}'),
-            ([char]36 + '{GREEN}'),
-            ([char]36 + '{NC}')
-          )
-          foreach ($marker in $forbidden) {
-            if ($text.Contains($marker)) {
-              throw "Forbidden legacy marker found in ${localInstaller}: $marker"
+            git cat-file -e "$env:BASE_SHA^{commit}"
+            if ($LASTEXITCODE -ne 0) { throw "Base SHA is unavailable: $env:BASE_SHA" }
+            $range = if ($env:COMPARE_MODE -eq 'merge-base') {
+              "$env:BASE_SHA...$env:HEAD_SHA"
+            } else {
+              "$env:BASE_SHA..$env:HEAD_SHA"
             }
+            git -c core.quotepath=false diff --name-only --diff-filter=ACDMRTUXB $range |
+              Set-Content -LiteralPath $pathsFile -Encoding UTF8
+            if ($LASTEXITCODE -ne 0) { throw "Changed-path comparison failed: $range" }
           }
 
-          if ((Get-Content -Raw install-shipglows.ps1).Contains('Expand-Archive')) {
-            throw 'The Windows bootstrap must not use Expand-Archive.'
-          }
+          $result = & .\.github\scripts\Resolve-WindowsValidationImpact.ps1 `
+            -PathsFile $pathsFile `
+            -GitHubOutput $env:GITHUB_OUTPUT
+          $result | Format-List
+
+      - name: Report no Windows impact
+        if: steps.impact.outputs.windows_changed == 'false'
+        shell: pwsh
+        run: Write-Host 'No Windows-owned path changed; the stable repository gate remains successful.'
+
+      - name: Run complete Windows contract
+        if: steps.impact.outputs.windows_changed == 'true'
+        shell: bash
+        run: bash tests/windows/devserver-contract.sh
 
       - name: Exercise selective archive extraction
+        if: steps.impact.outputs.windows_changed == 'true'
         shell: powershell
         env:
           SHIPGLOWS_TEST_REF: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -93,3 +110,8 @@ jobs:
               Remove-Item -LiteralPath $target -Force -Recurse -ErrorAction SilentlyContinue
             }
           }
+
+      - name: Prove failure propagation when requested
+        if: github.event_name == 'workflow_dispatch' && inputs.force_failure
+        shell: pwsh
+        run: throw 'Intentional required-gate failure propagation proof.'
