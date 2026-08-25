@@ -216,3 +216,15 @@
 - Result summary: PR 34's exact heads passed `ShipGlows required gate` with the complete Windows contract, while a deliberate manual failure at SHA `92b113f` failed as expected. A transient anonymous GitHub API `403` on the first `761a49b` run passed unchanged on retry and exposed a redundant API lookup for already-complete SHAs; strict SHA resolution now bypasses only that lookup and passes the focused regression plus complete local Windows contract. PR 35 preserves the three PR 29 patches on current main and passes 20 focused tests, metadata lint, and `git diff --check`; GitHub cannot schedule its newly required check until PR 34 installs that workflow on main. The independent `d18e779` replay stopped cleanly on two documentation conflicts and its original branch remains untouched.
 - Evidence pointer: GitHub PRs 34 and 35; Actions runs 32880874842 and 32881079150; local focused and complete Windows-contract outputs; no credential, private payload, or destructive operation retained
 - Follow-up: obtain separate merge authority for PR 34, verify PR 35's exact-head gate after integration, and obtain explicit semantic-merge authority before reconciling `d18e779`
+
+## 2026-08-25 - CLI SaaS capability snapshot salvage
+
+- Scope: `d18e779`; PR 36; private CLI-to-SaaS discovery contract
+- Environment: Windows 11; Git Bash; Python 3.14
+- Tester: Codex tooling
+- Source: sg-engineering
+- Status: pass with one documented unrelated baseline failure
+- Confidence: high
+- Result summary: The unique capability-snapshot work was reapplied to current main with only document-version reconciliation. The focused cloud-preview catalogue contract passes, including closed capability IDs/states, redaction boundaries, zero/one/many fixtures, byte limits, and preservation of the last valid snapshot. POSIX `0600` remains asserted on Unix-like filesystems and is skipped only on MSYS/MINGW/Cygwin where NTFS does not expose chmod semantics. The neighboring startup-cache test fails identically on clean main at its emoji picker assertion and is not caused by this change.
+- Evidence pointer: PR 36 commit `f575916`; focused Bash syntax/contract output; metadata lint; `git diff --check`
+- Follow-up: review PR 36 and run its exact-head required gate; Linux permission proof remains represented by the retained Unix assertion
