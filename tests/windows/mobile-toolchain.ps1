@@ -137,6 +137,10 @@ Assert-Sg (($toolboxPlan.Name -join '|') -eq 'firebase|supabase|convex|vercel|cl
 $toolboxConfig = Get-SgMachineToolboxMiseConfig -Plan $toolboxPlan
 foreach ($coordinate in @('npm:firebase-tools','aqua:supabase/cli','npm:convex','npm:vercel','npm:clerk')) { Assert-Sg ($toolboxConfig.Contains('"' + $coordinate + '"')) "Machine toolbox config is missing $coordinate." }
 Assert-Sg ($toolboxConfig -notmatch '(?im)latest|stable|\*|\^|~') 'Machine toolbox config must contain only exact immutable versions.'
+$installerSource = [IO.File]::ReadAllText((Join-Path $root 'cli\windows\install-devserver.ps1'))
+$exactToolRetry = '@(''install'',"$($item.Tool)@$($item.Version)")'
+Assert-Sg ($installerSource.Contains($exactToolRetry)) 'A partially installed machine toolbox must retry each missing CLI by exact mise coordinate.'
+Assert-Sg ($installerSource -match [regex]::Escape('$ready = Test-SgServiceCliResult $repair $verify $wrapper $item.Version')) 'Machine-toolbox readiness must depend on each CLI verification, not the aggregate install exit code.'
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-mobile-' + [guid]::NewGuid().ToString('N'))
 try {
@@ -559,6 +563,46 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
     Assert-Sg ($serviceInstaller.Count -eq 1) 'Machine CLI toolbox installer must resolve uniquely.'
     $serviceInstallerSource = $serviceInstaller[0].Extent.Text
     Assert-Sg ($serviceInstallerSource -match 'Get-SgMachineToolboxPlan' -and $serviceInstallerSource -match "@\('install'\)" -and $serviceInstallerSource -match 'Get-SgMachineToolboxWrapperContent') 'Machine CLI toolbox must install one isolated exact mise plan and expose stable wrappers.'
+    $partialToolboxConverges = & {
+        $savedLocalAppData = $env:LOCALAPPDATA
+        $env:LOCALAPPDATA = Join-Path $fixture 'toolbox-local'
+        $script:runtimeDir = Join-Path $fixture 'toolbox-runtime'
+        New-Item -ItemType Directory -Path $script:runtimeDir -Force | Out-Null
+        $misePath = Join-Path $fixture 'mise.exe'; New-Item -ItemType File -Path $misePath -Force | Out-Null
+        $targetedInstalls = [Collections.Generic.List[string]]::new()
+        $clerkProbeCount = @{ Value = 0 }
+        function Get-SgProjectServiceNeeds { [pscustomobject]@{ AndroidNative=$false } }
+        function Resolve-SgTrustedMisePath { $misePath }
+        function Resolve-SgNpmVersion([string]$NpmPath,[string]$PackageName) {
+            return @{ 'firebase-tools'='15.28.1'; convex='1.45.0'; vercel='59.5.0'; clerk='3.2.0' }[$PackageName]
+        }
+        function Invoke-SgManagedTauriMise {
+            param([string]$MisePath,[string]$ToolchainRoot,[string[]]$Arguments,[int]$TimeoutSeconds,[switch]$Visible,[string]$OperationId,[string]$Label)
+            if ($Arguments[0] -eq 'latest') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output='2.115.0'} }
+            if ($Arguments.Count -eq 2) { [void]$targetedInstalls.Add($Arguments[1]) }
+            return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=''}
+        }
+        function Invoke-SgBoundedProcess([string]$File,[string[]]$Arguments,[int]$TimeoutSeconds) {
+            $name = [IO.Path]::GetFileNameWithoutExtension($File)
+            if ($name -eq 'clerk') {
+                $clerkProbeCount.Value++
+                if ($clerkProbeCount.Value -eq 1) { return [pscustomobject]@{TimedOut=$false;ExitCode=127;Output=''} }
+            }
+            $version = @{ firebase='15.28.1'; supabase='2.115.0'; convex='1.45.0'; vercel='59.5.0'; clerk='3.2.0' }[$name]
+            return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=$version}
+        }
+        function Move-SgAtomicReplace([string]$Source,[string]$Destination) { Move-Item -LiteralPath $Source -Destination $Destination -Force }
+        function Write-SgInstallerWarning([string]$Message) { }
+        try {
+            Invoke-Expression $serviceInstaller[0].Extent.Text
+            $result = Install-SgMachineToolbox $fixture '' 'npm.cmd' $true
+            return $result.Clerk -eq 'ready (3.2.0)' -and ($targetedInstalls -join '|') -eq 'npm:clerk@3.2.0' -and $clerkProbeCount.Value -eq 2
+        } finally {
+            $env:LOCALAPPDATA = $savedLocalAppData
+            Remove-Variable runtimeDir -Scope Script -ErrorAction SilentlyContinue
+        }
+    }
+    Assert-Sg $partialToolboxConverges 'A successful aggregate install with only Clerk missing must retry exactly npm:clerk@3.2.0 and become ready after re-probe.'
     Assert-Sg ($serviceInstallerSource -match 'FlutterFire is a Dart Pub tool' -and $serviceInstallerSource -match "pub','global','activate','flutterfire_cli") 'FlutterFire must remain a machine-scoped Dart Pub tool independent of project detection.'
     $playwrightInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgManagedPlaywrightRuntimes' },$true))
     Assert-Sg ($playwrightInstaller.Count -eq 1 -and $playwrightInstaller[0].Extent.Text -notmatch '@playwright/cli' -and $playwrightInstaller[0].Extent.Text -match "cli %\*") 'Playwright agent commands must use the CLI bundled with the validated Playwright package.'
