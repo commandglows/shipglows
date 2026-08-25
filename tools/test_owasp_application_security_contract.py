@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class OwaspApplicationSecurityContractTest(unittest.TestCase):
     def test_reference_tracks_owasp_2025_and_asvs_5(self):
-        text = (ROOT / "skills/references/owasp-application-security-awareness.md").read_text()
+        text = (ROOT / "skills/references/owasp-application-security-awareness.md").read_text(encoding="utf-8")
         for category in (
             "A01 Broken Access Control",
             "A02 Security Misconfiguration",
@@ -40,12 +40,12 @@ class OwaspApplicationSecurityContractTest(unittest.TestCase):
             with self.subTest(relative_path=relative_path):
                 self.assertIn(
                     "owasp-application-security-awareness.md",
-                    (ROOT / relative_path).read_text(),
+                    (ROOT / relative_path).read_text(encoding="utf-8"),
                 )
 
     def test_readiness_and_verification_require_a_gate(self):
-        readiness = (ROOT / "skills/101-sg-ready/references/readiness-review-playbook.md").read_text()
-        verification = (ROOT / "skills/103-sg-verify/SKILL.md").read_text()
+        readiness = (ROOT / "skills/101-sg-ready/references/readiness-review-playbook.md").read_text(encoding="utf-8")
+        verification = (ROOT / "skills/103-sg-verify/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("OWASP Security Gate", readiness)
         self.assertIn("OWASP Security Gate", verification)
 
