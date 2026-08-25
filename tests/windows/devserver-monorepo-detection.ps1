@@ -35,6 +35,16 @@ try {
         if (-not $environment -or $environment.Port -ne 0) { throw "Surface environment was not initialized: $($entry.path)" }
     }
 
+    [void](Write-SgProjectEnvironment $site 32123)
+    $registeredAgain = @(Register-SgProject $config $fixture)
+    $siteEntry = $registeredAgain | Where-Object { $_.path -eq $site } | Select-Object -First 1
+    if ($siteEntry.port -ne 32123) { throw 'Registration did not hydrate the durable surface port.' }
+    [void](Write-SgProjectEnvironment $frontend 32123)
+    $collisionRegistration = @(Register-SgProject $config $fixture)
+    $frontendEntry = $collisionRegistration | Where-Object { $_.path -eq $frontend } | Select-Object -First 1
+    if ($frontendEntry.port -ne 0) { throw 'Registration accepted a durable port already owned by another surface.' }
+    if ((Get-SgProjectEnvironment $frontend).Port -ne 0) { throw 'Registration did not reconcile the colliding durable port.' }
+
     $ambiguous = $false
     try { Get-SgProjectDescriptor $fixture | Out-Null } catch { $ambiguous = $_.Exception.Message -like 'Multiple runnable surfaces*' }
     if (-not $ambiguous) { throw 'A multi-surface root was not rejected by the single-surface API.' }

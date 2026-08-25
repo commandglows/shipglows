@@ -54,10 +54,17 @@ def _emit(value, stream=sys.stdout):
     stream.write("\n")
 
 
+def _semantic_exit(status: str, management: str) -> int:
+    if management == "unmanaged":
+        return 0
+    return 0 if status == "ready" else 4
+
+
 def main(argv=None) -> int:
     arguments = _parser().parse_args(argv)
     project = Path(arguments.project).expanduser().resolve()
     state_root = Path(arguments.state_root).expanduser().resolve() if arguments.state_root else default_state_root()
+    exit_code = 0
     try:
         if arguments.command == "inspect":
             desired = discover_project(project)
@@ -71,13 +78,17 @@ def main(argv=None) -> int:
                 }
             )
         elif arguments.command == "verify":
+            state = verify_project(project, state_root, offline=arguments.offline)
             result = {
                 "command": "verify",
-                "state": verify_project(project, state_root, offline=arguments.offline),
+                "state": state,
                 "mutated": True,
             }
+            exit_code = _semantic_exit(state["observed"]["status"], state["management"])
         elif arguments.command == "status":
-            result = redact({"command": "status", "state": status_project(project, state_root), "mutated": False})
+            state = status_project(project, state_root)
+            result = redact({"command": "status", "state": state, "mutated": False})
+            exit_code = _semantic_exit(state["status"], state.get("management", "unmanaged"))
         else:
             if not arguments.plan_digest:
                 raise ApplyRefused(
@@ -88,7 +99,7 @@ def main(argv=None) -> int:
             applied = apply_plan(plan, arguments.plan_digest)
             result = redact({"command": "apply", "result": applied, "mutated": applied["status"] == "applied"})
         _emit(result)
-        return 0
+        return exit_code
     except ApplyRefused as exc:
         _emit({"command": arguments.command, "status": "refused", "code": exc.code, "message": str(exc), "mutated": False})
         return 3

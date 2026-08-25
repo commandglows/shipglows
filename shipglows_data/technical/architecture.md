@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "1.14.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-08-16"
+updated: "2026-08-24"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -63,6 +63,10 @@ next_step: "/sg-docs audit shipglows_data/technical/architecture.md"
 ---
 
 # Architecture Context
+
+## Canonical Windows PowerShell runtime
+
+The Windows CLI has one execution engine: portable PowerShell 7.6.5 LTS win-x64 under `%USERPROFILE%\.shipglows\toolchains\powershell\7.6.5\win-x64`. Windows PowerShell 5.1 is a bootstrap boundary only. The bootstrap validates a pinned official archive by SHA-256, probes version/edition/architecture, records an atomic immutable-coordinate pointer, and launches the frontend with an absolute managed path. It never discovers `pwsh` through `PATH` and never changes the system PowerShell installation.
 
 ## System Shape
 

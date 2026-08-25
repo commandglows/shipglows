@@ -14,6 +14,22 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
+if ($PSVersionTable.PSEdition -ne 'Core') {
+    [Console]::Error.WriteLine('Run ShipGlows through s.cmd or shipglows-dev.cmd; direct Windows PowerShell execution is only a bootstrap surface.')
+    exit 70
+}
+$managedMarker = $env:SHIPGLOWS_MANAGED_PWSH
+$currentHost = [IO.Path]::GetFullPath((Get-Process -Id $PID).Path)
+if ([string]::IsNullOrWhiteSpace($managedMarker) -or [IO.Path]::GetFullPath($managedMarker) -ine $currentHost) {
+    [Console]::Error.WriteLine('ShipGlows refused an unmanaged PowerShell Core host. Use s.cmd or shipglows-dev.cmd.')
+    exit 70
+}
+$expectedManagedRoot = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.shipglows\toolchains\powershell\7.6.5\win-x64')).TrimEnd('\')
+if (-not $currentHost.StartsWith($expectedManagedRoot + '\',[StringComparison]::OrdinalIgnoreCase)) {
+    [Console]::Error.WriteLine('ShipGlows refused a PowerShell host outside its managed toolchain coordinate.')
+    exit 70
+}
+
 # Keep the environment control plane outside the DevServer bootstrap: its
 # read-only commands must not create the workspace, registry, or menu cache.
 if ($Action.Trim().ToLowerInvariant() -eq 'env') {
@@ -84,6 +100,26 @@ $script:authenticationModuleLoaded = $false
 $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
+
+function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]$Visible) {
+    $results = New-Object 'System.Collections.Generic.List[object]'
+    Start-SgProject $config $Path $RequestedPort -FlutterVisible:$Visible | ForEach-Object {
+        $item = $_
+        if ($null -ne $item -and $item.PSObject.Properties['status'] -and $item.PSObject.Properties['path'] -and $item.PSObject.Properties['lastError']) {
+            [void]$results.Add($item)
+        } else {
+            Write-Host ([string]$item)
+        }
+    }
+    if ($results.Count -ne 1) { throw 'Application startup did not return one structured result.' }
+    $result = $results[0]
+    if ($result.status -eq 'error') {
+        $reason = if ($result.lastError) { [string]$result.lastError } else { 'Application startup failed.' }
+        throw $reason
+    }
+    if ($result.status -ne 'running') { throw "Application startup returned unexpected status: $($result.status)" }
+    return $result
+}
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
     $namedActions = @('menu','dashboard','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','help','exit')
@@ -395,11 +431,8 @@ function Open-SgManagedProject([object]$Entry) {
 function Invoke-Navigate {
     $entry = Get-SelectedProject 'navigate'
     if (-not $entry) { return }
-    $shell = Join-Path $PSHOME 'powershell.exe'
-    if (-not (Test-Path -LiteralPath $shell -PathType Leaf)) {
-        $shell = Get-SgApplication 'pwsh.exe' @()
-    }
-    if (-not $shell) { throw 'No compatible PowerShell executable is available for project navigation.' }
+    $shell = $env:SHIPGLOWS_MANAGED_PWSH
+    if (-not (Test-Path -LiteralPath $shell -PathType Leaf)) { throw 'The managed PowerShell runtime is unavailable for project navigation.' }
 
     Write-SgInfo "Opening a child PowerShell shell in $($entry.path). Type exit to return."
     Push-Location -LiteralPath $entry.path
@@ -517,7 +550,7 @@ function Start-SgBackgroundCatalogRefresh {
     finally { if ($claim) { $claim.Dispose() } }
 
     $refresher = Join-Path $PSScriptRoot 'ShipGlows.ProjectCatalogRefresh.ps1'
-    $powershell = Join-Path $PSHOME 'powershell.exe'
+    $powershell = $env:SHIPGLOWS_MANAGED_PWSH
     if (-not (Test-Path -LiteralPath $refresher -PathType Leaf) -or $refresher -match '["\r\n]') {
         Remove-Item -LiteralPath $script:catalogRefreshPath -Force -ErrorAction SilentlyContinue
         $script:backgroundRefreshStarted = $false
@@ -584,12 +617,12 @@ function Invoke-Menu {
             switch ($choice) {
                 '1' { Invoke-Clone }
                 '2' { $path = Read-SgInput 'Project path' $config.Workspace; if ($path) { Register-SgProject $config $path | Out-Null } }
-                '3' { $entry = Get-SelectedProject 'start'; if ($entry) { Start-SgProject $config $entry.path $Port | Out-Null } }
-                '4' { $entry = Get-SelectedProject 'stop'; if ($entry) { Stop-SgProject $config $entry.path } }
-                '5' { $entry = Get-SelectedProject 'restart'; if ($entry) { Stop-SgProject $config $entry.path; Start-SgProject $config $entry.path $Port | Out-Null } }
+                '3' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
+                '4' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
+                '5' { $entry = Get-SelectedProject 'restart'; if ($entry) { [void](Stop-SgProject $config $entry.path); Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
                 '6' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
                 '7' { $entry = Get-SelectedProject 'open'; if ($entry) { Open-SgManagedProject $entry } }
-                '8' { foreach ($entry in @(Read-SgRegistry $config).projects) { Stop-SgProject $config $entry.path } }
+                '8' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
                 '9' { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } }
                 'n' { Invoke-Navigate }
                 'a' { Invoke-SgAuthenticationMenu }
@@ -612,21 +645,21 @@ try {
         'register' { Register-SgProject $config $ProjectPath | Out-Null }
         'unregister' { if ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
         'start' {
-            if ($ProjectPath) { Start-SgProject $config $ProjectPath $Port | Out-Null }
-            else { $entry = Get-SelectedProject 'start'; if ($entry) { Start-SgProject $config $entry.path $Port | Out-Null } }
+            if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
+            else { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
         }
-        'stop' { if ($ProjectPath) { Stop-SgProject $config $ProjectPath } else { $entry = Get-SelectedProject 'stop'; if ($entry) { Stop-SgProject $config $entry.path } } }
+        'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath) } else { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } } }
         'restart' {
-            if ($ProjectPath) { Stop-SgProject $config $ProjectPath; Start-SgProject $config $ProjectPath $Port | Out-Null }
-            else { $entry = Get-SelectedProject 'restart'; if ($entry) { Stop-SgProject $config $entry.path; Start-SgProject $config $entry.path $Port | Out-Null } }
+            if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath); Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
+            else { $entry = Get-SelectedProject 'restart'; if ($entry) { [void](Stop-SgProject $config $entry.path); Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
         }
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'logs' }; if ($entry) { Invoke-Logs $entry } }
         'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { Open-SgManagedProject $entry } }
-        'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { Stop-SgProject $config $entry.path } }
-        'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Start-SgProject $config $entry.path $Port | Out-Null } }
-        'select-stop' { $entry = Get-SelectedProject 'stop'; if ($entry) { Stop-SgProject $config $entry.path } }
+        'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
+        'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
+        'select-stop' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
         'select-unregister' { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } }
-        'select-restart' { $entry = Get-SelectedProject 'restart'; if ($entry) { Stop-SgProject $config $entry.path; Start-SgProject $config $entry.path $Port | Out-Null } }
+        'select-restart' { $entry = Get-SelectedProject 'restart'; if ($entry) { [void](Stop-SgProject $config $entry.path); Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
         'select-logs' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
         'navigate' { Invoke-Navigate }
         'auth' { Invoke-SgAuthenticationMenu }

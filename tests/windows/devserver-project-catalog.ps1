@@ -96,6 +96,27 @@ try {
     Assert-Sg (@(Get-SgProjectCatalog $config).Count -eq 3) 'Corrupt persistent cache was not ignored and rebuilt.'
 
     $index = Get-Content -LiteralPath $config.ProjectIndexPath -Raw | ConvertFrom-Json
+    $index.generatedAt = '24/08/2026 12:00:00'
+    $index | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $config.ProjectIndexPath -Encoding UTF8
+    Remove-Module ShipGlows.DevServer -Force
+    Import-Module $modulePath -Force -DisableNameChecking
+    Assert-Sg (@(Get-SgProjectCatalog $config).Count -eq 3) 'A locale-shaped timestamp was not rejected and self-repaired.'
+    $originalCulture = [Threading.Thread]::CurrentThread.CurrentCulture
+    $originalUiCulture = [Threading.Thread]::CurrentThread.CurrentUICulture
+    try {
+        $french = [Globalization.CultureInfo]::GetCultureInfo('fr-FR')
+        [Threading.Thread]::CurrentThread.CurrentCulture = $french
+        [Threading.Thread]::CurrentThread.CurrentUICulture = $french
+        Assert-Sg (@(Get-SgProjectCatalog $config -ForceRefresh).Count -eq 3) 'fr-FR project index round-trip failed.'
+        $frenchIndex = Get-Content -LiteralPath $config.ProjectIndexPath -Raw | ConvertFrom-Json
+        $frenchValid = & (Get-Module ShipGlows.DevServer) { param($Config,$Index) Test-SgProjectIndex $Config $Index } $config $frenchIndex
+        Assert-Sg $frenchValid 'fr-FR index could not validate its invariant timestamp.'
+    } finally {
+        [Threading.Thread]::CurrentThread.CurrentCulture = $originalCulture
+        [Threading.Thread]::CurrentThread.CurrentUICulture = $originalUiCulture
+    }
+
+    $index = Get-Content -LiteralPath $config.ProjectIndexPath -Raw | ConvertFrom-Json
     $index.workspace = Join-Path $fixture 'different-workspace'
     $index | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $config.ProjectIndexPath -Encoding UTF8
     Remove-Item -LiteralPath $gamma -Recurse -Force

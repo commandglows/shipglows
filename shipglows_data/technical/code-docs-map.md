@@ -70,6 +70,10 @@ next_step: "/300-sg-docs technical audit"
 
 # Code Docs Map
 
+| Code surface | Durable contract |
+|---|---|
+| `cli/windows/ShipGlows.PowerShellRuntime.*`, `ShipGlows.PowerShellBootstrap.ps1` | `architecture.md`, `runtime-cli.md`, `installer-and-user-scope.md`, `operator-guides/windows-devserver.md`, `workflow/specs/canonical-windows-powershell-runtime.md` |
+
 ## Purpose
 
 This is the canonical map from ShipGlows code paths to technical docs, validation checks, and documentation update triggers. The Reader uses it to produce a `Documentation Update Plan`; executors and integrators apply the resulting documentation updates.

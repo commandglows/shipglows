@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.6.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-19"
+updated: "2026-08-24"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -21,6 +21,13 @@ next_step: "/sg-docs update CONTEXT-FUNCTION-TREE.md"
 ---
 
 # Context / Arbre de Fonctions
+
+- Windows command (`s.cmd`, `shipglows-dev.cmd`)
+  - Windows PowerShell 5.1 bootstrap
+    - validate/reuse or securely acquire portable PowerShell 7.6.5
+    - set `SHIPGLOWS_MANAGED_PWSH` to the canonical absolute executable
+    - enter the DevServer frontend under PowerShell Core
+      - navigation, background catalog, Flutter supervisor and developer corpus reuse the same executable
 
 ## Purpose
 

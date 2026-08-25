@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.19.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-24"
@@ -35,11 +35,16 @@ evidence:
   - "The 2026-08-23 Flutter repair reconverges the managed SDK PATH on every validated rerun and separates Visual Studio C++ readiness from aggregate Flutter Windows build readiness."
   - "The 2026-08-23 stale-session repair lets the DevServer resolve a complete non-reparse ShipGlows-managed Flutter SDK even when its parent process predates the persistent PATH update."
   - "The 2026-08-24 Windows toolbox contract installs provider CLIs machine-wide while activating MCPs only in registered projects from project evidence, with generated agent files excluded locally from Git."
+  - "The 2026-08-24 CommunityGlows retest made npm argv, failed-start diagnostics, durable registration ports and inferred Tauri environment status deterministic."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
 
 # ShipGlows - Installation pour Windows
+
+## Runtime PowerShell
+
+Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. La commande utilise le runtime PowerShell 7.6.5 possede par ShipGlows sans modifier l'installation systeme. La premiere installation complete en ligne peut acquerir l'archive epinglee. Le mode offline ne fonctionne qu'apres validation locale du runtime; sinon, reconnectez la machine et relancez l'installateur complet. Un echec SHA, archive, sonde, verrou ou corruption conserve le pointeur actif precedent.
 
 ## 🎯 Options d'installation
 
@@ -171,6 +176,13 @@ ne sont pas requis par le parcours Shadow PC.
    reproductible du projet et délèguent les versions de Node/pnpm à `mise`;
    elles ne lancent jamais `pnpm install` automatiquement. `inspect`, `plan`,
    `verify` et `status` ne demandent aucune initialisation du DevServer.
+   Sans manifest ShipGlows explicite, Windows déduit aussi Node et pnpm depuis
+   `package.json`, puis Cargo et la cible Tauri depuis `src-tauri/Cargo.toml` ou
+   `@tauri-apps/cli`. Un manifest Flox limité à Linux est affiché comme
+   incompatible sous Windows. Aucun de ces contrôles n'installe Rust : Cargo et
+   Tauri restent bloqués avec l'action requise, et `verify`/`status` terminent
+   avec le code `4` tant qu'un projet détecté n'est pas prêt. Un dossier sans
+   source ni capacité gérée reste valide.
    Le menu interactif principal propose `n  Navigate to a project` : il permet
    de choisir un projet puis ouvre un PowerShell enfant dans son dossier
    (`exit` revient au shell initial).
@@ -224,8 +236,10 @@ et réconcilie les processus live en arrière-plan, puis adopte le résultat au
 prochain affichage. Le premier rendu n'attend donc pas WMI/CIM ; chaque action
 de cycle de vie revalide toujours son processus avant mutation. `Refresh` force un
 scan synchrone. Clone, register et unregister conservent l'index utilisable mais
-le marquent à rafraîchir. Un index corrompu, incompatible ou lié à un autre
-workspace est refusé et reconstruit avant usage. Le registre reste la seule
+le marquent à rafraîchir. Les dates sont écrites au format invariant round-trip,
+compatible PowerShell 5.1/Core et indépendant de la locale. Un index corrompu,
+incompatible ou lié à un autre workspace est refusé et reconstruit atomiquement
+avant usage. Le registre reste la seule
 autorité pour le statut live, le port, les journaux et l'identité du processus.
 
 Les commandes d'aide et de sortie évitent le chargement complet du DevServer.
@@ -243,6 +257,34 @@ que l'écriture du registre. Deux démarrages concurrents ne peuvent donc pas
 réserver le même port pour deux surfaces. La migration d'une ancienne entrée
 racine vers sa surface se fait par chemin exécutable et préserve les métadonnées
 d'un processus dont l'identité est encore vérifiée.
+
+Lors de l'enregistrement, un port valide déjà présent dans `ENVIRONMENT.md` est
+hydraté directement dans le registre s'il n'appartient à aucune autre surface ;
+une collision reste à `0` et le fichier durable est réconcilié. Pour npm, un
+`package-lock.json` ou `npm-shrinkwrap.json` sélectionne exactement `npm ci` et l'absence de lock
+`npm install`. L'installation ne s'exécute que si le digest des manifests/locks
+a changé, si le manager/les arguments diffèrent ou si les artefacts du framework
+et du gestionnaire manquent ; un état versionné par projet, verrouillé
+et remplacé atomiquement après succès seulement si les entrées sont restées
+stables pendant l'installation, est conservé sous le runtime DevServer.
+Le serveur est créé via WMI hors de l'arbre de handles du CLI :
+un appelant qui capture stdout/stderr reçoit donc EOF après la readiness, tandis
+que le serveur continue d'écrire dans ses logs durables. Avant de lancer l'enfant,
+le wrapper s'assigne à un Job Object Windows nommé avec `KILL_ON_JOB_CLOSE` ; un
+échec de création ou d'assignation bloque le lancement. Il reste vivant tant qu'un
+descendant du job existe, même si un parent Node court a utilisé detached/unref puis
+a quitté. Dans ce wrapper, un `Start-Process`
+attendant le serveur redirige nativement stdout/stderr : les logs restent lisibles
+sans encodage UTF-16/NUL et le wrapper reste propriétaire jusqu'au stop. Le token Flutter reste dans son
+fichier owner-only et n'est pas encodé dans la commande. Le wrapper et le lancement
+Flutter réutilisent exclusivement le PowerShell Core portable validé par ShipGlows,
+sans recherche dans `PATH`. Si un processus Astro
+ou Vite meurt avant d'être prêt, ShipGlows
+arrête l'attente immédiatement, conserve une fin de stderr bornée et expurgée,
+enregistre l'état `error` et renvoie un échec à la commande appelante. Stop termine
+le Job Object exact et ne publie `stopped` qu'après disparition prouvée de l'identité
+et du service ; sinon le registre reste inchangé et l'erreur est visible. Un stop
+déjà accompli reste idempotent et efface toute erreur live obsolète.
 
 Flutter Web démarre silencieusement dans un Chrome headless dédié et contrôlé
 par Flutter. Le registre ne passe à `running` qu'après les événements machine
