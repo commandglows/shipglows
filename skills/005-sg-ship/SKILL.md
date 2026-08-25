@@ -45,6 +45,8 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before Sh
 
 Quick mode is the default daily delivery path. It uses zero or one focused check when sufficient, stages, commits, pushes, and reports. It never updates `TASKS.md` or `CHANGELOG.md` and never claims formal closure.
 
+When the project adopts structured context history, load `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md` before final staging and append at most one significant delivery event inside the bounded ship scope. Public fields require bilingual public-safe copy and the reference's delivery-proof gate; ambiguous work stays internal. Because the event is staged with the work, a failed push cannot make it public.
+
 Full mode may update trackers, changelog, and durable decisions before the same Git ship sequence. Before it does so, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/full-close-playbook.md`; also load `closure-archive-guard.md`, `documentation-reflection-gate.md`, and `editorial-reflection-gate.md`. A material documentation or editorial gap prevents full-closure wording and routes to the matching owner.
 
 Before either mode mutates Git, load exactly one local reference: `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/ship-execution-playbook.md`. Full mode loads its full-close playbook only after the common pre-mutation gates pass.

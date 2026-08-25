@@ -70,6 +70,8 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
   - before closure classification in a Git-backed chantier; healthy state stays silent, while local-only or ambiguous delivery remains pending.
 - `$SHIPGLOWS_ROOT/skills/104-sg-end/references/closure-bookkeeping-playbook.md`
   - for closure steps and field-level bookkeeping.
+- `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md`
+  - when the project adopts structured history; append one significant closure, proof, invalidation, or next-action event and never record routine command chatter.
 - `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`
   - only when a reusable lesson is explicitly accepted.
 
@@ -91,7 +93,7 @@ Run closure in this order:
 
 1. select execution mode, then classify the result (`closed`, `partial`, `deferred`, `blocked`, `not applicable`),
 2. apply `closure-archive-guard.md`,
-3. run changelog/tracker preparation rules,
+3. run changelog/tracker preparation rules and append one immutable significant event when structured history is adopted,
 4. run documentation reflection and classify editorial impact independently; apply directly mapped updates before closure, expose both classifications, and route each `needs review` case to its owner. `No declared public surface` is a valid editorial no-impact reason,
 5. route a clean completed daily chantier directly to bounded shipping, otherwise emit the concrete delivery limit and next owner clearly.
 

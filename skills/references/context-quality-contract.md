@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-22"
+updated: "2026-08-25"
 status: active
 source_skill: 900-shipglows-core
 scope: context-quality-contract
@@ -22,6 +22,8 @@ linked_systems:
   - skills/references/reporting-agent-handoff.md
   - skills/references/conversation-continuity-contract.md
   - tools/test_context_quality_contract.py
+  - tools/context_history.py
+  - skills/references/context-history-and-head.md
 depends_on:
   - artifact: skills/references/intent-to-outcome-autonomy.md
     artifact_version: "1.3.0"
@@ -31,6 +33,7 @@ evidence:
   - "Operator decision 2026-08-22: context capsules resolve business, brand, product, outcome, surface, and work item rather than a software-only feature chain."
   - "Operator approval 2026-08-13: context quality is a shared lifecycle requirement and contextual MCP capabilities require a portable native fallback."
   - "Operator approval 2026-08-21: material context drift routes through the shared conversation-continuity and restart-handoff contract."
+  - "Operator approval 2026-08-25: a bounded worktree-local Context Head may accelerate resume when derived from immutable significant events and revalidated against canonical truth."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify context quality contract"
 ---
@@ -88,6 +91,8 @@ An unresolved target blocks dependent mutation. Do not call context ready merely
 ## Invalidation And Refresh
 
 Re-evaluate the capsule when relevant Git `HEAD`/branch or dirty state, spec/version/status, dependency/lockfile, environment/runtime, confirmed product decision, external source/version, or validation target changes. Revalidate only dependent claims and consumers; do not reload the whole repository. Preserve unaffected claims and their evidence.
+
+When the selected project adopts `skills/references/context-history-and-head.md`, check its worktree-local `CONTEXT_HEAD` before broader reconstruction. A fresh head is a bounded discovery projection, never canonical truth. A stale or missing head is regenerated only with applicable mutation authority; otherwise render the same bounded view without persistence or use the native targeted fallback. Branch, `HEAD`, worktree, staged, unstaged, and untracked fingerprint changes invalidate the cache mechanically.
 
 ## Lifecycle Application
 

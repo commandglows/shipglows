@@ -36,6 +36,9 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ## [2026-08-25]
 
+### Added
+- Added an immutable year/month/day context-event history, a bounded Git/worktree-aware `CONTEXT_HEAD` generator with stale detection, and a shared public changelog eligibility contract used by context, closure, shipping, and changelog skills.
+
 ### Security
 - Hardened the privileged Linux installer with checked temporary downloads, pinned Supabase and Flox releases, SHA256 or GPG verification before system writes, an explicit NodeSource apt configuration instead of `curl | bash`, the verified official GitHub CLI and Caddy repositories, and fail-closed `apt`/`dpkg` behavior.
 
