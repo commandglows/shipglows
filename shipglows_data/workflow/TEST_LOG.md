@@ -179,3 +179,15 @@
 - Bug pointer: BUG-2026-08-24-002 -> shipglows_data/workflow/bugs/BUG-2026-08-24-002.md
 - Evidence pointer: focused PS5.1 and PowerShell Core regressions plus complete Windows contract exit 0; no raw logs, credentials, or private payload retained
 - Follow-up: none
+
+## 2026-08-25 - OWASP application security contract test Windows UTF-8 retest
+
+- Scope: BUG-2026-08-25-001 / `tools.test_owasp_application_security_contract`
+- Environment: Windows, PowerShell, Python 3.14 through uv, default CP-1252 mode
+- Tester: Codex tooling
+- Source: sg-bug
+- Status: verified locally; delivery blocked by baseline
+- Result summary: Independent retest confirms all four contract-test `Path.read_text()` calls declare `encoding="utf-8"`; the module, bug metadata lint, and `git diff --check` pass without `-X utf8`. Delivery remains blocked by six independent pre-existing baseline failures (budgets, autonomy contracts, and the new skill).
+- Bug pointer: BUG-2026-08-25-001 -> `shipglows_data/workflow/bugs/BUG-2026-08-25-001.md`
+- Evidence pointer: focused module retest output and `git diff --check`
+- Follow-up: none; bug closed after local verification, pending baseline repair before delivery
