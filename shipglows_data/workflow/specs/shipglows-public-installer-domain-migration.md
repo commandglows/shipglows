@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.1"
+artifact_version: "1.1.2"
 project: "ShipGlows"
 created: "2026-08-09"
 created_at: "2026-08-09 15:50:00 UTC"
-updated: "2026-08-11"
-updated_at: "2026-08-11 19:30:00 UTC"
+updated: "2026-08-25"
+updated_at: "2026-08-25 19:54:54 UTC"
 status: reviewed
 source_skill: sg-development
 source_model: "GPT-5 Codex"
@@ -28,9 +28,10 @@ depends_on:
     required_status: draft
 supersedes: []
 evidence:
+  - "The 2026-08-25 parity repair resynchronized the public PowerShell bootstrap after its extraction manifest drifted behind the canonical Windows runtime payload; site main `942de2f` deployed successfully and the public shell and PowerShell response bytes match the canonical Git blobs."
   - "shipglows.com already serves the canonical ShipGlows site and redirects www to the apex domain."
-  - "The ShipGlows site currently returns 404 for /shipglows-script and /dotfiles-script while CommandGlows serves the live pages and scripts."
-  - "The ShipGlows site is Astro 6 static output without a Vercel adapter; query-driven PowerShell negotiation requires one on-demand route."
+  - "At the initial 2026-08-09 audit, the ShipGlows site returned 404 for /shipglows-script and /dotfiles-script while CommandGlows served the live pages and scripts."
+  - "At migration time, the ShipGlows site used Astro 6 static output without a Vercel adapter; query-driven PowerShell negotiation required one on-demand route."
   - "The canonical installers are /home/claude/shipglows/install-shipglows.sh and install-shipglows.ps1."
   - "Official Astro Vercel adapter documentation confirms static output can retain prerendered pages while prerender=false routes render on demand."
 next_step: "Monitor installer traffic and retire compatibility redirects only through a future explicit deprecation decision."
@@ -162,6 +163,7 @@ The batches have exclusive write scopes and may run in parallel locally. Product
 | 2026-08-09 15:50:00 UTC | sg-development + sg-content | GPT-5 Codex + 3 read-only agents | Audited both sites, active URLs, hosting mode, installer ownership, compatibility routes and dirty-worktree risks; created the ready migration contract with exclusive batches and ordered production activation. | ready | Implement batches A, B and C locally, then run the proof order. |
 | 2026-08-09 16:00:00 UTC | 001-sg-build | GPT-5 Codex | Implemented Batch B in the canonical ShipGlows repository: moved active installer authority to the apex ShipGlows domain, retargeted generated bootstrap synchronization, and aligned active public, technical, editorial and Windows-spec documentation while preserving dated history. | implemented; shell syntax, generated shell/PowerShell parity, Windows static contract, governance topology, metadata, active-URL scan and diff check pass | Integrate the validated Batch B with Batch A, then prove ShipGlows production before activating Batch C redirects. |
 | 2026-08-09 16:11:00 UTC | sg-development + sg-content | GPT-5 Codex + 6 agents | Integrated and shipped all three batches in ordered production deployments; verified canonical pages/endpoints, byte parity, direct permanent redirects, legacy aliases and complete query preservation. | complete; ShipGlows `c301f43` + site `9c22d61`, CommandGlows `cbaca5c`, Vercel production deployment `dpl_E2yRb8mCmBUiTu4eG6G8nvp6v5WQ` | Monitor compatibility traffic; no migration work remains. |
+| 2026-08-25 UTC | sg-bug + sg-content + sg-docs | Codex + 1 delegated agent | Reproduced the public PowerShell drift, refreshed the generated installers from the canonical core tool, added the 21-file regression and a read-only scheduled parity gate, then aligned mapped internal documentation. | complete; focused test 3/3, local parity, site build, PR 16 byte-parity CI, main deployment `942de2f`, public script bytes and four EN/FR routes pass | Monitor the scheduled parity gate; no repair work remains. |
 
 ## Current Chantier Flow
 
