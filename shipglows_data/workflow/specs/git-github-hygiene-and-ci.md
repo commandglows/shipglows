@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-25"
 created_at: "2026-08-25 17:01:25 UTC"
 updated: "2026-08-25"
-updated_at: "2026-08-25 18:31:00 UTC"
-status: ready
+updated_at: "2026-08-25 19:06:18 UTC"
+status: reviewed
 source_skill: sg-planning
 source_model: GPT-5 Codex
 scope: git-github-runtime-hygiene-and-ci
@@ -42,7 +42,9 @@ evidence:
   - "Integration 2026-08-25: PR 34 merged through merge commit 76550eb after its exact-head gate passed; the post-merge main gate also passed, and the canonical development runtime fast-forwarded to that result with 68/68 skill links valid."
   - "Integration 2026-08-25: PR 35 merged through merge commit 2a78f7b after its exact-head no-Windows-impact gate passed; its post-merge main gate passed and original draft PR 29 was closed as superseded without deleting its branch."
   - "Salvage 2026-08-25: d18e779 was reconciled on current main as f575916 and published in PR 36; the focused capability contract passes under Windows Git Bash while its POSIX permission assertion remains enforced on Linux."
-next_step: "Review PR 36 and its exact-head gate; merge and destructive cleanup remain separately approval-gated."
+  - "Integration 2026-08-25: PR 36 merged through merge commit 67c6688 after its exact-head required gate passed; the post-merge main gate passed and the canonical runtime synchronized with 68/68 skill links valid."
+  - "Cleanup 2026-08-25: six proven-integrated worktrees and local branches plus seven proven-integrated remote branches were removed under separate approval; main and the unrelated runtime modification remained byte-identical."
+next_step: "Retain and re-audit the three non-ancestry-proven artifacts after their recorded review date; resolve the unrelated runtime modification before claiming a fully clean canonical worktree."
 ---
 
 # Git, GitHub, runtime hygiene, and CI trust
@@ -212,18 +214,16 @@ None for spec authoring. The professional default is pull-request integration wi
 
 ## Current Artifact Disposition
 
-| Artifact | Current evidence | Disposition before cleanup approval |
+| Artifact | Current evidence | Terminal disposition |
 | --- | --- | --- |
-| `codex/development-runtime` worktree | Clean, no matching process, exact current `origin/main`, canonical developer root | Retain permanently |
-| PR 34 / `codex/git-github-hygiene-and-ci` | Merged as `76550eb`; exact-head and post-merge required gates passed | Integrated; branch/worktree become cleanup candidates |
-| PR 35 / `codex/compact-conversation-handoff-current` | Merged as `2a78f7b`; three replacement commits contained; exact-head and post-merge gates passed | Integrated; branch/worktree become cleanup candidates |
-| PR 29 / `codex/compact-conversation-handoff-contract` | Closed as superseded after equivalent PR 35 integration; original branch intact | Retain until cleanup approval |
-| `codex/windows-dev-skill-channel` / `d18e779` | Clean original with one unique commit, preserved unchanged | Retain until PR 36 integration is proven |
-| PR 36 / `codex/saas-capability-salvage` | Reconciled current-main commit `f575916`; focused CLI proof passed; original branch preserved | Retain; review and merge decision pending |
-| icon-system remote branch | Fully contained in main, zero unique commits | Cleanup candidate only after destructive approval |
-| Clerk, global-toolbox, and quality-repair branches/worktrees | Clean, no matching process, fully contained in main, merged PRs 33/30/32 | Cleanup candidates only after destructive approval |
-| local UTF-8 branch/worktree | Clean, no matching process; unique SHA but functional test change is identical to main commit `1bc0b88`, while main owns newer bug/test receipts | Content-superseded cleanup candidate only after destructive approval |
-| stale local `main` | Twelve commits behind and zero commits ahead | Fast-forward only after integration; never use as current source meanwhile |
+| `codex/development-runtime` worktree | Canonical developer root at merge commit `67c6688`; one unrelated operator-owned business-document modification is preserved with content hash `3e91b29e325237076dea7941e951b8b156ab2383` | Durable runtime; retain permanently and do not treat its unrelated modification as cleanup scope |
+| PRs 34, 35, and 36 task branches/worktrees | Exact heads are contained in refreshed `origin/main`; required PR and post-merge gates passed; every removed worktree was clean and unused immediately before deletion | `removed` under approved cleanup on 2026-08-25 |
+| Clerk, global-toolbox, and quality-repair task branches/worktrees | Refreshed local and remote tips were ancestors of `origin/main`; every worktree was clean and unused immediately before deletion | `removed` under approved cleanup on 2026-08-25 |
+| icon-system remote branch | Refreshed remote tip `706db26` was an ancestor of `origin/main` | `removed` under approved cleanup on 2026-08-25 |
+| PR 29 / `codex/compact-conversation-handoff-contract` | PR 29 is closed without merge; replacement PR 35 is merged, but the original exact head `e0e2fcb` is not an ancestor of `main` | `retained-explicit`; owner Diane; preserve because the strict integration proof is absent; review 2026-08-26 |
+| `codex/windows-dev-skill-channel` / `d18e779` | PR 36 carries the reconciled outcome, but the original exact tip is not an ancestor of `main`; Dart processes were still using its worktree during cleanup audit | `retained-explicit`; owner Diane; preserve until exact equivalence and process-release proof are terminal; review 2026-08-26 |
+| local UTF-8 branch/worktree / `26239a3` | Functional change is represented on `main`, but the exact tip is not an ancestor and no authoritative merged PR covers that source head | `retained-explicit`; owner Diane; preserve until exact replacement evidence is recorded; review 2026-08-26 |
+| local `main` | Zero commits ahead and fast-forwardable from `cb396a3`; never used as the canonical runtime source | Fast-forward after the closeout PR merges; no history rewrite |
 
 ## Skill Run History
 
@@ -235,12 +235,13 @@ None for spec authoring. The professional default is pull-request integration wi
 | 2026-08-25 | 102-sg-start | GPT-5 Codex | Published PR 34, proved successful and deliberately failing Windows runs at the same head, activated the protected-main ruleset, and published PR 35 as an exact current-main replay of PR 29. | in progress | Stop before merge; PR 34 must integrate before PR 35 can receive the required workflow, while d18e779 awaits explicit conflict reconciliation. |
 | 2026-08-25 | 102-sg-start | GPT-5 Codex | Classified every retained branch/worktree and hardened exact-SHA bootstrap proof after a transient anonymous API quota failure, without tokens or relaxed validation. | in progress | Publish and prove the hardening commit, then request exact merge authority for PR 34. |
 | 2026-08-25 | sg-release / sg-engineering | GPT-5 Codex | Merged PRs 34 and 35 only after exact-head gates, proved both post-merge main runs, synchronized the canonical runtime, closed superseded PR 29, and published reconciled d18e779 work as PR 36. | in progress | Review PR 36; retain every original and cleanup candidate until separate authority. |
+| 2026-08-25 | sg-engineering / sg-docs | GPT-5 Codex | Merged PR 36 after exact-head proof, verified the post-merge main gate, synchronized 68/68 skill links, and removed only the separately approved ancestry-proven cleanup batch. | reviewed | Deliver this closeout through the protected pull-request path, then retain the three non-proven artifacts for dedicated review. |
 
 ## Current Chantier Flow
 
 - specification: ready
 - readiness: ready
-- implementation: in progress
-- verification: in progress (runtime, CI, ruleset, and PR 29 replacement proven; integration-dependent checks remain)
-- closure: pending
-- delivery: pending
+- implementation: complete
+- verification: complete for runtime convergence, CI/ruleset enforcement, salvage integration, and the approved cleanup batch
+- closure: reviewed with three explicit retained artifacts and one unrelated operator-owned runtime modification
+- delivery: complete when this closeout is read from `main`; the protected closeout PR is the delivery vehicle
