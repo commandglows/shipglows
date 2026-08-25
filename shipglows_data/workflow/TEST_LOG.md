@@ -191,3 +191,16 @@
 - Bug pointer: BUG-2026-08-25-001 -> `shipglows_data/workflow/bugs/BUG-2026-08-25-001.md`
 - Evidence pointer: focused module retest output and `git diff --check`
 - Follow-up: none; bug closed after local verification, pending baseline repair before delivery
+
+## 2026-08-25 - Global contract baseline after Windows UTF-8 repair
+
+- Scope: autonomy hierarchy, activation budgets, `603-sg-private` accounting, and BUG-2026-08-25-001
+- Environment: Windows, PowerShell, Python 3.14 through uv, default encoding mode
+- Tester: Codex tooling
+- Source: sg-engineering
+- Status: pass
+- Confidence: high
+- Result summary: The six independent baseline regressions were repaired without raising thresholds; 78 focused tests and the complete 812-test suite pass with 4 intentional skips.
+- Bug pointer: BUG-2026-08-25-001 -> `shipglows_data/workflow/bugs/BUG-2026-08-25-001.md`
+- Evidence pointer: activation baselines `010=4729` and `103=4851`, valid 15/53 graph, metadata lint, strict skill budget, execution-fidelity audit, and `git diff --check`
+- Follow-up: commit locally; push remains outside the approved scope

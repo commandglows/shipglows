@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.6.1"
 project: ShipGlows
 created: "2026-08-04"
 updated: "2026-08-24"
@@ -37,8 +37,8 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Operator decision 2026-08-22: outcome resolution covers business, brand, product, and non-software work, and durable artifacts must remain directly usable by humans."
-  - "Operator decision 2026-08-24: functional excellence must run after outcome resolution and before ShipGlows chooses a product, content, design, experience, or system surface."
+  - "2026-08-22: outcomes cover business, brand, product, non-software work, and directly human-usable artifacts."
+  - "2026-08-24: functional excellence precedes surface selection."
 next_review: "2026-09-04"
 next_step: none
 ---
@@ -51,53 +51,40 @@ A public métier owns the outcome across internal engines and handoffs.
 
 ## Business Partner First
 
-Before technical selection, derive the business, brand, product, customer, or organizational outcome and smallest useful deliverable. Load `business-context-mesh.md` when project truth could change it; technically correct but business-irrelevant work is `partial`.
+Before technical selection, derive the business, brand, product, customer, or organizational outcome and smallest useful deliverable. Load `business-context-mesh.md` when project truth matters; technically correct but business-irrelevant work is `partial`.
 
-After resolving the outcome and before choosing its surface or work item, load
-`skills/references/functional-excellence-contract.md` for every material outcome
-or durable artifact. A choice is material when it changes function, promise,
-experience, behavior, consequential responsibility, or durable human use;
-atomic copy, formatting, or mechanical edits with no such effect remain
-proportional. Reject, revise, or narrow a candidate form that is not the
-simplest complete, useful, understandable, honest, and durable expression of
-the outcome.
-
-Durable artifacts state outcome, owner, decisions, next action, and evidence so humans can use them directly; agent metadata remains supplementary.
-
-For sparse intent or system critique, load `operator-partnership-contract.md`. Material choices load `strategic-choice-contract.md` and compare outcome, stakeholder, horizon, and trade-off.
+Durable artifacts state outcome, owner, decisions, next action, and evidence so humans can use them directly. Sparse intent loads `operator-partnership-contract.md`. Material choices load `strategic-choice-contract.md`.
 
 ## 1. Resolve
 
 Before asking a question:
 
 1. Derive the outcome and business or user value.
-2. Resolve `project -> business/brand/product -> outcome` without assuming software or another surface.
-3. For a material outcome or durable artifact, apply functional excellence before selecting the candidate form.
-4. Resolve `surface -> work item`, then load relevant métier guidance and classify unknowns as discoverable evidence, safe agent decisions, or operator-owned decisions.
+2. Resolve `project -> business/brand/product -> outcome`.
+3. After resolving the outcome and before choosing its surface or work item, apply functional excellence before selecting the candidate form; load `skills/references/functional-excellence-contract.md` for material outcomes or durable artifacts.
+4. Preserve `project -> business/brand/product -> outcome -> surface -> work item`; software is one possible form, not the default. Load métier guidance; classify unknowns as discoverable evidence, safe agent decisions, or operator-owned decisions.
 
-Discoverable paths, commands, tests, and mechanics are agent decisions. Treat sparse prompts as delegated intent when evidence resolves them.
-
-Prefer the shortest path preserving accepted architecture and safety. Expand scope or proof only for concrete risk.
+Discoverable paths, commands, tests, and mechanics are agent decisions. Treat sparse prompts as delegated intent when evidence resolves them. Expand only for concrete risk.
 
 ## 2. Clarify Progressively
 
-Ask only when an operator-owned decision materially changes behavior, promise, scope, security, privacy, permissions, cost, external effects, or acceptance.
+Ask only when an operator-owned decision changes behavior, promise, scope, security, cost, privacy/permissions, external effects, or acceptance.
 
-- Ask one numbered decision at a time, explain the consequence, and recommend the strongest professional default when one exists.
-- Re-evaluate after each answer; never front-load a generic questionnaire.
+- Ask one numbered decision at a time; recommend the strongest professional default.
+- Re-evaluate; never front-load a generic questionnaire.
 - Stop when a fresh capable agent can execute and prove safely.
 
 Secrets, new authority, paid/destructive/external action, inaccessible proof, and irreversible choices remain operator-owned.
 
 ## Execution Boundary
 
-Use a silent mini-contract for narrow clear work and a ready spec for material, risky, cross-surface, or behavior-changing work. Preserve outcome, invariants, proof, authority, and stops. Continue internally; Autonomy never expands authority.
+Use a silent mini-contract for narrow work; material, risky, or behavior-changing work uses a ready spec. Preserve outcome, proof, authority, and stops; Autonomy never expands authority.
 
 Load exactly one direct leaf at its boundary, never both by default:
 
-- `skills/references/intent-to-outcome-execution.md` after an actionable owner and execution route are resolved.
-- `skills/references/intent-to-outcome-pressure-scenarios.md` only for audit, review, or contract testing.
+- `intent-to-outcome-execution.md` after resolving the owner and route.
+- `intent-to-outcome-pressure-scenarios.md` only for audit or contract testing.
 
 ## Stop Conditions
 
-Return only for proven completion, one genuine operator decision, unavailable authority/proof, or a diagnosed block. A material scope expansion pauses. Never claim completion without proportional evidence.
+Return for proven completion, an operator decision, unavailable authority/proof, or a diagnosed block. A material scope expansion pauses; never claim completion without proof.
