@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.5.1"
 project: ShipGlows
 created: "2026-08-25"
 created_at: "2026-08-25 17:01:25 UTC"
 updated: "2026-08-25"
-updated_at: "2026-08-25 19:06:18 UTC"
+updated_at: "2026-08-25 19:46:49 UTC"
 status: reviewed
 source_skill: sg-planning
 source_model: GPT-5 Codex
@@ -44,6 +44,7 @@ evidence:
   - "Salvage 2026-08-25: d18e779 was reconciled on current main as f575916 and published in PR 36; the focused capability contract passes under Windows Git Bash while its POSIX permission assertion remains enforced on Linux."
   - "Integration 2026-08-25: PR 36 merged through merge commit 67c6688 after its exact-head required gate passed; the post-merge main gate passed and the canonical runtime synchronized with 68/68 skill links valid."
   - "Cleanup 2026-08-25: six proven-integrated worktrees and local branches plus seven proven-integrated remote branches were removed under separate approval; main and the unrelated runtime modification remained byte-identical."
+  - "Current-state correction 2026-08-25: at the parity-audit baseline, the canonical development runtime and local main were both at `0ea38c2` (full SHA `0ea38c297c02e6d85095a4444f9619345c131922`); prior audit and integration receipts remain historical evidence."
 next_step: "Retain and re-audit the three non-ancestry-proven artifacts after their recorded review date; resolve the unrelated runtime modification before claiming a fully clean canonical worktree."
 ---
 
@@ -216,14 +217,14 @@ None for spec authoring. The professional default is pull-request integration wi
 
 | Artifact | Current evidence | Terminal disposition |
 | --- | --- | --- |
-| `codex/development-runtime` worktree | Canonical developer root at merge commit `67c6688`; one unrelated operator-owned business-document modification is preserved with content hash `3e91b29e325237076dea7941e951b8b156ab2383` | Durable runtime; retain permanently and do not treat its unrelated modification as cleanup scope |
+| `codex/development-runtime` worktree | At the parity-audit baseline, the canonical developer root was at `0ea38c297c02e6d85095a4444f9619345c131922`; one unrelated operator-owned business-document modification remains preserved in the source worktree | Durable runtime; retain permanently, fast-forward only to refreshed `origin/main`, and do not treat its unrelated modification as cleanup scope |
 | PRs 34, 35, and 36 task branches/worktrees | Exact heads are contained in refreshed `origin/main`; required PR and post-merge gates passed; every removed worktree was clean and unused immediately before deletion | `removed` under approved cleanup on 2026-08-25 |
 | Clerk, global-toolbox, and quality-repair task branches/worktrees | Refreshed local and remote tips were ancestors of `origin/main`; every worktree was clean and unused immediately before deletion | `removed` under approved cleanup on 2026-08-25 |
 | icon-system remote branch | Refreshed remote tip `706db26` was an ancestor of `origin/main` | `removed` under approved cleanup on 2026-08-25 |
 | PR 29 / `codex/compact-conversation-handoff-contract` | PR 29 is closed without merge; replacement PR 35 is merged, but the original exact head `e0e2fcb` is not an ancestor of `main` | `retained-explicit`; owner Diane; preserve because the strict integration proof is absent; review 2026-08-26 |
 | `codex/windows-dev-skill-channel` / `d18e779` | PR 36 carries the reconciled outcome, but the original exact tip is not an ancestor of `main`; Dart processes were still using its worktree during cleanup audit | `retained-explicit`; owner Diane; preserve until exact equivalence and process-release proof are terminal; review 2026-08-26 |
 | local UTF-8 branch/worktree / `26239a3` | Functional change is represented on `main`, but the exact tip is not an ancestor and no authoritative merged PR covers that source head | `retained-explicit`; owner Diane; preserve until exact replacement evidence is recorded; review 2026-08-26 |
-| local `main` | Zero commits ahead and fast-forwardable from `cb396a3`; never used as the canonical runtime source | Fast-forward after the closeout PR merges; no history rewrite |
+| local `main` | At the parity-audit baseline, `0ea38c297c02e6d85095a4444f9619345c131922` was aligned with `origin/main`; later approved merges require an ordinary fast-forward | Preserve history; no force, reset, rebase, or rewrite |
 
 ## Skill Run History
 
