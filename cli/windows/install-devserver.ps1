@@ -1661,14 +1661,18 @@ function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [st
             }
             $installed = Invoke-SgManagedTauriMise $mise $root @('install') 1800 -Visible -OperationId 'tool.machine-toolbox' -Label 'Installing the ShipGlows machine CLI toolbox'
             $toolboxInstalled = -not $installed.TimedOut -and $installed.ExitCode -eq 0
-            if (-not $toolboxInstalled) { Write-SgInstallerWarning "Machine CLI toolbox installation failed or timed out (exit=$($installed.ExitCode)). Stable commands were not exposed." }
+            if (-not $toolboxInstalled) { Write-SgInstallerWarning "Machine CLI toolbox installation failed or timed out (exit=$($installed.ExitCode)); each CLI will be converged independently." }
             foreach ($item in $plan) {
                 $wrapper = Join-Path $runtimeDir "$($item.Command).cmd"
                 $content = Get-SgMachineToolboxWrapperContent -MisePath $mise -ToolboxRoot $root -Command $item.Command
-                if ($toolboxInstalled -and (-not (Test-Path -LiteralPath $wrapper -PathType Leaf) -or [IO.File]::ReadAllText($wrapper) -cne $content)) { [IO.File]::WriteAllText($wrapper,$content,[Text.Encoding]::ASCII) }
-                $verify = if($toolboxInstalled -and (Test-Path -LiteralPath $wrapper -PathType Leaf)){Invoke-SgBoundedProcess $wrapper @('--version') 60}else{$null}
+                if (-not (Test-Path -LiteralPath $wrapper -PathType Leaf) -or [IO.File]::ReadAllText($wrapper) -cne $content) { [IO.File]::WriteAllText($wrapper,$content,[Text.Encoding]::ASCII) }
+                $verify = Invoke-SgBoundedProcess $wrapper @('--version') 60
+                if (-not (Test-SgServiceCliResult $null $verify $wrapper $item.Version)) {
+                    $repair = Invoke-SgManagedTauriMise $mise $root @('install',"$($item.Tool)@$($item.Version)") 900 -Visible -OperationId ("tool.machine-toolbox." + $item.Name) -Label ("Installing the exact $($item.Name) machine CLI")
+                    $verify = Invoke-SgBoundedProcess $wrapper @('--version') 60
+                } else { $repair = $null }
                 $property = $item.Name.Substring(0,1).ToUpperInvariant() + $item.Name.Substring(1)
-                $ready = $toolboxInstalled -and (Test-SgServiceCliResult $installed $verify $wrapper $item.Version)
+                $ready = Test-SgServiceCliResult $repair $verify $wrapper $item.Version
                 $states[$property] = if($ready){"ready ($($item.Version))"}else{"pending ($($item.Version))"}
                 if (-not $ready) { Write-SgInstallerWarning "$($item.Name) machine CLI executable verification failed." }
             }
