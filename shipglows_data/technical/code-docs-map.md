@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "3.18.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-17"
+updated: "2026-08-24"
 status: reviewed
 source_skill: 102-sg-start
 scope: code-docs-map
@@ -67,6 +67,10 @@ next_step: "/300-sg-docs technical audit"
 ---
 
 # Code Docs Map
+
+| Code surface | Durable contract |
+|---|---|
+| `cli/windows/ShipGlows.PowerShellRuntime.*`, `ShipGlows.PowerShellBootstrap.ps1` | `architecture.md`, `runtime-cli.md`, `installer-and-user-scope.md`, `operator-guides/windows-devserver.md`, `workflow/specs/canonical-windows-powershell-runtime.md` |
 
 ## Purpose
 

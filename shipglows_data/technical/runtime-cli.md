@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.20.0"
+artifact_version: "1.21.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-24"
@@ -82,11 +82,18 @@ evidence:
   - "Native Windows installed agent instructions now expose two-tier mutation approval with a cumulative fast path and full-plan-only remote push."
   - "Native Windows installed agent instructions now require direct-plus-deferred tool discovery before declaring a configured capability unavailable."
   - "Native Windows project discovery now uses one cached linear catalogue shared by every dashboard and picker, while the registry remains authoritative for live state."
+  - "CommunityGlows regression 2026-08-24: Windows infers Node, pnpm, Cargo and Tauri from native manifests, reports Linux-only Flox explicitly, and returns semantic non-ready exit codes."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit runtime-cli"
 ---
 
 # Runtime CLI
+
+## Windows host contract
+
+`s.cmd` and `shipglows-dev.cmd` invoke Windows PowerShell 5.1 only to run `ShipGlows.PowerShellBootstrap.ps1`. Normal CLI logic then runs exclusively under ShipGlows-managed PowerShell 7.6.5 Core x64. Direct Desktop execution and an unmanaged PowerShell Core process are refused. `SHIPGLOWS_MANAGED_PWSH` contains the exact absolute executable reused by child PowerShell work; the `PATH` is not consulted for `pwsh`.
+
+`-Offline` is a strict no-network mode: it reuses a valid managed runtime and fails actionably when the coordinate is absent or corrupt. The portable runtime is private to `.shipglows` and does not replace Windows PowerShell or add PowerShell 7 to the user/system `PATH`.
 
 ## Purpose
 
@@ -107,7 +114,7 @@ sg env status [--project PATH]
 sg env apply [--project PATH] [--plan-digest DIGEST]
 ```
 
-The native PowerShell source entrypoint accepts the equivalent form `s env <command> -ProjectPath PATH -PlanDigest DIGEST`. It dispatches before DevServer initialization, so inspection does not create a workspace, registry, setup marker, or menu cache. The Unix entrypoint likewise dispatches before legacy prerequisite checks.
+The managed PowerShell frontend accepts the equivalent form `s env <command> -ProjectPath PATH -PlanDigest DIGEST`. On Windows it is reachable only through the installed bootstrap and managed Core runtime; source tests may exercise the Python control plane directly but that is not proof of the installed `s env` adapter. Live adapter proof is required after runtime installation. The frontend dispatches before DevServer initialization, so inspection does not create a workspace, registry, setup marker, or menu cache. The Unix entrypoint likewise dispatches before legacy prerequisite checks.
 
 - `inspect` validates and normalizes sources, then resolves PATH presence only for the fixed trusted probe registry. It launches no tool process, performs no network or state write, and disables Python bytecode generation for the source CLI path. Unknown repository capability names remain `unknown` and are never resolved or executed.
 - `plan` returns stable operation ordering and a SHA-256 digest over source, platform, architecture, ownership and declared effects. Outside the exact pilot it marks every operation non-executable. For an explicit Windows Node 24 plus pnpm 10/mise contract it performs bounded read-only backend/version observations through the structured runner, distinguishes the official `jdx.mise` acquisition from project-tool installation, and never combines acquisition with tool installation in one approval.
@@ -116,6 +123,8 @@ The native PowerShell source entrypoint accepts the equivalent form `s env <comm
 - `apply` requires an explicit `--plan-digest`; omission or any digest/source/config/lock/backend drift exits with code `3` before mutation. The exact Windows pilot reconstructs only `winget install --id jdx.mise --exact --source winget --disable-interactivity`, `mise --locked install node`, or `mise --locked install pnpm` from adapter semantics. Acquisition is a separate plan and conservatively declares network, download, consent and possible privilege effects. It sets process-local `MISE_SAFE=1`, removes inherited `MISE_*` controls from the child, disables hooks/config environments/all auto-install modes/system-dependency installation, selects only `mise.toml`, fences discovery at the project parent, isolates global/system config, preserves `PATH`, and never executes `pnpm install`, persisted argv, or repository task/hook/template strings. A zero-byte WinGet App Execution Alias is never hashed as executable proof: ShipGlows resolves and binds the registered Desktop App Installer package binary instead. All other capabilities/backends exit `no_active_backend`.
 
 `shipglows.environment.json` is strict JSON using schema ID `shipglows.environment/v1`: duplicate keys, non-finite numbers, unknown fields, unsupported majors, control-character paths, escaping references and symlink escapes fail closed. JSON inputs are capped at 1 MiB, runtime-policy input at 64 KiB, referenced source hashing at 8 MiB and persisted state reads at 4 MiB. `.shipglows.env` remains separate. In addition to `SHIPGLOWS_ENV_PORT` and `SHIPGLOWS_AUTO_REPAIR`, native Windows Flutter accepts the bounded `SHIPGLOWS_FLUTTER_DEVICE=chrome|web-server` and `SHIPGLOWS_DART_DEFINE_FILE=<project-relative-path>` policies.
+
+Without an explicit ShipGlows manifest, Windows also infers Node and pnpm constraints from `package.json#engines.node` and `package.json#packageManager`. A detected `src-tauri/Cargo.toml` or `@tauri-apps/cli` adds Cargo and Tauri requirements; they remain blocked with Rust setup guidance until their toolchain is observable, and no install is started by inspect, plan, verify, or status. A native `.flox/env/manifest.toml` is retained as source evidence but reported incompatible on Windows instead of becoming a capability owner. `verify` and `status` return code `4` for an inferred or explicit project whose observed state is not `ready`; a genuinely unmanaged project remains a valid zero-exit inspection target.
 
 The pilot requires root `mise.toml` to contain only `[tools] node = "24"` and `pnpm = "10"`, rejects alternate local/early mise configuration, and requires `mise.lock` to pin one exact `core:node` entry and one exact `aqua:pnpm/pnpm` entry. Each Windows artifact URL must match the exact version, architecture and official Node or pnpm release authority/path, with a checksum value in the supported format. If `package.json#packageManager` exists, it must equal `pnpm@<exact locked version>`; its absence remains valid because the ShipGlows manifest and mise lock already declare ownership. Injected fixtures remain synthetic; the approved Best Fried Chicken smoke additionally acquired mise 2026.8.2 and converged Node 24.19.0 plus pnpm 10.34.5 from their locked official release coordinates without installing application dependencies. `--offline` maps to `MISE_OFFLINE=1`: already installed exact mise-managed tools are ready, while any missing install blocks because mise documents downloaded archives as an unsupported offline cache and recommends retaining the installs directory. Existing global Node, pnpm and persistent `PATH` remain outside this owner. A `mise.exe` or `winget.exe` resolved from inside the repository or outside the adapter's canonical package-manager roots is never invoked; executable path and SHA-256 identity are approval-bound and revalidated before apply runner use.
 
@@ -132,7 +141,7 @@ The native Windows full-install contract packages the closed `cli/environment` P
 | `cli/shipglows_devserver_gum.sh`, `cli/shipglows_devserver_bash.sh` | Menu frontends that render the root menu and grouped submenus | Keep frontend behavior equivalent; update both variants together |
 | `cli/windows/install-devserver.ps1`, `cli/windows/shipglows-devserver.ps1` | Native Windows dependency bootstrap and DevServer frontend | Install the pinned checksum-verified Gum binary into the user runtime, prefer it for interactive choices, and preserve the plain PowerShell fallback |
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
-| `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Keep PowerShell 5.1-compatible; never evaluate project input as code |
+| `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Execute only in managed PowerShell 7 Core; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
 | `cli/windows/install-devserver.ps1`, `cli/windows/ShipGlows.McpCatalog.json` | Installs the Windows launcher, machine CLI toolbox, and selectively activated MCP definitions | Install Node LTS, pnpm, uv, Flutter, trusted mise, Google Cloud CLI, exact provider CLIs and the Android path idempotently; isolate machine/project/Tauri mise configs; preserve explicit Android license/UAC confirmations and user-owned authentication |
 | `CONTEXT-FUNCTION-TREE.md` | Navigation aid for large shell files | Update when major functions or flows move |
@@ -235,6 +244,10 @@ such as `package.json`, `pubspec.yaml`, `pyproject.toml`, and
 effect on Windows dependencies, variables, launch commands, ports, or project
 identity.
 
+Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A versioned per-project state below the DevServer runtime records an invariant digest of relevant manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
+
+Managed Windows servers are created through `Win32_Process.Create`, outside the one-shot CLI process handle tree, so a caller capturing stdout/stderr receives EOF after readiness. Before launching a child, the WMI wrapper creates a named Windows Job Object with `KILL_ON_JOB_CLOSE`, assigns itself, and fails closed if either operation fails; Node, Astro, Python, Flutter and their descendants therefore share a durable termination boundary. After its direct command exits, the wrapper remains alive while another job member exists, including a Node child created with detached spawn and `unref`. Detached and Flutter wrappers use only the exact absolute `SHIPGLOWS_MANAGED_PWSH` executable already validated by the bootstrap; they never accept `powershell.exe`, discover `pwsh.exe` through `PATH`, or fall back to System32. The registry stores the wrapper PID, command-line fragment and Job Object identity. Readiness requires both verified wrapper identity and the service probe. Stop terminates the exact job (or the verified legacy tree), then marks `stopped` only after both process identity and the assigned listener have disappeared; unproved extinction preserves the live registry state and returns an error. The Flutter supervisor token is read by that wrapper from its existing owner-only token file and is never embedded in the encoded command.
+
 All Windows menus consume the same catalogue produced by one linear workspace
 scan. The discovery index is cached in memory and atomically at
 `%LOCALAPPDATA%\ShipGlows\DevServer\project-index.json` with its schema,
@@ -246,8 +259,10 @@ uses the last registry snapshot without waiting on WMI/CIM; lifecycle actions
 still revalidate the selected process before mutation. Explicit refresh remains
 synchronous. Clone/register/unregister retain
 the last usable index and mark it stale instead of forcing a blocking rescan.
-Invalid schema, scanner, workspace, timestamp, or JSON still fails closed and
-triggers a synchronous rebuild because its identities cannot be trusted. Registry
+Generation timestamps are invariant round-trip `DateTimeOffset` values under
+Windows PowerShell 5.1 and managed PowerShell Core, regardless of active locale.
+Invalid schema, scanner, workspace, timestamp, or JSON fails closed and triggers
+an atomic synchronous rebuild because its identities cannot be trusted. Registry
 entries win when discovery and runtime state overlap, so the registry remains
 the authority for status, ports, logs, and process identity.
 

@@ -41,6 +41,8 @@ try {
     Assert-Contains $bootstrapText "'cli\\environment'" 'Windows bootstrap does not target runtime\cli\environment.'
     Assert-Contains $installerText "cli\\environment\\shipglows_environment\.py" 'Native installer does not validate the packaged environment command.'
     Assert-Contains $installerText "cli\\environment\\schemas\\shipglows-environment-v1\.schema\.json" 'Native installer does not validate the packaged environment schema.'
+    Assert-Contains $installerText 'ShipGlows\.PowerShellBootstrap\.ps1' 'Native command wrappers do not route through the managed PowerShell bootstrap.'
+    Assert-Contains ([IO.File]::ReadAllText($entrypoint)) "PSEdition -ne 'Core'" 'The installed frontend source does not refuse direct Desktop execution.'
 
     Invoke-Expression (Import-NamedFunction $installer 'Assert-SgEnvironmentPythonPackage')
     $pythonCommand = Get-Command python.exe -ErrorAction Stop
@@ -51,7 +53,7 @@ try {
     $archiveWindows = Join-Path $archiveSource 'cli\windows'
     $archiveEnvironment = Join-Path $archiveSource 'cli\environment'
     New-Item -ItemType Directory -Path $archiveWindows,(Join-Path $archiveEnvironment 'schemas') -Force | Out-Null
-    foreach ($windowsFile in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','shipglows-devserver.ps1','install-devserver.ps1')) {
+    foreach ($windowsFile in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows-devserver.ps1','install-devserver.ps1')) {
         Copy-Item -LiteralPath (Join-Path $root "cli\windows\$windowsFile") -Destination (Join-Path $archiveWindows $windowsFile)
     }
     foreach ($pythonFile in @('__init__.py','core.py','mise_backend.py','shipglows_environment.py')) {
@@ -64,7 +66,7 @@ try {
     $extract = Join-Path $tempRoot 'archive-extract'
     New-Item -ItemType Directory -Path $extract | Out-Null
     $entries = @(Extract-ShipglowsWindowsFiles -ArchivePath $archive -DestinationPath $extract -FullMode $true)
-    if ($entries.Count -ne 18) { throw "Installer extracted $($entries.Count) files instead of the closed set of 18." }
+    if ($entries.Count -ne 21) { throw "Installer extracted $($entries.Count) files instead of the closed set of 21." }
     if (-not ($entries -match 'ShipGlows\.DeveloperCorpus\.psm1$')) { throw 'Installer did not extract the developer corpus channel module.' }
     if (-not (Test-Path -LiteralPath (Join-Path $extract 'shipglows-test\cli\environment\schemas\shipglows-environment-v1.schema.json') -PathType Leaf)) { throw 'Installer did not extract the environment schema.' }
 
@@ -95,7 +97,8 @@ try {
     $env:SHIPGLOWS_WINDOWS_WORKSPACE = $workspace
     $env:LOCALAPPDATA = $localAppData
     try {
-        $output = & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File (Join-Path $bin 'shipglows-devserver.ps1') env inspect -ProjectPath $project 2>&1
+        $python = (Get-Command python.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+        $output = & $python (Join-Path $environmentDestination 'shipglows_environment.py') inspect --project $project 2>&1
         if ($LASTEXITCODE -ne 0) { throw "Installed runtime inspect failed: $($output -join [Environment]::NewLine)" }
         $result = ($output -join [Environment]::NewLine) | ConvertFrom-Json
         if ($result.command -ne 'inspect' -or $result.desired.project.root -ne [IO.Path]::GetFullPath($project) -or $result.desired.management -ne 'unmanaged') { throw 'Installed runtime returned an unexpected inspect result.' }
@@ -108,7 +111,7 @@ try {
         $env:LOCALAPPDATA = $previousLocalAppData
     }
 
-    Write-Host 'Windows installed environment runtime: OK' -ForegroundColor Green
+    Write-Host 'Windows packaged environment control plane: OK (installed s env adapter requires post-install live proof)' -ForegroundColor Green
 } finally {
     if (Test-Path -LiteralPath $tempRoot) { Remove-Item -LiteralPath $tempRoot -Recurse -Force }
 }

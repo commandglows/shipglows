@@ -9,6 +9,22 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
+if ($PSVersionTable.PSEdition -ne 'Core') {
+    $runtimeModule = Join-Path $PSScriptRoot 'ShipGlows.PowerShellRuntime.psm1'
+    if (-not (Test-Path -LiteralPath $runtimeModule -PathType Leaf)) { throw 'Managed PowerShell bootstrap module is missing from the Windows installer payload.' }
+    Import-Module $runtimeModule -Force -DisableNameChecking
+    $managedPowerShell = Resolve-SgManagedPowerShell
+    $env:SHIPGLOWS_MANAGED_PWSH = [IO.Path]::GetFullPath($managedPowerShell)
+    $reentryArguments = @('-NoLogo','-NoProfile','-File',$PSCommandPath,'-ShipglowsDir',$ShipglowsDir,'-Workspace',$Workspace)
+    if ($SkipProfile) { $reentryArguments += '-SkipProfile' }
+    if ($ReplaceAgentConfigs) { $reentryArguments += '-ReplaceAgentConfigs' }
+    & $managedPowerShell @reentryArguments
+    exit $LASTEXITCODE
+}
+if (-not $env:SHIPGLOWS_MANAGED_PWSH -or [IO.Path]::GetFullPath($env:SHIPGLOWS_MANAGED_PWSH) -ine [IO.Path]::GetFullPath((Get-Process -Id $PID).Path)) {
+    throw 'The Windows installer refused an unmanaged PowerShell Core host.'
+}
+
 $sourceDir = Join-Path $ShipglowsDir 'cli\windows'
 $runtimeDir = Join-Path $ShipglowsDir 'bin'
 $environmentCli = Join-Path $ShipglowsDir 'cli\environment\shipglows_environment.py'
@@ -87,7 +103,7 @@ function Write-SgInstallerWarning([string]$Message) {
 }
 
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
-foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.McpCatalog.json')) {
+foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.McpCatalog.json','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1')) {
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
@@ -242,7 +258,7 @@ function global:gp {
 function Install-SgCommandWrappers {
     $wrapper = @'
 @echo off
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0shipglows-devserver.ps1" %*
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.PowerShellBootstrap.ps1" %*
 '@
     $longCommand = Join-Path $runtimeDir 'shipglows-dev.cmd'
     Set-Content -LiteralPath $longCommand -Value $wrapper -Encoding ASCII
@@ -1691,6 +1707,8 @@ function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath
 
 Remove-SgLegacyRuntime
 Remove-SgObsoleteProfileCommand
+Import-Module (Join-Path $runtimeDir 'ShipGlows.PowerShellRuntime.psm1') -Force -DisableNameChecking
+$env:SHIPGLOWS_MANAGED_PWSH = Resolve-SgManagedPowerShell
 Install-SgCommandWrappers
 [void](Install-SgGum)
 $programFiles = [Environment]::GetFolderPath('ProgramFiles')
@@ -1835,8 +1853,8 @@ if($playwrightRuntime.AgentCliPath){[void](Install-SgApplicationCommandWrapper '
 [void](Install-SgAgentShortcut 'oc' 'opencode')
 $kiloShortcutTarget = if (Test-SgToolRuns 'kilo.cmd' $kiloPaths) { 'kilo' } else { 'kilocode' }
 [void](Install-SgAgentShortcut 'kc' $kiloShortcutTarget)
-[void](Install-SgShellShortcut 're' 'powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass')
-[void](Install-SgShellShortcut 'ch' 'powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass -Command "Clear-History; try { $historyPath = (Get-PSReadLineOption).HistorySavePath; if ($historyPath -and (Test-Path -LiteralPath $historyPath)) { Remove-Item -LiteralPath $historyPath -Force } } catch { }; Clear-Host"')
+[void](Install-SgShellShortcut 're' ('"{0}" -NoLogo -NoProfile -NoExit' -f $env:SHIPGLOWS_MANAGED_PWSH))
+[void](Install-SgShellShortcut 'ch' ('"{0}" -NoLogo -NoProfile -NoExit -Command "Clear-History; try {{ $historyPath = (Get-PSReadLineOption).HistorySavePath; if ($historyPath -and (Test-Path -LiteralPath $historyPath)) {{ Remove-Item -LiteralPath $historyPath -Force }} }} catch {{ }}; Clear-Host"' -f $env:SHIPGLOWS_MANAGED_PWSH))
 [void](Install-SgShellShortcut 'n' 'nvim %*')
 [void](Install-SgShellShortcut 'gpush' 'git push %*')
 [void](Install-SgGitPushProfileShortcut)

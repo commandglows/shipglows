@@ -6,6 +6,7 @@ Import-Module $modulePath -Force -DisableNameChecking
 try {
     $module = Get-Module ShipGlows.DevServer
     & $module {
+        function Resolve-SgPowerShellExecutable { 'C:\fixture\pwsh.exe' }
         $fallbackRoot = Join-Path ([IO.Path]::GetTempPath()) ("sg-managed-flutter-{0}" -f [guid]::NewGuid().ToString('N'))
         $previousLocalAppData = $env:LOCALAPPDATA
         try {
@@ -80,7 +81,7 @@ try {
         try{Protect-SgOwnerOnlyPath $ipcRoot;Protect-SgOwnerOnlyPath (Join-Path $ipcRoot 'commands');Protect-SgOwnerOnlyPath (Join-Path $ipcRoot 'responses');$tokenPath=Join-Path $ipcRoot 'token';[IO.File]::WriteAllText($tokenPath,('a'*64));Protect-SgOwnerOnlyPath $tokenPath;$ipcEntry=[pscustomobject]@{flutterLaunchDirectory=$ipcRoot;flutterTokenPath=$tokenPath};try{[void](Invoke-SgFlutterSupervisorCommand $ipcEntry reload 0);throw 'IPC timeout was accepted.'}catch{if($_.Exception.Message -eq 'IPC timeout was accepted.'){throw}};if(@(Get-ChildItem (Join-Path $ipcRoot 'commands') -File).Count-ne0){throw 'Timed-out IPC command file was left published.'}}finally{Remove-Item -LiteralPath $ipcRoot -Recurse -Force -ErrorAction SilentlyContinue}
     }
     $source = Get-Content -LiteralPath $modulePath -Raw
-    if ($source -notmatch [regex]::Escape('-RedirectStandardOutput $out -RedirectStandardError $err -PassThru -WindowStyle Hidden')) { throw 'Managed launches must redirect logs and hide the process window.' }
+    foreach($expected in @('Invoke-CimMethod -ClassName Win32_Process -MethodName Create','-RedirectStandardOutput','-RedirectStandardError','-PassThru -Wait -WindowStyle Hidden','ShowWindow=[uint16]0')){if(-not$source.Contains($expected)){throw 'Managed detached launches must redirect logs and hide the process window.'}}
     $supervisorSource = Get-Content -LiteralPath (Join-Path (Split-Path $modulePath) 'ShipGlows.FlutterSupervisor.ps1') -Raw
     foreach ($expected in @("'run','--machine','-d'",'--web-run-headless','--web-hostname','--web-port','--dart-define-from-file=','app.restart')) { if (-not $supervisorSource.Contains($expected)) { throw "Flutter supervisor launch contract is missing: $expected" } }
     Write-Host 'Windows DevServer Flutter background launch: OK'

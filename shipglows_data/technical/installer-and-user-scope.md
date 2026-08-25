@@ -73,6 +73,10 @@ next_step: "/sg-docs technical audit installer"
 
 # Installer And User Scope
 
+## Portable PowerShell ownership
+
+The full Windows installer owns `%USERPROFILE%\.shipglows\toolchains\powershell`; it acquires only the pinned PowerShell 7.6.5 win-x64 archive from the fixed official GitHub release URL and activates it only after SHA-256 and runtime probes pass. Acquisition is per-user, portable, lock-protected, staged, and rollback-safe. It does not use MSI, WinGet, the registry, or a `PATH` entry for `pwsh`. `DownloadOnly` validates and packages the module, manifest and bootstrap but does not acquire or activate the toolchain.
+
 For native Windows installer development and agent handoff, follow
 `skills/references/windows-bootstrap-development-workflow.md`. It defines the
 canonical clone/runtime/project layout and the branch-to-bootstrap validation

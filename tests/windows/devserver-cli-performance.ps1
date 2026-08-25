@@ -58,6 +58,11 @@ try {
     if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }
 }
 
+if ($PSVersionTable.PSEdition -ne 'Core') {
+    Write-Host 'Windows CLI Core-host performance timing: skipped under bootstrap-only Windows PowerShell.'
+    return
+}
+
 & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command 'exit 0'
 & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $entrypoint h *> $null
 if ($LASTEXITCODE -ne 0) { throw 'The help fast-path warm-up failed.' }

@@ -112,6 +112,8 @@ SAFE_TOOL_PROBES = {
     "git": ("git",),
     "mise": ("mise",),
     "flox": ("flox",),
+    "pnpm": ("pnpm",),
+    "cargo": ("cargo",),
 }
 
 
@@ -575,9 +577,66 @@ def discover_project(project_root: Path) -> Dict[str, Any]:
     for kind, relative in NATIVE_SOURCES:
         candidate = resolve_project_reference(root, str(relative))
         if candidate.is_file():
-            sources.append(
-                {"kind": kind, "role": "native_manifest", "path": str(candidate), "explicit": False, "precedence": 50, "exists": True, "sha256": _sha256_file(candidate)}
-            )
+            source = {"kind": kind, "role": "native_manifest", "path": str(candidate), "explicit": False, "precedence": 50, "exists": True, "sha256": _sha256_file(candidate)}
+            if kind == "flox" and current_platform() == "windows":
+                source.update(
+                    {
+                        "compatibility": "incompatible",
+                        "reason": "Flox native manifests target Linux and cannot own Windows capability setup",
+                    }
+                )
+            sources.append(source)
+
+    package_path = resolve_project_reference(root, "package.json")
+    if package_path.is_file():
+        sources.append(
+            {"kind": "npm", "role": "native_manifest", "path": str(package_path), "explicit": False, "precedence": 50, "exists": True, "sha256": _sha256_file(package_path)}
+        )
+        try:
+            package = load_json_strict(package_path, MAX_SOURCE_BYTES, "package.json")
+        except ContractError:
+            package = None
+        if isinstance(package, dict) and management != "explicit":
+            inferred_tools = manifest["capabilities"]["tools"]
+            known_tool_ids = {item["id"] for item in inferred_tools}
+            node_constraint = package.get("engines", {}).get("node") if isinstance(package.get("engines"), dict) else None
+            if isinstance(node_constraint, str) and node_constraint.strip() and "node" not in known_tool_ids:
+                inferred_tools.append({"id": "node", "constraint": node_constraint.strip()})
+                known_tool_ids.add("node")
+            package_manager = package.get("packageManager")
+            if isinstance(package_manager, str):
+                manager_match = re.fullmatch(r"pnpm@([^\s]+)", package_manager.strip())
+                if manager_match and "pnpm" not in known_tool_ids:
+                    inferred_tools.append({"id": "pnpm", "constraint": manager_match.group(1)})
+                    known_tool_ids.add("pnpm")
+
+            dependencies = {}
+            for field in ("dependencies", "devDependencies"):
+                if isinstance(package.get(field), dict):
+                    dependencies.update(package[field])
+            tauri_detected = "@tauri-apps/cli" in dependencies
+        else:
+            tauri_detected = False
+    else:
+        tauri_detected = False
+
+    cargo_path = resolve_project_reference(root, "src-tauri/Cargo.toml")
+    if cargo_path.is_file():
+        sources.append(
+            {"kind": "cargo", "role": "native_manifest", "path": str(cargo_path), "explicit": False, "precedence": 50, "exists": True, "sha256": _sha256_file(cargo_path)}
+        )
+        if management != "explicit":
+            tauri_detected = True
+    if tauri_detected and management != "explicit":
+        tools = manifest["capabilities"]["tools"]
+        if not any(item["id"] == "cargo" for item in tools):
+            tools.append({"id": "cargo"})
+        targets = manifest["capabilities"]["targets"]
+        if not any(item["id"] == "tauri" for item in targets):
+            targets.append({"id": "tauri"})
+
+    for group in CAPABILITY_GROUPS:
+        manifest["capabilities"][group].sort(key=lambda item: item["id"])
     if management == "unmanaged" and sources:
         management = "inferred"
     sources.sort(key=lambda item: (-item["precedence"], item["kind"], item["path"], item["role"]))
@@ -820,16 +879,24 @@ def build_plan(
             for capability in capabilities[group]:
                 applicable = not capability.get("platforms") or platform_value in capability["platforms"]
                 ownership_conflict = applicable and len(references) > 1
+                missing_tauri_toolchain = applicable and (
+                    (group == "tools" and capability["id"] == "cargo")
+                    or (group == "targets" and capability["id"] == "tauri")
+                )
                 operations.append(
                     {
                         "capability": {"kind": group[:-1], **capability},
                         "owner": references[0] if len(references) == 1 else None,
                         "references": references,
-                        "status": "blocked" if ownership_conflict else ("pending" if applicable else "not_applicable"),
+                        "status": "blocked" if ownership_conflict or missing_tauri_toolchain else ("pending" if applicable else "not_applicable"),
                         "executable": False,
                         "reason": (
                             "multiple backend references exist and no explicit capability owner is selected"
                             if ownership_conflict
+                            else "Rust and Cargo are required for the detected Tauri project; install a supported Rust toolchain, then rerun verify"
+                            if missing_tauri_toolchain and group == "tools"
+                            else "Tauri cannot be ready until its Cargo capability is ready"
+                            if missing_tauri_toolchain and group == "targets"
                             else "backend adapters are not active outside the bounded Windows mise pilot"
                             if applicable
                             else f"capability does not apply to {platform_value}"
@@ -1061,7 +1128,8 @@ def verify_project(
 def status_project(project_root: Path, state_root: Optional[Path] = None, max_age_seconds: int = 3600) -> Dict[str, Any]:
     state = read_project_state(project_root, state_root)
     if state is None:
-        return {"schema": STATE_SCHEMA, "project": project_identity(project_root), "status": "unknown", "reason": "verify has not recorded evidence"}
+        desired = discover_project(project_root)
+        return {"schema": STATE_SCHEMA, "project": desired["project"], "management": desired["management"], "status": "unknown", "reason": "verify has not recorded evidence"}
     status = state.get("observed", {}).get("status", "unknown")
     try:
         observed_at = datetime.fromisoformat(str(state["observed_at"]).replace("Z", "+00:00"))

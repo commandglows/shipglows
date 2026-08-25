@@ -36,6 +36,7 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/win
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/auth-playwright.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/bootstrap-ref-resolution.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/install-surface-contract.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/powershell-runtime.ps1"
 for regression in \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
@@ -47,8 +48,10 @@ for regression in \
   devserver-flutter-supervisor.ps1 \
   devserver-flutter-stop.ps1 \
   devserver-metadata-sync.ps1 \
+  devserver-dependency-setup.ps1 \
   devserver-project-catalog.ps1 \
   github-clone-filter.ps1 \
+  devserver-start-detach.ps1 \
   devserver-start-state.ps1 \
   devserver-stop-behavior.ps1; do
   powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/$regression"
@@ -79,7 +82,7 @@ rg -n 'raw\.githubusercontent\.com/commandglows/shipglows/main/install-shipglows
 rg -n "'select-start'|'select-stop'|'select-restart'|'select-logs'" "$ENTRYPOINT"
 rg -n "'unregister'|'select-unregister'|'m w' = 'select-unregister'|files are preserved" "$ENTRYPOINT"
 rg -n "Unknown Windows shortcut path:.*Run 's h'|exit 2" "$ENTRYPOINT"
-rg -n 'Push-Location -LiteralPath \$entry\.path|NoProfile -ExecutionPolicy Bypass -NoExit|Type exit to return' "$ENTRYPOINT"
+rg -n 'Push-Location -LiteralPath \$entry\.path|SHIPGLOWS_MANAGED_PWSH|NoProfile -ExecutionPolicy Bypass -NoExit|Type exit to return' "$ENTRYPOINT"
 ! rg -n 'Invoke-Expression|-Command.*Set-Location' "$ENTRYPOINT"
 rg -n "Install-SgWingetPackage 'git\.exe' 'Git\.Git'|Install-SgWingetPackage 'gh\.exe' 'GitHub\.cli'" "$INSTALLER"
 rg -n "Install-SgWingetPackage 'fzf\.exe' 'junegunn\.fzf'|@\('gum','fzf','git','gh','node','npm','pnpm','uv','flutter'\)" "$INSTALLER"
@@ -140,7 +143,7 @@ rg -n 'Preparing coding-agent CLIs and MCPs|Test-SgToolRuns.*codex|Test-SgToolRu
 rg -n '@google/gemini-cli|Get-SgGeminiMcpAddArguments|Get-SgGeminiMcpConfigState|Gemini.*MCP readiness|[.]gemini\\GEMINI[.]md' "$INSTALLER" "$MOBILE_MODULE" "$AGENT_INSTRUCTIONS_MODULE"
 rg -n "'auth'|s a.*Manage CLI authentication|Authentication" "$ENTRYPOINT"
 rg -n 'Get-SgAuthenticationDefinitions|Get-SgAuthenticationState|interactive-cli|project-required' "$AUTH_MODULE"
-rg -F -n "foreach (\$launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.McpCatalog.json'))" "$INSTALLER"
+rg -F -n "foreach (\$launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.McpCatalog.json','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1'))" "$INSTALLER"
 rg -F -n '# cmd-shim-target=$target' "$INSTALLER"
 rg -n 'Install-SgManagedPlaywrightRuntimes|playwright-cli|Motion runtime ready|Playwright Chromium revision' "$INSTALLER" "$AUTH_MODULE"
 ! rg -n 'gemini.*(auth|login)|GEMINI_API_KEY|GOOGLE_API_KEY' "$INSTALLER" "$MOBILE_MODULE"
@@ -179,7 +182,7 @@ rg -n "Disable-SgBlockedPowerShellShim '(npm|npx|corepack|pnpm|codex|claude|open
 last_wrapper_line="$(rg -n "Install-SgApplicationCommandWrapper 'gemini'" "$INSTALLER" | tail -1 | cut -d: -f1)"
 runtime_priority_line="$(rg -n '^Add-SgRuntimeToUserPath\r?$' "$INSTALLER" | tail -1 | cut -d: -f1)"
 test -n "$last_wrapper_line" && test -n "$runtime_priority_line" && test "$last_wrapper_line" -lt "$runtime_priority_line"
-rg -n 'ExecutionPolicy Bypass -File "%~dp0shipglows-devserver\.ps1" %\*' "$INSTALLER"
+rg -n 'ExecutionPolicy Bypass -File "%~dp0ShipGlows\.PowerShellBootstrap\.ps1" %\*' "$INSTALLER"
 rg -n 'Remove-SgObsoleteProfileCommand|Removed the obsolete ShipGlows profile command|ShipGlows DevServer \(managed\)' "$INSTALLER"
 ! rg -n 'function shipglows-dev \{ & ' "$INSTALLER"
 rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh auth setup-git|gh api --paginate.*user/repos.*organization_member|gh repo clone \$repository\.url \$temporaryDestination' "$ENTRYPOINT"
@@ -208,11 +211,11 @@ test -n "$legacy_cleanup_line" && test -n "$wrapper_install_line" && test "$lega
 rg -n "USERPROFILE 'ShipGlows'" "$INSTALLER" "$MODULE"
 ! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
 rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, 3, or 0\.' \}" "$BOOTSTRAP"
-for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.FlutterSupervisor\.ps1' 'ShipGlows\.ProjectCatalogRefresh\.ps1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.McpCatalog\.json' 'ShipGlows\.InstallerEngine\.psm1' 'ShipGlows\.InstallerConsole\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'ShipGlows\.DeveloperCorpus\.psm1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
+for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.FlutterSupervisor\.ps1' 'ShipGlows\.ProjectCatalogRefresh\.ps1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.McpCatalog\.json' 'ShipGlows\.InstallerEngine\.psm1' 'ShipGlows\.InstallerConsole\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'ShipGlows\.DeveloperCorpus\.psm1' 'ShipGlows\.PowerShellRuntime\.psm1' 'ShipGlows\.PowerShellRuntime\.json' 'ShipGlows\.PowerShellBootstrap\.ps1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
 done
-rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
-rg -n '\$entries\.Count -ne 18' "$BOOTSTRAP"
+rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|shipglows-devserver\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
+rg -n '\$entries\.Count -ne 21' "$BOOTSTRAP"
 rg -n 'InstallSurface.*corpus|SHIPGLOWS_INSTALL_COMPONENTS|Install-SgDeveloperCheckout|Enable-SgWindowsDeveloperChannel' "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
 rg -n '\$environmentCandidates = @\(|Assert-EnvironmentPackage|cli/environment/.*shipglows_environment' "$BOOTSTRAP"

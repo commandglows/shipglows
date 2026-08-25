@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "version": "7.6.5",
+  "edition": "Core",
+  "architecture": "x64",
+  "platform": "win-x64",
+  "archiveUrl": "https://github.com/PowerShell/PowerShell/releases/download/v7.6.5/PowerShell-7.6.5-win-x64.zip",
+  "sha256": "32EB8F6CDCE08F86E987D625A2733E54AC3E289AE7E1621B14C0B5BCEC2434EA",
+  "maxEntries": 4096,
+  "maxExpandedBytes": 536870912
+}
