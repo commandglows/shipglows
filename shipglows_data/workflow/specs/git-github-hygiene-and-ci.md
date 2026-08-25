@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-25"
 created_at: "2026-08-25 17:01:25 UTC"
 updated: "2026-08-25"
-updated_at: "2026-08-25 18:12:00 UTC"
+updated_at: "2026-08-25 18:18:00 UTC"
 status: ready
 source_skill: sg-planning
 source_model: GPT-5 Codex
@@ -38,6 +38,7 @@ evidence:
   - "Implementation 2026-08-25: main ruleset 20563834 now requires pull requests and the exact ShipGlows required gate while preserving deletion/non-fast-forward protection and a pull-request-only administrator recovery path."
   - "Salvage 2026-08-25: PR 35 preserves PR 29's three patches on current main and passes 20 context-quality tests plus metadata lint; its required gate cannot start until PR 34 places the workflow on main."
   - "Salvage 2026-08-25: d18e779 remains preserved on its original branch; clean replay onto current main stops on two technical-document conflicts and no manual resolution was attempted."
+  - "CI hardening 2026-08-25: a transient anonymous GitHub API 403 on exact-head archive proof exposed a redundant SHA lookup; strict complete SHAs now bypass only that lookup, and the complete local Windows contract passes."
 next_step: "Review the proven PR 34 integration gate, then resume dependent PR 35 validation and explicitly approve any semantic reconciliation of d18e779."
 ---
 
@@ -206,6 +207,21 @@ OWASP Security Gate: applicable areas are A01 Broken Access Control, A02 Securit
 
 None for spec authoring. The professional default is pull-request integration with one required automated gate and zero mandatory additional reviewers for a sole maintainer. Provider mutations, publication, integration, and destructive cleanup remain separately approval-gated at execution time.
 
+## Current Artifact Disposition
+
+| Artifact | Current evidence | Disposition before cleanup approval |
+| --- | --- | --- |
+| `codex/development-runtime` worktree | Clean, no matching process, exact current `origin/main`, canonical developer root | Retain permanently |
+| PR 34 / `codex/git-github-hygiene-and-ci` | Clean, published, exact-head required gate passed before final SHA-lookup hardening | Retain; merge decision pending |
+| PR 35 / `codex/compact-conversation-handoff-current` | Clean, published, three PR 29 patches preserved, focused proof passed | Retain; validate after PR 34 integration |
+| PR 29 / `codex/compact-conversation-handoff-contract` | Original draft and three unique commits intact | Retain until replacement is merged and contained |
+| `codex/windows-dev-skill-channel` / `d18e779` | Clean original, one unique commit, two documentation conflicts on current main | Retain; semantic reconciliation requires explicit authority |
+| `codex/saas-capability-salvage` worktree | Clean, no matching process, reset to current main after aborted conflict | Retain as isolated reconciliation target |
+| icon-system remote branch | Fully contained in main, zero unique commits | Cleanup candidate only after destructive approval |
+| Clerk, global-toolbox, and quality-repair branches/worktrees | Clean, no matching process, fully contained in main, merged PRs 33/30/32 | Cleanup candidates only after destructive approval |
+| local UTF-8 branch/worktree | Clean, no matching process; unique SHA but functional test change is identical to main commit `1bc0b88`, while main owns newer bug/test receipts | Content-superseded cleanup candidate only after destructive approval |
+| stale local `main` | Twelve commits behind and zero commits ahead | Fast-forward only after integration; never use as current source meanwhile |
+
 ## Skill Run History
 
 | Date UTC | Skill | Model | Action | Result | Next step |
@@ -214,6 +230,7 @@ None for spec authoring. The professional default is pull-request integration wi
 | 2026-08-25 | 101-sg-ready | GPT-5 Codex | Reviewed user-story fit, execution autonomy, proof, linked consequences, stale-state handling, GitHub governance, and scoped OWASP risks against current local and remote evidence. | ready | Start staged implementation under explicit mutation authority. |
 | 2026-08-25 | 102-sg-start | GPT-5 Codex | Converged the Windows user developer root and all 68 Codex skill links, then implemented the stable path-aware repository gate and its focused regression contract. | in progress | Publish the CI milestone and prove the exact check on a real pull request before changing repository rules. |
 | 2026-08-25 | 102-sg-start | GPT-5 Codex | Published PR 34, proved successful and deliberately failing Windows runs at the same head, activated the protected-main ruleset, and published PR 35 as an exact current-main replay of PR 29. | in progress | Stop before merge; PR 34 must integrate before PR 35 can receive the required workflow, while d18e779 awaits explicit conflict reconciliation. |
+| 2026-08-25 | 102-sg-start | GPT-5 Codex | Classified every retained branch/worktree and hardened exact-SHA bootstrap proof after a transient anonymous API quota failure, without tokens or relaxed validation. | in progress | Publish and prove the hardening commit, then request exact merge authority for PR 34. |
 
 ## Current Chantier Flow
 

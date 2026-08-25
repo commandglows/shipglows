@@ -33,6 +33,12 @@ try {
     if ($resolved.Commit -cne $mergeSha) { throw 'Bootstrap did not preserve the canonical merge commit SHA.' }
     if ($resolved.ArchiveUrl -cne "https://github.com/commandglows/shipglows/archive/$mergeSha.zip") { throw 'Bootstrap archive is not pinned to the canonical merge commit SHA.' }
 
+    Set-Content -LiteralPath $fakeCurl -Encoding ASCII -Value @('@echo off', 'exit /b 97')
+    $uppercaseSha = $mergeSha.ToUpperInvariant()
+    $resolvedSha = Resolve-GitHubSource -RepositoryUrl 'https://github.com/commandglows/shipglows.git' -Ref $uppercaseSha -CurlPath $fakeCurl
+    if ($resolvedSha.Commit -cne $mergeSha) { throw 'Bootstrap did not normalize a complete commit SHA without an API lookup.' }
+    if ($resolvedSha.ArchiveUrl -cne "https://github.com/commandglows/shipglows/archive/$mergeSha.zip") { throw 'Direct SHA archive is not pinned to the normalized commit.' }
+
     Set-Content -LiteralPath $fakeCurl -Encoding ASCII -Value @('@echo off', '@echo {"sha":"not-a-commit"}')
     $rejected = $false
     try {
