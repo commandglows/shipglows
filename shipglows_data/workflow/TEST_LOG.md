@@ -228,3 +228,15 @@
 - Result summary: The unique capability-snapshot work was reapplied to current main with only document-version reconciliation. The focused cloud-preview catalogue contract passes, including closed capability IDs/states, redaction boundaries, zero/one/many fixtures, byte limits, and preservation of the last valid snapshot. POSIX `0600` remains asserted on Unix-like filesystems and is skipped only on MSYS/MINGW/Cygwin where NTFS does not expose chmod semantics. The neighboring startup-cache test fails identically on clean main at its emoji picker assertion and is not caused by this change.
 - Evidence pointer: PR 36 commit `f575916`; focused Bash syntax/contract output; metadata lint; `git diff --check`
 - Follow-up: review PR 36 and run its exact-head required gate; Linux permission proof remains represented by the retained Unix assertion
+
+## 2026-08-25 - Git, GitHub, runtime, and CI hygiene closeout
+
+- Scope: `git-github-hygiene-and-ci.md`; PRs 34-36; approved temporary-artifact cleanup batch
+- Environment: Windows 11; PowerShell; GitHub Actions; GitHub ruleset 20563834
+- Tester: Codex tooling and GitHub Actions
+- Source: sg-engineering / sg-docs
+- Status: pass with three explicit retained artifacts
+- Confidence: high
+- Result summary: PRs 34, 35, and 36 passed their exact-head required gates, merged through protected `main`, and passed post-merge gates. The canonical runtime reached merge commit `67c6688` with 68/68 skill links valid. Six clean, unused, ancestry-proven worktrees and local branches plus seven ancestry-proven remote branches were removed under separate approval. The original PR 29, development, and UTF-8 artifacts remain retained because their exact tips are not ancestors of `main`; the development worktree also had active Dart processes during audit. The unrelated operator-owned runtime modification remained content-identical.
+- Evidence pointer: GitHub PRs 34-36 and their required-gate runs; refreshed Git ancestry and worktree/process preflight; post-cleanup local/remote ref audit; canonical skill-link check
+- Follow-up: review retained artifacts no earlier than 2026-08-26 and resolve the unrelated runtime modification before requiring a clean canonical worktree
