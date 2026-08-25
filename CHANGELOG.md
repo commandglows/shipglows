@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.10.8"
+artifact_version: "0.10.9"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-24"
+updated: "2026-08-25"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -24,6 +24,14 @@ evidence: []
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-08-25]
+
+### Security
+- Hardened the privileged Linux installer with checked temporary downloads, pinned Supabase and Flox releases, SHA256 or GPG verification before system writes, an explicit NodeSource apt configuration instead of `curl | bash`, the verified official GitHub CLI and Caddy repositories, and fail-closed `apt`/`dpkg` behavior.
+
+### Changed
+- Replaced the root PyPI installation of PyYAML with the Debian/Ubuntu `python3-yaml` package and added a fixture-only installer supply-chain regression contract.
 
 ## [2026-08-24]
 

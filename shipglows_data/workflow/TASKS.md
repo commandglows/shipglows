@@ -3,7 +3,7 @@
 > **Priority:** 🔴 P0 blocker · 🟠 P1 high · 🟡 P2 normal · 🟢 P3 low · ⚪ deferred
 > **Status:** 📋 todo · 🔄 in progress · ✅ done · ⛔ blocked · 💤 deferred
 > **Priority last updated:** 2026-06-27 UTC · criteria: balanced (`impact`, `blockers`, `risk`, `high-roi`)
-> **Recommended next execution target:** `install.sh` supply-chain and failure handling hardening
+> **Recommended next execution target:** remediate the Astro production advisory (`GHSA-j687-52p2-xcff`) through the planned migration
 
 ---
 
@@ -179,7 +179,7 @@
 | 🟠 | Rendre les alertes de cleanup disque explicites quand `/` est en pression critique (`BUG-2026-05-04-001`) | 🔄 in progress |
 | ✅ | Corriger le raccourci CLI `sg u` et harmoniser les retours `x`/`Esc`/Backspace dans les sous-menus (`BUG-2026-05-04-002`) | ✅ done |
 | 🟠 | Consolidate duplicated tunnel lifecycle logic between `local/dev-tunnel.sh` and `local/local.sh` so the interactive menu inherits the same validation, collision handling, and managed stop behavior | 📋 todo |
-| 🔴 | Harden `install.sh` supply-chain and failure handling: replace live `curl | bash`/direct downloads with pinned, verified install steps and strict failure behavior | 🔄 in progress |
+| ✅ | Harden `cli/install.sh` supply-chain and failure handling: replace live `curl | bash`/direct downloads with pinned, verified install steps and strict failure behavior | ✅ done |
 | 🟡 | Corriger la détection de commande dev quand un projet Flutter contient un `package.json` uniquement Convex (`BUG-2026-05-04-004`) | 🔄 in progress |
 | 🟡 | Empêcher ShipGlows de créer des symlinks `TASKS.md` dans les projets et garder le tracking dans `shipglows_data` (`BUG-2026-05-05-001`) | 🔄 in progress |
 | 🟠 | Local MCP OAuth tunnel login: commande `shipglows-mcp-login`, intégration menu local, alias install, tests de validation et docs | ✅ done |

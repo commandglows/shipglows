@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.25.1"
+artifact_version: "0.25.2"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-24"
+updated: "2026-08-25"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -566,6 +566,16 @@ because it manages machine-wide dependencies and service configuration:
 
 If `./cli/install.sh` is launched without root, it stops before making partial system changes. The log explains that the root-only scope was skipped and tells the operator to rerun with `sudo`.
 
+The privileged installer downloads repository keys and standalone packages into
+temporary files before changing system paths. NodeSource is configured without
+executing a remote setup script; its signing-key fingerprint is checked first.
+The GitHub CLI keyring and the pinned Supabase CLI and Flox artifacts are
+SHA256-verified. Caddy's
+official stable key and exact apt source are validated before apt verifies the
+signed repository. A missing, empty, malformed, or unverifiable input stops the
+installer, as does a required `apt` or `dpkg` failure; the component is never
+reported as successfully installed after such a failure.
+
 When the install runs interactively, ShipGlows asks once whether to enable the permissive AI defaults. Non-interactive runs can set `SHIPGLOWS_AUTONOMY_MODE=permissive` or `SHIPGLOWS_AUTONOMY_MODE=standard`; the legacy `SHIPGLOWS_AUTONOMY_MODE` name is still accepted. Root permissive mode still requires `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS=1` or an explicit confirmation at the prompt; the legacy `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS` fallback remains accepted too.
 
 The recommended server shape is:
@@ -736,13 +746,13 @@ ShipGlows also installs the terminal tooling commonly needed to operate those in
 - `vercel`
 - `convex`
 - `clerk`
-- `supabase` via the standalone CLI binary, because Supabase does not support a supported global package-manager install path
+- `supabase` via a pinned and SHA256-verified standalone CLI archive, because Supabase does not support a supported global package-manager install path
 - `gh` (GitHub CLI)
 - `flox`
 - `caddy`
 - Playwright Chromium runtime libraries for the default browser MCP
-- `python3` and `PyYAML`
-- core tools: `git`, `curl`, `jq`, `fuser`, `ss` (`iproute2`), `python3-pip` (if needed)
+- `python3` and `PyYAML` from the system `python3-yaml` package
+- core tools: `git`, `curl`, `jq`, `fuser`, `ss` (`iproute2`)
 
 Run the complete Python contract suite portably on Windows, macOS, or Linux
 without installing test packages globally:

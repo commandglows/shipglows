@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.1.0"
 project: "shipglows"
 created: "2026-04-28"
 created_at: "2026-04-28 20:30:00 UTC"
-updated: "2026-08-12"
-updated_at: "2026-08-12 20:11:48 UTC"
+updated: "2026-08-25"
+updated_at: "2026-08-25 13:53:00 UTC"
 status: ready
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
@@ -18,13 +18,14 @@ risk_level: "high"
 security_impact: "yes"
 docs_impact: "yes"
 linked_systems:
-  - "install.sh"
+  - "cli/install.sh"
+  - "tests/install/supply-chain-contract.sh"
   - "lib.sh"
   - "shipglows-site/package.json"
   - "shipglows-site/pnpm-lock.yaml"
   - "tests/cli/json-error-handling.sh"
   - "README.md"
-  - "GUIDELINES.md"
+  - "CLAUDE.md"
   - "CHANGELOG.md"
 depends_on:
 supersedes: []
@@ -44,7 +45,7 @@ Installer supply-chain hardening and ShipGlows codebase risk reduction
 
 ## Status
 
-ready
+in progress — installer milestone (Tasks 1-3) implemented and verified; Tasks 4-9 remain
 
 ## User Story
 
@@ -58,7 +59,7 @@ When an operator prepares ShipGlows for release after the code audit, the system
 
 ## Success Behavior
 
-- Preconditions: the repo is in the current mixed Bash + Astro shape, `install.sh`, `lib.sh`, `site/package*.json`, and `tests/cli/json-error-handling.sh` exist, and the direct audit fixes from 2026-04-28 remain present.
+- Preconditions: the repo is in the current mixed Bash + Astro shape, `cli/install.sh`, `cli/lib.sh`, `site/package*.json`, and `tests/cli/json-error-handling.sh` exist, and the direct audit fixes from 2026-04-28 remain present.
 - Trigger: an implementer runs `/sg-start Installer supply-chain hardening and ShipGlows codebase risk reduction`.
 - Operator-visible result: installer hardening changes are explicit in code and docs; the Astro advisory is resolved or deliberately blocked with evidence; `tests/cli/json-error-handling.sh` produces an exit code matching its displayed result; the first `lib.sh` extraction has no user-visible behavior change.
 - System result: package lockfiles, shell scripts, and docs reflect the new contract; validation commands provide reliable pass/fail signals.
@@ -82,8 +83,8 @@ Implement a staged risk-reduction pass. First make installer execution fail clos
 
 ## Scope In
 
-- Harden privileged install behavior in `install.sh` around external scripts, direct downloads, archive extraction, package installation, and failure handling.
-- Add or update helper functions in `install.sh` only where they reduce repeated unsafe install patterns.
+- Harden privileged install behavior in `cli/install.sh` around external scripts, direct downloads, archive extraction, package installation, and failure handling.
+- Add or update helper functions in `cli/install.sh` only where they reduce repeated unsafe install patterns.
 - Upgrade or otherwise remediate `shipglows-site` Astro vulnerability in `shipglows-site/package.json` and `shipglows-site/pnpm-lock.yaml`.
 - Update `shipglows-site/src/content.config.ts` only if Astro 6 or Zod 4 requires it.
 - Fix `tests/cli/json-error-handling.sh` so displayed results, counted failures, skipped optional checks, and process exit code agree.
@@ -115,10 +116,10 @@ Implement a staged risk-reduction pass. First make installer execution fail clos
 - Internal contracts:
   - `BUSINESS.md` 1.1.0 reviewed.
   - `BRANDING.md` 1.0.0 reviewed.
-  - `GUIDELINES.md` 1.0.0 reviewed.
-  - `ARCHITECTURE.md` 1.0.0 reviewed.
+  - Legacy `GUIDELINES.md` 1.0.0 and `ARCHITECTURE.md` 1.0.0 were reviewed when the spec was created; both root files have since been retired.
+  - Current repository guidance is `CLAUDE.md`.
 - Runtime/tooling:
-  - Bash shell scripts: `install.sh`, `lib.sh`, `tests/cli/json-error-handling.sh`.
+  - Bash shell scripts: `cli/install.sh`, `cli/lib.sh`, `tests/cli/json-error-handling.sh`.
   - Node/npm for `site`.
   - Astro in `shipglows-site/package.json` and `shipglows-site/pnpm-lock.yaml`.
 - Fresh external docs:
@@ -141,20 +142,31 @@ Implement a staged risk-reduction pass. First make installer execution fail clos
 - The first `lib.sh` extraction must preserve public functions and call signatures used by `shipglows.sh`, menu files, and tests.
 - Existing audit security fixes remain in place: DuckDNS validation, encoded DuckDNS request, safer secret writes, no default ImgBB key.
 
+## Installer Trust-Point Inventory (2026-08-25)
+
+- `NodeSource`: pinned Node 24 repository path; downloaded key must match the recorded primary fingerprint before the generated apt source is installed.
+- `GitHub CLI`: official apt keyring must match its published SHA256 before the generated apt source is installed; apt verifies repository and package signatures.
+- `Supabase CLI`: release `2.115.0` tar archives are pinned per architecture and checked against the upstream release checksums before extracting only the expected binary.
+- `Flox`: release `1.14.1` Debian packages are pinned per architecture, checked against Flox's published SHA256 list, inspected with `dpkg-deb`, and version-checked after installation.
+- `Caddy`: the official stable HTTPS key and source file are downloaded separately; the key must parse, the source may contain only the two expected active lines, and apt must verify the signed repository. The absence of an independently pinned Caddy key fingerprint remains the documented residual trust boundary.
+- `PyYAML` and system tools: installed only through configured signed apt repositories; no root PyPI fallback remains.
+- `pnpm`, global Node CLIs, agent CLIs, and MCP packages: package-manager integrity paths remain intentionally package-manager managed and may track their declared current channels. They are not direct script or standalone-binary trust paths in this milestone; version-governance changes remain outside Tasks 1-3.
+- Privileged writes owned by this milestone use verified temporary inputs and same-directory atomic replacement for apt keyrings, apt sources, and `/usr/local/bin/supabase`. Existing local-repository wrapper and user-configuration writes are not new external trust points.
+
 ## Links & Consequences
 
-- `install.sh`: privileged external trust boundary. Changes affect first-time setup, user-local config, MCP setup, CLI availability, and support docs.
+- `cli/install.sh`: privileged external trust boundary. Changes affect first-time setup, user-local config, MCP setup, CLI availability, and support docs.
 - `lib.sh`: central runtime behavior. Extraction can break environment start/stop, publish, dashboard, inspector, and metadata menus if call boundaries are wrong.
 - `site/package*.json`: public docs/site build and dependency security posture.
 - `tests/cli/json-error-handling.sh`: validation reliability for jq parsing, error handling, race fixes, and function docs.
-- `README.md`, `GUIDELINES.md`, `CLAUDE.md`, `CHANGELOG.md`: may need updates if install commands, Node requirements, validation commands, or architectural routing change.
+- `README.md`, `CLAUDE.md`, `CHANGELOG.md`: may need updates if install commands, Node requirements, validation commands, or architectural routing change.
 - Master/local trackers: implementation may close the audit rows created by `sg-audit-code`, but this spec itself does not edit trackers.
 
 ## Documentation Coherence
 
 - Update `README.md` if install prerequisites, Node version expectations, or supported install behavior changes.
-- Update `GUIDELINES.md` if the supply-chain policy becomes a stable engineering rule.
-- Update `ARCHITECTURE.md` or `CONTEXT.md` only if `lib.sh` extraction creates a new official module boundary.
+- Update `README.md` for the stable installer supply-chain rule; the retired root `GUIDELINES.md` is not recreated.
+- Update the current canonical architecture/context surface only if `lib.sh` extraction creates a new official module boundary; do not recreate retired root documents.
 - Update `CLAUDE.md` if common commands or critical rules change.
 - Update `CHANGELOG.md` after implementation with security/reliability entries.
 - No pricing, FAQ, or GTM copy change is required unless the public site dependency migration changes public behavior.
@@ -172,29 +184,29 @@ Implement a staged risk-reduction pass. First make installer execution fail clos
 
 ## Implementation Tasks
 
-- [ ] Task 1: Map current installer external trust points and failure modes.
-  - File: `install.sh`
+- [x] Task 1: Map current installer external trust points and failure modes.
+  - File: `cli/install.sh`
   - Action: List every external script, package repo, archive, direct download, `curl`, `npm install -g`, `pip3 install`, and privileged write; classify each as pinned, verified, unchecked, or package-manager verified.
   - User story link: defines where installation is fragile before changing behavior.
   - Depends on: none.
-  - Validate with: review diff plus `rg -n "curl|wget|npm install -g|pip3 install|dpkg -i|gpg|tee /etc|/usr/local/bin" install.sh`.
+  - Validate with: review diff plus `rg -n "curl|wget|npm install -g|pip3 install|dpkg -i|gpg|tee /etc|/usr/local/bin" cli/install.sh`.
   - Notes: do not change behavior in this task except comments or temporary notes if needed.
 
-- [ ] Task 2: Add strict installer failure helpers and use them for high-risk steps.
-  - File: `install.sh`
+- [x] Task 2: Add strict installer failure helpers and use them for high-risk steps.
+  - File: `cli/install.sh`
   - Action: Add shell helpers for checked download, required command, archive extraction, and status reporting; ensure high-risk install steps fail closed with actionable diagnostics.
   - User story link: prevents silent partial installation.
   - Depends on: Task 1.
-  - Validate with: `bash -n install.sh`; targeted dry-run where available; forced failure test by substituting an invalid URL in a temporary local copy, not in the committed file.
+  - Validate with: `bash -n cli/install.sh`; `tests/install/supply-chain-contract.sh` uses temporary fixtures and command stubs for download and command failures.
   - Notes: avoid global `set -e` unless all existing control-flow assumptions are audited.
 
-- [ ] Task 3: Pin and verify external installer sources according to the source policy.
-  - File: `install.sh`
+- [x] Task 3: Pin and verify external installer sources according to the source policy.
+  - File: `cli/install.sh`
   - Action: Replace unchecked live installer/download paths with the exact source policy from `Dependencies`: no `curl | bash` for NodeSource; official apt keyring/fingerprint or SHA256 verification for GitHub CLI; official Caddy stable key/source with fail-closed checks; pinned Supabase release plus checksum file or official `.deb`; official Flox Debian package with explicit version/download verification; `python3-yaml` via apt instead of root `pip3 install pyyaml`.
   - User story link: reduces supply-chain ambiguity for privileged setup.
   - Depends on: Task 2.
-  - Validate with: official source URLs recorded in comments or docs; `bash -n install.sh`; install log shows explicit failure if verification cannot run.
-  - Notes: if an upstream does not provide a checksum/signature for the selected artifact, the implementation must name the residual trust boundary and require post-install binary/version verification.
+  - Validate with: official source URLs recorded in code/docs; `bash -n cli/install.sh`; the focused fixture contract proves empty downloads, curl errors, checksum/fingerprint mismatches, unexpected repository lines, required-command failures, and unsupported architectures fail closed.
+  - Notes: Supabase `2.115.0` and Flox `1.14.1` use upstream SHA256 values; GitHub CLI uses the published keyring SHA256; NodeSource uses the published primary-key fingerprint. Caddy's residual boundary is its official HTTPS key endpoint plus exact source validation, followed by apt repository signature verification and post-install binary verification.
 
 - [ ] Task 4: Resolve the Astro production advisory through a planned migration.
   - File: `shipglows-site/package.json`
@@ -229,7 +241,7 @@ Implement a staged risk-reduction pass. First make installer execution fail clos
   - Notes: do not extract publish, dashboard, PM2, inspector, or metadata behavior in this chantier. If sourcing order breaks because validators call `error` before it is defined, keep the helpers in `lib.sh` and record the blocker instead of broadening the refactor.
 
 - [ ] Task 8: Update docs and release notes for changed contracts.
-  - File: `README.md`, `GUIDELINES.md`, `CLAUDE.md`, `CHANGELOG.md`
+  - File: `README.md`, `CLAUDE.md`, `CHANGELOG.md`, plus the current canonical architecture/context surface only if Task 7 creates a module boundary
   - Action: Document new installer verification expectations, Astro/Node requirement changes if any, validation command behavior, and any new `lib.sh` module boundary.
   - User story link: keeps operator guidance aligned with code.
   - Depends on: Tasks 2-7.
@@ -246,8 +258,8 @@ Implement a staged risk-reduction pass. First make installer execution fail clos
 
 ## Acceptance Criteria
 
-- [ ] AC 1: Given the installer contains external downloads or privileged writes, when an external source is unavailable, malformed, or unverifiable, then `install.sh` fails with a clear diagnostic before reporting success for that component.
-- [ ] AC 2: Given a supported install path, when `bash -n install.sh` runs, then the script has no syntax errors.
+- [x] AC 1: Given the installer contains external downloads or privileged writes, when an external source is unavailable, malformed, or unverifiable, then `cli/install.sh` fails with a clear diagnostic before reporting success for that component.
+- [x] AC 2: Given a supported install path, when `bash -n cli/install.sh` runs, then the script has no syntax errors.
 - [ ] AC 3: Given the Astro site dependencies are installed, when `npm audit --omit=dev` runs in `site/`, then it no longer reports `GHSA-j687-52p2-xcff` for Astro.
 - [ ] AC 4: Given the Astro dependency remediation is applied, when `pnpm build` runs in `shipglows-site/`, then all static routes build successfully.
 - [ ] AC 5: Given `tests/cli/json-error-handling.sh` prints any required test as failed, when the script exits, then the process exit code is non-zero.
@@ -260,7 +272,7 @@ Implement a staged risk-reduction pass. First make installer execution fail clos
 ## Test Strategy
 
 - Static shell checks:
-  - `bash -n lib.sh config.sh shipglows.sh install.sh local/local.sh local/dev-tunnel.sh tests/cli/input-validation.sh tests/cli/config-logging-cache.sh tests/cli/json-error-handling.sh`
+  - `bash -n cli/lib.sh cli/config.sh cli/shipglows.sh cli/install.sh local/local.sh local/dev-tunnel.sh tests/cli/input-validation.sh tests/cli/config-logging-cache.sh tests/cli/json-error-handling.sh`
 - Existing shell tests:
   - `./tests/cli/input-validation.sh`
   - `./tests/cli/config-logging-cache.sh`
@@ -286,10 +298,9 @@ Implement a staged risk-reduction pass. First make installer execution fail clos
 ## Execution Notes
 
 - Read first:
-  - `GUIDELINES.md`
-  - `ARCHITECTURE.md`
-  - `install.sh`
-  - `lib.sh`
+  - `CLAUDE.md`
+  - `cli/install.sh`
+  - `cli/lib.sh`
   - `tests/cli/json-error-handling.sh`
   - `shipglows-site/package.json`
   - `shipglows-site/src/content.config.ts`
@@ -320,18 +331,19 @@ None. Conservative decisions are sufficient: fail closed for installer verificat
 | 2026-04-28 20:45:00 UTC | sg-ready | GPT-5 Codex | Evaluated readiness and found gaps in metadata, fresh docs, task specificity, tracking target, and open questions | not ready | /sg-spec Installer supply-chain hardening and ShipGlows codebase risk reduction |
 | 2026-04-28 20:50:00 UTC | sg-spec | GPT-5 Codex | Revised spec with PRODUCT dependency, per-source installer policy, exact validator extraction target, and exact tracking files | draft updated | /sg-ready Installer supply-chain hardening and ShipGlows codebase risk reduction |
 | 2026-04-28 22:59:16 UTC | sg-ready | GPT-5 Codex | Re-evaluated corrected spec against readiness gate, chantier tracking, and documentation freshness requirements | ready | /sg-start Installer supply-chain hardening and ShipGlows codebase risk reduction |
+| 2026-08-25 13:53:00 UTC | sg-maintenance | GPT-5 Codex | Implemented Tasks 1-3 on the migrated `cli/install.sh` surface with pinned sources, fail-closed helpers, focused fixtures, and directly mapped docs | installer milestone verified | Continue with Task 4 after this milestone is delivered |
 
 ## Current Chantier Flow
 
 - sg-spec: done
 - sg-ready: done, ready
-- sg-start: not launched
+- sg-start: in progress; installer milestone verified
 - sg-verify: not launched
 - sg-end: not launched
 - sg-ship: not launched
 
 Reste a faire:
-- Run implementation.
+- Tasks 4-9: Astro remediation, JSON test semantics, bounded validator extraction, remaining documentation reflection, and final full-spec validation.
 
 Prochaine etape:
-- /sg-start Installer supply-chain hardening and ShipGlows codebase risk reduction
+- Remediate the Astro production advisory (`GHSA-j687-52p2-xcff`) as Task 4 without reopening the completed installer milestone.
