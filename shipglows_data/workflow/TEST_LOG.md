@@ -204,3 +204,15 @@
 - Bug pointer: BUG-2026-08-25-001 -> `shipglows_data/workflow/bugs/BUG-2026-08-25-001.md`
 - Evidence pointer: activation baselines `010=4729` and `103=4851`, valid 15/53 graph, metadata lint, strict skill budget, execution-fidelity audit, and `git diff --check`
 - Follow-up: commit locally; push remains outside the approved scope
+
+## 2026-08-25 - GitHub required Windows gate and conversation-contract salvage
+
+- Scope: `git-github-hygiene-and-ci.md`; PR 34; replacement PR 35 for draft PR 29
+- Environment: Windows 11; Git Bash; GitHub Actions Windows runner; GitHub ruleset 20563834
+- Tester: Codex tooling and GitHub Actions
+- Source: 102-sg-start
+- Status: partially passed; integration gate pending
+- Confidence: high
+- Result summary: PR 34's exact heads passed `ShipGlows required gate` with the complete Windows contract, while a deliberate manual failure at SHA `92b113f` failed as expected. A transient anonymous GitHub API `403` on the first `761a49b` run passed unchanged on retry and exposed a redundant API lookup for already-complete SHAs; strict SHA resolution now bypasses only that lookup and passes the focused regression plus complete local Windows contract. PR 35 preserves the three PR 29 patches on current main and passes 20 focused tests, metadata lint, and `git diff --check`; GitHub cannot schedule its newly required check until PR 34 installs that workflow on main. The independent `d18e779` replay stopped cleanly on two documentation conflicts and its original branch remains untouched.
+- Evidence pointer: GitHub PRs 34 and 35; Actions runs 32880874842 and 32881079150; local focused and complete Windows-contract outputs; no credential, private payload, or destructive operation retained
+- Follow-up: obtain separate merge authority for PR 34, verify PR 35's exact-head gate after integration, and obtain explicit semantic-merge authority before reconciling `d18e779`
