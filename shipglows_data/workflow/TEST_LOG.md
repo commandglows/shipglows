@@ -166,3 +166,16 @@
 - Bug pointer: BUG-2026-08-24-002 -> shipglows_data/workflow/bugs/BUG-2026-08-24-002.md
 - Evidence pointer: focused dependency regression plus complete Windows contract; no raw project log, credential, or private payload retained
 - Follow-up: /103-sg-verify BUG-2026-08-24-002
+
+## 2026-08-25 - Windows dependency setup log encoding verification
+
+- Scope: BUG-2026-08-24-002
+- Environment: Windows 11; Windows PowerShell 5.1; PowerShell Core 7.6.5; Git Bash
+- Tester: Codex independent verification
+- Source: 103-sg-verify
+- Status: pass
+- Confidence: high
+- Result summary: Independent verification confirmed strict UTF-8 without NUL bytes, preserved console and non-ASCII output, native failure handling, repeated and concurrent setup behavior, and the complete Windows DevServer contract.
+- Bug pointer: BUG-2026-08-24-002 -> shipglows_data/workflow/bugs/BUG-2026-08-24-002.md
+- Evidence pointer: focused PS5.1 and PowerShell Core regressions plus complete Windows contract exit 0; no raw logs, credentials, or private payload retained
+- Follow-up: none
