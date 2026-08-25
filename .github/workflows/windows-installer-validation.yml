@@ -83,6 +83,31 @@ jobs:
         shell: pwsh
         run: Write-Host 'No Windows-owned path changed; the stable repository gate remains successful.'
 
+      - name: Install pinned ripgrep for the Windows contract
+        if: steps.impact.outputs.windows_changed == 'true'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = '15.2.0'
+          $expectedSha256 = '71B2FEF860ABE467217A538FF31DE02F5258807C0129F771846F87BD029AAFC5'
+          $archive = Join-Path $env:RUNNER_TEMP "ripgrep-$version.zip"
+          $destination = Join-Path $env:RUNNER_TEMP 'shipglows-ripgrep'
+          $url = "https://github.com/BurntSushi/ripgrep/releases/download/$version/ripgrep-$version-x86_64-pc-windows-msvc.zip"
+
+          & curl.exe --fail --location --silent --show-error --output $archive $url
+          if ($LASTEXITCODE -ne 0) { throw "ripgrep download failed with exit $LASTEXITCODE" }
+          $actualSha256 = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash
+          if ($actualSha256 -cne $expectedSha256) {
+            throw "ripgrep SHA-256 mismatch: expected $expectedSha256, got $actualSha256"
+          }
+          Expand-Archive -LiteralPath $archive -DestinationPath $destination
+          $bin = Join-Path $destination "ripgrep-$version-x86_64-pc-windows-msvc"
+          if (-not (Test-Path -LiteralPath (Join-Path $bin 'rg.exe') -PathType Leaf)) {
+            throw 'Verified ripgrep archive did not contain rg.exe at the expected path.'
+          }
+          $bin | Out-File -LiteralPath $env:GITHUB_PATH -Encoding utf8 -Append
+          & (Join-Path $bin 'rg.exe') --version
+
       - name: Run complete Windows contract
         if: steps.impact.outputs.windows_changed == 'true'
         shell: bash

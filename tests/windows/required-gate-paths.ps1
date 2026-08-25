@@ -3,6 +3,7 @@ Set-StrictMode -Version Latest
 
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $resolver = Join-Path $root '.github\scripts\Resolve-WindowsValidationImpact.ps1'
+$workflow = Join-Path $root '.github\workflows\windows-installer-validation.yml'
 
 function Assert-Sg([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
@@ -42,6 +43,19 @@ try {
     $unsafeRejected = $_.Exception.Message -match 'Unsafe changed path'
 }
 Assert-Sg $unsafeRejected 'Unsafe changed paths must fail closed.'
+
+$workflowText = Get-Content -LiteralPath $workflow -Raw -Encoding UTF8
+foreach ($requiredWorkflowContract in @(
+    'name: ShipGlows required gate',
+    'permissions:',
+    'contents: read',
+    'persist-credentials: false',
+    "`$version = '15.2.0'",
+    "`$expectedSha256 = '71B2FEF860ABE467217A538FF31DE02F5258807C0129F771846F87BD029AAFC5'",
+    'bash tests/windows/devserver-contract.sh'
+)) {
+    Assert-Sg ($workflowText.Contains($requiredWorkflowContract)) "Required workflow contract is missing: $requiredWorkflowContract"
+}
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-required-gate-' + [guid]::NewGuid().ToString('N'))
 try {
