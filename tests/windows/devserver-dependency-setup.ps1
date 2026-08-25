@@ -7,7 +7,7 @@ try {
     New-Item -ItemType Directory -Path $fixture -Force | Out-Null
     $capture = Join-Path $fixture 'argv.txt'
     $fakeNpm = Join-Path $fixture 'npm.cmd'
-    [IO.File]::WriteAllText($fakeNpm, "@echo off`r`n>>`"$capture`" echo %*`r`nif not exist node_modules mkdir node_modules`r`ntype nul > node_modules\.package-lock.json`r`nif not exist node_modules\vite mkdir node_modules\vite`r`nif not exist node_modules\astro mkdir node_modules\astro`r`necho {}>node_modules\vite\package.json`r`necho {}>node_modules\astro\package.json`r`nif exist fail.flag exit /b 9`r`nif exist mutate.flag echo.>>package.json`r`n", [Text.Encoding]::ASCII)
+    [IO.File]::WriteAllText($fakeNpm, "@echo off`r`n>>`"$capture`" echo %*`r`nif not exist node_modules mkdir node_modules`r`ntype nul > node_modules\.package-lock.json`r`nif not exist node_modules\vite mkdir node_modules\vite`r`nif not exist node_modules\astro mkdir node_modules\astro`r`necho {}>node_modules\vite\package.json`r`necho {}>node_modules\astro\package.json`r`necho dependency-output`r`nif exist fail.flag exit /b 9`r`nif exist mutate.flag echo.>>package.json`r`n", [Text.Encoding]::ASCII)
     Import-Module $modulePath -Force -DisableNameChecking
     $module = Get-Module ShipGlows.DevServer
 
@@ -16,8 +16,22 @@ try {
     New-Item -ItemType Directory -Path $locked -Force | Out-Null
     Set-Content (Join-Path $locked 'package.json') '{}' -Encoding UTF8
     Set-Content (Join-Path $locked 'package-lock.json') '{}' -Encoding UTF8
-    $installed = & $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath { $Npm }; Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $locked (Join-Path $fixture 'locked.log') $fakeNpm
-    if (-not $installed) { throw 'First dependency setup did not install.' }
+    $lockedLog = Join-Path $fixture 'locked.log'
+    [IO.File]::WriteAllText($lockedLog, 'historical output', [Text.Encoding]::Unicode)
+    $installed = @(& $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath { $Npm }; Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $locked $lockedLog $fakeNpm)
+    if ($installed -notcontains $true) { throw 'First dependency setup did not install.' }
+    if ($installed -notcontains 'dependency-output') { throw 'Dependency setup did not preserve manager console output.' }
+    $logBytes = [IO.File]::ReadAllBytes($lockedLog)
+    if ($logBytes -contains 0) { throw 'Dependency setup log contains NUL bytes.' }
+    try { $logText = (New-Object Text.UTF8Encoding($false, $true)).GetString($logBytes) }
+    catch { throw 'Dependency setup log is not valid UTF-8.' }
+    if ($logText -notmatch 'dependency-output') { throw 'Dependency setup output was not written to the UTF-8 log.' }
+    $unicodeLog = Join-Path $fixture 'unicode.log'
+    $unicodeWriter = New-Object IO.StreamWriter($unicodeLog, $false, (New-Object Text.UTF8Encoding($false)))
+    try { & $module { param($Writer) Write-SgDependencyLogRecord $Writer 'café' } $unicodeWriter | Out-Null }
+    finally { $unicodeWriter.Dispose() }
+    $unicodeBytes = [IO.File]::ReadAllBytes($unicodeLog)
+    if ($unicodeBytes -contains 0 -or (New-Object Text.UTF8Encoding($false, $true)).GetString($unicodeBytes).Trim() -cne 'café') { throw 'Dependency setup UTF-8 writer did not preserve non-ASCII output.' }
     if ((Get-Content -Raw $capture).Trim() -ne 'ci') { throw 'npm lockfile setup did not preserve ci as one argv token.' }
     $statePath = & $module { param($Config,$Project) Get-SgDependencyStatePath $Config $Project } $config $locked
     $reused = & $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath { $Npm }; Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $locked (Join-Path $fixture 'locked.log') $fakeNpm

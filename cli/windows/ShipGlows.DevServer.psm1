@@ -940,10 +940,16 @@ function Write-SgDependencyState([string]$StatePath, [string]$Digest, [string]$P
     } finally { Remove-Item -LiteralPath $temp -Force -ErrorAction SilentlyContinue }
 }
 
+function Write-SgDependencyLogRecord([IO.TextWriter]$Writer, [object]$Record) {
+    $Writer.WriteLine([string]$Record)
+    Write-Output $Record
+}
+
 function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath) {
     $statePath = Get-SgDependencyStatePath $Config $ProjectPath
     Ensure-SgDirectory (Split-Path -Parent $statePath)
     $lock = $null
+    $logWriter = $null
     $suppressNpmLock = $false
     try {
         $deadline = (Get-Date).AddSeconds(30)
@@ -957,12 +963,17 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
         # From this point onward the previous success record no longer
         # describes a safely reusable installation. Keep failures fail-closed.
         Remove-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue
+        Ensure-SgDirectory (Split-Path -Parent $LogPath)
+        # setup.log describes the current dependency attempt. Start it with one
+        # deterministic encoding instead of appending PS 5.1 UTF-16 to history.
+        $logWriter = New-Object IO.StreamWriter($LogPath, $false, (New-Object Text.UTF8Encoding($false)))
+        $logWriter.AutoFlush = $true
         $pm=[string]$plan.Manager
         [string[]]$setupArguments=@($plan.Arguments)
         $suppressNpmLock=[bool]$plan.SuppressNpmLock
         if(@($plan.BootstrapArguments).Count-gt0-and-not(Test-Path -LiteralPath (Join-Path $ProjectPath '.venv\Scripts\python.exe') -PathType Leaf)){
             $previousErrorActionPreference=$ErrorActionPreference
-            try{$ErrorActionPreference='Continue';& $pm @($plan.BootstrapArguments) 2>&1|Tee-Object -FilePath $LogPath -Append;if($LASTEXITCODE-ne0){throw 'uv venv failed.'}}
+            try{$ErrorActionPreference='Continue';& $pm @($plan.BootstrapArguments) 2>&1|ForEach-Object{Write-SgDependencyLogRecord $logWriter $_};if($LASTEXITCODE-ne0){throw 'uv venv failed.'}}
             finally{$ErrorActionPreference=$previousErrorActionPreference}
         }
         Push-Location $ProjectPath
@@ -973,7 +984,7 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
             # exit code so this is stable with $ErrorActionPreference = 'Stop'.
             $ErrorActionPreference = 'Continue'
             if ($suppressNpmLock) { $env:npm_config_package_lock = 'false' }
-            & $pm @setupArguments 2>&1 | Tee-Object -FilePath $LogPath -Append
+            & $pm @setupArguments 2>&1 | ForEach-Object { Write-SgDependencyLogRecord $logWriter $_ }
             if ($LASTEXITCODE -ne 0) { throw "Dependency setup failed for $Kind." }
         }
         finally { $env:npm_config_package_lock = $previousNpmPackageLock; $ErrorActionPreference = $previousErrorActionPreference; Pop-Location }
@@ -983,7 +994,7 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
         if ($completedDigest -cne $digest) { throw 'Dependency inputs changed during setup; durable state was not recorded. Retry with stable manifests and lockfiles.' }
         Write-SgDependencyState $statePath $completedDigest $ProjectPath $Kind
         return $true
-    } finally { if ($lock) { $lock.Dispose() } }
+    } finally { if ($logWriter) { $logWriter.Dispose() }; if ($lock) { $lock.Dispose() } }
 }
 
 function Rotate-SgLogFile([string]$Path, [long]$MaxBytes = 5242880) {

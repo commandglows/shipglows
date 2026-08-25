@@ -153,3 +153,16 @@
 - Bug pointer: BUG-2026-07-17-001 -> shipglows_data/workflow/bugs/BUG-2026-07-17-001.md
 - Evidence pointer: user-reported real-device reproduction plus supplied HTTP 200, short SHA-prefix mismatch, and public route ownership; no secrets or device identifiers stored
 - Follow-up: /106-sg-fix BUG-2026-07-17-001
+
+## 2026-08-25 - Windows dependency setup log encoding retest
+
+- Scope: BUG-2026-08-24-002
+- Environment: Windows 11; Windows PowerShell 5.1; PowerShell Core 7.6.5; Git Bash
+- Tester: Codex tooling
+- Source: 107-sg-test
+- Status: pass
+- Confidence: high
+- Result summary: The dependency setup path replaced a pre-existing UTF-16 log with strict UTF-8 output, preserved non-ASCII and console output, retained failure handling, and passed the complete Windows DevServer contract.
+- Bug pointer: BUG-2026-08-24-002 -> shipglows_data/workflow/bugs/BUG-2026-08-24-002.md
+- Evidence pointer: focused dependency regression plus complete Windows contract; no raw project log, credential, or private payload retained
+- Follow-up: /103-sg-verify BUG-2026-08-24-002
