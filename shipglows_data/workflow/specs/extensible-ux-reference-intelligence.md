@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-24"
 created_at: "2026-08-24 19:23:00 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 20:20:42 UTC"
+updated_at: "2026-08-24 21:28:38 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: gpt-5
@@ -26,6 +26,9 @@ linked_systems:
   - skills/006-sg-design/SKILL.md
   - skills/008-sg-customer/SKILL.md
   - skills/100-sg-spec/SKILL.md
+  - plugins/shipglows/skills/shipglows/references/public-help-catalog.md
+  - /home/claude/shipglows_app/site/src/content/skills/sg-design.md
+  - /home/claude/shipglows_app/site/src/content/skills/sg-customer.md
   - tools/test_ux_reference_intelligence_contract.py
 depends_on:
   - artifact: skills/references/design-inspiration-library.md
@@ -43,7 +46,7 @@ evidence:
   - "Checklist Design public catalog reviewed 2026-08-24: it groups UX/UI checklist items by pages, components, flows, topics, brands, and design-system concerns."
   - "Operator decision 2026-08-24: cross-skill activation must make relevant external experience tools and references discoverable according to availability and current chantier fit."
   - "Collect UI public pages were reachable on 2026-08-24, but its statistics reported zero shots published yesterday and during the previous week; it remains ineligible by default for current-pattern claims."
-next_step: "Revalidate source eligibility when dated provider evidence or runtime callability changes."
+next_step: "Deliver the validated editorial alignment in both governed repositories."
 ---
 
 # Extensible UX Reference Intelligence
@@ -159,7 +162,8 @@ Promote the connector catalog to the shared reference layer, keep Mobbin as the 
 - Promote the connector catalog to shared ownership with Mobbin as the first documented adapter.
 - Update the private inspiration library to declare its adapter role and preserve its stricter storage/rights rules.
 - Update construction, specification, design, and experience activation maps without adding a new public mode.
-- Public help and marketing claims are not impacted because no new operator command or guaranteed integration is exposed.
+- Align the public design and experience skill pages plus shared help with the new source-discovery behavior, while keeping every provider optional and availability-dependent.
+- No provider-specific marketing claim, guaranteed integration, or new operator command is introduced.
 
 ## Edge Cases
 
@@ -231,6 +235,12 @@ Promote the connector catalog to the shared reference layer, keep Mobbin as the 
   - User story link: leaves the architecture remotely durable and usable by fresh agents.
   - Depends on: Tasks 6-8.
   - Validate with: the complete proof stack declared for this extension.
+- [x] Task 10: Align declared public skill behavior.
+  - Target: public design and experience skill pages, shared public help, and this spec.
+  - Action: explain bounded cross-source convention evidence without naming or guaranteeing a provider; preserve product truth, user evidence, accessibility, platform guidance, and verified behavior as higher authorities.
+  - User story link: makes the capability understandable to operators without overstating availability or turning reference catalogs into requirements.
+  - Depends on: Tasks 7-9 and operator approval on 2026-08-24.
+  - Validate with: Astro content/schema checks, focused wording assertions, and public-surface diff review.
 
 ## Acceptance Criteria
 
@@ -241,7 +251,7 @@ Promote the connector catalog to the shared reference layer, keep Mobbin as the 
 - [x] AC 5: Unavailable, unauthenticated, rate-limited, rights-restricted, or conflicting sources produce explicit fallback behavior rather than fabricated evidence.
 - [x] AC 6: The private inspiration library remains separately stored and governed by its stricter capture, rights, approval, and takedown contract.
 - [x] AC 7: A new provider can be added by documenting one adapter profile without rewriting the shared decision algorithm or public skill surface.
-- [x] AC 8: Focused tests and metadata lint pass, and no account, dependency, provider, deployment, or public claim is mutated.
+- [x] AC 8: Focused tests and metadata lint pass, and no account, dependency, provider, deployment, or provider-specific availability claim is mutated.
 - [x] AC 9: Checklist Design is represented as one `public-web` connector and one indicator among other evidence.
 - [x] AC 10: Checklist items remain candidates until tied to a concrete product responsibility and filtered through higher authorities.
 - [x] AC 11: No full-list import, proof-by-checkbox, unsupported claim promotion, or external skill/plugin installation occurs.
@@ -249,6 +259,7 @@ Promote the connector catalog to the shared reference layer, keep Mobbin as the 
 - [x] AC 13: Availability, freshness, and eligibility remain separate; an accessible but stale source can be rejected without disabling the architecture.
 - [x] AC 14: Collect UI remains ineligible by default and can be used only as an explicitly labelled manual visual archive, never as evidence of current conventions or real-product flows.
 - [x] AC 15: Implementation consumes selected observations from the ready contract rather than reopening unbounded inspiration discovery during coding.
+- [x] AC 16: Public design, experience, and help surfaces describe optional, availability-dependent reference evidence without promising a provider or weakening higher product authorities.
 
 ## Test Strategy
 
@@ -311,20 +322,23 @@ None
 | 2026-08-24 19:52:13 UTC | 005-sg-ship | gpt-5 | Prepared the verified Checklist Design adapter extension for the configured branch upstream | shipped | Recheck public pages at the scheduled freshness review |
 | 2026-08-24 20:26:08 UTC | 102-sg-start | gpt-5 | Promoted the connector catalog, added cross-skill activation, and separated availability, freshness, and eligibility | implemented | 103-sg-verify |
 | 2026-08-24 20:26:08 UTC | 103-sg-verify | gpt-5 | Verified 97 focused scenarios, metadata, resource graph, invocation graph, budgets, skill audit, exact resource IDs, and public runtime routes | verified | 104-sg-end |
-| 2026-08-24 20:26:08 UTC | 104-sg-end | gpt-5 | Closed the cross-skill extension with canonical documentation aligned and no public capability claim added | closed | 005-sg-ship |
+| 2026-08-24 20:26:08 UTC | 104-sg-end | gpt-5 | Initially closed the cross-skill extension before the public-skill behavior impact was reclassified | superseded | Align declared public skill surfaces |
 | 2026-08-24 20:26:08 UTC | 005-sg-ship | gpt-5 | Prepared exact-scope final commit and ordinary push to the configured main upstream | shipped | Revalidate source eligibility when dated evidence or runtime callability changes |
+| 2026-08-24 21:26:06 UTC | 007-sg-content | gpt-5 | Reclassified the behavior change as editorially relevant and aligned design, experience, and shared-help promises without guaranteeing providers | implemented | Validate both public-content delivery surfaces |
+| 2026-08-24 21:28:38 UTC | 103-sg-verify | gpt-5 | Verified Astro schema, 42 site tests, the public build, 29 focused contracts, metadata, packaging, provider-neutral wording, and the 749-artifact dependency graph | verified | Deliver exact-scope commits in both repositories |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done, draft spec created.
 - `101-sg-ready`: ready; the contract is autonomous, provider-neutral, and implementation-safe.
-- `102-sg-start`: implemented; all nine bounded tasks are complete.
-- `103-sg-verify`: verified; focused scenarios, cross-skill followability, source eligibility, metadata, dependency and invocation graphs, budgets, skill audit, and public runtime visibility pass.
-- `104-sg-end`: closed; canonical documentation is updated and no public capability claim changed.
-- `005-sg-ship`: shipped; the exact-scope final commit is required on the configured `main` upstream before the user-facing closure verdict.
+- `102-sg-start`: implemented; all ten bounded tasks are complete.
+- `103-sg-verify`: verified; the original contract proof plus Astro schema, 42 site tests, public build, packaging, provider-neutral wording, metadata, and dependency graph pass.
+- `104-sg-end`: pending re-closure until both validated editorial commits are remotely durable.
+- `005-sg-ship`: the prior technical milestone is shipped; the editorial alignment still requires exact-scope delivery in both governed repositories.
 - Checklist Design extension: shipped as a bounded `public-web` indicator; no
   provider package, skill, plugin, account, or runtime connector was installed.
 
-Next step: Revalidate source eligibility when dated provider evidence or current
-runtime callability changes; any connector installation still requires separate
-approval.
+Next step: Deliver the validated editorial alignment in both governed
+repositories, then resume source-eligibility review only when dated provider
+evidence or current runtime callability changes. Any connector installation
+still requires separate approval.
