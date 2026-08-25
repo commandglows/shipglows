@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-25"
 created_at: "2026-08-25 17:01:25 UTC"
 updated: "2026-08-25"
-updated_at: "2026-08-25 17:48:00 UTC"
+updated_at: "2026-08-25 18:12:00 UTC"
 status: ready
 source_skill: sg-planning
 source_model: GPT-5 Codex
@@ -34,7 +34,11 @@ evidence:
   - "Audit 2026-08-25: the latest main commit and PR 33 have zero GitHub check runs because the only workflow excludes cli/windows/** and tests/windows/**."
   - "Audit 2026-08-25: main blocks deletion and non-fast-forward updates but requires neither pull requests nor successful checks."
   - "Audit 2026-08-25: four remote branches are fully merged; d18e779 and PR 29 retain unique work; the local UTF-8 branch is not proven disposable by ancestry."
-next_step: "Start staged implementation with fresh evidence revalidation and explicit mutation authority."
+  - "Implementation 2026-08-25: the stable ShipGlows required gate passed the complete Windows contract at PR 34 head 92b113f, and a deliberate manual failure at the same SHA propagated to a failing run."
+  - "Implementation 2026-08-25: main ruleset 20563834 now requires pull requests and the exact ShipGlows required gate while preserving deletion/non-fast-forward protection and a pull-request-only administrator recovery path."
+  - "Salvage 2026-08-25: PR 35 preserves PR 29's three patches on current main and passes 20 context-quality tests plus metadata lint; its required gate cannot start until PR 34 places the workflow on main."
+  - "Salvage 2026-08-25: d18e779 remains preserved on its original branch; clean replay onto current main stops on two technical-document conflicts and no manual resolution was attempted."
+next_step: "Review the proven PR 34 integration gate, then resume dependent PR 35 validation and explicitly approve any semantic reconciliation of d18e779."
 ---
 
 # Git, GitHub, runtime hygiene, and CI trust
@@ -209,12 +213,13 @@ None for spec authoring. The professional default is pull-request integration wi
 | 2026-08-25 | sg-planning | GPT-5 Codex | Consolidated the Git/GitHub/runtime audit into one staged durable implementation contract. | draft | Run readiness review. |
 | 2026-08-25 | 101-sg-ready | GPT-5 Codex | Reviewed user-story fit, execution autonomy, proof, linked consequences, stale-state handling, GitHub governance, and scoped OWASP risks against current local and remote evidence. | ready | Start staged implementation under explicit mutation authority. |
 | 2026-08-25 | 102-sg-start | GPT-5 Codex | Converged the Windows user developer root and all 68 Codex skill links, then implemented the stable path-aware repository gate and its focused regression contract. | in progress | Publish the CI milestone and prove the exact check on a real pull request before changing repository rules. |
+| 2026-08-25 | 102-sg-start | GPT-5 Codex | Published PR 34, proved successful and deliberately failing Windows runs at the same head, activated the protected-main ruleset, and published PR 35 as an exact current-main replay of PR 29. | in progress | Stop before merge; PR 34 must integrate before PR 35 can receive the required workflow, while d18e779 awaits explicit conflict reconciliation. |
 
 ## Current Chantier Flow
 
 - specification: ready
 - readiness: ready
 - implementation: in progress
-- verification: pending
+- verification: in progress (runtime, CI, ruleset, and PR 29 replacement proven; integration-dependent checks remain)
 - closure: pending
 - delivery: pending
