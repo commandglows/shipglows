@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-24"
 created_at: "2026-08-24 19:23:00 UTC"
 updated: "2026-08-24"
-updated_at: "2026-08-24 21:28:38 UTC"
+updated_at: "2026-08-25 08:32:26 UTC"
 status: ready
 source_skill: 900-shipglows-core
 source_model: gpt-5
@@ -46,7 +46,7 @@ evidence:
   - "Checklist Design public catalog reviewed 2026-08-24: it groups UX/UI checklist items by pages, components, flows, topics, brands, and design-system concerns."
   - "Operator decision 2026-08-24: cross-skill activation must make relevant external experience tools and references discoverable according to availability and current chantier fit."
   - "Collect UI public pages were reachable on 2026-08-24, but its statistics reported zero shots published yesterday and during the previous week; it remains ineligible by default for current-pattern claims."
-next_step: "Deliver the validated editorial alignment in both governed repositories."
+next_step: "Revalidate source eligibility when dated provider evidence or runtime callability changes."
 ---
 
 # Extensible UX Reference Intelligence
@@ -326,6 +326,8 @@ None
 | 2026-08-24 20:26:08 UTC | 005-sg-ship | gpt-5 | Prepared exact-scope final commit and ordinary push to the configured main upstream | shipped | Revalidate source eligibility when dated evidence or runtime callability changes |
 | 2026-08-24 21:26:06 UTC | 007-sg-content | gpt-5 | Reclassified the behavior change as editorially relevant and aligned design, experience, and shared-help promises without guaranteeing providers | implemented | Validate both public-content delivery surfaces |
 | 2026-08-24 21:28:38 UTC | 103-sg-verify | gpt-5 | Verified Astro schema, 42 site tests, the public build, 29 focused contracts, metadata, packaging, provider-neutral wording, and the 749-artifact dependency graph | verified | Deliver exact-scope commits in both repositories |
+| 2026-08-25 08:32:26 UTC | 104-sg-end | gpt-5 | Reclosed the chantier after the declared public skill and shared-help surfaces were aligned and validated | closed | 005-sg-ship |
+| 2026-08-25 08:32:26 UTC | 005-sg-ship | gpt-5 | Delivered the public site alignment at `a2a1342` and the canonical help/spec alignment at `de34ba6` on their configured `main` upstreams | shipped | Revalidate source eligibility when dated evidence or runtime callability changes |
 
 ## Current Chantier Flow
 
@@ -333,12 +335,11 @@ None
 - `101-sg-ready`: ready; the contract is autonomous, provider-neutral, and implementation-safe.
 - `102-sg-start`: implemented; all ten bounded tasks are complete.
 - `103-sg-verify`: verified; the original contract proof plus Astro schema, 42 site tests, public build, packaging, provider-neutral wording, metadata, and dependency graph pass.
-- `104-sg-end`: pending re-closure until both validated editorial commits are remotely durable.
-- `005-sg-ship`: the prior technical milestone is shipped; the editorial alignment still requires exact-scope delivery in both governed repositories.
+- `104-sg-end`: closed; canonical documentation and declared public skill behavior are aligned.
+- `005-sg-ship`: shipped; public site commit `a2a1342` and canonical help/spec commit `de34ba6` are remotely durable on their configured `main` upstreams.
 - Checklist Design extension: shipped as a bounded `public-web` indicator; no
   provider package, skill, plugin, account, or runtime connector was installed.
 
-Next step: Deliver the validated editorial alignment in both governed
-repositories, then resume source-eligibility review only when dated provider
-evidence or current runtime callability changes. Any connector installation
-still requires separate approval.
+Next step: Revalidate source eligibility when dated provider evidence or current
+runtime callability changes. Any connector installation still requires separate
+approval.
