@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-25"
 created_at: "2026-08-25 17:01:25 UTC"
 updated: "2026-08-25"
-updated_at: "2026-08-25 18:18:00 UTC"
+updated_at: "2026-08-25 18:31:00 UTC"
 status: ready
 source_skill: sg-planning
 source_model: GPT-5 Codex
@@ -39,7 +39,10 @@ evidence:
   - "Salvage 2026-08-25: PR 35 preserves PR 29's three patches on current main and passes 20 context-quality tests plus metadata lint; its required gate cannot start until PR 34 places the workflow on main."
   - "Salvage 2026-08-25: d18e779 remains preserved on its original branch; clean replay onto current main stops on two technical-document conflicts and no manual resolution was attempted."
   - "CI hardening 2026-08-25: a transient anonymous GitHub API 403 on exact-head archive proof exposed a redundant SHA lookup; strict complete SHAs now bypass only that lookup, and the complete local Windows contract passes."
-next_step: "Review the proven PR 34 integration gate, then resume dependent PR 35 validation and explicitly approve any semantic reconciliation of d18e779."
+  - "Integration 2026-08-25: PR 34 merged through merge commit 76550eb after its exact-head gate passed; the post-merge main gate also passed, and the canonical development runtime fast-forwarded to that result with 68/68 skill links valid."
+  - "Integration 2026-08-25: PR 35 merged through merge commit 2a78f7b after its exact-head no-Windows-impact gate passed; its post-merge main gate passed and original draft PR 29 was closed as superseded without deleting its branch."
+  - "Salvage 2026-08-25: d18e779 was reconciled on current main as f575916 and published in PR 36; the focused capability contract passes under Windows Git Bash while its POSIX permission assertion remains enforced on Linux."
+next_step: "Review PR 36 and its exact-head gate; merge and destructive cleanup remain separately approval-gated."
 ---
 
 # Git, GitHub, runtime hygiene, and CI trust
@@ -212,11 +215,11 @@ None for spec authoring. The professional default is pull-request integration wi
 | Artifact | Current evidence | Disposition before cleanup approval |
 | --- | --- | --- |
 | `codex/development-runtime` worktree | Clean, no matching process, exact current `origin/main`, canonical developer root | Retain permanently |
-| PR 34 / `codex/git-github-hygiene-and-ci` | Clean, published, exact-head required gate passed before final SHA-lookup hardening | Retain; merge decision pending |
-| PR 35 / `codex/compact-conversation-handoff-current` | Clean, published, three PR 29 patches preserved, focused proof passed | Retain; validate after PR 34 integration |
-| PR 29 / `codex/compact-conversation-handoff-contract` | Original draft and three unique commits intact | Retain until replacement is merged and contained |
-| `codex/windows-dev-skill-channel` / `d18e779` | Clean original, one unique commit, two documentation conflicts on current main | Retain; semantic reconciliation requires explicit authority |
-| `codex/saas-capability-salvage` worktree | Clean, no matching process, reset to current main after aborted conflict | Retain as isolated reconciliation target |
+| PR 34 / `codex/git-github-hygiene-and-ci` | Merged as `76550eb`; exact-head and post-merge required gates passed | Integrated; branch/worktree become cleanup candidates |
+| PR 35 / `codex/compact-conversation-handoff-current` | Merged as `2a78f7b`; three replacement commits contained; exact-head and post-merge gates passed | Integrated; branch/worktree become cleanup candidates |
+| PR 29 / `codex/compact-conversation-handoff-contract` | Closed as superseded after equivalent PR 35 integration; original branch intact | Retain until cleanup approval |
+| `codex/windows-dev-skill-channel` / `d18e779` | Clean original with one unique commit, preserved unchanged | Retain until PR 36 integration is proven |
+| PR 36 / `codex/saas-capability-salvage` | Reconciled current-main commit `f575916`; focused CLI proof passed; original branch preserved | Retain; review and merge decision pending |
 | icon-system remote branch | Fully contained in main, zero unique commits | Cleanup candidate only after destructive approval |
 | Clerk, global-toolbox, and quality-repair branches/worktrees | Clean, no matching process, fully contained in main, merged PRs 33/30/32 | Cleanup candidates only after destructive approval |
 | local UTF-8 branch/worktree | Clean, no matching process; unique SHA but functional test change is identical to main commit `1bc0b88`, while main owns newer bug/test receipts | Content-superseded cleanup candidate only after destructive approval |
@@ -231,6 +234,7 @@ None for spec authoring. The professional default is pull-request integration wi
 | 2026-08-25 | 102-sg-start | GPT-5 Codex | Converged the Windows user developer root and all 68 Codex skill links, then implemented the stable path-aware repository gate and its focused regression contract. | in progress | Publish the CI milestone and prove the exact check on a real pull request before changing repository rules. |
 | 2026-08-25 | 102-sg-start | GPT-5 Codex | Published PR 34, proved successful and deliberately failing Windows runs at the same head, activated the protected-main ruleset, and published PR 35 as an exact current-main replay of PR 29. | in progress | Stop before merge; PR 34 must integrate before PR 35 can receive the required workflow, while d18e779 awaits explicit conflict reconciliation. |
 | 2026-08-25 | 102-sg-start | GPT-5 Codex | Classified every retained branch/worktree and hardened exact-SHA bootstrap proof after a transient anonymous API quota failure, without tokens or relaxed validation. | in progress | Publish and prove the hardening commit, then request exact merge authority for PR 34. |
+| 2026-08-25 | sg-release / sg-engineering | GPT-5 Codex | Merged PRs 34 and 35 only after exact-head gates, proved both post-merge main runs, synchronized the canonical runtime, closed superseded PR 29, and published reconciled d18e779 work as PR 36. | in progress | Review PR 36; retain every original and cleanup candidate until separate authority. |
 
 ## Current Chantier Flow
 
