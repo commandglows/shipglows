@@ -146,21 +146,25 @@ function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref, [string]$Cur
     }
 
     $repositoryPath = $Matches[1]
-    $encodedRef = [Uri]::EscapeDataString($Ref)
-    $commitApiUrl = "https://api.github.com/repos/$repositoryPath/commits/$encodedRef"
-    $commitResponse = (& $CurlPath -fsSL --retry 3 --retry-all-errors --retry-delay 2 -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' $commitApiUrl | Out-String)
-    if ($LASTEXITCODE -ne 0) {
-        Fail "Could not resolve ShipGlows ref: $Ref"
-    }
+    if ($Ref -match '^[0-9a-fA-F]{40}$') {
+        $commitSha = $Ref.ToLowerInvariant()
+    } else {
+        $encodedRef = [Uri]::EscapeDataString($Ref)
+        $commitApiUrl = "https://api.github.com/repos/$repositoryPath/commits/$encodedRef"
+        $commitResponse = (& $CurlPath -fsSL --retry 3 --retry-all-errors --retry-delay 2 -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' $commitApiUrl | Out-String)
+        if ($LASTEXITCODE -ne 0) {
+            Fail "Could not resolve ShipGlows ref: $Ref"
+        }
 
-    try {
-        $commit = $commitResponse | ConvertFrom-Json
-    } catch {
-        Fail "GitHub did not return a valid commit for ref: $Ref"
-    }
-    $commitSha = [string]$commit.sha
-    if ($commitSha -notmatch '^[0-9a-f]{40}$') {
-        Fail "GitHub did not return a valid commit for ref: $Ref"
+        try {
+            $commit = $commitResponse | ConvertFrom-Json
+        } catch {
+            Fail "GitHub did not return a valid commit for ref: $Ref"
+        }
+        $commitSha = [string]$commit.sha
+        if ($commitSha -notmatch '^[0-9a-f]{40}$') {
+            Fail "GitHub did not return a valid commit for ref: $Ref"
+        }
     }
 
     [PSCustomObject]@{

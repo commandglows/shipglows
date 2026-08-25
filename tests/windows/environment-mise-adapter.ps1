@@ -18,9 +18,19 @@ $profileBefore = if (Test-Path -LiteralPath $PROFILE -PathType Leaf) {
 }
 
 $contract = Join-Path $root 'tests\environment\mise-backend-contract.py'
-$output = & $python.Source $contract 2>&1
-if ($LASTEXITCODE -ne 0) {
-    throw "mise adapter child fixture failed with exit $LASTEXITCODE`n$($output -join [Environment]::NewLine)"
+$previousErrorActionPreference = $ErrorActionPreference
+try {
+    # Windows PowerShell turns native stderr into error records. Keep the
+    # complete child output and decide from its exit code instead of aborting
+    # on the first diagnostic line.
+    $ErrorActionPreference = 'Continue'
+    $output = & $python.Source $contract 2>&1
+    $childExitCode = $LASTEXITCODE
+} finally {
+    $ErrorActionPreference = $previousErrorActionPreference
+}
+if ($childExitCode -ne 0) {
+    throw "mise adapter child fixture failed with exit $childExitCode`n$($output -join [Environment]::NewLine)"
 }
 if (($output -join [Environment]::NewLine) -notmatch 'ShipGlows mise backend contract: OK') {
     throw 'mise adapter child fixture returned no success evidence.'
