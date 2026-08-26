@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 07:42:21 UTC"
@@ -122,4 +122,4 @@ Let the native ShipGlows Windows installer independently inspect and, after expl
 4. Integrate packaging and interactive Windows flow — complete.
 5. Add deterministic adversarial tests and operator documentation — complete.
 6. Run the repository proof set and review the diff — complete.
-7. Commit and push the approved branch — in progress.
+7. Commit and push the approved branch — complete.
