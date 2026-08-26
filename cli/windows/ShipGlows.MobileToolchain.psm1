@@ -398,6 +398,7 @@ function Get-SgProjectServiceNeeds {
     $convex = $false
     $vercel = $false
     $clerk = $false
+    $auth0 = $false
     $androidNative = $false
     $queue = New-Object Collections.Generic.Queue[object]
     $queue.Enqueue([pscustomobject]@{ Path=$root; Depth=0 })
@@ -427,6 +428,7 @@ function Get-SgProjectServiceNeeds {
                 $convex = $convex -or $packageText -match '(?i)"convex"\s*:'
                 $vercel = $vercel -or $packageText -match '(?i)"(?:vercel|@astrojs/vercel)"\s*:|"[^"\r\n]*"\s*:\s*"[^"]*\bvercel\b'
                 $clerk = $clerk -or $packageText -match '(?i)"(?:clerk|@clerk/[^"/]+)"\s*:'
+                $auth0 = $auth0 -or $packageText -match '(?i)"(?:auth0|@auth0/[^"/]+)"\s*:'
             } catch { }
         }
         foreach ($gradleName in @('build.gradle','build.gradle.kts')) {
@@ -441,6 +443,7 @@ function Get-SgProjectServiceNeeds {
             $dart = $true
             $playwright = $playwright -or $pubspecText -match '(?m)^\s*flutter\s*:\s*$|^\s*sdk\s*:\s*flutter\s*$'
             $flutterFire = $flutterFire -or [regex]::IsMatch($pubspecText, '(?m)^\s*(firebase_core|cloud_firestore|firebase_auth|firebase_[a-z0-9_]+)\s*:')
+            $auth0 = $auth0 -or [regex]::IsMatch($pubspecText, '(?m)^\s*auth0_flutter\s*:')
         }
         if ($current.Depth -ge 4) { continue }
         foreach ($directory in @(Get-ChildItem -LiteralPath $current.Path -Directory -Force -ErrorAction SilentlyContinue)) {
@@ -449,7 +452,7 @@ function Get-SgProjectServiceNeeds {
             $queue.Enqueue([pscustomobject]@{ Path=$directory.FullName; Depth=$current.Depth + 1 })
         }
     }
-    [pscustomobject]@{ Dart=[bool]$dart; Playwright=[bool]$playwright; GitHub=[bool]$github; Firebase=[bool]$firebase; FlutterFire=[bool]$flutterFire; Supabase=[bool]$supabase; Convex=[bool]$convex; Vercel=[bool]$vercel; Clerk=[bool]$clerk; AndroidNative=[bool]$androidNative; DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
+    [pscustomobject]@{ Dart=[bool]$dart; Playwright=[bool]$playwright; GitHub=[bool]$github; Firebase=[bool]$firebase; FlutterFire=[bool]$flutterFire; Supabase=[bool]$supabase; Convex=[bool]$convex; Vercel=[bool]$vercel; Clerk=[bool]$clerk; Auth0=[bool]$auth0; AndroidNative=[bool]$androidNative; DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
 }
 
 function Resolve-SgAndroidCommandLineToolsPackage {
@@ -521,14 +524,17 @@ function Get-SgMachineToolboxPlan {
     param([Parameter(Mandatory=$true)][hashtable]$Versions)
     $plan = New-Object Collections.Generic.List[object]
     foreach ($definition in @(
-        @{ Name='firebase';  Tool='npm:firebase-tools'; Command='firebase';   VersionKey='Firebase' },
-        @{ Name='supabase';  Tool='aqua:supabase/cli'; Command='supabase';    VersionKey='Supabase' },
-        @{ Name='convex';    Tool='npm:convex';         Command='convex';      VersionKey='Convex' },
-        @{ Name='vercel';    Tool='npm:vercel';         Command='vercel';      VersionKey='Vercel' },
-        @{ Name='clerk';     Tool='npm:clerk';          Command='clerk';       VersionKey='Clerk' }
+        @{ Name='firebase';  Tool='npm:firebase-tools'; Command='firebase';   VersionKey='Firebase'; Optional=$false },
+        @{ Name='supabase';  Tool='aqua:supabase/cli'; Command='supabase';    VersionKey='Supabase'; Optional=$false },
+        @{ Name='convex';    Tool='npm:convex';         Command='convex';      VersionKey='Convex'; Optional=$false },
+        @{ Name='vercel';    Tool='npm:vercel';         Command='vercel';      VersionKey='Vercel'; Optional=$false },
+        @{ Name='clerk';     Tool='npm:clerk';          Command='clerk';       VersionKey='Clerk'; Optional=$false },
+        @{ Name='auth0';     Tool='aqua:auth0/auth0-cli'; Command='auth0';      VersionKey='Auth0'; Optional=$true }
     )) {
+        if ($definition.Optional -and -not $Versions.ContainsKey($definition.VersionKey)) { continue }
         $version = [string]$Versions[$definition.VersionKey]
-        if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw "$($definition.Name) requires an exact resolved machine-toolbox version." }
+        $versionPattern = if ($definition.Name -eq 'auth0') { '^\d+\.\d+\.\d+$' } else { '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$' }
+        if ($version -notmatch $versionPattern) { throw "$($definition.Name) requires an exact resolved machine-toolbox version." }
         $plan.Add([pscustomobject]@{ Name=$definition.Name; Tool=$definition.Tool; Command=$definition.Command; Version=$version })
     }
     return $plan.ToArray()
@@ -536,12 +542,18 @@ function Get-SgMachineToolboxPlan {
 
 function Get-SgMachineToolboxMiseConfig {
     param([Parameter(Mandatory=$true)][object[]]$Plan)
-    $expectedNames = @('firebase','supabase','convex','vercel','clerk')
-    if (($Plan.Name -join '|') -cne ($expectedNames -join '|')) { throw 'Machine toolbox plan is incomplete or out of canonical order.' }
+    $legacyNames = @('firebase','supabase','convex','vercel','clerk')
+    $currentNames = @('firebase','supabase','convex','vercel','clerk','auth0')
+    $actualNames = $Plan.Name -join '|'
+    if ($actualNames -cne ($legacyNames -join '|') -and $actualNames -cne ($currentNames -join '|')) { throw 'Machine toolbox plan is incomplete or out of canonical order.' }
     $lines = New-Object Collections.Generic.List[string]
     $lines.Add('[tools]')
     foreach ($item in $Plan) {
-        if ([string]$item.Tool -notmatch '^(?:npm:[a-z0-9@/._-]+|aqua:supabase/cli)$' -or [string]$item.Version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'Machine toolbox contains an invalid or mutable coordinate.' }
+        $tool = [string]$item.Tool
+        $version = [string]$item.Version
+        $validTool = $tool -match '^npm:[a-z0-9@/._-]+$' -or $tool -in @('aqua:supabase/cli','aqua:auth0/auth0-cli')
+        $validVersion = if ($tool -eq 'aqua:auth0/auth0-cli') { $version -match '^\d+\.\d+\.\d+$' } else { $version -match '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$' }
+        if (-not $validTool -or -not $validVersion) { throw 'Machine toolbox contains an invalid or mutable coordinate.' }
         $lines.Add(('"{0}" = "{1}"' -f [string]$item.Tool,[string]$item.Version))
     }
     return ($lines -join "`n") + "`n"
@@ -573,6 +585,7 @@ function Get-SgMachineToolboxWrapperContent {
         "set `"MISE_CONFIG_DIR=$config`"",
         "set `"MISE_CEILING_PATHS=$ceiling`"",
         'set "MISE_SYSTEM_DEPS=ignore"',
+        $(if ($Command -eq 'auth0') { 'set "AUTH0_CLI_ANALYTICS=false"' }),
         'set "SHIPGLOWS_TOOLBOX_EXECUTABLE="',
         "for /f `"usebackq delims=`" %%I in (``@`"$mise`" -C `"$root`" which $Command 2^>nul``) do if not defined SHIPGLOWS_TOOLBOX_EXECUTABLE set `"SHIPGLOWS_TOOLBOX_EXECUTABLE=%%I`"",
         'if not defined SHIPGLOWS_TOOLBOX_EXECUTABLE exit /b 127',

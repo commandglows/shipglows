@@ -131,12 +131,20 @@ Assert-Sg (($servicePlan | ForEach-Object Version) -notcontains 'latest') 'Servi
 $mutableRejected = $false
 try { [void](Get-SgServiceCliPlan -Needs ([pscustomobject]@{ Firebase=$true; FlutterFire=$false; Supabase=$false }) -Versions @{ Firebase='latest' }) } catch { $mutableRejected=$true }
 Assert-Sg $mutableRejected 'Mutable service CLI versions must be rejected.'
-$toolboxVersions = @{ Firebase='15.27.0'; Supabase='2.45.0'; Convex='1.28.0'; Vercel='59.5.0'; Clerk='3.1.0' }
+$toolboxVersions = @{ Firebase='15.27.0'; Supabase='2.45.0'; Convex='1.28.0'; Vercel='59.5.0'; Clerk='3.1.0'; Auth0='1.33.0' }
 $toolboxPlan = @(Get-SgMachineToolboxPlan -Versions $toolboxVersions)
-Assert-Sg (($toolboxPlan.Name -join '|') -eq 'firebase|supabase|convex|vercel|clerk') 'The machine toolbox must install every approved provider CLI independently of project detection.'
+Assert-Sg (($toolboxPlan.Name -join '|') -eq 'firebase|supabase|convex|vercel|clerk|auth0') 'The machine toolbox must install every approved provider CLI independently of project detection.'
 $toolboxConfig = Get-SgMachineToolboxMiseConfig -Plan $toolboxPlan
-foreach ($coordinate in @('npm:firebase-tools','aqua:supabase/cli','npm:convex','npm:vercel','npm:clerk')) { Assert-Sg ($toolboxConfig.Contains('"' + $coordinate + '"')) "Machine toolbox config is missing $coordinate." }
+foreach ($coordinate in @('npm:firebase-tools','aqua:supabase/cli','npm:convex','npm:vercel','npm:clerk','aqua:auth0/auth0-cli')) { Assert-Sg ($toolboxConfig.Contains('"' + $coordinate + '"')) "Machine toolbox config is missing $coordinate." }
 Assert-Sg ($toolboxConfig -notmatch '(?im)latest|stable|\*|\^|~') 'Machine toolbox config must contain only exact immutable versions.'
+$auth0PrereleaseRejected = $false
+$prereleaseVersions = $toolboxVersions.Clone(); $prereleaseVersions.Auth0 = '1.34.0-beta.1'
+try { [void](Get-SgMachineToolboxPlan -Versions $prereleaseVersions) } catch { $auth0PrereleaseRejected = $true }
+Assert-Sg $auth0PrereleaseRejected 'Auth0 machine-toolbox versions must be stable, not prereleases.'
+$auth0PendingVersions = $toolboxVersions.Clone(); $auth0PendingVersions.Remove('Auth0')
+$auth0PendingPlan = @(Get-SgMachineToolboxPlan -Versions $auth0PendingVersions)
+Assert-Sg (($auth0PendingPlan.Name -join '|') -eq 'firebase|supabase|convex|vercel|clerk') 'A pending Auth0 resolution must not block the established provider toolbox plan.'
+Assert-Sg ((Get-SgMachineToolboxMiseConfig -Plan $auth0PendingPlan) -notmatch 'auth0') 'A fresh unresolved Auth0 release must remain absent rather than use a mutable fallback.'
 $installerSource = [IO.File]::ReadAllText((Join-Path $root 'cli\windows\install-devserver.ps1'))
 $exactToolRetry = '@(''install'',"$($item.Tool)@$($item.Version)")'
 Assert-Sg ($installerSource.Contains($exactToolRetry)) 'A partially installed machine toolbox must retry each missing CLI by exact mise coordinate.'
@@ -211,6 +219,9 @@ exit /b 23
     $firebaseWrapperRun = Invoke-SgBoundedProcess -File $firebaseWrapper -Arguments @('--version') -TimeoutSeconds 20
     Assert-Sg ($firebaseWrapperRun.ExitCode -eq 23 -and $firebaseWrapperRun.Output -match 'RESOLVED_FIREBASE=.*ARGS="?--version"?') "Machine toolbox wrapper must resolve the exact mise executable and preserve its child exit code. Exit=$($firebaseWrapperRun.ExitCode); output=$($firebaseWrapperRun.Output)"
     Assert-Sg ([IO.File]::ReadAllText($firebaseWrapper).Contains('which firebase')) 'Machine toolbox wrapper must fail closed through mise which instead of falling back to PATH command resolution.'
+    $auth0WrapperText = Get-SgMachineToolboxWrapperContent -MisePath $fakeMise -ToolboxRoot $fakeToolchain -Command auth0
+    Assert-Sg ($auth0WrapperText.Contains('set "AUTH0_CLI_ANALYTICS=false"')) 'The Auth0 wrapper must disable analytics for its child process.'
+    Assert-Sg (-not ([IO.File]::ReadAllText($firebaseWrapper).Contains('AUTH0_CLI_ANALYTICS'))) 'Auth0 analytics policy must not leak into other provider wrappers.'
 
     $codexJson = '{"name":"firebase","enabled":true,"transport":{"type":"stdio","command":"C:\\Program Files\\nodejs\\npx.cmd","args":["-y","--registry=https://registry.npmjs.org/","firebase-tools@15.27.0","mcp"]}}'
     $firebaseServer = [pscustomobject]@{ Name='firebase'; Type='local'; Url=''; Command='C:\Program Files\nodejs\npx.cmd'; Arguments=@('-y','--registry=https://registry.npmjs.org/','firebase-tools@15.27.0','mcp') }
@@ -270,14 +281,14 @@ exit /b 23
     $unprovenUserBranch = Get-SgFlutterInstallState -FlutterRoot $partialFlutter -Runner { param($f,$a,$timeout) $output=if($f -match 'dart'){'Dart SDK version: 3.13.1'}else{"Flutter $([char]0x2022) channel [user-branch]"}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
     Assert-Sg ($unprovenUserBranch.Status -eq 'partial') 'A detached Flutter label without framework revision and Dart evidence must fail closed.'
     $empty = Get-SgProjectServiceNeeds -Workspace $fixture
-    Assert-Sg (-not $empty.Dart -and -not $empty.Playwright -and -not $empty.GitHub -and -not $empty.Firebase -and -not $empty.FlutterFire -and -not $empty.Supabase -and -not $empty.Convex -and -not $empty.Vercel -and -not $empty.Clerk -and -not $empty.AndroidNative) 'Zero-service workspace detected false dependencies.'
+    Assert-Sg (-not $empty.Dart -and -not $empty.Playwright -and -not $empty.GitHub -and -not $empty.Firebase -and -not $empty.FlutterFire -and -not $empty.Supabase -and -not $empty.Convex -and -not $empty.Vercel -and -not $empty.Clerk -and -not $empty.Auth0 -and -not $empty.AndroidNative) 'Zero-service workspace detected false dependencies.'
     $oneProject = Join-Path $fixture 'one\nested'
     New-Item -ItemType Directory -Path $oneProject -Force | Out-Null
     Set-Content -LiteralPath (Join-Path $oneProject 'firebase.json') -Value '{}'
     $one = Get-SgProjectServiceNeeds -Workspace $fixture
     Assert-Sg ($one.Firebase -and -not $one.FlutterFire -and -not $one.Supabase) 'One nested service need was not detected exactly.'
-    Set-Content -LiteralPath (Join-Path $fixture 'pubspec.yaml') -Value "dependencies:`n  firebase_core: any"
-    Set-Content -LiteralPath (Join-Path $fixture 'package.json') -Value '{"dependencies":{"convex":"^1.0.0","@clerk/astro":"^6.0.0"},"scripts":{"deploy":"vercel"}}'
+    Set-Content -LiteralPath (Join-Path $fixture 'pubspec.yaml') -Value "dependencies:`n  firebase_core: any`n  auth0_flutter: any"
+    Set-Content -LiteralPath (Join-Path $fixture 'package.json') -Value '{"dependencies":{"convex":"^1.0.0","@clerk/astro":"^6.0.0","@auth0/auth0-react":"^2.0.0"},"scripts":{"deploy":"vercel"}}'
     Set-Content -LiteralPath (Join-Path $fixture 'vercel.json') -Value '{}'
     New-Item -ItemType Directory -Path (Join-Path $fixture '.git') -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $fixture 'android\app') -Force | Out-Null
@@ -285,7 +296,7 @@ exit /b 23
     New-Item -ItemType Directory -Path (Join-Path $fixture 'supabase') | Out-Null
     Set-Content -LiteralPath (Join-Path $fixture 'supabase\config.toml') -Value 'project_id = "fixture"'
     $many = Get-SgProjectServiceNeeds -Workspace $fixture
-    Assert-Sg ($many.Dart -and -not $many.Playwright -and $many.GitHub -and $many.Firebase -and $many.FlutterFire -and $many.Supabase -and $many.Convex -and $many.Vercel -and $many.Clerk -and $many.AndroidNative) 'Many-service workspace detection is incomplete.'
+    Assert-Sg ($many.Dart -and -not $many.Playwright -and $many.GitHub -and $many.Firebase -and $many.FlutterFire -and $many.Supabase -and $many.Convex -and $many.Vercel -and $many.Clerk -and $many.Auth0 -and $many.AndroidNative) 'Many-service workspace detection is incomplete.'
     $bounded = Get-SgProjectServiceNeeds -Workspace $fixture -MaxDirectories 1
     Assert-Sg ($bounded.ScanLimitReached) 'Service scanning must stop at its directory bound.'
 
@@ -578,7 +589,10 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
         }
         function Invoke-SgManagedTauriMise {
             param([string]$MisePath,[string]$ToolchainRoot,[string[]]$Arguments,[int]$TimeoutSeconds,[switch]$Visible,[string]$OperationId,[string]$Label)
-            if ($Arguments[0] -eq 'latest') { return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output='2.115.0'} }
+            if ($Arguments[0] -eq 'latest') {
+                $latestVersion = if ($Arguments[1] -eq 'aqua:auth0/auth0-cli') { '1.33.0' } else { '2.115.0' }
+                return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=$latestVersion}
+            }
             if ($Arguments.Count -eq 2) { [void]$targetedInstalls.Add($Arguments[1]) }
             return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=''}
         }
@@ -588,7 +602,7 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
                 $clerkProbeCount.Value++
                 if ($clerkProbeCount.Value -eq 1) { return [pscustomobject]@{TimedOut=$false;ExitCode=127;Output=''} }
             }
-            $version = @{ firebase='15.28.1'; supabase='2.115.0'; convex='1.45.0'; vercel='59.5.0'; clerk='3.2.0' }[$name]
+            $version = @{ firebase='15.28.1'; supabase='2.115.0'; convex='1.45.0'; vercel='59.5.0'; clerk='3.2.0'; auth0='1.33.0' }[$name]
             return [pscustomobject]@{TimedOut=$false;ExitCode=0;Output=$version}
         }
         function Move-SgAtomicReplace([string]$Source,[string]$Destination) { Move-Item -LiteralPath $Source -Destination $Destination -Force }
@@ -603,6 +617,7 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
         }
     }
     Assert-Sg $partialToolboxConverges 'A successful aggregate install with only Clerk missing must retry exactly npm:clerk@3.2.0 and become ready after re-probe.'
+    Assert-Sg ($serviceInstallerSource -match 'preservePinnedAuth0') 'A transient Auth0 resolution failure must preserve a previously pinned Auth0 toolbox entry.'
     Assert-Sg ($serviceInstallerSource -match 'FlutterFire is a Dart Pub tool' -and $serviceInstallerSource -match "pub','global','activate','flutterfire_cli") 'FlutterFire must remain a machine-scoped Dart Pub tool independent of project detection.'
     $playwrightInstaller = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Install-SgManagedPlaywrightRuntimes' },$true))
     Assert-Sg ($playwrightInstaller.Count -eq 1 -and $playwrightInstaller[0].Extent.Text -notmatch '@playwright/cli' -and $playwrightInstaller[0].Extent.Text -match "cli %\*") 'Playwright agent commands must use the CLI bundled with the validated Playwright package.'
@@ -669,13 +684,13 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
             Kilo=[pscustomobject]@{Installed=$false;McpSummary='not applicable'}
             Gemini=[pscustomobject]@{Installed=$true;McpSummary='ready: dart, github'}
         }
-        $services = [pscustomobject]@{ Firebase='ready (14.0.0)'; FlutterFire='ready (1.3.1)'; Convex='ready (1.28.0)'; Vercel='ready (48.0.0)'; Supabase='not detected'; Clerk='ready (0.4.0)'; AndroidNative='not detected' }
+        $services = [pscustomobject]@{ Firebase='ready (14.0.0)'; FlutterFire='ready (1.3.1)'; Convex='ready (1.28.0)'; Vercel='ready (48.0.0)'; Supabase='not detected'; Clerk='ready (0.4.0)'; Auth0='ready (1.33.0)'; AndroidNative='not detected' }
         $reportPath = Write-SgGlobalDevelopmentEnvironment $agentInfo ([pscustomobject]@{ Installed=$true; McpConfigured=$true; McpVerified=$true; ConfigPath='per-agent'; ChromiumPath='C:\chromium.exe' }) ([pscustomobject]@{ StableReady='yes'; StableVersion='1.62.1'; StableRevision='1234'; AgentCliReady='yes'; AgentCliVersion='0.1.0'; MotionReady='yes' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $true ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false }) ([pscustomobject]@{ AndroidStudioReady=$true; VisualStudioCppReady=$false; FirebaseDeviceStreamingReady=$false }) $services $false
         $report = [IO.File]::ReadAllText($reportPath)
         $incompleteWindowsReportPath = Write-SgGlobalDevelopmentEnvironment $agentInfo ([pscustomobject]@{ Installed=$true; McpConfigured=$true; McpVerified=$true; ConfigPath='per-agent'; ChromiumPath='C:\chromium.exe' }) ([pscustomobject]@{ StableReady='yes'; StableVersion='1.62.1'; StableRevision='1234'; AgentCliReady='yes'; AgentCliVersion='0.1.0'; MotionReady='yes' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $false ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false }) ([pscustomobject]@{ AndroidStudioReady=$true; VisualStudioCppReady=$true; FirebaseDeviceStreamingReady=$false }) $services $true
         $incompleteWindowsReport = [IO.File]::ReadAllText($incompleteWindowsReportPath)
     } finally { $env:USERPROFILE = $savedUserProfile }
-    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','Android Studio installed: yes','Visual Studio Desktop C++ workload ready: no','Flutter Windows desktop toolchain ready: no','Windows Developer Mode enabled: no','Firebase Android Device Streaming configured: no','Playwright MCP configured: yes','Playwright CLI installed: yes','Playwright CLI version: 1.62.1','Playwright Chromium revision: 1234','Playwright Agent CLI installed: yes','Motion runtime ready: yes','Codex MCP readiness: ready: dart, firebase','Claude MCP readiness: partial: ready dart; pending firebase','Gemini MCP readiness: ready: dart, github','Convex development tooling: ready (1.28.0)','Clerk development tooling: ready (0.4.0)','Windows-supported Flutter targets: web, Android, Windows desktop','rerun the ShipGlows full installer in an interactive PowerShell')) {
+    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','Android Studio installed: yes','Visual Studio Desktop C++ workload ready: no','Flutter Windows desktop toolchain ready: no','Windows Developer Mode enabled: no','Firebase Android Device Streaming configured: no','Playwright MCP configured: yes','Playwright CLI installed: yes','Playwright CLI version: 1.62.1','Playwright Chromium revision: 1234','Playwright Agent CLI installed: yes','Motion runtime ready: yes','Codex MCP readiness: ready: dart, firebase','Claude MCP readiness: partial: ready dart; pending firebase','Gemini MCP readiness: ready: dart, github','Convex development tooling: ready (1.28.0)','Clerk development tooling: ready (0.4.0)','Auth0 development tooling: ready (1.33.0)','Windows-supported Flutter targets: web, Android, Windows desktop','rerun the ShipGlows full installer in an interactive PowerShell')) {
         Assert-Sg ($report.Contains($expected)) "Environment report is missing actionable mobile state: $expected"
     }
     Assert-Sg ($incompleteWindowsReport.Contains('Flutter and Dart installed: no')) 'The environment report must retain the failed Flutter prerequisite.'

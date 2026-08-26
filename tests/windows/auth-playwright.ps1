@@ -10,11 +10,14 @@ function Assert-Sg([bool]$Condition, [string]$Message) { if (-not $Condition) { 
 
 $definitions = @(Get-SgAuthenticationDefinitions)
 $names = @($definitions.Name)
-foreach ($required in @('Codex','Claude','OpenCode','Kilo','Gemini','GitHub','Firebase','Vercel','Clerk','Supabase','Convex')) {
+foreach ($required in @('Codex','Claude','OpenCode','Kilo','Gemini','GitHub','Firebase','Vercel','Clerk','Auth0','Supabase','Convex')) {
     Assert-Sg ($names -contains $required) "Missing authentication definition: $required"
 }
 Assert-Sg ((@($definitions | Where-Object Name -eq 'Gemini')[0]).LoginMode -eq 'interactive-cli') 'Gemini must use its native interactive CLI.'
 Assert-Sg ((@($definitions | Where-Object Name -eq 'Convex')[0]).LoginMode -eq 'project') 'Convex authentication must remain project-scoped.'
+$auth0 = @($definitions | Where-Object Name -eq 'Auth0')[0]
+Assert-Sg ($auth0.Command -eq 'auth0.cmd' -and ($auth0.StatusArguments -join ' ') -eq 'tenants list --json-compact --no-input') 'Auth0 status must use the closed non-interactive tenant-list command.'
+Assert-Sg (($auth0.LoginArguments -join ' ') -eq 'login' -and ($auth0.LogoutArguments -join ' ') -eq 'logout') 'Auth0 login and logout must remain explicit native CLI operations.'
 Assert-Sg (-not (@($definitions.StatusArguments + $definitions.LoginArguments + $definitions.LogoutArguments) -match '(token|api-key|access-key|secret)')) 'Authentication commands must not request or print secrets.'
 
 $loggedIn = Get-SgAuthenticationState -Definition ([pscustomobject]@{ Name='Fixture'; Command='fixture.cmd'; StatusArguments=@('status'); LoginMode='command' }) -Runner { [pscustomobject]@{ ExitCode=0; TimedOut=$false; Output='private account data' } }

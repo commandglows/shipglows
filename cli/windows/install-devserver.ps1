@@ -752,7 +752,7 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
         $agentLines += "- $agentName MCP readiness: $mcp"
     }
     $serviceLines = @()
-    foreach ($serviceName in @('Firebase','FlutterFire','Convex','Vercel','Supabase','Clerk','GoogleCloud','AndroidNative')) {
+    foreach ($serviceName in @('Firebase','FlutterFire','Convex','Vercel','Supabase','Clerk','Auth0','GoogleCloud','AndroidNative')) {
         $state = if ($ServiceInfo -and $ServiceInfo.PSObject.Properties[$serviceName]) { [string]$ServiceInfo.$serviceName } else { 'not detected' }
         $serviceLines += "- $serviceName development tooling: $state"
     }
@@ -1650,8 +1650,8 @@ function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
 function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [string]$NpmPath, [bool]$GoogleCloudReady) {
     $needs = Get-SgProjectServiceNeeds -Workspace $WorkspacePath
     $versions = @{}
-    $resolvedNeeds = [pscustomobject]@{ Firebase=$false; FlutterFire=$false; Supabase=$false; Convex=$false; Vercel=$false; Clerk=$false; AndroidNative=$needs.AndroidNative }
-    $states = [ordered]@{ Firebase='pending'; FlutterFire='pending'; Convex='pending'; Vercel='pending'; Supabase='pending'; Clerk='pending'; GoogleCloud=if($GoogleCloudReady){'ready'}else{'pending'}; AndroidNative=if($needs.AndroidNative){'detected; project-specific NDK/CMake versions must be reviewed'}else{'not detected'} }
+    $resolvedNeeds = [pscustomobject]@{ Firebase=$false; FlutterFire=$false; Supabase=$false; Convex=$false; Vercel=$false; Clerk=$false; Auth0=$false; AndroidNative=$needs.AndroidNative }
+    $states = [ordered]@{ Firebase='pending'; FlutterFire='pending'; Convex='pending'; Vercel='pending'; Supabase='pending'; Clerk='pending'; Auth0='pending'; GoogleCloud=if($GoogleCloudReady){'ready'}else{'pending'}; AndroidNative=if($needs.AndroidNative){'detected; project-specific NDK/CMake versions must be reviewed'}else{'not detected'} }
     $mise = Resolve-SgTrustedMisePath
     if (-not $mise) { $mise = Install-SgOfficialMise }
     $root = Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\machine-toolbox'
@@ -1669,18 +1669,26 @@ function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [st
             try { $versions[$definition.Need] = Resolve-SgNpmVersion $NpmPath $definition.Package; $resolvedNeeds.($definition.Need) = $true }
             catch { Write-SgInstallerWarning "$($definition.Need) exact-version resolution failed; its machine CLI remains pending." }
         }
-        try {
-            $latest = Invoke-SgManagedTauriMise $mise $root @('latest','aqua:supabase/cli') 120
-            $version = if (-not $latest.TimedOut -and $latest.ExitCode -eq 0) { $latest.Output.Trim() -replace '^v','' } else { '' }
-            if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw 'mise returned no exact Supabase version.' }
-            $versions.Supabase = $version; $resolvedNeeds.Supabase = $true
-        } catch { Write-SgInstallerWarning 'Supabase exact-version resolution failed; its machine CLI remains pending.' }
+        foreach ($definition in @(
+            @{ Need='Supabase'; Tool='aqua:supabase/cli'; StableOnly=$false },
+            @{ Need='Auth0'; Tool='aqua:auth0/auth0-cli'; StableOnly=$true }
+        )) {
+            try {
+                $latest = Invoke-SgManagedTauriMise $mise $root @('latest',$definition.Tool) 120
+                $version = if (-not $latest.TimedOut -and $latest.ExitCode -eq 0) { $latest.Output.Trim() -replace '^v','' } else { '' }
+                $pattern = if ($definition.StableOnly) { '^\d+\.\d+\.\d+$' } else { '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$' }
+                if ($version -notmatch $pattern) { throw "mise returned no exact stable $($definition.Need) version." }
+                $versions[$definition.Need] = $version; $resolvedNeeds.($definition.Need) = $true
+            } catch { Write-SgInstallerWarning "$($definition.Need) exact-version resolution failed; its machine CLI remains pending." }
+        }
 
         if (@('Firebase','Supabase','Convex','Vercel','Clerk' | Where-Object { -not $versions.ContainsKey($_) }).Count -eq 0) {
             $plan = @(Get-SgMachineToolboxPlan -Versions $versions)
             $configPath = Join-Path $root 'mise.toml'
             $expected = Get-SgMachineToolboxMiseConfig -Plan $plan
-            if (-not (Test-Path -LiteralPath $configPath -PathType Leaf) -or [IO.File]::ReadAllText($configPath).Replace("`r`n","`n") -cne $expected.Replace("`r`n","`n")) {
+            $existingConfig = if (Test-Path -LiteralPath $configPath -PathType Leaf) { [IO.File]::ReadAllText($configPath) } else { '' }
+            $preservePinnedAuth0 = -not $versions.ContainsKey('Auth0') -and $existingConfig -match '(?m)^"aqua:auth0/auth0-cli"\s*=\s*"\d+\.\d+\.\d+"\s*$'
+            if (-not $preservePinnedAuth0 -and $existingConfig.Replace("`r`n","`n") -cne $expected.Replace("`r`n","`n")) {
                 $temporary = "$configPath.tmp-$([guid]::NewGuid().ToString('N'))"
                 [IO.File]::WriteAllText($temporary,$expected,[Text.UTF8Encoding]::new($false)); Move-SgAtomicReplace $temporary $configPath
             }
@@ -1725,7 +1733,7 @@ function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [st
         } catch { Write-SgInstallerWarning "FlutterFire machine CLI remains pending: $($_.Exception.Message)" }
     }
 
-    return [pscustomobject]@{ Needs=$needs; DetectedNeeds=$needs; Versions=$versions; Mise=if($mise){'ready'}else{'pending'}; ToolboxRoot=$root; Firebase=$states.Firebase; FlutterFire=$states.FlutterFire; Convex=$states.Convex; Vercel=$states.Vercel; Supabase=$states.Supabase; Clerk=$states.Clerk; GoogleCloud=$states.GoogleCloud; AndroidNative=$states.AndroidNative }
+    return [pscustomobject]@{ Needs=$needs; DetectedNeeds=$needs; Versions=$versions; Mise=if($mise){'ready'}else{'pending'}; ToolboxRoot=$root; Firebase=$states.Firebase; FlutterFire=$states.FlutterFire; Convex=$states.Convex; Vercel=$states.Vercel; Supabase=$states.Supabase; Clerk=$states.Clerk; Auth0=$states.Auth0; GoogleCloud=$states.GoogleCloud; AndroidNative=$states.AndroidNative }
 }
 
 function Install-SgDetectedServiceClis([string]$WorkspacePath, [string]$DartPath, [string]$NpmPath, [string]$NpxPath, [bool]$GoogleCloudReady = $false) {
