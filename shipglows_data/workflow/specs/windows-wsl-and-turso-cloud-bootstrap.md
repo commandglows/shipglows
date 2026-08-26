@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.2"
+artifact_version: "1.1.3"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 07:42:21 UTC"
 updated: "2026-08-26"
-updated_at: "2026-08-26 08:28:18 UTC"
+updated_at: "2026-08-26 08:39:57 UTC"
 status: reviewed
 source_skill: sg-development
 source_model: GPT-5 Codex
@@ -41,6 +41,7 @@ evidence:
   - "Operator decision 2026-08-26: WSL installation is an independent optional ShipGlows capability; Turso is a separate consumer that may proceed only when WSL and an initialized Ubuntu user are ready."
   - "Deterministic PowerShell and Git Bash fixtures passed for WSL states/consent/elevation/restart, Turso gating/version/checksum/architecture/atomicity/idempotence, and closed execution boundaries."
   - "The complete Windows DevServer contract passed with installed-runtime packaging proof and no real WSL or Turso installation."
+  - "The first exact-SHA live installer smoke updated the runtime successfully and exposed a redundant WSL distribution probe after `--status` had already proved absence; the follow-up contract returns immediately and pins every WSL execution to the absolute Windows system binary."
 next_step: "Run the separately approved exact-SHA operator smoke, stopping before any automatic restart or Turso authentication"
 ---
 

@@ -14,9 +14,18 @@ function New-TestResult([int]$ExitCode,[string]$Output='',[bool]$TimedOut=$false
     [pscustomobject]@{ ExitCode=$ExitCode; Output=$Output; TimedOut=$TimedOut }
 }
 
-$absentRunner = { param($File,$Arguments,$TimeoutSeconds,$InputText) New-TestResult 1 'WSL is not installed.' }
+$absentProbeCount = 0
+$absentRunner = {
+    param($File,$Arguments,$TimeoutSeconds,$InputText)
+    $script:absentProbeCount++
+    if (($Arguments -join ' ') -ne '--status') { throw 'A conclusive absent status must not launch a second WSL probe.' }
+    New-TestResult 1 'WSL is not installed.'
+}
 $absent = Get-SgWslState -Runner $absentRunner
 Assert-True ($absent.Status -eq 'absent') 'An unavailable WSL command was not classified as absent.'
+Assert-True ($absentProbeCount -eq 1) 'Conclusive WSL absence did not return after the bounded status probe.'
+$statusTimeout = Get-SgWslState -Runner { param($File,$Arguments,$TimeoutSeconds,$InputText) New-TestResult -1 'timeout' $true }
+Assert-True ($statusTimeout.Status -eq 'error' -and $statusTimeout.Reason -match 'status') 'A timed-out WSL status probe was not distinguished.'
 $errorRunner = { param($File,$Arguments,$TimeoutSeconds,$InputText) New-TestResult 5 'Access denied by policy.' }
 $inspectionError = Get-SgWslState -Runner $errorRunner
 Assert-True ($inspectionError.Status -eq 'error') 'An unexplained WSL failure was incorrectly classified as absence.'
@@ -59,7 +68,7 @@ $wslInstalled = Invoke-SgWslInstall -Plan $approved -ElevatedRunner {
     New-TestResult 0
 }
 Assert-True ($wslInstalled.Status -eq 'reinspection_required' -and $wslInstalled.Changed) 'A successful WSL install did not require safe reinspection.'
-Assert-True ($elevationCapture.File -eq 'wsl.exe' -and (($elevationCapture.Arguments -join ' ') -eq '--install -d Ubuntu --no-launch')) 'WSL execution escaped the fixed elevated operation.'
+Assert-True ([IO.Path]::GetFullPath($elevationCapture.File) -eq [IO.Path]::GetFullPath((Join-Path ([Environment]::SystemDirectory) 'wsl.exe')) -and (($elevationCapture.Arguments -join ' ') -eq '--install -d Ubuntu --no-launch')) 'WSL execution escaped the fixed elevated system operation.'
 
 $wslRestart = Invoke-SgWslInstall -Plan $approved -ElevatedRunner { param($File,$Arguments) New-TestResult 3010 }
 Assert-True ($wslRestart.Status -eq 'pending_restart') 'WSL exit 3010 was not classified as pending_restart.'
@@ -90,7 +99,7 @@ $tursoInstalled = Invoke-SgTursoCloudInstall -Plan $tursoPlan -WslState $ready -
     New-TestResult 0 'Turso Cloud CLI 1.0.32 installed. Authentication was not started.'
 }
 Assert-True ($tursoInstalled.Status -eq 'ready') 'Verified Turso installation was not reported ready.'
-Assert-True ($tursoCapture.File -eq 'wsl.exe' -and (($tursoCapture.Arguments -join ' ') -eq '-d Ubuntu --exec /bin/bash -s --')) 'Turso execution escaped the fixed WSL Bash stdin boundary.'
+Assert-True ([IO.Path]::GetFullPath($tursoCapture.File) -eq [IO.Path]::GetFullPath((Join-Path ([Environment]::SystemDirectory) 'wsl.exe')) -and (($tursoCapture.Arguments -join ' ') -eq '-d Ubuntu --exec /bin/bash -s --')) 'Turso execution escaped the fixed WSL Bash stdin boundary.'
 Assert-True ($tursoCapture.Input -match 'TURSO_VERSION="1\.0\.32"') 'The bundled verified installer was not sent through bounded stdin.'
 Assert-True ($tursoCapture.Input -notmatch 'turso\s+auth|turso\s+db|turso\s+shell|latest') 'The bundled installer contains an authentication, database, shell, or unpinned latest action.'
 

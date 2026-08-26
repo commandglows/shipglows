@@ -2,6 +2,7 @@ Set-StrictMode -Version Latest
 
 $script:SgTursoCloudVersion = '1.0.32'
 $script:SgUbuntuDistributionPattern = '^Ubuntu(?:[-.][A-Za-z0-9._-]+)?$'
+$script:SgWslExecutable = Join-Path ([Environment]::SystemDirectory) 'wsl.exe'
 
 function New-SgProcessResult([int]$ExitCode,[string]$Output,[bool]$TimedOut=$false) {
     [pscustomobject]@{ ExitCode=$ExitCode; Output=$Output; TimedOut=$TimedOut }
@@ -35,15 +36,25 @@ function Get-SgWslDefaultUid {
 
 function Get-SgWslState {
     param(
-        [string]$WslPath = 'wsl.exe',
+        [string]$WslPath = $script:SgWslExecutable,
         [scriptblock]$Runner,
         [scriptblock]$RegistrationReader
     )
     $status = Invoke-SgWslTursoRunner $Runner $WslPath @('--status') 20
+    $statusText = ConvertFrom-SgWslText $status.Output
+    if ($status.TimedOut) {
+        return [pscustomobject]@{ Status='error'; Ready=$false; Distribution=''; Reason='WSL status inspection timed out.'; NextAction='Retry the ShipGlows installer.' }
+    }
+    if ($statusText -match '(?i)restart|reboot|red[eé]marr') {
+        return [pscustomobject]@{ Status='pending_restart'; Ready=$false; Distribution=''; Reason='Windows reports that WSL needs a restart.'; NextAction='Restart Windows, then rerun ShipGlows.' }
+    }
+    if ($status.ExitCode -ne 0 -and $statusText -match '(?i)not installed|n.?est pas install|non install|cannot find|introuvable|not recognized|pas reconnu|WSL.{0,40}install') {
+        return [pscustomobject]@{ Status='absent'; Ready=$false; Distribution=''; Reason='WSL is not operational.'; NextAction='Choose the independent WSL installation when ShipGlows offers it.' }
+    }
     $listed = Invoke-SgWslTursoRunner $Runner $WslPath @('--list','--quiet') 20
-    $combined = ConvertFrom-SgWslText (@($status.Output,$listed.Output) -join "`n")
-    if ($status.TimedOut -or $listed.TimedOut) {
-        return [pscustomobject]@{ Status='error'; Ready=$false; Distribution=''; Reason='WSL inspection timed out.'; NextAction='Retry the ShipGlows installer.' }
+    $combined = ConvertFrom-SgWslText (@($statusText,$listed.Output) -join "`n")
+    if ($listed.TimedOut) {
+        return [pscustomobject]@{ Status='error'; Ready=$false; Distribution=''; Reason='WSL distribution inspection timed out.'; NextAction='Retry the ShipGlows installer.' }
     }
     if ($combined -match '(?i)restart|reboot|red[eé]marr') {
         return [pscustomobject]@{ Status='pending_restart'; Ready=$false; Distribution=''; Reason='Windows reports that WSL needs a restart.'; NextAction='Restart Windows, then rerun ShipGlows.' }
@@ -93,10 +104,10 @@ function Invoke-SgWslInstall {
         return [pscustomobject]@{ Status='not_run'; Changed=$false; Reason=$Plan.Reason; NextAction='' }
     }
     $result = if ($ElevatedRunner) {
-        & $ElevatedRunner 'wsl.exe' @('--install','-d','Ubuntu','--no-launch')
+        & $ElevatedRunner $script:SgWslExecutable @('--install','-d','Ubuntu','--no-launch')
     } else {
         try {
-            $process = Start-Process -FilePath 'wsl.exe' -Verb RunAs -ArgumentList @('--install','-d','Ubuntu','--no-launch') -Wait -PassThru
+            $process = Start-Process -FilePath $script:SgWslExecutable -Verb RunAs -ArgumentList @('--install','-d','Ubuntu','--no-launch') -Wait -PassThru
             New-SgProcessResult ([int]$process.ExitCode) ''
         } catch { New-SgProcessResult -1 $_.Exception.Message }
     }
@@ -110,7 +121,7 @@ function Invoke-SgWslInstall {
 }
 
 function Get-SgTursoCloudState {
-    param([Parameter(Mandatory=$true)][object]$WslState,[string]$WslPath='wsl.exe',[scriptblock]$Runner)
+    param([Parameter(Mandatory=$true)][object]$WslState,[string]$WslPath=$script:SgWslExecutable,[scriptblock]$Runner)
     if (-not $WslState.Ready) {
         return [pscustomobject]@{ Status='blocked_by_wsl'; Ready=$false; Version=''; Reason="Turso waits because WSL is $($WslState.Status)."; NextAction=$WslState.NextAction }
     }
@@ -143,7 +154,7 @@ function Invoke-SgTursoCloudInstall {
         [Parameter(Mandatory=$true)][object]$Plan,
         [Parameter(Mandatory=$true)][object]$WslState,
         [Parameter(Mandatory=$true)][string]$InstallerPath,
-        [string]$WslPath='wsl.exe',
+        [string]$WslPath=$script:SgWslExecutable,
         [scriptblock]$Runner
     )
     if (-not $Plan.Approved -or $Plan.Action -ne 'install_turso_cloud') {
