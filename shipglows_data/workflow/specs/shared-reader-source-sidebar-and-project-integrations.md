@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: "ShipGlows portfolio"
 created: "2026-08-26"
 created_at: "2026-08-26 12:03:34 UTC"
 updated: "2026-08-26"
-updated_at: "2026-08-26 19:12:00 UTC"
+updated_at: "2026-08-26 20:05:04 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -47,7 +47,10 @@ evidence:
   - "Fresh official Readwise CLI/MCP documentation checked 2026-08-26 confirms Markdown detail retrieval and granular document tag operations."
   - "Authenticated Vercel logs for deployment dpl_BZx4aA81ziZ93nnBnygmanfTFLhn show that the restored Flutter cache contained a corrupt 255-byte Dart SDK archive; commit 2bb2807 adds bounded managed-cache validation and one rebuild attempt without changing externally supplied FLUTTER_BIN."
   - "Vercel deployment dpl_8hTwMRPEKiqqAR5qbaun5yQfZUwX rebuilt that corrupt cache, validated Flutter 3.41.7, completed the Flutter Web build, and reached Ready from exact commit 2bb2807."
-next_step: "Collect operator visual acceptance on the exact 2bb2807 preview, then update consumer pins"
+  - "Operator decision 2026-08-26: the shared sidebar requires total, host-customizable keyboard navigation with W delete, E archive, L Later, V move, J/K and arrows navigate, O/Enter open, slash or Ctrl/Cmd+F search, U/Escape back, and ? help as defaults."
+  - "GitHub Actions run 33008097273 passed package and demo formatting, analysis, all tests, and the Flutter Web release build at commit 8f8cb25; the functional package code is unchanged from af2933e except for the final scoped test assertion."
+  - "Vercel deployment dpl_Kg6qZebtPizf4kzzd61enN2prUiz cloned exact commit af2933e, rebuilt the guarded Flutter 3.41.7 cache, completed the Flutter Web build, and reached Ready at email-sidebar-p1fn3x2eo-diane-ds-projects.vercel.app."
+next_step: "Collect operator keyboard and visual acceptance on the exact af2933e Ready preview, then update consumer pins"
 ---
 
 # Spec: Shared Reader Source Sidebar And Project Integrations
@@ -70,7 +73,12 @@ Dart SDK archive. Commit `2bb2807` detected that restored corruption, removed
 only the guarded managed `flutter-3.41.7` cache, recloned it once, validated
 Flutter, completed the Web build, and reached a matching Ready preview. Hosted
 operator acceptance, consumer repinning, the real Reader-token pilot,
-accessibility proof, review, and merge remain pending.
+screen-reader proof, review, and merge remain pending. The shared package now
+also exposes the approved customizable keyboard contract; GitHub Actions run
+`33008097273` passes package/demo formatting, analysis, all tests, and the Web
+release build at `8f8cb25`, while Vercel deployment
+`dpl_Kg6qZebtPizf4kzzd61enN2prUiz` is Ready from the matching functional code at
+`af2933e`.
 
 ## User Story
 
@@ -90,6 +98,14 @@ Successful ingest adds only the current project's processed tag; it does not
 archive or delete the Reader document. Explicit archive and delete actions are
 confirmed, observable, and performed through the owning host adapter. Reader
 credentials never enter the public package or a Flutter client build.
+
+The default keyboard contract is `W` delete with confirmation, `E` archive,
+`L` move to the configured Later destination, `V` open the move chooser,
+`J`/`K` and arrow keys move the active source cursor, `O`/Enter open, `/` and
+Ctrl/Cmd+F focus search, `U`/Escape return, and `?` open contextual help. Hosts
+may replace every command's activator list or disable it with an empty list.
+Alphabetic commands are disabled while editable text owns focus; Tab traversal
+and native Enter/Space activation remain intact.
 
 ## Success Behavior
 
@@ -168,6 +184,8 @@ actions because they affect the shared corpus.
   empty, partial-error, retry, processing, archive, and delete-confirmation UI.
 - Keyboard navigation, accessible semantics, focus restoration, responsive
   list/detail composition, text scaling, reduced motion, and both host themes.
+- A provider-neutral, host-customizable shortcut API and move-destination model;
+  the package owns interaction and focus while each host owns action effects.
 - ContentGlows server-side Reader adapter, operator authorization, bounded API,
   local source normalization, idempotent Idea Pool/newsletter integration, and
   retained IMAP fallback.
@@ -324,6 +342,8 @@ actions because they affect the shared corpus.
 - Untrusted source text cannot select tools, destinations, permissions, tags,
   project ownership, or destructive actions.
 - The shared package cannot become a third design-system authority.
+- Keyboard aliases remain host-customizable, never intercept editable text, and
+  cannot bypass destructive confirmation or host capability checks.
 - IMAP remains recoverable until the Reader pilot's acceptance evidence exists.
 
 ## Links & Consequences
@@ -576,6 +596,15 @@ revision rather than an implicit choice.
   `dpl_8hTwMRPEKiqqAR5qbaun5yQfZUwX` reproduced the corruption, rebuilt the exact
   cache, completed Flutter Web, and reached `Ready`. Operator visual acceptance
   remains pending.
+- `2026-08-26 20:05:04 UTC` — `006-sg-design`: implemented the accepted total,
+  customizable keyboard contract in public package `0.3.0`, including W/E/L/V,
+  navigation/open/search/back/help aliases, editable-text suppression, focus
+  restoration, contextual help, Later filtering, and provider-neutral move
+  callbacks. GitHub Actions run `33008097273` passes package/demo formatting,
+  analysis, 16 package tests, demo tests, and Flutter Web release build at
+  `8f8cb25`. Vercel deployment `dpl_Kg6qZebtPizf4kzzd61enN2prUiz` is Ready from
+  functional commit `af2933e`; manual operator keyboard and visual acceptance
+  remains pending before consumer pins move.
 
 ## Current Chantier Flow
 
@@ -598,7 +627,10 @@ shared package -> ContentGlows adapter -> ShipGlows adapter complete on branches
 reference-faithful Flutter rebuild pushed -> cache repair deployed Ready
         |
         v
-operator visual acceptance
+customizable keyboard contract implemented -> CI green -> preview Ready
+        |
+        v
+operator keyboard and visual acceptance
         |
         v
 consumer repin -> live Reader pilot
@@ -607,8 +639,11 @@ consumer repin -> live Reader pilot
 manual UI/accessibility proof -> review and merge
 ```
 
-Current next action: collect operator feedback on the Ready preview built from
-exact commit `2bb2807`. Only after visual acceptance should ContentGlows and
-ShipGlows move their immutable package pins. The live cross-project Reader pilot
-follows; implementation is not yet merged or fully verified against the
-operator's live library.
+Current next action: collect operator keyboard and visual feedback on the Ready
+preview built from functional commit `af2933e` at
+`https://email-sidebar-p1fn3x2eo-diane-ds-projects.vercel.app`. GitHub Actions
+run `33008097273` independently proves the final branch state at `8f8cb25`; that
+last commit only scopes a test assertion. Only after operator acceptance should
+ContentGlows and ShipGlows move their immutable package pins. The live
+cross-project Reader pilot follows; implementation is not yet merged or fully
+verified against the operator's live library.
