@@ -42,6 +42,24 @@ try {
     Remove-Item -LiteralPath (Split-Path -Parent $windowsSource) -Recurse -Force
     Assert-Sg (Test-Path -LiteralPath $localWindows.entryPath -PathType Leaf) 'The cached build did not survive source worktree removal.'
 
+    $statusJson = & (Get-Command pwsh).Source -NoLogo -NoProfile -File $entrypointPath status `
+        -ProjectPath $project -ProjectName 'ContentGlows' -StateRoot $stateRoot
+    Assert-Sg ($LASTEXITCODE -eq 0) 'The installed command entrypoint status action failed.'
+    $statusRows = @($statusJson | Out-String | ConvertFrom-Json)
+    Assert-Sg ($statusRows.Count -eq 4) 'The command entrypoint did not report all four lanes.'
+    $reportedLocal = @($statusRows | Where-Object { $_.platform -eq 'windows' -and $_.sourceKind -eq 'local' })
+    Assert-Sg ($reportedLocal.Count -eq 1 -and $reportedLocal[0].entryPath -eq $localWindows.entryPath) 'The command entrypoint did not expose the published Windows Local lane.'
+
+    $freeProvenanceRejected = $false
+    try {
+        Publish-SgBuildArtifact `
+            -ProjectPath $project -ProjectName 'ContentGlows' -Platform windows -SourceKind local `
+            -ArtifactPath $localWindows.entryPath -PackageRoot $localWindows.generationPath `
+            -Provenance @{ privatePath = 'C:\private\build' } -StateRoot $stateRoot -DesktopPath $desktop | Out-Null
+    } catch { $freeProvenanceRejected = $_.Exception.Message -match 'not allowed' }
+    Assert-Sg $freeProvenanceRejected 'Free-form provenance fields must fail closed.'
+    Assert-Sg ((Read-SgShortcut $windowsLocalShortcut).TargetPath -eq $localWindows.entryPath) 'Rejected provenance replaced the last-known-good shortcut.'
+
     $failedPreviousTarget = $windowsLink.TargetPath
     $missingRejected = $false
     try {
@@ -169,6 +187,16 @@ try {
     } catch { $untrustedRejected = $_.Exception.Message -match 'allowed successful CI run' }
     Assert-Sg $untrustedRejected 'A disallowed CI event must fail closed.'
     Assert-Sg ((Read-SgShortcut $windowsCiShortcut).TargetPath -eq $ciWindows.entryPath) 'An untrusted CI run replaced the last-known-good CI shortcut.'
+
+    $optionFieldRejected = $false
+    try {
+        Sync-SgGitHubBuildArtifact `
+            -ProjectPath $project -ProjectName 'ContentGlows' -Platform windows `
+            -Repository 'commandglows/contentglows' -Workflow '--all' -Branch 'auth0-migration' `
+            -ArtifactName 'windows-release' -StateRoot $stateRoot -DesktopPath $desktop `
+            -GitHubRunner $fakeGitHub | Out-Null
+    } catch { $optionFieldRejected = $_.Exception.Message -match 'option-shaped' }
+    Assert-Sg $optionFieldRejected 'Option-shaped GitHub selectors must fail closed before CLI invocation.'
 
     $unsupportedRejected = $false
     try {

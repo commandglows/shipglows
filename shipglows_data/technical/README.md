@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.11.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-07-13"
+updated: "2026-08-26"
 status: reviewed
 source_skill: sg-start
 scope: technical-docs-index
@@ -37,6 +37,7 @@ evidence:
   - "Design-system authority technical artifact added for declaring project canonical token/theme/component sources."
   - "Operator guides migrated from root docs into shipglows_data/technical/operator-guides/."
   - "Progressive resource discovery added a read-only resolver and shared authority-boundary reference for bounded reference/playbook search."
+  - "Latest-build artifact access documentation added for source-labelled local and CI shortcuts, private cached packages, and honest host-platform limits."
 next_review: "2026-06-18"
 next_step: "/sg-docs technical audit"
 ---
@@ -82,6 +83,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `codebase-mcp.md` | `tools/codebase-mcp/` |
 | `public-site-and-content-runtime.md` | `site/`, `shipglows_data/editorial/content-map.md`, public/private doc boundaries |
 | `installer-and-user-scope.md` | `install.sh`, root/user setup, aliases, skill links, MCP config |
+| `latest-build-artifact-access.md` | Latest successful local/CI Windows packages and Android APKs, private cache/state, desktop shortcuts, GitHub artifact synchronization, and platform limits |
 | `codex-plugin-packaging.md` | `/home/claude/plugins/shipglows/`, personal marketplace, plugin manifest, sparse source bootstrap |
 | `product-behavior-intelligence.md` | Cross-project product analytics framing for behavior graphs, activation, retention, feature impact, exploratory analytics, and GTM proof |
 | `decisions.md` | ADR-style decisions, `decision_record` templates, durable decision routing |

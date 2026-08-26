@@ -128,6 +128,19 @@ function Get-SgBuildShortcutMarker([string]$ProjectId, [string]$LaneKey) {
     return "$script:SgShortcutPrefix|$ProjectId|$LaneKey"
 }
 
+function ConvertTo-SgBuildProvenance([hashtable]$Provenance) {
+    $allowed = @('repository','workflow','branch','artifactName','runId','event','createdAt')
+    if ($Provenance.Count -gt $allowed.Count) { throw 'Provenance contains too many fields.' }
+    $result = [ordered]@{}
+    foreach ($key in @($Provenance.Keys | Sort-Object)) {
+        if ($key -notin $allowed) { throw "Provenance field is not allowed: $key" }
+        $value = [string]$Provenance[$key]
+        if ($value.Length -gt 512 -or $value -match '[\x00-\x1F]') { throw "Provenance value is invalid or exceeds 512 characters: $key" }
+        $result[$key] = $value
+    }
+    return $result
+}
+
 function Assert-SgManagedShortcutCollision([string]$ShortcutPath, [string]$ExpectedMarker) {
     if (-not (Test-Path -LiteralPath $ShortcutPath)) { return }
     try {
@@ -200,6 +213,7 @@ function Publish-SgBuildArtifact {
     $identity = Resolve-SgBuildProjectIdentity -ProjectPath $ProjectPath -ProjectName $ProjectName
     if ($SourceId -and $SourceId -notmatch '^[A-Za-z0-9._:-]{1,160}$') { throw 'SourceId contains unsupported characters or exceeds 160 characters.' }
     if ($Commit -and $Commit -notmatch '^[0-9A-Fa-f]{7,64}$') { throw 'Commit must be a hexadecimal Git object identifier.' }
+    $stateProvenance = ConvertTo-SgBuildProvenance -Provenance $Provenance
     if (-not $StateRoot) { $StateRoot = Get-SgDefaultBuildArtifactRoot }
     if (-not $DesktopPath) { $DesktopPath = Get-SgDefaultDesktopPath }
     $StateRoot = [IO.Path]::GetFullPath($StateRoot).TrimEnd('\')
@@ -253,13 +267,6 @@ function Publish-SgBuildArtifact {
         Move-Item -LiteralPath $staging -Destination $generationPath
         $entryPath = Assert-SgBuildPathInside -Candidate (Join-Path $generationPath $entryRelative) -Root $generationPath -Label 'Published entrypoint'
 
-        $stateProvenance = [ordered]@{}
-        foreach ($key in @($Provenance.Keys | Sort-Object)) {
-            $value = [string]$Provenance[$key]
-            if ($key -match '(?i)(token|secret|password|credential|command|argument)') { throw "Provenance field is forbidden: $key" }
-            if ($value -match "[\r\n]") { throw "Provenance value contains a control line: $key" }
-            $stateProvenance[$key] = $value
-        }
         $state = [ordered]@{
             schema = $script:SgBuildArtifactSchema
             projectId = $identity.id
@@ -287,7 +294,7 @@ function Publish-SgBuildArtifact {
     } catch {
         if (Test-Path -LiteralPath $shortcutBackup -PathType Leaf) {
             Move-Item -LiteralPath $shortcutBackup -Destination $shortcutPath -Force
-        } elseif (Test-Path -LiteralPath $shortcutPath -PathType Leaf -and -not $previousState) {
+        } elseif ((Test-Path -LiteralPath $shortcutPath -PathType Leaf) -and -not $previousState) {
             Remove-Item -LiteralPath $shortcutPath -Force
         }
         if ($previousState) {
@@ -312,7 +319,9 @@ function Invoke-SgDefaultGitHubRunner {
 }
 
 function Assert-SgGitHubField([string]$Value, [string]$Label) {
-    if ([string]::IsNullOrWhiteSpace($Value) -or $Value -match '[\x00-\x1F]') { throw "$Label is empty or contains control characters." }
+    if ([string]::IsNullOrWhiteSpace($Value) -or $Value.Length -gt 512 -or $Value.StartsWith('-') -or $Value -match '[\x00-\x1F]') {
+        throw "$Label is empty, option-shaped, contains control characters, or exceeds 512 characters."
+    }
 }
 
 function Sync-SgGitHubBuildArtifact {

@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.3"
+artifact_version: "1.0.5"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 12:18:53 UTC"
 updated: "2026-08-26"
-updated_at: "2026-08-26 12:31:00 UTC"
-status: ready
+updated_at: "2026-08-26 12:39:00 UTC"
+status: verified
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: latest-build-artifact-access
@@ -36,7 +36,7 @@ evidence:
   - "Operator decision 2026-08-26: shortcut titles must distinguish Local from CI and Windows from Android APK."
   - "GitHub documents workflow artifacts as archived outputs that authenticated readers can download before retention expiry."
   - "Apple Xcode and iOS execution remain macOS/device surfaces; Windows must not present an IPA as locally runnable."
-next_step: "/102-sg-start latest-build-artifact-access"
+next_step: "/104-sg-end latest-build-artifact-access"
 ---
 
 # Latest Build Artifact Access
@@ -47,7 +47,7 @@ Latest Build Artifact Access
 
 ## Status
 
-ready — autonomous behavior, trust boundaries, tasks, proof, documentation, and platform limitations are implementation-ready.
+verified — the Windows implementation, closed command surface, security boundaries, documentation, and focused scenario proof satisfy the accepted scope.
 
 ## User Story
 
@@ -203,8 +203,8 @@ Add a shared latest-build access doctrine plus a Windows artifact manager. The m
 - [x] Unowned shortcut collisions, path escapes, reparse points, oversize packages, and ambiguous entrypoints fail closed.
 - [x] Linux/macOS/iOS limitations are represented honestly; Windows creates no misleading launch shortcut for them.
 - [x] Installer payloads include the module and command entrypoint.
-- [ ] Focused Windows tests and metadata checks pass.
-- [ ] Technical documentation and code-doc mappings are coherent.
+- [x] Focused Windows tests and metadata checks pass.
+- [x] Technical documentation and code-doc mappings are coherent.
 - [ ] Exact-scope commits are pushed to `origin/codex/development-runtime` without the unrelated dirty business document.
 
 ## Test Strategy
@@ -254,12 +254,14 @@ None. The operator selected separate Local and CI shortcuts, Windows and Android
 | 2026-08-26 12:20:00 UTC | 100-sg-spec | GPT-5 Codex | Adversarially reviewed provenance, stale-state, collision, host-parity, retention, and proof boundaries; tightened every implementation task with exact targets and validation. | reviewed | Run `101-sg-ready` against this spec. |
 | 2026-08-26 12:22:00 UTC | 101-sg-ready | GPT-5 Codex | Confirmed autonomous user-story fit, ordered targets and validations, ZOMBIES coverage, GitHub/file trust boundaries, OWASP gate, documentation ownership, and explicit host limitations. | ready | Implement through `102-sg-start`. |
 | 2026-08-26 12:31:00 UTC | 102-sg-start | GPT-5 Codex | Implemented and scenario-tested the Windows artifact cache, four managed shortcut lanes, local publication, trusted CI synchronization, fail-closed boundaries, and installer packaging. | in progress | Complete mapped technical documentation and integrated verification. |
+| 2026-08-26 12:35:00 UTC | 102-sg-start | GPT-5 Codex | Completed the mapped technical documentation, installer boundary, code-doc ownership, and direct CLI status proof. | implemented | Run integrated `103-sg-verify` proof. |
+| 2026-08-26 12:39:00 UTC | 103-sg-verify | GPT-5 Codex | Verified the four-lane behavior, last-known-good failures, option/provenance boundaries, CLI entrypoint, PowerShell syntax, metadata, dependency graph, skill budget, Codex runtime visibility, and Git hygiene. | verified | Close documentation/editorial state, then ship the final exact scope. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: complete — autonomous contract authored and adversarially reviewed.
 - `101-sg-ready`: ready — no blocking ambiguity remains.
-- `102-sg-start`: in progress — implementation and focused fixtures pass; mapped technical documentation remains.
-- `103-sg-verify`: pending.
+- `102-sg-start`: complete — implementation, focused fixtures, installer packaging, and mapped documentation are coherent.
+- `103-sg-verify`: complete — standard proof matches the scenario-first contract; no external project workflow or device claim is made.
 - `104-sg-end`: pending.
 - `005-sg-ship`: pending.

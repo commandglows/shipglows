@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.23.1"
+artifact_version: "2.24.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-25"
+updated: "2026-08-26"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -29,6 +29,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "The 2026-08-26 native Windows payload includes the latest-build artifact module and profile-independent command without downloading artifacts or creating shortcuts during installation."
   - "The 2026-08-25 documentation correction aligns the official GitHub MCP with the project-local activation contract; the machine-wide installer does not enable it globally."
   - "The 2026-08-25 Windows bootstrap accepts a strict complete commit SHA directly and still resolves branch or tag names through GitHub's commit API, avoiding redundant anonymous API quota use while keeping immutable archive pinning."
   - "README installer section and cli/install.sh function inventory."
@@ -113,6 +114,7 @@ This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup.
 - Native Windows full reuses the runnable Chromium installed for its managed Playwright runtime as Flutter Web's browser by persisting `CHROME_EXECUTABLE` for the user and current installer process before the Android/Flutter diagnostic phase. The Flutter supervisor revalidates that the executable exists under `%LOCALAPPDATA%\ms-playwright`, rejects reparse paths, and forwards it only for the `chrome` device; explicit `web-server` mode remains browser-independent.
 - Native Windows `full` defaults to the project-development `runtime` surface. The explicit `maintainer` surface (interactive option 3 or `-InstallSurface maintainer`; `developer` and `contributor` are input-only compatibility aliases) clones the complete branch namespace or validates the editable ShipGlows checkout at `%USERPROFILE%\ShipGlows\shipglows`, removes enabled public ShipGlows plugins through the Codex CLI, links the public Codex catalogue to that checkout, and persists that exact validated root as current-user `SHIPGLOWS_ROOT`. Generic `full`, `all`, `skills`, and legacy `corpus` values never select this owner-only channel. Existing repositories are never updated or switched implicitly; origin and required-file validation must pass first. State and environment persistence fail closed and restore the prior channel state when convergence cannot complete.
 - Native Windows full copies the exact `cli/environment` Python package and schema into `%USERPROFILE%\.shipglows\runtime\cli\environment`. The installed `s` launcher resolves that tree directly and exposes `s env inspect|plan|verify|status|apply` without a PowerShell profile. Read-only environment commands dispatch before DevServer initialization and therefore do not create its workspace, registry or menu cache.
+- Native Windows packages `ShipGlows.BuildArtifacts.psm1` and `shipglows-build-artifacts.ps1` so successful project build agents can publish cached Local or CI access later. Installation itself never downloads a build artifact, creates a build shortcut, launches an executable, or installs an APK.
 - `install-shipglows.sh`: canonical Unix bootstrap. `SHIPGLOWS_INSTALL_MODE=local|full` provides deterministic non-interactive selection when applied to the consuming `sh` process. Without an explicit surface, `SHIPGLOWS_INSTALL_COMPONENTS=all|skills|corpus` selects the canonical sparse `skills` checkout automatically; `corpus` remains an input-only compatibility alias. The public Unix bootstrap does not expose the owner-only maintainer checkout.
 - `tools/sync_shipglows_public_bootstrap.sh --check [--site-root <path>]`: verifies that the ShipGlows site serves generated canonical artifacts rather than independently maintained templates.
 - `sudo ./cli/install.sh`: server installer.

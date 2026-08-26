@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "3.21.0"
+artifact_version: "3.22.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-24"
+updated: "2026-08-26"
 status: reviewed
 source_skill: 102-sg-start
 scope: code-docs-map
@@ -64,6 +64,7 @@ evidence:
   - "Very tall captured pages now keep detailed original-scale segments while bounding only the full-page WebP to Pillow's format limit; animation capture remains outside the current static bundle."
   - "Native Windows DevServer paths are mapped to the runtime CLI documentation with PowerShell contract checks."
   - "Native Windows installer, execution-policy wrappers, nested shortcuts, and agent aliases are mapped to both runtime and installer ownership docs."
+  - "Source-labelled local and CI build artifact caching, managed desktop shortcuts, GitHub synchronization, and host limitations mapped on 2026-08-26."
 next_review: "2026-06-18"
 next_step: "/300-sg-docs technical audit"
 ---
@@ -91,6 +92,7 @@ Shared files in this map are sequential integration files. Do not assign concurr
 | `cli/config.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `README.md` | `bash -n cli/config.sh`; config validation smoke when changed | Config variable, default, or validation contract changes |
 | `local/**` | Local tunnels and MCP login | `shipglows_data/technical/local-tunnels-and-mcp-login.md` | `local/README.md`, `README.md` | `bash -n local/*.sh`; PowerShell syntax review when `.ps1` changes | SSH target, identity path, tunnel lifecycle, MCP OAuth, or local UX changes |
 | `cli/install.sh`, `install-shipglows.sh` | Installer and user scope | `shipglows_data/technical/installer-and-user-scope.md` | `README.md`, `shipglows_data/technical/guidelines.md` | `bash -n cli/install.sh install-shipglows.sh`; dry-run/review of touched installer branch | Root/user split, remote bootstrap, symlink, alias, MCP config, package install, or destructive behavior changes |
+| `cli/windows/ShipGlows.BuildArtifacts.psm1`, `cli/windows/shipglows-build-artifacts.ps1`, `tests/windows/build-artifacts.ps1`, `skills/references/latest-build-artifact-access.md` | Latest local/CI build artifact access | `shipglows_data/technical/latest-build-artifact-access.md` | `shipglows_data/technical/installer-and-user-scope.md`, `skills/references/agent-runtime-awareness.md`, `shipglows_data/workflow/specs/latest-build-artifact-access.md`, `shipglows_data/technical/github-actions.md` | `pwsh -NoLogo -NoProfile -File tests/windows/build-artifacts.ps1`; PowerShell parser; metadata lint | Cache/state/provenance schema, project identity, shortcut names or ownership, CI trust selection, platform behavior, package bounds, retention, command surface, or installer payload changes |
 | `cli/windows/**`, `install-shipglows.ps1` | Native Windows DevServer, installer engine/UI and bootstrap | `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/installer-and-user-scope.md` | `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/operator-guides/windows-devserver.md`, `README.md`, `shipglows_data/workflow/specs/native-windows-devserver-astro-python-flutter.md` | `bash tests/windows/devserver-contract.sh`; PowerShell Parser and Windows runtime smoke on Windows | Native project detection, registry/process lifecycle, local ports, full bootstrap, installer events/progress, execution-policy wrappers, menu shortcuts, agent aliases, or Shadow PC support changes |
 | `.github/workflows/windows-installer-validation.yml`, `.github/scripts/Resolve-WindowsValidationImpact.ps1`, `tests/windows/required-gate-paths.ps1` | Stable GitHub repository gate and Windows-impact ownership | `shipglows_data/technical/installer-and-user-scope.md` | `shipglows_data/workflow/specs/git-github-hygiene-and-ci.md`, `shipglows_data/workflow/TEST_LOG.md` | `powershell.exe -NoProfile -File tests/windows/required-gate-paths.ps1`; `bash tests/windows/devserver-contract.sh`; successful `ShipGlows required gate` at the exact PR SHA | Required-check identity, trigger coverage, Windows-owned path classification, failure propagation, action pinning, or workflow permissions change |
 | `/home/claude/plugins/shipglows/**`, `/home/claude/.agents/plugins/marketplace.json` | Codex plugin packaging | `shipglows_data/technical/codex-plugin-packaging.md` | `shipglows_data/workflow/specs/shipglows-main-plugin-and-pack-portability.md`, `shipglows_data/technical/public-site-and-content-runtime.md` | `python3 /home/claude/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py /home/claude/plugins/shipglows`; `bash -n /home/claude/plugins/shipglows/scripts/bootstrap_shipglows_repo.sh` | Plugin manifest, plugin routing skill, docs links, marketplace entry, sparse checkout, pack catalog, reference strategy, or public plugin packaging behavior changes |
