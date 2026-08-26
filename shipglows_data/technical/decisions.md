@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-05-11"
+updated: "2026-08-26"
 status: reviewed
 source_skill: sg-start
 scope: decisions
@@ -29,6 +29,7 @@ supersedes: []
 evidence:
   - "decision_record template, architecture/guidelines docs, and current specs."
   - "project-governance-layout decision added for canonical shipglows_data project corpus layout."
+  - "Provider-agnostic source ingestion and the Readwise Reader pilot were recorded on 2026-08-26, with Mail Intelligence preserved as an inactive fallback."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit decisions"
 ---
@@ -57,6 +58,7 @@ This doc explains where durable technical decisions live and how they differ fro
 - `shipglows_data/technical/guidelines.md`: update when a decision becomes a general engineering or documentation rule.
 - `shipglows_data/workflow/specs/*.md`: link the decision when it governs a specific chantier.
 - `shipglows_data/technical/decisions/project-governance-layout.md`: canonical decision for project-local `shipglows_data/` layout and root legacy migration.
+- `shipglows_data/technical/decisions/provider-agnostic-source-ingestion-with-readwise-reader-pilot.md`: canonical decision for source-provider isolation, the Reader pilot, and Mail Intelligence fallback status.
 
 ## Decision Routing
 

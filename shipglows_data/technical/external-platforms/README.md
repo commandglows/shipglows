@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-08-11"
+updated: "2026-08-26"
 status: draft
 source_skill: sg-docs
 scope: external-platforms-corpus
@@ -33,6 +33,7 @@ evidence:
   - "TypeScript, JavaScript, Flutter, and Dart notes added as canonical sources for technology specialist profiles."
   - "Stripe Managed Payments note added after the operator selected it as the only active direct-payment provider for every current and future Glows suite product; Lemon Squeezy remains superseded historical evidence."
   - "Turso added as a specialist-backed note; PydanticAI, LangGraph, Cloudflare Workers, Hono, Drizzle ORM, and TanStack Start added as reference-only watchlist notes."
+  - "Readwise Reader added on 2026-08-26 as the freshness source for the first provider-neutral source-ingestion pilot."
 next_review: "2026-06-24"
 next_step: "/sg-docs technical audit"
 ---
@@ -119,6 +120,7 @@ Each provider note should include:
 - `neovim.md`
 - `python.md`
 - `pydanticai.md`
+- `readwise-reader.md`
 - `sentry.md`
 - `stripe-managed-payments.md`
 - `supabase.md`
