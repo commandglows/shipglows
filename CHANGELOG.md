@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.11.0"
+artifact_version: "0.12.0"
 project: "shipglows"
 created: "2026-04-25"
 updated: "2026-08-26"
@@ -20,7 +20,8 @@ linked_systems:
   - CHANGELOG.md
 depends_on: []
 supersedes: []
-evidence: []
+evidence:
+  - "The 2026-08-26 changelog records latest-build artifact access and the native Windows Auth0 CLI integration."
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
@@ -29,6 +30,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 
 ### Added
 - Added private last-known-good access to successful Windows and Android test builds through four clearly labelled desktop shortcuts: Windows Local, Windows CI, Android APK Local, and Android APK CI. Cached packages survive disposable worktrees; Android remains reveal-only, and unsafe or failed candidates preserve the prior shortcut.
+- Added the official Auth0 CLI to the native Windows machine toolbox and `s a` authentication menu with an exact stable mise/Aqua pin, wrapper-scoped analytics opt-out, redacted status checks, no WSL dependency, and no automatic login or tenant mutation.
 
 ## [2026-08-25]
 

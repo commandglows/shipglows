@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.11.0"
+artifact_version: "1.12.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-26"
@@ -38,6 +38,7 @@ evidence:
   - "Operator guides migrated from root docs into shipglows_data/technical/operator-guides/."
   - "Progressive resource discovery added a read-only resolver and shared authority-boundary reference for bounded reference/playbook search."
   - "Latest-build artifact access documentation added for source-labelled local and CI shortcuts, private cached packages, and honest host-platform limits."
+  - "Auth0 platform note added for SDK, native CLI, Deploy CLI, MCP, tenant, authentication, and hosted-proof boundaries."
 next_review: "2026-06-18"
 next_step: "/sg-docs technical audit"
 ---
@@ -97,6 +98,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `external-platforms/convex.md` | Convex deployments, generated APIs, auth, Clerk integration, indexes, actions, and scheduled functions |
 | `external-platforms/crewai.md` | CrewAI agents, crews, tasks, flows, tools, memory, structured outputs, LiteLLM/OpenRouter, and dependency migrations |
 | `external-platforms/clerk.md` | Clerk SDKs, middleware, hooks, webhooks, JWT templates, Convex integration, and hosted auth proof |
+| `external-platforms/auth0.md` | Auth0 SDKs, native operator CLI, login/status boundaries, Deploy CLI separation, tenant safety, and hosted auth proof |
 | `external-platforms/firebase.md` | Firebase Auth, Firestore Security Rules, Admin SDK boundaries, CLI deploys, and Hosting |
 | `external-platforms/google-cloud.md` | Google Cloud IAM, ADC, service accounts, Workload Identity Federation, Cloud Run identity, and CI credentials |
 | `external-platforms/supabase.md` | Supabase Auth, Postgres/RLS, Storage, SSR sessions, CLI, migrations, and database advisors |

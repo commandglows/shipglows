@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 15:41:37 UTC"
 updated: "2026-08-26"
-updated_at: "2026-08-26 15:41:37 UTC"
+updated_at: "2026-08-26 15:50:41 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -109,14 +109,14 @@ The Windows installer resolves one exact stable version of the official `auth0/a
 
 ## Acceptance Criteria
 
-- [ ] Auth0 is pinned through `aqua:auth0/auth0-cli` to one exact non-prerelease version.
-- [ ] Native Windows installation has no WSL dependency and triggers no authentication.
-- [ ] Other provider tools remain usable when Auth0 resolution fails.
-- [ ] Auth0 analytics are disabled only inside the generated wrapper process.
-- [ ] `s a` exposes only the approved non-interactive status and explicit login/logout operations.
-- [ ] Project detection and environment reporting include Auth0 without exposing project configuration.
-- [ ] Deterministic focused tests pass without network, installation, browser, tenant, or credentials.
-- [ ] Technical documentation and code-doc ownership are coherent.
+- [x] Auth0 is pinned through `aqua:auth0/auth0-cli` to one exact non-prerelease version.
+- [x] Native Windows installation has no WSL dependency and triggers no authentication.
+- [x] Other provider tools remain usable when Auth0 resolution fails.
+- [x] Auth0 analytics are disabled only inside the generated wrapper process.
+- [x] `s a` exposes only the approved non-interactive status and explicit login/logout operations.
+- [x] Project detection and environment reporting include Auth0 without exposing project configuration.
+- [x] Deterministic focused tests pass without network, installation, browser, tenant, or credentials.
+- [x] Technical documentation and code-doc ownership are coherent.
 - [ ] Exact-scope commits are pushed without staging the unrelated business-document edit.
 
 ## Test Strategy
@@ -150,12 +150,13 @@ None. The operator approved native Auth0 CLI installation, no WSL dependency, an
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-26 15:41:37 UTC | 100-sg-spec | GPT-5 Codex | Authored the Auth0 native Windows toolbox and authentication contract from the approved system plan. | reviewed | Run readiness review. |
 | 2026-08-26 15:41:37 UTC | 101-sg-ready | GPT-5 Codex | Confirmed exact targets, stable supply-chain policy, auth and telemetry boundaries, failure isolation, proof, and documentation ownership. | ready | Implement through `102-sg-start`. |
+| 2026-08-26 15:50:41 UTC | 102-sg-start | GPT-5 Codex | Implemented the native Auth0 toolbox coordinate, stable pin, isolated wrapper, project detection, environment state, closed authentication operations, deterministic fixtures, and mapped technical documentation. | implemented | Run integrated local verification. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: complete — contract authored and adversarially reviewed.
 - `101-sg-ready`: ready — no blocking ambiguity remains.
-- `102-sg-start`: pending — implementation has not started.
+- `102-sg-start`: complete — implementation, fixtures, and mapped documentation are coherent.
 - `103-sg-verify`: pending.
 - `104-sg-end`: pending.
 - `005-sg-ship`: pending.

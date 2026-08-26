@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-05-24"
 updated: "2026-08-11"
@@ -33,6 +33,7 @@ evidence:
   - "TypeScript, JavaScript, Flutter, and Dart notes added as canonical sources for technology specialist profiles."
   - "Stripe Managed Payments note added after the operator selected it as the only active direct-payment provider for every current and future Glows suite product; Lemon Squeezy remains superseded historical evidence."
   - "Turso added as a specialist-backed note; PydanticAI, LangGraph, Cloudflare Workers, Hono, Drizzle ORM, and TanStack Start added as reference-only watchlist notes."
+  - "Auth0 added with explicit SDK, native operator CLI, Deploy CLI, MCP, tenant, authentication, and secret boundaries."
 next_review: "2026-06-24"
 next_step: "/sg-docs technical audit"
 ---
@@ -100,6 +101,7 @@ Each provider note should include:
 ## Current Global Notes
 
 - `astro.md`
+- `auth0.md`
 - `bash.md`
 - `clerk.md`
 - `cloudflare-workers.md`
