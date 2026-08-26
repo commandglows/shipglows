@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.22.0"
+artifact_version: "1.24.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-24"
+updated: "2026-08-26"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "CommandGlows onboarding audit 2026-08-26: a cloned repository is preserved when registration fails, but the Windows clone command now exits with an explicit preparation failure instead of reporting command success."
   - "CLI/SaaS capability snapshot 2026-08-24: the CLI emits a bounded, closed, read-only JSON capability inventory for the runner without exposing commands, arguments, paths, ports, secrets, or credentials."
   - "Linux memory monitoring 2026-08-20: available-RAM severity now scales at 20% warning and 10% critical, preserves severity through the menu cache, and reports missing swap independently."
   - "Linux clone/start separation 2026-08-19: clone catalogues bounded surfaces as uninitialized without Flox, dependency, picker, or PM2 side effects; first explicit start initializes only the selected surface."
@@ -104,6 +105,10 @@ environment lifecycle, dashboard, project shortcuts, publishing, health,
 PM2/Flox/Caddy behavior, or native Windows process and installer behavior.
 
 ## Environment control-plane foundation
+
+Post-clone preparation adds s env prepare for bounded, deterministic diagnosis and s env prepare-apply with an exact plan digest. Apply may exclusively create a missing shipglows.environment.json; it never replaces project manifests, lockfiles, .env, secrets, or an existing ShipGlows manifest.
+
+Windows clone runs the read-only diagnosis after registration. It reports healthy, safely repairable, blocking, or manual state and prints the digest-gated apply command when repair is possible; clone never applies that plan automatically.
 
 The source CLI exposes one dependency-light contract on Unix and Windows:
 
@@ -383,7 +388,9 @@ SSH configuration; GitHub CLI still owns authentication and credential storage,
 and configures Git's HTTPS credential helper before each picker clone.
 If a repository is outside the Windows DevServer's supported Astro, Python, and
 Flutter Web project kinds, cloning still succeeds and is kept in the workspace;
-the CLI reports that registration was skipped rather than removing the clone.
+the CLI keeps the clone, reports the preparation failure, and exits non-zero
+rather than removing the clone or presenting the combined clone-and-register
+operation as successful.
 The Windows launcher resolves only shortcut paths with a native equivalent:
 dashboard (`s d`), interactive start (`s e`), restart/stop/stop-all/logs under
 `s m ...`, and project navigation (`s m n`). Navigation opens a child

@@ -33,8 +33,8 @@ if (-not $currentHost.StartsWith($expectedManagedRoot + '\',[StringComparison]::
 # Keep the environment control plane outside the DevServer bootstrap: its
 # read-only commands must not create the workspace, registry, or menu cache.
 if ($Action.Trim().ToLowerInvariant() -eq 'env') {
-    if (@($ShortcutPath).Count -ne 1 -or $ShortcutPath[0].Trim().ToLowerInvariant() -notin @('inspect','plan','verify','status','apply')) {
-        [Console]::Error.WriteLine('Usage: s env <inspect|plan|verify|status|apply> [-ProjectPath <path>]')
+    if (@($ShortcutPath).Count -ne 1 -or $ShortcutPath[0].Trim().ToLowerInvariant() -notin @('inspect','plan','verify','status','apply','prepare','prepare-apply')) {
+        [Console]::Error.WriteLine('Usage: s env <inspect|plan|verify|status|apply|prepare|prepare-apply> [-ProjectPath <path>] [-PlanDigest <digest>]')
         exit 2
     }
     $environmentCandidates = @(
@@ -331,10 +331,30 @@ function Show-SgWindowsDashboard {
 function Register-SgClonedProject([string]$Destination) {
     try {
         Register-SgProject $config $Destination | Out-Null
-        Write-SgInfo "Registered clone: $Destination"
     } catch {
-        Write-SgWarn "Clone completed but was not registered: $($_.Exception.Message)"
+        throw "Clone completed but project preparation failed for '$Destination': $($_.Exception.Message)"
     }
+    $shellPath = (Get-Process -Id $PID).Path
+    $preparationOutput = & $shellPath -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath env prepare -ProjectPath $Destination | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        throw "Clone completed but configuration diagnosis failed for '$Destination'."
+    }
+    try {
+        $preparation = $preparationOutput | ConvertFrom-Json -ErrorAction Stop
+    } catch {
+        throw "Clone completed but configuration diagnosis returned invalid output for '$Destination': $($_.Exception.Message)"
+    }
+    Write-SgInfo "Configuration diagnosis: $($preparation.classification)"
+    foreach ($item in @($preparation.notices) + @($preparation.blocked)) {
+        Write-SgWarning "$($item.path): $($item.message)"
+    }
+    if ($preparation.classification -eq 'repairable') {
+        Write-SgWarning ('Review then apply the proposed ShipGlows configuration with: s env prepare-apply -ProjectPath "{0}" -PlanDigest {1}' -f $Destination, $preparation.digest)
+    }
+    if ($preparation.classification -eq 'blocked') {
+        throw "Clone completed but configuration diagnosis found blocking errors for '$Destination'. Existing project files were preserved."
+    }
+    Write-SgInfo "Registered clone: $Destination"
 }
 
 function Invoke-SgGitHubClone {
