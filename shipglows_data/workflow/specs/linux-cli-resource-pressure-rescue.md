@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 21:51:04 UTC"
 updated: "2026-08-27"
-updated_at: "2026-08-26 22:05:27 UTC"
-status: ready
+updated_at: "2026-08-26 22:14:51 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5
 scope: linux-cli-resource-pressure-rescue
@@ -31,12 +31,12 @@ evidence:
   - "Incident observe le 2026-08-26 sur une VM 2 vCPU/4 Go: swap 2 Go utilise a 100%, PSI CPU/memoire proche de 99%, PSI memoire full proche de 66% et terminal presque inutilisable."
   - "Deux commandes Vercel CLI detachees, PPID 1 et sans TTY, consommaient ensemble environ 1,9 Go de RAM et 1,2 Go de swap."
   - "La CLI existante classait seulement MemAvailable, signalait uniquement l'absence de swap et ne reconnaissait que Codex/Ranger/MCP dans ses nettoyages de processus."
-next_step: "/005-sg-ship Linux CLI resource pressure rescue"
+next_step: "Observe the next organic memory-pressure event through the CLI Health rescue path."
 ---
 
 # Spec: Linux CLI resource pressure rescue
 
-🟡 [ShipGlows] spec: Linux CLI resource pressure rescue | status: ready | path: shipglows_data/workflow/specs/linux-cli-resource-pressure-rescue.md | next: /005-sg-ship Linux CLI resource pressure rescue
+🟢 [ShipGlows] spec: Linux CLI resource pressure rescue | status: reviewed | path: shipglows_data/workflow/specs/linux-cli-resource-pressure-rescue.md | next: observe the next organic memory-pressure event through the CLI Health rescue path
 
 ## Title
 
@@ -206,7 +206,7 @@ Quand ShipGlows rend son en-tete ou son ecran Health sur Linux, il doit classifi
   - Validate with: test cible, `bash -n`, metadata lint cible et revue du diff.
   - Constraints: aucun audit global ni suite sans lien avec la surface.
 
-- [ ] Task 5: Livrer et activer sur la premiere VM
+- [x] Task 5: Livrer et activer sur la premiere VM
   - Files: commit exact du chantier; runtime distant `cli/config.sh` et `cli/lib.sh`.
   - Action: scanner, committer et pousser le scope exact; revalider les blobs distants, sauvegarder les deux fichiers puis les remplacer atomiquement depuis le commit valide.
   - User-story link: rendre la recuperation disponible sur la VM concernee.
@@ -223,8 +223,8 @@ Quand ShipGlows rend son en-tete ou son ecran Health sur Linux, il doit classifi
 - [x] AC 5: Given Codex, SSH, tmux, PM2, Caddy, systemd, un shell interactif ou un groupe mixte, when le sauvetage analyse les groupes, then ils sont exclus.
 - [x] AC 6: Given un candidat confirme, when l'identite a change avant TERM, then aucun signal n'est envoye.
 - [x] AC 7: Given TERM ne suffit pas, when le groupe reste actif, then KILL exige une seconde confirmation.
-- [ ] AC 8: Given le chantier valide, when il est livre, then seuls ses fichiers sont stages/committes/pousses et le fichier metier preexistant reste intact.
-- [ ] AC 9: Given les blobs runtime distants correspondent au baseline attendu, when l'activation a lieu, then les originaux sont sauvegardes et les deux nouveaux fichiers passent la syntaxe distante; sinon aucune activation n'a lieu.
+- [x] AC 8: Given le chantier valide, when il est livre, then seuls ses fichiers sont stages/committes/pousses et le fichier metier preexistant reste intact.
+- [x] AC 9: Given les blobs runtime distants correspondent au baseline attendu, when l'activation a lieu, then les originaux sont sauvegardes et les deux nouveaux fichiers passent la syntaxe distante; sinon aucune activation n'a lieu.
 
 ## Test Strategy
 
@@ -273,14 +273,16 @@ None. Les seuils et protections sont internes, configurables et couverts par tes
 | 2026-08-26 21:53:10 UTC | 101-sg-ready | GPT-5 | Confirmed autonomous behavior, bounded process-signal protections, exact proof, deployment rollback, and documentation consequences. | ready | /102-sg-start Linux CLI resource pressure rescue |
 | 2026-08-26 22:01:35 UTC | 102-sg-start | GPT-5 | Implemented combined RAM/swap/PSI severity, actionable Health rescue, closed Vercel orphan detection, redacted display, revalidation, confirmations, regression tests, and runtime documentation. | implemented | /103-sg-verify Linux CLI resource pressure rescue |
 | 2026-08-26 22:05:27 UTC | 103-sg-verify | GPT-5 | Verified 21 focused pressure and rescue cases, Bash syntax, targeted metadata, diff integrity, official Linux PSI semantics, and fail-closed process protections. | verified locally | /005-sg-ship Linux CLI resource pressure rescue |
+| 2026-08-26 22:14:51 UTC | 005-sg-ship | GPT-5 | Pushed the bounded implementation commit, revalidated the remote baseline, created a private backup, activated only the two approved runtime scripts, and matched their committed hashes and Linux syntax. | shipped and activated | /104-sg-end Linux CLI resource pressure rescue |
+| 2026-08-26 22:14:51 UTC | 104-sg-end | GPT-5 | Closed the unique chantier after a live non-destructive diagnostic reported pressure ok, swap 39%, memory PSI 0.00/0.00, zero eligible orphan groups, and expected runtime ownership; technical documentation is updated and public editorial surfaces are not impacted. | closed | Observe the next organic memory-pressure event through the CLI Health rescue path. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: reviewed contract created from confirmed incident evidence.
 - `101-sg-ready`: ready; behavior, safety, proof, and deployment boundaries are decision-complete.
 - `102-sg-start`: implemented; focused regression and Bash syntax pass locally.
-- `103-sg-verify`: verified locally; runtime activation proof remains in Task 5.
-- `104-sg-end`: pending.
-- `005-sg-ship`: pending.
+- `103-sg-verify`: verified locally and on the active Linux runtime.
+- `104-sg-end`: closed; durable documentation and proof are aligned.
+- `005-sg-ship`: shipped and activated from commit `c101bd7` with a private rollback backup.
 
-Next step: `/005-sg-ship Linux CLI resource pressure rescue`
+Next step: observe the next organic memory-pressure event through the CLI Health rescue path; do not manufacture pressure on the live VM.
