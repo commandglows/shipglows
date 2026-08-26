@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-08-26"
 updated: "2026-08-26"
@@ -21,8 +21,8 @@ linked_systems:
   - shipglows_data/workflow/specs/latest-build-artifact-access.md
 depends_on:
   - artifact: "shipglows_data/workflow/specs/latest-build-artifact-access.md"
-    artifact_version: "1.0.5"
-    required_status: verified
+    artifact_version: "1.0.6"
+    required_status: reviewed
 supersedes: []
 evidence:
   - "Focused Windows fixtures prove four source-labelled lanes, cached-package survival, CI selection, collision protection, bounded retention, and fail-closed path handling."

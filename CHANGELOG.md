@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.10.9"
+artifact_version: "0.11.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-25"
+updated: "2026-08-26"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -24,6 +24,11 @@ evidence: []
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-08-26]
+
+### Added
+- Added private last-known-good access to successful Windows and Android test builds through four clearly labelled desktop shortcuts: Windows Local, Windows CI, Android APK Local, and Android APK CI. Cached packages survive disposable worktrees; Android remains reveal-only, and unsafe or failed candidates preserve the prior shortcut.
 
 ## [2026-08-25]
 
