@@ -24,6 +24,7 @@ if __package__ in (None, ""):
         status_project,
         verify_project,
     )
+    from cli.environment.preparation import apply_preparation_plan, build_preparation_plan  # type: ignore
 else:
     from .core import (
         ApplyRefused,
@@ -37,11 +38,12 @@ else:
         status_project,
         verify_project,
     )
+    from .preparation import apply_preparation_plan, build_preparation_plan
 
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shipglows env")
-    parser.add_argument("command", choices=("inspect", "plan", "verify", "status", "apply"))
+    parser.add_argument("command", choices=("inspect", "plan", "verify", "status", "apply", "prepare", "prepare-apply"))
     parser.add_argument("--project", default=".")
     parser.add_argument("--state-root")
     parser.add_argument("--plan-digest")
@@ -66,7 +68,13 @@ def main(argv=None) -> int:
     state_root = Path(arguments.state_root).expanduser().resolve() if arguments.state_root else default_state_root()
     exit_code = 0
     try:
-        if arguments.command == "inspect":
+        if arguments.command == "prepare":
+            result = build_preparation_plan(project)
+        elif arguments.command == "prepare-apply":
+            if not arguments.plan_digest:
+                raise ContractError("prepare-apply requires --plan-digest")
+            result = apply_preparation_plan(project, arguments.plan_digest)
+        elif arguments.command == "inspect":
             desired = discover_project(project)
             result = redact({"command": "inspect", "desired": desired, "observed": observe_project(desired), "mutated": False})
         elif arguments.command == "plan":

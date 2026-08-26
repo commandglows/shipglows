@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.23.0"
+artifact_version: "1.24.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-26"
@@ -105,6 +105,10 @@ environment lifecycle, dashboard, project shortcuts, publishing, health,
 PM2/Flox/Caddy behavior, or native Windows process and installer behavior.
 
 ## Environment control-plane foundation
+
+Post-clone preparation adds s env prepare for bounded, deterministic diagnosis and s env prepare-apply with an exact plan digest. Apply may exclusively create a missing shipglows.environment.json; it never replaces project manifests, lockfiles, .env, secrets, or an existing ShipGlows manifest.
+
+Windows clone runs the read-only diagnosis after registration. It reports healthy, safely repairable, blocking, or manual state and prints the digest-gated apply command when repair is possible; clone never applies that plan automatically.
 
 The source CLI exposes one dependency-light contract on Unix and Windows:
 

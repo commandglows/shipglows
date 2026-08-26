@@ -22,7 +22,7 @@ for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "
   test -f "$file"
 done
 
-for environment_contract in schema-contract.py state-contract.py plan-contract.py executor-contract.py security-contract.py; do
+for environment_contract in schema-contract.py state-contract.py plan-contract.py executor-contract.py security-contract.py preparation-contract.py; do
   python "$ROOT/tests/environment/$environment_contract"
 done
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-observation.ps1"
