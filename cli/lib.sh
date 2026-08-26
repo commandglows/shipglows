@@ -1932,6 +1932,63 @@ mem_swap_total_kb() {
     awk '/^SwapTotal:/ {print $2}' /proc/meminfo 2>/dev/null
 }
 
+# mem_swap_free_kb - Currently unused swap in KB
+mem_swap_free_kb() {
+    awk '/^SwapFree:/ {print $2}' /proc/meminfo 2>/dev/null
+}
+
+# mem_swap_used_pct - Integer percentage of configured swap currently used
+mem_swap_used_pct() {
+    local total_kb free_kb
+    total_kb=$(mem_swap_total_kb)
+    free_kb=$(mem_swap_free_kb)
+    if ! [[ "$total_kb" =~ ^[1-9][0-9]*$ ]] || ! [[ "$free_kb" =~ ^[0-9]+$ ]]; then
+        echo "unknown"
+        return
+    fi
+    [ "$free_kb" -le "$total_kb" ] || free_kb="$total_kb"
+    echo $(( (total_kb - free_kb) * 100 / total_kb ))
+}
+
+# mem_psi_avg10 - Linux PSI avg10 value for `some` or `full` memory stalls
+mem_psi_avg10() {
+    local kind="$1"
+    case "$kind" in
+        some|full) ;;
+        *) echo "unknown"; return ;;
+    esac
+    if [ ! -r /proc/pressure/memory ]; then
+        echo "unknown"
+        return
+    fi
+    local value
+    value=$(awk -v kind="$kind" '
+        $1 == kind {
+            for (i = 2; i <= NF; i++) {
+                if ($i ~ /^avg10=/) {
+                    sub(/^avg10=/, "", $i)
+                    print $i
+                    exit
+                }
+            }
+        }
+    ' /proc/pressure/memory 2>/dev/null)
+    if [[ "$value" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+        echo "$value"
+    else
+        echo "unknown"
+    fi
+}
+
+mem_metric_integer() {
+    local value="$1"
+    if [[ "$value" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+        echo "${value%%.*}"
+    else
+        echo "unknown"
+    fi
+}
+
 # mem_pressure_level - Print ok, warning, or critical from available RAM
 mem_pressure_level() {
     local avail_kb total_kb
@@ -1969,6 +2026,59 @@ mem_pressure_level() {
         return
     fi
 
+    echo "ok"
+}
+
+# mem_system_pressure_level - Combine available RAM, swap use and Linux PSI
+mem_system_pressure_level() {
+    local ram_level swap_pct psi_some psi_full psi_some_int psi_full_int
+    ram_level=$(mem_pressure_level)
+    swap_pct=$(mem_swap_used_pct)
+    psi_some=$(mem_psi_avg10 some)
+    psi_full=$(mem_psi_avg10 full)
+    psi_some_int=$(mem_metric_integer "$psi_some")
+    psi_full_int=$(mem_metric_integer "$psi_full")
+
+    local swap_warn="${SHIPGLOWS_SWAP_WARN_PCT:-80}"
+    local swap_critical="${SHIPGLOWS_SWAP_CRITICAL_PCT:-90}"
+    local psi_warn="${SHIPGLOWS_MEM_PSI_WARN_PCT:-25}"
+    local psi_critical="${SHIPGLOWS_MEM_PSI_CRITICAL_PCT:-10}"
+    [[ "$swap_warn" =~ ^[1-9][0-9]*$ ]] && [ "$swap_warn" -le 100 ] || swap_warn=80
+    [[ "$swap_critical" =~ ^[1-9][0-9]*$ ]] && [ "$swap_critical" -le 100 ] || swap_critical=90
+    [ "$swap_critical" -gt "$swap_warn" ] || { swap_warn=80; swap_critical=90; }
+    [[ "$psi_warn" =~ ^[1-9][0-9]*$ ]] && [ "$psi_warn" -le 100 ] || psi_warn=25
+    [[ "$psi_critical" =~ ^[1-9][0-9]*$ ]] && [ "$psi_critical" -le 100 ] || psi_critical=10
+
+    if [ "$ram_level" = "critical" ]; then
+        echo "critical"
+        return
+    fi
+    if [[ "$psi_full_int" =~ ^[0-9]+$ ]] && [ "$psi_full_int" -ge "$psi_critical" ]; then
+        echo "critical"
+        return
+    fi
+    if [[ "$swap_pct" =~ ^[0-9]+$ ]] && [ "$swap_pct" -ge "$swap_critical" ] \
+        && [ "$ram_level" = "warning" ]; then
+        echo "critical"
+        return
+    fi
+    if [ "$ram_level" = "warning" ]; then
+        echo "warning"
+        return
+    fi
+    if [[ "$psi_some_int" =~ ^[0-9]+$ ]] && [ "$psi_some_int" -ge "$psi_warn" ]; then
+        echo "warning"
+        return
+    fi
+    if [[ "$swap_pct" =~ ^[0-9]+$ ]] && [ "$swap_pct" -ge "$swap_warn" ]; then
+        echo "warning"
+        return
+    fi
+    if [ "$ram_level" = "unknown" ] && [ "$swap_pct" = "unknown" ] \
+        && [ "$psi_some_int" = "unknown" ] && [ "$psi_full_int" = "unknown" ]; then
+        echo "unknown"
+        return
+    fi
     echo "ok"
 }
 
@@ -2142,6 +2252,198 @@ mcp_format_rss() {
 pgid_contains_codex() {
     local pgid="$1"
     ps -o comm=,args= -g "$pgid" 2>/dev/null | grep -Eq '(^|[[:space:]])codex([[:space:]]|$)|/codex'
+}
+
+orphaned_dev_tool_provider() {
+    local args="$1"
+    case "$args" in
+        *"/vercel/dist/vc.js"*) printf 'vercel'; return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Return success when a group must be protected from emergency rescue.
+orphaned_dev_tool_group_protected() {
+    local pgid="$1"
+    local current_uid row_pgid row_uid tty comm args provider found=0
+    current_uid=$(id -u 2>/dev/null) || return 0
+
+    while read -r row_pgid row_uid tty comm args; do
+        [ "$row_pgid" = "$pgid" ] || continue
+        [ -n "$row_uid" ] || continue
+        found=1
+        [ "$row_uid" = "$current_uid" ] || return 0
+        [ "$tty" = "?" ] || return 0
+        case "$comm" in
+            ssh|sshd|tmux|tmux:*|codex|systemd|PM2|caddy|bash|sh|zsh|fish)
+                return 0
+                ;;
+        esac
+        provider=$(orphaned_dev_tool_provider "$args" || true)
+        [ -n "$provider" ] || return 0
+    done < <(ps -eo pgid=,uid=,tty=,comm=,args= --no-headers 2>/dev/null)
+
+    [ "$found" -eq 0 ] && return 0
+    return 1
+}
+
+# Output: PGID|COUNT|RSS_KB|ELAPSED_SECONDS|PROVIDERS|PIDS
+orphaned_dev_tool_groups() {
+    local current_uid min_rss_mb min_age min_rss_kb raw=""
+    local pid ppid pgid uid tty etimes rss comm args provider
+    current_uid=$(id -u 2>/dev/null) || return 0
+    min_rss_mb="${SHIPGLOWS_ORPHAN_TOOL_MIN_RSS_MB:-100}"
+    min_age="${SHIPGLOWS_ORPHAN_TOOL_MIN_AGE_SECONDS:-120}"
+    [[ "$min_rss_mb" =~ ^[1-9][0-9]*$ ]] || min_rss_mb=100
+    [[ "$min_age" =~ ^[1-9][0-9]*$ ]] || min_age=120
+    min_rss_kb=$((min_rss_mb * 1024))
+
+    while read -r pid ppid pgid uid tty etimes rss comm args; do
+        [[ "$pid" =~ ^[0-9]+$ ]] || continue
+        [[ "$ppid" =~ ^[0-9]+$ ]] || continue
+        [[ "$pgid" =~ ^[0-9]+$ ]] || continue
+        [[ "$etimes" =~ ^[0-9]+$ ]] || continue
+        [[ "$rss" =~ ^[0-9]+$ ]] || continue
+        [ "$uid" = "$current_uid" ] || continue
+        [ "$ppid" -eq 1 ] || continue
+        [ "$tty" = "?" ] || continue
+        [ "$etimes" -ge "$min_age" ] || continue
+        [ "$rss" -ge "$min_rss_kb" ] || continue
+        provider=$(orphaned_dev_tool_provider "$args" || true)
+        [ -n "$provider" ] || continue
+        raw+="${pgid}|${pid}|${rss}|${etimes}|${provider}"$'\n'
+    done < <(ps -eo pid=,ppid=,pgid=,uid=,tty=,etimes=,rss=,comm=,args= --no-headers 2>/dev/null)
+
+    [ -n "$raw" ] || return 0
+
+    local grouped row_pgid count total_rss max_age providers pids
+    grouped=$(printf '%s' "$raw" | awk -F'|' '
+        NF == 5 {
+            pgid=$1
+            count[pgid]++
+            rss[pgid]+=$3
+            if ($4 > age[pgid]) age[pgid]=$4
+            if (providers[pgid] == "") providers[pgid]=$5
+            else if (providers[pgid] !~ "(^|,)" $5 "(,|$)") providers[pgid]=providers[pgid] "," $5
+            if (pids[pgid] == "") pids[pgid]=$2
+            else pids[pgid]=pids[pgid] "," $2
+        }
+        END {
+            for (pgid in count) {
+                print pgid "|" count[pgid] "|" rss[pgid] "|" age[pgid] "|" providers[pgid] "|" pids[pgid]
+            }
+        }
+    ' | sort -t'|' -k4,4nr)
+
+    while IFS='|' read -r row_pgid count total_rss max_age providers pids; do
+        [ -n "$row_pgid" ] || continue
+        if ! orphaned_dev_tool_group_protected "$row_pgid"; then
+            printf '%s|%s|%s|%s|%s|%s\n' \
+                "$row_pgid" "$count" "$total_rss" "$max_age" "$providers" "$pids"
+        fi
+    done <<< "$grouped"
+}
+
+orphaned_dev_tool_group_is_candidate() {
+    local expected_pgid="$1"
+    local pgid count rss etime providers pids
+    [[ "$expected_pgid" =~ ^[0-9]+$ ]] || return 1
+    while IFS='|' read -r pgid count rss etime providers pids; do
+        [ "$pgid" = "$expected_pgid" ] && return 0
+    done <<< "$(orphaned_dev_tool_groups)"
+    return 1
+}
+
+process_group_has_members() {
+    local expected_pgid="$1"
+    local pgid pid
+    while read -r pgid pid; do
+        [ "$pgid" = "$expected_pgid" ] && return 0
+    done < <(ps -eo pgid=,pid= --no-headers 2>/dev/null)
+    return 1
+}
+
+show_orphaned_dev_tool_groups() {
+    local groups
+    groups=$(orphaned_dev_tool_groups)
+    if [ -z "$groups" ]; then
+        echo -e "${GREEN}No verified orphaned developer tool groups detected.${NC}"
+        return 0
+    fi
+
+    echo -e "${BLUE}â”â”â” Orphaned Developer Tool Groups â”â”â”${NC}"
+    printf "  ${CYAN}%-8s %-5s %-8s %-8s %-14s %-s${NC}\n" "PGID" "PROCS" "RSS" "UPTIME" "PROVIDER" "PIDS"
+    local pgid count rss etime providers pids
+    while IFS='|' read -r pgid count rss etime providers pids; do
+        printf "  ${YELLOW}%-8s %-5s %-8s %-8s %-14s${NC} %-s\n" \
+            "$pgid" "$count" "$(mcp_format_rss "$rss")" "$(mcp_format_elapsed "$etime")" "$providers" "$pids"
+    done <<< "$groups"
+}
+
+stop_orphaned_dev_tool_group() {
+    local pgid="$1"
+    local label="$2"
+    if ! [[ "$pgid" =~ ^[0-9]+$ ]] || [ "$pgid" -le 1 ] \
+        || ! orphaned_dev_tool_group_is_candidate "$pgid"; then
+        echo -e "${RED}Refusing stale or unprotected process group: ${pgid}.${NC}" >&2
+        return 1
+    fi
+
+    if [ "${SHIPGLOWS_EMERGENCY_RESCUE_DRY_RUN:-0}" = "1" ]; then
+        echo "kill -TERM -$pgid"
+        return 0
+    fi
+
+    echo -e "${YELLOW}Stopping orphaned developer tool group:${NC} $label"
+    kill -TERM "-$pgid" 2>/dev/null || true
+    sleep 1
+    if process_group_has_members "$pgid"; then
+        if ui_confirm "Process group $pgid is still running. Force kill it?"; then
+            kill -KILL "-$pgid" 2>/dev/null || true
+        fi
+    fi
+}
+
+emergency_process_rescue_menu() {
+    local groups
+    groups=$(orphaned_dev_tool_groups)
+    ui_screen_header "Emergency Process Rescue" danger
+    if [ -z "$groups" ]; then
+        echo -e "${GREEN}No verified orphaned developer tool groups detected.${NC}"
+        echo -e "${BLUE}Codex, SSH, tmux, shells and application services remain protected.${NC}"
+        return 0
+    fi
+
+    show_orphaned_dev_tool_groups
+    echo ""
+    echo -e "${YELLOW}Only detached, heavy, known developer CLI groups are eligible. Arguments are hidden.${NC}"
+    echo -e "${BLUE}Codex, SSH, tmux, shells and application services are protected.${NC}"
+    echo ""
+
+    local options=() labels=()
+    local pgid count rss etime providers pids label selected
+    while IFS='|' read -r pgid count rss etime providers pids; do
+        label="PGID $pgid Â· $providers Â· $(mcp_format_rss "$rss") Â· $(mcp_format_elapsed "$etime")"
+        options+=("$label")
+        labels+=("$pgid|$label")
+    done <<< "$groups"
+    options+=("Back")
+
+    selected=$(printf '%s\n' "${options[@]}" | ui_choose "Stop which orphaned tool group?") || return 0
+    ui_is_back_selection "$selected" && return 0
+    local row
+    for row in "${labels[@]}"; do
+        pgid="${row%%|*}"
+        label="${row#*|}"
+        if [ "$selected" = "$label" ]; then
+            if ui_confirm "Stop $label ?"; then
+                stop_orphaned_dev_tool_group "$pgid" "$label"
+            else
+                echo -e "${BLUE}Cancelled - no process stopped.${NC}"
+            fi
+            return 0
+        fi
+    done
 }
 
 show_mcp_process_groups() {
@@ -2961,21 +3263,32 @@ aggressive_cleanup_menu() {
 mem_alerts() {
     local alerts=()
 
-    # Check current memory pressure independently from total VM capacity.
+    # Combine available RAM with active swap/PSI pressure.
     local memory_level
-    memory_level=$(mem_pressure_level)
+    memory_level=$(mem_system_pressure_level)
     if [ "$memory_level" = "warning" ] || [ "$memory_level" = "critical" ]; then
-        local avail
+        local avail swap_pct psi_some psi_full
         avail=$(mem_available_human)
         local total
         total=$(mem_total_human)
-        alerts+=("${memory_level}|RAM ${memory_level}: ${avail} available of ${total} total")
+        swap_pct=$(mem_swap_used_pct)
+        psi_some=$(mem_psi_avg10 some)
+        psi_full=$(mem_psi_avg10 full)
+        alerts+=("${memory_level}|Memory pressure ${memory_level}: ${avail} available of ${total}; swap ${swap_pct}%; PSI some/full ${psi_some}/${psi_full}")
     fi
 
     local swap_total_kb
     swap_total_kb=$(mem_swap_total_kb)
     if [[ "$swap_total_kb" =~ ^[0-9]+$ ]] && [ "$swap_total_kb" -eq 0 ]; then
         alerts+=("warning|Swap is not configured; memory spikes have no swap buffer")
+    fi
+
+    local orphaned_groups
+    orphaned_groups=$(orphaned_dev_tool_groups)
+    if [ -n "$orphaned_groups" ]; then
+        local orphaned_count
+        orphaned_count=$(printf '%s\n' "$orphaned_groups" | wc -l)
+        alerts+=("warning|${orphaned_count} verified orphaned developer tool group(s); use Emergency rescue")
     fi
 
     # Check for long-running heavy processes
@@ -3307,7 +3620,7 @@ refresh_menu_status_cache_sync() {
     local mem_total_human
     mem_total_human=$(mem_total_human)
     local low_mem
-    low_mem=$(mem_pressure_level)
+    low_mem=$(mem_system_pressure_level)
 
     local pm2_unhealthy=""
     if command -v pm2 >/dev/null 2>&1; then
@@ -10287,11 +10600,11 @@ print_header() {
 print_memory_pressure_warning() {
     case "${1:-0}" in
         critical)
-            echo -e "${RED}⚠️  Memory critically low. Press h) Health Check.${NC}"
+            echo -e "${RED}⚠️  CRITICAL memory/swap pressure. Press h) Health Check, then e) Emergency rescue.${NC}"
             ;;
         warning|1)
             # `1` keeps caches written by older CLI versions readable.
-            echo -e "${YELLOW}⚠️  Memory running low. Press h) Health Check.${NC}"
+            echo -e "${YELLOW}⚠️  Memory pressure rising. Press h) Health Check.${NC}"
             ;;
     esac
 }
@@ -10532,6 +10845,7 @@ action_health() {
     ui_flush_pending_input
     echo -e "${BLUE}Options:${NC}"
     echo -e "  ${CYAN}r)${NC} Refresh current processes"
+    echo -e "  ${CYAN}e)${NC} Emergency rescue (verified orphaned developer tools)"
     echo -e "  ${CYAN}v)${NC} Disk details (largest files/directories)"
     echo -e "  ${CYAN}d)${NC} Disk cleanup (files: agent histories/caches/package caches)"
     echo -e "  ${CYAN}s)${NC} Safe process cleanup (RAM/processes only)"
@@ -10557,6 +10871,10 @@ action_health() {
         r)
             ui_skip_next_pause
             return 0
+            ;;
+        e)
+            clear
+            emergency_process_rescue_menu
             ;;
         v)
             clear

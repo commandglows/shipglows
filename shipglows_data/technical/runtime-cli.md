@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.23.0"
+artifact_version: "1.24.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-26"
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Linux pressure rescue 2026-08-26: Health combines available RAM, swap use and optional Linux PSI, renders a critical recovery route, and can stop only revalidated confirmed Vercel CLI groups that are detached, heavy, old and free of protected processes."
   - "Native Windows Doppler boundary 2026-08-26: the installer provisions and reports the CLI for agents, while automatic DevServer secret injection remains disabled until a project-specific dev/staging contract is declared and proven."
   - "CLI/SaaS capability snapshot 2026-08-24: the CLI emits a bounded, closed, read-only JSON capability inventory for the runner without exposing commands, arguments, paths, ports, secrets, or credentials."
   - "Linux memory monitoring 2026-08-20: available-RAM severity now scales at 20% warning and 10% critical, preserves severity through the menu cache, and reports missing swap independently."
@@ -564,11 +565,23 @@ the managed `%LOCALAPPDATA%\ms-playwright` root.
   commands. It must not route destructive cleanup options through
   searchable/default-select menus. Available RAM is healthy at or above 20%,
   warning below 20%, and critical below 10%; those levels remain distinct in
-  the menu cache and header. `SHIPGLOWS_MEM_WARN_PCT` and
-  `SHIPGLOWS_MEM_CRITICAL_PCT` configure the proportional thresholds. The
-  legacy `SHIPGLOWS_MEM_WARN_GB` absolute threshold applies only when set
-  explicitly. Missing swap is a separate capacity-risk warning and never, by
-  itself, means current RAM is low.
+  the menu cache and header. The combined system level also warns at 80% swap
+  use or sustained PSI memory `some` pressure, and becomes critical when PSI
+  `full` reaches 10% or when swap reaches 90% while available RAM is already
+  below 20%. Swap use alone never becomes a critical incident because Linux
+  may retain inactive pages there after pressure has cleared. PSI is optional:
+  kernels without `/proc/pressure/memory` retain the RAM/swap classification.
+  `SHIPGLOWS_MEM_*`, `SHIPGLOWS_SWAP_*`, and `SHIPGLOWS_MEM_PSI_*` configure
+  validated thresholds. The legacy `SHIPGLOWS_MEM_WARN_GB` applies only when
+  explicitly set. Missing swap remains a separate capacity-risk warning.
+- `cli/lib.sh::emergency_process_rescue_menu`: the `e` Health action lists only
+  same-user Vercel CLI groups whose candidate process has PPID 1, no TTY, at
+  least 100 MB RSS, and at least two minutes of age. Every member of the group
+  is re-read before signaling; an unknown signature, another user, any TTY, or
+  a shell, Codex, SSH, tmux, systemd, PM2, Caddy, or application process makes
+  the whole group ineligible. Display output contains provider, IDs, RSS and
+  age but never full arguments. The operator selects one group and confirms
+  `SIGTERM`; a surviving group requires a separate confirmation for `SIGKILL`.
 - `cli/lib.sh::disk_cleanup_menu`: one-key disk cleanup flow for old Codex/Claude
   history files, agent caches/logs, safe dev caches, and heavier regenerated
   dev state. The light tier targets low-risk package/tool caches; the
@@ -733,6 +746,10 @@ package binaries.
   Codex conversations or MCP processes.
 - MCP cleanup should target only local MCP server process groups, ask for
   confirmation, and refuse any process group that contains a `codex` process.
+- Emergency process rescue must fail closed when a PID/PGID disappears,
+  changes identity, gains a TTY, contains an unrecognized process, or no longer
+  satisfies its same-user orphan signature. It must never generalize PPID 1
+  into permission to stop arbitrary daemons or application services.
 - Disk cleanup must not delete agent auth/config/skills/memories; history
   cleanup is retention-based. Aggressive cleanup may remove regenerated build
   artifacts inside project trees, but not source files, git data, or primary
@@ -749,6 +766,9 @@ package binaries.
 - Do not log tokens, DuckDNS secrets, private paths containing credentials, or raw environment values.
 - Public URL publishing is externally visible and needs explicit validation.
 - Destructive actions must stay idempotent and confirmation-gated where the UX expects it.
+- Process arguments may be inspected only for a closed rescue signature; they
+  must not be displayed, cached, logged, or persisted because they can contain
+  private targets or credentials.
 - Blacksmith credentials are detected only by local credentials-file presence;
   the runtime must not read, print, store, or transform token contents.
 - Blacksmith runner SSH diagnostics must not copy raw environment values,
