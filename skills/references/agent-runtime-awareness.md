@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.4.0"
+artifact_version: "3.5.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-23"
+updated: "2026-08-26"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -17,6 +17,7 @@ linked_systems:
   - cli/windows/ShipGlows.DevServer.psm1
   - cli/windows/install-devserver.ps1
   - cli/windows/ShipGlows.AgentInstructions.psm1
+  - cli/windows/shipglows-devserver.ps1
   - tests/windows/agent-instructions.ps1
   - cli/install.sh
   - skills/000-shipglows/SKILL.md
@@ -35,6 +36,7 @@ evidence:
   - "The Windows DevServer registry remains the live status authority."
   - "A Playwright MCP false negative on 2026-08-14 showed that direct tool listings can omit callable tools retained in the host's deferred catalog."
   - "The Windows installer atomically projects this stable discovery contract into each detected agent's native global instruction file while dynamic facts remain in environment.md."
+  - "The Windows CLI publishes a bounded shipglows.cli-capabilities.v1 snapshot that conversations may inspect without starting the CLI."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify Windows runtime awareness"
 ---
@@ -112,6 +114,8 @@ authority for discovery and callability. Existing instructions outside the
 managed block are preserved.
 
 ## Current-Turn Capability Discovery
+
+When the question depends on capabilities actually exposed by the native Windows CLI, read `%LOCALAPPDATA%\ShipGlows\DevServer\cli-capabilities.v1.json`, or the absolute `SHIPGLOWS_CLI_CAPABILITIES_FILE` override when one is explicitly present. Bound the read to 64 KiB; accept only `shipglows.cli-capabilities.v1`, canonical UTC timestamps, the closed capability identifiers/states, and snapshots no older than 15 minutes or more than one minute in the future. Missing, malformed, oversized, stale, or future evidence is unavailable. Reading the snapshot is the conversational path and must never start the CLI or infer a free-form command surface.
 
 Before declaring a configured tool unavailable:
 

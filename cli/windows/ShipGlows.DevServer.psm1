@@ -10,6 +10,8 @@ $script:ProjectCatalogMemory = @{}
 $script:ProjectEnvironmentSchema = 'shipglows-project-environment/v1'
 $script:ProjectEnvironmentBegin = '<!-- >>> ShipGlows development environment >>> -->'
 $script:ProjectEnvironmentEnd = '<!-- <<< ShipGlows development environment <<< -->'
+$script:CliCapabilitySchema = 'shipglows.cli-capabilities.v1'
+$script:CliCapabilityMaxBytes = 65536
 
 function Write-SgInfo([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Cyan }
 function Write-SgWarn([string]$Message) { Write-Host "[ShipGlows] $Message" -ForegroundColor Yellow }
@@ -24,6 +26,7 @@ function Get-SgDevConfig {
         RegistryPath = Join-Path $runtime 'registry.json'
         LockPath = Join-Path $runtime 'registry.lock'
         ProjectIndexPath = Join-Path $runtime 'project-index.json'
+        CliCapabilitiesPath = if ($env:SHIPGLOWS_CLI_CAPABILITIES_FILE) { [IO.Path]::GetFullPath($env:SHIPGLOWS_CLI_CAPABILITIES_FILE) } else { Join-Path $runtime 'cli-capabilities.v1.json' }
         LogDirectory = Join-Path $runtime 'logs'
         PortStart = $script:DefaultPortStart
         PortEnd = $script:DefaultPortEnd
@@ -127,6 +130,72 @@ function Get-SgCommandPath([string[]]$Names) {
         if ($command) { return $command.Source }
     }
     return $null
+}
+
+function Get-SgCliCapabilityRecords {
+    $available = @(
+        'project.catalog.read','project.runtime.status.read','preview.status.read','workspace.status.read',
+        'system.health.read','system.storage.read','system.memory.read','toolchain.status.read','updates.status.read',
+        'agents.status.read','mcp.status.read','project.runtime.start','project.runtime.stop','project.runtime.restart',
+        'preview.refresh','workspace.open','agent.session.open','system.logs.read','system.cleanup','system.process.stop',
+        'system.reboot','system.update','toolchain.install','mcp.configure','credentials.manage','proxy.configure',
+        'environment.remove','shipglows.install'
+    )
+    $unsupported = @('workspace.close','release.publish')
+    $records = [Collections.Generic.List[object]]::new()
+    foreach ($id in $available) { $records.Add([ordered]@{ id=$id; state='available' }) }
+    foreach ($id in $unsupported) { $records.Add([ordered]@{ id=$id; state='unavailable'; reasonCode='unsupportedWindows' }) }
+    return @($records)
+}
+
+function Test-SgCliCapabilitySnapshot([object]$Snapshot) {
+    if (-not $Snapshot -or $Snapshot.schemaVersion -cne $script:CliCapabilitySchema) { return $false }
+    try { [void][DateTime]::ParseExact([string]$Snapshot.generatedAt, "yyyy-MM-dd'T'HH:mm:ss.fff'Z'", [Globalization.CultureInfo]::InvariantCulture) } catch { return $false }
+    $allowed = @{}; foreach ($record in @(Get-SgCliCapabilityRecords)) { $allowed[[string]$record.id] = $true }
+    $seen = @{}
+    foreach ($record in @($Snapshot.capabilities)) {
+        $properties = @($record.PSObject.Properties.Name)
+        if ($properties.Count -lt 2 -or $properties.Count -gt 3 -or 'id' -notin $properties -or 'state' -notin $properties) { return $false }
+        if (@($properties | Where-Object { $_ -notin @('id','state','reasonCode') }).Count -gt 0) { return $false }
+        $id = [string]$record.id; $state = [string]$record.state
+        if (-not $allowed.ContainsKey($id) -or $seen.ContainsKey($id) -or $state -notin @('available','unavailable','degraded','disabled')) { return $false }
+        if ('reasonCode' -in $properties -and [string]$record.reasonCode -notmatch '^[a-z][a-zA-Z0-9]{0,63}$') { return $false }
+        $seen[$id] = $true
+    }
+    return $seen.Count -eq 30
+}
+
+function Write-SgCliCapabilitySnapshot([object]$Config) {
+    $path = [IO.Path]::GetFullPath([string]$Config.CliCapabilitiesPath)
+    $directory = Split-Path -Parent $path
+    Ensure-SgDirectory $directory
+    $snapshot = [ordered]@{
+        schemaVersion = $script:CliCapabilitySchema
+        generatedAt = [DateTime]::UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", [Globalization.CultureInfo]::InvariantCulture)
+        capabilities = @(Get-SgCliCapabilityRecords)
+    }
+    $json = $snapshot | ConvertTo-Json -Depth 5 -Compress
+    $bytes = [Text.Encoding]::UTF8.GetByteCount($json)
+    if ($bytes -gt $script:CliCapabilityMaxBytes) { throw 'CLI capability snapshot exceeds its closed size limit.' }
+    $temporary = "$path.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        [IO.File]::WriteAllText($temporary, $json, [Text.UTF8Encoding]::new($false))
+        $verified = [IO.File]::ReadAllText($temporary) | ConvertFrom-Json -ErrorAction Stop
+        if (-not (Test-SgCliCapabilitySnapshot $verified)) { throw 'CLI capability snapshot validation failed.' }
+        Move-Item -LiteralPath $temporary -Destination $path -Force
+    } finally {
+        Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue
+    }
+    return $path
+}
+
+function Read-SgCliCapabilitySnapshot([object]$Config) {
+    $path = [IO.Path]::GetFullPath([string]$Config.CliCapabilitiesPath)
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "CLI capability snapshot is missing: $path" }
+    if ((Get-Item -LiteralPath $path).Length -gt $script:CliCapabilityMaxBytes) { throw 'CLI capability snapshot exceeds its closed size limit.' }
+    $snapshot = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop
+    if (-not (Test-SgCliCapabilitySnapshot $snapshot)) { throw 'CLI capability snapshot is invalid.' }
+    return $snapshot
 }
 
 function Get-SgFlutterCommandPath {
@@ -1559,5 +1628,5 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

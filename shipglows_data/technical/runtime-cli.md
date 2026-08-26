@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.20.0"
+artifact_version: "1.21.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-24"
+updated: "2026-08-26"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Native Windows capability snapshot 2026-08-26: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
   - "CLI/SaaS capability snapshot 2026-08-24: the CLI emits a bounded, closed, read-only JSON capability inventory for the runner without exposing commands, arguments, paths, ports, secrets, or credentials."
   - "Linux memory monitoring 2026-08-20: available-RAM severity now scales at 20% warning and 10% critical, preserves severity through the menu cache, and reports missing swap independently."
   - "Linux clone/start separation 2026-08-19: clone catalogues bounded surfaces as uninitialized without Flox, dependency, picker, or PM2 side effects; first explicit start initializes only the selected surface."
@@ -224,6 +225,15 @@ invalid reason codes, and output beyond
 `SHIPGLOWS_CLI_CAPABILITIES_MAX_BYTES` (64 KiB by default). It writes a private
 candidate in the state directory, atomically replaces the published snapshot,
 and preserves the previous valid snapshot if generation fails.
+
+The native Windows CLI publishes the same schema at
+`%LOCALAPPDATA%\ShipGlows\DevServer\cli-capabilities.v1.json`, or at the
+absolute `SHIPGLOWS_CLI_CAPABILITIES_FILE` override. Every bounded CLI launch
+refreshes it atomically before dispatch, and `s capabilities` prints the
+validated snapshot. Agent conversations read the file directly through the
+runtime-awareness contract; they do not start the CLI. The Windows inventory
+uses the same 30 identifiers and marks unsupported Windows behaviors with the
+stable `unsupportedWindows` reason code.
 
 The Linux registry stores five fields:
 

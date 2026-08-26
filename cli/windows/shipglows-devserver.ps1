@@ -62,6 +62,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
     Write-Host '  s a      Manage CLI authentication with official interactive flows'
+    Write-Host '  s capabilities    Print the closed CLI capability snapshot as JSON'
     Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
     Write-Host '  s u      Update ShipGlows from the official repository'
     Write-Host '  s x      Quit ShipGlows'
@@ -84,9 +85,10 @@ $script:authenticationModuleLoaded = $false
 $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
+[void](Write-SgCliCapabilitySnapshot $config)
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','help','exit')
+    $namedActions = @('menu','dashboard','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','capabilities','update','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -630,6 +632,7 @@ try {
         'select-logs' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
         'navigate' { Invoke-Navigate }
         'auth' { Invoke-SgAuthenticationMenu }
+        'capabilities' { Read-SgCliCapabilitySnapshot $config | ConvertTo-Json -Depth 5 -Compress }
         'update' { Invoke-SgUpdate }
         'help' { Show-SgShortcutHelp }
         'exit' { return }

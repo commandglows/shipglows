@@ -45,6 +45,8 @@ try {
         Assert-Sg ($content -match 'deferred/searchable catalog') "Deferred tool catalog guidance missing in $path"
         Assert-Sg ($content -match '\$shipglows context') "ShipGlows context recovery guidance missing in $path"
         Assert-Sg ($content -match '%USERPROFILE%\\\.shipglows\\environment\.md') "Dynamic environment pointer missing in $path"
+        Assert-Sg ($content -match 'cli-capabilities\.v1\.json') "CLI capability snapshot pointer missing in $path"
+        Assert-Sg ($content -match 'must never execute the CLI') "CLI capability read-only boundary missing in $path"
     }
     $codexAfter = [IO.File]::ReadAllText($codexPath)
     Assert-Sg ($codexAfter.StartsWith($foreignPrefix, [StringComparison]::Ordinal)) 'Foreign CRLF/Unicode content was not preserved byte-for-byte.'
