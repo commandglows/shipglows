@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 15:41:37 UTC"
 updated: "2026-08-26"
-updated_at: "2026-08-26 15:50:41 UTC"
-status: ready
+updated_at: "2026-08-26 15:53:40 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: auth0-native-cli-toolbox
@@ -31,14 +31,14 @@ evidence:
   - "Operator approval 2026-08-26: add Auth0 after the WSL and Turso installer work."
   - "Official Auth0 CLI release evidence checked 2026-08-26: v1.33.0 is a stable release with Windows x64 and arm64 archives and published checksums."
   - "The Aqua registry exposes auth0/auth0-cli with GitHub-release SHA-256 verification."
-next_step: "Implement the ready contract with deterministic Windows fixtures and no real Auth0 authentication."
+next_step: "Run a separately approved real Windows installer smoke when the operator wants Auth0 installed on this machine."
 ---
 
 # Auth0 Native CLI Toolbox
 
 ## Status
 
-ready — approved architecture and executable implementation contract.
+shipped — implementation, deterministic proof, documentation, closure trace, and exact-scope branch delivery are complete.
 
 ## Minimal Behavior Contract
 
@@ -117,7 +117,7 @@ The Windows installer resolves one exact stable version of the official `auth0/a
 - [x] Project detection and environment reporting include Auth0 without exposing project configuration.
 - [x] Deterministic focused tests pass without network, installation, browser, tenant, or credentials.
 - [x] Technical documentation and code-doc ownership are coherent.
-- [ ] Exact-scope commits are pushed without staging the unrelated business-document edit.
+- [x] Exact-scope commits are pushed without staging the unrelated business-document edit.
 
 ## Test Strategy
 
@@ -151,12 +151,15 @@ None. The operator approved native Auth0 CLI installation, no WSL dependency, an
 | 2026-08-26 15:41:37 UTC | 100-sg-spec | GPT-5 Codex | Authored the Auth0 native Windows toolbox and authentication contract from the approved system plan. | reviewed | Run readiness review. |
 | 2026-08-26 15:41:37 UTC | 101-sg-ready | GPT-5 Codex | Confirmed exact targets, stable supply-chain policy, auth and telemetry boundaries, failure isolation, proof, and documentation ownership. | ready | Implement through `102-sg-start`. |
 | 2026-08-26 15:50:41 UTC | 102-sg-start | GPT-5 Codex | Implemented the native Auth0 toolbox coordinate, stable pin, isolated wrapper, project detection, environment state, closed authentication operations, deterministic fixtures, and mapped technical documentation. | implemented | Run integrated local verification. |
+| 2026-08-26 15:53:40 UTC | 103-sg-verify | GPT-5 Codex | Verified success and failure behavior through the complete Windows contract plus focused auth/toolbox suites, metadata lint, syntax, supply-chain boundaries, redaction, documentation coherence, and Git scope. | verified | Close the verified chantier. |
+| 2026-08-26 15:53:40 UTC | 104-sg-end | GPT-5 Codex | Reconciled the unique spec, changelog, mapped documentation, absence of tracker/bug rows, editorial no-impact boundary, and remaining real-install proof as a separate future action. | closed | Persist the final closure trace. |
+| 2026-08-26 15:53:40 UTC | 005-sg-ship | GPT-5 Codex | Pushed the bounded spec, implementation, tests, provider documentation, installer documentation, code-doc map, and changelog to the configured task branch without the unrelated dirty document. | shipped | Offer a separately approved real installer smoke. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: complete — contract authored and adversarially reviewed.
 - `101-sg-ready`: ready — no blocking ambiguity remains.
 - `102-sg-start`: complete — implementation, fixtures, and mapped documentation are coherent.
-- `103-sg-verify`: pending.
-- `104-sg-end`: pending.
-- `005-sg-ship`: pending.
+- `103-sg-verify`: complete — standard local and complete Windows contract proof passed; no real tenant or login claim is made.
+- `104-sg-end`: complete — documentation and changelog are aligned; no matching task or bug record exists.
+- `005-sg-ship`: complete — every owned commit is persisted on `origin/codex/development-runtime`; no merge, installation, or deployment is claimed.
