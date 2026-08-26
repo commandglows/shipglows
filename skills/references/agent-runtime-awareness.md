@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.4.0"
+artifact_version: "3.5.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-23"
@@ -27,7 +27,10 @@ linked_systems:
   - skills/010-sg-technical/SKILL.md
   - skills/108-sg-browser/SKILL.md
   - plugins/shipglows/skills/shipglows/SKILL.md
-depends_on: []
+depends_on:
+  - artifact: "skills/references/latest-build-artifact-access.md"
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "The Windows installer writes the global development environment file."
@@ -101,6 +104,14 @@ an entry point; it does not mean Firebase Device Streaming is configured.
 Firebase Device Streaming authentication, project selection, billing, and device reservation remain user-owned
 and must never be automated. Report the recorded Firebase state and exact next
 action without claiming a hosted device is callable until the current turn proves it.
+
+`LATEST-BUILD-ACCESS`: after a successful Windows release or Android APK build,
+or after observing a successful trusted CI build with a named complete artifact,
+load `skills/references/latest-build-artifact-access.md`. Publish the validated
+output through `cli/windows/shipglows-build-artifacts.ps1`, keep Local and CI
+lanes separate, and report the refreshed shortcut name. A failed build or unsafe
+artifact keeps the prior last-known-good lane; never launch or install it
+automatically. Linux, macOS, and iOS outputs retain their host-specific limits.
 
 Keep installation, configuration, discovery, and callability distinct. ChatGPT apps/connectors and Codex CLI tools are separate surfaces. The global file describes what ShipGlows installed or configured, while the current host turn decides what can be called.
 

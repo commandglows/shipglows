@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 12:18:53 UTC"
 updated: "2026-08-26"
-updated_at: "2026-08-26 12:22:00 UTC"
+updated_at: "2026-08-26 12:31:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
@@ -194,15 +194,15 @@ Add a shared latest-build access doctrine plus a Windows artifact manager. The m
 
 ## Acceptance Criteria
 
-- [ ] Four source-labelled shortcut names are deterministic and safely preserve spaces.
-- [ ] Windows Local and CI shortcuts launch cached complete packages; Android Local and CI shortcuts reveal cached APKs without installation.
-- [ ] A successful local publish survives removal of its source worktree.
-- [ ] CI synchronization selects one successful allowed-event run and one explicitly named artifact through existing GitHub CLI authentication.
-- [ ] State contains no credentials and records canonical provenance plus SHA-256.
-- [ ] Failed or unsafe candidates leave the previous valid shortcut and state unchanged.
-- [ ] Unowned shortcut collisions, path escapes, reparse points, oversize packages, and ambiguous entrypoints fail closed.
-- [ ] Linux/macOS/iOS limitations are represented honestly; Windows creates no misleading launch shortcut for them.
-- [ ] Installer payloads include the module and command entrypoint.
+- [x] Four source-labelled shortcut names are deterministic and safely preserve spaces.
+- [x] Windows Local and CI shortcuts launch cached complete packages; Android Local and CI shortcuts reveal cached APKs without installation.
+- [x] A successful local publish survives removal of its source worktree.
+- [x] CI synchronization selects one successful allowed-event run and one explicitly named artifact through existing GitHub CLI authentication.
+- [x] State contains no credentials and records canonical provenance plus SHA-256.
+- [x] Failed or unsafe candidates leave the previous valid shortcut and state unchanged.
+- [x] Unowned shortcut collisions, path escapes, reparse points, oversize packages, and ambiguous entrypoints fail closed.
+- [x] Linux/macOS/iOS limitations are represented honestly; Windows creates no misleading launch shortcut for them.
+- [x] Installer payloads include the module and command entrypoint.
 - [ ] Focused Windows tests and metadata checks pass.
 - [ ] Technical documentation and code-doc mappings are coherent.
 - [ ] Exact-scope commits are pushed to `origin/codex/development-runtime` without the unrelated dirty business document.
@@ -253,12 +253,13 @@ None. The operator selected separate Local and CI shortcuts, Windows and Android
 | 2026-08-26 12:18:53 UTC | 100-sg-spec | GPT-5 Codex | Authored the durable local/CI build artifact access contract from the approved ShipGlows system plan. | draft | Run `101-sg-ready` against this spec. |
 | 2026-08-26 12:20:00 UTC | 100-sg-spec | GPT-5 Codex | Adversarially reviewed provenance, stale-state, collision, host-parity, retention, and proof boundaries; tightened every implementation task with exact targets and validation. | reviewed | Run `101-sg-ready` against this spec. |
 | 2026-08-26 12:22:00 UTC | 101-sg-ready | GPT-5 Codex | Confirmed autonomous user-story fit, ordered targets and validations, ZOMBIES coverage, GitHub/file trust boundaries, OWASP gate, documentation ownership, and explicit host limitations. | ready | Implement through `102-sg-start`. |
+| 2026-08-26 12:31:00 UTC | 102-sg-start | GPT-5 Codex | Implemented and scenario-tested the Windows artifact cache, four managed shortcut lanes, local publication, trusted CI synchronization, fail-closed boundaries, and installer packaging. | in progress | Complete mapped technical documentation and integrated verification. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: complete — autonomous contract authored and adversarially reviewed.
 - `101-sg-ready`: ready — no blocking ambiguity remains.
-- `102-sg-start`: pending.
+- `102-sg-start`: in progress — implementation and focused fixtures pass; mapped technical documentation remains.
 - `103-sg-verify`: pending.
 - `104-sg-end`: pending.
 - `005-sg-ship`: pending.
