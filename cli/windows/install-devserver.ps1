@@ -278,10 +278,17 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.
     }
 
     $shipglowsCommand = Join-Path $runtimeDir 'shipglows.cmd'
+    $shipglowsScript = Join-Path $runtimeDir 'shipglows.ps1'
     $existingShipglows = Get-Command shipglows -ErrorAction SilentlyContinue | Select-Object -First 1
     $canInstallShipglows = -not $existingShipglows
     if ($existingShipglows -and $existingShipglows.Source) {
-        try { $canInstallShipglows = [IO.Path]::GetFullPath($existingShipglows.Source) -eq [IO.Path]::GetFullPath($shipglowsCommand) } catch { }
+        try {
+            $resolvedExistingShipglows = [IO.Path]::GetFullPath($existingShipglows.Source)
+            $canInstallShipglows = $resolvedExistingShipglows -in @(
+                [IO.Path]::GetFullPath($shipglowsCommand),
+                [IO.Path]::GetFullPath($shipglowsScript)
+            )
+        } catch { }
     }
     if ($canInstallShipglows) {
         $shipglowsWrapper = @'

@@ -61,7 +61,9 @@ manual title without changing a Codex conversation title or another tab.
 - Pressure scenario `RIO-RENAME-CURRENT-TAB-ONLY`: a valid Unicode name produces
   only `ESC ] 0 ; <name> BEL`; invalid input produces no escape sequence.
 - Installer contract: the source script is staged, copied into the active bin,
-  and wrapped as `shipglows.cmd` without replacing a foreign command.
+  and wrapped as `shipglows.cmd` without replacing a foreign command. The exact
+  companion `runtime/bin/shipglows.ps1` is recognized as owned rather than
+  misclassified as a collision during installation.
 
 ## ZOMBIES Coverage
 

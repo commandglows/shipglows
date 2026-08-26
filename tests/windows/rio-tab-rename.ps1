@@ -57,6 +57,7 @@ $installerText = [IO.File]::ReadAllText($installer)
 $bootstrapText = [IO.File]::ReadAllText($bootstrap)
 Assert-Sg ($installerText.Contains("'shipglows.ps1'")) 'The runtime installer does not copy shipglows.ps1.'
 Assert-Sg ($installerText.Contains("'shipglows.cmd'")) 'The runtime installer does not own the shipglows.cmd wrapper.'
+Assert-Sg ($installerText.Contains('[IO.Path]::GetFullPath($shipglowsScript)')) 'The installer does not recognize its exact companion script during collision checks.'
 Assert-Sg ($bootstrapText.Contains("'shipglows.ps1'")) 'The bootstrap payload does not include shipglows.ps1.'
 Assert-Sg ($bootstrapText.Contains("'bin/shipglows.ps1'")) 'The bootstrap manifest does not own the active command script.'
 
