@@ -20,6 +20,7 @@ For a ShipGlows-managed project, then read `<project-root>\ENVIRONMENT.md` for i
 Prefer a purpose-built tool that is discovered and callable in the current agent when it matches the task. Installed or configured does not mean callable from every agent surface.
 ChatGPT apps/connectors and coding-agent tools are different surfaces. Never assume one is callable from another. Inspect directly exposed tools and any deferred/searchable catalog provided by the current agent before declaring a configured tool unavailable; that current-turn inventory remains authoritative.
 When capability state is uncertain and the ShipGlows skill is available, invoke `$shipglows context` before declaring a tool absent or proposing another installation.
+When a project explicitly declares Doppler for its current development or staging scope, agents may use `doppler run -- <project-declared command>` without printing secret values. Never run commands that reveal or download Doppler secrets, retrieve or pass tokens, persist secret values, infer a project/config/environment, or use a production scope without explicit approval.
 # <<< ShipGlows development environment <<<
 '@
 }

@@ -149,6 +149,8 @@ $installerSource = [IO.File]::ReadAllText((Join-Path $root 'cli\windows\install-
 $exactToolRetry = '@(''install'',"$($item.Tool)@$($item.Version)")'
 Assert-Sg ($installerSource.Contains($exactToolRetry)) 'A partially installed machine toolbox must retry each missing CLI by exact mise coordinate.'
 Assert-Sg ($installerSource -match [regex]::Escape('$ready = Test-SgServiceCliResult $repair $verify $wrapper $item.Version')) 'Machine-toolbox readiness must depend on each CLI verification, not the aggregate install exit code.'
+Assert-Sg ($installerSource -match "Install-SgWingetPackage 'doppler[.]exe' 'Doppler[.]Doppler'" -and $installerSource -match "Test-SgToolRuns 'doppler[.]exe'.*'--version'") 'Doppler must use the official WinGet package and executable version evidence.'
+Assert-Sg ($installerSource -match "Install-SgApplicationCommandWrapper 'doppler' 'doppler[.]exe'" -and $installerSource -notmatch "doppler (?:login|setup|run|secrets)") 'The installer must expose Doppler without starting authentication, setup, execution, or secret access.'
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-mobile-' + [guid]::NewGuid().ToString('N'))
 try {
@@ -281,7 +283,13 @@ exit /b 23
     $unprovenUserBranch = Get-SgFlutterInstallState -FlutterRoot $partialFlutter -Runner { param($f,$a,$timeout) $output=if($f -match 'dart'){'Dart SDK version: 3.13.1'}else{"Flutter $([char]0x2022) channel [user-branch]"}; [pscustomobject]@{ ExitCode=0; Output=$output; TimedOut=$false } }
     Assert-Sg ($unprovenUserBranch.Status -eq 'partial') 'A detached Flutter label without framework revision and Dart evidence must fail closed.'
     $empty = Get-SgProjectServiceNeeds -Workspace $fixture
-    Assert-Sg (-not $empty.Dart -and -not $empty.Playwright -and -not $empty.GitHub -and -not $empty.Firebase -and -not $empty.FlutterFire -and -not $empty.Supabase -and -not $empty.Convex -and -not $empty.Vercel -and -not $empty.Clerk -and -not $empty.Auth0 -and -not $empty.AndroidNative) 'Zero-service workspace detected false dependencies.'
+    Assert-Sg (-not $empty.Dart -and -not $empty.Playwright -and -not $empty.GitHub -and -not $empty.Firebase -and -not $empty.FlutterFire -and -not $empty.Supabase -and -not $empty.Convex -and -not $empty.Vercel -and -not $empty.Clerk -and -not $empty.Auth0 -and -not $empty.Doppler -and -not $empty.AndroidNative) 'Zero-service workspace detected false dependencies.'
+    $dopplerScriptProject = Join-Path $fixture 'doppler-script'
+    New-Item -ItemType Directory -Path $dopplerScriptProject -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $dopplerScriptProject 'package.json') -Value '{"scripts":{"dev":"doppler run -- vite"}}'
+    $dopplerScript = Get-SgProjectServiceNeeds -Workspace $fixture
+    Assert-Sg $dopplerScript.Doppler 'A package script using the explicit Doppler run boundary must declare Doppler presence.'
+    Remove-Item -LiteralPath $dopplerScriptProject -Recurse -Force
     $oneProject = Join-Path $fixture 'one\nested'
     New-Item -ItemType Directory -Path $oneProject -Force | Out-Null
     Set-Content -LiteralPath (Join-Path $oneProject 'firebase.json') -Value '{}'
@@ -290,13 +298,14 @@ exit /b 23
     Set-Content -LiteralPath (Join-Path $fixture 'pubspec.yaml') -Value "dependencies:`n  firebase_core: any`n  auth0_flutter: any"
     Set-Content -LiteralPath (Join-Path $fixture 'package.json') -Value '{"dependencies":{"convex":"^1.0.0","@clerk/astro":"^6.0.0","@auth0/auth0-react":"^2.0.0"},"scripts":{"deploy":"vercel"}}'
     Set-Content -LiteralPath (Join-Path $fixture 'vercel.json') -Value '{}'
+    Set-Content -LiteralPath (Join-Path $fixture 'doppler.yaml') -Value "setup:`n  - project: fixture`n    config: dev_fixture"
     New-Item -ItemType Directory -Path (Join-Path $fixture '.git') -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $fixture 'android\app') -Force | Out-Null
     Set-Content -LiteralPath (Join-Path $fixture 'android\app\CMakeLists.txt') -Value 'cmake_minimum_required(VERSION 3.22.1)'
     New-Item -ItemType Directory -Path (Join-Path $fixture 'supabase') | Out-Null
     Set-Content -LiteralPath (Join-Path $fixture 'supabase\config.toml') -Value 'project_id = "fixture"'
     $many = Get-SgProjectServiceNeeds -Workspace $fixture
-    Assert-Sg ($many.Dart -and -not $many.Playwright -and $many.GitHub -and $many.Firebase -and $many.FlutterFire -and $many.Supabase -and $many.Convex -and $many.Vercel -and $many.Clerk -and $many.Auth0 -and $many.AndroidNative) 'Many-service workspace detection is incomplete.'
+    Assert-Sg ($many.Dart -and -not $many.Playwright -and $many.GitHub -and $many.Firebase -and $many.FlutterFire -and $many.Supabase -and $many.Convex -and $many.Vercel -and $many.Clerk -and $many.Auth0 -and $many.Doppler -and $many.AndroidNative) 'Many-service workspace detection is incomplete.'
     $bounded = Get-SgProjectServiceNeeds -Workspace $fixture -MaxDirectories 1
     Assert-Sg ($bounded.ScanLimitReached) 'Service scanning must stop at its directory bound.'
 
@@ -684,13 +693,13 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
             Kilo=[pscustomobject]@{Installed=$false;McpSummary='not applicable'}
             Gemini=[pscustomobject]@{Installed=$true;McpSummary='ready: dart, github'}
         }
-        $services = [pscustomobject]@{ Firebase='ready (14.0.0)'; FlutterFire='ready (1.3.1)'; Convex='ready (1.28.0)'; Vercel='ready (48.0.0)'; Supabase='not detected'; Clerk='ready (0.4.0)'; Auth0='ready (1.33.0)'; AndroidNative='not detected' }
+        $services = [pscustomobject]@{ Needs=[pscustomobject]@{ Doppler=$true }; Firebase='ready (14.0.0)'; FlutterFire='ready (1.3.1)'; Convex='ready (1.28.0)'; Vercel='ready (48.0.0)'; Supabase='not detected'; Clerk='ready (0.4.0)'; Auth0='ready (1.33.0)'; Doppler='ready'; AndroidNative='not detected' }
         $reportPath = Write-SgGlobalDevelopmentEnvironment $agentInfo ([pscustomobject]@{ Installed=$true; McpConfigured=$true; McpVerified=$true; ConfigPath='per-agent'; ChromiumPath='C:\chromium.exe' }) ([pscustomobject]@{ StableReady='yes'; StableVersion='1.62.1'; StableRevision='1234'; AgentCliReady='yes'; AgentCliVersion='0.1.0'; MotionReady='yes' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $true ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false }) ([pscustomobject]@{ AndroidStudioReady=$true; VisualStudioCppReady=$false; FirebaseDeviceStreamingReady=$false }) $services $false
         $report = [IO.File]::ReadAllText($reportPath)
         $incompleteWindowsReportPath = Write-SgGlobalDevelopmentEnvironment $agentInfo ([pscustomobject]@{ Installed=$true; McpConfigured=$true; McpVerified=$true; ConfigPath='per-agent'; ChromiumPath='C:\chromium.exe' }) ([pscustomobject]@{ StableReady='yes'; StableVersion='1.62.1'; StableRevision='1234'; AgentCliReady='yes'; AgentCliVersion='0.1.0'; MotionReady='yes' }) ([pscustomobject]@{ Version='3.14.7'; Manager='uv'; Commands='python, python3' }) $false ([pscustomobject]@{ ToolchainReady=$false; LicensesReady=$false; DeviceReady=$false }) ([pscustomobject]@{ AndroidStudioReady=$true; VisualStudioCppReady=$true; FirebaseDeviceStreamingReady=$false }) $services $true
         $incompleteWindowsReport = [IO.File]::ReadAllText($incompleteWindowsReportPath)
     } finally { $env:USERPROFILE = $savedUserProfile }
-    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','Android Studio installed: yes','Visual Studio Desktop C++ workload ready: no','Flutter Windows desktop toolchain ready: no','Windows Developer Mode enabled: no','Firebase Android Device Streaming configured: no','Playwright MCP configured: yes','Playwright CLI installed: yes','Playwright CLI version: 1.62.1','Playwright Chromium revision: 1234','Playwright Agent CLI installed: yes','Motion runtime ready: yes','Codex MCP readiness: ready: dart, firebase','Claude MCP readiness: partial: ready dart; pending firebase','Gemini MCP readiness: ready: dart, github','Convex development tooling: ready (1.28.0)','Clerk development tooling: ready (0.4.0)','Auth0 development tooling: ready (1.33.0)','Windows-supported Flutter targets: web, Android, Windows desktop','rerun the ShipGlows full installer in an interactive PowerShell')) {
+    foreach ($expected in @('Flutter and Dart installed: yes','Android toolchain ready: no','Android licenses ready: no','Android device ready: no','Android Studio installed: yes','Visual Studio Desktop C++ workload ready: no','Flutter Windows desktop toolchain ready: no','Windows Developer Mode enabled: no','Firebase Android Device Streaming configured: no','Playwright MCP configured: yes','Playwright CLI installed: yes','Playwright CLI version: 1.62.1','Playwright Chromium revision: 1234','Playwright Agent CLI installed: yes','Motion runtime ready: yes','Codex MCP readiness: ready: dart, firebase','Claude MCP readiness: partial: ready dart; pending firebase','Gemini MCP readiness: ready: dart, github','Convex development tooling: ready (1.28.0)','Clerk development tooling: ready (0.4.0)','Auth0 development tooling: ready (1.33.0)','Doppler development tooling: ready','Doppler project declaration: detected','Windows-supported Flutter targets: web, Android, Windows desktop','rerun the ShipGlows full installer in an interactive PowerShell')) {
         Assert-Sg ($report.Contains($expected)) "Environment report is missing actionable mobile state: $expected"
     }
     Assert-Sg ($incompleteWindowsReport.Contains('Flutter and Dart installed: no')) 'The environment report must retain the failed Flutter prerequisite.'

@@ -13,6 +13,7 @@ function Get-SgAuthenticationDefinitions {
         [pscustomobject]@{ Name='Vercel'; Category='Service'; Command='vercel.cmd'; StatusArguments=@('whoami'); LoginArguments=@('login'); LogoutArguments=@('logout'); LoginMode='command' },
         [pscustomobject]@{ Name='Clerk'; Category='Service'; Command='clerk.cmd'; StatusArguments=@('whoami'); LoginArguments=@('auth','login'); LogoutArguments=@('auth','logout'); LoginMode='command' },
         [pscustomobject]@{ Name='Auth0'; Category='Service'; Command='auth0.cmd'; StatusArguments=@('tenants','list','--json-compact','--no-input'); LoginArguments=@('login'); LogoutArguments=@('logout'); LoginMode='command' },
+        [pscustomobject]@{ Name='Doppler'; Category='Service'; Command='doppler.cmd'; StatusArguments=@('me','--json','--no-check-version','--no-read-env'); LoginArguments=@('login','--no-check-version','--no-read-env'); LogoutArguments=@('logout','--no-check-version','--no-read-env'); LoginMode='command' },
         [pscustomobject]@{ Name='Supabase'; Category='Service'; Command='supabase.cmd'; StatusArguments=@('projects','list'); LoginArguments=@('login'); LogoutArguments=@('logout'); LoginMode='command' },
         [pscustomobject]@{ Name='Convex'; Category='Service'; Command='convex.cmd'; StatusArguments=@(); LoginArguments=@(); LogoutArguments=@('logout'); LoginMode='project' }
     )

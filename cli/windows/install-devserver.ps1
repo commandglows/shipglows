@@ -752,10 +752,12 @@ function Write-SgGlobalDevelopmentEnvironment([hashtable]$AgentInfo, [pscustomob
         $agentLines += "- $agentName MCP readiness: $mcp"
     }
     $serviceLines = @()
-    foreach ($serviceName in @('Firebase','FlutterFire','Convex','Vercel','Supabase','Clerk','Auth0','GoogleCloud','AndroidNative')) {
+    foreach ($serviceName in @('Firebase','FlutterFire','Convex','Vercel','Supabase','Clerk','Auth0','Doppler','GoogleCloud','AndroidNative')) {
         $state = if ($ServiceInfo -and $ServiceInfo.PSObject.Properties[$serviceName]) { [string]$ServiceInfo.$serviceName } else { 'not detected' }
         $serviceLines += "- $serviceName development tooling: $state"
     }
+    $dopplerDeclared = if ($ServiceInfo -and $ServiceInfo.PSObject.Properties['Needs'] -and $ServiceInfo.Needs.PSObject.Properties['Doppler'] -and $ServiceInfo.Needs.Doppler) { 'detected' } else { 'not detected' }
+    $serviceLines += "- Doppler project declaration: $dopplerDeclared"
     $firebaseDeviceStreamingNextAction = if (-not $IdeInfo.AndroidStudioReady) {
         'rerun the interactive ShipGlows full installer and accept the Windows IDE bundle.'
     } elseif (-not $IdeInfo.FirebaseDeviceStreamingReady) {
@@ -1766,6 +1768,11 @@ $gcloudPaths = @(
     (Join-Path $programFiles 'Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd'),
     (Join-Path $programFilesX86 'Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd')
 )
+$dopplerPaths = @(
+    (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\doppler.exe'),
+    (Join-Path $env:LOCALAPPDATA 'Programs\Doppler\doppler.exe'),
+    (Join-Path $programFiles 'Doppler\doppler.exe')
+)
 $agentBinDirectory = Join-Path $env:APPDATA 'npm'
 $pnpmAgentBinDirectory = Join-Path $env:LOCALAPPDATA 'pnpm\bin'
 $claudePaths = @((Join-Path $agentBinDirectory 'claude.cmd'), (Join-Path $pnpmAgentBinDirectory 'claude.cmd'))
@@ -1784,6 +1791,8 @@ Write-Host 'Preparing Windows developer tools. This step can take a few minutes 
 $misePath = Install-SgOfficialMise
 if (-not $misePath) { Write-SgInstallerWarning 'mise remains pending; the machine CLI toolbox cannot converge.' }
 $googleCloudReady = Install-SgWingetPackage 'gcloud.cmd' 'Google.CloudSDK' $gcloudPaths
+$dopplerReady = (Install-SgWingetPackage 'doppler.exe' 'Doppler.Doppler' $dopplerPaths) -and (Test-SgToolRuns 'doppler.exe' $dopplerPaths @('--version'))
+if (-not $dopplerReady) { Write-SgInstallerWarning 'Doppler CLI remains pending; no login or project setup was attempted.' }
 $pnpmReady = Install-SgPnpm $npmPaths $corepackPaths $pnpmPaths
 $uvReady = Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths
 if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional default Python runtime.' }
@@ -1846,6 +1855,7 @@ $dartPath = if ($flutterReady) { Join-Path (Split-Path (Get-SgToolPath 'flutter.
 [void]$androidInfo
 $nativeNpx = Get-SgNativeNpxPath $npxPaths
 $serviceInfo = Install-SgDetectedServiceClis $Workspace $dartPath (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx $googleCloudReady
+$serviceInfo | Add-Member -NotePropertyName Doppler -NotePropertyValue $(if($dopplerReady){'ready'}else{'pending'}) -Force
 $playwright = Install-SgPlaywrightChromiumForAgents ($codexReady -or $claudeReady -or $opencodeReady -or $kiloReady -or $geminiReady) (Get-SgToolPath 'npm.cmd' $npmPaths) $nativeNpx
 [void](Complete-SgInstallerPhase $agentPhase)
 $activationPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.activation' -Label 'Recording environment and activating commands' -TimeoutSeconds 7200) -EventSink $installerEventSink
@@ -1882,6 +1892,7 @@ Write-Host 'Installing PowerShell-safe application commands...' -ForegroundColor
 [void](Install-SgApplicationCommandWrapper 'kilo' 'kilo.cmd' $kiloPaths)
 [void](Install-SgApplicationCommandWrapper 'kilocode' 'kilocode.cmd' $kilocodePaths)
 [void](Install-SgApplicationCommandWrapper 'gemini' 'gemini.cmd' $geminiPaths)
+if($dopplerReady){[void](Install-SgApplicationCommandWrapper 'doppler' 'doppler.exe' $dopplerPaths)}
 if($playwrightRuntime.StablePath){[void](Install-SgApplicationCommandWrapper 'playwright' 'playwright.cmd' @($playwrightRuntime.StablePath))}
 if($playwrightRuntime.AgentCliPath){[void](Install-SgApplicationCommandWrapper 'playwright-cli' 'playwright-cli.cmd' @($playwrightRuntime.AgentCliPath))}
 [void](Install-SgAgentShortcut 'c' 'claude')
@@ -1904,7 +1915,7 @@ Write-Host "Workspace: $Workspace"
 Write-Host 'Commands: s (short) or shipglows-dev'
 Write-Host ''
 Write-Host 'Dependency check:' -ForegroundColor Yellow
-foreach ($tool in @('gum','fzf','git','gh','node','npm','pnpm','uv','flutter')) {
+foreach ($tool in @('gum','fzf','git','gh','node','npm','pnpm','uv','flutter','doppler')) {
     if ($tool -eq 'gum' -and (Test-Path -LiteralPath (Join-Path $runtimeDir 'gum.exe') -PathType Leaf)) {
         Write-Host "  [ok]   gum" -ForegroundColor Green
         continue
@@ -1918,12 +1929,14 @@ foreach ($tool in @('gum','fzf','git','gh','node','npm','pnpm','uv','flutter')) 
         'pnpm' { $pnpmPaths; break }
         'uv' { $uvPaths; break }
         'flutter' { $flutterPaths; break }
+        'doppler' { $dopplerPaths; break }
         default { @() }
     }
     $executable = switch ($tool) {
         'npm' { 'npm.cmd'; break }
         'pnpm' { 'pnpm.cmd'; break }
         'flutter' { 'flutter.bat'; break }
+        'doppler' { 'doppler.exe'; break }
         default { "$tool.exe" }
     }
     if ($tool -eq 'pnpm') { $found = $pnpmReady -and (Test-SgToolRuns $executable $knownPaths) }

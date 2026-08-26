@@ -399,6 +399,7 @@ function Get-SgProjectServiceNeeds {
     $vercel = $false
     $clerk = $false
     $auth0 = $false
+    $doppler = $false
     $androidNative = $false
     $queue = New-Object Collections.Generic.Queue[object]
     $queue.Enqueue([pscustomobject]@{ Path=$root; Depth=0 })
@@ -419,6 +420,7 @@ function Get-SgProjectServiceNeeds {
         if (Test-Path -LiteralPath (Join-Path $current.Path 'supabase\config.toml') -PathType Leaf) { $supabase = $true }
         if ((Test-Path -LiteralPath (Join-Path $current.Path 'convex') -PathType Container) -or (Test-Path -LiteralPath (Join-Path $current.Path 'convex.json') -PathType Leaf)) { $convex = $true }
         if ((Test-Path -LiteralPath (Join-Path $current.Path 'vercel.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $current.Path '.vercel\project.json') -PathType Leaf)) { $vercel = $true }
+        if ((Test-Path -LiteralPath (Join-Path $current.Path 'doppler.yaml') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $current.Path '.doppler.yaml') -PathType Leaf)) { $doppler = $true }
         if ((Test-Path -LiteralPath (Join-Path $current.Path 'CMakeLists.txt') -PathType Leaf) -and $current.Path -match '(?i)[\\/]android(?:[\\/]|$)') { $androidNative = $true }
         $packageJson = Join-Path $current.Path 'package.json'
         if (Test-Path -LiteralPath $packageJson -PathType Leaf) {
@@ -429,6 +431,7 @@ function Get-SgProjectServiceNeeds {
                 $vercel = $vercel -or $packageText -match '(?i)"(?:vercel|@astrojs/vercel)"\s*:|"[^"\r\n]*"\s*:\s*"[^"]*\bvercel\b'
                 $clerk = $clerk -or $packageText -match '(?i)"(?:clerk|@clerk/[^"/]+)"\s*:'
                 $auth0 = $auth0 -or $packageText -match '(?i)"(?:auth0|@auth0/[^"/]+)"\s*:'
+                $doppler = $doppler -or $packageText -match '(?i)"[^"\r\n]*"\s*:\s*"[^"\r\n]*\bdoppler\s+run\b'
             } catch { }
         }
         foreach ($gradleName in @('build.gradle','build.gradle.kts')) {
@@ -452,7 +455,7 @@ function Get-SgProjectServiceNeeds {
             $queue.Enqueue([pscustomobject]@{ Path=$directory.FullName; Depth=$current.Depth + 1 })
         }
     }
-    [pscustomobject]@{ Dart=[bool]$dart; Playwright=[bool]$playwright; GitHub=[bool]$github; Firebase=[bool]$firebase; FlutterFire=[bool]$flutterFire; Supabase=[bool]$supabase; Convex=[bool]$convex; Vercel=[bool]$vercel; Clerk=[bool]$clerk; Auth0=[bool]$auth0; AndroidNative=[bool]$androidNative; DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
+    [pscustomobject]@{ Dart=[bool]$dart; Playwright=[bool]$playwright; GitHub=[bool]$github; Firebase=[bool]$firebase; FlutterFire=[bool]$flutterFire; Supabase=[bool]$supabase; Convex=[bool]$convex; Vercel=[bool]$vercel; Clerk=[bool]$clerk; Auth0=[bool]$auth0; Doppler=[bool]$doppler; AndroidNative=[bool]$androidNative; DirectoriesVisited=$visited; ScanLimitReached=$limitReached }
 }
 
 function Resolve-SgAndroidCommandLineToolsPackage {
