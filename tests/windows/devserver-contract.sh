@@ -41,6 +41,7 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/win
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/powershell-runtime.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/rio-tab-rename.ps1"
 for regression in \
+  browser-extension-project.ps1 \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
   devserver-port-reservation.ps1 \
@@ -191,7 +192,7 @@ rg -n 'Remove-SgObsoleteProfileCommand|Removed the obsolete ShipGlows profile co
 rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh auth setup-git|gh api --paginate.*user/repos.*organization_member|gh repo clone \$repository\.url \$temporaryDestination' "$ENTRYPOINT"
 rg -n '\.shipglows-clone-|Move-Item -LiteralPath \$temporaryDestination -Destination \$destination|Remove-Item -LiteralPath \$temporaryDestination -Recurse -Force' "$ENTRYPOINT"
 rg -n 'function Register-SgClonedProject|Clone completed but was not registered|Register-SgClonedProject \$destination' "$ENTRYPOINT"
-rg -n '\$json\.PSObject\.Properties\[\$property\]' "$MODULE"
+rg -n 'function Read-SgNodePackage|function Get-SgNodeDependencyNames|function Get-SgNodeScript|ConvertFrom-Json -ErrorAction Stop' "$MODULE"
 rg -n '\$jsonLines = @\(|\$repositories = @\(\$jsonLines.*ConvertFrom-Json|one compact JSON object per line' "$ENTRYPOINT"
 ! rg -n 'gh auth token|GH_TOKEN|GITHUB_TOKEN' "$ENTRYPOINT" "$INSTALLER"
 ! rg -n 'WSL est disponible|Lancement de la configuration locale Windows|Utilise ensuite|Pour les projets locaux|WSL is detected' "$BOOTSTRAP"

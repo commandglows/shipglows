@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.7.0"
+artifact_version: "0.8.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-24"
+updated: "2026-08-27"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -69,7 +69,7 @@ run_menu_shortcut()
 - `cli/install.sh`: bootstrap serveur, aliases, Codex config, liens de skills.
 - `local/local.sh`: menu local pour tunnels SSH et statut distant.
 - `local/dev-tunnel.sh`: tunnel manager non interactif base sur PM2 distant.
-- `cli/windows/ShipGlows.DevServer.psm1`: detection projet, registre, ports et processus Windows.
+- `cli/windows/ShipGlows.DevServer.psm1`: detection Astro/Vite/extensions navigateur/Python/Flutter, registre, ports, dependances, readiness et processus Windows.
 - `cli/windows/shipglows-devserver.ps1`: menu, actions longues et chemins courts `s ...`.
 - `cli/windows/install-devserver.ps1`: outils Windows, PATH et wrappers `.cmd`.
 - `cli/windows/ShipGlows.InstallerEngine.psm1`: operations longues et evenements d'installation, sans UI.

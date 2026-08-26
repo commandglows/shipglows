@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.12.0"
+artifact_version: "0.13.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-24"
+updated: "2026-08-27"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -41,7 +41,7 @@ ShipGlows combine deux couches :
 - `cli/lib.sh`: coeur des actions, validations, integrations systeme et menus.
 - `cli/config.sh`: configuration centralisee et validation.
 - `cli/install.sh`: bootstrap serveur et configuration de l'environnement utilisateur.
-- `cli/windows/`: DevServer Windows natif pour Astro, Python/FastAPI et Flutter Web, sans WSL.
+- `cli/windows/`: DevServer Windows natif pour Astro, Vite, extensions navigateur, Python/FastAPI et Flutter Web, sans WSL.
 - `install-shipglows.ps1`: bootstrap Windows public, choix tunnel local ou DevServer full.
 - `local/local.sh`: UX locale des tunnels SSH.
 - `skills/`: workflows AI orientes taches.

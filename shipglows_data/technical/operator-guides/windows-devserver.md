@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.19.0"
+artifact_version: "1.20.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-24"
+updated: "2026-08-27"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "The 2026-08-27 browser-extension adapter recognizes explicit Chrome development surfaces, honors pinned pnpm through Corepack, and records unpacked-extension guidance instead of claiming an ordinary web URL."
   - "Migrated without content loss from local/README_WINDOWS.md under the canonical documentation governance contract."
   - "PowerShell reserves gp for Get-ItemProperty; ShipGlows now installs a policy-gated add/commit/push gp profile function and a profile-independent raw gpush fallback."
   - "The Windows installer writes a static global development environment and the CLI writes one active server URL file per project."
@@ -59,7 +60,7 @@ ne sont pas requis par le parcours Shadow PC.
 **Avantages:**
 - ✅ Pas besoin de WSL ni de virtualisation imbriquée
 - ✅ Tunnels SSH avec OpenSSH natif
-- ✅ DevServer natif Astro, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
+- ✅ DevServer natif Astro, Vite, extensions navigateur, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
 - ✅ Clone et registre local des dépôts directement dans `%USERPROFILE%\ShipGlows`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
 - ✅ Android Studio proposé pour Android/Firebase Device Streaming et Visual Studio Community C++ pour compiler Flutter Windows
@@ -216,7 +217,7 @@ ne sont pas requis par le parcours Shadow PC.
 
 ### Monorepos, registre et Flutter Web
 
-Le DevServer détecte Astro, Vite, Python/FastAPI et Flutter Web à partir des
+Le DevServer détecte Astro, Vite, les extensions navigateur, Python/FastAPI et Flutter Web à partir des
 manifests et signaux de framework, jamais à partir d'un nom de dossier imposé.
 Une racine de dépôt ou un monorepo enregistré explicitement peut donc produire
 plusieurs surfaces. Chacune possède sa propre entrée de registre, son nom
@@ -348,7 +349,7 @@ bornée puis revalider les commandes ; l'absence instantanée de `dart.exe` ne
 prouve pas à elle seule une corruption durable.
 
 Le bloc géré porte le schéma explicite
-`shipglows-project-environment/v1`. Un ancien bloc ShipGlows sans version est
+`shipglows-project-environment/v2`. Un ancien bloc ShipGlows sans version est
 considéré comme `legacy/v0` puis migré automatiquement lors d'un enregistrement,
 d'un démarrage ou de la réconciliation de l'installateur. Le contenu placé hors
 des marqueurs ShipGlows est conservé. Un schéma futur inconnu, des marqueurs
@@ -363,6 +364,15 @@ propre à la surface. Si ShipGlows lance la surface sur `3002` alors que le dép
 déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port
 non attribué dans le registre.
+
+Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
+
+Une extension CRXJS n'est reconnue que si elle déclare `@crxjs/vite-plugin` et
+expose explicitement `dev:chrome`. ShipGlows conserve son lockfile, honore une version exacte de pnpm
+via Corepack, transmet le port HMR réservé, puis attend un Manifest V3 frais dans
+un dossier Chrome pris en charge. `s open` ouvre le gestionnaire d'extensions et
+le dossier non empaqueté; le chargement dans un profil personnel reste une action
+explicite de l'opératrice.
 
 Pour Flutter, `.shipglows.env` accepte aussi
 `SHIPGLOWS_DART_DEFINE_FILE=<chemin-relatif>` afin de transmettre durablement un

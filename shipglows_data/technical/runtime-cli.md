@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.24.0"
+artifact_version: "1.25.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-26"
+updated: "2026-08-27"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Native Windows browser-extension adapter 2026-08-27: CRXJS projects with an explicit dev:chrome script use extension-specific package-manager, launch, readiness, environment and open contracts instead of generic Vite assumptions."
   - "Linux pressure rescue 2026-08-26: Health combines available RAM, swap use and optional Linux PSI, renders a critical recovery route, and can stop only revalidated confirmed Vercel CLI groups that are detached, heavy, old and free of protected processes."
   - "Native Windows Doppler boundary 2026-08-26: the installer provisions and reports the CLI for agents, while automatic DevServer secret injection remains disabled until a project-specific dev/staging contract is declared and proven."
   - "CLI/SaaS capability snapshot 2026-08-24: the CLI emits a bounded, closed, read-only JSON capability inventory for the runner without exposing commands, arguments, paths, ports, secrets, or credentials."
@@ -253,7 +254,7 @@ target the environment root, never only the nested application directory.
 
 The Windows `full` bootstrap is a separate runtime backend for machines such
 as Shadow PC where WSL cannot be used. It owns only local development for
-Astro, Python/FastAPI, and Flutter Web. Repositories are constrained to the
+Astro, Vite, browser extensions, Python/FastAPI, and Flutter Web. Repositories are constrained to the
 configured workspace, ports are allocated from `3000..3100`, and process
 identity is checked with PID, start time, executable path, and a command
 signature before stopping a process. The JSON registry is written through a
@@ -266,7 +267,16 @@ such as `package.json`, `pubspec.yaml`, `pyproject.toml`, and
 effect on Windows dependencies, variables, launch commands, ports, or project
 identity.
 
-Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A versioned per-project state below the DevServer runtime records an invariant digest of relevant manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
+Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A pnpm lockfile keeps pnpm, and an exact `packageManager: pnpm@x.y.z` declaration is executed through Corepack so ShipGlows does not substitute its machine-wide pnpm version. A versioned per-project state below the DevServer runtime records an invariant digest of relevant manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
+
+A Node surface is classified as `browser-extension` before generic Vite only
+when it declares `@crxjs/vite-plugin` and an explicit `dev:chrome` script.
+Start runs that script with ShipGlows' reserved loopback HMR port. Readiness
+requires the managed process, its listener, and a fresh valid Manifest V3 under
+`dist/chrome`; an old package
+or an HTTP response alone cannot mark the extension running. Open launches the
+browser extension manager beside the generated unpacked directory and never
+silently installs into a personal browser profile.
 
 Managed Windows servers are created through `Win32_Process.Create`, outside the one-shot CLI process handle tree, so a caller capturing stdout/stderr receives EOF after readiness. Before launching a child, the WMI wrapper creates a named Windows Job Object with `KILL_ON_JOB_CLOSE`, assigns itself, and fails closed if either operation fails; Node, Astro, Python, Flutter and their descendants therefore share a durable termination boundary. After its direct command exits, the wrapper remains alive while another job member exists, including a Node child created with detached spawn and `unref`. Detached and Flutter wrappers use only the exact absolute `SHIPGLOWS_MANAGED_PWSH` executable already validated by the bootstrap; they never accept `powershell.exe`, discover `pwsh.exe` through `PATH`, or fall back to System32. The registry stores the wrapper PID, command-line fragment and Job Object identity. Readiness requires both verified wrapper identity and the service probe. Stop terminates the exact job (or the verified legacy tree), then marks `stopped` only after both process identity and the assigned listener have disappeared; unproved extinction preserves the live registry state and returns an error. The Flutter supervisor token is read by that wrapper from its existing owner-only token file and is never embedded in the encoded command.
 
@@ -383,8 +393,8 @@ clones the selected repository's HTTPS URL. It therefore
 does not inherit a separate GitHub CLI preference for SSH or depend on a local
 SSH configuration; GitHub CLI still owns authentication and credential storage,
 and configures Git's HTTPS credential helper before each picker clone.
-If a repository is outside the Windows DevServer's supported Astro, Python, and
-Flutter Web project kinds, cloning still succeeds and is kept in the workspace;
+If a repository is outside the Windows DevServer's supported Astro, Vite,
+browser-extension, Python, and Flutter Web project kinds, cloning still succeeds and is kept in the workspace;
 the CLI reports that registration was skipped rather than removing the clone.
 The Windows launcher resolves only shortcut paths with a native equivalent:
 dashboard (`s d`), interactive start (`s e`), restart/stop/stop-all/logs under
@@ -450,15 +460,15 @@ that satisfy every no-harm criterion; other actions use the full plan, and
 
 For each registered project, the Windows CLI maintains a bounded ShipGlows block
 inside the visible, versioned `<project-root>\ENVIRONMENT.md`. It preserves any
-existing project content and records the manager, durable assigned port and
-canonical loopback URL. The Windows registry remains authoritative for live
+existing project content and records the manager, project kind, durable assigned port and
+canonical loopback URL. Browser extensions instead record that a normal page URL is not applicable and name their unpacked Chrome directory. The Windows registry remains authoritative for live
 status, so start and stop do not create tracked-document churn. `s open` uses
 the active registry entry instead of guessing from repository scripts.
 
 The managed block carries the explicit schema
-`shipglows-project-environment/v1`. An unversioned legacy ShipGlows block is
+`shipglows-project-environment/v2`. An unversioned legacy ShipGlows block is
 treated as `legacy/v0` and upgraded automatically on registration, start, or
-installer reconciliation. Rewriting v1 is byte-idempotent and preserves all
+installer reconciliation; v1 is accepted and upgraded by the same bounded writer. Rewriting v2 is byte-idempotent and preserves all
 content outside the managed markers. Unknown future schemas, incomplete
 markers, and duplicated blocks fail closed without changing the file.
 
