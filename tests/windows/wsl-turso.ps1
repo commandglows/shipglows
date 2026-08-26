@@ -37,6 +37,12 @@ $platformRunner = {
 }
 $platformOnly = Get-SgWslState -Runner $platformRunner
 Assert-True ($platformOnly.Status -eq 'platform_only') 'WSL without Ubuntu was not classified as platform_only.'
+$noDistributionRunner = {
+    param($File,$Arguments,$TimeoutSeconds,$InputText)
+    New-TestResult -1 "Le Sous-système Windows pour Linux n'a aucune distribution installée. Utiliser wsl.exe --install <Distro>."
+}
+$localizedPlatformOnly = Get-SgWslState -Runner $noDistributionRunner
+Assert-True ($localizedPlatformOnly.Status -eq 'platform_only') 'Localized WSL output without a distribution was incorrectly classified as an absent platform.'
 
 $ubuntuRunner = {
     param($File,$Arguments,$TimeoutSeconds,$InputText)

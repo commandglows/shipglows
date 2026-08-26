@@ -48,7 +48,7 @@ function Get-SgWslState {
     if ($statusText -match '(?i)restart|reboot|red[eé]marr') {
         return [pscustomobject]@{ Status='pending_restart'; Ready=$false; Distribution=''; Reason='Windows reports that WSL needs a restart.'; NextAction='Restart Windows, then rerun ShipGlows.' }
     }
-    if ($status.ExitCode -ne 0 -and $statusText -match '(?i)not installed|n.?est pas install|non install|cannot find|introuvable|not recognized|pas reconnu|WSL.{0,40}install') {
+    if ($status.ExitCode -ne 0 -and $statusText -match '(?i)not installed|n.?est pas install|non install|cannot find|introuvable|not recognized|pas reconnu') {
         return [pscustomobject]@{ Status='absent'; Ready=$false; Distribution=''; Reason='WSL is not operational.'; NextAction='Choose the independent WSL installation when ShipGlows offers it.' }
     }
     $listed = Invoke-SgWslTursoRunner $Runner $WslPath @('--list','--quiet') 20
@@ -59,8 +59,11 @@ function Get-SgWslState {
     if ($combined -match '(?i)restart|reboot|red[eé]marr') {
         return [pscustomobject]@{ Status='pending_restart'; Ready=$false; Distribution=''; Reason='Windows reports that WSL needs a restart.'; NextAction='Restart Windows, then rerun ShipGlows.' }
     }
+    if ($combined -match '(?i)no (?:installed )?distributions?|aucune distribution|aucune distribution.{0,30}install') {
+        return [pscustomobject]@{ Status='platform_only'; Ready=$false; Distribution=''; Reason='WSL responds, but no supported Ubuntu distribution is registered.'; NextAction='Choose the independent Ubuntu installation when ShipGlows offers it.' }
+    }
     if ($status.ExitCode -ne 0 -and $listed.ExitCode -ne 0) {
-        if ($combined -match '(?i)not installed|n.?est pas install|non install|cannot find|introuvable|not recognized|pas reconnu|WSL.{0,40}install') {
+        if ($combined -match '(?i)not installed|n.?est pas install|non install|cannot find|introuvable|not recognized|pas reconnu') {
             return [pscustomobject]@{ Status='absent'; Ready=$false; Distribution=''; Reason='WSL is not operational.'; NextAction='Choose the independent WSL installation when ShipGlows offers it.' }
         }
         return [pscustomobject]@{ Status='error'; Ready=$false; Distribution=''; Reason='WSL inspection failed without proving that WSL is absent.'; NextAction='Review the Windows WSL diagnostic, then retry ShipGlows.' }

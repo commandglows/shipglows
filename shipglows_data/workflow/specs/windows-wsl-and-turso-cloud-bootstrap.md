@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.3"
+artifact_version: "1.1.4"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 07:42:21 UTC"
 updated: "2026-08-26"
-updated_at: "2026-08-26 08:39:57 UTC"
+updated_at: "2026-08-26 08:48:58 UTC"
 status: reviewed
 source_skill: sg-development
 source_model: GPT-5 Codex
@@ -42,12 +42,13 @@ evidence:
   - "Deterministic PowerShell and Git Bash fixtures passed for WSL states/consent/elevation/restart, Turso gating/version/checksum/architecture/atomicity/idempotence, and closed execution boundaries."
   - "The complete Windows DevServer contract passed with installed-runtime packaging proof and no real WSL or Turso installation."
   - "The first exact-SHA live installer smoke updated the runtime successfully and exposed a redundant WSL distribution probe after `--status` had already proved absence; the follow-up contract returns immediately and pins every WSL execution to the absolute Windows system binary."
-next_step: "Run the separately approved exact-SHA operator smoke, stopping before any automatic restart or Turso authentication"
+  - "The corrected exact-SHA live installer installed WSL 2.7.12 through visible elevation without an automatic restart; Windows now has a component-servicing restart pending, no Ubuntu distribution is registered yet, and no Turso authentication or database action ran."
+next_step: "After Diane manually restarts Windows, initialize Ubuntu's Linux user, then rerun the exact-SHA installer to offer Turso Cloud"
 ---
 
 # Spec: Windows WSL and Turso Cloud bootstrap
 
-🟢 [ShipGlows] spec: Windows WSL and Turso Cloud bootstrap | status: reviewed | path: shipglows_data/workflow/specs/windows-wsl-and-turso-cloud-bootstrap.md | next: run the approved exact-SHA operator smoke and stop before restart or authentication
+🟢 [ShipGlows] spec: Windows WSL and Turso Cloud bootstrap | status: reviewed | path: shipglows_data/workflow/specs/windows-wsl-and-turso-cloud-bootstrap.md | next: restart Windows manually, initialize Ubuntu, then resume the Turso smoke
 
 ## Objective
 
@@ -114,6 +115,7 @@ Let the native ShipGlows Windows installer independently inspect and, after expl
 ## Skill Run History
 
 - 2026-08-26 — `sg-development`: used to define the implementation boundary, explicit failure behavior, deterministic proof requirements and delivery hygiene.
+- 2026-08-26 — `sg-release`: used for exact-SHA archive validation, live runtime installation, visible WSL elevation, restart boundary and post-install evidence.
 
 ## Current Chantier Flow
 
@@ -124,3 +126,4 @@ Let the native ShipGlows Windows installer independently inspect and, after expl
 5. Add deterministic adversarial tests and operator documentation — complete.
 6. Run the repository proof set and review the diff — complete.
 7. Commit and push the approved branch — complete.
+8. Run the approved operator smoke — WSL installed; paused at the required manual Windows restart before Ubuntu initialization and Turso.
