@@ -17,8 +17,9 @@ INSTALLER_CONSOLE_MODULE="$ROOT/cli/windows/ShipGlows.InstallerConsole.psm1"
 AGENT_INSTRUCTIONS_MODULE="$ROOT/cli/windows/ShipGlows.AgentInstructions.psm1"
 AUTH_MODULE="$ROOT/cli/windows/ShipGlows.Auth.psm1"
 ENVIRONMENT_CLI="$ROOT/cli/environment/shipglows_environment.py"
+SHIPGLOWS_COMMAND="$ROOT/cli/windows/shipglows.ps1"
 
-for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$INSTALLER_ENGINE_MODULE" "$INSTALLER_CONSOLE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE" "$ENVIRONMENT_CLI"; do
+for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$INSTALLER_ENGINE_MODULE" "$INSTALLER_CONSOLE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE" "$ENVIRONMENT_CLI" "$SHIPGLOWS_COMMAND"; do
   test -f "$file"
 done
 
@@ -38,6 +39,7 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/win
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/bootstrap-ref-resolution.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/install-surface-contract.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/powershell-runtime.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/rio-tab-rename.ps1"
 for regression in \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
@@ -212,10 +214,10 @@ test -n "$legacy_cleanup_line" && test -n "$wrapper_install_line" && test "$lega
 rg -n "USERPROFILE 'ShipGlows'" "$INSTALLER" "$MODULE"
 ! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
 rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, 3, or 0\.' \}" "$BOOTSTRAP"
-for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.FlutterSupervisor\.ps1' 'ShipGlows\.ProjectCatalogRefresh\.ps1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.McpCatalog\.json' 'ShipGlows\.InstallerEngine\.psm1' 'ShipGlows\.InstallerConsole\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'ShipGlows\.DeveloperCorpus\.psm1' 'ShipGlows\.PowerShellRuntime\.psm1' 'ShipGlows\.PowerShellRuntime\.json' 'ShipGlows\.PowerShellBootstrap\.ps1' 'shipglows-devserver\.ps1' 'install-devserver\.ps1'; do
+for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.FlutterSupervisor\.ps1' 'ShipGlows\.ProjectCatalogRefresh\.ps1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.BuildArtifacts\.psm1' 'shipglows-build-artifacts\.ps1' 'ShipGlows\.McpCatalog\.json' 'ShipGlows\.InstallerEngine\.psm1' 'ShipGlows\.InstallerConsole\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'ShipGlows\.DeveloperCorpus\.psm1' 'ShipGlows\.PowerShellRuntime\.psm1' 'ShipGlows\.PowerShellRuntime\.json' 'ShipGlows\.PowerShellBootstrap\.ps1' 'shipglows-devserver\.ps1' 'shipglows\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
 done
-rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|shipglows-devserver\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
+rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
 rg -n '\$entries\.Count -ne 21' "$BOOTSTRAP"
 rg -n 'InstallSurface.*corpus|SHIPGLOWS_INSTALL_COMPONENTS|Install-SgDeveloperCheckout|Enable-SgWindowsDeveloperChannel' "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"

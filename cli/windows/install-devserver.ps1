@@ -103,7 +103,7 @@ function Write-SgInstallerWarning([string]$Message) {
 }
 
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
-foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1')) {
+foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
@@ -275,6 +275,24 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.
         Write-Host 'Short command installed: s' -ForegroundColor Green
     } else {
         Write-SgInstallerWarning "The command 's' is already used by $($existing.Source). ShipGlows kept the non-conflicting command: shipglows-dev."
+    }
+
+    $shipglowsCommand = Join-Path $runtimeDir 'shipglows.cmd'
+    $existingShipglows = Get-Command shipglows -ErrorAction SilentlyContinue | Select-Object -First 1
+    $canInstallShipglows = -not $existingShipglows
+    if ($existingShipglows -and $existingShipglows.Source) {
+        try { $canInstallShipglows = [IO.Path]::GetFullPath($existingShipglows.Source) -eq [IO.Path]::GetFullPath($shipglowsCommand) } catch { }
+    }
+    if ($canInstallShipglows) {
+        $shipglowsWrapper = @'
+@echo off
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0shipglows.ps1" %*
+@exit /b %ERRORLEVEL%
+'@
+        Set-Content -LiteralPath $shipglowsCommand -Value $shipglowsWrapper -Encoding ASCII
+        Write-Host 'ShipGlows command installed: shipglows' -ForegroundColor Green
+    } else {
+        Write-SgInstallerWarning "The command 'shipglows' is already used by $($existingShipglows.Source). ShipGlows preserved it."
     }
 
 }

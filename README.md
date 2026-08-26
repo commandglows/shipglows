@@ -434,6 +434,8 @@ browsers are stopped only with exact ShipGlows launch evidence.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
 After a full install, use `s` (or `shipglows-dev`) for the project dashboard.
+Use `shipglows rename rio "Session name"` to set the current Rio tab title;
+the command does not rename the corresponding Codex conversation.
 The main interactive menu includes `n  Navigate to a project`; it opens a child
 PowerShell in the selected project directory, and `exit` returns to the initial shell.
 The PATH-backed `.cmd` launchers do not depend on the PowerShell profile, so
