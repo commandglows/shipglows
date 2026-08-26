@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.3"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 16:28:49 UTC"
 updated: "2026-08-26"
-updated_at: "2026-08-26 16:28:49 UTC"
-status: ready
+updated_at: "2026-08-26 16:45:18 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: "GPT-5 Codex"
 scope: doppler-native-cli-and-agent-secrets
@@ -35,14 +35,16 @@ evidence:
   - "Operator approval 2026-08-26: add Doppler for agents and development/staging environments."
   - "Official Doppler documentation checked 2026-08-26: native Windows and WinGet are supported, local login stores the CLI token in the Windows keychain, and Doppler run injects secrets into a child process."
   - "Official Doppler CLI release metadata checked 2026-08-26: 3.76.5 is stable and publishes Windows archives, SHA-256 checksums, and signatures."
-next_step: "Implement deterministic Windows provisioning, closed auth operations, project detection, agent guidance, and documentation without real credentials."
+  - "Credential-free Windows proof passed 2026-08-26: focused Doppler contracts, PowerShell parsing, metadata lint, diff hygiene, and the complete DevServer contract all exited successfully."
+  - "Exact-scope commits b34fbc7, 7d505b7, and 8049dff were pushed to origin/codex/development-runtime; the unrelated business-document edit remained unstaged."
+next_step: "Separately approve a real Windows installer smoke, operator login, and project-specific development/staging configuration before any live secret injection."
 ---
 
 # Doppler Native CLI And Agent Secrets
 
 ## Status
 
-ready — approved security and implementation contract.
+reviewed — implemented, verified, documented, and pushed without provider mutation.
 
 ## Minimal Behavior Contract
 
@@ -115,16 +117,16 @@ The native Windows full installer provisions the official Doppler CLI through it
 
 ## Acceptance Criteria
 
-- [ ] Doppler is installed only through the official WinGet package and must pass an executable version probe.
-- [ ] Installation triggers no login and cannot block unrelated provider tooling.
-- [ ] A stable wrapper makes Doppler callable by installed coding agents.
-- [ ] `s a` contains only redacted status and explicit login/logout operations with inherited-token isolation.
-- [ ] Project detection reports Doppler presence without reading configuration values.
-- [ ] Agent doctrine permits declared dev/staging execution while forbidding value output, download, persistence, token arguments, and ambiguous production use.
-- [ ] Automatic Windows DevServer injection and Doppler MCP remain absent.
-- [ ] Deterministic focused and complete Windows tests pass without credentials, provider mutation, installation, or application launch.
-- [ ] Mapped documentation is coherent and fresh official sources are recorded.
-- [ ] Exact-scope commits are pushed without staging the unrelated business-document edit.
+- [x] Doppler is installed only through the official WinGet package and must pass an executable version probe.
+- [x] Installation triggers no login and cannot block unrelated provider tooling.
+- [x] A stable wrapper makes Doppler callable by installed coding agents.
+- [x] `s a` contains only redacted status and explicit login/logout operations with inherited-token isolation.
+- [x] Project detection reports Doppler presence without reading configuration values.
+- [x] Agent doctrine permits declared dev/staging execution while forbidding value output, download, persistence, token arguments, and ambiguous production use.
+- [x] Automatic Windows DevServer injection and Doppler MCP remain absent.
+- [x] Deterministic focused and complete Windows tests pass without credentials, provider mutation, installation, or application launch.
+- [x] Mapped documentation is coherent and fresh official sources are recorded.
+- [x] Exact-scope commits are pushed without staging the unrelated business-document edit.
 
 ## Test Strategy
 
@@ -158,12 +160,16 @@ None. The operator selected agent access and dev/staging usage; automatic projec
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-26 16:28:49 UTC | 100-sg-spec | GPT-5 Codex | Authored the native Doppler CLI, agent secret-use, and dev/staging boundary from the approved high-risk plan. | reviewed | Run readiness review. |
 | 2026-08-26 16:28:49 UTC | 101-sg-ready | GPT-5 Codex | Confirmed provider authority, keychain ownership, closed auth, inherited-token isolation, agent rules, parity boundary, ZOMBIES, OWASP, proof, docs, and delivery. | ready | Implement through `102-sg-start`. |
+| 2026-08-26 16:45:18 UTC | 102-sg-start | GPT-5 Codex | Added official WinGet provisioning, verified wrapper, redacted auth operations, bounded declaration detection, and managed agent rules. | complete | Verify focused and complete Windows contracts. |
+| 2026-08-26 16:45:18 UTC | 103-sg-verify | GPT-5 Codex | Passed focused tests, PowerShell parsing, metadata lint, diff hygiene, and the complete Windows DevServer contract without credentials or provider calls. | passed | Close documentation and delivery evidence. |
+| 2026-08-26 16:45:18 UTC | 104-sg-end | GPT-5 Codex | Confirmed the no-secret, no-MCP, no-automatic-injection boundary and recorded official provider freshness. | complete | Push exact-scope closure. |
+| 2026-08-26 16:45:18 UTC | 005-sg-ship | GPT-5 Codex | Pushed the implementation and mapped documentation to `origin/codex/development-runtime` while preserving the unrelated local edit. | shipped | Request separate approval for live installation and login proof. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: complete — contract authored and adversarially reviewed.
-- `101-sg-ready`: ready — no blocking ambiguity remains.
-- `102-sg-start`: pending.
-- `103-sg-verify`: pending.
-- `104-sg-end`: pending.
-- `005-sg-ship`: pending.
+- `101-sg-ready`: complete — no blocking ambiguity remained.
+- `102-sg-start`: complete — safe native integration implemented.
+- `103-sg-verify`: complete — credential-free focused and complete Windows proof passed.
+- `104-sg-end`: complete — security, documentation, and freshness closure recorded.
+- `005-sg-ship`: complete — exact-scope milestones pushed; live provider proof remains a separate chantier.
