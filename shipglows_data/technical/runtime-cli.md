@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.22.0"
+artifact_version: "1.23.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-24"
+updated: "2026-08-26"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Native Windows Doppler boundary 2026-08-26: the installer provisions and reports the CLI for agents, while automatic DevServer secret injection remains disabled until a project-specific dev/staging contract is declared and proven."
   - "CLI/SaaS capability snapshot 2026-08-24: the CLI emits a bounded, closed, read-only JSON capability inventory for the runner without exposing commands, arguments, paths, ports, secrets, or credentials."
   - "Linux memory monitoring 2026-08-20: available-RAM severity now scales at 20% warning and 10% critical, preserves severity through the menu cache, and reports missing swap independently."
   - "Linux clone/start separation 2026-08-19: clone catalogues bounded surfaces as uninitialized without Flox, dependency, picker, or PM2 side effects; first explicit start initializes only the selected surface."
@@ -59,7 +60,7 @@ evidence:
   - "The first live Tauri Windows update exposed ambiguous provider exits, mojibake Flutter diagnostics, serialized Codex MCP path comparison, and invisible prompt gaps; regression coverage now makes final observation authoritative and renders phases plus input waits explicitly."
   - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
   - "Native Windows full installs Dart/Flutter and exact-version Playwright at machine scope, then generates agent-native MCP activation only inside registered ShipGlows project surfaces; ordinary installs preserve divergent local files, while the owner-only maintainer surface may converge recorded files and remove former ShipGlows global entries."
-  - "Native Windows full permanently installs trusted WinGet mise plus Google Cloud CLI, owns an isolated exact-version machine toolbox for Firebase, Supabase, Convex, Vercel and Clerk, keeps FlutterFire under Dart Pub, and uses project detection only for MCP activation."
+  - "Native Windows full permanently installs trusted WinGet mise plus Google Cloud and Doppler CLIs, owns an isolated exact-version machine toolbox for Firebase, Supabase, Convex, Vercel, Clerk and Auth0, keeps FlutterFire under Dart Pub, and uses project detection for MCP activation plus presence-only provider reporting."
   - "The Windows MCP allowlist records official discovery authority separately from execution trust; Google Cloud stays catalog-only and Supabase defaults to its official read-only remote endpoint."
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."
   - "Native Windows installs priority .cmd wrappers for npm-family and coding-agent commands so restrictive PowerShell execution policies cannot select blocked .ps1 shims."
@@ -658,6 +659,11 @@ package binaries.
   at runtime. When Doppler is enabled, it remains the outer wrapper so secrets
   are injected before the runtime command and ShipGlows's port export still
   wins over a Doppler-provided `PORT`.
+- Native Windows reports Doppler CLI readiness and presence-only project
+  declaration, but does not automatically wrap DevServer commands with
+  `doppler run`. Agents may use that boundary only for an explicit project-owned
+  command and an unambiguous development or staging scope; production and
+  implicit project/config selection remain separately authorized.
 - `env_restart` must confirm that PM2 remains `online` during its stability
   window before reporting success or advertising the application's localhost
   URL.
