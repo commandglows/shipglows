@@ -331,10 +331,10 @@ function Show-SgWindowsDashboard {
 function Register-SgClonedProject([string]$Destination) {
     try {
         Register-SgProject $config $Destination | Out-Null
-        Write-SgInfo "Registered clone: $Destination"
     } catch {
-        Write-SgWarn "Clone completed but was not registered: $($_.Exception.Message)"
+        throw "Clone completed but project preparation failed for '$Destination': $($_.Exception.Message)"
     }
+    Write-SgInfo "Registered clone: $Destination"
 }
 
 function Invoke-SgGitHubClone {
