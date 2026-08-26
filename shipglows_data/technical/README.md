@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.13.0"
+artifact_version: "1.14.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-26"
@@ -40,6 +40,7 @@ evidence:
   - "Latest-build artifact access documentation added for source-labelled local and CI shortcuts, private cached packages, and honest host-platform limits."
   - "Auth0 platform note added for SDK, native CLI, Deploy CLI, MCP, tenant, authentication, and hosted-proof boundaries."
   - "Doppler platform note added for native CLI, keychain, environment scope, process injection, service-token, MCP, and agent-safety boundaries."
+  - "Hetzner project usage note added for the verified two-VM topology, access posture, cost envelope, and planned managed-workspace execution boundary."
 next_review: "2026-06-18"
 next_step: "/sg-docs technical audit"
 ---
@@ -56,6 +57,7 @@ This layer complements the existing docs:
 - `shipglows_data/technical/context.md` stays the compact operational map.
 - `shipglows_data/technical/guidelines.md` stays the general engineering doctrine.
 - `shipglows_data/technical/external-platforms/` stores global external provider notes used by the Freshness Gate.
+- `shipglows_data/technical/platforms/` stores ShipGlows-specific provider usage, proof routes, and operational boundaries.
 - `shipglows_data/workflow/specs/*.md` stay chantier contracts and run history.
 - `shipglows_data/technical/*.md` documents durable subsystem behavior near the code.
 - `shipglows_data/technical/operator-guides/` stores canonical operator-facing Markdown references.
@@ -109,6 +111,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `external-platforms/python.md` | Python runtime, stdlib tooling, virtual environments, packaging, subprocess, parsing, and script validation |
 | `external-platforms/bash.md` | Bash shell behavior, error handling, traps, pipelines, quoting, installers, and destructive-command safety |
 | `external-platforms/gum.md` | Charmbracelet Gum commands, install sources, TUI output/exit behavior, prompt cancellation, and Bash menu validation |
+| `platforms/hetzner.md` | Current Hetzner CX23/CX43 inventory, host responsibilities, access and protection posture, cost envelope, and managed-workspace execution status |
 
 ## Non-Coverage
 
