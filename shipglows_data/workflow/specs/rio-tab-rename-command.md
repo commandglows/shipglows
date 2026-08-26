@@ -5,7 +5,7 @@ artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-08-26"
 updated: "2026-08-26"
-status: reviewed
+status: active
 source_skill: 900-shipglows-core
 scope: rio-tab-rename-command
 owner: Diane
@@ -30,9 +30,9 @@ next_step: "Implement and verify the focused Windows command."
 
 ## Status
 
-Verified locally — focused behavior, integrated Windows contracts, packaging,
-and documentation are coherent; real installed-Rio proof remains the final
-delivery step.
+Shipped — focused behavior, integrated Windows contracts, remote-branch
+bootstrap installation, active runtime identity, and installed command output
+are verified.
 
 ## User Story
 
@@ -82,7 +82,7 @@ manual title without changing a Codex conversation title or another tab.
 - [x] Unsafe and unsupported input emits no OSC sequence.
 - [x] The full Windows installer packages and installs `shipglows` for a fresh shell.
 - [x] Focused tests, PowerShell parsing, and Git hygiene pass.
-- [ ] Exact-scope changes are committed and pushed without the unrelated dirty business document.
+- [x] Exact-scope changes are committed and pushed without the unrelated dirty business document.
 
 ## Current Chantier Flow
 
@@ -90,5 +90,13 @@ manual title without changing a Codex conversation title or another tab.
 - `101-sg-ready`: ready — exact grammar, ownership, safety, and proof are resolved.
 - `102-sg-start`: complete — command, wrapper, bootstrap packaging, and mapped docs implemented.
 - `103-sg-verify`: complete — focused and integrated Windows contracts pass.
-- `104-sg-end`: pending.
-- `005-sg-ship`: pending.
+- `104-sg-end`: complete — documentation and runtime state are aligned; unrelated work remains untouched.
+- `005-sg-ship`: complete — exact-scope commits are pushed and the branch artifact is installed in the active Windows runtime.
+
+## Skill Run History
+
+| Date | Stage | Result |
+|------|-------|--------|
+| 2026-08-26 | Specification and readiness | Exact grammar, safety boundary, packaging owner, and focused proof accepted. |
+| 2026-08-26 | Implementation and verification | UTF-8 OSC output, input rejection, installer packaging, integrated Windows suite, and owned-command collision recovery passed. |
+| 2026-08-26 | Closure and delivery | Commits pushed to `origin/codex/development-runtime`; bootstrap installed the exact remote commit and the active command emitted the expected sequence. |
