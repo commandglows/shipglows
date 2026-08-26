@@ -13,11 +13,11 @@ with tempfile.TemporaryDirectory() as directory:
     root = Path(directory)
     empty = root / "empty"
     empty.mkdir()
-    assert build_preparation_plan(empty)["classification"] == "manuelle"
+    assert build_preparation_plan(empty)["classification"] == "manual"
     invalid = root / "invalid"
     invalid.mkdir()
     (invalid / "package.json").write_text("{", encoding="utf-8")
-    assert build_preparation_plan(invalid)["classification"] == "bloquante"
+    assert build_preparation_plan(invalid)["classification"] == "blocked"
     assert (invalid / "package.json").read_text(encoding="utf-8") == "{"
     monorepo = root / "monorepo"
     (monorepo / "apps" / "site").mkdir(parents=True)
@@ -28,14 +28,14 @@ with tempfile.TemporaryDirectory() as directory:
     (monorepo / "apps" / "mobile" / "pubspec.yaml").write_text("environment:\n  sdk: '>=3.8.0 <4.0.0'\n", encoding="utf-8")
     first = build_preparation_plan(monorepo)
     assert first == build_preparation_plan(monorepo)
-    assert first["classification"] == "réparable"
+    assert first["classification"] == "repairable"
     assert {item["kind"] for item in first["surfaces"]} >= {"astro", "flutter"}
     assert next(item for item in first["operation"]["content"].splitlines() if '"id": "flutter"' in item)
     generated = json.loads(first["operation"]["content"])
     assert next(item for item in generated["capabilities"]["tools"] if item["id"] == "flutter")["constraint"] == "*"
     assert apply_preparation_plan(monorepo, first["digest"])["changed"] is True
     healthy = build_preparation_plan(monorepo)
-    assert healthy["classification"] == "saine"
+    assert healthy["classification"] == "healthy"
     assert apply_preparation_plan(monorepo, healthy["digest"])["changed"] is False
     stale = root / "stale"
     stale.mkdir()

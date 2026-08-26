@@ -348,10 +348,10 @@ function Register-SgClonedProject([string]$Destination) {
     foreach ($item in @($preparation.notices) + @($preparation.blocked)) {
         Write-SgWarning "$($item.path): $($item.message)"
     }
-    if ($preparation.classification -eq 'réparable') {
+    if ($preparation.classification -eq 'repairable') {
         Write-SgWarning ('Review then apply the proposed ShipGlows configuration with: s env prepare-apply -ProjectPath "{0}" -PlanDigest {1}' -f $Destination, $preparation.digest)
     }
-    if ($preparation.classification -eq 'bloquante') {
+    if ($preparation.classification -eq 'blocked') {
         throw "Clone completed but configuration diagnosis found blocking errors for '$Destination'. Existing project files were preserved."
     }
     Write-SgInfo "Registered clone: $Destination"

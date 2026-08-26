@@ -98,16 +98,16 @@ def build_preparation_plan(project_root: str | Path) -> dict[str, Any]:
             discover_project(root)
         except (ContractError, OSError, UnicodeError, json.JSONDecodeError) as exc:
             blocked.append({"code": "invalid-shipglows-manifest", "path": MANIFEST_NAME, "message": f"Existing ShipGlows manifest preserved: {exc}"})
-        classification = "bloquante" if blocked else "saine"
+        classification = "blocked" if blocked else "healthy"
     elif blocked:
-        classification = "bloquante"
+        classification = "blocked"
     elif surfaces:
         manifest = {"schema": MANIFEST_SCHEMA, "project": {"name": root.name}, "capabilities": {"tools": tools, "targets": targets}, "backends": {}}
         operation = {"action": "create", "owner": "shipglows", "path": MANIFEST_NAME, "content": json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True) + "\n"}
-        classification = "réparable"
+        classification = "repairable"
         notices.append({"code": "missing-shipglows-manifest", "path": MANIFEST_NAME, "message": "A bounded ShipGlows environment manifest can be created from detected project surfaces."})
     else:
-        classification = "manuelle"
+        classification = "manual"
         notices.append({"code": "no-trustworthy-project-surface", "path": ".", "message": "No trustworthy project surface was detected; no configuration was invented."})
     source_records = [{"path": path.relative_to(root).as_posix(), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()} for path in files + ([manifest_path] if manifest_path.exists() else [])]
     payload = {"schema": PREPARATION_SCHEMA, "project": str(root), "classification": classification, "surfaces": surfaces, "notices": notices, "blocked": blocked, "operation": operation, "sources": source_records}
@@ -119,9 +119,9 @@ def apply_preparation_plan(project_root: str | Path, expected_digest: str) -> di
     plan = build_preparation_plan(project_root)
     if plan["digest"] != expected_digest:
         raise ContractError("Preparation plan is stale; run shipglows env prepare again.")
-    if plan["classification"] == "saine":
+    if plan["classification"] == "healthy":
         return {"status": "converged", "changed": False, "path": MANIFEST_NAME, "digest": expected_digest}
-    if plan["classification"] != "réparable" or not plan["operation"]:
+    if plan["classification"] != "repairable" or not plan["operation"]:
         raise ContractError(f"Preparation cannot be applied while classification is {plan['classification']}.")
     target = Path(project_root).resolve(strict=True) / plan["operation"]["path"]
     try:

@@ -32,11 +32,11 @@ After a successful clone, diagnose missing, reduced, malformed, and conflicting 
 
 | Classification | Meaning | Clone outcome |
 | --- | --- | --- |
-| saine | Existing ShipGlows configuration validates | success |
-| réparable | Missing ShipGlows manifest can be safely proposed | success with apply command |
-| avertissement | Non-blocking project-owned gap requires attention | success with warning |
-| bloquante | Invalid trusted source prevents safe inference | clone preserved, preparation fails |
-| manuelle | No trustworthy surface supports generation | success, no configuration invented |
+| healthy | Existing ShipGlows configuration validates | success |
+| repairable | Missing ShipGlows manifest can be safely proposed | success with apply command |
+| warning | Non-blocking project-owned gap requires attention | success with warning |
+| blocked | Invalid trusted source prevents safe inference | clone preserved, preparation fails |
+| manual | No trustworthy surface supports generation | success, no configuration invented |
 
 ## CLI contract
 
@@ -44,9 +44,9 @@ shipglows env prepare emits deterministic JSON containing classification, detect
 
 ## Acceptance proofs
 
-- Empty repository becomes manuelle.
-- Invalid package manifest becomes bloquante and is unchanged.
-- Missing ShipGlows configuration in an Astro/Flutter monorepo becomes réparable with both surfaces detected.
+- Empty repository becomes manual.
+- Invalid package manifest becomes blocked and is unchanged.
+- Missing ShipGlows configuration in an Astro/Flutter monorepo becomes repairable with both surfaces detected.
 - Apply creates one valid manifest; a fresh second apply is a no-op.
 - Source changes invalidate a prior digest.
 - Clone output reports classification and explicit application; blocking diagnosis preserves the clone and fails preparation.
