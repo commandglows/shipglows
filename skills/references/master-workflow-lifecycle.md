@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.7.0"
+artifact_version: "2.8.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-21"
+updated: "2026-08-27"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -70,6 +70,7 @@ evidence:
   - "Operator decision 2026-08-16: task-scoped agent branches and worktrees remain lifecycle-owned until removal or another explicit terminal disposition."
   - "Operator correction 2026-08-17: daily MVP work should privilege construction, use zero or one focused check when sufficient, and commit/push every clean completed chantier by default."
   - "Operator decision 2026-08-21: lightweight Git persistence preflight runs at existing start, resume, sensitive-operation, and closure boundaries while healthy state stays silent."
+  - "Operator correction 2026-08-27: every long-running process is lifecycle-owned until its exact session or PID is stopped and its termination is verified."
 next_review: "2026-11-07"
 next_step: "/103-sg-verify master workflow lifecycle reference"
 ---
@@ -225,6 +226,26 @@ Examples:
 - `405-sg-prod`, `108-sg-browser`, and `109-sg-auth-debug` own deployment/browser/auth proof.
 
 Do not duplicate owner internals inside a master skill for convenience.
+
+### 5.1 Managed Process Lifecycle
+
+Any command that may outlive its immediate check, including a development server,
+watcher, log stream, tunnel, emulator, or interactive tool, is a managed process.
+Before starting it, the executing agent must name its bounded purpose, retain a
+controllable session handle or exact PID, and define the stop condition. Never
+detach a process without a lifecycle owner and a deterministic termination path.
+
+The agent that starts a managed process owns it until one terminal disposition is
+proven: `stopped`, `transferred-explicit`, or `retained-explicit`. Normal completion,
+failure, interruption, task replacement, worktree cleanup, and final handoff all
+trigger reconciliation. For `stopped`, signal the retained session or exact PID,
+wait for exit, and verify that the exact process no longer runs; do not kill by a
+broad executable name or affect unrelated processes. A transfer or retention must
+name the new owner or operational reason, scope, and review/stop condition.
+
+An untracked, unreachable, or still-running managed process blocks clean closure
+and removal of any directory it uses. A final report may omit healthy lifecycle
+detail, but it must expose a non-terminal disposition as a concrete limit.
 
 ### 6. Validation And Evidence Routing
 
