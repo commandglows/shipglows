@@ -1072,7 +1072,8 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         $file = $env:ComSpec
         $prefix = if (@($packageManager.PrefixArguments).Count -gt 0) { ' ' + (@($packageManager.PrefixArguments) -join ' ') } else { '' }
         if ($Kind -eq 'browser-extension') {
-            $command = "call `"$($packageManager.Manager)`"$prefix run dev:chrome -- --host 127.0.0.1 --port $Port & rem $signature"
+            $optionSeparator = if ($packageManager.Name -eq 'pnpm') { '' } else { ' --' }
+            $command = "call `"$($packageManager.Manager)`"$prefix run dev:chrome$optionSeparator --host 127.0.0.1 --port $Port & rem $signature"
         } elseif ($packageManager.Name -eq 'pnpm') {
             $command = "call `"$($packageManager.Manager)`"$prefix exec vite --host 127.0.0.1 --port $Port & rem $signature"
         } else {

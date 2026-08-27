@@ -56,7 +56,8 @@ try {
         Get-SgLaunchSpec $Project 'browser-extension' 32145
     } $extension
     $launchText = $launch.Arguments -join ' '
-    Assert-Sg ($launchText -match 'pnpm@10[.]33[.]2 run dev:chrome -- --host 127[.]0[.]0[.]1 --port 32145') 'Extension launch did not use the explicit Chrome script and reserved HMR port.'
+    Assert-Sg ($launchText -match 'pnpm@10[.]33[.]2 run dev:chrome --host 127[.]0[.]0[.]1 --port 32145') 'Extension launch did not use the explicit Chrome script and reserved HMR port.'
+    Assert-Sg ($launchText -notmatch 'run dev:chrome -- --host') 'Pinned pnpm launch forwarded a redundant option separator to Vite.'
 
     $dist = Join-Path $extension 'dist\chrome'
     New-Item -ItemType Directory -Path $dist -Force | Out-Null

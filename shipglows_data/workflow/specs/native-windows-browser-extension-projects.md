@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: "ShipGlows"
 created: "2026-08-27"
 updated: "2026-08-27"
@@ -86,6 +86,7 @@ Starting the project installs dependencies with the repository's existing lockfi
 | 2026-08-26 22:20 UTC | sg-development | GPT-5 Codex | Implemented the bounded CRXJS adapter, pinned Corepack/pnpm execution, Manifest V3 readiness, extension environment/open behavior, regression coverage and mapped documentation. | Implemented locally. | Verify focused behavior and the real ToolGlows command plans. |
 | 2026-08-26 22:20 UTC | 103-sg-verify | GPT-5 Codex | Passed focused extension, project catalog, monorepo, dependency, environment, start/stop, clone-filter, parser, metadata, skill-budget and diff checks; real ToolGlows is classified correctly and produces the expected Corepack and dev:chrome plans. | Partial: installed runtime and Chrome unpacked loading were not run. | Operator tests the installed Windows menu flow later. |
 | 2026-08-27 09:31 UTC | sg-release | GPT-5 Codex | Ran the published full/runtime installer against the development branch and reproduced registry/environment drift: ToolGlows environment migrated to browser-extension while its registry entry remained vite. Added installer re-registration through the current detector and a focused stale-kind regression. | Repair implemented; republish, reinstall and replay required. | Commit and push the ShipGlows repair, rerun the official installer, then exercise ToolGlows through the installed CLI. |
+| 2026-08-27 09:45 UTC | sg-release | GPT-5 Codex | Reinstalled the published registry repair, synchronized ToolGlows as browser-extension, pushed its modernization and environment commits, then started it through the installed `s` command. Dependency installation and MV3 generation succeeded; runtime tracing exposed a redundant pnpm option separator that left Vite on IPv6 loopback. | Second CLI repair implemented with focused regression. | Publish, reinstall and replay start/open/stop with the corrected IPv4 binding. |
 
 ## Current Chantier Flow
 
