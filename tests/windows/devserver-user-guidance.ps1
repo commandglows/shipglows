@@ -42,6 +42,7 @@ try {
     foreach ($expected in @('s start','s open','Developer mode','Load unpacked','dist\chrome','s stop')) {
         Assert-Sg ($environment.Contains($expected)) "Extension environment guidance omitted: $expected"
     }
+    Assert-Sg ($environment -match '(?m)^- Chrome profile boundary: .+\r?\n- Live status authority:') 'The Chrome profile boundary and live-status authority are not separate environment lines.'
 
     $frontend = [IO.File]::ReadAllText($frontendPath)
     Assert-Sg ($frontend -match "'status'") 'The Windows CLI has no project status action.'

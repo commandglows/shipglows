@@ -1596,12 +1596,12 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0, [strin
     if ([string]::IsNullOrWhiteSpace($Kind)) { try { $Kind = Get-SgProjectKind $ProjectPath } catch { $Kind = 'unknown' } }
     $urlValue = if ($Kind -eq 'browser-extension') { 'not applicable (browser extension)' } elseif ($effectivePort -gt 0) { "http://127.0.0.1:$effectivePort" } else { 'pending first ShipGlows start' }
     $extensionGuidance = if ($Kind -eq 'browser-extension') {
-@"
+(@"
 - Browser target: ``Chrome``
 - Unpacked Chrome directory: ``dist/chrome``
 - Extension workflow: ``s start -ProjectPath .`` -> ``s open -ProjectPath .`` -> Chrome Developer mode -> Load unpacked -> ``dist\chrome`` -> ``s stop -ProjectPath .``
 - Chrome profile boundary: ShipGlows opens the extension manager and generated directory but never installs the extension automatically in a personal profile.
-"@
+"@).TrimEnd() + "`n"
     } else { '' }
     $block = @'
 <!-- >>> ShipGlows development environment >>> -->
