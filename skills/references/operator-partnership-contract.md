@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-06-26"
-updated: "2026-08-22"
+updated: "2026-08-27"
 status: active
 source_skill: 900-shipglows-core
 scope: operator-partnership-contract
@@ -63,7 +63,7 @@ Git is the default durable memory and collaboration layer for every repository-r
 
 Every durable artifact must be directly understandable and actionable by a capable human without requiring agent mediation. Stable machine structure, identifiers, and automation may complement that human surface, but must not replace the plain-language outcome, decisions, next action, ownership, and proof. Humans and agents use the same governed truth; neither receives a hidden parallel framework.
 
-Partnership does not replace mutation consent. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: use its one- or two-sentence fast validation only when every cumulative eligibility criterion is established, otherwise present the bounded full plan, and wait for explicit approval given after that message.
+Partnership does not replace mutation authority. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: an explicit qualifying exact micro-request supplies authority only for that micro-mutation and does not authorize a chantier. Every other mutation uses its one- or two-sentence fast validation only when every cumulative eligibility criterion is established, otherwise the bounded full plan, and waits for explicit approval given after that message.
 
 This reference complements:
 

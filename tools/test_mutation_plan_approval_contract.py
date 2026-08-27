@@ -10,6 +10,9 @@ CONTRACT = ROOT / "skills" / "references" / "mutation-plan-approval.md"
 STRATEGIC = ROOT / "skills" / "references" / "strategic-choice-contract.md"
 LIFECYCLE = ROOT / "skills" / "references" / "master-workflow-lifecycle.md"
 DELEGATION = ROOT / "skills" / "references" / "master-delegation-semantics.md"
+ROUTER = ROOT / "skills" / "000-shipglows" / "SKILL.md"
+WINDOWS_AGENT_INSTRUCTIONS = ROOT / "cli" / "windows" / "ShipGlows.AgentInstructions.psm1"
+PUBLIC_PLUGIN = ROOT / "plugins" / "shipglows" / "skills" / "shipglows" / "SKILL.md"
 
 
 class MutationPlanApprovalContractTests(unittest.TestCase):
@@ -137,10 +140,47 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         self.assertIn("every `git push` uses the full", scenario)
         self.assertIn("force push also retains all stricter", scenario)
 
-    def test_small_change_selects_path_from_all_fast_criteria(self) -> None:
+    def test_small_change_uses_direct_request_authority_before_validation(self) -> None:
         scenario = self._scenario("MAP-SMALL-CHANGE")
-        self.assertIn("only when every fast-path criterion is established", scenario)
-        self.assertIn("otherwise it uses the full", scenario)
+        self.assertIn("execute it from the operator's exact request", scenario)
+        self.assertIn("without an approval prompt", scenario)
+        self.assertIn("becomes a chantier", scenario)
+
+    def test_exact_micro_request_is_authority_for_only_that_mutation(self) -> None:
+        for expected in (
+            "## Exact micro-request authority",
+            "The operator's initial imperative is authority",
+            "does not create or approve a chantier",
+            "one exact local micro-mutation",
+            "single-line addition",
+            "deterministic micro-bug",
+            "without another approval message",
+            "MAP-EXACT-MICRO-REQUEST",
+            "MAP-MICRO-TO-CHANTIER",
+        ):
+            self.assertIn(expected, self.text)
+
+        direct = self._scenario("MAP-EXACT-MICRO-REQUEST")
+        self.assertIn("initial request is the authority", direct)
+        self.assertIn("no validation prompt", direct)
+
+        boundary = self._scenario("MAP-MICRO-TO-CHANTIER")
+        self.assertIn("does not authorize a chantier", boundary)
+        self.assertIn("full plan", boundary)
+
+    def test_authorized_local_commit_never_gets_a_separate_prompt(self) -> None:
+        for expected in (
+            "An ordinary exact-scope local commit records authorized work",
+            "never requires a separate approval prompt",
+            "unrelated and pre-existing changes remain unstaged",
+        ):
+            self.assertIn(expected, self.text)
+
+    def test_direct_authority_is_propagated_to_primary_runtime_surfaces(self) -> None:
+        for path in (ROUTER, WINDOWS_AGENT_INSTRUCTIONS, PUBLIC_PLUGIN):
+            surface = path.read_text(encoding="utf-8")
+            self.assertIn("exact micro-request", surface, str(path))
+            self.assertIn("does not authorize a chantier", surface, str(path))
 
     def test_supplied_link_register_append_uses_original_request_authority(self) -> None:
         for expected in (
@@ -159,9 +199,10 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         self.assertIn("do not request a second approval", scenario)
         self.assertIn("uses the normal gate", scenario)
 
-    def test_initial_request_never_approves_normal_paths(self) -> None:
-        self.assertIn("Every other mutation requires one of the two approval paths", self.text)
+    def test_initial_request_does_not_approve_a_chantier_or_risky_action(self) -> None:
+        self.assertIn("Every mutation outside exact micro-request authority", self.text)
         self.assertIn("explicit approval given after its message", self.text)
+        self.assertIn("An exact micro-request never authorizes a chantier", self.text)
 
     def test_v_is_a_bounded_immediate_approval_shortcut(self) -> None:
         for expected in (

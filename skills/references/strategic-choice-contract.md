@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-16"
+updated: "2026-08-27"
 status: active
 source_skill: 900-shipglows-core
 scope: operator-facing-strategic-choices
@@ -82,4 +82,4 @@ For a completed chantier, offer `Approfondir` and `Réorienter` only when the de
 - `SC-APPROFONDIR`: selecting the short `Approfondir` label deepens evidence-backed opportunities, risks, assumptions, and lessons without silently reopening completed delivery.
 - `SC-REORIENTER`: selecting the short `Réorienter` label produces concrete alternative directions and a recommendation rather than “what do you want?”.
 - `SC-NO-BLANK-PAGE`: the operator is never asked to invent strategy, alternatives, or implementation mechanics without agent-provided framing.
-- `SC-PROPORTIONALITY`: a reversible micro-edit with no differing business consequence keeps a compact approval choice and does not fabricate strategic alternatives.
+- `SC-PROPORTIONALITY`: a qualifying exact micro-request executes from the request's authority with no approval choices; a small mutation outside that authority keeps a compact approval choice and never fabricates strategic alternatives.

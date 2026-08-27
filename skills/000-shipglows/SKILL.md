@@ -33,13 +33,14 @@ Before handing off an explicit skill name or numeric skill command, load `$SHIPG
 
 ## Atomic Direct-Execution Gate
 
-The supplied-link register authority and bounded Auto-session authority in
-`mutation-plan-approval.md` are the only direct-authority exceptions. The first
-accepts only an exact factual append-only register update; the second activates
-only from explicit `shipglows auto` and is constrained by the mandatory
-no-local-execution policy.
+Exact micro-request authority, supplied-link register authority, and bounded
+Auto-session authority in `mutation-plan-approval.md` are the only direct-
+authority exceptions. An exact micro-request authorizes only its one safe local
+micro-mutation and does not authorize a chantier. The register exception accepts
+only an exact factual append-only update; Auto activates only from explicit
+`shipglows auto` and is constrained by the mandatory no-local-execution policy.
 
-Before any direct or routed mutation, load `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. No mutation, including a deterministic micro-edit, starts until its fast validation or full plan has received explicit post-message approval. Use `🧭 VALIDATION RAPIDE` only when every cumulative local, routine, exact, readily reversible, and no-harm criterion is established; otherwise use `🧭 PLAN À VALIDER`.
+Before any direct or routed mutation, load `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. Apply exact micro-request authority first: a qualifying deterministic micro-edit executes from the operator's request without another prompt, but never widens into a chantier. Every other mutation uses `🧭 VALIDATION RAPIDE` only when every cumulative local, routine, exact, readily reversible, and no-harm criterion is established; otherwise use `🧭 PLAN À VALIDER` and wait for post-message approval.
 
 Before loading routing, topology, or owner-skill references, keep the request in direct main-thread execution when the user supplied one explicit deterministic edit, the target is known or discoverable with one focused lookup, no domain judgment or sensitive boundary is involved, and focused validation is sufficient. Typical cases are an exact string or placeholder replacement, a typo, one formatting token, or one `h1` to `h2` change.
 

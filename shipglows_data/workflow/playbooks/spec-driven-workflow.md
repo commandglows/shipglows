@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.26.0"
+artifact_version: "0.27.0"
 project: ShipGlows
 created: "2026-04-22"
-updated: "2026-08-17"
+updated: "2026-08-27"
 status: draft
 source_skill: 300-sg-docs
 scope: spec-driven-workflow
@@ -114,7 +114,7 @@ Skill launch cheatsheet:
 
 | Need | Launch | Useful modes |
 | --- | --- | --- |
-| Non-technical first command | `000-shipglows <instruction>` | Answers pure conversation directly, executes deterministic micro-edits directly with focused validation, routes substantive work to the right skill, and asks one numbered question when materially ambiguous. |
+| Non-technical first command | `000-shipglows <instruction>` | Answers pure conversation directly, executes qualifying exact micro-requests from the request's own authority with focused proof, routes substantive work to the right skill, and asks one numbered question when materially ambiguous. |
 | Named operator profile | `%Victoire <instruction>`, `%SEO-specialist <instruction>`, or `%Tariq <instruction>` | Canonical profile syntax. Activates the named operator profile; `#Tag` remains a focus-tag surface and the router still picks the owner skill. |
 | Non-technical first command with named operator profile | `000-shipglows profile=victoire <instruction>`, `000-shipglows profile=seo-specialist <instruction>`, or `000-shipglows profile=tariq <instruction>` | Same router, but with the selected profile active so the role contract shapes the answer or handoff framing. |
 | Non-trivial product, code, site, or docs work | `001-sg-build [spark|codex|mini|agents|sous-agent|no-agents] <story, bug, or goal>` | Plain task text is the story; use `spark`, `codex`, `mini`, `agents`, or `sous-agent` to make model-specific delegated sequential execution a validation gate; for user-facing features, `001-sg-build` evaluates whether to suggest or route `/008-sg-customer` after implementation; use detailed report modes only for handoff evidence. |
@@ -170,7 +170,7 @@ Primary non-technical router entrypoint:
 000-shipglows <instruction> -> direct answer, atomic direct execution, or direct handoff to selected skill
 ```
 
-`000-shipglows <instruction>` is the recommended first command when the operator does not want to choose a skill. It answers pure conversational requests in the main thread and executes deterministic micro-edits there with focused validation, without loading an owner workflow. It hands non-trivial feature, code, and docs work to `001-sg-build`; maintenance to `002-sg-maintain`; bug-loop work to `003-sg-bug`; release, deploy, or production proof to `004-sg-deploy`; content work to `007-sg-content`; onboarding and activation work to `008-sg-customer`; local-to-cloud sync contract work to `600-sg-local-cloud-sync`; product entitlement and access-gate work to `601-sg-product-entitlements`; internal skill maintenance to `900-shipglows-core build`; and obvious specialist audits to `400-sg-audit-*`. Ambiguous requests get one numbered clarifying question with why, recommended answer, and practical options.
+`000-shipglows <instruction>` is the recommended first command when the operator does not want to choose a skill. It answers pure conversational requests in the main thread and executes qualifying exact micro-requests there from the request's own authority with focused proof, without loading an owner workflow or authorizing a chantier. It hands non-trivial feature, code, and docs work to `001-sg-build`; maintenance to `002-sg-maintain`; bug-loop work to `003-sg-bug`; release, deploy, or production proof to `004-sg-deploy`; content work to `007-sg-content`; onboarding and activation work to `008-sg-customer`; local-to-cloud sync contract work to `600-sg-local-cloud-sync`; product entitlement and access-gate work to `601-sg-product-entitlements`; internal skill maintenance to `900-shipglows-core build`; and obvious specialist audits to `400-sg-audit-*`. Ambiguous requests get one numbered clarifying question with why, recommended answer, and practical options.
 
 Named operator profiles sit above the router as a human-readable invocation layer. They do not replace skills:
 
@@ -364,7 +364,7 @@ Technical governance applies to code projects by default. Editorial governance a
 - Master/orchestrator skills must load `skills/references/master-workflow-lifecycle.md` for the shared skeleton: intake, work item resolution, readiness, model/topology routing, owner execution, validation, verification, post-verify closure, and ship/deploy routing.
 - Skills must load `skills/references/decision-quality-contract.md` before quality-sensitive routing, model choice, fallback choice, implementation, fix, verification, or recommendation. ShipGlows optimizes first for correctness, security, performance where relevant, maintainability, durability, professional best practices, and proof quality.
 - Master/orchestrator skills must load `skills/references/master-delegation-semantics.md` before choosing execution topology. The reference defines delegation, subagents, short approvals, degradation, and spec/batch-gated parallelism.
-- Every intentional mutation must load `skills/references/mutation-plan-approval.md` and receive explicit approval after its approval message. `🧭 VALIDATION RAPIDE` is allowed only when every cumulative exact/local/routine/reversible/no-harm criterion is established; all other mutations use `🧭 PLAN À VALIDER`. Standalone `v` or `V` approves only the immediately preceding pending approval message with one unambiguous approval outcome and no intervening control or replacement. Initial imperatives, ready specs, skill invocations, and delegation consent do not replace apply approval. Once bounded technical implementation is approved, ordinary exact-scope local commits are silent and cumulative; unrelated, editorial, history-rewriting, closure, release, and remote actions remain separately gated, and `git push` always uses the full plan.
+- Every intentional mutation must load `skills/references/mutation-plan-approval.md`. A qualifying exact micro-request uses the operator's request as authority only for that micro-mutation and never for a chantier; execute it without another prompt. Every other mutation receives approval after `🧭 VALIDATION RAPIDE` when every cumulative exact/local/routine/reversible/no-harm criterion is established, or after `🧭 PLAN À VALIDER`. Standalone `v` or `V` approves only the immediately preceding pending approval message with one unambiguous approval outcome and no intervening control or replacement. Ready specs, skill invocations, and delegation consent do not replace chantier approval. Ordinary exact-scope local commits record authorized work silently; unrelated, editorial, history-rewriting, closure, release, and remote actions remain separately gated, and `git push` always uses the full plan.
 - User-facing questions follow `skills/references/question-contract.md`: ask only when the answer changes route, scope, risk, proof, closure, ship posture, public claims, or technical/product/editorial direction.
 - `001-sg-build` planning questions should be decision briefs for business operators: explain the root problem, business stakes, practical options, and the best-practice recommendation before asking for the decision.
 - `002-sg-maintain` is the master orchestrator for recurring project maintenance and should prefer bounded delegated sequential execution over command recommendations.

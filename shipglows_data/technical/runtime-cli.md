@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.25.0"
+artifact_version: "1.26.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-27"
@@ -452,10 +452,11 @@ instructions outside the block remain unchanged. The shared block points to this
 file, prefers a purpose-built callable tool, checks direct and deferred discovery,
 and redirects uncertain capability state to `$shipglows context` instead of
 embedding a stale machine-specific tool list. It does not wrap agent commands.
-That block also enforces explicit
-post-message approval before intentional mutations: a one- or two-sentence fast
-validation is available only for exact local routine readily reversible actions
-that satisfy every no-harm criterion; other actions use the full plan, and
+That block treats a qualifying exact micro-request as authority only for its
+one safe local micro-mutation, never for a chantier. Other intentional mutations
+require post-message approval: a one- or two-sentence fast validation is
+available only for exact local routine readily reversible actions that satisfy
+every no-harm criterion; other actions use the full plan, and
 `git push` is always full-plan-only.
 
 For each registered project, the Windows CLI maintains a bounded ShipGlows block
