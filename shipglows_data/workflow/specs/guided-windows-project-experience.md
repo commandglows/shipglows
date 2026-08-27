@@ -24,24 +24,25 @@ linked_systems:
   - "shipglows_app/site/"
 depends_on:
   - artifact: "shipglows_data/technical/runtime-cli.md"
-    artifact_version: "1.29.0"
+    artifact_version: "1.29.1"
     required_status: reviewed
   - artifact: "shipglows_data/workflow/specs/native-windows-browser-extension-projects.md"
     artifact_version: "1.4.0"
     required_status: active
 supersedes: []
 evidence:
+  - "The installed ToolGlows replay exposed and then proved fixes for a concatenated ENVIRONMENT.md line and PowerShell 7 DateTime deserialization falsely reconciling a live extension to stopped."
   - "The Windows runtime already operates CRXJS browser extensions, but its help, menu, dashboard and registration messages expose generic project wording or internal kind names."
   - "The public ShipGlows site currently names Astro, Python and Flutter but has no user-facing Chrome extension journey."
   - "ToolGlows proved the installed start, open and stop extension path while also exposing the missing user guidance."
-next_step: "Implement the scenario-first Windows guidance contract, publish it, and hand the exact bilingual public-site contract to the separate product repository."
+next_step: "Open the separate public-site product chantier for the exact bilingual website, app and Chrome-extension guidance contract."
 ---
 
 # Guided Windows project experience
 
 ## Status
 
-Implemented locally under the approved Core plan and awaiting installed-runtime proof. The public site is an evidence and handoff surface only in this chantier; `shipglows_app` remains a separate product repository.
+Implemented, published and proven through the installed runtime under the approved Core plan. The public site is an evidence and handoff surface only in this chantier; `shipglows_app` remains a separate product repository.
 
 ## Outcome contract
 
@@ -78,6 +79,33 @@ Unknown or unsupported extension stacks never inherit the CRXJS promise. ShipGlo
 - `GUIDE-NO-UNIVERSAL-CLAIM`: WXT, Plasmo or an incomplete CRXJS package never receives a universal Chrome-extension support claim.
 - `GUIDE-SITE-PARITY`: the later public-site implementation carries the same project families and boundaries in French and English.
 
+## Exact public-site product handoff
+
+This handoff belongs to the separate `shipglows_app/site` product chantier; Core
+does not mutate that repository.
+
+- Home and `/shipglows`: replace the Astro/Python/Flutter-only impression with
+  three explicit outcomes: websites, applications and Chrome extensions. Keep
+  the promise about guidance and repeatable local environments, not universal
+  framework compatibility.
+- `/docs`: add a Windows project lifecycle guide with the same four copyable
+  commands as the CLI. Explain that Status reports the project family and next
+  action, and that Open on a stopped project routes back to Start.
+- Chrome-extension guide: state the current automatic boundary exactly as
+  CRXJS plus `@crxjs/vite-plugin` plus `dev:chrome`; label the assigned port as
+  HMR rather than a page URL; finish with Developer mode, Load unpacked and
+  `dist\chrome`.
+- `/faq`: answer why an extension has no normal local URL, whether ShipGlows
+  installs it automatically (no), and what to do when Open says the project is
+  stopped.
+- French copy baseline: “ShipGlows vous guide pour lancer vos sites, vos apps
+  et vos extensions Chrome dans un environnement local reproductible.”
+- English copy baseline: “ShipGlows guides you through running websites, apps,
+  and Chrome extensions in a repeatable local environment.”
+- Verification: bilingual route/content tests must assert all three project
+  families, the CRXJS boundary, HMR-not-URL wording, the manual profile boundary
+  and exact lifecycle commands; then run the site check and production build.
+
 ## Proof contract
 
 - A focused PowerShell user-guidance regression exercises descriptors, dashboard/status, registration, stopped Open recovery and Chrome steps.
@@ -94,9 +122,9 @@ Unknown or unsupported extension stacks never inherit the CRXJS promise. ShipGlo
 | Specification | complete | Outcome, compatibility boundary, scenarios and proof path are explicit. |
 | Readiness | complete | Core/site ownership boundary and unrelated dirty scope are resolved. |
 | Implementation | complete | The canonical descriptor now drives help, registration, status, dashboard, Start, Open and project environment guidance. |
-| Verification | in progress | Focused regressions, parser, metadata, diff and the complete Windows contract pass; installed-runtime proof remains. |
+| Verification | complete | Focused regressions, parser, metadata, diff, the complete Windows contract and installed ToolGlows help/status/start/open/stop all pass. |
 | Closure | complete | Runtime and operator documentation are aligned and the exact separate public-site handoff is recorded. |
-| Delivery | pending | Commit and push only the approved Core scope. |
+| Delivery | complete | Core implementation and live-found fixes are committed and pushed only on `codex/development-runtime`. |
 
 ## Skill Run History
 
@@ -104,3 +132,4 @@ Unknown or unsupported extension stacks never inherit the CRXJS promise. ShipGlo
 | --- | --- | --- | --- | --- | --- |
 | 2026-08-28 00:20 UTC | 900-shipglows-core | GPT-5 Codex | Audited CLI and public-site guidance in parallel, resolved the DX/product boundary and formalized the approved cross-surface user journey. | Ready for scenario-first implementation. | Add the focused failing guidance contract, then implement the shared descriptor and consumers. |
 | 2026-08-28 01:15 UTC | 900-shipglows-core | GPT-5 Codex | Added the shared project-experience descriptor, user-guided lifecycle output, focused regression and mapped Core documentation. | Focused checks and the complete Windows DevServer contract pass. | Push the bounded Core milestone and replay the official installer with ToolGlows. |
+| 2026-08-28 01:55 UTC | 900-shipglows-core | GPT-5 Codex | Replayed the official branch installer, fixed the concatenated project-environment guidance and normalized process start identity across PowerShell JSON representations. | Installed help, stopped recovery, Start, running Status, Open, Stop, listener extinction and process extinction pass on ToolGlows at `c3f985c`. | Hand the exact bilingual public-site contract to the separate product chantier. |

@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.24.0"
+artifact_version: "1.24.1"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-28"
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le replay ToolGlows du 2026-08-28 a corrigé la séparation des lignes du guide ENVIRONMENT.md et la comparaison des timestamps JSON PowerShell 7 qui transformait à tort un processus vivant en projet arrêté."
   - "Le parcours guidé du 2026-08-28 nomme clairement projet web, app Flutter et extension Chrome dans l'aide, le statut, le dashboard, l'enregistrement et les actions Start/Open."
   - "The 2026-08-27 installed ToolGlows replay removed a hidden 60-second clamp so extension readiness honors the caller's 90-second startup budget."
   - "The 2026-08-27 installed ToolGlows replay removed the npm-only option separator from pinned pnpm extension launches so Vite binds the requested IPv4 loopback host."
