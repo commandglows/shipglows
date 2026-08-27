@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-27"
 created_at: "2026-08-27 11:39:29 UTC"
 updated: "2026-08-27"
-updated_at: "2026-08-27 11:54:06 UTC"
+updated_at: "2026-08-27 11:56:13 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -47,7 +47,7 @@ evidence:
   - "Operator decision 2026-08-27: shipglows is the DX system containing skills, TUI, and CLI/DevServer, while shipglows_app owns the public site and SaaS product."
   - "The current Core contract already resolves CLI, TUI, Windows DevServer, and installer paths, but its description, mission, build playbook, lifecycle docs, and README still constrain ownership to skill maintenance."
   - "ShipGlows terminology already defines one combined package of CLI scripts, skills, local tooling, and documentation, so current ownership wording is internally inconsistent rather than absent."
-next_step: "/104-sg-end full ShipGlows Core DX system ownership"
+next_step: "Use the unified Core route for the next bounded ShipGlows DX maintenance outcome."
 ---
 
 # Spec: ShipGlows Core DX System Ownership
@@ -254,6 +254,8 @@ None.
 | 2026-08-27 11:41:26 UTC | 101-sg-ready | GPT-5 Codex | Confirmed autonomous scope, repository boundary, direct-playbook routing, scenario-first proof, documentation consequences, and exact delivery constraints. | ready | /900-shipglows-core build ShipGlows Core DX system ownership |
 | 2026-08-27 11:53:30 UTC | 900-shipglows-core | GPT-5 Codex | Extended Core across skill/doctrine, DX runtime, and cross-plane coherence with direct packs, preserved the shipglows_app boundary, and aligned activation/help/technical contracts. | implemented | /103-sg-verify ShipGlows Core DX system ownership |
 | 2026-08-27 11:54:06 UTC | 103-sg-verify | GPT-5 Codex | Verified all eight acceptance criteria with 21 focused Core regressions, nine activation-profile checks, a valid 86-edge activation graph, metadata and context-budget checks, runtime-link proof, drift scans, and exact diff hygiene. The generic system skill validator was non-authoritative here because it rejects the repository-standard pre-existing argument-hint field. | verified | /104-sg-end full ShipGlows Core DX system ownership |
+| 2026-08-27 11:56:13 UTC | 104-sg-end | GPT-5 Codex | Reconciled the unique spec, acceptance criteria, canonical documentation, source-of-truth boundary, and proof. Documentation is updated; editorial is not impacted because no public site/SaaS promise changed. | closed | Persist the closure receipt. |
+| 2026-08-27 11:56:13 UTC | 005-sg-ship | GPT-5 Codex | Pushed the exact-scope implementation milestone f05c0cd and prepared the spec-only closure receipt for final ordinary push; unrelated pre-existing dirty files remained unstaged. | shipped | Use the unified Core route for the next bounded ShipGlows DX maintenance outcome. |
 
 ## Current Chantier Flow
 
@@ -261,7 +263,7 @@ None.
 - `101-sg-ready`: passed, spec ready.
 - `900-shipglows-core build`: implemented.
 - `103-sg-verify`: verified.
-- `104-sg-end`: next.
-- `005-sg-ship`: pending.
+- `104-sg-end`: closed — documentation updated; editorial not impacted.
+- `005-sg-ship`: complete — exact-scope implementation and closure commits pushed to `origin/codex/development-runtime`.
 
-Next step: `/104-sg-end full ShipGlows Core DX system ownership`
+Next step: Use the unified Core route for the next bounded ShipGlows DX maintenance outcome.
