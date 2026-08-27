@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-08-14"
 created_at: "2026-08-14 00:00:00 UTC"
 updated: "2026-08-27"
-updated_at: "2026-08-27 09:41:36 UTC"
+updated_at: "2026-08-27 09:43:50 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: "Codex"
@@ -39,14 +39,14 @@ evidence:
   - "Operator decision 2026-08-15: standalone `v` should be a canonical approval shortcut for the immediately preceding pending chantier plan."
   - "Operator correction 2026-08-27: modifying one exact file is not a chantier; the explicit request authorizes only its qualifying micro-mutation, while a chantier still requires one plan."
   - "Operator correction 2026-08-27: the boundary is request clarity, a few enumerable actions/files, and agent directional discretion—not local versus remote; explicit bounded edits, commits, and ordinary pushes need no duplicate validation, regardless of reasoning effort."
-next_step: "/102-sg-start two-tier mutation approval fast path"
+next_step: none
 ---
 
 # Two-Tier Mutation Approval Fast Path
 
 ## Status
 
-implemented — standard verification passed for the boundedness-based contract correction, focused proofs, public/operator surfaces, and synchronization of the five active Windows agent-instruction blocks; Git delivery remains pending.
+closed — the boundedness-based contract correction is verified and delivered on `origin/codex/development-runtime`; the final closure record is the only remaining exact-scope persistence step.
 
 ## Minimal Behavior Contract
 
@@ -120,7 +120,7 @@ An explicit clear bounded request directly authorizes its few coherent enumerabl
 
 ## Current Chantier Flow
 
-`900-shipglows-core build` implemented clear bounded-request authority and kept the hard chantier boundary at unknown, unbounded, or materially directional work. `103-sg-verify` passed the focused contracts, metadata, Windows synchronization, skill audit, and budget checks. `104-sg-end` prepared closure with documentation and editorial surfaces updated; Git delivery remains pending.
+`900-shipglows-core build` implemented clear bounded-request authority and kept the hard chantier boundary at unknown, unbounded, or materially directional work. `103-sg-verify` passed the focused contracts, metadata, Windows synchronization, skill audit, and budget checks. `104-sg-end` prepared closure with documentation and editorial surfaces updated. `005-sg-ship` pushed implementation commit `087a5c6` to `origin/codex/development-runtime`; this closure record is delivered by the final exact-scope commit.
 
 ## Skill Run History
 
@@ -132,3 +132,4 @@ An explicit clear bounded request directly authorizes its few coherent enumerabl
 - 2026-08-27 — `900-shipglows-core build`: operator replaced the local/remote micro-mutation boundary with clear bounded-request authority based on enumerable actions/targets and directional discretion; scenario-first implementation started with ordinary commit/push and effort invariance in scope.
 - 2026-08-27 — `103-sg-verify`: standard verification passed 79 focused unit/contract scenarios, Windows static regression, 15-file metadata lint, active-agent instruction synchronization, skill audit, budget audit, and conservative contradiction scans; effort invariance is contract-level, not a multi-model runtime evaluation.
 - 2026-08-27 — `104-sg-end`: closure bookkeeping is partial only because Git delivery is pending; documentation is updated across canonical runtime/workflow/operator surfaces, editorial is updated across README and public plugin guidance, and no archive or tracker mutation is required.
+- 2026-08-27 — `005-sg-ship`: implementation commit `087a5c6` was pushed normally to `origin/codex/development-runtime`; the closure record remains isolated for one final exact-scope commit and push, while all unrelated dirty paths remain unstaged.
