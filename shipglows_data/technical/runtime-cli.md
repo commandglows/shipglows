@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.28.0"
+artifact_version: "1.29.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-27"
+updated: "2026-08-28"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and CRXJS Chrome extensions with exact next actions instead of exposing internal project kinds."
   - "Installed-runtime replay 2026-08-27: registered projects are re-registered through the current detector before environment migration, preventing stale registry kinds after a new adapter is installed."
   - "Native Windows browser-extension adapter 2026-08-27: CRXJS projects with an explicit dev:chrome script use extension-specific package-manager, launch, readiness, environment and open contracts instead of generic Vite assumptions."
   - "Linux pressure rescue 2026-08-26: Health combines available RAM, swap use and optional Linux PSI, renders a critical recovery route, and can stop only revalidated confirmed Vercel CLI groups that are detached, heavy, old and free of protected processes."
@@ -261,6 +262,35 @@ identity is checked with PID, start time, executable path, and a command
 signature before stopping a process. The JSON registry is written through a
 validated temporary file and atomic replacement.
 
+### Guided project experience
+
+The Windows CLI presents supported repositories as user-facing experiences,
+not as internal detector kinds:
+
+| Detected surface | Status shown to the user | Start/Open outcome |
+| --- | --- | --- |
+| Astro, Vite, or Python/FastAPI | `Web project` and `URL :<port>` | Start prepares the local server; Open launches its loopback URL. |
+| Flutter Web | `Flutter app` and `App :<port>` | Start prepares the managed headless session; Open switches to the visible managed Chrome session. |
+| CRXJS Chrome extension | `Chrome extension`, `HMR :<port>`, and `dist\chrome` | Start prepares Manifest V3 plus HMR; Open launches `chrome://extensions` and the unpacked output folder. |
+
+`s help`, `s status`, the dashboard, the picker and post-registration output
+share those terms. Clone and manual registration end with the exact next
+command. The complete non-interactive lifecycle is
+`s start -ProjectPath <path>`, `s status -ProjectPath <path>`,
+`s open -ProjectPath <path>`, then `s stop -ProjectPath <path>`.
+The interactive menu exposes the same actions, including `Open / load project`.
+If Open targets a stopped project, it identifies the selected experience and
+returns the exact Start command instead of reporting an ambiguous missing URL.
+
+An extension's reserved port belongs to the Vite/CRXJS hot-module-reload
+channel; it is not a website URL. After Open, the operator still enables
+Developer mode, chooses Load unpacked, and selects `dist\chrome`. ShipGlows
+opens the relevant tools but never silently installs an extension into a
+personal Chrome profile. Current automatic detection is deliberately bounded
+to a declared `@crxjs/vite-plugin` dependency plus an explicit `dev:chrome`
+script; unsupported extension stacks are not presented as automatically
+managed.
+
 The native Windows backend does not activate, parse, or derive project
 boundaries from Flox. It discovers supported applications from native manifests
 such as `package.json`, `pubspec.yaml`, `pyproject.toml`, and
@@ -474,6 +504,10 @@ existing project content and records the manager, project kind, durable assigned
 canonical loopback URL. Browser extensions instead record that a normal page URL is not applicable and name their unpacked Chrome directory. The Windows registry remains authoritative for live
 status, so start and stop do not create tracked-document churn. `s open` uses
 the active registry entry instead of guessing from repository scripts.
+For an extension, that managed block also records the complete operator route:
+Start, Open, enable Chrome Developer mode, choose Load unpacked, select
+`dist\chrome`, then Stop. It repeats that personal-profile installation always
+requires an explicit user action.
 
 The managed block carries the explicit schema
 `shipglows-project-environment/v2`. An unversioned legacy ShipGlows block is

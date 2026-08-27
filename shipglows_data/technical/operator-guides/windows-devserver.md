@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.23.0"
+artifact_version: "1.24.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-27"
+updated: "2026-08-28"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le parcours guidé du 2026-08-28 nomme clairement projet web, app Flutter et extension Chrome dans l'aide, le statut, le dashboard, l'enregistrement et les actions Start/Open."
   - "The 2026-08-27 installed ToolGlows replay removed a hidden 60-second clamp so extension readiness honors the caller's 90-second startup budget."
   - "The 2026-08-27 installed ToolGlows replay removed the npm-only option separator from pinned pnpm extension launches so Vite binds the requested IPv4 loopback host."
   - "The 2026-08-27 installed-runtime replay now re-registers existing projects before environment migration so registry and durable project kind remain coherent."
@@ -218,6 +219,40 @@ ne sont pas requis par le parcours Shadow PC.
    lit ni ses paquets, ni ses variables, ni ses hooks. Il découvre les apps à
    partir de leurs manifests natifs (`package.json`, `pubspec.yaml`, etc.).
 
+### Choisir le bon parcours : site, app ou extension Chrome
+
+ShipGlows détecte la surface exécutable à partir de ses manifests, puis affiche
+un libellé compréhensible dans `s help`, `s status`, le dashboard et les
+sélecteurs. Après un clone ou un enregistrement manuel, la CLI donne directement
+la prochaine commande à lancer.
+
+| Votre projet | Ce que ShipGlows affiche | Parcours |
+| --- | --- | --- |
+| Site Astro/Vite ou API Python/FastAPI | `Web project` et `URL :<port>` | Start prépare le serveur, Open ouvre l'URL locale. |
+| Application Flutter Web | `Flutter app` et `App :<port>` | Start prépare la session gérée, Open ouvre la session Chrome visible avec le cycle Flutter. |
+| Extension Chrome CRXJS | `Chrome extension`, `HMR :<port>` et `dist\chrome` | Start construit Manifest V3 et lance HMR, Open ouvre le gestionnaire Chrome et le dossier à charger. |
+
+Le parcours complet et copiable est :
+
+```powershell
+s start -ProjectPath "C:\chemin\du\projet"
+s status -ProjectPath "C:\chemin\du\projet"
+s open -ProjectPath "C:\chemin\du\projet"
+s stop -ProjectPath "C:\chemin\du\projet"
+```
+
+Le menu interactif propose les mêmes actions, avec `Open / load project`. Si
+Open reçoit un projet arrêté, ShipGlows explique son type et redonne la commande
+Start exacte au lieu de laisser croire qu'une URL manque.
+
+Pour une extension Chrome, le port affiché sert au HMR : ce n'est pas l'adresse
+d'un site. Après Open, activez **Developer mode** dans `chrome://extensions`,
+choisissez **Load unpacked**, puis sélectionnez `dist\chrome`. ShipGlows ouvre
+les deux emplacements utiles, mais n'installe jamais silencieusement l'extension
+dans votre profil personnel. La détection automatique actuelle couvre les
+projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
+stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
+
 ### Monorepos, registre et Flutter Web
 
 Le DevServer détecte Astro, Vite, les extensions navigateur, Python/FastAPI et Flutter Web à partir des
@@ -331,6 +366,10 @@ versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le por
 attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
 documentation du projet.
+Pour une extension, le bloc remplace l'URL de page par le port HMR et
+`dist\chrome`, puis rappelle le parcours Start, Open, Developer mode, Load
+unpacked et Stop. Un agent ou une opératrice reprenant le dépôt retrouve ainsi
+la même prochaine action que dans la CLI.
 
 Une réconciliation ou réinstallation qui lit temporairement le port `0` dans
 le registre conserve un port valide déjà inscrit dans `ENVIRONMENT.md`. Au

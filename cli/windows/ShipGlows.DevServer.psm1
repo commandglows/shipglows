@@ -224,6 +224,55 @@ function Get-SgProjectKind([string]$ProjectPath) {
     throw "Unsupported or ambiguous project. Supported kinds: Astro, Vite, browser extensions with dev:chrome, Python/FastAPI with uv/requirements, Flutter Web."
 }
 
+function Get-SgProjectExperience([string]$Kind, [int]$Port = 0) {
+    $portValue = if ($Port -gt 0) { ":$Port" } else { 'pending' }
+    switch ($Kind) {
+        'browser-extension' {
+            return [pscustomobject]@{
+                Label = 'Chrome extension'
+                PortLabel = "HMR $portValue"
+                Artifact = 'dist\chrome'
+                StartOutcome = 'Manifest V3 build ready in dist\chrome'
+                StartNextAction = 'Next: run s open -ProjectPath <path> to open Chrome extension tools.'
+                OpenAction = 'Open chrome://extensions and the unpacked directory.'
+                OpenNextAction = 'In Chrome, enable Developer mode, choose Load unpacked, and select dist\chrome.'
+            }
+        }
+        'flutter-web' {
+            return [pscustomobject]@{
+                Label = 'Flutter app'
+                PortLabel = "App $portValue"
+                Artifact = 'managed Chrome session'
+                StartOutcome = 'Managed Flutter app session ready'
+                StartNextAction = 'Next: run s open -ProjectPath <path> to open or focus the managed app session.'
+                OpenAction = 'Open or focus the managed Chrome app session.'
+                OpenNextAction = 'Validate the app, then run s stop -ProjectPath <path> when finished.'
+            }
+        }
+        default {
+            return [pscustomobject]@{
+                Label = 'Web project'
+                PortLabel = "URL $portValue"
+                Artifact = $(if ($Port -gt 0) { "http://127.0.0.1:$Port" } else { 'local URL pending' })
+                StartOutcome = $(if ($Port -gt 0) { "Local URL ready at http://127.0.0.1:$Port" } else { 'Local URL pending first start' })
+                StartNextAction = 'Next: run s open -ProjectPath <path> to open the managed local URL.'
+                OpenAction = 'Open the managed local URL.'
+                OpenNextAction = 'Use the local project, then run s stop -ProjectPath <path> when finished.'
+            }
+        }
+    }
+}
+
+function Format-SgProjectStatus([object]$Entry) {
+    if (-not $Entry) { return 'unknown project' }
+    $kind = if ($Entry.PSObject.Properties['kind'] -and $Entry.kind) { [string]$Entry.kind } else { 'unknown' }
+    $port = if ($Entry.PSObject.Properties['port']) { [int]$Entry.port } else { 0 }
+    $status = if ($Entry.PSObject.Properties['status'] -and $Entry.status) { [string]$Entry.status } else { 'discovered' }
+    $experience = Get-SgProjectExperience $kind $port
+    $artifact = if ($kind -eq 'browser-extension') { " | $($experience.Artifact)" } else { '' }
+    return "$status | $($experience.Label) | $($experience.PortLabel)$artifact"
+}
+
 function Get-SgProjectDescriptors([string]$ProjectPath) {
     $root = ConvertTo-SgCanonicalPath $ProjectPath
     $candidates = @()
@@ -1546,7 +1595,14 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0, [strin
     $portValue = if ($effectivePort -gt 0) { [string]$effectivePort } else { 'pending first ShipGlows start' }
     if ([string]::IsNullOrWhiteSpace($Kind)) { try { $Kind = Get-SgProjectKind $ProjectPath } catch { $Kind = 'unknown' } }
     $urlValue = if ($Kind -eq 'browser-extension') { 'not applicable (browser extension)' } elseif ($effectivePort -gt 0) { "http://127.0.0.1:$effectivePort" } else { 'pending first ShipGlows start' }
-    $extensionGuidance = if ($Kind -eq 'browser-extension') { "- Browser target: ``Chrome```n- Unpacked Chrome directory: ``dist/chrome```n" } else { '' }
+    $extensionGuidance = if ($Kind -eq 'browser-extension') {
+@"
+- Browser target: ``Chrome``
+- Unpacked Chrome directory: ``dist/chrome``
+- Extension workflow: ``s start -ProjectPath .`` -> ``s open -ProjectPath .`` -> Chrome Developer mode -> Load unpacked -> ``dist\chrome`` -> ``s stop -ProjectPath .``
+- Chrome profile boundary: ShipGlows opens the extension manager and generated directory but never installs the extension automatically in a personal profile.
+"@
+    } else { '' }
     $block = @'
 <!-- >>> ShipGlows development environment >>> -->
 ## ShipGlows development environment
@@ -1759,7 +1815,10 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
     }
-    if($kind-eq'browser-extension'){Write-SgInfo "$($entry.name) $($entryData.status): Chrome unpacked target dist\chrome"}else{Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"}
+    if($kind-eq'browser-extension'){
+        Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in dist\chrome"
+        Write-SgInfo "Next: run s open -ProjectPath `"$($entry.path)`" to open Chrome extension tools."
+    }else{Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"}
     return $entryData
 }
 
@@ -1884,14 +1943,23 @@ function Stop-SgProject([object]$Config, [string]$ProjectPath) {
 }
 
 function Open-SgProject([object]$Config, [object]$Entry) {
-    if (-not $Entry -or $Entry.status -notin @('starting','running') -or [int]$Entry.port -le 0) { throw 'The project has no active ShipGlows server URL. Start the managed project first.' }
+    if (-not $Entry) { throw 'No registered project was selected.' }
+    if ($Entry.status -notin @('starting','running') -or [int]$Entry.port -le 0) {
+        $name = if ($Entry.PSObject.Properties['name'] -and $Entry.name) { [string]$Entry.name } else { 'This project' }
+        $path = if ($Entry.PSObject.Properties['path'] -and $Entry.path) { [string]$Entry.path } else { '<path>' }
+        $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port)
+        throw "$name is $($Entry.status) ($($experience.Label)). Run s start -ProjectPath `"$path`" before Open / load project."
+    }
     if ($Entry.kind -eq 'browser-extension') {
         $projectPath = if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } else { [string]$Entry.path }
         $output = @(Get-SgBrowserExtensionManifestPaths $projectPath | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | ForEach-Object { Split-Path -Parent $_ }) | Select-Object -First 1
         if (-not $output) { throw 'The browser extension has no generated unpacked directory. Wait for the Chrome development build to finish.' }
         Start-Process 'chrome://extensions/'
         Start-Process $output
-        Write-SgInfo "Chrome extension manager and unpacked directory opened: $output"
+        Write-SgInfo "Chrome extension tools opened: chrome://extensions and $output"
+        Write-SgInfo '1. Enable Developer mode in Chrome.'
+        Write-SgInfo '2. Choose Load unpacked.'
+        Write-SgInfo "3. Select $output. ShipGlows never installs the extension automatically in your personal Chrome profile."
         return $Entry
     }
     if ($Entry.kind -eq 'flutter-web' -and $Entry.PSObject.Properties['flutterHeadless'] -and [bool]$Entry.flutterHeadless) {
@@ -1935,5 +2003,5 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

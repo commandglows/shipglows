@@ -71,6 +71,11 @@ function Show-SgShortcutHelp {
     Write-Host 'ShipGlows Windows shortcuts' -ForegroundColor Cyan
     Write-Host '  s d      Dashboard'
     Write-Host '  s e      Start a project'
+    Write-Host '  s status                           Show every project surface and state'
+    Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
+    Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
+    Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
+    Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
     Write-Host '  s m r    Restart a project'
     Write-Host '  s m t    Stop a project'
     Write-Host '  s m w    Unregister a stopped project (files are preserved)'
@@ -82,6 +87,12 @@ function Show-SgShortcutHelp {
     Write-Host '  s u      Update ShipGlows from the official repository'
     Write-Host '  s x      Quit ShipGlows'
     Write-Host '  s         Interactive menu'
+    Write-Host ''
+    Write-Host 'Project journeys' -ForegroundColor Cyan
+    Write-Host '  Web project      Start -> Open the managed local URL -> Stop'
+    Write-Host '  Flutter app      Start -> Open or focus the managed Chrome app -> Stop'
+    Write-Host '  Chrome extension Start -> Open / load project -> Developer mode -> Load unpacked -> Stop'
+    Write-Host '  Chrome support currently targets CRXJS projects with @crxjs/vite-plugin and dev:chrome.' -ForegroundColor DarkGray
     Write-Host ''
     Write-Host 'Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
 }
@@ -122,7 +133,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','help','exit')
+    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -258,15 +269,19 @@ function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Ch
         'start' { $items = @($items) }
         'navigate' { $items = @($items) }
         'logs' { $items = @($items | Where-Object { $_.IsRegistered -and $_.logPath }) }
-        'open' { $items = @($items | Where-Object { $_.IsRegistered -and $_.status -in @('starting','running') -and [int]$_.port -gt 0 }) }
+        'open' { $items = @($items | Where-Object { $_.IsRegistered }) }
         default { $items = @($items | Where-Object { $_.IsRegistered }) }
     }
-    if ($items.Count -eq 0) { Write-SgWarn 'No projects discovered in the ShipGlows workspace.'; return $null }
+    if ($items.Count -eq 0) {
+        if ($Action -eq 'open') { Write-SgWarn 'No registered project is available to open. Clone or register a project first.' }
+        else { Write-SgWarn 'No projects discovered in the ShipGlows workspace.' }
+        return $null
+    }
     if ($choiceUiAvailable) {
         $labels = New-Object 'System.Collections.Generic.List[string]'
         $identityByLabel = @{}
         foreach ($item in $items) {
-            $label = if ($Action -eq 'navigate') { [string]$item.Name } else { "$($item.Name)  [$($item.status)]  $($item.kind)  :$($item.port)" }
+            $label = if ($Action -eq 'navigate') { [string]$item.Name } else { "$($item.Name)  $(Format-SgProjectStatus $item)" }
             if ($identityByLabel.ContainsKey($label)) { throw "Duplicate project choice label: $label" }
             $identityByLabel[$label] = [string]$item.Id
             [void]$labels.Add($label)
@@ -281,7 +296,7 @@ function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Ch
         $index = 1
         foreach ($item in $items) {
             if ($Action -eq 'navigate') { Write-Host ("[{0}] {1}" -f $index,$item.Name) }
-            else { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$item.status,$item.kind,$item.port,$item.Name) }
+            else { Write-Host ("[{0}] {1}  {2}" -f $index,$item.Name,(Format-SgProjectStatus $item)) }
             $index++
         }
         Write-Host '[0] Back to menu'
@@ -321,17 +336,41 @@ function Show-SgWindowsDashboard {
     if ($items.Count -eq 0) { Write-Host 'No projects discovered in the ShipGlows workspace.'; return }
     $index = 1
     foreach ($entry in $items) {
-        $status = if ($entry.status) { $entry.status } else { 'unknown' }
-        $port = if ([int]$entry.port -gt 0) { [string]$entry.port } else { '-' }
-        Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$status,$entry.kind,$port,$entry.Name)
+        Write-Host ("[{0}] {1}  {2}" -f $index,$entry.Name,(Format-SgProjectStatus $entry))
         $index++
     }
 }
 
+function Show-SgProjectStatus([object]$Entry) {
+    if (-not $Entry) { throw 'No registered project was selected.' }
+    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port)
+    Write-Host ''
+    Write-Host ([string]$Entry.Name) -ForegroundColor Cyan
+    Write-Host (Format-SgProjectStatus $Entry)
+    Write-Host "Open: $($experience.OpenAction)"
+    if ($Entry.status -in @('starting','running')) {
+        Write-Host "Next: $($experience.OpenNextAction)"
+    } else {
+        Write-Host "Next: run s start -ProjectPath `"$($Entry.path)`"."
+    }
+}
+
+function Write-SgRegisteredProjectGuidance([object]$Entry) {
+    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port)
+    Write-SgInfo "$($experience.Label) detected: $($Entry.Name)"
+    Write-SgInfo "Next: run s start -ProjectPath `"$($Entry.path)`"."
+}
+
+function Invoke-SgRegisterProject([string]$Path, [string]$SuccessLabel = 'Registered project') {
+    $registered = @(Register-SgProject $config $Path)
+    if ($registered.Count -eq 0) { throw "No runnable surface was registered for: $Path" }
+    Write-SgInfo "$SuccessLabel`: $Path"
+    foreach ($entry in $registered) { Write-SgRegisteredProjectGuidance $entry }
+}
+
 function Register-SgClonedProject([string]$Destination) {
     try {
-        Register-SgProject $config $Destination | Out-Null
-        Write-SgInfo "Registered clone: $Destination"
+        Invoke-SgRegisterProject $Destination 'Registered clone'
     } catch {
         Write-SgWarn "Clone completed but was not registered: $($_.Exception.Message)"
     }
@@ -592,7 +631,7 @@ function Invoke-Menu {
         '4  Stop a project',
         '5  Restart a project',
         '6  View logs',
-        '7  Open in browser',
+        '7  Open / load project',
         '8  Stop all projects',
         '9  Unregister a project',
         'n  Navigate to a project',
@@ -616,7 +655,7 @@ function Invoke-Menu {
         try {
             switch ($choice) {
                 '1' { Invoke-Clone }
-                '2' { $path = Read-SgInput 'Project path' $config.Workspace; if ($path) { Register-SgProject $config $path | Out-Null } }
+                '2' { $path = Read-SgInput 'Project path' $config.Workspace; if ($path) { Invoke-SgRegisterProject $path } }
                 '3' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
                 '4' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
                 '5' { $entry = Get-SelectedProject 'restart'; if ($entry) { [void](Stop-SgProject $config $entry.path); Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
@@ -640,9 +679,17 @@ try {
     switch ($Action) {
         'menu' { Invoke-Menu }
         'dashboard' { Show-SgWindowsDashboard }
+        'status' {
+            if ($ProjectPath) {
+                $path = ConvertTo-SgCanonicalPath $ProjectPath
+                $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
+                if (-not $entry) { throw "Project is not registered: $path" }
+                Show-SgProjectStatus $entry
+            } else { Show-SgWindowsDashboard }
+        }
         'refresh' { Get-SgProjectCatalog $config -ForceRefresh | Out-Null; Show-SgWindowsDashboard }
         'clone' { Invoke-Clone }
-        'register' { Register-SgProject $config $ProjectPath | Out-Null }
+        'register' { Invoke-SgRegisterProject $ProjectPath }
         'unregister' { if ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
         'start' {
             if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
