@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.14.0"
+artifact_version: "1.15.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-26"
+updated: "2026-08-27"
 status: reviewed
 source_skill: sg-start
 scope: technical-docs-index
@@ -40,7 +40,7 @@ evidence:
   - "Latest-build artifact access documentation added for source-labelled local and CI shortcuts, private cached packages, and honest host-platform limits."
   - "Auth0 platform note added for SDK, native CLI, Deploy CLI, MCP, tenant, authentication, and hosted-proof boundaries."
   - "Doppler platform note added for native CLI, keychain, environment scope, process injection, service-token, MCP, and agent-safety boundaries."
-  - "Hetzner project usage note added for the verified two-VM topology, access posture, cost envelope, and planned managed-workspace execution boundary."
+  - "Hetzner project usage note reduced to public-safe logical runtime and managed-workspace roles; operational inventory now lives in the private operator repository."
 next_review: "2026-06-18"
 next_step: "/sg-docs technical audit"
 ---
@@ -111,7 +111,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `external-platforms/python.md` | Python runtime, stdlib tooling, virtual environments, packaging, subprocess, parsing, and script validation |
 | `external-platforms/bash.md` | Bash shell behavior, error handling, traps, pipelines, quoting, installers, and destructive-command safety |
 | `external-platforms/gum.md` | Charmbracelet Gum commands, install sources, TUI output/exit behavior, prompt cancellation, and Bash menu validation |
-| `platforms/hetzner.md` | Current Hetzner CX23/CX43 inventory, host responsibilities, access and protection posture, cost envelope, and managed-workspace execution status |
+| `platforms/hetzner.md` | Public-safe Hetzner role boundaries for `sg-runtime-01` and `sg-workspaces-01`, private-inventory routing, and managed-workspace execution status |
 
 ## Non-Coverage
 
