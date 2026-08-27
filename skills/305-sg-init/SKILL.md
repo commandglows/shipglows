@@ -41,6 +41,7 @@ Always load shared references only when their gate applies. Load skill-local ref
 - `$SHIPGLOWS_ROOT/skills/references/private-data-repo-contract.md`: required when bootstrap, install, or repair scope touches the durable private data repository under `~/.shipglows/data/`.
 - `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md`: required only when the operator explicitly requests email-provider, Resend plugin/MCP, sending-domain, or email-operation setup; do not add sending authority for ordinary project bootstrap.
 - `$SHIPGLOWS_ROOT/skills/references/project-delivery-policy.md`: required when bootstrapping or reviewing delivery posture, Git branch strategy, preview/staging expectations, or production maturity.
+- `$SHIPGLOWS_ROOT/skills/references/managed-project-ci-policy.md`: required when bootstrapping or reviewing an active GitHub-managed project; audit or generate the always-on required gate before proposing branch protection.
 
 ## Mode Detection
 
