@@ -2,6 +2,7 @@
 """Regression checks for the 900-shipglows-core activation contract."""
 
 from pathlib import Path
+import json
 import re
 import unittest
 
@@ -9,11 +10,14 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "900-shipglows-core" / "SKILL.md"
 BUILD_PLAYBOOK = ROOT / "skills" / "900-shipglows-core" / "references" / "skill-maintenance-playbook.md"
+DX_RUNTIME_PLAYBOOK = ROOT / "skills" / "900-shipglows-core" / "references" / "dx-runtime-maintenance.md"
+SYSTEM_COHERENCE = ROOT / "skills" / "900-shipglows-core" / "references" / "system-coherence.md"
 REFRESH_PLAYBOOK = ROOT / "skills" / "900-shipglows-core" / "references" / "skill-refresh-playbook.md"
 PREFERRED_STACKS = ROOT / "skills" / "references" / "preferred-stacks.md"
 QUESTION_CONTRACT = ROOT / "skills" / "references" / "question-contract.md"
 WINDOWS_BOOTSTRAP_WORKFLOW = ROOT / "skills" / "references" / "windows-bootstrap-development-workflow.md"
 READY_SKILL = ROOT / "skills" / "101-sg-ready" / "SKILL.md"
+INVOCATION_REGISTRY = ROOT / "skills" / "references" / "skill-invocation-registry.json"
 MAX_ACTIVATION_LINES = 220
 
 
@@ -22,11 +26,14 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.text = SKILL.read_text(encoding="utf-8")
         cls.build = BUILD_PLAYBOOK.read_text(encoding="utf-8")
+        cls.dx_runtime = DX_RUNTIME_PLAYBOOK.read_text(encoding="utf-8")
+        cls.system_coherence = SYSTEM_COHERENCE.read_text(encoding="utf-8")
         cls.refresh = REFRESH_PLAYBOOK.read_text(encoding="utf-8")
         cls.preferred_stacks = PREFERRED_STACKS.read_text(encoding="utf-8")
         cls.question_contract = QUESTION_CONTRACT.read_text(encoding="utf-8")
         cls.windows_bootstrap_workflow = WINDOWS_BOOTSTRAP_WORKFLOW.read_text(encoding="utf-8")
         cls.ready_skill = READY_SKILL.read_text(encoding="utf-8")
+        cls.invocation_registry = json.loads(INVOCATION_REGISTRY.read_text(encoding="utf-8"))
 
     def test_system_improvement_fields_have_one_owner_definition(self) -> None:
         for field in (
@@ -101,6 +108,66 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         self.assertIn("select the narrowest internal\n`build` target", self.text)
         self.assertIn("without asking the operator to choose a mode", self.text)
 
+    def test_core_owns_the_dx_system_without_absorbing_shipglows_app(self) -> None:
+        for surface in (
+            "skills and doctrine",
+            "CLI/DevServer/TUI runtime",
+            "local helpers",
+            "environment control plane",
+            "installers",
+            "cross-surface coherence",
+        ):
+            self.assertIn(surface, self.text)
+        self.assertIn("`shipglows_app` is a separate product repository", self.text)
+        self.assertIn("never a Core mutation target", self.text)
+
+    def test_core_routes_one_direct_pack_by_target_surface(self) -> None:
+        self.assertIn("classify one target surface", self.text)
+        self.assertIn("`skill`:", self.text)
+        self.assertIn("`runtime`:", self.text)
+        self.assertIn("`coherence`:", self.text)
+        self.assertIn("references/dx-runtime-maintenance.md", self.text)
+        self.assertIn("references/system-coherence.md", self.text)
+        self.assertIn("Local packs load directly and never chain", self.text)
+        self.assertIn("A missing or genuinely ambiguous surface blocks", self.text)
+
+    def test_dx_runtime_pack_maps_runtime_owners_and_proof_boundaries(self) -> None:
+        for rule in (
+            "Unix CLI/DevServer",
+            "Native Windows DevServer and installer",
+            "Reproducible environment control plane",
+            "Local DX helpers",
+            "Terminal cockpit",
+            "Starting a server or running an installer is never implicit proof authority",
+            "Source changes are not deployed or installed behavior",
+            "`shipglows_app` is never a runtime target here",
+        ):
+            self.assertIn(rule, self.dx_runtime)
+
+    def test_system_coherence_contract_covers_all_pressure_scenarios(self) -> None:
+        for scenario in (
+            "CORE-DX-SKILL",
+            "CORE-DX-RUNTIME",
+            "CORE-DX-COHERENCE",
+            "CORE-DX-APP-BOUNDARY",
+            "CORE-DX-MISSING-PACK",
+        ):
+            self.assertIn(scenario, self.system_coherence)
+        for plane in ("Agent behavior", "Runtime behavior", "Distribution", "Governance"):
+            self.assertIn(plane, self.system_coherence)
+        self.assertIn("one integration owner", self.system_coherence)
+
+    def test_activation_registry_exposes_runtime_and_coherence_packs(self) -> None:
+        gates = self.invocation_registry["activation_profiles"]["skills"]["900-shipglows-core"]["gates"]
+        self.assertEqual(
+            gates["dx-runtime"],
+            ["skills/900-shipglows-core/references/dx-runtime-maintenance.md"],
+        )
+        self.assertEqual(
+            gates["system-coherence"],
+            ["skills/900-shipglows-core/references/system-coherence.md"],
+        )
+
     def test_core_critique_does_not_execute_the_quoted_project_task(self) -> None:
         self.assertIn("failure evidence only", self.text)
         self.assertIn("it does not audit either repository", self.text)
@@ -141,7 +208,7 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
 
     def test_build_uses_refresh_only_for_high_assurance_triggers(self) -> None:
         self.assertIn("Bounded daily repairs use one focused pressure-scenario proof", self.text)
-        self.assertIn("broad semantic, public-routing, packaging, security, audit, and release work", self.text)
+        self.assertIn("broad skill semantic, public-routing, packaging, security, audit, and release work", self.text)
         self.assertIn("broad semantic rewrites", self.build)
         self.assertIn("bounded daily contract repair", self.build)
         self.assertIn("zero or one focused scenario/contract check", self.build)

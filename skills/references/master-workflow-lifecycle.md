@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.10.0"
+artifact_version: "2.11.0"
 project: ShipGlows
 created: "2026-05-04"
 updated: "2026-08-27"
@@ -71,6 +71,7 @@ evidence:
   - "Operator correction 2026-08-17: daily MVP work should privilege construction, use zero or one focused check when sufficient, and commit/push every clean completed chantier by default."
   - "Operator decision 2026-08-21: lightweight Git persistence preflight runs at existing start, resume, sensitive-operation, and closure boundaries while healthy state stays silent."
   - "Operator correction 2026-08-27: every long-running process is lifecycle-owned until its exact session or PID is stopped and its termination is verified."
+  - "Operator decision 2026-08-27: 900-shipglows-core owns the complete shipglows DX system across skill/doctrine, runtime, distribution, and governance planes; shipglows_app remains a separate product repository."
 next_review: "2026-11-07"
 next_step: "/103-sg-verify master workflow lifecycle reference"
 ---
@@ -109,7 +110,7 @@ Supported work item types:
 - `release scope`: the bounded set of files, commit, deployment target, and proof obligations for a release.
 - `audit finding set`: a read-only or source-de-chantier finding set that may recommend a future spec.
 - `content surface`: a bounded content goal, source, target surface, claim set, and validation surface.
-- `skill-maintenance target`: one skill contract or tightly bounded set of skill/public-doc surfaces.
+- `ShipGlows DX-system target`: one skill/doctrine surface, one CLI/DevServer/TUI/installer runtime surface, or one tightly bounded cross-plane coherence set inside `shipglows`; `shipglows_app` is not part of this work item.
 
 The work item decides source of truth:
 
@@ -317,7 +318,7 @@ Typical routes:
 - `001-sg-build`: `104-sg-end -> 005-sg-ship`
 - `002-sg-maintain`: `104-sg-end` when a chantier needs closure bookkeeping, then `005-sg-ship` or `004-sg-deploy`
 - `007-sg-content`: `103-sg-verify -> 005-sg-ship` for bounded content changes
-- `900-shipglows-core build`: `300-sg-docs/help update -> 005-sg-ship`
+- `900-shipglows-core build`: `direct surface owner -> mapped proof -> 300-sg-docs/help update -> 104-sg-end -> 005-sg-ship`
 - `004-sg-deploy`: `105-sg-check -> 005-sg-ship -> 405-sg-prod -> proof -> 103-sg-verify -> 304-sg-changelog`
 - `003-sg-bug`: retest/verify/ship-risk execution from the bug file through owner skills
 

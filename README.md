@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.26.0"
+artifact_version: "0.27.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-08-27"
@@ -44,6 +44,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "2026-08-27 DX ownership decision: 900-shipglows-core maintains skills/doctrine, CLI/DevServer/TUI runtime, installers, coherence, and packaging inside shipglows; shipglows_app separately owns the public site and SaaS."
   - "2026-08-27 approval-boundary correction: clear bounded requests execute directly with focused proof when actions and targets are few and enumerable and no material direction must be chosen; local/remote location and reasoning effort do not change classification."
   - "2026-07-17 atomic routing update: deterministic micro-edits execute directly with focused validation instead of loading a lifecycle skill."
   - "Added 108-sg-browser as the generic non-auth browser verification path."
@@ -85,6 +86,8 @@ next_step: "Test whether the business-framework category is understood without i
 # ShipGlows
 
 > Public-site ownership: the canonical Astro site moved to `/home/claude/shipglows_app/site` on 2026-08-02. The former `shipglows-site/` path in this repository is retired and must not be recreated; remaining references to it are migration debt, not source authority.
+
+Repository boundary: this `shipglows` repository is the internal DX system (skills, CLI/DevServer, TUI, local tooling, installers, packaging, tests, and governance). The separate `shipglows_app` repository owns the public website and SaaS product.
 
 ShipGlows is a business framework for humans and AI agents. It aligns them around shared truth across vision, identity, brand, content, product, technology, growth, delivery, and proof.
 
@@ -1000,13 +1003,13 @@ Recommended maintenance entrypoint for existing projects:
 
 `002-sg-maintain` is the master maintenance lifecycle. It reviews bug risk, dependency posture, docs/governance drift, check coverage, audit freshness, migration candidates, and security posture, then carries needed work through spec/readiness, bounded delegated execution, verification, and ship/deploy routing. Use `/002-sg-maintain quick` for the old read-only triage behavior.
 
-For ShipGlows skill maintenance, use the dedicated entrypoint:
+For ShipGlows DX system maintenance, use the dedicated internal entrypoint:
 
 ```text
-900-shipglows-core build -> 700-sg-explore when needed -> 100-sg-spec -> skill contract edit/create -> runtime skill sync -> 900-shipglows-core refresh -> skill budget audit -> 103-sg-verify -> 300-sg-docs/help update -> 005-sg-ship
+900-shipglows-core build <target> -> skill | DX runtime | system coherence playbook -> 100-sg-spec when non-trivial -> focused proof -> docs/help alignment -> 103-sg-verify -> 005-sg-ship
 ```
 
-`900-shipglows-core build` is scoped to creating or modifying `skills/*/SKILL.md` with explicit ambiguity-reduction, internal/public-surface, documentation, and validation gates. If the skill idea or placement is too fuzzy for one targeted question to settle, it routes to `700-sg-explore` before creating the durable `100-sg-spec` contract.
+`900-shipglows-core build` owns maintenance of the `shipglows` DX system across skills/doctrine, CLI/DevServer/TUI runtime, local helpers, installers, packaging, and cross-surface coherence. It selects one direct playbook and the mapped proof for the target. `shipglows_app` site/SaaS work stays outside Core and follows the product repository's normal lifecycle.
 
 For content management, use the dedicated lifecycle entrypoint:
 

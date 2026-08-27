@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.28.0"
+artifact_version: "0.29.0"
 project: ShipGlows
 created: "2026-04-22"
 updated: "2026-08-27"
@@ -53,6 +53,7 @@ evidence:
   - "Updated on 2026-05-03 to add 002-sg-maintain as the recurring project maintenance orchestrator."
   - "Updated on 2026-05-03 to add shared report modes: concise user reports by default and explicit detailed agent handoff reports."
   - "Updated on 2026-05-04 to clarify user-mode report polish: active-language labels, outcome/evidence/limits ordering, and sober status emojis."
+  - "Updated on 2026-08-27 to make 900-shipglows-core the internal ShipGlows DX-system owner across skill, runtime, coherence, and packaging surfaces while keeping shipglows_app product work separate."
   - "Updated on 2026-05-04 to require business-context decision questions for 001-sg-build planning."
   - "Updated on 2026-05-04 to add a skill launch cheatsheet for master and supporting modes."
   - "Updated on 2026-05-04 to route fuzzy skill-maintenance ideas through 700-sg-explore before 100-sg-spec."
@@ -126,7 +127,7 @@ Skill launch cheatsheet:
 | Customer experience | `008-sg-customer <audit|flow|onboarding|recovery> <target>` | One customer owner with exact modes for audits, flow contracts, onboarding, recovery, docs impact, and proof routing. |
 | Local-to-cloud data sync | `600-sg-local-cloud-sync <project, feature, or data domains>` | Local data promotion, cloud hydration, merge/conflict policy, sync/save UX states, sensitive-data exclusions, and proof routing. |
 | Product entitlements and access gates | `601-sg-product-entitlements <project or feature>` | Entitlement ownership, provider events, activation codes, product-local mirrors, backend authorization gates, support flows, and sync handoffs. |
-| Internal skill creation or maintenance | `900-shipglows-core build <idea or path>` | new skill idea, existing skill path, optional `700-sg-explore` for fuzzy placement, runtime/docs validation gates. |
+| Internal ShipGlows DX system maintenance | `900-shipglows-core build <target>` | Skill/doctrine, CLI/DevServer/TUI runtime, installer, packaging, or cross-surface coherence target inside `shipglows`; `shipglows_app` remains separate. |
 | Design lifecycle | `006-sg-design <design question or goal>` | Master design entrypoint for UI/UX, tokens, playgrounds, component/a11y audits, implementation, browser proof, verification, and ship routing. |
 | Design system creation | `006-sg-design system [target]` | Build a complete professional token system from an existing UI; use `playground` or `audit tokens` as explicit modes. |
 | Manual expert lifecycle | `100-sg-spec -> 101-sg-ready -> 102-sg-start -> 103-sg-verify -> 104-sg-end` | Use when you intentionally want to drive each gate instead of using `001-sg-build`. |
@@ -170,7 +171,7 @@ Primary non-technical router entrypoint:
 000-shipglows <instruction> -> direct answer, clear bounded execution, or direct handoff to selected skill
 ```
 
-`000-shipglows <instruction>` is the recommended first command when the operator does not want to choose a skill. It answers pure conversational requests in the main thread and executes clear bounded requests there from the request's own authority with focused proof, without loading an owner workflow or authorizing a chantier. It hands non-trivial feature, code, and docs work to `001-sg-build`; maintenance to `002-sg-maintain`; bug-loop work to `003-sg-bug`; release, deploy, or production proof to `004-sg-deploy`; content work to `007-sg-content`; onboarding and activation work to `008-sg-customer`; local-to-cloud sync contract work to `600-sg-local-cloud-sync`; product entitlement and access-gate work to `601-sg-product-entitlements`; internal skill maintenance to `900-shipglows-core build`; and obvious specialist audits to `400-sg-audit-*`. Ambiguous requests get one numbered clarifying question with why, recommended answer, and practical options.
+`000-shipglows <instruction>` is the recommended first command when the operator does not want to choose a skill. It answers pure conversational requests in the main thread and executes clear bounded requests there from the request's own authority with focused proof, without loading an owner workflow or authorizing a chantier. It hands non-trivial feature, code, and docs work to `001-sg-build`; maintenance to `002-sg-maintain`; bug-loop work to `003-sg-bug`; release, deploy, or production proof to `004-sg-deploy`; content work to `007-sg-content`; onboarding and activation work to `008-sg-customer`; local-to-cloud sync contract work to `600-sg-local-cloud-sync`; product entitlement and access-gate work to `601-sg-product-entitlements`; internal ShipGlows DX-system maintenance to `900-shipglows-core build`; and obvious specialist audits to `400-sg-audit-*`. Ambiguous requests get one numbered clarifying question with why, recommended answer, and practical options.
 
 Named operator profiles sit above the router as a human-readable invocation layer. They do not replace skills:
 
@@ -236,13 +237,13 @@ Recommended maintenance entrypoint for existing projects:
 
 `002-sg-maintain` is the master maintenance lifecycle. Its default mode executes maintenance as far as safely possible: bug risk, dependency risk, docs drift, checks, audits, migrations, tasks, and security posture flow through owner skills, bounded subagents, verification, and ship/deploy routing. Use `quick` when the operator only wants the old read-only triage.
 
-Recommended entrypoint for ShipGlows skill maintenance:
+Recommended entrypoint for ShipGlows DX system maintenance:
 
 ```text
-900-shipglows-core build -> 700-sg-explore when needed -> 100-sg-spec -> skill contract edit/create -> 900-shipglows-core refresh -> skill budget audit -> 103-sg-verify -> 300-sg-docs/help update -> 005-sg-ship
+900-shipglows-core build <target> -> skill | DX runtime | system coherence playbook -> 100-sg-spec when non-trivial -> focused proof -> docs/help alignment -> 103-sg-verify -> 005-sg-ship
 ```
 
-`900-shipglows-core build` is scoped to internal skill lifecycle work and enforces ambiguity reduction, internal/public-surface, docs/help, and validation gates before ship routing. When the skill idea or placement is too fuzzy for one targeted question to settle, it routes to `700-sg-explore` before creating the durable `100-sg-spec` contract.
+`900-shipglows-core build` owns the internal `shipglows` DX system. It classifies skill/doctrine, CLI/DevServer/TUI runtime, installer, packaging, and multi-plane coherence targets before loading one direct playbook. `shipglows_app` site/SaaS work remains outside Core. Fuzzy material intent routes through exploration before a durable spec; runtime and skill targets keep their own mapped proof.
 
 Recommended content lifecycle entrypoint:
 
@@ -369,7 +370,7 @@ Technical governance applies to code projects by default. Editorial governance a
 - `001-sg-build` planning questions should be decision briefs for business operators: explain the root problem, business stakes, practical options, and the best-practice recommendation before asking for the decision.
 - `002-sg-maintain` is the master orchestrator for recurring project maintenance and should prefer bounded delegated sequential execution over command recommendations.
 - `007-sg-content` is the master orchestrator for content management and should route to specialist content, docs, audit, research, validation, and ship skills rather than duplicating their internals.
-- `900-shipglows-core build` is the sole internal orchestrator for ShipGlows skill maintenance and should route fuzzy ideas through `700-sg-explore` before `100-sg-spec`, then keep skill contract, refresh, budget, docs/help, and internal/public skill surfaces coherent.
+- `900-shipglows-core build` is the sole internal orchestrator for the ShipGlows DX system and routes one skill/doctrine, DX runtime, or system-coherence playbook before lifecycle execution. It keeps agent, runtime, distribution, governance, and proof surfaces coherent without absorbing `shipglows_app` product ownership.
 - `102-sg-start` begins execution from a ready contract instead of rediscovering intent, and now decides both model routing and execution topology before coding.
 - `103-sg-verify` checks against the spec first, then quality and risks, and can now remediate limited gaps.
 - `104-sg-end` closes the task against the delivered scope, not only against the diff.

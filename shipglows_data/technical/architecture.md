@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.15.0"
+artifact_version: "1.16.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-08-26"
+updated: "2026-08-27"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -21,6 +21,7 @@ linked_systems:
   - "install-shipglows.ps1"
   - "local/local.sh"
   - "skills/"
+  - "skills/900-shipglows-core/"
   - "templates/"
   - "tools/shipglows_metadata_lint.py"
   - "tests/"
@@ -57,6 +58,7 @@ evidence:
   - "The 2026-08-16 environment foundation adds one strict cross-platform capability contract, deterministic plans, and redacted private observations without activating a package-manager backend."
   - "The 2026-08-16 source pilot activates only Windows mise plus project-local Node 24 and pnpm 10 behind approval-digest validation and an injectable structured runner; the Best Fried Chicken provider smoke proves that bounded cycle while every other backend/capability remains fail-closed."
   - "The 2026-08-26 verified Hetzner inventory and operator decision establish separate retained-runtime and managed-workspace execution hosts without moving public production by default."
+  - "Operator decision 2026-08-27 defines this repository as the ShipGlows DX system and keeps shipglows_app as the separate public-site and SaaS product repository."
 depends_on:
   - artifact: "shipglows_data/technical/guidelines.md"
     artifact_version: "1.0.0"
@@ -80,6 +82,12 @@ ShipGlows has two connected layers:
 - a documentation and workflow layer for AI-assisted execution discipline
 
 The repo is not split into small services. It is centered around shell-based orchestration plus Markdown artifact governance.
+
+### Repository and product boundary
+
+This `shipglows` repository is the ShipGlows DX system: skills and doctrine, CLI/DevServer, TUI, local helpers, environment control, installers, packaging, tests, and internal governance. Internal `900-shipglows-core` owns maintenance lifecycle and cross-surface coherence for that DX system.
+
+`shipglows_app` is a separate product repository. It owns the public website and SaaS. Product goals from `shipglows_app` may motivate or test DX behavior, but Core context never grants authority to modify that repository or collapse product implementation into DX governance.
 
 ### Managed cloud workspace topology
 

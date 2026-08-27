@@ -310,6 +310,8 @@
           "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
           "audit": ["skills/900-shipglows-core/references/core-audit-and-improvement.md"],
           "build": ["skills/900-shipglows-core/references/skill-maintenance-playbook.md"],
+          "dx-runtime": ["skills/900-shipglows-core/references/dx-runtime-maintenance.md"],
+          "system-coherence": ["skills/900-shipglows-core/references/system-coherence.md"],
           "build-lifecycle": ["skills/references/master-workflow-lifecycle.md", "skills/references/master-delegation-semantics.md"],
           "refresh": ["skills/900-shipglows-core/references/skill-refresh-playbook.md"],
           "packaging": ["skills/900-shipglows-core/references/core-packaging.md", "shipglows_data/technical/codex-plugin-packaging.md"],
