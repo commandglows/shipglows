@@ -32,6 +32,8 @@ try {
     Assert-Sg ((Get-SgProjectKind $incomplete) -eq 'vite') 'Extension dependency without explicit dev:chrome script became an executable extension contract.'
 
     $module = Get-Module ShipGlows.DevServer
+    $readinessFunction = & $module { ${function:Wait-SgBrowserExtensionReady}.ToString() }
+    Assert-Sg ($readinessFunction -notmatch 'Min\(\[Math\]::Max\(0, \$TimeoutSeconds\), 60\)') 'Extension readiness still truncates the requested 90-second startup budget to 60 seconds.'
     $plan = & $module {
         param($Project)
         function Get-SgCommandPath([string[]]$Names) {

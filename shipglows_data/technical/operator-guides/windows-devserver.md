@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.22.0"
+artifact_version: "1.23.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-27"
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "The 2026-08-27 installed ToolGlows replay removed a hidden 60-second clamp so extension readiness honors the caller's 90-second startup budget."
   - "The 2026-08-27 installed ToolGlows replay removed the npm-only option separator from pinned pnpm extension launches so Vite binds the requested IPv4 loopback host."
   - "The 2026-08-27 installed-runtime replay now re-registers existing projects before environment migration so registry and durable project kind remain coherent."
   - "The 2026-08-27 browser-extension adapter recognizes explicit Chrome development surfaces, honors pinned pnpm through Corepack, and records unpacked-extension guidance instead of claiming an ordinary web URL."
@@ -377,6 +378,8 @@ le dossier non empaqueté; le chargement dans un profil personnel reste une acti
 explicite de l'opératrice.
 Avec pnpm, les options `--host` et `--port` sont transmises directement au script;
 le séparateur supplémentaire reste réservé au chemin npm.
+La disponibilité d'une extension respecte le budget de démarrage de 90 secondes
+demandé par le lanceur; elle ne le tronque plus silencieusement à 60 secondes.
 
 La réinstallation du runtime repasse aussi les projets déjà enregistrés dans le
 détecteur courant avant de migrer leur bloc d'environnement. Le registre et

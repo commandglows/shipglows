@@ -1328,7 +1328,7 @@ function Wait-SgBrowserExtensionReady([string]$ProjectPath, [int]$Port, [int]$Ti
     if ($ProcessEntry -and $ProcessEntry.PSObject.Properties['startTimeUtc'] -and $ProcessEntry.startTimeUtc) {
         try { $freshSince = ([DateTimeOffset]::Parse([string]$ProcessEntry.startTimeUtc, [Globalization.CultureInfo]::InvariantCulture)).UtcDateTime.AddSeconds(-2) } catch { }
     }
-    $deadline = (Get-Date).AddSeconds([Math]::Min([Math]::Max(0, $TimeoutSeconds), 60))
+    $deadline = (Get-Date).AddSeconds([Math]::Max(0, $TimeoutSeconds))
     do {
         if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
             return [pscustomobject]@{ Ready=$false; AppId=$null; ManifestPath=$null; Error=(Get-SgStartupFailure $ErrorLogPath) }
