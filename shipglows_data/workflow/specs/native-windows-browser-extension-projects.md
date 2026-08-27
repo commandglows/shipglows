@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: "ShipGlows"
 created: "2026-08-27"
 updated: "2026-08-27"
@@ -27,17 +27,17 @@ depends_on:
 supersedes: []
 evidence:
   - "ToolGlows uses Manifest V3, CRXJS 2.7, Vite 8 and a dedicated dev:chrome script."
-  - "The current Windows detector classifies ToolGlows as vite, so it applies a generic web URL, launch command and HTTP readiness contract."
+  - "The pre-adapter Windows detector classified ToolGlows as vite; the published development runtime now classifies and operates it as browser-extension."
   - "CRXJS upstream documents @crxjs/vite-plugin 2.7.1 as its current Vite-based Manifest V3 and HMR toolchain, with Vite 8 in its declared peer range."
   - "Chrome's official extension tutorial keeps unpacked loading as an explicit developer-mode action against the generated extension directory."
-next_step: "Run the installed Windows menu flow against ToolGlows, including Chrome unpacked loading, then decide whether to push the ShipGlows commit."
+next_step: "Plan the ToolGlows-owned generated type and Vite warning cleanup as a separate application chantier."
 ---
 
 # Native Windows browser-extension projects
 
 ## Status
 
-Implemented and verified on the local source/fixture surfaces. Installed-runtime and real Chrome proof remain intentionally pending for the operator's later test.
+Implemented, published to the development branch, installed through the public Windows installer and verified against ToolGlows through the installed CLI.
 
 ## Behavior contract
 
@@ -58,7 +58,7 @@ Starting the project installs dependencies with the repository's existing lockfi
 - Automatic Chrome Web Store publication or browser-profile mutation.
 - Automatic Firefox loading or cross-browser test execution.
 - Migration of an extension's own dependencies or source code.
-- Push, deployment or installed-runtime replacement.
+- Tags, force-push, production deployment or broader runtime-channel promotion.
 
 ## Acceptance criteria
 
@@ -76,7 +76,8 @@ Starting the project installs dependencies with the repository's existing lockfi
 - Focused PowerShell regression suite for browser-extension behavior.
 - Existing Windows project detection, dependency setup and environment schema suites.
 - PowerShell parser proof and `git diff --check`.
-- Real read-only classification of the ToolGlows checkout.
+- Official development-branch installer replay followed by installed `s start`, `s open` and `s stop` against ToolGlows.
+- Registry, IPv4 listener, process-command, Manifest V3 freshness and managed-extinction evidence.
 
 ## Skill Run History
 
@@ -88,6 +89,7 @@ Starting the project installs dependencies with the repository's existing lockfi
 | 2026-08-27 09:31 UTC | sg-release | GPT-5 Codex | Ran the published full/runtime installer against the development branch and reproduced registry/environment drift: ToolGlows environment migrated to browser-extension while its registry entry remained vite. Added installer re-registration through the current detector and a focused stale-kind regression. | Repair implemented; republish, reinstall and replay required. | Commit and push the ShipGlows repair, rerun the official installer, then exercise ToolGlows through the installed CLI. |
 | 2026-08-27 09:45 UTC | sg-release | GPT-5 Codex | Reinstalled the published registry repair, synchronized ToolGlows as browser-extension, pushed its modernization and environment commits, then started it through the installed `s` command. Dependency installation and MV3 generation succeeded; runtime tracing exposed a redundant pnpm option separator that left Vite on IPv6 loopback. | Second CLI repair implemented with focused regression. | Publish, reinstall and replay start/open/stop with the corrected IPv4 binding. |
 | 2026-08-27 09:54 UTC | sg-release | GPT-5 Codex | Published and installed the pnpm forwarding repair, then replayed ToolGlows through the installed `s` command. The corrected launch reached Vite, but the CLI truncated its requested 90-second extension readiness budget to 60 seconds and killed the managed process before a fresh manifest appeared. | Third CLI repair implemented with a regression protecting the full caller-selected timeout. | Publish, reinstall and replay the installed start/open/stop path. |
+| 2026-08-27 10:02 UTC | sg-release | GPT-5 Codex | Published and installed commit `6cbb87f`, then replayed ToolGlows through the installed public CLI. `s start` produced a fresh Manifest V3 and a `127.0.0.1:3002` listener with the corrected pnpm arguments; `s open` opened Chrome's extension manager and `dist\chrome`; `s stop` removed the listener and the exact managed process tree. | Verified and shipped for iteration. ToolGlows environment port was persisted and pushed separately at `fd966ab`. | Keep ToolGlows-generated type drift and Vite/CRXJS warnings for a separate application-owned modernization pass. |
 
 ## Current Chantier Flow
 
@@ -96,6 +98,6 @@ Starting the project installs dependencies with the repository's existing lockfi
 | Specification | complete | Behavior, exclusions and proof contract are bounded. |
 | Readiness | complete | Target, authority, dirty-file exclusions and technical contract are resolved. |
 | Implementation | complete | CRXJS detection, package-manager, launch, readiness, environment and open behavior are implemented with regression coverage. |
-| Verification | partial | Official installation reproduced and repaired one stale-registry defect; republished installer and installed-CLI execution proof remain pending. |
-| Closure | partial | Technical documentation is aligned; final runtime/browser evidence remains deferred to the operator. |
-| Delivery | complete | Bounded local commit only; push and deployment remain explicitly excluded. |
+| Verification | complete | Focused and aggregate Windows contracts passed; installed `s start/open/stop` proved registry, IPv4 HMR, fresh MV3 output and exact process extinction. |
+| Closure | complete | Technical and operator documentation record the published installer and real ToolGlows replay. |
+| Delivery | complete | Repairs `2716d66`, `a7af545` and `6cbb87f` are on `origin/codex/development-runtime`; ToolGlows environment commit `fd966ab` is on `origin/main`. |
