@@ -68,6 +68,19 @@ try {
     Assert-Sg ($filtered.Count -eq 1 -and $filtered[0].nameWithOwner -eq 'example/new-project') 'Clone picker did not remove installed repositories and duplicate API rows.'
     Assert-Sg (@(Select-SgGitHubCloneCandidates @() $installed).Count -eq 0) 'Empty GitHub repository input was not stable.'
 
+    $unmanagedClone = New-SgFixtureRepository 'unmanaged-clone' 'https://github.com/example/unmanaged-clone.git'
+    $registrationWarning = ''
+    try {
+        Register-SgProject $config $unmanagedClone | Out-Null
+    } catch {
+        $registrationWarning = "Clone completed but was not registered: $($_.Exception.Message)"
+    }
+    Assert-Sg ($registrationWarning -like 'Clone completed but was not registered: No supported Windows launch target was detected at or below:*') 'An unmanaged clone did not report the expected skipped-registration warning.'
+    Assert-Sg (Test-Path -LiteralPath $unmanagedClone -PathType Container) 'An unmanaged clone was removed after registration was skipped.'
+    Assert-Sg (-not (Test-Path -LiteralPath (Join-Path $unmanagedClone 'ENVIRONMENT.md'))) 'An unmanaged clone received an ENVIRONMENT.md file.'
+    Assert-Sg (@((Read-SgRegistry $config).projects | Where-Object { $_.rootPath -eq $unmanagedClone -or $_.path -eq $unmanagedClone }).Count -eq 0) 'An unmanaged clone was written to the DevServer registry.'
+    Assert-Sg (@(Get-SgProjectCatalog $config -ForceRefresh -SkipProcessReconciliation | Where-Object { $_.rootPath -eq $unmanagedClone -or $_.path -eq $unmanagedClone }).Count -eq 0) 'An unmanaged clone appeared in the runnable project catalogue.'
+
     [void](New-SgFixtureRepository 'new-project' 'https://github.com/example/new-project.git')
     $installedAfterClone = @(Get-SgInstalledGitHubRepositoryIdentities $config $git)
     Assert-Sg (@(Select-SgGitHubCloneCandidates $available $installedAfterClone).Count -eq 0) 'A newly cloned repository remained available without a new process.'
