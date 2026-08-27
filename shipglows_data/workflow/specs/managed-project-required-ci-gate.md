@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-27"
 created_at: "2026-08-27 23:08:06 UTC"
 updated: "2026-08-27"
-updated_at: "2026-08-27 23:19:48 UTC"
-status: ready
+updated_at: "2026-08-27 23:24:03 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
 scope: managed-project-required-ci-gate
@@ -40,14 +40,14 @@ evidence:
   - "ContentGlows audit 2026-08-27: Android checks is required by the main ruleset while its workflow is filtered to app paths, so an unrelated site or lab pull request can receive no terminal required status."
   - "ShipGlows runtime already proves the safe pattern: one always-triggered ShipGlows required gate reports an explicit successful no-impact result when expensive Windows proof is irrelevant."
   - "Operator decision 2026-08-28: make protective CI mandatory across ShipGlows-managed projects, beginning with a Core contract and a ContentGlows pilot."
-next_step: "Run independent verification, close the lifecycle trace, and deliver the final exact-scope commit."
+next_step: "Deliver this verified closure trace, then migrate ContentGlows under project-context authority."
 ---
 
 # Managed project required CI gate
 
 ## Status
 
-ready
+reviewed
 
 ## User Story
 
@@ -118,8 +118,9 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 - [x] Implement deterministic project inspection, workflow rendering, local audit, and guarded ruleset plan/apply tooling.
 - [x] Integrate bootstrap, GitHub hygiene, and CI verification owners.
 - [x] Add focused pressure-scenario tests and technical documentation mapping.
-- [ ] Run verification, closure bookkeeping, exact-scope final commit, and ordinary push.
-- [ ] Hand off ContentGlows as the first project-context pilot without mutating it here.
+- [x] Run independent verification and closure bookkeeping.
+- [ ] Deliver the exact-scope closure commit and ordinary push.
+- [x] Hand off ContentGlows as the first project-context pilot without mutating it here.
 
 ## Test Contract
 
@@ -154,12 +155,14 @@ Implementation classification: `infrastructure · shared/domain · documentation
 | 2026-08-27 | 100-sg-spec | GPT-5 Codex | Formalized the universal always-on managed-project CI gate contract. | created | Run substantive readiness review. |
 | 2026-08-27 | 101-sg-ready | GPT-5 Codex | Reviewed behavior, failure semantics, owner boundaries, provider safety, proof, and followability. | ready | Implement the contract under the approved Core plan. |
 | 2026-08-27 | 102-sg-start | GPT-5 Codex | Implemented the policy, generator/auditor, guarded ruleset reconciliation, owner integrations, and focused scenario proof; audited ContentGlows read-only as the first pilot. | implemented | Run independent verification and closure. |
+| 2026-08-27 | 103-sg-verify | GPT-5 Codex | Reconstructed the delivered diff and verified 61 focused/owner tests, metadata, action pins, path/no-impact behavior, ruleset refusal/preservation, runtime visibility, and upstream persistence. | verified | Close documentation, editorial, and delivery bookkeeping. |
+| 2026-08-27 | 104-sg-end | GPT-5 Codex | Closed the Core scope with canonical policy and technical documentation aligned; public/editorial surfaces are unaffected and ContentGlows remains an explicit project-context pilot. | closed | Commit and push the closure trace. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec` ✅ created
 - `101-sg-ready` ✅ ready
 - `102-sg-start` ✅ implemented
-- `103-sg-verify` ⏳ pending
-- `104-sg-end` ⏳ pending
+- `103-sg-verify` ✅ verified
+- `104-sg-end` ✅ closed
 - `005-sg-ship` ⏳ pending
