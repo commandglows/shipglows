@@ -96,6 +96,26 @@ try {
     Assert-Sg ($environment.Kind -eq 'browser-extension' -and -not $environment.Url) 'Extension environment still claims an ordinary local web URL.'
     Assert-Sg ($environmentText -match 'Unpacked Chrome directory: `dist/chrome`') 'Extension environment omitted the unpacked Chrome target.'
 
+    $runtime = Join-Path $fixture 'runtime'
+    New-Item -ItemType Directory -Path $runtime -Force | Out-Null
+    $config = [pscustomobject]@{
+        Workspace = $fixture
+        RuntimeDirectory = $runtime
+        RegistryPath = Join-Path $runtime 'registry.json'
+        LockPath = Join-Path $runtime 'registry.lock'
+    }
+    $staleRegistry = [pscustomobject]@{
+        schemaVersion = 1
+        projects = @([pscustomobject]@{
+            name='toolglows'; path=$extension; rootPath=$extension; launchPath=$extension; kind='vite'; port=0; status='stopped'; pid=0
+        })
+    }
+    [IO.File]::WriteAllText($config.RegistryPath, ($staleRegistry | ConvertTo-Json -Depth 6), [Text.UTF8Encoding]::new($false))
+    $migratedPaths = @(Sync-SgRegisteredProjectEnvironments $config)
+    $migratedEntry = @((Read-SgRegistry $config).projects | Where-Object { $_.path -eq $extension }) | Select-Object -First 1
+    Assert-Sg ($migratedPaths -contains $extension) 'Installer synchronization omitted the registered extension path.'
+    Assert-Sg ($migratedEntry -and $migratedEntry.kind -eq 'browser-extension') 'Installer synchronization left the registry on its stale Vite kind.'
+
     Write-Host 'Windows browser-extension project support: OK'
 } finally {
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue

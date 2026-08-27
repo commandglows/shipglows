@@ -892,18 +892,9 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady) 
 function Invoke-SgProjectEnvironmentMigration([string]$ModulePath) {
     Import-Module $ModulePath -Force -DisableNameChecking
     $config = Get-SgDevConfig
-    $migrated = 0
-    $projectPaths = New-Object Collections.Generic.List[string]
-    foreach ($entry in @((Read-SgRegistry $config).projects)) {
-        $projectPath = [string]$entry.path
-        if ([string]::IsNullOrWhiteSpace($projectPath) -or -not (Test-Path -LiteralPath $projectPath -PathType Container)) { continue }
-        $port = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
-        [void](Write-SgProjectEnvironment $projectPath $port)
-        $projectPaths.Add([IO.Path]::GetFullPath($projectPath))
-        $migrated++
-    }
-    Write-Host "ShipGlows project environments migrated: $migrated" -ForegroundColor Green
-    return $projectPaths.ToArray()
+    $projectPaths = @(Sync-SgRegisteredProjectEnvironments $config)
+    Write-Host "ShipGlows registered projects synchronized: $($projectPaths.Count)" -ForegroundColor Green
+    return $projectPaths
 }
 
 function Move-SgManagedPartialDirectory([string]$Path) {

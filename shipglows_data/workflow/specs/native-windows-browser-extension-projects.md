@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: "ShipGlows"
 created: "2026-08-27"
 updated: "2026-08-27"
@@ -85,6 +85,7 @@ Starting the project installs dependencies with the repository's existing lockfi
 | 2026-08-26 22:02 UTC | sg-development | GPT-5 Codex | Resolved the approved ToolGlows clone follow-up into an explicit Windows browser-extension adapter contract. | Ready; current detector reproduced as `vite`. | Implement regression-first and verify locally. |
 | 2026-08-26 22:20 UTC | sg-development | GPT-5 Codex | Implemented the bounded CRXJS adapter, pinned Corepack/pnpm execution, Manifest V3 readiness, extension environment/open behavior, regression coverage and mapped documentation. | Implemented locally. | Verify focused behavior and the real ToolGlows command plans. |
 | 2026-08-26 22:20 UTC | 103-sg-verify | GPT-5 Codex | Passed focused extension, project catalog, monorepo, dependency, environment, start/stop, clone-filter, parser, metadata, skill-budget and diff checks; real ToolGlows is classified correctly and produces the expected Corepack and dev:chrome plans. | Partial: installed runtime and Chrome unpacked loading were not run. | Operator tests the installed Windows menu flow later. |
+| 2026-08-27 09:31 UTC | sg-release | GPT-5 Codex | Ran the published full/runtime installer against the development branch and reproduced registry/environment drift: ToolGlows environment migrated to browser-extension while its registry entry remained vite. Added installer re-registration through the current detector and a focused stale-kind regression. | Repair implemented; republish, reinstall and replay required. | Commit and push the ShipGlows repair, rerun the official installer, then exercise ToolGlows through the installed CLI. |
 
 ## Current Chantier Flow
 
@@ -93,6 +94,6 @@ Starting the project installs dependencies with the repository's existing lockfi
 | Specification | complete | Behavior, exclusions and proof contract are bounded. |
 | Readiness | complete | Target, authority, dirty-file exclusions and technical contract are resolved. |
 | Implementation | complete | CRXJS detection, package-manager, launch, readiness, environment and open behavior are implemented with regression coverage. |
-| Verification | partial | Automated and real-checkout read-only proofs pass; installed-runtime and Chrome profile behavior remain manual. |
+| Verification | partial | Official installation reproduced and repaired one stale-registry defect; republished installer and installed-CLI execution proof remain pending. |
 | Closure | partial | Technical documentation is aligned; final runtime/browser evidence remains deferred to the operator. |
 | Delivery | complete | Bounded local commit only; push and deployment remain explicitly excluded. |

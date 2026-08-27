@@ -193,6 +193,7 @@ rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh auth s
 rg -n '\.shipglows-clone-|Move-Item -LiteralPath \$temporaryDestination -Destination \$destination|Remove-Item -LiteralPath \$temporaryDestination -Recurse -Force' "$ENTRYPOINT"
 rg -n 'function Register-SgClonedProject|Clone completed but was not registered|Register-SgClonedProject \$destination' "$ENTRYPOINT"
 rg -n 'function Read-SgNodePackage|function Get-SgNodeDependencyNames|function Get-SgNodeScript|ConvertFrom-Json -ErrorAction Stop' "$MODULE"
+rg -n 'function Sync-SgRegisteredProjectEnvironments|Register-SgProject \$Config \$root|Sync-SgRegisteredProjectEnvironments \$config' "$MODULE" "$INSTALLER"
 rg -n '\$jsonLines = @\(|\$repositories = @\(\$jsonLines.*ConvertFrom-Json|one compact JSON object per line' "$ENTRYPOINT"
 ! rg -n 'gh auth token|GH_TOKEN|GITHUB_TOKEN' "$ENTRYPOINT" "$INSTALLER"
 ! rg -n 'WSL est disponible|Lancement de la configuration locale Windows|Utilise ensuite|Pour les projets locaux|WSL is detected' "$BOOTSTRAP"

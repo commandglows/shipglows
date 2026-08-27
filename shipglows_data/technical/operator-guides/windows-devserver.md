@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.20.0"
+artifact_version: "1.21.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-27"
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "The 2026-08-27 installed-runtime replay now re-registers existing projects before environment migration so registry and durable project kind remain coherent."
   - "The 2026-08-27 browser-extension adapter recognizes explicit Chrome development surfaces, honors pinned pnpm through Corepack, and records unpacked-extension guidance instead of claiming an ordinary web URL."
   - "Migrated without content loss from local/README_WINDOWS.md under the canonical documentation governance contract."
   - "PowerShell reserves gp for Get-ItemProperty; ShipGlows now installs a policy-gated add/commit/push gp profile function and a profile-independent raw gpush fallback."
@@ -373,6 +374,11 @@ via Corepack, transmet le port HMR réservé, puis attend un Manifest V3 frais d
 un dossier Chrome pris en charge. `s open` ouvre le gestionnaire d'extensions et
 le dossier non empaqueté; le chargement dans un profil personnel reste une action
 explicite de l'opératrice.
+
+La réinstallation du runtime repasse aussi les projets déjà enregistrés dans le
+détecteur courant avant de migrer leur bloc d'environnement. Le registre et
+`ENVIRONMENT.md` ne peuvent ainsi pas conserver deux types de projet différents
+après l'ajout d'un adaptateur plus précis.
 
 Pour Flutter, `.shipglows.env` accepte aussi
 `SHIPGLOWS_DART_DEFINE_FILE=<chemin-relatif>` afin de transmettre durablement un

@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.26.0"
+artifact_version: "1.27.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-27"
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Installed-runtime replay 2026-08-27: registered projects are re-registered through the current detector before environment migration, preventing stale registry kinds after a new adapter is installed."
   - "Native Windows browser-extension adapter 2026-08-27: CRXJS projects with an explicit dev:chrome script use extension-specific package-manager, launch, readiness, environment and open contracts instead of generic Vite assumptions."
   - "Linux pressure rescue 2026-08-26: Health combines available RAM, swap use and optional Linux PSI, renders a critical recovery route, and can stop only revalidated confirmed Vercel CLI groups that are detached, heavy, old and free of protected processes."
   - "Native Windows Doppler boundary 2026-08-26: the installer provisions and reports the CLI for agents, while automatic DevServer secret injection remains disabled until a project-specific dev/staging contract is declared and proven."
@@ -277,6 +278,12 @@ requires the managed process, its listener, and a fresh valid Manifest V3 under
 or an HTTP response alone cannot mark the extension running. Open launches the
 browser extension manager beside the generated unpacked directory and never
 silently installs into a personal browser profile.
+
+During a full Windows runtime installation, every still-present registered
+project is re-registered through the current detector before its managed
+environment block is rewritten. This keeps registry kind, launch metadata and
+`ENVIRONMENT.md` aligned when a newly installed ShipGlows version introduces a
+more specific project kind such as `browser-extension`.
 
 Managed Windows servers are created through `Win32_Process.Create`, outside the one-shot CLI process handle tree, so a caller capturing stdout/stderr receives EOF after readiness. Before launching a child, the WMI wrapper creates a named Windows Job Object with `KILL_ON_JOB_CLOSE`, assigns itself, and fails closed if either operation fails; Node, Astro, Python, Flutter and their descendants therefore share a durable termination boundary. After its direct command exits, the wrapper remains alive while another job member exists, including a Node child created with detached spawn and `unref`. Detached and Flutter wrappers use only the exact absolute `SHIPGLOWS_MANAGED_PWSH` executable already validated by the bootstrap; they never accept `powershell.exe`, discover `pwsh.exe` through `PATH`, or fall back to System32. The registry stores the wrapper PID, command-line fragment and Job Object identity. Readiness requires both verified wrapper identity and the service probe. Stop terminates the exact job (or the verified legacy tree), then marks `stopped` only after both process identity and the assigned listener have disappeared; unproved extinction preserves the live registry state and returns an error. The Flutter supervisor token is read by that wrapper from its existing owner-only token file and is never embedded in the encoded command.
 
