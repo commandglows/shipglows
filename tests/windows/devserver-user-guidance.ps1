@@ -30,6 +30,13 @@ try {
     $summary = Format-SgProjectStatus ([pscustomobject]@{ status='running'; kind='browser-extension'; port=3002; Name='ToolGlows' })
     Assert-Sg ($summary -match 'Chrome extension' -and $summary -match 'HMR :3002' -and $summary -match 'dist\\chrome') 'Extension dashboard/status output is not user-oriented.'
 
+    $module = Get-Module ShipGlows.DevServer
+    $typedStart = [datetime]::Parse('2026-08-27T23:38:41.0223973Z', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind)
+    $typedEntry = [pscustomobject]@{ pid=42; startTimeUtc=$typedStart; executablePath='C:\managed\pwsh.exe'; commandSignature='managed-signature' }
+    $typedSnapshot = @{ 42 = [pscustomobject]@{ Pid=42; StartTimeUtc='2026-08-27T23:38:41.0223973Z'; ExecutablePath='C:\managed\pwsh.exe'; CommandLine='pwsh -EncodedCommand managed-signature' } }
+    $typedIdentityMatches = & $module { param($entry,$snapshot) Test-SgProcessIdentity $entry $snapshot } $typedEntry $typedSnapshot
+    Assert-Sg $typedIdentityMatches 'PowerShell 7 DateTime conversion makes a live managed process appear stopped.'
+
     $stoppedError = ''
     try {
         Open-SgProject ([pscustomobject]@{}) ([pscustomobject]@{ name='ToolGlows'; path=$fixture; kind='browser-extension'; port=3002; status='stopped' }) | Out-Null

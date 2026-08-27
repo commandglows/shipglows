@@ -497,11 +497,25 @@ function Get-SgProcessSnapshotMap([int[]]$Pids) {
     return $result
 }
 
+function ConvertTo-SgUtcStartTicks([object]$Value) {
+    if ($null -eq $Value) { throw 'Process start time is missing.' }
+    if ($Value -is [datetime]) { return ([datetime]$Value).ToUniversalTime().Ticks }
+    $parsed = [DateTimeOffset]::MinValue
+    if (-not [DateTimeOffset]::TryParse([string]$Value, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind, [ref]$parsed)) {
+        throw 'Process start time is invalid.'
+    }
+    return $parsed.UtcDateTime.Ticks
+}
+
 function Test-SgProcessIdentity([object]$Entry, [hashtable]$SnapshotByPid = $null) {
     $pidValue = [int]$Entry.pid
     $current = if ($null -ne $SnapshotByPid) { if ($SnapshotByPid.ContainsKey($pidValue)) { $SnapshotByPid[$pidValue] } else { $null } } else { Get-SgProcessSnapshot $pidValue }
     if (-not $current) { return $false }
-    if ($Entry.startTimeUtc -and $current.StartTimeUtc -ne $Entry.startTimeUtc) { return $false }
+    if ($Entry.startTimeUtc) {
+        try {
+            if ((ConvertTo-SgUtcStartTicks $current.StartTimeUtc) -ne (ConvertTo-SgUtcStartTicks $Entry.startTimeUtc)) { return $false }
+        } catch { return $false }
+    }
     if ($Entry.executablePath -and $current.ExecutablePath -and [IO.Path]::GetFullPath($Entry.executablePath) -ne [IO.Path]::GetFullPath($current.ExecutablePath)) { return $false }
     if ($Entry.commandSignature -and $current.CommandLine -and $current.CommandLine -notlike "*$($Entry.commandSignature)*") { return $false }
     return $true
