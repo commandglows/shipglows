@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.5.0"
+artifact_version: "2.6.0"
 project: ShipGlows
 created: "2026-04-27"
 updated: "2026-08-27"
@@ -30,7 +30,7 @@ next_step: "/103-sg-verify canonical path policy"
 
 # ShipGlows Canonical Paths
 
-Resolve paths by ownership, never by filename coincidence or cwd. Before mutation, load `skills/references/mutation-plan-approval.md` from the resolved root and obtain its defined authority; a qualifying exact micro-request supplies authority only for that micro-mutation and does not authorize a chantier, while every other path retains the required post-message approval. Read-only resolution may precede either path.
+Resolve paths by ownership, never by filename coincidence or cwd. Before mutation, load `skills/references/mutation-plan-approval.md` from the resolved root and obtain its defined authority; a clear bounded request supplies authority for its few coherent enumerable actions and targets when no material direction must be chosen, and does not authorize a chantier. Read-only resolution may precede classification.
 
 ## Mandatory Roots
 

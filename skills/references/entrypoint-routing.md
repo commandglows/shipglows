@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.12.0"
+artifact_version: "1.13.0"
 project: ShipGlows
 created: "2026-05-04"
 updated: "2026-08-27"
@@ -75,7 +75,7 @@ It defines only the routing-question rule. Load `skills/references/question-cont
 
 Route to the smallest existing owner that can safely own the outcome.
 
-Apply the Skill Selection Proportionality Gate from `skills/references/skill-execution-fidelity.md` before domain classification. An explicit deterministic micro-edit with a known or easily found target, no domain judgment or sensitive boundary, and focused deterministic proof stays in direct main-thread execution under exact micro-request authority, without another approval prompt. That authority does not authorize a chantier; if the work grows beyond one qualifying micro-mutation, use the fast or full approval path from `skills/references/mutation-plan-approval.md`. Do not load an owner skill merely because the edited file belongs to its domain. An explicitly named skill remains authoritative and uses its smallest safe mode.
+Apply the Skill Selection Proportionality Gate from `skills/references/skill-execution-fidelity.md` before domain classification. A clear bounded request with a few coherent enumerable actions and targets, no material direction for the agent to choose, and focused proof stays in direct main-thread execution without another approval prompt. This includes targeted file edits, exact-scope commits, ordinary resolved pushes, and small explicit sequences; local versus remote and reasoning effort do not classify the request. That authority does not authorize a chantier; if the work expands materially or requires directional proposal, use the full approval path from `skills/references/mutation-plan-approval.md`. Do not load an owner skill merely because a bounded target belongs to its domain. An explicitly named skill remains authoritative and uses its smallest safe mode.
 
 Before natural-language routing, check whether the user included one or more focus tags defined in `skills/references/shipglows-terms.md` such as `#partner`, `#offer`, `#growth`, `#traffic`, `#acquisition`, `#clarity`, `#source`, `#rules`, `#docs`, `#canon`, `#quality`, `#shipglows`, or `#proof`. When present, load the referenced canonical documents first and treat them as routing priorities for the current turn.
 
@@ -183,7 +183,7 @@ The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-
 | Operator intent | Primary route |
 | --- | --- |
 | Pure question, explanation, model/help clarification, or advice with no files | Direct answer |
-| Exact string, placeholder, typo, heading-tag, or formatting replacement with no domain judgment or sensitive boundary | Direct main-thread execution with focused validation; no owner skill |
+| Clear bounded request with few enumerable actions/targets and no material directional choice, including a targeted edit, exact-scope commit, ordinary resolved push, or small explicit sequence | Direct main-thread execution with focused proof; no owner skill |
 | Numeric skill code such as `001`, `001-sg-build`, or `001sfbuild` | Runtime skill from `skills/references/skill-code-index.md` |
 | Build or change a user-facing feature and also think about end-user clarity, UX/UI friction, activation, beginner adoption, or first-success guidance | `001-sg-build` first; `001-sg-build` evaluates the post-implementation `008-sg-customer` gate |
 | Software feature, application behavior, code implementation, technical site implementation, or broad code-like goal without durable bug state | `001-sg-build` |

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.15.0"
+artifact_version: "1.16.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-27"
@@ -24,10 +24,11 @@ linked_systems:
   - skills/references/git-milestone-delivery-contract.md
 depends_on:
   - artifact: "skills/references/strategic-choice-contract.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.4.0"
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-08-27: approval classification depends on request clarity, a few enumerable actions and targets, and directional discretion rather than local/remote location or model reasoning effort; explicit bounded file edits, commits, and ordinary pushes execute directly."
   - "Operator correction 2026-08-27: an explicit exact micro-modification request is itself authority for that mutation, but never for a chantier; ordinary exact-scope local commits never receive a separate approval prompt."
   - "Contract-suite repair 2026-08-23 aligns the authority name and focused tests with the approved milestone commit-and-push policy introduced on 2026-08-21."
   - "Operator decision 2026-08-13: every intentional mutation requires visible consent and explicit approval after the consent message; the original decision used the full-plan form, which the 2026-08-14 two-tier refinement makes proportional."
@@ -52,20 +53,24 @@ next_step: "/103-sg-verify universal mutation-plan approval"
 
 ## Universal gate
 
-Every intentional mutation requires explicit authority. Exact micro-request authority, supplied-link register authority, and Auto-session authority below use the operator's original exact request or invocation as that authority. Every mutation outside exact micro-request authority and the other named direct-authority exceptions requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval.
+Every intentional mutation requires explicit authority. Clear bounded-request authority, supplied-link register authority, and Auto-session authority below use the operator's original exact request or invocation as that authority. Every mutation outside clear bounded-request authority and the other named direct-authority exceptions requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval.
 
-## Exact micro-request authority
+## Clear bounded-request authority
 
-The operator's initial imperative is authority for one exact local micro-mutation when every condition below is established. Execute it without another approval message:
+The operator's initial imperative is authority when read-only resolution establishes every condition below. Execute the requested action or small action sequence without another approval message:
 
-- the requested outcome is explicit and unambiguous, and read-only inspection resolves one exact target;
-- the work is a single-line addition, typo, formatting or literal correction, narrow metadata or documentation update, or deterministic micro-bug whose unique small implementation is established without a product, architecture, data, security, or permission choice;
-- the mutation is local-only, routine, readily reversible, proportionate to the request, and guaranteed not to overwrite, discard, delete, force, publish, deploy, message another person or system, change a credential or permission, start a process, or affect unrelated changes;
-- focused proof is available without expanding the requested outcome into broader implementation work.
+- the requested outcome is clear and unambiguous;
+- the required actions and targets are few, coherent, and enumerable before execution;
+- resolving implementation details does not require the agent to invent, propose, or select a material product, architecture, data, security, editorial, or operational direction;
+- the action remains proportionate to the request, protects unrelated changes, and has focused proof.
 
-This authority is only for the micro-mutation contained in the request. It does not create or approve a chantier, infer adjacent cleanup, authorize multiple materially independent edits, or cover a larger fix merely because the first symptom looked small. An exact micro-request never authorizes a chantier. If read-only diagnosis reveals material design, multiple plausible implementations, broader file families, a risky boundary, or work that should be managed as a chantier, stop before mutation and use the full plan.
+Typical qualifying requests include a targeted file modification, a deterministic micro-bug fix, an ordinary exact-scope commit, an ordinary push to the resolved current upstream, or a small explicit sequence of these. Local versus remote is not an approval classifier. Classification depends on request clarity, enumerable action and target count, and directional discretion.
 
-An ordinary exact-scope local commit records authorized work and never requires a separate approval prompt. Stage only the authorized paths, keep unrelated and pre-existing changes unstaged, run proportional checks, and do not amend, rebase, squash, reset, tag, force, merge, bypass hooks, or push under this commit authority. `git push` remains governed by the full-plan boundary below.
+This authority covers only the clear bounded request. It does not create or approve a chantier, infer adjacent cleanup, or authorize materially independent work. A clear bounded request never authorizes a chantier. If inspection or execution reveals an unbounded file/action set, multiple material directions, or a need for substantial agent proposal and operator choice, stop before that expansion and present the full plan.
+
+An ordinary exact-scope commit records authorized work and never requires a separate approval prompt. Stage only the authorized paths, keep unrelated and pre-existing changes unstaged, and run proportional checks. When the operator explicitly requests an ordinary push, the branch and upstream are resolved, and no history rewrite or materially different effect is involved, push directly under the same authority. Amend, rebase, squash, reset, tag, force, hook bypass, merge, deployment, destructive or irreversible changes, credential or permission changes, and unrelated effects retain their dedicated safety boundaries; they are not classified as chantiers merely because they affect remote state.
+
+Classification is invariant across reasoning-effort settings. The same request must receive the same authority classification at `low`, `medium`, `high`, and `xhigh`: use request clarity, enumerable action and target count, and directional discretion, never the selected reasoning effort. A higher effort may deepen internal analysis but cannot manufacture a validation ceremony.
 
 ## Auto-session authority
 
@@ -136,17 +141,16 @@ Do not ask for a second confirmation when the operator explicitly asks to append
 
 This authority is only for the supplied links and their minimal factual rows. If a duplicate, ambiguity, missing target, broader classification, research, or any other material judgment appears, stop and use the normal approval path.
 
-First evaluate the direct-authority exceptions above. Only when none applies, evaluate the fast path. Use it when every criterion below is established; if one criterion is missing, uncertain, or false, use the full plan.
+First evaluate the direct-authority exceptions above. Only when none applies, evaluate the fast path. Use it for an agent-proposed bounded action or an almost-clear operator intent when every criterion below is established; if one criterion is missing, uncertain, or false, use the full plan.
 
 ## Fast validation
 
 Use `🧭 VALIDATION RAPIDE` only when the mutation is:
 
-- explicitly requested and unambiguous;
+- clear, bounded, and unambiguous after stating the proposed action;
 - aimed at a target that is exact and resolved;
-- local-only;
-- routine;
-- readily reversible;
+- limited to actions and targets that are few and enumerable;
+- free of any material direction the agent must choose for the operator;
 - guaranteed not to overwrite, discard, delete, force, publish, deploy, message another person or system, change a credential or permission, or affect unrelated changes.
 
 Present `🧭 VALIDATION RAPIDE` in one or two sentences. State the exact action, exact target, and main safety guarantee, then ask for an explicit confirmation. Do not add the four full-plan sections or strategic-choice overhead.
@@ -157,7 +161,7 @@ Example:
 🧭 VALIDATION RAPIDE — Je crée le worktree `C:\worktrees\review` sur la branche `codex/review`, depuis `main`, sans toucher aux changements courants. Réponds « go ».
 ```
 
-Wait for explicit approval given after this fast validation. Reaching this path means exact micro-request authority did not apply, so the initial imperative request does not count as approval for the proposed action.
+Wait for explicit approval given after this fast validation. Reaching this path means clear bounded-request authority did not apply because the action was agent-proposed or the operator intent required compact confirmation.
 
 A reply consisting only of `v` (case-insensitive, ignoring surrounding whitespace) is explicit approval when it directly answers this immediately preceding pending fast validation. After a non-material clarification, the bounded continuation rule below controls whether `v` still maps safely to the unchanged proposal.
 
@@ -179,13 +183,13 @@ Use `(spec)` only when exactly one ready spec owns the proposed mutation; otherw
 
 Before composing `📌 **Choix**`, load `skills/references/strategic-choice-contract.md`. End with two or three numbered choices adapted to the actual decision the operator can make now. Material alternatives express business directions and their consequences; routine low-impact approval remains proportional. Short `Questionner` or `Réorienter` labels are valid only because selecting them triggers the contract's active guided follow-up. The choices must not be a fixed menu copied into every context. Exactly one choice may grant approval; every other choice must clearly withhold approval or request a different outcome.
 
-Wait for explicit approval given after that plan, such as `validé`, `vas-y`, `applique ce plan`, or an equally unambiguous confirmation. The initial imperative request does not count as approval for a chantier or for another action outside its exact micro-mutation authority.
+Wait for explicit approval given after that plan, such as `validé`, `vas-y`, `applique ce plan`, or an equally unambiguous confirmation. The initial imperative request does not count as approval for a chantier or for another action outside its clear bounded-request authority.
 
 A reply consisting only of `v` (case-insensitive, ignoring surrounding whitespace) is explicit approval when it directly answers the immediately preceding pending plan and that plan has exactly one approval outcome. It never authorizes a replaced, ambiguous, paused, materially changed, or cancelled proposal.
 
 A number-only reply is explicit approval only when it maps unambiguously to the single approval choice in the immediately preceding plan. A question, adjustment, alternative, pause, cancellation, or any number mapped to one of those outcomes never authorizes mutation.
 
-This full-plan path applies to chantiers, ambiguous or unresolved mutations, and configuration, installation, package changes, generated persistent artifacts, processes, servers, deployments, publishing, messages, and other external writes unless exact micro-request authority or every fast-path criterion is established. `git push` always requires the full plan because it changes remote state and may trigger CI, deployments, or notifications. Force push retains every stricter gate in addition to the full plan. Incidental caches produced by read-only diagnostics are not implementation.
+This full-plan path applies when the desired outcome or direction remains unknown, the actions or targets cannot be bounded and enumerated, multiple materially different paths require operator choice, or the agent must substantially analyze, propose, and select a direction. Configuration, installation, package changes, generated artifacts, processes, servers, deployments, publishing, messages, and other external writes use the same classifier; their separate safety policies still apply. An explicitly requested ordinary `git push` to a resolved upstream may use clear bounded-request authority. Force push retains every stricter gate because it rewrites history, not because it is remote. Incidental caches produced by read-only diagnostics are not implementation.
 
 No spec, tracker, plan file, branch, backup, or other persistent artifact may be created before approval merely to record the proposed work.
 
@@ -201,7 +205,7 @@ A displayed fast validation or full plan remains the current pending proposal un
 
 ## Approval boundary
 
-Authority covers only the exact micro-mutation contained in the request, the displayed fast action/target/safety guarantee, or the full objective/scope/actions/proof path. If execution discovers a material change to behavior, scope, target, risk, data, permissions, destructive effects, external state, or validation strategy, stop before that change, present the newly appropriate fast validation or replacement full plan, and obtain new explicit approval.
+Authority covers only the clear bounded actions and targets contained in the request, the displayed fast action/target/safety guarantee, or the full objective/scope/actions/proof path. If execution discovers a material expansion, unbounded target set, new directional choice, or change to behavior, risk, data, permissions, destructive effects, external state, or validation strategy, stop before that change, present the newly appropriate fast validation or replacement full plan, and obtain new explicit approval.
 
 Routine implementation details inside the approved scope do not require repeated approval. Destructive, privileged, production, credential, billing, publication, and irreversible actions keep their stricter existing gates in addition to this one.
 
@@ -219,7 +223,7 @@ The same bounded approval includes updates to directly mapped canonical project 
 
 This authority may cover multiple small coherent commits and their ordinary pushes during the same approved chantier and requires both at declared milestones. A milestone is a completed slice, not a message or arbitrary edit. Report commit identifiers and push results at the next natural checkpoint or final handoff; do not interrupt merely to ask permission to protect approved work remotely.
 
-The cumulative authority does not apply when the operator says `no commit`, when staging would include an unresolved or unrelated path, or when the work is primarily substantive editorial judgment or a broad mixed-scope consolidation. Those cases require explicit commit scope in the approval plan. `git push` always requires a full plan, but one approved full technical chantier plan may authorize its ordinary milestone and final current-branch pushes upfront; no duplicate approval is then required. Force, history rewriting, tags, releases, deployments, merges, and unrelated remote effects remain outside that authority.
+The cumulative authority does not apply when the operator says `no commit`, when staging would include an unresolved or unrelated path, or when the work is primarily substantive editorial judgment or a broad mixed-scope consolidation. Those cases require explicit commit scope in the approval plan. An explicitly requested ordinary push may use clear bounded-request authority; an approved full technical chantier plan may also authorize its ordinary milestone and final current-branch pushes upfront with no duplicate approval. Force, history rewriting, tags, releases, deployments, merges, and unrelated remote effects remain outside that authority.
 
 ## Mandatory final delivery authority
 
@@ -229,13 +233,14 @@ Push failure, ambiguous remote/branch, missing authentication, rejected updates,
 
 ## Small changes
 
-Apply exact micro-request authority first. A qualifying micro-edit or deterministic micro-bug executes directly from the operator's request without a validation prompt. A small-looking request that fails any direct-authority condition uses fast validation only when every fast-path criterion is established; otherwise it uses the full plan. Never stretch micro authority to avoid treating substantive work as a chantier.
+Apply clear bounded-request authority first. A qualifying file edit, deterministic micro-bug fix, commit, ordinary push, or small explicit sequence executes directly from the operator's request without a validation prompt. A small-looking request that expands beyond enumerable actions or requires a material direction uses the full plan. Use fast validation for bounded agent-proposed actions or almost-clear intent, not as a duplicate confirmation of an already clear request.
 
 ## Pressure scenarios
 
 - `MAP-TECHNICAL-COMMIT`: after approval of a bounded technical implementation, stage only its exact paths, run secret and proportional checks, create coherent local commits silently, and report their identifiers at the next natural checkpoint; do not ask for duplicate commit approval.
-- `MAP-EXACT-MICRO-REQUEST`: the operator explicitly requests one safe line addition, literal correction, formatting edit, narrow metadata update, or deterministic micro-bug fix; after read-only target resolution confirms every boundary, the initial request is the authority, execute exactly that mutation with focused proof and no validation prompt.
-- `MAP-MICRO-TO-CHANTIER`: an initial micro-looking request reveals material design, multiple plausible implementations, broader file families, or a sensitive boundary; the request authorizes no mutation beyond a qualifying exact micro-change, does not authorize a chantier, and the broader work receives a full plan before editing.
+- `MAP-BOUNDED-REQUEST`: the operator clearly requests a targeted file edit, exact-scope commit, ordinary push, or small coherent sequence whose actions and targets are few and enumerable and require no material directional choice; the initial request is the authority, execute directly with focused proof and no validation prompt.
+- `MAP-BOUNDED-EXPANSION`: a clear bounded request expands materially into an unbounded file/action set, multiple material paths, or substantial agent proposal; stop before the expansion and present the full plan.
+- `MAP-EFFORT-INVARIANT`: classify the same request identically at `low`, `medium`, `high`, and `xhigh`; reasoning depth may change, but request clarity, enumerable actions and targets, and directional discretion are the only approval classifiers.
 - `MAP-MILESTONE-COMMIT`: cross an explicit coherent validated milestone only after its exact owned diff is committed and pushed; messages, partial edits, failing experiments, and arbitrary time intervals are not milestones.
 - `MAP-FINAL-DELIVERY`: a full approved technical chantier plan authorizes its ordinary final current-branch push; commit remaining owned changes or reuse the latest owned milestone commit, never create an empty commit, and keep closure delivery pending until push succeeds.
 - `MAP-COMMIT-BOUNDARY`: unrelated paths, substantive editorial judgment, mixed-scope consolidation, amend, rebase, squash, reset, tag, hook bypass, closure, release preparation, and shipping are outside implicit commit authority and require the applicable explicit approval.
@@ -252,11 +257,11 @@ Apply exact micro-request authority first. A qualifying micro-edit or determinis
 - `MAP-GUIDED-CONTROLS`: short `Questionner` and `Réorienter` labels are allowed, never approve mutation, and trigger useful guided questioning or concrete reorientation proposals on the next turn.
 - `MAP-NUMBER-ONLY`: `1` authorizes mutation only when choice 1 is the plan's sole explicit approval action; any number mapped to questioning, adjustment, pause, cancellation, or an alternative does not.
 - `MAP-REPLACEMENT`: a new material requirement stops execution and produces a fully replaced, newly timed plan. Approval given before that replacement does not approve it.
-- `MAP-SMALL-CHANGE`: when a typo or one-line edit meets exact micro-request authority, execute it from the operator's exact request without an approval prompt; when it fails those conditions or becomes a chantier, use the newly appropriate fast validation or full plan.
+- `MAP-SMALL-CHANGE`: when a typo or one-line edit meets clear bounded-request authority, execute it from the operator's exact request without an approval prompt; when it expands materially or becomes a chantier, use the newly appropriate fast validation or full plan.
 - `MAP-SERVER`: starting or stopping a server includes the target project and expected process/port effect before approval.
 - `MAP-FAST-SWITCH`: switching to an exact existing local branch may use `🧭 VALIDATION RAPIDE` only after confirming the switch is routine, readily reversible, and cannot overwrite, discard, or relocate current changes.
 - `MAP-FAST-WORKTREE`: creating an exact local branch and worktree from a resolved base may use `🧭 VALIDATION RAPIDE` only after confirming exact branch availability, exact path availability, and the resolved base, while guaranteeing the current worktree remains untouched.
 - `MAP-FAST-INELIGIBLE`: if any fast criterion is missing, uncertain, or false, use the full `🧭 PLAN À VALIDER`; never infer eligibility from the action being technically simple.
 - `MAP-FAST-REPLACEMENT`: if an approved fast action gains a material new target, effect, or risk, prior approval is invalid; stop and present the newly appropriate fast validation or full replacement plan.
-- `MAP-REMOTE-PUSH`: every `git push` uses the full `🧭 PLAN À VALIDER`; an approved plan that explicitly included ordinary final delivery needs no duplicate closing approval, while force push also retains all stricter force/destructive gates.
+- `MAP-BOUNDED-PUSH`: when the operator explicitly requests an ordinary push, the current branch and upstream are resolved, the commits are in scope, and no force or history rewrite is involved, execute directly; force push retains all stricter force/destructive gates.
 - `MAP-SUPPLIED-LINK-REGISTER`: an operator says to add supplied public URLs to an exact internal inspirations or references register. Resolve the register once, append only factual candidate rows, and verify duplicates/row shape; do not request a second approval. Any inference, broader category choice, claim, duplicate, or unresolved target exits this exception and uses the normal gate.

@@ -41,7 +41,9 @@ class DailyConstructionContractTests(unittest.TestCase):
         self.assertIn("do not automatically combine lint, typecheck, build, tests", self.ship_execution)
 
     def test_safety_and_truth_boundaries_remain(self) -> None:
-        self.assertIn("git push` always requires the full plan", (ROOT / "skills/references/mutation-plan-approval.md").read_text(encoding="utf-8"))
+        approval = (ROOT / "skills/references/mutation-plan-approval.md").read_text(encoding="utf-8")
+        self.assertIn("explicitly requested ordinary `git push`", approval)
+        self.assertIn("Force push retains every stricter gate", approval)
         self.assertIn("Never commit secrets", self.ship)
         self.assertIn("Stop on a required or attempted check failure", self.ship_execution)
         self.assertIn("never claims formal closure", self.ship)

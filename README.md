@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.25.2"
+artifact_version: "0.26.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-25"
+updated: "2026-08-27"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -44,6 +44,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "2026-08-27 approval-boundary correction: clear bounded requests execute directly with focused proof when actions and targets are few and enumerable and no material direction must be chosen; local/remote location and reasoning effort do not change classification."
   - "2026-07-17 atomic routing update: deterministic micro-edits execute directly with focused validation instead of loading a lifecycle skill."
   - "Added 108-sg-browser as the generic non-auth browser verification path."
   - "Added 004-sg-deploy as the release confidence orchestrator."
@@ -128,6 +129,7 @@ It connects governed project truth to one business-aware métier owner, then car
 
 ### Structured AI workflows
 
+- clear bounded requests execute directly with focused proof when their few actions and targets are enumerable and no material direction must be chosen; unknown, unbounded, or directional work becomes a supervised chantier
 - task tracking and session lifecycle
 - fast current-thread recap when a session becomes hard to follow
 - spec-driven implementation flow

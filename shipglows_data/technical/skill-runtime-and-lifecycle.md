@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.34.0"
+artifact_version: "2.35.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-27"
@@ -400,7 +400,7 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/skill-instruction-layering.md` | Canonical layering contract for `SKILL.md` activation rules vs shared or skill-local references | Load before editing or compacting skills |
 | `skills/<skill>/references/*.md` | Skill-local heavy checklists, mode playbooks, and report matrices | Keep top-level SKILL focused on activation and gates |
 | `skills/references/master-delegation-semantics.md` | Shared master/orchestrator delegation, subagent, short-approval, and parallelism doctrine | Load before master skills choose execution topology |
-| `skills/references/mutation-plan-approval.md` | Universal mutation-authority gate: an exact micro-request authorizes only its qualifying micro-mutation; other work uses fast validation or a full plan | Exact file micro-modifications do not become chantiers; a full approved technical chantier includes exact-scope milestone commits and its disclosed ordinary final push, while force, history rewrite, unrelated scope, and undisclosed remote effects remain gated. |
+| `skills/references/mutation-plan-approval.md` | Universal mutation-authority gate: a clear bounded request authorizes its few coherent enumerable actions and targets when no material direction must be chosen; bounded proposals use fast validation and unknown/unbounded/directional work uses a full plan | Targeted file changes, exact-scope commits, ordinary resolved pushes, and small explicit sequences execute directly regardless of local/remote location or reasoning effort; force, history rewrite, destructive, irreversible, and unrelated effects retain dedicated gates. |
 | `skills/references/git-milestone-delivery-contract.md` | Mandatory Git persistence at coherent milestones and clean chantier end | Commit each declared validated slice before continuing; commit remaining closure changes and push all owned commits before standard clean closure. Never create empty commits or absorb unrelated dirty paths. |
 | `skills/references/master-workflow-lifecycle.md` | Shared master/orchestrator lifecycle skeleton and work item model | Load before master skills resolve intake, readiness, model/topology, validation, verification, closure, or ship/deploy routes |
 | `skills/references/master-{workflow-lifecycle,delegation}-core.md` | Compact first-decision lifecycle and topology gates | Load from migrated pilots first; escalate to the detailed authority only on the core's explicit conditions |

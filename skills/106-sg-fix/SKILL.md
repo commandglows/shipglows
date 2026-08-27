@@ -29,8 +29,8 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before Sh
 
 Reconstruct actor, trigger, broken behavior, and expected value; choose:
 
-- `direct`: small, local, clear, low-risk, with an obvious expected behavior and named proof path.
-- `spec-first`: multi-file/cross-system behavior, unclear product meaning, likely edge cases, migration/data/auth/performance implications, or material permission, visibility, workflow-integrity, security, destructive, or external-side-effect ambiguity. Load `spec-driven-development-discipline.md`; do not code; route through spec readiness and implementation.
+- `direct`: clear and bounded to a few enumerable actions/targets, with no material directional choice, an obvious expected behavior, and a named proof path; local versus remote and model reasoning effort do not change this classification.
+- `spec-first`: unknown or unbounded actions/targets, cross-system behavior needing material direction, unclear product meaning, likely edge cases, migration/data/auth/performance implications, or material permission, visibility, workflow-integrity, security, destructive, or external-side-effect ambiguity. Load `spec-driven-development-discipline.md`; do not code; route through spec readiness and implementation.
 - `diagnostic-only`: evidence is insufficient and a browser/auth/runtime specialist owns the next diagnosis; do not code.
 
 When ambiguity could change behavior, scope, authority, failure handling, data exposure, tenant isolation, or security, load `decision-quality-contract.md` before one targeted question. Direct fixes still require root-cause and owner-boundary reasoning.

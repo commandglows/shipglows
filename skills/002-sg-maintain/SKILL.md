@@ -19,7 +19,7 @@ Public label: `sg-maintenance`. Load `$SHIPGLOWS_ROOT/skills/references/intent-t
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-Load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before execution. Continue exactly one matching active `specs/*.md` chantier by updating `Skill Run History` and `Current Chantier Flow`; use its opening header. When none exists, use `100-sg-spec` then `101-sg-ready` for non-trivial work, or record a short mini-contract in the final report for a safe, narrow local fix. Ask if several specs plausibly match.
+Load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` before execution. Continue exactly one matching active `specs/*.md` chantier by updating `Skill Run History` and `Current Chantier Flow`; use its opening header. When none exists, use `100-sg-spec` then `101-sg-ready` for unknown, unbounded, or materially directional work, or record a short mini-contract in the final report for a safe clear bounded fix. Ask if several specs plausibly match.
 
 ## Report Modes
 

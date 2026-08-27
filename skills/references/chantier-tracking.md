@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.9.0"
+artifact_version: "0.10.0"
 project: ShipGlows
 created: "2026-04-27"
-updated: "2026-08-03"
+updated: "2026-08-27"
 status: draft
 source_skill: 102-sg-start
 scope: chantier-tracking
@@ -79,12 +79,12 @@ A source skill must evaluate the standard `seuil` for chantier potential before 
 Use `Chantier potentiel: oui` when at least one of these is true:
 
 - P0/P1 severity, production incident, security/data risk, auth/session breakage, deployment breakage, or critical dependency exposure.
-- Multiple files (`plusieurs fichiers`), projects, domains, teams, or workflow phases are affected.
+- The affected actions, files, projects, domains, teams, or workflow phases are unbounded or materially broad; a few coherent enumerable files alone do not cross the threshold.
 - A product, technical, architecture, migration, pricing, permission, data-retention, or tenant-boundary decision is required.
 - The work needs staged execution, rollback/retry planning, validation by another skill, or user/operator confirmation.
-- The finding cannot be completed safely as an immediate local fix in the current run.
+- The finding cannot be completed safely as a clear bounded fix in the current run.
 
-Use `Chantier potentiel: non` when the finding is a narrow local fix, the current chantier already owns the work, the report is informational only, or the evidence is too weak for a spec. Still name the reason.
+Use `Chantier potentiel: non` when the finding is a clear bounded fix with a few enumerable actions and targets and no material directional choice, the current chantier already owns the work, the report is informational only, or the evidence is too weak for a spec. Local versus remote and model reasoning effort do not change this classification. Still name the reason.
 
 Use `Chantier potentiel: incertain` when the evidence is incomplete or the severity/scope is unclear. Name the missing proof and route to exploration, retest, or explicit user selection.
 

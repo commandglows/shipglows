@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.8.1"
+artifact_version: "2.9.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-24"
+updated: "2026-08-27"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: skill-launch-cheatsheet
@@ -112,7 +112,7 @@ Ask which one is meant only when repository evidence cannot safely resolve it.
 
 The public catalogue contains the router plus fourteen métier entrypoints.
 
-One exception stays direct: deterministic micro-edits with no domain judgment use focused validation and do not activate a métier lifecycle.
+As a direct exception, clear bounded requests stay direct with focused proof when their few actions and targets are enumerable and no material direction must be chosen. They may include targeted file edits, exact-scope commits, ordinary resolved pushes, or a small explicit sequence. Unknown, unbounded, or directional work activates the appropriate supervised chantier; local/remote location and reasoning effort do not change classification.
 They own the outcome from clarification through appropriate implementation,
 proof, documentation reflection, and closure. Shipping, deployment, external
 publication, secrets, destructive actions, and device-only proof still require
