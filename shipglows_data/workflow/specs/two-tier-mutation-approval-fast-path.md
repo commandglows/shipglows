@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.3.1"
 project: ShipGlows
 created: "2026-08-14"
 created_at: "2026-08-14 00:00:00 UTC"
 updated: "2026-08-27"
-updated_at: "2026-08-27 00:52:00 UTC"
+updated_at: "2026-08-27 01:18:44 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: "Codex"
@@ -117,7 +117,7 @@ An explicit request directly authorizes one qualifying exact micro-mutation: a s
 
 ## Current Chantier Flow
 
-`900-shipglows-core build` implemented exact micro-request authority with a hard chantier boundary and silent exact-scope local commits. Focused Python and Windows contract proofs pass, all five active Windows agent-instruction blocks are synchronized, and ordinary final push is the remaining delivery step under the plan approved on 2026-08-27.
+`900-shipglows-core build` implemented exact micro-request authority with a hard chantier boundary and silent exact-scope local commits. Focused Python and Windows contract proofs pass, all five active Windows agent-instruction blocks are synchronized, and implementation commit `96d5340` is present on `origin/codex/development-runtime`.
 
 ## Skill Run History
 
@@ -125,3 +125,4 @@ An explicit request directly authorizes one qualifying exact micro-mutation: a s
 - 2026-08-15 — `900-shipglows-core build`: added and verified `MAP-V-SHORTCUT` so standalone `v` canonically approves only the immediately preceding unambiguous pending approval message; 76 focused contract/graph tests, metadata, audit, and budget checks passed.
 - 2026-08-27 — `900-shipglows-core build`: operator clarified that an exact file micro-modification is not a chantier; started scenario-first repair so the request itself authorizes only that micro-mutation while a real chantier still requires one plan.
 - 2026-08-27 — `103-sg-verify`: 28 mutation-contract tests, 4 strategic-choice tests, the Windows static regression, metadata lint across 11 governed artifacts, and direct checks of all five active agent-instruction blocks passed.
+- 2026-08-27 — `104-sg-end` / `005-sg-ship`: implementation commit `96d5340` was pushed normally to `origin/codex/development-runtime`; four pre-existing unrelated dirty paths remained outside the commit.
