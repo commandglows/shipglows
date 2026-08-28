@@ -231,7 +231,7 @@ rg -n 'InstallSurface.*corpus|SHIPGLOWS_INSTALL_COMPONENTS|Install-SgDeveloperCh
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
 rg -n '\$environmentCandidates = @\(|Assert-EnvironmentPackage|cli/environment/.*shipglows_environment' "$BOOTSTRAP"
 rg -n 'cli/private_data\.py|private-data control-plane|privateDataSource' "$BOOTSTRAP" "$INSTALLER"
-rg -n "private-data.*(status|connect|migrate|open)|privateDataCandidates|private_data\.py" "$ENTRYPOINT"
+rg -n "private-data.*(status|connect|migrate|open)|privateDataCommandIndex|privateDataCandidates|private_data\.py" "$ENTRYPOINT"
 ! rg -n '\$windowsCandidates = @\([^)]*\) \| Where-Object' "$BOOTSTRAP"
 rg -n "127\\.0\\.0\\.1|registry\\.json|registry\\.lock|commandSignature|startTimeUtc" "$MODULE"
 rg -n "Test-SgGitUrl|embedded credentials|Only HTTPS and SSH" "$MODULE" "$ENTRYPOINT"

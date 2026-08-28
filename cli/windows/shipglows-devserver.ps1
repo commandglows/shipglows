@@ -65,7 +65,8 @@ if ($Action.Trim().ToLowerInvariant() -eq 'env') {
 # Private data remains a redacted control plane: no project scan, no startup,
 # and no ambient agent access.
 if ($Action.Trim().ToLowerInvariant() -eq 'private-data') {
-    if (@($ShortcutPath).Count -lt 1 -or $ShortcutPath[0].Trim().ToLowerInvariant() -notin @('status','doctor','capability','sync','connect','migrate','open')) {
+    $privateDataCommandIndex = if (@($ShortcutPath).Count -ge 3 -and $ShortcutPath[0].Trim().ToLowerInvariant() -eq '--format') { 2 } else { 0 }
+    if (@($ShortcutPath).Count -le $privateDataCommandIndex -or $ShortcutPath[$privateDataCommandIndex].Trim().ToLowerInvariant() -notin @('status','doctor','capability','sync','connect','migrate','open')) {
         [Console]::Error.WriteLine('Usage: s private-data <status|doctor|capability <namespace> <read|write>|connect --repo <URL> [--existing --dir <absolute-path>] [--apply]|migrate --manifest <absolute-path> [--apply]|open [--apply]|sync <pull|push> [--apply]>')
         exit 2
     }
