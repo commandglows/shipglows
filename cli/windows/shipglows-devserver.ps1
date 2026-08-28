@@ -336,7 +336,8 @@ function Show-SgShipGlowsStatus {
     $status = Read-SgShipGlowsStatusCache $config
     $version = if ($status -and $status.installedVersion) { [string]$status.installedVersion } else { Get-SgInstalledShipGlowsVersion $config }
     if (-not $version) { $version = '…' }
-    $color = switch (if ($status) { [string]$status.level } else { 'unknown' }) {
+    $level = if ($status) { [string]$status.level } else { 'unknown' }
+    $color = switch ($level) {
         'current' { 'Green' }
         'update' { 'DarkYellow' }
         'major-update' { 'Red' }
