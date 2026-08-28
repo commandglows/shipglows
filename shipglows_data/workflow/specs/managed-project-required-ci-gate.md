@@ -113,6 +113,7 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 - Audit is read-only. Workflow generation writes only the explicit output path. Provider apply is separately explicit and preconditioned by fresh provider evidence.
 - Generated workflows use least-privileged read permissions, exact revision checkout, pinned maintained actions, bounded timeouts, and no secrets.
 - Generated Node lanes use the nearest `.node-version` or `.nvmrc`, then `package.json#engines.node`; generation fails when no Node runtime contract is declared.
+- Flutter lanes use `stable` by default when auto-detected, and can be overridden with an explicit `flutter_version` in `.shipglows/required-gate.json`.
 - Existing unrelated dirty work remains unstaged and byte-preserved.
 
 ## Implementation Tasks

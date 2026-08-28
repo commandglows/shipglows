@@ -41,6 +41,7 @@ class Lane:
     paths: tuple[str, ...]
     commands: tuple[str, ...]
     node_version: str | None = None
+    flutter_version: str | None = None
 
 
 @dataclass(frozen=True)
@@ -69,6 +70,13 @@ def _validate_node_version(value: str, context: str) -> str:
     return version
 
 
+def _validate_flutter_version(value: str, context: str) -> str:
+    version = value.strip()
+    if not version or len(version) > 80 or not re.fullmatch(r"[A-Za-z0-9*./<>=~^| -]+", version):
+        raise GateError(f"{context} has an invalid Flutter version: {value!r}")
+    return version
+
+
 def _validate_lane(raw: dict[str, Any]) -> Lane:
     lane_id = str(raw.get("id", ""))
     runtime = str(raw.get("runtime", ""))
@@ -76,6 +84,7 @@ def _validate_lane(raw: dict[str, Any]) -> Lane:
     paths = tuple(str(item) for item in raw.get("paths", []))
     commands = tuple(str(item).strip() for item in raw.get("commands", []))
     node_version = str(raw.get("node_version", "")).strip() or None
+    flutter_version = str(raw.get("flutter_version", "")).strip() or None
     if not LANE_ID.fullmatch(lane_id):
         raise GateError(f"Invalid lane id: {lane_id!r}")
     if runtime not in {"shell", "node", "flutter", "python"}:
@@ -97,9 +106,16 @@ def _validate_lane(raw: dict[str, Any]) -> Lane:
         if node_version is None:
             raise GateError(f"Node lane {lane_id} must declare node_version")
         node_version = _validate_node_version(node_version, f"Node lane {lane_id}")
-    elif node_version is not None:
+    elif runtime == "flutter":
+        if flutter_version is not None:
+            flutter_version = _validate_flutter_version(flutter_version, f"Flutter lane {lane_id}")
+        else:
+            flutter_version = "stable"
+    if runtime != "node" and node_version is not None:
         raise GateError(f"Non-Node lane {lane_id} cannot declare node_version")
-    return Lane(lane_id, runtime, root, paths, commands, node_version)
+    if runtime != "flutter" and flutter_version is not None:
+        raise GateError(f"Non-Flutter lane {lane_id} cannot declare flutter_version")
+    return Lane(lane_id, runtime, root, paths, commands, node_version, flutter_version)
 
 
 def _configured_contract(project: Path, config: Path) -> ProjectContract:
@@ -193,7 +209,7 @@ def _flutter_lane(project: Path, manifest: Path) -> Lane:
     if (root_path / "test").is_dir():
         commands.append("flutter test")
     paths = ("**",) if root == "." else (f"{root}/**",)
-    return Lane(lane_id[:40].rstrip("-"), "flutter", root, paths, tuple(commands))
+    return Lane(lane_id[:40].rstrip("-"), "flutter", root, paths, tuple(commands), flutter_version="stable")
 
 
 def _python_lane(project: Path, manifest: Path) -> Lane | None:
@@ -353,6 +369,7 @@ def render_workflow(contract: ProjectContract) -> str:
                 f"        if: {condition}",
                 f"        uses: subosito/flutter-action@{FLUTTER_PIN}",
                 "        with:",
+                f"          flutter-version: {_yaml_quote(lane.flutter_version or 'stable')}",
                 "          channel: stable",
                 "          cache: true",
             ])
