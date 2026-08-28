@@ -6,8 +6,8 @@ project: ShipGlows
 created: "2026-08-28"
 created_at: "2026-08-28 12:45:00 UTC"
 updated: "2026-08-28"
-updated_at: "2026-08-28 12:45:00 UTC"
-status: ready
+updated_at: "2026-08-28 13:15:00 UTC"
+status: reviewed
 source_skill: 900-shipglows-core
 source_model: GPT-5 Codex
 scope: unified-shipglows-update-experience
@@ -39,7 +39,7 @@ supersedes: []
 evidence:
   - "Audit 2026-08-28: linked Codex skills are live and verified, while the Windows runtime is an installed copy, Unix has no ShipGlows self-update command, and the TUI has no update entry."
   - "Operator decision 2026-08-28: keep Unix s u for system packages; ShipGlows itself uses shipglows update, while the native Windows DevServer exposes its update entry."
-next_step: "Implement the canonical update contract and prove the linked and stable routing paths."
+next_step: "Use shipglows update status before the next runtime refresh."
 ---
 
 # Unified ShipGlows update experience
@@ -101,12 +101,12 @@ As the ShipGlows operator, I want one update command that understands whether I 
 
 ## Implementation Tasks
 
-- [ ] Add a focused Unix update adapter with `status` and guarded update behavior.
-- [ ] Add Windows channel detection, linked-branch validation, and a shared launcher route.
-- [ ] Preserve the existing Windows DevServer update menu while making its source selection channel-aware.
-- [ ] Document the TUI as a read-only route to `shipglows update` and update the public router guidance.
-- [ ] Add scenario-focused contract tests, syntax checks, and runtime documentation alignment.
-- [ ] Commit and push only the owned change set.
+- [x] Add a focused Unix update adapter with `status` and guarded update behavior.
+- [x] Add Windows channel detection, linked-branch validation, and a shared launcher route.
+- [x] Preserve the existing Windows DevServer update menu while making its source selection channel-aware.
+- [x] Document the TUI as a read-only route to `shipglows update` and update the public router guidance.
+- [x] Add scenario-focused contract tests, syntax checks, and runtime documentation alignment.
+- [x] Commit and push the implementation milestone only; closure bookkeeping is pending.
 
 ## Test Contract
 
@@ -129,12 +129,13 @@ Implementation classification: infrastructure · cross-surface coherence. Proof 
 | Date UTC | Skill | Model | Action | Result | Next step |
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-28 | 900-shipglows-core | GPT-5 Codex | Formalized the approved unified update contract after confirming Git/GitHub alignment. | ready | Implement the runtime routes and focused proof. |
+| 2026-08-28 | 900-shipglows-core | GPT-5 Codex | Implemented Unix and Windows update routes, retained the DevServer menu, and installed the pushed branch through the native bootstrap. | verified | Commit and push closure bookkeeping. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec` ✅ ready
 - `101-sg-ready` ✅ ready by approved contract
-- `102-sg-start` ⏳ in progress
-- `103-sg-verify` ➖ pending
-- `104-sg-end` ➖ pending
-- `005-sg-ship` ➖ pending
+- `102-sg-start` ✅ implemented
+- `103-sg-verify` ✅ verified
+- `104-sg-end` ✅ closed
+- `005-sg-ship` ⏳ closure delivery pending

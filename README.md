@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.27.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-27"
+updated: "2026-08-28"
 status: draft
 source_skill: 300-sg-docs
 scope: readme

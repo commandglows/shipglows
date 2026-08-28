@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.29.1"
+artifact_version: "1.30.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-28"
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Unified update replay 2026-08-28: `shipglows update` selects the stable or linked channel, `s update status` reports the active Windows source, and a dirty linked worktree refuses bootstrap without stashing."
   - "Installed ToolGlows replay 2026-08-28: managed process identity compares UTC instants across Windows PowerShell string and PowerShell 7 DateTime JSON representations, so live projects no longer reconcile to stopped immediately after Start."
   - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and CRXJS Chrome extensions with exact next actions instead of exposing internal project kinds."
   - "Installed-runtime replay 2026-08-27: registered projects are re-registered through the current detector before environment migration, preventing stale registry kinds after a new adapter is installed."
