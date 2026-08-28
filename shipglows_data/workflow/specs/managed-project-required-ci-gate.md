@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.1"
+artifact_version: "1.2.2"
 project: ShipGlows
 created: "2026-08-27"
 created_at: "2026-08-27 23:08:06 UTC"
-updated: "2026-08-27"
-updated_at: "2026-08-27 23:24:38 UTC"
+updated: "2026-08-28"
+updated_at: "2026-08-28 05:14:49 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -40,6 +40,7 @@ evidence:
   - "ContentGlows audit 2026-08-27: Android checks is required by the main ruleset while its workflow is filtered to app paths, so an unrelated site or lab pull request can receive no terminal required status."
   - "ShipGlows runtime already proves the safe pattern: one always-triggered ShipGlows required gate reports an explicit successful no-impact result when expensive Windows proof is irrelevant."
   - "Operator decision 2026-08-28: make protective CI mandatory across ShipGlows-managed projects, beginning with a Core contract and a ContentGlows pilot."
+  - "Editorial correction 2026-08-28: the verified Core capability is material public trust proof; the canonical claim register and bilingual article, docs, and FAQ require aligned wording without implying completed fleet rollout."
 next_step: "Migrate ContentGlows under project-context authority, prove its exact gate, then reconcile its ruleset."
 ---
 
@@ -92,6 +93,7 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 - Explicit GitHub ruleset inspection and guarded reconciliation surfaces.
 - Bootstrap, GitHub hygiene, and CI verification owner integration.
 - Focused contract tests and mapped technical documentation.
+- Canonical claim governance plus bilingual public article, documentation, and FAQ alignment in `commandglows/shipglows_app`.
 - Exact-scope milestone commits and ordinary pushes on `codex/development-runtime`.
 
 ## Scope Out
@@ -121,6 +123,7 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 - [x] Run independent verification and closure bookkeeping.
 - [x] Deliver the exact-scope closure commit and ordinary push.
 - [x] Hand off ContentGlows as the first project-context pilot without mutating it here.
+- [x] Correct the editorial verdict and propagate the evidence-bounded capability to the public EN/FR article, docs, and FAQ.
 
 ## Test Contract
 
@@ -134,7 +137,7 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 
 ## Documentation Coherence
 
-The canonical rule belongs in a shared policy reference. Project delivery doctrine states when it applies; bootstrap records and installs it; GitHub hygiene audits and reconciles it; CI verification proves its path and failure behavior; technical GitHub Actions documentation explains the generated runtime contract. ContentGlows remains evidence and a later pilot target, not a Core mutation surface.
+The canonical rule belongs in a shared policy reference. Project delivery doctrine states when it applies; bootstrap records and installs it; GitHub hygiene audits and reconciles it; CI verification proves its path and failure behavior; technical GitHub Actions documentation explains the generated runtime contract. The canonical claim register and the public EN/FR article, docs, and FAQ explain the trust benefit while distinguishing shipped Core capability from project-by-project compliance. ContentGlows remains evidence and a later pilot target, not a Core mutation surface.
 
 ## Risks
 
@@ -156,8 +159,9 @@ Implementation classification: `infrastructure · shared/domain · documentation
 | 2026-08-27 | 101-sg-ready | GPT-5 Codex | Reviewed behavior, failure semantics, owner boundaries, provider safety, proof, and followability. | ready | Implement the contract under the approved Core plan. |
 | 2026-08-27 | 102-sg-start | GPT-5 Codex | Implemented the policy, generator/auditor, guarded ruleset reconciliation, owner integrations, and focused scenario proof; audited ContentGlows read-only as the first pilot. | implemented | Run independent verification and closure. |
 | 2026-08-27 | 103-sg-verify | GPT-5 Codex | Reconstructed the delivered diff and verified 61 focused/owner tests, metadata, action pins, path/no-impact behavior, ruleset refusal/preservation, runtime visibility, and upstream persistence. | verified | Close documentation, editorial, and delivery bookkeeping. |
-| 2026-08-27 | 104-sg-end | GPT-5 Codex | Closed the Core scope with canonical policy and technical documentation aligned; public/editorial surfaces are unaffected and ContentGlows remains an explicit project-context pilot. | closed | Commit and push the closure trace. |
+| 2026-08-27 | 104-sg-end | GPT-5 Codex | Closed the Core technical scope; its original no-editorial-impact verdict was superseded by the 2026-08-28 public-trust review. | closed, editorial correction required | Align claim governance and public surfaces before treating editorial closure as complete. |
 | 2026-08-27 | 005-sg-ship | GPT-5 Codex | Committed the verified closure as `8ba0c80` and pushed it to `origin/codex/development-runtime` without force. | shipped | Record terminal delivery and hand off the ContentGlows pilot. |
+| 2026-08-28 | 007-sg-content | GPT-5 Codex | Corrected the editorial verdict, aligned the canonical claim boundary, and updated the public EN/FR article, docs, and FAQ in `commandglows/shipglows_app` commit `a165fa8` without claiming fleet-wide compliance. | updated and remotely backed up | Verify and ship the exact Core editorial trace. |
 
 ## Current Chantier Flow
 
@@ -167,3 +171,4 @@ Implementation classification: `infrastructure · shared/domain · documentation
 - `103-sg-verify` ✅ verified
 - `104-sg-end` ✅ closed
 - `005-sg-ship` ✅ shipped
+- `007-sg-content` ✅ updated
