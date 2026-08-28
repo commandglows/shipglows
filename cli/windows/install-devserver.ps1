@@ -108,7 +108,10 @@ foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatu
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
 $versionSource = Join-Path (Split-Path -Parent (Split-Path -Parent $sourceDir)) 'shipglows-version.json'
-if (Test-Path -LiteralPath $versionSource -PathType Leaf) { Copy-Item -LiteralPath $versionSource -Destination (Join-Path $ShipglowsDir 'shipglows-version.json') -Force }
+$versionDestination = Join-Path $ShipglowsDir 'shipglows-version.json'
+if ((Test-Path -LiteralPath $versionSource -PathType Leaf) -and -not ([IO.Path]::GetFullPath($versionSource).Equals([IO.Path]::GetFullPath($versionDestination),[StringComparison]::OrdinalIgnoreCase))) {
+    Copy-Item -LiteralPath $versionSource -Destination $versionDestination -Force
+}
 function Update-SgProcessPath {
     $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine')
     $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')

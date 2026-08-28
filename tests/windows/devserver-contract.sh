@@ -153,6 +153,7 @@ rg -n 'Get-SgAuthenticationDefinitions|Get-SgAuthenticationState|interactive-cli
 rg -F -n "foreach (\$launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1'))" "$INSTALLER"
 test -f "$RUNTIME_STATUS_MODULE"
 rg -n 'shipglows-version\.json|ShipGlows\.RuntimeStatus\.psm1|version=\[string\]\$versionDocument\.version' "$INSTALLER"
+rg -n 'versionDestination|GetFullPath\(\$versionSource\).*GetFullPath\(\$versionDestination\)' "$WINDOWS_DIR/install-devserver.ps1"
 rg -F -n '# cmd-shim-target=$target' "$INSTALLER"
 rg -n 'Install-SgManagedPlaywrightRuntimes|playwright-cli|Motion runtime ready|Playwright Chromium revision' "$INSTALLER" "$AUTH_MODULE"
 ! rg -n 'gemini.*(auth|login)|GEMINI_API_KEY|GOOGLE_API_KEY' "$INSTALLER" "$MOBILE_MODULE"
