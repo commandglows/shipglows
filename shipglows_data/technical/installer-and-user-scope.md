@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.26.0"
+artifact_version: "2.27.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-26"
+updated: "2026-08-28"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -58,6 +58,7 @@ evidence:
   - "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."
   - "Native Windows full makes one grouped proposal for missing coding-agent CLIs, installs only accepted tools at exact resolved versions, and leaves authentication to that CLI."
   - "Native Windows update stages and validates the complete managed payload, serializes activation, records managed paths, and restores the previous managed runtime byte-for-byte when activation or the child installer fails."
+  - "The Windows runtime payload carries canonical ShipGlows SemVer metadata and records it with the installed source commit for the cached DevServer status panel."
   - "Native Windows long-running installation work uses a UI-free event engine and a separate console adapter with an interactive loader or deterministic redirected-output lines."
   - "Native Windows phases now render immediately, every prompt publishes explicit awaiting-input/answer-received states, and phase work duration excludes human wait time; final trusted observation can recover from ambiguous WinGet, npm, Claude, or Codex provider exits."
   - "Native Windows interactive mode selection requires an explicit 1, 2, or 0; empty console input never starts an installation."

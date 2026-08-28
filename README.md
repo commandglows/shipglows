@@ -462,6 +462,10 @@ machine-wide execution-policy change.
 
 `shipglows update` is the canonical ShipGlows update command. Use
 `shipglows update status` first when you want to inspect the selected channel.
+The Windows DevServer header shows the installed ShipGlows version immediately
+and checks for a newer release in the background through a local cache; green
+is current, orange is an available patch/source update, and red is a missed
+minor or major version. Use `s update` when the header reports an update.
 On a linked developer checkout, skills already follow the checkout and only a
 new Codex or Claude session is needed after skill edits; the update command
 refreshes the managed runtime from that checkout's upstream branch. On Unix,

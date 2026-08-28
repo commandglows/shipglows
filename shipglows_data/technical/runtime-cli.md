@@ -460,6 +460,14 @@ never infers upgrade consent in non-interactive mode. This is the supported
 refresh path; the already-installed `cli/windows/install-devserver.ps1` only
 copies its current local source and must not be treated as a network updater.
 
+On Windows, the DevServer header immediately renders the cached ShipGlows
+runtime status and refreshes it asynchronously at most once per six hours.
+`shipglows-version.json` is the canonical SemVer release coordinate; the
+installer records it with the immutable source commit. Green means current,
+orange means a patch or linked-source update is available, and red means a
+minor or major release was missed. A failed network check preserves the last
+valid cache and never blocks the menu; an available update points to `s update`.
+
 The native full installer composes a UI-free operation engine with a console
 adapter. The engine emits stable started/progress/completed/failed/timed-out
 events and never reads input, writes host output, chooses colors, or invokes an

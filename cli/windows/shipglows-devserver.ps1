@@ -107,6 +107,8 @@ if (Test-SgImmediateAction $Action $ShortcutPath) {
 
 $module = Join-Path $PSScriptRoot 'ShipGlows.DevServer.psm1'
 Import-Module $module -Force -DisableNameChecking
+$runtimeStatusModule = Join-Path $PSScriptRoot 'ShipGlows.RuntimeStatus.psm1'
+Import-Module $runtimeStatusModule -Force -DisableNameChecking
 $authModule = Join-Path $PSScriptRoot 'ShipGlows.Auth.psm1'
 $script:authenticationModuleLoaded = $false
 $config = Get-SgDevConfig
@@ -134,7 +136,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','update-status','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -330,11 +332,27 @@ function Get-SelectedRegisteredProject([string]$Header = 'Choose a registered pr
     return Get-SelectedProject 'unregister' $Header
 }
 
+function Show-SgShipGlowsStatus {
+    $status = Read-SgShipGlowsStatusCache $config
+    $version = if ($status -and $status.installedVersion) { [string]$status.installedVersion } else { Get-SgInstalledShipGlowsVersion $config }
+    if (-not $version) { $version = '…' }
+    $color = switch (if ($status) { [string]$status.level } else { 'unknown' }) {
+        'current' { 'Green' }
+        'update' { 'DarkYellow' }
+        'major-update' { 'Red' }
+        default { 'DarkGray' }
+    }
+    Write-Host ("ShipGlows v{0}" -f $version) -ForegroundColor $color
+    if ($status -and $status.level -ne 'current') { Write-Host ([string]$status.message) -ForegroundColor $color }
+    elseif (-not $status) { Write-Host 'Verification de mise a jour en arriere-plan...' -ForegroundColor DarkGray }
+}
+
 function Show-SgWindowsDashboard {
     $items = @(Get-SgProjectCatalog $config -SkipProcessReconciliation)
     Write-Host ''
     Write-Host 'ShipGlows DevServer Windows' -ForegroundColor Yellow
     Write-Host '============================' -ForegroundColor Yellow
+    Show-SgShipGlowsStatus
     if ($items.Count -eq 0) { Write-Host 'No projects discovered in the ShipGlows workspace.'; return }
     $index = 1
     foreach ($entry in $items) {
@@ -618,6 +636,38 @@ function Invoke-SgAuthenticationMenu {
 $script:catalogRefreshPath = "$($config.ProjectIndexPath).refreshing"
 $script:catalogRefreshObserved = $false
 $script:backgroundRefreshStarted = $false
+$script:updateStatusRefreshStarted = $false
+
+function Start-SgBackgroundUpdateStatusRefresh {
+    if ($script:updateStatusRefreshStarted) { return }
+    $script:updateStatusRefreshStarted = $true
+    $cachedStatus = Read-SgShipGlowsStatusCache $config
+    if (Test-SgShipGlowsStatusCacheFresh $cachedStatus) { return }
+    $paths = Get-SgRuntimeStatusPaths $config
+    $claim = $null
+    try { $claim = [IO.File]::Open($paths.RefreshPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None) }
+    catch [IO.IOException] { return }
+    finally { if ($claim) { $claim.Dispose() } }
+
+    try {
+        $startInfo = [Diagnostics.ProcessStartInfo]::new()
+        $startInfo.FileName = $env:SHIPGLOWS_MANAGED_PWSH
+        $startInfo.Arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" refresh-update-status"
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
+        $startInfo.RedirectStandardInput = $true
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+        $process = [Diagnostics.Process]::Start($startInfo)
+        if (-not $process) { throw 'Background ShipGlows update check did not start.' }
+        $process.StandardInput.Close()
+        $process.Dispose()
+    } catch {
+        Remove-Item -LiteralPath $paths.RefreshPath -Force -ErrorAction SilentlyContinue
+        $script:updateStatusRefreshStarted = $false
+    }
+}
 
 function Complete-SgBackgroundCatalogRefresh {
     if ($script:catalogRefreshObserved -and -not (Test-Path -LiteralPath $script:catalogRefreshPath -PathType Leaf) -and -not (Test-SgProjectCatalogRefreshRequired $config -DiskOnly)) {
@@ -694,6 +744,7 @@ function Invoke-Menu {
         Complete-SgBackgroundCatalogRefresh
         Show-SgWindowsDashboard
         Start-SgBackgroundCatalogRefresh
+        Start-SgBackgroundUpdateStatusRefresh
         if ($choiceUiAvailable) {
             $selected = Read-SgChoice 'What do you want to do?' $menuItems
             if (-not $selected) { continue }
@@ -728,7 +779,7 @@ function Invoke-Menu {
 try {
     switch ($Action) {
         'menu' { Invoke-Menu }
-        'dashboard' { Show-SgWindowsDashboard }
+        'dashboard' { Show-SgWindowsDashboard; Start-SgBackgroundUpdateStatusRefresh }
         'status' {
             if ($ProjectPath) {
                 $path = ConvertTo-SgCanonicalPath $ProjectPath
@@ -762,6 +813,11 @@ try {
         'auth' { Invoke-SgAuthenticationMenu }
         'update' { Invoke-SgUpdate }
         'update-status' { Show-SgUpdateStatus }
+        'refresh-update-status' {
+            $paths = Get-SgRuntimeStatusPaths $config
+            try { Update-SgShipGlowsStatusCache $config { Get-SgOfficialShipGlowsVersion } | Out-Null }
+            finally { Remove-Item -LiteralPath $paths.RefreshPath -Force -ErrorAction SilentlyContinue }
+        }
         'help' { Show-SgShortcutHelp }
         'exit' { return }
     }
