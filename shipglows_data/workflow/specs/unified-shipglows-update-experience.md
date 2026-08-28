@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-08-28"
 created_at: "2026-08-28 12:45:00 UTC"
 updated: "2026-08-28"
-updated_at: "2026-08-28 13:15:00 UTC"
+updated_at: "2026-08-28 13:20:00 UTC"
 status: reviewed
 source_skill: 900-shipglows-core
 source_model: GPT-5 Codex
@@ -130,6 +130,7 @@ Implementation classification: infrastructure · cross-surface coherence. Proof 
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-28 | 900-shipglows-core | GPT-5 Codex | Formalized the approved unified update contract after confirming Git/GitHub alignment. | ready | Implement the runtime routes and focused proof. |
 | 2026-08-28 | 900-shipglows-core | GPT-5 Codex | Implemented Unix and Windows update routes, retained the DevServer menu, and installed the pushed branch through the native bootstrap. | verified | Commit and push closure bookkeeping. |
+| 2026-08-28 | 005-sg-ship | GPT-5 Codex | Delivered the implementation and verification commits to the resolved current upstream without force. | shipped | Use the canonical status command before a future refresh. |
 
 ## Current Chantier Flow
 
@@ -138,4 +139,4 @@ Implementation classification: infrastructure · cross-surface coherence. Proof 
 - `102-sg-start` ✅ implemented
 - `103-sg-verify` ✅ verified
 - `104-sg-end` ✅ closed
-- `005-sg-ship` ⏳ closure delivery pending
+- `005-sg-ship` ✅ shipped
