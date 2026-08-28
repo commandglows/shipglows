@@ -1,11 +1,11 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-28"
 updated: "2026-08-28"
-status: active
+status: reviewed
 source_skill: 900-shipglows-core
 scope: explicit-private-data-capability
 owner: Diane
@@ -35,7 +35,8 @@ evidence:
   - "Audit 2026-08-28: durable private-data storage is documented and Unix configuration resolves it, but skills have no explicit data capability and CLI parity is incomplete."
   - "Operator approval 2026-08-28: connect the private repository to ShipGlows skills and CLI without implicit context or automatic synchronization."
   - "Live replay 2026-08-28: the historical Windows checkout was repaired from four upstream path-portability commits, adopted explicitly, migrated to schema 1, and verified without exposing newsletter content."
-next_step: "Verify the full packaged runtime contract, then deliver the public runtime milestone."
+  - "Installed-runtime proof 2026-08-28: redacted status and doctor are healthy, projects/read is granted, mail-source/read is refused, and the full Windows DevServer contract passes with a process-local Windows module path."
+next_step: "Use the first bounded declared namespace workflow and preserve these regression fixtures before any schema 2 proposal."
 ---
 
 # Spec: Explicit Private-Data Capability
