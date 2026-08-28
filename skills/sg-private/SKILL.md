@@ -7,11 +7,11 @@ description: Private path, URL, and Vivaldi bookmark memory with explicit persis
 
 ## Mission
 
-`sg-private` is the public owner for explicit private-memory requests: remember or retrieve a named path or URL, and search or organize the operator's Vivaldi bookmarks when requested.
+`sg-private` is the public owner for explicit private requests: machine-local pointer memory, Vivaldi bookmarks, and bounded access to declared durable private-data namespaces.
 
 ## Scope Gate
 
-Resolve the intended memory action and source, then load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Supplying a path, URL, file, or bookmark for ordinary work is not permission to persist it; persistence requires explicit remember, keep, store, or bookmark intent.
+Resolve the intended private action and source, then load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Supplying a path, URL, file, bookmark, or private repository is not permission to persist or inspect it. Durable private-data access requires an explicit request and declared namespace.
 
 ## Required References
 
@@ -19,7 +19,7 @@ Resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine, verify the
 
 ## Validation
 
-Use the runtime engine's synthetic proof and private/public boundary checks. Never place real paths, URLs, notes, bookmark results, or backups in public Git evidence.
+Use the runtime engine's synthetic proof and private/public boundary checks. Never place real paths, URLs, notes, bookmark results, private repository metadata, or backups in public Git evidence.
 
 ## Stop Conditions
 

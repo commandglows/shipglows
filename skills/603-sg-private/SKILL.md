@@ -9,9 +9,9 @@ Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving Shi
 
 ## Mission And Mode
 
-`603-sg-private` owns one mode only: `memory`. It remembers and retrieves explicit private pointers and uses Vivaldi as a bookmark backend when the operator names Vivaldi, bookmarks, favorites, favoris, or signets.
+`603-sg-private` owns two explicit modes: `memory` for machine-local pointers and bookmarks, and `data` for declared durable private-data namespaces. It uses Vivaldi only when the operator names Vivaldi, bookmarks, favorites, favoris, or signets.
 
-Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Then load `$SHIPGLOWS_ROOT/skills/603-sg-private/references/memory-operations.md` and follow its source selection, persistence, mutation, and proof boundaries.
+Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. For `memory`, load `$SHIPGLOWS_ROOT/skills/603-sg-private/references/memory-operations.md`. For `data`, load `$SHIPGLOWS_ROOT/skills/references/private-data-repo-contract.md`, run the redacted `private-data status` control plane first, require the operator to name a manifest namespace and intended read/write operation, and run `private-data capability <namespace> <operation>` before accessing data. A legacy, invalid, or unsupported repository generation and every undeclared operation fail closed; migration remains a separate explicit operator action.
 
 ## Privacy Boundary
 
@@ -20,6 +20,7 @@ Load `$SHIPGLOWS_ROOT/skills/references/intent-to-outcome-autonomy.md`. Then loa
 - Never store credentials, tokens, cookies, authentication material, customer data, or file contents.
 - A remembered pointer grants no new authority to read, modify, move, or delete its target.
 - A supplied value is transient unless the operator explicitly asks to remember, keep, store, or bookmark it.
+- Durable private data is never ambient context: capability status reveals no path, remote, filename, or content; a granted namespace does not authorize another namespace or unapproved writes.
 
 ## Mutation And Recovery
 

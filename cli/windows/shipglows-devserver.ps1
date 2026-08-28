@@ -62,6 +62,31 @@ if ($Action.Trim().ToLowerInvariant() -eq 'env') {
     exit $LASTEXITCODE
 }
 
+# Private data remains a redacted control plane: no project scan, no startup,
+# and no ambient agent access.
+if ($Action.Trim().ToLowerInvariant() -eq 'private-data') {
+    if (@($ShortcutPath).Count -lt 1 -or $ShortcutPath[0].Trim().ToLowerInvariant() -notin @('status','doctor','capability','sync','connect','migrate','open')) {
+        [Console]::Error.WriteLine('Usage: s private-data <status|doctor|capability <namespace> <read|write>|connect --repo <URL> [--existing --dir <absolute-path>] [--apply]|migrate --manifest <absolute-path> [--apply]|open [--apply]|sync <pull|push> [--apply]>')
+        exit 2
+    }
+    $privateDataCandidates = @(
+        [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\private_data.py')),
+        [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\cli\private_data.py'))
+    )
+    $privateDataScript = $privateDataCandidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+    if (-not $privateDataScript) {
+        [Console]::Error.WriteLine('ShipGlows private-data control-plane script not found in the source or installed runtime.')
+        exit 2
+    }
+    $python = @(Get-Command python.exe -CommandType Application -ErrorAction SilentlyContinue; Get-Command python3.exe -CommandType Application -ErrorAction SilentlyContinue) | Where-Object { $_ } | Select-Object -First 1
+    if (-not $python) {
+        [Console]::Error.WriteLine('ShipGlows private-data commands require Python 3.')
+        exit 2
+    }
+    & $python.Source $privateDataScript @($ShortcutPath)
+    exit $LASTEXITCODE
+}
+
 function Test-SgImmediateAction([string]$RequestedAction, [string[]]$RemainingPath) {
     return @($RemainingPath).Count -eq 0 -and $RequestedAction.Trim().ToLowerInvariant() -in @('h','help','x','exit')
 }
@@ -83,6 +108,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
     Write-Host '  s a      Manage CLI authentication with official interactive flows'
+    Write-Host '  s private-data ...              Manage the explicit private-data connection and capability'
     Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
     Write-Host '  s u      Update ShipGlows from the active stable or linked channel'
     Write-Host '  s update status  Show the active ShipGlows update channel'

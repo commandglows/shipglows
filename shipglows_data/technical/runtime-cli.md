@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.30.0"
+artifact_version: "1.32.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-28"
@@ -61,6 +61,8 @@ evidence:
   - "Disk details and PM2 log cleanup/rotation added to explain and cap disk usage."
   - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
   - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser that excludes repositories already installed in the workspace."
+  - "The private-data control plane reports only redacted availability, validates a declared namespace capability, and requires an explicit clean-repository sync action."
+  - "Private-data compatibility replay 2026-08-28: legacy repositories are detected and explicitly migratable, future schemas fail closed, existing clean clones can be adopted, and tracked paths are checked for Windows portability."
   - "Native Windows full resolves and validates Flutter/Dart, JDK 17 and Android command-line tools in user scope; Android terms and SDK licenses remain explicitly user-confirmed, with non-interactive runs pending."
   - "Native Windows full detects Tauri Android projects, offers exact Rust/Android targets through an isolated mise environment and the validated NDK through sdkmanager, and records older projects as migration-required without mutating them; its cargo, rustc and rustup wrappers reproduce the same isolation without mutating global mise trust."
   - "The first live Tauri Windows update exposed ambiguous provider exits, mojibake Flutter diagnostics, serialized Codex MCP path comparison, and invisible prompt gaps; regression coverage now makes final observation authoritative and renders phases plus input waits explicitly."
@@ -442,6 +444,25 @@ PowerShell in the selected discovered or registered project because a subprocess
 change the parent shell's working directory; `exit` returns to the original
 shell. Unsupported Linux server paths fail with guidance instead of being
 silently remapped.
+
+## Explicit private-data control plane
+
+`shipglows private-data status` and `doctor` (or the Windows `s private-data`
+equivalent) expose only whether the durable private repository is configured,
+available, clean, and manifest-valid. They never print its path, remote, Git
+identity, filenames, or content. `capability <namespace> <read|write>` verifies
+that an explicit request matches a declared namespace in the private repository's
+data-only manifest; it does not read the namespace itself. `connect --repo` and
+`open` are dry plans until `--apply`: connection accepts only an explicit
+credential-free HTTPS or SSH URL, can adopt a matching clean existing clone,
+and persists configuration only after validation, while opening invokes the
+local file manager without printing the path. A repository without a manifest
+is diagnosed as legacy and requires an explicit `migrate --manifest ...
+--apply`; malformed or unknown future schemas fail closed. Doctor also rejects
+tracked paths that are not portable to Windows. `sync <pull|push>` is a dry plan unless `--apply` is present, then refuses
+a dirty repository or missing upstream and uses only fast-forward pull or
+ordinary push. None of these commands is run by installation, startup, generic
+context discovery, or a skill without an explicit private-data request.
 The explicit Windows DevServer `s u` / `s update` path downloads the public
 bootstrap over HTTPS for the stable channel, or selects the checked clean
 upstream branch of a linked developer checkout. `shipglows update` is the

@@ -107,6 +107,10 @@ foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatu
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
+$privateDataSource = Join-Path (Split-Path -Parent $sourceDir) 'private_data.py'
+$privateDataDestination = Join-Path $ShipglowsDir 'private_data.py'
+if (-not (Test-Path -LiteralPath $privateDataSource -PathType Leaf)) { throw "Missing private-data control-plane helper: $privateDataSource" }
+Copy-Item -LiteralPath $privateDataSource -Destination $privateDataDestination -Force
 $versionSource = Join-Path (Split-Path -Parent (Split-Path -Parent $sourceDir)) 'shipglows-version.json'
 $versionDestination = Join-Path $ShipglowsDir 'shipglows-version.json'
 if ((Test-Path -LiteralPath $versionSource -PathType Leaf) -and -not ([IO.Path]::GetFullPath($versionSource).Equals([IO.Path]::GetFullPath($versionDestination),[StringComparison]::OrdinalIgnoreCase))) {

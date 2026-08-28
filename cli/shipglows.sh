@@ -50,6 +50,17 @@ if [ "${1:-}" = "env" ]; then
     exec python3 "$SCRIPT_DIR/environment/shipglows_environment.py" "$@"
 fi
 
+# Durable private data is intentionally an explicit capability, never ambient
+# agent context. This control plane has no menu/bootstrap side effects.
+if [ "${1:-}" = "private-data" ]; then
+    shift
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "ShipGlows private-data commands require Python 3." >&2
+        exit 2
+    fi
+    exec python3 "$SCRIPT_DIR/private_data.py" "$@"
+fi
+
 source "$SCRIPT_DIR/lib.sh"
 
 # Load the right menu frontend

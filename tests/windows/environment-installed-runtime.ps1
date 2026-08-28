@@ -36,7 +36,7 @@ function Fail([string]$Message) { throw $Message }
 try {
     $bootstrapText = [IO.File]::ReadAllText($bootstrap)
     $installerText = [IO.File]::ReadAllText($installer)
-    Assert-Contains $bootstrapText 'cli/environment/\(\?:__init__\\\.py\|core\\\.py\|mise_backend\\\.py\|shipglows_environment\\\.py\|schemas/shipglows-environment-v1\\\.schema\\\.json\)' 'Windows bootstrap does not use the closed environment package allowlist.'
+    Assert-Contains $bootstrapText 'cli/\(\?:private_data\\\.py\|environment/' 'Windows bootstrap does not use the closed private-data and environment package allowlist.'
     Assert-Contains $bootstrapText 'environmentDirectory\s*=\s*Join-Path\s+\$ShipglowsDir' 'Windows bootstrap does not target the selected runtime.'
     Assert-Contains $bootstrapText "'cli\\environment'" 'Windows bootstrap does not target runtime\cli\environment.'
     Assert-Contains $installerText "cli\\environment\\shipglows_environment\.py" 'Native installer does not validate the packaged environment command.'
@@ -57,6 +57,7 @@ try {
         Copy-Item -LiteralPath (Join-Path $root "cli\windows\$windowsFile") -Destination (Join-Path $archiveWindows $windowsFile)
     }
     Copy-Item -LiteralPath (Join-Path $root 'shipglows-version.json') -Destination (Join-Path $archiveSource 'shipglows-version.json')
+    Copy-Item -LiteralPath (Join-Path $root 'cli\private_data.py') -Destination (Join-Path $archiveSource 'cli\private_data.py')
     foreach ($pythonFile in @('__init__.py','core.py','mise_backend.py','shipglows_environment.py')) {
         Copy-Item -LiteralPath (Join-Path $environmentSource $pythonFile) -Destination (Join-Path $archiveEnvironment $pythonFile)
     }
@@ -67,10 +68,11 @@ try {
     $extract = Join-Path $tempRoot 'archive-extract'
     New-Item -ItemType Directory -Path $extract | Out-Null
     $entries = @(Extract-ShipglowsWindowsFiles -ArchivePath $archive -DestinationPath $extract -FullMode $true)
-    if ($entries.Count -ne 26) { throw "Installer extracted $($entries.Count) files instead of the closed set of 26." }
+    if ($entries.Count -ne 27) { throw "Installer extracted $($entries.Count) files instead of the closed set of 27." }
     if (-not ($entries -match 'ShipGlows\.DeveloperCorpus\.psm1$')) { throw 'Installer did not extract the developer corpus channel module.' }
     if (-not ($entries -match 'ShipGlows\.RuntimeStatus\.psm1$') -or -not ($entries -match 'shipglows-version\.json$')) { throw 'Installer did not extract the runtime-status module and version metadata.' }
     if (-not ($entries -match 'shipglows\.ps1$')) { throw 'Installer did not extract the ShipGlows command entrypoint.' }
+    if (-not ($entries -match 'private_data\.py$')) { throw 'Installer did not extract the private-data control plane.' }
     if (-not (Test-Path -LiteralPath (Join-Path $extract 'shipglows-test\cli\environment\schemas\shipglows-environment-v1.schema.json') -PathType Leaf)) { throw 'Installer did not extract the environment schema.' }
 
     Remove-Item -LiteralPath (Join-Path $archiveWindows 'ShipGlows.FlutterSupervisor.ps1') -Force
@@ -79,7 +81,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Could not create the incomplete installer fixture archive.' }
     $rejected = $false
     try { [void](Extract-ShipglowsWindowsFiles -ArchivePath $incompleteArchive -DestinationPath $extract -FullMode $true) }
-    catch { $rejected = $_.Exception.Message -match 'missing native Windows DevServer.*environment control-plane files' }
+    catch { $rejected = $_.Exception.Message -match 'missing native Windows DevServer.*environment control-plane, or private-data control-plane files' }
     if (-not $rejected) { throw 'Installer accepted an incomplete environment package archive.' }
 
     $runtime = Join-Path $tempRoot 'runtime'
