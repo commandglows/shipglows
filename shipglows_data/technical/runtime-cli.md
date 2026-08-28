@@ -441,8 +441,12 @@ PowerShell in the selected discovered or registered project because a subprocess
 change the parent shell's working directory; `exit` returns to the original
 shell. Unsupported Linux server paths fail with guidance instead of being
 silently remapped.
-The explicit `s u` / `s update` path downloads the public Windows bootstrap
-over HTTPS, resolves an immutable source commit, stages and validates the full
+The explicit Windows DevServer `s u` / `s update` path downloads the public
+bootstrap over HTTPS for the stable channel, or selects the checked clean
+upstream branch of a linked developer checkout. `shipglows update` is the
+cross-platform canonical entrypoint and `shipglows update status` is read-only;
+on Unix `s u` remains the system-package update action. The Windows path resolves
+an immutable source commit, stages and validates the full
 managed payload, then classifies the target as `install`, `update`, `repair`, or
 `no-op`. Activation is serialized per runtime and transactionally replaces only
 the paths recorded in the mode-scoped `.shipglows-runtime-files.<mode>.json`; a child-installer failure

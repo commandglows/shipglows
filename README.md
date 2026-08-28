@@ -460,6 +460,13 @@ npm-family and agent commands receive
 managed `.cmd` wrappers so blocked npm-generated `.ps1` shims do not require a
 machine-wide execution-policy change.
 
+`shipglows update` is the canonical ShipGlows update command. Use
+`shipglows update status` first when you want to inspect the selected channel.
+On a linked developer checkout, skills already follow the checkout and only a
+new Codex or Claude session is needed after skill edits; the update command
+refreshes the managed runtime from that checkout's upstream branch. On Unix,
+`s u` remains the separate system-package update menu action.
+
 The code repository is public, so Git or GitHub credentials are not required
 for this bootstrap. Termux selects `local` without `sudo`; an existing root shell
 selects `full`. In a non-interactive environment, put the mode on the consuming

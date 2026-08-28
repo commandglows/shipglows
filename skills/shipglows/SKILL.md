@@ -30,6 +30,13 @@ manual PR, branch, and worktree hygiene; its default is read-only.
 without mutation, while `shipglows hygiene git` selects the safe Git cleanup
 workflow. Neither alias is a shell command.
 
+An explicit request to update ShipGlows resolves the active installation
+channel first with `shipglows update status`, then uses `shipglows update`.
+For a valid linked developer channel, skills are live from the checkout and a
+new Codex or Claude session reloads them; never tell the operator to reinstall
+the skills merely because source changes were pushed. Stop before update if the
+channel is invalid, the checkout is dirty, or its upstream is unresolved.
+
 `shipglows context` is a direct read-only context refresh. Load the canonical
 `000-shipglows` engine and `agent-runtime-awareness.md`, read
 `%USERPROFILE%\.shipglows\environment.md`, resolve

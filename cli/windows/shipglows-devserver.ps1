@@ -84,7 +84,8 @@ function Show-SgShortcutHelp {
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
     Write-Host '  s a      Manage CLI authentication with official interactive flows'
     Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
-    Write-Host '  s u      Update ShipGlows from the official repository'
+    Write-Host '  s u      Update ShipGlows from the active stable or linked channel'
+    Write-Host '  s update status  Show the active ShipGlows update channel'
     Write-Host '  s x      Quit ShipGlows'
     Write-Host '  s         Interactive menu'
     Write-Host ''
@@ -133,7 +134,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','help','exit')
+    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -149,6 +150,7 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
         'm n' = 'navigate'
         'a'   = 'auth'
         'u'   = 'update'
+        'update status' = 'update-status'
         'h'   = 'help'
         'x'   = 'exit'
     }
@@ -479,23 +481,70 @@ function Invoke-Navigate {
     finally { Pop-Location }
 }
 
-function Invoke-SgUpdate {
-    if (-not $curl) { $script:curl = Get-SgApplication 'curl.exe' @((Join-Path $env:WINDIR 'System32\curl.exe')) }
-    if (-not $curl) { throw 'curl.exe is unavailable. Download install-shipglows.ps1 from the official ShipGlows repository.' }
+function Get-SgUpdateSource {
+    param([switch]$AllowDirty)
+    $statePath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'development-channel.json'
+    if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) {
+        return [pscustomobject]@{ Channel='stable'; Root=''; Branch='main'; Upstream='origin/main'; Installer=''; Skills='managed' }
+    }
+    try { $state = [IO.File]::ReadAllText($statePath) | ConvertFrom-Json }
+    catch { throw 'The ShipGlows developer-channel state is invalid; update stopped before bootstrap.' }
+    if ($state.channel -cne 'linked' -or [string]::IsNullOrWhiteSpace([string]$state.root) -or -not [IO.Path]::IsPathRooted([string]$state.root)) {
+        throw 'The ShipGlows developer-channel state is incomplete; update stopped before bootstrap.'
+    }
+    $root = [IO.Path]::GetFullPath([string]$state.root)
+    $installer = Join-Path $root 'install-shipglows.ps1'
+    if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
+        throw 'The linked ShipGlows checkout is incomplete; update stopped before bootstrap.'
+    }
+    $git = Get-SgApplication 'git.exe' @()
+    if (-not $git) { throw 'Git is required to update a linked ShipGlows checkout.' }
+    $insideWorkTree = (& $git -C $root rev-parse --is-inside-work-tree 2>$null).Trim()
+    if ($LASTEXITCODE -ne 0 -or $insideWorkTree -ne 'true') {
+        throw 'The linked ShipGlows checkout is incomplete; update stopped before bootstrap.'
+    }
+    $dirty = @(& $git -C $root status --porcelain)
+    if ($LASTEXITCODE -ne 0) { throw 'The linked ShipGlows checkout could not be inspected.' }
+    if ($dirty.Count -gt 0 -and -not $AllowDirty) { throw 'The linked ShipGlows checkout has uncommitted changes; update stopped without stashing or replacing them.' }
+    $branch = (& $git -C $root branch --show-current).Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $branch) { throw 'The linked ShipGlows checkout is detached; update stopped before bootstrap.' }
+    $upstream = (& $git -C $root rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>$null).Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $upstream) { throw "The linked ShipGlows branch '$branch' has no upstream; update stopped before bootstrap." }
+    return [pscustomobject]@{ Channel='linked'; Root=$root; Branch=$branch; Upstream=$upstream; Installer=$installer; Skills='live'; Dirty=($dirty.Count -gt 0) }
+}
 
-    $installerUrl = 'https://raw.githubusercontent.com/commandglows/shipglows/main/install-shipglows.ps1'
+function Show-SgUpdateStatus {
+    $source = Get-SgUpdateSource -AllowDirty
+    $dirty = if ($source.PSObject.Properties['Dirty'] -and $source.Dirty) { 'dirty' } else { 'clean' }
+    Write-Host "ShipGlows update status: channel=$($source.Channel) branch=$($source.Branch) upstream=$($source.Upstream) skills=$($source.Skills) source=$dirty" -ForegroundColor Cyan
+    if ($source.Channel -eq 'linked') { Write-Host 'Linked skills already follow the checkout. Start a new Codex or Claude session after source changes.' -ForegroundColor DarkGray }
+}
+
+function Invoke-SgUpdate {
+    $source = Get-SgUpdateSource
+    if ($source.Channel -eq 'linked') {
+        $installerPath = $source.Installer
+        $installerArguments = @('-InstallMode','full','-Branch',$source.Branch)
+    } else {
+        if (-not $curl) { $script:curl = Get-SgApplication 'curl.exe' @((Join-Path $env:WINDIR 'System32\curl.exe')) }
+        if (-not $curl) { throw 'curl.exe is unavailable. Download install-shipglows.ps1 from the official ShipGlows repository.' }
+        $installerUrl = 'https://raw.githubusercontent.com/commandglows/shipglows/main/install-shipglows.ps1'
+        $installerPath = $null
+        $installerArguments = @('-InstallMode','full')
+    }
     $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("shipglows-update-" + [guid]::NewGuid().ToString('N'))
-    $installerPath = Join-Path $tempRoot 'install-shipglows.ps1'
     $shipglowsDir = Split-Path -Parent $PSScriptRoot
 
     try {
-        [void][IO.Directory]::CreateDirectory($tempRoot)
-        Write-SgInfo 'Downloading the current ShipGlows Windows installer...'
-        & $curl --proto '=https' --tlsv1.2 -fsSL $installerUrl -o $installerPath
-        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $installerPath -PathType Leaf)) {
-            throw 'ShipGlows installer download failed.'
+        if ($source.Channel -eq 'stable') {
+            [void][IO.Directory]::CreateDirectory($tempRoot)
+            $installerPath = Join-Path $tempRoot 'install-shipglows.ps1'
+            Write-SgInfo 'Downloading the current ShipGlows Windows installer...'
+            & $curl --proto '=https' --tlsv1.2 -fsSL $installerUrl -o $installerPath
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $installerPath -PathType Leaf)) {
+                throw 'ShipGlows installer download failed.'
+            }
         }
-
         $parseTokens = $null
         $parseErrors = $null
         [void][System.Management.Automation.Language.Parser]::ParseFile(
@@ -507,11 +556,12 @@ function Invoke-SgUpdate {
             throw 'The downloaded ShipGlows installer failed PowerShell syntax validation.'
         }
 
-        & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $installerPath -InstallMode full -ShipglowsDir $shipglowsDir
+        Write-SgInfo "Updating ShipGlows from $($source.Channel) channel ($($source.Branch))..."
+        & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $installerPath @installerArguments -ShipglowsDir $shipglowsDir
         if ($LASTEXITCODE -ne 0) { throw 'ShipGlows update failed.' }
         Write-SgInfo 'Update completed. Run s again to use the updated CLI.'
     } finally {
-        if (Test-Path -LiteralPath $tempRoot) {
+        if ($source.Channel -eq 'stable' -and (Test-Path -LiteralPath $tempRoot)) {
             Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
@@ -711,6 +761,7 @@ try {
         'navigate' { Invoke-Navigate }
         'auth' { Invoke-SgAuthenticationMenu }
         'update' { Invoke-SgUpdate }
+        'update-status' { Show-SgUpdateStatus }
         'help' { Show-SgShortcutHelp }
         'exit' { return }
     }

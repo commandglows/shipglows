@@ -19,6 +19,14 @@ while [ -L "$SCRIPT_SOURCE" ]; do
 done
 SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" && pwd)"
 
+# Self-update is deliberately independent from the legacy DevServer bootstrap.
+# `s u` remains the package-update menu action; `shipglows update` owns only
+# the ShipGlows runtime and delegates its writes to the canonical bootstrap.
+if [ "${1:-}" = "update" ]; then
+    shift
+    exec bash "$SCRIPT_DIR/shipglows_update.sh" "$@"
+fi
+
 # Skill distribution is a lightweight control plane. It must remain usable
 # without bootstrapping the DevServer menu or its local prerequisites.
 if [ "${1:-}" = "skills" ]; then
