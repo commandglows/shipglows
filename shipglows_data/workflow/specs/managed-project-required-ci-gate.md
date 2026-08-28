@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.2"
+artifact_version: "1.2.3"
 project: ShipGlows
 created: "2026-08-27"
 created_at: "2026-08-27 23:08:06 UTC"
 updated: "2026-08-28"
-updated_at: "2026-08-28 05:14:49 UTC"
+updated_at: "2026-08-28 11:57:29 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -41,6 +41,7 @@ evidence:
   - "ShipGlows runtime already proves the safe pattern: one always-triggered ShipGlows required gate reports an explicit successful no-impact result when expensive Windows proof is irrelevant."
   - "Operator decision 2026-08-28: make protective CI mandatory across ShipGlows-managed projects, beginning with a Core contract and a ContentGlows pilot."
   - "Editorial correction 2026-08-28: the verified Core capability is material public trust proof; the canonical claim register and bilingual article, docs, and FAQ require aligned wording without implying completed fleet rollout."
+  - "ShipGlows App rollout 2026-08-28: Node lanes now resolve a project-declared .node-version, .nvmrc, or engines.node contract instead of forcing Node 22; focused Core proof passes 16 tests."
 next_step: "Migrate ContentGlows under project-context authority, prove its exact gate, then reconcile its ruleset."
 ---
 
@@ -111,6 +112,7 @@ Every managed GitHub repository uses the exact protected status name `ShipGlows 
 - The production branch defaults to `main` only when project policy does not declare an alternative.
 - Audit is read-only. Workflow generation writes only the explicit output path. Provider apply is separately explicit and preconditioned by fresh provider evidence.
 - Generated workflows use least-privileged read permissions, exact revision checkout, pinned maintained actions, bounded timeouts, and no secrets.
+- Generated Node lanes use the nearest `.node-version` or `.nvmrc`, then `package.json#engines.node`; generation fails when no Node runtime contract is declared.
 - Existing unrelated dirty work remains unstaged and byte-preserved.
 
 ## Implementation Tasks

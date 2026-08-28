@@ -31,7 +31,7 @@ class RequiredGateContractTests(unittest.TestCase):
                 "production_branch": "main",
                 "lanes": [
                     {"id": "app", "runtime": "flutter", "root": "app", "paths": ["app/**"], "commands": ["flutter analyze", "flutter test"]},
-                    {"id": "site", "runtime": "node", "root": "site", "paths": ["site/**"], "commands": ["npm ci", "npm run check"]},
+                    {"id": "site", "runtime": "node", "node_version": "24", "root": "site", "paths": ["site/**"], "commands": ["npm ci", "npm run check"]},
                 ],
             }),
         )
@@ -78,16 +78,32 @@ class RequiredGateContractTests(unittest.TestCase):
     def test_detects_node_and_flutter_lanes(self):
         self.write("site/package.json", json.dumps({"scripts": {"check": "astro check", "test:unit": "node --test", "build": "astro build"}}))
         self.write("site/pnpm-lock.yaml", "lockfileVersion: '9.0'\n")
+        self.write(".node-version", "24\n")
         self.write("app/pubspec.yaml", "name: app\n")
         self.write("app/test/example_test.dart", "void main() {}\n")
         contract = gate.inspect_project(self.project)
         self.assertEqual(["app-flutter", "site-node"], sorted(lane.id for lane in contract.lanes))
         site = next(lane for lane in contract.lanes if lane.id == "site-node")
         self.assertEqual(("corepack enable && pnpm install --frozen-lockfile", "pnpm run check", "pnpm run test:unit", "pnpm run build"), site.commands)
+        self.assertEqual("24", site.node_version)
+        self.assertIn('node-version: "24"', gate.render_workflow(contract))
+
+    def test_detects_node_version_from_package_engines(self):
+        self.write("package.json", json.dumps({"engines": {"node": ">=24.0.0 <25"}, "scripts": {"test": "node --test"}}))
+        self.write("package-lock.json", "{}")
+        contract = gate.inspect_project(self.project)
+        self.assertEqual(">=24.0.0 <25", contract.lanes[0].node_version)
+        self.assertIn('node-version: ">=24.0.0 <25"', gate.render_workflow(contract))
+
+    def test_rejects_node_lane_without_declared_version(self):
+        self.write("package.json", json.dumps({"scripts": {"test": "node --test"}}))
+        self.write("package-lock.json", "{}")
+        with self.assertRaisesRegex(gate.GateError, "declare Node"):
+            gate.inspect_project(self.project)
 
     def test_reads_declared_production_branch(self):
         self.write("CLAUDE.md", "## ShipGlows Delivery Policy\n\n- production_branch: stable\n")
-        self.write("package.json", json.dumps({"scripts": {"check": "node --check index.js"}}))
+        self.write("package.json", json.dumps({"engines": {"node": "24"}, "scripts": {"check": "node --check index.js"}}))
         self.write("package-lock.json", "{}")
         self.assertEqual("stable", gate.inspect_project(self.project).production_branch)
 

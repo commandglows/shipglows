@@ -200,6 +200,7 @@ For active ShipGlows-managed GitHub repositories, use the canonical pattern from
 - Trigger its owning workflow on every pull request into the production branch, every push to that branch, and `workflow_dispatch`; never use top-level `paths` or `paths-ignore` there.
 - Classify paths inside that workflow, run only relevant stack lanes, and emit explicit successful no-impact results for the others.
 - Resolve the Core-owned tool from `$SHIPGLOWS_ROOT`, then run `python "$SHIPGLOWS_ROOT/tools/shipglows_required_gate.py" audit --project <path>` locally. Generate the workflow before enabling protection, then prove the exact status succeeds on the production branch.
+- Node lanes inherit the project's runtime contract from the nearest `.node-version` or `.nvmrc`, with `package.json#engines.node` as fallback. The generator refuses to invent a Node version when none is declared.
 - Inspect provider drift with `ruleset-plan`; use the separately explicit guarded `ruleset-apply` only inside approved GitHub reconciliation scope.
 
 For repositories outside ShipGlows management, use one of these compatible patterns:

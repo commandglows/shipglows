@@ -40,6 +40,7 @@ class Lane:
     root: str
     paths: tuple[str, ...]
     commands: tuple[str, ...]
+    node_version: str | None = None
 
 
 @dataclass(frozen=True)
@@ -61,12 +62,20 @@ def _load_json(path: Path) -> Any:
         raise GateError(f"Cannot read valid JSON from {path}: {exc}") from exc
 
 
+def _validate_node_version(value: str, context: str) -> str:
+    version = value.strip()
+    if not version or len(version) > 80 or not re.fullmatch(r"[A-Za-z0-9*./<>=~^| -]+", version):
+        raise GateError(f"{context} has an invalid Node version: {value!r}")
+    return version
+
+
 def _validate_lane(raw: dict[str, Any]) -> Lane:
     lane_id = str(raw.get("id", ""))
     runtime = str(raw.get("runtime", ""))
     root = str(raw.get("root", ".")).strip("/") or "."
     paths = tuple(str(item) for item in raw.get("paths", []))
     commands = tuple(str(item).strip() for item in raw.get("commands", []))
+    node_version = str(raw.get("node_version", "")).strip() or None
     if not LANE_ID.fullmatch(lane_id):
         raise GateError(f"Invalid lane id: {lane_id!r}")
     if runtime not in {"shell", "node", "flutter", "python"}:
@@ -84,7 +93,13 @@ def _validate_lane(raw: dict[str, Any]) -> Lane:
     for command in commands:
         if not command or "\n" in command or "\r" in command or FORBIDDEN_COMMAND.search(command):
             raise GateError(f"Lane {lane_id} contains a forbidden command: {command!r}")
-    return Lane(lane_id, runtime, root, paths, commands)
+    if runtime == "node":
+        if node_version is None:
+            raise GateError(f"Node lane {lane_id} must declare node_version")
+        node_version = _validate_node_version(node_version, f"Node lane {lane_id}")
+    elif node_version is not None:
+        raise GateError(f"Non-Node lane {lane_id} cannot declare node_version")
+    return Lane(lane_id, runtime, root, paths, commands, node_version)
 
 
 def _configured_contract(project: Path, config: Path) -> ProjectContract:
@@ -117,6 +132,26 @@ def _declared_production_branch(project: Path) -> str:
     return "main"
 
 
+def _declared_node_version(project: Path, root_path: Path, package: dict[str, Any]) -> str:
+    current = root_path
+    while True:
+        for name in (".node-version", ".nvmrc"):
+            declaration = current / name
+            if declaration.is_file():
+                version = declaration.read_text(encoding="utf-8").strip()
+                if version:
+                    return _validate_node_version(version, str(declaration))
+        if current == project:
+            break
+        current = current.parent
+    engines = package.get("engines", {})
+    if isinstance(engines, dict) and isinstance(engines.get("node"), str) and engines["node"].strip():
+        return _validate_node_version(engines["node"], f"{root_path / 'package.json'} engines.node")
+    raise GateError(
+        f"{root_path / 'package.json'}: declare Node in .node-version, .nvmrc, or package.json engines.node"
+    )
+
+
 def _node_lane(project: Path, manifest: Path) -> Lane | None:
     root_path = manifest.parent
     package = _load_json(manifest)
@@ -146,7 +181,8 @@ def _node_lane(project: Path, manifest: Path) -> Lane | None:
     root = _posix(root_path.relative_to(project))
     lane_id = "node" if root == "." else re.sub(r"[^a-z0-9]+", "-", root.lower()).strip("-") + "-node"
     paths = ("**",) if root == "." else (f"{root}/**",)
-    return Lane(lane_id[:40].rstrip("-"), "node", root, paths, tuple([install, *[run(name) for name in selected]]))
+    node_version = _declared_node_version(project, root_path, package)
+    return Lane(lane_id[:40].rstrip("-"), "node", root, paths, tuple([install, *[run(name) for name in selected]]), node_version)
 
 
 def _flutter_lane(project: Path, manifest: Path) -> Lane:
@@ -299,7 +335,7 @@ def render_workflow(contract: ProjectContract) -> str:
                 f"        if: {condition}",
                 f"        uses: actions/setup-node@{SETUP_NODE_PIN}",
                 "        with:",
-                "          node-version: 22",
+                f"          node-version: {_yaml_quote(lane.node_version or '')}",
             ])
         elif lane.runtime == "python":
             lines.extend([
