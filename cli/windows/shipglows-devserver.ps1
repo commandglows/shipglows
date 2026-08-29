@@ -572,7 +572,9 @@ function Get-SgUpdateSource {
     }
     $dirty = @(& $git -C $root status --porcelain)
     if ($LASTEXITCODE -ne 0) { throw 'The linked ShipGlows checkout could not be inspected.' }
-    if ($dirty.Count -gt 0 -and -not $AllowDirty) { throw 'The linked ShipGlows checkout has uncommitted changes; update stopped without stashing or replacing them.' }
+    if ($dirty.Count -gt 0 -and -not $AllowDirty) {
+        throw "The linked ShipGlows checkout has uncommitted changes, so the update stopped to preserve them. Inspect them with: git -C `"$root`" status --short. Commit or deliberately resolve those changes, then retry 's update'. No files were stashed or replaced."
+    }
     $branch = (& $git -C $root branch --show-current).Trim()
     if ($LASTEXITCODE -ne 0 -or -not $branch) { throw 'The linked ShipGlows checkout is detached; update stopped before bootstrap.' }
     $upstream = (& $git -C $root rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>$null).Trim()
@@ -821,6 +823,7 @@ function Invoke-Menu {
                 default { Write-SgWarn 'Unknown choice.' }
             }
         } catch { Write-SgError $_.Exception.Message }
+        if ($choice -eq 'u') { return }
         if (-not $choiceUiAvailable) { Read-Host 'Press Enter to continue' | Out-Null }
     }
 }

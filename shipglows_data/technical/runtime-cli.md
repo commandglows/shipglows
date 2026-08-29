@@ -474,7 +474,10 @@ The explicit Windows DevServer `s u` / `s update` path downloads the public
 bootstrap over HTTPS for the stable channel, or selects the checked clean
 upstream branch of a linked developer checkout. `shipglows update` is the
 cross-platform canonical entrypoint and `shipglows update status` is read-only;
-on Unix `s u` remains the system-package update action. The Windows path resolves
+on Unix `s u` remains the system-package update action. On Windows, dirty linked
+checkouts fail closed with a focused inspection and retry path, and
+an interactive update attempt exits the menu instead of redrawing the project
+catalog after success or failure. The Windows path resolves
 an immutable source commit, stages and validates the full
 managed payload, then classifies the target as `install`, `update`, `repair`, or
 `no-op`. Activation is serialized per runtime and transactionally replaces only
