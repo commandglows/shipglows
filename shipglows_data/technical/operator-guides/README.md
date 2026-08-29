@@ -33,5 +33,6 @@ Canonical Markdown references for ShipGlows operators:
 - `opencode-shipglows.md`: OpenCode discovery and configuration.
 - `kilocode-shipglows.md`: KiloCode compatibility and usage.
 - `windows-devserver.md`: native Windows installation, DevServer, tooling, and SSH tunnel guidance.
+- `browser-extension-lab.md`: beginner-safe inspection and isolated Chromium testing for browser extensions.
 
 Public pages may link to these repository files, but the canonical storage owner remains `shipglows_data/technical/operator-guides/`.

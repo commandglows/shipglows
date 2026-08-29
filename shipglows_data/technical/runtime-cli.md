@@ -287,6 +287,14 @@ target the environment root, never only the nested application directory.
 
 ## Native Windows DevServer
 
+### Browser Extension Lab
+
+`s extension-inspect` performs bounded, read-only detection of a root `manifest.json`, common built outputs, or the reviewed CRXJS `dev:chrome` contract. It does not install dependencies or execute repository scripts. Multiple artifacts fail closed instead of selecting a potentially stale build.
+
+`s extension-lab` accepts one valid Manifest V3 artifact and delegates structured arguments to the pinned ShipGlows Playwright runtime. Chromium creates a temporary persistent context, loads the exact unpacked directory through the capability-checked CDP Extensions domain, and returns a human result or JSON containing the extension id. `-Headless` closes after the load proof; interactive mode remains open until the isolated Chromium window closes. Personal Chrome/Edge profiles are never targets.
+
+See `skills/references/browser-extension-lab.md` for agent semantics and `shipglows_data/technical/operator-guides/browser-extension-lab.md` for the beginner journey.
+
 The Windows `full` bootstrap is a separate runtime backend for machines such
 as Shadow PC where WSL cannot be used. It owns only local development for
 Astro, Vite, browser extensions, Python/FastAPI, and Flutter Web. Repositories are constrained to the
