@@ -36,36 +36,38 @@ function safeDiagnostic(value) {
     .slice(0, 500);
 }
 
-async function observeServiceWorker(session, extensionId, manifest) {
+async function observeServiceWorker(context, session, extensionId, manifest) {
   const declared = Boolean(manifest.background && manifest.background.service_worker);
   const deadline = Date.now() + 3000;
   let workers = [];
   do {
     const targets = await session.send('Target.getTargets');
-    workers = targets.targetInfos.filter((target) => target.type === 'service_worker' && target.url.startsWith('chrome-extension://' + extensionId + '/'));
+    workers = context.serviceWorkers().filter((worker) => worker.url().startsWith('chrome-extension://' + extensionId + '/'));
+    if (!workers.length) workers = targets.targetInfos.filter((target) => target.type === 'service_worker' && target.url.startsWith('chrome-extension://' + extensionId + '/'));
     if (workers.length || !declared) break;
     await new Promise((resolve) => setTimeout(resolve, 100));
   } while (Date.now() < deadline);
   return { declared, status: !declared ? 'not-declared' : workers.length ? 'observed' : 'declared-not-awake', count: workers.length };
 }
 
-async function inspectPopup(session, extensionId, extensionPath, manifest) {
+async function inspectPopup(context, extensionId, extensionPath, manifest) {
   const relative = manifest.action && manifest.action.default_popup;
   if (!relative) return { declared: false, status: 'not-declared', title: '', errors: [] };
   const file = path.resolve(extensionPath, relative);
   const root = extensionPath.endsWith(path.sep) ? extensionPath : extensionPath + path.sep;
   if (!file.startsWith(root) || !fs.existsSync(file)) return { declared: true, status: 'missing-file', title: '', errors: [] };
-  let targetId;
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(safeDiagnostic(error.message)));
+  page.on('console', (message) => { if (message.type() === 'error') errors.push(safeDiagnostic(message.text())); });
+  page.on('requestfailed', (request) => errors.push(safeDiagnostic('Request failed: ' + request.url() + ' (' + (request.failure()?.errorText || 'unknown') + ')')));
   try {
-    const created = await session.send('Target.createTarget', { url: 'chrome-extension://' + extensionId + '/' + relative.replace(/\\/g, '/') });
-    targetId = created.targetId;
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    const target = await session.send('Target.getTargetInfo', { targetId });
-    const reached = target.targetInfo.url.startsWith('chrome-extension://' + extensionId + '/');
-    return { declared: true, status: reached ? 'target-created-unverified' : 'target-blocked', title: safeDiagnostic(target.targetInfo.title), errors: [] };
+    await page.goto('chrome-extension://' + extensionId + '/' + relative.replace(/\\/g, '/'), { waitUntil: 'domcontentloaded', timeout: 5000 });
+    await page.waitForTimeout(250);
+    return { declared: true, status: errors.length ? 'opened-with-errors' : 'opened', title: safeDiagnostic(await page.title()), errors: errors.slice(0, 10) };
   } catch (error) {
-    return { declared: true, status: 'target-failed', title: '', errors: [safeDiagnostic(error.message)] };
-  } finally { if (targetId) await session.send('Target.closeTarget', { targetId }).catch(() => {}); }
+    return { declared: true, status: 'open-failed', title: '', errors: [safeDiagnostic(error.message)] };
+  } finally { await page.close().catch(() => {}); }
 }
 
 async function main() {
@@ -73,17 +75,30 @@ async function main() {
   const extensionPath = path.resolve(options.extension);
   const manifest = require(path.join(extensionPath, 'manifest.json'));
   const playwright = require(path.resolve(options.playwright));
-  const context = await playwright.chromium.launchPersistentContext('', { channel: 'chromium', headless: options.headless });
+  const context = await playwright.chromium.launchPersistentContext('', {
+    channel: 'chromium',
+    headless: options.headless,
+    args: ['--disable-extensions-except=' + extensionPath, '--load-extension=' + extensionPath],
+  });
   try {
     const session = await context.browser().newBrowserCDPSession();
-    let loaded;
-    try { loaded = await session.send('Extensions.loadUnpacked', { path: extensionPath, enableInIncognito: false }); }
-    catch (error) { throw new Error('Managed Chromium does not expose Extensions.loadUnpacked: ' + error.message); }
-    const extensionId = loaded.id || loaded.extensionId;
+    let extensionId = '';
+    const deadline = Date.now() + 5000;
+    do {
+      const worker = context.serviceWorkers()[0];
+      if (worker && worker.url().startsWith('chrome-extension://')) { extensionId = new URL(worker.url()).host; break; }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    } while (Date.now() < deadline && manifest.background && manifest.background.service_worker);
+    if (!extensionId) {
+      let loaded;
+      try { loaded = await session.send('Extensions.loadUnpacked', { path: extensionPath, enableInIncognito: false }); }
+      catch (error) { throw new Error('Managed Chromium could not load the extension through flags or Extensions.loadUnpacked: ' + error.message); }
+      extensionId = loaded.id || loaded.extensionId;
+    }
     if (!extensionId) throw new Error('Chromium loaded the extension without returning an extension id.');
-    const popup = await inspectPopup(session, extensionId, extensionPath, manifest);
-    const serviceWorker = await observeServiceWorker(session, extensionId, manifest);
-    const diagnosticFailure = popup.status === 'missing-file' || popup.status === 'target-blocked' || popup.status === 'target-failed';
+    const popup = await inspectPopup(context, extensionId, extensionPath, manifest);
+    const serviceWorker = await observeServiceWorker(context, session, extensionId, manifest);
+    const diagnosticFailure = popup.status === 'missing-file' || popup.status === 'open-failed' || popup.status === 'opened-with-errors';
     emit({ ok: true, verdict: diagnosticFailure ? 'loaded-with-diagnostic-errors' : 'loaded', name: manifest.name, version: manifest.version, manifestVersion: manifest.manifest_version, extensionId, extensionPath, profile: 'temporary', headless: options.headless, serviceWorker, popup }, options.json);
     if (options.headless) return;
     await new Promise((resolve) => context.once('close', resolve));

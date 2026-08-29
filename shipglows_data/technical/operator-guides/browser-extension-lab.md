@@ -60,4 +60,4 @@ s extension-lab -ProjectPath <dossier> -Headless -Json
 
 ## Ce que la preuve signifie
 
-Un identifiant d'extension retourné prouve que Chromium a accepté l'artefact. `target-created-unverified` signifie que la cible du popup existe, pas que son interface fonctionne. `declared-not-awake` signifie que le service worker est déclaré mais ne s'est pas réveillé pendant la courte observation. Boutons, pages, content scripts et worker demandent donc encore leurs propres scénarios.
+Un identifiant d'extension retourné prouve que Chromium a accepté l'artefact. `opened` signifie que le popup a atteint `domcontentloaded` sans erreur de console, de page ou de requête capturée pendant la sonde bornée. `opened-with-errors` conserve ces diagnostics dans la sortie et produit le verdict `loaded-with-diagnostic-errors`. `observed` confirme qu'un service worker appartenant à l'extension a été vu; `declared-not-awake` signifie qu'il est déclaré mais ne s'est pas réveillé pendant la courte observation. Les interactions métier, pages secondaires et content scripts demandent encore leurs propres scénarios.
