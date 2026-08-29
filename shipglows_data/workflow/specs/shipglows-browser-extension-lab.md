@@ -222,7 +222,7 @@ Introduire un contrat de détection indépendant du framework et un laboratoire 
 - [x] AC 1: un dépôt statique Manifest V3 sans `package.json` est reconnu.
 - [x] AC 2: une extension construite avec sortie configurable est reconnue sans convention CRXJS obligatoire.
 - [x] AC 3: Chrome BRAT se charge automatiquement dans un Chromium isolé et son identifiant est retourné.
-- [ ] AC 4: manifeste invalide, sortie absente et capacité CDP absente donnent des erreurs actionnables.
+- [ ] AC 4: manifeste invalide, sortie absente et capacité CDP absente donnent des erreurs actionnables. Les deux premiers cas sont prouvés; la capacité CDP absente reste à simuler.
 - [x] AC 5: la détection seule n'exécute aucun script et aucun flux ne modifie un profil personnel.
 - [x] AC 6: les agents disposent d'une sortie stable et d'un playbook autonome.
 - [x] AC 7: un novice dispose d'un parcours cinq minutes, d'un glossaire et d'exemples réels.
@@ -258,14 +258,15 @@ None
 | 2026-08-29 03:21:09 UTC | 100-sg-spec | gpt-5 | Created and adversarially reviewed Extension Lab spec | ready | Implement Core foundation |
 | 2026-08-29 03:42:00 UTC | 102-sg-start | gpt-5 | Implemented Core loader, three repository pilots, CI artifacts and onboarding | implemented | Verify remaining behavioral scenarios |
 | 2026-08-29 03:58:00 UTC | 103-sg-verify | gpt-5 | Proved local builds, isolated loading and three remote artifact workflows | partial | Prove popup/worker behavior and unavailable-CDP recovery |
+| 2026-08-29 04:32:00 UTC | 103-sg-verify | gpt-5 | Opened all three popups, observed their workers and surfaced then fixed missing packaged favicons | partial | Simulate unavailable-CDP recovery |
 
 ## Current Chantier Flow
 
 - `sg-spec`: done, ready contract created from approved plan.
 - `sg-ready`: passed through adversarial contract review; no material open question.
 - `sg-start`: implemented for detection, isolated loading, CI artifacts and onboarding.
-- `sg-verify`: partial; build/load/CI passed, behavioral popup/worker and unavailable-CDP recovery remain.
+- `sg-verify`: partial; build/load/CI, popup diagnostics and worker observation pass. Unavailable-CDP recovery remains to simulate; content-script behavior is a future capability.
 - `sg-end`: not launched.
 - `sg-ship`: milestone delivery pending.
 
-Next step: implement the ShipGlows Core foundation.
+Next step: simulate unavailable-CDP recovery, then extend the lab with opt-in content-script scenarios when a pilot defines stable target pages and assertions.
