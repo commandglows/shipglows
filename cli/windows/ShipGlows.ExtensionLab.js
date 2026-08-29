@@ -4,13 +4,15 @@ const path = require('path');
 const fs = require('fs');
 
 function parseArgs(argv) {
-  const result = { headless: false, json: false };
+  const result = { headless: false, json: false, simulateCdpUnavailable: false };
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (token === '--headless') result.headless = true;
     else if (token === '--json') result.json = true;
     else if (token === '--extension') result.extension = argv[++index];
     else if (token === '--playwright') result.playwright = argv[++index];
+    else if (token === '--target-url') result.targetUrl = argv[++index];
+    else if (token === '--simulate-cdp-unavailable') result.simulateCdpUnavailable = true;
     else throw new Error('Unknown argument: ' + token);
   }
   if (!result.extension || !result.playwright) throw new Error('Both --extension and --playwright are required.');
@@ -25,8 +27,44 @@ function emit(payload, asJson) {
     process.stdout.write('Isolated profile: ' + payload.profile + '\n');
     process.stdout.write('Service worker: ' + payload.serviceWorker.status + '\n');
     process.stdout.write('Popup: ' + payload.popup.status + '\n');
+    process.stdout.write('Content scripts: ' + payload.contentScripts.status + '\n');
     process.stdout.write('Verdict: ' + payload.verdict + '\n');
     process.stdout.write(payload.headless ? 'Headless proof complete.\n' : 'Close the Chromium window to stop the lab.\n');
+  }
+}
+
+function contentScriptDeclarations(manifest) {
+  return Array.isArray(manifest.content_scripts) ? manifest.content_scripts : [];
+}
+
+async function inspectContentScripts(context, extensionId, manifest, targetUrl) {
+  const declarations = contentScriptDeclarations(manifest);
+  if (!declarations.length) return { declared: false, status: 'not-declared', targetUrl: '', observedScripts: [], errors: [] };
+  if (!targetUrl) return { declared: true, status: 'not-requested', targetUrl: '', observedScripts: [], errors: [] };
+  let parsed;
+  try { parsed = new URL(targetUrl); } catch { throw new Error('Content-script target must be an absolute http:// or https:// URL.'); }
+  if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Content-script target must use http:// or https://.');
+  const page = await context.newPage();
+  const session = await context.newCDPSession(page);
+  const errors = [];
+  const observed = new Set();
+  page.on('pageerror', (error) => errors.push(safeDiagnostic(error.message)));
+  page.on('console', (message) => { if (message.type() === 'error') errors.push(safeDiagnostic(message.text())); });
+  page.on('requestfailed', (request) => errors.push(safeDiagnostic('Request failed: ' + safeUrl(request.url()) + ' (' + (request.failure()?.errorText || 'unknown') + ')')));
+  session.on('Debugger.scriptParsed', (event) => {
+    if (event.url.startsWith('chrome-extension://' + extensionId + '/')) observed.add(event.url);
+  });
+  try {
+    await session.send('Debugger.enable');
+    await page.goto(parsed.href, { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.waitForTimeout(500);
+    const observedScripts = [...observed].slice(0, 20);
+    return { declared: true, status: observedScripts.length ? (errors.length ? 'observed-with-errors' : 'observed') : 'not-observed', targetUrl: safeUrl(parsed.href), observedScripts, errors: errors.slice(0, 10) };
+  } catch (error) {
+    return { declared: true, status: 'navigation-failed', targetUrl: safeUrl(parsed.href), observedScripts: [...observed].slice(0, 20), errors: [safeDiagnostic(error.message)] };
+  } finally {
+    await session.detach().catch(() => {});
+    await page.close().catch(() => {});
   }
 }
 
@@ -36,12 +74,23 @@ function safeDiagnostic(value) {
     .slice(0, 500);
 }
 
+function safeUrl(value) {
+  try {
+    const parsed = new URL(value);
+    parsed.username = '';
+    parsed.password = '';
+    parsed.search = '';
+    parsed.hash = '';
+    return parsed.href;
+  } catch { return '[invalid-url]'; }
+}
+
 async function observeServiceWorker(context, session, extensionId, manifest) {
   const declared = Boolean(manifest.background && manifest.background.service_worker);
   const deadline = Date.now() + 3000;
   let workers = [];
   do {
-    const targets = await session.send('Target.getTargets');
+    const targets = session ? await session.send('Target.getTargets') : { targetInfos: [] };
     workers = context.serviceWorkers().filter((worker) => worker.url().startsWith('chrome-extension://' + extensionId + '/'));
     if (!workers.length) workers = targets.targetInfos.filter((target) => target.type === 'service_worker' && target.url.startsWith('chrome-extension://' + extensionId + '/'));
     if (workers.length || !declared) break;
@@ -60,7 +109,7 @@ async function inspectPopup(context, extensionId, extensionPath, manifest) {
   const errors = [];
   page.on('pageerror', (error) => errors.push(safeDiagnostic(error.message)));
   page.on('console', (message) => { if (message.type() === 'error') errors.push(safeDiagnostic(message.text())); });
-  page.on('requestfailed', (request) => errors.push(safeDiagnostic('Request failed: ' + request.url() + ' (' + (request.failure()?.errorText || 'unknown') + ')')));
+  page.on('requestfailed', (request) => errors.push(safeDiagnostic('Request failed: ' + safeUrl(request.url()) + ' (' + (request.failure()?.errorText || 'unknown') + ')')));
   try {
     await page.goto('chrome-extension://' + extensionId + '/' + relative.replace(/\\/g, '/'), { waitUntil: 'domcontentloaded', timeout: 5000 });
     await page.waitForTimeout(250);
@@ -81,7 +130,7 @@ async function main() {
     args: ['--disable-extensions-except=' + extensionPath, '--load-extension=' + extensionPath],
   });
   try {
-    const session = await context.browser().newBrowserCDPSession();
+    const session = options.simulateCdpUnavailable ? null : await context.browser().newBrowserCDPSession();
     let extensionId = '';
     const deadline = Date.now() + 5000;
     do {
@@ -90,6 +139,7 @@ async function main() {
       await new Promise((resolve) => setTimeout(resolve, 100));
     } while (Date.now() < deadline && manifest.background && manifest.background.service_worker);
     if (!extensionId) {
+      if (!session) throw new Error('Managed Chromium loaded the extension through isolated flags, but its id could not be observed and the CDP fallback is unavailable. Ensure the Manifest V3 service worker starts, then retry.');
       let loaded;
       try { loaded = await session.send('Extensions.loadUnpacked', { path: extensionPath, enableInIncognito: false }); }
       catch (error) { throw new Error('Managed Chromium could not load the extension through flags or Extensions.loadUnpacked: ' + error.message); }
@@ -98,8 +148,9 @@ async function main() {
     if (!extensionId) throw new Error('Chromium loaded the extension without returning an extension id.');
     const popup = await inspectPopup(context, extensionId, extensionPath, manifest);
     const serviceWorker = await observeServiceWorker(context, session, extensionId, manifest);
-    const diagnosticFailure = popup.status === 'missing-file' || popup.status === 'open-failed' || popup.status === 'opened-with-errors';
-    emit({ ok: true, verdict: diagnosticFailure ? 'loaded-with-diagnostic-errors' : 'loaded', name: manifest.name, version: manifest.version, manifestVersion: manifest.manifest_version, extensionId, extensionPath, profile: 'temporary', headless: options.headless, serviceWorker, popup }, options.json);
+    const contentScripts = await inspectContentScripts(context, extensionId, manifest, options.targetUrl);
+    const diagnosticFailure = ['missing-file', 'open-failed', 'opened-with-errors'].includes(popup.status) || ['observed-with-errors', 'not-observed', 'navigation-failed'].includes(contentScripts.status);
+    emit({ ok: true, verdict: diagnosticFailure ? 'loaded-with-diagnostic-errors' : 'loaded', name: manifest.name, version: manifest.version, manifestVersion: manifest.manifest_version, extensionId, extensionPath, profile: 'temporary', headless: options.headless, serviceWorker, popup, contentScripts }, options.json);
     if (options.headless) return;
     await new Promise((resolve) => context.once('close', resolve));
   } finally { await context.close().catch(() => {}); }

@@ -34,8 +34,9 @@ Use the Extension Lab when the target is a browser extension rather than a websi
 1. Run `s extension-inspect -ProjectPath <path> -Json` before any repository script.
 2. Treat `static` and `built` as directly testable. Treat `build-required` as a stop: inspect the repository and obtain the authority required for its declared build command.
 3. Run `s extension-lab -ProjectPath <path> -Headless -Json` for deterministic proof, or omit `-Headless` for an interactive isolated Chromium window.
-4. Record the manifest version, resolved artifact path, returned extension id, popup status, service-worker status and bounded errors. Never infer success from a build alone.
-5. Close Chromium after interactive work. The Lab uses a temporary profile and must never target Chrome, Edge or another personal profile directory.
+4. When content-script behavior is in scope, add `-TargetUrl <explicit-http-or-https-url>`. Never invent a target or navigate to an authenticated/private page without authority.
+5. Record the manifest version, resolved artifact path, returned extension id, popup status, service-worker status, content-script status and bounded errors. Never infer success from a build alone.
+6. Close Chromium after interactive work. The Lab uses a temporary profile and must never target Chrome, Edge or another personal profile directory.
 
 ## Trust boundary
 
@@ -52,6 +53,9 @@ Inspection parses bounded local manifests and does not install dependencies or e
 - `open-failed`: Playwright could not open the declared popup URL.
 - `declared-not-awake`: the manifest declares a service worker, but no live worker target was observed during the bounded probe.
 - `observed`: Playwright or CDP observed a live service worker belonging to the loaded extension.
+- `not-requested`: content scripts are declared, but no explicit target URL was supplied, so ShipGlows did not navigate.
+- `observed` (content scripts): Chromium parsed at least one script belonging to the extension on the explicit target page.
+- `not-observed`: content scripts are declared but none were parsed on the explicit target; check manifest match patterns and page eligibility.
 - `temporary`: the browser profile is disposable and separate from personal browser state.
 
 Do not describe an extension as tested when only detection or compilation passed. Popup, content-script and service-worker behavior require their own observed proof.
