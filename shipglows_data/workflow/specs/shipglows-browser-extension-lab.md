@@ -30,6 +30,7 @@ evidence:
   - "Operator approved the reinforced Extension Lab plan on 2026-08-29."
   - "The refreshed audit confirmed Chrome BRAT unchanged and CDP loading operational."
   - "Current ShipGlows extension support is limited to one CRXJS convention."
+  - "Chrome BRAT, ToolGlows and a clean CommunityGlows build loaded successfully in temporary Chromium on 2026-08-29."
 next_step: "Implement the ShipGlows Core foundation"
 ---
 
@@ -254,12 +255,13 @@ None
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-29 03:21:09 UTC | 700-sg-explore | gpt-5 | Refreshed repository and runtime evidence | reviewed | Formalize implementation contract |
 | 2026-08-29 03:21:09 UTC | 100-sg-spec | gpt-5 | Created and adversarially reviewed Extension Lab spec | ready | Implement Core foundation |
+| 2026-08-29 03:42:00 UTC | 102-sg-start | gpt-5 | Implemented Core loader, three repository pilots, CI artifacts and onboarding | implemented | Verify remaining behavioral scenarios |
 
 ## Current Chantier Flow
 
 - `sg-spec`: done, ready contract created from approved plan.
 - `sg-ready`: passed through adversarial contract review; no material open question.
-- `sg-start`: in progress.
+- `sg-start`: implemented for detection, isolated loading, CI artifacts and onboarding.
 - `sg-verify`: not launched.
 - `sg-end`: not launched.
 - `sg-ship`: milestone delivery pending.

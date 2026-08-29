@@ -60,4 +60,4 @@ s extension-lab -ProjectPath <dossier> -Headless -Json
 
 ## Ce que la preuve signifie
 
-Un identifiant d'extension retourné prouve que Chromium a accepté l'artefact. Cela ne prouve pas encore que chaque bouton, page, content script ou service worker fonctionne : ces comportements doivent être observés ou testés séparément.
+Un identifiant d'extension retourné prouve que Chromium a accepté l'artefact. `target-created-unverified` signifie que la cible du popup existe, pas que son interface fonctionne. `declared-not-awake` signifie que le service worker est déclaré mais ne s'est pas réveillé pendant la courte observation. Boutons, pages, content scripts et worker demandent donc encore leurs propres scénarios.
