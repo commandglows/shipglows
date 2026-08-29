@@ -31,6 +31,7 @@ evidence:
   - "The refreshed audit confirmed Chrome BRAT unchanged and CDP loading operational."
   - "Current ShipGlows extension support is limited to one CRXJS convention."
   - "Chrome BRAT, ToolGlows and a clean CommunityGlows build loaded successfully in temporary Chromium on 2026-08-29."
+  - "GitHub Actions runs 33231777712, 33245930207 and 33245930149 published validated Chrome artifacts."
 next_step: "Implement the ShipGlows Core foundation"
 ---
 
@@ -180,35 +181,35 @@ Introduire un contrat de détection indépendant du framework et un laboratoire 
 
 ## Implementation Tasks
 
-- [ ] Task 1: créer le contrat de détection d'extension.
+- [x] Task 1: créer le contrat de détection d'extension.
   - File: `cli/windows/ShipGlows.DevServer.psm1`
   - Action: détecter manifestes et artefacts sans dépendre exclusivement de CRXJS.
   - User story link: importer tout dépôt d'extension raisonnable.
   - Depends on: None.
   - Validate with: tests PowerShell ciblés.
   - Notes: préserver les projets web existants.
-- [ ] Task 2: construire le chargeur Chromium isolé.
+- [x] Task 2: construire le chargeur Chromium isolé.
   - File: `cli/windows/` et ressource Node dédiée.
   - Action: charger un répertoire unpacked, produire diagnostics humains/JSON et nettoyer le profil.
   - User story link: tester sans risque pour le profil personnel.
   - Depends on: Task 1.
   - Validate with: Chrome BRAT en contexte jetable.
   - Notes: capability-checker CDP et fallback actionnable.
-- [ ] Task 3: intégrer le parcours CLI et menu Windows.
+- [x] Task 3: intégrer le parcours CLI et menu Windows.
   - File: `cli/windows/shipglows-dev.ps1` et modules associés.
   - Action: proposer inspect/start/status/stop adaptés aux extensions.
   - User story link: parcours guidé pour débutants et agents.
   - Depends on: Tasks 1-2.
   - Validate with: tests de commandes et snapshots de messages.
   - Notes: conserver les commandes web existantes.
-- [ ] Task 4: préparer les dépôts pilotes et CI.
+- [x] Task 4: préparer les dépôts pilotes et CI.
   - File: worktrees dédiés Chrome BRAT, ToolGlows et CommunityGlows.
   - Action: ajouter contrats/scripts/workflows minimaux nécessaires sans absorber les changements étrangers.
   - User story link: prouver plusieurs architectures réelles.
   - Depends on: Tasks 1-3.
   - Validate with: artefacts et chargements isolés.
   - Notes: commits/pushes distincts par dépôt.
-- [ ] Task 5: livrer onboarding agents et contenu débutant.
+- [x] Task 5: livrer onboarding agents et contenu débutant.
   - File: documentation interne et publique résolue par la cartographie documentaire.
   - Action: playbook, glossaire, guide cinq minutes, erreurs et contenu d'acquisition.
   - User story link: rendre le laboratoire utilisable sans expertise extension.
@@ -218,14 +219,14 @@ Introduire un contrat de détection indépendant du framework et un laboratoire 
 
 ## Acceptance Criteria
 
-- [ ] AC 1: un dépôt statique Manifest V3 sans `package.json` est reconnu.
-- [ ] AC 2: une extension construite avec sortie configurable est reconnue sans convention CRXJS obligatoire.
-- [ ] AC 3: Chrome BRAT se charge automatiquement dans un Chromium isolé et son identifiant est retourné.
+- [x] AC 1: un dépôt statique Manifest V3 sans `package.json` est reconnu.
+- [x] AC 2: une extension construite avec sortie configurable est reconnue sans convention CRXJS obligatoire.
+- [x] AC 3: Chrome BRAT se charge automatiquement dans un Chromium isolé et son identifiant est retourné.
 - [ ] AC 4: manifeste invalide, sortie absente et capacité CDP absente donnent des erreurs actionnables.
-- [ ] AC 5: la détection seule n'exécute aucun script et aucun flux ne modifie un profil personnel.
-- [ ] AC 6: les agents disposent d'une sortie stable et d'un playbook autonome.
-- [ ] AC 7: un novice dispose d'un parcours cinq minutes, d'un glossaire et d'exemples réels.
-- [ ] AC 8: CI et dépôts pilotes prouvent les modes statique et construit.
+- [x] AC 5: la détection seule n'exécute aucun script et aucun flux ne modifie un profil personnel.
+- [x] AC 6: les agents disposent d'une sortie stable et d'un playbook autonome.
+- [x] AC 7: un novice dispose d'un parcours cinq minutes, d'un glossaire et d'exemples réels.
+- [x] AC 8: CI et dépôts pilotes prouvent les modes statique et construit.
 
 ## Test Strategy
 
@@ -256,13 +257,14 @@ None
 | 2026-08-29 03:21:09 UTC | 700-sg-explore | gpt-5 | Refreshed repository and runtime evidence | reviewed | Formalize implementation contract |
 | 2026-08-29 03:21:09 UTC | 100-sg-spec | gpt-5 | Created and adversarially reviewed Extension Lab spec | ready | Implement Core foundation |
 | 2026-08-29 03:42:00 UTC | 102-sg-start | gpt-5 | Implemented Core loader, three repository pilots, CI artifacts and onboarding | implemented | Verify remaining behavioral scenarios |
+| 2026-08-29 03:58:00 UTC | 103-sg-verify | gpt-5 | Proved local builds, isolated loading and three remote artifact workflows | partial | Prove popup/worker behavior and unavailable-CDP recovery |
 
 ## Current Chantier Flow
 
 - `sg-spec`: done, ready contract created from approved plan.
 - `sg-ready`: passed through adversarial contract review; no material open question.
 - `sg-start`: implemented for detection, isolated loading, CI artifacts and onboarding.
-- `sg-verify`: not launched.
+- `sg-verify`: partial; build/load/CI passed, behavioral popup/worker and unavailable-CDP recovery remain.
 - `sg-end`: not launched.
 - `sg-ship`: milestone delivery pending.
 
