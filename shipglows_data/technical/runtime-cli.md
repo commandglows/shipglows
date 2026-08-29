@@ -441,7 +441,7 @@ Extension lifecycle diagnostics use the separate source tool
 It collects isolated-world/worker exceptions and the active isolated Chromium
 Errors journal while exercising acknowledged pending synchronization. Personal
 Chrome journal reading remains a separately authorized UI observation. This tool
-does not add `extension-lab` or `extension-inspect` to the installed `s` command.
+is separate from the installed `s extension-inspect`, `s extension-lab` and `s obsidian-lab` commands documented in the Native Windows DevServer section above.
 
 During a full Windows runtime installation, every still-present registered
 project is re-registered through the current detector before its managed
