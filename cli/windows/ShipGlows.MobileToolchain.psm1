@@ -557,7 +557,11 @@ function Get-SgMachineToolboxMiseConfig {
         $validTool = $tool -match '^npm:[a-z0-9@/._-]+$' -or $tool -in @('aqua:supabase/cli','aqua:auth0/auth0-cli')
         $validVersion = if ($tool -eq 'aqua:auth0/auth0-cli') { $version -match '^\d+\.\d+\.\d+$' } else { $version -match '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$' }
         if (-not $validTool -or -not $validVersion) { throw 'Machine toolbox contains an invalid or mutable coordinate.' }
-        $lines.Add(('"{0}" = "{1}"' -f [string]$item.Tool,[string]$item.Version))
+        if ($tool -eq 'npm:vercel') {
+            $lines.Add(('"{0}" = {{ version = "{1}", trust_policy_excludes = ["fastq@1.20.2"] }}' -f $tool,$version))
+        } else {
+            $lines.Add(('"{0}" = "{1}"' -f $tool,$version))
+        }
     }
     return ($lines -join "`n") + "`n"
 }

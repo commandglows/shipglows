@@ -136,6 +136,8 @@ $toolboxPlan = @(Get-SgMachineToolboxPlan -Versions $toolboxVersions)
 Assert-Sg (($toolboxPlan.Name -join '|') -eq 'firebase|supabase|convex|vercel|clerk|auth0') 'The machine toolbox must install every approved provider CLI independently of project detection.'
 $toolboxConfig = Get-SgMachineToolboxMiseConfig -Plan $toolboxPlan
 foreach ($coordinate in @('npm:firebase-tools','aqua:supabase/cli','npm:convex','npm:vercel','npm:clerk','aqua:auth0/auth0-cli')) { Assert-Sg ($toolboxConfig.Contains('"' + $coordinate + '"')) "Machine toolbox config is missing $coordinate." }
+Assert-Sg ($toolboxConfig.Contains('"npm:vercel" = { version = "59.5.0", trust_policy_excludes = ["fastq@1.20.2"] }')) 'Vercel must carry only the reviewed fastq 1.20.2 mise trust-policy exception.'
+Assert-Sg ([regex]::Matches($toolboxConfig,'trust_policy_excludes').Count -eq 1) 'The Vercel trust-policy exception must not apply to another machine-toolbox package.'
 Assert-Sg ($toolboxConfig -notmatch '(?im)latest|stable|\*|\^|~') 'Machine toolbox config must contain only exact immutable versions.'
 $auth0PrereleaseRejected = $false
 $prereleaseVersions = $toolboxVersions.Clone(); $prereleaseVersions.Auth0 = '1.34.0-beta.1'
