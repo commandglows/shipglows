@@ -10,7 +10,8 @@ param(
     [string]$RepositoryUrl = '',
     [int]$Port = 0,
     [switch]$Json,
-    [switch]$Headless
+    [switch]$Headless,
+    [string]$TargetUrl = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -103,7 +104,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
     Write-Host '  s extension-inspect [-ProjectPath <path>] [-Json]  Inspect an extension without running repository scripts'
-    Write-Host '  s extension-lab [-ProjectPath <path>] [-Headless] [-Json]  Load a built MV3 extension in isolated Chromium'
+    Write-Host '  s extension-lab [-ProjectPath <path>] [-Headless] [-Json] [-TargetUrl <url>]  Load and probe a built MV3 extension in isolated Chromium'
     Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
     Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
     Write-Host '  s m r    Restart a project'
@@ -865,7 +866,7 @@ try {
         }
         'extension-lab' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
-            Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json
+            Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl
         }
         'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
         'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }

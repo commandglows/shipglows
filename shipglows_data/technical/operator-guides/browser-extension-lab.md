@@ -41,6 +41,14 @@ s extension-inspect -ProjectPath <dossier> -Json
 s extension-lab -ProjectPath <dossier> -Headless -Json
 ```
 
+Pour vérifier les content scripts sur une page précise, fournissez volontairement sa cible :
+
+```powershell
+s extension-lab -ProjectPath <dossier> -Headless -Json -TargetUrl https://example.com/
+```
+
+Sans `-TargetUrl`, ShipGlows répond `not-requested` et ne navigue nulle part. La cible doit être une URL absolue `http://` ou `https://`; évitez une page privée ou authentifiée sans autorisation explicite.
+
 ## Comprendre le résultat
 
 - **Statique** : le dépôt contient directement `manifest.json`, comme Chrome BRAT. Aucun build n'est nécessaire.
@@ -60,4 +68,4 @@ s extension-lab -ProjectPath <dossier> -Headless -Json
 
 ## Ce que la preuve signifie
 
-Un identifiant d'extension retourné prouve que Chromium a accepté l'artefact. `opened` signifie que le popup a atteint `domcontentloaded` sans erreur de console, de page ou de requête capturée pendant la sonde bornée. `opened-with-errors` conserve ces diagnostics dans la sortie et produit le verdict `loaded-with-diagnostic-errors`. `observed` confirme qu'un service worker appartenant à l'extension a été vu; `declared-not-awake` signifie qu'il est déclaré mais ne s'est pas réveillé pendant la courte observation. Les interactions métier, pages secondaires et content scripts demandent encore leurs propres scénarios.
+Un identifiant d'extension retourné prouve que Chromium a accepté l'artefact. `opened` signifie que le popup a atteint `domcontentloaded` sans erreur capturée. `observed` confirme qu'un service worker ou, dans la section `contentScripts`, qu'un script de l'extension a réellement été vu. `not-requested` garantit qu'aucune cible de content script n'a été visitée implicitement. Les erreurs de console, page, navigation et requêtes sont bornées dans la sortie et produisent `loaded-with-diagnostic-errors`.

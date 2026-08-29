@@ -44,6 +44,7 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/win
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/rio-tab-rename.ps1"
 for regression in \
   browser-extension-lab.ps1 \
+  browser-extension-runtime.ps1 \
   browser-extension-project.ps1 \
   devserver-user-guidance.ps1 \
   devserver-monorepo-detection.ps1 \
