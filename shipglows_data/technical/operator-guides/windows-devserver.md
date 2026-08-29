@@ -48,6 +48,12 @@ next_step: "/103-sg-verify Windows operator guide"
 
 # ShipGlows - Installation pour Windows
 
+## Diagnostic de configuration après clonage
+
+Après l'enregistrement, le clonage exécute `s env prepare` et affiche la classification. Pour `repairable`, examiner le plan JSON puis lancer la commande exacte `s env prepare-apply -ProjectPath <path> -PlanDigest <digest>` affichée par la CLI. ShipGlows n'applique jamais cette réparation automatiquement et ne fabrique pas les manifests du projet, lockfiles, `.env` ou secrets.
+
+Si le diagnostic est `blocked`, le clone reste sur disque mais la commande échoue avec une erreur contextuelle. Corriger manuellement la source invalide puis relancer `s env prepare`; toute configuration existante inconnue ou invalide est préservée plutôt que remplacée.
+
 ## Runtime PowerShell
 
 Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. La commande utilise le runtime PowerShell 7.6.5 possede par ShipGlows sans modifier l'installation systeme. La premiere installation complete en ligne peut acquerir l'archive epinglee. Le mode offline ne fonctionne qu'apres validation locale du runtime; sinon, reconnectez la machine et relancez l'installateur complet. Un echec SHA, archive, sonde, verrou ou corruption conserve le pointeur actif precedent.

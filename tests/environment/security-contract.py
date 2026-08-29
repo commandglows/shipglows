@@ -96,7 +96,7 @@ with tempfile.TemporaryDirectory() as directory:
     copied_root = fixture / "copied-runtime"
     copied_environment = copied_root / "cli" / "environment"
     copied_environment.mkdir(parents=True)
-    for name in ("__init__.py", "core.py", "shipglows_environment.py"):
+    for name in ("__init__.py", "core.py", "preparation.py", "shipglows_environment.py"):
         shutil.copy2(ROOT / "cli" / "environment" / name, copied_environment / name)
     process = subprocess.run(
         [sys.executable, str(copied_environment / "shipglows_environment.py"), "inspect", "--project", str(project), "--state-root", str(state_root)],

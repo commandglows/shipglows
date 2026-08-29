@@ -24,7 +24,7 @@ for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "
   test -f "$file"
 done
 
-for environment_contract in schema-contract.py state-contract.py plan-contract.py executor-contract.py security-contract.py; do
+for environment_contract in schema-contract.py state-contract.py plan-contract.py executor-contract.py security-contract.py preparation-contract.py; do
   python "$ROOT/tests/environment/$environment_contract"
 done
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-observation.ps1"
@@ -197,7 +197,8 @@ rg -n 'Remove-SgObsoleteProfileCommand|Removed the obsolete ShipGlows profile co
 ! rg -n 'function shipglows-dev \{ & ' "$INSTALLER"
 rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh auth setup-git|gh api --paginate.*user/repos.*organization_member|gh repo clone \$repository\.url \$temporaryDestination' "$ENTRYPOINT"
 rg -n '\.shipglows-clone-|Move-Item -LiteralPath \$temporaryDestination -Destination \$destination|Remove-Item -LiteralPath \$temporaryDestination -Recurse -Force' "$ENTRYPOINT"
-rg -n 'function Register-SgClonedProject|Clone completed but was not registered|Register-SgClonedProject \$destination' "$ENTRYPOINT"
+rg -n 'function Register-SgClonedProject|Clone completed but project preparation failed|Register-SgClonedProject \$destination' "$ENTRYPOINT"
+! rg -n 'Clone completed but was not registered' "$ENTRYPOINT"
 rg -n 'function Read-SgNodePackage|function Get-SgNodeDependencyNames|function Get-SgNodeScript|ConvertFrom-Json -ErrorAction Stop' "$MODULE"
 rg -n 'function Sync-SgRegisteredProjectEnvironments|Register-SgProject \$Config \$root|Sync-SgRegisteredProjectEnvironments \$config' "$MODULE" "$INSTALLER"
 rg -n '\$jsonLines = @\(|\$repositories = @\(\$jsonLines.*ConvertFrom-Json|one compact JSON object per line' "$ENTRYPOINT"
