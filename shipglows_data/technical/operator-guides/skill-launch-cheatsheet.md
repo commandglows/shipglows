@@ -49,8 +49,8 @@ These are terminal commands, not agent modes:
 | Command | Purpose |
 | --- | --- |
 | `shipglows skills status` | Report whether Codex uses the public plugin, a linked clone, a conflicting double channel, or no ShipGlows entrypoint. |
-| `shipglows skills link` | From a complete Git clone, replace the plugin channel after confirmation and expose live public skills to Codex and Claude. |
-| `shipglows skills unlink` | Remove only proven ShipGlows-managed public links; add `--install-plugin` to return to the public Codex channel. |
+| `shipglows skills link [--catalog public\|expert]` | From a complete Git clone, activate exactly one live catalogue in Codex and Claude; switching removes the previous ShipGlows catalogue while preserving unrelated skills. |
+| `shipglows skills unlink` | Remove only proven ShipGlows-managed links; add `--install-plugin` to return to the public Codex channel. |
 
 After changing channel, restart Codex or Claude from a new shell so both its
 skill catalogue and managed `SHIPGLOWS_ROOT` are rediscovered. Editing a linked

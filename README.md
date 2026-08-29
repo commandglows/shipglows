@@ -514,13 +514,17 @@ skills surface:
 ```bash
 shipglows skills status
 shipglows skills link
+shipglows skills link --catalog expert
 ```
 
 `link` verifies the Git checkout, refuses links owned by another clone, asks
-before removing an enabled ShipGlows plugin, links the public catalogue into
+before removing an enabled ShipGlows plugin, links exactly one catalogue into
 Codex and Claude, configures that clone as `SHIPGLOWS_ROOT` in existing Bash or
 Zsh startup files, points managed user-local `shipglows` launchers at the clone,
-and verifies the result. Source edits become visible without a push, plugin
+and verifies the result. `public` is the default and exposes only the stable
+`sg-*` owners; `expert` exposes only internal engines. Switching catalogue
+removes the previous ShipGlows links while preserving personal and third-party
+skills. A combined catalogue is intentionally unsupported. Source edits become visible without a push, plugin
 release, or reinstall after Codex or Claude is restarted from a new shell. To
 return to the public channel:
 
@@ -528,7 +532,7 @@ return to the public channel:
 shipglows skills unlink --install-plugin
 ```
 
-`unlink` removes only public symlinks proven to be managed by a ShipGlows
+`unlink` removes only symlinks proven to be managed by a ShipGlows
 checkout. It preserves the clone, personal skills, regular files, and unrelated
 links.
 
@@ -811,14 +815,14 @@ The lower-level skill runtime helper remains available for targeted diagnostics 
 ```bash
 tools/shipglows_sync_skills.sh --check --all
 tools/shipglows_sync_skills.sh --repair --skill sg-example
-tools/shipglows_sync_skills.sh --repair --all --runtime codex --catalog all
+tools/shipglows_sync_skills.sh --repair --all --runtime codex --catalog expert
 ```
 
-The helper links current-user `~/.claude/skills/<name>` and [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. `--codex-entrypoint linked` keeps the live developer `$shipglows` and fails when the plugin is simultaneously enabled; `--codex-entrypoint plugin` removes only the managed Codex router link and leaves the plugin as owner. Use `--catalog expert` for internal engines only, or `--catalog all` for the complete developer catalogue. The helper reports missing or stale links, blocks non-link collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
+The helper links current-user `~/.claude/skills/<name>` and [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. `--codex-entrypoint linked` keeps the live developer `$shipglows` and fails when the plugin is simultaneously enabled; `--codex-entrypoint plugin` removes only the managed Codex router link and leaves the plugin as owner. `--catalog public` and `--catalog expert` are mutually exclusive; every complete repair removes the other ShipGlows catalogue automatically while preserving unrelated skills. The helper reports missing, stale, or excluded links, blocks non-link collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
 
-On Windows, pass `-CleanStale` with `-Mode repair -Catalog public` to remove only
-obsolete ShipGlows junctions from the selected runtime directories. The helper
-never removes source skills or unrelated/non-link entries. It also accepts
+On Windows, `-Mode repair -All -Catalog public|expert` automatically removes only
+the ShipGlows junctions excluded by the selected catalogue. The helper never
+removes source skills or unrelated/non-link entries. It also accepts
 `-CodexEntrypoint linked|plugin` and refuses an enabled plugin together with a
 linked developer router.
 

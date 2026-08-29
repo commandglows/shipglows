@@ -96,12 +96,26 @@ grep -Fq "export SHIPGLOWS_ROOT='$REPO_ROOT'" "$HOME_FIXTURE/.bashrc" || \
 python3 - "$HOME_FIXTURE/.config/shipglows/linked-skill-root.json" "$REPO_ROOT" <<'PY'
 import json, pathlib, sys
 payload = json.loads(pathlib.Path(sys.argv[1]).read_text())
-assert payload == {"managed_by": "shipglows-skills-link", "root": sys.argv[2]}
+assert payload == {"catalog": "public", "managed_by": "shipglows-skills-link", "root": sys.argv[2]}
 PY
 grep -q '^plugin remove shipglows@shipglows --json$' "$CALLS_FIXTURE"
 
 mkdir -p "$HOME_FIXTURE/.agents/skills/personal-skill"
 printf '%s\n' 'preserve me' > "$HOME_FIXTURE/.agents/skills/personal-skill/SKILL.md"
+run_skills link --root "$REPO_ROOT" --catalog expert --yes >/dev/null
+state="$(run_skills status --json | python3 -c 'import json,sys; data=json.load(sys.stdin); print(data["state"] + ":" + data["configured_catalog"])')"
+test "$state" = "linked:expert"
+test -L "$HOME_FIXTURE/.agents/skills/006-sg-design"
+test ! -e "$HOME_FIXTURE/.agents/skills/sg-design"
+test -f "$HOME_FIXTURE/.agents/skills/personal-skill/SKILL.md"
+
+run_skills link --root "$REPO_ROOT" --catalog public --yes >/dev/null
+state="$(run_skills status --json | python3 -c 'import json,sys; data=json.load(sys.stdin); print(data["state"] + ":" + data["configured_catalog"])')"
+test "$state" = "linked:public"
+test -L "$HOME_FIXTURE/.agents/skills/sg-design"
+test ! -e "$HOME_FIXTURE/.agents/skills/006-sg-design"
+test -f "$HOME_FIXTURE/.agents/skills/personal-skill/SKILL.md"
+
 run_skills unlink --yes >/dev/null
 state="$(run_skills status --json | python3 -c 'import json,sys; print(json.load(sys.stdin)["state"])')"
 test "$state" = "none"

@@ -98,6 +98,9 @@ run_helper --repair --all --runtime codex --catalog public >/tmp/shipglows-sync-
 assert_link "$TARGET_HOME_TEST/.agents/skills/sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/sg-alpha"
 assert_link "$TARGET_HOME_TEST/.agents/skills/sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/sg-beta"
 assert_link "$TARGET_HOME_TEST/.agents/skills/shipglows" "$SHIPGLOWS_ROOT_TEST/skills/shipglows"
+test ! -e "$TARGET_HOME_TEST/.agents/skills/001-sg-alpha"
+mkdir -p "$TARGET_HOME_TEST/.agents/skills/personal-skill"
+printf '%s\n' 'preserve me' > "$TARGET_HOME_TEST/.agents/skills/personal-skill/SKILL.md"
 
 mkdir -p "$TARGET_HOME_TEST/.codex"
 printf '%s\n' '[plugins."shipglows@shipglows"]' 'enabled = true' > "$TARGET_HOME_TEST/.codex/config.toml"
@@ -120,10 +123,27 @@ run_helper --repair --all --runtime codex --catalog expert >/tmp/shipglows-sync-
 assert_link "$TARGET_HOME_TEST/.agents/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
 assert_link "$TARGET_HOME_TEST/.agents/skills/002-sg-beta" "$SHIPGLOWS_ROOT_TEST/skills/002-sg-beta"
 assert_link "$TARGET_HOME_TEST/.agents/skills/003-sg-gamma" "$SHIPGLOWS_ROOT_TEST/skills/003-sg-gamma"
+test ! -e "$TARGET_HOME_TEST/.agents/skills/sg-alpha"
+test ! -e "$TARGET_HOME_TEST/.agents/skills/shipglows"
+test -f "$TARGET_HOME_TEST/.agents/skills/personal-skill/SKILL.md"
 
-run_helper --repair --all --runtime codex --catalog all >/tmp/shipglows-sync-complete-codex.out
+if run_helper --repair --all --runtime codex --catalog all >/tmp/shipglows-sync-invalid-catalog.out 2>&1; then
+    echo "expected combined catalog to be rejected" >&2
+    exit 1
+fi
+grep -q "invalid catalog: all" /tmp/shipglows-sync-invalid-catalog.out
+
+if run_helper --check --all --runtime codex --catalog public >/tmp/shipglows-sync-exclusive-check.out 2>&1; then
+    echo "expected public check to reject installed expert links" >&2
+    exit 1
+fi
+grep -q "excluded-by-public-catalog" /tmp/shipglows-sync-exclusive-check.out
+
+run_helper --repair --all --runtime codex --catalog public >/tmp/shipglows-sync-public-switch.out
 assert_link "$TARGET_HOME_TEST/.agents/skills/shipglows" "$SHIPGLOWS_ROOT_TEST/skills/shipglows"
-assert_link "$TARGET_HOME_TEST/.agents/skills/001-sg-alpha" "$SHIPGLOWS_ROOT_TEST/skills/001-sg-alpha"
+test ! -e "$TARGET_HOME_TEST/.agents/skills/001-sg-alpha"
+test -f "$TARGET_HOME_TEST/.agents/skills/personal-skill/SKILL.md"
+run_helper --check --all --runtime codex --catalog public >/tmp/shipglows-sync-public-idempotent.out
 
 if find "$HOME/.agents/skills" -maxdepth 0 >/dev/null 2>&1; then
     test ! -e "$HOME/.agents/skills/001-sg-alpha-test-should-not-exist"
