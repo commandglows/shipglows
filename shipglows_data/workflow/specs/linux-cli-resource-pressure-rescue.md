@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-26"
 created_at: "2026-08-26 21:51:04 UTC"
-updated: "2026-08-27"
-updated_at: "2026-08-26 22:14:51 UTC"
+updated: "2026-08-29"
+updated_at: "2026-08-29 02:26:18 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5
@@ -28,15 +28,16 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Editorial correction 2026-08-29: the shipped rescue is a useful public tutorial opportunity for small-VM operators; the earlier no-impact verdict was technically scoped but editorially too narrow."
   - "Incident observe le 2026-08-26 sur une VM 2 vCPU/4 Go: swap 2 Go utilise a 100%, PSI CPU/memoire proche de 99%, PSI memoire full proche de 66% et terminal presque inutilisable."
   - "Deux commandes Vercel CLI detachees, PPID 1 et sans TTY, consommaient ensemble environ 1,9 Go de RAM et 1,2 Go de swap."
   - "La CLI existante classait seulement MemAvailable, signalait uniquement l'absence de swap et ne reconnaissait que Codex/Ranger/MCP dans ses nettoyages de processus."
-next_step: "Observe the next organic memory-pressure event through the CLI Health rescue path."
+next_step: "Draft the linked bilingual Linux VM pressure rescue tutorial without reopening the completed technical delivery."
 ---
 
 # Spec: Linux CLI resource pressure rescue
 
-🟢 [ShipGlows] spec: Linux CLI resource pressure rescue | status: reviewed | path: shipglows_data/workflow/specs/linux-cli-resource-pressure-rescue.md | next: observe the next organic memory-pressure event through the CLI Health rescue path
+🟢 [ShipGlows] spec: Linux CLI resource pressure rescue | status: reviewed | path: shipglows_data/workflow/specs/linux-cli-resource-pressure-rescue.md | next: draft the linked bilingual Linux VM pressure rescue tutorial
 
 ## Title
 
@@ -275,6 +276,7 @@ None. Les seuils et protections sont internes, configurables et couverts par tes
 | 2026-08-26 22:05:27 UTC | 103-sg-verify | GPT-5 | Verified 21 focused pressure and rescue cases, Bash syntax, targeted metadata, diff integrity, official Linux PSI semantics, and fail-closed process protections. | verified locally | /005-sg-ship Linux CLI resource pressure rescue |
 | 2026-08-26 22:14:51 UTC | 005-sg-ship | GPT-5 | Pushed the bounded implementation commit, revalidated the remote baseline, created a private backup, activated only the two approved runtime scripts, and matched their committed hashes and Linux syntax. | shipped and activated | /104-sg-end Linux CLI resource pressure rescue |
 | 2026-08-26 22:14:51 UTC | 104-sg-end | GPT-5 | Closed the unique chantier after a live non-destructive diagnostic reported pressure ok, swap 39%, memory PSI 0.00/0.00, zero eligible orphan groups, and expected runtime ownership; technical documentation is updated and public editorial surfaces are not impacted. | closed | Observe the next organic memory-pressure event through the CLI Health rescue path. |
+| 2026-08-29 02:26:18 UTC | 007-sg-content | GPT-5 | Corrected the editorial reflection: the completed technical capability remains closed, while its verified incident and rescue path now source a separate bilingual public tutorial draft. | editorial follow-up linked | /102-sg-start Linux VM pressure rescue public tutorial |
 
 ## Current Chantier Flow
 
@@ -284,5 +286,6 @@ None. Les seuils et protections sont internes, configurables et couverts par tes
 - `103-sg-verify`: verified locally and on the active Linux runtime.
 - `104-sg-end`: closed; durable documentation and proof are aligned.
 - `005-sg-ship`: shipped and activated from commit `c101bd7` with a private rollback backup.
+- Editorial follow-up: linked to the separate ready bilingual tutorial spec; the technical chantier remains closed.
 
-Next step: observe the next organic memory-pressure event through the CLI Health rescue path; do not manufacture pressure on the live VM.
+Next step: draft the linked bilingual Linux VM pressure rescue tutorial; do not manufacture pressure on the live VM or reopen the completed technical delivery.
