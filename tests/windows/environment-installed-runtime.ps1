@@ -58,7 +58,7 @@ try {
     }
     Copy-Item -LiteralPath (Join-Path $root 'shipglows-version.json') -Destination (Join-Path $archiveSource 'shipglows-version.json')
     Copy-Item -LiteralPath (Join-Path $root 'cli\private_data.py') -Destination (Join-Path $archiveSource 'cli\private_data.py')
-    foreach ($pythonFile in @('__init__.py','core.py','mise_backend.py','shipglows_environment.py')) {
+    foreach ($pythonFile in @('__init__.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py')) {
         Copy-Item -LiteralPath (Join-Path $environmentSource $pythonFile) -Destination (Join-Path $archiveEnvironment $pythonFile)
     }
     Copy-Item -LiteralPath (Join-Path $environmentSource 'schemas\shipglows-environment-v1.schema.json') -Destination (Join-Path $archiveEnvironment 'schemas\shipglows-environment-v1.schema.json')
@@ -68,11 +68,12 @@ try {
     $extract = Join-Path $tempRoot 'archive-extract'
     New-Item -ItemType Directory -Path $extract | Out-Null
     $entries = @(Extract-ShipglowsWindowsFiles -ArchivePath $archive -DestinationPath $extract -FullMode $true)
-    if ($entries.Count -ne 27) { throw "Installer extracted $($entries.Count) files instead of the closed set of 27." }
+    if ($entries.Count -ne 28) { throw "Installer extracted $($entries.Count) files instead of the closed set of 28." }
     if (-not ($entries -match 'ShipGlows\.DeveloperCorpus\.psm1$')) { throw 'Installer did not extract the developer corpus channel module.' }
     if (-not ($entries -match 'ShipGlows\.RuntimeStatus\.psm1$') -or -not ($entries -match 'shipglows-version\.json$')) { throw 'Installer did not extract the runtime-status module and version metadata.' }
     if (-not ($entries -match 'shipglows\.ps1$')) { throw 'Installer did not extract the ShipGlows command entrypoint.' }
     if (-not ($entries -match 'private_data\.py$')) { throw 'Installer did not extract the private-data control plane.' }
+    if (-not ($entries -match 'preparation\.py$')) { throw 'Installer did not extract the environment preparation engine.' }
     if (-not (Test-Path -LiteralPath (Join-Path $extract 'shipglows-test\cli\environment\schemas\shipglows-environment-v1.schema.json') -PathType Leaf)) { throw 'Installer did not extract the environment schema.' }
 
     Remove-Item -LiteralPath (Join-Path $archiveWindows 'ShipGlows.FlutterSupervisor.ps1') -Force

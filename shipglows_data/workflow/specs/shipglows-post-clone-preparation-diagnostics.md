@@ -1,8 +1,8 @@
 ---
 title: ShipGlows post-clone preparation diagnostics
 status: active
-version: 1.0.0
-updated: 2026-08-26
+version: 1.0.1
+updated: 2026-08-29
 owner: development
 depends_on: shipglows-reproducible-environment-control-plane
 ---
@@ -59,3 +59,4 @@ shipglows env prepare emits deterministic JSON containing classification, detect
 | 2026-08-26 | Spec created and readiness-reviewed | Approved local plan; ownership and stale-plan gates defined |
 | 2026-08-26 | Implementation started | Engine, Windows integration, and contract fixture added |
 | 2026-08-26 | Implementation verified | Environment contracts and full Windows DevServer contract passed; CommandGlows detected Flutter, Astro, Node, and pnpm without mutation |
+| 2026-08-29 | Windows packaging repaired | The bootstrap now requires and installs `preparation.py`; the Windows contract blocks incomplete preparation payloads |

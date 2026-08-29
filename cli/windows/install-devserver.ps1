@@ -715,7 +715,7 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
 }
 
 function Assert-SgEnvironmentPythonPackage([string]$PythonPath, [string]$EnvironmentDirectory) {
-    $pythonFiles = @('__init__.py','core.py','mise_backend.py','shipglows_environment.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
+    $pythonFiles = @('__init__.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
     # Windows PowerShell 5.1 removes embedded double quotes while rebuilding a
     # native argv. Python accepts single-quoted literals, which survive that
     # boundary and keep the -c program intact.

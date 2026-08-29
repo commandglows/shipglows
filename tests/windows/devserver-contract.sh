@@ -227,10 +227,11 @@ for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.RuntimeStatus\.psm1
   rg -n "$windows_file" "$BOOTSTRAP"
 done
 rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
-rg -n '\$entries\.Count -ne 26|shipglows-version\.json' "$BOOTSTRAP"
+rg -n '\$entries\.Count -ne 28|shipglows-version\.json' "$BOOTSTRAP"
 rg -n 'InstallSurface.*corpus|SHIPGLOWS_INSTALL_COMPONENTS|Install-SgDeveloperCheckout|Enable-SgWindowsDeveloperChannel' "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
-rg -n '\$environmentCandidates = @\(|Assert-EnvironmentPackage|cli/environment/.*shipglows_environment' "$BOOTSTRAP"
+rg -n '\$environmentCandidates = @\(|Assert-EnvironmentPackage|preparation\.py|cli/environment/.*shipglows_environment' "$BOOTSTRAP"
+rg -n "Assert-SgEnvironmentPythonPackage|preparation\.py" "$INSTALLER"
 rg -n 'cli/private_data\.py|private-data control-plane|privateDataSource' "$BOOTSTRAP" "$INSTALLER"
 rg -n "private-data.*(status|connect|migrate|open)|privateDataCommandIndex|privateDataCandidates|private_data\.py" "$ENTRYPOINT"
 ! rg -n '\$windowsCandidates = @\([^)]*\) \| Where-Object' "$BOOTSTRAP"
