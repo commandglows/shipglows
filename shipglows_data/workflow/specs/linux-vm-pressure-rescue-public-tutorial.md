@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-29"
 created_at: "2026-08-29 02:23:20 UTC"
 updated: "2026-08-29"
-updated_at: "2026-08-29 02:33:58 UTC"
-status: ready
+updated_at: "2026-08-29 04:33:20 UTC"
+status: complete
 source_skill: 100-sg-spec
 source_model: GPT-5
 scope: linux-vm-pressure-rescue-public-tutorial
@@ -45,12 +45,12 @@ evidence:
   - "Verified implementation commit c101bd7 classifies combined RAM/swap/PSI pressure and offers a confirmed, fail-closed rescue for known detached Vercel CLI groups while protecting Codex, SSH, tmux, shells, and application services."
   - "The live post-activation diagnostic reported pressure ok, swap 39%, memory PSI 0.00/0.00, zero eligible orphan groups, and expected runtime ownership."
   - "Linux kernel PSI documentation defines some/full stall ratios and avg10/avg60/avg300 windows; /proc documentation defines process status, PPid, process group, TTY, RSS, and swap fields."
-next_step: "Review the local bilingual draft, then explicitly choose whether to push and publish it."
+next_step: "Measure the tutorial's first acquisition and activation signals, then improve its distribution from observed evidence."
 ---
 
 # Spec: Linux VM pressure rescue public tutorial
 
-🟠 [ShipGlows] spec: Linux VM pressure rescue public tutorial | status: ready | path: shipglows_data/workflow/specs/linux-vm-pressure-rescue-public-tutorial.md | next: review the local bilingual draft, then choose whether to push and publish it
+🟢 [ShipGlows] spec: Linux VM pressure rescue public tutorial | status: complete | path: shipglows_data/workflow/specs/linux-vm-pressure-rescue-public-tutorial.md | next: measure first acquisition and activation signals
 
 ## Title
 
@@ -58,7 +58,7 @@ Linux VM pressure rescue public tutorial
 
 ## Status
 
-ready
+complete
 
 ## User Story
 
@@ -243,7 +243,7 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
 - Site contract: `pnpm --dir site check` puis `pnpm --dir site build` dans le worktree isolé.
 - Content quality: rubric partagée, fidélité FR/EN, frontmatter, CTA, liens et claims.
 - Git: inspection des chemins indexés, scan sensible, commits locaux et absence de push.
-- Browser: non requis pour le draft si le build et les routes générées passent; aucune validation hébergée n'est revendiquée.
+- Browser: preview Vercel et production requises pour vérifier les routes, le contenu rendu et les métadonnées bilingues avant clôture.
 
 ## Test Contract
 
@@ -258,15 +258,15 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
 - Needed: no.
 - Checklist path: none.
 - Required scenario coverage: lecture FR/EN, limites de claim et métadonnées couvertes par la rubric et les contrôles ciblés.
-- Exception with proof: aucun navigateur live, car le résultat reste `draft: true` et n'est ni poussé ni déployé.
+- Exception with proof: aucune; la preview puis la production ont été vérifiées sur les deux routes.
 
 ### Required evidence stack
 
 - Automated checks: metadata lint, article locale parity, `pnpm --dir site check`, `pnpm --dir site build`.
-- Agent-run browser proof: not applicable for the local draft.
+- Agent-run browser proof: preview FR/EN vérifiée avec titres, contenu rendu, canonical et `hreflang` symétriques.
 - Auth/session proof: not applicable.
 - Contract proof: spec technique, runtime docs, source diff and official Linux documentation.
-- Provider evidence: not applicable; no publication or deployment.
+- Provider evidence: Vercel production deployment successful for merge commit `1af74f2`; the monorepo app deployment was correctly ignored.
 - Device-native proof: not applicable.
 
 ## Risks
@@ -275,7 +275,7 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
 - Misleading rescue: des lecteurs pourraient copier une commande de signal; le tutoriel enseigne l'observation et le parcours confirmé, pas un kill générique.
 - Claim inflation: l'article peut transformer des garde-fous en garantie; la Claim Impact Plan borne chaque formulation.
 - Translation drift: la création atomique et le lint de parité empêchent un peer manquant ou divergent.
-- Discoverability: le tutoriel peut rester peu visible tant qu'il est draft; c'est voulu dans ce chantier de relecture.
+- Discoverability: la publication rend le tutoriel indexable; son acquisition réelle reste à mesurer avant d'élargir la distribution.
 - Residual risk: le comportement Vercel est une signature fermée actuelle; les outils inconnus restent hors du sauvetage jusqu'à une évolution technique séparée.
 
 ## OWASP Security Gate
@@ -284,7 +284,7 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
 - Trust/data boundaries: contenu Markdown public, détails d'incident privés, arguments de processus potentiellement sensibles, décision humaine de signal.
 - ASVS: not applicable; aucun comportement applicatif ou contrôle d'accès n'est modifié.
 - Proof: redaction, commandes sans `args`, claim review, schema/build, contenu draft et exact staged diff.
-- Residual gap: une publication future exige une relecture finale et une validation des liens/preview sur la version réellement déployée.
+- Residual gap: aucune garantie d'audience n'est revendiquée; l'impact éditorial devra être évalué à partir des signaux réels.
 
 ## Execution Notes
 
@@ -296,18 +296,18 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
 
 ## Open Questions
 
-None. L'opératrice a choisi un draft local committé, non poussé et non publié; la surface, les deux langues, l'audience, l'angle, le CTA et les limites sont résolus par les contrats existants et l'incident vérifié.
+None. L'opératrice a ensuite autorisé la publication; la surface, les deux langues, l'audience, l'angle, le CTA, les limites et la livraison sont résolus et prouvés.
 
 ## Verification Evidence
 
-- Outcome: local FR/EN draft pair created on isolated site branch `codex/linux-vm-rescue-tutorial` in commit `cd05229`; both peers remain `draft: true`.
+- Outcome: FR/EN article pair published from PR #20 through merge commit `1af74f2`; both public routes return HTTP 200.
 - Success behavior: readers receive the same diagnostic, incident, rescue path, caveats and locale-native CTA; 1,596 English words and 1,691 French words.
 - Error behavior: PSI absence, historical swap, unknown/mixed processes, sensitive arguments and forced-stop misuse are all handled explicitly without a generic kill command.
 - Proof Path Fit: targeted locale parity passed; Astro check reported 0 errors, 0 warnings and 0 hints; Astro build and Studio production-exclusion check passed.
 - Content quality rubric: `ready`, overall 92; clarity 93, structure 92, source faithfulness 96, compliance 95, brand voice 88, CTA 86; no blocked reason.
 - Claim/security proof: official Linux kernel PSI and `/proc` documentation checked; sensitive-pattern scan returned zero; the articles use no private IP, credential, process argument, universal security promise or savings claim.
 - Fresh Docs Gate: `fresh-docs checked` against current official Linux kernel documentation.
-- Delivery boundary: local commits only by explicit operator choice; no push, publication, preview or deployment is claimed.
+- Delivery proof: GitHub required gate passed, Vercel production deployment completed, and both public routes expose the expected titles plus symmetric canonical and `hreflang` metadata.
 
 ## Skill Run History
 
@@ -318,6 +318,7 @@ None. L'opératrice a choisi un draft local committé, non poussé et non publi�
 | 2026-08-29 02:33:58 UTC | 102-sg-start | GPT-5 | Created the source-faithful FR/EN draft pair in an isolated `shipglows_app` worktree with matched identity, locale-native metadata, cautious diagnostic commands, incident evidence, ShipGlows rescue explanation, caveats and CTA. | implemented locally | /103-sg-verify Linux VM pressure rescue public tutorial |
 | 2026-08-29 02:33:58 UTC | 103-sg-verify standard | GPT-5 | Verified locale parity, 3,287 combined words, content quality, claim boundaries, zero sensitive-pattern hits, Astro diagnostics, full build and draft exclusion from published routes. | verified locally | /104-sg-end partial Linux VM pressure rescue public tutorial |
 | 2026-08-29 02:33:58 UTC | 104-sg-end partial | GPT-5 | Prepared the local review handoff; content and documentation are aligned, while delivery remains pending because the operator explicitly selected no push and no publication. | partial: delivery pending | Review the local bilingual draft, then choose whether to push and publish it. |
+| 2026-08-29 04:33:20 UTC | sg-release | GPT-5 | Published the approved bilingual guide through PR #20, verified the required GitHub gate, matching Vercel production deployment, both HTTP 200 routes, and symmetric locale metadata. | complete | Measure first acquisition and activation signals before expanding distribution. |
 
 ## Current Chantier Flow
 
@@ -325,7 +326,7 @@ None. L'opératrice a choisi un draft local committé, non poussé et non publi�
 - `101-sg-ready`: ready; no unresolved product, claim, surface, locale or proof decision remains.
 - `102-sg-start`: implemented locally in isolated site commit `cd05229`.
 - `103-sg-verify`: verified locally; content, parity, claims, Astro check and build pass.
-- `104-sg-end`: partial by policy; review handoff is ready but delivery remains local-only.
-- `005-sg-ship`: deferred by explicit operator choice; no push, publication or deployment occurred.
+- `104-sg-end`: complete; the reviewed bilingual content is published and its delivery proof is recorded.
+- `005-sg-ship`: complete; PR #20 merged to `main` as `1af74f2`, with GitHub CI and Vercel production successful.
 
-Next step: review the local bilingual draft, then explicitly choose whether to push and publish it.
+Next step: measure the tutorial's first acquisition and activation signals, then improve its distribution from observed evidence.
