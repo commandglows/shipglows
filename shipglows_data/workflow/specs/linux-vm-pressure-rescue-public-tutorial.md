@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-29"
 created_at: "2026-08-29 02:23:20 UTC"
 updated: "2026-08-29"
-updated_at: "2026-08-29 02:26:18 UTC"
+updated_at: "2026-08-29 02:33:58 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: GPT-5
@@ -45,12 +45,12 @@ evidence:
   - "Verified implementation commit c101bd7 classifies combined RAM/swap/PSI pressure and offers a confirmed, fail-closed rescue for known detached Vercel CLI groups while protecting Codex, SSH, tmux, shells, and application services."
   - "The live post-activation diagnostic reported pressure ok, swap 39%, memory PSI 0.00/0.00, zero eligible orphan groups, and expected runtime ownership."
   - "Linux kernel PSI documentation defines some/full stall ratios and avg10/avg60/avg300 windows; /proc documentation defines process status, PPid, process group, TTY, RSS, and swap fields."
-next_step: "/102-sg-start Linux VM pressure rescue public tutorial"
+next_step: "Review the local bilingual draft, then explicitly choose whether to push and publish it."
 ---
 
 # Spec: Linux VM pressure rescue public tutorial
 
-🟢 [ShipGlows] spec: Linux VM pressure rescue public tutorial | status: ready | path: shipglows_data/workflow/specs/linux-vm-pressure-rescue-public-tutorial.md | next: /102-sg-start Linux VM pressure rescue public tutorial
+🟠 [ShipGlows] spec: Linux VM pressure rescue public tutorial | status: ready | path: shipglows_data/workflow/specs/linux-vm-pressure-rescue-public-tutorial.md | next: review the local bilingual draft, then choose whether to push and publish it
 
 ## Title
 
@@ -191,7 +191,7 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
 
 ## Implementation Tasks
 
-- [ ] Task 1: Créer et valider le contrat éditorial
+- [x] Task 1: Créer et valider le contrat éditorial
   - Files: cette spec et la note de correction dans `linux-cli-resource-pressure-rescue.md`.
   - Action: rendre audience, promesse, preuves, claims, locales, fichiers, CTA et limites décision-complets.
   - User story link: empêcher qu'un tutoriel utile devienne une promesse technique exagérée.
@@ -199,7 +199,7 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
   - Validate with: metadata lint et revue adversariale de readiness.
   - Constraints: aucun changement runtime ou public pendant cette tâche.
 
-- [ ] Task 2: Préparer une surface d'écriture isolée
+- [x] Task 2: Préparer une surface d'écriture isolée
   - Files: worktree local `shipglows-app-linux-vm-rescue-tutorial` sur `codex/linux-vm-rescue-tutorial`.
   - Action: partir de `origin/main` à jour sans toucher au checkout principal sale.
   - User story link: produire le contenu sans mélanger d'autres travaux.
@@ -207,7 +207,7 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
   - Validate with: branche/base, statut propre et chemins absents avant création.
   - Constraints: aucun push, reset, merge, rebase ou suppression de worktree.
 
-- [ ] Task 3: Rédiger la paire FR/EN
+- [x] Task 3: Rédiger la paire FR/EN
   - Files: les deux chemins d'article déclarés dans Scope In.
   - Action: créer les frontmatters liés et les corps locale-native avec le même plan, les mêmes preuves et les mêmes limites.
   - User story link: rendre le diagnostic et la récupération accessibles dans les deux langues publiques.
@@ -215,7 +215,7 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
   - Validate with: lint de parité ciblé, revue de fidélité et rubric de contenu.
   - Constraints: `draft: true`, aucun détail privé, aucune commande destructive aveugle.
 
-- [ ] Task 4: Vérifier et persister localement
+- [x] Task 4: Vérifier et persister localement
   - Files: uniquement la spec/correction dans Core et la paire d'articles dans le site.
   - Action: exécuter métadonnées, parité, Astro check/build, revue de claims et liens; créer des commits locaux exacts.
   - User story link: fournir un brouillon relisible et récupérable sans le publier.
@@ -225,16 +225,16 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
 
 ## Acceptance Criteria
 
-- [ ] AC 1: Given la surface publique bilingue, when le tutoriel est créé, then les articles FR et EN partagent `articleKey`, slugs alternatifs et état draft cohérents.
-- [ ] AC 2: Given une lectrice non spécialiste, when elle lit l'introduction et le diagnostic, then elle comprend RAM, swap et PSI sans devoir connaître l'administration Linux.
-- [ ] AC 3: Given du swap utilisé avec RAM et PSI sains, when le cas est expliqué, then le texte n'affirme pas que la VM est encore en crise.
-- [ ] AC 4: Given PSI absent, when le diagnostic est suivi, then la lectrice conserve une méthode RAM/swap et voit la limite explicitement.
-- [ ] AC 5: Given un processus inconnu, interactif ou lié à un service, when le sauvetage est expliqué, then aucune instruction d'arrêt générique n'est proposée.
-- [ ] AC 6: Given le parcours ShipGlows, when la capacité est décrite, then les critères d'éligibilité, protections, revalidation et confirmations correspondent au comportement vérifié.
-- [ ] AC 7: Given les données de l'incident, when elles apparaissent, then elles sont anonymisées et présentées comme un cas observé, pas une garantie ou un dimensionnement universel.
-- [ ] AC 8: Given les deux brouillons, when le contrôle de claims s'exécute, then aucune promesse de sécurité absolue, économies, uptime, compatibilité universelle ou arrêt automatique n'existe.
-- [ ] AC 9: Given le site Astro, when check et build s'exécutent, then la collection accepte les deux articles et les routes se génèrent sans erreur.
-- [ ] AC 10: Given les checkouts préexistants sales, when les commits locaux sont créés, then seuls les fichiers déclarés du chantier sont indexés et aucun push n'a lieu.
+- [x] AC 1: Given la surface publique bilingue, when le tutoriel est créé, then les articles FR et EN partagent `articleKey`, slugs alternatifs et état draft cohérents.
+- [x] AC 2: Given une lectrice non spécialiste, when elle lit l'introduction et le diagnostic, then elle comprend RAM, swap et PSI sans devoir connaître l'administration Linux.
+- [x] AC 3: Given du swap utilisé avec RAM et PSI sains, when le cas est expliqué, then le texte n'affirme pas que la VM est encore en crise.
+- [x] AC 4: Given PSI absent, when le diagnostic est suivi, then la lectrice conserve une méthode RAM/swap et voit la limite explicitement.
+- [x] AC 5: Given un processus inconnu, interactif ou lié à un service, when le sauvetage est expliqué, then aucune instruction d'arrêt générique n'est proposée.
+- [x] AC 6: Given le parcours ShipGlows, when la capacité est décrite, then les critères d'éligibilité, protections, revalidation et confirmations correspondent au comportement vérifié.
+- [x] AC 7: Given les données de l'incident, when elles apparaissent, then elles sont anonymisées et présentées comme un cas observé, pas une garantie ou un dimensionnement universel.
+- [x] AC 8: Given les deux brouillons, when le contrôle de claims s'exécute, then aucune promesse de sécurité absolue, économies, uptime, compatibilité universelle ou arrêt automatique n'existe.
+- [x] AC 9: Given le site Astro, when check et build s'exécutent, then la collection accepte les deux articles et les routes se génèrent sans erreur.
+- [x] AC 10: Given les checkouts préexistants sales, when les commits locaux sont créés, then seuls les fichiers déclarés du chantier sont indexés et aucun push n'a lieu.
 
 ## Test Strategy
 
@@ -298,20 +298,34 @@ Créer un tutoriel bilingue, fondé sur l'incident réel anonymisé, qui enseign
 
 None. L'opératrice a choisi un draft local committé, non poussé et non publié; la surface, les deux langues, l'audience, l'angle, le CTA et les limites sont résolus par les contrats existants et l'incident vérifié.
 
+## Verification Evidence
+
+- Outcome: local FR/EN draft pair created on isolated site branch `codex/linux-vm-rescue-tutorial` in commit `cd05229`; both peers remain `draft: true`.
+- Success behavior: readers receive the same diagnostic, incident, rescue path, caveats and locale-native CTA; 1,596 English words and 1,691 French words.
+- Error behavior: PSI absence, historical swap, unknown/mixed processes, sensitive arguments and forced-stop misuse are all handled explicitly without a generic kill command.
+- Proof Path Fit: targeted locale parity passed; Astro check reported 0 errors, 0 warnings and 0 hints; Astro build and Studio production-exclusion check passed.
+- Content quality rubric: `ready`, overall 92; clarity 93, structure 92, source faithfulness 96, compliance 95, brand voice 88, CTA 86; no blocked reason.
+- Claim/security proof: official Linux kernel PSI and `/proc` documentation checked; sensitive-pattern scan returned zero; the articles use no private IP, credential, process argument, universal security promise or savings claim.
+- Fresh Docs Gate: `fresh-docs checked` against current official Linux kernel documentation.
+- Delivery boundary: local commits only by explicit operator choice; no push, publication, preview or deployment is claimed.
+
 ## Skill Run History
 
 | Date UTC | Skill | Model | Action | Result | Next step |
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-29 02:23:20 UTC | 100-sg-spec | GPT-5 | Created the bilingual public-tutorial contract from the verified Linux VM incident, declared article surface, claim boundaries, isolated site worktree, and local-only delivery choice. | draft | /101-sg-ready Linux VM pressure rescue public tutorial |
 | 2026-08-29 02:26:18 UTC | 101-sg-ready | GPT-5 | Confirmed the unique FR/EN article pair, audience, source hierarchy, claim limits, isolated worktree, local-only persistence, edge cases, and proportional proof are decision-complete. | ready | /102-sg-start Linux VM pressure rescue public tutorial |
+| 2026-08-29 02:33:58 UTC | 102-sg-start | GPT-5 | Created the source-faithful FR/EN draft pair in an isolated `shipglows_app` worktree with matched identity, locale-native metadata, cautious diagnostic commands, incident evidence, ShipGlows rescue explanation, caveats and CTA. | implemented locally | /103-sg-verify Linux VM pressure rescue public tutorial |
+| 2026-08-29 02:33:58 UTC | 103-sg-verify standard | GPT-5 | Verified locale parity, 3,287 combined words, content quality, claim boundaries, zero sensitive-pattern hits, Astro diagnostics, full build and draft exclusion from published routes. | verified locally | /104-sg-end partial Linux VM pressure rescue public tutorial |
+| 2026-08-29 02:33:58 UTC | 104-sg-end partial | GPT-5 | Prepared the local review handoff; content and documentation are aligned, while delivery remains pending because the operator explicitly selected no push and no publication. | partial: delivery pending | Review the local bilingual draft, then choose whether to push and publish it. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: draft contract created from verified incident, runtime, editorial governance and official Linux sources.
 - `101-sg-ready`: ready; no unresolved product, claim, surface, locale or proof decision remains.
-- `102-sg-start`: pending.
-- `103-sg-verify`: pending.
-- `104-sg-end`: pending.
-- `005-sg-ship`: not applicable in this run; operator selected local draft only.
+- `102-sg-start`: implemented locally in isolated site commit `cd05229`.
+- `103-sg-verify`: verified locally; content, parity, claims, Astro check and build pass.
+- `104-sg-end`: partial by policy; review handoff is ready but delivery remains local-only.
+- `005-sg-ship`: deferred by explicit operator choice; no push, publication or deployment occurred.
 
-Next step: `/102-sg-start Linux VM pressure rescue public tutorial`
+Next step: review the local bilingual draft, then explicitly choose whether to push and publish it.
