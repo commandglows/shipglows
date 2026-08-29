@@ -8,7 +8,9 @@ param(
     [string]$PlanDigest = '',
     [switch]$Offline,
     [string]$RepositoryUrl = '',
-    [int]$Port = 0
+    [int]$Port = 0,
+    [switch]$Json,
+    [switch]$Headless
 )
 
 $ErrorActionPreference = 'Stop'
@@ -100,6 +102,8 @@ function Show-SgShortcutHelp {
     Write-Host '  s status                           Show every project surface and state'
     Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
+    Write-Host '  s extension-inspect [-ProjectPath <path>] [-Json]  Inspect an extension without running repository scripts'
+    Write-Host '  s extension-lab [-ProjectPath <path>] [-Headless] [-Json]  Load a built MV3 extension in isolated Chromium'
     Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
     Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
     Write-Host '  s m r    Restart a project'
@@ -119,8 +123,8 @@ function Show-SgShortcutHelp {
     Write-Host 'Project journeys' -ForegroundColor Cyan
     Write-Host '  Web project      Start -> Open the managed local URL -> Stop'
     Write-Host '  Flutter app      Start -> Open or focus the managed Chrome app -> Stop'
-    Write-Host '  Chrome extension Start -> Open / load project -> Developer mode -> Load unpacked -> Stop'
-    Write-Host '  Chrome support currently targets CRXJS projects with @crxjs/vite-plugin and dev:chrome.' -ForegroundColor DarkGray
+    Write-Host '  Chrome extension Inspect -> explicitly build when required -> Extension Lab -> close Chromium'
+    Write-Host '  The Extension Lab uses a temporary Chromium profile and never runs repository scripts implicitly.' -ForegroundColor DarkGray
     Write-Host ''
     Write-Host 'Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
 }
@@ -163,7 +167,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','update-status','refresh-update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','stop-all','refresh','navigate','auth','update','update-status','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -852,6 +856,17 @@ try {
         }
         'logs' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'logs' }; if ($entry) { Invoke-Logs $entry } }
         'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { Open-SgManagedProject $entry } }
+        'extension-inspect' {
+            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            $descriptor = Get-SgBrowserExtensionDescriptor $path
+            if (-not $descriptor) { throw "No browser extension manifest or supported build contract was detected in: $path" }
+            if ($Json) { $descriptor | ConvertTo-Json -Depth 4 -Compress }
+            else { Write-SgInfo "$($descriptor.Name) | $($descriptor.Mode) | Manifest V$($descriptor.ManifestVersion) | $($descriptor.RelativeManifestPath)" }
+        }
+        'extension-lab' {
+            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json
+        }
         'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
         'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
         'select-stop' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
