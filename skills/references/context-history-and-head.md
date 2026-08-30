@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-25"
-updated: "2026-08-25"
+updated: "2026-08-30"
 status: active
 source_skill: 900-shipglows-core
 scope: context-history-and-head
@@ -28,6 +28,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator approval on 2026-08-25 selected date-segmented immutable history, branch/worktree-aware Context Head, automatic normal-path capture, and a public bilingual allowlisted projection."
+  - "Operator approval on 2026-08-30 made changelog classification and significant-event capture a shared closure behavior for every managed repository."
 next_review: "2026-09-25"
 next_step: none
 ---
@@ -69,6 +70,8 @@ Do not record shell commands, intermediate attempts, formatting, routine reads, 
 
 Each event uses one unique file under `shipglows_data/workflow/history/YYYY/MM/DD/`. Parallel work never appends to a shared daily file. Event identity is immutable: an identical replay deduplicates, while divergent reuse fails closed.
 
+At closure, record at most one significant event per closure. Select the event that best preserves the delivered outcome, proof, invalidation, or durable next action; do not create separate events merely to mirror report blocks. A repository with no significant event remains a valid empty state.
+
 ## Public Projection Gate
 
 Events are internal by default. Add a `public` object only when all of these are proven:
@@ -82,6 +85,8 @@ Events are internal by default. Add a `public` object only when all of these are
 `DELIVERY_SITE_BUILD` is valid only when the announced site behavior ships in the same build. `DELIVERY_SHIPPED` and `DELIVERY_AVAILABLE` require corresponding evidence. Ambiguous entries stay internal without blocking other eligible daily updates.
 
 The public site reads only the public allowlist. Raw history objects never become page props, HTML, JSON endpoints, or client payloads.
+
+The closure report classifies the changelog projection separately: `public-ready` when eligible bilingual public copy is prepared for a declared delivery path, `internal-only` when the significant event must remain private, `not applicable` when no significant changelog event exists, or `needs review` when eligibility, copy, safety, or evidence remains unresolved. `public-ready` is readiness, not proof that an entry is published, deployed, or available. A public object still obeys every allowlist and delivery-proof rule above.
 
 ## Recovery And Growth
 

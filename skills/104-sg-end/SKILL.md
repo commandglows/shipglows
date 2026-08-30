@@ -78,9 +78,9 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 ## Stop Conditions
 
 - Do not claim done/closed without evidence and required guards.
-- Do not emit any closure result without the shared visual closure card and its one-line `📖 DOCUMENTATION` and `✏️ ÉDITORIAL` classifications.
+- Do not emit any closure result without the shared visual closure card and its one-line `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, and `📰 CHANGELOG` classifications.
 - Do not mutate tracker/changelog when proof or docs status is materially incomplete unless closure mode is partial.
-- Do not mark product work as complete if documentation or editorial status is `needs review`.
+- Do not mark product work as complete if documentation, editorial, or changelog status is materially `needs review`.
 - Do not include internal file paths in user `report=user`.
 - Do not claim shipping, release, or implementation truth from closure alone.
 - Never commit or push; git shipping belongs to `005-sg-ship`.
@@ -93,8 +93,8 @@ Run closure in this order:
 
 1. select execution mode, then classify the result (`closed`, `partial`, `deferred`, `blocked`, `not applicable`),
 2. apply `closure-archive-guard.md`,
-3. run changelog/tracker preparation rules and append one immutable significant event when structured history is adopted,
-4. run documentation reflection and classify editorial impact independently; apply directly mapped updates before closure, expose both classifications, and route each `needs review` case to its owner. `No declared public surface` is a valid editorial no-impact reason,
+3. run changelog/tracker preparation rules, classify changelog impact as `public-ready`, `internal-only`, `not applicable`, or `needs review`, and append at most one significant event when structured history is adopted,
+4. run documentation reflection and classify editorial impact independently; apply directly mapped updates before closure, expose all three classifications, and route each material `needs review` case to its owner. `No declared public surface` is a valid editorial no-impact reason,
 5. route a clean completed daily chantier directly to bounded shipping, otherwise emit the concrete delivery limit and next owner clearly.
 
 For `summary-only`, run read-only classification and reporting only; skip steps that write bookkeeping.
@@ -109,8 +109,8 @@ For `summary-only`, run read-only classification and reporting only; skip steps 
 
 ### Final closure summary
 
-- Use the shared ordered card: `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📦 LIVRAISON`.
-- Keep proof, documentation, and editorial evidence each on one line separated by ` · `.
+- Use the shared ordered card: `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`.
+- Keep proof, documentation, editorial, and changelog evidence each on one line separated by ` · `.
 - Add `⚠️ LIMITES` only when material. Always print a useful `🧭 SUITE`: next outcome, missing delivery/proof, operator decision, or explicit no-action-required completion.
 - Any intentional mutation, including documentation-only work, with no commit, no push, a local-only commit, or a failed push is `delivery pending`; never pair `Aucun commit ni push` or `modifications locales prêtes` with a completed verdict.
 

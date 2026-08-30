@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.13.0"
+artifact_version: "0.14.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-26"
+updated: "2026-08-30"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -21,11 +21,17 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "The 2026-08-30 changelog records global managed-repository closure changelog classification and the shared Context History runtime."
   - "The 2026-08-26 changelog records latest-build artifact access and the native Windows Auth0 CLI integration."
   - "The 2026-08-26 changelog records native Windows Doppler CLI access and the agent secret-use boundary."
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-08-30]
+
+### Added
+- Added a shared Context History and bounded Context Head for ShipGlows-managed repositories, plus a mandatory closure changelog classification that distinguishes public-ready, internal-only, not-applicable, and review-needed outcomes without exposing internal history or claiming publication before delivery proof.
 
 ## [2026-08-26]
 

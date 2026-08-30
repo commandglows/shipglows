@@ -131,6 +131,7 @@ class ReportingContractTests(unittest.TestCase):
             "🧪 PREUVES",
             "📖 DOCUMENTATION",
             "✏️ ÉDITORIAL",
+            "📰 CHANGELOG",
             "📦 LIVRAISON",
         )
         card = core.split("For every successful closure report", 1)[1].split(
@@ -142,11 +143,27 @@ class ReportingContractTests(unittest.TestCase):
             "content beneath `🧪 PREUVES` on exactly one line",
             "content beneath `📖 DOCUMENTATION` on exactly one line",
             "content beneath `✏️ ÉDITORIAL` on exactly one line",
+            "content beneath `📰 CHANGELOG` on exactly one line",
             "separate proof items with ` · `",
             "`⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory",
         ):
             self.assertIn(rule, core)
         self.assertIn("SSRP-019 visual closure card", scenarios)
+
+    def test_closure_reports_classify_changelog_globally(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        end = END_SKILL.read_text(encoding="utf-8")
+        for marker in (
+            "📰 CHANGELOG",
+            "public-ready",
+            "internal-only",
+            "not applicable",
+            "needs review",
+            "at most one significant event",
+        ):
+            self.assertIn(marker, core + end)
+        self.assertIn("SSRP-034 global closure changelog", scenarios)
 
     def test_every_final_user_report_has_a_useful_next_block(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
