@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.33.1"
+artifact_version: "1.34.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-30"
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
   - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
   - "Unified update replay 2026-08-28: `shipglows update` selects the stable or linked channel, `s update status` reports the active Windows source, and a dirty linked worktree refuses bootstrap without stashing."
   - "Installed ToolGlows replay 2026-08-28: managed process identity compares UTC instants across Windows PowerShell string and PowerShell 7 DateTime JSON representations, so live projects no longer reconcile to stopped immediately after Start."
@@ -252,6 +253,15 @@ invalid reason codes, and output beyond
 `SHIPGLOWS_CLI_CAPABILITIES_MAX_BYTES` (64 KiB by default). It writes a private
 candidate in the state directory, atomically replaces the published snapshot,
 and preserves the previous valid snapshot if generation fails.
+
+The native Windows CLI publishes the same schema at
+`%LOCALAPPDATA%\ShipGlows\DevServer\cli-capabilities.v1.json`, or at the
+absolute `SHIPGLOWS_CLI_CAPABILITIES_FILE` override. Every bounded CLI launch
+refreshes it atomically before dispatch, and `s capabilities` prints the
+validated snapshot. Agent conversations read the file directly through the
+runtime-awareness contract; they do not start the CLI. The Windows inventory
+uses the same 30 identifiers and marks unsupported Windows behaviors with the
+stable `unsupportedWindows` reason code.
 
 The Linux registry stores five fields:
 

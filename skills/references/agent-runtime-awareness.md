@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.7.0"
+artifact_version: "3.8.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-08-30"
@@ -17,6 +17,7 @@ linked_systems:
   - cli/windows/ShipGlows.DevServer.psm1
   - cli/windows/install-devserver.ps1
   - cli/windows/ShipGlows.AgentInstructions.psm1
+  - cli/windows/shipglows-devserver.ps1
   - tests/windows/agent-instructions.ps1
   - cli/install.sh
   - skills/000-shipglows/SKILL.md
@@ -33,6 +34,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "The Windows CLI publishes a bounded shipglows.cli-capabilities.v1 snapshot that conversations may inspect without starting the CLI."
   - "The Windows installer writes the global development environment file."
   - "Each managed project exposes its durable assigned URL in a visible, versioned ENVIRONMENT.md file."
   - "The Windows DevServer registry remains the live status authority."
@@ -125,6 +127,8 @@ authority for discovery and callability. Existing instructions outside the
 managed block are preserved.
 
 ## Current-Turn Capability Discovery
+
+When the question depends on capabilities actually exposed by the native Windows CLI, read `%LOCALAPPDATA%\ShipGlows\DevServer\cli-capabilities.v1.json`, or the absolute `SHIPGLOWS_CLI_CAPABILITIES_FILE` override when one is explicitly present. Bound the read to 64 KiB; accept only `shipglows.cli-capabilities.v1`, canonical UTC timestamps, the closed capability identifiers and states, and snapshots no older than 15 minutes or more than one minute in the future. Missing, malformed, oversized, stale, or future evidence is unavailable. Reading the snapshot is the conversational path and must never start the CLI or infer a free-form command surface.
 
 Before declaring a configured tool unavailable:
 
