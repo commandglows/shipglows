@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.15.0"
+artifact_version: "0.15.1"
 project: "shipglows"
 created: "2026-04-25"
 updated: "2026-08-30"
@@ -32,6 +32,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-08-30]
 
 ### Added
+- Added an independent optional WSL + Ubuntu bootstrap to the native Windows full installer, followed by a separate checksum-pinned Turso Cloud CLI installation only after Ubuntu is initialized; neither path starts authentication or database operations.
 - Added separate native Windows commands to preview and update ShipGlows-owned global developer tools without touching project dependencies. The updater uses exact WinGet package IDs and exact npm/pnpm targets, requires confirmation, never runs `winget upgrade --all`, and remains pending installed-host proof before public release publication.
 - Added a shared Context History and bounded Context Head for ShipGlows-managed repositories, plus a mandatory closure changelog classification that distinguishes public-ready, internal-only, not-applicable, and review-needed outcomes without exposing internal history or claiming publication before delivery proof.
 

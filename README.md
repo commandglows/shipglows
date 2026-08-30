@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.29.0"
+artifact_version: "0.29.1"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-08-30"
@@ -267,6 +267,14 @@ recommended local DevServer. The DevServer installs only the native PowerShell
 runtime for Astro, Vite, Python/FastAPI, and Flutter applications targeting Web,
 Windows desktop, or Android, prepares Git, GitHub CLI,
 Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid external
+WSL remains optional and independent from ShipGlows. In the interactive full
+installer, a separate consent can install Ubuntu through the official Windows
+flow; restart and first-user initialization remain user-owned. Once Ubuntu is
+ready, another independent consent can install the pinned Turso Cloud CLI v1.0.32
+in `~/.local/bin` after SHA-256 verification. ShipGlows never starts Turso login,
+database creation, token creation, a shell, or a migration.
+
+Valid external
 Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
 their environment variables or `PATH`; a validated ShipGlows-managed Flutter SDK
 always reconverges its own `bin` directory into the user and active installer

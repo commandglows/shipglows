@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.26.0"
+artifact_version: "1.26.1"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-08-30"
@@ -80,6 +80,7 @@ ne sont pas requis par le parcours Shadow PC.
 - ✅ Proposition groupée des agents Codex, Claude, OpenCode, Kilo ou Gemini manquants
 - ✅ Boîte à outils versionnée Firebase, FlutterFire, Convex, Vercel, Supabase, Clerk et Google Cloud installée globalement pour la machine
 - ✅ MCP activés uniquement dans les projets enregistrés selon leurs manifests et preuves Git, via les formats locaux natifs de chaque agent
+- ✅ WSL proposé séparément et facultativement ; Turso Cloud proposé uniquement après initialisation d’Ubuntu, sans authentification automatique
 
 1. **Lancer le bootstrap unique ShipGlows:**
 
