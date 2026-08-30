@@ -120,7 +120,8 @@ function Show-SgShortcutHelp {
     Write-Host ''
     Write-Host 'Project journeys' -ForegroundColor Cyan
     Write-Host '  Web project      Start -> Open the managed local URL -> Stop'
-    Write-Host '  Flutter app      Start -> Open or focus the managed Chrome app -> Stop'
+    Write-Host '  Flutter app      Start live (Windows by default when supported) -> Develop/reload -> Stop'
+    Write-Host '                   .shipglows.env can explicitly select windows, android, chrome, or web-server.' -ForegroundColor DarkGray
     Write-Host '  Chrome extension Start -> Open / load project -> Developer mode -> Load unpacked -> Stop'
     Write-Host '  Chrome support currently targets CRXJS projects with @crxjs/vite-plugin and dev:chrome.' -ForegroundColor DarkGray
     Write-Host ''
@@ -395,7 +396,8 @@ function Show-SgWindowsDashboard {
 
 function Show-SgProjectStatus([object]$Entry) {
     if (-not $Entry) { throw 'No registered project was selected.' }
-    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port)
+    $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
+    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice
     Write-Host ''
     Write-Host ([string]$Entry.Name) -ForegroundColor Cyan
     Write-Host (Format-SgProjectStatus $Entry)
@@ -408,7 +410,8 @@ function Show-SgProjectStatus([object]$Entry) {
 }
 
 function Write-SgRegisteredProjectGuidance([object]$Entry) {
-    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port)
+    $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
+    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice
     Write-SgInfo "$($experience.Label) detected: $($Entry.Name)"
     Write-SgInfo "Next: run s start -ProjectPath `"$($Entry.path)`"."
 }

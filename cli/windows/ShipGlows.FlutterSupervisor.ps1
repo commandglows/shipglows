@@ -7,7 +7,7 @@ param(
     [string]$ProfilePath,
     [string]$LaunchIdentity,
     [switch]$Visible,
-    [ValidateSet('chrome','web-server')][string]$Device = 'chrome',
+    [string]$Device = 'chrome',
     [string]$DartDefineFile = ''
 )
 
@@ -51,9 +51,12 @@ function New-SgFlutterHostArguments([string]$FlutterRoot,[string]$Snapshot,[obje
     return @("--packages=$packageConfig",$Snapshot)+@($ToolArguments)
 }
 
-function New-SgFlutterRunArguments([ValidateSet('chrome','web-server')][string]$Device,[int]$Port,[string]$ProfilePath,[bool]$Visible) {
+function New-SgFlutterRunArguments([string]$Device,[int]$Port,[string]$ProfilePath,[bool]$Visible) {
+    if ($Device -notmatch '^[A-Za-z0-9._:-]{1,128}$') { throw 'Invalid Flutter device identifier.' }
+    $arguments=@('run','--machine','-d',$Device)
+    if ($Device -notin @('chrome','web-server')) { return $arguments }
     if ($Port -lt 1024 -or $Port -gt 65535) { throw 'Invalid Flutter web port.' }
-    $arguments=@('run','--machine','-d',$Device,'--web-hostname','127.0.0.1','--web-port',[string]$Port)
+    $arguments+=@('--web-hostname','127.0.0.1','--web-port',[string]$Port)
     if ($Device -eq 'chrome') {
         Assert-SgFlutterSafeValue $ProfilePath 'browser profile path'
         if (-not $Visible) { $arguments+='--web-run-headless' }
@@ -62,7 +65,7 @@ function New-SgFlutterRunArguments([ValidateSet('chrome','web-server')][string]$
     return $arguments
 }
 
-function Resolve-SgFlutterChromeExecutable([ValidateSet('chrome','web-server')][string]$Device,[string]$UserChromeExecutable=([Environment]::GetEnvironmentVariable('CHROME_EXECUTABLE','User'))) {
+function Resolve-SgFlutterChromeExecutable([string]$Device,[string]$UserChromeExecutable=([Environment]::GetEnvironmentVariable('CHROME_EXECUTABLE','User'))) {
     if ($Device -ne 'chrome') { return '' }
     $candidate = [string]$env:CHROME_EXECUTABLE
     if ([string]::IsNullOrWhiteSpace($candidate) -or -not (Test-Path -LiteralPath $candidate -PathType Leaf)) { $candidate=$UserChromeExecutable }
@@ -186,7 +189,7 @@ function Wait-SgFlutterMachineResponse([Diagnostics.Process]$Process,[object]$Pu
 
 function Invoke-SgFlutterSupervisor {
     foreach ($item in @(@($LaunchDirectory,'launch directory'),@($ProjectPath,'project path'),@($FlutterPath,'Flutter path'),@($LaunchIdentity,'launch identity'))) { Assert-SgFlutterSafeValue ([string]$item[0]) ([string]$item[1]) }
-    if ($Port -lt 1024 -or $Port -gt 65535) { throw 'Invalid Flutter web port.' }
+    if ($Device -in @('chrome','web-server') -and ($Port -lt 1024 -or $Port -gt 65535)) { throw 'Invalid Flutter web port.' }
     $token = [string]$env:SHIPGLOWS_SUPERVISOR_TOKEN
     if ($token -notmatch '^[a-f0-9]{64}$') { throw 'Missing or invalid supervisor token.' }
     Remove-Item Env:SHIPGLOWS_SUPERVISOR_TOKEN -ErrorAction SilentlyContinue

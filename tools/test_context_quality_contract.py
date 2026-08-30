@@ -10,6 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "skills/references/context-quality-contract.md"
 ROUTER = ROOT / "skills/000-shipglows/SKILL.md"
 CONTEXT = ROOT / "skills/301-sg-context/SKILL.md"
+PUBLIC = ROOT / "skills/shipglows/SKILL.md"
+AUTH = ROOT / "skills/109-sg-auth-debug/SKILL.md"
 READY = ROOT / "skills/101-sg-ready/SKILL.md"
 EXECUTION = ROOT / "skills/102-sg-start/references/execution-contract.md"
 VERIFY = ROOT / "skills/103-sg-verify/references/verification-baseline.md"
@@ -88,6 +90,29 @@ class ContextQualityContractTests(unittest.TestCase):
         self.assertIn("when any required contextual mcp operation is not callable", skill)
         self.assertIn("portable native fallback", skill)
         self.assertIn("do not claim mcp retrieval", skill)
+
+    def test_flutter_context_distinguishes_active_and_available_targets(self) -> None:
+        skill = text(CONTEXT)
+        router = text(ROUTER)
+        for marker in (
+            "active_development_target",
+            "session_mode",
+            "logical_run_command",
+            "flutter windows",
+            "managed live",
+            "flutter run -d windows",
+            "flutter android",
+            "shipglows_api_36",
+            "available, never active by implication",
+            "release or explicit standalone/package-sensitive proof checkpoints",
+        ):
+            self.assertIn(marker, skill)
+        self.assertIn("registry-backed active development target", router)
+        self.assertIn("list merely available targets separately", router)
+        self.assertIn("registry-backed active development target", text(PUBLIC))
+        self.assertIn("agent-runtime-awareness.md", text(AUTH))
+        self.assertIn("managed live `flutter run` session", text(ROOT / "skills/103-sg-verify/references/verification-security-ui-runtime.md"))
+        self.assertIn("agent-runtime-awareness.md", text(VERIFY.parent.parent / "SKILL.md"))
 
     def test_context_skill_does_not_gate_execution_on_a_generic_question(self) -> None:
         skill = text(CONTEXT)

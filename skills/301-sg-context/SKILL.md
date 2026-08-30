@@ -41,6 +41,8 @@ exact next action from `agent-runtime-awareness.md` into the qualified context
 capsule. Do not collapse installed, configured, accelerated, device-ready, and
 current-turn callable into one readiness claim.
 
+For a Flutter surface, inspect the matching live DevServer registry entry and project target directories/configuration. The capsule must name `active_development_target`, `session_mode`, `logical_run_command`, and live `state`. Treat the registry `flutterDevice` as the active target only while the matching managed session is current; list repository/toolchain targets separately as available, never active by implication. For a Windows live session report `Flutter Windows`, `managed live`, `flutter run -d windows`, and its observed `running` or `stopped` state. For Android, report `Flutter Android`, the resolved device id, `flutter run -d <device-id>`, and whether the target is a connected device or the managed `ShipGlows_API_36` emulator. Preserve the development boundary: live `flutter run` is the normal iterative path, while builds are release or explicit standalone/package-sensitive proof checkpoints.
+
 ### Contextual MCP Path
 
 When callable, use `context_continue` to recover prior qualified state, `context_retrieve` to rank candidates, and `context_read` for focused excerpts. Cached memory accelerates discovery only: validate material claims against canonical sources and observed state before `context_ready`.

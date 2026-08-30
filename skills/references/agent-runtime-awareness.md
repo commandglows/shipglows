@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.5.0"
+artifact_version: "3.7.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-23"
+updated: "2026-08-30"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -104,6 +104,8 @@ an entry point; it does not mean Firebase Device Streaming is configured.
 Firebase Device Streaming authentication, project selection, billing, and device reservation remain user-owned
 and must never be automated. Report the recorded Firebase state and exact next
 action without claiming a hosted device is callable until the current turn proves it.
+
+`FLUTTER-LIVE-DEVELOPMENT`: ordinary Flutter implementation and debugging use the managed `flutter run` session for the selected target. It is the normal development loop because it keeps logs and reload available. On Android, honor an explicitly configured connected device; otherwise reuse a ready Android emulator or start the provisioned `ShipGlows_API_36` AVD and wait for Flutter device readiness. Do not create a release build merely to expose an iterative correction. Use a standalone build only for an explicit release checkpoint or targeted proof that depends on packaging, native plugins or DLLs, installation, production-mode behavior, performance, or startup without Flutter attached.
 
 `LATEST-BUILD-ACCESS`: after a successful Windows release or Android APK build,
 or after observing a successful trusted CI build with a named complete artifact,

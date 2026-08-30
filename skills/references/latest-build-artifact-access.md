@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-26"
-updated: "2026-08-26"
+updated: "2026-08-30"
 status: active
 source_skill: 900-shipglows-core
 scope: latest-build-artifact-access
@@ -21,6 +21,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-08-30: managed flutter run is the ordinary development loop; build lanes remain release and explicit standalone-validation checkpoints."
   - "Operator decision 2026-08-26: every successful testable build needs direct access without deep-path navigation."
   - "Operator decision 2026-08-26: Local and CI shortcut titles remain visibly distinct."
   - "Focused pressure scenarios preserve last-known-good artifacts and reject unowned shortcut collisions."
@@ -29,6 +30,8 @@ next_step: "/103-sg-verify latest build artifact access"
 ---
 
 # Latest Build Artifact Access
+
+This contract is not the ordinary Flutter development loop. Iterative Flutter work uses the managed live `flutter run` session. Refresh a build lane only after a successful release build or an explicit standalone/package-sensitive validation checkpoint.
 
 ## Trigger
 

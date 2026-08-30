@@ -57,6 +57,7 @@ Always load shared references only when their gate applies. Load skill-local ref
 - `references/auth-browser-proof.md`: browser reproduction, Playwright runtime, redacted evidence, and Sentry/PM2 correlation.
 - `references/auth-diagnosis-and-report.md`: cause classification, verdict, handoff, and report fields.
 - `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`: required when the auth target exposes settings, support, diagnostics, callback error pages, error boundaries, or copy-log UI.
+- `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md`: required for Flutter, Android, or Windows desktop auth diagnosis before selecting the active target, live proof session, or standalone package checkpoint.
 - `$SHIPGLOWS_ROOT/skills/references/email-work-routing.md`: required when the bug depends on delivered OTP/magic-link/reset content, sender identity, external provider delivery, authentication results, or client rendering. Mailpit-only wiring stays local and is not external deliverability proof.
 
 ## ShipGlows-Owned Preflight

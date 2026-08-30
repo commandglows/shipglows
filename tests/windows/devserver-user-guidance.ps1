@@ -26,6 +26,10 @@ try {
     Assert-Sg ($web.Label -eq 'Web project' -and $web.PortLabel -eq 'URL :4321') 'Web project guidance drifted.'
     $app = Get-SgProjectExperience 'flutter-web' 5000
     Assert-Sg ($app.Label -eq 'Flutter app' -and $app.PortLabel -eq 'App :5000') 'Flutter app guidance drifted.'
+    $windowsApp = Get-SgProjectExperience 'flutter-web' 5000 'windows'
+    Assert-Sg ($windowsApp.Label -eq 'Flutter Windows app' -and $windowsApp.PortLabel -eq 'Live session' -and $windowsApp.OpenAction -notmatch 'Chrome') 'Flutter Windows guidance exposes web concepts.'
+    $androidApp = Get-SgProjectExperience 'flutter-web' 5000 'android'
+    Assert-Sg ($androidApp.Label -eq 'Flutter Android app' -and $androidApp.PortLabel -eq 'Live session' -and $androidApp.OpenAction -match 'device or emulator') 'Flutter Android guidance is incomplete.'
 
     $summary = Format-SgProjectStatus ([pscustomobject]@{ status='running'; kind='browser-extension'; port=3002; Name='ToolGlows' })
     Assert-Sg ($summary -match 'Chrome extension' -and $summary -match 'HMR :3002' -and $summary -match 'dist\\chrome') 'Extension dashboard/status output is not user-oriented.'
