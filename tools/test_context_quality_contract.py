@@ -139,7 +139,7 @@ class ContextQualityContractTests(unittest.TestCase):
             raw,
             re.compile(
                 r"depends_on:\s+- artifact: skills/references/context-quality-contract\.md\s+"
-                r"artifact_version: \"1\.0\.0\"\s+required_status: active",
+                r"artifact_version: \"1\.4\.0\"\s+required_status: active",
                 re.MULTILINE,
             ),
         )

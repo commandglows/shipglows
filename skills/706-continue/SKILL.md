@@ -46,6 +46,8 @@ Treat `$ARGUMENTS` as a focus, not proof of ownership. Confirm it against curren
 
 If the request is really a recap, doctrine question, tracker repair, new scope, or broad prioritization, route before loading the continuation playbook. If continuation owns the intent, use the playbook to resolve exactly one target and its first ready boundary.
 
+For material adopted-repository continuation, consume the last bounded capsule and refresh it through `301-sg-context` when branch, HEAD, dirty state, task identity or a canonical dependency changed. Preserve evidence states, selection reasons and visible gaps across the continuation; use targeted reads for a small exact next unit.
+
 A short confirmation such as “continue”, “vas-y”, or “poursuis” authorizes the already resolved target only. It never selects among materially different chantiers.
 
 ## Execution Decision

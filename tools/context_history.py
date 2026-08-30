@@ -19,7 +19,7 @@ import uuid
 
 
 SCHEMA_VERSION = "shipglows.context-event/v1"
-CACHE_SCHEMA_VERSION = "shipglows.context-head-cache/v1"
+CACHE_SCHEMA_VERSION = "shipglows.context-head-cache/v2"
 HISTORY_RELATIVE = Path("shipglows_data/workflow/history")
 CACHE_RELATIVE = Path(".shipglows")
 MAX_EVENT_FILE_BYTES = 64 * 1024
@@ -433,11 +433,13 @@ def _code_graph_context(root: Path, events: list[dict[str, Any]]) -> dict[str, A
     """
     try:
         try:
-            from tools.code_context_graph import build_graph, query_graph
+            from tools.code_context_graph import build_graph
+            from tools.context_capsule import build_capsule
         except ModuleNotFoundError:
             # Direct ``python tools/context_history.py`` execution places the
             # tools directory, rather than the repository root, on sys.path.
-            from code_context_graph import build_graph, query_graph
+            from code_context_graph import build_graph
+            from context_capsule import build_capsule
 
         graph = build_graph(root)
     except (ImportError, OSError, UnicodeError, ValueError, TypeError) as error:
@@ -454,17 +456,18 @@ def _code_graph_context(root: Path, events: list[dict[str, Any]]) -> dict[str, A
         if len(referenced_paths) >= MAX_GRAPH_SEEDS:
             break
 
-    query = query_graph(
+    capsule = build_capsule(
         graph,
-        [f"file:{path}" for path in referenced_paths],
-        max_depth=1,
-        max_nodes=MAX_GRAPH_NODES,
-    ) if referenced_paths else {"nodes": [], "edges": [], "truncated": False, "missing_seeds": []}
+        task=" ".join(referenced_paths),
+        accepted_outcome="Resume from recent significant event references.",
+        explicit_seeds=[f"file:{path}" for path in referenced_paths],
+        max_items=MAX_GRAPH_NODES,
+    ) if referenced_paths else {"evidence": [], "bounds": {"truncated": False}, "gaps": []}
     all_pointers = sorted(
         {
-            str(node["path"])
-            for node in query["nodes"]
-            if node.get("path") and str(node["path"]) in graph["files"]
+            str(item["path"])
+            for item in capsule["evidence"]
+            if item.get("path") and str(item["path"]) in graph["files"]
         }
     )
     pointers = all_pointers[:MAX_GRAPH_POINTERS]
@@ -481,10 +484,13 @@ def _code_graph_context(root: Path, events: list[dict[str, Any]]) -> dict[str, A
         "nodeCount": len(graph["nodes"]),
         "edgeCount": len(graph["edges"]),
         "seedRefs": referenced_paths,
-        "queryNodeCount": len(query["nodes"]),
-        "queryEdgeCount": len(query["edges"]),
+        "queryNodeCount": len(capsule["evidence"]),
+        "queryEdgeCount": sum(
+            1 for item in capsule["evidence"] for reason in item["reasons"] if reason.startswith("graph_edge:")
+        ),
         "relatedPointers": pointers,
-        "truncated": bool(query["truncated"] or len(all_pointers) > MAX_GRAPH_POINTERS),
+        "truncated": bool(capsule["bounds"]["truncated"] or len(all_pointers) > MAX_GRAPH_POINTERS),
+        "selectionReasonCount": sum(len(item["reasons"]) for item in capsule["evidence"]),
     }
 
 

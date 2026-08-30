@@ -24,6 +24,8 @@ Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/repor
 
 ## Mission
 
+When the visible conversation already carries a bounded `Context Capsule` or exact governed pointer, preserve its target, evidence states, gaps, truncation and next action in the recap. Do not regenerate or enrich it from hidden state; route actionable continuation to `706-continue`, which owns freshness checks.
+
 Give the user a fast closure snapshot of the current conversation only.
 
 ## Goal

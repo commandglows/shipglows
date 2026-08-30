@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-30"
 created_at: "2026-08-30 20:04:13 UTC"
 updated: "2026-08-30"
-updated_at: "2026-08-30 20:04:13 UTC"
-status: draft
+updated_at: "2026-08-30 21:37:23 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: gpt-5.6
 scope: industrialize-native-context-intelligence
@@ -29,13 +29,13 @@ linked_systems:
   - shipglows_data/workflow/history/
 depends_on:
   - artifact: skills/references/context-quality-contract.md
-    artifact_version: "1.3.0"
+    artifact_version: "1.4.0"
     required_status: active
   - artifact: skills/references/context-history-and-head.md
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: active
   - artifact: shipglows_data/technical/native-code-context-graph.md
-    artifact_version: "1.0.0"
+    artifact_version: "1.1.0"
     required_status: active
 supersedes: []
 evidence:
@@ -43,7 +43,7 @@ evidence:
   - "Commit 83c6ca9 combined recent semantic history with the native graph in Context Head."
   - "The ContentGlows trash pilot indexed 983 files, 9,947 nodes and 13,100 edges, and resolved exact content-assets, video-timelines and status-API seeds without truncation."
   - "Operator decision 2026-08-30: build an evolutionary proprietary ShipGlows system inspired by Vexp rather than depend on an external service."
-next_step: "/101-sg-ready industrialize native context intelligence"
+next_step: "Monitor measured context noise and parser misses before proposing any retrieval expansion."
 ---
 
 # Title
@@ -52,7 +52,7 @@ Industrialize native context intelligence
 
 # Status
 
-Draft. The native graph and Context Head foundations exist on `main`; this chantier owns their integration into the normal ShipGlows lifecycle and their measurable improvement across projects.
+Reviewed. The native graph and Context Head foundations are industrialized on `main` through an incremental index, explainable bounded capsule, automatic lifecycle adoption, diagnostics, aggregate evaluation and explicit native fallback.
 
 # User Story
 
@@ -74,7 +74,7 @@ When a ShipGlows-owned workflow starts or resumes material work in an adopted re
 
 # Error Behavior
 
-- Unresolved project/task identity returns `context_partial` or `context_blocked`; it does not guess a target.
+- Unresolved project/task identity returns `context_partial`; a material unresolved target prevents dependent mutation under the context-quality stop conditions rather than introducing a second blocking verdict vocabulary.
 - A stale graph, unsupported language construct, missing seed or truncated neighborhood remains visible with the exact fallback used.
 - Cache corruption, path escape, symlink/junction ambiguity, schema incompatibility or secret-like persisted content fails closed with a bounded redacted diagnostic.
 - An unavailable graph never makes significant history unreadable; canonical targeted retrieval remains available.
@@ -123,6 +123,14 @@ Evolve the existing local-first primitives into one proprietary context-intellig
 # Test Contract
 
 The primary proof surface is deterministic Python contract and integration tests. Run focused unit tests for graph/index/capsule behavior first; lifecycle invocation and fallback contracts second; repository pilots and performance budgets third; metadata, dependency graph, runtime-sync and `git diff --check` last. Browser, authentication and provider tests are not required because this chantier has no browser or external-provider behavior. Manual proof is limited to inspecting one human-readable capsule and one redacted diagnostic per pilot.
+
+# Pilot Corpus
+
+- **ShipGlows:** implementation repository and full before/after evaluation target.
+- **ContentGlows:** reuse the accepted 2026-08-30 baseline as historical evidence. Any current-state comparison is strictly read-only, writes no cache or fixture into ContentGlows, and never changes its source, governance or Git state.
+- **CommunityGlows:** second contrasting read-only pilot. Its TypeScript/Vue browser-extension structure intentionally exercises unsupported-language visibility and targeted fallback; this chantier writes no cache, fixture, source, governance or Git state into CommunityGlows.
+
+Persist only bounded redacted expected-result fixtures inside ShipGlows. Pilot execution must direct disposable output to a ShipGlows-owned ignored or temporary location and must verify the external pilot worktrees remain unchanged. Parser expansion is not implied by pilot selection and remains evidence-gated.
 
 # Dependencies
 
@@ -189,27 +197,27 @@ Update `shipglows_data/technical/native-code-context-graph.md`, `skills/referenc
 
 # Implementation Tasks
 
-1. **Baseline and contracts** — Update `tools/test_code_context_graph.py`, `tools/test_context_history.py` and add focused capsule/integration fixtures before production changes. Record current relevance, miss, noise, latency and size baselines for ShipGlows, ContentGlows and one smaller managed project. Dependency: existing main foundation. Validation: failing tests demonstrate incremental-new-file, symbol-staleness, ranking, bounds, worktree isolation and fallback requirements.
+1. **Baseline and contracts** — Update `tools/test_code_context_graph.py`, `tools/test_context_history.py` and add focused capsule/integration fixtures before production changes. Record ShipGlows measurements, reuse the accepted ContentGlows historical baseline without rebuilding it, and record a read-only CommunityGlows fallback baseline using ShipGlows-owned disposable output. Dependency: existing main foundation. Validation: failing tests demonstrate incremental-new-file, symbol-staleness, ranking, bounds, worktree isolation and fallback requirements; Git status proves both external pilot repositories unchanged.
 2. **Incremental graph engine** — Refactor `tools/code_context_graph.py` into versioned index build/update/query operations with atomic persistence, new/deleted/renamed-file detection, symbol/interface invalidation and deterministic migration/error behavior. Dependency: task 1. Validation: focused graph tests, repeatable JSON hashes, corruption/path-escape/concurrency fixtures and measured update-versus-rebuild proof.
 3. **Task capsule and ranking** — Add the smallest dedicated module under `tools/` justified by the code/docs map for capsule schema, multi-seed ranking, reason codes, certainty preservation, caps and redaction; keep `tools/context_history.py` as the Context Head/history adapter. Dependency: task 2. Validation: golden capsule fixtures plus ranking, ambiguity, truncation, redaction and unsupported-parser tests.
 4. **Lifecycle adoption** — Update `skills/301-sg-context/SKILL.md` and the exact readiness/execution/verification/resume/handoff owners discovered from `skill-invocation-registry.json` so material workflows consume one capsule automatically and small tasks retain a cheap targeted path. Dependency: task 3. Validation: invocation ownership, activation-profile, context-quality, handoff-fidelity and fallback contract tests.
 5. **Operator diagnostics and telemetry** — Extend the existing context tool surface rather than creating a parallel product: expose bounded `status`, `explain`, freshness and evaluation outputs; persist only aggregate local quality measurements with opt-in project adoption and no source content. Dependency: tasks 3–4. Validation: schema, redaction, disabled/empty state, cap and deterministic-report tests.
-6. **Cross-project pilots and tuning** — Run the accepted evaluation corpus on ShipGlows, ContentGlows and one smaller managed project; classify misses by parser, seed, ranking, stale state or missing canonical truth, and add relationship types only when they improve the recorded task outcomes without exceeding budgets. Dependency: task 5. Validation: before/after metrics and saved redacted fixtures; no unmeasured parser expansion.
+6. **Cross-project pilots and tuning** — Run the accepted evaluation corpus on ShipGlows, compare against the accepted ContentGlows baseline with read-only current-state checks only where needed, and run the CommunityGlows read-only fallback pilot; classify misses by parser, seed, ranking, stale state or missing canonical truth, and add relationship types only when they improve the recorded task outcomes without exceeding budgets. Dependency: task 5. Validation: before/after metrics and ShipGlows-owned redacted fixtures, explicit unchanged external Git states, and no unmeasured parser expansion.
 7. **Documentation and runtime parity** — Update the linked technical/contracts docs, `shipglows_data/technical/code-docs-map.md`, runtime synchronization and any help surface actually changed. Dependency: stable behavior from tasks 2–6. Validation: metadata lint, documentation contract tests, resource graph, activation budgets, runtime sync and `git diff --check`.
 8. **Adversarial verification and closure** — Execute focused/full proportional tests, manually inspect one capsule and diagnostic per pilot, verify no source bodies/secrets are persisted, record remaining dynamic-resolution misses and create the single significant closure event. Dependency: all prior tasks. Validation: `103-sg-verify` evidence against every acceptance criterion before `104-sg-end` and ordinary ship.
 
 # Acceptance Criteria
 
-- [ ] A material normal-path ShipGlows workflow automatically receives one bounded task capsule without an operator invoking an internal context engine.
-- [ ] The same Git/task state produces byte-stable derived output; changed state invalidates only affected observations and dependents.
-- [ ] New, changed, renamed and deleted supported files are represented correctly without mandatory full rebuild.
-- [ ] Every selected context item exposes an explainable reason and retains authority, freshness and certainty state.
-- [ ] Missing tools, unsupported relationships, cache corruption, truncation and ambiguous targets produce explicit fallback or blocking verdicts.
-- [ ] Worktree/branch isolation and concurrent refresh behavior are covered by deterministic tests.
-- [ ] No graph, capsule or telemetry artifact stores source bodies, secrets, prompts, transcripts, production payloads or private user content.
-- [ ] ShipGlows plus two contrasting project pilots show improved or equal relevant-file recall with measured noise, latency, size and fallback rate; regressions are documented rather than hidden.
-- [ ] Lifecycle, invocation, handoff, metadata, dependency graph, activation budget and runtime-sync validations pass.
-- [ ] Technical documentation identifies canonical truth, derived-data limits, operator diagnostics, known parser gaps and the safe fallback.
+- [x] A material normal-path ShipGlows workflow automatically receives one bounded task capsule without an operator invoking an internal context engine.
+- [x] The same Git/task state produces byte-stable derived output; changed state invalidates only affected observations and dependents.
+- [x] New, changed, renamed and deleted supported files are represented correctly without mandatory full rebuild.
+- [x] Every selected context item exposes an explainable reason and retains authority, freshness and certainty state.
+- [x] Missing tools, unsupported relationships, cache corruption, truncation and ambiguous targets produce explicit fallback or blocking verdicts.
+- [x] Worktree/branch isolation and concurrent refresh behavior are covered by deterministic tests.
+- [x] No graph, capsule or telemetry artifact stores source bodies, secrets, prompts, transcripts, production payloads or private user content.
+- [x] ShipGlows plus two contrasting project pilots show improved or equal relevant-file recall with measured noise, latency, size and fallback rate; regressions are documented rather than hidden.
+- [x] Lifecycle, invocation, handoff, metadata, dependency graph, activation budget and runtime-sync validations pass.
+- [x] Technical documentation identifies canonical truth, derived-data limits, operator diagnostics, known parser gaps and the safe fallback.
 
 # Test Strategy
 
@@ -231,6 +239,7 @@ Use fixture-first deterministic tests for parser/index/capsule contracts, then l
 - First-read files: `tools/code_context_graph.py`, `tools/context_history.py`, `skills/301-sg-context/SKILL.md`, `skills/references/context-history-and-head.md`, and `shipglows_data/technical/native-code-context-graph.md`.
 - Preserve the public/private boundary and immutable history schema. Generated graph/capsule caches remain ignored and disposable.
 - The ContentGlows trash pilot is evidence, not an implementation target; ContentGlows product changes are explicitly outside this ShipGlows chantier.
+- CommunityGlows is a read-only structural-contrast target, not an implementation target; unsupported TypeScript/Vue relationships must remain explicit and use the targeted fallback unless measured evidence supports a separately reviewed parser addition.
 - Prefer extending existing commands/modules when ownership remains coherent. A new module is justified only when it prevents graph, history and capsule responsibilities from collapsing into one file.
 - If evaluation shows deterministic structural retrieval cannot satisfy an accepted representative task, stop and record the exact miss before proposing embeddings, a database or an external provider.
 - The next agent must run `101-sg-ready` before implementation and may repair this draft only within the accepted proprietary/local-first direction.
@@ -244,7 +253,12 @@ None blocking. Technology expansion beyond deterministic local structural retrie
 | Date UTC | Skill | Model | Action | Result | Next step |
 |----------|-------|-------|--------|--------|-----------|
 | 2026-08-30 20:04:13 | 100-sg-spec | gpt-5.6 | Created the autonomous industrialization contract from the merged native graph, Context Head and ContentGlows pilot evidence. | Draft records lifecycle adoption, incremental indexing, explainable retrieval, metrics, safety, pilots and proof without external-service dependency. | Run `101-sg-ready` in ShipGlows `main`. |
+| 2026-08-30 20:54:51 | 101-sg-ready | gpt-5.6 | Reviewed scope, behavior, security, proof, lifecycle consequences and pilot isolation; repaired the verdict vocabulary and resolved the pilot corpus. | Ready: a fresh agent can execute without rebuilding ContentGlows, mutating external pilots or inventing a second context verdict. | Start implementation from fixtures and baseline contracts. |
+| 2026-08-30 21:10:00 | 102-sg-start | gpt-5.6 | Implemented the incremental v2 graph, explainable capsule, aggregate evaluation, lifecycle adoption, diagnostics, fallback pointers and mapped documentation. | Implemented: focused contracts pass and both external pilot repositories remain unchanged. | Verify every acceptance criterion and adversarial boundary. |
+| 2026-08-30 21:15:57 | 103-sg-verify | gpt-5.6 | Verified incremental invalidation, migration, locking, path isolation, byte stability, privacy, lifecycle budgets, runtime visibility and cross-project recall. | Verified: 52 focused context tests pass; ShipGlows and CommunityGlows reach 1.0 representative recall with noise, truncation and unsupported-language gaps visible. | Close the internal-only chantier and ship its exact scope. |
+| 2026-08-30 21:17:02 | 104-sg-end | gpt-5.6 | Synchronized the spec, technical documentation, runtime visibility and one immutable internal closure event. | Closed for implementation and proof; editorial surfaces are not impacted and the significant change remains internal-only. | Commit and push the exact chantier scope. |
+| 2026-08-30 21:37:23 | 005-sg-ship | gpt-5.6 | Delivered the exact chantier scope through PR #47 after both required ShipGlows gates passed. | Shipped to `main` through the protected merge path; no deployment or public changelog claim applies. | Monitor aggregate quality evidence before expanding parser or retrieval technology. |
 
 # Current Chantier Flow
 
-`100-sg-spec (draft complete) -> 101-sg-ready (next) -> 102-sg-start -> 103-sg-verify -> 104-sg-end -> 005-sg-ship`
+`100-sg-spec (complete) -> 101-sg-ready (ready) -> 102-sg-start (implemented) -> 103-sg-verify (verified) -> 104-sg-end (closed) -> 005-sg-ship (shipped)`
