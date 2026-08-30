@@ -17,10 +17,12 @@ INSTALLER_ENGINE_MODULE="$ROOT/cli/windows/ShipGlows.InstallerEngine.psm1"
 INSTALLER_CONSOLE_MODULE="$ROOT/cli/windows/ShipGlows.InstallerConsole.psm1"
 AGENT_INSTRUCTIONS_MODULE="$ROOT/cli/windows/ShipGlows.AgentInstructions.psm1"
 AUTH_MODULE="$ROOT/cli/windows/ShipGlows.Auth.psm1"
+WSL_TURSO_MODULE="$ROOT/cli/windows/ShipGlows.WslTurso.psm1"
+TURSO_INSTALLER="$ROOT/cli/install-turso-cloud.sh"
 ENVIRONMENT_CLI="$ROOT/cli/environment/shipglows_environment.py"
 SHIPGLOWS_COMMAND="$ROOT/cli/windows/shipglows.ps1"
 
-for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$INSTALLER_ENGINE_MODULE" "$INSTALLER_CONSOLE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE" "$ENVIRONMENT_CLI" "$SHIPGLOWS_COMMAND"; do
+for file in "$MODULE" "$FLUTTER_SUPERVISOR" "$CATALOG_REFRESHER" "$ENTRYPOINT" "$INSTALLER" "$BOOTSTRAP" "$CODEX_MCP_MODULE" "$MOBILE_MODULE" "$INSTALLER_ENGINE_MODULE" "$INSTALLER_CONSOLE_MODULE" "$AGENT_INSTRUCTIONS_MODULE" "$AUTH_MODULE" "$WSL_TURSO_MODULE" "$TURSO_INSTALLER" "$ENVIRONMENT_CLI" "$SHIPGLOWS_COMMAND"; do
   test -f "$file"
 done
 
@@ -30,6 +32,8 @@ done
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-observation.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-mise-adapter.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/environment-installed-runtime.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/wsl-turso.ps1"
+bash "$ROOT/tests/cli/turso-cloud-installer.sh"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/runtime-update-transaction.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/runtime-status.ps1"
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$ROOT/tests/windows/update-command.ps1"
@@ -70,6 +74,8 @@ rg -n 'mcp_servers\.playwright|PlaywrightVersion|ChromiumPath|exact resolved pac
 ! rg -n '@playwright/mcp@latest|supabase@latest' "$INSTALLER" "$CODEX_MCP_MODULE" "$MOBILE_MODULE"
 rg -n 'ShipGlows\.CodexMcp\.psm1' "$BOOTSTRAP" "$INSTALLER"
 rg -n 'ShipGlows\.AgentInstructions\.psm1|Install-SgAgentEnvironmentInstructions' "$BOOTSTRAP" "$INSTALLER"
+rg -n 'Get-SgWslState|Get-SgWslInstallPlan|Invoke-SgWslInstall|Get-SgTursoCloudState|Get-SgTursoCloudInstallPlan|Invoke-SgTursoCloudInstall' "$WSL_TURSO_MODULE" "$INSTALLER"
+! rg -n 'turso[[:space:]]+(auth|db|shell)|releases/latest|/latest/' "$WSL_TURSO_MODULE" "$TURSO_INSTALLER"
 
 ! rg -n 'Invoke-Expression|GetRelativePath|Read-SgRegistry \\$Config \.projects' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
 ! rg -n '"[^"\n]*\$[A-Za-z_][A-Za-z0-9_]*:' "$MODULE" "$ENTRYPOINT" "$INSTALLER"
@@ -224,11 +230,12 @@ test -n "$legacy_cleanup_line" && test -n "$wrapper_install_line" && test "$lega
 rg -n "USERPROFILE 'ShipGlows'" "$INSTALLER" "$MODULE"
 ! rg -n "Choose 1 or 2 \\[2\\]|'' \\{ return 'full' \\}" "$BOOTSTRAP"
 rg -n "'' \{ Write-Warn 'A choice is required\. Enter 1, 2, 3, or 0\.' \}" "$BOOTSTRAP"
-for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.RuntimeStatus\.psm1' 'ShipGlows\.FlutterSupervisor\.ps1' 'ShipGlows\.ProjectCatalogRefresh\.ps1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.BuildArtifacts\.psm1' 'shipglows-build-artifacts\.ps1' 'ShipGlows\.McpCatalog\.json' 'ShipGlows\.InstallerEngine\.psm1' 'ShipGlows\.InstallerConsole\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'ShipGlows\.DeveloperCorpus\.psm1' 'ShipGlows\.PowerShellRuntime\.psm1' 'ShipGlows\.PowerShellRuntime\.json' 'ShipGlows\.PowerShellBootstrap\.ps1' 'shipglows-devserver\.ps1' 'shipglows\.ps1' 'install-devserver\.ps1'; do
+for windows_file in 'ShipGlows\.DevServer\.psm1' 'ShipGlows\.RuntimeStatus\.psm1' 'ShipGlows\.FlutterSupervisor\.ps1' 'ShipGlows\.ProjectCatalogRefresh\.ps1' 'ShipGlows\.CodexMcp\.psm1' 'ShipGlows\.MobileToolchain\.psm1' 'ShipGlows\.BuildArtifacts\.psm1' 'shipglows-build-artifacts\.ps1' 'ShipGlows\.McpCatalog\.json' 'ShipGlows\.InstallerEngine\.psm1' 'ShipGlows\.InstallerConsole\.psm1' 'ShipGlows\.AgentInstructions\.psm1' 'ShipGlows\.Auth\.psm1' 'ShipGlows\.DeveloperCorpus\.psm1' 'ShipGlows\.PowerShellRuntime\.psm1' 'ShipGlows\.PowerShellRuntime\.json' 'ShipGlows\.PowerShellBootstrap\.ps1' 'ShipGlows\.WslTurso\.psm1' 'shipglows-devserver\.ps1' 'shipglows\.ps1' 'install-devserver\.ps1'; do
   rg -n "$windows_file" "$BOOTSTRAP"
 done
-rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
-rg -n '\$entries\.Count -ne 28|shipglows-version\.json' "$BOOTSTRAP"
+rg -F -n 'ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|ShipGlows\.WslTurso\.psm1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1' "$BOOTSTRAP"
+rg -n 'cli/install-turso-cloud\\?\.sh|cli/install-turso-cloud\.sh' "$BOOTSTRAP"
+rg -n '\$entries\.Count -ne 30|shipglows-version\.json' "$BOOTSTRAP"
 rg -n 'InstallSurface.*corpus|SHIPGLOWS_INSTALL_COMPONENTS|Install-SgDeveloperCheckout|Enable-SgWindowsDeveloperChannel' "$BOOTSTRAP"
 rg -n '\$windowsCandidates = @\(' "$BOOTSTRAP"
 rg -n '\$environmentCandidates = @\(|Assert-EnvironmentPackage|preparation\.py|cli/environment/.*shipglows_environment' "$BOOTSTRAP"

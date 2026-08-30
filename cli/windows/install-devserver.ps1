@@ -47,6 +47,11 @@ Import-Module $installerEngineModule -Force -DisableNameChecking
 $installerConsoleModule = Join-Path $sourceDir 'ShipGlows.InstallerConsole.psm1'
 if (-not (Test-Path -LiteralPath $installerConsoleModule -PathType Leaf)) { throw "Missing Windows installer console adapter: $installerConsoleModule" }
 Import-Module $installerConsoleModule -Force -DisableNameChecking
+$wslTursoModule = Join-Path $sourceDir 'ShipGlows.WslTurso.psm1'
+if (-not (Test-Path -LiteralPath $wslTursoModule -PathType Leaf)) { throw "Missing Windows WSL and Turso helper: $wslTursoModule" }
+Import-Module $wslTursoModule -Force -DisableNameChecking
+$tursoCloudInstaller = Join-Path $ShipglowsDir 'cli\install-turso-cloud.sh'
+if (-not (Test-Path -LiteralPath $tursoCloudInstaller -PathType Leaf)) { throw "Missing bundled Turso Cloud installer: $tursoCloudInstaller" }
 $installerEventSink = New-SgInstallerConsoleEventSink
 $script:activeInstallerPhase = $null
 
@@ -1937,6 +1942,45 @@ if ($UpdateDeveloperTools) {
     Invoke-SgManagedDeveloperToolUpdates $developerToolDefinitions $npmPaths $corepackPaths $pnpmPaths
 }
 [void](Complete-SgInstallerPhase $corePhase)
+
+$wslPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.wsl-turso' -Label 'Inspecting optional WSL and Turso capabilities' -TimeoutSeconds 7200) -EventSink $installerEventSink
+$script:activeInstallerPhase = $wslPhase
+$interactiveInstaller = -not [Console]::IsInputRedirected
+$wslState = Get-SgWslState
+$wslInstallResult = $null
+if ($wslState.Status -in @('absent','platform_only')) {
+    Write-Host "Optional WSL capability: $($wslState.Reason)" -ForegroundColor Yellow
+    $wslChoice = Read-SgVisibleInstallerChoice -Interactive $interactiveInstaller -Prompt 'Install WSL with Ubuntu independently from ShipGlows? A visible administrator prompt and restart may be required. [y/N]' -OperationId 'input.wsl' -Label 'WSL installation consent'
+    $wslPlan = Get-SgWslInstallPlan -State $wslState -Interactive $interactiveInstaller -Choice $wslChoice
+    $wslInstallResult = Invoke-SgWslInstall -Plan $wslPlan
+    if ($wslInstallResult.Changed) { Write-Host $wslInstallResult.NextAction -ForegroundColor Yellow }
+    elseif ($wslInstallResult.Status -eq 'error') { Write-SgInstallerWarning $wslInstallResult.Reason }
+    $wslState = if ($wslInstallResult.Status -eq 'pending_restart') {
+        [pscustomobject]@{ Status='pending_restart'; Ready=$false; Distribution=''; Reason=$wslInstallResult.Reason; NextAction=$wslInstallResult.NextAction }
+    } elseif ($wslInstallResult.Changed) {
+        [pscustomobject]@{ Status='ubuntu_uninitialized'; Ready=$false; Distribution='Ubuntu'; Reason=$wslInstallResult.Reason; NextAction=$wslInstallResult.NextAction }
+    } else { $wslState }
+} elseif ($wslState.Status -eq 'ubuntu_uninitialized') {
+    Write-SgInstallerWarning $wslState.NextAction
+} elseif ($wslState.Status -eq 'pending_restart') {
+    Write-SgInstallerWarning $wslState.NextAction
+} elseif ($wslState.Status -eq 'error') {
+    Write-SgInstallerWarning $wslState.Reason
+}
+
+$tursoState = Get-SgTursoCloudState -WslState $wslState
+if ($wslState.Ready -and -not $tursoState.Ready) {
+    Write-Host "Optional Turso Cloud CLI: $($tursoState.Reason)" -ForegroundColor Yellow
+    $tursoChoice = Read-SgVisibleInstallerChoice -Interactive $interactiveInstaller -Prompt 'Install the pinned Turso Cloud CLI inside Ubuntu? Authentication will not be started. [y/N]' -OperationId 'input.turso-cloud' -Label 'Turso Cloud CLI installation consent'
+    $tursoPlan = Get-SgTursoCloudInstallPlan -WslState $wslState -TursoState $tursoState -Interactive $interactiveInstaller -Choice $tursoChoice
+    $tursoResult = Invoke-SgTursoCloudInstall -Plan $tursoPlan -WslState $wslState -InstallerPath $tursoCloudInstaller
+    if ($tursoResult.Status -eq 'ready') { Write-Host $tursoResult.Reason -ForegroundColor Green }
+    elseif ($tursoResult.Status -eq 'error') { Write-SgInstallerWarning $tursoResult.Reason }
+} elseif (-not $wslState.Ready) {
+    Write-Host "Turso Cloud CLI remains pending: $($tursoState.NextAction)" -ForegroundColor DarkGray
+}
+[void](Complete-SgInstallerPhase $wslPhase)
+
 $playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
 [void](Set-SgFlutterChromeExecutable $playwrightRuntime.BrowserPath)
 if ($UpdateDeveloperTools) {

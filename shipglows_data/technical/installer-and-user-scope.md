@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.28.0"
+artifact_version: "2.28.1"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-08-30"
@@ -92,6 +92,12 @@ sequence required before merging installer changes into `main`.
 ## Purpose
 
 This doc covers `cli/install.sh` and the root/user boundary for ShipGlows setup. Read it before changing system dependencies, global binaries, aliases, skill links, Codex/Claude config, MCP registration, or project-local `shipglows_data` bootstrap behavior.
+
+### Independent WSL and Turso Cloud capabilities
+
+The native full installer inspects WSL without launching a distribution. WSL is optional: an interactive operator may approve the fixed elevated Ubuntu installation, while refusal or non-interactive execution leaves ShipGlows native Windows available. Restart and Ubuntu username/password initialization remain user-owned.
+
+Turso Cloud is a separate consumer offered only after an initialized non-root Ubuntu user is observed. The bundled installer selects the official v1.0.32 Linux x86_64/arm64 archive, verifies its pinned SHA-256 and binary version, then atomically updates `~/.local/bin/turso`. It never starts authentication, creates a database or token, opens a shell, or performs a migration.
 
 ## Owned Files
 
