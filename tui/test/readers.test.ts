@@ -139,8 +139,8 @@ describe("readDashboardData", () => {
       "utf8"
     );
     const data = await readDashboardData({ projectRoot, workspaceRoots: [appRoot], shipglowsRepoRoot: appRoot });
-    expect(data.checklistInstances?.lines[0]).toContain("checklist seo-technical");
-    expect(data.checklistInstances?.lines[0]).toContain("progress 1/2");
+    const seoChecklist = data.checklistInstances?.lines.find((line) => line.includes("checklist seo-technical"));
+    expect(seoChecklist).toContain("progress 1/2");
     expect(data.checklistInstances?.lines.some((line) => line.includes("checklist cybersecurity-readiness"))).toBe(true);
     expect(data.tasks.lines.some((line) => line.includes("technical-crawl"))).toBe(false);
   });

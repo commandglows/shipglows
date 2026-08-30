@@ -19,6 +19,14 @@ while [ -L "$SCRIPT_SOURCE" ]; do
 done
 SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" && pwd)"
 
+# Self-update is deliberately independent from the legacy DevServer bootstrap.
+# `s u` remains the package-update menu action; `shipglows update` owns only
+# the ShipGlows runtime and delegates its writes to the canonical bootstrap.
+if [ "${1:-}" = "update" ]; then
+    shift
+    exec bash "$SCRIPT_DIR/shipglows_update.sh" "$@"
+fi
+
 # Skill distribution is a lightweight control plane. It must remain usable
 # without bootstrapping the DevServer menu or its local prerequisites.
 if [ "${1:-}" = "skills" ]; then
@@ -40,6 +48,17 @@ if [ "${1:-}" = "env" ]; then
         exit 2
     fi
     exec python3 "$SCRIPT_DIR/environment/shipglows_environment.py" "$@"
+fi
+
+# Durable private data is intentionally an explicit capability, never ambient
+# agent context. This control plane has no menu/bootstrap side effects.
+if [ "${1:-}" = "private-data" ]; then
+    shift
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "ShipGlows private-data commands require Python 3." >&2
+        exit 2
+    fi
+    exec python3 "$SCRIPT_DIR/private_data.py" "$@"
 fi
 
 source "$SCRIPT_DIR/lib.sh"

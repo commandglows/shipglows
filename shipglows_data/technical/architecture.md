@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.14.0"
+artifact_version: "1.17.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-08-24"
+updated: "2026-08-27"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -21,15 +21,18 @@ linked_systems:
   - "install-shipglows.ps1"
   - "local/local.sh"
   - "skills/"
+  - "skills/900-shipglows-core/"
   - "templates/"
   - "tools/shipglows_metadata_lint.py"
   - "tests/"
+  - "shipglows_data/technical/platforms/hetzner.md"
 external_dependencies:
   - "Flox"
   - "PM2"
   - "Caddy"
   - "DuckDNS"
   - "SSH"
+  - "Hetzner Cloud"
   - "Node.js/pnpm"
   - "uv"
   - "Flutter"
@@ -40,6 +43,7 @@ invariants:
   - "Project governance artifacts must live under project-local shipglows_data/ subdirectories"
   - "UI projects must declare a design-system authority before visual implementation changes"
   - "Environment intent, planning, observation, and backend execution remain separate states; only an approved executable backend may mutate tools"
+  - "Managed workspace presence never proves or implies that a project is publicly deployed"
 security_impact: yes
 docs_impact: yes
 evidence:
@@ -53,6 +57,8 @@ evidence:
   - "Operator decision 2026-07-13 flattens the single-child templates/artifacts hierarchy into templates/."
   - "The 2026-08-16 environment foundation adds one strict cross-platform capability contract, deterministic plans, and redacted private observations without activating a package-manager backend."
   - "The 2026-08-16 source pilot activates only Windows mise plus project-local Node 24 and pnpm 10 behind approval-digest validation and an injectable structured runner; the Best Fried Chicken provider smoke proves that bounded cycle while every other backend/capability remains fail-closed."
+  - "The 2026-08-27 public/private infrastructure boundary exposes only logical retained-runtime and managed-workspace roles here while routing operational machine details to the private operator inventory."
+  - "Operator decision 2026-08-27 defines this repository as the ShipGlows DX system and keeps shipglows_app as the separate public-site and SaaS product repository."
 depends_on:
   - artifact: "shipglows_data/technical/guidelines.md"
     artifact_version: "1.0.0"
@@ -76,6 +82,16 @@ ShipGlows has two connected layers:
 - a documentation and workflow layer for AI-assisted execution discipline
 
 The repo is not split into small services. It is centered around shell-based orchestration plus Markdown artifact governance.
+
+### Repository and product boundary
+
+This `shipglows` repository is the ShipGlows DX system: skills and doctrine, CLI/DevServer, TUI, local helpers, environment control, installers, packaging, tests, and internal governance. Internal `900-shipglows-core` owns maintenance lifecycle and cross-surface coherence for that DX system.
+
+`shipglows_app` is a separate product repository. It owns the public website and SaaS. Product goals from `shipglows_app` may motivate or test DX behavior, but Core context never grants authority to modify that repository or collapse product implementation into DX governance.
+
+### Managed cloud workspace topology
+
+ShipGlows currently separates its Hetzner compute into two logical roles. `sg-runtime-01` retains lightweight public and API runtime continuity. `sg-workspaces-01` is the execution plane for managed project workspaces; its isolation, shared-toolchain, and queued-concurrency runtime is planned but not yet implemented. Public product deployments remain provider-specific and are not implied by workspace presence. This repository records only public-safe role boundaries; machine identity, capacity, access, security posture, cost, and recovery details live in the private operator inventory.
 
 ### Reproducible environment control plane
 

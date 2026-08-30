@@ -78,6 +78,10 @@ bun run dev
 - `Up`/`Down`: move selection in the active list; when the selection reaches the bottom, the visible window scrolls to the next results.
 - `q`, `Esc`, `Ctrl+C`: quit and restore the terminal.
 
+To refresh ShipGlows itself, quit the read-only dashboard and run
+`shipglows update` (or inspect first with `shipglows update status`). The TUI
+does not run installers itself.
+
 Display behavior:
 
 - Default view renders only projects and specs to stay readable on phone-sized terminals.

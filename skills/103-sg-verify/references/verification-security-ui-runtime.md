@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-08-30"
 status: active
 source_skill: 103-sg-verify
 scope: 103-sg-verify-security-ui-runtime
@@ -18,6 +18,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-08-30: Flutter verification starts on the registry-backed live development target; standalone builds remain package-sensitive checkpoints."
   - "Security, UI, and runtime proof gates extracted from the former monolithic verification contract."
 next_step: "/103-sg-verify progressive lifecycle activation compaction wave 4"
 ---
@@ -38,7 +39,7 @@ Visual success requires rendered human evidence when the contract demands it. St
 
 ## Flutter Proof Ladder
 
-Use widget/unit tests first, then agent-run Flutter Web smoke for shared behavior (`108-sg-browser` for non-auth, `109-sg-auth-debug` for auth), then APK/device proof for native-only risk. IME, permissions, overlays, notifications, services, native plugins/channels, pickers, camera/mic, storage, installation, and device performance remain device-scoped. Skipping practical widget and Web evidence without a concrete exception yields `partial` or `not verified`.
+Use widget/unit tests first, then the managed live `flutter run` session on the registry-backed active development target. Use Flutter Web smoke (`108-sg-browser` for non-auth, `109-sg-auth-debug` for auth) when browser behavior is relevant, not as a substitute for the selected native target. APK/AAB or standalone Windows builds are release/package checkpoints for risks that depend on installation, packaging, native plugins/DLLs, production mode, performance, or startup without Flutter attached. IME, permissions, overlays, notifications, services, native plugins/channels, pickers, camera/mic, storage, installation, and device performance remain target-scoped. Skipping practical live-target evidence without a concrete exception yields `partial` or `not verified`.
 
 ## Runtime And External Proof
 

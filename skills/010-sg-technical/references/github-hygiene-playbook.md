@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-16"
+updated: "2026-08-27"
 status: active
 source_skill: 010-sg-technical
 scope: github-hygiene-playbook
@@ -86,6 +86,7 @@ Default mode is `audit`.
 
 - Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking the operator to choose repo scope or approve destructive git actions.
 - Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before the final report.
+- Load `$SHIPGLOWS_ROOT/skills/references/managed-project-ci-policy.md` when auditing or reconciling workflows, required checks, branch protection, or repository rulesets.
 
 ## Execution Flow
 
@@ -193,6 +194,8 @@ or unrelated residue remain `blocked`, `deferred`, or `retained` with reason.
 
 `fix` mode may combine the safe actions above, but only after reporting the exact repos and branches it will mutate.
 
+For an active GitHub-managed repository, include the canonical required-gate audit in `audit`, `reconcile`, or `fix` whenever CI or protection is in scope. Treat a directly required path-filtered job, a missing `ShipGlows required gate`, workflow drift, or protection enabled before successful gate proof as `needs-review`, never `merge-ready`. Resolve the Core-owned `tools/shipglows_required_gate.py` from `$SHIPGLOWS_ROOT` and use `ruleset-plan` for fresh read-only provider evidence. `ruleset-apply` remains an explicit provider mutation inside the approved reconciliation scope and must satisfy the policy's install-before-protect preconditions.
+
 ## Action Rules
 
 Apply these rules before mutating anything:
@@ -259,6 +262,7 @@ Pressure scenarios:
 - `GIT-RECONCILE-APPROVAL`: Given one `merge-ready` PR, `reconcile` presents its exact merge method and obtains fresh approval before the remote mutation.
 - `GIT-CLEAN-SQUASH`: Given a squash-merged PR, `clean` proves integration from refreshed PR state before assigning a terminal cleanup disposition to its worktree and branches.
 - `GIT-CLEAN-DIRTY`: Given a dirty worktree, `clean` preserves it and reports the exact blocker.
+- `GIT-REQUIRED-GATE`: Given an active managed GitHub repository, hygiene detects a directly required path-filtered job and routes to the canonical always-on gate before merge-ready classification.
 
 - Given a clean repo with branches behind origin, when `fix` is requested, then the skill fast-forwards only safe branches and reports the rest as blocked or approval-needed.
 - Given merged local branches, when `branches` is requested, then the skill deletes only branches that are fully merged and non-protected.

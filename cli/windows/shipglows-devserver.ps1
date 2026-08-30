@@ -62,6 +62,32 @@ if ($Action.Trim().ToLowerInvariant() -eq 'env') {
     exit $LASTEXITCODE
 }
 
+# Private data remains a redacted control plane: no project scan, no startup,
+# and no ambient agent access.
+if ($Action.Trim().ToLowerInvariant() -eq 'private-data') {
+    $privateDataCommandIndex = if (@($ShortcutPath).Count -ge 3 -and $ShortcutPath[0].Trim().ToLowerInvariant() -eq '--format') { 2 } else { 0 }
+    if (@($ShortcutPath).Count -le $privateDataCommandIndex -or $ShortcutPath[$privateDataCommandIndex].Trim().ToLowerInvariant() -notin @('status','doctor','capability','sync','connect','migrate','open')) {
+        [Console]::Error.WriteLine('Usage: s private-data <status|doctor|capability <namespace> <read|write>|connect --repo <URL> [--existing --dir <absolute-path>] [--apply]|migrate --manifest <absolute-path> [--apply]|open [--apply]|sync <pull|push> [--apply]>')
+        exit 2
+    }
+    $privateDataCandidates = @(
+        [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\private_data.py')),
+        [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\cli\private_data.py'))
+    )
+    $privateDataScript = $privateDataCandidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+    if (-not $privateDataScript) {
+        [Console]::Error.WriteLine('ShipGlows private-data control-plane script not found in the source or installed runtime.')
+        exit 2
+    }
+    $python = @(Get-Command python.exe -CommandType Application -ErrorAction SilentlyContinue; Get-Command python3.exe -CommandType Application -ErrorAction SilentlyContinue) | Where-Object { $_ } | Select-Object -First 1
+    if (-not $python) {
+        [Console]::Error.WriteLine('ShipGlows private-data commands require Python 3.')
+        exit 2
+    }
+    & $python.Source $privateDataScript @($ShortcutPath)
+    exit $LASTEXITCODE
+}
+
 function Test-SgImmediateAction([string]$RequestedAction, [string[]]$RemainingPath) {
     return @($RemainingPath).Count -eq 0 -and $RequestedAction.Trim().ToLowerInvariant() -in @('h','help','x','exit')
 }
@@ -71,6 +97,11 @@ function Show-SgShortcutHelp {
     Write-Host 'ShipGlows Windows shortcuts' -ForegroundColor Cyan
     Write-Host '  s d      Dashboard'
     Write-Host '  s e      Start a project'
+    Write-Host '  s status                           Show every project surface and state'
+    Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
+    Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
+    Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
+    Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
     Write-Host '  s m r    Restart a project'
     Write-Host '  s m t    Stop a project'
     Write-Host '  s m w    Unregister a stopped project (files are preserved)'
@@ -78,10 +109,21 @@ function Show-SgShortcutHelp {
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
     Write-Host '  s a      Manage CLI authentication with official interactive flows'
+    Write-Host '  s private-data ...              Manage the explicit private-data connection and capability'
     Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
-    Write-Host '  s u      Update ShipGlows from the official repository'
+    Write-Host '  s u      Update ShipGlows from the active stable or linked channel'
+    Write-Host '  s update status  Show the active ShipGlows update channel'
+    Write-Host '  s tools status   Preview global developer-tool updates without changing them'
+    Write-Host '  s tools update   Update ShipGlows-owned global developer tools after confirmation'
     Write-Host '  s x      Quit ShipGlows'
     Write-Host '  s         Interactive menu'
+    Write-Host ''
+    Write-Host 'Project journeys' -ForegroundColor Cyan
+    Write-Host '  Web project      Start -> Open the managed local URL -> Stop'
+    Write-Host '  Flutter app      Start live (Windows by default when supported) -> Develop/reload -> Stop'
+    Write-Host '                   .shipglows.env can explicitly select windows, android, chrome, or web-server.' -ForegroundColor DarkGray
+    Write-Host '  Chrome extension Start -> Open / load project -> Developer mode -> Load unpacked -> Stop'
+    Write-Host '  Chrome support currently targets CRXJS projects with @crxjs/vite-plugin and dev:chrome.' -ForegroundColor DarkGray
     Write-Host ''
     Write-Host 'Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
 }
@@ -95,6 +137,8 @@ if (Test-SgImmediateAction $Action $ShortcutPath) {
 
 $module = Join-Path $PSScriptRoot 'ShipGlows.DevServer.psm1'
 Import-Module $module -Force -DisableNameChecking
+$runtimeStatusModule = Join-Path $PSScriptRoot 'ShipGlows.RuntimeStatus.psm1'
+Import-Module $runtimeStatusModule -Force -DisableNameChecking
 $authModule = Join-Path $PSScriptRoot 'ShipGlows.Auth.psm1'
 $script:authenticationModuleLoaded = $false
 $config = Get-SgDevConfig
@@ -122,7 +166,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','help','exit')
+    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -138,6 +182,9 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
         'm n' = 'navigate'
         'a'   = 'auth'
         'u'   = 'update'
+        'update status' = 'update-status'
+        'tools status' = 'tools-status'
+        'tools update' = 'tools-update'
         'h'   = 'help'
         'x'   = 'exit'
     }
@@ -258,15 +305,19 @@ function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Ch
         'start' { $items = @($items) }
         'navigate' { $items = @($items) }
         'logs' { $items = @($items | Where-Object { $_.IsRegistered -and $_.logPath }) }
-        'open' { $items = @($items | Where-Object { $_.IsRegistered -and $_.status -in @('starting','running') -and [int]$_.port -gt 0 }) }
+        'open' { $items = @($items | Where-Object { $_.IsRegistered }) }
         default { $items = @($items | Where-Object { $_.IsRegistered }) }
     }
-    if ($items.Count -eq 0) { Write-SgWarn 'No projects discovered in the ShipGlows workspace.'; return $null }
+    if ($items.Count -eq 0) {
+        if ($Action -eq 'open') { Write-SgWarn 'No registered project is available to open. Clone or register a project first.' }
+        else { Write-SgWarn 'No projects discovered in the ShipGlows workspace.' }
+        return $null
+    }
     if ($choiceUiAvailable) {
         $labels = New-Object 'System.Collections.Generic.List[string]'
         $identityByLabel = @{}
         foreach ($item in $items) {
-            $label = if ($Action -eq 'navigate') { [string]$item.Name } else { "$($item.Name)  [$($item.status)]  $($item.kind)  :$($item.port)" }
+            $label = if ($Action -eq 'navigate') { [string]$item.Name } else { "$($item.Name)  $(Format-SgProjectStatus $item)" }
             if ($identityByLabel.ContainsKey($label)) { throw "Duplicate project choice label: $label" }
             $identityByLabel[$label] = [string]$item.Id
             [void]$labels.Add($label)
@@ -281,7 +332,7 @@ function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Ch
         $index = 1
         foreach ($item in $items) {
             if ($Action -eq 'navigate') { Write-Host ("[{0}] {1}" -f $index,$item.Name) }
-            else { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$item.status,$item.kind,$item.port,$item.Name) }
+            else { Write-Host ("[{0}] {1}  {2}" -f $index,$item.Name,(Format-SgProjectStatus $item)) }
             $index++
         }
         Write-Host '[0] Back to menu'
@@ -313,24 +364,68 @@ function Get-SelectedRegisteredProject([string]$Header = 'Choose a registered pr
     return Get-SelectedProject 'unregister' $Header
 }
 
+function Show-SgShipGlowsStatus {
+    $status = Read-SgShipGlowsStatusCache $config
+    $version = if ($status -and $status.installedVersion) { [string]$status.installedVersion } else { Get-SgInstalledShipGlowsVersion $config }
+    if (-not $version) { $version = '…' }
+    $level = if ($status) { [string]$status.level } else { 'unknown' }
+    $color = switch ($level) {
+        'current' { 'Green' }
+        'update' { 'DarkYellow' }
+        'major-update' { 'Red' }
+        default { 'DarkGray' }
+    }
+    Write-Host ("ShipGlows v{0}" -f $version) -ForegroundColor $color
+    if ($status -and $status.level -ne 'current') { Write-Host ([string]$status.message) -ForegroundColor $color }
+    elseif (-not $status) { Write-Host 'Verification de mise a jour en arriere-plan...' -ForegroundColor DarkGray }
+}
+
 function Show-SgWindowsDashboard {
     $items = @(Get-SgProjectCatalog $config -SkipProcessReconciliation)
     Write-Host ''
     Write-Host 'ShipGlows DevServer Windows' -ForegroundColor Yellow
     Write-Host '============================' -ForegroundColor Yellow
+    Show-SgShipGlowsStatus
     if ($items.Count -eq 0) { Write-Host 'No projects discovered in the ShipGlows workspace.'; return }
     $index = 1
     foreach ($entry in $items) {
-        $status = if ($entry.status) { $entry.status } else { 'unknown' }
-        $port = if ([int]$entry.port -gt 0) { [string]$entry.port } else { '-' }
-        Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$status,$entry.kind,$port,$entry.Name)
+        Write-Host ("[{0}] {1}  {2}" -f $index,$entry.Name,(Format-SgProjectStatus $entry))
         $index++
     }
 }
 
+function Show-SgProjectStatus([object]$Entry) {
+    if (-not $Entry) { throw 'No registered project was selected.' }
+    $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
+    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice
+    Write-Host ''
+    Write-Host ([string]$Entry.Name) -ForegroundColor Cyan
+    Write-Host (Format-SgProjectStatus $Entry)
+    Write-Host "Open: $($experience.OpenAction)"
+    if ($Entry.status -in @('starting','running')) {
+        Write-Host "Next: $($experience.OpenNextAction)"
+    } else {
+        Write-Host "Next: run s start -ProjectPath `"$($Entry.path)`"."
+    }
+}
+
+function Write-SgRegisteredProjectGuidance([object]$Entry) {
+    $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
+    $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice
+    Write-SgInfo "$($experience.Label) detected: $($Entry.Name)"
+    Write-SgInfo "Next: run s start -ProjectPath `"$($Entry.path)`"."
+}
+
+function Invoke-SgRegisterProject([string]$Path, [string]$SuccessLabel = 'Registered project') {
+    $registered = @(Register-SgProject $config $Path)
+    if ($registered.Count -eq 0) { throw "No runnable surface was registered for: $Path" }
+    Write-SgInfo "$SuccessLabel`: $Path"
+    foreach ($entry in $registered) { Write-SgRegisteredProjectGuidance $entry }
+}
+
 function Register-SgClonedProject([string]$Destination) {
     try {
-        Register-SgProject $config $Destination | Out-Null
+        Invoke-SgRegisterProject $Destination 'Registered clone'
     } catch {
         throw "Clone completed but project preparation failed for '$Destination': $($_.Exception.Message)"
     }
@@ -346,10 +441,10 @@ function Register-SgClonedProject([string]$Destination) {
     }
     Write-SgInfo "Configuration diagnosis: $($preparation.classification)"
     foreach ($item in @($preparation.notices) + @($preparation.blocked)) {
-        Write-SgWarning "$($item.path): $($item.message)"
+        Write-SgWarn "$($item.path): $($item.message)"
     }
     if ($preparation.classification -eq 'repairable') {
-        Write-SgWarning ('Review then apply the proposed ShipGlows configuration with: s env prepare-apply -ProjectPath "{0}" -PlanDigest {1}' -f $Destination, $preparation.digest)
+        Write-SgWarn ('Review then apply the proposed ShipGlows configuration with: s env prepare-apply -ProjectPath "{0}" -PlanDigest {1}' -f $Destination, $preparation.digest)
     }
     if ($preparation.classification -eq 'blocked') {
         throw "Clone completed but configuration diagnosis found blocking errors for '$Destination'. Existing project files were preserved."
@@ -460,23 +555,145 @@ function Invoke-Navigate {
     finally { Pop-Location }
 }
 
-function Invoke-SgUpdate {
-    if (-not $curl) { $script:curl = Get-SgApplication 'curl.exe' @((Join-Path $env:WINDIR 'System32\curl.exe')) }
-    if (-not $curl) { throw 'curl.exe is unavailable. Download install-shipglows.ps1 from the official ShipGlows repository.' }
+function Get-SgUpdateSource {
+    param([switch]$AllowDirty)
+    $statePath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'development-channel.json'
+    if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) {
+        return [pscustomobject]@{ Channel='stable'; Root=''; Branch='main'; Upstream='origin/main'; Installer=''; Skills='managed' }
+    }
+    try { $state = [IO.File]::ReadAllText($statePath) | ConvertFrom-Json }
+    catch { throw 'The ShipGlows developer-channel state is invalid; update stopped before bootstrap.' }
+    if ($state.channel -cne 'linked' -or [string]::IsNullOrWhiteSpace([string]$state.root) -or -not [IO.Path]::IsPathRooted([string]$state.root)) {
+        throw 'The ShipGlows developer-channel state is incomplete; update stopped before bootstrap.'
+    }
+    $root = [IO.Path]::GetFullPath([string]$state.root)
+    $installer = Join-Path $root 'install-shipglows.ps1'
+    if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
+        throw 'The linked ShipGlows checkout is incomplete; update stopped before bootstrap.'
+    }
+    $git = Get-SgApplication 'git.exe' @()
+    if (-not $git) { throw 'Git is required to update a linked ShipGlows checkout.' }
+    $insideWorkTree = (& $git -C $root rev-parse --is-inside-work-tree 2>$null).Trim()
+    if ($LASTEXITCODE -ne 0 -or $insideWorkTree -ne 'true') {
+        throw 'The linked ShipGlows checkout is incomplete; update stopped before bootstrap.'
+    }
+    $dirty = @(& $git -C $root status --porcelain)
+    if ($LASTEXITCODE -ne 0) { throw 'The linked ShipGlows checkout could not be inspected.' }
+    if ($dirty.Count -gt 0 -and -not $AllowDirty) {
+        throw "The linked ShipGlows checkout has uncommitted changes, so the update stopped to preserve them. Inspect them with: git -C `"$root`" status --short. Commit or deliberately resolve those changes, then retry 's update'. No files were stashed or replaced."
+    }
+    $branch = (& $git -C $root branch --show-current).Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $branch) { throw 'The linked ShipGlows checkout is detached; update stopped before bootstrap.' }
+    $upstream = (& $git -C $root rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>$null).Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $upstream) { throw "The linked ShipGlows branch '$branch' has no upstream; update stopped before bootstrap." }
+    return [pscustomobject]@{ Channel='linked'; Root=$root; Branch=$branch; Upstream=$upstream; Installer=$installer; Skills='live'; Dirty=($dirty.Count -gt 0) }
+}
 
-    $installerUrl = 'https://raw.githubusercontent.com/commandglows/shipglows/main/install-shipglows.ps1'
+function Show-SgUpdateStatus {
+    $source = Get-SgUpdateSource -AllowDirty
+    $dirty = if ($source.PSObject.Properties['Dirty'] -and $source.Dirty) { 'dirty' } else { 'clean' }
+    Write-Host "ShipGlows update status: channel=$($source.Channel) branch=$($source.Branch) upstream=$($source.Upstream) skills=$($source.Skills) source=$dirty" -ForegroundColor Cyan
+    if ($source.Channel -eq 'linked') { Write-Host 'Linked skills already follow the checkout. Start a new Codex or Claude session after source changes.' -ForegroundColor DarkGray }
+}
+
+function Get-SgDeveloperToolAllowlist {
+    return @(Get-SgDeveloperToolWingetDefinitions | ForEach-Object { "$($_.Name) ($($_.PackageId))" }) + @(
+        'pnpm',
+        'ShipGlows-managed coding agents, service CLIs, wrappers, and Playwright runtime'
+    )
+}
+
+function Get-SgDeveloperToolWingetDefinitions {
+    return @(
+        [pscustomobject]@{Name='Git';PackageId='Git.Git'},
+        [pscustomobject]@{Name='GitHub CLI';PackageId='GitHub.cli'},
+        [pscustomobject]@{Name='Node.js LTS and bundled npm';PackageId='OpenJS.NodeJS.LTS'},
+        [pscustomobject]@{Name='mise';PackageId='jdx.mise'},
+        [pscustomobject]@{Name='uv';PackageId='astral-sh.uv'},
+        [pscustomobject]@{Name='Google Cloud CLI';PackageId='Google.CloudSDK'},
+        [pscustomobject]@{Name='Doppler CLI';PackageId='Doppler.Doppler'}
+    )
+}
+
+function Show-SgDeveloperToolsStatus {
+    Write-Host 'ShipGlows developer-tool update status (read-only)' -ForegroundColor Cyan
+    Write-Host 'Managed scope:' -ForegroundColor DarkGray
+    Get-SgDeveloperToolAllowlist | ForEach-Object { Write-Host "  - $_" }
+    Write-Host 'Project manifests, lockfiles, node_modules, SDK licences, IDEs, and Windows Update are excluded.' -ForegroundColor DarkGray
+
+    $toolModule = Join-Path $PSScriptRoot 'ShipGlows.MobileToolchain.psm1'
+    if (-not (Test-Path -LiteralPath $toolModule -PathType Leaf)) { throw 'The bounded tool-status runner is unavailable.' }
+    Import-Module $toolModule -Force -DisableNameChecking
+
+    $winget = Get-SgApplication 'winget.exe'
+    if ($winget) {
+        Write-Host ''; Write-Host 'WinGet allowlisted update preview:' -ForegroundColor Cyan
+        foreach ($definition in Get-SgDeveloperToolWingetDefinitions) {
+            $result = Invoke-SgBoundedProcess -File $winget -Arguments @('list','--id',$definition.PackageId,'--exact','--source','winget','--upgrade-available','--disable-interactivity') -TimeoutSeconds 60
+            Write-Host "$($definition.Name):" -ForegroundColor DarkGray
+            if ($result.TimedOut) { Write-SgWarn '  preview timed out.' }
+            elseif ($result.Output) { Write-Host $result.Output.Trim() }
+            elseif ($result.ExitCode -ne 0) { Write-Host '  no available update was reported.' -ForegroundColor Green }
+            else { Write-Host '  no available update was reported.' -ForegroundColor Green }
+        }
+    } else { Write-SgWarn 'WinGet is unavailable; WinGet-managed tools could not be checked.' }
+
+    $npm = Get-SgApplication 'npm.cmd'
+    if ($npm) {
+        foreach ($definition in @(@{Name='npm';Command=$npm},@{Name='pnpm';Command=(Get-SgApplication 'pnpm.cmd')})) {
+            $installed = if ($definition.Command) { Invoke-SgBoundedProcess -File $definition.Command -Arguments @('--version') -TimeoutSeconds 30 } else { $null }
+            $latest = Invoke-SgBoundedProcess -File $npm -Arguments @('view',"$($definition.Name)@latest",'version','--registry=https://registry.npmjs.org/') -TimeoutSeconds 45
+            $installedText = if ($installed -and -not $installed.TimedOut -and $installed.ExitCode -eq 0) { $installed.Output.Trim() } else { 'unavailable' }
+            $latestText = if (-not $latest.TimedOut -and $latest.ExitCode -eq 0) { $latest.Output.Trim() } else { 'unavailable' }
+            Write-Host "$($definition.Name): installed=$installedText latest=$latestText"
+        }
+    } else { Write-SgWarn 'npm is unavailable; npm and pnpm registry versions could not be checked.' }
+}
+
+function Invoke-SgDeveloperToolsUpdate {
+    if (-not [Environment]::UserInteractive -or [Console]::IsInputRedirected) {
+        throw 'Developer-tool updates require an interactive console for explicit confirmation.'
+    }
+    Write-Host 'ShipGlows will update only these global developer-tool surfaces:' -ForegroundColor Cyan
+    Get-SgDeveloperToolAllowlist | ForEach-Object { Write-Host "  - $_" }
+    Write-Host 'No project dependency, manifest, lockfile, credential, SDK licence, IDE, or Windows Update will be changed.' -ForegroundColor DarkGray
+    $choice = Read-Host 'Update global developer tools now? [y/N]'
+    if ($choice.Trim().ToLowerInvariant() -notin @('y','yes','o','oui')) { Write-SgInfo 'Developer-tool update cancelled; nothing was changed.'; return }
+
+    $shipglowsDir = Split-Path -Parent $PSScriptRoot
+    $installer = Join-Path $shipglowsDir 'cli\windows\install-devserver.ps1'
+    if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) { throw 'The installed ShipGlows developer-tool convergence engine is unavailable; run s update first.' }
+    Write-SgInfo 'Updating global developer tools without changing the ShipGlows update channel...'
+    & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $installer -ShipglowsDir $shipglowsDir -UpdateDeveloperTools
+    if ($LASTEXITCODE -ne 0) { throw 'Developer-tool update failed.' }
+    Write-SgInfo 'Developer-tool update completed. Open a fresh shell before using updated global commands.'
+}
+
+function Invoke-SgUpdate {
+    $source = Get-SgUpdateSource
+    if ($source.Channel -eq 'linked') {
+        $installerPath = $source.Installer
+        $installerArguments = @('-InstallMode','full','-Branch',$source.Branch)
+    } else {
+        if (-not $curl) { $script:curl = Get-SgApplication 'curl.exe' @((Join-Path $env:WINDIR 'System32\curl.exe')) }
+        if (-not $curl) { throw 'curl.exe is unavailable. Download install-shipglows.ps1 from the official ShipGlows repository.' }
+        $installerUrl = 'https://raw.githubusercontent.com/commandglows/shipglows/main/install-shipglows.ps1'
+        $installerPath = $null
+        $installerArguments = @('-InstallMode','full')
+    }
     $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("shipglows-update-" + [guid]::NewGuid().ToString('N'))
-    $installerPath = Join-Path $tempRoot 'install-shipglows.ps1'
     $shipglowsDir = Split-Path -Parent $PSScriptRoot
 
     try {
-        [void][IO.Directory]::CreateDirectory($tempRoot)
-        Write-SgInfo 'Downloading the current ShipGlows Windows installer...'
-        & $curl --proto '=https' --tlsv1.2 -fsSL $installerUrl -o $installerPath
-        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $installerPath -PathType Leaf)) {
-            throw 'ShipGlows installer download failed.'
+        if ($source.Channel -eq 'stable') {
+            [void][IO.Directory]::CreateDirectory($tempRoot)
+            $installerPath = Join-Path $tempRoot 'install-shipglows.ps1'
+            Write-SgInfo 'Downloading the current ShipGlows Windows installer...'
+            & $curl --proto '=https' --tlsv1.2 -fsSL $installerUrl -o $installerPath
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $installerPath -PathType Leaf)) {
+                throw 'ShipGlows installer download failed.'
+            }
         }
-
         $parseTokens = $null
         $parseErrors = $null
         [void][System.Management.Automation.Language.Parser]::ParseFile(
@@ -488,11 +705,12 @@ function Invoke-SgUpdate {
             throw 'The downloaded ShipGlows installer failed PowerShell syntax validation.'
         }
 
-        & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $installerPath -InstallMode full -ShipglowsDir $shipglowsDir
+        Write-SgInfo "Updating ShipGlows from $($source.Channel) channel ($($source.Branch))..."
+        & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $installerPath @installerArguments -ShipglowsDir $shipglowsDir
         if ($LASTEXITCODE -ne 0) { throw 'ShipGlows update failed.' }
         Write-SgInfo 'Update completed. Run s again to use the updated CLI.'
     } finally {
-        if (Test-Path -LiteralPath $tempRoot) {
+        if ($source.Channel -eq 'stable' -and (Test-Path -LiteralPath $tempRoot)) {
             Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
@@ -549,6 +767,38 @@ function Invoke-SgAuthenticationMenu {
 $script:catalogRefreshPath = "$($config.ProjectIndexPath).refreshing"
 $script:catalogRefreshObserved = $false
 $script:backgroundRefreshStarted = $false
+$script:updateStatusRefreshStarted = $false
+
+function Start-SgBackgroundUpdateStatusRefresh {
+    if ($script:updateStatusRefreshStarted) { return }
+    $script:updateStatusRefreshStarted = $true
+    $cachedStatus = Read-SgShipGlowsStatusCache $config
+    if (Test-SgShipGlowsStatusCacheFresh $cachedStatus) { return }
+    $paths = Get-SgRuntimeStatusPaths $config
+    $claim = $null
+    try { $claim = [IO.File]::Open($paths.RefreshPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None) }
+    catch [IO.IOException] { return }
+    finally { if ($claim) { $claim.Dispose() } }
+
+    try {
+        $startInfo = [Diagnostics.ProcessStartInfo]::new()
+        $startInfo.FileName = $env:SHIPGLOWS_MANAGED_PWSH
+        $startInfo.Arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" refresh-update-status"
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
+        $startInfo.RedirectStandardInput = $true
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+        $process = [Diagnostics.Process]::Start($startInfo)
+        if (-not $process) { throw 'Background ShipGlows update check did not start.' }
+        $process.StandardInput.Close()
+        $process.Dispose()
+    } catch {
+        Remove-Item -LiteralPath $paths.RefreshPath -Force -ErrorAction SilentlyContinue
+        $script:updateStatusRefreshStarted = $false
+    }
+}
 
 function Complete-SgBackgroundCatalogRefresh {
     if ($script:catalogRefreshObserved -and -not (Test-Path -LiteralPath $script:catalogRefreshPath -PathType Leaf) -and -not (Test-SgProjectCatalogRefreshRequired $config -DiskOnly)) {
@@ -612,12 +862,13 @@ function Invoke-Menu {
         '4  Stop a project',
         '5  Restart a project',
         '6  View logs',
-        '7  Open in browser',
+        '7  Open / load project',
         '8  Stop all projects',
         '9  Unregister a project',
         'n  Navigate to a project',
         'a  Authentication',
         'r  Refresh',
+        't  Update developer tools',
         'u  Update ShipGlows',
         '0  Quit ShipGlows'
     )
@@ -625,18 +876,19 @@ function Invoke-Menu {
         Complete-SgBackgroundCatalogRefresh
         Show-SgWindowsDashboard
         Start-SgBackgroundCatalogRefresh
+        Start-SgBackgroundUpdateStatusRefresh
         if ($choiceUiAvailable) {
             $selected = Read-SgChoice 'What do you want to do?' $menuItems
             if (-not $selected) { continue }
             $choice = $selected.Substring(0,1)
         } else {
-            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  r) Refresh  u) Update  0) Quit ShipGlows'
+            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  r) Refresh  t) Update tools  u) Update ShipGlows  0) Quit ShipGlows'
             $choice = Read-Host 'Choice'
         }
         try {
             switch ($choice) {
                 '1' { Invoke-Clone }
-                '2' { $path = Read-SgInput 'Project path' $config.Workspace; if ($path) { Register-SgProject $config $path | Out-Null } }
+                '2' { $path = Read-SgInput 'Project path' $config.Workspace; if ($path) { Invoke-SgRegisterProject $path } }
                 '3' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
                 '4' { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } }
                 '5' { $entry = Get-SelectedProject 'restart'; if ($entry) { [void](Stop-SgProject $config $entry.path); Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
@@ -647,11 +899,13 @@ function Invoke-Menu {
                 'n' { Invoke-Navigate }
                 'a' { Invoke-SgAuthenticationMenu }
                 'r' { Wait-SgBackgroundCatalogRefresh; Get-SgProjectCatalog $config -ForceRefresh | Out-Null }
+                't' { Invoke-SgDeveloperToolsUpdate; return }
                 'u' { Invoke-SgUpdate; return }
                 '0' { return }
                 default { Write-SgWarn 'Unknown choice.' }
             }
         } catch { Write-SgError $_.Exception.Message }
+        if ($choice -eq 'u') { return }
         if (-not $choiceUiAvailable) { Read-Host 'Press Enter to continue' | Out-Null }
     }
 }
@@ -659,10 +913,18 @@ function Invoke-Menu {
 try {
     switch ($Action) {
         'menu' { Invoke-Menu }
-        'dashboard' { Show-SgWindowsDashboard }
+        'dashboard' { Show-SgWindowsDashboard; Start-SgBackgroundUpdateStatusRefresh }
+        'status' {
+            if ($ProjectPath) {
+                $path = ConvertTo-SgCanonicalPath $ProjectPath
+                $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
+                if (-not $entry) { throw "Project is not registered: $path" }
+                Show-SgProjectStatus $entry
+            } else { Show-SgWindowsDashboard }
+        }
         'refresh' { Get-SgProjectCatalog $config -ForceRefresh | Out-Null; Show-SgWindowsDashboard }
         'clone' { Invoke-Clone }
-        'register' { Register-SgProject $config $ProjectPath | Out-Null }
+        'register' { Invoke-SgRegisterProject $ProjectPath }
         'unregister' { if ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
         'start' {
             if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
@@ -684,6 +946,14 @@ try {
         'navigate' { Invoke-Navigate }
         'auth' { Invoke-SgAuthenticationMenu }
         'update' { Invoke-SgUpdate }
+        'update-status' { Show-SgUpdateStatus }
+        'tools-status' { Show-SgDeveloperToolsStatus }
+        'tools-update' { Invoke-SgDeveloperToolsUpdate }
+        'refresh-update-status' {
+            $paths = Get-SgRuntimeStatusPaths $config
+            try { Update-SgShipGlowsStatusCache $config { Get-SgOfficialShipGlowsVersion } | Out-Null }
+            finally { Remove-Item -LiteralPath $paths.RefreshPath -Force -ErrorAction SilentlyContinue }
+        }
         'help' { Show-SgShortcutHelp }
         'exit' { return }
     }

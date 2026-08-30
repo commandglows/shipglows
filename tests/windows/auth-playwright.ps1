@@ -10,11 +10,17 @@ function Assert-Sg([bool]$Condition, [string]$Message) { if (-not $Condition) { 
 
 $definitions = @(Get-SgAuthenticationDefinitions)
 $names = @($definitions.Name)
-foreach ($required in @('Codex','Claude','OpenCode','Kilo','Gemini','GitHub','Firebase','Vercel','Clerk','Supabase','Convex')) {
+foreach ($required in @('Codex','Claude','OpenCode','Kilo','Gemini','GitHub','Firebase','Vercel','Clerk','Auth0','Doppler','Supabase','Convex')) {
     Assert-Sg ($names -contains $required) "Missing authentication definition: $required"
 }
 Assert-Sg ((@($definitions | Where-Object Name -eq 'Gemini')[0]).LoginMode -eq 'interactive-cli') 'Gemini must use its native interactive CLI.'
 Assert-Sg ((@($definitions | Where-Object Name -eq 'Convex')[0]).LoginMode -eq 'project') 'Convex authentication must remain project-scoped.'
+$auth0 = @($definitions | Where-Object Name -eq 'Auth0')[0]
+Assert-Sg ($auth0.Command -eq 'auth0.cmd' -and ($auth0.StatusArguments -join ' ') -eq 'tenants list --json-compact --no-input') 'Auth0 status must use the closed non-interactive tenant-list command.'
+Assert-Sg (($auth0.LoginArguments -join ' ') -eq 'login' -and ($auth0.LogoutArguments -join ' ') -eq 'logout') 'Auth0 login and logout must remain explicit native CLI operations.'
+$doppler = @($definitions | Where-Object Name -eq 'Doppler')[0]
+Assert-Sg ($doppler.Command -eq 'doppler.cmd' -and ($doppler.StatusArguments -join ' ') -eq 'me --json --no-check-version --no-read-env') 'Doppler status must ignore inherited tokens and keep output machine-readable for redaction.'
+Assert-Sg (($doppler.LoginArguments -join ' ') -eq 'login --no-check-version --no-read-env' -and ($doppler.LogoutArguments -join ' ') -eq 'logout --no-check-version --no-read-env') 'Doppler authentication must remain explicit and isolated from inherited token environment variables.'
 Assert-Sg (-not (@($definitions.StatusArguments + $definitions.LoginArguments + $definitions.LogoutArguments) -match '(token|api-key|access-key|secret)')) 'Authentication commands must not request or print secrets.'
 
 $loggedIn = Get-SgAuthenticationState -Definition ([pscustomobject]@{ Name='Fixture'; Command='fixture.cmd'; StatusArguments=@('status'); LoginMode='command' }) -Runner { [pscustomobject]@{ ExitCode=0; TimedOut=$false; Output='private account data' } }

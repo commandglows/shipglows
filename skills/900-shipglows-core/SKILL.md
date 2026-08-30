@@ -1,6 +1,6 @@
 ---
 name: 900-shipglows-core
-description: "Internal ShipGlows skill maintenance: audit, build, refresh, packaging, and help."
+description: "Maintain the internal ShipGlows DX system across skills, CLI/DevServer/TUI runtime, coherence, packaging, and help."
 argument-hint: "<audit [scope]|build <target>|refresh <target>|packaging [scope]|help>"
 ---
 
@@ -10,7 +10,7 @@ argument-hint: "<audit [scope]|build <target>|refresh <target>|packaging [scope]
 
 Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` and apply its ShipGlows-Owned Tool Preflight before any owned file or tool. Never infer owned paths from the project cwd or ask the operator to run an agent-runnable preflight.
 
-CLI/TUI work targets `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/shipglows.sh`, `cli/lib.sh`, `cli/config.sh`, `cli/install.sh`, `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/install-shipglows.ps1`, `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/windows/`, or `tui/` as applicable.
+DX runtime work targets `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/`, `local/`, `tui/`, `install-shipglows.sh`, `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/install-shipglows.ps1`, or `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/windows/` as applicable. `shipglows_app` is a separate product repository for the public site and SaaS; it is evidence only in hard Core context and never a Core mutation target.
 
 ## Chantier And Report Modes
 
@@ -20,7 +20,7 @@ Attach to one unique spec and update its flow; otherwise use `(local)` and requi
 
 ## Mission
 
-`900-shipglows-core` is the sole internal owner for improving ShipGlows skills, shared doctrine, validation tooling, registry/activation graph, and packaging boundaries. Invocation targets the ShipGlows system under `$SHIPGLOWS_ROOT`, never the current project by default.
+`900-shipglows-core` is the sole internal lifecycle owner for maintaining the ShipGlows DX system: skills and doctrine, validation and activation tooling, CLI/DevServer/TUI runtime, local helpers, environment control plane, installers, cross-surface coherence, and packaging boundaries. It owns routing and integration coherence while canonical runtime code, tests, and specialist proof owners retain their internals. Invocation targets `$SHIPGLOWS_ROOT`, never the current project or `shipglows_app` by default.
 
 ## Mode And Invocation Preflight
 
@@ -33,12 +33,18 @@ Supported modes are `audit [scope]`, `build <target>`, `refresh <target>`, `pack
 
 No later project name, repository path, request, or quoted outcome overrides the hard context.
 
-## Progressive Mode Packs
+## Surface And Mode Selection
 
-Local packs load directly and never chain.
+Before loading a local pack, classify one target surface:
 
-- `audit`: load `$SHIPGLOWS_ROOT/skills/900-shipglows-core/references/core-audit-and-improvement.md`.
-- `build`: load `$SHIPGLOWS_ROOT/skills/900-shipglows-core/references/skill-maintenance-playbook.md`; non-trivial work uses spec-first lifecycle and `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` plus `master-delegation-semantics.md` only after this route is selected.
+- `skill`: `skills/`, shared doctrine, activation registry, skill validation tooling, or runtime skill links;
+- `runtime`: `cli/`, `local/`, `tui/`, Unix or Windows DevServer, environment control plane, wrappers, bootstrap, or installers;
+- `coherence`: behavior spanning two or more skill, runtime, distribution, or governance surfaces.
+
+Do not ask the operator to choose this internal surface when the target is discoverable. A missing or genuinely ambiguous surface blocks rather than loading several packs. Local packs load directly and never chain.
+
+- `audit`: skill/doctrine scope loads `$SHIPGLOWS_ROOT/skills/900-shipglows-core/references/core-audit-and-improvement.md`; runtime scope loads `references/dx-runtime-maintenance.md`; bare or cross-surface scope loads `references/system-coherence.md`.
+- `build`: skill/doctrine scope loads `$SHIPGLOWS_ROOT/skills/900-shipglows-core/references/skill-maintenance-playbook.md`; runtime scope loads `references/dx-runtime-maintenance.md`; cross-surface scope loads `references/system-coherence.md`. Non-trivial work uses spec-first lifecycle and `$SHIPGLOWS_ROOT/skills/references/master-workflow-lifecycle.md` plus `master-delegation-semantics.md` only after this route is selected.
 - `refresh`: load `$SHIPGLOWS_ROOT/skills/900-shipglows-core/references/skill-refresh-playbook.md`.
 - `packaging`: load `$SHIPGLOWS_ROOT/skills/900-shipglows-core/references/core-packaging.md`.
 - `help`: explain modes only; load no procedural pack.
@@ -53,7 +59,7 @@ Audit, packaging, and help are read-only unless edits are requested. `build`/`re
 
 For confirmed non-style failures, report exactly once: `Observed problem`, `System cause`, `Prevention rule`, and `Contract/tooling improvement proposal`. Before editing, name the pressure scenario, apply the shared `Followability Gate`, and choose the narrowest owner layer. A passing generic audit is not completion proof. Require focused mechanical or pressure-scenario proof.
 
-Prefer one local contract for one owner, shared doctrine for repeated ownership, and tooling when recurrence should be caught mechanically. Bounded daily repairs use one focused pressure-scenario proof and continue to `103 -> 104 -> 005`; broad semantic, public-routing, packaging, security, audit, and release work also receives conservative `refresh <target>` review. Ordinary self-refresh stays prohibited and high-assurance self-work requires independent spec-backed review.
+Prefer one local contract for one owner, shared doctrine for repeated ownership, canonical runtime code/tests for executable behavior, and tooling when recurrence should be caught mechanically. Bounded daily repairs use one focused pressure-scenario proof and continue to `103 -> 104 -> 005`; broad skill semantic, public-routing, packaging, security, audit, and release work also receives conservative `refresh <target>` review. Runtime work uses its mapped runtime proof rather than skill refresh. Ordinary self-refresh stays prohibited and high-assurance self-work requires independent spec-backed review.
 
 ## Internal And Packaging Boundary
 
@@ -61,7 +67,7 @@ Keep `shipglows` as the canonical public plugin, `$shipglows` as its public entr
 
 ## Stop Conditions
 
-Stop when `$SHIPGLOWS_ROOT/skills` or a requested tool/pack is absent; the activation graph preflight fails; an owned tool would run before path/tool confirmation; broad edits lack authorization/readiness; internal core would become public; packaging would expose secrets/private context/dependencies/caches/machine paths; or proof requires secrets, destructive action, private access, or user-only hardware.
+Stop when `$SHIPGLOWS_ROOT/skills` or a requested tool/pack is absent; the activation graph preflight fails; a target surface is unresolved; a request would mutate `shipglows_app` from Core context; an owned tool would run before path/tool confirmation; broad edits lack authorization/readiness; internal Core would become public; packaging would expose secrets/private context/dependencies/caches/machine paths; or proof requires secrets, destructive action, private access, or user-only hardware.
 
 ## Validation
 

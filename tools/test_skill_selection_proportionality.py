@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression checks for proportional skill selection on atomic edits."""
+"""Regression checks for proportional routing of clear bounded requests."""
 
 from pathlib import Path
 import unittest
@@ -39,12 +39,16 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
         if PUBLIC_ROUTER is not None:
             cls.public_docs.append(PUBLIC_ROUTER.read_text(encoding="utf-8"))
 
-    def test_shared_gate_directs_atomic_work_without_a_lifecycle(self) -> None:
+    def test_shared_gate_directs_bounded_work_without_a_lifecycle(self) -> None:
         for phrase in (
             "## Skill Selection Proportionality Gate",
             "Directly execute the request when all of these are true",
+            "few coherent actions and targets are enumerable",
+            "material product, domain, architecture",
             "change one `h1` to `h2`",
             "Lorem ipsum",
+            "exact-scope commit",
+            "ordinary resolved push",
             "Do not load a master router merely because its domain label matches",
         ):
             self.assertIn(phrase, self.fidelity)
@@ -65,7 +69,7 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
         self.assertIn("Execute that change directly", self.enrich)
 
     def test_root_router_short_circuits_before_loading_routing_references(self) -> None:
-        gate = self.router.index("## Atomic Direct-Execution Gate")
+        gate = self.router.index("## Bounded Direct-Execution Gate")
         routing = self.router.index("## Shared Routing Reference")
         self.assertLess(gate, routing)
         self.assertIn("Before loading routing, topology, or owner-skill references", self.router)
@@ -108,24 +112,24 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
         ):
             self.assertIn(phrase, cheatsheet)
 
-    def test_entrypoint_matrix_has_a_direct_atomic_route(self) -> None:
+    def test_entrypoint_matrix_has_a_direct_bounded_route(self) -> None:
         self.assertIn("Skill Selection Proportionality Gate", self.entrypoint)
-        self.assertIn("Exact string, placeholder, typo, heading-tag", self.entrypoint)
-        self.assertIn("Direct main-thread execution with focused validation; no owner skill", self.entrypoint)
+        self.assertIn("Clear bounded request with few enumerable actions/targets", self.entrypoint)
+        self.assertIn("Direct main-thread execution with focused proof; no owner skill", self.entrypoint)
 
     def test_pressure_scenarios_cover_both_activation_branches(self) -> None:
         self.assertIn("ATOMIC-DIRECT", self.fidelity)
         self.assertIn("EXPLICIT-SKILL", self.fidelity)
 
-    def test_implementation_skill_does_not_reabsorb_micro_edits(self) -> None:
+    def test_implementation_skill_does_not_reabsorb_bounded_requests(self) -> None:
         self.assertIn("substantive local implementation tasks", self.start)
-        self.assertIn("Atomic direct execution", self.start)
+        self.assertIn("Clear bounded direct execution", self.start)
         self.assertIn("stays outside `102-sg-start`", self.start)
 
-    def test_operator_and_public_docs_expose_the_same_atomic_route(self) -> None:
+    def test_operator_and_public_docs_expose_the_same_bounded_route(self) -> None:
         for document in self.public_docs:
-            self.assertIn("deterministic micro-edits", document)
-            self.assertIn("focused validation", document)
+            self.assertIn("clear bounded requests", document)
+            self.assertIn("focused proof", document)
 
 
 if __name__ == "__main__":

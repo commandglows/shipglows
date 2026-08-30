@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.8.1"
+artifact_version: "2.9.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-24"
+updated: "2026-08-27"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: skill-launch-cheatsheet
@@ -49,8 +49,8 @@ These are terminal commands, not agent modes:
 | Command | Purpose |
 | --- | --- |
 | `shipglows skills status` | Report whether Codex uses the public plugin, a linked clone, a conflicting double channel, or no ShipGlows entrypoint. |
-| `shipglows skills link` | From a complete Git clone, replace the plugin channel after confirmation and expose live public skills to Codex and Claude. |
-| `shipglows skills unlink` | Remove only proven ShipGlows-managed public links; add `--install-plugin` to return to the public Codex channel. |
+| `shipglows skills link [--catalog public\|expert]` | From a complete Git clone, activate exactly one live catalogue in Codex and Claude; switching removes the previous ShipGlows catalogue while preserving unrelated skills. |
+| `shipglows skills unlink` | Remove only proven ShipGlows-managed links; add `--install-plugin` to return to the public Codex channel. |
 
 After changing channel, restart Codex or Claude from a new shell so both its
 skill catalogue and managed `SHIPGLOWS_ROOT` are rediscovered. Editing a linked
@@ -112,7 +112,7 @@ Ask which one is meant only when repository evidence cannot safely resolve it.
 
 The public catalogue contains the router plus fourteen métier entrypoints.
 
-One exception stays direct: deterministic micro-edits with no domain judgment use focused validation and do not activate a métier lifecycle.
+As a direct exception, clear bounded requests stay direct with focused proof when their few actions and targets are enumerable and no material direction must be chosen. They may include targeted file edits, exact-scope commits, ordinary resolved pushes, or a small explicit sequence. Unknown, unbounded, or directional work activates the appropriate supervised chantier; local/remote location and reasoning effort do not change classification.
 They own the outcome from clarification through appropriate implementation,
 proof, documentation reflection, and closure. Shipping, deployment, external
 publication, secrets, destructive actions, and device-only proof still require

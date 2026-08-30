@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-22"
+updated: "2026-08-27"
 status: active
 source_skill: 900-shipglows-core
 scope: master-workflow-lifecycle-core
@@ -15,6 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/004-sg-deploy/SKILL.md
+  - skills/900-shipglows-core/SKILL.md
   - skills/references/master-workflow-lifecycle.md
 depends_on: []
 supersedes: []
@@ -24,6 +25,7 @@ evidence:
   - "Operator decision 2026-08-15: exact-scope local technical commits already covered by chantier approval are routine execution, not a new gate."
   - "Operator correction 2026-08-17: daily MVP construction defaults to bounded commit and push at clean completion, with zero or one focused check unless a material risk or release/audit mode justifies broader proof."
   - "Operator correction 2026-08-17: the lifecycle exists to ship business value quickly through coherent architecture; gates scale to real consequence rather than procedural completeness."
+  - "Operator decision 2026-08-27: the Core lifecycle work item covers the complete shipglows DX system while shipglows_app remains a separate product repository."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -34,7 +36,7 @@ Use this core to select and guard a multi-stage route. Load the detailed `skills
 
 ## Decision Contract
 
-Pilot one current work item: ready spec, bug file, bounded mini-contract, release scope, audit finding set, content surface, or skill-maintenance target. Existing durable truth wins; several plausible work items require one targeted choice. Non-trivial, cross-surface, security/data/deployment/public-claim work requires a ready durable contract. A mini-contract is only for narrow, local, low-risk work verifiable now.
+Pilot one current work item: ready spec, bug file, bounded mini-contract, release scope, audit finding set, content surface, or ShipGlows DX-system target. A DX-system target is one skill/doctrine surface, one CLI/DevServer/TUI/installer runtime surface, or one tightly bounded cross-plane coherence set inside `shipglows`; it excludes `shipglows_app`. Existing durable truth wins; several plausible work items require one targeted choice. Non-trivial, cross-surface, security/data/deployment/public-claim work requires a ready durable contract. A mini-contract is only for narrow, local, low-risk work verifiable now.
 
 The lifecycle serves useful delivery, not itself. Select the smallest valuable slice, keep the relevant system coherent for the known horizon, minimize coordination and proof overhead, and reach commit/push plus real feedback as quickly as the actual risk permits. Git persistence applies to every durable repository-representable artifact; the activation destination then depends on the outcome: adoption for a decision, application for an identity, publication for content, rollout for a workflow, or deployment for software.
 

@@ -124,6 +124,27 @@ class ShipSkillContractTests(unittest.TestCase):
         self.assertIn("terminal Git disposition", self.master_lifecycle)
         self.assertIn("cleanup disposition", self.reporting)
 
+    def test_long_running_processes_remain_owned_until_verified_termination(self) -> None:
+        for phrase in (
+            "Managed Process Lifecycle",
+            "controllable session handle or exact PID",
+            "deterministic termination path",
+            "`stopped`, `transferred-explicit`, or `retained-explicit`",
+            "wait for exit",
+            "verify that the exact process no longer runs",
+            "broad executable name",
+            "blocks clean closure",
+        ):
+            self.assertIn(phrase, self.master_lifecycle)
+
+        for phrase in (
+            "every task-owned managed process has a terminal disposition",
+            "retained session or exact PID",
+            "verified absent",
+            "without broad process-name termination",
+        ):
+            self.assertIn(phrase, self.execution)
+
     def test_full_close_reloads_mutable_trackers(self) -> None:
         self.assertIn("Immediately before editing", self.full_close)
         self.assertIn("re-read the authoritative file from disk", self.full_close)

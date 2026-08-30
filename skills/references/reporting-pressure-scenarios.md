@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.2.0"
+artifact_version: "2.3.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-21"
+updated: "2026-08-30"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-pressure-scenarios
@@ -30,6 +30,7 @@ evidence:
   - "Operator approval 2026-08-21: conversation restart recommendations are quality-based, stabilized, resumable, and operator-started."
   - "Operator correction 2026-08-21: a new objective alone does not trigger restart; useful context must be materially unreliable."
   - "Operator approval 2026-08-22: context checking must be proportional, transition-light, and signal-driven."
+  - "Operator approval 2026-08-30: every managed-repository closure receives a changelog classification while public readiness remains distinct from publication proof."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -58,7 +59,7 @@ next_step: none
 - `SSRP-016 guided reorientation`: selecting a short `Réorienter` control triggers concrete alternative business directions and their consequences; it never answers with a blank “toward what?”.
 - `SSRP-017 no blank-page handoff`: the operator receives evidence-backed framing, proposals, and a recommendation instead of being asked to invent strategy or technical mechanics.
 - `SSRP-018 visible closure docs`: any report claiming closed, complete, done, resolved, or shipped includes `📖 DOCUMENTATION`, then exactly one compact line using `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`; material `needs review` forbids closure language.
-- `SSRP-019 visual closure card`: a successful closure uses the five ordered blocks `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, and `📦 LIVRAISON`; proof, documentation, and editorial content each occupy one line with ` · ` separators, while an empty `⚠️ LIMITES` block is absent.
+- `SSRP-019 visual closure card`: a successful closure uses the six ordered blocks `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, and `📦 LIVRAISON`; proof, documentation, editorial, and changelog content each occupy one line with ` · ` separators, while an empty `⚠️ LIMITES` block is absent.
 - `SSRP-020 visual start card`: after approval, a substantive chantier starts once with `🚀 Démarré` and the ordered blocks `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, and `📖 DOCUMENTATION PRÉVUE`; the card never replaces a pending approval prompt or decorates a micro-action.
 - `SSRP-021 no technical path leakage`: `report=user` omits file names, paths, and clickable technical file links unless the operator must act on that exact artifact or explicitly requests detailed evidence.
 - `SSRP-022 reporting effort ceiling`: one meaningful proof may support a verdict; placeholder counts are not quotas; prose stays to one sentence per block; no extra check, audit, research, documentation, content, or detail is created solely for reporting, while proof and documentation genuinely required by the chantier remain mandatory.
@@ -74,3 +75,4 @@ next_step: none
 - `SSRP-031 no superficial restart`: message count, elapsed time, conversation length, compaction, and an independent outcome alone never justify restart while useful context remains reliable.
 - `SSRP-032 stabilized resumable restart`: a quality-based restart recommendation follows durable-state and Git stabilization, reports any incomplete state honestly, and includes one redacted self-contained copyable prompt for a fresh agent.
 - `SSRP-033 proportional context cost`: chantier end, compaction, or major subject change receives only a lightweight state check; no full conversation reread occurs by default, and a targeted refresh reads only affected sources after a concrete degradation signal.
+- `SSRP-034 global closure changelog`: every managed-repository closure emits exactly one `📰 CHANGELOG` line using `public-ready`, `internal-only`, `not applicable`, or `needs review`; a repository without a public surface remains closable as `internal-only` or `not applicable`, while `public-ready` never claims publication without delivery evidence and a material `needs review` blocks clean closure.

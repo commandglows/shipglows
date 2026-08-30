@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.24.0"
+artifact_version: "1.33.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-26"
+updated: "2026-08-30"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,14 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
+  - "Unified update replay 2026-08-28: `shipglows update` selects the stable or linked channel, `s update status` reports the active Windows source, and a dirty linked worktree refuses bootstrap without stashing."
+  - "Installed ToolGlows replay 2026-08-28: managed process identity compares UTC instants across Windows PowerShell string and PowerShell 7 DateTime JSON representations, so live projects no longer reconcile to stopped immediately after Start."
+  - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and CRXJS Chrome extensions with exact next actions instead of exposing internal project kinds."
+  - "Installed-runtime replay 2026-08-27: registered projects are re-registered through the current detector before environment migration, preventing stale registry kinds after a new adapter is installed."
+  - "Native Windows browser-extension adapter 2026-08-27: CRXJS projects with an explicit dev:chrome script use extension-specific package-manager, launch, readiness, environment and open contracts instead of generic Vite assumptions."
+  - "Linux pressure rescue 2026-08-26: Health combines available RAM, swap use and optional Linux PSI, renders a critical recovery route, and can stop only revalidated confirmed Vercel CLI groups that are detached, heavy, old and free of protected processes."
+  - "Native Windows Doppler boundary 2026-08-26: the installer provisions and reports the CLI for agents, while automatic DevServer secret injection remains disabled until a project-specific dev/staging contract is declared and proven."
   - "CommandGlows onboarding audit 2026-08-26: a cloned repository is preserved when registration fails, but the Windows clone command now exits with an explicit preparation failure instead of reporting command success."
   - "CLI/SaaS capability snapshot 2026-08-24: the CLI emits a bounded, closed, read-only JSON capability inventory for the runner without exposing commands, arguments, paths, ports, secrets, or credentials."
   - "Linux memory monitoring 2026-08-20: available-RAM severity now scales at 20% warning and 10% critical, preserves severity through the menu cache, and reports missing swap independently."
@@ -55,12 +63,14 @@ evidence:
   - "Disk details and PM2 log cleanup/rotation added to explain and cap disk usage."
   - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
   - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser that excludes repositories already installed in the workspace."
+  - "The private-data control plane reports only redacted availability, validates a declared namespace capability, and requires an explicit clean-repository sync action."
+  - "Private-data compatibility replay 2026-08-28: legacy repositories are detected and explicitly migratable, future schemas fail closed, existing clean clones can be adopted, and tracked paths are checked for Windows portability."
   - "Native Windows full resolves and validates Flutter/Dart, JDK 17 and Android command-line tools in user scope; Android terms and SDK licenses remain explicitly user-confirmed, with non-interactive runs pending."
   - "Native Windows full detects Tauri Android projects, offers exact Rust/Android targets through an isolated mise environment and the validated NDK through sdkmanager, and records older projects as migration-required without mutating them; its cargo, rustc and rustup wrappers reproduce the same isolation without mutating global mise trust."
   - "The first live Tauri Windows update exposed ambiguous provider exits, mojibake Flutter diagnostics, serialized Codex MCP path comparison, and invisible prompt gaps; regression coverage now makes final observation authoritative and renders phases plus input waits explicitly."
   - "Native Windows full migrates away the obsolete managed PowerShell profile function because PATH-backed .cmd launchers work even when profile scripts are disabled."
   - "Native Windows full installs Dart/Flutter and exact-version Playwright at machine scope, then generates agent-native MCP activation only inside registered ShipGlows project surfaces; ordinary installs preserve divergent local files, while the owner-only maintainer surface may converge recorded files and remove former ShipGlows global entries."
-  - "Native Windows full permanently installs trusted WinGet mise plus Google Cloud CLI, owns an isolated exact-version machine toolbox for Firebase, Supabase, Convex, Vercel and Clerk, keeps FlutterFire under Dart Pub, and uses project detection only for MCP activation."
+  - "Native Windows full permanently installs trusted WinGet mise plus Google Cloud and Doppler CLIs, owns an isolated exact-version machine toolbox for Firebase, Supabase, Convex, Vercel, Clerk and Auth0, keeps FlutterFire under Dart Pub, and uses project detection for MCP activation plus presence-only provider reporting."
   - "The Windows MCP allowlist records official discovery authority separately from execution trust; Google Cloud stays catalog-only and Supabase defaults to its official read-only remote endpoint."
   - "Native Windows pnpm provisioning adds pnpm v11's global bin subdirectory to the user PATH and verifies the executable before reporting success."
   - "Native Windows installs priority .cmd wrappers for npm-family and coding-agent commands so restrictive PowerShell execution policies cannot select blocked .ps1 shims."
@@ -93,7 +103,7 @@ next_step: "/sg-docs technical audit runtime-cli"
 
 ## Windows host contract
 
-`s.cmd` and `shipglows-dev.cmd` invoke Windows PowerShell 5.1 only to run `ShipGlows.PowerShellBootstrap.ps1`. Normal CLI logic then runs exclusively under ShipGlows-managed PowerShell 7.6.5 Core x64. Direct Desktop execution and an unmanaged PowerShell Core process are refused. `SHIPGLOWS_MANAGED_PWSH` contains the exact absolute executable reused by child PowerShell work; the `PATH` is not consulted for `pwsh`.
+`s.cmd` and `shipglows-dev.cmd` invoke Windows PowerShell 5.1 only to run `ShipGlows.PowerShellBootstrap.ps1`. Normal CLI logic then runs exclusively under ShipGlows-managed PowerShell 7.6.5 Core x64. Direct Desktop execution and an unmanaged PowerShell Core process are refused. `SHIPGLOWS_MANAGED_PWSH` contains the exact absolute executable reused by child PowerShell work; the `PATH` is not consulted for `pwsh`. The separate collision-safe `shipglows.cmd` routes `shipglows rename rio <name>` to `shipglows.ps1`, which validates the title and emits exactly one UTF-8 OSC title sequence for the current terminal tab without reading Codex state.
 
 `-Offline` is a strict no-network mode: it reuses a valid managed runtime and fails actionably when the coordinate is absent or corrupt. The portable runtime is private to `.shipglows` and does not replace Windows PowerShell or add PowerShell 7 to the user/system `PATH`.
 
@@ -145,7 +155,7 @@ The native Windows full-install contract packages the closed `cli/environment` P
 | `cli/shipglows.sh` | Thin CLI entrypoint that sources runtime and menu files, then calls `main` | Keep thin; do not move business logic here |
 | `cli/lib.sh` | Main orchestration library for UI, validation, PM2/Flox/Caddy operations, health, deploy, publish, and actions | High blast radius; prefer focused changes and syntax checks |
 | `cli/shipglows_devserver_gum.sh`, `cli/shipglows_devserver_bash.sh` | Menu frontends that render the root menu and grouped submenus | Keep frontend behavior equivalent; update both variants together |
-| `cli/windows/install-devserver.ps1`, `cli/windows/shipglows-devserver.ps1` | Native Windows dependency bootstrap and DevServer frontend | Install the pinned checksum-verified Gum binary into the user runtime, prefer it for interactive choices, and preserve the plain PowerShell fallback |
+| `cli/windows/install-devserver.ps1`, `cli/windows/shipglows-devserver.ps1`, `cli/windows/shipglows.ps1` | Native Windows dependency bootstrap, DevServer frontend, and focused ShipGlows commands | Install the pinned checksum-verified Gum binary into the user runtime, prefer it for interactive choices, preserve the plain PowerShell fallback, and keep `rename rio` isolated from Codex state |
 | `cli/config.sh` | Central configuration defaults and validation | Keep defaults explicit and validation actionable |
 | `cli/windows/ShipGlows.DevServer.psm1` | Native Windows project detection, registry, process lifecycle, ports, and logs | Execute only in managed PowerShell 7 Core; never evaluate project input as code |
 | `cli/windows/shipglows-devserver.ps1` | Native Windows dashboard/menu and one-shot actions | Keep menu and one-shot actions aligned |
@@ -256,11 +266,40 @@ target the environment root, never only the nested application directory.
 
 The Windows `full` bootstrap is a separate runtime backend for machines such
 as Shadow PC where WSL cannot be used. It owns only local development for
-Astro, Python/FastAPI, and Flutter Web. Repositories are constrained to the
+Astro, Vite, browser extensions, Python/FastAPI, and Flutter Web. Repositories are constrained to the
 configured workspace, ports are allocated from `3000..3100`, and process
 identity is checked with PID, start time, executable path, and a command
 signature before stopping a process. The JSON registry is written through a
 validated temporary file and atomic replacement.
+
+### Guided project experience
+
+The Windows CLI presents supported repositories as user-facing experiences,
+not as internal detector kinds:
+
+| Detected surface | Status shown to the user | Start/Open outcome |
+| --- | --- | --- |
+| Astro, Vite, or Python/FastAPI | `Web project` and `URL :<port>` | Start prepares the local server; Open launches its loopback URL. |
+| Flutter Web | `Flutter app` and `App :<port>` | Start prepares the managed headless session; Open switches to the visible managed Chrome session. |
+| CRXJS Chrome extension | `Chrome extension`, `HMR :<port>`, and `dist\chrome` | Start prepares Manifest V3 plus HMR; Open launches `chrome://extensions` and the unpacked output folder. |
+
+`s help`, `s status`, the dashboard, the picker and post-registration output
+share those terms. Clone and manual registration end with the exact next
+command. The complete non-interactive lifecycle is
+`s start -ProjectPath <path>`, `s status -ProjectPath <path>`,
+`s open -ProjectPath <path>`, then `s stop -ProjectPath <path>`.
+The interactive menu exposes the same actions, including `Open / load project`.
+If Open targets a stopped project, it identifies the selected experience and
+returns the exact Start command instead of reporting an ambiguous missing URL.
+
+An extension's reserved port belongs to the Vite/CRXJS hot-module-reload
+channel; it is not a website URL. After Open, the operator still enables
+Developer mode, chooses Load unpacked, and selects `dist\chrome`. ShipGlows
+opens the relevant tools but never silently installs an extension into a
+personal Chrome profile. Current automatic detection is deliberately bounded
+to a declared `@crxjs/vite-plugin` dependency plus an explicit `dev:chrome`
+script; unsupported extension stacks are not presented as automatically
+managed.
 
 The native Windows backend does not activate, parse, or derive project
 boundaries from Flox. It discovers supported applications from native manifests
@@ -269,7 +308,22 @@ such as `package.json`, `pubspec.yaml`, `pyproject.toml`, and
 effect on Windows dependencies, variables, launch commands, ports, or project
 identity.
 
-Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A versioned per-project state below the DevServer runtime records an invariant digest of relevant manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
+Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A pnpm lockfile keeps pnpm, and an exact `packageManager: pnpm@x.y.z` declaration is executed through Corepack so ShipGlows does not substitute its machine-wide pnpm version. A versioned per-project state below the DevServer runtime records an invariant digest of relevant manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
+
+A Node surface is classified as `browser-extension` before generic Vite only
+when it declares `@crxjs/vite-plugin` and an explicit `dev:chrome` script.
+Start runs that script with ShipGlows' reserved loopback HMR port. Readiness
+requires the managed process, its listener, and a fresh valid Manifest V3 under
+`dist/chrome`; an old package
+or an HTTP response alone cannot mark the extension running. Open launches the
+browser extension manager beside the generated unpacked directory and never
+silently installs into a personal browser profile.
+
+During a full Windows runtime installation, every still-present registered
+project is re-registered through the current detector before its managed
+environment block is rewritten. This keeps registry kind, launch metadata and
+`ENVIRONMENT.md` aligned when a newly installed ShipGlows version introduces a
+more specific project kind such as `browser-extension`.
 
 Managed Windows servers are created through `Win32_Process.Create`, outside the one-shot CLI process handle tree, so a caller capturing stdout/stderr receives EOF after readiness. Before launching a child, the WMI wrapper creates a named Windows Job Object with `KILL_ON_JOB_CLOSE`, assigns itself, and fails closed if either operation fails; Node, Astro, Python, Flutter and their descendants therefore share a durable termination boundary. After its direct command exits, the wrapper remains alive while another job member exists, including a Node child created with detached spawn and `unref`. Detached and Flutter wrappers use only the exact absolute `SHIPGLOWS_MANAGED_PWSH` executable already validated by the bootstrap; they never accept `powershell.exe`, discover `pwsh.exe` through `PATH`, or fall back to System32. The registry stores the wrapper PID, command-line fragment and Job Object identity. Readiness requires both verified wrapper identity and the service probe. Stop terminates the exact job (or the verified legacy tree), then marks `stopped` only after both process identity and the assigned listener have disappeared; unproved extinction preserves the live registry state and returns an error. The Flutter supervisor token is read by that wrapper from its existing owner-only token file and is never embedded in the encoded command.
 
@@ -386,8 +440,8 @@ clones the selected repository's HTTPS URL. It therefore
 does not inherit a separate GitHub CLI preference for SSH or depend on a local
 SSH configuration; GitHub CLI still owns authentication and credential storage,
 and configures Git's HTTPS credential helper before each picker clone.
-If a repository is outside the Windows DevServer's supported Astro, Python, and
-Flutter Web project kinds, cloning still succeeds and is kept in the workspace;
+If a repository is outside the Windows DevServer's supported Astro, Vite,
+browser-extension, Python, and Flutter Web project kinds, cloning still succeeds and is kept in the workspace;
 the CLI keeps the clone, reports the preparation failure, and exits non-zero
 rather than removing the clone or presenting the combined clone-and-register
 operation as successful.
@@ -398,8 +452,34 @@ PowerShell in the selected discovered or registered project because a subprocess
 change the parent shell's working directory; `exit` returns to the original
 shell. Unsupported Linux server paths fail with guidance instead of being
 silently remapped.
-The explicit `s u` / `s update` path downloads the public Windows bootstrap
-over HTTPS, resolves an immutable source commit, stages and validates the full
+
+## Explicit private-data control plane
+
+`shipglows private-data status` and `doctor` (or the Windows `s private-data`
+equivalent) expose only whether the durable private repository is configured,
+available, clean, and manifest-valid. They never print its path, remote, Git
+identity, filenames, or content. `capability <namespace> <read|write>` verifies
+that an explicit request matches a declared namespace in the private repository's
+data-only manifest; it does not read the namespace itself. `connect --repo` and
+`open` are dry plans until `--apply`: connection accepts only an explicit
+credential-free HTTPS or SSH URL, can adopt a matching clean existing clone,
+and persists configuration only after validation, while opening invokes the
+local file manager without printing the path. A repository without a manifest
+is diagnosed as legacy and requires an explicit `migrate --manifest ...
+--apply`; malformed or unknown future schemas fail closed. Doctor also rejects
+tracked paths that are not portable to Windows. `sync <pull|push>` is a dry plan unless `--apply` is present, then refuses
+a dirty repository or missing upstream and uses only fast-forward pull or
+ordinary push. None of these commands is run by installation, startup, generic
+context discovery, or a skill without an explicit private-data request.
+The explicit Windows DevServer `s u` / `s update` path downloads the public
+bootstrap over HTTPS for the stable channel, or selects the checked clean
+upstream branch of a linked developer checkout. `shipglows update` is the
+cross-platform canonical entrypoint and `shipglows update status` is read-only;
+on Unix `s u` remains the system-package update action. On Windows, dirty linked
+checkouts fail closed with a focused inspection and retry path, and
+an interactive update attempt exits the menu instead of redrawing the project
+catalog after success or failure. The Windows path resolves
+an immutable source commit, stages and validates the full
 managed payload, then classifies the target as `install`, `update`, `repair`, or
 `no-op`. Activation is serialized per runtime and transactionally replaces only
 the paths recorded in the mode-scoped `.shipglows-runtime-files.<mode>.json`; a child-installer failure
@@ -411,6 +491,29 @@ version-drifted coding-agent CLIs, installs only accepted exact versions, and
 never infers upgrade consent in non-interactive mode. This is the supported
 refresh path; the already-installed `cli/windows/install-devserver.ps1` only
 copies its current local source and must not be treated as a network updater.
+
+Windows exposes a separate global developer-tool surface through
+`shipglows tools status|update` and `s tools status|update`. Status is read-only:
+it shows the declared ShipGlows-owned scope, asks WinGet for its available
+upgrade preview, and compares installed npm/pnpm versions with exact stable
+registry coordinates. Update requires an interactive confirmation and invokes
+the already-installed full convergence engine without downloading or switching
+the ShipGlows source channel. WinGet mutations are restricted to the exact
+allowlist for Git, GitHub CLI, Node LTS, mise, uv, Google Cloud CLI, and Doppler;
+npm and pnpm targets are resolved and installed as exact registry versions.
+Normal convergence then repairs and verifies managed wrappers, coding agents,
+service CLIs, Playwright, MCP configuration, and the environment report. The
+route never uses `winget upgrade --all` and never changes project manifests,
+lockfiles, dependencies, `node_modules`, credentials, SDK licences, IDEs,
+Windows Update, or restart policy.
+
+On Windows, the DevServer header immediately renders the cached ShipGlows
+runtime status and refreshes it asynchronously at most once per six hours.
+`shipglows-version.json` is the canonical SemVer release coordinate; the
+installer records it with the immutable source commit. Green means current,
+orange means a patch or linked-source update is available, and red means a
+minor or major release was missed. A failed network check preserves the last
+valid cache and never blocks the menu; an available update points to `s update`.
 
 The native full installer composes a UI-free operation engine with a console
 adapter. The engine emits stable started/progress/completed/failed/timed-out
@@ -447,23 +550,30 @@ instructions outside the block remain unchanged. The shared block points to this
 file, prefers a purpose-built callable tool, checks direct and deferred discovery,
 and redirects uncertain capability state to `$shipglows context` instead of
 embedding a stale machine-specific tool list. It does not wrap agent commands.
-That block also enforces explicit
-post-message approval before intentional mutations: a one- or two-sentence fast
-validation is available only for exact local routine readily reversible actions
-that satisfy every no-harm criterion; other actions use the full plan, and
-`git push` is always full-plan-only.
+That block treats a clear bounded request as authority for its few coherent
+enumerable actions and targets when the agent need not choose a material
+direction, never for a chantier. Targeted file modifications, exact-scope
+commits, ordinary resolved pushes, and small explicit sequences execute without
+another prompt. Local versus remote and model reasoning effort never change the
+classification. Bounded agent-proposed actions or almost-clear intent use fast
+validation; unknown, unbounded, or materially directional work uses the full
+plan. Force push and destructive or irreversible actions retain stricter gates.
 
 For each registered project, the Windows CLI maintains a bounded ShipGlows block
 inside the visible, versioned `<project-root>\ENVIRONMENT.md`. It preserves any
-existing project content and records the manager, durable assigned port and
-canonical loopback URL. The Windows registry remains authoritative for live
+existing project content and records the manager, project kind, durable assigned port and
+canonical loopback URL. Browser extensions instead record that a normal page URL is not applicable and name their unpacked Chrome directory. The Windows registry remains authoritative for live
 status, so start and stop do not create tracked-document churn. `s open` uses
 the active registry entry instead of guessing from repository scripts.
+For an extension, that managed block also records the complete operator route:
+Start, Open, enable Chrome Developer mode, choose Load unpacked, select
+`dist\chrome`, then Stop. It repeats that personal-profile installation always
+requires an explicit user action.
 
 The managed block carries the explicit schema
-`shipglows-project-environment/v1`. An unversioned legacy ShipGlows block is
+`shipglows-project-environment/v2`. An unversioned legacy ShipGlows block is
 treated as `legacy/v0` and upgraded automatically on registration, start, or
-installer reconciliation. Rewriting v1 is byte-idempotent and preserves all
+installer reconciliation; v1 is accepted and upgraded by the same bounded writer. Rewriting v2 is byte-idempotent and preserves all
 content outside the managed markers. Unknown future schemas, incomplete
 markers, and duplicated blocks fail closed without changing the file.
 
@@ -570,11 +680,23 @@ the managed `%LOCALAPPDATA%\ms-playwright` root.
   commands. It must not route destructive cleanup options through
   searchable/default-select menus. Available RAM is healthy at or above 20%,
   warning below 20%, and critical below 10%; those levels remain distinct in
-  the menu cache and header. `SHIPGLOWS_MEM_WARN_PCT` and
-  `SHIPGLOWS_MEM_CRITICAL_PCT` configure the proportional thresholds. The
-  legacy `SHIPGLOWS_MEM_WARN_GB` absolute threshold applies only when set
-  explicitly. Missing swap is a separate capacity-risk warning and never, by
-  itself, means current RAM is low.
+  the menu cache and header. The combined system level also warns at 80% swap
+  use or sustained PSI memory `some` pressure, and becomes critical when PSI
+  `full` reaches 10% or when swap reaches 90% while available RAM is already
+  below 20%. Swap use alone never becomes a critical incident because Linux
+  may retain inactive pages there after pressure has cleared. PSI is optional:
+  kernels without `/proc/pressure/memory` retain the RAM/swap classification.
+  `SHIPGLOWS_MEM_*`, `SHIPGLOWS_SWAP_*`, and `SHIPGLOWS_MEM_PSI_*` configure
+  validated thresholds. The legacy `SHIPGLOWS_MEM_WARN_GB` applies only when
+  explicitly set. Missing swap remains a separate capacity-risk warning.
+- `cli/lib.sh::emergency_process_rescue_menu`: the `e` Health action lists only
+  same-user Vercel CLI groups whose candidate process has PPID 1, no TTY, at
+  least 100 MB RSS, and at least two minutes of age. Every member of the group
+  is re-read before signaling; an unknown signature, another user, any TTY, or
+  a shell, Codex, SSH, tmux, systemd, PM2, Caddy, or application process makes
+  the whole group ineligible. Display output contains provider, IDs, RSS and
+  age but never full arguments. The operator selects one group and confirms
+  `SIGTERM`; a surviving group requires a separate confirmation for `SIGKILL`.
 - `cli/lib.sh::disk_cleanup_menu`: one-key disk cleanup flow for old Codex/Claude
   history files, agent caches/logs, safe dev caches, and heavier regenerated
   dev state. The light tier targets low-risk package/tool caches; the
@@ -665,6 +787,11 @@ package binaries.
   at runtime. When Doppler is enabled, it remains the outer wrapper so secrets
   are injected before the runtime command and ShipGlows's port export still
   wins over a Doppler-provided `PORT`.
+- Native Windows reports Doppler CLI readiness and presence-only project
+  declaration, but does not automatically wrap DevServer commands with
+  `doppler run`. Agents may use that boundary only for an explicit project-owned
+  command and an unambiguous development or staging scope; production and
+  implicit project/config selection remain separately authorized.
 - `env_restart` must confirm that PM2 remains `online` during its stability
   window before reporting success or advertising the application's localhost
   URL.
@@ -734,6 +861,10 @@ package binaries.
   Codex conversations or MCP processes.
 - MCP cleanup should target only local MCP server process groups, ask for
   confirmation, and refuse any process group that contains a `codex` process.
+- Emergency process rescue must fail closed when a PID/PGID disappears,
+  changes identity, gains a TTY, contains an unrecognized process, or no longer
+  satisfies its same-user orphan signature. It must never generalize PPID 1
+  into permission to stop arbitrary daemons or application services.
 - Disk cleanup must not delete agent auth/config/skills/memories; history
   cleanup is retention-based. Aggressive cleanup may remove regenerated build
   artifacts inside project trees, but not source files, git data, or primary
@@ -750,6 +881,9 @@ package binaries.
 - Do not log tokens, DuckDNS secrets, private paths containing credentials, or raw environment values.
 - Public URL publishing is externally visible and needs explicit validation.
 - Destructive actions must stay idempotent and confirmation-gated where the UX expects it.
+- Process arguments may be inspected only for a closed rescue signature; they
+  must not be displayed, cached, logged, or persisted because they can contain
+  private targets or credentials.
 - Blacksmith credentials are detected only by local credentials-file presence;
   the runtime must not read, print, store, or transform token contents.
 - Blacksmith runner SSH diagnostics must not copy raw environment values,

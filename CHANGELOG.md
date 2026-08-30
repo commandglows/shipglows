@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.10.9"
+artifact_version: "0.15.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-25"
+updated: "2026-08-30"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -20,12 +20,32 @@ linked_systems:
   - CHANGELOG.md
 depends_on: []
 supersedes: []
-evidence: []
+evidence:
+  - "The 2026-08-30 changelog records the separate native Windows developer-tool status and update surfaces, with public publication held for installed-host proof."
+  - "The 2026-08-30 changelog records global managed-repository closure changelog classification and the shared Context History runtime."
+  - "The 2026-08-26 changelog records latest-build artifact access and the native Windows Auth0 CLI integration."
+  - "The 2026-08-26 changelog records native Windows Doppler CLI access and the agent secret-use boundary."
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
 
+## [2026-08-30]
+
+### Added
+- Added separate native Windows commands to preview and update ShipGlows-owned global developer tools without touching project dependencies. The updater uses exact WinGet package IDs and exact npm/pnpm targets, requires confirmation, never runs `winget upgrade --all`, and remains pending installed-host proof before public release publication.
+- Added a shared Context History and bounded Context Head for ShipGlows-managed repositories, plus a mandatory closure changelog classification that distinguishes public-ready, internal-only, not-applicable, and review-needed outcomes without exposing internal history or claiming publication before delivery proof.
+
+## [2026-08-26]
+
+### Added
+- Added private last-known-good access to successful Windows and Android test builds through four clearly labelled desktop shortcuts: Windows Local, Windows CI, Android APK Local, and Android APK CI. Cached packages survive disposable worktrees; Android remains reveal-only, and unsafe or failed candidates preserve the prior shortcut.
+- Added the official Auth0 CLI to the native Windows machine toolbox and `s a` authentication menu with an exact stable mise/Aqua pin, wrapper-scoped analytics opt-out, redacted status checks, no WSL dependency, and no automatic login or tenant mutation.
+- Added native Windows Doppler CLI provisioning, a stable agent wrapper, redacted `s a` authentication state, presence-only project detection, and managed agent rules for declared dev/staging execution without exposing secret values or enabling automatic runtime injection.
+
 ## [2026-08-25]
+
+### Added
+- Added an immutable year/month/day context-event history, a bounded Git/worktree-aware `CONTEXT_HEAD` generator with stale detection, and a shared public changelog eligibility contract used by context, closure, shipping, and changelog skills.
 
 ### Security
 - Hardened the privileged Linux installer with checked temporary downloads, pinned Supabase and Flox releases, SHA256 or GPG verification before system writes, an explicit NodeSource apt configuration instead of `curl | bash`, the verified official GitHub CLI and Caddy repositories, and fail-closed `apt`/`dpkg` behavior.

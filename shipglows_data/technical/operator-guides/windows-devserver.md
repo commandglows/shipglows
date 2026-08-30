@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.20.0"
+artifact_version: "1.26.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-24"
+updated: "2026-08-30"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,14 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
+  - "Le parcours Flutter Windows du 2026-08-30 privilégie une session live supervisée et crée un raccourci Dev distinct des builds figés."
+  - "Le replay ToolGlows du 2026-08-28 a corrigé la séparation des lignes du guide ENVIRONMENT.md et la comparaison des timestamps JSON PowerShell 7 qui transformait à tort un processus vivant en projet arrêté."
+  - "Le parcours guidé du 2026-08-28 nomme clairement projet web, app Flutter et extension Chrome dans l'aide, le statut, le dashboard, l'enregistrement et les actions Start/Open."
+  - "The 2026-08-27 installed ToolGlows replay removed a hidden 60-second clamp so extension readiness honors the caller's 90-second startup budget."
+  - "The 2026-08-27 installed ToolGlows replay removed the npm-only option separator from pinned pnpm extension launches so Vite binds the requested IPv4 loopback host."
+  - "The 2026-08-27 installed-runtime replay now re-registers existing projects before environment migration so registry and durable project kind remain coherent."
+  - "The 2026-08-27 browser-extension adapter recognizes explicit Chrome development surfaces, honors pinned pnpm through Corepack, and records unpacked-extension guidance instead of claiming an ordinary web URL."
   - "Migrated without content loss from local/README_WINDOWS.md under the canonical documentation governance contract."
   - "PowerShell reserves gp for Get-ItemProperty; ShipGlows now installs a policy-gated add/commit/push gp profile function and a profile-independent raw gpush fallback."
   - "The Windows installer writes a static global development environment and the CLI writes one active server URL file per project."
@@ -65,7 +73,7 @@ ne sont pas requis par le parcours Shadow PC.
 **Avantages:**
 - ✅ Pas besoin de WSL ni de virtualisation imbriquée
 - ✅ Tunnels SSH avec OpenSSH natif
-- ✅ DevServer natif Astro, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
+- ✅ DevServer natif Astro, Vite, extensions navigateur, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
 - ✅ Clone et registre local des dépôts directement dans `%USERPROFILE%\ShipGlows`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
 - ✅ Android Studio proposé pour Android/Firebase Device Streaming et Visual Studio Community C++ pour compiler Flutter Windows
@@ -220,9 +228,43 @@ ne sont pas requis par le parcours Shadow PC.
    lit ni ses paquets, ni ses variables, ni ses hooks. Il découvre les apps à
    partir de leurs manifests natifs (`package.json`, `pubspec.yaml`, etc.).
 
+### Choisir le bon parcours : site, app ou extension Chrome
+
+ShipGlows détecte la surface exécutable à partir de ses manifests, puis affiche
+un libellé compréhensible dans `s help`, `s status`, le dashboard et les
+sélecteurs. Après un clone ou un enregistrement manuel, la CLI donne directement
+la prochaine commande à lancer.
+
+| Votre projet | Ce que ShipGlows affiche | Parcours |
+| --- | --- | --- |
+| Site Astro/Vite ou API Python/FastAPI | `Web project` et `URL :<port>` | Start prépare le serveur, Open ouvre l'URL locale. |
+| Application Flutter Web | `Flutter app` et `App :<port>` | Start prépare la session gérée, Open ouvre la session Chrome visible avec le cycle Flutter. |
+| Extension Chrome CRXJS | `Chrome extension`, `HMR :<port>` et `dist\chrome` | Start construit Manifest V3 et lance HMR, Open ouvre le gestionnaire Chrome et le dossier à charger. |
+
+Le parcours complet et copiable est :
+
+```powershell
+s start -ProjectPath "C:\chemin\du\projet"
+s status -ProjectPath "C:\chemin\du\projet"
+s open -ProjectPath "C:\chemin\du\projet"
+s stop -ProjectPath "C:\chemin\du\projet"
+```
+
+Le menu interactif propose les mêmes actions, avec `Open / load project`. Si
+Open reçoit un projet arrêté, ShipGlows explique son type et redonne la commande
+Start exacte au lieu de laisser croire qu'une URL manque.
+
+Pour une extension Chrome, le port affiché sert au HMR : ce n'est pas l'adresse
+d'un site. Après Open, activez **Developer mode** dans `chrome://extensions`,
+choisissez **Load unpacked**, puis sélectionnez `dist\chrome`. ShipGlows ouvre
+les deux emplacements utiles, mais n'installe jamais silencieusement l'extension
+dans votre profil personnel. La détection automatique actuelle couvre les
+projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
+stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
+
 ### Monorepos, registre et Flutter Web
 
-Le DevServer détecte Astro, Vite, Python/FastAPI et Flutter Web à partir des
+Le DevServer détecte Astro, Vite, les extensions navigateur, Python/FastAPI et Flutter Web à partir des
 manifests et signaux de framework, jamais à partir d'un nom de dossier imposé.
 Une racine de dépôt ou un monorepo enregistré explicitement peut donc produire
 plusieurs surfaces. Chacune possède sa propre entrée de registre, son nom
@@ -320,6 +362,18 @@ et ne terminent jamais Chrome par son seul nom. Le mode historique `web-server`,
 qui exige une connexion manuelle compatible avec Dart Debug, reste disponible
 uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
+### Flutter Windows en développement
+
+Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `ShipGlows - <Projet> - Dev`, qui démarre la session ou réutilise celle déjà active.
+
+Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`. Les raccourcis `Windows - Local` et `Windows - CI` restent réservés aux builds figés validés : releases et contrôles ciblés du packaging, des plugins natifs ou du démarrage sans Flutter attaché.
+
+### Flutter Android en développement
+
+`SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
+
+Les APK et AAB restent des sorties de release ou de validation autonome ciblée : installation, permissions, notifications, services, plugins natifs et comportement sans Flutter attaché. Ils ne remplacent pas la boucle de développement live.
+
 ### Vérifier l'environnement et l'URL utilisés par un agent
 
 Le parcours `full` écrit `%USERPROFILE%\.shipglows\environment.md`. Ce fichier
@@ -333,6 +387,10 @@ versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le por
 attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
 documentation du projet.
+Pour une extension, le bloc remplace l'URL de page par le port HMR et
+`dist\chrome`, puis rappelle le parcours Start, Open, Developer mode, Load
+unpacked et Stop. Un agent ou une opératrice reprenant le dépôt retrouve ainsi
+la même prochaine action que dans la CLI.
 
 Une réconciliation ou réinstallation qui lit temporairement le port `0` dans
 le registre conserve un port valide déjà inscrit dans `ENVIRONMENT.md`. Au
@@ -354,7 +412,7 @@ bornée puis revalider les commandes ; l'absence instantanée de `dart.exe` ne
 prouve pas à elle seule une corruption durable.
 
 Le bloc géré porte le schéma explicite
-`shipglows-project-environment/v1`. Un ancien bloc ShipGlows sans version est
+`shipglows-project-environment/v2`. Un ancien bloc ShipGlows sans version est
 considéré comme `legacy/v0` puis migré automatiquement lors d'un enregistrement,
 d'un démarrage ou de la réconciliation de l'installateur. Le contenu placé hors
 des marqueurs ShipGlows est conservé. Un schéma futur inconnu, des marqueurs
@@ -369,6 +427,24 @@ propre à la surface. Si ShipGlows lance la surface sur `3002` alors que le dép
 déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port
 non attribué dans le registre.
+
+Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
+
+Une extension CRXJS n'est reconnue que si elle déclare `@crxjs/vite-plugin` et
+expose explicitement `dev:chrome`. ShipGlows conserve son lockfile, honore une version exacte de pnpm
+via Corepack, transmet le port HMR réservé, puis attend un Manifest V3 frais dans
+un dossier Chrome pris en charge. `s open` ouvre le gestionnaire d'extensions et
+le dossier non empaqueté; le chargement dans un profil personnel reste une action
+explicite de l'opératrice.
+Avec pnpm, les options `--host` et `--port` sont transmises directement au script;
+le séparateur supplémentaire reste réservé au chemin npm.
+La disponibilité d'une extension respecte le budget de démarrage de 90 secondes
+demandé par le lanceur; elle ne le tronque plus silencieusement à 60 secondes.
+
+La réinstallation du runtime repasse aussi les projets déjà enregistrés dans le
+détecteur courant avant de migrer leur bloc d'environnement. Le registre et
+`ENVIRONMENT.md` ne peuvent ainsi pas conserver deux types de projet différents
+après l'ajout d'un adaptateur plus précis.
 
 Pour Flutter, `.shipglows.env` accepte aussi
 `SHIPGLOWS_DART_DEFINE_FILE=<chemin-relatif>` afin de transmettre durablement un

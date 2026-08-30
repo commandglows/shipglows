@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.7.0"
+artifact_version: "2.11.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-21"
+updated: "2026-08-27"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -70,6 +70,8 @@ evidence:
   - "Operator decision 2026-08-16: task-scoped agent branches and worktrees remain lifecycle-owned until removal or another explicit terminal disposition."
   - "Operator correction 2026-08-17: daily MVP work should privilege construction, use zero or one focused check when sufficient, and commit/push every clean completed chantier by default."
   - "Operator decision 2026-08-21: lightweight Git persistence preflight runs at existing start, resume, sensitive-operation, and closure boundaries while healthy state stays silent."
+  - "Operator correction 2026-08-27: every long-running process is lifecycle-owned until its exact session or PID is stopped and its termination is verified."
+  - "Operator decision 2026-08-27: 900-shipglows-core owns the complete shipglows DX system across skill/doctrine, runtime, distribution, and governance planes; shipglows_app remains a separate product repository."
 next_review: "2026-11-07"
 next_step: "/103-sg-verify master workflow lifecycle reference"
 ---
@@ -86,7 +88,7 @@ Before choosing a lifecycle route, model, topology, owner skill, mini-contract, 
 
 Spec-first is the outer lifecycle contract: it defines user story, scope, success/error behavior, dependencies, risks, and source of truth. Proof-first is the implementation discipline: execution must choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` from `skills/references/spec-driven-development-discipline.md` before claiming completion.
 
-Before any intentional mutation, load `skills/references/mutation-plan-approval.md`, choose its fast validation only when every cumulative eligibility criterion is established, otherwise present its full plan, and wait for explicit post-message approval. Readiness, a ready spec, a master-skill invocation, delegation consent, or the initial imperative request never substitutes for either approval path. For mutating technical chantiers, also load `git-milestone-delivery-contract.md`: ordinary exact-scope milestone commits and pushes inherit an approved full plan that disclosed remote persistence, and need no duplicate approval.
+Before any intentional mutation, load `skills/references/mutation-plan-approval.md`. A clear bounded request directly authorizes its few coherent enumerable actions and targets when no material direction must be chosen; it does not authorize a chantier. Bounded agent-proposed actions or almost-clear intent may use fast validation. Unknown outcomes, unbounded scope, or substantial agent proposal and directional choice require the full plan and explicit post-message approval. Local versus remote and model reasoning effort never change this classification. Readiness, a ready spec, a master-skill invocation, or delegation consent never substitutes for chantier approval. For mutating technical chantiers, also load `git-milestone-delivery-contract.md`: ordinary exact-scope milestone commits and pushes inherit an approved full plan and need no duplicate approval.
 
 At the first-write, interrupted-resume, sensitive-operation, and closure boundaries of a Git-backed chantier, apply `git-persistence-preflight.md`. This is one silent read-only inspection when healthy, not a new lifecycle stage. Before auth, payment, permission, migration, destructive, tenant, secret, production, or private-data mutation, require the relevant baseline backed up remotely; never manufacture a checkpoint from incomplete, failing, secret-bearing, ambiguous, or unrelated work.
 
@@ -108,7 +110,7 @@ Supported work item types:
 - `release scope`: the bounded set of files, commit, deployment target, and proof obligations for a release.
 - `audit finding set`: a read-only or source-de-chantier finding set that may recommend a future spec.
 - `content surface`: a bounded content goal, source, target surface, claim set, and validation surface.
-- `skill-maintenance target`: one skill contract or tightly bounded set of skill/public-doc surfaces.
+- `ShipGlows DX-system target`: one skill/doctrine surface, one CLI/DevServer/TUI/installer runtime surface, or one tightly bounded cross-plane coherence set inside `shipglows`; `shipglows_app` is not part of this work item.
 
 The work item decides source of truth:
 
@@ -226,6 +228,26 @@ Examples:
 
 Do not duplicate owner internals inside a master skill for convenience.
 
+### 5.1 Managed Process Lifecycle
+
+Any command that may outlive its immediate check, including a development server,
+watcher, log stream, tunnel, emulator, or interactive tool, is a managed process.
+Before starting it, the executing agent must name its bounded purpose, retain a
+controllable session handle or exact PID, and define the stop condition. Never
+detach a process without a lifecycle owner and a deterministic termination path.
+
+The agent that starts a managed process owns it until one terminal disposition is
+proven: `stopped`, `transferred-explicit`, or `retained-explicit`. Normal completion,
+failure, interruption, task replacement, worktree cleanup, and final handoff all
+trigger reconciliation. For `stopped`, signal the retained session or exact PID,
+wait for exit, and verify that the exact process no longer runs; do not kill by a
+broad executable name or affect unrelated processes. A transfer or retention must
+name the new owner or operational reason, scope, and review/stop condition.
+
+An untracked, unreachable, or still-running managed process blocks clean closure
+and removal of any directory it uses. A final report may omit healthy lifecycle
+detail, but it must expose a non-terminal disposition as a concrete limit.
+
 ### 6. Validation And Evidence Routing
 
 Validation is checkpoint-based, not message-based. Do not automatically run ESLint,
@@ -296,7 +318,7 @@ Typical routes:
 - `001-sg-build`: `104-sg-end -> 005-sg-ship`
 - `002-sg-maintain`: `104-sg-end` when a chantier needs closure bookkeeping, then `005-sg-ship` or `004-sg-deploy`
 - `007-sg-content`: `103-sg-verify -> 005-sg-ship` for bounded content changes
-- `900-shipglows-core build`: `300-sg-docs/help update -> 005-sg-ship`
+- `900-shipglows-core build`: `direct surface owner -> mapped proof -> 300-sg-docs/help update -> 104-sg-end -> 005-sg-ship`
 - `004-sg-deploy`: `105-sg-check -> 005-sg-ship -> 405-sg-prod -> proof -> 103-sg-verify -> 304-sg-changelog`
 - `003-sg-bug`: retest/verify/ship-risk execution from the bug file through owner skills
 

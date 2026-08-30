@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-08-21"
+updated: "2026-08-27"
 status: active
 source_skill: 900-shipglows-core
 scope: project-delivery-policy
@@ -18,6 +18,7 @@ linked_systems:
   - skills/references/git-milestone-delivery-contract.md
   - skills/305-sg-init
   - skills/005-sg-ship
+  - skills/references/managed-project-ci-policy.md
 depends_on:
   - artifact: skills/references/project-development-mode.md
     artifact_version: "1.1.0"
@@ -93,6 +94,10 @@ If no policy exists, ShipGlows may recommend `development` only as a provisional
 - A missing declared branch, unavailable remote, failed push, or unobserved protection remains delivery pending; never claim clean closure.
 - Provider configuration changes, branch protection, merges, deploys, and environment creation require their own authority.
 
+## Managed GitHub Protection
+
+Every active ShipGlows-managed GitHub repository follows `managed-project-ci-policy.md`: protect the production branch with the exact always-on `ShipGlows required gate`, never directly require a routinely path-filtered job, and install plus prove the workflow before enabling its ruleset requirement. This applies to `development`, `published`, and `sensitive-production`; maturity changes proof depth, not the existence of baseline protection. Non-GitHub, archived, generated-mirror, or intentionally unprotected repositories require an explicit reviewed exception.
+
 ## Pressure Scenarios
 
 - `PDP-DEVELOPMENT-NOT-LOCAL-ONLY`: development retains milestone and final remote persistence.
@@ -102,3 +107,4 @@ If no policy exists, ShipGlows may recommend `development` only as a provisional
 - `PDP-NO-PERMANENT-DEVELOP`: `main` plus short-lived branches is the default.
 - `PDP-DECLARED-VS-OBSERVED`: detected state reports drift without mutating intent.
 - `PDP-LEGACY-MODE`: legacy development mode remains valid while posture is unknown.
+- `PDP-MANAGED-CI`: every active managed GitHub project retains an always-on protected gate without path-filter deadlock.

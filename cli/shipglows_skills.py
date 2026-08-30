@@ -304,6 +304,20 @@ def linked_root_state(target_home: Path) -> str:
     return str(Path(root).expanduser().resolve())
 
 
+def linked_catalog_state(target_home: Path) -> str:
+    state_file = target_home / ROOT_STATE_RELATIVE
+    if not state_file.exists():
+        return ""
+    try:
+        payload = json.loads(state_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SkillChannelError(f"État de catalogue développeur illisible : {state_file}") from exc
+    catalog = payload.get("catalog", "public")
+    if catalog not in {"public", "expert"}:
+        raise SkillChannelError(f"Catalogue développeur invalide : {state_file}")
+    return catalog
+
+
 def strip_shell_block(content: str) -> str:
     lines = content.splitlines(keepends=True)
     output: list[str] = []
@@ -370,10 +384,10 @@ def atomic_write(path: Path, content: str, mode: int | None = None) -> None:
             temporary.unlink()
 
 
-def configure_linked_root(target_home: Path, root: Path) -> None:
+def configure_linked_root(target_home: Path, root: Path, catalog: str) -> None:
     state_file = target_home / ROOT_STATE_RELATIVE
     payload = json.dumps(
-        {"managed_by": "shipglows-skills-link", "root": str(root)},
+        {"catalog": catalog, "managed_by": "shipglows-skills-link", "root": str(root)},
         ensure_ascii=False,
         indent=2,
         sort_keys=True,
@@ -409,6 +423,7 @@ def channel_status(target_home: Path) -> dict[str, Any]:
     claude_router = link_description(target_home / ".claude" / "skills" / "shipglows")
 
     configured_root = linked_root_state(target_home)
+    configured_catalog = linked_catalog_state(target_home)
     default_root = str((target_home / ".shipglows" / "runtime").resolve())
     root_mismatch = False
     if codex_router["state"] == "managed":
@@ -416,14 +431,16 @@ def channel_status(target_home: Path) -> dict[str, Any]:
             (configured_root and configured_root != codex_router["root"])
             or (not configured_root and codex_router["root"] != default_root)
         )
-    elif configured_root:
+    elif configured_root and configured_catalog == "public":
         root_mismatch = True
 
     if codex_router["state"] == "foreign" or root_mismatch:
         state = "conflict"
     elif plugins and codex_router["state"] == "managed":
         state = "conflict"
-    elif codex_router["state"] == "managed":
+    elif codex_router["state"] == "managed" or (
+        configured_root and configured_catalog == "expert" and not plugins
+    ):
         state = "linked"
     elif plugins:
         state = "plugin"
@@ -435,6 +452,7 @@ def channel_status(target_home: Path) -> dict[str, Any]:
         "codex_router": codex_router,
         "claude_router": claude_router,
         "configured_root": configured_root,
+        "configured_catalog": configured_catalog,
     }
 
 
@@ -453,6 +471,7 @@ def print_status(status: dict[str, Any], as_json: bool) -> None:
             print(f"Liens {runtime} : conflit non géré")
     if status["configured_root"]:
         print(f"Racine développeur : {status['configured_root']}")
+        print(f"Catalogue lié : {status['configured_catalog']}")
 
 
 def confirm(message: str, assume_yes: bool) -> None:
@@ -597,7 +616,7 @@ def link_skills(args: argparse.Namespace, target_home: Path) -> None:
         "--runtime",
         "all",
         "--catalog",
-        "public",
+        args.catalog,
         "--target-home",
         str(target_home),
         "--shipglows-root",
@@ -607,7 +626,7 @@ def link_skills(args: argparse.Namespace, target_home: Path) -> None:
     ]
     run(base[:2] + ["--repair"] + base[2:], target_home=target_home)
     run(base[:2] + ["--check"] + base[2:], target_home=target_home)
-    configure_linked_root(target_home, root)
+    configure_linked_root(target_home, root, args.catalog)
     skipped_launchers = configure_launchers(target_home, root)
     status = channel_status(target_home)
     if status["state"] != "linked":
@@ -618,7 +637,7 @@ def link_skills(args: argparse.Namespace, target_home: Path) -> None:
     print("Redémarrez Codex ou Claude depuis un nouveau shell pour charger la racine et le catalogue.")
 
 
-def managed_public_links(target_home: Path) -> list[tuple[Path, int, int, str]]:
+def managed_shipglows_links(target_home: Path) -> list[tuple[Path, int, int, str]]:
     found: list[tuple[Path, int, int, str]] = []
     for runtime_dir in (
         target_home / ".agents" / "skills",
@@ -632,25 +651,18 @@ def managed_public_links(target_home: Path) -> list[tuple[Path, int, int, str]]:
             root = root_for_skill_target(target)
             if root is None:
                 continue
-            try:
-                pairs = load_registry(root)
-                source_name = pairs.get(target.name)
-                resolved = target.resolve(strict=True)
-            except (SkillChannelError, OSError, RuntimeError):
-                continue
-            if source_name and resolved == (root / "skills" / source_name).resolve():
-                stat = target.lstat()
-                found.append((target, stat.st_dev, stat.st_ino, os.readlink(target)))
+            stat = target.lstat()
+            found.append((target, stat.st_dev, stat.st_ino, os.readlink(target)))
     return found
 
 
 def unlink_skills(args: argparse.Namespace, target_home: Path) -> None:
     preflight_mutation_paths(target_home)
-    links = managed_public_links(target_home)
+    links = managed_shipglows_links(target_home)
     preflight_shell_files(target_home)
     if links:
         confirm(
-            f"Retirer {len(links)} lien(s) public(s) ShipGlows géré(s) ?",
+            f"Retirer {len(links)} lien(s) ShipGlows géré(s) ?",
             args.yes,
         )
         for link, expected_dev, expected_ino, expected_target in links:
@@ -672,7 +684,7 @@ def unlink_skills(args: argparse.Namespace, target_home: Path) -> None:
             link.unlink()
         print(f"{len(links)} lien(s) ShipGlows retiré(s).")
     else:
-        print("Aucun lien public ShipGlows géré n'est installé.")
+        print("Aucun lien ShipGlows géré n'est installé.")
     clear_linked_root(target_home)
     skipped_launchers = clear_launchers(target_home)
     for launcher in skipped_launchers:
@@ -703,6 +715,12 @@ def parser() -> argparse.ArgumentParser:
 
     link_parser = commands.add_parser("link", help="Lier un clone Git ShipGlows aux agents locaux")
     link_parser.add_argument("--root", help="Clone ShipGlows à utiliser (défaut : dépôt courant)")
+    link_parser.add_argument(
+        "--catalog",
+        choices=("public", "expert"),
+        default="public",
+        help="Catalogue exclusif à activer (défaut : public)",
+    )
     link_parser.add_argument("--yes", action="store_true", help="Confirmer les actions prévues")
 
     unlink_parser = commands.add_parser("unlink", help="Retirer uniquement les liens ShipGlows gérés")

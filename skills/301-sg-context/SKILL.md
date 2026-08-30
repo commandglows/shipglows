@@ -25,6 +25,8 @@ Default to concise `report=user`. Use `report=agent` only for an explicit handof
 
 Prime one known task with the minimum sufficient context for a correct next decision. Load `$SHIPGLOWS_ROOT/skills/references/context-quality-contract.md` and return its qualified `Context Capsule` plus verdict.
 
+When the project adopts structured context history, load `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md`. Check and prefer a fresh bounded Context Head before broader retrieval; regenerate it only with applicable mutation authority, otherwise render it with `--no-write`. Revalidate material claims against canonical sources before `context_ready`.
+
 Route skill/workflow selection to `000-shipglows`, active-work continuation to `706-continue`, and cross-project status to `308-sg-status`. Empty task input asks one plain-language target question.
 
 ## Runtime-Adaptive Retrieval
@@ -38,6 +40,8 @@ Streaming, carry the relevant mobile and Windows toolchain fields and their
 exact next action from `agent-runtime-awareness.md` into the qualified context
 capsule. Do not collapse installed, configured, accelerated, device-ready, and
 current-turn callable into one readiness claim.
+
+For a Flutter surface, inspect the matching live DevServer registry entry and project target directories/configuration. The capsule must name `active_development_target`, `session_mode`, `logical_run_command`, and live `state`. Treat the registry `flutterDevice` as the active target only while the matching managed session is current; list repository/toolchain targets separately as available, never active by implication. For a Windows live session report `Flutter Windows`, `managed live`, `flutter run -d windows`, and its observed `running` or `stopped` state. For Android, report `Flutter Android`, the resolved device id, `flutter run -d <device-id>`, and whether the target is a connected device or the managed `ShipGlows_API_36` emulator. Preserve the development boundary: live `flutter run` is the normal iterative path, while builds are release or explicit standalone/package-sensitive proof checkpoints.
 
 ### Contextual MCP Path
 

@@ -8,7 +8,6 @@ TARGET_HOME="${HOME:-}"
 SHIPGLOWS_ROOT="${SHIPGLOWS_ROOT:-${HOME:-}/.shipglows/runtime}"
 BACKUP_EXISTING=0
 SKILL_NAME=""
-CLEAN_STALE=0
 CATALOG="public"
 CODEX_ENTRYPOINT="linked"
 
@@ -24,7 +23,7 @@ Usage: tools/shipglows_sync_skills.sh [--check|--repair] (--all|--skill <name>) 
 
 Options:
   --runtime claude|codex|all      Runtime directory to check or repair (default: all)
-  --catalog public|expert|all     Public skills (default), internal engines, or both
+  --catalog public|expert         Mutually exclusive public skills (default) or internal engines
   --codex-entrypoint linked|plugin
                                  Keep the live linked router (developer default), or defer the
                                  public router name to the installed Codex plugin
@@ -32,7 +31,6 @@ Options:
   --shipglows-root <path>         ShipGlows repository root (default: $SHIPGLOWS_ROOT or $HOME/.shipglows/runtime)
   --shipglows-root <path>          Legacy alias for --shipglows-root
   --backup-existing               Move non-symlink targets aside before repair
-  --clean-stale                   Remove stale symlinks in runtime skill dirs that point into ShipGlows skills
   -h, --help                      Show this help
 USAGE
 }
@@ -148,7 +146,7 @@ is_public_target() {
     list_public_pairs | cut -d'|' -f1 | grep -Fxq -- "$target"
 }
 
-clean_stale_runtime_links() {
+reconcile_catalog_links() {
     local runtime="$1"
     local target_dir
     local link_path
@@ -156,8 +154,7 @@ clean_stale_runtime_links() {
     local resolved_skills
     local base
 
-    [ "$MODE" = "repair" ] || return 0
-    [ "$CLEAN_STALE" -eq 1 ] || return 0
+    [ "$SCOPE" = "all" ] || return 0
 
     target_dir="$(runtime_dir "$runtime")" || fail "invalid runtime: $runtime"
     [ -d "$target_dir" ] || return 0
@@ -180,14 +177,19 @@ clean_stale_runtime_links() {
         fi
         case "$resolved_target" in
             "$resolved_skills"/*)
-                if [ ! -f "$resolved_target/SKILL.md" ] || { [ "$CATALOG" = "public" ] && ! is_public_target "$base"; }; then
+                if [ ! -f "$resolved_target/SKILL.md" ] || { [ "$CATALOG" = "public" ] && ! is_public_target "$base"; } || { [ "$CATALOG" = "expert" ] && is_public_target "$base"; }; then
+                    if [ "$MODE" = "check" ]; then
+                        blocked=$((blocked + 1))
+                        log "conflict runtime=$runtime skill=$base target=$link_path reason=excluded-by-$CATALOG-catalog"
+                        continue
+                    fi
                     rm -f "$link_path" || {
                         blocked=$((blocked + 1))
                         log "blocked runtime=$runtime skill=$base target=$link_path reason=cannot-remove-invalid-shipglows-symlink"
                         continue
                     }
                     repaired=$((repaired + 1))
-                    log "repaired runtime=$runtime skill=$base target=$link_path reason=removed-invalid-shipglows-symlink"
+                    log "repaired runtime=$runtime skill=$base target=$link_path reason=removed-by-$CATALOG-catalog"
                 fi
                 ;;
         esac
@@ -394,7 +396,6 @@ while [ "$#" -gt 0 ]; do
             shift 2
             ;;
         --backup-existing) BACKUP_EXISTING=1; shift ;;
-        --clean-stale) CLEAN_STALE=1; shift ;;
         -h|--help) usage; exit 0 ;;
         *) fail "unknown argument: $1" ;;
     esac
@@ -403,7 +404,7 @@ done
 [ -n "$TARGET_HOME" ] || fail "HOME is unavailable; use --target-home"
 [ -n "$SHIPGLOWS_ROOT" ] || fail "SHIPGLOWS_ROOT is unavailable; use --shipglows-root"
 case "$RUNTIME" in claude|codex|all) ;; *) fail "invalid runtime: $RUNTIME" ;; esac
-case "$CATALOG" in public|expert|all) ;; *) fail "invalid catalog: $CATALOG" ;; esac
+case "$CATALOG" in public|expert) ;; *) fail "invalid catalog: $CATALOG" ;; esac
 case "$CODEX_ENTRYPOINT" in linked|plugin) ;; *) fail "invalid Codex entrypoint: $CODEX_ENTRYPOINT" ;; esac
 [ -n "$SCOPE" ] || SCOPE="all"
 
@@ -412,13 +413,8 @@ if [ "$SCOPE" = "skill" ]; then
     skill_pairs="$SKILL_NAME|$SKILL_NAME"
 elif [ "$CATALOG" = "public" ]; then
     skill_pairs="$(list_public_pairs)"
-elif [ "$CATALOG" = "expert" ]; then
-    skill_pairs="$(list_expert_skills | awk '{ print $0 "|" $0 }')"
 else
-    skill_pairs="$(
-        list_public_pairs
-        list_expert_skills | awk '{ print $0 "|" $0 }'
-    )"
+    skill_pairs="$(list_expert_skills | awk '{ print $0 "|" $0 }')"
 fi
 
 case "$RUNTIME" in
@@ -431,7 +427,7 @@ case " $runtimes " in
     *" codex "*) reconcile_codex_router_channel || status=1 ;;
 esac
 for runtime in $runtimes; do
-    clean_stale_runtime_links "$runtime" || status=1
+    reconcile_catalog_links "$runtime" || status=1
 done
 for skill_pair in $skill_pairs; do
     skill="${skill_pair%%|*}"

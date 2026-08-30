@@ -10,6 +10,9 @@ CONTRACT = ROOT / "skills" / "references" / "mutation-plan-approval.md"
 STRATEGIC = ROOT / "skills" / "references" / "strategic-choice-contract.md"
 LIFECYCLE = ROOT / "skills" / "references" / "master-workflow-lifecycle.md"
 DELEGATION = ROOT / "skills" / "references" / "master-delegation-semantics.md"
+ROUTER = ROOT / "skills" / "000-shipglows" / "SKILL.md"
+WINDOWS_AGENT_INSTRUCTIONS = ROOT / "cli" / "windows" / "ShipGlows.AgentInstructions.psm1"
+PUBLIC_PLUGIN = ROOT / "plugins" / "shipglows" / "skills" / "shipglows" / "SKILL.md"
 
 
 class MutationPlanApprovalContractTests(unittest.TestCase):
@@ -64,11 +67,10 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         for expected in (
             "🧭 VALIDATION RAPIDE",
             "every criterion below is established",
-            "explicitly requested and unambiguous",
+            "clear, bounded, and unambiguous",
             "exact and resolved",
-            "local-only",
-            "routine",
-            "readily reversible",
+            "few and enumerable",
+            "material direction",
             "one or two sentences",
             "exact action",
             "exact target",
@@ -77,7 +79,7 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         ):
             self.assertIn(expected, self.text)
 
-    def test_fast_validation_excludes_risky_or_external_effects(self) -> None:
+    def test_dedicated_safety_boundaries_are_not_chantier_classifiers(self) -> None:
         for excluded in (
             "overwrite",
             "discard",
@@ -91,7 +93,8 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
             "unrelated changes",
         ):
             self.assertIn(excluded, self.text)
-        self.assertIn("`git push` always requires the full plan", self.text)
+        self.assertIn("Local versus remote is not an approval classifier", self.text)
+        self.assertIn("ordinary `git push`", self.text)
         self.assertIn("Force push retains every stricter gate", self.text)
 
     def test_fast_pressure_scenarios_cover_git_and_replacement_boundaries(self) -> None:
@@ -100,7 +103,7 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
             "MAP-FAST-WORKTREE",
             "MAP-FAST-INELIGIBLE",
             "MAP-FAST-REPLACEMENT",
-            "MAP-REMOTE-PUSH",
+            "MAP-BOUNDED-PUSH",
         ):
             self.assertIn(scenario, self.text)
 
@@ -132,15 +135,72 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         for expected in ("new target, effect, or risk", "prior approval is invalid"):
             self.assertIn(expected, scenario)
 
-    def test_remote_push_always_uses_full_plan_and_force_keeps_stricter_gates(self) -> None:
-        scenario = self._scenario("MAP-REMOTE-PUSH")
-        self.assertIn("every `git push` uses the full", scenario)
-        self.assertIn("force push also retains all stricter", scenario)
+    def test_explicit_bounded_push_executes_directly_and_force_keeps_stricter_gates(self) -> None:
+        scenario = self._scenario("MAP-BOUNDED-PUSH")
+        self.assertIn("ordinary push", scenario)
+        self.assertIn("execute directly", scenario)
+        self.assertIn("force push retains all stricter", scenario)
 
-    def test_small_change_selects_path_from_all_fast_criteria(self) -> None:
+    def test_small_change_uses_direct_request_authority_before_validation(self) -> None:
         scenario = self._scenario("MAP-SMALL-CHANGE")
-        self.assertIn("only when every fast-path criterion is established", scenario)
-        self.assertIn("otherwise it uses the full", scenario)
+        self.assertIn("execute it from the operator's exact request", scenario)
+        self.assertIn("without an approval prompt", scenario)
+        self.assertIn("becomes a chantier", scenario)
+
+    def test_clear_bounded_request_is_authority_for_its_enumerable_actions(self) -> None:
+        for expected in (
+            "## Clear bounded-request authority",
+            "The operator's initial imperative is authority",
+            "does not create or approve a chantier",
+            "few, coherent, and enumerable",
+            "material direction",
+            "targeted file modification",
+            "ordinary exact-scope commit",
+            "ordinary push",
+            "without another approval message",
+            "MAP-BOUNDED-REQUEST",
+            "MAP-BOUNDED-EXPANSION",
+        ):
+            self.assertIn(expected, self.text)
+
+        direct = self._scenario("MAP-BOUNDED-REQUEST")
+        self.assertIn("initial request is the authority", direct)
+        self.assertIn("no validation prompt", direct)
+
+        boundary = self._scenario("MAP-BOUNDED-EXPANSION")
+        self.assertIn("expands materially", boundary)
+        self.assertIn("full plan", boundary)
+
+    def test_authorized_exact_scope_commit_never_gets_a_separate_prompt(self) -> None:
+        for expected in (
+            "An ordinary exact-scope commit records authorized work",
+            "never requires a separate approval prompt",
+            "unrelated and pre-existing changes remain unstaged",
+        ):
+            self.assertIn(expected, self.text)
+
+    def test_direct_authority_is_propagated_to_primary_runtime_surfaces(self) -> None:
+        for path in (ROUTER, WINDOWS_AGENT_INSTRUCTIONS, PUBLIC_PLUGIN):
+            surface = path.read_text(encoding="utf-8")
+            self.assertIn("clear bounded request", surface, str(path))
+            self.assertIn("few", surface, str(path))
+            self.assertIn("material direction", surface, str(path))
+            self.assertIn("does not authorize a chantier", surface, str(path))
+
+    def test_classification_is_invariant_across_reasoning_effort(self) -> None:
+        for expected in (
+            "Classification is invariant across reasoning-effort settings",
+            "request clarity",
+            "enumerable action and target count",
+            "directional discretion",
+            "never the selected reasoning effort",
+            "MAP-EFFORT-INVARIANT",
+        ):
+            self.assertIn(expected, self.text)
+
+        scenario = self._scenario("MAP-EFFORT-INVARIANT")
+        for effort in ("low", "medium", "high", "xhigh"):
+            self.assertIn(f"`{effort}`", scenario)
 
     def test_supplied_link_register_append_uses_original_request_authority(self) -> None:
         for expected in (
@@ -159,9 +219,10 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         self.assertIn("do not request a second approval", scenario)
         self.assertIn("uses the normal gate", scenario)
 
-    def test_initial_request_never_approves_normal_paths(self) -> None:
-        self.assertIn("Every other mutation requires one of the two approval paths", self.text)
+    def test_initial_request_does_not_approve_a_chantier_or_risky_action(self) -> None:
+        self.assertIn("Every mutation outside clear bounded-request authority", self.text)
         self.assertIn("explicit approval given after its message", self.text)
+        self.assertIn("A clear bounded request never authorizes a chantier", self.text)
 
     def test_v_is_a_bounded_immediate_approval_shortcut(self) -> None:
         for expected in (
@@ -244,7 +305,7 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
             "resolved unambiguous upstream",
             "substantive editorial judgment",
             "broad mixed-scope consolidation",
-            "`git push` always requires a full plan",
+            "explicitly requested ordinary push may use clear bounded-request authority",
             "MAP-TECHNICAL-COMMIT",
             "MAP-MILESTONE-COMMIT",
             "MAP-COMMIT-BOUNDARY",

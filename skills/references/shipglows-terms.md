@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-26"
-updated: "2026-06-29"
+updated: "2026-08-27"
 status: active
 source_skill: 000-shipglows
 scope: shared-terminology
@@ -35,6 +35,7 @@ evidence:
   - "Operator request 2026-06-29: add traffic-manager profile routing and acquisition-focused recentering tags."
   - "Operator decision 2026-06-29: name the traffic-manager profile Tariq."
   - "Operator decision 2026-08-20: add #local, #nolocal, and #ci as transversal execution posture tags while retaining nolocal mode syntax as compatibility only."
+  - "Operator decision 2026-08-27: shipglows is the DX-system repository for skills, CLI/DevServer, TUI, local tooling, installers, and internal governance; shipglows_app separately owns the public site and SaaS."
 next_review: "2026-07-11"
 next_step: "/103-sg-verify shared terminology routing"
 ---
@@ -45,12 +46,15 @@ Use these names consistently when users talk to ShipGlows through skills or othe
 
 ## Canonical Terms
 
-- `ShipGlows` or `ShipGlows system`: the combined package of CLI scripts, skills, local tooling, and documentation.
-- `ShipGlows Dev Server`: the server-side CLI layer that manages environments and runtime behavior. Unless the user says otherwise, this means:
+- `ShipGlows DX system` or `ShipGlows system` in Core/maintenance context: the `shipglows` repository package of skills and doctrine, CLI/DevServer, TUI, local tooling, environment control, installers, packaging, and internal governance.
+- `shipglows_app`: the separate product repository that owns the public website and SaaS. It is not a Core DX mutation surface, even when its desired outcomes are quoted as evidence inside hard Core context.
+- `ShipGlows Dev Server`: the cross-platform CLI/runtime layer that manages environments and development-server behavior. Unless the user says otherwise, this means:
   - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/shipglows.sh`
   - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/lib.sh`
   - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/config.sh`
   - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/install.sh`
+  - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/windows/`
+  - `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/install-shipglows.ps1`
 - `ShipGlows TUI`: the terminal user interface under `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tui/`.
 - `ShipGlows local tools`: the local connection and tunnel helpers under `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/local/`.
 - `ShipGlows skills`: the skill system under `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/skills/`.
@@ -62,6 +66,8 @@ When a user says `Dev Server` while talking to ShipGlows, interpret it as `ShipG
 When a user mentions the terminal UI, interpret it as `ShipGlows TUI` by default.
 
 If the user names another project explicitly, keep that project as the target and treat ShipGlows as the reference system only.
+
+Inside explicit `$shipglows core` context, later project names cannot replace the hard DX target. `shipglows_app` language may describe evidence about DX behavior, but actual site/SaaS work exits Core and uses the product's normal owner route.
 
 ## Focus Tags
 
@@ -144,7 +150,7 @@ Explicit feature hints use the `#feature:<term>` form only. They are routing hin
 | `#onboarding` | Recenter on first success, setup order, recoverable states, and adoption guidance | `$SHIPGLOWS_ROOT/skills/008-sg-customer/SKILL.md` |
 | `#routing` | Recenter on owner-skill selection and direct handoff rules | `$SHIPGLOWS_ROOT/skills/references/entrypoint-routing.md` |
 | `#proof` | Recenter on proof paths, validation proportion, and evidence claims | `$SHIPGLOWS_ROOT/skills/references/spec-driven-development-discipline.md` |
-| `#shipglows-core` | Recenter on ShipGlows system hardening, skill fidelity, and internal doctrine | `$SHIPGLOWS_ROOT/skills/900-shipglows-core/SKILL.md` |
+| `#shipglows-core` | Recenter on ShipGlows DX-system maintenance across skills, CLI/DevServer/TUI runtime, coherence, and packaging | `$SHIPGLOWS_ROOT/skills/900-shipglows-core/SKILL.md` |
 
 ## Tag Rule
 
