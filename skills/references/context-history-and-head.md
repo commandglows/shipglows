@@ -15,6 +15,7 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - tools/context_history.py
+  - tools/code_context_graph.py
   - skills/references/context-quality-contract.md
   - skills/301-sg-context/SKILL.md
   - skills/304-sg-changelog/SKILL.md
@@ -53,6 +54,8 @@ Use this contract when the selected Git project contains `shipglows_data/` or ex
 Before broad repository reconstruction, run `check` when a cache exists. A branch, HEAD, worktree, staged, unstaged, or untracked fingerprint change makes it stale. Regenerate from current Git state and the event corpus before use; never report a stale cache as current.
 
 Read the generated head as a discovery and resume view, then revalidate decision-changing claims against their canonical sources. Do not reload the whole repository when only one dependent claim was invalidated.
+
+Context Head generation combines the recent semantic event window with the native derived code graph. Up to eight recent event file references seed a depth-one query capped at 40 nodes and 20 related source pointers. The generated section reports truncation explicitly. The graph is a disposable discovery index, never canonical truth; an unavailable graph degrades to targeted canonical retrieval without making history unreadable.
 
 Default bounds are 30 significant events and 16,000 characters. Increasing them requires evidence that the smaller projection omitted a decision-changing item; file or token volume is never a quality target.
 
