@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.28.0"
+artifact_version: "0.29.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-08-30"
@@ -44,6 +44,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "2026-08-30 Flutter live-development update: native Windows and Android use supervised registry-selected targets and reserve standalone builds for release or package-sensitive checks."
   - "2026-08-27 DX ownership decision: 900-shipglows-core maintains skills/doctrine, CLI/DevServer/TUI runtime, installers, coherence, and packaging inside shipglows; shipglows_app separately owns the public site and SaaS."
   - "2026-08-27 approval-boundary correction: clear bounded requests execute directly with focused proof when actions and targets are few and enumerable and no material direction must be chosen; local/remote location and reasoning effort do not change classification."
   - "2026-07-17 atomic routing update: deterministic micro-edits execute directly with focused validation instead of loading a lifecycle skill."
@@ -263,7 +264,8 @@ retourné par GitHub, puis télécharge uniquement l'archive immuable de ce comm
 
 In an interactive Windows console, the bootstrap asks for SSH tunnels or the
 recommended local DevServer. The DevServer installs only the native PowerShell
-runtime for Astro, Vite, Python/FastAPI, and Flutter Web, prepares Git, GitHub CLI,
+runtime for Astro, Vite, Python/FastAPI, and Flutter applications targeting Web,
+Windows desktop, or Android, prepares Git, GitHub CLI,
 Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid external
 Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
 their environment variables or `PATH`; a validated ShipGlows-managed Flutter SDK
@@ -404,7 +406,7 @@ and the Linux `urls` menu are intentionally not part of this path.
 
 The Windows DevServer discovers runnable surfaces from native manifests rather
 than folder names. A repository or explicitly registered monorepo can expose
-separate Astro, Vite, Python/FastAPI, and Flutter Web surfaces; each surface is
+separate Astro, Vite, Python/FastAPI, and Flutter surfaces; each surface is
 registered with its own stable display name, persistent localhost port, logs,
 and `ENVIRONMENT.md`. Discovery is bounded to four workspace levels and three
 levels below a project root, and skips dependency, build, cache, and hidden
@@ -427,8 +429,16 @@ canonical launch identity rather than by a potentially ambiguous label.
 Port selection and reservation share one inter-process registry lock, preventing
 concurrent starts from assigning the same port to different surfaces. Existing
 single-surface registry entries are migrated by runnable path while preserving
-verified live process metadata. Flutter Web runs through a small persistent
-machine-protocol supervisor with managed logs and headless Chrome by default.
+verified live process metadata. Flutter runs through a small persistent
+machine-protocol supervisor with managed logs. Iterative development uses the
+registry-selected live target instead of rebuilding the application: Windows
+desktop defaults to `flutter run -d windows`; Android honors an explicitly
+selected connected device, reuses a ready Android target, or starts the provisioned
+`ShipGlows_API_36` emulator and waits for its resolved device id. A managed Desktop
+Dev shortcut starts or reuses that supervised session. Standalone Windows builds,
+APKs, and AABs remain release or package-sensitive validation checkpoints.
+
+Flutter Web keeps headless Chrome as its default managed target.
 The full installer exposes its validated Playwright Chromium through the standard
 `CHROME_EXECUTABLE` user environment variable, and the supervisor passes only
 that existing ShipGlows-managed executable to Flutter's `chrome` device.
