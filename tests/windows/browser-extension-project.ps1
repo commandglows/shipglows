@@ -100,6 +100,8 @@ try {
     Assert-Sg ($environmentText -match 'Unpacked Chrome directory: `dist/chrome`') 'Extension environment omitted the unpacked Chrome target.'
 
     $runtime = Join-Path $fixture 'runtime'
+    $staleRoot = Join-Path $fixture 'deleted-worktree-residue'
+    New-Item -ItemType Directory -Path (Join-Path $staleRoot 'app') -Force | Out-Null
     New-Item -ItemType Directory -Path $runtime -Force | Out-Null
     $config = [pscustomobject]@{
         Workspace = $fixture
@@ -109,15 +111,22 @@ try {
     }
     $staleRegistry = [pscustomobject]@{
         schemaVersion = 1
-        projects = @([pscustomobject]@{
-            name='toolglows'; path=$extension; rootPath=$extension; launchPath=$extension; kind='vite'; port=0; status='stopped'; pid=0
-        })
+        projects = @(
+            [pscustomobject]@{
+                name='toolglows'; path=$extension; rootPath=$extension; launchPath=$extension; kind='vite'; port=0; status='stopped'; pid=0
+            },
+            [pscustomobject]@{
+                name='deleted-worktree-site'; path=(Join-Path $staleRoot 'site'); rootPath=$staleRoot; launchPath=(Join-Path $staleRoot 'site'); kind='astro'; port=0; status='stopped'; pid=0
+            }
+        )
     }
     [IO.File]::WriteAllText($config.RegistryPath, ($staleRegistry | ConvertTo-Json -Depth 6), [Text.UTF8Encoding]::new($false))
     $migratedPaths = @(Sync-SgRegisteredProjectEnvironments $config)
     $migratedEntry = @((Read-SgRegistry $config).projects | Where-Object { $_.path -eq $extension }) | Select-Object -First 1
     Assert-Sg ($migratedPaths -contains $extension) 'Installer synchronization omitted the registered extension path.'
     Assert-Sg ($migratedEntry -and $migratedEntry.kind -eq 'browser-extension') 'Installer synchronization left the registry on its stale Vite kind.'
+    Assert-Sg ($migratedPaths -notcontains (Join-Path $staleRoot 'site')) 'Installer synchronization retained a vanished launch surface from a residual project root.'
+    Assert-Sg (@((Read-SgRegistry $config).projects | Where-Object { $_.rootPath -eq $staleRoot }).Count -eq 1) 'Synchronization must preserve stale registry history until an explicit unregister action.'
 
     Write-Host 'Windows browser-extension project support: OK'
 } finally {
