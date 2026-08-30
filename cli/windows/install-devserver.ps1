@@ -861,8 +861,8 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady, 
     $choice = ''
     $definitions = @{
         Codex    = @{ Package='@openai/codex'; Command='codex.cmd'; Paths=$codexPaths }
-        Claude   = @{ Package='@anthropic-ai/claude-code'; Command='claude.cmd'; Paths=$claudePaths }
-        OpenCode = @{ Package='opencode-ai'; Command='opencode.cmd'; Paths=$opencodePaths }
+        Claude   = @{ Package='@anthropic-ai/claude-code'; Command='claude.cmd'; Paths=$claudePaths; PostInstall='install.cjs' }
+        OpenCode = @{ Package='opencode-ai'; Command='opencode.cmd'; Paths=$opencodePaths; PostInstall='postinstall.mjs' }
         Kilo     = @{ Package='@kilocode/cli'; Command='kilo.cmd'; Paths=@($kiloPaths + $kilocodePaths) }
         Gemini   = @{ Package='@google/gemini-cli'; Command='gemini.cmd'; Paths=$geminiPaths }
     }
@@ -890,7 +890,17 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady, 
             $version = if ($resolvedVersions[$name]) { $resolvedVersions[$name] } else { Resolve-SgNpmVersion $NpmPath $definition.Package }
             $install = Invoke-SgVisibleBoundedProcess -OperationId ("agent." + $name.ToLowerInvariant()) -Label ("Installing $name CLI $version") -File $NpmPath -Arguments @('install','--global',"$($definition.Package)@$version",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 900
             $ready = -not $install.TimedOut -and $install.ExitCode -eq 0 -and (Test-SgToolRuns $definition.Command $definition.Paths)
+            if (-not $ready -and $definition.PostInstall) {
+                $prefix = Invoke-SgBoundedProcess $NpmPath @('prefix','--global') 30
+                $node = Get-SgToolPath 'node.exe' $nodePaths
+                $postInstallPath = if (-not $prefix.TimedOut -and $prefix.ExitCode -eq 0) { Join-Path (Join-Path $prefix.Output.Trim() 'node_modules') (($definition.Package + '/' + $definition.PostInstall).Replace('/','\')) } else { '' }
+                if ($node -and $postInstallPath -and (Test-Path -LiteralPath $postInstallPath -PathType Leaf)) {
+                    $postInstall = Invoke-SgVisibleBoundedProcess -OperationId ("agent." + $name.ToLowerInvariant() + '.postinstall') -Label ("Completing $name CLI $version native installation") -File $node -Arguments @($postInstallPath) -TimeoutSeconds 900
+                    $ready = -not $postInstall.TimedOut -and $postInstall.ExitCode -eq 0 -and (Test-SgToolRuns $definition.Command $definition.Paths)
+                }
+            }
             if (-not $ready) { Write-SgInstallerWarning "$name CLI exact-version installation or executable verification failed." }
+            if ($UpdateApproved -and -not $ready) { throw "$name CLI update failed final executable verification." }
         } catch { Write-SgInstallerWarning "$name CLI remains pending: $($_.Exception.Message)" }
     }
     return @{
@@ -908,6 +918,42 @@ function Invoke-SgProjectEnvironmentMigration([string]$ModulePath) {
     $projectPaths = @(Sync-SgRegisteredProjectEnvironments $config)
     Write-Host "ShipGlows registered projects synchronized: $($projectPaths.Count)" -ForegroundColor Green
     return $projectPaths
+}
+
+function Get-SgRecordedMobileEnvironmentState {
+    $environmentPath = Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'environment.md'
+    $values = @{}
+    if (Test-Path -LiteralPath $environmentPath -PathType Leaf) {
+        foreach ($line in Get-Content -LiteralPath $environmentPath) {
+            if ($line -match '^- ([^:]+):\s*(.+)$') { $values[$matches[1]] = $matches[2].Trim() }
+        }
+    }
+    $isYes = { param([string]$Name) $values.ContainsKey($Name) -and $values[$Name] -eq 'yes' }
+    return [pscustomobject]@{
+        FlutterReady = & $isYes 'Flutter and Dart installed'
+        AndroidInfo = [pscustomobject]@{
+            ToolchainReady = & $isYes 'Android toolchain ready'
+            LicensesReady = & $isYes 'Android licenses ready'
+            DeviceReady = & $isYes 'Android device ready'
+            EmulatorInstalled = & $isYes 'Android emulator installed'
+            AvdReady = & $isYes 'Android virtual device ready'
+            EmulatorAccelerationReady = & $isYes 'Android emulator acceleration ready'
+            NdkReady = & $isYes 'Tauri Android NDK ready'
+        }
+        IdeInfo = [pscustomobject]@{
+            AndroidStudioReady = & $isYes 'Android Studio installed'
+            VisualStudioCppReady = & $isYes 'Visual Studio Desktop C++ workload ready'
+            FirebaseDeviceStreamingReady = & $isYes 'Firebase Android Device Streaming configured'
+        }
+        TauriInfo = [pscustomobject]@{
+            Detected = & $isYes 'Tauri Android project detected'
+            HostReady = & $isYes 'Tauri Android host toolchain ready'
+            RustReady = & $isYes 'Tauri Rust toolchain ready'
+            NdkReady = & $isYes 'Tauri Android NDK ready'
+            ProjectStatus = $(if ($values.ContainsKey('Tauri project compatibility')) { $values['Tauri project compatibility'] } else { 'unknown' })
+            Baseline = Get-SgTauriAndroidBaseline
+        }
+    }
 }
 
 function Invoke-SgManagedWingetToolUpdate([object]$Definition) {
@@ -961,6 +1007,10 @@ function Invoke-SgManagedPackageManagerUpdates([string[]]$NpmPaths, [string[]]$C
         if ($corepack) {
             $corepackUpdate = Invoke-SgVisibleBoundedProcess -OperationId 'tool.update.pnpm' -Label ("Updating pnpm to $pnpmVersion with Corepack") -File $corepack -Arguments @('prepare',"pnpm@$pnpmVersion",'--activate') -TimeoutSeconds 300
             $pnpmUpdated = -not $corepackUpdate.TimedOut -and $corepackUpdate.ExitCode -eq 0
+            if ($pnpmUpdated) {
+                Update-SgProcessPath
+                $pnpmUpdated = (Get-SgInstalledCommandVersion 'pnpm.cmd' $PnpmPaths) -eq $pnpmVersion
+            }
         }
         if (-not $pnpmUpdated) {
             $pnpmUpdate = Invoke-SgVisibleBoundedProcess -OperationId 'tool.update.pnpm-fallback' -Label ("Updating pnpm to $pnpmVersion with npm") -File $npm -Arguments @('install','--global',"pnpm@$pnpmVersion",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 900
@@ -1520,9 +1570,8 @@ function Install-SgWindowsIdeToolchains([bool]$FlutterReady, [string[]]$FlutterP
 
 function Install-SgPlaywrightChromiumForAgents([bool]$AnyAgentReady, [string]$NpmPath, [string]$NpxPath) {
     if (-not $AnyAgentReady -or -not $NpmPath -or -not $NpxPath) { return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
-    $resolved = Invoke-SgBoundedProcess $NpmPath @('view','@playwright/mcp','version','--json','--registry=https://registry.npmjs.org/') 45
-    $version = if (-not $resolved.TimedOut -and $resolved.ExitCode -eq 0) { $resolved.Output.Trim().Trim('"') } else { '' }
-    if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { Write-SgInstallerWarning 'Playwright MCP exact version resolution failed; no agent config was changed.'; return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
+    try { $version = Resolve-SgNpmVersion $NpmPath '@playwright/mcp' }
+    catch { Write-SgInstallerWarning 'Playwright MCP exact version resolution failed; no agent config was changed.'; return [pscustomobject]@{ Ready=$false; Version=''; ChromiumPath='' } }
     $managedRoot = Join-Path $env:LOCALAPPDATA "ShipGlows\node-tools\playwright-mcp-$version"
     $packageJson = Join-Path $managedRoot 'node_modules\@playwright\mcp\package.json'
     if (-not (Test-Path $packageJson -PathType Leaf)) {
@@ -1717,7 +1766,11 @@ function Set-SgFlutterChromeExecutable([string]$BrowserPath) {
 
 function Resolve-SgNpmVersion([string]$NpmPath, [string]$PackageName) {
     $result = Invoke-SgBoundedProcess $NpmPath @('view',$PackageName,'version','--json','--registry=https://registry.npmjs.org/') 45
-    $version = if (-not $result.TimedOut -and $result.ExitCode -eq 0) { $result.Output.Trim().Trim('"') } else { '' }
+    if ($result.TimedOut -or $result.ExitCode -ne 0) { throw "Exact version resolution failed for $PackageName." }
+    try {
+        $resolved = @($result.Output | ConvertFrom-Json)
+        $version = if ($resolved.Count -eq 1) { [string]$resolved[0] } else { '' }
+    } catch { $version = '' }
     if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') { throw "Exact version resolution failed for $PackageName." }
     return $version
 }
@@ -1886,6 +1939,15 @@ if ($UpdateDeveloperTools) {
 [void](Complete-SgInstallerPhase $corePhase)
 $playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
 [void](Set-SgFlutterChromeExecutable $playwrightRuntime.BrowserPath)
+if ($UpdateDeveloperTools) {
+    Write-Host 'Preserving recorded mobile and IDE state; developer-tool updates do not run SDK, licence, emulator, or IDE convergence.' -ForegroundColor Green
+    $recordedMobileState = Get-SgRecordedMobileEnvironmentState
+    $flutterReady = [bool]$recordedMobileState.FlutterReady
+    $androidInfo = $recordedMobileState.AndroidInfo
+    $ideInfo = $recordedMobileState.IdeInfo
+    $tauriInfo = $recordedMobileState.TauriInfo
+    $tauriState = [pscustomobject]@{ IsTauri=$false; Status='preserved'; ProjectRoot=''; Differences=@() }
+} else {
 $mobilePhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.mobile-toolchains' -Label 'Inspecting and preparing mobile toolchains' -TimeoutSeconds 7200) -EventSink $installerEventSink
 $script:activeInstallerPhase = $mobilePhase
 $flutterReady = Install-SgFlutter $flutterPaths $gitPaths
@@ -1911,6 +1973,7 @@ if ($tauriState.IsTauri -and $tauriExistingNdkReady) { $androidInfo | Add-Member
 $tauriInfo = Install-SgTauriAndroidToolchain -ProjectState $tauriState -InstallApproved $tauriInstallApproved -AndroidInfo $androidInfo
 $ideInfo = Install-SgWindowsIdeToolchains $flutterReady $flutterPaths
 [void](Complete-SgInstallerPhase $mobilePhase)
+}
 
 Write-Host ''
 $agentPhase = Start-SgInstallerPhase -Operation (New-SgInstallerOperation -Id 'phase.coding-agents' -Label 'Preparing coding-agent CLIs and MCPs' -TimeoutSeconds 7200) -EventSink $installerEventSink
