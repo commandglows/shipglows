@@ -41,6 +41,7 @@ Assert-Sg ($source -notmatch 'if\s*\(-not\s+\$InstallSurface\s+-and\s+\$requeste
 Assert-Sg ($source -notmatch '\$InstallSurface\s*=\s*''corpus''') 'The legacy corpus name must never become the Windows maintainer surface.'
 Assert-Sg ($source -match 'if \(\$InstallSurface -eq ''maintainer''\) \{ \$devServerArguments \+= ''-ReplaceAgentConfigs'' \}') 'Only the explicit maintainer surface may request authoritative project MCP replacement and former-global cleanup.'
 Assert-Sg (([regex]::Matches($source, "'-ReplaceAgentConfigs'")).Count -eq 1) 'The authoritative agent-config switch must have one gated bootstrap call site.'
+Assert-Sg ($source -notmatch 'ShipGlows\.ProjectCatalogRefresh\.psm1') 'The managed runtime manifest must use the catalog refresher real .ps1 filename.'
 $maintainerBlock = $source.Substring($source.IndexOf("if (`$InstallSurface -eq 'maintainer') {", [StringComparison]::Ordinal))
 $runtimeResolution = $maintainerBlock.IndexOf('$env:SHIPGLOWS_MANAGED_PWSH = Resolve-SgManagedPowerShell', [StringComparison]::Ordinal)
 $channelActivation = $maintainerBlock.IndexOf('Enable-SgWindowsDeveloperChannel', [StringComparison]::Ordinal)
