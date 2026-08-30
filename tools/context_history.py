@@ -27,6 +27,9 @@ MAX_FILES = 5_000
 MAX_EVENTS = 5_000
 DEFAULT_HEAD_EVENTS = 30
 DEFAULT_HEAD_CHARACTERS = 16_000
+MAX_GRAPH_SEEDS = 8
+MAX_GRAPH_NODES = 40
+MAX_GRAPH_POINTERS = 20
 MAX_REFS = 16
 MAX_INVALIDATIONS = 16
 EVENT_ID_RE = re.compile(r"^evt_[a-f0-9]{32}$")
@@ -421,6 +424,70 @@ def _write_atomic(path: Path, content: str) -> None:
     temporary.replace(path)
 
 
+def _code_graph_context(root: Path, events: list[dict[str, Any]]) -> dict[str, Any]:
+    """Build a bounded structural view around recent event references.
+
+    The graph is derived and disposable. Failure to build it must not make the
+    canonical event history unreadable, so expected local I/O/import failures
+    degrade to an explicit unavailable state.
+    """
+    try:
+        try:
+            from tools.code_context_graph import build_graph, query_graph
+        except ModuleNotFoundError:
+            # Direct ``python tools/context_history.py`` execution places the
+            # tools directory, rather than the repository root, on sys.path.
+            from code_context_graph import build_graph, query_graph
+
+        graph = build_graph(root)
+    except (ImportError, OSError, UnicodeError, ValueError, TypeError) as error:
+        return {"status": "unavailable", "reason": type(error).__name__}
+
+    referenced_paths: list[str] = []
+    for event in reversed(events):
+        for reference in event["refs"]:
+            normalized = reference.replace("\\", "/")
+            if normalized in graph["files"] and normalized not in referenced_paths:
+                referenced_paths.append(normalized)
+            if len(referenced_paths) >= MAX_GRAPH_SEEDS:
+                break
+        if len(referenced_paths) >= MAX_GRAPH_SEEDS:
+            break
+
+    query = query_graph(
+        graph,
+        [f"file:{path}" for path in referenced_paths],
+        max_depth=1,
+        max_nodes=MAX_GRAPH_NODES,
+    ) if referenced_paths else {"nodes": [], "edges": [], "truncated": False, "missing_seeds": []}
+    all_pointers = sorted(
+        {
+            str(node["path"])
+            for node in query["nodes"]
+            if node.get("path") and str(node["path"]) in graph["files"]
+        }
+    )
+    pointers = all_pointers[:MAX_GRAPH_POINTERS]
+    digest_payload = {
+        "files": graph["files"],
+        "nodes": graph["nodes"],
+        "edges": graph["edges"],
+    }
+    return {
+        "status": "ready",
+        "schemaVersion": graph["schema_version"],
+        "digest": sha256(_canonical_json(digest_payload).encode("utf-8")).hexdigest(),
+        "fileCount": len(graph["files"]),
+        "nodeCount": len(graph["nodes"]),
+        "edgeCount": len(graph["edges"]),
+        "seedRefs": referenced_paths,
+        "queryNodeCount": len(query["nodes"]),
+        "queryEdgeCount": len(query["edges"]),
+        "relatedPointers": pointers,
+        "truncated": bool(query["truncated"] or len(all_pointers) > MAX_GRAPH_POINTERS),
+    }
+
+
 def generate_context_head(
     project_root: str | Path,
     *,
@@ -435,6 +502,7 @@ def generate_context_head(
     root = resolve_project_root(project_root)
     snapshot = git_snapshot(root)
     events = load_events(root)[-max_events:]
+    code_graph = _code_graph_context(root, events)
     generated_at = _utc_timestamp()
     latest_next = next((event.get("nextAction") for event in reversed(events) if event.get("nextAction")), None)
     invalidations: list[str] = []
@@ -465,6 +533,22 @@ def generate_context_head(
             lines.append(f"- `{event['occurredAt']}` · `{event['kind']}` · {event['summary']} · `{event['id']}`")
     else:
         lines.append("- No significant event has been recorded yet.")
+    lines.extend(["", "## Code context", ""])
+    if code_graph["status"] == "ready":
+        lines.append(
+            f"- Derived graph: `{code_graph['fileCount']}` files, `{code_graph['nodeCount']}` nodes, "
+            f"`{code_graph['edgeCount']}` edges."
+        )
+        lines.append(
+            f"- Recent-reference query: `{code_graph['queryNodeCount']}` nodes, "
+            f"`{code_graph['queryEdgeCount']}` edges, truncated: `{str(code_graph['truncated']).lower()}`."
+        )
+        if code_graph["relatedPointers"]:
+            lines.extend(f"- `{path}`" for path in code_graph["relatedPointers"])
+        else:
+            lines.append("- No recent event reference maps to a supported source file.")
+    else:
+        lines.append(f"- Derived graph unavailable (`{code_graph['reason']}`); use canonical targeted retrieval.")
     lines.extend(["", "## Invalidated context", ""])
     if invalidations:
         lines.extend(f"- {item}" for item in invalidations[-MAX_INVALIDATIONS:])
@@ -482,6 +566,7 @@ def generate_context_head(
         "generatedAt": generated_at,
         "git": asdict(snapshot),
         "eventIds": [event["id"] for event in events],
+        "codeGraph": code_graph,
         "markdownSha256": sha256(markdown.encode("utf-8")).hexdigest(),
     }
     if write_cache:

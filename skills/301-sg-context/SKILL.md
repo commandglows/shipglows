@@ -25,7 +25,7 @@ Default to concise `report=user`. Use `report=agent` only for an explicit handof
 
 Prime one known task with the minimum sufficient context for a correct next decision. Load `$SHIPGLOWS_ROOT/skills/references/context-quality-contract.md` and return its qualified `Context Capsule` plus verdict.
 
-When the project adopts structured context history, load `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md`. Check and prefer a fresh bounded Context Head before broader retrieval; regenerate it only with applicable mutation authority, otherwise render it with `--no-write`. Revalidate material claims against canonical sources before `context_ready`.
+When the project adopts structured context history, load `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md`. Check and prefer a fresh bounded Context Head before broader retrieval; its generated code-context section already combines recent event references with the native bounded graph. Regenerate it only with applicable mutation authority, otherwise render it with `--no-write`. Revalidate material claims against canonical sources before `context_ready`.
 
 Route skill/workflow selection to `000-shipglows`, active-work continuation to `706-continue`, and cross-project status to `308-sg-status`. Empty task input asks one plain-language target question.
 

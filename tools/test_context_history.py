@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 import json
 import subprocess
 import unittest
+from unittest.mock import patch
 
 from tools.context_history import (
     ContextHistoryError,
@@ -142,6 +143,43 @@ class ContextHistoryTests(unittest.TestCase):
             self.assertEqual(result.event_count, 30)
             self.assertIn("Continue with 44", result.markdown)
             self.assertNotIn("Meaningful change 0\n", result.markdown)
+
+    def test_head_combines_recent_history_with_bounded_code_graph(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repository(root)
+            source = root / "service.py"
+            source.write_text("def publish_content():\n    return True\n", encoding="utf-8")
+            git(root, "add", "service.py")
+            git(root, "commit", "-m", "add service")
+            append_event(
+                root,
+                "fixture",
+                "CONTEXT_CHANGE",
+                "Publish flow changed",
+                refs=["service.py"],
+            )
+
+            result = generate_context_head(root)
+            metadata = json.loads(result.metadata_path.read_text(encoding="utf-8"))
+
+            self.assertIn("## Code context", result.markdown)
+            self.assertIn("`service.py`", result.markdown)
+            self.assertEqual(metadata["codeGraph"]["status"], "ready")
+            self.assertEqual(metadata["codeGraph"]["seedRefs"], ["service.py"])
+            self.assertLessEqual(metadata["codeGraph"]["queryNodeCount"], 40)
+
+    def test_head_degrades_safely_when_code_graph_is_unavailable(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repository(root)
+            append_event(root, "fixture", "CONTEXT_DECISION", "Keep history readable")
+
+            with patch("tools.code_context_graph.build_graph", side_effect=OSError("unavailable")):
+                result = generate_context_head(root)
+
+            self.assertIn("Derived graph unavailable", result.markdown)
+            self.assertIn("Keep history readable", result.markdown)
 
 
 if __name__ == "__main__":
