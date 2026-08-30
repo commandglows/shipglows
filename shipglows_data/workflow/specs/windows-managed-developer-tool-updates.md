@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.1"
+artifact_version: "1.1.2"
 project: ShipGlows
 created: "2026-08-30"
 created_at: "2026-08-30 08:24:00 UTC"
 updated: "2026-08-30"
-updated_at: "2026-08-30 08:46:13 UTC"
+updated_at: "2026-08-30 11:00:08 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -38,6 +38,7 @@ supersedes: []
 evidence:
   - "Operator approval 2026-08-30: ShipGlows should own controlled Windows updates for its global developer toolchain, separately from ShipGlows self-update and project dependency updates."
   - "Current runtime inspection: s update reruns the full installer, but existing WinGet tools and pnpm are treated as already installed and skipped rather than checked for upgrades."
+  - "Public-content follow-up commit a0b49ec prepares paired EN/FR article drafts and permanent docs copy without publishing an availability claim before installed-host proof."
 next_step: "Obtain separate authority for a real branch bootstrap and interactive developer-tool convergence proof."
 ---
 
@@ -200,6 +201,7 @@ None. The operator approved the separate global-tool route, explicit preview/con
 | 2026-08-30 | 900-shipglows-core | GPT-5 Codex | Implemented separate Windows `tools status|update` routes, exact allowlisted WinGet handling, exact npm/pnpm convergence, existing-agent updates, and mapped documentation. | implemented | Run focused and complete Windows verification. |
 | 2026-08-30 | 103-sg-verify | GPT-5 Codex | Passed the focused update contract, PowerShell parsing, complete Windows static contract, metadata lint, and diff checks without executing package mutation. | partial | Publish the branch, then run a separately authorized real-host bootstrap and interactive update proof. |
 | 2026-08-30 | 900-shipglows-core | GPT-5 Codex | Published validated implementation commit `11363b6` to `origin/codex/development-runtime` without staging the operator's unrelated dirty file. | delivered | Obtain separate authority for installed-host convergence proof; keep 103 partial and closure pending. |
+| 2026-08-30 | 900-shipglows-core | GPT-5 Codex | Prepared the public Windows toolchain story in English and French, permanent runtime documentation, claim boundaries, and changelog projection; site commit `a0b49ec` keeps both articles in draft. | delivered | Keep publication gated by installed-host convergence and release proof. |
 
 ## Current Chantier Flow
 

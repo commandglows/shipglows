@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.14.0"
+artifact_version: "0.15.0"
 project: "shipglows"
 created: "2026-04-25"
 updated: "2026-08-30"
@@ -21,6 +21,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "The 2026-08-30 changelog records the separate native Windows developer-tool status and update surfaces, with public publication held for installed-host proof."
   - "The 2026-08-30 changelog records global managed-repository closure changelog classification and the shared Context History runtime."
   - "The 2026-08-26 changelog records latest-build artifact access and the native Windows Auth0 CLI integration."
   - "The 2026-08-26 changelog records native Windows Doppler CLI access and the agent secret-use boundary."
@@ -31,6 +32,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-08-30]
 
 ### Added
+- Added separate native Windows commands to preview and update ShipGlows-owned global developer tools without touching project dependencies. The updater uses exact WinGet package IDs and exact npm/pnpm targets, requires confirmation, never runs `winget upgrade --all`, and remains pending installed-host proof before public release publication.
 - Added a shared Context History and bounded Context Head for ShipGlows-managed repositories, plus a mandatory closure changelog classification that distinguishes public-ready, internal-only, not-applicable, and review-needed outcomes without exposing internal history or claiming publication before delivery proof.
 
 ## [2026-08-26]
