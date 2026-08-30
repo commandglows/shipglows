@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.32.0"
+artifact_version: "1.33.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-28"
+updated: "2026-08-30"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
   - "Unified update replay 2026-08-28: `shipglows update` selects the stable or linked channel, `s update status` reports the active Windows source, and a dirty linked worktree refuses bootstrap without stashing."
   - "Installed ToolGlows replay 2026-08-28: managed process identity compares UTC instants across Windows PowerShell string and PowerShell 7 DateTime JSON representations, so live projects no longer reconcile to stopped immediately after Start."
   - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and CRXJS Chrome extensions with exact next actions instead of exposing internal project kinds."
@@ -490,6 +491,21 @@ version-drifted coding-agent CLIs, installs only accepted exact versions, and
 never infers upgrade consent in non-interactive mode. This is the supported
 refresh path; the already-installed `cli/windows/install-devserver.ps1` only
 copies its current local source and must not be treated as a network updater.
+
+Windows exposes a separate global developer-tool surface through
+`shipglows tools status|update` and `s tools status|update`. Status is read-only:
+it shows the declared ShipGlows-owned scope, asks WinGet for its available
+upgrade preview, and compares installed npm/pnpm versions with exact stable
+registry coordinates. Update requires an interactive confirmation and invokes
+the already-installed full convergence engine without downloading or switching
+the ShipGlows source channel. WinGet mutations are restricted to the exact
+allowlist for Git, GitHub CLI, Node LTS, mise, uv, Google Cloud CLI, and Doppler;
+npm and pnpm targets are resolved and installed as exact registry versions.
+Normal convergence then repairs and verifies managed wrappers, coding agents,
+service CLIs, Playwright, MCP configuration, and the environment report. The
+route never uses `winget upgrade --all` and never changes project manifests,
+lockfiles, dependencies, `node_modules`, credentials, SDK licences, IDEs,
+Windows Update, or restart policy.
 
 On Windows, the DevServer header immediately renders the cached ShipGlows
 runtime status and refreshes it asynchronously at most once per six hours.

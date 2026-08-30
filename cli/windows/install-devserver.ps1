@@ -3,7 +3,8 @@ param(
     [string]$ShipglowsDir = (Join-Path (Join-Path $env:USERPROFILE '.shipglows') 'runtime'),
     [string]$Workspace = (Join-Path $env:USERPROFILE 'ShipGlows'),
     [switch]$SkipProfile,
-    [switch]$ReplaceAgentConfigs
+    [switch]$ReplaceAgentConfigs,
+    [switch]$UpdateDeveloperTools
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,6 +19,7 @@ if ($PSVersionTable.PSEdition -ne 'Core') {
     $reentryArguments = @('-NoLogo','-NoProfile','-File',$PSCommandPath,'-ShipglowsDir',$ShipglowsDir,'-Workspace',$Workspace)
     if ($SkipProfile) { $reentryArguments += '-SkipProfile' }
     if ($ReplaceAgentConfigs) { $reentryArguments += '-ReplaceAgentConfigs' }
+    if ($UpdateDeveloperTools) { $reentryArguments += '-UpdateDeveloperTools' }
     & $managedPowerShell @reentryArguments
     exit $LASTEXITCODE
 }
@@ -854,7 +856,7 @@ function Get-SgInstalledCommandVersion([string]$CommandName, [string[]]$KnownPat
     return $(if ($match.Success) { $match.Groups[1].Value } else { '' })
 }
 
-function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady) {
+function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady, [bool]$UpdateApproved = $false) {
     $interactive = [Environment]::UserInteractive -and -not [Console]::IsInputRedirected
     $choice = ''
     $definitions = @{
@@ -876,10 +878,12 @@ function Install-SgMissingAgentClis([string]$NpmPath, [hashtable]$CurrentReady) 
         } catch { Write-SgInstallerWarning "$name CLI version comparison remains pending: $($_.Exception.Message)" }
     }
     $initial = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice ''
-    if ($initial.Ask) {
+    if ($initial.Ask -and -not $UpdateApproved) {
         $choice = Read-SgVisibleInstallerConsent -Interactive $interactive -Missing @($initial.Missing) -Outdated @($initial.Outdated) -Subject 'coding-agent CLIs' -Guidance 'ShipGlows installs only the CLI binaries; authentication and provider credentials remain yours.' -Prompt 'Install the missing or update the outdated coding-agent CLIs now? [y/N]' -OperationId 'input.agent-cli' -Label 'coding-agent CLI consent'
     }
-    $plan = Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice $choice
+    $plan = if ($UpdateApproved) {
+        [pscustomobject]@{ Install=@($initial.Outdated); Status=if(@($initial.Outdated).Count){'install'}else{'ready'} }
+    } else { Get-SgAgentInstallPlan -Interactive $interactive -AgentReady $CurrentReady -AgentOutdated $outdated -Choice $choice }
     foreach ($name in @($plan.Install)) {
         $definition = $definitions[$name]
         try {
@@ -904,6 +908,75 @@ function Invoke-SgProjectEnvironmentMigration([string]$ModulePath) {
     $projectPaths = @(Sync-SgRegisteredProjectEnvironments $config)
     Write-Host "ShipGlows registered projects synchronized: $($projectPaths.Count)" -ForegroundColor Green
     return $projectPaths
+}
+
+function Invoke-SgManagedWingetToolUpdate([object]$Definition) {
+    $winget = Get-SgToolPath 'winget.exe'
+    if (-not $winget) { Write-SgInstallerWarning "WinGet is unavailable; $($Definition.Name) could not be checked for an update."; return $false }
+    if (-not (Test-SgTool $Definition.Command $Definition.Paths)) { return $true }
+
+    $result = Invoke-SgVisibleBoundedProcess -OperationId ("tool.update." + $Definition.Key) -Label ("Updating " + $Definition.Name) -File $winget -Arguments @('upgrade','--id',$Definition.PackageId,'--exact','--source','winget','--accept-package-agreements','--accept-source-agreements','--silent','--disable-interactivity') -TimeoutSeconds 1800
+    Update-SgProcessPath
+    if (-not (Test-SgToolRuns $Definition.Command $Definition.Paths)) {
+        throw "$($Definition.Name) is unavailable after its WinGet update attempt."
+    }
+    if ($result.TimedOut) { throw "$($Definition.Name) WinGet update timed out." }
+    if ($result.ExitCode -ne 0) {
+        Write-SgInstallerWarning "$($Definition.Name) remains usable, but WinGet returned exit code $($result.ExitCode); this can mean no applicable update or a provider-side refusal."
+    }
+    return $true
+}
+
+function Invoke-SgManagedPackageManagerUpdates([string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]]$PnpmPaths) {
+    $npm = Get-SgToolPath 'npm.cmd' $NpmPaths
+    if (-not $npm) { Write-SgInstallerWarning 'npm is unavailable; exact npm and pnpm updates were skipped before normal convergence.'; return }
+    $NpmPath = $npm
+    $prefixResult = Invoke-SgBoundedProcess $npm @('prefix','--global') 30
+    $npmPrefixPath = if (-not $prefixResult.TimedOut -and $prefixResult.ExitCode -eq 0) { $prefixResult.Output.Trim() } else { '' }
+    $updatedNpmPath = if ($npmPrefixPath -and [IO.Path]::IsPathFullyQualified($npmPrefixPath)) { Join-Path $npmPrefixPath 'npm.cmd' } else { '' }
+
+    $npmVersion = Resolve-SgNpmVersion $NpmPath 'npm@latest'
+    $installedNpm = Get-SgInstalledCommandVersion 'npm.cmd' $NpmPaths
+    Write-Host "npm: installed=$(if($installedNpm){$installedNpm}else{'unknown'}) target=$npmVersion" -ForegroundColor Cyan
+    if ($installedNpm -ne $npmVersion) {
+        $npmUpdate = Invoke-SgVisibleBoundedProcess -OperationId 'tool.update.npm' -Label ("Updating npm to $npmVersion") -File $npm -Arguments @('install','--global',"npm@$npmVersion",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 900
+        if ($npmUpdate.TimedOut -or $npmUpdate.ExitCode -ne 0) { throw "npm $npmVersion update failed or timed out." }
+        Update-SgProcessPath
+        $npm = Get-SgToolPath 'npm.cmd' $NpmPaths
+        if (-not $npm) { throw 'npm became unavailable after its update.' }
+    }
+    $verifiedNpm = if ($updatedNpmPath -and (Test-Path -LiteralPath $updatedNpmPath -PathType Leaf)) {
+        $result = Invoke-SgBoundedProcess $updatedNpmPath @('--version') 30
+        $match = if (-not $result.TimedOut -and $result.ExitCode -eq 0) { [regex]::Match($result.Output,'(?<!\d)(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)(?!\d)') } else { $null }
+        if ($match -and $match.Success) { $match.Groups[1].Value } else { '' }
+    } else { Get-SgInstalledCommandVersion 'npm.cmd' $NpmPaths }
+    if ($verifiedNpm -ne $npmVersion) { throw "npm update mismatch: installed=$verifiedNpm target=$npmVersion" }
+
+    $pnpmVersion = Resolve-SgNpmVersion $NpmPath 'pnpm@latest'
+    $installedPnpm = Get-SgInstalledCommandVersion 'pnpm.cmd' $PnpmPaths
+    Write-Host "pnpm: installed=$(if($installedPnpm){$installedPnpm}else{'unknown'}) target=$pnpmVersion" -ForegroundColor Cyan
+    if ($installedPnpm -ne $pnpmVersion) {
+        $corepack = Get-SgToolPath 'corepack.cmd' $CorepackPaths
+        $pnpmUpdated = $false
+        if ($corepack) {
+            $corepackUpdate = Invoke-SgVisibleBoundedProcess -OperationId 'tool.update.pnpm' -Label ("Updating pnpm to $pnpmVersion with Corepack") -File $corepack -Arguments @('prepare',"pnpm@$pnpmVersion",'--activate') -TimeoutSeconds 300
+            $pnpmUpdated = -not $corepackUpdate.TimedOut -and $corepackUpdate.ExitCode -eq 0
+        }
+        if (-not $pnpmUpdated) {
+            $pnpmUpdate = Invoke-SgVisibleBoundedProcess -OperationId 'tool.update.pnpm-fallback' -Label ("Updating pnpm to $pnpmVersion with npm") -File $npm -Arguments @('install','--global',"pnpm@$pnpmVersion",'--registry=https://registry.npmjs.org/') -TimeoutSeconds 900
+            if ($pnpmUpdate.TimedOut -or $pnpmUpdate.ExitCode -ne 0) { throw "pnpm $pnpmVersion update failed or timed out." }
+        }
+        Update-SgProcessPath
+    }
+    $verifiedPnpm = Get-SgInstalledCommandVersion 'pnpm.cmd' $PnpmPaths
+    if ($verifiedPnpm -ne $pnpmVersion) { throw "pnpm update mismatch: installed=$verifiedPnpm target=$pnpmVersion" }
+}
+
+function Invoke-SgManagedDeveloperToolUpdates([object[]]$Definitions, [string[]]$NpmPaths, [string[]]$CorepackPaths, [string[]]$PnpmPaths) {
+    Write-Host 'Updating only ShipGlows-owned global developer tools. Project dependencies are excluded.' -ForegroundColor Yellow
+    foreach ($definition in $Definitions) { [void](Invoke-SgManagedWingetToolUpdate $definition) }
+    Invoke-SgManagedPackageManagerUpdates $NpmPaths $CorepackPaths $PnpmPaths
+    Write-Host 'Developer tool updates completed; normal ShipGlows convergence will now verify managed wrappers and CLIs.' -ForegroundColor Green
 }
 
 function Move-SgManagedPartialDirectory([string]$Path) {
@@ -1756,9 +1829,9 @@ $gitPaths = @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFi
 $ghPaths = @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe'))
 $fzfPaths = @((Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\fzf.exe'))
 $nodePaths = @((Join-Path $programFiles 'nodejs\node.exe'), (Join-Path $programFilesX86 'nodejs\node.exe'))
-$npmPaths = @((Join-Path $programFiles 'nodejs\npm.cmd'), (Join-Path $programFilesX86 'nodejs\npm.cmd'))
-$npxPaths = @((Join-Path $programFiles 'nodejs\npx.cmd'), (Join-Path $programFilesX86 'nodejs\npx.cmd'))
-$corepackPaths = @((Join-Path $programFiles 'nodejs\corepack.cmd'), (Join-Path $programFilesX86 'nodejs\corepack.cmd'), (Join-Path $env:APPDATA 'npm\corepack.cmd'))
+$npmPaths = @((Join-Path $env:APPDATA 'npm\npm.cmd'), (Join-Path $programFiles 'nodejs\npm.cmd'), (Join-Path $programFilesX86 'nodejs\npm.cmd'))
+$npxPaths = @((Join-Path $env:APPDATA 'npm\npx.cmd'), (Join-Path $programFiles 'nodejs\npx.cmd'), (Join-Path $programFilesX86 'nodejs\npx.cmd'))
+$corepackPaths = @((Join-Path $env:APPDATA 'npm\corepack.cmd'), (Join-Path $programFiles 'nodejs\corepack.cmd'), (Join-Path $programFilesX86 'nodejs\corepack.cmd'))
 $pnpmPaths = @((Join-Path $env:APPDATA 'npm\pnpm.cmd'))
 $uvPaths = @((Join-Path $env:USERPROFILE '.local\bin\uv.exe'), (Join-Path $env:USERPROFILE '.cargo\bin\uv.exe'))
 $pythonPaths = @((Join-Path $env:USERPROFILE '.local\bin\python.exe'))
@@ -1798,6 +1871,18 @@ $uvReady = Install-SgWingetPackage 'uv.exe' 'astral-sh.uv' $uvPaths
 if (-not $uvReady) { throw 'ShipGlows requires uv to provide a functional default Python runtime.' }
 $pythonInfo = Install-SgDefaultPython $uvPaths $pythonPaths
 Assert-SgEnvironmentPythonPackage $pythonInfo.Path (Join-Path $ShipglowsDir 'cli\environment')
+if ($UpdateDeveloperTools) {
+    $developerToolDefinitions = @(
+        [pscustomobject]@{Key='git';Name='Git';Command='git.exe';PackageId='Git.Git';Paths=$gitPaths},
+        [pscustomobject]@{Key='github';Name='GitHub CLI';Command='gh.exe';PackageId='GitHub.cli';Paths=$ghPaths},
+        [pscustomobject]@{Key='node';Name='Node.js LTS';Command='node.exe';PackageId='OpenJS.NodeJS.LTS';Paths=$nodePaths},
+        [pscustomobject]@{Key='mise';Name='mise';Command='mise.exe';PackageId='jdx.mise';Paths=@($misePath)},
+        [pscustomobject]@{Key='gcloud';Name='Google Cloud CLI';Command='gcloud.cmd';PackageId='Google.CloudSDK';Paths=$gcloudPaths},
+        [pscustomobject]@{Key='doppler';Name='Doppler CLI';Command='doppler.exe';PackageId='Doppler.Doppler';Paths=$dopplerPaths},
+        [pscustomobject]@{Key='uv';Name='uv';Command='uv.exe';PackageId='astral-sh.uv';Paths=$uvPaths}
+    )
+    Invoke-SgManagedDeveloperToolUpdates $developerToolDefinitions $npmPaths $corepackPaths $pnpmPaths
+}
 [void](Complete-SgInstallerPhase $corePhase)
 $playwrightRuntime = Install-SgManagedPlaywrightRuntimes (Get-SgToolPath 'npm.cmd' $npmPaths)
 [void](Set-SgFlutterChromeExecutable $playwrightRuntime.BrowserPath)
@@ -1838,7 +1923,7 @@ $initialAgentReady = @{
     Kilo = (Test-SgToolRuns 'kilo.cmd' $kiloPaths) -or (Test-SgToolRuns 'kilocode.cmd' $kilocodePaths)
     Gemini = Test-SgToolRuns 'gemini.cmd' $geminiPaths
 }
-$agentReady = Install-SgMissingAgentClis (Get-SgToolPath 'npm.cmd' $npmPaths) $initialAgentReady
+$agentReady = Install-SgMissingAgentClis (Get-SgToolPath 'npm.cmd' $npmPaths) $initialAgentReady -UpdateApproved:$UpdateDeveloperTools
 $codexReady = [bool]$agentReady.Codex
 $claudeReady = [bool]$agentReady.Claude
 $opencodeReady = [bool]$agentReady.OpenCode

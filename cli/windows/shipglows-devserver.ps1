@@ -113,6 +113,8 @@ function Show-SgShortcutHelp {
     Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
     Write-Host '  s u      Update ShipGlows from the active stable or linked channel'
     Write-Host '  s update status  Show the active ShipGlows update channel'
+    Write-Host '  s tools status   Preview global developer-tool updates without changing them'
+    Write-Host '  s tools update   Update ShipGlows-owned global developer tools after confirmation'
     Write-Host '  s x      Quit ShipGlows'
     Write-Host '  s         Interactive menu'
     Write-Host ''
@@ -163,7 +165,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','update-status','refresh-update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -180,6 +182,8 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
         'a'   = 'auth'
         'u'   = 'update'
         'update status' = 'update-status'
+        'tools status' = 'tools-status'
+        'tools update' = 'tools-update'
         'h'   = 'help'
         'x'   = 'exit'
     }
@@ -589,6 +593,79 @@ function Show-SgUpdateStatus {
     if ($source.Channel -eq 'linked') { Write-Host 'Linked skills already follow the checkout. Start a new Codex or Claude session after source changes.' -ForegroundColor DarkGray }
 }
 
+function Get-SgDeveloperToolAllowlist {
+    return @(Get-SgDeveloperToolWingetDefinitions | ForEach-Object { "$($_.Name) ($($_.PackageId))" }) + @(
+        'pnpm',
+        'ShipGlows-managed coding agents, service CLIs, wrappers, and Playwright runtime'
+    )
+}
+
+function Get-SgDeveloperToolWingetDefinitions {
+    return @(
+        [pscustomobject]@{Name='Git';PackageId='Git.Git'},
+        [pscustomobject]@{Name='GitHub CLI';PackageId='GitHub.cli'},
+        [pscustomobject]@{Name='Node.js LTS and bundled npm';PackageId='OpenJS.NodeJS.LTS'},
+        [pscustomobject]@{Name='mise';PackageId='jdx.mise'},
+        [pscustomobject]@{Name='uv';PackageId='astral-sh.uv'},
+        [pscustomobject]@{Name='Google Cloud CLI';PackageId='Google.CloudSDK'},
+        [pscustomobject]@{Name='Doppler CLI';PackageId='Doppler.Doppler'}
+    )
+}
+
+function Show-SgDeveloperToolsStatus {
+    Write-Host 'ShipGlows developer-tool update status (read-only)' -ForegroundColor Cyan
+    Write-Host 'Managed scope:' -ForegroundColor DarkGray
+    Get-SgDeveloperToolAllowlist | ForEach-Object { Write-Host "  - $_" }
+    Write-Host 'Project manifests, lockfiles, node_modules, SDK licences, IDEs, and Windows Update are excluded.' -ForegroundColor DarkGray
+
+    $toolModule = Join-Path $PSScriptRoot 'ShipGlows.MobileToolchain.psm1'
+    if (-not (Test-Path -LiteralPath $toolModule -PathType Leaf)) { throw 'The bounded tool-status runner is unavailable.' }
+    Import-Module $toolModule -Force -DisableNameChecking
+
+    $winget = Get-SgApplication 'winget.exe'
+    if ($winget) {
+        Write-Host ''; Write-Host 'WinGet allowlisted update preview:' -ForegroundColor Cyan
+        foreach ($definition in Get-SgDeveloperToolWingetDefinitions) {
+            $result = Invoke-SgBoundedProcess -File $winget -Arguments @('list','--id',$definition.PackageId,'--exact','--source','winget','--upgrade-available','--disable-interactivity') -TimeoutSeconds 60
+            Write-Host "$($definition.Name):" -ForegroundColor DarkGray
+            if ($result.TimedOut) { Write-SgWarn '  preview timed out.' }
+            elseif ($result.Output) { Write-Host $result.Output.Trim() }
+            elseif ($result.ExitCode -ne 0) { Write-Host '  no available update was reported.' -ForegroundColor Green }
+            else { Write-Host '  no available update was reported.' -ForegroundColor Green }
+        }
+    } else { Write-SgWarn 'WinGet is unavailable; WinGet-managed tools could not be checked.' }
+
+    $npm = Get-SgApplication 'npm.cmd'
+    if ($npm) {
+        foreach ($definition in @(@{Name='npm';Command=$npm},@{Name='pnpm';Command=(Get-SgApplication 'pnpm.cmd')})) {
+            $installed = if ($definition.Command) { Invoke-SgBoundedProcess -File $definition.Command -Arguments @('--version') -TimeoutSeconds 30 } else { $null }
+            $latest = Invoke-SgBoundedProcess -File $npm -Arguments @('view',"$($definition.Name)@latest",'version','--registry=https://registry.npmjs.org/') -TimeoutSeconds 45
+            $installedText = if ($installed -and -not $installed.TimedOut -and $installed.ExitCode -eq 0) { $installed.Output.Trim() } else { 'unavailable' }
+            $latestText = if (-not $latest.TimedOut -and $latest.ExitCode -eq 0) { $latest.Output.Trim() } else { 'unavailable' }
+            Write-Host "$($definition.Name): installed=$installedText latest=$latestText"
+        }
+    } else { Write-SgWarn 'npm is unavailable; npm and pnpm registry versions could not be checked.' }
+}
+
+function Invoke-SgDeveloperToolsUpdate {
+    if (-not [Environment]::UserInteractive -or [Console]::IsInputRedirected) {
+        throw 'Developer-tool updates require an interactive console for explicit confirmation.'
+    }
+    Write-Host 'ShipGlows will update only these global developer-tool surfaces:' -ForegroundColor Cyan
+    Get-SgDeveloperToolAllowlist | ForEach-Object { Write-Host "  - $_" }
+    Write-Host 'No project dependency, manifest, lockfile, credential, SDK licence, IDE, or Windows Update will be changed.' -ForegroundColor DarkGray
+    $choice = Read-Host 'Update global developer tools now? [y/N]'
+    if ($choice.Trim().ToLowerInvariant() -notin @('y','yes','o','oui')) { Write-SgInfo 'Developer-tool update cancelled; nothing was changed.'; return }
+
+    $shipglowsDir = Split-Path -Parent $PSScriptRoot
+    $installer = Join-Path $shipglowsDir 'cli\windows\install-devserver.ps1'
+    if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) { throw 'The installed ShipGlows developer-tool convergence engine is unavailable; run s update first.' }
+    Write-SgInfo 'Updating global developer tools without changing the ShipGlows update channel...'
+    & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $installer -ShipglowsDir $shipglowsDir -UpdateDeveloperTools
+    if ($LASTEXITCODE -ne 0) { throw 'Developer-tool update failed.' }
+    Write-SgInfo 'Developer-tool update completed. Open a fresh shell before using updated global commands.'
+}
+
 function Invoke-SgUpdate {
     $source = Get-SgUpdateSource
     if ($source.Channel -eq 'linked') {
@@ -788,6 +865,7 @@ function Invoke-Menu {
         'n  Navigate to a project',
         'a  Authentication',
         'r  Refresh',
+        't  Update developer tools',
         'u  Update ShipGlows',
         '0  Quit ShipGlows'
     )
@@ -801,7 +879,7 @@ function Invoke-Menu {
             if (-not $selected) { continue }
             $choice = $selected.Substring(0,1)
         } else {
-            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  r) Refresh  u) Update  0) Quit ShipGlows'
+            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  r) Refresh  t) Update tools  u) Update ShipGlows  0) Quit ShipGlows'
             $choice = Read-Host 'Choice'
         }
         try {
@@ -818,6 +896,7 @@ function Invoke-Menu {
                 'n' { Invoke-Navigate }
                 'a' { Invoke-SgAuthenticationMenu }
                 'r' { Wait-SgBackgroundCatalogRefresh; Get-SgProjectCatalog $config -ForceRefresh | Out-Null }
+                't' { Invoke-SgDeveloperToolsUpdate; return }
                 'u' { Invoke-SgUpdate; return }
                 '0' { return }
                 default { Write-SgWarn 'Unknown choice.' }
@@ -865,6 +944,8 @@ try {
         'auth' { Invoke-SgAuthenticationMenu }
         'update' { Invoke-SgUpdate }
         'update-status' { Show-SgUpdateStatus }
+        'tools-status' { Show-SgDeveloperToolsStatus }
+        'tools-update' { Invoke-SgDeveloperToolsUpdate }
         'refresh-update-status' {
             $paths = Get-SgRuntimeStatusPaths $config
             try { Update-SgShipGlowsStatusCache $config { Get-SgOfficialShipGlowsVersion } | Out-Null }

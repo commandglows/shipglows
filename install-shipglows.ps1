@@ -10,7 +10,8 @@ param(
     [string]$InstallMode = $(if ($env:SHIPGLOWS_INSTALL_MODE) { $env:SHIPGLOWS_INSTALL_MODE } else { '' }),
     [string]$InstallSurface = $(if ($env:SHIPGLOWS_INSTALL_SURFACE) { $env:SHIPGLOWS_INSTALL_SURFACE } else { '' }),
     [string]$DevelopmentRoot = $(if ($env:SHIPGLOWS_DEVELOPMENT_ROOT) { $env:SHIPGLOWS_DEVELOPMENT_ROOT } else { Join-Path (Join-Path $env:USERPROFILE 'ShipGlows') 'shipglows' }),
-    [switch]$DownloadOnly
+    [switch]$DownloadOnly,
+    [switch]$UpdateDeveloperTools
 )
 
 $ErrorActionPreference = 'Stop'
@@ -85,6 +86,12 @@ if (-not $InstallMode) {
     } else {
         $InstallMode = Select-WindowsInstallMode
     }
+}
+if ($UpdateDeveloperTools -and $InstallMode -ne 'full') {
+    Fail 'UpdateDeveloperTools requires InstallMode full.'
+}
+if ($UpdateDeveloperTools -and $DownloadOnly) {
+    Fail 'UpdateDeveloperTools cannot be combined with DownloadOnly because no developer-tool convergence would run.'
 }
 try {
     $InstallSurface = Resolve-SgInstallSurface -RequestedSurface $InstallSurface -InteractiveSurface $script:InteractiveInstallSurface -InstallMode $InstallMode
@@ -445,6 +452,7 @@ try {
             Write-Info 'Installing the native Windows DevServer launcher.'
             $devServerArguments = @('-NoProfile','-ExecutionPolicy','Bypass','-File',(Join-Path $windowsDirectory 'install-devserver.ps1'),'-ShipglowsDir',$ShipglowsDir)
             if ($InstallSurface -eq 'maintainer') { $devServerArguments += '-ReplaceAgentConfigs' }
+            if ($UpdateDeveloperTools) { $devServerArguments += '-UpdateDeveloperTools' }
             & powershell.exe @devServerArguments
             if ($LASTEXITCODE -ne 0) { throw 'Native Windows DevServer installation failed.' }
         }

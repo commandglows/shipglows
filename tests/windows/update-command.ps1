@@ -11,8 +11,12 @@ $devServer = Join-Path $repoRoot 'cli\windows\shipglows-devserver.ps1'
 $runtimeStatus = Join-Path $repoRoot 'cli\windows\ShipGlows.RuntimeStatus.psm1'
 $entrypointText = [IO.File]::ReadAllText($entrypoint)
 $devServerText = [IO.File]::ReadAllText($devServer)
+$bootstrap = Join-Path $repoRoot 'install-shipglows.ps1'
+$installer = Join-Path $repoRoot 'cli\windows\install-devserver.ps1'
+$bootstrapText = [IO.File]::ReadAllText($bootstrap)
+$installerText = [IO.File]::ReadAllText($installer)
 
-foreach ($path in @($entrypoint, $devServer)) {
+foreach ($path in @($entrypoint, $devServer, $bootstrap, $installer)) {
     $tokens = $null
     $errors = $null
     [void][System.Management.Automation.Language.Parser]::ParseFile($path, [ref]$tokens, [ref]$errors)
@@ -34,5 +38,37 @@ Assert-Sg ($devServerText.Contains("'update status' = 'update-status'")) 'DevSer
 Assert-Sg ($devServerText.Contains("'u  Update ShipGlows'")) 'DevServer menu must retain its visible ShipGlows update entry.'
 Assert-Sg ($devServerText.Contains('Start-SgBackgroundUpdateStatusRefresh')) 'DevServer must refresh ShipGlows status outside the first paint.'
 Assert-Sg ($devServerText.Contains('Show-SgShipGlowsStatus')) 'DevServer dashboard must render ShipGlows version status.'
+
+Assert-Sg ($entrypointText.Contains("CommandArguments[0] -ieq 'tools'")) 'The focused Windows launcher must accept the developer-tools namespace.'
+Assert-Sg ($entrypointText.Contains("tools <status|update>")) 'The focused Windows launcher must document the bounded developer-tools actions.'
+Assert-Sg ($devServerText.Contains("'tools status' = 'tools-status'")) 'DevServer must expose a read-only developer-tools status route.'
+Assert-Sg ($devServerText.Contains("'tools update' = 'tools-update'")) 'DevServer must expose a confirmed developer-tools update route.'
+Assert-Sg ($devServerText.Contains('function Show-SgDeveloperToolsStatus')) 'Developer-tool status must have a dedicated read-only implementation.'
+Assert-Sg ($devServerText.Contains("@('list','--id',`$definition.PackageId,'--exact','--source','winget','--upgrade-available'")) 'Developer-tool status must inspect only exact allowlisted WinGet package IDs.'
+Assert-Sg ($devServerText.Contains('function Invoke-SgDeveloperToolsUpdate')) 'Developer-tool mutation must have a dedicated implementation.'
+Assert-Sg ($devServerText.Contains('Update ShipGlows')) 'ShipGlows self-update must remain visibly distinct.'
+Assert-Sg ($devServerText.Contains('Update developer tools')) 'The interactive menu must expose the separate global developer-tool action.'
+Assert-Sg ($devServerText.Contains('Update global developer tools now? [y/N]')) 'Developer-tool mutation must require explicit confirmation.'
+Assert-Sg ($devServerText.Contains("'cli\windows\install-devserver.ps1'")) 'Developer-tool update must reuse the installed full convergence engine.'
+Assert-Sg (-not $devServerText.Contains("Invoke-SgUpdate -DeveloperTools")) 'Developer-tool update must not piggyback on ShipGlows self-update.'
+
+Assert-Sg ($bootstrapText.Contains('[switch]$UpdateDeveloperTools')) 'The bootstrap must accept explicit developer-tool update intent.'
+Assert-Sg ($bootstrapText.Contains("if (`$UpdateDeveloperTools) { `$devServerArguments += '-UpdateDeveloperTools' }")) 'The bootstrap must forward developer-tool intent to the full installer.'
+Assert-Sg ($bootstrapText.Contains("UpdateDeveloperTools requires InstallMode full")) 'Developer-tool update intent must be rejected outside full mode.'
+Assert-Sg ($bootstrapText.Contains('UpdateDeveloperTools cannot be combined with DownloadOnly')) 'Developer-tool update intent must reject a misleading download-only no-op.'
+Assert-Sg ($installerText.Contains('[switch]$UpdateDeveloperTools')) 'The full installer must receive developer-tool update intent.'
+Assert-Sg ($installerText.Contains('function Invoke-SgManagedDeveloperToolUpdates')) 'The full installer must own the allowlisted update preparation.'
+foreach ($packageId in @('Git.Git','GitHub.cli','OpenJS.NodeJS.LTS','jdx.mise','Google.CloudSDK','Doppler.Doppler','astral-sh.uv')) {
+    Assert-Sg ($installerText.Contains("PackageId='$packageId'")) "Developer-tool allowlist must contain exact WinGet package ID $packageId."
+}
+Assert-Sg ($installerText.Contains("@('upgrade','--id',`$Definition.PackageId,'--exact','--source','winget'")) 'WinGet updates must use exact allowlisted IDs as discrete arguments.'
+Assert-Sg (-not $installerText.Contains("'upgrade','--all'")) 'ShipGlows must never run a broad WinGet upgrade-all operation.'
+Assert-Sg ($installerText.Contains("Resolve-SgNpmVersion `$NpmPath 'npm@latest'")) 'npm update must resolve an exact registry version before mutation.'
+Assert-Sg ($installerText.Contains("Resolve-SgNpmVersion `$NpmPath 'pnpm@latest'")) 'pnpm update must resolve an exact registry version before mutation.'
+Assert-Sg ($installerText.Contains('Developer tool updates completed; normal ShipGlows convergence will now verify managed wrappers and CLIs.')) 'The installer must separate package preparation from normal final convergence.'
+Assert-Sg ($installerText.Contains('-UpdateApproved:$UpdateDeveloperTools')) 'The single developer-tool confirmation must cover only already-installed outdated coding agents.'
+Assert-Sg ($installerText.Contains('Install=@($initial.Outdated)')) 'Developer-tool updates must not silently install missing coding agents.'
+Assert-Sg (-not $installerText.Contains("npm update -g")) 'The managed updater must not update arbitrary global npm packages.'
+Assert-Sg (-not $installerText.Contains("pnpm update -g")) 'The managed updater must not update arbitrary global pnpm packages.'
 
 Write-Output 'Windows ShipGlows update-command tests passed.'

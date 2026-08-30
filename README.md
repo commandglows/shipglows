@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.27.0"
+artifact_version: "0.28.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-28"
+updated: "2026-08-30"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -470,6 +470,17 @@ On a linked developer checkout, skills already follow the checkout and only a
 new Codex or Claude session is needed after skill edits; the update command
 refreshes the managed runtime from that checkout's upstream branch. On Unix,
 `s u` remains the separate system-package update menu action.
+
+Native Windows keeps global developer-tool maintenance separate from both
+ShipGlows self-update and project dependency maintenance. Use
+`shipglows tools status` (or `s tools status`) for a read-only WinGet plus
+npm/pnpm version preview, then `shipglows tools update` (or the dedicated
+**Update developer tools** menu entry) to review the ShipGlows-owned allowlist
+and confirm the update. The updater targets only exact WinGet package IDs and
+exact npm-registry versions for Node/npm/pnpm and the global tools already
+owned by the full installer; it never runs `winget upgrade --all`, edits a
+project manifest or lockfile, updates `node_modules`, accepts an SDK licence,
+changes credentials, restarts Windows, or changes the active ShipGlows channel.
 
 The code repository is public, so Git or GitHub credentials are not required
 for this bootstrap. Termux selects `local` without `sudo`; an existing root shell
