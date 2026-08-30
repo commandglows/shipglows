@@ -151,7 +151,8 @@ function Enable-SgWindowsDeveloperChannel {
         [Parameter(Mandatory=$true)][string]$ShipGlowsRoot,
         [string]$TargetHome = $env:USERPROFILE,
         [string]$RepositoryUrl = 'https://github.com/commandglows/shipglows.git',
-        [switch]$ConfirmChannelSwitch
+        [switch]$ConfirmChannelSwitch,
+        [Parameter(DontShow=$true)][scriptblock]$EnvironmentWriter
     )
 
     if (-not $ConfirmChannelSwitch) {
@@ -178,7 +179,7 @@ function Enable-SgWindowsDeveloperChannel {
         if (-not $managedPowerShell -or -not (Test-Path -LiteralPath $managedPowerShell -PathType Leaf)) { throw 'The ShipGlows-managed PowerShell runtime is required for developer corpus synchronization.' }
         & $managedPowerShell -NoLogo -NoProfile -File $syncHelper `
             -Mode repair -All -Runtime codex -Catalog public -CodexEntrypoint linked `
-            -TargetHome $TargetHome -ShipGlowsRoot $root -CleanStale
+            -TargetHome $TargetHome -ShipGlowsRoot $root
         if ($LASTEXITCODE -ne 0) { throw 'Could not link the ShipGlows developer skills into Codex.' }
         & $managedPowerShell -NoLogo -NoProfile -File $syncHelper `
             -Mode check -All -Runtime codex -Catalog public -CodexEntrypoint linked `
@@ -191,7 +192,7 @@ function Enable-SgWindowsDeveloperChannel {
         throw
     }
 
-    [void](Save-SgDeveloperChannelState -Root $root -TargetHome $TargetHome)
+    [void](Save-SgDeveloperChannelState -Root $root -TargetHome $TargetHome -EnvironmentWriter $EnvironmentWriter)
     Write-Output "ShipGlows developer channel linked to $root"
     return $root
 }
