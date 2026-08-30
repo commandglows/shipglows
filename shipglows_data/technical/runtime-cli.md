@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.21.0"
+artifact_version: "1.22.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-26"
+updated: "2026-08-28"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -55,6 +55,7 @@ evidence:
   - "Disk details and PM2 log cleanup/rotation added to explain and cap disk usage."
   - "Native Windows full installs a pinned checksum-verified Gum binary in the ShipGlows runtime and keeps the PowerShell menu as fallback."
   - "Native Windows clone flow installs Git and GitHub CLI, delegates browser authentication and credentials to gh, and exposes a searchable private/public repository chooser that excludes repositories already installed in the workspace."
+  - "Native Windows private-data setup keeps the explicitly chosen private GitHub repository under %USERPROFILE%\\.shipglows\\data, validates its paths before clone, and never scans, registers, starts, or synchronizes it automatically."
   - "Native Windows full resolves and validates Flutter/Dart, JDK 17 and Android command-line tools in user scope; Android terms and SDK licenses remain explicitly user-confirmed, with non-interactive runs pending."
   - "Native Windows full detects Tauri Android projects, offers exact Rust/Android targets through an isolated mise environment and the validated NDK through sdkmanager, and records older projects as migration-required without mutating them; its cargo, rustc and rustup wrappers reproduce the same isolation without mutating global mise trust."
   - "The first live Tauri Windows update exposed ambiguous provider exits, mojibake Flutter diagnostics, serialized Codex MCP path comparison, and invisible prompt gaps; regression coverage now makes final observation authoritative and renders phases plus input waits explicitly."
@@ -379,6 +380,14 @@ PowerShell in the selected discovered or registered project because a subprocess
 change the parent shell's working directory; `exit` returns to the original
 shell. Unsupported Linux server paths fail with guidance instead of being
 silently remapped.
+
+`s p` is a separate, opt-in private-data setup path. It requires an explicit
+repository choice before invoking GitHub CLI authentication, inspects the full
+GitHub tree for Windows-incompatible path segments before clone, and writes only
+the selected Git remote and absolute data directory to an owner-only local
+configuration file. The working tree defaults to `%USERPROFILE%\.shipglows\data`,
+outside `%USERPROFILE%\ShipGlows`; it is not a project discovery root and the
+DevServer never registers, starts, or synchronizes it automatically.
 The explicit `s u` / `s update` path downloads the public Windows bootstrap
 over HTTPS, resolves an immutable source commit, stages and validates the full
 managed payload, then classifies the target as `install`, `update`, `repair`, or

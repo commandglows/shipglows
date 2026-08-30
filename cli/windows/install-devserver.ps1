@@ -1801,6 +1801,7 @@ $script:activeInstallerPhase = $null
 Write-Host "ShipGlows Windows DevServer installed." -ForegroundColor Green
 Write-Host "Workspace: $Workspace"
 Write-Host 'Commands: s (short) or shipglows-dev'
+Write-Host 'Optional private data setup: run s p; it asks before GitHub authentication or cloning.'
 Write-Host ''
 Write-Host 'Dependency check:' -ForegroundColor Yellow
 foreach ($tool in @('gum','fzf','git','gh','node','npm','pnpm','uv','flutter')) {

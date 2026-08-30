@@ -62,6 +62,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s m l    View project logs'
     Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
     Write-Host '  s a      Manage CLI authentication with official interactive flows'
+    Write-Host '  s p      Connect or inspect the private data repository'
     Write-Host '  s capabilities    Print the closed CLI capability snapshot as JSON'
     Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
     Write-Host '  s u      Update ShipGlows from the official repository'
@@ -88,7 +89,7 @@ Ensure-SgDirectory $config.LogDirectory
 [void](Write-SgCliCapabilitySnapshot $config)
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','capabilities','update','help','exit')
+    $namedActions = @('menu','dashboard','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','private-data','capabilities','update','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -103,6 +104,7 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
         'm l' = 'select-logs'
         'm n' = 'navigate'
         'a'   = 'auth'
+        'p'   = 'private-data'
         'u'   = 'update'
         'h'   = 'help'
         'x'   = 'exit'
@@ -384,6 +386,49 @@ function Invoke-Clone {
     }
 }
 
+function Invoke-SgPrivateDataSetup {
+    Initialize-SgGitTools -IncludeGitHub
+    $privateData = Get-SgPrivateDataConfiguration
+    $connected = $false
+    if ($git) { $connected = Test-SgPrivateDataRepository $privateData $git }
+    if ($connected) {
+        Write-SgInfo "Private data repository is connected at $($privateData.DataDirectory). It is not scanned, registered, started, or synchronized automatically."
+        return
+    }
+    if (Test-Path -LiteralPath $privateData.DataDirectory) {
+        throw "Private data directory already exists but is not a Git working tree: $($privateData.DataDirectory). Resolve it manually; ShipGlows will not overwrite it."
+    }
+    if (-not $choiceUiAvailable) { throw 'Private data repository setup requires fzf or Gum for an explicit repository choice.' }
+    $consent = Read-SgChoice 'Private data stays outside the project workspace and is never synchronized automatically. Continue?' @('Connect a private GitHub repository','Back')
+    if ($consent -ne 'Connect a private GitHub repository') { return }
+    if (-not $git -or -not $gh) { throw 'Git and GitHub CLI are required. Rerun the ShipGlows full installer.' }
+    [void](Invoke-SgGitHubLogin)
+    $jsonLines = @(& $gh api --paginate '/user/repos?affiliation=owner,collaborator,organization_member&per_page=100&sort=updated' --jq '.[] | select(.private) | {nameWithOwner: .full_name, description, url: .html_url}')
+    if ($LASTEXITCODE -ne 0) { throw 'GitHub private repository listing failed.' }
+    $repositories = @($jsonLines | Where-Object { $_ } | ForEach-Object { $_ | ConvertFrom-Json })
+    if ($repositories.Count -eq 0) { throw 'No accessible private GitHub repositories are available for this account.' }
+    $labels = @($repositories | ForEach-Object { if ($_.description) { "$($_.nameWithOwner)  - $($_.description)" } else { [string]$_.nameWithOwner } })
+    $selected = Read-SgChoice 'Choose the private data repository' $labels
+    if (-not $selected) { return }
+    $index = Get-SgSelectedIndex $labels $selected
+    if ($index -lt 0) { throw 'The selected private repository could not be resolved.' }
+    $repository = $repositories[$index]
+    Assert-SgWindowsCompatibleGitHubRepository $gh $repository.nameWithOwner
+    $parent = Split-Path -Parent $privateData.DataDirectory
+    Ensure-SgDirectory $parent
+    $temporary = Join-Path $parent ('.data.shipglows-clone-' + [guid]::NewGuid().ToString('N'))
+    try {
+        & $gh repo clone $repository.url $temporary
+        if ($LASTEXITCODE -ne 0) { throw 'Private data repository clone failed.' }
+        Move-Item -LiteralPath $temporary -Destination $privateData.DataDirectory -ErrorAction Stop
+        Write-SgPrivateDataConfiguration $repository.url $privateData.DataDirectory
+    } catch {
+        if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force -ErrorAction SilentlyContinue }
+        throw
+    }
+    Write-SgInfo "Private data repository connected at $($privateData.DataDirectory). It remains outside the ShipGlows project workspace."
+}
+
 function Invoke-Logs($entry) {
     if (-not $entry.logPath) { Write-SgWarn 'No log file is registered for this project.'; return }
     if (Test-Path -LiteralPath $entry.logPath) { Get-Content -LiteralPath $entry.logPath -Tail 80 }
@@ -566,6 +611,7 @@ function Invoke-Menu {
         '9  Unregister a project',
         'n  Navigate to a project',
         'a  Authentication',
+        'p  Private data repository',
         'r  Refresh',
         'u  Update ShipGlows',
         '0  Quit ShipGlows'
@@ -579,7 +625,7 @@ function Invoke-Menu {
             if (-not $selected) { continue }
             $choice = $selected.Substring(0,1)
         } else {
-            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  r) Refresh  u) Update  0) Quit ShipGlows'
+            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  p) Private data  r) Refresh  u) Update  0) Quit ShipGlows'
             $choice = Read-Host 'Choice'
         }
         try {
@@ -595,6 +641,7 @@ function Invoke-Menu {
                 '9' { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } }
                 'n' { Invoke-Navigate }
                 'a' { Invoke-SgAuthenticationMenu }
+                'p' { Invoke-SgPrivateDataSetup }
                 'r' { Wait-SgBackgroundCatalogRefresh; Get-SgProjectCatalog $config -ForceRefresh | Out-Null }
                 'u' { Invoke-SgUpdate; return }
                 '0' { return }
@@ -632,6 +679,7 @@ try {
         'select-logs' { $entry = Get-SelectedProject 'logs'; if ($entry) { Invoke-Logs $entry } }
         'navigate' { Invoke-Navigate }
         'auth' { Invoke-SgAuthenticationMenu }
+        'private-data' { Invoke-SgPrivateDataSetup }
         'capabilities' { Read-SgCliCapabilitySnapshot $config | ConvertTo-Json -Depth 5 -Compress }
         'update' { Invoke-SgUpdate }
         'help' { Show-SgShortcutHelp }

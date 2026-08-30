@@ -132,6 +132,77 @@ function Get-SgCommandPath([string[]]$Names) {
     return $null
 }
 
+function Get-SgPrivateDataConfigPath {
+    if ($env:SHIPGLOWS_PRIVATE_DATA_CONFIG_FILE) { return [IO.Path]::GetFullPath($env:SHIPGLOWS_PRIVATE_DATA_CONFIG_FILE) }
+    $configRoot = if ($env:APPDATA) { Join-Path $env:APPDATA 'ShipGlows' } else { Join-Path $env:USERPROFILE 'AppData\Roaming\ShipGlows' }
+    return Join-Path $configRoot 'private-data.env'
+}
+
+function Get-SgPrivateDataConfiguration {
+    $privateRoot = if ($env:SHIPGLOWS_PRIVATE_DIR) { $env:SHIPGLOWS_PRIVATE_DIR } else { Join-Path $env:USERPROFILE '.shipglows' }
+    $configPath = Get-SgPrivateDataConfigPath
+    $values = @{}
+    if (Test-Path -LiteralPath $configPath -PathType Leaf) {
+        if (-not (Test-SgOwnerOnlyPath $configPath)) { throw "Private data configuration must be accessible only to the current Windows user: $configPath" }
+        foreach ($line in @(Get-Content -LiteralPath $configPath -ErrorAction Stop)) {
+            $trimmed = $line.Trim()
+            if (-not $trimmed -or $trimmed.StartsWith('#')) { continue }
+            if ($trimmed -notmatch '^(SHIPGLOWS_PRIVATE_DATA_REPO|SHIPGLOWS_PRIVATE_DATA_DIR)=(.*)$') { throw 'Private data configuration accepts only declarative SHIPGLOWS_PRIVATE_DATA_REPO and SHIPGLOWS_PRIVATE_DATA_DIR entries.' }
+            $values[$matches[1]] = $matches[2]
+        }
+    } elseif (Test-Path -LiteralPath $configPath) {
+        throw "Private data configuration must be a regular file: $configPath"
+    }
+    $dataDir = if ($env:SHIPGLOWS_PRIVATE_DATA_DIR) { $env:SHIPGLOWS_PRIVATE_DATA_DIR } elseif ($values['SHIPGLOWS_PRIVATE_DATA_DIR']) { $values['SHIPGLOWS_PRIVATE_DATA_DIR'] } else { Join-Path $privateRoot 'data' }
+    $repo = if ($env:SHIPGLOWS_PRIVATE_DATA_REPO) { $env:SHIPGLOWS_PRIVATE_DATA_REPO } else { $values['SHIPGLOWS_PRIVATE_DATA_REPO'] }
+    if ($dataDir -notmatch '^(?:[A-Za-z]:[\\/]|\\\\)') { throw 'SHIPGLOWS_PRIVATE_DATA_DIR must be an absolute path.' }
+    if ($repo -and -not (Test-SgGitUrl $repo)) { throw 'SHIPGLOWS_PRIVATE_DATA_REPO must be an HTTPS or SSH Git URL without embedded credentials.' }
+    return [pscustomobject]@{ Repository = $repo; DataDirectory = [IO.Path]::GetFullPath($dataDir); ConfigPath = $configPath }
+}
+
+function Write-SgPrivateDataConfiguration([string]$Repository, [string]$DataDirectory) {
+    if (-not (Test-SgGitUrl $Repository)) { throw 'Private data repository must be an HTTPS or SSH Git URL without embedded credentials.' }
+    if ($DataDirectory -notmatch '^(?:[A-Za-z]:[\\/]|\\\\)') { throw 'Private data directory must be an absolute path.' }
+    $configPath = Get-SgPrivateDataConfigPath
+    $configDirectory = Split-Path -Parent $configPath
+    Ensure-SgDirectory $configDirectory
+    Protect-SgOwnerOnlyPath $configDirectory
+    $temporary = "$configPath.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        [IO.File]::WriteAllText($temporary, "SHIPGLOWS_PRIVATE_DATA_REPO=$Repository`r`nSHIPGLOWS_PRIVATE_DATA_DIR=$([IO.Path]::GetFullPath($DataDirectory))`r`n", (New-Object Text.UTF8Encoding($false)))
+        Protect-SgOwnerOnlyPath $temporary
+        Move-Item -LiteralPath $temporary -Destination $configPath -Force
+        Protect-SgOwnerOnlyPath $configPath
+    } finally {
+        if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue }
+    }
+}
+
+function Test-SgWindowsCompatibleRepositoryPaths([string[]]$Paths) {
+    $reserved = '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])([.]|$)'
+    foreach ($path in @($Paths)) {
+        foreach ($segment in @($path -split '/')) {
+            if (-not $segment) { return $false }
+            if ($segment -match '[<>:"/\\|?*]' -or $segment.EndsWith(' ') -or $segment.EndsWith('.') -or $segment -match $reserved) { return $false }
+        }
+    }
+    return $true
+}
+
+function Assert-SgWindowsCompatibleGitHubRepository([string]$GitHubCli, [string]$NameWithOwner) {
+    if ($NameWithOwner -notmatch '^[^/\s]+/[^/\s]+$') { throw 'The selected GitHub repository identity is invalid.' }
+    $tree = @(& $GitHubCli api "repos/$NameWithOwner/git/trees/HEAD?recursive=1" | ConvertFrom-Json)
+    if ($LASTEXITCODE -ne 0 -or $tree.Count -ne 1) { throw 'GitHub could not inspect the repository paths before cloning.' }
+    if ($tree[0].truncated) { throw 'GitHub returned an incomplete path inventory; the private repository was not cloned.' }
+    if (-not (Test-SgWindowsCompatibleRepositoryPaths @($tree[0].tree | ForEach-Object { [string]$_.path }))) { throw 'The private repository contains paths that are incompatible with Windows; the repository was not cloned.' }
+}
+
+function Test-SgPrivateDataRepository([object]$Configuration, [string]$GitCli) {
+    if (-not $Configuration.Repository -or -not (Test-Path -LiteralPath $Configuration.DataDirectory -PathType Container)) { return $false }
+    & $GitCli -C $Configuration.DataDirectory rev-parse --is-inside-work-tree *> $null
+    return $LASTEXITCODE -eq 0
+}
+
 function Get-SgCliCapabilityRecords {
     $available = @(
         'project.catalog.read','project.runtime.status.read','preview.status.read','workspace.status.read',
@@ -1045,7 +1116,13 @@ function Wait-SgHttpReady([int]$Port, [int]$TimeoutSeconds = 60) {
 function Protect-SgOwnerOnlyPath([string]$Path) {
     $item=Get-Item -LiteralPath $Path -Force -ErrorAction Stop;if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw "Managed runtime path must not be a reparse point: $Path"}
     $sid=[Security.Principal.WindowsIdentity]::GetCurrent().User;$acl=Get-Acl -LiteralPath $Path;$acl.SetAccessRuleProtection($true,$false);foreach($rule in @($acl.Access)){$acl.RemoveAccessRuleAll($rule)}
-    $inheritance=if($item.PSIsContainer){[Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'}else{[Security.AccessControl.InheritanceFlags]::None};$access=New-Object Security.AccessControl.FileSystemAccessRule($sid,[Security.AccessControl.FileSystemRights]::FullControl,$inheritance,[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow);$acl.AddAccessRule($access);Set-Acl -LiteralPath $Path -AclObject $acl
+    $inheritance=if($item.PSIsContainer){[Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'}else{[Security.AccessControl.InheritanceFlags]::None};$access=New-Object Security.AccessControl.FileSystemAccessRule($sid,[Security.AccessControl.FileSystemRights]::FullControl,$inheritance,[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow);$acl.AddAccessRule($access)
+    try { Set-Acl -LiteralPath $Path -AclObject $acl -ErrorAction Stop } catch {
+        # Some user-mode Windows hosts reject Set-Acl while preserving an audit
+        # descriptor. icacls can apply the same SID-only DACL without elevation.
+        & icacls.exe $Path /inheritance:r /grant:r "*$($sid.Value):(F)" /c *> $null
+        if ($LASTEXITCODE -ne 0 -or -not (Test-SgOwnerOnlyPath $Path)) { throw }
+    }
 }
 function Test-SgOwnerOnlyPath([string]$Path) { try{$acl=Get-Acl -LiteralPath $Path;$sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value;$allowed=@($acl.Access|Where-Object{$_.AccessControlType -eq 'Allow'});return [bool]($acl.AreAccessRulesProtected -and $allowed.Count -eq 1 -and $allowed[0].IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -eq $sid)}catch{return $false} }
 function Assert-SgNoReparseTree([string]$Path) { $root=Get-Item -LiteralPath $Path -Force -ErrorAction Stop;if($root.Attributes-band[IO.FileAttributes]::ReparsePoint){throw 'Managed Flutter IPC path is a reparse point.'};foreach($item in @(Get-ChildItem -LiteralPath $Path -Force -Recurse -ErrorAction Stop)){if($item.Attributes-band[IO.FileAttributes]::ReparsePoint){throw 'Managed Flutter IPC tree contains a reparse point.'}} }
@@ -1628,5 +1705,5 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
-Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgPrivateDataConfigPath,Get-SgPrivateDataConfiguration,Write-SgPrivateDataConfiguration,Test-SgWindowsCompatibleRepositoryPaths,Assert-SgWindowsCompatibleGitHubRepository,Test-SgPrivateDataRepository,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired,Protect-SgOwnerOnlyPath,Test-SgOwnerOnlyPath

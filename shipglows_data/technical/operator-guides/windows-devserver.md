@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.17.2"
+artifact_version: "1.18.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-23"
+updated: "2026-08-28"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -34,6 +34,7 @@ evidence:
   - "The 2026-08-23 Windows maintainer surface clones or validates the owner repository and enforces one Codex ShipGlows entrypoint channel without accepting generic all/components as authority."
   - "The 2026-08-23 Flutter repair reconverges the managed SDK PATH on every validated rerun and separates Visual Studio C++ readiness from aggregate Flutter Windows build readiness."
   - "The 2026-08-23 stale-session repair lets the DevServer resolve a complete non-reparse ShipGlows-managed Flutter SDK even when its parent process predates the persistent PATH update."
+  - "The Windows private-data flow is explicit: s p chooses an accessible private GitHub repository, rejects Windows-incompatible paths before cloning, and keeps it outside the project workspace."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
@@ -136,6 +137,8 @@ ne sont pas requis par le parcours Shadow PC.
    `sudo`, ni WSL, ni `autossh`. Au premier accès aux dépôts privés, GitHub CLI
    ouvre son authentification officielle dans le navigateur; ShipGlows ne lit
    et ne stocke jamais le token.
+   Après installation, `s p` propose séparément la connexion d'un dépôt de données privées. Le choix est explicite : avant toute authentification GitHub ou tout clone, il rappelle que le dépôt ira dans `%USERPROFILE%\.shipglows\data`, hors du workspace `%USERPROFILE%\ShipGlows`. Il ne sera jamais scanné comme projet, enregistré, démarré ou synchronisé automatiquement. Le parcours n'accepte que les dépôts GitHub privés accessibles, vérifie leurs chemins pour Windows avant clonage, et laisse GitHub CLI gérer l'authentification sans lire de jeton.
+
    Après installation, `s a` ouvre le tableau **Authentication**. Il affiche
    uniquement `connected`, `disconnected`, `unknown`, `unavailable` ou
    `project-required`, puis lance le flux officiel du CLI choisi. Les déconnexions
