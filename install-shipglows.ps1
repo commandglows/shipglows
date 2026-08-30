@@ -474,6 +474,8 @@ try {
     }
     if ($InstallSurface -eq 'maintainer') {
         Write-Info "Preparing the ShipGlows maintainer checkout at $DevelopmentRoot."
+        Import-Module (Join-Path $windowsDirectory 'ShipGlows.PowerShellRuntime.psm1') -Force
+        $env:SHIPGLOWS_MANAGED_PWSH = Resolve-SgManagedPowerShell
         Import-Module (Join-Path $windowsDirectory 'ShipGlows.DeveloperCorpus.psm1') -Force
         $developerRoot = Install-SgDeveloperCheckout -TargetPath $DevelopmentRoot -RepositoryUrl $RepoUrl -Ref $Branch
         [void](Enable-SgWindowsDeveloperChannel -ShipGlowsRoot $developerRoot -RepositoryUrl $RepoUrl -TargetHome $env:USERPROFILE -ConfirmChannelSwitch)

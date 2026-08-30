@@ -8,10 +8,12 @@ function Assert-Sg([bool]$Condition, [string]$Message) {
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $module = Join-Path $repoRoot 'cli\windows\ShipGlows.DeveloperCorpus.psm1'
 $fixtureHome = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-developer-corpus-' + [guid]::NewGuid().ToString('N'))
+$previousManagedPowerShell = $env:SHIPGLOWS_MANAGED_PWSH
 
 try {
     $moduleText = [IO.File]::ReadAllText($module)
     Assert-Sg ($moduleText -notmatch '--single-branch') 'Contributor clones must fetch the complete branch namespace.'
+    Assert-Sg ($moduleText -notmatch '\s-CleanStale(?:\s|$)') 'Developer channel activation must use the synchronizer current catalog-reconciliation contract.'
     $publicRouterText = [IO.File]::ReadAllText((Join-Path $repoRoot 'skills\shipglows\SKILL.md'))
     $canonicalPathsText = [IO.File]::ReadAllText((Join-Path $repoRoot 'skills\references\canonical-paths.md'))
     foreach ($requiredEvidence in @('current-user environment value','development-channel.json','already running')) {
@@ -53,11 +55,11 @@ try {
     Assert-Sg (@($environmentWrites | Where-Object { $_.Name -eq 'SHIPGLOWS_ROOT' -and $_.Value -eq $repoRoot -and $_.Target -eq 'Process' }).Count -eq 1) 'Developer channel must activate SHIPGLOWS_ROOT for the current process.'
 
     $rollbackHome = Join-Path $fixtureHome 'rollback-home'
-    $failedProcessWrite = $false
+    $rollbackControl = [pscustomobject]@{ FailedProcessWrite = $false }
     $rollbackWriter = {
         param($Name,$Value,$Target)
-        if ($Target -eq 'Process' -and $Value -eq $repoRoot -and -not $failedProcessWrite) {
-            $failedProcessWrite = $true
+        if ($Target -eq 'Process' -and $Value -eq $repoRoot -and -not $rollbackControl.FailedProcessWrite) {
+            $rollbackControl.FailedProcessWrite = $true
             throw 'simulated process environment failure'
         }
     }.GetNewClosure()
@@ -70,6 +72,49 @@ try {
     } catch { $rollbackObserved = $_.Exception.Message -match 'simulated process environment failure' }
     Assert-Sg $rollbackObserved 'Developer channel persistence failure must remain observable.'
     Assert-Sg (-not (Test-Path -LiteralPath (Join-Path $rollbackHome '.shipglows\development-channel.json'))) 'Failed developer channel persistence must roll back its new state file.'
+
+    [IO.File]::WriteAllText(
+        (Join-Path $configDirectory 'config.toml'),
+        "[plugins.`"shipglows@shipglows`"]`nenabled = false`n",
+        [Text.UTF8Encoding]::new($false)
+    )
+    $staleRoot = Join-Path $fixtureHome 'deleted-worktree'
+    $staleRouterSource = Join-Path $staleRoot 'skills\shipglows'
+    New-Item -ItemType Directory -Path $staleRouterSource -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $staleRouterSource 'SKILL.md'), "stale`n", [Text.UTF8Encoding]::new($false))
+    $runtimeSkills = Join-Path $fixtureHome '.agents\skills'
+    New-Item -ItemType Directory -Path $runtimeSkills -Force | Out-Null
+    New-Item -ItemType Junction -Path (Join-Path $runtimeSkills 'shipglows') -Target $staleRouterSource | Out-Null
+    $personalSkill = Join-Path $runtimeSkills 'personal-skill'
+    New-Item -ItemType Directory -Path $personalSkill -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $personalSkill 'SKILL.md'), "personal`n", [Text.UTF8Encoding]::new($false))
+    New-Item -ItemType Directory -Path (Join-Path $fixtureHome '.shipglows') -Force | Out-Null
+    [IO.File]::WriteAllText(
+        (Join-Path $fixtureHome '.shipglows\development-channel.json'),
+        ([ordered]@{ schemaVersion=1; channel='linked'; root=$staleRoot; linkedAt=[DateTimeOffset]::UtcNow.ToString('o') } | ConvertTo-Json -Compress),
+        [Text.UTF8Encoding]::new($false)
+    )
+    Remove-Item -LiteralPath $staleRoot -Recurse -Force
+    Assert-Sg (-not (Test-Path -LiteralPath $staleRoot)) 'The stale linked checkout fixture must be absent before channel activation.'
+
+    $environmentWrites.Clear()
+    $env:SHIPGLOWS_MANAGED_PWSH = (Get-Command powershell.exe -CommandType Application).Source
+    $enabledOutput = @(Enable-SgWindowsDeveloperChannel -ShipGlowsRoot $repoRoot -TargetHome $fixtureHome `
+        -ConfirmChannelSwitch -EnvironmentWriter $environmentWriter)
+    $enabledRoot = $enabledOutput[-1]
+    Assert-Sg ($enabledRoot -eq $repoRoot) 'The public developer-channel command must select the existing canonical checkout.'
+    $enabledState = [IO.File]::ReadAllText((Join-Path $fixtureHome '.shipglows\development-channel.json')) | ConvertFrom-Json
+    Assert-Sg ($enabledState.channel -eq 'linked' -and $enabledState.root -eq $repoRoot) 'The stale linked channel must be replaced by the canonical checkout state.'
+    Assert-Sg (@($environmentWrites | Where-Object { $_.Name -eq 'SHIPGLOWS_ROOT' -and $_.Value -eq $repoRoot -and $_.Target -eq 'User' }).Count -eq 1) 'The public switch must persist the canonical root for the current user.'
+    $publicRegistry = Get-Content -LiteralPath (Join-Path $repoRoot 'skills\references\skill-invocation-registry.json') -Raw | ConvertFrom-Json
+    $publicNames = @($publicRegistry.public_catalog.domains.skills.id) + @($publicRegistry.public_catalog.router.id)
+    foreach ($publicName in $publicNames) {
+        $runtimeLink = Get-Item -LiteralPath (Join-Path $runtimeSkills $publicName) -Force
+        Assert-Sg ($runtimeLink.LinkType -eq 'Junction') "Public skill must be linked after the official switch: $publicName"
+        $runtimeTarget = (Resolve-Path -LiteralPath @($runtimeLink.Target)[0]).Path
+        Assert-Sg ($runtimeTarget.StartsWith((Join-Path $repoRoot 'skills'), [StringComparison]::OrdinalIgnoreCase)) "Public skill must point into the canonical checkout: $publicName"
+    }
+    Assert-Sg (Test-Path -LiteralPath (Join-Path $personalSkill 'SKILL.md')) 'The official switch must preserve personal skills.'
 
     $source = Join-Path $fixtureHome 'source'
     foreach ($relative in @('skills\shipglows', 'skills\references', 'tools', 'plugins\shipglows\.codex-plugin')) {
@@ -105,5 +150,6 @@ try {
 
     Write-Output 'Windows ShipGlows developer-corpus tests passed.'
 } finally {
+    $env:SHIPGLOWS_MANAGED_PWSH = $previousManagedPowerShell
     if (Test-Path -LiteralPath $fixtureHome) { Remove-Item -LiteralPath $fixtureHome -Recurse -Force }
 }
