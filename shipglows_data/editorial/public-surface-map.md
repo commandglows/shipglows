@@ -1,10 +1,10 @@
 ---
 artifact: editorial_content_context
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.1.1"
 project: ShipGlows
 created: "2026-08-19"
-updated: "2026-08-22"
+updated: "2026-08-23"
 status: reviewed
 source_skill: sg-docs
 scope: public-surface-map
@@ -30,10 +30,10 @@ linked_systems:
   - shipglows_data/editorial/page-intent-map.md
 depends_on:
   - artifact: "shipglows_data/editorial/content-map.md"
-    artifact_version: "0.16.0"
+    artifact_version: "0.16.1"
     required_status: draft
   - artifact: "shipglows_data/editorial/page-intent-map.md"
-    artifact_version: "1.6.0"
+    artifact_version: "1.6.1"
     required_status: reviewed
 supersedes: []
 evidence:

@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-17"
+updated: "2026-08-27"
 status: active
 source_skill: 900-shipglows-core
 scope: skill-maintenance-lifecycle
@@ -24,12 +24,13 @@ supersedes:
 evidence:
   - "2026-07-15 operator decision: consolidate internal skill maintenance under 900-shipglows-core."
   - "2026-08-17 operator correction: bounded daily skill repairs prioritize construction, focused proof and prompt push; global audits and full suites belong to explicit high-assurance work."
+  - "2026-08-27 DX ownership split keeps this playbook skill/doctrine-specific while Core routes runtime and multi-plane targets to direct sibling packs."
 next_step: "/103-sg-verify consolidate skill maintenance under shipglows core"
 ---
 
 # Skill Maintenance Playbook
 
-Use for `900-shipglows-core build <skill, path, or maintenance goal>`. `900` is internal-only, but this mode may maintain a public skill; public-surface checks then apply to that target, never to `900` itself.
+Use for `900-shipglows-core build <skill, skill path, doctrine, activation, or skill-maintenance goal>`. Runtime targets under `cli/`, `local/`, `tui/`, or the installers belong to `dx-runtime-maintenance.md`; cross-surface targets belong to `system-coherence.md`. `900` is internal-only, but this mode may maintain a public skill; public-surface checks then apply to that target, never to `900` itself.
 
 ## Resolve, Place, And Gate
 

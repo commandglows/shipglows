@@ -17,7 +17,7 @@ An explicit request to develop or maintain ShipGlows itself, install its "versio
 
 ## Required References
 
-For detailed routing and authority rules, resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine, verify the root and `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md` exist, then load that canonical engine. If the root or file is missing, stop with a visible error; never fall back to a sibling runtime path. Retain the operator's outcome through the handoff; the numbered skill is an expert/legacy engine, not a public command to return to the operator.
+For detailed routing and authority rules, resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine. On Windows, do not rely only on the current process environment: when `SHIPGLOWS_ROOT` is empty, read its current-user environment value, then inspect `%USERPROFILE%\.shipglows\development-channel.json`. A valid `channel: linked` state with an absolute `root` and the required canonical engine selects that developer checkout before the installed-runtime default. This handles coding-agent hosts that were already running when the developer channel was enabled. Verify the resolved root and `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md` exist, then load that canonical engine. If every canonical source is missing or invalid, stop with a visible error; never fall back to a sibling runtime path or repository by filename coincidence. Retain the operator's outcome through the handoff; the numbered skill is an expert/legacy engine, not a public command to return to the operator.
 
 In Codex, short expert modes such as `shipglows core` are resolved through the
 canonical public owner and owner mode before an internal engine is selected;
@@ -30,6 +30,13 @@ manual PR, branch, and worktree hygiene; its default is read-only.
 without mutation, while `shipglows hygiene git` selects the safe Git cleanup
 workflow. Neither alias is a shell command.
 
+An explicit request to update ShipGlows resolves the active installation
+channel first with `shipglows update status`, then uses `shipglows update`.
+For a valid linked developer channel, skills are live from the checkout and a
+new Codex or Claude session reloads them; never tell the operator to reinstall
+the skills merely because source changes were pushed. Stop before update if the
+channel is invalid, the checkout is dirty, or its upstream is unresolved.
+
 `shipglows context` is a direct read-only context refresh. Load the canonical
 `000-shipglows` engine and `agent-runtime-awareness.md`, read
 `%USERPROFILE%\.shipglows\environment.md`, resolve
@@ -37,7 +44,10 @@ the current ShipGlows-managed project root, and read
 `<project-root>\ENVIRONMENT.md` plus the matching DevServer registry entry. Report the exact managed URL and live status,
 architecture, Python availability through `uv`, Playwright/Chromium installation
 and MCP verification evidence, the relevant mobile and Windows toolchain state
-and exact next action, and current-turn callable tools. Distinguish
+and exact next action, and current-turn callable tools. For Flutter, also report
+the registry-backed active development target, resolved device id when applicable,
+managed session mode, logical `flutter run -d <device>` command, and live state;
+list available targets separately. Distinguish
 installed, configured, discovered, callable, failed, and not-exposed states;
 inspect direct and deferred/searchable tool catalogs before classifying them. Never
 launch a replacement server, substitute an Astro/Vite default such as `4321`,

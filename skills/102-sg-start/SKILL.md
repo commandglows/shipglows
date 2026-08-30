@@ -23,9 +23,9 @@ For one ready spec, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md
 
 Before classifying the request, load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/execution-workflow.md`.
 
-- Atomic direct execution (exact string, placeholder, typo, heading-tag, or formatting replacement) stays outside `102-sg-start` unless explicitly invoked; execute it directly with focused validation.
-- Small, local, clear work uses `direct` mode with a silent mini-contract.
-- Non-trivial, ambiguous, multi-file, auth/data/migration/API/security, external-integration, or cross-domain work uses `spec-first` and requires one matching `ready` spec.
+- Clear bounded direct execution with few enumerable actions/targets and no material directional choice stays outside `102-sg-start` unless explicitly invoked; execute it directly with focused proof.
+- Clear bounded work uses `direct` mode with a silent mini-contract, regardless of local/remote location or model reasoning effort.
+- Unknown outcomes, unbounded actions/targets, or work requiring material product, architecture, auth/data/migration/API/security, external-integration, or cross-domain direction uses `spec-first` and requires one matching `ready` spec.
 - Missing or unready contract routes to `100-sg-spec` then `101-sg-ready`; do not write.
 
 Before reading ShipGlows-owned references or running its tools, apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md`.
@@ -45,7 +45,7 @@ Load each local reference directly from this activation contract; local referenc
 - Before first code write, load `implementation-excellence-preflight.md`; classify and emit its `🛡️ GARDE-FOUS` receipt. Load `$SHIPGLOWS_ROOT/skills/102-sg-start/references/implementation-and-proof.md` and directly applicable `task-application-loop.md`, `spec-driven-development-discipline.md`, `zombies-edge-case-heuristic.md`, `clean-code-quality-contract.md`, `design-system-token-contract.md`, or `owasp-application-security-awareness.md`.
 - After approval, load `reporting-contract.md`; emit its start card once before substantive work. Before reporting, load `references/execution-report.md`; reuse it.
 
-Conditional gates: PM2, docs, delivery/mode/Git, UI, diagnostics, records, Atlas, product decisions, operator evidence. Before first Git write load `git-persistence-preflight.md`; healthy state stays silent. Development never means local-only.
+Conditional gates: PM2, docs, UI, diagnostics, records, Atlas, and operator evidence. Product decisions load `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`; delivery decisions load `project-delivery-policy.md`. Before Git writes load `git-persistence-preflight.md`; development is never local-only.
 
 ## Execution Invariants
 
@@ -64,6 +64,6 @@ Stop as `blocked` or `rerouted` when no ready spec exists for non-trivial work; 
 
 ## Validation
 
-- `rg -n "Trace category|Process role|Atomic direct execution|stays outside|implemented|partial|auto-verify: run|auto-verify: skipped|execution-workflow|execution-contract|execution-topology|implementation-and-proof|execution-report|Agents: <count>|Stop Conditions" skills/102-sg-start/SKILL.md`
+- `rg -n "Trace category|Process role|Clear bounded direct execution|stays outside|implemented|partial|auto-verify: run|auto-verify: skipped|execution-workflow|execution-contract|execution-topology|implementation-and-proof|execution-report|Agents: <count>|Stop Conditions" skills/102-sg-start/SKILL.md`
 - `python3 -m unittest tools.test_102_sg_start_compaction_contract tools.test_master_delegation_contract tools.test_skill_selection_proportionality tools.test_reporting_contract`
 - `python3 tools/skill_budget_audit.py --skills-root skills --format markdown`

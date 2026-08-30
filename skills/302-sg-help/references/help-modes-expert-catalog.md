@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-16"
+updated: "2026-08-27"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-expert-catalog
@@ -19,13 +19,14 @@ linked_systems:
   - skills/references/skill-invocation-registry.json
 depends_on:
   - artifact: skills/references/skill-code-index.md
-    artifact_version: "2.6.0"
+    artifact_version: "2.10.0"
     required_status: active
 supersedes: []
 evidence:
   - "The métier-first public catalog keeps numeric runtime identities available through an explicit expert view."
   - "Operator decision 2026-08-16: document current-project hygiene and its safe Git cleanup specialization."
   - "Operator decision 2026-08-20: include internal 708-sg-auto while documenting execution posture as public tags rather than expert modes."
+  - "Operator decision 2026-08-27: describe 900 as the internal DX-system owner while retaining its existing expert modes and shipglows_app boundary."
 next_review: "2026-09-04"
 next_step: "none"
 ---
@@ -98,6 +99,7 @@ from the named public skill mode.
 `600-sg-local-cloud-sync` — default
 `601-sg-product-entitlements` — default
 `602-sg-platform-parity` — default | platforms=web,android,ios,windows,macos,linux
+`603-sg-private` — memory <instruction>
 `700-sg-explore` — default
 `704-sg-model` — default
 `705-sg-conversation-audit` — default | latest | path | export shipglows
@@ -107,4 +109,6 @@ from the named public skill mode.
 `800-tmux-capture-conversation` — default | --tab
 `801-clean-conversation-transcript` — default
 `900-shipglows-core` — audit | build | refresh | packaging | help
+
+`900-shipglows-core` maintains the internal ShipGlows DX system across skills/doctrine, CLI/DevServer/TUI runtime, cross-surface coherence, and packaging. `shipglows_app` site/SaaS work remains outside Core.
 `emailing` — compatibility alias for `202-sg-emailing`

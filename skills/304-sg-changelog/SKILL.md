@@ -1,6 +1,6 @@
 ---
 name: 304-sg-changelog
-description: "Generate grouped Keep a Changelog notes from git history."
+description: "Generate user-facing changelog notes from structured history or a Git fallback."
 argument-hint: '[since-tag | since-date | "all"] (omit for since last entry)'
 ---
 
@@ -14,6 +14,12 @@ Trace category: `conditionnel`.
 Process role: `support-de-chantier`.
 
 Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracking.md` when this run is attached to a spec-first chantier. If exactly one active `specs/*.md` chantier is identified, append the current run to `Skill Run History`, update `Current Chantier Flow` when the run changes the chantier state, and open the report with the opening chantier header. If no unique chantier is identified, do not write to any spec; use a `(local)` chantier header with a short work name.
+
+## Structured History First
+
+When the project adopts `shipglows_data/workflow/history/`, load `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md` and validate it with `$SHIPGLOWS_ROOT/tools/context_history.py`. Use eligible structured events as the first source for human and public changelog projections. Do not reconstruct already-recorded semantics from commits, expose internal event fields, or edit immutable shards.
+
+Git remains the fallback for projects without structured history and a reconciliation source when meaningful commits lack events. Public eligibility is never inferred from a commit message alone. Public entries require complete English/French copy and delivery proof; ambiguous entries remain internal.
 
 
 ## Context
@@ -35,6 +41,8 @@ Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/chant
 ---
 
 ## Flow
+
+If structured history is present, validate, deduplicate, group, and render its eligible events using the same Keep a Changelog categories, then continue at Step 5. Use Steps 1–4 only for the Git fallback or for a visible reconciliation gap.
 
 ### Step 1: Determine scope
 

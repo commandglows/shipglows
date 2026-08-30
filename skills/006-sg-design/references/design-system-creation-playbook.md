@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-07-15"
-updated: "2026-08-12"
+updated: "2026-08-24"
 status: active
 source_skill: 006-sg-design
 scope: design-system-creation
@@ -29,6 +29,7 @@ supersedes:
   - skills/500-sg-design-from-scratch/SKILL.md
 evidence:
   - "Migrated and revalidated from 500-sg-design-from-scratch on 2026-07-15."
+  - "Operator decision 2026-08-24: new design systems use the shared Phosphor iconography canon unless project authority documents an exception."
 next_step: "/103-sg-verify design system creation"
 ---
 
@@ -56,6 +57,7 @@ A few variables are not a completed design system. Cover every visual domain the
 - spacing, radius, shadow/elevation, and motion
 - light, dark, system, and high-contrast behavior when supported
 - component-intent aliases for recurring buttons, cards, forms, alerts, navigation, and sections
+- iconography family, functional weights, brand-mark source, and documented exception policy
 - bounded consumption by global styles, the application shell, and representative components/pages
 
 Default coherence constraints are evidence gates, not arbitrary quotas:
@@ -89,6 +91,7 @@ Typography base and ratio: [selection]
 Fluid type: [none / headings / display+headings]
 Spacing base: [4px / 8px / proven existing]
 Theme modes: [selection]
+Iconography: [Phosphor default / documented project exception]
 Migration batch: [files]
 Open decision: [only if material]
 ```
@@ -120,6 +123,7 @@ Report the canonical source, authority type, domains completed, migration covera
 - source authority identified and consumed
 - no new unexplained visual literals
 - theme and reduced-motion behavior preserved
+- functional iconography follows the shared canon or a documented project exception
 - focused build/lint/type checks passed when available
 - drift scan passed or every warning justified
 - browser proof for any claimed visual non-regression or intentional visual change

@@ -62,7 +62,10 @@ removing the plugin, delegates link creation to the low-level synchronizer, and
 selects the clone as the managed shell `SHIPGLOWS_ROOT` before requiring an
 agent restart. `shipglows skills status` reports `plugin`,
 `linked`, `conflict`, or `none`; `shipglows skills unlink` removes only proven
-managed public links and can restore the plugin. This local channel choice
+managed links and can restore the plugin. A linked clone selects exactly one
+mutually exclusive catalogue: `public` (default stable owners) or `expert`
+(internal engines). Every switch removes links from the previous ShipGlows
+catalogue, preserves unrelated skills, and rejects a combined catalogue. This local channel choice
 removes the need for a plugin release during source iteration.
 
 `900-shipglows-core` is not part of the public plugin surface. It is an internal operator skill in the ShipGlows repo for skill execution-fidelity audits and packaging-readiness checks. The old `shipglows-core` plugin source may remain as local pilot history, but public users should install or discover `shipglows`, not `shipglows-core`.
@@ -140,8 +143,9 @@ This means technical pack boundaries may still exist in the catalog, but they ar
 - One Codex environment must not expose both the linked runtime router and the plugin-contributed `shipglows` skill.
 - Normal non-interactive installation must not change plugin state unless `SHIPGLOWS_INSTALL_CODEX_PLUGIN=yes` is explicit.
 - `shipglows skills link` must require a complete Git checkout, preserve unmanaged entries, and refuse a link owned by another clone.
+- Linked `public` and `expert` catalogues must be mutually exclusive, idempotent, and switchable without a combined mode or unrelated-skill deletion.
 - A non-default linked clone must also be the managed shell `SHIPGLOWS_ROOT`; a link/root mismatch is a conflict rather than a successful developer channel.
-- `shipglows skills unlink` must remove only public links whose targets prove ShipGlows repository ownership.
+- `shipglows skills unlink` must remove only links whose targets prove ShipGlows repository ownership.
 - The generic repository `.agents/skills/shipglows` shim must remain absent; OpenCode uses its dedicated `.opencode/skills/shipglows` adapter.
 - Private transcripts, secrets, local caches, dependency directories, and generated builds must not be packaged.
 - Staged pack directories must stay outside the main plugin source tree so local packaging experiments do not bloat the installed `shipglows` plugin.

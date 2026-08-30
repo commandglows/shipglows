@@ -1,10 +1,10 @@
 ---
 artifact: editorial_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.2.1"
 project: "ShipGlows"
 created: "2026-08-08"
-updated: "2026-08-22"
+updated: "2026-08-23"
 status: active
 source_skill: "sg-content"
 scope: "public benefit-first language"
@@ -26,10 +26,10 @@ linked_systems:
   - "skills/references/owasp-application-security-awareness.md"
 depends_on:
   - artifact: "shipglows_data/editorial/claim-register.md"
-    artifact_version: "1.5.0"
+    artifact_version: "1.5.1"
     required_status: reviewed
   - artifact: "shipglows_data/branding/branding.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: reviewed
 supersedes: []
 evidence:

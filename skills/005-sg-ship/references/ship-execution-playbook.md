@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-21"
+updated: "2026-08-27"
 status: active
 source_skill: 005-sg-ship
 scope: ship-execution
@@ -28,6 +28,7 @@ evidence:
   - "Operator correction 2026-08-17: quick daily shipping uses zero or one focused check when sufficient; broad suites are reserved for release, audit, migration, shared-runtime, or high-risk triggers."
   - "Operator decision 2026-08-21: checkpoint mode commits every coherent validated milestone, while final delivery pushes all owned commits before clean closure."
   - "Operator clarification 2026-08-21: checkpoint mode also pushes every validated milestone so no accepted slice remains only on the local machine."
+  - "Operator correction 2026-08-27: temporary-artifact cleanup must reconcile every task-owned managed process through an exact, verified terminal disposition."
 next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
 ---
 
@@ -101,6 +102,7 @@ Propose cleanup only when all of these are proven with fresh read-only checks:
 - the temporary worktree has no tracked or untracked changes;
 - the branch has no unique commits, unresolved review purpose, protection, release ownership, or concurrent operator ownership;
 - the exact worktree path is resolved, task-owned, and not used by a running process;
+- every task-owned managed process has a terminal disposition under the shared lifecycle; for `stopped`, its retained session or exact PID was signalled, awaited, and verified absent without broad process-name termination;
 - every required deployment, hosted proof, and post-push verification is terminal.
 
 When the gate passes, propose the exact cleanup scope without waiting for the operator to notice it and follow the shared removal order from a surviving canonical worktree. Obtain fresh destructive-action approval under `mutation-plan-approval.md`; remote ref deletion always uses its full-plan path. Multiple repositories are proposed together only when each target is exact, then cleaned sequentially; never delete automatically, never force branch deletion, and never touch a shared dependency store or unrelated main worktree.

@@ -46,6 +46,8 @@ Always apply `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md`. B
 
 Load exact applicable authorities: `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`, `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md`, `$SHIPGLOWS_ROOT/skills/references/app-blueprints.md`, `$SHIPGLOWS_ROOT/skills/references/preferred-stacks.md`, `$SHIPGLOWS_ROOT/skills/references/atlas-cartography-lifecycle.md`, `$SHIPGLOWS_ROOT/skills/references/zombies-edge-case-heuristic.md`, and `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`.
 
+When a material application journey, navigation model, common interaction, onboarding, recovery path, or visual direction needs external experience evidence, load `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` and the shared `$SHIPGLOWS_ROOT/skills/references/ux-reference-connectors.md`. Persist only selected observations and product-native principles; source catalogs and checklists never become requirements by themselves.
+
 Use `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` for activation, retention, behavioral analytics, or product-usage GTM proof; `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md` for runtime specs; and `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md` before a `spec:` summary mutation. Before editing this skill, use `$SHIPGLOWS_ROOT/skills/references/skill-instruction-layering.md`.
 
 ## Contract Invariants

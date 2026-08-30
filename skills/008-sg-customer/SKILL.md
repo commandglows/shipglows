@@ -60,6 +60,7 @@ Load only the selected mode playbook. Load shared references only when their gat
 - `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before a material question.
 - `$SHIPGLOWS_ROOT/skills/references/documentation-freshness-gate.md` when current external permissions, billing, accessibility, SDK, provider, or policy behavior governs guidance.
 - `$SHIPGLOWS_ROOT/skills/references/source-intake-classification.md` when external competitor or customer-feedback evidence drives an audit or recommendation.
+- `$SHIPGLOWS_ROOT/skills/references/ux-reference-intelligence.md` when a material journey, onboarding, navigation, common interaction, or recovery pattern needs cross-source convention evidence; load the shared `$SHIPGLOWS_ROOT/skills/references/ux-reference-connectors.md` only before selecting or using an external source.
 - `$SHIPGLOWS_ROOT/shipglows_data/technical/product-behavior-intelligence.md` when first success or activation must be measured as durable value rather than shallow completion.
 
 For an explicitly requested stepped overlay, load `references/onboarding-progress-overlay-pattern.md`, then one or more direct siblings only as needed: `onboarding-overlay-contract.md` for behavior/state/persistence, `onboarding-overlay-vue.md` or `onboarding-overlay-flutter.md` for the target implementation, and `onboarding-overlay-proof-and-copy.md` for copy, proof, or documentation impact.

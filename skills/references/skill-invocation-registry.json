@@ -1,5 +1,5 @@
 {
-  "format_version": "2.12",
+  "format_version": "2.13",
   "identity_source": "skills/references/skill-code-index.md",
   "execution_tags": {
     "local": {"conflicts": ["nolocal", "ci"]},
@@ -54,6 +54,7 @@
         "label": "Organize",
         "skills": [
           {"id": "sg-planning", "public_skill": "sg-planning", "runtime_skill": "011-sg-pilotage", "modes": ["tasks", "backlog", "priorities", "review", "sessions"], "hidden_modes": {"prio": {"owner_mode": "priorities", "runtime_engine": "011-sg-pilotage"}, "explore": {"runtime_engine": "700-sg-explore"}, "spec": {"runtime_engine": "100-sg-spec"}, "status": {"runtime_engine": "308-sg-status"}, "resume": {"runtime_engine": "303-sg-resume"}}, "internal_engines": ["100-sg-spec", "301-sg-context", "303-sg-resume", "308-sg-status", "700-sg-explore", "704-sg-model", "705-sg-conversation-audit", "706-continue", "707-name"]},
+          {"id": "sg-private", "public_skill": "sg-private", "runtime_skill": "603-sg-private", "modes": ["memory", "data"], "internal_engines": []},
           {"id": "sg-help", "public_skill": "sg-help", "runtime_skill": "302-sg-help", "modes": ["default", "mode", "expert"], "internal_engines": []}
         ]
       }
@@ -260,6 +261,16 @@
           "provider-freshness": ["skills/references/documentation-freshness-gate.md"]
         }
       },
+      "603-sg-private": {
+        "body": "skills/603-sg-private/SKILL.md",
+        "baseline": ["skills/references/canonical-paths.md", "skills/references/canonical-runtime-and-private-roots.md", "skills/references/intent-to-outcome-autonomy.md"],
+        "gates": {
+          "memory-operations": ["skills/603-sg-private/references/memory-operations.md"],
+          "private-data": ["skills/references/private-data-repo-contract.md"],
+          "mutation-approval": ["skills/references/mutation-plan-approval.md"],
+          "report": ["skills/references/reporting-contract.md"]
+        }
+      },
       "400-sg-audit": {
         "body": "skills/400-sg-audit/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md", "skills/400-sg-audit/references/audit-master-workflow.md"],
@@ -300,6 +311,8 @@
           "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
           "audit": ["skills/900-shipglows-core/references/core-audit-and-improvement.md"],
           "build": ["skills/900-shipglows-core/references/skill-maintenance-playbook.md"],
+          "dx-runtime": ["skills/900-shipglows-core/references/dx-runtime-maintenance.md"],
+          "system-coherence": ["skills/900-shipglows-core/references/system-coherence.md"],
           "build-lifecycle": ["skills/references/master-workflow-lifecycle.md", "skills/references/master-delegation-semantics.md"],
           "refresh": ["skills/900-shipglows-core/references/skill-refresh-playbook.md"],
           "packaging": ["skills/900-shipglows-core/references/core-packaging.md", "shipglows_data/technical/codex-plugin-packaging.md"],
@@ -333,6 +346,7 @@
     "302-sg-help": {"kind": "freeform", "min_args": 0},
     "407-sg-translate": {"kind": "freeform", "min_args": 0},
     "601-sg-product-entitlements": {"kind": "freeform", "min_args": 0},
+    "603-sg-private": {"kind": "modes", "modes": {"memory": {"min_args": 0}, "data": {"min_args": 1}}},
     "708-sg-auto": {"kind": "freeform", "min_args": 0},
     "900-shipglows-core": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "build": {"min_args": 1}, "refresh": {"min_args": 1}, "packaging": {"min_args": 0}, "help": {"min_args": 0}}}
   },

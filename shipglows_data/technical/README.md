@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.15.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-07-13"
+updated: "2026-08-27"
 status: reviewed
 source_skill: sg-start
 scope: technical-docs-index
@@ -37,6 +37,10 @@ evidence:
   - "Design-system authority technical artifact added for declaring project canonical token/theme/component sources."
   - "Operator guides migrated from root docs into shipglows_data/technical/operator-guides/."
   - "Progressive resource discovery added a read-only resolver and shared authority-boundary reference for bounded reference/playbook search."
+  - "Latest-build artifact access documentation added for source-labelled local and CI shortcuts, private cached packages, and honest host-platform limits."
+  - "Auth0 platform note added for SDK, native CLI, Deploy CLI, MCP, tenant, authentication, and hosted-proof boundaries."
+  - "Doppler platform note added for native CLI, keychain, environment scope, process injection, service-token, MCP, and agent-safety boundaries."
+  - "Hetzner project usage note reduced to public-safe logical runtime and managed-workspace roles; operational inventory now lives in the private operator repository."
 next_review: "2026-06-18"
 next_step: "/sg-docs technical audit"
 ---
@@ -53,6 +57,7 @@ This layer complements the existing docs:
 - `shipglows_data/technical/context.md` stays the compact operational map.
 - `shipglows_data/technical/guidelines.md` stays the general engineering doctrine.
 - `shipglows_data/technical/external-platforms/` stores global external provider notes used by the Freshness Gate.
+- `shipglows_data/technical/platforms/` stores ShipGlows-specific provider usage, proof routes, and operational boundaries.
 - `shipglows_data/workflow/specs/*.md` stay chantier contracts and run history.
 - `shipglows_data/technical/*.md` documents durable subsystem behavior near the code.
 - `shipglows_data/technical/operator-guides/` stores canonical operator-facing Markdown references.
@@ -82,6 +87,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `codebase-mcp.md` | `tools/codebase-mcp/` |
 | `public-site-and-content-runtime.md` | `site/`, `shipglows_data/editorial/content-map.md`, public/private doc boundaries |
 | `installer-and-user-scope.md` | `install.sh`, root/user setup, aliases, skill links, MCP config |
+| `latest-build-artifact-access.md` | Latest successful local/CI Windows packages and Android APKs, private cache/state, desktop shortcuts, GitHub artifact synchronization, and platform limits |
 | `codex-plugin-packaging.md` | `/home/claude/plugins/shipglows/`, personal marketplace, plugin manifest, sparse source bootstrap |
 | `product-behavior-intelligence.md` | Cross-project product analytics framing for behavior graphs, activation, retention, feature impact, exploratory analytics, and GTM proof |
 | `decisions.md` | ADR-style decisions, `decision_record` templates, durable decision routing |
@@ -95,6 +101,8 @@ It does not share canonical ownership with random root notes. When a root techni
 | `external-platforms/convex.md` | Convex deployments, generated APIs, auth, Clerk integration, indexes, actions, and scheduled functions |
 | `external-platforms/crewai.md` | CrewAI agents, crews, tasks, flows, tools, memory, structured outputs, LiteLLM/OpenRouter, and dependency migrations |
 | `external-platforms/clerk.md` | Clerk SDKs, middleware, hooks, webhooks, JWT templates, Convex integration, and hosted auth proof |
+| `external-platforms/auth0.md` | Auth0 SDKs, native operator CLI, login/status boundaries, Deploy CLI separation, tenant safety, and hosted auth proof |
+| `external-platforms/doppler.md` | Doppler native CLI, keychain, project/config scope, secret injection, service/identity tokens, MCP risk, and agent-safe use |
 | `external-platforms/firebase.md` | Firebase Auth, Firestore Security Rules, Admin SDK boundaries, CLI deploys, and Hosting |
 | `external-platforms/google-cloud.md` | Google Cloud IAM, ADC, service accounts, Workload Identity Federation, Cloud Run identity, and CI credentials |
 | `external-platforms/supabase.md` | Supabase Auth, Postgres/RLS, Storage, SSR sessions, CLI, migrations, and database advisors |
@@ -103,6 +111,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `external-platforms/python.md` | Python runtime, stdlib tooling, virtual environments, packaging, subprocess, parsing, and script validation |
 | `external-platforms/bash.md` | Bash shell behavior, error handling, traps, pipelines, quoting, installers, and destructive-command safety |
 | `external-platforms/gum.md` | Charmbracelet Gum commands, install sources, TUI output/exit behavior, prompt cancellation, and Bash menu validation |
+| `platforms/hetzner.md` | Public-safe Hetzner role boundaries for `sg-runtime-01` and `sg-workspaces-01`, private-inventory routing, and managed-workspace execution status |
 
 ## Non-Coverage
 

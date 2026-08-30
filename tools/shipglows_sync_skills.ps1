@@ -13,7 +13,7 @@ param(
     [ValidateSet('claude', 'codex', 'all')]
     [string]$Runtime = 'all',
 
-    [ValidateSet('public', 'expert', 'all')]
+    [ValidateSet('public', 'expert')]
     [string]$Catalog = 'public',
 
     [ValidateSet('linked', 'plugin')]
@@ -23,9 +23,7 @@ param(
 
     [string]$ShipGlowsRoot = (Split-Path -Parent $PSScriptRoot),
 
-    [switch]$BackupExisting,
-
-    [switch]$CleanStale
+    [switch]$BackupExisting
 )
 
 Set-StrictMode -Version Latest
@@ -201,7 +199,13 @@ function Sync-SgSkill([string]$RuntimeName, [string]$Name, [string]$SourceName) 
             return
         }
 
-        Remove-Item -LiteralPath $targetPath -Force
+        if (-not $item.PSIsContainer) {
+            throw "Refusing to replace a non-directory runtime link: $targetPath"
+        }
+        # Windows PowerShell 5.1 can throw a NullReferenceException when
+        # Remove-Item targets a directory junction. Directory.Delete removes
+        # the junction itself without traversing or deleting its source.
+        [System.IO.Directory]::Delete($item.FullName, $false)
         New-SgDirectoryLink $targetPath $sourcePath
         $script:Repaired++
         Write-Output "repaired runtime=$RuntimeName skill=$Name target=$targetPath reason=stale-or-broken-link"
@@ -219,8 +223,8 @@ function Sync-SgSkill([string]$RuntimeName, [string]$Name, [string]$SourceName) 
     Write-Output "repaired runtime=$RuntimeName skill=$Name target=$targetPath reason=missing"
 }
 
-function Remove-SgStaleLinks([string]$RuntimeName, [System.Collections.Generic.HashSet[string]]$DesiredNames) {
-    if ($Mode -ne 'repair' -or -not $CleanStale) { return }
+function Reconcile-SgCatalogLinks([string]$RuntimeName, [System.Collections.Generic.HashSet[string]]$DesiredNames) {
+    if ($PSCmdlet.ParameterSetName -ne 'All') { return }
     $runtimeDirectory = Get-SgRuntimeDirectory $RuntimeName
     if (-not (Test-Path -LiteralPath $runtimeDirectory -PathType Container)) { return }
     $resolvedSkills = Resolve-SgPath (Join-Path $ShipGlowsRoot 'skills')
@@ -231,12 +235,17 @@ function Remove-SgStaleLinks([string]$RuntimeName, [System.Collections.Generic.H
         if (-not $resolvedTarget) { continue }
         if (-not $resolvedTarget.StartsWith("$resolvedSkills\", [System.StringComparison]::OrdinalIgnoreCase)) { continue }
 
+        if ($Mode -eq 'check') {
+            $script:Blocked++
+            Write-Output "conflict runtime=$RuntimeName skill=$($item.Name) target=$($item.FullName) reason=excluded-by-$Catalog-catalog"
+            continue
+        }
         if (-not $item.PSIsContainer) {
             throw "Refusing to remove a non-directory runtime link: $($item.FullName)"
         }
         [System.IO.Directory]::Delete($item.FullName, $false)
         $script:Repaired++
-        Write-Output "repaired runtime=$RuntimeName skill=$($item.Name) target=$($item.FullName) reason=removed-invalid-shipglows-link"
+        Write-Output "repaired runtime=$RuntimeName skill=$($item.Name) target=$($item.FullName) reason=removed-by-$Catalog-catalog"
     }
 }
 
@@ -249,10 +258,8 @@ $pairs = if ($PSCmdlet.ParameterSetName -eq 'Skill') {
     @([pscustomobject]@{ Name = $Skill; Source = $Skill })
 } elseif ($Catalog -eq 'public') {
     @(Get-SgPublicPairs)
-} elseif ($Catalog -eq 'expert') {
-    @(Get-SgExpertPairs)
 } else {
-    @(Get-SgPublicPairs) + @(Get-SgExpertPairs)
+    @(Get-SgExpertPairs)
 }
 
 $runtimes = if ($Runtime -eq 'all') { @('claude', 'codex') } else { @($Runtime) }
@@ -267,7 +274,7 @@ foreach ($pair in $pairs) {
     }
 }
 foreach ($runtimeName in $runtimes) {
-    Remove-SgStaleLinks $runtimeName $desiredNames
+    Reconcile-SgCatalogLinks $runtimeName $desiredNames
 }
 
 Write-Output "summary mode=$Mode runtime=$Runtime catalog=$Catalog codex_entrypoint=$CodexEntrypoint checked=$script:Checked ok=$script:Ok repaired=$script:Repaired skipped=$script:Skipped blocked=$script:Blocked"

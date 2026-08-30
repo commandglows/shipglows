@@ -222,7 +222,9 @@ with tempfile.TemporaryDirectory() as directory:
             return (trusted_root / executable,)
 
     with mock.patch("cli.environment.mise_backend.shutil.which", return_value=None):
-        assert FreshInstallRunner().which("mise.exe") == str(trusted_root / "mise.exe")
+        fresh_install_path = FreshInstallRunner().which("mise.exe")
+        assert fresh_install_path is not None
+        assert Path(fresh_install_path).resolve() == (trusted_root / "mise.exe").resolve()
 
     alias_root = fixture / "windows app execution aliases"
     package_root = fixture / "desktop app installer package"

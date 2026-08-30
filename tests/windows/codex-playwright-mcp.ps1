@@ -10,7 +10,7 @@ $parseErrors = $null
 if ($parseErrors.Count -gt 0) { throw ($parseErrors | ForEach-Object Message | Out-String) }
 Import-Module $modulePath -Force -DisableNameChecking
 $installerSource = Get-Content -LiteralPath $installerPath -Raw
-if ($installerSource -notmatch "Id='playwright-agent-cli';Name='Playwright Agent CLI'" -or $installerSource -notmatch '\$install\.Id') { throw 'Managed Playwright operations must keep a safe technical id separate from the display name.' }
+if ($installerSource -notmatch "Id='playwright';Name='Playwright'" -or $installerSource -notmatch '\$install\.Id' -or $installerSource -match 'Resolve-SgNpmVersion \$NpmPath ''@playwright/cli''') { throw 'Managed Playwright must use one safe technical operation id and the CLI bundled with Playwright.' }
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-codex-mcp-' + [guid]::NewGuid().ToString('N'))
 try {

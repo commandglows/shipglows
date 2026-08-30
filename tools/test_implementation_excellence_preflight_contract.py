@@ -7,6 +7,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "skills/references/implementation-excellence-preflight.md"
+DESIGN_CONTRACT = ROOT / "skills/references/design-system-token-contract.md"
 
 
 class ImplementationExcellencePreflightContractTests(unittest.TestCase):
@@ -35,6 +36,46 @@ class ImplementationExcellencePreflightContractTests(unittest.TestCase):
             "keyboard/focus behavior",
             "responsive/adaptive behavior",
             "supported themes",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, self.contract)
+
+    def test_frontend_gate_preserves_content_when_javascript_or_animation_fails(self) -> None:
+        design_contract = " ".join(DESIGN_CONTRACT.read_text(encoding="utf-8").split())
+        for marker in (
+            "initial semantic document",
+            "must never be the only mechanism that reveals or unlocks them",
+            "disabled or failed JavaScript/animation initialization",
+            "prefers-reduced-motion",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, design_contract)
+
+        for marker in (
+            "initial semantic document",
+            "must not be required to reveal or unlock them",
+            "failed or disabled JavaScript/animation initialization",
+            "IEP-FRONTEND-CONTENT-AVAILABILITY",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, self.contract)
+
+    def test_frontend_gate_is_css_first_without_becoming_dogmatic(self) -> None:
+        design_contract = " ".join(DESIGN_CONTRACT.read_text(encoding="utf-8").split())
+        for marker in (
+            "Use semantic HTML and native CSS by default",
+            "application state, data, complex interaction, coordination, or runtime measurement",
+            "Framework convenience, visual novelty, or an animation library's availability is not sufficient justification",
+            "keep the semantic HTML/CSS baseline independently usable",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, design_contract)
+
+        for marker in (
+            "use semantic HTML and native CSS by default",
+            "record the functional justification for presentation-layer JavaScript",
+            "IEP-FRONTEND-CSS-FIRST",
+            "over a JavaScript-free dogma",
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.contract)
@@ -93,6 +134,8 @@ class ImplementationExcellencePreflightContractTests(unittest.TestCase):
         for scenario in (
             "IEP-FRONTEND-TOKENS",
             "IEP-FRONTEND-PRIMITIVE",
+            "IEP-FRONTEND-CONTENT-AVAILABILITY",
+            "IEP-FRONTEND-CSS-FIRST",
             "IEP-BACKEND-AUTHZ",
             "IEP-BACKEND-CONCURRENCY",
             "IEP-SHARED-BOUNDARY",

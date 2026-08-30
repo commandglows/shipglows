@@ -56,6 +56,13 @@ while conflicts with `#local` fail closed.
 operator select internal lifecycle stages. A request may cross métiers, but one
 public owner remains accountable for the observable outcome.
 
+For material application journeys, interactions, onboarding, recovery, or
+visual direction, the relevant creation métiers may compare conventions across
+suitable reference sources that are available in the current environment.
+Those sources are optional evidence, not guaranteed integrations or product
+requirements: product intent, user evidence, accessibility, platform guidance,
+and verified project behavior retain priority.
+
 ## Public Boundaries
 
 - `sg-docs` is internal documentation; `sg-content` owns public docs and content.

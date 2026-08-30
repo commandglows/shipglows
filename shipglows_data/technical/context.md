@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.11.0"
+artifact_version: "0.14.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-19"
+updated: "2026-08-27"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -13,7 +13,7 @@ confidence: "high"
 risk_level: "medium"
 security_impact: "none"
 docs_impact: "yes"
-linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/config.sh", "cli/install.sh", "cli/windows/", "install-shipglows.ps1", "local/local.sh", "skills/", "skills/references/app-blueprints.md", "skills/app-blueprints/", "shipglows_data/workflow/playbooks/spec-driven-workflow.md", "shipglows_data/technical/context-function-tree.md", "shipglows_data/editorial/content-map.md", "shipglows_data/technical/", "shipglows_data/business/project-competitors-and-inspirations.md", "shipglows_data/business/affiliate-programs.md"]
+linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/config.sh", "cli/install.sh", "cli/windows/", "install-shipglows.ps1", "local/local.sh", "skills/", "skills/900-shipglows-core/", "skills/references/app-blueprints.md", "skills/app-blueprints/", "shipglows_data/workflow/playbooks/spec-driven-workflow.md", "shipglows_data/technical/context-function-tree.md", "shipglows_data/editorial/content-map.md", "shipglows_data/technical/", "shipglows_data/business/project-competitors-and-inspirations.md", "shipglows_data/business/affiliate-programs.md"]
 depends_on: []
 supersedes: []
 evidence: ["README.md", "CLAUDE.md", "shipglows_data/editorial/content-map.md", function extraction from core shell scripts, "shipglows_data/technical/* as code-proximate subsystem documentation", "Business registries added for project competitors/inspirations and affiliate programs.", "2026-07-17 DevServer startup/cache implementation: lazy atomic registry, pruned Flox discovery, parent-shell cache APIs.", "2026-08-13 Linux Flox environment-root and launch-path separation with registry and PM2 migration coverage.", "2026-08-19 Linux clone/start separation with uninitialized catalogue entries and first-start Flox initialization.", "Métier-first public hierarchy and autonomous execution specification."]
@@ -33,6 +33,8 @@ ShipGlows combine deux couches :
 - un gestionnaire d'environnements avec backend serveur Linux (Flox, PM2, Caddy, DuckDNS) et backend local Windows natif (PowerShell, registre JSON, localhost)
 - un systeme de skills pour travail spec-first, verification, audit, documentation et shipping
 
+La frontière de dépôt est explicite : `shipglows` contient le système DX (skills, CLI/DevServer, TUI, outils locaux, installateurs et gouvernance interne), tandis que `shipglows_app` contient séparément le site public et le SaaS. `900-shipglows-core` maintient le premier et ne possède pas les mutations produit du second.
+
 ## Entry Points
 
 - `cli/shipglows.sh`: point d'entree du CLI.
@@ -41,7 +43,7 @@ ShipGlows combine deux couches :
 - `cli/lib.sh`: coeur des actions, validations, integrations systeme et menus.
 - `cli/config.sh`: configuration centralisee et validation.
 - `cli/install.sh`: bootstrap serveur et configuration de l'environnement utilisateur.
-- `cli/windows/`: DevServer Windows natif pour Astro, Python/FastAPI et Flutter Web, sans WSL.
+- `cli/windows/`: DevServer Windows natif pour Astro, Vite, extensions navigateur, Python/FastAPI et Flutter Web, sans WSL.
 - `install-shipglows.ps1`: bootstrap Windows public, choix tunnel local ou DevServer full.
 - `local/local.sh`: UX locale des tunnels SSH.
 - `skills/`: workflows AI orientes taches.
@@ -148,14 +150,14 @@ project -> product -> surface -> feature -> spec or bounded contract ->
 implementation -> proof -> documentation reflection -> closure
 ```
 
-La surface publique comprend le routeur `shipglows` et treize métiers :
+La surface publique comprend le routeur `shipglows` et quatorze métiers :
 
 - Créer : `sg-development`, `sg-design`, `sg-experience`
 - Qualité : `sg-bug`, `sg-engineering`, `sg-maintenance`
 - Publier : `sg-release`
 - Développer l’audience : `sg-content`, `sg-marketing`, `sg-seo`
 - Gouverner : `sg-docs`
-- Organiser : `sg-planning`, `sg-help`
+- Organiser : `sg-planning`, `sg-private`, `sg-help`
 
 Les noms numériques restent des moteurs internes. Les propriétaires publics les
 choisissent et les enchaînent sans demander à l’opérateur de micro-manager le

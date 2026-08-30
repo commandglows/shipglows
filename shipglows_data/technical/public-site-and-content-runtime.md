@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-19"
+updated: "2026-08-24"
 status: reviewed
 source_skill: sg-start
 scope: public-site-and-content-runtime
@@ -21,7 +21,7 @@ linked_systems:
   - shipglows_data/editorial/
 depends_on:
   - artifact: "shipglows_data/editorial/content-map.md"
-    artifact_version: "0.7.0"
+    artifact_version: "0.16.2"
     required_status: draft
   - artifact: "shipglows_data/editorial/README.md"
     artifact_version: "1.0.0"
@@ -37,6 +37,7 @@ evidence:
   - "Public docs page now needs to present the project governance layout decision."
   - "French locale added for primary public routes while public skill contracts remain intentionally English for agent reliability."
   - "The 2026-08-19 installer alignment updates EN/FR runtime claims for Ubuntu/Debian support, automatic corpus selection, the canonical commandglows/shipglows repository, and the shipglows.com hosted-docs origin."
+  - "The 2026-08-24 sg-private rollout adds the fourteenth public métier owner, its public skill page, and aligned EN/FR catalogue counts without exposing private operator values."
 next_review: "2026-06-01"
 next_step: "/sg-docs technical audit /home/claude/shipglows_app/site"
 ---

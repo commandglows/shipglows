@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-17"
+updated: "2026-08-30"
 status: active
 source_skill: 104-sg-end
 scope: closure-bookkeeping-playbook
@@ -22,6 +22,7 @@ evidence:
   - "Operator clarification 2026-08-15: documentation reflection must be enforced and visible at closure."
   - "Operator decision 2026-08-16: editorial impact is classified independently and visibly at every closure."
   - "Operator correction 2026-08-17: clean completed daily work proceeds to bounded commit/push by default instead of accumulating locally."
+  - "Operator approval 2026-08-30: changelog impact is classified visibly for every managed-repository closure and significant history capture is bounded to one event."
 next_step: none
 ---
 
@@ -81,6 +82,10 @@ If proof or ship is not complete, never set `closed`.
 - Skip this step entirely in `summary-only`.
 - Apply one compact row for the current task entry.
 - Keep changelog scoped by intent (Added/Changed/Fixed/Security/Removed).
+- Classify the closure as `public-ready`, `internal-only`, `not applicable`, or `needs review`; include the classification visibly beneath `📰 CHANGELOG`.
+- `public-ready` confirms safe eligible copy for a declared delivery path, not publication. Published, deployed, or available claims require matching delivery evidence.
+- When structured history is adopted, append at most one significant event per closure. Do not create filler events or expose raw internal history to public consumers.
+- A material `needs review` result forces `partial`; `internal-only` and `not applicable` remain valid clean outcomes when their reasons are concrete.
 - Never claim production readiness from closure text.
 
 ## Step 5: next action

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.23.0"
+artifact_version: "0.29.1"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-20"
+updated: "2026-08-30"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -44,6 +44,9 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "2026-08-30 Flutter live-development update: native Windows and Android use supervised registry-selected targets and reserve standalone builds for release or package-sensitive checks."
+  - "2026-08-27 DX ownership decision: 900-shipglows-core maintains skills/doctrine, CLI/DevServer/TUI runtime, installers, coherence, and packaging inside shipglows; shipglows_app separately owns the public site and SaaS."
+  - "2026-08-27 approval-boundary correction: clear bounded requests execute directly with focused proof when actions and targets are few and enumerable and no material direction must be chosen; local/remote location and reasoning effort do not change classification."
   - "2026-07-17 atomic routing update: deterministic micro-edits execute directly with focused validation instead of loading a lifecycle skill."
   - "Added 108-sg-browser as the generic non-auth browser verification path."
   - "Added 004-sg-deploy as the release confidence orchestrator."
@@ -77,14 +80,19 @@ evidence:
   - "Operator confirmed positioning decision SG-BIZ-2026-08-13-01: ShipGlows leads as a business-aware delivery partner; environment operations support execution and proof."
   - "Operator decision 2026-08-20: document #local, #nolocal, and #ci as composable agent execution tags distinct from workflow modes."
   - "Operator decision 2026-08-20: normal installers offer the official Codex plugin, while source contributors use shipglows skills link for live clone-backed skills without a release loop."
-next_step: "Align the external ShipGlows landing, docs, FAQ, and pitch surfaces with SG-BIZ-2026-08-13-01"
+  - "Operator decision 2026-08-22: ShipGlows is a business framework shared by humans and AI agents; identity and impact are ambitions, partnership is behavior, and technical execution remains a core strength."
+next_step: "Test whether the business-framework category is understood without implying a code library, AI-only tool, or human service"
 ---
 
 # ShipGlows
 
 > Public-site ownership: the canonical Astro site moved to `/home/claude/shipglows_app/site` on 2026-08-02. The former `shipglows-site/` path in this repository is retired and must not be recreated; remaining references to it are migration debt, not source authority.
 
-ShipGlows is a business-aware delivery partner that turns governed product truth into decisions, bounded chantiers, and verified outcomes with AI agents.
+Repository boundary: this `shipglows` repository is the internal DX system (skills, CLI/DevServer, TUI, local tooling, installers, packaging, tests, and governance). The separate `shipglows_app` repository owns the public website and SaaS product.
+
+ShipGlows is a business framework for humans and AI agents. It aligns them around shared truth across vision, identity, brand, content, product, technology, growth, delivery, and proof.
+
+Its ambition is clear: create distinctive identities, build businesses that make an impact, and give every ambition a solid technical execution. These are directions for the work, not guaranteed outcomes.
 It also includes a dedicated OpenCode skill shim under `.opencode/skills/shipglows/`. The generic repository-level `.agents/skills/shipglows/` shim is intentionally absent because Codex already discovers user skills and plugins there, and exposing both creates duplicate public entrypoints.
 
 Its operating model has four ordered layers:
@@ -106,7 +114,7 @@ ShipGlows is designed to solve one problem first: AI-assisted work that loses th
 
 It connects governed project truth to one business-aware métier owner, then carries the outcome through bounded execution and verification. Server and environment operations are differentiated delivery capabilities inside that partnership, not an equal competing promise. ShipGlows should therefore be read as neither a PM2-oriented server script nor a prompt bundle.
 
-### Business-aware delivery partnership
+### Business framework, partner behavior
 
 - load only the business and product truth that can change the current decision
 - recommend useful strategic directions instead of reducing every choice to technical variants
@@ -125,6 +133,7 @@ It connects governed project truth to one business-aware métier owner, then car
 
 ### Structured AI workflows
 
+- clear bounded requests execute directly with focused proof when their few actions and targets are enumerable and no material direction must be chosen; unknown, unbounded, or directional work becomes a supervised chantier
 - task tracking and session lifecycle
 - fast current-thread recap when a session becomes hard to follow
 - spec-driven implementation flow
@@ -255,8 +264,17 @@ retourné par GitHub, puis télécharge uniquement l'archive immuable de ce comm
 
 In an interactive Windows console, the bootstrap asks for SSH tunnels or the
 recommended local DevServer. The DevServer installs only the native PowerShell
-runtime for Astro, Vite, Python/FastAPI, and Flutter Web, prepares Git, GitHub CLI,
+runtime for Astro, Vite, Python/FastAPI, and Flutter applications targeting Web,
+Windows desktop, or Android, prepares Git, GitHub CLI,
 Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid external
+WSL remains optional and independent from ShipGlows. In the interactive full
+installer, a separate consent can install Ubuntu through the official Windows
+flow; restart and first-user initialization remain user-owned. Once Ubuntu is
+ready, another independent consent can install the pinned Turso Cloud CLI v1.0.32
+in `~/.local/bin` after SHA-256 verification. ShipGlows never starts Turso login,
+database creation, token creation, a shell, or a migration.
+
+Valid external
 Flutter/Dart, JDK 17 and Android SDK installations are reused without replacing
 their environment variables or `PATH`; a validated ShipGlows-managed Flutter SDK
 always reconverges its own `bin` directory into the user and active installer
@@ -320,16 +338,22 @@ The runtime menu exposes `s a` / **Authentication** to inspect redacted local
 status and launch each installed CLI's official interactive connect, reconnect,
 or confirmed logout flow. ShipGlows never reads or stores credentials; Gemini
 uses its own interactive CLI, while Convex remains explicitly project-scoped.
-The full installer prepares Playwright, Dart/Flutter, Firebase, Convex, Clerk and
-the official read-only GitHub MCP
-for installed agents when the matching workspace stacks are detected, without
-authenticating. GitHub MCP is global because GitHub CLI is part of full mode;
-Clerk MCP and its exact-version CLI are enabled only when bounded manifests detect
-Clerk. Firebase, FlutterFire, Convex, Vercel and Supabase CLIs are
-prepared only from bounded manifest detection and exact resolved versions. New JSON configs use
-the agent's exact schema. A schema-only OpenCode or Kilo placeholder can be completed
-atomically, while any config with comments, user fields, providers, or secrets stays
-byte-for-byte unchanged and is reported pending. Playwright is never
+The full installer permanently acquires the trusted WinGet `mise` package and
+uses an isolated machine toolbox for exact Firebase, Supabase, Convex, Vercel
+and Clerk CLI versions. FlutterFire remains an exact Dart Pub installation,
+Google Cloud CLI comes from `Google.CloudSDK`, and Playwright keeps its dedicated
+managed runtime. These machine CLI installations do not depend on the current
+workspace and do not trust project `mise.toml` files, enable global shims, or
+start authentication. Project detection controls MCP activation instead. For every
+project registered with the ShipGlows DevServer, Windows writes agent-native local
+configuration for Codex, Claude, Gemini, OpenCode and Kilo. Those machine-specific
+files are excluded through the repository's local Git exclude file rather than
+committed. Dart, Playwright, Firebase/FlutterFire, Convex, Clerk, read-only Supabase,
+Vercel and read-only GitHub are activated only when the project manifests or Git
+metadata require them. Google Cloud MCPs are catalogued but require an explicit
+project choice. A divergent local config remains byte-for-byte unchanged and is
+reported pending unless it still matches ShipGlows' recorded hash or the owner runs
+the explicit maintainer surface. Playwright is never
 registered until an exact package version and a runnable local Chromium executable
 are proven. Android packages are centralized on API/platform/build-tools 36.
 Final observation is authoritative after an installer command: an exact runnable
@@ -341,10 +365,10 @@ absolute native `npx.cmd`, and installs headless Chromium into the user cache
 only after both exact-version resolution and executable discovery succeed.
 When configuration succeeds, the capability is available after Codex restarts;
 ShipGlows does not add Playwright files or packages to application repositories.
-Windows full also installs exact managed `playwright` and `playwright-cli`
-runtimes, exposes both through ShipGlows's PATH-priority wrappers, installs the
-Chromium revision declared by the stable runtime, and records stable, agent-CLI,
-MCP, browser-revision, and motion readiness separately.
+Windows full installs one exact managed `playwright` package, exposes its normal
+command and bundled `playwright cli` entrypoint through ShipGlows PATH-priority
+wrappers, installs the Chromium revision declared by that runtime, and records
+stable, agent-CLI, MCP, browser-revision, and motion readiness separately.
 The managed Chromium path is wired before Flutter's install-time doctor runs,
 so that diagnostic reflects the final browser configuration instead of a
 temporary missing-Chrome state.
@@ -373,7 +397,11 @@ For automation, pass `-InstallMode local` or `-InstallMode full`; add
 `-InstallSurface maintainer` only for the ShipGlows owner workstation. That explicit surface clones or
 validates `%USERPROFILE%\ShipGlows\shipglows`, removes the conflicting public
 Codex plugin, and links the public Codex skills directly to the complete,
-editable multi-branch clone. A successful switch also persists
+editable multi-branch clone. On this explicit owner-only surface, ShipGlows also
+removes the former ShipGlows MCP entries from agent-global configuration and
+authoritatively converges the generated project-local files; unrelated global agent
+settings remain preserved. Ordinary runtime installs preserve divergent project
+files and report unresolved differences as pending. A successful switch also persists
 `SHIPGLOWS_ROOT` for the current Windows user and activates it in the installer
 process, so new agent sessions resolve the same editable source without relying
 on their working directory.
@@ -386,7 +414,7 @@ and the Linux `urls` menu are intentionally not part of this path.
 
 The Windows DevServer discovers runnable surfaces from native manifests rather
 than folder names. A repository or explicitly registered monorepo can expose
-separate Astro, Vite, Python/FastAPI, and Flutter Web surfaces; each surface is
+separate Astro, Vite, Python/FastAPI, and Flutter surfaces; each surface is
 registered with its own stable display name, persistent localhost port, logs,
 and `ENVIRONMENT.md`. Discovery is bounded to four workspace levels and three
 levels below a project root, and skips dependency, build, cache, and hidden
@@ -409,8 +437,16 @@ canonical launch identity rather than by a potentially ambiguous label.
 Port selection and reservation share one inter-process registry lock, preventing
 concurrent starts from assigning the same port to different surfaces. Existing
 single-surface registry entries are migrated by runnable path while preserving
-verified live process metadata. Flutter Web runs through a small persistent
-machine-protocol supervisor with managed logs and headless Chrome by default.
+verified live process metadata. Flutter runs through a small persistent
+machine-protocol supervisor with managed logs. Iterative development uses the
+registry-selected live target instead of rebuilding the application: Windows
+desktop defaults to `flutter run -d windows`; Android honors an explicitly
+selected connected device, reuses a ready Android target, or starts the provisioned
+`ShipGlows_API_36` emulator and waits for its resolved device id. A managed Desktop
+Dev shortcut starts or reuses that supervised session. Standalone Windows builds,
+APKs, and AABs remain release or package-sensitive validation checkpoints.
+
+Flutter Web keeps headless Chrome as its default managed target.
 The full installer exposes its validated Playwright Chromium through the standard
 `CHROME_EXECUTABLE` user environment variable, and the supervisor passes only
 that existing ShipGlows-managed executable to Flutter's `chrome` device.
@@ -421,6 +457,8 @@ browsers are stopped only with exact ShipGlows launch evidence.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
 After a full install, use `s` (or `shipglows-dev`) for the project dashboard.
+Use `shipglows rename rio "Session name"` to set the current Rio tab title;
+the command does not rename the corresponding Codex conversation.
 The main interactive menu includes `n  Navigate to a project`; it opens a child
 PowerShell in the selected project directory, and `exit` returns to the initial shell.
 The PATH-backed `.cmd` launchers do not depend on the PowerShell profile, so
@@ -439,6 +477,28 @@ the commit message; bare `gp` generates a dated synchronization message.
 npm-family and agent commands receive
 managed `.cmd` wrappers so blocked npm-generated `.ps1` shims do not require a
 machine-wide execution-policy change.
+
+`shipglows update` is the canonical ShipGlows update command. Use
+`shipglows update status` first when you want to inspect the selected channel.
+The Windows DevServer header shows the installed ShipGlows version immediately
+and checks for a newer release in the background through a local cache; green
+is current, orange is an available patch/source update, and red is a missed
+minor or major version. Use `s update` when the header reports an update.
+On a linked developer checkout, skills already follow the checkout and only a
+new Codex or Claude session is needed after skill edits; the update command
+refreshes the managed runtime from that checkout's upstream branch. On Unix,
+`s u` remains the separate system-package update menu action.
+
+Native Windows keeps global developer-tool maintenance separate from both
+ShipGlows self-update and project dependency maintenance. Use
+`shipglows tools status` (or `s tools status`) for a read-only WinGet plus
+npm/pnpm version preview, then `shipglows tools update` (or the dedicated
+**Update developer tools** menu entry) to review the ShipGlows-owned allowlist
+and confirm the update. The updater targets only exact WinGet package IDs and
+exact npm-registry versions for Node/npm/pnpm and the global tools already
+owned by the full installer; it never runs `winget upgrade --all`, edits a
+project manifest or lockfile, updates `node_modules`, accepts an SDK licence,
+changes credentials, restarts Windows, or changes the active ShipGlows channel.
 
 The code repository is public, so Git or GitHub credentials are not required
 for this bootstrap. Termux selects `local` without `sudo`; an existing root shell
@@ -483,13 +543,17 @@ skills surface:
 ```bash
 shipglows skills status
 shipglows skills link
+shipglows skills link --catalog expert
 ```
 
 `link` verifies the Git checkout, refuses links owned by another clone, asks
-before removing an enabled ShipGlows plugin, links the public catalogue into
+before removing an enabled ShipGlows plugin, links exactly one catalogue into
 Codex and Claude, configures that clone as `SHIPGLOWS_ROOT` in existing Bash or
 Zsh startup files, points managed user-local `shipglows` launchers at the clone,
-and verifies the result. Source edits become visible without a push, plugin
+and verifies the result. `public` is the default and exposes only the stable
+`sg-*` owners; `expert` exposes only internal engines. Switching catalogue
+removes the previous ShipGlows links while preserving personal and third-party
+skills. A combined catalogue is intentionally unsupported. Source edits become visible without a push, plugin
 release, or reinstall after Codex or Claude is restarted from a new shell. To
 return to the public channel:
 
@@ -497,7 +561,7 @@ return to the public channel:
 shipglows skills unlink --install-plugin
 ```
 
-`unlink` removes only public symlinks proven to be managed by a ShipGlows
+`unlink` removes only symlinks proven to be managed by a ShipGlows
 checkout. It preserves the clone, personal skills, regular files, and unrelated
 links.
 
@@ -552,6 +616,16 @@ because it manages machine-wide dependencies and service configuration:
 - ShipGlows Terminal TUI dependencies and commands: `tui`, `shipglows-tui`, `sg-tui`, plus legacy aliases `sftui`, `sg-tui`, and `shipglows-tui`
 
 If `./cli/install.sh` is launched without root, it stops before making partial system changes. The log explains that the root-only scope was skipped and tells the operator to rerun with `sudo`.
+
+The privileged installer downloads repository keys and standalone packages into
+temporary files before changing system paths. NodeSource is configured without
+executing a remote setup script; its signing-key fingerprint is checked first.
+The GitHub CLI keyring and the pinned Supabase CLI and Flox artifacts are
+SHA256-verified. Caddy's
+official stable key and exact apt source are validated before apt verifies the
+signed repository. A missing, empty, malformed, or unverifiable input stops the
+installer, as does a required `apt` or `dpkg` failure; the component is never
+reported as successfully installed after such a failure.
 
 When the install runs interactively, ShipGlows asks once whether to enable the permissive AI defaults. Non-interactive runs can set `SHIPGLOWS_AUTONOMY_MODE=permissive` or `SHIPGLOWS_AUTONOMY_MODE=standard`; the legacy `SHIPGLOWS_AUTONOMY_MODE` name is still accepted. Root permissive mode still requires `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS=1` or an explicit confirmation at the prompt; the legacy `SHIPGLOWS_AI_ALLOW_ROOT_AUTONOMOUS` fallback remains accepted too.
 
@@ -723,13 +797,13 @@ ShipGlows also installs the terminal tooling commonly needed to operate those in
 - `vercel`
 - `convex`
 - `clerk`
-- `supabase` via the standalone CLI binary, because Supabase does not support a supported global package-manager install path
+- `supabase` via a pinned and SHA256-verified standalone CLI archive, because Supabase does not support a supported global package-manager install path
 - `gh` (GitHub CLI)
 - `flox`
 - `caddy`
 - Playwright Chromium runtime libraries for the default browser MCP
-- `python3` and `PyYAML`
-- core tools: `git`, `curl`, `jq`, `fuser`, `ss` (`iproute2`), `python3-pip` (if needed)
+- `python3` and `PyYAML` from the system `python3-yaml` package
+- core tools: `git`, `curl`, `jq`, `fuser`, `ss` (`iproute2`)
 
 Run the complete Python contract suite portably on Windows, macOS, or Linux
 without installing test packages globally:
@@ -770,14 +844,14 @@ The lower-level skill runtime helper remains available for targeted diagnostics 
 ```bash
 tools/shipglows_sync_skills.sh --check --all
 tools/shipglows_sync_skills.sh --repair --skill sg-example
-tools/shipglows_sync_skills.sh --repair --all --runtime codex --catalog all
+tools/shipglows_sync_skills.sh --repair --all --runtime codex --catalog expert
 ```
 
-The helper links current-user `~/.claude/skills/<name>` and [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. `--codex-entrypoint linked` keeps the live developer `$shipglows` and fails when the plugin is simultaneously enabled; `--codex-entrypoint plugin` removes only the managed Codex router link and leaves the plugin as owner. Use `--catalog expert` for internal engines only, or `--catalog all` for the complete developer catalogue. The helper reports missing or stale links, blocks non-link collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
+The helper links current-user `~/.claude/skills/<name>` and [Codex's official user scope](https://developers.openai.com/codex/skills/) at `~/.agents/skills/<name>` to the real skill folders under `$SHIPGLOWS_ROOT/skills/<name>`. It is for an explicitly installed source corpus, not the default Codex plugin route. `--codex-entrypoint linked` keeps the live developer `$shipglows` and fails when the plugin is simultaneously enabled; `--codex-entrypoint plugin` removes only the managed Codex router link and leaves the plugin as owner. `--catalog public` and `--catalog expert` are mutually exclusive; every complete repair removes the other ShipGlows catalogue automatically while preserving unrelated skills. The helper reports missing, stale, or excluded links, blocks non-link collisions by default, and notes that an already-running Claude or Codex session may need a reload before repaired skills appear in the runtime list.
 
-On Windows, pass `-CleanStale` with `-Mode repair -Catalog public` to remove only
-obsolete ShipGlows junctions from the selected runtime directories. The helper
-never removes source skills or unrelated/non-link entries. It also accepts
+On Windows, `-Mode repair -All -Catalog public|expert` automatically removes only
+the ShipGlows junctions excluded by the selected catalogue. The helper never
+removes source skills or unrelated/non-link entries. It also accepts
 `-CodexEntrypoint linked|plugin` and refuses an enabled plugin together with a
 linked developer router.
 
@@ -835,7 +909,7 @@ Recommended non-technical entrypoint in a skill-aware agent session:
 ```
 
 Use `shipglows <instruction>` when you want ShipGlows to choose the métier.
-The public surface has thirteen métier skills, grouped into six domains, plus
+The public surface has fourteen métier skills, grouped into six domains, plus
 this router. Numeric skills remain internal engines rather than a vocabulary the
 operator must memorize.
 
@@ -920,14 +994,16 @@ Canonical syntax split:
 | Publier | `sg-release` |
 | Développer l’audience | `sg-content`, `sg-marketing`, `sg-seo` |
 | Gouverner | `sg-docs` |
-| Organiser | `sg-planning`, `sg-help` |
+| Organiser | `sg-planning`, `sg-private`, `sg-help` |
 
 Design animation remains available through `sg-design animation <audit|design|implement|tune> [scope]`; GSAP is optional and selected only when project fit and proof gates support it.
 
 `sg-content` owns audience-facing documentation and content. `sg-docs` owns
 internal architecture, governance, agent context, and metadata. `sg-engineering`
 contains technical architecture and quality plus the internal sync, access, and
-platform-parity engines.
+platform-parity engines. `sg-private memory` remembers or retrieves explicit
+machine-local paths, URLs, aliases, and Vivaldi bookmarks while its code stays
+public and all operator values remain outside Git.
 
 Use `sg-help` for orientation or `sg-help expert` for the exact internal engine
 catalog. In Codex or Claude-style runtimes, invoke the visible public name; in
@@ -971,13 +1047,13 @@ Recommended maintenance entrypoint for existing projects:
 
 `002-sg-maintain` is the master maintenance lifecycle. It reviews bug risk, dependency posture, docs/governance drift, check coverage, audit freshness, migration candidates, and security posture, then carries needed work through spec/readiness, bounded delegated execution, verification, and ship/deploy routing. Use `/002-sg-maintain quick` for the old read-only triage behavior.
 
-For ShipGlows skill maintenance, use the dedicated entrypoint:
+For ShipGlows DX system maintenance, use the dedicated internal entrypoint:
 
 ```text
-900-shipglows-core build -> 700-sg-explore when needed -> 100-sg-spec -> skill contract edit/create -> runtime skill sync -> 900-shipglows-core refresh -> skill budget audit -> 103-sg-verify -> 300-sg-docs/help update -> 005-sg-ship
+900-shipglows-core build <target> -> skill | DX runtime | system coherence playbook -> 100-sg-spec when non-trivial -> focused proof -> docs/help alignment -> 103-sg-verify -> 005-sg-ship
 ```
 
-`900-shipglows-core build` is scoped to creating or modifying `skills/*/SKILL.md` with explicit ambiguity-reduction, internal/public-surface, documentation, and validation gates. If the skill idea or placement is too fuzzy for one targeted question to settle, it routes to `700-sg-explore` before creating the durable `100-sg-spec` contract.
+`900-shipglows-core build` owns maintenance of the `shipglows` DX system across skills/doctrine, CLI/DevServer/TUI runtime, local helpers, installers, packaging, and cross-surface coherence. It selects one direct playbook and the mapped proof for the target. `shipglows_app` site/SaaS work stays outside Core and follows the product repository's normal lifecycle.
 
 For content management, use the dedicated lifecycle entrypoint:
 

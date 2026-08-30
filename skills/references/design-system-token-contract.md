@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-06-11"
-updated: "2026-08-13"
+updated: "2026-08-24"
 status: active
 source_skill: 900-shipglows-core
 scope: design-system-token-contract
@@ -21,19 +21,28 @@ linked_systems:
   - skills/103-sg-verify/SKILL.md
   - skills/106-sg-fix/SKILL.md
   - skills/references/decision-quality-contract.md
+  - skills/references/functional-excellence-contract.md
   - tools/design_system_drift_check.py
   - tools/test_industrial_excellence_contract.py
 depends_on:
   - artifact: skills/references/decision-quality-contract.md
     artifact_version: "2.1.0"
     required_status: active
+  - artifact: skills/references/functional-excellence-contract.md
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "User directive 2026-06-11: agents must not customize application design outside the centralized design-system tokens for spacing, typography, colors, shadows, and related visual decisions."
   - "Current platform standards favor centralized tokens and themes: Material Design 3 design tokens, Flutter ThemeData, Tailwind v4 CSS theme variables, WCAG 2.2 target size, and adaptive mobile layout guidance."
   - "Operator directive 2026-08-13: public sites should reach award-caliber craft while every interface remains coherent, accessible, performant, and production-ready."
+  - "Operator directive 2026-08-21: essential homepage content must remain visible when JavaScript or animation fails."
+  - "Operator directive 2026-08-21: prefer semantic HTML and native CSS for presentation, and require a concrete functional reason before adding JavaScript."
+  - "Recovery verification 2026-08-23: content-availability, CSS-first, metadata, dependency, skill, topology, and runtime-sync checks passed on the current main baseline."
+  - "Operator decision 2026-08-24: Phosphor is the default functional icon family, Unicon is a source-constrained web tool, and Simple Icons is reserved for brand marks."
+  - "Operator decision 2026-08-24: visual conception adapts the shared functional-excellence dimensions; resemblance to an admired aesthetic never proves usefulness or understanding."
 next_review: "2026-09-12"
-next_step: "/103-sg-verify design-system-token-contract"
+next_step: "Apply the gate to the next public or product-critical interface change."
 ---
 
 # Design-System Token Contract
@@ -64,6 +73,19 @@ The allowed path is:
 3. consume that token through components, variants, utilities, or theme APIs
 4. prove no unintended visual drift with token checks and visual evidence
 
+## Functional Design Gate
+
+Apply `skills/references/functional-excellence-contract.md` before selecting a
+visual form. Hierarchy, affordances, feedback, motion, imagery, decoration, and
+component choice must earn their presence through understanding, task
+completion, trust, accessibility, or meaningful brand expression.
+
+A minimal interface is incomplete when it hides state, recovery, labels,
+focus, consequences, or accessible alternatives. A polished interface is not
+functionally excellent when style imitation, novelty, or spectacle weakens the
+product outcome. Preserve the simplest complete experience, not the fewest
+visible elements.
+
 ## Award-Caliber Craft Gate
 
 Public brand and marketing surfaces use a SOTD/Awwwards-level benchmark for craft: distinctive art direction, intentional composition, strong typographic hierarchy, coherent spatial rhythm, refined responsive behavior, meaningful motion, original detail, and whole-page narrative. This is a quality benchmark, not a promise of an award and never permission to imitate a reference. A template-like, generic, visually noisy, internally inconsistent, or visibly unfinished result is `partial` even when every section renders.
@@ -71,6 +93,31 @@ Public brand and marketing surfaces use a SOTD/Awwwards-level benchmark for craf
 For operational and government-service interfaces, remain clarity-first: information architecture, task completion, error prevention, accessibility, trust, and speed outrank spectacle. They still require deliberate hierarchy, excellent typography, coherent density, polished states, and a distinctive but restrained system; clarity-first never means generic or amateur.
 
 Visual ambition must not weaken accessibility, readability, conversion, performance, maintainability, semantic structure, progressive enhancement, or reduced motion. Motion and decoration earn their cost through comprehension, narrative, feedback, or brand value. Prove the result across representative widths and states with rendered evidence; source correctness alone cannot establish award-caliber craft.
+
+## Content Availability And Progressive Enhancement Gate
+
+Essential content and primary actions must be present, readable, and usable in
+the initial semantic document. JavaScript, observers, hydration, transitions,
+and animation engines may enhance their presentation, but must never be the
+only mechanism that reveals or unlocks them.
+
+Use semantic HTML and native CSS by default for content structure, layout,
+responsive adaptation, visual states, themes, transitions, and decorative
+motion. Add JavaScript only when the required outcome genuinely depends on
+application state, data, complex interaction, coordination, or runtime
+measurement that HTML and CSS cannot express robustly. Framework convenience,
+visual novelty, or an animation library's availability is not sufficient
+justification.
+
+When JavaScript is justified, keep the semantic HTML/CSS baseline independently
+usable, minimize the client-owned behavior, and document the functional reason
+in the implementation contract or review evidence.
+
+For public and product-critical pages, fail the design preflight when content
+starts hidden and depends on successful client initialization without a proven
+fallback. Proof must cover disabled or failed JavaScript/animation
+initialization where applicable, plus `prefers-reduced-motion`; a build or
+source-only review is insufficient for a visibility claim.
 
 ## Canonical Sources
 
@@ -84,6 +131,27 @@ Treat the existing project declaration as authoritative. If it is missing, infer
 - Native mobile: platform theme resources/tokens and adaptive layout APIs, not per-screen numeric drift.
 
 If multiple sources exist, stop or ask one targeted question to choose the canonical source before writing design values. Record the decision in the project design-system authority artifact, not only in the final report.
+
+## Shared Iconography Canon
+
+Use Phosphor as the default functional icon family for new ShipGlows app and
+web work. Use its Regular weight by default. Fill may communicate selected or
+active state when the state also remains understandable without icon style
+alone; do not mix weights decoratively or combine unrelated functional icon
+families on one surface.
+
+Use Simple Icons only for third-party brand marks, subject to the brand's
+trademark rules and accessible-name requirements. Unicon is an optional web
+discovery and export tool, not an icon family or visual authority: constrain
+its source to Phosphor for functional icons and to Simple Icons for brand
+marks.
+
+A project may choose another coherent family, a custom SVG, or a
+platform-native icon only when its project-local design-system authority names
+the functional, platform, accessibility, or brand reason. Keep that exception
+bounded and preserve one dominant iconography language per surface. Do not
+retrofit existing projects solely to satisfy this default; adopt it during new
+work or an already-authorized design-system migration.
 
 ## Cross-Surface Identity Gate
 
@@ -156,3 +224,5 @@ Stop, reroute, or report `partial`/`not verified` when:
 - accessibility, reduced motion, dynamic type, contrast, focus, or target-size safety would be weakened to satisfy token discipline
 - a cross-surface parity claim relies on parallel token files without a canonical mapping or resolved-value comparison
 - a component-library migration replaces mature interaction behavior with copied or bespoke controls without keyboard, focus, and semantics proof
+- functional icons mix unrelated families without a documented project exception
+- Unicon output is accepted without constraining and recording its source family

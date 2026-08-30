@@ -1,6 +1,6 @@
 ---
 name: 000-shipglows
-description: "Route non-trivial work while executing deterministic micro-edits directly."
+description: "Execute clear bounded requests directly and route unknown, unbounded, or directional work."
 argument-hint: <instruction>
 ---
 
@@ -31,17 +31,18 @@ Before producing a final report, load `$SHIPGLOWS_ROOT/skills/references/reporti
 
 Before handing off an explicit skill name or numeric skill command, load `$SHIPGLOWS_ROOT/skills/references/skill-invocation-preflight.md` and obey its checker result. A valid invocation stays silent; an invalid or ambiguous one never activates a substitute skill.
 
-## Atomic Direct-Execution Gate
+## Bounded Direct-Execution Gate
 
-The supplied-link register authority and bounded Auto-session authority in
-`mutation-plan-approval.md` are the only direct-authority exceptions. The first
-accepts only an exact factual append-only register update; the second activates
-only from explicit `shipglows auto` and is constrained by the mandatory
-no-local-execution policy.
+Clear bounded request authority, supplied-link register authority, and bounded
+Auto-session authority in `mutation-plan-approval.md` are the direct-authority
+paths. A clear bounded request authorizes its few coherent enumerable actions
+and targets when the agent need not choose a material direction; it does not authorize a chantier. The register exception accepts only an exact factual
+append-only update; Auto activates only from explicit `shipglows auto` and is
+constrained by the mandatory no-local-execution policy.
 
-Before any direct or routed mutation, load `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. No mutation, including a deterministic micro-edit, starts until its fast validation or full plan has received explicit post-message approval. Use `🧭 VALIDATION RAPIDE` only when every cumulative local, routine, exact, readily reversible, and no-harm criterion is established; otherwise use `🧭 PLAN À VALIDER`.
+Before any direct or routed mutation, load `$SHIPGLOWS_ROOT/skills/references/mutation-plan-approval.md`. Apply clear bounded-request authority first: a qualifying targeted file modification, deterministic micro-fix, exact-scope commit, ordinary resolved push, or small explicit sequence executes from the operator's request without another prompt. Local versus remote and model reasoning effort do not change the classification. Use `🧭 VALIDATION RAPIDE` for a bounded agent-proposed action or almost-clear intent; use `🧭 PLAN À VALIDER` when actions or targets are unbounded or the agent must analyze, propose, or select a material direction.
 
-Before loading routing, topology, or owner-skill references, keep the request in direct main-thread execution when the user supplied one explicit deterministic edit, the target is known or discoverable with one focused lookup, no domain judgment or sensitive boundary is involved, and focused validation is sufficient. Typical cases are an exact string or placeholder replacement, a typo, one formatting token, or one `h1` to `h2` change.
+Before loading routing, topology, or owner-skill references, keep the request in direct main-thread execution when the user supplied a clear bounded outcome, the few actions and targets are known or discoverable with focused lookup, no material direction must be selected, and focused validation is sufficient. Typical cases include a targeted file edit, an exact string replacement, an exact-scope commit, an ordinary push, or a small explicit sequence of them.
 
 Do not load a domain or lifecycle skill for these requests: no owner skill is needed. Apply the bounded edit and run the smallest relevant check. An explicitly named skill still activates and uses its smallest safe mode; if that skill discovers a different safe owner, let that skill reroute explicitly. This is the activation-critical form of the shared Skill Selection Proportionality Gate in `$SHIPGLOWS_ROOT/skills/references/skill-execution-fidelity.md`.
 
@@ -49,13 +50,15 @@ Do not load a domain or lifecycle skill for these requests: no owner skill is ne
 
 For a supplied-link update that meets the shared direct-authority exception, the initial request is sufficient; do not present a second approval prompt.
 
-Treat a supplied-link update as direct execution and original-request authority when its register needs one focused local lookup, the operator supplied the public URLs and requested category, `candidate` is the only added status, no market interpretation or public claim is needed, and focused duplicate/row-shape proof is sufficient. Append it factually without launching source intake, market study, documentation topology work, or a second approval prompt; otherwise use normal routing and the normal mutation gate.
+Treat a supplied-link update as direct execution and original-request authority when its register needs one focused local lookup, the operator supplied the public URLs and requested category, `candidate` is the only added status, no market interpretation or public claim is needed, and focused duplicate/row-shape proof is sufficient. Append it factually without launching source intake, market study, or documentation topology work; do not add a second approval prompt. Otherwise use normal routing and the normal mutation gate.
+
+Use one primary-source check per supplied reference.
 
 `veille <URL>` analyzes without persistence and does not automatically persist the source. `concurrent <URL>` or `inspiration <URL>` updates the matching internal register. `veille` takes precedence.
 
 ## Delegation And Topology
 
-For requests outside the Atomic Direct-Execution Gate, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`. `000-shipglows` routes in the main thread and never launches a selected master skill as a nested subagent; after handoff, the selected owner controls topology. A routing scout is read-only, cheap, cannot launch skills or mutate state, and returns only a route recommendation.
+For requests outside the Bounded Direct-Execution Gate, load `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md`. `000-shipglows` routes in the main thread and never launches a selected master skill as a nested subagent; after handoff, the selected owner controls topology. A routing scout is read-only, cheap, cannot launch skills or mutate state, and returns only a route recommendation.
 
 ## Shared Routing Reference
 
@@ -75,7 +78,7 @@ ShipGlows-maintenance work defaults to the ShipGlows system under `$SHIPGLOWS_RO
 
 ## Mode Detection
 
-Parse `$ARGUMENTS` as the operator instruction. Empty/help requests answer directly or route to `302-sg-help` for the full help surface. Named profiles load the matching profile contract; explicit skill names and numeric codes pass preflight, then hand off only when valid. Natural-language work applies the Atomic Direct-Execution Gate before the canonical routing matrix; a selected skill may reroute explicitly rather than being silently substituted.
+Parse `$ARGUMENTS` as the operator instruction. Empty/help requests answer directly or route to `302-sg-help` for the full help surface. Named profiles load the matching profile contract; explicit skill names and numeric codes pass preflight, then hand off only when valid. Natural-language work applies the Bounded Direct-Execution Gate before the canonical routing matrix; a selected skill may reroute explicitly rather than being silently substituted.
 
 An explicit request for the ShipGlows maintainer workstation, an editable full ShipGlows clone, or the "version dev de ShipGlows" preserves maintainer intent through technical installation ownership. Generic `full`, `all`, `development environment`, or `corpus` language never grants or implies that channel switch.
 
@@ -104,7 +107,7 @@ ordinary public métier owner from the remaining instruction, and preserve its
 normal mutation approval while forbidding workload and external-state
 execution. Do not send bare `nolocal` to `708-sg-auto` or select work for it.
 
-`context`, `contexte`, `env`, and `environment` are direct read-only modes. Load `agent-runtime-awareness.md`, read the global development-environment file, the current project's `ENVIRONMENT.md`, and the matching live registry entry, then report the active architecture, exact managed URL, Python version/`uv`/commands, Playwright Chromium installation path, MCP configuration and verification, relevant mobile and Windows toolchain state, its exact next action, and current-turn callable tools. Inspect direct and deferred/searchable tool catalogs before classifying capability; distinguish installed, configured, discovered, callable, failed, and not-exposed states. Never start a server, substitute a framework default port, or describe configured Playwright or recorded Python as absent merely because its tool is missing from the first visible list.
+`context`, `contexte`, `env`, and `environment` are direct read-only modes. Load `agent-runtime-awareness.md`, read the global development-environment file, the current project's `ENVIRONMENT.md`, and the matching live registry entry, then report the active architecture, exact managed URL, Python version/`uv`/commands, Playwright Chromium installation path, MCP configuration and verification, relevant mobile and Windows toolchain state, its exact next action, and current-turn callable tools. For Flutter, also report the registry-backed active development target, managed session mode, logical `flutter run -d <device>` command and live state; list merely available targets separately and never infer that they are active. Inspect direct and deferred/searchable tool catalogs before classifying capability; distinguish installed, configured, discovered, callable, failed, and not-exposed states. Never start a server, substitute a framework default port, or describe configured Playwright or recorded Python as absent merely because its tool is missing from the first visible list.
 
 When the first token is a Codex expert alias, load `$SHIPGLOWS_ROOT/skills/references/expert-mode-aliases.md`, resolve it through `public owner -> owner mode -> internal engine`, run explicit-invocation preflight, and hand off in the same conversation. Aliases are Codex routing syntax only, never CLI arguments.
 

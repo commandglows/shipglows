@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-08-12"
+updated: "2026-08-24"
 status: active
 source_skill: 300-sg-docs
 scope: private-memory-store
@@ -54,6 +54,8 @@ For the current server user, this resolves to:
 ```
 
 This folder is outside `$SHIPGLOWS_ROOT` and is a separate private Git working tree. It is private operator memory, not a public governance artifact.
+
+Machine-specific aliases for local paths and URLs are a separate concern. `603-sg-private memory` stores those pointers under `$SHIPGLOWS_RUNTIME_DIR/private-memory/locations.json` because they describe the current machine and should not be versioned or synchronized by default. Remembering a pointer never copies the target's contents into either store.
 
 ## Approved Subfolders
 

@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.2.0"
 project: ShipGlows
 created: "2026-05-26"
-updated: "2026-05-26"
+updated: "2026-08-27"
 status: draft
 source_skill: sg-docs
 scope: github-actions-ci-cost-cache-and-monorepo-guardrails
@@ -194,7 +194,17 @@ If a workflow uses Firebase Firestore deploys, also read `shipglows_data/technic
 
 When a workflow is skipped because `paths` filters do not match, branch protection must not fail the PR on that missing status.
 
-Use one of these patterns:
+For active ShipGlows-managed GitHub repositories, use the canonical pattern from `skills/references/managed-project-ci-policy.md`:
+
+- Require only the exact `ShipGlows required gate` status.
+- Trigger its owning workflow on every pull request into the production branch, every push to that branch, and `workflow_dispatch`; never use top-level `paths` or `paths-ignore` there.
+- Classify paths inside that workflow, run only relevant stack lanes, and emit explicit successful no-impact results for the others.
+- Resolve the Core-owned tool from `$SHIPGLOWS_ROOT`, then run `python "$SHIPGLOWS_ROOT/tools/shipglows_required_gate.py" audit --project <path>` locally. Generate the workflow before enabling protection, then prove the exact status succeeds on the production branch.
+- Node lanes inherit the project's runtime contract from the nearest `.node-version` or `.nvmrc`, with `package.json#engines.node` as fallback. The generator refuses to invent a Node version when none is declared.
+- Flutter lanes auto-detect to `stable` by default and can be pinned in `.shipglows/required-gate.json` via a `flutter_version` key per Flutter lane.
+- Inspect provider drift with `ruleset-plan`; use the separately explicit guarded `ruleset-apply` only inside approved GitHub reconciliation scope.
+
+For repositories outside ShipGlows management, use one of these compatible patterns:
 
 - Keep path-filtered jobs out of branch protection; protect only an always-on umbrella status workflow instead.
 - Keep an always-on status workflow (for example, `ci-status`) that runs every PR and records:

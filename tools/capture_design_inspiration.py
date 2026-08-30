@@ -137,8 +137,42 @@ def private_default_root() -> Path:
     return private_root / "design-inspiration-library"
 
 
+def _windows_user_shipglows_root() -> str | None:
+    if os.name != "nt":
+        return None
+    try:
+        import winreg
+
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Environment") as key:
+            value, _value_type = winreg.QueryValueEx(key, "SHIPGLOWS_ROOT")
+    except (ImportError, OSError, TypeError):
+        return None
+    return value if isinstance(value, str) and value.strip() else None
+
+
+def _development_channel_file() -> Path:
+    return Path.home() / ".shipglows" / "development-channel.json"
+
+
+def _linked_development_root() -> Path | None:
+    try:
+        payload = json.loads(_development_channel_file().read_text(encoding="utf-8"))
+        candidate = Path(payload["root"]).expanduser()
+        if payload.get("channel") != "linked" or not candidate.is_absolute():
+            return None
+        candidate = candidate.resolve()
+        if not (candidate / "skills" / "000-shipglows" / "SKILL.md").is_file():
+            return None
+        return candidate
+    except (OSError, TypeError, ValueError, KeyError):
+        return None
+
+
 def shipglows_root() -> Path:
-    return Path(os.environ.get("SHIPGLOWS_ROOT", str(Path.home() / ".shipglows" / "runtime"))).expanduser().resolve()
+    configured = os.environ.get("SHIPGLOWS_ROOT") or _windows_user_shipglows_root()
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return _linked_development_root() or (Path.home() / ".shipglows" / "runtime").resolve()
 
 
 def is_relative_to(path: Path, parent: Path) -> bool:

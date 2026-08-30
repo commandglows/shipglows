@@ -6,6 +6,7 @@ Import-Module $modulePath -Force -DisableNameChecking
 try {
     $module = Get-Module ShipGlows.DevServer
     & $module {
+        function Resolve-SgPowerShellExecutable { 'C:\fixture\pwsh.exe' }
         $fallbackRoot = Join-Path ([IO.Path]::GetTempPath()) ("sg-managed-flutter-{0}" -f [guid]::NewGuid().ToString('N'))
         $previousLocalAppData = $env:LOCALAPPDATA
         try {
@@ -37,6 +38,21 @@ try {
         $webServer = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'web-server' '' $launch 'ShipGlowsFlutter-launch-123'
         if (($webServer.Arguments -join ' ') -notmatch '-Device web-server' -or ($webServer.Arguments -join ' ') -match '-ProfilePath') { throw 'Flutter web-server must remain an explicit advanced mode.' }
 
+        $windows = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'windows' '' $launch 'ShipGlowsFlutter-launch-123'
+        $windowsArguments = $windows.Arguments -join ' '
+        if ($windowsArguments -notmatch '-Device windows' -or $windowsArguments -match '-Port|ProfilePath|web-hostname|web-port') { throw 'Flutter Windows must launch without web port or browser profile arguments.' }
+        $android = Get-SgLaunchSpec 'C:\workspace\app' 'flutter-web' 3010 $false '' 'emulator-5554' '' $launch 'ShipGlowsFlutter-launch-123'
+        $androidArguments = $android.Arguments -join ' '
+        if ($androidArguments -notmatch '-Device emulator-5554' -or $androidArguments -match '-Port|ProfilePath|web-hostname|web-port') { throw 'Flutter Android must launch by exact device id without web arguments.' }
+
+        $deviceJson='[{"name":"Pixel","id":"phone-1","isSupported":true,"targetPlatform":"android-arm64","emulator":false}]'
+        $selected=Resolve-SgFlutterAndroidDevice 'flutter.bat' 'phone-1' 'ShipGlows_API_36' { param($f,$a) [pscustomobject]@{ExitCode=0;Output=$deviceJson} } { param($ms) } 2
+        if ($selected -ne 'phone-1') { throw 'Explicit connected Android device selection drifted.' }
+        $script:androidProbe=0
+        $autoRunner={param($f,$a)$joined=$a-join' ';if($joined-eq'emulators --launch ShipGlows_API_36'){[pscustomobject]@{ExitCode=0;Output='started'}}else{$script:androidProbe++;$output=if($script:androidProbe-lt2){'[]'}else{'[{"name":"ShipGlows API 36","id":"emulator-5554","isSupported":true,"targetPlatform":"android-x64","emulator":true}]'};[pscustomobject]@{ExitCode=0;Output=$output}}}
+        $automatic=Resolve-SgFlutterAndroidDevice 'flutter.bat' '' 'ShipGlows_API_36' $autoRunner {param($ms)} 2
+        if($automatic-ne'emulator-5554'){throw 'ShipGlows Android emulator was not launched and selected when no device was connected.'}
+
         $fixture = Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-settings-{0}" -f [guid]::NewGuid().ToString('N'))
         try {
             New-Item -ItemType Directory -Path (Join-Path $fixture 'config') -Force | Out-Null
@@ -47,9 +63,23 @@ try {
             $defined = Get-SgLaunchSpec $fixture 'flutter-web' 3010 $false '' $settings.FlutterDevice $settings.DartDefineFile $launch 'ShipGlowsFlutter-launch-123'
             $definedArguments = $defined.Arguments -join ' '
             if (-not $definedArguments.Contains('-DartDefineFile') -or $definedArguments.Contains('private-value')) { throw 'Dart defines must be passed by file path without leaking values.' }
+            [IO.File]::WriteAllText((Join-Path $fixture '.shipglows.env'), "SHIPGLOWS_FLUTTER_DEVICE=android`nSHIPGLOWS_FLUTTER_DEVICE_ID=phone-1`n")
+            $androidSettings=Get-SgRuntimeSettings $fixture
+            if($androidSettings.FlutterDevice-ne'android'-or$androidSettings.FlutterDeviceId-ne'phone-1'){throw 'Explicit Android development target settings drifted.'}
             [IO.File]::WriteAllText((Join-Path $fixture '.shipglows.env'), 'SHIPGLOWS_DART_DEFINE_FILE=../outside.json')
             try { [void](Get-SgRuntimeSettings $fixture); throw 'Traversal in Dart define path was accepted.' } catch { if ($_.Exception.Message -eq 'Traversal in Dart define path was accepted.') { throw } }
         } finally { Remove-Item -LiteralPath $fixture -Recurse -Force -ErrorAction SilentlyContinue }
+
+        $windowsFixture = Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-windows-{0}" -f [guid]::NewGuid().ToString('N'))
+        try {
+            New-Item -ItemType Directory -Path (Join-Path $windowsFixture 'windows'),(Join-Path $windowsFixture 'desktop') -Force | Out-Null
+            [IO.File]::WriteAllText((Join-Path $windowsFixture 'shipglows-dev.cmd'),'@exit /b 0')
+            if ((Get-SgRuntimeSettings $windowsFixture).FlutterDevice -ne 'windows') { throw 'A Flutter Windows surface did not default to live Windows development.' }
+            $devEntry=[pscustomobject]@{kind='flutter-web';flutterDevice='windows';name='Fixture';path=$windowsFixture}
+            $shortcutPath=Install-SgFlutterDevShortcut $devEntry (Join-Path $windowsFixture 'desktop') (Join-Path $windowsFixture 'shipglows-dev.cmd')
+            $shortcut=(New-Object -ComObject WScript.Shell).CreateShortcut($shortcutPath)
+            if ($shortcut.Arguments -notmatch '^start -ProjectPath ' -or $shortcut.TargetPath -ne (Join-Path $windowsFixture 'shipglows-dev.cmd')) { throw 'Flutter Dev shortcut does not route to the managed live start command.' }
+        } finally { Remove-Item -LiteralPath $windowsFixture -Recurse -Force -ErrorAction SilentlyContinue }
 
         $script:openCalls = @()
         $script:realSupervisorCommand=${function:Invoke-SgFlutterSupervisorCommand}
@@ -80,7 +110,7 @@ try {
         try{Protect-SgOwnerOnlyPath $ipcRoot;Protect-SgOwnerOnlyPath (Join-Path $ipcRoot 'commands');Protect-SgOwnerOnlyPath (Join-Path $ipcRoot 'responses');$tokenPath=Join-Path $ipcRoot 'token';[IO.File]::WriteAllText($tokenPath,('a'*64));Protect-SgOwnerOnlyPath $tokenPath;$ipcEntry=[pscustomobject]@{flutterLaunchDirectory=$ipcRoot;flutterTokenPath=$tokenPath};try{[void](Invoke-SgFlutterSupervisorCommand $ipcEntry reload 0);throw 'IPC timeout was accepted.'}catch{if($_.Exception.Message -eq 'IPC timeout was accepted.'){throw}};if(@(Get-ChildItem (Join-Path $ipcRoot 'commands') -File).Count-ne0){throw 'Timed-out IPC command file was left published.'}}finally{Remove-Item -LiteralPath $ipcRoot -Recurse -Force -ErrorAction SilentlyContinue}
     }
     $source = Get-Content -LiteralPath $modulePath -Raw
-    if ($source -notmatch [regex]::Escape('-RedirectStandardOutput $out -RedirectStandardError $err -PassThru -WindowStyle Hidden')) { throw 'Managed launches must redirect logs and hide the process window.' }
+    foreach($expected in @('Invoke-CimMethod -ClassName Win32_Process -MethodName Create','-RedirectStandardOutput','-RedirectStandardError','-PassThru -Wait -WindowStyle Hidden','ShowWindow=[uint16]0')){if(-not$source.Contains($expected)){throw 'Managed detached launches must redirect logs and hide the process window.'}}
     $supervisorSource = Get-Content -LiteralPath (Join-Path (Split-Path $modulePath) 'ShipGlows.FlutterSupervisor.ps1') -Raw
     foreach ($expected in @("'run','--machine','-d'",'--web-run-headless','--web-hostname','--web-port','--dart-define-from-file=','app.restart')) { if (-not $supervisorSource.Contains($expected)) { throw "Flutter supervisor launch contract is missing: $expected" } }
     Write-Host 'Windows DevServer Flutter background launch: OK'

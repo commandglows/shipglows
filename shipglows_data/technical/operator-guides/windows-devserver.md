@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.26.1"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-28"
+updated: "2026-08-30"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,14 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
+  - "Le parcours Flutter Windows du 2026-08-30 privilégie une session live supervisée et crée un raccourci Dev distinct des builds figés."
+  - "Le replay ToolGlows du 2026-08-28 a corrigé la séparation des lignes du guide ENVIRONMENT.md et la comparaison des timestamps JSON PowerShell 7 qui transformait à tort un processus vivant en projet arrêté."
+  - "Le parcours guidé du 2026-08-28 nomme clairement projet web, app Flutter et extension Chrome dans l'aide, le statut, le dashboard, l'enregistrement et les actions Start/Open."
+  - "The 2026-08-27 installed ToolGlows replay removed a hidden 60-second clamp so extension readiness honors the caller's 90-second startup budget."
+  - "The 2026-08-27 installed ToolGlows replay removed the npm-only option separator from pinned pnpm extension launches so Vite binds the requested IPv4 loopback host."
+  - "The 2026-08-27 installed-runtime replay now re-registers existing projects before environment migration so registry and durable project kind remain coherent."
+  - "The 2026-08-27 browser-extension adapter recognizes explicit Chrome development surfaces, honors pinned pnpm through Corepack, and records unpacked-extension guidance instead of claiming an ordinary web URL."
   - "Migrated without content loss from local/README_WINDOWS.md under the canonical documentation governance contract."
   - "PowerShell reserves gp for Get-ItemProperty; ShipGlows now installs a policy-gated add/commit/push gp profile function and a profile-independent raw gpush fallback."
   - "The Windows installer writes a static global development environment and the CLI writes one active server URL file per project."
@@ -34,12 +42,23 @@ evidence:
   - "The 2026-08-23 Windows maintainer surface clones or validates the owner repository and enforces one Codex ShipGlows entrypoint channel without accepting generic all/components as authority."
   - "The 2026-08-23 Flutter repair reconverges the managed SDK PATH on every validated rerun and separates Visual Studio C++ readiness from aggregate Flutter Windows build readiness."
   - "The 2026-08-23 stale-session repair lets the DevServer resolve a complete non-reparse ShipGlows-managed Flutter SDK even when its parent process predates the persistent PATH update."
-  - "The Windows private-data flow is explicit: s p chooses an accessible private GitHub repository, rejects Windows-incompatible paths before cloning, and keeps it outside the project workspace."
+  - "The 2026-08-24 Windows toolbox contract installs provider CLIs machine-wide while activating MCPs only in registered projects from project evidence, with generated agent files excluded locally from Git."
+  - "The 2026-08-24 CommunityGlows retest made npm argv, failed-start diagnostics, durable registration ports and inferred Tauri environment status deterministic."
 next_review: "2026-09-11"
 next_step: "/103-sg-verify Windows operator guide"
 ---
 
 # ShipGlows - Installation pour Windows
+
+## Diagnostic de configuration après clonage
+
+Après l'enregistrement, le clonage exécute `s env prepare` et affiche la classification. Pour `repairable`, examiner le plan JSON puis lancer la commande exacte `s env prepare-apply -ProjectPath <path> -PlanDigest <digest>` affichée par la CLI. ShipGlows n'applique jamais cette réparation automatiquement et ne fabrique pas les manifests du projet, lockfiles, `.env` ou secrets.
+
+Si le diagnostic est `blocked`, le clone reste sur disque mais la commande échoue avec une erreur contextuelle. Corriger manuellement la source invalide puis relancer `s env prepare`; toute configuration existante inconnue ou invalide est préservée plutôt que remplacée.
+
+## Runtime PowerShell
+
+Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. La commande utilise le runtime PowerShell 7.6.5 possede par ShipGlows sans modifier l'installation systeme. La premiere installation complete en ligne peut acquerir l'archive epinglee. Le mode offline ne fonctionne qu'apres validation locale du runtime; sinon, reconnectez la machine et relancez l'installateur complet. Un echec SHA, archive, sonde, verrou ou corruption conserve le pointeur actif precedent.
 
 ## 🎯 Options d'installation
 
@@ -54,13 +73,14 @@ ne sont pas requis par le parcours Shadow PC.
 **Avantages:**
 - ✅ Pas besoin de WSL ni de virtualisation imbriquée
 - ✅ Tunnels SSH avec OpenSSH natif
-- ✅ DevServer natif Astro, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
+- ✅ DevServer natif Astro, Vite, extensions navigateur, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
 - ✅ Clone et registre local des dépôts directement dans `%USERPROFILE%\ShipGlows`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
 - ✅ Android Studio proposé pour Android/Firebase Device Streaming et Visual Studio Community C++ pour compiler Flutter Windows
-- ✅ MCP Dart/Flutter et Playwright préparés sans authentification; JSON/JSONC existant préservé ou signalé pending
-- ✅ Proposition groupée des agents Codex, Claude, OpenCode, Kilo ou Gemini manquants et CLIs Firebase, FlutterFire, Convex, Vercel, Supabase ou Clerk selon les manifests
-- ✅ MCP Firebase, Convex et Clerk officiels, plus GitHub officiel en lecture seule, ajoutés aux agents détectés avec readiness agent par agent
+- ✅ Proposition groupée des agents Codex, Claude, OpenCode, Kilo ou Gemini manquants
+- ✅ Boîte à outils versionnée Firebase, FlutterFire, Convex, Vercel, Supabase, Clerk et Google Cloud installée globalement pour la machine
+- ✅ MCP activés uniquement dans les projets enregistrés selon leurs manifests et preuves Git, via les formats locaux natifs de chaque agent
+- ✅ WSL proposé séparément et facultativement ; Turso Cloud proposé uniquement après initialisation d’Ubuntu, sans authentification automatique
 
 1. **Lancer le bootstrap unique ShipGlows:**
 
@@ -128,17 +148,25 @@ ne sont pas requis par le parcours Shadow PC.
    personnellement dans Android Studio. ShipGlows propose aussi d'ouvrir les
    paramètres Developer Mode sans modifier le registre; ce réglage est distinct
    de l'accélération de l'émulateur. Codex, Claude, OpenCode, Kilo et Gemini manquants sont proposés dans une
-   question groupée, sans authentification. Les nouveaux fichiers agent peuvent
-   recevoir Dart/Flutter, Playwright, Firebase, Convex, Clerk et GitHub en lecture seule; Gemini utilise son CLI natif user-scope puis une vérification locale de `settings.json`, sans connexion; un JSON/JSONC existant reste intact et
-   explicitement pending si aucune mise à jour native sûre n'est disponible.
-   Le CLI Clerk n'est préparé que si un manifest le déclare; `clerk init`, le lien
-   d'application, les SDK projet et toute authentification restent explicites.
+   question groupée, sans authentification. La boîte à outils versionnée Firebase,
+   FlutterFire, Convex, Vercel, Supabase, Clerk et Google Cloud est installée au
+   niveau de la machine, indépendamment des projets détectés. Dans chaque projet
+   enregistré, ShipGlows déduit ensuite l'inventaire MCP de ses manifests et de
+   ses preuves Git, puis écrit uniquement les configurations locales natives des
+   agents installés pour Dart/Flutter, Playwright, Firebase, Convex, Clerk,
+   Supabase, Vercel et GitHub officiel en lecture seule lorsque ces outils sont
+   pertinents. Ces fichiers propres à la machine sont ajoutés à
+   `.git/info/exclude` et ne doivent pas être commités. Les configurations de
+   projet divergentes sont préservées en parcours ordinaire; le parcours
+   mainteneur peut reconverger les fichiers ShipGlows enregistrés et retirer les
+   anciennes entrées globales connues. Le MCP Google Cloud reste au catalogue
+   jusqu'à sa sélection explicite pour un projet.
+   `clerk init`, le lien d'application, les SDK projet et toute authentification
+   restent explicites.
    Aucune authentification n'est démarrée. Il ne demande ni
    `sudo`, ni WSL, ni `autossh`. Au premier accès aux dépôts privés, GitHub CLI
    ouvre son authentification officielle dans le navigateur; ShipGlows ne lit
    et ne stocke jamais le token.
-   Après installation, `s p` propose séparément la connexion d'un dépôt de données privées. Le choix est explicite : avant toute authentification GitHub ou tout clone, il rappelle que le dépôt ira dans `%USERPROFILE%\.shipglows\data`, hors du workspace `%USERPROFILE%\ShipGlows`. Il ne sera jamais scanné comme projet, enregistré, démarré ou synchronisé automatiquement. Le parcours n'accepte que les dépôts GitHub privés accessibles, vérifie leurs chemins pour Windows avant clonage, et laisse GitHub CLI gérer l'authentification sans lire de jeton.
-
    Après installation, `s a` ouvre le tableau **Authentication**. Il affiche
    uniquement `connected`, `disconnected`, `unknown`, `unavailable` ou
    `project-required`, puis lance le flux officiel du CLI choisi. Les déconnexions
@@ -163,6 +191,13 @@ ne sont pas requis par le parcours Shadow PC.
    reproductible du projet et délèguent les versions de Node/pnpm à `mise`;
    elles ne lancent jamais `pnpm install` automatiquement. `inspect`, `plan`,
    `verify` et `status` ne demandent aucune initialisation du DevServer.
+   Sans manifest ShipGlows explicite, Windows déduit aussi Node et pnpm depuis
+   `package.json`, puis Cargo et la cible Tauri depuis `src-tauri/Cargo.toml` ou
+   `@tauri-apps/cli`. Un manifest Flox limité à Linux est affiché comme
+   incompatible sous Windows. Aucun de ces contrôles n'installe Rust : Cargo et
+   Tauri restent bloqués avec l'action requise, et `verify`/`status` terminent
+   avec le code `4` tant qu'un projet détecté n'est pas prêt. Un dossier sans
+   source ni capacité gérée reste valide.
    Le menu interactif principal propose `n  Navigate to a project` : il permet
    de choisir un projet puis ouvre un PowerShell enfant dans son dossier
    (`exit` revient au shell initial).
@@ -194,9 +229,43 @@ ne sont pas requis par le parcours Shadow PC.
    lit ni ses paquets, ni ses variables, ni ses hooks. Il découvre les apps à
    partir de leurs manifests natifs (`package.json`, `pubspec.yaml`, etc.).
 
+### Choisir le bon parcours : site, app ou extension Chrome
+
+ShipGlows détecte la surface exécutable à partir de ses manifests, puis affiche
+un libellé compréhensible dans `s help`, `s status`, le dashboard et les
+sélecteurs. Après un clone ou un enregistrement manuel, la CLI donne directement
+la prochaine commande à lancer.
+
+| Votre projet | Ce que ShipGlows affiche | Parcours |
+| --- | --- | --- |
+| Site Astro/Vite ou API Python/FastAPI | `Web project` et `URL :<port>` | Start prépare le serveur, Open ouvre l'URL locale. |
+| Application Flutter Web | `Flutter app` et `App :<port>` | Start prépare la session gérée, Open ouvre la session Chrome visible avec le cycle Flutter. |
+| Extension Chrome CRXJS | `Chrome extension`, `HMR :<port>` et `dist\chrome` | Start construit Manifest V3 et lance HMR, Open ouvre le gestionnaire Chrome et le dossier à charger. |
+
+Le parcours complet et copiable est :
+
+```powershell
+s start -ProjectPath "C:\chemin\du\projet"
+s status -ProjectPath "C:\chemin\du\projet"
+s open -ProjectPath "C:\chemin\du\projet"
+s stop -ProjectPath "C:\chemin\du\projet"
+```
+
+Le menu interactif propose les mêmes actions, avec `Open / load project`. Si
+Open reçoit un projet arrêté, ShipGlows explique son type et redonne la commande
+Start exacte au lieu de laisser croire qu'une URL manque.
+
+Pour une extension Chrome, le port affiché sert au HMR : ce n'est pas l'adresse
+d'un site. Après Open, activez **Developer mode** dans `chrome://extensions`,
+choisissez **Load unpacked**, puis sélectionnez `dist\chrome`. ShipGlows ouvre
+les deux emplacements utiles, mais n'installe jamais silencieusement l'extension
+dans votre profil personnel. La détection automatique actuelle couvre les
+projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
+stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
+
 ### Monorepos, registre et Flutter Web
 
-Le DevServer détecte Astro, Vite, Python/FastAPI et Flutter Web à partir des
+Le DevServer détecte Astro, Vite, les extensions navigateur, Python/FastAPI et Flutter Web à partir des
 manifests et signaux de framework, jamais à partir d'un nom de dossier imposé.
 Une racine de dépôt ou un monorepo enregistré explicitement peut donc produire
 plusieurs surfaces. Chacune possède sa propre entrée de registre, son nom
@@ -216,8 +285,10 @@ et réconcilie les processus live en arrière-plan, puis adopte le résultat au
 prochain affichage. Le premier rendu n'attend donc pas WMI/CIM ; chaque action
 de cycle de vie revalide toujours son processus avant mutation. `Refresh` force un
 scan synchrone. Clone, register et unregister conservent l'index utilisable mais
-le marquent à rafraîchir. Un index corrompu, incompatible ou lié à un autre
-workspace est refusé et reconstruit avant usage. Le registre reste la seule
+le marquent à rafraîchir. Les dates sont écrites au format invariant round-trip,
+compatible PowerShell 5.1/Core et indépendant de la locale. Un index corrompu,
+incompatible ou lié à un autre workspace est refusé et reconstruit atomiquement
+avant usage. Le registre reste la seule
 autorité pour le statut live, le port, les journaux et l'identité du processus.
 
 Les commandes d'aide et de sortie évitent le chargement complet du DevServer.
@@ -235,6 +306,34 @@ que l'écriture du registre. Deux démarrages concurrents ne peuvent donc pas
 réserver le même port pour deux surfaces. La migration d'une ancienne entrée
 racine vers sa surface se fait par chemin exécutable et préserve les métadonnées
 d'un processus dont l'identité est encore vérifiée.
+
+Lors de l'enregistrement, un port valide déjà présent dans `ENVIRONMENT.md` est
+hydraté directement dans le registre s'il n'appartient à aucune autre surface ;
+une collision reste à `0` et le fichier durable est réconcilié. Pour npm, un
+`package-lock.json` ou `npm-shrinkwrap.json` sélectionne exactement `npm ci` et l'absence de lock
+`npm install`. L'installation ne s'exécute que si le digest des manifests/locks
+a changé, si le manager/les arguments diffèrent ou si les artefacts du framework
+et du gestionnaire manquent ; un état versionné par projet, verrouillé
+et remplacé atomiquement après succès seulement si les entrées sont restées
+stables pendant l'installation, est conservé sous le runtime DevServer.
+Le serveur est créé via WMI hors de l'arbre de handles du CLI :
+un appelant qui capture stdout/stderr reçoit donc EOF après la readiness, tandis
+que le serveur continue d'écrire dans ses logs durables. Avant de lancer l'enfant,
+le wrapper s'assigne à un Job Object Windows nommé avec `KILL_ON_JOB_CLOSE` ; un
+échec de création ou d'assignation bloque le lancement. Il reste vivant tant qu'un
+descendant du job existe, même si un parent Node court a utilisé detached/unref puis
+a quitté. Dans ce wrapper, un `Start-Process`
+attendant le serveur redirige nativement stdout/stderr : les logs restent lisibles
+sans encodage UTF-16/NUL et le wrapper reste propriétaire jusqu'au stop. Le token Flutter reste dans son
+fichier owner-only et n'est pas encodé dans la commande. Le wrapper et le lancement
+Flutter réutilisent exclusivement le PowerShell Core portable validé par ShipGlows,
+sans recherche dans `PATH`. Si un processus Astro
+ou Vite meurt avant d'être prêt, ShipGlows
+arrête l'attente immédiatement, conserve une fin de stderr bornée et expurgée,
+enregistre l'état `error` et renvoie un échec à la commande appelante. Stop termine
+le Job Object exact et ne publie `stopped` qu'après disparition prouvée de l'identité
+et du service ; sinon le registre reste inchangé et l'erreur est visible. Un stop
+déjà accompli reste idempotent et efface toute erreur live obsolète.
 
 Flutter Web démarre silencieusement dans un Chrome headless dédié et contrôlé
 par Flutter. Le registre ne passe à `running` qu'après les événements machine
@@ -264,6 +363,18 @@ et ne terminent jamais Chrome par son seul nom. Le mode historique `web-server`,
 qui exige une connexion manuelle compatible avec Dart Debug, reste disponible
 uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
+### Flutter Windows en développement
+
+Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `ShipGlows - <Projet> - Dev`, qui démarre la session ou réutilise celle déjà active.
+
+Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`. Les raccourcis `Windows - Local` et `Windows - CI` restent réservés aux builds figés validés : releases et contrôles ciblés du packaging, des plugins natifs ou du démarrage sans Flutter attaché.
+
+### Flutter Android en développement
+
+`SHIPGLOWS_FLUTTER_DEVICE=android` active la même session live supervisée pour Android. `SHIPGLOWS_FLUTTER_DEVICE_ID=<id>` sélectionne explicitement un téléphone ou un émulateur connecté. Sans identifiant explicite, ShipGlows réutilise un appareil Android disponible ; si aucun n’est prêt, il démarre `ShipGlows_API_36`, attend que Flutter expose son identifiant, puis lance `flutter run -d <device-id>`. Le raccourci Dev réutilise ensuite cette session et conserve les logs ainsi que le hot reload.
+
+Les APK et AAB restent des sorties de release ou de validation autonome ciblée : installation, permissions, notifications, services, plugins natifs et comportement sans Flutter attaché. Ils ne remplacent pas la boucle de développement live.
+
 ### Vérifier l'environnement et l'URL utilisés par un agent
 
 Le parcours `full` écrit `%USERPROFILE%\.shipglows\environment.md`. Ce fichier
@@ -277,6 +388,10 @@ versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le por
 attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
 documentation du projet.
+Pour une extension, le bloc remplace l'URL de page par le port HMR et
+`dist\chrome`, puis rappelle le parcours Start, Open, Developer mode, Load
+unpacked et Stop. Un agent ou une opératrice reprenant le dépôt retrouve ainsi
+la même prochaine action que dans la CLI.
 
 Une réconciliation ou réinstallation qui lit temporairement le port `0` dans
 le registre conserve un port valide déjà inscrit dans `ENVIRONMENT.md`. Au
@@ -298,7 +413,7 @@ bornée puis revalider les commandes ; l'absence instantanée de `dart.exe` ne
 prouve pas à elle seule une corruption durable.
 
 Le bloc géré porte le schéma explicite
-`shipglows-project-environment/v1`. Un ancien bloc ShipGlows sans version est
+`shipglows-project-environment/v2`. Un ancien bloc ShipGlows sans version est
 considéré comme `legacy/v0` puis migré automatiquement lors d'un enregistrement,
 d'un démarrage ou de la réconciliation de l'installateur. Le contenu placé hors
 des marqueurs ShipGlows est conservé. Un schéma futur inconnu, des marqueurs
@@ -313,6 +428,24 @@ propre à la surface. Si ShipGlows lance la surface sur `3002` alors que le dép
 déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port
 non attribué dans le registre.
+
+Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
+
+Une extension CRXJS n'est reconnue que si elle déclare `@crxjs/vite-plugin` et
+expose explicitement `dev:chrome`. ShipGlows conserve son lockfile, honore une version exacte de pnpm
+via Corepack, transmet le port HMR réservé, puis attend un Manifest V3 frais dans
+un dossier Chrome pris en charge. `s open` ouvre le gestionnaire d'extensions et
+le dossier non empaqueté; le chargement dans un profil personnel reste une action
+explicite de l'opératrice.
+Avec pnpm, les options `--host` et `--port` sont transmises directement au script;
+le séparateur supplémentaire reste réservé au chemin npm.
+La disponibilité d'une extension respecte le budget de démarrage de 90 secondes
+demandé par le lanceur; elle ne le tronque plus silencieusement à 60 secondes.
+
+La réinstallation du runtime repasse aussi les projets déjà enregistrés dans le
+détecteur courant avant de migrer leur bloc d'environnement. Le registre et
+`ENVIRONMENT.md` ne peuvent ainsi pas conserver deux types de projet différents
+après l'ajout d'un adaptateur plus précis.
 
 Pour Flutter, `.shipglows.env` accepte aussi
 `SHIPGLOWS_DART_DEFINE_FILE=<chemin-relatif>` afin de transmettre durablement un

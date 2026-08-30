@@ -31,14 +31,37 @@ def file_sha256(path: Path) -> str:
 
 
 class PathAndSchemaTests(unittest.TestCase):
+    def test_shipglows_root_uses_valid_linked_development_channel(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            linked_root = Path(temporary) / "linked"
+            (linked_root / "skills" / "000-shipglows").mkdir(parents=True)
+            (linked_root / "skills" / "000-shipglows" / "SKILL.md").write_text("# linked\n", encoding="utf-8")
+            channel = Path(temporary) / "development-channel.json"
+            channel.write_text(json.dumps({"channel": "linked", "root": str(linked_root)}), encoding="utf-8")
+            with mock.patch.dict(capture.os.environ, {"SHIPGLOWS_ROOT": ""}), mock.patch.object(
+                capture, "_windows_user_shipglows_root", return_value=None
+            ), mock.patch.object(capture, "_development_channel_file", return_value=channel):
+                self.assertEqual(capture.shipglows_root(), linked_root.resolve())
+
+    def test_shipglows_root_keeps_runtime_fallback_for_invalid_channel(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            channel = Path(temporary) / "development-channel.json"
+            channel.write_text(json.dumps({"channel": "linked", "root": "relative-root"}), encoding="utf-8")
+            with mock.patch.dict(capture.os.environ, {"SHIPGLOWS_ROOT": ""}), mock.patch.object(
+                capture, "_windows_user_shipglows_root", return_value=None
+            ), mock.patch.object(capture, "_development_channel_file", return_value=channel):
+                self.assertEqual(capture.shipglows_root(), (Path.home() / ".shipglows" / "runtime").resolve())
+
     def test_path_refuses_shipglows_public_repo(self) -> None:
-        with self.assertRaises(capture.CaptureToolError) as caught:
-            capture.validate_output_root(ROOT / "tmp-inspiration-output", fixture_mode=False)
+        with mock.patch.dict(capture.os.environ, {"SHIPGLOWS_ROOT": str(ROOT)}):
+            with self.assertRaises(capture.CaptureToolError) as caught:
+                capture.validate_output_root(ROOT / "tmp-inspiration-output", fixture_mode=False)
         self.assertEqual(caught.exception.code, "public_repo_target")
 
     def test_path_fixture_requires_system_temp(self) -> None:
-        with self.assertRaises(capture.CaptureToolError) as caught:
-            capture.validate_output_root(ROOT / "fixture-output", fixture_mode=True)
+        with mock.patch.dict(capture.os.environ, {"SHIPGLOWS_ROOT": str(ROOT)}):
+            with self.assertRaises(capture.CaptureToolError) as caught:
+                capture.validate_output_root(ROOT / "fixture-output", fixture_mode=True)
         self.assertEqual(caught.exception.code, "public_repo_target")
 
     def test_path_accepts_synthetic_fixture_in_temp(self) -> None:

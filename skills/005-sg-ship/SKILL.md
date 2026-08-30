@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows content. Resolve project artifacts from project root.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`; project artifacts resolve from project root.
 
 ## Instruction Layering
 
@@ -22,7 +22,7 @@ For one unique spec, load `chantier-tracking.md`, preserve history/flow, and rec
 
 ## Report Modes
 
-Before the final report load `reporting-contract.md`. Default to concise `report=user`; detail requires explicit agent, handoff, verbose, or full-report intent.
+Before reporting load `reporting-contract.md`. Default to concise `report=user`; detail requires explicit agent or handoff intent.
 
 ## ShipGlows-Owned Preflight
 
@@ -32,7 +32,7 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before Sh
 
 `005-sg-ship` owns bounded Git shipping and terminal cleanup disposition for agent-created task branches/worktrees, temporary by default. Destruction needs fresh approval. Owners retain implementation, proof, production, and closure unless full-close is explicit.
 
-If closure bookkeeping is the next unresolved owner, remain with `104-sg-end`; quick ship is not a closure substitute.
+`104-sg-end` retains unresolved closure bookkeeping; quick ship never substitutes.
 
 ## Mode And Scope Decision
 
@@ -44,6 +44,8 @@ If closure bookkeeping is the next unresolved owner, remain with `104-sg-end`; q
 - `skip-check` skips checks but never skips secret, dirty-scope, bug-risk, protected-surface, or proof-claim gates.
 
 Quick mode is the default daily delivery path. It uses zero or one focused check when sufficient, stages, commits, pushes, and reports. It never updates `TASKS.md` or `CHANGELOG.md` and never claims formal closure.
+
+When the project adopts structured context history, load `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md` before final staging and append at most one significant delivery event inside the bounded ship scope. Public fields require bilingual public-safe copy and the reference's delivery-proof gate; ambiguous work stays internal. Because the event is staged with the work, a failed push cannot make it public.
 
 Full mode may update trackers, changelog, and durable decisions before the same Git ship sequence. Before it does so, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/full-close-playbook.md`; also load `closure-archive-guard.md`, `documentation-reflection-gate.md`, and `editorial-reflection-gate.md`. A material documentation or editorial gap prevents full-closure wording and routes to the matching owner.
 

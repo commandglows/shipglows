@@ -7,7 +7,7 @@ $script:ProjectIndexSchemaVersion = 1
 $script:ProjectScannerVersion = '1'
 $script:ProjectIndexTtlMinutes = 5
 $script:ProjectCatalogMemory = @{}
-$script:ProjectEnvironmentSchema = 'shipglows-project-environment/v1'
+$script:ProjectEnvironmentSchema = 'shipglows-project-environment/v2'
 $script:ProjectEnvironmentBegin = '<!-- >>> ShipGlows development environment >>> -->'
 $script:ProjectEnvironmentEnd = '<!-- <<< ShipGlows development environment <<< -->'
 $script:CliCapabilitySchema = 'shipglows.cli-capabilities.v1'
@@ -132,77 +132,6 @@ function Get-SgCommandPath([string[]]$Names) {
     return $null
 }
 
-function Get-SgPrivateDataConfigPath {
-    if ($env:SHIPGLOWS_PRIVATE_DATA_CONFIG_FILE) { return [IO.Path]::GetFullPath($env:SHIPGLOWS_PRIVATE_DATA_CONFIG_FILE) }
-    $configRoot = if ($env:APPDATA) { Join-Path $env:APPDATA 'ShipGlows' } else { Join-Path $env:USERPROFILE 'AppData\Roaming\ShipGlows' }
-    return Join-Path $configRoot 'private-data.env'
-}
-
-function Get-SgPrivateDataConfiguration {
-    $privateRoot = if ($env:SHIPGLOWS_PRIVATE_DIR) { $env:SHIPGLOWS_PRIVATE_DIR } else { Join-Path $env:USERPROFILE '.shipglows' }
-    $configPath = Get-SgPrivateDataConfigPath
-    $values = @{}
-    if (Test-Path -LiteralPath $configPath -PathType Leaf) {
-        if (-not (Test-SgOwnerOnlyPath $configPath)) { throw "Private data configuration must be accessible only to the current Windows user: $configPath" }
-        foreach ($line in @(Get-Content -LiteralPath $configPath -ErrorAction Stop)) {
-            $trimmed = $line.Trim()
-            if (-not $trimmed -or $trimmed.StartsWith('#')) { continue }
-            if ($trimmed -notmatch '^(SHIPGLOWS_PRIVATE_DATA_REPO|SHIPGLOWS_PRIVATE_DATA_DIR)=(.*)$') { throw 'Private data configuration accepts only declarative SHIPGLOWS_PRIVATE_DATA_REPO and SHIPGLOWS_PRIVATE_DATA_DIR entries.' }
-            $values[$matches[1]] = $matches[2]
-        }
-    } elseif (Test-Path -LiteralPath $configPath) {
-        throw "Private data configuration must be a regular file: $configPath"
-    }
-    $dataDir = if ($env:SHIPGLOWS_PRIVATE_DATA_DIR) { $env:SHIPGLOWS_PRIVATE_DATA_DIR } elseif ($values['SHIPGLOWS_PRIVATE_DATA_DIR']) { $values['SHIPGLOWS_PRIVATE_DATA_DIR'] } else { Join-Path $privateRoot 'data' }
-    $repo = if ($env:SHIPGLOWS_PRIVATE_DATA_REPO) { $env:SHIPGLOWS_PRIVATE_DATA_REPO } else { $values['SHIPGLOWS_PRIVATE_DATA_REPO'] }
-    if ($dataDir -notmatch '^(?:[A-Za-z]:[\\/]|\\\\)') { throw 'SHIPGLOWS_PRIVATE_DATA_DIR must be an absolute path.' }
-    if ($repo -and -not (Test-SgGitUrl $repo)) { throw 'SHIPGLOWS_PRIVATE_DATA_REPO must be an HTTPS or SSH Git URL without embedded credentials.' }
-    return [pscustomobject]@{ Repository = $repo; DataDirectory = [IO.Path]::GetFullPath($dataDir); ConfigPath = $configPath }
-}
-
-function Write-SgPrivateDataConfiguration([string]$Repository, [string]$DataDirectory) {
-    if (-not (Test-SgGitUrl $Repository)) { throw 'Private data repository must be an HTTPS or SSH Git URL without embedded credentials.' }
-    if ($DataDirectory -notmatch '^(?:[A-Za-z]:[\\/]|\\\\)') { throw 'Private data directory must be an absolute path.' }
-    $configPath = Get-SgPrivateDataConfigPath
-    $configDirectory = Split-Path -Parent $configPath
-    Ensure-SgDirectory $configDirectory
-    Protect-SgOwnerOnlyPath $configDirectory
-    $temporary = "$configPath.$([guid]::NewGuid().ToString('N')).tmp"
-    try {
-        [IO.File]::WriteAllText($temporary, "SHIPGLOWS_PRIVATE_DATA_REPO=$Repository`r`nSHIPGLOWS_PRIVATE_DATA_DIR=$([IO.Path]::GetFullPath($DataDirectory))`r`n", (New-Object Text.UTF8Encoding($false)))
-        Protect-SgOwnerOnlyPath $temporary
-        Move-Item -LiteralPath $temporary -Destination $configPath -Force
-        Protect-SgOwnerOnlyPath $configPath
-    } finally {
-        if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue }
-    }
-}
-
-function Test-SgWindowsCompatibleRepositoryPaths([string[]]$Paths) {
-    $reserved = '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])([.]|$)'
-    foreach ($path in @($Paths)) {
-        foreach ($segment in @($path -split '/')) {
-            if (-not $segment) { return $false }
-            if ($segment -match '[<>:"/\\|?*]' -or $segment.EndsWith(' ') -or $segment.EndsWith('.') -or $segment -match $reserved) { return $false }
-        }
-    }
-    return $true
-}
-
-function Assert-SgWindowsCompatibleGitHubRepository([string]$GitHubCli, [string]$NameWithOwner) {
-    if ($NameWithOwner -notmatch '^[^/\s]+/[^/\s]+$') { throw 'The selected GitHub repository identity is invalid.' }
-    $tree = @(& $GitHubCli api "repos/$NameWithOwner/git/trees/HEAD?recursive=1" | ConvertFrom-Json)
-    if ($LASTEXITCODE -ne 0 -or $tree.Count -ne 1) { throw 'GitHub could not inspect the repository paths before cloning.' }
-    if ($tree[0].truncated) { throw 'GitHub returned an incomplete path inventory; the private repository was not cloned.' }
-    if (-not (Test-SgWindowsCompatibleRepositoryPaths @($tree[0].tree | ForEach-Object { [string]$_.path }))) { throw 'The private repository contains paths that are incompatible with Windows; the repository was not cloned.' }
-}
-
-function Test-SgPrivateDataRepository([object]$Configuration, [string]$GitCli) {
-    if (-not $Configuration.Repository -or -not (Test-Path -LiteralPath $Configuration.DataDirectory -PathType Container)) { return $false }
-    & $GitCli -C $Configuration.DataDirectory rev-parse --is-inside-work-tree *> $null
-    return $LASTEXITCODE -eq 0
-}
-
 function Get-SgCliCapabilityRecords {
     $available = @(
         'project.catalog.read','project.runtime.status.read','preview.status.read','workspace.status.read',
@@ -285,32 +214,75 @@ function Get-SgFlutterCommandPath {
     return [IO.Path]::GetFullPath($flutter)
 }
 
+function Read-SgNodePackage([string]$ProjectPath) {
+    $path = Join-Path $ProjectPath 'package.json'
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
+    try { return [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw "Invalid package.json: $($_.Exception.Message)" }
+}
+
+function Get-SgNodeDependencyNames([object]$Package) {
+    $names = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    if (-not $Package) { return @() }
+    foreach ($sectionName in @('dependencies','devDependencies','peerDependencies')) {
+        $section = $Package.PSObject.Properties[$sectionName]
+        if (-not $section -or -not $section.Value) { continue }
+        foreach ($dependency in @($section.Value.PSObject.Properties)) { [void]$names.Add([string]$dependency.Name) }
+    }
+    return @($names)
+}
+
+function Get-SgNodeScript([object]$Package, [string]$Name) {
+    if (-not $Package) { return $null }
+    $scripts = $Package.PSObject.Properties['scripts']
+    if (-not $scripts -or -not $scripts.Value) { return $null }
+    $script = $scripts.Value.PSObject.Properties[$Name]
+    if (-not $script -or [string]::IsNullOrWhiteSpace([string]$script.Value)) { return $null }
+    return [string]$script.Value
+}
+
+function Test-SgBrowserExtensionPackage([object]$Package) {
+    if (-not (Get-SgNodeScript $Package 'dev:chrome')) { return $false }
+    $dependencies = @(Get-SgNodeDependencyNames $Package)
+    return $dependencies -contains '@crxjs/vite-plugin'
+}
+
+function Get-SgNodePackageManager([string]$ProjectPath) {
+    $pnpmLock = Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf
+    if (-not $pnpmLock) {
+        $npm = Get-SgCommandPath @('npm.cmd','npm.exe')
+        if (-not $npm) { throw 'npm is required but unavailable.' }
+        return [pscustomobject]@{ Manager=[IO.Path]::GetFullPath($npm); PrefixArguments=@(); Name='npm'; Pinned=$false }
+    }
+
+    $package = Read-SgNodePackage $ProjectPath
+    $declaration = if ($package -and $package.PSObject.Properties['packageManager']) { ([string]$package.packageManager).Trim() } else { '' }
+    if ($declaration) {
+        if ($declaration -notmatch '^pnpm@(?<version>[0-9]+[.][0-9]+[.][0-9]+(?:-[0-9A-Za-z.-]+)?)$') {
+            throw "Unsupported packageManager declaration '$declaration'; expected an exact pnpm@x.y.z version."
+        }
+        $corepack = Get-SgCommandPath @('corepack.cmd','corepack.exe')
+        if (-not $corepack) { throw "Corepack is required by packageManager '$declaration' but is unavailable." }
+        return [pscustomobject]@{ Manager=[IO.Path]::GetFullPath($corepack); PrefixArguments=@($declaration); Name='pnpm'; Pinned=$true }
+    }
+
+    $pnpm = Get-SgCommandPath @('pnpm.cmd','pnpm.exe')
+    if (-not $pnpm) { throw 'pnpm is required by pnpm-lock.yaml but is unavailable.' }
+    return [pscustomobject]@{ Manager=[IO.Path]::GetFullPath($pnpm); PrefixArguments=@(); Name='pnpm'; Pinned=$false }
+}
+
 function Get-SgProjectKind([string]$ProjectPath) {
     $package = Join-Path $ProjectPath 'package.json'
     $pubspec = Join-Path $ProjectPath 'pubspec.yaml'
     if ([IO.File]::Exists($package)) {
-        try {
-            $packageText = [IO.File]::ReadAllText($package)
-            $trimmedPackage = $packageText.Trim()
-            if (-not ($trimmedPackage.StartsWith('{') -and $trimmedPackage.EndsWith('}'))) {
-                $null = $packageText | ConvertFrom-Json -ErrorAction Stop
-            } elseif ($packageText -match '(?s)"scripts"\s*:\s*\{.*?"dev"\s*:') {
-                $json = $packageText | ConvertFrom-Json -ErrorAction Stop
-                $all = @()
-                foreach ($property in @('dependencies','devDependencies','peerDependencies')) {
-                    $dependencySection = $json.PSObject.Properties[$property]
-                    if ($dependencySection -and $dependencySection.Value) {
-                        foreach ($dependency in @($dependencySection.Value.PSObject.Properties)) { $all += [string]$dependency.Name }
-                    }
-                }
-                $scriptsProperty = $json.PSObject.Properties['scripts']
-                $hasDevScript = $scriptsProperty -and $scriptsProperty.Value -and $scriptsProperty.Value.PSObject.Properties['dev'] -and $scriptsProperty.Value.dev
-                if ($all -contains 'astro' -and $hasDevScript) { return 'astro' }
-                if ($all -contains 'vite' -and $hasDevScript) { return 'vite' }
-            }
-        } catch { throw "Invalid package.json: $($_.Exception.Message)" }
+        $json = Read-SgNodePackage $ProjectPath
+        $all = @(Get-SgNodeDependencyNames $json)
+        $hasDevScript = [bool](Get-SgNodeScript $json 'dev')
+        if (Test-SgBrowserExtensionPackage $json) { return 'browser-extension' }
+        if ($all -contains 'astro' -and $hasDevScript) { return 'astro' }
+        if ($all -contains 'vite' -and $hasDevScript) { return 'vite' }
     }
-    if ([IO.File]::Exists($pubspec) -and [IO.Directory]::Exists((Join-Path $ProjectPath 'web'))) {
+    if ([IO.File]::Exists($pubspec)) {
         if ([IO.File]::ReadAllText($pubspec) -match '(?m)^\s*flutter:\s*$') { return 'flutter-web' }
     }
     if ([IO.File]::Exists((Join-Path $ProjectPath 'pyproject.toml'))) {
@@ -318,7 +290,79 @@ function Get-SgProjectKind([string]$ProjectPath) {
         if ([IO.File]::Exists((Join-Path $ProjectPath 'requirements.txt'))) { return 'python' }
     }
     if ([IO.File]::Exists((Join-Path $ProjectPath 'requirements.txt'))) { return 'python' }
-    throw "Unsupported or ambiguous project. Supported kinds: Astro, Vite, Python/FastAPI with uv/requirements, Flutter Web."
+    throw "Unsupported or ambiguous project. Supported kinds: Astro, Vite, browser extensions with dev:chrome, Python/FastAPI with uv/requirements, Flutter."
+}
+
+function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$FlutterDevice = '') {
+    $portValue = if ($Port -gt 0) { ":$Port" } else { 'pending' }
+    switch ($Kind) {
+        'browser-extension' {
+            return [pscustomobject]@{
+                Label = 'Chrome extension'
+                PortLabel = "HMR $portValue"
+                Artifact = 'dist\chrome'
+                StartOutcome = 'Manifest V3 build ready in dist\chrome'
+                StartNextAction = 'Next: run s open -ProjectPath <path> to open Chrome extension tools.'
+                OpenAction = 'Open chrome://extensions and the unpacked directory.'
+                OpenNextAction = 'In Chrome, enable Developer mode, choose Load unpacked, and select dist\chrome.'
+            }
+        }
+        { $_ -in @('flutter','flutter-web') } {
+            if ($FlutterDevice -eq 'android') {
+                return [pscustomobject]@{
+                    Label = 'Flutter Android app'
+                    PortLabel = 'Live session'
+                    Artifact = 'managed Flutter Android session'
+                    StartOutcome = 'Managed Flutter Android session ready'
+                    StartNextAction = 'Develop with live logs and reload; use the Dev shortcut to reuse this session.'
+                    OpenAction = 'Use the managed Flutter Android device or emulator session.'
+                    OpenNextAction = 'Validate the app, then run s stop -ProjectPath <path> when finished.'
+                }
+            }
+            if ($FlutterDevice -eq 'windows') {
+                return [pscustomobject]@{
+                    Label = 'Flutter Windows app'
+                    PortLabel = 'Live session'
+                    Artifact = 'managed Flutter Windows session'
+                    StartOutcome = 'Managed Flutter Windows session ready'
+                    StartNextAction = 'Develop with live logs and reload; use the Dev shortcut to reuse this session.'
+                    OpenAction = 'Use the managed Flutter Windows app session.'
+                    OpenNextAction = 'Validate the app, then run s stop -ProjectPath <path> when finished.'
+                }
+            }
+            return [pscustomobject]@{
+                Label = 'Flutter app'
+                PortLabel = "App $portValue"
+                Artifact = 'managed Chrome session'
+                StartOutcome = 'Managed Flutter app session ready'
+                StartNextAction = 'Next: run s open -ProjectPath <path> to open or focus the managed app session.'
+                OpenAction = 'Open or focus the managed Chrome app session.'
+                OpenNextAction = 'Validate the app, then run s stop -ProjectPath <path> when finished.'
+            }
+        }
+        default {
+            return [pscustomobject]@{
+                Label = 'Web project'
+                PortLabel = "URL $portValue"
+                Artifact = $(if ($Port -gt 0) { "http://127.0.0.1:$Port" } else { 'local URL pending' })
+                StartOutcome = $(if ($Port -gt 0) { "Local URL ready at http://127.0.0.1:$Port" } else { 'Local URL pending first start' })
+                StartNextAction = 'Next: run s open -ProjectPath <path> to open the managed local URL.'
+                OpenAction = 'Open the managed local URL.'
+                OpenNextAction = 'Use the local project, then run s stop -ProjectPath <path> when finished.'
+            }
+        }
+    }
+}
+
+function Format-SgProjectStatus([object]$Entry) {
+    if (-not $Entry) { return 'unknown project' }
+    $kind = if ($Entry.PSObject.Properties['kind'] -and $Entry.kind) { [string]$Entry.kind } else { 'unknown' }
+    $port = if ($Entry.PSObject.Properties['port']) { [int]$Entry.port } else { 0 }
+    $status = if ($Entry.PSObject.Properties['status'] -and $Entry.status) { [string]$Entry.status } else { 'discovered' }
+    $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
+    $experience = Get-SgProjectExperience $kind $port $flutterDevice
+    $artifact = if ($kind -eq 'browser-extension') { " | $($experience.Artifact)" } else { '' }
+    return "$status | $($experience.Label) | $($experience.PortLabel)$artifact"
 }
 
 function Get-SgProjectDescriptors([string]$ProjectPath) {
@@ -355,7 +399,8 @@ function Get-SgProjectDescriptor([string]$ProjectPath) {
 }
 
 function Get-SgRuntimeSettings([string]$ProjectPath) {
-    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = 'chrome'; DartDefineFile = $null }
+    $defaultFlutterDevice = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'windows') -PathType Container) { 'windows' } else { 'chrome' }
+    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceId = $null; DartDefineFile = $null }
     $file = Join-Path $ProjectPath '.shipglows.env'
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { return $settings }
     foreach ($rawLine in @(Get-Content -LiteralPath $file)) {
@@ -367,8 +412,10 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
             $settings.Port = [int]$value
         } elseif ($line -match '^SHIPGLOWS_AUTO_REPAIR=(true|false)$') {
             $settings.AutoRepair = $Matches[1] -eq 'true'
-        } elseif ($line -match '^SHIPGLOWS_FLUTTER_DEVICE=(chrome|web-server)$') {
+        } elseif ($line -match '^SHIPGLOWS_FLUTTER_DEVICE=(windows|android|chrome|web-server)$') {
             $settings.FlutterDevice = $Matches[1]
+        } elseif ($line -match '^SHIPGLOWS_FLUTTER_DEVICE_ID=([A-Za-z0-9._:-]{1,128})$') {
+            $settings.FlutterDeviceId = $Matches[1]
         } elseif ($line -match '^SHIPGLOWS_DART_DEFINE_FILE=(.+)$') {
             $relative = $Matches[1].Trim()
             if ([IO.Path]::IsPathRooted($relative)) { throw "SHIPGLOWS_DART_DEFINE_FILE in $file must be relative to the project." }
@@ -377,7 +424,7 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
             if (-not $resolved.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) -or -not (Test-Path -LiteralPath $resolved -PathType Leaf)) { throw "SHIPGLOWS_DART_DEFINE_FILE in $file must resolve to an existing file inside the project." }
             $settings.DartDefineFile = $resolved
         } else {
-            throw "Unsupported line in ${file}: $line. Allowed keys: SHIPGLOWS_ENV_PORT, SHIPGLOWS_AUTO_REPAIR, SHIPGLOWS_FLUTTER_DEVICE, and SHIPGLOWS_DART_DEFINE_FILE."
+            throw "Unsupported line in ${file}: $line. Allowed keys: SHIPGLOWS_ENV_PORT, SHIPGLOWS_AUTO_REPAIR, SHIPGLOWS_FLUTTER_DEVICE, SHIPGLOWS_FLUTTER_DEVICE_ID, and SHIPGLOWS_DART_DEFINE_FILE."
         }
     }
     return $settings
@@ -545,11 +592,25 @@ function Get-SgProcessSnapshotMap([int[]]$Pids) {
     return $result
 }
 
+function ConvertTo-SgUtcStartTicks([object]$Value) {
+    if ($null -eq $Value) { throw 'Process start time is missing.' }
+    if ($Value -is [datetime]) { return ([datetime]$Value).ToUniversalTime().Ticks }
+    $parsed = [DateTimeOffset]::MinValue
+    if (-not [DateTimeOffset]::TryParse([string]$Value, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind, [ref]$parsed)) {
+        throw 'Process start time is invalid.'
+    }
+    return $parsed.UtcDateTime.Ticks
+}
+
 function Test-SgProcessIdentity([object]$Entry, [hashtable]$SnapshotByPid = $null) {
     $pidValue = [int]$Entry.pid
     $current = if ($null -ne $SnapshotByPid) { if ($SnapshotByPid.ContainsKey($pidValue)) { $SnapshotByPid[$pidValue] } else { $null } } else { Get-SgProcessSnapshot $pidValue }
     if (-not $current) { return $false }
-    if ($Entry.startTimeUtc -and $current.StartTimeUtc -ne $Entry.startTimeUtc) { return $false }
+    if ($Entry.startTimeUtc) {
+        try {
+            if ((ConvertTo-SgUtcStartTicks $current.StartTimeUtc) -ne (ConvertTo-SgUtcStartTicks $Entry.startTimeUtc)) { return $false }
+        } catch { return $false }
+    }
     if ($Entry.executablePath -and $current.ExecutablePath -and [IO.Path]::GetFullPath($Entry.executablePath) -ne [IO.Path]::GetFullPath($current.ExecutablePath)) { return $false }
     if ($Entry.commandSignature -and $current.CommandLine -and $current.CommandLine -notlike "*$($Entry.commandSignature)*") { return $false }
     return $true
@@ -710,13 +771,24 @@ function Get-SgProjectCatalogCacheKey([object]$Config) {
     return "$workspace|$((Get-SgProjectIndexPath $Config).ToLowerInvariant())"
 }
 
+function ConvertFrom-SgRoundTripTimestamp([object]$Value) {
+    if ($Value -is [DateTimeOffset]) { return ([DateTimeOffset]$Value).ToUniversalTime() }
+    if ($Value -is [DateTime]) { return ([DateTimeOffset]([DateTime]$Value)).ToUniversalTime() }
+    $parsed = [DateTimeOffset]::MinValue
+    $text = [Convert]::ToString($Value, [Globalization.CultureInfo]::InvariantCulture)
+    if (-not [DateTimeOffset]::TryParseExact($text, 'o', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind, [ref]$parsed)) {
+        throw 'Timestamp is not an invariant round-trip value.'
+    }
+    return $parsed.ToUniversalTime()
+}
+
 function Test-SgProjectIndex([object]$Config, [object]$Index, [switch]$AllowStale) {
     if (-not $Index -or $Index.schemaVersion -ne $script:ProjectIndexSchemaVersion -or [string]$Index.scannerVersion -ne $script:ProjectScannerVersion -or $null -eq $Index.projects) { return $false }
     $workspace = [IO.Path]::GetFullPath([string]$Config.Workspace).TrimEnd('\','/')
     $indexedWorkspace = try { [IO.Path]::GetFullPath([string]$Index.workspace).TrimEnd('\','/') } catch { return $false }
     if (-not $workspace.Equals($indexedWorkspace, [StringComparison]::OrdinalIgnoreCase)) { return $false }
-    try { $generatedAt = [datetime]::Parse([string]$Index.generatedAt).ToUniversalTime() } catch { return $false }
-    $age = ((Get-Date).ToUniversalTime() - $generatedAt).TotalMinutes
+    try { $generatedAt = ConvertFrom-SgRoundTripTimestamp $Index.generatedAt } catch { return $false }
+    $age = ([DateTimeOffset]::UtcNow - $generatedAt).TotalMinutes
     return $age -ge 0 -and ($AllowStale -or $age -lt $script:ProjectIndexTtlMinutes)
 }
 
@@ -754,7 +826,7 @@ function Write-SgProjectIndex([object]$Config, [object[]]$Projects) {
             schemaVersion = $script:ProjectIndexSchemaVersion
             workspace = [IO.Path]::GetFullPath([string]$Config.Workspace).TrimEnd('\','/')
             scannerVersion = $script:ProjectScannerVersion
-            generatedAt = (Get-Date).ToUniversalTime().ToString('o')
+            generatedAt = [DateTimeOffset]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
             projects = @($Projects)
         }
         $index | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $temp -Encoding UTF8 -ErrorAction Stop
@@ -978,50 +1050,154 @@ function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port)
     return "ShipGlows:${Kind}:${Port}:$([IO.Path]::GetFullPath($ProjectPath))"
 }
 
-function Invoke-SgDependencySetup([string]$ProjectPath, [string]$Kind, [string]$LogPath) {
-    if ($Kind -in @('astro','vite')) {
-        $pm = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')) { Get-SgCommandPath @('pnpm.cmd','pnpm.exe') } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'package-lock.json')) { Get-SgCommandPath @('npm.cmd','npm.exe') } else { Get-SgCommandPath @('npm.cmd','npm.exe') }
-        if (-not $pm) { throw 'Node package manager not found. Install Node.js and pnpm/npm, then retry.' }
-        $args = if ($pm -match 'pnpm') { if (Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')) { @('install','--frozen-lockfile') } else { @('install') } } elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'package-lock.json')) { @('ci') } else { @('install') }
+function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
+    $names = if ($Kind -in @('astro','vite','browser-extension')) {
+        @('package.json','pnpm-lock.yaml','package-lock.json','npm-shrinkwrap.json')
     } elseif ($Kind -eq 'python') {
-        $uv = Get-SgCommandPath @('uv.exe','uv.cmd','uv')
-        if (-not $uv) { throw 'uv is required for Python projects. Install uv, then retry.' }
-        $pm = $uv
-        $venv = Join-Path $ProjectPath '.venv'
-        if (Test-Path -LiteralPath (Join-Path $ProjectPath 'uv.lock')) { $args = @('sync','--locked') }
-        elseif (Test-Path -LiteralPath (Join-Path $ProjectPath 'requirements.txt')) {
-            $python = Join-Path $venv 'Scripts\python.exe'
-            # uv can write informational output to stderr even on success. Do
-            # not let a caller's ErrorActionPreference turn that into a false
-            # failure; the native exit code remains the source of truth.
-            if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
-                $args = @('venv',$venv)
-                $previousErrorActionPreference = $ErrorActionPreference
-                try {
-                    $ErrorActionPreference = 'Continue'
-                    & $uv @args 2>&1 | Tee-Object -FilePath $LogPath -Append
-                    if ($LASTEXITCODE -ne 0) { throw 'uv venv failed.' }
-                } finally { $ErrorActionPreference = $previousErrorActionPreference }
-            }
-            $args = @('pip','install','--python',$python,'-r',(Join-Path $ProjectPath 'requirements.txt'))
-        }
-        else { throw 'Python project requires uv.lock or requirements.txt in V1.' }
+        @('pyproject.toml','uv.lock','requirements.txt')
     } else {
-        $flutter = Get-SgFlutterCommandPath
-        if (-not $flutter) { throw 'Flutter SDK is not available on PATH.' }
-        $pm = $flutter
-        $args = @('pub','get')
+        @('pubspec.yaml','pubspec.lock')
     }
-    Push-Location $ProjectPath
-    $previousErrorActionPreference = $ErrorActionPreference
+    return @($names | ForEach-Object { Join-Path $ProjectPath $_ } | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
+}
+
+function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
+    if ($Kind -in @('astro','vite','browser-extension')) {
+        $pnpmLock=Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf
+        $npmLock=(Test-Path -LiteralPath (Join-Path $ProjectPath 'package-lock.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $ProjectPath 'npm-shrinkwrap.json') -PathType Leaf)
+        $packageManager=Get-SgNodePackageManager $ProjectPath
+        [string[]]$arguments=if($pnpmLock){@($packageManager.PrefixArguments)+@('install','--frozen-lockfile')}elseif($npmLock){@('ci')}else{@('install')}
+        $managerLabel=if($packageManager.Pinned){'corepack-pnpm'}else{$packageManager.Name}
+        return [pscustomobject]@{Manager=$packageManager.Manager;Arguments=$arguments;BootstrapArguments=@();ArtifactStrategy="node-$Kind-$managerLabel";SuppressNpmLock=(-not$pnpmLock-and-not$npmLock)}
+    }
+    if($Kind-eq'python'){
+        $manager=Get-SgCommandPath @('uv.exe','uv.cmd','uv');if(-not$manager){throw 'uv is required for Python projects. Install uv, then retry.'}
+        $venv=Join-Path $ProjectPath '.venv';$python=Join-Path $venv 'Scripts\python.exe'
+        if(Test-Path -LiteralPath (Join-Path $ProjectPath 'uv.lock') -PathType Leaf){$arguments=@('sync','--locked');$bootstrap=@();$artifact='python-uv-lock'}
+        elseif(Test-Path -LiteralPath (Join-Path $ProjectPath 'requirements.txt') -PathType Leaf){$arguments=@('pip','install','--python',$python,'-r',(Join-Path $ProjectPath 'requirements.txt'));$bootstrap=@('venv',$venv);$artifact='python-requirements-venv'}
+        else{throw 'Python project requires uv.lock or requirements.txt in V1.'}
+        return [pscustomobject]@{Manager=[IO.Path]::GetFullPath($manager);Arguments=[string[]]$arguments;BootstrapArguments=[string[]]$bootstrap;ArtifactStrategy=$artifact;SuppressNpmLock=$false}
+    }
+    $manager=Get-SgFlutterCommandPath;if(-not$manager){throw 'Flutter SDK is not available on PATH.'}
+    return [pscustomobject]@{Manager=[IO.Path]::GetFullPath($manager);Arguments=[string[]]@('pub','get');BootstrapArguments=@();ArtifactStrategy='flutter-package-config';SuppressNpmLock=$false}
+}
+
+function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Plan) {
+    $inputs = @(Get-SgDependencyInputs $ProjectPath $Kind)
+    if ($inputs.Count -eq 0) { throw "No dependency manifest found for $Kind." }
+    $builder = New-Object Text.StringBuilder
+    [void]$builder.AppendLine('schemaVersion=2')
+    [void]$builder.AppendLine("kind=$Kind")
+    [void]$builder.AppendLine("manager=$([string]$Plan.Manager)")
+    [void]$builder.AppendLine("arguments=$(@($Plan.Arguments)|ConvertTo-Json -Compress)")
+    [void]$builder.AppendLine("bootstrapArguments=$(@($Plan.BootstrapArguments)|ConvertTo-Json -Compress)")
+    [void]$builder.AppendLine("artifactStrategy=$([string]$Plan.ArtifactStrategy)")
+    foreach ($path in @($inputs | Sort-Object)) {
+        $relative = $path.Substring($ProjectPath.TrimEnd('\','/').Length).TrimStart('\','/').ToLowerInvariant()
+        $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
+        [void]$builder.AppendLine("$relative=$hash")
+    }
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($builder.ToString())))).Replace('-','').ToLowerInvariant() }
+    finally { $sha.Dispose() }
+}
+
+function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind) {
+    if ($Kind -in @('astro','vite','browser-extension')) {
+        $nodeModules = Join-Path $ProjectPath 'node_modules'
+        if (-not (Test-Path -LiteralPath $nodeModules -PathType Container)) { return $false }
+        $managerArtifact=if(Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf){Test-Path -LiteralPath (Join-Path $nodeModules '.modules.yaml') -PathType Leaf}else{Test-Path -LiteralPath (Join-Path $nodeModules '.package-lock.json') -PathType Leaf}
+        if($Kind-eq'browser-extension'){
+            $frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules '@crxjs\vite-plugin') 'package.json') -PathType Leaf
+        }else{$frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules $Kind) 'package.json') -PathType Leaf}
+        return $managerArtifact -and $frameworkArtifact
+    }
+    if ($Kind -eq 'python') { return Test-Path -LiteralPath (Join-Path $ProjectPath '.venv\Scripts\python.exe') -PathType Leaf }
+    return Test-Path -LiteralPath (Join-Path $ProjectPath '.dart_tool\package_config.json') -PathType Leaf
+}
+
+function Get-SgDependencyStatePath([object]$Config, [string]$ProjectPath) {
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { $identity = ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(([IO.Path]::GetFullPath($ProjectPath).ToLowerInvariant()))))).Replace('-','').ToLowerInvariant() }
+    finally { $sha.Dispose() }
+    return Join-Path (Join-Path ([IO.Path]::GetFullPath([string]$Config.RuntimeDirectory)) 'dependency-state') "$identity.json"
+}
+
+function Test-SgDependencyState([string]$StatePath, [string]$Digest, [string]$ProjectPath, [string]$Kind) {
+    if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind) -or -not (Test-Path -LiteralPath $StatePath -PathType Leaf)) { return $false }
     try {
-        # Package managers may report normal progress on stderr; use their
-        # exit code so this is stable with $ErrorActionPreference = 'Stop'.
-        $ErrorActionPreference = 'Continue'
-        & $pm @args 2>&1 | Tee-Object -FilePath $LogPath -Append
-        if ($LASTEXITCODE -ne 0) { throw "Dependency setup failed for $Kind." }
-    }
-    finally { $ErrorActionPreference = $previousErrorActionPreference; Pop-Location }
+        $state = Get-Content -LiteralPath $StatePath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        return [int]$state.schemaVersion -eq 2 -and [string]$state.digest -ceq $Digest -and [string]$state.kind -ceq $Kind -and [string]$state.projectPath -ceq ([IO.Path]::GetFullPath($ProjectPath))
+    } catch { return $false }
+}
+
+function Write-SgDependencyState([string]$StatePath, [string]$Digest, [string]$ProjectPath, [string]$Kind) {
+    $temp = "$StatePath.$([guid]::NewGuid().ToString('N')).tmp"
+    $state = [ordered]@{ schemaVersion=2; projectPath=[IO.Path]::GetFullPath($ProjectPath); kind=$Kind; digest=$Digest; completedAt=[DateTimeOffset]::UtcNow.ToString('o',[Globalization.CultureInfo]::InvariantCulture) }
+    try {
+        [IO.File]::WriteAllText($temp, ($state | ConvertTo-Json -Compress), (New-Object Text.UTF8Encoding($false)))
+        if (Test-Path -LiteralPath $StatePath -PathType Leaf) {
+            $backup = "$StatePath.bak"
+            try { [IO.File]::Replace($temp, $StatePath, $backup) } finally { Remove-Item -LiteralPath $backup -Force -ErrorAction SilentlyContinue }
+        } else { Move-Item -LiteralPath $temp -Destination $StatePath -Force }
+    } finally { Remove-Item -LiteralPath $temp -Force -ErrorAction SilentlyContinue }
+}
+
+function Write-SgDependencyLogRecord([IO.TextWriter]$Writer, [object]$Record) {
+    $Writer.WriteLine([string]$Record)
+    Write-Output $Record
+}
+
+function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath) {
+    $statePath = Get-SgDependencyStatePath $Config $ProjectPath
+    Ensure-SgDirectory (Split-Path -Parent $statePath)
+    $lock = $null
+    $logWriter = $null
+    $suppressNpmLock = $false
+    try {
+        $deadline = (Get-Date).AddSeconds(30)
+        do {
+            try { $lock = [IO.File]::Open("$statePath.lock", [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None) }
+            catch [IO.IOException] { if ((Get-Date) -ge $deadline) { throw 'Dependency setup lock timed out.' }; Start-Sleep -Milliseconds 50 }
+        } while (-not $lock)
+        $plan = New-SgDependencyPlan $ProjectPath $Kind
+        $digest = Get-SgDependencyDigest $ProjectPath $Kind $plan
+        if (Test-SgDependencyState $statePath $digest $ProjectPath $Kind) { Write-SgInfo "Dependencies unchanged: $ProjectPath"; return $false }
+        # From this point onward the previous success record no longer
+        # describes a safely reusable installation. Keep failures fail-closed.
+        Remove-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue
+        Ensure-SgDirectory (Split-Path -Parent $LogPath)
+        # setup.log describes the current dependency attempt. Start it with one
+        # deterministic encoding instead of appending PS 5.1 UTF-16 to history.
+        $logWriter = New-Object IO.StreamWriter($LogPath, $false, (New-Object Text.UTF8Encoding($false)))
+        $logWriter.AutoFlush = $true
+        $pm=[string]$plan.Manager
+        [string[]]$setupArguments=@($plan.Arguments)
+        $suppressNpmLock=[bool]$plan.SuppressNpmLock
+        if(@($plan.BootstrapArguments).Count-gt0-and-not(Test-Path -LiteralPath (Join-Path $ProjectPath '.venv\Scripts\python.exe') -PathType Leaf)){
+            $previousErrorActionPreference=$ErrorActionPreference
+            try{$ErrorActionPreference='Continue';& $pm @($plan.BootstrapArguments) 2>&1|ForEach-Object{Write-SgDependencyLogRecord $logWriter $_};if($LASTEXITCODE-ne0){throw 'uv venv failed.'}}
+            finally{$ErrorActionPreference=$previousErrorActionPreference}
+        }
+        Push-Location $ProjectPath
+        $previousErrorActionPreference = $ErrorActionPreference
+        $previousNpmPackageLock = $env:npm_config_package_lock
+        try {
+            # Package managers may report normal progress on stderr; use their
+            # exit code so this is stable with $ErrorActionPreference = 'Stop'.
+            $ErrorActionPreference = 'Continue'
+            if ($suppressNpmLock) { $env:npm_config_package_lock = 'false' }
+            & $pm @setupArguments 2>&1 | ForEach-Object { Write-SgDependencyLogRecord $logWriter $_ }
+            if ($LASTEXITCODE -ne 0) { throw "Dependency setup failed for $Kind." }
+        }
+        finally { $env:npm_config_package_lock = $previousNpmPackageLock; $ErrorActionPreference = $previousErrorActionPreference; Pop-Location }
+        if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind)) { throw "Dependency setup completed without the expected $Kind artifacts." }
+        $completedPlan = New-SgDependencyPlan $ProjectPath $Kind
+        $completedDigest = Get-SgDependencyDigest $ProjectPath $Kind $completedPlan
+        if ($completedDigest -cne $digest) { throw 'Dependency inputs changed during setup; durable state was not recorded. Retry with stable manifests and lockfiles.' }
+        Write-SgDependencyState $statePath $completedDigest $ProjectPath $Kind
+        return $true
+    } finally { if ($logWriter) { $logWriter.Dispose() }; if ($lock) { $lock.Dispose() } }
 }
 
 function Rotate-SgLogFile([string]$Path, [long]$MaxBytes = 5242880) {
@@ -1049,15 +1225,17 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
             $command = "call `"$packageManager`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
             $args = @('/d','/s','/c',"`"$command`"")
         }
-    } elseif ($Kind -eq 'vite') {
-        $pnpm = Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')
-        $packageManager = if ($pnpm) { Get-SgCommandPath @('pnpm.cmd','pnpm.exe') } else { Get-SgCommandPath @('npm.cmd','npm.exe') }
-        if (-not $packageManager) { throw 'A Node package manager is required but unavailable.' }
+    } elseif ($Kind -in @('vite','browser-extension')) {
+        $packageManager = Get-SgNodePackageManager $ProjectPath
         $file = $env:ComSpec
-        if ($pnpm) {
-            $command = "call `"$packageManager`" exec vite --host 127.0.0.1 --port $Port & rem $signature"
+        $prefix = if (@($packageManager.PrefixArguments).Count -gt 0) { ' ' + (@($packageManager.PrefixArguments) -join ' ') } else { '' }
+        if ($Kind -eq 'browser-extension') {
+            $optionSeparator = if ($packageManager.Name -eq 'pnpm') { '' } else { ' --' }
+            $command = "call `"$($packageManager.Manager)`"$prefix run dev:chrome$optionSeparator --host 127.0.0.1 --port $Port & rem $signature"
+        } elseif ($packageManager.Name -eq 'pnpm') {
+            $command = "call `"$($packageManager.Manager)`"$prefix exec vite --host 127.0.0.1 --port $Port & rem $signature"
         } else {
-            $command = "call `"$packageManager`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
+            $command = "call `"$($packageManager.Manager)`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
         }
         $args = @('/d','/s','/c',"`"$command`"")
     } elseif ($Kind -eq 'python') {
@@ -1077,14 +1255,108 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         $supervisor = Join-Path $PSScriptRoot 'ShipGlows.FlutterSupervisor.ps1'
         if (-not (Test-Path -LiteralPath $supervisor -PathType Leaf)) { throw 'ShipGlows Flutter supervisor is missing.' }
         if ([string]::IsNullOrWhiteSpace($FlutterLaunchDirectory) -or [string]::IsNullOrWhiteSpace($FlutterLaunchIdentity)) { throw 'Managed Flutter launch identity is required.' }
-        $file = Join-Path $PSHOME 'powershell.exe'
-        $args = @('-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',"`"$supervisor`"",'-LaunchDirectory',"`"$FlutterLaunchDirectory`"",'-ProjectPath',"`"$ProjectPath`"",'-FlutterPath',"`"$flutter`"",'-Port',[string]$Port,'-Device',$FlutterDevice,'-LaunchIdentity',$FlutterLaunchIdentity)
+        $file = Resolve-SgPowerShellExecutable
+        $args = @('-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',"`"$supervisor`"",'-LaunchDirectory',"`"$FlutterLaunchDirectory`"",'-ProjectPath',"`"$ProjectPath`"",'-FlutterPath',"`"$flutter`"")
+        if ($FlutterDevice -in @('chrome','web-server')) { $args += @('-Port',[string]$Port) }
+        $args += @('-Device',$FlutterDevice,'-LaunchIdentity',$FlutterLaunchIdentity)
         if ($FlutterDevice -eq 'chrome') { $args += @('-ProfilePath',"`"$FlutterProfilePath`""); if ($FlutterVisible) { $args += '-Visible' } }
         if ($DartDefineFile) { $args += @('-DartDefineFile',"`"$DartDefineFile`"") }
         $signature = $FlutterLaunchIdentity
     }
     if (-not $file) { throw "Launch tool missing for $Kind." }
     [pscustomobject]@{ FilePath = $file; Arguments = $args; Signature = $signature; Interactive = $false; FlutterSdkRoot=$(if($Kind-eq'flutter-web'){Split-Path (Split-Path $flutter -Parent) -Parent}else{$null}) }
+}
+
+function ConvertTo-SgPowerShellLiteral([string]$Value) {
+    return "'$(if($null-eq$Value){''}else{$Value.Replace("'","''")})'"
+}
+
+function Resolve-SgPowerShellExecutable([string[]]$KnownCandidates=@()) {
+    $candidates=New-Object 'System.Collections.Generic.List[string]'
+    if(@($KnownCandidates).Count-gt0){foreach($candidate in @($KnownCandidates)){if($candidate){[void]$candidates.Add([string]$candidate)}}}
+    elseif($env:SHIPGLOWS_MANAGED_PWSH){[void]$candidates.Add($env:SHIPGLOWS_MANAGED_PWSH)}
+    foreach($candidate in $candidates){
+        if([string]::IsNullOrWhiteSpace($candidate)-or-not[IO.Path]::IsPathRooted($candidate)){continue}
+        try{$resolved=[IO.Path]::GetFullPath($candidate)}catch{continue}
+        if([IO.Path]::GetFileName($resolved)-ne'pwsh.exe'){continue}
+        if(-not $env:SHIPGLOWS_MANAGED_PWSH -or $resolved-ne[IO.Path]::GetFullPath($env:SHIPGLOWS_MANAGED_PWSH)){continue}
+        if(Test-Path -LiteralPath $resolved -PathType Leaf){return $resolved}
+    }
+    throw 'The ShipGlows-managed PowerShell runtime could not be resolved for detached process launch.'
+}
+
+function Get-SgJobNativeSource {
+    return @'
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+public static class ShipGlowsJobNative {
+    [StructLayout(LayoutKind.Sequential)] public struct BasicAccounting { public long TotalUserTime; public long TotalKernelTime; public long ThisPeriodTotalUserTime; public long ThisPeriodTotalKernelTime; public uint TotalPageFaultCount; public uint TotalProcesses; public uint ActiveProcesses; public uint TotalTerminatedProcesses; }
+    [StructLayout(LayoutKind.Sequential)] public struct BasicLimits { public long PerProcessUserTimeLimit; public long PerJobUserTimeLimit; public uint LimitFlags; public UIntPtr MinimumWorkingSetSize; public UIntPtr MaximumWorkingSetSize; public uint ActiveProcessLimit; public UIntPtr Affinity; public uint PriorityClass; public uint SchedulingClass; }
+    [StructLayout(LayoutKind.Sequential)] public struct IoCounters { public ulong ReadOperationCount; public ulong WriteOperationCount; public ulong OtherOperationCount; public ulong ReadTransferCount; public ulong WriteTransferCount; public ulong OtherTransferCount; }
+    [StructLayout(LayoutKind.Sequential)] public struct ExtendedLimits { public BasicLimits BasicLimitInformation; public IoCounters IoInfo; public UIntPtr ProcessMemoryLimit; public UIntPtr JobMemoryLimit; public UIntPtr PeakProcessMemoryUsed; public UIntPtr PeakJobMemoryUsed; }
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr CreateJobObject(IntPtr attributes, string name);
+    [DllImport("kernel32.dll", SetLastError=true)] static extern bool SetInformationJobObject(IntPtr job, int infoClass, ref ExtendedLimits info, uint length);
+    [DllImport("kernel32.dll", SetLastError=true)] static extern bool QueryInformationJobObject(IntPtr job, int infoClass, ref BasicAccounting info, uint length, IntPtr returnLength);
+    [DllImport("kernel32.dll", SetLastError=true)] static extern bool AssignProcessToJobObject(IntPtr job, IntPtr process);
+    [DllImport("kernel32.dll")] static extern IntPtr GetCurrentProcess();
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr OpenJobObject(uint access, bool inherit, string name);
+    [DllImport("kernel32.dll", SetLastError=true)] static extern bool TerminateJobObject(IntPtr job, uint exitCode);
+    [DllImport("kernel32.dll")] public static extern bool CloseHandle(IntPtr handle);
+    public static IntPtr CreateKillOnClose(string name) {
+        IntPtr job=CreateJobObject(IntPtr.Zero,name); if(job==IntPtr.Zero) throw new Win32Exception(Marshal.GetLastWin32Error(),"CreateJobObject failed");
+        ExtendedLimits info=new ExtendedLimits(); info.BasicLimitInformation.LimitFlags=0x00002000;
+        if(!SetInformationJobObject(job,9,ref info,(uint)Marshal.SizeOf(typeof(ExtendedLimits)))) { int error=Marshal.GetLastWin32Error(); CloseHandle(job); throw new Win32Exception(error,"SetInformationJobObject failed"); }
+        return job;
+    }
+    public static void AssignCurrent(IntPtr job) { if(!AssignProcessToJobObject(job,GetCurrentProcess())) throw new Win32Exception(Marshal.GetLastWin32Error(),"AssignProcessToJobObject failed"); }
+    public static uint ActiveProcessCount(IntPtr job) { BasicAccounting info=new BasicAccounting(); if(!QueryInformationJobObject(job,1,ref info,(uint)Marshal.SizeOf(typeof(BasicAccounting)),IntPtr.Zero)) throw new Win32Exception(Marshal.GetLastWin32Error(),"QueryInformationJobObject failed"); return info.ActiveProcesses; }
+    public static bool Terminate(string name) { IntPtr job=OpenJobObject(0x0008,false,name); if(job==IntPtr.Zero) return false; try { if(!TerminateJobObject(job,1)) throw new Win32Exception(Marshal.GetLastWin32Error(),"TerminateJobObject failed"); return true; } finally { CloseHandle(job); } }
+}
+'@
+}
+
+function Initialize-SgJobNativeApi {
+    if (-not ('ShipGlowsJobNative' -as [type])) { Add-Type -TypeDefinition (Get-SgJobNativeSource) -Language CSharp -ErrorAction Stop }
+}
+
+function Stop-SgManagedJob([object]$Entry) {
+    if (-not $Entry.PSObject.Properties['jobName'] -or [string]::IsNullOrWhiteSpace([string]$Entry.jobName)) { return $false }
+    if ([string]$Entry.jobName -notmatch '^Local\\ShipGlows-[a-f0-9]{32}$') { throw 'Managed job identity is invalid.' }
+    Initialize-SgJobNativeApi
+    return [ShipGlowsJobNative]::Terminate([string]$Entry.jobName)
+}
+
+function Start-SgDetachedProcess([string]$FilePath,[string[]]$ArgumentList,[string]$WorkingDirectory,[string]$RedirectStandardOutput,[string]$RedirectStandardError,[hashtable]$EnvironmentVariables,[string]$SecretTokenPath='') {
+    $argumentLiterals=@($ArgumentList|ForEach-Object{ConvertTo-SgPowerShellLiteral ([string]$_)})-join','
+    $lines=New-Object 'System.Collections.Generic.List[string]'
+    [void]$lines.Add("`$ErrorActionPreference='Stop'")
+    $jobName = "Local\ShipGlows-$([guid]::NewGuid().ToString('N'))"
+    [void]$lines.Add("if(-not('ShipGlowsJobNative' -as [type])){Add-Type -TypeDefinition $(ConvertTo-SgPowerShellLiteral (Get-SgJobNativeSource)) -Language CSharp -ErrorAction Stop}")
+    [void]$lines.Add("`$job=[ShipGlowsJobNative]::CreateKillOnClose($(ConvertTo-SgPowerShellLiteral $jobName))")
+    [void]$lines.Add('try {')
+    [void]$lines.Add('[ShipGlowsJobNative]::AssignCurrent($job)')
+    [void]$lines.Add("Set-Location -LiteralPath $(ConvertTo-SgPowerShellLiteral $WorkingDirectory)")
+    foreach($name in @($EnvironmentVariables.Keys|Sort-Object)){
+        if($name-eq'SHIPGLOWS_SUPERVISOR_TOKEN'){
+            if([string]::IsNullOrWhiteSpace($SecretTokenPath)){throw 'Detached Flutter launch requires its protected token path.'}
+            [void]$lines.Add("[Environment]::SetEnvironmentVariable('SHIPGLOWS_SUPERVISOR_TOKEN',[IO.File]::ReadAllText($(ConvertTo-SgPowerShellLiteral $SecretTokenPath)),'Process')")
+        }else{
+            [void]$lines.Add("[Environment]::SetEnvironmentVariable($(ConvertTo-SgPowerShellLiteral $name),$(ConvertTo-SgPowerShellLiteral ([string]$EnvironmentVariables[$name])),'Process')")
+        }
+    }
+    [void]$lines.Add("[string[]]`$launchArguments=@($argumentLiterals)")
+    [void]$lines.Add("`$managedProcess=Start-Process -FilePath $(ConvertTo-SgPowerShellLiteral $FilePath) -ArgumentList `$launchArguments -WorkingDirectory $(ConvertTo-SgPowerShellLiteral $WorkingDirectory) -RedirectStandardOutput $(ConvertTo-SgPowerShellLiteral $RedirectStandardOutput) -RedirectStandardError $(ConvertTo-SgPowerShellLiteral $RedirectStandardError) -PassThru -Wait -WindowStyle Hidden")
+    [void]$lines.Add("`$managedExitCode=`$managedProcess.ExitCode;`$managedProcess.Dispose();while([ShipGlowsJobNative]::ActiveProcessCount(`$job)-gt1){Start-Sleep -Milliseconds 200};exit `$managedExitCode")
+    [void]$lines.Add("} catch { [IO.File]::AppendAllText($(ConvertTo-SgPowerShellLiteral $RedirectStandardError),(`$_.Exception.Message+[Environment]::NewLine)); exit 1 } finally { if(`$job-ne[IntPtr]::Zero){[void][ShipGlowsJobNative]::CloseHandle(`$job)} }")
+    $encoded=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines-join[Environment]::NewLine)))
+    $powershell=Resolve-SgPowerShellExecutable
+    $commandLine="`"$powershell`" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded"
+    $startup=New-CimInstance -ClassName Win32_ProcessStartup -ClientOnly -Property @{ShowWindow=[uint16]0}
+    $creation=Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine=$commandLine;CurrentDirectory=$WorkingDirectory;ProcessStartupInformation=$startup}
+    if(-not$creation-or[int]$creation.ReturnValue-ne0-or[int]$creation.ProcessId-le0){$code=if($creation){[int]$creation.ReturnValue}else{-1};throw "Detached process creation failed with Win32 code $code."}
+    $identityLength=[Math]::Min(96,$encoded.Length)
+    return [pscustomobject]@{Id=[int]$creation.ProcessId;CommandSignature=$encoded.Substring($encoded.Length-$identityLength);JobName=$jobName}
 }
 
 function Test-SgHttpReady([int]$Port) {
@@ -1116,13 +1388,7 @@ function Wait-SgHttpReady([int]$Port, [int]$TimeoutSeconds = 60) {
 function Protect-SgOwnerOnlyPath([string]$Path) {
     $item=Get-Item -LiteralPath $Path -Force -ErrorAction Stop;if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw "Managed runtime path must not be a reparse point: $Path"}
     $sid=[Security.Principal.WindowsIdentity]::GetCurrent().User;$acl=Get-Acl -LiteralPath $Path;$acl.SetAccessRuleProtection($true,$false);foreach($rule in @($acl.Access)){$acl.RemoveAccessRuleAll($rule)}
-    $inheritance=if($item.PSIsContainer){[Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'}else{[Security.AccessControl.InheritanceFlags]::None};$access=New-Object Security.AccessControl.FileSystemAccessRule($sid,[Security.AccessControl.FileSystemRights]::FullControl,$inheritance,[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow);$acl.AddAccessRule($access)
-    try { Set-Acl -LiteralPath $Path -AclObject $acl -ErrorAction Stop } catch {
-        # Some user-mode Windows hosts reject Set-Acl while preserving an audit
-        # descriptor. icacls can apply the same SID-only DACL without elevation.
-        & icacls.exe $Path /inheritance:r /grant:r "*$($sid.Value):(F)" /c *> $null
-        if ($LASTEXITCODE -ne 0 -or -not (Test-SgOwnerOnlyPath $Path)) { throw }
-    }
+    $inheritance=if($item.PSIsContainer){[Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'}else{[Security.AccessControl.InheritanceFlags]::None};$access=New-Object Security.AccessControl.FileSystemAccessRule($sid,[Security.AccessControl.FileSystemRights]::FullControl,$inheritance,[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow);$acl.AddAccessRule($access);Set-Acl -LiteralPath $Path -AclObject $acl
 }
 function Test-SgOwnerOnlyPath([string]$Path) { try{$acl=Get-Acl -LiteralPath $Path;$sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value;$allowed=@($acl.Access|Where-Object{$_.AccessControlType -eq 'Allow'});return [bool]($acl.AreAccessRulesProtected -and $allowed.Count -eq 1 -and $allowed[0].IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -eq $sid)}catch{return $false} }
 function Assert-SgNoReparseTree([string]$Path) { $root=Get-Item -LiteralPath $Path -Force -ErrorAction Stop;if($root.Attributes-band[IO.FileAttributes]::ReparsePoint){throw 'Managed Flutter IPC path is a reparse point.'};foreach($item in @(Get-ChildItem -LiteralPath $Path -Force -Recurse -ErrorAction Stop)){if($item.Attributes-band[IO.FileAttributes]::ReparsePoint){throw 'Managed Flutter IPC tree contains a reparse point.'}} }
@@ -1165,16 +1431,85 @@ function Wait-SgFlutterReady([string]$LogPath, [int]$TimeoutSeconds = 90) {
     return [pscustomobject]@{ Ready=$false; AppId=$null; Error='Flutter application startup timed out before app.started.' }
 }
 
-function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$TimeoutSeconds = 90) {
+function Protect-SgDiagnosticText([string]$Text) {
+    if ($null -eq $Text) { return '' }
+    $result = [string]$Text
+    $quotedOrAtom = '(?:"[^"\r\n]*"|''[^''\r\n]*''|[^\s,;]+)'
+    $result = [regex]::Replace($result, '(?i)\b(authorization)(\s*(?::|=)?\s*)(bearer|basic)(\s+)'+$quotedOrAtom, '$1$2$3$4[REDACTED]')
+    $result = [regex]::Replace($result, '(?i)\b(bearer)(\s+)'+$quotedOrAtom, '$1$2[REDACTED]')
+    $key = '(?i)\b(token|secret|password|api[-_]?key|dart-define)\b'
+    $result = [regex]::Replace($result, $key+'(\s*(?::|=)\s*)'+$quotedOrAtom, '$1$2[REDACTED]')
+    $result = [regex]::Replace($result, $key+'(\s+)(?:"[^"\r\n]*"|''[^''\r\n]*'')', '$1$2[REDACTED]')
+    $result = [regex]::Replace($result, $key+'(\s+)(?!(?:is|was|missing|invalid|validation|required|failed|not|unset|empty)\b)[^\s,;]+', '$1$2[REDACTED]')
+    return $result
+}
+
+function Get-SgStartupFailure([string]$ErrorLogPath, [string]$Fallback = 'Process exited during startup.') {
+    if ([string]::IsNullOrWhiteSpace($ErrorLogPath) -or -not (Test-Path -LiteralPath $ErrorLogPath -PathType Leaf)) { return $Fallback }
+    try {
+        $tail = (Get-SgBoundedFileTail $ErrorLogPath 8192).Trim()
+        $tail = Protect-SgDiagnosticText $tail
+        if ($tail.Length -gt 1200) { $tail = $tail.Substring($tail.Length - 1200) }
+        if ($tail) { return "Process exited during startup: $tail" }
+    } catch { }
+    return $Fallback
+}
+
+function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '') {
     if ($Kind -eq 'flutter-web') { return Wait-SgFlutterReady $LogPath $TimeoutSeconds }
-    $ready = Wait-SgHttpReady $Port ([Math]::Min($TimeoutSeconds, 60))
-    return [pscustomobject]@{ Ready=$ready; AppId=$null; Error=$(if ($ready) { $null } else { 'Application readiness timed out.' }) }
+    $deadline = (Get-Date).AddSeconds([Math]::Min([Math]::Max(0, $TimeoutSeconds), 60))
+    do {
+        if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
+            return [pscustomobject]@{ Ready=$false; AppId=$null; Error=(Get-SgStartupFailure $ErrorLogPath) }
+        }
+        if ((Test-SgHttpReady $Port) -and (-not $ProcessEntry -or (Test-SgProcessIdentity $ProcessEntry))) { return [pscustomobject]@{ Ready=$true; AppId=$null; Error=$null } }
+        if ((Get-Date) -ge $deadline) { break }
+        Start-Sleep -Milliseconds 250
+    } while ($true)
+    return [pscustomobject]@{ Ready=$false; AppId=$null; Error='Application readiness timed out.' }
+}
+
+function Get-SgBrowserExtensionManifestPaths([string]$ProjectPath) {
+    return @((Join-Path $ProjectPath 'dist\chrome\manifest.json'))
+}
+
+function Test-SgBrowserExtensionManifest([string]$Path, [DateTime]$FreshSinceUtc) {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $false }
+    try {
+        $item = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
+        if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $item.Length -gt 1048576 -or $item.LastWriteTimeUtc -lt $FreshSinceUtc) { return $false }
+        $manifest = [IO.File]::ReadAllText($Path) | ConvertFrom-Json -ErrorAction Stop
+        return [int]$manifest.manifest_version -eq 3 -and -not [string]::IsNullOrWhiteSpace([string]$manifest.name) -and -not [string]::IsNullOrWhiteSpace([string]$manifest.version)
+    } catch { return $false }
+}
+
+function Wait-SgBrowserExtensionReady([string]$ProjectPath, [int]$Port, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '') {
+    $freshSince = [DateTime]::UtcNow.AddSeconds(-2)
+    if ($ProcessEntry -and $ProcessEntry.PSObject.Properties['startTimeUtc'] -and $ProcessEntry.startTimeUtc) {
+        try { $freshSince = ([DateTimeOffset]::Parse([string]$ProcessEntry.startTimeUtc, [Globalization.CultureInfo]::InvariantCulture)).UtcDateTime.AddSeconds(-2) } catch { }
+    }
+    $deadline = (Get-Date).AddSeconds([Math]::Max(0, $TimeoutSeconds))
+    do {
+        if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
+            return [pscustomobject]@{ Ready=$false; AppId=$null; ManifestPath=$null; Error=(Get-SgStartupFailure $ErrorLogPath) }
+        }
+        if (-not (Test-SgPortAvailable $Port)) {
+            foreach ($manifestPath in @(Get-SgBrowserExtensionManifestPaths $ProjectPath)) {
+                if (Test-SgBrowserExtensionManifest $manifestPath $freshSince) {
+                    return [pscustomobject]@{ Ready=$true; AppId=$null; ManifestPath=$manifestPath; Error=$null }
+                }
+            }
+        }
+        if ((Get-Date) -ge $deadline) { break }
+        Start-Sleep -Milliseconds 250
+    } while ($true)
+    return [pscustomobject]@{ Ready=$false; AppId=$null; ManifestPath=$null; Error='Browser extension readiness timed out before a fresh Manifest V3 package and HMR listener were available.' }
 }
 
 function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90) {
     $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds))
     do {
-        if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-Content -LiteralPath $StatePath -Raw|ConvertFrom-Json -ErrorAction Stop;if($state.status -eq 'running' -and $state.appId){return [pscustomobject]@{Ready=$true;AppId=[string]$state.appId;Error=$null;DaemonPid=[int]$state.daemonPid}};if($state.status -eq 'error'){return [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($state.lastError){[string]$state.lastError}else{'Flutter supervisor failed.'});DaemonPid=[int]$state.daemonPid}}}catch{}}
+        if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-Content -LiteralPath $StatePath -Raw|ConvertFrom-Json -ErrorAction Stop;if($state.status -eq 'running' -and $state.appId){return [pscustomobject]@{Ready=$true;AppId=[string]$state.appId;Error=$null;DaemonPid=[int]$state.daemonPid}};if($state.status -eq 'error'){return [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($state.lastError){Protect-SgDiagnosticText ([string]$state.lastError)}else{'Flutter supervisor failed.'});DaemonPid=[int]$state.daemonPid}}}catch{}}
         if((Get-Date)-ge $deadline){break};Start-Sleep -Milliseconds 250
     }while($true)
     [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor timed out before app.started.';DaemonPid=0}
@@ -1197,8 +1532,8 @@ function Get-SgBoundedFileTail([string]$Path,[int]$MaxBytes=262144) {
 function Copy-SgFlutterDiagnostics([object]$Entry,[string]$DurableOut,[string]$DurableErr) {
     if(-not$Entry-or-not$Entry.PSObject.Properties['flutterLaunchDirectory']){return}
     $launch=[string]$Entry.flutterLaunchDirectory;if(-not(Test-Path -LiteralPath $launch -PathType Container)){return};Assert-SgNoReparseTree $launch
-    foreach($pair in @(@('flutter.stdout.log',$DurableOut),@('flutter.stderr.log',$DurableErr))){$source=Join-Path $launch $pair[0];if(Test-Path -LiteralPath $source -PathType Leaf){$text=Get-SgBoundedFileTail $source 262144;$text=$text-replace'(?i)(token|secret|password|authorization|bearer|api[-_]?key|dart-define)(\s*[:=]\s*)[^\s,;]+','$1$2[REDACTED]';Add-Content -LiteralPath $pair[1] -Value $text}}
-    $statePath=Join-Path $launch 'state.json';if(Test-Path -LiteralPath $statePath -PathType Leaf){try{if((Get-Item -LiteralPath $statePath).Length-gt262144){throw 'Oversized Flutter supervisor state.'};$state=(Get-SgBoundedFileTail $statePath 262144)|ConvertFrom-Json -ErrorAction Stop;$lastError=([string]$state.lastError)-replace'(?i)(token|secret|password|authorization|bearer|api[-_]?key|dart-define)(\s*[:=]\s*)[^\s,;]+','$1$2[REDACTED]';$summary=[ordered]@{status=[string]$state.status;lastError=$lastError;appId=[string]$state.appId;daemonPid=[int]$state.daemonPid}|ConvertTo-Json -Compress;Add-Content -LiteralPath $DurableOut -Value $summary}catch{Add-Content -LiteralPath $DurableErr -Value 'Flutter supervisor state could not be preserved.'}}
+    foreach($pair in @(@('flutter.stdout.log',$DurableOut),@('flutter.stderr.log',$DurableErr))){$source=Join-Path $launch $pair[0];if(Test-Path -LiteralPath $source -PathType Leaf){$text=Protect-SgDiagnosticText (Get-SgBoundedFileTail $source 262144);Add-Content -LiteralPath $pair[1] -Value $text}}
+    $statePath=Join-Path $launch 'state.json';if(Test-Path -LiteralPath $statePath -PathType Leaf){try{if((Get-Item -LiteralPath $statePath).Length-gt262144){throw 'Oversized Flutter supervisor state.'};$state=(Get-SgBoundedFileTail $statePath 262144)|ConvertFrom-Json -ErrorAction Stop;$lastError=Protect-SgDiagnosticText ([string]$state.lastError);$summary=[ordered]@{status=[string]$state.status;lastError=$lastError;appId=[string]$state.appId;daemonPid=[int]$state.daemonPid}|ConvertTo-Json -Compress;Add-Content -LiteralPath $DurableOut -Value $summary}catch{Add-Content -LiteralPath $DurableErr -Value 'Flutter supervisor state could not be preserved.'}}
 }
 
 function Wait-SgFlutterOwnedExtinction([object]$Entry,[int]$TimeoutSeconds=8) {
@@ -1270,7 +1605,7 @@ function Reconcile-SgRegistry([object]$Config) {
                 $kept = $byIdentity[$identity]
             }
             $winner = $kept.Entry
-            foreach ($property in @('name','kind','port','pid','startTimeUtc','executablePath','commandSignature','logPath','errorLogPath','lastError','reservationToken','reservationTimeUtc')) {
+            foreach ($property in @('name','kind','port','pid','startTimeUtc','executablePath','commandSignature','jobName','logPath','errorLogPath','lastError','reservationToken','reservationTimeUtc')) {
                 $winnerValue = if ($winner.PSObject.Properties[$property]) { $winner.$property } else { $null }
                 $candidateValue = if ($mergeSource.PSObject.Properties[$property]) { $mergeSource.$property } else { $null }
                 $winnerMissing = $null -eq $winnerValue -or $winnerValue -eq '' -or (($property -in @('port','pid')) -and [int]$winnerValue -eq 0)
@@ -1300,7 +1635,7 @@ function Get-SgProjectEnvironmentBlock([string]$Content) {
     $schemas = [regex]::Matches($blocks[0].Value, $schemaPattern)
     if ($schemas.Count -gt 1) { throw 'ShipGlows project environment schema is duplicated; the file was preserved.' }
     $schema = if ($schemas.Count -eq 0) { 'legacy/v0' } else { [string]$schemas[0].Groups[1].Value }
-    if ($schema -notin @('legacy/v0',$script:ProjectEnvironmentSchema)) { throw "Unsupported ShipGlows project environment schema '$schema'; the file was preserved." }
+    if ($schema -notin @('legacy/v0','shipglows-project-environment/v1',$script:ProjectEnvironmentSchema)) { throw "Unsupported ShipGlows project environment schema '$schema'; the file was preserved." }
     return [pscustomobject]@{ Exists=$true; Schema=$schema; Match=$blocks[0] }
 }
 
@@ -1357,32 +1692,42 @@ function Remove-SgLegacyProjectServerState([string]$ProjectPath) {
     }
 }
 
-function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0) {
+function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0, [string]$Kind = '', [switch]$ReplaceDurablePort) {
     if ($Port -ne 0 -and ($Port -lt 1024 -or $Port -gt 65535)) { throw 'ShipGlows project port must be 0 or between 1024 and 65535.' }
     $path = Get-SgProjectEnvironmentPath $ProjectPath
     $existing = if (Test-Path -LiteralPath $path -PathType Leaf) { [IO.File]::ReadAllText($path) } else { '' }
     $managed = Get-SgProjectEnvironmentBlock $existing
     $effectivePort = $Port
-    if ($effectivePort -eq 0 -and $managed.Exists -and $managed.Match.Value -match '(?m)^- Assigned port: `(\d+)`\r?$') {
+    if (-not $ReplaceDurablePort -and $effectivePort -eq 0 -and $managed.Exists -and $managed.Match.Value -match '(?m)^- Assigned port: `(\d+)`\r?$') {
         $durablePort = [int]$Matches[1]
         if ($durablePort -lt 1024 -or $durablePort -gt 65535) { throw "Invalid assigned port in $path." }
         $effectivePort = $durablePort
     }
     $portValue = if ($effectivePort -gt 0) { [string]$effectivePort } else { 'pending first ShipGlows start' }
-    $urlValue = if ($effectivePort -gt 0) { "http://127.0.0.1:$effectivePort" } else { 'pending first ShipGlows start' }
+    if ([string]::IsNullOrWhiteSpace($Kind)) { try { $Kind = Get-SgProjectKind $ProjectPath } catch { $Kind = 'unknown' } }
+    $urlValue = if ($Kind -eq 'browser-extension') { 'not applicable (browser extension)' } elseif ($effectivePort -gt 0) { "http://127.0.0.1:$effectivePort" } else { 'pending first ShipGlows start' }
+    $extensionGuidance = if ($Kind -eq 'browser-extension') {
+(@"
+- Browser target: ``Chrome``
+- Unpacked Chrome directory: ``dist/chrome``
+- Extension workflow: ``s start -ProjectPath .`` -> ``s open -ProjectPath .`` -> Chrome Developer mode -> Load unpacked -> ``dist\chrome`` -> ``s stop -ProjectPath .``
+- Chrome profile boundary: ShipGlows opens the extension manager and generated directory but never installs the extension automatically in a personal profile.
+"@).TrimEnd() + "`n"
+    } else { '' }
     $block = @'
 <!-- >>> ShipGlows development environment >>> -->
 ## ShipGlows development environment
 
 - Environment schema: `{2}`
 - Server manager: `shipglows-devserver`
+- Project kind: `{3}`
 - Assigned port: `{0}`
 - Canonical local URL: `{1}`
-- Live status authority: Windows ShipGlows DevServer registry
+{4}- Live status authority: Windows ShipGlows DevServer registry
 
-Use this assigned URL for local preview, browser, screenshot, and test work. Do not substitute framework defaults such as Astro/Vite `4321` or a port from another project. Read the ShipGlows registry for `running` or `stopped`; this durable document is not rewritten on start or stop.
+Use the assigned URL for ordinary web projects. Browser extensions use their generated unpacked directory and browser extension manager instead of a normal page URL. Do not substitute framework defaults such as Astro/Vite `4321` or a port from another project. Read the ShipGlows registry for `running` or `stopped`; this durable document is not rewritten on start or stop.
 <!-- <<< ShipGlows development environment <<< -->
-'@ -f $portValue,$urlValue,$script:ProjectEnvironmentSchema
+'@ -f $portValue,$urlValue,$script:ProjectEnvironmentSchema,$Kind,$extensionGuidance
     $remainderText = if ($managed.Exists) { $existing.Remove($managed.Match.Index, $managed.Match.Length) } else { $existing }
     $remainder = $remainderText.Trim([char[]]"`r`n")
     $next = if ($remainder) { "$remainder`n`n$($block.Trim())`n" } else { "$($block.Trim())`n" }
@@ -1402,8 +1747,9 @@ function Get-SgProjectEnvironment([string]$ProjectPath) {
     $port = 0
     if ($managed.Match.Value -match '(?m)^- Assigned port: `(\d+)`\r?$') { $port = [int]$Matches[1] }
     if ($port -ne 0 -and ($port -lt 1024 -or $port -gt 65535)) { throw "Invalid assigned port in $path." }
-    $url = if ($port -gt 0) { "http://127.0.0.1:$port" } else { '' }
-    [pscustomobject]@{ Path=$path; Port=$port; Url=$url; Manager='shipglows-devserver'; Schema=$managed.Schema }
+    $kind = if ($managed.Match.Value -match '(?m)^- Project kind: `([^`]+)`\r?$') { [string]$Matches[1] } else { '' }
+    $url = if ($kind -ne 'browser-extension' -and $port -gt 0) { "http://127.0.0.1:$port" } else { '' }
+    [pscustomobject]@{ Path=$path; Port=$port; Url=$url; Kind=$kind; Manager='shipglows-devserver'; Schema=$managed.Schema }
 }
 
 function Register-SgProject([object]$Config, [string]$ProjectPath) {
@@ -1415,12 +1761,16 @@ function Register-SgProject([object]$Config, [string]$ProjectPath) {
         param($data)
         foreach ($descriptor in $descriptors) {
             $launchPath = [IO.Path]::GetFullPath([string]$descriptor.LaunchPath).TrimEnd('\','/')
+            $durableEnvironment = Get-SgProjectEnvironment $launchPath
+            $durablePort = if ($durableEnvironment -and $durableEnvironment.Port -gt 0) { [int]$durableEnvironment.Port } else { 0 }
             $existing = @($data.projects | Where-Object { (Get-SgRunnableIdentity $_) -eq $launchPath.ToLowerInvariant() })
+            $portInUse = $durablePort -gt 0 -and @($data.projects | Where-Object { (Get-SgRunnableIdentity $_) -ne $launchPath.ToLowerInvariant() -and [int]$_.port -eq $durablePort }).Count -gt 0
+            $initialPort = if ($portInUse) { 0 } else { $durablePort }
             $name = Get-SgCanonicalSurfaceName $root $launchPath
             if ($existing.Count -eq 0) {
                 $data.projects += [pscustomobject]@{
                     name = $name; path = $launchPath; rootPath = $root; launchPath = $launchPath; kind = $descriptor.Kind
-                    port = 0; status = 'stopped'; pid = 0; startTimeUtc = $null; executablePath = $null
+                    port = $initialPort; status = 'stopped'; pid = 0; startTimeUtc = $null; executablePath = $null
                     commandSignature = $null; logPath = $null; errorLogPath = $null; lastError = $null
                     reservationToken = $null; reservationTimeUtc = $null
                 }
@@ -1430,14 +1780,102 @@ function Register-SgProject([object]$Config, [string]$ProjectPath) {
                 $existing[0] | Add-Member -NotePropertyName name -NotePropertyValue $name -Force
                 $existing[0].path = $launchPath
                 $existing[0].kind = $descriptor.Kind
+                if ([int]$existing[0].port -le 0 -and $initialPort -gt 0) { $existing[0].port = $initialPort }
             }
         }
     }
     Clear-SgProjectCatalogCache $Config
     $launchPaths = @($descriptors | ForEach-Object { [IO.Path]::GetFullPath([string]$_.LaunchPath).TrimEnd('\','/') })
     $registered = @($registry.projects | Where-Object { $_.path -in $launchPaths })
-    foreach ($entry in $registered) { [void](Write-SgProjectEnvironment $entry.path ([int]$entry.port)) }
+    foreach ($entry in $registered) {
+        $durable = Get-SgProjectEnvironment $entry.path
+        $durableCollision = [int]$entry.port -le 0 -and $durable -and $durable.Port -gt 0 -and @($registry.projects | Where-Object { $_.path -ne $entry.path -and [int]$_.port -eq [int]$durable.Port }).Count -gt 0
+        [void](Write-SgProjectEnvironment $entry.path ([int]$entry.port) ([string]$entry.kind) -ReplaceDurablePort:$durableCollision)
+    }
     return $registered
+}
+
+function Sync-SgRegisteredProjectEnvironments([object]$Config) {
+    $roots = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    $paths = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    foreach ($entry in @((Read-SgRegistry $Config).projects)) {
+        $candidate = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
+        if ([string]::IsNullOrWhiteSpace($candidate) -or -not (Test-Path -LiteralPath $candidate -PathType Container)) { continue }
+        $root = [IO.Path]::GetFullPath($candidate).TrimEnd('\','/')
+        if (-not $roots.Add($root)) { continue }
+        foreach ($registered in @(Register-SgProject $Config $root)) { [void]$paths.Add([IO.Path]::GetFullPath([string]$registered.path)) }
+    }
+    return @($paths)
+}
+
+function Invoke-SgFlutterAndroidTool([string]$File, [string[]]$Arguments, [int]$TimeoutSeconds = 30) {
+    $modulePath=Join-Path $PSScriptRoot 'ShipGlows.MobileToolchain.psm1'
+    if (-not (Test-Path -LiteralPath $modulePath -PathType Leaf)) { throw 'ShipGlows mobile toolchain transport is unavailable.' }
+    Import-Module $modulePath -Force -DisableNameChecking
+    return ShipGlows.MobileToolchain\Invoke-SgBoundedProcess -File $File -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds
+}
+
+function Get-SgFlutterAndroidDevices([string]$FlutterPath, [scriptblock]$Runner = $null) {
+    if (-not $Runner) { $Runner = { param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 30 } }
+    $result=& $Runner $FlutterPath @('devices','--machine')
+    if (-not $result -or [int]$result.ExitCode -ne 0) { throw 'Flutter could not enumerate Android devices.' }
+    try { $devices=@(([string]$result.Output | ConvertFrom-Json -ErrorAction Stop)) } catch { throw 'Flutter returned invalid device inventory JSON.' }
+    return @($devices | Where-Object { $_.targetPlatform -match '^android-' -and [string]$_.id -match '^[A-Za-z0-9._:-]{1,128}$' })
+}
+
+function Resolve-SgFlutterAndroidDevice([string]$FlutterPath, [string]$RequestedDeviceId = '', [string]$AvdName = 'ShipGlows_API_36', [scriptblock]$Runner = $null, [scriptblock]$Waiter = $null, [int]$TimeoutSeconds = 180) {
+    if ($RequestedDeviceId -and $RequestedDeviceId -notmatch '^[A-Za-z0-9._:-]{1,128}$') { throw 'Invalid requested Flutter Android device identifier.' }
+    if ($AvdName -notmatch '^[A-Za-z0-9._-]{1,64}$') { throw 'Invalid Android emulator name.' }
+    if (-not $Runner) { $Runner = { param($File,$Arguments) Invoke-SgFlutterAndroidTool $File $Arguments 30 } }
+    if (-not $Waiter) { $Waiter = { param($Milliseconds) Start-Sleep -Milliseconds $Milliseconds } }
+    $devices=@(Get-SgFlutterAndroidDevices $FlutterPath $Runner)
+    if ($RequestedDeviceId) {
+        $requested=@($devices | Where-Object { [string]$_.id -ceq $RequestedDeviceId }) | Select-Object -First 1
+        if (-not $requested) { throw "Requested Android device is not connected: $RequestedDeviceId" }
+        return [string]$requested.id
+    }
+    if ($devices.Count -gt 0) {
+        $preferred=@($devices | Where-Object { $_.emulator -eq $true } | Sort-Object name,id | Select-Object -First 1)
+        if ($preferred.Count -eq 0) { $preferred=@($devices | Sort-Object name,id | Select-Object -First 1) }
+        return [string]$preferred[0].id
+    }
+    $launch=& $Runner $FlutterPath @('emulators','--launch',$AvdName)
+    if (-not $launch -or [int]$launch.ExitCode -ne 0) { throw "Android emulator could not start: $AvdName" }
+    $deadline=[datetime]::UtcNow.AddSeconds([Math]::Max(1,$TimeoutSeconds))
+    do {
+        & $Waiter 1000
+        $devices=@(Get-SgFlutterAndroidDevices $FlutterPath $Runner)
+        if ($devices.Count -gt 0) { $first=@($devices | Sort-Object name,id)[0]; return [string]$first.id }
+    } while ([datetime]::UtcNow -lt $deadline)
+    throw "Android emulator did not become ready within $TimeoutSeconds seconds: $AvdName"
+}
+
+function Install-SgFlutterDevShortcut([object]$Entry, [string]$DesktopPath = '', [string]$LauncherPath = '') {
+    if (-not $Entry -or $Entry.kind -ne 'flutter-web' -or $Entry.flutterDevice -notin @('windows','android')) { return $null }
+    $desktop = if ($DesktopPath) { [IO.Path]::GetFullPath($DesktopPath) } else { [Environment]::GetFolderPath([Environment+SpecialFolder]::Desktop) }
+    if ([string]::IsNullOrWhiteSpace($desktop) -or -not (Test-Path -LiteralPath $desktop -PathType Container)) { throw 'The Windows Desktop directory is unavailable.' }
+    $launcher = if ($LauncherPath) { [IO.Path]::GetFullPath($LauncherPath) } else { Join-Path $PSScriptRoot 'shipglows-dev.cmd' }
+    if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) { throw 'The managed ShipGlows DevServer launcher is unavailable.' }
+    $displayName = [string]$Entry.name
+    if ([string]::IsNullOrWhiteSpace($displayName) -or $displayName.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0) { throw 'The project name cannot be used for a Windows Dev shortcut.' }
+    $path = Join-Path $desktop ("ShipGlows - $displayName - Dev.lnk")
+    $marker = "ShipGlows managed Flutter Dev shortcut v1 | $([string]$Entry.path)"
+    if (Test-Path -LiteralPath $path -PathType Leaf) {
+        $existing = (New-Object -ComObject WScript.Shell).CreateShortcut($path)
+        if ([string]$existing.Description -cne $marker) { throw "Existing shortcut is not owned by ShipGlows: $path" }
+    }
+    $temporary = Join-Path $desktop ('.shipglows-dev-shortcut-' + [guid]::NewGuid().ToString('N') + '.lnk')
+    try {
+        $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut($temporary)
+        $shortcut.TargetPath = $launcher
+        $shortcut.Arguments = "start -ProjectPath `"$([string]$Entry.path)`""
+        $shortcut.WorkingDirectory = [string]$Entry.path
+        $shortcut.Description = $marker
+        $shortcut.Save()
+        Move-Item -LiteralPath $temporary -Destination $path -Force
+    } finally { Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue }
+    Write-SgInfo "Flutter Dev shortcut ready: $([IO.Path]::GetFileNameWithoutExtension($path))"
+    return $path
 }
 
 function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible) {
@@ -1455,6 +1893,12 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     if (-not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $($entry.path)" }
     if (Test-SgProcessIdentity $entry) { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
     $settings = Get-SgRuntimeSettings $entry.path
+    $resolvedFlutterDevice = [string]$settings.FlutterDevice
+    if ([string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
+        $flutterPath=Get-SgFlutterCommandPath
+        if (-not $flutterPath) { throw 'Flutter SDK is unavailable for Android device discovery.' }
+        $resolvedFlutterDevice=Resolve-SgFlutterAndroidDevice $flutterPath ([string]$settings.FlutterDeviceId)
+    }
     $configuredPort = $RequestedPort
     if ($configuredPort -le 0 -and $env:SHIPGLOWS_ENV_PORT) {
         if ($env:SHIPGLOWS_ENV_PORT -notmatch '^\d+$' -or [int]$env:SHIPGLOWS_ENV_PORT -lt 1024 -or [int]$env:SHIPGLOWS_ENV_PORT -gt 65535) { throw 'SHIPGLOWS_ENV_PORT must be a port between 1024 and 65535.' }
@@ -1499,8 +1943,8 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $flutterLaunchIdentity="ShipGlowsFlutter-$reservationToken"
     }
     try {
-        Invoke-SgDependencySetup $launchPath $kind $setupLog
-        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $settings.FlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity
+        Invoke-SgDependencySetup $Config $launchPath $kind $setupLog | Out-Null
+        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity
     } catch {
         Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
         throw
@@ -1509,25 +1953,18 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     $launchEnvironment['PORT'] = [string]$port
     if ($kind -eq 'flutter-web') { $launchEnvironment['SHIPGLOWS_SUPERVISOR_TOKEN'] = $flutterToken }
     if ($kind -eq 'astro') { $launchEnvironment['ASTRO_DEV_BACKGROUND'] = '0' }
-    $previousEnvironment = @{}
     try {
         Set-SgReservationState $Config $entry.path $reservationToken 'starting'
-        foreach ($name in @($launchEnvironment.Keys)) {
-            $previousEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
-            [Environment]::SetEnvironmentVariable($name, [string]$launchEnvironment[$name], 'Process')
-        }
-        $process = Start-Process -FilePath $launch.FilePath -ArgumentList $launch.Arguments -WorkingDirectory $launchPath -RedirectStandardOutput $out -RedirectStandardError $err -PassThru -WindowStyle Hidden
+        $process = Start-SgDetachedProcess $launch.FilePath $launch.Arguments $launchPath $out $err $launchEnvironment $flutterTokenPath
         Start-Sleep -Milliseconds 350
         $snapshot = Get-SgProcessSnapshot $process.Id
         if (-not $snapshot) { throw "Process exited before it could be recorded. See $err" }
     } catch {
         Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
         throw
-    } finally {
-        foreach ($name in @($launchEnvironment.Keys)) { [Environment]::SetEnvironmentVariable($name, $previousEnvironment[$name], 'Process') }
     }
     $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
-    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $launch.Signature; logPath = $out; errorLogPath = $err; lastError = $null; flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
+    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; lastError = $null; flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
     if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force}
     Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData
     if (-not (Test-SgProcessIdentity $entryData)) {
@@ -1537,42 +1974,55 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         }
         Write-SgWarn "Process exited during startup. See $err"
         $entryData.status = 'error'
-        $entryData.lastError = 'Process exited during startup.'
+        $entryData.lastError = Get-SgStartupFailure $err
         $entryData.pid = 0
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
         return $entryData
     }
-    [void](Write-SgProjectEnvironment $entry.path $port)
-    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json')}else{Wait-SgProjectReady $kind $port $out}
+    [void](Write-SgProjectEnvironment $entry.path $port $kind)
+    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json')}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 90 $entryData $err}
     if ($readiness.Ready) {
         $entryData.status = 'running'
         $entryData.flutterAppId = $readiness.AppId
         if($readiness.PSObject.Properties['DaemonPid']){$entryData.flutterDaemonPid=[int]$readiness.DaemonPid}
         Set-SgReservationState $Config $entry.path $reservationToken 'running' $entryData
+        if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')) { [void](Install-SgFlutterDevShortcut $entryData) }
     } else {
         $entryData.status = 'error'
         $entryData.lastError = if ($readiness.Error) { [string]$readiness.Error } else { 'Application readiness failed.' }
-        if (Test-SgProcessIdentity $entryData) { Stop-SgProcessTree ([int]$entryData.pid) }
+        if ($entryData.jobName) { [void](Stop-SgManagedJob $entryData) }
+        elseif (Test-SgProcessIdentity $entryData) { Stop-SgProcessTree ([int]$entryData.pid) }
         if($kind-eq'flutter-web'){
             [void](Stop-SgOwnedFlutterBrowser $entryData)
             Copy-SgFlutterDiagnostics $entryData $out $err
             if(Wait-SgFlutterOwnedExtinction $entryData 8){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entryData)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}else{Write-SgWarn 'Flutter processes did not prove extinction; launch diagnostics were preserved.'}
         }
+        if (-not (Wait-SgManagedExtinction $entryData 8)) { throw 'Application readiness failed and managed process extinction could not be proved.' }
         $entryData.pid = 0
         $entryData.startTimeUtc = $null
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
     }
-    Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"
+    if($kind-eq'browser-extension'){
+        Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in dist\chrome"
+        Write-SgInfo "Next: run s open -ProjectPath `"$($entry.path)`" to open Chrome extension tools."
+    }elseif($kind-eq'flutter-web' -and $settings.FlutterDevice -in @('windows','android')){
+        Write-SgInfo "$($entry.name) $($entryData.status): managed Flutter $($settings.FlutterDevice) app"
+    }else{Write-SgInfo "$($entry.name) $($entryData.status): http://127.0.0.1:$port"}
     return $entryData
 }
 
 function Stop-SgProcessTree([int]$RootPid) {
     $all = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue)
     $ids = New-Object System.Collections.Generic.List[int]
-    function Add-Descendants([int]$Parent) { foreach ($child in $all | Where-Object { $_.ParentProcessId -eq $Parent }) { if (-not $ids.Contains([int]$child.ProcessId)) { $ids.Add([int]$child.ProcessId); Add-Descendants ([int]$child.ProcessId) } } }
-    $ids.Add($RootPid); Add-Descendants $RootPid
-    foreach ($pid in @($ids | Sort-Object -Descending)) { Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue }
+    $visited = New-Object 'System.Collections.Generic.HashSet[int]'
+    function Add-ProcessPostOrder([int]$Parent) {
+        if(-not$visited.Add($Parent)){return}
+        foreach($child in @($all|Where-Object{$_.ParentProcessId-eq$Parent})){Add-ProcessPostOrder ([int]$child.ProcessId)}
+        [void]$ids.Add($Parent)
+    }
+    Add-ProcessPostOrder $RootPid
+    foreach ($pid in @($ids)) { Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue }
 }
 
 function Get-SgOwnedFlutterListenerPids([object]$Entry) {
@@ -1629,10 +2079,23 @@ function Stop-SgOwnedFlutterBrowser([object]$Entry) {
     return $ownedPids.Count -gt 0
 }
 
+function Wait-SgManagedExtinction([object]$Entry, [int]$TimeoutSeconds = 8) {
+    $deadline = (Get-Date).AddSeconds([Math]::Max(0, $TimeoutSeconds))
+    $entryPort = if ($Entry.PSObject.Properties['port']) { [int]$Entry.port } else { 0 }
+    do {
+        $identityGone = -not (Test-SgProcessIdentity $Entry)
+        $serviceGone = $entryPort -le 0 -or (Test-SgPortAvailable $entryPort)
+        if ($identityGone -and $serviceGone) { return $true }
+        if ((Get-Date) -ge $deadline) { return $false }
+        Start-Sleep -Milliseconds 100
+    } while ($true)
+}
+
 function Stop-SgProject([object]$Config, [string]$ProjectPath) {
     $path = ConvertTo-SgCanonicalPath $ProjectPath
     $entry = @((Read-SgRegistry $Config).projects | Where-Object { $_.path -eq $path })[0]
     if (-not $entry) { return $false }
+    $entryPort = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
     $alreadyStopped = $entry.status -eq 'stopped' -and [int]$entry.pid -le 0
     $cleanedFlutterArtifacts=$false
     if($entry.kind -eq 'flutter-web' -and $alreadyStopped){try{$cleanedFlutterArtifacts=[bool](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
@@ -1640,15 +2103,21 @@ function Stop-SgProject([object]$Config, [string]$ProjectPath) {
     if($entry.kind -eq 'flutter-web' -and $entry.PSObject.Properties['flutterLaunchDirectory'] -and (Test-SgProcessIdentity $entry)){try{[void](Invoke-SgFlutterSupervisorCommand $entry 'stop' 8);$stoppedBySupervisor=$true}catch{Write-SgWarn "Flutter supervisor stop fallback: $($_.Exception.Message)"}}
     $stoppedFlutterListener = Stop-SgOwnedFlutterListener $entry
     $stoppedFlutterBrowser = Stop-SgOwnedFlutterBrowser $entry
-    if ($alreadyStopped -and -not $cleanedFlutterArtifacts -and -not $stoppedBySupervisor -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser) { return $false }
+    $noRuntimeWork = $alreadyStopped -and -not $cleanedFlutterArtifacts -and -not $stoppedBySupervisor -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser
     if ((Test-Path -LiteralPath $path -PathType Container) -and -not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $path" }
     $stopped = $cleanedFlutterArtifacts -or $stoppedBySupervisor -or $stoppedFlutterListener -or $stoppedFlutterBrowser
-    if (Test-SgProcessIdentity $entry) {
+    $identityLive = Test-SgProcessIdentity $entry
+    $serviceLive = $entryPort -gt 0 -and -not (Test-SgPortAvailable $entryPort)
+    if (($identityLive -or $serviceLive) -and $entry.PSObject.Properties['jobName'] -and $entry.jobName) {
+        if (-not (Stop-SgManagedJob $entry)) { throw "Managed process job is unavailable for $($entry.name); refusing an unverified stop." }
+        $stopped = $true
+    } elseif ($identityLive) {
         Stop-SgProcessTree ([int]$entry.pid)
         $stopped = $true
     } elseif (-not $stoppedBySupervisor -and -not $stoppedFlutterListener -and -not $stoppedFlutterBrowser -and [int]$entry.pid -gt 0) {
         Write-SgWarn "Stale or unverified process for $($entry.name); no process was terminated."
     }
+    if (-not (Wait-SgManagedExtinction $entry 8)) { throw "Could not prove process and service extinction for $($entry.name); registry state was preserved." }
     Invoke-SgRegistryMutation $Config {
         param($data)
         $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
@@ -1658,12 +2127,32 @@ function Stop-SgProject([object]$Config, [string]$ProjectPath) {
             if ($found.PSObject.Properties['reservationTimeUtc']) { $found.reservationTimeUtc = $null }
         }
     } | Out-Null
+    if ($noRuntimeWork) { return $false }
     if($entry.kind -eq 'flutter-web'){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entry)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}
     return $stopped
 }
 
 function Open-SgProject([object]$Config, [object]$Entry) {
-    if (-not $Entry -or $Entry.status -notin @('starting','running') -or [int]$Entry.port -le 0) { throw 'The project has no active ShipGlows server URL. Start the managed project first.' }
+    if (-not $Entry) { throw 'No registered project was selected.' }
+    if ($Entry.status -notin @('starting','running') -or [int]$Entry.port -le 0) {
+        $name = if ($Entry.PSObject.Properties['name'] -and $Entry.name) { [string]$Entry.name } else { 'This project' }
+        $path = if ($Entry.PSObject.Properties['path'] -and $Entry.path) { [string]$Entry.path } else { '<path>' }
+        $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
+        $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice
+        throw "$name is $($Entry.status) ($($experience.Label)). Run s start -ProjectPath `"$path`" before Open / load project."
+    }
+    if ($Entry.kind -eq 'browser-extension') {
+        $projectPath = if ($Entry.PSObject.Properties['launchPath'] -and $Entry.launchPath) { [string]$Entry.launchPath } else { [string]$Entry.path }
+        $output = @(Get-SgBrowserExtensionManifestPaths $projectPath | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | ForEach-Object { Split-Path -Parent $_ }) | Select-Object -First 1
+        if (-not $output) { throw 'The browser extension has no generated unpacked directory. Wait for the Chrome development build to finish.' }
+        Start-Process 'chrome://extensions/'
+        Start-Process $output
+        Write-SgInfo "Chrome extension tools opened: chrome://extensions and $output"
+        Write-SgInfo '1. Enable Developer mode in Chrome.'
+        Write-SgInfo '2. Choose Load unpacked.'
+        Write-SgInfo "3. Select $output. ShipGlows never installs the extension automatically in your personal Chrome profile."
+        return $Entry
+    }
     if ($Entry.kind -eq 'flutter-web' -and $Entry.PSObject.Properties['flutterHeadless'] -and [bool]$Entry.flutterHeadless) {
         $port = [int]$Entry.port
         [void](Invoke-SgFlutterSupervisorCommand $Entry 'open' 8)
@@ -1676,6 +2165,14 @@ function Open-SgProject([object]$Config, [object]$Entry) {
     }
     if ($Entry.kind -eq 'flutter-web' -and $Entry.PSObject.Properties['flutterDevice'] -and $Entry.flutterDevice -eq 'chrome') {
         Write-SgInfo 'Flutter is already running in its managed visible Chrome session.'
+        return $Entry
+    }
+    if ($Entry.kind -eq 'flutter-web' -and $Entry.PSObject.Properties['flutterDevice'] -and $Entry.flutterDevice -eq 'windows') {
+        Write-SgInfo 'Flutter is already running in its managed Windows app session.'
+        return $Entry
+    }
+    if ($Entry.kind -eq 'flutter-web' -and $Entry.PSObject.Properties['flutterDevice'] -and $Entry.flutterDevice -eq 'android') {
+        Write-SgInfo 'Flutter is already running in its managed Android app session.'
         return $Entry
     }
     Start-Process "http://127.0.0.1:$([int]$Entry.port)"
@@ -1705,5 +2202,5 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgPrivateDataConfigPath,Get-SgPrivateDataConfiguration,Write-SgPrivateDataConfiguration,Test-SgWindowsCompatibleRepositoryPaths,Assert-SgWindowsCompatibleGitHubRepository,Test-SgPrivateDataRepository,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
-Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired,Protect-SgOwnerOnlyPath,Test-SgOwnerOnlyPath
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

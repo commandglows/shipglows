@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.31.0"
+artifact_version: "2.36.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-21"
+updated: "2026-08-27"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -54,6 +54,7 @@ linked_systems:
   - skills/references/sentry-observability.md
   - skills/references/design-inspiration-library.md
   - tools/capture_design_inspiration.py
+  - tools/vivaldi_bookmarks.py
   - tools/audit_shipglows_skills.py
   - specs/001-sg-build-autonomous-master-skill.md
   - specs/skill-reporting-modes-and-compact-reports.md
@@ -84,6 +85,7 @@ evidence:
   - "900-shipglows-core build is the sole internal lifecycle mode for ShipGlows skill maintenance."
   - "004-sg-deploy added as the dedicated release confidence orchestrator."
   - "006-sg-design added as the master design lifecycle orchestrator for UI/UX, tokens, playgrounds, visual proof, verification, and ship routing."
+  - "The private Vivaldi bookmark bridge reads the complete configured profile and permits only backed-up, checksum-guarded offline edits while Vivaldi is closed."
   - "002-sg-maintain promoted to a master maintenance lifecycle from triage through delegated execution, verification, and ship/deploy routing."
   - "Shared reporting contract added: concise user reports by default, explicit agent handoff reports when requested."
   - "Reporting contract clarified: user-mode ship reports should match the user's active language, use outcome/evidence/limits ordering, and allow a few sober status emojis."
@@ -93,6 +95,7 @@ evidence:
   - "Wave 15 compacts three shared baseline authorities in place and exposes detailed path, autonomy, and implementation procedure through direct conditional leaves."
   - "Wave 16 compacts five domain workflow monoliths into compatibility cores with direct non-chaining leaves and adds five measured activation profiles."
   - "Wave 17 reduces the 010 and 103 selected baselines below 5,000 tokens through conditional semantic-mode routing and direct verification release-proof/CI leaves."
+  - "Operator decision 2026-08-27: 900-shipglows-core owns the internal ShipGlows DX system across skill, runtime, coherence, and packaging surfaces; shipglows_app remains a separate site/SaaS product repository."
   - "Skill launch cheatsheet added for master and supporting modes."
   - "900-shipglows-core build routes fuzzy skill ideas or placement decisions through 700-sg-explore before 100-sg-spec."
   - "Codex source-tree discovery follows the official ~/.agents/skills user scope, with a native PowerShell junction helper for Windows developers."
@@ -174,7 +177,7 @@ Large workflow references should use a compact compatibility core at the establi
 Discovery descriptions are routing triggers, not workflow summaries. Keep them
 short, one sentence, and front-loaded with the work type or domain.
 
-The normal operator surface is one router plus thirteen public métier owners:
+The normal operator surface is one router plus fourteen public métier owners:
 
 | Domain | Public owner | Engine mapping |
 | --- | --- | --- |
@@ -183,7 +186,7 @@ The normal operator surface is one router plus thirteen public métier owners:
 | Publier | `sg-release` | `004-sg-deploy` |
 | Développer l’audience | `sg-content`, `sg-marketing`, `sg-seo` | `007-sg-content`, `009-sg-marketing`, `406-sg-seo` |
 | Gouverner | `sg-docs` | `300-sg-docs` |
-| Organiser | `sg-planning`, `sg-help` | `011-sg-pilotage`, `302-sg-help` |
+| Organiser | `sg-planning`, `sg-private`, `sg-help` | `011-sg-pilotage`, `603-sg-private`, `302-sg-help` |
 
 `shipglows` is the public natural-language router. Each public owner has a
 real folder and matching `name:` metadata (`skills/sg-development/`,
@@ -398,20 +401,20 @@ The canonical behavior contract for profile resolution, precedence, fallback, an
 | `skills/references/skill-instruction-layering.md` | Canonical layering contract for `SKILL.md` activation rules vs shared or skill-local references | Load before editing or compacting skills |
 | `skills/<skill>/references/*.md` | Skill-local heavy checklists, mode playbooks, and report matrices | Keep top-level SKILL focused on activation and gates |
 | `skills/references/master-delegation-semantics.md` | Shared master/orchestrator delegation, subagent, short-approval, and parallelism doctrine | Load before master skills choose execution topology |
-| `skills/references/mutation-plan-approval.md` | Universal two-tier and explicit post-message approval gate for intentional mutations | A full approved technical chantier includes exact-scope milestone commits and its disclosed ordinary final push; force, history rewrite, unrelated scope, and undisclosed remote effects remain gated. |
+| `skills/references/mutation-plan-approval.md` | Universal mutation-authority gate: a clear bounded request authorizes its few coherent enumerable actions and targets when no material direction must be chosen; bounded proposals use fast validation and unknown/unbounded/directional work uses a full plan | Targeted file changes, exact-scope commits, ordinary resolved pushes, and small explicit sequences execute directly regardless of local/remote location or reasoning effort; force, history rewrite, destructive, irreversible, and unrelated effects retain dedicated gates. |
 | `skills/references/git-milestone-delivery-contract.md` | Mandatory Git persistence at coherent milestones and clean chantier end | Commit each declared validated slice before continuing; commit remaining closure changes and push all owned commits before standard clean closure. Never create empty commits or absorb unrelated dirty paths. |
 | `skills/references/master-workflow-lifecycle.md` | Shared master/orchestrator lifecycle skeleton and work item model | Load before master skills resolve intake, readiness, model/topology, validation, verification, closure, or ship/deploy routes |
 | `skills/references/master-{workflow-lifecycle,delegation}-core.md` | Compact first-decision lifecycle and topology gates | Load from migrated pilots first; escalate to the detailed authority only on the core's explicit conditions |
 | `skills/references/decision-quality-contract.md` | Shared shipping-quality doctrine: business value and short lead time, coherent architecture, non-negotiable safety, relevant performance, maintainability, and proportional proof | Load before routing, model/fallback selection, implementation, fixes, skill-contract changes, verification, or recommended defaults |
 | `skills/references/context-quality-contract.md` | Shared context capsule, evidence-state, authority, invalidation, readiness, and handoff doctrine | Load when context sufficiency, authority, freshness, conflict, compaction, or handoff can change a decision or completion claim |
 | `skills/references/skill-code-index.md` | Canonical numeric lookup from memorable codes to unchanged skill names | Update whenever a skill is added, removed, or renamed; validate with `python3 tools/skill_code_index_lint.py` |
-| `skills/900-shipglows-core/SKILL.md` | Internal lifecycle owner for ShipGlows skill audit, build, refresh, and packaging modes | Keep out of public plugin packaging and public skill pages unless the operator explicitly changes the policy |
+| `skills/900-shipglows-core/SKILL.md` | Internal lifecycle owner for the ShipGlows DX system across skill/doctrine, CLI/DevServer/TUI runtime, cross-surface coherence, refresh, and packaging | Keep out of public plugin packaging and public skill pages; never absorb `shipglows_app` site/SaaS ownership |
 | `skills/references/spec-driven-development-discipline.md` | Shared spec-first/proof-first discipline | Load before execution or verification when behavior, bug, skill contract, UI/docs/auth/deploy, operational, or integration work needs a proof path |
 | `skills/references/content-quality-rubric.md` | Shared project-aware content quality scoring schema and blocked-code contract | Load when content owner skills or `103-sg-verify` produce/consume editorial quality gates |
 | `skills/references/reporting-contract.md` and `skills/references/reporting-*.md` | Compact final-report core plus direct conditional leaves | Successful user mode loads the core; explicit agent mode has sole detailed-report priority; blocked/audit and pressure scenarios load only at their gates |
 | `skills/references/sentry-observability.md` | Shared Sentry runtime evidence, PM2/Doppler fallback evidence, release/environment correlation, redaction, and performance-overhead doctrine | Load when runtime behavior, crashes, 5xx, event IDs, deploy confidence, auth/payment/data failures, jobs, webhooks, verification, audits, or perf checks depend on observability |
 | `skills/references/product-entitlements-playbook.md`, `product-entitlement-{ledger-and-authorization,ingestion,support-and-proof}.md` | Primary product-access invariants plus direct conditional procedure branches | Load the primary doctrine after entitlement selection, then one branch for ledger/backend, ingestion, or support/proof work |
-| `skills/references/design-inspiration-library.md`, `skills/references/design-inspiration/` | Shared private-corpus, capture-bundle, rights, taxonomy, and Inspiration Gate contract | Load for new visual direction, sales/offer-page creation, major redesign, copy-pattern comparison, or explicit inspiration requests; never load the full private corpus by default |
+| `skills/references/design-inspiration-library.md`, `skills/references/design-inspiration/`, `tools/vivaldi_bookmarks.py` | Shared private-corpus, capture-bundle, rights, taxonomy, Inspiration Gate, and private complete-profile bookmark operations | Load for bookmark work or eligible creative direction; search narrowly by default, keep results private, require Vivaldi closed plus checksum/dry-run/backup guards for edits, and treat design results as unapproved candidates |
 | `skills/601-sg-product-entitlements/SKILL.md` | Product entitlement skill for access ownership, provider-event handling, backend authorization gates, support flow framing, product-local mirrors, and sync/auth handoffs | Load when projects need an entitlement contract, duplicate-ledger review, product-access guard design, provider/manual grant routing, or entitlement-gated sync preconditions |
 | `skills/600-sg-local-cloud-sync/references/*.md` | Local-to-cloud sync doctrine, UX/security checklist, and Flutter implementation checklist | Load when projects touch local data promotion, cloud hydration, merge/conflict policy, sync state UX, sensitive-data exclusions, or reinstall recovery |
 | `skills/references/subagent-roles/*.md` | Internal role contracts such as Technical Reader and Editorial Reader | Role files are read by orchestration skills; keep read-only roles explicit |
@@ -484,7 +487,7 @@ Operator roles and named profiles do not add new primary artifact types:
 - `600-sg-local-cloud-sync`: local-to-cloud data sync contract (`data inventory -> account association -> promotion/hydration -> merge/conflict/tombstones -> sync UX/security -> proof or 001-sg-build`).
 - `601-sg-product-entitlements`: product access lifecycle contract (`identity/provider/access separation -> ledger ownership -> backend gates/support -> sync/auth handoff or 001-sg-build`).
 - `006-sg-design`: sole public design entrypoint; `system`, `playground`, explicit `audit ui|tokens|components|a11y`, and `animation <audit|design|implement|tune> [scope]` modes load bounded local playbooks. GSAP is optional after project-fit, current-doc, licensing, lifecycle, reduced-motion, and performance checks.
-- `900-shipglows-core`: sole internal operator skill for ShipGlows skill execution-fidelity audits, maintenance lifecycle (`build`), conservative refresh (`refresh`), and public-plugin packaging readiness checks. Skill maintenance follows `700-sg-explore when needed -> 100-sg-spec -> SKILL.md -> runtime skill links -> 900-shipglows-core refresh -> budget audit -> 103-sg-verify -> 300-sg-docs/help -> 005-sg-ship`. It is repo-synced, not a public user plugin surface.
+- `900-shipglows-core`: sole internal lifecycle owner for the `shipglows` DX system. It classifies skill/doctrine, CLI/DevServer/TUI runtime, cross-surface coherence, and packaging targets before loading one direct playbook. Skill refresh remains conservative and skill-specific; runtime work uses mapped runtime proof. `shipglows_app` remains the separate public-site/SaaS product repository. Core is repo-synced, not a public user plugin surface.
 - `tools/shipglows_sync_skills.sh --check|--repair`: reusable Unix helper for current-user Claude/Codex skill visibility and install-time selected-user linking.
 - `tools/shipglows_sync_skills.ps1 -Mode check|repair`: native Windows developer helper for the same source-tree workflow without symbolic-link privilege requirements.
 - `005-sg-ship` and `405-sg-prod`: shipping and deployed verification.
@@ -660,7 +663,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - Content owner skills (`007-sg-content` including `repurpose`, `200-sg-redact`, `201-sg-enrich`, `009-sg-marketing copy|copywriting|gtm`, `406-sg-seo`) and `103-sg-verify` must use one shared rubric contract from `skills/references/content-quality-rubric.md`; recoverable score states (`needs retry`, `duplicate_in_progress`, `conflicting_score_state`, `stale_or_mismatched_score`) are never valid verification proof.
 - `006-sg-design` owns the public design lifecycle; its system, playground, audit, and `animation <audit|design|implement|tune> [scope]` modes load bounded playbooks, while implementation, browser proof, verification, and shipping remain lifecycle gates. GSAP is optional rather than a public mode or implicit dependency.
 - `008-sg-customer` owns customer contracts through four exact modes: `audit`, `flow`, `onboarding`, and `recovery`; implementation, visual design, docs/content, browser proof, manual QA, and auth diagnosis still run through `001-sg-build`, `006-sg-design`, `300-sg-docs`/`007-sg-content`, `108-sg-browser`, `107-sg-test`, and `109-sg-auth-debug` when needed.
-- `900-shipglows-core build` owns internal skill-maintenance orchestration and must route to `700-sg-explore` before `100-sg-spec` when skill intent, placement, public promise, or governance policy is too fuzzy for one targeted question to settle.
+- `900-shipglows-core build` owns internal DX-system maintenance orchestration. It routes skill/doctrine targets to skill maintenance, CLI/DevServer/TUI/installer targets to DX runtime maintenance, and multi-plane targets to system coherence; fuzzy material intent routes through exploration/spec readiness before mutation.
 - A release is not considered verified from push success, provider success, or a bare `200 OK` alone.
 - User-facing reports default to `report=user`: concise, outcome-first, matched to the user's active language, without file paths, file names, or technical file links unless the operator must act on the exact artifact. After approval, substantive chantiers open once with `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`. Successful closure reports use `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `📦 LIVRAISON`; compact evidence stays on one line separated by ` · `. Cards reuse already-required work: one meaningful proof may suffice, prose stays to one sentence per block, and no extra check, research, documentation, or content is created solely for reporting. Detailed `report=agent` handoff must be explicit.
 - `001-sg-build` planning questions are business decision briefs, not bare technical prompts: they name the problem root, business stakes, practical options, and recommended best-practice answer before asking for a decision.

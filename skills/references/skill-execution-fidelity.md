@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: "ShipGlows"
 created: "2026-05-25"
-updated: "2026-08-16"
+updated: "2026-08-27"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-execution-fidelity
@@ -69,13 +69,13 @@ It must also make the next best operator action obvious when a recurring frictio
 
 ## Skill Selection Proportionality Gate
 
-Before automatically loading a domain or lifecycle skill, distinguish substantive domain work from atomic execution. The fact that a file contains copy, design, or code does not mean the requested change needs the corresponding lifecycle.
+Before automatically loading a domain or lifecycle skill, distinguish substantive directional work from clear bounded execution. The fact that a file contains copy, design, or code does not mean the requested change needs the corresponding lifecycle.
 
 Directly execute the request when all of these are true:
 
-- the user supplied one explicit, deterministic change
-- the target is known or discoverable with one focused lookup
-- the change needs no domain judgment, research, claim review, architecture decision, design-system decision, migration, security review, or destructive action
+- the user supplied a clear bounded outcome
+- the few coherent actions and targets are enumerable after focused read-only resolution
+- the agent need not invent, propose, or select a material product, domain, architecture, design, data, security, editorial, or operational direction
 - focused deterministic validation is sufficient
 
 Typical direct-execution requests include:
@@ -84,10 +84,11 @@ Typical direct-execution requests include:
 - replace an exact string, testimonial placeholder, or Lorem ipsum value
 - apply user-supplied button copy when it does not change a product claim
 - fix a typo or one formatting token
+- modify a targeted file, create an exact-scope commit, perform an ordinary resolved push, or execute a small explicit sequence of these
 
-Automatically activate a domain or lifecycle skill only when the task needs substantive specialist reasoning, multi-owner routing, governance, research, strategy, a new surface, claim-sensitive writing, or broad validation. Do not load a master router merely because its domain label matches the edited file.
+Automatically activate a domain or lifecycle skill only when the outcome, actions, or targets are unknown or unbounded, or the task needs substantive specialist reasoning, material proposal and direction, multi-owner routing, governance, research, strategy, a new surface, claim-sensitive writing, or broad validation. Do not load a master router merely because its domain label matches a bounded target. Local versus remote and model reasoning effort do not change this classification.
 
-An explicitly named skill still activates. Inside that skill, choose its smallest safe mode and avoid expanding an atomic request into a full lifecycle unless a concrete risk requires it.
+An explicitly named skill still activates. Inside that skill, choose its smallest safe mode and avoid expanding a clear bounded request into a full lifecycle unless the work materially expands or needs operator-owned direction.
 
 Direct execution still requires proportional proof. Run the smallest relevant check, such as a focused search, unit test, typecheck, or surface build; do not substitute process narration for the edit.
 

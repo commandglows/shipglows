@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.13.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-22"
+updated: "2026-08-27"
 status: active
 source_skill: 009-sg-skill-build
 scope: entrypoint-routing
@@ -23,6 +23,7 @@ linked_systems:
   - skills/006-sg-design/SKILL.md
   - skills/008-sg-customer/SKILL.md
   - skills/600-sg-local-cloud-sync/SKILL.md
+  - skills/603-sg-private/SKILL.md
   - skills/900-shipglows-core/SKILL.md
   - skills/400-sg-audit/SKILL.md
   - skills/references/master-delegation-semantics.md
@@ -74,7 +75,7 @@ It defines only the routing-question rule. Load `skills/references/question-cont
 
 Route to the smallest existing owner that can safely own the outcome.
 
-Apply the Skill Selection Proportionality Gate from `skills/references/skill-execution-fidelity.md` before domain classification. An explicit deterministic micro-edit with a known or easily found target, no domain judgment or sensitive boundary, and focused deterministic proof stays in direct main-thread execution, but still requires explicit post-message approval under `skills/references/mutation-plan-approval.md`. Use its fast path only when every cumulative eligibility criterion is established; otherwise present the full plan. Do not load an owner skill merely because the edited file belongs to its domain. An explicitly named skill remains authoritative and uses its smallest safe mode.
+Apply the Skill Selection Proportionality Gate from `skills/references/skill-execution-fidelity.md` before domain classification. A clear bounded request with a few coherent enumerable actions and targets, no material direction for the agent to choose, and focused proof stays in direct main-thread execution without another approval prompt. This includes targeted file edits, exact-scope commits, ordinary resolved pushes, and small explicit sequences; local versus remote and reasoning effort do not classify the request. That authority does not authorize a chantier; if the work expands materially or requires directional proposal, use the full approval path from `skills/references/mutation-plan-approval.md`. Do not load an owner skill merely because a bounded target belongs to its domain. An explicitly named skill remains authoritative and uses its smallest safe mode.
 
 Before natural-language routing, check whether the user included one or more focus tags defined in `skills/references/shipglows-terms.md` such as `#partner`, `#offer`, `#growth`, `#traffic`, `#acquisition`, `#clarity`, `#source`, `#rules`, `#docs`, `#canon`, `#quality`, `#shipglows`, or `#proof`. When present, load the referenced canonical documents first and treat them as routing priorities for the current turn.
 
@@ -177,12 +178,12 @@ A read-only routing scout is allowed only for cheap classification evidence and 
 
 Resolve every actionable request as `project -> business/brand/product -> outcome -> surface -> work item` before selecting an owner. A project may contain several businesses, brands, products, or public expressions. Inspect conversation and repository evidence before asking, and ask only when an unresolved choice materially changes the outcome; after the answer, continue under one public métier owner.
 
-The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-bug`, `sg-engineering`, `sg-maintenance`, `sg-release`, `sg-content`, `sg-marketing`, `sg-seo`, `sg-docs`, `sg-planning`, and `sg-help`. Numeric runtime skills remain internal engines and compatibility identities. Load `skills/references/intent-to-outcome-autonomy.md` and keep the original outcome active through internal routing.
+The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-bug`, `sg-engineering`, `sg-maintenance`, `sg-release`, `sg-content`, `sg-marketing`, `sg-seo`, `sg-docs`, `sg-planning`, `sg-private`, and `sg-help`. Numeric runtime skills remain internal engines and compatibility identities. Load `skills/references/intent-to-outcome-autonomy.md` and keep the original outcome active through internal routing.
 
 | Operator intent | Primary route |
 | --- | --- |
 | Pure question, explanation, model/help clarification, or advice with no files | Direct answer |
-| Exact string, placeholder, typo, heading-tag, or formatting replacement with no domain judgment or sensitive boundary | Direct main-thread execution with focused validation; no owner skill |
+| Clear bounded request with few enumerable actions/targets and no material directional choice, including a targeted edit, exact-scope commit, ordinary resolved push, or small explicit sequence | Direct main-thread execution with focused proof; no owner skill |
 | Numeric skill code such as `001`, `001-sg-build`, or `001sfbuild` | Runtime skill from `skills/references/skill-code-index.md` |
 | Build or change a user-facing feature and also think about end-user clarity, UX/UI friction, activation, beginner adoption, or first-success guidance | `001-sg-build` first; `001-sg-build` evaluates the post-implementation `008-sg-customer` gate |
 | Software feature, application behavior, code implementation, technical site implementation, or broad code-like goal without durable bug state | `001-sg-build` |
@@ -201,6 +202,7 @@ The public owner labels are `sg-development`, `sg-design`, `sg-experience`, `sg-
 | Local-first data promotion, cloud hydration, account sync, merge/conflict policy, reinstall recovery, or sync/save UX state | public `sg-engineering sync`; internal engine `600-sg-local-cloud-sync` |
 | Product access, paid plans, premium gates, entitlement ledgers, provider events, activation codes, refunds/revokes, support access flows, or backend access gates | public `sg-engineering access`; internal engine `601-sg-product-entitlements` |
 | Cross-platform behavior or capability parity | public `sg-engineering parity`; internal engine `602-sg-platform-parity` |
+| Explicitly remember, retrieve, search, archive, or restore a private local path, URL, alias, or Vivaldi bookmark | public `sg-private memory`; internal `603-sg-private memory` |
 | New skill, skill modification, skill runtime visibility, skill public page, skill docs/help coherence | `900-shipglows-core build` |
 | ShipGlows Core execution-fidelity audit or public-plugin packaging readiness for ShipGlows itself | `900-shipglows-core audit <scope>` or `900-shipglows-core packaging <scope>` |
 | One obvious audit domain only | relevant `400-sg-audit-*` or `400-sg-audit` |

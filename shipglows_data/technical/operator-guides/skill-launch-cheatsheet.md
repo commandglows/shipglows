@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.7.0"
+artifact_version: "2.9.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-20"
+updated: "2026-08-27"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: skill-launch-cheatsheet
@@ -33,6 +33,7 @@ evidence:
   - "Operator refinement 2026-08-20: auto optimizes useful value rather than token burn, recommends useful subagents, stays inside its launch root, and never self-activates Fast."
   - "Operator decision 2026-08-20: local, nolocal, and ci become composable execution posture tags; nolocal remains a compatibility alias and auto keeps implicit nolocal."
   - "Operator decision 2026-08-20: distinguish native shipglows skills channel commands from agent workflow invocations."
+  - "Operator decision 2026-08-24: expose sg-private memory as the fourteenth public métier while its operator data remains private."
 next_step: "/103-sg-verify public skill catalogue"
 ---
 
@@ -48,8 +49,8 @@ These are terminal commands, not agent modes:
 | Command | Purpose |
 | --- | --- |
 | `shipglows skills status` | Report whether Codex uses the public plugin, a linked clone, a conflicting double channel, or no ShipGlows entrypoint. |
-| `shipglows skills link` | From a complete Git clone, replace the plugin channel after confirmation and expose live public skills to Codex and Claude. |
-| `shipglows skills unlink` | Remove only proven ShipGlows-managed public links; add `--install-plugin` to return to the public Codex channel. |
+| `shipglows skills link [--catalog public\|expert]` | From a complete Git clone, activate exactly one live catalogue in Codex and Claude; switching removes the previous ShipGlows catalogue while preserving unrelated skills. |
+| `shipglows skills unlink` | Remove only proven ShipGlows-managed links; add `--install-plugin` to return to the public Codex channel. |
 
 After changing channel, restart Codex or Claude from a new shell so both its
 skill catalogue and managed `SHIPGLOWS_ROOT` are rediscovered. Editing a linked
@@ -109,9 +110,9 @@ Ask which one is meant only when repository evidence cannot safely resolve it.
 
 ## Public Skills
 
-The public catalogue contains the router plus thirteen métier entrypoints.
+The public catalogue contains the router plus fourteen métier entrypoints.
 
-One exception stays direct: deterministic micro-edits with no domain judgment use focused validation and do not activate a métier lifecycle.
+As a direct exception, clear bounded requests stay direct with focused proof when their few actions and targets are enumerable and no material direction must be chosen. They may include targeted file edits, exact-scope commits, ordinary resolved pushes, or a small explicit sequence. Unknown, unbounded, or directional work activates the appropriate supervised chantier; local/remote location and reasoning effort do not change classification.
 They own the outcome from clarification through appropriate implementation,
 proof, documentation reflection, and closure. Shipping, deployment, external
 publication, secrets, destructive actions, and device-only proof still require
@@ -143,6 +144,7 @@ Ajoute `prix`, `comparatif`, `positionnement`, `recommandation` ou `roadmap` si 
 | Développer l’audience | `sg-seo` | Search audits, launches, monitoring, and fixes | `406-sg-seo` |
 | Gouverner | `sg-docs` | Internal documentation, architecture, governance, and metadata | `300-sg-docs` |
 | Organiser | `sg-planning` | Tasks, backlog, priorities, reviews, and sessions | `011-sg-pilotage` |
+| Organiser | `sg-private` | Explicit private path, URL, alias, and Vivaldi bookmark memory | `603-sg-private` |
 | Organiser | `sg-help` | Orientation, modes, doctrine, and public/expert discovery | `302-sg-help` |
 
 ## Public Modes Quick Reference
@@ -165,6 +167,7 @@ composable with every command unless that mode declares a conflict.
 | `sg-seo` | `audit`, `launch`, `monitoring`, `fix`, `page`, `project`, `global` |
 | `sg-docs` | `init`, `file`, `readme`, `api`, `components`, `auto`, `audit`, `update`, `metadata`, `migrate`, `migrate-layout`, `technical`, `editorial`, `duplicata`, `duplicates`, `add-project` |
 | `sg-planning` | `tasks`, `backlog`, `priorities` (`prio`), `review`, `sessions` |
+| `sg-private` | `memory` |
 | `sg-help` | `default`, `mode`, `expert` |
 
 Examples of composition:

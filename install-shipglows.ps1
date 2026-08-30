@@ -10,7 +10,8 @@ param(
     [string]$InstallMode = $(if ($env:SHIPGLOWS_INSTALL_MODE) { $env:SHIPGLOWS_INSTALL_MODE } else { '' }),
     [string]$InstallSurface = $(if ($env:SHIPGLOWS_INSTALL_SURFACE) { $env:SHIPGLOWS_INSTALL_SURFACE } else { '' }),
     [string]$DevelopmentRoot = $(if ($env:SHIPGLOWS_DEVELOPMENT_ROOT) { $env:SHIPGLOWS_DEVELOPMENT_ROOT } else { Join-Path (Join-Path $env:USERPROFILE 'ShipGlows') 'shipglows' }),
-    [switch]$DownloadOnly
+    [switch]$DownloadOnly,
+    [switch]$UpdateDeveloperTools
 )
 
 $ErrorActionPreference = 'Stop'
@@ -86,6 +87,12 @@ if (-not $InstallMode) {
         $InstallMode = Select-WindowsInstallMode
     }
 }
+if ($UpdateDeveloperTools -and $InstallMode -ne 'full') {
+    Fail 'UpdateDeveloperTools requires InstallMode full.'
+}
+if ($UpdateDeveloperTools -and $DownloadOnly) {
+    Fail 'UpdateDeveloperTools cannot be combined with DownloadOnly because no developer-tool convergence would run.'
+}
 try {
     $InstallSurface = Resolve-SgInstallSurface -RequestedSurface $InstallSurface -InteractiveSurface $script:InteractiveInstallSurface -InstallMode $InstallMode
 } catch {
@@ -125,11 +132,20 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
             Fail 'The ShipGlows archive must contain exactly one local/install_local.ps1.'
         }
         $entries += $installerEntries[0]
+        $versionEntries = @(
+            $archiveEntries | Where-Object { $_ -match '^[^/]+/shipglows-version\.json$' }
+        )
+        if ($versionEntries.Count -ne 1) {
+            Fail 'The ShipGlows archive must contain exactly one shipglows-version.json.'
+        }
+        $entries += $versionEntries[0]
     }
     if ($FullMode) {
-        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|shipglows-devserver\.ps1|install-devserver\.ps1)$' })
-        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/environment/(?:__init__\.py|core\.py|mise_backend\.py|shipglows_environment\.py|schemas/shipglows-environment-v1\.schema\.json)$' })
-        if ($entries.Count -ne 17) { Fail 'The ShipGlows archive is missing native Windows DevServer, developer corpus channel, project catalogue refresher, Flutter supervisor, installer engine/UI, authentication, agent instructions, or environment control-plane files.' }
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|ShipGlows\.WslTurso\.psm1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1)$' })
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/(?:private_data\.py|environment/(?:__init__\.py|core\.py|mise_backend\.py|preparation\.py|shipglows_environment\.py|schemas/shipglows-environment-v1\.schema\.json))$' })
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/install-turso-cloud\.sh$' })
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/shipglows-version\.json$' })
+        if ($entries.Count -ne 30) { Fail 'The ShipGlows archive is missing native Windows DevServer, runtime status, version metadata, ShipGlows command, build-artifact helper, managed PowerShell runtime, MCP catalog, WSL/Turso bootstrap, developer corpus channel, project catalogue refresher, Flutter supervisor, installer engine/UI, authentication, agent instructions, environment control-plane, or private-data control-plane files.' }
     }
 
     & $tarPath -xf $ArchivePath -C $DestinationPath $entries
@@ -146,21 +162,25 @@ function Resolve-GitHubSource([string]$RepositoryUrl, [string]$Ref, [string]$Cur
     }
 
     $repositoryPath = $Matches[1]
-    $encodedRef = [Uri]::EscapeDataString($Ref)
-    $commitApiUrl = "https://api.github.com/repos/$repositoryPath/commits/$encodedRef"
-    $commitResponse = (& $CurlPath -fsSL --retry 3 --retry-all-errors --retry-delay 2 -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' $commitApiUrl | Out-String)
-    if ($LASTEXITCODE -ne 0) {
-        Fail "Could not resolve ShipGlows ref: $Ref"
-    }
+    if ($Ref -match '^[0-9a-fA-F]{40}$') {
+        $commitSha = $Ref.ToLowerInvariant()
+    } else {
+        $encodedRef = [Uri]::EscapeDataString($Ref)
+        $commitApiUrl = "https://api.github.com/repos/$repositoryPath/commits/$encodedRef"
+        $commitResponse = (& $CurlPath -fsSL --retry 3 --retry-all-errors --retry-delay 2 -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' $commitApiUrl | Out-String)
+        if ($LASTEXITCODE -ne 0) {
+            Fail "Could not resolve ShipGlows ref: $Ref"
+        }
 
-    try {
-        $commit = $commitResponse | ConvertFrom-Json
-    } catch {
-        Fail "GitHub did not return a valid commit for ref: $Ref"
-    }
-    $commitSha = [string]$commit.sha
-    if ($commitSha -notmatch '^[0-9a-f]{40}$') {
-        Fail "GitHub did not return a valid commit for ref: $Ref"
+        try {
+            $commit = $commitResponse | ConvertFrom-Json
+        } catch {
+            Fail "GitHub did not return a valid commit for ref: $Ref"
+        }
+        $commitSha = [string]$commit.sha
+        if ($commitSha -notmatch '^[0-9a-f]{40}$') {
+            Fail "GitHub did not return a valid commit for ref: $Ref"
+        }
     }
 
     [PSCustomObject]@{
@@ -190,6 +210,7 @@ function Assert-EnvironmentPackage([string]$EnvironmentDirectory) {
         '__init__.py',
         'core.py',
         'mise_backend.py',
+        'preparation.py',
         'shipglows_environment.py',
         'schemas\shipglows-environment-v1.schema.json'
     )
@@ -378,6 +399,9 @@ try {
         $stagedLocalInstaller = Join-Path $payloadRoot 'local\install_local.ps1'
         New-Item -ItemType Directory -Path (Split-Path -Parent $stagedLocalInstaller) -Force | Out-Null
         Copy-Item -LiteralPath $installerCandidates[0].FullName -Destination $stagedLocalInstaller
+        $versionCandidates = @(Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -File -Filter 'shipglows-version.json')
+        if ($versionCandidates.Count -ne 1) { Fail 'ShipGlows runtime version metadata was not found in the archive.' }
+        Copy-Item -LiteralPath $versionCandidates[0].FullName -Destination (Join-Path $payloadRoot 'shipglows-version.json')
         Assert-PowerShellSyntax -Path $stagedLocalInstaller
     } else {
         $windowsCandidates = @(
@@ -385,6 +409,8 @@ try {
                 Where-Object { Test-Path (Join-Path $_.FullName 'install-devserver.ps1') }
         )
         if ($windowsCandidates.Count -ne 1) { Fail 'Native Windows DevServer directory was not found in the archive.' }
+        $versionCandidates = @(Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -File -Filter 'shipglows-version.json')
+        if ($versionCandidates.Count -ne 1) { Fail 'ShipGlows runtime version metadata was not found in the archive.' }
         $environmentCandidates = @(
             Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -Directory -Filter 'environment' |
                 Where-Object {
@@ -393,24 +419,35 @@ try {
                 }
         )
         if ($environmentCandidates.Count -ne 1) { Fail 'Environment control-plane directory was not found in the archive.' }
-        $windowsFiles = @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','shipglows-devserver.ps1','install-devserver.ps1')
-        $pythonFiles = @('__init__.py','core.py','mise_backend.py','shipglows_environment.py')
-        $managedRelativePaths = @($windowsFiles | ForEach-Object { "cli/windows/$_" }) + @($pythonFiles | ForEach-Object { "cli/environment/$_" }) + @('cli/environment/schemas/shipglows-environment-v1.schema.json') + @('bin/ShipGlows.DevServer.psm1','bin/ShipGlows.FlutterSupervisor.ps1','bin/ShipGlows.ProjectCatalogRefresh.ps1','bin/ShipGlows.Auth.psm1','bin/ShipGlows.MobileToolchain.psm1','bin/shipglows-devserver.ps1')
+        $windowsFiles = @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')
+        $pythonFiles = @('__init__.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py')
+        $managedRelativePaths = @($windowsFiles | ForEach-Object { "cli/windows/$_" }) + @($pythonFiles | ForEach-Object { "cli/environment/$_" }) + @('cli/private_data.py','cli/environment/schemas/shipglows-environment-v1.schema.json','cli/install-turso-cloud.sh','shipglows-version.json','private_data.py') + @('bin/ShipGlows.DevServer.psm1','bin/ShipGlows.RuntimeStatus.psm1','bin/ShipGlows.FlutterSupervisor.ps1','bin/ShipGlows.ProjectCatalogRefresh.psm1','bin/ShipGlows.Auth.psm1','bin/ShipGlows.MobileToolchain.psm1','bin/ShipGlows.BuildArtifacts.psm1','bin/shipglows-build-artifacts.ps1','bin/ShipGlows.PowerShellRuntime.psm1','bin/ShipGlows.PowerShellRuntime.json','bin/ShipGlows.PowerShellBootstrap.ps1','bin/shipglows-devserver.ps1','bin/shipglows.ps1')
         $stagedWindows = Join-Path $payloadRoot 'cli\windows'
+        $stagedCli = Join-Path $payloadRoot 'cli'
         $stagedEnvironment = Join-Path $payloadRoot 'cli\environment'
         $stagedBin = Join-Path $payloadRoot 'bin'
         New-Item -ItemType Directory -Path $stagedWindows,(Join-Path $stagedEnvironment 'schemas'),$stagedBin -Force | Out-Null
         foreach ($windowsFile in $windowsFiles) {
             Copy-Item -LiteralPath (Join-Path $windowsCandidates[0].FullName $windowsFile) -Destination (Join-Path $stagedWindows $windowsFile)
-            Assert-PowerShellSyntax -Path (Join-Path $stagedWindows $windowsFile)
+            if ([IO.Path]::GetExtension($windowsFile) -in @('.ps1','.psm1')) { Assert-PowerShellSyntax -Path (Join-Path $stagedWindows $windowsFile) }
         }
+        $privateDataSource = Join-Path (Split-Path -Parent $windowsCandidates[0].FullName) 'private_data.py'
+        if (-not (Test-Path -LiteralPath $privateDataSource -PathType Leaf)) { Fail 'Private-data control-plane script was not found in the archive.' }
+        Copy-Item -LiteralPath $privateDataSource -Destination (Join-Path $payloadRoot 'cli\private_data.py')
+        Copy-Item -LiteralPath $privateDataSource -Destination (Join-Path $payloadRoot 'private_data.py')
+        Copy-Item -LiteralPath $versionCandidates[0].FullName -Destination (Join-Path $payloadRoot 'shipglows-version.json')
         foreach ($pythonFile in $pythonFiles) { Copy-Item -LiteralPath (Join-Path $environmentCandidates[0].FullName $pythonFile) -Destination (Join-Path $stagedEnvironment $pythonFile) }
         Copy-Item -LiteralPath (Join-Path $environmentCandidates[0].FullName 'schemas\shipglows-environment-v1.schema.json') -Destination (Join-Path $stagedEnvironment 'schemas\shipglows-environment-v1.schema.json')
+        $tursoInstallerSource = Join-Path (Split-Path $windowsCandidates[0].FullName -Parent) 'install-turso-cloud.sh'
+        if (-not (Test-Path -LiteralPath $tursoInstallerSource -PathType Leaf)) { Fail 'Bundled Turso Cloud installer was not found in the extracted payload.' }
+        Copy-Item -LiteralPath $tursoInstallerSource -Destination (Join-Path $stagedCli 'install-turso-cloud.sh')
         Assert-EnvironmentPackage -EnvironmentDirectory $stagedEnvironment
-        foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1')) { Copy-Item -LiteralPath (Join-Path $stagedWindows $launcherModule) -Destination (Join-Path $stagedBin $launcherModule) }
+        foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) { Copy-Item -LiteralPath (Join-Path $stagedWindows $launcherModule) -Destination (Join-Path $stagedBin $launcherModule) }
         Copy-Item -LiteralPath (Join-Path $stagedWindows 'shipglows-devserver.ps1') -Destination (Join-Path $stagedBin 'shipglows-devserver.ps1')
     }
-    $installState = [ordered]@{ schemaVersion=1; sourceCommit=$source.Commit; installMode=$InstallMode; installSurface=$InstallSurface }
+    $versionDocument = [IO.File]::ReadAllText((Join-Path $payloadRoot 'shipglows-version.json')) | ConvertFrom-Json
+    if ([string]$versionDocument.version -notmatch '^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$') { Fail 'ShipGlows runtime version metadata is invalid.' }
+    $installState = [ordered]@{ schemaVersion=1; sourceCommit=$source.Commit; version=[string]$versionDocument.version; installMode=$InstallMode; installSurface=$InstallSurface }
     [IO.File]::WriteAllText((Join-Path $payloadRoot '.shipglows-install.json'),($installState | ConvertTo-Json -Compress),[Text.UTF8Encoding]::new($false))
     $managedRelativePaths = @($managedRelativePaths) + @('.shipglows-install.json')
     $runtimeOperation = Get-SgRuntimeUpdateOperation -RuntimeRoot $ShipglowsDir -PayloadRoot $payloadRoot -ManagedRelativePaths $managedRelativePaths -SourceCommit $source.Commit
@@ -428,7 +465,10 @@ try {
             if ($LASTEXITCODE -ne 0) { throw 'Native Windows configuration failed.' }
         } else {
             Write-Info 'Installing the native Windows DevServer launcher.'
-            & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $windowsDirectory 'install-devserver.ps1') -ShipglowsDir $ShipglowsDir
+            $devServerArguments = @('-NoProfile','-ExecutionPolicy','Bypass','-File',(Join-Path $windowsDirectory 'install-devserver.ps1'),'-ShipglowsDir',$ShipglowsDir)
+            if ($InstallSurface -eq 'maintainer') { $devServerArguments += '-ReplaceAgentConfigs' }
+            if ($UpdateDeveloperTools) { $devServerArguments += '-UpdateDeveloperTools' }
+            & powershell.exe @devServerArguments
             if ($LASTEXITCODE -ne 0) { throw 'Native Windows DevServer installation failed.' }
         }
     }

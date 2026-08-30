@@ -12,6 +12,8 @@ function Get-SgAuthenticationDefinitions {
         [pscustomobject]@{ Name='Firebase'; Category='Service'; Command='firebase.cmd'; StatusArguments=@('login:list'); LoginArguments=@('login'); LogoutArguments=@('logout'); LoginMode='command' },
         [pscustomobject]@{ Name='Vercel'; Category='Service'; Command='vercel.cmd'; StatusArguments=@('whoami'); LoginArguments=@('login'); LogoutArguments=@('logout'); LoginMode='command' },
         [pscustomobject]@{ Name='Clerk'; Category='Service'; Command='clerk.cmd'; StatusArguments=@('whoami'); LoginArguments=@('auth','login'); LogoutArguments=@('auth','logout'); LoginMode='command' },
+        [pscustomobject]@{ Name='Auth0'; Category='Service'; Command='auth0.cmd'; StatusArguments=@('tenants','list','--json-compact','--no-input'); LoginArguments=@('login'); LogoutArguments=@('logout'); LoginMode='command' },
+        [pscustomobject]@{ Name='Doppler'; Category='Service'; Command='doppler.cmd'; StatusArguments=@('me','--json','--no-check-version','--no-read-env'); LoginArguments=@('login','--no-check-version','--no-read-env'); LogoutArguments=@('logout','--no-check-version','--no-read-env'); LoginMode='command' },
         [pscustomobject]@{ Name='Supabase'; Category='Service'; Command='supabase.cmd'; StatusArguments=@('projects','list'); LoginArguments=@('login'); LogoutArguments=@('logout'); LoginMode='command' },
         [pscustomobject]@{ Name='Convex'; Category='Service'; Command='convex.cmd'; StatusArguments=@(); LoginArguments=@(); LogoutArguments=@('logout'); LoginMode='project' }
     )
@@ -45,10 +47,11 @@ function Get-SgPlaywrightRuntimePlan {
         [Parameter(Mandatory=$true)][string]$Root
     )
     foreach($version in @($StableVersion,$AgentCliVersion,$McpVersion)){ if($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$'){throw 'Playwright packages require exact versions.'} }
+    if ($AgentCliVersion -ne $StableVersion) { throw 'Playwright CLI is bundled with Playwright and must use the same exact version.' }
     foreach($revision in @($StableRevision,$McpRevision)){ if($revision -notmatch '^\d+$'){throw 'Playwright browser revisions must be numeric.'} }
     [pscustomobject]@{
         Stable=[pscustomobject]@{ CommandName='playwright'; Package='playwright'; Version=$StableVersion; Revision=$StableRevision; Root=(Join-Path $Root "playwright-$StableVersion") }
-        AgentCli=[pscustomobject]@{ CommandName='playwright-cli'; Package='@playwright/cli'; Version=$AgentCliVersion; Revision='managed-by-agent-cli'; Root=(Join-Path $Root "playwright-cli-$AgentCliVersion") }
+        AgentCli=[pscustomobject]@{ CommandName='playwright-cli'; Package='playwright'; Version=$StableVersion; Revision=$StableRevision; Root=(Join-Path $Root "playwright-$StableVersion"); EntryArguments=@('cli') }
         Mcp=[pscustomobject]@{ CommandName='playwright-mcp'; Package='@playwright/mcp'; Version=$McpVersion; Revision=$McpRevision; Root=(Join-Path $Root "playwright-mcp-$McpVersion") }
     }
 }

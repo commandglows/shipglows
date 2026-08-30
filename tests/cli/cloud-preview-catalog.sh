@@ -63,8 +63,13 @@ if (byId.get('credentials.manage')?.reasonCode !== 'operatorOnly') process.exit(
 if (/command|argument|path|port|secret|credential/i.test(JSON.stringify(data).replace('credentials.manage', ''))) process.exit(1);
 NODE
 
-capability_mode=$(stat -c '%a' "$capabilities")
-[ "$capability_mode" = "600" ] || fail "capability snapshot permissions"
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*) ;;
+    *)
+        capability_mode=$(stat -c '%a' "$capabilities")
+        [ "$capability_mode" = "600" ] || fail "capability snapshot permissions"
+        ;;
+esac
 
 fixture_rows="$TEST_ROOT/capability-fixture.tsv"
 fixture_output="$TEST_ROOT/capability-fixture.json"

@@ -60,10 +60,210 @@ warning() {
     shipglows_log "WARN" "WARN: $1"
 }
 
+run_required() {
+    local label="$1"
+    shift
+
+    if "$@"; then
+        return 0
+    fi
+
+    error "$label a échoué. Corrigez la cause indiquée ci-dessus puis relancez sudo ./cli/install.sh."
+    return 1
+}
+
+require_command() {
+    local command_name="$1"
+    local label="${2:-$1}"
+
+    if command -v "$command_name" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    error "$label est requis pour vérifier les téléchargements de l'installateur."
+    return 1
+}
+
+checked_download() {
+    local url="$1"
+    local destination="$2"
+    local label="$3"
+
+    rm -f "$destination"
+    if ! curl \
+        --fail \
+        --show-error \
+        --silent \
+        --location \
+        --retry 3 \
+        --retry-connrefused \
+        --connect-timeout 15 \
+        --output "$destination" \
+        "$url"; then
+        rm -f "$destination"
+        error "Téléchargement impossible pour $label: $url"
+        return 1
+    fi
+
+    if [ ! -s "$destination" ]; then
+        rm -f "$destination"
+        error "Téléchargement vide refusé pour $label: $url"
+        return 1
+    fi
+}
+
+verify_sha256() {
+    local file_path="$1"
+    local expected_sha256="$2"
+    local label="$3"
+    local actual_sha256
+
+    actual_sha256="$(sha256sum "$file_path" 2>/dev/null | awk '{print $1}')" || actual_sha256=""
+    if [ "$actual_sha256" != "$expected_sha256" ]; then
+        error "Checksum SHA256 invalide pour $label (attendu: $expected_sha256, reçu: ${actual_sha256:-indisponible})."
+        return 1
+    fi
+}
+
+extract_tar_member() {
+    local archive_path="$1"
+    local destination_dir="$2"
+    local member_name="$3"
+    local label="$4"
+
+    if ! tar -tzf "$archive_path" -- "$member_name" >/dev/null 2>&1 \
+        || ! tar -xzf "$archive_path" -C "$destination_dir" -- "$member_name" \
+        || [ ! -f "$destination_dir/$member_name" ]; then
+        error "Archive invalide pour $label: le membre attendu '$member_name' est absent ou illisible."
+        return 1
+    fi
+}
+
+require_exact_line() {
+    local file_path="$1"
+    local expected_line="$2"
+    local label="$3"
+
+    if grep -Fxq "$expected_line" "$file_path"; then
+        return 0
+    fi
+
+    error "Contenu inattendu pour $label; la configuration distante n'a pas été installée."
+    return 1
+}
+
+require_only_exact_lines() {
+    local file_path="$1"
+    local label="$2"
+    local line
+    local allowed_line
+    local line_allowed
+    shift 2
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        case "$line" in
+            ""|\#*)
+                continue
+                ;;
+        esac
+        line_allowed=false
+        for allowed_line in "$@"; do
+            if [ "$line" = "$allowed_line" ]; then
+                line_allowed=true
+                break
+            fi
+        done
+        if [ "$line_allowed" != "true" ]; then
+            error "Ligne active inattendue dans $label; la configuration distante n'a pas été installée."
+            return 1
+        fi
+    done < "$file_path"
+}
+
+verify_gpg_primary_fingerprint() {
+    local key_file="$1"
+    local expected_fingerprint="$2"
+    local label="$3"
+    local actual_fingerprint
+
+    actual_fingerprint="$(gpg --batch --with-colons --show-keys "$key_file" 2>/dev/null | awk -F: '$1 == "fpr" { print $10; exit }')"
+    if [ "$actual_fingerprint" != "$expected_fingerprint" ]; then
+        error "Empreinte GPG invalide pour $label (attendue: $expected_fingerprint, reçue: ${actual_fingerprint:-indisponible})."
+        return 1
+    fi
+}
+
+verify_gpg_key_file() {
+    local key_file="$1"
+    local label="$2"
+
+    if gpg --batch --with-colons --show-keys "$key_file" 2>/dev/null | grep -q '^pub:'; then
+        return 0
+    fi
+
+    error "Clé GPG invalide pour $label."
+    return 1
+}
+
+install_file_atomically() {
+    local source_file="$1"
+    local target_file="$2"
+    local mode="$3"
+    local target_dir
+    local temporary_file
+
+    target_dir="$(dirname "$target_file")"
+    install -d -m 0755 "$target_dir" || return 1
+    temporary_file="$(mktemp "$target_dir/.shipglows-install.XXXXXX")" || return 1
+    if ! install -m "$mode" "$source_file" "$temporary_file" || ! mv -f "$temporary_file" "$target_file"; then
+        rm -f "$temporary_file"
+        return 1
+    fi
+}
+
+write_text_atomically() {
+    local target_file="$1"
+    local mode="$2"
+    local content="$3"
+    local target_dir
+    local temporary_file
+
+    target_dir="$(dirname "$target_file")"
+    install -d -m 0755 "$target_dir" || return 1
+    temporary_file="$(mktemp "$target_dir/.shipglows-install.XXXXXX")" || return 1
+    if ! printf '%s\n' "$content" > "$temporary_file" || ! chmod "$mode" "$temporary_file" || ! mv -f "$temporary_file" "$target_file"; then
+        rm -f "$temporary_file"
+        return 1
+    fi
+}
+
+resolve_linux_arch() {
+    case "$1" in
+        x86_64|amd64)
+            printf '%s\n' "amd64"
+            ;;
+        aarch64|arm64)
+            printf '%s\n' "arm64"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 SHIPGLOWS_SYSTEM_PNPM_HOME="${SHIPGLOWS_SYSTEM_PNPM_HOME:-/usr/local/lib/shipglows/pnpm}"
 SHIPGLOWS_SYSTEM_PNPM_GLOBAL_DIR="${SHIPGLOWS_SYSTEM_PNPM_GLOBAL_DIR:-$SHIPGLOWS_SYSTEM_PNPM_HOME/global}"
 SHIPGLOWS_SYSTEM_BIN_DIR="${SHIPGLOWS_SYSTEM_BIN_DIR:-/usr/local/bin}"
 SHIPGLOWS_OS_RELEASE_FILE="${SHIPGLOWS_OS_RELEASE_FILE:-/etc/os-release}"
+
+NODESOURCE_GPG_FINGERPRINT="6F71F525282841EEDAF851B42F59B5F99B1BE0B4"
+GITHUB_CLI_KEYRING_SHA256="6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b"
+SUPABASE_VERSION="2.115.0"
+SUPABASE_LINUX_AMD64_SHA256="ff099608ce758b625532ef03a61f4c9520b995e94ff6cd5480dc0428cad64cb3"
+SUPABASE_LINUX_ARM64_SHA256="02d2dfddf41fb6d03d2f1baf6e0c63b32ecc8c4dfddcbe63f9b11aecd2a9111c"
+FLOX_VERSION="1.14.1"
+FLOX_LINUX_AMD64_SHA256="7dfdd1ae576ab7519e5b2bbaa4e76db1265756d23fa6c142671af1d7744dddc0"
+FLOX_LINUX_ARM64_SHA256="19937aecc3f711946b3fb7c6e0ec83fdce74f94d59fe5c53566f079f9bc7721c"
 
 require_supported_linux_distribution() {
     local os_id=""
@@ -533,6 +733,13 @@ shipglows_log "INFO" "Privilege scope: root run. Applying system/global setup pl
 
 require_supported_linux_distribution || exit 1
 
+info "Préparation des outils de vérification de l'installateur..."
+run_required "Mise à jour initiale des index apt" apt-get update || exit 1
+run_required "Installation des outils de vérification" apt-get install -y ca-certificates curl gnupg || exit 1
+for verification_command in curl gpg sha256sum install mktemp tar dpkg-deb; do
+    require_command "$verification_command" "$verification_command" || exit 1
+done
+
 shipglows_capture_status
 
 # Default to the invoking sudo user, or root when launched directly.
@@ -551,8 +758,24 @@ if command -v node >/dev/null 2>&1; then
     success "Node.js déjà installé: $NODE_VERSION"
 else
     info "Installation de Node.js..."
-    curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
-    apt-get install -y nodejs
+    NODESOURCE_TMP_DIR="$(mktemp -d)" || exit 1
+    NODESOURCE_KEY="$NODESOURCE_TMP_DIR/nodesource-repo.gpg.key"
+    NODESOURCE_KEYRING="$NODESOURCE_TMP_DIR/nodesource.gpg"
+    NODESOURCE_SOURCE='deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main'
+
+    if ! checked_download "https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key" "$NODESOURCE_KEY" "clé de signature NodeSource" \
+        || ! verify_gpg_primary_fingerprint "$NODESOURCE_KEY" "$NODESOURCE_GPG_FINGERPRINT" "NodeSource" \
+        || ! gpg --batch --yes --dearmor --output "$NODESOURCE_KEYRING" "$NODESOURCE_KEY" \
+        || [ ! -s "$NODESOURCE_KEYRING" ] \
+        || ! install_file_atomically "$NODESOURCE_KEYRING" "/usr/share/keyrings/nodesource.gpg" 0644 \
+        || ! write_text_atomically "/etc/apt/sources.list.d/nodesource.list" 0644 "$NODESOURCE_SOURCE"; then
+        rm -rf "$NODESOURCE_TMP_DIR"
+        error "Configuration NodeSource refusée. Vérifiez la clé officielle et relancez l'installateur."
+        exit 1
+    fi
+    rm -rf "$NODESOURCE_TMP_DIR"
+    run_required "Actualisation du dépôt NodeSource" apt-get update || exit 1
+    run_required "Installation de Node.js" apt-get install -y nodejs || exit 1
     
     if command -v node >/dev/null 2>&1; then
         success "Node.js installé: $(node --version)"
@@ -646,32 +869,34 @@ if command -v supabase >/dev/null 2>&1; then
     success "Supabase CLI déjà installé: $(supabase --version 2>/dev/null | head -n1)"
 else
     info "Installation de Supabase CLI..."
-    ARCH=$(uname -m)
-    case "$ARCH" in
-        aarch64|arm64)
-            SUPABASE_ARCH="arm64"
-            ;;
-        x86_64|amd64)
-            SUPABASE_ARCH="amd64"
-            ;;
-        *)
-            error "Architecture non supportée pour Supabase CLI: $ARCH"
-            exit 1
-            ;;
+    ARCH="$(uname -m)"
+    if ! SUPABASE_ARCH="$(resolve_linux_arch "$ARCH")"; then
+        error "Architecture non supportée pour Supabase CLI: $ARCH"
+        exit 1
+    fi
+    case "$SUPABASE_ARCH" in
+        arm64) SUPABASE_SHA256="$SUPABASE_LINUX_ARM64_SHA256" ;;
+        amd64) SUPABASE_SHA256="$SUPABASE_LINUX_AMD64_SHA256" ;;
     esac
 
-    SUPABASE_TMP_DIR=$(mktemp -d)
-    SUPABASE_ARCHIVE="supabase_linux_${SUPABASE_ARCH}.tar.gz"
-    curl -L -o "$SUPABASE_TMP_DIR/$SUPABASE_ARCHIVE" "https://github.com/supabase/cli/releases/latest/download/$SUPABASE_ARCHIVE"
-    tar -xzf "$SUPABASE_TMP_DIR/$SUPABASE_ARCHIVE" -C "$SUPABASE_TMP_DIR"
-    install -m 0755 "$SUPABASE_TMP_DIR/supabase" /usr/local/bin/supabase
+    SUPABASE_TMP_DIR="$(mktemp -d)" || exit 1
+    SUPABASE_ARCHIVE="supabase_${SUPABASE_VERSION}_linux_${SUPABASE_ARCH}.tar.gz"
+    SUPABASE_URL="https://github.com/supabase/cli/releases/download/v${SUPABASE_VERSION}/${SUPABASE_ARCHIVE}"
+    if ! checked_download "$SUPABASE_URL" "$SUPABASE_TMP_DIR/$SUPABASE_ARCHIVE" "Supabase CLI $SUPABASE_VERSION" \
+        || ! verify_sha256 "$SUPABASE_TMP_DIR/$SUPABASE_ARCHIVE" "$SUPABASE_SHA256" "Supabase CLI $SUPABASE_VERSION" \
+        || ! extract_tar_member "$SUPABASE_TMP_DIR/$SUPABASE_ARCHIVE" "$SUPABASE_TMP_DIR" "supabase" "Supabase CLI $SUPABASE_VERSION" \
+        || ! install_file_atomically "$SUPABASE_TMP_DIR/supabase" "/usr/local/bin/supabase" 0755; then
+        rm -rf "$SUPABASE_TMP_DIR"
+        error "Installation vérifiée de Supabase CLI impossible. Aucun binaire non vérifié n'a été installé."
+        exit 1
+    fi
     rm -rf "$SUPABASE_TMP_DIR"
     hash -r 2>/dev/null
 
-    if command -v supabase >/dev/null 2>&1; then
+    if command -v supabase >/dev/null 2>&1 && supabase --version 2>/dev/null | grep -Fq "$SUPABASE_VERSION"; then
         success "Supabase CLI installé: $(supabase --version 2>/dev/null | head -n1)"
     else
-        error "Échec de l'installation de Supabase CLI"
+        error "Supabase CLI installé mais la version $SUPABASE_VERSION n'a pas pu être vérifiée"
         exit 1
     fi
 fi
@@ -701,26 +926,40 @@ if command -v flox >/dev/null 2>&1; then
     success "Flox déjà installé: $FLOX_VERSION"
 else
     info "Installation de Flox..."
-    ARCH=$(uname -m)
-    FLOX_VERSION="1.8.1"
-    
-    # Télécharger et installer le package Flox selon l'architecture
-    cd /tmp
-    if [ "$ARCH" = "aarch64" ]; then
-        FLOX_DEB="flox-${FLOX_VERSION}.aarch64-linux.deb"
-    else
-        FLOX_DEB="flox-${FLOX_VERSION}.x86_64-linux.deb"
+    ARCH="$(uname -m)"
+    if ! FLOX_ARCH="$(resolve_linux_arch "$ARCH")"; then
+        error "Architecture non supportée pour Flox: $ARCH"
+        exit 1
     fi
-    
-    curl -L -o "$FLOX_DEB" "https://downloads.flox.dev/by-env/stable/deb/$FLOX_DEB"
-    dpkg -i "$FLOX_DEB"
-    rm -f "$FLOX_DEB"
-    
-    if command -v flox >/dev/null 2>&1; then
+    case "$FLOX_ARCH" in
+        arm64)
+            FLOX_PACKAGE_ARCH="aarch64"
+            FLOX_SHA256="$FLOX_LINUX_ARM64_SHA256"
+            ;;
+        amd64)
+            FLOX_PACKAGE_ARCH="x86_64"
+            FLOX_SHA256="$FLOX_LINUX_AMD64_SHA256"
+            ;;
+    esac
+
+    FLOX_TMP_DIR="$(mktemp -d)" || exit 1
+    FLOX_DEB="flox-${FLOX_VERSION}.${FLOX_PACKAGE_ARCH}-linux.deb"
+    FLOX_URL="https://downloads.flox.dev/by-env/stable/deb/$FLOX_DEB"
+    if ! checked_download "$FLOX_URL" "$FLOX_TMP_DIR/$FLOX_DEB" "Flox $FLOX_VERSION" \
+        || ! verify_sha256 "$FLOX_TMP_DIR/$FLOX_DEB" "$FLOX_SHA256" "Flox $FLOX_VERSION" \
+        || ! dpkg-deb --info "$FLOX_TMP_DIR/$FLOX_DEB" >/dev/null \
+        || ! run_required "Installation du paquet Flox $FLOX_VERSION" dpkg -i "$FLOX_TMP_DIR/$FLOX_DEB"; then
+        rm -rf "$FLOX_TMP_DIR"
+        error "Installation vérifiée de Flox impossible. Exécutez 'dpkg --audit' avant de réessayer."
+        exit 1
+    fi
+    rm -rf "$FLOX_TMP_DIR"
+
+    if command -v flox >/dev/null 2>&1 && flox --version 2>&1 | grep -Fq "$FLOX_VERSION"; then
         success "Flox installé: $(flox --version)"
     else
-        error "Échec de l'installation de Flox"
-        warning "Installation manuelle requise: https://flox.dev/docs/install-flox/"
+        error "Flox installé mais la version $FLOX_VERSION n'a pas pu être vérifiée"
+        exit 1
     fi
 fi
 
@@ -742,22 +981,23 @@ done
 
 if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
     info "Installation des outils manquants: ${MISSING_TOOLS[*]}"
-    apt-get update >/dev/null 2>&1
+    run_required "Actualisation des index apt pour les outils système" apt-get update || exit 1
     for tool in "${MISSING_TOOLS[@]}"; do
         case $tool in
             "ss")
-                apt-get install -y iproute2
+                package_name="iproute2"
                 ;;
             "jq")
-                apt-get install -y jq
+                package_name="jq"
                 ;;
             "fuser")
-                apt-get install -y psmisc
+                package_name="psmisc"
                 ;;
             *)
-                apt-get install -y "$tool"
+                package_name="$tool"
                 ;;
         esac
+        run_required "Installation de l'outil système $tool" apt-get install -y "$package_name" || exit 1
     done
     success "Outils système installés"
 fi
@@ -778,9 +1018,11 @@ install_first_available_apt_package() {
 
     for pkg in "$@"; do
         if apt-cache show "$pkg" >/dev/null 2>&1; then
-            apt-get install -y "$pkg"
-            success "$label installé ($pkg)"
-            return 0
+            if apt-get install -y "$pkg"; then
+                success "$label installé ($pkg)"
+                return 0
+            fi
+            warning "Échec d'installation de la dépendance Playwright $label ($pkg)"
         fi
     done
 
@@ -810,30 +1052,27 @@ if command -v gh >/dev/null 2>&1; then
     success "GitHub CLI déjà installé: $GH_VERSION"
 else
     info "Installation de GitHub CLI..."
-    # Try apt repo first, fallback to direct .deb download
-    gh_installed=false
-    if type -p curl >/dev/null; then
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null
-        chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-        apt-get update -qq 2>/dev/null && apt-get install -y gh 2>/dev/null && gh_installed=true
+    GH_TMP_DIR="$(mktemp -d)" || exit 1
+    GH_KEYRING="$GH_TMP_DIR/githubcli-archive-keyring.gpg"
+    GH_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+    if ! checked_download "https://cli.github.com/packages/githubcli-archive-keyring.gpg" "$GH_KEYRING" "trousseau GitHub CLI" \
+        || ! verify_sha256 "$GH_KEYRING" "$GITHUB_CLI_KEYRING_SHA256" "trousseau GitHub CLI" \
+        || ! verify_gpg_key_file "$GH_KEYRING" "GitHub CLI" \
+        || ! install_file_atomically "$GH_KEYRING" "/etc/apt/keyrings/githubcli-archive-keyring.gpg" 0644 \
+        || ! write_text_atomically "/etc/apt/sources.list.d/github-cli.list" 0644 "$GH_SOURCE"; then
+        rm -rf "$GH_TMP_DIR"
+        error "Configuration du dépôt GitHub CLI refusée. Vérifiez le checksum officiel du trousseau."
+        exit 1
     fi
-    # Fallback: direct .deb download (handles GPG key issues)
-    if [ "$gh_installed" != "true" ]; then
-        info "Fallback: telechargement direct du .deb..."
-        gh_arch="amd64"
-        [ "$(uname -m)" = "aarch64" ] && gh_arch="arm64"
-        gh_version=""
-        gh_version=$(curl -s https://api.github.com/repos/cli/cli/releases/latest | jq -r '.tag_name' 2>/dev/null || echo "v2.67.0")
-        curl -fsSL "https://github.com/cli/cli/releases/download/${gh_version}/gh_${gh_version#v}_linux_${gh_arch}.deb" -o /tmp/gh.deb 2>/dev/null
-        dpkg -i /tmp/gh.deb 2>/dev/null || true
-        rm -f /tmp/gh.deb
-    fi
+    rm -rf "$GH_TMP_DIR"
+    run_required "Actualisation du dépôt GitHub CLI" apt-get update || exit 1
+    run_required "Installation de GitHub CLI" apt-get install -y gh || exit 1
     
     if command -v gh >/dev/null 2>&1; then
         success "GitHub CLI installé: $(gh --version | head -n1)"
     else
         error "Échec de l'installation de GitHub CLI"
+        exit 1
     fi
 fi
 
@@ -844,9 +1083,13 @@ info "Installation de PyYAML..."
 if python3 -c "import yaml" 2>/dev/null; then
     success "PyYAML déjà installé"
 else
-    apt-get install -y python3-pip >/dev/null 2>&1
-    pip3 install pyyaml >/dev/null 2>&1
-    success "PyYAML installé"
+    run_required "Installation de PyYAML depuis apt" apt-get install -y python3-yaml || exit 1
+    if python3 -c "import yaml" 2>/dev/null; then
+        success "PyYAML installé"
+    else
+        error "python3-yaml est installé mais l'import Python yaml échoue"
+        exit 1
+    fi
 fi
 
 echo ""
@@ -857,17 +1100,36 @@ if command -v caddy >/dev/null 2>&1; then
     success "Caddy déjà installé: $CADDY_VERSION"
 else
     info "Installation de Caddy..."
-    apt-get install -y debian-keyring debian-archive-keyring apt-transport-https curl >/dev/null 2>&1
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list > /dev/null
-    apt-get update >/dev/null 2>&1
-    apt-get install -y caddy >/dev/null 2>&1
+    run_required "Installation des prérequis du dépôt Caddy" apt-get install -y debian-keyring debian-archive-keyring apt-transport-https curl || exit 1
+    CADDY_TMP_DIR="$(mktemp -d)" || exit 1
+    CADDY_KEY="$CADDY_TMP_DIR/caddy-stable.key"
+    CADDY_KEYRING="$CADDY_TMP_DIR/caddy-stable.gpg"
+    CADDY_SOURCE="$CADDY_TMP_DIR/caddy-stable.list"
+    CADDY_DEB_LINE='deb [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main'
+    CADDY_DEB_SRC_LINE='deb-src [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main'
+    if ! checked_download "https://dl.cloudsmith.io/public/caddy/stable/gpg.key" "$CADDY_KEY" "clé du dépôt Caddy stable" \
+        || ! verify_gpg_key_file "$CADDY_KEY" "Caddy stable" \
+        || ! checked_download "https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt" "$CADDY_SOURCE" "source apt Caddy stable" \
+        || ! require_exact_line "$CADDY_SOURCE" "$CADDY_DEB_LINE" "source apt Caddy stable" \
+        || ! require_exact_line "$CADDY_SOURCE" "$CADDY_DEB_SRC_LINE" "source apt Caddy stable" \
+        || ! require_only_exact_lines "$CADDY_SOURCE" "source apt Caddy stable" "$CADDY_DEB_LINE" "$CADDY_DEB_SRC_LINE" \
+        || ! gpg --batch --yes --dearmor --output "$CADDY_KEYRING" "$CADDY_KEY" \
+        || [ ! -s "$CADDY_KEYRING" ] \
+        || ! install_file_atomically "$CADDY_KEYRING" "/usr/share/keyrings/caddy-stable-archive-keyring.gpg" 0644 \
+        || ! install_file_atomically "$CADDY_SOURCE" "/etc/apt/sources.list.d/caddy-stable.list" 0644; then
+        rm -rf "$CADDY_TMP_DIR"
+        error "Configuration du dépôt Caddy refusée. La clé ou la source officielle est invalide."
+        exit 1
+    fi
+    rm -rf "$CADDY_TMP_DIR"
+    run_required "Actualisation du dépôt Caddy" apt-get update || exit 1
+    run_required "Installation de Caddy" apt-get install -y caddy || exit 1
     
     if command -v caddy >/dev/null 2>&1; then
         success "Caddy installé: $(caddy version | head -n1)"
     else
         error "Échec de l'installation de Caddy"
-        warning "Installation manuelle requise: https://caddyserver.com/docs/install"
+        exit 1
     fi
 fi
 

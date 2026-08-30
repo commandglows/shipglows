@@ -174,11 +174,13 @@ function Enable-SgWindowsDeveloperChannel {
             throw 'A ShipGlows plugin remains enabled after the requested channel switch.'
         }
 
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $syncHelper `
+        $managedPowerShell = $env:SHIPGLOWS_MANAGED_PWSH
+        if (-not $managedPowerShell -or -not (Test-Path -LiteralPath $managedPowerShell -PathType Leaf)) { throw 'The ShipGlows-managed PowerShell runtime is required for developer corpus synchronization.' }
+        & $managedPowerShell -NoLogo -NoProfile -File $syncHelper `
             -Mode repair -All -Runtime codex -Catalog public -CodexEntrypoint linked `
             -TargetHome $TargetHome -ShipGlowsRoot $root -CleanStale
         if ($LASTEXITCODE -ne 0) { throw 'Could not link the ShipGlows developer skills into Codex.' }
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $syncHelper `
+        & $managedPowerShell -NoLogo -NoProfile -File $syncHelper `
             -Mode check -All -Runtime codex -Catalog public -CodexEntrypoint linked `
             -TargetHome $TargetHome -ShipGlowsRoot $root
         if ($LASTEXITCODE -ne 0) { throw 'ShipGlows developer skill verification failed.' }

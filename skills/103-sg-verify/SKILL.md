@@ -8,16 +8,16 @@ Primary artifact type: `specialist-workflow`.
 
 ## Activation And Ownership
 
-Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before resolving ShipGlows-owned references, tools, runtime, or sync targets.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` before ShipGlows-owned paths.
 
 Trace category: `obligatoire`.
 Process role: `lifecycle`.
 
-`103-sg-verify` owns the verdict, not implementation (`102-sg-start`), closure (`104-sg-end`), shipping (`005-sg-ship`), or redesign. It may repair one clear bounded local issue.
+`103-sg-verify` owns the verdict, not implementation (`102-sg-start`), closure (`104-sg-end`), shipping (`005-sg-ship`), or redesign.
 
 ## Mode Detection
 
-No mode or `mode=standard` selects `standard`: verify métier correctness, contract, proof, risk, and ship readiness; success makes no excellence claim. `mode=excellence` or an unambiguous natural-language request for an excellence pass selects `excellence`: run standard first, then a fresh second pass. conflicting/unknown `mode=` values or unreliable scope stop as `not verified` or `blocked`; do not guess.
+No mode or `mode=standard` selects `standard` and makes no excellence claim: verify métier correctness, contract, proof, risk, and ship readiness. `mode=excellence` or an unambiguous natural-language request selects `excellence`: run standard, then a fresh second pass. conflicting/unknown `mode=` values or unreliable scope stop as `not verified` or `blocked`; do not guess.
 
 ```text
 standard: Is this work proven enough to move forward, and who owns missing proof?
@@ -39,7 +39,7 @@ Local leaves load directly and never chain. `$SHIPGLOWS_ROOT/skills/103-sg-verif
 
 - Load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-baseline.md` and `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` for every run; its `Decision Quality Baseline` applies in every mode.
 - Only after standard readiness passes, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-excellence.md` for the detailed excellence pass; `Excellence Focus Verdict` applies only when the selected mode is `excellence`.
-- For security/data, UI/visual, runtime, auth/browser, hosted, Sentry, or device proof, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-security-ui-runtime.md`, then only applicable `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`, `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`, `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md`, and `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`.
+- For security/data, UI/visual, runtime, auth/browser, hosted, Sentry, or device proof, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-security-ui-runtime.md`, then only applicable `$SHIPGLOWS_ROOT/skills/references/owasp-application-security-awareness.md`, `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md`, `$SHIPGLOWS_ROOT/skills/references/sentry-observability.md`, and `$SHIPGLOWS_ROOT/skills/references/runtime-diagnostics-surface.md`. Flutter, Android, or Windows desktop proof also loads `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before selecting the active target and proof lane.
 - For docs/closure/tracker, skill, Atlas, product, editorial, language, dependency, or cross-contract coherence, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-coherence.md`, then applicable `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md`, `$SHIPGLOWS_ROOT/skills/references/content-quality-rubric.md`, and `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md`.
 - For bug/manual or CI/workflow scope, load `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-release-proof.md` or `$SHIPGLOWS_ROOT/skills/103-sg-verify/references/verification-ci.md` respectively.
 

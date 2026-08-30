@@ -1,0 +1,20 @@
+{
+  "schema": "shipglows.mcp-catalog/v1",
+  "discoveryRegistry": "https://registry.modelcontextprotocol.io/",
+  "policy": {
+    "registryIsExecutionAuthority": false,
+    "automaticAuthentication": false,
+    "automaticGoogleCloudActivation": false
+  },
+  "servers": [
+    { "id": "dart", "owner": "Dart", "transport": "local", "activation": "flutter-project", "authority": "https://dart.dev/tools/dart-mcp-server" },
+    { "id": "playwright", "owner": "Microsoft", "transport": "local", "activation": "web-or-ui-project", "package": "@playwright/mcp", "authority": "https://github.com/microsoft/playwright-mcp" },
+    { "id": "github", "owner": "GitHub", "transport": "remote", "activation": "git-project", "url": "https://api.githubcopilot.com/mcp/readonly", "readOnly": true },
+    { "id": "firebase", "owner": "Google Firebase", "transport": "local", "activation": "firebase-or-flutterfire-project", "package": "firebase-tools", "subcommand": ["mcp"] },
+    { "id": "convex", "owner": "Convex", "transport": "local", "activation": "convex-project", "package": "convex", "subcommand": ["mcp", "start"] },
+    { "id": "clerk", "owner": "Clerk", "transport": "remote", "activation": "clerk-project", "url": "https://mcp.clerk.com/mcp" },
+    { "id": "supabase", "owner": "Supabase", "transport": "remote", "activation": "supabase-project", "url": "https://mcp.supabase.com/mcp?read_only=true", "readOnly": true },
+    { "id": "vercel", "owner": "Vercel", "transport": "remote", "activation": "vercel-project", "url": "https://mcp.vercel.com" },
+    { "id": "google-cloud", "owner": "Google Cloud", "transport": "catalog-only", "activation": "explicit-project-choice", "authority": "https://cloud.google.com/mcp" }
+  ]
+}

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.15.0"
+artifact_version: "1.18.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-17"
+updated: "2026-08-27"
 status: active
 source_skill: 001-sg-build
 scope: master-delegation-semantics
@@ -36,6 +36,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Contract-suite repair 2026-08-23 aligns delegated execution with approved exact-scope milestone commits and pushes without duplicate approval."
   - "User decision 2026-05-04: the primary `000-shipglows` router should use direct main-thread handoff to selected master skills, not nested master-skill subagents."
   - "Operator decision 2026-08-15: bounded technical implementation approval includes ordinary exact-scope local commits without a duplicate prompt."
   - "Operator decision 2026-08-15: standalone `v` is a canonical short approval only for one unambiguous pending proposal; the 2026-08-16 correction preserves a narrowly framed mapping across non-material clarification."
@@ -91,7 +92,7 @@ Delegation to one sequential subagent is not parallelism. It is an optional isol
 
 Choose the lowest-overhead topology that can ship the accepted outcome safely: `main-only` for one bounded stream, `read-only parallel` for genuinely independent scopes with net time/coverage benefit, and `delegated sequential` for useful isolation. Parallel writes require ready non-overlapping `Execution Batches`.
 
-Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out, but never by itself for mutation. Every write mission requires valid mutation authority. Outside the exact exceptions defined by `skills/references/mutation-plan-approval.md`, that means explicit post-message approval through its fast-validation or full-plan path. That approval includes ordinary exact-scope local commits for a bounded technical chantier under the contract's cumulative authority. Ask again when the next action changes material scope, risk, data, permissions, destructive behavior, unapproved staging, closure, ship semantics, or introduces parallel writes not already authorized by ready `Execution Batches`.
+Invoking a master or orchestrator skill is consent for bounded sequential subagents and bounded read-only parallel fan-out, but never by itself for mutation. Every write mission requires valid mutation authority. A clear bounded request directly authorizes its few coherent enumerable actions and targets when no material direction must be chosen, and does not authorize a chantier. Outside the direct paths defined by `skills/references/mutation-plan-approval.md`, a bounded agent-proposed action or almost-clear intent may use fast validation; unknown outcomes, unbounded scope, and material directional choice require full-plan approval. Local versus remote and model reasoning effort never change this classification. A full technical plan includes ordinary exact-scope milestone commits and pushes under the contract's cumulative authority. Ask again only when the next action changes material scope, risk, data, permissions, destructive behavior, unapproved staging, closure, ship semantics, target, or introduces parallel writes not already authorized by ready `Execution Batches`.
 
 `708-sg-auto` is the narrow exception defined by Auto-session authority: the
 explicit `shipglows auto` invocation authorizes its bounded parent and delegated
@@ -149,7 +150,7 @@ the active conversation language means, by intent rather than exact keyword:
 continue the current chantier with the canonical topology: read-only parallel for independent no-write scopes, otherwise delegated sequential
 ```
 
-Action approvals given before that plan authorize no mutation. Explicit action approvals given after it — including standalone `v` only under the bounded mapping in `mutation-plan-approval.md` — authorize the bounded plan, its ordinary exact-scope technical local commits, and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`.
+Outside clear bounded-request authority, action approvals given before a plan authorize no chantier mutation. Explicit action approvals given after it — including standalone `v` only under the bounded mapping in `mutation-plan-approval.md` — authorize the bounded plan, its disclosed exact-scope technical milestone commits and pushes, and read-only parallel fan-out under the canonical matrix. They never authorize parallel writes without ready `Execution Batches`.
 
 A non-material clarification keeps the unchanged proposal pending: answer it without restating the plan or asking again. Neutral acknowledgements such as `ok`, `compris`, `merci`, or `thanks` neither approve nor trigger a repeated approval prompt. A later explicit and unambiguous action approval may authorize that still-current unchanged proposal without a new plan. Material changes invalidate it and require the replacement approval path defined by `mutation-plan-approval.md`, including changes to scope, behavior, target, risk, data, permissions, destructive or external effects, proof strategy, unapproved staging, closure, or ship semantics.
 

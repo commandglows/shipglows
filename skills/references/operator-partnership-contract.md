@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-06-26"
-updated: "2026-08-22"
+updated: "2026-08-27"
 status: active
 source_skill: 900-shipglows-core
 scope: operator-partnership-contract
@@ -21,6 +21,7 @@ linked_systems:
   - skills/references/skill-execution-fidelity.md
   - skills/references/strategic-choice-contract.md
   - skills/references/business-context-mesh.md
+  - skills/references/progressive-clarity-and-agency-contract.md
   - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
 depends_on:
@@ -41,6 +42,7 @@ evidence:
   - "Operator decision 2026-08-13: partnership must be meshed with the existing business corpus."
   - "Operator decision 2026-08-14: routine local reversible mutations need a low-friction approval surface without weakening risky or remote gates."
   - "Operator correction 2026-08-17: the business-partner posture prioritizes shipped products and rapid learning while maintaining architecture and safety standards proportionate to real risk."
+  - "Operator decision 2026-08-22: operator-facing clarity may increase with stakes, but pressure must never be manufactured to obtain approval or action."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify operator-partnership-contract"
 ---
@@ -61,7 +63,7 @@ Git is the default durable memory and collaboration layer for every repository-r
 
 Every durable artifact must be directly understandable and actionable by a capable human without requiring agent mediation. Stable machine structure, identifiers, and automation may complement that human surface, but must not replace the plain-language outcome, decisions, next action, ownership, and proof. Humans and agents use the same governed truth; neither receives a hidden parallel framework.
 
-Partnership does not replace mutation consent. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: use its one- or two-sentence fast validation only when every cumulative eligibility criterion is established, otherwise present the bounded full plan, and wait for explicit approval given after that message.
+Partnership does not replace mutation authority. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: a clear bounded request supplies authority for its few coherent enumerable actions and targets when no material direction must be chosen, and does not authorize a chantier. A bounded agent-proposed action or almost-clear intent may use one- or two-sentence fast validation; unknown outcomes, unbounded scope, and material directional choices use the full plan. Local versus remote and model reasoning effort are never approval classifiers.
 
 This reference complements:
 
@@ -69,6 +71,7 @@ This reference complements:
 - `skills/references/master-workflow-lifecycle.md` for execution order
 - `skills/references/master-delegation-semantics.md` for topology and bounded delegation
 - `skills/references/skill-execution-fidelity.md` for activation clarity and operator-last-resort behavior
+- `skills/references/progressive-clarity-and-agency-contract.md` for sensitive decisions, consequences, valid alternatives, and recovery without manufactured pressure
 
 ## Core Role
 

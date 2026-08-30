@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.14.0"
+artifact_version: "2.15.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-08-21"
+updated: "2026-08-30"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -33,7 +33,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "2.2.0"
+    artifact_version: "2.3.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.3.0"
@@ -59,6 +59,7 @@ evidence:
   - "Operator approval 2026-08-21: restart recommendations follow context quality rather than length, stabilize durable state first, and remain operator-started."
   - "Operator correction 2026-08-21: an independent outcome alone never triggers restart; user-facing language calls the restart prompt a handoff."
   - "Operator approval 2026-08-22: context health checks are lightweight at transitions and targeted only after a material degradation signal."
+  - "Operator approval 2026-08-30: every managed-repository closure visibly classifies changelog impact without equating publication readiness with publication proof."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -131,7 +132,7 @@ For another progress report, keep only:
 3. limits that change trust or the next decision;
 4. a real operator decision/action only when required.
 
-For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line and the content beneath `✏️ ÉDITORIAL` on exactly one line; separate each status, scope, or reason with ` · `.
+For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line. Keep the content beneath `✏️ ÉDITORIAL` on exactly one line. Keep the content beneath `📰 CHANGELOG` on exactly one line. Separate each status, scope, or reason with ` · `.
 
 ```text
 ✨ RÉSULTAT
@@ -146,11 +147,14 @@ For every successful closure report, render this stable card after the header. K
 ✏️ ÉDITORIAL
 ➖ not impacted · <concrete reason>
 
+📰 CHANGELOG
+🔒 internal-only · <concrete reason>
+
 📦 LIVRAISON
 ✅ Commit local : `<sha>` · ➖ Push : non effectué
 ```
 
-Translate the five labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
+Translate the six labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
 
 ## Mandatory Next Block
 
@@ -174,6 +178,8 @@ Report only evidence-backed states. A commit may still be local; a successful pu
 The documentation line uses exactly one of: `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit the documentation block unless its status materially affects trust.
 
 The editorial line independently uses the same three status values. A material editorial `needs review` result forbids closure or shipping language. `No declared public surface` is a valid concrete `not impacted` reason; never create filler content to avoid that result.
+
+The changelog line classifies every managed-repository closure independently from documentation and editorial work. Use exactly one of: `✅ public-ready · <eligible user-facing change and prepared projection>`, `🔒 internal-only · <significant internal event and concrete reason>`, `➖ not applicable · <no significant changelog event and concrete reason>`, or `⚠️ needs review · <unresolved public eligibility, copy, safety, or evidence gap>`. `public-ready` means the allowlisted public projection is complete enough for its declared delivery path; it never means published, deployed, or available. Those claims require matching delivery evidence. Record at most one significant event for the closure when structured history is adopted. A material `needs review` result forbids clean closure or shipping language; `internal-only` and `not applicable` are honest successful outcomes and never justify filler public content.
 
 After the mandatory `🧭 SUITE`, a completed chantier may additionally offer this compact continuation choice block only when the delivered result has a useful decision surface:
 
@@ -219,7 +225,7 @@ Use at most one semantic emoji per labelled line except the compact proof and de
 - `📂` for a dossier or scope;
 - `🔨` for active implementation or repair;
 - `📌` for a priority, decision, or next action;
-- `🎯` verdict, `✨` objective/result, `📐` scope, `🧪` proof, `📖` documentation, `✏️` editorial, `📦` delivery, `🧭` route/approach, `✅` passed/recommended, `⚠️` risk, `➖` neutral/not applicable, `🚀` started/shipped, `🧾` metadata, `🔄` sync.
+- `🎯` verdict, `✨` objective/result, `📐` scope, `🧪` proof, `📖` documentation, `✏️` editorial, `📰` changelog, `📦` delivery, `🧭` route/approach, `✅` passed/recommended, `⚠️` risk, `➖` neutral/not applicable, `🚀` started/shipped, `🧾` metadata, `🔄` sync.
 
 Do not use `🏗️`, `🛠️`, or `⚙️` as chantier markers.
 

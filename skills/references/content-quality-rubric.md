@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-05-26"
-updated: "2026-05-26"
+updated: "2026-08-24"
 status: active
 source_skill: 102-sg-start
 scope: content-quality-rubric
@@ -20,6 +20,7 @@ linked_systems:
   - skills/009-sg-marketing/SKILL.md
   - skills/406-sg-seo/SKILL.md
   - skills/103-sg-verify/SKILL.md
+  - skills/references/functional-excellence-contract.md
   - shipglows_data/business/business.md
   - shipglows_data/business/product.md
   - shipglows_data/branding/branding.md
@@ -46,10 +47,14 @@ depends_on:
   - artifact: "shipglows_data/editorial/claim-register.md"
     artifact_version: "1.1.0"
     required_status: "reviewed"
+  - artifact: skills/references/functional-excellence-contract.md
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
   - "Ready spec grille-notation-editoriale-projet-skills-contenu.md requires one shared content-quality scoring contract across owner skills."
-next_review: "2026-06-26"
+  - "Operator decision 2026-08-24: content must satisfy the shared functional-excellence standard; concision cannot remove the context, qualification, provenance, or nuance required for honesty."
+next_review: "2026-09-24"
 next_step: "/103-sg-verify content quality rubric contract"
 ---
 
@@ -58,6 +63,20 @@ next_step: "/103-sg-verify content quality rubric contract"
 ## Purpose
 
 Use one shared editorial rubric for content skills so the final quality score, blocked reasons, and feedback are consistent across projects while remaining project-aware.
+
+## Functional Content Gate
+
+Apply `skills/references/functional-excellence-contract.md` before scoring
+editorial polish. Every claim, section, example, transition, and call to action
+must serve the governed audience intent or a necessary trust responsibility.
+Remove material whose only role is volume, fashion, keyword presence, or
+ceremony.
+
+Minimal content remains complete: it preserves the context, qualification,
+source fidelity, provenance, nuance, accessibility, and next action needed for
+an honest and understandable result. A concise piece that overstates, hides a
+boundary, or leaves the reader unable to act fails functional excellence even
+when its rubric score would otherwise be high.
 
 ## Authorized Evaluators
 

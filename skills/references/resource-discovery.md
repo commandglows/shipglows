@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-03"
 updated: "2026-08-12"
@@ -21,6 +21,8 @@ linked_systems:
   - skills/references/
   - skills/*/references/
   - shipglows_data/workflow/playbooks/
+  - skills/references/ux-reference-intelligence.md
+  - skills/references/ux-reference-connectors.md
 depends_on:
   - artifact: "skills/references/canonical-paths.md"
     artifact_version: "1.8.0"
@@ -35,6 +37,7 @@ evidence:
   - "2026-08-12 resolver audit found eight-result starter packs between about 16000 and 18500 estimated tokens when only result count was bounded."
   - "Operator decision 2026-08-12: bound advisory reference loading by count and estimated tokens without building a new dependency graph."
   - "Wave 13 added a separate blocking graph for explicit activation-profile dependencies; advisory resolver ranking remains unchanged."
+  - "Operator decision 2026-08-24: relevant skills must use one shared external-experience source system and reject sources that are unavailable, stale, rights-restricted, or irrelevant."
 next_review: "2026-09-03"
 next_step: "Review semantic resource-profile migration after resolver adoption evidence."
 ---
@@ -59,6 +62,17 @@ For non-trivial work that may benefit from supporting doctrine beyond the activa
 6. Stop discovery when the owner contract and proof path are sufficient.
 
 Do not load the whole corpus, recursively chase every link, or treat a high lexical score as authority.
+
+## External Experience Evidence
+
+The resolver discovers internal ShipGlows resources; it does not call external
+providers. When construction, specification, design, or customer-experience
+work needs external experience evidence for a material journey, interaction,
+navigation model, or visual direction, exact-resolve
+`shared:ux-reference-intelligence`, then
+`shared:ux-reference-connectors`. Apply their runtime availability, freshness,
+eligibility, authority, rights, and fallback rules before using any external
+source. Do not rely on starter-pack ranking to activate this mandatory gate.
 
 ## Resolver Commands
 
