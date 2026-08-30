@@ -26,7 +26,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Operator approval on 2026-08-30 requires the closure changelog classification for every ShipGlows-managed repository rather than one application repository."
-next_step: "103-sg-verify global closure changelog and context history"
+next_step: none
 ---
 
 # Spec: Global Closure Changelog And Context History
@@ -60,8 +60,8 @@ Scenario-first: focused reporting and context-history contract tests, followed b
 | 101-sg-ready | ready |
 | 900-shipglows-core | implemented |
 | 103-sg-verify | verified |
-| 104-sg-end | pending |
-| 005-sg-ship | pending |
+| 104-sg-end | closed |
+| 005-sg-ship | shipped |
 
 ## Skill Run History
 
@@ -70,3 +70,5 @@ Scenario-first: focused reporting and context-history contract tests, followed b
 | 2026-08-30 | 900-shipglows-core | GPT-5 Codex | Opened the approved global closure changelog and Context History integration. | in progress | focused contract implementation and proof |
 | 2026-08-30 | 900-shipglows-core | GPT-5 Codex | Integrated Context History into the canonical runtime and added the global six-block closure contract. | implemented | 103-sg-verify focused checks |
 | 2026-08-30 | 103-sg-verify | GPT-5 Codex | Verified reporting, history behavior, metadata, skill budget, runtime links, and scoped diff hygiene. | verified | 104-sg-end closure and 005-sg-ship delivery |
+| 2026-08-30 | 104-sg-end | GPT-5 Codex | Closed the global runtime contract with one public-ready changelog classification and one significant delivery event. | closed | 005-sg-ship final bookkeeping delivery |
+| 2026-08-30 | 005-sg-ship | GPT-5 Codex | Pushed the Context History and global closure contract commits to the canonical development branch. | shipped | none |
