@@ -132,6 +132,13 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
             Fail 'The ShipGlows archive must contain exactly one local/install_local.ps1.'
         }
         $entries += $installerEntries[0]
+        $versionEntries = @(
+            $archiveEntries | Where-Object { $_ -match '^[^/]+/shipglows-version\.json$' }
+        )
+        if ($versionEntries.Count -ne 1) {
+            Fail 'The ShipGlows archive must contain exactly one shipglows-version.json.'
+        }
+        $entries += $versionEntries[0]
     }
     if ($FullMode) {
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1)$' })
@@ -391,6 +398,9 @@ try {
         $stagedLocalInstaller = Join-Path $payloadRoot 'local\install_local.ps1'
         New-Item -ItemType Directory -Path (Split-Path -Parent $stagedLocalInstaller) -Force | Out-Null
         Copy-Item -LiteralPath $installerCandidates[0].FullName -Destination $stagedLocalInstaller
+        $versionCandidates = @(Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -File -Filter 'shipglows-version.json')
+        if ($versionCandidates.Count -ne 1) { Fail 'ShipGlows runtime version metadata was not found in the archive.' }
+        Copy-Item -LiteralPath $versionCandidates[0].FullName -Destination (Join-Path $payloadRoot 'shipglows-version.json')
         Assert-PowerShellSyntax -Path $stagedLocalInstaller
     } else {
         $windowsCandidates = @(
