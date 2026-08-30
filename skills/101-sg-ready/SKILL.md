@@ -41,6 +41,8 @@ Load `$SHIPGLOWS_ROOT/skills/references/product-decision-chain.md` for product d
 
 Load `$SHIPGLOWS_ROOT/skills/references/context-quality-contract.md` when target/outcome authority, freshness, conflict, memory, or handoff sufficiency is material. A `context_partial`, `context_conflict`, or `context_stale` gap that affects implementation prevents `ready`.
 
+For a material adopted-repository spec, obtain or refresh one bounded capsule through `301-sg-context` before the substantive verdict. Preserve its evidence states and fallback gaps; a small exact spec may use the cheaper targeted path.
+
 ## Readiness Verdict
 
 A spec is `ready` only when a fresh agent can implement it without blocking ambiguity, generous inference, missing proof, hidden linked-system consequences, or unresolved security/product/platform decisions.

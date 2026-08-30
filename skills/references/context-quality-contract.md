@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-25"
+updated: "2026-08-30"
 status: active
 source_skill: 900-shipglows-core
 scope: context-quality-contract
@@ -26,7 +26,7 @@ linked_systems:
   - skills/references/context-history-and-head.md
 depends_on:
   - artifact: skills/references/intent-to-outcome-autonomy.md
-    artifact_version: "1.3.0"
+    artifact_version: "1.2.0"
     required_status: active
 supersedes: []
 evidence:
@@ -57,6 +57,8 @@ Carry one compact `Context Capsule` across routing, readiness, execution, verifi
 - `next_action`: the next safe decision or execution step.
 
 The capsule is working state and may remain in a spec, mini-contract, or explicit handoff. Do not persist it separately when existing governed artifacts already contain the truth.
+
+For material work in an adopted repository, lifecycle owners obtain or refresh one bounded capsule automatically through `301-sg-context`. Every selected item carries deterministic reason codes plus authority, certainty and freshness. Missing seeds, unsupported relationships and truncation remain explicit gaps. Small exact tasks retain a cheaper targeted retrieval path, and task text is never automatically persisted in graph caches or evaluation telemetry.
 
 ## Evidence States
 

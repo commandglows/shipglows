@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-25"
 updated: "2026-08-30"
@@ -24,7 +24,7 @@ linked_systems:
   - shipglows_data/workflow/history/
 depends_on:
   - artifact: skills/references/context-quality-contract.md
-    artifact_version: "1.2.0"
+    artifact_version: "1.4.0"
     required_status: active
 supersedes: []
 evidence:
@@ -55,7 +55,7 @@ Before broad repository reconstruction, run `check` when a cache exists. A branc
 
 Read the generated head as a discovery and resume view, then revalidate decision-changing claims against their canonical sources. Do not reload the whole repository when only one dependent claim was invalidated.
 
-Context Head generation combines the recent semantic event window with the native derived code graph. Up to eight recent event file references seed a depth-one query capped at 40 nodes and 20 related source pointers. The generated section reports truncation explicitly. The graph is a disposable discovery index, never canonical truth; an unavailable graph degrades to targeted canonical retrieval without making history unreadable.
+Context Head generation combines the recent semantic event window with the native derived code graph through the shared capsule ranking API. Up to eight recent event file references seed a projection capped at 40 evidence items and 20 related source pointers. The generated section reports truncation and selection-reason counts explicitly. The graph and capsule are disposable discovery views, never canonical truth; an unavailable graph degrades to targeted canonical retrieval without making history unreadable.
 
 Default bounds are 30 significant events and 16,000 characters. Increasing them requires evidence that the smaller projection omitted a decision-changing item; file or token volume is never a quality target.
 

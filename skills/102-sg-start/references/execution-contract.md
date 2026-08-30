@@ -28,6 +28,8 @@ next_step: none
 
 # Execution Contract
 
+Material execution consumes a current bounded capsule from `301-sg-context`, refreshes it on Git/task invalidation, and preserves reasons, gaps and truncation. Direct micro-work may stay targeted.
+
 Derive this contract before model selection, delegation, or writes.
 
 For `direct`, record a silent mini-contract: trigger/input, observable success, expected failures, easiest missed edge case, target files, constraints, linked systems, documentation impact, proof path, validation, and stop conditions.
