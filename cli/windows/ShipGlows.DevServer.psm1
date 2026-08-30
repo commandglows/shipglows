@@ -1803,7 +1803,12 @@ function Sync-SgRegisteredProjectEnvironments([object]$Config) {
         if ([string]::IsNullOrWhiteSpace($candidate) -or -not (Test-Path -LiteralPath $candidate -PathType Container)) { continue }
         $root = [IO.Path]::GetFullPath($candidate).TrimEnd('\','/')
         if (-not $roots.Add($root)) { continue }
-        foreach ($registered in @(Register-SgProject $Config $root)) { [void]$paths.Add([IO.Path]::GetFullPath([string]$registered.path)) }
+        try {
+            foreach ($registered in @(Register-SgProject $Config $root)) { [void]$paths.Add([IO.Path]::GetFullPath([string]$registered.path)) }
+        } catch {
+            if ($_.Exception.Message -notlike 'No supported Windows launch target was detected at or below:*') { throw }
+            Write-SgWarn "Skipping stale registered project root with no supported launch target: $root"
+        }
     }
     return @($paths)
 }
