@@ -6,7 +6,7 @@ project: ShipGlows
 created: "2026-08-30"
 created_at: "2026-08-30 20:04:13 UTC"
 updated: "2026-08-30"
-updated_at: "2026-08-30 21:17:02 UTC"
+updated_at: "2026-08-30 21:37:23 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: gpt-5.6
@@ -43,7 +43,7 @@ evidence:
   - "Commit 83c6ca9 combined recent semantic history with the native graph in Context Head."
   - "The ContentGlows trash pilot indexed 983 files, 9,947 nodes and 13,100 edges, and resolved exact content-assets, video-timelines and status-API seeds without truncation."
   - "Operator decision 2026-08-30: build an evolutionary proprietary ShipGlows system inspired by Vexp rather than depend on an external service."
-next_step: "/005-sg-ship industrialize native context intelligence"
+next_step: "Monitor measured context noise and parser misses before proposing any retrieval expansion."
 ---
 
 # Title
@@ -257,7 +257,8 @@ None blocking. Technology expansion beyond deterministic local structural retrie
 | 2026-08-30 21:10:00 | 102-sg-start | gpt-5.6 | Implemented the incremental v2 graph, explainable capsule, aggregate evaluation, lifecycle adoption, diagnostics, fallback pointers and mapped documentation. | Implemented: focused contracts pass and both external pilot repositories remain unchanged. | Verify every acceptance criterion and adversarial boundary. |
 | 2026-08-30 21:15:57 | 103-sg-verify | gpt-5.6 | Verified incremental invalidation, migration, locking, path isolation, byte stability, privacy, lifecycle budgets, runtime visibility and cross-project recall. | Verified: 52 focused context tests pass; ShipGlows and CommunityGlows reach 1.0 representative recall with noise, truncation and unsupported-language gaps visible. | Close the internal-only chantier and ship its exact scope. |
 | 2026-08-30 21:17:02 | 104-sg-end | gpt-5.6 | Synchronized the spec, technical documentation, runtime visibility and one immutable internal closure event. | Closed for implementation and proof; editorial surfaces are not impacted and the significant change remains internal-only. | Commit and push the exact chantier scope. |
+| 2026-08-30 21:37:23 | 005-sg-ship | gpt-5.6 | Delivered the exact chantier scope through PR #47 after both required ShipGlows gates passed. | Shipped to `main` through the protected merge path; no deployment or public changelog claim applies. | Monitor aggregate quality evidence before expanding parser or retrieval technology. |
 
 # Current Chantier Flow
 
-`100-sg-spec (complete) -> 101-sg-ready (ready) -> 102-sg-start (implemented) -> 103-sg-verify (verified) -> 104-sg-end (closed) -> 005-sg-ship (next)`
+`100-sg-spec (complete) -> 101-sg-ready (ready) -> 102-sg-start (implemented) -> 103-sg-verify (verified) -> 104-sg-end (closed) -> 005-sg-ship (shipped)`
