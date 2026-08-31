@@ -1159,6 +1159,8 @@ ShipGlows now uses a dedicated context layer for fast agent onboarding.
 
 This split is intentional. `CLAUDE.md` should hold constraints and critical rules, not the full project map. The context files exist to reduce repetitive discovery work at the start of a fresh thread without pretending to replace the code.
 
+For material work, ShipGlows can also refresh a local incremental code graph and prepare a bounded task capsule whose selections carry explicit reasons. The graph and capsule are derived, replaceable aids: Git, code, specifications and governed registers remain authoritative, while unsupported relationships, fallbacks and truncation stay visible. The public explanation is available in [AI agents do not need more context. They need the right context](https://shipglows.com/blog/ai-agents-do-not-need-more-context-they-need-the-right-context).
+
 ShipGlows also separates decision contracts by role:
 
 - `shipglows_data/business/business.md` for who the product is for and why it matters
