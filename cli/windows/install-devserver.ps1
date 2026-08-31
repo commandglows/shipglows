@@ -109,6 +109,20 @@ function Write-SgInstallerWarning([string]$Message) {
     Write-Host "WARNING: $Message" -ForegroundColor Yellow
 }
 
+function Get-SgInstallerDiagnosticExcerpt {
+    param([string[]]$Output,[int]$MaxLines=3,[int]$MaxCharacters=480)
+    $lines = @($Output | ForEach-Object { $_ -split '\r?\n' } | ForEach-Object {
+        $plain = [regex]::Replace([string]$_, "`e\[[0-9;?]*[ -/]*[@-~]", '')
+        ([regex]::Replace($plain.Trim(), '\s+', ' '))
+    } | Where-Object { $_ })
+    if (-not $lines.Count) { return '' }
+    $signals = @($lines | Where-Object { $_ -match '(?i)^\s*\[(?:!|X)\]|\berror\b|\bfailed\b|\bnot found\b|\bno devices detected\b|\blicenses? not accepted\b' })
+    $selected = if ($signals.Count) { $signals } else { $lines }
+    $excerpt = (@($selected | Select-Object -First ([Math]::Max(1,$MaxLines))) -join ' | ')
+    if ($excerpt.Length -gt $MaxCharacters) { return $excerpt.Substring(0,[Math]::Max(1,$MaxCharacters - 1)) + '…' }
+    return $excerpt
+}
+
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
 foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
@@ -1365,9 +1379,12 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     $diagnostic | Add-Member -NotePropertyName EmulatorAccelerationReady -NotePropertyValue $emulatorAccelerationReady -Force
     $diagnostic | Add-Member -NotePropertyName SdkRoot -NotePropertyValue $sdkRoot -Force
     $diagnostic | Add-Member -NotePropertyName NdkReady -NotePropertyValue $ndkReady -Force
-    if ($diagnostic.DoctorOutput) { Write-Host $diagnostic.DoctorOutput }; if ($diagnostic.DevicesOutput) { Write-Host $diagnostic.DevicesOutput }
     Write-Host "Android readiness: toolchain=$($diagnostic.ToolchainReady); licenses=$($diagnostic.LicensesReady); device=$($diagnostic.DeviceReady)" -ForegroundColor Cyan
-    if (-not $diagnostic.ToolchainReady -or -not $diagnostic.LicensesReady -or -not $diagnostic.DeviceReady) { Write-SgInstallerWarning "Flutter Android diagnostic: $($diagnostic.Reason)" }
+    if (-not $diagnostic.ToolchainReady -or -not $diagnostic.LicensesReady -or -not $diagnostic.DeviceReady) {
+        $detail = Get-SgInstallerDiagnosticExcerpt @($diagnostic.DoctorOutput,$diagnostic.DevicesOutput)
+        $detailSuffix = if ($detail) { " Detail: $detail" } else { '' }
+        Write-SgInstallerWarning "Flutter Android diagnostic: $($diagnostic.Reason)$detailSuffix"
+    }
     return $diagnostic
 }
 

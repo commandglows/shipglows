@@ -575,6 +575,13 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
     $installerTokens = $null; $installerErrors = $null
     $installerAst = [Management.Automation.Language.Parser]::ParseInput($installerSource,[ref]$installerTokens,[ref]$installerErrors)
     Assert-Sg ($installerErrors.Count -eq 0) 'Windows installer must parse before environment-report testing.'
+    Assert-Sg ($installerSource -notmatch 'Write-Host\s+\$diagnostic\.(?:DoctorOutput|DevicesOutput)') 'Successful Flutter diagnostics must not dump verbose doctor or device output into the installer console.'
+    Assert-Sg ($installerSource -match 'Get-SgInstallerDiagnosticExcerpt') 'Failed Flutter diagnostics must retain a bounded troubleshooting excerpt.'
+    $diagnosticExcerptDefinition = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Get-SgInstallerDiagnosticExcerpt' },$true))
+    Assert-Sg ($diagnosticExcerptDefinition.Count -eq 1) 'Installer diagnostic excerpt formatter must resolve uniquely.'
+    Invoke-Expression $diagnosticExcerptDefinition[0].Extent.Text
+    $diagnosticExcerpt = Get-SgInstallerDiagnosticExcerpt @((('healthy detail' + "`n") * 100), '[X] Android toolchain - SDK component missing', 'No devices detected.')
+    Assert-Sg ($diagnosticExcerpt -match '^\[X\] Android toolchain' -and $diagnosticExcerpt -match 'No devices detected' -and $diagnosticExcerpt.Length -le 480) 'Failed Flutter diagnostics must surface only bounded actionable lines.'
     $flutterBaselineDefinition = @($installerAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Get-SgFlutterBaseline' },$true))
     Assert-Sg ($flutterBaselineDefinition.Count -eq 1) 'Flutter baseline must resolve uniquely.'
     Invoke-Expression $flutterBaselineDefinition[0].Extent.Text
