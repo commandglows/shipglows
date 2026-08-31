@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.34.0"
+artifact_version: "1.35.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-30"
+updated: "2026-08-31"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -540,6 +540,13 @@ human consent pause.
 Quick probes remain silent, while agent/service CLI installs, captured MCP
 configuration, Flutter/Android preparation, Playwright packages and browser
 preparation use the visible operation boundary.
+Captured Flutter readiness diagnostics are summarized to the validated
+toolchain, licence, and device states when they succeed. On failure, the
+console prints only a cleaned, actionable excerpt bounded to three lines and
+480 characters; it still reports the failed operation and never silently
+converts diagnostic failure into success. Full `flutter doctor -v` and
+`flutter devices` output remains captured for evaluation rather than dumped to
+the normal installer console.
 Provider command exit codes are provisional until bounded final observation:
 trusted `mise`, an exact runnable service CLI, native Claude re-read, and decoded
 Codex MCP JSON may establish convergence after an ambiguous provider exit.
