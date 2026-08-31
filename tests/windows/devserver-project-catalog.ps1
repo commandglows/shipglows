@@ -58,8 +58,8 @@ try {
 
     $deep = Join-Path $edgeConfig.Workspace 'nested\one\two\three\four\five\site'
     Write-Package $deep 'vite'
-    $deepDisplay = @(Get-SgProjectCatalogForDisplay $edgeConfig)
-    Assert-Sg (@($deepDisplay.path) -contains $deep) 'A supported project below the former scan-depth limit was not discovered.'
+    $deepRefresh = @(Get-SgProjectCatalog $edgeConfig -ForceRefresh)
+    Assert-Sg (@($deepRefresh.path) -contains $deep) 'A supported project below the former scan-depth limit was not discovered.'
 
     $cold = @(Get-SgProjectCatalog $config)
     Assert-Sg ($cold.Count -eq 2) 'Cold discovery did not return the two runnable surfaces.'
@@ -70,7 +70,8 @@ try {
     $gamma = Join-Path $workspace 'gamma\site'
     Write-Package $gamma 'vite'
     Assert-Sg (@(Get-SgProjectCatalog $config).Count -eq 2) 'The intra-process cache was not reused.'
-    Assert-Sg (@(Get-SgProjectCatalogForDisplay $config).Count -eq 3) 'A displayed catalogue reused a fresh-but-incomplete cache instead of converging.'
+    Assert-Sg (@(Get-SgProjectCatalogForDisplay $config).Count -eq 2) 'A displayed catalogue bypassed the prepared cache snapshot.'
+    Assert-Sg (@(Get-SgProjectCatalog $config -ForceRefresh).Count -eq 3) 'An explicit catalogue refresh did not converge after a project was added.'
 
     Remove-Module ShipGlows.DevServer -Force
     Import-Module $modulePath -Force -DisableNameChecking

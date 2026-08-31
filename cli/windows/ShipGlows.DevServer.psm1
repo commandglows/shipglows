@@ -1058,9 +1058,9 @@ function Get-SgProjectCatalog([object]$Config, [switch]$ForceRefresh, [switch]$S
 }
 
 function Get-SgProjectCatalogForDisplay([object]$Config) {
-    # A user-requested list is a truth surface, not a cache preview. Rebuild
-    # discovery and reconcile process identities before publishing it.
-    return @(Get-SgProjectCatalog $Config -ForceRefresh)
+    # Discovery is refreshed silently while the menu is open. Display calls use
+    # that prepared snapshot and only reconcile the inexpensive process state.
+    return @(Get-SgProjectCatalog $Config)
 }
 
 function New-SgProjectChoiceMap([object[]]$Items) {

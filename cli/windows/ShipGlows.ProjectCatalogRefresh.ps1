@@ -28,9 +28,10 @@ try {
         PortEnd = 3100
     }
     Reconcile-SgRegistry $config | Out-Null
-    if (Test-SgProjectCatalogRefreshRequired $config -DiskOnly) {
-        Get-SgWorkspaceProjectCandidates $config -ForceRefresh | Out-Null
-    }
+    # A menu session is the proactive refresh boundary, even when the previous
+    # snapshot is still inside its TTL. This detects external workspace edits
+    # without charging the next project command for discovery.
+    Get-SgWorkspaceProjectCandidates $config -ForceRefresh | Out-Null
 } finally {
     Remove-Item -LiteralPath $refreshPath -Force -ErrorAction SilentlyContinue
 }

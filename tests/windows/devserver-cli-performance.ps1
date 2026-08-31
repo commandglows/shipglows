@@ -19,12 +19,15 @@ $moduleSource = [IO.File]::ReadAllText($modulePath)
 $bootstrapSource = [IO.File]::ReadAllText($bootstrap)
 
 if (-not (Test-Path -LiteralPath $refresher -PathType Leaf)) { throw 'The detached project-catalog refresher is missing.' }
+$refresherSource = [IO.File]::ReadAllText($refresher)
 
 if ($source -notmatch [regex]::Escape('if (Test-SgImmediateAction $Action $ShortcutPath)')) { throw 'The CLI immediate-action fast path is missing.' }
 if ($bootstrapSource -notmatch [regex]::Escape('Resolve-SgManagedPowerShellForLaunch')) { throw 'The CLI launcher does not use the integrity-bound fast runtime resolution.' }
 $menuSource = [regex]::Match($source,'(?s)function Invoke-Menu\s*\{(.*?)\r?\n\}\r?\n\r?\ntry \{')
 if (-not $menuSource.Success) { throw 'The interactive menu contract could not be isolated.' }
 if ($menuSource.Value -match [regex]::Escape('Show-SgWindowsDashboard')) { throw 'The interactive menu still prints the project dashboard without an explicit request.' }
+if ($menuSource.Value.IndexOf('Start-SgBackgroundCatalogRefresh') -gt $menuSource.Value.IndexOf("Read-SgChoice 'What do you want to do?'")) { throw 'The menu does not start catalogue refresh before user think time.' }
+if ([regex]::Matches($menuSource.Value, [regex]::Escape('Complete-SgBackgroundCatalogRefresh')).Count -lt 2) { throw 'The menu does not adopt a completed background snapshot before dispatch.' }
 if ($source -notmatch [regex]::Escape('Import-SgAuthenticationModule')) { throw 'The authentication module is not lazy-loaded.' }
 if ($source -match '(?m)^Import-Module \$mobileModule -Force -DisableNameChecking\s*$') { throw 'The unused mobile module is still eagerly loaded.' }
 if ($moduleSource -notmatch [regex]::Escape('function Get-SgProcessSnapshotMap')) { throw 'The registry process snapshot batch is missing.' }
@@ -33,6 +36,9 @@ foreach ($required in @('function Start-SgBackgroundCatalogRefresh','Test-SgProj
 }
 if ([regex]::Matches($source, [regex]::Escape('Get-SgProjectCatalogForDisplay $config')).Count -lt 2) { throw 'Dashboard and picker do not share the consistent display catalogue.' }
 if ($source -match [regex]::Escape('Get-SgProjectCatalog $config -SkipProcessReconciliation')) { throw 'A displayed project list still bypasses process reconciliation.' }
+$displayCatalogSource = [regex]::Match($moduleSource,'(?s)function Get-SgProjectCatalogForDisplay\([^)]*\)\s*\{(.*?)\r?\n\}')
+if (-not $displayCatalogSource.Success -or $displayCatalogSource.Value -notmatch 'Get-SgProjectCatalog \$Config\)') { throw 'Displayed project lists do not consume the prepared catalogue snapshot.' }
+if ($displayCatalogSource.Value -match 'ForceRefresh') { throw 'Displayed project lists still force a synchronous workspace rescan.' }
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('sg-catalog-refresh-' + [guid]::NewGuid().ToString('N'))
 try {
@@ -48,6 +54,17 @@ try {
     finally { Remove-Item Env:SHIPGLOWS_CATALOG_WORKSPACE,Env:SHIPGLOWS_CATALOG_RUNTIME -ErrorAction SilentlyContinue }
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $runtime 'project-index.json') -PathType Leaf)) { throw 'The detached catalogue refresher did not build its index.' }
     if (Test-Path -LiteralPath (Join-Path $runtime 'project-index.json.refreshing')) { throw 'The detached catalogue refresher did not release its claim.' }
+
+    $secondProject = Join-Path $workspace 'second-site'
+    New-Item -ItemType Directory -Path $secondProject -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $secondProject 'package.json'),'{"scripts":{"dev":"vite"},"devDependencies":{"vite":"latest"}}',[Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $runtime 'project-index.json.refreshing'),'refreshing',[Text.UTF8Encoding]::new($false))
+    $env:SHIPGLOWS_CATALOG_WORKSPACE = $workspace
+    $env:SHIPGLOWS_CATALOG_RUNTIME = $runtime
+    try { & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $refresher *> $null }
+    finally { Remove-Item Env:SHIPGLOWS_CATALOG_WORKSPACE,Env:SHIPGLOWS_CATALOG_RUNTIME -ErrorAction SilentlyContinue }
+    $proactiveIndex = Get-Content -LiteralPath (Join-Path $runtime 'project-index.json') -Raw | ConvertFrom-Json
+    if ($LASTEXITCODE -ne 0 -or @($proactiveIndex.projects).Count -ne 2) { throw 'The menu refresher did not replace a fresh-but-incomplete snapshot.' }
 
     Import-Module $modulePath -Force -DisableNameChecking
     $process = Get-Process -Id $PID
@@ -72,6 +89,7 @@ if ($PSVersionTable.PSEdition -ne 'Core') {
     Write-Host 'Windows CLI Core-host performance timing: skipped under bootstrap-only Windows PowerShell.'
     return
 }
+if ($refresherSource -notmatch [regex]::Escape('Get-SgWorkspaceProjectCandidates $config -ForceRefresh')) { throw 'The menu refresher does not proactively rebuild discovery.' }
 
 $coreHost = (Get-Process -Id $PID).Path
 $env:SHIPGLOWS_MANAGED_PWSH = $coreHost

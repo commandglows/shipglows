@@ -812,8 +812,14 @@ function Start-SgBackgroundUpdateStatusRefresh {
 }
 
 function Complete-SgBackgroundCatalogRefresh {
-    if ($script:catalogRefreshObserved -and -not (Test-Path -LiteralPath $script:catalogRefreshPath -PathType Leaf) -and -not (Test-SgProjectCatalogRefreshRequired $config -DiskOnly)) {
-        Clear-SgProjectCatalogMemoryCache $config
+    if ($script:catalogRefreshObserved -and -not (Test-Path -LiteralPath $script:catalogRefreshPath -PathType Leaf)) {
+        if (-not (Test-SgProjectCatalogRefreshRequired $config -DiskOnly)) {
+            Clear-SgProjectCatalogMemoryCache $config
+        } else {
+            # Allow the next menu iteration to retry a failed or invalidated
+            # refresh instead of pinning stale state for the whole session.
+            $script:backgroundRefreshStarted = $false
+        }
         $script:catalogRefreshObserved = $false
     }
 }
@@ -895,6 +901,9 @@ function Invoke-Menu {
             Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  r) Refresh  t) Update tools  u) Update ShipGlows  0) Quit ShipGlows'
             $choice = Read-Host 'Choice'
         }
+        # The user's think time is the refresh window. Adopt a completed
+        # background snapshot before dispatch without delaying the command.
+        Complete-SgBackgroundCatalogRefresh
         try {
             switch ($choice) {
                 '1' { Invoke-Clone }
