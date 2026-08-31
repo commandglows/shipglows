@@ -35,6 +35,8 @@ Assert-Sg ($devServerText.Contains('status --short')) 'Dirty linked-update error
 Assert-Sg ($devServerText.Contains("then retry 's update'")) 'Dirty linked-update errors must provide the retry path.'
 Assert-Sg ($devServerText.Contains("if (`$choice -eq 'u') { return }")) 'The interactive update action must leave the menu after success or failure instead of redrawing the project catalog.'
 Assert-Sg ($devServerText.Contains("'update status' = 'update-status'")) 'DevServer must expose a read-only update-status route.'
+Assert-Sg ($devServerText.Contains("if (`$Action -notin @('update','update-status'))")) 'Update recovery routes must bypass capability-snapshot refresh in an older installed runtime.'
+Assert-Sg (($devServerText.IndexOf("try { `$Action = Resolve-SgAction") -lt $devServerText.IndexOf('Write-SgCliCapabilitySnapshot $config')) -and ($devServerText.IndexOf("if (`$Action -notin @('update','update-status'))") -lt $devServerText.IndexOf('Write-SgCliCapabilitySnapshot $config'))) 'DevServer must resolve the action before capability refresh so update recovery can run.'
 Assert-Sg ($devServerText.Contains("'u  Update ShipGlows'")) 'DevServer menu must retain its visible ShipGlows update entry.'
 Assert-Sg ($devServerText.Contains('Start-SgBackgroundUpdateStatusRefresh')) 'DevServer must refresh ShipGlows status outside the first paint.'
 Assert-Sg ($devServerText.Contains('Show-SgShipGlowsStatus')) 'DevServer dashboard must render ShipGlows version status.'
