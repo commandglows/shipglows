@@ -4,7 +4,7 @@ $script:RegistryVersion = 1
 $script:DefaultPortStart = 3000
 $script:DefaultPortEnd = 3100
 $script:ProjectIndexSchemaVersion = 1
-$script:ProjectScannerVersion = '1'
+$script:ProjectScannerVersion = '2'
 $script:ProjectIndexTtlMinutes = 5
 $script:ProjectCatalogMemory = @{}
 $script:ProjectEnvironmentSchema = 'shipglows-project-environment/v2'
@@ -896,18 +896,70 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
     $workspace = ConvertTo-SgCanonicalPath ([string]$Config.Workspace)
     $manifests = @{'package.json'=$true;'pyproject.toml'=$true;'requirements.txt'=$true;'pubspec.yaml'=$true}
     $pruneDirs = @{'.git'=$true;'node_modules'=$true;'venv'=$true;'.venv'=$true;'__pycache__'=$true;'target'=$true;'.next'=$true;'.nuxt'=$true;'dist'=$true;'.cache'=$true;'.pnpm'=$true;'.yarn'=$true}
+    # ripgrep is optional: use it when available for an unbounded, pruned scan;
+    # the native walker below preserves the same discovery semantics otherwise.
+    $ripgrep = Get-Command rg -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($ripgrep) {
+        $arguments = @(
+            '--files','--no-messages','--no-ignore',
+            '-g','package.json','-g','pyproject.toml','-g','requirements.txt','-g','pubspec.yaml',
+            '-g','!**/.git/**','-g','!**/node_modules/**','-g','!**/venv/**','-g','!**/.venv/**',
+            '-g','!**/__pycache__/**','-g','!**/target/**','-g','!**/.next/**','-g','!**/.nuxt/**',
+            '-g','!**/dist/**','-g','!**/.cache/**','-g','!**/.pnpm/**','-g','!**/.yarn/**',
+            $workspace
+        )
+        $manifestPaths = @(& $ripgrep.Source @arguments)
+        if ($LASTEXITCODE -notin @(0,1)) { throw "Project discovery failed with ripgrep exit code $LASTEXITCODE." }
+        $seen = @{}
+        $projects = New-Object 'System.Collections.Generic.List[object]'
+        foreach ($manifestPath in $manifestPaths) {
+            $path = ConvertTo-SgCanonicalPath (Split-Path -Parent $manifestPath)
+            $identity = $path.ToLowerInvariant()
+            if ($seen.ContainsKey($identity)) { continue }
+            $seen[$identity] = $true
+
+            $rootPath = $path
+            if ($path.StartsWith($workspace + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
+                $path.Equals($workspace, [StringComparison]::OrdinalIgnoreCase)) {
+                $relative = $path.Substring($workspace.Length).TrimStart('\','/')
+                $cursor = $workspace
+                $segments = @($relative -split '[\\/]' | Where-Object { $_ -and $_ -ne '.' })
+                foreach ($segment in $segments) {
+                    if ([IO.Directory]::Exists([IO.Path]::Combine($cursor, '.git')) -or
+                        ($manifests.Keys | Where-Object { [IO.File]::Exists([IO.Path]::Combine($cursor, $_)) } | Select-Object -First 1)) {
+                        $rootPath = $cursor
+                        break
+                    }
+                    $cursor = [IO.Path]::Combine($cursor, $segment)
+                }
+            }
+            try {
+                [void]$projects.Add([pscustomobject]@{
+                    name = Get-SgCanonicalSurfaceName $rootPath $path
+                    path = $path
+                    rootPath = $rootPath
+                    launchPath = $path
+                    kind = Get-SgProjectKind $path
+                    status = 'discovered'
+                    port = 0
+                    logPath = $null
+                    errorLogPath = $null
+                })
+            } catch {
+                if ($_.Exception.Message -notlike 'Unsupported or ambiguous project.*') { throw }
+            }
+        }
+        return @($projects.ToArray() | Sort-Object -Property path)
+    }
+
     $paths = New-Object 'System.Collections.Generic.Queue[string]'
-    $depths = New-Object 'System.Collections.Generic.Queue[int]'
     $roots = New-Object 'System.Collections.Generic.Queue[string]'
-    $boundaryDepths = New-Object 'System.Collections.Generic.Queue[int]'
-    $paths.Enqueue($workspace); $depths.Enqueue(0); $roots.Enqueue(''); $boundaryDepths.Enqueue(-1)
+    $paths.Enqueue($workspace); $roots.Enqueue('')
     $seen = @{}
     $projects = New-Object 'System.Collections.Generic.List[object]'
     while ($paths.Count -gt 0) {
         $path = $paths.Dequeue()
-        $depth = $depths.Dequeue()
         $rootPath = $roots.Dequeue()
-        $boundaryDepth = $boundaryDepths.Dequeue()
         if (-not [IO.Directory]::Exists($path)) { continue }
         $hasManifest = $false
         try {
@@ -916,9 +968,11 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
             }
         } catch [UnauthorizedAccessException] {
             continue
+        } catch [IO.IOException] {
+            continue
         }
         $isRepositoryRoot = [IO.Directory]::Exists([IO.Path]::Combine($path, '.git'))
-        if (-not $rootPath -and ($isRepositoryRoot -or $hasManifest)) { $rootPath = $path; $boundaryDepth = $depth }
+        if (-not $rootPath -and ($isRepositoryRoot -or $hasManifest)) { $rootPath = $path }
 
         if ($hasManifest) {
             try {
@@ -943,15 +997,15 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
             }
         }
 
-        $canDescend = if ($rootPath) { ($depth - $boundaryDepth) -lt 3 } else { $depth -lt 4 }
-        if (-not $canDescend) { continue }
-        try { $directories = [IO.Directory]::EnumerateDirectories($path) } catch [UnauthorizedAccessException] { continue }
+        try { $directories = [IO.Directory]::EnumerateDirectories($path) }
+        catch [UnauthorizedAccessException] { continue }
+        catch [IO.IOException] { continue }
         foreach ($directoryPath in $directories) {
             $directoryName = [IO.Path]::GetFileName($directoryPath)
             if ($directoryName.StartsWith('.') -or $pruneDirs.ContainsKey($directoryName)) { continue }
             try { $attributes = [IO.File]::GetAttributes($directoryPath) } catch { continue }
             if ($attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
-            $paths.Enqueue($directoryPath); $depths.Enqueue($depth + 1); $roots.Enqueue($rootPath); $boundaryDepths.Enqueue($boundaryDepth)
+            $paths.Enqueue($directoryPath); $roots.Enqueue($rootPath)
         }
     }
     return @($projects.ToArray() | Sort-Object -Property path)
@@ -1001,6 +1055,12 @@ function Get-SgProjectCatalog([object]$Config, [switch]$ForceRefresh, [switch]$S
         [void]$items.Add($candidate)
     }
     return @($items.ToArray() | Sort-Object -Property Name,Id)
+}
+
+function Get-SgProjectCatalogForDisplay([object]$Config) {
+    # Discovery is refreshed silently while the menu is open. Display calls use
+    # that prepared snapshot and only reconcile the inexpensive process state.
+    return @(Get-SgProjectCatalog $Config)
 }
 
 function New-SgProjectChoiceMap([object[]]$Items) {
@@ -2215,5 +2275,5 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

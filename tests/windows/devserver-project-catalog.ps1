@@ -56,6 +56,11 @@ try {
     $one = @(Get-SgProjectCatalog $edgeConfig -ForceRefresh)
     Assert-Sg ($one.Count -eq 1 -and $one[0].Name -eq 'only/site') 'One-project catalogue was not stable.'
 
+    $deep = Join-Path $edgeConfig.Workspace 'nested\one\two\three\four\five\site'
+    Write-Package $deep 'vite'
+    $deepRefresh = @(Get-SgProjectCatalog $edgeConfig -ForceRefresh)
+    Assert-Sg (@($deepRefresh.path) -contains $deep) 'A supported project below the former scan-depth limit was not discovered.'
+
     $cold = @(Get-SgProjectCatalog $config)
     Assert-Sg ($cold.Count -eq 2) 'Cold discovery did not return the two runnable surfaces.'
     Assert-Sg ((@($cold.Name) -contains 'alpha/site') -and (@($cold.Name) -contains 'beta/site')) 'Display names are not explicit workspace-relative paths.'
@@ -65,10 +70,12 @@ try {
     $gamma = Join-Path $workspace 'gamma\site'
     Write-Package $gamma 'vite'
     Assert-Sg (@(Get-SgProjectCatalog $config).Count -eq 2) 'The intra-process cache was not reused.'
+    Assert-Sg (@(Get-SgProjectCatalogForDisplay $config).Count -eq 2) 'A displayed catalogue bypassed the prepared cache snapshot.'
+    Assert-Sg (@(Get-SgProjectCatalog $config -ForceRefresh).Count -eq 3) 'An explicit catalogue refresh did not converge after a project was added.'
 
     Remove-Module ShipGlows.DevServer -Force
     Import-Module $modulePath -Force -DisableNameChecking
-    Assert-Sg (@(Get-SgProjectCatalog $config).Count -eq 2) 'The persistent cache was not reused after a fresh module import.'
+    Assert-Sg (@(Get-SgProjectCatalog $config).Count -eq 3) 'The converged persistent cache was not reused after a fresh module import.'
     $forced = @(Get-SgProjectCatalog $config -ForceRefresh)
     Assert-Sg ($forced.Count -eq 3) 'Force refresh did not rebuild discovery.'
 
@@ -89,6 +96,17 @@ try {
     $merged = @(Get-SgProjectCatalog $config)
     $alphaItems = @($merged | Where-Object Id -eq $registered.Id)
     Assert-Sg ($alphaItems.Count -eq 1 -and $alphaItems[0].IsRegistered -and $alphaItems[0].status -eq 'stopped' -and $alphaItems[0].port -eq 3010) 'Registry/discovery root-launch dedupe or registry authority failed.'
+
+    $staleRegistry = Get-Content -LiteralPath $config.RegistryPath -Raw | ConvertFrom-Json
+    $staleRegistry.projects[0].status = 'running'
+    $staleRegistry.projects[0].pid = 2147483000
+    $staleRegistry.projects[0].startTimeUtc = '2026-01-01T00:00:00Z'
+    $staleRegistry.projects[0].executablePath = 'C:\missing.exe'
+    $staleRegistry | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $config.RegistryPath -Encoding UTF8
+    $unreconciled = @(Get-SgProjectCatalog $config -SkipProcessReconciliation | Where-Object Id -eq $registered.Id)[0]
+    Assert-Sg ($unreconciled.status -eq 'running') 'Status-reconciliation fixture did not preserve its stale registry state.'
+    $reconciledDisplay = @(Get-SgProjectCatalogForDisplay $config | Where-Object Id -eq $registered.Id)[0]
+    Assert-Sg ($reconciledDisplay.status -eq 'stopped') 'A displayed catalogue published a stale process status.'
 
     Set-Content -LiteralPath $config.ProjectIndexPath -Value '{broken' -Encoding UTF8
     Remove-Module ShipGlows.DevServer -Force

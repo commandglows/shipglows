@@ -288,7 +288,14 @@ function global:gp {
 function Install-SgCommandWrappers {
     $wrapper = @'
 @echo off
+set "_SHIPGLOWS_PWSH=%USERPROFILE%\.shipglows\toolchains\powershell\7.6.5\win-x64\pwsh.exe"
+if not exist "%_SHIPGLOWS_PWSH%" goto shipglows_bootstrap
+set "SHIPGLOWS_MANAGED_PWSH=%_SHIPGLOWS_PWSH%"
+"%_SHIPGLOWS_PWSH%" -NoLogo -NoProfile -File "%~dp0shipglows-devserver.ps1" %*
+@exit /b %ERRORLEVEL%
+:shipglows_bootstrap
 powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.PowerShellBootstrap.ps1" %*
+@exit /b %ERRORLEVEL%
 '@
     $longCommand = Join-Path $runtimeDir 'shipglows-dev.cmd'
     Set-Content -LiteralPath $longCommand -Value $wrapper -Encoding ASCII

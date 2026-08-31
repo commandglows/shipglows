@@ -199,7 +199,7 @@ rg -n "Disable-SgBlockedPowerShellShim '(npm|npx|corepack|pnpm|codex|claude|open
 last_wrapper_line="$(rg -n "Install-SgApplicationCommandWrapper 'gemini'" "$INSTALLER" | tail -1 | cut -d: -f1)"
 runtime_priority_line="$(rg -n '^Add-SgRuntimeToUserPath\r?$' "$INSTALLER" | tail -1 | cut -d: -f1)"
 test -n "$last_wrapper_line" && test -n "$runtime_priority_line" && test "$last_wrapper_line" -lt "$runtime_priority_line"
-rg -n 'ExecutionPolicy Bypass -File "%~dp0ShipGlows\.PowerShellBootstrap\.ps1" %\*' "$INSTALLER"
+rg -n '_SHIPGLOWS_PWSH=%USERPROFILE%.*7\.6\.5.*pwsh\.exe|SHIPGLOWS_MANAGED_PWSH=%_SHIPGLOWS_PWSH%|shipglows-devserver\.ps1|:shipglows_bootstrap|ExecutionPolicy Bypass -File "%~dp0ShipGlows\.PowerShellBootstrap\.ps1" %\*' "$INSTALLER"
 rg -n 'Remove-SgObsoleteProfileCommand|Removed the obsolete ShipGlows profile command|ShipGlows DevServer \(managed\)' "$INSTALLER"
 ! rg -n 'function shipglows-dev \{ & ' "$INSTALLER"
 rg -n 'gh auth login --hostname github\.com --git-protocol https --web|gh auth setup-git|gh api --paginate.*user/repos.*organization_member|gh repo clone \$repository\.url \$temporaryDestination' "$ENTRYPOINT"

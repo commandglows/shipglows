@@ -72,6 +72,31 @@ function Test-SgManagedPowerShell {
     } catch { return $false }
 }
 
+function Get-SgManagedPowerShellHash {
+    param([Parameter(Mandatory=$true)][string]$Executable)
+    if (-not (Test-Path -LiteralPath $Executable -PathType Leaf)) { return $null }
+    return (Get-FileHash -LiteralPath $Executable -Algorithm SHA256).Hash.ToUpperInvariant()
+}
+
+function Test-SgRuntimePointer {
+    param([Parameter(Mandatory=$true)]$Layout)
+    if (-not (Test-Path -LiteralPath $Layout.Pointer -PathType Leaf)) { return $false }
+    try {
+        [void](Assert-SgLocalOwnedPath $Layout.Executable $Layout.OwnedRoot)
+        $pointer = [IO.File]::ReadAllText($Layout.Pointer) | ConvertFrom-Json
+        $expectedRelativePath = ("{0}/{1}" -f $Layout.Manifest.version,$Layout.Manifest.platform)
+        if ($pointer.schemaVersion -ne 2 -or
+            [string]$pointer.version -ne [string]$Layout.Manifest.version -or
+            [string]$pointer.platform -ne [string]$Layout.Manifest.platform -or
+            [string]$pointer.relativePath -ne $expectedRelativePath -or
+            [string]::IsNullOrWhiteSpace([string]$pointer.executableSha256)) {
+            return $false
+        }
+        $actualHash = Get-SgManagedPowerShellHash $Layout.Executable
+        return $null -ne $actualHash -and $actualHash -eq ([string]$pointer.executableSha256).ToUpperInvariant()
+    } catch { return $false }
+}
+
 function Enter-SgRuntimeLock {
     param([string]$Path,[int]$TimeoutSeconds = 30)
     $deadline = [DateTime]::UtcNow.AddSeconds([Math]::Max(1,$TimeoutSeconds))
@@ -140,7 +165,9 @@ function Write-SgRuntimePointer {
     param([string]$Path,$Layout)
     $temporary = $Path + '.new-' + [Guid]::NewGuid().ToString('N')
     $backup = $Path + '.previous-' + [Guid]::NewGuid().ToString('N')
-    $payload = [ordered]@{ schemaVersion=1; version=$Layout.Manifest.version; platform=$Layout.Manifest.platform; relativePath=("{0}/{1}" -f $Layout.Manifest.version,$Layout.Manifest.platform) } | ConvertTo-Json -Compress
+    $executableSha256 = Get-SgManagedPowerShellHash $Layout.Executable
+    if ([string]::IsNullOrWhiteSpace($executableSha256)) { throw 'Managed PowerShell executable is unavailable for pointer activation.' }
+    $payload = [ordered]@{ schemaVersion=2; version=$Layout.Manifest.version; platform=$Layout.Manifest.platform; relativePath=("{0}/{1}" -f $Layout.Manifest.version,$Layout.Manifest.platform); executableSha256=$executableSha256 } | ConvertTo-Json -Compress
     [IO.File]::WriteAllText($temporary,$payload,(New-Object Text.UTF8Encoding($false)))
     try {
         if (Test-Path -LiteralPath $Path) {
@@ -163,7 +190,12 @@ function Ensure-SgPowerShellRuntime {
     if ($PointerWriter -and -not $DownloadRunner) { throw 'A pointer-writer fixture is accepted only with an injected download runner.' }
     $layout = Get-SgPowerShellRuntimeLayout $UserProfile $TrustedManifest
     [void][IO.Directory]::CreateDirectory($layout.OwnedRoot)
-    if (Test-SgManagedPowerShell $layout.Executable $layout.Manifest $ProbeRunner) { return $layout.Executable }
+    if (Test-SgManagedPowerShell $layout.Executable $layout.Manifest $ProbeRunner) {
+        if (-not (Test-SgRuntimePointer $layout)) {
+            if ($PointerWriter) { & $PointerWriter $layout.Pointer $layout } else { Write-SgRuntimePointer $layout.Pointer $layout }
+        }
+        return $layout.Executable
+    }
     if ($Offline) { throw 'Managed PowerShell 7.6.5 is missing or invalid. Re-run ShipGlows once online to repair it.' }
     $lock = Enter-SgRuntimeLock $layout.Lock $LockTimeoutSeconds
     $staging = Join-Path $layout.OwnedRoot ('.staging-' + [Guid]::NewGuid().ToString('N'))
@@ -223,4 +255,12 @@ function Resolve-SgManagedPowerShell {
     Ensure-SgPowerShellRuntime -Offline:$Offline -UserProfile $UserProfile
 }
 
-Export-ModuleMember -Function Get-SgPowerShellRuntimeManifest,Get-SgPowerShellRuntimeLayout,Test-SgManagedPowerShell,Expand-SgTrustedRuntimeArchive,Ensure-SgPowerShellRuntime,Resolve-SgManagedPowerShell
+function Resolve-SgManagedPowerShellForLaunch {
+    [CmdletBinding()]
+    param([switch]$Offline,[string]$UserProfile=$env:USERPROFILE,[scriptblock]$DownloadRunner,[scriptblock]$ProbeRunner,$TrustedManifest,[scriptblock]$PointerWriter)
+    $layout = Get-SgPowerShellRuntimeLayout $UserProfile $TrustedManifest
+    if (Test-SgRuntimePointer $layout) { return $layout.Executable }
+    Ensure-SgPowerShellRuntime -Offline:$Offline -UserProfile $UserProfile -DownloadRunner $DownloadRunner -ProbeRunner $ProbeRunner -TrustedManifest $TrustedManifest -PointerWriter $PointerWriter
+}
+
+Export-ModuleMember -Function Get-SgPowerShellRuntimeManifest,Get-SgPowerShellRuntimeLayout,Test-SgManagedPowerShell,Test-SgRuntimePointer,Expand-SgTrustedRuntimeArchive,Ensure-SgPowerShellRuntime,Resolve-SgManagedPowerShell,Resolve-SgManagedPowerShellForLaunch
