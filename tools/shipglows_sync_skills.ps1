@@ -91,15 +91,35 @@ function Get-SgExpertPairs {
     }
 }
 
-function Get-SgLinkTarget([System.IO.FileSystemInfo]$Item) {
+function Get-SgRawLinkTarget([System.IO.FileSystemInfo]$Item) {
     if (-not $Item.LinkType) { return $null }
     $rawTarget = @($Item.Target)[0]
     if (-not $rawTarget) { return $null }
     if (-not [System.IO.Path]::IsPathRooted($rawTarget)) {
         $rawTarget = Join-Path $Item.Parent.FullName $rawTarget
     }
+    return [IO.Path]::GetFullPath($rawTarget).TrimEnd('\')
+}
+
+function Get-SgLinkTarget([System.IO.FileSystemInfo]$Item) {
+    $rawTarget = Get-SgRawLinkTarget $Item
+    if (-not $rawTarget) { return $null }
     if (-not (Test-Path -LiteralPath $rawTarget)) { return $null }
     return Resolve-SgPath $rawTarget
+}
+
+function Test-SgBrokenLocalShipGlowsWorktreeLink([System.IO.FileSystemInfo]$Item) {
+    $rawTarget = Get-SgRawLinkTarget $Item
+    if (-not $rawTarget -or (Test-Path -LiteralPath $rawTarget)) { return $false }
+
+    # A broken junction is otherwise indistinguishable from a user's deleted
+    # personal target.  Only reclaim the shape ShipGlows itself creates for an
+    # old developer worktree beside the selected checkout.
+    $workspaceRoot = Split-Path -Parent ([IO.Path]::GetFullPath($ShipGlowsRoot).TrimEnd('\'))
+    $worktreesRoot = ([IO.Path]::GetFullPath((Join-Path $workspaceRoot 'worktrees')).TrimEnd('\')) + '\'
+    if (-not $rawTarget.StartsWith($worktreesRoot, [StringComparison]::OrdinalIgnoreCase)) { return $false }
+    $relativeTarget = $rawTarget.Substring($worktreesRoot.Length)
+    return $relativeTarget -match '^[^\\]+\\skills(?:\\|$)'
 }
 
 function New-SgDirectoryLink([string]$TargetPath, [string]$SourcePath) {
@@ -232,12 +252,13 @@ function Reconcile-SgCatalogLinks([string]$RuntimeName, [System.Collections.Gene
     foreach ($item in @(Get-ChildItem -LiteralPath $runtimeDirectory -Force)) {
         if (-not $item.LinkType -or $DesiredNames.Contains($item.Name)) { continue }
         $resolvedTarget = Get-SgLinkTarget $item
-        if (-not $resolvedTarget) { continue }
-        if (-not $resolvedTarget.StartsWith("$resolvedSkills\", [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+        $brokenLocalWorktreeLink = Test-SgBrokenLocalShipGlowsWorktreeLink $item
+        if (-not $brokenLocalWorktreeLink -and (-not $resolvedTarget -or -not $resolvedTarget.StartsWith("$resolvedSkills\", [System.StringComparison]::OrdinalIgnoreCase))) { continue }
 
         if ($Mode -eq 'check') {
             $script:Blocked++
-            Write-Output "conflict runtime=$RuntimeName skill=$($item.Name) target=$($item.FullName) reason=excluded-by-$Catalog-catalog"
+            $reason = if ($brokenLocalWorktreeLink) { 'stale-linked-worktree' } else { "excluded-by-$Catalog-catalog" }
+            Write-Output "conflict runtime=$RuntimeName skill=$($item.Name) target=$($item.FullName) reason=$reason"
             continue
         }
         if (-not $item.PSIsContainer) {
@@ -245,7 +266,8 @@ function Reconcile-SgCatalogLinks([string]$RuntimeName, [System.Collections.Gene
         }
         [System.IO.Directory]::Delete($item.FullName, $false)
         $script:Repaired++
-        Write-Output "repaired runtime=$RuntimeName skill=$($item.Name) target=$($item.FullName) reason=removed-by-$Catalog-catalog"
+        $reason = if ($brokenLocalWorktreeLink) { 'removed-stale-linked-worktree' } else { 'removed-by-' + $Catalog + '-catalog' }
+        Write-Output "repaired runtime=$RuntimeName skill=$($item.Name) target=$($item.FullName) reason=$reason"
     }
 }
 

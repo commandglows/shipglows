@@ -67,6 +67,32 @@ try {
     Assert-Sg (-not (Test-Path -LiteralPath (Join-Path $fixtureHome '.agents\skills\006-sg-design'))) 'Public switch must remove the internal design engine.'
     Assert-Sg (Test-Path -LiteralPath (Join-Path $personalSkill 'SKILL.md')) 'Public switch must preserve personal skills.'
 
+    $fixtureWorkspace = Join-Path $fixtureHome 'linked-workspace'
+    $fixtureSource = Join-Path $fixtureWorkspace 'shipglows'
+    New-Item -ItemType Directory -Path $fixtureSource -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'skills') -Destination (Join-Path $fixtureSource 'skills') -Recurse -Force
+    $fixtureRuntime = Join-Path $fixtureHome 'stale-worktree-home\.agents\skills'
+    New-Item -ItemType Directory -Path $fixtureRuntime -Force | Out-Null
+    $staleWorktree = Join-Path $fixtureWorkspace 'worktrees\deleted-developer-channel'
+    $staleTarget = Join-Path $staleWorktree 'skills\obsolete-skill'
+    New-Item -ItemType Directory -Path $staleTarget -Force | Out-Null
+    New-Item -ItemType Junction -Path (Join-Path $fixtureRuntime 'obsolete-skill') -Target $staleTarget | Out-Null
+    Remove-Item -LiteralPath $staleWorktree -Recurse -Force
+    $foreignBrokenTarget = Join-Path $fixtureHome 'foreign-deleted\skills\foreign-skill'
+    New-Item -ItemType Directory -Path $foreignBrokenTarget -Force | Out-Null
+    New-Item -ItemType Junction -Path (Join-Path $fixtureRuntime 'foreign-skill') -Target $foreignBrokenTarget | Out-Null
+    Remove-Item -LiteralPath (Split-Path -Parent (Split-Path -Parent $foreignBrokenTarget)) -Recurse -Force
+    $staleCheckOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $helper `
+        -Mode check -All -Runtime codex -Catalog public -CodexEntrypoint linked `
+        -TargetHome (Join-Path $fixtureHome 'stale-worktree-home') -ShipGlowsRoot $fixtureSource 2>&1 | Out-String
+    Assert-Sg ($LASTEXITCODE -ne 0 -and $staleCheckOutput -match 'stale-linked-worktree') 'A deleted ShipGlows developer worktree must be reported by the catalog check.'
+    $staleRepairOutput = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $helper `
+        -Mode repair -All -Runtime codex -Catalog public -CodexEntrypoint linked `
+        -TargetHome (Join-Path $fixtureHome 'stale-worktree-home') -ShipGlowsRoot $fixtureSource 2>&1 | Out-String
+    Assert-Sg ($LASTEXITCODE -eq 0 -and $staleRepairOutput -match 'removed-stale-linked-worktree') 'Repair must remove a broken link owned by a deleted ShipGlows developer worktree.'
+    Assert-Sg (-not (Test-Path -LiteralPath (Join-Path $fixtureRuntime 'obsolete-skill'))) 'Repair must remove the deleted-worktree link itself.'
+    Assert-Sg (Test-Path -LiteralPath (Join-Path $fixtureRuntime 'foreign-skill')) 'Repair must refuse to remove a broken foreign link.'
+
     $routerPath = Join-Path $fixtureHome '.agents\skills\shipglows'
     [System.IO.Directory]::Delete($routerPath, $false)
     New-Item -ItemType Junction -Path $routerPath -Target (Join-Path $repoRoot 'skills\sg-bug') | Out-Null
