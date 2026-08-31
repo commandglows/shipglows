@@ -681,7 +681,10 @@ function Invoke-SgUpdate {
     $source = Get-SgUpdateSource
     if ($source.Channel -eq 'linked') {
         $installerPath = $source.Installer
-        $installerArguments = @('-InstallMode','full','-Branch',$source.Branch)
+        # A linked checkout is the maintainer channel, not an ordinary runtime
+        # install.  Preserve that surface so its live Codex skills are
+        # reconciled after the runtime payload is refreshed.
+        $installerArguments = @('-InstallMode','full','-InstallSurface','maintainer','-Branch',$source.Branch)
     } else {
         if (-not $curl) { $script:curl = Get-SgApplication 'curl.exe' @((Join-Path $env:WINDIR 'System32\curl.exe')) }
         if (-not $curl) { throw 'curl.exe is unavailable. Download install-shipglows.ps1 from the official ShipGlows repository.' }
