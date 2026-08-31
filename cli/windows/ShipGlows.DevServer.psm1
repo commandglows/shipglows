@@ -165,6 +165,14 @@ function Test-SgCliCapabilitySnapshot([object]$Snapshot) {
     return $seen.Count -eq 30
 }
 
+function ConvertFrom-SgCliCapabilityJson([string]$Json) {
+    $convertFromJson = Get-Command ConvertFrom-Json -CommandType Cmdlet
+    if ($convertFromJson.Parameters.ContainsKey('DateKind')) {
+        return $Json | ConvertFrom-Json -DateKind String -ErrorAction Stop
+    }
+    return $Json | ConvertFrom-Json -ErrorAction Stop
+}
+
 function Write-SgCliCapabilitySnapshot([object]$Config) {
     $path = [IO.Path]::GetFullPath([string]$Config.CliCapabilitiesPath)
     $directory = Split-Path -Parent $path
@@ -180,7 +188,7 @@ function Write-SgCliCapabilitySnapshot([object]$Config) {
     $temporary = "$path.$([guid]::NewGuid().ToString('N')).tmp"
     try {
         [IO.File]::WriteAllText($temporary, $json, [Text.UTF8Encoding]::new($false))
-        $verified = [IO.File]::ReadAllText($temporary) | ConvertFrom-Json -ErrorAction Stop
+        $verified = ConvertFrom-SgCliCapabilityJson ([IO.File]::ReadAllText($temporary))
         if (-not (Test-SgCliCapabilitySnapshot $verified)) { throw 'CLI capability snapshot validation failed.' }
         Move-Item -LiteralPath $temporary -Destination $path -Force
     } finally {
@@ -193,7 +201,7 @@ function Read-SgCliCapabilitySnapshot([object]$Config) {
     $path = [IO.Path]::GetFullPath([string]$Config.CliCapabilitiesPath)
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "CLI capability snapshot is missing: $path" }
     if ((Get-Item -LiteralPath $path).Length -gt $script:CliCapabilityMaxBytes) { throw 'CLI capability snapshot exceeds its closed size limit.' }
-    $snapshot = [IO.File]::ReadAllText($path) | ConvertFrom-Json -ErrorAction Stop
+    $snapshot = ConvertFrom-SgCliCapabilityJson ([IO.File]::ReadAllText($path))
     if (-not (Test-SgCliCapabilitySnapshot $snapshot)) { throw 'CLI capability snapshot is invalid.' }
     return $snapshot
 }
