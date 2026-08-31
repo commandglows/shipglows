@@ -30,6 +30,7 @@ Assert-Sg ($entrypointText.Contains("'shipglows-devserver.ps1'")) 'shipglows upd
 Assert-Sg ($devServerText.Contains('function Get-SgUpdateSource')) 'DevServer update must resolve the active channel before mutation.'
 Assert-Sg ($devServerText.Contains("Channel='linked'")) 'Linked developer channels must be represented explicitly.'
 Assert-Sg ($devServerText.Contains('rev-parse --is-inside-work-tree')) 'Linked updates must accept valid Git worktrees as developer checkouts.'
+Assert-Sg ($devServerText.Contains("@('-InstallMode','full','-InstallSurface','maintainer','-Branch',`$source.Branch)")) 'Linked updates must preserve the maintainer surface so live Codex skills are reconciled.'
 Assert-Sg ($devServerText.Contains('uncommitted changes, so the update stopped to preserve them')) 'Linked updates must explain that dirty checkout refusal preserves local changes.'
 Assert-Sg ($devServerText.Contains('status --short')) 'Dirty linked-update errors must provide a focused inspection command.'
 Assert-Sg ($devServerText.Contains("then retry 's update'")) 'Dirty linked-update errors must provide the retry path.'
