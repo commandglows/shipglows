@@ -308,7 +308,7 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
 }
 
 function Get-SelectedProject([string]$Action = 'navigate', [string]$Header = 'Choose a project') {
-    $items = @(Get-SgProjectCatalog $config -SkipProcessReconciliation)
+    $items = @(Get-SgProjectCatalogForDisplay $config)
     switch ($Action) {
         'start' { $items = @($items) }
         'navigate' { $items = @($items) }
@@ -389,7 +389,7 @@ function Show-SgShipGlowsStatus {
 }
 
 function Show-SgWindowsDashboard {
-    $items = @(Get-SgProjectCatalog $config -SkipProcessReconciliation)
+    $items = @(Get-SgProjectCatalogForDisplay $config)
     Write-Host ''
     Write-Host 'ShipGlows DevServer Windows' -ForegroundColor Yellow
     Write-Host '============================' -ForegroundColor Yellow
@@ -885,7 +885,6 @@ function Invoke-Menu {
     )
     while ($true) {
         Complete-SgBackgroundCatalogRefresh
-        Show-SgWindowsDashboard
         Start-SgBackgroundCatalogRefresh
         Start-SgBackgroundUpdateStatusRefresh
         if ($choiceUiAvailable) {

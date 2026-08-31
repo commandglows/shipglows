@@ -22,13 +22,17 @@ if (-not (Test-Path -LiteralPath $refresher -PathType Leaf)) { throw 'The detach
 
 if ($source -notmatch [regex]::Escape('if (Test-SgImmediateAction $Action $ShortcutPath)')) { throw 'The CLI immediate-action fast path is missing.' }
 if ($bootstrapSource -notmatch [regex]::Escape('Resolve-SgManagedPowerShellForLaunch')) { throw 'The CLI launcher does not use the integrity-bound fast runtime resolution.' }
+$menuSource = [regex]::Match($source,'(?s)function Invoke-Menu\s*\{(.*?)\r?\n\}\r?\n\r?\ntry \{')
+if (-not $menuSource.Success) { throw 'The interactive menu contract could not be isolated.' }
+if ($menuSource.Value -match [regex]::Escape('Show-SgWindowsDashboard')) { throw 'The interactive menu still prints the project dashboard without an explicit request.' }
 if ($source -notmatch [regex]::Escape('Import-SgAuthenticationModule')) { throw 'The authentication module is not lazy-loaded.' }
 if ($source -match '(?m)^Import-Module \$mobileModule -Force -DisableNameChecking\s*$') { throw 'The unused mobile module is still eagerly loaded.' }
 if ($moduleSource -notmatch [regex]::Escape('function Get-SgProcessSnapshotMap')) { throw 'The registry process snapshot batch is missing.' }
 foreach ($required in @('function Start-SgBackgroundCatalogRefresh','Test-SgProjectCatalogRefreshRequired $config','[Diagnostics.Process]::Start($startInfo)','Clear-SgProjectCatalogMemoryCache $config','function Complete-SgBackgroundCatalogRefresh')) {
     if ($source -notmatch [regex]::Escape($required)) { throw "The non-blocking catalogue refresh contract is missing: $required" }
 }
-if ([regex]::Matches($source, [regex]::Escape('Get-SgProjectCatalog $config -SkipProcessReconciliation')).Count -lt 2) { throw 'Dashboard and picker still block on process reconciliation.' }
+if ([regex]::Matches($source, [regex]::Escape('Get-SgProjectCatalogForDisplay $config')).Count -lt 2) { throw 'Dashboard and picker do not share the consistent display catalogue.' }
+if ($source -match [regex]::Escape('Get-SgProjectCatalog $config -SkipProcessReconciliation')) { throw 'A displayed project list still bypasses process reconciliation.' }
 
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('sg-catalog-refresh-' + [guid]::NewGuid().ToString('N'))
 try {
