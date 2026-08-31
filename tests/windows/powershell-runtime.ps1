@@ -43,7 +43,18 @@ try{
     Assert-True (Test-Path -LiteralPath $resolved -PathType Leaf) 'Fresh fixture runtime was not activated.'
     Assert-True ($resolved -like '*\.shipglows\toolchains\powershell\7.6.5\win-x64\pwsh.exe') 'Runtime coordinate is not canonical.'
     $pointer=Get-Content -LiteralPath (Join-Path $profile '.shipglows\toolchains\powershell\current.json') -Raw|ConvertFrom-Json
+    Assert-True ($pointer.schemaVersion -eq 2) 'Runtime pointer does not use the integrity-bound schema.'
     Assert-True ($pointer.relativePath -eq '7.6.5/win-x64') 'Atomic pointer does not contain the immutable coordinate.'
+    Assert-True ($pointer.executableSha256 -eq (Get-FileHash -LiteralPath $resolved -Algorithm SHA256).Hash) 'Runtime pointer is not bound to the managed executable hash.'
+    $fastProbe={param($exe) throw 'The valid launch pointer unexpectedly started a probe process.'}
+    $fastResolved=Resolve-SgManagedPowerShellForLaunch -Offline -UserProfile $profile -ProbeRunner $fastProbe -TrustedManifest $fixture -DownloadRunner $download
+    Assert-True ($fastResolved -eq $resolved) 'Valid launch pointer did not resolve the managed runtime directly.'
+    $pointer.executableSha256='0'*64
+    $pointer|ConvertTo-Json -Compress|Set-Content -LiteralPath (Join-Path $profile '.shipglows\toolchains\powershell\current.json') -Encoding UTF8
+    $revalidated=Resolve-SgManagedPowerShellForLaunch -Offline -UserProfile $profile -ProbeRunner $probe -TrustedManifest $fixture -DownloadRunner $download
+    Assert-True ($revalidated -eq $resolved) 'Invalid launch pointer did not fall back to full runtime validation.'
+    $pointer=Get-Content -LiteralPath (Join-Path $profile '.shipglows\toolchains\powershell\current.json') -Raw|ConvertFrom-Json
+    Assert-True ($pointer.executableSha256 -eq (Get-FileHash -LiteralPath $resolved -Algorithm SHA256).Hash) 'Full validation did not repair the invalid launch pointer.'
     $called=$false;$noDownload={param($u,$t)$script:called=$true}
     $again=Ensure-SgPowerShellRuntime -Offline -UserProfile $profile -ProbeRunner $probe
     Assert-True ($again -eq $resolved) 'Offline valid runtime was not reused.'
@@ -123,7 +134,7 @@ try{
     Assert-True ($bootstrap -match 'exit \$LASTEXITCODE') 'Bootstrap does not statically propagate the managed frontend exit code.'
     Assert-True ($frontend -match "PSEdition -ne 'Core'" -and $frontend -match 'refused an unmanaged PowerShell Core') 'Frontend host gate is missing.'
     $installer=Get-Content -LiteralPath (Join-Path $root 'cli\windows\install-devserver.ps1') -Raw
-    Assert-True ($installer -match 'ShipGlows\.PowerShellBootstrap\.ps1' -and $installer -match 'powershell\.exe -NoLogo -NoProfile') 'Installed wrappers do not point exclusively to the bootstrap.'
+    Assert-True ($installer -match '_SHIPGLOWS_PWSH' -and $installer -match 'SHIPGLOWS_MANAGED_PWSH=%_SHIPGLOWS_PWSH%' -and $installer -match 'shipglows-devserver\.ps1' -and $installer -match ':shipglows_bootstrap' -and $installer -match 'ShipGlows\.PowerShellBootstrap\.ps1') 'Installed wrappers do not preserve the direct managed-runtime path and secure bootstrap fallback.'
     $binder=Join-Path $temp 'binder.ps1'
     [IO.File]::WriteAllText($binder,'param([switch]$Offline,[Parameter(ValueFromRemainingArguments=$true)][string[]]$RemainingArgs=@()); [pscustomobject]@{offline=[bool]$Offline;remaining=@($RemainingArgs)}|ConvertTo-Json -Compress',[Text.UTF8Encoding]::new($false))
     $bound=& powershell.exe -NoLogo -NoProfile -File $binder -Offline 'path with spaces' 'quoted value' '--literal=-Offline'|ConvertFrom-Json
