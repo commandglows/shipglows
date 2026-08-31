@@ -145,7 +145,6 @@ $script:authenticationModuleLoaded = $false
 $config = Get-SgDevConfig
 Ensure-SgDirectory $config.Workspace
 Ensure-SgDirectory $config.LogDirectory
-[void](Write-SgCliCapabilitySnapshot $config)
 
 function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]$Visible) {
     $results = New-Object 'System.Collections.Generic.List[object]'
@@ -198,6 +197,13 @@ try { $Action = Resolve-SgAction $Action $ShortcutPath }
 catch {
     Write-SgError $_.Exception.Message
     exit 2
+}
+
+# Update routes are recovery paths: an older installed runtime may be unable to
+# refresh a capability snapshot that a newer runtime has already corrected.
+# Let those routes reach the official updater/status implementation first.
+if ($Action -notin @('update','update-status')) {
+    [void](Write-SgCliCapabilitySnapshot $config)
 }
 
 function Get-SgGumCommand {
