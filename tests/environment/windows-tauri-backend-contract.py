@@ -273,6 +273,7 @@ with tempfile.TemporaryDirectory() as directory:
     assert [json.loads(item.stdin)["action"] for item in executor.requests] == ["observe", "install_rust"]
     assert all(str(project.resolve()) not in " ".join(item.argv) for item in executor.requests)
     assert all(item.argv[-1] == str(provider.resolve()) for item in executor.requests)
+    assert all(item.environment.get("PATHEXT") == os.environ.get("PATHEXT") for item in executor.requests)
     repository_provider = project / "repository-provider.ps1"
     repository_provider.write_text("# untrusted\n", encoding="utf-8")
     (project / "ShipGlows.MobileToolchain.psm1").write_text("# untrusted\n", encoding="utf-8")
