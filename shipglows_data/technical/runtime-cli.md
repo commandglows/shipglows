@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.35.0"
+artifact_version: "1.36.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-31"
+updated: "2026-09-01"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
   - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
   - "Unified update replay 2026-08-28: `shipglows update` selects the stable or linked channel, `s update status` reports the active Windows source, and a dirty linked worktree refuses bootstrap without stashing."
@@ -118,6 +119,12 @@ PM2/Flox/Caddy behavior, or native Windows process and installer behavior.
 ## Environment control-plane foundation
 
 Post-clone preparation adds s env prepare for bounded, deterministic diagnosis and s env prepare-apply with an exact plan digest. Apply may exclusively create a missing shipglows.environment.json; it never replaces project manifests, lockfiles, .env, secrets, or an existing ShipGlows manifest.
+
+The native Windows provider toolbox is a machine-owned mise project, separate
+from registered repositories. Its exact Firebase, Supabase, Convex, Vercel,
+Clerk and Auth0 coordinates are installed first, then `mise lock --platform
+windows-x64` refreshes its own integrity lock. Failure to refresh the lock is
+reported without weakening the exact pins or modifying any project lockfile.
 
 Windows clone runs the read-only diagnosis after registration. It reports healthy, safely repairable, blocking, or manual state and prints the digest-gated apply command when repair is possible; clone never applies that plan automatically.
 

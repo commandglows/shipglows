@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-30"
+updated: "2026-09-01"
 status: active
 source_skill: 104-sg-end
 scope: closure-bookkeeping-playbook
@@ -23,6 +23,7 @@ evidence:
   - "Operator decision 2026-08-16: editorial impact is classified independently and visibly at every closure."
   - "Operator correction 2026-08-17: clean completed daily work proceeds to bounded commit/push by default instead of accumulating locally."
   - "Operator approval 2026-08-30: changelog impact is classified visibly for every managed-repository closure and significant history capture is bounded to one event."
+  - "Operator correction 2026-09-01: closure documentation status must come from changed-path mapping and refreshed context, not report prose."
 next_step: none
 ---
 
@@ -49,6 +50,7 @@ If proof or ship is not complete, never set `closed`.
 - Load `shipglows-owned-preflight.md`.
 - Load `closure-archive-guard.md`.
 - Load `documentation-reflection-gate.md`.
+- Load `context-quality-contract.md` when structured context is adopted.
 - If a product decision is reused, route through `product-decision-chain.md`.
 
 ## Step 1: Track summary
@@ -64,6 +66,8 @@ If proof or ship is not complete, never set `closed`.
 
 ## Step 3: documentation reflection
 
+- Resolve the exact task-owned changed paths, revalidate the bounded capsule after Git/spec/lockfile invalidation, and use a fresh Context Head or targeted canonical fallback.
+- Compare every changed code path with `shipglows_data/technical/code-docs-map.md`; missing coverage is `needs review`.
 - Classify documentation as `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`.
 - Apply directly mapped impacted documentation updates before setting `closed`.
 - A material `needs review` result forces `partial`; tests, builds, tracker state, or Git state cannot override it.

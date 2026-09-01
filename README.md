@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.29.1"
+artifact_version: "0.30.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-08-30"
+updated: "2026-09-01"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -339,8 +339,11 @@ status and launch each installed CLI's official interactive connect, reconnect,
 or confirmed logout flow. ShipGlows never reads or stores credentials; Gemini
 uses its own interactive CLI, while Convex remains explicitly project-scoped.
 The full installer permanently acquires the trusted WinGet `mise` package and
-uses an isolated machine toolbox for exact Firebase, Supabase, Convex, Vercel
-and Clerk CLI versions. FlutterFire remains an exact Dart Pub installation,
+uses an isolated machine toolbox for exact Firebase, Supabase, Convex, Vercel,
+Clerk and Auth0 CLI versions. Its machine-owned `mise.toml` enables lockfiles
+only for `windows-x64`; every convergence refreshes `mise.lock`, while exact
+configuration pins remain the safe fallback if lock resolution fails.
+FlutterFire remains an exact Dart Pub installation,
 Google Cloud CLI comes from `Google.CloudSDK`, and Playwright keeps its dedicated
 managed runtime. These machine CLI installations do not depend on the current
 workspace and do not trust project `mise.toml` files, enable global shims, or

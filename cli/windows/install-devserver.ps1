@@ -1852,6 +1852,8 @@ function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [st
             $installed = Invoke-SgManagedTauriMise $mise $root @('install') 1800 -Visible -OperationId 'tool.machine-toolbox' -Label 'Installing the ShipGlows machine CLI toolbox'
             $toolboxInstalled = -not $installed.TimedOut -and $installed.ExitCode -eq 0
             if (-not $toolboxInstalled) { Write-SgInstallerWarning "Machine CLI toolbox installation failed or timed out (exit=$($installed.ExitCode)); each CLI will be converged independently." }
+            $locked = Invoke-SgManagedTauriMise $mise $root @('lock','--platform','windows-x64') 300 -OperationId 'tool.machine-toolbox.lock' -Label 'Locking the ShipGlows machine CLI toolbox'
+            if ($locked.TimedOut -or $locked.ExitCode -ne 0) { Write-SgInstallerWarning "Machine CLI toolbox lockfile refresh failed or timed out (exit=$($locked.ExitCode)); exact config pins remain active." }
             foreach ($item in $plan) {
                 $wrapper = Join-Path $runtimeDir "$($item.Command).cmd"
                 $content = Get-SgMachineToolboxWrapperContent -MisePath $mise -ToolboxRoot $root -Command $item.Command

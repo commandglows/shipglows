@@ -167,6 +167,12 @@ class ShipSkillContractTests(unittest.TestCase):
             self.assertIn(expected, self.text)
         self.assertIn("A material `needs review` result forbids full-closure", self.full_close)
         for expected in (
+            "task-owned changed paths",
+            "code-docs-map.md",
+            "revalidate the bounded capsule",
+        ):
+            self.assertIn(expected, self.full_close)
+        for expected in (
             "Every full-close report uses the shared ordered card",
             "`🧪 PREUVES`",
             "`📖 DOCUMENTATION`",

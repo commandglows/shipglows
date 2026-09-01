@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-30"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: context-quality-contract
@@ -24,6 +24,9 @@ linked_systems:
   - tools/test_context_quality_contract.py
   - tools/context_history.py
   - skills/references/context-history-and-head.md
+  - skills/references/documentation-reflection-gate.md
+  - skills/104-sg-end/SKILL.md
+  - skills/005-sg-ship/SKILL.md
 depends_on:
   - artifact: skills/references/intent-to-outcome-autonomy.md
     artifact_version: "1.2.0"
@@ -34,6 +37,7 @@ evidence:
   - "Operator approval 2026-08-13: context quality is a shared lifecycle requirement and contextual MCP capabilities require a portable native fallback."
   - "Operator approval 2026-08-21: material context drift routes through the shared conversation-continuity and restart-handoff contract."
   - "Operator approval 2026-08-25: a bounded worktree-local Context Head may accelerate resume when derived from immutable significant events and revalidated against canonical truth."
+  - "Operator correction 2026-09-01: closure must refresh invalidated context and map task-owned code changes before classifying documentation impact."
 next_review: "2026-09-13"
 next_step: "/103-sg-verify context quality contract"
 ---
@@ -102,6 +106,7 @@ When the selected project adopts `skills/references/context-history-and-head.md`
 - Readiness blocks material `unknown`, `stale`, or `conflict` states and requires a capsule sufficient for a fresh agent.
 - Execution revalidates invalidated claims before writes and preserves stage, invariants, authority, and proof boundaries.
 - Verification compares the accepted capsule with actual implementation and evidence; technically valid work serving the wrong outcome is not verified.
+- Documentation reflection, closure and full-close shipping resolve task-owned changed paths, refresh only invalidated capsule claims, and use `code-docs-map.md` before documentation classification. A stale/absent derived view uses the targeted canonical fallback; it never permits an optimistic verdict.
 - Explicit agent handoff carries the capsule or an exact pointer plus deltas; compaction preserves evidence states and source pointers.
 - When context quality itself may justify ending the active conversation, load `conversation-continuity-contract.md`; length or compaction alone is never sufficient.
 

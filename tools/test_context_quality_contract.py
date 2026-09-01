@@ -15,6 +15,8 @@ AUTH = ROOT / "skills/109-sg-auth-debug/SKILL.md"
 READY = ROOT / "skills/101-sg-ready/SKILL.md"
 EXECUTION = ROOT / "skills/102-sg-start/references/execution-contract.md"
 VERIFY = ROOT / "skills/103-sg-verify/references/verification-baseline.md"
+END = ROOT / "skills/104-sg-end/SKILL.md"
+SHIP = ROOT / "skills/005-sg-ship/SKILL.md"
 HANDOFF = ROOT / "skills/references/reporting-agent-handoff.md"
 CONTINUITY = ROOT / "skills/references/conversation-continuity-contract.md"
 SPEC = ROOT / "shipglows_data/workflow/specs/context-quality-contract.md"
@@ -62,9 +64,19 @@ class ContextQualityContractTests(unittest.TestCase):
 
     def test_lifecycle_boundaries_load_the_shared_contract(self) -> None:
         path = "context-quality-contract.md"
-        for consumer in (ROUTER, READY, EXECUTION, VERIFY, HANDOFF):
+        for consumer in (ROUTER, READY, EXECUTION, VERIFY, END, SHIP, HANDOFF):
             with self.subTest(consumer=consumer):
                 self.assertIn(path, text(consumer))
+
+    def test_closure_refreshes_invalidated_context_before_docs_verdict(self) -> None:
+        doctrine = text(CONTRACT)
+        for marker in (
+            "task-owned changed paths",
+            "before documentation classification",
+            "closure and full-close shipping",
+            "targeted canonical fallback",
+        ):
+            self.assertIn(marker, doctrine)
 
     def test_context_skill_has_truthful_mcp_and_native_paths(self) -> None:
         skill = text(CONTEXT)

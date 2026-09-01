@@ -8,7 +8,7 @@ Primary artifact type: `specialist-workflow`.
 
 ## Canonical Paths
 
-Before resolving any ShipGlows-owned file, load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md` (`$SHIPGLOWS_ROOT` defaults to `$HOME/.shipglows/runtime`). ShipGlows tools, shared references, skill-local `references/*`, templates, workflow docs, and internal scripts must resolve from `$SHIPGLOWS_ROOT`, not from the project repo where the skill is running.
+Load `$SHIPGLOWS_ROOT/skills/references/canonical-paths.md`; ShipGlows-owned resources resolve only from that root.
 
 ## Chantier Tracking
 
@@ -17,24 +17,15 @@ Process role: `lifecycle`.
 
 ## Report Modes
 
-Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
-
-Default to `report=user` and keep the report outcome-first.
-Use `report=agent` only for handoff details, blocked proof, or audit-grade trace.
+Before reporting load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`. Default to outcome-first `report=user`; agent detail requires handoff, blocked proof, or audit intent.
 
 ## Mission
 
-`104-sg-end` closes a work session by preparing closure bookkeeping and explicit next work.
-
-It owns summary and tracker/changelog prep, not implementation proof or shipping. Apply `git-milestone-delivery-contract.md`: a clean chantier hands off immediately for final commit/push; unpushed commits remain delivery pending.
+`104-sg-end` owns closure summary and tracker/changelog prep, not implementation proof or shipping. Apply `git-milestone-delivery-contract.md`: clean work proceeds to final commit/push; unpushed work remains pending.
 
 ## Scope Gate
 
-Use for closure bookkeeping when:
-
-- a task or chantier has clear completion context,
-- a concise state summary is needed,
-- tracker/changelog preparation is requested.
+Use when completion context is clear and closure summary or tracker/changelog preparation is needed.
 
 Do not use this skill for:
 
@@ -58,6 +49,8 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
   - before closing state transitions.
 - `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md`
   - before changelog or tracker text implying completion.
+- `$SHIPGLOWS_ROOT/skills/references/context-quality-contract.md`
+  - for a bounded capsule before documentation classification when structured context is adopted.
 - `$SHIPGLOWS_ROOT/skills/references/editorial-reflection-gate.md`
   - before any closure result, independently from documentation impact.
 - `$SHIPGLOWS_ROOT/skills/references/operational-record-format.md`
@@ -93,8 +86,8 @@ Run closure in this order:
 
 1. select execution mode, then classify the result (`closed`, `partial`, `deferred`, `blocked`, `not applicable`),
 2. apply `closure-archive-guard.md`,
-3. run changelog/tracker preparation rules, classify changelog impact as `public-ready`, `internal-only`, `not applicable`, or `needs review`, and append at most one significant event when structured history is adopted,
-4. run documentation reflection and classify editorial impact independently; apply directly mapped updates before closure, expose all three classifications, and route each material `needs review` case to its owner. `No declared public surface` is a valid editorial no-impact reason,
+3. prepare changelog/tracker state, classify changelog impact, and append at most one significant event when adopted,
+4. revalidate the bounded capsule, map task-owned changes, run documentation reflection, then classify editorial impact independently; apply mapped updates and expose all three results,
 5. route a clean completed daily chantier directly to bounded shipping, otherwise emit the concrete delivery limit and next owner clearly.
 
 For `summary-only`, run read-only classification and reporting only; skip steps that write bookkeeping.

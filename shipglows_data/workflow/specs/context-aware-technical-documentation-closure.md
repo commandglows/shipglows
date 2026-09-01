@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-01"
 created_at: "2026-09-01 08:32:00 UTC"
 updated: "2026-09-01"
-updated_at: "2026-09-01 08:32:00 UTC"
-status: ready
+updated_at: "2026-09-01 08:54:56 UTC"
+status: active
 source_skill: 900-shipglows-core
 source_model: GPT-5
 scope: context-aware-technical-documentation-closure
@@ -29,32 +29,35 @@ linked_systems:
   - shipglows_data/technical/code-docs-map.md
   - shipglows_data/technical/installer-and-user-scope.md
   - shipglows_data/technical/runtime-cli.md
+  - shipglows_data/technical/operator-guides/windows-devserver.md
+  - shipglows_data/technical/native-code-context-graph.md
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
   - README.md
   - tools/test_context_lifecycle_capsule_contract.py
   - tools/test_reporting_contract.py
 depends_on:
   - artifact: skills/references/context-quality-contract.md
-    artifact_version: "1.4.0"
+    artifact_version: "1.5.0"
     required_status: active
   - artifact: skills/references/documentation-reflection-gate.md
-    artifact_version: "1.3.0"
+    artifact_version: "1.4.0"
     required_status: active
   - artifact: shipglows_data/technical/code-docs-map.md
-    artifact_version: "3.27.0"
+    artifact_version: "3.28.0"
     required_status: reviewed
 supersedes: []
 evidence:
   - "A 2026-09-01 Windows toolbox repair changed mapped installer code, but the closure report incorrectly classified all documentation as not impacted because no public promise changed."
   - "The industrialized context lifecycle test covers readiness, execution, verification and continuation, but not documentation reflection, closure or full-close shipping."
   - "The current documentation reflection contract names the code-docs map but does not mechanically require changed-path mapping before allowing not impacted."
-next_step: "Implement the regression-first contract, align the current Windows toolbox documentation, and verify closure consumers."
+next_step: "Run full mapped verification, refresh final context, and close the exact chantier scope."
 ---
 
 # Context-aware technical documentation closure
 
 ## Status
 
-Ready. The operator approved the cross-system correction on 2026-09-01 after the current Windows toolbox work exposed a false documentation no-impact verdict.
+Active. The operator approved the cross-system correction on 2026-09-01 after the current Windows toolbox work exposed a false documentation no-impact verdict. Regression-first contracts and mapped documentation are implemented; full verification remains.
 
 ## Problem
 
@@ -98,10 +101,10 @@ The graph, Context Head and capsule accelerate discovery and expose freshness, c
 
 ## Implementation Tasks
 
-1. [ ] Add the exact failing pressure scenario to reporting and lifecycle context contract tests.
-2. [ ] Harden shared context, documentation-reflection, lifecycle and reporting contracts.
-3. [ ] Wire verification, closure and full-close shipping consumers to the revalidated documentation-impact evidence.
-4. [ ] Align current Windows toolbox technical and operator documentation with the implemented behavior.
+1. [x] Add the exact failing pressure scenario to reporting and lifecycle context contract tests.
+2. [x] Harden shared context, documentation-reflection, lifecycle and reporting contracts.
+3. [x] Wire verification, closure and full-close shipping consumers to the revalidated documentation-impact evidence.
+4. [x] Align current Windows toolbox technical and operator documentation with the implemented behavior.
 5. [ ] Run focused and mapped validations, refresh derived context, record the chantier result, commit and push exact milestones.
 
 ## Acceptance Criteria
@@ -135,7 +138,8 @@ Regression-first. The initial contract tests must fail because closure consumers
 | Date UTC | Skill | Model | Action | Result | Next step |
 |----------|-------|-------|--------|--------|-----------|
 | 2026-09-01 08:32:00 | 900-shipglows-core | GPT-5 | Diagnosed the false documentation no-impact verdict and formalized the approved cross-system correction. | Ready: exact failure, canonical authority order, affected consumers, Windows trigger and proof path are resolved. | Add failing regression scenarios before contract edits. |
+| 2026-09-01 08:54:56 | 102-sg-start | GPT-5 | Added failing pressure scenarios, hardened changed-path/context/map resolution across verification and closure, removed activation-budget debt, and aligned mapped Windows and lifecycle documentation. | Implemented: 83 focused reporting, context, verification, closure and ship contracts pass; full mapped verification remains. | Run metadata, graph, runtime-sync and Windows proof before closure. |
 
 ## Current Chantier Flow
 
-`100-sg-spec (complete) -> 101-sg-ready (ready) -> 102-sg-start (in progress) -> 103-sg-verify (pending) -> 104-sg-end (pending) -> 005-sg-ship (pending)`
+`100-sg-spec (complete) -> 101-sg-ready (ready) -> 102-sg-start (implemented) -> 103-sg-verify (pending) -> 104-sg-end (pending) -> 005-sg-ship (pending)`

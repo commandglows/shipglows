@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.3.0"
+artifact_version: "2.4.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-30"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-pressure-scenarios
@@ -31,6 +31,7 @@ evidence:
   - "Operator correction 2026-08-21: a new objective alone does not trigger restart; useful context must be materially unreliable."
   - "Operator approval 2026-08-22: context checking must be proportional, transition-light, and signal-driven."
   - "Operator approval 2026-08-30: every managed-repository closure receives a changelog classification while public readiness remains distinct from publication proof."
+  - "Operator correction 2026-09-01: a mapped technical code change cannot be reported documentation-not-impacted merely because public/editorial behavior is unchanged."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -76,3 +77,4 @@ next_step: none
 - `SSRP-032 stabilized resumable restart`: a quality-based restart recommendation follows durable-state and Git stabilization, reports any incomplete state honestly, and includes one redacted self-contained copyable prompt for a fresh agent.
 - `SSRP-033 proportional context cost`: chantier end, compaction, or major subject change receives only a lightweight state check; no full conversation reread occurs by default, and a targeted refresh reads only affected sources after a concrete degradation signal.
 - `SSRP-034 global closure changelog`: every managed-repository closure emits exactly one `📰 CHANGELOG` line using `public-ready`, `internal-only`, `not applicable`, or `needs review`; a repository without a public surface remains closable as `internal-only` or `not applicable`, while `public-ready` never claims publication without delivery evidence and a material `needs review` blocks clean closure.
+- `SSRP-035 context-aware documentation closure`: changed Windows code plus a matching technical docs-map trigger forbids documentation `not impacted` until canonical docs are aligned; editorial `not impacted` remains independently valid. Stale/absent derived context uses targeted canonical fallback, and missing map coverage yields `needs review`.

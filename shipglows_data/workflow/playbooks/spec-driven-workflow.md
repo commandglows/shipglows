@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.29.0"
+artifact_version: "0.30.0"
 project: ShipGlows
 created: "2026-04-22"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: draft
 source_skill: 300-sg-docs
 scope: spec-driven-workflow
@@ -40,6 +40,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Updated on 2026-09-01 so end verification and closure derive documentation impact from task-owned Git paths, the canonical code-docs map, and fresh bounded context with canonical fallback."
   - "Document title and body define ShipGlows V3 workflow doctrine and artifact metadata rules"
   - "Updated on 2026-04-26 to clarify the documentation frame, context layer, metadata doctrine, and artifact boundaries"
   - "Updated on 2026-04-26 to add the content architecture and repurposing artifact"
@@ -304,7 +305,16 @@ This layer does not replace `shipglows_data/technical/architecture.md`, `shipglo
 
 ### Documentation Update Gate
 
-After every code-changing execution wave, the Reader must produce a `Documentation Update Plan` from `shipglows_data/technical/code-docs-map.md`. End verification must produce or re-check the plan again. Before any closed, complete, resolved, or shipped report, apply the documentation reflection gate, align directly mapped impacted docs, and visibly report `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`. Material `needs review` blocks closure language.
+After every code-changing execution wave, the Reader must produce a
+`Documentation Update Plan` from the exact task-owned Git paths and
+`shipglows_data/technical/code-docs-map.md`. End verification and closure must
+reconstruct those paths rather than trust prior prose, refresh any invalidated
+bounded Context Head/capsule, and use targeted canonical fallback for stale,
+absent, truncated, or unsupported derived context. Align every directly mapped
+impacted doc and visibly report `updated`, `not impacted — <concrete reason>`,
+or `needs review — <surface>` before claiming closed, complete, resolved, or
+shipped. Missing map coverage or material `needs review` blocks closure;
+editorial impact remains a separate verdict.
 
 ```markdown
 ## Documentation Update Plan

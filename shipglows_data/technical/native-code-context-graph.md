@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-30"
-updated: "2026-08-30"
+updated: "2026-09-01"
 status: active
 source_skill: 102-sg-start
 scope: native-code-context-graph
@@ -19,10 +19,11 @@ linked_systems:
   - skills/references/context-quality-contract.md
 depends_on:
   - artifact: skills/references/context-quality-contract.md
-    artifact_version: "1.4.0"
+    artifact_version: "1.5.0"
     required_status: active
 supersedes: []
 evidence:
+  - "The 2026-09-01 closure regression proves that graph and capsule output remain advisory: documentation classification revalidates exact Git paths against the canonical code-docs map and falls back canonically when context is stale or incomplete."
   - "Twelve deterministic unit tests cover graph construction, incremental updates, bounded explained queries, freshness diagnostics, migration, locking and path isolation."
   - "The ContentGlows trash pilot indexed 983 files and resolved exact content-assets, video-timelines and status-API seeds without truncation."
 next_review: "2026-09-30"
@@ -64,7 +65,8 @@ aggregate counts only: recall, misses, noise, selection, fallback and bounds.
   bodies, secrets, signed URLs or runtime payloads.
 - Generated, dependency, VCS and local-cache directories are excluded.
 - Query results are advisory. They never authorize a mutation, prove ownership
-  or replace server-side access checks.
+  or replace server-side access checks, Git changed-path evidence, or the
+  canonical code-to-documentation map.
 - Persisted graph output belongs in an ignored local cache unless a governed
   proof artifact explicitly requires a bounded redacted sample.
 - Cache identity includes branch, HEAD and a one-way worktree identifier; it
@@ -88,6 +90,10 @@ bounded and expose `truncated: true` when their neighborhood exceeds the cap.
 - TypeScript, Vue and dynamic runtime relationships remain unsupported. Status,
   capsule gaps and targeted canonical fallback expose that limitation rather
   than claiming completeness.
+- Closure consumers refresh the bounded capsule after branch, HEAD, staged or
+  dirty state changes. If that view is stale, absent, truncated, unsupported,
+  or misses a changed path, they inspect the exact canonical source and
+  `code-docs-map.md` before classifying documentation impact.
 
 ## 2026-08-30 Industrialization Baseline
 

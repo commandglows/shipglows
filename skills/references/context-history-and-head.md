@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-25"
-updated: "2026-08-30"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: context-history-and-head
@@ -24,10 +24,11 @@ linked_systems:
   - shipglows_data/workflow/history/
 depends_on:
   - artifact: skills/references/context-quality-contract.md
-    artifact_version: "1.4.0"
+    artifact_version: "1.5.0"
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: closure refreshes bounded context after Git-state changes and uses exact changed paths plus the canonical code-docs map before documentation classification."
   - "Operator approval on 2026-08-25 selected date-segmented immutable history, branch/worktree-aware Context Head, automatic normal-path capture, and a public bilingual allowlisted projection."
   - "Operator approval on 2026-08-30 made changelog classification and significant-event capture a shared closure behavior for every managed repository."
 next_review: "2026-09-25"
@@ -54,6 +55,13 @@ Use this contract when the selected Git project contains `shipglows_data/` or ex
 Before broad repository reconstruction, run `check` when a cache exists. A branch, HEAD, worktree, staged, unstaged, or untracked fingerprint change makes it stale. Regenerate from current Git state and the event corpus before use; never report a stale cache as current.
 
 Read the generated head as a discovery and resume view, then revalidate decision-changing claims against their canonical sources. Do not reload the whole repository when only one dependent claim was invalidated.
+
+Before documentation classification in verification, closure, or full-close
+shipping, reconstruct the exact task-owned changed paths from current Git state
+and refresh the bounded head/capsule if branch, HEAD, staged, unstaged, or
+untracked state changed. Compare code paths with the canonical
+`code-docs-map.md`; a stale or incomplete generated view triggers targeted
+canonical fallback and never authorizes `not impacted` by itself.
 
 Context Head generation combines the recent semantic event window with the native derived code graph through the shared capsule ranking API. Up to eight recent event file references seed a projection capped at 40 evidence items and 20 related source pointers. The generated section reports truncation and selection-reason counts explicitly. The graph and capsule are disposable discovery views, never canonical truth; an unavailable graph degrades to targeted canonical retrieval without making history unreadable.
 

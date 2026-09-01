@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-30"
 created_at: "2026-08-30 20:04:13 UTC"
-updated: "2026-08-30"
-updated_at: "2026-08-30 21:37:23 UTC"
+updated: "2026-09-01"
+updated_at: "2026-09-01 08:54:56 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: gpt-5.6
@@ -29,16 +29,17 @@ linked_systems:
   - shipglows_data/workflow/history/
 depends_on:
   - artifact: skills/references/context-quality-contract.md
-    artifact_version: "1.4.0"
+    artifact_version: "1.5.0"
     required_status: active
   - artifact: skills/references/context-history-and-head.md
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: active
   - artifact: shipglows_data/technical/native-code-context-graph.md
-    artifact_version: "1.1.0"
+    artifact_version: "1.2.0"
     required_status: active
 supersedes: []
 evidence:
+  - "Follow-up correction 2026-09-01: the original lifecycle adoption omitted documentation reflection, 104 closure and full-close 005 consumers; the context-aware technical documentation closure chantier adds that missing contract and regression proof."
   - "Commit 050e1d9 added the deterministic native code graph and bounded queries."
   - "Commit 83c6ca9 combined recent semantic history with the native graph in Context Head."
   - "The ContentGlows trash pilot indexed 983 files, 9,947 nodes and 13,100 edges, and resolved exact content-assets, video-timelines and status-API seeds without truncation."
@@ -248,6 +249,19 @@ Use fixture-first deterministic tests for parser/index/capsule contracts, then l
 
 None blocking. Technology expansion beyond deterministic local structural retrieval is intentionally deferred until measured evidence justifies a separate operator decision.
 
+# 2026-09-01 Follow-up Correction
+
+The shipped graph and Context Head implementation remains valid, but the phrase
+"automatic lifecycle adoption" was broader than its regression coverage. The
+original focused lifecycle test covered readiness, start, verify and continuation;
+it did not mechanically cover documentation reflection, `104-sg-end`, or
+full-close `005-sg-ship`. The follow-up chantier
+`context-aware-technical-documentation-closure` closes that exact gap by making
+current task-owned Git paths and the canonical code-docs map authoritative,
+refreshing bounded context before classification, and requiring targeted
+canonical fallback whenever derived context is stale or incomplete. This note
+preserves the historical shipped record while correcting its documented limit.
+
 # Skill Run History
 
 | Date UTC | Skill | Model | Action | Result | Next step |
@@ -258,6 +272,7 @@ None blocking. Technology expansion beyond deterministic local structural retrie
 | 2026-08-30 21:15:57 | 103-sg-verify | gpt-5.6 | Verified incremental invalidation, migration, locking, path isolation, byte stability, privacy, lifecycle budgets, runtime visibility and cross-project recall. | Verified: 52 focused context tests pass; ShipGlows and CommunityGlows reach 1.0 representative recall with noise, truncation and unsupported-language gaps visible. | Close the internal-only chantier and ship its exact scope. |
 | 2026-08-30 21:17:02 | 104-sg-end | gpt-5.6 | Synchronized the spec, technical documentation, runtime visibility and one immutable internal closure event. | Closed for implementation and proof; editorial surfaces are not impacted and the significant change remains internal-only. | Commit and push the exact chantier scope. |
 | 2026-08-30 21:37:23 | 005-sg-ship | gpt-5.6 | Delivered the exact chantier scope through PR #47 after both required ShipGlows gates passed. | Shipped to `main` through the protected merge path; no deployment or public changelog claim applies. | Monitor aggregate quality evidence before expanding parser or retrieval technology. |
+| 2026-09-01 08:54:56 | 900-shipglows-core | GPT-5 | Recorded the lifecycle-coverage boundary discovered during the Windows documentation audit and linked its dedicated regression chantier. | Historical closure preserved; the omitted documentation/closure consumers are now explicit instead of implied by the earlier broad claim. | Complete and ship the follow-up chantier. |
 
 # Current Chantier Flow
 

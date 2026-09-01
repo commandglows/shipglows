@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.15.0"
+artifact_version: "2.16.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-08-30"
+updated: "2026-09-01"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -36,7 +36,7 @@ depends_on:
     artifact_version: "2.3.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.4.0"
     required_status: active
   - artifact: "skills/references/editorial-reflection-gate.md"
     artifact_version: "1.0.0"
@@ -60,6 +60,7 @@ evidence:
   - "Operator correction 2026-08-21: an independent outcome alone never triggers restart; user-facing language calls the restart prompt a handoff."
   - "Operator approval 2026-08-22: context health checks are lightweight at transitions and targeted only after a material degradation signal."
   - "Operator approval 2026-08-30: every managed-repository closure visibly classifies changelog impact without equating publication readiness with publication proof."
+  - "Operator correction 2026-09-01: closure reports render documentation evidence resolved from current changed paths and the canonical docs map, independently from editorial impact."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -133,6 +134,8 @@ For another progress report, keep only:
 4. a real operator decision/action only when required.
 
 For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line. Keep the content beneath `✏️ ÉDITORIAL` on exactly one line. Keep the content beneath `📰 CHANGELOG` on exactly one line. Separate each status, scope, or reason with ` · `.
+
+Before rendering the documentation line, apply `documentation-reflection-gate.md` to the exact task-owned changed paths and canonical code-docs map. The report must not invent or infer the classification from unchanged public copy, generic test success, memory, graph output, or a plausible sentence; it renders the gate result. Editorial impact remains independent.
 
 ```text
 ✨ RÉSULTAT

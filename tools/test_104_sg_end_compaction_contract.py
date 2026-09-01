@@ -92,6 +92,9 @@ class EndCompactionContractTests(unittest.TestCase):
             self.assertIn(expected, self.skill)
         for expected in (
             "Step 3: documentation reflection",
+            "task-owned changed paths",
+            "code-docs-map.md",
+            "revalidate the bounded capsule",
             "Apply directly mapped impacted documentation updates before setting `closed`",
             "material `needs review` result forces `partial`",
             "Include the exact classification visibly in every closure report",

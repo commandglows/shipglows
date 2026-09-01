@@ -280,8 +280,26 @@ class ReportingContractTests(unittest.TestCase):
             "DOC-CLOSE-BLOCKED",
             "DOC-CLOSE-UPDATE",
             "DOC-CLOSE-NO-FILLER",
+            "DOC-CLOSE-MAPPED-CODE",
+            "DOC-CLOSE-UNMAPPED-CODE",
+            "DOC-CLOSE-STALE-CONTEXT",
+            "DOC-CLOSE-EDITORIAL-SEPARATION",
         ):
             self.assertIn(scenario, reflection)
+
+    def test_documentation_verdict_comes_from_changed_path_mapping(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        reflection = DOCUMENTATION_REFLECTION.read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        for marker in (
+            "task-owned changed paths",
+            "code-docs-map.md",
+            "Before rendering the documentation line",
+            "must not invent or infer the classification",
+            "SSRP-035 context-aware documentation closure",
+        ):
+            self.assertIn(marker, core + reflection + scenarios)
+        self.assertIn("Editorial `not impacted` does not imply documentation `not impacted`", reflection)
 
     def test_closure_reports_make_editorial_reflection_visible(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")

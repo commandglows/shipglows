@@ -301,7 +301,7 @@ If verification fails, route back to correction, retest, spec update, or blocked
 
 ### 8. Mandatory Visible Documentation Reflection Before Closure
 
-Before `104-sg-end`, full-close shipping, or any other report/transition claiming `closed`, `complete`, `done`, `resolved`, or `shipped`, load and apply `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` against the changed behavior and the canonical project docs map.
+Before `104-sg-end`, full-close shipping, or any other completion claim, apply `documentation-reflection-gate.md` to the exact task-owned changed paths. Revalidate invalidated context, then compare changed code with the canonical project docs map; missing coverage is `needs review`, not no impact.
 
 Use the reference's exact classification and routing rules; do not wait for the operator to notice documentation drift. Every closure report exposes `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`. A material `needs review` result keeps the chantier partial.
 

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.26.1"
+artifact_version: "1.27.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-08-30"
+updated: "2026-09-01"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
   - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
   - "Le parcours Flutter Windows du 2026-08-30 privilégie une session live supervisée et crée un raccourci Dev distinct des builds figés."
   - "Le replay ToolGlows du 2026-08-28 a corrigé la séparation des lignes du guide ENVIRONMENT.md et la comparaison des timestamps JSON PowerShell 7 qui transformait à tort un processus vivant en projet arrêté."
@@ -53,6 +54,11 @@ next_step: "/103-sg-verify Windows operator guide"
 ## Diagnostic de configuration après clonage
 
 Après l'enregistrement, le clonage exécute `s env prepare` et affiche la classification. Pour `repairable`, examiner le plan JSON puis lancer la commande exacte `s env prepare-apply -ProjectPath <path> -PlanDigest <digest>` affichée par la CLI. ShipGlows n'applique jamais cette réparation automatiquement et ne fabrique pas les manifests du projet, lockfiles, `.env` ou secrets.
+
+La boîte à outils CLI installée pour toute la machine est un projet `mise`
+isolé de vos dépôts. Son `mise.lock` est régénéré pour `windows-x64` après
+l'installation des versions exactes ; il ne remplace ni ne modifie le lockfile
+d'une application et ne déclenche aucune authentification fournisseur.
 
 Si le diagnostic est `blocked`, le clone reste sur disque mais la commande échoue avec une erreur contextuelle. Corriger manuellement la source invalide puis relancer `s env prepare`; toute configuration existante inconnue ou invalide est préservée plutôt que remplacée.
 

@@ -13,6 +13,8 @@ class ContextLifecycleCapsuleContractTests(unittest.TestCase):
             "skills/101-sg-ready/SKILL.md": "bounded capsule",
             "skills/102-sg-start/references/execution-contract.md": "bounded capsule",
             "skills/103-sg-verify/references/verification-baseline.md": "bounded capsule",
+            "skills/104-sg-end/SKILL.md": "bounded capsule",
+            "skills/005-sg-ship/SKILL.md": "bounded capsule",
             "skills/706-continue/SKILL.md": "bounded capsule",
         }
         for relative, marker in expected.items():
@@ -30,6 +32,19 @@ class ContextLifecycleCapsuleContractTests(unittest.TestCase):
         body = (ROOT / "skills/303-sg-resume/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("Context Capsule", body)
         self.assertIn("Do not regenerate", body)
+
+    def test_closure_revalidates_context_before_documentation_classification(self) -> None:
+        quality = (ROOT / "skills/references/context-quality-contract.md").read_text(encoding="utf-8")
+        reflection = (ROOT / "skills/references/documentation-reflection-gate.md").read_text(encoding="utf-8")
+        for marker in (
+            "task-owned changed paths",
+            "code-docs-map.md",
+            "Context Head",
+            "targeted canonical fallback",
+            "before documentation classification",
+        ):
+            self.assertIn(marker, quality + reflection)
+        self.assertIn("never replace Git or the canonical documentation map", reflection)
 
 
 if __name__ == "__main__":

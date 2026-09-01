@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.36.0"
+artifact_version: "2.37.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -74,6 +74,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-09-01: verification, closure and full-close shipping now resolve documentation impact from exact task-owned Git paths through the canonical code-docs map, with a refreshed bounded context capsule or targeted canonical fallback."
   - "Wave 20 closes all 29 residual full-graph findings through canonical migrations, boundary reclassification, inverse-edge repair, and other-project governance removal; integrated complete graph 691/895/0 and profiled graph 133/89/0 are valid."
   - "Wave 19 migrates 44 proven canonical missing paths, resolves the 10 original constraint findings, reclassifies 6 non-artifact unversioned edges, and retains 29 classified missing targets without introducing cycles or fake metadata."
   - "Wave 18 removes all three full-graph cycles, repairs 79 constraints, migrates 13 active canonical paths, and reclassifies 73 historical edges as evidence while preserving the valid profiled graph."
@@ -672,7 +673,14 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 ## Failure Modes
 
 - A weak spec that lacks success/error behavior or explicit constraints must route back to readiness instead of being silently repaired during coding.
-- If mapped docs are missing from a `Documentation Update Plan`, the docs gate fails. If a closure report omits its visible `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>` classification, closure fails.
+- Before documentation classification, `103-sg-verify`, `104-sg-end`, and
+  full-close `005-sg-ship` reconstruct the exact task-owned changed paths,
+  refresh any invalidated bounded Context Head/capsule, and compare every code
+  path with `shipglows_data/technical/code-docs-map.md`. Derived graph/context
+  output accelerates discovery but never replaces Git or the canonical map;
+  stale, absent, truncated, or unsupported context triggers targeted canonical
+  fallback. Missing map coverage or an omitted mapped doc yields `needs review`
+  and blocks closure. Editorial impact is classified independently.
 - If public content, README, FAQ, pricing, public docs, skill pages, or claims are affected but missing from an `Editorial Update Plan`, the editorial gate fails.
 - If `001-sg-build` prepares implementation with missing or stale `docs/technical/code-docs-map.md`, applicable `docs/editorial/`, or `CONTENT_MAP.md`, it must route to `300-sg-docs` or record explicit no-impact/no-surface status before proceeding.
 - If a master skill patches in the master conversation merely because a file change is small while subagents are available, treat that as workflow drift. Small scope may use a mini-contract, but the execution mode remains delegated sequential for file work.
