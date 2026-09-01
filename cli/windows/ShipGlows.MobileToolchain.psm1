@@ -927,6 +927,22 @@ function Test-SgTauriDesktopRustToolchain {
     return -not $rust.TimedOut -and $rust.ExitCode -eq 0 -and $rust.Output -match "(?m)^rustc $([regex]::Escape([string]$Baseline.RustToolchainVersion))\b" -and -not $cargo.TimedOut -and $cargo.ExitCode -eq 0 -and -not $rustup.TimedOut -and $rustup.ExitCode -eq 0
 }
 
+function Test-SgTauriDesktopRustWrappers {
+    param(
+        [string]$MisePath,
+        [string]$ToolchainRoot,
+        [string]$RuntimeRoot=$(if($env:SHIPGLOWS_ROOT){$env:SHIPGLOWS_ROOT}else{Join-Path $env:USERPROFILE '.shipglows\runtime'}),
+        $Baseline=(Get-SgTauriDesktopBaseline)
+    )
+    foreach($command in @('cargo','rustc','rustup')){
+        $path=Join-Path (Join-Path $RuntimeRoot 'bin') "$command.cmd"
+        if(-not(Test-Path -LiteralPath $path -PathType Leaf)){return $false}
+        $expected=Get-SgTauriRustWrapperContent $MisePath $ToolchainRoot $command $Baseline.RustToolchainVersion
+        if([IO.File]::ReadAllText($path) -cne $expected){return $false}
+    }
+    return $true
+}
+
 function Install-SgTauriDesktopRustToolchain {
     param([string]$RuntimeRoot=$(if($env:SHIPGLOWS_ROOT){$env:SHIPGLOWS_ROOT}else{Join-Path $env:USERPROFILE '.shipglows\runtime'}),[scriptblock]$Runner=$null)
     $baseline=Get-SgTauriDesktopBaseline; $root=Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-windows'; $mise=Resolve-SgTrustedMisePath
@@ -937,7 +953,9 @@ function Install-SgTauriDesktopRustToolchain {
     $install=Invoke-SgIsolatedTauriMise $mise $root @('install',"rust@$($baseline.RustToolchainVersion)") 1800 $Runner
     if ($install.TimedOut) { return [pscustomobject]@{status='timeout';reason='Rust installation timed out';completed=@()} }
     if ($install.ExitCode -ne 0) { return [pscustomobject]@{status='partial';reason="Rust installation exited $($install.ExitCode)";completed=@()} }
-    if (-not (Test-SgTauriDesktopRustToolchain $mise $root $baseline $Runner)) { return [pscustomobject]@{status='partial';reason='Rust post-install observation failed';completed=@('install_rust')} }
+    $rustReady=$false
+    foreach($attempt in 1..3){if(Test-SgTauriDesktopRustToolchain $mise $root $baseline $Runner){$rustReady=$true;break};if($attempt-lt3){Start-Sleep -Milliseconds 500}}
+    if (-not $rustReady) { return [pscustomobject]@{status='partial';reason='Rust post-install observation failed';completed=@('install_rust')} }
     $bin=Join-Path $RuntimeRoot 'bin'; New-Item -ItemType Directory -Path $bin -Force | Out-Null
     foreach($command in @('cargo','rustc','rustup')){[IO.File]::WriteAllText((Join-Path $bin "$command.cmd"),(Get-SgTauriRustWrapperContent $mise $root $command $baseline.RustToolchainVersion),[Text.Encoding]::ASCII)}
     [pscustomobject]@{status='applied';completed=@('install_rust','wrappers');next_action='replan'}
@@ -954,7 +972,7 @@ function Get-SgWindowsWebView2State {
 function Get-SgTauriWindowsEnvironmentObservation {
     param([string]$ProjectRoot,[string]$Scope='.')
     $baseline=Get-SgTauriDesktopBaseline; $toolchain=Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-windows'; $mise=Resolve-SgTrustedMisePath
-    $rustReady=Test-SgTauriDesktopRustToolchain $mise $toolchain $baseline
+    $rustReady=(Test-SgTauriDesktopRustToolchain $mise $toolchain $baseline) -and (Test-SgTauriDesktopRustWrappers $mise $toolchain -Baseline $baseline)
     $project=if($Scope -eq '.'){[IO.Path]::GetFullPath($ProjectRoot)}else{[IO.Path]::GetFullPath((Join-Path $ProjectRoot $Scope))}
     $tauriPackage=Join-Path $project 'node_modules\@tauri-apps\cli\package.json'; $tauriVersion=''
     if(Test-Path -LiteralPath $tauriPackage -PathType Leaf){try{$tauriVersion=[string](([IO.File]::ReadAllText($tauriPackage)|ConvertFrom-Json).version)}catch{}}
@@ -1380,5 +1398,5 @@ function Get-SgFlutterAndroidDiagnostic {
     }
 }
 
-Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgTauriDesktopBaseline,Get-SgTauriDesktopMiseConfig,Resolve-SgTrustedMisePath,Invoke-SgIsolatedTauriMise,Test-SgTauriDesktopRustToolchain,Install-SgTauriDesktopRustToolchain,Get-SgWindowsWebView2State,Get-SgTauriWindowsEnvironmentObservation,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Get-SgProjectMcpDefinitions,Get-SgProjectAgentMcpConfigPlan,Get-SgManagedProjectConfigWritePlan,Write-SgManagedProjectConfig,Get-SgStringSha256,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
+Export-ModuleMember -Function Move-SgAtomicReplace,Get-SgTauriAndroidBaseline,Get-SgTauriAndroidProjectState,New-SgTauriAndroidMigrationHandoff,Get-SgTauriMiseConfig,Get-SgTauriAndroidHostPlan,Get-SgTauriRustWrapperContent,Get-SgTauriRustTargetAddArguments,Test-SgTauriRustTargetAddResult,Get-SgTauriDesktopBaseline,Get-SgTauriDesktopMiseConfig,Resolve-SgTrustedMisePath,Invoke-SgIsolatedTauriMise,Test-SgTauriDesktopRustToolchain,Test-SgTauriDesktopRustWrappers,Install-SgTauriDesktopRustToolchain,Get-SgWindowsWebView2State,Get-SgTauriWindowsEnvironmentObservation,Get-SgAndroidCoordinates,Test-SgSupportedAndroidArchitecture,Get-SgAndroidInstallPlan,Get-SgWindowsIdeInstallPlan,Get-SgAndroidStudioState,Get-SgVisualStudioCppState,Get-SgAndroidProvisionPlan,Test-SgAndroidLicenseResult,Test-SgWindowsDeveloperMode,Get-SgDeveloperModeGuidancePlan,Test-SgWindowsHypervisorEvidence,Test-SgAndroidAcceleration,Get-SgEmulatorProvisionPlan,Get-SgAndroidEmulatorProvisionState,Get-SgFlutterInstallState,Get-SgProjectServiceNeeds,Resolve-SgAndroidCommandLineToolsPackage,Resolve-SgAdoptiumJdkPackage,Get-SgServiceCliPlan,Get-SgMachineToolboxPlan,Get-SgMachineToolboxMiseConfig,Get-SgMachineToolboxWrapperContent,Get-SgAgentInstallPlan,Get-SgGeminiMcpAddArguments,Get-SgGeminiMcpConfigState,Get-SgStackMcpDefinitions,Get-SgProjectMcpDefinitions,Get-SgProjectAgentMcpConfigPlan,Get-SgManagedProjectConfigWritePlan,Write-SgManagedProjectConfig,Get-SgStringSha256,Test-SgServiceCliResult,Test-SgMiseVersionResult,Test-SgCodexMcpResult,Test-SgChromiumExecutableResult,Resolve-SgKiloCommand,Get-SgAgentMcpPlan,Get-SgAgentConfigWritePlan,Resolve-SgAgentConfigPath,Write-SgNewAgentConfig,Test-SgVersionCommand,Resolve-SgExistingJdk17,Resolve-SgExistingAndroidSdk,Set-SgResolvedToolProcessEnvironment,Expand-SgVerifiedZip,Stop-SgProcessTree,Invoke-SgBoundedProcess,Invoke-SgInteractiveBoundedProcess,Get-SgFlutterAndroidDiagnostic
 Export-ModuleMember -Function Resolve-SgTrustedWingetIdentity
