@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.28.0"
+artifact_version: "1.29.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-09-01"
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le replay Obsidian du 2026-09-01 confirme la priorité de classification sur Vite, le watch sans port, les états explicites et la copie vérifiée vers un coffre de test déclaré."
   - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
   - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
   - "Le parcours Flutter Windows du 2026-08-30 privilégie une session live supervisée et crée un raccourci Dev distinct des builds figés."
@@ -55,6 +56,13 @@ next_step: "/103-sg-verify Windows operator guide"
 
 Après l'enregistrement, le clonage exécute `s env prepare` et affiche la classification. Pour `repairable`, examiner le plan JSON puis lancer la commande exacte `s env prepare-apply -ProjectPath <path> -PlanDigest <digest>` affichée par la CLI. ShipGlows n'applique jamais cette réparation automatiquement et ne fabrique pas les manifests du projet, lockfiles, `.env` ou secrets.
 
+Quand le clone contient un plugin Obsidian sans coffre valide explicitement
+déclaré, le diagnostic reste `manual` même si un manifeste ShipGlows générique
+pourrait être créé. Il affiche le plugin id, les scripts, les artefacts et les
+preuves de détection, puis demande `SHIPGLOWS_OBSIDIAN_VAULT` sans rechercher un
+coffre sur la machine. Un chemin relatif, absent ou sans `.obsidian` reste
+actionnable comme configuration invalide.
+
 La boîte à outils CLI installée pour toute la machine est un projet `mise`
 isolé de vos dépôts. Son `mise.lock` est régénéré pour `windows-x64` après
 l'installation des versions exactes ; il ne remplace ni ne modifie le lockfile
@@ -79,7 +87,7 @@ ne sont pas requis par le parcours Shadow PC.
 **Avantages:**
 - ✅ Pas besoin de WSL ni de virtualisation imbriquée
 - ✅ Tunnels SSH avec OpenSSH natif
-- ✅ DevServer natif Astro, Vite, extensions navigateur, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
+- ✅ DevServer natif Astro, Vite, extensions navigateur, plugins Obsidian, Python/FastAPI et Flutter Web, plus chaîne Flutter Android, en mode full
 - ✅ Clone et registre local des dépôts directement dans `%USERPROFILE%\ShipGlows`
 - ✅ Git, GitHub CLI, Node/npm, pnpm et uv installés automatiquement en mode full
 - ✅ Android Studio proposé pour Android/Firebase Device Streaming et Visual Studio Community C++ pour compiler Flutter Windows
@@ -243,7 +251,7 @@ ne sont pas requis par le parcours Shadow PC.
    lit ni ses paquets, ni ses variables, ni ses hooks. Il découvre les apps à
    partir de leurs manifests natifs (`package.json`, `pubspec.yaml`, etc.).
 
-### Choisir le bon parcours : site, app ou extension Chrome
+### Choisir le bon parcours : site, app, extension Chrome ou plugin Obsidian
 
 ShipGlows détecte la surface exécutable à partir de ses manifests, puis affiche
 un libellé compréhensible dans `s help`, `s status`, le dashboard et les
@@ -255,6 +263,7 @@ la prochaine commande à lancer.
 | Site Astro/Vite ou API Python/FastAPI | `Web project` et `URL :<port>` | Start prépare le serveur, Open ouvre l'URL locale. |
 | Application Flutter Web | `Flutter app` et `App :<port>` | Start prépare la session gérée, Open ouvre la session Chrome visible avec le cycle Flutter. |
 | Extension Chrome CRXJS | `Chrome extension`, `HMR :<port>` et `dist\chrome` | Start construit Manifest V3 et lance HMR, Open ouvre le gestionnaire Chrome et le dossier à charger. |
+| Plugin Obsidian | `Obsidian plugin` avec son état, sans URL ni port | Start lance le script watch déclaré puis copie les artefacts dans le coffre explicitement configuré; Open rappelle le rechargement manuel. |
 
 Le parcours complet et copiable est :
 
@@ -277,13 +286,21 @@ dans votre profil personnel. La détection automatique actuelle couvre les
 projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
 stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
 
+Pour un plugin Obsidian, ShipGlows affiche les preuves de détection, l'id du
+plugin, les scripts `dev`/`watch`/`start` et `build`, ainsi que `main.js`,
+`manifest.json` et l'éventuel `styles.css`. Sans coffre déclaré, l'état reste
+`detected` et Start indique exactement la configuration manquante. La réussite
+du build et de la copie peut devenir `ready`, mais le chargement réel dans
+Obsidian reste `validation-unavailable` jusqu'à votre validation manuelle.
+
 ### Monorepos, registre et Flutter Web
 
-Le DevServer détecte Astro, Vite, les extensions navigateur, Python/FastAPI et Flutter Web à partir des
+Le DevServer détecte Astro, Vite, les extensions navigateur, les plugins Obsidian, Python/FastAPI et Flutter Web à partir des
 manifests et signaux de framework, jamais à partir d'un nom de dossier imposé.
 Une racine de dépôt ou un monorepo enregistré explicitement peut donc produire
 plusieurs surfaces. Chacune possède sa propre entrée de registre, son nom
-qualifié, son port persistant, ses journaux et son `ENVIRONMENT.md`.
+qualifié, ses journaux et son `ENVIRONMENT.md`. Les surfaces HTTP ont leur port
+persistant; un plugin Obsidian n'en réserve aucun.
 
 La recherche est volontairement bornée à quatre niveaux dans le workspace et
 trois niveaux sous une racine de projet. Elle ignore les dossiers cachés, les
@@ -313,7 +330,9 @@ Les noms affichés sont les chemins de lancement relatifs au workspace, avec `/`
 comme séparateur. La navigation n'affiche que ce nom ; les autres actions peuvent
 ajouter statut, type et port. La ligne choisie est toujours résolue vers le
 `launchPath` canonique exact, puis le manifest est revérifié avant l'action.
-Un `package.json` sans `scripts.dev` n'est pas une surface lançable.
+Un `package.json` web sans `scripts.dev` n'est pas une surface lançable. Un
+plugin Obsidian peut être détecté avec un script `build` seul, mais Start reste
+`build-required` tant qu'aucun script long `dev`, `watch` ou `start` n'est déclaré.
 
 La sélection et la réservation d'un port utilisent le même verrou interprocessus
 que l'écriture du registre. Deux démarrages concurrents ne peuvent donc pas
@@ -407,6 +426,11 @@ Pour une extension, le bloc remplace l'URL de page par le port HMR et
 unpacked et Stop. Un agent ou une opératrice reprenant le dépôt retrouve ainsi
 la même prochaine action que dans la CLI.
 
+Pour un plugin Obsidian, ce bloc indique qu'URL et port ne s'appliquent pas. Il
+rappelle le script watch, la cible explicite et la validation manuelle; le
+registre conserve les états live `running`, `ready` et
+`validation-unavailable` sans réécrire le document à chaque cycle.
+
 Une réconciliation ou réinstallation qui lit temporairement le port `0` dans
 le registre conserve un port valide déjà inscrit dans `ENVIRONMENT.md`. Au
 prochain démarrage, ce port durable est réutilisé avec la même réservation
@@ -433,7 +457,7 @@ d'un démarrage ou de la réconciliation de l'installateur. Le contenu placé ho
 des marqueurs ShipGlows est conservé. Un schéma futur inconnu, des marqueurs
 incomplets ou plusieurs blocs provoquent un refus sans réécriture du fichier.
 
-Sous Windows, la priorité de port est : port demandé explicitement, variable
+Sous Windows, la priorité de port des surfaces HTTP est : port demandé explicitement, variable
 `SHIPGLOWS_ENV_PORT` du processus, `.shipglows.env` du projet, port durable de
 `ENVIRONMENT.md`, registre persistant, puis premier port libre de `3000` à
 `3100`. Quand le registre ne porte aucun port, `ENVIRONMENT.md` est consulté
@@ -441,7 +465,8 @@ avant l'allocation libre. Le numéro obtenu est
 propre à la surface. Si ShipGlows lance la surface sur `3002` alors que le dépôt
 déclare `3014`, `ENVIRONMENT.md` contient `http://127.0.0.1:3002`; `3014` reste
 un fallback de lancement direct. `s open` refuse un statut inactif ou un port
-non attribué dans le registre.
+non attribué dans le registre. Cette priorité ne s'applique pas aux plugins
+Obsidian, dont Start refuse un port explicite.
 
 Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
 
@@ -455,6 +480,27 @@ Avec pnpm, les options `--host` et `--port` sont transmises directement au scrip
 le séparateur supplémentaire reste réservé au chemin npm.
 La disponibilité d'une extension respecte le budget de démarrage de 90 secondes
 demandé par le lanceur; elle ne le tronque plus silencieusement à 60 secondes.
+
+Un plugin Obsidian est reconnu avant le fallback Vite quand `manifest.json`
+porte `id`, `name`, `version` et `minAppVersion`, que le paquet dépend de
+`obsidian`, qu'un `main.ts`, `src/main.ts` ou `main.js` existe et qu'un workflow
+`dev`, `watch`, `start` ou `build` est déclaré. Pour activer l'installation,
+créez dans la racine du plugin un `.shipglows.env` explicite :
+
+```dotenv
+SHIPGLOWS_OBSIDIAN_VAULT=C:\chemin\absolu\vers\le-coffre
+SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy
+```
+
+Le coffre doit déjà exister et contenir `.obsidian`. ShipGlows ne recherche ni
+ne sélectionne aucun coffre personnel, et refuse les liens de réanalyse sur le
+coffre, `.obsidian`, le dossier cible et les artefacts. Un Start explicite lance
+le script watch déclaré sans options HTTP, attend un `main.js` frais, puis copie
+atomiquement et vérifie par SHA-256 `main.js`, `manifest.json` et l'éventuel
+`styles.css` dans `.obsidian/plugins/<plugin-id>`. Il ne supprime pas les fichiers
+supplémentaires déjà présents dans cette cible. `s open` ne pilote pas Obsidian :
+il affiche le dossier synchronisé et demande de recharger ou d'activer le plugin
+manuellement.
 
 La réinstallation du runtime repasse aussi les projets déjà enregistrés dans le
 détecteur courant avant de migrer leur bloc d'environnement. Le registre et

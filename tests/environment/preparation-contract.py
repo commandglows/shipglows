@@ -84,6 +84,61 @@ with tempfile.TemporaryDirectory() as directory:
         item["id"] == "tauri-windows" and item.get("scope") == "."
         for item in prepared_desired["manifest"]["capabilities"]["targets"]
     )
+    obsidian = root / "obsidian-monorepo"
+    plugin = obsidian / "obsidian_plugin"
+    extension = obsidian / "chrome_extension"
+    (plugin / "src").mkdir(parents=True)
+    extension.mkdir(parents=True)
+    (plugin / "package.json").write_text(
+        json.dumps(
+            {
+                "scripts": {"dev": "vite build --watch", "build": "vite build"},
+                "devDependencies": {"obsidian": "^1.7.2", "vite": "^8.2.0"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (plugin / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "dreamglows",
+                "name": "DreamGlows",
+                "version": "1.0.0",
+                "minAppVersion": "0.15.0",
+                "description": "Fixture",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (plugin / "src" / "main.ts").write_text("export default class FixturePlugin {}\n", encoding="utf-8")
+    (extension / "package.json").write_text(
+        json.dumps(
+            {
+                "scripts": {"dev": "vite", "dev:chrome": "vite -c vite.chrome.config.ts"},
+                "devDependencies": {"@crxjs/vite-plugin": "^2.7.1", "vite": "^8.2.0"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    obsidian_plan = build_preparation_plan(obsidian)
+    obsidian_surface = next(item for item in obsidian_plan["surfaces"] if item["kind"] == "obsidian-plugin")
+    assert obsidian_surface["pluginId"] == "dreamglows"
+    assert obsidian_surface["state"] == "detected"
+    assert "manifest.json" in obsidian_surface["evidence"]
+    assert obsidian_plan["classification"] == "manual"
+    assert obsidian_plan["operation"] is None
+    assert any(item["code"] == "obsidian-vault-not-configured" for item in obsidian_plan["notices"])
+    (plugin / ".shipglows.env").write_text(
+        f"SHIPGLOWS_OBSIDIAN_VAULT={root / 'missing-vault'}\nSHIPGLOWS_OBSIDIAN_SYNC_MODE=copy\n",
+        encoding="utf-8",
+    )
+    invalid_vault_plan = build_preparation_plan(obsidian)
+    invalid_vault_surface = next(item for item in invalid_vault_plan["surfaces"] if item["kind"] == "obsidian-plugin")
+    assert invalid_vault_surface["state"] == "detected"
+    assert invalid_vault_surface["configurationStatus"] == "invalid"
+    assert invalid_vault_plan["classification"] == "manual"
+    assert invalid_vault_plan["operation"] is None
+    assert any(item["code"] == "obsidian-vault-invalid" for item in invalid_vault_plan["notices"])
     stale = root / "stale"
     stale.mkdir()
     (stale / "package.json").write_text("{}", encoding="utf-8")

@@ -103,10 +103,10 @@ ShipGlows Windows shortcuts
   s e      Start a project
   s status                           Show every project surface and state
   s status -ProjectPath <path>       Show one project, its port role, and next action
-  s start -ProjectPath <path>       Start a web project, app, or Chrome extension
+  s start -ProjectPath <path>       Start a web project, app, Chrome extension, or configured Obsidian plugin
   s extension-inspect [-ProjectPath <path>] [-Json]  Inspect an extension without running repository scripts
   s extension-lab [-ProjectPath <path>] [-Headless] [-Json] [-TargetUrl <url>]  Load and probe a built MV3 extension in isolated Chromium
-  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools
+  s open -ProjectPath <path>        Open the URL/app/extension tools or show Obsidian reload guidance
   s stop -ProjectPath <path>        Stop the exact managed project
   s m r    Restart a project
   s m t    Stop a project
@@ -132,6 +132,8 @@ Project journeys
   Chrome extension Inspect -> explicitly build when required -> Extension Lab -> close Chromium
   The Extension Lab uses a temporary Chromium profile and never runs repository scripts implicitly.
   Managed CRXJS start/open remains available for projects using @crxjs/vite-plugin and dev:chrome.
+  Obsidian plugin  Detect -> declare one vault in .shipglows.env -> Start build/watch + copy -> reload manually
+                   ShipGlows never discovers a personal vault or claims that Obsidian loaded the plugin.
 
 Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.
 '@)
@@ -429,6 +431,17 @@ function Write-SgRegisteredProjectGuidance([object]$Entry) {
     $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
     $experience = Get-SgProjectExperience ([string]$Entry.kind) ([int]$Entry.port) $flutterDevice
     Write-SgInfo "$($experience.Label) detected: $($Entry.Name)"
+    if ([string]$Entry.kind -eq 'obsidian-plugin') {
+        if ($Entry.PSObject.Properties['pluginId']) { Write-SgInfo "Plugin id: $($Entry.pluginId)" }
+        if ($Entry.PSObject.Properties['detectionEvidence']) { Write-SgInfo "Evidence: $(@($Entry.detectionEvidence) -join ', ')" }
+        if ($Entry.PSObject.Properties['developmentScriptName'] -and $Entry.developmentScriptName) { Write-SgInfo "Development script: $($Entry.developmentScriptName) = $($Entry.developmentScript)" }
+        if ($Entry.PSObject.Properties['buildScriptName'] -and $Entry.buildScriptName) { Write-SgInfo "Build script: $($Entry.buildScriptName) = $($Entry.buildScript)" }
+        if ($Entry.PSObject.Properties['artifactPaths']) { Write-SgInfo "Artifacts: $(@($Entry.artifactPaths) -join ', ')" }
+        if ($Entry.PSObject.Properties['surfaceState'] -and $Entry.surfaceState -eq 'detected') {
+            if ($Entry.PSObject.Properties['obsidianVault'] -and $Entry.obsidianVault) { Write-SgWarn 'State: detected. The declared vault is not an existing initialized Obsidian vault; correct SHIPGLOWS_OBSIDIAN_VAULT in .shipglows.env before start.' }
+            else { Write-SgWarn 'State: detected. Configure SHIPGLOWS_OBSIDIAN_VAULT=<absolute-vault-path> in .shipglows.env before start; ShipGlows will not discover or select a personal vault.' }
+        }
+    }
     Write-SgInfo "Next: run s start -ProjectPath `"$($Entry.path)`"."
 }
 

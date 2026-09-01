@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +22,20 @@ MANIFEST_SCHEMA = "shipglows.environment/v1"
 MANIFEST_NAME = "shipglows.environment.json"
 MAX_DEPTH = 3
 IGNORED_DIRECTORIES = {".git", ".gradle", ".idea", ".next", ".pnpm-store", ".turbo", ".venv", "build", "coverage", "dist", "node_modules", "target", "vendor"}
-INTERESTING_NAMES = {"Cargo.toml", "package.json", "pnpm-lock.yaml", "pubspec.yaml", "pyproject.toml", "requirements.txt", "tauri.conf.json"}
+INTERESTING_NAMES = {
+    ".shipglows.env",
+    "Cargo.toml",
+    "main.js",
+    "main.ts",
+    "manifest.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    "pubspec.yaml",
+    "pyproject.toml",
+    "requirements.txt",
+    "styles.css",
+    "tauri.conf.json",
+}
 
 
 def _digest(value: Any) -> str:
@@ -55,9 +69,57 @@ def _read_package(path: Path, root: Path, blocked: list[dict[str, str]]) -> dict
     return value
 
 
-def _infer(root: Path, files: list[Path], blocked: list[dict[str, str]]) -> tuple[dict[str, list[dict[str, Any]]], list[dict[str, str]]]:
+def _obsidian_vault_configuration(project: Path) -> str:
+    settings = project / ".shipglows.env"
+    if not settings.is_file() or settings.is_symlink():
+        return "not-configured"
+    try:
+        lines = settings.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return "invalid"
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line.startswith("SHIPGLOWS_OBSIDIAN_VAULT="):
+            continue
+        declared = os.path.expandvars(line.partition("=")[2].strip())
+        if not declared:
+            return "not-configured"
+        vault = Path(declared)
+        try:
+            obsidian_directory = vault / ".obsidian"
+            if not vault.is_absolute() or vault.is_symlink() or not vault.is_dir():
+                return "invalid"
+            if obsidian_directory.is_symlink() or not obsidian_directory.is_dir():
+                return "invalid"
+        except OSError:
+            return "invalid"
+        return "configured"
+    return "not-configured"
+
+
+def _read_obsidian_manifest(path: Path, root: Path, blocked: list[dict[str, str]]) -> dict[str, Any] | None:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        blocked.append({"code": "invalid-obsidian-manifest", "path": path.relative_to(root).as_posix(), "message": f"Invalid Obsidian manifest preserved: {exc}"})
+        return None
+    if not isinstance(value, dict):
+        blocked.append({"code": "invalid-obsidian-manifest", "path": path.relative_to(root).as_posix(), "message": "Obsidian manifest.json must contain a JSON object; the file was preserved."})
+        return None
+    required = ("id", "name", "version", "minAppVersion")
+    if any(not isinstance(value.get(name), str) or not value[name].strip() for name in required):
+        blocked.append({"code": "invalid-obsidian-manifest", "path": path.relative_to(root).as_posix(), "message": "Obsidian manifest.json requires non-empty id, name, version, and minAppVersion fields; the file was preserved."})
+        return None
+    plugin_id = value["id"].strip()
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", plugin_id):
+        blocked.append({"code": "invalid-obsidian-plugin-id", "path": path.relative_to(root).as_posix(), "message": "Obsidian plugin id must be a path-safe identifier; the file was preserved."})
+        return None
+    return value
+
+
+def _infer(root: Path, files: list[Path], blocked: list[dict[str, str]]) -> tuple[dict[str, list[dict[str, Any]]], list[dict[str, Any]]]:
     capabilities = _infer_native_capabilities(root, files)
-    surfaces: list[dict[str, str]] = []
+    surfaces: list[dict[str, Any]] = []
 
     def add(group: str, entry: dict[str, Any]) -> None:
         if not any(_capability_key(existing) == _capability_key(entry) for existing in capabilities[group]):
@@ -79,7 +141,53 @@ def _infer(root: Path, files: list[Path], blocked: list[dict[str, str]]) -> tupl
                 add("tools", {"id": "pnpm", "constraint": package_manager.partition("@")[2] or "*", "scope": scope})
             elif package_manager.startswith("npm@"):
                 add("tools", {"id": "npm", "constraint": package_manager.partition("@")[2] or "*", "scope": scope})
-            dependencies = {**(package.get("dependencies") if isinstance(package.get("dependencies"), dict) else {}), **(package.get("devDependencies") if isinstance(package.get("devDependencies"), dict) else {})}
+            dependencies = {
+                **(package.get("dependencies") if isinstance(package.get("dependencies"), dict) else {}),
+                **(package.get("devDependencies") if isinstance(package.get("devDependencies"), dict) else {}),
+                **(package.get("peerDependencies") if isinstance(package.get("peerDependencies"), dict) else {}),
+            }
+            scripts = package.get("scripts") if isinstance(package.get("scripts"), dict) else {}
+            obsidian_manifest_path = path.parent / "manifest.json"
+            entrypoint = next((candidate for candidate in (path.parent / "main.ts", path.parent / "src" / "main.ts", path.parent / "main.js") if candidate.is_file() and not candidate.is_symlink()), None)
+            development_script = next((name for name in ("dev", "watch", "start") if isinstance(scripts.get(name), str) and scripts[name].strip()), None)
+            build_script = "build" if isinstance(scripts.get("build"), str) and scripts["build"].strip() else None
+            if "obsidian" in dependencies and obsidian_manifest_path.is_file() and entrypoint and (development_script or build_script):
+                manifest = _read_obsidian_manifest(obsidian_manifest_path, root, blocked)
+                if manifest is None:
+                    continue
+                evidence = [
+                    "manifest.json",
+                    "package.json dependency:obsidian",
+                    entrypoint.relative_to(path.parent).as_posix(),
+                ]
+                if development_script:
+                    evidence.append(f"scripts.{development_script}")
+                if build_script:
+                    evidence.append("scripts.build")
+                artifacts = [name for name in ("main.js", "manifest.json", "styles.css") if (path.parent / name).is_file() or name in {"main.js", "manifest.json"}]
+                vault_configuration = _obsidian_vault_configuration(path.parent)
+                main_output = path.parent / "main.js"
+                input_paths = (entrypoint, path, obsidian_manifest_path)
+                if vault_configuration != "configured":
+                    state = "detected"
+                elif main_output.is_symlink() or not main_output.is_file() or main_output.stat().st_mtime_ns < max(candidate.stat().st_mtime_ns for candidate in input_paths):
+                    state = "build-required"
+                else:
+                    state = "configured"
+                surfaces.append(
+                    {
+                        "kind": "obsidian-plugin",
+                        "path": relative,
+                        "pluginId": manifest["id"].strip(),
+                        "developmentScript": development_script or "",
+                        "buildScript": build_script or "",
+                        "artifacts": artifacts,
+                        "evidence": evidence,
+                        "configurationStatus": vault_configuration,
+                        "state": state,
+                    }
+                )
+                continue
             astro = "astro" in dependencies or any(candidate.parent == path.parent and candidate.name.startswith("astro.config.") for candidate in files)
             if astro:
                 add("targets", {"id": "web", "scope": scope})
@@ -110,14 +218,31 @@ def build_preparation_plan(project_root: str | Path) -> dict[str, Any]:
     capabilities, surfaces = _infer(root, files, blocked)
     notices: list[dict[str, str]] = []
     operation: dict[str, Any] | None = None
+    unconfigured_obsidian = [surface for surface in surfaces if surface["kind"] == "obsidian-plugin" and surface["state"] == "detected"]
+    for surface in unconfigured_obsidian:
+        plugin_root = Path(surface["path"]).parent.as_posix()
+        invalid = surface.get("configurationStatus") == "invalid"
+        notices.append(
+            {
+                "code": "obsidian-vault-invalid" if invalid else "obsidian-vault-not-configured",
+                "path": plugin_root,
+                "message": (
+                    "The declared Obsidian vault must be an existing absolute directory containing .obsidian; correct SHIPGLOWS_OBSIDIAN_VAULT in the plugin .shipglows.env."
+                    if invalid
+                    else "Obsidian plugin detected but no vault is configured. Declare SHIPGLOWS_OBSIDIAN_VAULT=<absolute-vault-path> in the plugin .shipglows.env; ShipGlows will not discover or select a personal vault."
+                ),
+            }
+        )
     if manifest_path.exists():
         try:
             discover_project(root)
         except (ContractError, OSError, UnicodeError, json.JSONDecodeError) as exc:
             blocked.append({"code": "invalid-shipglows-manifest", "path": MANIFEST_NAME, "message": f"Existing ShipGlows manifest preserved: {exc}"})
-        classification = "blocked" if blocked else "healthy"
+        classification = "blocked" if blocked else ("manual" if unconfigured_obsidian else "healthy")
     elif blocked:
         classification = "blocked"
+    elif unconfigured_obsidian:
+        classification = "manual"
     elif surfaces:
         manifest = {"schema": MANIFEST_SCHEMA, "project": {"name": root.name}, "capabilities": capabilities, "backends": {}}
         operation = {"action": "create", "owner": "shipglows", "path": MANIFEST_NAME, "content": json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True) + "\n"}

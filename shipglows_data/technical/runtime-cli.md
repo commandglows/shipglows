@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.38.0"
+artifact_version: "1.39.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-01"
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Native Windows Obsidian adapter 2026-09-01: manifest and dependency evidence outrank generic Vite, start runs the declared watch workflow without HTTP, and artifact copy is restricted to one explicitly configured vault."
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
   - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
@@ -299,7 +300,7 @@ See `skills/references/browser-extension-lab.md` for agent semantics and `shipgl
 
 The Windows `full` bootstrap is a separate runtime backend for machines such
 as Shadow PC where WSL cannot be used. It owns only local development for
-Astro, Vite, browser extensions, Python/FastAPI, and Flutter Web. Repositories are constrained to the
+Astro, Vite, browser extensions, Obsidian plugins, Python/FastAPI, and Flutter Web. Repositories are constrained to the
 configured workspace, ports are allocated from `3000..3100`, and process
 identity is checked with PID, start time, executable path, and a command
 signature before stopping a process. The JSON registry is written through a
@@ -315,6 +316,7 @@ not as internal detector kinds:
 | Astro, Vite, or Python/FastAPI | `Web project` and `URL :<port>` | Start prepares the local server; Open launches its loopback URL. |
 | Flutter Web | `Flutter app` and `App :<port>` | Start prepares the managed headless session; Open switches to the visible managed Chrome session. |
 | CRXJS Chrome extension | `Chrome extension`, `HMR :<port>`, and `dist\chrome` | Start prepares Manifest V3 plus HMR; Open launches `chrome://extensions` and the unpacked output folder. |
+| Obsidian plugin | `Obsidian plugin` plus `detected`, `configured`, `build-required`, `running`, or `ready` | Start runs the declared watch script without an HTTP port, copies fresh artifacts to one explicitly configured vault, and Open gives manual reload guidance. |
 
 `s help`, `s status`, the dashboard, the picker and post-registration output
 share those terms. Clone and manual registration end with the exact next
@@ -352,13 +354,32 @@ or an HTTP response alone cannot mark the extension running. Open launches the
 browser extension manager beside the generated unpacked directory and never
 silently installs into a personal browser profile.
 
+An Obsidian surface is classified before generic Vite only when a root
+`manifest.json` exposes non-empty `id`, `name`, `version`, and `minAppVersion`,
+`package.json` declares the `obsidian` dependency, a supported main source or
+output exists, and a `dev`, `watch`, `start`, or `build` script is declared. The
+descriptor records those exact detection proofs, the plugin id, script names,
+and the `main.js`, `manifest.json`, and optional `styles.css` artifacts. A
+managed start requires a long-running `dev`, `watch`, or `start` script and
+fresh `main.js`; it does not allocate a port or perform an HTTP probe.
+
+Vault installation is disabled until the plugin's `.shipglows.env` declares
+`SHIPGLOWS_OBSIDIAN_VAULT=<absolute-vault-path>`. The path must already exist
+and contain `.obsidian`; ShipGlows never scans, chooses, starts, or reloads a
+personal vault. `SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy` is the only supported mode.
+After explicit Start and successful build readiness, ShipGlows atomically
+copies and hash-verifies only the declared artifacts under
+`.obsidian/plugins/<plugin-id>`. Build-and-copy readiness is distinct from
+actual loading in Obsidian, which remains `validation-unavailable` until the
+operator reloads or enables the plugin and validates it manually.
+
 During a full Windows runtime installation, every still-present registered
 project is re-registered through the current detector before its managed
 environment block is rewritten. This keeps registry kind, launch metadata and
 `ENVIRONMENT.md` aligned when a newly installed ShipGlows version introduces a
 more specific project kind such as `browser-extension`.
 
-Managed Windows servers are created through `Win32_Process.Create`, outside the one-shot CLI process handle tree, so a caller capturing stdout/stderr receives EOF after readiness. Before launching a child, the WMI wrapper creates a named Windows Job Object with `KILL_ON_JOB_CLOSE`, assigns itself, and fails closed if either operation fails; Node, Astro, Python, Flutter and their descendants therefore share a durable termination boundary. After its direct command exits, the wrapper remains alive while another job member exists, including a Node child created with detached spawn and `unref`. Detached and Flutter wrappers use only the exact absolute `SHIPGLOWS_MANAGED_PWSH` executable already validated by the bootstrap; they never accept `powershell.exe`, discover `pwsh.exe` through `PATH`, or fall back to System32. The registry stores the wrapper PID, command-line fragment and Job Object identity. Readiness requires both verified wrapper identity and the service probe. Stop terminates the exact job (or the verified legacy tree), then marks `stopped` only after both process identity and the assigned listener have disappeared; unproved extinction preserves the live registry state and returns an error. The Flutter supervisor token is read by that wrapper from its existing owner-only token file and is never embedded in the encoded command.
+Managed Windows servers are created through `Win32_Process.Create`, outside the one-shot CLI process handle tree, so a caller capturing stdout/stderr receives EOF after readiness. Before launching a child, the WMI wrapper creates a named Windows Job Object with `KILL_ON_JOB_CLOSE`, assigns itself, and fails closed if either operation fails; Node, Astro, Obsidian, Python, Flutter and their descendants therefore share a durable termination boundary. After its direct command exits, the wrapper remains alive while another job member exists, including a Node child created with detached spawn and `unref`. Detached and Flutter wrappers use only the exact absolute `SHIPGLOWS_MANAGED_PWSH` executable already validated by the bootstrap; they never accept `powershell.exe`, discover `pwsh.exe` through `PATH`, or fall back to System32. The registry stores the wrapper PID, command-line fragment and Job Object identity. Readiness requires both verified wrapper identity and the surface-specific probe: listener and HTTP where applicable, fresh artifacts for Obsidian. Stop terminates the exact job (or the verified legacy tree), then marks `stopped` only after process identity and any assigned listener have disappeared; unproved extinction preserves the live registry state and returns an error. The Flutter supervisor token is read by that wrapper from its existing owner-only token file and is never embedded in the encoded command.
 
 All Windows menus consume the same catalogue produced by one linear workspace
 scan. The discovery index is cached in memory and atomically at
@@ -474,7 +495,7 @@ does not inherit a separate GitHub CLI preference for SSH or depend on a local
 SSH configuration; GitHub CLI still owns authentication and credential storage,
 and configures Git's HTTPS credential helper before each picker clone.
 If a repository is outside the Windows DevServer's supported Astro, Vite,
-browser-extension, Python, and Flutter Web project kinds, cloning still succeeds and is kept in the workspace;
+browser-extension, Obsidian-plugin, Python, and Flutter Web project kinds, cloning still succeeds and is kept in the workspace;
 the CLI keeps the clone, reports the preparation failure, and exits non-zero
 rather than removing the clone or presenting the combined clone-and-register
 operation as successful.
@@ -602,7 +623,7 @@ plan. Force push and destructive or irreversible actions retain stricter gates.
 For each registered project, the Windows CLI maintains a bounded ShipGlows block
 inside the visible, versioned `<project-root>\ENVIRONMENT.md`. It preserves any
 existing project content and records the manager, project kind, durable assigned port and
-canonical loopback URL. Browser extensions instead record that a normal page URL is not applicable and name their unpacked Chrome directory. The Windows registry remains authoritative for live
+canonical loopback URL. Browser extensions instead record that a normal page URL is not applicable and name their unpacked Chrome directory. Obsidian plugins record that both URL and port are not applicable, plus the explicit-vault, copy-sync, and manual-validation route. The Windows registry remains authoritative for live
 status, so start and stop do not create tracked-document churn. `s open` uses
 the active registry entry instead of guessing from repository scripts.
 For an extension, that managed block also records the complete operator route:
@@ -625,7 +646,8 @@ For a Windows managed start, port precedence is exactly:
 
 `requested port > process SHIPGLOWS_ENV_PORT > project .shipglows.env > persistent registry > first free 3000..3100`
 
-The precedence method is shared; the resulting number is project-specific. A
+The precedence method is shared for HTTP surfaces; Obsidian plugins bypass port
+selection entirely. The resulting number is project-specific. A
 port declared in `package.json`, Astro, or Vite is a direct-launch fallback, not
 the URL of the ShipGlows-managed server. `.shipglows.env` remains the separate
 optional committed runtime policy file. ChatGPT apps/connectors and Codex CLI
@@ -935,6 +957,8 @@ package binaries.
 
 ```bash
 bash -n cli/shipglows.sh cli/lib.sh cli/config.sh
+python tests/environment/preparation-contract.py
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File tests/windows/obsidian-plugin.ps1
 tests/cli/environment-remove.sh
 tests/runtime/flox-provisioning.sh
 rg -n "invalidate_pm2_cache" cli/lib.sh

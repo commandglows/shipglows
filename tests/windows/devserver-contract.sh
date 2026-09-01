@@ -62,6 +62,7 @@ for regression in \
   browser-extension-lab.ps1 \
   browser-extension-runtime.ps1 \
   browser-extension-project.ps1 \
+  obsidian-plugin.ps1 \
   devserver-user-guidance.ps1 \
   devserver-monorepo-detection.ps1 \
   devserver-display-name.ps1 \
