@@ -89,6 +89,53 @@ try {
     & $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath{$Npm};Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $shrinkwrapped (Join-Path $fixture 'shrinkwrapped.log') $fakeNpm|Out-Null
     if(@(Get-Content $capture).Count-ne3){throw 'Missing Vite framework artifact was reused.'}
 
+    $workspaceRoot = Join-Path $fixture 'dreamglows'
+    $workspacePlugin = Join-Path $workspaceRoot 'obsidian_plugin'
+    New-Item -ItemType Directory -Path $workspacePlugin -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $workspaceRoot 'package.json'), '{"name":"dreamglows","private":true,"workspaces":["obsidian_plugin","chrome_extension"]}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $workspaceRoot 'pnpm-workspace.yaml'), "packages:`n  - 'obsidian_plugin'`n  - 'chrome_extension'`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $workspaceRoot 'pnpm-lock.yaml'), "lockfileVersion: '9.0'`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $workspacePlugin 'package.json'), '{"name":"obsidian-dreamglows","scripts":{"dev":"vite build --watch"},"devDependencies":{"obsidian":"^1.7.2","vite":"^8.2.0"}}', [Text.UTF8Encoding]::new($false))
+    $workspaceCapture = Join-Path $fixture 'workspace-argv.txt'
+    $fakePnpm = Join-Path $fixture 'pnpm.cmd'
+    [IO.File]::WriteAllText($fakePnpm, "@echo off`r`n>>`"$workspaceCapture`" echo %CD%^|%*`r`nif not exist node_modules mkdir node_modules`r`ntype nul > node_modules\.modules.yaml`r`nif not exist obsidian_plugin\node_modules\obsidian mkdir obsidian_plugin\node_modules\obsidian`r`necho {}>obsidian_plugin\node_modules\obsidian\package.json`r`necho workspace-dependency-output`r`n", [Text.Encoding]::ASCII)
+    $workspacePlan = & $module {
+        param($Project,$Root,$Pnpm)
+        function Get-SgCommandPath([string[]]$Names) { if ($Names -contains 'pnpm.cmd') { return $Pnpm }; throw "Unexpected package manager lookup: $($Names -join ',')" }
+        New-SgDependencyPlan $Project 'obsidian-plugin' $Root
+    } $workspacePlugin $workspaceRoot $fakePnpm
+    if ($workspacePlan.Manager -ne $fakePnpm -or ($workspacePlan.Arguments -join ' ') -ne 'install --frozen-lockfile' -or $workspacePlan.InstallPath -ne $workspaceRoot) { throw 'Nested Obsidian surface did not inherit the bounded pnpm workspace plan.' }
+    $standaloneContext = & $module { param($Project) Resolve-SgNodeDependencyContext $Project $Project } $workspacePlugin
+    if ($standaloneContext.UsesPnpm -or $standaloneContext.InstallPath -ne $workspacePlugin) { throw 'Node workspace discovery escaped the supplied RootPath boundary.' }
+    $nestedStandalone = Join-Path $workspaceRoot 'standalone_site'
+    New-Item -ItemType Directory -Path $nestedStandalone -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $nestedStandalone 'package.json'), '{"name":"standalone-site","scripts":{"dev":"vite"},"devDependencies":{"vite":"^8.2.0"}}', [Text.UTF8Encoding]::new($false))
+    $nestedStandaloneContext = & $module { param($Project,$Root) Resolve-SgNodeDependencyContext $Project $Root } $nestedStandalone $workspaceRoot
+    if ($nestedStandaloneContext.UsesPnpm -or $nestedStandaloneContext.InstallPath -ne $nestedStandalone) { throw 'An unrelated nested standalone project was absorbed into a parent workspace that does not declare it.' }
+    $workspaceInstalled = @(& $module {
+        param($Config,$Project,$Root,$Log,$Pnpm)
+        function Get-SgCommandPath([string[]]$Names) { if ($Names -contains 'pnpm.cmd') { return $Pnpm }; throw "Unexpected package manager lookup: $($Names -join ',')" }
+        Invoke-SgDependencySetup $Config $Project 'obsidian-plugin' $Log $Root
+    } $config $workspacePlugin $workspaceRoot (Join-Path $fixture 'workspace.log') $fakePnpm)
+    if ($workspaceInstalled -notcontains $true -or $workspaceInstalled -notcontains 'workspace-dependency-output') { throw 'Nested pnpm workspace setup did not complete through the workspace manager.' }
+    $workspaceInvocation = (Get-Content -LiteralPath $workspaceCapture -Raw).Trim()
+    if ($workspaceInvocation -ne "$workspaceRoot|install --frozen-lockfile") { throw "Nested pnpm workspace setup used the wrong working directory or arguments: $workspaceInvocation" }
+    if (-not (Test-Path -LiteralPath (Join-Path $workspaceRoot 'node_modules\.modules.yaml') -PathType Leaf) -or -not (Test-Path -LiteralPath (Join-Path $workspacePlugin 'node_modules\obsidian\package.json') -PathType Leaf)) { throw 'Nested pnpm workspace artifacts were not checked at their owning roots.' }
+    [IO.File]::AppendAllText((Join-Path $workspaceRoot 'pnpm-lock.yaml'), "# changed`n", [Text.UTF8Encoding]::new($false))
+    & $module {
+        param($Config,$Project,$Root,$Log,$Pnpm)
+        function Get-SgCommandPath([string[]]$Names) { if ($Names -contains 'pnpm.cmd') { return $Pnpm }; throw "Unexpected package manager lookup: $($Names -join ',')" }
+        Invoke-SgDependencySetup $Config $Project 'obsidian-plugin' $Log $Root
+    } $config $workspacePlugin $workspaceRoot (Join-Path $fixture 'workspace.log') $fakePnpm | Out-Null
+    if (@(Get-Content -LiteralPath $workspaceCapture).Count -ne 2) { throw 'A parent workspace lockfile change did not invalidate nested dependency state.' }
+    $workspaceLaunch = & $module {
+        param($Project,$Root,$Pnpm)
+        function Get-SgCommandPath([string[]]$Names) { if ($Names -contains 'pnpm.cmd') { return $Pnpm }; throw "Unexpected package manager lookup: $($Names -join ',')" }
+        function Get-SgObsidianPluginDescriptor { [pscustomobject]@{DevelopmentScriptName='dev';BuildScriptName='build'} }
+        Get-SgLaunchSpec $Project 'obsidian-plugin' 0 $false '' 'chrome' '' '' '' $Root
+    } $workspacePlugin $workspaceRoot $fakePnpm
+    if (($workspaceLaunch.Arguments -join ' ') -notmatch [regex]::Escape($fakePnpm) -or ($workspaceLaunch.Arguments -join ' ') -notmatch 'run dev') { throw 'Nested Obsidian launch did not inherit the bounded pnpm workspace manager.' }
+
     $concurrent = Join-Path $fixture 'concurrent'
     New-Item -ItemType Directory -Path $concurrent -Force | Out-Null
     Set-Content (Join-Path $concurrent 'package.json') '{}' -Encoding UTF8
