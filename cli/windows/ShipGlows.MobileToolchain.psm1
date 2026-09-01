@@ -902,17 +902,19 @@ function Resolve-SgTrustedWingetIdentity {
 function Invoke-SgIsolatedTauriMise {
     param([string]$MisePath,[string]$ToolchainRoot,[string[]]$Arguments,[int]$TimeoutSeconds=120,[scriptblock]$Runner=$null)
     if (-not $Runner) { $Runner = { param($file,$arguments,$timeout) Invoke-SgBoundedProcess -File $file -Arguments $arguments -TimeoutSeconds $timeout } }
+    if ([string]::IsNullOrWhiteSpace($ToolchainRoot) -or -not [IO.Path]::IsPathRooted($ToolchainRoot) -or $ToolchainRoot -match '[\r\n\0]') { throw 'Isolated mise requires an absolute managed toolchain root.' }
+    $resolvedRoot = [IO.Path]::GetFullPath($ToolchainRoot)
     $environment = @{
         MISE_SAFE='1'; MISE_NO_HOOKS='1'; MISE_NO_ENV='1'; MISE_AUTO_INSTALL='false';
         MISE_EXEC_AUTO_INSTALL='false'; MISE_NOT_FOUND_AUTO_INSTALL='false'; MISE_RUN_AUTO_INSTALL='false';
         MISE_OVERRIDE_CONFIG_FILENAMES='mise.toml'; MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES='none';
-        MISE_CONFIG_DIR=(Join-Path $ToolchainRoot '.shipglows-no-user-mise-config');
-        MISE_CEILING_PATHS=(Split-Path $ToolchainRoot -Parent); MISE_SYSTEM_DEPS='ignore'
+        MISE_CONFIG_DIR=(Join-Path $resolvedRoot '.shipglows-no-user-mise-config');
+        MISE_CEILING_PATHS=(Split-Path $resolvedRoot -Parent); MISE_SYSTEM_DEPS='ignore'
     }
     New-Item -ItemType Directory -Path $environment.MISE_CONFIG_DIR -Force | Out-Null
     $previous=@{}; $present=@{}; $processEnvironment=[Environment]::GetEnvironmentVariables('Process')
     foreach($name in $environment.Keys){$present[$name]=$processEnvironment.Contains($name);$previous[$name]=[Environment]::GetEnvironmentVariable($name,'Process');[Environment]::SetEnvironmentVariable($name,$environment[$name],'Process')}
-    try { Push-Location $ToolchainRoot; try { & $Runner $MisePath $Arguments $TimeoutSeconds } finally { Pop-Location } }
+    try { & $Runner $MisePath (@('-C',$resolvedRoot) + @($Arguments)) $TimeoutSeconds }
     finally { foreach($name in $environment.Keys){if($present[$name]){[Environment]::SetEnvironmentVariable($name,$previous[$name],'Process')}else{Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue}} }
 }
 

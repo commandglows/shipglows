@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "3.29.0"
+artifact_version: "3.30.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-01"

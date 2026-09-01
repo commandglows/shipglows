@@ -42,6 +42,10 @@ try {
     Assert-Contains $installerText "cli\\environment\\shipglows_environment\.py" 'Native installer does not validate the packaged environment command.'
     Assert-Contains $installerText "cli\\environment\\schemas\\shipglows-environment-v1\.schema\.json" 'Native installer does not validate the packaged environment schema.'
     Assert-Contains $installerText 'ShipGlows\.PowerShellBootstrap\.ps1' 'Native command wrappers do not route through the managed PowerShell bootstrap.'
+    Assert-Contains $installerText '\$Name -in @\(''npm'',''npx'',''corepack'',''pnpm''\)' 'Node command wrappers do not scope native Rust activation to package-manager children.'
+    Assert-Contains $installerText 'RUSTUP_TOOLCHAIN=1\.97\.1' 'Node command wrappers do not activate the validated Rust baseline for native Tauri children.'
+    Assert-Contains $installerText 'CARGO=%USERPROFILE%\\\.cargo\\bin\\cargo\.exe' 'Node command wrappers do not expose a native Cargo proxy to Tauri.'
+    Assert-Contains $installerText 'setlocal DisableDelayedExpansion' 'Application wrappers leak their child activation environment into the caller.'
     Assert-Contains ([IO.File]::ReadAllText($entrypoint)) "PSEdition -ne 'Core'" 'The installed frontend source does not refuse direct Desktop execution.'
 
     Invoke-Expression (Import-NamedFunction $installer 'Assert-SgEnvironmentPythonPackage')

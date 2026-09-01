@@ -11,17 +11,18 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from cli.environment.core import ApplyRefused, apply_plan, build_plan, digest_value, discover_project, observe_project  # noqa: E402
-from cli.environment.windows_tauri_backend import WindowsEnvironmentRunner, WindowsTauriError  # noqa: E402
+from cli.environment.windows_tauri_backend import ProviderRequest, SubprocessProviderExecutor, WindowsEnvironmentRunner, WindowsTauriError  # noqa: E402
 from cli.environment.mise_backend import ProcessResult  # noqa: E402
 
 
 class FakeWindowsRunner:
-    def __init__(self, *, mise=True, rust=False, hosts=False, tauri=False, apply_status="applied"):
+    def __init__(self, *, mise=True, rust=False, hosts=False, tauri=False, apply_status="applied", apply_reason=""):
         self.mise = mise
         self.rust = rust
         self.hosts = hosts
         self.tauri = tauri
         self.apply_status = apply_status
+        self.apply_reason = apply_reason
         self.identity = {
             "path": "C:/trusted/provider.ps1", "sha256": "a" * 64,
             "powershell_path": "C:/trusted/pwsh.exe", "powershell_sha256": "b" * 64,
@@ -59,7 +60,7 @@ class FakeWindowsRunner:
     def windows_environment_apply(self, action, project_root, scope):
         self.calls.append(action)
         if self.apply_status != "applied":
-            return {"status": self.apply_status, "completed": []}
+            return {"status": self.apply_status, "reason": self.apply_reason, "completed": []}
         if action == "acquire_mise":
             self.mise = True
             return {"status": "applied", "completed": [action], "next_action": "replan"}
@@ -235,6 +236,24 @@ with tempfile.TemporaryDirectory() as directory:
         else:
             raise AssertionError(f"provider {provider_status} was accepted")
 
+    diagnostic_runner = FakeWindowsRunner(mise=True, apply_status="refused", apply_reason="mise configuration is invalid")
+    diagnostic_plan = build_plan(desired, platform_name="windows", architecture="x86_64", runner=diagnostic_runner)
+    try:
+        apply_plan(diagnostic_plan, diagnostic_plan["digest"], diagnostic_runner)
+    except ApplyRefused as exc:
+        assert "mise configuration is invalid" in str(exc)
+    else:
+        raise AssertionError("benign provider refusal reason was discarded")
+
+    secret_runner = FakeWindowsRunner(mise=True, apply_status="refused", apply_reason="Authorization: Bearer provider-apply-secret-canary")
+    secret_plan = build_plan(desired, platform_name="windows", architecture="x86_64", runner=secret_runner)
+    try:
+        apply_plan(secret_plan, secret_plan["digest"], secret_runner)
+    except ApplyRefused as exc:
+        assert "provider-apply-secret-canary" not in str(exc) and "[REDACTED]" in str(exc)
+    else:
+        raise AssertionError("provider refusal secret was accepted")
+
     partial_runner = FakeWindowsRunner(mise=True, apply_status="partial")
     partial_plan = build_plan(
         desired, platform_name="windows", architecture="x86_64", runner=partial_runner
@@ -274,6 +293,13 @@ with tempfile.TemporaryDirectory() as directory:
     assert all(str(project.resolve()) not in " ".join(item.argv) for item in executor.requests)
     assert all(item.argv[-1] == str(provider.resolve()) for item in executor.requests)
     assert all(item.environment.get("PATHEXT") == os.environ.get("PATHEXT") for item in executor.requests)
+    provider_request = ProviderRequest((str(powershell),), trusted_bridge_root, {}, "{}", 30)
+    refused_process = subprocess.CompletedProcess(provider_request.argv, 2, '{"status":"refused","reason":"bounded diagnostic"}', "")
+    with patch("cli.environment.windows_tauri_backend.subprocess.run", return_value=refused_process):
+        assert SubprocessProviderExecutor().run_provider(provider_request) == {"status": "refused", "reason": "bounded diagnostic"}
+    invalid_failure = subprocess.CompletedProcess(provider_request.argv, 3, '{"status":"refused","reason":"must not pass"}', "")
+    with patch("cli.environment.windows_tauri_backend.subprocess.run", return_value=invalid_failure):
+        assert SubprocessProviderExecutor().run_provider(provider_request) == {"status": "refused", "reason": "provider exited 3"}
     repository_provider = project / "repository-provider.ps1"
     repository_provider.write_text("# untrusted\n", encoding="utf-8")
     (project / "ShipGlows.MobileToolchain.psm1").write_text("# untrusted\n", encoding="utf-8")

@@ -15,6 +15,23 @@ $supervisorPath = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\cli\win
 $fixturePowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
 if (-not (Test-Path -LiteralPath $fixturePowerShell -PathType Leaf)) { throw 'The Windows PowerShell fixture host is unavailable.' }
 
+$atomicRoot = Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-atomic-{0}" -f [guid]::NewGuid().ToString('N'))
+try {
+    New-Item -ItemType Directory -Path $atomicRoot -Force | Out-Null
+    $statePath = Join-Path $atomicRoot 'state.json'
+    [IO.File]::WriteAllText($statePath,'{"Status":"starting"}')
+    & {
+        function Move-Item { throw 'Simulated Move-Item destination collision.' }
+        Write-SgFlutterJsonAtomic $statePath ([ordered]@{Status='running';Ready=$true})
+    }
+    $publishedState = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+    if ($publishedState.Status -ne 'running' -or -not $publishedState.Ready) { throw 'Flutter state did not replace an existing JSON document.' }
+    Remove-Item -LiteralPath $statePath -Force
+    Write-SgFlutterJsonAtomic $statePath ([ordered]@{Status='starting';Ready=$false})
+    if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) { throw 'Flutter state was not published when no prior JSON document existed.' }
+    if (@(Get-ChildItem -LiteralPath $atomicRoot -File | Where-Object { $_.Extension -in @('.tmp','.bak') }).Count -ne 0) { throw 'Flutter atomic state publication left a temporary or backup file.' }
+} finally { Remove-Item -LiteralPath $atomicRoot -Recurse -Force -ErrorAction SilentlyContinue }
+
 $flutterRoot='C:\validated flutter';$packageConfig=Join-Path $flutterRoot 'packages\flutter_tools\.dart_tool\package_config.json';$snapshot=Join-Path $flutterRoot 'bin\cache\flutter_tools.snapshot'
 $hostArgs=@(New-SgFlutterHostArguments $flutterRoot $snapshot @('run','--machine'))
 if($hostArgs[0] -cne "--packages=$packageConfig" -or $hostArgs[1] -cne $snapshot){throw 'Direct Flutter host argv does not match flutter.bat bootstrap requirements.'}
