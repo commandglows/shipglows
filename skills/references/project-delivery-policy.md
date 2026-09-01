@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-09-01"
@@ -31,6 +31,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Implementation proof 2026-09-01: required CI workflows target both production main and resolved live integration dev."
   - "Operator correction 2026-09-01: product delivery posture belongs in canonical business context, never in pitch, runtime environment state, or agent instructions."
   - "Operator decision 2026-09-01: non-live projects integrate directly to main; live projects use canonical dev for integration/staging and retain main for production."
   - "Operator decision 2026-08-21: use development, published, and sensitive-production as human-facing project delivery postures."
@@ -98,7 +99,7 @@ If canonical business context or its field is absent, ShipGlows reports `deliver
 
 ## Managed GitHub Protection
 
-Every active ShipGlows-managed GitHub repository follows `managed-project-ci-policy.md`: protect the production branch with the exact always-on `ShipGlows required gate`, never directly require a routinely path-filtered job, and install plus prove the workflow before enabling its ruleset requirement. This applies to `development`, `published`, and `sensitive-production`; maturity changes proof depth, not the existence of baseline protection. Non-GitHub, archived, generated-mirror, or intentionally unprotected repositories require an explicit reviewed exception.
+Every active ShipGlows-managed GitHub repository follows `managed-project-ci-policy.md`: protect the production branch with the exact always-on `ShipGlows required gate`, never directly require a routinely path-filtered job, and install plus prove the workflow before enabling its ruleset requirement. For live projects, required workflows trigger on both production `main` and canonical integration `dev`, and both branches retain the applicable required-check protection. This applies to `development`, `published`, and `sensitive-production`; maturity changes proof depth, not the existence of baseline protection. Non-GitHub, archived, generated-mirror, or intentionally unprotected repositories require an explicit reviewed exception.
 
 ## Pressure Scenarios
 

@@ -45,6 +45,14 @@ class RequiredGateContractTests(unittest.TestCase):
         self.assertIn("  workflow_dispatch:", workflow)
         self.assertNotRegex(workflow, r"(?m)^  paths(?:-ignore)?:")
 
+    def test_published_project_runs_required_gate_on_dev_and_main(self):
+        self.write(
+            "shipglows_data/business/business.md",
+            "---\ndelivery_posture: published\n---\n",
+        )
+        workflow = gate.render_workflow(self.configured_contract())
+        self.assertEqual(2, workflow.count('branches: ["main", "dev"]'))
+
     def test_path_selectivity_stays_inside_always_running_job(self):
         contract = self.configured_contract()
         workflow = gate.render_workflow(contract)
