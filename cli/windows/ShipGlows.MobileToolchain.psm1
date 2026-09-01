@@ -820,7 +820,6 @@ function Get-SgTauriRustWrapperContent {
     )
     if (-not (Test-SgExactVersionCoordinate $RustVersion)) { throw 'Tauri Rust wrapper version must be exact.' }
     $mise = ConvertTo-SgBatchQuotedPath $MisePath 'mise executable'
-    $root = ConvertTo-SgBatchQuotedPath $ToolchainRoot 'Tauri toolchain'
     $config = ConvertTo-SgBatchQuotedPath (Join-Path $ToolchainRoot '.shipglows-no-user-mise-config') 'mise config directory'
     $ceiling = ConvertTo-SgBatchQuotedPath (Split-Path $ToolchainRoot -Parent) 'mise ceiling'
     return (@(
@@ -838,7 +837,7 @@ function Get-SgTauriRustWrapperContent {
         "set `"MISE_CONFIG_DIR=$config`"",
         "set `"MISE_CEILING_PATHS=$ceiling`"",
         'set "MISE_SYSTEM_DEPS=ignore"',
-        "@`"$mise`" -C `"$root`" exec rust@$RustVersion -- $Command %*",
+        "@`"$mise`" exec rust@$RustVersion -- $Command %*",
         'set "SHIPGLOWS_EXIT_CODE=%ERRORLEVEL%"',
         'endlocal & exit /b %SHIPGLOWS_EXIT_CODE%'
     ) -join "`r`n") + "`r`n"
