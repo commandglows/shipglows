@@ -2654,6 +2654,7 @@ cli_capability_read_row() {
 
 cli_capability_rows() {
     cli_capability_read_row "project.catalog.read" "refresh_cli_project_catalog"
+    cli_capability_read_row "project.create" "refresh_cli_project_catalog"
     cli_capability_read_row "project.runtime.status.read" "pm2_data_load"
     cli_capability_read_row "preview.status.read" "user_caddy_routes_load"
     cli_capability_read_row "workspace.status.read" "flutter_web_registry_lines"
@@ -2698,7 +2699,7 @@ const fs = require('fs');
 const [rowsFile, outputFile, maxBytesRaw] = process.argv.slice(2);
 const schemaVersion = 'shipglows.cli-capabilities.v1';
 const knownIds = new Set([
-  'project.catalog.read', 'project.runtime.status.read', 'preview.status.read',
+  'project.catalog.read', 'project.create', 'project.runtime.status.read', 'preview.status.read',
   'workspace.status.read', 'system.health.read', 'system.storage.read',
   'system.memory.read', 'toolchain.status.read', 'updates.status.read',
   'agents.status.read', 'mcp.status.read', 'project.runtime.start',
@@ -2781,12 +2782,13 @@ refresh_cli_project_catalog() {
     command -v node >/dev/null 2>&1 || return 1
 
     local catalog_file="$SHIPGLOWS_CLI_PROJECT_CATALOG_FILE"
-    local catalog_dir pm2_file flutter_file candidate pm2_data=""
+    local catalog_dir pm2_file flutter_file registry_file candidate pm2_data=""
     catalog_dir=$(dirname "$catalog_file")
     mkdir -p "$catalog_dir" 2>/dev/null || return 1
     chmod 700 "$catalog_dir" 2>/dev/null || true
     pm2_file=$(mktemp "$catalog_dir/.catalog-pm2.XXXXXX") || return 1
     flutter_file=$(mktemp "$catalog_dir/.catalog-flutter.XXXXXX") || return 1
+    registry_file="${SHIPGLOWS_CLI_PROJECT_REGISTRY_FILE:-$SHIPGLOWS_STATE_DIR/cli-project-registry.v1.json}"
     candidate=$(mktemp "$catalog_dir/.catalog-v1.XXXXXX") || return 1
     register_temp_file "$pm2_file"
     register_temp_file "$flutter_file"
@@ -2806,12 +2808,12 @@ refresh_cli_project_catalog() {
         printf '%s|%s|%s|%s|%s\n' "$name" "$status" "$port" "$cwd" "$session" >> "$flutter_file"
     done < <(flutter_web_registry_lines false)
 
-    if ! node - "$pm2_file" "$flutter_file" "$catalog_file" "$candidate" \
+    if ! node - "$pm2_file" "$flutter_file" "$registry_file" "$catalog_file" "$candidate" \
         "$SHIPGLOWS_CLI_PROJECT_CATALOG_MAX_PROJECTS" "$SHIPGLOWS_CLI_PROJECT_CATALOG_MAX_BYTES" <<'NODE' 2>/dev/null
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const [pm2File, flutterFile, previousFile, outputFile, maxProjectsRaw, maxBytesRaw] = process.argv.slice(2);
+const [pm2File, flutterFile, registryFile, previousFile, outputFile, maxProjectsRaw, maxBytesRaw] = process.argv.slice(2);
 const maxProjects = Number(maxProjectsRaw);
 const maxBytes = Number(maxBytesRaw);
 const schemaVersion = 'shipglows.cli-project-catalog.v1';
@@ -2825,6 +2827,16 @@ const slugify = value => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9
 const digest = value => crypto.createHash('sha256').update(value).digest('hex');
 const reservedPreviewSlugs = new Set(['app', 'api', 'runner', 'www']);
 const readLines = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean);
+const registrations = (() => {
+  try {
+    const data = JSON.parse(fs.readFileSync(registryFile, 'utf8'));
+    if (data.schemaVersion !== 'shipglows.cli-project-registry.v1' || !Array.isArray(data.projects)) throw new Error('invalid registry');
+    return data.projects;
+  } catch (error) {
+    if (error && error.code === 'ENOENT') return [];
+    throw error;
+  }
+})();
 let previous = {projects: []};
 try {
   previous = JSON.parse(fs.readFileSync(previousFile, 'utf8'));
@@ -2863,12 +2875,29 @@ const ingest = (line, source) => {
 };
 for (const line of readLines(pm2File)) ingest(line, 'pm2');
 for (const line of readLines(flutterFile)) ingest(line, 'flutter-web');
+for (const entry of registrations) {
+  if (!entry || !/^prj_[a-f0-9]{32}$/.test(entry.id) || !safeText(entry.displayName, 120) ||
+      !safeText(entry.cwd, 4096) || !/^[0-9]+$/.test(entry.repositoryId) ||
+      !/^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/.test(entry.repositoryFullName) ||
+      !/^[A-Za-z][A-Za-z0-9_-]{7,128}$/.test(entry.ownerAccountId) ||
+      !/^\d{4}-\d{2}-\d{2}T/.test(entry.createdAt)) throw new Error('invalid registered project');
+  const cwd = canonicalPath(entry.cwd);
+  const prior = projects.get(cwd);
+  const previewSlug = prior ? prior.previewSlug : `${slugify(entry.displayName).slice(0, 42)}-${digest(entry.id).slice(0, 8)}`;
+  const project = prior || {id: entry.id, displayName: entry.displayName, previewSlug, status: 'stopped', source: 'github', cwd, port: null, tmuxSession: null};
+  if (project.id !== entry.id) throw new Error('registered identity conflict');
+  Object.assign(project, {displayName: entry.displayName, ownerAccountId: entry.ownerAccountId,
+    repository: {id: entry.repositoryId, fullName: entry.repositoryFullName}, createdAt: entry.createdAt});
+  projects.set(cwd, project);
+}
 const result = [...projects.values()].sort((a, b) => a.id.localeCompare(b.id));
 if (!Number.isInteger(maxProjects) || maxProjects < 1 || result.length > maxProjects) throw new Error('catalog project boundary exceeded');
 const ids = new Set(), slugs = new Set(), tmuxSessions = new Set(), livePorts = new Map();
 for (const item of result) {
-  if (reservedPreviewSlugs.has(item.previewSlug) || ids.has(item.id) || slugs.has(item.previewSlug) || tmuxSessions.has(item.tmuxSession)) throw new Error('duplicate or reserved catalog identity');
-  ids.add(item.id); slugs.add(item.previewSlug); tmuxSessions.add(item.tmuxSession);
+  if (reservedPreviewSlugs.has(item.previewSlug) || ids.has(item.id) || slugs.has(item.previewSlug) ||
+      (item.tmuxSession && tmuxSessions.has(item.tmuxSession))) throw new Error('duplicate or reserved catalog identity');
+  ids.add(item.id); slugs.add(item.previewSlug);
+  if (item.tmuxSession) tmuxSessions.add(item.tmuxSession);
   if (/^(online|launching)$/.test(item.status)) {
     if (!validPort(item.port)) throw new Error('live project without a port');
     if (livePorts.has(item.port) && livePorts.get(item.port) !== item.id) throw new Error('duplicate live port');
