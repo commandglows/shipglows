@@ -2158,6 +2158,29 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
     } finally { if ($logWriter) { $logWriter.Dispose() }; if ($lock) { $lock.Dispose() } }
 }
 
+function Repair-SgStaleAstroDevLock([string]$ProjectPath, [scriptblock]$SnapshotResolver = $null) {
+    $lockPath = Join-Path $ProjectPath '.astro\dev.json'
+    if (-not (Test-Path -LiteralPath $lockPath -PathType Leaf)) { return $false }
+    try {
+        $raw = [IO.File]::ReadAllText($lockPath)
+        if ($raw.Length -gt 4096) { return $false }
+        $lock = $raw | ConvertFrom-Json -ErrorAction Stop
+        if (-not $lock.PSObject.Properties['pid'] -or [int]$lock.pid -le 0) { return $false }
+        $snapshot = if ($SnapshotResolver) { & $SnapshotResolver ([int]$lock.pid) } else { Get-SgProcessSnapshot ([int]$lock.pid) }
+        if (-not $snapshot) { return $false }
+        $executable = [IO.Path]::GetFileName([string]$snapshot.ExecutablePath)
+        $commandLine = [string]$snapshot.CommandLine
+        $isAstroNode = $executable -ieq 'node.exe' -and $commandLine -match '(?i)(?:^|[\\/])astro(?:[\\/]|[.](?:m?js)\b)'
+        if ($isAstroNode) { return $false }
+        [IO.File]::Delete($lockPath)
+        Write-SgInfo "Removed stale Astro lock whose PID now belongs to another process: $($lock.pid)"
+        return $true
+    } catch {
+        Write-SgWarn "Astro lock inspection was inconclusive: $($_.Exception.Message)"
+        return $false
+    }
+}
+
 function Rotate-SgLogFile([string]$Path, [long]$MaxBytes = 5242880) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return }
     $file = Get-Item -LiteralPath $Path -ErrorAction Stop
@@ -3231,6 +3254,7 @@ function Start-SgProjectCore([object]$Config, [string]$ProjectPath, [int]$Reques
     }
     try {
         Invoke-SgDependencySetup $Config $launchPath $kind $setupLog | Out-Null
+        if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
         $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $resolvedFlutterMode
     } catch {
         Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
