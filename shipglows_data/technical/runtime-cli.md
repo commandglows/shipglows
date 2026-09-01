@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.44.0"
+artifact_version: "1.44.1"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-10-19"
@@ -368,6 +368,18 @@ receives `environment_root`. Destructive environment operations continue to
 target the environment root, never only the nested application directory.
 
 ## Native Windows DevServer
+
+### Browser Extension Lab
+
+`s extension-inspect` performs bounded, read-only detection of a root `manifest.json`, common built outputs, or the reviewed CRXJS `dev:chrome` contract. A generic project `manifest.json` without the browser-extension field `manifest_version` is ignored instead of being misclassified; a declared but invalid extension manifest still fails closed. Detection does not install dependencies or execute repository scripts, and multiple artifacts fail closed instead of selecting a potentially stale build.
+
+`s extension-lab` accepts one valid Manifest V3 artifact and delegates structured arguments to the pinned ShipGlows Playwright runtime. `-Browser Chromium|Edge|Vivaldi|Firefox` selects a browser-specific artifact and backend while retaining managed Chromium as the default. Chromium-family browsers load through isolated flags plus the capability-checked CDP Extensions fallback; Firefox uses the managed Firefox binary and temporary WebDriver BiDi installation. JSON `browser` evidence includes requested product, engine, exact executable, file version, observed runtime version and `isolatedProfile`. `-ClickSelector` clicks exactly one element, `-VisualSelector` returns bounded DOM, bounds and a fixed computed-style allowlist, and `-Screenshot` retains a `1280 × 800` PNG outside the disposable profile. `-Headless` closes after proof; interactive mode remains open until the isolated browser closes. Personal browser profiles are never targets.
+
+`s obsidian-lab -ProjectPath <plugin>` accepts an already-built specialized Obsidian plugin and never runs repository scripts. It hashes and checks the local BRAT artifact set, creates a disposable profile and vault under the ShipGlows runtime, binds CDP to loopback, launches Obsidian 1.12.7+ with that exact profile, and distinguishes artifact, host-load, interaction, visual, and diagnostic states. `-InteractionCommand <id>` runs one registered command; `-ClickSelector <css>` clicks only one exact match; `-VisualSelector <css>` returns bounded text, geometry, visibility, and computed CSS; `-Screenshot` retains visual evidence outside the disposable run. JSON groups screenshot status/path/viewport and DOM evidence under `visual`. The exact Lab process tree is stopped and the temporary profile/vault are removed. This separates local Obsidian data but does not sandbox hostile plugin code from the Windows account.
+
+The full Windows bootstrap must package `ShipGlows.ExtensionLab.js` and `ShipGlows.ObsidianLab.js` in both `cli/windows` and `runtime/bin` through the managed-file transaction.
+
+See `skills/references/browser-extension-lab.md` for agent semantics and `shipglows_data/technical/operator-guides/browser-extension-lab.md` for the beginner journey.
 
 The Windows `full` bootstrap is a separate runtime backend for machines such
 as Shadow PC where WSL cannot be used. It owns only local development for

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.1.1"
 project: ShipGlows
 created: "2026-10-07"
-updated: "2026-10-07"
+updated: "2026-10-19"
 status: draft
 source_skill: 900-shipglows-core
 scope: obsidian-plugin-workflow
@@ -55,9 +55,10 @@ Persistent synchronization needs one explicitly declared development vault and
 an approved copy operation. Never enumerate, infer or select personal vaults.
 Do not invent a localhost URL for the host plugin surface.
 
-The current branch does not implement dev's `s obsidian-lab` command or its
-specialized vault-sync workflow. Do not recommend those commands as installed
-capabilities. Resolve a separately authorized host-validation environment;
+`s obsidian-lab` is installed on this branch for host proof of an already-built,
+approved plugin. It uses a disposable profile and vault, never
+`SHIPGLOWS_OBSIDIAN_VAULT`, and never runs repository scripts. Resolve a
+separately authorized host-validation environment when that proof cannot run;
 missing host proof remains `validation-unavailable`.
 
 ## Host Proof And Distribution
