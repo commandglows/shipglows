@@ -121,6 +121,22 @@ jobs:
           "SHIPGLOWS_MANAGED_PWSH=$managedPowerShell" |
             Out-File -LiteralPath $env:GITHUB_ENV -Encoding utf8 -Append
 
+      - name: Provision pinned managed Playwright runtime
+        if: steps.impact.outputs.windows_changed == 'true'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = '1.62.1'
+          $runtimeRoot = Join-Path $env:LOCALAPPDATA "ShipGlows\node-tools\playwright-$version"
+          & npm.cmd install --prefix $runtimeRoot --no-audit --no-fund --ignore-scripts "playwright@$version"
+          if ($LASTEXITCODE -ne 0) { throw "Playwright install failed with exit $LASTEXITCODE" }
+          $playwrightCli = Join-Path $runtimeRoot 'node_modules\playwright\cli.js'
+          if (-not (Test-Path -LiteralPath $playwrightCli -PathType Leaf)) {
+            throw 'Pinned Playwright install did not expose its CLI.'
+          }
+          & node.exe $playwrightCli install chromium
+          if ($LASTEXITCODE -ne 0) { throw "Managed Chromium install failed with exit $LASTEXITCODE" }
+
       - name: Run complete Windows contract
         if: steps.impact.outputs.windows_changed == 'true'
         shell: bash

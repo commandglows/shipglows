@@ -255,6 +255,37 @@ function Test-SgBrowserExtensionPackage([object]$Package) {
     return $dependencies -contains '@crxjs/vite-plugin'
 }
 
+function Read-SgBrowserExtensionManifest([string]$ManifestPath) {
+    if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) { return $null }
+    $item = Get-Item -LiteralPath $ManifestPath -Force -ErrorAction Stop
+    if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $item.Length -gt 1048576) { throw "Unsafe browser extension manifest: $ManifestPath" }
+    try { $manifest = [IO.File]::ReadAllText($ManifestPath) | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw "Invalid browser extension manifest '$ManifestPath': $($_.Exception.Message)" }
+    if ([int]$manifest.manifest_version -notin @(2,3) -or [string]::IsNullOrWhiteSpace([string]$manifest.name) -or [string]::IsNullOrWhiteSpace([string]$manifest.version)) { throw "Invalid browser extension manifest '$ManifestPath': name, version, and manifest_version 2 or 3 are required." }
+    return $manifest
+}
+
+function Get-SgBrowserExtensionDescriptor([string]$ProjectPath) {
+    $root = ConvertTo-SgCanonicalPath $ProjectPath
+    $relativeCandidates = @('manifest.json','dist\chrome\manifest.json','dist\manifest.json','build\chrome\manifest.json','build\manifest.json','extension\manifest.json','output\chrome\manifest.json')
+    $matches = New-Object 'System.Collections.Generic.List[object]'
+    foreach ($relative in $relativeCandidates) {
+        $manifestPath = Join-Path $root $relative
+        if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { continue }
+        $manifest = Read-SgBrowserExtensionManifest $manifestPath
+        [void]$matches.Add([pscustomobject]@{ProjectPath=$root;ExtensionPath=[IO.Path]::GetFullPath((Split-Path $manifestPath -Parent));ManifestPath=[IO.Path]::GetFullPath($manifestPath);RelativeManifestPath=$relative.Replace('\','/');ManifestVersion=[int]$manifest.manifest_version;Name=[string]$manifest.name;Version=[string]$manifest.version;Mode=$(if($relative -eq 'manifest.json'){'static'}else{'built'})})
+    }
+    if ($matches.Count -gt 1) { $paths=($matches|ForEach-Object{$_.RelativeManifestPath})-join', ';throw "Multiple browser extension artifacts were detected ($paths). Remove stale outputs or choose the exact extension directory." }
+    if ($matches.Count -eq 1) { return $matches[0] }
+    $package = Read-SgNodePackage $root
+    if ($package -and (Test-SgBrowserExtensionPackage $package)) {
+        $packageName = if ($package.PSObject.Properties['name'] -and $package.name) { [string]$package.name } else { Split-Path $root -Leaf }
+        $packageVersion = if ($package.PSObject.Properties['version'] -and $package.version) { [string]$package.version } else { '' }
+        return [pscustomobject]@{ProjectPath=$root;ExtensionPath=$null;ManifestPath=$null;RelativeManifestPath=$null;ManifestVersion=0;Name=$packageName;Version=$packageVersion;Mode='build-required'}
+    }
+    return $null
+}
+
 function Get-SgNodePackageManager([string]$ProjectPath) {
     $pnpmLock = Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf
     if (-not $pnpmLock) {
@@ -282,11 +313,12 @@ function Get-SgNodePackageManager([string]$ProjectPath) {
 function Get-SgProjectKind([string]$ProjectPath) {
     $package = Join-Path $ProjectPath 'package.json'
     $pubspec = Join-Path $ProjectPath 'pubspec.yaml'
+    $extension = Get-SgBrowserExtensionDescriptor $ProjectPath
+    if ($extension) { return 'browser-extension' }
     if ([IO.File]::Exists($package)) {
         $json = Read-SgNodePackage $ProjectPath
         $all = @(Get-SgNodeDependencyNames $json)
         $hasDevScript = [bool](Get-SgNodeScript $json 'dev')
-        if (Test-SgBrowserExtensionPackage $json) { return 'browser-extension' }
         if ($all -contains 'astro' -and $hasDevScript) { return 'astro' }
         if ($all -contains 'vite' -and $hasDevScript) { return 'vite' }
     }
@@ -298,7 +330,30 @@ function Get-SgProjectKind([string]$ProjectPath) {
         if ([IO.File]::Exists((Join-Path $ProjectPath 'requirements.txt'))) { return 'python' }
     }
     if ([IO.File]::Exists((Join-Path $ProjectPath 'requirements.txt'))) { return 'python' }
-    throw "Unsupported or ambiguous project. Supported kinds: Astro, Vite, browser extensions with dev:chrome, Python/FastAPI with uv/requirements, Flutter."
+    throw "Unsupported or ambiguous project. Supported kinds: Astro, Vite, Manifest browser extensions, Python/FastAPI with uv/requirements, Flutter Web."
+}
+
+function Get-SgManagedPlaywrightModulePath {
+    $localAppData = if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { [Environment]::GetFolderPath('LocalApplicationData') }
+    $toolsRoot = Join-Path $localAppData 'ShipGlows\node-tools'
+    if (-not (Test-Path -LiteralPath $toolsRoot -PathType Container)) { return $null }
+    foreach ($directory in @(Get-ChildItem -LiteralPath $toolsRoot -Directory -Filter 'playwright-*' -ErrorAction SilentlyContinue | Sort-Object LastWriteTimeUtc -Descending)) {
+        $modulePath = Join-Path $directory.FullName 'node_modules\playwright'
+        if (Test-Path -LiteralPath (Join-Path $modulePath 'package.json') -PathType Leaf) { return $modulePath }
+    }
+    return $null
+}
+
+function Invoke-SgBrowserExtensionLab([string]$ProjectPath, [switch]$Headless, [switch]$Json, [string]$TargetUrl = '') {
+    $descriptor = Get-SgBrowserExtensionDescriptor $ProjectPath
+    if (-not $descriptor) { throw "No browser extension manifest or supported build contract was detected in: $ProjectPath" }
+    if ($descriptor.Mode -eq 'build-required') { throw 'Extension build required. ShipGlows detected dev:chrome but will not run repository scripts implicitly. Run the reviewed project build/start command, then retry the lab.' }
+    if ($descriptor.ManifestVersion -ne 3) { throw "Manifest V$($descriptor.ManifestVersion) is obsolete for the managed Chromium lab. Migrate the extension to Manifest V3 before testing." }
+    $node = Get-SgCommandPath @('node.exe','node.cmd'); if (-not $node) { throw 'Node.js is required by the browser extension lab but is unavailable.' }
+    $playwrightModule = Get-SgManagedPlaywrightModulePath; if (-not $playwrightModule) { throw 'Managed Playwright is unavailable. Rerun the ShipGlows full installer before opening the extension lab.' }
+    $runner = Join-Path $PSScriptRoot 'ShipGlows.ExtensionLab.js'; if (-not (Test-Path -LiteralPath $runner -PathType Leaf)) { throw "Browser extension lab runner is missing: $runner" }
+    $arguments = @($runner,'--extension',$descriptor.ExtensionPath,'--playwright',$playwrightModule); if ($Headless) { $arguments += '--headless' }; if ($Json) { $arguments += '--json' }; if ($TargetUrl) { $arguments += @('--target-url',$TargetUrl) }
+    & $node @arguments; if ($LASTEXITCODE -ne 0) { throw "Browser extension lab failed with exit code $LASTEXITCODE." }
 }
 
 function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$FlutterDevice = '') {
@@ -904,7 +959,7 @@ function Test-SgProjectCatalogRefreshRequired([object]$Config, [switch]$DiskOnly
 
 function Find-SgWorkspaceProjectCandidates([object]$Config) {
     $workspace = ConvertTo-SgCanonicalPath ([string]$Config.Workspace)
-    $manifests = @{'package.json'=$true;'pyproject.toml'=$true;'requirements.txt'=$true;'pubspec.yaml'=$true}
+    $manifests = @{'manifest.json'=$true;'package.json'=$true;'pyproject.toml'=$true;'requirements.txt'=$true;'pubspec.yaml'=$true}
     $pruneDirs = @{'.git'=$true;'node_modules'=$true;'venv'=$true;'.venv'=$true;'__pycache__'=$true;'target'=$true;'.next'=$true;'.nuxt'=$true;'dist'=$true;'.cache'=$true;'.pnpm'=$true;'.yarn'=$true}
     # ripgrep is optional: use it when available for an unbounded, pruned scan;
     # the native walker below preserves the same discovery semantics otherwise.
@@ -912,7 +967,7 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
     if ($ripgrep) {
         $arguments = @(
             '--files','--no-messages','--no-ignore',
-            '-g','package.json','-g','pyproject.toml','-g','requirements.txt','-g','pubspec.yaml',
+            '-g','manifest.json','-g','package.json','-g','pyproject.toml','-g','requirements.txt','-g','pubspec.yaml',
             '-g','!**/.git/**','-g','!**/node_modules/**','-g','!**/venv/**','-g','!**/.venv/**',
             '-g','!**/__pycache__/**','-g','!**/target/**','-g','!**/.next/**','-g','!**/.nuxt/**',
             '-g','!**/dist/**','-g','!**/.cache/**','-g','!**/.pnpm/**','-g','!**/.yarn/**',
@@ -2369,4 +2424,5 @@ function Show-SgDashboard([object]$Config) {
 }
 
 Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Get-SgEnvironmentStatePath,Read-SgEnvironmentState,Get-SgEnvironmentReadinessForSurface,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap,Read-SgBrowserExtensionManifest,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

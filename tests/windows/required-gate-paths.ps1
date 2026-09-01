@@ -54,6 +54,10 @@ foreach ($requiredWorkflowContract in @(
     "`$expectedSha256 = '71B2FEF860ABE467217A538FF31DE02F5258807C0129F771846F87BD029AAFC5'",
     'Provision pinned managed PowerShell runtime',
     'Ensure-SgPowerShellRuntime',
+    'Provision pinned managed Playwright runtime',
+    "`$version = '1.62.1'",
+    'playwright@$version',
+    'install chromium',
     'bash tests/windows/devserver-contract.sh'
 )) {
     Assert-Sg ($workflowText.Contains($requiredWorkflowContract)) "Required workflow contract is missing: $requiredWorkflowContract"
