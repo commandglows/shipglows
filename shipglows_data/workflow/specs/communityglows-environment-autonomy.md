@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.7"
+artifact_version: "1.0.8"
 project: ShipGlows
 created: "2026-09-01"
 created_at: "2026-09-01 10:17:36 UTC"
 updated: "2026-09-01"
-updated_at: "2026-09-01 12:51:55 UTC"
-status: ready
+updated_at: "2026-09-01 15:17:48 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5.6 Codex
 scope: CommunityGlows Windows environment installation and activation autonomy
@@ -54,7 +54,12 @@ evidence:
   - "The installed-runtime Rust path already provisions Rust 1.97.1 through isolated mise and writes cargo/rustc/rustup wrappers, but it is Android-centric, not connected to `s env`, and lacks fresh-process parity proof."
   - "The DevServer registry assigns CommunityGlows root port 3006 and site port 3000; both are stopped and have no lastError."
   - "Application Control previously blocked native Node binding oxc-parser for extension builds; this is an external policy outcome and must not be misclassified as a CLI defect or bypassed."
-next_step: Resolve or qualify the independent DevServer performance gate, then deliver and synchronize the bounded M7 source repair and repeat the installed-runtime CommunityGlows live proof; do not claim M7 complete before that retry.
+  - "Installed-runtime proof 2026-09-01: exact digest apply completed install_rust plus wrappers; a fresh process resolved rustc 1.97.1, cargo 1.97.1, and rustup 1.29.1; replan was non-executable and verify/status returned ready with exit 0."
+  - "DevServer proof 2026-09-01: extension port 3006 and Astro port 3000 both reached running, Astro returned HTTP 200, and both stopped with PID 0 and cleared lastError; reused stale Astro PID locks are now reconciled without killing unrelated processes."
+  - "Build proof 2026-09-01: Chrome and Firefox production ZIPs, Astro 26-page static output, cargo check --locked, Tauri app.exe, MSI, and NSIS setup all completed with exit 0."
+  - "Artifact proof 2026-09-01: Windows Local generation 20260901T151036579Z-377b6f24b2ae was registered with the official command, the official Desktop shortcut was refreshed, and its cached executable remained alive through an eight-second smoke before controlled stop."
+  - "Final verification 2026-09-01: all ten Python environment contracts, six focused PowerShell contracts, and the complete Git Bash Windows DevServer contract passed on feature commit 8dc6344 after installed-runtime synchronization."
+next_step: Merge the remotely persisted feature branch through the normal review path when desired; CommunityGlows environment autonomy and its Windows Local artifact are complete and runtime-proven.
 ---
 
 # CommunityGlows Environment Autonomy
@@ -65,7 +70,7 @@ CommunityGlows Environment Autonomy
 
 ## Status
 
-Ready for sequential implementation. The adversarial review found no unresolved product, platform, security, ownership, or proof decision; implementation, installation, push, runtime synchronization, and live builds have not started.
+Complete and runtime-proven. Source delivery, official runtime synchronization, exact-digest installation, fresh-process activation, DevServer root/site operation, independent production builds, Tauri Windows bundling, artifact registration, and complete contract verification succeeded.
 
 ## User Story
 
@@ -207,23 +212,23 @@ No parallel write batches are authorized. Redaction, schema, plan grammar, insta
 
 ## Acceptance Criteria
 
-- [ ] AC 1: CommunityGlows `inspect` exits `0`, reports complete capability/source facts including incompatible native Windows Flox, performs no version process probe, and creates no state/registry/workspace mutation.
-- [ ] AC 2: `prepare` preserves a detected Tauri Windows target and all required tools; applying its digest cannot downgrade desired state from inferred Tauri to explicit non-Tauri.
-- [ ] AC 3: `plan` exits `0`, is deterministic, contains every applicable independent operation, reports truthful network/download/privilege/consent effects, and never marks an installation executable without explicit approval semantics.
-- [ ] AC 4: An absent or mismatched Node, root pnpm, site npm, Rust/Cargo/rustup, local Tauri CLI, MSVC/SDK, or WebView2 capability produces an actionable non-ready status and exact supported/observed version evidence.
-- [ ] AC 5: Correct Node 24, pnpm 8.11.0, Tauri CLI 2.11.4, Rust/Cargo/rustup, MSVC/SDK, and WebView2 observations can collectively produce `ready`; constraints no longer force permanent `unknown`.
-- [ ] AC 6: Apply without digest, with a stale/forged digest, changed sources, changed executable identity, blocked plan, or refused consent performs zero backend operations and exits `3` with a redacted reason.
-- [ ] AC 7: Approved acquisition/install uses trusted fixed argv and minimal inherited environment, preserves project files, reports partial failure honestly, and replans from observed state.
-- [ ] AC 8: `Authorization: Bearer <canary>` and contextual variants never expose the canary through Python, PowerShell, JSON state, attestation, registry diagnostics, stdout, or stderr; `[REDACTED]` and useful non-sensitive context remain visible.
-- [ ] AC 9: A new managed PowerShell and an agent-like child both resolve the intended node, pnpm/npm, cargo, rustc, rustup, and local Tauri invocation; the test does not rely on the installer process environment or a user profile hook.
-- [ ] AC 10: Managed missing, declined, failed, incompatible, restart-required, and stale-evidence scenarios make `verify` and `status` exit exactly `4`; invalid contract exits `2`; apply refusal exits `3`; complete fresh evidence exits `0`.
-- [ ] AC 11: Multiple Tauri candidates never cause silent first-project selection; the project-scoped CommunityGlows operation is deterministic or blocks for explicit scope.
-- [ ] AC 12: DevServer preserves root port `3006` and site port `3000`, clears stale lastError after stop, surfaces startup failure honestly, and does not treat browser-extension readiness as Tauri readiness.
-- [ ] AC 13: Source and installed runtime pass the same focused contracts and return equivalent inspect/plan/apply/verify/status behavior before the live CommunityGlows test.
-- [ ] AC 14: Root Chrome/Firefox, site, and Tauri build outcomes are reported separately; Application Control, absent toolchain, config/secret block, CLI defect, and source/build defect classifications are evidence-backed.
-- [ ] AC 15: A successful local Windows Tauri release produces the expected MSI/NSIS artifact, registers it through the official local artifact registry, and refreshes the official Desktop shortcut without a manual worktree shortcut.
-- [ ] AC 16: Exact-scope commits exclude all pre-existing unrelated changes, push succeeds to the resolved upstream, runtime synchronization follows the push, and no force push occurs.
-- [ ] AC 17: Mapped technical documentation describes only source- and runtime-proven behavior; CommunityGlows README drift remains a separate explicitly scoped follow-up unless scope is expanded.
+- [x] AC 1: CommunityGlows `inspect` exits `0`, reports complete capability/source facts including incompatible native Windows Flox, performs no version process probe, and creates no state/registry/workspace mutation.
+- [x] AC 2: `prepare` preserves a detected Tauri Windows target and all required tools; applying its digest cannot downgrade desired state from inferred Tauri to explicit non-Tauri.
+- [x] AC 3: `plan` exits `0`, is deterministic, contains every applicable independent operation, reports truthful network/download/privilege/consent effects, and never marks an installation executable without explicit approval semantics.
+- [x] AC 4: An absent or mismatched Node, root pnpm, site npm, Rust/Cargo/rustup, local Tauri CLI, MSVC/SDK, or WebView2 capability produces an actionable non-ready status and exact supported/observed version evidence.
+- [x] AC 5: Correct Node 24, pnpm 8.11.0, Tauri CLI 2.11.4, Rust/Cargo/rustup, MSVC/SDK, and WebView2 observations can collectively produce `ready`; constraints no longer force permanent `unknown`.
+- [x] AC 6: Apply without digest, with a stale/forged digest, changed sources, changed executable identity, blocked plan, or refused consent performs zero backend operations and exits `3` with a redacted reason.
+- [x] AC 7: Approved acquisition/install uses trusted fixed argv and minimal inherited environment, preserves project files, reports partial failure honestly, and replans from observed state.
+- [x] AC 8: `Authorization: Bearer <canary>` and contextual variants never expose the canary through Python, PowerShell, JSON state, attestation, registry diagnostics, stdout, or stderr; `[REDACTED]` and useful non-sensitive context remain visible.
+- [x] AC 9: A new managed PowerShell and an agent-like child both resolve the intended node, pnpm/npm, cargo, rustc, rustup, and local Tauri invocation; the test does not rely on the installer process environment or a user profile hook.
+- [x] AC 10: Managed missing, declined, failed, incompatible, restart-required, and stale-evidence scenarios make `verify` and `status` exit exactly `4`; invalid contract exits `2`; apply refusal exits `3`; complete fresh evidence exits `0`.
+- [x] AC 11: Multiple Tauri candidates never cause silent first-project selection; the project-scoped CommunityGlows operation is deterministic or blocks for explicit scope.
+- [x] AC 12: DevServer preserves root port `3006` and site port `3000`, clears stale lastError after stop, surfaces startup failure honestly, and does not treat browser-extension readiness as Tauri readiness.
+- [x] AC 13: Source and installed runtime pass the same focused contracts and return equivalent inspect/plan/apply/verify/status behavior before the live CommunityGlows test.
+- [x] AC 14: Root Chrome/Firefox, site, and Tauri build outcomes are reported separately; Application Control, absent toolchain, config/secret block, CLI defect, and source/build defect classifications are evidence-backed.
+- [x] AC 15: A successful local Windows Tauri release produces the expected MSI/NSIS artifact, registers it through the official local artifact registry, and refreshes the official Desktop shortcut without a manual worktree shortcut.
+- [x] AC 16: Exact-scope commits exclude all pre-existing unrelated changes, push succeeds to the resolved upstream, runtime synchronization follows the push, and no force push occurs.
+- [x] AC 17: Mapped technical documentation describes only source- and runtime-proven behavior; CommunityGlows README drift remains a separate explicitly scoped follow-up unless scope is expanded.
 
 ## Test Strategy
 
@@ -278,14 +283,15 @@ None. The operator approved the full plan including real Rust/rustup/Cargo insta
 | 2026-09-01 11:50:44 UTC | 102-sg-start | GPT-5.6 Codex | Completed Milestone 4 integration, managed-PowerShell portability repairs, complete Git Bash Windows contract, mapped technical documentation, metadata lint and secret/diff gates. | Complete for Milestone 4: all ten environment contracts, every mapped environment adapter, the complete managed-PowerShell DevServer suite, and `tests/windows/devserver-contract.sh` pass. Performance retains bounded median-of-batch thresholds; process cleanup, JSON envelopes, reservation timestamps, UTF-8 capture and runtime cache timestamps are deterministic across PowerShell 7.6. Installed-runtime live convergence remains pending by design. | Deliver only the exact task-owned source in Milestone 5. |
 | 2026-09-01 12:20:31 UTC | 102-sg-start | GPT-5.6 Codex | Repaired two blockers exposed by the Milestone 7 live attempt: a stale process could not recover the registered managed PowerShell, and scoped CommunityGlows Node/package-manager requirements remained non-executable pending despite trusted local tools. | Source repair proven with a subprocess lacking both the process variable and a PowerShell PATH entry, the canonical provider in observation mode, scoped Node and offline Corepack exact/mismatch/absence fixtures, the real non-mutating CommunityGlows source plan, all ten environment contracts, and provider/activation/installed-runtime contracts. The complete DevServer suite remains red at its pre-existing performance gate, so M7 remains pending until the bounded repair is delivered, synchronized, and repeated against the installed runtime. | Resolve or qualify the independent DevServer performance gate, then deliver and synchronize only the bounded M7 repair before repeating the live M7 proof. |
 | 2026-09-01 12:51:55 UTC | 102-sg-start | GPT-5.6 Codex | Removed unconditional CIM process collection from registry reconciliation, retained command-line evidence only for signed entries, and recalibrated the performance proof against interleaved host baselines without removing bounded ceilings. | Three repeated performance runs and the complete Git Bash Windows DevServer contract pass; reconciliation remained below 440 ms against its unchanged 800 ms ceiling, all environment/provider/activation/runtime contracts pass, and commit `376d360` is persisted on the resolved upstream. | Synchronize the installed runtime from the persisted branch, then repeat the live CommunityGlows plan/apply/verify/status flow. |
+| 2026-09-01 15:17:48 UTC | 102-sg-start / 103-sg-verify | GPT-5.6 Codex | Completed installed-runtime M6-M9, repaired packaged-root wrapper binding, stale Astro PID-lock reconciliation, caller-directory preservation, and native Cargo activation for Tauri child processes; pushed and synchronized each bounded repair before retrying. | Complete: installed plan/apply/replan/verify/status are ready; root/site DevServer and all Chrome, Firefox, Astro, Cargo, and Tauri Windows builds pass; MSI/NSIS and the official Windows Local artifact/shortcut exist; all focused and complete Windows contracts pass on `8dc6344`. | Close the chantier; merge through normal review when desired. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done; reviewed contract persisted.
 - `101-sg-ready`: done; status transitioned to ready after substantive risk and autonomy review.
-- `102-sg-start`: in progress; Milestones 0 through 5 are complete. The bounded M7 source repair and independent DevServer performance repair are contract-proven and persisted remotely; M7 remains pending installed-runtime synchronization and live retry.
-- `103-sg-verify`: not started.
-- `104-sg-end`: not started.
-- `005-sg-ship`: not started.
+- `102-sg-start`: done; Milestones 0 through 9 are source-, runtime-, and product-proven.
+- `103-sg-verify`: done; focused contracts, full Windows suite, live builds, artifact registry, and smoke proof are green.
+- `104-sg-end`: ready for closure.
+- `005-sg-ship`: source branch pushed and runtime synchronized; merge/release remains an operator choice.
 
-Next step: synchronize the installed runtime from the persisted branch, prove source/runtime parity, and repeat the installed-runtime CommunityGlows live plan/apply/verify/status flow before any M7 completion claim.
+Next step: merge `codex/accelerate-windows-cli-startup` through the normal review path when desired; no further CommunityGlows environment repair is pending.
