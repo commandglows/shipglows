@@ -392,10 +392,20 @@ function Install-SgApplicationCommandWrapper([string]$Name, [string]$CommandName
     }
     if (-not $target) { return $false }
 
+    $nodeRustActivation = if ($Name -in @('npm','npx','corepack','pnpm')) { @'
+@if exist "%~dp0cargo.cmd" if exist "%USERPROFILE%\.cargo\bin\cargo.exe" (
+  @set "RUSTUP_TOOLCHAIN=1.97.1"
+  @set "CARGO=%USERPROFILE%\.cargo\bin\cargo.exe"
+  @set "PATH=%USERPROFILE%\.cargo\bin;%PATH%"
+)
+'@ } else { '' }
     $wrapper = @"
 @echo off
+@setlocal DisableDelayedExpansion
+$nodeRustActivation
 @call "$target" %*
-@exit /b %ERRORLEVEL%
+@set "SHIPGLOWS_EXIT_CODE=%ERRORLEVEL%"
+@endlocal & exit /b %SHIPGLOWS_EXIT_CODE%
 # cmd-shim-target=$target
 "@
     Set-Content -LiteralPath $wrapperPath -Value $wrapper -Encoding ASCII
