@@ -137,7 +137,8 @@ function New-SgFlutterProtocolState {
 
 function ConvertFrom-SgFlutterMachineEnvelope([string]$Line) {
     if([string]::IsNullOrWhiteSpace($Line)-or$Line.Length-gt1048576){throw 'Invalid Flutter machine envelope size.'}
-    $parsed=$Line|ConvertFrom-Json -ErrorAction Stop
+    $converter=Get-Command ConvertFrom-Json -CommandType Cmdlet -ErrorAction Stop
+    $parsed=if($converter.Parameters.ContainsKey('NoEnumerate')){ConvertFrom-Json -InputObject $Line -NoEnumerate -ErrorAction Stop}else{$Line|ConvertFrom-Json -ErrorAction Stop}
     $items=New-Object 'Collections.Generic.List[object]';if($parsed-is[array]){foreach($value in $parsed){$items.Add($value)}}else{$items.Add($parsed)}
     if($items.Count-lt1-or$items.Count-gt64){throw 'Invalid Flutter machine envelope cardinality.'}
     foreach($item in $items){if($null-eq$item-or$item-is[array]-or$item-is[string]-or$item-is[ValueType]){throw 'Ambiguous Flutter machine envelope.'}}

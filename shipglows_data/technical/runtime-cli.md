@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.36.0"
+artifact_version: "1.37.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-01"
@@ -154,7 +154,11 @@ The pilot requires root `mise.toml` to contain only `[tools] node = "24"` and `p
 
 Current official authorities checked for this pilot are mise's [Windows installation](https://mise.jdx.dev/installing-mise.html#windows-winget), [`mise exec`](https://mise.jdx.dev/cli/exec.html), [`mise.lock`](https://mise.jdx.dev/dev-tools/mise-lock.html), [direct Node plus pnpm project configuration](https://mise.jdx.dev/demo), [configuration cascade and overrides](https://mise.jdx.dev/configuration.html), [safe mode](https://mise.jdx.dev/continuous-integration.html#running-against-untrusted-config-safe-mode), and [offline/cache settings](https://mise.jdx.dev/configuration/settings.html#offline).
 
-The native Windows full-install contract packages the closed `cli/environment` Python tree and schema under `%USERPROFILE%\.shipglows\runtime\cli\environment`. The installed launcher in `runtime\bin` resolves that path; the source launcher resolves its sibling source tree. Both dispatch `s env` before importing the DevServer module. Bootstrap extraction uses an exact file allowlist, rejects incomplete packages, and validates the installed Python sources/schema before claiming success. The isolated installer proof invokes the installed launcher with `inspect` from an unmanaged temporary project and requires no workspace, registry, menu cache, profile, Android/Flutter installation, authentication or network mutation.
+The Windows adapter registry now composes the legacy Node/pnpm owner with a project-scoped Tauri desktop owner. The Tauri owner observes or plans exact Rust 1.97.1, Cargo, rustup, local Tauri CLI 2.11.4, MSVC, Windows SDK and WebView2. Its provider accepts only the closed `observe|acquire_mise|install_rust` JSON actions, reconstructs fixed arguments outside the repository, and approval-binds the provider, managed PowerShell, MobileToolchain module and canonical WinGet identities. Rust runs through an isolated ShipGlows mise root; generated runtime wrappers expose `cargo`, `rustc` and `rustup` to new managed PowerShell and agent-child processes without editing profiles or global mise trust. Missing, refused, stale, offline, partial and timeout outcomes remain non-ready. These claims are source and disposable-runtime proofs only; installed-runtime live convergence remains pending.
+
+The DevServer reads a project-scoped environment state before reserving a port. Node/package-manager readiness is evaluated for the selected runnable surface, while Tauri readiness remains independent: a blocked Tauri target cannot impersonate or block a ready browser-extension surface. Multiple Tauri scopes require an explicit scope instead of selecting the first workspace candidate. CommunityGlows fixture coverage preserves root port `3006` and site port `3000`.
+
+The native Windows full-install contract packages the closed `cli/environment` Python tree, Windows provider and schema under `%USERPROFILE%\.shipglows\runtime\cli\environment`. The installed launcher in `runtime\bin` resolves that path; the source launcher resolves its sibling source tree. Both dispatch `s env` before importing the DevServer module. Bootstrap extraction uses an exact 34-file allowlist, rejects incomplete packages, and validates the installed Python sources/schema before claiming success. The isolated installer proof invokes the installed launcher with `inspect` from an unmanaged temporary project and requires no workspace, registry, menu cache, profile, Android/Flutter installation, authentication or network mutation.
 
 The same full installer packages `ShipGlows.WslTurso.psm1` and the pinned Turso Cloud consumer. WSL and Turso use separate consent and readiness gates; Turso requires initialized Ubuntu, uses fixed argv and verified archives, and leaves authentication user-owned.
 

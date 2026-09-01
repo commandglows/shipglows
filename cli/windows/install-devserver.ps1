@@ -31,8 +31,10 @@ $sourceDir = Join-Path $ShipglowsDir 'cli\windows'
 $runtimeDir = Join-Path $ShipglowsDir 'bin'
 $environmentCli = Join-Path $ShipglowsDir 'cli\environment\shipglows_environment.py'
 $environmentSchema = Join-Path $ShipglowsDir 'cli\environment\schemas\shipglows-environment-v1.schema.json'
+$environmentProvider = Join-Path $sourceDir 'shipglows-environment-provider.ps1'
 if (-not (Test-Path -LiteralPath $environmentCli -PathType Leaf)) { throw "Missing environment control-plane command: $environmentCli" }
 if (-not (Test-Path -LiteralPath $environmentSchema -PathType Leaf)) { throw "Missing environment control-plane schema: $environmentSchema" }
+if (-not (Test-Path -LiteralPath $environmentProvider -PathType Leaf)) { throw "Missing Windows environment provider: $environmentProvider" }
 try { [void]([IO.File]::ReadAllText($environmentSchema) | ConvertFrom-Json) }
 catch { throw "Invalid environment control-plane schema: $environmentSchema" }
 $codexMcpModule = Join-Path $sourceDir 'ShipGlows.CodexMcp.psm1'
@@ -743,7 +745,7 @@ function Install-SgDefaultPython([string[]]$UvPaths, [string[]]$PythonPaths) {
 }
 
 function Assert-SgEnvironmentPythonPackage([string]$PythonPath, [string]$EnvironmentDirectory) {
-    $pythonFiles = @('__init__.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
+    $pythonFiles = @('__init__.py','adapters.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py','versions.py','windows_tauri_backend.py') | ForEach-Object { Join-Path $EnvironmentDirectory $_ }
     # Windows PowerShell 5.1 removes embedded double quotes while rebuilding a
     # native argv. Python accepts single-quoted literals, which survive that
     # boundary and keep the -c program intact.
@@ -1395,28 +1397,6 @@ function Install-SgAndroidToolchain([bool]$FlutterReady, [string[]]$FlutterPaths
     return $diagnostic
 }
 
-function Resolve-SgTrustedMisePath {
-    $packageRoot = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages\jdx.mise_Microsoft.Winget.Source_8wekyb3d8bbwe'
-    $allowedRoot = [IO.Path]::GetFullPath($packageRoot).TrimEnd('\') + '\'
-    $candidates = New-Object Collections.Generic.List[string]
-    $command = Get-Command mise.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($command -and $command.Source) { $candidates.Add([string]$command.Source) }
-    if (Test-Path -LiteralPath $packageRoot -PathType Container) {
-        foreach ($item in @(Get-ChildItem -LiteralPath $packageRoot -Recurse -Filter mise.exe -File -ErrorAction SilentlyContinue)) { $candidates.Add($item.FullName) }
-    }
-    foreach ($candidate in @($candidates | Select-Object -Unique)) {
-        try {
-            $full = [IO.Path]::GetFullPath($candidate)
-            if (-not $full.StartsWith($allowedRoot,[StringComparison]::OrdinalIgnoreCase)) { continue }
-            $item = Get-Item -LiteralPath $full -Force
-            if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
-            $check = Invoke-SgBoundedProcess $full @('--version') 30
-            if (Test-SgMiseVersionResult $check) { return $full }
-        } catch { }
-    }
-    return ''
-}
-
 function Install-SgOfficialMise {
     $mise = Resolve-SgTrustedMisePath
     if ($mise) { return $mise }
@@ -1438,17 +1418,13 @@ function Install-SgOfficialMiseForTauri { return Install-SgOfficialMise }
 
 function Invoke-SgManagedTauriMise {
     param([string]$MisePath, [string]$ToolchainRoot, [string[]]$Arguments, [int]$TimeoutSeconds = 120, [switch]$Visible, [string]$OperationId = 'tool.rust.tauri', [string]$Label = 'Installing the validated Rust toolchain')
-    $names = @('MISE_SAFE','MISE_NO_HOOKS','MISE_NO_ENV','MISE_AUTO_INSTALL','MISE_EXEC_AUTO_INSTALL','MISE_NOT_FOUND_AUTO_INSTALL','MISE_RUN_AUTO_INSTALL','MISE_OVERRIDE_CONFIG_FILENAMES','MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES','MISE_CONFIG_DIR','MISE_CEILING_PATHS','MISE_SYSTEM_DEPS')
-    $previous = @{}; foreach($name in $names){$previous[$name]=[Environment]::GetEnvironmentVariable($name,'Process')}
-    try {
-        $emptyConfig = Join-Path $ToolchainRoot '.shipglows-no-user-mise-config'; New-Item -ItemType Directory -Path $emptyConfig -Force | Out-Null
-        $env:MISE_SAFE='1'; $env:MISE_NO_HOOKS='1'; $env:MISE_NO_ENV='1'; $env:MISE_AUTO_INSTALL='false'; $env:MISE_EXEC_AUTO_INSTALL='false'; $env:MISE_NOT_FOUND_AUTO_INSTALL='false'; $env:MISE_RUN_AUTO_INSTALL='false'; $env:MISE_OVERRIDE_CONFIG_FILENAMES='mise.toml'; $env:MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES='none'; $env:MISE_CONFIG_DIR=$emptyConfig; $env:MISE_CEILING_PATHS=(Split-Path $ToolchainRoot -Parent); $env:MISE_SYSTEM_DEPS='ignore'
-        Push-Location $ToolchainRoot
-        try {
-            if ($Visible) { return Invoke-SgVisibleBoundedProcess -OperationId $OperationId -Label $Label -File $MisePath -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds }
-            return Invoke-SgBoundedProcess $MisePath $Arguments $TimeoutSeconds
-        } finally { Pop-Location }
-    } finally { foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$previous[$name],'Process')} }
+    $runner = if($Visible){
+        $visibleRunner = { param($file,$arguments,$timeout) Invoke-SgVisibleBoundedProcess -OperationId $OperationId -Label $Label -File $file -Arguments $arguments -TimeoutSeconds $timeout }.GetNewClosure()
+        $visibleRunner
+    }else{
+        { param($file,$arguments,$timeout) Invoke-SgBoundedProcess $file $arguments $timeout }
+    }
+    return Invoke-SgIsolatedTauriMise -MisePath $MisePath -ToolchainRoot $ToolchainRoot -Arguments $Arguments -TimeoutSeconds $TimeoutSeconds -Runner $runner
 }
 
 function Test-SgTauriRustToolchain {

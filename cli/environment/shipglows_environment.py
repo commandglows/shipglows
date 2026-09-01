@@ -51,8 +51,10 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _emit(value, stream=sys.stdout):
-    json.dump(value, stream, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False)
+def _emit(value, stream=None):
+    if stream is None:
+        stream = sys.stdout
+    json.dump(redact(value), stream, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False)
     stream.write("\n")
 
 

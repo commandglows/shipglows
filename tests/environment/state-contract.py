@@ -42,7 +42,7 @@ with tempfile.TemporaryDirectory() as directory:
             {
                 "schema": "shipglows.environment/v1",
                 "project": {"name": "fixture"},
-                "capabilities": {"tools": [{"id": "git"}]},
+                "capabilities": {"tools": [{"id": "git", "scope": "site"}]},
                 "extensions": {"fixture.secret": {"api_token": "state-canary"}},
             }
         ),
@@ -106,9 +106,19 @@ with tempfile.TemporaryDirectory() as directory:
     assert "ShipGlows Environment Attestation" in attestation
     assert "state-canary" not in attestation
     assert str(project.resolve()) not in attestation
+    assert "tool/git @site" in attestation
 
     stale = status_project(project, state_root, max_age_seconds=-1)
     assert stale["status"] in ("drifted", "unknown")
+
+    (project / "package.json").write_text(
+        json.dumps({"engines": {"node": ">=24.0.0 <25"}}),
+        encoding="utf-8",
+    )
+    changed_source = status_project(project, state_root)
+    assert changed_source["status"] == "drifted"
+    assert changed_source["reason"] == "project environment sources changed after verify"
+    (project / "package.json").unlink()
 
     state_file.write_text("{truncated", encoding="utf-8")
     try:
