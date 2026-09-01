@@ -22,6 +22,10 @@ RUST_VERSION = "1.97.1"
 TAURI_CLI_VERSION = "2.11.4"
 OWNED_IDS = {"cargo", "rustc", "rustup", "tauri-cli", "msvc", "windows-sdk", "webview2", "tauri", "tauri-windows"}
 ACTIONS = {"acquire_mise", "install_rust"}
+PROVIDER_SENSITIVE_REASON = re.compile(
+    r"(?i)((?:authorization\s*[:=]\s*(?:bearer|basic)\s+|(?:bearer|basic)\s+|"
+    r"(?:token|password|passwd|secret|api[_-]?key|client[_-]?secret)\s*[:=]\s*))\S+"
+)
 
 
 def _registry_managed_powershell() -> str:
@@ -77,6 +81,14 @@ def resolve_managed_powershell(explicit: str | None = None) -> str:
 
 class WindowsTauriError(ValueError):
     pass
+
+
+def _safe_provider_reason(result: Mapping[str, Any]) -> str:
+    raw = result.get("reason")
+    if not isinstance(raw, str) or not raw.strip():
+        return "reason unavailable"
+    bounded = re.sub(r"[\x00-\x1f\x7f]+", " ", raw).strip()[:320]
+    return PROVIDER_SENSITIVE_REASON.sub(r"\1[REDACTED]", bounded)
 
 
 @dataclass(frozen=True)
@@ -400,7 +412,7 @@ def apply_operations(plan: Mapping[str, Any], desired: Mapping[str, Any], runner
         raise WindowsTauriError("Windows environment provider returned invalid apply evidence")
     status = result.get("status")
     if status == "refused":
-        raise WindowsTauriError("Windows environment provider refused the approved action")
+        raise WindowsTauriError(f"Windows environment provider refused the approved action: {_safe_provider_reason(result)}")
     if status == "offline":
         raise WindowsTauriError("Windows environment provider is offline")
     if status == "timeout":
