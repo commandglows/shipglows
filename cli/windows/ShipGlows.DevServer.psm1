@@ -459,6 +459,24 @@ function Resolve-SgNodeDependencyContext([string]$ProjectPath, [string]$RootPath
     }
 }
 
+function Get-SgEnclosingRepositoryRoot([string]$ProjectPath, [string]$WorkspacePath) {
+    $project = ConvertTo-SgCanonicalPath $ProjectPath
+    $workspace = ConvertTo-SgCanonicalPath $WorkspacePath
+    $workspacePrefix = $workspace + [IO.Path]::DirectorySeparatorChar
+    if (-not ($project.Equals($workspace,[StringComparison]::OrdinalIgnoreCase) -or $project.StartsWith($workspacePrefix,[StringComparison]::OrdinalIgnoreCase))) {
+        return $project
+    }
+    $cursor = $project
+    while ($true) {
+        if (Test-Path -LiteralPath (Join-Path $cursor '.git')) { return $cursor }
+        if ($cursor.Equals($workspace,[StringComparison]::OrdinalIgnoreCase)) { break }
+        $parent = [IO.Path]::GetDirectoryName($cursor)
+        if ([string]::IsNullOrWhiteSpace($parent)) { break }
+        $cursor = $parent.TrimEnd('\','/')
+    }
+    return $project
+}
+
 function Get-SgNodePackageManager([string]$ProjectPath, [string]$RootPath = '') {
     $context = Resolve-SgNodeDependencyContext $ProjectPath $RootPath
     if (-not $context.UsesPnpm) {
@@ -2565,10 +2583,13 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $flutterTokenPath=Join-Path $flutterLaunchDirectory 'token';[IO.File]::WriteAllText($flutterTokenPath,$flutterToken,(New-Object Text.UTF8Encoding($false)));Protect-SgOwnerOnlyPath $flutterTokenPath
         $flutterLaunchIdentity="ShipGlowsFlutter-$reservationToken"
     }
+    $dependencyRoot = if ($kind -in @('astro','vite','browser-extension','obsidian-plugin')) {
+        Get-SgEnclosingRepositoryRoot $launchPath ([string]$Config.Workspace)
+    } else { $environmentRoot }
     try {
-        Invoke-SgDependencySetup $Config $launchPath $kind $setupLog $environmentRoot | Out-Null
+        Invoke-SgDependencySetup $Config $launchPath $kind $setupLog $dependencyRoot | Out-Null
         if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
-        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $environmentRoot
+        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $dependencyRoot
     } catch {
         Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
         throw

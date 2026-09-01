@@ -92,6 +92,7 @@ try {
     $workspaceRoot = Join-Path $fixture 'dreamglows'
     $workspacePlugin = Join-Path $workspaceRoot 'obsidian_plugin'
     New-Item -ItemType Directory -Path $workspacePlugin -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $workspaceRoot '.git') -Force | Out-Null
     [IO.File]::WriteAllText((Join-Path $workspaceRoot 'package.json'), '{"name":"dreamglows","private":true,"workspaces":["obsidian_plugin","chrome_extension"]}', [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $workspaceRoot 'pnpm-workspace.yaml'), "packages:`n  - 'obsidian_plugin'`n  - 'chrome_extension'`n", [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $workspaceRoot 'pnpm-lock.yaml'), "lockfileVersion: '9.0'`n", [Text.UTF8Encoding]::new($false))
@@ -105,6 +106,8 @@ try {
         New-SgDependencyPlan $Project 'obsidian-plugin' $Root
     } $workspacePlugin $workspaceRoot $fakePnpm
     if ($workspacePlan.Manager -ne $fakePnpm -or ($workspacePlan.Arguments -join ' ') -ne 'install --frozen-lockfile' -or $workspacePlan.InstallPath -ne $workspaceRoot) { throw 'Nested Obsidian surface did not inherit the bounded pnpm workspace plan.' }
+    $directRegistrationRoot = & $module { param($Project,$Workspace) Get-SgEnclosingRepositoryRoot $Project $Workspace } $workspacePlugin $fixture
+    if ($directRegistrationRoot -ne $workspaceRoot) { throw 'A directly registered nested surface did not resolve its enclosing repository root.' }
     $standaloneContext = & $module { param($Project) Resolve-SgNodeDependencyContext $Project $Project } $workspacePlugin
     if ($standaloneContext.UsesPnpm -or $standaloneContext.InstallPath -ne $workspacePlugin) { throw 'Node workspace discovery escaped the supplied RootPath boundary.' }
     $nestedStandalone = Join-Path $workspaceRoot 'standalone_site'
