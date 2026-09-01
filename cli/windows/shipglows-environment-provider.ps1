@@ -27,9 +27,10 @@ try {
     $module=Join-Path $PSScriptRoot 'ShipGlows.MobileToolchain.psm1'
     if(-not (Test-Path -LiteralPath $module -PathType Leaf)){throw 'mobile toolchain provider module is unavailable'}
     Import-Module $module -Force -DisableNameChecking
+    $runtimeRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 
     if($action -eq 'observe'){
-        Write-SgProviderResult (Get-SgTauriWindowsEnvironmentObservation -ProjectRoot $root -Scope $scope)
+        Write-SgProviderResult (Get-SgTauriWindowsEnvironmentObservation -ProjectRoot $root -Scope $scope -RuntimeRoot $runtimeRoot)
     }
     if($action -eq 'acquire_mise'){
         $mise=Resolve-SgTrustedMisePath
@@ -43,7 +44,7 @@ try {
         Write-SgProviderResult ([pscustomobject]@{status='applied';completed=@('acquire_mise');next_action='replan'})
     }
     if($action -eq 'install_rust'){
-        Write-SgProviderResult (Install-SgTauriDesktopRustToolchain)
+        Write-SgProviderResult (Install-SgTauriDesktopRustToolchain -RuntimeRoot $runtimeRoot)
     }
 } catch {
     Write-SgProviderResult ([pscustomobject]@{status='refused';reason=$_.Exception.Message}) 2
