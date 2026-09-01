@@ -484,7 +484,12 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
             if ($item.status -in @('reserved','starting') -and $hasReservationTime) {
                 $expired = $true
                 try {
-                    $expired = ($now - [datetime]::Parse([string]$item.reservationTimeUtc).ToUniversalTime()).TotalMinutes -ge 5
+                    $reservationTime = if ($item.reservationTimeUtc -is [datetime]) {
+                        ([datetime]$item.reservationTimeUtc).ToUniversalTime()
+                    } else {
+                        [datetime]::Parse([string]$item.reservationTimeUtc,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind).ToUniversalTime()
+                    }
+                    $expired = ($now - $reservationTime).TotalMinutes -ge 5
                 } catch {
                     # Corrupt reservation metadata cannot retain a port lock.
                     $expired = $true
@@ -575,25 +580,30 @@ function Get-SgProcessSnapshot([int]$Pid) {
     }
 }
 
-function Get-SgProcessSnapshotMap([int[]]$Pids) {
+function Get-SgProcessSnapshotMap([int[]]$Pids, [int[]]$CommandLinePids = @()) {
     $result = @{}
     $ids = @($Pids | Where-Object { $_ -gt 0 } | Sort-Object -Unique)
     if ($ids.Count -eq 0) { return $result }
     $processById = @{}
     foreach ($process in @(Get-Process -Id $ids -ErrorAction SilentlyContinue)) { $processById[[int]$process.Id] = $process }
     if ($processById.Count -eq 0) { return $result }
-    $filter = (@($processById.Keys | ForEach-Object { "ProcessId = $_" }) -join ' OR ')
     $cimById = @{}
-    foreach ($cim in @(Get-CimInstance Win32_Process -Filter $filter -ErrorAction SilentlyContinue)) { $cimById[[int]$cim.ProcessId] = $cim }
+    $commandIds = @($CommandLinePids | Where-Object { $_ -gt 0 -and $processById.ContainsKey([int]$_) } | Sort-Object -Unique)
+    if ($commandIds.Count -gt 0) {
+        $filter = (@($commandIds | ForEach-Object { "ProcessId = $_" }) -join ' OR ')
+        foreach ($cim in @(Get-CimInstance Win32_Process -Filter $filter -ErrorAction SilentlyContinue)) { $cimById[[int]$cim.ProcessId] = $cim }
+    }
     foreach ($id in @($processById.Keys)) {
         $process = $processById[$id]
         $cim = if ($cimById.ContainsKey($id)) { $cimById[$id] } else { $null }
         $start = $null
         try { $start = $process.StartTime.ToUniversalTime().ToString('o') } catch { }
+        $executablePath = $null
+        try { $executablePath = $process.Path } catch { }
         $result[$id] = [pscustomobject]@{
             Pid = $id
             StartTimeUtc = $start
-            ExecutablePath = if ($cim) { $cim.ExecutablePath } else { $null }
+            ExecutablePath = if ($cim -and $cim.ExecutablePath) { $cim.ExecutablePath } else { $executablePath }
             CommandLine = if ($cim) { $cim.CommandLine } else { $null }
         }
     }
@@ -1055,6 +1065,80 @@ function Get-SgProjectCatalog([object]$Config, [switch]$ForceRefresh, [switch]$S
         [void]$items.Add($candidate)
     }
     return @($items.ToArray() | Sort-Object -Property Name,Id)
+}
+
+function Get-SgEnvironmentStateRoot {
+    if ($env:SHIPGLOWS_ENVIRONMENT_STATE_ROOT) { return [IO.Path]::GetFullPath([Environment]::ExpandEnvironmentVariables($env:SHIPGLOWS_ENVIRONMENT_STATE_ROOT)) }
+    if (-not $env:LOCALAPPDATA) { return $null }
+    return Join-Path $env:LOCALAPPDATA 'ShipGlows\Environment'
+}
+
+function Get-SgEnvironmentStatePath([string]$ProjectRoot) {
+    $stateRoot = Get-SgEnvironmentStateRoot
+    if (-not $stateRoot) { return $null }
+    $canonical = (ConvertTo-SgCanonicalPath $ProjectRoot).ToLowerInvariant()
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { $digest = ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($canonical)))).Replace('-','').ToLowerInvariant() }
+    finally { $sha.Dispose() }
+    return Join-Path $stateRoot "$digest.json"
+}
+
+function Read-SgEnvironmentState([string]$ProjectRoot) {
+    $path = Get-SgEnvironmentStatePath $ProjectRoot
+    if (-not $path -or -not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
+    $item = Get-Item -LiteralPath $path -ErrorAction Stop
+    if ($item.Length -gt 4194304) { throw 'ShipGlows environment state exceeds the bounded read limit.' }
+    try { $state = Get-Content -LiteralPath $path -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw "ShipGlows environment state is invalid: $($_.Exception.Message)" }
+    if ([string]$state.schema -ne 'shipglows.environment-state/v1') { throw 'ShipGlows environment state schema is unsupported.' }
+    $expectedRoot = ConvertTo-SgCanonicalPath $ProjectRoot
+    if (-not $state.project -or -not ([string]$state.project.root).Equals($expectedRoot,[StringComparison]::OrdinalIgnoreCase)) { throw 'ShipGlows environment state belongs to another project.' }
+    return $state
+}
+
+function Get-SgEnvironmentReadinessForSurface {
+    param(
+        [Parameter(Mandatory=$true)][string]$ProjectRoot,
+        [Parameter(Mandatory=$true)][string]$LaunchPath,
+        [Parameter(Mandatory=$true)][string]$Kind,
+        [Parameter(Mandatory=$true)]$EnvironmentState,
+        [switch]$RequireTauri,
+        [string]$TauriScope
+    )
+    $root = ConvertTo-SgCanonicalPath $ProjectRoot
+    $launch = ConvertTo-SgCanonicalPath $LaunchPath
+    $prefix = $root.TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
+    if ($launch.Equals($root,[StringComparison]::OrdinalIgnoreCase)) { $scope = '.' }
+    elseif ($launch.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)) { $scope = $launch.Substring($prefix.Length).Replace('\','/') }
+    else { throw 'DevServer launch surface is outside its environment project root.' }
+
+    $observed = @($EnvironmentState.observed.capabilities)
+    $surfaceIds = if ($Kind -in @('browser-extension','astro','vite')) { @('node','pnpm','npm') } else { @() }
+    $surface = @($observed | Where-Object { [string]$_.kind -eq 'tool' -and [string]$_.id -in $surfaceIds -and $(if ($_.PSObject.Properties['scope']) { [string]$_.scope } else { '.' }) -eq $scope })
+    $surfaceStatus = 'unknown'
+    if ($surface.Count -gt 0) {
+        if (@($surface | Where-Object { [string]$_.status -eq 'incompatible' }).Count) { $surfaceStatus = 'incompatible' }
+        elseif (@($surface | Where-Object { [string]$_.status -eq 'blocked' }).Count) { $surfaceStatus = 'blocked' }
+        elseif (@($surface | Where-Object { [string]$_.status -ne 'ready' }).Count) { $surfaceStatus = 'pending' }
+        else { $surfaceStatus = 'ready' }
+    }
+
+    $targets = @($observed | Where-Object { [string]$_.kind -eq 'target' -and [string]$_.id -in @('tauri','tauri-windows') })
+    $byScope = @{}
+    foreach ($target in $targets) {
+        $candidateScope = if ($target.PSObject.Properties['scope']) { [string]$target.scope } else { '.' }
+        if (-not $byScope.ContainsKey($candidateScope) -or [string]$target.status -eq 'ready') { $byScope[$candidateScope] = $target }
+    }
+    $selectedScope = if ($TauriScope) { $TauriScope } elseif ($byScope.ContainsKey($scope)) { $scope } elseif ($byScope.Count -eq 1) { [string]@($byScope.Keys)[0] } else { $null }
+    $tauriStatus = if ($selectedScope -and $byScope.ContainsKey($selectedScope)) { [string]$byScope[$selectedScope].status } elseif ($byScope.Count -gt 1) { 'ambiguous' } else { 'unknown' }
+    $status = $surfaceStatus
+    $reason = "environment readiness for $Kind scope '$scope' is $surfaceStatus"
+    if ($RequireTauri) {
+        if (-not $selectedScope -and $byScope.Count -gt 1) { $status='blocked'; $reason='multiple Tauri scopes exist; an explicit project scope is required' }
+        elseif (-not $selectedScope -or -not $byScope.ContainsKey($selectedScope)) { $status='blocked'; $reason='the requested Tauri project scope was not observed' }
+        else { $status=$tauriStatus; $reason="Tauri readiness for scope '$selectedScope' is $tauriStatus" }
+    }
+    [pscustomobject]@{ Status=$status; SurfaceStatus=$surfaceStatus; SurfaceScope=$scope; TauriStatus=$tauriStatus; TauriScope=$selectedScope; Reason=$reason }
 }
 
 function Get-SgProjectCatalogForDisplay([object]$Config) {
@@ -1618,7 +1702,9 @@ function Remove-SgFlutterLaunchArtifacts([object]$Config,[object]$Entry) {
 function Reconcile-SgRegistry([object]$Config) {
     return Invoke-SgRegistryMutation $Config {
         param($registry)
-        $processSnapshots = Get-SgProcessSnapshotMap @($registry.projects | ForEach-Object { [int]$_.pid })
+        $processSnapshots = Get-SgProcessSnapshotMap `
+            @($registry.projects | ForEach-Object { [int]$_.pid }) `
+            @($registry.projects | Where-Object { $_.PSObject.Properties['commandSignature'] -and $_.commandSignature } | ForEach-Object { [int]$_.pid })
         $byIdentity = @{}
         $normalized = New-Object 'System.Collections.Generic.List[object]'
         foreach ($entry in @($registry.projects)) {
@@ -1966,6 +2052,13 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     if (-not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $($entry.path)" }
     if (Test-SgProcessIdentity $entry) { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
     $settings = Get-SgRuntimeSettings $entry.path
+    $environmentRoot = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
+    $environmentLaunch = if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path }
+    $environmentState = Read-SgEnvironmentState $environmentRoot
+    if ($environmentState) {
+        $environmentReadiness = Get-SgEnvironmentReadinessForSurface -ProjectRoot $environmentRoot -LaunchPath $environmentLaunch -Kind ([string]$entry.kind) -EnvironmentState $environmentState
+        if ($environmentReadiness.SurfaceStatus -in @('pending','blocked','incompatible')) { throw "DevServer surface dependencies are not ready: $($environmentReadiness.Reason)" }
+    }
     $resolvedFlutterDevice = [string]$settings.FlutterDevice
     if ([string]$entry.kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'android') {
         $flutterPath=Get-SgFlutterCommandPath
@@ -2275,5 +2368,5 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Get-SgEnvironmentStatePath,Read-SgEnvironmentState,Get-SgEnvironmentReadinessForSurface,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired

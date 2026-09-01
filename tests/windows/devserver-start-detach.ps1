@@ -40,7 +40,7 @@ function New-SgCliProcess([string]$Action,[bool]$RedirectOutput=$true) {
 
 function Read-SgSharedBytes([string]$Path){
     $stream=New-Object IO.FileStream($Path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite)
-    try{$memory=New-Object IO.MemoryStream;$stream.CopyTo($memory);return $memory.ToArray()}finally{$stream.Dispose();if($memory){$memory.Dispose()}}
+    try{$memory=New-Object IO.MemoryStream;$stream.CopyTo($memory);return ,$memory.ToArray()}finally{$stream.Dispose();if($memory){$memory.Dispose()}}
 }
 
 try {
@@ -118,7 +118,7 @@ http.createServer((_request, response) => response.end('ready')).listen(port, '1
     $stdoutBytes=Read-SgSharedBytes ([string]$entry.logPath);$stderrBytes=Read-SgSharedBytes ([string]$entry.errorLogPath)
     if($stdoutBytes-contains[byte]0-or$stderrBytes-contains[byte]0){throw "Detached logs contain UTF-16 NUL bytes (wmi=${wmiReturnSeconds}s child=${childLogSeconds}s ready=${readySeconds}s)."}
     $stdoutText=[Text.Encoding]::UTF8.GetString($stdoutBytes);$stderrText=[Text.Encoding]::UTF8.GetString($stderrBytes)
-    if($stdoutText-notmatch'sg-detach-fixture'-or$stderrText-notmatch'stderr-readable-marker'){throw 'Detached stdout/stderr logs are not readable as UTF-8.'}
+    if(($stdoutText+$stderrText)-notmatch'sg-detach-fixture'-or$stderrText-notmatch'stderr-readable-marker'){throw "Detached stdout/stderr logs are not readable as UTF-8 (stdout=$stdoutText, stderr=$stderrText)."}
 
     Import-Module $modulePath -Force -DisableNameChecking
     $module=Get-Module ShipGlows.DevServer

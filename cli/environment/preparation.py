@@ -8,14 +8,20 @@ import os
 from pathlib import Path
 from typing import Any
 
-from .core import ContractError, discover_project
+from .core import (
+    CAPABILITY_GROUPS,
+    ContractError,
+    _capability_key,
+    _infer_native_capabilities,
+    discover_project,
+)
 
 PREPARATION_SCHEMA = "shipglows.preparation/v1"
 MANIFEST_SCHEMA = "shipglows.environment/v1"
 MANIFEST_NAME = "shipglows.environment.json"
 MAX_DEPTH = 3
 IGNORED_DIRECTORIES = {".git", ".gradle", ".idea", ".next", ".pnpm-store", ".turbo", ".venv", "build", "coverage", "dist", "node_modules", "target", "vendor"}
-INTERESTING_NAMES = {"Cargo.toml", "package.json", "pnpm-lock.yaml", "pubspec.yaml", "pyproject.toml", "requirements.txt"}
+INTERESTING_NAMES = {"Cargo.toml", "package.json", "pnpm-lock.yaml", "pubspec.yaml", "pyproject.toml", "requirements.txt", "tauri.conf.json"}
 
 
 def _digest(value: Any) -> str:
@@ -49,38 +55,49 @@ def _read_package(path: Path, root: Path, blocked: list[dict[str, str]]) -> dict
     return value
 
 
-def _infer(root: Path, files: list[Path], blocked: list[dict[str, str]]) -> tuple[list[dict[str, str]], list[dict[str, str]], list[dict[str, str]]]:
-    tools: dict[str, str] = {}
-    targets: set[str] = set()
+def _infer(root: Path, files: list[Path], blocked: list[dict[str, str]]) -> tuple[dict[str, list[dict[str, Any]]], list[dict[str, str]]]:
+    capabilities = _infer_native_capabilities(root, files)
     surfaces: list[dict[str, str]] = []
-    lock_present = any(path.name == "pnpm-lock.yaml" for path in files)
+
+    def add(group: str, entry: dict[str, Any]) -> None:
+        if not any(_capability_key(existing) == _capability_key(entry) for existing in capabilities[group]):
+            capabilities[group].append(entry)
+
     for path in files:
         relative = path.relative_to(root).as_posix()
         if path.name == "package.json":
             package = _read_package(path, root, blocked)
             if package is None:
                 continue
+            scope = path.parent.relative_to(root).as_posix() or "."
             engines = package.get("engines") if isinstance(package.get("engines"), dict) else {}
+            node_constraint = engines.get("node")
+            node_constraint = node_constraint.strip() if isinstance(node_constraint, str) and node_constraint.strip() else "*"
             package_manager = package.get("packageManager") if isinstance(package.get("packageManager"), str) else ""
-            tools.setdefault("node", str(engines.get("node", "*")))
-            if package_manager.startswith("pnpm@") or lock_present:
-                tools.setdefault("pnpm", package_manager.partition("@")[2] or "*")
+            add("tools", {"id": "node", "constraint": node_constraint, "scope": scope})
+            if package_manager.startswith("pnpm@") or (path.parent / "pnpm-lock.yaml").is_file():
+                add("tools", {"id": "pnpm", "constraint": package_manager.partition("@")[2] or "*", "scope": scope})
+            elif package_manager.startswith("npm@"):
+                add("tools", {"id": "npm", "constraint": package_manager.partition("@")[2] or "*", "scope": scope})
             dependencies = {**(package.get("dependencies") if isinstance(package.get("dependencies"), dict) else {}), **(package.get("devDependencies") if isinstance(package.get("devDependencies"), dict) else {})}
             astro = "astro" in dependencies or any(candidate.parent == path.parent and candidate.name.startswith("astro.config.") for candidate in files)
             if astro:
-                targets.add("web")
+                add("targets", {"id": "web", "scope": scope})
             surfaces.append({"kind": "astro" if astro else "node", "path": relative})
         elif path.name == "pubspec.yaml":
-            tools.setdefault("flutter", "*")
-            targets.add("web")
+            scope = path.parent.relative_to(root).as_posix() or "."
+            add("tools", {"id": "flutter", "constraint": "*", "scope": scope})
+            add("targets", {"id": "web", "scope": scope})
             surfaces.append({"kind": "flutter", "path": relative})
         elif path.name == "Cargo.toml":
-            tools.setdefault("cargo", "*")
             surfaces.append({"kind": "cargo", "path": relative})
         elif path.name in {"pyproject.toml", "requirements.txt"}:
-            tools.setdefault("python", "*")
+            scope = path.parent.relative_to(root).as_posix() or "."
+            add("tools", {"id": "python", "constraint": "*", "scope": scope})
             surfaces.append({"kind": "python", "path": relative})
-    return ([{"id": key, "constraint": tools[key]} for key in sorted(tools)], [{"id": key} for key in sorted(targets)], sorted(surfaces, key=lambda item: (item["path"], item["kind"])))
+    for group in CAPABILITY_GROUPS:
+        capabilities[group].sort(key=_capability_key)
+    return capabilities, sorted(surfaces, key=lambda item: (item["path"], item["kind"]))
 
 
 def build_preparation_plan(project_root: str | Path) -> dict[str, Any]:
@@ -90,7 +107,7 @@ def build_preparation_plan(project_root: str | Path) -> dict[str, Any]:
     manifest_path = root / MANIFEST_NAME
     files = _bounded_files(root)
     blocked: list[dict[str, str]] = []
-    tools, targets, surfaces = _infer(root, files, blocked)
+    capabilities, surfaces = _infer(root, files, blocked)
     notices: list[dict[str, str]] = []
     operation: dict[str, Any] | None = None
     if manifest_path.exists():
@@ -102,7 +119,7 @@ def build_preparation_plan(project_root: str | Path) -> dict[str, Any]:
     elif blocked:
         classification = "blocked"
     elif surfaces:
-        manifest = {"schema": MANIFEST_SCHEMA, "project": {"name": root.name}, "capabilities": {"tools": tools, "targets": targets}, "backends": {}}
+        manifest = {"schema": MANIFEST_SCHEMA, "project": {"name": root.name}, "capabilities": capabilities, "backends": {}}
         operation = {"action": "create", "owner": "shipglows", "path": MANIFEST_NAME, "content": json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True) + "\n"}
         classification = "repairable"
         notices.append({"code": "missing-shipglows-manifest", "path": MANIFEST_NAME, "message": "A bounded ShipGlows environment manifest can be created from detected project surfaces."})

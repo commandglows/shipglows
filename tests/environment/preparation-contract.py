@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-from cli.environment.core import ContractError  # noqa: E402
+from cli.environment.core import ContractError, discover_project  # noqa: E402
 from cli.environment.preparation import apply_preparation_plan, build_preparation_plan  # noqa: E402
 
 with tempfile.TemporaryDirectory() as directory:
@@ -33,10 +33,57 @@ with tempfile.TemporaryDirectory() as directory:
     assert next(item for item in first["operation"]["content"].splitlines() if '"id": "flutter"' in item)
     generated = json.loads(first["operation"]["content"])
     assert next(item for item in generated["capabilities"]["tools"] if item["id"] == "flutter")["constraint"] == "*"
+    malformed_engine = root / "malformed-engine"
+    malformed_engine.mkdir()
+    (malformed_engine / "package.json").write_text(
+        json.dumps({"engines": {"node": {"unexpected": True}}}), encoding="utf-8"
+    )
+    malformed_plan = build_preparation_plan(malformed_engine)
+    malformed_manifest = json.loads(malformed_plan["operation"]["content"])
+    assert malformed_manifest["capabilities"]["tools"][0]["constraint"] == "*"
     assert apply_preparation_plan(monorepo, first["digest"])["changed"] is True
     healthy = build_preparation_plan(monorepo)
     assert healthy["classification"] == "healthy"
     assert apply_preparation_plan(monorepo, healthy["digest"])["changed"] is False
+    tauri = root / "tauri"
+    (tauri / "src-tauri").mkdir(parents=True)
+    (tauri / "site").mkdir()
+    (tauri / "package.json").write_text(
+        json.dumps(
+            {
+                "engines": {"node": ">=24.0.0 <25"},
+                "packageManager": "pnpm@8.11.0",
+                "devDependencies": {"@tauri-apps/cli": "2.11.4"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (tauri / "site/package.json").write_text(
+        json.dumps({"engines": {"node": ">=24.0.0"}, "packageManager": "npm@11.14.1"}),
+        encoding="utf-8",
+    )
+    (tauri / "src-tauri/Cargo.toml").write_text(
+        '[package]\nname="fixture"\nversion="0.1.0"\nrust-version="1.88.0"\n',
+        encoding="utf-8",
+    )
+    tauri_plan = build_preparation_plan(tauri)
+    tauri_manifest = json.loads(tauri_plan["operation"]["content"])
+    scoped_tools = {
+        (item["id"], item.get("scope", "."), item.get("constraint"))
+        for item in tauri_manifest["capabilities"]["tools"]
+    }
+    assert ("pnpm", ".", "8.11.0") in scoped_tools
+    assert ("npm", "site", "11.14.1") in scoped_tools
+    assert ("rustc", ".", ">=1.88.0") in scoped_tools
+    assert any(item["id"] == "tauri-windows" and item.get("scope") == "." for item in tauri_manifest["capabilities"]["targets"])
+    assert apply_preparation_plan(tauri, tauri_plan["digest"])["changed"] is True
+    prepared = build_preparation_plan(tauri)
+    assert prepared["classification"] == "healthy"
+    prepared_desired = discover_project(tauri)
+    assert any(
+        item["id"] == "tauri-windows" and item.get("scope") == "."
+        for item in prepared_desired["manifest"]["capabilities"]["targets"]
+    )
     stale = root / "stale"
     stale.mkdir()
     (stale / "package.json").write_text("{}", encoding="utf-8")

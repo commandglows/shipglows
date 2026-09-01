@@ -34,7 +34,10 @@ with tempfile.TemporaryDirectory() as directory:
                 "schema": "shipglows.environment/v1",
                 "project": {"name": "fixture"},
                 "capabilities": {
-                    "tools": [{"id": "node", "constraint": "24"}],
+                    "tools": [
+                        {"id": "node", "constraint": ">=24.0.0 <25", "scope": "."},
+                        {"id": "node", "constraint": ">=24.0.0", "scope": "site"},
+                    ],
                     "targets": [],
                     "agents": [],
                     "integrations": [],
@@ -51,7 +54,10 @@ with tempfile.TemporaryDirectory() as directory:
         encoding="utf-8",
     )
     parsed = load_manifest(manifest, root)
-    assert parsed["capabilities"]["tools"][0]["id"] == "node"
+    assert [(item["id"], item.get("scope")) for item in parsed["capabilities"]["tools"]] == [
+        ("node", "."),
+        ("node", "site"),
+    ]
     assert parsed["backends"]["windows"]["mise"].endswith("mise.toml")
 
     manifest.write_text('{"schema":"shipglows.environment/v1","schema":"duplicate"}', encoding="utf-8")
@@ -62,6 +68,23 @@ with tempfile.TemporaryDirectory() as directory:
     expect_error(lambda: load_manifest(manifest, root), "unsupported schema")
     manifest.write_text('{"schema":"shipglows.environment/v1","surprise":true}', encoding="utf-8")
     expect_error(lambda: load_manifest(manifest, root), "unknown field")
+    manifest.write_text(
+        '{"schema":"shipglows.environment/v1","capabilities":{"tools":['
+        '{"id":"node","scope":"site"},{"id":"node","scope":"site"}]}}',
+        encoding="utf-8",
+    )
+    expect_error(lambda: load_manifest(manifest, root), "duplicate capability")
+    for unsafe_scope in ("../outside", "/absolute", "site/../outside", "site/.", "C:/absolute", "site\\child", ""):
+        manifest.write_text(
+            json.dumps(
+                {
+                    "schema": "shipglows.environment/v1",
+                    "capabilities": {"tools": [{"id": "node", "scope": unsafe_scope}]},
+                }
+            ),
+            encoding="utf-8",
+        )
+        expect_error(lambda: load_manifest(manifest, root), "scope")
 
     runtime = root / ".shipglows.env"
     runtime.write_text("SHIPGLOWS_ENV_PORT=9000\nSHIPGLOWS_AUTO_REPAIR=false\n", encoding="utf-8")

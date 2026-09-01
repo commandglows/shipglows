@@ -61,6 +61,17 @@ if [ "${1:-}" = "private-data" ]; then
     exec python3 "$SCRIPT_DIR/private_data.py" "$@"
 fi
 
+# Closed application control plane. Input and output are JSON; it bypasses the
+# interactive DevServer bootstrap and accepts no shell command fragments.
+if [ "${1:-}" = "project" ]; then
+    shift
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo '{"status":"unavailable","code":"pythonUnavailable"}' >&2
+        exit 2
+    fi
+    exec python3 "$SCRIPT_DIR/project_control.py" "$@"
+fi
+
 source "$SCRIPT_DIR/lib.sh"
 
 # Load the right menu frontend

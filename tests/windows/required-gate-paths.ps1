@@ -52,6 +52,8 @@ foreach ($requiredWorkflowContract in @(
     'persist-credentials: false',
     "`$version = '15.2.0'",
     "`$expectedSha256 = '71B2FEF860ABE467217A538FF31DE02F5258807C0129F771846F87BD029AAFC5'",
+    'Provision pinned managed PowerShell runtime',
+    'Ensure-SgPowerShellRuntime',
     'bash tests/windows/devserver-contract.sh'
 )) {
     Assert-Sg ($workflowText.Contains($requiredWorkflowContract)) "Required workflow contract is missing: $requiredWorkflowContract"

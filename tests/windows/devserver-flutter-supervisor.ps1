@@ -1,8 +1,19 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
+function Stop-SgFixtureProcess([Diagnostics.Process]$Process) {
+    if (-not $Process) { return }
+    try {
+        if (-not $Process.HasExited) { $Process.Kill(); $Process.WaitForExit() }
+    } catch [InvalidOperationException] {
+        # The short-lived fixture may exit between HasExited and Kill.
+    } finally { $Process.Dispose() }
+}
+
 $supervisorPath = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\cli\windows\ShipGlows.FlutterSupervisor.ps1'))
 . $supervisorPath -TestMode
+$fixturePowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+if (-not (Test-Path -LiteralPath $fixturePowerShell -PathType Leaf)) { throw 'The Windows PowerShell fixture host is unavailable.' }
 
 $flutterRoot='C:\validated flutter';$packageConfig=Join-Path $flutterRoot 'packages\flutter_tools\.dart_tool\package_config.json';$snapshot=Join-Path $flutterRoot 'bin\cache\flutter_tools.snapshot'
 $hostArgs=@(New-SgFlutterHostArguments $flutterRoot $snapshot @('run','--machine'))
@@ -24,23 +35,23 @@ try {
     try{[void](Resolve-SgFlutterChromeExecutable 'chrome');throw 'Flutter supervisor accepted a browser outside the managed Playwright runtime.'}catch{if($_.Exception.Message-eq'Flutter supervisor accepted a browser outside the managed Playwright runtime.'){throw}}
     if((Resolve-SgFlutterChromeExecutable 'web-server')-ne''){throw 'Flutter web-server mode unexpectedly required Chromium.'}
 } finally {$env:LOCALAPPDATA=$savedLocalAppData;$env:CHROME_EXECUTABLE=$savedChromeExecutable;Remove-Item -LiteralPath $browserFixture -Recurse -Force -ErrorAction SilentlyContinue}
-$fixture=New-Object Diagnostics.Process;$fixture.StartInfo.FileName=(Join-Path $PSHOME 'powershell.exe');$fixture.StartInfo.Arguments='-NoProfile -Command "[Console]::Out.WriteLine(''machine-line''); [Console]::Error.WriteLine(''error-line'')"';$fixture.StartInfo.UseShellExecute=$false;$fixture.StartInfo.RedirectStandardOutput=$true;$fixture.StartInfo.RedirectStandardError=$true
-try{[void]$fixture.Start();$pump=New-SgFlutterStreamPump $fixture;$outQueue=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$errQueue=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$deadline=(Get-Date).AddSeconds(5);do{Pump-SgFlutterStreams $pump $outQueue $errQueue;if(-not$outQueue.IsEmpty-and-not$errQueue.IsEmpty){break};Start-Sleep -Milliseconds 20}while((Get-Date)-lt$deadline);$line=$null;if(-not$outQueue.TryDequeue([ref]$line)-or$line-ne'machine-line'){throw 'PS5.1 stream pump did not receive stdout.'};if(-not$errQueue.TryDequeue([ref]$line)-or$line-ne'error-line'){throw 'PS5.1 stream pump did not receive stderr.'}}finally{if(-not$fixture.HasExited){$fixture.Kill()};$fixture.Dispose()}
+$fixture=New-Object Diagnostics.Process;$fixture.StartInfo.FileName=$fixturePowerShell;$fixture.StartInfo.Arguments='-NoProfile -Command "[Console]::Out.WriteLine(''machine-line''); [Console]::Error.WriteLine(''error-line'')"';$fixture.StartInfo.UseShellExecute=$false;$fixture.StartInfo.RedirectStandardOutput=$true;$fixture.StartInfo.RedirectStandardError=$true
+try{[void]$fixture.Start();$pump=New-SgFlutterStreamPump $fixture;$outQueue=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$errQueue=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$deadline=(Get-Date).AddSeconds(5);do{Pump-SgFlutterStreams $pump $outQueue $errQueue;if(-not$outQueue.IsEmpty-and-not$errQueue.IsEmpty){break};Start-Sleep -Milliseconds 20}while((Get-Date)-lt$deadline);$line=$null;if(-not$outQueue.TryDequeue([ref]$line)-or$line-ne'machine-line'){throw 'PS5.1 stream pump did not receive stdout.'};if(-not$errQueue.TryDequeue([ref]$line)-or$line-ne'error-line'){throw 'PS5.1 stream pump did not receive stderr.'}}finally{Stop-SgFixtureProcess $fixture}
 $eofPayload=Join-Path ([IO.Path]::GetTempPath()) ("sg-eof-{0}.txt" -f [guid]::NewGuid().ToString('N'));[IO.File]::WriteAllText($eofPayload,'{"id":77,"result":{}}')
 $eof=New-Object Diagnostics.Process;$eof.StartInfo.FileName=(Join-Path $env:SystemRoot 'System32\cmd.exe');$eof.StartInfo.Arguments="/d /c type `"$eofPayload`"";$eof.StartInfo.UseShellExecute=$false;$eof.StartInfo.RedirectStandardOutput=$true;$eof.StartInfo.RedirectStandardError=$true
 try{[void]$eof.Start();$pump=New-SgFlutterStreamPump $eof;$oq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$eq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$eof.WaitForExit();if(-not(Drain-SgFlutterStreams $pump $oq $eq 2)){throw 'EOF stream drain did not complete.'};$line=$null;$state=New-SgFlutterProtocolState;if(-not$oq.TryDequeue([ref]$line)){throw 'Final stdout line was lost at EOF.'};Update-SgFlutterProtocolState $state $line;if($state.LastResponseId-ne77-or-not$state.LastResponseOk){throw 'Correlated Flutter response immediately before EOF was lost.'}}finally{if(-not$eof.HasExited){$eof.Kill()};$eof.Dispose();Remove-Item -LiteralPath $eofPayload -Force -ErrorAction SilentlyContinue}
 
 $bulkScript=Join-Path ([IO.Path]::GetTempPath()) ("sg-bulk-{0}.ps1" -f [guid]::NewGuid().ToString('N'));[IO.File]::WriteAllText($bulkScript,'for($i=0;$i -lt 1200;$i++){[Console]::Out.WriteLine("o$i");[Console]::Error.WriteLine("e$i")}')
-$bulk=New-Object Diagnostics.Process;$bulk.StartInfo.FileName=(Join-Path $PSHOME 'powershell.exe');$bulk.StartInfo.Arguments="-NoProfile -File `"$bulkScript`"";$bulk.StartInfo.UseShellExecute=$false;$bulk.StartInfo.RedirectStandardOutput=$true;$bulk.StartInfo.RedirectStandardError=$true
+$bulk=New-Object Diagnostics.Process;$bulk.StartInfo.FileName=$fixturePowerShell;$bulk.StartInfo.Arguments="-NoProfile -File `"$bulkScript`"";$bulk.StartInfo.UseShellExecute=$false;$bulk.StartInfo.RedirectStandardOutput=$true;$bulk.StartInfo.RedirectStandardError=$true
 try{[void]$bulk.Start();$pump=New-SgFlutterStreamPump $bulk;$oq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$eq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$deadline=(Get-Date).AddSeconds(10);while(-not$bulk.HasExited-and(Get-Date)-lt$deadline){Pump-SgFlutterStreams $pump $oq $eq;Start-Sleep -Milliseconds 5};if(-not$bulk.HasExited){throw 'Bulk fixture did not exit.'};if(-not(Drain-SgFlutterStreams $pump $oq $eq 5)-or$oq.Count-ne1200-or$eq.Count-ne1200){throw 'EOF drain lost a backlog larger than 1000 lines.'}}finally{if(-not$bulk.HasExited){$bulk.Kill();$bulk.WaitForExit()};$bulk.Dispose();Remove-Item -LiteralPath $bulkScript -Force -ErrorAction SilentlyContinue}
 $killScript=Join-Path ([IO.Path]::GetTempPath()) ("sg-kill-{0}.ps1" -f [guid]::NewGuid().ToString('N'));[IO.File]::WriteAllText($killScript,'param([string]$EventName);for($i=0;$i -lt 100;$i++){[Console]::Out.WriteLine("k$i")};$signal=[Threading.EventWaitHandle]::OpenExisting($EventName);try{[void]$signal.Set()}finally{$signal.Dispose()};Start-Sleep 30')
 $killEventName="Local\ShipGlowsDrain-$([guid]::NewGuid().ToString('N'))";$createdNew=$false;$killReady=New-Object Threading.EventWaitHandle($false,[Threading.EventResetMode]::ManualReset,$killEventName,[ref]$createdNew)
-$killed=New-Object Diagnostics.Process;$killed.StartInfo.FileName=(Join-Path $PSHOME 'powershell.exe');$killed.StartInfo.Arguments="-NoProfile -File `"$killScript`"";$killed.StartInfo.UseShellExecute=$false;$killed.StartInfo.RedirectStandardOutput=$true;$killed.StartInfo.RedirectStandardError=$true
+$killed=New-Object Diagnostics.Process;$killed.StartInfo.FileName=$fixturePowerShell;$killed.StartInfo.Arguments="-NoProfile -File `"$killScript`"";$killed.StartInfo.UseShellExecute=$false;$killed.StartInfo.RedirectStandardOutput=$true;$killed.StartInfo.RedirectStandardError=$true
 $killed.StartInfo.Arguments="-NoProfile -File `"$killScript`" $killEventName"
 try{[void]$killed.Start();$pump=New-SgFlutterStreamPump $killed;$oq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$eq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';if(-not$killReady.WaitOne([TimeSpan]::FromSeconds(10))){throw 'Post-kill fixture did not finish writing before termination.'};$killed.Kill();$killed.WaitForExit();if(-not(Drain-SgFlutterStreams $pump $oq $eq 5)-or-not$pump.OutputEnded-or-not$pump.ErrorEnded-or$oq.Count-ne100){throw 'Post-kill drain lost buffered stdout or stream completion.'}}finally{if(-not$killed.HasExited){$killed.Kill();$killed.WaitForExit()};$killed.Dispose();$killReady.Dispose();Remove-Item -LiteralPath $killScript -Force -ErrorAction SilentlyContinue}
 
 $continuousScript=Join-Path ([IO.Path]::GetTempPath()) ("sg-continuous-{0}.ps1" -f [guid]::NewGuid().ToString('N'));[IO.File]::WriteAllText($continuousScript,'while($true){[Console]::Out.WriteLine("o");[Console]::Error.WriteLine("e")}')
-$continuous=New-Object Diagnostics.Process;$continuous.StartInfo.FileName=(Join-Path $PSHOME 'powershell.exe');$continuous.StartInfo.Arguments="-NoProfile -File `"$continuousScript`"";$continuous.StartInfo.UseShellExecute=$false;$continuous.StartInfo.RedirectStandardOutput=$true;$continuous.StartInfo.RedirectStandardError=$true
+$continuous=New-Object Diagnostics.Process;$continuous.StartInfo.FileName=$fixturePowerShell;$continuous.StartInfo.Arguments="-NoProfile -File `"$continuousScript`"";$continuous.StartInfo.UseShellExecute=$false;$continuous.StartInfo.RedirectStandardOutput=$true;$continuous.StartInfo.RedirectStandardError=$true
 try{[void]$continuous.Start();$pump=New-SgFlutterStreamPump $continuous;$oq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$eq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';Start-Sleep -Milliseconds 300;$clock=[Diagnostics.Stopwatch]::StartNew();Pump-SgFlutterStreams $pump $oq $eq 64;$clock.Stop();if($clock.ElapsedMilliseconds-gt1000-or($oq.Count+$eq.Count)-gt64){throw 'Continuous producer made the stream pump unbounded.'}}finally{if(-not$continuous.HasExited){$continuous.Kill();$continuous.WaitForExit()};$continuous.Dispose();Remove-Item -LiteralPath $continuousScript -Force -ErrorAction SilentlyContinue}
 
 Assert-SgFlutterSafeValue 'C:\workspace with space\app' 'project path'
@@ -51,7 +62,7 @@ foreach ($unsafe in @("bad`npath",'bad"path',[string]([char]0))) {
 $token = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
 $machineRequest=New-SgFlutterMachineRequestJson 88 'app.restart' 'app-watch'
 if(-not$machineRequest.StartsWith('[')-or-not$machineRequest.EndsWith(']')){throw 'Flutter machine request was not serialized as a top-level JSON array.'}
-$parsedMachineRequest=$machineRequest|ConvertFrom-Json
+$parsedMachineRequest=@($machineRequest|ConvertFrom-Json)
 if($parsedMachineRequest-isnot[array]-or$parsedMachineRequest.Count-ne1-or$parsedMachineRequest[0].method-ne'app.restart'){throw 'Flutter machine request array schema is invalid.'}
 $valid = ConvertFrom-SgFlutterCommandJson '{"token":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","id":"cmd-1","method":"reload"}' $token
 if ($valid.Method -ne 'reload' -or $valid.Id -ne 'cmd-1') { throw 'Valid authenticated reload command was rejected.' }
@@ -107,7 +118,7 @@ try {
     if($count-ne8-or$floodClock.ElapsedMilliseconds-gt1000){throw 'Flutter watcher pump was not bounded and fair.'}
     if(-not(Test-SgFlutterDebounceReady $watchState ([datetime]::UtcNow.AddSeconds(1)))){throw 'Detected Dart change did not become reload-ready.'}
     $reloadScript=Join-Path $watchRoot 'reload-fixture.ps1';[IO.File]::WriteAllText($reloadScript,'$line=[Console]::In.ReadLine();$request=$line|ConvertFrom-Json;if($request -isnot [array] -or $request.Count -ne 1 -or $request[0].method -ne ''app.restart''){exit 9};[Console]::Out.WriteLine(''[{"id":88,"result":{"code":0}}]'');Start-Sleep -Milliseconds 200')
-    $reload=New-Object Diagnostics.Process;$reload.StartInfo.FileName=(Join-Path $PSHOME 'powershell.exe');$reload.StartInfo.Arguments="-NoProfile -File `"$reloadScript`"";$reload.StartInfo.UseShellExecute=$false;$reload.StartInfo.RedirectStandardInput=$true;$reload.StartInfo.RedirectStandardOutput=$true;$reload.StartInfo.RedirectStandardError=$true
+    $reload=New-Object Diagnostics.Process;$reload.StartInfo.FileName=$fixturePowerShell;$reload.StartInfo.Arguments="-NoProfile -File `"$reloadScript`"";$reload.StartInfo.UseShellExecute=$false;$reload.StartInfo.RedirectStandardInput=$true;$reload.StartInfo.RedirectStandardOutput=$true;$reload.StartInfo.RedirectStandardError=$true
     try{[void]$reload.Start();$reloadPump=New-SgFlutterStreamPump $reload;$roq=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$req=New-Object 'Collections.Concurrent.ConcurrentQueue[string]';$reloadState=New-SgFlutterProtocolState;Send-SgFlutterMachineRequest $reload 88 'app.restart' 'app-watch';[void](Wait-SgFlutterMachineResponse $reload $reloadPump $roq $req $reloadState (Join-Path $watchRoot 'reload.log') 88 3);if($reloadState.LastResponseId-ne88-or-not$reloadState.LastResponseOk){throw 'Watcher-triggered app.restart response was not correlated.'}}finally{if(-not$reload.HasExited){$reload.Kill();$reload.WaitForExit()};$reload.Dispose()}
 } finally { if($watcher){$watcher.Dispose()};Remove-Item -LiteralPath $watchRoot -Recurse -Force -ErrorAction SilentlyContinue }
 
