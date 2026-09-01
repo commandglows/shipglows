@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.40.0"
+artifact_version: "2.41.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-01"
@@ -74,6 +74,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-09-01: canonical business context now owns delivery posture; context and Git resolve it deterministically, ask when missing, and distinguish product publication from runtime live state."
   - "2026-09-01: product and experience questions are proactive partnership, purely technical questions and validation requests are exceptional, and a question answer never expands mutation authority."
   - "2026-09-01: ordinary Git/GitHub stewardship is autonomous and status-driven: non-live projects integrate on main, live projects on canonical dev, with continual safe branch/worktree convergence and no Git validation prompts."
   - "2026-09-01: closure now separates existing-surface editorial alignment from non-blocking editorial/product opportunity, preventing `not impacted` from being interpreted as no opportunity."
@@ -639,6 +640,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - Skills load `skills/references/decision-quality-contract.md` before quality-sensitive routing, model/fallback choice, implementation, fix, verification, or recommendations. Completion requires industrial-grade quality proportional to consequence; merely functional, unintentionally generic for the accepted product, fragile, cluttered, or unresolved provisional work presented as final remains partial. Brand surfaces use award-caliber craft as a benchmark, while operational interfaces stay clarity-first. Institutional claims require a framework-specific scoped audit against named requirements and direct evidence.
 - Skills should load `skills/references/question-contract.md` before user-facing questions. They ask only when the answer changes route, scope, risk, validation, closure, ship posture, public claims, or technical/product/editorial direction; otherwise they proceed by the best-practice default only when it is clear, low-risk, reversible, context-compatible, and verifiable.
 - Skills should ask useful product and experience questions readily whenever operator-owned perspective can improve the result, including non-blocking questions. They must not use the operator as a substitute for technical inspection: purely technical questions and validation requests are exceptional, and an answer never expands mutation authority by implication.
+- Delivery-sensitive context reads `delivery_posture` only from `shipglows_data/business/business.md`. The bounded resolver derives `main` or canonical `dev`; a missing value produces one product question and exact canonical persistence. Pitch, `ENVIRONMENT.md`, registry process state, `CLAUDE.md`, and `SHIPGLOWS.md` are never competing posture authorities.
 - When skill bodies are edited or compacted, treat top-level `SKILL.md` as the activation contract. Keep required section labels (`Canonical Paths`, `Trace category`, `Process role`, `Report Modes`) and local non-negotiables there; move only supporting detail to references.
 - Bug work uses one Markdown bug file under `shipglows_data/workflow/bugs/*.md` as the durable source of truth. `shipglows_data/workflow/BUGS.md`, when present, is an optional compact/generated/triage view and must not override the bug file.
 - Short natural-language confirmations after diagnosis or proposal continue the current chantier in delegated sequential mode by intent rather than exact keyword, not parallel fan-out.

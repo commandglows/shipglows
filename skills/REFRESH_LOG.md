@@ -1,5 +1,13 @@
 # Skills Refresh Log
 
+## 2026-09-01 — canonical project delivery posture
+
+**Updated:** `delivery_posture` now lives only in governance-root business context; context, bootstrap, and Git preflight use one deterministic read-only resolver and ask one product question when it is missing or invalid.
+
+**Hardened:** pitch, runtime `ENVIRONMENT.md`, live registry state, repository visibility, branches, and agent instruction files cannot silently classify a product as live or non-live.
+
+**Sources:** 0 URLs consulted; this is a direct operator correction to internal ShipGlows context architecture.
+
 ## 2026-09-01 — shared question, approval, and Git lifecycle contracts
 
 **Updated:** product and experience questions are proactive partnership, while purely technical questions and validation requests are exceptional and never turn the operator into an implementation supervisor.

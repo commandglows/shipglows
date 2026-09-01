@@ -134,17 +134,9 @@ def _configured_contract(project: Path, config: Path) -> ProjectContract:
 
 
 def _declared_production_branch(project: Path) -> str:
-    for name in ("CLAUDE.md", "SHIPGLOWS.md"):
-        path = project / name
-        if not path.is_file():
-            continue
-        text = path.read_text(encoding="utf-8")
-        match = re.search(r"(?mi)^-\s*production_branch:\s*([^\s|]+)\s*$", text)
-        if match:
-            branch = match.group(1)
-            if not re.fullmatch(r"[A-Za-z0-9._/-]+", branch) or branch.startswith("/") or ".." in branch:
-                raise GateError(f"Invalid declared production branch in {path}: {branch!r}")
-            return branch
+    # Inferred managed-project policy always protects canonical production main.
+    # Agent instruction files are never delivery-policy authorities. An explicit
+    # .shipglows/required-gate.json may still select a reviewed branch exception.
     return "main"
 
 

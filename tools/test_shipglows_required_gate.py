@@ -117,11 +117,11 @@ class RequiredGateContractTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.GateError, "declare Node"):
             gate.inspect_project(self.project)
 
-    def test_reads_declared_production_branch(self):
+    def test_ignores_legacy_agent_file_delivery_branch(self):
         self.write("CLAUDE.md", "## ShipGlows Delivery Policy\n\n- production_branch: stable\n")
         self.write("package.json", json.dumps({"engines": {"node": "24"}, "scripts": {"check": "node --check index.js"}}))
         self.write("package-lock.json", "{}")
-        self.assertEqual("stable", gate.inspect_project(self.project).production_branch)
+        self.assertEqual("main", gate.inspect_project(self.project).production_branch)
 
     def test_unsafe_custom_command_is_rejected(self):
         self.write(

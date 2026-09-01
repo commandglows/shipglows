@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.17.0"
+artifact_version: "1.18.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-09-01"
@@ -28,6 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: Git target resolution reads delivery posture only from canonical business context and pauses for one product question when missing."
   - "Operator decision 2026-09-01: ordinary Git/GitHub stewardship is permanently autonomous; no validation is requested for commit, push, safe reconciliation, or proven cleanup."
   - "Operator correction 2026-08-27: approval classification depends on request clarity, a few enumerable actions and targets, and directional discretion rather than local/remote location or model reasoning effort; explicit bounded file edits, commits, and ordinary pushes execute directly."
   - "Operator correction 2026-08-27: an explicit exact micro-modification request is itself authority for that mutation, but never for a chantier; ordinary exact-scope local commits never receive a separate approval prompt."
@@ -60,7 +61,7 @@ Every intentional mutation requires authority. Clear bounded-request authority, 
 
 ShipGlows has standing authority to manage ordinary Git/GitHub state for in-scope work without asking for validation. At project or chantier start, each coherent validated milestone, and chantier end, refresh remote truth and converge safely: fetch/prune, inspect branch/upstream/PR/worktree relationships, stage only owned paths, create accurate commits, push them, reconcile merge-ready owned branches or pull requests into the canonical integration branch, and remove proven-integrated temporary branches and worktrees.
 
-Resolve the target from `project-delivery-policy.md`: non-live `development` projects integrate directly into `main`; explicitly live `published` and `sensitive-production` projects integrate into canonical `dev`, while `main` remains production. Promotion `dev -> main` is a release/deployment transition: when its applicable release, CI, preview, security, and production-authority gates are satisfied, perform the Git reconciliation without a separate Git validation.
+Resolve the target through the read-only resolver in `project-delivery-policy.md`, whose sole posture authority is `shipglows_data/business/business.md`: non-live `development` projects integrate directly into `main`; explicitly live `published` and `sensitive-production` projects integrate into canonical `dev`, while `main` remains production. Missing or invalid posture triggers one product-status capture and exact canonical persistence before Git continues; never guess from runtime `live`, pitch, agent files, or branch state. Promotion `dev -> main` is a release/deployment transition: when its applicable release, CI, preview, security, and production-authority gates are satisfied, perform the Git reconciliation without a separate Git validation.
 
 This standing authority includes safe local and remote branch creation, ordinary commits and pushes, fast-forward or policy-approved merge-ready reconciliation, pull-request lifecycle operations, pruning, and deletion of temporary local/remote branches or worktrees only after exact ownership and integration are mechanically proven. It never includes force push, history rewriting, bypassing protection or required checks, choosing a non-trivial conflict resolution, discarding unique commits, weakening controls, merging an unreviewed or failing change, deploying without deployment authority, or touching unrelated dirty work. Preserve and diagnose uncertain state instead of asking for a Git validation.
 

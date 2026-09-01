@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.10.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-08-21"
+updated: "2026-09-01"
 status: reviewed
 source_skill: manual
 scope: guidelines
@@ -24,6 +24,7 @@ linked_systems:
 security_impact: yes
 docs_impact: yes
 evidence:
+  - "Operator correction 2026-09-01: canonical business context owns delivery posture; technical and environment surfaces consume or derive it without duplication."
   - "CLAUDE.md and current repo structure define active shell, workflow, and metadata conventions"
   - "User decision 2026-04-29: standardize ShipGlows internal contracts in English and user-facing interaction in the user's active language."
   - "User decision 2026-05-11: root ShipGlows governance Markdown is not compliant; canonical project artifacts live under shipglows_data/."
@@ -58,7 +59,7 @@ This file defines stable engineering and documentation rules for working inside 
 - Prefer idempotent operations over check-then-act races.
 - Do not treat generated runtime config as primary source of truth.
 - Treat `.shipglows.env` as optional committed runtime policy, never as an executable dotenv or secret store. Its supported keys are allowlisted; unknown entries must fail loudly.
-- Keep project delivery posture in the data-only `ShipGlows Delivery Policy` governance section, not in `.shipglows.env`: maturity, validation surface, and observed provider state are separate axes. Every posture requires milestone and final remote Git persistence; `development` never means local-only.
+- Keep project `delivery_posture` exactly once in `shipglows_data/business/business.md`, not in `.shipglows.env`, `ENVIRONMENT.md`, pitch, registry state, `CLAUDE.md`, or `SHIPGLOWS.md`. Technical context and Git policy derive from that business fact; maturity, validation surface, and observed provider/runtime state remain separate axes. Every posture requires milestone and final remote Git persistence; `development` never means local-only.
 - Apply the lightweight Git persistence preflight at existing lifecycle boundaries, never before every edit: preserve unrelated dirty work, distinguish local/remote/deployed evidence, and require a remote recovery point before sensitive mutation.
 - Keep automatic recovery enabled by default. A project may opt out with `SHIPGLOWS_AUTO_REPAIR=false`; failed restart and crash-loop paths must then show PM2 logs, offer Codex repair, return failure, and never call `env_start` automatically.
 - Keep documentation contracts versioned when they guide implementation or audits.

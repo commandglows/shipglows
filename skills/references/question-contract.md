@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.5.0"
+artifact_version: "2.6.0"
 project: ShipGlows
 created: "2026-05-05"
 updated: "2026-09-01"
@@ -35,6 +35,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: an explicit product-status capture may persist its answer to the named canonical business field without a second validation ceremony."
   - "Operator correction 2026-09-01: product and experience questions are proactive partnership; technical validation is exceptional, and ordinary Git/GitHub stewardship never asks for validation."
   - "Operator decision 2026-08-15: do not ask a duplicate question before an exact-scope local technical commit already covered by chantier approval."
   - "User request 2026-05-04: skill questions should be numbered, explain why, include helpful icons, and identify the recommended answer."
@@ -92,7 +93,7 @@ Never apply an approval-friction test to a useful product or experience question
 
 For a purely technical question, first attempt a professional evidence-backed decision. Ask only when credible safe technical directions have materially different consequences and the repository, accepted architecture, tests, and current standards cannot resolve them. Never ask the operator to supervise implementation mechanics.
 
-A question is not a validation request, and its answer never authorizes a mutation outside authority already granted. Before asking for validation, apply `mutation-plan-approval.md`, including clear bounded-request and Git-stewardship authority. Ordinary Git/GitHub commit, push, synchronization, reconciliation, and proven cleanup never create a validation question.
+A question is not a validation request, and its answer never authorizes a mutation outside authority already granted. A bounded factual-capture question may state in advance that its selected answer will be persisted to one named canonical field; that answer authorizes only this exact record, not adjacent edits or implementation. Before asking for validation, apply `mutation-plan-approval.md`, including clear bounded-request and Git-stewardship authority. Ordinary Git/GitHub commit, push, synchronization, reconciliation, and proven cleanup never create a validation question.
 
 ## Ask Threshold
 
@@ -283,3 +284,4 @@ Name the condition that would make another option better when that matters.
 - `SSRP-016 technical question restraint`: a purely technical question is asked only after evidence, architecture, tests, and standards fail to resolve materially different safe directions.
 - `SSRP-017 question-is-not-validation`: asking or answering a product/experience question never authorizes a new mutation or expands an approved scope.
 - `SSRP-018 no-git-validation-question`: ordinary commit, push, synchronization, safe reconciliation, and proven temporary-artifact cleanup are autonomous Git stewardship, never operator validation questions.
+- `SSRP-019 bounded-product-fact-capture`: a missing canonical delivery posture asks one product question that announces exact persistence; the selected answer records only that field and resumes without a second validation.

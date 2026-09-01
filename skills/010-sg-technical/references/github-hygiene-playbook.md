@@ -1,7 +1,7 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-04"
 updated: "2026-09-01"
@@ -24,6 +24,7 @@ depends_on:
 supersedes:
   - skills/310-sg-github-hygiene/SKILL.md
 evidence:
+  - "Operator correction 2026-09-01: Git hygiene derives its target from canonical business delivery posture and distinguishes product publication from runtime live state."
   - "Transferred from the retired GitHub hygiene entrypoint into the technical métier skill."
   - "Operator decision 2026-09-01: Git/GitHub reconciliation and proven cleanup are continuous autonomous stewardship without validation prompts."
 next_step: "/103-sg-verify consolidate GitHub hygiene under 010-sg-technical"
@@ -162,9 +163,11 @@ Treat these as attention items:
 
 Read-only `audit` mode stops after classification and report generation.
 
-`reconcile` mode starts with fresh evidence. Resolve the canonical integration
-branch from `project-delivery-policy.md`: `main` for non-live `development`,
-canonical `dev` for live `published` or `sensitive-production`. For each exact
+`reconcile` mode starts with fresh evidence. Run the resolver from
+`project-delivery-policy.md`; only business-context `delivery_posture` may derive
+`main` for non-live `development` or canonical `dev` for live `published` or
+`sensitive-production`. Missing posture uses its product-question recovery; a
+running environment, pitch, branch name, or agent file cannot substitute. For each exact
 repository, PR or branch, base, head, merge method, checks/reviews, and cleanup
 set, integrate automatically when `merge-ready` is mechanically proven under
 standing Git/GitHub stewardship authority. Never request Git validation. Never
