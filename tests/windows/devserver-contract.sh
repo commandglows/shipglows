@@ -23,6 +23,11 @@ ENVIRONMENT_CLI="$ROOT/cli/environment/shipglows_environment.py"
 SHIPGLOWS_COMMAND="$ROOT/cli/windows/shipglows.ps1"
 MANAGED_PWSH="$HOME/.shipglows/toolchains/powershell/7.6.5/win-x64/pwsh.exe"
 
+if [[ ! -x "$MANAGED_PWSH" ]]; then
+  export SHIPGLOWS_RUNTIME_MODULE="$WINDOWS_DIR/ShipGlows.PowerShellRuntime.psm1"
+  powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \
+    '$ErrorActionPreference="Stop"; Import-Module $env:SHIPGLOWS_RUNTIME_MODULE -Force -DisableNameChecking; [void](Ensure-SgPowerShellRuntime)'
+fi
 test -x "$MANAGED_PWSH"
 run_ps() { "$MANAGED_PWSH" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$@"; }
 
