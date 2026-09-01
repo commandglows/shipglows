@@ -1430,9 +1430,10 @@ function Invoke-SgManagedTauriMise {
 function Test-SgTauriRustToolchain {
     param([string]$MisePath, [string]$ToolchainRoot, $Baseline = (Get-SgTauriAndroidBaseline))
     if (-not $MisePath -or -not (Test-Path -LiteralPath (Join-Path $ToolchainRoot 'mise.toml') -PathType Leaf)) { return $false }
-    $rust = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec','--','rustc','--version') 60
-    $cargo = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec','--','cargo','--version') 60
-    $targets = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec','--','rustup','target','list','--installed') 60
+    $coordinate="rust@$($Baseline.RustToolchainVersion)"
+    $rust = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','rustc','--version') 60
+    $cargo = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','cargo','--version') 60
+    $targets = Invoke-SgManagedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','rustup','target','list','--installed') 60
     if ($rust.TimedOut -or $rust.ExitCode -ne 0 -or $rust.Output -notmatch "(?m)^rustc $([regex]::Escape([string]$Baseline.RustToolchainVersion))\b" -or $cargo.TimedOut -or $cargo.ExitCode -ne 0) { return $false }
     return @($Baseline.RustTargets | Where-Object { $targets.Output -notmatch "(?m)^$([regex]::Escape([string]$_))\r?$" }).Count -eq 0
 }
@@ -1467,7 +1468,7 @@ function Install-SgTauriAndroidToolchain {
                 $temporary = "$configPath.tmp-$([guid]::NewGuid().ToString('N'))"
                 [IO.File]::WriteAllText($temporary,$expected,[Text.UTF8Encoding]::new($false)); Move-SgAtomicReplace $temporary $configPath
             }
-            $install = Invoke-SgManagedTauriMise $mise $root @('install','rust') 1800 -Visible
+            $install = Invoke-SgManagedTauriMise $mise $root @('install',"rust@$($baseline.RustToolchainVersion)") 1800 -Visible
             if ($install.TimedOut -or $install.ExitCode -ne 0) { Write-SgInstallerWarning 'Validated Tauri Rust installation failed or timed out.' }
             $targetAdd = Invoke-SgManagedTauriMise $mise $root (Get-SgTauriRustTargetAddArguments -Baseline $baseline) 1800 -Visible -OperationId 'tool.rust-targets.tauri' -Label 'Installing the validated Rust Android targets'
             if (-not (Test-SgTauriRustTargetAddResult $targetAdd)) { Write-SgInstallerWarning 'Validated Tauri Rust Android target installation failed or timed out.' }

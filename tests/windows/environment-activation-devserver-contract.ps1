@@ -31,6 +31,7 @@ try {
 if "%1"=="-C" shift
 if not "%1"=="" shift
 if "%1"=="exec" shift
+if "%1"=="rust@1.97.1" shift
 if "%1"=="--" shift
 if "%1"=="cargo" echo cargo 1.97.1 (fixture)& exit /b 0
 if "%1"=="rustc" echo rustc 1.97.1 (fixture)& exit /b 0
