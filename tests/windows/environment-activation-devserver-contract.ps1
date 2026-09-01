@@ -26,14 +26,12 @@ try {
 
     Import-Module $mobileModule -Force -DisableNameChecking
     $fakeMise = Join-Path $runtime 'mise.cmd'
-    @'
+@'
 @echo off
-if "%1"=="-C" shift
-if not "%1"=="" shift
 if "%1"=="exec" shift
 if "%1"=="rust@1.97.1" shift
 if "%1"=="--" shift
-if "%1"=="cargo" echo cargo 1.97.1 (fixture)& exit /b 0
+if "%1"=="cargo" echo cargo 1.97.1 (fixture) cwd=%CD%& exit /b 0
 if "%1"=="rustc" echo rustc 1.97.1 (fixture)& exit /b 0
 if "%1"=="rustup" echo rustup 1.28.2 (fixture)& exit /b 0
 exit /b 65
@@ -46,11 +44,14 @@ exit /b 65
     @'
 $ErrorActionPreference='Stop'
 $env:PATH=$env:SHIPGLOWS_FIXTURE_BIN+';'+[Environment]::GetEnvironmentVariable('SystemRoot')+'\System32'
+Set-Location -LiteralPath $env:SHIPGLOWS_FIXTURE_PROJECT
 [pscustomobject]@{Pid=$PID;Cargo=(& cargo --version);Rustc=(& rustc --version);Rustup=(& rustup --version)} | ConvertTo-Json -Compress
 '@ | Set-Content -LiteralPath $worker -Encoding UTF8
     $env:SHIPGLOWS_FIXTURE_BIN = $bin
+    $env:SHIPGLOWS_FIXTURE_PROJECT = $project
     $direct = (& $managedPowerShell -NoLogo -NoProfile -NonInteractive -File $worker | ConvertFrom-Json)
     Assert-Sg ($direct.Cargo -match '^cargo 1[.]97[.]1 ' -and $direct.Rustc -match '^rustc 1[.]97[.]1 ' -and $direct.Rustup -match '^rustup 1[.]28[.]2 ') 'Disposable wrappers were not activated in a new managed PowerShell process.'
+    Assert-Sg ($direct.Cargo -match ('cwd=' + [regex]::Escape($project) + '$')) 'Disposable Cargo wrapper changed the caller working directory.'
 
     $agentChild = Join-Path $fixture 'agent-child.ps1'
     @'
@@ -114,6 +115,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Remove-Module ShipGlows.MobileToolchain -Force -ErrorAction SilentlyContinue
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue
     Remove-Item Env:SHIPGLOWS_FIXTURE_BIN -ErrorAction SilentlyContinue
+    Remove-Item Env:SHIPGLOWS_FIXTURE_PROJECT -ErrorAction SilentlyContinue
     Remove-Item Env:SHIPGLOWS_FIXTURE_WORKER -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $fixture -Recurse -Force -ErrorAction SilentlyContinue
 }
