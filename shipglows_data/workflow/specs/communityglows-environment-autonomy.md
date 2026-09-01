@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.5"
+artifact_version: "1.0.6"
 project: ShipGlows
 created: "2026-09-01"
 created_at: "2026-09-01 10:17:36 UTC"
 updated: "2026-09-01"
-updated_at: "2026-09-01 11:50:44 UTC"
+updated_at: "2026-09-01 12:20:31 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: GPT-5.6 Codex
@@ -54,7 +54,7 @@ evidence:
   - "The installed-runtime Rust path already provisions Rust 1.97.1 through isolated mise and writes cargo/rustc/rustup wrappers, but it is Android-centric, not connected to `s env`, and lacks fresh-process parity proof."
   - "The DevServer registry assigns CommunityGlows root port 3006 and site port 3000; both are stopped and have no lastError."
   - "Application Control previously blocked native Node binding oxc-parser for extension builds; this is an external policy outcome and must not be misclassified as a CLI defect or bypassed."
-next_step: Deliver the exact verified source diff in Milestone 5 without staging concurrent or unrelated paths.
+next_step: Resolve or qualify the independent DevServer performance gate, then deliver and synchronize the bounded M7 source repair and repeat the installed-runtime CommunityGlows live proof; do not claim M7 complete before that retry.
 ---
 
 # CommunityGlows Environment Autonomy
@@ -276,14 +276,15 @@ None. The operator approved the full plan including real Rust/rustup/Cargo insta
 | 2026-09-01 11:04:02 UTC | 102-sg-start | GPT-5.6 Codex | Completed Milestone 2 with a fixed composable adapter registry, closed JSON Windows provider, structured Python bridge, extracted isolated mise/Rust primitives, transitive executable identities, host observation, and closed installer packaging. | Complete for Milestone 2: all ten environment contracts, provider/mobile/install-surface PowerShell contracts, and the synthetic installed-runtime extraction proof pass with provider execution, installation, network, elevation, build, runtime sync, and CommunityGlows mutation disabled. | Implement Milestone 3 activation and fresh-process DevServer consumption proof. |
 | 2026-09-01 11:17:44 UTC | 102-sg-start | GPT-5.6 Codex | Completed Milestone 3 with disposable cargo/rustc/rustup wrappers, exact managed-PowerShell and nested agent-like fresh-process proofs, scoped DevServer environment-state consumption, independent extension/Tauri readiness, explicit multi-Tauri selection, and durable CommunityGlows port assertions. | Complete for Milestone 3: all ten environment contracts, the new activation/DevServer contract, targeted functional DevServer contracts, provider/mobile/install-surface contracts, and closed 34-file installed-runtime parity pass without provider execution, installation, network, elevation, build, runtime sync, or CommunityGlows mutation. The complete DevServer suite remains a Milestone 4 gate. | Implement Milestone 4 integrated contracts and documentation. |
 | 2026-09-01 11:50:44 UTC | 102-sg-start | GPT-5.6 Codex | Completed Milestone 4 integration, managed-PowerShell portability repairs, complete Git Bash Windows contract, mapped technical documentation, metadata lint and secret/diff gates. | Complete for Milestone 4: all ten environment contracts, every mapped environment adapter, the complete managed-PowerShell DevServer suite, and `tests/windows/devserver-contract.sh` pass. Performance retains bounded median-of-batch thresholds; process cleanup, JSON envelopes, reservation timestamps, UTF-8 capture and runtime cache timestamps are deterministic across PowerShell 7.6. Installed-runtime live convergence remains pending by design. | Deliver only the exact task-owned source in Milestone 5. |
+| 2026-09-01 12:20:31 UTC | 102-sg-start | GPT-5.6 Codex | Repaired two blockers exposed by the Milestone 7 live attempt: a stale process could not recover the registered managed PowerShell, and scoped CommunityGlows Node/package-manager requirements remained non-executable pending despite trusted local tools. | Source repair proven with a subprocess lacking both the process variable and a PowerShell PATH entry, the canonical provider in observation mode, scoped Node and offline Corepack exact/mismatch/absence fixtures, the real non-mutating CommunityGlows source plan, all ten environment contracts, and provider/activation/installed-runtime contracts. The complete DevServer suite remains red at its pre-existing performance gate, so M7 remains pending until the bounded repair is delivered, synchronized, and repeated against the installed runtime. | Resolve or qualify the independent DevServer performance gate, then deliver and synchronize only the bounded M7 repair before repeating the live M7 proof. |
 
 ## Current Chantier Flow
 
 - `100-sg-spec`: done; reviewed contract persisted.
 - `101-sg-ready`: done; status transitioned to ready after substantive risk and autonomy review.
-- `102-sg-start`: in progress; Milestones 0 through 4 are implemented, documented and contract-proven, while live provider execution and installation remain intentionally unstarted.
+- `102-sg-start`: in progress; Milestones 0 through 4 are complete, and the bounded source repair for two blockers found during the Milestone 7 live attempt is contract-proven. M7 remains pending delivery, installed-runtime synchronization, and live retry.
 - `103-sg-verify`: not started.
 - `104-sg-end`: not started.
 - `005-sg-ship`: not started.
 
-Next step: deliver the exact verified source diff in Milestone 5 without staging concurrent or unrelated paths.
+Next step: resolve or qualify the independent DevServer performance gate, then deliver and synchronize only the bounded M7 source repair without staging concurrent or unrelated paths and repeat the installed-runtime CommunityGlows live proof before any M7 completion claim.

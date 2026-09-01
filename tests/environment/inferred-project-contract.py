@@ -9,6 +9,37 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from cli.environment.core import build_plan, discover_project, observe_project  # noqa: E402
+from cli.environment.mise_backend import ProcessResult  # noqa: E402
+
+
+class ScopedToolRunner:
+    def __init__(self, root: Path, *, pnpm="8.11.0", npm="11.14.1", corepack=True):
+        self.root = root
+        self.pnpm = pnpm
+        self.npm = npm
+        self.corepack = corepack
+        self.requests = []
+
+    def which(self, executable):
+        if executable == "node.exe":
+            return str(self.root / "node.exe")
+        if executable == "corepack.cmd" and self.corepack:
+            return str(self.root / "corepack.cmd")
+        if executable in ("npm", "pnpm"):
+            return str(self.root / "hostile-global" / executable)
+        return None
+
+    def trusted_roots(self, executable):
+        return (self.root,) if executable in ("node.exe", "corepack.cmd") else ()
+
+    def run(self, request):
+        self.requests.append(request)
+        if request.argv[-1] != "--version":
+            raise AssertionError(request.argv)
+        if request.argv[0].endswith("node.exe"):
+            return ProcessResult(0, "v24.0.0\n", "", False)
+        version = self.pnpm if request.argv[-2] == "pnpm" else self.npm
+        return ProcessResult(0, version + "\n", "", False)
 
 
 with tempfile.TemporaryDirectory() as directory:
@@ -75,6 +106,32 @@ with tempfile.TemporaryDirectory() as directory:
     assert "Rust" in operations[("cargo", ".")]["reason"]
     assert operations[("tauri-windows", ".")]["status"] == "blocked"
     assert plan["operations"]
+
+    trusted = project / "trusted-node"
+    scoped_runner = ScopedToolRunner(trusted)
+    scoped_plan = build_plan(desired, platform_name="windows", architecture="x86_64", runner=scoped_runner)
+    scoped_operations = {(item["capability"]["id"], item["capability"].get("scope", ".")): item for item in scoped_plan["operations"]}
+    assert scoped_operations[("node", ".")]["status"] == "ready"
+    assert scoped_operations[("node", "site")]["status"] == "ready"
+    assert scoped_operations[("pnpm", ".")]["status"] == "ready"
+    assert scoped_operations[("npm", "site")]["status"] == "ready"
+    assert {request.cwd for request in scoped_runner.requests if request.argv[-2:-1] == ("pnpm",)} == {project.resolve()}
+    assert {request.cwd for request in scoped_runner.requests if request.argv[-2:-1] == ("npm",)} == {(project / "site").resolve()}
+    assert all("hostile-global" not in " ".join(request.argv) for request in scoped_runner.requests)
+
+    mismatch = build_plan(desired, platform_name="windows", architecture="x86_64", runner=ScopedToolRunner(trusted, pnpm="11.0.0", npm="12.0.0"))
+    mismatch_operations = {(item["capability"]["id"], item["capability"].get("scope", ".")): item for item in mismatch["operations"]}
+    assert mismatch_operations[("pnpm", ".")]["status"] == "incompatible"
+    assert mismatch_operations[("npm", "site")]["status"] == "incompatible"
+    corepack_missing = build_plan(desired, platform_name="windows", architecture="x86_64", runner=ScopedToolRunner(trusted, corepack=False))
+    missing_operations = {(item["capability"]["id"], item["capability"].get("scope", ".")): item for item in corepack_missing["operations"]}
+    assert missing_operations[("pnpm", ".")]["status"] == "pending"
+    assert missing_operations[("npm", "site")]["status"] == "pending"
+
+    scoped_observed = observe_project(desired, probe_versions=True, platform_name="windows", architecture="x86_64", runner=ScopedToolRunner(trusted))
+    scoped_evidence = {(item["id"], item.get("scope", ".")): item for item in scoped_observed["capabilities"]}
+    assert scoped_evidence[("pnpm", ".")]["version"] == "8.11.0"
+    assert scoped_evidence[("npm", "site")]["version"] == "11.14.1"
 
     observed = observe_project(desired, platform_name="windows")
     assert observed["status"] != "ready"
