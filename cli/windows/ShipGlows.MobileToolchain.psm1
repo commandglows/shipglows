@@ -927,17 +927,17 @@ function Test-SgTauriDesktopRustToolchain {
 function Install-SgTauriDesktopRustToolchain {
     param([string]$RuntimeRoot=$(if($env:SHIPGLOWS_ROOT){$env:SHIPGLOWS_ROOT}else{Join-Path $env:USERPROFILE '.shipglows\runtime'}),[scriptblock]$Runner=$null)
     $baseline=Get-SgTauriDesktopBaseline; $root=Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-windows'; $mise=Resolve-SgTrustedMisePath
-    if (-not $mise) { return [pscustomobject]@{Status='partial';Reason='mise is unavailable';Completed=@()} }
+    if (-not $mise) { return [pscustomobject]@{status='partial';reason='mise is unavailable';completed=@()} }
     New-Item -ItemType Directory -Path $root -Force | Out-Null
     $config=Join-Path $root 'mise.toml'; $expected=Get-SgTauriDesktopMiseConfig $baseline
     if (-not (Test-Path -LiteralPath $config -PathType Leaf) -or [IO.File]::ReadAllText($config).Replace("`r`n","`n") -cne $expected.Replace("`r`n","`n")) { [IO.File]::WriteAllText($config,$expected,[Text.UTF8Encoding]::new($false)) }
     $install=Invoke-SgIsolatedTauriMise $mise $root @('install','rust') 1800 $Runner
-    if ($install.TimedOut) { return [pscustomobject]@{Status='timeout';Reason='Rust installation timed out';Completed=@()} }
-    if ($install.ExitCode -ne 0) { return [pscustomobject]@{Status='partial';Reason="Rust installation exited $($install.ExitCode)";Completed=@()} }
-    if (-not (Test-SgTauriDesktopRustToolchain $mise $root $baseline $Runner)) { return [pscustomobject]@{Status='partial';Reason='Rust post-install observation failed';Completed=@('install_rust')} }
+    if ($install.TimedOut) { return [pscustomobject]@{status='timeout';reason='Rust installation timed out';completed=@()} }
+    if ($install.ExitCode -ne 0) { return [pscustomobject]@{status='partial';reason="Rust installation exited $($install.ExitCode)";completed=@()} }
+    if (-not (Test-SgTauriDesktopRustToolchain $mise $root $baseline $Runner)) { return [pscustomobject]@{status='partial';reason='Rust post-install observation failed';completed=@('install_rust')} }
     $bin=Join-Path $RuntimeRoot 'bin'; New-Item -ItemType Directory -Path $bin -Force | Out-Null
     foreach($command in @('cargo','rustc','rustup')){[IO.File]::WriteAllText((Join-Path $bin "$command.cmd"),(Get-SgTauriRustWrapperContent $mise $root $command),[Text.Encoding]::ASCII)}
-    [pscustomobject]@{Status='applied';Completed=@('install_rust','wrappers');NextAction='replan'}
+    [pscustomobject]@{status='applied';completed=@('install_rust','wrappers');next_action='replan'}
 }
 
 function Get-SgWindowsWebView2State {
