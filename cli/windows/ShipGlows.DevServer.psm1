@@ -261,6 +261,7 @@ function Read-SgBrowserExtensionManifest([string]$ManifestPath) {
     if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $item.Length -gt 1048576) { throw "Unsafe browser extension manifest: $ManifestPath" }
     try { $manifest = [IO.File]::ReadAllText($ManifestPath) | ConvertFrom-Json -ErrorAction Stop }
     catch { throw "Invalid browser extension manifest '$ManifestPath': $($_.Exception.Message)" }
+    if (-not $manifest.PSObject.Properties['manifest_version']) { return $null }
     if ([int]$manifest.manifest_version -notin @(2,3) -or [string]::IsNullOrWhiteSpace([string]$manifest.name) -or [string]::IsNullOrWhiteSpace([string]$manifest.version)) { throw "Invalid browser extension manifest '$ManifestPath': name, version, and manifest_version 2 or 3 are required." }
     return $manifest
 }
@@ -273,6 +274,7 @@ function Get-SgBrowserExtensionDescriptor([string]$ProjectPath) {
         $manifestPath = Join-Path $root $relative
         if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { continue }
         $manifest = Read-SgBrowserExtensionManifest $manifestPath
+        if (-not $manifest) { continue }
         [void]$matches.Add([pscustomobject]@{ProjectPath=$root;ExtensionPath=[IO.Path]::GetFullPath((Split-Path $manifestPath -Parent));ManifestPath=[IO.Path]::GetFullPath($manifestPath);RelativeManifestPath=$relative.Replace('\','/');ManifestVersion=[int]$manifest.manifest_version;Name=[string]$manifest.name;Version=[string]$manifest.version;Mode=$(if($relative -eq 'manifest.json'){'static'}else{'built'})})
     }
     if ($matches.Count -gt 1) { $paths=($matches|ForEach-Object{$_.RelativeManifestPath})-join', ';throw "Multiple browser extension artifacts were detected ($paths). Remove stale outputs or choose the exact extension directory." }
