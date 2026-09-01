@@ -1,10 +1,10 @@
 ---
 artifact: operator_guide
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-08-29"
-updated: "2026-08-29"
+updated: "2026-09-01"
 status: reviewed
 source_skill: 300-sg-docs
 scope: browser-extension-lab
@@ -51,7 +51,7 @@ Sans `-TargetUrl`, ShipGlows répond `not-requested` et ne navigue nulle part. L
 
 ## Comprendre le résultat
 
-- **Statique** : le dépôt contient directement `manifest.json`, comme Chrome BRAT. Aucun build n'est nécessaire.
+- **Statique** : le dépôt contient directement un `manifest.json` d'extension avec `manifest_version`, comme Chrome BRAT. Aucun build n'est nécessaire. Un fichier générique portant ce nom mais sans ce champ est ignoré.
 - **Construite** : un dossier comme `dist/chrome` contient l'extension prête à charger.
 - **Construction requise** : ShipGlows a reconnu le projet, mais refuse volontairement d'exécuter son script. Vérifiez le dépôt, lancez explicitement sa commande documentée, puis recommencez.
 - **Plusieurs artefacts** : des sorties anciennes ou concurrentes existent. Supprimez les sorties périmées ou ciblez le dossier exact.

@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.37.0"
+artifact_version: "1.38.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-01"
@@ -289,7 +289,7 @@ target the environment root, never only the nested application directory.
 
 ### Browser Extension Lab
 
-`s extension-inspect` performs bounded, read-only detection of a root `manifest.json`, common built outputs, or the reviewed CRXJS `dev:chrome` contract. It does not install dependencies or execute repository scripts. Multiple artifacts fail closed instead of selecting a potentially stale build.
+`s extension-inspect` performs bounded, read-only detection of a root `manifest.json`, common built outputs, or the reviewed CRXJS `dev:chrome` contract. A generic project `manifest.json` without the browser-extension field `manifest_version` is ignored instead of being misclassified; a declared but invalid extension manifest still fails closed. Detection does not install dependencies or execute repository scripts, and multiple artifacts fail closed instead of selecting a potentially stale build.
 
 `s extension-lab` accepts one valid Manifest V3 artifact and delegates structured arguments to the pinned ShipGlows Playwright runtime. Chromium creates a temporary persistent context, loads the exact unpacked directory through the capability-checked CDP Extensions domain, and returns a human result or JSON containing the extension id. `-Headless` closes after the load proof; interactive mode remains open until the isolated Chromium window closes. Personal Chrome/Edge profiles are never targets.
 
