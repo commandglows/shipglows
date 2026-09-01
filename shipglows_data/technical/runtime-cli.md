@@ -293,6 +293,8 @@ target the environment root, never only the nested application directory.
 
 `s extension-lab` accepts one valid Manifest V3 artifact and delegates structured arguments to the pinned ShipGlows Playwright runtime. Chromium creates a temporary persistent context, loads the exact unpacked directory through the capability-checked CDP Extensions domain, and returns a human result or JSON containing the extension id. `-Headless` closes after the load proof; interactive mode remains open until the isolated Chromium window closes. Personal Chrome/Edge profiles are never targets.
 
+The full Windows bootstrap must package `ShipGlows.ExtensionLab.js` in both `cli/windows` and `runtime/bin` through the managed-file transaction.
+
 See `skills/references/browser-extension-lab.md` for agent semantics and `shipglows_data/technical/operator-guides/browser-extension-lab.md` for the beginner journey.
 
 The Windows `full` bootstrap is a separate runtime backend for machines such
