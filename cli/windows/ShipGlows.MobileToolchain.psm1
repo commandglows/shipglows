@@ -970,9 +970,13 @@ function Get-SgWindowsWebView2State {
 }
 
 function Get-SgTauriWindowsEnvironmentObservation {
-    param([string]$ProjectRoot,[string]$Scope='.')
+    param(
+        [string]$ProjectRoot,
+        [string]$Scope='.',
+        [string]$RuntimeRoot=$(if($env:SHIPGLOWS_ROOT){$env:SHIPGLOWS_ROOT}else{Join-Path $env:USERPROFILE '.shipglows\runtime'})
+    )
     $baseline=Get-SgTauriDesktopBaseline; $toolchain=Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-windows'; $mise=Resolve-SgTrustedMisePath
-    $rustReady=(Test-SgTauriDesktopRustToolchain $mise $toolchain $baseline) -and (Test-SgTauriDesktopRustWrappers $mise $toolchain -Baseline $baseline)
+    $rustReady=(Test-SgTauriDesktopRustToolchain $mise $toolchain $baseline) -and (Test-SgTauriDesktopRustWrappers $mise $toolchain -RuntimeRoot $RuntimeRoot -Baseline $baseline)
     $project=if($Scope -eq '.'){[IO.Path]::GetFullPath($ProjectRoot)}else{[IO.Path]::GetFullPath((Join-Path $ProjectRoot $Scope))}
     $tauriPackage=Join-Path $project 'node_modules\@tauri-apps\cli\package.json'; $tauriVersion=''
     if(Test-Path -LiteralPath $tauriPackage -PathType Leaf){try{$tauriVersion=[string](([IO.File]::ReadAllText($tauriPackage)|ConvertFrom-Json).version)}catch{}}
