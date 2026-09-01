@@ -165,8 +165,23 @@ function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
 function Write-SgFlutterJsonAtomic([string]$Path, [object]$Value) {
     $json = $Value | ConvertTo-Json -Depth 8 -Compress
     $temp = "$Path.$([guid]::NewGuid().ToString('N')).tmp"
-    [IO.File]::WriteAllText($temp,$json,(New-Object Text.UTF8Encoding($false)))
-    Move-Item -LiteralPath $temp -Destination $Path -Force
+    $backup = "$Path.$([guid]::NewGuid().ToString('N')).bak"
+    try {
+        [IO.File]::WriteAllText($temp,$json,(New-Object Text.UTF8Encoding($false)))
+        if ([IO.File]::Exists($Path)) {
+            [IO.File]::Replace($temp,$Path,$backup)
+        } else {
+            try { [IO.File]::Move($temp,$Path) }
+            catch [IO.IOException] {
+                if (-not [IO.File]::Exists($Path)) { throw }
+                [IO.File]::Replace($temp,$Path,$backup)
+            }
+        }
+        $temp = $null
+    } finally {
+        if ($temp -and [IO.File]::Exists($temp)) { [IO.File]::Delete($temp) }
+        if ([IO.File]::Exists($backup)) { [IO.File]::Delete($backup) }
+    }
 }
 
 function New-SgFlutterMachineRequestJson([int]$Id, [string]$Method, [string]$AppId) {
