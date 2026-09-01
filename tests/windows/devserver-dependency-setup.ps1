@@ -95,6 +95,32 @@ try {
     & $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath{$Npm};Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $shrinkwrapped (Join-Path $fixture 'shrinkwrapped.log') $fakeNpm|Out-Null
     if(@(Get-Content $capture).Count-ne3){throw 'Missing Vite framework artifact was reused.'}
 
+    $npmRoot = Join-Path $fixture 'npm-workspace'
+    $npmMember = Join-Path $npmRoot 'packages\app'
+    $npmLegacy = Join-Path $npmRoot 'packages\legacy'
+    New-Item -ItemType Directory -Path $npmMember,$npmLegacy -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $npmRoot 'package.json'), '{"name":"root","private":true,"workspaces":["packages/*","!packages/legacy"]}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $npmRoot 'package-lock.json'), '{}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $npmMember 'package.json'), '{"name":"app","scripts":{"dev":"vite"},"devDependencies":{"vite":"^8.2.0"}}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $npmLegacy 'package.json'), '{"name":"legacy","devDependencies":{"vite":"^8.2.0"}}', [Text.UTF8Encoding]::new($false))
+    if ((& $module { param($Project) Get-SgNodeDependencyWorkspace $Project } $npmMember) -ne $npmRoot) { throw 'npm workspace member did not inherit its parent workspace root.' }
+    if (& $module { param($Project) Get-SgNodeDependencyWorkspace $Project } $npmLegacy) { throw 'An excluded npm workspace member was absorbed into its parent workspace.' }
+    $npmPlan = & $module { param($Project,$Npm) function Get-SgCommandPath { $Npm }; New-SgDependencyPlan $Project 'vite' } $npmMember $fakeNpm
+    if (($npmPlan.Arguments -join ' ') -ne 'ci' -or $npmPlan.WorkingDirectory -ne $npmRoot) { throw 'npm workspace member did not plan a root lockfile install.' }
+    $beforeNpmWorkspace = @(Get-Content -LiteralPath $capture).Count
+    $npmInstalled = @(& $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath { $Npm }; Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $npmMember (Join-Path $fixture 'npm-workspace.log') $fakeNpm)
+    if ($npmInstalled -notcontains $true) { throw 'npm workspace member setup did not install through the root manager.' }
+    if (-not (Test-Path -LiteralPath (Join-Path $npmRoot 'node_modules\vite\package.json') -PathType Leaf)) { throw 'npm workspace artifacts were not written at the workspace root.' }
+    $npmReused = @(& $module { param($Config,$Project,$Log,$Npm) function Get-SgCommandPath { $Npm }; Invoke-SgDependencySetup $Config $Project 'vite' $Log } $config $npmMember (Join-Path $fixture 'npm-workspace.log') $fakeNpm)
+    if ($npmReused -contains $true -or @(Get-Content -LiteralPath $capture).Count -ne ($beforeNpmWorkspace + 1)) { throw 'Unchanged npm workspace dependency state was reinstalled.' }
+    $npmConflict = Join-Path $fixture 'npm-conflict'
+    New-Item -ItemType Directory -Path $npmConflict -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $npmConflict 'package.json'), '{"name":"conflict","packageManager":"pnpm@9.15.0","devDependencies":{"vite":"^8.2.0"}}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $npmConflict 'package-lock.json'), '{}', [Text.UTF8Encoding]::new($false))
+    $conflictMessage = ''
+    try { & $module { param($Project,$Npm) function Get-SgCommandPath { $Npm }; Get-SgNodePackageManager $Project | Out-Null } $npmConflict $fakeNpm } catch { $conflictMessage = $_.Exception.Message }
+    if ($conflictMessage -notmatch 'packageManager and lockfile conflict') { throw 'A pnpm packageManager beside an npm lockfile was not refused as a conflict.' }
+
     $concurrent = Join-Path $fixture 'concurrent'
     New-Item -ItemType Directory -Path $concurrent -Force | Out-Null
     Set-Content (Join-Path $concurrent 'package.json') '{}' -Encoding UTF8

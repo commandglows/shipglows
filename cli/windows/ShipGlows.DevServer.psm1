@@ -657,7 +657,16 @@ function Invoke-SgObsidianPluginLab([object]$Config, [string]$ProjectPath, [swit
 }
 
 function Get-SgNodePackageManager([string]$ProjectPath, [string]$WorkspaceRoot = '') {
-    $pnpmLock = [bool]$WorkspaceRoot -or (Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf)
+    # The install root decides the manager: a pnpm lock selects pnpm, while npm or yarn workspaces install with npm.
+    $installRoot = if ($WorkspaceRoot) { $WorkspaceRoot } else { $ProjectPath }
+    $installPnpmLock = Test-Path -LiteralPath (Join-Path $installRoot 'pnpm-lock.yaml') -PathType Leaf
+    $installNpmLock = (Test-Path -LiteralPath (Join-Path $installRoot 'package-lock.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $installRoot 'npm-shrinkwrap.json') -PathType Leaf)
+    $installPackage = Read-SgNodePackage $installRoot
+    $installDeclaration = if ($installPackage -and $installPackage.PSObject.Properties['packageManager']) { ([string]$installPackage.packageManager).Trim() } else { '' }
+    $installUsesPnpm = $installPnpmLock -or $installDeclaration.StartsWith('pnpm@', [StringComparison]::OrdinalIgnoreCase) -or ($WorkspaceRoot -and (Test-Path -LiteralPath (Join-Path $WorkspaceRoot 'pnpm-workspace.yaml') -PathType Leaf))
+    # A pnpm declaration or workspace file cannot be satisfied by an npm lock that has no pnpm lock beside it.
+    if ($installUsesPnpm -and $installNpmLock -and -not $installPnpmLock) { throw "packageManager and lockfile conflict at Node dependency root: $installRoot" }
+    $pnpmLock = $installPnpmLock
     if (-not $pnpmLock) {
         $npm = Get-SgCommandPath @('npm.cmd','npm.exe')
         if (-not $npm) { throw 'npm is required but unavailable.' }
@@ -1928,13 +1937,35 @@ function Test-SgPnpmWorkspaceGlob([string]$Pattern, [string]$RelativePath) {
     return [regex]::IsMatch($RelativePath, $regex + '$')
 }
 
+function Get-SgNodePackageWorkspacePatterns([string]$RootPath) {
+    # npm and yarn declare workspaces in package.json as an array or as { packages: [...] }; a leading '!' excludes, as in pnpm.
+    $patterns = New-Object Collections.Generic.List[string]
+    $package = Read-SgNodePackage $RootPath
+    if (-not $package -or -not $package.PSObject.Properties['workspaces'] -or -not $package.workspaces) { return @() }
+    $value = $package.workspaces
+    $entries = if ($value.PSObject.Properties['packages']) { @($value.packages) } else { @($value) }
+    foreach ($entry in $entries) {
+        $text = ([string]$entry).Trim()
+        $body = $text.TrimStart('!').Replace('\','/')
+        while ($body.StartsWith('./')) { $body = $body.Substring(2) }
+        $body = $body.TrimEnd('/')
+        if ($body) { $patterns.Add($(if ($text.StartsWith('!')) { '!' } else { '' }) + $body) }
+    }
+    return @($patterns)
+}
+
 function Test-SgPnpmWorkspaceMembership([string]$RootPath, [string]$ProjectPath) {
-    if (-not (Test-Path -LiteralPath (Join-Path $RootPath 'pnpm-lock.yaml') -PathType Leaf)) { return $false }
+    # A pnpm root needs both its lock and its workspace file; an npm or yarn root is any package.json that declares workspaces.
+    $pnpmRoot = (Test-Path -LiteralPath (Join-Path $RootPath 'pnpm-lock.yaml') -PathType Leaf) -and (Test-Path -LiteralPath (Join-Path $RootPath 'pnpm-workspace.yaml') -PathType Leaf)
+    $packagePatterns = @(Get-SgNodePackageWorkspacePatterns $RootPath)
+    if (-not $pnpmRoot -and $packagePatterns.Count -eq 0) { return $false }
     $relative = Get-SgPnpmWorkspaceRelativePath $RootPath $ProjectPath
     if (-not $relative) { return $false }
-    $patterns = @(Get-SgPnpmWorkspacePatterns (Join-Path $RootPath 'pnpm-workspace.yaml'))
+    $patterns = New-Object Collections.Generic.List[string]
+    if ($pnpmRoot) { $patterns.AddRange([string[]]@(Get-SgPnpmWorkspacePatterns (Join-Path $RootPath 'pnpm-workspace.yaml'))) }
+    $patterns.AddRange([string[]]$packagePatterns)
     # When the packages list cannot be read, a project inside a root with a pnpm lock is accepted.
-    if ($patterns.Count -eq 0) { return $true }
+    if ($patterns.Count -eq 0) { return $pnpmRoot }
     $included = $false
     foreach ($pattern in $patterns) {
         if ($pattern.StartsWith('!')) {
@@ -1952,7 +1983,7 @@ function Get-SgPnpmWorkspaceRoot([string]$ProjectPath) {
         $parent = [IO.Path]::GetDirectoryName($directory)
         if (-not $parent -or $parent -eq $directory) { return $null }
         $directory = $parent
-        if ((Test-Path -LiteralPath (Join-Path $directory 'pnpm-workspace.yaml') -PathType Leaf) -and (Test-SgPnpmWorkspaceMembership $directory $ProjectPath)) { return $directory }
+        if (Test-SgPnpmWorkspaceMembership $directory $ProjectPath) { return $directory }
         if (Test-Path -LiteralPath (Join-Path $directory '.git')) { return $null }
     }
     return $null
@@ -1977,7 +2008,7 @@ function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
     if ($Kind -in @('astro','vite','browser-extension','tauri')) {
         $workspaceRoot = Get-SgNodeDependencyWorkspace $ProjectPath
         if ($workspaceRoot) {
-            foreach ($name in @('package.json','pnpm-lock.yaml','pnpm-workspace.yaml')) {
+            foreach ($name in @('package.json','pnpm-lock.yaml','pnpm-workspace.yaml','package-lock.json','npm-shrinkwrap.json')) {
                 $path = Join-Path $workspaceRoot $name
                 if (Test-Path -LiteralPath $path -PathType Leaf) { $inputs += $path }
             }
@@ -1991,6 +2022,12 @@ function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
         $workspaceRoot = Get-SgNodeDependencyWorkspace $ProjectPath
         if ($workspaceRoot) {
             $packageManager=Get-SgNodePackageManager $ProjectPath $workspaceRoot
+            if ($packageManager.Name -eq 'npm') {
+                # npm and yarn workspaces install every member from the root lockfile; there is no per-member filter.
+                $rootNpmLock=(Test-Path -LiteralPath (Join-Path $workspaceRoot 'package-lock.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $workspaceRoot 'npm-shrinkwrap.json') -PathType Leaf)
+                [string[]]$npmArguments=if($rootNpmLock){@('ci')}else{@('install')}
+                return [pscustomobject]@{Manager=$packageManager.Manager;Arguments=$npmArguments;BootstrapArguments=@();ArtifactStrategy="node-$Kind-npm-workspace";SuppressNpmLock=(-not$rootNpmLock);WorkingDirectory=$workspaceRoot}
+            }
             $relative=Get-SgPnpmWorkspaceRelativePath $workspaceRoot $ProjectPath
             [string[]]$arguments=@($packageManager.PrefixArguments)+@('install','--frozen-lockfile','--filter',"./$relative")
             $managerLabel=if($packageManager.Pinned){'corepack-pnpm'}else{$packageManager.Name}
@@ -2041,18 +2078,22 @@ function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Pl
 
 function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind) {
     if ($Kind -in @('astro','vite','browser-extension','tauri')) {
+        # Workspace members may own no node_modules; an npm workspace hoists every package to the root, and a pnpm workspace root holds .modules.yaml.
         $nodeModules = Join-Path $ProjectPath 'node_modules'
-        if (-not (Test-Path -LiteralPath $nodeModules -PathType Container)) { return $false }
-        # pnpm workspaces write .modules.yaml to the root node_modules; the project keeps its own symlinked node_modules.
         $workspaceRoot=Get-SgNodeDependencyWorkspace $ProjectPath
-        if($workspaceRoot){$managerArtifact=(Test-Path -LiteralPath (Join-Path (Join-Path $workspaceRoot 'node_modules') '.modules.yaml') -PathType Leaf)-or(Test-Path -LiteralPath (Join-Path $nodeModules '.modules.yaml') -PathType Leaf)}
+        $installModules=if($workspaceRoot){Join-Path $workspaceRoot 'node_modules'}else{$nodeModules}
+        if (-not (Test-Path -LiteralPath $installModules -PathType Container)) { return $false }
+        # pnpm workspaces write .modules.yaml to the root node_modules; the project keeps its own symlinked node_modules.
+        if($workspaceRoot -and -not (Test-Path -LiteralPath (Join-Path $workspaceRoot 'pnpm-lock.yaml') -PathType Leaf)){$managerArtifact=Test-Path -LiteralPath (Join-Path $installModules '.package-lock.json') -PathType Leaf}
+        elseif($workspaceRoot){$managerArtifact=(Test-Path -LiteralPath (Join-Path $installModules '.modules.yaml') -PathType Leaf)-or(Test-Path -LiteralPath (Join-Path $nodeModules '.modules.yaml') -PathType Leaf)}
         elseif(Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf){$managerArtifact=Test-Path -LiteralPath (Join-Path $nodeModules '.modules.yaml') -PathType Leaf}
         else{$managerArtifact=Test-Path -LiteralPath (Join-Path $nodeModules '.package-lock.json') -PathType Leaf}
+        $frameworkExists={ param([string]$Relative) (Test-Path -LiteralPath (Join-Path $nodeModules $Relative) -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $installModules $Relative) -PathType Leaf) }
         if($Kind-eq'browser-extension'){
             # WXT projects install wxt; only crxjs projects carry @crxjs/vite-plugin.
             $frameworkPackage=if((Get-SgBrowserExtensionFramework (Read-SgNodePackage $ProjectPath))-eq'wxt'){'wxt'}else{'@crxjs\vite-plugin'}
-            $frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules $frameworkPackage) 'package.json') -PathType Leaf
-        }elseif($Kind-eq'tauri'){$frameworkArtifact=Test-Path -LiteralPath (Join-Path $nodeModules '@tauri-apps\cli\package.json') -PathType Leaf}else{$frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules $Kind) 'package.json') -PathType Leaf}
+            $frameworkArtifact=& $frameworkExists (Join-Path $frameworkPackage 'package.json')
+        }elseif($Kind-eq'tauri'){$frameworkArtifact=& $frameworkExists '@tauri-apps\cli\package.json'}else{$frameworkArtifact=& $frameworkExists (Join-Path $Kind 'package.json')}
         return $managerArtifact -and $frameworkArtifact
     }
     if ($Kind -eq 'python') { return Test-Path -LiteralPath (Join-Path $ProjectPath '.venv\Scripts\python.exe') -PathType Leaf }
