@@ -37,7 +37,7 @@ try{
         $desktopRunner={
             param($file,$arguments,$timeout)
             $command=$arguments -join '|'
-            $output=if($command -eq 'exec|--|rustc|--version'){'rustc 1.97.1 (fixture)'}elseif($command -eq 'exec|--|cargo|--version'){'cargo 1.97.1 (fixture)'}elseif($command -eq 'exec|--|rustup|--version'){'rustup 1.28.2 (fixture)'}else{'fixture'}
+            $output=if($command -eq 'exec|rust@1.97.1|--|rustc|--version'){'rustc 1.97.1 (fixture)'}elseif($command -eq 'exec|rust@1.97.1|--|cargo|--version'){'cargo 1.97.1 (fixture)'}elseif($command -eq 'exec|rust@1.97.1|--|rustup|--version'){'rustup 1.28.2 (fixture)'}else{'fixture'}
             [pscustomobject]@{ExitCode=0;Output=$output;TimedOut=$false}
         }
         $desktop=Install-SgTauriDesktopRustToolchain -Runner $desktopRunner
