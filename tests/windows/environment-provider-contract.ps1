@@ -42,6 +42,7 @@ try{
         }
         $desktop=Install-SgTauriDesktopRustToolchain -Runner $desktopRunner
         if($desktop.Status -ne 'applied' -or -not (Test-Path -LiteralPath (Join-Path $env:SHIPGLOWS_ROOT 'bin\cargo.cmd') -PathType Leaf)){throw 'Desktop Rust install default runtime expression did not execute.'}
+        if((@($desktop.PSObject.Properties.Name) -join '|') -cne 'status|completed|next_action'){throw 'Desktop Rust provider evidence is not canonical lower-case JSON.'}
     }finally{
         if($null -eq $previousLocalAppData){Remove-Item Env:LOCALAPPDATA -ErrorAction SilentlyContinue}else{$env:LOCALAPPDATA=$previousLocalAppData}
         if($null -eq $previousRuntimeRoot){Remove-Item Env:SHIPGLOWS_ROOT -ErrorAction SilentlyContinue}else{$env:SHIPGLOWS_ROOT=$previousRuntimeRoot}
