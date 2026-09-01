@@ -371,28 +371,115 @@ function Get-SgBrowserExtensionDescriptor([string]$ProjectPath) {
     return $null
 }
 
-function Get-SgNodePackageManager([string]$ProjectPath) {
-    $pnpmLock = Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf
-    if (-not $pnpmLock) {
-        $npm = Get-SgCommandPath @('npm.cmd','npm.exe')
-        if (-not $npm) { throw 'npm is required but unavailable.' }
-        return [pscustomobject]@{ Manager=[IO.Path]::GetFullPath($npm); PrefixArguments=@(); Name='npm'; Pinned=$false }
+function Get-SgNodeWorkspacePatterns([string]$WorkspacePath, [object]$Package = $null) {
+    $patterns = New-Object 'System.Collections.Generic.List[string]'
+    if (-not $Package) { $Package = Read-SgNodePackage $WorkspacePath }
+    if ($Package -and $Package.PSObject.Properties['workspaces']) {
+        $value = $Package.PSObject.Properties['workspaces'].Value
+        $values = if ($value -and $value.PSObject.Properties['packages']) { @($value.PSObject.Properties['packages'].Value) } else { @($value) }
+        foreach ($pattern in $values) { if (-not [string]::IsNullOrWhiteSpace([string]$pattern)) { [void]$patterns.Add(([string]$pattern).Trim()) } }
+    }
+    $pnpmWorkspacePath = Join-Path $WorkspacePath 'pnpm-workspace.yaml'
+    if (Test-Path -LiteralPath $pnpmWorkspacePath -PathType Leaf) {
+        $item = Get-Item -LiteralPath $pnpmWorkspacePath -ErrorAction Stop
+        if ($item.Length -gt 1048576) { throw "pnpm-workspace.yaml exceeds the bounded read limit: $pnpmWorkspacePath" }
+        $inPackages = $false
+        foreach ($line in ([IO.File]::ReadAllText($pnpmWorkspacePath) -split '\r?\n')) {
+            if ($line -match '^packages\s*:') { $inPackages = $true; continue }
+            if (-not $inPackages) { continue }
+            if ($line -match '^\S') { break }
+            $trimmed = $line.Trim()
+            if (-not $trimmed.StartsWith('-')) { continue }
+            $pattern = (($trimmed.Substring(1).Trim() -split '\s+#',2)[0]).Trim().Trim("'`"")
+            if ($pattern) { [void]$patterns.Add($pattern) }
+        }
+    }
+    return @($patterns.ToArray())
+}
+
+function Test-SgNodeWorkspaceContainsProject([string]$WorkspacePath, [string]$ProjectPath, [object]$Package = $null) {
+    $workspace = [IO.Path]::GetFullPath($WorkspacePath).TrimEnd('\','/')
+    $project = [IO.Path]::GetFullPath($ProjectPath).TrimEnd('\','/')
+    if ($project.Equals($workspace,[StringComparison]::OrdinalIgnoreCase)) { return $true }
+    $prefix = $workspace + [IO.Path]::DirectorySeparatorChar
+    if (-not $project.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)) { return $false }
+    $relative = $project.Substring($prefix.Length).Replace('\','/').Trim('/')
+    $included = $false
+    foreach ($rawPattern in @(Get-SgNodeWorkspacePatterns $workspace $Package)) {
+        $negative = $rawPattern.StartsWith('!')
+        $pattern = $(if ($negative) { $rawPattern.Substring(1) } else { $rawPattern }).Replace('\','/').Trim().TrimStart('.','/').TrimEnd('/')
+        if (-not $pattern) { continue }
+        $matcher = [Management.Automation.WildcardPattern]::new($pattern,[Management.Automation.WildcardOptions]::IgnoreCase)
+        if (-not $matcher.IsMatch($relative)) { continue }
+        if ($negative) { return $false }
+        $included = $true
+    }
+    return $included
+}
+
+function Resolve-SgNodeDependencyContext([string]$ProjectPath, [string]$RootPath = '') {
+    $project = ConvertTo-SgCanonicalPath $ProjectPath
+    $root = if ([string]::IsNullOrWhiteSpace($RootPath)) { $project } else { ConvertTo-SgCanonicalPath $RootPath }
+    $rootPrefix = $root + [IO.Path]::DirectorySeparatorChar
+    if (-not ($project.Equals($root,[StringComparison]::OrdinalIgnoreCase) -or $project.StartsWith($rootPrefix,[StringComparison]::OrdinalIgnoreCase))) {
+        throw "Node surface is outside its project root: $project"
     }
 
-    $package = Read-SgNodePackage $ProjectPath
-    $declaration = if ($package -and $package.PSObject.Properties['packageManager']) { ([string]$package.packageManager).Trim() } else { '' }
+    $workspaceRoot = $null
+    $cursor = $project
+    while ($true) {
+        $package = Read-SgNodePackage $cursor
+        $hasPackageWorkspace = $package -and $package.PSObject.Properties['workspaces'] -and $null -ne $package.workspaces
+        $hasWorkspaceMarker = (Test-Path -LiteralPath (Join-Path $cursor 'pnpm-workspace.yaml') -PathType Leaf) -or $hasPackageWorkspace
+        if ($hasWorkspaceMarker -and (Test-SgNodeWorkspaceContainsProject $cursor $project $package)) {
+            $workspaceRoot = $cursor
+            break
+        }
+        if ($cursor.Equals($root,[StringComparison]::OrdinalIgnoreCase)) { break }
+        $parent = [IO.Path]::GetDirectoryName($cursor)
+        if ([string]::IsNullOrWhiteSpace($parent)) { break }
+        $cursor = $parent.TrimEnd('\','/')
+    }
+
+    # An explicitly declared workspace inside RootPath owns install location,
+    # package-manager selection, and its shared lockfile. A standalone surface
+    # remains bounded to itself because no parent is inspected beyond RootPath.
+    $installPath = if ($workspaceRoot) { $workspaceRoot } else { $project }
+    $installPackage = Read-SgNodePackage $installPath
+    $declaration = if ($installPackage -and $installPackage.PSObject.Properties['packageManager']) { ([string]$installPackage.packageManager).Trim() } else { '' }
+    $pnpmLock = Test-Path -LiteralPath (Join-Path $installPath 'pnpm-lock.yaml') -PathType Leaf
+    $npmLock = (Test-Path -LiteralPath (Join-Path $installPath 'package-lock.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $installPath 'npm-shrinkwrap.json') -PathType Leaf)
+    $pnpmWorkspace = Test-Path -LiteralPath (Join-Path $installPath 'pnpm-workspace.yaml') -PathType Leaf
+    $usesPnpm = $pnpmLock -or $pnpmWorkspace -or $declaration.StartsWith('pnpm@',[StringComparison]::OrdinalIgnoreCase)
+    if ($usesPnpm -and $npmLock -and -not $pnpmLock) { throw "packageManager and lockfile conflict at Node dependency root: $installPath" }
+    return [pscustomobject]@{
+        ProjectPath=$project; RootPath=$root; InstallPath=$installPath; WorkspaceRoot=$workspaceRoot
+        PnpmLock=$pnpmLock; NpmLock=$npmLock; PnpmWorkspace=$pnpmWorkspace
+        PackageManagerDeclaration=$declaration; UsesPnpm=$usesPnpm
+    }
+}
+
+function Get-SgNodePackageManager([string]$ProjectPath, [string]$RootPath = '') {
+    $context = Resolve-SgNodeDependencyContext $ProjectPath $RootPath
+    if (-not $context.UsesPnpm) {
+        $npm = Get-SgCommandPath @('npm.cmd','npm.exe')
+        if (-not $npm) { throw 'npm is required but unavailable.' }
+        return [pscustomobject]@{ Manager=[IO.Path]::GetFullPath($npm); PrefixArguments=@(); Name='npm'; Pinned=$false; Context=$context; InstallPath=$context.InstallPath }
+    }
+
+    $declaration = [string]$context.PackageManagerDeclaration
     if ($declaration) {
         if ($declaration -notmatch '^pnpm@(?<version>[0-9]+[.][0-9]+[.][0-9]+(?:-[0-9A-Za-z.-]+)?)$') {
             throw "Unsupported packageManager declaration '$declaration'; expected an exact pnpm@x.y.z version."
         }
         $corepack = Get-SgCommandPath @('corepack.cmd','corepack.exe')
         if (-not $corepack) { throw "Corepack is required by packageManager '$declaration' but is unavailable." }
-        return [pscustomobject]@{ Manager=[IO.Path]::GetFullPath($corepack); PrefixArguments=@($declaration); Name='pnpm'; Pinned=$true }
+        return [pscustomobject]@{ Manager=[IO.Path]::GetFullPath($corepack); PrefixArguments=@($declaration); Name='pnpm'; Pinned=$true; Context=$context; InstallPath=$context.InstallPath }
     }
 
     $pnpm = Get-SgCommandPath @('pnpm.cmd','pnpm.exe')
-    if (-not $pnpm) { throw 'pnpm is required by pnpm-lock.yaml but is unavailable.' }
-    return [pscustomobject]@{ Manager=[IO.Path]::GetFullPath($pnpm); PrefixArguments=@(); Name='pnpm'; Pinned=$false }
+    if (-not $pnpm) { throw 'pnpm is required by pnpm-lock.yaml or pnpm-workspace.yaml but is unavailable.' }
+    return [pscustomobject]@{ Manager=[IO.Path]::GetFullPath($pnpm); PrefixArguments=@(); Name='pnpm'; Pinned=$false; Context=$context; InstallPath=$context.InstallPath }
 }
 
 function Get-SgProjectKind([string]$ProjectPath) {
@@ -1396,25 +1483,39 @@ function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port)
     return "ShipGlows:${Kind}:${Port}:$([IO.Path]::GetFullPath($ProjectPath))"
 }
 
-function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
-    $names = if ($Kind -in @('astro','vite','browser-extension','obsidian-plugin')) {
-        @('package.json','pnpm-lock.yaml','package-lock.json','npm-shrinkwrap.json')
-    } elseif ($Kind -eq 'python') {
-        @('pyproject.toml','uv.lock','requirements.txt')
-    } else {
-        @('pubspec.yaml','pubspec.lock')
+function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind, [string]$RootPath = '') {
+    if ($Kind -in @('astro','vite','browser-extension','obsidian-plugin')) {
+        $context = Resolve-SgNodeDependencyContext $ProjectPath $RootPath
+        $paths = New-Object 'System.Collections.Generic.List[string]'
+        foreach ($path in @(
+            (Join-Path $context.ProjectPath 'package.json'),
+            (Join-Path $context.InstallPath 'package.json'),
+            (Join-Path $context.InstallPath 'pnpm-workspace.yaml'),
+            (Join-Path $context.InstallPath 'pnpm-lock.yaml'),
+            (Join-Path $context.InstallPath 'package-lock.json'),
+            (Join-Path $context.InstallPath 'npm-shrinkwrap.json')
+        )) {
+            if ((Test-Path -LiteralPath $path -PathType Leaf) -and -not $paths.Contains([IO.Path]::GetFullPath($path))) { [void]$paths.Add([IO.Path]::GetFullPath($path)) }
+        }
+        return @($paths.ToArray())
     }
+    $names = if ($Kind -eq 'python') { @('pyproject.toml','uv.lock','requirements.txt') } else { @('pubspec.yaml','pubspec.lock') }
     return @($names | ForEach-Object { Join-Path $ProjectPath $_ } | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
 }
 
-function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
+function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind, [string]$RootPath = '') {
     if ($Kind -in @('astro','vite','browser-extension','obsidian-plugin')) {
-        $pnpmLock=Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf
-        $npmLock=(Test-Path -LiteralPath (Join-Path $ProjectPath 'package-lock.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $ProjectPath 'npm-shrinkwrap.json') -PathType Leaf)
-        $packageManager=Get-SgNodePackageManager $ProjectPath
-        [string[]]$arguments=if($pnpmLock){@($packageManager.PrefixArguments)+@('install','--frozen-lockfile')}elseif($npmLock){@('ci')}else{@('install')}
+        $packageManager=Get-SgNodePackageManager $ProjectPath $RootPath
+        $context=$packageManager.Context
+        [string[]]$arguments=if($packageManager.Name-eq'pnpm'){
+            if($context.PnpmLock){@($packageManager.PrefixArguments)+@('install','--frozen-lockfile')}else{@($packageManager.PrefixArguments)+@('install')}
+        }elseif($context.NpmLock){@('ci')}else{@('install')}
         $managerLabel=if($packageManager.Pinned){'corepack-pnpm'}else{$packageManager.Name}
-        return [pscustomobject]@{Manager=$packageManager.Manager;Arguments=$arguments;BootstrapArguments=@();ArtifactStrategy="node-$Kind-$managerLabel";SuppressNpmLock=(-not$pnpmLock-and-not$npmLock)}
+        return [pscustomobject]@{
+            Manager=$packageManager.Manager; Arguments=$arguments; BootstrapArguments=@(); ArtifactStrategy="node-$Kind-$managerLabel"
+            SuppressNpmLock=($packageManager.Name-eq'npm'-and-not$context.NpmLock); ManagerName=$packageManager.Name
+            InstallPath=$context.InstallPath; RootPath=$context.RootPath; InputPaths=@(Get-SgDependencyInputs $ProjectPath $Kind $RootPath)
+        }
     }
     if($Kind-eq'python'){
         $manager=Get-SgCommandPath @('uv.exe','uv.cmd','uv');if(-not$manager){throw 'uv is required for Python projects. Install uv, then retry.'}
@@ -1422,15 +1523,16 @@ function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
         if(Test-Path -LiteralPath (Join-Path $ProjectPath 'uv.lock') -PathType Leaf){$arguments=@('sync','--locked');$bootstrap=@();$artifact='python-uv-lock'}
         elseif(Test-Path -LiteralPath (Join-Path $ProjectPath 'requirements.txt') -PathType Leaf){$arguments=@('pip','install','--python',$python,'-r',(Join-Path $ProjectPath 'requirements.txt'));$bootstrap=@('venv',$venv);$artifact='python-requirements-venv'}
         else{throw 'Python project requires uv.lock or requirements.txt in V1.'}
-        return [pscustomobject]@{Manager=[IO.Path]::GetFullPath($manager);Arguments=[string[]]$arguments;BootstrapArguments=[string[]]$bootstrap;ArtifactStrategy=$artifact;SuppressNpmLock=$false}
+        return [pscustomobject]@{Manager=[IO.Path]::GetFullPath($manager);Arguments=[string[]]$arguments;BootstrapArguments=[string[]]$bootstrap;ArtifactStrategy=$artifact;SuppressNpmLock=$false;InstallPath=[IO.Path]::GetFullPath($ProjectPath)}
     }
     $manager=Get-SgFlutterCommandPath;if(-not$manager){throw 'Flutter SDK is not available on PATH.'}
-    return [pscustomobject]@{Manager=[IO.Path]::GetFullPath($manager);Arguments=[string[]]@('pub','get');BootstrapArguments=@();ArtifactStrategy='flutter-package-config';SuppressNpmLock=$false}
+    return [pscustomobject]@{Manager=[IO.Path]::GetFullPath($manager);Arguments=[string[]]@('pub','get');BootstrapArguments=@();ArtifactStrategy='flutter-package-config';SuppressNpmLock=$false;InstallPath=[IO.Path]::GetFullPath($ProjectPath)}
 }
 
-function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Plan) {
-    $inputs = @(Get-SgDependencyInputs $ProjectPath $Kind)
+function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Plan, [string]$RootPath = '') {
+    $inputs = @(if ($Plan.PSObject.Properties['InputPaths']) { @($Plan.InputPaths) } else { @(Get-SgDependencyInputs $ProjectPath $Kind $RootPath) })
     if ($inputs.Count -eq 0) { throw "No dependency manifest found for $Kind." }
+    $inputRoot = if ($Plan.PSObject.Properties['InstallPath'] -and $Plan.InstallPath) { [IO.Path]::GetFullPath([string]$Plan.InstallPath).TrimEnd('\','/') } else { [IO.Path]::GetFullPath($ProjectPath).TrimEnd('\','/') }
     $builder = New-Object Text.StringBuilder
     [void]$builder.AppendLine('schemaVersion=2')
     [void]$builder.AppendLine("kind=$Kind")
@@ -1439,7 +1541,7 @@ function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Pl
     [void]$builder.AppendLine("bootstrapArguments=$(@($Plan.BootstrapArguments)|ConvertTo-Json -Compress)")
     [void]$builder.AppendLine("artifactStrategy=$([string]$Plan.ArtifactStrategy)")
     foreach ($path in @($inputs | Sort-Object)) {
-        $relative = $path.Substring($ProjectPath.TrimEnd('\','/').Length).TrimStart('\','/').ToLowerInvariant()
+        $relative = $path.Substring($inputRoot.Length).TrimStart('\','/').ToLowerInvariant()
         $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
         [void]$builder.AppendLine("$relative=$hash")
     }
@@ -1448,16 +1550,20 @@ function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Pl
     finally { $sha.Dispose() }
 }
 
-function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind) {
+function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind, [object]$Plan = $null, [string]$RootPath = '') {
     if ($Kind -in @('astro','vite','browser-extension','obsidian-plugin')) {
-        $nodeModules = Join-Path $ProjectPath 'node_modules'
-        if (-not (Test-Path -LiteralPath $nodeModules -PathType Container)) { return $false }
-        $managerArtifact=if(Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf){Test-Path -LiteralPath (Join-Path $nodeModules '.modules.yaml') -PathType Leaf}else{Test-Path -LiteralPath (Join-Path $nodeModules '.package-lock.json') -PathType Leaf}
+        $context = Resolve-SgNodeDependencyContext $ProjectPath $RootPath
+        $installPath = if ($Plan -and $Plan.PSObject.Properties['InstallPath'] -and $Plan.InstallPath) { [string]$Plan.InstallPath } else { [string]$context.InstallPath }
+        $managerName = if ($Plan -and $Plan.PSObject.Properties['ManagerName'] -and $Plan.ManagerName) { [string]$Plan.ManagerName } elseif ($context.UsesPnpm) { 'pnpm' } else { 'npm' }
+        $installNodeModules = Join-Path $installPath 'node_modules'
+        $projectNodeModules = Join-Path $context.ProjectPath 'node_modules'
+        $managerArtifact=if($managerName-eq'pnpm'){Test-Path -LiteralPath (Join-Path $installNodeModules '.modules.yaml') -PathType Leaf}else{Test-Path -LiteralPath (Join-Path $installNodeModules '.package-lock.json') -PathType Leaf}
         if($Kind-eq'browser-extension'){
-            $frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules '@crxjs\vite-plugin') 'package.json') -PathType Leaf
+            $frameworkRelative='@crxjs\vite-plugin\package.json'
         }elseif($Kind-eq'obsidian-plugin'){
-            $frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules 'obsidian') 'package.json') -PathType Leaf
-        }else{$frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules $Kind) 'package.json') -PathType Leaf}
+            $frameworkRelative='obsidian\package.json'
+        }else{$frameworkRelative="$Kind\package.json"}
+        $frameworkArtifact=(Test-Path -LiteralPath (Join-Path $projectNodeModules $frameworkRelative) -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $installNodeModules $frameworkRelative) -PathType Leaf)
         return $managerArtifact -and $frameworkArtifact
     }
     if ($Kind -eq 'python') { return Test-Path -LiteralPath (Join-Path $ProjectPath '.venv\Scripts\python.exe') -PathType Leaf }
@@ -1471,8 +1577,8 @@ function Get-SgDependencyStatePath([object]$Config, [string]$ProjectPath) {
     return Join-Path (Join-Path ([IO.Path]::GetFullPath([string]$Config.RuntimeDirectory)) 'dependency-state') "$identity.json"
 }
 
-function Test-SgDependencyState([string]$StatePath, [string]$Digest, [string]$ProjectPath, [string]$Kind) {
-    if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind) -or -not (Test-Path -LiteralPath $StatePath -PathType Leaf)) { return $false }
+function Test-SgDependencyState([string]$StatePath, [string]$Digest, [string]$ProjectPath, [string]$Kind, [object]$Plan = $null, [string]$RootPath = '') {
+    if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind $Plan $RootPath) -or -not (Test-Path -LiteralPath $StatePath -PathType Leaf)) { return $false }
     try {
         $state = Get-Content -LiteralPath $StatePath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
         return [int]$state.schemaVersion -eq 2 -and [string]$state.digest -ceq $Digest -and [string]$state.kind -ceq $Kind -and [string]$state.projectPath -ceq ([IO.Path]::GetFullPath($ProjectPath))
@@ -1496,21 +1602,23 @@ function Write-SgDependencyLogRecord([IO.TextWriter]$Writer, [object]$Record) {
     Write-Output $Record
 }
 
-function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath) {
+function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string]$Kind, [string]$LogPath, [string]$RootPath = '') {
     $statePath = Get-SgDependencyStatePath $Config $ProjectPath
     Ensure-SgDirectory (Split-Path -Parent $statePath)
+    $installPath = if ($Kind -in @('astro','vite','browser-extension','obsidian-plugin')) { [string](Resolve-SgNodeDependencyContext $ProjectPath $RootPath).InstallPath } else { [IO.Path]::GetFullPath($ProjectPath) }
+    $installLockPath = "$(Get-SgDependencyStatePath $Config $installPath).install.lock"
     $lock = $null
     $logWriter = $null
     $suppressNpmLock = $false
     try {
         $deadline = (Get-Date).AddSeconds(30)
         do {
-            try { $lock = [IO.File]::Open("$statePath.lock", [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None) }
+            try { $lock = [IO.File]::Open($installLockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None) }
             catch [IO.IOException] { if ((Get-Date) -ge $deadline) { throw 'Dependency setup lock timed out.' }; Start-Sleep -Milliseconds 50 }
         } while (-not $lock)
-        $plan = New-SgDependencyPlan $ProjectPath $Kind
-        $digest = Get-SgDependencyDigest $ProjectPath $Kind $plan
-        if (Test-SgDependencyState $statePath $digest $ProjectPath $Kind) { Write-SgInfo "Dependencies unchanged: $ProjectPath"; return $false }
+        $plan = New-SgDependencyPlan $ProjectPath $Kind $RootPath
+        $digest = Get-SgDependencyDigest $ProjectPath $Kind $plan $RootPath
+        if (Test-SgDependencyState $statePath $digest $ProjectPath $Kind $plan $RootPath) { Write-SgInfo "Dependencies unchanged: $ProjectPath"; return $false }
         # From this point onward the previous success record no longer
         # describes a safely reusable installation. Keep failures fail-closed.
         Remove-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue
@@ -1527,7 +1635,7 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
             try{$ErrorActionPreference='Continue';& $pm @($plan.BootstrapArguments) 2>&1|ForEach-Object{Write-SgDependencyLogRecord $logWriter $_};if($LASTEXITCODE-ne0){throw 'uv venv failed.'}}
             finally{$ErrorActionPreference=$previousErrorActionPreference}
         }
-        Push-Location $ProjectPath
+        Push-Location ([string]$plan.InstallPath)
         $previousErrorActionPreference = $ErrorActionPreference
         $previousNpmPackageLock = $env:npm_config_package_lock
         try {
@@ -1539,9 +1647,9 @@ function Invoke-SgDependencySetup([object]$Config, [string]$ProjectPath, [string
             if ($LASTEXITCODE -ne 0) { throw "Dependency setup failed for $Kind." }
         }
         finally { $env:npm_config_package_lock = $previousNpmPackageLock; $ErrorActionPreference = $previousErrorActionPreference; Pop-Location }
-        if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind)) { throw "Dependency setup completed without the expected $Kind artifacts." }
-        $completedPlan = New-SgDependencyPlan $ProjectPath $Kind
-        $completedDigest = Get-SgDependencyDigest $ProjectPath $Kind $completedPlan
+        if (-not (Test-SgDependencyArtifacts $ProjectPath $Kind $plan $RootPath)) { throw "Dependency setup completed without the expected $Kind artifacts." }
+        $completedPlan = New-SgDependencyPlan $ProjectPath $Kind $RootPath
+        $completedDigest = Get-SgDependencyDigest $ProjectPath $Kind $completedPlan $RootPath
         if ($completedDigest -cne $digest) { throw 'Dependency inputs changed during setup; durable state was not recorded. Retry with stable manifests and lockfiles.' }
         Write-SgDependencyState $statePath $completedDigest $ProjectPath $Kind
         return $true
@@ -1579,7 +1687,7 @@ function Repair-SgStaleAstroDevLock([string]$ProjectPath, [scriptblock]$Snapshot
     }
 }
 
-function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '') {
+function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '', [string]$RootPath = '') {
     $signature = Get-SgCommandSignature $ProjectPath $Kind $Port
     if ($Kind -eq 'obsidian-plugin') {
         $descriptor = Get-SgObsidianPluginDescriptor $ProjectPath
@@ -1588,28 +1696,23 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
             $suggestion = if ($descriptor.BuildScriptName) { "The project only declares '$($descriptor.BuildScriptName)'; add or declare a reviewed watch script before using s start." } else { 'Declare a reviewed dev, watch, or start script before using s start.' }
             throw "Obsidian plugin watch workflow unavailable. $suggestion"
         }
-        $packageManager = Get-SgNodePackageManager $ProjectPath
+        $packageManager = Get-SgNodePackageManager $ProjectPath $RootPath
         $file = $env:ComSpec
         $prefix = if (@($packageManager.PrefixArguments).Count -gt 0) { ' ' + (@($packageManager.PrefixArguments) -join ' ') } else { '' }
         $command = "call `"$($packageManager.Manager)`"$prefix run $($descriptor.DevelopmentScriptName) & rem $signature"
         $args = @('/d','/s','/c',"`"$command`"")
     } elseif ($Kind -eq 'astro') {
-        $pnpm = Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')
-        if ($pnpm) {
-            $packageManager = Get-SgCommandPath @('pnpm.cmd','pnpm.exe')
-            if (-not $packageManager) { throw 'pnpm is required by pnpm-lock.yaml but is unavailable.' }
-            $file = $env:ComSpec
-            $command = "call `"$packageManager`" exec astro dev --host 127.0.0.1 --port $Port & rem $signature"
-            $args = @('/d','/s','/c',"`"$command`"")
+        $packageManager = Get-SgNodePackageManager $ProjectPath $RootPath
+        $prefix = if (@($packageManager.PrefixArguments).Count -gt 0) { ' ' + (@($packageManager.PrefixArguments) -join ' ') } else { '' }
+        $file = $env:ComSpec
+        if ($packageManager.Name -eq 'pnpm') {
+            $command = "call `"$($packageManager.Manager)`"$prefix exec astro dev --host 127.0.0.1 --port $Port & rem $signature"
         } else {
-            $packageManager = Get-SgCommandPath @('npm.cmd','npm.exe')
-            if (-not $packageManager) { throw 'npm is required but is unavailable.' }
-            $file = $env:ComSpec
-            $command = "call `"$packageManager`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
-            $args = @('/d','/s','/c',"`"$command`"")
+            $command = "call `"$($packageManager.Manager)`" run dev -- --host 127.0.0.1 --port $Port & rem $signature"
         }
+        $args = @('/d','/s','/c',"`"$command`"")
     } elseif ($Kind -in @('vite','browser-extension')) {
-        $packageManager = Get-SgNodePackageManager $ProjectPath
+        $packageManager = Get-SgNodePackageManager $ProjectPath $RootPath
         $file = $env:ComSpec
         $prefix = if (@($packageManager.PrefixArguments).Count -gt 0) { ' ' + (@($packageManager.PrefixArguments) -join ' ') } else { '' }
         if ($Kind -eq 'browser-extension') {
@@ -2463,9 +2566,9 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $flutterLaunchIdentity="ShipGlowsFlutter-$reservationToken"
     }
     try {
-        Invoke-SgDependencySetup $Config $launchPath $kind $setupLog | Out-Null
+        Invoke-SgDependencySetup $Config $launchPath $kind $setupLog $environmentRoot | Out-Null
         if ($kind -eq 'astro') { [void](Repair-SgStaleAstroDevLock $launchPath) }
-        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity
+        $launch = Get-SgLaunchSpec $launchPath $kind $port ([bool]$FlutterVisible) $flutterProfilePath $resolvedFlutterDevice $settings.DartDefineFile $flutterLaunchDirectory $flutterLaunchIdentity $environmentRoot
     } catch {
         Release-SgProjectPort $Config $entry.path $reservationToken $_.Exception.Message
         throw
