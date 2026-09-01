@@ -292,6 +292,7 @@ with tempfile.TemporaryDirectory() as directory:
     assert [json.loads(item.stdin)["action"] for item in executor.requests] == ["observe", "install_rust"]
     assert all(str(project.resolve()) not in " ".join(item.argv) for item in executor.requests)
     assert all(item.argv[-1] == str(provider.resolve()) for item in executor.requests)
+    assert all(item.environment.get("PATHEXT") == os.environ.get("PATHEXT") for item in executor.requests)
     provider_request = ProviderRequest((str(powershell),), trusted_bridge_root, {}, "{}", 30)
     refused_process = subprocess.CompletedProcess(provider_request.argv, 2, '{"status":"refused","reason":"bounded diagnostic"}', "")
     with patch("cli.environment.windows_tauri_backend.subprocess.run", return_value=refused_process):

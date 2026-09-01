@@ -140,7 +140,7 @@ class WindowsEnvironmentRunner:
     """Composite legacy mise runner plus the closed Windows provider bridge."""
 
     SAFE_ENVIRONMENT = {
-        "LOCALAPPDATA", "PATH", "PROGRAMDATA", "SHIPGLOWS_ROOT", "SYSTEMROOT", "TEMP", "TMP", "USERPROFILE", "WINDIR",
+        "LOCALAPPDATA", "PATH", "PATHEXT", "PROGRAMDATA", "SHIPGLOWS_ROOT", "SYSTEMROOT", "TEMP", "TMP", "USERPROFILE", "WINDIR",
     }
 
     def __init__(self, legacy_runner, executor: ProviderExecutor | None = None, provider_path: Path | None = None, powershell_path: str | None = None):
