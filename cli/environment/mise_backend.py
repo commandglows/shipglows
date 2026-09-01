@@ -242,6 +242,11 @@ class SubprocessRunner:
                     for path in windows_apps.glob("Microsoft.DesktopAppInstaller_*")
                     if path.is_dir()
                 )
+        elif executable.lower() in ("node.exe", "corepack.cmd"):
+            if program_files:
+                candidates.append(program_files / "nodejs")
+            if local_app_data:
+                candidates.append(local_app_data / "Programs" / "nodejs")
         return tuple(candidates)
 
     def run(self, request: ProcessRequest) -> ProcessResult:

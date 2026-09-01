@@ -580,25 +580,30 @@ function Get-SgProcessSnapshot([int]$Pid) {
     }
 }
 
-function Get-SgProcessSnapshotMap([int[]]$Pids) {
+function Get-SgProcessSnapshotMap([int[]]$Pids, [int[]]$CommandLinePids = @()) {
     $result = @{}
     $ids = @($Pids | Where-Object { $_ -gt 0 } | Sort-Object -Unique)
     if ($ids.Count -eq 0) { return $result }
     $processById = @{}
     foreach ($process in @(Get-Process -Id $ids -ErrorAction SilentlyContinue)) { $processById[[int]$process.Id] = $process }
     if ($processById.Count -eq 0) { return $result }
-    $filter = (@($processById.Keys | ForEach-Object { "ProcessId = $_" }) -join ' OR ')
     $cimById = @{}
-    foreach ($cim in @(Get-CimInstance Win32_Process -Filter $filter -ErrorAction SilentlyContinue)) { $cimById[[int]$cim.ProcessId] = $cim }
+    $commandIds = @($CommandLinePids | Where-Object { $_ -gt 0 -and $processById.ContainsKey([int]$_) } | Sort-Object -Unique)
+    if ($commandIds.Count -gt 0) {
+        $filter = (@($commandIds | ForEach-Object { "ProcessId = $_" }) -join ' OR ')
+        foreach ($cim in @(Get-CimInstance Win32_Process -Filter $filter -ErrorAction SilentlyContinue)) { $cimById[[int]$cim.ProcessId] = $cim }
+    }
     foreach ($id in @($processById.Keys)) {
         $process = $processById[$id]
         $cim = if ($cimById.ContainsKey($id)) { $cimById[$id] } else { $null }
         $start = $null
         try { $start = $process.StartTime.ToUniversalTime().ToString('o') } catch { }
+        $executablePath = $null
+        try { $executablePath = $process.Path } catch { }
         $result[$id] = [pscustomobject]@{
             Pid = $id
             StartTimeUtc = $start
-            ExecutablePath = if ($cim) { $cim.ExecutablePath } else { $null }
+            ExecutablePath = if ($cim -and $cim.ExecutablePath) { $cim.ExecutablePath } else { $executablePath }
             CommandLine = if ($cim) { $cim.CommandLine } else { $null }
         }
     }
@@ -1697,7 +1702,9 @@ function Remove-SgFlutterLaunchArtifacts([object]$Config,[object]$Entry) {
 function Reconcile-SgRegistry([object]$Config) {
     return Invoke-SgRegistryMutation $Config {
         param($registry)
-        $processSnapshots = Get-SgProcessSnapshotMap @($registry.projects | ForEach-Object { [int]$_.pid })
+        $processSnapshots = Get-SgProcessSnapshotMap `
+            @($registry.projects | ForEach-Object { [int]$_.pid }) `
+            @($registry.projects | Where-Object { $_.PSObject.Properties['commandSignature'] -and $_.commandSignature } | ForEach-Object { [int]$_.pid })
         $byIdentity = @{}
         $normalized = New-Object 'System.Collections.Generic.List[object]'
         foreach ($entry in @($registry.projects)) {

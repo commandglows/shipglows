@@ -163,7 +163,7 @@ with tempfile.TemporaryDirectory() as directory:
     with patch("cli.environment.core.shutil.which", return_value=str(fixture / "node")), patch(
         "cli.environment.core.subprocess.run", return_value=completed
     ):
-        constrained = observe_project(desired, architecture="x86_64", probe_versions=True)
+        constrained = observe_project(desired, architecture="x86_64", platform_name="unix", probe_versions=True)
     assert constrained["capabilities"][0]["status"] == "unknown"
 
     pnpm_manifest = {

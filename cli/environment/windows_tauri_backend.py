@@ -10,7 +10,6 @@ import hashlib
 import json
 import os
 import re
-import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,6 +22,57 @@ RUST_VERSION = "1.97.1"
 TAURI_CLI_VERSION = "2.11.4"
 OWNED_IDS = {"cargo", "rustc", "rustup", "tauri-cli", "msvc", "windows-sdk", "webview2", "tauri", "tauri-windows"}
 ACTIONS = {"acquire_mise", "install_rust"}
+
+
+def _registry_managed_powershell() -> str:
+    if os.name != "nt":
+        return ""
+    try:
+        import winreg
+
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+            value, value_type = winreg.QueryValueEx(key, "SHIPGLOWS_MANAGED_PWSH")
+        if value_type not in (winreg.REG_SZ, winreg.REG_EXPAND_SZ) or not isinstance(value, str):
+            return ""
+        return os.path.expandvars(value)
+    except (ImportError, OSError):
+        return ""
+
+
+def _managed_powershell_root() -> Path:
+    profile = os.environ.get("USERPROFILE") or str(Path.home())
+    return (Path(profile) / ".shipglows" / "toolchains" / "powershell").resolve(strict=False)
+
+
+def _fallback_managed_powershell() -> str:
+    """Resolve the one source-controlled runtime coordinate; never enumerate PATH."""
+
+    manifest = Path(__file__).resolve().parents[1] / "windows" / "ShipGlows.PowerShellRuntime.json"
+    try:
+        value = json.loads(manifest.read_text(encoding="utf-8"))
+        version, platform_value = value["version"], value["platform"]
+    except (OSError, KeyError, TypeError, json.JSONDecodeError):
+        return ""
+    if not re.fullmatch(r"\d+\.\d+\.\d+", str(version)) or not re.fullmatch(r"win-(?:x64|arm64)", str(platform_value)):
+        return ""
+    return str(_managed_powershell_root() / str(version) / str(platform_value) / "pwsh.exe")
+
+
+def resolve_managed_powershell(explicit: str | None = None) -> str:
+    candidates = (explicit, os.environ.get("SHIPGLOWS_MANAGED_PWSH"), _registry_managed_powershell(), _fallback_managed_powershell())
+    root = _managed_powershell_root()
+    for raw in candidates:
+        if not raw:
+            continue
+        try:
+            candidate = Path(raw).expanduser().resolve(strict=False)
+            candidate.relative_to(root)
+            if candidate.name.lower() != "pwsh.exe" or candidate.is_symlink() or not candidate.is_file() or candidate.stat().st_size <= 0:
+                continue
+            return str(candidate)
+        except (OSError, ValueError):
+            continue
+    return ""
 
 
 class WindowsTauriError(ValueError):
@@ -83,7 +133,7 @@ class WindowsEnvironmentRunner:
         self.legacy_runner = legacy_runner
         self.executor = executor or SubprocessProviderExecutor()
         self.provider_path = (provider_path or Path(__file__).resolve().parents[1] / "windows" / "shipglows-environment-provider.ps1").resolve()
-        self.powershell_path = powershell_path or os.environ.get("SHIPGLOWS_MANAGED_PWSH") or shutil.which("pwsh.exe") or shutil.which("pwsh") or ""
+        self.powershell_path = resolve_managed_powershell(powershell_path)
 
     @staticmethod
     def _file_sha256(path: Path) -> str:

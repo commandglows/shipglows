@@ -103,6 +103,25 @@ with tempfile.TemporaryDirectory() as directory:
     fixture(project)
     desired = discover_project(project)
 
+    stale_environment = dict(os.environ)
+    stale_environment.pop("SHIPGLOWS_MANAGED_PWSH", None)
+    stale_environment["PATH"] = ""
+    resolver_probe = subprocess.run(
+        [sys.executable, "-c", "from cli.environment.windows_tauri_backend import WindowsEnvironmentRunner; from cli.environment.mise_backend import SubprocessRunner; print(WindowsEnvironmentRunner(SubprocessRunner()).powershell_path)"],
+        cwd=ROOT,
+        env=stale_environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert resolver_probe.returncode == 0, resolver_probe.stderr
+    resolved_powershell = Path(resolver_probe.stdout.strip())
+    assert resolved_powershell.is_file()
+    assert resolved_powershell.name.lower() == "pwsh.exe"
+    assert resolved_powershell.is_relative_to(Path(os.environ["USERPROFILE"]) / ".shipglows" / "toolchains" / "powershell")
+
     missing = FakeWindowsRunner(mise=False)
     acquisition = build_plan(desired, platform_name="windows", architecture="x86_64", runner=missing)
     actions = [item.get("action") for item in acquisition["operations"] if item["executable"]]
@@ -244,9 +263,10 @@ with tempfile.TemporaryDirectory() as directory:
     powershell = trusted_bridge_root / "pwsh.exe"
     powershell.write_bytes(b"fixture powershell")
     executor = FakeProviderExecutor()
-    bridge = WindowsEnvironmentRunner(
-        LegacyStub(), executor=executor, provider_path=provider, powershell_path=str(powershell.resolve())
-    )
+    with patch("cli.environment.windows_tauri_backend._managed_powershell_root", return_value=trusted_bridge_root.resolve()):
+        bridge = WindowsEnvironmentRunner(
+            LegacyStub(), executor=executor, provider_path=provider, powershell_path=str(powershell.resolve())
+        )
     bridge_observed = bridge.windows_environment_observe(project, ".")
     assert bridge_observed["provider"]["path"] == str(provider.resolve())
     assert bridge.windows_environment_apply("install_rust", project, ".")["status"] == "applied"
@@ -256,9 +276,10 @@ with tempfile.TemporaryDirectory() as directory:
     repository_provider = project / "repository-provider.ps1"
     repository_provider.write_text("# untrusted\n", encoding="utf-8")
     (project / "ShipGlows.MobileToolchain.psm1").write_text("# untrusted\n", encoding="utf-8")
-    repository_bridge = WindowsEnvironmentRunner(
-        LegacyStub(), executor=executor, provider_path=repository_provider, powershell_path=str(powershell.resolve())
-    )
+    with patch("cli.environment.windows_tauri_backend._managed_powershell_root", return_value=trusted_bridge_root.resolve()):
+        repository_bridge = WindowsEnvironmentRunner(
+            LegacyStub(), executor=executor, provider_path=repository_provider, powershell_path=str(powershell.resolve())
+        )
     try:
         repository_bridge.windows_environment_observe(project, ".")
     except WindowsTauriError:

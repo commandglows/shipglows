@@ -19,7 +19,7 @@ if ($PSVersionTable.PSEdition -ne 'Core') {
     exit 70
 }
 $managedMarker = $env:SHIPGLOWS_MANAGED_PWSH
-$currentHost = [IO.Path]::GetFullPath((Get-Process -Id $PID).Path)
+$currentHost = [IO.Path]::GetFullPath([Environment]::ProcessPath)
 if ([string]::IsNullOrWhiteSpace($managedMarker) -or [IO.Path]::GetFullPath($managedMarker) -ine $currentHost) {
     [Console]::Error.WriteLine('ShipGlows refused an unmanaged PowerShell Core host. Use s.cmd or shipglows-dev.cmd.')
     exit 70
@@ -93,40 +93,42 @@ function Test-SgImmediateAction([string]$RequestedAction, [string[]]$RemainingPa
 }
 
 function Show-SgShortcutHelp {
-    Write-Host ''
-    Write-Host 'ShipGlows Windows shortcuts' -ForegroundColor Cyan
-    Write-Host '  s d      Dashboard'
-    Write-Host '  s e      Start a project'
-    Write-Host '  s status                           Show every project surface and state'
-    Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
-    Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
-    Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
-    Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
-    Write-Host '  s m r    Restart a project'
-    Write-Host '  s m t    Stop a project'
-    Write-Host '  s m w    Unregister a stopped project (files are preserved)'
-    Write-Host '  s m o    Stop all projects'
-    Write-Host '  s m l    View project logs'
-    Write-Host '  s m n    Navigate to a project in a child PowerShell shell'
-    Write-Host '  s a      Manage CLI authentication with official interactive flows'
-    Write-Host '  s capabilities    Print the closed CLI capability snapshot as JSON'
-    Write-Host '  s private-data ...              Manage the explicit private-data connection and capability'
-    Write-Host '  s env inspect|plan|verify|status|apply    Manage the current project environment'
-    Write-Host '  s u      Update ShipGlows from the active stable or linked channel'
-    Write-Host '  s update status  Show the active ShipGlows update channel'
-    Write-Host '  s tools status   Preview global developer-tool updates without changing them'
-    Write-Host '  s tools update   Update ShipGlows-owned global developer tools after confirmation'
-    Write-Host '  s x      Quit ShipGlows'
-    Write-Host '  s         Interactive menu'
-    Write-Host ''
-    Write-Host 'Project journeys' -ForegroundColor Cyan
-    Write-Host '  Web project      Start -> Open the managed local URL -> Stop'
-    Write-Host '  Flutter app      Start live (Windows by default when supported) -> Develop/reload -> Stop'
-    Write-Host '                   .shipglows.env can explicitly select windows, android, chrome, or web-server.' -ForegroundColor DarkGray
-    Write-Host '  Chrome extension Start -> Open / load project -> Developer mode -> Load unpacked -> Stop'
-    Write-Host '  Chrome support currently targets CRXJS projects with @crxjs/vite-plugin and dev:chrome.' -ForegroundColor DarkGray
-    Write-Host ''
-    Write-Host 'Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.' -ForegroundColor DarkGray
+    [Console]::Out.WriteLine(@'
+
+ShipGlows Windows shortcuts
+  s d      Dashboard
+  s e      Start a project
+  s status                           Show every project surface and state
+  s status -ProjectPath <path>       Show one project, its port role, and next action
+  s start -ProjectPath <path>       Start a web project, app, or Chrome extension
+  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools
+  s stop -ProjectPath <path>        Stop the exact managed project
+  s m r    Restart a project
+  s m t    Stop a project
+  s m w    Unregister a stopped project (files are preserved)
+  s m o    Stop all projects
+  s m l    View project logs
+  s m n    Navigate to a project in a child PowerShell shell
+  s a      Manage CLI authentication with official interactive flows
+  s capabilities    Print the closed CLI capability snapshot as JSON
+  s private-data ...              Manage the explicit private-data connection and capability
+  s env inspect|plan|verify|status|apply    Manage the current project environment
+  s u      Update ShipGlows from the active stable or linked channel
+  s update status  Show the active ShipGlows update channel
+  s tools status   Preview global developer-tool updates without changing them
+  s tools update   Update ShipGlows-owned global developer tools after confirmation
+  s x      Quit ShipGlows
+  s         Interactive menu
+
+Project journeys
+  Web project      Start -> Open the managed local URL -> Stop
+  Flutter app      Start live (Windows by default when supported) -> Develop/reload -> Stop
+                   .shipglows.env can explicitly select windows, android, chrome, or web-server.
+  Chrome extension Start -> Open / load project -> Developer mode -> Load unpacked -> Stop
+  Chrome support currently targets CRXJS projects with @crxjs/vite-plugin and dev:chrome.
+
+Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.
+'@)
 }
 
 if (Test-SgImmediateAction $Action $ShortcutPath) {
