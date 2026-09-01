@@ -123,15 +123,17 @@ class SubprocessProviderExecutor:
             )
         except subprocess.TimeoutExpired as exc:
             return {"status": "timeout", "reason": type(exc).__name__}
-        if completed.returncode != 0:
-            return {"status": "refused", "reason": f"provider exited {completed.returncode}"}
         if len(completed.stdout) > 65536:
             return {"status": "refused", "reason": "provider output exceeded the bound"}
         try:
             value = json.loads(completed.stdout)
         except (json.JSONDecodeError, TypeError):
-            return {"status": "refused", "reason": "provider returned invalid JSON"}
-        return value if isinstance(value, dict) else {"status": "refused", "reason": "provider returned a non-object"}
+            return {"status": "refused", "reason": f"provider exited {completed.returncode}" if completed.returncode else "provider returned invalid JSON"}
+        if not isinstance(value, dict):
+            return {"status": "refused", "reason": "provider returned a non-object"}
+        if completed.returncode == 0 or (completed.returncode == 2 and value.get("status") == "refused"):
+            return value
+        return {"status": "refused", "reason": f"provider exited {completed.returncode}"}
 
 
 class WindowsEnvironmentRunner:

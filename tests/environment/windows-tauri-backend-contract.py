@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from cli.environment.core import ApplyRefused, apply_plan, build_plan, digest_value, discover_project, observe_project  # noqa: E402
-from cli.environment.windows_tauri_backend import WindowsEnvironmentRunner, WindowsTauriError  # noqa: E402
+from cli.environment.windows_tauri_backend import ProviderRequest, SubprocessProviderExecutor, WindowsEnvironmentRunner, WindowsTauriError  # noqa: E402
 from cli.environment.mise_backend import ProcessResult  # noqa: E402
 
 
@@ -292,6 +292,13 @@ with tempfile.TemporaryDirectory() as directory:
     assert [json.loads(item.stdin)["action"] for item in executor.requests] == ["observe", "install_rust"]
     assert all(str(project.resolve()) not in " ".join(item.argv) for item in executor.requests)
     assert all(item.argv[-1] == str(provider.resolve()) for item in executor.requests)
+    provider_request = ProviderRequest((str(powershell),), trusted_bridge_root, {}, "{}", 30)
+    refused_process = subprocess.CompletedProcess(provider_request.argv, 2, '{"status":"refused","reason":"bounded diagnostic"}', "")
+    with patch("cli.environment.windows_tauri_backend.subprocess.run", return_value=refused_process):
+        assert SubprocessProviderExecutor().run_provider(provider_request) == {"status": "refused", "reason": "bounded diagnostic"}
+    invalid_failure = subprocess.CompletedProcess(provider_request.argv, 3, '{"status":"refused","reason":"must not pass"}', "")
+    with patch("cli.environment.windows_tauri_backend.subprocess.run", return_value=invalid_failure):
+        assert SubprocessProviderExecutor().run_provider(provider_request) == {"status": "refused", "reason": "provider exited 3"}
     repository_provider = project / "repository-provider.ps1"
     repository_provider.write_text("# untrusted\n", encoding="utf-8")
     (project / "ShipGlows.MobileToolchain.psm1").write_text("# untrusted\n", encoding="utf-8")
