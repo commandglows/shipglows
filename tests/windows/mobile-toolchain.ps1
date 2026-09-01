@@ -200,6 +200,7 @@ if "%~3"=="which" if "%~4"=="firebase" (
 )
 set "SELF=%~f0"
 set SELF
+echo CWD=%CD%
 echo SAFE=%MISE_SAFE% HOOKS=%MISE_NO_HOOKS% ENV=%MISE_NO_ENV% AUTO=%MISE_AUTO_INSTALL%
 set MISE_CONFIG_DIR
 set MISE_CEILING_PATHS
@@ -220,6 +221,7 @@ exit /b 23
     Assert-Sg ($wrapperRun.Output -match ('MISE_CEILING_PATHS=' + [regex]::Escape((Split-Path $fakeToolchain -Parent)))) 'Tauri Rust wrapper did not preserve the mise ceiling boundary.'
     $wrapperText = [IO.File]::ReadAllText($cargoWrapper)
     Assert-Sg ($wrapperRun.Output -match '(?m)^ARGS=.*exec rust@1[.]97[.]1 -- cargo') 'Tauri Rust wrapper did not pass the exact pinned mise command argv.'
+    Assert-Sg ($wrapperRun.Output -match ('CWD=' + [regex]::Escape($PWD.Path))) 'Tauri Rust wrapper changed the caller working directory.'
     Assert-Sg ($wrapperText.Contains('exec rust@1.97.1 -- cargo %*')) 'Tauri Rust wrapper must forward child arguments through the exact command boundary.'
     foreach ($requiredWrapperSetting in @('setlocal DisableDelayedExpansion','MISE_EXEC_AUTO_INSTALL=false','MISE_NOT_FOUND_AUTO_INSTALL=false','MISE_RUN_AUTO_INSTALL=false','MISE_OVERRIDE_CONFIG_FILENAMES=mise.toml','MISE_OVERRIDE_TOOL_VERSIONS_FILENAMES=none','MISE_SYSTEM_DEPS=ignore','endlocal & exit /b')) {
         Assert-Sg ($wrapperText.Contains($requiredWrapperSetting)) "Tauri Rust wrapper omitted isolation or exit preservation: $requiredWrapperSetting"
