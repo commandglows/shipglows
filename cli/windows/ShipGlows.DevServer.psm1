@@ -1686,6 +1686,9 @@ function Test-SgBrowserExtensionManifest([string]$Path, [DateTime]$FreshSinceUtc
         $item = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
         if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $item.Length -gt 1048576 -or $item.LastWriteTimeUtc -lt $FreshSinceUtc) { return $false }
         $manifest = [IO.File]::ReadAllText($Path) | ConvertFrom-Json -ErrorAction Stop
+        foreach ($requiredProperty in @('manifest_version','name','version')) {
+            if (-not $manifest.PSObject.Properties[$requiredProperty]) { return $false }
+        }
         return [int]$manifest.manifest_version -eq 3 -and -not [string]::IsNullOrWhiteSpace([string]$manifest.name) -and -not [string]::IsNullOrWhiteSpace([string]$manifest.version)
     } catch { return $false }
 }
