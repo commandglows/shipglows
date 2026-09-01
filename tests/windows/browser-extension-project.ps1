@@ -83,6 +83,13 @@ try {
     } $extension
     Assert-Sg (-not $invalidManifest.Ready) 'Manifest V2 was accepted by the Manifest V3 readiness contract.'
 
+    [IO.File]::WriteAllText($manifest, '{"name":"Ordinary package metadata","version":"1.0.0"}', [Text.UTF8Encoding]::new($false))
+    $missingManifestVersion = & $module {
+        param($Manifest)
+        Test-SgBrowserExtensionManifest $Manifest ([DateTime]::UtcNow.AddMinutes(-1))
+    } $manifest
+    Assert-Sg (-not $missingManifestVersion) 'An ordinary manifest without manifest_version was not rejected safely.'
+
     [IO.File]::WriteAllText($manifest, '{"name":"ToolGlows","version":"1.0.0","manifest_version":3}', [Text.UTF8Encoding]::new($false))
     (Get-Item -LiteralPath $manifest).LastWriteTimeUtc = [DateTime]::UtcNow.AddMinutes(-10)
     $staleManifest = & $module {
