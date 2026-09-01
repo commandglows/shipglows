@@ -815,8 +815,10 @@ function Get-SgTauriRustWrapperContent {
     param(
         [Parameter(Mandatory=$true)][string]$MisePath,
         [Parameter(Mandatory=$true)][string]$ToolchainRoot,
-        [ValidateSet('cargo','rustc','rustup')][string]$Command
+        [ValidateSet('cargo','rustc','rustup')][string]$Command,
+        [string]$RustVersion='1.97.1'
     )
+    if (-not (Test-SgExactVersionCoordinate $RustVersion)) { throw 'Tauri Rust wrapper version must be exact.' }
     $mise = ConvertTo-SgBatchQuotedPath $MisePath 'mise executable'
     $root = ConvertTo-SgBatchQuotedPath $ToolchainRoot 'Tauri toolchain'
     $config = ConvertTo-SgBatchQuotedPath (Join-Path $ToolchainRoot '.shipglows-no-user-mise-config') 'mise config directory'
@@ -836,7 +838,7 @@ function Get-SgTauriRustWrapperContent {
         "set `"MISE_CONFIG_DIR=$config`"",
         "set `"MISE_CEILING_PATHS=$ceiling`"",
         'set "MISE_SYSTEM_DEPS=ignore"',
-        "@`"$mise`" -C `"$root`" exec -- $Command %*",
+        "@`"$mise`" -C `"$root`" exec rust@$RustVersion -- $Command %*",
         'set "SHIPGLOWS_EXIT_CODE=%ERRORLEVEL%"',
         'endlocal & exit /b %SHIPGLOWS_EXIT_CODE%'
     ) -join "`r`n") + "`r`n"
@@ -848,7 +850,7 @@ function Get-SgTauriRustTargetAddArguments {
     if ($targets.Count -eq 0 -or $targets.Count -gt 16 -or @($targets | Where-Object { $_ -notmatch '^[a-z0-9_]+(?:-[a-z0-9_]+)+$' }).Count -gt 0 -or @($targets | Select-Object -Unique).Count -ne $targets.Count) {
         throw 'Invalid validated Tauri Rust target baseline.'
     }
-    return @('exec','--','rustup','target','add') + $targets
+    return @('exec',"rust@$($Baseline.RustToolchainVersion)",'--','rustup','target','add') + $targets
 }
 
 function Get-SgTauriDesktopBaseline {
@@ -918,9 +920,10 @@ function Invoke-SgIsolatedTauriMise {
 function Test-SgTauriDesktopRustToolchain {
     param([string]$MisePath,[string]$ToolchainRoot,$Baseline=(Get-SgTauriDesktopBaseline),[scriptblock]$Runner=$null)
     if (-not $MisePath -or -not (Test-Path -LiteralPath (Join-Path $ToolchainRoot 'mise.toml') -PathType Leaf)) { return $false }
-    $rust = Invoke-SgIsolatedTauriMise $MisePath $ToolchainRoot @('exec','--','rustc','--version') 60 $Runner
-    $cargo = Invoke-SgIsolatedTauriMise $MisePath $ToolchainRoot @('exec','--','cargo','--version') 60 $Runner
-    $rustup = Invoke-SgIsolatedTauriMise $MisePath $ToolchainRoot @('exec','--','rustup','--version') 60 $Runner
+    $coordinate="rust@$($Baseline.RustToolchainVersion)"
+    $rust = Invoke-SgIsolatedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','rustc','--version') 60 $Runner
+    $cargo = Invoke-SgIsolatedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','cargo','--version') 60 $Runner
+    $rustup = Invoke-SgIsolatedTauriMise $MisePath $ToolchainRoot @('exec',$coordinate,'--','rustup','--version') 60 $Runner
     return -not $rust.TimedOut -and $rust.ExitCode -eq 0 -and $rust.Output -match "(?m)^rustc $([regex]::Escape([string]$Baseline.RustToolchainVersion))\b" -and -not $cargo.TimedOut -and $cargo.ExitCode -eq 0 -and -not $rustup.TimedOut -and $rustup.ExitCode -eq 0
 }
 
@@ -931,12 +934,12 @@ function Install-SgTauriDesktopRustToolchain {
     New-Item -ItemType Directory -Path $root -Force | Out-Null
     $config=Join-Path $root 'mise.toml'; $expected=Get-SgTauriDesktopMiseConfig $baseline
     if (-not (Test-Path -LiteralPath $config -PathType Leaf) -or [IO.File]::ReadAllText($config).Replace("`r`n","`n") -cne $expected.Replace("`r`n","`n")) { [IO.File]::WriteAllText($config,$expected,[Text.UTF8Encoding]::new($false)) }
-    $install=Invoke-SgIsolatedTauriMise $mise $root @('install','rust') 1800 $Runner
+    $install=Invoke-SgIsolatedTauriMise $mise $root @('install',"rust@$($baseline.RustToolchainVersion)") 1800 $Runner
     if ($install.TimedOut) { return [pscustomobject]@{status='timeout';reason='Rust installation timed out';completed=@()} }
     if ($install.ExitCode -ne 0) { return [pscustomobject]@{status='partial';reason="Rust installation exited $($install.ExitCode)";completed=@()} }
     if (-not (Test-SgTauriDesktopRustToolchain $mise $root $baseline $Runner)) { return [pscustomobject]@{status='partial';reason='Rust post-install observation failed';completed=@('install_rust')} }
     $bin=Join-Path $RuntimeRoot 'bin'; New-Item -ItemType Directory -Path $bin -Force | Out-Null
-    foreach($command in @('cargo','rustc','rustup')){[IO.File]::WriteAllText((Join-Path $bin "$command.cmd"),(Get-SgTauriRustWrapperContent $mise $root $command),[Text.Encoding]::ASCII)}
+    foreach($command in @('cargo','rustc','rustup')){[IO.File]::WriteAllText((Join-Path $bin "$command.cmd"),(Get-SgTauriRustWrapperContent $mise $root $command $baseline.RustToolchainVersion),[Text.Encoding]::ASCII)}
     [pscustomobject]@{status='applied';completed=@('install_rust','wrappers');next_action='replan'}
 }
 
