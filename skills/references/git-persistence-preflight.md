@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-08-21"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: lightweight-git-persistence-preflight
@@ -25,6 +25,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: Git preflight resolves delivery posture from canonical business context and asks a product question when it is missing."
   - "Operator decision 2026-08-21: protect work at mutating start and resume without adding a visible step when Git state is healthy."
 next_review: "2026-11-21"
 next_step: /103-sg-verify lightweight-git-persistence-preflight
@@ -49,7 +50,7 @@ Skip for direct answers, read-only audits, non-Git work, and repeated writes ins
 
 ## Read-Only Inspection
 
-Resolve the exact repository, current branch, configured upstream, local `HEAD`, locally observed ahead/behind relation, tracked and untracked changes, staged paths, and the active chantier's owned paths. Inspect recent chantier/spec evidence only as needed to distinguish current, inherited, and unrelated work.
+Resolve the exact repository, current branch, configured upstream, local `HEAD`, locally observed ahead/behind relation, tracked and untracked changes, staged paths, and the active chantier's owned paths. Run the read-only resolver from `project-delivery-policy.md`; use only canonical business `delivery_posture` to derive the intended integration branch. Inspect recent chantier/spec evidence only as needed to distinguish current, inherited, and unrelated work.
 
 Do not fetch, push, switch branches, stage, stash, reset, clean, merge, or mutate provider settings during the preflight. Remote freshness beyond locally observed refs requires separate read-only remote evidence; never invent it.
 
@@ -68,6 +69,7 @@ When repository, branch, upstream, ownership, and persistence are coherent, cont
 ## Actionable Findings
 
 - Current chantier changes or commits exist only locally: use the already approved milestone/final delivery authority when applicable; otherwise expose the exact delivery decision before remote mutation.
+- Canonical `delivery_posture` is missing or invalid: do not infer an integration branch; ask one product-status question, persist the answer to canonical business context under its bounded capture authority, then resume the preflight automatically.
 - Inherited changes are clearly unrelated and non-overlapping: preserve them unstaged, record the exclusion internally, and continue.
 - Inherited changes overlap the intended write set or ownership is unknown: stop before writing and ask one ownership question.
 - Upstream is missing, ambiguous, unexpected, diverged, or points to the wrong remote: do not guess or push; report branch and expected recovery action.

@@ -1,10 +1,10 @@
 ---
 artifact: business_context
 metadata_schema_version: "1.0"
-artifact_version: "1.5.1"
+artifact_version: "1.6.0"
 project: "ShipGlows"
 created: "2026-04-26"
-updated: "2026-08-24"
+updated: "2026-09-01"
 status: reviewed
 source_skill: manual
 scope: business
@@ -15,6 +15,7 @@ business_model: "ShipGlows is a business framework usable directly by humans and
 target_audience: "solo founders first, plus small teams and AI agents using one shared framework to turn business intent into distinctive identities, impactful ventures, and verifiable outcomes"
 value_proposition: "provide a shared business framework that aligns humans and agents around governed truth across identity, brand, content, product, technology, growth, delivery, and proof"
 market: "solo founders first, with adjacent fit for small technical teams and highly autonomous builders running simple product sales cycles"
+delivery_posture: published
 security_impact: yes
 docs_impact: yes
 evidence:
@@ -24,6 +25,7 @@ evidence:
   - "Operator decision 2026-08-13: ShipGlows is first a business and delivery partner; server tooling is an integrated execution capability rather than an equal top-level promise"
   - "Operator decision SG-BIZ-2026-08-14-01: ShipGlows remains an autonomous product with no service, consulting, diagnostic, or human-accompaniment offer; a future Cockpit SaaS is only a deferred possibility and is not a current product promise"
   - "Operator decision 2026-08-22: ShipGlows is a business framework shared by humans and AI agents; software and code are capabilities, not the defining category"
+  - "Operator correction 2026-09-01: ShipGlows delivery posture is published because its skills and site are entering live use; Git integration therefore targets canonical dev while main remains production"
 linked_artifacts:
   - "shipglows_data/business/product.md"
   - "shipglows_data/business/gtm.md"

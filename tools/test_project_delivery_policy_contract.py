@@ -59,17 +59,19 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
             "`development` (non-live)",
             "`published` (live)",
             "production_branch: main",
-            "integration_branch: main | dev",
-            "staging_branch: not-required | dev",
+            "derives `integration_branch: main`",
+            "derive the exact canonical branch `dev`",
             "gated `dev -> main`",
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.policy)
 
-    def test_declared_policy_is_data_only_and_not_silently_rewritten(self) -> None:
+    def test_canonical_business_policy_is_not_duplicated(self) -> None:
         for marker in (
-            "no secret, token, executable command",
-            "never silently rewrite declared intent",
+            "shipglows_data/business/business.md",
+            "only authority",
+            "`PITCH.md` summarizes identity",
+            "runtime `live` never means product `published`",
             "does not authorize non-Git environment or deployment changes",
             "Ordinary Git/GitHub configuration convergence",
             "PDP-DECLARED-VS-OBSERVED",
@@ -81,8 +83,8 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
         for mode in ("local", "vercel-preview-push", "hybrid"):
             with self.subTest(mode=mode):
                 self.assertIn(mode, self.development_mode)
-        self.assertIn("Existing projects", self.policy)
-        self.assertIn("preserve their existing mode", self.policy)
+        self.assertIn("Existing `ShipGlows Delivery Policy` blocks", self.policy)
+        self.assertIn("Existing `ShipGlows Development Mode` remains separate", self.policy)
         self.assertIn("PDP-LEGACY-MODE", self.policy)
 
     def test_bootstrap_records_status_driven_integration_branch(self) -> None:
@@ -94,7 +96,7 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
             "integration_branch: dev",
             "staging_branch: dev",
             "without a validation prompt",
-            "preserve legacy development mode",
+            "preserve the separate development mode",
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.bootstrap)
@@ -127,6 +129,17 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
             "adds no separate Git approval",
         ):
             self.assertIn(marker, self.policy)
+
+    def test_missing_posture_asks_and_resumes_from_canonical_context(self) -> None:
+        for marker in (
+            "tools/project_delivery_policy.py",
+            "question_required: yes",
+            "PDP-CANONICAL-BUSINESS-SOURCE",
+            "PDP-MISSING-ASK-AND-RESUME",
+            "PDP-RUNTIME-LIVE-IS-NOT-PUBLISHED",
+            "persist it inside the active bootstrap scope",
+        ):
+            self.assertIn(marker, self.policy + self.bootstrap)
 
 
 if __name__ == "__main__":

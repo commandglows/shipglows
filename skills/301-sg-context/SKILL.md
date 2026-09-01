@@ -25,6 +25,8 @@ Default to concise `report=user`. Use `report=agent` only for an explicit handof
 
 Prime one known task with the minimum sufficient context for a correct next decision. Load `$SHIPGLOWS_ROOT/skills/references/context-quality-contract.md` and return its qualified `Context Capsule` plus verdict.
 
+For project delivery, release, deployment, or Git branch selection, load `$SHIPGLOWS_ROOT/skills/references/project-delivery-policy.md` and run its read-only resolver. Carry `delivery_posture` only from `shipglows_data/business/business.md` and derived production/integration/staging branches in the capsule. Missing or invalid posture is `context_partial` with one product question and canonical-update route; never substitute pitch, `ENVIRONMENT.md`, DevServer live state, `CLAUDE.md`, or branch names.
+
 For a material adopted-repository task, use `tools/code_context_graph.py update` when a compatible worktree-local index exists, otherwise build it once, then use `tools/context_capsule.py` to produce the bounded capsule. The capsule output must expose selection reasons, bounds, missing seeds and fallback state. Never persist task text automatically. Small deterministic tasks keep the targeted native fallback when indexing would cost more than the decision it supports.
 
 When the project adopts structured context history, load `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md`. Check and prefer a fresh bounded Context Head before broader retrieval; its generated code-context section already combines recent event references with the native bounded graph. Regenerate it only with applicable mutation authority, otherwise render it with `--no-write`. Revalidate material claims against canonical sources before `context_ready`.

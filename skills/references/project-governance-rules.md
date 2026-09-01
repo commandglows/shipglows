@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-30"
-updated: "2026-07-13"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: governed-project-rules
@@ -34,6 +34,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: delivery posture is canonical business truth; pitch, runtime environment state, and agent instructions cannot own it."
   - "Operator request 2026-06-30: provide one reusable `#rules` recentering tag so agents can reload the full governance rule set for a ShipGlows-governed project."
   - "Repeated execution drift came from rules being split across entrypoints, corpus docs, and monorepo topology without a compact synthesis."
   - "Operator clarification on 2026-07-13: root review must apply governance and architecture ownership contracts rather than a minimal-entry count."
@@ -75,6 +76,7 @@ Root `archive/`, `bugs/`, `docs/`, `specs/`, `research/`, `BUGS.md`, and `TEST_L
 - Keep fast-moving operational trackers under `shipglows_data/workflow/` without forcing frontmatter onto tracker files.
 - Keep technical governance under `shipglows_data/technical/`.
 - Keep business and product truth under `shipglows_data/business/`.
+- Keep `delivery_posture` exactly once in `shipglows_data/business/business.md`; derive Git/release policy from it and never duplicate it in pitch, `ENVIRONMENT.md`, registry state, `CLAUDE.md`, or `SHIPGLOWS.md`.
 - Keep public-content and claim governance under `shipglows_data/editorial/`.
 - Keep specs, audits, reviews, playbooks, checklists, and evidence under `shipglows_data/workflow/`.
 
@@ -85,6 +87,7 @@ Root `archive/`, `bugs/`, `docs/`, `specs/`, `research/`, `BUGS.md`, and `TEST_L
 - If code and docs diverge, the code wins temporarily and the canonical doc must be corrected in the same workstream or with an explicit no-impact justification.
 - `AGENT.md` is the fast routing entrypoint, not the place to duplicate the whole corpus.
 - `CLAUDE.md` holds execution constraints and critical coding rules, not the whole project map.
+- `ENVIRONMENT.md` and the live registry own runtime assignment and process state; runtime `live` is never evidence that the product is `published`.
 
 ## Monorepo Rules
 
