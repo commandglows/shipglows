@@ -41,6 +41,8 @@ try {
     Assert-Contains $bootstrapText "'cli\\environment'" 'Windows bootstrap does not target runtime\cli\environment.'
     Assert-Contains $bootstrapText "'ShipGlows\.ExtensionLab\.js'" 'Windows bootstrap does not include Extension Lab in its closed Windows package.'
     Assert-Contains $bootstrapText "'bin/ShipGlows\.ExtensionLab\.js'" 'Windows bootstrap does not manage Extension Lab in runtime/bin.'
+    Assert-Contains $bootstrapText "'ShipGlows\.ObsidianLab\.js'" 'Windows bootstrap does not include Obsidian Lab in its closed Windows package.'
+    Assert-Contains $bootstrapText "'bin/ShipGlows\.ObsidianLab\.js'" 'Windows bootstrap does not manage Obsidian Lab in runtime/bin.'
     Assert-Contains $installerText "cli\\environment\\shipglows_environment\.py" 'Native installer does not validate the packaged environment command.'
     Assert-Contains $installerText "cli\\environment\\schemas\\shipglows-environment-v1\.schema\.json" 'Native installer does not validate the packaged environment schema.'
     Assert-Contains $installerText 'ShipGlows\.PowerShellBootstrap\.ps1' 'Native command wrappers do not route through the managed PowerShell bootstrap.'
@@ -48,6 +50,7 @@ try {
     Assert-Contains $installerText 'RUSTUP_TOOLCHAIN=1\.97\.1' 'Node command wrappers do not activate the validated Rust baseline for native Tauri children.'
     Assert-Contains $installerText 'CARGO=%USERPROFILE%\\\.cargo\\bin\\cargo\.exe' 'Node command wrappers do not expose a native Cargo proxy to Tauri.'
     Assert-Contains $installerText "'ShipGlows\.ExtensionLab\.js'" 'Native installer does not copy Extension Lab into runtime/bin.'
+    Assert-Contains $installerText "'ShipGlows\.ObsidianLab\.js'" 'Native installer does not copy Obsidian Lab into runtime/bin.'
     Assert-Contains $installerText 'setlocal DisableDelayedExpansion' 'Application wrappers leak their child activation environment into the caller.'
     Assert-Contains ([IO.File]::ReadAllText($entrypoint)) "PSEdition -ne 'Core'" 'The installed frontend source does not refuse direct Desktop execution.'
 
@@ -61,7 +64,7 @@ try {
     $archiveEnvironment = Join-Path $archiveSource 'cli\environment'
     $archiveLocal = Join-Path $archiveSource 'local'
     New-Item -ItemType Directory -Path $archiveWindows,(Join-Path $archiveEnvironment 'schemas'),$archiveLocal -Force | Out-Null
-    foreach ($windowsFile in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.ExtensionLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-environment-provider.ps1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')) {
+    foreach ($windowsFile in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-environment-provider.ps1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')) {
         Copy-Item -LiteralPath (Join-Path $root "cli\windows\$windowsFile") -Destination (Join-Path $archiveWindows $windowsFile)
     }
     Copy-Item -LiteralPath (Join-Path $root 'shipglows-version.json') -Destination (Join-Path $archiveSource 'shipglows-version.json')
@@ -78,8 +81,9 @@ try {
     $extract = Join-Path $tempRoot 'archive-extract'
     New-Item -ItemType Directory -Path $extract | Out-Null
     $entries = @(Extract-ShipglowsWindowsFiles -ArchivePath $archive -DestinationPath $extract -FullMode $true)
-    if ($entries.Count -ne 35) { throw "Installer extracted $($entries.Count) files instead of the closed set of 35." }
+    if ($entries.Count -ne 36) { throw "Installer extracted $($entries.Count) files instead of the closed set of 36." }
     if (-not ($entries -match 'ShipGlows\.ExtensionLab\.js$')) { throw 'Installer did not extract the Extension Lab runtime.' }
+    if (-not ($entries -match 'ShipGlows\.ObsidianLab\.js$')) { throw 'Installer did not extract the Obsidian Lab runtime.' }
     if (-not ($entries -match 'shipglows-environment-provider[.]ps1$')) { throw 'Installer did not extract the closed Windows environment provider.' }
     if (-not ($entries -match 'ShipGlows\.DeveloperCorpus\.psm1$')) { throw 'Installer did not extract the developer corpus channel module.' }
     if (-not ($entries -match 'ShipGlows\.RuntimeStatus\.psm1$') -or -not ($entries -match 'shipglows-version\.json$')) { throw 'Installer did not extract the runtime-status module and version metadata.' }
@@ -94,6 +98,7 @@ try {
     Assert-Contains ([IO.File]::ReadAllText($installedDevServerModule)) 'function Get-SgEnvironmentReadinessForSurface' 'Packaged DevServer lost the scoped environment readiness consumer.'
     Assert-Contains ([IO.File]::ReadAllText($installedMobileModule)) 'function Get-SgTauriRustWrapperContent' 'Packaged runtime lost the disposable Rust activation wrappers.'
     if (-not (Test-Path -LiteralPath (Join-Path $extract 'shipglows-test\cli\windows\ShipGlows.ExtensionLab.js') -PathType Leaf)) { throw 'Packaged cli/windows omitted the Extension Lab runtime.' }
+    if (-not (Test-Path -LiteralPath (Join-Path $extract 'shipglows-test\cli\windows\ShipGlows.ObsidianLab.js') -PathType Leaf)) { throw 'Packaged cli/windows omitted the Obsidian Lab runtime.' }
 
     $localExtract = Join-Path $tempRoot 'local-archive-extract'
     New-Item -ItemType Directory -Path $localExtract | Out-Null

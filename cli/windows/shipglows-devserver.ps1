@@ -11,7 +11,9 @@ param(
     [int]$Port = 0,
     [switch]$Json,
     [switch]$Headless,
-    [string]$TargetUrl = ''
+    [string]$TargetUrl = '',
+    [string]$InteractionCommand = '',
+    [switch]$Screenshot
 )
 
 $ErrorActionPreference = 'Stop'
@@ -106,6 +108,7 @@ ShipGlows Windows shortcuts
   s start -ProjectPath <path>       Start a web project, app, Chrome extension, or configured Obsidian plugin
   s extension-inspect [-ProjectPath <path>] [-Json]  Inspect an extension without running repository scripts
   s extension-lab [-ProjectPath <path>] [-Headless] [-Json] [-TargetUrl <url>]  Load and probe a built MV3 extension in isolated Chromium
+  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-Screenshot]  Load a built plugin in disposable local Obsidian
   s open -ProjectPath <path>        Open the URL/app/extension tools or show Obsidian reload guidance
   s stop -ProjectPath <path>        Stop the exact managed project
   s m r    Restart a project
@@ -134,6 +137,8 @@ Project journeys
   Managed CRXJS start/open remains available for projects using @crxjs/vite-plugin and dev:chrome.
   Obsidian plugin  Detect -> declare one vault in .shipglows.env -> Start build/watch + copy -> reload manually
                    ShipGlows never discovers a personal vault or claims that Obsidian loaded the plugin.
+  Obsidian Lab     Built artifact -> disposable profile/vault -> real load and diagnostics -> cleanup
+                   Local data separation is not system isolation from hostile plugin code.
 
 Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.
 '@)
@@ -177,7 +182,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -987,6 +992,10 @@ try {
         'extension-lab' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
             Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl
+        }
+        'obsidian-lab' {
+            $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
+            [void](Invoke-SgObsidianPluginLab $config $path -Headless:$Headless -Json:$Json -InteractionCommand $InteractionCommand -Screenshot:$Screenshot)
         }
         'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
         'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.15.1"
+artifact_version: "0.16.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-30"
+updated: "2026-09-02"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -21,6 +21,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "The 2026-09-02 changelog records the disposable local Obsidian Plugin Lab and its explicit non-sandbox security boundary."
   - "The 2026-08-30 changelog records the separate native Windows developer-tool status and update surfaces, with public publication held for installed-host proof."
   - "The 2026-08-30 changelog records global managed-repository closure changelog classification and the shared Context History runtime."
   - "The 2026-08-26 changelog records latest-build artifact access and the native Windows Auth0 CLI integration."
@@ -28,6 +29,11 @@ evidence:
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-09-02]
+
+### Added
+- Added `s obsidian-lab` for approved, already-built Obsidian plugins: ShipGlows checks local BRAT artifacts, launches an isolated temporary profile and vault, proves the real plugin load and optional command interaction, reports runtime diagnostics separately, then stops the exact Lab process tree and removes the disposable data. This protects personal Obsidian data from accidental writes but is not an OS sandbox for hostile plugin code.
 
 ## [2026-08-30]
 
