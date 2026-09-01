@@ -1,7 +1,7 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-09-01"
@@ -24,6 +24,7 @@ evidence:
   - "Operator correction 2026-08-17: clean completed daily work proceeds to bounded commit/push by default instead of accumulating locally."
   - "Operator approval 2026-08-30: changelog impact is classified visibly for every managed-repository closure and significant history capture is bounded to one event."
   - "Operator correction 2026-09-01: closure documentation status must come from changed-path mapping and refreshed context, not report prose."
+  - "Operator correction 2026-09-01: closure must classify editorial alignment separately from editorial/product opportunity."
 next_step: none
 ---
 
@@ -75,11 +76,14 @@ If proof or ship is not complete, never set `closed`.
 
 ## Step 3b: editorial reflection
 
-- Classify editorial impact independently as `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`.
+- Classify existing-surface alignment independently as `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`.
 - Inspect declared public surfaces and user-visible promises; documentation status never substitutes for this classification.
 - `No declared public surface` is a valid no-impact reason when project evidence proves it.
 - Apply directly mapped public updates already inside approved scope before setting `closed`; otherwise a material `needs review` result forces `partial`.
 - Include the exact editorial classification visibly in every closure report and never create filler content to satisfy the gate.
+- Separately classify editorial/product opportunity as `candidate`, `no evidenced opportunity`, or `not assessed` from current evidence only.
+- Alignment `not impacted` never means no opportunity; `not impacted` plus `candidate` is valid.
+- A credible candidate is non-blocking and may be surfaced in `🧭 SUITE`, but never authorizes content, product work, publication, or a roadmap write.
 
 ## Step 4: tracker/changelog updates
 

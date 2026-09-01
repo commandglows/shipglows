@@ -178,6 +178,8 @@ class ShipSkillContractTests(unittest.TestCase):
             "`📖 DOCUMENTATION`",
             "`✏️ ÉDITORIAL`",
             "separated by ` · `",
+            "Opportunity is classified separately and is non-blocking",
+            "grants no content, product, publication, or roadmap authority",
         ):
             self.assertIn(expected, self.reporting)
 

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.16.0"
+artifact_version: "2.17.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-09-01"
@@ -61,6 +61,7 @@ evidence:
   - "Operator approval 2026-08-22: context health checks are lightweight at transitions and targeted only after a material degradation signal."
   - "Operator approval 2026-08-30: every managed-repository closure visibly classifies changelog impact without equating publication readiness with publication proof."
   - "Operator correction 2026-09-01: closure reports render documentation evidence resolved from current changed paths and the canonical docs map, independently from editorial impact."
+  - "Operator correction 2026-09-01: editorial alignment and editorial/product opportunity are independent; `not impacted` never means no opportunity."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -181,6 +182,8 @@ Report only evidence-backed states. A commit may still be local; a successful pu
 The documentation line uses exactly one of: `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit the documentation block unless its status materially affects trust.
 
 The editorial line independently uses the same three status values. A material editorial `needs review` result forbids closure or shipping language. `No declared public surface` is a valid concrete `not impacted` reason; never create filler content to avoid that result.
+
+Editorial alignment and editorial/product opportunity are separate decisions. The visible `✏️ ÉDITORIAL` line reports existing-surface alignment only. Classify opportunity independently as `candidate`, `no evidenced opportunity`, or `not assessed`; `not impacted` alignment never proves or implies no opportunity. A credible `candidate` is non-blocking and appears in `🧭 SUITE` with its audience and value. It never authorizes content, product work, publication, or a roadmap write. Omit the two negative opportunity states from user reports and never run extra research solely to classify them.
 
 The changelog line classifies every managed-repository closure independently from documentation and editorial work. Use exactly one of: `✅ public-ready · <eligible user-facing change and prepared projection>`, `🔒 internal-only · <significant internal event and concrete reason>`, `➖ not applicable · <no significant changelog event and concrete reason>`, or `⚠️ needs review · <unresolved public eligibility, copy, safety, or evidence gap>`. `public-ready` means the allowlisted public projection is complete enough for its declared delivery path; it never means published, deployed, or available. Those claims require matching delivery evidence. Record at most one significant event for the closure when structured history is adopted. A material `needs review` result forbids clean closure or shipping language; `internal-only` and `not applicable` are honest successful outcomes and never justify filler public content.
 

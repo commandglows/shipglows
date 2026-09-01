@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-16"
-updated: "2026-08-16"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: editorial-reflection-before-closure
@@ -26,6 +26,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator decision 2026-08-16: every closure receives an explicit editorial reflection in addition to documentation reflection."
+  - "Operator correction 2026-09-01: no existing public promise requiring an update does not imply that no editorial or product opportunity exists."
 next_review: "2026-09-16"
 next_step: none
 ---
@@ -55,7 +56,11 @@ editing public content is not.
    skill pages, install surfaces, or claims describe the changed outcome?
 4. Are those surfaces aligned, honestly unaffected, or still awaiting review?
 
-## Required Classification
+## Two Independent Axes
+
+Every closure classifies both axes from evidence already gathered for the work. Do not perform extra research merely to populate either axis.
+
+### Existing-surface alignment
 
 Record exactly one result:
 
@@ -70,6 +75,30 @@ Route it to the public content owner; do not disguise it as a documentation gap.
 When directly mapped public copy is already inside the approved workstream,
 align it before closure. Otherwise keep the result partial and request the
 required authority or business truth.
+
+### Editorial or product opportunity
+
+Record exactly one independent result:
+
+- `candidate`: the result creates a concrete audience, education, positioning,
+  onboarding, support, adoption, trust, or product-story opportunity;
+- `no evidenced opportunity`: the current evidence contains no concrete
+  opportunity worth proposing;
+- `not assessed`: the available evidence is insufficient and a proportional
+  scan was not part of the work.
+
+This axis is non-blocking. `candidate` does not authorize content creation,
+publication, product work, or a roadmap write. Surface a credible candidate in
+`🧭 SUITE` with its audience and value; persist it to the editorial roadmap only
+through the applicable owner and mutation authority. Do not display
+`no evidenced opportunity` or `not assessed` as ceremonial report filler.
+
+## Anti-Confusion Invariant
+
+`not impacted` means only that no existing public promise or declared surface
+requires alignment. It never means or implies that no editorial or product
+opportunity exists. Alignment and opportunity may validly be reported as
+`not impacted` plus `candidate`.
 
 ## No-Filler Boundary
 
@@ -99,3 +128,8 @@ status value in English while translating the scope or reason.
 - `EDITORIAL-CLOSE-UPDATE`: directly mapped public surfaces inside approved scope are aligned before closure.
 - `EDITORIAL-CLOSE-NO-SURFACE`: a proven absence of declared public surfaces returns `not impacted · No declared public surface`.
 - `EDITORIAL-CLOSE-NO-FILLER`: an unaffected change does not generate ceremonial public content.
+- `EDITORIAL-OPPORTUNITY-CANDIDATE`: an internal fix changes no existing public promise but creates a concrete audience story; alignment is `not impacted` and opportunity is `candidate`.
+- `EDITORIAL-OPPORTUNITY-NO-EVIDENCE`: no concrete opportunity in current evidence yields `no evidenced opportunity`, never a universal no-opportunity claim.
+- `EDITORIAL-OPPORTUNITY-NOT-ASSESSED`: insufficient evidence yields `not assessed` without blocking closure or triggering extra research.
+- `EDITORIAL-OPPORTUNITY-NO-AUTHORITY-LEAK`: a candidate may enter `🧭 SUITE` but never creates content, product work, or a roadmap record without applicable authority.
+- `EDITORIAL-NOT-IMPACTED-NOT-NONE`: deriving “no editorial or product opportunity” from alignment `not impacted` fails the gate.

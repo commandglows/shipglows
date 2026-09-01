@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.38.0"
+artifact_version: "2.39.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-01"
@@ -74,6 +74,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-09-01: closure now separates existing-surface editorial alignment from non-blocking editorial/product opportunity, preventing `not impacted` from being interpreted as no opportunity."
   - "2026-09-01: project/global technical audits now include a dead-and-obsolete-code gate driven by governed navigation context, a distinct application reachability graph, language-native evidence, and explicit complete-for-scope/partial/not-proven coverage."
   - "2026-09-01: verification, closure and full-close shipping now resolve documentation impact from exact task-owned Git paths through the canonical code-docs map, with a refreshed bounded context capsule or targeted canonical fallback."
   - "Wave 20 closes all 29 residual full-graph findings through canonical migrations, boundary reclassification, inverse-edge repair, and other-project governance removal; integrated complete graph 691/895/0 and profiled graph 133/89/0 are valid."
@@ -661,6 +662,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - `002-sg-maintain` owns the maintenance lifecycle; bugs, dependencies, docs, checks, audits, migrations, tasks, security review, repair, verification, and ship still run through their specialist owner skills and gates.
 - `010-sg-technical github` owns focused Git/GitHub hygiene as one `worktree -> branch -> pull request` graph. Its public `shipglows git` route defaults to read-only audit; `reconcile` and `clean` retain fresh approval gates. Commit/push stays with `005-sg-ship`, dependency risk with `010-sg-technical deps`, major upgrades with `010-sg-technical migrate`, and CI diagnosis with `github:gh-fix-ci`.
 - `010-sg-technical audit project|global` loads the dead-and-obsolete-code contract. Governed `context.md`, `context-function-tree.md`, `code-docs-map.md`, and behavior indexes orient discovery; reachability is then established through a separate application graph plus language-native analyzers and dynamic/external-consumer challenges. The skill/resource activation graph never proves application-code reachability. The audit reports `complete for declared scope`, `partial`, or `not proven` rather than inferring exhaustiveness from lint, build, tests, sampling, or text search alone.
+- Closure editorial reflection has two independent axes. Existing-surface alignment uses `updated`, `not impacted`, or `needs review` and may block closure; editorial/product opportunity uses `candidate`, `no evidenced opportunity`, or `not assessed` and never blocks closure. Alignment `not impacted` never means no opportunity. A credible candidate may be proposed in `🧭 SUITE`, but it grants no content, product, publication, or editorial-roadmap authority.
 - `007-sg-content` owns content-management orchestration; repurposing, drafting, enrichment, marketing modes, SEO audit, docs, veille, browser proof, verification, and ship still run through their specialist owner skills and gates.
 - Design and content skills use the shared Inspiration Gate only for eligible creative direction; they shortlist from `index.yaml`, require operator selection, record selected reference IDs, and never treat discovery as approval to imitate.
 - Content owner skills (`007-sg-content` including `repurpose`, `200-sg-redact`, `201-sg-enrich`, `009-sg-marketing copy|copywriting|gtm`, `406-sg-seo`) and `103-sg-verify` must use one shared rubric contract from `skills/references/content-quality-rubric.md`; recoverable score states (`needs retry`, `duplicate_in_progress`, `conflicting_score_state`, `stale_or_mismatched_score`) are never valid verification proof.

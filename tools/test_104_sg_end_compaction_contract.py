@@ -98,8 +98,18 @@ class EndCompactionContractTests(unittest.TestCase):
             "Apply directly mapped impacted documentation updates before setting `closed`",
             "material `needs review` result forces `partial`",
             "Include the exact classification visibly in every closure report",
-            "Classify editorial impact independently",
+            "Classify existing-surface alignment independently",
             "No declared public surface",
+        ):
+            self.assertIn(expected, self.playbook)
+
+    def test_closure_separates_editorial_alignment_from_opportunity(self) -> None:
+        for expected in (
+            "Classify existing-surface alignment independently",
+            "Separately classify editorial/product opportunity",
+            "`candidate`, `no evidenced opportunity`, or `not assessed`",
+            "Alignment `not impacted` never means no opportunity",
+            "never authorizes content, product work, publication, or a roadmap write",
         ):
             self.assertIn(expected, self.playbook)
 
