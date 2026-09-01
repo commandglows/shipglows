@@ -262,7 +262,9 @@ class TechnicalContractTests(unittest.TestCase):
             "`reconcile`",
             "`clean`",
             "terminal cleanup disposition",
-            "fresh approval",
+            "canonical integration branch",
+            "standing Git/GitHub stewardship authority",
+            "Never request Git validation",
         ):
             self.assertIn(phrase, github)
 
@@ -378,7 +380,7 @@ class TechnicalContractTests(unittest.TestCase):
         for blocker in (
             "GitHub authentication",
             "repository access",
-            "operator authorization",
+            "authority for a non-Git external mutation",
             "reliable refreshed queue truth",
         ):
             self.assertIn(blocker, github)

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.16.0"
+artifact_version: "1.17.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: universal-mutation-plan-approval
@@ -28,6 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-01: ordinary Git/GitHub stewardship is permanently autonomous; no validation is requested for commit, push, safe reconciliation, or proven cleanup."
   - "Operator correction 2026-08-27: approval classification depends on request clarity, a few enumerable actions and targets, and directional discretion rather than local/remote location or model reasoning effort; explicit bounded file edits, commits, and ordinary pushes execute directly."
   - "Operator correction 2026-08-27: an explicit exact micro-modification request is itself authority for that mutation, but never for a chantier; ordinary exact-scope local commits never receive a separate approval prompt."
   - "Contract-suite repair 2026-08-23 aligns the authority name and focused tests with the approved milestone commit-and-push policy introduced on 2026-08-21."
@@ -53,7 +54,15 @@ next_step: "/103-sg-verify universal mutation-plan approval"
 
 ## Universal gate
 
-Every intentional mutation requires explicit authority. Clear bounded-request authority, supplied-link register authority, and Auto-session authority below use the operator's original exact request or invocation as that authority. Every mutation outside clear bounded-request authority and the other named direct-authority exceptions requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval.
+Every intentional mutation requires authority. Clear bounded-request authority, Git/GitHub stewardship authority, supplied-link register authority, and Auto-session authority below are standing or request-derived authority paths. Every mutation outside those named paths requires one of the two approval paths below and explicit approval given after its message. Read-only inspection and diagnostics may run before approval.
+
+## Git/GitHub stewardship authority
+
+ShipGlows has standing authority to manage ordinary Git/GitHub state for in-scope work without asking for validation. At project or chantier start, each coherent validated milestone, and chantier end, refresh remote truth and converge safely: fetch/prune, inspect branch/upstream/PR/worktree relationships, stage only owned paths, create accurate commits, push them, reconcile merge-ready owned branches or pull requests into the canonical integration branch, and remove proven-integrated temporary branches and worktrees.
+
+Resolve the target from `project-delivery-policy.md`: non-live `development` projects integrate directly into `main`; explicitly live `published` and `sensitive-production` projects integrate into canonical `dev`, while `main` remains production. Promotion `dev -> main` is a release/deployment transition: when its applicable release, CI, preview, security, and production-authority gates are satisfied, perform the Git reconciliation without a separate Git validation.
+
+This standing authority includes safe local and remote branch creation, ordinary commits and pushes, fast-forward or policy-approved merge-ready reconciliation, pull-request lifecycle operations, pruning, and deletion of temporary local/remote branches or worktrees only after exact ownership and integration are mechanically proven. It never includes force push, history rewriting, bypassing protection or required checks, choosing a non-trivial conflict resolution, discarding unique commits, weakening controls, merging an unreviewed or failing change, deploying without deployment authority, or touching unrelated dirty work. Preserve and diagnose uncertain state instead of asking for a Git validation.
 
 ## Clear bounded-request authority
 
@@ -236,6 +245,13 @@ Push failure, ambiguous remote/branch, missing authentication, rejected updates,
 Apply clear bounded-request authority first. A qualifying file edit, deterministic micro-bug fix, commit, ordinary push, or small explicit sequence executes directly from the operator's request without a validation prompt. A small-looking request that expands beyond enumerable actions or requires a material direction uses the full plan. Use fast validation for bounded agent-proposed actions or almost-clear intent, not as a duplicate confirmation of an already clear request.
 
 ## Pressure scenarios
+
+- `MAP-GIT-STANDING-AUTHORITY`: ordinary Git/GitHub status refresh, commit, push, safe reconciliation, PR lifecycle, pruning, and proven-integrated cleanup proceed without a validation prompt.
+- `MAP-GIT-NON-LIVE-MAIN`: a `development` non-live project uses `main` as canonical integration target and persists every coherent validated slice there.
+- `MAP-GIT-LIVE-DEV`: a `published` or `sensitive-production` live project uses canonical `dev` for integration/staging while `main` remains production.
+- `MAP-GIT-PROMOTION`: `dev -> main` requires applicable release/deployment authority and passing gates, but never a separate Git validation.
+- `MAP-GIT-CONTINUAL-CONVERGENCE`: project/chantier start, every coherent milestone, and chantier end refresh and safely reconcile branch, upstream, PR, and worktree state.
+- `MAP-GIT-UNCERTAIN-PRESERVE`: conflicts, unique commits, failing checks, ambiguous ownership/integration, protected-state uncertainty, or unrelated dirt are preserved and diagnosed without force or an approval ceremony.
 
 - `MAP-TECHNICAL-COMMIT`: after approval of a bounded technical implementation, stage only its exact paths, run secret and proportional checks, create coherent local commits silently, and report their identifiers at the next natural checkpoint; do not ask for duplicate commit approval.
 - `MAP-BOUNDED-REQUEST`: the operator clearly requests a targeted file edit, exact-scope commit, ordinary push, or small coherent sequence whose actions and targets are few and enumerable and require no material directional choice; the initial request is the authority, execute directly with focused proof and no validation prompt.

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.9.0"
+artifact_version: "1.10.0"
 project: ShipGlows
 created: "2026-06-26"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: operator-partnership-contract
@@ -33,6 +33,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: ask product and experience questions readily, keep technical validation rare, and manage ordinary Git/GitHub state without validation prompts."
   - "Operator decision 2026-08-22: ShipGlows creates distinctive identities and impactful businesses beyond software, remains directly usable by humans and agents, and uses Git as durable memory for every representable artifact."
   - "Operator directive 2026-06-26: prompts stay intentionally high-level so the agent must infer the best next action without turning the operator into a technician."
   - "Observed execution drift 2026-06-26: the agent sometimes stayed in proposal/clarification loops instead of treating sparse business intent as delegated authority."
@@ -63,7 +64,7 @@ Git is the default durable memory and collaboration layer for every repository-r
 
 Every durable artifact must be directly understandable and actionable by a capable human without requiring agent mediation. Stable machine structure, identifiers, and automation may complement that human surface, but must not replace the plain-language outcome, decisions, next action, ownership, and proof. Humans and agents use the same governed truth; neither receives a hidden parallel framework.
 
-Partnership does not replace mutation authority. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: a clear bounded request supplies authority for its few coherent enumerable actions and targets when no material direction must be chosen, and does not authorize a chantier. A bounded agent-proposed action or almost-clear intent may use one- or two-sentence fast validation; unknown outcomes, unbounded scope, and material directional choices use the full plan. Local versus remote and model reasoning effort are never approval classifiers.
+Partnership does not replace mutation authority. Before any intentional state change, apply `skills/references/mutation-plan-approval.md`: a clear bounded request supplies authority for its few coherent enumerable actions and targets when no material direction must be chosen, and does not authorize a chantier. A bounded agent-proposed action or almost-clear intent may use one- or two-sentence fast validation; unknown outcomes, unbounded scope, and material directional choices use the full plan. Local versus remote and model reasoning effort are never approval classifiers. Ordinary Git/GitHub stewardship has standing authority and never creates a validation ceremony.
 
 This reference complements:
 
@@ -188,6 +189,8 @@ Ask only for:
 When a key business, audience, product, or framing fact is unknown and would materially improve the work, ask for that fact directly in plain language. This is not loss of autonomy; it is using the operator for the information they actually own.
 
 A good partner question deepens business alignment, sharpens positioning, or validates an inference the repository cannot settle. A weak question offloads routine inference or editorial arbitration the agent should already handle.
+
+Ask useful product and experience questions readily, including when they improve rather than block the outcome. Reserve technical questions for materially different safe directions that evidence cannot resolve. Never confuse either kind of question with mutation approval: the answer steers truth and intent but grants no new authority by itself.
 
 Do not ask the operator to supply implementation mechanics when the agent can infer them. Do ask the operator for business-critical truth when the repository cannot.
 

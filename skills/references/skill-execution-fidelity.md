@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: "ShipGlows"
 created: "2026-05-25"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-execution-fidelity
@@ -28,6 +28,7 @@ depends_on:
     required_status: "active"
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-01: Git/GitHub stewardship continuously cleans only proven-integrated owned temporary artifacts without validation prompts."
   - "User concern 2026-05-25: Codex has difficulty following ShipGlows skills exactly."
   - "shipglows-core pilot audit initially produced 70 noisy signals; after classification it found 0 hard findings, 5 review findings, and 5 style findings."
   - "2026-06-11 shipglows-core was promoted from a plugin pilot into internal ShipGlows skill 900-shipglows-core with a versioned audit tool."
@@ -294,7 +295,7 @@ Generated artifacts created for verification, preview, exploration, or scratch w
 - Delete temporary build outputs, caches, previews, and scratch exports after the proof they supported is complete.
 - Promote only the minimal durable artifact to the canonical project location when the run explicitly needs a persistent record.
 - If a durable artifact is expected, write it in the canonical governance path, not beside source files or in a random root folder.
-- Treat agent-created task branches and worktrees as temporary by default unless declared durable at creation. Track them through `git-temporary-artifact-lifecycle.md` until a terminal disposition; never delete automatically, and preserve ambiguous, dirty, unique, durable, shared, or active artifacts under fresh destructive-action approval.
+- Treat agent-created task branches and worktrees as temporary by default unless declared durable at creation. Track them through `git-temporary-artifact-lifecycle.md` until a terminal disposition; automatically remove exact owned artifacts only after integration and clean-state proof, while preserving ambiguous, dirty, unique, durable, shared, or active artifacts without force or validation ceremony.
 
 ## Alias Policy
 

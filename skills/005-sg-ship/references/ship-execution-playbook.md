@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: active
 source_skill: 005-sg-ship
 scope: ship-execution
@@ -22,6 +22,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-01: proven-integrated task Git artifacts are cleaned automatically under standing stewardship authority without validation prompts."
   - "Wave-2 compaction extracted bounded Git execution from the ship activation contract."
   - "Operator critique 2026-08-16: completed temporary branches and worktrees should be surfaced for cleanup without requiring the operator to notice them."
   - "Operator decision 2026-08-16: task-scoped agent Git artifacts remain owned through a terminal cleanup disposition after integration."
@@ -105,6 +106,6 @@ Propose cleanup only when all of these are proven with fresh read-only checks:
 - every task-owned managed process has a terminal disposition under the shared lifecycle; for `stopped`, its retained session or exact PID was signalled, awaited, and verified absent without broad process-name termination;
 - every required deployment, hosted proof, and post-push verification is terminal.
 
-When the gate passes, propose the exact cleanup scope without waiting for the operator to notice it and follow the shared removal order from a surviving canonical worktree. Obtain fresh destructive-action approval under `mutation-plan-approval.md`; remote ref deletion always uses its full-plan path. Multiple repositories are proposed together only when each target is exact, then cleaned sequentially; never delete automatically, never force branch deletion, and never touch a shared dependency store or unrelated main worktree.
+When the gate passes, clean the exact owned scope automatically without waiting for the operator to notice it and follow the shared removal order from a surviving canonical worktree. Standing Git/GitHub stewardship authority covers proven-integrated local and remote temporary refs without a validation prompt. Multiple repositories converge only when each target is exact, then clean sequentially; never force branch deletion, discard unique commits, weaken protection, or touch a shared dependency store or unrelated canonical worktree.
 
 If the gate fails or cleanup is declined, preserve the artifacts and record the shared cleanup disposition. Explicit retention requires a reason and review date; `pending` never supports a fully clean completion. If Git removes worktree metadata but ignored residue remains, re-inspect the exact directory before any approved deletion and stop on unexpected content, shared-store boundaries, locks, or ownership ambiguity.

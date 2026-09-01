@@ -50,7 +50,7 @@ Use `main-only` only for conversation or one focused read-only scope. For indepe
 Parse `$ARGUMENTS` after preflight:
 
 - empty -> full maintenance lifecycle for the current project; `quick` -> read-only triage only.
-- `hygiene` -> comprehensive read-only hygiene audit for the current project; return a grouped correction proposal, but authorize no mutation.
+- `hygiene` -> comprehensive hygiene audit for the current project; return one grouped correction proposal, allow only standing-authority Git/GitHub convergence, and authorize no application, content, dependency, configuration, or deployment mutation.
 - `full` -> broad maintenance lifecycle; `security` -> security maintenance through bug, dependency, code-audit, remediation, verification, and ship gates.
 - `deps`, `docs`, or `audits` -> the matching owner lane, then remediation lifecycle when findings cross the implementation threshold.
 - `global` -> read-only workspace dashboard; ask for a project before modifying more than one project.

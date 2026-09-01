@@ -76,10 +76,11 @@ class ShipSkillContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, self.text)
 
-    def test_temporary_artifacts_are_proposed_for_safe_cleanup_after_integration(self) -> None:
+    def test_temporary_artifacts_are_cleaned_autonomously_after_proven_integration(self) -> None:
         for phrase in (
             "temporary by default",
-            "fresh approval",
+            "standing stewardship authority",
+            "without validation",
         ):
             self.assertIn(phrase, self.text)
 
@@ -88,8 +89,8 @@ class ShipSkillContractTests(unittest.TestCase):
             "refreshed intended remote target contains the temporary branch tip",
             "tracked or untracked changes",
             "never infer that an ordinary operator",
-            "propose the exact cleanup scope",
-            "never delete automatically",
+            "clean the exact owned scope automatically",
+            "never force branch deletion",
         ):
             self.assertIn(phrase, self.execution)
 

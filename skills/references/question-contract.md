@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.4.0"
+artifact_version: "2.5.0"
 project: ShipGlows
 created: "2026-05-05"
-updated: "2026-08-17"
+updated: "2026-09-01"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-question-contract
@@ -35,6 +35,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: product and experience questions are proactive partnership; technical validation is exceptional, and ordinary Git/GitHub stewardship never asks for validation."
   - "Operator decision 2026-08-15: do not ask a duplicate question before an exact-scope local technical commit already covered by chantier approval."
   - "User request 2026-05-04: skill questions should be numbered, explain why, include helpful icons, and identify the recommended answer."
   - "User clarification 2026-05-04: a default is acceptable only when it is compatible with the current technical/product/editorial context and current best practices."
@@ -59,7 +60,7 @@ next_step: "/104-sg-end greenfield platform footprint question contract"
 
 This reference defines how ShipGlows skills ask user-facing questions.
 
-Questions should be rare, useful, and answerable by number. A question is a decision brief: why the decision matters, the recommended default when one exists, and the practical options.
+Product and experience questions are proactive partnership and should be asked readily when the operator's perspective can improve the promise, journey, audience, priority, positioning, or usefulness. Validation requests are different: they interrupt execution and must be rare. A question is a decision brief: why the decision matters, the recommended default when one exists, and the practical options.
 
 The goal is not to avoid questions at all costs. The goal is to avoid useless technical supervision while still asking for operator-owned business truth when that truth materially improves the work.
 
@@ -85,9 +86,17 @@ the user. For an unfinished final report, use the shared continuity-choice rule
 from `reporting-contract.md`: its options concern product direction, priority,
 or pause/continue, never an internal skill, command, owner, or lifecycle phase.
 
+## Question Versus Validation
+
+Never apply an approval-friction test to a useful product or experience question. It may sharpen the outcome without blocking the current chantier. Ask it when the operator owns relevant intent, taste, priority, audience nuance, experience judgment, or product truth that repository evidence cannot replace. Continue safe in-scope work while the answer is pending when possible.
+
+For a purely technical question, first attempt a professional evidence-backed decision. Ask only when credible safe technical directions have materially different consequences and the repository, accepted architecture, tests, and current standards cannot resolve them. Never ask the operator to supervise implementation mechanics.
+
+A question is not a validation request, and its answer never authorizes a mutation outside authority already granted. Before asking for validation, apply `mutation-plan-approval.md`, including clear bounded-request and Git-stewardship authority. Ordinary Git/GitHub commit, push, synchronization, reconciliation, and proven cleanup never create a validation question.
+
 ## Ask Threshold
 
-Ask only when the answer changes at least one material outcome:
+Ask a product or experience question whenever its answer can usefully sharpen one of these outcomes; blocking materiality is not required. Ask a technical question only when its answer changes at least one material outcome:
 
 - owner skill, lifecycle path, or durable work item type
 - user-visible behavior, product scope, audience, persona, or content surface
@@ -223,7 +232,7 @@ Each question must include:
 
 Use small semantic icons only as scanning aids. Icons never replace the text label. Use `🧭` for the decision heading, `✅` for the recommended option, and one meaningful distinct icon for each alternative. Use no more than one icon per labelled line.
 
-Questions should be rare enough that answering them feels like steering the product or risk posture, not supervising the skill. If a question would only make the operator approve routine professional execution, do not ask it.
+Product and experience questions should feel like steering with a capable partner, not supervising the skill. Technical questions and validation requests remain rare. If a question would only make the operator approve routine professional execution, including ordinary Git/GitHub stewardship, do not ask it.
 
 ## Plain-Text Format
 
@@ -270,3 +279,7 @@ Name the condition that would make another option better when that matters.
 - `SSRP-011 cross-platform first`: given the operator asks for a new mobile or browser application without a durable single-platform restriction, then the agent first recommends one Flutter codebase for Web, iOS, and Android and keeps Astro on Vercel for any separate public SEO surface.
 - `SSRP-012 guided short controls`: selecting `Questionner`, `Approfondir`, or `Réorienter` triggers the shared strategic contract's guided follow-up; no selection authorizes mutation or returns a blank question to the operator.
 - `SSRP-014 governing-context recovery`: a material governing gap produces evidence, a proposed interpretation, one authority-owned question, an authorized canonical update, and automatic return to the original chantier; agent-researchable facts are never offloaded.
+- `SSRP-015 proactive product experience question`: a non-blocking but useful audience, journey, promise, priority, or product nuance is asked precisely instead of suppressed by a generic ask-less rule.
+- `SSRP-016 technical question restraint`: a purely technical question is asked only after evidence, architecture, tests, and standards fail to resolve materially different safe directions.
+- `SSRP-017 question-is-not-validation`: asking or answering a product/experience question never authorizes a new mutation or expands an approved scope.
+- `SSRP-018 no-git-validation-question`: ordinary commit, push, synchronization, safe reconciliation, and proven temporary-artifact cleanup are autonomous Git stewardship, never operator validation questions.

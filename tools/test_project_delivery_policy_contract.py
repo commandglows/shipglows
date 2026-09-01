@@ -32,7 +32,7 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
     def test_development_never_means_local_only(self) -> None:
         for marker in (
             "Never interpret `development` as `local-only`",
-            "required after every validated milestone",
+            "coherent validated work to the canonical integration branch at the earliest safe opportunity",
             "remote_persistence: milestone-and-final",
             "PDP-DEVELOPMENT-NOT-LOCAL-ONLY",
         ):
@@ -56,10 +56,12 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
             "`development`",
             "`published`",
             "`sensitive-production`",
-            "required before production merge",
-            "documented equivalent isolation",
+            "`development` (non-live)",
+            "`published` (live)",
             "production_branch: main",
-            "work_branch_strategy: short-lived",
+            "integration_branch: main | dev",
+            "staging_branch: not-required | dev",
+            "gated `dev -> main`",
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.policy)
@@ -68,8 +70,8 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
         for marker in (
             "no secret, token, executable command",
             "never silently rewrite declared intent",
-            "does not authorize configuration changes",
-            "Provider configuration changes",
+            "does not authorize non-Git environment or deployment changes",
+            "Ordinary Git/GitHub configuration convergence",
             "PDP-DECLARED-VS-OBSERVED",
         ):
             with self.subTest(marker=marker):
@@ -83,13 +85,15 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
         self.assertIn("preserve their existing mode", self.policy)
         self.assertIn("PDP-LEGACY-MODE", self.policy)
 
-    def test_bootstrap_records_both_axes_without_permanent_develop(self) -> None:
+    def test_bootstrap_records_status_driven_integration_branch(self) -> None:
         for marker in (
             "project-delivery-policy.md",
             "never infer maturity",
-            "production branch to `main`",
-            "work branches to short-lived",
-            "never impose a permanent `develop` branch",
+            "production_branch: main",
+            "integration_branch: main",
+            "integration_branch: dev",
+            "staging_branch: dev",
+            "without a validation prompt",
             "preserve legacy development mode",
         ):
             with self.subTest(marker=marker):
@@ -111,6 +115,18 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
         self.assertIn("push proves persistence, not deployment", self.git_delivery)
         self.assertIn("push establishes remote persistence only", self.deploy)
         self.assertIn("successful Git push as deployment proof", self.prod)
+
+    def test_git_stewardship_is_autonomous_and_status_driven(self) -> None:
+        for marker in (
+            "PDP-NON-LIVE-MAIN",
+            "PDP-LIVE-DEV",
+            "PDP-GIT-AUTONOMY",
+            "project or chantier start",
+            "coherent milestones",
+            "chantier end",
+            "adds no separate Git approval",
+        ):
+            self.assertIn(marker, self.policy)
 
 
 if __name__ == "__main__":

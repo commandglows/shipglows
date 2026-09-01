@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: active
 source_skill: 010-sg-technical
 scope: github-hygiene-playbook
@@ -25,6 +25,7 @@ supersedes:
   - skills/310-sg-github-hygiene/SKILL.md
 evidence:
   - "Transferred from the retired GitHub hygiene entrypoint into the technical métier skill."
+  - "Operator decision 2026-09-01: Git/GitHub reconciliation and proven cleanup are continuous autonomous stewardship without validation prompts."
 next_step: "/103-sg-verify consolidate GitHub hygiene under 010-sg-technical"
 ---
 
@@ -60,7 +61,7 @@ Use this skill when the operator wants one of these outcomes:
 - verify whether local branches and remotes are up to date
 - identify stale local or remote branches
 - relate worktrees, branches, and pull requests before deciding what is disposable
-- reconcile an explicitly approved merge candidate and finish its lifecycle
+- reconcile a mechanically proven merge-ready candidate and finish its lifecycle autonomously
 - check whether feature branches or PRs are behind their base branch
 - review Dependabot coverage and open Dependabot pull requests
 - apply low-risk git/GitHub cleanup after the hygiene state is clear
@@ -76,15 +77,15 @@ Do not use this skill for:
 Default mode is `audit`.
 
 - `audit`: read-only PR, branch, and worktree dashboard for the current repo or selected workspace repos
-- `reconcile`: classify merge candidates, propose an exact merge, and execute only after fresh approval
-- `clean`: remove only proven integrated temporary branches and worktrees after fresh approval
+- `reconcile`: classify and autonomously integrate merge-ready candidates into the canonical integration branch
+- `clean`: remove proven-integrated temporary branches and worktrees without a validation prompt
 - `branches`: focus on branch sync, stale refs, merged branches, and PR drift
 - `dependabot`: focus on `.github/dependabot.yml`, open Dependabot PRs, and blocked update lanes
 - `fix`: apply bounded hygiene repairs only after the audit has classified the risk
 
 ## Required References
 
-- Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking the operator to choose repo scope or approve destructive git actions.
+- Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking the operator to choose materially ambiguous repository scope. Ordinary Git/GitHub stewardship never becomes a validation question.
 - Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before the final report.
 - Load `$SHIPGLOWS_ROOT/skills/references/managed-project-ci-policy.md` when auditing or reconciling workflows, required checks, branch protection, or repository rulesets.
 
@@ -100,7 +101,7 @@ For workspace mode:
 
 - include only directories that are git repos
 - include ShipGlows itself when relevant
-- keep the run read-only unless the operator explicitly approves fixes per repo
+- mutate only exact repositories whose ownership and requested workspace scope are proven; preserve ambiguous repositories without asking for Git validation
 
 ### Step 2 - Refresh repo truth
 
@@ -161,19 +162,21 @@ Treat these as attention items:
 
 Read-only `audit` mode stops after classification and report generation.
 
-`reconcile` mode starts read-only. Present the exact repository, PR or branch,
-base, head, merge method, current checks/reviews, and follow-up cleanup set. A
-`merge-ready` classification is a proposal, never authority. Obtain fresh
-approval for the exact remote PR merge or local branch merge, refresh truth,
-then perform only that approved mutation. Never choose conflict resolution,
-rebase, force push, protection bypass, or a different merge method silently.
+`reconcile` mode starts with fresh evidence. Resolve the canonical integration
+branch from `project-delivery-policy.md`: `main` for non-live `development`,
+canonical `dev` for live `published` or `sensitive-production`. For each exact
+repository, PR or branch, base, head, merge method, checks/reviews, and cleanup
+set, integrate automatically when `merge-ready` is mechanically proven under
+standing Git/GitHub stewardship authority. Never request Git validation. Never
+choose a non-trivial conflict resolution, rebase, force push, protection bypass,
+or a different merge method silently. Preserve uncertain state with diagnosis.
 After successful integration, load
 `$SHIPGLOWS_ROOT/skills/references/git-temporary-artifact-lifecycle.md` and
 continue through its terminal cleanup disposition.
 
 `clean` mode loads that shared lifecycle and inventories both registered and
-prunable worktrees plus their local/remote branches. It proposes the exact
-removals, obtains fresh approval, removes in the shared safe order, and records
+prunable worktrees plus their local/remote branches. It verifies exact
+ownership and integration, removes without validation in the shared safe order, and records
 a terminal cleanup disposition for every candidate. Dirty worktrees, unique
 commits, uncertain integration, protected/durable branches, active ownership,
 or unrelated residue remain `blocked`, `deferred`, or `retained` with reason.
@@ -190,7 +193,7 @@ or unrelated residue remain `blocked`, `deferred`, or `retained` with reason.
 - verify `.github/dependabot.yml` presence and ecosystem coverage
 - refresh PR status with `gh pr checks`
 - rebase or update a Dependabot PR branch only when the platform and branch policy allow it safely
-- merge a green Dependabot PR only when it is patch/minor risk, non-sensitive, non-major, and explicitly approved
+- merge a green Dependabot PR autonomously only when it is patch/minor risk, non-sensitive, non-major, policy-compliant, and merge-ready
 
 `fix` mode may combine the safe actions above, but only after reporting the exact repos and branches it will mutate.
 
@@ -205,7 +208,7 @@ Apply these rules before mutating anything:
 - Never auto-merge auth, billing, deploy, infra, workflow, permissions, or security-sensitive Dependabot PRs.
 - Never delete the current branch, default branch, protected release branch, or a branch with unique local commits.
 - Never bulk-delete remote branches.
-- Never treat a green check or `merge-ready` label as approval to merge.
+- Never treat a green check or `merge-ready` label alone as sufficient merge proof; require the full repository policy, authority, base/head, review, and risk classification.
 - Never resolve merge conflicts silently.
 - Prefer `git pull --ff-only` over merge pulls.
 - Prefer one repo at a time for mutating actions, even in workspace mode.
@@ -214,7 +217,7 @@ When a branch is behind its base branch:
 
 - if it is the current local branch with a clean tree and a plain fast-forward is possible, use `git pull --ff-only`
 - if it is a PR branch and GitHub can update it safely, use the GitHub route
-- if it requires a merge commit, rebase, or conflict resolution, stop and ask for branch-specific approval
+- if it requires a merge commit, rebase, or non-trivial conflict resolution not already fixed by repository policy, preserve it and report the exact unresolved technical condition; do not ask for Git validation
 
 When Dependabot PRs exist:
 
@@ -225,14 +228,14 @@ When Dependabot PRs exist:
 
 ### Dependabot queue continuation
 
-In an approved mutating `dependabot` or `fix` run, process the refreshed backlog as a queue without weakening any Action Rule or approval gate.
+In an authorized mutating `dependabot` or `fix` run, process the refreshed backlog as a queue without weakening any Action Rule or safety gate.
 
 - Maintain a terminal disposition ledger keyed by PR. Every reliably classified known PR receives exactly one final disposition: `merged`, `closed`, `deferred`, `routed`, or `blocked`. These dispositions describe observed run state; they grant no new mutation authority.
 - Record `merged` or `closed` only after that authorized action actually succeeds. `deferred` names the future condition or decision owner. `routed` names the owner and reason and does not imply downstream success. `blocked` names the unmet safety condition after agent-runnable recovery is exhausted.
 - Treat a major, sensitive, conflicted, stale, failing, or incompatible PR as an item-scoped blocker: quarantine it, route dependency risk to `010-sg-technical deps`, major migration to `010-sg-technical migrate`, or failing CI to `github:gh-fix-ci`, then continue independent eligible pull requests while global operating conditions remain valid.
 - After every merge, close, branch update, or other queue mutation, refresh current open PRs, check results, and base state from GitHub before selecting the next action; reclassify changed items and update the existing ledger row instead of duplicating it.
 - Continue until no actionable pull request remains. Each pass must mutate one eligible item, assign a terminal disposition, or stop on a named queue-wide blocker.
-- Only queue-wide blockers stop the full queue: loss of GitHub authentication, repository access, operator authorization for the requested mutation lane, or reliable refreshed queue truth. List any remaining PRs as unverified when reliable classification is impossible.
+- Only queue-wide blockers stop the full queue: loss of GitHub authentication, repository access, authority for a non-Git external mutation, or reliable refreshed queue truth. List any remaining PRs as unverified when reliable classification is impossible.
 
 ## Stop Conditions
 
@@ -241,7 +244,7 @@ For a Dependabot queue, apply blockers at the narrowest safe scope. Stop the ful
 - no target git repo can be identified
 - the repo is dirty and the requested action would mutate branch state
 - GitHub authentication or repository access is missing for an action the run depends on
-- operator authorization for the requested mutation lane is missing
+- the requested action is not ordinary Git/GitHub stewardship and lacks its own required authority
 - reliable refreshed queue truth is unavailable
 
 Otherwise, assign the affected branch or PR `blocked`, `deferred`, or `routed` with its reason and continue independent eligible pull requests when the remaining queue is safe:
@@ -259,12 +262,16 @@ Pressure scenarios:
 
 - `GIT-DASHBOARD-ZERO`: Given no open PR or temporary worktree, `git` reports a clean read-only dashboard and mutates nothing.
 - `GIT-DASHBOARD-MANY`: Given several PRs, branches, and worktrees, `git` links each `worktree -> branch -> pull request` identity without conflating homonyms.
-- `GIT-RECONCILE-APPROVAL`: Given one `merge-ready` PR, `reconcile` presents its exact merge method and obtains fresh approval before the remote mutation.
+- `GIT-RECONCILE-AUTONOMOUS`: Given one mechanically proven `merge-ready` PR, `reconcile` integrates it into the canonical integration branch without a validation prompt.
+- `GIT-NON-LIVE-MAIN`: Non-live `development` targets `main` for continuous integration.
+- `GIT-LIVE-DEV`: Live `published` and `sensitive-production` target canonical `dev`; promotion to `main` remains release/deployment-gated without separate Git approval.
+- `GIT-CONTINUAL-CONVERGENCE`: Start, coherent milestones, and end refresh and safely reconcile branch, upstream, PR, and worktree state.
+- `GIT-UNCERTAIN-PRESERVE`: Unique commits, non-trivial conflicts, failing checks, ambiguous ownership, or unproven integration are retained and diagnosed without force or validation ceremony.
 - `GIT-CLEAN-SQUASH`: Given a squash-merged PR, `clean` proves integration from refreshed PR state before assigning a terminal cleanup disposition to its worktree and branches.
 - `GIT-CLEAN-DIRTY`: Given a dirty worktree, `clean` preserves it and reports the exact blocker.
 - `GIT-REQUIRED-GATE`: Given an active managed GitHub repository, hygiene detects a directly required path-filtered job and routes to the canonical always-on gate before merge-ready classification.
 
-- Given a clean repo with branches behind origin, when `fix` is requested, then the skill fast-forwards only safe branches and reports the rest as blocked or approval-needed.
+- Given a clean repo with branches behind origin, when `fix` is requested, then the skill fast-forwards only safe branches and reports the rest as blocked with exact technical evidence.
 - Given merged local branches, when `branches` is requested, then the skill deletes only branches that are fully merged and non-protected.
 - Given open Dependabot PRs, when `dependabot` is requested, then the skill separates safe patch/minor lanes from major or sensitive updates before any merge suggestion.
 - `DEPENDABOT-MIXED-QUEUE-CONTINUES`: Given a mixed backlog, when one risky PR is routed or blocked, then independent eligible PRs continue after fresh GitHub truth is loaded and the run ends only when no actionable PR remains.
@@ -294,7 +301,7 @@ In `report=user`, keep the final report compact:
 - repo or workspace verdict
 - top hygiene findings
 - actions applied, if any
-- limits or approval-needed items
+- limits or preserved blockers
 - one real next step only when needed
 
 Use `report=agent` for the full branch matrix, stale-branch inventory, Dependabot PR list, and command evidence.

@@ -30,7 +30,7 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before Sh
 
 ## Mission And Ownership
 
-`005-sg-ship` owns bounded Git shipping and cleanup for agent-created task branches/worktrees, temporary by default. Destruction needs fresh approval; other owners retain implementation, proof, production, and closure unless full-close is explicit.
+`005-sg-ship` owns bounded Git shipping and autonomous cleanup for task branches/worktrees, temporary by default. Proven-integrated Git cleanup uses standing stewardship authority without validation; other owners retain implementation, proof, production, and closure unless full-close is explicit.
 
 `104-sg-end` retains unresolved closure bookkeeping; quick ship never substitutes.
 

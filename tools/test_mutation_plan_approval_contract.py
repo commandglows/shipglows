@@ -220,9 +220,27 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
         self.assertIn("uses the normal gate", scenario)
 
     def test_initial_request_does_not_approve_a_chantier_or_risky_action(self) -> None:
-        self.assertIn("Every mutation outside clear bounded-request authority", self.text)
+        self.assertIn("Every mutation outside those named paths", self.text)
         self.assertIn("explicit approval given after its message", self.text)
         self.assertIn("A clear bounded request never authorizes a chantier", self.text)
+
+    def test_git_stewardship_has_standing_authority_without_validation(self) -> None:
+        for marker in (
+            "## Git/GitHub stewardship authority",
+            "without asking for validation",
+            "non-live `development` projects integrate directly into `main`",
+            "live `published` and `sensitive-production` projects integrate into canonical `dev`",
+            "without a separate Git validation",
+            "deletion of temporary local/remote branches or worktrees only after exact ownership and integration are mechanically proven",
+            "Preserve and diagnose uncertain state instead of asking for a Git validation",
+            "MAP-GIT-STANDING-AUTHORITY",
+            "MAP-GIT-NON-LIVE-MAIN",
+            "MAP-GIT-LIVE-DEV",
+            "MAP-GIT-PROMOTION",
+            "MAP-GIT-CONTINUAL-CONVERGENCE",
+            "MAP-GIT-UNCERTAIN-PRESERVE",
+        ):
+            self.assertIn(marker, self.text)
 
     def test_v_is_a_bounded_immediate_approval_shortcut(self) -> None:
         for expected in (
@@ -315,7 +333,7 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
     def test_master_contracts_propagate_commit_authority_without_duplicate_prompt(self) -> None:
         lifecycle = LIFECYCLE.read_text(encoding="utf-8")
         delegation = DELEGATION.read_text(encoding="utf-8")
-        self.assertIn("ordinary exact-scope milestone commits and pushes inherit", lifecycle)
+        self.assertIn("Git/GitHub stewardship is the standing exception", lifecycle)
         self.assertIn("Exact-scope staging for an already approved technical commit", lifecycle)
         self.assertIn("ordinary exact-scope milestone commits and pushes", delegation)
         self.assertIn("unapproved staging", delegation)

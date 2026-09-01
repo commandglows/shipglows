@@ -95,6 +95,9 @@ class GitMilestoneDeliveryContractTests(unittest.TestCase):
 
     def test_pressure_scenarios_cover_required_boundaries(self) -> None:
         for scenario in (
+            "GMD-CANONICAL-INTEGRATION",
+            "GMD-CONTINUAL-HYGIENE",
+            "GMD-NO-GIT-VALIDATION",
             "GMD-MILESTONE-COMMIT",
             "GMD-MILESTONE-PUSH",
             "GMD-NO-MESSAGE-COMMITS",
@@ -111,6 +114,16 @@ class GitMilestoneDeliveryContractTests(unittest.TestCase):
             corpus = self.contract + self.approval
             with self.subTest(scenario=scenario):
                 self.assertIn(scenario, corpus)
+
+    def test_status_driven_integration_and_convergence_need_no_git_validation(self) -> None:
+        for marker in (
+            "No separate Git validation is requested",
+            "`main` for non-live `development`",
+            "`dev` for live `published` or `sensitive-production`",
+            "reconcile the validated slice into the canonical integration branch",
+            "remove proven-integrated temporary artifacts without asking for Git validation",
+        ):
+            self.assertIn(marker, self.contract)
 
 
 if __name__ == "__main__":

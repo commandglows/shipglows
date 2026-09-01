@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-16"
-updated: "2026-08-16"
+updated: "2026-09-01"
 status: active
 source_skill: 005-sg-ship
 scope: git-temporary-artifact-lifecycle
@@ -25,6 +25,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator decision 2026-08-16: merged task branches and worktrees should be removed as part of the same lifecycle instead of accumulating as forgotten Git artifacts."
+  - "Operator decision 2026-09-01: proven-integrated temporary Git artifacts are cleaned automatically without a validation prompt."
 next_review: "2026-09-16"
 next_step: none
 ---
@@ -56,14 +57,14 @@ A closed-but-unmerged pull request, mismatched head SHA, mismatched target, stal
 
 After integration and required hosted or production proof are terminal, inspect the exact artifacts from a surviving canonical worktree rather than the disposable worktree being removed. Require a clean tracked and untracked state, no unintegrated work, no active process using the path, no unresolved review/release/protection purpose, exact task ownership, and no shared-store boundary.
 
-When eligible, immediately propose the exact cleanup and obtain the fresh approval required by `mutation-plan-approval.md`. After approval, converge in this order:
+When eligible, immediately converge under the standing Git/GitHub stewardship authority in `mutation-plan-approval.md`; do not propose or request validation for ordinary cleanup. Use this order:
 
 1. remove worktree metadata through Git;
 2. inspect and remove only proven task-local disposable residue;
 3. remove the local branch with safe deletion, never force;
-4. remove the remote branch when it still exists and the separately approved remote scope includes it.
+4. remove the remote branch when it still exists and exact temporary ownership plus integration proof remain valid.
 
-Recheck after every step. An already absent remote branch is successful convergence, not an error. A partial failure stops the sequence and records the exact residual artifact without escalating to force.
+Recheck after every step. An already absent remote branch is successful convergence, not an error. A partial failure stops the sequence and records the exact residual artifact without escalating to force or asking for a cleanup validation.
 
 ## Terminal Disposition
 
