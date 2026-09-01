@@ -139,7 +139,7 @@ function Get-SgCliCapabilityRecords {
         'agents.status.read','mcp.status.read','project.runtime.start','project.runtime.stop','project.runtime.restart',
         'preview.refresh','workspace.open','agent.session.open','system.logs.read','system.cleanup','system.process.stop',
         'system.reboot','system.update','toolchain.install','mcp.configure','credentials.manage','proxy.configure',
-        'environment.remove','shipglows.install'
+        'environment.remove','shipglows.install','plugin.obsidian.lab'
     )
     $unsupported = @('workspace.close','release.publish')
     $records = [Collections.Generic.List[object]]::new()
@@ -162,7 +162,7 @@ function Test-SgCliCapabilitySnapshot([object]$Snapshot) {
         if ('reasonCode' -in $properties -and [string]$record.reasonCode -notmatch '^[a-z][a-zA-Z0-9]{0,63}$') { return $false }
         $seen[$id] = $true
     }
-    return $seen.Count -eq 30
+    return $seen.Count -eq 31
 }
 
 function ConvertFrom-SgCliCapabilityJson([string]$Json) {
@@ -546,6 +546,104 @@ function Invoke-SgBrowserExtensionLab([string]$ProjectPath, [switch]$Headless, [
     $runner = Join-Path $PSScriptRoot 'ShipGlows.ExtensionLab.js'; if (-not (Test-Path -LiteralPath $runner -PathType Leaf)) { throw "Browser extension lab runner is missing: $runner" }
     $arguments = @($runner,'--extension',$descriptor.ExtensionPath,'--playwright',$playwrightModule); if ($Headless) { $arguments += '--headless' }; if ($Json) { $arguments += '--json' }; if ($TargetUrl) { $arguments += @('--target-url',$TargetUrl) }
     & $node @arguments; if ($LASTEXITCODE -ne 0) { throw "Browser extension lab failed with exit code $LASTEXITCODE." }
+}
+
+function Get-SgObsidianExecutablePath {
+    $localAppData = if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { [Environment]::GetFolderPath('LocalApplicationData') }
+    $candidates = @(
+        (Join-Path $localAppData 'Programs\Obsidian\Obsidian.exe'),
+        (Get-SgCommandPath @('Obsidian.exe'))
+    ) | Where-Object { $_ }
+    foreach ($candidate in $candidates) {
+        $full = [IO.Path]::GetFullPath([string]$candidate)
+        if (Test-Path -LiteralPath $full -PathType Leaf) { return $full }
+    }
+    return $null
+}
+
+function Get-SgObsidianBratArtifactReport([string]$ProjectPath) {
+    $descriptor = Get-SgObsidianPluginDescriptor $ProjectPath
+    if (-not $descriptor) { throw "No valid Obsidian plugin was detected in: $ProjectPath" }
+    $root = [IO.Path]::GetFullPath([string]$descriptor.ProjectPath)
+    $required = @('main.js','manifest.json')
+    $missing = @($required | Where-Object { -not (Test-Path -LiteralPath (Join-Path $root $_) -PathType Leaf) })
+    if ($missing.Count -gt 0) { return [pscustomobject]@{ State='build-required'; PluginId=$descriptor.PluginId; Version=$descriptor.Version; Files=@(); Missing=$missing; Errors=@('Required BRAT artifacts are missing.') } }
+    $entrypoint = Get-SgObsidianSourceEntrypoint $root
+    if (-not (Test-SgObsidianBuildCurrent $root $entrypoint)) { return [pscustomobject]@{ State='build-required'; PluginId=$descriptor.PluginId; Version=$descriptor.Version; Files=@(); Missing=@(); Errors=@('main.js is older than an Obsidian build input.') } }
+    $errors = [Collections.Generic.List[string]]::new()
+    if (Test-Path -LiteralPath (Join-Path $root 'style.css') -PathType Leaf) { $errors.Add('BRAT and Obsidian require styles.css; rename style.css.') }
+    $files = [Collections.Generic.List[object]]::new()
+    foreach ($name in @('main.js','manifest.json','styles.css','versions.json')) {
+        $file = Join-Path $root $name
+        if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { continue }
+        $item = Get-Item -LiteralPath $file -Force
+        if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { $errors.Add("Artifact is a reparse point: $name"); continue }
+        $rootPrefix = $root.TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
+        if (-not $item.FullName.StartsWith($rootPrefix,[StringComparison]::OrdinalIgnoreCase)) { $errors.Add("Artifact escapes the plugin root: $name"); continue }
+        $files.Add([pscustomobject]@{ Name=$name; Bytes=[int64]$item.Length; Sha256=(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash })
+    }
+    $versionsPath = Join-Path $root 'versions.json'
+    if (Test-Path -LiteralPath $versionsPath -PathType Leaf) {
+        try {
+            $versionsItem = Get-Item -LiteralPath $versionsPath -Force
+            if (($versionsItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $versionsItem.Length -gt 1048576) { throw 'unsafe versions.json' }
+            $versions = Get-Content -LiteralPath $versionsPath -Raw | ConvertFrom-Json -ErrorAction Stop
+            if (-not $versions.PSObject.Properties[[string]$descriptor.Version]) { $errors.Add("versions.json has no entry for manifest version $($descriptor.Version).") }
+        } catch { $errors.Add('versions.json is invalid JSON.') }
+    }
+    [pscustomobject]@{ State=$(if($errors.Count){'failed'}else{'passed'}); PluginId=$descriptor.PluginId; Version=$descriptor.Version; Files=@($files); Missing=@(); Errors=@($errors) }
+}
+
+function Invoke-SgObsidianPluginLab([object]$Config, [string]$ProjectPath, [switch]$Headless, [switch]$Json, [string]$InteractionCommand = '', [switch]$Screenshot) {
+    $descriptor = Get-SgObsidianPluginDescriptor $ProjectPath
+    if (-not $descriptor) { throw "No valid Obsidian plugin was detected in: $ProjectPath" }
+    $brat = Get-SgObsidianBratArtifactReport $ProjectPath
+    if ($brat.State -eq 'build-required') { throw 'Obsidian plugin build required. ShipGlows will not execute repository scripts implicitly. Run the reviewed build command, then retry the lab.' }
+    if ($brat.State -eq 'failed') { throw "Obsidian BRAT artifact inspection failed: $($brat.Errors -join ' ')" }
+    $obsidian = Get-SgObsidianExecutablePath; if (-not $obsidian) { throw 'Obsidian Desktop is required by the local lab but is unavailable.' }
+    $versionText = [Diagnostics.FileVersionInfo]::GetVersionInfo($obsidian).ProductVersion
+    try { $version = [version]([regex]::Match([string]$versionText,'\d+(\.\d+){1,3}').Value) } catch { throw "Obsidian version could not be determined: $versionText" }
+    if ($version -lt [version]'1.12.7') { throw "Obsidian 1.12.7 or newer is required; found $version." }
+    $node = Get-SgCommandPath @('node.exe','node.cmd'); if (-not $node) { throw 'Node.js is required by the Obsidian lab but is unavailable.' }
+    $playwrightModule = Get-SgManagedPlaywrightModulePath; if (-not $playwrightModule) { throw 'Managed Playwright is unavailable. Rerun the ShipGlows full installer before opening the Obsidian lab.' }
+    $runner = Join-Path $PSScriptRoot 'ShipGlows.ObsidianLab.js'; if (-not (Test-Path -LiteralPath $runner -PathType Leaf)) { throw "Obsidian lab runner is missing: $runner" }
+    Ensure-SgDirectory $Config.RuntimeDirectory
+    $labRoot = Join-Path $Config.RuntimeDirectory ("obsidian-labs\{0}" -f [guid]::NewGuid().ToString('N'))
+    $profile = Join-Path $labRoot 'profile'; $vault = Join-Path $labRoot 'vault'
+    $pluginTarget = Join-Path $vault (".obsidian\plugins\{0}" -f $descriptor.PluginId)
+    $evidenceDirectory = Join-Path $Config.RuntimeDirectory 'obsidian-lab-evidence'
+    $screenshotPath = if ($Screenshot) { Ensure-SgDirectory $evidenceDirectory; Join-Path $evidenceDirectory ("{0}-{1}.png" -f $descriptor.PluginId,[guid]::NewGuid().ToString('N')) } else { '' }
+    $payload = $null
+    try {
+        foreach ($directory in @($profile,$pluginTarget)) { Ensure-SgDirectory $directory }
+        foreach ($artifact in @($brat.Files | Where-Object { $_.Name -in @('main.js','manifest.json','styles.css') })) {
+            $source = Join-Path $descriptor.ProjectPath $artifact.Name; $destination = Join-Path $pluginTarget $artifact.Name
+            if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -cne $artifact.Sha256) { throw "Obsidian artifact changed after inspection: $($artifact.Name)" }
+            Copy-Item -LiteralPath $source -Destination $destination
+            if ((Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash -cne $artifact.Sha256) { throw "Obsidian Lab artifact copy verification failed: $($artifact.Name)" }
+        }
+        [IO.File]::WriteAllText((Join-Path $vault '.obsidian\community-plugins.json'),(@($descriptor.PluginId)|ConvertTo-Json -Compress),[Text.UTF8Encoding]::new($false))
+        [IO.File]::WriteAllText((Join-Path $vault '.obsidian\app.json'),'{}',[Text.UTF8Encoding]::new($false))
+        $vaultId=[guid]::NewGuid().ToString('N').Substring(0,16)
+        $vaults=[ordered]@{};$vaults[$vaultId]=[ordered]@{path=$vault;ts=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds();open=$true}
+        $profileState=[ordered]@{vaults=$vaults}|ConvertTo-Json -Depth 5 -Compress
+        [IO.File]::WriteAllText((Join-Path $profile 'obsidian.json'),$profileState,[Text.UTF8Encoding]::new($false))
+        $port = Get-SgFreePort $Config 0 $labRoot
+        $arguments=@($runner,'--obsidian',$obsidian,'--playwright',$playwrightModule,'--profile',$profile,'--vault',$vault,'--plugin-id',$descriptor.PluginId,'--port',[string]$port,'--json')
+        if($Headless){$arguments+='--headless'};if($InteractionCommand){$arguments+=@('--interaction-command',$InteractionCommand)};if($screenshotPath){$arguments+=@('--screenshot',$screenshotPath)}
+        $output = & $node @arguments 2>&1
+        if ($LASTEXITCODE -ne 0) { throw "Obsidian lab failed: $($output -join ' ')" }
+        $payload = ($output | Select-Object -Last 1) | ConvertFrom-Json -ErrorAction Stop
+        $payload | Add-Member -NotePropertyName brat -NotePropertyValue $brat -Force
+    } finally {
+        if (Test-Path -LiteralPath $labRoot) { Assert-SgNoReparseTree $labRoot; Remove-Item -LiteralPath $labRoot -Recurse -Force }
+    }
+    if (-not $payload -or (Test-Path -LiteralPath $labRoot)) { throw 'Obsidian Lab cleanup could not be proven.' }
+    $payload | Add-Member -NotePropertyName profile -NotePropertyValue $profile -Force
+    $payload | Add-Member -NotePropertyName vault -NotePropertyValue $vault -Force
+    $payload | Add-Member -NotePropertyName cleanup -NotePropertyValue 'passed' -Force
+    if($Json){[Console]::Out.WriteLine(($payload|ConvertTo-Json -Depth 8 -Compress))}else{Write-SgInfo "$($payload.name) $($payload.version) | load: $($payload.hostLoad) | interaction: $($payload.interaction.state) | diagnostics: $($payload.diagnostics.state)";if($payload.screenshot){Write-SgInfo "Screenshot: $($payload.screenshot)"}}
+    return $payload
 }
 
 function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$FlutterDevice = '') {
@@ -2884,6 +2982,6 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Get-SgEnvironmentStatePath,Read-SgEnvironmentState,Get-SgEnvironmentReadinessForSurface,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap,Read-SgBrowserExtensionManifest,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Get-SgObsidianBratArtifactReport,Invoke-SgObsidianPluginLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Get-SgEnvironmentStatePath,Read-SgEnvironmentState,Get-SgEnvironmentReadinessForSurface,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Get-SgObsidianBratArtifactReport,Invoke-SgObsidianPluginLab,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap,Read-SgBrowserExtensionManifest,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
