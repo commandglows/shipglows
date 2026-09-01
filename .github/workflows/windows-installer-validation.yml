@@ -53,6 +53,7 @@ jobs:
           }
 
           $pathsFile = Join-Path $env:RUNNER_TEMP 'shipglows-changed-paths.txt'
+          [IO.File]::WriteAllText($pathsFile, '')
           if ($env:EVENT_NAME -eq 'workflow_dispatch') {
             Set-Content -LiteralPath $pathsFile -Encoding UTF8 -Value 'tests/windows/devserver-contract.sh'
           } elseif ($env:BASE_SHA -match '^0{40}$') {
