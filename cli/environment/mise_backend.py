@@ -586,22 +586,16 @@ def recognize_pilot(desired: Mapping, platform_name: str, architecture: str) -> 
         return None
     manifest = desired.get("manifest", {})
     backends = manifest.get("backends", {}).get("windows", {})
-    if set(backends) != {"mise"}:
+    if "mise" not in backends:
         return None
     tools = manifest.get("capabilities", {}).get("tools", [])
-    node = [item for item in tools if item.get("id") == "node"]
-    pnpm = [item for item in tools if item.get("id") == "pnpm"]
-    other_capabilities = sum(
-        len(manifest.get("capabilities", {}).get(group, []))
-        for group in ("targets", "agents", "integrations")
-    )
+    node = [item for item in tools if item.get("id") == "node" and item.get("scope", ".") == "."]
+    pnpm = [item for item in tools if item.get("id") == "pnpm" and item.get("scope", ".") == "."]
     if (
-        len(tools) != 2
-        or len(node) != 1
+        len(node) != 1
         or node[0].get("constraint") != "24"
         or len(pnpm) != 1
         or pnpm[0].get("constraint") != "10"
-        or other_capabilities
     ):
         return None
     return load_pilot_contract(Path(desired["project"]["root"]), Path(backends["mise"]), architecture)

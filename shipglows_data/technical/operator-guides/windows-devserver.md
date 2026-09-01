@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.27.0"
+artifact_version: "1.28.0"
 project: ShipGlows
 created: "2026-08-11"
 updated: "2026-09-01"
@@ -198,12 +198,20 @@ ne sont pas requis par le parcours Shadow PC.
    elles ne lancent jamais `pnpm install` automatiquement. `inspect`, `plan`,
    `verify` et `status` ne demandent aucune initialisation du DevServer.
    Sans manifest ShipGlows explicite, Windows déduit aussi Node et pnpm depuis
-   `package.json`, puis Cargo et la cible Tauri depuis `src-tauri/Cargo.toml` ou
-   `@tauri-apps/cli`. Un manifest Flox limité à Linux est affiché comme
-   incompatible sous Windows. Aucun de ces contrôles n'installe Rust : Cargo et
-   Tauri restent bloqués avec l'action requise, et `verify`/`status` terminent
-   avec le code `4` tant qu'un projet détecté n'est pas prêt. Un dossier sans
+   `package.json`, puis Cargo et la cible Tauri depuis la structure native
+   `src-tauri` (`Cargo.toml` et configuration Tauri). Un manifest Flox limité à
+   Linux est affiché comme incompatible sous Windows. `plan` peut proposer
+   l'acquisition de `mise` ou Rust 1.97.1 dans le toolchain ShipGlows isolé;
+   `apply` exige le digest exact et un consentement explicite. MSVC, Windows SDK
+   et WebView2 sont observés séparément et ne sont jamais installés implicitement.
+   `verify`/`status` terminent avec le code `4` tant qu'un projet détecté n'est pas prêt. Un dossier sans
    source ni capacité gérée reste valide.
+   Le DevServer consomme l'état par surface avant de réserver un port : Node et
+   le gestionnaire de paquets de l'extension ou du site doivent être prêts,
+   tandis qu'un Tauri bloqué reste un diagnostic indépendant. Dans un monorepo
+   contenant plusieurs projets Tauri, indiquez toujours le scope exact; aucun
+   premier candidat n'est choisi silencieusement. Les wrappers Rust sont actifs
+   dans les nouveaux PowerShell gérés et processus agents sans modifier le profil.
    Le menu interactif principal propose `n  Navigate to a project` : il permet
    de choisir un projet puis ouvre un PowerShell enfant dans son dossier
    (`exit` revient au shell initial).

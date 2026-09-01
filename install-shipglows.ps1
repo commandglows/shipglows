@@ -141,11 +141,11 @@ function Extract-ShipglowsWindowsFiles([string]$ArchivePath, [string]$Destinatio
         $entries += $versionEntries[0]
     }
     if ($FullMode) {
-        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|ShipGlows\.WslTurso\.psm1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1)$' })
-        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/(?:private_data\.py|environment/(?:__init__\.py|core\.py|mise_backend\.py|preparation\.py|shipglows_environment\.py|schemas/shipglows-environment-v1\.schema\.json))$' })
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/windows/(ShipGlows\.DevServer\.psm1|ShipGlows\.RuntimeStatus\.psm1|ShipGlows\.FlutterSupervisor\.ps1|ShipGlows\.ProjectCatalogRefresh\.ps1|ShipGlows\.CodexMcp\.psm1|ShipGlows\.MobileToolchain\.psm1|ShipGlows\.BuildArtifacts\.psm1|shipglows-build-artifacts\.ps1|ShipGlows\.McpCatalog\.json|ShipGlows\.InstallerEngine\.psm1|ShipGlows\.InstallerConsole\.psm1|ShipGlows\.AgentInstructions\.psm1|ShipGlows\.Auth\.psm1|ShipGlows\.DeveloperCorpus\.psm1|ShipGlows\.PowerShellRuntime\.psm1|ShipGlows\.PowerShellRuntime\.json|ShipGlows\.PowerShellBootstrap\.ps1|ShipGlows\.WslTurso\.psm1|shipglows-environment-provider\.ps1|shipglows-devserver\.ps1|shipglows\.ps1|install-devserver\.ps1)$' })
+        $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/(?:private_data\.py|environment/(?:__init__\.py|adapters\.py|core\.py|mise_backend\.py|preparation\.py|shipglows_environment\.py|versions\.py|windows_tauri_backend\.py|schemas/shipglows-environment-v1\.schema\.json))$' })
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/cli/install-turso-cloud\.sh$' })
         $entries += @($archiveEntries | Where-Object { $_ -match '^[^/]+/shipglows-version\.json$' })
-        if ($entries.Count -ne 30) { Fail 'The ShipGlows archive is missing native Windows DevServer, runtime status, version metadata, ShipGlows command, build-artifact helper, managed PowerShell runtime, MCP catalog, WSL/Turso bootstrap, developer corpus channel, project catalogue refresher, Flutter supervisor, installer engine/UI, authentication, agent instructions, environment control-plane, or private-data control-plane files.' }
+        if ($entries.Count -ne 34) { Fail 'The ShipGlows archive is missing native Windows DevServer, runtime status, version metadata, ShipGlows command, build-artifact helper, managed PowerShell runtime, MCP catalog, WSL/Turso bootstrap, developer corpus channel, project catalogue refresher, Flutter supervisor, installer engine/UI, authentication, agent instructions, provider, environment control-plane, or private-data control-plane files.' }
     }
 
     & $tarPath -xf $ArchivePath -C $DestinationPath $entries
@@ -208,10 +208,13 @@ function Assert-PowerShellSyntax([string]$Path) {
 function Assert-EnvironmentPackage([string]$EnvironmentDirectory) {
     $required = @(
         '__init__.py',
+        'adapters.py',
         'core.py',
         'mise_backend.py',
         'preparation.py',
         'shipglows_environment.py',
+        'versions.py',
+        'windows_tauri_backend.py',
         'schemas\shipglows-environment-v1.schema.json'
     )
     foreach ($relativePath in $required) {
@@ -419,8 +422,8 @@ try {
                 }
         )
         if ($environmentCandidates.Count -ne 1) { Fail 'Environment control-plane directory was not found in the archive.' }
-        $windowsFiles = @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')
-        $pythonFiles = @('__init__.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py')
+        $windowsFiles = @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-environment-provider.ps1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')
+        $pythonFiles = @('__init__.py','adapters.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py','versions.py','windows_tauri_backend.py')
         $managedRelativePaths = @($windowsFiles | ForEach-Object { "cli/windows/$_" }) + @($pythonFiles | ForEach-Object { "cli/environment/$_" }) + @('cli/private_data.py','cli/environment/schemas/shipglows-environment-v1.schema.json','cli/install-turso-cloud.sh','shipglows-version.json','private_data.py') + @('bin/ShipGlows.DevServer.psm1','bin/ShipGlows.RuntimeStatus.psm1','bin/ShipGlows.FlutterSupervisor.ps1','bin/ShipGlows.ProjectCatalogRefresh.ps1','bin/ShipGlows.Auth.psm1','bin/ShipGlows.MobileToolchain.psm1','bin/ShipGlows.BuildArtifacts.psm1','bin/shipglows-build-artifacts.ps1','bin/ShipGlows.PowerShellRuntime.psm1','bin/ShipGlows.PowerShellRuntime.json','bin/ShipGlows.PowerShellBootstrap.ps1','bin/shipglows-devserver.ps1','bin/shipglows.ps1')
         $stagedWindows = Join-Path $payloadRoot 'cli\windows'
         $stagedCli = Join-Path $payloadRoot 'cli'

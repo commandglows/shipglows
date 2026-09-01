@@ -91,7 +91,10 @@ function Read-SgShipGlowsStatusCache([object]$Config) {
 
 function Test-SgShipGlowsStatusCacheFresh([object]$Cache) {
     if (-not $Cache) { return $false }
-    try { return ((Get-Date).ToUniversalTime() - [datetime]::Parse([string]$Cache.checkedAt).ToUniversalTime()).TotalMinutes -lt $script:SgRuntimeStatusCacheTtlMinutes }
+    try {
+        $checkedAt = if ($Cache.checkedAt -is [datetime]) { ([datetime]$Cache.checkedAt).ToUniversalTime() } else { [datetime]::Parse([string]$Cache.checkedAt,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind).ToUniversalTime() }
+        return ((Get-Date).ToUniversalTime() - $checkedAt).TotalMinutes -lt $script:SgRuntimeStatusCacheTtlMinutes
+    }
     catch { return $false }
 }
 
