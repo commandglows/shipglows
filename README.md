@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.30.0"
+artifact_version: "0.31.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-09-01"
@@ -44,6 +44,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "2026-09-01: the native Windows DevServer detects Obsidian plugins before generic Vite and synchronizes fresh artifacts only to an explicitly configured vault."
   - "2026-08-30 Flutter live-development update: native Windows and Android use supervised registry-selected targets and reserve standalone builds for release or package-sensitive checks."
   - "2026-08-27 DX ownership decision: 900-shipglows-core maintains skills/doctrine, CLI/DevServer/TUI runtime, installers, coherence, and packaging inside shipglows; shipglows_app separately owns the public site and SaaS."
   - "2026-08-27 approval-boundary correction: clear bounded requests execute directly with focused proof when actions and targets are few and enumerable and no material direction must be chosen; local/remote location and reasoning effort do not change classification."
@@ -264,7 +265,7 @@ retourné par GitHub, puis télécharge uniquement l'archive immuable de ce comm
 
 In an interactive Windows console, the bootstrap asks for SSH tunnels or the
 recommended local DevServer. The DevServer installs only the native PowerShell
-runtime for Astro, Vite, Python/FastAPI, and Flutter applications targeting Web,
+runtime for Astro, Vite, browser extensions, Obsidian plugins, Python/FastAPI, and Flutter applications targeting Web,
 Windows desktop, or Android, prepares Git, GitHub CLI,
 Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid external
 WSL remains optional and independent from ShipGlows. In the interactive full
@@ -417,9 +418,10 @@ and the Linux `urls` menu are intentionally not part of this path.
 
 The Windows DevServer discovers runnable surfaces from native manifests rather
 than folder names. A repository or explicitly registered monorepo can expose
-separate Astro, Vite, Python/FastAPI, and Flutter surfaces; each surface is
-registered with its own stable display name, persistent localhost port, logs,
-and `ENVIRONMENT.md`. Discovery is bounded to four workspace levels and three
+separate Astro, Vite, browser-extension, Obsidian-plugin, Python/FastAPI, and Flutter surfaces; each surface is
+registered with its own stable display name, logs, and `ENVIRONMENT.md`. HTTP
+surfaces also receive a persistent localhost port; Obsidian plugins do not.
+Discovery is bounded to four workspace levels and three
 levels below a project root, and skips dependency, build, cache, and hidden
 directories. It does not claim to recognize every possible monorepo layout.
 Installer migration never replaces an existing valid assigned port with
@@ -457,6 +459,15 @@ Matching `app.start`/`app.started` events establish readiness, Dart changes unde
 `lib/` trigger debounced hot reload, Open promotes the session to managed visible
 Chrome, and Restart remains a complete controlled restart. Orphan listeners and
 browsers are stopped only with exact ShipGlows launch evidence.
+
+Obsidian plugins are classified from their native manifest, the `obsidian`
+package dependency, main entrypoint, and declared build/watch scripts before the
+generic Vite fallback. Start runs the declared watch script without HTTP flags,
+requires fresh `main.js` plus the manifest and optional stylesheet, then copies
+and verifies those files under `.obsidian/plugins/<plugin-id>` only when the
+plugin's `.shipglows.env` names one existing absolute vault. ShipGlows never
+discovers a personal vault or claims that build-and-copy success proves the
+plugin loaded inside Obsidian; reload and in-app validation remain manual.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
 After a full install, use `s` (or `shipglows-dev`) for the project dashboard.

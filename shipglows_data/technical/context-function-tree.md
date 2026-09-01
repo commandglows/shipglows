@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.9.0"
+artifact_version: "0.10.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: draft
 source_skill: 102-sg-start
 scope: "context"
@@ -16,7 +16,7 @@ docs_impact: "yes"
 linked_systems: ["cli/shipglows.sh", "cli/lib.sh", "cli/shipglows_devserver_gum.sh", "cli/shipglows_devserver_bash.sh", "cli/config.sh", "cli/install.sh", "cli/windows/ShipGlows.DevServer.psm1", "cli/windows/shipglows-devserver.ps1", "cli/windows/install-devserver.ps1", "local/local.sh", "local/dev-tunnel.sh"]
 depends_on: []
 supersedes: []
-evidence: ["Function extraction from shipglows.sh, lib.sh, config.sh, install.sh, local/local.sh, local/dev-tunnel.sh", "Blacksmith setup menu helpers added to lib.sh", "Blacksmith OAuth callback tunnel added to local tooling", "Blacksmith SSH Access guide added to the setup menu", "Codex MCP on-demand launcher added to lib.sh", "Grouped root menu and submenu wrappers added to menu frontends", "Root menu shortcuts aligned with visible menu labels", "Disk overview helpers added to the Health Check monitor", "Agent history and cache cleanup helpers added", "PM2 log cleanup/rotation and disk usage detail helpers added", "Turso setup menu helpers added to lib.sh", "Clerk CLI OAuth callback tunnel added to local tooling", "Local tunnel auth flows grouped under one authentication submenu", "Password-to-key promotion helpers and local menu flow added with independent key-only verification", "Lazy atomic environment registry and parent-shell cache APIs added on 2026-07-17", "Linux Flox environment-root and launch-path resolution added on 2026-08-13", "Native Windows shared project catalogue, atomic discovery index, and identity-resolved picker flow added on 2026-08-15", "Linux clone/start separation and uninitialized catalogue discovery added on 2026-08-19", "Native Windows capability snapshot producer mapped on 2026-08-30"]
+evidence: ["Function extraction from shipglows.sh, lib.sh, config.sh, install.sh, local/local.sh, local/dev-tunnel.sh", "Blacksmith setup menu helpers added to lib.sh", "Blacksmith OAuth callback tunnel added to local tooling", "Blacksmith SSH Access guide added to the setup menu", "Codex MCP on-demand launcher added to lib.sh", "Grouped root menu and submenu wrappers added to menu frontends", "Root menu shortcuts aligned with visible menu labels", "Disk overview helpers added to the Health Check monitor", "Agent history and cache cleanup helpers added", "PM2 log cleanup/rotation and disk usage detail helpers added", "Turso setup menu helpers added to lib.sh", "Clerk CLI OAuth callback tunnel added to local tooling", "Local tunnel auth flows grouped under one authentication submenu", "Password-to-key promotion helpers and local menu flow added with independent key-only verification", "Lazy atomic environment registry and parent-shell cache APIs added on 2026-07-17", "Linux Flox environment-root and launch-path resolution added on 2026-08-13", "Native Windows shared project catalogue, atomic discovery index, and identity-resolved picker flow added on 2026-08-15", "Linux clone/start separation and uninitialized catalogue discovery added on 2026-08-19", "Native Windows capability snapshot producer mapped on 2026-08-30", "Native Windows Obsidian classifier, watch readiness, explicit-vault copy sync, and validation state mapped on 2026-09-01"]
 next_step: "/sg-docs update CONTEXT-FUNCTION-TREE.md"
 ---
 
@@ -69,7 +69,7 @@ run_menu_shortcut()
 - `cli/install.sh`: bootstrap serveur, aliases, Codex config, liens de skills.
 - `local/local.sh`: menu local pour tunnels SSH et statut distant.
 - `local/dev-tunnel.sh`: tunnel manager non interactif base sur PM2 distant.
-- `cli/windows/ShipGlows.DevServer.psm1`: detection Astro/Vite/extensions navigateur/Python/Flutter, registre, ports, dependances, readiness et processus Windows.
+- `cli/windows/ShipGlows.DevServer.psm1`: detection Astro/Vite/extensions navigateur/plugins Obsidian/Python/Flutter, registre, ports, dependances, readiness, synchronisation explicite et processus Windows.
 - `cli/windows/ShipGlows.DevServer.psm1::Write-SgCliCapabilitySnapshot`: publie atomiquement le snapshot ferme partage avec les conversations et le runner; sa lecture ne lance aucune commande CLI.
 - `cli/windows/shipglows-devserver.ps1`: menu, actions longues et chemins courts `s ...`.
 - `cli/windows/install-devserver.ps1`: outils Windows, PATH et wrappers `.cmd`.
@@ -139,8 +139,13 @@ shipglows-devserver.ps1
   -> ShipGlows.DevServer.psm1
      -> Get-SgWorkspaceProjectCandidates (memory/persistent cache)
         -> Find-SgWorkspaceProjectCandidates (single bounded linear scan)
+           -> Get-SgObsidianPluginDescriptor (native evidence before generic Vite)
         -> Write-SgProjectIndex (validated atomic replacement)
      -> Reconcile-SgRegistry (live-state authority)
+     -> Start-SgProject
+        -> Get-SgLaunchSpec (declared Obsidian watch script, portless)
+        -> Wait-SgObsidianPluginReady (fresh artifact evidence)
+        -> Sync-SgObsidianPluginArtifacts (explicit vault, verified copy)
      -> registry/process lifecycle functions
 ```
 

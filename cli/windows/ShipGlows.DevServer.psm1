@@ -4,7 +4,7 @@ $script:RegistryVersion = 1
 $script:DefaultPortStart = 3000
 $script:DefaultPortEnd = 3100
 $script:ProjectIndexSchemaVersion = 1
-$script:ProjectScannerVersion = '2'
+$script:ProjectScannerVersion = '3'
 $script:ProjectIndexTtlMinutes = 5
 $script:ProjectCatalogMemory = @{}
 $script:ProjectEnvironmentSchema = 'shipglows-project-environment/v2'
@@ -255,6 +255,89 @@ function Test-SgBrowserExtensionPackage([object]$Package) {
     return $dependencies -contains '@crxjs/vite-plugin'
 }
 
+function Get-SgObsidianDevelopmentScript([object]$Package) {
+    foreach ($name in @('dev','watch','start')) {
+        $command = Get-SgNodeScript $Package $name
+        if ($command) { return [pscustomobject]@{ Name=$name; Command=$command } }
+    }
+    return $null
+}
+
+function Read-SgObsidianPluginManifest([string]$ManifestPath) {
+    if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) { return $null }
+    $item = Get-Item -LiteralPath $ManifestPath -Force -ErrorAction Stop
+    if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $item.Length -gt 1048576) { throw "Unsafe Obsidian manifest: $ManifestPath" }
+    try { $manifest = [IO.File]::ReadAllText($ManifestPath) | ConvertFrom-Json -ErrorAction Stop }
+    catch { throw "Invalid Obsidian manifest '$ManifestPath': $($_.Exception.Message)" }
+    if ($manifest.PSObject.Properties['manifest_version']) { return $null }
+    $hasObsidianMarker = $manifest.PSObject.Properties['id'] -or $manifest.PSObject.Properties['minAppVersion']
+    if (-not $hasObsidianMarker) { return $null }
+    foreach ($required in @('id','name','version','minAppVersion')) {
+        if (-not $manifest.PSObject.Properties[$required] -or [string]::IsNullOrWhiteSpace([string]$manifest.$required)) {
+            throw "Invalid Obsidian manifest '$ManifestPath': id, name, version, and minAppVersion are required."
+        }
+    }
+    if ([string]$manifest.id -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$') { throw "Invalid Obsidian plugin id '$($manifest.id)'." }
+    return $manifest
+}
+
+function Get-SgObsidianSourceEntrypoint([string]$ProjectPath) {
+    foreach ($relative in @('main.ts','src\main.ts','main.js')) {
+        $path = Join-Path $ProjectPath $relative
+        if (Test-Path -LiteralPath $path -PathType Leaf) {
+            $item = Get-Item -LiteralPath $path -Force -ErrorAction Stop
+            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Unsafe Obsidian entrypoint: $path" }
+            return [pscustomobject]@{ Path=$path; RelativePath=$relative.Replace('\','/') }
+        }
+    }
+    return $null
+}
+
+function Test-SgObsidianBuildCurrent([string]$ProjectPath, [object]$Entrypoint) {
+    $output = Join-Path $ProjectPath 'main.js'
+    if (-not (Test-Path -LiteralPath $output -PathType Leaf)) { return $false }
+    $outputItem = Get-Item -LiteralPath $output -Force -ErrorAction Stop
+    if ($outputItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { return $false }
+    $inputs = @($Entrypoint.Path, (Join-Path $ProjectPath 'package.json'), (Join-Path $ProjectPath 'manifest.json'))
+    foreach ($candidate in @('vite.config.ts','vite.config.js','esbuild.config.mjs','esbuild.config.js')) {
+        $path = Join-Path $ProjectPath $candidate
+        if (Test-Path -LiteralPath $path -PathType Leaf) { $inputs += $path }
+    }
+    $newestInput = @($inputs | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | ForEach-Object { (Get-Item -LiteralPath $_ -Force).LastWriteTimeUtc } | Sort-Object -Descending | Select-Object -First 1)
+    return $newestInput.Count -eq 1 -and $outputItem.LastWriteTimeUtc -ge $newestInput[0]
+}
+
+function Get-SgObsidianPluginDescriptor([string]$ProjectPath) {
+    $root = ConvertTo-SgCanonicalPath $ProjectPath
+    $package = Read-SgNodePackage $root
+    if (-not $package -or @(Get-SgNodeDependencyNames $package) -notcontains 'obsidian') { return $null }
+    $manifest = Read-SgObsidianPluginManifest (Join-Path $root 'manifest.json')
+    if (-not $manifest) { return $null }
+    $entrypoint = Get-SgObsidianSourceEntrypoint $root
+    if (-not $entrypoint) { return $null }
+    $development = Get-SgObsidianDevelopmentScript $package
+    $build = Get-SgNodeScript $package 'build'
+    if (-not $development -and -not $build) { return $null }
+    $settings = Get-SgRuntimeSettings $root
+    $vault = [string]$settings.ObsidianVault
+    $vaultReady = $false
+    if ($vault -and (Test-Path -LiteralPath $vault -PathType Container) -and (Test-Path -LiteralPath (Join-Path $vault '.obsidian') -PathType Container)) { $vaultReady = $true }
+    $state = if (-not $vaultReady) { 'detected' } elseif (-not $development -or -not (Test-SgObsidianBuildCurrent $root $entrypoint)) { 'build-required' } else { 'configured' }
+    $artifacts = @('main.js','manifest.json')
+    if (Test-Path -LiteralPath (Join-Path $root 'styles.css') -PathType Leaf) { $artifacts += 'styles.css' }
+    $evidence = @('manifest.json:id,name,version,minAppVersion','package.json:dependency:obsidian',$entrypoint.RelativePath)
+    if ($development) { $evidence += "scripts.$($development.Name)" }
+    if ($build) { $evidence += 'scripts.build' }
+    return [pscustomobject]@{
+        ProjectPath=$root; PluginId=[string]$manifest.id; Name=[string]$manifest.name; Version=[string]$manifest.version
+        MinAppVersion=[string]$manifest.minAppVersion; SourceEntrypoint=$entrypoint.RelativePath
+        DevelopmentScriptName=$(if($development){[string]$development.Name}else{$null}); DevelopmentScript=$(if($development){[string]$development.Command}else{$null})
+        BuildScriptName=$(if($build){'build'}else{$null}); BuildScript=$(if($build){[string]$build}else{$null})
+        ArtifactPaths=@($artifacts); Evidence=@($evidence); SurfaceState=$state; VaultPath=$(if($vault){$vault}else{$null})
+        InstallPath=$(if($vault){Join-Path $vault ".obsidian\plugins\$([string]$manifest.id)"}else{$null})
+    }
+}
+
 function Read-SgBrowserExtensionManifest([string]$ManifestPath) {
     if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) { return $null }
     $item = Get-Item -LiteralPath $ManifestPath -Force -ErrorAction Stop
@@ -315,6 +398,8 @@ function Get-SgNodePackageManager([string]$ProjectPath) {
 function Get-SgProjectKind([string]$ProjectPath) {
     $package = Join-Path $ProjectPath 'package.json'
     $pubspec = Join-Path $ProjectPath 'pubspec.yaml'
+    $obsidian = Get-SgObsidianPluginDescriptor $ProjectPath
+    if ($obsidian) { return 'obsidian-plugin' }
     $extension = Get-SgBrowserExtensionDescriptor $ProjectPath
     if ($extension) { return 'browser-extension' }
     if ([IO.File]::Exists($package)) {
@@ -332,7 +417,7 @@ function Get-SgProjectKind([string]$ProjectPath) {
         if ([IO.File]::Exists((Join-Path $ProjectPath 'requirements.txt'))) { return 'python' }
     }
     if ([IO.File]::Exists((Join-Path $ProjectPath 'requirements.txt'))) { return 'python' }
-    throw "Unsupported or ambiguous project. Supported kinds: Astro, Vite, Manifest browser extensions, Python/FastAPI with uv/requirements, Flutter Web."
+    throw "Unsupported or ambiguous project. Supported kinds: Obsidian plugins, Astro, Vite, Manifest browser extensions, Python/FastAPI with uv/requirements, Flutter Web."
 }
 
 function Get-SgManagedPlaywrightModulePath {
@@ -361,6 +446,17 @@ function Invoke-SgBrowserExtensionLab([string]$ProjectPath, [switch]$Headless, [
 function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$FlutterDevice = '') {
     $portValue = if ($Port -gt 0) { ":$Port" } else { 'pending' }
     switch ($Kind) {
+        'obsidian-plugin' {
+            return [pscustomobject]@{
+                Label = 'Obsidian plugin'
+                PortLabel = 'Build/watch (no HTTP port)'
+                Artifact = 'main.js, manifest.json, optional styles.css'
+                StartOutcome = 'Plugin artifacts built and synchronized to the explicitly configured vault'
+                StartNextAction = 'Next: reload the plugin in Obsidian and validate it manually.'
+                OpenAction = 'Reload the explicitly synchronized plugin in Obsidian.'
+                OpenNextAction = 'Enable or reload the plugin in Obsidian; ShipGlows cannot prove the in-app load automatically.'
+            }
+        }
         'browser-extension' {
             return [pscustomobject]@{
                 Label = 'Chrome extension'
@@ -426,6 +522,13 @@ function Format-SgProjectStatus([object]$Entry) {
     $status = if ($Entry.PSObject.Properties['status'] -and $Entry.status) { [string]$Entry.status } else { 'discovered' }
     $flutterDevice = if ($Entry.PSObject.Properties['flutterDevice']) { [string]$Entry.flutterDevice } else { '' }
     $experience = Get-SgProjectExperience $kind $port $flutterDevice
+    if ($kind -eq 'obsidian-plugin') {
+        $surfaceState = if ($Entry.PSObject.Properties['surfaceState'] -and $Entry.surfaceState) { [string]$Entry.surfaceState } else {
+            try { [string](Get-SgObsidianPluginDescriptor ([string]$Entry.path)).SurfaceState } catch { 'detected' }
+        }
+        $validationState = if ($Entry.PSObject.Properties['validationState'] -and $Entry.validationState) { [string]$Entry.validationState } else { 'validation-unavailable' }
+        return "$status | $($experience.Label) | $surfaceState | $validationState"
+    }
     $artifact = if ($kind -eq 'browser-extension') { " | $($experience.Artifact)" } else { '' }
     return "$status | $($experience.Label) | $($experience.PortLabel)$artifact"
 }
@@ -440,7 +543,8 @@ function Get-SgProjectDescriptors([string]$ProjectPath) {
         $item = $queue.Dequeue()
         try {
             $kind = Get-SgProjectKind ([string]$item.Path)
-            $candidates += [pscustomobject]@{ RootPath = $root; LaunchPath = [string]$item.Path; Kind = $kind; Depth = [int]$item.Depth }
+            $obsidian = if ($kind -eq 'obsidian-plugin') { Get-SgObsidianPluginDescriptor ([string]$item.Path) } else { $null }
+            $candidates += [pscustomobject]@{ RootPath = $root; LaunchPath = [string]$item.Path; Kind = $kind; Depth = [int]$item.Depth; Obsidian = $obsidian }
         } catch {
             if ($_.Exception.Message -notlike 'Unsupported or ambiguous project.*') { throw }
         }
@@ -465,7 +569,7 @@ function Get-SgProjectDescriptor([string]$ProjectPath) {
 
 function Get-SgRuntimeSettings([string]$ProjectPath) {
     $defaultFlutterDevice = if (Test-Path -LiteralPath (Join-Path $ProjectPath 'windows') -PathType Container) { 'windows' } else { 'chrome' }
-    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceId = $null; DartDefineFile = $null }
+    $settings = [pscustomobject]@{ Port = 0; AutoRepair = $true; FlutterDevice = $defaultFlutterDevice; FlutterDeviceId = $null; DartDefineFile = $null; ObsidianVault = $null; ObsidianSyncMode = 'copy' }
     $file = Join-Path $ProjectPath '.shipglows.env'
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { return $settings }
     foreach ($rawLine in @(Get-Content -LiteralPath $file)) {
@@ -488,8 +592,14 @@ function Get-SgRuntimeSettings([string]$ProjectPath) {
             $root = [IO.Path]::GetFullPath($ProjectPath).TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
             if (-not $resolved.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) -or -not (Test-Path -LiteralPath $resolved -PathType Leaf)) { throw "SHIPGLOWS_DART_DEFINE_FILE in $file must resolve to an existing file inside the project." }
             $settings.DartDefineFile = $resolved
+        } elseif ($line -match '^SHIPGLOWS_OBSIDIAN_VAULT=(.+)$') {
+            $declared = [Environment]::ExpandEnvironmentVariables($Matches[1].Trim())
+            if (-not [IO.Path]::IsPathRooted($declared)) { throw "SHIPGLOWS_OBSIDIAN_VAULT in $file must be an absolute path to one explicit vault." }
+            $settings.ObsidianVault = [IO.Path]::GetFullPath($declared).TrimEnd('\','/')
+        } elseif ($line -eq 'SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy') {
+            $settings.ObsidianSyncMode = 'copy'
         } else {
-            throw "Unsupported line in ${file}: $line. Allowed keys: SHIPGLOWS_ENV_PORT, SHIPGLOWS_AUTO_REPAIR, SHIPGLOWS_FLUTTER_DEVICE, SHIPGLOWS_FLUTTER_DEVICE_ID, and SHIPGLOWS_DART_DEFINE_FILE."
+            throw "Unsupported line in ${file}: $line. Allowed keys: SHIPGLOWS_ENV_PORT, SHIPGLOWS_AUTO_REPAIR, SHIPGLOWS_FLUTTER_DEVICE, SHIPGLOWS_FLUTTER_DEVICE_ID, SHIPGLOWS_DART_DEFINE_FILE, SHIPGLOWS_OBSIDIAN_VAULT, and SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy."
         }
     }
     return $settings
@@ -527,7 +637,7 @@ function Test-SgPortAvailable([int]$Port) {
     }
 }
 
-function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [bool]$Explicit = $false) {
+function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [bool]$Explicit = $false, [switch]$Portless) {
     if ($RequestedPort -ne 0 -and ($RequestedPort -lt 1024 -or $RequestedPort -gt 65535)) { throw 'Requested port must be 0 or between 1024 and 65535.' }
     $token = [guid]::NewGuid().ToString('N')
     $result = Invoke-SgRegistryMutation $Config {
@@ -561,7 +671,9 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
 
         $otherPorts = @($data.projects | Where-Object { $_.path -ne $ProjectPath -and [int]$_.port -gt 0 } | ForEach-Object { [int]$_.port })
         $existingPort = if ($entry.PSObject.Properties['port']) { [int]$entry.port } else { 0 }
-        $candidates = if ($RequestedPort -gt 0) {
+        $candidates = if ($Portless) {
+            @()
+        } elseif ($RequestedPort -gt 0) {
             @($RequestedPort)
         } elseif ($existingPort -gt 0) {
             @($existingPort) + @($Config.PortStart..$Config.PortEnd | Where-Object { $_ -ne $existingPort })
@@ -570,15 +682,17 @@ function Reserve-SgProjectPort([object]$Config, [string]$ProjectPath, [int]$Requ
         }
 
         $selected = 0
-        foreach ($candidate in $candidates) {
-            if ($otherPorts -contains $candidate -or -not (Test-SgPortAvailable $candidate)) {
-                if ($Explicit) { throw "Configured port $candidate is already occupied or reserved." }
-                continue
+        if (-not $Portless) {
+            foreach ($candidate in $candidates) {
+                if ($otherPorts -contains $candidate -or -not (Test-SgPortAvailable $candidate)) {
+                    if ($Explicit) { throw "Configured port $candidate is already occupied or reserved." }
+                    continue
+                }
+                $selected = $candidate
+                break
             }
-            $selected = $candidate
-            break
         }
-        if ($selected -le 0) { throw 'No free localhost port is available in the requested range.' }
+        if (-not $Portless -and $selected -le 0) { throw 'No free localhost port is available in the requested range.' }
 
         $entry.port = $selected
         $entry.status = 'reserved'
@@ -740,7 +854,25 @@ function Add-SgDiscoveredMetadata([object]$RegisteredEntry, [object]$Candidate) 
     if ($Candidate.PSObject.Properties['launchPath'] -and $Candidate.launchPath) {
         $RegisteredEntry | Add-Member -NotePropertyName launchPath -NotePropertyValue ([string]$Candidate.launchPath) -Force
     }
+    if ($Candidate.PSObject.Properties['pluginId'] -and $Candidate.pluginId) {
+        foreach ($property in @('pluginId','pluginName','pluginVersion','sourceEntrypoint','developmentScriptName','developmentScript','buildScriptName','buildScript','artifactPaths','detectionEvidence','surfaceState','validationState','obsidianVault','obsidianPluginPath')) {
+            if ($Candidate.PSObject.Properties[$property]) { $RegisteredEntry | Add-Member -NotePropertyName $property -NotePropertyValue $Candidate.$property -Force }
+        }
+    }
     return $RegisteredEntry
+}
+
+function Add-SgObsidianDescriptorMetadata([object]$Entry, [object]$Descriptor) {
+    if (-not $Entry -or -not $Descriptor) { return $Entry }
+    $mapping = [ordered]@{
+        pluginId=$Descriptor.PluginId; pluginName=$Descriptor.Name; pluginVersion=$Descriptor.Version; sourceEntrypoint=$Descriptor.SourceEntrypoint
+        developmentScriptName=$Descriptor.DevelopmentScriptName; developmentScript=$Descriptor.DevelopmentScript
+        buildScriptName=$Descriptor.BuildScriptName; buildScript=$Descriptor.BuildScript; artifactPaths=@($Descriptor.ArtifactPaths)
+        detectionEvidence=@($Descriptor.Evidence); surfaceState=$Descriptor.SurfaceState; validationState='validation-unavailable'
+        obsidianVault=$Descriptor.VaultPath; obsidianPluginPath=$Descriptor.InstallPath
+    }
+    foreach ($name in $mapping.Keys) { $Entry | Add-Member -NotePropertyName $name -NotePropertyValue $mapping[$name] -Force }
+    return $Entry
 }
 
 function ConvertTo-SgGitHubRepositoryIdentity([string]$Value) {
@@ -1001,17 +1133,20 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
                 }
             }
             try {
-                [void]$projects.Add([pscustomobject]@{
+                $kind = Get-SgProjectKind $path
+                $candidate = [pscustomobject]@{
                     name = Get-SgCanonicalSurfaceName $rootPath $path
                     path = $path
                     rootPath = $rootPath
                     launchPath = $path
-                    kind = Get-SgProjectKind $path
+                    kind = $kind
                     status = 'discovered'
                     port = 0
                     logPath = $null
                     errorLogPath = $null
-                })
+                }
+                if ($kind -eq 'obsidian-plugin') { Add-SgObsidianDescriptorMetadata $candidate (Get-SgObsidianPluginDescriptor $path) | Out-Null }
+                [void]$projects.Add($candidate)
             } catch {
                 if ($_.Exception.Message -notlike 'Unsupported or ambiguous project.*') { throw }
             }
@@ -1047,7 +1182,7 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
                 $identity = $path.ToLowerInvariant()
                 if (-not $seen.ContainsKey($identity)) {
                     $seen[$identity] = $true
-                    [void]$projects.Add([pscustomobject]@{
+                    $candidate = [pscustomobject]@{
                         name = Get-SgCanonicalSurfaceName $(if ($rootPath) { $rootPath } else { $path }) $path
                         path = $path
                         rootPath = $(if ($rootPath) { $rootPath } else { $path })
@@ -1057,7 +1192,9 @@ function Find-SgWorkspaceProjectCandidates([object]$Config) {
                         port = 0
                         logPath = $null
                         errorLogPath = $null
-                    })
+                    }
+                    if ($kind -eq 'obsidian-plugin') { Add-SgObsidianDescriptorMetadata $candidate (Get-SgObsidianPluginDescriptor $path) | Out-Null }
+                    [void]$projects.Add($candidate)
                 }
             } catch {
                 if ($_.Exception.Message -notlike 'Unsupported or ambiguous project.*') { throw }
@@ -1170,7 +1307,7 @@ function Get-SgEnvironmentReadinessForSurface {
     else { throw 'DevServer launch surface is outside its environment project root.' }
 
     $observed = @($EnvironmentState.observed.capabilities)
-    $surfaceIds = if ($Kind -in @('browser-extension','astro','vite')) { @('node','pnpm','npm') } else { @() }
+    $surfaceIds = if ($Kind -in @('obsidian-plugin','browser-extension','astro','vite')) { @('node','pnpm','npm') } else { @() }
     $surface = @($observed | Where-Object { [string]$_.kind -eq 'tool' -and [string]$_.id -in $surfaceIds -and $(if ($_.PSObject.Properties['scope']) { [string]$_.scope } else { '.' }) -eq $scope })
     $surfaceStatus = 'unknown'
     if ($surface.Count -gt 0) {
@@ -1260,7 +1397,7 @@ function Get-SgCommandSignature([string]$ProjectPath, [string]$Kind, [int]$Port)
 }
 
 function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
-    $names = if ($Kind -in @('astro','vite','browser-extension')) {
+    $names = if ($Kind -in @('astro','vite','browser-extension','obsidian-plugin')) {
         @('package.json','pnpm-lock.yaml','package-lock.json','npm-shrinkwrap.json')
     } elseif ($Kind -eq 'python') {
         @('pyproject.toml','uv.lock','requirements.txt')
@@ -1271,7 +1408,7 @@ function Get-SgDependencyInputs([string]$ProjectPath, [string]$Kind) {
 }
 
 function New-SgDependencyPlan([string]$ProjectPath, [string]$Kind) {
-    if ($Kind -in @('astro','vite','browser-extension')) {
+    if ($Kind -in @('astro','vite','browser-extension','obsidian-plugin')) {
         $pnpmLock=Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf
         $npmLock=(Test-Path -LiteralPath (Join-Path $ProjectPath 'package-lock.json') -PathType Leaf) -or (Test-Path -LiteralPath (Join-Path $ProjectPath 'npm-shrinkwrap.json') -PathType Leaf)
         $packageManager=Get-SgNodePackageManager $ProjectPath
@@ -1312,12 +1449,14 @@ function Get-SgDependencyDigest([string]$ProjectPath, [string]$Kind, [object]$Pl
 }
 
 function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind) {
-    if ($Kind -in @('astro','vite','browser-extension')) {
+    if ($Kind -in @('astro','vite','browser-extension','obsidian-plugin')) {
         $nodeModules = Join-Path $ProjectPath 'node_modules'
         if (-not (Test-Path -LiteralPath $nodeModules -PathType Container)) { return $false }
         $managerArtifact=if(Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml') -PathType Leaf){Test-Path -LiteralPath (Join-Path $nodeModules '.modules.yaml') -PathType Leaf}else{Test-Path -LiteralPath (Join-Path $nodeModules '.package-lock.json') -PathType Leaf}
         if($Kind-eq'browser-extension'){
             $frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules '@crxjs\vite-plugin') 'package.json') -PathType Leaf
+        }elseif($Kind-eq'obsidian-plugin'){
+            $frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules 'obsidian') 'package.json') -PathType Leaf
         }else{$frameworkArtifact=Test-Path -LiteralPath (Join-Path (Join-Path $nodeModules $Kind) 'package.json') -PathType Leaf}
         return $managerArtifact -and $frameworkArtifact
     }
@@ -1442,7 +1581,19 @@ function Repair-SgStaleAstroDevLock([string]$ProjectPath, [scriptblock]$Snapshot
 
 function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool]$FlutterVisible = $false, [string]$FlutterProfilePath = '', [string]$FlutterDevice = 'chrome', [string]$DartDefineFile = '', [string]$FlutterLaunchDirectory = '', [string]$FlutterLaunchIdentity = '') {
     $signature = Get-SgCommandSignature $ProjectPath $Kind $Port
-    if ($Kind -eq 'astro') {
+    if ($Kind -eq 'obsidian-plugin') {
+        $descriptor = Get-SgObsidianPluginDescriptor $ProjectPath
+        if (-not $descriptor) { throw 'Obsidian plugin metadata is no longer valid.' }
+        if (-not $descriptor.DevelopmentScriptName) {
+            $suggestion = if ($descriptor.BuildScriptName) { "The project only declares '$($descriptor.BuildScriptName)'; add or declare a reviewed watch script before using s start." } else { 'Declare a reviewed dev, watch, or start script before using s start.' }
+            throw "Obsidian plugin watch workflow unavailable. $suggestion"
+        }
+        $packageManager = Get-SgNodePackageManager $ProjectPath
+        $file = $env:ComSpec
+        $prefix = if (@($packageManager.PrefixArguments).Count -gt 0) { ' ' + (@($packageManager.PrefixArguments) -join ' ') } else { '' }
+        $command = "call `"$($packageManager.Manager)`"$prefix run $($descriptor.DevelopmentScriptName) & rem $signature"
+        $args = @('/d','/s','/c',"`"$command`"")
+    } elseif ($Kind -eq 'astro') {
         $pnpm = Test-Path -LiteralPath (Join-Path $ProjectPath 'pnpm-lock.yaml')
         if ($pnpm) {
             $packageManager = Get-SgCommandPath @('pnpm.cmd','pnpm.exe')
@@ -1741,6 +1892,97 @@ function Wait-SgBrowserExtensionReady([string]$ProjectPath, [int]$Port, [int]$Ti
     return [pscustomobject]@{ Ready=$false; AppId=$null; ManifestPath=$null; Error='Browser extension readiness timed out before a fresh Manifest V3 package and HMR listener were available.' }
 }
 
+function Resolve-SgObsidianVault([string]$VaultPath, [string]$PluginId) {
+    if ([string]::IsNullOrWhiteSpace($VaultPath)) { throw 'Obsidian vault is not configured. Add SHIPGLOWS_OBSIDIAN_VAULT=<absolute-vault-path> to the plugin .shipglows.env; ShipGlows will not discover or select a personal vault.' }
+    if ($PluginId -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$') { throw 'Obsidian plugin id is not safe for an installation directory.' }
+    $vault = [IO.Path]::GetFullPath($VaultPath).TrimEnd('\','/')
+    if (-not (Test-Path -LiteralPath $vault -PathType Container)) { throw "Configured Obsidian vault does not exist: $vault" }
+    $vaultItem = Get-Item -LiteralPath $vault -Force -ErrorAction Stop
+    if ($vaultItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Configured Obsidian vault must not be a reparse point: $vault" }
+    $obsidianDirectory = Join-Path $vault '.obsidian'
+    if (-not (Test-Path -LiteralPath $obsidianDirectory -PathType Container)) { throw "Configured path is not an initialized Obsidian vault because .obsidian is missing: $vault" }
+    $obsidianItem = Get-Item -LiteralPath $obsidianDirectory -Force -ErrorAction Stop
+    if ($obsidianItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Obsidian configuration directory must not be a reparse point: $obsidianDirectory" }
+    $pluginsDirectory = Join-Path $obsidianDirectory 'plugins'
+    $target = [IO.Path]::GetFullPath((Join-Path $pluginsDirectory $PluginId))
+    $vaultPrefix = $vault + [IO.Path]::DirectorySeparatorChar
+    if (-not $target.StartsWith($vaultPrefix, [StringComparison]::OrdinalIgnoreCase)) { throw 'Obsidian plugin target escapes the configured vault.' }
+    return [pscustomobject]@{ VaultPath=$vault; ObsidianPath=$obsidianDirectory; PluginsPath=$pluginsDirectory; TargetPath=$target }
+}
+
+function Test-SgObsidianPluginArtifacts([object]$Descriptor, [DateTime]$FreshSinceUtc) {
+    if (-not $Descriptor) { return $false }
+    $mainPath = Join-Path $Descriptor.ProjectPath 'main.js'
+    if (-not (Test-Path -LiteralPath $mainPath -PathType Leaf)) { return $false }
+    try {
+        $main = Get-Item -LiteralPath $mainPath -Force -ErrorAction Stop
+        if (($main.Attributes -band [IO.FileAttributes]::ReparsePoint) -or $main.Length -le 0 -or $main.Length -gt 134217728 -or $main.LastWriteTimeUtc -lt $FreshSinceUtc) { return $false }
+        $manifest = Read-SgObsidianPluginManifest (Join-Path $Descriptor.ProjectPath 'manifest.json')
+        if (-not $manifest -or [string]$manifest.id -cne [string]$Descriptor.PluginId) { return $false }
+        foreach ($artifact in @($Descriptor.ArtifactPaths)) {
+            $path = Join-Path $Descriptor.ProjectPath $artifact
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $false }
+            $item = Get-Item -LiteralPath $path -Force -ErrorAction Stop
+            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { return $false }
+        }
+        return $true
+    } catch { return $false }
+}
+
+function Wait-SgObsidianPluginReady([string]$ProjectPath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [string]$ErrorLogPath = '') {
+    $freshSince = [DateTime]::UtcNow.AddSeconds(-2)
+    if ($ProcessEntry -and $ProcessEntry.PSObject.Properties['startTimeUtc'] -and $ProcessEntry.startTimeUtc) {
+        try { $freshSince = ([DateTimeOffset]::Parse([string]$ProcessEntry.startTimeUtc, [Globalization.CultureInfo]::InvariantCulture)).UtcDateTime.AddSeconds(-2) } catch { }
+    }
+    $deadline = (Get-Date).AddSeconds([Math]::Max(0, $TimeoutSeconds))
+    do {
+        if ($ProcessEntry -and -not (Test-SgProcessIdentity $ProcessEntry)) {
+            return [pscustomobject]@{ Ready=$false; AppId=$null; PluginId=$null; ArtifactPaths=@(); Error=(Get-SgStartupFailure $ErrorLogPath) }
+        }
+        $descriptor = Get-SgObsidianPluginDescriptor $ProjectPath
+        if ($descriptor -and (Test-SgObsidianPluginArtifacts $descriptor $freshSince)) {
+            return [pscustomobject]@{ Ready=$true; AppId=$null; PluginId=$descriptor.PluginId; ArtifactPaths=@($descriptor.ArtifactPaths); Error=$null }
+        }
+        if ((Get-Date) -ge $deadline) { break }
+        Start-Sleep -Milliseconds 250
+    } while ($true)
+    return [pscustomobject]@{ Ready=$false; AppId=$null; PluginId=$null; ArtifactPaths=@(); Error='Obsidian build readiness timed out before a fresh main.js and valid plugin artifacts were available.' }
+}
+
+function Sync-SgObsidianPluginArtifacts([object]$Descriptor, [string]$VaultPath) {
+    if (-not $Descriptor) { throw 'Obsidian plugin descriptor is required for synchronization.' }
+    $resolved = Resolve-SgObsidianVault $VaultPath ([string]$Descriptor.PluginId)
+    if (-not (Test-Path -LiteralPath $resolved.PluginsPath -PathType Container)) { New-Item -ItemType Directory -Path $resolved.PluginsPath -Force | Out-Null }
+    $pluginsItem = Get-Item -LiteralPath $resolved.PluginsPath -Force -ErrorAction Stop
+    if ($pluginsItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Obsidian plugins directory must not be a reparse point: $($resolved.PluginsPath)" }
+    if (Test-Path -LiteralPath $resolved.TargetPath) {
+        $targetItem = Get-Item -LiteralPath $resolved.TargetPath -Force -ErrorAction Stop
+        if (-not $targetItem.PSIsContainer -or ($targetItem.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Obsidian plugin target must be a normal directory: $($resolved.TargetPath)" }
+    } else {
+        New-Item -ItemType Directory -Path $resolved.TargetPath -Force | Out-Null
+    }
+    $copied = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($artifact in @($Descriptor.ArtifactPaths)) {
+        $source = Join-Path $Descriptor.ProjectPath $artifact
+        if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { throw "Obsidian artifact is missing: $source" }
+        $sourceItem = Get-Item -LiteralPath $source -Force -ErrorAction Stop
+        if ($sourceItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Obsidian artifact must not be a reparse point: $source" }
+        $destination = Join-Path $resolved.TargetPath $artifact
+        if (Test-Path -LiteralPath $destination) {
+            $destinationItem = Get-Item -LiteralPath $destination -Force -ErrorAction Stop
+            if ($destinationItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Obsidian target artifact must not be a reparse point: $destination" }
+        }
+        $temporary = Join-Path $resolved.TargetPath (".$artifact.shipglows-" + [guid]::NewGuid().ToString('N') + '.tmp')
+        try {
+            [IO.File]::Copy($source, $temporary, $false)
+            Move-Item -LiteralPath $temporary -Destination $destination -Force
+        } finally { Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue }
+        if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -cne (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash) { throw "Obsidian artifact synchronization verification failed: $artifact" }
+        [void]$copied.Add([string]$artifact)
+    }
+    return [pscustomobject]@{ TargetPath=$resolved.TargetPath; Copied=@($copied) }
+}
+
 function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90) {
     $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds))
     do {
@@ -1940,15 +2182,23 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0, [strin
         if ($durablePort -lt 1024 -or $durablePort -gt 65535) { throw "Invalid assigned port in $path." }
         $effectivePort = $durablePort
     }
-    $portValue = if ($effectivePort -gt 0) { [string]$effectivePort } else { 'pending first ShipGlows start' }
     if ([string]::IsNullOrWhiteSpace($Kind)) { try { $Kind = Get-SgProjectKind $ProjectPath } catch { $Kind = 'unknown' } }
-    $urlValue = if ($Kind -eq 'browser-extension') { 'not applicable (browser extension)' } elseif ($effectivePort -gt 0) { "http://127.0.0.1:$effectivePort" } else { 'pending first ShipGlows start' }
+    if ($Kind -eq 'obsidian-plugin') { $effectivePort = 0 }
+    $portValue = if ($Kind -eq 'obsidian-plugin') { 'not applicable (Obsidian plugin)' } elseif ($effectivePort -gt 0) { [string]$effectivePort } else { 'pending first ShipGlows start' }
+    $urlValue = if ($Kind -eq 'browser-extension') { 'not applicable (browser extension)' } elseif ($Kind -eq 'obsidian-plugin') { 'not applicable (Obsidian plugin)' } elseif ($effectivePort -gt 0) { "http://127.0.0.1:$effectivePort" } else { 'pending first ShipGlows start' }
     $extensionGuidance = if ($Kind -eq 'browser-extension') {
 (@"
 - Browser target: ``Chrome``
 - Unpacked Chrome directory: ``dist/chrome``
 - Extension workflow: ``s start -ProjectPath .`` -> ``s open -ProjectPath .`` -> Chrome Developer mode -> Load unpacked -> ``dist\chrome`` -> ``s stop -ProjectPath .``
 - Chrome profile boundary: ShipGlows opens the extension manager and generated directory but never installs the extension automatically in a personal profile.
+"@).TrimEnd() + "`n"
+    } elseif ($Kind -eq 'obsidian-plugin') {
+(@"
+- Obsidian artifacts: ``main.js``, ``manifest.json``, optional ``styles.css``
+- Explicit vault configuration: ``SHIPGLOWS_OBSIDIAN_VAULT=<absolute-vault-path>`` in ``.shipglows.env``
+- Synchronization mode: copy only to ``<vault>\.obsidian\plugins\<plugin-id>`` after explicit ``s start``
+- Obsidian validation boundary: build/watch and copied artifacts can be proven; enabling or reloading the plugin in Obsidian remains a manual action.
 "@).TrimEnd() + "`n"
     } else { '' }
     $block = @'
@@ -1962,7 +2212,7 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0, [strin
 - Canonical local URL: `{1}`
 {4}- Live status authority: Windows ShipGlows DevServer registry
 
-Use the assigned URL for ordinary web projects. Browser extensions use their generated unpacked directory and browser extension manager instead of a normal page URL. Do not substitute framework defaults such as Astro/Vite `4321` or a port from another project. Read the ShipGlows registry for `running` or `stopped`; this durable document is not rewritten on start or stop.
+Use the assigned URL for ordinary web projects. Browser extensions use their generated unpacked directory and browser extension manager instead of a normal page URL. Obsidian plugins use their declared build/watch script and an explicitly configured vault without an HTTP port. Do not substitute framework defaults such as Astro/Vite `4321` or a port from another project. Read the ShipGlows registry for live process and surface state; this durable document is not rewritten on start or stop.
 <!-- <<< ShipGlows development environment <<< -->
 '@ -f $portValue,$urlValue,$script:ProjectEnvironmentSchema,$Kind,$extensionGuidance
     $remainderText = if ($managed.Exists) { $existing.Remove($managed.Match.Index, $managed.Match.Length) } else { $existing }
@@ -1985,7 +2235,7 @@ function Get-SgProjectEnvironment([string]$ProjectPath) {
     if ($managed.Match.Value -match '(?m)^- Assigned port: `(\d+)`\r?$') { $port = [int]$Matches[1] }
     if ($port -ne 0 -and ($port -lt 1024 -or $port -gt 65535)) { throw "Invalid assigned port in $path." }
     $kind = if ($managed.Match.Value -match '(?m)^- Project kind: `([^`]+)`\r?$') { [string]$Matches[1] } else { '' }
-    $url = if ($kind -ne 'browser-extension' -and $port -gt 0) { "http://127.0.0.1:$port" } else { '' }
+    $url = if ($kind -notin @('browser-extension','obsidian-plugin') -and $port -gt 0) { "http://127.0.0.1:$port" } else { '' }
     [pscustomobject]@{ Path=$path; Port=$port; Url=$url; Kind=$kind; Manager='shipglows-devserver'; Schema=$managed.Schema }
 }
 
@@ -1999,24 +2249,30 @@ function Register-SgProject([object]$Config, [string]$ProjectPath) {
         foreach ($descriptor in $descriptors) {
             $launchPath = [IO.Path]::GetFullPath([string]$descriptor.LaunchPath).TrimEnd('\','/')
             $durableEnvironment = Get-SgProjectEnvironment $launchPath
-            $durablePort = if ($durableEnvironment -and $durableEnvironment.Port -gt 0) { [int]$durableEnvironment.Port } else { 0 }
+            $durablePort = if ($descriptor.Kind -ne 'obsidian-plugin' -and $durableEnvironment -and $durableEnvironment.Port -gt 0) { [int]$durableEnvironment.Port } else { 0 }
             $existing = @($data.projects | Where-Object { (Get-SgRunnableIdentity $_) -eq $launchPath.ToLowerInvariant() })
             $portInUse = $durablePort -gt 0 -and @($data.projects | Where-Object { (Get-SgRunnableIdentity $_) -ne $launchPath.ToLowerInvariant() -and [int]$_.port -eq $durablePort }).Count -gt 0
             $initialPort = if ($portInUse) { 0 } else { $durablePort }
             $name = Get-SgCanonicalSurfaceName $root $launchPath
             if ($existing.Count -eq 0) {
-                $data.projects += [pscustomobject]@{
+                $newEntry = [pscustomobject]@{
                     name = $name; path = $launchPath; rootPath = $root; launchPath = $launchPath; kind = $descriptor.Kind
                     port = $initialPort; status = 'stopped'; pid = 0; startTimeUtc = $null; executablePath = $null
                     commandSignature = $null; logPath = $null; errorLogPath = $null; lastError = $null
                     reservationToken = $null; reservationTimeUtc = $null
                 }
+                if ($descriptor.Kind -eq 'obsidian-plugin') { Add-SgObsidianDescriptorMetadata $newEntry $descriptor.Obsidian | Out-Null }
+                $data.projects += $newEntry
             } else {
                 $existing[0] | Add-Member -NotePropertyName rootPath -NotePropertyValue $root -Force
                 $existing[0] | Add-Member -NotePropertyName launchPath -NotePropertyValue $launchPath -Force
                 $existing[0] | Add-Member -NotePropertyName name -NotePropertyValue $name -Force
                 $existing[0].path = $launchPath
                 $existing[0].kind = $descriptor.Kind
+                if ($descriptor.Kind -eq 'obsidian-plugin') {
+                    $existing[0].port = 0
+                    Add-SgObsidianDescriptorMetadata $existing[0] $descriptor.Obsidian | Out-Null
+                }
                 if ([int]$existing[0].port -le 0 -and $initialPort -gt 0) { $existing[0].port = $initialPort }
             }
         }
@@ -2133,8 +2389,23 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     }
     if (-not $entry) { throw "No runnable surface could be registered for: $requestedPath" }
     if (-not (Test-SgProjectCatalogEntry $entry)) { Clear-SgProjectCatalogCache $Config; throw "Project surface no longer matches its registered manifest: $($entry.path)" }
-    if (Test-SgProcessIdentity $entry) { Write-SgInfo "Already running: $($entry.name) on $($entry.port)"; return $entry }
+    if (Test-SgProcessIdentity $entry) {
+        if ([string]$entry.kind -eq 'obsidian-plugin') { Write-SgInfo "Already running: $($entry.name) Obsidian build/watch" }
+        else { Write-SgInfo "Already running: $($entry.name) on $($entry.port)" }
+        return $entry
+    }
     $settings = Get-SgRuntimeSettings $entry.path
+    $kind = [string]$entry.kind
+    $obsidianDescriptor = $null
+    $obsidianVault = $null
+    if ($kind -eq 'obsidian-plugin') {
+        $obsidianDescriptor = Get-SgObsidianPluginDescriptor $entry.path
+        if (-not $obsidianDescriptor) { throw 'Obsidian plugin metadata is no longer valid.' }
+        if (-not $obsidianDescriptor.DevelopmentScriptName) { throw 'Obsidian plugin build-required: the project has no declared dev, watch, or start script for a managed watch session.' }
+        $obsidianVault = Resolve-SgObsidianVault ([string]$settings.ObsidianVault) ([string]$obsidianDescriptor.PluginId)
+        if ([string]$settings.ObsidianSyncMode -ne 'copy') { throw 'Only SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy is supported; links are never invented.' }
+        if ($RequestedPort -gt 0) { throw 'Obsidian plugins do not use an HTTP port; remove the requested port.' }
+    }
     $environmentRoot = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
     $environmentLaunch = if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path }
     $environmentState = Read-SgEnvironmentState $environmentRoot
@@ -2148,22 +2419,23 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         if (-not $flutterPath) { throw 'Flutter SDK is unavailable for Android device discovery.' }
         $resolvedFlutterDevice=Resolve-SgFlutterAndroidDevice $flutterPath ([string]$settings.FlutterDeviceId)
     }
-    $configuredPort = $RequestedPort
-    if ($configuredPort -le 0 -and $env:SHIPGLOWS_ENV_PORT) {
+    $configuredPort = if ($kind -eq 'obsidian-plugin') { 0 } else { $RequestedPort }
+    if ($kind -ne 'obsidian-plugin' -and $configuredPort -le 0 -and $env:SHIPGLOWS_ENV_PORT) {
         if ($env:SHIPGLOWS_ENV_PORT -notmatch '^\d+$' -or [int]$env:SHIPGLOWS_ENV_PORT -lt 1024 -or [int]$env:SHIPGLOWS_ENV_PORT -gt 65535) { throw 'SHIPGLOWS_ENV_PORT must be a port between 1024 and 65535.' }
         $configuredPort = [int]$env:SHIPGLOWS_ENV_PORT
     }
-    if ($configuredPort -le 0 -and $settings.Port -gt 0) { $configuredPort = [int]$settings.Port }
-    if ($configuredPort -le 0) {
+    if ($kind -ne 'obsidian-plugin' -and $configuredPort -le 0 -and $settings.Port -gt 0) { $configuredPort = [int]$settings.Port }
+    if ($kind -ne 'obsidian-plugin' -and $configuredPort -le 0) {
         $projectEnvironment = Get-SgProjectEnvironment $entry.path
         if ($projectEnvironment -and $projectEnvironment.Port -gt 0) { $configuredPort = [int]$projectEnvironment.Port }
     }
     $explicitPort = $configuredPort -gt 0
     $previousPort = [int]$entry.port
-    $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort
+    $reservation = Reserve-SgProjectPort $Config $entry.path $configuredPort $explicitPort -Portless:($kind -eq 'obsidian-plugin')
     $port = $reservation.Port
     $reservationToken = $reservation.Token
-    if ($explicitPort) { Write-SgInfo "Using configured port: $port" }
+    if ($kind -eq 'obsidian-plugin') { Write-SgInfo 'Using the declared Obsidian build/watch workflow without an HTTP port.' }
+    elseif ($explicitPort) { Write-SgInfo "Using configured port: $port" }
     elseif ($previousPort -gt 0 -and $previousPort -eq $port) { Write-SgInfo "Reusing persistent port: $port" }
     else { Write-SgInfo "Assigned port: $port" }
     $logDir = Join-Path $Config.LogDirectory $entry.name
@@ -2172,7 +2444,6 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     $setupLog = Join-Path $logDir 'setup.log'
     foreach ($logPath in @($out,$err,$setupLog)) { Rotate-SgLogFile $logPath }
     $launchPath = if ($entry.PSObject.Properties['launchPath'] -and $entry.launchPath) { [string]$entry.launchPath } else { [string]$entry.path }
-    $kind = [string]$entry.kind
     $flutterProfilePath = $null
     $flutterLaunchDirectory = $null
     $flutterTokenPath = $null
@@ -2200,7 +2471,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         throw
     }
     $launchEnvironment = @{}
-    $launchEnvironment['PORT'] = [string]$port
+    if ($kind -ne 'obsidian-plugin') { $launchEnvironment['PORT'] = [string]$port }
     if ($kind -eq 'flutter-web') { $launchEnvironment['SHIPGLOWS_SUPERVISOR_TOKEN'] = $flutterToken }
     if ($kind -eq 'astro') { $launchEnvironment['ASTRO_DEV_BACKGROUND'] = '0' }
     try {
@@ -2216,6 +2487,13 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
     $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; lastError = $null; flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
     if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force}
+    if($kind-eq'obsidian-plugin'){
+        Add-SgObsidianDescriptorMetadata $entryData $obsidianDescriptor | Out-Null
+        $entryData.surfaceState='running'
+        $entryData.validationState='validation-unavailable'
+        $entryData.obsidianVault=$obsidianVault.VaultPath
+        $entryData.obsidianPluginPath=$obsidianVault.TargetPath
+    }
     Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData
     if (-not (Test-SgProcessIdentity $entryData)) {
         if($kind-eq'flutter-web'){
@@ -2227,11 +2505,26 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $entryData.lastError = Get-SgStartupFailure $err
         $entryData.pid = 0
         $entryData.startTimeUtc = $null
+        if ($kind -eq 'obsidian-plugin') {
+            $entryData.surfaceState = 'build-required'
+            $entryData.validationState = 'validation-unavailable'
+            Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData
+        }
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
         return $entryData
     }
     [void](Write-SgProjectEnvironment $entry.path $port $kind)
-    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json')}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 90 $entryData $err}
+    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json')}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 90 $entryData $err}
+    if ($readiness.Ready -and $kind -eq 'obsidian-plugin') {
+        try {
+            $sync = Sync-SgObsidianPluginArtifacts $obsidianDescriptor $obsidianVault.VaultPath
+            $entryData.obsidianPluginPath = $sync.TargetPath
+            $entryData.artifactPaths = @($sync.Copied)
+            $entryData.surfaceState = 'ready'
+        } catch {
+            $readiness = [pscustomobject]@{ Ready=$false; AppId=$null; Error="Obsidian artifact synchronization failed: $($_.Exception.Message)" }
+        }
+    }
     if ($readiness.Ready) {
         $entryData.status = 'running'
         $entryData.flutterAppId = $readiness.AppId
@@ -2240,6 +2533,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')) { [void](Install-SgFlutterDevShortcut $entryData) }
     } else {
         $entryData.status = 'error'
+        if ($kind -eq 'obsidian-plugin') { $entryData.surfaceState = 'build-required'; $entryData.validationState = 'validation-unavailable' }
         $entryData.lastError = if ($readiness.Error) { [string]$readiness.Error } else { 'Application readiness failed.' }
         if ($entryData.jobName) { [void](Stop-SgManagedJob $entryData) }
         elseif (Test-SgProcessIdentity $entryData) { Stop-SgProcessTree ([int]$entryData.pid) }
@@ -2251,9 +2545,13 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         if (-not (Wait-SgManagedExtinction $entryData 8)) { throw 'Application readiness failed and managed process extinction could not be proved.' }
         $entryData.pid = 0
         $entryData.startTimeUtc = $null
+        if ($kind -eq 'obsidian-plugin') { Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData }
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
     }
-    if($kind-eq'browser-extension'){
+    if($kind-eq'obsidian-plugin'){
+        Write-SgInfo "$($entry.name) $($entryData.status): Obsidian plugin $($entryData.surfaceState) in $($entryData.obsidianPluginPath)"
+        Write-SgInfo 'Validation unavailable: reload or enable the plugin in Obsidian and validate it manually.'
+    }elseif($kind-eq'browser-extension'){
         Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in dist\chrome"
         Write-SgInfo "Next: run s open -ProjectPath `"$($entry.path)`" to open Chrome extension tools."
     }elseif($kind-eq'flutter-web' -and $settings.FlutterDevice -in @('windows','android')){
@@ -2384,6 +2682,16 @@ function Stop-SgProject([object]$Config, [string]$ProjectPath) {
 
 function Open-SgProject([object]$Config, [object]$Entry) {
     if (-not $Entry) { throw 'No registered project was selected.' }
+    if ($Entry.kind -eq 'obsidian-plugin') {
+        if ($Entry.status -notin @('starting','running')) {
+            $path = if ($Entry.PSObject.Properties['path'] -and $Entry.path) { [string]$Entry.path } else { '<path>' }
+            throw "This Obsidian plugin is $($Entry.status). Run s start -ProjectPath `"$path`" before reload guidance."
+        }
+        $target = if ($Entry.PSObject.Properties['obsidianPluginPath'] -and $Entry.obsidianPluginPath) { [string]$Entry.obsidianPluginPath } else { '<configured-vault>\.obsidian\plugins\<plugin-id>' }
+        Write-SgInfo "Obsidian plugin artifacts are synchronized at: $target"
+        Write-SgInfo 'Reload or enable the plugin in Obsidian, then validate it manually. ShipGlows does not start or control a personal Obsidian session.'
+        return $Entry
+    }
     if ($Entry.status -notin @('starting','running') -or [int]$Entry.port -le 0) {
         $name = if ($Entry.PSObject.Properties['name'] -and $Entry.name) { [string]$Entry.name } else { 'This project' }
         $path = if ($Entry.PSObject.Properties['path'] -and $Entry.path) { [string]$Entry.path } else { '<path>' }
@@ -2452,6 +2760,6 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Get-SgEnvironmentStatePath,Read-SgEnvironmentState,Get-SgEnvironmentReadinessForSurface,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap,Read-SgBrowserExtensionManifest,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Get-SgEnvironmentStatePath,Read-SgEnvironmentState,Get-SgEnvironmentReadinessForSurface,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap,Read-SgBrowserExtensionManifest,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
