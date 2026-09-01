@@ -392,10 +392,20 @@ function Install-SgApplicationCommandWrapper([string]$Name, [string]$CommandName
     }
     if (-not $target) { return $false }
 
+    $nodeRustActivation = if ($Name -in @('npm','npx','corepack','pnpm')) { @'
+@if exist "%~dp0cargo.cmd" if exist "%USERPROFILE%\.cargo\bin\cargo.exe" (
+  @set "RUSTUP_TOOLCHAIN=1.97.1"
+  @set "CARGO=%USERPROFILE%\.cargo\bin\cargo.exe"
+  @set "PATH=%USERPROFILE%\.cargo\bin;%PATH%"
+)
+'@ } else { '' }
     $wrapper = @"
 @echo off
+@setlocal DisableDelayedExpansion
+$nodeRustActivation
 @call "$target" %*
-@exit /b %ERRORLEVEL%
+@set "SHIPGLOWS_EXIT_CODE=%ERRORLEVEL%"
+@endlocal & exit /b %SHIPGLOWS_EXIT_CODE%
 # cmd-shim-target=$target
 "@
     Set-Content -LiteralPath $wrapperPath -Value $wrapper -Encoding ASCII
@@ -1826,11 +1836,11 @@ function Install-SgMachineToolbox([string]$WorkspacePath, [string]$DartPath, [st
                 $temporary = "$configPath.tmp-$([guid]::NewGuid().ToString('N'))"
                 [IO.File]::WriteAllText($temporary,$expected,[Text.UTF8Encoding]::new($false)); Move-SgAtomicReplace $temporary $configPath
             }
+            $locked = Invoke-SgManagedTauriMise $mise $root @('lock','--platform','windows-x64') 300 -OperationId 'tool.machine-toolbox.lock' -Label 'Locking the ShipGlows machine CLI toolbox'
+            if ($locked.TimedOut -or $locked.ExitCode -ne 0) { Write-SgInstallerWarning "Machine CLI toolbox lockfile refresh failed or timed out (exit=$($locked.ExitCode)); exact config pins remain active." }
             $installed = Invoke-SgManagedTauriMise $mise $root @('install') 1800 -Visible -OperationId 'tool.machine-toolbox' -Label 'Installing the ShipGlows machine CLI toolbox'
             $toolboxInstalled = -not $installed.TimedOut -and $installed.ExitCode -eq 0
             if (-not $toolboxInstalled) { Write-SgInstallerWarning "Machine CLI toolbox installation failed or timed out (exit=$($installed.ExitCode)); each CLI will be converged independently." }
-            $locked = Invoke-SgManagedTauriMise $mise $root @('lock','--platform','windows-x64') 300 -OperationId 'tool.machine-toolbox.lock' -Label 'Locking the ShipGlows machine CLI toolbox'
-            if ($locked.TimedOut -or $locked.ExitCode -ne 0) { Write-SgInstallerWarning "Machine CLI toolbox lockfile refresh failed or timed out (exit=$($locked.ExitCode)); exact config pins remain active." }
             foreach ($item in $plan) {
                 $wrapper = Join-Path $runtimeDir "$($item.Command).cmd"
                 $content = Get-SgMachineToolboxWrapperContent -MisePath $mise -ToolboxRoot $root -Command $item.Command

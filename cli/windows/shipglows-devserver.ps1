@@ -131,6 +131,7 @@ Project journeys
                    .shipglows.env can explicitly select windows, android, chrome, or web-server.
   Chrome extension Inspect -> explicitly build when required -> Extension Lab -> close Chromium
   The Extension Lab uses a temporary Chromium profile and never runs repository scripts implicitly.
+  Managed CRXJS start/open remains available for projects using @crxjs/vite-plugin and dev:chrome.
 
 Windows uses native project manifests and tools; Linux environment, PM2 and Caddy commands remain unavailable.
 '@)

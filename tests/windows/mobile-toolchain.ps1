@@ -599,6 +599,9 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
     Assert-Sg ($serviceInstaller.Count -eq 1) 'Machine CLI toolbox installer must resolve uniquely.'
     $serviceInstallerSource = $serviceInstaller[0].Extent.Text
     Assert-Sg ($serviceInstallerSource -match 'Get-SgMachineToolboxPlan' -and $serviceInstallerSource -match "@\('install'\)" -and $serviceInstallerSource -match 'Get-SgMachineToolboxWrapperContent') 'Machine CLI toolbox must install one isolated exact mise plan and expose stable wrappers.'
+    $toolboxLockCall = $serviceInstallerSource.IndexOf("@('lock','--platform','windows-x64')",[StringComparison]::Ordinal)
+    $toolboxInstallCall = $serviceInstallerSource.IndexOf("@('install')",[StringComparison]::Ordinal)
+    Assert-Sg ($toolboxLockCall -ge 0 -and $toolboxInstallCall -ge 0 -and $toolboxLockCall -lt $toolboxInstallCall) 'Machine CLI toolbox must refresh a changed lockfile before installing exact tools.'
     $partialToolboxConverges = & {
         $savedLocalAppData = $env:LOCALAPPDATA
         $env:LOCALAPPDATA = Join-Path $fixture 'toolbox-local'
