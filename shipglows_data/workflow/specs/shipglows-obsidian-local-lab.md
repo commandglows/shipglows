@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.3"
+artifact_version: "1.0.4"
 project: ShipGlows
 created: "2026-09-02"
 created_at: "2026-09-01 22:39:16 UTC"
 updated: "2026-09-02"
-updated_at: "2026-09-01 23:02:35 UTC"
+updated_at: "2026-09-01 23:09:28 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: GPT-5.6 Codex
@@ -32,7 +32,7 @@ evidence:
   - "Operator approved a local-only Obsidian Lab on 2026-09-02 and excluded Sandbox, VM, personal vault mutation, and publication."
   - "A real Windows spike loaded DreamGlows in Obsidian 1.13.7 with a separate --user-data-dir, temporary vault, CDP endpoint, registered commands, dashboard interaction, screenshot, and unchanged personal Obsidian hashes."
   - "The spike surfaced a DreamGlows runtime note-view error that build and artifact synchronization did not reveal."
-next_step: "Deliver the verified local Obsidian Lab through the protected development branch."
+next_step: none
 ---
 
 # Spec: ShipGlows Obsidian Local Lab
@@ -214,6 +214,7 @@ None.
 | 2026-09-01 23:02:35 UTC | 102-sg-start | GPT-5.6 Codex | Implemented the local runner, PowerShell orchestration, BRAT inspection, CLI command, packaging, focused tests, and mapped documentation. | implemented | Run standard verification. |
 | 2026-09-01 23:02:35 UTC | 103-sg-verify | GPT-5.6 Codex | Verified focused contracts, packaging, capability snapshot, existing Obsidian/Extension Lab regressions, real DreamGlows load and command interaction, rendered screenshot, exact cleanup, and unchanged personal profile hashes. | verified | Close the verified chantier. |
 | 2026-09-01 23:02:35 UTC | 104-sg-end | GPT-5.6 Codex | Reconciled the unique spec, mapped technical/operator documentation, public-safe changelog, local-only security limitation, and absence of a matching open bug or tracker row. | closed | Ship the bounded branch through pull request checks. |
+| 2026-09-01 23:09:28 UTC | 005-sg-ship | GPT-5.6 Codex | Delivered commit `cccfd14` through PR #81 after both required gates passed, merged it into `dev` as `3cab570`, and removed the temporary branch. | shipped | None. |
 
 ## Current Chantier Flow
 
@@ -222,6 +223,6 @@ None.
 - `sg-start`: complete.
 - `sg-verify`: verified.
 - `sg-end`: closed.
-- `sg-ship`: pending.
+- `sg-ship`: shipped via PR #81 to `dev`.
 
-Next step: implement the local Lab without Sandbox, VM, personal-vault mutation, or publication.
+Next step: none. Sandbox, VM, personal-vault mutation, and publication remain intentionally out of scope.
