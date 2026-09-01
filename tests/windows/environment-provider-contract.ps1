@@ -27,7 +27,7 @@ try{
     $runner={param($file,$arguments,$timeout)$script:captured=[pscustomobject]@{File=$file;Arguments=@($arguments);Timeout=$timeout;Safe=$env:MISE_SAFE;Config=$env:MISE_OVERRIDE_CONFIG_FILENAMES};[pscustomobject]@{ExitCode=0;Output='fixture';TimedOut=$false}}
     $previous=[Environment]::GetEnvironmentVariable('MISE_SAFE','Process')
     [void](Invoke-SgIsolatedTauriMise -MisePath 'C:\trusted\mise.exe' -ToolchainRoot $temporary -Arguments @('install','rust') -Runner $runner)
-    if(($script:captured.Arguments -join '|') -ne 'install|rust' -or $script:captured.Safe -ne '1' -or $script:captured.Config -ne 'mise.toml'){throw 'Isolated mise primitive changed fixed semantics.'}
+    if(($script:captured.Arguments -join '|') -ne ("-C|$temporary|install|rust") -or $script:captured.Safe -ne '1' -or $script:captured.Config -ne 'mise.toml'){throw 'Isolated mise primitive must bind every child to the exact managed toolchain root.'}
     if(-not [object]::Equals([Environment]::GetEnvironmentVariable('MISE_SAFE','Process'),$previous)){throw 'Isolated mise primitive leaked process environment.'}
 
     $loadedModule=Get-Module ShipGlows.MobileToolchain
@@ -37,7 +37,7 @@ try{
         $env:LOCALAPPDATA=$temporary;$env:SHIPGLOWS_ROOT=(Join-Path $temporary 'runtime')
         $desktopRunner={
             param($file,$arguments,$timeout)
-            $command=$arguments -join '|'
+            $command=@($arguments | Select-Object -Skip 2) -join '|'
             $output=if($command -eq 'exec|rust@1.97.1|--|rustc|--version'){'rustc 1.97.1 (fixture)'}elseif($command -eq 'exec|rust@1.97.1|--|cargo|--version'){'cargo 1.97.1 (fixture)'}elseif($command -eq 'exec|rust@1.97.1|--|rustup|--version'){'rustup 1.28.2 (fixture)'}else{'fixture'}
             [pscustomobject]@{ExitCode=0;Output=$output;TimedOut=$false}
         }
