@@ -925,7 +925,7 @@ function Test-SgTauriDesktopRustToolchain {
 }
 
 function Install-SgTauriDesktopRustToolchain {
-    param([string]$RuntimeRoot=(if($env:SHIPGLOWS_ROOT){$env:SHIPGLOWS_ROOT}else{Join-Path $env:USERPROFILE '.shipglows\runtime'}),[scriptblock]$Runner=$null)
+    param([string]$RuntimeRoot=$(if($env:SHIPGLOWS_ROOT){$env:SHIPGLOWS_ROOT}else{Join-Path $env:USERPROFILE '.shipglows\runtime'}),[scriptblock]$Runner=$null)
     $baseline=Get-SgTauriDesktopBaseline; $root=Join-Path $env:LOCALAPPDATA 'ShipGlows\Toolchains\tauri-windows'; $mise=Resolve-SgTrustedMisePath
     if (-not $mise) { return [pscustomobject]@{Status='partial';Reason='mise is unavailable';Completed=@()} }
     New-Item -ItemType Directory -Path $root -Force | Out-Null
