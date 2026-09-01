@@ -12,6 +12,7 @@ foreach($path in @($provider,$module,$installer)){
 $providerText=[IO.File]::ReadAllText($provider)
 if($providerText -notmatch "@\('observe','acquire_mise','install_rust'\)" -or $providerText -match 'request[.](?:argv|arguments|command|executable)'){throw 'Provider action grammar is not closed.'}
 if($providerText -notmatch 'Resolve-SgTrustedWingetIdentity' -or $providerText -match 'Get-Command winget[.]exe'){throw 'Provider does not use the canonical hashed WinGet resolver.'}
+if(-not $providerText.Contains("`$runtimeRoot=[IO.Path]::GetFullPath((Join-Path `$PSScriptRoot '..\..'))") -or $providerText -notmatch 'Install-SgTauriDesktopRustToolchain -RuntimeRoot \$runtimeRoot' -or $providerText -notmatch 'Get-SgTauriWindowsEnvironmentObservation -ProjectRoot \$root -Scope \$scope -RuntimeRoot \$runtimeRoot'){throw 'Provider does not bind Rust wrappers and observation to its packaged runtime root.'}
 $installerText=[IO.File]::ReadAllText($installer)
 if($installerText -match 'function Resolve-SgTrustedMisePath' -or $installerText -notmatch 'Invoke-SgIsolatedTauriMise'){throw 'Full installer still duplicates isolated mise ownership.'}
 
