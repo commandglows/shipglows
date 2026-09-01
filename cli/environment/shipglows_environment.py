@@ -107,7 +107,7 @@ def main(argv=None) -> int:
                 )
             plan = build_plan(discover_project(project), offline=arguments.offline)
             applied = apply_plan(plan, arguments.plan_digest)
-            result = redact({"command": "apply", "result": applied, "mutated": applied["status"] == "applied"})
+            result = redact({"command": "apply", "result": applied, "mutated": bool(applied.get("completed"))})
         _emit(result)
         return exit_code
     except ApplyRefused as exc:
