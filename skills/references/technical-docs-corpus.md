@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.8.0"
+artifact_version: "1.9.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-15"
+updated: "2026-09-01"
 status: active
 source_skill: 102-sg-start
 scope: technical-docs-corpus
@@ -30,6 +30,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: closure must derive documentation impact from exact task-owned Git paths and the canonical code-docs map, with refreshed bounded context or targeted canonical fallback."
   - "Ready spec requires a skill-facing reference for technical docs loading."
   - "300-sg-docs first-run bootstrap and update adoption now treat missing code-docs maps as recoverable bootstrap state."
   - "External platform corpus added for global Freshness Gate source notes and governance-root provider usage docs."
@@ -53,7 +54,7 @@ This reference tells ShipGlows skills how to use the internal `shipglows_data/te
 2. Read `shipglows_data/technical/code-docs-map.md` first for any code-changing task when it exists; if it is missing, report a technical governance bootstrap trigger and route to `/300-sg-docs technical`. Legacy `docs/technical/code-docs-map.md` is a migration source only.
 3. Match changed or target paths to the map when present.
 4. Load only the primary technical doc and necessary secondary docs.
-5. Produce a `Documentation Update Plan` after every code-changing execution wave and again during end verification. Before closure, apply `documentation-reflection-gate.md`, align directly mapped impacted docs in the same approved workstream, and expose its exact classification in the closure report.
+5. Produce a `Documentation Update Plan` from exact task-owned Git paths after every code-changing execution wave and again during end verification. Before closure, refresh invalidated bounded context, compare every code path with `code-docs-map.md`, use targeted canonical fallback for any gap, align mapped docs in the same approved workstream, and expose the resulting classification. Derived context and editorial status never replace this evidence.
 6. Keep shared docs sequential unless the ready spec assigns disjoint ownership.
 7. When a task depends on an external provider, SDK, framework, hosting platform, API, or toolchain behavior, read the matching global note under `shipglows_data/technical/external-platforms/` when it exists. Then read the governance-root usage note under `shipglows_data/technical/platforms/` only when it exists or when the task is materially affected by project-specific provider configuration.
 8. For UI projects, read the surface-scoped design-system authority such as `shipglows_data/technical/<surface>/design-system-authority.md`, or the documented equivalent, before UI/design implementation, audits, scaffolding, verification, or platform parity work. If it is missing, report a technical governance bootstrap trigger and route to `/300-sg-docs technical` or `/006-sg-design` before visual changes.

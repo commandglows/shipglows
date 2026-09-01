@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: project-delivery-policy
@@ -28,6 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-01: non-live projects integrate directly to main; live projects use canonical dev for integration/staging and retain main for production."
   - "Operator decision 2026-08-21: use development, published, and sensitive-production as human-facing project delivery postures."
   - "Operator correction 2026-08-21: development never means local-only; remote Git persistence remains mandatory."
 next_review: "2026-11-21"
@@ -49,7 +50,9 @@ Store this data-only section in project `CLAUDE.md`, or `SHIPGLOWS.md` when no `
 
 - delivery_posture: development | published | sensitive-production
 - production_branch: main | [documented alternative]
-- work_branch_strategy: short-lived | [documented exception]
+- integration_branch: main | dev
+- staging_branch: not-required | dev
+- work_branch_strategy: direct-integration | short-lived | [documented exception]
 - remote_persistence: milestone-and-final
 - preview_policy: optional | required
 - staging_policy: not-required | required | equivalent-isolation
@@ -63,13 +66,15 @@ This section contains no secret, token, executable command, provider credential,
 
 ## Postures And Derived Defaults
 
-| Posture | Remote Git persistence | Preview | Staging | Production delivery |
+| Posture | Canonical integration branch | Preview | Staging | Production delivery |
 | --- | --- | --- | --- | --- |
-| `development` | required after every validated milestone and at chantier end | optional unless validation mode or changed behavior requires it | not required | disabled by default |
-| `published` | required after every validated milestone and at chantier end | required before production merge for deployable changes | not required by default | gated |
-| `sensitive-production` | required after every validated milestone and at chantier end | required | required, or documented equivalent isolation | gated with stronger evidence |
+| `development` (non-live) | `main` | optional unless validation mode or changed behavior requires it | not required | disabled by default |
+| `published` (live) | `dev` | required before promotion to production | canonical `dev` | gated `dev -> main` |
+| `sensitive-production` (live) | `dev` | required | canonical `dev` plus required isolation evidence | gated `dev -> main` with stronger evidence |
 
-All postures default to `production_branch: main` and `work_branch_strategy: short-lived`. A permanent `develop` branch is never imposed; it is allowed only as a documented project exception with an operational reason.
+All postures use `production_branch: main`. Non-live `development` uses `integration_branch: main`, `staging_branch: not-required`, and may work directly on the integration branch. Live `published` and `sensitive-production` use the exact canonical branch `dev` for integration and staging; short-lived task branches reconcile continuously into `dev`. ShipGlows creates or converges the declared integration branch and remote tracking without a validation prompt when safe.
+
+Git/GitHub stewardship is continuous and autonomous. At project or chantier start, coherent milestones, and chantier end, fetch/prune and reconcile safe owned branches, pull requests, upstreams, and worktrees; commit and push coherent validated work to the canonical integration branch at the earliest safe opportunity. Promotion to `main` follows release/deployment gates but adds no separate Git approval.
 
 ## Separate Axes
 
@@ -77,7 +82,7 @@ All postures default to `production_branch: main` and `work_branch_strategy: sho
 - `development_mode` from `project-development-mode.md` answers where changed behavior can be validated authoritatively.
 - `provider_state` answers what Git and hosting configuration has actually been observed.
 
-One axis never overrides another. A local validation surface does not waive remote persistence. A successful push does not prove preview, staging, deployment, or production behavior. A detected provider does not authorize configuration changes.
+One axis never overrides another. A local validation surface does not waive remote persistence. A successful push does not prove preview, staging, deployment, or production behavior. A detected provider does not authorize non-Git environment or deployment changes; ordinary Git/GitHub convergence retains its standing authority.
 
 ## Migration And Inference
 
@@ -92,7 +97,7 @@ If no policy exists, ShipGlows may recommend `development` only as a provisional
 - `published` with optional preview is contradictory for deployable changes.
 - `sensitive-production` without staging or documented equivalent isolation is contradictory.
 - A missing declared branch, unavailable remote, failed push, or unobserved protection remains delivery pending; never claim clean closure.
-- Provider configuration changes, branch protection, merges, deploys, and environment creation require their own authority.
+- Deployment and environment creation require their own authority. Ordinary Git/GitHub configuration convergence, protection-preserving merges, reconciliation, and proven cleanup use standing Git stewardship authority; never weaken or bypass protection.
 
 ## Managed GitHub Protection
 
@@ -104,7 +109,9 @@ Every active ShipGlows-managed GitHub repository follows `managed-project-ci-pol
 - `PDP-SEPARATE-AXES`: posture, validation mode, and provider state remain independent.
 - `PDP-PUBLISHED-PREVIEW`: published deployable changes require preview-backed review.
 - `PDP-SENSITIVE-STAGING`: sensitive production requires staging or equivalent isolation.
-- `PDP-NO-PERMANENT-DEVELOP`: `main` plus short-lived branches is the default.
+- `PDP-NON-LIVE-MAIN`: non-live `development` integrates directly into `main`.
+- `PDP-LIVE-DEV`: live `published` and `sensitive-production` integrate and stage through canonical `dev`, retaining `main` for production.
+- `PDP-GIT-AUTONOMY`: ordinary commit, push, reconciliation, PR/worktree convergence, and proven cleanup require no validation prompt.
 - `PDP-DECLARED-VS-OBSERVED`: detected state reports drift without mutating intent.
 - `PDP-LEGACY-MODE`: legacy development mode remains valid while posture is unknown.
 - `PDP-MANAGED-CI`: every active managed GitHub project retains an always-on protected gate without path-filter deadlock.

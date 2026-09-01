@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.36.0"
+artifact_version: "2.40.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -74,6 +74,11 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-09-01: product and experience questions are proactive partnership, purely technical questions and validation requests are exceptional, and a question answer never expands mutation authority."
+  - "2026-09-01: ordinary Git/GitHub stewardship is autonomous and status-driven: non-live projects integrate on main, live projects on canonical dev, with continual safe branch/worktree convergence and no Git validation prompts."
+  - "2026-09-01: closure now separates existing-surface editorial alignment from non-blocking editorial/product opportunity, preventing `not impacted` from being interpreted as no opportunity."
+  - "2026-09-01: project/global technical audits now include a dead-and-obsolete-code gate driven by governed navigation context, a distinct application reachability graph, language-native evidence, and explicit complete-for-scope/partial/not-proven coverage."
+  - "2026-09-01: verification, closure and full-close shipping now resolve documentation impact from exact task-owned Git paths through the canonical code-docs map, with a refreshed bounded context capsule or targeted canonical fallback."
   - "Wave 20 closes all 29 residual full-graph findings through canonical migrations, boundary reclassification, inverse-edge repair, and other-project governance removal; integrated complete graph 691/895/0 and profiled graph 133/89/0 are valid."
   - "Wave 19 migrates 44 proven canonical missing paths, resolves the 10 original constraint findings, reclassifies 6 non-artifact unversioned edges, and retains 29 classified missing targets without introducing cycles or fake metadata."
   - "Wave 18 removes all three full-graph cycles, repairs 79 constraints, migrates 13 active canonical paths, and reclassifies 73 historical edges as evidence while preserving the valid profiled graph."
@@ -473,8 +478,8 @@ Operator roles and named profiles do not add new primary artifact types:
 - `300-sg-docs`: documentation generation, governance bootstrap, audit, metadata, and technical-docs mode.
 - `300-sg-docs technical`: technical governance bootstrap, code-docs map creation, and audit.
 - `300-sg-docs editorial`: editorial governance scaffolding and audit for public-content drift, claim register, page intent, and runtime content schema preservation.
-- `shipglows git` -> `sg-engineering github` -> `010-sg-technical`: manual read-only PR/branch/worktree dashboard; `reconcile` proposes exact merge candidates and `clean` applies the shared post-integration lifecycle only after fresh approval.
-- `shipglows hygiene` -> `sg-maintenance hygiene` -> `002-sg-maintain`: comprehensive non-mutating audit of the current project across Git residue, dependencies, security, documentation, checks, audits, and quality debt; `hygiene git` specializes to `github clean`, while multi-project scope is rejected.
+- `shipglows git` -> `sg-engineering github` -> `010-sg-technical`: PR/branch/worktree dashboard plus autonomous safe reconciliation and proven cleanup. Non-live projects integrate on `main`; explicitly live projects integrate on canonical `dev`, while `dev -> main` remains production-gated without a separate Git validation.
+- `shipglows hygiene` -> `sg-maintenance hygiene` -> `002-sg-maintain`: comprehensive current-project audit across Git residue, dependencies, security, documentation, checks, audits, and quality debt. Non-Git corrections remain proposal-only; standing-authority Git convergence may proceed through `github`, and multi-project scope stays explicit.
 - `003-sg-bug`: professional bug loop lifecycle executor (`107-sg-test -> bug file -> 106-sg-fix -> 107-sg-test --retest -> 103-sg-verify -> 005-sg-ship`).
 - `002-sg-maintain`: master project maintenance lifecycle for bugs, dependencies, docs, checks, audits, migrations, tasks, security posture, delegated remediation, verification, and ship/deploy routing.
 - `108-sg-browser`: generic non-auth browser verification through Playwright MCP for URLs, page-level assertions, screenshots, console summaries, and network summaries.
@@ -633,7 +638,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - Master/orchestrator skills load `skills/references/master-workflow-lifecycle.md` before resolving lifecycle flow. The shared skeleton is intake, work item resolution, readiness, model/topology routing, owner-skill execution, validation/evidence, verification, post-verify closure, and bounded ship/deploy/release routing.
 - Skills load `skills/references/decision-quality-contract.md` before quality-sensitive routing, model/fallback choice, implementation, fix, verification, or recommendations. Completion requires industrial-grade quality proportional to consequence; merely functional, unintentionally generic for the accepted product, fragile, cluttered, or unresolved provisional work presented as final remains partial. Brand surfaces use award-caliber craft as a benchmark, while operational interfaces stay clarity-first. Institutional claims require a framework-specific scoped audit against named requirements and direct evidence.
 - Skills should load `skills/references/question-contract.md` before user-facing questions. They ask only when the answer changes route, scope, risk, validation, closure, ship posture, public claims, or technical/product/editorial direction; otherwise they proceed by the best-practice default only when it is clear, low-risk, reversible, context-compatible, and verifiable.
-- Skills should not use the operator as a substitute for local technical inspection. They should, however, ask precise numbered business/product/audience/framing questions when those facts are operator-owned and materially improve the work.
+- Skills should ask useful product and experience questions readily whenever operator-owned perspective can improve the result, including non-blocking questions. They must not use the operator as a substitute for technical inspection: purely technical questions and validation requests are exceptional, and an answer never expands mutation authority by implication.
 - When skill bodies are edited or compacted, treat top-level `SKILL.md` as the activation contract. Keep required section labels (`Canonical Paths`, `Trace category`, `Process role`, `Report Modes`) and local non-negotiables there; move only supporting detail to references.
 - Bug work uses one Markdown bug file under `shipglows_data/workflow/bugs/*.md` as the durable source of truth. `shipglows_data/workflow/BUGS.md`, when present, is an optional compact/generated/triage view and must not override the bug file.
 - Short natural-language confirmations after diagnosis or proposal continue the current chantier in delegated sequential mode by intent rather than exact keyword, not parallel fan-out.
@@ -657,7 +662,9 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - `004-sg-deploy` owns release orchestration only; `005-sg-ship` owns checkpoint commits and final commit/push, `405-sg-prod` owns deployed truth, and proof skills own observed behavior.
 - `003-sg-bug` owns bug lifecycle execution through owner skills and bounded subagents; phase skills still own bug record mutation, diagnosis, retest evidence, verification, and shipping internals.
 - `002-sg-maintain` owns the maintenance lifecycle; bugs, dependencies, docs, checks, audits, migrations, tasks, security review, repair, verification, and ship still run through their specialist owner skills and gates.
-- `010-sg-technical github` owns focused Git/GitHub hygiene as one `worktree -> branch -> pull request` graph. Its public `shipglows git` route defaults to read-only audit; `reconcile` and `clean` retain fresh approval gates. Commit/push stays with `005-sg-ship`, dependency risk with `010-sg-technical deps`, major upgrades with `010-sg-technical migrate`, and CI diagnosis with `github:gh-fix-ci`.
+- `010-sg-technical github` owns focused Git/GitHub hygiene as one `worktree -> branch -> pull request` graph. Its public `shipglows git` route defaults to audit; `reconcile` and `clean` use standing Git authority with fresh proof, never force, never discard unique state, and never ask for Git validation. At project or chantier start, coherent milestones, and end, ShipGlows fetches/prunes and converges safe refs, PRs, upstreams, and worktrees. Commit/push stays with `005-sg-ship`, dependency risk with `010-sg-technical deps`, major upgrades with `010-sg-technical migrate`, and CI diagnosis with `github:gh-fix-ci`.
+- `010-sg-technical audit project|global` loads the dead-and-obsolete-code contract. Governed `context.md`, `context-function-tree.md`, `code-docs-map.md`, and behavior indexes orient discovery; reachability is then established through a separate application graph plus language-native analyzers and dynamic/external-consumer challenges. The skill/resource activation graph never proves application-code reachability. The audit reports `complete for declared scope`, `partial`, or `not proven` rather than inferring exhaustiveness from lint, build, tests, sampling, or text search alone.
+- Closure editorial reflection has two independent axes. Existing-surface alignment uses `updated`, `not impacted`, or `needs review` and may block closure; editorial/product opportunity uses `candidate`, `no evidenced opportunity`, or `not assessed` and never blocks closure. Alignment `not impacted` never means no opportunity. A credible candidate may be proposed in `🧭 SUITE`, but it grants no content, product, publication, or editorial-roadmap authority.
 - `007-sg-content` owns content-management orchestration; repurposing, drafting, enrichment, marketing modes, SEO audit, docs, veille, browser proof, verification, and ship still run through their specialist owner skills and gates.
 - Design and content skills use the shared Inspiration Gate only for eligible creative direction; they shortlist from `index.yaml`, require operator selection, record selected reference IDs, and never treat discovery as approval to imitate.
 - Content owner skills (`007-sg-content` including `repurpose`, `200-sg-redact`, `201-sg-enrich`, `009-sg-marketing copy|copywriting|gtm`, `406-sg-seo`) and `103-sg-verify` must use one shared rubric contract from `skills/references/content-quality-rubric.md`; recoverable score states (`needs retry`, `duplicate_in_progress`, `conflicting_score_state`, `stale_or_mismatched_score`) are never valid verification proof.
@@ -672,7 +679,14 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 ## Failure Modes
 
 - A weak spec that lacks success/error behavior or explicit constraints must route back to readiness instead of being silently repaired during coding.
-- If mapped docs are missing from a `Documentation Update Plan`, the docs gate fails. If a closure report omits its visible `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>` classification, closure fails.
+- Before documentation classification, `103-sg-verify`, `104-sg-end`, and
+  full-close `005-sg-ship` reconstruct the exact task-owned changed paths,
+  refresh any invalidated bounded Context Head/capsule, and compare every code
+  path with `shipglows_data/technical/code-docs-map.md`. Derived graph/context
+  output accelerates discovery but never replaces Git or the canonical map;
+  stale, absent, truncated, or unsupported context triggers targeted canonical
+  fallback. Missing map coverage or an omitted mapped doc yields `needs review`
+  and blocks closure. Editorial impact is classified independently.
 - If public content, README, FAQ, pricing, public docs, skill pages, or claims are affected but missing from an `Editorial Update Plan`, the editorial gate fails.
 - If `001-sg-build` prepares implementation with missing or stale `docs/technical/code-docs-map.md`, applicable `docs/editorial/`, or `CONTENT_MAP.md`, it must route to `300-sg-docs` or record explicit no-impact/no-surface status before proceeding.
 - If a master skill patches in the master conversation merely because a file change is small while subagents are available, treat that as workflow drift. Small scope may use a mini-contract, but the execution mode remains delegated sequential for file work.

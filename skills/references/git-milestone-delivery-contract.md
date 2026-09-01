@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-08-21"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: git-milestone-delivery-contract
@@ -25,6 +25,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-01: Git/GitHub persistence and safe convergence are autonomous at project start, coherent milestones, and chantier end."
   - "Operator decision 2026-08-21: every validated milestone is committed and every completed chantier is committed and pushed to prevent local work loss."
   - "Operator clarification 2026-08-21: every validated milestone is also pushed so development work is never protected only by the local machine."
   - "Operator defect correction 2026-08-21: documentation changes reported as locally ready without commit or push cannot be closed."
@@ -42,6 +43,8 @@ For an approved mutating chantier in a Git repository:
 2. at chantier end, commit every remaining owned change and push all owned commits to the resolved current branch upstream
 3. do not claim clean closure until that push succeeds
 
+No separate Git validation is requested. Standing Git/GitHub stewardship authority covers exact-scope commits, pushes, safe reconciliation, and proven-integrated cleanup. Resolve the canonical integration branch from `project-delivery-policy.md`: `main` for non-live `development`, `dev` for live `published` or `sensitive-production`; `main` remains the production branch for live projects.
+
 The approved technical chantier plan grants these exact-scope checkpoint commits and ordinary current-branch pushes, plus final delivery, when the plan names remote delivery. It never grants force push, history rewriting, tags, releases, deployments, merges, pull requests, hook bypass, or unrelated staging.
 
 A checkpoint push proves persistence, not deployment, preview readiness, production behavior, or product acceptance. Apply the project's delivery posture and development mode for those separate obligations.
@@ -58,6 +61,8 @@ Before crossing a milestone boundary:
 - scan the staged scope for suspected secrets or sensitive data
 - create one non-interactive commit with an accurate project-conventional subject
 - push the current branch to its configured unambiguous upstream without force
+- reconcile the validated slice into the canonical integration branch when it is on a temporary branch and integration is mechanically safe
+- refresh and converge owned PR, branch, upstream, and worktree state without an approval prompt
 - record its short SHA and push result in the chantier evidence, then continue without asking again
 
 If the owned milestone has no diff, do not manufacture an empty commit. Record `nothing to commit`; confirm previously owned commits are already present upstream before continuing.
@@ -71,6 +76,7 @@ After verification and closure bookkeeping:
 - confirm every chantier-owned commit is reachable from the current branch
 - push the current branch to its configured upstream, or establish the sole unambiguous upstream without force
 - retain hosted/deployment proof as a separate obligation; push success alone never proves production behavior
+- run the same branch/PR/worktree convergence pass and remove proven-integrated temporary artifacts without asking for Git validation
 
 An ordinary final push is mandatory for clean closure. Explicit operator `no push` or `local only` changes the result to delivery-pending/local-only rather than standard closed. Non-Git or genuinely read-only work reports Git delivery as not applicable.
 
@@ -83,6 +89,10 @@ Stop before commit for ambiguous scope, unrelated staged paths, suspected secret
 On missing remote, authentication failure, rejection, network failure, branch protection, or other push error, keep the local commits intact, report branch/upstream/status and the actionable error, and leave the chantier `delivery pending`. Never amend, reset, force, merge, switch branches, or widen staging merely to make delivery succeed.
 
 ## Pressure Scenarios
+
+- `GMD-CANONICAL-INTEGRATION`: target `main` for non-live development and canonical `dev` for live projects; live promotion to `main` remains release-gated.
+- `GMD-CONTINUAL-HYGIENE`: project/chantier start, coherent milestones, and chantier end refresh and safely converge Git/GitHub state.
+- `GMD-NO-GIT-VALIDATION`: ordinary commit, push, safe reconciliation, PR lifecycle, and proven cleanup never ask for validation.
 
 - `GMD-MILESTONE-COMMIT`: a declared coherent validated slice cannot be crossed with owned uncommitted changes.
 - `GMD-MILESTONE-PUSH`: a validated milestone cannot be crossed while its owned commit exists only locally.

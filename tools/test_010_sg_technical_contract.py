@@ -26,6 +26,7 @@ AUDIT_BRANCHES = {
     "project": ROOT / "skills" / "010-sg-technical" / "references" / "technical-project-audit.md",
     "global": ROOT / "skills" / "010-sg-technical" / "references" / "technical-global-audit.md",
 }
+DEAD_CODE_CONTRACT = ROOT / "skills" / "references" / "dead-code-obsolescence-audit.md"
 PLAYBOOK_NAMES = {path.name for path in PLAYBOOKS.values()}
 PREDECESSORS = (
     "401-sg-audit-code",
@@ -261,7 +262,9 @@ class TechnicalContractTests(unittest.TestCase):
             "`reconcile`",
             "`clean`",
             "terminal cleanup disposition",
-            "fresh approval",
+            "canonical integration branch",
+            "standing Git/GitHub stewardship authority",
+            "Never request Git validation",
         ):
             self.assertIn(phrase, github)
 
@@ -286,6 +289,39 @@ class TechnicalContractTests(unittest.TestCase):
         self.assertIn("load no substantive playbook", self.skill)
         self.assertIn("exactly one playbook", self.router)
         self.assertIn("missing selected playbook is a visible blocked result", self.skill)
+
+    def test_dead_code_audit_uses_context_and_separate_application_graph(self) -> None:
+        contract = DEAD_CODE_CONTRACT.read_text(encoding="utf-8")
+        project = AUDIT_BRANCHES["project"].read_text(encoding="utf-8")
+        protocol = AUDIT_BRANCHES["protocol"].read_text(encoding="utf-8")
+        registry = json.loads(
+            (ROOT / "skills" / "references" / "skill-invocation-registry.json").read_text(encoding="utf-8")
+        )
+
+        self.assertIn("dead-code-obsolescence-audit.md", self.skill)
+        self.assertIn("every declared source root and supported entrypoint class", project)
+        self.assertIn("separately derived application reachability graph", protocol)
+        for phrase in (
+            "shipglows_data/technical/context.md",
+            "shipglows_data/technical/context-function-tree.md",
+            "shipglows_data/technical/code-docs-map.md",
+            "application reachability graph",
+            "independent from ShipGlows' `skill-invocation-registry.json`",
+            "confirmed unused",
+            "confirmed obsolete",
+            "retained intentionally",
+            "complete for declared scope",
+            "partial",
+            "not proven",
+            "A clean lint, successful build, passing tests, graph generation, sampled review",
+        ):
+            self.assertIn(phrase, contract)
+
+        gate = registry["activation_profiles"]["skills"]["010-sg-technical"]["gates"]
+        self.assertEqual(
+            gate["dead-code-obsolescence"],
+            ["skills/references/dead-code-obsolescence-audit.md"],
+        )
 
     def test_tech_transfer_05_source_markers_and_depth(self) -> None:
         rows = {
@@ -344,7 +380,7 @@ class TechnicalContractTests(unittest.TestCase):
         for blocker in (
             "GitHub authentication",
             "repository access",
-            "operator authorization",
+            "authority for a non-Git external mutation",
             "reliable refreshed queue truth",
         ):
             self.assertIn(blocker, github)

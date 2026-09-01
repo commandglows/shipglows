@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-21"
+updated: "2026-09-01"
 status: active
 source_skill: 002-sg-maintain
 scope: maintenance-playbooks
@@ -28,6 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-01: hygiene remains proposal-only for non-Git corrections while safe Git/GitHub convergence uses standing authority without validation prompts."
   - "2026-08-12: extracted 002-sg-maintain lane detail so its activation contract stays below the progressive-disclosure risk threshold."
   - "2026-08-16: operator approved a current-project-only, proposal-first hygiene audit."
   - "2026-08-21: operator required audit freshness to become the deterministic fallback after active conversation and tracker work are exhausted."
@@ -63,12 +64,14 @@ verified findings, freshness gaps, unavailable-tool gaps, and informational
 notes. Zero findings returns a clean verdict; one or many findings retain the
 same report shape.
 
-No mutation is authorized by the hygiene invocation. Do not fetch, install,
-edit, fix, migrate, commit, push, merge, close, deploy, or delete. A correction
-requires a new exact plan and fresh approval under its normal owner contract.
-Never invoke native `git clean`; `shipglows hygiene git` instead routes to the
-safe `shipglows git clean` workflow, which audits PRs, branches, and worktrees
-and preserves its own approval and terminal-disposition gates.
+No non-Git correction is authorized by the hygiene invocation. Do not install,
+edit, fix, migrate, deploy, or delete application or content artifacts. Those
+corrections require their normal owner contract. Ordinary Git/GitHub
+stewardship remains standing authority: the audit may fetch/prune and route
+proven reconciliation or cleanup to `shipglows git` without a validation
+prompt. Never invoke native `git clean`; `shipglows hygiene git` instead routes
+to the safe Git lifecycle, which proves ownership and integration, preserves
+unique or ambiguous state, and records a terminal disposition.
 
 ## Full Lane Order
 

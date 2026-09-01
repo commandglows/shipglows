@@ -76,10 +76,11 @@ class ShipSkillContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, self.text)
 
-    def test_temporary_artifacts_are_proposed_for_safe_cleanup_after_integration(self) -> None:
+    def test_temporary_artifacts_are_cleaned_autonomously_after_proven_integration(self) -> None:
         for phrase in (
             "temporary by default",
-            "fresh approval",
+            "standing stewardship authority",
+            "without validation",
         ):
             self.assertIn(phrase, self.text)
 
@@ -88,8 +89,8 @@ class ShipSkillContractTests(unittest.TestCase):
             "refreshed intended remote target contains the temporary branch tip",
             "tracked or untracked changes",
             "never infer that an ordinary operator",
-            "propose the exact cleanup scope",
-            "never delete automatically",
+            "clean the exact owned scope automatically",
+            "never force branch deletion",
         ):
             self.assertIn(phrase, self.execution)
 
@@ -167,11 +168,19 @@ class ShipSkillContractTests(unittest.TestCase):
             self.assertIn(expected, self.text)
         self.assertIn("A material `needs review` result forbids full-closure", self.full_close)
         for expected in (
+            "task-owned changed paths",
+            "code-docs-map.md",
+            "revalidate the bounded capsule",
+        ):
+            self.assertIn(expected, self.full_close)
+        for expected in (
             "Every full-close report uses the shared ordered card",
             "`🧪 PREUVES`",
             "`📖 DOCUMENTATION`",
             "`✏️ ÉDITORIAL`",
             "separated by ` · `",
+            "Opportunity is classified separately and is non-blocking",
+            "grants no content, product, publication, or roadmap authority",
         ):
             self.assertIn(expected, self.reporting)
 

@@ -550,6 +550,10 @@ function Get-SgMachineToolboxMiseConfig {
     $actualNames = $Plan.Name -join '|'
     if ($actualNames -cne ($legacyNames -join '|') -and $actualNames -cne ($currentNames -join '|')) { throw 'Machine toolbox plan is incomplete or out of canonical order.' }
     $lines = New-Object Collections.Generic.List[string]
+    $lines.Add('[settings]')
+    $lines.Add('lockfile = true')
+    $lines.Add('lockfile_platforms = ["windows-x64"]')
+    $lines.Add('')
     $lines.Add('[tools]')
     foreach ($item in $Plan) {
         $tool = [string]$item.Tool

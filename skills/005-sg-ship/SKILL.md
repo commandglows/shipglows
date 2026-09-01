@@ -30,7 +30,7 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before Sh
 
 ## Mission And Ownership
 
-`005-sg-ship` owns bounded Git shipping and terminal cleanup disposition for agent-created task branches/worktrees, temporary by default. Destruction needs fresh approval. Owners retain implementation, proof, production, and closure unless full-close is explicit.
+`005-sg-ship` owns bounded Git shipping and autonomous cleanup for task branches/worktrees, temporary by default. Proven-integrated Git cleanup uses standing stewardship authority without validation; other owners retain implementation, proof, production, and closure unless full-close is explicit.
 
 `104-sg-end` retains unresolved closure bookkeeping; quick ship never substitutes.
 
@@ -43,11 +43,11 @@ Apply `$SHIPGLOWS_ROOT/skills/references/shipglows-owned-preflight.md` before Sh
 - Select whole-repo staging only when `$ARGUMENTS` explicitly includes `all-dirty`, `ship-all`, or `tout-dirty`.
 - `skip-check` skips checks but never skips secret, dirty-scope, bug-risk, protected-surface, or proof-claim gates.
 
-Quick mode is the default daily delivery path. It uses zero or one focused check when sufficient, stages, commits, pushes, and reports. It never updates `TASKS.md` or `CHANGELOG.md` and never claims formal closure.
+Quick mode uses zero or one sufficient focused check, then stages, commits, pushes, and reports. It never updates `TASKS.md` or `CHANGELOG.md` and never claims formal closure.
 
-When the project adopts structured context history, load `$SHIPGLOWS_ROOT/skills/references/context-history-and-head.md` before final staging and append at most one significant delivery event inside the bounded ship scope. Public fields require bilingual public-safe copy and the reference's delivery-proof gate; ambiguous work stays internal. Because the event is staged with the work, a failed push cannot make it public.
+When structured history is adopted, load `context-history-and-head.md` before final staging and append at most one bounded delivery event. Public fields require bilingual safe copy and delivery proof; ambiguity stays internal.
 
-Full mode may update trackers, changelog, and durable decisions before the same Git ship sequence. Before it does so, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/full-close-playbook.md`; also load `closure-archive-guard.md`, `documentation-reflection-gate.md`, and `editorial-reflection-gate.md`. A material documentation or editorial gap prevents full-closure wording and routes to the matching owner.
+Full mode may update trackers, changelog, and durable decisions. Load `full-close-playbook.md`, `closure-archive-guard.md`, `context-quality-contract.md`, `documentation-reflection-gate.md`, and `editorial-reflection-gate.md`; revalidate its bounded capsule before documentation classification. Material gaps prevent full closure.
 
 Before either mode mutates Git, load exactly one local reference: `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/ship-execution-playbook.md`. Full mode loads its full-close playbook only after the common pre-mutation gates pass.
 
@@ -64,19 +64,19 @@ Stop before staging or committing when:
 - an applicable Atlas staged-path preflight returns `block`;
 - high-risk auth, permissions, payments, billing, tenant, destructive, migration, webhook, background-job, or public-flow changes have no meaningful validation and the user has not accepted explicit partial-risk shipping.
 
-A user may explicitly authorize shipping despite a blocked bug or partial validation, but the report must retain the risk and must not claim closure, safety, or readiness. Never commit secrets. Never force-push `main` or `master`.
+A user may accept partial-risk shipping, but the report retains risk and cannot claim closure, safety, or readiness. Never commit secrets. Never force-push `main` or `master`.
 
 When a project owns an Atlas registry, load `$SHIPGLOWS_ROOT/skills/references/atlas-protection-preflight.md` and rerun it against staged paths before commit.
 
 ## Evidence Boundaries
 
-Classify linked bug risk as `blocked`, `partial-risk`, or `not assessed`; quick mode reports it even with skipped checks. A green check, clean push, updated tracker, or changelog is not proof that the user story, product, security, visual behavior, auth flow, or production behavior is complete.
+Classify linked bug risk as `blocked`, `partial-risk`, or `not assessed`; quick mode reports it even with skipped checks. A green check, clean push, tracker, or changelog is not proof of user, product, security, visual, auth, or production completion.
 
 Read `$SHIPGLOWS_ROOT/skills/references/project-delivery-policy.md` and `project-development-mode.md` before choosing post-push proof. Delivery posture never waives remote persistence; development mode decides whether hosted proof is authoritative. For `vercel-preview-push`, and for hosted-sensitive `hybrid` changes, a successful push routes immediately to `405-sg-prod`; do not request or claim browser/manual proof first.
 
 ## Step 8 — One report
 
-Immediately before reporting, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/ship-report-evidence.md`. Report the actual commit/push result, repo state, checks, notable staging scope, bug risk, documentation status, and remaining validation. Match the user's language and keep stable hashes, branches, paths, and status values literal.
+Before reporting, load `$SHIPGLOWS_ROOT/skills/005-sg-ship/references/ship-report-evidence.md`. Report commit/push result, repo state, checks, staging scope, bug risk, documentation status, and remaining validation. Match the user's language; keep hashes, branches, paths, and statuses literal.
 
 Start with the shared chantier and verdict headers. In `report=user`, never expose a spec path, lifecycle flow, internal owner, skill, or command. If the chantier remains open, use the shared plain-language continuation choices. If push fails, say so and preserve the actual repo/check state. If nothing was committed, say so clearly.
 

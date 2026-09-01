@@ -67,6 +67,16 @@ class VerifyCompactionContractTests(unittest.TestCase):
         ):
             self.assertIn(phrase, self.skill)
 
+    def test_documentation_coherence_uses_current_changed_path_evidence(self) -> None:
+        coherence = (REFS / "verification-coherence.md").read_text(encoding="utf-8")
+        for marker in (
+            "task-owned changed paths",
+            "code-docs-map.md",
+            "fresh bounded capsule",
+            "targeted canonical fallback",
+        ):
+            self.assertIn(marker, coherence)
+
     def test_external_security_ui_and_visual_proof_stop_clean_verification(self) -> None:
         for phrase in (
             "high/critical bug remains open",

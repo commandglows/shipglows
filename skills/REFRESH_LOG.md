@@ -1,5 +1,15 @@
 # Skills Refresh Log
 
+## 2026-09-01 — shared question, approval, and Git lifecycle contracts
+
+**Updated:** product and experience questions are proactive partnership, while purely technical questions and validation requests are exceptional and never turn the operator into an implementation supervisor.
+
+**Updated:** ordinary Git/GitHub stewardship now uses standing authority: non-live projects integrate on `main`, live projects on canonical `dev`, and safe commit, push, reconciliation, and proven temporary-artifact cleanup proceed without Git validation prompts.
+
+**Hardened:** force push, history rewrite, protection bypass, silent non-trivial conflict resolution, unique-commit loss, unrelated dirty scope, and unproven cleanup remain forbidden; uncertain state is preserved and diagnosed.
+
+**Sources:** 0 URLs consulted; this is a direct operator decision governing ShipGlows internal lifecycle behavior.
+
 ## 2026-08-16 — shipglows
 
 **Added:** owner-bound `git` and `hygiene` expert aliases; hygiene defaults to a non-mutating current-project audit and specializes explicit Git scope to `github clean`.

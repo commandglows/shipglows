@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-06-11"
+updated: "2026-09-01"
 status: active
 source_skill: manual-doctrine-update
 scope: project-development-mode
@@ -30,6 +30,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-01: validation surface stays separate from the non-live main versus live dev integration-branch policy."
   - "Some projects validate changes locally while others require Vercel preview deployments before meaningful tests."
   - "User directive 2026-06-11: runtime projects should document Sentry and a safe diagnostics/log-copy surface."
   - "User directive 2026-06-11: diagnostics/logs must start with commit/build identity and build time in Europe/Paris and UTC."
@@ -42,7 +43,7 @@ next_step: "/103-sg-verify project development mode doctrine"
 
 Every project should document how ShipGlows agents are expected to validate changes. The project-local source of truth is the `## ShipGlows Development Mode` section in `CLAUDE.md`. If a project has no `CLAUDE.md`, use `SHIPGLOWS.md` with the same section.
 
-This contract answers where evidence is authoritative. It does not describe product maturity or waive Git delivery. Load `project-delivery-policy.md` separately: `development` posture may use `local` validation, but every validated milestone and clean chantier end still require remote persistence.
+This contract answers where evidence is authoritative. It does not describe product maturity or choose the Git integration branch. Load `project-delivery-policy.md` separately: non-live status integrates into `main`, live status integrates/stages through canonical `dev`, and every validated milestone plus clean chantier end require autonomous remote persistence.
 
 ## Canonical Section
 

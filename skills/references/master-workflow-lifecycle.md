@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.11.0"
+artifact_version: "2.12.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-27"
+updated: "2026-09-01"
 status: active
 source_skill: 009-sg-skill-build
 scope: master-workflow-lifecycle
@@ -52,6 +52,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-01: master workflows use autonomous status-driven Git convergence at start, coherent milestones, and end without Git validation prompts."
   - "User decision 2026-05-04: master skills should share the same workflow skeleton instead of duplicating lifecycle doctrine."
   - "User decision 2026-05-04: bug work uses one Markdown bug file per bug under shipglows_data/workflow/bugs/*.md; shipglows_data/workflow/BUGS.md is optional/generated/triage view, not the source of truth."
   - "User decision 2026-05-04: user-facing questions should share a numbered, context-aware question/default contract."
@@ -88,9 +89,9 @@ Before choosing a lifecycle route, model, topology, owner skill, mini-contract, 
 
 Spec-first is the outer lifecycle contract: it defines user story, scope, success/error behavior, dependencies, risks, and source of truth. Proof-first is the implementation discipline: execution must choose `test-first`, `regression-first`, `scenario-first`, `evidence-first`, or `exception-with-proof` from `skills/references/spec-driven-development-discipline.md` before claiming completion.
 
-Before any intentional mutation, load `skills/references/mutation-plan-approval.md`. A clear bounded request directly authorizes its few coherent enumerable actions and targets when no material direction must be chosen; it does not authorize a chantier. Bounded agent-proposed actions or almost-clear intent may use fast validation. Unknown outcomes, unbounded scope, or substantial agent proposal and directional choice require the full plan and explicit post-message approval. Local versus remote and model reasoning effort never change this classification. Readiness, a ready spec, a master-skill invocation, or delegation consent never substitutes for chantier approval. For mutating technical chantiers, also load `git-milestone-delivery-contract.md`: ordinary exact-scope milestone commits and pushes inherit an approved full plan and need no duplicate approval.
+Before any intentional mutation, load `skills/references/mutation-plan-approval.md`. A clear bounded request directly authorizes its few coherent enumerable actions and targets when no material direction must be chosen; it does not authorize a chantier. Bounded agent-proposed actions or almost-clear intent may use fast validation. Unknown outcomes, unbounded scope, or substantial agent proposal and directional choice require the full plan and explicit post-message approval. Local versus remote and model reasoning effort never change this classification. Readiness, a ready spec, a master-skill invocation, or delegation consent never substitutes for chantier approval. Git/GitHub stewardship is the standing exception: ordinary exact-scope commit, push, safe reconciliation, PR/worktree convergence, and proven cleanup never ask for validation. For mutating technical chantiers, load `git-milestone-delivery-contract.md` and target the delivery-policy integration branch.
 
-At the first-write, interrupted-resume, sensitive-operation, and closure boundaries of a Git-backed chantier, apply `git-persistence-preflight.md`. This is one silent read-only inspection when healthy, not a new lifecycle stage. Before auth, payment, permission, migration, destructive, tenant, secret, production, or private-data mutation, require the relevant baseline backed up remotely; never manufacture a checkpoint from incomplete, failing, secret-bearing, ambiguous, or unrelated work.
+At project/chantier start, first-write, interrupted-resume, each coherent milestone, sensitive-operation, and closure boundaries of a Git-backed chantier, apply `git-persistence-preflight.md` and the standing convergence pass. This is silent when healthy: refresh/prune, resolve the canonical integration branch, inspect branch/upstream/PR/worktree relationships, and safely reconcile owned state. Before auth, payment, permission, migration, destructive, tenant, secret, production, or private-data mutation, require the relevant baseline backed up remotely; never manufacture a checkpoint from incomplete, failing, secret-bearing, ambiguous, or unrelated work.
 
 ## Applies To
 
@@ -301,7 +302,7 @@ If verification fails, route back to correction, retest, spec update, or blocked
 
 ### 8. Mandatory Visible Documentation Reflection Before Closure
 
-Before `104-sg-end`, full-close shipping, or any other report/transition claiming `closed`, `complete`, `done`, `resolved`, or `shipped`, load and apply `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` against the changed behavior and the canonical project docs map.
+Before `104-sg-end`, full-close shipping, or any other completion claim, apply `documentation-reflection-gate.md` to the exact task-owned changed paths. Revalidate invalidated context, then compare changed code with the canonical project docs map; missing coverage is `needs review`, not no impact.
 
 Use the reference's exact classification and routing rules; do not wait for the operator to notice documentation drift. Every closure report exposes `updated`, `not impacted — <concrete reason>`, or `needs review — <surface>`. A material `needs review` result keeps the chantier partial.
 

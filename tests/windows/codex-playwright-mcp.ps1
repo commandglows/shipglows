@@ -9,6 +9,8 @@ $parseErrors = $null
 [void][System.Management.Automation.Language.Parser]::ParseFile($modulePath, [ref]$parseTokens, [ref]$parseErrors)
 if ($parseErrors.Count -gt 0) { throw ($parseErrors | ForEach-Object Message | Out-String) }
 Import-Module $modulePath -Force -DisableNameChecking
+$currentPowerShellPath = (Get-Process -Id $PID -ErrorAction Stop).Path
+if (-not (Test-Path -LiteralPath $currentPowerShellPath -PathType Leaf)) { throw 'The current PowerShell host executable must be available for prerequisite tests.' }
 $installerSource = Get-Content -LiteralPath $installerPath -Raw
 if ($installerSource -notmatch "Id='playwright';Name='Playwright'" -or $installerSource -notmatch '\$install\.Id' -or $installerSource -match 'Resolve-SgNpmVersion \$NpmPath ''@playwright/cli''') { throw 'Managed Playwright must use one safe technical operation id and the CLI bundled with Playwright.' }
 
@@ -69,7 +71,7 @@ enabled = true
     try { [void](Set-SgCodexPlaywrightMcpConfig -ConfigPath (Join-Path $fixture 'latest.toml') -NpxPath $npx -PlaywrightVersion 'latest' -ChromiumPath $chromium) } catch { $mutableVersionFailed = $_.Exception.Message -match 'exact' }
     if (-not $mutableVersionFailed) { throw 'Codex Playwright MCP must reject mutable package tags.' }
 
-    $existingCommand = Join-Path $PSHOME 'powershell.exe'
+    $existingCommand = $currentPowerShellPath
     $missingCodex = Get-SgCodexPlaywrightPrerequisiteStatus '' $existingCommand $npx
     if ($missingCodex.Ready -or $missingCodex.Message -notmatch 'Codex CLI is unavailable') { throw 'Missing Codex diagnostic is not explicit.' }
     $missingNode = Get-SgCodexPlaywrightPrerequisiteStatus $existingCommand '' $npx

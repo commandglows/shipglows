@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-09-01"
 status: active
 source_skill: 103-sg-verify
 scope: 103-sg-verify-coherence
@@ -19,6 +19,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Coherence gates extracted from the former monolithic verification contract."
+  - "2026-09-01 regression: documentation coherence now derives from current changed paths, mapped owners and refreshed context."
 next_step: "/103-sg-verify progressive lifecycle activation compaction wave 4"
 ---
 
@@ -28,7 +29,7 @@ Use only for applicable documentation, closure, skill, Atlas, product-decision, 
 
 ## Documentation And Closure
 
-Align behavior/contracts with documentation or record an evidence-based no-impact verdict. Closure, changelog, archive, tracker, bug, spec, and source-of-truth state cannot claim more than implementation and proof. Internal ShipGlows contracts stay English; user-facing output uses the active language and correct French accents outside identifiers.
+Resolve the task-owned changed paths from current Git/delivery evidence. Require a fresh bounded capsule after relevant invalidation, or a targeted canonical fallback when the graph or Context Head is stale, absent, noisy, truncated, or unsupported. Compare changed code with `shipglows_data/technical/code-docs-map.md`; missing coverage or unresolved mapped owners prevent a clean verdict. Align behavior/contracts with mapped documentation or record the gate-derived no-impact result. Closure, changelog, archive, tracker, bug, spec, and source-of-truth state cannot claim more than implementation and proof. Editorial/public impact stays independent.
 
 ## Skill Coherence
 

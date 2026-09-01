@@ -11,6 +11,9 @@ Import-Module $modulePath -Force -DisableNameChecking
 
 function Assert-Sg([bool]$Condition, [string]$Message) { if (-not $Condition) { throw $Message } }
 
+$currentPowerShellPath = (Get-Process -Id $PID -ErrorAction Stop).Path
+Assert-Sg (Test-Path -LiteralPath $currentPowerShellPath -PathType Leaf) 'The current PowerShell host executable must be available for process transport tests.'
+
 $uncertain = Get-SgAndroidInstallPlan -Interactive $true -EmulatorSupported $false -EmulatorChoice ''
 Assert-Sg ($uncertain.AskEmulator) 'Interactive x64 hosts must keep the emulator choice even when acceleration is uncertain.'
 Assert-Sg ($uncertain.AccelerationWarning -and $uncertain.PhysicalDeviceAlternative) 'Uncertain acceleration must be disclosed without silently choosing for the operator.'
@@ -136,6 +139,7 @@ $toolboxPlan = @(Get-SgMachineToolboxPlan -Versions $toolboxVersions)
 Assert-Sg (($toolboxPlan.Name -join '|') -eq 'firebase|supabase|convex|vercel|clerk|auth0') 'The machine toolbox must install every approved provider CLI independently of project detection.'
 $toolboxConfig = Get-SgMachineToolboxMiseConfig -Plan $toolboxPlan
 foreach ($coordinate in @('npm:firebase-tools','aqua:supabase/cli','npm:convex','npm:vercel','npm:clerk','aqua:auth0/auth0-cli')) { Assert-Sg ($toolboxConfig.Contains('"' + $coordinate + '"')) "Machine toolbox config is missing $coordinate." }
+Assert-Sg ($toolboxConfig.Contains("[settings]`nlockfile = true`nlockfile_platforms = [`"windows-x64`"]")) 'The machine toolbox must generate a Windows-scoped mise lockfile for reproducible installs.'
 Assert-Sg ($toolboxConfig.Contains('"npm:vercel" = { version = "59.5.0", trust_policy_excludes = ["fastq@1.20.2"] }')) 'Vercel must carry only the reviewed fastq 1.20.2 mise trust-policy exception.'
 Assert-Sg ([regex]::Matches($toolboxConfig,'trust_policy_excludes').Count -eq 1) 'The Vercel trust-policy exception must not apply to another machine-toolbox package.'
 Assert-Sg ($toolboxConfig -notmatch '(?im)latest|stable|\*|\^|~') 'Machine toolbox config must contain only exact immutable versions.'
@@ -150,6 +154,7 @@ Assert-Sg ((Get-SgMachineToolboxMiseConfig -Plan $auth0PendingPlan) -notmatch 'a
 $installerSource = [IO.File]::ReadAllText((Join-Path $root 'cli\windows\install-devserver.ps1'))
 $exactToolRetry = '@(''install'',"$($item.Tool)@$($item.Version)")'
 Assert-Sg ($installerSource.Contains($exactToolRetry)) 'A partially installed machine toolbox must retry each missing CLI by exact mise coordinate.'
+Assert-Sg ($installerSource.Contains("@('lock','--platform','windows-x64')")) 'The installer must resolve Windows toolbox integrity metadata into mise.lock after installation.'
 Assert-Sg ($installerSource -match [regex]::Escape('$ready = Test-SgServiceCliResult $repair $verify $wrapper $item.Version')) 'Machine-toolbox readiness must depend on each CLI verification, not the aggregate install exit code.'
 Assert-Sg ($installerSource -match "Install-SgWingetPackage 'doppler[.]exe' 'Doppler[.]Doppler'" -and $installerSource -match "Test-SgToolRuns 'doppler[.]exe'.*'--version'") 'Doppler must use the official WinGet package and executable version evidence.'
 Assert-Sg ($installerSource -match "Install-SgApplicationCommandWrapper 'doppler' 'doppler[.]exe'" -and $installerSource -notmatch "doppler (?:login|setup|run|secrets)") 'The installer must expose Doppler without starting authentication, setup, execution, or secret access.'
@@ -534,11 +539,11 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
 '@, [Text.UTF8Encoding]::new($false))
     $unicodeArgument = 'unicod' + [char]0x00E9 + '-' + [char]0x6771 + [char]0x4EAC
     $special = @('space value',$unicodeArgument,'a"b','amp&ersand','percent%value','%PATH%','semi;colon')
-    $transport = Invoke-SgBoundedProcess -File "$PSHOME\powershell.exe" -Arguments (@('-NoProfile','-ExecutionPolicy','Bypass','-File',$echoScript) + $special) -TimeoutSeconds 20
+    $transport = Invoke-SgBoundedProcess -File $currentPowerShellPath -Arguments (@('-NoProfile','-ExecutionPolicy','Bypass','-File',$echoScript) + $special) -TimeoutSeconds 20
     Assert-Sg (-not $transport.TimedOut -and $transport.ExitCode -eq 0) "Executable argument transport failed: exit=$($transport.ExitCode) timeout=$($transport.TimedOut) output=$($transport.Output)"
     $transportArgs = @($transport.Output -split '\r?\n' | Where-Object { $_ -match '^[A-Za-z0-9+/]+={0,2}$' -and $_.Length % 4 -eq 0 } | ForEach-Object { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_)) })
     Assert-Sg (($transportArgs -join '|') -eq ($special -join '|')) "Executable argument boundaries or Unicode were changed: expected=$($special -join '|') actual=$($transportArgs -join '|') raw=$($transport.Output)"
-    $failedTransport = Invoke-SgBoundedProcess -File "$PSHOME\powershell.exe" -Arguments @('-NoProfile','-ExecutionPolicy','Bypass','-File',$echoScript,'--fail') -TimeoutSeconds 20
+    $failedTransport = Invoke-SgBoundedProcess -File $currentPowerShellPath -Arguments @('-NoProfile','-ExecutionPolicy','Bypass','-File',$echoScript,'--fail') -TimeoutSeconds 20
     Assert-Sg ($failedTransport.ExitCode -eq 7 -and $failedTransport.Output -match 'stdout-proof' -and $failedTransport.Output -match 'stderr-proof') 'Transport must preserve exit code, stdout, and stderr.'
     $cmd = Join-Path $transportDirectory 'echo args.cmd'
     [IO.File]::WriteAllText($cmd, "@echo off`r`n@powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0echo args.ps1`" %*`r`n", [Text.Encoding]::ASCII)
@@ -561,9 +566,9 @@ foreach ($value in $Values) { [Console]::Out.WriteLine([Convert]::ToBase64String
     Assert-Sg ($missingStart.ExitCode -eq -1) 'A missing batch host must report a bounded start failure.'
     $transportAfter = @(Get-ChildItem -LiteralPath ([IO.Path]::GetTempPath()) -Filter 'sg-transport-*.cmd' -ErrorAction SilentlyContinue | ForEach-Object FullName)
     Assert-Sg (($transportAfter -join '|') -eq ($transportBefore -join '|')) 'Failed or rejected batch starts must leave no sg-transport wrapper.'
-    $interactive = Invoke-SgInteractiveBoundedProcess -File "$PSHOME\powershell.exe" -Arguments @('-NoProfile','-Command','exit 0') -TimeoutSeconds 20
+    $interactive = Invoke-SgInteractiveBoundedProcess -File $currentPowerShellPath -Arguments @('-NoProfile','-Command','exit 0') -TimeoutSeconds 20
     Assert-Sg $interactive 'Interactive encoded transport failed.'
-    $timeout = Invoke-SgBoundedProcess -File "$PSHOME\powershell.exe" -Arguments @('-NoProfile','-Command','Start-Sleep -Seconds 5') -TimeoutSeconds 1
+    $timeout = Invoke-SgBoundedProcess -File $currentPowerShellPath -Arguments @('-NoProfile','-Command','Start-Sleep -Seconds 5') -TimeoutSeconds 1
     Assert-Sg ($timeout.TimedOut) 'Encoded transport timeout must stop the exact process identity.'
     $utf8Cmd = Join-Path $transportDirectory 'utf8 diagnostic.cmd'
     [IO.File]::WriteAllText($utf8Cmd, "@echo off`r`n@powershell.exe -NoProfile -Command `"[Console]::OutputEncoding=[Text.UTF8Encoding]::new(`$false);[Console]::Write([char]0x2713)`"`r`n", [Text.Encoding]::ASCII)
