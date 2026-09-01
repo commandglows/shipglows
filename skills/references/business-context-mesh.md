@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-22"
+updated: "2026-09-01"
 status: active
 source_skill: 900-shipglows-core
 scope: business-context-mesh
@@ -22,6 +22,7 @@ linked_systems:
   - skills/references/product-decision-chain.md
   - skills/references/question-contract.md
   - skills/references/mutation-plan-approval.md
+  - skills/references/project-delivery-policy.md
   - shipglows_data/business/
   - shipglows_data/branding/
 depends_on:
@@ -37,8 +38,12 @@ depends_on:
   - artifact: skills/references/mutation-plan-approval.md
     artifact_version: "1.2.0"
     required_status: active
+  - artifact: skills/references/project-delivery-policy.md
+    artifact_version: "1.3.0"
+    required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: canonical business context owns project delivery posture and the context mesh must recover it before branch selection."
   - "Operator decision 2026-08-22: the target mesh resolves business, brand, product, outcome, surface, and work item without assuming software."
   - "Operator decision 2026-08-13: every métier must act as a business partner grounded in the existing business corpus."
   - "Core audit 2026-08-13: business sources existed but no shared runtime selector connected them to every public outcome path."
@@ -63,7 +68,7 @@ Skip this mesh for routine reversible mechanics whose outcome cannot differ unde
 
 | Source family | Canonical project source | Decision authority | Load when |
 | --- | --- | --- | --- |
-| Business | `shipglows_data/business/business.md` | priority customer, problem, value, model, constraints | beneficiary, value, viability, risk, or leverage matters |
+| Business | `shipglows_data/business/business.md` | priority customer, problem, value, model, constraints, product delivery posture | beneficiary, value, viability, risk, leverage, release posture, or Git integration target matters |
 | Product | `shipglows_data/business/product.md` | promise, outcomes, capabilities, scope, non-goals | behavior, journey, experience, scope, or acceptance changes |
 | Go-to-market | `shipglows_data/business/gtm.md` | positioning, offer, objections, channels, conversion, claim limits | acquisition, conversion, pricing, launch, or public promise matters |
 | Brand | `shipglows_data/branding/branding.md` | voice, vocabulary, feeling, trust posture, forbidden claims | a user-facing experience, message, identity, or recovery moment changes |
@@ -81,6 +86,7 @@ Start with the source that owns the decision, then add only sources needed to de
 - content, marketing, SEO, or public documentation usually combines Business, Product, GTM, and Brand, then loads `editorial-content-corpus.md` for surface and claim governance;
 - planning and portfolio work starts with Business and Product; add Portfolio and Alternatives only for cross-project or differentiation decisions;
 - release, reliability, and internal engineering load business context only when availability, trust, cost, user behavior, or a public promise can change;
+- every delivery-sensitive or Git branch-selection decision loads the canonical Business `delivery_posture` field even when no other business source is needed;
 - Partnerships is never inferred from a generic recommendation: load it when commercial relationships or disclosures are actually relevant.
 
 Do not read every family by default. Stop adding sources when another file cannot change the decision, expose a material conflict, or strengthen the required proof.
@@ -90,6 +96,7 @@ Do not read every family by default. Stop adding sources when another file canno
 Inspect metadata, applicability, version/date, and evidence state before relying on a source. `draft`, `hypothesis`, `unknown`, overdue review, or mismatched scope cannot silently become confirmed truth. Apply `context-quality-contract.md` when sufficiency, freshness, or conflict affects action.
 
 - Missing context is a visible evidence gap, not permission to invent strategy.
+- Missing or invalid `delivery_posture` invokes `project_delivery_policy.py`, then one product-status question and exact canonical persistence before branch selection; runtime state and pitch cannot fill the gap.
 - Two applicable confirmed sources that disagree produce `context_conflict` and stop dependent mutation.
 - Creating or substantially repairing business, product, GTM, or brand truth routes through `guided-business-product-discovery.md`.
 - A material change to confirmed business or product meaning routes through `product-decision-chain.md` before dependent implementation.
@@ -118,4 +125,5 @@ Use `guided-business-product-discovery.md` for the questioning and confirmation 
 - `BUSINESS-MESH-03 CONDITIONAL-EDGE`: competitor, portfolio, or affiliate sources load only when differentiation, cross-project direction, partnership, or disclosure can change the outcome.
 - `BUSINESS-MESH-04 PROJECT-FIRST`: work in another managed project reads that project's governance corpus and never substitutes ShipGlows business truth.
 - `BUSINESS-MESH-05 ACTIVE-REFRESH`: a material governing gap triggers evidence review, a proposed interpretation, one authority-owned question, an authorized canonical update, and automatic resumption of the original outcome.
+- `BUSINESS-MESH-06 DELIVERY-POSTURE`: a delivery or Git decision reads `delivery_posture` from canonical business context; missing truth triggers one product question, exact persistence, and automatic resumption.
 - `BUSINESS-MESH-06 NO-QUESTION-OFFLOAD`: an agent-researchable market, competitor, repository, or technical fact is investigated by the agent and never offloaded to the ordering authority.

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-09-01"
@@ -25,6 +25,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-01: milestone delivery derives its integration branch from canonical business delivery posture and never from runtime or agent files."
   - "Operator decision 2026-09-01: Git/GitHub persistence and safe convergence are autonomous at project start, coherent milestones, and chantier end."
   - "Operator decision 2026-08-21: every validated milestone is committed and every completed chantier is committed and pushed to prevent local work loss."
   - "Operator clarification 2026-08-21: every validated milestone is also pushed so development work is never protected only by the local machine."
@@ -43,7 +44,7 @@ For an approved mutating chantier in a Git repository:
 2. at chantier end, commit every remaining owned change and push all owned commits to the resolved current branch upstream
 3. do not claim clean closure until that push succeeds
 
-No separate Git validation is requested. Standing Git/GitHub stewardship authority covers exact-scope commits, pushes, safe reconciliation, and proven-integrated cleanup. Resolve the canonical integration branch from `project-delivery-policy.md`: `main` for non-live `development`, `dev` for live `published` or `sensitive-production`; `main` remains the production branch for live projects.
+No separate Git validation is requested. Standing Git/GitHub stewardship authority covers exact-scope commits, pushes, safe reconciliation, and proven-integrated cleanup. Resolve the canonical integration branch with `project-delivery-policy.md` from business-context `delivery_posture` only: `main` for non-live `development`, `dev` for live `published` or `sensitive-production`; `main` remains the production branch for live projects. Missing posture asks one product question and records the exact canonical field before continuing.
 
 The approved technical chantier plan grants these exact-scope checkpoint commits and ordinary current-branch pushes, plus final delivery, when the plan names remote delivery. It never grants force push, history rewriting, tags, releases, deployments, merges, pull requests, hook bypass, or unrelated staging.
 

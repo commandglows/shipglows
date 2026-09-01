@@ -1,7 +1,7 @@
 ---
 artifact: business_context
 metadata_schema_version: "1.0"
-artifact_version: "0.2.0"
+artifact_version: "0.3.0"
 project: "[project name]"
 created: "YYYY-MM-DD"
 updated: "YYYY-MM-DD"
@@ -15,6 +15,7 @@ business_model: "[business model]"
 target_audience: "[target audience]"
 value_proposition: "[value proposition]"
 market: "[market]"
+delivery_posture: "[development | published | sensitive-production]"
 security_impact: unknown
 docs_impact: yes
 evidence: []
@@ -62,6 +63,10 @@ next_step: "/sg-docs audit"
 ## Decisions, Hypotheses And Unknowns
 
 <!-- Keep these three states explicit so another agent knows what is settled and what to ask next. -->
+
+`delivery_posture` is required product truth: `development` means non-live;
+`published` means live; `sensitive-production` means live with stronger
+production safeguards. Do not derive it from runtime or hosting evidence alone.
 
 ## Risks
 

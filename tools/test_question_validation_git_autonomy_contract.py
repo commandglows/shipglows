@@ -40,6 +40,8 @@ class QuestionValidationGitAutonomyContractTests(unittest.TestCase):
             "A question is not a validation request, and its answer never authorizes a mutation",
             self.question,
         )
+        self.assertIn("one named canonical field", self.question)
+        self.assertIn("SSRP-019 bounded-product-fact-capture", self.question)
 
     def test_git_has_standing_authority_and_status_driven_targets(self) -> None:
         for marker in (
