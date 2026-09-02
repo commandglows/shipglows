@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Experience"
+  short_description: "Improve customer journeys, onboarding, and trust"
+  default_prompt: "Use $sg-experience to improve this customer journey and its trust signals."
 policy:
   allow_implicit_invocation: true

@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Content"
+  short_description: "Create and maintain public-facing content"
+  default_prompt: "Use $sg-content to create or improve this public-facing content."
 policy:
   allow_implicit_invocation: true

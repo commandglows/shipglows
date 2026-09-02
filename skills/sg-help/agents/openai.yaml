@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Help"
+  short_description: "Explain ShipGlows skills, modes, and workflows"
+  default_prompt: "Use $sg-help to explain the relevant ShipGlows skill, mode, or workflow."
 policy:
   allow_implicit_invocation: true
