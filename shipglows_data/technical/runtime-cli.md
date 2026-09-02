@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.43.0"
+artifact_version: "1.44.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-02"
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Linked skills-only update 2026-09-02: `shipglows skills update` fast-forwards the clean linked maintainer checkout without invoking the Windows bootstrap, developer-tool convergence, Rust, Tauri, SDK, IDE, or runtime installation; a fresh agent session reloads the live skills."
   - "Windows runtime transaction replay 2026-09-02: payload-backed files are staged before activation, native launchers are generated inside the protected action, and the manifest commits only after every declared generated output exists."
   - "Native Windows launcher replay 2026-09-02: the compiled root menu renders before any CMD or PowerShell child, then preserves managed-engine arguments and exit codes after dispatch."
   - "Native Windows Obsidian adapter 2026-09-01: manifest and dependency evidence outrank generic Vite, start runs the declared watch workflow without HTTP, and artifact copy is restricted to one explicitly configured vault."
@@ -556,6 +557,14 @@ version-drifted coding-agent CLIs, installs only accepted exact versions, and
 never infers upgrade consent in non-interactive mode. This is the supported
 refresh path; the already-installed `cli/windows/install-devserver.ps1` only
 copies its current local source and must not be treated as a network updater.
+
+For the linked maintainer channel, `shipglows skills update` and
+`s skills update` are the narrow frequent refresh path. They require a clean,
+attached checkout with a configured upstream and run only `git pull --ff-only`
+against that checkout. They never invoke the bootstrap or converge the runtime,
+developer tools, Rust, Tauri, SDKs, licences, emulators, or IDEs. A fresh Codex
+or Claude session then loads the updated live skills. The command fails closed
+on the stable installed channel, where skills remain runtime-managed.
 
 Windows exposes a separate global developer-tool surface through
 `shipglows tools status|update` and `s tools status|update`. Status is read-only:

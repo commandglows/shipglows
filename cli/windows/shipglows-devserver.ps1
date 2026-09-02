@@ -125,6 +125,7 @@ ShipGlows Windows shortcuts
   s capabilities    Print the closed CLI capability snapshot as JSON
   s private-data ...              Manage the explicit private-data connection and capability
   s env inspect|plan|verify|status|apply    Manage the current project environment
+  s skills update  Fast-forward only the live skills checkout (linked channel)
   s u      Update ShipGlows from the active stable or linked channel
   s update status  Show the active ShipGlows update channel
   s tools status   Preview global developer-tool updates without changing them
@@ -186,7 +187,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','skills-update','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -202,6 +203,7 @@ function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
         'm n' = 'navigate'
         'a'   = 'auth'
         'u'   = 'update'
+        'skills update' = 'skills-update'
         'update status' = 'update-status'
         'tools status' = 'tools-status'
         'tools update' = 'tools-update'
@@ -221,7 +223,7 @@ catch {
 # Update routes are recovery paths: an older installed runtime may be unable to
 # refresh a capability snapshot that a newer runtime has already corrected.
 # Let those routes reach the official updater/status implementation first.
-if ($Action -notin @('update','update-status')) {
+if ($Action -notin @('skills-update','update','update-status')) {
     [void](Write-SgCliCapabilitySnapshot $config)
 }
 
@@ -652,6 +654,20 @@ function Show-SgUpdateStatus {
     if ($source.Channel -eq 'linked') { Write-Host 'Linked skills already follow the checkout. Start a new Codex or Claude session after source changes.' -ForegroundColor DarkGray }
 }
 
+function Invoke-SgSkillsUpdate {
+    $source = Get-SgUpdateSource
+    if ($source.Channel -ne 'linked') {
+        throw "Skills-only update requires the linked maintainer channel. Run 's update status' to inspect the active channel; use 's update' for the stable installed runtime."
+    }
+
+    $git = Get-SgApplication 'git.exe' @()
+    if (-not $git) { throw 'Git is required to update the linked ShipGlows skills checkout.' }
+    Write-SgInfo "Updating live ShipGlows skills from $($source.Upstream) without running the installer..."
+    & $git -C $source.Root pull --ff-only
+    if ($LASTEXITCODE -ne 0) { throw 'Linked ShipGlows skills update failed; no installer or toolchain convergence was started.' }
+    Write-SgInfo 'Skills updated. Start a new Codex or Claude session to load the refreshed skills.'
+}
+
 function Get-SgDeveloperToolAllowlist {
     return @(Get-SgDeveloperToolWingetDefinitions | ForEach-Object { "$($_.Name) ($($_.PackageId))" }) + @(
         'pnpm',
@@ -933,6 +949,7 @@ function Invoke-Menu {
         'n  Navigate to a project',
         'a  Authentication',
         'r  Refresh',
+        'i  Update skills',
         't  Update developer tools',
         'u  Update ShipGlows',
         '0  Quit ShipGlows'
@@ -946,7 +963,7 @@ function Invoke-Menu {
             if (-not $selected) { continue }
             $choice = $selected.Substring(0,1)
         } else {
-            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  r) Refresh  t) Update tools  u) Update ShipGlows  0) Quit ShipGlows'
+            Write-Host ''; Write-Host '1) Clone  2) Register  3) Start  4) Stop  5) Restart  6) Logs  7) Open  8) Stop all  9) Unregister  n) Navigate  a) Authentication  r) Refresh  i) Update skills  t) Update tools  u) Update ShipGlows  0) Quit ShipGlows'
             $choice = Read-Host 'Choice'
         }
         # The user's think time is the refresh window. Adopt a completed
@@ -966,6 +983,7 @@ function Invoke-Menu {
                 'n' { Invoke-Navigate }
                 'a' { Invoke-SgAuthenticationMenu }
                 'r' { Wait-SgBackgroundCatalogRefresh; Get-SgProjectCatalog $config -ForceRefresh | Out-Null }
+                'i' { Invoke-SgSkillsUpdate; return }
                 't' { Invoke-SgDeveloperToolsUpdate; return }
                 'u' { Invoke-SgUpdate; return }
                 '0' { return }
@@ -1038,6 +1056,7 @@ try {
         'navigate' { Invoke-Navigate }
         'auth' { Invoke-SgAuthenticationMenu }
         'capabilities' { Read-SgCliCapabilitySnapshot $config | ConvertTo-Json -Depth 5 -Compress }
+        'skills-update' { Invoke-SgSkillsUpdate }
         'update' { Invoke-SgUpdate }
         'update-status' { Show-SgUpdateStatus }
         'tools-status' { Show-SgDeveloperToolsStatus }
