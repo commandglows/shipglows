@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.15.0"
+artifact_version: "1.16.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-08-27"
+updated: "2026-09-02"
 status: reviewed
 source_skill: sg-start
 scope: technical-docs-index
@@ -41,6 +41,7 @@ evidence:
   - "Auth0 platform note added for SDK, native CLI, Deploy CLI, MCP, tenant, authentication, and hosted-proof boundaries."
   - "Doppler platform note added for native CLI, keychain, environment scope, process injection, service-token, MCP, and agent-safety boundaries."
   - "Hetzner project usage note reduced to public-safe logical runtime and managed-workspace roles; operational inventory now lives in the private operator repository."
+  - "Portfolio source-intelligence integration map added for project context, competitor newsletters, shared analysis contracts, managed-runner orchestration, and Flutter review boundaries."
 next_review: "2026-06-18"
 next_step: "/sg-docs technical audit"
 ---
@@ -90,6 +91,7 @@ It does not share canonical ownership with random root notes. When a root techni
 | `latest-build-artifact-access.md` | Latest successful local/CI Windows packages and Android APKs, private cache/state, desktop shortcuts, GitHub artifact synchronization, and platform limits |
 | `codex-plugin-packaging.md` | `/home/claude/plugins/shipglows/`, personal marketplace, plugin manifest, sparse source bootstrap |
 | `product-behavior-intelligence.md` | Cross-project product analytics framing for behavior graphs, activation, retention, feature impact, exploratory analytics, and GTM proof |
+| `portfolio-source-intelligence-integration-map.md` | Portfolio corpus, competitor-newsletter adapters, provider-neutral source analysis, managed-runner persistence, Flutter review, and controlled project handoffs |
 | `decisions.md` | ADR-style decisions, `decision_record` templates, durable decision routing |
 | `github-actions.md` | GitHub Actions workflow cost, caches, monorepo triggers, job topology, deploy guards, and artifacts |
 | `design-system-authority.md` | Project UI design-system authority: canonical token/theme source, component bridge, layout/motion authority, forbidden bypasses, and validation |
