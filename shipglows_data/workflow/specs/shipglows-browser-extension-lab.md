@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-29"
 created_at: "2026-08-29 03:21:09 UTC"
-updated: "2026-08-29"
-updated_at: "2026-08-29 03:21:09 UTC"
+updated: "2026-09-02"
+updated_at: "2026-09-02 16:14:46 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: gpt-5
@@ -32,7 +32,7 @@ evidence:
   - "Current ShipGlows extension support is limited to one CRXJS convention."
   - "Chrome BRAT, ToolGlows and a clean CommunityGlows build loaded successfully in temporary Chromium on 2026-08-29."
   - "GitHub Actions runs 33231777712, 33245930207 and 33245930149 published validated Chrome artifacts."
-next_step: "Implement the ShipGlows Core foundation"
+next_step: "Deliver the screenshot-capable Extension Lab milestone"
 ---
 
 # Spec: ShipGlows Browser Extension Lab
@@ -216,6 +216,13 @@ Introduire un contrat de détection indépendant du framework et un laboratoire 
   - Depends on: comportements stabilisés des Tasks 1-4.
   - Validate with: contrôle des liens/commandes et revue des affirmations contre les preuves.
   - Notes: aucun « one click » non prouvé.
+- [x] Task 6: conserver une preuve visuelle isolée.
+  - File: `cli/windows/`, tests Windows et documentation du Lab.
+  - Action: ajouter `-Screenshot`, capturer la cible explicite ou le popup à `1280 × 800`, et retourner le chemin absolu dans le contrat JSON.
+  - User story link: permettre à un agent d'observer lui-même le rendu injecté sans profil personnel.
+  - Depends on: Tasks 1-3.
+  - Validate with: ToolGlows sur `https://example.com/`, PNG lisible et contrat `visual` complet.
+  - Notes: l'interaction DOM/CSS, les thèmes pilotés et la preuve Edge restent hors de ce jalon.
 
 ## Acceptance Criteria
 
@@ -227,6 +234,7 @@ Introduire un contrat de détection indépendant du framework et un laboratoire 
 - [x] AC 6: les agents disposent d'une sortie stable et d'un playbook autonome.
 - [x] AC 7: un novice dispose d'un parcours cinq minutes, d'un glossaire et d'exemples réels.
 - [x] AC 8: CI et dépôts pilotes prouvent les modes statique et construit.
+- [x] AC 9: `-Screenshot` conserve un PNG `1280 × 800` hors du profil jetable et retourne son statut, son chemin absolu et son viewport dans `visual`.
 
 ## Test Strategy
 
@@ -260,14 +268,16 @@ None
 | 2026-08-29 03:58:00 UTC | 103-sg-verify | gpt-5 | Proved local builds, isolated loading and three remote artifact workflows | partial | Prove popup/worker behavior and unavailable-CDP recovery |
 | 2026-08-29 04:32:00 UTC | 103-sg-verify | gpt-5 | Opened all three popups, observed their workers and surfaced then fixed missing packaged favicons | partial | Simulate unavailable-CDP recovery |
 | 2026-08-29 09:50:00 UTC | 103-sg-verify | gpt-5 | Simulated unavailable CDP and observed ToolGlows content scripts on an explicit neutral target | passed | Ship milestone |
+| 2026-09-02 16:05:00 UTC | 001-sg-build | gpt-5 | Added retained screenshot proof and the stable visual JSON contract | implemented | Complete focused and real-browser verification |
+| 2026-09-02 16:14:46 UTC | 103-sg-verify | gpt-5 | Passed focused contracts and captured ToolGlows at 1280 x 800 in an isolated Chromium profile | passed | Deliver the validated milestone |
 
 ## Current Chantier Flow
 
 - `sg-spec`: done, ready contract created from approved plan.
 - `sg-ready`: passed through adversarial contract review; no material open question.
 - `sg-start`: implemented for detection, isolated loading, CI artifacts and onboarding.
-- `sg-verify`: passed; build/load/CI, popup diagnostics, worker observation, unavailable-CDP recovery and opt-in content-script observation are covered.
+- `sg-verify`: passed; focused contracts, ToolGlows content-script observation and retained `1280 x 800` screenshot proof are covered.
 - `sg-end`: not launched.
 - `sg-ship`: milestone delivery pending.
 
-Next step: ship the validated milestone without publishing or store submission.
+Next step: verify and deliver the screenshot-capable milestone without publishing or store submission.
