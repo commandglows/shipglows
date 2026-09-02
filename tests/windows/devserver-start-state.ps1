@@ -9,6 +9,32 @@ try {
     Set-Content (Join-Path $surface 'package.json') '{"devDependencies":{"vite":"latest"},"scripts":{"dev":"vite"}}' -Encoding UTF8
     Import-Module $modulePath -Force -DisableNameChecking
     $module = Get-Module ShipGlows.DevServer
+    & $module {
+        $started=[DateTimeOffset]::Parse('2026-09-02T00:00:00Z').UtcDateTime
+        $silent=[pscustomobject]@{status='starting';appId='app-1';daemonPid=10;lastError=$null;progressActive=$false;lastProgressAtUtc=$null}
+        $silentDecision=Get-SgFlutterStartupDecision $silent $started $started.AddSeconds(91) 90 300 600
+        if(-not$silentDecision.Terminal-or$silentDecision.StartupState-ne'timed-out'){throw 'Silent Flutter startup did not reach its deterministic base timeout.'}
+        $one=[pscustomobject]@{status='building';appId='app-1';daemonPid=10;lastError=$null;progressActive=$true;lastProgressAtUtc=$started.AddSeconds(80).ToString('o')}
+        $oneDecision=Get-SgFlutterStartupDecision $one $started $started.AddSeconds(250) 90 300 600
+        if($oneDecision.Terminal-or$oneDecision.StartupState-ne'building'){throw 'One valid Flutter progress event did not extend readiness for a slow Windows build.'}
+        $jsonOne=('{"status":"building","appId":"app-1","daemonPid":10,"lastError":null,"progressActive":true,"lastProgressAtUtc":"'+$started.AddSeconds(80).ToString('o')+'"}')|ConvertFrom-Json
+        $jsonDecision=Get-SgFlutterStartupDecision $jsonOne $started $started.AddSeconds(250) 90 300 600
+        if($jsonDecision.Terminal-or$jsonDecision.StartupState-ne'building'){throw 'PowerShell JSON date conversion collapsed the Flutter progress lease.'}
+        $many=[pscustomobject]@{status='building';appId='app-1';daemonPid=10;lastError=$null;progressActive=$true;lastProgressAtUtc=$started.AddSeconds(350).ToString('o')}
+        $manyDecision=Get-SgFlutterStartupDecision $many $started $started.AddSeconds(500) 90 300 600
+        if($manyDecision.Terminal-or$manyDecision.StartupState-ne'building'){throw 'Repeated Flutter progress did not rearm the bounded readiness lease.'}
+        $hardDecision=Get-SgFlutterStartupDecision $many $started $started.AddSeconds(601) 90 300 600
+        if(-not$hardDecision.Terminal-or$hardDecision.StartupState-ne'timed-out-with-live-progress'){throw 'Flutter progress bypassed the absolute startup ceiling.'}
+        $finished=[pscustomobject]@{status='starting';appId='app-1';daemonPid=10;lastError=$null;progressActive=$false;lastProgressAtUtc=$started.AddSeconds(80).ToString('o')}
+        $finishedDecision=Get-SgFlutterStartupDecision $finished $started $started.AddSeconds(391) 90 300 600
+        if(-not$finishedDecision.Terminal-or$finishedDecision.StartupState-ne'timed-out'){throw 'Finished Flutter progress incorrectly remained live.'}
+        $ready=[pscustomobject]@{status='running';appId='app-1';daemonPid=10;lastError=$null;progressActive=$false;lastProgressAtUtc=$null}
+        $readyDecision=Get-SgFlutterStartupDecision $ready $started $started.AddSeconds(500) 90 300 600
+        if(-not$readyDecision.Terminal-or-not$readyDecision.Ready-or$readyDecision.AppId-ne'app-1'){throw 'Matching app.started state was not accepted as running.'}
+        $error=[pscustomobject]@{status='error';appId='app-1';daemonPid=10;lastError='Flutter failed.';progressActive=$false;lastProgressAtUtc=$null}
+        $errorDecision=Get-SgFlutterStartupDecision $error $started $started.AddSeconds(1) 90 300 600
+        if(-not$errorDecision.Terminal-or$errorDecision.StartupState-ne'failed'-or$errorDecision.Error-ne'Flutter failed.'){throw 'Supervisor error did not fail readiness immediately.'}
+    }
     $config = [pscustomobject]@{Workspace=$fixture;RuntimeDirectory=$runtime;RegistryPath=(Join-Path $runtime 'registry.json');LockPath=(Join-Path $runtime 'registry.lock');LogDirectory=$logs;PortStart=32200;PortEnd=32209}
     [void](Write-SgProjectEnvironment $surface 32205)
     $result = & $module {

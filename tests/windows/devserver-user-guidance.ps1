@@ -58,7 +58,7 @@ try {
     $frontend = [IO.File]::ReadAllText($frontendPath)
     Assert-Sg ($frontend -match "'status'") 'The Windows CLI has no project status action.'
     Assert-Sg ($frontend -match 'Open / load project') 'The Windows menu still implies that every project opens as a website.'
-    foreach ($expected in @('Web project','Flutter app','Chrome extension','s start -ProjectPath','s open -ProjectPath','s status -ProjectPath','s stop -ProjectPath')) {
+    foreach ($expected in @('Web project','Flutter app','Chrome extension','s start -ProjectPath','s reload -ProjectPath','s open -ProjectPath','s status -ProjectPath','s stop -ProjectPath')) {
         Assert-Sg ($frontend.Contains($expected)) "Windows help omitted: $expected"
     }
 

@@ -106,6 +106,7 @@ ShipGlows Windows shortcuts
   s status                           Show every project surface and state
   s status -ProjectPath <path>       Show one project, its port role, and next action
   s start -ProjectPath <path>       Start a web project, app, Chrome extension, or configured Obsidian plugin
+  s reload -ProjectPath <path>      Hot reload the exact ready managed Flutter session
   s extension-inspect [-ProjectPath <path>] [-Json]  Inspect an extension without running repository scripts
   s extension-lab [-ProjectPath <path>] [-Headless] [-Json] [-TargetUrl <url>]  Load and probe a built MV3 extension in isolated Chromium
   s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-Screenshot]  Load a built plugin in disposable local Obsidian
@@ -130,7 +131,7 @@ ShipGlows Windows shortcuts
 
 Project journeys
   Web project      Start -> Open the managed local URL -> Stop
-  Flutter app      Start live (Windows by default when supported) -> Develop/reload -> Stop
+  Flutter app      Start live (Windows by default when supported) -> s reload -ProjectPath <path> -> Stop
                    .shipglows.env can explicitly select windows, android, chrome, or web-server.
   Chrome extension Inspect -> explicitly build when required -> Extension Lab -> close Chromium
   The Extension Lab uses a temporary Chromium profile and never runs repository scripts implicitly.
@@ -182,7 +183,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','extension-inspect','extension-lab','obsidian-lab','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -974,6 +975,13 @@ try {
         'start' {
             if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
             else { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
+        }
+        'reload' {
+            if(-not$ProjectPath){throw 'reload unavailable: ProjectPath is required.'}
+            $reload=Invoke-SgFlutterProjectReload $config $ProjectPath 10
+            if($reload.Status-eq'succeeded'){Write-Host 'reload succeeded'}
+            elseif($reload.Status-eq'unavailable'){throw "reload unavailable: $($reload.Reason)"}
+            else{throw "reload failed: $($reload.Reason)"}
         }
         'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath) } else { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } } }
         'restart' {

@@ -108,6 +108,41 @@ try {
 
         $ipcRoot=Join-Path ([IO.Path]::GetTempPath()) ("sg-ipc-timeout-{0}" -f [guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Path $ipcRoot,(Join-Path $ipcRoot 'commands'),(Join-Path $ipcRoot 'responses') -Force|Out-Null
         try{Protect-SgOwnerOnlyPath $ipcRoot;Protect-SgOwnerOnlyPath (Join-Path $ipcRoot 'commands');Protect-SgOwnerOnlyPath (Join-Path $ipcRoot 'responses');$tokenPath=Join-Path $ipcRoot 'token';[IO.File]::WriteAllText($tokenPath,('a'*64));Protect-SgOwnerOnlyPath $tokenPath;$ipcEntry=[pscustomobject]@{flutterLaunchDirectory=$ipcRoot;flutterTokenPath=$tokenPath};try{[void](Invoke-SgFlutterSupervisorCommand $ipcEntry reload 0);throw 'IPC timeout was accepted.'}catch{if($_.Exception.Message -eq 'IPC timeout was accepted.'){throw}};if(@(Get-ChildItem (Join-Path $ipcRoot 'commands') -File).Count-ne0){throw 'Timed-out IPC command file was left published.'}}finally{Remove-Item -LiteralPath $ipcRoot -Recurse -Force -ErrorAction SilentlyContinue}
+
+        $runIpcResponse = {
+            param([string]$ResponseJson,[int]$DelayMilliseconds,[int]$TimeoutSeconds)
+            $root=Join-Path ([IO.Path]::GetTempPath()) ("sg-ipc-response-{0}" -f [guid]::NewGuid().ToString('N'))
+            New-Item -ItemType Directory -Path $root,(Join-Path $root 'commands'),(Join-Path $root 'responses') -Force|Out-Null
+            try{
+                Protect-SgOwnerOnlyPath $root;Protect-SgOwnerOnlyPath (Join-Path $root 'commands');Protect-SgOwnerOnlyPath (Join-Path $root 'responses')
+                $tokenPath=Join-Path $root 'token';[IO.File]::WriteAllText($tokenPath,('b'*64));Protect-SgOwnerOnlyPath $tokenPath
+                $job=Start-Job -ScriptBlock {param($root,$json,$delay);$deadline=[datetime]::UtcNow.AddSeconds(5);do{$command=Get-ChildItem (Join-Path $root 'commands') -Filter '*.json' -File -ErrorAction SilentlyContinue|Select-Object -First 1;if($command){Start-Sleep -Milliseconds $delay;[IO.File]::WriteAllText((Join-Path (Join-Path $root 'responses') $command.Name),$json);return};Start-Sleep -Milliseconds 20}while([datetime]::UtcNow-lt$deadline)} -ArgumentList $root,$ResponseJson,$DelayMilliseconds
+                try{return Invoke-SgFlutterSupervisorCommand ([pscustomobject]@{flutterLaunchDirectory=$root;flutterTokenPath=$tokenPath}) reload $TimeoutSeconds}finally{Wait-Job $job -Timeout 7|Out-Null;Remove-Job $job -Force -ErrorAction SilentlyContinue}
+            }finally{Remove-Item -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue}
+        }
+        $realSuccess=& $runIpcResponse '{"ok":true,"method":"reload"}' 0 2
+        if(-not$realSuccess.ok-or$realSuccess.method-ne'reload'){throw 'A valid real IPC response was not accepted.'}
+        try{[void](& $runIpcResponse '{"ok":"true","method":"reload"}' 0 2);throw 'Malformed real IPC response was accepted.'}catch{if($_.Exception.Message-eq'Malformed real IPC response was accepted.'){throw};if($_.Exception.Message-notmatch'Malformed Flutter supervisor response'){throw}}
+        try{[void](& $runIpcResponse '{"ok":true,"method":"reload"}' 1500 1);throw 'Late real IPC response was accepted.'}catch{if($_.Exception.Message-eq'Late real IPC response was accepted.'){throw};if($_.Exception.Message-notmatch'timed out'){throw}}
+
+        $reloadRoot=Join-Path ([IO.Path]::GetTempPath()) ("sg-project-reload-{0}" -f [guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Path $reloadRoot -Force|Out-Null
+        try{
+            $reloadPath=Join-Path $reloadRoot 'app';New-Item -ItemType Directory -Path $reloadPath -Force|Out-Null
+            $reloadState=Join-Path $reloadRoot 'state.json';[IO.File]::WriteAllText($reloadState,'{"status":"running","ready":true,"appId":"app-live","daemonPid":77}')
+            $script:reloadEntry=[pscustomobject]@{path=$reloadPath;kind='flutter-web';status='running';pid=7;flutterAppId='app-live';flutterDaemonPid=77;flutterLaunchDirectory=$reloadRoot;flutterTokenPath=(Join-Path $reloadRoot 'token')}
+            function Read-SgRegistry{[pscustomobject]@{projects=@($script:reloadEntry)}}
+            function Test-SgProcessIdentity{$true}
+            $script:reloadCalls=0
+            function Invoke-SgFlutterSupervisorCommand{$script:reloadCalls++;[pscustomobject]@{ok=$true;method='reload'}}
+            $reloadResult=Invoke-SgFlutterProjectReload ([pscustomobject]@{}) $reloadPath 1
+            if($reloadResult.Status-ne'succeeded'-or$script:reloadCalls-ne1){throw 'Ready managed Flutter reload did not use the existing IPC exactly once.'}
+            $script:reloadEntry.status='starting';$beforeCalls=$script:reloadCalls;$unavailable=Invoke-SgFlutterProjectReload ([pscustomobject]@{}) $reloadPath 1
+            if($unavailable.Status-ne'unavailable'-or$script:reloadCalls-ne$beforeCalls){throw 'Reload during startup touched IPC or was not classified unavailable.'}
+            $script:reloadEntry.status='running';$script:reloadEntry.flutterAppId='stale-app';$stale=Invoke-SgFlutterProjectReload ([pscustomobject]@{}) $reloadPath 1
+            if($stale.Status-ne'unavailable'-or$script:reloadCalls-ne$beforeCalls){throw 'Stale Flutter appId was allowed to reload.'}
+            $script:reloadEntry.flutterAppId='app-live';function Invoke-SgFlutterSupervisorCommand{throw 'Flutter supervisor reload command timed out.'};$failedReload=Invoke-SgFlutterProjectReload ([pscustomobject]@{}) $reloadPath 1
+            if($failedReload.Status-ne'failed'-or$failedReload.Reason-notmatch'timed out'){throw 'Reload IPC timeout was not classified as failed.'}
+        }finally{Remove-Item -LiteralPath $reloadRoot -Recurse -Force -ErrorAction SilentlyContinue}
     }
     $source = Get-Content -LiteralPath $modulePath -Raw
     foreach($expected in @('Invoke-CimMethod -ClassName Win32_Process -MethodName Create','-RedirectStandardOutput','-RedirectStandardError','-PassThru -Wait -WindowStyle Hidden','ShowWindow=[uint16]0')){if(-not$source.Contains($expected)){throw 'Managed detached launches must redirect logs and hide the process window.'}}
