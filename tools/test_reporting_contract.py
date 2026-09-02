@@ -133,6 +133,7 @@ class ReportingContractTests(unittest.TestCase):
             "✏️ ÉDITORIAL",
             "📰 CHANGELOG",
             "📦 LIVRAISON",
+            "🧠 CONTEXTE",
         )
         card = core.split("For every successful closure report", 1)[1].split(
             "Translate the four labels", 1
@@ -144,6 +145,7 @@ class ReportingContractTests(unittest.TestCase):
             "content beneath `📖 DOCUMENTATION` on exactly one line",
             "content beneath `✏️ ÉDITORIAL` on exactly one line",
             "content beneath `📰 CHANGELOG` on exactly one line",
+            "`🧠 CONTEXTE` on exactly one line",
             "separate proof items with ` · `",
             "`⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory",
         ):
@@ -232,6 +234,7 @@ class ReportingContractTests(unittest.TestCase):
             "📐 PÉRIMÈTRE",
             "🧪 PREUVES ATTENDUES",
             "📖 DOCUMENTATION PRÉVUE",
+            "🧠 CONTEXTE",
         )
         positions = [card.index(block) for block in ordered_blocks]
         self.assertEqual(positions, sorted(positions))
@@ -244,6 +247,7 @@ class ReportingContractTests(unittest.TestCase):
             self.assertIn(rule, core)
         self.assertIn("SSRP-020 visual start card", scenarios)
         self.assertIn("SSRP-021 no technical path leakage", scenarios)
+        self.assertIn("SSRP-037 visible context transition", scenarios)
 
     def test_user_report_has_an_effort_ceiling(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")

@@ -219,8 +219,8 @@ class ContextQualityContractTests(unittest.TestCase):
 
     def test_conversation_continuity_stays_compact_without_losing_scenarios(self) -> None:
         raw = CONTINUITY.read_text(encoding="utf-8")
-        self.assertLessEqual(len(raw.split()), 800)
-        for number in range(1, 10):
+        self.assertLessEqual(len(raw.split()), 950)
+        for number in range(1, 11):
             self.assertIn(f"CCR-{number:03d}", raw)
 
     def test_context_health_check_is_proportional_and_signal_driven(self) -> None:
@@ -236,6 +236,24 @@ class ContextQualityContractTests(unittest.TestCase):
         ):
             self.assertIn(marker, doctrine)
         self.assertIn("does not trigger a handoff", doctrine)
+
+    def test_context_transition_verdict_is_visible_and_bounded(self) -> None:
+        doctrine = text(CONTINUITY)
+        reporting = text(ROOT / "skills/references/reporting-contract.md")
+        scenarios = text(ROOT / "skills/references/reporting-pressure-scenarios.md")
+        for marker in (
+            "start of every substantive chantier and at the end of a chantier",
+            "🧠 contexte",
+            "suffisant",
+            "rafraîchi",
+            "insuffisamment fiable",
+            "continuer dans cette conversation",
+            "nouvelle conversation recommandée",
+            "ccr-010 visible-transition",
+            "ssrp-037 visible context transition",
+        ):
+            self.assertIn(marker, doctrine + reporting + scenarios)
+        self.assertIn("only when material unreliability remains after targeted refresh", doctrine)
 
 
 if __name__ == "__main__":
