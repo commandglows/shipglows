@@ -6,8 +6,8 @@ project: ShipGlows
 created: "2026-08-29"
 created_at: "2026-08-29 03:21:09 UTC"
 updated: "2026-09-02"
-updated_at: "2026-09-02 16:14:46 UTC"
-status: ready
+updated_at: "2026-09-02 16:21:58 UTC"
+status: reviewed
 source_skill: 100-sg-spec
 source_model: gpt-5
 scope: feature
@@ -32,7 +32,7 @@ evidence:
   - "Current ShipGlows extension support is limited to one CRXJS convention."
   - "Chrome BRAT, ToolGlows and a clean CommunityGlows build loaded successfully in temporary Chromium on 2026-08-29."
   - "GitHub Actions runs 33231777712, 33245930207 and 33245930149 published validated Chrome artifacts."
-next_step: "Deliver the screenshot-capable Extension Lab milestone"
+next_step: "Define a separate contract for DOM, CSS, interaction, theme and Edge proof when that expansion is prioritized"
 ---
 
 # Spec: ShipGlows Browser Extension Lab
@@ -270,6 +270,8 @@ None
 | 2026-08-29 09:50:00 UTC | 103-sg-verify | gpt-5 | Simulated unavailable CDP and observed ToolGlows content scripts on an explicit neutral target | passed | Ship milestone |
 | 2026-09-02 16:05:00 UTC | 001-sg-build | gpt-5 | Added retained screenshot proof and the stable visual JSON contract | implemented | Complete focused and real-browser verification |
 | 2026-09-02 16:14:46 UTC | 103-sg-verify | gpt-5 | Passed focused contracts and captured ToolGlows at 1280 x 800 in an isolated Chromium profile | passed | Deliver the validated milestone |
+| 2026-09-02 16:21:58 UTC | 104-sg-end | gpt-5 | Closed the retained screenshot milestone with code, tests, documentation and visual evidence aligned | completed | Integrate into canonical development branch |
+| 2026-09-02 16:21:58 UTC | 005-sg-ship | gpt-5 | Merged pull request 93 after both required gates passed | shipped-to-dev | Keep broader interactive proof as a separate product decision |
 
 ## Current Chantier Flow
 
@@ -277,7 +279,7 @@ None
 - `sg-ready`: passed through adversarial contract review; no material open question.
 - `sg-start`: implemented for detection, isolated loading, CI artifacts and onboarding.
 - `sg-verify`: passed; focused contracts, ToolGlows content-script observation and retained `1280 x 800` screenshot proof are covered.
-- `sg-end`: not launched.
-- `sg-ship`: milestone delivery pending.
+- `sg-end`: completed; implementation, documentation and visual proof are aligned.
+- `sg-ship`: shipped to canonical `dev` through pull request 93 after both required gates passed; no production publication was requested.
 
-Next step: verify and deliver the screenshot-capable milestone without publishing or store submission.
+Next step: define a separate product contract before adding DOM, computed CSS, toolbar interaction, theme persistence or explicit Edge execution proof.
