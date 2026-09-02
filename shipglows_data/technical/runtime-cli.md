@@ -752,7 +752,9 @@ marks it running. During an active Flutter Windows build, startup is cut only
 after 300 seconds without any file write under `build/windows` (reported as a
 stalled build) or after a 1800-second hard cap; other devices keep the
 600-second build window. `s reload -ProjectPath <path>` dispatches an authenticated
-hot reload only to a running managed Flutter session. `s open` restarts that managed Flutter session with visible
+hot reload only to a running managed Flutter session whose registered process,
+supervisor state, daemon and app identity still match; it never substitutes stop/start
+or a native rebuild. `s open` restarts that managed Flutter session with visible
 Chrome while preserving debug/hot-reload support. The advanced
 `SHIPGLOWS_FLUTTER_DEVICE=web-server` policy retains the manual Dart Debug
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin

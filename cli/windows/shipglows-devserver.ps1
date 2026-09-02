@@ -1025,13 +1025,10 @@ try {
         }
         'reload' {
             if (-not $ProjectPath) { throw 'Usage: s reload -ProjectPath <path>' }
-            $path = ConvertTo-SgCanonicalPath $ProjectPath
-            $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
-            if (-not $entry) { throw "Project is not registered: $path" }
-            if ($entry.kind -ne 'flutter-web' -or $entry.status -ne 'running') { throw 'Reload requires a running managed Flutter session.' }
-            if ($entry.PSObject.Properties['flutterMode'] -and [string]$entry.flutterMode -eq 'profile') { throw "Flutter profile sessions support neither hot reload nor hot restart (Flutter: 'Restart is not supported in profile mode'). Rebuild with s restart -ProjectPath <path> -FlutterMode profile, or start a debug session for iterative work." }
-            [void](Invoke-SgFlutterSupervisorCommand $entry 'reload' 15)
-            Write-SgInfo "$($entry.name) reload succeeded"
+            $reload = Invoke-SgFlutterProjectReload $config $ProjectPath 15
+            if ($reload.Status -eq 'succeeded') { Write-SgInfo "$($reload.Name) reload succeeded" }
+            elseif ($reload.Status -eq 'unavailable') { throw "reload unavailable: $($reload.Reason)" }
+            else { throw "reload failed: $($reload.Reason)" }
         }
         'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath) } else { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } } }
         'restart' {
