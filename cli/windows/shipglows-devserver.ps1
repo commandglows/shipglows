@@ -12,6 +12,7 @@ param(
     [switch]$Json,
     [switch]$Headless,
     [string]$TargetUrl = '',
+    [string]$Browser = 'Chromium',
     [string]$InteractionCommand = '',
     [string]$ClickSelector = '',
     [string]$VisualSelector = '',
@@ -110,7 +111,7 @@ ShipGlows Windows shortcuts
   s start -ProjectPath <path>       Start a web project, app, Chrome extension, or configured Obsidian plugin
   s reload -ProjectPath <path>      Hot reload the exact ready managed Flutter session
   s extension-inspect [-ProjectPath <path>] [-Json]  Inspect an extension without running repository scripts
-  s extension-lab [-ProjectPath <path>] [-Headless] [-Json] [-TargetUrl <url>] [-Screenshot]  Load and visually probe a built MV3 extension in isolated Chromium
+  s extension-lab [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Headless] [-Json] [-TargetUrl <url>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]  Load and visually probe an extension in an isolated browser
   s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]  Load and visually probe a built plugin in disposable local Obsidian
   s open -ProjectPath <path>        Open the URL/app/extension tools or show Obsidian reload guidance
   s stop -ProjectPath <path>        Stop the exact managed project
@@ -1015,14 +1016,14 @@ try {
         'open' { if ($ProjectPath) { $entry = @(Read-SgRegistry $config).projects | Where-Object { $_.path -eq (ConvertTo-SgCanonicalPath $ProjectPath) } | Select-Object -First 1; if ($entry -and (Get-SgProjectKind $entry.path) -ne $entry.kind) { throw 'The registered project surface no longer matches its manifest.' } } else { $entry = Get-SelectedProject 'open' }; if ($entry) { Open-SgManagedProject $entry } }
         'extension-inspect' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
-            $descriptor = Get-SgBrowserExtensionDescriptor $path
+            $descriptor = Get-SgBrowserExtensionDescriptor $path $Browser
             if (-not $descriptor) { throw "No browser extension manifest or supported build contract was detected in: $path" }
             if ($Json) { $descriptor | ConvertTo-Json -Depth 4 -Compress }
             else { Write-SgInfo "$($descriptor.Name) | $($descriptor.Mode) | Manifest V$($descriptor.ManifestVersion) | $($descriptor.RelativeManifestPath)" }
         }
         'extension-lab' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
-            Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl -Screenshot:$Screenshot -Config $config
+            Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl -Screenshot:$Screenshot -Browser $Browser -ClickSelector $ClickSelector -VisualSelector $VisualSelector -Config $config
         }
         'obsidian-lab' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
