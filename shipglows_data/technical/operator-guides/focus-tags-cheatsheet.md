@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-06-27"
-updated: "2026-07-13"
+updated: "2026-09-02"
 status: reviewed
 source_skill: 300-sg-docs
 scope: focus-tags-cheatsheet
@@ -28,7 +28,7 @@ linked_systems:
   - shipglows_data/editorial/content-map.md
 depends_on:
   - artifact: "skills/references/shipglows-terms.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.5.0"
     required_status: active
 supersedes:
   - docs/focus-tags-cheatsheet.md
@@ -36,6 +36,7 @@ evidence:
   - "Public focus-tag families requested on 2026-06-27 so the operator can recenter the agent without invoking a full skill."
   - "Focus tags are now defined canonically in skills/references/shipglows-terms.md and loaded by entrypoint-routing."
   - "Operator decision 2026-08-20: document #local, #nolocal, and #ci as execution posture tags distinct from workflow modes and recenter tags."
+  - "Operator decision 2026-09-02: #pitch loads the current project's root identity and navigation card before portfolio fallback."
 next_review: "2026-07-11"
 next_step: "/300-sg-docs audit shipglows_data/technical/operator-guides/focus-tags-cheatsheet.md"
 ---
@@ -98,7 +99,7 @@ Use these when you want the agent to think like a business partner instead of a 
 | `#founder-mode` | a founder-facing decision surface instead of technician-level back-and-forth | `skills/references/operator-partnership-contract.md` |
 | `#founder` | the user as a business owner who wants useful decisions, growth, and clarity | `skills/references/operator-partnership-contract.md` |
 | `#shipglows-owner` | the operator as owner of ShipGlows and adjacent assets, with portfolio-level arbitration | `skills/references/operator-partnership-contract.md` |
-| `#pitch` | reload the current project's pitch file and core identity | `shipglows_data/business/portfolio-project-pitch-links.md` |
+| `#pitch` | reload the current project's root pitch and core identity | `<project-root>/PITCH.md`, then the portfolio index when cross-project lookup matters |
 | `#portfolio` | scan the pitch links index for the best cross-project opportunity | `shipglows_data/business/portfolio-project-pitch-links.md` |
 
 Short usage note: use `#pitch` for one project’s identity, and `#portfolio` when you want the wider portfolio view before answering.

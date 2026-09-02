@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-06-26"
-updated: "2026-08-27"
+updated: "2026-09-02"
 status: active
 source_skill: 000-shipglows
 scope: shared-terminology
@@ -36,6 +36,7 @@ evidence:
   - "Operator decision 2026-06-29: name the traffic-manager profile Tariq."
   - "Operator decision 2026-08-20: add #local, #nolocal, and #ci as transversal execution posture tags while retaining nolocal mode syntax as compatibility only."
   - "Operator decision 2026-08-27: shipglows is the DX-system repository for skills, CLI/DevServer, TUI, local tooling, installers, and internal governance; shipglows_app separately owns the public site and SaaS."
+  - "Operator decision 2026-09-02: #pitch opens the current project's root pitch before portfolio fallback."
 next_review: "2026-07-11"
 next_step: "/103-sg-verify shared terminology routing"
 ---
@@ -131,7 +132,7 @@ Explicit feature hints use the `#feature:<term>` form only. They are routing hin
 | `#founder-mode` | Recenter on founder-level delegation: business decision surface, not technician micromanagement | `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md` |
 | `#founder` | Recenter on the user as a business owner who wants useful decisions, growth, and clarity | `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md` |
 | `#shipglows-owner` | Recenter on the operator as owner of ShipGlows and adjacent assets, with portfolio-level arbitration | `$SHIPGLOWS_ROOT/skills/references/operator-partnership-contract.md` |
-| `#pitch` | Recenter on the current project's own pitch file and core identity | `$SHIPGLOWS_ROOT/shipglows_data/business/portfolio-project-pitch-links.md` |
+| `#pitch` | Recenter on the current project's root pitch and core identity; use the portfolio index only for cross-project lookup | `<project-root>/PITCH.md`, then `$SHIPGLOWS_ROOT/shipglows_data/business/portfolio-project-pitch-links.md` |
 | `#portfolio` | Recenter on the portfolio pitch-links index and cross-project opportunity scanning | `$SHIPGLOWS_ROOT/shipglows_data/business/portfolio-project-pitch-links.md` |
 | `#no-drift` | Recenter on staying on target, choosing, and acting without exploratory drift | `$SHIPGLOWS_ROOT/skills/references/entrypoint-routing.md` |
 | `#canon` | Recenter on the canonical source of truth and avoid parallel doctrine copies | `$SHIPGLOWS_ROOT/shipglows_data/technical/code-docs-map.md` |

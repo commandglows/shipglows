@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-09-02"
 status: active
 source_skill: 300-sg-docs
 scope: 300-sg-docs-simple-bootstrap-playbooks
@@ -20,6 +20,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Extracted from the former eager mode playbook during wave-3 compaction."
+  - "Operator decision 2026-09-02: bootstrap and ordinary documentation maintenance must create or refresh a root PITCH.md identity and navigation card."
 next_step: "/103-sg-verify progressive skill activation compaction wave 3"
 ---
 
@@ -29,9 +30,11 @@ Use only the selected mode below. Apply the always-on topology preflight from `S
 
 ## INIT MODE
 
-Detect project type, stack, source roots, governance root, docs and trackers. For an empty or near-empty repo, use the bootstrap templates selected by the activation gate and create the smallest truthful starter set: `AGENT.md`, a bootstrap README, technical README/map, and workflow tasks. Create editorial roadmap only when editorial surfaces apply.
+Detect project type, stack, source roots, governance root, docs and trackers. For an empty or near-empty repo, use the bootstrap templates selected by the activation gate and create the smallest truthful starter set: `AGENT.md`, a root `PITCH.md`, a bootstrap README, technical README/map, and workflow tasks. Create editorial roadmap only when editorial surfaces apply.
 
 Missing framing is recoverable. Ask one numbered question at a time about project intent, target surface, then primary runtime; continue after each answer. Preserve observed facts, mark unknowns, and never fabricate features or stack.
+
+Build `PITCH.md` from evidenced business/product truth using `templates/PITCH.md`. Keep it concise, include a dated current-state summary and navigation pointers, and never copy `delivery_posture`, runtime liveness, deployment state, or tracker tasks into it as owned truth.
 
 ## FILE MODE
 
@@ -51,7 +54,7 @@ Document purpose, real props/slots and types, usage, dependencies, and non-obvio
 
 ## AUTO MODE
 
-Choose the narrowest evidenced mode. Empty or near-empty repos select INIT and bootstrap before proposing implementation. Existing code/public surfaces select the smallest missing README/API/component/documentation surface. Do not broaden AUTO into a governance rewrite without reaching the relevant gate in `SKILL.md`.
+Choose the narrowest evidenced mode. Empty or near-empty repos select INIT and bootstrap before proposing implementation. Existing projects audit root `PITCH.md` presence and freshness before selecting the smallest missing README/API/component/documentation surface. Create or refresh the pitch when evidence resolves it; otherwise report the exact business/product truth gap. Do not broaden AUTO into a governance rewrite without reaching the relevant gate in `SKILL.md`.
 
 ## Result
 

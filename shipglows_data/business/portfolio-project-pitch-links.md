@@ -1,7 +1,7 @@
 ---
 artifact: portfolio_project_pitch_links_index
 metadata_schema_version: "1.0"
-artifact_version: "0.4.0"
+artifact_version: "0.5.0"
 project: "ShipGlows"
 created: "2026-06-27"
 updated: "2026-09-02"
@@ -22,6 +22,7 @@ evidence:
   - "Operator confirmed ShipGlows positioning decision SG-BIZ-2026-08-13-01."
   - "Operator confirmed the shared business-framework category on 2026-08-22."
   - "ShipGlows App's project-local business corpus defines it as a managed multi-project SaaS on 2026-09-02, superseding the historical read-only desktop-dashboard framing."
+  - "Disk-backed portfolio audit on 2026-09-02 found thirteen canonical Git projects and established one reviewed root PITCH.md navigation card for each."
 depends_on:
   - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.5.0"
@@ -34,7 +35,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 next_review: "2026-09-13"
-next_step: "Refresh each remaining portfolio pitch against its current project corpus"
+next_step: "Keep root project pitches current through the shared pitch audit"
 ---
 
 # Portfolio Project Pitch Links Index
@@ -92,11 +93,22 @@ Do not copy cached pitch bodies, private repo contents, or source excerpts into 
 
 | Project | Pitch file URL | Audience | Business angle | Source of truth | Status | Owner | Evidence date | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ShipGlows | `https://github.com/diane-defores/shipglows/blob/main/shipglows_data/business/portfolio-project-pitch-links.md` | Solo founders, small teams, and AI agents working from shared business truth | Business framework for humans and agents that helps create distinctive identities and carry business ambitions through métiers, execution, documentation, and proof | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md` | reviewed | unknown | 2026-08-23 | Test whether the shared framework and cross-métier ambition are understood without implying guaranteed impact or a human service |
+| ShipGlows | `https://github.com/commandglows/shipglows/blob/dev/PITCH.md` | Solo founders, small teams, and AI agents working from shared business truth | Open and inspectable business framework carrying intent through identity, product, content, engineering, delivery, and proof | `shipglows_data/business/business.md`, `shipglows_data/business/product.md`, `shipglows_data/business/gtm.md` | reviewed | Diane | 2026-09-02 | Keep framework and managed-SaaS identities distinct |
+| Best Fried Chicken Namur | `https://github.com/dianedef/bestfriedchicken/blob/main/PITCH.md` | Local pickup and delivery customers; restaurant operators | Direct mobile-first ordering that reduces marketplace dependency while preserving restaurant control | `shipglows_data/business/business.md`, `shipglows_data/workflow/specs/direct-ordering-platform.md` | reviewed | Best Fried Chicken Namur | 2026-09-02 | Refresh after menu, fulfilment, payment, and publication evidence changes |
+| Chrome BRAT | `https://github.com/commandglows/chrome-brat/blob/main/PITCH.md` | People tracking public GitHub browser-extension repositories | Local-first revision tracking and extraction while browser loading remains explicit | `README.md` | reviewed | Diane | 2026-09-02 | Add governed business/product truth if the utility becomes a broader product |
+| CommandGlows | `https://github.com/commandglows/commandglows/blob/main/PITCH.md` | Windows-first professionals, independents, and productivity learners | Windows Mastery-led productivity and learning system across bilingual web, gated learning, and companion app surfaces | `shipglows_data/business/business.md`, `shipglows_data/business/product.md` | reviewed | Diane | 2026-09-02 | Refresh after the next positioning or offer review |
+| CommunityGlows | `https://github.com/commandglows/communityglows/blob/main/PITCH.md` | Creators, operators, marketers, and small teams managing several social channels | Unified social workspace across browser, desktop, web, and mobile while preserving platform-specific behavior | `shipglows_data/business/business.md`, `shipglows_data/business/product.md` | reviewed | Diane | 2026-09-02 | Keep shipped and planned platform claims distinct |
+| ContentGlows | `https://github.com/commandglows/contentglows/blob/main/PITCH.md` | Creators, founders, and lean content teams | One multi-surface product turning ideas and source assets into reviewable, publishable outputs | `shipglows_data/business/business.md`, `shipglows_data/product/` | reviewed | Diane | 2026-09-02 | Refresh when source intelligence or publishing authority changes |
+| Dotfiles | `https://github.com/commandglows/dotfiles/blob/master/PITCH.md` | Diane and technical operators maintaining repeatable environments | Cross-platform terminal configuration and auditable machine bootstrap | `shipglows_data/business/business.md`, `shipglows_data/business/product.md` | reviewed | Diane | 2026-09-02 | Keep Dotfiles and ShipGlows provisioning boundaries explicit |
+| DreamGlows | `https://github.com/dianedef/dreamglows/blob/main/PITCH.md` | People turning a dream or ambition into concrete progress | Dream-to-milestone-to-task guidance with Obsidian as the first active surface | `shipglows_data/business/business.md`, `shipglows_data/business/dreamglows-product.md` | reviewed | Diane | 2026-09-02 | Refresh as non-Obsidian surfaces gain verified behavior |
+| Sources and Newsletter Studio for Flutter | `https://github.com/commandglows/email-sidebar-app/blob/main/PITCH.md` | Flutter products needing native source-reading and newsletter-composition UI | Provider-neutral presentation packages with typed host integration boundaries | `README.md`, `shipglows_data/business/business.md` | reviewed | Diane | 2026-09-02 | Keep real provider and delivery claims with consuming products |
 | Winflowz | `https://github.com/diane-defores/winflowz/blob/main/PITCH.md` | Operators shipping a site plus an app from one repo | Monorepo for a governed Astro site and Flutter Android-first app with explicit deployment boundaries | `README.md`, `shipglows_data/business/business.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if positioning changes |
 | Socialglowz | `https://github.com/diane-defores/socialglowz/blob/master/PITCH.md` | Users who need one social dashboard across browser, desktop, and mobile | Unified social control surface with platform-specific behavior kept explicit across targets | `README.md`, `shipglows_data/business/business.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if positioning changes |
 | Temuglowz | `https://github.com/diane-defores/temuglowz/blob/main/PITCH.md` | Users saving Temu links into durable shopping lists | Local-first Android MVP for link capture, list management, and manual observation without fake automation claims | `README.md`, `BUSINESS.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if the product expands beyond MVP |
-| ShipGlows App | `https://github.com/diane-defores/shipglows_app/blob/main/PITCH.md` | Ambitious founders and small product teams directing governed work across projects | Managed SaaS that makes the open ShipGlows business framework usable through a cross-project Cockpit, project-scoped agent conversations, Studio, and a managed runner | `shipglows_app/shipglows_data/business/business.md`, `shipglows_app/shipglows_data/business/product.md` | stale | Diane | 2026-09-02 | Replace the historical `PITCH.md` so it reflects the governed SaaS without overstating hosted availability |
+| ShipGlows App | `https://github.com/commandglows/shipglows_app/blob/main/PITCH.md` | Ambitious founders and small product teams directing governed work across projects | Managed SaaS making the open ShipGlows framework usable through a Cockpit, conversations, Studio, and managed runner | `shipglows_data/business/business.md`, `shipglows_data/business/product.md` | reviewed | Diane | 2026-09-02 | Refresh when hosted availability or Studio implementation truth changes |
+| ShipGlows Audio Engine | `https://github.com/commandglows/shipglows-audio-engine/blob/main/PITCH.md` | ShipGlows products needing bounded native recording infrastructure | Private real-time C++ audio core exposed through a Flutter plugin contract | `README.md`, `shipglows_data/technical/code-docs-map.md` | reviewed | Diane | 2026-09-02 | Add business/product truth if it gains an independent offer |
+| ShipGlows Private Data | `https://github.com/dianedef/shipglows-private/blob/main/PITCH.md` | The ShipGlows operator and authorized private workflows | Versioned recovery-worthy private operational state with explicit exclusions for secrets and customer data | `README.md` | reviewed | Diane | 2026-09-02 | Keep every new data family behind an explicit storage contract |
+| ToolGlows | `https://github.com/dianedef/ToolGlows/blob/main/PITCH.md` | Browser-heavy professionals, independents, researchers, writers, and learners | Configurable in-page toolbar for recurring reading, capture, search, navigation, and focus actions | `shipglows_data/business/business.md`, `shipglows_data/business/product.md` | reviewed | Diane | 2026-09-02 | Keep stable utilities separate from experimental social modules |
 | Notefinderz | `https://github.com/dianedef/notefinderz/blob/main/PITCH.md` | People comparing note-taking and knowledge-base tools | Astro SSR directory for note-native app comparison with authenticated filtering and editorial structure | `README.md`, `shipglows_data/business/business.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if the directory scope expands |
 | Gocharbon | `https://github.com/dianedef/gocharbon/blob/main/PITCH.md` | Beginners who want accessible technical depth in a coaching-oriented editorial frame | Neobrutalist Astro theme plus business-education content with a friendly, clear tone | `README.md`, `PITCH.md` | reviewed | unknown | 2026-06-27 | Keep the pitch short and aligned with the parcours strategy |
 

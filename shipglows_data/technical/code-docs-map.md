@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "3.31.0"
+artifact_version: "3.32.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-02"
@@ -24,6 +24,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Native Windows compiled CLI entry boundary, installer ownership, end-to-end latency budget, and argument/exit-code regression mapped on 2026-09-02."
+  - "Root project pitch template, deterministic portfolio audit, docs-owner activation, and #pitch navigation contract mapped on 2026-09-02."
   - "Context-aware documentation closure and Windows machine-toolbox lock integrity mapped on 2026-09-01."
   - "Native Windows CLI capability snapshot, conversation awareness, and regression path mapped on 2026-08-30."
   - "Wave 20 full-graph closure, hidden-directory path normalization, canonical spec rename, and cross-project boundary decisions mapped on 2026-08-13."
@@ -137,6 +138,7 @@ Shared files in this map are sequential integration files. Do not assign concurr
 | `tools/audit_project_governance_topology.py`, `tools/test_audit_project_governance_topology.py` | Project governance topology | `skills/300-sg-docs/SKILL.md` | `skills/references/canonical-paths.md`, `skills/references/monorepo-governance-topology.md` | `python3 -m unittest tools.test_audit_project_governance_topology`; fixture and target-project CLI runs | Canonical corpus detection, legacy/nested corpus classification, compatibility entrypoints, standalone exceptions, or migration routing changes |
 | `tools/codebase-mcp/**` | Codebase MCP | `shipglows_data/technical/codebase-mcp.md` | `tools/codebase-mcp/README.md`, `tools/codebase-mcp/TIPS.md` | Python syntax check and focused MCP tool behavior review | Context budget, tool names, file indexing, memory, or setup behavior changes |
 | `tools/shipglows_gsc.py`, `tools/test_shipglows_gsc.py`, `cli/shipglows-gsc.sh` | Google Search Console CLI | `shipglows_data/technical/google-search-console-cli.md` | `README.md`, `cli/install.sh` | `python3 -m unittest tools.test_shipglows_gsc`; `bash -n cli/shipglows-gsc.sh cli/install.sh` | OAuth scope, token storage, GSC API endpoint, command, wrapper, or installer alias changes |
+| `tools/audit_project_pitches.py`, `tools/test_audit_project_pitches.py`, `templates/PITCH.md`, `PITCH.md`, `skills/references/project-governance-rules.md`, `skills/300-sg-docs/references/{simple-bootstrap-playbooks,governance-playbooks}.md` | Managed-project pitch identity, freshness, and navigation | `skills/references/project-governance-rules.md` | `skills/references/business-context-mesh.md`, `skills/references/entrypoint-routing.md`, `shipglows_data/business/portfolio-project-pitch-links.md` | `python3 -m unittest tools.test_audit_project_pitches`; portfolio audit; metadata lint; skill budget and sync checks | Pitch presence, required navigation, freshness semantics, #pitch routing, bootstrap/audit behavior, or portfolio membership changes |
 | `/home/claude/shipglows_app/site/**` | Public site and content runtime | `shipglows_data/technical/public-site-and-content-runtime.md` | `shipglows_data/editorial/content-map.md`, `/home/claude/shipglows_app/site/README.md` | `npm --prefix shipglows-site run build` when practical | Public route, public docs, skill page, content boundary, or publishing behavior changes |
 | `shipglows_data/editorial/content-map.md` | Public content routing | `shipglows_data/technical/public-site-and-content-runtime.md` | `README.md`, `shipglows_data/workflow/playbooks/spec-driven-workflow.md` | Metadata lint; link/path review | Public surface role, content destination, or cross-surface update rule changes |
 | `AGENT.md`, `AGENTS.md` | Agent entrypoint | `shipglows_data/technical/skill-runtime-and-lifecycle.md` | `shipglows_data/technical/README.md` | `test ! -e AGENTS.md || { test -L AGENTS.md && test "$(readlink AGENTS.md)" = "AGENT.md"; }` | Agent routing, technical docs pointer, or compatibility alias changes |

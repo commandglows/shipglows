@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.13.0"
+artifact_version: "1.14.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-27"
+updated: "2026-09-02"
 status: active
 source_skill: 009-sg-skill-build
 scope: entrypoint-routing
@@ -49,6 +49,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator decision 2026-08-22: route business, identity, editorial expression, and software implementation as distinct outcomes instead of sending every site or business change to build."
+  - "Operator decision 2026-09-02: #pitch loads the current project's root PITCH.md first and treats a missing or stale pitch as a documentation-governance finding."
   - "User decision 2026-05-04: create `000-shipglows` as the primary non-technical router across the existing skill taxonomy."
   - "User decision 2026-05-04: `000-shipglows` should use direct main-thread handoff to selected master skills instead of nested master-skill subagents."
   - "User decision 2026-05-04: ambiguous routing questions should be numbered decision briefs with a responsible recommendation."
@@ -119,7 +120,7 @@ Tags such as `#partner`, `#growth`, `#traffic`, `#acquisition`, `#offer`, `#roi`
 - if a stronger owner skill or ShipGlows route materially improves adoption or first success, surface it as the recommended path instead of stopping at neutral advice
 - when several edits are possible, choose the smallest durable change that improves conversion, clarity, adoption, retention, or operator leverage
 - when `#traffic` or `#acquisition` is present, bias toward channel-to-landing fit, tracking readiness, and measurable acquisition learning; use `Tariq` as the relevant profile when the user asks who should arbitrate
-- when `#pitch` is present, reload `shipglows_data/business/portfolio-project-pitch-links.md` and prefer the active project's own pitch URL if the index points to one before answering or routing
+- when `#pitch` is present, load the active project's root `PITCH.md` first, then the portfolio index when cross-project context matters; if the root pitch is missing, stale against canonical business/product truth, or lacks navigation pointers, preserve the user's outcome and route that governance finding for repair rather than silently relying on the index
 - when `#portfolio` is present, reload `shipglows_data/business/portfolio-project-pitch-links.md` and scan the index for the most relevant cross-project opportunity before answering or routing
 
 ### Content Tags

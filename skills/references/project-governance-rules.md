@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-06-30"
-updated: "2026-09-01"
+updated: "2026-09-02"
 status: active
 source_skill: 900-shipglows-core
 scope: governed-project-rules
@@ -17,6 +17,7 @@ linked_systems:
   - AGENT.md
   - CLAUDE.md
   - README.md
+  - PITCH.md
   - shipglows_data/
   - shipglows_data/README.md
   - shipglows_data/technical/code-docs-map.md
@@ -35,6 +36,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator correction 2026-09-01: delivery posture is canonical business truth; pitch, runtime environment state, and agent instructions cannot own it."
+  - "Operator decision 2026-09-02: every managed project needs a current root PITCH.md so humans and agents can identify the project and navigate to its canonical state quickly."
   - "Operator request 2026-06-30: provide one reusable `#rules` recentering tag so agents can reload the full governance rule set for a ShipGlows-governed project."
   - "Repeated execution drift came from rules being split across entrypoints, corpus docs, and monorepo topology without a compact synthesis."
   - "Operator clarification on 2026-07-13: root review must apply governance and architecture ownership contracts rather than a minimal-entry count."
@@ -62,6 +64,7 @@ At the governance root, keep the compatibility entrypoints, canonical corpus, an
 - `AGENTS.md` as a symlink to `AGENT.md` when present
 - `CLAUDE.md` when repo-specific execution constraints exist
 - `README.md`
+- `PITCH.md`
 - `shipglows_data/`
 - optional `CHANGELOG.md`
 
@@ -76,6 +79,7 @@ Root `archive/`, `bugs/`, `docs/`, `specs/`, `research/`, `BUGS.md`, and `TEST_L
 - Keep fast-moving operational trackers under `shipglows_data/workflow/` without forcing frontmatter onto tracker files.
 - Keep technical governance under `shipglows_data/technical/`.
 - Keep business and product truth under `shipglows_data/business/`.
+- Keep `PITCH.md` at the governance root as the concise project identity and navigation card. It is derived from canonical business/product truth and points to live state sources; it never owns delivery posture, runtime state, deployment truth, or roadmap status.
 - Keep `delivery_posture` exactly once in `shipglows_data/business/business.md`; derive Git/release policy from it and never duplicate it in pitch, `ENVIRONMENT.md`, registry state, `CLAUDE.md`, or `SHIPGLOWS.md`.
 - Keep public-content and claim governance under `shipglows_data/editorial/`.
 - Keep specs, audits, reviews, playbooks, checklists, and evidence under `shipglows_data/workflow/`.
@@ -139,6 +143,7 @@ Root `archive/`, `bugs/`, `docs/`, `specs/`, `research/`, `BUGS.md`, and `TEST_L
 
 Treat these as bootstrap or migration gaps:
 
+- missing root `PITCH.md`, a pitch without canonical navigation pointers, or a pitch older than applicable business/product truth
 - missing `shipglows_data/technical/code-docs-map.md` on a code project
 - missing `shipglows_data/editorial/README.md` or related editorial corpus files on a public-content project
 - missing surface-scoped technical docs where the code area exists but the project is still being onboarded
