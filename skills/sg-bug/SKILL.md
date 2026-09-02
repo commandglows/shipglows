@@ -21,6 +21,11 @@ Resolve `$SHIPGLOWS_ROOT` through the shared canonical-path doctrine, verify the
 route to `sg-bug fix <defect>`; this public owner still decides whether the
 bounded `106-sg-fix` path is sufficient or the full bug lifecycle is required.
 
+When the affected surface is an Obsidian plugin, load
+`$SHIPGLOWS_ROOT/skills/references/obsidian-plugin-workflow.md` before reproduction
+or retest. Distinguish build, isolated host load, interaction, diagnostics, and
+cleanup; never use a personal vault as implicit proof.
+
 ## Validation
 
 Use the selected lifecycle's reproduction and retest proof before closing a defect.

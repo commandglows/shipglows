@@ -621,6 +621,13 @@ another prompt. Local versus remote and model reasoning effort never change the
 classification. Bounded agent-proposed actions or almost-clear intent use fast
 validation; unknown, unbounded, or materially directional work uses the full
 plan. Force push and destructive or irreversible actions retain stricter gates.
+For Obsidian plugins, the same block requires the reviewed project build command
+before a `build-required` Lab retry, forbids personal-vault discovery or implicit
+selection, routes persistent synchronization only through one declared development
+vault, and routes actual loading proof through the disposable `obsidian-lab`.
+It also preserves the distinction between local BRAT artifact conformity and
+authorized release/publication, and states that profile/vault separation is not
+an OS sandbox.
 
 For each registered project, the Windows CLI maintains a bounded ShipGlows block
 inside the visible, versioned `<project-root>\ENVIRONMENT.md`. It preserves any
