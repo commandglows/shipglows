@@ -164,6 +164,11 @@ Update-SgFlutterProtocolState $stoppingState '{"event":"app.start","params":{"ap
 Update-SgFlutterProtocolState $stoppingState '{"event":"app.progress","params":{"appId":"app-stop","message":"Building Windows application...","finished":false}}'
 Update-SgFlutterProtocolState $stoppingState '{"event":"app.stop","params":{"appId":"app-stop","error":"native build failed"}}'
 if ($stoppingState.Ready -or $stoppingState.Status -ne 'error' -or $stoppingState.ProgressActive) { throw 'Flutter stop during compilation did not become a terminal failed state.' }
+$disconnectedState=New-SgFlutterProtocolState
+Update-SgFlutterProtocolState $disconnectedState '{"event":"app.start","params":{"appId":"app-disconnected"}}'
+Update-SgFlutterProtocolState $disconnectedState '{"event":"app.progress","params":{"appId":"app-disconnected","message":"Building Windows application...","finished":true}}'
+Update-SgFlutterProtocolState $disconnectedState '{"event":"app.stop","params":{"appId":"app-disconnected"}}'
+if ($disconnectedState.Status -ne 'error' -or $disconnectedState.LastError -notmatch 'app\.started' -or $disconnectedState.Ready) { throw 'Pre-readiness app.stop without a Flutter error was not classified as a startup failure.' }
 Update-SgFlutterProtocolState $state '{"id":7,"result":{"code":0,"message":"Reloaded"}}'
 if ($state.LastResponseId -ne 7 -or -not $state.LastResponseOk) { throw 'Machine response correlation was not recorded.' }
 Update-SgFlutterProtocolState $state '{"id":8,"error":{"code":-32000,"message":"sensitive detail"}}'
