@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.17.0"
+artifact_version: "0.18.0"
 project: "shipglows"
 created: "2026-04-25"
 updated: "2026-09-02"
@@ -21,6 +21,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "The 2026-09-02 changelog records the compiled Windows s.exe/sg.exe root menu and its end-to-end startup regression budget."
   - "The 2026-09-02 changelog records progress-aware Flutter Windows readiness and the explicit managed-session reload command."
   - "The 2026-09-02 changelog records the disposable local Obsidian Plugin Lab and its explicit non-sandbox security boundary."
   - "The 2026-08-30 changelog records the separate native Windows developer-tool status and update surfaces, with public publication held for installed-host proof."
@@ -34,10 +35,12 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-09-02]
 
 ### Added
+- Added native `s.exe`, `sg.exe`, and `shipglows-dev.exe` Windows launchers. A bare command now renders the root menu before creating CMD or PowerShell, while selected actions retain the integrity-bound managed PowerShell engine and compatibility `.cmd` recovery path.
 - Added `s obsidian-lab` for approved, already-built Obsidian plugins: ShipGlows checks local BRAT artifacts, launches an isolated temporary profile and vault, proves the real plugin load and optional command interaction, reports runtime diagnostics separately, then stops the exact Lab process tree and removes the disposable data. This protects personal Obsidian data from accidental writes but is not an OS sandbox for hostile plugin code.
 - Added `s reload -ProjectPath <path>` for exact ready managed Flutter sessions, with owner-only IPC, bounded observable results, stale session rejection, and no stop/start or native rebuild.
 
 ### Fixed
+- Replaced the Windows launcher regression criterion that hid multi-second PowerShell startup behind a subtracted baseline with an end-to-end native-menu budget below one second and an explicit no-CMD/no-PowerShell-before-selection assertion.
 - Kept valid slow Flutter Windows native builds in a bounded `building` startup lease while progress remains active, without declaring `running` before the matching `app.started` event; silent, dead, or over-ceiling starts still fail and clean up deterministically.
 
 ## [2026-08-30]

@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.39.0"
+artifact_version: "1.40.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-01"
+updated: "2026-09-02"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Native Windows launcher replay 2026-09-02: the compiled root menu renders before any CMD or PowerShell child, then preserves managed-engine arguments and exit codes after dispatch."
   - "Native Windows Obsidian adapter 2026-09-01: manifest and dependency evidence outrank generic Vite, start runs the declared watch workflow without HTTP, and artifact copy is restricted to one explicitly configured vault."
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
@@ -401,8 +402,11 @@ an atomic synchronous rebuild because its identities cannot be trusted. Registry
 entries win when discovery and runtime state overlap, so the registry remains
 the authority for status, ports, logs, and process identity.
 
-The entrypoint dispatches `help`, `exit`, and environment-control commands
-before normal DevServer initialization. Authentication and GitHub/update tools
+The compiled Windows entrypoint displays the bare `s`/`sg` root menu before
+creating CMD or PowerShell. It delegates only an explicit command or selected
+menu action to the pinned PowerShell engine, preserving arguments and exit
+codes. The PowerShell entrypoint then dispatches `help`, `exit`, and
+environment-control commands before normal DevServer initialization. Authentication and GitHub/update tools
 are resolved only when their actions are entered; the Windows menu does not
 load the mobile installer module.
 
@@ -501,7 +505,7 @@ browser-extension, Obsidian-plugin, Python, and Flutter Web project kinds, cloni
 the CLI keeps the clone, reports the preparation failure, and exits non-zero
 rather than removing the clone or presenting the combined clone-and-register
 operation as successful.
-The Windows launcher resolves only shortcut paths with a native equivalent:
+The Windows launcher resolves only shortcut paths with a Windows equivalent:
 dashboard (`s d`), interactive start (`s e`), restart/stop/stop-all/logs under
 `s m ...`, and project navigation (`s m n`). Navigation opens a child
 PowerShell in the selected discovered or registered project because a subprocess cannot

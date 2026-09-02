@@ -64,7 +64,7 @@ try {
     $archiveEnvironment = Join-Path $archiveSource 'cli\environment'
     $archiveLocal = Join-Path $archiveSource 'local'
     New-Item -ItemType Directory -Path $archiveWindows,(Join-Path $archiveEnvironment 'schemas'),$archiveLocal -Force | Out-Null
-    foreach ($windowsFile in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-environment-provider.ps1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')) {
+    foreach ($windowsFile in @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-environment-provider.ps1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')) {
         Copy-Item -LiteralPath (Join-Path $root "cli\windows\$windowsFile") -Destination (Join-Path $archiveWindows $windowsFile)
     }
     Copy-Item -LiteralPath (Join-Path $root 'shipglows-version.json') -Destination (Join-Path $archiveSource 'shipglows-version.json')
@@ -81,7 +81,8 @@ try {
     $extract = Join-Path $tempRoot 'archive-extract'
     New-Item -ItemType Directory -Path $extract | Out-Null
     $entries = @(Extract-ShipglowsWindowsFiles -ArchivePath $archive -DestinationPath $extract -FullMode $true)
-    if ($entries.Count -ne 36) { throw "Installer extracted $($entries.Count) files instead of the closed set of 36." }
+    if ($entries.Count -ne 37) { throw "Installer extracted $($entries.Count) files instead of the closed set of 37." }
+    if (-not ($entries -match 'ShipGlows\.CliLauncher\.cs$')) { throw 'Installer did not extract the native CLI launcher source.' }
     if (-not ($entries -match 'ShipGlows\.ExtensionLab\.js$')) { throw 'Installer did not extract the Extension Lab runtime.' }
     if (-not ($entries -match 'ShipGlows\.ObsidianLab\.js$')) { throw 'Installer did not extract the Obsidian Lab runtime.' }
     if (-not ($entries -match 'shipglows-environment-provider[.]ps1$')) { throw 'Installer did not extract the closed Windows environment provider.' }
@@ -113,7 +114,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Could not create the incomplete installer fixture archive.' }
     $rejected = $false
     try { [void](Extract-ShipglowsWindowsFiles -ArchivePath $incompleteArchive -DestinationPath $extract -FullMode $true) }
-    catch { $rejected = $_.Exception.Message -match 'missing native Windows DevServer.*environment control-plane, or private-data control-plane files' }
+    catch { $rejected = $_.Exception.Message -match 'missing the native CLI launcher, Windows DevServer.*environment control-plane, or private-data control-plane files' }
     if (-not $rejected) { throw 'Installer accepted an incomplete environment package archive.' }
 
     $runtime = Join-Path $tempRoot 'runtime'

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.29.0"
+artifact_version: "1.30.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-09-01"
+updated: "2026-09-02"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le replay du 2026-09-02 confirme que s.exe affiche le menu initial sans CMD ni PowerShell et délègue seulement après le choix."
   - "Le replay Obsidian du 2026-09-01 confirme la priorité de classification sur Vite, le watch sans port, les états explicites et la copie vérifiée vers un coffre de test déclaré."
   - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
   - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
@@ -72,7 +73,7 @@ Si le diagnostic est `blocked`, le clone reste sur disque mais la commande écho
 
 ## Runtime PowerShell
 
-Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. La commande utilise le runtime PowerShell 7.6.5 possede par ShipGlows sans modifier l'installation systeme. La premiere installation complete en ligne peut acquerir l'archive epinglee. Le mode offline ne fonctionne qu'apres validation locale du runtime; sinon, reconnectez la machine et relancez l'installateur complet. Un echec SHA, archive, sonde, verrou ou corruption conserve le pointeur actif precedent.
+Lancez le DevServer avec `s`, `sg` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. Le menu initial est rendu par `s.exe`/`sg.exe` sans demarrer CMD ou PowerShell. Apres votre choix, la commande utilise le runtime PowerShell 7.6.5 possede par ShipGlows sans modifier l'installation systeme. La premiere installation complete en ligne peut acquerir l'archive epinglee. Le mode offline ne fonctionne qu'apres validation locale du runtime; sinon, reconnectez la machine et relancez l'installateur complet. Un echec SHA, archive, sonde, verrou ou corruption conserve le pointeur actif precedent.
 
 ## 🎯 Options d'installation
 
@@ -197,7 +198,9 @@ ne sont pas requis par le parcours Shadow PC.
    ```powershell
    s
    ```
-   `shipglows-dev` reste disponible comme commande explicite. Ces commandes
+   `sg` et `shipglows-dev` restent disponibles comme commandes explicites. Le
+   menu sans argument apparaît depuis le lanceur natif avant le démarrage du
+   moteur PowerShell. Ces commandes
    n'utilisent pas le profil PowerShell, donc elles fonctionnent aussi quand
    l'execution des scripts de profil est interdite.
    Le même lanceur expose `s env inspect`, `s env plan`, `s env apply`,
@@ -224,7 +227,8 @@ ne sont pas requis par le parcours Shadow PC.
    de choisir un projet puis ouvre un PowerShell enfant dans son dossier
    (`exit` revient au shell initial).
    Les raccourcis imbriques compatibles Windows sont aussi interprétés par le
-   lanceur `.cmd`, sans alias ni profil PowerShell. Par exemple, `s d` affiche
+   lanceur natif, sans alias ni profil PowerShell; le `.cmd` est conservé comme
+   chemin de récupération. Par exemple, `s d` affiche
    le dashboard et `s m n` permet de choisir un projet puis ouvre un PowerShell
    enfant dans son dossier (`exit` revient au shell initial). `s h` affiche la
    liste des raccourcis disponibles. Les actions Linux liées à Flox, PM2 ou

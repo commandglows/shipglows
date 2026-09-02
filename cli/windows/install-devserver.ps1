@@ -126,7 +126,7 @@ function Get-SgInstallerDiagnosticExcerpt {
 }
 
 $launcher = Join-Path $runtimeDir 'shipglows-devserver.ps1'
-foreach ($launcherModule in @('ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
+foreach ($launcherModule in @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.Auth.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','shipglows.ps1')) {
     Copy-Item -LiteralPath (Join-Path $sourceDir $launcherModule) -Destination $runtimeDir -Force
 }
 Copy-Item -LiteralPath (Join-Path $sourceDir 'shipglows-devserver.ps1') -Destination $launcher -Force
@@ -304,16 +304,51 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.
     Add-SgRuntimeToUserPath
 
     $shortCommand = Join-Path $runtimeDir 's.cmd'
+    $shortExecutable = Join-Path $runtimeDir 's.exe'
     $existing = Get-Command s -ErrorAction SilentlyContinue | Select-Object -First 1
     $canUseShortCommand = -not $existing
     if ($existing -and $existing.Source) {
-        try { $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -eq [IO.Path]::GetFullPath($shortCommand) } catch { }
+        try {
+            $canUseShortCommand = [IO.Path]::GetFullPath($existing.Source) -in @(
+                [IO.Path]::GetFullPath($shortCommand),
+                [IO.Path]::GetFullPath($shortExecutable)
+            )
+        } catch { }
     }
     if ($canUseShortCommand) {
         Set-Content -LiteralPath $shortCommand -Value $wrapper -Encoding ASCII
-        Write-Host 'Short command installed: s' -ForegroundColor Green
     } else {
         Write-SgInstallerWarning "The command 's' is already used by $($existing.Source). ShipGlows kept the non-conflicting command: shipglows-dev."
+    }
+
+    $launcherSource = Join-Path $runtimeDir 'ShipGlows.CliLauncher.cs'
+    $compiler = @(
+        (Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'),
+        (Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe')
+    ) | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+    if (-not $compiler) { throw 'The Windows .NET Framework C# compiler required for the native ShipGlows launcher is unavailable.' }
+    if (-not (Test-Path -LiteralPath $launcherSource -PathType Leaf)) { throw "Missing native ShipGlows launcher source: $launcherSource" }
+
+    $compiledLauncher = Join-Path $runtimeDir ('ShipGlows.CliLauncher.' + [guid]::NewGuid().ToString('N') + '.exe')
+    try {
+        & $compiler /nologo /target:exe /optimize+ "/out:$compiledLauncher" $launcherSource
+        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $compiledLauncher -PathType Leaf)) {
+            throw 'The native ShipGlows launcher did not compile.'
+        }
+
+        foreach ($nativeCommand in @('shipglows-dev.exe','sg.exe')) {
+            Copy-Item -LiteralPath $compiledLauncher -Destination (Join-Path $runtimeDir $nativeCommand) -Force
+        }
+        if ($canUseShortCommand) {
+            try {
+                Copy-Item -LiteralPath $compiledLauncher -Destination $shortExecutable -Force
+                Write-Host 'Native short commands installed: s, sg' -ForegroundColor Green
+            } catch [IO.IOException] {
+                Write-SgInstallerWarning "The running s.exe launcher is locked. Run 'shipglows update' outside s to refresh the native launcher."
+            }
+        }
+    } finally {
+        Remove-Item -LiteralPath $compiledLauncher -Force -ErrorAction SilentlyContinue
     }
 
     $shipglowsCommand = Join-Path $runtimeDir 'shipglows.cmd'

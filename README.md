@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.31.0"
+artifact_version: "0.32.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-09-01"
+updated: "2026-09-02"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -44,6 +44,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "The 2026-09-02 Windows CLI repair replaces the CMD/PowerShell-first bare menu with compiled s.exe and sg.exe launchers under an end-to-end startup budget."
   - "2026-09-01: the native Windows DevServer detects Obsidian plugins before generic Vite and synchronizes fresh artifacts only to an explicitly configured vault."
   - "2026-08-30 Flutter live-development update: native Windows and Android use supervised registry-selected targets and reserve standalone builds for release or package-sensitive checks."
   - "2026-08-27 DX ownership decision: 900-shipglows-core maintains skills/doctrine, CLI/DevServer/TUI runtime, installers, coherence, and packaging inside shipglows; shipglows_app separately owns the public site and SaaS."
@@ -475,13 +476,18 @@ discovers a personal vault or claims that build-and-copy success proves the
 plugin loaded inside Obsidian; reload and in-app validation remain manual.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
-After a full install, use `s` (or `shipglows-dev`) for the project dashboard.
+After a full install, use `s`, `sg`, or `shipglows-dev` for the project dashboard.
+On a bare invocation, `s.exe`/`sg.exe` renders the root menu before starting any
+PowerShell process; the selected action is then delegated to the pinned managed
+PowerShell engine. Compatibility `.cmd` launchers remain installed as recovery
+surfaces, while Windows command resolution selects the native executable first.
 Use `shipglows rename rio "Session name"` to set the current Rio tab title;
 the command does not rename the corresponding Codex conversation.
 The main interactive menu includes `n  Navigate to a project`; it opens a child
 PowerShell in the selected project directory, and `exit` returns to the initial shell.
-The PATH-backed `.cmd` launchers do not depend on the PowerShell profile, so
-they also work on managed hosts that block profile scripts. Supported nested
+The PATH-backed native launchers and compatibility `.cmd` recovery surfaces do
+not depend on the PowerShell profile, so they also work on managed hosts that
+block profile scripts. Supported nested
 menu paths include `s d`, `s e`, `s m r`, `s m t`, `s m o`, `s m l`, and
 `s m n`; run `s h` for the Windows list. Use `s u` (or `s update`) to download,
 syntax-check, and run the current official Windows bootstrap instead of
