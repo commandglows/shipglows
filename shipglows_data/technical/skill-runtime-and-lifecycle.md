@@ -139,8 +139,8 @@ evidence:
   - "2026-08-04 added provider-neutral animation modes to 006-sg-design; GSAP remains optional after project-fit and proof gates."
   - "2026-08-04 added the exact 302-sg-help mode catalog with one line per repository skill and registered free-form help invocation validation."
   - "2026-08-12 wave 12 added compact lifecycle/delegation decision cores for the 004 pilot and direct entitlement ledger/ingestion/support-proof leaves for 601."
-  - "Métier-first public hierarchy separates 13 public owners from numeric internal engines and requires progressive clarification followed by autonomous outcome ownership."
-  - "Public skills now have direct runtime folders and matching Codex metadata; numeric prefixes are expert/compatibility identifiers rather than picker names."
+  - "Métier-first public hierarchy separates 14 public owners from numeric internal engines and requires progressive clarification followed by autonomous outcome ownership."
+  - "Public skills now have direct runtime folders, stable invocation IDs, and human-facing Codex display names; numeric prefixes are expert/compatibility identifiers rather than picker names."
   - "Codex expert shortcuts now resolve through public owner modes before internal engines; core remains the sole hard system-context switch."
   - "Two-tier mutation approval adds a cumulative fast path for exact local routine reversible actions while keeping full plans for ineligible and remote mutations."
   - "2026-08-15: bounded technical chantier approval now includes ordinary exact-scope local commits without duplicate approval."
@@ -194,11 +194,12 @@ The normal operator surface is one router plus fourteen public métier owners:
 | Gouverner | `sg-docs` | `300-sg-docs` |
 | Organiser | `sg-planning`, `sg-private`, `sg-help` | `011-sg-pilotage`, `603-sg-private`, `302-sg-help` |
 
-`shipglows` is the public natural-language router. Each public owner has a
-real folder and matching `name:` metadata (`skills/sg-development/`,
-`skills/sg-engineering/`, and so on), so the runtime picker exposes the métier
-name directly. Public owners select and coordinate numeric engines invisibly;
-they do not require operators to learn
+`shipglows` is the public natural-language router and appears as `ShipGlows` in
+the runtime picker. Each public owner has a real folder, a stable `name:` used
+for `$sg-*` invocation, and an `interface.display_name` using the human-facing
+`ShipGlows <métier>` convention (`ShipGlows Private Memory` retains its
+purpose-specific label). Public owners select and coordinate numeric engines
+invisibly; they do not require operators to learn
 the lifecycle, proof, research, context, or packaging helper names.
 
 The resolution hierarchy is `project -> product -> surface -> feature`.
