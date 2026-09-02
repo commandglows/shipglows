@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 import unittest
 
 
@@ -53,6 +54,25 @@ EXPECTED_OWNERS = {
     "sg-private": "603-sg-private",
     "sg-help": "302-sg-help",
 }
+EXPECTED_DISPLAY_NAMES = {
+    "shipglows": "ShipGlows",
+    "sg-development": "ShipGlows Development",
+    "sg-design": "ShipGlows Design",
+    "sg-experience": "ShipGlows Experience",
+    "sg-bug": "ShipGlows Bug Repair",
+    "sg-engineering": "ShipGlows Engineering",
+    "sg-maintenance": "ShipGlows Maintenance",
+    "sg-release": "ShipGlows Release",
+    "sg-content": "ShipGlows Content",
+    "sg-marketing": "ShipGlows Marketing",
+    "sg-seo": "ShipGlows SEO",
+    "sg-docs": "ShipGlows Documentation",
+    "sg-planning": "ShipGlows Planning",
+    "sg-private": "ShipGlows Private Memory",
+    "sg-help": "ShipGlows Help",
+}
+
+
 class MetierFirstPublicSkillsContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -248,6 +268,29 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
         public_sources.add(str(self.catalog["router"]["public_skill"]))
         expert = {path.parent.name for path in SKILLS.glob("*/SKILL.md")} - public_sources
         self.assertTrue(expert)
+
+    def test_public_surface_has_consistent_human_interface_metadata(self) -> None:
+        public_entries = self.skills + [self.catalog["router"]]
+        display_names: set[str] = set()
+        for entry in public_entries:
+            public_skill = str(entry["public_skill"])
+            metadata_path = SKILLS / public_skill / "agents" / "openai.yaml"
+            metadata = metadata_path.read_text(encoding="utf-8")
+
+            def value(field: str) -> str:
+                match = re.search(rf'(?m)^  {field}: "([^"]+)"$', metadata)
+                self.assertIsNotNone(match, f"{public_skill}: missing interface.{field}")
+                return match.group(1)
+
+            display_name = value("display_name")
+            short_description = value("short_description")
+            default_prompt = value("default_prompt")
+            self.assertEqual(EXPECTED_DISPLAY_NAMES[public_skill], display_name)
+            self.assertNotIn(display_name, display_names, public_skill)
+            self.assertGreaterEqual(len(short_description), 25, public_skill)
+            self.assertLessEqual(len(short_description), 64, public_skill)
+            self.assertIn(f"${public_skill}", default_prompt, public_skill)
+            display_names.add(display_name)
 
     # MH-11 / MH-12: all public capability ownership is unique, explicit, and
     # maps to one existing runtime engine without competing public aliases.

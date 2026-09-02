@@ -11,15 +11,15 @@ REGISTRY = SKILLS / "references" / "skill-invocation-registry.json"
 
 
 class SgPrivateContractTests(unittest.TestCase):
-    def test_public_owner_exposes_only_memory_mode(self):
+    def test_public_owner_exposes_private_modes(self):
         registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         owners = {skill["id"]: skill for domain in registry["public_catalog"]["domains"]
                   for skill in domain["skills"]}
         private = owners["sg-private"]
         self.assertEqual(private["runtime_skill"], "603-sg-private")
-        self.assertEqual(private["modes"], ["memory"])
+        self.assertEqual(private["modes"], ["memory", "data"])
         self.assertEqual(registry["rules"]["603-sg-private"]["modes"],
-                         {"memory": {"min_args": 0}})
+                         {"memory": {"min_args": 0}, "data": {"min_args": 1}})
 
     def test_explicit_invocation_resolves_to_private_engine(self):
         result = subprocess.run(
