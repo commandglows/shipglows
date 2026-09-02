@@ -132,7 +132,8 @@ function Pump-SgFlutterChanges([object]$Watcher,[object]$DebounceState,[int]$Max
 }
 
 function New-SgFlutterProtocolState {
-    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastResponseId=$null; LastResponseOk=$null; UpdatedAtUtc=[datetime]::UtcNow.ToString('o') }
+    $now=[datetime]::UtcNow.ToString('o')
+    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastResponseId=$null; LastResponseOk=$null; StartupStartedAtUtc=$now; LastProgressAtUtc=$null; ProgressActive=$false; UpdatedAtUtc=$now }
 }
 
 function ConvertFrom-SgFlutterMachineEnvelope([string]$Line) {
@@ -154,9 +155,16 @@ function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
         $params = $message.params
         switch ([string]$message.event) {
             'daemon.connected' { if ($params.pid -as [int]) { $State.DaemonPid=[int]$params.pid } }
-            'app.start' { if ([string]$params.appId -match '^[A-Za-z0-9._-]{1,256}$') { $State.AppId=[string]$params.appId; $State.Status='starting' } }
-            'app.started' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { $State.Ready=$true; $State.Status='running'; $State.LastError=$null } }
-            'app.stop' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { $State.Ready=$false; $State.Status='stopped'; if ($params.PSObject.Properties['error'] -and $params.error) { $State.Status='error'; $State.LastError='Flutter reported an application error.' } } }
+            'app.start' { if ([string]$params.appId -match '^[A-Za-z0-9._-]{1,256}$') { $State.AppId=[string]$params.appId; $State.Status='starting'; $State.ProgressActive=$false } }
+            'app.progress' {
+                if (-not $State.Ready -and $State.AppId -and $params.PSObject.Properties['appId'] -and [string]$params.appId -ceq [string]$State.AppId -and $params.PSObject.Properties['finished'] -and $params.finished -is [bool]) {
+                    $State.LastProgressAtUtc=[datetime]::UtcNow.ToString('o')
+                    $State.ProgressActive=-not[bool]$params.finished
+                    $State.Status=if($State.ProgressActive){'building'}else{'starting'}
+                }
+            }
+            'app.started' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { $State.Ready=$true; $State.ProgressActive=$false; $State.Status='running'; $State.LastError=$null } }
+            'app.stop' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { $State.Ready=$false; $State.ProgressActive=$false; $State.Status='stopped'; if ($params.PSObject.Properties['error'] -and $params.error) { $State.Status='error'; $State.LastError='Flutter reported an application error.' } } }
         }
     }
     $State.UpdatedAtUtc=[datetime]::UtcNow.ToString('o')

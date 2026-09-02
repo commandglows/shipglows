@@ -389,6 +389,13 @@ de la commande CLI. Les modifications `*.dart` sous `lib/` sont regroupées sur
 une fenêtre calme de 500 ms puis déclenchent `app.restart` en mode hot reload.
 Le canal local n'accepte que reload, stop et open, avec l'identité secrète du
 lancement, une taille et des délais bornés ; il n'exécute aucune commande libre.
+La commande explicite `s reload -ProjectPath <path>` cible uniquement une session
+Flutter gérée déjà `running` et vérifie l'identité du processus, du daemon et de
+`appId` avant d'envoyer `app.restart` en hot reload. Elle affiche `reload
+succeeded`, `reload failed` ou `reload unavailable`. Demandée pendant
+`starting` ou `building`, elle échoue sans arrêter la compilation. Ce reload Dart
+ne relance ni CMake ni MSVC et reste distinct d'un hot restart ou d'un Restart
+DevServer complet.
 
 Chaque lancement Chrome reçoit un profil ShipGlows unique. Stop et Restart ne
 recherchent un éventuel navigateur orphelin qu'avec le chemin exact de ce profil
@@ -398,7 +405,7 @@ uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
 ### Flutter Windows en développement
 
-Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `ShipGlows - <Projet> - Dev`, qui démarre la session ou réutilise celle déjà active.
+Sur Windows, une application Flutter qui contient une cible `windows/` utilise par défaut une session supervisée `flutter run -d windows`. Cette session est la boucle normale de développement : elle conserve les logs, recharge les changements Dart et empêche les lancements concurrents. L'attente reste `starting` ou `building` tant que des événements `app.progress` valides entretiennent une lease de 300 secondes, bornée par un plafond total de 600 secondes ; seul le `app.started` correspondant établit `running`. Un daemon mort ou une progression silencieuse atteint toujours un échec déterministe et nettoyé. Au premier démarrage réussi, ShipGlows crée le raccourci Bureau `ShipGlows - <Projet> - Dev`, qui démarre la session ou réutilise celle déjà active.
 
 Le fichier `.shipglows.env` peut forcer `SHIPGLOWS_FLUTTER_DEVICE=windows`, `android`, `chrome` ou `web-server`. Les raccourcis `Windows - Local` et `Windows - CI` restent réservés aux builds figés validés : releases et contrôles ciblés du packaging, des plugins natifs ou du démarrage sans Flutter attaché.
 

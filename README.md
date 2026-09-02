@@ -455,10 +455,15 @@ Flutter Web keeps headless Chrome as its default managed target.
 The full installer exposes its validated Playwright Chromium through the standard
 `CHROME_EXECUTABLE` user environment variable, and the supervisor passes only
 that existing ShipGlows-managed executable to Flutter's `chrome` device.
-Matching `app.start`/`app.started` events establish readiness, Dart changes under
-`lib/` trigger debounced hot reload, Open promotes the session to managed visible
-Chrome, and Restart remains a complete controlled restart. Orphan listeners and
-browsers are stopped only with exact ShipGlows launch evidence.
+Matching `app.start`/`app.started` events establish readiness. While a native
+build is active, valid `app.progress` events extend a bounded startup lease
+without ever marking the application running; silent startup still times out.
+Dart changes under `lib/` trigger debounced hot reload, and
+`s reload -ProjectPath <path>` exposes the same attached-session reload with an
+observable result. It never performs stop/start or a native rebuild. Open
+promotes Chrome to a managed visible session, while Restart remains a complete
+controlled restart. Orphan listeners and browsers are stopped only with exact
+ShipGlows launch evidence.
 
 Obsidian plugins are classified from their native manifest, the `obsidian`
 package dependency, main entrypoint, and declared build/watch scripts before the

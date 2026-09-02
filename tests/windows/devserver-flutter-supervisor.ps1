@@ -141,10 +141,29 @@ try {
 
 $state = New-SgFlutterProtocolState
 Update-SgFlutterProtocolState $state '{"event":"app.start","params":{"appId":"app-1"}}'
+if ($state.Ready -or $state.Status -ne 'starting' -or $state.ProgressActive) { throw 'app.start did not preserve a non-ready starting state.' }
+Update-SgFlutterProtocolState $state '{"event":"app.progress","params":{"appId":"other","message":"Building Windows application...","finished":false}}'
+if ($state.Status -ne 'starting' -or $state.LastProgressAtUtc) { throw 'Progress for a stale Flutter app identity was accepted.' }
+Update-SgFlutterProtocolState $state '{"event":"app.progress","params":{"appId":"app-1","message":"Building Windows application...","finished":false}}'
+if ($state.Ready -or $state.Status -ne 'building' -or -not $state.ProgressActive -or -not $state.LastProgressAtUtc) { throw 'Live Flutter build progress did not establish the bounded building state.' }
+$firstProgress=[datetime]$state.LastProgressAtUtc
+Start-Sleep -Milliseconds 5
+Update-SgFlutterProtocolState $state '{"event":"app.progress","params":{"appId":"app-1","message":"Building Windows application...","finished":false}}'
+if ([datetime]$state.LastProgressAtUtc -le $firstProgress) { throw 'Repeated valid Flutter progress did not advance the liveness timestamp.' }
+Update-SgFlutterProtocolState $state '{"event":"app.progress","params":{"appId":"app-1","message":"Building Windows application...","finished":true}}'
+if ($state.Ready -or $state.Status -ne 'starting' -or $state.ProgressActive) { throw 'Finished Flutter progress marked readiness or remained active.' }
 Update-SgFlutterProtocolState $state '{"event":"app.started","params":{"appId":"other"}}'
 if ($state.Ready) { throw 'Mismatched app.started marked the supervisor ready.' }
 Update-SgFlutterProtocolState $state '{"event":"app.started","params":{"appId":"app-1"}}'
 if (-not $state.Ready -or $state.AppId -ne 'app-1') { throw 'Matching app.started did not mark the supervisor ready.' }
+Update-SgFlutterProtocolState $state '{"event":"app.progress","params":{"appId":"app-1","progressId":"hot.reload","message":"Performing hot reload...","finished":false}}'
+Update-SgFlutterProtocolState $state '{"event":"app.progress","params":{"appId":"app-1","progressId":"hot.reload","finished":true}}'
+if (-not $state.Ready -or $state.Status -ne 'running' -or $state.ProgressActive) { throw 'Post-readiness Flutter progress corrupted the running state.' }
+$stoppingState=New-SgFlutterProtocolState
+Update-SgFlutterProtocolState $stoppingState '{"event":"app.start","params":{"appId":"app-stop"}}'
+Update-SgFlutterProtocolState $stoppingState '{"event":"app.progress","params":{"appId":"app-stop","message":"Building Windows application...","finished":false}}'
+Update-SgFlutterProtocolState $stoppingState '{"event":"app.stop","params":{"appId":"app-stop","error":"native build failed"}}'
+if ($stoppingState.Ready -or $stoppingState.Status -ne 'error' -or $stoppingState.ProgressActive) { throw 'Flutter stop during compilation did not become a terminal failed state.' }
 Update-SgFlutterProtocolState $state '{"id":7,"result":{"code":0,"message":"Reloaded"}}'
 if ($state.LastResponseId -ne 7 -or -not $state.LastResponseOk) { throw 'Machine response correlation was not recorded.' }
 Update-SgFlutterProtocolState $state '{"id":8,"error":{"code":-32000,"message":"sensitive detail"}}'

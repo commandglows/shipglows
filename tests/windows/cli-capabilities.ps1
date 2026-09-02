@@ -20,7 +20,8 @@ try {
     Assert-Sg ((Get-Item -LiteralPath $path).Length -le 65536) 'The snapshot must stay within 64 KiB.'
     $snapshot = Read-SgCliCapabilitySnapshot $config
     Assert-Sg ($snapshot.schemaVersion -ceq 'shipglows.cli-capabilities.v1') 'The schema version drifted.'
-    Assert-Sg (@($snapshot.capabilities).Count -eq 31) 'The closed capability inventory must contain exactly 31 records.'
+    Assert-Sg (@($snapshot.capabilities).Count -eq 32) 'The closed capability inventory must contain exactly 32 records.'
+    Assert-Sg (@($snapshot.capabilities | Where-Object id -eq 'project.runtime.reload')[0].state -ceq 'available') 'The managed Flutter reload capability is missing.'
     Assert-Sg (@($snapshot.capabilities | Where-Object id -eq 'plugin.obsidian.lab')[0].state -ceq 'available') 'The local Obsidian Lab capability is missing.'
     Assert-Sg (@($snapshot.capabilities | Where-Object id -eq 'workspace.close')[0].reasonCode -ceq 'unsupportedWindows') 'Unsupported Windows behavior must be explicit.'
     $raw = [IO.File]::ReadAllText($path)

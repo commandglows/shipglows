@@ -136,7 +136,7 @@ function Get-SgCliCapabilityRecords {
     $available = @(
         'project.catalog.read','project.runtime.status.read','preview.status.read','workspace.status.read',
         'system.health.read','system.storage.read','system.memory.read','toolchain.status.read','updates.status.read',
-        'agents.status.read','mcp.status.read','project.runtime.start','project.runtime.stop','project.runtime.restart',
+        'agents.status.read','mcp.status.read','project.runtime.start','project.runtime.stop','project.runtime.restart','project.runtime.reload',
         'preview.refresh','workspace.open','agent.session.open','system.logs.read','system.cleanup','system.process.stop',
         'system.reboot','system.update','toolchain.install','mcp.configure','credentials.manage','proxy.configure',
         'environment.remove','shipglows.install','plugin.obsidian.lab'
@@ -162,7 +162,7 @@ function Test-SgCliCapabilitySnapshot([object]$Snapshot) {
         if ('reasonCode' -in $properties -and [string]$record.reasonCode -notmatch '^[a-z][a-zA-Z0-9]{0,63}$') { return $false }
         $seen[$id] = $true
     }
-    return $seen.Count -eq 31
+    return $seen.Count -eq 32
 }
 
 function ConvertFrom-SgCliCapabilityJson([string]$Json) {
@@ -2202,13 +2202,29 @@ function Sync-SgObsidianPluginArtifacts([object]$Descriptor, [string]$VaultPath)
     return [pscustomobject]@{ TargetPath=$resolved.TargetPath; Copied=@($copied) }
 }
 
-function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90) {
-    $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds))
+function Get-SgFlutterStartupDecision([object]$State,[datetime]$StartedAtUtc,[datetime]$NowUtc,[int]$SilentTimeoutSeconds=90,[int]$ProgressLeaseSeconds=300,[int]$MaximumStartupSeconds=600) {
+    $daemonPid=if($State.PSObject.Properties['daemonPid']){[int]$State.daemonPid}else{0}
+    $status=if($State.PSObject.Properties['status']){[string]$State.status}else{'starting'}
+    $appId=if($State.PSObject.Properties['appId']){[string]$State.appId}else{$null}
+    if($status-eq'running'-and$appId){return [pscustomobject]@{Terminal=$true;Ready=$true;AppId=$appId;Error=$null;DaemonPid=$daemonPid;StartupState='running'}}
+    if($status-eq'error'){$error=if($State.PSObject.Properties['lastError']-and$State.lastError){Protect-SgDiagnosticText ([string]$State.lastError)}else{'Flutter supervisor failed.'};return [pscustomobject]@{Terminal=$true;Ready=$false;AppId=$null;Error=$error;DaemonPid=$daemonPid;StartupState='failed'}}
+    $silentDeadline=$StartedAtUtc.AddSeconds([Math]::Max(0,$SilentTimeoutSeconds));$hardDeadline=$StartedAtUtc.AddSeconds([Math]::Max($SilentTimeoutSeconds,$MaximumStartupSeconds));$effectiveDeadline=$silentDeadline
+    $progressActive=[bool]($State.PSObject.Properties['progressActive']-and[bool]$State.progressActive)
+    if($progressActive-and$State.PSObject.Properties['lastProgressAtUtc']-and$State.lastProgressAtUtc){try{$progressValue=$State.lastProgressAtUtc;$progressAt=if($progressValue-is[datetime]){$progressValue.ToUniversalTime()}elseif($progressValue-is[datetimeoffset]){$progressValue.UtcDateTime}else{([DateTimeOffset]::Parse([string]$progressValue,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::RoundtripKind)).UtcDateTime};$progressDeadline=$progressAt.AddSeconds([Math]::Max(0,$ProgressLeaseSeconds));if($progressDeadline-gt$effectiveDeadline){$effectiveDeadline=$progressDeadline}}catch{}}
+    if($effectiveDeadline-gt$hardDeadline){$effectiveDeadline=$hardDeadline}
+    if($NowUtc-ge$effectiveDeadline){$liveAtHardCap=$progressActive-and$NowUtc-ge$hardDeadline;$startupState=if($liveAtHardCap){'timed-out-with-live-progress'}else{'timed-out'};$error=if($liveAtHardCap){'Flutter supervisor reached the bounded startup ceiling while build progress was still active.'}else{'Flutter supervisor timed out before app.started.'};return [pscustomobject]@{Terminal=$true;Ready=$false;AppId=$null;Error=$error;DaemonPid=$daemonPid;StartupState=$startupState}}
+    [pscustomobject]@{Terminal=$false;Ready=$false;AppId=$appId;Error=$null;DaemonPid=$daemonPid;StartupState=$(if($status-eq'building'){'building'}else{'starting'})}
+}
+
+function Wait-SgFlutterSupervisorReady([string]$StatePath, [object]$ProcessEntry=$null, [int]$SilentTimeoutSeconds=90, [int]$ProgressLeaseSeconds=300, [int]$MaximumStartupSeconds=600) {
+    $startedAtUtc=[datetime]::UtcNow
     do {
-        if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-Content -LiteralPath $StatePath -Raw|ConvertFrom-Json -ErrorAction Stop;if($state.status -eq 'running' -and $state.appId){return [pscustomobject]@{Ready=$true;AppId=[string]$state.appId;Error=$null;DaemonPid=[int]$state.daemonPid}};if($state.status -eq 'error'){return [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($state.lastError){Protect-SgDiagnosticText ([string]$state.lastError)}else{'Flutter supervisor failed.'});DaemonPid=[int]$state.daemonPid}}}catch{}}
-        if((Get-Date)-ge $deadline){break};Start-Sleep -Milliseconds 250
+        $nowUtc=[datetime]::UtcNow
+        if($ProcessEntry-and-not(Test-SgProcessIdentity $ProcessEntry)){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor exited during startup.';DaemonPid=0;StartupState='failed'}}
+        if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-Content -LiteralPath $StatePath -Raw|ConvertFrom-Json -ErrorAction Stop;$decision=Get-SgFlutterStartupDecision $state $startedAtUtc $nowUtc $SilentTimeoutSeconds $ProgressLeaseSeconds $MaximumStartupSeconds;if($decision.Terminal){return $decision}}catch{if($nowUtc-ge$startedAtUtc.AddSeconds([Math]::Max(0,$SilentTimeoutSeconds))){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor startup state remained invalid until timeout.';DaemonPid=0;StartupState='failed'}}}}
+        elseif($nowUtc-ge$startedAtUtc.AddSeconds([Math]::Max(0,$SilentTimeoutSeconds))){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor timed out before publishing startup state.';DaemonPid=0;StartupState='timed-out'}}
+        Start-Sleep -Milliseconds 250
     }while($true)
-    [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor timed out before app.started.';DaemonPid=0}
 }
 
 function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload','stop','open')][string]$Method,[int]$TimeoutSeconds=10) {
@@ -2218,7 +2234,25 @@ function Invoke-SgFlutterSupervisorCommand([object]$Entry,[ValidateSet('reload',
     $token=[IO.File]::ReadAllText($tokenPath).Trim();if($token -notmatch '^[a-f0-9]{64}$'){throw 'Flutter supervisor token is invalid.'}
     $id=[guid]::NewGuid().ToString('N');$commandDir=Join-Path $launch 'commands';$response=Join-Path (Join-Path $launch 'responses') "$id.json";Ensure-SgDirectory $commandDir
     $target=Join-Path $commandDir "$id.json";$temp="$target.tmp";$json=[ordered]@{token=$token;id=$id;method=$Method}|ConvertTo-Json -Compress;[IO.File]::WriteAllText($temp,$json,(New-Object Text.UTF8Encoding($false)));Move-Item -LiteralPath $temp -Destination $target -Force
-    try{$deadline=(Get-Date).AddSeconds($TimeoutSeconds);while((Get-Date)-lt $deadline){if(Test-Path -LiteralPath $response -PathType Leaf){$info=Get-Item -LiteralPath $response;if($info.Length-gt65536){throw 'Flutter supervisor response exceeds 64 KiB.'};try{$result=Get-Content -LiteralPath $response -Raw|ConvertFrom-Json -ErrorAction Stop}finally{Remove-Item -LiteralPath $response -Force -ErrorAction SilentlyContinue};$names=@($result.PSObject.Properties.Name);if($result -is[array]-or-not($result.PSObject.Properties['ok'])-or$result.ok-isnot[bool]){throw 'Malformed Flutter supervisor response.'};if($result.ok){if(($names|Sort-Object)-join',' -ne 'method,ok'-or[string]$result.method-cne$Method){throw 'Mismatched Flutter supervisor response.'};return $result}else{if(($names|Sort-Object)-join',' -ne 'error,ok'){throw 'Malformed Flutter supervisor response.'};throw 'Flutter supervisor command failed.'}};Start-Sleep -Milliseconds 100};throw "Flutter supervisor $Method command timed out."}finally{if(Test-Path -LiteralPath $target -PathType Leaf){Remove-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue};if(Test-Path -LiteralPath $temp -PathType Leaf){Remove-Item -LiteralPath $temp -Force -ErrorAction SilentlyContinue}}
+    try{$deadline=(Get-Date).AddSeconds($TimeoutSeconds);while((Get-Date)-lt $deadline){if(Test-Path -LiteralPath $response -PathType Leaf){$info=Get-Item -LiteralPath $response;if($info.Length-gt65536){throw 'Flutter supervisor response exceeds 64 KiB.'};try{$result=Get-Content -LiteralPath $response -Raw|ConvertFrom-Json -ErrorAction Stop}finally{Remove-Item -LiteralPath $response -Force -ErrorAction SilentlyContinue};$names=@($result.PSObject.Properties.Name);if($result -is[array]-or-not($result.PSObject.Properties['ok'])-or$result.ok-isnot[bool]){throw 'Malformed Flutter supervisor response.'};if($result.ok){if(($names|Sort-Object)-join',' -ne 'method,ok'-or[string]$result.method-cne$Method){throw 'Mismatched Flutter supervisor response.'};return $result}else{if(($names|Sort-Object)-join',' -ne 'error,ok'){throw 'Malformed Flutter supervisor response.'};throw 'Flutter supervisor command failed.'}};Start-Sleep -Milliseconds 100};throw "Flutter supervisor $Method command timed out."}finally{foreach($path in @($target,$temp,$response)){if(Test-Path -LiteralPath $path -PathType Leaf){Remove-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue}}}
+}
+
+function Invoke-SgFlutterProjectReload([object]$Config,[string]$ProjectPath,[int]$TimeoutSeconds=10) {
+    if([string]::IsNullOrWhiteSpace($ProjectPath)){return [pscustomobject]@{Status='unavailable';Reason='ProjectPath is required.'}}
+    try{$path=ConvertTo-SgCanonicalPath $ProjectPath}catch{return [pscustomobject]@{Status='unavailable';Reason='The project path is invalid.'}}
+    $entry=@((Read-SgRegistry $Config).projects|Where-Object{$_.path-eq$path})|Select-Object -First 1
+    if(-not$entry){return [pscustomobject]@{Status='unavailable';Reason='The project is not registered.'}}
+    if($entry.kind-ne'flutter-web'){return [pscustomobject]@{Status='unavailable';Reason='The registered project is not a managed Flutter session.'}}
+    if($entry.status-ne'running'){return [pscustomobject]@{Status='unavailable';Reason="The Flutter session is not ready (status=$($entry.status))."}}
+    if(-not$entry.PSObject.Properties['flutterAppId']-or[string]::IsNullOrWhiteSpace([string]$entry.flutterAppId)){return [pscustomobject]@{Status='unavailable';Reason='The Flutter application identity is unavailable.'}}
+    if(-not(Test-SgProcessIdentity $entry)){return [pscustomobject]@{Status='unavailable';Reason='The managed Flutter supervisor is not running.'}}
+    if(-not$entry.PSObject.Properties['flutterLaunchDirectory']-or-not$entry.flutterLaunchDirectory){return [pscustomobject]@{Status='unavailable';Reason='The Flutter supervisor identity is unavailable.'}}
+    $statePath=Join-Path ([string]$entry.flutterLaunchDirectory) 'state.json'
+    try{Assert-SgNoReparseTree ([string]$entry.flutterLaunchDirectory);if(-not(Test-Path -LiteralPath $statePath -PathType Leaf)-or(Get-Item -LiteralPath $statePath).Length-gt262144){return [pscustomobject]@{Status='unavailable';Reason='The Flutter supervisor readiness state is unavailable.'}};$state=Get-Content -LiteralPath $statePath -Raw|ConvertFrom-Json -ErrorAction Stop}catch{return [pscustomobject]@{Status='unavailable';Reason='The Flutter supervisor readiness state is invalid.'}}
+    if($state.status-ne'running'-or-not($state.PSObject.Properties['ready'])-or$state.ready-isnot[bool]-or-not[bool]$state.ready){return [pscustomobject]@{Status='unavailable';Reason='The Flutter application is not ready.'}}
+    if([string]$state.appId-cne[string]$entry.flutterAppId){return [pscustomobject]@{Status='unavailable';Reason='The Flutter application identity is stale.'}}
+    if($entry.PSObject.Properties['flutterDaemonPid']-and[int]$entry.flutterDaemonPid-gt0-and$state.PSObject.Properties['daemonPid']-and[int]$state.daemonPid-ne[int]$entry.flutterDaemonPid){return [pscustomobject]@{Status='unavailable';Reason='The Flutter daemon identity is stale.'}}
+    try{[void](Invoke-SgFlutterSupervisorCommand $entry 'reload' $TimeoutSeconds);return [pscustomobject]@{Status='succeeded';Reason=$null}}catch{return [pscustomobject]@{Status='failed';Reason=(Protect-SgDiagnosticText $_.Exception.Message)}}
 }
 
 function Get-SgBoundedFileTail([string]$Path,[int]$MaxBytes=262144) {
@@ -2707,7 +2741,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         throw
     }
     $rootPath = if ($entry.PSObject.Properties['rootPath'] -and $entry.rootPath) { [string]$entry.rootPath } else { [string]$entry.path }
-    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; lastError = $null; flutterAppId = $null; flutterDaemonPid = 0; flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
+    $entryData = [pscustomobject]@{ name = $entry.name; path = $entry.path; rootPath = $rootPath; launchPath = $launchPath; kind = $kind; port = $port; status = 'starting'; pid = $snapshot.Pid; startTimeUtc = $snapshot.StartTimeUtc; executablePath = $snapshot.ExecutablePath; commandSignature = $process.CommandSignature; jobName = $(if ($process.PSObject.Properties['JobName']) { $process.JobName } else { $null }); logPath = $out; errorLogPath = $err; lastError = $null; flutterAppId = $null; flutterDaemonPid = 0; flutterStartupState = $(if($kind-eq'flutter-web'){'starting'}else{$null}); flutterHeadless = ($kind -eq 'flutter-web' -and $settings.FlutterDevice -eq 'chrome' -and -not [bool]$FlutterVisible); flutterDevice = $(if ($kind -eq 'flutter-web') { $settings.FlutterDevice } else { $null }); flutterDeviceId = $(if ($kind -eq 'flutter-web') { $resolvedFlutterDevice } else { $null }); browserProfilePath = $flutterProfilePath; flutterLaunchDirectory=$flutterLaunchDirectory; flutterTokenPath=$flutterTokenPath }
     if($kind-eq'flutter-web'){$sdkRoot=if($launch.PSObject.Properties['FlutterSdkRoot']){$launch.FlutterSdkRoot}else{$null};$entryData|Add-Member -NotePropertyName flutterSdkRoot -NotePropertyValue $sdkRoot -Force}
     if($kind-eq'obsidian-plugin'){
         Add-SgObsidianDescriptorMetadata $entryData $obsidianDescriptor | Out-Null
@@ -2736,7 +2770,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         return $entryData
     }
     [void](Write-SgProjectEnvironment $entry.path $port $kind)
-    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json')}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 90 $entryData $err}
+    $readiness = if($kind -eq 'flutter-web'){Wait-SgFlutterSupervisorReady (Join-Path $flutterLaunchDirectory 'state.json') $entryData}elseif($kind-eq'browser-extension'){Wait-SgBrowserExtensionReady $launchPath $port 90 $entryData $err}elseif($kind-eq'obsidian-plugin'){Wait-SgObsidianPluginReady $launchPath 90 $entryData $err}else{Wait-SgProjectReady $kind $port $out 90 $entryData $err}
     if ($readiness.Ready -and $kind -eq 'obsidian-plugin') {
         try {
             $sync = Sync-SgObsidianPluginArtifacts $obsidianDescriptor $obsidianVault.VaultPath
@@ -2749,12 +2783,14 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
     }
     if ($readiness.Ready) {
         $entryData.status = 'running'
+        if($kind-eq'flutter-web'){$entryData.flutterStartupState='running'}
         $entryData.flutterAppId = $readiness.AppId
         if($readiness.PSObject.Properties['DaemonPid']){$entryData.flutterDaemonPid=[int]$readiness.DaemonPid}
         Set-SgReservationState $Config $entry.path $reservationToken 'running' $entryData
         if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')) { [void](Install-SgFlutterDevShortcut $entryData) }
     } else {
         $entryData.status = 'error'
+        if($kind-eq'flutter-web' -and $readiness.PSObject.Properties['StartupState']){$entryData.flutterStartupState=[string]$readiness.StartupState}
         if ($kind -eq 'obsidian-plugin') { $entryData.surfaceState = 'build-required'; $entryData.validationState = 'validation-unavailable' }
         $entryData.lastError = if ($readiness.Error) { [string]$readiness.Error } else { 'Application readiness failed.' }
         if ($entryData.jobName) { [void](Stop-SgManagedJob $entryData) }
@@ -2982,6 +3018,6 @@ function Show-SgDashboard([object]$Config) {
     foreach ($entry in $items) { Write-Host ("[{0}] {1}  {2}  {3}  {4}" -f $index,$entry.status,$entry.kind,$entry.port,$entry.path); $index++ }
 }
 
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Get-SgObsidianBratArtifactReport,Invoke-SgObsidianPluginLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Get-SgEnvironmentStatePath,Read-SgEnvironmentState,Get-SgEnvironmentReadinessForSurface,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
-Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Get-SgObsidianBratArtifactReport,Invoke-SgObsidianPluginLab,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap,Read-SgBrowserExtensionManifest,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgCliCapabilityRecords,Write-SgCliCapabilitySnapshot,Read-SgCliCapabilitySnapshot,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Get-SgObsidianBratArtifactReport,Invoke-SgObsidianPluginLab,Get-SgFlutterAndroidDevices,Resolve-SgFlutterAndroidDevice,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Install-SgFlutterDevShortcut,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Get-SgEnvironmentStatePath,Read-SgEnvironmentState,Get-SgEnvironmentReadinessForSurface,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Get-SgProjectCatalogForDisplay,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap
+Export-ModuleMember -Function Write-SgInfo,Write-SgWarn,Write-SgError,Ensure-SgDirectory,ConvertTo-SgCanonicalPath,Get-SgDevConfig,Get-SgProjectKind,Get-SgProjectExperience,Format-SgProjectStatus,Get-SgProjectDescriptor,Get-SgProjectDescriptors,Get-SgRuntimeSettings,Get-SgObsidianPluginDescriptor,Wait-SgObsidianPluginReady,Sync-SgObsidianPluginArtifacts,Get-SgObsidianBratArtifactReport,Invoke-SgObsidianPluginLab,Read-SgRegistry,Reconcile-SgRegistry,Register-SgProject,Sync-SgRegisteredProjectEnvironments,Start-SgProject,Stop-SgProject,Open-SgProject,Invoke-SgFlutterSupervisorCommand,Invoke-SgFlutterProjectReload,Unregister-SgProject,Show-SgDashboard,Test-SgGitUrl,Test-SgProjectPath,ConvertTo-SgGitHubRepositoryIdentity,Get-SgInstalledGitHubRepositoryIdentities,Select-SgGitHubCloneCandidates,Get-SgFreePort,Test-SgPortAvailable,Reserve-SgProjectPort,Set-SgReservationState,Release-SgProjectPort,Get-SgRunnableIdentity,Get-SgCanonicalSurfaceName,Get-SgDisplayName,Add-SgDiscoveredMetadata,Sync-SgDiscoveredProjectMetadata,Get-SgOwnedFlutterListenerPids,Stop-SgOwnedFlutterListener,Get-SgOwnedFlutterBrowserPids,Stop-SgOwnedFlutterBrowser,Rotate-SgLogFile,Get-SgProjectEnvironmentPath,Write-SgProjectEnvironment,Get-SgProjectEnvironment,Remove-SgLegacyProjectServerState,Get-SgWorkspaceProjectCandidates,Get-SgProjectCatalog,Clear-SgProjectCatalogCache,Resolve-SgProjectCatalogEntry,New-SgProjectChoiceMap,Read-SgBrowserExtensionManifest,Get-SgBrowserExtensionDescriptor,Get-SgManagedPlaywrightModulePath,Invoke-SgBrowserExtensionLab
 Export-ModuleMember -Function Clear-SgProjectCatalogMemoryCache,Test-SgProjectCatalogRefreshRequired
