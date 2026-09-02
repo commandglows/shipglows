@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.32.0"
+artifact_version: "0.33.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-09-02"
@@ -477,9 +477,10 @@ plugin loaded inside Obsidian; reload and in-app validation remain manual.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
 After a full install, use `s`, `sg`, or `shipglows-dev` for the project dashboard.
-On a bare invocation, `s.exe`/`sg.exe` renders the root menu before starting any
-PowerShell process; the selected action is then delegated to the pinned managed
-PowerShell engine. Compatibility `.cmd` launchers remain installed as recovery
+On a bare invocation, `s.exe`/`sg.exe` opens the bundled Gum root menu before
+starting any PowerShell process; project and action pickers remain Gum-first,
+and only the selected action is delegated to the pinned managed PowerShell
+engine. A plain-text menu and compatibility `.cmd` launchers remain recovery
 surfaces, while Windows command resolution selects the native executable first.
 Use `shipglows rename rio "Session name"` to set the current Rio tab title;
 the command does not rename the corresponding Codex conversation.

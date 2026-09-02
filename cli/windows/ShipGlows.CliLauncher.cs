@@ -26,6 +26,25 @@ internal static class ShipGlowsCliLauncher
         { 'u', new[] { "u" } }
     };
 
+    private static readonly string[] MenuItems =
+    {
+        "1  Clone a repository",
+        "2  Register a local project",
+        "3  Start a project",
+        "4  Stop a project",
+        "5  Restart a project",
+        "6  View logs",
+        "7  Open / load project",
+        "8  Stop all projects",
+        "9  Unregister a project",
+        "n  Navigate to a project",
+        "a  Authentication",
+        "r  Refresh",
+        "t  Update developer tools",
+        "u  Update ShipGlows",
+        "0  Quit ShipGlows"
+    };
+
     private static int Main(string[] args)
     {
         try
@@ -49,8 +68,12 @@ internal static class ShipGlowsCliLauncher
     {
         while (true)
         {
-            WriteMenu();
-            char choice = ReadChoice();
+            char choice;
+            if (!TryReadGumChoice(out choice))
+            {
+                WriteMenu();
+                choice = ReadChoice();
+            }
             if (choice == '0' || choice == 'x')
             {
                 return 0;
@@ -68,6 +91,62 @@ internal static class ShipGlowsCliLauncher
             {
                 Console.Error.WriteLine("ShipGlows command exited with code " + exitCode + ".");
             }
+        }
+    }
+
+    private static bool TryReadGumChoice(out char choice)
+    {
+        choice = '\0';
+        string gum = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "gum.exe"));
+        if (!File.Exists(gum) || Console.IsInputRedirected)
+        {
+            return false;
+        }
+
+        List<string> arguments = new List<string>
+        {
+            "choose",
+            "--header", "What do you want to do?",
+            "--height", MenuItems.Length.ToString(),
+            "--cursor-prefix", "> ",
+            "--selected-prefix", "* ",
+            "--item.foreground", "255",
+            "--item.background", "0",
+            "--cursor.foreground", "0",
+            "--cursor.background", "212",
+            "--selected.foreground", "0",
+            "--selected.background", "212",
+            "--header.foreground", "255",
+            "--header.background", "0"
+        };
+        arguments.AddRange(MenuItems);
+
+        ProcessStartInfo startInfo = CreateStartInfo(gum, arguments);
+        startInfo.RedirectStandardOutput = true;
+        try
+        {
+            using (Process gumProcess = Process.Start(startInfo))
+            {
+                if (gumProcess == null)
+                {
+                    return false;
+                }
+
+                string selected = gumProcess.StandardOutput.ReadToEnd().Trim();
+                gumProcess.WaitForExit();
+                if (gumProcess.ExitCode != 0 || selected.Length == 0)
+                {
+                    choice = '0';
+                    return true;
+                }
+
+                choice = char.ToLowerInvariant(selected[0]);
+                return true;
+            }
+        }
+        catch
+        {
+            return false;
         }
     }
 

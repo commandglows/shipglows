@@ -254,6 +254,25 @@ $git = $null
 $gh = $null
 $curl = $null
 
+function Invoke-SgGum([string[]]$Arguments) {
+    if (-not $gum) { return $null }
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $gum
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardOutput = $true
+    foreach ($argument in $Arguments) { [void]$startInfo.ArgumentList.Add([string]$argument) }
+    $process = [Diagnostics.Process]::Start($startInfo)
+    if (-not $process) { throw 'Gum did not start.' }
+    try {
+        $value = $process.StandardOutput.ReadToEnd().Trim()
+        $process.WaitForExit()
+        if ($process.ExitCode -ne 0) { return $null }
+        return $value
+    } finally {
+        $process.Dispose()
+    }
+}
+
 function Initialize-SgGitTools([switch]$IncludeGitHub) {
     if (-not $git) { $script:git = Get-SgApplication 'git.exe' @((Join-Path $programFiles 'Git\cmd\git.exe'), (Join-Path $programFilesX86 'Git\cmd\git.exe')) }
     if ($IncludeGitHub -and -not $gh) { $script:gh = Get-SgApplication 'gh.exe' @((Join-Path $programFiles 'GitHub CLI\gh.exe'), (Join-Path $programFilesX86 'GitHub CLI\gh.exe')) }
@@ -273,13 +292,10 @@ function Get-SgSelectedIndex([string[]]$Labels, [string]$Selected) {
 }
 
 function Read-SgInput([string]$Prompt, [string]$Placeholder = '') {
-    # Once fzf is available, avoid Bubble Tea console capture altogether.
-    if ($fzf -or -not $gum) { return Read-Host $Prompt }
+    if (-not $gum) { return Read-Host $Prompt }
     $arguments = @('input','--prompt',"$Prompt ")
     if ($Placeholder) { $arguments += @('--placeholder',$Placeholder) }
-    $value = (& $gum @arguments | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0) { return $null }
-    return $value
+    return Invoke-SgGum $arguments
 }
 
 function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$IdentityByLabel = $null) {
@@ -287,10 +303,9 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
     $lines = @($Options | ForEach-Object { "$_" -replace '[\r\n]+', ' ' } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
     if ($lines.Count -eq 0) { return $null }
 
-    # fzf has reliable redirected-input/output behavior in Windows PowerShell.
-    # Prefer it over Gum, whose Bubble Tea console redraw can lose rows on some
-    # managed Windows terminals (including Shadow + WezTerm).
-    if ($fzf) {
+    # Gum is the canonical Windows picker. fzf remains a recovery backend when
+    # the bundled, checksum-verified Gum executable is unavailable.
+    if (-not $gum -and $fzf) {
         $value = (($lines -join [Environment]::NewLine) | & $fzf --height=~60% --layout=reverse --border --prompt "$Header > " --no-multi | Out-String).Trim()
         if ($LASTEXITCODE -ne 0) { return $null }
         if ($IdentityByLabel) {
@@ -300,11 +315,14 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
         return $value
     }
 
-    # Gum on Windows can collapse a PowerShell-splatted array into one option.
-    # Its newline-delimited stdin contract preserves one selectable item per line.
-    # Explicit colors prevent invisible black-on-black items on managed Windows
-    # terminals whose inherited ANSI defaults differ from a normal console.
-    $style = @(
+    # Exact ProcessStartInfo arguments avoid PowerShell pipeline/array transport
+    # bugs while preserving Gum's direct access to the interactive console.
+    $arguments = @(
+        'choose',
+        '--header', $Header,
+        '--height', [string]$lines.Count,
+        '--cursor-prefix', '> ',
+        '--selected-prefix', '* ',
         '--item.foreground', '255',
         '--item.background', '0',
         '--cursor.foreground', '0',
@@ -313,9 +331,9 @@ function Read-SgChoice([string]$Header, [string[]]$Options, [hashtable]$Identity
         '--selected.background', '212',
         '--header.foreground', '255',
         '--header.background', '0'
-    )
-    $value = (($lines -join [Environment]::NewLine) | & $gum choose --header $Header --cursor-prefix '> ' --selected-prefix '* ' @style | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0) { return $null }
+    ) + $lines
+    $value = Invoke-SgGum $arguments
+    if (-not $value) { return $null }
     if ($IdentityByLabel) {
         if (-not $IdentityByLabel.ContainsKey($value)) { throw 'The selected item could not be resolved to an exact identity.' }
         return [string]$IdentityByLabel[$value]
