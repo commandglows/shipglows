@@ -58,7 +58,7 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 | RA-18 | Lane ownership | Playwright MCP remains default for web QA; optional `playwright-interactive` failure cannot block it. |
 | RA-19 | Native result shape | Successful Playwright installation returns exactly one structured result with installation, configuration, verification, config-path, and Chromium-path evidence. |
 | RA-20 | Merge ref resolution | A branch whose tip is a merge resolves to GitHub's canonical commit SHA and pins that immutable archive; an embedded first-parent patch SHA or malformed response is rejected. |
-| MA-01 | Initial imperative | Agent proposes `🧭 PLAN À VALIDER` and performs no mutation. |
+| MA-01 | Initial imperative | Agent executes bounded safe local outcome work under delegated-intent authority; protected or materially changed effects still receive `🧭 PLAN À VALIDER`. |
 | MA-02 | Post-plan approval | Agent executes only the approved scope and proofs. |
 | MA-03 | Material change | Agent stops and requests approval of a replacement plan. |
 | MA-04 | Micro-edit or server action | The compact plan gate still applies. |

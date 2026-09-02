@@ -54,7 +54,7 @@ next_step: "/103-sg-verify runtime awareness and mutation approval"
 ## Mutation-approval contract
 
 - Before every intentional state mutation, the agent displays `🧭 PLAN À VALIDER` with Objective, Scope, Actions, and Proofs.
-- Only explicit approval given after that plan authorizes implementation. The initial imperative request is not approval.
+- When delegated-intent authority does not apply, only explicit approval given after that plan authorizes implementation.
 - No spec or other persistent planning artifact is written before approval.
 - Read-only discovery may precede approval.
 - A material scope, behavior, risk, permission, data, destructive-effect, external-state, or proof change invalidates approval and requires a replacement plan.
