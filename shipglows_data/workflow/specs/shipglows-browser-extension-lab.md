@@ -7,7 +7,7 @@ created: "2026-08-29"
 created_at: "2026-08-29 03:21:09 UTC"
 updated: "2026-09-02"
 updated_at: "2026-09-02 16:21:58 UTC"
-status: completed
+status: reviewed
 source_skill: 100-sg-spec
 source_model: gpt-5
 scope: feature
