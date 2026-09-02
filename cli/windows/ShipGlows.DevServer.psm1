@@ -536,7 +536,7 @@ function Get-SgManagedPlaywrightModulePath {
     return $null
 }
 
-function Invoke-SgBrowserExtensionLab([string]$ProjectPath, [switch]$Headless, [switch]$Json, [string]$TargetUrl = '') {
+function Invoke-SgBrowserExtensionLab([string]$ProjectPath, [switch]$Headless, [switch]$Json, [string]$TargetUrl = '', [switch]$Screenshot, [object]$Config = $null) {
     $descriptor = Get-SgBrowserExtensionDescriptor $ProjectPath
     if (-not $descriptor) { throw "No browser extension manifest or supported build contract was detected in: $ProjectPath" }
     if ($descriptor.Mode -eq 'build-required') { throw 'Extension build required. ShipGlows detected dev:chrome but will not run repository scripts implicitly. Run the reviewed project build/start command, then retry the lab.' }
@@ -544,7 +544,18 @@ function Invoke-SgBrowserExtensionLab([string]$ProjectPath, [switch]$Headless, [
     $node = Get-SgCommandPath @('node.exe','node.cmd'); if (-not $node) { throw 'Node.js is required by the browser extension lab but is unavailable.' }
     $playwrightModule = Get-SgManagedPlaywrightModulePath; if (-not $playwrightModule) { throw 'Managed Playwright is unavailable. Rerun the ShipGlows full installer before opening the extension lab.' }
     $runner = Join-Path $PSScriptRoot 'ShipGlows.ExtensionLab.js'; if (-not (Test-Path -LiteralPath $runner -PathType Leaf)) { throw "Browser extension lab runner is missing: $runner" }
+    $screenshotPath = ''
+    if ($Screenshot) {
+        if (-not $Config) { $Config = Get-SgDevConfig }
+        Ensure-SgDirectory $Config.RuntimeDirectory
+        $evidenceDirectory = Join-Path $Config.RuntimeDirectory 'extension-lab-evidence'
+        Ensure-SgDirectory $evidenceDirectory
+        $safeName = ([regex]::Replace([string]$descriptor.Name,'[^A-Za-z0-9._-]+','-')).Trim('-')
+        if (-not $safeName) { $safeName = 'extension' }
+        $screenshotPath = Join-Path $evidenceDirectory ("{0}-{1}.png" -f $safeName,[guid]::NewGuid().ToString('N'))
+    }
     $arguments = @($runner,'--extension',$descriptor.ExtensionPath,'--playwright',$playwrightModule); if ($Headless) { $arguments += '--headless' }; if ($Json) { $arguments += '--json' }; if ($TargetUrl) { $arguments += @('--target-url',$TargetUrl) }
+    if ($screenshotPath) { $arguments += @('--screenshot',$screenshotPath) }
     & $node @arguments; if ($LASTEXITCODE -ne 0) { throw "Browser extension lab failed with exit code $LASTEXITCODE." }
 }
 

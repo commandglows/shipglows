@@ -49,6 +49,14 @@ s extension-lab -ProjectPath <dossier> -Headless -Json -TargetUrl https://exampl
 
 Sans `-TargetUrl`, ShipGlows répond `not-requested` et ne navigue nulle part. La cible doit être une URL absolue `http://` ou `https://`; évitez une page privée ou authentifiée sans autorisation explicite.
 
+Pour conserver une preuve visuelle isolée, ajoutez `-Screenshot` :
+
+```powershell
+s extension-lab -ProjectPath <dossier> -Headless -Json -TargetUrl https://example.com/ -Screenshot
+```
+
+Le JSON retourne `visual.screenshotStatus`, le chemin absolu du PNG et le viewport `1280 × 800`. Avec `-TargetUrl`, l’image montre la page cible après le délai d’observation des scripts injectés. Sans cible explicite, l’image montre le popup déclaré. La capture est conservée dans les preuves du runtime ShipGlows, en dehors du profil Chromium jetable qui est supprimé à la fin du Lab.
+
 ## Comprendre le résultat
 
 - **Statique** : le dépôt contient directement un `manifest.json` d'extension avec `manifest_version`, comme Chrome BRAT. Aucun build n'est nécessaire. Un fichier générique portant ce nom mais sans ce champ est ignoré.
