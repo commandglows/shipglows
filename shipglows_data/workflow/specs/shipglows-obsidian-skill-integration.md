@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.2"
+artifact_version: "1.0.3"
 project: ShipGlows
 created: "2026-09-02"
 created_at: "2026-09-02 00:21:14 UTC"
 updated: "2026-09-02"
-updated_at: "2026-09-02 00:21:14 UTC"
+updated_at: "2026-09-02 00:33:39 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: GPT-5.6 Codex
@@ -31,7 +31,7 @@ evidence:
   - "The Windows runtime, packaging, capability declaration, focused tests, and operator guide already implement the specialized Obsidian workflow."
   - "The skill corpus contains no Obsidian reference or owner directive, while the browser Extension Lab has both."
   - "The operator approved completing the skill-corpus integration on 2026-09-02."
-next_step: "Ship the verified integration to the canonical dev branch."
+next_step: none
 ---
 
 # Spec: ShipGlows Obsidian Skill Integration
@@ -207,6 +207,7 @@ None.
 | 2026-09-02 00:21:14 UTC | 102-sg-start | GPT-5.6 Codex | Added the shared Obsidian workflow, three public-owner routes, managed agent instructions, guide index entry, and focused contract. | implemented | Run standard verification. |
 | 2026-09-02 00:21:14 UTC | 103-sg-verify | GPT-5.6 Codex | Verified scenario contracts, Windows instruction generation, public-owner coherence, metadata, budgets, diff integrity, and linked runtime visibility. | verified | Close the verified integration. |
 | 2026-09-02 00:21:14 UTC | 104-sg-end | GPT-5.6 Codex | Reconciled skill, agent, operator-guide, and spec documentation; classified public changelog impact as internal-only. | closed | Ship to canonical dev. |
+| 2026-09-02 00:33:39 UTC | 005-sg-ship | GPT-5.6 Codex | Delivered commit `81fa02a` through PR #83 after both required gates passed and merged it into `dev` as `541d102`. | shipped | None. |
 
 ## Current Chantier Flow
 
@@ -215,6 +216,6 @@ None.
 - `sg-start`: complete.
 - `sg-verify`: verified.
 - `sg-end`: closed.
-- `sg-ship`: pending.
+- `sg-ship`: shipped through PR #83 to `dev`.
 
-Next step: ship the verified integration to canonical `dev`.
+Next step: none. The source checkout is linked, so a new agent session loads the updated public skills without reinstalling the corpus.
