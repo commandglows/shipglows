@@ -226,6 +226,9 @@ sudo ./cli/install.sh
   managed markers fail closed. Dynamic tool facts stay in
   `.shipglows\environment.md`; the instruction block only defines discovery,
   callability, purpose-built-tool preference, and `$shipglows context` recovery.
+  It also keeps browser-extension and Obsidian-plugin proof isolated from personal
+  profiles: Obsidian builds stay explicit, development vaults stay declared, the
+  disposable Lab is not an OS sandbox, and BRAT publication is never implicit.
 - Native Windows keeps convenience commands independent from `$PROFILE`.
   `s.cmd` and `shipglows-dev.cmd` launch the DevServer with `-NoProfile` and a
   process-scoped execution-policy bypass. When the names are unclaimed, the
