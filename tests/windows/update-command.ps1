@@ -56,6 +56,9 @@ Assert-Sg ($devServerText.Contains("'cli\windows\install-devserver.ps1'")) 'Deve
 Assert-Sg (-not $devServerText.Contains("Invoke-SgUpdate -DeveloperTools")) 'Developer-tool update must not piggyback on ShipGlows self-update.'
 
 Assert-Sg ($bootstrapText.Contains('[switch]$UpdateDeveloperTools')) 'The bootstrap must accept explicit developer-tool update intent.'
+Assert-Sg ($bootstrapText.Contains("`$actionGeneratedRelativePaths = @('bin/shipglows-dev.exe','bin/sg.exe','bin/s.exe')")) 'The bootstrap must classify native launchers as action-generated managed files.'
+Assert-Sg ($bootstrapText.Contains('-ActionGeneratedRelativePaths $actionGeneratedRelativePaths')) 'Runtime classification and activation must receive the action-generated launcher contract.'
+Assert-Sg ($bootstrapText.Contains('Action-generated runtime file is missing:')) 'The runtime transaction must verify action-generated outputs before committing its manifest.'
 Assert-Sg ($bootstrapText.Contains("if (`$UpdateDeveloperTools) { `$devServerArguments += '-UpdateDeveloperTools' }")) 'The bootstrap must forward developer-tool intent to the full installer.'
 Assert-Sg ($bootstrapText.Contains("UpdateDeveloperTools requires InstallMode full")) 'Developer-tool update intent must be rejected outside full mode.'
 Assert-Sg ($bootstrapText.Contains('UpdateDeveloperTools cannot be combined with DownloadOnly')) 'Developer-tool update intent must reject a misleading download-only no-op.'
