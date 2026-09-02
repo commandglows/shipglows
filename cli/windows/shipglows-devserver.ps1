@@ -108,7 +108,7 @@ ShipGlows Windows shortcuts
   s start -ProjectPath <path>       Start a web project, app, Chrome extension, or configured Obsidian plugin
   s reload -ProjectPath <path>      Hot reload the exact ready managed Flutter session
   s extension-inspect [-ProjectPath <path>] [-Json]  Inspect an extension without running repository scripts
-  s extension-lab [-ProjectPath <path>] [-Headless] [-Json] [-TargetUrl <url>]  Load and probe a built MV3 extension in isolated Chromium
+  s extension-lab [-ProjectPath <path>] [-Headless] [-Json] [-TargetUrl <url>] [-Screenshot]  Load and visually probe a built MV3 extension in isolated Chromium
   s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-Screenshot]  Load a built plugin in disposable local Obsidian
   s open -ProjectPath <path>        Open the URL/app/extension tools or show Obsidian reload guidance
   s stop -ProjectPath <path>        Stop the exact managed project
@@ -1020,7 +1020,7 @@ try {
         }
         'extension-lab' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
-            Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl
+            Invoke-SgBrowserExtensionLab $path -Headless:$Headless -Json:$Json -TargetUrl $TargetUrl -Screenshot:$Screenshot -Config $config
         }
         'obsidian-lab' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }

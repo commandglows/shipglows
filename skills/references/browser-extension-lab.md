@@ -33,9 +33,9 @@ Use the Extension Lab when the target is a browser extension rather than a websi
 
 1. Run `s extension-inspect -ProjectPath <path> -Json` before any repository script.
 2. Treat `static` and `built` as directly testable. Treat `build-required` as a stop: inspect the repository and obtain the authority required for its declared build command.
-3. Run `s extension-lab -ProjectPath <path> -Headless -Json` for deterministic proof, or omit `-Headless` for an interactive isolated Chromium window.
-4. When content-script behavior is in scope, add `-TargetUrl <explicit-http-or-https-url>`. Never invent a target or navigate to an authenticated/private page without authority.
-5. Record the manifest version, resolved artifact path, returned extension id, popup status, service-worker status, content-script status and bounded errors. Never infer success from a build alone.
+3. Run `s extension-lab -ProjectPath <path> -Headless -Json` for deterministic proof, or omit `-Headless` for an interactive isolated Chromium window. Add `-Screenshot` when retained visual evidence is required.
+4. When content-script behavior is in scope, add `-TargetUrl <explicit-http-or-https-url>`. Never invent a target or navigate to an authenticated/private page without authority. With `-Screenshot`, the Lab captures that target after the bounded content-script wait; without `-TargetUrl`, it captures the declared popup.
+5. Record the manifest version, resolved artifact path, returned extension id, popup status, service-worker status, content-script status, `visual.screenshotStatus`, `visual.screenshotPath`, viewport and bounded errors. Never infer success from a build alone.
 6. Close Chromium after interactive work. The Lab uses a temporary profile and must never target Chrome, Edge or another personal profile directory.
 
 ## Trust boundary
@@ -57,5 +57,8 @@ Inspection parses bounded local manifests and does not install dependencies or e
 - `observed` (content scripts): Chromium parsed at least one script belonging to the extension on the explicit target page.
 - `not-observed`: content scripts are declared but none were parsed on the explicit target; check manifest match patterns and page eligibility.
 - `temporary`: the browser profile is disposable and separate from personal browser state.
+- `captured`: the requested PNG was written outside the disposable profile at the returned absolute path.
+- `not-captured`: visual proof was requested, but neither an explicit target nor a declared popup produced an image.
+- `not-requested`: no screenshot was requested; viewport metadata remains available for interpreting other evidence.
 
 Do not describe an extension as tested when only detection or compilation passed. Popup, content-script and service-worker behavior require their own observed proof.
