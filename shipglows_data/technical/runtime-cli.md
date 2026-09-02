@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.43.0"
+artifact_version: "1.44.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-10-06"
+updated: "2026-10-19"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -42,6 +42,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Windows runtime transaction replay 2026-09-02: payload-backed files are staged before activation, native launchers are generated inside the protected action, and the manifest commits only after every declared generated output exists."
   - "Native Windows focused-launcher replay 2026-09-04: `shipglows.cmd` enters the managed PowerShell runtime directly or through an explicit secure bootstrap route, and the compatibility form `shipglows update runtime` normalizes to the canonical updater without locking `s.exe`."
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
@@ -612,7 +613,11 @@ catalog after success or failure. The Windows path resolves
 an immutable source commit, stages and validates the full
 managed payload, then classifies the target as `install`, `update`, `repair`, or
 `no-op`. Activation is serialized per runtime and transactionally replaces only
-the paths recorded in the mode-scoped `.shipglows-runtime-files.<mode>.json`; a child-installer failure
+the paths recorded in the mode-scoped `.shipglows-runtime-files.<mode>.json`.
+Payload-backed managed files must exist before mutation; declared action-generated
+managed files, including the native launchers, remain inside the same backup and
+rollback set but are verified after the child installer runs. The managed manifest
+is committed only after that verification succeeds. A child-installer failure
 restores the previous managed files and directory tree byte-for-byte. The
 rollback does not reverse third-party package-manager side effects that completed
 before a later failure. Existing valid external SDKs and tools remain owned by
