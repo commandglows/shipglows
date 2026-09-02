@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.2.1"
 project: ShipGlows
 created: "2026-08-29"
 created_at: "2026-08-29 03:21:09 UTC"
 updated: "2026-09-02"
-updated_at: "2026-09-02 18:25:00 UTC"
+updated_at: "2026-09-02 18:48:00 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: gpt-5
@@ -32,7 +32,7 @@ evidence:
   - "Current ShipGlows extension support is limited to one CRXJS convention."
   - "Chrome BRAT, ToolGlows and a clean CommunityGlows build loaded successfully in temporary Chromium on 2026-08-29."
   - "GitHub Actions runs 33231777712, 33245930207 and 33245930149 published validated Chrome artifacts."
-next_step: "Merge the multi-browser visual and interaction milestone after required CI passes"
+next_step: "Repair the ToolGlows artifact diagnostics now exposed consistently across browsers"
 ---
 
 # Spec: ShipGlows Browser Extension Lab
@@ -284,6 +284,7 @@ None
 | 2026-09-02 16:21:58 UTC | 005-sg-ship | gpt-5 | Merged pull request 93 after both required gates passed | shipped-to-dev | Keep broader interactive proof as a separate product decision |
 | 2026-09-02 18:25:00 UTC | 001-sg-build | gpt-5 | Extended the approved Lab contract to Edge, Vivaldi and Firefox with executable identity, exact-selector interaction and DOM/CSS evidence | implemented | Complete focused contracts and real-browser proofs, then ship |
 | 2026-09-02 18:31:00 UTC | 103-sg-verify | gpt-5 | Passed durable interactive visual regression plus real ToolGlows probes in Edge, Vivaldi and managed Firefox | passed | Deliver the milestone through the required pull-request gates |
+| 2026-09-02 18:48:00 UTC | 104-sg-end / 005-sg-ship | gpt-5 | Closed and merged the multi-browser milestone through pull request 98 after both required gates passed, then verified the installed CLI on all three requested browsers | shipped-to-dev | Use the new evidence to repair ToolGlows diagnostics |
 
 ## Current Chantier Flow
 
@@ -291,7 +292,7 @@ None
 - `sg-ready`: passed through adversarial contract review; no material open question.
 - `sg-start`: implemented for multi-browser detection, isolated loading, identity, interaction and visual evidence.
 - `sg-verify`: passed; focused contracts, durable synthetic interaction and real Edge/Vivaldi/Firefox ToolGlows probes pass, with artifact diagnostics preserved.
-- `sg-end`: in progress; implementation and mapped documentation are aligned pending delivery.
-- `sg-ship`: previous Chromium milestone shipped through pull request 93; multi-browser milestone pending.
+- `sg-end`: completed; implementation, mapped documentation and installed-runtime evidence are aligned.
+- `sg-ship`: shipped to canonical `dev` through pull request 98 after both required gates passed; no product publication was requested.
 
-Next step: complete final verification and deliver the multi-browser milestone through review.
+Next step: use the now-consistent multi-browser diagnostics to repair ToolGlows' missing popup asset and Firefox settings errors in its own repository.
