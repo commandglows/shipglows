@@ -605,7 +605,7 @@ function Get-SgObsidianBratArtifactReport([string]$ProjectPath) {
     [pscustomobject]@{ State=$(if($errors.Count){'failed'}else{'passed'}); PluginId=$descriptor.PluginId; Version=$descriptor.Version; Files=@($files); Missing=@(); Errors=@($errors) }
 }
 
-function Invoke-SgObsidianPluginLab([object]$Config, [string]$ProjectPath, [switch]$Headless, [switch]$Json, [string]$InteractionCommand = '', [switch]$Screenshot) {
+function Invoke-SgObsidianPluginLab([object]$Config, [string]$ProjectPath, [switch]$Headless, [switch]$Json, [string]$InteractionCommand = '', [switch]$Screenshot, [string]$ClickSelector = '', [string]$VisualSelector = '') {
     $descriptor = Get-SgObsidianPluginDescriptor $ProjectPath
     if (-not $descriptor) { throw "No valid Obsidian plugin was detected in: $ProjectPath" }
     $brat = Get-SgObsidianBratArtifactReport $ProjectPath
@@ -641,7 +641,7 @@ function Invoke-SgObsidianPluginLab([object]$Config, [string]$ProjectPath, [swit
         [IO.File]::WriteAllText((Join-Path $profile 'obsidian.json'),$profileState,[Text.UTF8Encoding]::new($false))
         $port = Get-SgFreePort $Config 0 $labRoot
         $arguments=@($runner,'--obsidian',$obsidian,'--playwright',$playwrightModule,'--profile',$profile,'--vault',$vault,'--plugin-id',$descriptor.PluginId,'--port',[string]$port,'--json')
-        if($Headless){$arguments+='--headless'};if($InteractionCommand){$arguments+=@('--interaction-command',$InteractionCommand)};if($screenshotPath){$arguments+=@('--screenshot',$screenshotPath)}
+        if($Headless){$arguments+='--headless'};if($InteractionCommand){$arguments+=@('--interaction-command',$InteractionCommand)};if($ClickSelector){$arguments+=@('--click-selector',$ClickSelector)};if($VisualSelector){$arguments+=@('--visual-selector',$VisualSelector)};if($screenshotPath){$arguments+=@('--screenshot',$screenshotPath)}
         $output = & $node @arguments 2>&1
         if ($LASTEXITCODE -ne 0) { throw "Obsidian lab failed: $($output -join ' ')" }
         $payload = ($output | Select-Object -Last 1) | ConvertFrom-Json -ErrorAction Stop
@@ -653,7 +653,7 @@ function Invoke-SgObsidianPluginLab([object]$Config, [string]$ProjectPath, [swit
     $payload | Add-Member -NotePropertyName profile -NotePropertyValue $profile -Force
     $payload | Add-Member -NotePropertyName vault -NotePropertyValue $vault -Force
     $payload | Add-Member -NotePropertyName cleanup -NotePropertyValue 'passed' -Force
-    if($Json){[Console]::Out.WriteLine(($payload|ConvertTo-Json -Depth 8 -Compress))}else{Write-SgInfo "$($payload.name) $($payload.version) | load: $($payload.hostLoad) | interaction: $($payload.interaction.state) | diagnostics: $($payload.diagnostics.state)";if($payload.screenshot){Write-SgInfo "Screenshot: $($payload.screenshot)"}}
+    if($Json){[Console]::Out.WriteLine(($payload|ConvertTo-Json -Depth 8 -Compress))}else{Write-SgInfo "$($payload.name) $($payload.version) | load: $($payload.hostLoad) | interaction: $($payload.interaction.state) | diagnostics: $($payload.diagnostics.state)";if($payload.visual.screenshotStatus -eq 'captured'){Write-SgInfo "Screenshot: $($payload.visual.screenshotPath)"}}
     return $payload
 }
 

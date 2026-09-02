@@ -1,7 +1,7 @@
 ---
 artifact: operator_guide
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-02"
 updated: "2026-09-02"
@@ -32,6 +32,13 @@ s obsidian-lab -ProjectPath "C:\path\to\plugin" -Headless -Json
 ```
 
 Add `-InteractionCommand plugin-id:command-id` to exercise one registered command and `-Screenshot` to retain visual evidence. ShipGlows reports artifact conformity, actual host loading, the interaction, and runtime diagnostics separately. A loaded plugin can therefore still have failed diagnostics.
+
+Add `-ClickSelector '<css>'` to click exactly one rendered element, then
+`-VisualSelector '<css>'` to capture exactly one element's visible text,
+bounding box, visibility, and a bounded set of computed CSS values. With
+`-Json`, these observations and the screenshot status/path/viewport are returned
+under `visual`; ambiguous selectors fail their individual proof instead of
+silently choosing the first match.
 
 The Lab copies only `main.js`, `manifest.json`, and optional `styles.css` into a disposable vault. It does not use `SHIPGLOWS_OBSIDIAN_VAULT`, discover a personal vault, publish a GitHub release, or run npm/pnpm scripts. BRAT is a later distribution channel; the Lab only checks that local distribution artifacts are coherent.
 
