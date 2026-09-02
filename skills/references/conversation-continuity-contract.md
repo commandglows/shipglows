@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-08-24"
+updated: "2026-09-03"
 status: active
 source_skill: 900-shipglows-core
 scope: conversation-continuity-and-restart-handoff
@@ -34,6 +34,7 @@ evidence:
   - "Operator correction 2026-08-21: useful context becoming insufficiently reliable is the trigger; an independent outcome alone is never sufficient."
   - "Operator approval 2026-08-22: context health checks stay lightweight at transitions and refresh only affected sources when a degradation signal exists."
   - "Operator approval 2026-08-24: the active contract was reduced from 1,055 to 706 words while preserving behavior and CCR-001 through CCR-009."
+  - "Operator correction 2026-09-03: every substantive chantier start and every chantier closure visibly reports the transition context verdict and whether to continue or use an operator-started handoff."
 next_review: "2026-11-21"
 next_step: Review this contract against observed restart handoffs after three uses.
 ---
@@ -46,7 +47,15 @@ Continue the current conversation while useful context remains reliable. Recomme
 
 ## Decision Sequence
 
-Run a lightweight transition check at the end of a chantier, after compaction, or on a major subject change. Silently inspect carried outcome, target, durable owner, repository, accepted decisions, authority, and next action. It requires no full conversation reread and does not trigger a handoff.
+Run a lightweight transition check at the start of every substantive chantier and at the end of a chantier, after compaction, or on a major subject change. Inspect carried outcome, target, durable owner, repository, accepted decisions, authority, and next action. It requires no full conversation reread and does not trigger a handoff by itself.
+
+Expose the resulting transition verdict in the shared start or closure card under `🧠 CONTEXTE`, using exactly one compact state:
+
+- `✅ suffisant · continuer dans cette conversation` when useful context remains reliable;
+- `⚠️ rafraîchi · continuer dans cette conversation` when a material signal required targeted rereading and reliability was restored;
+- `🔄 insuffisamment fiable · nouvelle conversation recommandée` only when material unreliability remains after targeted refresh and the stabilization gate below is satisfied.
+
+Translate the explanatory wording into the operator's language while preserving the status meaning. A pending targeted refresh is not a start-card success: refresh the affected source first or report the dependent work blocked. Never expose hidden reasoning, raw capsule contents, or sensitive context merely to justify the compact verdict.
 
 Use a signal-driven refresh of only the affected sources when one material signal appears:
 
@@ -98,3 +107,4 @@ Tell the operator to open the new conversation, then show the handoff in one fen
 - `CCR-007 REDACTION`: sensitive or hidden context stays excluded.
 - `CCR-008 OPERATOR-CONTROL`: recommendation creates no authority or external effect.
 - `CCR-009 PROPORTIONAL-CHECK`: transitions get a carried-state check; only evidenced drift permits affected-source refresh.
+- `CCR-010 VISIBLE-TRANSITION`: every substantive start and every closure exposes one compact context verdict; healthy or restored context says to continue here, while handoff appears only after unresolved material degradation and stabilization.

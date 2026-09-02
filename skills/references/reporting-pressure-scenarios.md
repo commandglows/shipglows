@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.5.0"
+artifact_version: "2.6.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-09-01"
+updated: "2026-09-03"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-pressure-scenarios
@@ -33,6 +33,7 @@ evidence:
   - "Operator approval 2026-08-30: every managed-repository closure receives a changelog classification while public readiness remains distinct from publication proof."
   - "Operator correction 2026-09-01: a mapped technical code change cannot be reported documentation-not-impacted merely because public/editorial behavior is unchanged."
   - "Operator correction 2026-09-01: editorial alignment `not impacted` cannot be used as a no-opportunity verdict."
+  - "Operator correction 2026-09-03: start and closure cards must expose context sufficiency without allowing superficial restart signals."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -61,8 +62,8 @@ next_step: none
 - `SSRP-016 guided reorientation`: selecting a short `Réorienter` control triggers concrete alternative business directions and their consequences; it never answers with a blank “toward what?”.
 - `SSRP-017 no blank-page handoff`: the operator receives evidence-backed framing, proposals, and a recommendation instead of being asked to invent strategy or technical mechanics.
 - `SSRP-018 visible closure docs`: any report claiming closed, complete, done, resolved, or shipped includes `📖 DOCUMENTATION`, then exactly one compact line using `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`; material `needs review` forbids closure language.
-- `SSRP-019 visual closure card`: a successful closure uses the six ordered blocks `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, and `📦 LIVRAISON`; proof, documentation, editorial, and changelog content each occupy one line with ` · ` separators, while an empty `⚠️ LIMITES` block is absent.
-- `SSRP-020 visual start card`: after approval, a substantive chantier starts once with `🚀 Démarré` and the ordered blocks `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, and `📖 DOCUMENTATION PRÉVUE`; the card never replaces a pending approval prompt or decorates a micro-action.
+- `SSRP-019 visual closure card`: a successful closure uses the seven ordered blocks `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, and `🧠 CONTEXTE`; proof, documentation, editorial, changelog, and context content each occupy one line with ` · ` separators, while an empty `⚠️ LIMITES` block is absent.
+- `SSRP-020 visual start card`: after approval, a substantive chantier starts once with `🚀 Démarré` and the ordered blocks `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`, and `🧠 CONTEXTE`; the card never replaces a pending approval prompt or decorates a micro-action.
 - `SSRP-021 no technical path leakage`: `report=user` omits file names, paths, and clickable technical file links unless the operator must act on that exact artifact or explicitly requests detailed evidence.
 - `SSRP-022 reporting effort ceiling`: one meaningful proof may support a verdict; placeholder counts are not quotas; prose stays to one sentence per block; no extra check, audit, research, documentation, content, or detail is created solely for reporting, while proof and documentation genuinely required by the chantier remain mandatory.
 - `SSRP-022 visible closure editorial`: every completion claim includes `✏️ ÉDITORIAL` with `updated`, `not impacted · <concrete reason>`, or `needs review · <surface>`; a material gap blocks closure, `No declared public surface` is valid evidence, and unaffected work creates no filler content.
@@ -86,3 +87,8 @@ next_step: none
   - `insufficient-opportunity-evidence`: use `not assessed` without blocking closure or creating extra research.
   - `invalid-collapse`: deriving “no editorial or product opportunity” from alignment `not impacted` fails.
   - `authority-boundary`: a candidate does not create content, product work, publication, or an editorial-roadmap record without applicable authority.
+- `SSRP-037 visible context transition`:
+  - `healthy-start-or-close`: every substantive start and every closure includes `🧠 CONTEXTE` with `suffisant` and explicitly continues in the current conversation.
+  - `restored-after-refresh`: a material degradation signal triggers only affected-source rereading; when reliability returns, the card uses `rafraîchi` and continues in the current conversation.
+  - `persistent-degradation`: only unreliability that remains after targeted refresh and stabilization uses `insuffisamment fiable`, recommends an operator-started new conversation, and includes the self-contained handoff.
+  - `superficial-signal`: length, message count, elapsed time, compaction, or a new subject alone never upgrades the verdict to a handoff recommendation.

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.17.0"
+artifact_version: "2.18.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-09-01"
+updated: "2026-09-03"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -33,7 +33,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "2.3.0"
+    artifact_version: "2.6.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.4.0"
@@ -62,6 +62,7 @@ evidence:
   - "Operator approval 2026-08-30: every managed-repository closure visibly classifies changelog impact without equating publication readiness with publication proof."
   - "Operator correction 2026-09-01: closure reports render documentation evidence resolved from current changed paths and the canonical docs map, independently from editorial impact."
   - "Operator correction 2026-09-01: editorial alignment and editorial/product opportunity are independent; `not impacted` never means no opportunity."
+  - "Operator correction 2026-09-03: every substantive chantier start and every closure visibly reports context sufficiency and whether the current conversation should continue."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -115,9 +116,12 @@ After approval and at the true start of a substantive chantier, render this card
 
 📖 DOCUMENTATION PRÉVUE
 ✅ Impactée · <mapped documentation scope>
+
+🧠 CONTEXTE
+✅ suffisant · continuer dans cette conversation
 ```
 
-Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep the content beneath scope, expected proof, and planned documentation each on exactly one line; the guardrails line follows the same rule and uses ` · `. Objective, scope, expected proof, and planned documentation are always mandatory. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
+Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep the content beneath scope, expected proof, and planned documentation each on exactly one line; keep the context content on exactly one line too. The guardrails line follows the same rule and uses ` · `. Objective, scope, expected proof, planned documentation, and context are always mandatory. Resolve `🧠 CONTEXTE` through `conversation-continuity-contract.md`; an unresolved material context gap forbids a successful start card. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
 
 The planned documentation line uses exactly one of: `✅ Impactée · <scope included in the chantier>`, `➖ Non impactée · <concrete reason>`, or `⚠️ À confirmer · <surface>`. It is a plan, not a closure claim; only the closure card may use `updated`, `not impacted`, or `needs review`.
 
@@ -134,7 +138,7 @@ For another progress report, keep only:
 3. limits that change trust or the next decision;
 4. a real operator decision/action only when required.
 
-For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line. Keep the content beneath `✏️ ÉDITORIAL` on exactly one line. Keep the content beneath `📰 CHANGELOG` on exactly one line. Separate each status, scope, or reason with ` · `.
+For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line. Keep the content beneath `✏️ ÉDITORIAL` on exactly one line. Keep the content beneath `📰 CHANGELOG` on exactly one line. Keep the content beneath `🧠 CONTEXTE` on exactly one line. Separate each status, scope, or reason with ` · `.
 
 Before rendering the documentation line, apply `documentation-reflection-gate.md` to the exact task-owned changed paths and canonical code-docs map. The report must not invent or infer the classification from unchanged public copy, generic test success, memory, graph output, or a plausible sentence; it renders the gate result. Editorial impact remains independent.
 
@@ -156,9 +160,12 @@ Before rendering the documentation line, apply `documentation-reflection-gate.md
 
 📦 LIVRAISON
 ✅ Commit local : `<sha>` · ➖ Push : non effectué
+
+🧠 CONTEXTE
+✅ suffisant · continuer dans cette conversation
 ```
 
-Translate the six labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
+Translate the seven labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, and `🧠 CONTEXTE` are mandatory for closure; `⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory. Resolve the context line through `conversation-continuity-contract.md`: use `suffisant` for healthy carried state, `rafraîchi` only after a targeted refresh restored reliability, and `insuffisamment fiable` only with the required stabilized operator-started handoff. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
 
 ## Mandatory Next Block
 
