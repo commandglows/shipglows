@@ -13,6 +13,8 @@ param(
     [switch]$Headless,
     [string]$TargetUrl = '',
     [string]$InteractionCommand = '',
+    [string]$ClickSelector = '',
+    [string]$VisualSelector = '',
     [switch]$Screenshot
 )
 
@@ -109,7 +111,7 @@ ShipGlows Windows shortcuts
   s reload -ProjectPath <path>      Hot reload the exact ready managed Flutter session
   s extension-inspect [-ProjectPath <path>] [-Json]  Inspect an extension without running repository scripts
   s extension-lab [-ProjectPath <path>] [-Headless] [-Json] [-TargetUrl <url>] [-Screenshot]  Load and visually probe a built MV3 extension in isolated Chromium
-  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-Screenshot]  Load a built plugin in disposable local Obsidian
+  s obsidian-lab [-ProjectPath <path>] [-Headless] [-Json] [-InteractionCommand <id>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]  Load and visually probe a built plugin in disposable local Obsidian
   s open -ProjectPath <path>        Open the URL/app/extension tools or show Obsidian reload guidance
   s stop -ProjectPath <path>        Stop the exact managed project
   s m r    Restart a project
@@ -1024,7 +1026,7 @@ try {
         }
         'obsidian-lab' {
             $path = if ($ProjectPath) { $ProjectPath } else { (Get-Location).Path }
-            [void](Invoke-SgObsidianPluginLab $config $path -Headless:$Headless -Json:$Json -InteractionCommand $InteractionCommand -Screenshot:$Screenshot)
+            [void](Invoke-SgObsidianPluginLab $config $path -Headless:$Headless -Json:$Json -InteractionCommand $InteractionCommand -Screenshot:$Screenshot -ClickSelector $ClickSelector -VisualSelector $VisualSelector)
         }
         'stop-all' { foreach ($entry in @(Read-SgRegistry $config).projects) { [void](Stop-SgProject $config $entry.path) } }
         'select-start' { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }

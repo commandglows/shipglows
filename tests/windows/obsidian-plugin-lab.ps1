@@ -28,6 +28,10 @@ try {
     Assert-Sg ((Get-SgObsidianBratArtifactReport $fixture).State -eq 'failed') 'Inconsistent versions.json was accepted.'
     $runner = Get-Content -LiteralPath (Join-Path $root 'cli\windows\ShipGlows.ObsidianLab.js') -Raw
     Assert-Sg ($runner -match '--user-data-dir=' -and $runner -match '127\.0\.0\.1' -and $runner -match 'taskkill\.exe') 'Runner isolation/process identity contract is incomplete.'
+    Assert-Sg ($runner -match '--click-selector' -and $runner -match '--visual-selector') 'Runner does not expose bounded click and DOM observation.'
+    Assert-Sg ($runner -match 'computedStyle' -and $runner -match 'backgroundColor' -and $runner -match 'screenshotStatus') 'Runner does not return structured visual evidence.'
+    $entrypoint = Get-Content -LiteralPath (Join-Path $root 'cli\windows\shipglows-devserver.ps1') -Raw
+    Assert-Sg ($entrypoint -match 'ClickSelector' -and $entrypoint -match 'VisualSelector') 'CLI does not forward visual selectors.'
     Write-Host 'Windows Obsidian local lab contracts: OK'
 } finally {
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue

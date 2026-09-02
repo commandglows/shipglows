@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.41.0"
+artifact_version: "1.42.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-02"
@@ -296,7 +296,7 @@ target the environment root, never only the nested application directory.
 
 `s extension-lab` accepts one valid Manifest V3 artifact and delegates structured arguments to the pinned ShipGlows Playwright runtime. Chromium creates a temporary persistent context, loads the exact unpacked directory through the capability-checked CDP Extensions domain, and returns a human result or JSON containing the extension id. `-Screenshot` retains a `1280 × 800` PNG outside the disposable profile and adds `visual.screenshotStatus`, `visual.screenshotPath`, and `visual.viewport` to JSON; it captures the explicit `-TargetUrl` after the content-script observation window, or the declared popup when no target is supplied. `-Headless` closes after the load proof; interactive mode remains open until the isolated Chromium window closes. Personal Chrome/Edge profiles are never targets.
 
-`s obsidian-lab -ProjectPath <plugin>` accepts an already-built specialized Obsidian plugin and never runs repository scripts. It hashes and checks the local BRAT artifact set, creates a disposable profile and vault under the ShipGlows runtime, binds CDP to loopback, launches Obsidian 1.12.7+ with that exact profile, and distinguishes artifact, host-load, interaction, and diagnostic states. `-InteractionCommand <id>` runs one registered command; `-Screenshot` retains bounded visual evidence outside the disposable run. The exact Lab process tree is stopped and the temporary profile/vault are removed. This separates local Obsidian data but does not sandbox hostile plugin code from the Windows account.
+`s obsidian-lab -ProjectPath <plugin>` accepts an already-built specialized Obsidian plugin and never runs repository scripts. It hashes and checks the local BRAT artifact set, creates a disposable profile and vault under the ShipGlows runtime, binds CDP to loopback, launches Obsidian 1.12.7+ with that exact profile, and distinguishes artifact, host-load, interaction, visual, and diagnostic states. `-InteractionCommand <id>` runs one registered command; `-ClickSelector <css>` clicks only one exact match; `-VisualSelector <css>` returns bounded text, geometry, visibility, and computed CSS; `-Screenshot` retains visual evidence outside the disposable run. JSON groups screenshot status/path/viewport and DOM evidence under `visual`. The exact Lab process tree is stopped and the temporary profile/vault are removed. This separates local Obsidian data but does not sandbox hostile plugin code from the Windows account.
 
 The full Windows bootstrap must package `ShipGlows.ExtensionLab.js` and `ShipGlows.ObsidianLab.js` in both `cli/windows` and `runtime/bin` through the managed-file transaction.
 

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-02"
 updated: "2026-09-02"
@@ -36,7 +36,7 @@ Use this workflow when ShipGlows classifies the target as `obsidian-plugin` or r
 1. Inspect the manifest, package scripts, entry point, output configuration, and local artifact set before running a repository command. Inspection never authorizes dependency installation or package scripts.
 2. Treat `build-required` as a stop. Use the reviewed project build command, obtain its ordinary execution authority, run that exact command, and inspect the produced artifacts before retrying the Lab. Never invent a generic Vite command.
 3. Use `s start -ProjectPath <path>` only for the declared development/watch workflow. Persistent copy synchronization requires one absolute `SHIPGLOWS_OBSIDIAN_VAULT` in `.shipglows.env`; ShipGlows must not scan, infer, rank, create, or select a personal vault. Only `SHIPGLOWS_OBSIDIAN_SYNC_MODE=copy` is supported.
-4. Use `s obsidian-lab -ProjectPath <path> -Headless -Json` to prove an already-built approved plugin in a disposable profile and vault. Add `-InteractionCommand <plugin-id:command-id>` when one registered command is part of the claim, and `-Screenshot` only when bounded visual evidence is useful.
+4. Use `s obsidian-lab -ProjectPath <path> -Headless -Json` to prove an already-built approved plugin in a disposable profile and vault. Add `-InteractionCommand <plugin-id:command-id>` when one registered command is part of the claim, `-ClickSelector <css>` for one exact rendered target, `-VisualSelector <css>` for bounded DOM/computed-style evidence, and `-Screenshot` only when visual evidence is useful.
 5. Keep the proof states separate: detection, configuration, build freshness, artifact copy, actual host load, requested interaction, diagnostics, and cleanup. A build or copy never proves that Obsidian loaded the plugin; a loaded plugin may still have failed diagnostics.
 6. Treat BRAT as a later distribution channel. The Lab checks local BRAT-compatible artifacts but never creates a release, tag, GitHub publication, BRAT installation, or community-store submission.
 
