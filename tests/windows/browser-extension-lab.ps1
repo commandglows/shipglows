@@ -5,6 +5,8 @@ function Assert-Sg([bool]$Condition, [string]$Message) { if (-not $Condition) { 
 
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $modulePath = Join-Path $root 'cli\windows\ShipGlows.DevServer.psm1'
+$cliPath = Join-Path $root 'cli\windows\shipglows-devserver.ps1'
+$runnerPath = Join-Path $root 'cli\windows\ShipGlows.ExtensionLab.js'
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ("sg-extension-lab-{0}" -f [guid]::NewGuid().ToString('N'))
 try {
     $static = Join-Path $fixture 'static'; $built = Join-Path $fixture 'built'; $ambiguous = Join-Path $fixture 'ambiguous'; $ordinary = Join-Path $fixture 'ordinary'
@@ -24,6 +26,14 @@ try {
     Assert-Sg ($null -eq (Get-SgBrowserExtensionDescriptor $ordinary)) 'An ordinary manifest was misclassified as a browser extension.'
     $rejected = $false; try { Get-SgBrowserExtensionDescriptor $ambiguous | Out-Null } catch { $rejected = $_.Exception.Message -match 'Multiple browser extension artifacts' }
     Assert-Sg $rejected 'Ambiguous extension artifacts were silently selected.'
+    $moduleText = [IO.File]::ReadAllText($modulePath)
+    $cliText = [IO.File]::ReadAllText($cliPath)
+    $runnerText = [IO.File]::ReadAllText($runnerPath)
+    Assert-Sg ($cliText -match 'extension-lab.*\[-Screenshot\]') 'Extension Lab help does not advertise screenshot proof.'
+    Assert-Sg ($moduleText -match "extension-lab-evidence" -and $moduleText -match "--screenshot") 'Extension Lab does not retain screenshot evidence outside its temporary profile.'
+    foreach ($contract in @('screenshotStatus','screenshotPath','viewport: { width: 1280, height: 800 }')) {
+        Assert-Sg ($runnerText.Contains($contract)) "Extension Lab visual JSON contract is missing: $contract"
+    }
     Write-Host 'Windows browser extension lab detection: OK'
 } finally {
     Remove-Module ShipGlows.DevServer -Force -ErrorAction SilentlyContinue

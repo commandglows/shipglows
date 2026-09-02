@@ -12,6 +12,7 @@ function parseArgs(argv) {
     else if (token === '--extension') result.extension = argv[++index];
     else if (token === '--playwright') result.playwright = argv[++index];
     else if (token === '--target-url') result.targetUrl = argv[++index];
+    else if (token === '--screenshot') result.screenshotPath = argv[++index];
     else if (token === '--simulate-cdp-unavailable') result.simulateCdpUnavailable = true;
     else throw new Error('Unknown argument: ' + token);
   }
@@ -28,6 +29,7 @@ function emit(payload, asJson) {
     process.stdout.write('Service worker: ' + payload.serviceWorker.status + '\n');
     process.stdout.write('Popup: ' + payload.popup.status + '\n');
     process.stdout.write('Content scripts: ' + payload.contentScripts.status + '\n');
+    process.stdout.write('Screenshot: ' + payload.visual.screenshotStatus + (payload.visual.screenshotPath ? ' (' + payload.visual.screenshotPath + ')' : '') + '\n');
     process.stdout.write('Verdict: ' + payload.verdict + '\n');
     process.stdout.write(payload.headless ? 'Headless proof complete.\n' : 'Close the Chromium window to stop the lab.\n');
   }
@@ -37,10 +39,9 @@ function contentScriptDeclarations(manifest) {
   return Array.isArray(manifest.content_scripts) ? manifest.content_scripts : [];
 }
 
-async function inspectContentScripts(context, extensionId, manifest, targetUrl) {
+async function inspectContentScripts(context, extensionId, manifest, targetUrl, screenshotPath) {
   const declarations = contentScriptDeclarations(manifest);
-  if (!declarations.length) return { declared: false, status: 'not-declared', targetUrl: '', observedScripts: [], errors: [] };
-  if (!targetUrl) return { declared: true, status: 'not-requested', targetUrl: '', observedScripts: [], errors: [] };
+  if (!targetUrl) return { declared: declarations.length > 0, status: declarations.length ? 'not-requested' : 'not-declared', targetUrl: '', observedScripts: [], errors: [], screenshot: null };
   let parsed;
   try { parsed = new URL(targetUrl); } catch { throw new Error('Content-script target must be an absolute http:// or https:// URL.'); }
   if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Content-script target must use http:// or https://.');
@@ -58,10 +59,20 @@ async function inspectContentScripts(context, extensionId, manifest, targetUrl) 
     await session.send('Debugger.enable');
     await page.goto(parsed.href, { waitUntil: 'domcontentloaded', timeout: 10000 });
     await page.waitForTimeout(500);
+    let screenshot = null;
+    if (screenshotPath) {
+      try {
+        await page.screenshot({ path: screenshotPath, type: 'png' });
+        screenshot = { status: 'captured', path: path.resolve(screenshotPath) };
+      } catch (error) {
+        screenshot = { status: 'failed', path: '', error: safeDiagnostic(error.message) };
+      }
+    }
     const observedScripts = [...observed].slice(0, 20);
-    return { declared: true, status: observedScripts.length ? (errors.length ? 'observed-with-errors' : 'observed') : 'not-observed', targetUrl: safeUrl(parsed.href), observedScripts, errors: errors.slice(0, 10) };
+    const status = !declarations.length ? 'not-declared' : observedScripts.length ? (errors.length ? 'observed-with-errors' : 'observed') : 'not-observed';
+    return { declared: declarations.length > 0, status, targetUrl: safeUrl(parsed.href), observedScripts, errors: errors.slice(0, 10), screenshot };
   } catch (error) {
-    return { declared: true, status: 'navigation-failed', targetUrl: safeUrl(parsed.href), observedScripts: [...observed].slice(0, 20), errors: [safeDiagnostic(error.message)] };
+    return { declared: declarations.length > 0, status: 'navigation-failed', targetUrl: safeUrl(parsed.href), observedScripts: [...observed].slice(0, 20), errors: [safeDiagnostic(error.message)], screenshot: null };
   } finally {
     await session.detach().catch(() => {});
     await page.close().catch(() => {});
@@ -99,12 +110,12 @@ async function observeServiceWorker(context, session, extensionId, manifest) {
   return { declared, status: !declared ? 'not-declared' : workers.length ? 'observed' : 'declared-not-awake', count: workers.length };
 }
 
-async function inspectPopup(context, extensionId, extensionPath, manifest) {
+async function inspectPopup(context, extensionId, extensionPath, manifest, screenshotPath) {
   const relative = manifest.action && manifest.action.default_popup;
-  if (!relative) return { declared: false, status: 'not-declared', title: '', errors: [] };
+  if (!relative) return { declared: false, status: 'not-declared', title: '', errors: [], screenshot: null };
   const file = path.resolve(extensionPath, relative);
   const root = extensionPath.endsWith(path.sep) ? extensionPath : extensionPath + path.sep;
-  if (!file.startsWith(root) || !fs.existsSync(file)) return { declared: true, status: 'missing-file', title: '', errors: [] };
+  if (!file.startsWith(root) || !fs.existsSync(file)) return { declared: true, status: 'missing-file', title: '', errors: [], screenshot: null };
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (error) => errors.push(safeDiagnostic(error.message)));
@@ -113,9 +124,18 @@ async function inspectPopup(context, extensionId, extensionPath, manifest) {
   try {
     await page.goto('chrome-extension://' + extensionId + '/' + relative.replace(/\\/g, '/'), { waitUntil: 'domcontentloaded', timeout: 5000 });
     await page.waitForTimeout(250);
-    return { declared: true, status: errors.length ? 'opened-with-errors' : 'opened', title: safeDiagnostic(await page.title()), errors: errors.slice(0, 10) };
+    let screenshot = null;
+    if (screenshotPath) {
+      try {
+        await page.screenshot({ path: screenshotPath, type: 'png' });
+        screenshot = { status: 'captured', path: path.resolve(screenshotPath) };
+      } catch (error) {
+        screenshot = { status: 'failed', path: '', error: safeDiagnostic(error.message) };
+      }
+    }
+    return { declared: true, status: errors.length ? 'opened-with-errors' : 'opened', title: safeDiagnostic(await page.title()), errors: errors.slice(0, 10), screenshot };
   } catch (error) {
-    return { declared: true, status: 'open-failed', title: '', errors: [safeDiagnostic(error.message)] };
+    return { declared: true, status: 'open-failed', title: '', errors: [safeDiagnostic(error.message)], screenshot: null };
   } finally { await page.close().catch(() => {}); }
 }
 
@@ -127,6 +147,7 @@ async function main() {
   const context = await playwright.chromium.launchPersistentContext('', {
     channel: 'chromium',
     headless: options.headless,
+    viewport: { width: 1280, height: 800 },
     args: ['--disable-extensions-except=' + extensionPath, '--load-extension=' + extensionPath],
   });
   try {
@@ -146,11 +167,20 @@ async function main() {
       extensionId = loaded.id || loaded.extensionId;
     }
     if (!extensionId) throw new Error('Chromium loaded the extension without returning an extension id.');
-    const popup = await inspectPopup(context, extensionId, extensionPath, manifest);
+    const popup = await inspectPopup(context, extensionId, extensionPath, manifest, options.targetUrl ? '' : options.screenshotPath);
     const serviceWorker = await observeServiceWorker(context, session, extensionId, manifest);
-    const contentScripts = await inspectContentScripts(context, extensionId, manifest, options.targetUrl);
-    const diagnosticFailure = ['missing-file', 'open-failed', 'opened-with-errors'].includes(popup.status) || ['observed-with-errors', 'not-observed', 'navigation-failed'].includes(contentScripts.status);
-    emit({ ok: true, verdict: diagnosticFailure ? 'loaded-with-diagnostic-errors' : 'loaded', name: manifest.name, version: manifest.version, manifestVersion: manifest.manifest_version, extensionId, extensionPath, profile: 'temporary', headless: options.headless, serviceWorker, popup, contentScripts }, options.json);
+    const contentScripts = await inspectContentScripts(context, extensionId, manifest, options.targetUrl, options.targetUrl ? options.screenshotPath : '');
+    const capturedScreenshot = contentScripts.screenshot || popup.screenshot;
+    const visual = {
+      screenshotStatus: !options.screenshotPath ? 'not-requested' : capturedScreenshot ? capturedScreenshot.status : 'not-captured',
+      screenshotPath: capturedScreenshot && capturedScreenshot.status === 'captured' ? capturedScreenshot.path : '',
+      viewport: { width: 1280, height: 800 },
+    };
+    if (capturedScreenshot && capturedScreenshot.error) visual.error = capturedScreenshot.error;
+    delete popup.screenshot;
+    delete contentScripts.screenshot;
+    const diagnosticFailure = ['missing-file', 'open-failed', 'opened-with-errors'].includes(popup.status) || ['observed-with-errors', 'not-observed', 'navigation-failed'].includes(contentScripts.status) || ['failed', 'not-captured'].includes(visual.screenshotStatus);
+    emit({ ok: true, verdict: diagnosticFailure ? 'loaded-with-diagnostic-errors' : 'loaded', name: manifest.name, version: manifest.version, manifestVersion: manifest.manifest_version, extensionId, extensionPath, profile: 'temporary', headless: options.headless, serviceWorker, popup, contentScripts, visual }, options.json);
     if (options.headless) return;
     await new Promise((resolve) => context.once('close', resolve));
   } finally { await context.close().catch(() => {}); }
