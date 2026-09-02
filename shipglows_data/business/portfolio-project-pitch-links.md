@@ -1,10 +1,10 @@
 ---
 artifact: portfolio_project_pitch_links_index
 metadata_schema_version: "1.0"
-artifact_version: "0.3.0"
+artifact_version: "0.4.0"
 project: "ShipGlows"
 created: "2026-06-27"
-updated: "2026-08-23"
+updated: "2026-09-02"
 status: draft
 source_skill: sg-docs
 scope: "project-pitches"
@@ -21,6 +21,7 @@ evidence:
   - "User asked for an internal governance doc that gives a quick pitch for each project."
   - "Operator confirmed ShipGlows positioning decision SG-BIZ-2026-08-13-01."
   - "Operator confirmed the shared business-framework category on 2026-08-22."
+  - "ShipGlows App's project-local business corpus defines it as a managed multi-project SaaS on 2026-09-02, superseding the historical read-only desktop-dashboard framing."
 depends_on:
   - artifact: "shipglows_data/business/business.md"
     artifact_version: "1.5.0"
@@ -33,7 +34,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 next_review: "2026-09-13"
-next_step: "Validate every portfolio pitch against its current project corpus"
+next_step: "Refresh each remaining portfolio pitch against its current project corpus"
 ---
 
 # Portfolio Project Pitch Links Index
@@ -95,7 +96,7 @@ Do not copy cached pitch bodies, private repo contents, or source excerpts into 
 | Winflowz | `https://github.com/diane-defores/winflowz/blob/main/PITCH.md` | Operators shipping a site plus an app from one repo | Monorepo for a governed Astro site and Flutter Android-first app with explicit deployment boundaries | `README.md`, `shipglows_data/business/business.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if positioning changes |
 | Socialglowz | `https://github.com/diane-defores/socialglowz/blob/master/PITCH.md` | Users who need one social dashboard across browser, desktop, and mobile | Unified social control surface with platform-specific behavior kept explicit across targets | `README.md`, `shipglows_data/business/business.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if positioning changes |
 | Temuglowz | `https://github.com/diane-defores/temuglowz/blob/main/PITCH.md` | Users saving Temu links into durable shopping lists | Local-first Android MVP for link capture, list management, and manual observation without fake automation claims | `README.md`, `BUSINESS.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if the product expands beyond MVP |
-| ShipGlows App | `https://github.com/diane-defores/shipglows_app/blob/main/PITCH.md` | Operators who want read-only ShipGlows visibility on desktop | Local-first Flutter dashboard for operational visibility with no write-back to trackers or ledgers | `shipglows_app/README.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if the app gains write or sync capabilities |
+| ShipGlows App | `https://github.com/diane-defores/shipglows_app/blob/main/PITCH.md` | Ambitious founders and small product teams directing governed work across projects | Managed SaaS that makes the open ShipGlows business framework usable through a cross-project Cockpit, project-scoped agent conversations, Studio, and a managed runner | `shipglows_app/shipglows_data/business/business.md`, `shipglows_app/shipglows_data/business/product.md` | stale | Diane | 2026-09-02 | Replace the historical `PITCH.md` so it reflects the governed SaaS without overstating hosted availability |
 | Notefinderz | `https://github.com/dianedef/notefinderz/blob/main/PITCH.md` | People comparing note-taking and knowledge-base tools | Astro SSR directory for note-native app comparison with authenticated filtering and editorial structure | `README.md`, `shipglows_data/business/business.md` | reviewed | unknown | 2026-06-27 | Replace with a richer pitch if the directory scope expands |
 | Gocharbon | `https://github.com/dianedef/gocharbon/blob/main/PITCH.md` | Beginners who want accessible technical depth in a coaching-oriented editorial frame | Neobrutalist Astro theme plus business-education content with a friendly, clear tone | `README.md`, `PITCH.md` | reviewed | unknown | 2026-06-27 | Keep the pitch short and aligned with the parcours strategy |
 
