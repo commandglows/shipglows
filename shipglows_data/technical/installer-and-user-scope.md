@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.31.0"
+artifact_version: "2.32.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-01"
+updated: "2026-09-02"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -29,6 +29,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "The 2026-09-02 native launcher contract compiles s.exe, sg.exe, and shipglows-dev.exe from packaged source while retaining collision-safe CMD recovery paths."
   - "The 2026-09-01 native Windows machine toolbox enables a windows-x64 mise lockfile and refreshes integrity metadata after installation while preserving exact config pins as the bounded fallback."
   - "The 2026-08-31 native Windows installer summarizes successful Flutter readiness and limits failed diagnostic excerpts to three cleaned lines and 480 characters instead of dumping full doctor or device output."
   - "Windows managed-tool update contract 2026-08-30: exact WinGet IDs and exact npm registry coordinates update only ShipGlows-owned global tools after explicit confirmation."
@@ -58,7 +59,8 @@ evidence:
   - "Native Windows full configures user-global Playwright MCP only after exact-version resolution and a runnable Chromium executable check in the user cache."
   - "The 2026-08-23 Kilo convergence repair atomically completes only a parseable schema-only placeholder while preserving comments, foreign fields, providers, and secrets byte-for-byte."
   - "The 2026-08-14 capability-discovery repair makes Playwright MCP the enabled default web-QA lane and requires direct-plus-deferred current-turn discovery before an unavailable verdict."
-  - "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."
+- "Native Windows full removes ShipGlows's obsolete managed PowerShell profile function, so profile execution-policy errors no longer affect ordinary PowerShell launches."
+- "Native Windows compiles profile-independent s.exe, sg.exe, and shipglows-dev.exe launchers from the packaged C# source; a bare menu starts no CMD or PowerShell process before selection, while compatibility .cmd recovery paths remain available."
   - "Native Windows full makes one grouped proposal for missing coding-agent CLIs, installs only accepted tools at exact resolved versions, and leaves authentication to that CLI."
   - "Native Windows update stages and validates the complete managed payload, serializes activation, records managed paths, and restores the previous managed runtime byte-for-byte when activation or the child installer fails."
   - "The Windows runtime payload carries canonical ShipGlows SemVer metadata and records it with the installed source commit for the cached DevServer status panel."
@@ -111,7 +113,7 @@ Turso Cloud is a separate consumer offered only after an initialized non-root Ub
 | `local/install.sh`, `local/install_local.ps1` | Workstation-side setup | Keep separate from root server install assumptions |
 | `install-shipglows.sh` | Canonical remote bootstrap and local/full mode selector | Resolve mode before privilege checks; preserve user home and repository ownership |
 | `install-shipglows.ps1` | Canonical Windows mode/surface selector and archive bootstrap | Keep interactive mode explicit and automation deterministic through `-InstallMode` and `-InstallSurface` |
-| `cli/windows/install-devserver.ps1` | Native Windows full installer | Keep user-scoped tools, wrappers, PATH changes, prompts, and collision handling idempotent |
+| `cli/windows/install-devserver.ps1` | Native Windows full installer | Keep user-scoped tools, native launchers, recovery wrappers, PATH changes, prompts, and collision handling idempotent |
 | `tools/sync_shipglows_public_bootstrap.sh` | ShipGlows public artifact parity | Keep the generated public shell and PowerShell assets byte-for-byte identical to the canonical bootstraps |
 | `.env.example` | Example configuration | Keep secrets as placeholders only |
 

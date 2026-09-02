@@ -970,7 +970,10 @@ try {
         }
         'refresh' { Get-SgProjectCatalog $config -ForceRefresh | Out-Null; Show-SgWindowsDashboard }
         'clone' { Invoke-Clone }
-        'register' { Invoke-SgRegisterProject $ProjectPath }
+        'register' {
+            $path = if ($ProjectPath) { $ProjectPath } else { Read-SgInput 'Project path' $config.Workspace }
+            if ($path) { Invoke-SgRegisterProject $path }
+        }
         'unregister' { if ($ProjectPath) { Unregister-SgProject $config $ProjectPath } else { $entry = Get-SelectedRegisteredProject 'Choose a stopped project to unregister'; if ($entry) { Unregister-SgProject $config $entry.path } } }
         'start' {
             if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }

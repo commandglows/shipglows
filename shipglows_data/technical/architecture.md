@@ -1,10 +1,10 @@
 ---
 artifact: architecture_context
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.19.0"
 project: "shipglows"
 created: "2026-04-26"
-updated: "2026-09-01"
+updated: "2026-09-02"
 status: reviewed
 source_skill: manual
 scope: architecture
@@ -47,6 +47,7 @@ invariants:
 security_impact: yes
 docs_impact: yes
 evidence:
+  - "The 2026-09-02 Windows entry boundary renders the compiled s.exe/sg.exe root menu before managed PowerShell dispatch."
   - "Core files and function tree extracted from the repo"
   - "CLAUDE.md documents PM2 caching, port allocation, idempotence, and validation rules"
   - "2026-05-11 decision record project-governance-layout formalizes root-vs-shipglows_data placement."
@@ -73,6 +74,13 @@ next_step: "/sg-docs audit shipglows_data/technical/architecture.md"
 ## Canonical Windows PowerShell runtime
 
 The Windows CLI has one execution engine: portable PowerShell 7.6.5 LTS win-x64 under `%USERPROFILE%\.shipglows\toolchains\powershell\7.6.5\win-x64`. Windows PowerShell 5.1 is a bootstrap boundary only. The bootstrap validates a pinned official archive by SHA-256, probes version/edition/architecture, records an atomic immutable-coordinate pointer, and launches the frontend with an absolute managed path. It never discovers `pwsh` through `PATH` and never changes the system PowerShell installation.
+
+The user-facing Windows entry boundary is a small compiled `s.exe`/`sg.exe`
+launcher. A bare invocation renders the root menu inside that native process and
+does not create CMD or PowerShell before selection. Explicit commands and chosen
+menu actions preserve their arguments and exit codes while delegating to the
+same integrity-bound PowerShell engine. The `.cmd` files remain recovery-only
+compatibility surfaces and are not the preferred command-resolution target.
 
 ## System Shape
 
@@ -124,7 +132,7 @@ Native Windows packaging keeps the environment engine as a closed Python package
 - On Linux, process truth lives in PM2, environment isolation in Flox, and optional public exposure in Caddy/DuckDNS.
 - A Linux Flox environment root and its application launch path are distinct runtime identities. Nested Flox roots own their subtrees; ambiguous sibling applications are never selected implicitly.
 - On Windows, process truth lives in a user-local atomic JSON registry plus revalidated process identity; Node/pnpm, uv, and Flutter own project runtimes, and services bind only to localhost.
-- Windows `.cmd` entrypoints own profile-independent command resolution; Linux-only server components are not emulated.
+- Windows native entrypoints own profile-independent command resolution; `.cmd` recovery entrypoints remain available and Linux-only server components are not emulated.
 - Workflow governance lives in Markdown artifacts, skills, and metadata validation.
 
 ## Major Components
@@ -141,7 +149,7 @@ Native Windows packaging keeps the environment engine as a closed Python package
 ## Data And Control Flows
 
 - CLI flow: `cli/shipglows.sh` -> `cli/lib.sh` -> menu actions -> PM2/Flox/Caddy operations.
-- Native Windows flow: `install-shipglows.ps1` -> `cli/windows/install-devserver.ps1` -> PATH-backed `.cmd` launcher -> PowerShell frontend/module -> localhost project process and atomic registry.
+- Native Windows flow: `install-shipglows.ps1` -> `cli/windows/install-devserver.ps1` -> PATH-backed native launcher -> root menu -> managed PowerShell frontend/module after dispatch -> localhost project process and atomic registry.
 - Local tunnel flow: `local/local.sh` -> SSH connection selection -> remote state inspection -> tunnel lifecycle.
 - Doc/workflow flow: skills -> templates -> markdown artifacts -> metadata lint -> verification.
 
