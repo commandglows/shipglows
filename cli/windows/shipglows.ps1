@@ -13,7 +13,19 @@ function Stop-SgCommand([string]$Message) {
 }
 
 if ($CommandArguments.Count -lt 1) {
-    Stop-SgCommand 'expected: shipglows update [status], shipglows tools <status|update>, or shipglows rename rio <name>'
+    Stop-SgCommand 'expected: shipglows skills update, shipglows update [status], shipglows tools <status|update>, or shipglows rename rio <name>'
+}
+
+if ($CommandArguments[0] -ieq 'skills') {
+    if ($CommandArguments.Count -ne 2 -or $CommandArguments[1] -ine 'update') {
+        Stop-SgCommand 'expected: shipglows skills update'
+    }
+    $devServer = Join-Path $PSScriptRoot 'shipglows-devserver.ps1'
+    if (-not (Test-Path -LiteralPath $devServer -PathType Leaf)) {
+        Stop-SgCommand 'the managed DevServer skills command is unavailable; rerun the official ShipGlows installer.'
+    }
+    & $devServer skills update
+    exit $LASTEXITCODE
 }
 
 if ($CommandArguments[0] -ieq 'update') {
@@ -39,7 +51,7 @@ if ($CommandArguments[0] -ieq 'tools') {
 }
 
 if ($CommandArguments[0] -ine 'rename') {
-    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows update [status], shipglows tools <status|update>, or shipglows rename rio <name>"
+    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows skills update, shipglows update [status], shipglows tools <status|update>, or shipglows rename rio <name>"
 }
 if ($CommandArguments.Count -lt 2 -or $CommandArguments[1] -ine 'rio') {
     $target = if ($CommandArguments.Count -ge 2) { $CommandArguments[1] } else { '' }

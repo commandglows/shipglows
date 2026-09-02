@@ -30,6 +30,7 @@ $expectedShortcuts = @{
     o = "{ 'o', new[] { `"open`" } }"; k = "{ 'k', new[] { `"m`", `"o`" } }";
     d = "{ 'd', new[] { `"m`", `"w`" } }"; n = "{ 'n', new[] { `"m`", `"n`" } }";
     a = "{ 'a', new[] { `"a`" } }"; f = "{ 'f', new[] { `"refresh`" } }";
+    i = "{ 'i', new[] { `"skills`", `"update`" } }";
     p = "{ 'p', new[] { `"tools`", `"update`" } }"; u = "{ 'u', new[] { `"u`" } }"
 }
 foreach ($shortcut in $expectedShortcuts.GetEnumerator()) {

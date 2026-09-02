@@ -22,6 +22,7 @@ internal static class ShipGlowsCliLauncher
         { 'n', new[] { "m", "n" } },
         { 'a', new[] { "a" } },
         { 'f', new[] { "refresh" } },
+        { 'i', new[] { "skills", "update" } },
         { 'p', new[] { "tools", "update" } },
         { 'u', new[] { "u" } }
     };
@@ -40,6 +41,7 @@ internal static class ShipGlowsCliLauncher
         "N  Navigate to a project",
         "A  Authentication",
         "F  Refresh",
+        "I  Update skills",
         "P  Update developer tools",
         "U  Update ShipGlows",
         "Q  Quit ShipGlows"
