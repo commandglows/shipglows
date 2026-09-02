@@ -42,6 +42,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ### Fixed
 - Replaced the Windows launcher regression criterion that hid multi-second PowerShell startup behind a subtracted baseline with an end-to-end native-menu budget below one second and an explicit no-CMD/no-PowerShell-before-selection assertion.
 - Kept valid slow Flutter Windows native builds in a bounded `building` startup lease while progress remains active, without declaring `running` before the matching `app.started` event; silent, dead, or over-ceiling starts still fail and clean up deterministically.
+- Preserved pre-readiness Flutter Windows runner exits as actionable failures and retries that exact transient debug-attachment loss once after verified cleanup, without retrying explicit Flutter errors, failed builds, or other devices.
 
 ## [2026-08-30]
 

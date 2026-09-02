@@ -674,7 +674,11 @@ a ShipGlows-owned headless Chrome profile. Readiness requires matching
 marks it running. Valid unfinished `app.progress` events keep native startup in
 a bounded `building` lease (300 seconds per progress event, capped at 600 seconds
 total), while silent startup retains its deterministic timeout. The explicit
-`s reload -ProjectPath <path>` command validates the registered process,
+Windows runner stop without a Flutter error before `app.started` is preserved
+as a terminal diagnostic; after owned-process extinction and cleanup, only that
+exact Windows condition receives one automatic retry. Explicit Flutter errors,
+failed builds, Chrome, Android, and `web-server` never enter this retry path. The
+explicit `s reload -ProjectPath <path>` command validates the registered process,
 supervisor state, daemon and app identity before sending the existing hot-reload
 IPC; it never substitutes stop/start or a native rebuild. `s open` restarts that managed Flutter session with visible
 Chrome while preserving debug/hot-reload support. The advanced
