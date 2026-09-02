@@ -164,7 +164,7 @@ function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
                 }
             }
             'app.started' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { $State.Ready=$true; $State.ProgressActive=$false; $State.Status='running'; $State.LastError=$null } }
-            'app.stop' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { $State.Ready=$false; $State.ProgressActive=$false; $State.Status='stopped'; if ($params.PSObject.Properties['error'] -and $params.error) { $State.Status='error'; $State.LastError='Flutter reported an application error.' } } }
+            'app.stop' { if ($State.AppId -and [string]$params.appId -ceq [string]$State.AppId) { $wasReady=[bool]$State.Ready; $State.Ready=$false; $State.ProgressActive=$false; $State.Status='stopped'; if ($params.PSObject.Properties['error'] -and $params.error) { $State.Status='error'; $State.LastError='Flutter reported an application error.' } elseif (-not $wasReady) { $State.Status='error'; $State.LastError='Flutter application stopped before app.started.' } } }
         }
     }
     $State.UpdatedAtUtc=[datetime]::UtcNow.ToString('o')

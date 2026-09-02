@@ -459,6 +459,9 @@ that existing ShipGlows-managed executable to Flutter's `chrome` device.
 Matching `app.start`/`app.started` events establish readiness. While a native
 build is active, valid `app.progress` events extend a bounded startup lease
 without ever marking the application running; silent startup still times out.
+If a Windows runner stops without a Flutter error before `app.started`, the
+DevServer cleans the owned session and retries that exact transient start once;
+explicit Flutter errors and other devices are never retried.
 Dart changes under `lib/` trigger debounced hot reload, and
 `s reload -ProjectPath <path>` exposes the same attached-session reload with an
 observable result. It never performs stop/start or a native rebuild. Open

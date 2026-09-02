@@ -2220,9 +2220,9 @@ function Wait-SgFlutterSupervisorReady([string]$StatePath, [object]$ProcessEntry
     $startedAtUtc=[datetime]::UtcNow
     do {
         $nowUtc=[datetime]::UtcNow
-        if($ProcessEntry-and-not(Test-SgProcessIdentity $ProcessEntry)){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor exited during startup.';DaemonPid=0;StartupState='failed'}}
         if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-Content -LiteralPath $StatePath -Raw|ConvertFrom-Json -ErrorAction Stop;$decision=Get-SgFlutterStartupDecision $state $startedAtUtc $nowUtc $SilentTimeoutSeconds $ProgressLeaseSeconds $MaximumStartupSeconds;if($decision.Terminal){return $decision}}catch{if($nowUtc-ge$startedAtUtc.AddSeconds([Math]::Max(0,$SilentTimeoutSeconds))){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor startup state remained invalid until timeout.';DaemonPid=0;StartupState='failed'}}}}
         elseif($nowUtc-ge$startedAtUtc.AddSeconds([Math]::Max(0,$SilentTimeoutSeconds))){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor timed out before publishing startup state.';DaemonPid=0;StartupState='timed-out'}}
+        if($ProcessEntry-and-not(Test-SgProcessIdentity $ProcessEntry)){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor exited during startup.';DaemonPid=0;StartupState='failed'}}
         Start-Sleep -Milliseconds 250
     }while($true)
 }
@@ -2629,7 +2629,11 @@ function Install-SgFlutterDevShortcut([object]$Entry, [string]$DesktopPath = '',
     return $path
 }
 
-function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible) {
+function Test-SgFlutterWindowsStartupRetry([string]$Kind,[string]$Device,[object]$Readiness,[int]$Attempt) {
+    return [bool]($Kind -eq 'flutter-web' -and $Device -eq 'windows' -and $Attempt -eq 0 -and $Readiness -and -not $Readiness.Ready -and [string]$Readiness.Error -ceq 'Flutter application stopped before app.started.')
+}
+
+function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedPort = 0, [switch]$FlutterVisible, [int]$FlutterStartupAttempt = 0) {
     $requestedPath = ConvertTo-SgCanonicalPath $ProjectPath
     $entry = @((Reconcile-SgRegistry $Config).projects | Where-Object { $_.path -eq $requestedPath }) | Select-Object -First 1
     if (-not $entry) {
@@ -2789,6 +2793,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         Set-SgReservationState $Config $entry.path $reservationToken 'running' $entryData
         if ($kind -eq 'flutter-web' -and $settings.FlutterDevice -in @('windows','android')) { [void](Install-SgFlutterDevShortcut $entryData) }
     } else {
+        $retryFlutterStartup=Test-SgFlutterWindowsStartupRetry $kind ([string]$settings.FlutterDevice) $readiness $FlutterStartupAttempt
         $entryData.status = 'error'
         if($kind-eq'flutter-web' -and $readiness.PSObject.Properties['StartupState']){$entryData.flutterStartupState=[string]$readiness.StartupState}
         if ($kind -eq 'obsidian-plugin') { $entryData.surfaceState = 'build-required'; $entryData.validationState = 'validation-unavailable' }
@@ -2805,6 +2810,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         $entryData.startTimeUtc = $null
         if ($kind -eq 'obsidian-plugin') { Set-SgReservationState $Config $entry.path $reservationToken 'starting' $entryData }
         Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError
+        if($retryFlutterStartup){Write-SgWarn 'Flutter Windows runner stopped before debug attachment; retrying once with the cleaned managed session.';return Start-SgProject $Config $entry.path $RequestedPort -FlutterVisible:$FlutterVisible -FlutterStartupAttempt ($FlutterStartupAttempt+1)}
     }
     if($kind-eq'obsidian-plugin'){
         Write-SgInfo "$($entry.name) $($entryData.status): Obsidian plugin $($entryData.surfaceState) in $($entryData.obsidianPluginPath)"
