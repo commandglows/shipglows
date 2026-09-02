@@ -2,6 +2,7 @@
 
 | Bug ID | Status | Severity | Title | Last tested | Next step |
 |--------|--------|----------|-------|-------------|-----------|
+| [BUG-2026-09-02-003](shipglows_data/workflow/bugs/BUG-2026-09-02-003.md) | closed | high | Native Windows launcher bypasses Gum menus and project pickers | 2026-09-02 | none |
 | [BUG-2026-09-02-002](shipglows_data/workflow/bugs/BUG-2026-09-02-002.md) | closed | high | Windows CLI startup still takes seconds because s launches PowerShell | 2026-09-02 | none |
 | [BUG-2026-08-26-001](shipglows_data/workflow/bugs/BUG-2026-08-26-001.md) | fix-attempted | medium | Windows clone reports success when project preparation fails | 2026-08-26 | Independently verify the clone registration failure contract |
 | [BUG-2026-08-25-001](shipglows_data/workflow/bugs/BUG-2026-08-25-001.md) | closed | medium | OWASP contract test reads UTF-8 files with the Windows CP-1252 default | 2026-08-25 | none |

@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.18.0"
+artifact_version: "0.19.0"
 project: "shipglows"
 created: "2026-04-25"
 updated: "2026-09-02"
@@ -35,7 +35,7 @@ next_step: "/300-sg-docs audit CHANGELOG.md"
 ## [2026-09-02]
 
 ### Added
-- Added native `s.exe`, `sg.exe`, and `shipglows-dev.exe` Windows launchers. A bare command now renders the root menu before creating CMD or PowerShell, while selected actions retain the integrity-bound managed PowerShell engine and compatibility `.cmd` recovery path.
+- Added native `s.exe`, `sg.exe`, and `shipglows-dev.exe` Windows launchers. A bare command now opens the bundled Gum root menu before creating CMD or PowerShell, while selected actions retain Gum-first project pickers, the integrity-bound managed PowerShell engine, and compatibility plain-text/`.cmd` recovery paths.
 - Added `s obsidian-lab` for approved, already-built Obsidian plugins: ShipGlows checks local BRAT artifacts, launches an isolated temporary profile and vault, proves the real plugin load and optional command interaction, reports runtime diagnostics separately, then stops the exact Lab process tree and removes the disposable data. This protects personal Obsidian data from accidental writes but is not an OS sandbox for hostile plugin code.
 - Added `s reload -ProjectPath <path>` for exact ready managed Flutter sessions, with owner-only IPC, bounded observable results, stale session rejection, and no stop/start or native rebuild.
 
