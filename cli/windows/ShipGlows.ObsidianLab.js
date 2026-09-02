@@ -17,6 +17,8 @@ function parseArgs(argv) {
     else if (token === '--plugin-id') options.pluginId = argv[++index];
     else if (token === '--port') options.port = Number(argv[++index]);
     else if (token === '--interaction-command') options.interactionCommand = argv[++index];
+    else if (token === '--click-selector') options.clickSelector = argv[++index];
+    else if (token === '--visual-selector') options.visualSelector = argv[++index];
     else if (token === '--screenshot') options.screenshot = argv[++index];
     else if (token === '--timeout-ms') options.timeoutMs = Number(argv[++index]);
     else throw new Error('Unknown argument: ' + token);
@@ -26,6 +28,9 @@ function parseArgs(argv) {
   }
   if (!Number.isInteger(options.port) || options.port < 1024 || options.port > 65535) throw new Error('The CDP port is invalid.');
   if (!Number.isInteger(options.timeoutMs) || options.timeoutMs < 5000 || options.timeoutMs > 120000) throw new Error('The timeout is invalid.');
+  for (const name of ['clickSelector', 'visualSelector']) {
+    if (options[name] && (options[name].length > 500 || /[\0\r\n]/.test(options[name]))) throw new Error('--' + name.replace(/[A-Z]/g, (value) => '-' + value.toLowerCase()) + ' is invalid.');
+  }
   return options;
 }
 
@@ -94,9 +99,37 @@ async function inspectPlugin(page, options, diagnostics) {
     }, options.interactionCommand);
     await page.waitForTimeout(500);
   }
-  let screenshot = '';
-  if (options.screenshot) { await page.screenshot({ path: options.screenshot, fullPage: false }); screenshot = options.screenshot; }
-  return { observed, interaction, screenshot, diagnostics: diagnostics.slice(0, 20) };
+  let click = { state: 'not-requested', selector: '' };
+  if (options.clickSelector) {
+    const target = page.locator(options.clickSelector);
+    const count = await target.count();
+    if (count !== 1) click = { state: 'failed', selector: options.clickSelector, error: `Selector matched ${count} elements; exactly one is required.` };
+    else {
+      try { await target.click({ timeout: options.timeoutMs }); click = { state: 'passed', selector: options.clickSelector }; }
+      catch (error) { click = { state: 'failed', selector: options.clickSelector, error: safeDiagnostic(error.message) }; }
+    }
+    await page.waitForTimeout(500);
+  }
+  const viewport = page.viewportSize() || await page.evaluate(() => ({ width: window.innerWidth, height: window.innerHeight }));
+  let dom = { state: 'not-requested', selector: '' };
+  if (options.visualSelector) {
+    const target = page.locator(options.visualSelector);
+    const count = await target.count();
+    if (count !== 1) dom = { state: 'failed', selector: options.visualSelector, count, error: `Selector matched ${count} elements; exactly one is required.` };
+    else dom = await target.evaluate((element, selector) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return {
+        state: 'captured', selector, tagName: element.tagName.toLowerCase(), visible: Boolean(rect.width && rect.height && style.visibility !== 'hidden' && style.display !== 'none'),
+        text: String(element.innerText || element.textContent || '').trim().slice(0, 1000),
+        bounds: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        computedStyle: { color: style.color, backgroundColor: style.backgroundColor, fontFamily: style.fontFamily, fontSize: style.fontSize, display: style.display, overflow: style.overflow, visibility: style.visibility }
+      };
+    }, options.visualSelector);
+  }
+  const screenshotStatus = options.screenshot ? 'captured' : 'not-requested';
+  if (options.screenshot) await page.screenshot({ path: options.screenshot, fullPage: false });
+  return { observed, interaction, click, visual: { screenshotStatus, screenshotPath: options.screenshot || '', viewport, dom }, diagnostics: diagnostics.slice(0, 20) };
 }
 
 function stopOwnedProcess(pid) {
@@ -135,7 +168,7 @@ async function main() {
     page.on('console', (message) => { if (['error', 'warning'].includes(message.type())) diagnostics.push({ type: message.type(), message: safeDiagnostic(message.text()) }); });
     const result = await inspectPlugin(page, options, diagnostics);
     const diagnosticsState = result.diagnostics.length ? 'failed' : 'passed';
-    const payload = { ok: true, artifact: 'passed', hostLoad: 'passed', interaction: result.interaction, diagnostics: { state: diagnosticsState, entries: result.diagnostics }, ...result.observed, screenshot: result.screenshot };
+    const payload = { ok: true, artifact: 'passed', hostLoad: 'passed', interaction: result.interaction, click: result.click, diagnostics: { state: diagnosticsState, entries: result.diagnostics }, ...result.observed, visual: result.visual };
     process.stdout.write(JSON.stringify(payload) + '\n');
     if (!options.headless) await new Promise((resolve) => child.once('exit', resolve));
   } finally {
