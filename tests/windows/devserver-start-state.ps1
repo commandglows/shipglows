@@ -34,6 +34,11 @@ try {
         $error=[pscustomobject]@{status='error';appId='app-1';daemonPid=10;lastError='Flutter failed.';progressActive=$false;lastProgressAtUtc=$null}
         $errorDecision=Get-SgFlutterStartupDecision $error $started $started.AddSeconds(1) 90 300 600
         if(-not$errorDecision.Terminal-or$errorDecision.StartupState-ne'failed'-or$errorDecision.Error-ne'Flutter failed.'){throw 'Supervisor error did not fail readiness immediately.'}
+        $disconnected=[pscustomobject]@{Ready=$false;Error='Flutter application stopped before app.started.'}
+        if(-not(Test-SgFlutterWindowsStartupRetry 'flutter-web' 'windows' $disconnected 0)){throw 'First transient Windows debug-attach failure did not permit one recovery attempt.'}
+        if(Test-SgFlutterWindowsStartupRetry 'flutter-web' 'windows' $disconnected 1){throw 'Windows debug-attach recovery was not bounded to one retry.'}
+        if(Test-SgFlutterWindowsStartupRetry 'flutter-web' 'chrome' $disconnected 0){throw 'Windows debug-attach recovery leaked into Chrome.'}
+        if(Test-SgFlutterWindowsStartupRetry 'flutter-web' 'windows' ([pscustomobject]@{Ready=$false;Error='Flutter reported an application error.'}) 0){throw 'Compilation/application errors were incorrectly made retryable.'}
     }
     $config = [pscustomobject]@{Workspace=$fixture;RuntimeDirectory=$runtime;RegistryPath=(Join-Path $runtime 'registry.json');LockPath=(Join-Path $runtime 'registry.lock');LogDirectory=$logs;PortStart=32200;PortEnd=32209}
     [void](Write-SgProjectEnvironment $surface 32205)
@@ -76,6 +81,71 @@ try {
     if ($failed.Result.status -ne 'error' -or $failed.Result.lastError -notmatch 'app\.started' -or $failed.Stopped.Count -ne 1 -or $failed.Stopped[0] -ne 88) { throw 'Flutter readiness timeout did not fail and clean up the managed process.' }
     $failedStored = (Read-SgRegistry $config).projects | Where-Object { $_.path -eq $flutterSurface } | Select-Object -First 1
     if ($failedStored.status -ne 'error' -or -not $failedStored.lastError) { throw 'Flutter readiness failure was not persisted as error.' }
+
+    $retrySurface=Join-Path $fixture 'flutter-retry'
+    New-Item -ItemType Directory -Path $retrySurface -Force|Out-Null
+    Copy-Item -LiteralPath (Join-Path $flutterSurface 'pubspec.yaml') -Destination (Join-Path $retrySurface 'pubspec.yaml')
+    [IO.File]::WriteAllText((Join-Path $retrySurface '.shipglows.env'),"SHIPGLOWS_FLUTTER_DEVICE=windows`n")
+    $retryFlow=& $module {
+        param($Config,$Surface)
+        $script:launchCount=0;$script:readinessCount=0;$script:stopped=@{};$script:cleanupComplete=$false;$script:secondLaunchAfterCleanup=$false
+        function Test-SgPortAvailable{$true}
+        function Invoke-SgDependencySetup{}
+        function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='retry-signature';Interactive=$false;FlutterSdkRoot='C:\flutter'}}
+        function Start-SgDetachedProcess{$script:launchCount++;if($script:launchCount-eq2){$script:secondLaunchAfterCleanup=$script:cleanupComplete};[pscustomobject]@{Id=(200+$script:launchCount);CommandSignature='retry-signature'}}
+        function Get-SgProcessSnapshot{param($Pid)[pscustomobject]@{Pid=$Pid;StartTimeUtc="2026-09-02T00:00:0$script:launchCount`Z";ExecutablePath='mock.exe';CommandLine='retry-signature'}}
+        function Test-SgProcessIdentity{param($Entry) [int]$Entry.pid-gt0-and-not$script:stopped.ContainsKey([int]$Entry.pid)}
+        function Wait-SgFlutterSupervisorReady{$script:readinessCount++;if($script:readinessCount-eq1){[pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter application stopped before app.started.';DaemonPid=201;StartupState='failed'}}else{[pscustomobject]@{Ready=$true;AppId='retry-app';Error=$null;DaemonPid=202;StartupState='running'}}}
+        function Stop-SgProcessTree{param($RootPid)$script:stopped[$RootPid]=$true}
+        function Stop-SgOwnedFlutterBrowser{$false}
+        function Wait-SgFlutterOwnedExtinction{$true}
+        function Remove-SgFlutterLaunchArtifacts{$script:cleanupComplete=$true;$true}
+        function Wait-SgManagedExtinction{$true}
+        function Copy-SgFlutterDiagnostics{}
+        function Install-SgFlutterDevShortcut{}
+        $result=Start-SgProject $Config $Surface
+        [pscustomobject]@{Result=$result;LaunchCount=$script:launchCount;ReadinessCount=$script:readinessCount;SecondLaunchAfterCleanup=$script:secondLaunchAfterCleanup;StoppedCount=$script:stopped.Count}
+    } $config $retrySurface
+    if($retryFlow.Result.status-ne'running'-or$retryFlow.LaunchCount-ne2-or$retryFlow.ReadinessCount-ne2-or-not$retryFlow.SecondLaunchAfterCleanup-or$retryFlow.StoppedCount-ne1){throw 'Windows startup recovery did not cleanly retry once and reach app.started on the second launch.'}
+
+    & $module { param($Config,$Surface) Invoke-SgRegistryMutation $Config {param($data);$item=@($data.projects|Where-Object{$_.path-eq$Surface})[0];$item.status='stopped';$item.pid=0;$item.startTimeUtc=$null} | Out-Null } $config $retrySurface
+    $doubleFailure=& $module {
+        param($Config,$Surface)
+        $script:launchCount=0;$script:stopped=@{}
+        function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='retry-signature';Interactive=$false;FlutterSdkRoot='C:\flutter'}}
+        function Start-SgDetachedProcess{$script:launchCount++;[pscustomobject]@{Id=(210+$script:launchCount);CommandSignature='retry-signature'}}
+        function Get-SgProcessSnapshot{param($Pid)[pscustomobject]@{Pid=$Pid;StartTimeUtc="2026-09-02T00:01:0$script:launchCount`Z";ExecutablePath='mock.exe';CommandLine='retry-signature'}}
+        function Test-SgProcessIdentity{param($Entry) [int]$Entry.pid-gt0-and-not$script:stopped.ContainsKey([int]$Entry.pid)}
+        function Wait-SgFlutterSupervisorReady{[pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter application stopped before app.started.';DaemonPid=0;StartupState='failed'}}
+        function Stop-SgProcessTree{param($RootPid)$script:stopped[$RootPid]=$true};function Stop-SgOwnedFlutterBrowser{$false};function Wait-SgFlutterOwnedExtinction{$true};function Remove-SgFlutterLaunchArtifacts{$true};function Wait-SgManagedExtinction{$true};function Copy-SgFlutterDiagnostics{}
+        $result=Start-SgProject $Config $Surface
+        [pscustomobject]@{Result=$result;LaunchCount=$script:launchCount;StoppedCount=$script:stopped.Count}
+    } $config $retrySurface
+    if($doubleFailure.Result.status-ne'error'-or$doubleFailure.LaunchCount-ne2-or$doubleFailure.StoppedCount-ne2){throw 'A second Windows debug-attach failure triggered an unbounded third launch or skipped cleanup.'}
+    $moduleSource=Get-Content -LiteralPath $modulePath -Raw
+    if($moduleSource.IndexOf('Release-SgProjectPort $Config $entry.path $reservationToken $entryData.lastError')-gt$moduleSource.IndexOf('if($retryFlutterStartup)')){throw 'Flutter retry is attempted before releasing the failed reservation.'}
+
+    $nonRetrySurfaces=@()
+    foreach($case in @(@('android-case','android'),@('chrome-case','chrome'),@('web-server-case','web-server'),@('explicit-error-case','windows'))){
+        $caseSurface=Join-Path $fixture $case[0];New-Item -ItemType Directory -Path $caseSurface -Force|Out-Null
+        Copy-Item -LiteralPath (Join-Path $flutterSurface 'pubspec.yaml') -Destination (Join-Path $caseSurface 'pubspec.yaml')
+        [IO.File]::WriteAllText((Join-Path $caseSurface '.shipglows.env'),("SHIPGLOWS_FLUTTER_DEVICE={0}`n" -f $case[1]))
+        $nonRetrySurfaces+=$caseSurface
+    }
+    $nonRetryFlow=& $module {
+        param($Config,$Surfaces)
+        $script:launches=@{};$script:stopped=@{}
+        function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgFlutterCommandPath{'C:\flutter\bin\flutter.bat'};function Resolve-SgFlutterAndroidDevice{'android-device'}
+        function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='non-retry-signature';Interactive=$false;FlutterSdkRoot='C:\flutter'}}
+        function Start-SgDetachedProcess{param($FilePath,$ArgumentList,$WorkingDirectory)$script:launches[$WorkingDirectory]=1+[int]$script:launches[$WorkingDirectory];[pscustomobject]@{Id=(300+$script:launches.Count);CommandSignature='non-retry-signature'}}
+        function Get-SgProcessSnapshot{param($Pid)[pscustomobject]@{Pid=$Pid;StartTimeUtc='2026-09-02T00:02:00Z';ExecutablePath='mock.exe';CommandLine='non-retry-signature'}}
+        function Test-SgProcessIdentity{param($Entry) [int]$Entry.pid-gt0-and-not$script:stopped.ContainsKey([int]$Entry.pid)}
+        function Wait-SgFlutterSupervisorReady{param($StatePath,$ProcessEntry)$surface=[string]$ProcessEntry.path;$error=if((Split-Path $surface -Leaf)-eq'explicit-error-case'){'Flutter reported an application error.'}else{'Flutter application stopped before app.started.'};[pscustomobject]@{Ready=$false;AppId=$null;Error=$error;DaemonPid=0;StartupState='failed'}}
+        function Stop-SgProcessTree{param($RootPid)$script:stopped[$RootPid]=$true};function Stop-SgOwnedFlutterBrowser{$false};function Wait-SgFlutterOwnedExtinction{$true};function Remove-SgFlutterLaunchArtifacts{$true};function Wait-SgManagedExtinction{$true};function Copy-SgFlutterDiagnostics{}
+        foreach($surface in $Surfaces){[void](Start-SgProject $Config $surface)}
+        return $script:launches
+    } $config $nonRetrySurfaces
+    foreach($surface in $nonRetrySurfaces){if([int]$nonRetryFlow[$surface]-ne1){throw "Non-retry startup case launched more than once: $(Split-Path $surface -Leaf)"}}
 
     & $module { param($Config,$Surface) Invoke-SgRegistryMutation $Config {param($data);$item=@($data.projects|Where-Object{$_.path-eq$Surface})[0];$item.status='stopped';$item.pid=0;$item.startTimeUtc=$null} | Out-Null } $config $flutterSurface
     $visibleStarted=& $module {
@@ -126,6 +196,15 @@ try {
     } $stderr
     if ($earlyReadiness.Ready -or $earlyReadiness.Error -notmatch 'Application Control.*oxc-parser') { throw 'Dead startup did not preserve its actionable stderr cause.' }
     if (((Get-Date) - $startedAt).TotalSeconds -gt 2) { throw 'Dead startup waited for the generic readiness timeout.' }
+
+    $terminalStateRoot=Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-terminal-{0}" -f [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $terminalStateRoot -Force|Out-Null
+    try {
+        $terminalStatePath=Join-Path $terminalStateRoot 'state.json'
+        [IO.File]::WriteAllText($terminalStatePath,'{"status":"error","appId":"app-stopped","daemonPid":42,"lastError":"Flutter application stopped before app.started.","progressActive":false}')
+        $terminal=& $module { param($StatePath) function Test-SgProcessIdentity { $false }; Wait-SgFlutterSupervisorReady $StatePath ([pscustomobject]@{pid=42}) 1 1 1 } $terminalStatePath
+        if($terminal.Ready-or$terminal.Error-notmatch'app\.started'-or$terminal.StartupState-ne'failed'){throw 'Published Flutter startup failure was hidden by the exited supervisor process.'}
+    } finally { Remove-Item -LiteralPath $terminalStateRoot -Recurse -Force -ErrorAction SilentlyContinue }
 
     $secretValues = @('authBearerSecret','authBasicSecret','loneBearerSecret','tokenSecret','secretSecret','quoted password secret','apiKeySecret','dart secret')
     @(

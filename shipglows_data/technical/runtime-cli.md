@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.40.0"
+artifact_version: "1.41.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-02"
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Windows runtime transaction replay 2026-09-02: payload-backed files are staged before activation, native launchers are generated inside the protected action, and the manifest commits only after every declared generated output exists."
   - "Native Windows launcher replay 2026-09-02: the compiled root menu renders before any CMD or PowerShell child, then preserves managed-engine arguments and exit codes after dispatch."
   - "Native Windows Obsidian adapter 2026-09-01: manifest and dependency evidence outrank generic Vite, start runs the declared watch workflow without HTTP, and artifact copy is restricted to one explicitly configured vault."
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
@@ -542,7 +543,11 @@ catalog after success or failure. The Windows path resolves
 an immutable source commit, stages and validates the full
 managed payload, then classifies the target as `install`, `update`, `repair`, or
 `no-op`. Activation is serialized per runtime and transactionally replaces only
-the paths recorded in the mode-scoped `.shipglows-runtime-files.<mode>.json`; a child-installer failure
+the paths recorded in the mode-scoped `.shipglows-runtime-files.<mode>.json`.
+Payload-backed managed files must exist before mutation; declared action-generated
+managed files, including the native launchers, remain inside the same backup and
+rollback set but are verified after the child installer runs. The managed manifest
+is committed only after that verification succeeds. A child-installer failure
 restores the previous managed files and directory tree byte-for-byte. The
 rollback does not reverse third-party package-manager side effects that completed
 before a later failure. Existing valid external SDKs and tools remain owned by
@@ -674,7 +679,11 @@ a ShipGlows-owned headless Chrome profile. Readiness requires matching
 marks it running. Valid unfinished `app.progress` events keep native startup in
 a bounded `building` lease (300 seconds per progress event, capped at 600 seconds
 total), while silent startup retains its deterministic timeout. The explicit
-`s reload -ProjectPath <path>` command validates the registered process,
+Windows runner stop without a Flutter error before `app.started` is preserved
+as a terminal diagnostic; after owned-process extinction and cleanup, only that
+exact Windows condition receives one automatic retry. Explicit Flutter errors,
+failed builds, Chrome, Android, and `web-server` never enter this retry path. The
+explicit `s reload -ProjectPath <path>` command validates the registered process,
 supervisor state, daemon and app identity before sending the existing hot-reload
 IPC; it never substitutes stop/start or a native rebuild. `s open` restarts that managed Flutter session with visible
 Chrome while preserving debug/hot-reload support. The advanced

@@ -237,19 +237,33 @@ function Test-SgManagedRelativePath([string]$Path) {
 }
 
 function Get-SgRuntimeUpdateOperation {
-    param([string]$RuntimeRoot,[string]$PayloadRoot,[string[]]$ManagedRelativePaths,[string]$SourceCommit)
+    param(
+        [string]$RuntimeRoot,
+        [string]$PayloadRoot,
+        [string[]]$ManagedRelativePaths,
+        [string[]]$ActionGeneratedRelativePaths = @(),
+        [string]$SourceCommit
+    )
     if (-not (Test-Path -LiteralPath $RuntimeRoot -PathType Container)) { return 'install' }
     $statePath = Join-Path $RuntimeRoot '.shipglows-install.json'
     if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) { return 'repair' }
     try { $state = [IO.File]::ReadAllText($statePath) | ConvertFrom-Json }
     catch { return 'repair' }
     if ([string]$state.sourceCommit -cne $SourceCommit) { return 'update' }
-    foreach ($relative in $ManagedRelativePaths) {
+    $managed = @($ManagedRelativePaths | ForEach-Object { $_.Replace('\','/') } | Sort-Object -Unique)
+    $generated = @($ActionGeneratedRelativePaths | ForEach-Object { $_.Replace('\','/') } | Sort-Object -Unique)
+    foreach ($relative in $generated) {
+        if (-not (Test-SgManagedRelativePath $relative) -or $managed -notcontains $relative) { return 'repair' }
+    }
+    foreach ($relative in $managed) {
         if (-not (Test-SgManagedRelativePath $relative)) { return 'repair' }
-        $source = Join-Path $PayloadRoot $relative.Replace('/','\')
         $target = Join-Path $RuntimeRoot $relative.Replace('/','\')
-        if (-not (Test-Path -LiteralPath $source -PathType Leaf) -or -not (Test-Path -LiteralPath $target -PathType Leaf)) { return 'repair' }
-        if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -cne (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash) { return 'repair' }
+        if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { return 'repair' }
+        if ($generated -notcontains $relative) {
+            $source = Join-Path $PayloadRoot $relative.Replace('/','\')
+            if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { return 'repair' }
+            if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -cne (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash) { return 'repair' }
+        }
     }
     return 'no-op'
 }
@@ -259,15 +273,24 @@ function Invoke-SgRuntimePayloadTransaction {
         [Parameter(Mandatory=$true)][string]$PayloadRoot,
         [Parameter(Mandatory=$true)][string]$RuntimeRoot,
         [Parameter(Mandatory=$true)][string[]]$ManagedRelativePaths,
+        [string[]]$ActionGeneratedRelativePaths = @(),
         [string]$ManagedManifestName = '.shipglows-runtime-files.json',
         [Parameter(Mandatory=$true)][scriptblock]$Action
     )
     $payloadFull = [IO.Path]::GetFullPath($PayloadRoot).TrimEnd('\')
     $runtimeFull = [IO.Path]::GetFullPath($RuntimeRoot).TrimEnd('\')
     $managed = @($ManagedRelativePaths | ForEach-Object { $_.Replace('\','/') } | Sort-Object -Unique)
+    $generated = @($ActionGeneratedRelativePaths | ForEach-Object { $_.Replace('\','/') } | Sort-Object -Unique)
     if (-not $managed.Count) { throw 'Runtime transaction requires at least one managed file.' }
     foreach ($relative in $managed) {
         if (-not (Test-SgManagedRelativePath $relative)) { throw "Unsafe managed runtime path: $relative" }
+    }
+    foreach ($relative in $generated) {
+        if (-not (Test-SgManagedRelativePath $relative)) { throw "Unsafe action-generated runtime path: $relative" }
+        if ($managed -notcontains $relative) { throw "Action-generated runtime path is not managed: $relative" }
+    }
+    $staged = @($managed | Where-Object { $generated -notcontains $_ })
+    foreach ($relative in $staged) {
         $source = Join-Path $payloadFull $relative.Replace('/','\')
         if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { throw "Staged runtime file is missing: $relative" }
     }
@@ -314,7 +337,7 @@ function Invoke-SgRuntimePayloadTransaction {
         $manifestExisted = Test-Path -LiteralPath $manifestPath -PathType Leaf
         if ($manifestExisted) { Copy-Item -LiteralPath $manifestPath -Destination (Join-Path $backupRoot 'manifest.json') }
 
-        foreach ($relative in $managed) {
+        foreach ($relative in $staged) {
             $source = Join-Path $payloadFull $relative.Replace('/','\')
             $target = Join-Path $runtimeFull $relative.Replace('/','\')
             New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
@@ -330,11 +353,15 @@ function Invoke-SgRuntimePayloadTransaction {
                 if (Test-Path -LiteralPath $stale -PathType Leaf) { Remove-Item -LiteralPath $stale -Force }
             }
         }
+        & $Action
+        foreach ($relative in $generated) {
+            $target = Join-Path $runtimeFull $relative.Replace('/','\')
+            if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw "Action-generated runtime file is missing: $relative" }
+        }
         $manifestContent = $managed | ConvertTo-Json -Compress
         if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf) -or [IO.File]::ReadAllText($manifestPath) -cne $manifestContent) {
             [IO.File]::WriteAllText($manifestPath,$manifestContent,[Text.UTF8Encoding]::new($false))
         }
-        & $Action
     } catch {
         foreach ($relative in $affected) {
             $target = Join-Path $runtimeFull $relative.Replace('/','\')
@@ -390,6 +417,7 @@ try {
     if ($LASTEXITCODE -ne 0) { Fail 'ShipGlows download failed.' }
 
     [void](Extract-ShipglowsWindowsFiles -ArchivePath $archivePath -DestinationPath $extractRoot -FullMode ($InstallMode -eq 'full'))
+    $actionGeneratedRelativePaths = @()
     if ($InstallMode -eq 'local') {
         $installerCandidates = @(
             Get-ChildItem -LiteralPath $extractRoot -Recurse -Force -File -Filter 'install_local.ps1' |
@@ -425,6 +453,7 @@ try {
         $windowsFiles = @('ShipGlows.CliLauncher.cs','ShipGlows.DevServer.psm1','ShipGlows.RuntimeStatus.psm1','ShipGlows.FlutterSupervisor.ps1','ShipGlows.ProjectCatalogRefresh.ps1','ShipGlows.CodexMcp.psm1','ShipGlows.MobileToolchain.psm1','ShipGlows.BuildArtifacts.psm1','shipglows-build-artifacts.ps1','ShipGlows.McpCatalog.json','ShipGlows.InstallerEngine.psm1','ShipGlows.InstallerConsole.psm1','ShipGlows.AgentInstructions.psm1','ShipGlows.Auth.psm1','ShipGlows.DeveloperCorpus.psm1','ShipGlows.ExtensionLab.js','ShipGlows.ObsidianLab.js','ShipGlows.PowerShellRuntime.psm1','ShipGlows.PowerShellRuntime.json','ShipGlows.PowerShellBootstrap.ps1','ShipGlows.WslTurso.psm1','shipglows-environment-provider.ps1','shipglows-devserver.ps1','shipglows.ps1','install-devserver.ps1')
         $pythonFiles = @('__init__.py','adapters.py','core.py','mise_backend.py','preparation.py','shipglows_environment.py','versions.py','windows_tauri_backend.py')
         $managedRelativePaths = @($windowsFiles | ForEach-Object { "cli/windows/$_" }) + @($pythonFiles | ForEach-Object { "cli/environment/$_" }) + @('cli/private_data.py','cli/environment/schemas/shipglows-environment-v1.schema.json','cli/install-turso-cloud.sh','shipglows-version.json','private_data.py') + @('bin/ShipGlows.CliLauncher.cs','bin/shipglows-dev.exe','bin/sg.exe','bin/s.exe','bin/ShipGlows.DevServer.psm1','bin/ShipGlows.RuntimeStatus.psm1','bin/ShipGlows.FlutterSupervisor.ps1','bin/ShipGlows.ProjectCatalogRefresh.ps1','bin/ShipGlows.Auth.psm1','bin/ShipGlows.MobileToolchain.psm1','bin/ShipGlows.BuildArtifacts.psm1','bin/shipglows-build-artifacts.ps1','bin/ShipGlows.ExtensionLab.js','bin/ShipGlows.ObsidianLab.js','bin/ShipGlows.PowerShellRuntime.psm1','bin/ShipGlows.PowerShellRuntime.json','bin/ShipGlows.PowerShellBootstrap.ps1','bin/shipglows-devserver.ps1','bin/shipglows.ps1')
+        $actionGeneratedRelativePaths = @('bin/shipglows-dev.exe','bin/sg.exe','bin/s.exe')
         $stagedWindows = Join-Path $payloadRoot 'cli\windows'
         $stagedCli = Join-Path $payloadRoot 'cli'
         $stagedEnvironment = Join-Path $payloadRoot 'cli\environment'
@@ -453,11 +482,11 @@ try {
     $installState = [ordered]@{ schemaVersion=1; sourceCommit=$source.Commit; version=[string]$versionDocument.version; installMode=$InstallMode; installSurface=$InstallSurface }
     [IO.File]::WriteAllText((Join-Path $payloadRoot '.shipglows-install.json'),($installState | ConvertTo-Json -Compress),[Text.UTF8Encoding]::new($false))
     $managedRelativePaths = @($managedRelativePaths) + @('.shipglows-install.json')
-    $runtimeOperation = Get-SgRuntimeUpdateOperation -RuntimeRoot $ShipglowsDir -PayloadRoot $payloadRoot -ManagedRelativePaths $managedRelativePaths -SourceCommit $source.Commit
+    $runtimeOperation = Get-SgRuntimeUpdateOperation -RuntimeRoot $ShipglowsDir -PayloadRoot $payloadRoot -ManagedRelativePaths $managedRelativePaths -ActionGeneratedRelativePaths $actionGeneratedRelativePaths -SourceCommit $source.Commit
     Write-Info "Source commit: $($source.Commit)"
     Write-Info "Runtime operation: $runtimeOperation"
     if ($DownloadOnly) { Write-Info 'Download-only validation completed without changing the installed runtime.'; exit 0 }
-    Invoke-SgRuntimePayloadTransaction -PayloadRoot $payloadRoot -RuntimeRoot $ShipglowsDir -ManagedRelativePaths $managedRelativePaths -ManagedManifestName ".shipglows-runtime-files.$InstallMode.json" -Action {
+    Invoke-SgRuntimePayloadTransaction -PayloadRoot $payloadRoot -RuntimeRoot $ShipglowsDir -ManagedRelativePaths $managedRelativePaths -ActionGeneratedRelativePaths $actionGeneratedRelativePaths -ManagedManifestName ".shipglows-runtime-files.$InstallMode.json" -Action {
         if ([IO.Path]::GetFullPath($ShipglowsDir).TrimEnd('\') -eq $defaultRuntimeRoot) {
             $hiddenParentItem = Get-Item -LiteralPath $defaultHiddenParent -Force
             $hiddenParentItem.Attributes = $hiddenParentItem.Attributes -bor [IO.FileAttributes]::Hidden
