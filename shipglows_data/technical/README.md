@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.16.0"
+artifact_version: "1.17.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-02"
@@ -42,6 +42,7 @@ evidence:
   - "Doppler platform note added for native CLI, keychain, environment scope, process injection, service-token, MCP, and agent-safety boundaries."
   - "Hetzner project usage note reduced to public-safe logical runtime and managed-workspace roles; operational inventory now lives in the private operator repository."
   - "Portfolio source-intelligence integration map added for project context, competitor newsletters, shared analysis contracts, managed-runner orchestration, and Flutter review boundaries."
+  - "Managed-project root pitch audit, template, freshness rule, and navigation contract added for fast portfolio recovery."
 next_review: "2026-06-18"
 next_step: "/sg-docs technical audit"
 ---

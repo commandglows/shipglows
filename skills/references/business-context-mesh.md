@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-09-01"
+updated: "2026-09-02"
 status: active
 source_skill: 900-shipglows-core
 scope: business-context-mesh
@@ -44,6 +44,7 @@ depends_on:
 supersedes: []
 evidence:
   - "Operator correction 2026-09-01: canonical business context owns project delivery posture and the context mesh must recover it before branch selection."
+  - "Operator decision 2026-09-02: root PITCH.md is the fast project identity and navigation entrypoint, while canonical business/product sources retain decision authority."
   - "Operator decision 2026-08-22: the target mesh resolves business, brand, product, outcome, surface, and work item without assuming software."
   - "Operator decision 2026-08-13: every métier must act as a business partner grounded in the existing business corpus."
   - "Core audit 2026-08-13: business sources existed but no shared runtime selector connected them to every public outcome path."
@@ -73,6 +74,7 @@ Skip this mesh for routine reversible mechanics whose outcome cannot differ unde
 | Go-to-market | `shipglows_data/business/gtm.md` | positioning, offer, objections, channels, conversion, claim limits | acquisition, conversion, pricing, launch, or public promise matters |
 | Brand | `shipglows_data/branding/branding.md` | voice, vocabulary, feeling, trust posture, forbidden claims | a user-facing experience, message, identity, or recovery moment changes |
 | Portfolio | `shipglows_data/business/portfolio-project-pitch-links.md` | cross-project identity and current pitch locations | portfolio priority, project comparison, shared narrative, or pitch routing matters |
+| Project pitch | `PITCH.md` | concise project identity, dated state summary, and pointers to canonical truth | fast project recentering or `#pitch` is requested; never use it to resolve delivery posture or replace business/product truth |
 | Alternatives | `shipglows_data/business/project-competitors-and-inspirations.md` | known competitors, alternatives, inspirations, anti-patterns | differentiation, build-versus-adopt, market contrast, or prior-art risk matters |
 | Partnerships | `shipglows_data/business/affiliate-programs.md` | affiliate, referral, sponsorship, partner, and disclosure truth | recommendations, monetized links, partnerships, or disclosure obligations matter |
 

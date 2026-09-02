@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-09-02"
 status: active
 source_skill: 300-sg-docs
 scope: 300-sg-docs-governance-playbooks
@@ -22,6 +22,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Extracted from the former eager mode playbook during wave-3 compaction."
+  - "Operator decision 2026-09-02: documentation audit and update classify root PITCH.md presence, navigation, and freshness."
 next_step: "/103-sg-verify progressive skill activation compaction wave 3"
 ---
 
@@ -43,11 +44,11 @@ Inventory candidates by theme then surface. Classify each set as `merge-to-share
 
 ## AUDIT MODE
 
-Compare documentation and doc-like surfaces against code and current contracts. Check missing coverage, metadata, bug-model docs, language, dependencies/freshness, and user-risk surfaces such as install, auth, billing, migration, API, and troubleshooting. Audits are read-only unless the request also authorizes update.
+Compare documentation and doc-like surfaces against code and current contracts. Check missing coverage, metadata, bug-model docs, language, dependencies/freshness, and user-risk surfaces such as install, auth, billing, migration, API, and troubleshooting. Run `tools/audit_project_pitches.py <project-root>` for a managed project and report `missing`, `stale`, or `review_required` as a governance finding. Audits are read-only unless the request also authorizes update.
 
 ## UPDATE MODE
 
-Audit silently, then apply bounded remediations. Preserve ownership and tracker separation. Run skill-budget checks only for skill/discovery scope. Persist durable decisions to their canonical surfaces. Before slimming local docs, perform source-to-canonical preservation and update the destination in the same change. Create missing governance only when evidence justifies it; resume the originating outcome after a recoverable governance repair.
+Audit silently, then apply bounded remediations. Preserve ownership and tracker separation. Run skill-budget checks only for skill/discovery scope. Persist durable decisions to their canonical surfaces. Create or refresh root `PITCH.md` from evidenced business/product sources, preserve it as a concise navigation card, and never let it own delivery posture or operational state. Before slimming local docs, perform source-to-canonical preservation and update the destination in the same change. Create missing governance only when evidence justifies it; resume the originating outcome after a recoverable governance repair.
 
 Prioritize P0 dangerous drift, P1 conventions, P2 stale docs, then P3 missing coverage.
 
