@@ -1,2 +1,6 @@
+interface:
+  display_name: "ShipGlows Release"
+  short_description: "Prepare, validate, and deliver product releases"
+  default_prompt: "Use $sg-release to prepare, validate, and deliver this release."
 policy:
   allow_implicit_invocation: true
