@@ -349,9 +349,12 @@ function Read-SgBrowserExtensionManifest([string]$ManifestPath) {
     return $manifest
 }
 
-function Get-SgBrowserExtensionDescriptor([string]$ProjectPath) {
+function Get-SgBrowserExtensionDescriptor([string]$ProjectPath, [string]$Browser = 'Chromium') {
     $root = ConvertTo-SgCanonicalPath $ProjectPath
-    $relativeCandidates = @('manifest.json','dist\chrome\manifest.json','dist\manifest.json','build\chrome\manifest.json','build\manifest.json','extension\manifest.json','output\chrome\manifest.json')
+    $browserName = $Browser.Trim().ToLowerInvariant()
+    if ($browserName -notin @('chromium','edge','vivaldi','firefox')) { throw 'Browser must be one of: Chromium, Edge, Vivaldi, Firefox.' }
+    $platformCandidates = if ($browserName -eq 'firefox') { @('dist\firefox\manifest.json','build\firefox\manifest.json','output\firefox\manifest.json') } else { @('dist\chrome\manifest.json','build\chrome\manifest.json','output\chrome\manifest.json') }
+    $relativeCandidates = @('manifest.json') + $platformCandidates + @('dist\manifest.json','build\manifest.json','extension\manifest.json')
     $matches = New-Object 'System.Collections.Generic.List[object]'
     foreach ($relative in $relativeCandidates) {
         $manifestPath = Join-Path $root $relative
@@ -525,24 +528,58 @@ function Get-SgProjectKind([string]$ProjectPath) {
     throw "Unsupported or ambiguous project. Supported kinds: Obsidian plugins, Astro, Vite, Manifest browser extensions, Python/FastAPI with uv/requirements, Flutter Web."
 }
 
-function Get-SgManagedPlaywrightModulePath {
+function Get-SgManagedPlaywrightModulePath([string]$Browser = 'Chromium') {
     $localAppData = if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { [Environment]::GetFolderPath('LocalApplicationData') }
     $toolsRoot = Join-Path $localAppData 'ShipGlows\node-tools'
     if (-not (Test-Path -LiteralPath $toolsRoot -PathType Container)) { return $null }
     foreach ($directory in @(Get-ChildItem -LiteralPath $toolsRoot -Directory -Filter 'playwright-*' -ErrorAction SilentlyContinue | Sort-Object LastWriteTimeUtc -Descending)) {
         $modulePath = Join-Path $directory.FullName 'node_modules\playwright'
-        if (Test-Path -LiteralPath (Join-Path $modulePath 'package.json') -PathType Leaf) { return $modulePath }
+        if (-not (Test-Path -LiteralPath (Join-Path $modulePath 'package.json') -PathType Leaf)) { continue }
+        if ($Browser.Trim().ToLowerInvariant() -eq 'firefox') {
+            $browsersPath = Join-Path $directory.FullName 'node_modules\playwright-core\browsers.json'
+            if (-not (Test-Path -LiteralPath $browsersPath -PathType Leaf)) { continue }
+            try { $firefox = @(([IO.File]::ReadAllText($browsersPath) | ConvertFrom-Json).browsers | Where-Object { $_.name -eq 'firefox' })[0] } catch { continue }
+            $managedFirefox = Join-Path $localAppData "ms-playwright\firefox-$([string]$firefox.revision)\firefox\firefox.exe"
+            if (-not (Test-Path -LiteralPath $managedFirefox -PathType Leaf)) { continue }
+        }
+        return $modulePath
     }
     return $null
 }
 
-function Invoke-SgBrowserExtensionLab([string]$ProjectPath, [switch]$Headless, [switch]$Json, [string]$TargetUrl = '', [switch]$Screenshot, [object]$Config = $null) {
-    $descriptor = Get-SgBrowserExtensionDescriptor $ProjectPath
+function Get-SgBrowserLabExecutable([string]$Browser, [string]$PlaywrightModule = '') {
+    $browserName = $Browser.Trim().ToLowerInvariant()
+    if ($browserName -eq 'chromium') { return [pscustomobject]@{ Name='chromium'; Product='Chromium'; Version='managed'; ExecutablePath=$null } }
+    $candidates = switch ($browserName) {
+        'edge' { @((Join-Path ${env:ProgramFiles(x86)} 'Microsoft\Edge\Application\msedge.exe'),(Join-Path $env:ProgramFiles 'Microsoft\Edge\Application\msedge.exe'),(Join-Path $env:LOCALAPPDATA 'Microsoft\Edge\Application\msedge.exe')) }
+        'vivaldi' { @((Join-Path $env:LOCALAPPDATA 'Vivaldi\Application\vivaldi.exe'),(Join-Path $env:ProgramFiles 'Vivaldi\Application\vivaldi.exe'),(Join-Path ${env:ProgramFiles(x86)} 'Vivaldi\Application\vivaldi.exe')) }
+        'firefox' {
+            if (-not $PlaywrightModule) { @() }
+            else {
+                $browsersPath = Join-Path (Split-Path $PlaywrightModule -Parent) 'playwright-core\browsers.json'
+                try { $firefox = @(([IO.File]::ReadAllText($browsersPath) | ConvertFrom-Json).browsers | Where-Object { $_.name -eq 'firefox' })[0] } catch { $firefox = $null }
+                if ($firefox) { @((Join-Path $env:LOCALAPPDATA "ms-playwright\firefox-$([string]$firefox.revision)\firefox\firefox.exe")) } else { @() }
+            }
+        }
+        default { throw 'Browser must be one of: Chromium, Edge, Vivaldi, Firefox.' }
+    }
+    foreach ($candidate in @($candidates | Where-Object { $_ })) {
+        $full = [IO.Path]::GetFullPath([string]$candidate)
+        if (-not (Test-Path -LiteralPath $full -PathType Leaf)) { continue }
+        $item = Get-Item -LiteralPath $full -Force
+        return [pscustomobject]@{ Name=$browserName; Product=[string]$item.VersionInfo.ProductName; Version=[string]$item.VersionInfo.ProductVersion; ExecutablePath=$full }
+    }
+    throw "$Browser is not installed in a supported machine location. ShipGlows will not target a personal browser profile or silently install it."
+}
+
+function Invoke-SgBrowserExtensionLab([string]$ProjectPath, [switch]$Headless, [switch]$Json, [string]$TargetUrl = '', [switch]$Screenshot, [string]$Browser = 'Chromium', [string]$ClickSelector = '', [string]$VisualSelector = '', [object]$Config = $null) {
+    $descriptor = Get-SgBrowserExtensionDescriptor $ProjectPath $Browser
     if (-not $descriptor) { throw "No browser extension manifest or supported build contract was detected in: $ProjectPath" }
-    if ($descriptor.Mode -eq 'build-required') { throw 'Extension build required. ShipGlows detected dev:chrome but will not run repository scripts implicitly. Run the reviewed project build/start command, then retry the lab.' }
-    if ($descriptor.ManifestVersion -ne 3) { throw "Manifest V$($descriptor.ManifestVersion) is obsolete for the managed Chromium lab. Migrate the extension to Manifest V3 before testing." }
+    if ($descriptor.Mode -eq 'build-required') { throw "Extension build required for $Browser. ShipGlows will not run repository scripts implicitly. Run the reviewed browser-specific build command, then retry the lab." }
+    if ($descriptor.ManifestVersion -ne 3) { throw "Manifest V$($descriptor.ManifestVersion) is obsolete for the managed extension lab. Migrate the extension to Manifest V3 before testing." }
     $node = Get-SgCommandPath @('node.exe','node.cmd'); if (-not $node) { throw 'Node.js is required by the browser extension lab but is unavailable.' }
-    $playwrightModule = Get-SgManagedPlaywrightModulePath; if (-not $playwrightModule) { throw 'Managed Playwright is unavailable. Rerun the ShipGlows full installer before opening the extension lab.' }
+    $playwrightModule = Get-SgManagedPlaywrightModulePath $Browser; if (-not $playwrightModule) { throw "Managed Playwright for $Browser is unavailable. Rerun the ShipGlows full installer before opening the extension lab." }
+    $browserInfo = Get-SgBrowserLabExecutable $Browser $playwrightModule
     $runner = Join-Path $PSScriptRoot 'ShipGlows.ExtensionLab.js'; if (-not (Test-Path -LiteralPath $runner -PathType Leaf)) { throw "Browser extension lab runner is missing: $runner" }
     $screenshotPath = ''
     if ($Screenshot) {
@@ -554,8 +591,10 @@ function Invoke-SgBrowserExtensionLab([string]$ProjectPath, [switch]$Headless, [
         if (-not $safeName) { $safeName = 'extension' }
         $screenshotPath = Join-Path $evidenceDirectory ("{0}-{1}.png" -f $safeName,[guid]::NewGuid().ToString('N'))
     }
-    $arguments = @($runner,'--extension',$descriptor.ExtensionPath,'--playwright',$playwrightModule); if ($Headless) { $arguments += '--headless' }; if ($Json) { $arguments += '--json' }; if ($TargetUrl) { $arguments += @('--target-url',$TargetUrl) }
+    $arguments = @($runner,'--extension',$descriptor.ExtensionPath,'--playwright',$playwrightModule,'--browser',$browserInfo.Name,'--browser-product',$browserInfo.Product,'--browser-version',$browserInfo.Version); if ($browserInfo.ExecutablePath) { $arguments += @('--browser-executable',$browserInfo.ExecutablePath) }; if ($Headless) { $arguments += '--headless' }; if ($Json) { $arguments += '--json' }; if ($TargetUrl) { $arguments += @('--target-url',$TargetUrl) }
     if ($screenshotPath) { $arguments += @('--screenshot',$screenshotPath) }
+    if ($ClickSelector) { $arguments += @('--click-selector',$ClickSelector) }
+    if ($VisualSelector) { $arguments += @('--visual-selector',$VisualSelector) }
     & $node @arguments; if ($LASTEXITCODE -ne 0) { throw "Browser extension lab failed with exit code $LASTEXITCODE." }
 }
 

@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-29"
 created_at: "2026-08-29 03:21:09 UTC"
 updated: "2026-09-02"
-updated_at: "2026-09-02 16:21:58 UTC"
+updated_at: "2026-09-02 18:25:00 UTC"
 status: reviewed
 source_skill: 100-sg-spec
 source_model: gpt-5
@@ -32,7 +32,7 @@ evidence:
   - "Current ShipGlows extension support is limited to one CRXJS convention."
   - "Chrome BRAT, ToolGlows and a clean CommunityGlows build loaded successfully in temporary Chromium on 2026-08-29."
   - "GitHub Actions runs 33231777712, 33245930207 and 33245930149 published validated Chrome artifacts."
-next_step: "Define a separate contract for DOM, CSS, interaction, theme and Edge proof when that expansion is prioritized"
+next_step: "Merge the multi-browser visual and interaction milestone after required CI passes"
 ---
 
 # Spec: ShipGlows Browser Extension Lab
@@ -90,7 +90,7 @@ Introduire un contrat de détection indépendant du framework et un laboratoire 
 
 - Publication Chrome Web Store, signature CRX et modification du profil Chrome personnel.
 - Exécution automatique de scripts provenant d'un dépôt non approuvé.
-- Support Firefox/Safari complet dans le premier jalon.
+- Safari et profils navigateur personnels.
 - Déploiement du site public ou release ShipGlows sans validation séparée.
 
 ## Constraints
@@ -223,6 +223,13 @@ Introduire un contrat de détection indépendant du framework et un laboratoire 
   - Depends on: Tasks 1-3.
   - Validate with: ToolGlows sur `https://example.com/`, PNG lisible et contrat `visual` complet.
   - Notes: l'interaction DOM/CSS, les thèmes pilotés et la preuve Edge restent hors de ce jalon.
+- [x] Task 7: ajouter la preuve multi-navigateur interactive.
+  - File: `cli/windows/`, tests Windows et documentation du Lab.
+  - Action: sélectionner Chromium, Edge, Vivaldi ou Firefox, retourner l'identité vérifiée du binaire, cliquer un sélecteur unique et capturer DOM/CSS et PNG dans un profil jetable.
+  - User story link: distinguer une preuve réelle du navigateur demandé d'une simple exécution Chromium étiquetée autrement.
+  - Depends on: Task 6.
+  - Validate with: ToolGlows chargé depuis `dist/chrome` ou `dist/firefox`, interaction toolbar, captures et versions runtime concordantes.
+  - Notes: Firefox utilise WebDriver BiDi; l'énumération des URL de content scripts et le popup Firefox restent explicitement non prouvés par Playwright.
 
 ## Acceptance Criteria
 
@@ -235,6 +242,9 @@ Introduire un contrat de détection indépendant du framework et un laboratoire 
 - [x] AC 7: un novice dispose d'un parcours cinq minutes, d'un glossaire et d'exemples réels.
 - [x] AC 8: CI et dépôts pilotes prouvent les modes statique et construit.
 - [x] AC 9: `-Screenshot` conserve un PNG `1280 × 800` hors du profil jetable et retourne son statut, son chemin absolu et son viewport dans `visual`.
+- [x] AC 10: Edge et Vivaldi chargent l'artefact Chromium avec leur exécutable machine exact, sans profil personnel, et retournent produit, chemin, version fichier et version runtime.
+- [x] AC 11: Firefox sélectionne l'artefact Firefox et l'installe temporairement via WebDriver BiDi dans le Firefox géré, avec identifiant Gecko et identité binaire vérifiable.
+- [x] AC 12: un clic CSS à cardinalité exacte et une inspection DOM/CSS bornée peuvent précéder la capture sur la cible ou le popup compatible.
 
 ## Test Strategy
 
@@ -272,14 +282,16 @@ None
 | 2026-09-02 16:14:46 UTC | 103-sg-verify | gpt-5 | Passed focused contracts and captured ToolGlows at 1280 x 800 in an isolated Chromium profile | passed | Deliver the validated milestone |
 | 2026-09-02 16:21:58 UTC | 104-sg-end | gpt-5 | Closed the retained screenshot milestone with code, tests, documentation and visual evidence aligned | completed | Integrate into canonical development branch |
 | 2026-09-02 16:21:58 UTC | 005-sg-ship | gpt-5 | Merged pull request 93 after both required gates passed | shipped-to-dev | Keep broader interactive proof as a separate product decision |
+| 2026-09-02 18:25:00 UTC | 001-sg-build | gpt-5 | Extended the approved Lab contract to Edge, Vivaldi and Firefox with executable identity, exact-selector interaction and DOM/CSS evidence | implemented | Complete focused contracts and real-browser proofs, then ship |
+| 2026-09-02 18:31:00 UTC | 103-sg-verify | gpt-5 | Passed durable interactive visual regression plus real ToolGlows probes in Edge, Vivaldi and managed Firefox | passed | Deliver the milestone through the required pull-request gates |
 
 ## Current Chantier Flow
 
 - `sg-spec`: done, ready contract created from approved plan.
 - `sg-ready`: passed through adversarial contract review; no material open question.
-- `sg-start`: implemented for detection, isolated loading, CI artifacts and onboarding.
-- `sg-verify`: passed; focused contracts, ToolGlows content-script observation and retained `1280 x 800` screenshot proof are covered.
-- `sg-end`: completed; implementation, documentation and visual proof are aligned.
-- `sg-ship`: shipped to canonical `dev` through pull request 93 after both required gates passed; no production publication was requested.
+- `sg-start`: implemented for multi-browser detection, isolated loading, identity, interaction and visual evidence.
+- `sg-verify`: passed; focused contracts, durable synthetic interaction and real Edge/Vivaldi/Firefox ToolGlows probes pass, with artifact diagnostics preserved.
+- `sg-end`: in progress; implementation and mapped documentation are aligned pending delivery.
+- `sg-ship`: previous Chromium milestone shipped through pull request 93; multi-browser milestone pending.
 
-Next step: define a separate product contract before adding DOM, computed CSS, toolbar interaction, theme persistence or explicit Edge execution proof.
+Next step: complete final verification and deliver the multi-browser milestone through review.
