@@ -135,7 +135,7 @@ try {
     $nonRetryFlow=& $module {
         param($Config,$Surfaces)
         $script:launches=@{};$script:stopped=@{}
-        function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Resolve-SgFlutterAndroidDevice{'android-device'}
+        function Test-SgPortAvailable{$true};function Invoke-SgDependencySetup{};function Get-SgFlutterCommandPath{'C:\flutter\bin\flutter.bat'};function Resolve-SgFlutterAndroidDevice{'android-device'}
         function Get-SgLaunchSpec{[pscustomobject]@{FilePath='mock.exe';Arguments=@();Signature='non-retry-signature';Interactive=$false;FlutterSdkRoot='C:\flutter'}}
         function Start-SgDetachedProcess{param($FilePath,$ArgumentList,$WorkingDirectory)$script:launches[$WorkingDirectory]=1+[int]$script:launches[$WorkingDirectory];[pscustomobject]@{Id=(300+$script:launches.Count);CommandSignature='non-retry-signature'}}
         function Get-SgProcessSnapshot{param($Pid)[pscustomobject]@{Pid=$Pid;StartTimeUtc='2026-09-02T00:02:00Z';ExecutablePath='mock.exe';CommandLine='non-retry-signature'}}
