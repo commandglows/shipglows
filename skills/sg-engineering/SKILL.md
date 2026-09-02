@@ -32,6 +32,11 @@ load `$SHIPGLOWS_ROOT/skills/references/agent-runtime-awareness.md` before diagn
 dependencies, device execution, or platform parity. Preserve the distinction between
 the recorded mobile and Windows toolchain state and current-turn callability.
 
+When verification targets an Obsidian plugin, load
+`$SHIPGLOWS_ROOT/skills/references/obsidian-plugin-workflow.md`. Require reviewed
+project build commands for `build-required`, use the disposable Lab for host proof,
+and keep local BRAT conformity distinct from publication.
+
 ## Validation
 
 Use the selected workflow's technical checks and proportional proof; do not report an engineering outcome from an unverified code change alone.
