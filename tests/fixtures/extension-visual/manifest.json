@@ -1,0 +1,1 @@
+{"manifest_version":3,"name":"Extension Visual Proof","version":"1.0.0","background":{"service_worker":"background.js"},"action":{"default_popup":"popup.html"}}
