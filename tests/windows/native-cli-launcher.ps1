@@ -17,6 +17,59 @@ $compiler = @(
 ) | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
 if (-not $compiler) { throw 'The Windows .NET Framework C# compiler is unavailable.' }
 
+$sourceText = Get-Content -LiteralPath $source -Raw
+if ($sourceText -notmatch 'Console\.ReadKey\(true\)') { throw 'The native root menu no longer reads immediate key presses.' }
+if ($sourceText -notmatch 'case ConsoleKey\.UpArrow:' -or $sourceText -notmatch 'case ConsoleKey\.DownArrow:' -or $sourceText -notmatch 'case ConsoleKey\.Enter:') {
+    throw 'The native root menu no longer owns arrow and Enter navigation.'
+}
+if ($sourceText -match 'SHIPGLOWS_NO_GUM_MENU') { throw 'The native launcher must not disable nested Gum pickers.' }
+$expectedShortcuts = @{
+    c = "{ 'c', new[] { `"clone`" } }"; g = "{ 'g', new[] { `"register`" } }";
+    s = "{ 's', new[] { `"e`" } }"; t = "{ 't', new[] { `"m`", `"t`" } }";
+    r = "{ 'r', new[] { `"m`", `"r`" } }"; l = "{ 'l', new[] { `"m`", `"l`" } }";
+    o = "{ 'o', new[] { `"open`" } }"; k = "{ 'k', new[] { `"m`", `"o`" } }";
+    d = "{ 'd', new[] { `"m`", `"w`" } }"; n = "{ 'n', new[] { `"m`", `"n`" } }";
+    a = "{ 'a', new[] { `"a`" } }"; f = "{ 'f', new[] { `"refresh`" } }";
+    p = "{ 'p', new[] { `"tools`", `"update`" } }"; u = "{ 'u', new[] { `"u`" } }"
+}
+foreach ($shortcut in $expectedShortcuts.GetEnumerator()) {
+    if (-not $sourceText.Contains([string]$shortcut.Value)) {
+        throw "The native root menu letter '$($shortcut.Key)' no longer has its expected action mapping."
+    }
+}
+if ($sourceText -match '"[0-9]  [^\"]+"') { throw 'The native root menu must display letter shortcuts instead of numbers.' }
+if ($sourceText -notmatch "key\.Key == ConsoleKey\.Escape \? 'q'" -or $sourceText -notmatch "case ConsoleKey\.Escape:\s*MoveBelowMenu\(menuTop\);\s*return 'q';") {
+    throw 'Escape must quit the native root menu through the Q action.'
+}
+if ($sourceText -notmatch 'ClearRootMenuForAction\(\);\s*int exitCode = RunPowerShell\(action\);') {
+    throw 'The native root menu must clear immediately before a child action so its diagnostics remain visible.'
+}
+
+function Invoke-NativeMenuShortcut {
+    param([string]$Launcher,[string]$CapturePath,[string]$Shortcut)
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $Launcher
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardInput = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.CreateNoWindow = $true
+    $startInfo.EnvironmentVariables['SHIPGLOWS_NATIVE_CAPTURE'] = $CapturePath
+    $startInfo.EnvironmentVariables.Remove('SHIPGLOWS_NO_GUM_MENU')
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    if (-not $process.Start()) { throw "The native $Shortcut hotkey regression process did not start." }
+    $process.StandardInput.WriteLine($Shortcut)
+    $process.StandardInput.WriteLine('q')
+    $process.StandardInput.Flush()
+    if (-not $process.WaitForExit(5000)) {
+        try { $process.Kill() } catch { }
+        throw "The native menu did not dispatch the $Shortcut shortcut."
+    }
+    if ($process.ExitCode -ne 0) { throw "The native $Shortcut hotkey regression exited with code $($process.ExitCode)." }
+    return Get-Content -LiteralPath $CapturePath -Raw | ConvertFrom-Json
+}
+
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-native-launcher-' + [guid]::NewGuid().ToString('N'))
 try {
     New-Item -ItemType Directory -Path $fixture -Force | Out-Null
@@ -55,7 +108,7 @@ try {
         throw "The idle native menu spawned a shell before selection: $childNames"
     }
 
-    $process.StandardInput.WriteLine('0')
+    $process.StandardInput.WriteLine('q')
     $process.StandardInput.Flush()
     if (-not $process.WaitForExit(3000)) {
         try { $process.Kill() } catch { }
@@ -70,7 +123,9 @@ param([Parameter(ValueFromRemainingArguments=$true)][string[]]$Remaining=@())
 [pscustomobject]@{
     arguments=@($Remaining)
     managedMarker=[string]$env:SHIPGLOWS_MANAGED_PWSH
+    pickerDisabled=[string]$env:SHIPGLOWS_NO_GUM_MENU
 } | ConvertTo-Json -Compress | Set-Content -LiteralPath $env:SHIPGLOWS_NATIVE_CAPTURE -Encoding UTF8
+if (@($Remaining).Count -eq 1 -and $Remaining[0] -in @('e','u')) { exit 0 }
 exit 23
 '@, [Text.UTF8Encoding]::new($false))
     $env:SHIPGLOWS_NATIVE_CAPTURE = $capturePath
@@ -89,7 +144,19 @@ exit 23
         throw 'The native launcher did not bind the child to the managed PowerShell coordinate.'
     }
 
-    Write-Host "Native Windows CLI launcher regression: OK menu_ready_ms=$([math]::Round($watch.Elapsed.TotalMilliseconds,1)) shells_before_selection=0 arguments=preserved exit_code=preserved"
+    $startCapture = Invoke-NativeMenuShortcut -Launcher $launcher -CapturePath $capturePath -Shortcut 'S'
+    if (@($startCapture.arguments).Count -ne 1 -or $startCapture.arguments[0] -ne 'e') {
+        throw 'The native S shortcut did not dispatch the Start action.'
+    }
+    if (-not [string]::IsNullOrWhiteSpace([string]$startCapture.pickerDisabled)) {
+        throw 'The native shortcut disabled the nested Gum project picker.'
+    }
+    $updateCapture = Invoke-NativeMenuShortcut -Launcher $launcher -CapturePath $capturePath -Shortcut 'U'
+    if (@($updateCapture.arguments).Count -ne 1 -or $updateCapture.arguments[0] -ne 'u') {
+        throw 'The native U shortcut did not dispatch the ShipGlows update action.'
+    }
+
+    Write-Host "Native Windows CLI launcher regression: OK menu_ready_ms=$([math]::Round($watch.Elapsed.TotalMilliseconds,1)) shells_before_selection=0 letter_map=complete hotkeys_S_U=dispatched pre_action_clear=guarded child_output=preserved nested_gum=enabled arrows_enter=owned arguments=preserved exit_code=preserved"
 } finally {
     if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }
 }

@@ -193,6 +193,8 @@
 
 ### Audit: Perf (2026-04-29) — Score: B
 
+🟠 [ShipGlows] task: Donner au menu Windows une vraie session interactive persistante sans relancer PowerShell après chaque raccourci | status: todo | area: runtime-cli-perf | id: windows-cli-persistent-powershell-session | source: retour opérateur 2026-09-02 après validation du menu natif | evidence: `s.exe` affiche le menu en environ 145 ms, mais `ShipGlows.CliLauncher.cs::RunPowerShell` crée encore un nouveau `pwsh.exe` pour chaque action; le cache catalogue évite les rescans de projets sans supprimer le coût de création du processus, du parsing de `shipglows-devserver.ps1` et des imports de modules | constraints: conserver le menu Gum-style à lettres, les raccourcis immédiats, les vrais pickers Gum, les diagnostics visibles, l'absence de `cmd.exe`, la compatibilité des commandes directes et une fermeture propre sans processus orphelin | next: mesurer séparément création de `pwsh.exe`, parsing/imports et chargement du catalogue, puis spécifier un backend PowerShell persistant piloté par le lanceur natif avec protocole borné et tests de cycle de vie
+
 | Pri | Task | Status |
 |-----|------|--------|
 | ✅ | Load the public site fonts asynchronously in [site/src/layouts/BaseLayout.astro](/home/ubuntu/shipglows/site/src/layouts/BaseLayout.astro:24) so the Google Fonts stylesheet no longer blocks first paint | ✅ done |

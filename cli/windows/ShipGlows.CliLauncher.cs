@@ -10,39 +10,39 @@ internal static class ShipGlowsCliLauncher
 
     private static readonly IDictionary<char, string[]> MenuActions = new Dictionary<char, string[]>
     {
-        { '1', new[] { "clone" } },
-        { '2', new[] { "register" } },
-        { '3', new[] { "e" } },
-        { '4', new[] { "m", "t" } },
-        { '5', new[] { "m", "r" } },
-        { '6', new[] { "m", "l" } },
-        { '7', new[] { "open" } },
-        { '8', new[] { "m", "o" } },
-        { '9', new[] { "m", "w" } },
+        { 'c', new[] { "clone" } },
+        { 'g', new[] { "register" } },
+        { 's', new[] { "e" } },
+        { 't', new[] { "m", "t" } },
+        { 'r', new[] { "m", "r" } },
+        { 'l', new[] { "m", "l" } },
+        { 'o', new[] { "open" } },
+        { 'k', new[] { "m", "o" } },
+        { 'd', new[] { "m", "w" } },
         { 'n', new[] { "m", "n" } },
         { 'a', new[] { "a" } },
-        { 'r', new[] { "refresh" } },
-        { 't', new[] { "tools", "update" } },
+        { 'f', new[] { "refresh" } },
+        { 'p', new[] { "tools", "update" } },
         { 'u', new[] { "u" } }
     };
 
     private static readonly string[] MenuItems =
     {
-        "1  Clone a repository",
-        "2  Register a local project",
-        "3  Start a project",
-        "4  Stop a project",
-        "5  Restart a project",
-        "6  View logs",
-        "7  Open / load project",
-        "8  Stop all projects",
-        "9  Unregister a project",
-        "n  Navigate to a project",
-        "a  Authentication",
-        "r  Refresh",
-        "t  Update developer tools",
-        "u  Update ShipGlows",
-        "0  Quit ShipGlows"
+        "C  Clone a repository",
+        "G  Register a local project",
+        "S  Start a project",
+        "T  Stop a project",
+        "R  Restart a project",
+        "L  View logs",
+        "O  Open / load project",
+        "K  Stop all projects",
+        "D  Unregister a project",
+        "N  Navigate to a project",
+        "A  Authentication",
+        "F  Refresh",
+        "P  Update developer tools",
+        "U  Update ShipGlows",
+        "Q  Quit ShipGlows"
     };
 
     private static int Main(string[] args)
@@ -66,15 +66,11 @@ internal static class ShipGlowsCliLauncher
 
     private static int RunMenu()
     {
+        int selectedIndex = 0;
         while (true)
         {
-            char choice;
-            if (!TryReadGumChoice(out choice))
-            {
-                WriteMenu();
-                choice = ReadChoice();
-            }
-            if (choice == '0' || choice == 'x')
+            char choice = ReadMenuChoice(ref selectedIndex);
+            if (choice == 'q')
             {
                 return 0;
             }
@@ -86,6 +82,7 @@ internal static class ShipGlowsCliLauncher
                 continue;
             }
 
+            ClearRootMenuForAction();
             int exitCode = RunPowerShell(action);
             if (exitCode != 0)
             {
@@ -94,88 +91,212 @@ internal static class ShipGlowsCliLauncher
         }
     }
 
-    private static bool TryReadGumChoice(out char choice)
+    private static void ClearRootMenuForAction()
     {
-        choice = '\0';
-        string gum = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "gum.exe"));
-        if (!File.Exists(gum) || Console.IsInputRedirected)
+        if (!Console.IsOutputRedirected)
         {
-            return false;
-        }
-
-        List<string> arguments = new List<string>
-        {
-            "choose",
-            "--header", "What do you want to do?",
-            "--height", MenuItems.Length.ToString(),
-            "--cursor-prefix", "> ",
-            "--selected-prefix", "* ",
-            "--item.foreground", "255",
-            "--item.background", "0",
-            "--cursor.foreground", "0",
-            "--cursor.background", "212",
-            "--selected.foreground", "0",
-            "--selected.background", "212",
-            "--header.foreground", "255",
-            "--header.background", "0"
-        };
-        arguments.AddRange(MenuItems);
-
-        ProcessStartInfo startInfo = CreateStartInfo(gum, arguments);
-        startInfo.RedirectStandardOutput = true;
-        try
-        {
-            using (Process gumProcess = Process.Start(startInfo))
-            {
-                if (gumProcess == null)
-                {
-                    return false;
-                }
-
-                string selected = gumProcess.StandardOutput.ReadToEnd().Trim();
-                gumProcess.WaitForExit();
-                if (gumProcess.ExitCode != 0 || selected.Length == 0)
-                {
-                    choice = '0';
-                    return true;
-                }
-
-                choice = char.ToLowerInvariant(selected[0]);
-                return true;
-            }
-        }
-        catch
-        {
-            return false;
+            Console.Clear();
         }
     }
 
-    private static void WriteMenu()
-    {
-        Console.WriteLine("ShipGlows Windows");
-        Console.WriteLine("1) Clone  2) Register  3) Start  4) Stop  5) Restart");
-        Console.WriteLine("6) Logs   7) Open      8) Stop all  9) Unregister");
-        Console.WriteLine("n) Navigate  a) Authentication  r) Refresh  t) Update tools  u) Update ShipGlows  0) Quit");
-        Console.Write("Choice: ");
-    }
-
-    private static char ReadChoice()
+    private static char ReadMenuChoice(ref int selectedIndex)
     {
         if (Console.IsInputRedirected)
         {
+            WritePlainMenu();
             string line = Console.ReadLine();
             if (line == null)
             {
-                return '0';
+                return 'q';
             }
 
             line = line.Trim();
             return line.Length == 0 ? '\0' : char.ToLowerInvariant(line[0]);
         }
 
+        int menuTop;
+        try
+        {
+            menuTop = Console.CursorTop;
+        }
+        catch (IOException)
+        {
+            WritePlainMenu();
+            return ReadImmediateShortcut();
+        }
+
+        bool? originalCursorVisible = TrySetCursorVisible(false);
+        try
+        {
+            while (true)
+            {
+                if (!RenderInteractiveMenu(menuTop, selectedIndex))
+                {
+                    WritePlainMenu();
+                    return ReadImmediateShortcut();
+                }
+
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                char shortcut = char.ToLowerInvariant(key.KeyChar);
+
+                if (MenuActions.ContainsKey(shortcut) || shortcut == 'q')
+                {
+                    MoveBelowMenu(menuTop);
+                    return shortcut;
+                }
+
+                switch (key.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        selectedIndex = (selectedIndex + MenuItems.Length - 1) % MenuItems.Length;
+                        break;
+                    case ConsoleKey.DownArrow:
+                        selectedIndex = (selectedIndex + 1) % MenuItems.Length;
+                        break;
+                    case ConsoleKey.Home:
+                        selectedIndex = 0;
+                        break;
+                    case ConsoleKey.End:
+                        selectedIndex = MenuItems.Length - 1;
+                        break;
+                    case ConsoleKey.Enter:
+                        MoveBelowMenu(menuTop);
+                        return GetShortcut(MenuItems[selectedIndex]);
+                    case ConsoleKey.Escape:
+                        MoveBelowMenu(menuTop);
+                        return 'q';
+                }
+            }
+        }
+        finally
+        {
+            Console.ResetColor();
+            if (originalCursorVisible.HasValue)
+            {
+                TrySetCursorVisible(originalCursorVisible.Value);
+            }
+        }
+    }
+
+    private static bool RenderInteractiveMenu(int menuTop, int selectedIndex)
+    {
+        try
+        {
+            Console.SetCursorPosition(0, menuTop);
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+
+        int itemWidth = GetMenuItemWidth();
+        WriteMenuLine("What do you want to do?", ConsoleColor.White, ConsoleColor.Black, itemWidth);
+
+        for (int index = 0; index < MenuItems.Length; index++)
+        {
+            bool selected = index == selectedIndex;
+            string prefix = selected ? "> " : "  ";
+            WriteMenuLine(
+                prefix + MenuItems[index],
+                selected ? ConsoleColor.Black : ConsoleColor.Gray,
+                selected ? ConsoleColor.Magenta : ConsoleColor.Black,
+                itemWidth);
+        }
+
+        WriteMenuLine("", ConsoleColor.Gray, ConsoleColor.Black, itemWidth);
+        string help = "↑↓ move  Enter select  key runs  Esc quit";
+        int helpWidth = Math.Min(help.Length, GetSafeWindowWidth());
+        WriteMenuLine(help, ConsoleColor.DarkGray, ConsoleColor.Black, helpWidth);
+        return true;
+    }
+
+    private static int GetMenuItemWidth()
+    {
+        int width = 0;
+        foreach (string item in MenuItems)
+        {
+            width = Math.Max(width, item.Length + 2);
+        }
+
+        return Math.Min(width, GetSafeWindowWidth());
+    }
+
+    private static int GetSafeWindowWidth()
+    {
+        try
+        {
+            return Math.Max(1, Console.WindowWidth - 1);
+        }
+        catch (IOException)
+        {
+            return 80;
+        }
+    }
+
+    private static void WriteMenuLine(string value, ConsoleColor foreground, ConsoleColor background, int width)
+    {
+        string visible = value.Length > width ? value.Substring(0, width) : value;
+        Console.ForegroundColor = foreground;
+        Console.BackgroundColor = background;
+        Console.Write(visible.PadRight(width));
+        Console.ResetColor();
+        Console.WriteLine();
+    }
+
+    private static void MoveBelowMenu(int menuTop)
+    {
+        Console.ResetColor();
+        try
+        {
+            Console.SetCursorPosition(0, menuTop + MenuItems.Length + 3);
+        }
+        catch (IOException)
+        {
+            Console.WriteLine();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            Console.WriteLine();
+        }
+    }
+
+    private static bool? TrySetCursorVisible(bool visible)
+    {
+        try
+        {
+            bool previous = Console.CursorVisible;
+            Console.CursorVisible = visible;
+            return previous;
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+    }
+
+    private static char ReadImmediateShortcut()
+    {
         ConsoleKeyInfo key = Console.ReadKey(true);
-        Console.WriteLine(key.KeyChar);
-        return char.ToLowerInvariant(key.KeyChar);
+        return key.Key == ConsoleKey.Escape ? 'q' : char.ToLowerInvariant(key.KeyChar);
+    }
+
+    private static char GetShortcut(string menuItem)
+    {
+        return char.ToLowerInvariant(menuItem[0]);
+    }
+
+    private static void WritePlainMenu()
+    {
+        Console.WriteLine("ShipGlows Windows");
+        Console.WriteLine("What do you want to do?");
+        foreach (string item in MenuItems)
+        {
+            Console.WriteLine(item);
+        }
     }
 
     private static int RunPowerShell(string[] commandArguments)
