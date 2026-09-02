@@ -4,7 +4,7 @@ metadata_schema_version: "1.0"
 artifact_version: "0.30.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-09-01"
+updated: "2026-10-19"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -75,7 +75,7 @@ evidence:
   - "Added a private rights-aware design/copy inspiration corpus contract, capture tool, and bounded Inspiration Gate."
   - "Added provider-neutral 006-sg-design animation modes with GSAP optional after fit, lifecycle, and proof gates."
   - "Added an exact sg-help mode catalog with one line per skill and canonical modes."
-  - "Adopted the métier-first public hierarchy: 13 public owners in six domains, with direct public skill folders and numeric engines retained for expert compatibility only."
+  - "Adopted the métier-first public hierarchy: 14 public owners in six domains, with human-facing ShipGlows display names, stable `$sg-*` invocation IDs, direct public skill folders, and numeric engines retained for expert compatibility only."
   - "Documented the native Windows full DevServer, optional coding agents, execution-policy-safe wrappers, nested s shortcuts, and collision-safe agent aliases."
   - "Operator confirmed positioning decision SG-BIZ-2026-08-13-01: ShipGlows leads as a business-aware delivery partner; environment operations support execution and proof."
   - "Operator decision 2026-08-20: document #local, #nolocal, and #ci as composable agent execution tags distinct from workflow modes."
