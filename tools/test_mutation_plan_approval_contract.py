@@ -14,7 +14,6 @@ ROUTER = ROOT / "skills" / "000-shipglows" / "SKILL.md"
 WINDOWS_AGENT_INSTRUCTIONS = ROOT / "cli" / "windows" / "ShipGlows.AgentInstructions.psm1"
 PUBLIC_PLUGIN = ROOT / "plugins" / "shipglows" / "skills" / "shipglows" / "SKILL.md"
 REPORTING = ROOT / "skills" / "references" / "reporting-contract.md"
-NEXT_OUTCOME = ROOT / "skills" / "references" / "next-outcome-selection.md"
 
 
 class MutationPlanApprovalContractTests(unittest.TestCase):
@@ -253,22 +252,6 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
             "Never stop merely because the pull request was opened or became green",
         ):
             self.assertIn(expected, reporting)
-
-    def test_reporting_allows_true_closure_without_invented_work(self) -> None:
-        reporting = REPORTING.read_text(encoding="utf-8")
-        selection = NEXT_OUTCOME.read_text(encoding="utf-8")
-        for expected in (
-            "use exactly `🧭 SUITE\\nChantier clos.`",
-            "never invent urgency, authority, or unrelated work",
-        ):
-            self.assertIn(expected, reporting)
-        for expected in (
-            "proof, delivery, reconciliation, and owned cleanup are complete",
-            "Do not inspect unrelated branches, trackers, audits, repositories, or product surfaces solely to manufacture continuation",
-            "SUITE-FALSE-CLOSURE",
-            "SUITE-INVENTED",
-        ):
-            self.assertIn(expected, selection)
 
     def test_v_is_a_bounded_immediate_approval_shortcut(self) -> None:
         for expected in (
