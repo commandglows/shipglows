@@ -269,7 +269,7 @@ class TechnicalContractTests(unittest.TestCase):
             self.assertIn(phrase, github)
 
     def test_github_cleanup_is_always_classified_and_proportional(self) -> None:
-        github = self.playbooks["github"]
+        github = " ".join(self.playbooks["github"].split())
         for phrase in (
             "automatically remove",
             "one small, exact, clean, proven-integrated task-owned set",
