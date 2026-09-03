@@ -64,17 +64,17 @@ function Compare-SgSemanticVersion([string]$InstalledVersion,[string]$AvailableV
 
 function Get-SgShipGlowsUpdateAssessment([string]$InstalledVersion,[string]$AvailableVersion,[string]$InstalledCommit='',[string]$SourceCommit='') {
     if ($InstalledVersion -notmatch $script:SgRuntimeVersionPattern) {
-        return [pscustomobject]@{ Level='unknown'; Message='Version ShipGlows indisponible - lancez shipglows update.'; Available=$false }
+        return [pscustomobject]@{ Level='unknown'; Message='Version ShipGlows indisponible - lancez shipglows runtime update.'; Available=$false }
     }
     $comparison = Compare-SgSemanticVersion $InstalledVersion $AvailableVersion
     if ($comparison -gt 0) {
         $installed = [version]($InstalledVersion -replace '-.*$','')
         $available = [version]($AvailableVersion -replace '-.*$','')
         $level = if ($available.Major -gt $installed.Major -or $available.Minor -gt $installed.Minor) { 'major-update' } else { 'update' }
-        return [pscustomobject]@{ Level=$level; Message="Nouvelle version disponible: v${AvailableVersion} - lancez shipglows update."; Available=$true }
+        return [pscustomobject]@{ Level=$level; Message="Nouvelle version disponible: v${AvailableVersion} - lancez shipglows runtime update."; Available=$true }
     }
     if ($comparison -eq 0 -and $InstalledCommit -and $SourceCommit -and $InstalledCommit -ne $SourceCommit) {
-        return [pscustomobject]@{ Level='update'; Message='Une source development plus recente est disponible - lancez shipglows update.'; Available=$true }
+        return [pscustomobject]@{ Level='update'; Message='Une source development plus recente est disponible - lancez shipglows runtime update.'; Available=$true }
     }
     return [pscustomobject]@{ Level='current'; Message='ShipGlows est a jour.'; Available=$false }
 }

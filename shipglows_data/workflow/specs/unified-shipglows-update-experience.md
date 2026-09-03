@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-08-28"
 created_at: "2026-08-28 12:45:00 UTC"
 updated: "2026-08-28"
-updated_at: "2026-08-28 13:20:00 UTC"
+updated_at: "2026-09-03 12:07:38 UTC"
 status: reviewed
 source_skill: 900-shipglows-core
 source_model: GPT-5 Codex
@@ -16,7 +16,7 @@ confidence: high
 risk_level: high
 security_impact: yes
 docs_impact: yes
-user_story: "As the ShipGlows operator, I want one update command that understands whether I use a linked developer checkout or a normal installation, so CLI, DevServer, TUI, skills, and agent guidance converge without reinstall guesswork."
+user_story: "As the ShipGlows operator, I want explicit platform-supported update commands, so a bare update request never mutates an ambiguous target."
 linked_systems:
   - cli/shipglows.sh
   - cli/shipglows_update.sh
@@ -38,7 +38,8 @@ depends_on:
 supersedes: []
 evidence:
   - "Audit 2026-08-28: linked Codex skills are live and verified, while the Windows runtime is an installed copy, Unix has no ShipGlows self-update command, and the TUI has no update entry."
-  - "Operator decision 2026-08-28: keep Unix s u for system packages; ShipGlows itself uses shipglows update, while the native Windows DevServer exposes its update entry."
+  - "Operator decision 2026-08-28: keep Unix s u for system packages; ShipGlows runtime updates use the explicit shipglows runtime update command, while the native Windows launcher routes operators to it."
+  - "Operator decision 2026-09-03: bare shipglows update is non-mutating guidance; runtime updates require shipglows runtime update."
 next_step: "Use shipglows update status before the next runtime refresh."
 ---
 
@@ -50,19 +51,19 @@ ready
 
 ## User Story
 
-As the ShipGlows operator, I want one update command that understands whether I use a linked developer checkout or a normal installation, so CLI, DevServer, TUI, skills, and agent guidance converge without reinstall guesswork.
+As the ShipGlows operator, I want explicit platform-supported update commands, so a bare update request never mutates an ambiguous target.
 
 ## Minimal Behavior Contract
 
-`shipglows update status` is read-only and reports the active source, channel, and required reload. `shipglows update` selects the stable official bootstrap for a normal installation, or the current clean remote-tracking branch for a linked developer checkout. Linked skills are reported as live rather than copied or reinstalled. Native Windows exposes the same operation through `shipglows update` and the existing DevServer update menu. Unix preserves `s u` as the package-update action.
+`shipglows update status` is read-only and reports the active source, channel, and required reload. `shipglows runtime update` selects the stable official bootstrap for a normal installation, or the current clean remote-tracking branch for a linked developer checkout. Bare `shipglows update` performs no mutation and lists the explicit commands supported by the current platform; Windows includes runtime, skills, tools, and status, while Unix includes runtime, skills, and status. Linked skills are reported as live rather than copied or reinstalled. Native Windows exposes the runtime operation through the explicit command while its native launcher refuses self-update. Unix preserves `s u` as the package-update action.
 
 ## Success Behavior
 
-- The operator has one stable command for ShipGlows updates and one read-only status variant.
+- The operator has distinct stable commands for each update surface supported by the current platform, plus one read-only status variant.
 - A linked checkout refuses to update when its source is dirty, unresolved, or not backed by an upstream branch.
 - A linked update fetches the selected remote branch rather than silently switching to `main`.
 - A normal Windows install continues to use the official HTTPS bootstrap with syntax validation and transactional runtime replacement.
-- The Windows launcher accepts `shipglows update` and delegates to the DevServer implementation.
+- The Windows launcher accepts `shipglows runtime update` and delegates to the DevServer implementation; bare `shipglows update` lists explicit choices without mutation.
 - The TUI remains read-only in V1 and clearly routes update actions to the canonical CLI command rather than running an independent updater.
 - Agent-facing documentation tells a user that linked skills need only a new Codex/Claude session after a source update.
 
@@ -80,8 +81,8 @@ As the ShipGlows operator, I want one update command that understands whether I 
 - `UPDATE-LINKED-DIRTY-REFUSAL`: local source changes stop a runtime update before any fetch, checkout, stash, or install.
 - `UPDATE-LINKED-BRANCH`: a clean linked checkout uses its resolved upstream branch, not implicit `main`.
 - `UPDATE-STABLE-WINDOWS`: a normal Windows install keeps the HTTPS download, syntax check, and transactional bootstrap path.
-- `UPDATE-WINDOWS-LAUNCHER`: `shipglows update` and the DevServer menu reach the same update implementation.
-- `UPDATE-UNIX-COMPATIBILITY`: `shipglows update` is reserved for ShipGlows while `s u` remains the system-package action.
+- `UPDATE-WINDOWS-LAUNCHER`: `shipglows runtime update` reaches the DevServer update implementation while native self-update routes to that command.
+- `UPDATE-UNIX-COMPATIBILITY`: `shipglows runtime update` is reserved for the ShipGlows runtime while `s u` remains the system-package action.
 - `UPDATE-TUI-ROUTE`: the read-only TUI explains the canonical CLI route and never gains an independent mutation path.
 
 ## Scope In
@@ -104,7 +105,7 @@ As the ShipGlows operator, I want one update command that understands whether I 
 - [x] Add a focused Unix update adapter with `status` and guarded update behavior.
 - [x] Add Windows channel detection, linked-branch validation, and a shared launcher route.
 - [x] Preserve the existing Windows DevServer update menu while making its source selection channel-aware.
-- [x] Document the TUI as a read-only route to `shipglows update` and update the public router guidance.
+- [x] Document the TUI as a read-only route to `shipglows runtime update` and update the public router guidance.
 - [x] Add scenario-focused contract tests, syntax checks, and runtime documentation alignment.
 - [x] Commit and push the implementation milestone only; closure bookkeeping is pending.
 
@@ -131,6 +132,7 @@ Implementation classification: infrastructure · cross-surface coherence. Proof 
 | 2026-08-28 | 900-shipglows-core | GPT-5 Codex | Formalized the approved unified update contract after confirming Git/GitHub alignment. | ready | Implement the runtime routes and focused proof. |
 | 2026-08-28 | 900-shipglows-core | GPT-5 Codex | Implemented Unix and Windows update routes, retained the DevServer menu, and installed the pushed branch through the native bootstrap. | verified | Commit and push closure bookkeeping. |
 | 2026-08-28 | 005-sg-ship | GPT-5 Codex | Delivered the implementation and verification commits to the resolved current upstream without force. | shipped | Use the canonical status command before a future refresh. |
+| 2026-09-03 | sg-development | GPT-5.6 Codex | Replaced ambiguous bare runtime mutation with explicit runtime, skills, tools, and status routing across Windows and Unix. | verified locally | Deliver through the protected dev pull-request gate. |
 
 ## Current Chantier Flow
 

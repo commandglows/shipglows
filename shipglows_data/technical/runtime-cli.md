@@ -44,7 +44,7 @@ evidence:
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
   - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
-  - "Unified update replay 2026-08-28: `shipglows update` selects the stable or linked channel, `s update status` reports the active Windows source, and a dirty linked worktree refuses bootstrap without stashing."
+  - "Unified update replay 2026-08-28: `shipglows runtime update` selects the stable or linked channel, `shipglows update status` reports the active source, and a dirty linked worktree refuses bootstrap without stashing."
   - "Installed ToolGlows replay 2026-08-28: managed process identity compares UTC instants across Windows PowerShell string and PowerShell 7 DateTime JSON representations, so live projects no longer reconcile to stopped immediately after Start."
   - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and browser extensions with exact next actions instead of exposing internal project kinds."
   - "Installed-runtime replay 2026-08-27: registered projects are re-registered through the current detector before environment migration, preventing stale registry kinds after a new adapter is installed."
@@ -535,7 +535,7 @@ a dirty repository or missing upstream and uses only fast-forward pull or
 ordinary push. None of these commands is run by installation, startup, generic
 context discovery, or a skill without an explicit private-data request.
 The native Windows `s u` / `s update` path stops before PowerShell dispatch and
-directs the operator to `shipglows update`, preventing the running executable
+directs the operator to `shipglows runtime update`, preventing the running executable
 from locking its own replacement. That canonical update path downloads the
 public bootstrap over HTTPS for the stable channel, or selects the checked clean
 upstream branch of a linked developer checkout. `shipglows update status` is read-only;
@@ -590,7 +590,9 @@ installer records it with the immutable source commit. Green means current,
 orange means a patch or linked-source update is available, and red means a
 minor or major release was missed. A failed network check preserves the last
 valid cache and never blocks the menu; an available update points to
-`shipglows update`.
+`shipglows runtime update`. Bare `shipglows update` performs no mutation and
+lists the explicit commands supported by the current platform; Windows exposes
+runtime, skills, tools, and status, while Unix exposes runtime, skills, and status.
 
 The native full installer composes a UI-free operation engine with a console
 adapter. The engine emits stable started/progress/completed/failed/timed-out
