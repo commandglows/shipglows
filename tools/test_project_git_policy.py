@@ -84,15 +84,18 @@ class ProjectGitPolicyTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertIn("project_git_policy.py", path.read_text(encoding="utf-8"))
 
-    def test_templates_default_both_creation_lanes_to_forbidden(self) -> None:
-        for path in (
-            ROOT / "templates/technical_guidelines.md",
-            ROOT / "shipglows_data/technical/guidelines.md",
-        ):
-            with self.subTest(path=path):
-                text = path.read_text(encoding="utf-8")
-                self.assertIn("task_branch_policy: forbidden", text)
-                self.assertIn("worktree_policy: forbidden", text)
+    def test_template_defaults_both_creation_lanes_to_forbidden(self) -> None:
+        text = (ROOT / "templates/technical_guidelines.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("task_branch_policy: forbidden", text)
+        self.assertIn("worktree_policy: forbidden", text)
+
+    def test_repository_policy_uses_supported_values(self) -> None:
+        result = policy.inspect_project(ROOT)
+        self.assertEqual("resolved", result.state)
+        self.assertIn(result.task_branch_policy, policy.VALID_POLICIES)
+        self.assertIn(result.worktree_policy, policy.VALID_POLICIES)
 
     def test_contracts_distinguish_preference_permission_and_existing_artifacts(self) -> None:
         contracts = "\n".join(

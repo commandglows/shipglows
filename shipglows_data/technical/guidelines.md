@@ -11,7 +11,7 @@ scope: guidelines
 owner: "unknown"
 confidence: high
 risk_level: medium
-task_branch_policy: forbidden
+task_branch_policy: allowed
 worktree_policy: forbidden
 linked_systems:
   - "cli/shipglows.sh"
