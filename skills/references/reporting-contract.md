@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.20.0"
+artifact_version: "2.21.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-09-03"
@@ -33,7 +33,7 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "2.7.0"
+    artifact_version: "2.8.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.5.0"
@@ -43,6 +43,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: start cards adopt the same single-line rows and blank-line spacing as closure cards."
   - "Operator decision 2026-09-03: closure cards render each label and its content on one line, with a blank line between sections for visual breathing room."
   - "Operator correction 2026-09-03: a green merge-ready owned PR remains active delivery; reconciliation and proven cleanup precede returning control."
   - "Operator decisions 2026-05-03 through 2026-08-07 define concise human reports, explicit agent handoffs, chantier-first headers, safe choices, bounded recurrence claims, and compact topology receipts."
@@ -104,26 +105,20 @@ Use `🚧 CHANTIER` instead of `🧱 CHANTIER` only for a genuinely blocked verd
 After approval and at the true start of a substantive chantier, render this card once. Do not use it while approval is pending or for a branch-free micro-action.
 
 ```text
-✨ OBJECTIF
-<one compact outcome promise>
+✨ OBJECTIF : <one compact outcome promise>
 
-📐 PÉRIMÈTRE
-✅ <in scope> · ➖ <material out of scope>
+📐 PÉRIMÈTRE ✅ <in scope> · ➖ <material out of scope>
 
-🛡️ GARDE-FOUS
-✅ <applicable mandatory implementation rules>
+🛡️ GARDE-FOUS ✅ <applicable mandatory implementation rules>
 
-🧪 PREUVES ATTENDUES
-✅ <proof 1> · <proof 2> · <proof 3>
+🧪 PREUVES ATTENDUES ✅ <proof 1> · <proof 2> · <proof 3>
 
-📖 DOCUMENTATION PRÉVUE
-✅ Impactée · <mapped documentation scope>
+📖 DOCUMENTATION PRÉVUE ✅ Impactée · <mapped documentation scope>
 
-🧠 CONTEXTE
-✅ suffisant · continuer dans cette conversation
+🧠 CONTEXTE ✅ suffisant · continuer dans cette conversation
 ```
 
-Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep the content beneath scope, expected proof, and planned documentation each on exactly one line; keep the context content on exactly one line too. The guardrails line follows the same rule and uses ` · `. Objective, scope, expected proof, planned documentation, and context are always mandatory. Resolve `🧠 CONTEXTE` through `conversation-continuity-contract.md`; an unresolved material context gap forbids a successful start card. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
+Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep the two header lines adjacent, then render every start section as one complete line containing its icon, translated label, colon when the section contains prose, and content. Insert exactly one blank line between sections and separate compact items with ` · `. Objective, scope, expected proof, planned documentation, and context are always mandatory. Resolve `🧠 CONTEXTE` through `conversation-continuity-contract.md`; an unresolved material context gap forbids a successful start card. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding and give it the same single-line, blank-line-separated form.
 
 The planned documentation line uses exactly one of: `✅ Impactée · <scope included in the chantier>`, `➖ Non impactée · <concrete reason>`, or `⚠️ À confirmer · <surface>`. It is a plan, not a closure claim; only the closure card may use `updated`, `not impacted`, or `needs review`.
 
