@@ -71,7 +71,7 @@ When evidence cannot support `full`, select `partial`; never ask the operator to
 ## Stop Conditions
 
 - Do not claim done/closed without evidence and required guards.
-- Do not emit any closure result without the shared visual closure card and its one-line `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, and `📰 CHANGELOG` classifications.
+- Do not emit any closure result without the shared visual closure card whose label and content share one line and whose rows are separated by one blank line.
 - Do not mutate tracker/changelog when proof or docs status is materially incomplete unless closure mode is partial.
 - Do not mark product work as complete if documentation, editorial, or changelog status is materially `needs review`.
 - Do not include internal file paths in user `report=user`.
@@ -103,7 +103,7 @@ For `summary-only`, run read-only classification and reporting only; skip steps 
 ### Final closure summary
 
 - Use the shared ordered card: `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`.
-- Keep proof, documentation, editorial, and changelog evidence each on one line separated by ` · `.
+- Keep every label with its content on one line, separate rows with one blank line, and separate compact evidence items with ` · `.
 - Add `⚠️ LIMITES` only when material. Always print a useful `🧭 SUITE` selected through `reporting-contract.md`: continue unfinished work first, otherwise choose the strongest evidence-backed next outcome; never emit a null or no-action completion.
 - Any intentional mutation, including documentation-only work, with no commit, no push, a local-only commit, or a failed push is `delivery pending`; never pair `Aucun commit ni push` or `modifications locales prêtes` with a completed verdict.
 

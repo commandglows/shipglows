@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-07-26"
 updated: "2026-09-01"
@@ -26,6 +26,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: closure sections keep their label and classification on one line, separated from adjacent sections by a blank line."
   - "Operator request 2026-07-26: milestones and SGEND should automatically trigger technical-documentation reflection."
   - "Operator clarification 2026-08-15: closure is the primary enforcement point and its documentation verdict must be visible to the operator."
   - "Operator decision 2026-08-15: the visible documentation verdict sits beneath the main documentation icon on one line separated by middle dots."
@@ -87,11 +88,10 @@ When impacted canonical documentation is directly mapped to approved work, updat
 Every user-facing closure report must include the main documentation section icon and one compact evidence line in the user's active language, preserving one of the three stable status values:
 
 ```text
-📖 DOCUMENTATION
-✅ updated · <scope> | ➖ not impacted · <concrete reason> | ⚠️ needs review · <surface>
+📖 DOCUMENTATION ✅ updated · <scope>
 ```
 
-Choose exactly one status form; the alternatives above are not printed together. Keep its scope or reason on the same line and use ` · ` for additional compact items. The line is mandatory even for `not impacted`. A non-closure progress report may omit it. `needs review` forbids `closed`, `complete`, `done`, `resolved`, or `shipped` wording until the material gap is cleared.
+Choose exactly one status form: `📖 DOCUMENTATION ✅ updated · <scope>`, `📖 DOCUMENTATION ➖ not impacted · <concrete reason>`, or `📖 DOCUMENTATION ⚠️ needs review · <surface>`. The alternatives are not printed together. Keep the label, status, scope or reason on the same line, use ` · ` for additional compact items, and leave one blank line before the next report section. The line is mandatory even for `not impacted`. A non-closure progress report may omit it. `needs review` forbids `closed`, `complete`, `done`, `resolved`, or `shipped` wording until the material gap is cleared.
 
 Do not claim `updated` from a generic build alone. A mapped code change requires either the impacted documentation update or an explicit no-impact reason.
 
@@ -101,7 +101,7 @@ Update this reference when closure ownership, documentation routing, canonical d
 
 ## Pressure Scenarios
 
-- `DOC-CLOSE-VISIBLE`: a closure report without `📖 DOCUMENTATION` followed by `updated`, `not impacted · <concrete reason>`, or `needs review · <surface>` on one compact line fails even when tests and builds pass.
+- `DOC-CLOSE-VISIBLE`: a closure report without `📖 DOCUMENTATION` and its `updated`, `not impacted · <concrete reason>`, or `needs review · <surface>` classification on the same compact line fails even when tests and builds pass.
 - `DOC-CLOSE-BLOCKED`: a material `needs review` classification forces partial status and forbids completion or shipping language.
 - `DOC-CLOSE-UPDATE`: directly mapped documentation impacted by approved work is updated before closure in the same workstream.
 - `DOC-CLOSE-NO-FILLER`: an honestly unimpacted task records a concrete reason without creating ceremonial documentation.
