@@ -13,6 +13,7 @@ DELEGATION = ROOT / "skills" / "references" / "master-delegation-semantics.md"
 ROUTER = ROOT / "skills" / "000-shipglows" / "SKILL.md"
 WINDOWS_AGENT_INSTRUCTIONS = ROOT / "cli" / "windows" / "ShipGlows.AgentInstructions.psm1"
 PUBLIC_PLUGIN = ROOT / "plugins" / "shipglows" / "skills" / "shipglows" / "SKILL.md"
+REPORTING = ROOT / "skills" / "references" / "reporting-contract.md"
 
 
 class MutationPlanApprovalContractTests(unittest.TestCase):
@@ -241,6 +242,16 @@ class MutationPlanApprovalContractTests(unittest.TestCase):
             "MAP-GIT-UNCERTAIN-PRESERVE",
         ):
             self.assertIn(marker, self.text)
+
+    def test_reporting_continues_through_merge_ready_pr_and_cleanup(self) -> None:
+        reporting = REPORTING.read_text(encoding="utf-8")
+        for expected in (
+            "remains active in-scope delivery, not a next-step suggestion",
+            "attempt reconciliation into the resolved integration branch",
+            "proven-integrated temporary-artifact cleanup",
+            "Never stop merely because the pull request was opened or became green",
+        ):
+            self.assertIn(expected, reporting)
 
     def test_v_is_a_bounded_immediate_approval_shortcut(self) -> None:
         for expected in (

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.18.0"
+artifact_version: "2.19.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-09-03"
@@ -43,6 +43,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-03: a green merge-ready owned PR remains active delivery; reconciliation and proven cleanup precede returning control."
   - "Operator decisions 2026-05-03 through 2026-08-07 define concise human reports, explicit agent handoffs, chantier-first headers, safe choices, bounded recurrence claims, and compact topology receipts."
   - "Wave 13 retained the default user decision surface here and moved conditional handoff, blocked/audit, and maintenance scenarios to direct leaves."
   - "Operator decision 2026-08-13: unfinished report choices steer business direction and short interaction controls trigger guided follow-up."
@@ -170,6 +171,8 @@ Translate the seven labels and explanatory text into the user's active language 
 ## Mandatory Next Block
 
 Every final user report contains a `🧭 SUITE` block. It names one concrete evidence-backed next outcome, missing action or proof, or operator decision and is never `none`, “no action required,” an empty ceremonial menu, or a semantic equivalent. Before writing it, load and apply `skills/references/next-outcome-selection.md`: current conversation work and pending delivery beat active chantiers; active chantiers beat `P0 -> P1 -> P2 -> P3` tracker work; tracker work beats an overdue audit; only then select a grounded business improvement. Keep the result useful and concise, never omit the block, and never invent urgency or authority. When numbered choices follow, the block introduces the decision they resolve.
+
+An owned pull request that is merge-ready with required checks passing remains active in-scope delivery, not a next-step suggestion. Before returning control, use standing Git/GitHub stewardship authority to attempt reconciliation into the resolved integration branch and then apply proven-integrated temporary-artifact cleanup. Report a next action only when that attempt is blocked, and name the exact protection, review, conflict, check, ownership, or cleanup fact. Never stop merely because the pull request was opened or became green.
 
 If an in-scope continuation is already authorized and safely agent-runnable, continue it before final reporting. When selection reaches a new or materially expanded chantier, state the next outcome and preserve its normal approval boundary; selection itself never authorizes mutation.
 
