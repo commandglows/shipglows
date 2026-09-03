@@ -71,6 +71,27 @@ function Invoke-NativeMenuShortcut {
     return Get-Content -LiteralPath $CapturePath -Raw | ConvertFrom-Json
 }
 
+function Invoke-NativeSelfUpdate {
+    param([string]$Launcher,[string[]]$Arguments)
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $Launcher
+    $startInfo.Arguments = ($Arguments | ForEach-Object { '"' + $_.Replace('"','\"') + '"' }) -join ' '
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.CreateNoWindow = $true
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    if (-not $process.Start()) { throw 'The native self-update regression process did not start.' }
+    $stdout = $process.StandardOutput.ReadToEnd()
+    $stderr = $process.StandardError.ReadToEnd()
+    if (-not $process.WaitForExit(3000)) {
+        try { $process.Kill() } catch { }
+        throw 'The native self-update regression process did not exit promptly.'
+    }
+    return [pscustomobject]@{ ExitCode=$process.ExitCode; Stdout=$stdout; Stderr=$stderr }
+}
+
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('shipglows-native-launcher-' + [guid]::NewGuid().ToString('N'))
 try {
     New-Item -ItemType Directory -Path $fixture -Force | Out-Null
@@ -139,7 +160,7 @@ exit 23
     if ($forwardedExitCode -ne 23) { throw "The native launcher did not preserve the child exit code: $forwardedExitCode" }
     $capture = Get-Content -LiteralPath $capturePath -Raw | ConvertFrom-Json
     if (@($capture.arguments).Count -ne 3 -or $capture.arguments[0] -ne 'status' -or $capture.arguments[1] -ne '--literal=space value' -or $capture.arguments[2] -ne 'quote"value') {
-        throw 'The native launcher did not preserve command arguments.'
+        throw "The native launcher did not preserve command arguments: $($capture.arguments | ConvertTo-Json -Compress)"
     }
     if ([string]::IsNullOrWhiteSpace([string]$capture.managedMarker) -or -not ([string]$capture.managedMarker).EndsWith('\pwsh.exe',[StringComparison]::OrdinalIgnoreCase)) {
         throw 'The native launcher did not bind the child to the managed PowerShell coordinate.'
@@ -152,12 +173,21 @@ exit 23
     if (-not [string]::IsNullOrWhiteSpace([string]$startCapture.pickerDisabled)) {
         throw 'The native shortcut disabled the nested Gum project picker.'
     }
-    $updateCapture = Invoke-NativeMenuShortcut -Launcher $launcher -CapturePath $capturePath -Shortcut 'U'
-    if (@($updateCapture.arguments).Count -ne 1 -or $updateCapture.arguments[0] -ne 'u') {
-        throw 'The native U shortcut did not dispatch the ShipGlows update action.'
+    foreach ($updateArguments in @(@('update'), @('u'))) {
+        Remove-Item -LiteralPath $capturePath -Force -ErrorAction SilentlyContinue
+        $updateResult = Invoke-NativeSelfUpdate -Launcher $launcher -Arguments $updateArguments
+        if ($updateResult.ExitCode -ne 2) {
+            throw "The native self-update guard returned $($updateResult.ExitCode) instead of 2 for '$($updateArguments -join ' ')'."
+        }
+        if ($updateResult.Stderr -notmatch "Run 'shipglows update' in PowerShell instead") {
+            throw 'The native self-update guard did not provide the safe replacement command.'
+        }
+        if (Test-Path -LiteralPath $capturePath) {
+            throw 'The native self-update guard launched the PowerShell update path instead of stopping immediately.'
+        }
     }
 
-    Write-Host "Native Windows CLI launcher regression: OK menu_ready_ms=$([math]::Round($watch.Elapsed.TotalMilliseconds,1)) shells_before_selection=0 letter_map=complete hotkeys_S_U=dispatched pre_action_clear=guarded child_output=preserved nested_gum=enabled arrows_enter=owned arguments=preserved exit_code=preserved"
+    Write-Host "Native Windows CLI launcher regression: OK menu_ready_ms=$([math]::Round($watch.Elapsed.TotalMilliseconds,1)) shells_before_selection=0 letter_map=complete hotkey_S=dispatched native_self_update=blocked pre_action_clear=guarded child_output=preserved nested_gum=enabled arrows_enter=owned arguments=preserved exit_code=preserved"
 } finally {
     if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }
 }
