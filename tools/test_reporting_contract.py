@@ -241,11 +241,15 @@ class ReportingContractTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
         for rule in (
             "Do not use it while approval is pending",
-            "Keep the content beneath scope, expected proof, and planned documentation each on exactly one line",
+            "every start section as one complete line containing its icon, translated label",
+            "Insert exactly one blank line between sections",
             "Add `🧭 APPROCHE` only when the strategy materially improves operator understanding",
             "only the closure card may use `updated`, `not impacted`, or `needs review`",
         ):
             self.assertIn(rule, core)
+        rows = [row for row in card.strip().split("\n\n") if row]
+        self.assertEqual(len(rows), 6)
+        self.assertTrue(all("\n" not in row for row in rows))
         self.assertIn("SSRP-020 visual start card", scenarios)
         self.assertIn("SSRP-021 no technical path leakage", scenarios)
         self.assertIn("SSRP-037 visible context transition", scenarios)
