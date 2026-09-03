@@ -7,6 +7,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "005-sg-ship" / "SKILL.md"
+END_SKILL = ROOT / "skills" / "104-sg-end" / "SKILL.md"
 REFS = SKILL.parent / "references"
 SHARED = ROOT / "skills" / "references"
 
@@ -89,8 +90,16 @@ class ShipSkillContractTests(unittest.TestCase):
             "refreshed intended remote target contains the temporary branch tip",
             "tracked or untracked changes",
             "never infer that an ordinary operator",
-            "clean the exact owned scope automatically",
+            "clean it automatically",
             "never force branch deletion",
+        ):
+            self.assertIn(phrase, self.execution)
+        for phrase in (
+            "Always classify Git state at full closure",
+            "one small, exact, clean, task-owned artifact set",
+            "present one exact evidence-backed reconciliation/cleanup proposal",
+            "A proposed cleanup may be refused",
+            "record that choice as `retained-explicit`",
         ):
             self.assertIn(phrase, self.execution)
 
@@ -99,6 +108,12 @@ class ShipSkillContractTests(unittest.TestCase):
             "task-owned temporary branches and worktrees",
         ):
             self.assertIn(phrase, self.reporting)
+
+    def test_end_reporting_keeps_useful_next_outcome_without_null_completion(self) -> None:
+        end = END_SKILL.read_text(encoding="utf-8")
+        self.assertIn("strongest evidence-backed next outcome", end)
+        self.assertIn("never emit a null or no-action completion", end)
+        self.assertNotIn("explicit no-action-required completion", end)
 
     def test_agent_created_task_artifacts_have_a_terminal_git_disposition(self) -> None:
         for phrase in (
