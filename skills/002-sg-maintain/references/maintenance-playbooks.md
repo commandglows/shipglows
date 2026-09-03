@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-09-01"
+updated: "2026-09-04"
 status: active
 source_skill: 002-sg-maintain
 scope: maintenance-playbooks
@@ -19,6 +19,7 @@ linked_systems:
   - skills/references/master-delegation-semantics.md
   - skills/references/audit-cadence-matrix.json
   - skills/references/next-outcome-selection.md
+  - skills/references/vercel-cost-conscious-operations.md
 depends_on:
   - artifact: skills/references/master-workflow-lifecycle.md
     artifact_version: "1.8.0"
@@ -28,6 +29,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-04: Vercel Pro maintenance must optimize for measured, controlled consumption rather than speed or credit exhaustion, while preserving Hobby portability."
   - "Operator decision 2026-09-01: hygiene remains proposal-only for non-Git corrections while safe Git/GitHub convergence uses standing authority without validation prompts."
   - "2026-08-12: extracted 002-sg-maintain lane detail so its activation contract stays below the progressive-disclosure risk threshold."
   - "2026-08-16: operator approved a current-project-only, proposal-first hygiene audit."
@@ -103,6 +105,12 @@ Every delegated mission states the project root, active spec or mini-contract, m
 `security` first reviews bug files, then the optional bug index, for open high/critical security, auth, permission, data, webhook, or secret issues. Identify whether the project exposes auth, payments, webhooks, public APIs, multi-tenant data, admin actions, or production secrets. Route dependency and supply-chain posture to `010-sg-technical deps`; route code-level authn/authz, tenant/trust boundaries, secrets, webhooks, destructive actions, validation, secure failure, and abuse resistance to `010-sg-technical audit`.
 
 Create or continue a spec when remediation crosses the chantier threshold; execute only safe remediations through bounded owners. Verify and ship only when the security, dependency, documentation, and check gates pass. Missing `SECURITY.md`, `.env.example`, development mode, or preview-proof policy are gaps, not vulnerabilities by themselves. Recommend a dedicated security audit skill only when repeated security-only work proves that need; do not create it from this lane.
+
+## Vercel Economy Lane
+
+When Vercel is declared, load `skills/references/vercel-cost-conscious-operations.md`. In quick or hygiene mode, inspect only available project policy and provider evidence; do not mutate the account. Report plan-policy gaps, Standard/Enhanced/Turbo choice, concurrency mode, skipped/superseded build posture, spend ownership, current and projected usage when callable evidence exists, top resource contributors, preview protection, WAF review state, observability fit, and paid add-ons. Preserve Hobby compatibility as the baseline and never recommend consuming credit merely because it is included. Provider usage, billing, firewall, or protection state that is configured but not callable remains an evidence gap.
+
+In mutating maintenance, changing spend thresholds, billing, add-ons, build settings, deployment protection, WAF rules, domains, environments, or production availability retains its explicit provider/security authority. A spend webhook may open a redacted finding through a separately approved receiver, but it never silently pauses or resumes projects.
 
 ## Detailed Report
 

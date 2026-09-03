@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-05-16"
-updated: "2026-08-12"
+updated: "2026-09-04"
 status: active
 source_skill: 405-sg-prod
 scope: production-verification-workflow
@@ -18,6 +18,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-04: provider proof observes Vercel plan, cost, protection, and build policy without mutating them or treating Pro as a speed mandate."
   - "Wave 16 replaced the monolith with a compatibility core and direct conditional leaves."
 next_review: "2026-09-12"
 next_step: "/103-sg-verify 405-sg-prod compaction"
@@ -37,6 +38,7 @@ Compatibility core for deployment and hosted-runtime truth. Activation, canonica
 
 ## Direct Conditional Routes
 
+- Vercel plan, cost, build policy, protection, and provider-tool truth: load `references/prod-vercel-cost-and-protection.md` directly.
 - Target discovery, provider matching, terminal-state waiting, and status fallback: load `references/prod-deployment-evidence.md` directly.
 - URL/redirect/health checks and proof-boundary decisions: load `references/prod-health-and-proof.md` directly.
 - Build/runtime logs, Sentry, PM2/Doppler, and Blacksmith diagnostics: load `references/prod-runtime-diagnostics.md` directly.

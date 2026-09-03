@@ -103,6 +103,7 @@
           "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
           "release-route": ["skills/004-sg-deploy/references/release-confidence-workflow.md"],
           "development-mode": ["skills/references/project-development-mode.md"],
+          "vercel-cost-conscious-operations": ["skills/references/vercel-cost-conscious-operations.md"],
           "target-recommendation": ["skills/references/deploy-target-matrix.md"],
           "hosted-proof": ["skills/references/preview-proof-routing.md", "skills/004-sg-deploy/references/release-proof-routing.md"],
           "multi-stage-lifecycle": ["skills/references/master-workflow-lifecycle-core.md", "skills/references/master-delegation-core.md"],
@@ -285,6 +286,7 @@
         "body": "skills/405-sg-prod/SKILL.md",
         "baseline": ["skills/references/canonical-paths.md", "skills/405-sg-prod/references/production-verification-workflow.md"],
         "gates": {
+          "vercel-cost-conscious-operations": ["skills/405-sg-prod/references/prod-vercel-cost-and-protection.md"],
           "deployment-evidence": ["skills/405-sg-prod/references/prod-deployment-evidence.md"],
           "health-proof": ["skills/405-sg-prod/references/prod-health-and-proof.md"],
           "runtime-diagnostics": ["skills/405-sg-prod/references/prod-runtime-diagnostics.md"],

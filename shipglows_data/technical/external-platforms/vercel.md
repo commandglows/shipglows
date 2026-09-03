@@ -1,12 +1,12 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "1.0.0"
 project: ShipGlows
 created: "2026-05-24"
-updated: "2026-05-24"
-status: draft
-source_skill: sg-docs
+updated: "2026-09-04"
+status: active
+source_skill: 900-shipglows-core
 scope: external-platform-vercel
 owner: Diane
 confidence: high
@@ -19,15 +19,18 @@ linked_systems:
   - skills/004-sg-deploy/SKILL.md
   - skills/109-sg-auth-debug/references/vercel-tooling.md
   - skills/references/project-development-mode.md
+  - skills/references/vercel-cost-conscious-operations.md
 depends_on:
   - artifact: "shipglows_data/technical/external-platforms/README.md"
     artifact_version: "0.1.0"
     required_status: "draft"
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-04: use Pro for private organization repository deployment while keeping credit consumption measured, controlled, observed, and planned."
+  - "Fresh official Vercel docs checked on 2026-09-04 for Pro plans, spend management, builds, deployment protection, WAF, observability, analytics, and MCP."
   - "Fresh external docs checked on 2026-05-24 against official Vercel deployment, CLI, logs, environment variables, system environment variables, and changelog pages."
-next_review: "2026-06-24"
-next_step: "/sg-docs technical audit"
+next_review: "2026-10-04"
+next_step: none
 ---
 
 # Vercel Platform Note
@@ -52,10 +55,24 @@ Primary sources for Freshness Gate:
 | Runtime/request logs via CLI | https://vercel.com/docs/cli/logs |
 | Environment variables by Production, Preview, Development, Custom environments | https://vercel.com/docs/projects/environment-variables |
 | System environment variables | https://vercel.com/docs/environment-variables/system-environment-variables |
+| Pro plan and included credit | https://vercel.com/docs/plans/pro-plan |
+| Spend alerts, webhooks, and pause actions | https://vercel.com/docs/spend-management |
+| Build machines and concurrency | https://vercel.com/docs/builds/managing-builds |
+| Deployment protection | https://vercel.com/docs/deployment-protection |
+| Firewall and WAF | https://vercel.com/docs/vercel-firewall |
+| Observability | https://vercel.com/docs/observability |
+| Vercel MCP | https://vercel.com/docs/agent-resources/vercel-mcp |
 | Changelog and release signals | https://vercel.com/changelog |
 
-Freshness evidence on 2026-05-24:
+Freshness evidence on 2026-09-04:
 
+- Pro includes a monthly flexible credit and allocations, then permits on-demand billing; unused credit and allocations reset rather than accumulating.
+- Spend Management distinguishes notifications, webhooks, and an optional all-project production pause; setting a spend amount alone is not a hard stop.
+- New Pro projects may default to Turbo build machines and on-demand concurrency, both of which can create metered build cost.
+- Standard deployment protection can protect previews with Vercel Authentication; broader methods and scopes may require paid add-ons or Enterprise.
+- WAF and rate limiting are configurable provider controls with their own usage and false-positive consequences.
+- Vercel observability, Web Analytics, Speed Insights, and their Plus variants have different metering and add-on boundaries.
+- Vercel MCP is a provider/account evidence surface with OAuth and a current-client support list; it does not replace ShipGlows authority or redaction rules.
 - Vercel CLI docs were last updated February 10, 2026 and describe CLI access to logs, certificates, deployment environment replication, DNS records, and more.
 - Vercel Git deployment docs describe production deployments from the configured production branch and preview deployments from other branches or custom environment branches.
 - Vercel environment variable docs distinguish Production, Preview, Custom, and Development environments and describe `vercel env pull` for development variables.
@@ -77,6 +94,11 @@ Use `fresh-docs conflict` when current Vercel docs or provider state contradict 
 
 ## ShipGlows Decision Rules
 
+- Load `skills/references/vercel-cost-conscious-operations.md` for plan, spend, build, WAF, preview-protection, analytics, or provider-agent decisions.
+- Keep Hobby as the portable project baseline. A Pro account may be retained solely for private organization repository deployments without enabling other discretionary consumption.
+- Default to Standard builds and one active build per branch. Enhanced/Turbo machines, unrestricted concurrency, and paid add-ons require measured need, expected benefit, and a cost boundary.
+- Treat credits as a billing offset, never a consumption target. Prefer no spend over low-value speed or telemetry.
+- Spend notifications are the baseline. Webhook side effects need a declared receiver, while all-project pause/resume and billing changes require explicit operator authority.
 - Do not treat local success as hosted proof for projects whose validation surface is `vercel-preview-push`, hosted auth callbacks, hosted env vars, Edge/serverless behavior, CDN cache, or domain routing.
 - `sg-prod` owns deployment truth: matching deployment URL, status, provider logs, runtime logs, and ready/failed/pending state.
 - `sg-deploy` owns orchestration around release confidence and should route Vercel provider truth to `sg-prod`.
@@ -109,6 +131,7 @@ Use `templates/project_platform_usage.md` as the starter structure.
 - Treat deployment logs as potentially sensitive. Summarize only the error category, relevant route/function, status, timestamp, and redacted identifiers.
 - For auth projects, verify allowed callback domains and environment-specific secrets before concluding that code is at fault.
 - For production work, do not mutate domains, aliases, env vars, or production deployments without explicit user approval.
+- Treat protection-bypass values, billing identifiers, private preview URLs, and usage exports as sensitive evidence; never persist their raw values in governance.
 
 ## Validation
 

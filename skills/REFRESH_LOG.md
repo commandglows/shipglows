@@ -1,5 +1,45 @@
 # Skills Refresh Log
 
+## 2026-09-04 — 405-sg-prod
+
+**Added:** conditional Vercel cost-conscious provider-proof gate.
+
+**Updated:** production verification observes protection, build/concurrency policy, and exposed cost anomalies without triggering replacement builds or account mutations.
+
+**New phases:** none.
+
+**Sources:** 8 URLs consulted from current official Vercel plan, spend, build, protection, WAF, observability, analytics, and MCP documentation.
+
+## 2026-09-04 — 305-sg-init
+
+**Added:** economical Vercel plan, build, concurrency, spend, and preview-protection capture during project bootstrap.
+
+**Updated:** Hobby portability, Standard builds, and one build per branch are the defaults; bootstrap records policy without enabling provider features.
+
+**New phases:** none.
+
+**Sources:** 8 URLs consulted from current official Vercel plan, spend, build, protection, WAF, observability, analytics, and MCP documentation.
+
+## 2026-09-04 — 004-sg-deploy
+
+**Added:** a conditional shared Vercel economy contract in the measured activation profile.
+
+**Updated:** release orchestration reuses matching deployments and verifies that any necessary build respects the declared machine and concurrency policy.
+
+**New phases:** none.
+
+**Sources:** 8 URLs consulted from current official Vercel plan, spend, build, protection, WAF, observability, analytics, and MCP documentation.
+
+## 2026-09-04 — 002-sg-maintain
+
+**Added:** a Vercel economy lane covering plan intent, build policy, spend ownership, protection, WAF, observability, and add-ons.
+
+**Updated:** maintenance treats unused credit as acceptable, keeps Hobby compatible, and separates read-only findings from billing or production authority.
+
+**New phases:** none.
+
+**Sources:** 8 URLs consulted from current official Vercel plan, spend, build, protection, WAF, observability, analytics, and MCP documentation.
+
 ## 2026-09-03 - repository Git creation policy
 
 **Added:** per-repository `task_branch_policy` and `worktree_policy` in canonical technical guidelines, both fail-closed to `forbidden` through a read-only resolver.

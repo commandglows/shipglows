@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-01"
+updated: "2026-09-04"
 status: active
 source_skill: manual-doctrine-update
 scope: project-development-mode
@@ -27,9 +27,11 @@ linked_systems:
   - skills/107-sg-test
   - skills/302-sg-help
   - skills/references/sentry-observability.md
+  - skills/references/vercel-cost-conscious-operations.md
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-04: Vercel Hobby remains the portable baseline; Pro may exist only for private organization repository deployment while discretionary usage stays measured and economical."
   - "Operator decision 2026-09-01: validation surface stays separate from the non-live main versus live dev integration-branch policy."
   - "Some projects validate changes locally while others require Vercel preview deployments before meaningful tests."
   - "User directive 2026-06-11: runtime projects should document Sentry and a safe diagnostics/log-copy surface."
@@ -55,6 +57,11 @@ This contract answers where evidence is authoritative. It does not describe prod
 - ship_before_preview_test: yes | no | conditional
 - post_ship_verification: 405-sg-prod | other | none
 - deployment_provider: vercel | netlify | cloudflare | other | none
+- vercel_plan: hobby | pro | enterprise | unknown | not-applicable
+- vercel_build_machine_policy: standard-default | enhanced-measured | turbo-measured | unknown | not-applicable
+- vercel_build_concurrency_policy: one-per-branch | on-demand-measured | provider-default-unknown | not-applicable
+- vercel_spend_posture: team-owned | needs-review | unknown | not-applicable
+- vercel_preview_protection: vercel-authentication | other | none | unknown | not-applicable
 - preview_source: Vercel MCP deployment target_url | static URL | not applicable
 - production_url: [URL or unknown]
 - observability: sentry-required | sentry-static-exception | other
@@ -71,6 +78,8 @@ This contract answers where evidence is authoritative. It does not describe prod
 - `vercel-preview-push`: local static checks are allowed, but browser, integration, auth, webhook, deployed-runtime, or manual user-flow tests are not authoritative until the change has been pushed and the matching Vercel deployment is ready. The required sequence is `005-sg-ship` -> `405-sg-prod` -> test the returned deployment URL.
 - `hybrid`: use local validation for purely local UI, unit, and static checks. Use the `vercel-preview-push` sequence for anything that depends on hosted environment variables, OAuth/callback URLs, edge/serverless behavior, webhooks, production-like data, Vercel routing, or deployment configuration.
 
+For Vercel projects, load `skills/references/vercel-cost-conscious-operations.md`. Keep Hobby compatible as the portable baseline. A declared Pro plan may be retained solely to deploy private organization repositories; it never implies Turbo builds, unrestricted concurrency, paid add-ons, or a goal to consume included credit.
+
 ## Agent Rules
 
 - `102-sg-start` and `106-sg-fix` must read the project development mode before deciding how to validate a code change.
@@ -81,6 +90,7 @@ This contract answers where evidence is authoritative. It does not describe prod
 - If the development mode section is missing and Vercel signals exist (`.vercel/project.json`, `vercel.json`, Vercel dependencies, or Vercel remote status), classify the mode as `unknown-vercel`, report the gap, and ask or document the mode before running preview-dependent tests.
 - If no hosting signals exist, default to `local` with `confidence: medium` and recommend adding the section during the next `305-sg-init` or project setup pass.
 - For runtime projects, missing `observability`, `diagnostic_surface`, `logs_copy_action`, or `diagnostic_log_header` is setup debt. Static sites may use `sentry-static-exception` and `not applicable` only when the Sentry static-site exception applies.
+- For Vercel projects, missing plan, build-machine, build-concurrency, spend, or preview-protection policy is provider-governance debt, not permission to infer the dashboard state. Non-Vercel projects use `not-applicable` and do not load Pro requirements.
 
 ## Minimal Inference
 

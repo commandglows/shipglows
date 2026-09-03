@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "0.2.0"
+artifact_version: "0.3.0"
 project: "[project name]"
 created: "YYYY-MM-DD"
 updated: "YYYY-MM-DD"
@@ -54,6 +54,14 @@ Use the global provider note for general source links and ShipGlows rules:
 | --- | --- | --- | --- |
 | Production branch |  | no |  |
 | Preview branches/custom envs |  | no |  |
+| Provider plan |  | no | Use `unknown` rather than inference |
+| Plan capability reason |  | no | Name the required outcome; included credit is not a usage target |
+| Build machine policy |  | no | Prefer the economical default until measured evidence justifies more |
+| Build concurrency policy |  | no | Record queue policy and business justification |
+| Spend posture and owner |  | no | Never store billing identifiers or payment data |
+| Deployment protection |  | no | Never store bypass material |
+| Firewall/WAF review state |  | no | Record policy, not sensitive traffic evidence |
+| Paid add-ons |  | no | Disabled by default unless a named outcome justifies recurring cost |
 | Domains/callback origins |  | no | Use public origins only when safe |
 | Build command |  | no |  |
 | Output/runtime expectation |  | no |  |
