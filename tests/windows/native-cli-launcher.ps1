@@ -179,7 +179,7 @@ exit 23
         if ($updateResult.ExitCode -ne 2) {
             throw "The native self-update guard returned $($updateResult.ExitCode) instead of 2 for '$($updateArguments -join ' ')'."
         }
-        if ($updateResult.Stderr -notmatch "Run 'shipglows runtime update' in PowerShell instead") {
+        if ($updateResult.Stderr -notmatch "Run 'shipglows update runtime' in PowerShell instead") {
             throw 'The native self-update guard did not provide the safe replacement command.'
         }
         if (Test-Path -LiteralPath $capturePath) {

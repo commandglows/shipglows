@@ -19,31 +19,25 @@ while [ -L "$SCRIPT_SOURCE" ]; do
 done
 SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" && pwd)"
 
-# Runtime update is deliberately independent from the legacy DevServer bootstrap.
-# `s u` remains the package-update menu action; the explicit runtime namespace
-# delegates ShipGlows runtime writes to the canonical bootstrap.
-if [ "${1:-}" = "runtime" ]; then
-    if [ "${2:-}" = "update" ] && [ "$#" -eq 2 ]; then
-        exec bash "$SCRIPT_DIR/shipglows_update.sh"
-    fi
-    printf '%s\n' 'shipglows: expected: shipglows runtime update' >&2
-    exit 2
-fi
-
+# Updates are deliberately independent from the legacy DevServer bootstrap.
+# `s u` remains the package-update menu action; the update namespace requires
+# an explicit target before delegating to the corresponding control plane.
 if [ "${1:-}" = "update" ]; then
     shift
+    if [ "${1:-}" = "runtime" ] && [ "$#" -eq 1 ]; then
+        exec bash "$SCRIPT_DIR/shipglows_update.sh"
+    fi
     if [ "${1:-}" = "status" ] || [ "${1:-}" = "--check" ] || [ "${1:-}" = "check" ]; then
         exec bash "$SCRIPT_DIR/shipglows_update.sh" "$@"
     fi
     if [ "$#" -eq 0 ]; then
         printf '%s\n' \
-            'shipglows: choose an explicit update command:' \
-            '  shipglows runtime update' \
-            '  shipglows skills update' \
+            'shipglows: choose an explicit update target:' \
+            '  shipglows update runtime' \
             '  shipglows update status' >&2
         exit 2
     fi
-    printf '%s\n' 'shipglows: expected: shipglows update status' >&2
+    printf '%s\n' 'shipglows: expected: shipglows update <runtime|status>' >&2
     exit 2
 fi
 
