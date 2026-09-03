@@ -67,6 +67,9 @@ next_step: "/sg-docs audit"
 `delivery_posture` is required product truth: `development` means non-live;
 `published` means live; `sensitive-production` means live with stronger
 production safeguards. Do not derive it from runtime or hosting evidence alone.
+Status views render these states as `Dev` and `Live`. A Dev project receives a
+launch-protection review reminder; observed holding-page and email-capture
+state belongs in `shipglows_data/workflow/launch-protection.md`.
 
 ## Risks
 
