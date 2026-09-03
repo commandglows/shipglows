@@ -1,7 +1,7 @@
 ---
 name: 006-sg-design
 description: "Design systems, brand identity, accessibility, animation, and audits."
-argument-hint: <identity [scope] | system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...>
+argument-hint: <identity [scope] | interface [scope] | system [scope] | playground [route-path] | audit <ui|tokens|components|a11y> [scope] | animation <audit|design|implement|tune> [scope] | redesign [scope] | migration [scope] | library <add|retry|approve|list|status> ...>
 ---
 
 Primary artifact type: `master-workflow`.
@@ -65,6 +65,7 @@ When the request is ambiguous enough that one routing question cannot settle sco
 Use the exact mode grammar and playbook mapping from `design-lifecycle-routing.md`.
 
 - `identity` for visual identity creation or evolution from governed business, audience, positioning, and brand truth
+- `interface` for UI composition or evolution within established product, brand, and design-system direction
 - `system` for design-system creation
 - `playground` for token and route exploration
 - `audit ui|tokens|components|a11y` for bounded audits
