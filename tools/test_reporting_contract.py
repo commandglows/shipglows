@@ -134,6 +134,7 @@ class ReportingContractTests(unittest.TestCase):
             "📰 CHANGELOG",
             "📦 LIVRAISON",
             "🧠 CONTEXTE",
+            "🧭 SUITE",
         )
         card = core.split("For every successful closure report", 1)[1].split(
             "Translate the four labels", 1
@@ -141,15 +142,15 @@ class ReportingContractTests(unittest.TestCase):
         positions = [card.index(block) for block in ordered_blocks]
         self.assertEqual(positions, sorted(positions))
         for rule in (
-            "content beneath `🧪 PREUVES` on exactly one line",
-            "content beneath `📖 DOCUMENTATION` on exactly one line",
-            "content beneath `✏️ ÉDITORIAL` on exactly one line",
-            "content beneath `📰 CHANGELOG` on exactly one line",
-            "`🧠 CONTEXTE` on exactly one line",
-            "separate proof items with ` · `",
-            "`⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory",
+            "every section as one complete line containing its icon, translated label",
+            "insert exactly one blank line between sections",
+            "separate them with ` · `",
+            "`⚠️ LIMITES` is conditional",
         ):
             self.assertIn(rule, core)
+        rows = [row for row in card.strip().split("\n\n") if row]
+        self.assertEqual(len(rows), len(ordered_blocks))
+        self.assertTrue(all("\n" not in row for row in rows))
         self.assertIn("SSRP-019 visual closure card", scenarios)
 
     def test_closure_reports_classify_changelog_globally(self) -> None:

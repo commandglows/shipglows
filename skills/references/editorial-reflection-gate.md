@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-16"
 updated: "2026-09-01"
@@ -25,6 +25,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: closure sections keep their label and classification on one line, separated from adjacent sections by a blank line."
   - "Operator decision 2026-08-16: every closure receives an explicit editorial reflection in addition to documentation reflection."
   - "Operator correction 2026-09-01: no existing public promise requiring an update does not imply that no editorial or product opportunity exists."
 next_review: "2026-09-16"
@@ -113,13 +114,11 @@ public claim.
 Every closure report includes exactly one compact line:
 
 ```text
-✏️ ÉDITORIAL
-✅ updated · <aligned public surface>
+✏️ ÉDITORIAL ✅ updated · <aligned public surface>
 ```
 
-Use `➖ not impacted · <concrete reason>` or
-`⚠️ needs review · <named public surface>` when applicable. Keep the stable
-status value in English while translating the scope or reason.
+Use `✏️ ÉDITORIAL ➖ not impacted · <concrete reason>` or
+`✏️ ÉDITORIAL ⚠️ needs review · <named public surface>` when applicable. Keep the label and classification on one line, leave one blank line before the next report section, and preserve the stable status value in English while translating the scope or reason.
 
 ## Pressure Scenarios
 

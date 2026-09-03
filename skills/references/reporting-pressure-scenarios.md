@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.6.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-09-03"
@@ -18,6 +18,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: closure rows pair each label with its content and use blank lines between rows."
   - "Extracted from reporting-contract.md in wave 13 for maintenance-only loading."
   - "Operator decision 2026-08-13: reporting choices must carry strategic business value and short controls must trigger guided follow-up."
   - "Operator clarification 2026-08-15: closure reports must make documentation reflection visible."
@@ -62,7 +63,7 @@ next_step: none
 - `SSRP-016 guided reorientation`: selecting a short `Réorienter` control triggers concrete alternative business directions and their consequences; it never answers with a blank “toward what?”.
 - `SSRP-017 no blank-page handoff`: the operator receives evidence-backed framing, proposals, and a recommendation instead of being asked to invent strategy or technical mechanics.
 - `SSRP-018 visible closure docs`: any report claiming closed, complete, done, resolved, or shipped includes `📖 DOCUMENTATION`, then exactly one compact line using `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`; material `needs review` forbids closure language.
-- `SSRP-019 visual closure card`: a successful closure uses the seven ordered blocks `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, and `🧠 CONTEXTE`; proof, documentation, editorial, changelog, and context content each occupy one line with ` · ` separators, while an empty `⚠️ LIMITES` block is absent.
+- `SSRP-019 visual closure card`: a successful closure uses the eight ordered rows `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, `🧠 CONTEXTE`, and `🧭 SUITE`; every label shares one line with its content, exactly one blank line separates rows, compact items use ` · ` separators, and an empty `⚠️ LIMITES` row is absent.
 - `SSRP-020 visual start card`: after approval, a substantive chantier starts once with `🚀 Démarré` and the ordered blocks `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`, and `🧠 CONTEXTE`; the card never replaces a pending approval prompt or decorates a micro-action.
 - `SSRP-021 no technical path leakage`: `report=user` omits file names, paths, and clickable technical file links unless the operator must act on that exact artifact or explicitly requests detailed evidence.
 - `SSRP-022 reporting effort ceiling`: one meaningful proof may support a verdict; placeholder counts are not quotas; prose stays to one sentence per block; no extra check, audit, research, documentation, content, or detail is created solely for reporting, while proof and documentation genuinely required by the chantier remain mandatory.
