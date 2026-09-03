@@ -16,9 +16,9 @@ try {
     Assert-Sg ([bool](Get-Command Format-SgProjectStatus -ErrorAction SilentlyContinue)) 'The shared project status formatter is not exported.'
 
     $extension = Get-SgProjectExperience 'browser-extension' 3002
-    Assert-Sg ($extension.Label -eq 'Chrome extension') 'The extension label exposes an internal project kind.'
+    Assert-Sg ($extension.Label -eq 'Browser extension') 'The extension label exposes an internal project kind.'
     Assert-Sg ($extension.PortLabel -eq 'HMR :3002') 'The extension port is not identified as HMR.'
-    Assert-Sg ($extension.Artifact -eq 'dist\chrome') 'The extension descriptor omitted its unpacked directory.'
+    Assert-Sg ($extension.Artifact -eq 'generated browser-specific directory') 'The extension descriptor omitted its resolved unpacked-directory contract.'
     Assert-Sg ($extension.StartNextAction -match 's open') 'Extension Start does not route to Open.'
     Assert-Sg ($extension.OpenNextAction -match 'Developer mode' -and $extension.OpenNextAction -match 'Load unpacked') 'Extension Open omitted the Chrome loading steps.'
 
@@ -32,7 +32,7 @@ try {
     Assert-Sg ($androidApp.Label -eq 'Flutter Android app' -and $androidApp.PortLabel -eq 'Live session' -and $androidApp.OpenAction -match 'device or emulator') 'Flutter Android guidance is incomplete.'
 
     $summary = Format-SgProjectStatus ([pscustomobject]@{ status='running'; kind='browser-extension'; port=3002; Name='ToolGlows' })
-    Assert-Sg ($summary -match 'Chrome extension' -and $summary -match 'HMR :3002' -and $summary -match 'dist\\chrome') 'Extension dashboard/status output is not user-oriented.'
+    Assert-Sg ($summary -match 'Browser extension' -and $summary -match 'HMR :3002' -and $summary -match 'generated browser-specific directory') 'Extension dashboard/status output is not user-oriented.'
 
     $module = Get-Module ShipGlows.DevServer
     $typedStart = [datetime]::Parse('2026-08-27T23:38:41.0223973Z', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind)
@@ -50,7 +50,7 @@ try {
     New-Item -ItemType Directory -Path $fixture -Force | Out-Null
     [void](Write-SgProjectEnvironment $fixture 3002 -Kind 'browser-extension')
     $environment = [IO.File]::ReadAllText((Join-Path $fixture 'ENVIRONMENT.md'))
-    foreach ($expected in @('s start','s open','Developer mode','Load unpacked','dist\chrome','s stop')) {
+    foreach ($expected in @('s start','s open','Developer mode','Load unpacked','resolved generated directory','s stop')) {
         Assert-Sg ($environment.Contains($expected)) "Extension environment guidance omitted: $expected"
     }
     Assert-Sg ($environment -match '(?m)^- Chrome profile boundary: .+\r?\n- Live status authority:') 'The Chrome profile boundary and live-status authority are not separate environment lines.'
@@ -58,7 +58,7 @@ try {
     $frontend = [IO.File]::ReadAllText($frontendPath)
     Assert-Sg ($frontend -match "'status'") 'The Windows CLI has no project status action.'
     Assert-Sg ($frontend -match 'Open / load project') 'The Windows menu still implies that every project opens as a website.'
-    foreach ($expected in @('Web project','Flutter app','Chrome extension','s start -ProjectPath','s reload -ProjectPath','s open -ProjectPath','s status -ProjectPath','s stop -ProjectPath')) {
+    foreach ($expected in @('Web project','Flutter app','Browser extension','s start -ProjectPath','s reload -ProjectPath','s open -ProjectPath','s status -ProjectPath','s stop -ProjectPath')) {
         Assert-Sg ($frontend.Contains($expected)) "Windows help omitted: $expected"
     }
 

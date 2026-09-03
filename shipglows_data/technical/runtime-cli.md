@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.44.0"
+artifact_version: "1.45.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-02"
+updated: "2026-09-03"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -46,9 +46,10 @@ evidence:
   - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
   - "Unified update replay 2026-08-28: `shipglows update` selects the stable or linked channel, `s update status` reports the active Windows source, and a dirty linked worktree refuses bootstrap without stashing."
   - "Installed ToolGlows replay 2026-08-28: managed process identity compares UTC instants across Windows PowerShell string and PowerShell 7 DateTime JSON representations, so live projects no longer reconcile to stopped immediately after Start."
-  - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and CRXJS Chrome extensions with exact next actions instead of exposing internal project kinds."
+  - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and browser extensions with exact next actions instead of exposing internal project kinds."
   - "Installed-runtime replay 2026-08-27: registered projects are re-registered through the current detector before environment migration, preventing stale registry kinds after a new adapter is installed."
   - "Native Windows browser-extension adapter 2026-08-27: CRXJS projects with an explicit dev:chrome script use extension-specific package-manager, launch, readiness, environment and open contracts instead of generic Vite assumptions."
+  - "WXT extension convergence 2026-09-03: the Windows adapter recognizes reviewed WXT dev contracts, resolves browser-specific MV3 outputs, keeps CRXJS compatibility, and aligns the native-first Vue creation preset with isolated Lab proof."
   - "Linux pressure rescue 2026-08-26: Health combines available RAM, swap use and optional Linux PSI, renders a critical recovery route, and can stop only revalidated confirmed Vercel CLI groups that are detached, heavy, old and free of protected processes."
   - "Native Windows Doppler boundary 2026-08-26: the installer provisions and reports the CLI for agents, while automatic DevServer secret injection remains disabled until a project-specific dev/staging contract is declared and proven."
   - "CommandGlows onboarding audit 2026-08-26: a cloned repository is preserved when registration fails, but the Windows clone command now exits with an explicit preparation failure instead of reporting command success."
@@ -293,7 +294,7 @@ target the environment root, never only the nested application directory.
 
 ### Browser Extension Lab
 
-`s extension-inspect` performs bounded, read-only detection of a root `manifest.json`, common built outputs, or the reviewed CRXJS `dev:chrome` contract. A generic project `manifest.json` without the browser-extension field `manifest_version` is ignored instead of being misclassified; a declared but invalid extension manifest still fails closed. Detection does not install dependencies or execute repository scripts, and multiple artifacts fail closed instead of selecting a potentially stale build.
+`s extension-inspect` performs bounded, read-only detection of a root `manifest.json`, common built outputs, a reviewed CRXJS `dev:chrome` contract, or a WXT `dev`/`dev:chrome` contract. A generic project `manifest.json` without the browser-extension field `manifest_version` is ignored instead of being misclassified; a declared but invalid extension manifest still fails closed. Detection does not install dependencies or execute repository scripts. WXT selects its production `.output/<browser>-mv3` artifact before its development output; legacy/static ambiguity still fails closed instead of selecting a potentially stale build.
 
 `s extension-lab` accepts one valid Manifest V3 artifact and delegates structured arguments to the pinned ShipGlows Playwright runtime. `-Browser Chromium|Edge|Vivaldi|Firefox` selects a browser-specific artifact and backend while retaining managed Chromium as the default. Chromium-family browsers load through isolated flags plus the capability-checked CDP Extensions fallback; Firefox uses the managed Firefox binary and temporary WebDriver BiDi installation. JSON `browser` evidence includes requested product, engine, exact executable, file version, observed runtime version and `isolatedProfile`. `-ClickSelector` clicks exactly one element, `-VisualSelector` returns bounded DOM, bounds and a fixed computed-style allowlist, and `-Screenshot` retains a `1280 × 800` PNG outside the disposable profile. `-Headless` closes after proof; interactive mode remains open until the isolated browser closes. Personal browser profiles are never targets.
 
@@ -320,7 +321,7 @@ not as internal detector kinds:
 | --- | --- | --- |
 | Astro, Vite, or Python/FastAPI | `Web project` and `URL :<port>` | Start prepares the local server; Open launches its loopback URL. |
 | Flutter Web | `Flutter app` and `App :<port>` | Start prepares the managed headless session; Open switches to the visible managed Chrome session. |
-| CRXJS Chrome extension | `Chrome extension`, `HMR :<port>`, and `dist\chrome` | Start prepares Manifest V3 plus HMR; Open launches `chrome://extensions` and the unpacked output folder. |
+| WXT or CRXJS browser extension | `Browser extension`, `HMR :<port>`, and the resolved generated directory | Start prepares the Chrome Manifest V3 development output plus HMR; Open launches `chrome://extensions` and the exact unpacked output folder. |
 | Obsidian plugin | `Obsidian plugin` plus `detected`, `configured`, `build-required`, `running`, or `ready` | Start runs the declared watch script without an HTTP port, copies fresh artifacts to one explicitly configured vault, and Open gives manual reload guidance. |
 
 `s help`, `s status`, the dashboard, the picker and post-registration output
@@ -332,12 +333,12 @@ The interactive menu exposes the same actions, including `Open / load project`.
 If Open targets a stopped project, it identifies the selected experience and
 returns the exact Start command instead of reporting an ambiguous missing URL.
 
-An extension's reserved port belongs to the Vite/CRXJS hot-module-reload
+An extension's reserved port belongs to the WXT or Vite/CRXJS hot-module-reload
 channel; it is not a website URL. After Open, the operator still enables
-Developer mode, chooses Load unpacked, and selects `dist\chrome`. ShipGlows
+Developer mode, chooses Load unpacked, and selects the resolved `.output/chrome-mv3-dev`, `.output/chrome-mv3`, or `dist\chrome` directory. ShipGlows
 opens the relevant tools but never silently installs an extension into a
-personal Chrome profile. Current automatic detection is deliberately bounded
-to a declared `@crxjs/vite-plugin` dependency plus an explicit `dev:chrome`
+personal Chrome profile. Automatic detection is deliberately bounded
+to a declared `wxt` dependency plus `dev`/`dev:chrome`, or `@crxjs/vite-plugin` plus an explicit `dev:chrome`
 script; unsupported extension stacks are not presented as automatically
 managed.
 
@@ -351,10 +352,10 @@ identity.
 Dependency setup passes native package-manager arguments as explicit string arrays: `package-lock.json` and `npm-shrinkwrap.json` select the single `ci` token, while projects without an npm lock use `install`. A pnpm lockfile keeps pnpm, and an exact `packageManager: pnpm@x.y.z` declaration is executed through Corepack so ShipGlows does not substitute its machine-wide pnpm version. For a nested Node surface, discovery stays bounded to its enclosing repository (itself bounded to the configured ShipGlows workspace) and inherits a parent npm/pnpm workspace only when that workspace explicitly includes the surface; this also applies when the surface is registered directly with `-ProjectPath`. Installation, lock ownership, and the shared setup mutex then belong to that workspace root, while unrelated nested projects remain standalone. A versioned per-project state below the DevServer runtime records an invariant digest of the surface and owning-workspace manifests, lockfiles, exact manager, arguments and artifact strategy only after the package manager succeeds, the expected framework package plus manager/Python/Dart artifacts exist, and the inputs still match their pre-install digest. A bounded interprocess lock serializes setup; the previous state is invalidated before a required attempt, so an unsupported schema, changed execution plan, moving inputs, missing artifacts, or a failed/partial attempt cannot be reused.
 
 A Node surface is classified as `browser-extension` before generic Vite only
-when it declares `@crxjs/vite-plugin` and an explicit `dev:chrome` script.
-Start runs that script with ShipGlows' reserved loopback HMR port. Readiness
+when it declares either supported WXT or CRXJS contract.
+Start runs the selected script with ShipGlows' reserved loopback HMR port; WXT is pinned to Chrome and Manifest V3 for the managed development session. Readiness
 requires the managed process, its listener, and a fresh valid Manifest V3 under
-`dist/chrome`; an old package
+the resolved WXT or CRXJS output; an old package
 or an HTTP response alone cannot mark the extension running. Open launches the
 browser extension manager beside the generated unpacked directory and never
 silently installs into a personal browser profile.
@@ -654,8 +655,8 @@ canonical loopback URL. Browser extensions instead record that a normal page URL
 status, so start and stop do not create tracked-document churn. `s open` uses
 the active registry entry instead of guessing from repository scripts.
 For an extension, that managed block also records the complete operator route:
-Start, Open, enable Chrome Developer mode, choose Load unpacked, select
-`dist\chrome`, then Stop. It repeats that personal-profile installation always
+Start, Open, enable Chrome Developer mode, choose Load unpacked, select the
+resolved generated directory, then Stop. It repeats that personal-profile installation always
 requires an explicit user action.
 
 The managed block carries the explicit schema

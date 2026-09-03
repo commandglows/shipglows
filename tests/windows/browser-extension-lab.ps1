@@ -9,8 +9,8 @@ $cliPath = Join-Path $root 'cli\windows\shipglows-devserver.ps1'
 $runnerPath = Join-Path $root 'cli\windows\ShipGlows.ExtensionLab.js'
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ("sg-extension-lab-{0}" -f [guid]::NewGuid().ToString('N'))
 try {
-    $static = Join-Path $fixture 'static'; $built = Join-Path $fixture 'built'; $multiBrowser = Join-Path $fixture 'multi-browser'; $ambiguous = Join-Path $fixture 'ambiguous'; $ordinary = Join-Path $fixture 'ordinary'
-    foreach ($path in @($static,$built,$multiBrowser,$ambiguous,$ordinary)) { New-Item -ItemType Directory -Path $path -Force | Out-Null }
+    $static = Join-Path $fixture 'static'; $built = Join-Path $fixture 'built'; $multiBrowser = Join-Path $fixture 'multi-browser'; $wxt = Join-Path $fixture 'wxt'; $ambiguous = Join-Path $fixture 'ambiguous'; $ordinary = Join-Path $fixture 'ordinary'
+    foreach ($path in @($static,$built,$multiBrowser,$wxt,$ambiguous,$ordinary)) { New-Item -ItemType Directory -Path $path -Force | Out-Null }
     [IO.File]::WriteAllText((Join-Path $static 'manifest.json'),'{' + '"name":"Static","version":"1.0.0","manifest_version":3}',[Text.UTF8Encoding]::new($false))
     New-Item -ItemType Directory -Path (Join-Path $built 'dist\chrome') -Force | Out-Null
     [IO.File]::WriteAllText((Join-Path $built 'dist\chrome\manifest.json'),'{' + '"name":"Built","version":"2.0.0","manifest_version":3}',[Text.UTF8Encoding]::new($false))
@@ -18,6 +18,13 @@ try {
     New-Item -ItemType Directory -Path (Join-Path $multiBrowser 'dist\firefox') -Force | Out-Null
     [IO.File]::WriteAllText((Join-Path $multiBrowser 'dist\chrome\manifest.json'),'{' + '"name":"Chrome","version":"2.0.0","manifest_version":3}',[Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $multiBrowser 'dist\firefox\manifest.json'),'{' + '"name":"Firefox","version":"2.0.0","manifest_version":3}',[Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $wxt 'package.json'), '{"name":"wxt-lab","scripts":{"dev":"wxt"},"devDependencies":{"wxt":"^0.21.4","vue":"^3.5.0"}}', [Text.UTF8Encoding]::new($false))
+    New-Item -ItemType Directory -Path (Join-Path $wxt '.output\chrome-mv3') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $wxt '.output\chrome-mv3-dev') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $wxt '.output\firefox-mv3') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $wxt '.output\chrome-mv3\manifest.json'),'{' + '"name":"WXT Chrome","version":"3.0.0","manifest_version":3}',[Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $wxt '.output\chrome-mv3-dev\manifest.json'),'{' + '"name":"WXT Chrome Dev","version":"3.0.0","manifest_version":3}',[Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $wxt '.output\firefox-mv3\manifest.json'),'{' + '"name":"WXT Firefox","version":"3.0.0","manifest_version":3}',[Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $ambiguous 'manifest.json'),'{' + '"name":"Source","version":"1.0.0","manifest_version":3}',[Text.UTF8Encoding]::new($false))
     New-Item -ItemType Directory -Path (Join-Path $ambiguous 'dist') -Force | Out-Null
     [IO.File]::WriteAllText((Join-Path $ambiguous 'dist\manifest.json'),'{' + '"name":"Dist","version":"1.0.0","manifest_version":3}',[Text.UTF8Encoding]::new($false))
@@ -28,6 +35,9 @@ try {
     Assert-Sg ($builtDescriptor.Mode -eq 'built' -and $builtDescriptor.RelativeManifestPath -eq 'dist/chrome/manifest.json') 'Built extension was not detected.'
     Assert-Sg ((Get-SgBrowserExtensionDescriptor $multiBrowser Chromium).RelativeManifestPath -eq 'dist/chrome/manifest.json') 'Chromium did not select its browser-specific artifact.'
     Assert-Sg ((Get-SgBrowserExtensionDescriptor $multiBrowser Firefox).RelativeManifestPath -eq 'dist/firefox/manifest.json') 'Firefox did not select its browser-specific artifact.'
+    $wxtChromium = Get-SgBrowserExtensionDescriptor $wxt Chromium
+    Assert-Sg ($wxtChromium.Framework -eq 'wxt' -and $wxtChromium.RelativeManifestPath -eq '.output/chrome-mv3/manifest.json') 'WXT did not prefer its production Chromium MV3 artifact deterministically.'
+    Assert-Sg ((Get-SgBrowserExtensionDescriptor $wxt Firefox).RelativeManifestPath -eq '.output/firefox-mv3/manifest.json') 'WXT did not select its Firefox MV3 artifact.'
     Assert-Sg ((Get-SgProjectKind $static) -eq 'browser-extension') 'Static extension was not classified as runnable.'
     Assert-Sg ($null -eq (Get-SgBrowserExtensionDescriptor $ordinary)) 'An ordinary manifest was misclassified as a browser extension.'
     $rejected = $false; try { Get-SgBrowserExtensionDescriptor $ambiguous | Out-Null } catch { $rejected = $_.Exception.Message -match 'Multiple browser extension artifacts' }

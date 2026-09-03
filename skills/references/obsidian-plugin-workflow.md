@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-09-02"
-updated: "2026-09-02"
+updated: "2026-09-03"
 status: active
 source_skill: 900-shipglows-core
 scope: obsidian-plugin-workflow
@@ -23,6 +23,7 @@ supersedes: []
 evidence:
   - "The specialized classifier, declared-vault watch workflow, disposable Lab, and focused Windows tests were delivered on 2026-09-02."
   - "DreamGlows loaded and executed its dashboard command in a disposable Obsidian profile and vault without modifying personal Obsidian state."
+  - "Operator-approved greenfield creation preset added on 2026-09-03: official TypeScript and esbuild-compatible foundation, desktop-plus-mobile support, native UI first, and Vue 3 for rich UI."
 next_review: "2026-12-02"
 next_step: none
 ---
@@ -30,6 +31,12 @@ next_step: none
 # Obsidian Plugin Workflow
 
 Use this workflow when ShipGlows classifies the target as `obsidian-plugin` or repository evidence includes an Obsidian `manifest.json`, the `obsidian` package, a plugin entry point, and a declared build or development script. Do not apply it to an ordinary website merely because the project uses Vite.
+
+## Greenfield creation contract
+
+For a new Obsidian plugin with no accepted technical direction, apply the Obsidian preset in `preferred-stacks.md`: the official `obsidian` TypeScript API, strict TypeScript, pnpm, and an esbuild-compatible artifact build. Support desktop and mobile by default; `isDesktopOnly: true` requires an essential verified Node.js or Electron dependency.
+
+Use Obsidian components, DOM helpers, views, settings patterns, icons, and CSS variables for simple host-native interfaces. Use Vue 3 for a rich dashboard, complex settings, multi-step modal, or substantial reactive view; React is not a default. Mount Vue only inside an Obsidian-owned container, retain its application handle, and unmount it when the view or modal closes and again defensively during plugin unload. Commands, vault access, persistence, events, and registration remain owned by the Obsidian plugin lifecycle.
 
 ## Agent contract
 

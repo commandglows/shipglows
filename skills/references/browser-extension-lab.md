@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-29"
-updated: "2026-09-02"
+updated: "2026-09-03"
 status: active
 source_skill: 300-sg-docs
 scope: browser-extension-lab
@@ -21,6 +21,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Chrome BRAT loaded through the ShipGlows Extension Lab in temporary Chromium on 2026-08-29."
+  - "Operator-approved greenfield creation preset added on 2026-09-03: WXT, strict TypeScript, pnpm, Manifest V3, multi-browser output, native UI first, and Vue 3 for rich UI."
 next_review: "2026-11-29"
 next_step: none
 ---
@@ -29,10 +30,14 @@ next_step: none
 
 Use the Extension Lab when the target is a browser extension rather than a website URL.
 
+## Greenfield creation contract
+
+For a new browser extension with no accepted technical direction, apply the browser-extension preset in `preferred-stacks.md`: WXT, strict TypeScript, pnpm, Manifest V3, and Chromium-family plus Firefox output. Keep simple interface entrypoints native. Use Vue 3 for rich, stateful, multi-step, or component-heavy interface entrypoints; do not introduce React as a default or add Vue to background logic. The standard WXT configuration disables its own browser startup so ShipGlows retains isolated-profile ownership. Ask only when a product consequence such as supported browsers, permissions, authenticated access, remote services, or store distribution remains materially unresolved.
+
 ## Agent contract
 
 1. Run `s extension-inspect -ProjectPath <path> -Json` before any repository script.
-2. Treat `static` and `built` as directly testable. Treat `build-required` as a stop: inspect the repository and obtain the authority required for its declared build command.
+2. Treat `static` and `built` as directly testable. WXT resolves production `.output/<browser>-mv3` before its development output; CRXJS and static layouts retain ambiguity refusal. Treat `build-required` as a stop: inspect the repository and obtain the authority required for its declared build command.
 3. Run `s extension-lab -ProjectPath <path> -Browser <Chromium|Edge|Vivaldi|Firefox> -Headless -Json` for deterministic proof, or omit `-Headless` for an interactive isolated window. Add `-Screenshot` when retained visual evidence is required. The default remains managed Chromium.
 4. When content-script behavior is in scope, add `-TargetUrl <explicit-http-or-https-url>`. Never invent a target or navigate to an authenticated/private page without authority. With `-Screenshot`, the Lab captures that target after the bounded content-script wait; without `-TargetUrl`, Chromium-family browsers capture the declared popup.
 5. Add `-ClickSelector <css>` to click exactly one element and `-VisualSelector <css>` to return bounded DOM text, visibility, bounds and the fixed computed-style allowlist. A selector matching zero or several elements fails visibly.

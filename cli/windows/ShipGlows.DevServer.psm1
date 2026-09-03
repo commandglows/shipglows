@@ -250,9 +250,18 @@ function Get-SgNodeScript([object]$Package, [string]$Name) {
 }
 
 function Test-SgBrowserExtensionPackage([object]$Package) {
-    if (-not (Get-SgNodeScript $Package 'dev:chrome')) { return $false }
     $dependencies = @(Get-SgNodeDependencyNames $Package)
-    return $dependencies -contains '@crxjs/vite-plugin'
+    if ($dependencies -contains 'wxt') {
+        return [bool]((Get-SgNodeScript $Package 'dev:chrome') -or (Get-SgNodeScript $Package 'dev'))
+    }
+    return ($dependencies -contains '@crxjs/vite-plugin') -and [bool](Get-SgNodeScript $Package 'dev:chrome')
+}
+
+function Get-SgBrowserExtensionFramework([object]$Package) {
+    $dependencies = @(Get-SgNodeDependencyNames $Package)
+    if ($dependencies -contains 'wxt') { return 'wxt' }
+    if ($dependencies -contains '@crxjs/vite-plugin') { return 'crxjs' }
+    return $null
 }
 
 function Get-SgObsidianDevelopmentScript([object]$Package) {
@@ -353,6 +362,18 @@ function Get-SgBrowserExtensionDescriptor([string]$ProjectPath, [string]$Browser
     $root = ConvertTo-SgCanonicalPath $ProjectPath
     $browserName = $Browser.Trim().ToLowerInvariant()
     if ($browserName -notin @('chromium','edge','vivaldi','firefox')) { throw 'Browser must be one of: Chromium, Edge, Vivaldi, Firefox.' }
+    $package = Read-SgNodePackage $root
+    $framework = Get-SgBrowserExtensionFramework $package
+    $wxtCandidates = if ($browserName -eq 'firefox') { @('.output\firefox-mv3\manifest.json','.output\firefox-mv3-dev\manifest.json') } else { @('.output\chrome-mv3\manifest.json','.output\chrome-mv3-dev\manifest.json') }
+    if ($framework -eq 'wxt') {
+        foreach ($relative in $wxtCandidates) {
+            $manifestPath = Join-Path $root $relative
+            if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { continue }
+            $manifest = Read-SgBrowserExtensionManifest $manifestPath
+            if (-not $manifest) { continue }
+            return [pscustomobject]@{ProjectPath=$root;ExtensionPath=[IO.Path]::GetFullPath((Split-Path $manifestPath -Parent));ManifestPath=[IO.Path]::GetFullPath($manifestPath);RelativeManifestPath=$relative.Replace('\','/');ManifestVersion=[int]$manifest.manifest_version;Name=[string]$manifest.name;Version=[string]$manifest.version;Mode='built';Framework='wxt'}
+        }
+    }
     $platformCandidates = if ($browserName -eq 'firefox') { @('dist\firefox\manifest.json','build\firefox\manifest.json','output\firefox\manifest.json') } else { @('dist\chrome\manifest.json','build\chrome\manifest.json','output\chrome\manifest.json') }
     $relativeCandidates = @('manifest.json') + $platformCandidates + @('dist\manifest.json','build\manifest.json','extension\manifest.json')
     $matches = New-Object 'System.Collections.Generic.List[object]'
@@ -361,15 +382,14 @@ function Get-SgBrowserExtensionDescriptor([string]$ProjectPath, [string]$Browser
         if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { continue }
         $manifest = Read-SgBrowserExtensionManifest $manifestPath
         if (-not $manifest) { continue }
-        [void]$matches.Add([pscustomobject]@{ProjectPath=$root;ExtensionPath=[IO.Path]::GetFullPath((Split-Path $manifestPath -Parent));ManifestPath=[IO.Path]::GetFullPath($manifestPath);RelativeManifestPath=$relative.Replace('\','/');ManifestVersion=[int]$manifest.manifest_version;Name=[string]$manifest.name;Version=[string]$manifest.version;Mode=$(if($relative -eq 'manifest.json'){'static'}else{'built'})})
+        [void]$matches.Add([pscustomobject]@{ProjectPath=$root;ExtensionPath=[IO.Path]::GetFullPath((Split-Path $manifestPath -Parent));ManifestPath=[IO.Path]::GetFullPath($manifestPath);RelativeManifestPath=$relative.Replace('\','/');ManifestVersion=[int]$manifest.manifest_version;Name=[string]$manifest.name;Version=[string]$manifest.version;Mode=$(if($relative -eq 'manifest.json'){'static'}else{'built'});Framework=$framework})
     }
     if ($matches.Count -gt 1) { $paths=($matches|ForEach-Object{$_.RelativeManifestPath})-join', ';throw "Multiple browser extension artifacts were detected ($paths). Remove stale outputs or choose the exact extension directory." }
     if ($matches.Count -eq 1) { return $matches[0] }
-    $package = Read-SgNodePackage $root
     if ($package -and (Test-SgBrowserExtensionPackage $package)) {
         $packageName = if ($package.PSObject.Properties['name'] -and $package.name) { [string]$package.name } else { Split-Path $root -Leaf }
         $packageVersion = if ($package.PSObject.Properties['version'] -and $package.version) { [string]$package.version } else { '' }
-        return [pscustomobject]@{ProjectPath=$root;ExtensionPath=$null;ManifestPath=$null;RelativeManifestPath=$null;ManifestVersion=0;Name=$packageName;Version=$packageVersion;Mode='build-required'}
+        return [pscustomobject]@{ProjectPath=$root;ExtensionPath=$null;ManifestPath=$null;RelativeManifestPath=$null;ManifestVersion=0;Name=$packageName;Version=$packageVersion;Mode='build-required';Framework=$framework}
     }
     return $null
 }
@@ -712,13 +732,13 @@ function Get-SgProjectExperience([string]$Kind, [int]$Port = 0, [string]$Flutter
         }
         'browser-extension' {
             return [pscustomobject]@{
-                Label = 'Chrome extension'
+                Label = 'Browser extension'
                 PortLabel = "HMR $portValue"
-                Artifact = 'dist\chrome'
-                StartOutcome = 'Manifest V3 build ready in dist\chrome'
+                Artifact = 'generated browser-specific directory'
+                StartOutcome = 'Manifest V3 build ready in the generated browser-specific directory'
                 StartNextAction = 'Next: run s open -ProjectPath <path> to open Chrome extension tools.'
                 OpenAction = 'Open chrome://extensions and the unpacked directory.'
-                OpenNextAction = 'In Chrome, enable Developer mode, choose Load unpacked, and select dist\chrome.'
+                OpenNextAction = 'In Chrome, enable Developer mode, choose Load unpacked, and select the resolved generated directory.'
             }
         }
         { $_ -in @('flutter','flutter-web') } {
@@ -1725,7 +1745,8 @@ function Test-SgDependencyArtifacts([string]$ProjectPath, [string]$Kind, [object
         $projectNodeModules = Join-Path $context.ProjectPath 'node_modules'
         $managerArtifact=if($managerName-eq'pnpm'){Test-Path -LiteralPath (Join-Path $installNodeModules '.modules.yaml') -PathType Leaf}else{Test-Path -LiteralPath (Join-Path $installNodeModules '.package-lock.json') -PathType Leaf}
         if($Kind-eq'browser-extension'){
-            $frameworkRelative='@crxjs\vite-plugin\package.json'
+            $extensionFramework = Get-SgBrowserExtensionFramework $context.Package
+            $frameworkRelative = if ($extensionFramework -eq 'wxt') { 'wxt\package.json' } else { '@crxjs\vite-plugin\package.json' }
         }elseif($Kind-eq'obsidian-plugin'){
             $frameworkRelative='obsidian\package.json'
         }else{$frameworkRelative="$Kind\package.json"}
@@ -1882,8 +1903,12 @@ function Get-SgLaunchSpec([string]$ProjectPath, [string]$Kind, [int]$Port, [bool
         $file = $env:ComSpec
         $prefix = if (@($packageManager.PrefixArguments).Count -gt 0) { ' ' + (@($packageManager.PrefixArguments) -join ' ') } else { '' }
         if ($Kind -eq 'browser-extension') {
+            $extensionPackage = Read-SgNodePackage $ProjectPath
+            $extensionFramework = Get-SgBrowserExtensionFramework $extensionPackage
+            $developmentScript = if (Get-SgNodeScript $extensionPackage 'dev:chrome') { 'dev:chrome' } elseif ($extensionFramework -eq 'wxt' -and (Get-SgNodeScript $extensionPackage 'dev')) { 'dev' } else { throw 'Browser extension development script is unavailable. Declare a reviewed dev:chrome script, or a WXT dev script.' }
             $optionSeparator = if ($packageManager.Name -eq 'pnpm') { '' } else { ' --' }
-            $command = "call `"$($packageManager.Manager)`"$prefix run dev:chrome$optionSeparator --host 127.0.0.1 --port $Port & rem $signature"
+            $browserArguments = if ($extensionFramework -eq 'wxt') { ' --browser chrome --mv3' } else { '' }
+            $command = "call `"$($packageManager.Manager)`"$prefix run $developmentScript$optionSeparator$browserArguments --host 127.0.0.1 --port $Port & rem $signature"
         } elseif ($packageManager.Name -eq 'pnpm') {
             $command = "call `"$($packageManager.Manager)`"$prefix exec vite --host 127.0.0.1 --port $Port & rem $signature"
         } else {
@@ -2122,7 +2147,11 @@ function Wait-SgProjectReady([string]$Kind, [int]$Port, [string]$LogPath, [int]$
 }
 
 function Get-SgBrowserExtensionManifestPaths([string]$ProjectPath) {
-    return @((Join-Path $ProjectPath 'dist\chrome\manifest.json'))
+    return @(
+        (Join-Path $ProjectPath '.output\chrome-mv3-dev\manifest.json'),
+        (Join-Path $ProjectPath '.output\chrome-mv3\manifest.json'),
+        (Join-Path $ProjectPath 'dist\chrome\manifest.json')
+    )
 }
 
 function Test-SgBrowserExtensionManifest([string]$Path, [DateTime]$FreshSinceUtc) {
@@ -2492,8 +2521,8 @@ function Write-SgProjectEnvironment([string]$ProjectPath, [int]$Port = 0, [strin
     $extensionGuidance = if ($Kind -eq 'browser-extension') {
 (@"
 - Browser target: ``Chrome``
-- Unpacked Chrome directory: ``dist/chrome``
-- Extension workflow: ``s start -ProjectPath .`` -> ``s open -ProjectPath .`` -> Chrome Developer mode -> Load unpacked -> ``dist\chrome`` -> ``s stop -ProjectPath .``
+- Unpacked Chrome directory: resolved from ``.output/chrome-mv3-dev``, ``.output/chrome-mv3``, or ``dist/chrome``
+- Extension workflow: ``s start -ProjectPath .`` -> ``s open -ProjectPath .`` -> Chrome Developer mode -> Load unpacked -> resolved generated directory -> ``s stop -ProjectPath .``
 - Chrome profile boundary: ShipGlows opens the extension manager and generated directory but never installs the extension automatically in a personal profile.
 "@).TrimEnd() + "`n"
     } elseif ($Kind -eq 'obsidian-plugin') {
@@ -2866,7 +2895,8 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         Write-SgInfo "$($entry.name) $($entryData.status): Obsidian plugin $($entryData.surfaceState) in $($entryData.obsidianPluginPath)"
         Write-SgInfo 'Validation unavailable: reload or enable the plugin in Obsidian and validate it manually.'
     }elseif($kind-eq'browser-extension'){
-        Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in dist\chrome"
+        $manifestDirectory = if ($readiness.ManifestPath) { Split-Path -Parent ([string]$readiness.ManifestPath) } else { 'the generated browser-specific directory' }
+        Write-SgInfo "$($entry.name) $($entryData.status): Manifest V3 build ready in $manifestDirectory"
         Write-SgInfo "Next: run s open -ProjectPath `"$($entry.path)`" to open Chrome extension tools."
     }elseif($kind-eq'flutter-web' -and $settings.FlutterDevice -in @('windows','android')){
         Write-SgInfo "$($entry.name) $($entryData.status): managed Flutter $($settings.FlutterDevice) app"

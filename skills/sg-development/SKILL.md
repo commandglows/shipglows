@@ -32,6 +32,11 @@ When the target is an Obsidian plugin, load
 build, watch, vault synchronization, Lab proof, or BRAT preparation. Preserve
 its explicit-build and personal-vault boundaries.
 
+When the target is a browser extension, load
+`$SHIPGLOWS_ROOT/skills/references/browser-extension-lab.md` before selecting
+its greenfield stack, build, or host-level proof. Preserve its inspection-first,
+Manifest V3, minimal-permission, isolated-profile, and publication boundaries.
+
 `excellence` is a hidden public shortcut, not a catalog mode. For
 `sg-development excellence [task or scope]`, resolve the current work from
 conversation and durable evidence, then invoke `103-sg-verify` with
