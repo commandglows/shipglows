@@ -11,7 +11,10 @@ from pathlib import Path
 
 
 CANONICAL_RELATIVE = Path("shipglows_data/business/business.md")
+LAUNCH_PROTECTION_RELATIVE = Path("shipglows_data/workflow/launch-protection.md")
 VALID_POSTURES = {"development", "published", "sensitive-production"}
+VALID_PROTECTION_STATES = {"not_applicable", "protected", "unprotected", "unverified"}
+VALID_EMAIL_CAPTURE_STATES = {"inactive", "configured", "verified"}
 
 
 @dataclass(frozen=True)
@@ -24,6 +27,13 @@ class DeliveryPolicy:
     staging_branch: str | None
     question_required: bool
     reason: str
+    product_status: str | None = None
+    launch_protection_review_required: bool = False
+    launch_protection_state: str = "not_applicable"
+    email_capture_state: str = "inactive"
+    email_provider: str | None = None
+    public_url: str | None = None
+    launch_reference: str | None = None
 
 
 def _frontmatter(text: str) -> str:
@@ -31,6 +41,14 @@ def _frontmatter(text: str) -> str:
         return ""
     parts = text.split("---", 2)
     return parts[1] if len(parts) == 3 else ""
+
+
+def _field(frontmatter: str, name: str) -> str | None:
+    match = re.search(rf"(?mi)^{re.escape(name)}:\s*[\"']?([^\n\"']+?)[\"']?\s*$", frontmatter)
+    if not match:
+        return None
+    value = match.group(1).strip()
+    return None if value.lower() in {"", "none", "null"} else value
 
 
 def inspect_project(project: Path) -> DeliveryPolicy:
@@ -79,6 +97,31 @@ def inspect_project(project: Path) -> DeliveryPolicy:
         )
 
     live = posture in {"published", "sensitive-production"}
+    launch_source = root / LAUNCH_PROTECTION_RELATIVE
+    values: dict[str, str | None] = {}
+    if launch_source.is_file():
+        launch_frontmatter = _frontmatter(launch_source.read_text(encoding="utf-8"))
+        values = {name: _field(launch_frontmatter, name) for name in (
+            "protection_status", "email_capture_status", "email_provider", "public_url"
+        )}
+        protection_state = values["protection_status"] or "unverified"
+        capture_state = values["email_capture_status"] or "inactive"
+        invalid = (
+            ("protection_status", protection_state)
+            if protection_state not in VALID_PROTECTION_STATES
+            else (("email_capture_status", capture_state) if capture_state not in VALID_EMAIL_CAPTURE_STATES else None)
+        )
+        if invalid:
+            return DeliveryPolicy(
+                "invalid", posture, relative, None, None, None, True,
+                f"unsupported {invalid[0]}: {invalid[1]}",
+                product_status="Live" if live else "Dev",
+                launch_protection_review_required=not live,
+                launch_reference=LAUNCH_PROTECTION_RELATIVE.as_posix(),
+            )
+    else:
+        protection_state = "missing" if not live else "not_applicable"
+        capture_state = "inactive"
     return DeliveryPolicy(
         "resolved",
         posture,
@@ -88,6 +131,13 @@ def inspect_project(project: Path) -> DeliveryPolicy:
         "dev" if live else "not-required",
         False,
         "canonical business posture resolved",
+        "Live" if live else "Dev",
+        not live,
+        protection_state,
+        capture_state,
+        values.get("email_provider"),
+        values.get("public_url"),
+        LAUNCH_PROTECTION_RELATIVE.as_posix() if launch_source.is_file() else None,
     )
 
 
@@ -110,6 +160,13 @@ def main(argv: list[str] | None = None) -> int:
         print(f"staging_branch={policy.staging_branch or 'unresolved'}")
         print(f"question_required={'yes' if policy.question_required else 'no'}")
         print(f"reason={policy.reason}")
+        print(f"product_status={policy.product_status or 'unresolved'}")
+        print(f"launch_protection_review_required={'yes' if policy.launch_protection_review_required else 'no'}")
+        print(f"launch_protection_state={policy.launch_protection_state}")
+        print(f"email_capture_state={policy.email_capture_state}")
+        print(f"email_provider={policy.email_provider or 'none'}")
+        print(f"public_url={policy.public_url or 'none'}")
+        print(f"launch_reference={policy.launch_reference or 'none'}")
     return 0 if policy.state == "resolved" else 2
 
 

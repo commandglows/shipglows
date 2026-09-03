@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-09-01"
+updated: "2026-09-03"
 status: active
 source_skill: 900-shipglows-core
 scope: project-delivery-policy
@@ -70,6 +70,20 @@ When the question states that the selected posture will be recorded in this exac
 
 All branch and release fields are derived rather than duplicated in another governance file. All postures use `production_branch: main`. Non-live `development` derives `integration_branch: main`, `staging_branch: not-required`, and may work directly on the integration branch. Live `published` and `sensitive-production` derive the exact canonical branch `dev` for integration and staging; short-lived task branches reconcile continuously into `dev`. ShipGlows creates or converges the derived integration branch and remote tracking without a validation prompt when safe.
 
+## Dev/Live Launch Protection Projection
+
+Status surfaces render `development` as `Dev` and both live postures as
+`Live`. Every Dev project exposes a compact launch-protection review reminder;
+the reminder alone never claims that a public surface is protected.
+
+When a Dev project has a public URL, its observed state belongs in
+`shipglows_data/workflow/launch-protection.md`: URL, protection state, email
+capture state, provider, verification date, evidence, release condition and a
+pointer to the detailed handoff. The status view keeps only this compact
+reference. Email capture uses `inactive`, `configured`, or `verified`;
+configured email capture never claims verified collection without hosted
+submission evidence.
+
 Git/GitHub stewardship is continuous and autonomous. At project or chantier start, coherent milestones, and chantier end, fetch/prune and reconcile safe owned branches, pull requests, upstreams, and worktrees; commit and push coherent validated work to the canonical integration branch at the earliest safe opportunity. Promotion to `main` follows release/deployment gates but adds no separate Git approval.
 
 Every derived posture retains `remote_persistence: milestone-and-final`; this invariant is not duplicated into each project's business context.
@@ -116,3 +130,5 @@ Every active ShipGlows-managed GitHub repository follows `managed-project-ci-pol
 - `PDP-DECLARED-VS-OBSERVED`: detected state reports drift without mutating intent.
 - `PDP-LEGACY-MODE`: legacy development mode remains valid while posture is unknown.
 - `PDP-MANAGED-CI`: every active managed GitHub project retains an always-on protected gate without path-filter deadlock.
+- `PDP-DEV-LAUNCH-PROTECTION`: Dev status keeps a separate protection review visible.
+- `PDP-WAITLIST-PROOF`: configured capture never implies verified hosted collection.

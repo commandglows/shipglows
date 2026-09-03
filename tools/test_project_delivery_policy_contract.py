@@ -51,6 +51,17 @@ class ProjectDeliveryPolicyContractTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.policy)
 
+    def test_dev_status_keeps_launch_protection_visible(self) -> None:
+        for marker in (
+            "Dev/Live Launch Protection Projection",
+            "shipglows_data/workflow/launch-protection.md",
+            "`inactive`, `configured`, or `verified`",
+            "configured email capture never claims verified collection",
+            "PDP-DEV-LAUNCH-PROTECTION",
+            "PDP-WAITLIST-PROOF",
+        ):
+            self.assertIn(marker, self.policy)
+
     def test_posture_defaults_are_proportional(self) -> None:
         for marker in (
             "`development`",
