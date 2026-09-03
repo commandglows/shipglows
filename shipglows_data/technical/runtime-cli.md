@@ -534,10 +534,11 @@ tracked paths that are not portable to Windows. `sync <pull|push>` is a dry plan
 a dirty repository or missing upstream and uses only fast-forward pull or
 ordinary push. None of these commands is run by installation, startup, generic
 context discovery, or a skill without an explicit private-data request.
-The explicit Windows DevServer `s u` / `s update` path downloads the public
-bootstrap over HTTPS for the stable channel, or selects the checked clean
-upstream branch of a linked developer checkout. `shipglows update` is the
-cross-platform canonical entrypoint and `shipglows update status` is read-only;
+The native Windows `s u` / `s update` path stops before PowerShell dispatch and
+directs the operator to `shipglows update`, preventing the running executable
+from locking its own replacement. That canonical update path downloads the
+public bootstrap over HTTPS for the stable channel, or selects the checked clean
+upstream branch of a linked developer checkout. `shipglows update status` is read-only;
 on Unix `s u` remains the system-package update action. On Windows, dirty linked
 checkouts fail closed with a focused inspection and retry path, and
 an interactive update attempt exits the menu instead of redrawing the project
@@ -588,7 +589,8 @@ runtime status and refreshes it asynchronously at most once per six hours.
 installer records it with the immutable source commit. Green means current,
 orange means a patch or linked-source update is available, and red means a
 minor or major release was missed. A failed network check preserves the last
-valid cache and never blocks the menu; an available update points to `s update`.
+valid cache and never blocks the menu; an available update points to
+`shipglows update`.
 
 The native full installer composes a UI-free operation engine with a console
 adapter. The engine emits stable started/progress/completed/failed/timed-out

@@ -303,6 +303,12 @@ internal static class ShipGlowsCliLauncher
 
     private static int RunPowerShell(string[] commandArguments)
     {
+        if (IsSelfUpdate(commandArguments))
+        {
+            Console.Error.WriteLine("The native ShipGlows launcher cannot update itself. Run 'shipglows update' in PowerShell instead.");
+            return 2;
+        }
+
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         string script = Path.GetFullPath(Path.Combine(baseDirectory, "shipglows-devserver.ps1"));
         if (!File.Exists(script))
@@ -354,6 +360,13 @@ internal static class ShipGlowsCliLauncher
             child.WaitForExit();
             return child.ExitCode;
         }
+    }
+
+    private static bool IsSelfUpdate(string[] commandArguments)
+    {
+        return commandArguments.Length == 1
+            && (string.Equals(commandArguments[0], "update", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(commandArguments[0], "u", StringComparison.OrdinalIgnoreCase));
     }
 
     private static ProcessStartInfo CreateStartInfo(string executable, IEnumerable<string> arguments)
