@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-09-03"
@@ -35,6 +35,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: the user-facing guardrail receipt keeps its label and content on one compact row."
   - "Operator decision 2026-08-21: mandatory implementation rules must be explicit before code starts and mechanically enforced again at the end."
   - "Bento review demonstrated that conditional design-token guidance can be skipped when scope recognition remains implicit."
   - "Operator directive 2026-08-21: the frontend preflight must guarantee that essential homepage content remains visible if JavaScript or animation fails."
@@ -62,8 +63,7 @@ Inspect the repository's existing architecture, conventions, design authority, s
 Retain the classification and applicable gates in the execution record. For a substantive code chantier, emit the compact start receipt defined by the reporting contract:
 
 ```text
-🛡️ GARDE-FOUS
-✅ <applicable mandatory rules> · ➖ <non-applicable class and concrete reason, only when useful>
+🛡️ GARDE-FOUS ✅ <applicable mandatory rules> · ➖ <non-applicable class and concrete reason, only when useful>
 ```
 
 Do not write code while a mandatory applicable authority is unknown or contradictory. Resolve it from the repository and canonical ShipGlows references; ask the operator only when the unresolved choice would materially change product behavior, risk, cost, or authority.

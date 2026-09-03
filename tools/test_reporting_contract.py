@@ -2,6 +2,7 @@
 """Regression checks for the shared ShipGlows reporting contract."""
 
 from pathlib import Path
+import re
 import unittest
 
 
@@ -122,6 +123,53 @@ class ReportingContractTests(unittest.TestCase):
             text,
         )
         self.assertIn("SSRP-010 compact validation line", text)
+
+    def test_all_user_report_states_share_compact_labelled_rows(self) -> None:
+        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        blocked = REPORTING_BRANCHES[1].read_text(encoding="utf-8")
+        scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
+        timestamp = FINAL_TIMESTAMP.read_text(encoding="utf-8")
+        for state in (
+            "start",
+            "progress",
+            "partial",
+            "blocked",
+            "audit",
+            "closure",
+            "delivery",
+            "persistence",
+            "limits",
+            "context",
+            "continuation",
+            "decision framing",
+        ):
+            self.assertIn(state, core)
+        for rule in (
+            "keep the icon, translated label, optional status marker, and content together on one line",
+            "insert exactly one blank line before the next labelled row",
+            "Keep a numbered choice list contiguous as one atomic decision block",
+            "exempt from this visual layout",
+            "SSRP-009A universal compact user layout",
+        ):
+            self.assertIn(rule, core + blocked + scenarios)
+        self.assertIn(
+            "Keep the chantier and verdict lines adjacent, then leave exactly one blank line",
+            timestamp,
+        )
+        self.assertIn("📦 PERSISTANCE ✅ Local", core)
+        split_label_pattern = re.compile(
+            r"(?:✨ (?:OBJECTIF|RÉSULTAT)|📐 PÉRIMÈTRE|🛡️ GARDE-FOUS|"
+            r"🧪 (?:PREUVES|PREUVES ATTENDUES)|📖 (?:DOCUMENTATION|DOCUMENTATION PRÉVUE)|"
+            r"✏️ ÉDITORIAL|📰 CHANGELOG|📦 (?:LIVRAISON|PERSISTANCE)|"
+            r"🧠 CONTEXTE|⚠️ LIMITES|🧭 SUITE)\n"
+        )
+        for path in (ROOT / "skills").rglob("*.md"):
+            if any(parent.is_symlink() for parent in path.parents):
+                continue
+            self.assertIsNone(
+                split_label_pattern.search(path.read_text(encoding="utf-8")),
+                path,
+            )
 
     def test_successful_closure_uses_visual_card_with_compact_lines(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
@@ -385,7 +433,7 @@ class ReportingContractTests(unittest.TestCase):
         text = reporting_corpus()
         for rule in (
             "## Unfinished Chantier Choice",
-            "end the message\nwith a numbered, plain-language choice block",
+            "end the message with a numbered, plain-language choice block",
             "strategic-choice-contract.md",
             "business direction",
             "guided follow-up",

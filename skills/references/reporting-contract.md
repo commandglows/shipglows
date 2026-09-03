@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.21.0"
+artifact_version: "2.22.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-09-03"
@@ -24,16 +24,16 @@ linked_systems:
   - skills/references/conversation-continuity-contract.md
 depends_on:
   - artifact: "skills/references/final-report-timestamp.md"
-    artifact_version: "1.0.0"
+    artifact_version: "1.8.0"
     required_status: active
   - artifact: "skills/references/reporting-agent-handoff.md"
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-blocked-and-audit.md"
-    artifact_version: "1.2.0"
+    artifact_version: "1.3.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "2.8.0"
+    artifact_version: "2.9.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.5.0"
@@ -43,6 +43,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: every user-facing report state uses compact labelled rows separated by blank lines, while technical agent handoffs retain their operational density."
   - "Operator decision 2026-09-03: start cards adopt the same single-line rows and blank-line spacing as closure cards."
   - "Operator decision 2026-09-03: closure cards render each label and its content on one line, with a blank line between sections for visual breathing room."
   - "Operator correction 2026-09-03: a green merge-ready owned PR remains active delivery; reconciliation and proven cleanup precede returning control."
@@ -102,6 +103,26 @@ Start every user report with exactly:
 
 Use `🚧 CHANTIER` instead of `🧱 CHANTIER` only for a genuinely blocked verdict. Use `(spec)` only when exactly one spec owns the run; otherwise derive a short stable `(local)` name. Do not expose spec paths, trace metadata, or a trailing chantier block.
 
+### Universal compact layout
+
+After the adjacent chantier and verdict header lines, leave one blank line before the substantive response. Every user-facing report state—start, progress, partial, blocked, audit, closure, delivery, persistence, limits, context, continuation, and decision framing—uses compact labelled rows: keep the icon, translated label, optional status marker, and content together on one line, then insert exactly one blank line before the next labelled row. Use a colon after prose labels such as `✨ OBJECTIF :`, `✨ RÉSULTAT :`, or `🔨 PROGRESSION :`; status-bearing rows such as `🧪 PREUVES ✅`, `⚠️ LIMITES`, and `🧠 CONTEXTE ✅` need no colon. Separate compact items inside a row with ` · `.
+
+Omit rows that do not apply except those mandatory for the active report state. Keep a numbered choice list contiguous as one atomic decision block: leave one blank line before it, do not insert blank lines between its options, and keep its response instruction directly after the list. Explicit `report=agent`, handoff, verbose, and full-report outputs retain the operational structure defined by `reporting-agent-handoff.md` and are exempt from this visual layout.
+
+For ordinary user-facing progress, partial, blocked, or audit results, select only the rows that carry current value, for example:
+
+```text
+🔨 PROGRESSION : <completed outcome or current state>
+
+🧪 PREUVES ✅ <current proof> · ⚠️ <proof gap when material>
+
+⚠️ LIMITES <concrete blocker, risk, or remaining gap>
+
+🧠 CONTEXTE ✅ <continuity status and conversation guidance>
+
+🧭 SUITE ➡️ <next outcome, recovery action, or decision>
+```
+
 After approval and at the true start of a substantive chantier, render this card once. Do not use it while approval is pending or for a branch-free micro-action.
 
 ```text
@@ -128,7 +149,7 @@ A report card formats evidence and decisions already required by the chantier; i
 
 One meaningful proof is enough when it supports the verdict; example placeholders such as `<proof 1> · <proof 2> · <proof 3>` illustrate formatting, not a quota. Keep prose content to one sentence per block and keep compact evidence blocks to one line. Prefer an honest short status or concrete `not impacted` reason over filler.
 
-For another progress report, keep only:
+For another progress report, apply the universal compact layout and keep only:
 
 1. completed outcome;
 2. compact proof/check summary;
@@ -174,8 +195,7 @@ When useful context has become insufficiently reliable, load `conversation-conti
 When interruption recovery, local-only work, remote ambiguity, or deployment distinction materially affects trust, add this compact block:
 
 ```text
-📦 PERSISTANCE
-✅ Local · ✅ Git distant · ➖ Déployé
+📦 PERSISTANCE ✅ Local · ✅ Git distant · ➖ Déployé
 ```
 
 Report only evidence-backed states. A commit may still be local; a successful push supports `Git distant` but never `Déployé`; deployed status requires matching provider evidence. Omit this additional block on the healthy silent path when `📦 LIVRAISON` already communicates the same truth.

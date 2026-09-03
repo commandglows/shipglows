@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-09-01"
@@ -25,6 +25,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: the user-facing persistence receipt keeps its label and evidence on one compact row."
   - "Operator correction 2026-09-01: Git preflight resolves delivery posture from canonical business context and asks a product question when it is missing."
   - "Operator decision 2026-08-21: protect work at mutating start and resume without adding a visible step when Git state is healthy."
 next_review: "2026-11-21"
@@ -86,8 +87,7 @@ Before sensitive mutation, require the relevant pre-change baseline to be `backe
 When persistence affects trust, use one compact line:
 
 ```text
-📦 PERSISTANCE
-✅ Local · ✅ Git distant · ➖ Déployé
+📦 PERSISTANCE ✅ Local · ✅ Git distant · ➖ Déployé
 ```
 
 Report only states supported by evidence. Omit this additional block on the healthy silent path when the ordinary delivery line already communicates the same truth. `🧭 SUITE` names the exact recovery outcome for any non-terminal state.
