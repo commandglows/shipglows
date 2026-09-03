@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.21.0"
+artifact_version: "2.22.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-09-06"
+updated: "2026-10-19"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -41,6 +41,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-03: a green merge-ready owned PR remains active delivery; reconciliation and proven cleanup precede returning control."
   - "shipglows_data/technical/progressive-loading-pilot-baseline.md"
 next_review: "2026-11-12"
 next_step: none
@@ -125,6 +126,8 @@ or evidenced continuation; never omit the block; never `none` or an empty menu. 
 proof/delivery, active chantier, P0 -> P1 -> P2 -> P3 tracker, overdue audit, then
 grounded improvement. No broad audit solely for reporting. Load next-outcome
 selection only when the conversation and pending delivery provide no next outcome.
+
+An owned pull request that is merge-ready with required checks passing remains active in-scope delivery, not a next-step suggestion. Before returning control, use standing Git/GitHub stewardship authority to attempt reconciliation into the resolved integration branch and then apply proven-integrated temporary-artifact cleanup. Report a next action only when that attempt is blocked, and name the exact protection, review, conflict, check, ownership, or cleanup fact. Never stop merely because the pull request was opened or became green.
 
 Continue authorized safely agent-runnable work before final reporting. Selection
 never authorizes new or expanded work. Keep the latest unresolved goal active until
