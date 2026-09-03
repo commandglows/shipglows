@@ -269,7 +269,11 @@ recommended local DevServer. The DevServer installs only the native PowerShell
 runtime for Astro, Vite, browser extensions, Obsidian plugins, Python/FastAPI, and Flutter applications targeting Web,
 Windows desktop, or Android, prepares Git, GitHub CLI,
 Node LTS/npm, pnpm, uv and a resolved Flutter commit automatically. Valid external
-WSL remains optional and independent from ShipGlows. In the interactive full
+WSL remains optional and independent from ShipGlows. Greenfield browser extensions
+default to WXT, strict TypeScript, pnpm, Manifest V3, and multi-browser output;
+greenfield Obsidian plugins retain the official TypeScript lifecycle and
+desktop-plus-mobile support. Both stay native for simple UI and use Vue 3,
+rather than React, when a rich interface is justified. In the interactive full
 installer, a separate consent can install Ubuntu through the official Windows
 flow; restart and first-user initialization remain user-owned. Once Ubuntu is
 ready, another independent consent can install the pinned Turso Cloud CLI v1.0.32

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-08-11"
+updated: "2026-09-03"
 status: active
 source_skill: 900-shipglows-core
 scope: preferred-stack-presets
@@ -32,6 +32,8 @@ evidence:
   - "Operator decision 2026-08-05: when a project includes one browser/web extension, its default monorepo source root is ext/; plural extensions/<name>/ is deferred until a second independently shipped extension exists."
   - "Operator decision 2026-08-11: portfolio-scale free-project limits, Flutter/Windows support, server authority, and billing cliffs must be evaluated separately for identity and backend/data providers."
   - "Operator decision 2026-08-11: universal Flutter targets Web, Android, iOS, Windows, macOS, and Linux; Firebase Auth owns identity, Convex HTTP owns backend/data, and Rust is reserved for a justified native engine."
+  - "Operator decision 2026-09-03: greenfield browser extensions use WXT, strict TypeScript, pnpm, Manifest V3, and multi-browser output; simple UI stays native and rich UI uses Vue 3, not React."
+  - "Operator decision 2026-09-03: greenfield Obsidian plugins use the official TypeScript and esbuild-compatible contract, support desktop and mobile by default, and add Vue 3 only for rich UI with explicit lifecycle cleanup."
   - "Operator decision 2026-08-11: Auth0 is a strong OIDC exception but fails the many-free-products default on Linux coverage, tenant isolation, and paid-plan cost."
 next_review: "2026-09-11"
 next_step: "none"
@@ -110,6 +112,32 @@ contracts together.
 
 Deployment entrypoints such as Vercel build commands should be expressible from the monorepo root without relying on nested package discovery unless the project documents a durable exception.
 
+### Browser extensions
+
+- Framework and build system: WXT with strict TypeScript and pnpm.
+- Browser contract: Manifest V3 with Chromium, Edge, Vivaldi, and Firefox output from one codebase. Safari is an available later target, not an assumed launch commitment.
+- UI rule: use platform-native HTML, CSS, and TypeScript for a simple popup, options page, side panel, or injected control. Add Vue 3 through WXT's Vue module when the surface needs reusable stateful components, multi-step interaction, substantial reactive state, or a rich visual experience. React is not a default or fallback.
+- Architecture: keep popup, options, side-panel, background, and content-script entrypoints explicit. Vue belongs only in UI entrypoints that need it; background and content scripts remain framework-free unless a concrete rendered surface requires otherwise.
+- Security: request the minimum permissions and host access required by the accepted behavior. Broad host permissions, remote code, telemetry, authentication, network services, or persistent external data require an explicit product and trust justification.
+- Proof: inspect before repository execution, then validate the built artifact through the Browser Extension Lab. Compilation alone is not popup, service-worker, or content-script proof.
+
+The default standalone source shape is `entrypoints/` for WXT-owned popup, options, side-panel, background, and content-script entrypoints; `components/` for shared Vue UI; `lib/` for framework-free domain and extension logic; and `public/` for static assets. Configure WXT browser startup as disabled in the committed project configuration so the ShipGlows managed session and isolated Lab remain the browser-profile authorities. Production artifacts remain in WXT's browser-specific `.output/<browser>-mv3/` directories.
+
+Use CRXJS only as a documented exception for an existing Vite architecture whose integration cost or constraints make WXT unsuitable. Do not make the operator choose between WXT, CRXJS, Vue, or native DOM when the approved preset and requested experience resolve the answer.
+
+### Obsidian plugins
+
+- Foundation: the official `obsidian` TypeScript API, strict TypeScript, pnpm, and an esbuild-compatible build that emits the supported Obsidian artifact set.
+- Platform contract: support Obsidian desktop and mobile by default. Set `isDesktopOnly: true` only when a verified Node.js or Electron capability is essential to the accepted behavior and no portable Obsidian API path exists.
+- UI rule: use Obsidian components, DOM helpers, icons, commands, views, settings patterns, and CSS variables for simple or host-native interaction. Add Vue 3 for dashboards, rich views, complex settings, multi-step modals, or other substantial reactive interfaces. React is not a default or fallback.
+- Lifecycle: mount each Vue application inside a container owned by an Obsidian view, modal, or settings surface; retain the application handle and unmount it deterministically when that surface closes and when the plugin unloads. Vue never owns commands, vault access, persistence, or plugin registration outside the Obsidian lifecycle.
+- Styling: inherit Obsidian theme variables and interaction conventions before adding product-specific tokens. A visually rich Vue surface must remain accessible and coherent across supported themes and viewport classes.
+- Proof: build only through the reviewed project command, then prove artifact integrity, host loading, requested interaction, diagnostics, and cleanup separately in the disposable Obsidian Lab.
+
+The default source shape is `src/main.ts` for the official plugin entrypoint, `src/domain/` for host-independent behavior, `src/obsidian/` for commands and adapters, `src/ui/` for native views, and `src/ui/vue/` only when the rich-interface threshold is met. The repository root retains `manifest.json`, `versions.json`, and optional `styles.css`; the approved build emits `main.js` there for host and BRAT compatibility.
+
+Do not add Vue to a plugin whose accepted experience is fully served by native Obsidian controls. Do not ask the operator to choose the rendering framework when the native-versus-rich threshold resolves it.
+
 ### Supporting defaults
 
 - Backend/data baseline: Convex through its official HTTP API from Flutter.
@@ -171,3 +199,5 @@ For greenfield work:
   metered behavior, and server-authority needs are recorded first.
 - `PSP-007 auth is not data`: Firebase Auth may authenticate a Flutter product
   backed by Convex; Firestore is selected only from an independent data decision.
+- `PSP-008 sparse browser extension`: a greenfield extension request with no technical direction receives the WXT, strict TypeScript, pnpm, Manifest V3, multi-browser preset; native UI is used unless the accepted experience crosses the rich-interface threshold, where Vue 3 is added.
+- `PSP-009 sparse Obsidian plugin`: a greenfield plugin request with no technical direction receives the official TypeScript and esbuild-compatible foundation, desktop-plus-mobile support, and native Obsidian UI unless a rich reactive surface justifies Vue 3.

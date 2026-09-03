@@ -108,7 +108,7 @@ ShipGlows Windows shortcuts
   s e      Start a project
   s status                           Show every project surface and state
   s status -ProjectPath <path>       Show one project, its port role, and next action
-  s start -ProjectPath <path>       Start a web project, app, Chrome extension, or configured Obsidian plugin
+  s start -ProjectPath <path>       Start a web project, app, browser extension, or configured Obsidian plugin
   s reload -ProjectPath <path>      Hot reload the exact ready managed Flutter session
   s extension-inspect [-ProjectPath <path>] [-Json]  Inspect an extension without running repository scripts
   s extension-lab [-ProjectPath <path>] [-Browser <Chromium|Edge|Vivaldi|Firefox>] [-Headless] [-Json] [-TargetUrl <url>] [-ClickSelector <css>] [-VisualSelector <css>] [-Screenshot]  Load and visually probe an extension in an isolated browser
@@ -137,9 +137,9 @@ Project journeys
   Web project      Start -> Open the managed local URL -> Stop
   Flutter app      Start live (Windows by default when supported) -> s reload -ProjectPath <path> -> Stop
                    .shipglows.env can explicitly select windows, android, chrome, or web-server.
-  Chrome extension Inspect -> explicitly build when required -> Extension Lab -> close Chromium
+  Browser extension Inspect -> explicitly build when required -> Extension Lab -> close isolated browser
   The Extension Lab uses a temporary Chromium profile and never runs repository scripts implicitly.
-  Managed CRXJS start/open remains available for projects using @crxjs/vite-plugin and dev:chrome.
+  Managed WXT and CRXJS start/open use their declared dev contract and resolved Manifest V3 output.
   Obsidian plugin  Detect -> declare one vault in .shipglows.env -> Start build/watch + copy -> reload manually
                    ShipGlows never discovers a personal vault or claims that Obsidian loaded the plugin.
   Obsidian Lab     Built artifact -> disposable profile/vault -> real load and diagnostics -> cleanup

@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.30.0"
+artifact_version: "1.31.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-09-02"
+updated: "2026-09-03"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le support WXT du 2026-09-03 reconnaît les contrats dev déclarés, sélectionne les sorties Manifest V3 par navigateur et conserve le parcours CRXJS existant."
   - "Le replay du 2026-09-02 confirme que s.exe affiche le menu initial sans CMD ni PowerShell et délègue seulement après le choix."
   - "Le replay Obsidian du 2026-09-01 confirme la priorité de classification sur Vite, le watch sans port, les états explicites et la copie vérifiée vers un coffre de test déclaré."
   - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
@@ -266,7 +267,7 @@ la prochaine commande à lancer.
 | --- | --- | --- |
 | Site Astro/Vite ou API Python/FastAPI | `Web project` et `URL :<port>` | Start prépare le serveur, Open ouvre l'URL locale. |
 | Application Flutter Web | `Flutter app` et `App :<port>` | Start prépare la session gérée, Open ouvre la session Chrome visible avec le cycle Flutter. |
-| Extension Chrome CRXJS | `Chrome extension`, `HMR :<port>` et `dist\chrome` | Start construit Manifest V3 et lance HMR, Open ouvre le gestionnaire Chrome et le dossier à charger. |
+| Extension navigateur WXT ou CRXJS | `Browser extension`, `HMR :<port>` et dossier généré résolu | Start construit la cible Chrome Manifest V3 et lance HMR, Open ouvre le gestionnaire Chrome et le dossier exact à charger. |
 | Plugin Obsidian | `Obsidian plugin` avec son état, sans URL ni port | Start lance le script watch déclaré puis copie les artefacts dans le coffre explicitement configuré; Open rappelle le rechargement manuel. |
 
 Le parcours complet et copiable est :
@@ -282,12 +283,12 @@ Le menu interactif propose les mêmes actions, avec `Open / load project`. Si
 Open reçoit un projet arrêté, ShipGlows explique son type et redonne la commande
 Start exacte au lieu de laisser croire qu'une URL manque.
 
-Pour une extension Chrome, le port affiché sert au HMR : ce n'est pas l'adresse
+Pour une extension navigateur, le port affiché sert au HMR : ce n'est pas l'adresse
 d'un site. Après Open, activez **Developer mode** dans `chrome://extensions`,
-choisissez **Load unpacked**, puis sélectionnez `dist\chrome`. ShipGlows ouvre
+choisissez **Load unpacked**, puis sélectionnez le dossier résolu parmi `.output\chrome-mv3-dev`, `.output\chrome-mv3` ou `dist\chrome`. ShipGlows ouvre
 les deux emplacements utiles, mais n'installe jamais silencieusement l'extension
-dans votre profil personnel. La détection automatique actuelle couvre les
-projets qui déclarent `@crxjs/vite-plugin` et un script `dev:chrome`; les autres
+dans votre profil personnel. La détection automatique couvre les projets WXT qui déclarent `dev` ou `dev:chrome`, ainsi que les projets
+`@crxjs/vite-plugin` qui déclarent `dev:chrome`; les autres
 stacks d'extension ne sont pas annoncées comme prises en charge sans preuve.
 
 Pour un plugin Obsidian, ShipGlows affiche les preuves de détection, l'id du
@@ -432,8 +433,8 @@ versionné `<racine-surface>\ENVIRONMENT.md`. Son bloc ShipGlows conserve le por
 attribué et l'URL canonique sans écraser le reste du document. Le registre
 Windows reste l'autorité pour l'état live, donc start/stop ne réécrivent pas la
 documentation du projet.
-Pour une extension, le bloc remplace l'URL de page par le port HMR et
-`dist\chrome`, puis rappelle le parcours Start, Open, Developer mode, Load
+Pour une extension, le bloc remplace l'URL de page par le port HMR et le dossier
+généré résolu, puis rappelle le parcours Start, Open, Developer mode, Load
 unpacked et Stop. Un agent ou une opératrice reprenant le dépôt retrouve ainsi
 la même prochaine action que dans la CLI.
 
@@ -481,9 +482,10 @@ Obsidian, dont Start refuse un port explicite.
 
 Le schéma v1 existant est accepté puis migré par le même mécanisme d'écriture borné.
 
-Une extension CRXJS n'est reconnue que si elle déclare `@crxjs/vite-plugin` et
-expose explicitement `dev:chrome`. ShipGlows conserve son lockfile, honore une version exacte de pnpm
-via Corepack, transmet le port HMR réservé, puis attend un Manifest V3 frais dans
+Une extension WXT est reconnue lorsqu'elle déclare `wxt` et un script `dev` ou
+`dev:chrome`; une extension CRXJS doit déclarer `@crxjs/vite-plugin` et `dev:chrome`.
+ShipGlows conserve le lockfile, honore une version exacte de pnpm via Corepack,
+transmet le port HMR réservé, force WXT sur Chrome et Manifest V3 pour la session gérée, puis attend un Manifest V3 frais dans
 un dossier Chrome pris en charge. `s open` ouvre le gestionnaire d'extensions et
 le dossier non empaqueté; le chargement dans un profil personnel reste une action
 explicite de l'opératrice.

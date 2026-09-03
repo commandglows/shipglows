@@ -14,8 +14,9 @@ try {
     $extension = Join-Path $fixture 'toolglows'
     $vite = Join-Path $fixture 'site'
     $incomplete = Join-Path $fixture 'incomplete-extension'
+    $wxt = Join-Path $fixture 'wxt-extension'
     $unsafeManager = Join-Path $fixture 'unsafe-package-manager'
-    foreach ($path in @($extension,$vite,$incomplete,$unsafeManager)) { New-Item -ItemType Directory -Path $path -Force | Out-Null }
+    foreach ($path in @($extension,$vite,$incomplete,$wxt,$unsafeManager)) { New-Item -ItemType Directory -Path $path -Force | Out-Null }
 
     [IO.File]::WriteAllText((Join-Path $extension 'package.json'), @'
 {"name":"toolglows","packageManager":"pnpm@10.33.2","scripts":{"dev":"vite","dev:chrome":"vite -c vite.chrome.config.ts"},"devDependencies":{"@crxjs/vite-plugin":"^2.7.1","vite":"^8.2.2"}}
@@ -23,6 +24,8 @@ try {
     [IO.File]::WriteAllText((Join-Path $extension 'pnpm-lock.yaml'), "lockfileVersion: '9.0'`n", [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $vite 'package.json'), '{"scripts":{"dev":"vite"},"devDependencies":{"vite":"^8.2.2"}}', [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $incomplete 'package.json'), '{"scripts":{"dev":"vite"},"devDependencies":{"@crxjs/vite-plugin":"^2.7.1","vite":"^8.2.2"}}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $wxt 'package.json'), '{"name":"wxt-toolglows","packageManager":"pnpm@10.33.2","scripts":{"dev":"wxt"},"devDependencies":{"wxt":"^0.21.4","vue":"^3.5.0"}}', [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $wxt 'pnpm-lock.yaml'), "lockfileVersion: '9.0'`n", [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $unsafeManager 'package.json'), '{"packageManager":"pnpm@10.33.2 & whoami","scripts":{"dev:chrome":"vite"},"devDependencies":{"@crxjs/vite-plugin":"^2.7.1"}}', [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $unsafeManager 'pnpm-lock.yaml'), "lockfileVersion: '9.0'`n", [Text.UTF8Encoding]::new($false))
 
@@ -30,6 +33,7 @@ try {
     Assert-Sg ((Get-SgProjectKind $extension) -eq 'browser-extension') 'CRXJS extension was not classified before generic Vite.'
     Assert-Sg ((Get-SgProjectKind $vite) -eq 'vite') 'Generic Vite project changed kind.'
     Assert-Sg ((Get-SgProjectKind $incomplete) -eq 'vite') 'Extension dependency without explicit dev:chrome script became an executable extension contract.'
+    Assert-Sg ((Get-SgProjectKind $wxt) -eq 'browser-extension') 'WXT extension was not classified from its declared development contract.'
 
     $module = Get-Module ShipGlows.DevServer
     $readinessFunction = & $module { ${function:Wait-SgBrowserExtensionReady}.ToString() }
@@ -60,6 +64,14 @@ try {
     $launchText = $launch.Arguments -join ' '
     Assert-Sg ($launchText -match 'pnpm@10[.]33[.]2 run dev:chrome --host 127[.]0[.]0[.]1 --port 32145') 'Extension launch did not use the explicit Chrome script and reserved HMR port.'
     Assert-Sg ($launchText -notmatch 'run dev:chrome -- --host') 'Pinned pnpm launch forwarded a redundant option separator to Vite.'
+
+    $wxtLaunch = & $module {
+        param($Project)
+        function Get-SgCommandPath([string[]]$Names) { return 'C:\tools\corepack.cmd' }
+        Get-SgLaunchSpec $Project 'browser-extension' 32146
+    } $wxt
+    $wxtLaunchText = $wxtLaunch.Arguments -join ' '
+    Assert-Sg ($wxtLaunchText -match 'pnpm@10[.]33[.]2 run dev --browser chrome --mv3 --host 127[.]0[.]0[.]1 --port 32146') 'WXT launch did not bind the managed Chrome MV3 target and reserved HMR port.'
 
     $dist = Join-Path $extension 'dist\chrome'
     New-Item -ItemType Directory -Path $dist -Force | Out-Null
@@ -104,7 +116,7 @@ try {
     $environment = Get-SgProjectEnvironment $extension
     $environmentText = [IO.File]::ReadAllText((Join-Path $extension 'ENVIRONMENT.md'))
     Assert-Sg ($environment.Kind -eq 'browser-extension' -and -not $environment.Url) 'Extension environment still claims an ordinary local web URL.'
-    Assert-Sg ($environmentText -match 'Unpacked Chrome directory: `dist/chrome`') 'Extension environment omitted the unpacked Chrome target.'
+    Assert-Sg ($environmentText -match 'Unpacked Chrome directory: resolved from') 'Extension environment omitted runtime-resolved WXT and CRXJS targets.'
 
     $runtime = Join-Path $fixture 'runtime'
     $staleRoot = Join-Path $fixture 'deleted-worktree-residue'

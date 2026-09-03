@@ -1,10 +1,10 @@
 ---
 artifact: operator_guide
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-29"
-updated: "2026-09-01"
+updated: "2026-09-03"
 status: reviewed
 source_skill: 300-sg-docs
 scope: browser-extension-lab
@@ -20,12 +20,15 @@ depends_on: []
 supersedes: []
 evidence:
   - "Chrome BRAT static MV3 detection and isolated loading passed on 2026-08-29."
+  - "WXT production and development outputs gained deterministic Chromium/Firefox selection while CRXJS compatibility remained covered on 2026-09-03."
 next_step: none
 ---
 
 # Tester une extension dans Chromium, Edge, Vivaldi ou Firefox
 
 Le laboratoire ouvre le navigateur demandé avec un profil séparé et temporaire. Il ne copie rien dans vos profils personnels et n'exécute jamais automatiquement les scripts téléchargés avec un dépôt.
+
+Pour une nouvelle extension, le preset ShipGlows utilise WXT, TypeScript strict, pnpm et Manifest V3. Une interface simple reste native; une interface riche utilise Vue 3. WXT doit laisser l'ouverture du navigateur désactivée dans sa configuration afin que le profil isolé du laboratoire reste l'autorité de validation.
 
 ## Le parcours le plus court
 
@@ -71,7 +74,7 @@ Le clic exige un seul élément. L’inspection retourne le texte borné, la vis
 ## Comprendre le résultat
 
 - **Statique** : le dépôt contient directement un `manifest.json` d'extension avec `manifest_version`, comme Chrome BRAT. Aucun build n'est nécessaire. Un fichier générique portant ce nom mais sans ce champ est ignoré.
-- **Construite** : un dossier comme `dist/chrome` contient l'extension prête à charger.
+- **Construite** : un dossier WXT comme `.output/chrome-mv3`/`.output/firefox-mv3`, ou un dossier compatible comme `dist/chrome`, contient l'extension prête à charger.
 - **Construction requise** : ShipGlows a reconnu le projet, mais refuse volontairement d'exécuter son script. Vérifiez le dépôt, lancez explicitement sa commande documentée, puis recommencez.
 - **Plusieurs artefacts** : des sorties anciennes ou concurrentes existent. Supprimez les sorties périmées ou ciblez le dossier exact.
 - **Manifest V2** : la technologie est obsolète pour ce laboratoire ; migrez vers Manifest V3.

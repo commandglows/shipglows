@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.19.0"
+artifact_version: "0.20.0"
 project: "shipglows"
 created: "2026-04-25"
-updated: "2026-09-02"
+updated: "2026-09-03"
 status: draft
 source_skill: 300-sg-docs
 scope: documentation
@@ -21,6 +21,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "The 2026-09-03 changelog records native-first Vue creation presets and WXT-aware Windows development and isolated proof."
   - "The 2026-09-02 changelog records the compiled Windows s.exe/sg.exe root menu and its end-to-end startup regression budget."
   - "The 2026-09-02 changelog records progress-aware Flutter Windows readiness and the explicit managed-session reload command."
   - "The 2026-09-02 changelog records the disposable local Obsidian Plugin Lab and its explicit non-sandbox security boundary."
@@ -31,6 +32,11 @@ evidence:
 next_step: "/300-sg-docs audit CHANGELOG.md"
 ---
 # ShipGlows Changelog
+
+## [2026-09-03]
+
+### Added
+- Added native-first creation presets for browser extensions and Obsidian plugins. New extensions default to WXT, strict TypeScript, pnpm, Manifest V3, multi-browser output, and Vue 3 only for rich UI; new Obsidian plugins retain the official lifecycle, desktop-plus-mobile support, and deterministic Vue cleanup when rich UI is justified. The Windows DevServer now recognizes WXT development contracts and browser-specific `.output` artifacts while retaining CRXJS compatibility and isolated Lab proof.
 
 ## [2026-09-02]
 
