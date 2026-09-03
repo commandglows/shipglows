@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.2.1"
 project: "ShipGlows"
 created: "2026-09-04"
 created_at: "2026-09-03 22:54:32 UTC"
 updated: "2026-09-04"
 updated_at: "2026-09-03 22:54:32 UTC"
-status: closed
+status: reviewed
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
 scope: feature
