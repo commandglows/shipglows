@@ -25,12 +25,21 @@ foreach ($path in @($entrypoint, $devServer, $bootstrap, $installer)) {
 
 Assert-Sg (Test-Path -LiteralPath $runtimeStatus -PathType Leaf) 'The Windows runtime-status module must be packaged with the DevServer.'
 
-Assert-Sg ($entrypointText.Contains("CommandArguments[0] -ieq 'runtime'")) 'shipglows runtime update must be accepted by the focused Windows launcher.'
-Assert-Sg ($entrypointText.Contains('choose an explicit update command:')) 'Bare shipglows update must stop with the explicit update choices.'
-Assert-Sg ($entrypointText.Contains('shipglows runtime update')) 'The focused Windows launcher must expose the explicit runtime update command.'
-Assert-Sg ((Get-Content -LiteralPath (Join-Path $repoRoot 'cli\windows\ShipGlows.CliLauncher.cs') -Raw).Contains("Run 'shipglows runtime update' in PowerShell instead")) 'Native launchers must refuse self-update and point to the non-locking runtime command.'
-Assert-Sg ($entrypointText.Contains("'shipglows-devserver.ps1'")) 'shipglows runtime update must delegate to the active DevServer implementation.'
-Assert-Sg ($entrypointText.Contains("CommandArguments[0] -ieq 'skills'")) 'shipglows skills must be accepted by the focused Windows launcher.'
+Assert-Sg ($entrypointText.Contains("CommandArguments[0] -ieq 'update'")) 'The focused Windows launcher must accept the update namespace.'
+Assert-Sg ($entrypointText.Contains('choose an explicit update target:')) 'Bare shipglows update must stop with the explicit update targets.'
+foreach ($target in @('runtime','skills','tools','status')) {
+    Assert-Sg ($entrypointText.Contains("shipglows update $target")) "The focused Windows launcher must expose the '$target' update target."
+}
+foreach ($mapping in @(
+    "'runtime' { & `$devServer update }",
+    "'skills' { & `$devServer skills update }",
+    "'tools' { & `$devServer tools update }",
+    "'status' { & `$devServer update status }"
+)) {
+    Assert-Sg ($entrypointText.Contains($mapping)) "The focused Windows launcher is missing update mapping: $mapping"
+}
+Assert-Sg ((Get-Content -LiteralPath (Join-Path $repoRoot 'cli\windows\ShipGlows.CliLauncher.cs') -Raw).Contains("Run 'shipglows update runtime' in PowerShell instead")) 'Native launchers must refuse self-update and point to the non-locking runtime target.'
+Assert-Sg ($entrypointText.Contains("'shipglows-devserver.ps1'")) 'shipglows update runtime must delegate to the active DevServer implementation.'
 Assert-Sg ($devServerText.Contains("'skills update' = 'skills-update'")) 'DevServer must expose a skills-only update route.'
 Assert-Sg ($devServerText.Contains('function Invoke-SgSkillsUpdate')) 'DevServer must implement skills-only updates separately from runtime bootstrap.'
 Assert-Sg ($devServerText.Contains('& $git -C $source.Root pull --ff-only')) 'Skills-only updates must use a non-rewriting fast-forward pull.'
@@ -43,7 +52,7 @@ Assert-Sg ($devServerText.Contains('rev-parse --is-inside-work-tree')) 'Linked u
 Assert-Sg ($devServerText.Contains("@('-InstallMode','full','-InstallSurface','maintainer','-Branch',`$source.Branch)")) 'Linked updates must preserve the maintainer surface so live Codex skills are reconciled.'
 Assert-Sg ($devServerText.Contains('uncommitted changes, so the update stopped to preserve them')) 'Linked updates must explain that dirty checkout refusal preserves local changes.'
 Assert-Sg ($devServerText.Contains('status --short')) 'Dirty linked-update errors must provide a focused inspection command.'
-Assert-Sg ($devServerText.Contains("then retry 'shipglows runtime update'")) 'Dirty linked-update errors must provide the explicit non-locking retry path.'
+Assert-Sg ($devServerText.Contains("then retry 'shipglows update runtime'")) 'Dirty linked-update errors must provide the explicit non-locking retry path.'
 Assert-Sg ($devServerText.Contains("if (`$choice -eq 'u') { return }")) 'The interactive update action must leave the menu after success or failure instead of redrawing the project catalog.'
 Assert-Sg ($devServerText.Contains("'update status' = 'update-status'")) 'DevServer must expose a read-only update-status route.'
 Assert-Sg ($devServerText.Contains("if (`$Action -notin @('skills-update','update','update-status'))")) 'Update recovery routes must bypass capability-snapshot refresh in an older installed runtime.'
@@ -53,7 +62,7 @@ Assert-Sg ($devServerText.Contains('Start-SgBackgroundUpdateStatusRefresh')) 'De
 Assert-Sg ($devServerText.Contains('Show-SgShipGlowsStatus')) 'DevServer dashboard must render ShipGlows version status.'
 
 Assert-Sg ($entrypointText.Contains("CommandArguments[0] -ieq 'tools'")) 'The focused Windows launcher must accept the developer-tools namespace.'
-Assert-Sg ($entrypointText.Contains("tools <status|update>")) 'The focused Windows launcher must document the bounded developer-tools actions.'
+Assert-Sg ($entrypointText.Contains('shipglows tools status')) 'The focused Windows launcher must retain read-only developer-tools status.'
 Assert-Sg ($devServerText.Contains("'tools status' = 'tools-status'")) 'DevServer must expose a read-only developer-tools status route.'
 Assert-Sg ($devServerText.Contains("'tools update' = 'tools-update'")) 'DevServer must expose a confirmed developer-tools update route.'
 Assert-Sg ($devServerText.Contains('function Show-SgDeveloperToolsStatus')) 'Developer-tool status must have a dedicated read-only implementation.'

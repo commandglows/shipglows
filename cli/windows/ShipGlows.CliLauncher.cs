@@ -305,7 +305,7 @@ internal static class ShipGlowsCliLauncher
     {
         if (IsSelfUpdate(commandArguments))
         {
-            Console.Error.WriteLine("The native ShipGlows launcher cannot update itself. Run 'shipglows runtime update' in PowerShell instead.");
+            Console.Error.WriteLine("The native ShipGlows launcher cannot update itself. Run 'shipglows update runtime' in PowerShell instead.");
             return 2;
         }
 

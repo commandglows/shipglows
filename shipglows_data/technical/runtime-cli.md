@@ -37,14 +37,14 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
-  - "Linked skills-only update 2026-09-02: `shipglows skills update` fast-forwards the clean linked maintainer checkout without invoking the Windows bootstrap, developer-tool convergence, Rust, Tauri, SDK, IDE, or runtime installation; a fresh agent session reloads the live skills."
+  - "Linked skills-only update 2026-09-02: `shipglows update skills` fast-forwards the clean linked maintainer checkout without invoking the Windows bootstrap, developer-tool convergence, Rust, Tauri, SDK, IDE, or runtime installation; a fresh agent session reloads the live skills."
   - "Windows runtime transaction replay 2026-09-02: payload-backed files are staged before activation, native launchers are generated inside the protected action, and the manifest commits only after every declared generated output exists."
   - "Native Windows launcher replay 2026-09-02: the compiled root menu renders before any CMD or PowerShell child, then preserves managed-engine arguments and exit codes after dispatch."
   - "Native Windows Obsidian adapter 2026-09-01: manifest and dependency evidence outrank generic Vite, start runs the declared watch workflow without HTTP, and artifact copy is restricted to one explicitly configured vault."
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
   - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
-  - "Unified update replay 2026-08-28: `shipglows runtime update` selects the stable or linked channel, `shipglows update status` reports the active source, and a dirty linked worktree refuses bootstrap without stashing."
+  - "Unified update replay 2026-08-28: `shipglows update runtime` selects the stable or linked channel, `shipglows update status` reports the active source, and a dirty linked worktree refuses bootstrap without stashing."
   - "Installed ToolGlows replay 2026-08-28: managed process identity compares UTC instants across Windows PowerShell string and PowerShell 7 DateTime JSON representations, so live projects no longer reconcile to stopped immediately after Start."
   - "Guided Windows project experience 2026-08-28: help, registration, status, dashboard, start and open describe websites, Flutter apps and browser extensions with exact next actions instead of exposing internal project kinds."
   - "Installed-runtime replay 2026-08-27: registered projects are re-registered through the current detector before environment migration, preventing stale registry kinds after a new adapter is installed."
@@ -535,7 +535,7 @@ a dirty repository or missing upstream and uses only fast-forward pull or
 ordinary push. None of these commands is run by installation, startup, generic
 context discovery, or a skill without an explicit private-data request.
 The native Windows `s u` / `s update` path stops before PowerShell dispatch and
-directs the operator to `shipglows runtime update`, preventing the running executable
+directs the operator to `shipglows update runtime`, preventing the running executable
 from locking its own replacement. That canonical update path downloads the
 public bootstrap over HTTPS for the stable channel, or selects the checked clean
 upstream branch of a linked developer checkout. `shipglows update status` is read-only;
@@ -560,7 +560,7 @@ never infers upgrade consent in non-interactive mode. This is the supported
 refresh path; the already-installed `cli/windows/install-devserver.ps1` only
 copies its current local source and must not be treated as a network updater.
 
-For the linked maintainer channel, `shipglows skills update` and
+For the linked maintainer channel, `shipglows update skills` and
 `s skills update` are the narrow frequent refresh path. They require a clean,
 attached checkout with a configured upstream and run only `git pull --ff-only`
 against that checkout. They never invoke the bootstrap or converge the runtime,
@@ -569,7 +569,7 @@ or Claude session then loads the updated live skills. The command fails closed
 on the stable installed channel, where skills remain runtime-managed.
 
 Windows exposes a separate global developer-tool surface through
-`shipglows tools status|update` and `s tools status|update`. Status is read-only:
+`shipglows tools status`, `shipglows update tools`, and `s tools status|update`. Status is read-only:
 it shows the declared ShipGlows-owned scope, asks WinGet for its available
 upgrade preview, and compares installed npm/pnpm versions with exact stable
 registry coordinates. Update requires an interactive confirmation and invokes
@@ -590,9 +590,9 @@ installer records it with the immutable source commit. Green means current,
 orange means a patch or linked-source update is available, and red means a
 minor or major release was missed. A failed network check preserves the last
 valid cache and never blocks the menu; an available update points to
-`shipglows runtime update`. Bare `shipglows update` performs no mutation and
+`shipglows update runtime`. Bare `shipglows update` performs no mutation and
 lists the explicit commands supported by the current platform; Windows exposes
-runtime, skills, tools, and status, while Unix exposes runtime, skills, and status.
+runtime, skills, tools, and status, while Unix exposes runtime and status.
 
 The native full installer composes a UI-free operation engine with a console
 adapter. The engine emits stable started/progress/completed/failed/timed-out

@@ -13,51 +13,32 @@ function Stop-SgCommand([string]$Message) {
 }
 
 if ($CommandArguments.Count -lt 1) {
-    Stop-SgCommand 'expected: shipglows runtime update, shipglows skills update, shipglows tools <status|update>, shipglows update status, or shipglows rename rio <name>'
-}
-
-if ($CommandArguments[0] -ieq 'skills') {
-    if ($CommandArguments.Count -ne 2 -or $CommandArguments[1] -ine 'update') {
-        Stop-SgCommand 'expected: shipglows skills update'
-    }
-    $devServer = Join-Path $PSScriptRoot 'shipglows-devserver.ps1'
-    if (-not (Test-Path -LiteralPath $devServer -PathType Leaf)) {
-        Stop-SgCommand 'the managed DevServer skills command is unavailable; rerun the official ShipGlows installer.'
-    }
-    & $devServer skills update
-    exit $LASTEXITCODE
-}
-
-if ($CommandArguments[0] -ieq 'runtime') {
-    if ($CommandArguments.Count -ne 2 -or $CommandArguments[1] -ine 'update') {
-        Stop-SgCommand 'expected: shipglows runtime update'
-    }
-    $devServer = Join-Path $PSScriptRoot 'shipglows-devserver.ps1'
-    if (-not (Test-Path -LiteralPath $devServer -PathType Leaf)) {
-        Stop-SgCommand 'the managed DevServer runtime update command is unavailable; rerun the official ShipGlows installer.'
-    }
-    & $devServer update
-    exit $LASTEXITCODE
+    Stop-SgCommand 'expected: shipglows update <runtime|skills|tools|status>, shipglows tools status, or shipglows rename rio <name>'
 }
 
 if ($CommandArguments[0] -ieq 'update') {
     if ($CommandArguments.Count -eq 1) {
-        Stop-SgCommand "choose an explicit update command:`n  shipglows runtime update`n  shipglows skills update`n  shipglows tools update`n  shipglows update status"
+        Stop-SgCommand "choose an explicit update target:`n  shipglows update runtime`n  shipglows update skills`n  shipglows update tools`n  shipglows update status"
     }
-    if ($CommandArguments.Count -ne 2 -or $CommandArguments[1] -ine 'status') {
-        Stop-SgCommand 'expected: shipglows update status'
+    if ($CommandArguments.Count -ne 2 -or $CommandArguments[1] -notin @('runtime','skills','tools','status')) {
+        Stop-SgCommand 'expected: shipglows update <runtime|skills|tools|status>'
     }
     $devServer = Join-Path $PSScriptRoot 'shipglows-devserver.ps1'
     if (-not (Test-Path -LiteralPath $devServer -PathType Leaf)) {
-        Stop-SgCommand 'the managed DevServer update status command is unavailable; rerun the official ShipGlows installer.'
+        Stop-SgCommand 'the managed DevServer update command is unavailable; rerun the official ShipGlows installer.'
     }
-    & $devServer update status
+    switch ($CommandArguments[1].ToLowerInvariant()) {
+        'runtime' { & $devServer update }
+        'skills' { & $devServer skills update }
+        'tools' { & $devServer tools update }
+        'status' { & $devServer update status }
+    }
     exit $LASTEXITCODE
 }
 
 if ($CommandArguments[0] -ieq 'tools') {
-    if ($CommandArguments.Count -ne 2 -or $CommandArguments[1] -notin @('status','update')) {
-        Stop-SgCommand 'expected: shipglows tools <status|update>'
+    if ($CommandArguments.Count -ne 2 -or $CommandArguments[1] -ine 'status') {
+        Stop-SgCommand 'expected: shipglows tools status; use shipglows update tools to update them'
     }
     $devServer = Join-Path $PSScriptRoot 'shipglows-devserver.ps1'
     if (-not (Test-Path -LiteralPath $devServer -PathType Leaf)) {
@@ -68,7 +49,7 @@ if ($CommandArguments[0] -ieq 'tools') {
 }
 
 if ($CommandArguments[0] -ine 'rename') {
-    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows runtime update, shipglows skills update, shipglows tools <status|update>, shipglows update status, or shipglows rename rio <name>"
+    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows update <runtime|skills|tools|status>, shipglows tools status, or shipglows rename rio <name>"
 }
 if ($CommandArguments.Count -lt 2 -or $CommandArguments[1] -ine 'rio') {
     $target = if ($CommandArguments.Count -ge 2) { $CommandArguments[1] } else { '' }

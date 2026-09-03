@@ -638,7 +638,7 @@ function Get-SgUpdateSource {
     $dirty = @(& $git -C $root status --porcelain)
     if ($LASTEXITCODE -ne 0) { throw 'The linked ShipGlows checkout could not be inspected.' }
     if ($dirty.Count -gt 0 -and -not $AllowDirty) {
-        throw "The linked ShipGlows checkout has uncommitted changes, so the update stopped to preserve them. Inspect them with: git -C `"$root`" status --short. Commit or deliberately resolve those changes, then retry 'shipglows runtime update'. No files were stashed or replaced."
+        throw "The linked ShipGlows checkout has uncommitted changes, so the update stopped to preserve them. Inspect them with: git -C `"$root`" status --short. Commit or deliberately resolve those changes, then retry 'shipglows update runtime'. No files were stashed or replaced."
     }
     $branch = (& $git -C $root branch --show-current).Trim()
     if ($LASTEXITCODE -ne 0 -or -not $branch) { throw 'The linked ShipGlows checkout is detached; update stopped before bootstrap.' }
@@ -657,7 +657,7 @@ function Show-SgUpdateStatus {
 function Invoke-SgSkillsUpdate {
     $source = Get-SgUpdateSource
     if ($source.Channel -ne 'linked') {
-        throw "Skills-only update requires the linked maintainer channel. Run 'shipglows update status' to inspect the active channel; use 'shipglows runtime update' for the stable installed runtime."
+        throw "Skills-only update requires the linked maintainer channel. Run 'shipglows update status' to inspect the active channel; use 'shipglows update runtime' for the stable installed runtime."
     }
 
     $git = Get-SgApplication 'git.exe' @()
@@ -734,7 +734,7 @@ function Invoke-SgDeveloperToolsUpdate {
 
     $shipglowsDir = Split-Path -Parent $PSScriptRoot
     $installer = Join-Path $shipglowsDir 'cli\windows\install-devserver.ps1'
-    if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) { throw 'The installed ShipGlows developer-tool convergence engine is unavailable; run shipglows runtime update first.' }
+    if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) { throw 'The installed ShipGlows developer-tool convergence engine is unavailable; run shipglows update runtime first.' }
     Write-SgInfo 'Updating global developer tools without changing the ShipGlows update channel...'
     & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $installer -ShipglowsDir $shipglowsDir -UpdateDeveloperTools
     if ($LASTEXITCODE -ne 0) { throw 'Developer-tool update failed.' }
