@@ -344,7 +344,7 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0ShipGlows.
                 Copy-Item -LiteralPath $compiledLauncher -Destination $shortExecutable -Force
                 Write-Host 'Native short commands installed: s, sg' -ForegroundColor Green
             } catch [IO.IOException] {
-                Write-SgInstallerWarning "The running s.exe launcher is locked. Run 'shipglows update' outside s to refresh the native launcher."
+                Write-SgInstallerWarning "The running s.exe launcher is locked. Run 'shipglows runtime update' outside s to refresh the native launcher."
             }
         }
     } finally {

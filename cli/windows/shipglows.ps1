@@ -13,7 +13,7 @@ function Stop-SgCommand([string]$Message) {
 }
 
 if ($CommandArguments.Count -lt 1) {
-    Stop-SgCommand 'expected: shipglows skills update, shipglows update [status], shipglows tools <status|update>, or shipglows rename rio <name>'
+    Stop-SgCommand 'expected: shipglows runtime update, shipglows skills update, shipglows tools <status|update>, shipglows update status, or shipglows rename rio <name>'
 }
 
 if ($CommandArguments[0] -ieq 'skills') {
@@ -28,13 +28,30 @@ if ($CommandArguments[0] -ieq 'skills') {
     exit $LASTEXITCODE
 }
 
-if ($CommandArguments[0] -ieq 'update') {
+if ($CommandArguments[0] -ieq 'runtime') {
+    if ($CommandArguments.Count -ne 2 -or $CommandArguments[1] -ine 'update') {
+        Stop-SgCommand 'expected: shipglows runtime update'
+    }
     $devServer = Join-Path $PSScriptRoot 'shipglows-devserver.ps1'
     if (-not (Test-Path -LiteralPath $devServer -PathType Leaf)) {
-        Stop-SgCommand 'the managed DevServer update command is unavailable; rerun the official ShipGlows installer.'
+        Stop-SgCommand 'the managed DevServer runtime update command is unavailable; rerun the official ShipGlows installer.'
     }
-    $remaining = if ($CommandArguments.Count -gt 1) { @($CommandArguments[1..($CommandArguments.Count - 1)]) } else { @() }
-    & $devServer update @remaining
+    & $devServer update
+    exit $LASTEXITCODE
+}
+
+if ($CommandArguments[0] -ieq 'update') {
+    if ($CommandArguments.Count -eq 1) {
+        Stop-SgCommand "choose an explicit update command:`n  shipglows runtime update`n  shipglows skills update`n  shipglows tools update`n  shipglows update status"
+    }
+    if ($CommandArguments.Count -ne 2 -or $CommandArguments[1] -ine 'status') {
+        Stop-SgCommand 'expected: shipglows update status'
+    }
+    $devServer = Join-Path $PSScriptRoot 'shipglows-devserver.ps1'
+    if (-not (Test-Path -LiteralPath $devServer -PathType Leaf)) {
+        Stop-SgCommand 'the managed DevServer update status command is unavailable; rerun the official ShipGlows installer.'
+    }
+    & $devServer update status
     exit $LASTEXITCODE
 }
 
@@ -51,7 +68,7 @@ if ($CommandArguments[0] -ieq 'tools') {
 }
 
 if ($CommandArguments[0] -ine 'rename') {
-    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows skills update, shipglows update [status], shipglows tools <status|update>, or shipglows rename rio <name>"
+    Stop-SgCommand "unknown command '$($CommandArguments[0])'; expected: shipglows runtime update, shipglows skills update, shipglows tools <status|update>, shipglows update status, or shipglows rename rio <name>"
 }
 if ($CommandArguments.Count -lt 2 -or $CommandArguments[1] -ine 'rio') {
     $target = if ($CommandArguments.Count -ge 2) { $CommandArguments[1] } else { '' }

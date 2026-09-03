@@ -497,7 +497,7 @@ The PATH-backed native launchers and compatibility `.cmd` recovery surfaces do
 not depend on the PowerShell profile, so they also work on managed hosts that
 block profile scripts. Supported nested
 menu paths include `s d`, `s e`, `s m r`, `s m t`, `s m o`, `s m l`, and
-`s m n`; run `s h` for the Windows list. Use `shipglows update` to download,
+`s m n`; run `s h` for the Windows list. Use `shipglows runtime update` to download,
 syntax-check, and run the current official Windows bootstrap instead of
 re-running a potentially stale local installer. The native `s update` command
 stops immediately and points to that non-locking update command. When their short names are unclaimed,
@@ -512,12 +512,15 @@ npm-family and agent commands receive
 managed `.cmd` wrappers so blocked npm-generated `.ps1` shims do not require a
 machine-wide execution-policy change.
 
-`shipglows update` is the canonical ShipGlows update command. Use
-`shipglows update status` first when you want to inspect the selected channel.
+`shipglows runtime update` is the canonical ShipGlows runtime update command.
+Bare `shipglows update` performs no mutation and lists the explicit update
+commands supported by the current platform. On Windows these are runtime,
+skills, tools, and status. Use `shipglows update status` first when you want to
+inspect the selected channel.
 The Windows DevServer header shows the installed ShipGlows version immediately
 and checks for a newer release in the background through a local cache; green
 is current, orange is an available patch/source update, and red is a missed
-minor or major version. Use `shipglows update` when the header reports an update.
+minor or major version. Use `shipglows runtime update` when the header reports an update.
 On a linked developer checkout, skills already follow the checkout and only a
 new Codex or Claude session is needed after skill edits; the update command
 refreshes the managed runtime from that checkout's upstream branch. On Unix,
