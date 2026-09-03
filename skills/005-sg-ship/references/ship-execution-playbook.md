@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-09-01"
+updated: "2026-09-03"
 status: active
 source_skill: 005-sg-ship
 scope: ship-execution
@@ -22,6 +22,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-03: every full closure classifies Git state; simple proven-safe cleanup is automatic, while complex or uncertain state receives an exact proposal or blocker."
   - "Operator decision 2026-09-01: proven-integrated task Git artifacts are cleaned automatically under standing stewardship authority without validation prompts."
   - "Wave-2 compaction extracted bounded Git execution from the ship activation contract."
   - "Operator critique 2026-08-16: completed temporary branches and worktrees should be surfaced for cleanup without requiring the operator to notice them."
@@ -97,7 +98,7 @@ After success, use the activation contract's development-mode rule. Hosted-sensi
 
 After the push and every required hosted or production proof reaches a terminal result, apply `skills/references/git-temporary-artifact-lifecycle.md`. Task-scoped branches and worktrees created by the agent are temporary by default unless declared durable at creation; never infer that an ordinary operator, shared, release, or protected branch is disposable merely because its push or merge succeeded.
 
-Propose cleanup only when all of these are proven with fresh read-only checks:
+Always classify Git state at full closure, proportionately to the chantier and observed artifact set. With no task-owned temporary artifact, record `not-applicable` without manufacturing a branch, pull request, worktree, or cleanup task. A simple case may clean automatically only when all of these are proven with fresh read-only checks:
 
 - the refreshed intended remote target contains the temporary branch tip, or authoritative hosted metadata proves a merged pull request with the exact source head and target;
 - the temporary worktree has no tracked or untracked changes;
@@ -106,6 +107,6 @@ Propose cleanup only when all of these are proven with fresh read-only checks:
 - every task-owned managed process has a terminal disposition under the shared lifecycle; for `stopped`, its retained session or exact PID was signalled, awaited, and verified absent without broad process-name termination;
 - every required deployment, hosted proof, and post-push verification is terminal.
 
-When the gate passes, clean the exact owned scope automatically without waiting for the operator to notice it and follow the shared removal order from a surviving canonical worktree. Standing Git/GitHub stewardship authority covers proven-integrated local and remote temporary refs without a validation prompt. Multiple repositories converge only when each target is exact, then clean sequentially; never force branch deletion, discard unique commits, weaken protection, or touch a shared dependency store or unrelated canonical worktree.
+When the gate passes for one small, exact, clean, task-owned artifact set with no shared, durable, review, process, or concurrency purpose, clean it automatically and follow the shared removal order from a surviving canonical worktree. Standing Git/GitHub stewardship authority covers that proven-integrated case without a validation prompt.
 
-If the gate fails or cleanup is declined, preserve the artifacts and record the shared cleanup disposition. Explicit retention requires a reason and review date; `pending` never supports a fully clean completion. If Git removes worktree metadata but ignored residue remains, re-inspect the exact directory before any approved deletion and stop on unexpected content, shared-store boundaries, locks, or ownership ambiguity.
+For a large chantier, multiple repositories or artifacts, dirty state, shared ownership, durable or review purpose, active process, unique commits, protection, or ambiguous evidence, do not collapse the situation into automatic cleanup. Preserve it and either present one exact evidence-backed reconciliation/cleanup proposal for an operator decision or record the concrete blocker when no safe proposal exists. A proposed cleanup may be refused; record that choice as `retained-explicit` with its reason and review date. `pending` never supports a fully clean completion. Multiple exact approved targets clean sequentially; never force branch deletion, discard unique commits, weaken protection, or touch a shared dependency store or unrelated canonical worktree. If Git removes worktree metadata but ignored residue remains, re-inspect the exact directory before any approved deletion and stop on unexpected content, shared-store boundaries, locks, or ownership ambiguity.
