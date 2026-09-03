@@ -670,6 +670,9 @@
           "development-mode": [
             "skills/references/project-development-mode.md"
           ],
+          "vercel-cost-conscious-operations": [
+            "skills/references/vercel-cost-conscious-operations.md"
+          ],
           "target-recommendation": [
             "skills/references/deploy-target-matrix.md"
           ],
@@ -1158,6 +1161,9 @@
           "skills/405-sg-prod/references/production-verification-workflow.md"
         ],
         "gates": {
+          "vercel-cost-conscious-operations": [
+            "skills/405-sg-prod/references/prod-vercel-cost-and-protection.md"
+          ],
           "deployment-evidence": [
             "skills/405-sg-prod/references/prod-deployment-evidence.md"
           ],

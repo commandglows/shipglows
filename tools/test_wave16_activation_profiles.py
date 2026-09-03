@@ -24,7 +24,7 @@ class Wave16ActivationProfileTests(unittest.TestCase):
             "200-sg-redact": 5,
             "201-sg-enrich": 5,
             "400-sg-audit": 3,
-            "405-sg-prod": 4,
+            "405-sg-prod": 5,
         }
         for skill, gate_count in expected.items():
             self.assertIn(skill, self.profiles)
