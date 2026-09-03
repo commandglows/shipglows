@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.2.1"
 project: ShipGlows
 created: "2026-08-29"
 created_at: "2026-08-29 02:23:20 UTC"
 updated: "2026-08-29"
 updated_at: "2026-08-29 04:33:20 UTC"
-status: complete
+status: reviewed
 source_skill: 100-sg-spec
 source_model: GPT-5
 scope: linux-vm-pressure-rescue-public-tutorial
@@ -41,6 +41,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "2026-09-03: governance metadata uses reviewed for the validated artifact while the spec lifecycle remains complete in its operational summary and Status section."
   - "Observed incident on 2026-08-26: a 2 vCPU/4 GB VM became nearly unusable with 2 GB swap at 100%, extreme memory PSI, and two detached Vercel CLI processes consuming about 1.9 GB RAM and 1.2 GB swap."
   - "Verified implementation commit c101bd7 classifies combined RAM/swap/PSI pressure and offers a confirmed, fail-closed rescue for known detached Vercel CLI groups while protecting Codex, SSH, tmux, shells, and application services."
   - "The live post-activation diagnostic reported pressure ok, swap 39%, memory PSI 0.00/0.00, zero eligible orphan groups, and expected runtime ownership."

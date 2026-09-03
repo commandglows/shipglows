@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.4"
+artifact_version: "1.0.5"
 project: ShipGlows
 created: "2026-09-02"
 created_at: "2026-09-01 22:39:16 UTC"
@@ -25,10 +25,11 @@ linked_systems:
   - Obsidian 1.12.7+
 depends_on:
   - artifact: shipglows_data/workflow/specs/shipglows-browser-extension-lab.md
-    artifact_version: "1.0.0"
-    required_status: ready
+    artifact_version: "1.2.1"
+    required_status: reviewed
 supersedes: []
 evidence:
+  - "2026-09-03: the shared browser-extension Lab dependency now targets its current reviewed contract."
   - "Operator approved a local-only Obsidian Lab on 2026-09-02 and excluded Sandbox, VM, personal vault mutation, and publication."
   - "A real Windows spike loaded DreamGlows in Obsidian 1.13.7 with a separate --user-data-dir, temporary vault, CDP endpoint, registered commands, dashboard interaction, screenshot, and unchanged personal Obsidian hashes."
   - "The spike surfaced a DreamGlows runtime note-view error that build and artifact synchronization did not reveal."
