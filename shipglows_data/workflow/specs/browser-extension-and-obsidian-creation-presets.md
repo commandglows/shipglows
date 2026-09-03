@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.1"
+artifact_version: "1.0.2"
 project: ShipGlows
 created: "2026-09-03"
 created_at: "2026-09-03 10:19:49 UTC"
 updated: "2026-09-03"
-updated_at: "2026-09-03 10:35:47 UTC"
+updated_at: "2026-09-03 10:42:20 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: GPT-5.6 Codex
@@ -31,7 +31,7 @@ evidence:
   - "The operator approved WXT, TypeScript, pnpm, multi-browser delivery, and desktop-plus-mobile Obsidian support on 2026-09-03."
   - "The operator selected Vue 3 instead of React for rich interfaces while retaining platform-native UI for simple surfaces."
   - "Existing ShipGlows Labs already provide isolated browser-extension and Obsidian host proof."
-next_step: "Complete exact-scope Git delivery to canonical dev."
+next_step: none
 ---
 
 # Spec: Browser Extension And Obsidian Creation Presets
@@ -101,6 +101,7 @@ For a greenfield browser extension, ShipGlows recommends WXT, strict TypeScript,
 | 2026-09-03 10:35:47 UTC | 102-sg-start | GPT-5.6 Codex | Added both creation presets, Vue lifecycle rules, WXT runtime classification and launch support, browser-specific artifact resolution, focused tests, and aligned technical/editorial documentation. | implemented | Run final verification. |
 | 2026-09-03 10:35:47 UTC | 103-sg-verify | GPT-5.6 Codex | Passed 35 Python contracts, four focused Windows suites, three adjacent Windows regressions, PowerShell parsing, metadata lint, and diff integrity; the umbrella Bash harness was unavailable because WSL has no Bash, while its affected Windows lanes ran directly. | verified | Close and deliver to canonical dev. |
 | 2026-09-03 10:35:47 UTC | 104-sg-end | GPT-5.6 Codex | Reconciled stack, runtime, operator, README, changelog, and chantier documentation; retained installed-runtime activation as an explicit later update boundary. | closed | Commit and push exact scope to canonical dev. |
+| 2026-09-03 10:42:20 UTC | 005-sg-ship | GPT-5.6 Codex | Delivered commit `e49b99e` through PR #105 after both required gates passed and merged it into canonical `dev` as `b6c1bb7`. | shipped | None. |
 
 ## Current Chantier Flow
 
@@ -109,6 +110,6 @@ For a greenfield browser extension, ShipGlows recommends WXT, strict TypeScript,
 - `sg-start`: complete.
 - `sg-verify`: verified.
 - `sg-end`: closed.
-- `sg-ship`: pending.
+- `sg-ship`: shipped through PR #105 to canonical `dev`.
 
-Next step: commit and push exact scope to canonical dev.
+Next step: none. The linked development channel loads the updated skills in a new agent session; installed Windows runtime activation remains a separate explicit update.
