@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.19.0"
+artifact_version: "1.20.0"
 project: ShipGlows
 created: "2026-08-13"
 updated: "2026-09-03"
@@ -28,6 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator clarification 2026-09-03: Git closure inspection is universal, while automatic cleanup is reserved for small exact proven-safe state; complex cleanup is proposed or blocked."
   - "Operator decision 2026-09-03: repository policy initializes to no silent task-branch or worktree creation and can explicitly allow either lane after user discussion."
   - "Operator correction 2026-09-01: Git target resolution reads delivery posture only from canonical business context and pauses for one product question when missing."
   - "Operator decision 2026-09-01: ordinary Git/GitHub stewardship is permanently autonomous; no validation is requested for commit, push, safe reconciliation, or proven cleanup."
@@ -60,7 +61,7 @@ Every intentional mutation requires authority. Clear bounded-request authority, 
 
 ## Git/GitHub stewardship authority
 
-ShipGlows has standing authority to manage ordinary Git/GitHub state for in-scope work without asking for validation. At project or chantier start, each coherent validated milestone, and chantier end, refresh remote truth and converge safely: fetch/prune, inspect branch/upstream/PR/worktree relationships, stage only owned paths, create accurate commits, push them, reconcile merge-ready owned branches or pull requests into the canonical integration branch, and remove proven-integrated temporary branches and worktrees.
+ShipGlows has standing authority to manage ordinary Git/GitHub state for in-scope work without asking for validation. At project or chantier start, each coherent validated milestone, and chantier end, refresh remote truth and attempt safe convergence: fetch/prune, inspect branch/upstream/PR/worktree relationships, stage only owned paths, create accurate commits, push them, and reconcile merge-ready owned branches or pull requests into the canonical integration branch. At closure, always classify task-owned temporary artifacts. Remove them automatically only for a small, exact, clean, proven-integrated set with no shared, durable, review, process, protection, unique-commit, or concurrency purpose. Large, multiple, dirty, shared, ambiguous, or otherwise non-routine state is preserved and receives one exact proposal for an operator decision, or a concrete blocker when no safe proposal exists; a refused proposal becomes explicit retention rather than forgotten debt.
 
 Resolve the target through the read-only resolver in `project-delivery-policy.md`, whose sole posture authority is `shipglows_data/business/business.md`: non-live `development` projects integrate directly into `main`; explicitly live `published` and `sensitive-production` projects integrate into canonical `dev`, while `main` remains production. Missing or invalid posture triggers one product-status capture and exact canonical persistence before Git continues; never guess from runtime `live`, pitch, agent files, or branch state. Promotion `dev -> main` is a release/deployment transition: when its applicable release, CI, preview, security, and production-authority gates are satisfied, perform the Git reconciliation without a separate Git validation.
 

@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-16"
 updated: "2026-09-03"
@@ -24,6 +24,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator clarification 2026-09-03: closure always classifies Git state, but automatic versus proposed cleanup is proportional to chantier size and observed Git complexity."
   - "Operator decision 2026-09-03: task-branch and worktree creation is repository-configurable, initializes to forbidden, and opens user discussion when isolation is justified."
   - "Operator decision 2026-08-16: merged task branches and worktrees should be removed as part of the same lifecycle instead of accumulating as forgotten Git artifacts."
   - "Operator decision 2026-09-01: proven-integrated temporary Git artifacts are cleaned automatically without a validation prompt."
@@ -60,7 +61,7 @@ A closed-but-unmerged pull request, mismatched head SHA, mismatched target, stal
 
 After integration and required hosted or production proof are terminal, inspect the exact artifacts from a surviving canonical worktree rather than the disposable worktree being removed. Require a clean tracked and untracked state, no unintegrated work, no active process using the path, no unresolved review/release/protection purpose, exact task ownership, and no shared-store boundary.
 
-When eligible, immediately converge under the standing Git/GitHub stewardship authority in `mutation-plan-approval.md`; do not propose or request validation for ordinary cleanup. Use this order:
+Choose the closure path proportionately. If no task-owned temporary artifact exists, record `not-applicable`. For one small, exact, clean, proven-integrated artifact set with no shared, durable, review, process, protection, unique-commit, or concurrency purpose, immediately converge under the standing Git/GitHub stewardship authority in `mutation-plan-approval.md`; do not request validation for that ordinary cleanup. For a large chantier, multiple repositories or artifacts, dirty state, shared ownership, durable purpose, active process, protection, unique commits, or ambiguous evidence, preserve the state and present one exact evidence-backed cleanup proposal, or record `blocked` when no safe proposal exists. The operator may refuse a proposed cleanup; record `retained-explicit` with a reason and review date. Use this order only for the exact automatic or approved scope:
 
 1. remove worktree metadata through Git;
 2. inspect and remove only proven task-local disposable residue;

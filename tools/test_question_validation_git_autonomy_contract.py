@@ -54,11 +54,14 @@ class QuestionValidationGitAutonomyContractTests(unittest.TestCase):
         ):
             self.assertIn(marker, self.approval + self.policy)
 
-    def test_cleanup_is_automatic_only_after_proof(self) -> None:
+    def test_cleanup_is_always_classified_and_proportional_after_proof(self) -> None:
         for marker in (
             "After integration and required hosted or production proof",
             "clean tracked and untracked state",
-            "do not propose or request validation",
+            "do not request validation for that ordinary cleanup",
+            "For a large chantier, multiple repositories or artifacts",
+            "present one exact evidence-backed cleanup proposal",
+            "The operator may refuse a proposed cleanup",
             "never force",
             "preserve the artifact as `blocked`",
         ):
