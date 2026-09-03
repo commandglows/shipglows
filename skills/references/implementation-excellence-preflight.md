@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-08-23"
+updated: "2026-09-03"
 status: active
 source_skill: 900-shipglows-core
 scope: implementation-excellence-preflight
@@ -22,6 +22,7 @@ linked_systems:
   - skills/references/design-system-token-contract.md
   - skills/references/clean-code-quality-contract.md
   - skills/references/owasp-application-security-awareness.md
+  - skills/references/interactive-state-transition-contract.md
 depends_on:
   - artifact: skills/references/design-system-token-contract.md
     artifact_version: "1.4.0"
@@ -39,6 +40,7 @@ evidence:
   - "Operator directive 2026-08-21: the frontend preflight must guarantee that essential homepage content remains visible if JavaScript or animation fails."
   - "Operator directive 2026-08-21: the frontend preflight must prefer semantic HTML and native CSS and require a functional justification for JavaScript."
   - "Recovery verification 2026-08-23: focused frontend-gate tests and repository-governance checks passed on the current main baseline."
+  - "Operator decision 2026-09-03: stateful and temporal UI requires semantic state separation plus transition-based proof."
 next_review: "2026-11-21"
 next_step: "Apply the preflight before the next substantive authored-code chantier."
 ---
@@ -80,6 +82,7 @@ For any UI, layout, component, theme, motion, interaction, responsive, or visual
 - record the functional justification for presentation-layer JavaScript and keep its client-owned behavior as small as practical; framework convenience, visual novelty, or library availability alone does not pass the gate
 - prove content visibility with failed or disabled JavaScript/animation initialization on public and product-critical pages when applicable; build success or source inspection alone does not prove this fallback
 - keep reusable state and domain decisions outside screen-specific presentation code when that improves reuse and proof
+- for stateful, temporal, session-based, continuously interactive, Rive-driven, or 3D-driven UI, load `interactive-state-transition-contract.md`; implement product-semantic state separately from renderer/provider flags and prove material transitions and temporal invariants rather than only static states
 
 Load the design-system token contract directly from the activating skill and apply its drift scan to changed UI files. A local component or raw literal is not justified merely because it is faster.
 
@@ -124,6 +127,7 @@ Use `pass`, `partial`, `fail`, or `not applicable`, with evidence for exceptions
 - `IEP-FRONTEND-PRIMITIVE`: a bespoke control that duplicates a maintained shared or accessible primitive fails until reused or explicitly justified and proven.
 - `IEP-FRONTEND-CONTENT-AVAILABILITY`: essential content or primary actions hidden until JavaScript, observers, hydration, or animation initializes fail the frontend gate until the initial semantic document and failure-path proof preserve access.
 - `IEP-FRONTEND-CSS-FIRST`: presentation-layer JavaScript without a recorded functional need that HTML/CSS cannot robustly meet fails the frontend gate; retain the smallest justified behavior over a JavaScript-free dogma when state, data, complex interaction, coordination, or runtime measurement is genuinely required.
+- `IEP-FRONTEND-STATE-TRANSITIONS`: a stateful interaction fails when reachable states or transitions are undefined, one engine/rendering flag stands for independently varying product concepts, paused values advance, resumed values remain frozen, terminal/restart behavior is ambiguous, or proof covers only static renders.
 - `IEP-BACKEND-AUTHZ`: client-only permission checks fail the backend gate.
 - `IEP-BACKEND-CONCURRENCY`: mutation or autosave code must address applicable stale-write, replay, idempotence, partial-failure, and recovery behavior.
 - `IEP-SHARED-BOUNDARY`: reusable domain decisions stay independent of presentation or provider adapters when that boundary has concrete value.

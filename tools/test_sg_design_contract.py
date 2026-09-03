@@ -16,6 +16,8 @@ ANIMATION_PLAYBOOK = ROOT / "skills" / "006-sg-design" / "references" / "animati
 IDENTITY_PLAYBOOK = ROOT / "skills" / "006-sg-design" / "references" / "brand-identity-playbook.md"
 LIFECYCLE_ROUTING = ROOT / "skills" / "006-sg-design" / "references" / "design-lifecycle-routing.md"
 PROOF_GUIDANCE = ROOT / "skills" / "006-sg-design" / "references" / "design-proof-and-reporting.md"
+INTERACTIVE_STATE = ROOT / "skills" / "references" / "interactive-state-transition-contract.md"
+IMPLEMENTATION_PREFLIGHT = ROOT / "skills" / "references" / "implementation-excellence-preflight.md"
 DESIGN_AUDIT = ROOT / "skills" / "006-sg-design" / "references" / "design-audit-playbook.md"
 REFERENCE_DRIVEN = ROOT / "skills" / "006-sg-design" / "references" / "reference-driven-frontend-playbook.md"
 SYSTEM_CREATION = ROOT / "skills" / "006-sg-design" / "references" / "design-system-creation-playbook.md"
@@ -32,6 +34,32 @@ def normalized_text(path: Path) -> str:
 
 
 class DesignContractTests(unittest.TestCase):
+    def test_stateful_interface_requires_transition_model_and_temporal_proof(self) -> None:
+        skill = normalized_text(DESIGN_SKILL)
+        routing = normalized_text(LIFECYCLE_ROUTING)
+        proof = normalized_text(PROOF_GUIDANCE)
+        contract = normalized_text(INTERACTIVE_STATE)
+        implementation = normalized_text(IMPLEMENTATION_PREFLIGHT)
+
+        self.assertIn("interactive-state-transition-contract.md", skill)
+        self.assertIn("interactive-state-transition-contract.md", routing)
+        self.assertIn("state/transition matrix, temporal invariants", routing)
+        self.assertIn("Static screenshots, individual-state renders", proof)
+        for phrase in (
+            "## Design Contract Before Visual Completion",
+            "| Evolution | Values, visuals, or processes that continue to advance |",
+            "| Freeze | Values and visuals that must stop changing |",
+            "instantaneous activity from the existence of a session",
+            "Do not let a flag such as `isPlaying`",
+            "## Transition And Temporal Proof",
+            "Use a controllable clock",
+            "## Rich Runtime Adapters",
+            "Rive, WebGL, game engines, 3D libraries",
+            "Waveform collection advances only during active recording",
+        ):
+            self.assertIn(phrase, contract)
+        self.assertIn("IEP-FRONTEND-STATE-TRANSITIONS", implementation)
+
     def test_interface_is_a_first_class_bounded_visual_design_mode(self) -> None:
         skill = normalized_text(DESIGN_SKILL)
         routing = normalized_text(LIFECYCLE_ROUTING)

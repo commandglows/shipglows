@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-08-12"
+updated: "2026-09-03"
 status: active
 source_skill: 006-sg-design
 scope: design-proof-and-reporting
@@ -32,6 +32,7 @@ evidence:
   - "2026-07-15 consolidation rewrote design proof routes to use canonical 006-sg-design modes."
   - "Operator correction 2026-07-18: design user reports keep proof consequences visible while hiding internal routes and lifecycle controls."
   - "2026-08-04 added motion-specific browser, reduced-motion, lifecycle, and performance proof obligations."
+  - "Operator decision 2026-09-03 requires transition and temporal proof for stateful interactions."
 next_review: "2026-08-15"
 next_step: "/104-sg-end consolidate design skill surface into modes and playbooks"
 ---
@@ -57,6 +58,12 @@ Proof must match the claim:
 - hosted truth claim: `405-sg-prod` or `004-sg-deploy` before browser/auth proof when the target is unknown
 
 Do not claim visual non-regression without browser proof. Do not claim accessibility safety from screenshots alone.
+
+For a stateful or temporal interaction, load the shared interactive-state and
+transition contract. Static screenshots, individual-state renders, and build
+success are supporting evidence only: completion requires observable proof of
+the material transitions, including applicable freeze, resume, completion,
+reset, failure, recovery, remount, and fallback invariants.
 
 ## Reference-Fidelity Proof
 

@@ -30,6 +30,7 @@ Load these before the matching work:
 - `$SHIPGLOWS_ROOT/skills/references/decision-quality-contract.md` for route and implementation decisions.
 - `$SHIPGLOWS_ROOT/skills/references/master-delegation-semantics.md` before choosing topology; parallelize independent read-only design evidence by default and require ready write batches for concurrent edits.
 - `$SHIPGLOWS_ROOT/skills/references/design-system-token-contract.md` before any UI, layout, token, theme, or visual-proof work.
+- `$SHIPGLOWS_ROOT/skills/references/interactive-state-transition-contract.md` before designing or changing a stateful, temporal, session-based, continuously interactive, Rive-driven, or 3D-driven interface.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/design-lifecycle-routing.md` for mode grammar, scope gates, and sequencing.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/brand-identity-playbook.md` for `identity [scope]` after positioning, audience, and existing brand truth are resolved.
 - `$SHIPGLOWS_ROOT/skills/006-sg-design/references/animation-playbook.md` for `animation <audit|design|implement|tune> [scope]` after valid animation selection.
@@ -110,5 +111,6 @@ Every blocked report must include the exact next recovery route.
 - Always surface the token implementation handoff when centralization exists but site consumption is incomplete.
 - Verify visual claims with visible proof and specialist evidence, not only code scans.
 - For reference-driven frontend work, inventory representative widths and states, translate through project-native components and design tokens, and iterate from rendered browser comparison before claiming fidelity.
+- For stateful or temporal interfaces, model reachable states, transitions, evolving and frozen values, persistence, allowed actions, and transition proof before treating the visual design as complete.
 - Treat GSAP as an optional adapter, never as a public alias or implicit dependency installation.
 - Treat UX-reference providers as replaceable evidence adapters: current user evidence, accessibility, platform guidance, product/brand truth, and the project design system outrank pattern prevalence; preserve a complete fallback when no external connector is callable.
