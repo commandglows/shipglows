@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.8.0"
+artifact_version: "2.9.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-09-03"
@@ -18,6 +18,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: compact single-line rows with blank-line separation govern every user-facing report state, excluding technical agent handoffs."
   - "Operator decision 2026-09-03: start rows pair each label with its content and use blank lines between rows."
   - "Operator decision 2026-09-03: closure rows pair each label with its content and use blank lines between rows."
   - "Extracted from reporting-contract.md in wave 13 for maintenance-only loading."
@@ -51,6 +52,7 @@ next_step: none
 - `SSRP-007 directed conversation`: milestones advance the unresolved goal; they do not replace it.
 - `SSRP-008 no modified-file inventory`: user mode omits modified-files heading, file names, paths, and counts.
 - `SSRP-009 chantier opening`: local/spec header precedes time-only verdict; no trailing chantier block.
+- `SSRP-009A universal compact user layout`: every user-facing start, progress, partial, blocked, audit, closure, delivery, persistence, limits, context, continuation, and decision-framing row keeps its label and content on one line with exactly one blank line between labelled rows; the two opening header lines and contiguous numbered choice lists remain intentional exceptions, and explicit agent handoffs retain their technical structure.
 - `SSRP-010 compact validation line`: emit `✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236`; unavailable/failing segments stay separate.
 - `SSRP-011 chantier emoji semantics`: normal `🧱`, genuinely blocked `🚧`, context markers only for their declared meanings.
 - `SSRP-012 unfinished chantier choice`: open user result ends with two or three plain choices; complete result does not.

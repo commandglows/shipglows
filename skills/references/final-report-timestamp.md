@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-05-05"
 updated: "2026-07-28"
@@ -21,6 +21,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: the two opening lines remain adjacent, followed by one blank line before compact labelled report rows."
   - "User request 2026-05-05: final reports need a visible Paris-time verdict timestamp so stale verdicts after crash or resume are not mistaken for current state."
   - "User decision 2026-07-15: verdicts appear first as a compact timestamped heading so the operator can read the response and any decision options without a trailing status block."
   - "User decision 2026-07-16: the chantier local/spec name is the first line and the timestamped verdict follows immediately below it."
@@ -62,6 +63,7 @@ For a genuinely blocked verdict, replace the first marker only:
 - Display only `HH:mm`; do not include the calendar date in the verdict header.
 - Keep UTC timestamps for internal ledgers, specs, run histories, and machine-readable artifacts that already require UTC.
 - Put exactly one chantier header before the verdict; follow `reporting-contract.md` for local/spec selection and naming.
+- Keep the chantier and verdict lines adjacent, then leave exactly one blank line before the first compact labelled report row.
 - Keep `🧱` for normal, successful, partial, or in-progress runs; use `🚧` only when the verdict is blocked.
 - Put the substantive response immediately below the verdict: result, proof, limits, and any decision question.
 - When route context helps the operator understand the next action, add `🧭 Suite : <outcome or decision> — <short reason>` directly below the verdict. Never name an internal owner, skill, command, lifecycle stage, or delegated agent there.
