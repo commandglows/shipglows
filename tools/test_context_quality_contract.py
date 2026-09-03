@@ -237,6 +237,40 @@ class ContextQualityContractTests(unittest.TestCase):
             self.assertIn(marker, doctrine)
         self.assertIn("does not trigger a handoff", doctrine)
 
+    def test_continuity_answers_one_next_task_reliability_question(self) -> None:
+        doctrine = text(CONTINUITY)
+        for marker in (
+            "is the carried context sufficiently reliable for the proposed next task?",
+            "proposed next task",
+            "single continuity decision",
+            "renders the context row",
+            "drives any handoff consequence",
+        ):
+            self.assertIn(marker, doctrine)
+
+    def test_report_cards_require_a_resolved_continuity_verdict(self) -> None:
+        raw = (ROOT / "skills/references/reporting-contract.md").read_text(encoding="utf-8")
+        start_card = raw.split("After approval and at the true start", 1)[1].split(
+            "Use `🎯 VERDICT", 1
+        )[0]
+        closure_card = raw.split("For every successful closure report", 1)[1].split(
+            "Translate the eight labels", 1
+        )[0]
+        for card in (start_card, closure_card):
+            self.assertIn("<resolved continuity verdict>", card)
+            self.assertNotIn("suffisant · continuer dans cette conversation", card)
+
+    def test_retention_and_continuity_pressure_scenarios_remain_independent(self) -> None:
+        scenarios = text(ROOT / "skills/references/reporting-pressure-scenarios.md")
+        for marker in (
+            "ssrp-038 retention versus continuity",
+            "completed-work-reliable-next-task",
+            "valuable-thread-state-independent",
+            "fully-persisted-but-degraded",
+            "single-decision-rendering",
+        ):
+            self.assertIn(marker, scenarios)
+
     def test_context_transition_verdict_is_visible_and_bounded(self) -> None:
         doctrine = text(CONTINUITY)
         reporting = text(ROOT / "skills/references/reporting-contract.md")

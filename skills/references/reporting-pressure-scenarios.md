@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.9.0"
+artifact_version: "2.10.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-09-03"
+updated: "2026-09-04"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-pressure-scenarios
@@ -37,6 +37,7 @@ evidence:
   - "Operator correction 2026-09-01: a mapped technical code change cannot be reported documentation-not-impacted merely because public/editorial behavior is unchanged."
   - "Operator correction 2026-09-01: editorial alignment `not impacted` cannot be used as a no-opportunity verdict."
   - "Operator correction 2026-09-03: start and closure cards must expose context sufficiency without allowing superficial restart signals."
+  - "Operator correction 2026-09-04: continuity evaluates reliability for the proposed next task, while recap independently identifies non-disposable thread information."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -92,7 +93,12 @@ next_step: none
   - `invalid-collapse`: deriving “no editorial or product opportunity” from alignment `not impacted` fails.
   - `authority-boundary`: a candidate does not create content, product work, publication, or an editorial-roadmap record without applicable authority.
 - `SSRP-037 visible context transition`:
-  - `healthy-start-or-close`: every substantive start and every closure includes `🧠 CONTEXTE` with `suffisant` and explicitly continues in the current conversation.
+  - `healthy-start-or-close`: every substantive start and every closure resolves its proposed next task, then includes `🧠 CONTEXTE` with `suffisant` and explicitly continues in the current conversation.
   - `restored-after-refresh`: a material degradation signal triggers only affected-source rereading; when reliability returns, the card uses `rafraîchi` and continues in the current conversation.
   - `persistent-degradation`: only unreliability that remains after targeted refresh and stabilization uses `insuffisamment fiable`, recommends an operator-started new conversation, and includes the self-contained handoff.
   - `superficial-signal`: length, message count, elapsed time, compaction, or a new subject alone never upgrades the verdict to a handoff recommendation.
+- `SSRP-038 retention versus continuity`:
+  - `completed-work-reliable-next-task`: finishing the current chantier does not decide continuity; reliable carried context for the proposed next task continues in the same conversation.
+  - `valuable-thread-state-independent`: recap may find a non-disposable decision or idea still present only in the thread while continuity independently remains sufficient for the proposed next task.
+  - `fully-persisted-but-degraded`: recap may find no information left to preserve while unresolved context degradation still requires a stabilized handoff for the proposed next task.
+  - `single-decision-rendering`: the report resolves continuity once; the context row and any handoff consequence render from that decision while the next-outcome selector and recap retain their separate responsibilities.

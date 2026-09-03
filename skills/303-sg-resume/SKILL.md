@@ -26,26 +26,26 @@ Before producing the final report, load `$SHIPGLOWS_ROOT/skills/references/repor
 
 When the visible conversation already carries a bounded `Context Capsule` or exact governed pointer, preserve its target, evidence states, gaps, truncation and next action in the recap. Do not regenerate or enrich it from hidden state; route actionable continuation to `706-continue`, which owns freshness checks.
 
-Give the user a fast closure snapshot of the current conversation only.
+Give the user a fast retention snapshot of the current conversation only.
 
 ## Goal
 
-Give the user a fast closure snapshot of the current conversation only.
+Identify the useful information that still exists only in the visible conversation and would be lost if that transcript were discarded.
 
 `303-sg-resume` answers one summary question:
 
 ```text
-What happened in this visible conversation, what still appears open here, and can the user safely close this thread?
+What non-disposable information still exists only in this visible conversation and would be lost if the thread were discarded?
 ```
 
 This skill is for users who feel lost across many chats and need to know:
 - what was done in this thread
 - what is still planned or in progress
 - whether some tasks mentioned earlier were quietly dropped, forgotten, or left implicit
-- whether they can close the conversation
-- what important context, idea, risk, next step, or product angle would be lost if they close it now
+- which important decision, evidence, idea, risk, next step, or product angle still lacks a durable home
+- whether nothing meaningful remains to preserve from the visible thread
 
-Keep the boundary explicit: `303-sg-resume` summarizes the visible conversation only. It does not inspect repo state, infer hidden durable truth, continue a chantier, or decide the next implementation owner from local files.
+Keep the boundary explicit: `303-sg-resume` summarizes the visible conversation only. It does not inspect repo state, infer hidden durable truth, continue a chantier, or decide the next implementation owner from local files. It does not assess whether context is reliable for a future task; conversation continuity is a separate next-task decision.
 
 Route instead of staying here when the user needs more than a thread recap:
 
@@ -72,7 +72,7 @@ Always answer in French unless the user asks otherwise.
 Keep the whole answer concise:
 - 3 to 5 bullet points maximum for tasks
 - one short commits section
-- one short closure status line
+- one short information-retention status line
 - one short "À ne pas oublier" line
 
 Use this structure:
@@ -86,7 +86,7 @@ Use this structure:
 **Commits effectués**
 - Aucun commit effectué dans cette conversation.
 
-**Statut**: Tu peux fermer / Garde ouvert / À vérifier avant de fermer.
+**Conservation**: À préserver / Rien à préserver / À vérifier.
 
 **À ne pas oublier**: précise s'il reste un écart entre les tâches évoquées et les tâches réellement menées à terme, s'il y a un oubli concret probable, ou s'il existe une piste produit intéressante à creuser ensuite.
 ```
@@ -98,12 +98,14 @@ Use only these labels in task bullets:
 - `En cours`: work started but was not completed or not verified.
 - `Planifié`: discussed or decided, but not started.
 
-## Closure Verdict
+## Information-Retention Verdict
+
+Classify only whether the visible thread contains information with continuing value that is not shown as durably captured. This is independent from context reliability for a proposed next task and never recommends opening or closing a conversation.
 
 Use:
-- `Tu peux fermer` when all meaningful tasks are completed and no important unresolved action remains.
-- `Garde ouvert` when work is actively incomplete, blocked, or depends on the current context.
-- `À vérifier avant de fermer` when most work is done but there is a missing confirmation, test, commit, deployment, decision, or follow-up.
+- `Information to preserve` -> `À préserver` when an important decision, proof, constraint, unresolved commitment, or high-value idea still appears to exist only in the thread.
+- `No information to preserve` -> `Rien à préserver` when the visible thread shows that meaningful outcomes and open state are already durable or no longer useful.
+- `Uncertain retention` -> `À vérifier` when the visible conversation cannot establish whether a material item was persisted.
 
 ## Commits
 
@@ -166,4 +168,4 @@ If there is nothing meaningful, say:
 - No more than 5 task bullets.
 - If the thread has more than 5 tasks, merge related items and keep only the most important.
 - The "À ne pas oublier" line should be concrete, slightly adversarial, and optimized to catch omission rather than to sound polite.
-- If evidence is unclear, mark the item `À vérifier avant de fermer` in the status line rather than overstating completion.
+- If persistence evidence is unclear, use `À vérifier` in the conservation line rather than claiming that nothing remains to preserve.

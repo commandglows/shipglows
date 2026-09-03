@@ -33,6 +33,17 @@ class ContextLifecycleCapsuleContractTests(unittest.TestCase):
         self.assertIn("Context Capsule", body)
         self.assertIn("Do not regenerate", body)
 
+    def test_recap_judges_non_disposable_thread_information_not_continuity(self) -> None:
+        body = (ROOT / "skills/303-sg-resume/SKILL.md").read_text(encoding="utf-8")
+        for marker in (
+            "What non-disposable information still exists only in this visible conversation",
+            "does not assess whether context is reliable for a future task",
+            "Information to preserve",
+            "No information to preserve",
+        ):
+            self.assertIn(marker, body)
+        self.assertNotIn("Tu peux fermer / Garde ouvert", body)
+
     def test_closure_revalidates_context_before_documentation_classification(self) -> None:
         quality = (ROOT / "skills/references/context-quality-contract.md").read_text(encoding="utf-8")
         reflection = (ROOT / "skills/references/documentation-reflection-gate.md").read_text(encoding="utf-8")

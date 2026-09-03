@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-21"
-updated: "2026-09-03"
+updated: "2026-09-04"
 status: active
 source_skill: 900-shipglows-core
 scope: conversation-continuity-and-restart-handoff
@@ -28,26 +28,24 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Operator decision 2026-08-21: conversation boundaries follow outcome coherence and context reliability, not an arbitrary message count."
-  - "Operator clarification 2026-08-21: Codex cannot restart its active conversation; only the operator can start a fresh one."
-  - "Operator approval 2026-08-21: a restart recommendation follows stabilization and includes a self-contained copyable prompt."
-  - "Operator correction 2026-08-21: useful context becoming insufficiently reliable is the trigger; an independent outcome alone is never sufficient."
-  - "Operator approval 2026-08-22: context health checks stay lightweight at transitions and refresh only affected sources when a degradation signal exists."
-  - "Operator approval 2026-08-24: the active contract was reduced from 1,055 to 706 words while preserving behavior and CCR-001 through CCR-009."
+  - "Operator decisions 2026-08-21 through 2026-08-24: continuity follows reliability, never length or subject alone; only the operator restarts after lightweight refresh and stabilized handoff."
   - "Operator correction 2026-09-03: every substantive chantier start and every chantier closure visibly reports the transition context verdict and whether to continue or use an operator-started handoff."
+  - "Operator correction 2026-09-04: continuity answers only whether carried context is reliable enough for the proposed next task; thread information retention belongs to recap."
 next_review: "2026-11-21"
-next_step: Review this contract against observed restart handoffs after three uses.
+next_step: none
 ---
 
 # Conversation Continuity Contract
 
 ## Purpose
 
-Continue the current conversation while useful context remains reliable. Recommend an operator-started handoff only after evidenced degradation survives a targeted refresh. Conversation length alone, elapsed time, message count, compaction, or an independent outcome alone is never sufficient.
+Answer one question: **Is the carried context sufficiently reliable for the proposed next task?** Continue the current conversation when it is; when insufficiently reliable after targeted refresh, recommend an operator-started handoff. Length alone, elapsed time, message count, compaction, task completion, or an independent outcome alone is never sufficient.
 
 ## Decision Sequence
 
-Run a lightweight transition check at the start of every substantive chantier and at the end of a chantier, after compaction, or on a major subject change. Inspect carried outcome, target, durable owner, repository, accepted decisions, authority, and next action. It requires no full conversation reread and does not trigger a handoff by itself.
+Resolve the proposed next task first: the chantier being started, or the next outcome selected at closure. Then run a lightweight transition check at the start of every substantive chantier and at the end of a chantier, after compaction, or on a major subject change. Inspect only whether the carried outcome, target, durable owner, repository, accepted decisions, authority, and evidence are sufficiently reliable and relevant for that task. It requires no full conversation reread and does not trigger a handoff by itself.
+
+Produce one single continuity decision. That decision renders the context row and drives any handoff consequence. The next-outcome selector chooses the task; continuity decides whether the current conversation can carry it reliably. Whether the completed thread still contains non-disposable information is a separate recap concern and does not alter this decision.
 
 Expose the resulting transition verdict in the shared start or closure card under `🧠 CONTEXTE`, using exactly one compact state:
 
