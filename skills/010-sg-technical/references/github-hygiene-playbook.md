@@ -1,7 +1,7 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-04"
 updated: "2026-09-03"
@@ -24,6 +24,7 @@ depends_on:
 supersedes:
   - skills/310-sg-github-hygiene/SKILL.md
 evidence:
+  - "Operator clarification 2026-09-03: manual Git hygiene always classifies cleanup, automates small proven-safe state, and proposes or blocks complex state proportionately."
   - "Operator decision 2026-09-03: mutating Git hygiene must honor repository-local task-branch and worktree creation policy."
   - "Operator correction 2026-09-01: Git hygiene derives its target from canonical business delivery posture and distinguishes product publication from runtime live state."
   - "Transferred from the retired GitHub hygiene entrypoint into the technical métier skill."
@@ -80,7 +81,7 @@ Default mode is `audit`.
 
 - `audit`: read-only PR, branch, and worktree dashboard for the current repo or selected workspace repos
 - `reconcile`: classify and autonomously integrate merge-ready candidates into the canonical integration branch
-- `clean`: remove proven-integrated temporary branches and worktrees without a validation prompt
+- `clean`: classify every selected temporary branch/worktree, automatically remove a small proven-safe set, and propose or block complex cleanup proportionately
 - `branches`: focus on branch sync, stale refs, merged branches, and PR drift
 - `dependabot`: focus on `.github/dependabot.yml`, open Dependabot PRs, and blocked update lanes
 - `fix`: apply bounded hygiene repairs only after the audit has classified the risk
@@ -182,10 +183,14 @@ continue through its terminal cleanup disposition.
 
 `clean` mode loads that shared lifecycle and inventories both registered and
 prunable worktrees plus their local/remote branches. It verifies exact
-ownership and integration, removes without validation in the shared safe order, and records
-a terminal cleanup disposition for every candidate. Dirty worktrees, unique
-commits, uncertain integration, protected/durable branches, active ownership,
-or unrelated residue remain `blocked`, `deferred`, or `retained` with reason.
+ownership and integration, then chooses proportionately: automatically remove
+one small, exact, clean, proven-integrated task-owned set with no shared or
+durable purpose; present one exact evidence-backed proposal for large,
+multiple, dirty, shared, active, protected, unique, or ambiguous state; or
+record the blocker when no safe proposal exists. A proposed cleanup may be
+refused and becomes `retained-explicit` with a reason and review date. Every
+candidate receives a terminal cleanup disposition; nothing remains silently
+pending.
 
 `branches` mode may propose or perform only these bounded actions:
 
@@ -275,6 +280,8 @@ Pressure scenarios:
 - `GIT-UNCERTAIN-PRESERVE`: Unique commits, non-trivial conflicts, failing checks, ambiguous ownership, or unproven integration are retained and diagnosed without force or validation ceremony.
 - `GIT-CLEAN-SQUASH`: Given a squash-merged PR, `clean` proves integration from refreshed PR state before assigning a terminal cleanup disposition to its worktree and branches.
 - `GIT-CLEAN-DIRTY`: Given a dirty worktree, `clean` preserves it and reports the exact blocker.
+- `GIT-CLEAN-SIMPLE-AUTOMATIC`: Given one small exact clean proven-integrated task-owned set with no shared or durable purpose, `clean` removes it automatically in the shared safe order.
+- `GIT-CLEAN-COMPLEX-PROPOSED`: Given large, multiple, dirty, shared, active, protected, unique, or ambiguous state, `clean` preserves it and presents one exact safe proposal or blocker; an operator refusal becomes explicit retention.
 - `GIT-REQUIRED-GATE`: Given an active managed GitHub repository, hygiene detects a directly required path-filtered job and routes to the canonical always-on gate before merge-ready classification.
 
 - Given a clean repo with branches behind origin, when `fix` is requested, then the skill fast-forwards only safe branches and reports the rest as blocked with exact technical evidence.
