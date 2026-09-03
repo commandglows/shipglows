@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-06-29"
 updated: "2026-09-03"
@@ -30,6 +30,7 @@ supersedes: []
 evidence:
   - "Operator decision 2026-08-22 adds identity as a first-class design outcome with explicit marketing, content, implementation, Git, and human-usability boundaries."
   - "Operator decision 2026-09-03 adds interface as the explicit mode for UI composition within established product, brand, and design-system direction."
+  - "Operator decision 2026-09-03 requires state and transition modeling for stateful, temporal, Rive-driven, and 3D-driven interface work."
   - "2026-07-15 consolidation replaced six public specialist routes with explicit 006-sg-design modes and bounded playbooks."
   - "2026-08-04 added the provider-neutral animation mode and its bounded playbook."
 next_review: "2026-08-15"
@@ -53,7 +54,7 @@ Public `sg-design` accepts these commands: `identity [scope]`, `interface [scope
 
 `identity` loads `brand-identity-playbook.md`. It creates or evolves the visual identity system from governed business, audience, positioning, promise, and brand truth. Marketing owns market, offer, positioning, message strategy, and verbal foundations; design owns art direction and the visual identity system; content owns editorial expression; implementation owners apply the accepted system to technical surfaces. One public owner retains the outcome and coordinates these boundaries internally.
 
-`interface` owns the visual and interaction composition of a page, screen, or bounded product surface when product intent, journey, brand direction, and design-system authority are already established. It covers hierarchy, layout, responsive behavior, component composition, interaction presentation, and applicable accessibility. It does not silently redefine the customer journey, product behavior, brand identity, or design-system foundations; route those material changes through their existing owners or modes. Load reference-driven frontend guidance when visual references define the target, and use the normal design proof contract before completion.
+`interface` owns the visual and interaction composition of a page, screen, or bounded product surface when product intent, journey, brand direction, and design-system authority are already established. It covers hierarchy, layout, responsive behavior, component composition, interaction presentation, and applicable accessibility. It does not silently redefine the customer journey, product behavior, brand identity, or design-system foundations; route those material changes through their existing owners or modes. Load reference-driven frontend guidance when visual references define the target. For stateful, temporal, session-based, continuously interactive, Rive-driven, or 3D-driven surfaces, load `$SHIPGLOWS_ROOT/skills/references/interactive-state-transition-contract.md` and define the behavioral model before visual completion. Use the normal design proof contract before completion.
 
 `audit` without a subtype, an unknown subtype, or an invalid mode must list these supported choices or ask one targeted routing question. Never infer an audit subtype. Load only its mapped primary playbook after a valid selection; `audit ui deep` may then load the three explicit companion audit playbooks required by its contract.
 
@@ -104,6 +105,7 @@ Before implementation, the ready spec must name:
 - mode playbook and lifecycle or proof skills to run
 - validation and browser proof obligations
 - reference viewport/state inventory and acceptable project-system adaptations when visual references are the target
+- state/transition matrix, temporal invariants, runtime adapter and fallback boundaries, and transition-test obligations when the interactive-state contract applies
 - docs/editorial impact
 - ship/deploy posture
 
