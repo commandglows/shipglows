@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-06-29"
-updated: "2026-08-12"
+updated: "2026-09-04"
 status: active
 source_skill: 004-sg-deploy
 scope: 004-sg-deploy-release-confidence-workflow
@@ -29,6 +29,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-04: Vercel release proof must preserve economical build defaults and never use Pro credits merely to accelerate agent work."
   - "Extracted from skills/004-sg-deploy/SKILL.md to keep the activation body compact."
   - "Wave 10 verified this pack as the post-scope release route in the explicit activation profile."
   - "Wave 12 aligned dependency expansion with the compact lifecycle decision core."
@@ -51,6 +52,8 @@ Identify:
 - project development mode from `$SHIPGLOWS_ROOT/skills/references/project-development-mode.md` plus `CLAUDE.md` or `SHIPGLOWS.md`
 - whether the release touches auth, data, permissions, payments, webhooks, background jobs, migrations, public pages, docs, or external side effects
 - linked open high or critical bugs from `shipglows_data/workflow/bugs/*.md`, using optional `shipglows_data/workflow/BUGS.md` only as triage context when present
+
+When Vercel is the provider, load `skills/references/vercel-cost-conscious-operations.md`. Resolve the declared plan and build/concurrency policy before triggering provider work. Reuse a matching ready deployment when its commit, branch, environment, and proof surface are valid; do not create a new build only for convenience. Hobby remains supported, and Pro never implies Turbo, unrestricted concurrency, or credit consumption.
 
 Ask one targeted question only when the answer changes staging scope, target environment, skip-check risk, destructive side effects, or release framing.
 
@@ -98,6 +101,7 @@ After a successful push, record:
 - ship mode
 - whether hosted validation is required by project development mode
 - whether Sentry release/environment correlation is expected for post-deploy runtime proof
+- for Vercel, whether a new build was necessary and whether its machine/concurrency choice matches the project's economical policy
 
 ## Phase 4 - Deployment Truth
 

@@ -1,10 +1,10 @@
 ---
 artifact: contract
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.2.0"
 project: ShipGlows
 created: "2026-07-12"
-updated: "2026-07-12"
+updated: "2026-09-04"
 status: draft
 source_skill: 009-sg-skill-build
 scope: operator-role-vercel-specialist
@@ -16,10 +16,12 @@ docs_impact: yes
 linked_systems: [shipglows_data/technical/external-platforms/vercel.md, shipglows_data/business/agent-profiles/vercel-specialist.md]
 depends_on:
   - artifact: "shipglows_data/technical/external-platforms/vercel.md"
-    artifact_version: "0.1.0"
-    required_status: draft
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
-evidence: ["Operator decision 2026-07-12: add a bounded Vercel specialist profile backed by canonical technical references."]
+evidence:
+  - "2026-09-04: dependency advanced to the refreshed active Vercel platform note."
+  - "Operator decision 2026-07-12: add a bounded Vercel specialist profile backed by canonical technical references."
 next_review: "2026-08-12"
 next_step: "/103-sg-verify operator-role-vercel-specialist"
 ---
