@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.1"
 project: "ShipGlows"
 created: "2026-09-04"
 created_at: "2026-09-03 22:54:32 UTC"
 updated: "2026-09-04"
 updated_at: "2026-09-03 22:54:32 UTC"
-status: verified
+status: reviewed
 source_skill: sg-spec
 source_model: "GPT-5 Codex"
 scope: feature
@@ -37,14 +37,14 @@ evidence:
   - "Operator decision 2026-09-04: Vercel Pro is primarily required for private organization repository deployments."
   - "Operator decision 2026-09-04: Turbo speed has no intrinsic value; credits must be spent only through measured, deliberate, controlled, observed, and planned choices."
   - "Official Vercel documentation checked 2026-09-04 for Pro credits, Spend Management, builds, deployment protection, WAF, observability, analytics, and MCP."
-next_step: "/sg-ship Vercel Pro cost-conscious governance"
+next_step: "Apply the new project Vercel profile to the first private-organization repository after inspecting its actual provider settings."
 ---
 
 # Spec: Vercel Pro cost-conscious governance
 
 ## Status
 
-verified
+closed
 
 ## User Story
 
@@ -115,6 +115,8 @@ When a project uses Vercel, ShipGlows identifies its plan and validation needs w
 | 2026-09-03 22:54:32 UTC | sg-ready | GPT-5 Codex | Resolved official-source freshness, scope, invariants, proof, and authority boundaries. | ready | implementation |
 | 2026-09-03 22:54:32 UTC | sg-start | GPT-5 Codex | Started the cross-surface doctrine implementation. | in progress | focused implementation and proof |
 | 2026-09-03 23:02:11 UTC | sg-verify | GPT-5 Codex | Verified six focused scenarios, metadata, activation/resource graphs, activation and discovery budgets, skill audit, runtime links, changed-path documentation mapping, and diff hygiene. | verified | commit and push the validated milestone |
+| 2026-09-03 23:03:52 UTC | sg-end | GPT-5 Codex | Closed the implemented and verified doctrine scope; technical documentation and refresh records are aligned, with no public editorial promise changed. | closed | protected Git delivery |
+| 2026-09-03 23:03:52 UTC | sg-ship | GPT-5 Codex | Delivered the implementation through protected pull request 126 after both required gates passed. | shipped | persist final closure state |
 
 ## Current Chantier Flow
 
@@ -122,7 +124,7 @@ When a project uses Vercel, ShipGlows identifies its plan and validation needs w
 - `sg-ready`: ready.
 - `sg-start`: implemented.
 - `sg-verify`: verified.
-- `sg-end`: not launched.
-- `sg-ship`: not launched.
+- `sg-end`: closed.
+- `sg-ship`: shipped through protected pull request 126.
 
-Next step: commit and push the validated milestone, then finalize closure bookkeeping.
+Next step: apply the new project Vercel profile to the first private-organization repository after inspecting its actual provider settings.
