@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "2.5.0"
+artifact_version: "2.5.1"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-24"
+updated: "2026-09-03"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-catalog
@@ -47,7 +47,7 @@ Return only the lines below for exact `302-sg-help mode`, `302-sg-help modes`, `
 `sg-seo <audit|launch|monitoring|fix|page|project|global> [target]` — Audit, launch, monitor, and repair SEO.
 `sg-docs <init|file|readme|api|components|auto|audit|update|metadata|migrate|migrate-layout|technical|editorial|duplicata|duplicates|add-project> [target]` — Maintain internal architecture, governance, metadata, and agent documentation.
 `sg-planning <tasks|backlog|priorities|prio|review|sessions> [arguments]` — Organize tasks, priorities, reviews, and portfolio work; `prio` aliases `priorities`.
-`sg-private memory <instruction>` — Explicitly remember or retrieve a private path, URL, alias, or Vivaldi bookmark without copying it into public Git.
+`sg-private memory <instruction> | data <namespace> <operation>` — Work with explicit private pointer memory or an authorized durable private-data namespace without copying private values into public Git.
 `sg-help [default|mode|expert] [topic]` — Explain skills, exact public modes, expert engines, workflows, and prompts.
 `shipglows [context|auto] <request>` — Route a request or start the autonomous useful-work mode; `shipglows nolocal <request>` remains compatibility syntax only.
 Execution tags: `#local | #nolocal | #ci` — Compose proof posture with any agent command; `#ci` implies `#nolocal`, conflicts with `#local`, and authorizes no remote action.

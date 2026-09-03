@@ -73,6 +73,7 @@ What workflow, skill, mode, or doctrine does the operator need explained right n
 - If the user asks for skill codes, numeric prefixes, or shortcut lookup, load `skill-code-index.md` and answer from the code table without renaming canonical skills.
 - If the user asks how ShipGlows is invoked from Codex, Claude, OpenCode, KiloCode, another runtime, skill codes, taxonomy, or blueprints, load `references/help-skill-discovery.md`.
 - If the user needs workflow cheat sheets, load `references/help-workflow-recipes.md`; for a short route load `references/help-quick-answers.md`.
+- If the user asks how to update the ShipGlows runtime, skills, tools, or inspect update status, load `references/help-quick-answers.md` and preserve the explicit `shipglows update <target>` grammar and platform distinction.
 - If the user asks why ShipGlows asked, did not ask, or should have asked a question, load `skills/references/question-contract.md`.
 - If the user asks about passivity, autonomy, collaboration style, business framing, or what the operator is expected to provide, load `skills/references/operator-partnership-contract.md`.
 - If the user asks about a named profile such as `Victoire`, `SEO Specialist`, or `Tariq`, or asks who should answer a business/growth/search/acquisition question, load the matching profile plus its operator role and answer from that distinction.

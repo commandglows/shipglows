@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.7.1"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-27"
+updated: "2026-09-03"
 status: active
 source_skill: 302-sg-help
 scope: help-modes-expert-catalog
@@ -63,7 +63,7 @@ from the named public skill mode.
 `003-sg-bug` — default | reproduce | fix | retest | close
 `004-sg-deploy` — default | preview | prod
 `005-sg-ship` — default | end | skip-check | all-dirty
-`006-sg-design` — system | playground | audit | animation | redesign | migration | library
+`006-sg-design` — identity | interface | system | playground | audit | animation | redesign | migration | library
 `007-sg-content` — plan | capture | tmux | capture-full-conversation | clean-transcript | repurpose | draft | enrich | audit | marketing | seo | editorial | apply | ship
 `008-sg-customer` — audit | flow | onboarding | recovery
 `009-sg-marketing` — market | gtm | copy | copywriting | help
@@ -99,7 +99,7 @@ from the named public skill mode.
 `600-sg-local-cloud-sync` — default
 `601-sg-product-entitlements` — default
 `602-sg-platform-parity` — default | platforms=web,android,ios,windows,macos,linux
-`603-sg-private` — memory <instruction>
+`603-sg-private` — memory <instruction> | data <namespace> <operation>
 `700-sg-explore` — default
 `704-sg-model` — default
 `705-sg-conversation-audit` — default | latest | path | export shipglows

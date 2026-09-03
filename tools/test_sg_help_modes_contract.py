@@ -3,6 +3,7 @@
 
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import unittest
@@ -57,6 +58,28 @@ class HelpModesContractTests(unittest.TestCase):
         self.assertIn("square brackets are optional", catalog)
         self.assertIn("Execution tags: `#local | #nolocal | #ci`", catalog)
 
+    def test_default_catalog_covers_every_registered_public_mode(self) -> None:
+        registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
+        entries = {
+            self.catalog_id(line): line.split("`", 2)[1]
+            for line in self.catalog_lines()
+        }
+        public_entries = [
+            skill
+            for domain in registry["public_catalog"]["domains"]
+            for skill in domain["skills"]
+        ] + [registry["public_catalog"]["router"]]
+        for skill in public_entries:
+            grammar = entries[skill["id"]]
+            for mode in skill["modes"]:
+                if mode == "default":
+                    continue
+                self.assertRegex(
+                    grammar,
+                    rf"(?<![A-Za-z0-9-]){re.escape(mode)}(?![A-Za-z0-9-])",
+                    f"{skill['id']} is missing registered mode {mode}",
+                )
+
     def test_expert_catalog_has_every_runtime_skill_and_is_not_the_default(self) -> None:
         registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         public = registry["public_catalog"]
@@ -72,6 +95,23 @@ class HelpModesContractTests(unittest.TestCase):
         self.assertNotEqual(
             {self.catalog_id(line) for line in self.catalog_lines()}, actual
         )
+
+    def test_expert_catalog_covers_every_registered_strict_mode(self) -> None:
+        registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
+        entries = {
+            self.catalog_id(line): line.split(" \u2014 ", 1)[1]
+            for line in self.catalog_lines(EXPERT_CATALOG)
+        }
+        for skill_id, rule in registry["rules"].items():
+            if rule["kind"] != "modes" or skill_id not in entries:
+                continue
+            grammar = entries[skill_id]
+            for mode in rule["modes"]:
+                self.assertRegex(
+                    grammar,
+                    rf"(?<![A-Za-z0-9-]){re.escape(mode)}(?![A-Za-z0-9-])",
+                    f"{skill_id} is missing registered mode {mode}",
+                )
 
     def test_help_routes_exact_mode_requests_to_the_catalog(self) -> None:
         skill = HELP_SKILL.read_text(encoding="utf-8")
