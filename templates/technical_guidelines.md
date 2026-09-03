@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.1.0"
+artifact_version: "0.2.0"
 project: "[project name]"
 created: "YYYY-MM-DD"
 updated: "YYYY-MM-DD"
@@ -11,6 +11,8 @@ scope: guidelines
 owner: "[owner]"
 confidence: medium
 risk_level: medium
+task_branch_policy: forbidden
+worktree_policy: forbidden
 linked_systems: []
 security_impact: yes
 docs_impact: yes
@@ -26,6 +28,8 @@ next_step: "/sg-docs audit"
 ## Stack
 
 ## Critical Rules
+
+- New task branches and worktrees are forbidden unless their corresponding frontmatter policy is explicitly `allowed`.
 
 ## Preferred Patterns
 
