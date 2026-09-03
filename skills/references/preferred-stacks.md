@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.5.1"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-10-07"
+updated: "2026-10-19"
 status: active
 source_skill: 900-shipglows-core
 scope: preferred-stack-presets
@@ -209,3 +209,5 @@ For greenfield work:
   metered behavior, and server-authority needs are recorded first.
 - `PSP-007 auth is not data`: Firebase Auth may authenticate a Flutter product
   backed by Convex; Firestore is selected only from an independent data decision.
+- `PSP-008 sparse browser extension`: a greenfield extension request with no technical direction receives the WXT, strict TypeScript, pnpm, Manifest V3 preset; native UI is used unless the accepted experience crosses the rich-interface threshold, where Vue 3 is added.
+- `PSP-009 sparse Obsidian plugin`: a greenfield plugin request with no technical direction receives the official TypeScript and esbuild-compatible foundation, desktop-plus-mobile support, and native Obsidian UI unless a rich reactive surface justifies Vue 3.
