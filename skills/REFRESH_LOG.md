@@ -6,6 +6,8 @@
 
 **Updated:** `shipglows context` now exposes the effective policy and source, while Git workflows re-read it immediately before creating a task branch or worktree; existing-artifact inventory and proven cleanup remain independent.
 
+**Clarified:** `forbidden` prevents silent creation rather than imposing an irreversible ban; justified isolation opens a user discussion, while `allowed` remains permission rather than preference or obligation. Existing artifacts stay fully lifecycle-managed.
+
 **Sources:** 0 URLs consulted; this is a direct operator decision governing repository-local Git behavior.
 
 ## 2026-09-01 — canonical project delivery posture

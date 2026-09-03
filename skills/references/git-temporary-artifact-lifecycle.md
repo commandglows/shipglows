@@ -24,7 +24,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
-  - "Operator decision 2026-09-03: task-branch and worktree creation is repository-configurable and forbidden by default."
+  - "Operator decision 2026-09-03: task-branch and worktree creation is repository-configurable, initializes to forbidden, and opens user discussion when isolation is justified."
   - "Operator decision 2026-08-16: merged task branches and worktrees should be removed as part of the same lifecycle instead of accumulating as forgotten Git artifacts."
   - "Operator decision 2026-09-01: proven-integrated temporary Git artifacts are cleaned automatically without a validation prompt."
 next_review: "2026-09-16"
@@ -39,7 +39,7 @@ Keep task-scoped Git branches and worktrees owned until they have a terminal cle
 
 ## Classification At Creation
 
-Immediately before creation, resolve the selected repository with `$SHIPGLOWS_ROOT/tools/project_git_policy.py`. A new temporary task branch requires `task_branch_policy: allowed`; any new worktree requires `worktree_policy: allowed`, plus permission for its branch creation when a new branch is needed. Missing, invalid, or `forbidden` values block creation without affecting safe inventory or cleanup of existing artifacts.
+Immediately before creation, resolve the selected repository with `$SHIPGLOWS_ROOT/tools/project_git_policy.py`. A new temporary task branch requires `task_branch_policy: allowed`; any new worktree requires `worktree_policy: allowed`, plus permission for its branch creation when a new branch is needed. Missing, invalid, or `forbidden` means the agent does not create silently; when isolation is genuinely useful, it explains why and discusses changing the repository policy with the user. `allowed` is permission, never a requirement or preference, and the current branch and checkout remain preferred when safe. Creation policy never limits inventory, task/PR linkage, integration, justified retention, or proven cleanup of existing artifacts.
 
 An agent-created branch or worktree dedicated to one bounded task is temporary by default. Classify it as durable only when the operator, repository policy, release process, or active review purpose explicitly requires continued ownership.
 

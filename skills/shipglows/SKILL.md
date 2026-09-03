@@ -54,7 +54,7 @@ launch a replacement server, substitute an Astro/Vite default such as `4321`,
 or call recorded Python or configured Playwright absent merely because its tool
 is missing from the first visible list. Run the canonical per-repository Git-policy
 resolver `$SHIPGLOWS_ROOT/tools/project_git_policy.py` and include the effective task-branch and worktree creation policies,
-their source, and any fail-closed default reason in `Contexte actif`. End with a compact `Contexte actif`
+their source, any fail-closed default reason, and the guidance that `forbidden` prevents silent creation but can be changed after discussing a justified need with the user in `Contexte actif`. End with a compact `Contexte actif`
 summary.
 
 `shipglows auto [scope or horizon]` is the public autonomous credit-window

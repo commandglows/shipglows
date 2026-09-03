@@ -51,14 +51,25 @@ class ProjectGitPolicyTests(unittest.TestCase):
         self.assertEqual("allowed", result.task_branch_policy)
         self.assertEqual("forbidden", result.worktree_policy)
 
-    def test_invalid_value_forbids_both_creation_lanes(self) -> None:
+    def test_invalid_value_defaults_only_its_creation_lane(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             self.write_guidelines(root, task_branch="sometimes", worktree="allowed")
             result = policy.inspect_project(root)
         self.assertEqual("invalid", result.state)
         self.assertEqual("forbidden", result.task_branch_policy)
-        self.assertEqual("forbidden", result.worktree_policy)
+        self.assertEqual("allowed", result.worktree_policy)
+
+    def test_policy_always_explains_that_forbidden_is_configurable(self) -> None:
+        for task_branch, worktree in ((None, None), ("forbidden", "allowed")):
+            with self.subTest(task_branch=task_branch, worktree=worktree):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    if task_branch is not None:
+                        self.write_guidelines(root, task_branch, worktree)
+                    result = policy.inspect_project(root)
+                self.assertIn("prevents silent creation", result.configuration_guidance)
+                self.assertIn("changing the repository policy", result.configuration_guidance)
 
     def test_context_and_git_contracts_consume_the_policy(self) -> None:
         consumers = (
@@ -82,6 +93,19 @@ class ProjectGitPolicyTests(unittest.TestCase):
                 text = path.read_text(encoding="utf-8")
                 self.assertIn("task_branch_policy: forbidden", text)
                 self.assertIn("worktree_policy: forbidden", text)
+
+    def test_contracts_distinguish_preference_permission_and_existing_artifacts(self) -> None:
+        contracts = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in (
+                ROOT / "skills/references/project-delivery-policy.md",
+                ROOT / "skills/references/git-temporary-artifact-lifecycle.md",
+                ROOT / "skills/references/mutation-plan-approval.md",
+            )
+        )
+        self.assertIn("does not create silently", contracts)
+        self.assertIn("permission, never a requirement or preference", contracts)
+        self.assertIn("existing", contracts)
 
 
 if __name__ == "__main__":

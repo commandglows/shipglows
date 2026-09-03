@@ -29,7 +29,7 @@ next_step: "/sg-docs audit"
 
 ## Critical Rules
 
-- New task branches and worktrees are forbidden unless their corresponding frontmatter policy is explicitly `allowed`.
+- Prefer orchestration on the current branch and checkout. `forbidden` prevents silent creation: if isolation becomes genuinely useful, explain why and discuss changing the repository policy with the user. `allowed` is durable permission, never a requirement or preference.
 
 ## Preferred Patterns
 

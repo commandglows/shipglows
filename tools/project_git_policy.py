@@ -22,6 +22,13 @@ class GitPolicy:
     task_branch_policy: str
     worktree_policy: str
     reason: str
+    configuration_guidance: str
+
+
+CONFIGURATION_GUIDANCE = (
+    "forbidden prevents silent creation; discuss a justified need with the user "
+    "before changing the repository policy"
+)
 
 
 def _frontmatter(text: str) -> str:
@@ -46,6 +53,7 @@ def inspect_project(project: Path) -> GitPolicy:
         return GitPolicy(
             "defaulted", relative, "forbidden", "forbidden",
             "canonical technical guidelines are missing; fail-closed defaults applied",
+            CONFIGURATION_GUIDANCE,
         )
 
     frontmatter = _frontmatter(source.read_text(encoding="utf-8"))
@@ -54,24 +62,34 @@ def inspect_project(project: Path) -> GitPolicy:
         name: value for name, value in values.items()
         if value is not None and value not in VALID_POLICIES
     }
+    missing = [name for name, value in values.items() if value is None]
+    task_branch = (
+        values["task_branch_policy"]
+        if values["task_branch_policy"] in VALID_POLICIES
+        else "forbidden"
+    )
+    worktree = (
+        values["worktree_policy"]
+        if values["worktree_policy"] in VALID_POLICIES
+        else "forbidden"
+    )
     if invalid:
         details = ", ".join(f"{name}={value}" for name, value in invalid.items())
         return GitPolicy(
-            "invalid", relative, "forbidden", "forbidden",
-            f"unsupported Git policy value(s): {details}; fail-closed defaults applied",
+            "invalid", relative, task_branch, worktree,
+            f"unsupported Git policy value(s): {details}; forbidden default applied to invalid fields",
+            CONFIGURATION_GUIDANCE,
         )
-
-    missing = [name for name, value in values.items() if value is None]
-    task_branch = values["task_branch_policy"] or "forbidden"
-    worktree = values["worktree_policy"] or "forbidden"
     if missing:
         return GitPolicy(
             "defaulted", relative, task_branch, worktree,
             f"missing {', '.join(missing)}; forbidden default applied",
+            CONFIGURATION_GUIDANCE,
         )
     return GitPolicy(
         "resolved", relative, task_branch, worktree,
         "canonical repository Git policy resolved",
+        CONFIGURATION_GUIDANCE,
     )
 
 
@@ -91,6 +109,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"task_branch_policy={policy.task_branch_policy}")
         print(f"worktree_policy={policy.worktree_policy}")
         print(f"reason={policy.reason}")
+        print(f"configuration_guidance={policy.configuration_guidance}")
     return 2 if policy.state == "invalid" else 0
 
 
