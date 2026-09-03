@@ -1,12 +1,12 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-30"
 created_at: "2026-08-30 08:24:00 UTC"
-updated: "2026-08-30"
-updated_at: "2026-08-30 11:53:09 UTC"
+updated: "2026-09-03"
+updated_at: "2026-09-03 14:40:00 UTC"
 status: ready
 source_skill: 100-sg-spec
 source_model: GPT-5 Codex
@@ -40,6 +40,7 @@ evidence:
   - "Current runtime inspection: s update reruns the full installer, but existing WinGet tools and pnpm are treated as already installed and skipped rather than checked for upgrades."
   - "Public-content follow-up commit a0b49ec prepares paired EN/FR article drafts and permanent docs copy without publishing an availability claim before installed-host proof."
   - "Installed-host proof 2026-08-30: interactive ShipGlows convergence updated npm 12.0.2, pnpm 11.24.0, mise 2026.8.5, and uv 0.12.7; repaired and verified Claude 2.1.251 and OpenCode 1.18.25; the idempotent rerun preserved mobile/IDE state and completed successfully."
+  - "Operator decision 2026-09-03: long-form update commands use the consistent shipglows update <target> grammar; bare shipglows update is non-mutating guidance."
 next_step: "Close the lifecycle record and decide the release/publication path for the validated Windows update surface."
 ---
 
@@ -55,11 +56,11 @@ As the ShipGlows operator on Windows, I want ShipGlows to preview and update the
 
 ## Minimal Behavior Contract
 
-Given an installed native Windows runtime, `shipglows tools status` and `s tools status` perform read-only package-authority checks and identify the ShipGlows-owned global tool surfaces. `shipglows tools update` and the dedicated interactive menu entry show the update scope, require explicit confirmation, update only the allowlisted global tools through their owning package authorities, then rerun the normal full convergence and report verified final versions. Missing authorities, refusal, partial failure, or an unavailable final version stops or reports the affected tool truthfully; no command runs a project-local package update.
+Given an installed native Windows runtime, `shipglows tools status` and `s tools status` perform read-only package-authority checks and identify the ShipGlows-owned global tool surfaces. `shipglows update tools`, the compatibility shortcut `s tools update`, and the dedicated interactive menu entry show the update scope, require explicit confirmation, update only the allowlisted global tools through their owning package authorities, then rerun the normal full convergence and report verified final versions. Missing authorities, refusal, partial failure, or an unavailable final version stops or reports the affected tool truthfully; no command runs a project-local package update.
 
 ## Success Behavior
 
-- ShipGlows self-update remains `shipglows update`; developer-tool updates use the distinct `shipglows tools ...` namespace.
+- ShipGlows runtime and developer-tool updates use explicit targets: `shipglows update runtime` and `shipglows update tools`; bare `shipglows update` is non-mutating guidance.
 - Status is read-only and shows WinGet's available-upgrade preview plus exact npm and pnpm current/latest evidence when their commands are available.
 - Update displays the allowlisted scope before one explicit confirmation.
 - WinGet upgrades target only exact ShipGlows-owned package IDs; ShipGlows never invokes `winget upgrade --all`.
@@ -121,7 +122,7 @@ Add one Windows developer-tool update route that reuses the official bootstrap a
 
 ## Invariants
 
-- `shipglows update` updates ShipGlows; `shipglows tools update` updates ShipGlows-owned global developer tools.
+- `shipglows update runtime` updates the ShipGlows runtime; `shipglows update tools` updates ShipGlows-owned global developer tools; bare `shipglows update` performs no mutation.
 - Status never mutates package, runtime, project, profile, credential, or source state.
 - Update never broadens beyond the explicit allowlist.
 - Project dependencies are never updated by the global tools command.
@@ -159,7 +160,7 @@ Add one Windows developer-tool update route that reuses the official bootstrap a
 ## Acceptance Criteria
 
 - AC1: `shipglows tools status` and `s tools status` reach the same read-only implementation and never launch the bootstrap.
-- AC2: `shipglows tools update` and the dedicated menu action show the allowlist and require explicit confirmation before any package mutation.
+- AC2: `shipglows update tools`, `s tools update`, and the dedicated menu action show the allowlist and require explicit confirmation before any package mutation.
 - AC3: WinGet mutations use only exact declared IDs and never use `upgrade --all`, `--force`, or reboot-enabling flags.
 - AC4: npm and pnpm registry results are validated as package versions, displayed, and installed using the exact displayed versions.
 - AC5: the bootstrap forwards tool-update intent only in full mode; the child installer preserves it across managed PowerShell reentry.
@@ -204,6 +205,7 @@ None. The operator approved the separate global-tool route, explicit preview/con
 | 2026-08-30 | 900-shipglows-core | GPT-5 Codex | Published validated implementation commit `11363b6` to `origin/codex/development-runtime` without staging the operator's unrelated dirty file. | delivered | Obtain separate authority for installed-host convergence proof; keep 103 partial and closure pending. |
 | 2026-08-30 | 900-shipglows-core | GPT-5 Codex | Prepared the public Windows toolchain story in English and French, permanent runtime documentation, claim boundaries, and changelog projection; site commit `a0b49ec` keeps both articles in draft. | delivered | Keep publication gated by installed-host convergence and release proof. |
 | 2026-08-30 | 103-sg-verify | GPT-5 Codex | Ran the installed linked runtime interactively, hardened npm 12 JSON parsing, active pnpm shim convergence, native agent postinstall recovery, Playwright resolution, and SDK/IDE exclusion; final idempotent convergence and complete Windows contract passed. | verified | Close the lifecycle record and choose release/publication timing. |
+| 2026-09-03 | sg-docs | GPT-5 Codex | Reconciled the active specification with the explicit `shipglows update <target>` grammar. | aligned | Preserve historical commands only where they describe an observed past run. |
 
 ## Current Chantier Flow
 
