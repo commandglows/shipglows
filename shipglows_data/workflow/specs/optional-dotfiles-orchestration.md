@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: "shipglows"
 created: "2026-08-31"
 created_at: "2026-08-31 17:20:16 UTC"
@@ -32,11 +32,9 @@ depends_on:
   - artifact: "shipglows_data/workflow/specs/installer-supply-chain-and-codebase-risk-reduction.md"
     artifact_version: "1.1.0"
     required_status: ready
-  - artifact: "commandglows/dotfiles:shipglows_data/workflow/specs/cross-platform-dotfiles-installer-hardening.md"
-    artifact_version: "1.0.1"
-    required_status: ready
 supersedes: []
 evidence:
+  - "2026-09-03: the cross-repository dotfiles prerequisite remains an explicit linked system and prose dependency rather than an unresolved local artifact edge."
   - "Operator decision 2026-08-31: dotfiles remain independently installable on Windows and Linux."
   - "Operator decision 2026-08-31: ShipGlows may offer dotfiles as an optional installation step but must delegate to the official dotfiles installer."
   - "Repository inspection: ShipGlows has native Windows and Unix public bootstraps, while dotfiles owns separate native PowerShell and Bash engines backed by a shared component manifest."

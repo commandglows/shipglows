@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.4.1"
 project: "ShipGlows"
 created: "2026-08-27"
 updated: "2026-08-27"
@@ -23,9 +23,11 @@ linked_systems:
   - "shipglows_data/technical/context-function-tree.md"
 depends_on:
   - artifact: "shipglows_data/technical/runtime-cli.md"
+    artifact_version: "1.45.0"
     required_status: reviewed
 supersedes: []
 evidence:
+  - "2026-09-03: the runtime CLI dependency records the current reviewed artifact version required by the graph contract."
   - "ToolGlows uses Manifest V3, CRXJS 2.7, Vite 8 and a dedicated dev:chrome script."
   - "The pre-adapter Windows detector classified ToolGlows as vite; the published development runtime now classifies and operates it as browser-extension."
   - "CRXJS upstream documents @crxjs/vite-plugin 2.7.1 as its current Vite-based Manifest V3 and HMR toolchain, with Vite 8 in its declared peer range."
