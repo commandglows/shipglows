@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.22.0"
+artifact_version: "2.23.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-09-03"
+updated: "2026-09-04"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -67,6 +67,7 @@ evidence:
   - "Operator correction 2026-09-01: closure reports render documentation evidence resolved from current changed paths and the canonical docs map, independently from editorial impact."
   - "Operator correction 2026-09-01: editorial alignment and editorial/product opportunity are independent; `not impacted` never means no opportunity."
   - "Operator correction 2026-09-03: every substantive chantier start and every closure visibly reports context sufficiency and whether the current conversation should continue."
+  - "Operator correction 2026-09-04: report context and handoff consequences derive from one next-task reliability decision; report templates never prefill that verdict."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -136,10 +137,10 @@ After approval and at the true start of a substantive chantier, render this card
 
 📖 DOCUMENTATION PRÉVUE ✅ Impactée · <mapped documentation scope>
 
-🧠 CONTEXTE ✅ suffisant · continuer dans cette conversation
+🧠 CONTEXTE <resolved continuity verdict>
 ```
 
-Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep the two header lines adjacent, then render every start section as one complete line containing its icon, translated label, colon when the section contains prose, and content. Insert exactly one blank line between sections and separate compact items with ` · `. Objective, scope, expected proof, planned documentation, and context are always mandatory. Resolve `🧠 CONTEXTE` through `conversation-continuity-contract.md`; an unresolved material context gap forbids a successful start card. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding and give it the same single-line, blank-line-separated form.
+Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep the two header lines adjacent, then render every start section as one complete line containing its icon, translated label, colon when the section contains prose, and content. Insert exactly one blank line between sections and separate compact items with ` · `. Objective, scope, expected proof, planned documentation, and context are always mandatory. Resolve the current chantier as the proposed next task, then derive `<resolved continuity verdict>` through `conversation-continuity-contract.md`; an unresolved material context gap forbids a successful start card. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding and give it the same single-line, blank-line-separated form.
 
 The planned documentation line uses exactly one of: `✅ Impactée · <scope included in the chantier>`, `➖ Non impactée · <concrete reason>`, or `⚠️ À confirmer · <surface>`. It is a plan, not a closure claim; only the closure card may use `updated`, `not impacted`, or `needs review`.
 
@@ -173,16 +174,16 @@ Before rendering the documentation line, apply `documentation-reflection-gate.md
 
 📦 LIVRAISON ✅ Commit local : `<sha>` · ➖ Push : non effectué
 
-🧠 CONTEXTE ✅ suffisant · continuer dans cette conversation
+🧠 CONTEXTE <resolved continuity verdict>
 
 🧭 SUITE ➡️ <one concrete evidence-backed next outcome, missing action, proof, or operator decision>
 ```
 
-Translate the eight labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, `🧠 CONTEXTE`, and `🧭 SUITE` are mandatory for closure. `⚠️ LIMITES` is conditional and follows the same single-line, blank-line-separated form. Resolve the context line through `conversation-continuity-contract.md`: use `suffisant` for healthy carried state, `rafraîchi` only after a targeted refresh restored reliability, and `insuffisamment fiable` only with the required stabilized operator-started handoff. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
+Translate the eight labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, `🧠 CONTEXTE`, and `🧭 SUITE` are mandatory for closure. `⚠️ LIMITES` is conditional and follows the same single-line, blank-line-separated form. Resolve the proposed next outcome before rendering the card, then derive `<resolved continuity verdict>` through `conversation-continuity-contract.md`: use `suffisant` for healthy carried state, `rafraîchi` only after a targeted refresh restored reliability, and `insuffisamment fiable` only with the required stabilized operator-started handoff. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
 
 ## Mandatory Next Block
 
-Every final user report contains a `🧭 SUITE` block. It names one concrete evidence-backed next outcome, missing action or proof, or operator decision and is never `none`, “no action required,” an empty ceremonial menu, or a semantic equivalent. Before writing it, load and apply `skills/references/next-outcome-selection.md`: current conversation work and pending delivery beat active chantiers; active chantiers beat `P0 -> P1 -> P2 -> P3` tracker work; tracker work beats an overdue audit; only then select a grounded business improvement. Keep the result useful and concise, never omit the block, and never invent urgency or authority. When numbered choices follow, the block introduces the decision they resolve.
+Every final user report contains a `🧭 SUITE` block. It names one concrete evidence-backed next outcome, missing action or proof, or operator decision and is never `none`, “no action required,” an empty ceremonial menu, or a semantic equivalent. Before writing it, load and apply `skills/references/next-outcome-selection.md`: current conversation work and pending delivery beat active chantiers; active chantiers beat `P0 -> P1 -> P2 -> P3` tracker work; tracker work beats an overdue audit; only then select a grounded business improvement. Keep the result useful and concise, never omit the block, and never invent urgency or authority. The selected outcome is the proposed next task used by the single continuity decision; its handoff consequence therefore comes from that same decision rather than from a second context judgment. When numbered choices follow, the block introduces the decision they resolve.
 
 An owned pull request that is merge-ready with required checks passing remains active in-scope delivery, not a next-step suggestion. Before returning control, use standing Git/GitHub stewardship authority to attempt reconciliation into the resolved integration branch and then apply proven-integrated temporary-artifact cleanup. Report a next action only when that attempt is blocked, and name the exact protection, review, conflict, check, ownership, or cleanup fact. Never stop merely because the pull request was opened or became green.
 
