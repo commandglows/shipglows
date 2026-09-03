@@ -67,6 +67,7 @@
             "runtime_skill": "006-sg-design",
             "modes": [
               "identity",
+              "interface",
               "system",
               "playground",
               "audit",
@@ -3818,6 +3819,9 @@
       "kind": "modes",
       "modes": {
         "identity": {
+          "min_args": 0
+        },
+        "interface": {
           "min_args": 0
         },
         "system": {

@@ -32,6 +32,18 @@ def normalized_text(path: Path) -> str:
 
 
 class DesignContractTests(unittest.TestCase):
+    def test_interface_is_a_first_class_bounded_visual_design_mode(self) -> None:
+        skill = normalized_text(DESIGN_SKILL)
+        routing = normalized_text(LIFECYCLE_ROUTING)
+
+        self.assertIn("interface [scope]", skill)
+        for phrase in (
+            "`interface` owns the visual and interaction composition",
+            "hierarchy, layout, responsive behavior, component composition",
+            "does not silently redefine the customer journey, product behavior, brand identity, or design-system foundations",
+        ):
+            self.assertIn(phrase, routing)
+
     def test_shared_iconography_canon_is_functional_and_project_overridable(self) -> None:
         contract = normalized_text(TOKEN_CONTRACT)
         creation = normalized_text(SYSTEM_CREATION)
