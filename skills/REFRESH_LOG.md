@@ -1,5 +1,15 @@
 # Skills Refresh Log
 
+## 2026-09-03 - repository Git creation policy
+
+**Added:** per-repository `task_branch_policy` and `worktree_policy` in canonical technical guidelines, both fail-closed to `forbidden` through a read-only resolver.
+
+**Updated:** `shipglows context` now exposes the effective policy and source, while Git workflows re-read it immediately before creating a task branch or worktree; existing-artifact inventory and proven cleanup remain independent.
+
+**Clarified:** `forbidden` prevents silent creation rather than imposing an irreversible ban; justified isolation opens a user discussion, while `allowed` remains permission rather than preference or obligation. Existing artifacts stay fully lifecycle-managed.
+
+**Sources:** 0 URLs consulted; this is a direct operator decision governing repository-local Git behavior.
+
 ## 2026-09-01 — canonical project delivery posture
 
 **Updated:** `delivery_posture` now lives only in governance-root business context; context, bootstrap, and Git preflight use one deterministic read-only resolver and ask one product question when it is missing or invalid.

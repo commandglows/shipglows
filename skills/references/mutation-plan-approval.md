@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.18.0"
+artifact_version: "1.19.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-09-01"
+updated: "2026-09-03"
 status: active
 source_skill: 900-shipglows-core
 scope: universal-mutation-plan-approval
@@ -28,6 +28,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: repository policy initializes to no silent task-branch or worktree creation and can explicitly allow either lane after user discussion."
   - "Operator correction 2026-09-01: Git target resolution reads delivery posture only from canonical business context and pauses for one product question when missing."
   - "Operator decision 2026-09-01: ordinary Git/GitHub stewardship is permanently autonomous; no validation is requested for commit, push, safe reconciliation, or proven cleanup."
   - "Operator correction 2026-08-27: approval classification depends on request clarity, a few enumerable actions and targets, and directional discretion rather than local/remote location or model reasoning effort; explicit bounded file edits, commits, and ordinary pushes execute directly."
@@ -63,7 +64,7 @@ ShipGlows has standing authority to manage ordinary Git/GitHub state for in-scop
 
 Resolve the target through the read-only resolver in `project-delivery-policy.md`, whose sole posture authority is `shipglows_data/business/business.md`: non-live `development` projects integrate directly into `main`; explicitly live `published` and `sensitive-production` projects integrate into canonical `dev`, while `main` remains production. Missing or invalid posture triggers one product-status capture and exact canonical persistence before Git continues; never guess from runtime `live`, pitch, agent files, or branch state. Promotion `dev -> main` is a release/deployment transition: when its applicable release, CI, preview, security, and production-authority gates are satisfied, perform the Git reconciliation without a separate Git validation.
 
-This standing authority includes safe local and remote branch creation, ordinary commits and pushes, fast-forward or policy-approved merge-ready reconciliation, pull-request lifecycle operations, pruning, and deletion of temporary local/remote branches or worktrees only after exact ownership and integration are mechanically proven. It never includes force push, history rewriting, bypassing protection or required checks, choosing a non-trivial conflict resolution, discarding unique commits, weakening controls, merging an unreviewed or failing change, deploying without deployment authority, or touching unrelated dirty work. Preserve and diagnose uncertain state instead of asking for a Git validation.
+This standing authority includes safe local and remote task-branch creation only when the current repository resolves `task_branch_policy: allowed`, and worktree creation only when it resolves `worktree_policy: allowed`; read both from `shipglows_data/technical/guidelines.md` through the read-only `tools/project_git_policy.py` immediately before creation. Missing, invalid, or `forbidden` means ShipGlows does not create silently. If isolation becomes genuinely useful, explain why and open the smallest user discussion about changing the repository policy; do not treat the value as universal or irrevocable. `allowed` is permission, never a requirement or preference, so prefer the current branch and checkout when safe and never invent an artifact per agent. Ordinary commits and pushes, fast-forward or policy-approved merge-ready reconciliation, pull-request lifecycle operations, pruning, and deletion of temporary local/remote branches or worktrees only after exact ownership and integration are mechanically proven remain covered. Creation policy never blocks inventory, task/PR linkage, integration, justified retention, or proven cleanup of existing artifacts. Repository policy never overrides `#nolocal`, `#ci`, force-push, history-rewriting, protection, conflict, unique-commit, security, or unrelated-dirty-work safeguards. Preserve and diagnose uncertain state instead of asking for a Git validation.
 
 ## Clear bounded-request authority
 
@@ -253,6 +254,7 @@ Apply clear bounded-request authority first. A qualifying file edit, determinist
 - `MAP-GIT-PROMOTION`: `dev -> main` requires applicable release/deployment authority and passing gates, but never a separate Git validation.
 - `MAP-GIT-CONTINUAL-CONVERGENCE`: project/chantier start, every coherent milestone, and chantier end refresh and safely reconcile branch, upstream, PR, and worktree state.
 - `MAP-GIT-UNCERTAIN-PRESERVE`: conflicts, unique commits, failing checks, ambiguous ownership/integration, protected-state uncertainty, or unrelated dirt are preserved and diagnosed without force or an approval ceremony.
+- `MAP-GIT-CREATION-POLICY`: effective `forbidden` prevents silent creation in its repository lane and triggers a useful user discussion when isolation is justified; `allowed` is permission, never a requirement or preference, and execution-posture restrictions still win.
 
 - `MAP-TECHNICAL-COMMIT`: after approval of a bounded technical implementation, stage only its exact paths, run secret and proportional checks, create coherent local commits silently, and report their identifiers at the next natural checkpoint; do not ask for duplicate commit approval.
 - `MAP-BOUNDED-REQUEST`: the operator clearly requests a targeted file edit, exact-scope commit, ordinary push, or small coherent sequence whose actions and targets are few and enumerable and require no material directional choice; the initial request is the authority, execute directly with focused proof and no validation prompt.
@@ -277,7 +279,7 @@ Apply clear bounded-request authority first. A qualifying file edit, determinist
 - `MAP-SMALL-CHANGE`: when a typo or one-line edit meets clear bounded-request authority, execute it from the operator's exact request without an approval prompt; when it expands materially or becomes a chantier, use the newly appropriate fast validation or full plan.
 - `MAP-SERVER`: starting or stopping a server includes the target project and expected process/port effect before approval.
 - `MAP-FAST-SWITCH`: switching to an exact existing local branch may use `🧭 VALIDATION RAPIDE` only after confirming the switch is routine, readily reversible, and cannot overwrite, discard, or relocate current changes.
-- `MAP-FAST-WORKTREE`: creating an exact local branch and worktree from a resolved base may use `🧭 VALIDATION RAPIDE` only after confirming exact branch availability, exact path availability, and the resolved base, while guaranteeing the current worktree remains untouched.
+- `MAP-FAST-WORKTREE`: creating an exact local branch and worktree from a resolved base may use `🧭 VALIDATION RAPIDE` only when current repository policy explicitly allows both creation lanes, after confirming exact branch availability, exact path availability, and the resolved base, while guaranteeing the current worktree remains untouched.
 - `MAP-FAST-INELIGIBLE`: if any fast criterion is missing, uncertain, or false, use the full `🧭 PLAN À VALIDER`; never infer eligibility from the action being technically simple.
 - `MAP-FAST-REPLACEMENT`: if an approved fast action gains a material new target, effect, or risk, prior approval is invalid; stop and present the newly appropriate fast validation or full replacement plan.
 - `MAP-BOUNDED-PUSH`: when the operator explicitly requests an ordinary push, the current branch and upstream are resolved, the commits are in scope, and no force or history rewrite is involved, execute directly; force push retains all stricter force/destructive gates.

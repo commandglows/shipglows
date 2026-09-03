@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-08-21"
 updated: "2026-09-03"
@@ -15,8 +15,11 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - shipglows_data/business/business.md
+  - shipglows_data/technical/guidelines.md
   - templates/business_context.md
+  - templates/technical_guidelines.md
   - tools/project_delivery_policy.py
+  - tools/project_git_policy.py
   - skills/references/project-development-mode.md
   - skills/references/git-milestone-delivery-contract.md
   - skills/305-sg-init
@@ -31,6 +34,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "Operator decision 2026-09-03: each repository controls task-branch and worktree creation independently, both initialize to forbidden, remain configurable, and are visible through shipglows context."
   - "Implementation proof 2026-09-01: required CI workflows target both production main and resolved live integration dev."
   - "Operator correction 2026-09-01: product delivery posture belongs in canonical business context, never in pitch, runtime environment state, or agent instructions."
   - "Operator decision 2026-09-01: non-live projects integrate directly to main; live projects use canonical dev for integration/staging and retain main for production."
@@ -93,8 +97,11 @@ Every derived posture retains `remote_persistence: milestone-and-final`; this in
 - `delivery_posture` answers how mature and operationally sensitive the product is.
 - `development_mode` from `project-development-mode.md` answers where changed behavior can be validated authoritatively.
 - `provider_state` answers what Git, process, URL, and hosting configuration has actually been observed and belongs in operational evidence surfaces, not in business posture.
+- `task_branch_policy` and `worktree_policy` answer whether ShipGlows may silently create temporary task branches and worktrees. Read them from `shipglows_data/technical/guidelines.md` through `tools/project_git_policy.py`; each missing or invalid value resolves independently to effective `forbidden`. `forbidden` means ShipGlows does not create silently: if isolation is genuinely useful, explain why and discuss changing that repository policy with the user. `allowed` grants durable permission, never a requirement or preference; still prefer the current branch and checkout when safe.
 
 One axis never overrides another. A local validation surface does not waive remote persistence. A successful push does not prove preview, staging, deployment, or production behavior. A detected provider does not authorize non-Git environment or deployment changes; ordinary Git/GitHub convergence retains its standing authority.
+
+Before creating a task branch or any worktree, run the Git-policy resolver again against the selected repository. `task_branch_policy: allowed` permits a new temporary task branch under the normal safety gates; `worktree_policy: allowed` permits a worktree only when its branch and all other required Git actions are independently permitted. Neither value calls for one branch or worktree per agent. Canonical `main`/`dev` convergence, work on the current branch, ordinary commits and pushes, and inventory, task/PR linkage, integration, justified retention, or proven cleanup of existing artifacts are not creation and remain governed by their existing rules.
 
 ## Migration And Inference
 
@@ -124,6 +131,7 @@ Every active ShipGlows-managed GitHub repository follows `managed-project-ci-pol
 - `PDP-NON-LIVE-MAIN`: non-live `development` integrates directly into `main`.
 - `PDP-LIVE-DEV`: live `published` and `sensitive-production` integrate and stage through canonical `dev`, retaining `main` for production.
 - `PDP-GIT-AUTONOMY`: ordinary commit, push, reconciliation, PR/worktree convergence, and proven cleanup require no validation prompt.
+- `PDP-GIT-CREATION-POLICY`: missing, invalid, or `forbidden` repository policy prevents silent creation in the named lane and prompts a useful user discussion when isolation is justified; explicit `allowed` is permission, never preference or obligation, and never overrides execution-posture or Git safety gates.
 - `PDP-CANONICAL-BUSINESS-SOURCE`: only `shipglows_data/business/business.md` owns `delivery_posture`; pitch, environment, registry, and agent instruction files cannot override it.
 - `PDP-MISSING-ASK-AND-RESUME`: missing or invalid posture triggers one product question, records the selected value in canonical business context, derives the branch, and resumes without a second validation.
 - `PDP-RUNTIME-LIVE-IS-NOT-PUBLISHED`: an active DevServer process or production-looking URL never proves product publication.

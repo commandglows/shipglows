@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.4.0"
+artifact_version: "1.5.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-09-01"
+updated: "2026-09-03"
 status: active
 source_skill: 010-sg-technical
 scope: github-hygiene-playbook
@@ -24,6 +24,7 @@ depends_on:
 supersedes:
   - skills/310-sg-github-hygiene/SKILL.md
 evidence:
+  - "Operator decision 2026-09-03: mutating Git hygiene must honor repository-local task-branch and worktree creation policy."
   - "Operator correction 2026-09-01: Git hygiene derives its target from canonical business delivery posture and distinguishes product publication from runtime live state."
   - "Transferred from the retired GitHub hygiene entrypoint into the technical métier skill."
   - "Operator decision 2026-09-01: Git/GitHub reconciliation and proven cleanup are continuous autonomous stewardship without validation prompts."
@@ -162,6 +163,8 @@ Treat these as attention items:
 ### Step 4 - Choose the safe maintenance lane
 
 Read-only `audit` mode stops after classification and report generation.
+
+Before creating any task branch or worktree in a mutating lane, run `$SHIPGLOWS_ROOT/tools/project_git_policy.py --project <root> --format json` and honor its effective values. Missing, invalid, or `forbidden` policy means no silent creation; if isolation is genuinely useful, explain why and discuss changing the repository policy with the user. `allowed` is permission, never a requirement or preference. This creation gate does not limit inventory, task/PR linkage, integration, justified retention, or proven cleanup of existing branches and worktrees.
 
 `reconcile` mode starts with fresh evidence. Run the resolver from
 `project-delivery-policy.md`; only business-context `delivery_posture` may derive
