@@ -148,7 +148,7 @@ function ConvertFrom-SgFlutterMachineEnvelope([string]$Line) {
 
 function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
     if ([string]::IsNullOrWhiteSpace($Line) -or $Line.Length -gt 1048576) { return }
-    try { $messages = @(ConvertFrom-SgFlutterMachineEnvelope $Line) } catch { if($Line.TrimStart().StartsWith('[')-or$Line.TrimStart().StartsWith('{')){$State.LastProtocolError='Invalid Flutter machine protocol envelope.'};return }
+    try { $messages = @(ConvertFrom-SgFlutterMachineEnvelope $Line) } catch { $trimmed=$Line.TrimStart();if($trimmed.StartsWith('[{')-or$trimmed.StartsWith('{')){$State.LastProtocolError='Invalid Flutter machine protocol envelope.'};return }
     foreach ($message in $messages) {
         if ($message.PSObject.Properties['id'] -and $null -ne $message.id) { $State.LastResponseId=[int]$message.id;$State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'};continue }
         if (-not $message.PSObject.Properties['event'] -or -not $message.PSObject.Properties['params']) { continue }
@@ -241,7 +241,7 @@ function Invoke-SgFlutterSupervisor {
                 if(-not $claimedPath){continue}
                 $response=[ordered]@{ok=$false;error='Invalid command.'}
                 try { $claimed=Get-Item -LiteralPath $claimedPath -ErrorAction Stop;if($claimed.Length -gt 65536){throw 'Supervisor command exceeds 64 KiB.'};$command=ConvertFrom-SgFlutterCommandJson ([IO.File]::ReadAllText($claimedPath)) $token;$response=[ordered]@{ok=$true;method=$command.Method}
-                    if($command.Method -eq 'reload'){if(-not $state.Ready){throw 'Flutter application is not ready.'};$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)}
+                    if($command.Method -eq 'reload'){if(-not $state.Ready){throw 'Flutter application is not ready.'};$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10);Write-SgFlutterJsonAtomic $statePath $state}
                     elseif($command.Method -in @('stop','open')){if($state.AppId){$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.stop' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)};$stopRequested=$true}
                 } catch {$response=[ordered]@{ok=$false;error=$_.Exception.Message}}
                 try{Write-SgFlutterJsonAtomic (Join-Path $responseDir ($commandFile.BaseName+'.json')) $response}finally{Remove-Item -LiteralPath $claimedPath -Force -ErrorAction SilentlyContinue}
