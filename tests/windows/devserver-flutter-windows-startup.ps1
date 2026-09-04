@@ -41,14 +41,18 @@ try{
 
         $stateRoot=Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-ready-{0}"-f[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Path $stateRoot|Out-Null;$statePath=Join-Path $stateRoot 'state.json'
         try{
-            [IO.File]::WriteAllText($statePath,'{"status":"building","appId":"app-build","daemonPid":42,"progressActive":true}')
+            $transitionAt=[datetime]::SpecifyKind([datetime]'2026-09-04T20:00:00',[DateTimeKind]::Utc)
+            [IO.File]::WriteAllText($statePath,'{"status":"building","appId":"app-build","daemonPid":42,"progressActive":true,"lastProgressAtUtc":"2026-09-04T20:00:00Z"}')
             function Test-SgProcessIdentity {$true}
-            $clock=[Diagnostics.Stopwatch]::StartNew();$buildTimeout=Wait-SgFlutterSupervisorReady $statePath 0 ([pscustomobject]@{pid=10}) 1;$clock.Stop()
-            if($clock.ElapsedMilliseconds-lt700-or$buildTimeout.Error-notmatch'build timed out'){throw 'Active Flutter build progress did not receive its dedicated startup window.'}
-            $transitionAt=[datetime]'2026-09-04T20:00:00Z';$timing=Update-SgFlutterReadinessWindow $true $false $transitionAt.AddMinutes(-1) 90 $transitionAt
-            if($timing.ActiveProgress-or$timing.Deadline-ne$transitionAt.AddSeconds(90)){throw 'Flutter debug attachment did not receive a fresh deadline after a long build completed.'}
+            $activeState=[pscustomobject]@{status='building';appId='app-build';daemonPid=42;progressActive=$true;lastProgressAtUtc=$transitionAt.ToString('o')}
+            $activeDecision=Get-SgFlutterStartupDecision $activeState $transitionAt.AddMinutes(-5) $transitionAt.AddSeconds(299) 90 300 600
+            if($activeDecision.Terminal){throw 'Active Flutter build progress did not receive its dedicated startup window.'}
+            $finishedState=[pscustomobject]@{status='starting';appId='app-build';daemonPid=42;progressActive=$false;lastProgressAtUtc=$transitionAt.ToString('o')}
+            $attachDecision=Get-SgFlutterStartupDecision $finishedState $transitionAt.AddMinutes(-5) $transitionAt.AddSeconds(89) 90 300 600
+            $expiredAttachDecision=Get-SgFlutterStartupDecision $finishedState $transitionAt.AddMinutes(-5) $transitionAt.AddSeconds(91) 90 300 600
+            if($attachDecision.Terminal-or-not$expiredAttachDecision.Terminal){throw 'Flutter debug attachment did not receive a fresh bounded deadline after a long build completed.'}
             function Test-SgProcessIdentity {$false}
-            $clock.Restart();$deadSupervisor=Wait-SgFlutterSupervisorReady $statePath 30 ([pscustomobject]@{pid=10}) 60;$clock.Stop()
+            $clock=[Diagnostics.Stopwatch]::StartNew();$deadSupervisor=Wait-SgFlutterSupervisorReady $statePath ([pscustomobject]@{pid=10}) 30 60 60;$clock.Stop()
             if($clock.ElapsedMilliseconds-gt1500-or$deadSupervisor.Error-notmatch'exited during startup'){throw 'Supervisor death was not detected promptly while Flutter reported build progress.'}
 
             $script:nativeProbe=0;$script:lateStops=0
