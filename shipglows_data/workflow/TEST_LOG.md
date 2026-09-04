@@ -265,3 +265,5 @@ The current ContentGlows source passed targeted Dart analysis. An installed-runt
 A subsequent regenerated ContentGlows build completed after the original 90-second boundary and exposed an immediate post-build attachment timeout. The focused regression now proves that finishing active build progress starts a fresh bounded VM Service attachment window.
 
 Repeated installed attempts then exposed a late native runner appearing after the first empty process snapshot and locking the next link with `LNK1168`. The focused cleanup regression now injects that late appearance and proves it is reaped before a stable quiet period completes.
+
+The installed command surface also exposed that `s reload -ProjectPath <path>` was no longer routed even though authenticated supervisor reload remained available. The explicit command is restored with running-session validation and a focused dispatch contract.
