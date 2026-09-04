@@ -100,6 +100,7 @@ function Show-SgShortcutHelp {
     Write-Host '  s status                           Show every project surface and state'
     Write-Host '  s status -ProjectPath <path>       Show one project, its port role, and next action'
     Write-Host '  s start -ProjectPath <path>       Start a web project, app, or Chrome extension'
+    Write-Host '  s reload -ProjectPath <path>      Hot reload an attached managed Flutter session'
     Write-Host '  s open -ProjectPath <path>        Open the URL, app session, or extension loading tools'
     Write-Host '  s stop -ProjectPath <path>        Stop the exact managed project'
     Write-Host '  s m r    Restart a project'
@@ -167,7 +168,7 @@ function Invoke-SgRequiredStart([string]$Path, [int]$RequestedPort = 0, [switch]
 }
 
 function Resolve-SgAction([string]$RequestedAction, [string[]]$RemainingPath) {
-    $namedActions = @('menu','dashboard','status','start','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
+    $namedActions = @('menu','dashboard','status','start','reload','stop','restart','register','unregister','clone','logs','open','stop-all','refresh','navigate','auth','capabilities','update','update-status','tools-status','tools-update','refresh-update-status','help','exit')
     if (@($RemainingPath).Count -eq 0 -and $RequestedAction -in $namedActions) { return $RequestedAction }
 
     $tokens = @($RequestedAction) + @($RemainingPath)
@@ -948,6 +949,15 @@ try {
         'start' {
             if ($ProjectPath) { Invoke-SgRequiredStart $ProjectPath $Port | Out-Null }
             else { $entry = Get-SelectedProject 'start'; if ($entry) { Invoke-SgRequiredStart $entry.path $Port | Out-Null } }
+        }
+        'reload' {
+            if (-not $ProjectPath) { throw 'Usage: s reload -ProjectPath <path>' }
+            $path = ConvertTo-SgCanonicalPath $ProjectPath
+            $entry = @((Reconcile-SgRegistry $config).projects | Where-Object { $_.path -eq $path }) | Select-Object -First 1
+            if (-not $entry) { throw "Project is not registered: $path" }
+            if ($entry.kind -ne 'flutter-web' -or $entry.status -ne 'running') { throw 'Reload requires a running managed Flutter session.' }
+            [void](Invoke-SgFlutterSupervisorCommand $entry 'reload' 15)
+            Write-SgInfo "$($entry.name) reload succeeded"
         }
         'stop' { if ($ProjectPath) { [void](Stop-SgProject $config $ProjectPath) } else { $entry = Get-SelectedProject 'stop'; if ($entry) { [void](Stop-SgProject $config $entry.path) } } }
         'restart' {
