@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$Offline,
+    [switch]$FocusedLauncher,
     [Parameter(ValueFromRemainingArguments=$true)][string[]]$RemainingArgs = @()
 )
 $ErrorActionPreference = 'Stop'
@@ -10,6 +11,7 @@ Import-Module $module -Force -DisableNameChecking
 try { $managed = Resolve-SgManagedPowerShellForLaunch -Offline:$Offline }
 catch { [Console]::Error.WriteLine("ShipGlows PowerShell bootstrap failed: {0}" -f $_.Exception.Message); exit 70 }
 $env:SHIPGLOWS_MANAGED_PWSH = [IO.Path]::GetFullPath($managed)
-$frontend = Join-Path $PSScriptRoot 'shipglows-devserver.ps1'
+$frontendName = if ($FocusedLauncher) { 'shipglows.ps1' } else { 'shipglows-devserver.ps1' }
+$frontend = Join-Path $PSScriptRoot $frontendName
 & $managed -NoLogo -NoProfile -File $frontend @RemainingArgs
 exit $LASTEXITCODE
