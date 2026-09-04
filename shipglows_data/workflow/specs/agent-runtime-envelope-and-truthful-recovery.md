@@ -7,7 +7,7 @@ created: "2026-09-04"
 created_at: "2026-09-04 10:48:00 UTC"
 updated: "2026-09-04"
 updated_at: "2026-09-04 11:06:04 UTC"
-status: completed
+status: reviewed
 source_skill: 100-sg-spec
 source_model: gpt-5.6
 scope: agent-runtime-envelope-and-truthful-recovery
