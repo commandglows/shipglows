@@ -240,3 +240,20 @@
 - Result summary: PRs 34, 35, and 36 passed their exact-head required gates, merged through protected `main`, and passed post-merge gates. The canonical runtime reached merge commit `67c6688` with 68/68 skill links valid. Six clean, unused, ancestry-proven worktrees and local branches plus seven ancestry-proven remote branches were removed under separate approval. The original PR 29, development, and UTF-8 artifacts remain retained because their exact tips are not ancestors of `main`; the development worktree also had active Dart processes during audit. The unrelated operator-owned runtime modification remained content-identical.
 - Evidence pointer: GitHub PRs 34-36 and their required-gate runs; refreshed Git ancestry and worktree/process preflight; post-cleanup local/remote ref audit; canonical skill-link check
 - Follow-up: review retained artifacts no earlier than 2026-08-26 and resolve the unrelated runtime modification before requiring a clean canonical worktree
+
+## 2026-09-04 - Managed Flutter Windows startup regression retest
+
+- Scope: BUG-2026-09-04-001 / ContentGlows managed Windows cold start
+- Environment: Windows, ShipGlows DevServer source checkout on `main`, `flutter run -d windows`, attached visible session
+- Tester: Codex tooling
+- Source: sg-bug
+- Status: passed locally; installed-runtime proof pending protected-main integration
+- Confidence: high
+- Result summary: Controlled stop proved no residual ContentGlows Debug runner. The next cold start emitted `app.debugPort`, `app.devTools`, `app.dtd`, and `app.started`; registry reconciliation produced `status=running`, `flutterStartupState=running`, `flutterHeadless=false`, and `lastError=null`. Explicit hot reload completed with `Reloaded 0 libraries` in 521 ms.
+- Bug pointer: BUG-2026-09-04-001 -> `shipglows_data/workflow/bugs/BUG-2026-09-04-001.md`
+- Evidence pointer: protected supervisor state and Flutter machine-event logs under the active ShipGlows launch identity
+- Follow-up: merge through the protected main gate, synchronize the installed runtime, and repeat the proof through `s`
+
+### Follow-up attempt
+
+A second cold-start attempt reached Flutter compilation but was blocked by a current ContentGlows type error in `windows_capture_studio.dart`. The DevServer preserved the bounded compiler diagnostic and no Debug runner survived. No ContentGlows file was changed as part of this ShipGlows repair.
