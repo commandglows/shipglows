@@ -152,6 +152,7 @@ Update-SgFlutterProtocolState $state '{"event":"app.progress","params":{"appId":
 if ([datetime]$state.LastProgressAtUtc -le $firstProgress) { throw 'Repeated valid Flutter progress did not advance the liveness timestamp.' }
 Update-SgFlutterProtocolState $state '{"event":"app.progress","params":{"appId":"app-1","message":"Building Windows application...","finished":true}}'
 if ($state.Ready -or $state.Status -ne 'starting' -or $state.ProgressActive) { throw 'Finished Flutter progress marked readiness or remained active.' }
+if($state.LastEvent-ne'app.progress'){throw 'Flutter startup progress was not retained for diagnostics.'}
 Update-SgFlutterProtocolState $state '{"event":"app.started","params":{"appId":"other"}}'
 if ($state.Ready) { throw 'Mismatched app.started marked the supervisor ready.' }
 Update-SgFlutterProtocolState $state '{"event":"app.started","params":{"appId":"app-1"}}'
@@ -180,6 +181,10 @@ Update-SgFlutterProtocolState $arrayState '[{"event":"app.started","params":{"ap
 Update-SgFlutterProtocolState $arrayState '[{"id":91,"result":{"code":0}}]'
 if(-not$arrayState.Ready-or$arrayState.Status-ne'running'-or$arrayState.AppId-ne'app-array'-or$arrayState.DaemonPid-ne4321-or$arrayState.LastResponseId-ne91-or-not$arrayState.LastResponseOk){throw 'Real Flutter JSON array envelopes were not flattened into protocol state.'}
 foreach($ambiguous in @('[[{"event":"app.started","params":{"appId":"x"}}]]','[1]','[]')){try{[void](ConvertFrom-SgFlutterMachineEnvelope $ambiguous);throw 'Ambiguous Flutter machine envelope was accepted.'}catch{if($_.Exception.Message-eq'Ambiguous Flutter machine envelope was accepted.'){throw}}}
+$failedState=New-SgFlutterProtocolState
+Update-SgFlutterProtocolState $failedState '{"event":"app.start","params":{"appId":"failed-app"}}'
+Update-SgFlutterProtocolState $failedState '{"event":"app.stop","params":{"appId":"failed-app"}}'
+if($failedState.Status-ne'error'-or$failedState.LastError-notmatch'app\.started'-or$failedState.LastEvent-ne'app.stop'){throw 'A pre-readiness app.stop did not preserve the actionable startup failure.'}
 
 $claimRoot = Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-claim-{0}" -f [guid]::NewGuid().ToString('N'))
 try {
