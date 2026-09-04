@@ -55,7 +55,8 @@ class CheckSkillContractTests(unittest.TestCase):
             "/103-sg-verify",
         ):
             self.assertIn(owner, self.skill)
-        self.assertIn("005-sg-ship -> 405-sg-prod", self.skill)
+        self.assertIn("describe the missing hosted, browser, auth, or manual outcome", self.skill)
+        self.assertIn("Never expose internal skill commands in `report=user`", self.skill)
 
 
 if __name__ == "__main__":

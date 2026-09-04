@@ -27,7 +27,7 @@ Run and interpret proportional technical checks. A green result proves only the 
 ## Scope Gate
 
 - Accept `fix` or `nofix`; with either explicit mode, run all detected proportional checks without prompting.
-- With empty arguments, ask which checks to run: typecheck, lint, build, tests, or quick dependencies.
+- With empty arguments, derive the proportional check set from the changed surface, project instructions, manifests, lockfiles, available scripts, and risk; run it read-only as `nofix`. Do not ask the operator to select typecheck, lint, build, tests, or dependency mechanics.
 - Use `bounded` checks for localized low-risk edits and `full` checks only for shared behavior, auth/data boundaries, dependency/build changes, or release risk.
 - At a workspace root with multiple projects and no project markers, ask which projects to check and run selected projects sequentially.
 - `nofix` is strictly read-only. In `fix`, repair root causes and rerun the failed check, for at most 3 fix cycles.
@@ -58,7 +58,7 @@ Route browser-observable proof to `/108-sg-browser`, auth/protected proof to `/1
 
 Report commands/checks executed, pass/fail/blocked status, repairs made, remaining failures, and proof limits. Include `Risky assumptions / gaps` whenever a relevant check was unavailable or skipped, runtime/integration coverage is absent, a security scan was partial, or warnings remain material.
 
-For preview-required work, state the `005-sg-ship -> 405-sg-prod` next step and the correct browser/auth/manual proof owner. Never describe a passing `105-sg-check` run as production-ready.
+For preview-required work, describe the missing hosted, browser, auth, or manual outcome in plain language and route it internally to the correct owner. Never expose internal skill commands in `report=user`. Never describe a passing `105-sg-check` run as production-ready.
 
 ## Validation
 

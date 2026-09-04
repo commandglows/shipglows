@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.5.0"
+artifact_version: "1.6.0"
 project: ShipGlows
 created: "2026-07-17"
-updated: "2026-09-03"
+updated: "2026-09-04"
 status: active
 source_skill: 900-shipglows-core
 scope: preferred-stack-presets
@@ -35,6 +35,7 @@ evidence:
   - "Operator decision 2026-09-03: greenfield browser extensions use WXT, strict TypeScript, pnpm, Manifest V3, and multi-browser output; simple UI stays native and rich UI uses Vue 3, not React."
   - "Operator decision 2026-09-03: greenfield Obsidian plugins use the official TypeScript and esbuild-compatible contract, support desktop and mobile by default, and add Vue 3 only for rich UI with explicit lifecycle cleanup."
   - "Operator decision 2026-08-11: Auth0 is a strong OIDC exception but fails the many-free-products default on Linux coverage, tenant isolation, and paid-plan cost."
+  - "Operator correction 2026-09-04: Flutter's cross-platform capability horizon remains a strong default, while launch scope follows product intent and is never expanded by technical capability alone."
 next_review: "2026-09-11"
 next_step: "none"
 ---
@@ -76,20 +77,21 @@ rediscover ShipGlows's habitual stack.
 ### Cross-platform application surfaces
 
 - Framework: Flutter.
-- Targets: Flutter Web, Android, iOS, Windows, macOS, and Linux from the same application codebase.
+- Capability horizon: Flutter Web, Android, iOS, Windows, macOS, and Linux from the same application codebase.
 - Hosting for the Flutter Web build: Vercel.
-- Recommend the shared six-platform footprint first for a new consumer
-  or business application, even when the initial request names only a mobile
-  app or only a browser app. Narrow the targets only when the operator states a
-  durable product reason or a verified platform constraint makes one target
-  unsuitable.
+- Recommend Flutter's shared capability horizon for a new consumer or business
+  application. This is not a launch commitment: derive launch platforms from
+  explicit product intent and current business evidence. When the initial
+  request names only mobile or only browser, keep other supported targets
+  available for the roadmap without silently adding their design, proof,
+  packaging, or release to the current scope.
 - Use Flutter for authenticated or transactional application flows, dashboards,
   configuration, ordering, and other app-centric interaction.
 
 ### Combined public site and application
 
 - Public/SEO surface: Astro on Vercel.
-- Application surface: Flutter Web on Vercel plus Android, iOS, Windows, macOS, and Linux builds.
+- Application surface: Flutter with the accepted launch targets; its broader Web, Android, iOS, Windows, macOS, and Linux capability horizon remains available. Host Flutter Web on Vercel when Web is in scope.
 - Keep one backend and data authority for catalog, identity, permissions,
   availability, prices, orders, and other shared business state.
 - Define an explicit navigation boundary between the Astro site and Flutter app
@@ -168,7 +170,7 @@ and ask one product-level decision rather than silently switching.
 
 For greenfield work:
 
-1. Establish launch and roadmap platform footprint.
+1. Establish the launch platform footprint and separately record the credible roadmap capability horizon.
 2. Lead with and apply every compatible operator-approved preferred preset;
    presets are the first recommendation, not one neutral option among others.
 3. Resolve an exact app blueprint if one exists; it may refine the preset but
@@ -183,17 +185,18 @@ For greenfield work:
 
 - `PSP-001 site only`: a public content or SEO site defaults to Astro on Vercel.
 - `PSP-002 app only`: an application targeting web, iOS, and Android defaults to
-  Flutter, with its web build on Vercel.
+  Flutter for those launch targets, with its web build on Vercel; other Flutter
+  targets remain capabilities rather than implied launch deliverables.
 - `PSP-003 site plus app`: a product needing public SEO pages and transactional
   web/mobile experiences defaults to Astro plus Flutter, not Next.js plus
   Flutter and not Flutter for the SEO surface.
 - `PSP-004 backend exception`: when the baseline backend lacks suitable official
   platform support or creates material transactional risk, compare a justified
   alternative and obtain the operator's product-level decision.
-- `PSP-005 apparently mobile-only app`: a new app initially described only for
-  iOS or Android is first framed as one Flutter codebase for Web, iOS, and
-  Android; it is narrowed only from explicit product intent or verified
-  platform constraints.
+- `PSP-005 mobile launch with broader horizon`: a new app described for iOS or
+  Android uses Flutter's shared codebase while the named mobile surface remains
+  the launch commitment. Web and other supported targets stay visible as a
+  capability horizon until product evidence or an operator decision adds them.
 - `PSP-006 free portfolio`: a provider is not recommended from its headline
   free price alone; project/deployment count, pooled quotas, pause/hard-stop or
   metered behavior, and server-authority needs are recorded first.

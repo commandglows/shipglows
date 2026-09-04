@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.1"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-08-04"
-updated: "2026-08-24"
+updated: "2026-09-04"
 status: active
 source_skill: 900-shipglows-core
 scope: intent-to-outcome-autonomy
@@ -21,10 +21,10 @@ linked_systems:
   - skills/references/functional-excellence-contract.md
 depends_on:
   - artifact: skills/references/question-contract.md
-    artifact_version: "2.1.0"
+    artifact_version: "2.7.0"
     required_status: active
   - artifact: skills/references/operator-partnership-contract.md
-    artifact_version: "1.4.0"
+    artifact_version: "1.11.0"
     required_status: active
   - artifact: skills/references/strategic-choice-contract.md
     artifact_version: "1.1.0"
@@ -70,7 +70,7 @@ Discoverable paths, commands, tests, and mechanics are agent decisions. Treat sp
 
 Ask only when an operator-owned decision changes behavior, promise, scope, security, cost, privacy/permissions, external effects, or acceptance.
 
-- Ask one numbered decision at a time; recommend the strongest professional default.
+- Ask one decision at a time. Number only genuinely enumerable alternatives; otherwise ask one focused natural-language question. Recommend the strongest responsible default when one exists.
 - Re-evaluate; never front-load a generic questionnaire.
 - Stop when a fresh capable agent can execute and prove safely.
 

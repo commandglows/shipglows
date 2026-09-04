@@ -190,8 +190,10 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
     # MH-03 / MH-04: only operator-owned business truth becomes a question.
     def test_mh_03_and_mh_04_question_only_material_business_truth(self) -> None:
         for required in (
-            "Ask one numbered decision at a time",
-            "recommend the strongest professional default",
+            "Ask one decision at a time",
+            "Number only genuinely enumerable alternatives",
+            "natural-language question",
+            "Recommend the strongest responsible default",
             "never front-load a generic questionnaire",
             "Stop when a fresh capable agent can execute and prove safely",
             "Discoverable paths, commands, tests, and mechanics are agent decisions",

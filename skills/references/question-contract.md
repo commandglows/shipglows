@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.6.0"
+artifact_version: "2.7.0"
 project: ShipGlows
 created: "2026-05-05"
-updated: "2026-09-01"
+updated: "2026-09-04"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-question-contract
@@ -43,6 +43,7 @@ evidence:
   - "Operator correction 2026-08-17: recommended defaults should ship useful product value quickly while preserving coherent architecture and non-negotiable safety."
   - "User decision 2026-06-09: skills should be almost fully autonomous and professionally effective, asking fewer questions and only in plain decision language when the operator truly owns the decision."
   - "User decision 2026-06-10: autonomy and question rules should be compact enough to preserve the signal."
+  - "Operator correction 2026-09-04: ask from an operator-owned decision or unavailable product truth, then choose numeric or natural-answer shape from whether the answer space is genuinely enumerable."
   - "User decision 2026-06-28: the operator is not here to code, but is happy to answer precise business-critical questions that the repository cannot answer."
   - "User decision 2026-07-15: a greenfield product stack must be chosen with the operator at the product-consequence level instead of being silently fixed by the agent."
   - "Operator correction 2026-07-17: greenfield platform scope must be established before stack options; ShipGlows must not silently exclude mobile applications and thereby omit Flutter from the decision."
@@ -61,7 +62,7 @@ next_step: "/104-sg-end greenfield platform footprint question contract"
 
 This reference defines how ShipGlows skills ask user-facing questions.
 
-Product and experience questions are proactive partnership and should be asked readily when the operator's perspective can improve the promise, journey, audience, priority, positioning, or usefulness. Validation requests are different: they interrupt execution and must be rare. A question is a decision brief: why the decision matters, the recommended default when one exists, and the practical options.
+Product and experience questions are proactive partnership when the operator owns missing truth or a material judgment that repository evidence cannot replace. First decide whether that answer is needed now to choose, improve, or validate the outcome; do not ask merely because another preference could be collected. Validation requests are different: they authorize mutation and must follow their own gate. A decision question explains why the decision matters, the recommended default when one exists, and the practical alternatives when they are real.
 
 The goal is not to avoid questions at all costs. The goal is to avoid useless technical supervision while still asking for operator-owned business truth when that truth materially improves the work.
 
@@ -78,8 +79,8 @@ Load this contract before any user-facing:
 - product, persona, scope, or content-surface question
 - security, data, permission, destructive, unapproved staging, closure, or ship-risk question; exact-scope local commits already covered by an approved bounded technical chantier do not create a new question
 - blocked-state recovery question
-- selection question for project, file, URL, domain, check set, package, market, or content source
-- an unfinished-chantier choice block in a final user-facing report
+- selection question for project, file, URL, domain, package, market, or content source when evidence cannot safely resolve it
+- an unfinished-chantier choice block only when a real operator-owned decision remains
 
 Do not use it for internal analysis, routine in-flight progress updates, completed
 final reports, or subagent instructions where the subagent is forbidden to ask
@@ -89,7 +90,7 @@ or pause/continue, never an internal skill, command, owner, or lifecycle phase.
 
 ## Question Versus Validation
 
-Never apply an approval-friction test to a useful product or experience question. It may sharpen the outcome without blocking the current chantier. Ask it when the operator owns relevant intent, taste, priority, audience nuance, experience judgment, or product truth that repository evidence cannot replace. Continue safe in-scope work while the answer is pending when possible.
+Do not apply mutation-approval criteria to a product or experience question. Ask when the operator owns relevant intent, taste, priority, audience nuance, experience judgment, or product truth that repository evidence cannot replace and the answer materially sharpens the current outcome or next decision. A merely possible improvement is not enough to interrupt the operator. Continue safe in-scope work while a non-blocking answer is pending when useful.
 
 For a purely technical question, first attempt a professional evidence-backed decision. Ask only when credible safe technical directions have materially different consequences and the repository, accepted architecture, tests, and current standards cannot resolve them. Never ask the operator to supervise implementation mechanics.
 
@@ -97,7 +98,7 @@ A question is not a validation request, and its answer never authorizes a mutati
 
 ## Ask Threshold
 
-Ask a product or experience question whenever its answer can usefully sharpen one of these outcomes; blocking materiality is not required. Ask a technical question only when its answer changes at least one material outcome:
+Ask a product or experience question when its answer supplies operator-owned truth or resolves a material judgment for one of these outcomes. Ask a technical question only when its answer changes at least one material outcome and evidence cannot resolve it:
 
 - owner skill, lifecycle path, or durable work item type
 - user-visible behavior, product scope, audience, persona, or content surface
@@ -134,7 +135,9 @@ product, establish the intended platform footprint at the product level:
 Use explicit operator statements and existing product corpus first. If the
 platform footprint is absent or ambiguous and it would materially change the
 framework, architecture, delivery phases, cost, or maintenance model, ask one
-numbered product question or bundle it into the greenfield technology decision.
+product decision or bundle it into the greenfield technology decision. Number
+the alternatives only when the credible footprints form a genuinely enumerable
+set.
 
 Never treat `mobile-first`, `responsive`, `website`, or `on the Internet` as
 proof that native mobile applications are unwanted. Never put a major platform
@@ -143,12 +146,14 @@ platform is required later rather than at launch, record both the launch phase
 and the durable target architecture so the first implementation does not block
 the planned application.
 
-Likewise, never treat an initial request for an iOS app, Android app, or mobile
-app as a reason to recommend a single-platform codebase first. Unless the
-operator states a durable platform restriction or a verified constraint rules
-out a target, the first application recommendation is one Flutter codebase for
-Web, iOS, and Android. This does not replace the separate Astro surface when
-public SEO pages are part of the product.
+Likewise, distinguish implementation capability from launch commitment. An
+initial request for an iOS, Android, mobile, or browser app can use one Flutter
+codebase whose durable capability reaches other supported targets, but the
+named product surface remains the launch footprint unless business evidence or
+an operator decision expands it. Keep credible additional targets visible as a
+roadmap horizon without silently promising their design, proof, packaging, or
+release. This does not replace the separate Astro surface when public SEO pages
+are part of the product.
 
 Once the footprint is known, evaluate all professionally credible framework
 directions that cover it. A request including iOS/Android must consider Flutter
@@ -174,7 +179,8 @@ implementation detail. Before freezing it, the agent must research the
 professional options, recommend one direction in plain language, explain the
 consequences that the operator owns (ongoing cost, hosting and data control,
 payment or service providers, maintenance burden, portability, and material
-lock-in), and ask one bundled numbered decision.
+lock-in), and ask one bundled decision. Number its alternatives when they are
+genuinely enumerable.
 
 Do not turn this into a questionnaire about packages, folder structure, state
 libraries, or other low-level mechanics the agent should choose. The operator
@@ -187,7 +193,7 @@ blueprint is a recommendation, not consent: disclose its material technology
 direction and obtain agreement unless the operator or project corpus has
 already accepted that blueprint or equivalent stack.
 
-If the obvious or requested option conflicts with project context, public/editorial claims, architecture, security posture, or current best practices, do not silently choose it. Either choose the safe compatible alternative when it is obvious and inside scope, or ask a numbered decision question that explains the conflict.
+If the obvious or requested option conflicts with project context, public/editorial claims, architecture, security posture, or current best practices, do not silently choose it. Either choose the safe compatible alternative when it is obvious and inside scope, or ask a decision question that explains the conflict. Number only concrete alternatives with distinct consequences.
 
 Never ask broad "anything else?" questions.
 
@@ -215,7 +221,7 @@ Questions are above contract when they help the operator and agent reason togeth
 
 ## Required Shape
 
-Every user-facing question must be answerable by number. Start each question with a numeric marker and one semantic emoji:
+Choose the answer shape from the decision shape. When the credible choices are genuinely enumerable and have distinct consequences, start the question with a numeric marker and one semantic emoji:
 
 ```text
 1. 🧭 [decision title]
@@ -223,13 +229,15 @@ Every user-facing question must be answerable by number. Start each question wit
 
 Use the user's active language for labels and explanation. Stable commands, paths, IDs, and status values may stay literal.
 
-Each question must include:
+An enumerable decision question must include:
 
 - decision title: the decision in plain language
 - why: why the skill needs the answer now
 - recommendation: the best default answer and why it is recommended, when a responsible default exists
-- options: 2-3 practical choices when useful, with number-prefixed labels
+- options: 2-3 practical choices with number-prefixed labels
 - answer instruction: tell the user they can answer with the number or name another route
+
+When the operator owns open product truth that cannot be represented honestly as a small finite set, ask one precise plain-language question and accept a natural-language answer. Do not invent options or a recommended answer merely to satisfy a format. Explain why the answer matters now and provide a tentative inference only when it helps the operator react concretely.
 
 Use small semantic icons only as scanning aids. Icons never replace the text label. Use `🧭` for the decision heading, `✅` for the recommended option, and one meaningful distinct icon for each alternative. Use no more than one icon per labelled line.
 
@@ -249,7 +257,7 @@ Options:
 Reponds avec le numero, ou precise une autre option.
 ```
 
-For English users, use `Why`, `Recommended`, `Options`, and `Reply with the number`.
+For English users with enumerable choices, use `Why`, `Recommended`, `Options`, and `Reply with the number`. For an open-answer question, omit the options block and request one focused natural-language answer.
 
 ## Recommendation Rules
 
@@ -272,15 +280,15 @@ Name the condition that would make another option better when that matters.
 ## Pressure Scenarios
 
 - `SSRP-005 safe default`: when the safe professional default is clear, reversible, in scope, and verifiable, the skill proceeds and reports the assumption only if useful.
-- `SSRP-006 required decision`: when the answer changes security, data, product behavior, validation confidence, closure, or ship risk, the skill asks one numbered plain-language question with a recommended option.
-- `SSRP-007 operator-owned business truth`: when the missing fact is business, audience, product, or framing context that the operator uniquely knows and the repository cannot prove, the skill asks one precise numbered question and continues after the answer instead of calling the task blocked.
-- `SSRP-008 greenfield stack partnership`: given the operator asks to create a new product with no accepted stack, when the framework, hosting, data, or provider direction affects ongoing cost, control, maintenance, portability, or lock-in, then the agent presents one recommended product-level stack direction with practical alternatives and obtains a numbered decision before the spec freezes it.
+- `SSRP-006 required decision`: when the answer changes security, data, product behavior, validation confidence, closure, or ship risk and two or three credible directions exist, the skill asks one numbered plain-language decision with a recommended option.
+- `SSRP-007 operator-owned business truth`: when missing business, audience, product, or framing truth is uniquely known by the operator and cannot be represented honestly as finite options, the skill asks one precise open question, accepts a natural-language answer, and continues instead of calling the task blocked.
+- `SSRP-008 greenfield stack partnership`: given the operator asks to create a new product with no accepted stack, when framework, hosting, data, or provider direction creates materially different business consequences, the agent presents one recommended product-level direction and numbers only the credible enumerable alternatives before the spec freezes it.
 - `SSRP-009 greenfield platform footprint`: given the operator asks for a new Internet product and does not explicitly accept or reject native apps, when platform scope would change the credible framework options, then the agent establishes web/iOS/Android/desktop intent before blueprint matching or stack recommendation and does not silently place mobile apps in `Scope Out`.
 - `SSRP-010 preferred stack preset`: given the established footprint includes a public SEO site plus web/iOS/Android application surfaces, when no project constraint contradicts the defaults, then the agent applies Astro plus Flutter with Vercel web hosting before blueprint matching and asks only about uncovered material providers or justified exceptions.
-- `SSRP-011 cross-platform first`: given the operator asks for a new mobile or browser application without a durable single-platform restriction, then the agent first recommends one Flutter codebase for Web, iOS, and Android and keeps Astro on Vercel for any separate public SEO surface.
+- `SSRP-011 cross-platform horizon`: given the operator asks for a new mobile or browser application, the agent recommends Flutter's shared cross-platform capability while deriving the actual launch platforms from stated intent; unrequested targets remain an available horizon rather than a silent launch commitment.
 - `SSRP-012 guided short controls`: selecting `Questionner`, `Approfondir`, or `Réorienter` triggers the shared strategic contract's guided follow-up; no selection authorizes mutation or returns a blank question to the operator.
 - `SSRP-014 governing-context recovery`: a material governing gap produces evidence, a proposed interpretation, one authority-owned question, an authorized canonical update, and automatic return to the original chantier; agent-researchable facts are never offloaded.
-- `SSRP-015 proactive product experience question`: a non-blocking but useful audience, journey, promise, priority, or product nuance is asked precisely instead of suppressed by a generic ask-less rule.
+- `SSRP-015 proactive product experience question`: a non-blocking audience, journey, promise, priority, or product question is asked only when operator-owned truth would materially sharpen the current outcome; generic preference collection remains omitted.
 - `SSRP-016 technical question restraint`: a purely technical question is asked only after evidence, architecture, tests, and standards fail to resolve materially different safe directions.
 - `SSRP-017 question-is-not-validation`: asking or answering a product/experience question never authorizes a new mutation or expands an approved scope.
 - `SSRP-018 no-git-validation-question`: ordinary commit, push, synchronization, safe reconciliation, and proven temporary-artifact cleanup are autonomous Git stewardship, never operator validation questions.

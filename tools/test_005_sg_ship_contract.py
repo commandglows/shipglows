@@ -193,7 +193,7 @@ class ShipSkillContractTests(unittest.TestCase):
             "`🧪 PREUVES`",
             "`📖 DOCUMENTATION`",
             "`✏️ ÉDITORIAL`",
-            "separated by ` · `",
+            "uses the shared middle-dot separator",
             "Opportunity is classified separately and is non-blocking",
             "grants no content, product, publication, or roadmap authority",
         ):

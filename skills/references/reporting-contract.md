@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.23.0"
+artifact_version: "2.24.0"
 project: ShipGlows
 created: "2026-05-03"
 updated: "2026-09-04"
@@ -30,10 +30,10 @@ depends_on:
     artifact_version: "1.2.0"
     required_status: active
   - artifact: "skills/references/reporting-blocked-and-audit.md"
-    artifact_version: "1.3.0"
+    artifact_version: "1.4.0"
     required_status: active
   - artifact: "skills/references/reporting-pressure-scenarios.md"
-    artifact_version: "2.9.0"
+    artifact_version: "2.11.0"
     required_status: active
   - artifact: "skills/references/documentation-reflection-gate.md"
     artifact_version: "1.5.0"
@@ -68,6 +68,7 @@ evidence:
   - "Operator correction 2026-09-01: editorial alignment and editorial/product opportunity are independent; `not impacted` never means no opportunity."
   - "Operator correction 2026-09-03: every substantive chantier start and every closure visibly reports context sufficiency and whether the current conversation should continue."
   - "Operator correction 2026-09-04: report context and handoff consequences derive from one next-task reliability decision; report templates never prefill that verdict."
+  - "Operator correction 2026-09-04: report templates render independently resolved states instead of presenting example statuses as defaults; chantier completion remains independent from the mandatory business continuation."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -135,7 +136,7 @@ After approval and at the true start of a substantive chantier, render this card
 
 🧪 PREUVES ATTENDUES ✅ <proof 1> · <proof 2> · <proof 3>
 
-📖 DOCUMENTATION PRÉVUE ✅ Impactée · <mapped documentation scope>
+📖 DOCUMENTATION PRÉVUE <resolved documentation plan>
 
 🧠 CONTEXTE <resolved continuity verdict>
 ```
@@ -166,13 +167,13 @@ Before rendering the documentation line, apply `documentation-reflection-gate.md
 
 🧪 PREUVES ✅ <proof 1> · <proof 2> · <proof 3>
 
-📖 DOCUMENTATION ✅ updated · <aligned documentation scope>
+📖 DOCUMENTATION <resolved documentation status · scope or reason>
 
-✏️ ÉDITORIAL ➖ not impacted · <concrete reason>
+✏️ ÉDITORIAL <resolved editorial status · scope or reason>
 
-📰 CHANGELOG 🔒 internal-only · <concrete reason>
+📰 CHANGELOG <resolved changelog status · scope or reason>
 
-📦 LIVRAISON ✅ Commit local : `<sha>` · ➖ Push : non effectué
+📦 LIVRAISON <resolved delivery status · evidence>
 
 🧠 CONTEXTE <resolved continuity verdict>
 
@@ -181,9 +182,13 @@ Before rendering the documentation line, apply `documentation-reflection-gate.md
 
 Translate the eight labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, `🧠 CONTEXTE`, and `🧭 SUITE` are mandatory for closure. `⚠️ LIMITES` is conditional and follows the same single-line, blank-line-separated form. Resolve the proposed next outcome before rendering the card, then derive `<resolved continuity verdict>` through `conversation-continuity-contract.md`: use `suffisant` for healthy carried state, `rafraîchi` only after a targeted refresh restored reliability, and `insuffisamment fiable` only with the required stabilized operator-started handoff. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
 
+Every `<resolved ...>` token is a rendering slot, never a suggested status. Resolve documentation, editorial, changelog, delivery, context, and continuation independently from their governing evidence before composing the card. An example value elsewhere in this contract demonstrates vocabulary only and must not become a fallback verdict.
+
 ## Mandatory Next Block
 
 Every final user report contains a `🧭 SUITE` block. It names one concrete evidence-backed next outcome, missing action or proof, or operator decision and is never `none`, “no action required,” an empty ceremonial menu, or a semantic equivalent. Before writing it, load and apply `skills/references/next-outcome-selection.md`: current conversation work and pending delivery beat active chantiers; active chantiers beat `P0 -> P1 -> P2 -> P3` tracker work; tracker work beats an overdue audit; only then select a grounded business improvement. Keep the result useful and concise, never omit the block, and never invent urgency or authority. The selected outcome is the proposed next task used by the single continuity decision; its handoff consequence therefore comes from that same decision rather than from a second context judgment. When numbered choices follow, the block introduces the decision they resolve.
+
+Resolve the current chantier verdict before selecting `🧭 SUITE`. A chantier may be fully complete while SUITE looks beyond it to the next grounded business improvement; that continuation neither reopens the completed scope nor weakens its closure. Conversely, an unfinished in-scope action remains part of the current chantier and must not be disguised as optional future improvement.
 
 An owned pull request that is merge-ready with required checks passing remains active in-scope delivery, not a next-step suggestion. Before returning control, use standing Git/GitHub stewardship authority to attempt reconciliation into the resolved integration branch and then apply proven-integrated temporary-artifact cleanup. Report a next action only when that attempt is blocked, and name the exact protection, review, conflict, check, ownership, or cleanup fact. Never stop merely because the pull request was opened or became green.
 

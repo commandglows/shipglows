@@ -429,18 +429,20 @@ class ReportingContractTests(unittest.TestCase):
             self.assertIn(rule, text)
         self.assertNotIn("🏗️ CHANTIER", text)
 
-    def test_unfinished_chantier_requires_plain_language_choices(self) -> None:
+    def test_unfinished_chantier_choices_follow_real_operator_decisions(self) -> None:
         text = reporting_corpus()
         for rule in (
             "## Unfinished Chantier Choice",
-            "end the message with a numbered, plain-language choice block",
+            "operator owns a real unresolved decision",
+            "do not manufacture a menu",
+            "one required recovery action or fact",
             "strategic-choice-contract.md",
-            "business direction",
             "guided follow-up",
-            "must never expose skill names, slash commands, lifecycle",
+            "must never expose skill names, slash commands, lifecycle labels",
             "`SSRP-012 unfinished chantier choice`",
         ):
             self.assertIn(rule, text)
+        self.assertNotIn("Poursuivre le résultat convenu", text)
         for legacy in (
             "Next step: <command or action, only if real>",
             "gives one next command",

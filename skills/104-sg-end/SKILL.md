@@ -103,7 +103,7 @@ For `summary-only`, run read-only classification and reporting only; skip steps 
 ### Final closure summary
 
 - Use the shared ordered card: `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`.
-- Keep every label with its content on one line, separate rows with one blank line, and separate compact evidence items with ` · `.
+- Keep every label with its independently resolved content on one line, separate rows with one blank line, and use the shared middle-dot separator for compact evidence items.
 - Add `⚠️ LIMITES` only when material. Always print a useful `🧭 SUITE` selected through `reporting-contract.md`: continue unfinished work first, otherwise choose the strongest evidence-backed next outcome; never emit a null or no-action completion.
 - Any intentional mutation, including documentation-only work, with no commit, no push, a local-only commit, or a failed push is `delivery pending`; never pair `Aucun commit ni push` or `modifications locales prêtes` with a completed verdict.
 

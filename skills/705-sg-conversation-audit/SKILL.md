@@ -77,6 +77,8 @@ After classifying a conversation, automatically run a ShipGlows skill-contract a
 - `missed_action`
 - `proof_gap`
 - `stale_skill_contract`
+- `literalism_over_intent`
+- `bad_question`
 - `user_friction`
 - `weak_follow_through`
 - `missed_delegation`
@@ -88,11 +90,13 @@ Preferred route:
 $900-shipglows-core audit local ShipGlows skills for the skill-contract gap found in this conversation
 ```
 
-If the skill is not available in the current session but the local ShipGlows source exists, run the versioned audit tool directly:
+If the skill is not available in the current session but the local ShipGlows source exists, the versioned audit tool may be run as a structure-only baseline:
 
 ```bash
 python3 "${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/tools/audit_shipglows_skills.py"
 ```
+
+A green structure-only result validates frontmatter, references, size, and visible contract sections; it does not resolve a semantic conversation finding. For `literalism_over_intent`, `bad_question`, `user_friction`, `weak_follow_through`, or another decision-quality defect, inspect the evidence-named contract and evaluate one targeted semantic pressure scenario. Keep follow-through open or explicitly partial until that scenario addresses the observed failure.
 
 Scope the follow-through to read-only analysis. Do not rewrite ShipGlows skills from this skill unless the operator explicitly asks for an edit pass.
 
@@ -102,7 +106,7 @@ The final report must include one of:
 - `shipglows_core_followup: unavailable` with the missing path or missing skill/tool capability,
 - `shipglows_core_followup: skipped` only when no finding category above was present.
 
-When a conversation finding names specific owner skills, map the ShipGlows Core follow-up to those files first, then broaden to all local skills only if the owner skill is ambiguous.
+When a conversation finding names specific owner skills or doctrine, resolve the affected owner layer from that evidence first, then broaden only if ownership remains ambiguous. A finding category describes the failure; it does not by itself select the implementation owner.
 
 ## Stable Finding Categories
 
@@ -128,26 +132,15 @@ When a conversation finding names specific owner skills, map the ShipGlows Core 
 - `Agents: <count>` counts unique agents successfully dispatched directly by the orchestrator signing that turn's receipt. Nested agents are excluded from that count.
 - Do not conclude that delegation occurred, was missed, or that an agent receipt is truthful from transcript prose alone.
 
-## Categories to Owners
+## Categories And Owner Resolution
 
-- `missed_action` → `001-sg-build`
-- `over_reporting` → `001-sg-build`
-- `wrong_owner_route` → `001-sg-build`
-- `literalism_over_intent` → `001-sg-build`
-- `proof_gap` → `103-sg-verify`
-- `stale_skill_contract` → `100-sg-spec`
-- `bad_question` → `001-sg-build`
-- `user_friction` → `001-sg-build`
-- `unsafe_ship_or_dirty_scope` → `100-sg-spec`
-- `weak_follow_through` → `001-sg-build`
-- `missed_delegation` → `001-sg-build`
-- `false_agents_receipt` → `103-sg-verify`
+Use the category to explain the failure, then use transcript evidence to resolve the narrowest affected owner layer: product implementation, shared doctrine, skill activation, verification tooling, reporting, or safety policy. For example, a `bad_question` caused by one product flow belongs to that flow's owner, while the same category caused by `question-contract.md` belongs to ShipGlows Core. Record the evidence-to-owner reason; do not route from category alone.
 
 ## Owner Handoff
 
-- Route high-confidence skill-contract changes to `001-sg-build` and `100-sg-spec`.
-- Route recurring quality-control gaps to `103-sg-verify`.
-- Escalate process-risked safety policy issues to `100-sg-spec`.
+- Route high-confidence shared skill/doctrine defects through ShipGlows Core with spec/readiness proportional to scope.
+- Route product-local implementation defects to the product owner and recurring proof gaps to verification tooling.
+- Escalate process-risked safety policy issues to a ready governance spec before mutation.
 
 ## Required References
 
@@ -163,6 +156,10 @@ Load:
 
 Default: `report=user`.
 Use `report=agent` for evidence-heavy handoff.
+
+## Validation
+
+For a decision-first reporting, question, check-selection, status-default, platform-scope, or semantic-follow-through finding, run `python3 -m unittest tools.test_decision_first_skill_contract`. A passing contract test covers the known invariants only; the evidence-named transcript scenario remains the authority for whether the observed failure is resolved.
 
 ## Stop Condition
 

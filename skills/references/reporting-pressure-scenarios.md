@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.10.0"
+artifact_version: "2.11.0"
 project: ShipGlows
 created: "2026-08-12"
 updated: "2026-09-04"
@@ -38,6 +38,7 @@ evidence:
   - "Operator correction 2026-09-01: editorial alignment `not impacted` cannot be used as a no-opportunity verdict."
   - "Operator correction 2026-09-03: start and closure cards must expose context sufficiency without allowing superficial restart signals."
   - "Operator correction 2026-09-04: continuity evaluates reliability for the proposed next task, while recap independently identifies non-disposable thread information."
+  - "Operator correction 2026-09-04: report values and unfinished choices follow resolved decisions; templates and open state never preselect them."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -45,7 +46,7 @@ next_step: none
 # Reporting Pressure Scenarios
 
 - `SSRP-001 human success`: concise active-language outcome and proof, no checklist dump.
-- `SSRP-002 human not-ready`: plain blockers plus one numbered recovery decision, no internal command/owner.
+- `SSRP-002 human not-ready`: plain blockers plus the exact recovery condition; add numbered options only when the operator owns multiple credible recovery directions, and expose no internal command/owner.
 - `SSRP-003 human blocked safety`: redacted evidence, safest action, no secrets or bulk logs.
 - `SSRP-004 agent handoff`: explicit agent mode may include matrices, files, commands, and internals.
 - `SSRP-005 proof limit`: name missing proof/exception before any completion claim.
@@ -56,7 +57,7 @@ next_step: none
 - `SSRP-009A universal compact user layout`: every user-facing start, progress, partial, blocked, audit, closure, delivery, persistence, limits, context, continuation, and decision-framing row keeps its label and content on one line with exactly one blank line between labelled rows; the two opening header lines and contiguous numbered choice lists remain intentional exceptions, and explicit agent handoffs retain their technical structure.
 - `SSRP-010 compact validation line`: emit `✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236`; unavailable/failing segments stay separate.
 - `SSRP-011 chantier emoji semantics`: normal `🧱`, genuinely blocked `🚧`, context markers only for their declared meanings.
-- `SSRP-012 unfinished chantier choice`: open user result ends with two or three plain choices; complete result does not.
+- `SSRP-012 unfinished chantier choice`: open state alone creates no menu; two or three plain choices appear only for a real operator-owned decision with distinct consequences, while one recovery action is stated directly and completed work receives no unfinished-choice block.
 - `SSRP-013 recurrence-claim-boundary`:
   - `local-repair`: report a bounded result and known recurrence conditions, not all projects or future changes.
   - `unsupported-guarantee`: require a preventive invariant whose scope covers the claim; reject “pour toujours”, “garanti”, “ne se reproduira pas” and semantic equivalents otherwise.
@@ -67,13 +68,13 @@ next_step: none
 - `SSRP-016 guided reorientation`: selecting a short `Réorienter` control triggers concrete alternative business directions and their consequences; it never answers with a blank “toward what?”.
 - `SSRP-017 no blank-page handoff`: the operator receives evidence-backed framing, proposals, and a recommendation instead of being asked to invent strategy or technical mechanics.
 - `SSRP-018 visible closure docs`: any report claiming closed, complete, done, resolved, or shipped includes `📖 DOCUMENTATION`, then exactly one compact line using `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`; material `needs review` forbids closure language.
-- `SSRP-019 visual closure card`: a successful closure uses the eight ordered rows `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, `🧠 CONTEXTE`, and `🧭 SUITE`; every label shares one line with its content, exactly one blank line separates rows, compact items use ` · ` separators, and an empty `⚠️ LIMITES` row is absent.
+- `SSRP-019 visual closure card`: a successful closure uses the eight ordered rows `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, `🧠 CONTEXTE`, and `🧭 SUITE`; each governed row renders its independently resolved value rather than an example default, every label shares one line with its content, exactly one blank line separates rows, compact items use ` · ` separators, and an empty `⚠️ LIMITES` row is absent.
 - `SSRP-020 visual start card`: after approval, a substantive chantier starts once with `🚀 Démarré` and the ordered rows `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, conditional `🛡️ GARDE-FOUS`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`, and `🧠 CONTEXTE`; every label shares one line with its content, exactly one blank line separates rows, and the card never replaces a pending approval prompt or decorates a micro-action.
 - `SSRP-021 no technical path leakage`: `report=user` omits file names, paths, and clickable technical file links unless the operator must act on that exact artifact or explicitly requests detailed evidence.
 - `SSRP-022 reporting effort ceiling`: one meaningful proof may support a verdict; placeholder counts are not quotas; prose stays to one sentence per block; no extra check, audit, research, documentation, content, or detail is created solely for reporting, while proof and documentation genuinely required by the chantier remain mandatory.
 - `SSRP-022 visible closure editorial`: every completion claim includes `✏️ ÉDITORIAL` with `updated`, `not impacted · <concrete reason>`, or `needs review · <surface>`; a material gap blocks closure, `No declared public surface` is valid evidence, and unaffected work creates no filler content.
 - `SSRP-023 completed chantier follow-up`: when a delivered result has a useful decision surface, the closure may offer `Approfondir` and `Réorienter`; either starts guided follow-up, does not reopen the completed chantier, and never grants mutation approval. An empty ceremonial menu fails.
-- `SSRP-024 mandatory next block`: every final user report includes a useful `🧭 SUITE`; `none`, no-action-required wording, semantic equivalents, and empty ceremonial menus fail.
+- `SSRP-024 mandatory next block`: every final user report includes a useful `🧭 SUITE`; the current chantier verdict is resolved first, and a grounded next business improvement neither reopens nor weakens a completed chantier. `none`, no-action-required wording, semantic equivalents, and empty ceremonial menus fail.
 - `SSRP-025 conversation continuity`: unfinished operator goals, earlier open chantiers, and pending review, PR, preview, proof, commit, push, or delivery in the current conversation beat tracker, audit, and new-idea candidates; safely agent-runnable authorized work continues before final reporting.
 - `SSRP-026 tracker priority`: when conversation, proof, delivery, and active chantiers are clear, select actionable `TASKS.md` work in `P0 -> P1 -> P2 -> P3` order without inflating severity; skip a higher item only with evidence that it is blocked or inapplicable.
 - `SSRP-027 overdue audit fallback`: when no actionable tracked work exists, compare `AUDIT_LOG.md` with the audit cadence matrix and choose the first event-triggered, never-run, or most overdue applicable audit instead of claiming completion has no sequel.

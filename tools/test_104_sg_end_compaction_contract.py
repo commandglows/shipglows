@@ -87,7 +87,8 @@ class EndCompactionContractTests(unittest.TestCase):
             "📖 DOCUMENTATION",
             "✏️ ÉDITORIAL",
             "📦 LIVRAISON",
-            "separated by ` · `",
+            "independently resolved content",
+            "shared middle-dot separator",
         ):
             self.assertIn(expected, self.skill)
         for expected in (

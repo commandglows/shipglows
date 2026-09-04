@@ -222,15 +222,16 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
         self.assertIn("focused contract or pressure-scenario test", validation)
         self.assertIn("only for explicit audit/release work", validation)
 
-    def test_preferred_stack_is_cross_platform_first_not_mobile_only(self) -> None:
+    def test_preferred_stack_preserves_capability_without_expanding_launch(self) -> None:
         for rule in (
             "first-recommendation defaults",
             "Recommend this pair first",
             "Flutter Web, Android, iOS, Windows, macOS, and Linux from the same application codebase",
-            "`PSP-005 apparently mobile-only app`",
+            "`PSP-005 mobile launch with broader horizon`",
+            "not a launch commitment",
         ):
             self.assertIn(rule, self.preferred_stacks)
-        self.assertIn("`SSRP-011 cross-platform first`", self.question_contract)
+        self.assertIn("`SSRP-011 cross-platform horizon`", self.question_contract)
         self.assertIn("one mobile or browser target", self.ready_skill)
 
 

@@ -24,7 +24,7 @@ Default to `report=user`: concise dashboard, attention items, limits, and `Chant
 
 ## Required References
 
-- Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` before asking for dashboard view mode.
+- Load `$SHIPGLOWS_ROOT/skills/references/question-contract.md` only if project scope or another material operator-owned decision remains unresolved after discovery. View formatting alone is not such a decision.
 
 ## Mission
 
@@ -51,20 +51,15 @@ Route away instead of staying in `308-sg-status` when the operator really needs:
 
 ## Flow
 
-### Step 0: Choose view mode
+### Step 0: Resolve view mode
 
-If `$ARGUMENTS` is empty, load `$SHIPGLOWS_ROOT/skills/references/question-contract.md`, then ask:
-- Question: "Quelle vue du dashboard veux-tu ?"
-- `multiSelect: false`
-- Options:
-  - **Issues only (recommandé)** — "Affiche seulement les projets avec attention requise"
-  - **Dirty only** — "Affiche seulement les projets avec changements locaux"
-  - **All projects** — "Affiche tout le portefeuille"
+With empty arguments, use `issues`: the most decision-useful compact view. Do not ask the operator to choose report formatting before gathering state.
 
 If `$ARGUMENTS` is provided, map:
 - `issues` -> issues only
 - `dirty` -> dirty only
-- any other value -> all projects
+- `all` -> all projects
+- any other value -> explain the accepted values without running an unintended broader scan
 
 ### Step 1: Read project registry
 
@@ -80,18 +75,9 @@ Before running git commands, normalize registry paths:
 - If the registry path starts with `/home/<other-user>/` and that path does not exist, retry with the same suffix under the current `$HOME`.
 - If neither the original path nor the normalized fallback exists, skip the project.
 
-For each project path, run these git commands (skip if path doesn't exist or isn't a git repo):
+For each project path, use read-only Git operations to resolve the current branch or detached state, porcelain status, upstream ahead/behind counts, latest commit, remotes, and stash entries. Execute and parse them with the current shell or a purpose-built tool; do not copy Bash redirection, pipelines, or home-path syntax into another host. Treat a missing upstream as state to report rather than a command failure.
 
-```bash
-git -C [path] rev-parse --abbrev-ref HEAD 2>/dev/null    # Current branch
-git -C [path] status --porcelain 2>/dev/null | wc -l     # Uncommitted changes count
-git -C [path] rev-list --count @{upstream}..HEAD 2>/dev/null  # Commits ahead
-git -C [path] rev-list --count HEAD..@{upstream} 2>/dev/null  # Commits behind
-git -C [path] log -1 --format="%ar — %s" 2>/dev/null     # Last commit
-git -C [path] stash list 2>/dev/null | wc -l              # Stashed changes
-```
-
-Run all projects in parallel using available parallel agent/tooling when present, or sequentially with Bash if fast enough (<10s total).
+Run projects concurrently with available read-only tooling when useful, or sequentially in the current shell when the portfolio remains fast enough (<10s total).
 
 ### Step 3: Compile dashboard
 
@@ -125,8 +111,8 @@ NEEDS ATTENTION
   ⚠️  ShipGlows — 1 uncommitted change (TASKS.md?)
 
 QUICK ACTIONS
-  → tubeflow: /005-sg-ship to commit and push
-  → GoCharbon: git -C $HOME/GoCharbon pull
+  → tubeflow: review and deliver the three local changes
+  → GoCharbon: integrate the five upstream commits
 ```
 
 Only show NEEDS ATTENTION if there are issues. Issues to flag:
