@@ -9,14 +9,16 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $entrypoint = Join-Path $repoRoot 'cli\windows\shipglows.ps1'
 $devServer = Join-Path $repoRoot 'cli\windows\shipglows-devserver.ps1'
 $runtimeStatus = Join-Path $repoRoot 'cli\windows\ShipGlows.RuntimeStatus.psm1'
+$powerShellBootstrap = Join-Path $repoRoot 'cli\windows\ShipGlows.PowerShellBootstrap.ps1'
 $entrypointText = [IO.File]::ReadAllText($entrypoint)
 $devServerText = [IO.File]::ReadAllText($devServer)
+$powerShellBootstrapText = [IO.File]::ReadAllText($powerShellBootstrap)
 $bootstrap = Join-Path $repoRoot 'install-shipglows.ps1'
 $installer = Join-Path $repoRoot 'cli\windows\install-devserver.ps1'
 $bootstrapText = [IO.File]::ReadAllText($bootstrap)
 $installerText = [IO.File]::ReadAllText($installer)
 
-foreach ($path in @($entrypoint, $devServer, $bootstrap, $installer)) {
+foreach ($path in @($entrypoint, $devServer, $powerShellBootstrap, $bootstrap, $installer)) {
     $tokens = $null
     $errors = $null
     [void][System.Management.Automation.Language.Parser]::ParseFile($path, [ref]$tokens, [ref]$errors)
@@ -27,6 +29,10 @@ Assert-Sg (Test-Path -LiteralPath $runtimeStatus -PathType Leaf) 'The Windows ru
 
 Assert-Sg ($entrypointText.Contains("CommandArguments[0] -ieq 'update'")) 'shipglows update must be accepted by the focused Windows launcher.'
 Assert-Sg ($entrypointText.Contains("'shipglows-devserver.ps1'")) 'shipglows update must delegate to the active DevServer implementation.'
+Assert-Sg ($installerText.Contains('"%_SHIPGLOWS_PWSH%" -NoLogo -NoProfile -File "%~dp0shipglows.ps1" %*')) 'The installed shipglows.cmd wrapper must run the focused launcher through managed PowerShell.'
+Assert-Sg ($installerText.Contains('ShipGlows.PowerShellBootstrap.ps1" -FocusedLauncher %*')) 'The installed shipglows.cmd wrapper must preserve focused-launcher semantics through secure bootstrap fallback.'
+Assert-Sg ($powerShellBootstrapText.Contains('[switch]$FocusedLauncher')) 'The secure PowerShell bootstrap must expose the focused shipglows launcher route.'
+Assert-Sg ($powerShellBootstrapText.Contains("if (`$FocusedLauncher) { 'shipglows.ps1' } else { 'shipglows-devserver.ps1' }")) 'The secure PowerShell bootstrap must select the focused launcher only when explicitly requested by shipglows.cmd.'
 
 $isolatedLauncherRoot = Join-Path ([IO.Path]::GetTempPath()) ("shipglows-update-launcher-test-" + [guid]::NewGuid().ToString('N'))
 try {
