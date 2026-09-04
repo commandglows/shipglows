@@ -50,6 +50,12 @@ try{
             function Test-SgProcessIdentity {$false}
             $clock.Restart();$deadSupervisor=Wait-SgFlutterSupervisorReady $statePath 30 ([pscustomobject]@{pid=10}) 60;$clock.Stop()
             if($clock.ElapsedMilliseconds-gt1500-or$deadSupervisor.Error-notmatch'exited during startup'){throw 'Supervisor death was not detected promptly while Flutter reported build progress.'}
+
+            $script:nativeProbe=0;$script:lateStops=0
+            function Get-SgOwnedFlutterNativePids {$script:nativeProbe++;if($script:nativeProbe-eq2){return @(101)};return @()}
+            function Stop-SgOwnedFlutterNative {$script:lateStops++;return $true}
+            function Get-SgOwnedFlutterListenerPids {return @()};function Get-SgOwnedFlutterBrowserPids {return @()}
+            if(-not(Wait-SgFlutterOwnedExtinction ([pscustomobject]@{kind='flutter-web'}) 3 500)-or$script:lateStops-ne1){throw 'A late Flutter Windows runner escaped the stable-extinction cleanup window.'}
         }finally{Remove-Item -LiteralPath $stateRoot -Recurse -Force -ErrorAction SilentlyContinue}
         Remove-Item -LiteralPath $project -Recurse -Force
     }

@@ -1641,9 +1641,14 @@ function Get-SgOwnedFlutterNativePids([object]$Entry) {
 
 function Stop-SgOwnedFlutterNative([object]$Entry) {$owned=@(Get-SgOwnedFlutterNativePids $Entry);foreach($ownedPid in $owned){Stop-SgProcessTree $ownedPid};return $owned.Count-gt0}
 
-function Wait-SgFlutterOwnedExtinction([object]$Entry,[int]$TimeoutSeconds=8) {
-    $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds))
-    do{if(-not(Test-SgProcessIdentity $Entry)-and@(Get-SgOwnedFlutterBrowserPids $Entry).Count-eq0-and@(Get-SgOwnedFlutterListenerPids $Entry).Count-eq0-and@(Get-SgOwnedFlutterNativePids $Entry).Count-eq0){return $true};if((Get-Date)-ge$deadline){return $false};Start-Sleep -Milliseconds 100}while($true)
+function Wait-SgFlutterOwnedExtinction([object]$Entry,[int]$TimeoutSeconds=8,[int]$QuietMilliseconds=1000) {
+    $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds));$quietSince=$null
+    do{
+        $identityLive=Test-SgProcessIdentity $Entry;$browser=@(Get-SgOwnedFlutterBrowserPids $Entry);$listener=@(Get-SgOwnedFlutterListenerPids $Entry);$native=@(Get-SgOwnedFlutterNativePids $Entry)
+        if(-not$identityLive){if($browser.Count-gt0){[void](Stop-SgOwnedFlutterBrowser $Entry)};if($listener.Count-gt0){[void](Stop-SgOwnedFlutterListener $Entry)};if($native.Count-gt0){[void](Stop-SgOwnedFlutterNative $Entry)}}
+        if(-not$identityLive-and$browser.Count-eq0-and$listener.Count-eq0-and$native.Count-eq0){if(-not$quietSince){$quietSince=Get-Date}elseif(((Get-Date)-$quietSince).TotalMilliseconds-ge[Math]::Max(0,$QuietMilliseconds)){return $true}}else{$quietSince=$null}
+        if((Get-Date)-ge$deadline){return $false};Start-Sleep -Milliseconds 100
+    }while($true)
 }
 
 function Remove-SgFlutterLaunchArtifacts([object]$Config,[object]$Entry) {
