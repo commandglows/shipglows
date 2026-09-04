@@ -455,8 +455,11 @@ The full installer exposes its validated Playwright Chromium through the standar
 that existing ShipGlows-managed executable to Flutter's `chrome` device.
 Matching `app.start`/`app.started` events establish readiness, Dart changes under
 `lib/` trigger debounced hot reload, Open promotes the session to managed visible
-Chrome, and Restart remains a complete controlled restart. Orphan listeners and
-browsers are stopped only with exact ShipGlows launch evidence.
+Chrome, and Restart remains a complete controlled restart. Reconciliation also
+requires the supervisor state instead of trusting a live wrapper alone. Orphan
+listeners, browsers, and Windows Debug runners are stopped only with exact
+ShipGlows launch evidence; transient Windows debug-connection failures receive
+one retry only after verified extinction.
 
 The native Windows tunnel remains available through `tunnel -Port <port>`.
 After a full install, use `s` (or `shipglows-dev`) for the project dashboard.
