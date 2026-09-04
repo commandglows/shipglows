@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "0.30.0"
+artifact_version: "0.31.0"
 project: ShipGlows
 created: "2026-04-22"
-updated: "2026-09-01"
+updated: "2026-09-04"
 status: draft
 source_skill: 300-sg-docs
 scope: spec-driven-workflow
@@ -40,6 +40,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Updated on 2026-09-04 so questions, report rows, helper defaults, context continuity, and next-outcome rendering follow independently resolved evidence instead of fixed menus or preselected statuses."
   - "Updated on 2026-09-01 so end verification and closure derive documentation impact from task-owned Git paths, the canonical code-docs map, and fresh bounded context with canonical fallback."
   - "Document title and body define ShipGlows V3 workflow doctrine and artifact metadata rules"
   - "Updated on 2026-04-26 to clarify the documentation frame, context layer, metadata doctrine, and artifact boundaries"
@@ -116,7 +117,7 @@ Skill launch cheatsheet:
 
 | Need | Launch | Useful modes |
 | --- | --- | --- |
-| Non-technical first command | `000-shipglows <instruction>` | Answers pure conversation directly, executes clear bounded requests from their own authority with focused proof, routes unknown/unbounded/directional work to the right skill, and asks one numbered question when materially ambiguous. |
+| Non-technical first command | `000-shipglows <instruction>` | Answers pure conversation directly, executes clear bounded requests from their own authority with focused proof, routes unknown/unbounded/directional work to the right skill, and asks one focused question only for materially missing operator-owned truth; numbered options appear only for genuinely enumerable alternatives. |
 | Named operator profile | `%Victoire <instruction>`, `%SEO-specialist <instruction>`, or `%Tariq <instruction>` | Canonical profile syntax. Activates the named operator profile; `#Tag` remains a focus-tag surface and the router still picks the owner skill. |
 | Non-technical first command with named operator profile | `000-shipglows profile=victoire <instruction>`, `000-shipglows profile=seo-specialist <instruction>`, or `000-shipglows profile=tariq <instruction>` | Same router, but with the selected profile active so the role contract shapes the answer or handoff framing. |
 | Non-trivial product, code, site, or docs work | `001-sg-build [spark|codex|mini|agents|sous-agent|no-agents] <story, bug, or goal>` | Plain task text is the story; use `spark`, `codex`, `mini`, `agents`, or `sous-agent` to make model-specific delegated sequential execution a validation gate; for user-facing features, `001-sg-build` evaluates whether to suggest or route `/008-sg-customer` after implementation; use detailed report modes only for handoff evidence. |
@@ -370,7 +371,7 @@ Technical governance applies to code projects by default. Editorial governance a
 - `700-sg-explore` may write an `exploration_report` durable artifact when exploration is substantial or explicitly requested, but it does not write chantier spec history.
 - `100-sg-spec` produces an implementation contract, not loose notes.
 - `101-sg-ready` enforces a real Definition of Ready before non-trivial execution.
-- `000-shipglows <instruction>` is the primary non-technical router; it hands off directly in the main thread to the selected skill and asks one numbered question when the route is ambiguous.
+- `000-shipglows <instruction>` is the primary non-technical router; it hands off directly in the main thread to the selected skill and asks one focused question only for materially missing operator-owned truth. Numbered options are reserved for genuinely enumerable alternatives.
 - `001-sg-build` is the master orchestrator for end users and should prefer bounded delegated sequential execution over manual command chaining.
 - Master/orchestrator skills must load `skills/references/master-workflow-lifecycle.md` for the shared skeleton: intake, work item resolution, readiness, model/topology routing, owner execution, validation, verification, post-verify closure, and ship/deploy routing.
 - Skills must load `skills/references/decision-quality-contract.md` before quality-sensitive routing, model choice, fallback choice, implementation, fix, verification, or recommendation. ShipGlows optimizes first for correctness, security, performance where relevant, maintainability, durability, professional best practices, and proof quality.
@@ -390,7 +391,7 @@ Technical governance applies to code projects by default. Editorial governance a
 
 ## Report Modes
 
-ShipGlows skills default to concise user-facing reports without file paths, file names, or technical file links unless the operator must act on the exact artifact. After approval, a substantive chantier opens once with `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`; it never replaces the approval prompt or decorates a micro-action. Successful closure reports use `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `📦 LIVRAISON`. Compact evidence stays on one line separated by ` · `; optional blocks appear only when material. Cards summarize already-required work: one meaningful proof may suffice, prose stays to one sentence per block, and no extra check, audit, research, documentation, or content is created solely for reporting.
+ShipGlows skills default to concise user-facing reports without file paths, file names, or technical file links unless the operator must act on the exact artifact. After approval, a substantive chantier opens once with `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`; it never replaces the approval prompt or decorates a micro-action. Successful closure reports use `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `📦 LIVRAISON`. Every row renders a value independently resolved from evidence; a template label never decides the status. Resolve chantier completion first, then render mandatory `🧭 SUITE` as one grounded business improvement without implying that a completed chantier remains open. The context row answers whether carried context is sufficiently reliable for that proposed next task; recap separately identifies non-disposable information still held only by the visible thread. Compact evidence stays on one line separated by ` · `; optional blocks appear only when material. Cards summarize already-required work: one meaningful proof may suffice, prose stays to one sentence per block, and no extra check, audit, research, documentation, or content is created solely for reporting.
 
 Detailed reports are explicit. Use `report=agent`, `handoff`, `verbose`, or `full-report` when an orchestrator or downstream agent needs file lists, validation matrices, evidence trails, phase details, or handoff context. Skills must not infer caller identity from runtime state; master skills pass a handoff flag when they need detailed downstream evidence.
 
@@ -1094,19 +1095,22 @@ Use this rule of thumb:
 - verify and possibly close the loop -> `103-sg-verify`
 - wrap up delivered work -> `104-sg-end`
 
-## Prompted Decisions
+## Decision-First Interaction
 
-Several skills now prompt explicit choices when the next action is ambiguous:
+Skills resolve `decision predicate -> evidence -> value -> rendering`. They do
+not turn every ambiguity into a menu or ask the operator for technical mechanics
+that repository evidence can decide.
 
-- `106-sg-fix`: direct fix vs spec-first vs diagnostic only
-- `102-sg-start`: execute direct vs spec-first vs clarify first (`700-sg-explore`)
-- `100-sg-spec`: light spec vs full spec vs auto-by-risk
-- `301-sg-context`: proceed now vs add one key file vs refine target
-- `103-sg-verify`: fix now vs return to spec vs stop and resume later
-- `104-sg-end`: full close vs partial close vs summary only
-- `308-sg-status`: issues-only vs dirty-only vs all-project view
+- Ask only when operator-owned truth or a material judgment is required now.
+- Use numbered choices when the real alternatives are finite and have distinct
+  consequences; use a focused natural-language question for open product truth.
+- Let empty technical helpers infer their documented safe defaults. For example,
+  `308-sg-status` defaults to issues-only and `105-sg-check` derives proportional
+  checks from the changed surface, project rules, lockfiles, and risk.
+- Keep completion, next improvement, context reliability, and thread-information
+  retention as separate decisions even when one final card renders them together.
 
-This keeps momentum while avoiding silent assumptions in decision-heavy moments.
+This preserves momentum without replacing reasoning with historical prompt shapes.
 
 `704-sg-model` is optional but useful when you want to choose manually before execution.
 `102-sg-start` should still reuse the same routing matrix internally, so manual and automatic choices stay aligned.

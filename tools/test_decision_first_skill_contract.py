@@ -63,6 +63,20 @@ class DecisionFirstSkillContractTests(unittest.TestCase):
         self.assertIn("affected owner layer", audit)
         self.assertIn("python3 -m unittest tools.test_decision_first_skill_contract", audit)
 
+    def test_durable_documentation_does_not_restore_fixed_prompt_shapes(self) -> None:
+        runtime = read("shipglows_data/technical/skill-runtime-and-lifecycle.md")
+        workflow = read("shipglows_data/workflow/playbooks/spec-driven-workflow.md")
+        guide = read("shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md")
+        bootstrap = read("skills/300-sg-docs/references/simple-bootstrap-playbooks.md")
+        readme = read("README.md")
+        corpus = runtime + workflow + guide + bootstrap + readme
+        self.assertIn("decision predicate -> evidence -> value -> rendering", workflow)
+        self.assertIn("non-disposable information", runtime)
+        self.assertIn("genuinely enumerable", corpus)
+        self.assertNotIn("asks one numbered question when ambiguous", corpus)
+        self.assertNotIn("Ask one numbered question only", corpus)
+        self.assertNotIn("issues-only vs dirty-only vs all-project view", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()

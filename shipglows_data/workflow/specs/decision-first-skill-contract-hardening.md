@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-09-04"
 updated: "2026-09-04"
@@ -24,6 +24,11 @@ linked_systems:
   - skills/105-sg-check/SKILL.md
   - skills/308-sg-status/SKILL.md
   - skills/705-sg-conversation-audit/SKILL.md
+  - skills/300-sg-docs/references/simple-bootstrap-playbooks.md
+  - shipglows_data/technical/skill-runtime-and-lifecycle.md
+  - shipglows_data/workflow/playbooks/spec-driven-workflow.md
+  - shipglows_data/technical/operator-guides/skill-launch-cheatsheet.md
+  - README.md
   - tools/test_decision_first_skill_contract.py
 depends_on:
   - artifact: skills/references/decision-quality-contract.md
@@ -81,16 +86,18 @@ Use `decision predicate -> evidence -> resolved value -> rendering` as the share
 - [x] Clarify platform capability horizon versus launch footprint.
 - [x] Add focused decision-first regression proof.
 - [x] Run proportional metadata, contract, structure, graph, budget, and sync checks.
+- [x] Align mapped technical, workflow, operator, and repository documentation with the repaired doctrine.
 
 ## Verification
 
-- Focused decision/reporting/question/check/status/conversation tests: 111 passed.
+- Focused decision/reporting/question/check/status/conversation/documentation tests: 112 passed.
 - ShipGlows metadata lint: passed for all changed governed artifacts.
 - Skill structure audit: 68 skills, no findings.
 - Activation graph: valid, 86 edges, no resource cycle.
 - Skill budget audit: no hard violations, warnings, or separate risks.
 - Full tools suite: 924 tests ran; the chantier-related failures were removed. Six failures remain in untouched legacy contracts and one import error remains because PyYAML is unavailable. These are recorded as independent baseline debt, not hidden as successful proof.
 - Runtime link check: source invocation/discovery did not change; expert-only runtime links are absent for the three locally adapted expert skills, so no installation or repair was performed.
+- Documentation reflection: mapped technical, workflow, operator-guide, bootstrap, and README wording now follows the same decision-first doctrine; no separate public site surface is present in this repository.
 
 ## Current Chantier Flow
 
@@ -99,3 +106,4 @@ Use `decision predicate -> evidence -> resolved value -> rendering` as the share
 - 2026-09-04 — Spec created ready for implementation.
 - 2026-09-04 — Shared doctrine and three owner skills repaired with decision-first predicates.
 - 2026-09-04 — Focused proof passed; global unrelated baseline failures recorded; chantier closed.
+- 2026-09-04 — Documentation reflection found and removed stale numbered-question and fixed-menu doctrine before final delivery.
