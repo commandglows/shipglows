@@ -45,6 +45,8 @@ try{
             function Test-SgProcessIdentity {$true}
             $clock=[Diagnostics.Stopwatch]::StartNew();$buildTimeout=Wait-SgFlutterSupervisorReady $statePath 0 ([pscustomobject]@{pid=10}) 1;$clock.Stop()
             if($clock.ElapsedMilliseconds-lt700-or$buildTimeout.Error-notmatch'build timed out'){throw 'Active Flutter build progress did not receive its dedicated startup window.'}
+            $transitionAt=[datetime]'2026-09-04T20:00:00Z';$timing=Update-SgFlutterReadinessWindow $true $false $transitionAt.AddMinutes(-1) 90 $transitionAt
+            if($timing.ActiveProgress-or$timing.Deadline-ne$transitionAt.AddSeconds(90)){throw 'Flutter debug attachment did not receive a fresh deadline after a long build completed.'}
             function Test-SgProcessIdentity {$false}
             $clock.Restart();$deadSupervisor=Wait-SgFlutterSupervisorReady $statePath 30 ([pscustomobject]@{pid=10}) 60;$clock.Stop()
             if($clock.ElapsedMilliseconds-gt1500-or$deadSupervisor.Error-notmatch'exited during startup'){throw 'Supervisor death was not detected promptly while Flutter reported build progress.'}
