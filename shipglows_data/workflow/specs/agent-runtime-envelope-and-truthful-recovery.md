@@ -1,13 +1,13 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.0.1"
 project: ShipGlows
 created: "2026-09-04"
 created_at: "2026-09-04 10:48:00 UTC"
 updated: "2026-09-04"
-updated_at: "2026-09-04 10:59:08 UTC"
-status: reviewed
+updated_at: "2026-09-04 11:06:04 UTC"
+status: completed
 source_skill: 100-sg-spec
 source_model: gpt-5.6
 scope: agent-runtime-envelope-and-truthful-recovery
@@ -34,7 +34,7 @@ depends_on:
 supersedes: []
 evidence:
   - "2026-09-04: Rio-hosted standalone Codex CLI exposed the Computer Use skill and Node REPL but sky.list_apps failed because no native pipe existed."
-next_step: "/005-sg-ship agent runtime envelope and truthful recovery"
+next_step: none
 ---
 
 # Agent runtime envelope and truthful recovery
@@ -71,7 +71,7 @@ In scope: shared runtime doctrine, context entrypoints, Windows projected instru
 - [x] Harden shared doctrine and all context entrypoints.
 - [x] Update projected Windows instructions and code-docs mapping.
 - [x] Run focused validation and update this flow.
-- [ ] Commit and push the exact owned change to `origin/dev`.
+- [x] Deliver the exact owned change to `origin/dev` through protected PR #134.
 
 ## Acceptance criteria
 
@@ -79,7 +79,7 @@ In scope: shared runtime doctrine, context entrypoints, Windows projected instru
 - [x] Context contracts require all execution-envelope and transport states.
 - [x] Windows instruction projection contains the same recovery invariant.
 - [x] Existing context and instruction tests remain green.
-- [ ] The exact owned change is committed and pushed to `origin/dev`.
+- [x] The exact owned change is committed, protected by required checks, and delivered through PR #134.
 
 ## ZOMBIES coverage
 
@@ -97,7 +97,8 @@ Process names vary across hosts, so the helper reports evidence and `unknown` ra
 | 2026-09-04 10:59:08 | 102-sg-start | implement | Added deterministic execution-envelope detection, managed-surface and registry precedence, transport qualification, targeted refresh, and host-specific recovery. |
 | 2026-09-04 10:59:08 | 103-sg-verify | verify | Runtime-envelope, context, Windows projection, metadata, activation graph, budget, public runtime sync, and live Rio/CLI classification checks passed. |
 | 2026-09-04 10:59:08 | 104-sg-end | close | Reviewed; exact-scope commit and push remain. |
+| 2026-09-04 11:06:04 | 005-sg-ship | deliver | Protected PR #134 opened; required CI and the complete Windows repository gate passed before the final closure revision. |
 
 ## Current Chantier Flow
 
-`100-sg-spec -> 101-sg-ready -> 102-sg-start -> 103-sg-verify -> 104-sg-end -> 005-sg-ship (next)`
+`100-sg-spec -> 101-sg-ready -> 102-sg-start -> 103-sg-verify -> 104-sg-end -> 005-sg-ship (completed via PR #134)`
