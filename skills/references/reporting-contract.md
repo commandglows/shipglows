@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "2.17.0"
+artifact_version: "2.18.0"
 project: ShipGlows
 created: "2026-05-03"
-updated: "2026-09-01"
+updated: "2026-09-05"
 status: active
 source_skill: 001-sg-build
 scope: skill-reporting-contract
@@ -41,27 +41,15 @@ depends_on:
   - artifact: "skills/references/editorial-reflection-gate.md"
     artifact_version: "1.0.0"
     required_status: active
+  - artifact: "skills/references/reporting-start.md"
+    artifact_version: "1.0.0"
+    required_status: active
+  - artifact: "skills/references/reporting-closure.md"
+    artifact_version: "1.0.0"
+    required_status: active
 supersedes: []
 evidence:
-  - "Operator decisions 2026-05-03 through 2026-08-07 define concise human reports, explicit agent handoffs, chantier-first headers, safe choices, bounded recurrence claims, and compact topology receipts."
-  - "Wave 13 retained the default user decision surface here and moved conditional handoff, blocked/audit, and maintenance scenarios to direct leaves."
-  - "Operator decision 2026-08-13: unfinished report choices steer business direction and short interaction controls trigger guided follow-up."
-  - "Operator clarification 2026-08-15: every closure report must expose its documentation reflection instead of leaving documentation updates silent."
-  - "Operator decision 2026-08-15: closure reports use a stable visual card whose proof and documentation evidence each stay on one compact line separated by middle dots."
-  - "Operator decision 2026-08-15: approved substantive chantiers use a matching start card with objective, scope, expected proof, and planned documentation impact."
-  - "Operator decision 2026-08-15: user reports omit file paths, file names, and technical file links unless the operator must act on the exact artifact or explicitly requests detail."
-  - "Operator decision 2026-08-18: report cards summarize already-required work and must never create extra checks, research, documentation, or content merely to fill a block."
-  - "Operator decision 2026-08-21: substantive code chantiers expose one compact implementation-guardrail receipt after pre-write classification."
-  - "Operator decision 2026-08-16: every closure exposes a separate editorial reflection without creating ceremonial public content."
-  - "Operator correction 2026-08-21: SUITE is mandatory business continuity and may never resolve to no action; it selects from unfinished conversation work, pending proof or delivery, active chantiers, tracker priority, overdue audits, then grounded improvement."
-  - "Operator decision 2026-08-21: persistence reporting distinguishes local, remote backup, and deployment without adding a block when healthy delivery evidence is already clear."
-  - "Operator decision 2026-08-16: completed chantiers may offer guided Approfondir and Réorienter follow-up without reopening delivery or authorizing mutation."
-  - "Operator approval 2026-08-21: restart recommendations follow context quality rather than length, stabilize durable state first, and remain operator-started."
-  - "Operator correction 2026-08-21: an independent outcome alone never triggers restart; user-facing language calls the restart prompt a handoff."
-  - "Operator approval 2026-08-22: context health checks are lightweight at transitions and targeted only after a material degradation signal."
-  - "Operator approval 2026-08-30: every managed-repository closure visibly classifies changelog impact without equating publication readiness with publication proof."
-  - "Operator correction 2026-09-01: closure reports render documentation evidence resolved from current changed paths and the canonical docs map, independently from editorial impact."
-  - "Operator correction 2026-09-01: editorial alignment and editorial/product opportunity are independent; `not impacted` never means no opportunity."
+  - "Existing reporting requirements preserved in direct start/closure leaves by the approved progressive-loading pilot. Historical evidence is in shipglows_data/technical/progressive-loading-pilot-baseline.md."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -70,173 +58,104 @@ next_step: none
 
 ## Purpose And Direct Branches
 
-Use this compact contract before every final ShipGlows report. Load `$SHIPGLOWS_ROOT/skills/references/final-report-timestamp.md` for Paris-time verdict rules.
+Apply this contract before every final ShipGlows report. Select all applicable
+rows directly here; a leaf never discovers or loads another reporting leaf.
+Missing required references block the affected report; never silently omit a gate.
+The structured dependencies above validate existence/version/status, not eager reads.
 
-Load direct branches only when their gate applies:
+| Decision now | Required direct reference under `$SHIPGLOWS_ROOT/skills/references/` |
+| --- | --- |
+| Approved substantive chantier is actually starting | `reporting-start.md` |
+| Explicit `report=agent`, `handoff`, `verbose`, or `full-report` | `reporting-agent-handoff.md` |
+| Blocked, partial, risky, security-sensitive, audit, or unfinished user result | `reporting-blocked-and-audit.md` |
+| Unfinished user result needs operator choices | `strategic-choice-contract.md` |
+| Claim closed, complete, done, resolved, or shipped | `reporting-closure.md`, `documentation-reflection-gate.md`, `editorial-reflection-gate.md` |
+| Agent handoff lacks a qualified Context Capsule | `context-quality-contract.md` |
+| No concrete continuation in the conversation or pending proof/delivery | `next-outcome-selection.md` |
+| Context degradation may justify restart, or handoff starts a new conversation | `conversation-continuity-contract.md` |
+| Maintenance/testing of reporting behavior | `reporting-pressure-scenarios.md` and only the exercised branches |
+| Maintenance/testing of timestamp behavior | `final-report-timestamp.md` |
 
-- explicit `report=agent`, `handoff`, `verbose`, or `full-report`: `$SHIPGLOWS_ROOT/skills/references/reporting-agent-handoff.md`;
-- blocked, partial, risky, security-sensitive, audit, or unfinished user result: `$SHIPGLOWS_ROOT/skills/references/reporting-blocked-and-audit.md`;
-- reporting-contract maintenance or behavioral review: `$SHIPGLOWS_ROOT/skills/references/reporting-pressure-scenarios.md`.
-- any report that claims a work item is closed, complete, done, resolved, or shipped: load both `$SHIPGLOWS_ROOT/skills/references/documentation-reflection-gate.md` and `$SHIPGLOWS_ROOT/skills/references/editorial-reflection-gate.md`.
-
-Branches never chain. Closure is the only dual-reflection case: documentation and editorial impact are mandatory and independent. The default successful `report=user` needs no branch. In `report=user`, blocked/partial/audit loads the blocked/audit leaf. In `report=agent`, load only agent-handoff: it owns detailed risks and audit handoffs too. Reporting maintenance loads the pressure scenarios plus the behavioral leaf exercised by the scenario. Otherwise load one branch maximum. The structured dependencies above validate that every leaf exists and is current; they do not make conditional leaves activation-eager.
+In `report=agent`, load only agent-handoff for report detail: it includes audit
+and risk detail. Start, closure reflections and continuity are independent gates,
+not waived by report mode. Branches never chain. The default successful
+`report=user` needs no detail branch unless it claims closure.
 
 ## Report Modes
 
-Default to `report=user`. It is a human decision surface, not a shortened agent log. Match the user's active language; keep stable commands, paths, and machine labels in English only when translation weakens traceability. State outcome first, then current-run proof, then only material limits or a genuine operator action. Do not narrate intermediate tools, lifecycle stages, routine orchestration, or internal owners.
-
-Use `report=agent` only when explicitly requested by an orchestrator/operator or when a technical handoff genuinely needs files, commands, matrices, evidence, or unresolved gate state. Never infer caller identity from runtime state.
+Default to `report=user`: outcome first, current-run proof, material limits, then
+one genuine operator action. Use the active language, retaining precise machine labels. Do not narrate routine
+tools, internal owners or lifecycle stages. Agent detail requires explicit
+operator/orchestrator request; never infer it from caller identity or blockers.
 
 ## User Mode
 
-Start every user report with exactly:
+Every final report, including agent mode, uses one chantier header followed by
+the current Europe/Paris verdict. Start every user report with exactly:
 
 ```text
 🧱 CHANTIER (<local|spec>) : <name>
 🎯 VERDICT (HH:mm) : <verdict or status>
 ```
 
-Use `🚧 CHANTIER` instead of `🧱 CHANTIER` only for a genuinely blocked verdict. Use `(spec)` only when exactly one spec owns the run; otherwise derive a short stable `(local)` name. Do not expose spec paths, trace metadata, or a trailing chantier block.
+Use `🚧 CHANTIER` only for genuinely blocked work; `(spec)` only for exactly one
+owning spec, otherwise `(local)`. Immediately before final reporting resolve the
+current clock in Europe/Paris; never reuse UTC or a previous time. Display HH:mm
+only, preserve UTC for machine ledgers. No trailing or duplicate chantier header.
+After a numbered decision end with the options followed by
+`Réponds avec le numéro, ou précise une autre option.`; append no second verdict,
+timestamp or reminder.
 
-After approval and at the true start of a substantive chantier, render this card once. Do not use it while approval is pending or for a branch-free micro-action.
-
-```text
-✨ OBJECTIF
-<one compact outcome promise>
-
-📐 PÉRIMÈTRE
-✅ <in scope> · ➖ <material out of scope>
-
-🛡️ GARDE-FOUS
-✅ <applicable mandatory implementation rules>
-
-🧪 PREUVES ATTENDUES
-✅ <proof 1> · <proof 2> · <proof 3>
-
-📖 DOCUMENTATION PRÉVUE
-✅ Impactée · <mapped documentation scope>
-```
-
-Use `🎯 VERDICT (HH:mm) : 🚀 Démarré` in the header. Translate labels and explanatory text into the user's active language while preserving the main icons. Keep the content beneath scope, expected proof, and planned documentation each on exactly one line; the guardrails line follows the same rule and uses ` · `. Objective, scope, expected proof, and planned documentation are always mandatory. `🛡️ GARDE-FOUS` is additionally mandatory for substantive authored or materially modified code and follows `implementation-excellence-preflight.md`; omit it for `IEP-MICRO-EDIT` and non-code chantiers. Add `🧭 APPROCHE` only when the strategy materially improves operator understanding.
-
-The planned documentation line uses exactly one of: `✅ Impactée · <scope included in the chantier>`, `➖ Non impactée · <concrete reason>`, or `⚠️ À confirmer · <surface>`. It is a plan, not a closure claim; only the closure card may use `updated`, `not impacted`, or `needs review`.
+Do not include a modified-files section in `report=user`. Omit file names, paths,
+counts, and clickable technical file links unless the operator must open, edit,
+or provide the exact artifact to proceed or explicitly requests detailed evidence.
+Never dump matrices, phase ledgers, bulk logs or internal commands in user mode.
 
 ## Reporting Effort Ceiling
 
-A report card formats evidence and decisions already required by the chantier; it never expands the work merely to populate a block. Do not run an extra check or audit, perform new research, create documentation or content, or manufacture detail solely for reporting. Required implementation proof, documentation, editorial work, and safety gates remain required for the chantier itself.
+A report formats required evidence; it never creates additional checks, research,
+docs or content solely for reporting. One meaningful proof suffices; example placeholders are not quotas.
+Keep each compact evidence line on one line with ` · ` separators. Non-closure
+progress needs only outcome, proof, material limits and a genuine next decision.
 
-One meaningful proof is enough when it supports the verdict; example placeholders such as `<proof 1> · <proof 2> · <proof 3>` illustrate formatting, not a quota. Keep prose content to one sentence per block and keep compact evidence blocks to one line. Prefer an honest short status or concrete `not impacted` reason over filler.
+## Mandatory Next Block And Objective Continuity
 
-For another progress report, keep only:
+Every final user report contains a `🧭 SUITE` block naming a missing action or proof
+or an evidenced continuation; never omit the block; never `none`, “no action required”,
+or an empty menu. Select the first applicable level: current conversation outcome,
+pending proof/delivery, active chantier, P0 -> P1 -> P2 -> P3 tracker, overdue audit,
+then grounded improvement. Stop at the first sufficient evidence; no broad audit
+solely for reporting. The detailed selection reference is required only when the
+conversation and pending delivery do not already establish the next outcome.
 
-1. completed outcome;
-2. compact proof/check summary;
-3. limits that change trust or the next decision;
-4. a real operator decision/action only when required.
+Continue authorized safely agent-runnable work before final reporting. Selection
+never authorizes a new or materially expanded chantier. Keep the latest unresolved
+goal active until proven, explicitly changed/paused, or blocked by operator-owned
+authority, decision or inaccessible proof. Do not stop at an internal milestone.
+When context is degraded, stabilize and deliver before recommending restart; only
+the operator starts it. Length, compaction or a separate outcome alone is insufficient.
 
-For every successful closure report, render this stable card after the header. Keep the icon and translated section label on their own line. Keep the content beneath `🧪 PREUVES` on exactly one line and separate proof items with ` · `. Keep the content beneath `📖 DOCUMENTATION` on exactly one line. Keep the content beneath `✏️ ÉDITORIAL` on exactly one line. Keep the content beneath `📰 CHANGELOG` on exactly one line. Separate each status, scope, or reason with ` · `.
+## Persistence And Claim Safety
 
-Before rendering the documentation line, apply `documentation-reflection-gate.md` to the exact task-owned changed paths and canonical code-docs map. The report must not invent or infer the classification from unchanged public copy, generic test success, memory, graph output, or a plausible sentence; it renders the gate result. Editorial impact remains independent.
+Distinguish local, remote Git and deployment by matching proof. A commit is not a
+push; a push is not a deployment. When ambiguity matters, show `📦 PERSISTANCE`
+with evidence-backed Local / Git distant / Déployé states; omit this duplicate
+when `📦 LIVRAISON` already makes delivery clear. Never describe modified files as
+“tâche sans mutation”.
 
-```text
-✨ RÉSULTAT
-<one compact outcome paragraph>
+Include only checks actually run; expose failed, skipped and partial evidence.
+Never expose secrets, cookies, tokens, private logs, personal data or sensitive
+screenshots. A local repair is not a universal prevention guarantee: stronger claims
+require an explicit invariant, matching scope and focused mechanical proof.
+Count directly dispatched successful agents only; show `Agents: <count> · <mode>`
+only when topology affects trust. Use semantic icons consistently, at most one per
+labelled line except compact proof/delivery; never use 🏗️, 🛠️ or ⚙️ as chantier markers.
 
-🧪 PREUVES
-✅ <proof 1> · <proof 2> · <proof 3>
+When routing is useful, put `🧭 Suite : <résultat ou décision à obtenir> — <raison courte>`
+below the verdict. Never name a skill, command, lifecycle phase, delegated agent,
+or internal owner in that user-facing line. Use `🧱` for the normal chantier header
+and `🚧` only when the run is blocked. Compact proof may read
+`✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236`; include only actual proof.
 
-📖 DOCUMENTATION
-✅ updated · <aligned documentation scope>
-
-✏️ ÉDITORIAL
-➖ not impacted · <concrete reason>
-
-📰 CHANGELOG
-🔒 internal-only · <concrete reason>
-
-📦 LIVRAISON
-✅ Commit local : `<sha>` · ➖ Push : non effectué
-```
-
-Translate the six labels and explanatory text into the user's active language while preserving the main icons, the ` · ` separator, stable status values, hashes, and machine labels. `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, and `📦 LIVRAISON` are mandatory for closure; `⚠️ LIMITES` is conditional; `🧭 SUITE` is mandatory. Delivery remains truthful when Git is irrelevant, for example `➖ Aucun commit ni push · tâche sans mutation`. Never use that form for modified files, including documentation.
-
-## Mandatory Next Block
-
-Every final user report contains a `🧭 SUITE` block. It names one concrete evidence-backed next outcome, missing action or proof, or operator decision and is never `none`, “no action required,” an empty ceremonial menu, or a semantic equivalent. Before writing it, load and apply `skills/references/next-outcome-selection.md`: current conversation work and pending delivery beat active chantiers; active chantiers beat `P0 -> P1 -> P2 -> P3` tracker work; tracker work beats an overdue audit; only then select a grounded business improvement. Keep the result useful and concise, never omit the block, and never invent urgency or authority. When numbered choices follow, the block introduces the decision they resolve.
-
-If an in-scope continuation is already authorized and safely agent-runnable, continue it before final reporting. When selection reaches a new or materially expanded chantier, state the next outcome and preserve its normal approval boundary; selection itself never authorizes mutation.
-
-When useful context has become insufficiently reliable, load `conversation-continuity-contract.md`. Stabilize and deliver the current work before recommending restart, then state that only the operator can open the new conversation and provide the required handoff. Length, compaction, or an independent outcome alone never justifies this recommendation.
-
-## Persistence Evidence
-
-When interruption recovery, local-only work, remote ambiguity, or deployment distinction materially affects trust, add this compact block:
-
-```text
-📦 PERSISTANCE
-✅ Local · ✅ Git distant · ➖ Déployé
-```
-
-Report only evidence-backed states. A commit may still be local; a successful push supports `Git distant` but never `Déployé`; deployed status requires matching provider evidence. Omit this additional block on the healthy silent path when `📦 LIVRAISON` already communicates the same truth.
-
-The documentation line uses exactly one of: `✅ updated · <scope>`, `➖ not impacted · <concrete reason>`, or `⚠️ needs review · <surface>`. A material `needs review` result forbids closure or shipping language. Non-closure progress reports omit the documentation block unless its status materially affects trust.
-
-The editorial line independently uses the same three status values. A material editorial `needs review` result forbids closure or shipping language. `No declared public surface` is a valid concrete `not impacted` reason; never create filler content to avoid that result.
-
-Editorial alignment and editorial/product opportunity are separate decisions. The visible `✏️ ÉDITORIAL` line reports existing-surface alignment only. Classify opportunity independently as `candidate`, `no evidenced opportunity`, or `not assessed`; `not impacted` alignment never proves or implies no opportunity. A credible `candidate` is non-blocking and appears in `🧭 SUITE` with its audience and value. It never authorizes content, product work, publication, or a roadmap write. Omit the two negative opportunity states from user reports and never run extra research solely to classify them.
-
-The changelog line classifies every managed-repository closure independently from documentation and editorial work. Use exactly one of: `✅ public-ready · <eligible user-facing change and prepared projection>`, `🔒 internal-only · <significant internal event and concrete reason>`, `➖ not applicable · <no significant changelog event and concrete reason>`, or `⚠️ needs review · <unresolved public eligibility, copy, safety, or evidence gap>`. `public-ready` means the allowlisted public projection is complete enough for its declared delivery path; it never means published, deployed, or available. Those claims require matching delivery evidence. Record at most one significant event for the closure when structured history is adopted. A material `needs review` result forbids clean closure or shipping language; `internal-only` and `not applicable` are honest successful outcomes and never justify filler public content.
-
-After the mandatory `🧭 SUITE`, a completed chantier may additionally offer this compact continuation choice block only when the delivered result has a useful decision surface:
-
-```text
-1. 🔎 Approfondir — examiner davantage les opportunités, risques, hypothèses ou enseignements du résultat.
-2. 🧭 Réorienter — explorer des directions alternatives concrètes à partir du résultat livré.
-```
-
-Selecting `Approfondir` or `Réorienter` starts guided follow-up, does not reopen the completed chantier, and never grants mutation approval. Omit the block when no useful continuation exists; do not append a ceremonial menu to every closure.
-
-Do not include a modified-files section in `report=user`. Omit file names, paths, counts, and clickable technical file links. Show an exact artifact only when the operator must open, edit, or provide it to proceed, or explicitly requests detailed evidence. Do not dump checklists, matrices, phase ledgers, raw commands, bulk logs, or lifecycle internals. Durable artifacts and `report=agent` retain that evidence.
-
-When executable work used agents, expose only `Agents: <count> · <mode>` if topology affects trust. Count directly dispatched successful agents only; routine mission detail stays internal.
-
-## Objective Continuity
-
-Keep the latest unresolved operator goal active until its promised outcome and matching proof are complete, a material operator-only decision/approval/credential/manual fact blocks it, or the operator explicitly replaces, narrows, pauses, or abandons it.
-
-Do not return control merely because a spec, governance, readiness, implementation, verification, closure, or ship milestone completed while the next action is safely agent-runnable. Continue through owned gates. A `Next step` line is allowed only for a concrete operator action required now.
-
-When routing must be visible, use plain language directly below the verdict:
-
-```text
-🧭 Suite : <résultat ou décision à obtenir> — <raison courte>
-```
-
-Never name a skill, command, lifecycle phase, delegated agent, or internal owner in that user-facing line.
-
-## Compact Validation And Status Vocabulary
-
-Combine successful current-run checks on one line. Closure cards place this compact line beneath `🧪 PREUVES`:
-
-```text
-✅ Tests 18/18 · 🧾 Métadonnées OK · 🔄 Sync 236/236
-```
-
-Include only evidence actually run. Do not disguise warnings, failures, skips, or proof gaps as success. Prefer `All checks passed ✅`, `✅ Checks passed: <short list>`, `Checks skipped: <reason>`, or `Checks failed: <check>` as applicable.
-
-Use at most one semantic emoji per labelled line except the compact proof and delivery lines:
-
-- `🧱` for the normal chantier header;
-- `🚧` only when the run is blocked;
-- `📂` for a dossier or scope;
-- `🔨` for active implementation or repair;
-- `📌` for a priority, decision, or next action;
-- `🎯` verdict, `✨` objective/result, `📐` scope, `🧪` proof, `📖` documentation, `✏️` editorial, `📰` changelog, `📦` delivery, `🧭` route/approach, `✅` passed/recommended, `⚠️` risk, `➖` neutral/not applicable, `🚀` started/shipped, `🧾` metadata, `🔄` sync.
-
-Do not use `🏗️`, `🛠️`, or `⚙️` as chantier markers.
-
-## Claim And Safety Boundary
-
-Never expose secrets, cookies, tokens, private logs, personal data, or sensitive screenshots. Report only the cause/context tested and known recurrence conditions. A local repair is not a permanent or universal guarantee. Such a prevention claim requires an explicit invariant, scope exactly matching the claim, and focused mechanical proof; generic lint, build, or audit is insufficient.
-
-If a result is blocked, partial, risky, security-sensitive, an audit, or unfinished, load the conditional blocked/audit branch before finalizing.
+Use `📂` for a dossier or scope, `🔨` for active implementation or repair,
+and `📌` for a priority, decision, or next action.

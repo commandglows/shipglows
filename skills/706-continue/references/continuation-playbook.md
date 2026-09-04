@@ -26,7 +26,7 @@ Resolve candidates in this order:
 
 Select only when one candidate is materially dominant. Recency alone is not enough when candidates have different outcomes, risks, owners, or side effects.
 
-If several unrelated candidates remain plausible, load `question-contract.md` and ask one bounded selection question. If none exists and the work is non-trivial, route to `100-sg-spec`, `700-sg-explore`, bug intake, or backlog ownership. Never invent a hidden continuation target.
+If several candidates remain plausible or the outcome is unknown, load `question-contract.md` and ask one bounded selection question. With a known non-trivial outcome but no work item, route to `100-sg-spec`, `700-sg-explore`, bug intake or backlog ownership. Never invent a hidden continuation target.
 
 ## Next Ready Action
 

@@ -57,9 +57,12 @@ class MobileToolchainSkillConsumersContractTests(unittest.TestCase):
         self.assertIn("transient cache replacement", runtime)
 
     def test_context_consumers_report_mobile_and_desktop_state(self) -> None:
+        public = " ".join(read("skills/shipglows/SKILL.md").split())
+        router = " ".join(read("skills/000-shipglows/SKILL.md").split())
+        self.assertIn("then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`", public)
+        self.assertIn("For `update`, `context`/`contexte`/`env`/`environment`, `auto`, or legacy `nolocal`, load `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`", router)
         for relative_path in (
-            "skills/shipglows/SKILL.md",
-            "skills/000-shipglows/SKILL.md",
+            "skills/references/entrypoint-special-modes.md",
             "skills/301-sg-context/SKILL.md",
         ):
             content = read(relative_path)

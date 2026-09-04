@@ -1,0 +1,64 @@
+{
+  "events": [
+    {
+      "path": "skills/shipglows/SKILL.md",
+      "reason": "Explicit starting wrapper for shipglows core help"
+    },
+    {
+      "path": "skills/000-shipglows/SKILL.md",
+      "reason": "Wrapper required canonical engine after root verification"
+    },
+    {
+      "path": "skills/references/canonical-paths.md",
+      "reason": "Router required canonical ownership resolution"
+    },
+    {
+      "path": "skills/references/skill-invocation-preflight.md",
+      "reason": "Explicit invocation preflight before handoff"
+    },
+    {
+      "path": "skills/references/expert-mode-aliases.md",
+      "reason": "First-token core alias before routing"
+    },
+    {
+      "path": "skills/900-shipglows-core/SKILL.md",
+      "reason": "Validated core alias selected help engine"
+    },
+    {
+      "path": "skills/references/reporting-contract.md",
+      "reason": "Final output required reporting contract"
+    },
+    {
+      "path": "skills/references/next-outcome-selection.md",
+      "reason": "No concrete continuation or pending delivery after help"
+    }
+  ],
+  "provenance": {
+    "kind": "fresh_context_agent_report",
+    "request": "shipglows core help",
+    "date": "2026-09-05",
+    "no_parent_audit_or_scenario_ledger_read": true,
+    "full_file_reads_only": true,
+    "partial_reads": [],
+    "excluded_context": [
+      "Inherited system/developer/user instructions and available skill catalog",
+      "Host environment.md full read",
+      "development-channel.json configuration inspection",
+      "Root and tool existence checks, invocation checker JSON, Paris clock"
+    ]
+  },
+  "limits": [
+    "Read-only bounded help replay; no new task search or continuation authorized.",
+    "SUITE fallback was constrained by the replay instruction; this does not prove general tracker/audit discovery after help.",
+    "Agent-reported actual reads, not provider token telemetry or automated tool-event capture."
+  ],
+  "measurement": {
+    "status": "valid",
+    "errors": [],
+    "unique_tokens": 10790,
+    "repeated_tokens": 0,
+    "total_tokens": 10790,
+    "event_count": 8,
+    "unique_paths": 8
+  }
+}

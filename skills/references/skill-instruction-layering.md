@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.10.0"
+artifact_version: "1.11.0"
 project: ShipGlows
 created: "2026-05-16"
-updated: "2026-08-12"
+updated: "2026-09-05"
 status: active
 source_skill: 009-sg-skill-build
 scope: skill-instruction-layering
@@ -156,7 +156,7 @@ Local references should be split by purpose. Avoid creating one new mega-referen
 
 For a large shared authority with direct readers, preserve its canonical detailed path and introduce a compact `*-core.md` only when the core can make the first decision safely. The skill must directly name the detailed escalation condition; a core is not a silent substitute. For domain doctrine with independent concerns, use one primary invariant reference plus direct leaves. Leaves must not chain to siblings.
 
-Reporting follows this pattern with one compact core and three direct leaves: explicit agent handoff, blocked/audit user outcomes, and maintenance pressure scenarios. Explicit `report=agent` takes sole priority over blocked/audit detail because its handoff leaf already owns detailed risks and audit state.
+Reporting follows this pattern with a compact owner and direct start, closure, agent, audit and maintenance leaves. Explicit `report=agent` takes priority over blocked/audit detail; start, closure reflections, choices and continuity have independent visible gates in the owner. No leaf loads a sibling.
 
 High-fan-out shared baseline doctrine follows the same direct-leaf rule. The
 canonical authority path retains the minimum owner, safety, stop, and first-
@@ -211,4 +211,26 @@ Use focused `rg` checks to verify mandatory labels and shared-reference links re
 
 - Do not rename skill directories, `name:` fields, or invocation keys during compaction.
 - Resolve ShipGlows-owned references from `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}`.
-- Keep reports concise for users, detailed only when explicit handoff or blocked state requires it.
+- Keep reports concise; agent detail requires explicit request, while user-mode blockers retain their applicable disclosure gates.
+
+## Complete-Path Pilot Proof
+
+Reviewed scenarios live in the existing activation_profiles.scenarios registry.
+They record the first required read, its directive parent, stage, trigger and reason.
+They measure entry through reporting, not merely a terminal engine. Metadata
+dependency closure and advisory expansion never become read edges automatically.
+A consumer contract test must also verify that selected paths preserve the original
+authority, stop, proof and report behavior; a small declared graph alone is not proof.
+Report start and closure procedures are direct leaves; the reporting owner selects
+independent choice, reflection and continuity authorities before entering a leaf.
+Exact policy and limits are in skill-context-budget.md when measuring or changing
+activation; historical wave prose is not a loading instruction.
+
+## Common Question Paths
+
+The canonical question and partnership contracts retain first-decision authority,
+question shape, proof limits and explicit detail triggers. Greenfield platform and
+technology rules load before those decisions; historical examples and pressure
+cases load only for maintenance/audit. Citing a doctrine or listing metadata is
+not an additional full-body read. Other independently triggered owner requirements
+remain mandatory. Test first-decision checkpoints separately from complete tasks.

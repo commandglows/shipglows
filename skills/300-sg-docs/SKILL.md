@@ -62,7 +62,7 @@ Stop as `blocked` when a required reference has no safe fallback; ownership is u
 
 ## Reporting
 
-Before the final report, load `skills/references/reporting-contract.md`. When exactly one active `shipglows_data/workflow/specs/*.md` chantier owns the work, also load `skills/references/chantier-tracking.md`, update its history/flow, and use the spec header. Otherwise use a concise `(local)` chantier header. Default to outcome-first `report=user`; use `report=agent` for blocked runs, handoff, or explicit detail.
+Before the final report, load `skills/references/reporting-contract.md`. When exactly one active `shipglows_data/workflow/specs/*.md` chantier owns the work, also load `skills/references/chantier-tracking.md`, update its history/flow, and use the spec header. Otherwise use a concise `(local)` chantier header. Default to outcome-first `report=user`. Use `report=agent` only on explicit operator/orchestrator request; blocked runs or internal handoffs do not select it. Preserve required blocker, proof, and continuity disclosures through the shared reporting gates.
 
 ## Validation
 

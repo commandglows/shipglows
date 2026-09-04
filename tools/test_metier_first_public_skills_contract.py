@@ -95,6 +95,13 @@ class MetierFirstPublicSkillsContractTests(unittest.TestCase):
             body = (SKILLS / public_skill / "SKILL.md").read_text(encoding="utf-8")
             self.assertIn("intent-to-outcome-autonomy.md", body, public_skill)
             self.assertIn(runtime_skill, body, public_skill)
+            if public_skill == "shipglows":
+                flat = " ".join(body.split())
+                self.assertIn("then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`", flat)
+                engine = " ".join((SKILLS / runtime_skill / "SKILL.md").read_text(encoding="utf-8").split())
+                self.assertIn("All shared references below resolve under `$SHIPGLOWS_ROOT/skills/references/`", engine)
+                self.assertIn("For non-trivial routing load `intent-to-outcome-autonomy.md`", engine)
+
 
     # MH-01b: a public wrapper remains followable without requiring agents to
     # infer missing proof, stop, or reporting behavior from its runtime engine.

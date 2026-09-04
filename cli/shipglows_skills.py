@@ -278,7 +278,9 @@ def clear_launchers(target_home: Path) -> list[Path]:
 
 
 def link_description(path: Path) -> dict[str, str]:
-    if path.is_symlink():
+    # Inspection only: junctions must not become eligible for symlink unlinking.
+    is_junction = getattr(path, "is_junction", lambda: False)
+    if path.is_symlink() or (sys.platform == "win32" and is_junction()):
         root = root_for_skill_target(path)
         if root is not None:
             return {"state": "managed", "root": str(root)}
@@ -316,6 +318,30 @@ def linked_catalog_state(target_home: Path) -> str:
     if catalog not in {"public", "expert"}:
         raise SkillChannelError(f"Catalogue développeur invalide : {state_file}")
     return catalog
+
+
+def status_root_state(target_home: Path) -> tuple[str, str]:
+    """Read native Windows channel state without changing link/unlink authority."""
+    root = linked_root_state(target_home)
+    catalog = linked_catalog_state(target_home)
+    state_file = target_home / ".shipglows" / "development-channel.json"
+    if sys.platform != "win32" or not state_file.exists():
+        return root, catalog
+    try:
+        payload = json.loads(state_file.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SkillChannelError(f"État du canal Windows illisible : {state_file}") from exc
+    if not isinstance(payload, dict) or payload.get("schemaVersion") != 1 or payload.get("channel") != "linked":
+        raise SkillChannelError(f"État du canal Windows invalide : {state_file}")
+    native_root = payload.get("root")
+    if not isinstance(native_root, str) or not native_root or not Path(native_root).is_absolute():
+        raise SkillChannelError(f"Racine du canal Windows invalide : {state_file}")
+    native_root = str(Path(native_root).resolve())
+    if root and Path(root) != Path(native_root):
+        raise SkillChannelError("Les états de racine développeur Windows et skills sont en conflit.")
+    if catalog and catalog != "public":
+        raise SkillChannelError("Les états de catalogue Windows et skills sont en conflit.")
+    return native_root, "public"
 
 
 def strip_shell_block(content: str) -> str:
@@ -422,8 +448,7 @@ def channel_status(target_home: Path) -> dict[str, Any]:
     codex_router = link_description(target_home / ".agents" / "skills" / "shipglows")
     claude_router = link_description(target_home / ".claude" / "skills" / "shipglows")
 
-    configured_root = linked_root_state(target_home)
-    configured_catalog = linked_catalog_state(target_home)
+    configured_root, configured_catalog = status_root_state(target_home)
     default_root = str((target_home / ".shipglows" / "runtime").resolve())
     root_mismatch = False
     if codex_router["state"] == "managed":

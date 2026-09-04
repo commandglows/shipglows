@@ -120,7 +120,9 @@ class ImplementationExcellencePreflightContractTests(unittest.TestCase):
                     self.assertIn(marker, text)
 
     def test_start_receipt_is_visible_but_proportional(self) -> None:
-        reporting = (ROOT / "skills/references/reporting-contract.md").read_text(encoding="utf-8")
+        root = (ROOT / "skills/references/reporting-contract.md").read_text(encoding="utf-8")
+        self.assertIn("| Approved substantive chantier is actually starting | `reporting-start.md` |", root)
+        reporting = (ROOT / "skills/references/reporting-start.md").read_text(encoding="utf-8")
         for marker in (
             "🛡️ GARDE-FOUS",
             "substantive authored or materially modified code",

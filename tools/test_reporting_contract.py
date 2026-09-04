@@ -12,6 +12,8 @@ REPORTING_BRANCHES = (
     ROOT / "skills" / "references" / "reporting-blocked-and-audit.md",
     ROOT / "skills" / "references" / "reporting-pressure-scenarios.md",
 )
+REPORTING_START = ROOT / "skills/references/reporting-start.md"
+REPORTING_CLOSURE = ROOT / "skills/references/reporting-closure.md"
 CHANTIER_TRACKING = ROOT / "skills" / "references" / "chantier-tracking.md"
 FINAL_TIMESTAMP = ROOT / "skills" / "references" / "final-report-timestamp.md"
 DOCUMENTATION_REFLECTION = ROOT / "skills" / "references" / "documentation-reflection-gate.md"
@@ -40,6 +42,22 @@ def reporting_corpus() -> str:
     )
 
 
+def selected_reporting_leaf(path: Path, trigger: str) -> str:
+    root = REPORTING_CONTRACT.read_text(encoding="utf-8")
+    rows = [line for line in root.splitlines() if line.startswith("|") and trigger in line]
+    if len(rows) != 1 or path.name not in rows[0]:
+        raise AssertionError(f"Missing direct reporting gate: {trigger} -> {path.name}")
+    return path.read_text(encoding="utf-8")
+
+
+def closure_contract() -> str:
+    return selected_reporting_leaf(REPORTING_CLOSURE, "Claim closed, complete, done, resolved, or shipped")
+
+
+def start_contract() -> str:
+    return selected_reporting_leaf(REPORTING_START, "Approved substantive chantier is actually starting")
+
+
 class ReportingContractTests(unittest.TestCase):
     def test_progressive_reporting_branches_are_direct_and_unambiguous(self) -> None:
         core = REPORTING_CONTRACT.read_text(encoding="utf-8")
@@ -53,15 +71,34 @@ class ReportingContractTests(unittest.TestCase):
         self.assertIn("In `report=agent`, load only agent-handoff", core)
         self.assertIn("structured dependencies above validate", core)
 
+    def test_direct_reporting_gates_cover_moved_protections(self) -> None:
+        gates = {
+            "Approved substantive chantier is actually starting": (REPORTING_START,),
+            "Claim closed, complete, done, resolved, or shipped":
+                (REPORTING_CLOSURE, DOCUMENTATION_REFLECTION, EDITORIAL_REFLECTION),
+            "Unfinished user result needs operator choices":
+                (ROOT / "skills/references/strategic-choice-contract.md",),
+            "Context degradation may justify restart, or handoff starts a new conversation":
+                (ROOT / "skills/references/conversation-continuity-contract.md",),
+        }
+        for trigger, leaves in gates.items():
+            for leaf in leaves:
+                with self.subTest(trigger=trigger, leaf=leaf.name):
+                    selected_reporting_leaf(leaf, trigger)
+        self.assertNotIn("Load `skills/references/strategic-choice-contract.md`",
+                         REPORTING_BRANCHES[1].read_text(encoding="utf-8"))
+        self.assertNotIn("also load `conversation-continuity-contract.md`",
+                         REPORTING_BRANCHES[0].read_text(encoding="utf-8"))
+
     def test_user_mode_forbids_modified_file_details(self) -> None:
         text = reporting_corpus()
         for rule in (
             "Do not include a modified-files section in `report=user`",
             "Omit file names, paths, counts, and clickable technical file links",
-            "operator must open, edit, or provide it to proceed",
+            "or provide the exact artifact to proceed",
             "SSRP-008 no modified-file inventory",
         ):
-            self.assertIn(rule, text)
+            self.assertIn(" ".join(rule.split()), " ".join(text.split()))
 
     def test_start_public_contract_does_not_promise_file_inventory(self) -> None:
         text = START_README.read_text(encoding="utf-8")
@@ -124,7 +161,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertIn("SSRP-010 compact validation line", text)
 
     def test_successful_closure_uses_visual_card_with_compact_lines(self) -> None:
-        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        core = closure_contract()
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         ordered_blocks = (
             "✨ RÉSULTAT",
@@ -151,7 +188,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertIn("SSRP-019 visual closure card", scenarios)
 
     def test_closure_reports_classify_changelog_globally(self) -> None:
-        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        core = closure_contract()
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         end = END_SKILL.read_text(encoding="utf-8")
         for marker in (
@@ -211,18 +248,18 @@ class ReportingContractTests(unittest.TestCase):
             self.assertIn(marker, text)
 
     def test_restart_recommendation_is_truthful_and_resumable(self) -> None:
-        reporting = REPORTING_CONTRACT.read_text(encoding="utf-8").casefold()
+        reporting = " ".join(REPORTING_CONTRACT.read_text(encoding="utf-8").split()).casefold()
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8").casefold()
         self.assertIn("conversation-continuity-contract.md", reporting)
         self.assertIn("only the operator", reporting)
-        self.assertIn("independent outcome alone", reporting)
+        self.assertIn("separate outcome alone", reporting)
         self.assertIn("handoff", reporting)
         for marker in ("ssrp-030", "ssrp-031", "ssrp-032"):
             self.assertIn(marker, scenarios)
         self.assertIn("ssrp-033", scenarios)
 
     def test_approved_substantive_chantier_uses_visual_start_card(self) -> None:
-        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        core = start_contract()
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         card = core.split("After approval and at the true start", 1)[1].split(
             "Use `🎯 VERDICT", 1
@@ -250,23 +287,23 @@ class ReportingContractTests(unittest.TestCase):
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         for rule in (
             "## Reporting Effort Ceiling",
-            "never expands the work merely to populate a block",
+            "never creates additional checks",
             "solely for reporting",
-            "One meaningful proof is enough",
-            "illustrate formatting, not a quota",
-            "one sentence per block",
+            "One meaningful proof suffices",
+            "example placeholders are not quotas",
+            "Keep each compact evidence line on one line",
             "genuinely required by the chantier remain mandatory",
         ):
             corpus = scenarios if rule == "genuinely required by the chantier remain mandatory" else core
-            self.assertIn(rule, corpus)
+            self.assertIn(" ".join(rule.split()), " ".join(corpus.split()))
         self.assertIn("SSRP-022 reporting effort ceiling", scenarios)
 
     def test_closure_reports_make_documentation_reflection_visible(self) -> None:
-        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        core = closure_contract()
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         reflection = DOCUMENTATION_REFLECTION.read_text(encoding="utf-8")
         for expected in (
-            "any report that claims a work item is closed, complete, done, resolved, or shipped",
+            "Select directly only when claiming closed, complete, done, resolved, or shipped",
             "For every successful closure report",
             "➖ not impacted · <concrete reason>",
             "material `needs review` result forbids closure or shipping language",
@@ -288,7 +325,7 @@ class ReportingContractTests(unittest.TestCase):
             self.assertIn(scenario, reflection)
 
     def test_documentation_verdict_comes_from_changed_path_mapping(self) -> None:
-        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        core = closure_contract()
         reflection = DOCUMENTATION_REFLECTION.read_text(encoding="utf-8")
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         for marker in (
@@ -302,7 +339,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertIn("Editorial `not impacted` does not imply documentation `not impacted`", reflection)
 
     def test_closure_reports_make_editorial_reflection_visible(self) -> None:
-        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        core = closure_contract()
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         reflection = EDITORIAL_REFLECTION.read_text(encoding="utf-8")
         for expected in (
@@ -329,7 +366,7 @@ class ReportingContractTests(unittest.TestCase):
         self.assertNotIn("📰 ÉDITORIAL", core + scenarios + reflection)
 
     def test_editorial_alignment_never_collapses_opportunity(self) -> None:
-        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        core = closure_contract()
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         reflection = EDITORIAL_REFLECTION.read_text(encoding="utf-8")
         corpus = core + scenarios + reflection
@@ -348,7 +385,7 @@ class ReportingContractTests(unittest.TestCase):
             self.assertIn(marker, corpus)
 
     def test_completed_chantier_can_offer_guided_deepening_or_reorientation(self) -> None:
-        core = REPORTING_CONTRACT.read_text(encoding="utf-8")
+        core = closure_contract()
         blocked = REPORTING_BRANCHES[1].read_text(encoding="utf-8")
         scenarios = REPORTING_BRANCHES[2].read_text(encoding="utf-8")
         for expected in (
@@ -369,7 +406,7 @@ class ReportingContractTests(unittest.TestCase):
             "`🔨` for active implementation or repair",
             "`📌` for a priority, decision, or next action",
         ):
-            self.assertIn(rule, text)
+            self.assertIn(" ".join(rule.split()), " ".join(text.split()))
         self.assertNotIn("🏗️ CHANTIER", text)
 
     def test_unfinished_chantier_requires_plain_language_choices(self) -> None:
@@ -383,7 +420,7 @@ class ReportingContractTests(unittest.TestCase):
             "must never expose skill names, slash commands, lifecycle",
             "`SSRP-012 unfinished chantier choice`",
         ):
-            self.assertIn(rule, text)
+            self.assertIn(" ".join(rule.split()), " ".join(text.split()))
         for legacy in (
             "Next step: <command or action, only if real>",
             "gives one next command",

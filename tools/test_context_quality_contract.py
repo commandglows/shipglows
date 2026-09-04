@@ -119,9 +119,12 @@ class ContextQualityContractTests(unittest.TestCase):
             "release or explicit standalone/package-sensitive proof checkpoints",
         ):
             self.assertIn(marker, skill)
-        self.assertIn("registry-backed active development target", router)
-        self.assertIn("list merely available targets separately", router)
-        self.assertIn("registry-backed active development target", text(PUBLIC))
+        self.assertIn("then load `$shipglows_root/skills/000-shipglows/skill.md`", text(PUBLIC))
+        self.assertIn('for `update`, `context`/`contexte`/`env`/`environment`, `auto`, or legacy `nolocal`, load `$shipglows_root/skills/references/entrypoint-special-modes.md`', router)
+        special = text(ROOT / "skills/references/entrypoint-special-modes.md")
+        self.assertIn("registry-backed active development target", special)
+        self.assertIn("list available targets separately", special)
+        self.assertIn("agent-runtime-awareness.md", special)
         self.assertIn("agent-runtime-awareness.md", text(AUTH))
         self.assertIn("managed live `flutter run` session", text(ROOT / "skills/103-sg-verify/references/verification-security-ui-runtime.md"))
         self.assertIn("agent-runtime-awareness.md", text(VERIFY.parent.parent / "SKILL.md"))

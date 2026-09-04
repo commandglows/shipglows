@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.40.0"
+artifact_version: "2.41.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-01"
+updated: "2026-09-05"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -740,3 +740,68 @@ Run focused `rg` checks for the affected skill contract and linked references.
 ## Maintenance Rule
 
 Update this doc when skill roles, lifecycle flow, chantier tracing, technical-docs gates, editorial gates, model/topology rules, or shared reference resolution changes.
+
+## Core Progressive-Loading Pilot (2026-09-05)
+
+The existing activation budget tool supports `--scenarios`, `--scenario NAME` and
+optional `--trace FILE`. `activation_profiles.scenarios` records complete reviewed
+entry-to-report paths, with per-stage unique cost, conditional trigger/reason,
+parent edge, post-selection depth and enforced budgets. Legacy terminal profiles
+and invocation preflight remain compatible; their valid verdict is structural.
+Declared paths do not prove actual agent consumption. Supplied observed full-file
+events report repeated reads separately; partial/tool-output telemetry is outside
+that format. Document dependencies remain an independent version/status graph.
+
+The public wrapper delegates routing detail to 000. Resolved Core help/audit paths
+skip irrelevant matrix/delegation procedure; uncertain owner routes still use the
+existing matrix. Special mode and runtime behavior remains in directly selected
+entrypoint-special-modes.md. The reporting contract retains the minimum safe next
+decision, directly selects start/closure/choice/reflection branches, and keeps
+ordinary time/next-step invariants local. No alias, authority or public promise changes.
+
+Proof: tools/test_progressive_loading_pilot.py, tools/test_skill_activation_budget.py,
+affected reporting/routing consumer tests, invocation/resource graph, metadata and
+runtime link checks. Canonical policy: skills/references/skill-context-budget.md.
+Baseline and scope: shipglows_data/workflow/specs/progressive-loading-core-pilot.md
+and shipglows_data/technical/progressive-loading-pilot-baseline.md.
+
+## Common-Path Question Pilot (2026-09-05)
+
+Ordinary `$shipglows` requests keep the existing direct gate and métier selection.
+The question and partnership paths now retain compact common requirements and
+select specialized detail only at its decision trigger. Greenfield platform and
+technology rules load before blueprint/stack decisions. Question and partnership
+examples/history are cold maintenance references. Metadata validity is separate
+from full-body loading. The bounded router's fidelity citation is advisory;
+explicit independent audit/owner fidelity loaders still apply.
+
+Docs, planning and Core reporting clauses follow the shared explicit-only agent
+mode; blockers and internal handoffs preserve user-mode proof/continuity disclosure.
+No public invocation or delivery policy changes. Seven new registry scenarios
+measure six families plus a missing-target variant, with explicit checkpoints;
+these do not claim completed app work or full runtime consumption.
+
+Proof and scope: `tools/test_progressive_loading_common_paths.py`,
+`tools/test_progressive_question_loading.py`, `tools/test_common_path_reporting_modes.py`,
+`shipglows_data/workflow/specs/progressive-loading-common-paths.md` and
+`shipglows_data/technical/progressive-loading-common-paths-baseline.md`.
+
+## Core Loading Preservation
+
+Core exposes an early loading-change gate for reference, trigger, shared-doctrine
+and protection edits, including shrinking files. Maintenance, refresh and audits
+of proposed changes use the existing skill-context-budget policy. Ordinary help
+and unchanged read-only audit do not preload that procedure. A targeted proposed
+loading change must include that policy read in its own affected-path measure.
+
+The existing scenario evaluator accepts optional independently reviewed
+`required_reads`; a missing required path is a structural failure before cost
+comparison. Legacy scenarios remain compatible. Witnesses are not derived from
+reads or inferred from metadata. They catch known omissions, not arbitrary prose
+changes or dishonest edits to both lists; review and focused protection tests
+remain mandatory. Existing tracked scenarios now declare safety-related witnesses.
+
+Tests: tools/test_core_loading_prevention.py injects an eager cold read, a deeper
+chain at constant tokens, a missing mandatory read and a removed mutation gate.
+Scope/proof: shipglows_data/workflow/specs/core-loading-regression-prevention.md.
+No new router, registry, public invocation or automatic whole-corpus loader.

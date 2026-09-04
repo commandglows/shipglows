@@ -42,7 +42,7 @@ This is a conservative, normally monthly maintenance pass for one target. Never 
 
 1. Re-read a target before applying findings. Preserve every still-valid check, intent, and structure; update strictly obsolete checks in place and never rewrite the contract from scratch or stack duplicate phases.
 2. Keep internal contracts English and user-facing material in the active language; fix accents in touched French user text and preserve quoted, legal, source, and machine-readable text.
-3. Put material procedure growth in references, not activation bodies. Load the context budget before discovery metadata, `agents/openai.yaml`, public pages, or a material body expansion.
+3. Put material procedure growth in references, not activation bodies. Load `skill-context-budget.md` and apply its Loading Change Gate before changing references, loading triggers, shared normative text, protections, discovery metadata or activation bodies, even when files shrink.
 4. When a route, promise, invocation, or public surface changes, align the relevant help, README, workflow/lifecycle docs, site page, and runtime links. `900` remains internal-only even when the refreshed target is public.
 
 ## Log, Validate, And Hand Off

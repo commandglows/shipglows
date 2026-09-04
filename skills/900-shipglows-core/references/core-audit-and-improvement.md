@@ -32,3 +32,8 @@ Use only for a skill, shared-doctrine, activation, or skill-tooling audit. Runti
 Treat hard findings as blocking, review findings as scenario-first triage, and style findings as non-actionable without a demonstrated failure. Generic audit output never proves an observed behavior fixed.
 
 Translate a confirmed non-style issue into one pressure scenario, narrow cause, reusable prevention rule, implementation locus, and focused proof. Do not rewrite skills from read-only audit output without explicit edit authorization or a ready spec.
+
+For reference, trigger, shared-doctrine or protection changes, load
+`skill-context-budget.md` and apply its Loading Change Gate even when files shrink.
+Audit actual mandatory read edges against the scenario ledger; a smaller file or
+passing generic audit never proves that context cost or protections are preserved.
