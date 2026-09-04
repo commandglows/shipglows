@@ -230,7 +230,12 @@ class ShipGlowsCoreContractTests(unittest.TestCase):
             "`PSP-005 apparently mobile-only app`",
         ):
             self.assertIn(rule, self.preferred_stacks)
-        self.assertIn("`SSRP-011 cross-platform first`", self.question_contract)
+        self.assertIn("question-greenfield-decisions.md", self.question_contract)
+        greenfield = (QUESTION_CONTRACT.parent / "question-greenfield-decisions.md").read_text(encoding="utf-8")
+        self.assertIn("one Flutter codebase for", greenfield)
+        self.assertIn("Web, iOS, and Android", greenfield)
+        scenarios = (QUESTION_CONTRACT.parent / "question-pressure-scenarios.md").read_text(encoding="utf-8")
+        self.assertIn("`SSRP-011 cross-platform first`", scenarios)
         self.assertIn("one mobile or browser target", self.ready_skill)
 
 

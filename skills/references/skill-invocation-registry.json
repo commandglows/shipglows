@@ -2,9 +2,28 @@
   "format_version": "2.13",
   "identity_source": "skills/references/skill-code-index.md",
   "execution_tags": {
-    "local": {"conflicts": ["nolocal", "ci"]},
-    "nolocal": {"conflicts": ["local"], "policy_reference": "skills/references/no-local-execution-policy.md"},
-    "ci": {"implies": ["nolocal"], "conflicts": ["local"], "deferred_proof_target": "ci", "policy_reference": "skills/references/execution-posture-tags.md"}
+    "local": {
+      "conflicts": [
+        "nolocal",
+        "ci"
+      ]
+    },
+    "nolocal": {
+      "conflicts": [
+        "local"
+      ],
+      "policy_reference": "skills/references/no-local-execution-policy.md"
+    },
+    "ci": {
+      "implies": [
+        "nolocal"
+      ],
+      "conflicts": [
+        "local"
+      ],
+      "deferred_proof_target": "ci",
+      "policy_reference": "skills/references/execution-posture-tags.md"
+    }
   },
   "public_catalog": {
     "domains": [
@@ -12,73 +31,600 @@
         "id": "create",
         "label": "Create",
         "skills": [
-          {"id": "sg-development", "public_skill": "sg-development", "runtime_skill": "001-sg-build", "modes": ["default", "feature", "app", "refactor"], "hidden_modes": {"build": {"runtime_engine": "001-sg-build"}, "excellence": {"runtime_engine": "103-sg-verify", "engine_mode": "excellence"}}, "internal_engines": ["100-sg-spec", "101-sg-ready", "102-sg-start", "103-sg-verify", "104-sg-end", "105-sg-check", "005-sg-ship", "306-sg-scaffold"]},
-          {"id": "sg-design", "public_skill": "sg-design", "runtime_skill": "006-sg-design", "modes": ["identity", "system", "playground", "audit", "animation", "redesign", "migration", "library"], "internal_engines": ["105-sg-check", "108-sg-browser", "103-sg-verify"]},
-          {"id": "sg-experience", "public_skill": "sg-experience", "runtime_skill": "008-sg-customer", "modes": ["audit", "flow", "onboarding", "recovery"], "internal_engines": ["006-sg-design", "007-sg-content", "107-sg-test", "108-sg-browser", "109-sg-auth-debug"]}
+          {
+            "id": "sg-development",
+            "public_skill": "sg-development",
+            "runtime_skill": "001-sg-build",
+            "modes": [
+              "default",
+              "feature",
+              "app",
+              "refactor"
+            ],
+            "hidden_modes": {
+              "build": {
+                "runtime_engine": "001-sg-build"
+              },
+              "excellence": {
+                "runtime_engine": "103-sg-verify",
+                "engine_mode": "excellence"
+              }
+            },
+            "internal_engines": [
+              "100-sg-spec",
+              "101-sg-ready",
+              "102-sg-start",
+              "103-sg-verify",
+              "104-sg-end",
+              "105-sg-check",
+              "005-sg-ship",
+              "306-sg-scaffold"
+            ]
+          },
+          {
+            "id": "sg-design",
+            "public_skill": "sg-design",
+            "runtime_skill": "006-sg-design",
+            "modes": [
+              "identity",
+              "system",
+              "playground",
+              "audit",
+              "animation",
+              "redesign",
+              "migration",
+              "library"
+            ],
+            "internal_engines": [
+              "105-sg-check",
+              "108-sg-browser",
+              "103-sg-verify"
+            ]
+          },
+          {
+            "id": "sg-experience",
+            "public_skill": "sg-experience",
+            "runtime_skill": "008-sg-customer",
+            "modes": [
+              "audit",
+              "flow",
+              "onboarding",
+              "recovery"
+            ],
+            "internal_engines": [
+              "006-sg-design",
+              "007-sg-content",
+              "107-sg-test",
+              "108-sg-browser",
+              "109-sg-auth-debug"
+            ]
+          }
         ]
       },
       {
         "id": "quality",
         "label": "Quality",
         "skills": [
-          {"id": "sg-bug", "public_skill": "sg-bug", "runtime_skill": "003-sg-bug", "modes": ["default", "reproduce", "fix", "retest", "close"], "internal_engines": ["106-sg-fix", "107-sg-test", "108-sg-browser", "109-sg-auth-debug", "103-sg-verify"]},
-          {"id": "sg-engineering", "public_skill": "sg-engineering", "runtime_skill": "010-sg-technical", "modes": ["audit", "architecture", "deps", "performance", "migrate", "github", "sync", "access", "parity"], "hidden_modes": {"verify": {"runtime_engine": "103-sg-verify", "engine_mode": "standard"}, "test": {"runtime_engine": "107-sg-test"}, "browser": {"runtime_engine": "108-sg-browser"}}, "internal_engines": ["105-sg-check", "400-sg-audit", "103-sg-verify", "107-sg-test", "108-sg-browser", "600-sg-local-cloud-sync", "601-sg-product-entitlements", "602-sg-platform-parity"]},
-          {"id": "sg-maintenance", "public_skill": "sg-maintenance", "runtime_skill": "002-sg-maintain", "modes": ["quick", "full", "security", "deps", "docs", "audits", "global", "no-ship"], "hidden_modes": {"hygiene": {"runtime_engine": "002-sg-maintain"}}, "internal_engines": ["003-sg-bug", "010-sg-technical", "105-sg-check", "300-sg-docs", "400-sg-audit"]}
+          {
+            "id": "sg-bug",
+            "public_skill": "sg-bug",
+            "runtime_skill": "003-sg-bug",
+            "modes": [
+              "default",
+              "reproduce",
+              "fix",
+              "retest",
+              "close"
+            ],
+            "internal_engines": [
+              "106-sg-fix",
+              "107-sg-test",
+              "108-sg-browser",
+              "109-sg-auth-debug",
+              "103-sg-verify"
+            ]
+          },
+          {
+            "id": "sg-engineering",
+            "public_skill": "sg-engineering",
+            "runtime_skill": "010-sg-technical",
+            "modes": [
+              "audit",
+              "architecture",
+              "deps",
+              "performance",
+              "migrate",
+              "github",
+              "sync",
+              "access",
+              "parity"
+            ],
+            "hidden_modes": {
+              "verify": {
+                "runtime_engine": "103-sg-verify",
+                "engine_mode": "standard"
+              },
+              "test": {
+                "runtime_engine": "107-sg-test"
+              },
+              "browser": {
+                "runtime_engine": "108-sg-browser"
+              }
+            },
+            "internal_engines": [
+              "105-sg-check",
+              "400-sg-audit",
+              "103-sg-verify",
+              "107-sg-test",
+              "108-sg-browser",
+              "600-sg-local-cloud-sync",
+              "601-sg-product-entitlements",
+              "602-sg-platform-parity"
+            ]
+          },
+          {
+            "id": "sg-maintenance",
+            "public_skill": "sg-maintenance",
+            "runtime_skill": "002-sg-maintain",
+            "modes": [
+              "quick",
+              "full",
+              "security",
+              "deps",
+              "docs",
+              "audits",
+              "global",
+              "no-ship"
+            ],
+            "hidden_modes": {
+              "hygiene": {
+                "runtime_engine": "002-sg-maintain"
+              }
+            },
+            "internal_engines": [
+              "003-sg-bug",
+              "010-sg-technical",
+              "105-sg-check",
+              "300-sg-docs",
+              "400-sg-audit"
+            ]
+          }
         ]
       },
       {
         "id": "publish",
         "label": "Publish",
         "skills": [
-          {"id": "sg-release", "public_skill": "sg-release", "runtime_skill": "004-sg-deploy", "modes": ["default", "preview", "prod", "verify"], "hidden_modes": {"ship": {"runtime_engine": "005-sg-ship"}, "deploy": {"runtime_engine": "004-sg-deploy"}}, "internal_engines": ["005-sg-ship", "105-sg-check", "405-sg-prod", "108-sg-browser", "109-sg-auth-debug", "107-sg-test", "103-sg-verify", "304-sg-changelog"]}
+          {
+            "id": "sg-release",
+            "public_skill": "sg-release",
+            "runtime_skill": "004-sg-deploy",
+            "modes": [
+              "default",
+              "preview",
+              "prod",
+              "verify"
+            ],
+            "hidden_modes": {
+              "ship": {
+                "runtime_engine": "005-sg-ship"
+              },
+              "deploy": {
+                "runtime_engine": "004-sg-deploy"
+              }
+            },
+            "internal_engines": [
+              "005-sg-ship",
+              "105-sg-check",
+              "405-sg-prod",
+              "108-sg-browser",
+              "109-sg-auth-debug",
+              "107-sg-test",
+              "103-sg-verify",
+              "304-sg-changelog"
+            ]
+          }
         ]
       },
       {
         "id": "grow-audience",
         "label": "Grow audience",
         "skills": [
-          {"id": "sg-content", "public_skill": "sg-content", "runtime_skill": "007-sg-content", "modes": ["plan", "capture", "repurpose", "draft", "enrich", "audit", "editorial", "publish", "emailing"], "hidden_modes": {"tmux": {"owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation"}, "capture-full-conversation": {"owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation"}}, "internal_engines": ["200-sg-redact", "201-sg-enrich", "202-sg-emailing", "203-sg-research", "205-sg-veille", "407-sg-translate", "800-tmux-capture-conversation", "801-clean-conversation-transcript", "emailing"]},
-          {"id": "sg-marketing", "public_skill": "sg-marketing", "runtime_skill": "009-sg-marketing", "modes": ["market", "gtm", "copy", "copywriting"], "internal_engines": ["203-sg-research", "400-sg-audit"]},
-          {"id": "sg-seo", "public_skill": "sg-seo", "runtime_skill": "406-sg-seo", "modes": ["audit", "launch", "monitoring", "fix", "page", "project", "global"], "internal_engines": ["007-sg-content", "009-sg-marketing", "108-sg-browser", "405-sg-prod"]}
+          {
+            "id": "sg-content",
+            "public_skill": "sg-content",
+            "runtime_skill": "007-sg-content",
+            "modes": [
+              "plan",
+              "capture",
+              "repurpose",
+              "draft",
+              "enrich",
+              "audit",
+              "editorial",
+              "publish",
+              "emailing"
+            ],
+            "hidden_modes": {
+              "tmux": {
+                "owner_mode": "capture",
+                "runtime_engine": "800-tmux-capture-conversation"
+              },
+              "capture-full-conversation": {
+                "owner_mode": "capture",
+                "runtime_engine": "800-tmux-capture-conversation"
+              }
+            },
+            "internal_engines": [
+              "200-sg-redact",
+              "201-sg-enrich",
+              "202-sg-emailing",
+              "203-sg-research",
+              "205-sg-veille",
+              "407-sg-translate",
+              "800-tmux-capture-conversation",
+              "801-clean-conversation-transcript",
+              "emailing"
+            ]
+          },
+          {
+            "id": "sg-marketing",
+            "public_skill": "sg-marketing",
+            "runtime_skill": "009-sg-marketing",
+            "modes": [
+              "market",
+              "gtm",
+              "copy",
+              "copywriting"
+            ],
+            "internal_engines": [
+              "203-sg-research",
+              "400-sg-audit"
+            ]
+          },
+          {
+            "id": "sg-seo",
+            "public_skill": "sg-seo",
+            "runtime_skill": "406-sg-seo",
+            "modes": [
+              "audit",
+              "launch",
+              "monitoring",
+              "fix",
+              "page",
+              "project",
+              "global"
+            ],
+            "internal_engines": [
+              "007-sg-content",
+              "009-sg-marketing",
+              "108-sg-browser",
+              "405-sg-prod"
+            ]
+          }
         ]
       },
       {
         "id": "govern",
         "label": "Govern",
         "skills": [
-          {"id": "sg-docs", "public_skill": "sg-docs", "runtime_skill": "300-sg-docs", "modes": ["init", "file", "readme", "api", "components", "auto", "audit", "update", "metadata", "migrate", "migrate-layout", "technical", "editorial", "duplicata", "duplicates", "add-project"], "internal_engines": ["301-sg-context", "304-sg-changelog", "305-sg-init"]}
+          {
+            "id": "sg-docs",
+            "public_skill": "sg-docs",
+            "runtime_skill": "300-sg-docs",
+            "modes": [
+              "init",
+              "file",
+              "readme",
+              "api",
+              "components",
+              "auto",
+              "audit",
+              "update",
+              "metadata",
+              "migrate",
+              "migrate-layout",
+              "technical",
+              "editorial",
+              "duplicata",
+              "duplicates",
+              "add-project"
+            ],
+            "internal_engines": [
+              "301-sg-context",
+              "304-sg-changelog",
+              "305-sg-init"
+            ]
+          }
         ]
       },
       {
         "id": "organize",
         "label": "Organize",
         "skills": [
-          {"id": "sg-planning", "public_skill": "sg-planning", "runtime_skill": "011-sg-pilotage", "modes": ["tasks", "backlog", "priorities", "review", "sessions"], "hidden_modes": {"prio": {"owner_mode": "priorities", "runtime_engine": "011-sg-pilotage"}, "explore": {"runtime_engine": "700-sg-explore"}, "spec": {"runtime_engine": "100-sg-spec"}, "status": {"runtime_engine": "308-sg-status"}, "resume": {"runtime_engine": "303-sg-resume"}}, "internal_engines": ["100-sg-spec", "301-sg-context", "303-sg-resume", "308-sg-status", "700-sg-explore", "704-sg-model", "705-sg-conversation-audit", "706-continue", "707-name"]},
-          {"id": "sg-private", "public_skill": "sg-private", "runtime_skill": "603-sg-private", "modes": ["memory", "data"], "internal_engines": []},
-          {"id": "sg-help", "public_skill": "sg-help", "runtime_skill": "302-sg-help", "modes": ["default", "mode", "expert"], "internal_engines": []}
+          {
+            "id": "sg-planning",
+            "public_skill": "sg-planning",
+            "runtime_skill": "011-sg-pilotage",
+            "modes": [
+              "tasks",
+              "backlog",
+              "priorities",
+              "review",
+              "sessions"
+            ],
+            "hidden_modes": {
+              "prio": {
+                "owner_mode": "priorities",
+                "runtime_engine": "011-sg-pilotage"
+              },
+              "explore": {
+                "runtime_engine": "700-sg-explore"
+              },
+              "spec": {
+                "runtime_engine": "100-sg-spec"
+              },
+              "status": {
+                "runtime_engine": "308-sg-status"
+              },
+              "resume": {
+                "runtime_engine": "303-sg-resume"
+              }
+            },
+            "internal_engines": [
+              "100-sg-spec",
+              "301-sg-context",
+              "303-sg-resume",
+              "308-sg-status",
+              "700-sg-explore",
+              "704-sg-model",
+              "705-sg-conversation-audit",
+              "706-continue",
+              "707-name"
+            ]
+          },
+          {
+            "id": "sg-private",
+            "public_skill": "sg-private",
+            "runtime_skill": "603-sg-private",
+            "modes": [
+              "memory",
+              "data"
+            ],
+            "internal_engines": []
+          },
+          {
+            "id": "sg-help",
+            "public_skill": "sg-help",
+            "runtime_skill": "302-sg-help",
+            "modes": [
+              "default",
+              "mode",
+              "expert"
+            ],
+            "internal_engines": []
+          }
         ]
       }
     ],
-    "router": {"id": "shipglows", "public_skill": "shipglows", "runtime_skill": "000-shipglows", "modes": ["default", "context", "auto"], "mode_routes": {"auto": {"runtime_engine": "708-sg-auto", "min_args": 0, "forbidden_first_args": ["local"], "forbidden_execution_tags": ["local"], "implied_execution_tags": ["nolocal"]}}, "legacy_execution_aliases": {"nolocal": {"execution_tag": "nolocal", "min_args": 1}}, "hidden_modes": {"core": {"runtime_engine": "900-shipglows-core", "context": "shipglows-system"}}, "internal_engines": ["708-sg-auto"]}
+    "router": {
+      "id": "shipglows",
+      "public_skill": "shipglows",
+      "runtime_skill": "000-shipglows",
+      "modes": [
+        "default",
+        "context",
+        "auto"
+      ],
+      "mode_routes": {
+        "auto": {
+          "runtime_engine": "708-sg-auto",
+          "min_args": 0,
+          "forbidden_first_args": [
+            "local"
+          ],
+          "forbidden_execution_tags": [
+            "local"
+          ],
+          "implied_execution_tags": [
+            "nolocal"
+          ]
+        }
+      },
+      "legacy_execution_aliases": {
+        "nolocal": {
+          "execution_tag": "nolocal",
+          "min_args": 1
+        }
+      },
+      "hidden_modes": {
+        "core": {
+          "runtime_engine": "900-shipglows-core",
+          "context": "shipglows-system"
+        }
+      },
+      "internal_engines": [
+        "708-sg-auto"
+      ]
+    }
   },
   "codex_expert_aliases": {
-    "core": {"public_owner": "shipglows", "owner_mode": "core", "runtime_engine": "900-shipglows-core", "resolution": "hard-context"},
-    "explore": {"public_owner": "sg-planning", "owner_mode": "explore", "runtime_engine": "700-sg-explore", "resolution": "direct"},
-    "spec": {"public_owner": "sg-planning", "owner_mode": "spec", "runtime_engine": "100-sg-spec", "resolution": "direct"},
-    "status": {"public_owner": "sg-planning", "owner_mode": "status", "runtime_engine": "308-sg-status", "resolution": "direct"},
-    "resume": {"public_owner": "sg-planning", "owner_mode": "resume", "runtime_engine": "303-sg-resume", "resolution": "direct"},
-    "build": {"public_owner": "sg-development", "owner_mode": "build", "runtime_engine": "001-sg-build", "resolution": "direct"},
-    "fix": {"public_owner": "sg-bug", "owner_mode": "fix", "runtime_engine": "106-sg-fix", "resolution": "direct"},
-    "verify": {"public_owner": "sg-engineering", "owner_mode": "verify", "runtime_engine": "103-sg-verify", "resolution": "contextual-specialist", "specialist_routes": [{"public_owner": "sg-design", "owner_mode": "audit", "runtime_engine": "006-sg-design", "keywords": ["design", "accessibility", "accessible", "a11y", "ui", "ux", "animation", "motion"]}, {"public_owner": "sg-seo", "owner_mode": "audit", "runtime_engine": "406-sg-seo", "keywords": ["seo", "search", "serp", "indexing", "crawl"]}, {"public_owner": "sg-release", "owner_mode": "verify", "runtime_engine": "004-sg-deploy", "keywords": ["release", "deploy", "deployment", "preview", "live", "production", "prod"]}, {"public_owner": "sg-bug", "owner_mode": "retest", "runtime_engine": "107-sg-test", "keywords": ["bug", "defect", "regression", "reproduce", "retest"]}]},
-    "test": {"public_owner": "sg-engineering", "owner_mode": "test", "runtime_engine": "107-sg-test", "resolution": "direct"},
-    "browser": {"public_owner": "sg-engineering", "owner_mode": "browser", "runtime_engine": "108-sg-browser", "resolution": "direct"},
-    "git": {"public_owner": "sg-engineering", "owner_mode": "github", "runtime_engine": "010-sg-technical", "resolution": "direct"},
-    "hygiene": {"public_owner": "sg-maintenance", "owner_mode": "hygiene", "runtime_engine": "002-sg-maintain", "resolution": "contextual-specialist", "forbidden_keywords": ["global", "workspace", "multi-project", "multiproject", "projects"], "forbidden_scope_message": "shipglows hygiene is limited to the current project; multi-project hygiene is deferred.", "specialist_routes": [{"public_owner": "sg-engineering", "owner_mode": "github", "runtime_engine": "010-sg-technical", "engine_mode": "clean", "keywords": ["git"]}]},
-    "capture": {"public_owner": "sg-content", "owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation", "resolution": "direct"},
-    "tmux": {"public_owner": "sg-content", "owner_mode": "capture", "runtime_engine": "800-tmux-capture-conversation", "resolution": "direct"},
-    "ship": {"public_owner": "sg-release", "owner_mode": "ship", "runtime_engine": "005-sg-ship", "resolution": "direct"},
-    "deploy": {"public_owner": "sg-release", "owner_mode": "deploy", "runtime_engine": "004-sg-deploy", "resolution": "direct"},
-    "prod": {"public_owner": "sg-release", "owner_mode": "prod", "runtime_engine": "405-sg-prod", "resolution": "direct"}
+    "core": {
+      "public_owner": "shipglows",
+      "owner_mode": "core",
+      "runtime_engine": "900-shipglows-core",
+      "resolution": "hard-context"
+    },
+    "explore": {
+      "public_owner": "sg-planning",
+      "owner_mode": "explore",
+      "runtime_engine": "700-sg-explore",
+      "resolution": "direct"
+    },
+    "spec": {
+      "public_owner": "sg-planning",
+      "owner_mode": "spec",
+      "runtime_engine": "100-sg-spec",
+      "resolution": "direct"
+    },
+    "status": {
+      "public_owner": "sg-planning",
+      "owner_mode": "status",
+      "runtime_engine": "308-sg-status",
+      "resolution": "direct"
+    },
+    "resume": {
+      "public_owner": "sg-planning",
+      "owner_mode": "resume",
+      "runtime_engine": "303-sg-resume",
+      "resolution": "direct"
+    },
+    "build": {
+      "public_owner": "sg-development",
+      "owner_mode": "build",
+      "runtime_engine": "001-sg-build",
+      "resolution": "direct"
+    },
+    "fix": {
+      "public_owner": "sg-bug",
+      "owner_mode": "fix",
+      "runtime_engine": "106-sg-fix",
+      "resolution": "direct"
+    },
+    "verify": {
+      "public_owner": "sg-engineering",
+      "owner_mode": "verify",
+      "runtime_engine": "103-sg-verify",
+      "resolution": "contextual-specialist",
+      "specialist_routes": [
+        {
+          "public_owner": "sg-design",
+          "owner_mode": "audit",
+          "runtime_engine": "006-sg-design",
+          "keywords": [
+            "design",
+            "accessibility",
+            "accessible",
+            "a11y",
+            "ui",
+            "ux",
+            "animation",
+            "motion"
+          ]
+        },
+        {
+          "public_owner": "sg-seo",
+          "owner_mode": "audit",
+          "runtime_engine": "406-sg-seo",
+          "keywords": [
+            "seo",
+            "search",
+            "serp",
+            "indexing",
+            "crawl"
+          ]
+        },
+        {
+          "public_owner": "sg-release",
+          "owner_mode": "verify",
+          "runtime_engine": "004-sg-deploy",
+          "keywords": [
+            "release",
+            "deploy",
+            "deployment",
+            "preview",
+            "live",
+            "production",
+            "prod"
+          ]
+        },
+        {
+          "public_owner": "sg-bug",
+          "owner_mode": "retest",
+          "runtime_engine": "107-sg-test",
+          "keywords": [
+            "bug",
+            "defect",
+            "regression",
+            "reproduce",
+            "retest"
+          ]
+        }
+      ]
+    },
+    "test": {
+      "public_owner": "sg-engineering",
+      "owner_mode": "test",
+      "runtime_engine": "107-sg-test",
+      "resolution": "direct"
+    },
+    "browser": {
+      "public_owner": "sg-engineering",
+      "owner_mode": "browser",
+      "runtime_engine": "108-sg-browser",
+      "resolution": "direct"
+    },
+    "git": {
+      "public_owner": "sg-engineering",
+      "owner_mode": "github",
+      "runtime_engine": "010-sg-technical",
+      "resolution": "direct"
+    },
+    "hygiene": {
+      "public_owner": "sg-maintenance",
+      "owner_mode": "hygiene",
+      "runtime_engine": "002-sg-maintain",
+      "resolution": "contextual-specialist",
+      "forbidden_keywords": [
+        "global",
+        "workspace",
+        "multi-project",
+        "multiproject",
+        "projects"
+      ],
+      "forbidden_scope_message": "shipglows hygiene is limited to the current project; multi-project hygiene is deferred.",
+      "specialist_routes": [
+        {
+          "public_owner": "sg-engineering",
+          "owner_mode": "github",
+          "runtime_engine": "010-sg-technical",
+          "engine_mode": "clean",
+          "keywords": [
+            "git"
+          ]
+        }
+      ]
+    },
+    "capture": {
+      "public_owner": "sg-content",
+      "owner_mode": "capture",
+      "runtime_engine": "800-tmux-capture-conversation",
+      "resolution": "direct"
+    },
+    "tmux": {
+      "public_owner": "sg-content",
+      "owner_mode": "capture",
+      "runtime_engine": "800-tmux-capture-conversation",
+      "resolution": "direct"
+    },
+    "ship": {
+      "public_owner": "sg-release",
+      "owner_mode": "ship",
+      "runtime_engine": "005-sg-ship",
+      "resolution": "direct"
+    },
+    "deploy": {
+      "public_owner": "sg-release",
+      "owner_mode": "deploy",
+      "runtime_engine": "004-sg-deploy",
+      "resolution": "direct"
+    },
+    "prod": {
+      "public_owner": "sg-release",
+      "owner_mode": "prod",
+      "runtime_engine": "405-sg-prod",
+      "resolution": "direct"
+    }
   },
   "internal_catalog": {
     "identity_source": "skills/references/skill-code-index.md",
@@ -96,263 +642,2617 @@
           "skills/references/intent-to-outcome-autonomy.md"
         ],
         "gates": {
-          "business-context": ["skills/references/business-context-mesh.md"],
-          "strategic-choice": ["skills/references/strategic-choice-contract.md"],
-          "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
-          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
-          "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
-          "release-route": ["skills/004-sg-deploy/references/release-confidence-workflow.md"],
-          "development-mode": ["skills/references/project-development-mode.md"],
-          "target-recommendation": ["skills/references/deploy-target-matrix.md"],
-          "hosted-proof": ["skills/references/preview-proof-routing.md", "skills/004-sg-deploy/references/release-proof-routing.md"],
-          "multi-stage-lifecycle": ["skills/references/master-workflow-lifecycle-core.md", "skills/references/master-delegation-core.md"],
-          "detailed-lifecycle": ["skills/references/master-workflow-lifecycle.md"],
-          "detailed-delegation": ["skills/references/master-delegation-semantics.md"],
-          "detailed-report": ["skills/004-sg-deploy/references/deploy-report-template.md"]
+          "business-context": [
+            "skills/references/business-context-mesh.md"
+          ],
+          "strategic-choice": [
+            "skills/references/strategic-choice-contract.md"
+          ],
+          "outcome-execution": [
+            "skills/references/intent-to-outcome-execution.md"
+          ],
+          "canonical-runtime-private": [
+            "skills/references/canonical-runtime-and-private-roots.md"
+          ],
+          "explicit-invocation": [
+            "skills/references/skill-invocation-preflight.md"
+          ],
+          "release-route": [
+            "skills/004-sg-deploy/references/release-confidence-workflow.md"
+          ],
+          "development-mode": [
+            "skills/references/project-development-mode.md"
+          ],
+          "target-recommendation": [
+            "skills/references/deploy-target-matrix.md"
+          ],
+          "hosted-proof": [
+            "skills/references/preview-proof-routing.md",
+            "skills/004-sg-deploy/references/release-proof-routing.md"
+          ],
+          "multi-stage-lifecycle": [
+            "skills/references/master-workflow-lifecycle-core.md",
+            "skills/references/master-delegation-core.md"
+          ],
+          "detailed-lifecycle": [
+            "skills/references/master-workflow-lifecycle.md"
+          ],
+          "detailed-delegation": [
+            "skills/references/master-delegation-semantics.md"
+          ],
+          "detailed-report": [
+            "skills/004-sg-deploy/references/deploy-report-template.md"
+          ]
         }
       },
       "010-sg-technical": {
         "body": "skills/010-sg-technical/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md", "skills/references/decision-quality-contract.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/references/intent-to-outcome-autonomy.md",
+          "skills/references/decision-quality-contract.md"
+        ],
         "gates": {
-          "business-context": ["skills/references/business-context-mesh.md"],
-          "strategic-choice": ["skills/references/strategic-choice-contract.md"],
-          "semantic-mode-routing": ["skills/010-sg-technical/references/technical-router.md"],
-          "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
-          "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
-          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
-          "canonical-project-governance": ["skills/references/canonical-project-governance-placement.md"],
-          "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
-          "audit-protocol": ["skills/010-sg-technical/references/technical-audit-protocol.md"],
-          "audit-file": ["skills/010-sg-technical/references/technical-file-audit.md"],
-          "audit-project": ["skills/010-sg-technical/references/technical-project-audit.md"],
-          "audit-global": ["skills/010-sg-technical/references/technical-global-audit.md"],
-          "dead-code-obsolescence": ["skills/references/dead-code-obsolescence-audit.md"],
-          "deps": ["skills/010-sg-technical/references/dependency-audit-playbook.md"],
-          "performance": ["skills/010-sg-technical/references/performance-audit-playbook.md"],
-          "migrate": ["skills/010-sg-technical/references/migration-playbook.md"],
-          "github": ["skills/010-sg-technical/references/github-hygiene-playbook.md"],
-          "authored-code-quality": ["skills/references/clean-code-quality-contract.md"],
-          "privileged-surface-security": ["skills/references/owasp-application-security-awareness.md"],
-          "email-routing": ["skills/references/email-work-routing.md"],
-          "documentation-freshness": ["skills/references/documentation-freshness-gate.md"],
-          "operational-record": ["skills/references/operational-record-format.md"],
-          "operator-question": ["skills/references/question-contract.md"],
-          "runtime-diagnostics": ["skills/references/runtime-diagnostics-surface.md"],
-          "observability": ["skills/references/sentry-observability.md"],
-          "actionable-failure": ["skills/references/actionable-failure-contract.md"],
-          "chantier": ["skills/references/chantier-tracking.md"],
-          "report-user": ["skills/references/reporting-contract.md"],
-          "report-agent": ["skills/references/reporting-agent-handoff.md"],
-          "report-blocked-audit": ["skills/references/reporting-blocked-and-audit.md"],
-          "instruction-layering": ["skills/references/skill-instruction-layering.md"]
+          "business-context": [
+            "skills/references/business-context-mesh.md"
+          ],
+          "strategic-choice": [
+            "skills/references/strategic-choice-contract.md"
+          ],
+          "semantic-mode-routing": [
+            "skills/010-sg-technical/references/technical-router.md"
+          ],
+          "outcome-execution": [
+            "skills/references/intent-to-outcome-execution.md"
+          ],
+          "implementation-discipline": [
+            "skills/references/decision-quality-implementation-discipline.md"
+          ],
+          "canonical-runtime-private": [
+            "skills/references/canonical-runtime-and-private-roots.md"
+          ],
+          "canonical-project-governance": [
+            "skills/references/canonical-project-governance-placement.md"
+          ],
+          "explicit-invocation": [
+            "skills/references/skill-invocation-preflight.md"
+          ],
+          "audit-protocol": [
+            "skills/010-sg-technical/references/technical-audit-protocol.md"
+          ],
+          "audit-file": [
+            "skills/010-sg-technical/references/technical-file-audit.md"
+          ],
+          "audit-project": [
+            "skills/010-sg-technical/references/technical-project-audit.md"
+          ],
+          "audit-global": [
+            "skills/010-sg-technical/references/technical-global-audit.md"
+          ],
+          "dead-code-obsolescence": [
+            "skills/references/dead-code-obsolescence-audit.md"
+          ],
+          "deps": [
+            "skills/010-sg-technical/references/dependency-audit-playbook.md"
+          ],
+          "performance": [
+            "skills/010-sg-technical/references/performance-audit-playbook.md"
+          ],
+          "migrate": [
+            "skills/010-sg-technical/references/migration-playbook.md"
+          ],
+          "github": [
+            "skills/010-sg-technical/references/github-hygiene-playbook.md"
+          ],
+          "authored-code-quality": [
+            "skills/references/clean-code-quality-contract.md"
+          ],
+          "privileged-surface-security": [
+            "skills/references/owasp-application-security-awareness.md"
+          ],
+          "email-routing": [
+            "skills/references/email-work-routing.md"
+          ],
+          "documentation-freshness": [
+            "skills/references/documentation-freshness-gate.md"
+          ],
+          "operational-record": [
+            "skills/references/operational-record-format.md"
+          ],
+          "operator-question": [
+            "skills/references/question-contract.md"
+          ],
+          "runtime-diagnostics": [
+            "skills/references/runtime-diagnostics-surface.md"
+          ],
+          "observability": [
+            "skills/references/sentry-observability.md"
+          ],
+          "actionable-failure": [
+            "skills/references/actionable-failure-contract.md"
+          ],
+          "chantier": [
+            "skills/references/chantier-tracking.md"
+          ],
+          "report-user": [
+            "skills/references/reporting-contract.md"
+          ],
+          "report-agent": [
+            "skills/references/reporting-agent-handoff.md"
+          ],
+          "report-blocked-audit": [
+            "skills/references/reporting-blocked-and-audit.md"
+          ],
+          "instruction-layering": [
+            "skills/references/skill-instruction-layering.md"
+          ]
         }
       },
       "103-sg-verify": {
         "body": "skills/103-sg-verify/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/103-sg-verify/references/verification-baseline.md", "skills/references/decision-quality-contract.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/103-sg-verify/references/verification-baseline.md",
+          "skills/references/decision-quality-contract.md"
+        ],
         "gates": {
-          "context-quality": ["skills/references/context-quality-contract.md"],
-          "release-proof": ["skills/103-sg-verify/references/verification-release-proof.md"],
-          "ci": ["skills/103-sg-verify/references/verification-ci.md"],
-          "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
-          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
-          "excellence": ["skills/103-sg-verify/references/verification-excellence.md"],
-          "security-ui-runtime": ["skills/103-sg-verify/references/verification-security-ui-runtime.md"],
-          "security": ["skills/references/owasp-application-security-awareness.md"],
-          "ui-visual": ["skills/references/design-system-token-contract.md"],
-          "observability": ["skills/references/sentry-observability.md"],
-          "runtime-diagnostics": ["skills/references/runtime-diagnostics-surface.md"],
-          "coherence": ["skills/103-sg-verify/references/verification-coherence.md"],
-          "product-coherence": ["skills/references/product-decision-chain.md"],
-          "editorial-coherence": ["skills/references/content-quality-rubric.md"],
-          "atlas-coherence": ["skills/references/atlas-protection-preflight.md"],
-          "development-mode": ["skills/references/project-development-mode.md"],
-          "external-behavior": ["skills/references/documentation-freshness-gate.md"],
-          "email": ["skills/references/email-work-routing.md"],
-          "behavior-change": ["skills/references/spec-driven-development-discipline.md"],
-          "progress": ["skills/references/task-application-loop.md"],
-          "closure": ["skills/references/closure-archive-guard.md"],
-          "milestone-docs": ["skills/references/documentation-reflection-gate.md"],
-          "non-trivial-behavior": ["skills/references/zombies-edge-case-heuristic.md"],
-          "changed-code": ["skills/references/implementation-excellence-preflight.md", "skills/references/clean-code-quality-contract.md"],
-          "hosted-proof": ["skills/references/preview-proof-routing.md"],
-          "operational-record": ["skills/references/operational-record-format.md"],
-          "chantier": ["skills/references/chantier-tracking.md"],
-          "report-user": ["skills/references/reporting-contract.md"],
-          "report-agent": ["skills/references/reporting-agent-handoff.md"],
-          "report-blocked-audit": ["skills/references/reporting-blocked-and-audit.md", "skills/references/actionable-failure-contract.md"]
+          "context-quality": [
+            "skills/references/context-quality-contract.md"
+          ],
+          "release-proof": [
+            "skills/103-sg-verify/references/verification-release-proof.md"
+          ],
+          "ci": [
+            "skills/103-sg-verify/references/verification-ci.md"
+          ],
+          "implementation-discipline": [
+            "skills/references/decision-quality-implementation-discipline.md"
+          ],
+          "canonical-runtime-private": [
+            "skills/references/canonical-runtime-and-private-roots.md"
+          ],
+          "excellence": [
+            "skills/103-sg-verify/references/verification-excellence.md"
+          ],
+          "security-ui-runtime": [
+            "skills/103-sg-verify/references/verification-security-ui-runtime.md"
+          ],
+          "security": [
+            "skills/references/owasp-application-security-awareness.md"
+          ],
+          "ui-visual": [
+            "skills/references/design-system-token-contract.md"
+          ],
+          "observability": [
+            "skills/references/sentry-observability.md"
+          ],
+          "runtime-diagnostics": [
+            "skills/references/runtime-diagnostics-surface.md"
+          ],
+          "coherence": [
+            "skills/103-sg-verify/references/verification-coherence.md"
+          ],
+          "product-coherence": [
+            "skills/references/product-decision-chain.md"
+          ],
+          "editorial-coherence": [
+            "skills/references/content-quality-rubric.md"
+          ],
+          "atlas-coherence": [
+            "skills/references/atlas-protection-preflight.md"
+          ],
+          "development-mode": [
+            "skills/references/project-development-mode.md"
+          ],
+          "external-behavior": [
+            "skills/references/documentation-freshness-gate.md"
+          ],
+          "email": [
+            "skills/references/email-work-routing.md"
+          ],
+          "behavior-change": [
+            "skills/references/spec-driven-development-discipline.md"
+          ],
+          "progress": [
+            "skills/references/task-application-loop.md"
+          ],
+          "closure": [
+            "skills/references/closure-archive-guard.md"
+          ],
+          "milestone-docs": [
+            "skills/references/documentation-reflection-gate.md"
+          ],
+          "non-trivial-behavior": [
+            "skills/references/zombies-edge-case-heuristic.md"
+          ],
+          "changed-code": [
+            "skills/references/implementation-excellence-preflight.md",
+            "skills/references/clean-code-quality-contract.md"
+          ],
+          "hosted-proof": [
+            "skills/references/preview-proof-routing.md"
+          ],
+          "operational-record": [
+            "skills/references/operational-record-format.md"
+          ],
+          "chantier": [
+            "skills/references/chantier-tracking.md"
+          ],
+          "report-user": [
+            "skills/references/reporting-contract.md"
+          ],
+          "report-agent": [
+            "skills/references/reporting-agent-handoff.md"
+          ],
+          "report-blocked-audit": [
+            "skills/references/reporting-blocked-and-audit.md",
+            "skills/references/actionable-failure-contract.md"
+          ]
         }
       },
       "109-sg-auth-debug": {
         "body": "skills/109-sg-auth-debug/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/109-sg-auth-debug/references/auth-debug-workflow.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/109-sg-auth-debug/references/auth-debug-workflow.md"
+        ],
         "gates": {
-          "intake-authority": ["skills/109-sg-auth-debug/references/auth-intake-and-authority.md"],
-          "provider-routing": ["skills/109-sg-auth-debug/references/auth-provider-routing.md"],
-          "browser-proof": ["skills/109-sg-auth-debug/references/auth-browser-proof.md"],
-          "diagnosis-report": ["skills/109-sg-auth-debug/references/auth-diagnosis-and-report.md"]
+          "intake-authority": [
+            "skills/109-sg-auth-debug/references/auth-intake-and-authority.md"
+          ],
+          "provider-routing": [
+            "skills/109-sg-auth-debug/references/auth-provider-routing.md"
+          ],
+          "browser-proof": [
+            "skills/109-sg-auth-debug/references/auth-browser-proof.md"
+          ],
+          "diagnosis-report": [
+            "skills/109-sg-auth-debug/references/auth-diagnosis-and-report.md"
+          ]
         }
       },
       "200-sg-redact": {
         "body": "skills/200-sg-redact/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md"
+        ],
         "gates": {
-          "workflow-core": ["skills/200-sg-redact/references/redaction-workflow.md"],
-          "context-governance": ["skills/200-sg-redact/references/redaction-context-and-governance.md"],
-          "research-planning": ["skills/200-sg-redact/references/redaction-research-and-planning.md"],
-          "drafting-optimization": ["skills/200-sg-redact/references/redaction-drafting-and-optimization.md"],
-          "quality-reporting": ["skills/200-sg-redact/references/redaction-quality-and-reporting.md"]
+          "workflow-core": [
+            "skills/200-sg-redact/references/redaction-workflow.md"
+          ],
+          "context-governance": [
+            "skills/200-sg-redact/references/redaction-context-and-governance.md"
+          ],
+          "research-planning": [
+            "skills/200-sg-redact/references/redaction-research-and-planning.md"
+          ],
+          "drafting-optimization": [
+            "skills/200-sg-redact/references/redaction-drafting-and-optimization.md"
+          ],
+          "quality-reporting": [
+            "skills/200-sg-redact/references/redaction-quality-and-reporting.md"
+          ]
         }
       },
       "201-sg-enrich": {
         "body": "skills/201-sg-enrich/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md"
+        ],
         "gates": {
-          "workflow-core": ["skills/201-sg-enrich/references/enrichment-workflow.md"],
-          "context-governance": ["skills/201-sg-enrich/references/enrichment-context-and-governance.md"],
-          "research": ["skills/201-sg-enrich/references/enrichment-research.md"],
-          "rewrite-visibility": ["skills/201-sg-enrich/references/enrichment-rewrite-and-visibility.md"],
-          "quality-reporting": ["skills/201-sg-enrich/references/enrichment-quality-and-reporting.md"]
+          "workflow-core": [
+            "skills/201-sg-enrich/references/enrichment-workflow.md"
+          ],
+          "context-governance": [
+            "skills/201-sg-enrich/references/enrichment-context-and-governance.md"
+          ],
+          "research": [
+            "skills/201-sg-enrich/references/enrichment-research.md"
+          ],
+          "rewrite-visibility": [
+            "skills/201-sg-enrich/references/enrichment-rewrite-and-visibility.md"
+          ],
+          "quality-reporting": [
+            "skills/201-sg-enrich/references/enrichment-quality-and-reporting.md"
+          ]
         }
       },
       "300-sg-docs": {
         "body": "skills/300-sg-docs/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/references/intent-to-outcome-autonomy.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/references/intent-to-outcome-autonomy.md"
+        ],
         "gates": {
-          "business-context": ["skills/references/business-context-mesh.md"],
-          "strategic-choice": ["skills/references/strategic-choice-contract.md"],
-          "outcome-execution": ["skills/references/intent-to-outcome-execution.md"],
-          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
-          "canonical-project-governance": ["skills/references/canonical-project-governance-placement.md"],
-          "simple-family": ["skills/300-sg-docs/references/simple-bootstrap-playbooks.md"],
-          "governance-family": ["skills/300-sg-docs/references/governance-playbooks.md", "skills/300-sg-docs/references/core-governance.md"],
-          "private-project-family": ["skills/300-sg-docs/references/private-project-playbooks.md", "shipglows_data/workflow/playbooks/project-import-playbook.md", "shipglows_data/workflow/checklists/project-import-checklist.md", "skills/references/source-intake-classification.md", "skills/references/private-memory-store.md", "skills/references/private-data-repo-contract.md"],
-          "bootstrap": ["skills/300-sg-docs/references/bootstrap-starter-templates.md"],
-          "material-question": ["skills/references/question-contract.md"],
-          "external-freshness": ["skills/references/documentation-freshness-gate.md"],
-          "technical-governance": ["skills/references/technical-docs-corpus.md", "skills/references/code-navigation-and-function-docs.md"],
-          "editorial-governance": ["skills/references/editorial-content-corpus.md"],
-          "operational-follow-up": ["skills/references/task-registry-routing.md"],
-          "project-compliance": ["skills/references/project-governance-rules.md"],
-          "documentation-architecture": ["skills/references/documentation-governance-rules.md"],
-          "metadata-migration": ["shipglows_data/technical/metadata-migration-guide.md"],
-          "business-product-context": ["skills/references/guided-business-product-discovery.md"],
-          "product-decision-links": ["skills/references/product-decision-chain.md"],
-          "skill-budget": ["skills/references/skill-context-budget.md"],
-          "report-user": ["skills/references/reporting-contract.md"],
-          "report-agent": ["skills/references/reporting-agent-handoff.md"],
-          "report-blocked-audit": ["skills/references/reporting-blocked-and-audit.md"],
-          "chantier": ["skills/references/chantier-tracking.md"]
+          "business-context": [
+            "skills/references/business-context-mesh.md"
+          ],
+          "strategic-choice": [
+            "skills/references/strategic-choice-contract.md"
+          ],
+          "outcome-execution": [
+            "skills/references/intent-to-outcome-execution.md"
+          ],
+          "canonical-runtime-private": [
+            "skills/references/canonical-runtime-and-private-roots.md"
+          ],
+          "canonical-project-governance": [
+            "skills/references/canonical-project-governance-placement.md"
+          ],
+          "simple-family": [
+            "skills/300-sg-docs/references/simple-bootstrap-playbooks.md"
+          ],
+          "governance-family": [
+            "skills/300-sg-docs/references/governance-playbooks.md",
+            "skills/300-sg-docs/references/core-governance.md"
+          ],
+          "private-project-family": [
+            "skills/300-sg-docs/references/private-project-playbooks.md",
+            "shipglows_data/workflow/playbooks/project-import-playbook.md",
+            "shipglows_data/workflow/checklists/project-import-checklist.md",
+            "skills/references/source-intake-classification.md",
+            "skills/references/private-memory-store.md",
+            "skills/references/private-data-repo-contract.md"
+          ],
+          "bootstrap": [
+            "skills/300-sg-docs/references/bootstrap-starter-templates.md"
+          ],
+          "material-question": [
+            "skills/references/question-contract.md"
+          ],
+          "external-freshness": [
+            "skills/references/documentation-freshness-gate.md"
+          ],
+          "technical-governance": [
+            "skills/references/technical-docs-corpus.md",
+            "skills/references/code-navigation-and-function-docs.md"
+          ],
+          "editorial-governance": [
+            "skills/references/editorial-content-corpus.md"
+          ],
+          "operational-follow-up": [
+            "skills/references/task-registry-routing.md"
+          ],
+          "project-compliance": [
+            "skills/references/project-governance-rules.md"
+          ],
+          "documentation-architecture": [
+            "skills/references/documentation-governance-rules.md"
+          ],
+          "metadata-migration": [
+            "shipglows_data/technical/metadata-migration-guide.md"
+          ],
+          "business-product-context": [
+            "skills/references/guided-business-product-discovery.md"
+          ],
+          "product-decision-links": [
+            "skills/references/product-decision-chain.md"
+          ],
+          "skill-budget": [
+            "skills/references/skill-context-budget.md"
+          ],
+          "report-user": [
+            "skills/references/reporting-contract.md"
+          ],
+          "report-agent": [
+            "skills/references/reporting-agent-handoff.md"
+          ],
+          "report-blocked-audit": [
+            "skills/references/reporting-blocked-and-audit.md"
+          ],
+          "chantier": [
+            "skills/references/chantier-tracking.md"
+          ]
         }
       },
       "601-sg-product-entitlements": {
         "body": "skills/601-sg-product-entitlements/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md"
+        ],
         "gates": {
-          "ownership-decision": ["skills/references/decision-quality-contract.md"],
-          "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
-          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
-          "entitlement-contract": ["skills/references/product-entitlements-playbook.md"],
-          "ledger-authorization": ["skills/references/product-entitlement-ledger-and-authorization.md"],
-          "provider-ingestion": ["skills/references/product-entitlement-ingestion.md"],
-          "support-proof": ["skills/references/product-entitlement-support-and-proof.md"],
-          "winflowz-suite": ["skills/references/winflowz-suite-product-registry.md"],
-          "behavior-change": ["skills/references/spec-driven-development-discipline.md"],
-          "provider-freshness": ["skills/references/documentation-freshness-gate.md"]
+          "ownership-decision": [
+            "skills/references/decision-quality-contract.md"
+          ],
+          "implementation-discipline": [
+            "skills/references/decision-quality-implementation-discipline.md"
+          ],
+          "canonical-runtime-private": [
+            "skills/references/canonical-runtime-and-private-roots.md"
+          ],
+          "entitlement-contract": [
+            "skills/references/product-entitlements-playbook.md"
+          ],
+          "ledger-authorization": [
+            "skills/references/product-entitlement-ledger-and-authorization.md"
+          ],
+          "provider-ingestion": [
+            "skills/references/product-entitlement-ingestion.md"
+          ],
+          "support-proof": [
+            "skills/references/product-entitlement-support-and-proof.md"
+          ],
+          "winflowz-suite": [
+            "skills/references/winflowz-suite-product-registry.md"
+          ],
+          "behavior-change": [
+            "skills/references/spec-driven-development-discipline.md"
+          ],
+          "provider-freshness": [
+            "skills/references/documentation-freshness-gate.md"
+          ]
         }
       },
       "603-sg-private": {
         "body": "skills/603-sg-private/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/references/canonical-runtime-and-private-roots.md", "skills/references/intent-to-outcome-autonomy.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/references/canonical-runtime-and-private-roots.md",
+          "skills/references/intent-to-outcome-autonomy.md"
+        ],
         "gates": {
-          "memory-operations": ["skills/603-sg-private/references/memory-operations.md"],
-          "private-data": ["skills/references/private-data-repo-contract.md"],
-          "mutation-approval": ["skills/references/mutation-plan-approval.md"],
-          "report": ["skills/references/reporting-contract.md"]
+          "memory-operations": [
+            "skills/603-sg-private/references/memory-operations.md"
+          ],
+          "private-data": [
+            "skills/references/private-data-repo-contract.md"
+          ],
+          "mutation-approval": [
+            "skills/references/mutation-plan-approval.md"
+          ],
+          "report": [
+            "skills/references/reporting-contract.md"
+          ]
         }
       },
       "400-sg-audit": {
         "body": "skills/400-sg-audit/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/400-sg-audit/references/audit-master-workflow.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/400-sg-audit/references/audit-master-workflow.md"
+        ],
         "gates": {
-          "scope-routing": ["skills/400-sg-audit/references/audit-scope-and-routing.md"],
-          "consolidation-proof": ["skills/400-sg-audit/references/audit-consolidation-and-proof.md"],
-          "records-remediation": ["skills/400-sg-audit/references/audit-records-and-remediation.md"]
+          "scope-routing": [
+            "skills/400-sg-audit/references/audit-scope-and-routing.md"
+          ],
+          "consolidation-proof": [
+            "skills/400-sg-audit/references/audit-consolidation-and-proof.md"
+          ],
+          "records-remediation": [
+            "skills/400-sg-audit/references/audit-records-and-remediation.md"
+          ]
         }
       },
       "405-sg-prod": {
         "body": "skills/405-sg-prod/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/405-sg-prod/references/production-verification-workflow.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/405-sg-prod/references/production-verification-workflow.md"
+        ],
         "gates": {
-          "deployment-evidence": ["skills/405-sg-prod/references/prod-deployment-evidence.md"],
-          "health-proof": ["skills/405-sg-prod/references/prod-health-and-proof.md"],
-          "runtime-diagnostics": ["skills/405-sg-prod/references/prod-runtime-diagnostics.md"],
-          "verdict-routing": ["skills/405-sg-prod/references/prod-verdict-and-routing.md"]
+          "deployment-evidence": [
+            "skills/405-sg-prod/references/prod-deployment-evidence.md"
+          ],
+          "health-proof": [
+            "skills/405-sg-prod/references/prod-health-and-proof.md"
+          ],
+          "runtime-diagnostics": [
+            "skills/405-sg-prod/references/prod-runtime-diagnostics.md"
+          ],
+          "verdict-routing": [
+            "skills/405-sg-prod/references/prod-verdict-and-routing.md"
+          ]
         }
       },
       "708-sg-auto": {
         "body": "skills/708-sg-auto/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md", "skills/references/execution-posture-tags.md", "skills/references/no-local-execution-policy.md", "skills/references/mutation-plan-approval.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md",
+          "skills/references/execution-posture-tags.md",
+          "skills/references/no-local-execution-policy.md",
+          "skills/references/mutation-plan-approval.md"
+        ],
         "gates": {
-          "candidate-loop": ["skills/708-sg-auto/references/auto-credit-window-playbook.md"],
-          "multi-session-coordination": ["skills/708-sg-auto/references/auto-session-coordination.md"],
-          "delegation": ["skills/references/master-delegation-semantics.md"],
-          "report": ["skills/references/reporting-contract.md"]
+          "candidate-loop": [
+            "skills/708-sg-auto/references/auto-credit-window-playbook.md"
+          ],
+          "multi-session-coordination": [
+            "skills/708-sg-auto/references/auto-session-coordination.md"
+          ],
+          "delegation": [
+            "skills/references/master-delegation-semantics.md"
+          ],
+          "report": [
+            "skills/references/reporting-contract.md"
+          ]
         }
       },
       "900-shipglows-core": {
         "body": "skills/900-shipglows-core/SKILL.md",
-        "baseline": ["skills/references/canonical-paths.md"],
+        "baseline": [
+          "skills/references/canonical-paths.md"
+        ],
         "gates": {
-          "implementation-discipline": ["skills/references/decision-quality-implementation-discipline.md"],
-          "canonical-runtime-private": ["skills/references/canonical-runtime-and-private-roots.md"],
-          "canonical-project-governance": ["skills/references/canonical-project-governance-placement.md"],
-          "autonomy-review": ["skills/references/intent-to-outcome-pressure-scenarios.md"],
-          "explicit-invocation": ["skills/references/skill-invocation-preflight.md"],
-          "audit": ["skills/900-shipglows-core/references/core-audit-and-improvement.md"],
-          "build": ["skills/900-shipglows-core/references/skill-maintenance-playbook.md"],
-          "dx-runtime": ["skills/900-shipglows-core/references/dx-runtime-maintenance.md"],
-          "system-coherence": ["skills/900-shipglows-core/references/system-coherence.md"],
-          "build-lifecycle": ["skills/references/master-workflow-lifecycle.md", "skills/references/master-delegation-semantics.md"],
-          "refresh": ["skills/900-shipglows-core/references/skill-refresh-playbook.md"],
-          "packaging": ["skills/900-shipglows-core/references/core-packaging.md", "shipglows_data/technical/codex-plugin-packaging.md"],
-          "report-user": ["skills/references/reporting-contract.md"],
-          "report-agent": ["skills/references/reporting-agent-handoff.md"],
-          "report-blocked-audit": ["skills/references/reporting-blocked-and-audit.md"],
-          "report-review": ["skills/references/reporting-pressure-scenarios.md"],
-          "instruction-layering": ["skills/references/skill-instruction-layering.md"],
-          "resource-discovery": ["skills/references/resource-discovery.md"],
-          "behavior-change": ["skills/references/spec-driven-development-discipline.md"],
-          "execution-fidelity": ["skills/references/skill-execution-fidelity.md"],
-          "windows-runtime": ["skills/references/windows-bootstrap-development-workflow.md"]
+          "implementation-discipline": [
+            "skills/references/decision-quality-implementation-discipline.md"
+          ],
+          "canonical-runtime-private": [
+            "skills/references/canonical-runtime-and-private-roots.md"
+          ],
+          "canonical-project-governance": [
+            "skills/references/canonical-project-governance-placement.md"
+          ],
+          "autonomy-review": [
+            "skills/references/intent-to-outcome-pressure-scenarios.md"
+          ],
+          "explicit-invocation": [
+            "skills/references/skill-invocation-preflight.md"
+          ],
+          "audit": [
+            "skills/900-shipglows-core/references/core-audit-and-improvement.md"
+          ],
+          "build": [
+            "skills/900-shipglows-core/references/skill-maintenance-playbook.md"
+          ],
+          "dx-runtime": [
+            "skills/900-shipglows-core/references/dx-runtime-maintenance.md"
+          ],
+          "system-coherence": [
+            "skills/900-shipglows-core/references/system-coherence.md"
+          ],
+          "build-lifecycle": [
+            "skills/references/master-workflow-lifecycle.md",
+            "skills/references/master-delegation-semantics.md"
+          ],
+          "refresh": [
+            "skills/900-shipglows-core/references/skill-refresh-playbook.md"
+          ],
+          "packaging": [
+            "skills/900-shipglows-core/references/core-packaging.md",
+            "shipglows_data/technical/codex-plugin-packaging.md"
+          ],
+          "report-user": [
+            "skills/references/reporting-contract.md"
+          ],
+          "report-agent": [
+            "skills/references/reporting-agent-handoff.md"
+          ],
+          "report-blocked-audit": [
+            "skills/references/reporting-blocked-and-audit.md"
+          ],
+          "report-review": [
+            "skills/references/reporting-pressure-scenarios.md"
+          ],
+          "instruction-layering": [
+            "skills/references/skill-instruction-layering.md"
+          ],
+          "resource-discovery": [
+            "skills/references/resource-discovery.md"
+          ],
+          "behavior-change": [
+            "skills/references/spec-driven-development-discipline.md"
+          ],
+          "execution-fidelity": [
+            "skills/references/skill-execution-fidelity.md"
+          ],
+          "windows-runtime": [
+            "skills/references/windows-bootstrap-development-workflow.md"
+          ]
         }
+      }
+    },
+    "scenarios": {
+      "common-docs-direct": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/000-shipglows/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit public invocation",
+            "reason": "Explicit public invocation"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve bounded gate before owner",
+            "reason": "Resolve bounded gate before owner"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve canonical runtime files",
+            "reason": "Resolve canonical runtime files"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Explicit shipglows invocation",
+            "reason": "Explicit shipglows invocation"
+          }
+        ],
+        "budget": {
+          "max_tokens": 4436,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 4436,
+        "min_reduction_percent": 0,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 408,
+            "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 2002,
+            "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+          }
+        ],
+        "prompt": "shipglows Mets la documentation à jour pour ce changement",
+        "checkpoint": "Bounded direct route selected; before documentation mutation, proof, or final report",
+        "assumptions": "Exact known diff; affected internal files and edits are enumerable; no material editorial choice. Mutation approval contract is required at the later write boundary.",
+        "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+        "baseline_depth_after_selection": 1,
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md"
+        ]
+      },
+      "common-verify-direct": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/000-shipglows/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit public invocation",
+            "reason": "Explicit public invocation"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve bounded gate before owner",
+            "reason": "Resolve bounded gate before owner"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve canonical runtime files",
+            "reason": "Resolve canonical runtime files"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Explicit shipglows invocation",
+            "reason": "Explicit shipglows invocation"
+          }
+        ],
+        "budget": {
+          "max_tokens": 4436,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 4436,
+        "min_reduction_percent": 0,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 408,
+            "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 2002,
+            "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+          }
+        ],
+        "prompt": "shipglows Vérifie que ça fonctionne",
+        "checkpoint": "Bounded direct verification route selected; before test execution or final report",
+        "assumptions": "Specific local non-UI behavior and focused test known; no browser, release, security or hosted-proof ambiguity.",
+        "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+        "baseline_depth_after_selection": 1,
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md"
+        ]
+      },
+      "common-bug-proof-selection": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/003-sg-bug/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit public invocation",
+            "reason": "Explicit public invocation"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve bounded gate before owner",
+            "reason": "Resolve bounded gate before owner"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve canonical runtime files",
+            "reason": "Resolve canonical runtime files"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Explicit shipglows invocation",
+            "reason": "Explicit shipglows invocation"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial outcome",
+            "reason": "Nontrivial outcome"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial route and scope decision",
+            "reason": "Nontrivial route and scope decision"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Actionable owner and outcome resolved",
+            "reason": "Actionable owner and outcome resolved"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Material product outcome",
+            "reason": "Material product outcome"
+          },
+          {
+            "path": "skills/sg-bug/SKILL.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "owner",
+            "trigger": "Known single defect",
+            "reason": "Known single defect"
+          },
+          {
+            "path": "skills/003-sg-bug/SKILL.md",
+            "parent": "skills/sg-bug/SKILL.md",
+            "stage": "engine",
+            "trigger": "Single bug lifecycle",
+            "reason": "Single bug lifecycle"
+          },
+          {
+            "path": "skills/003-sg-bug/references/bug-evidence-routing.md",
+            "parent": "skills/003-sg-bug/SKILL.md",
+            "stage": "diagnosis",
+            "trigger": "Select evidence owner and proof route",
+            "reason": "Select evidence owner and proof route"
+          },
+          {
+            "path": "skills/references/spec-driven-development-discipline.md",
+            "parent": "skills/003-sg-bug/references/bug-evidence-routing.md",
+            "stage": "diagnosis",
+            "trigger": "Evidence playbook requires one proof path before dispatch",
+            "reason": "Evidence playbook requires one proof path before dispatch"
+          },
+          {
+            "path": "skills/references/project-development-mode.md",
+            "parent": "skills/003-sg-bug/references/bug-evidence-routing.md",
+            "stage": "diagnosis",
+            "trigger": "Determine authoritative proof location",
+            "reason": "Determine authoritative proof location"
+          },
+          {
+            "path": "skills/references/project-delivery-policy.md",
+            "parent": "skills/references/project-development-mode.md",
+            "stage": "diagnosis",
+            "trigger": "Authoritative proof surface contract explicitly requires separate delivery policy",
+            "reason": "Authoritative proof surface contract explicitly requires separate delivery policy"
+          },
+          {
+            "path": "skills/references/zombies-edge-case-heuristic.md",
+            "parent": "skills/references/spec-driven-development-discipline.md",
+            "stage": "diagnosis",
+            "trigger": "Nontrivial save behavior needs edge-case coverage in proof planning",
+            "reason": "Nontrivial save behavior needs edge-case coverage in proof planning"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "report",
+            "trigger": "Report unfinished finding or decision",
+            "reason": "Report unfinished finding or decision"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Unfinished outcome, expose evidence and limits",
+            "reason": "Unfinished outcome, expose evidence and limits"
+          }
+        ],
+        "budget": {
+          "max_tokens": 23641,
+          "max_depth_after_selection": 3
+        },
+        "baseline_tokens": 23641,
+        "min_reduction_percent": 0,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 408,
+            "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 2002,
+            "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "tokens": 1507,
+            "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "tokens": 882,
+            "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "tokens": 2101,
+            "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193"
+          },
+          {
+            "path": "skills/sg-bug/SKILL.md",
+            "tokens": 375,
+            "sha256": "ff74b1134b1037f29eee47f85193c222944b0a0e973d197ac657315c3c649fb7"
+          },
+          {
+            "path": "skills/003-sg-bug/SKILL.md",
+            "tokens": 2068,
+            "sha256": "48c7424819d35f643b279e611ef7c42d9296ff37aa4625b57c0b9bcce4aaaedf"
+          },
+          {
+            "path": "skills/003-sg-bug/references/bug-evidence-routing.md",
+            "tokens": 893,
+            "sha256": "ea9190aa2c0361764bcfebed058e2113502b91a6715033dbf93cab86f38b7fa5"
+          },
+          {
+            "path": "skills/references/spec-driven-development-discipline.md",
+            "tokens": 3231,
+            "sha256": "8b5b5e0b7cc850e72e0123d3ca46add70a035fb93c212f075b818eb98d900a8f"
+          },
+          {
+            "path": "skills/references/project-development-mode.md",
+            "tokens": 1528,
+            "sha256": "54d078a5f1a24f44cd611f7d5182d5d360f5bea9eb88e1b87dc34f6850155d0c"
+          },
+          {
+            "path": "skills/references/project-delivery-policy.md",
+            "tokens": 1967,
+            "sha256": "b255e76a9e64ce3751edc3b1ba86aa6ca8750787f1d3fb7a172649e9eb5dc48f"
+          },
+          {
+            "path": "skills/references/zombies-edge-case-heuristic.md",
+            "tokens": 754,
+            "sha256": "f0e110e8d3b04b296daf332cecc3c6ebe25456734c705f0e8209c0aeaac4e27b"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 2046,
+            "sha256": "74e804bcd0308223b2f3550da2fed1f8bf2f786f8c13e39c265b0695a127296e"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "tokens": 846,
+            "sha256": "2b8d202a97cdd7a508eb644a485a8a77ecbfe2b986b853d92b1ce1204739b417"
+          }
+        ],
+        "prompt": "shipglows Corrige le bug : le bouton Enregistrer ne fait rien",
+        "checkpoint": "Evidence owner and proof path selected, reported; before topology, dispatch, repair or closure",
+        "assumptions": "Known product, reproduction and expected behavior; local non-auth defect; no active spec, runtime crash, external evidence or unresolved product decision. Later delegation and mutation gates remain required.",
+        "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+        "baseline_correction": "Independent source review corrected the earlier incomplete 20920-token checkpoint by adding explicit conditional readers; historical source hashes remain the captured pre-wave working tree.",
+        "baseline_depth_after_selection": 3,
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/spec-driven-development-discipline.md",
+          "skills/references/project-delivery-policy.md",
+          "skills/references/zombies-edge-case-heuristic.md"
+        ]
+      },
+      "common-feature-approval": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/001-sg-build/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit public invocation",
+            "reason": "Explicit public invocation"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve bounded gate before owner",
+            "reason": "Resolve bounded gate before owner"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve canonical runtime files",
+            "reason": "Resolve canonical runtime files"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Explicit shipglows invocation",
+            "reason": "Explicit shipglows invocation"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial outcome",
+            "reason": "Nontrivial outcome"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial route and scope decision",
+            "reason": "Nontrivial route and scope decision"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Actionable owner and outcome resolved",
+            "reason": "Actionable owner and outcome resolved"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Material product outcome",
+            "reason": "Material product outcome"
+          },
+          {
+            "path": "skills/sg-development/SKILL.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "owner",
+            "trigger": "Known existing-product feature",
+            "reason": "Known existing-product feature"
+          },
+          {
+            "path": "skills/001-sg-build/SKILL.md",
+            "parent": "skills/sg-development/SKILL.md",
+            "stage": "engine",
+            "trigger": "Product lifecycle owner",
+            "reason": "Product lifecycle owner"
+          },
+          {
+            "path": "skills/001-sg-build/references/build-lifecycle-workflow.md",
+            "parent": "skills/001-sg-build/SKILL.md",
+            "stage": "selection",
+            "trigger": "Required early route and existing-spec check",
+            "reason": "Required early route and existing-spec check"
+          },
+          {
+            "path": "skills/references/business-context-mesh.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Existing product behavior affects decision",
+            "reason": "Existing product behavior affects decision"
+          },
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "parent": "skills/001-sg-build/SKILL.md",
+            "stage": "clarification",
+            "trigger": "Material proposed implementation requires bounded plan approval",
+            "reason": "Material proposed implementation requires bounded plan approval"
+          },
+          {
+            "path": "skills/references/operator-partnership-contract.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "clarification",
+            "trigger": "Material operator question",
+            "reason": "Material operator question"
+          },
+          {
+            "path": "skills/references/question-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "clarification",
+            "trigger": "Missing material decision requires question",
+            "reason": "Missing material decision requires question"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "parent": "skills/references/question-contract.md",
+            "stage": "clarification",
+            "trigger": "Useful operator choices and consequences",
+            "reason": "Useful operator choices and consequences"
+          },
+          {
+            "path": "skills/references/design-system-token-contract.md",
+            "parent": "skills/001-sg-build/SKILL.md",
+            "stage": "clarification",
+            "trigger": "Build owner requires design-system authority for UI work, including the proposed filter",
+            "reason": "Build owner requires design-system authority for UI work, including the proposed filter"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "report",
+            "trigger": "Report unfinished finding or decision",
+            "reason": "Report unfinished finding or decision"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Unfinished outcome, expose evidence and limits",
+            "reason": "Unfinished outcome, expose evidence and limits"
+          }
+        ],
+        "budget": {
+          "max_tokens": 40827,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 40827,
+        "min_reduction_percent": 0,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 408,
+            "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 2002,
+            "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "tokens": 1507,
+            "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "tokens": 882,
+            "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "tokens": 2101,
+            "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193"
+          },
+          {
+            "path": "skills/sg-development/SKILL.md",
+            "tokens": 615,
+            "sha256": "a59ddda575b3ffae1dc49749701f0755653f3ad11d232bb316393b4d50ccb167"
+          },
+          {
+            "path": "skills/001-sg-build/SKILL.md",
+            "tokens": 1887,
+            "sha256": "5338550182de5fa077161a00a7d1841ef6488cf9870c10711f8ac61538aed5fc"
+          },
+          {
+            "path": "skills/001-sg-build/references/build-lifecycle-workflow.md",
+            "tokens": 420,
+            "sha256": "66f2a1dbb5f07885612809401f2ea9b91a6bdfad95ae35085b62fd4b8edb02f3"
+          },
+          {
+            "path": "skills/references/business-context-mesh.md",
+            "tokens": 2407,
+            "sha256": "ab6671f8513d98c10579787ccfafa2c37346c228622d5acf8fd2d55149a41d3a"
+          },
+          {
+            "path": "skills/references/mutation-plan-approval.md",
+            "tokens": 8019,
+            "sha256": "3ee0f7c30e8358949f9ed30a033541a7bc14d792072db9a47d57aa89554c4a35"
+          },
+          {
+            "path": "skills/references/operator-partnership-contract.md",
+            "tokens": 4043,
+            "sha256": "e1ac1218e5756f7ebdb98df14c58e319157b6dd8668d4dd9057eeacd8db41df1"
+          },
+          {
+            "path": "skills/references/question-contract.md",
+            "tokens": 5381,
+            "sha256": "f5fa11129683a5ef41cb13b4bbdcdd124e91b2eaf0759d65cb75b46bbb6faae4"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "tokens": 1605,
+            "sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969"
+          },
+          {
+            "path": "skills/references/design-system-token-contract.md",
+            "tokens": 3625,
+            "sha256": "93cf9820183e64c77cef8bc2e5c9748645d71fa6307c57908eee042ea4cc4a32"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 2046,
+            "sha256": "74e804bcd0308223b2f3550da2fed1f8bf2f786f8c13e39c265b0695a127296e"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "tokens": 846,
+            "sha256": "2b8d202a97cdd7a508eb644a485a8a77ecbfe2b986b853d92b1ce1204739b417"
+          }
+        ],
+        "prompt": "shipglows Ajoute un filtre par statut à la liste des commandes",
+        "checkpoint": "First material implementation plan presented; before spec creation, readiness or execution",
+        "assumptions": "Existing application; no matching active spec; material filter semantics remain operator choice; existing pattern and product facts available; no new journey, platform or visual direction. Project facts are excluded data, not omitted instruction reads.",
+        "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+        "baseline_correction": "Independent source review corrected the earlier incomplete 37202-token checkpoint by adding explicit conditional readers; historical source hashes remain the captured pre-wave working tree.",
+        "baseline_depth_after_selection": 1,
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/mutation-plan-approval.md",
+          "skills/references/design-system-token-contract.md",
+          "skills/references/question-contract.md"
+        ]
+      },
+      "common-page-comprehension": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/008-sg-customer/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit public invocation",
+            "reason": "Explicit public invocation"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve bounded gate before owner",
+            "reason": "Resolve bounded gate before owner"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve canonical runtime files",
+            "reason": "Resolve canonical runtime files"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Explicit shipglows invocation",
+            "reason": "Explicit shipglows invocation"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial outcome",
+            "reason": "Nontrivial outcome"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial route and scope decision",
+            "reason": "Nontrivial route and scope decision"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Actionable owner and outcome resolved",
+            "reason": "Actionable owner and outcome resolved"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Material product outcome",
+            "reason": "Material product outcome"
+          },
+          {
+            "path": "skills/sg-experience/SKILL.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "owner",
+            "trigger": "Evidence identifies comprehension outcome",
+            "reason": "Evidence identifies comprehension outcome"
+          },
+          {
+            "path": "skills/008-sg-customer/SKILL.md",
+            "parent": "skills/sg-experience/SKILL.md",
+            "stage": "engine",
+            "trigger": "Existing customer journey audit",
+            "reason": "Existing customer journey audit"
+          },
+          {
+            "path": "skills/008-sg-customer/references/customer-audit-playbook.md",
+            "parent": "skills/008-sg-customer/SKILL.md",
+            "stage": "diagnosis",
+            "trigger": "One selected audit playbook",
+            "reason": "One selected audit playbook"
+          },
+          {
+            "path": "skills/references/business-context-mesh.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "diagnosis",
+            "trigger": "Target user and first success matter",
+            "reason": "Target user and first success matter"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "report",
+            "trigger": "Report unfinished finding or decision",
+            "reason": "Report unfinished finding or decision"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Unfinished outcome, expose evidence and limits",
+            "reason": "Unfinished outcome, expose evidence and limits"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Unfinished outcome requires actionable next choices",
+            "reason": "Unfinished outcome requires actionable next choices"
+          }
+        ],
+        "budget": {
+          "max_tokens": 19520,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 19520,
+        "min_reduction_percent": 0,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 408,
+            "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 2002,
+            "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "tokens": 1507,
+            "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "tokens": 882,
+            "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "tokens": 2101,
+            "sha256": "0a89bf13b79fac2a90930bd296c1df35c03ef3c21464be7dee8350114ca35193"
+          },
+          {
+            "path": "skills/sg-experience/SKILL.md",
+            "tokens": 335,
+            "sha256": "2ec5da681e8c3adf672a4c46a94ea58a7016af4c8e0136866bd744f42217c4d2"
+          },
+          {
+            "path": "skills/008-sg-customer/SKILL.md",
+            "tokens": 1886,
+            "sha256": "359ba2dfcd3bc0895008f20974b41633c4ca05be20c0f97f59ceb3a5633bc8d0"
+          },
+          {
+            "path": "skills/008-sg-customer/references/customer-audit-playbook.md",
+            "tokens": 462,
+            "sha256": "7c80fa17efcd2e461099c4f02ba5184d7d5c1db7c4e275e828fe98b990d8d114"
+          },
+          {
+            "path": "skills/references/business-context-mesh.md",
+            "tokens": 2407,
+            "sha256": "ab6671f8513d98c10579787ccfafa2c37346c228622d5acf8fd2d55149a41d3a"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 2046,
+            "sha256": "74e804bcd0308223b2f3550da2fed1f8bf2f786f8c13e39c265b0695a127296e"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "tokens": 846,
+            "sha256": "2b8d202a97cdd7a508eb644a485a8a77ecbfe2b986b853d92b1ce1204739b417"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "tokens": 1605,
+            "sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969"
+          }
+        ],
+        "prompt": "shipglows Améliore cette page, elle est confuse",
+        "checkpoint": "Initial comprehension finding and next owner reported; before external research, material solution question or implementation",
+        "assumptions": "Known page with supplied trustworthy evidence of user misunderstanding; target user, first success and existing product facts known. No permissions, delayed operation, external claims, design-system decision or new interaction. Without comprehension evidence design vs experience stays ambiguous; this fixture does not decide all confusing-page requests.",
+        "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+        "baseline_depth_after_selection": 1,
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md",
+          "skills/references/reporting-contract.md"
+        ]
+      },
+      "common-resume-ready": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/706-continue/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit public invocation",
+            "reason": "Explicit public invocation"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve bounded gate before owner",
+            "reason": "Resolve bounded gate before owner"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve canonical runtime files",
+            "reason": "Resolve canonical runtime files"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Explicit shipglows invocation",
+            "reason": "Explicit shipglows invocation"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial outcome",
+            "reason": "Nontrivial outcome"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial route and scope decision",
+            "reason": "Nontrivial route and scope decision"
+          },
+          {
+            "path": "skills/references/context-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Continuity state and freshness determine route",
+            "reason": "Continuity state and freshness determine route"
+          },
+          {
+            "path": "skills/706-continue/SKILL.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "engine",
+            "trigger": "Paused-work continuation helper",
+            "reason": "Paused-work continuation helper"
+          },
+          {
+            "path": "skills/706-continue/references/continuation-playbook.md",
+            "parent": "skills/706-continue/SKILL.md",
+            "stage": "selection",
+            "trigger": "Resolve unique ready work and authority",
+            "reason": "Resolve unique ready work and authority"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Actionable owner and outcome resolved",
+            "reason": "Actionable owner and outcome resolved"
+          }
+        ],
+        "budget": {
+          "max_tokens": 12523,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 12523,
+        "min_reduction_percent": 0,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 408,
+            "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 2002,
+            "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "tokens": 1507,
+            "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+          },
+          {
+            "path": "skills/references/context-quality-contract.md",
+            "tokens": 2121,
+            "sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440"
+          },
+          {
+            "path": "skills/706-continue/SKILL.md",
+            "tokens": 1714,
+            "sha256": "f82507e7b7eeb1d93da07fbfd88026a4ad86439d7ca489b02a38263b338cd8d2"
+          },
+          {
+            "path": "skills/706-continue/references/continuation-playbook.md",
+            "tokens": 856,
+            "sha256": "19512f395f5c9962a38f9440ecf7634dbcf46b56f8b9a6ba805f46e00e6617ef"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "tokens": 882,
+            "sha256": "8b93b4fc0efe87021d87ab8c0e318ddb0f5f33caf89d8d10fb86d2ba63f42777"
+          }
+        ],
+        "prompt": "shipglows Où en est-on ? Reprends la suite",
+        "checkpoint": "Unique ready task and next authorized unit selected; before loading that unit owner or executing",
+        "assumptions": "One current ready task with explicit prior authority and fresh continuation capsule.",
+        "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+        "baseline_depth_after_selection": 1,
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md"
+        ]
+      },
+      "common-resume-missing": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/706-continue/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit public invocation",
+            "reason": "Explicit public invocation"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve bounded gate before owner",
+            "reason": "Resolve bounded gate before owner"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve canonical runtime files",
+            "reason": "Resolve canonical runtime files"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Explicit shipglows invocation",
+            "reason": "Explicit shipglows invocation"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial outcome",
+            "reason": "Nontrivial outcome"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Nontrivial route and scope decision",
+            "reason": "Nontrivial route and scope decision"
+          },
+          {
+            "path": "skills/references/context-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Continuity state and freshness determine route",
+            "reason": "Continuity state and freshness determine route"
+          },
+          {
+            "path": "skills/706-continue/SKILL.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "engine",
+            "trigger": "Paused-work continuation helper",
+            "reason": "Paused-work continuation helper"
+          },
+          {
+            "path": "skills/706-continue/references/continuation-playbook.md",
+            "parent": "skills/706-continue/SKILL.md",
+            "stage": "selection",
+            "trigger": "Resolve unique ready work and authority",
+            "reason": "Resolve unique ready work and authority"
+          },
+          {
+            "path": "skills/references/operator-partnership-contract.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "clarification",
+            "trigger": "Material operator question",
+            "reason": "Material operator question"
+          },
+          {
+            "path": "skills/references/question-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "clarification",
+            "trigger": "Missing material decision requires question",
+            "reason": "Missing material decision requires question"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "parent": "skills/references/question-contract.md",
+            "stage": "clarification",
+            "trigger": "Useful operator choices and consequences",
+            "reason": "Useful operator choices and consequences"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "report",
+            "trigger": "Report unfinished finding or decision",
+            "reason": "Report unfinished finding or decision"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Unfinished outcome, expose evidence and limits",
+            "reason": "Unfinished outcome, expose evidence and limits"
+          }
+        ],
+        "budget": {
+          "max_tokens": 19171,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 25562,
+        "min_reduction_percent": 25,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_state": "Working tree after approved Core pilot, before common-path wave; hashes identify baseline, not HEAD blobs.",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 408,
+            "sha256": "632b7ee813374811f711ecab90c84c95bfdd68ce741453dbd7ddb68be968b5a2"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 2002,
+            "sha256": "78b7447513f9beb8395ea29cd9318f045eee555172f085fa442cb3c8bd681a3f"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "7bfe3d4351eb1382f8ddac72e51a3f897687b8df3995ab7cad22a055e14796b7"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "6c9af35e9c4e699ea42f60ef2476ca49ac9684495069a2992c9824024b46a59b"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "d9d78d327a2d9c1d4f0e0f04d7de2c7e07c1722c1cd61737e06fc8c0319d9157"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "tokens": 1507,
+            "sha256": "056d736d0d33b69f9bc5d64c6f96824353c4e9da86062804f829bdd00f6503c2"
+          },
+          {
+            "path": "skills/references/context-quality-contract.md",
+            "tokens": 2121,
+            "sha256": "5ac30736f15cdb321236fbd797c2788c07fc147bbed563afa50c5cc4e8706440"
+          },
+          {
+            "path": "skills/706-continue/SKILL.md",
+            "tokens": 1714,
+            "sha256": "f82507e7b7eeb1d93da07fbfd88026a4ad86439d7ca489b02a38263b338cd8d2"
+          },
+          {
+            "path": "skills/706-continue/references/continuation-playbook.md",
+            "tokens": 856,
+            "sha256": "19512f395f5c9962a38f9440ecf7634dbcf46b56f8b9a6ba805f46e00e6617ef"
+          },
+          {
+            "path": "skills/references/operator-partnership-contract.md",
+            "tokens": 4043,
+            "sha256": "e1ac1218e5756f7ebdb98df14c58e319157b6dd8668d4dd9057eeacd8db41df1"
+          },
+          {
+            "path": "skills/references/question-contract.md",
+            "tokens": 5381,
+            "sha256": "f5fa11129683a5ef41cb13b4bbdcdd124e91b2eaf0759d65cb75b46bbb6faae4"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "tokens": 1605,
+            "sha256": "f636cca6374726a1e4d8c4be1b4fca67a88645cc7870a93409cee2cfdeac5969"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 2046,
+            "sha256": "74e804bcd0308223b2f3550da2fed1f8bf2f786f8c13e39c265b0695a127296e"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "tokens": 846,
+            "sha256": "2b8d202a97cdd7a508eb644a485a8a77ecbfe2b986b853d92b1ce1204739b417"
+          }
+        ],
+        "prompt": "shipglows Où en est-on ? Reprends la suite",
+        "checkpoint": "Safe evidence search found no identifiable continuation target; concise clarification reported",
+        "assumptions": "No target recoverable from conversation or safe focused local discovery; no material strategy decision beyond selecting task; no mutation, greenfield proposal or new chantier.",
+        "scope": "Declared checkpoint scenario, not observed agent trace or complete lifecycle; project evidence and host/tool context excluded. No depends_on closure or advisory citations expanded.",
+        "baseline_depth_after_selection": 1,
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/question-contract.md",
+          "skills/references/context-quality-contract.md",
+          "skills/706-continue/references/continuation-playbook.md"
+        ]
+      },
+      "core-skill-audit": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/900-shipglows-core/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Public invocation; canonical engine",
+            "reason": "Public invocation; canonical engine"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Select owner and preserve authority",
+            "reason": "Select owner and preserve authority"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve ShipGlows-owned resources",
+            "reason": "Resolve ShipGlows-owned resources"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Non-trivial skill audit outcome",
+            "reason": "Non-trivial skill audit outcome"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Non-trivial skill audit selection",
+            "reason": "Non-trivial skill audit selection"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "execution",
+            "trigger": "Actionable owner resolved; no mutation",
+            "reason": "Actionable owner resolved; no mutation"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Material audit result for maintenance decisions",
+            "reason": "Material audit result for maintenance decisions"
+          },
+          {
+            "path": "skills/900-shipglows-core/SKILL.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "engine",
+            "trigger": "Known ShipGlows skill audit; direct route",
+            "reason": "Known ShipGlows skill audit; direct route"
+          },
+          {
+            "path": "skills/900-shipglows-core/references/core-audit-and-improvement.md",
+            "parent": "skills/900-shipglows-core/SKILL.md",
+            "stage": "audit",
+            "trigger": "Skill audit; one local pack",
+            "reason": "Skill audit; one local pack"
+          },
+          {
+            "path": "skills/references/skill-execution-fidelity.md",
+            "parent": "skills/900-shipglows-core/SKILL.md",
+            "stage": "audit",
+            "trigger": "Execution-fidelity audit",
+            "reason": "Execution-fidelity audit"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/900-shipglows-core/SKILL.md",
+            "stage": "report",
+            "trigger": "Final user audit",
+            "reason": "Final user audit"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Audit findings and limits",
+            "reason": "Audit findings and limits"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Unfinished improvement requires operator decision",
+            "reason": "Unfinished improvement requires operator decision"
+          }
+        ],
+        "budget": {
+          "max_tokens": 22238,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 37064,
+        "min_reduction_percent": 40,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 1521,
+            "sha256": "75707dd8029a75480a9d9688e200ca3b12c0f34d33ddd2c6c7e9bc9023939699"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 3388,
+            "sha256": "b8e7c96a9952cae2d45fbb62ddc04b867157033096515fada5aa67653681ea26"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "2626e1e5340eec41ef92d3bf3034a97636aa8647e7c28a5f3c2e42c93846d792"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "04a08f8e78fb83ea046168141bf3b6dbf9a170ab1c0433aba745fe675b3f1b6a"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "tokens": 1507,
+            "sha256": "297aadd6f470d5b52c00d08c245e193eecb83d61d0de2d8cb53310cdd05b37c4"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "tokens": 882,
+            "sha256": "7c52474474c1f7b1790a094552fe647006590851135a3ee48c4013bf067d870a"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "tokens": 2101,
+            "sha256": "0fa09326ed45179349e794a00e5a3c29b4efd48eeb4db212d7766db22f576349"
+          },
+          {
+            "path": "skills/900-shipglows-core/SKILL.md",
+            "tokens": 2001,
+            "sha256": "b12ee48781ec49d6725730b6400595ef54d4b00471d856efdb4f1c2df35eb256"
+          },
+          {
+            "path": "skills/900-shipglows-core/references/core-audit-and-improvement.md",
+            "tokens": 420,
+            "sha256": "38ef5f648751e22eca595516cde5efd92a83ff12da0c93c073de3992a2db700e"
+          },
+          {
+            "path": "skills/references/skill-execution-fidelity.md",
+            "tokens": 4513,
+            "sha256": "441189fce74860e3123ad121aab120388a381b41f088460465adc109082493cc"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 4771,
+            "sha256": "ea106f57e8929305533d51ce804d60133a2ed85033d857c73b36e319e3e3e0a1"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "tokens": 841,
+            "sha256": "fd120a54dcdbb7033c7f7762c722c1a9700d01c374c2f760bc395926b3c54f58"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "tokens": 1605,
+            "sha256": "1f302ff05c61b1fa5a8ebe8dc69bcecea81fde284cac532218237ae8dfdd2f88"
+          },
+          {
+            "path": "skills/references/entrypoint-routing.md",
+            "tokens": 4905,
+            "sha256": "74d555dc527e5a265bee0af87080265cfdeca8fb2c8ca867b1dae63ec62a6f6b"
+          },
+          {
+            "path": "skills/references/master-delegation-semantics.md",
+            "tokens": 4632,
+            "sha256": "180593c7e86f64c7df1c098ef582c23999149b3edaf5688c18f1d978f70dbc4f"
+          },
+          {
+            "path": "skills/references/final-report-timestamp.md",
+            "tokens": 973,
+            "sha256": "8439b11416708bfa38ecc90583d6239afc6fab7b733a443e41dc0ebd7eb49554"
+          },
+          {
+            "path": "skills/references/next-outcome-selection.md",
+            "tokens": 1153,
+            "sha256": "ec9ae52a1f056cd59c2b61b82521314f343ec3b09395207a40349ddc8d7f5a9b"
+          }
+        ],
+        "scope": "Declared scenario, not observed trace; applicable read ledger without depends_on expansion.",
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/reporting-contract.md",
+          "skills/references/skill-execution-fidelity.md"
+        ]
+      },
+      "core-help": {
+        "entry": "skills/shipglows/SKILL.md",
+        "selected_engine": "skills/900-shipglows-core/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Public invocation; canonical engine",
+            "reason": "Public invocation; canonical engine"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "parent": "skills/shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Select owner and preserve authority",
+            "reason": "Select owner and preserve authority"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Resolve ShipGlows-owned resources",
+            "reason": "Resolve ShipGlows-owned resources"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "Explicit core help invocation",
+            "reason": "Explicit core help invocation"
+          },
+          {
+            "path": "skills/references/expert-mode-aliases.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "routing",
+            "trigger": "First-token core alias",
+            "reason": "First-token core alias"
+          },
+          {
+            "path": "skills/900-shipglows-core/SKILL.md",
+            "parent": "skills/000-shipglows/SKILL.md",
+            "stage": "engine",
+            "trigger": "Explain modes without playbook",
+            "reason": "Explain modes without playbook"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/900-shipglows-core/SKILL.md",
+            "stage": "report",
+            "trigger": "Final Core help answer",
+            "reason": "Final Core help answer"
+          },
+          {
+            "path": "skills/references/next-outcome-selection.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "No evidenced continuation after help",
+            "reason": "Account for fallback selection, not an assumed next outcome"
+          }
+        ],
+        "budget": {
+          "max_tokens": 10796,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 17994,
+        "min_reduction_percent": 40,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_reads": [
+          {
+            "path": "skills/shipglows/SKILL.md",
+            "tokens": 1521,
+            "sha256": "75707dd8029a75480a9d9688e200ca3b12c0f34d33ddd2c6c7e9bc9023939699"
+          },
+          {
+            "path": "skills/000-shipglows/SKILL.md",
+            "tokens": 3388,
+            "sha256": "b8e7c96a9952cae2d45fbb62ddc04b867157033096515fada5aa67653681ea26"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "2626e1e5340eec41ef92d3bf3034a97636aa8647e7c28a5f3c2e42c93846d792"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "13ed73c32dac08ce968c19fde550d8b0ecb5470a9cb743fa0641b365eac62b6c"
+          },
+          {
+            "path": "skills/references/expert-mode-aliases.md",
+            "tokens": 1154,
+            "sha256": "7ee9db75ee357ed5dc5def104093eede7495d9041f5c62686dcdae87d3ad8f8d"
+          },
+          {
+            "path": "skills/900-shipglows-core/SKILL.md",
+            "tokens": 2001,
+            "sha256": "b12ee48781ec49d6725730b6400595ef54d4b00471d856efdb4f1c2df35eb256"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 4771,
+            "sha256": "ea106f57e8929305533d51ce804d60133a2ed85033d857c73b36e319e3e3e0a1"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "04a08f8e78fb83ea046168141bf3b6dbf9a170ab1c0433aba745fe675b3f1b6a"
+          },
+          {
+            "path": "skills/references/final-report-timestamp.md",
+            "tokens": 973,
+            "sha256": "8439b11416708bfa38ecc90583d6239afc6fab7b733a443e41dc0ebd7eb49554"
+          },
+          {
+            "path": "skills/references/next-outcome-selection.md",
+            "tokens": 1153,
+            "sha256": "ec9ae52a1f056cd59c2b61b82521314f343ec3b09395207a40349ddc8d7f5a9b"
+          }
+        ],
+        "scope": "Declared scenario, not observed trace; applicable read ledger without depends_on expansion.",
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/skill-invocation-preflight.md",
+          "skills/references/reporting-contract.md"
+        ]
+      },
+      "engineering-deps-witness": {
+        "entry": "skills/sg-engineering/SKILL.md",
+        "selected_engine": "skills/010-sg-technical/SKILL.md",
+        "reads": [
+          {
+            "path": "skills/sg-engineering/SKILL.md",
+            "parent": null,
+            "stage": "entry",
+            "trigger": "Explicit deps; resolved project",
+            "reason": "Explicit deps; resolved project"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "parent": "skills/sg-engineering/SKILL.md",
+            "stage": "selection",
+            "trigger": "Non-trivial dependency audit",
+            "reason": "Non-trivial dependency audit"
+          },
+          {
+            "path": "skills/010-sg-technical/SKILL.md",
+            "parent": "skills/sg-engineering/SKILL.md",
+            "stage": "engine",
+            "trigger": "Explicit deps mode",
+            "reason": "Explicit deps mode"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "parent": "skills/010-sg-technical/SKILL.md",
+            "stage": "selection",
+            "trigger": "Required explicit engineering selection",
+            "reason": "Required explicit engineering selection"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "parent": "skills/010-sg-technical/SKILL.md",
+            "stage": "selection",
+            "trigger": "Required explicit engineering selection",
+            "reason": "Required explicit engineering selection"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "parent": "skills/010-sg-technical/SKILL.md",
+            "stage": "selection",
+            "trigger": "Required explicit engineering selection",
+            "reason": "Required explicit engineering selection"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "execution",
+            "trigger": "Actionable owner resolved",
+            "reason": "Actionable owner resolved"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "parent": "skills/references/intent-to-outcome-autonomy.md",
+            "stage": "selection",
+            "trigger": "Material dependency audit result",
+            "reason": "Material dependency audit result"
+          },
+          {
+            "path": "skills/010-sg-technical/references/dependency-audit-playbook.md",
+            "parent": "skills/010-sg-technical/SKILL.md",
+            "stage": "audit",
+            "trigger": "deps project mode; unchanged workflow",
+            "reason": "deps project mode; unchanged workflow"
+          },
+          {
+            "path": "skills/references/documentation-freshness-gate.md",
+            "parent": "skills/010-sg-technical/SKILL.md",
+            "stage": "audit",
+            "trigger": "Current vendor/package claims",
+            "reason": "Current vendor/package claims"
+          },
+          {
+            "path": "skills/references/chantier-tracking.md",
+            "parent": "skills/010-sg-technical/SKILL.md",
+            "stage": "report",
+            "trigger": "Source-de-chantier final report",
+            "reason": "Source-de-chantier final report"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "parent": "skills/010-sg-technical/SKILL.md",
+            "stage": "report",
+            "trigger": "User audit result",
+            "reason": "User audit result"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Dependency audit limits",
+            "reason": "Dependency audit limits"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "parent": "skills/references/reporting-contract.md",
+            "stage": "report",
+            "trigger": "Potential fixes require choice",
+            "reason": "Potential fixes require choice"
+          }
+        ],
+        "budget": {
+          "max_tokens": 27480,
+          "max_depth_after_selection": 2
+        },
+        "baseline_tokens": 27480,
+        "min_reduction_percent": 0,
+        "baseline_commit": "65d3fc1791370ab7a2668014ce7b2338bde11d75",
+        "baseline_reads": [
+          {
+            "path": "skills/sg-engineering/SKILL.md",
+            "tokens": 606,
+            "sha256": "f759fd8efbacb54d2c1e3e71a249b8fcd8fb89d0c0077a5782e3d53d33a6a5d2"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-autonomy.md",
+            "tokens": 1007,
+            "sha256": "04a08f8e78fb83ea046168141bf3b6dbf9a170ab1c0433aba745fe675b3f1b6a"
+          },
+          {
+            "path": "skills/010-sg-technical/SKILL.md",
+            "tokens": 1524,
+            "sha256": "e351203cd0970054f5fec81711fa45e31216d46904dfc286dfdb7d55afe0fb50"
+          },
+          {
+            "path": "skills/references/canonical-paths.md",
+            "tokens": 844,
+            "sha256": "2626e1e5340eec41ef92d3bf3034a97636aa8647e7c28a5f3c2e42c93846d792"
+          },
+          {
+            "path": "skills/references/decision-quality-contract.md",
+            "tokens": 1507,
+            "sha256": "297aadd6f470d5b52c00d08c245e193eecb83d61d0de2d8cb53310cdd05b37c4"
+          },
+          {
+            "path": "skills/references/skill-invocation-preflight.md",
+            "tokens": 1182,
+            "sha256": "13ed73c32dac08ce968c19fde550d8b0ecb5470a9cb743fa0641b365eac62b6c"
+          },
+          {
+            "path": "skills/references/intent-to-outcome-execution.md",
+            "tokens": 882,
+            "sha256": "7c52474474c1f7b1790a094552fe647006590851135a3ee48c4013bf067d870a"
+          },
+          {
+            "path": "skills/references/functional-excellence-contract.md",
+            "tokens": 2101,
+            "sha256": "0fa09326ed45179349e794a00e5a3c29b4efd48eeb4db212d7766db22f576349"
+          },
+          {
+            "path": "skills/010-sg-technical/references/dependency-audit-playbook.md",
+            "tokens": 4621,
+            "sha256": "583b15fe58bf21041e8ea758b1e7c1510432ceb9f7236564f05f0873d6a54cdf"
+          },
+          {
+            "path": "skills/references/documentation-freshness-gate.md",
+            "tokens": 1028,
+            "sha256": "4cc1a7915d9d5afc09eb292c43d2aca94af3d85348e00105bbff90a20d51d302"
+          },
+          {
+            "path": "skills/references/chantier-tracking.md",
+            "tokens": 2835,
+            "sha256": "577408cc12cd533ba8ade3663093024866d319a865fad101de31d85ad609a31a"
+          },
+          {
+            "path": "skills/references/reporting-contract.md",
+            "tokens": 4771,
+            "sha256": "ea106f57e8929305533d51ce804d60133a2ed85033d857c73b36e319e3e3e0a1"
+          },
+          {
+            "path": "skills/references/reporting-blocked-and-audit.md",
+            "tokens": 841,
+            "sha256": "fd120a54dcdbb7033c7f7762c722c1a9700d01c374c2f760bc395926b3c54f58"
+          },
+          {
+            "path": "skills/references/strategic-choice-contract.md",
+            "tokens": 1605,
+            "sha256": "1f302ff05c61b1fa5a8ebe8dc69bcecea81fde284cac532218237ae8dfdd2f88"
+          },
+          {
+            "path": "skills/references/final-report-timestamp.md",
+            "tokens": 973,
+            "sha256": "8439b11416708bfa38ecc90583d6239afc6fab7b733a443e41dc0ebd7eb49554"
+          },
+          {
+            "path": "skills/references/next-outcome-selection.md",
+            "tokens": 1153,
+            "sha256": "ec9ae52a1f056cd59c2b61b82521314f343ec3b09395207a40349ddc8d7f5a9b"
+          }
+        ],
+        "scope": "Declared scenario, not observed trace; applicable read ledger without depends_on expansion.",
+        "required_reads": [
+          "skills/references/canonical-paths.md",
+          "skills/references/reporting-contract.md"
+        ]
       }
     }
   },
   "rules": {
-    "000-shipglows": {"kind": "freeform", "min_args": 1},
-    "001-sg-build": {"kind": "freeform", "min_args": 1, "leading_aliases": ["spark", "codex", "mini", "agents", "sous-agent", "no-agents"]},
-    "002-sg-maintain": {"kind": "freeform", "min_args": 0},
-    "003-sg-bug": {"kind": "freeform", "min_args": 0},
-    "004-sg-deploy": {"kind": "freeform", "min_args": 0},
-    "005-sg-ship": {"kind": "freeform", "min_args": 0},
-    "006-sg-design": {"kind": "modes", "modes": {"identity": {"min_args": 0}, "system": {"min_args": 0}, "playground": {"min_args": 0}, "audit": {"min_args": 1}, "animation": {"min_args": 1}, "redesign": {"min_args": 0}, "migration": {"min_args": 0}, "library": {"min_args": 1}}},
-    "007-sg-content": {"kind": "modes", "modes": {"plan": {"min_args": 0}, "capture": {"min_args": 0}, "tmux": {"min_args": 0}, "capture-full-conversation": {"min_args": 0}, "clean-transcript": {"min_args": 0}, "repurpose": {"min_args": 1}, "draft": {"min_args": 0}, "enrich": {"min_args": 0}, "audit": {"min_args": 0}, "marketing": {"min_args": 0}, "seo": {"min_args": 0}, "editorial": {"min_args": 0}, "apply": {"min_args": 0}, "ship": {"min_args": 0}}},
-    "008-sg-customer": {"kind": "modes", "modes": {"audit": {"min_args": 1}, "flow": {"min_args": 1}, "onboarding": {"min_args": 1}, "recovery": {"min_args": 1}}},
-    "009-sg-marketing": {"kind": "modes", "modes": {"market": {"min_args": 1}, "gtm": {"min_args": 1}, "copy": {"min_args": 1}, "copywriting": {"min_args": 1}, "help": {"min_args": 0}}},
-    "010-sg-technical": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "architecture": {"min_args": 0}, "deps": {"min_args": 0}, "performance": {"min_args": 0}, "migrate": {"min_args": 0}, "github": {"min_args": 0}, "sync": {"min_args": 0}, "access": {"min_args": 0}, "parity": {"min_args": 0}, "help": {"min_args": 0}}},
-    "103-sg-verify": {"kind": "modes", "modes": {"standard": {"min_args": 1}, "excellence": {"min_args": 0}}},
-    "300-sg-docs": {"kind": "modes", "modes": {"init": {"min_args": 0}, "file": {"min_args": 1}, "readme": {"min_args": 0}, "api": {"min_args": 0}, "components": {"min_args": 0}, "auto": {"min_args": 0}, "audit": {"min_args": 0}, "update": {"min_args": 0}, "technical": {"min_args": 0}, "editorial": {"min_args": 0}, "duplicata": {"min_args": 0}, "duplicates": {"min_args": 0}, "migrate": {"min_args": 0}, "migrate-layout": {"min_args": 0}, "metadata": {"min_args": 0}, "add-project": {"min_args": 0}}},
-    "302-sg-help": {"kind": "freeform", "min_args": 0},
-    "407-sg-translate": {"kind": "freeform", "min_args": 0},
-    "601-sg-product-entitlements": {"kind": "freeform", "min_args": 0},
-    "603-sg-private": {"kind": "modes", "modes": {"memory": {"min_args": 0}, "data": {"min_args": 1}}},
-    "708-sg-auto": {"kind": "freeform", "min_args": 0},
-    "900-shipglows-core": {"kind": "modes", "modes": {"audit": {"min_args": 0}, "build": {"min_args": 1}, "refresh": {"min_args": 1}, "packaging": {"min_args": 0}, "help": {"min_args": 0}}}
+    "000-shipglows": {
+      "kind": "freeform",
+      "min_args": 1
+    },
+    "001-sg-build": {
+      "kind": "freeform",
+      "min_args": 1,
+      "leading_aliases": [
+        "spark",
+        "codex",
+        "mini",
+        "agents",
+        "sous-agent",
+        "no-agents"
+      ]
+    },
+    "002-sg-maintain": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "003-sg-bug": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "004-sg-deploy": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "005-sg-ship": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "006-sg-design": {
+      "kind": "modes",
+      "modes": {
+        "identity": {
+          "min_args": 0
+        },
+        "system": {
+          "min_args": 0
+        },
+        "playground": {
+          "min_args": 0
+        },
+        "audit": {
+          "min_args": 1
+        },
+        "animation": {
+          "min_args": 1
+        },
+        "redesign": {
+          "min_args": 0
+        },
+        "migration": {
+          "min_args": 0
+        },
+        "library": {
+          "min_args": 1
+        }
+      }
+    },
+    "007-sg-content": {
+      "kind": "modes",
+      "modes": {
+        "plan": {
+          "min_args": 0
+        },
+        "capture": {
+          "min_args": 0
+        },
+        "tmux": {
+          "min_args": 0
+        },
+        "capture-full-conversation": {
+          "min_args": 0
+        },
+        "clean-transcript": {
+          "min_args": 0
+        },
+        "repurpose": {
+          "min_args": 1
+        },
+        "draft": {
+          "min_args": 0
+        },
+        "enrich": {
+          "min_args": 0
+        },
+        "audit": {
+          "min_args": 0
+        },
+        "marketing": {
+          "min_args": 0
+        },
+        "seo": {
+          "min_args": 0
+        },
+        "editorial": {
+          "min_args": 0
+        },
+        "apply": {
+          "min_args": 0
+        },
+        "ship": {
+          "min_args": 0
+        }
+      }
+    },
+    "008-sg-customer": {
+      "kind": "modes",
+      "modes": {
+        "audit": {
+          "min_args": 1
+        },
+        "flow": {
+          "min_args": 1
+        },
+        "onboarding": {
+          "min_args": 1
+        },
+        "recovery": {
+          "min_args": 1
+        }
+      }
+    },
+    "009-sg-marketing": {
+      "kind": "modes",
+      "modes": {
+        "market": {
+          "min_args": 1
+        },
+        "gtm": {
+          "min_args": 1
+        },
+        "copy": {
+          "min_args": 1
+        },
+        "copywriting": {
+          "min_args": 1
+        },
+        "help": {
+          "min_args": 0
+        }
+      }
+    },
+    "010-sg-technical": {
+      "kind": "modes",
+      "modes": {
+        "audit": {
+          "min_args": 0
+        },
+        "architecture": {
+          "min_args": 0
+        },
+        "deps": {
+          "min_args": 0
+        },
+        "performance": {
+          "min_args": 0
+        },
+        "migrate": {
+          "min_args": 0
+        },
+        "github": {
+          "min_args": 0
+        },
+        "sync": {
+          "min_args": 0
+        },
+        "access": {
+          "min_args": 0
+        },
+        "parity": {
+          "min_args": 0
+        },
+        "help": {
+          "min_args": 0
+        }
+      }
+    },
+    "103-sg-verify": {
+      "kind": "modes",
+      "modes": {
+        "standard": {
+          "min_args": 1
+        },
+        "excellence": {
+          "min_args": 0
+        }
+      }
+    },
+    "300-sg-docs": {
+      "kind": "modes",
+      "modes": {
+        "init": {
+          "min_args": 0
+        },
+        "file": {
+          "min_args": 1
+        },
+        "readme": {
+          "min_args": 0
+        },
+        "api": {
+          "min_args": 0
+        },
+        "components": {
+          "min_args": 0
+        },
+        "auto": {
+          "min_args": 0
+        },
+        "audit": {
+          "min_args": 0
+        },
+        "update": {
+          "min_args": 0
+        },
+        "technical": {
+          "min_args": 0
+        },
+        "editorial": {
+          "min_args": 0
+        },
+        "duplicata": {
+          "min_args": 0
+        },
+        "duplicates": {
+          "min_args": 0
+        },
+        "migrate": {
+          "min_args": 0
+        },
+        "migrate-layout": {
+          "min_args": 0
+        },
+        "metadata": {
+          "min_args": 0
+        },
+        "add-project": {
+          "min_args": 0
+        }
+      }
+    },
+    "302-sg-help": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "407-sg-translate": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "601-sg-product-entitlements": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "603-sg-private": {
+      "kind": "modes",
+      "modes": {
+        "memory": {
+          "min_args": 0
+        },
+        "data": {
+          "min_args": 1
+        }
+      }
+    },
+    "708-sg-auto": {
+      "kind": "freeform",
+      "min_args": 0
+    },
+    "900-shipglows-core": {
+      "kind": "modes",
+      "modes": {
+        "audit": {
+          "min_args": 0
+        },
+        "build": {
+          "min_args": 1
+        },
+        "refresh": {
+          "min_args": 1
+        },
+        "packaging": {
+          "min_args": 0
+        },
+        "help": {
+          "min_args": 0
+        }
+      }
+    }
   },
   "mode_suggestions": {
-    "repurpose": {"skill": "007-sg-content", "template": "007-sg-content repurpose <source> verbatim"},
-    "excellence": {"skill": "sg-development", "template": "sg-development excellence [task or scope]"}
+    "repurpose": {
+      "skill": "007-sg-content",
+      "template": "007-sg-content repurpose <source> verbatim"
+    },
+    "excellence": {
+      "skill": "sg-development",
+      "template": "sg-development excellence [task or scope]"
+    }
   }
 }

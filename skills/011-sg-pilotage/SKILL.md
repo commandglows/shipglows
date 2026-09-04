@@ -29,7 +29,7 @@ Before the final report, load `$SHIPGLOWS_ROOT/skills/references/chantier-tracki
 
 Before the final report, load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md`.
 
-Default to `report=user`: concise outcome, mutation truth, evidence limit, and next owner. Use `report=agent` for detailed tracker anchors, rejected writes, session-safety evidence, or a lifecycle handoff.
+Default to `report=user`: concise outcome, mutation truth, evidence limit, and next owner. Use `report=agent` only on explicit operator/orchestrator request; tracker detail, rejected writes, session-safety evidence, or internal lifecycle handoffs do not select it. Preserve required blocker, proof, and continuity disclosures through the shared reporting gates.
 
 ## Mission
 

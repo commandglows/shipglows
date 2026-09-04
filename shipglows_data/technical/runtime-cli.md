@@ -512,6 +512,16 @@ never infers upgrade consent in non-interactive mode. This is the supported
 refresh path; the already-installed `cli/windows/install-devserver.ps1` only
 copies its current local source and must not be treated as a network updater.
 
+For the native Windows linked development channel, `shipglows skills status`
+checks Codex and Claude skill junctions against the root recorded in
+`~/.shipglows/development-channel.json`. `shipglows update skills` invokes the
+existing native link repair helper for that same root and catalog. These focused
+routes do not bootstrap the runtime or require a clean Git checkout; uncommitted
+skill edits are already visible through valid junctions. Invalid state and local
+directory collisions fail closed. Neither command reloads an existing agent's
+context. The launcher must itself be deployed before these routes are available
+through an older installed command.
+
 Windows exposes a separate global developer-tool surface through
 `shipglows tools status|update` and `s tools status|update`. Status is read-only:
 it shows the declared ShipGlows-owned scope, asks WinGet for its available

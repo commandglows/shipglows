@@ -98,7 +98,7 @@ class SkillSelectionProportionalityTests(unittest.TestCase):
             "`veille <URL>`",
             "`concurrent <URL>` or `inspiration <URL>`",
             "`veille` takes precedence",
-            "does not automatically persist the source",
+            "analyzes without persistence",
         ):
             self.assertIn(phrase, self.router)
 

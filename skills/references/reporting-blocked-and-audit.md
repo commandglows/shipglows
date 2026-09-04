@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-16"
+updated: "2026-09-05"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-blocked-and-audit
@@ -37,7 +37,7 @@ Concise does not mean vague. State the blocking gate, redacted concrete evidence
 ## Unfinished Chantier Choice
 
 When a user-facing final report returns control while the chantier remains unfinished, end the message
-with a numbered, plain-language choice block. Load `skills/references/strategic-choice-contract.md`, use two or three choices, and recommend the strongest responsible business direction. The choices must never expose skill names, slash commands, lifecycle labels, internal owners, or agent topology.
+with a numbered, plain-language choice block. Apply the strategic-choice contract already selected by the reporting owner; use two or three choices, and recommend the strongest responsible business direction. The choices must never expose skill names, slash commands, lifecycle labels, internal owners, or agent topology.
 
 When no material decision is missing, keep controls proportional. A short interaction label is allowed because it requires active guided follow-up after selection:
 

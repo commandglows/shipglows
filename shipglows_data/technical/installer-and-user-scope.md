@@ -317,6 +317,13 @@ Get-ChildItem Env:SHIPGLOWS_ROOT
 .\tools\shipglows_sync_skills.ps1 -Mode check -All -Runtime all -Catalog public
 ```
 
+With a launcher containing the focused linked-skills routes, `shipglows skills
+status` performs this check using the persisted Windows development-channel root
+and catalog. `shipglows update skills` repairs those links through the same native
+helper, without updating the runtime or requiring a clean checkout. Python skill
+status also recognizes Windows junctions and this native channel state; unrelated
+directories, foreign junctions and contradictory state remain conflicts.
+
 Interpret the result in this order:
 
 1. `SHIPGLOWS_ROOT` must identify the intended ShipGlows source root, whose `skills/` directory is canonical.

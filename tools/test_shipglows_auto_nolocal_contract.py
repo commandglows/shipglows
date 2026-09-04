@@ -28,6 +28,8 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.public = PUBLIC.read_text(encoding="utf-8")
         cls.router = ROUTER.read_text(encoding="utf-8")
+        cls.special = (ROOT / "skills/references/entrypoint-special-modes.md").read_text(encoding="utf-8")
+        cls.special_flat = " ".join(cls.special.split())
         cls.auto = AUTO.read_text(encoding="utf-8")
         cls.playbook = AUTO_PLAYBOOK.read_text(encoding="utf-8")
         cls.coordination = AUTO_COORDINATION.read_text(encoding="utf-8")
@@ -51,9 +53,11 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         self.assertNotIn("nolocal", router_entry["modes"])
         self.assertIn("nolocal", router_entry["legacy_execution_aliases"])
         self.assertIn("708-sg-auto", router_entry["internal_engines"])
-        self.assertIn("shipglows auto", self.public_flat)
-        self.assertIn("`shipglows nolocal <objective>`", self.public_flat)
-        self.assertIn("`708-sg-auto`", self.router_flat)
+        self.assertIn("then load `$SHIPGLOWS_ROOT/skills/000-shipglows/SKILL.md`", self.public_flat)
+        self.assertIn("For `update`, `context`/`contexte`/`env`/`environment`, `auto`, or legacy `nolocal`, load `$SHIPGLOWS_ROOT/skills/references/entrypoint-special-modes.md`", self.router_flat)
+        self.assertIn("shipglows auto", self.special_flat)
+        self.assertIn("`shipglows nolocal <objective>`", self.special_flat)
+        self.assertIn("`708-sg-auto`", self.special_flat)
 
         auto = check("shipglows auto")
         self.assertEqual("valid", auto["status"])
@@ -82,7 +86,7 @@ class ShipGlowsAutoNolocalContractTests(unittest.TestCase):
         self.assertEqual("missing_argument", bare_nolocal["error"])
 
     def test_auto_always_composes_nolocal_and_has_no_local_override(self) -> None:
-        for text in (self.router, self.auto, self.playbook):
+        for text in (self.special, self.auto, self.playbook):
             self.assertIn("no-local-execution-policy.md", text)
         self.assertIn("always and implicitly applies", self.auto_flat)
         self.assertIn("legacy `auto local` are invalid", self.auto_flat)

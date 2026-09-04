@@ -16,11 +16,16 @@ DX runtime work targets `${SHIPGLOWS_ROOT:-$HOME/.shipglows/runtime}/cli/`, `loc
 
 Trace category: `obligatoire`. Process role: `lifecycle`.
 
-Attach to one unique spec and update its flow; otherwise use `(local)` and require `100-sg-spec` for non-trivial build work. Load `$SHIPGLOWS_ROOT/skills/references/reporting-contract.md` before the final report. Default to concise `report=user`; details and blockers use `report=agent`.
+Attach/update one unique spec; otherwise `(local)` and `100-sg-spec` for non-trivial builds.
+Load canonical `reporting-contract.md` before final reporting. Default `report=user`.
+Use `report=agent` only on explicit operator/orchestrator request; blockers do not select it.
+Preserve required blocker, proof, and continuity disclosures.
 
 ## Mission
 
-`900-shipglows-core` is the sole internal lifecycle owner for maintaining the ShipGlows DX system: skills and doctrine, validation and activation tooling, CLI/DevServer/TUI runtime, local helpers, environment control plane, installers, cross-surface coherence, and packaging boundaries. It owns routing and integration coherence while canonical runtime code, tests, and specialist proof owners retain their internals. Invocation targets `$SHIPGLOWS_ROOT`, never the current project or `shipglows_app` by default.
+Core is the sole internal DX lifecycle owner; canonical runtime code, tests
+and specialist owners retain their internals. Target `$SHIPGLOWS_ROOT`, never the
+current project or `shipglows_app` by default.
 
 ## Mode And Invocation Preflight
 
@@ -29,7 +34,7 @@ Before parsing an explicit invocation, load `$SHIPGLOWS_ROOT/skills/references/s
 Supported modes are `audit [scope]`, `build <target>`, `refresh <target>`, `packaging [scope]`, and `help`. Bare or invalid input lists these modes or asks one targeted question. `build` and `refresh` without a target are invalid; retired `009-sg-skill-build` / `307-sg-skills-refresh` names as aliases are forbidden. A mode uniquely owned elsewhere may receive its exact public correction but is never auto-executed.
 
 `core` is a hard ShipGlows-system context: every remaining word is ShipGlows work, never to the current project. An operator critique authorizes a bounded repair: select the narrowest internal
-`build` target and continue without asking the operator to choose a mode. Project names, quoted routes, or desired project outcomes are failure evidence only. A critique such as “pourquoi il propose d’auditer ShipGlows ? je veux le projet courant” repairs the core routing rule; it does not audit either repository.
+`build` target and continue without asking the operator to choose a mode. Project names, quoted routes, or desired project outcomes are failure evidence only. A routing critique repairs the core routing rule; it does not audit either repository.
 
 No later project name, repository path, request, or quoted outcome overrides the hard context.
 
@@ -37,9 +42,9 @@ No later project name, repository path, request, or quoted outcome overrides the
 
 Before loading a local pack, classify one target surface:
 
-- `skill`: `skills/`, shared doctrine, activation registry, skill validation tooling, or runtime skill links;
-- `runtime`: `cli/`, `local/`, `tui/`, Unix or Windows DevServer, environment control plane, wrappers, bootstrap, or installers;
-- `coherence`: behavior spanning two or more skill, runtime, distribution, or governance surfaces.
+- `skill`: `skills/` (skills and doctrine), activation registry, skill validation tooling, or runtime skill links;
+- `runtime`: `cli/`, `local/`, `tui/`, local helpers, Unix or Windows DevServer, environment control plane, wrappers, bootstrap, or installers;
+- `coherence`: cross-surface coherence spanning two or more skill, runtime, distribution, or governance surfaces.
 
 Do not ask the operator to choose this internal surface when the target is discoverable. A missing or genuinely ambiguous surface blocks rather than loading several packs. Local packs load directly and never chain.
 
@@ -68,6 +73,12 @@ Keep `shipglows` as the canonical public plugin, `$shipglows` as its public entr
 ## Stop Conditions
 
 Stop when `$SHIPGLOWS_ROOT/skills` or a requested tool/pack is absent; the activation graph preflight fails; a target surface is unresolved; a request would mutate `shipglows_app` from Core context; an owned tool would run before path/tool confirmation; broad edits lack authorization/readiness; internal Core would become public; packaging would expose secrets/private context/dependencies/caches/machine paths; or proof requires secrets, destructive action, private access, or user-only hardware.
+
+## Loading Preservation
+
+Before changing references, triggers, shared doctrine or protections, load `skill-context-budget.md`.
+Apply its Loading Change Gate even when files shrink: justify need/trigger/timing,
+compare affected paths, and block unexplained regressions or lost protections.
 
 ## Validation
 

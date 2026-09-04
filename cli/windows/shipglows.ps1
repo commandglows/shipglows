@@ -12,8 +12,47 @@ function Stop-SgCommand([string]$Message) {
     exit 2
 }
 
+function Invoke-SgLinkedSkills([ValidateSet('check','repair')][string]$Mode) {
+    # Skills follow the selected developer source; never invoke the runtime updater.
+    $statePath = Join-Path $env:USERPROFILE '.shipglows\development-channel.json'
+    if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) {
+        Stop-SgCommand 'No linked developer channel. Manage the public plugin through its plugin manager; runtime update was not started.'
+    }
+    try { $state = [IO.File]::ReadAllText($statePath) | ConvertFrom-Json }
+    catch { Stop-SgCommand 'Invalid developer-channel state; no skills were changed.' }
+    if ($state.schemaVersion -ne 1 -or $state.channel -cne 'linked' -or
+        [string]::IsNullOrWhiteSpace([string]$state.root) -or
+        [string]$state.root -notmatch '^(?:[A-Za-z]:[\\/]|\\\\[^\\]+\\[^\\]+)') {
+        Stop-SgCommand 'An explicit linked developer root is required; no channel was changed.'
+    }
+    $root = [IO.Path]::GetFullPath([string]$state.root)
+    $helper = Join-Path $root 'tools\shipglows_sync_skills.ps1'
+    $catalog = 'public'
+    if ($state.PSObject.Properties['catalog']) { $catalog = [string]$state.catalog }
+    if ($catalog -cnotin @('public','expert')) { Stop-SgCommand 'Invalid linked skills catalog; no skills were changed.' }
+    if (-not (Test-Path -LiteralPath (Join-Path $root 'skills\000-shipglows\SKILL.md') -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $helper -PathType Leaf)) {
+        Stop-SgCommand 'The linked checkout is incomplete; no runtime fallback or update was attempted.'
+    }
+    Write-Output "ShipGlows skills: channel=linked source=$root catalog=$catalog"
+    $shellPath = (Get-Process -Id $PID).Path
+    & $shellPath -NoLogo -NoProfile -File $helper -Mode $Mode -All -Runtime all -Catalog $catalog -CodexEntrypoint linked -TargetHome $env:USERPROFILE -ShipGlowsRoot $root
+    $result = $LASTEXITCODE
+    if ($result -eq 0) {
+        Write-Output 'Skills use the live checkout, including uncommitted edits. Existing agent context is not reloaded; start a new session or explicitly reread the changed skill.'
+    }
+    exit $result
+}
+
+if ($CommandArguments.Count -eq 2 -and $CommandArguments[0] -ieq 'skills' -and $CommandArguments[1] -ieq 'status') {
+    Invoke-SgLinkedSkills -Mode check
+}
+if ($CommandArguments.Count -eq 2 -and $CommandArguments[0] -ieq 'update' -and $CommandArguments[1] -ieq 'skills') {
+    Invoke-SgLinkedSkills -Mode repair
+}
+
 if ($CommandArguments.Count -lt 1) {
-    Stop-SgCommand 'expected: shipglows update [status], shipglows tools <status|update>, or shipglows rename rio <name>'
+    Stop-SgCommand 'expected: shipglows update [status|skills], shipglows skills status, shipglows tools <status|update>, or shipglows rename rio <name>'
 }
 
 if ($CommandArguments[0] -ieq 'update') {

@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-21"
+updated: "2026-09-05"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-agent-handoff
@@ -50,4 +50,4 @@ For delegated executable work retain `topology`, `agents_dispatched`, `model_sta
 
 Agent mode may expose internal owners and commands, but must still be concise enough to operate and must never dump secrets, cookies, tokens, private logs, raw provider payloads, or unnecessary bulk output. A downstream skill emits this detail only when the caller explicitly requested agent mode.
 
-When the receiving agent will run in a new operator-started conversation, also load `conversation-continuity-contract.md`. Apply its stabilization gate and emit its copyable restart prompt; never imply that Codex created, closed, or restarted the conversation itself.
+When the receiving agent will run in a new operator-started conversation, apply the conversation-continuity contract already selected by the reporting owner. Apply its stabilization gate and emit its copyable restart prompt; never imply that Codex created, closed, or restarted the conversation itself.
