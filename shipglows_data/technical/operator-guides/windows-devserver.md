@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "1.27.0"
+artifact_version: "1.28.0"
 project: ShipGlows
 created: "2026-08-11"
-updated: "2026-09-01"
+updated: "2026-09-04"
 status: reviewed
 source_skill: 300-sg-docs
 scope: windows-devserver-operator-guide
@@ -23,6 +23,7 @@ depends_on: []
 supersedes:
   - local/README_WINDOWS.md
 evidence:
+  - "Le replay du 2026-09-04 confirme que `shipglows update status` s'exécute dans le PowerShell géré et que `shipglows update runtime` reste accepté comme forme de compatibilité sans verrouiller `s.exe`."
   - "Le replay du 2026-09-01 confirme que la boîte à outils CLI machine génère un verrou mise limité à windows-x64 sans toucher aux lockfiles des projets."
   - "Le parcours Flutter Android du 2026-08-30 sélectionne un appareil explicite ou démarre l'AVD ShipGlows_API_36 avant une session live supervisée."
   - "Le parcours Flutter Windows du 2026-08-30 privilégie une session live supervisée et crée un raccourci Dev distinct des builds figés."
@@ -64,7 +65,7 @@ Si le diagnostic est `blocked`, le clone reste sur disque mais la commande écho
 
 ## Runtime PowerShell
 
-Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. La commande utilise le runtime PowerShell 7.6.5 possede par ShipGlows sans modifier l'installation systeme. La premiere installation complete en ligne peut acquerir l'archive epinglee. Le mode offline ne fonctionne qu'apres validation locale du runtime; sinon, reconnectez la machine et relancez l'installateur complet. Un echec SHA, archive, sonde, verrou ou corruption conserve le pointeur actif precedent.
+Lancez le DevServer avec `s` ou `shipglows-dev`; n'invoquez pas `shipglows-devserver.ps1` directement. Les commandes ciblées `shipglows update`, `shipglows update status` et `shipglows rename rio <nom>` passent elles aussi par le runtime PowerShell 7.6.5 géré par ShipGlows. L'ancienne forme `shipglows update runtime` reste acceptée et est normalisée vers la mise à jour canonique. N'utilisez pas `s update` lorsqu'une instance interactive de `s.exe` est encore ouverte, car Windows ne peut pas remplacer un exécutable en cours d'utilisation. La première installation complète en ligne peut acquérir l'archive épinglée. Le mode hors ligne ne fonctionne qu'après validation locale du runtime ; sinon, reconnectez la machine et relancez l'installateur complet. Un échec de SHA, d'archive, de sonde, de verrou ou une corruption conserve le pointeur actif précédent.
 
 ## 🎯 Options d'installation
 
