@@ -635,7 +635,9 @@ debug-connection failures receive one retry only after verified extinction.
 The ordinary attachment deadline remains bounded, while an explicit active
 Flutter build receives a separate ten-minute ceiling so a healthy cold Windows
 compile is not terminated at the ninety-second attachment boundary. Supervisor
-death still fails immediately during that extended build window. It debounces relevant `lib/**/*.dart` changes
+death still fails immediately during that extended build window. When the build
+finishes, the ordinary attachment deadline starts fresh so a long compile does
+not consume the VM Service connection window. It debounces relevant `lib/**/*.dart` changes
 for 500 ms and issues the allowlisted `app.restart` request; authenticated local
 IPC owns only reload, stop, and open operations. Command resolution prefers the
 active process `PATH`, then accepts only the complete non-reparse Flutter/Dart

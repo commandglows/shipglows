@@ -261,3 +261,5 @@ A second cold-start attempt reached Flutter compilation but was blocked by a cur
 ### Progress-aware cold-build follow-up
 
 The current ContentGlows source passed targeted Dart analysis. An installed-runtime start then reproduced a healthy `app.progress` build crossing the fixed 90-second deadline and exposed premature termination. With the source repair, the same managed Windows cold start continued beyond 90 seconds and reached `running` with a valid app ID and daemon; targeted stop subsequently proved zero residual Debug runners. Focused tests cover the extended active-build window and prompt supervisor-death detection. Installed-runtime cold start and reload remain pending protected-main integration.
+
+A subsequent regenerated ContentGlows build completed after the original 90-second boundary and exposed an immediate post-build attachment timeout. The focused regression now proves that finishing active build progress starts a fresh bounded VM Service attachment window.

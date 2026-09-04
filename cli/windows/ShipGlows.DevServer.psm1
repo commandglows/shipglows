@@ -1574,12 +1574,17 @@ function Wait-SgBrowserExtensionReady([string]$ProjectPath, [int]$Port, [int]$Ti
     return [pscustomobject]@{ Ready=$false; AppId=$null; ManifestPath=$null; Error='Browser extension readiness timed out before a fresh Manifest V3 package and HMR listener were available.' }
 }
 
+function Update-SgFlutterReadinessWindow([bool]$WasActiveProgress,[bool]$IsActiveProgress,[datetime]$Deadline,[int]$TimeoutSeconds,[datetime]$Now=(Get-Date)) {
+    if($WasActiveProgress-and-not$IsActiveProgress){$Deadline=$Now.AddSeconds([Math]::Max(0,$TimeoutSeconds))}
+    [pscustomobject]@{ActiveProgress=$IsActiveProgress;Deadline=$Deadline}
+}
+
 function Wait-SgFlutterSupervisorReady([string]$StatePath, [int]$TimeoutSeconds = 90, [object]$ProcessEntry = $null, [int]$ActiveProgressTimeoutSeconds = 600) {
     $deadline=(Get-Date).AddSeconds([Math]::Max(0,$TimeoutSeconds))
     $progressDeadline=(Get-Date).AddSeconds([Math]::Max($TimeoutSeconds,$ActiveProgressTimeoutSeconds))
     $activeProgress=$false
     do {
-        if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-Content -LiteralPath $StatePath -Raw|ConvertFrom-Json -ErrorAction Stop;if($state.status -eq 'running' -and $state.appId){return [pscustomobject]@{Ready=$true;AppId=[string]$state.appId;Error=$null;DaemonPid=[int]$state.daemonPid}};if($state.status -eq 'error'){return [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($state.lastError){Protect-SgDiagnosticText ([string]$state.lastError)}else{'Flutter supervisor failed.'});DaemonPid=[int]$state.daemonPid}};$activeProgress=[bool](($state.PSObject.Properties['progressActive']-and[bool]$state.progressActive)-or[string]$state.status-eq'building')}catch{}}
+        if(Test-Path -LiteralPath $StatePath -PathType Leaf){try{$state=Get-Content -LiteralPath $StatePath -Raw|ConvertFrom-Json -ErrorAction Stop;if($state.status -eq 'running' -and $state.appId){return [pscustomobject]@{Ready=$true;AppId=[string]$state.appId;Error=$null;DaemonPid=[int]$state.daemonPid}};if($state.status -eq 'error'){return [pscustomobject]@{Ready=$false;AppId=$null;Error=$(if($state.lastError){Protect-SgDiagnosticText ([string]$state.lastError)}else{'Flutter supervisor failed.'});DaemonPid=[int]$state.daemonPid}};$currentProgress=[bool](($state.PSObject.Properties['progressActive']-and[bool]$state.progressActive)-or[string]$state.status-eq'building');$timing=Update-SgFlutterReadinessWindow $activeProgress $currentProgress $deadline $TimeoutSeconds;$deadline=$timing.Deadline;$activeProgress=$timing.ActiveProgress}catch{}}
         if($ProcessEntry-and-not(Test-SgProcessIdentity $ProcessEntry)){return [pscustomobject]@{Ready=$false;AppId=$null;Error='Flutter supervisor exited during startup.';DaemonPid=0}}
         $now=Get-Date;if(((-not$activeProgress)-and$now-ge$deadline)-or($activeProgress-and$now-ge$progressDeadline)){break};Start-Sleep -Milliseconds 250
     }while($true)
