@@ -19,7 +19,7 @@ try{
         $script:killed=@();function Stop-SgProcessTree([int]$RootPid){$script:killed+=$RootPid}
         if(-not(Stop-SgOwnedFlutterNative $entry)-or$script:killed.Count-ne1-or$script:killed[0]-ne101){throw 'Owned Flutter Windows runner was not stopped exactly once.'}
 
-        $script:entry=[pscustomobject]@{name='contentglows-app';kind='flutter-web';path=$project;launchPath=$project;status='running';pid=10;startTimeUtc='2026-09-04T16:00:00Z';lastError=$null;flutterLaunchDirectory='C:\runtime\flutter-launch\0123456789abcdef0123456789abcdef';reservationToken=$null;reservationTimeUtc=$null}
+        $script:entry=[pscustomobject]@{name='contentglows-app';kind='flutter-web';flutterDeviceId='windows';path=$project;launchPath=$project;status='running';pid=10;startTimeUtc='2026-09-04T16:00:00Z';lastError=$null;flutterLaunchDirectory='C:\runtime\flutter-launch\0123456789abcdef0123456789abcdef';reservationToken=$null;reservationTimeUtc=$null}
         function Invoke-SgRegistryMutation {param($Config,$Mutation);$registry=[pscustomobject]@{projects=@($script:entry)};& $Mutation $registry;return $registry}
         function Get-SgProcessSnapshotMap {@{10=[pscustomobject]@{Pid=10}}}
         function Test-SgProcessIdentity {$true}
@@ -29,6 +29,14 @@ try{
         function Get-SgFlutterSupervisorState {[pscustomobject]@{status='running';lastError=$null;appId='app-1';daemonPid=99}}
         $runningRegistry=Reconcile-SgRegistry ([pscustomobject]@{})
         if($runningRegistry.projects[0].status-ne'running'-or$runningRegistry.projects[0].flutterStartupState-ne'running'-or$runningRegistry.projects[0].flutterAppId-ne'app-1'-or$runningRegistry.projects[0].flutterDaemonPid-ne99){throw 'A ready Flutter supervisor was not reconciled as running.'}
+        function Get-SgOwnedFlutterNativePids {return @()}
+        $missingRunnerRegistry=Reconcile-SgRegistry ([pscustomobject]@{})
+        if($missingRunnerRegistry.projects[0].status-ne'error'-or$missingRunnerRegistry.projects[0].lastError-notmatch'runner'){throw 'A missing Windows runner did not invalidate stale supervisor readiness.'}
+        function Get-SgOwnedFlutterListenerPids {return @()};function Get-SgOwnedFlutterBrowserPids {return @()}
+        function Test-SgProcessIdentity {$false}
+        $script:entry.status='error';$script:entry.lastError='build failed'
+        $deadErrorRegistry=Reconcile-SgRegistry ([pscustomobject]@{})
+        if($deadErrorRegistry.projects[0].status-ne'error'-or$deadErrorRegistry.projects[0].flutterStartupState-ne'error'-or$deadErrorRegistry.projects[0].lastError-ne'build failed'-or$deadErrorRegistry.projects[0].pid-ne0){throw 'Dead-process reconciliation erased a durable Flutter startup error or retained its stale PID.'}
         if(-not(Test-SgFlutterStartupRetryable 'Error waiting for a debug connection: The log reader stopped unexpectedly.')-or(Test-SgFlutterStartupRetryable 'CMake compilation failed.')){throw 'Flutter startup retry classification is not restricted to the transient debug connection signature.'}
         Remove-Item -LiteralPath $project -Recurse -Force
     }

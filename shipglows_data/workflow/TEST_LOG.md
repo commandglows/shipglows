@@ -253,3 +253,7 @@
 - Bug pointer: BUG-2026-09-04-001 -> `shipglows_data/workflow/bugs/BUG-2026-09-04-001.md`
 - Evidence pointer: protected supervisor state and Flutter machine-event logs under the active ShipGlows launch identity
 - Follow-up: merge through the protected main gate, synchronize the installed runtime, and repeat the proof through `s`
+
+### Follow-up attempt
+
+A second cold-start attempt reached Flutter compilation but was blocked by a current ContentGlows type error in `windows_capture_studio.dart`. The DevServer preserved the bounded compiler diagnostic and no Debug runner survived. No ContentGlows file was changed as part of this ShipGlows repair.
