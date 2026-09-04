@@ -59,7 +59,7 @@ try {
     $entrypoint = Get-Content -Raw ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\cli\windows\shipglows-devserver.ps1')))
     if (-not $entrypoint.Contains("'stop' { if (`$ProjectPath) { [void](Stop-SgProject `$config `$ProjectPath)")) { throw 'Direct stop does not suppress the internal Boolean result.' }
     if (-not $entrypoint.Contains('function Invoke-SgRequiredStart') -or -not $entrypoint.Contains("`$result.status -eq 'error'") -or -not $entrypoint.Contains('throw $reason')) { throw 'One-shot startup errors are not converted into a non-zero CLI failure.' }
-    if (-not $entrypoint.Contains("'reload' {") -or -not $entrypoint.Contains("Invoke-SgFlutterSupervisorCommand `$entry 'reload' 15")) { throw 'The explicit managed Flutter reload command is not dispatched.' }
+    if (-not $entrypoint.Contains("'reload' {") -or -not $entrypoint.Contains('Invoke-SgFlutterProjectReload $config $ProjectPath 10') -or -not $entrypoint.Contains("`$reload.Status-eq'succeeded'")) { throw 'The explicit managed Flutter reload command is not dispatched through the validated project wrapper.' }
     $tokens=$null;$errors=$null
     $ast=[Management.Automation.Language.Parser]::ParseInput($entrypoint,[ref]$tokens,[ref]$errors)
     $startFunction=$ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Invoke-SgRequiredStart'},$true)
