@@ -267,3 +267,7 @@ A subsequent regenerated ContentGlows build completed after the original 90-seco
 Repeated installed attempts then exposed a late native runner appearing after the first empty process snapshot and locking the next link with `LNK1168`. The focused cleanup regression now injects that late appearance and proves it is reaped before a stable quiet period completes.
 
 The installed command surface also exposed that `s reload -ProjectPath <path>` was no longer routed even though authenticated supervisor reload remained available. The explicit command is restored with running-session validation and a focused dispatch contract.
+
+### Final installed-runtime verification
+
+After merging and installing the stable-extinction and reload-command repairs, ContentGlows started from zero Debug runners and reached registry `running` with `flutterHeadless=false`, a valid app ID, a Flutter daemon PID, and no error. Installed `s reload -ProjectPath` succeeded and the expected single Debug runner remained attached. BUG-2026-09-04-001 is closed with monitored recurrence risk.
