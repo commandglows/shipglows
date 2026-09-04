@@ -1,5 +1,7 @@
 # ShipGlows Plugin
 
+ShipGlows is source-available under the [PolyForm Strict License 1.0.0](./LICENSE.md). Permitted personal noncommercial use remains free; modification, redistribution, and uses outside that grant require a separate written agreement. Commercial licensing: [partner@shipglows.com](mailto:partner@shipglows.com).
+
 ShipGlows is the main local Codex plugin for packaging ShipGlows as a user-facing workflow layer. The installed plugin presents one router and thirteen métiers; numeric skills remain implementation and packaging internals.
 
 ## Public Surface

@@ -1,7 +1,7 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.34.0"
+artifact_version: "0.35.0"
 project: "ShipGlows"
 created: "2026-04-25"
 updated: "2026-09-04"
@@ -88,6 +88,8 @@ next_step: "Test whether the business-framework category is understood without i
 ---
 
 # ShipGlows
+
+> **Source-available, free for uses permitted by the PolyForm Strict License 1.0.0.** The license permits defined noncommercial uses but does not grant permission to modify or redistribute the software. Commercial, revenue-generating, hosted-service, resale, and derivative-product uses require a [separate written commercial license](./COMMERCIAL-LICENSE.md). The ShipGlows name and brand remain governed by the [trademark policy](./TRADEMARKS.md).
 
 > Public-site ownership: the canonical Astro site moved to `/home/claude/shipglows_app/site` on 2026-08-02. The former `shipglows-site/` path in this repository is retired and must not be recreated; remaining references to it are migration debt, not source authority.
 
