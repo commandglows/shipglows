@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "2.9.0"
+artifact_version: "2.10.0"
 project: ShipGlows
 created: "2026-05-04"
-updated: "2026-08-27"
+updated: "2026-09-04"
 status: reviewed
 source_skill: 900-shipglows-core
 scope: skill-launch-cheatsheet
@@ -26,6 +26,7 @@ depends_on: []
 supersedes:
   - docs/skill-launch-cheatsheet.md
 evidence:
+  - "Operator correction 2026-09-04: public-owner clarification follows the missing decision's shape; numbering is reserved for genuinely enumerable alternatives."
   - "Métier-first public hierarchy and autonomous execution specification."
   - "Current runtime skill inventory and operator collaboration contracts."
   - "Operator decision 2026-08-16: expose current-project hygiene and the safe hygiene git alias."
@@ -203,8 +204,10 @@ performance, and proof gates.
 Each public métier follows the same operator contract:
 
 1. Inspect existing project, product, surface, and feature evidence first.
-2. Ask one numbered question only when a missing business, scope, safety, or
-   external-effect decision would change the work.
+2. Ask one focused question only when missing operator-owned business, scope,
+   safety, or external-effect truth would change the work. Use numbered options
+   only when the alternatives are genuinely enumerable; otherwise accept a
+   natural-language answer.
 3. Do not ask the operator to choose code structure, references, lifecycle
    engines, validation commands, or subagent topology.
 4. Once a fresh agent could execute safely, continue A-to-Z under the owner

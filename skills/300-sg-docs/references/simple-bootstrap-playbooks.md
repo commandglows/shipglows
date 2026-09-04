@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-09-02"
+updated: "2026-09-04"
 status: active
 source_skill: 300-sg-docs
 scope: 300-sg-docs-simple-bootstrap-playbooks
@@ -19,6 +19,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "Operator correction 2026-09-04: bootstrap questions follow the missing truth's shape; numbering is reserved for genuinely enumerable alternatives."
   - "Extracted from the former eager mode playbook during wave-3 compaction."
   - "Operator decision 2026-09-02: bootstrap and ordinary documentation maintenance must create or refresh a root PITCH.md identity and navigation card."
 next_step: "/103-sg-verify progressive skill activation compaction wave 3"
@@ -32,7 +33,7 @@ Use only the selected mode below. Apply the always-on topology preflight from `S
 
 Detect project type, stack, source roots, governance root, docs and trackers. For an empty or near-empty repo, use the bootstrap templates selected by the activation gate and create the smallest truthful starter set: `AGENT.md`, a root `PITCH.md`, a bootstrap README, technical README/map, and workflow tasks. Create editorial roadmap only when editorial surfaces apply.
 
-Missing framing is recoverable. Ask one numbered question at a time about project intent, target surface, then primary runtime; continue after each answer. Preserve observed facts, mark unknowns, and never fabricate features or stack.
+Missing framing is recoverable. Inspect first, then ask one focused question at a time only for operator-owned project intent, target surface, or primary-runtime truth that the evidence cannot resolve. Use numbered options only when the alternatives are genuinely enumerable; accept natural-language framing when the missing truth is open. Continue after each answer. Preserve observed facts, mark unknowns, and never fabricate features or stack.
 
 Build `PITCH.md` from evidenced business/product truth using `templates/PITCH.md`. Keep it concise, include a dated current-state summary and navigation pointers, and never copy `delivery_posture`, runtime liveness, deployment state, or tracker tasks into it as owned truth.
 

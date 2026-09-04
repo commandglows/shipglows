@@ -1,10 +1,10 @@
 ---
 artifact: documentation
 metadata_schema_version: "1.0"
-artifact_version: "0.33.0"
+artifact_version: "0.34.0"
 project: "ShipGlows"
 created: "2026-04-25"
-updated: "2026-09-02"
+updated: "2026-09-04"
 status: draft
 source_skill: 300-sg-docs
 scope: readme
@@ -44,6 +44,7 @@ linked_systems:
 depends_on: []
 supersedes: []
 evidence:
+  - "2026-09-04 decision-first alignment: operator questions follow the missing truth's shape, with numbered options only for genuinely enumerable alternatives."
   - "The 2026-09-02 Windows CLI repair replaces the CMD/PowerShell-first bare menu with compiled s.exe and sg.exe launchers under an end-to-end startup budget."
   - "2026-09-01: the native Windows DevServer detects Obsidian plugins before generic Vite and synchronizes fresh artifacts only to an explicitly configured vault."
   - "2026-08-30 Flutter live-development update: native Windows and Android use supervised registry-selected targets and reserve standalone builds for release or package-sensitive checks."
@@ -62,7 +63,7 @@ evidence:
   - "Added skills/references/master-delegation-semantics.md as the shared master/orchestrator delegation doctrine."
   - "Added skills/references/master-workflow-lifecycle.md as the shared lifecycle skeleton and clarified bug files as source of truth."
   - "Documented 000-shipglows <instruction> as the recommended non-technical router before direct sg-* expert entrypoints."
-  - "Documented the shared question/default contract for numbered questions and context-safe defaults."
+  - "Documented the shared question/default contract for decision-shaped questions and context-safe defaults."
   - "Added 006-sg-design as the master design lifecycle entrypoint."
   - "Renamed 008-sg-customer as the customer activation lifecycle for first-success paths, setup guidance, recoverable states, and proof routing."
   - "Added 600-sg-local-cloud-sync as the local-first data promotion, merge, sync UX, and security contract skill."
@@ -992,9 +993,11 @@ project -> product -> surface -> feature
 This matters in multi-product projects: it does not assume the repository has
 only one product or that a request concerns every surface.
 
-The router inspects available evidence first. It asks one numbered question
-only when a missing business, scope, safety, or external-effect decision would
-materially change the work. Once the intent is clear enough for a fresh agent
+The router inspects available evidence first. It asks one focused question only
+when missing operator-owned business, scope, safety, or external-effect truth
+would materially change the work. It uses numbered options only when the real
+alternatives are genuinely enumerable; open product truth accepts a natural-
+language answer. Once the intent is clear enough for a fresh agent
 to execute safely, the chosen métier owns the outcome from A to Z: planning or
 specification, implementation, appropriate proof, documentation reflection,
 and closure. It does not hand the operator a list of internal commands.

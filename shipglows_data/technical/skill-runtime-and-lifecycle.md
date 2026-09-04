@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.42.0"
+artifact_version: "2.43.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-03"
+updated: "2026-09-04"
 status: reviewed
 source_skill: 102-sg-start
 scope: skill-runtime-and-lifecycle
@@ -64,7 +64,7 @@ linked_systems:
   - docs/editorial/
 depends_on:
   - artifact: "shipglows_data/workflow/playbooks/spec-driven-workflow.md"
-    artifact_version: "0.22.0"
+    artifact_version: "0.31.0"
     required_status: draft
   - artifact: "skills/references/technical-docs-corpus.md"
     artifact_version: "1.3.0"
@@ -74,6 +74,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-09-04: decision-first doctrine resolves the predicate and evidence before rendering questions, reports, continuity, helper defaults, or launch scope; numeric questions are reserved for genuinely enumerable alternatives."
   - "2026-09-01: canonical business context now owns delivery posture; context and Git resolve it deterministically, ask when missing, and distinguish product publication from runtime live state."
   - "2026-09-01: product and experience questions are proactive partnership, purely technical questions and validation requests are exceptional, and a question answer never expands mutation authority."
   - "2026-09-01: ordinary Git/GitHub stewardship is autonomous and status-driven: non-live projects integrate on main, live projects on canonical dev, with continual safe branch/worktree convergence and no Git validation prompts."
@@ -210,8 +211,10 @@ license to alter every product or surface.
 The owner follows a progressive clarification gate:
 
 1. Inspect relevant evidence and established contracts.
-2. Ask one numbered question only if a missing operator-owned business, scope,
-   safety, permission, or external-effect decision changes the work.
+2. Ask one focused question only if missing operator-owned business, scope,
+   safety, permission, or external-effect truth changes the work. Use numbered
+   options only when the alternatives are genuinely enumerable; otherwise
+   accept a natural-language answer.
 3. Never ask the operator to select an engine, playbook, implementation
    technique, validation command, or handoff topology.
 4. Once a fresh agent could execute safely, continue from specification or a
@@ -331,7 +334,9 @@ and audit handoffs; it does not also load the blocked/audit leaf.
 Within helper/pilotage surfaces, keep the first-screen distinction explicit:
 
 - `302-sg-help` explains workflow, doctrine, and skill choice; its default catalogue is public, while `expert` exposes the internal engine list.
-- `303-sg-resume` summarizes the visible conversation only.
+- `303-sg-resume` identifies non-disposable information that still exists only
+  in the visible conversation; it does not judge context reliability for a
+  proposed next task.
 - `706-continue` advances the currently resolved work item from durable local evidence.
 - `000-shipglows` routes or answers directly at the main entrypoint.
 - `301-sg-context` primes minimum sufficient, qualified context before known work. It uses contextual MCP operations only when callable and otherwise falls back to focused native search, reads, Git, environment, and canonical-source evidence.
@@ -509,7 +514,8 @@ Primary router flow:
 ```text
 shipglows <instruction>
   -> repository-backed project -> product -> surface -> feature resolution
-  -> one numbered question only when an operator-owned decision is material
+  -> one focused question only when operator-owned truth is materially missing
+  -> numbered options only when the alternatives are genuinely enumerable
   -> direct main-thread handoff to one public métier owner
   -> selected owner orchestrates numeric engines, proof, docs reflection, and closure
 ```
@@ -623,7 +629,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 ## Invariants
 
 - Lifecycle skills trace into exactly one chantier spec when one is identified.
-- `000-shipglows <instruction>` is a router, not a hidden master runner: it answers pure conversation directly, asks one numbered question when ambiguous, and otherwise hands the main thread to the selected skill. Its global `auto` mode hands off to `708-sg-auto`; registered execution posture tags are applied after owner/mode resolution.
+- `000-shipglows <instruction>` is a router, not a hidden master runner: it answers pure conversation directly, asks one focused question only for materially missing operator-owned truth, uses numbered options only for genuinely enumerable alternatives, and otherwise hands the main thread to the selected skill. Its global `auto` mode hands off to `708-sg-auto`; registered execution posture tags are applied after owner/mode resolution.
 - `#local`, `#nolocal`, and `#ci` are transversal execution posture tags, not métier modes or authority grants. `#ci` implies `#nolocal`; `#local` conflicts with both; ordinary focus tags remain routing cues.
 - `708-sg-auto` is the internal owner for public `shipglows auto`. It selects several evidence-backed candidates when useful, ranks durable value per wall-clock minute after safety, authority, readiness, claim, and dirty-ownership gates, and always applies `no-local-execution-policy.md` implicitly.
 - Auto freezes the launch Git/managed root for the parent and every subagent. Concurrent conversations use ignored root-local claims to avoid duplicate candidates and overlapping paths. Subagents are authorized and recommended only when independent useful missions improve time, isolation, or coverage.
@@ -640,7 +646,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - Master/orchestrator skills load `skills/references/master-workflow-lifecycle.md` before resolving lifecycle flow. The shared skeleton is intake, work item resolution, readiness, model/topology routing, owner-skill execution, validation/evidence, verification, post-verify closure, and bounded ship/deploy/release routing.
 - Skills load `skills/references/decision-quality-contract.md` before quality-sensitive routing, model/fallback choice, implementation, fix, verification, or recommendations. Completion requires industrial-grade quality proportional to consequence; merely functional, unintentionally generic for the accepted product, fragile, cluttered, or unresolved provisional work presented as final remains partial. Brand surfaces use award-caliber craft as a benchmark, while operational interfaces stay clarity-first. Institutional claims require a framework-specific scoped audit against named requirements and direct evidence.
 - Skills should load `skills/references/question-contract.md` before user-facing questions. They ask only when the answer changes route, scope, risk, validation, closure, ship posture, public claims, or technical/product/editorial direction; otherwise they proceed by the best-practice default only when it is clear, low-risk, reversible, context-compatible, and verifiable.
-- Skills should ask useful product and experience questions readily whenever operator-owned perspective can improve the result, including non-blocking questions. They must not use the operator as a substitute for technical inspection: purely technical questions and validation requests are exceptional, and an answer never expands mutation authority by implication.
+- Skills may ask a useful product or experience question when operator-owned perspective materially sharpens the outcome and the answer is needed now. They must not manufacture a question merely because a prompt slot exists or use the operator as a substitute for technical inspection: purely technical questions and validation requests are exceptional, and an answer never expands mutation authority by implication.
 - Delivery-sensitive context reads `delivery_posture` only from `shipglows_data/business/business.md`. The bounded resolver derives `main` or canonical `dev`; a missing value produces one product question and exact canonical persistence. Pitch, `ENVIRONMENT.md`, registry process state, `CLAUDE.md`, and `SHIPGLOWS.md` are never competing posture authorities.
 - When skill bodies are edited or compacted, treat top-level `SKILL.md` as the activation contract. Keep required section labels (`Canonical Paths`, `Trace category`, `Process role`, `Report Modes`) and local non-negotiables there; move only supporting detail to references.
 - Bug work uses one Markdown bug file under `shipglows_data/workflow/bugs/*.md` as the durable source of truth. `shipglows_data/workflow/BUGS.md`, when present, is an optional compact/generated/triage view and must not override the bug file.
@@ -676,7 +682,7 @@ The source-derived corpus resolves from `${SHIPGLOWS_INSPIRATION_LIBRARY_DIR:-${
 - `008-sg-customer` owns customer contracts through four exact modes: `audit`, `flow`, `onboarding`, and `recovery`; implementation, visual design, docs/content, browser proof, manual QA, and auth diagnosis still run through `001-sg-build`, `006-sg-design`, `300-sg-docs`/`007-sg-content`, `108-sg-browser`, `107-sg-test`, and `109-sg-auth-debug` when needed.
 - `900-shipglows-core build` owns internal DX-system maintenance orchestration. It routes skill/doctrine targets to skill maintenance, CLI/DevServer/TUI/installer targets to DX runtime maintenance, and multi-plane targets to system coherence; fuzzy material intent routes through exploration/spec readiness before mutation.
 - A release is not considered verified from push success, provider success, or a bare `200 OK` alone.
-- User-facing reports default to `report=user`: concise, outcome-first, matched to the user's active language, without file paths, file names, or technical file links unless the operator must act on the exact artifact. After approval, substantive chantiers open once with `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`, and `🧠 CONTEXTE`. Successful closure reports use `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, and `🧠 CONTEXTE`; the context line visibly classifies carried context as sufficient, restored by targeted refresh, or insufficiently reliable with a stabilized operator-started handoff. Compact evidence stays on one line separated by ` · `. Cards reuse already-required work: one meaningful proof may suffice, prose stays to one sentence per block, and no extra check, research, documentation, or content is created solely for reporting. Detailed `report=agent` handoff must be explicit.
+- User-facing reports default to `report=user`: concise, outcome-first, matched to the user's active language, without file paths, file names, or technical file links unless the operator must act on the exact artifact. After approval, substantive chantiers open once with `✨ OBJECTIF`, `📐 PÉRIMÈTRE`, `🧪 PREUVES ATTENDUES`, `📖 DOCUMENTATION PRÉVUE`, and `🧠 CONTEXTE`. Successful closure reports use `✨ RÉSULTAT`, `🧪 PREUVES`, `📖 DOCUMENTATION`, `✏️ ÉDITORIAL`, `📰 CHANGELOG`, `📦 LIVRAISON`, and `🧠 CONTEXTE`. Every row renders an independently resolved value rather than inheriting the example's status. The chantier verdict is resolved before mandatory `🧭 SUITE`; a complete chantier may still point to one grounded business improvement without being reopened. The context line answers only whether carried context is reliable enough for that proposed next task; recap separately owns whether the thread still contains non-disposable information. Compact evidence stays on one line separated by ` · `. Cards reuse already-required work: one meaningful proof may suffice, prose stays to one sentence per block, and no extra check, research, documentation, or content is created solely for reporting. Detailed `report=agent` handoff must be explicit.
 - `001-sg-build` planning questions are business decision briefs, not bare technical prompts: they name the problem root, business stakes, practical options, and recommended best-practice answer before asking for a decision.
 - Audit skills still report findings first, but default user reports should summarize top findings, proof gaps, chantier potential, and next action; full matrices and domain checklists belong in `report=agent`.
 
