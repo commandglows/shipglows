@@ -22,7 +22,7 @@ depends_on: []
 supersedes: []
 evidence:
   - "Operator approved the Windows inconsistency repair: oui vazy. Preserve existing work."
-next_step: "Validate source behavior, then expose the separate installed-runtime boundary."
+next_step: "Review branch integration; Windows branch installation is verified."
 ---
 
 # Windows Linked Skills Status
@@ -67,3 +67,34 @@ local-only delivery boundary above; no direct installed-runtime patch is allowed
 - Source Python status reports linked, both routers managed, and the intended
   checkout root. Installed launcher activation remains pending; no runtime files,
   commits or pushes were changed by this repair.
+
+## Published branch and installed proof, 2026-09-05
+
+The operator-approved combined delivery is commit
+`8d4d89422fc2216db0a8541dfec7fbd391a8dbfb` on
+`codex/progressive-skills-windows-launcher`, pushed to origin. It includes all
+three local progressive-loading passes and the Windows launcher correction.
+
+Current verification: 190 Python tests passed (178 affected tests and 12 profile
+compatibility tests), ten scenario budgets within bounds, 26 governed Markdown
+files valid, staged whitespace check passed, and both focused native command
+suites passed. The full Bash Windows contract was attempted but is not green:
+registry reconciliation exceeded its 800 ms threshold (944-1005 ms). The same
+test passed in isolation on baseline and current source; every source input of
+that performance test is unchanged. No threshold was weakened. Later checks
+after this Bash stop were not certified by that run.
+
+The official full bootstrap from the published branch completed with exit 0,
+using InstallSurface runtime to retain the existing linked development channel.
+Its installation receipt records the exact commit above. Both staged and active
+Windows launcher contents match source after line-ending normalization.
+Installed `shipglows.cmd skills status` and `shipglows.cmd update skills` both
+passed: checked=30, ok=30, repaired=0, blocked=0. The development-channel root is
+unchanged. No running agent context reload is claimed.
+
+Bootstrap side effects include Playwright convergence and normal environment,
+shortcut and project-registry synchronization. Optional WSL/Turso diagnosis and
+Tauri Android preparation remain pending; no Android device is connected.
+This is a branch installation, not integration into main or a public release.
+Documentation is updated; existing public plugin promises are unaffected.
+Changelog classification: internal-only maintainer workflow and loading change.
