@@ -19,7 +19,7 @@ try{
         $script:killed=@();function Stop-SgProcessTree([int]$RootPid){$script:killed+=$RootPid}
         if(-not(Stop-SgOwnedFlutterNative $entry)-or$script:killed.Count-ne1-or$script:killed[0]-ne101){throw 'Owned Flutter Windows runner was not stopped exactly once.'}
 
-        $script:entry=[pscustomobject]@{name='contentglows-app';kind='flutter-web';flutterDeviceId='windows';path=$project;launchPath=$project;status='running';pid=10;startTimeUtc='2026-09-04T16:00:00Z';lastError=$null;flutterLaunchDirectory='C:\runtime\flutter-launch\0123456789abcdef0123456789abcdef';reservationToken=$null;reservationTimeUtc=$null}
+        $script:entry=[pscustomobject]@{name='contentglows-app';kind='flutter-web';flutterDeviceId='windows';path=$project;launchPath=$project;status='running';pid=10;lastError=$null;flutterLaunchDirectory='C:\runtime\flutter-launch\0123456789abcdef0123456789abcdef';reservationToken=$null;reservationTimeUtc=$null}
         function Invoke-SgRegistryMutation {param($Config,$Mutation);$registry=[pscustomobject]@{projects=@($script:entry)};& $Mutation $registry;return $registry}
         function Get-SgProcessSnapshotMap {@{10=[pscustomobject]@{Pid=10}}}
         function Test-SgProcessIdentity {$true}

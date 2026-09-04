@@ -1684,7 +1684,7 @@ function Reconcile-SgRegistry([object]$Config) {
                 $flutterResidual=$entry.kind-eq'flutter-web'-and(@(Get-SgOwnedFlutterNativePids $entry).Count-gt0-or@(Get-SgOwnedFlutterListenerPids $entry).Count-gt0-or@(Get-SgOwnedFlutterBrowserPids $entry).Count-gt0)
                 if($flutterResidual){$entry.status='error';$entry|Add-Member -NotePropertyName lastError -NotePropertyValue 'Owned Flutter process remains after supervisor exit.' -Force}elseif($entry.status-ne'error'){$entry.status = 'stopped'}
                 if($entry.kind-eq'flutter-web'){$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$entry.status) -Force}
-                if(-not$flutterResidual){$entry.pid=0;$entry.startTimeUtc=$null}
+                if(-not$flutterResidual){$entry.pid=0;$entry|Add-Member -NotePropertyName startTimeUtc -NotePropertyValue $null -Force}
                 if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
                 if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
             }
