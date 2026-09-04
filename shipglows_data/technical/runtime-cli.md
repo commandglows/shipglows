@@ -703,7 +703,11 @@ IPC; it never substitutes stop/start or a native rebuild. `s open` restarts that
 Chrome while preserving debug/hot-reload support. The advanced
 `SHIPGLOWS_FLUTTER_DEVICE=web-server` policy retains the manual Dart Debug
 browser workflow. A bounded per-launch supervisor retains Flutter machine stdin
-and stdout after the CLI exits. It debounces relevant `lib/**/*.dart` changes
+and stdout after the CLI exits. It records the last protocol event, Flutter exit
+code and exit reason, and registry reconciliation requires its `running` state
+instead of trusting a live wrapper alone. On Windows desktop, cleanup recognizes
+only the exact current-project Debug runner declared by `BINARY_NAME`; transient
+debug-connection failures receive one retry only after verified extinction. It debounces relevant `lib/**/*.dart` changes
 for 500 ms and issues the allowlisted `app.restart` request; authenticated local
 IPC owns only reload, stop, and open operations. Command resolution prefers the
 active process `PATH`, then accepts only the complete non-reparse Flutter/Dart
