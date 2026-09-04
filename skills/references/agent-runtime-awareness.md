@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "3.8.0"
+artifact_version: "3.9.0"
 project: ShipGlows
 created: "2026-08-13"
-updated: "2026-08-30"
+updated: "2026-09-04"
 status: active
 source_skill: 900-shipglows-core
 scope: agent-runtime-awareness
@@ -14,6 +14,8 @@ risk_level: medium
 security_impact: none
 docs_impact: yes
 linked_systems:
+  - tools/agent_runtime_envelope.py
+  - tools/test_agent_runtime_envelope.py
   - cli/windows/ShipGlows.DevServer.psm1
   - cli/windows/install-devserver.ps1
   - cli/windows/ShipGlows.AgentInstructions.psm1
@@ -34,6 +36,7 @@ depends_on:
     required_status: active
 supersedes: []
 evidence:
+  - "2026-09-04: a Rio-hosted standalone Codex CLI exposed the Computer Use skill and Node REPL but no native pipe; process presence and discovery did not prove Desktop transport reachability."
   - "The Windows CLI publishes a bounded shipglows.cli-capabilities.v1 snapshot that conversations may inspect without starting the CLI."
   - "The Windows installer writes the global development environment file."
   - "Each managed project exposes its durable assigned URL in a visible, versioned ENVIRONMENT.md file."
@@ -46,12 +49,28 @@ next_step: "/103-sg-verify Windows runtime awareness"
 
 # Agent Runtime Awareness
 
+## Execution Envelope
+
+Every `$shipglows context` report begins by resolving the current **execution envelope**. When the read-only shell is callable, run `$SHIPGLOWS_ROOT/tools/agent_runtime_envelope.py --format json`; otherwise derive only fields supported by current-turn evidence and retain `unknown` explicitly. Report:
+
+- operating system;
+- agent surface, such as `codex-desktop`, `codex-cli`, IDE, cloud, or unknown;
+- terminal host, such as Rio, Windows Terminal, VS Code, Codex Desktop, or unknown;
+- session location: local, remote, WSL, CI, or unknown;
+- machine kind: physical-or-undetected, virtual-machine, container, or unknown.
+
+Process names are evidence, not capability proof. A running `codex.exe` launched through Node from Rio or another terminal is a **standalone Codex CLI**, not Codex Desktop. A packaged Desktop ancestor is required before classifying the session as Desktop-hosted. Never infer a VM or local session merely from Windows being installed.
+
+Computer Use has an additional transport boundary. Keep `plugin installed`, `skill discovered`, `Node REPL exposed`, `native transport reachable`, and `safe probe succeeded` as separate facts. A standalone Codex CLI can expose the skill and `@oai/sky` while the Desktop native pipe is absent. In that case classify Computer Use as `failed — native transport not provided by this agent surface`; restarting the same CLI or terminal is not a recovery. The supported recovery is to run the GUI-dependent task from Codex Desktop, where the Computer Use server and skill toggles can create the native pipe, or to select another task-appropriate proof surface. Even in Codex Desktop, report only `expected-but-must-probe` until a safe call such as `list_apps` succeeds.
+
 Before work depends on a local server or runtime-specific tool on Windows:
 
 1. Read `%USERPROFILE%\.shipglows\environment.md` for the global development environment.
-2. Resolve the registered project root from the current directory and read `<project-root>\ENVIRONMENT.md` for its durable ShipGlows-assigned URL.
+2. Resolve the registered project and **managed surface** from the current directory and requested target. Read the selected entry's `launchPath\ENVIRONMENT.md` when present; otherwise read its `rootPath\ENVIRONMENT.md`. Do not claim that the project lacks `ENVIRONMENT.md` when the selected managed surface owns one.
 3. Read the matching entry in `%LOCALAPPDATA%\ShipGlows\DevServer\registry.json` for live `running`, `starting`, `stopped`, or `error` status.
 4. Use the assigned URL only while that registry entry is `running` or `starting`.
+
+The registry entry's current `status` is authoritative for live state. `flutterStartupState`, retained daemon IDs, PIDs, start times, cached observations, and earlier conversation reports are supporting evidence only. They never override `status: stopped` or `status: error`. Re-read the matching registry entry immediately before a runtime-dependent verdict and after any start, stop, restart, reload, failed probe, or contradictory observation.
 
 Do not derive the URL from `package.json`, framework defaults such as Astro/Vite `4321`, a remembered port, or another project. `.shipglows.env` remains the optional committed runtime-policy file; it is not the environment summary or live-state authority.
 
@@ -143,13 +162,18 @@ Use these exact state meanings:
 - `installed`: the executable/runtime evidence exists;
 - `configured`: an integration entry exists and passed its configuration verification;
 - `discovered`: the current host exposes the tool directly or through its deferred/searchable catalog;
+- `transport reachable`: the native pipe, socket, browser service, MCP connection, or equivalent provider channel accepted a safe connection;
 - `callable`: a safe probe or requested call succeeded in this turn;
 - `failed`: discovery succeeded but the call failed; retain the exact runtime error;
 - `not exposed`: configuration is known but neither direct nor deferred discovery found a callable surface.
 
 Absence from the first visible tool list is not proof of `not exposed`. If Chromium is installed and the Playwright MCP is configured but remains undiscovered after all host-supported discovery, report `Playwright configuré, outil non exposé dans ce tour`; never call Python, Chromium, or Playwright absent solely because no matching tool was visible initially.
 
-If a source is missing or contradicts another source, stop only the dependent action and report the mismatch. Do not launch a second server to guess the URL. Durable assignment comes from `ENVIRONMENT.md`; live state comes from the registry.
+## Targeted Refresh And Recovery
+
+An observed contradiction, runtime state transition, native pipe/socket failure, stale snapshot, missing selected-surface file, or failed safe probe invalidates the dependent claims. Perform a **targeted refresh** of the execution envelope, selected managed surface, matching registry entry, and affected tool transport before reporting; do not reload unrelated repository context. If the refreshed evidence still conflicts, stop only the dependent action and report the exact layers and values.
+
+Exhaust safe read-only diagnosis before returning work to the operator. Never use a vague restart instruction such as "restart Codex" or "reactivate the connector". Name the exact host or service that owns recovery, explain why that action can recreate the missing transport, and do not recommend restarting a standalone Codex CLI when the required native pipe belongs to Codex Desktop. Do not launch a second server to guess the URL. Durable assignment comes from the selected managed surface's `ENVIRONMENT.md`; live state comes from the registry.
 
 Operator redirect:
 

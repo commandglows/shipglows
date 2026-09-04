@@ -240,3 +240,34 @@
 - Result summary: PRs 34, 35, and 36 passed their exact-head required gates, merged through protected `main`, and passed post-merge gates. The canonical runtime reached merge commit `67c6688` with 68/68 skill links valid. Six clean, unused, ancestry-proven worktrees and local branches plus seven ancestry-proven remote branches were removed under separate approval. The original PR 29, development, and UTF-8 artifacts remain retained because their exact tips are not ancestors of `main`; the development worktree also had active Dart processes during audit. The unrelated operator-owned runtime modification remained content-identical.
 - Evidence pointer: GitHub PRs 34-36 and their required-gate runs; refreshed Git ancestry and worktree/process preflight; post-cleanup local/remote ref audit; canonical skill-link check
 - Follow-up: review retained artifacts no earlier than 2026-08-26 and resolve the unrelated runtime modification before requiring a clean canonical worktree
+
+## 2026-09-04 - Managed Flutter Windows startup regression retest
+
+- Scope: BUG-2026-09-04-001 / ContentGlows managed Windows cold start
+- Environment: Windows, ShipGlows DevServer source checkout on `main`, `flutter run -d windows`, attached visible session
+- Tester: Codex tooling
+- Source: sg-bug
+- Status: passed locally; installed-runtime proof pending protected-main integration
+- Confidence: high
+- Result summary: Controlled stop proved no residual ContentGlows Debug runner. The next cold start emitted `app.debugPort`, `app.devTools`, `app.dtd`, and `app.started`; registry reconciliation produced `status=running`, `flutterStartupState=running`, `flutterHeadless=false`, and `lastError=null`. Explicit hot reload completed with `Reloaded 0 libraries` in 521 ms.
+- Bug pointer: BUG-2026-09-04-001 -> `shipglows_data/workflow/bugs/BUG-2026-09-04-001.md`
+- Evidence pointer: protected supervisor state and Flutter machine-event logs under the active ShipGlows launch identity
+- Follow-up: merge through the protected main gate, synchronize the installed runtime, and repeat the proof through `s`
+
+### Follow-up attempt
+
+A second cold-start attempt reached Flutter compilation but was blocked by a current ContentGlows type error in `windows_capture_studio.dart`. The DevServer preserved the bounded compiler diagnostic and no Debug runner survived. No ContentGlows file was changed as part of this ShipGlows repair.
+
+### Progress-aware cold-build follow-up
+
+The current ContentGlows source passed targeted Dart analysis. An installed-runtime start then reproduced a healthy `app.progress` build crossing the fixed 90-second deadline and exposed premature termination. With the source repair, the same managed Windows cold start continued beyond 90 seconds and reached `running` with a valid app ID and daemon; targeted stop subsequently proved zero residual Debug runners. Focused tests cover the extended active-build window and prompt supervisor-death detection. Installed-runtime cold start and reload remain pending protected-main integration.
+
+A subsequent regenerated ContentGlows build completed after the original 90-second boundary and exposed an immediate post-build attachment timeout. The focused regression now proves that finishing active build progress starts a fresh bounded VM Service attachment window.
+
+Repeated installed attempts then exposed a late native runner appearing after the first empty process snapshot and locking the next link with `LNK1168`. The focused cleanup regression now injects that late appearance and proves it is reaped before a stable quiet period completes.
+
+The installed command surface also exposed that `s reload -ProjectPath <path>` was no longer routed even though authenticated supervisor reload remained available. The explicit command is restored with running-session validation and a focused dispatch contract.
+
+### Final installed-runtime verification
+
+After merging and installing the stable-extinction and reload-command repairs, ContentGlows started from zero Debug runners and reached registry `running` with `flutterHeadless=false`, a valid app ID, a Flutter daemon PID, and no error. Installed `s reload -ProjectPath` succeeded and the expected single Debug runner remained attached. BUG-2026-09-04-001 is closed with monitored recurrence risk.

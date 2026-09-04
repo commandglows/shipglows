@@ -40,19 +40,19 @@ channel is invalid, the checkout is dirty, or its upstream is unresolved.
 `shipglows context` is a direct read-only context refresh. Load the canonical
 `000-shipglows` engine and `agent-runtime-awareness.md`, read
 `%USERPROFILE%\.shipglows\environment.md`, resolve
-the current ShipGlows-managed project root, and read
-`<project-root>\ENVIRONMENT.md` plus the matching DevServer registry entry. Report the exact managed URL and live status,
+the execution envelope and current ShipGlows-managed surface, and read
+its surface-level `ENVIRONMENT.md` plus the matching DevServer registry entry. Report the agent surface, terminal host, session location, machine kind, exact managed URL and live status,
 architecture, Python availability through `uv`, Playwright/Chromium installation
 and MCP verification evidence, the relevant mobile and Windows toolchain state
 and exact next action, and current-turn callable tools. For Flutter, also report
 the registry-backed active development target, resolved device id when applicable,
 managed session mode, logical `flutter run -d <device>` command, and live state;
 list available targets separately. Distinguish
-installed, configured, discovered, callable, failed, and not-exposed states;
+installed, configured, discovered, transport reachable, callable, failed, and not-exposed states;
 inspect direct and deferred/searchable tool catalogs before classifying them. Never
 launch a replacement server, substitute an Astro/Vite default such as `4321`,
 or call recorded Python or configured Playwright absent merely because its tool
-is missing from the first visible list. Run the canonical per-repository Git-policy
+is missing from the first visible list. Current registry `status` outranks stale Flutter startup/process fields. A contradiction or native transport failure triggers a targeted refresh before verdict; identify the exact owning host and never give a vague restart instruction. A standalone Codex CLI may discover Computer Use without receiving the Codex Desktop native pipe. Run the canonical per-repository Git-policy
 resolver `$SHIPGLOWS_ROOT/tools/project_git_policy.py` and include the effective task-branch and worktree creation policies,
 their source, any fail-closed default reason, and the guidance that `forbidden` prevents silent creation but can be changed after discussing a justified need with the user in `Contexte actif`. End with a compact `Contexte actif`
 summary.
