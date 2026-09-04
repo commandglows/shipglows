@@ -1,7 +1,7 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "3.33.0"
+artifact_version: "3.34.0"
 project: ShipGlows
 created: "2026-05-01"
 updated: "2026-09-04"
@@ -23,6 +23,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Current agent execution-envelope detection, managed-surface resolution, runtime freshness, native transport qualification, and truthful recovery mapped on 2026-09-04."
   - "Cost-conscious Vercel plan, build, spend, protection, WAF, observability, and agent-tool governance mapped on 2026-09-04."
   - "Native Windows compiled CLI entry boundary, installer ownership, end-to-end latency budget, and argument/exit-code regression mapped on 2026-09-02."
   - "Root project pitch template, deterministic portfolio audit, docs-owner activation, and #pitch navigation contract mapped on 2026-09-02."
@@ -93,6 +94,7 @@ Shared files in this map are sequential integration files. Do not assign concurr
 
 | Path pattern | Subsystem | Primary technical doc | Secondary docs | Required validation | Docs update trigger |
 | --- | --- | --- | --- | --- | --- |
+| `tools/agent_runtime_envelope.py`, `tools/test_agent_runtime_envelope.py`, `skills/references/agent-runtime-awareness.md`, `skills/000-shipglows/SKILL.md`, `skills/301-sg-context/SKILL.md`, `skills/shipglows/SKILL.md`, `cli/windows/ShipGlows.AgentInstructions.psm1`, `tests/windows/agent-instructions.ps1` | Agent execution envelope and runtime truth | `skills/references/agent-runtime-awareness.md`, `shipglows_data/workflow/specs/agent-runtime-envelope-and-truthful-recovery.md` | `shipglows_data/technical/runtime-cli.md` | runtime-envelope unit tests, context contract tests, Windows agent-instruction regression | Host/surface classification, managed-surface resolution, registry freshness/precedence, native transport qualification, or recovery guidance changes |
 | `cli/windows/ShipGlows.CliLauncher.cs`, `tests/windows/native-cli-launcher.ps1` | Native Windows CLI entry boundary | `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/architecture.md` | `shipglows_data/technical/installer-and-user-scope.md`, `shipglows_data/technical/operator-guides/windows-devserver.md`, `README.md` | native launcher regression plus complete Windows DevServer contract | Menu startup, shell delegation, argument forwarding, exit codes, compilation, packaging, or command-resolution behavior changes |
 | `cli/shipglows.sh`, `cli/shipglows_update.sh`, `tests/cli/shipglows-update.sh` | Runtime CLI | `shipglows_data/technical/runtime-cli.md` | `shipglows_data/technical/context-function-tree.md`, `shipglows_data/technical/architecture.md` | `bash -n cli/shipglows.sh cli/shipglows_update.sh`; focused update-command check when behavior changes | Entrypoint, sourcing, self-update channel selection, menu dispatch, startup, or visible CLI behavior changes |
 | `cli/environment/**`, `cli/windows/shipglows-environment-provider.ps1`, `cli/windows/ShipGlows.MobileToolchain.psm1`, `cli/windows/ShipGlows.DevServer.psm1`, `tests/environment/**`, `tests/runtime/environment-observation.sh`, `tests/windows/environment-*.ps1` | Reproducible environment control plane, composable Windows mise/Tauri adapters, activation and DevServer readiness | `shipglows_data/technical/runtime-cli.md`, `shipglows_data/technical/architecture.md`, `shipglows_data/workflow/specs/shipglows-reproducible-environment-control-plane.md` | `shipglows_data/workflow/test-checklists/reproducible-environment-control-plane.md`, `shipglows_data/technical/installer-and-user-scope.md`, `shipglows_data/technical/operator-guides/windows-devserver.md` | all `tests/environment/*-contract.py`; managed-PowerShell observation/provider/activation adapters; closed installed-runtime smoke; complete Windows DevServer contract | Manifest/state/plan schema, redaction, digest, discovery, adapter composition, provider identity/actions, fresh-process activation, scoped DevServer readiness, installed packaging, approval, mise/lock/offline semantics, or apply refusal changes |

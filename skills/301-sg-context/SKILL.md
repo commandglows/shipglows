@@ -35,6 +35,8 @@ Route skill/workflow selection to `000-shipglows`, active-work continuation to `
 
 ## Runtime-Adaptive Retrieval
 
+Resolve and report the current execution envelope from `agent-runtime-awareness.md` before capability claims: operating system, agent surface, terminal host, session location, and machine kind. Preserve `unknown` rather than guessing. For host-dependent tools, carry transport reachability separately from installation, configuration, discovery, exposure, and callability.
+
 Inspect directly exposed tools and the host's deferred/searchable tool catalog
 before classifying current-turn capabilities; configuration alone is not
 availability, and absence from the first visible list is not non-availability.
@@ -45,7 +47,9 @@ exact next action from `agent-runtime-awareness.md` into the qualified context
 capsule. Do not collapse installed, configured, accelerated, device-ready, and
 current-turn callable into one readiness claim.
 
-For a Flutter surface, inspect the matching live DevServer registry entry and project target directories/configuration. The capsule must name `active_development_target`, `session_mode`, `logical_run_command`, and live `state`. Treat the registry `flutterDevice` as the active target only while the matching managed session is current; list repository/toolchain targets separately as available, never active by implication. For a Windows live session report `Flutter Windows`, `managed live`, `flutter run -d windows`, and its observed `running` or `stopped` state. For Android, report `Flutter Android`, the resolved device id, `flutter run -d <device-id>`, and whether the target is a connected device or the managed `ShipGlows_API_36` emulator. Preserve the development boundary: live `flutter run` is the normal iterative path, while builds are release or explicit standalone/package-sensitive proof checkpoints.
+For a Flutter surface, resolve the selected managed surface, read its surface-level `ENVIRONMENT.md`, and inspect the matching live DevServer registry entry at decision time. The capsule must name `active_development_target`, `session_mode`, `logical_run_command`, and live `state`. Registry `status` is authoritative; `flutterStartupState` and retained process fields never override `stopped` or `error`. Treat `flutterDevice` as the active target only while the matching managed session is current; list repository/toolchain targets separately as available, never active by implication. For a Windows live session report `Flutter Windows`, `managed live`, `flutter run -d windows`, and its observed `running` or `stopped` state. For Android, report `Flutter Android`, the resolved device id, `flutter run -d <device-id>`, and whether the target is a connected device or the managed `ShipGlows_API_36` emulator. Preserve the development boundary: live `flutter run` is the normal iterative path, while builds are release or explicit standalone/package-sensitive proof checkpoints.
+
+When a runtime claim is contradicted or a native transport probe fails, refresh only the execution envelope, selected managed surface, matching registry entry, and affected transport before returning a verdict. A standalone Codex CLI may discover Computer Use and Node REPL without receiving the Codex Desktop native pipe; report that transport failure and route GUI-dependent proof to Codex Desktop rather than giving a vague restart instruction.
 
 ### Contextual MCP Path
 

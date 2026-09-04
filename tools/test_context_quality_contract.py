@@ -126,6 +126,32 @@ class ContextQualityContractTests(unittest.TestCase):
         self.assertIn("managed live `flutter run` session", text(ROOT / "skills/103-sg-verify/references/verification-security-ui-runtime.md"))
         self.assertIn("agent-runtime-awareness.md", text(VERIFY.parent.parent / "SKILL.md"))
 
+    def test_runtime_context_exposes_host_freshness_and_transport_truth(self) -> None:
+        runtime = text(ROOT / "skills/references/agent-runtime-awareness.md")
+        context = text(CONTEXT)
+        router = text(ROUTER)
+        public = text(PUBLIC)
+        for marker in (
+            "execution envelope",
+            "agent surface",
+            "terminal host",
+            "session location",
+            "machine kind",
+            "transport reachable",
+            "native pipe",
+            "codex desktop",
+            "standalone codex cli",
+            "status` is authoritative",
+            "flutterstartupstate",
+            "targeted refresh",
+            "vague restart",
+            "managed surface",
+        ):
+            self.assertIn(marker, runtime)
+        for consumer in (context, router, public):
+            self.assertIn("execution envelope", consumer)
+            self.assertIn("transport", consumer)
+
     def test_context_skill_does_not_gate_execution_on_a_generic_question(self) -> None:
         skill = text(CONTEXT)
         self.assertNotIn("le contexte est prêt. on fait quoi ?", skill)

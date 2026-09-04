@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.45.0"
+artifact_version: "1.46.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-03"
+updated: "2026-09-04"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -14,6 +14,7 @@ risk_level: high
 security_impact: yes
 docs_impact: yes
 linked_systems:
+  - tools/agent_runtime_envelope.py
   - cli/shipglows.sh
   - cli/lib.sh
   - cli/shipglows_devserver_gum.sh
@@ -37,6 +38,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Agent execution envelope 2026-09-04: a read-only helper distinguishes Codex Desktop from standalone Codex CLI, identifies Rio/terminal/local/remote/VM dimensions, and prevents skill discovery from standing in for native transport proof."
   - "Linked skills-only update 2026-09-02: `shipglows update skills` fast-forwards the clean linked maintainer checkout without invoking the Windows bootstrap, developer-tool convergence, Rust, Tauri, SDK, IDE, or runtime installation; a fresh agent session reloads the live skills."
   - "Windows runtime transaction replay 2026-09-02: payload-backed files are staged before activation, native launchers are generated inside the protected action, and the manifest commits only after every declared generated output exists."
   - "Native Windows launcher replay 2026-09-02: the compiled root menu renders before any CMD or PowerShell child, then preserves managed-engine arguments and exit codes after dispatch."
@@ -250,6 +252,12 @@ A nested directory containing its own `.flox` is an independent environment
 boundary. Its subtree is excluded from its parent's launch-target search. Every
 bounded monorepo surface is catalogued separately, while an ambiguous root path
 is never resolved to one surface alphabetically.
+
+## Agent execution envelope
+
+`tools/agent_runtime_envelope.py --format json` performs a read-only, current-process observation for `$shipglows context`. It reports operating system, agent surface, terminal host, session location, machine kind, bounded process-name ancestry, and whether the Computer Use native transport is expected from that host. It does not start Codex Desktop, a CLI, a server, an MCP process, or a native pipe.
+
+The envelope prevents a recurring false positive on Windows: `codex.exe` below Node and Rio is a standalone Codex CLI even when the Computer Use skill and Node REPL are discovered. Only a Desktop-hosted process chain may expect the native pipe, and even that state requires a safe transport probe before `callable`. Unknown process layouts remain `unknown`; they are never promoted to Desktop from process presence alone.
 
 ## CLI/SaaS capability snapshot
 
