@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.36.0"
+artifact_version: "1.37.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-01"
+updated: "2026-09-04"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -37,6 +37,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "Native Windows focused-launcher replay 2026-09-04: `shipglows.cmd` enters the managed PowerShell runtime directly or through an explicit secure bootstrap route, and the compatibility form `shipglows update runtime` normalizes to the canonical updater without locking `s.exe`."
   - "Native Windows toolbox replay 2026-09-01: machine-owned mise configuration emits a windows-x64 lock policy and the installer refreshes mise.lock after exact-version convergence."
   - "Native Windows capability snapshot 2026-08-30: the DevServer publishes the closed CLI contract for direct read-only conversational discovery and the runner."
   - "Windows managed-tool update contract 2026-08-30: ShipGlows separates runtime self-update from read-only global tool status and explicitly confirmed allowlisted developer-tool convergence."
@@ -105,7 +106,7 @@ next_step: "/sg-docs technical audit runtime-cli"
 
 ## Windows host contract
 
-`s.cmd` and `shipglows-dev.cmd` invoke Windows PowerShell 5.1 only to run `ShipGlows.PowerShellBootstrap.ps1`. Normal CLI logic then runs exclusively under ShipGlows-managed PowerShell 7.6.5 Core x64. Direct Desktop execution and an unmanaged PowerShell Core process are refused. `SHIPGLOWS_MANAGED_PWSH` contains the exact absolute executable reused by child PowerShell work; the `PATH` is not consulted for `pwsh`. The separate collision-safe `shipglows.cmd` routes `shipglows rename rio <name>` to `shipglows.ps1`, which validates the title and emits exactly one UTF-8 OSC title sequence for the current terminal tab without reading Codex state.
+`s.cmd` and `shipglows-dev.cmd` invoke Windows PowerShell 5.1 only to run `ShipGlows.PowerShellBootstrap.ps1`. Normal CLI logic then runs exclusively under ShipGlows-managed PowerShell 7.6.5 Core x64. Direct Desktop execution and an unmanaged PowerShell Core process are refused. `SHIPGLOWS_MANAGED_PWSH` contains the exact absolute executable reused by child PowerShell work; the `PATH` is not consulted for `pwsh`. The separate collision-safe `shipglows.cmd` also enters that exact managed runtime before routing focused commands through `shipglows.ps1`; when the managed runtime is missing, its bootstrap fallback uses the explicit focused-launcher route instead of bypassing command validation. This surface owns `shipglows rename rio <name>`, `shipglows update`, `shipglows update status`, and the compatibility spelling `shipglows update runtime`, which normalizes to the canonical update action. The Rio rename path validates the title and emits exactly one UTF-8 OSC title sequence for the current terminal tab without reading Codex state.
 
 `-Offline` is a strict no-network mode: it reuses a valid managed runtime and fails actionably when the coordinate is absent or corrupt. The portable runtime is private to `.shipglows` and does not replace Windows PowerShell or add PowerShell 7 to the user/system `PATH`.
 

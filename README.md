@@ -483,6 +483,11 @@ machine-wide execution-policy change.
 
 `shipglows update` is the canonical ShipGlows update command. Use
 `shipglows update status` first when you want to inspect the selected channel.
+On Windows, both commands run through ShipGlows-managed PowerShell; the legacy
+`shipglows update runtime` spelling remains supported and normalizes to the
+canonical update action. Prefer this focused `shipglows` command for runtime
+self-update instead of keeping an interactive `s.exe` process open while its
+binary is being replaced.
 The Windows DevServer header shows the installed ShipGlows version immediately
 and checks for a newer release in the background through a local cache; green
 is current, orange is an available patch/source update, and red is a missed

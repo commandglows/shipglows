@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "2.30.0"
+artifact_version: "2.31.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-01"
+updated: "2026-09-04"
 status: reviewed
 source_skill: sg-start
 scope: installer-and-user-scope
@@ -29,6 +29,7 @@ depends_on:
     required_status: reviewed
 supersedes: []
 evidence:
+  - "The 2026-09-04 native Windows update repair makes `shipglows.cmd` use the exact managed PowerShell host or its focused secure bootstrap fallback, preserving `shipglows update runtime` compatibility while avoiding self-update through a locked `s.exe`."
   - "The 2026-09-01 native Windows machine toolbox enables a windows-x64 mise lockfile and refreshes integrity metadata after installation while preserving exact config pins as the bounded fallback."
   - "The 2026-08-31 native Windows installer summarizes successful Flutter readiness and limits failed diagnostic excerpts to three cleaned lines and 480 characters instead of dumping full doctor or device output."
   - "Windows managed-tool update contract 2026-08-30: exact WinGet IDs and exact npm registry coordinates update only ShipGlows-owned global tools after explicit confirmation."
@@ -226,8 +227,14 @@ sudo ./cli/install.sh
   `.shipglows\environment.md`; the instruction block only defines discovery,
   callability, purpose-built-tool preference, and `$shipglows context` recovery.
 - Native Windows keeps convenience commands independent from `$PROFILE`.
-  `s.cmd` and `shipglows-dev.cmd` launch the DevServer with `-NoProfile` and a
-  process-scoped execution-policy bypass. When the names are unclaimed, the
+  `s.cmd` and `shipglows-dev.cmd` launch the DevServer with `-NoProfile` through
+  the managed PowerShell bootstrap. `shipglows.cmd` launches its focused command
+  surface through the same exact managed host and uses an explicit focused
+  bootstrap fallback when that host must first be restored. Consequently,
+  `shipglows update`, `shipglows update status`, and the compatibility form
+  `shipglows update runtime` never run DevServer logic directly under Windows
+  PowerShell 5.1 and do not keep the native `s.exe` launcher locked during
+  runtime replacement. When the names are unclaimed, the
   installer creates `c -> claude`, `co -> codex`, `cor -> codex resume`,
   `oc -> opencode`, and `kc -> kilocode` as `.cmd` wrappers that call the
   managed agent commands in the same runtime directory. Existing command
