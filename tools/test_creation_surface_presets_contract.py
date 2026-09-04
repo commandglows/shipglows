@@ -5,8 +5,10 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 PREFERRED_STACKS = ROOT / "skills" / "references" / "preferred-stacks.md"
 EXTENSION_WORKFLOW = ROOT / "skills" / "references" / "browser-extension-lab.md"
+EXTENSION_API_CONTRACT = ROOT / "skills" / "references" / "webextension-api-contract.md"
 OBSIDIAN_WORKFLOW = ROOT / "skills" / "references" / "obsidian-plugin-workflow.md"
 DEVELOPMENT_SKILL = ROOT / "skills" / "sg-development" / "SKILL.md"
+VERIFICATION_RUNTIME = ROOT / "skills" / "103-sg-verify" / "references" / "verification-security-ui-runtime.md"
 
 
 class CreationSurfacePresetContract(unittest.TestCase):
@@ -14,8 +16,10 @@ class CreationSurfacePresetContract(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.stacks = PREFERRED_STACKS.read_text(encoding="utf-8")
         cls.extension = EXTENSION_WORKFLOW.read_text(encoding="utf-8")
+        cls.extension_api = EXTENSION_API_CONTRACT.read_text(encoding="utf-8")
         cls.obsidian = OBSIDIAN_WORKFLOW.read_text(encoding="utf-8")
         cls.development = DEVELOPMENT_SKILL.read_text(encoding="utf-8")
+        cls.verification = VERIFICATION_RUNTIME.read_text(encoding="utf-8")
 
     def test_sparse_browser_extension_uses_approved_preset(self) -> None:
         for marker in (
@@ -57,6 +61,24 @@ class CreationSurfacePresetContract(unittest.TestCase):
             "skills/references/obsidian-plugin-workflow.md",
         ):
             self.assertIn(reference, self.development)
+
+    def test_webextension_api_contract_is_discoverable_and_behavioral(self) -> None:
+        for consumer in (self.stacks, self.extension, self.development, self.verification):
+            self.assertIn("webextension-api-contract.md", consumer)
+        for marker in (
+            "## Compatibility Before Implementation",
+            "Treat the Manifest V3 service worker as ephemeral",
+            "optional host permissions",
+            "typed, schema-validated messages",
+            "`declarativeNetRequest`",
+            "## Adoption Tiers",
+            "### Adopt now",
+            "### Use when needed",
+            "### Experimental",
+            "`WEBEXT-API-ADOPTION-TIER`",
+            "`WEBEXT-API-PROOF`",
+        ):
+            self.assertIn(marker, self.extension_api)
 
 
 if __name__ == "__main__":

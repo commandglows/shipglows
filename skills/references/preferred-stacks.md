@@ -1,7 +1,7 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.6.0"
+artifact_version: "1.7.0"
 project: ShipGlows
 created: "2026-07-17"
 updated: "2026-09-04"
@@ -22,6 +22,7 @@ linked_systems:
   - skills/references/identity-provider-selection.md
   - skills/references/backend-data-provider-selection.md
   - skills/references/cross-platform-runtime-selection.md
+  - skills/references/webextension-api-contract.md
 depends_on: []
 supersedes: []
 evidence:
@@ -33,6 +34,7 @@ evidence:
   - "Operator decision 2026-08-11: portfolio-scale free-project limits, Flutter/Windows support, server authority, and billing cliffs must be evaluated separately for identity and backend/data providers."
   - "Operator decision 2026-08-11: universal Flutter targets Web, Android, iOS, Windows, macOS, and Linux; Firebase Auth owns identity, Convex HTTP owns backend/data, and Rust is reserved for a justified native engine."
   - "Operator decision 2026-09-03: greenfield browser extensions use WXT, strict TypeScript, pnpm, Manifest V3, and multi-browser output; simple UI stays native and rich UI uses Vue 3, not React."
+  - "Operator decision 2026-09-04: extension API selection uses the shared portability, lifecycle, permission, trust-boundary, and behavioral-proof contract."
   - "Operator decision 2026-09-03: greenfield Obsidian plugins use the official TypeScript and esbuild-compatible contract, support desktop and mobile by default, and add Vue 3 only for rich UI with explicit lifecycle cleanup."
   - "Operator decision 2026-08-11: Auth0 is a strong OIDC exception but fails the many-free-products default on Linux coverage, tenant isolation, and paid-plan cost."
   - "Operator correction 2026-09-04: Flutter's cross-platform capability horizon remains a strong default, while launch scope follows product intent and is never expanded by technical capability alone."
@@ -122,6 +124,7 @@ Deployment entrypoints such as Vercel build commands should be expressible from 
 - Architecture: keep popup, options, side-panel, background, and content-script entrypoints explicit. Vue belongs only in UI entrypoints that need it; background and content scripts remain framework-free unless a concrete rendered surface requires otherwise.
 - Security: request the minimum permissions and host access required by the accepted behavior. Broad host permissions, remote code, telemetry, authentication, network services, or persistent external data require an explicit product and trust justification.
 - Proof: inspect before repository execution, then validate the built artifact through the Browser Extension Lab. Compilation alone is not popup, service-worker, or content-script proof.
+- API contract: load `webextension-api-contract.md` before selecting browser APIs, permissions, messaging, injection, storage, or lifecycle behavior; shared source does not imply cross-browser API parity.
 
 The default standalone source shape is `entrypoints/` for WXT-owned popup, options, side-panel, background, and content-script entrypoints; `components/` for shared Vue UI; `lib/` for framework-free domain and extension logic; and `public/` for static assets. Configure WXT browser startup as disabled in the committed project configuration so the ShipGlows managed session and isolated Lab remain the browser-profile authorities. Production artifacts remain in WXT's browser-specific `.output/<browser>-mv3/` directories.
 
