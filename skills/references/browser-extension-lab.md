@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.2.0"
+artifact_version: "1.3.0"
 project: ShipGlows
 created: "2026-08-29"
-updated: "2026-09-03"
+updated: "2026-09-04"
 status: active
 source_skill: 300-sg-docs
 scope: browser-extension-lab
@@ -17,11 +17,13 @@ linked_systems:
   - cli/windows/ShipGlows.DevServer.psm1
   - cli/windows/ShipGlows.ExtensionLab.js
   - cli/windows/shipglows-devserver.ps1
+  - skills/references/webextension-api-contract.md
 depends_on: []
 supersedes: []
 evidence:
   - "Chrome BRAT loaded through the ShipGlows Extension Lab in temporary Chromium on 2026-08-29."
   - "Operator-approved greenfield creation preset added on 2026-09-03: WXT, strict TypeScript, pnpm, Manifest V3, multi-browser output, native UI first, and Vue 3 for rich UI."
+  - "2026-09-04: API-specific implementation and proof now route through the shared WebExtension API contract."
 next_review: "2026-11-29"
 next_step: none
 ---
@@ -29,6 +31,8 @@ next_step: none
 # Browser Extension Lab
 
 Use the Extension Lab when the target is a browser extension rather than a website URL.
+
+When extension behavior uses browser state, permissions, injection, messaging, or a browser extension API, load `webextension-api-contract.md`. The Lab proves isolated host behavior; loading an artifact alone never proves the selected API outcome.
 
 ## Greenfield creation contract
 

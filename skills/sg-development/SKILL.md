@@ -36,6 +36,10 @@ When the target is a browser extension, load
 `$SHIPGLOWS_ROOT/skills/references/browser-extension-lab.md` before selecting
 its greenfield stack, build, or host-level proof. Preserve its inspection-first,
 Manifest V3, minimal-permission, isolated-profile, and publication boundaries.
+When implementation uses browser state, permissions, injection, messaging, or
+an extension API, also load
+`$SHIPGLOWS_ROOT/skills/references/webextension-api-contract.md` before API
+selection and preserve its compatibility, lifecycle, trust, and proof gates.
 
 `excellence` is a hidden public shortcut, not a catalog mode. For
 `sg-development excellence [task or scope]`, resolve the current work from

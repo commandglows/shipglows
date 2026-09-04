@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-30"
+updated: "2026-09-04"
 status: active
 source_skill: 103-sg-verify
 scope: 103-sg-verify-security-ui-runtime
@@ -15,11 +15,13 @@ security_impact: yes
 docs_impact: yes
 linked_systems:
   - skills/103-sg-verify/SKILL.md
+  - skills/references/webextension-api-contract.md
 depends_on: []
 supersedes: []
 evidence:
   - "Operator decision 2026-08-30: Flutter verification starts on the registry-backed live development target; standalone builds remain package-sensitive checkpoints."
   - "Security, UI, and runtime proof gates extracted from the former monolithic verification contract."
+  - "2026-09-04: browser-extension verification now requires API-specific compatibility, lifecycle, permission, trust-boundary, and behavioral proof."
 next_step: "/103-sg-verify progressive lifecycle activation compaction wave 4"
 ---
 
@@ -46,3 +48,7 @@ Use widget/unit tests first, then the managed live `flutter run` session on the 
 Verify safe Sentry/observability, diagnostics or log-copy, and commit/build plus Paris/UTC build header when applicable; static sites may document a valid exception. Reuse the project diagnostic helper/surface or justify a bounded addition. Gather safe local/browser/app/log evidence before asking the operator. Requests to the operator are limited to decisions, secrets, inaccessible environments, manual/device-only proof, or unsafe external side effects.
 
 Hosted, production, provider, browser, auth, and manual evidence must identify scenario and target/environment. Missing target starts discovery rather than a readiness claim.
+
+## Browser Extension APIs
+
+For browser-extension API behavior, load `skills/references/webextension-api-contract.md`. Verify the declared browser/version matrix, manifest and permission fit, service-worker restart safety, typed message trust boundaries, denial/revocation behavior, and an observable API-specific outcome on each materially supported engine. Build, load, worker, or popup success alone is partial evidence.
