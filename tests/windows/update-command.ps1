@@ -27,6 +27,29 @@ Assert-Sg (Test-Path -LiteralPath $runtimeStatus -PathType Leaf) 'The Windows ru
 
 Assert-Sg ($entrypointText.Contains("CommandArguments[0] -ieq 'update'")) 'shipglows update must be accepted by the focused Windows launcher.'
 Assert-Sg ($entrypointText.Contains("'shipglows-devserver.ps1'")) 'shipglows update must delegate to the active DevServer implementation.'
+
+$isolatedLauncherRoot = Join-Path ([IO.Path]::GetTempPath()) ("shipglows-update-launcher-test-" + [guid]::NewGuid().ToString('N'))
+try {
+    [void][IO.Directory]::CreateDirectory($isolatedLauncherRoot)
+    Copy-Item -LiteralPath $entrypoint -Destination (Join-Path $isolatedLauncherRoot 'shipglows.ps1')
+    Set-Content -LiteralPath (Join-Path $isolatedLauncherRoot 'shipglows-devserver.ps1') -Encoding UTF8 -Value @'
+param(
+    [Parameter(Position = 0)]
+    [string]$Action,
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$Arguments
+)
+$received = @($Action)
+if ($null -ne $Arguments) { $received += @($Arguments) }
+[Console]::Out.Write(($received -join '|'))
+'@
+    $legacyUpdateOutput = & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File (Join-Path $isolatedLauncherRoot 'shipglows.ps1') update runtime
+    Assert-Sg ($LASTEXITCODE -eq 0) 'shipglows update runtime must reach the managed updater successfully.'
+    Assert-Sg (($legacyUpdateOutput -join "`n") -eq 'update') "shipglows update runtime must normalize the legacy runtime noun to the canonical update action; received '$($legacyUpdateOutput -join "`n")'."
+} finally {
+    if (Test-Path -LiteralPath $isolatedLauncherRoot) { Remove-Item -LiteralPath $isolatedLauncherRoot -Recurse -Force }
+}
+
 Assert-Sg ($devServerText.Contains('function Get-SgUpdateSource')) 'DevServer update must resolve the active channel before mutation.'
 Assert-Sg ($devServerText.Contains("Channel='linked'")) 'Linked developer channels must be represented explicitly.'
 Assert-Sg ($devServerText.Contains('rev-parse --is-inside-work-tree')) 'Linked updates must accept valid Git worktrees as developer checkouts.'
