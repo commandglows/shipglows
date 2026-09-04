@@ -133,7 +133,7 @@ function Pump-SgFlutterChanges([object]$Watcher,[object]$DebounceState,[int]$Max
 
 function New-SgFlutterProtocolState {
     $now=[datetime]::UtcNow.ToString('o')
-    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastResponseId=$null; LastResponseOk=$null; StartupStartedAtUtc=$now; LastProgressAtUtc=$null; ProgressActive=$false; UpdatedAtUtc=$now }
+    [pscustomobject]@{ Status='starting'; AppId=$null; DaemonPid=0; Ready=$false; LastError=$null; LastEvent=$null; LastProtocolError=$null; FlutterExitCode=$null; ExitReason=$null; LastResponseId=$null; LastResponseOk=$null; StartupStartedAtUtc=$now; LastProgressAtUtc=$null; ProgressActive=$false; UpdatedAtUtc=$now }
 }
 
 function ConvertFrom-SgFlutterMachineEnvelope([string]$Line) {
@@ -148,12 +148,13 @@ function ConvertFrom-SgFlutterMachineEnvelope([string]$Line) {
 
 function Update-SgFlutterProtocolState([object]$State, [string]$Line) {
     if ([string]::IsNullOrWhiteSpace($Line) -or $Line.Length -gt 1048576) { return }
-    try { $messages = @(ConvertFrom-SgFlutterMachineEnvelope $Line) } catch { return }
+    try { $messages = @(ConvertFrom-SgFlutterMachineEnvelope $Line) } catch { $trimmed=$Line.TrimStart();if($trimmed.StartsWith('[{')-or$trimmed.StartsWith('{')){$State.LastProtocolError='Invalid Flutter machine protocol envelope.'};return }
     foreach ($message in $messages) {
         if ($message.PSObject.Properties['id'] -and $null -ne $message.id) { $State.LastResponseId=[int]$message.id;$State.LastResponseOk=-not[bool]$message.PSObject.Properties['error'];if(-not$State.LastResponseOk){$State.LastError='Flutter machine request failed.'};continue }
         if (-not $message.PSObject.Properties['event'] -or -not $message.PSObject.Properties['params']) { continue }
         $params = $message.params
-        switch ([string]$message.event) {
+        $State.LastEvent=[string]$message.event
+        switch ($State.LastEvent) {
             'daemon.connected' { if ($params.pid -as [int]) { $State.DaemonPid=[int]$params.pid } }
             'app.start' { if ([string]$params.appId -match '^[A-Za-z0-9._-]{1,256}$') { $State.AppId=[string]$params.appId; $State.Status='starting'; $State.ProgressActive=$false } }
             'app.progress' {
@@ -261,7 +262,7 @@ function Invoke-SgFlutterSupervisor {
                 if(-not $claimedPath){continue}
                 $response=[ordered]@{ok=$false;error='Invalid command.'}
                 try { $claimed=Get-Item -LiteralPath $claimedPath -ErrorAction Stop;if($claimed.Length -gt 65536){throw 'Supervisor command exceeds 64 KiB.'};$command=ConvertFrom-SgFlutterCommandJson ([IO.File]::ReadAllText($claimedPath)) $token;$response=[ordered]@{ok=$true;method=$command.Method}
-                    if($command.Method -eq 'reload'){if(-not $state.Ready){throw 'Flutter application is not ready.'};$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)}
+                    if($command.Method -eq 'reload'){if(-not $state.Ready){throw 'Flutter application is not ready.'};$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.restart' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10);Write-SgFlutterJsonAtomic $statePath $state}
                     elseif($command.Method -in @('stop','open')){if($state.AppId){$requestId++;Send-SgFlutterMachineRequest $process $requestId 'app.stop' $state.AppId;[void](Wait-SgFlutterMachineResponse $process $pump $outQueue $errQueue $state $stdoutPath $requestId 10)};$stopRequested=$true}
                 } catch {$response=[ordered]@{ok=$false;error=$_.Exception.Message}}
                 try{Write-SgFlutterJsonAtomic (Join-Path $responseDir ($commandFile.BaseName+'.json')) $response}finally{Remove-Item -LiteralPath $claimedPath -Force -ErrorAction SilentlyContinue}
@@ -269,7 +270,7 @@ function Invoke-SgFlutterSupervisor {
             if($stopRequested){if(-not $process.WaitForExit(5000)){$process.Kill()};break}
             Start-Sleep -Milliseconds 100
         }
-    } finally { if(-not$process.HasExited){$process.Kill();[void]$process.WaitForExit(5000)};[void](Drain-SgFlutterStreams $pump $outQueue $errQueue 2);$line=$null;while($outQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stdoutPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $state $line};while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)};if($watcher){$watcher.Dispose()};$state.Ready=$false;if($state.Status -notin @('stopped','error')){$state.Status=if($stopRequested){'stopped'}else{'error'};$state.LastError=if($stopRequested){$null}else{'Flutter host process exited unexpectedly.'}};Write-SgFlutterJsonAtomic $statePath $state;$process.Dispose() }
+    } finally { if(-not$process.HasExited){$process.Kill();[void]$process.WaitForExit(5000)};[void](Drain-SgFlutterStreams $pump $outQueue $errQueue 2);$line=$null;while($outQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stdoutPath,$line+[Environment]::NewLine);Update-SgFlutterProtocolState $state $line};while($errQueue.TryDequeue([ref]$line)){[IO.File]::AppendAllText($stderrPath,$line+[Environment]::NewLine)};if($watcher){$watcher.Dispose()};$state.FlutterExitCode=try{[int]$process.ExitCode}catch{$null};$state.Ready=$false;if($state.Status -notin @('stopped','error')){$state.Status=if($stopRequested){'stopped'}else{'error'};$state.LastError=if($stopRequested){$null}else{'Flutter host process exited unexpectedly.'}};$state.ExitReason=if($stopRequested){'stop-requested'}elseif($state.LastEvent-eq'app.stop'){'app-stopped-during-startup'}else{'flutter-host-exited'};Write-SgFlutterJsonAtomic $statePath $state;$process.Dispose() }
 }
 
 if (-not $TestMode) { Invoke-SgFlutterSupervisor }

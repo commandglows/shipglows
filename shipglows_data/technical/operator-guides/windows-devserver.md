@@ -404,7 +404,11 @@ DevServer complet.
 
 Chaque lancement Chrome reçoit un profil ShipGlows unique. Stop et Restart ne
 recherchent un éventuel navigateur orphelin qu'avec le chemin exact de ce profil
-et ne terminent jamais Chrome par son seul nom. Le mode historique `web-server`,
+et ne terminent jamais Chrome par son seul nom. Pour Windows desktop, le registre
+exige aussi l'état `running` du superviseur ; Stop et les échecs de démarrage ne
+terminent que le runner Debug exact déclaré par le projet. Une défaillance
+transitoire du lecteur de journaux ou de la connexion Debug reçoit au plus un
+nouvel essai, après extinction prouvée de tous les processus attribués. Le mode historique `web-server`,
 qui exige une connexion manuelle compatible avec Dart Debug, reste disponible
 uniquement avec `SHIPGLOWS_FLUTTER_DEVICE=web-server` dans `.shipglows.env`.
 
