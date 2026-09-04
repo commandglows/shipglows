@@ -25,10 +25,10 @@ try{
         function Test-SgProcessIdentity {$true}
         function Get-SgFlutterSupervisorState {[pscustomobject]@{status='error';lastError='Flutter application stopped before app.started.';appId='';daemonPid=0}}
         $errorRegistry=Reconcile-SgRegistry ([pscustomobject]@{})
-        if($errorRegistry.projects[0].status-ne'error'-or$errorRegistry.projects[0].lastError-notmatch'app\.started'){throw 'A live wrapper incorrectly promoted an errored Flutter supervisor to running.'}
+        if($errorRegistry.projects[0].status-ne'error'-or$errorRegistry.projects[0].flutterStartupState-ne'error'-or$errorRegistry.projects[0].lastError-notmatch'app\.started'){throw 'A live wrapper incorrectly promoted an errored Flutter supervisor to running.'}
         function Get-SgFlutterSupervisorState {[pscustomobject]@{status='running';lastError=$null;appId='app-1';daemonPid=99}}
         $runningRegistry=Reconcile-SgRegistry ([pscustomobject]@{})
-        if($runningRegistry.projects[0].status-ne'running'-or$runningRegistry.projects[0].flutterAppId-ne'app-1'-or$runningRegistry.projects[0].flutterDaemonPid-ne99){throw 'A ready Flutter supervisor was not reconciled as running.'}
+        if($runningRegistry.projects[0].status-ne'running'-or$runningRegistry.projects[0].flutterStartupState-ne'running'-or$runningRegistry.projects[0].flutterAppId-ne'app-1'-or$runningRegistry.projects[0].flutterDaemonPid-ne99){throw 'A ready Flutter supervisor was not reconciled as running.'}
         if(-not(Test-SgFlutterStartupRetryable 'Error waiting for a debug connection: The log reader stopped unexpectedly.')-or(Test-SgFlutterStartupRetryable 'CMake compilation failed.')){throw 'Flutter startup retry classification is not restricted to the transient debug connection signature.'}
         Remove-Item -LiteralPath $project -Recurse -Force
     }

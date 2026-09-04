@@ -2420,7 +2420,7 @@ function Reconcile-SgRegistry([object]$Config) {
                 }
             }
             if ($live) {
-                if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId){$entry.status='running';$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}else{$entry.status='starting'}}else{$entry.status = 'running'}
+                if($entry.kind-eq'flutter-web'){$flutterState=Get-SgFlutterSupervisorState $entry;if($flutterState-and$flutterState.status-eq'running'-and$flutterState.appId){$entry.status='running';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'running' -Force;$entry|Add-Member -NotePropertyName flutterAppId -NotePropertyValue ([string]$flutterState.appId) -Force;$entry|Add-Member -NotePropertyName flutterDaemonPid -NotePropertyValue ([int]$flutterState.daemonPid) -Force;$entry|Add-Member -NotePropertyName lastError -NotePropertyValue $null -Force}elseif($flutterState-and$flutterState.status-in@('error','stopped')){$entry.status=[string]$flutterState.status;$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue ([string]$flutterState.status) -Force;if($flutterState.lastError){$entry|Add-Member -NotePropertyName lastError -NotePropertyValue (Protect-SgDiagnosticText ([string]$flutterState.lastError)) -Force}}else{$entry.status='starting';$entry|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'starting' -Force}}else{$entry.status = 'running'}
                 if ($entry.PSObject.Properties['reservationToken']) { $entry.reservationToken = $null }
                 if ($entry.PSObject.Properties['reservationTimeUtc']) { $entry.reservationTimeUtc = $null }
             } elseif (-not $freshReservation) {
@@ -2867,7 +2867,7 @@ function Start-SgProject([object]$Config, [string]$ProjectPath, [int]$RequestedP
         if($kind-eq'flutter-web'){
             Copy-SgFlutterDiagnostics $entryData $out $err
             [void](Stop-SgOwnedFlutterNative $entryData)
-            if(Wait-SgFlutterOwnedExtinction $entryData 2){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entryData)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}else{$entryData.status='error';$entryData.lastError=Get-SgStartupFailure $err;Set-SgReservationState $Config $entry.path $reservationToken 'error' $entryData;throw 'Flutter supervisor exited during startup and owned process extinction could not be proved.'}
+            if(Wait-SgFlutterOwnedExtinction $entryData 2){try{[void](Remove-SgFlutterLaunchArtifacts $Config $entryData)}catch{Write-SgWarn "Flutter launch cleanup pending: $($_.Exception.Message)"}}else{$entryData.status='error';$entryData.flutterStartupState='error';$entryData.lastError=Get-SgStartupFailure $err;Set-SgReservationState $Config $entry.path $reservationToken 'error' $entryData;throw 'Flutter supervisor exited during startup and owned process extinction could not be proved.'}
         }
         Write-SgWarn "Process exited during startup. See $err"
         $entryData.status = 'error'
@@ -3048,7 +3048,7 @@ function Stop-SgProject([object]$Config, [string]$ProjectPath) {
         param($data)
         $found = @($data.projects | Where-Object { $_.path -eq $path })[0]
         if ($found) {
-            $found.status = 'stopped'; $found.pid = 0; $found.startTimeUtc = $null; $found.lastError = $null
+            $found.status = 'stopped'; $found.pid = 0; $found.startTimeUtc = $null; $found.lastError = $null;if($found.kind-eq'flutter-web'){$found|Add-Member -NotePropertyName flutterStartupState -NotePropertyValue 'stopped' -Force}
             if ($found.PSObject.Properties['reservationToken']) { $found.reservationToken = $null }
             if ($found.PSObject.Properties['reservationTimeUtc']) { $found.reservationTimeUtc = $null }
         }
