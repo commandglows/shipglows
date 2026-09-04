@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.7.0"
+artifact_version: "1.8.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-09-01"
+updated: "2026-09-04"
 status: active
 source_skill: 005-sg-ship
 scope: ship-report-evidence
@@ -30,6 +30,7 @@ evidence:
   - "Operator decision 2026-08-16: terminal reporting uses an explicit cleanup disposition so retained or blocked artifacts cannot disappear from the chantier."
   - "Operator decision 2026-08-16: full-close reports expose editorial reflection independently from documentation."
   - "Operator correction 2026-09-01: full-close evidence keeps existing-surface editorial alignment separate from editorial/product opportunity."
+  - "Operator correction 2026-09-04: full-close rows render independently resolved evidence instead of inheriting example statuses."
 next_step: "/103-sg-verify progressive-skill-activation-compaction-wave-2"
 ---
 
@@ -59,7 +60,7 @@ Use `shared for iteration` or equivalent outcome language. State that quick mode
 
 ## Full Mode
 
-Use `delivered` only when closure guards and required proof support it. Otherwise use `delivered with validation remaining`, `blocked`, or another bounded outcome. Mention tracker/changelog only when actually updated. Every full-close report uses the shared ordered card, keeps each label with its content on one line, inserts one blank line between rows, and separates compact items with ` · `; a material documentation or editorial-alignment `needs review` result forbids `delivered`. Opportunity is classified separately and is non-blocking; a credible candidate may appear in `🧭 SUITE` but grants no content, product, publication, or roadmap authority.
+Use `delivered` only when closure guards and required proof support it. Otherwise use `delivered with validation remaining`, `blocked`, or another bounded outcome. Mention tracker/changelog only when actually updated. Every full-close report uses the shared ordered card, including `🧪 PREUVES`, `📖 DOCUMENTATION`, and `✏️ ÉDITORIAL`; it keeps each label with its independently resolved content on one line, inserts one blank line between rows, and uses the shared middle-dot separator for compact items. A material documentation or editorial-alignment `needs review` result forbids `delivered`. Opportunity is classified separately and is non-blocking; a credible candidate may appear in `🧭 SUITE` but grants no content, product, publication, or roadmap authority.
 
 ## Failure And Limits
 

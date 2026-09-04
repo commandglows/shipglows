@@ -22,8 +22,9 @@ class QuestionValidationGitAutonomyContractTests(unittest.TestCase):
     def test_product_questions_are_proactive_and_may_be_non_blocking(self) -> None:
         for marker in (
             "Product and experience questions are proactive partnership",
-            "blocking materiality is not required",
-            "Continue safe in-scope work while the answer is pending when possible",
+            "operator owns missing truth",
+            "materially sharpens the current outcome or next decision",
+            "Continue safe in-scope work while a non-blocking answer is pending when useful",
         ):
             self.assertIn(marker, self.question)
 
@@ -31,7 +32,7 @@ class QuestionValidationGitAutonomyContractTests(unittest.TestCase):
         for marker in (
             "For a purely technical question, first attempt a professional evidence-backed decision",
             "Never ask the operator to supervise implementation mechanics",
-            "Validation requests are different: they interrupt execution and must be rare",
+            "Validation requests are different: they authorize mutation and must follow their own gate",
         ):
             self.assertIn(marker, self.question)
 

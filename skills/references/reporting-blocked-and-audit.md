@@ -1,10 +1,10 @@
 ---
 artifact: technical_guidelines
 metadata_schema_version: "1.0"
-artifact_version: "1.3.0"
+artifact_version: "1.4.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-16"
+updated: "2026-09-04"
 status: active
 source_skill: 900-shipglows-core
 scope: reporting-blocked-and-audit
@@ -25,6 +25,7 @@ evidence:
   - "Operator decision 2026-09-03: partial, blocked, audit, and decision reports use the shared compact labelled rows with blank-line separation."
   - "Extracted from reporting-contract.md in wave 13."
   - "Operator decision 2026-08-13: unfinished chantier choices must support strategic business steering and guided follow-up."
+  - "Operator correction 2026-09-04: unfinished state alone does not manufacture a choice; numbered options require a real operator-owned decision with distinct consequences."
 next_review: "2026-11-12"
 next_step: none
 ---
@@ -39,19 +40,11 @@ Apply the universal compact user layout from `reporting-contract.md`: render the
 
 ## Unfinished Chantier Choice
 
-When a user-facing final report returns control while the chantier remains unfinished, end the message with a numbered, plain-language choice block. Introduce it with the blank-line-separated `🧭 SUITE` row, then keep the numbered options contiguous without blank lines between them. Load `skills/references/strategic-choice-contract.md`, use two or three choices, and recommend the strongest responsible business direction. The choices must never expose skill names, slash commands, lifecycle labels, internal owners, or agent topology.
+First decide why control must return. Use a numbered, plain-language choice block only when the operator owns a real unresolved decision and two or three credible directions have distinct product, customer, market, investment, scope, trust, release, or risk consequences. Introduce those options with the blank-line-separated `🧭 SUITE` row, load `skills/references/strategic-choice-contract.md`, and recommend the strongest responsible direction. The choices must never expose skill names, slash commands, lifecycle labels, internal owners, or agent topology.
 
-When no material decision is missing, keep controls proportional. A short interaction label is allowed because it requires active guided follow-up after selection:
+When no material operator decision is missing, do not manufacture a menu. Continue authorized agent-runnable work. If control must return for one required recovery action or fact, state that exact action or fact directly. If one diagnosed blocker has no meaningful alternative, report its recovery condition without padding it into multiple choices. A completed chantier receives no unfinished-choice block; its mandatory SUITE may still identify a separate grounded business improvement without reopening the chantier.
 
-```text
-1. ✅ Poursuivre le résultat convenu — conserve la valeur et la priorité déjà validées.
-2. 💬 Questionner
-3. 🧭 Réorienter
-
-Réponds avec le numéro ou indique une autre direction.
-```
-
-After `Questionner`, conduct useful guided questioning. After `Réorienter`, propose concrete business directions with outcome, horizon, and trade-off; never hand the operator a blank page. When a material decision exists, replace generic controls with specific business direction options covering product, customer, market, investment, scope, trust, release, or risk consequences. Completed work receives no choice block. A blocked chantier receives specific safe recovery choices.
+Short `Questionner`, `Approfondir`, or `Réorienter` controls are optional guided exploration affordances, not substitutes for an unresolved decision. Use them only when the current result exposes a useful exploration surface; selecting one triggers active guided follow-up and grants no mutation authority.
 
 ## Audit Reports
 
