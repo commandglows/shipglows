@@ -1,7 +1,7 @@
 ---
 artifact: spec
 metadata_schema_version: "1.0"
-artifact_version: "1.0.0"
+artifact_version: "1.1.0"
 project: ShipGlows
 created: "2026-09-04"
 updated: "2026-09-04"
@@ -24,7 +24,8 @@ depends_on: []
 supersedes: []
 evidence:
   - "Operator approved creation of the WebExtension API playbook on 2026-09-04."
-next_step: "Persist the exact owned changes on the appropriate ShipGlows integration branch without absorbing the current unrelated branch work."
+  - "Operator approved the adopt-now, use-when-needed, and experimental API classification on 2026-09-04."
+next_step: "Merge PR #135 into dev after required CI passes."
 ---
 
 # WebExtension API contract
@@ -38,6 +39,7 @@ Agents designing browser extensions select portable, least-privileged, restart-s
 - Add one shared API design and proof contract.
 - Link it from extension creation, stack selection, isolated Lab proof, and runtime verification.
 - Cover compatibility, service-worker lifecycle, messaging, storage, permissions, injection, specialized APIs, freshness, and capability-specific evidence.
+- Classify API choices as adopt now, use when needed, or experimental, with fallback and proof requirements.
 - Preserve existing stack and Lab ownership; do not change runtime code, dependencies, store publication, or browser profiles.
 
 ## Proof path
@@ -60,10 +62,10 @@ Scenario-first: the `WEBEXT-API-*` pressure scenarios plus a focused contract te
 | --- | --- | --- |
 | Specification | complete | Outcome, scope, exclusions, pressure scenarios, and proof are bounded. |
 | Readiness | complete | Canonical placement and consumers are resolved; unrelated dirty work is excluded. |
-| Implementation | complete | Shared contract and consumer links added. |
-| Verification | complete | 29 focused tests, metadata lint, 68-skill audit, budget audit, dependency graph, diff check, and linked runtime sync passed. |
+| Implementation | complete | Shared contract, consumer links, and adoption tiers added. |
+| Verification | complete | Focused contract tests, metadata lint, dependency graph, and diff check passed for the adoption-tier extension. |
 | Closure | complete | Internal skill documentation is aligned; no existing public/editorial promise changed. |
-| Delivery | pending | Current branch is `fix/agent-runtime-envelope`; preserve its unrelated work and persist this exact scope on the appropriate integration branch. |
+| Delivery | in progress | Commit `c202fc1` is pushed on the isolated branch and PR #135 targets `dev`; push the verified adoption-tier follow-up. |
 
 ## Skill Run History
 
@@ -72,3 +74,5 @@ Scenario-first: the `WEBEXT-API-*` pressure scenarios plus a focused contract te
 | 2026-09-04 | sg-engineering | Audited extension references and current official WebExtension guidance. | Existing stack/Lab coverage confirmed; API doctrine gap identified. | Create the shared contract. |
 | 2026-09-04 | 900-shipglows-core | Added shared WebExtension API doctrine, consumer routing, and scenario-first contract coverage. | Implemented locally. | Run focused verification. |
 | 2026-09-04 | 103-sg-verify | Ran focused contract, metadata, budget, skill audit, dependency graph, diff, and linked runtime-sync checks. | Verified locally; all checks passed. | Persist on the appropriate integration branch without absorbing unrelated work. |
+| 2026-09-04 | 900-shipglows-core | Added the approved adopt-now, use-when-needed, and experimental classification with API examples and fallback boundaries. | Implemented locally. | Rerun focused verification and update PR #135. |
+| 2026-09-04 | 103-sg-verify | Re-ran the focused contract, metadata, dependency-graph, and diff checks for the adoption tiers. | Verified locally; all checks passed. | Commit and push the follow-up to PR #135. |

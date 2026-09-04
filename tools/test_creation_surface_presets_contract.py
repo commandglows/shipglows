@@ -71,6 +71,11 @@ class CreationSurfacePresetContract(unittest.TestCase):
             "optional host permissions",
             "typed, schema-validated messages",
             "`declarativeNetRequest`",
+            "## Adoption Tiers",
+            "### Adopt now",
+            "### Use when needed",
+            "### Experimental",
+            "`WEBEXT-API-ADOPTION-TIER`",
             "`WEBEXT-API-PROOF`",
         ):
             self.assertIn(marker, self.extension_api)
