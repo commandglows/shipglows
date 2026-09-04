@@ -38,6 +38,17 @@ try{
         $deadErrorRegistry=Reconcile-SgRegistry ([pscustomobject]@{})
         if($deadErrorRegistry.projects[0].status-ne'error'-or$deadErrorRegistry.projects[0].flutterStartupState-ne'error'-or$deadErrorRegistry.projects[0].lastError-ne'build failed'-or$deadErrorRegistry.projects[0].pid-ne0){throw 'Dead-process reconciliation erased a durable Flutter startup error or retained its stale PID.'}
         if(-not(Test-SgFlutterStartupRetryable 'Error waiting for a debug connection: The log reader stopped unexpectedly.')-or(Test-SgFlutterStartupRetryable 'CMake compilation failed.')){throw 'Flutter startup retry classification is not restricted to the transient debug connection signature.'}
+
+        $stateRoot=Join-Path ([IO.Path]::GetTempPath()) ("sg-flutter-ready-{0}"-f[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory -Path $stateRoot|Out-Null;$statePath=Join-Path $stateRoot 'state.json'
+        try{
+            [IO.File]::WriteAllText($statePath,'{"status":"building","appId":"app-build","daemonPid":42,"progressActive":true}')
+            function Test-SgProcessIdentity {$true}
+            $clock=[Diagnostics.Stopwatch]::StartNew();$buildTimeout=Wait-SgFlutterSupervisorReady $statePath 0 ([pscustomobject]@{pid=10}) 1;$clock.Stop()
+            if($clock.ElapsedMilliseconds-lt700-or$buildTimeout.Error-notmatch'build timed out'){throw 'Active Flutter build progress did not receive its dedicated startup window.'}
+            function Test-SgProcessIdentity {$false}
+            $clock.Restart();$deadSupervisor=Wait-SgFlutterSupervisorReady $statePath 30 ([pscustomobject]@{pid=10}) 60;$clock.Stop()
+            if($clock.ElapsedMilliseconds-gt1500-or$deadSupervisor.Error-notmatch'exited during startup'){throw 'Supervisor death was not detected promptly while Flutter reported build progress.'}
+        }finally{Remove-Item -LiteralPath $stateRoot -Recurse -Force -ErrorAction SilentlyContinue}
         Remove-Item -LiteralPath $project -Recurse -Force
     }
     Write-Host 'Windows DevServer Flutter startup ownership and reconciliation: OK'
