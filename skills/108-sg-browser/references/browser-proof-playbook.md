@@ -1,10 +1,10 @@
 ---
 artifact: skill_reference
 metadata_schema_version: "1.0"
-artifact_version: "1.1.0"
+artifact_version: "1.2.0"
 project: ShipGlows
 created: "2026-08-12"
-updated: "2026-08-13"
+updated: "2026-09-05"
 status: active
 source_skill: 108-sg-browser
 scope: browser-proof-playbook
@@ -34,6 +34,27 @@ next_step: none
 7. Decide only the requested objective.
 
 If screenshot and accessibility state disagree, evidence is `partial` or `blocked`. If a diagnostics surface is absent/auth-blocked/unsafe or clipboard extraction fails, name that limit before asking the operator.
+
+## Extension Lifecycle Evidence
+
+For extension errors, separate isolated console/page/worker evidence, the isolated
+`chrome://extensions` Errors journal, and the personal-profile journal. Zero
+`pageerror` events never proves an empty extension journal. Verify journal
+collection is active; unavailable or inactive is `partial`, not clean.
+
+For synchronization teardown, prove background receipt with a response still
+pending before navigation, tab reload/closure, and extension reload with the host
+tab surviving; then prove recovery. Capture isolated-world and worker exceptions
+without filtering to a few known messages. The reusable source tool is
+`tools/extension_lab.mjs`; its `--help` is executable discovery, not evidence that
+the installed CLI exposes `extension-lab` or `extension-inspect`.
+
+An explicitly authorized targeted personal-journal read needs no duplicate
+permission question. Use the exposed browser UI, resolve the extension/profile,
+and read only its errors. Never clear errors, reload/install the personal
+extension, change settings, copy the profile or enable remote debugging under
+read authority. If inaccessible, report `personal journal: not-read` separately;
+an isolated pass cannot close that proof gap.
 
 ## Implementation-Signoff QA
 

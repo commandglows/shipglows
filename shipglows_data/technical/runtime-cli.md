@@ -1,10 +1,10 @@
 ---
 artifact: technical_module_context
 metadata_schema_version: "1.0"
-artifact_version: "1.37.0"
+artifact_version: "1.38.0"
 project: ShipGlows
 created: "2026-05-01"
-updated: "2026-09-04"
+updated: "2026-09-05"
 status: reviewed
 source_skill: sg-start
 scope: runtime-cli
@@ -338,6 +338,13 @@ requires the managed process, its listener, and a fresh valid Manifest V3 under
 or an HTTP response alone cannot mark the extension running. Open launches the
 browser extension manager beside the generated unpacked directory and never
 silently installs into a personal browser profile.
+
+Extension lifecycle diagnostics use the separate source tool
+`tools/extension_lab.mjs` and its [usage and proof contract](extension-lifecycle-lab.md).
+It collects isolated-world/worker exceptions and the active isolated Chromium
+Errors journal while exercising acknowledged pending synchronization. Personal
+Chrome journal reading remains a separately authorized UI observation. This tool
+does not add `extension-lab` or `extension-inspect` to the installed `s` command.
 
 During a full Windows runtime installation, every still-present registered
 project is re-registered through the current detector before its managed
