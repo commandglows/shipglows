@@ -386,3 +386,5 @@ For behavioral changes, prefer a disposable host/container or a narrowly scoped 
 ## Maintenance Rule
 
 Update this doc when install privilege, user targeting, package/tool list, symlink/alias behavior, MCP setup, Codex/Claude config, or `shipglows_data` bootstrap behavior changes.
+
+PowerShell resolves `shipglows.ps1` before `shipglows.cmd`. The focused script now routes runtime update and tool commands through the secure PowerShell bootstrap when called outside the managed host. Bare `shipglows update status` and `shipglows update runtime` therefore do not require a `.cmd` suffix; linked skills keep their separate native route.

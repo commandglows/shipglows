@@ -710,3 +710,5 @@ difference. During `s u`, the active phase and elapsed operation stay visible,
 `[continue] Answer received` marks the restart. Phase duration excludes that wait.
 Current trusted Windows `mise` output starts with its calendar version
 (`2026.8.2 windows-x64 (...)`); warnings on separate lines do not invalidate it.
+
+PowerShell resolves `shipglows.ps1` before `shipglows.cmd`. The focused script now routes runtime update and tool commands through the secure PowerShell bootstrap when called outside the managed host. Bare `shipglows update status` and `shipglows update runtime` therefore do not require a `.cmd` suffix; linked skills keep their separate native route.

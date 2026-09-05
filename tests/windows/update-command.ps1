@@ -38,6 +38,12 @@ $isolatedLauncherRoot = Join-Path ([IO.Path]::GetTempPath()) ("shipglows-update-
 try {
     [void][IO.Directory]::CreateDirectory($isolatedLauncherRoot)
     Copy-Item -LiteralPath $entrypoint -Destination (Join-Path $isolatedLauncherRoot 'shipglows.ps1')
+    Set-Content -LiteralPath (Join-Path $isolatedLauncherRoot 'ShipGlows.PowerShellBootstrap.ps1') -Encoding UTF8 -Value @'
+param([Parameter(ValueFromRemainingArguments=$true)][string[]]$Arguments)
+$env:SG_TEST_BOOTSTRAPPED = 'yes'
+& (Join-Path $PSScriptRoot 'shipglows-devserver.ps1') @Arguments
+exit $LASTEXITCODE
+'@
     Set-Content -LiteralPath (Join-Path $isolatedLauncherRoot 'shipglows-devserver.ps1') -Encoding UTF8 -Value @'
 param(
     [Parameter(Position = 0)]
@@ -46,12 +52,17 @@ param(
     [string[]]$Arguments
 )
 $received = @($Action)
+if ($env:SG_TEST_BOOTSTRAPPED -ne 'yes') { throw 'Unmanaged caller bypassed bootstrap' }
 if ($null -ne $Arguments) { $received += @($Arguments) }
 [Console]::Out.Write(($received -join '|'))
 '@
     $legacyUpdateOutput = & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File (Join-Path $isolatedLauncherRoot 'shipglows.ps1') update runtime
     Assert-Sg ($LASTEXITCODE -eq 0) 'shipglows update runtime must reach the managed updater successfully.'
     Assert-Sg (($legacyUpdateOutput -join "`n") -eq 'update') "shipglows update runtime must normalize the legacy runtime noun to the canonical update action; received '$($legacyUpdateOutput -join "`n")'."
+    foreach ($hostPath in @('powershell.exe', (Get-Process -Id $PID).Path)) {
+        $statusOutput = & $hostPath -NoLogo -NoProfile -File (Join-Path $isolatedLauncherRoot 'shipglows.ps1') update status
+        Assert-Sg ($LASTEXITCODE -eq 0 -and ($statusOutput -join '') -eq 'update|status') 'Both PowerShell hosts must bootstrap and preserve update status arguments.'
+    }
 } finally {
     if (Test-Path -LiteralPath $isolatedLauncherRoot) { Remove-Item -LiteralPath $isolatedLauncherRoot -Recurse -Force }
 }
